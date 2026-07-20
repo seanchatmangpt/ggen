@@ -1,0 +1,23 @@
+# MESSAGE: cross-pack term contamination in the composed sync graph (condition 8, 合成時に意味汚染がない): a subject IRI carries conflicting rdf:type assertions, or two different values for a known single-valued (functional) property, from the project ontology and/or its imported/resolved packs unioned into one graph with zero collision detection (crates/ggen-engine/src/sync.rs's bare graph.insert_turtle per source). Any row below is one such conflict: ?s is the contaminated subject, ?p the property (rdf:type for a type conflict), ?v1/?v2 the two irreconcilable values. Functional properties checked are real, currently-single-valued-per-subject properties already used in this repo's own pack ontologies (ggen-constitution-pack's ccn:principleNumber/ccn:mechanized, ggen-release-pack's grp:artifactPath) -- not hypothetical ones. The rdf:type arm excludes skos:Concept co-typing (`?s a dom:Foo, skos:Concept`): that is a standard SKOS closed-enumeration idiom (a domain individual doubling as a taxonomy member, e.g. this repo's own dogfood-lifecycle-pack/self-monitoring-pack/ma-case-study-pack `dfl:Blocked a dfl:Outcome, skos:Concept`), not a real type conflict -- verified false-positive-free against those three packs' actual ontology.ttl files (single-pack, zero cross-pack composition) before this exclusion was added; without it the arm fired 9 spurious rows against dogfood-lifecycle-pack alone.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?s ?p ?v1 ?v2 WHERE {
+  {
+    ?s rdf:type ?v1 .
+    ?s rdf:type ?v2 .
+    BIND(rdf:type AS ?p)
+    FILTER(?v1 != skos:Concept && ?v2 != skos:Concept)
+  } UNION {
+    VALUES ?p {
+      ccn:principleNumber
+      ccn:mechanized
+      grp:artifactPath
+    }
+    ?s ?p ?v1 .
+    ?s ?p ?v2 .
+  }
+  FILTER(?v1 != ?v2 && STR(?v1) < STR(?v2))
+}
+ORDER BY ?s ?p ?v1 ?v2

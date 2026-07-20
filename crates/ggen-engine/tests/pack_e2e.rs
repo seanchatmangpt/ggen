@@ -556,6 +556,129 @@ fn two_packs_colliding_output_aborts_sync_without_rollback_or_lock() {
     );
 }
 
+/// Path to the real, production `[validation].gates`-wired cross-pack
+/// contamination gate at the repo root (condition 8, 合成時に意味汚染がない) —
+/// `../..` from this crate's manifest dir to the workspace root, the same
+/// traversal already used by `cross_pack_matrix.rs`/`framework_packs_e2e.rs`/
+/// `lint_validate_e2e.rs` in this same tests/ directory.
+fn contamination_gate_source() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.specify/gates/cross-pack-contamination.rq")
+}
+
+/// Write `root/<project_name>/` referencing `pack_a` and `pack_b`, wired
+/// with `[law].gates` pointing at a copy of the real repo-root contamination
+/// gate (copied into the project so the gate's own path resolves relative
+/// to this TempDir project root, exactly as `[law].gates` paths always do).
+fn write_two_pack_project_with_contamination_gate(
+    root: &Path, pack_a: &str, pack_b: &str,
+) -> PathBuf {
+    let project = root.join("contamination-project");
+    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    std::fs::copy(
+        contamination_gate_source(),
+        project.join("contamination-gate.rq"),
+    )
+    .expect("copy real contamination gate into project");
+    std::fs::write(
+        project.join("ggen.toml"),
+        format!(
+            "[project]\nname = \"contamination-project\"\n\n\
+             [ontology]\nsource = \"ontology.ttl\"\n\n\
+             [packs]\npack-a = {{ path = \"../{pack_a}\" }}\npack-b = {{ path = \"../{pack_b}\" }}\n\n\
+             [templates]\ndir = \"templates\"\n\n\
+             [law]\ngates = [\"contamination-gate.rq\"]\n"
+        ),
+    )
+    .expect("write ggen.toml");
+    project
+}
+
+/// Real, Chicago-TDD proof of condition 8's new closure (see
+/// `packs/ggen-release-pack/ontology.ttl`'s condition-8 row): two packs
+/// whose `ontology.ttl` files assert CONFLICTING `rdf:type` facts about the
+/// exact same subject IRI (`dom:Widget`, TypeA vs TypeB) — disjoint output
+/// paths, so the pre-existing output-path-collision gate
+/// (`two_packs_colliding_output_aborts_sync_without_rollback_or_lock` above)
+/// does not fire; only the new cross-pack contamination gate can refuse
+/// this sync. Runs the REAL `sync()` (real filesystem, real graph union,
+/// real SPARQL gate evaluation) against the REAL repo-root gate file — not
+/// a standalone SPARQL string checked in isolation.
+#[test]
+fn cross_pack_conflicting_rdf_type_aborts_sync_citing_contamination_gate() {
+    let dir = TempDir::new().expect("tempdir");
+    write_pack(
+        dir.path(),
+        "pack-a",
+        "Alpha",
+        "src/alpha.rs",
+        "pub const ALPHA: &str = \"a\";",
+    );
+    write_pack(
+        dir.path(),
+        "pack-b",
+        "Beta",
+        "src/beta.rs",
+        "pub const BETA: &str = \"b\";",
+    );
+    // Overwrite both packs' ontology.ttl (written above by write_pack with
+    // disjoint dom:Alpha/dom:Beta subjects) so they instead assert
+    // conflicting rdf:type facts about the SAME subject IRI, `dom:Widget`.
+    std::fs::write(
+        dir.path().join("pack-a/ontology.ttl"),
+        "@prefix dom: <http://example.com/ontology#> .\ndom:Widget a dom:TypeA .\n",
+    )
+    .expect("overwrite pack-a ontology.ttl");
+    std::fs::write(
+        dir.path().join("pack-b/ontology.ttl"),
+        "@prefix dom: <http://example.com/ontology#> .\ndom:Widget a dom:TypeB .\n",
+    )
+    .expect("overwrite pack-b ontology.ttl");
+    let project = write_two_pack_project_with_contamination_gate(dir.path(), "pack-a", "pack-b");
+
+    let err = sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse cross-pack rdf:type contamination");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-LAW-013"), "{msg}");
+    assert!(msg.contains("contamination-gate.rq"), "{msg}");
+    assert!(
+        msg.contains("cross-pack term contamination"),
+        "gate's own # MESSAGE text must surface in the refusal: {msg}"
+    );
+    assert!(
+        msg.contains("http://example.com/ontology#Widget")
+            || msg.contains("dom:Widget")
+            || msg.contains("#Widget"),
+        "refusal must cite the contaminated subject: {msg}"
+    );
+
+    // The gate runs before Extract/Render/Write, so neither pack's output
+    // file lands, and no lock/receipt is written -- same no-partial-state
+    // guarantee as the output-path-collision gate above.
+    assert!(
+        !project.join("src/alpha.rs").exists(),
+        "contamination must refuse before any write"
+    );
+    assert!(
+        !project.join("src/beta.rs").exists(),
+        "contamination must refuse before any write"
+    );
+    assert!(
+        !project.join("ggen.lock").exists(),
+        "ggen.lock must not be written"
+    );
+    assert!(
+        !project.join(RECEIPT_REL_PATH).exists(),
+        "receipt must not be written"
+    );
+}
+
 fn git(args: &[&str], cwd: &Path) {
     let out = std::process::Command::new("git")
         .args(args)
