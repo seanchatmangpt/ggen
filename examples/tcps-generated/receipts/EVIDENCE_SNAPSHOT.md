@@ -5,10 +5,10 @@ Raw admitted `ver:Check` facts as of the last sync (source: this consumer's
 
 | Check | Exit | Recorded | Bound to graph hash |
 |---|---|---|---|
-| build | 0 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
-| byte-identity | 0 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
-| clippy-blanket-warnings | 101 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
-| clippy-reference-gate | 0 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
-| fmt-check | 1 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
-| test-workspace | 0 | 2026-07-20T11:33:29Z | 600780d0c28b5ac67f15346592b6097dbc6d45d2202c0bf2a664c1f67b5d830a |
+| build | 0 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
+| byte-identity | 0 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
+| clippy-blanket-warnings | 101 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
+| clippy-reference-gate | 0 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
+| fmt-check | 1 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
+| test-workspace | 0 | 2026-07-20T12:01:35Z | 6bca73e0a8d90f279198ec47b8032dafc43e006c3cbb067d6cbdbf12830e4ad6 |
 
