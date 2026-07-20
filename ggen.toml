@@ -216,6 +216,19 @@ output_file = "docs/PUBLICATION_JUDGMENT.md"
 skip_empty  = false
 mode        = "Overwrite"
 
+[validation]
+# Condition 8 (合成時に意味汚染がない / no semantic contamination at composition
+# time): the union graph built from [ontology].imports (including the two
+# pack ontologies listed there) plus any resolved [[packs]] gets zero
+# collision detection by default (crates/ggen-engine/src/sync.rs's bare
+# graph.insert_turtle per source). This gate runs a SPARQL SELECT that
+# refuses the sync if any subject IRI carries conflicting rdf:type
+# assertions or conflicting values for a known functional property from
+# more than one composed source. See crates/ggen-engine/tests/pack_e2e.rs's
+# cross_pack_conflicting_rdf_type_aborts_sync_citing_contamination_gate for
+# a real two-pack proof this fires.
+gates = [".specify/gates/cross-pack-contamination.rq"]
+
 [sync]
 enabled = true
 on_change = "manual"
