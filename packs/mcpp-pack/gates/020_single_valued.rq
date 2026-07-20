@@ -1,0 +1,11 @@
+# MESSAGE: every mcpp Command's cnv:noun / cnv:verb / cnv:args / mcp:errorCase is single-valued (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p; scoped to subjects in the mcpp# namespace, same rationale as 010_required.rq)
+PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+PREFIX mcp: <http://seanchatmangpt.github.io/packs/mcpp#>
+SELECT ?s ?p WHERE {
+  ?s a cnv:Command .
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/mcpp#"))
+  VALUES ?p { cnv:noun cnv:verb cnv:args mcp:errorCase }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

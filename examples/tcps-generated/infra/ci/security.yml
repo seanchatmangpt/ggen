@@ -1,0 +1,37 @@
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "43 3 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  supply-chain-policy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Install quality tools
+        run: ./scripts/ci/install-quality-tools.sh
+      - name: Audit
+        run: cargo audit
+      - name: Dependency and license policy
+        run: cargo deny check
+      - name: Coverage
+        run: cargo llvm-cov --workspace --all-targets --lcov --output-path dist/lcov.info
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-evidence
+          path: |
+            dist/lcov.info
+            receipts/
+

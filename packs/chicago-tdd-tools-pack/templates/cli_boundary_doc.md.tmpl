@@ -3,14 +3,21 @@ to: docs/chicago_tdd_tools_boundary.md
 sparql:
   tests: |
     PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+    PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
     SELECT ?test_name ?binary ?args ?exit_code ?axiom
     WHERE {
       ?t a ctt:CliBoundaryTest ;
          ctt:testName ?test_name ;
          ctt:binary ?binary ;
-         ctt:args ?args ;
          ctt:expectExitCode ?exit_code ;
          ctt:coversAxiom ?axiom .
+      {
+        ?t ctt:args ?args .
+      } UNION {
+        ?t ctt:composesCommand ?cmd .
+        ?cmd cnv:noun ?noun ; cnv:verb ?verb .
+        BIND(CONCAT(?noun, " ", ?verb) AS ?args)
+      }
     }
     ORDER BY ?test_name
 ---

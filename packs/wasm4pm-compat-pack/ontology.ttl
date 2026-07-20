@@ -1,5 +1,6 @@
 @prefix w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # Emission-surface ontology for the wasm4pm-compat integration.
 # ggen EMITS OCEL events; wasm4pm-compat owns all analysis (discovery,
@@ -11,6 +12,9 @@ w4pm:EventType a rdfs:Class ;
 w4pm:ObjectType a rdfs:Class ;
     rdfs:label "OCEL object type an event binds to" .
 
+w4pm:Attribute a rdfs:Class ;
+    rdfs:label "a typed OCEL event attribute declared for one EventType" .
+
 w4pm:OntologyGraph a w4pm:ObjectType ;
     rdfs:label "the union RDF graph a sync runs over" .
 
@@ -20,17 +24,70 @@ w4pm:Pack a w4pm:ObjectType ;
 w4pm:SyncReceipt a w4pm:ObjectType ;
     rdfs:label "the chained BLAKE3 sync receipt" .
 
+# --- EventType individuals -------------------------------------------------
+# `w4pm:hasObjectType` is a real IRI reference (not a bare string) to one of
+# the w4pm:ObjectType individuals above -- templates recover the local name
+# via Tera's `split(pat="#") | last` instead of the ontology hardcoding a
+# duplicate string literal that could drift from the IRI it names.
+#
+# `w4pm:precedes` states the OCEL lifecycle ORDER a real sync emits these
+# events in (graph hashed -> each pack's lock verified -> receipt chained).
+# This is a behavioral/sequencing fact the ontology now states explicitly,
+# rather than only being implicit in prose comments or template code --
+# closing part of the "ontology expressiveness" gap (structure + ordering,
+# not just facts).
+#
+# Each EventType also declares its own attribute schema via
+# `w4pm:hasAttribute`, so the generated `emit_*` functions carry real,
+# ontology-declared typed fields instead of an always-empty
+# `attributes: Vec::new()`.
+#
+# `w4pm:requiresNonEmptyId` is a real behavioral precondition (not just a
+# label): every OCEL 2.0 event id must be a non-empty string for the event
+# to be admissible into a log. The generated `emit_*` fn enforces this fact
+# with a real `debug_assert!` rather than merely documenting it -- closing
+# part of the "ontology expressiveness" gap (behavior contracts, not only
+# structure) named in the maturity audit for this pack. Each Attribute
+# blank node likewise carries `w4pm:requiresNonEmpty` as its own
+# precondition, enforced the same way per declared attribute value.
+
 w4pm:GraphUnionHashed a w4pm:EventType ;
     w4pm:eventName "graph_union_hashed" ;
-    w4pm:objectType "OntologyGraph" ;
+    w4pm:hasObjectType w4pm:OntologyGraph ;
+    w4pm:precedes w4pm:PackLockVerified ;
+    w4pm:requiresNonEmptyId true ;
+    w4pm:hasAttribute [
+        a w4pm:Attribute ;
+        w4pm:attrName "graph_hash" ;
+        w4pm:attrType xsd:string ;
+        w4pm:requiresNonEmpty true ;
+        rdfs:label "content hash of the unioned project+pack graph"
+    ] ;
     rdfs:label "emitted after the project + pack graphs are unioned and state-hashed" .
 
 w4pm:PackLockVerified a w4pm:EventType ;
     w4pm:eventName "pack_lock_verified" ;
-    w4pm:objectType "Pack" ;
+    w4pm:hasObjectType w4pm:Pack ;
+    w4pm:precedes w4pm:ReceiptChained ;
+    w4pm:requiresNonEmptyId true ;
+    w4pm:hasAttribute [
+        a w4pm:Attribute ;
+        w4pm:attrName "pack_hash" ;
+        w4pm:attrType xsd:string ;
+        w4pm:requiresNonEmpty true ;
+        rdfs:label "content hash of the pack verified against ggen.lock"
+    ] ;
     rdfs:label "emitted after a pack's content hash matches ggen.lock" .
 
 w4pm:ReceiptChained a w4pm:EventType ;
     w4pm:eventName "receipt_chained" ;
-    w4pm:objectType "SyncReceipt" ;
+    w4pm:hasObjectType w4pm:SyncReceipt ;
+    w4pm:requiresNonEmptyId true ;
+    w4pm:hasAttribute [
+        a w4pm:Attribute ;
+        w4pm:attrName "chain_hash" ;
+        w4pm:attrType xsd:string ;
+        w4pm:requiresNonEmpty true ;
+        rdfs:label "BLAKE3 chain hash linking onto the previous receipt"
+    ] ;
     rdfs:label "emitted after a new receipt links onto the previous chain hash" .

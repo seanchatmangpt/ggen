@@ -125,6 +125,10 @@ pub struct CognitionBreedInfo {
     pub id: CognitionBreedId,
     pub label: &'static str,
     pub citation: &'static str,
+    /// `compat:breedFamily` from the ontology -- the section grouping
+    /// (planning/reasoning/uncertainty/...) as a queryable fact rather than
+    /// a comment-only convention.
+    pub family: &'static str,
 }
 
 /// Every catalogued cognition breed, in stable (id-sorted) order.
@@ -133,278 +137,345 @@ pub const BREED_CATALOG: &[CognitionBreedInfo] = &[
         id: CognitionBreedId::AbductiveIbe,
         label: "AbductiveIbe",
         citation: "Harman, G. H. (1965). The Inference to the Best Explanation. The Philosophical Review, 74(1), 88–95. Thagard, P. R. (1978). The Best Explanation: Criteria for Theory Choice. The Journal of Philosophy, 75(2), 76–92.",
+        family: "abduction",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AbductiveLp,
         label: "AbductiveLp",
         citation: "Kakas, A. C., Kowalski, R. A., & Toni, F. (1992). Abductive Logic Programming. Journal of Logic and Computation, 2(6), 719–770.",
+        family: "abduction",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::ActR,
         label: "ActR",
         citation: "Anderson, J. R., & Lebiere, C. (1998). Lawrence Erlbaum Associates. Chapter 3 (the activation equation A_i = B_i + Σ_j W_j·S_ji) and Chapter 9 (cognitive arithmetic: retrieval of addition facts).",
+        family: "classic_systems",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AllenTemporal,
         label: "AllenTemporal",
         citation: "Allen, J. F. (1983). Maintaining Knowledge about Temporal Intervals. Communications of the ACM, 26(11), 832-843.",
+        family: "temporal_spatial",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AnalogySme,
         label: "AnalogySme",
         citation: "Falkenhainer, B., Forbus, K. D., & Gentner, D. (1989). Artificial Intelligence, 41(1), 1-63.",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Asp,
         label: "Asp",
         citation: "Gelfond, M., & Lifschitz, V. (1988). The Stable Model Semantics for Logic Programming. In: Proceedings of the Fifth International Conference and Symposium on Logic Programming (ICLP/SLP 1988), MIT Press, pp. 1070–1080.",
+        family: "constraint_sat",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AutoinstinctLearning,
         label: "AutoinstinctLearning",
         citation: "Sussman, Gerald Jay. \"A Computational Model of Skill Acquisition.\" MIT Artificial Intelligence Laboratory Technical Report AI TR-297, August 1973. Thesis Supervisor: Seymour A. Papert.",
+        family: "autoinstinct",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AutoinstinctNeurosis,
         label: "AutoinstinctNeurosis",
         citation: "Boden, M. A. (1977). Artificial Intelligence and Natural Man. New York: Basic Books. Chapter 6: \"Programs That Model the Mind.\" [Conflict detection framework: neurosis as simultaneous maintenance of mutually incompatible beliefs, pp. 198–212.]",
+        family: "autoinstinct",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AutoinstinctSemantics,
         label: "AutoinstinctSemantics",
         citation: "Schank, R. C. (1972). Conceptual dependency: A theory of natural language understanding. Cognitive Psychology, 3(4), 552–631. https://doi.org/10.1016/0010-0285(72)90022-9",
+        family: "autoinstinct",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::AutoinstinctVision,
         label: "AutoinstinctVision",
         citation: "Marr, D., & Poggio, T. (1976). Cooperative computation of stereo disparity. Science, 194(4262), 283–287. https://doi.org/10.1126/science.968816",
+        family: "autoinstinct",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::BayesianNetwork,
         label: "BayesianNetwork",
         citation: "Pearl, J. (1988). Probabilistic Reasoning in Intelligent Systems: Networks of Plausible Inference. Morgan Kaufmann.",
+        family: "uncertainty",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::BeliefMerging,
         label: "BeliefMerging",
         citation: "Konieczny, S., & Pino Pérez, R. (2002). Merging Information Under Constraints: A Logical Framework. Journal of Logic and Computation, 12(5), 773–808.",
+        family: "belief_uncertainty_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Cbr,
         label: "Cbr",
         citation: "A. Aamodt, E. Plaza (1994). Case-Based Reasoning: Foundational Issues, Methodological Variations, and System Approaches. AI Communications, IOS Press, Vol. 7, No. 1, pp. 39–59.",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Circumscription,
         label: "Circumscription",
         citation: "McCarthy, J. (1980). Artificial Intelligence, 13(1-2), 27-39.",
+        family: "reasoning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Clp,
         label: "Clp",
         citation: "Jaffar, J., & Lassez, J.-L. (1987). Constraint Logic Programming. In: Proceedings of the 14th ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages (POPL 1987), pp. 111–119.",
+        family: "constraint_sat",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::ConstructionGrammar,
         label: "ConstructionGrammar",
         citation: "Adele E. Goldberg (1995). Constructions: A Construction Grammar Approach to Argument Structure. University of Chicago Press.",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::ContingentPlan,
         label: "ContingentPlan",
         citation: "Stuart Russell and Peter Norvig (2010). Artificial Intelligence: A Modern Approach (3rd ed.). Pearson.",
+        family: "planning_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::CspAc3,
         label: "CspAc3",
         citation: "Mackworth, A. K. (1977). Consistency in Networks of Relations. Artificial Intelligence, 8(1), 99-118.",
+        family: "constraint_sat",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::CtlCheck,
         label: "CtlCheck",
         citation: "Clarke, E. M., Emerson, E. A., & Sistla, A. P. (1986). ACM Transactions on Programming Languages and Systems, 8(2), 244-263.",
+        family: "temporal_spatial",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::DefaultLogic,
         label: "DefaultLogic",
         citation: "Reiter, R. (1980). A Logic for Default Reasoning. Artificial Intelligence, 13(1-2), 81-132.",
+        family: "reasoning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::DempsterShafer,
         label: "DempsterShafer",
         citation: "Shafer, G. (1976). A Mathematical Theory of Evidence. Princeton University Press.",
+        family: "uncertainty",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Dendral,
         label: "Dendral",
         citation: "Feigenbaum, E. A., Buchanan, B. G., & Lederberg, J. (1971). On generality and problem solving: A case study using the DENDRAL program. Stanford Artificial Intelligence Project Memo AIM-131, Computer Science Department Report CS176. Stanford University.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::DescriptionLogic,
         label: "DescriptionLogic",
         citation: "Baader, F., Brandt, S., & Lutz, C. (2005). Pushing the EL Envelope. In: Proceedings of the 19th International Joint Conference on Artificial Intelligence (IJCAI 2005), pp. 364–369.",
+        family: "reasoning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Ebl,
         label: "Ebl",
         citation: "Mitchell, T. M., Keller, R. M., & Kedar-Cabelli, S. T. (1986). Explanation-Based Generalization: A Unifying View. Machine Learning, 1(1), 47-80.",
+        family: "learning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Eliza,
         label: "Eliza",
         citation: "Weizenbaum, J. (1966). ELIZA—A computer program for the study of natural language communication between man and machine. Communications of the ACM, 9(1), 36–45. https://doi.org/10.1145/365153.365168",
+        family: "classic_systems",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::EpisodicMemory,
         label: "EpisodicMemory",
         citation: "Tulving, E. (1983). Oxford University Press (Ch. 7: encoding specificity and temporal organisation). Nuxoll, A. M., & Laird, J. E. (2007). Proceedings of AAAI 2007, 1560-1565 (cue-based retrieval of the best partially-matching episode).",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::EventCalculus,
         label: "EventCalculus",
         citation: "Kowalski, R., & Sergot, M. (1986). A Logic-based Calculus of Events. New Generation Computing, 4(1), 67–95.",
+        family: "temporal_spatial",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::FramesInheritance,
         label: "FramesInheritance",
         citation: "Minsky, M. (1974). A Framework for Representing Knowledge. MIT AI Laboratory Memo 306. Reprinted in Winston (Ed.), The Psychology of Computer Vision, 1975.",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::FuzzyLogic,
         label: "FuzzyLogic",
         citation: "Mamdani, E. H., & Assilian, S. (1975). An Experiment in Linguistic Synthesis with a Fuzzy Logic Controller. International Journal of Man-Machine Studies, 7(1), 1-13.",
+        family: "uncertainty",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Gps,
         label: "Gps",
         citation: "A. Newell and H. A. Simon, \"GPS, A Program That Simulates Human Thought,\" RAND Corporation, P-2257, March 30, 1961 (Revised April 10, 1961). Presented at the Conference on Learning Automata, Karlsruhe, Germany, April 11–14, 1961.",
+        family: "planning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Hearsay,
         label: "Hearsay",
         citation: "Erman, L. D., Hayes-Roth, F., Lesser, V. R., and Reddy, D. R. (1980). The Hearsay-II speech-understanding system: Integrating knowledge to resolve uncertainty. ACM Computing Surveys, 12(2), 213–253.",
+        family: "classic_systems",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::HtnPlanning,
         label: "HtnPlanning",
         citation: "Nau, D., Au, T.-C., Ilghami, O., Kuter, U., Murdock, J. W., Wu, D., & Yaman, F. (2003). SHOP2: An HTN Planning System. Journal of Artificial Intelligence Research, 20, 379-404.",
+        family: "planning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Ilp,
         label: "Ilp",
         citation: "Quinlan, J. R. (1990). Machine Learning, 5(3), 239-266.",
+        family: "learning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::LtlMonitor,
         label: "LtlMonitor",
         citation: "Havelund, K., & Rosu, G. (2001). Monitoring Programs Using Rewriting. Proceedings of ASE 2001 (16th IEEE International Conference on Automated Software Engineering), 135-143.",
+        family: "temporal_spatial",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::MarkovLogic,
         label: "MarkovLogic",
         citation: "Matthew Richardson and Pedro Domingos (2006). Markov logic networks. Machine Learning 62(1-2):107-136.",
+        family: "belief_uncertainty_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Mdp,
         label: "Mdp",
         citation: "Bellman, R. (1957). Dynamic Programming. Princeton University Press. (Functional equation / principle of optimality, Chapter III; successive-approximation solution, Chapter IV.)",
+        family: "planning_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::MetaReasoning,
         label: "MetaReasoning",
         citation: "Michael T. Cox and Anita Raja (eds.) (2011). Metareasoning: Thinking about Thinking. MIT Press.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Morphological,
         label: "Morphological",
         citation: "Zwicky, F. (1969). Discovery, Invention, Research Through the Morphological Approach. Macmillan.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Mycin,
         label: "Mycin",
         citation: "Shortliffe, E. H., & Buchanan, B. G. (1975). A model of inexact reasoning in medicine. Mathematical Biosciences, 23(3–4), 351–379. Reprinted as Chapter 11 in: Buchanan, B. G., & Shortliffe, E. H. (Eds.), Rule-Based Expert Systems. Addison-Wesley, 1984.",
+        family: "classic_systems",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::NaivePhysics,
         label: "NaivePhysics",
         citation: "Hayes, P. J. (1979). In D. Michie (Ed.), Expert Systems in the Micro-Electronic Age. Edinburgh University Press. Hayes, P. J. (1985). In J. R. Hobbs & R. C. Moore (Eds.), Formal Theories of the Commonsense World (pp. 71-107). Ablex.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::OcpmRouteDiscoverer,
         label: "OcpmRouteDiscoverer",
         citation: "van der Aalst, W.M.P. (2019). Object-Centric Process Mining: Dealing with Divergence and Convergence.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::PartialOrderPlan,
         label: "PartialOrderPlan",
         citation: "McAllester, D., & Rosenblitt, D. (1991). Systematic Nonlinear Planning. In: Proceedings of the Ninth National Conference on Artificial Intelligence (AAAI-91), pp. 634–639.",
+        family: "planning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Pomdp,
         label: "Pomdp",
         citation: "Leslie Pack Kaelbling, Michael L. Littman and Anthony R. Cassandra (1998). Planning and acting in partially observable stochastic domains. Artificial Intelligence 101(1-2):99-134.",
+        family: "planning_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Problog,
         label: "Problog",
         citation: "De Raedt, L., Kimmig, A., & Toivonen, H. (2007). Proceedings of IJCAI 2007, 2468-2473.",
+        family: "belief_uncertainty_ext",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Prolog,
         label: "Prolog",
         citation: "Kowalski, R. A. (1974). Predicate logic as programming language. IFIP Congress 74, Stockholm, pp. 569–574.",
+        family: "reasoning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::QualitativeReason,
         label: "QualitativeReason",
         citation: "de Kleer, J., & Brown, J. S. (1984). A Qualitative Physics Based on Confluences. Artificial Intelligence, 24(1–3), 7–83.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::RlSymbolic,
         label: "RlSymbolic",
         citation: "Watkins, C. J. C. H., & Dayan, P. (1992). Machine Learning, 8(3-4), 279-292.",
+        family: "learning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::SatCdcl,
         label: "SatCdcl",
         citation: "Marques-Silva, J. P., & Sakallah, K. A. (1999). IEEE Transactions on Computers, 48(5), 506-521.",
+        family: "constraint_sat",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::ScriptSam,
         label: "ScriptSam",
         citation: "Schank, R. C., & Abelson, R. P. (1977). Scripts, Plans, Goals and Understanding: An Inquiry into Human Knowledge Structures. Lawrence Erlbaum Associates.",
+        family: "analogy_memory",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::SituationCalculus,
         label: "SituationCalculus",
         citation: "Reiter, R. (1991). In V. Lifschitz (Ed.), Artificial Intelligence and Mathematical Theory of Computation: Papers in Honor of John McCarthy (pp. 359-380). Academic Press.",
+        family: "temporal_spatial",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Soar,
         label: "Soar",
         citation: "Laird, J. E., Newell, A., & Rosenbloom, P. S. (1987). Soar: An architecture for general intelligence. Artificial Intelligence, 33(1), 1–64. https://doi.org/10.1016/0004-3702(87)90050-6",
+        family: "classic_systems",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Strips,
         label: "Strips",
         citation: "Fikes, R. E., & Nilsson, N. J. (1971). STRIPS: A new approach to the application of theorem proving to problem solving. Artificial Intelligence, 2(3–4), 189–208.",
+        family: "planning",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Tableaux,
         label: "Tableaux",
         citation: "Raymond M. Smullyan (1968). First-Order Logic. Springer-Verlag, Ergebnisse der Mathematik und ihrer Grenzgebiete 43.",
+        family: "constraint_sat",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::Triz,
         label: "Triz",
         citation: "Altshuller, G. (1984). Creativity as an Exact Science. Gordon and Breach Science Publishers.",
+        family: "classic_systems_ext_meta",
     },
     CognitionBreedInfo {
         id: CognitionBreedId::VersionSpace,
         label: "VersionSpace",
         citation: "Mitchell, T. M. (1982). Generalization as Search. Artificial Intelligence, 18(2), 203–226.",
+        family: "learning",
     },
 ];
+
+/// All distinct `compat:breedFamily` values present in the catalog, in
+/// first-occurrence (id-sorted) order.
+pub fn breed_families() -> Vec<&'static str> {
+    let mut seen = Vec::new();
+    for entry in BREED_CATALOG {
+        if !seen.contains(&entry.family) {
+            seen.push(entry.family);
+        }
+    }
+    seen
+}
 
 impl CognitionBreedId {
     /// The wire-level breed id string passed to `cognition_run`.

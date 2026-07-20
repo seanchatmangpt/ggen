@@ -114,36 +114,77 @@ fn engines_agree_when_no_law_configured() {
     assert_eq!(hash_law, hash_oxi, "graph hash must be engine-independent");
 }
 
-/// A SHACL shapes file whose constraint the ontology violates is a typed
-/// FM-LAW refusal naming the focus node; nothing is written.
+/// A `[law].gates` SPARQL gate whose SELECT returns a row against the
+/// ontology is a typed FM-LAW-013 refusal naming the offending node (the
+/// first row's bindings are embedded in the error); nothing is written.
 #[test]
-fn shacl_violation_refuses_sync_naming_focus_node() {
+fn law_gate_violation_refuses_sync_naming_offending_node() {
+    const TOML_GATES: &str = "\n[project]\nname = \"lawdemo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[law]\ngates = [\"gates/dog.rq\"]\n";
+    const GATE: &str = "# MESSAGE: every Dog must carry an ex:license\n\
+                        PREFIX ex: <http://example.org/>\n\
+                        SELECT ?dog WHERE {\n\
+                        \x20 ?dog a ex:Dog .\n\
+                        \x20 FILTER NOT EXISTS { ?dog ex:license ?lic }\n\
+                        }\n\
+                        ORDER BY ?dog\n";
+    const PLAIN_TEMPLATE: &str = "---\nto: out/names.txt\n---\nstatic\n";
+
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), TOML_GATES, PLAIN_TEMPLATE);
+    std::fs::create_dir_all(dir.path().join("gates")).expect("mkdir gates");
+    std::fs::write(dir.path().join("gates/dog.rq"), GATE).expect("write gate");
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("unlicensed dog must refuse the SPARQL gate");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-LAW-013"), "{msg}");
+    assert!(
+        msg.contains("rex"),
+        "refusal must name the offending node (first-row bindings): {msg}"
+    );
+    assert!(
+        msg.contains("every Dog must carry an ex:license"),
+        "refusal must carry the gate's MESSAGE text: {msg}"
+    );
+    assert!(
+        !dir.path().join("out/names.txt").exists(),
+        "gate must precede writes"
+    );
+
+    // The identical gate fixture refuses under the Oxigraph engine too —
+    // gates are plain SPARQL, engine-independent by construction.
+    let err_oxi = sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            engine: EngineKind::Oxigraph,
+        },
+    )
+    .expect_err("gate must refuse under oxigraph too");
+    assert!(err_oxi.to_string().contains("FM-LAW-013"), "{err_oxi}");
+}
+
+/// A legacy non-empty `[law].shapes` is a loud, typed FM-LAW-012 migration
+/// refusal — never silently ignored — and nothing is written.
+#[test]
+fn legacy_law_shapes_is_refused_loudly() {
     const TOML_SHAPES: &str = "\n[project]\nname = \"lawdemo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[law]\nshapes = [\"shapes/dog.ttl\"]\n";
-    const SHAPES: &str = r#"
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ex: <http://example.org/> .
-ex:DogShape a sh:NodeShape ;
-    sh:targetClass ex:Dog ;
-    sh:property [ sh:path ex:license ; sh:minCount 1 ] .
-"#;
     const PLAIN_TEMPLATE: &str = "---\nto: out/names.txt\n---\nstatic\n";
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), TOML_SHAPES, PLAIN_TEMPLATE);
     std::fs::create_dir_all(dir.path().join("shapes")).expect("mkdir shapes");
-    std::fs::write(dir.path().join("shapes/dog.ttl"), SHAPES).expect("write shapes");
+    std::fs::write(dir.path().join("shapes/dog.ttl"), "# legacy\n").expect("write shapes");
 
     let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("unlicensed dog must refuse the SHACL gate");
+        .expect_err("a non-empty [law].shapes must refuse loudly");
     let msg = err.to_string();
-    assert!(msg.contains("FM-LAW-013"), "{msg}");
-    assert!(
-        msg.contains("rex"),
-        "refusal must name the focus node: {msg}"
-    );
+    assert!(msg.contains("FM-LAW-012"), "{msg}");
+    assert!(msg.contains("no longer supported"), "{msg}");
+    assert!(msg.contains("[law].gates"), "{msg}");
     assert!(
         !dir.path().join("out/names.txt").exists(),
-        "gate must precede writes"
+        "refused run must write nothing"
     );
 }
 

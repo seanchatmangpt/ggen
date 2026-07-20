@@ -39,23 +39,92 @@ stp:doc
     rdfs:label   "doc" ;
     rdfs:range   xsd:string .
 
+# ── Expressiveness properties (L5-push: these were template-hardcoded
+# decisions; they are now ontology facts the templates merely project) ────
+
+stp:closedWorld
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigSection ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "closedWorld" ;
+    rdfs:comment "When true, the generated struct carries #[serde(deny_unknown_fields)] -- an unknown key in this table is a hard parse error, not a template author's silent assumption." .
+
+stp:required
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "required" ;
+    rdfs:comment "When false, the generated field is wrapped Option<rustType> with #[serde(default)] instead of a bare required field." .
+
+stp:loaderFn
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigSection ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "loaderFn" ;
+    rdfs:comment "Fully-qualified free function this pack's generated StarTomlConfig::load delegates to. Naming the loader here (rather than hardcoding `star_toml::load_file` in the Tera template) makes the admission engine choice an ontology fact, not a template author's assumption -- verified against the real function at /Users/sac/star-toml/src/loader.rs:389 (`pub fn load_file<T: DeserializeOwned>(path: impl AsRef<Path>) -> Result<T>`), star-toml crate v26.7.3." .
+
+stp:cargoDependency
+    a            rdf:Property ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "cargoDependency"  ;
+    rdfs:comment "A `name = \"version\"` (or richer) Cargo.toml [dependencies] line the generated module requires. Emitted verbatim into docs/star_toml/CARGO_DEPENDENCIES.md so the exact snippet a consumer must add is ontology-derived, not re-discovered by reading generated source." .
+
+# ── Behavior-contract properties (L5-push round 3): these express a
+# pre-condition on an admitted VALUE, not merely its shape/type. serde's
+# `Deserialize` (the only enforcement round 2 generated) checks that
+# `sample_rate` parses as `f64`; it does not and cannot check that the
+# parsed number is a valid fraction. Without stp:minValue/stp:maxValue this
+# was a template author's tribal knowledge ("sample rates are 0..1") never
+# written down anywhere machine-checkable. Projected into a real generated
+# `validate()` method below -- see star_toml_config.rs.tmpl.
+
+stp:minValue
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   xsd:double ;
+    rdfs:label   "minValue" ;
+    rdfs:comment "Inclusive lower bound this field's admitted value must satisfy. Enforced by the generated {{ Section }}Config::validate() method, not by serde -- deserialization succeeds even for an out-of-range value; validate() is the ontology-specified pre-condition check." .
+
+stp:maxValue
+    a            rdf:Property ;
+    rdfs:domain  stp:ConfigField ;
+    rdfs:range   xsd:double ;
+    rdfs:label   "maxValue" ;
+    rdfs:comment "Inclusive upper bound this field's admitted value must satisfy. See stp:minValue." .
+
+stp:StarTomlModule
+    a          rdfs:Class ;
+    rdfs:label "StarTomlModule" ;
+    rdfs:comment "The generated config-admission module as a whole; carries module-level facts (Cargo dependencies) not scoped to one section/field." .
+
+stp:TheModule
+    a                  stp:StarTomlModule ;
+    stp:cargoDependency "serde = { version = \"1.0\", features = [\"derive\"] }" ,
+                        "star-toml = \"26.7\"" ,
+                        "tempfile = \"3\"  # dev-dependency, proof test only" .
+
 # ── Individuals ─────────────────────────────────────────────────────────
 
 stp:AdmissionSection
-    a          stp:ConfigSection ;
-    rdfs:label "admission" ;
-    stp:doc    "Config-admission gate: witness storage and standing policy." .
+    a               stp:ConfigSection ;
+    rdfs:label      "admission" ;
+    stp:doc         "Config-admission gate: witness storage and standing policy." ;
+    stp:closedWorld true ;
+    stp:loaderFn    "star_toml::load_file" .
 
 stp:TelemetrySection
-    a          stp:ConfigSection ;
-    rdfs:label "telemetry" ;
-    stp:doc    "OCEL/OTel export settings for the admission pipeline." .
+    a               stp:ConfigSection ;
+    rdfs:label      "telemetry" ;
+    stp:doc         "OCEL/OTel export settings for the admission pipeline." ;
+    stp:closedWorld true ;
+    stp:loaderFn    "star_toml::load_file" .
 
 stp:WitnessDirField
     a             stp:ConfigField ;
     stp:inSection stp:AdmissionSection ;
     stp:fieldName "witness_dir" ;
     stp:rustType  "std::path::PathBuf" ;
+    stp:required  true ;
     stp:doc       "Directory where BLAKE3 ConfigWitness envelopes are persisted." .
 
 stp:FailClosedField
@@ -63,6 +132,7 @@ stp:FailClosedField
     stp:inSection stp:AdmissionSection ;
     stp:fieldName "fail_closed" ;
     stp:rustType  "bool" ;
+    stp:required  true ;
     stp:doc       "Refuse standing (q_config = 0) when any validator is unreachable." .
 
 stp:ExporterEndpointField
@@ -70,6 +140,7 @@ stp:ExporterEndpointField
     stp:inSection stp:TelemetrySection ;
     stp:fieldName "exporter_endpoint" ;
     stp:rustType  "String" ;
+    stp:required  true ;
     stp:doc       "OCEL export endpoint recording the admission process history." .
 
 stp:SampleRateField
@@ -77,4 +148,15 @@ stp:SampleRateField
     stp:inSection stp:TelemetrySection ;
     stp:fieldName "sample_rate" ;
     stp:rustType  "f64" ;
-    stp:doc       "Fraction of admission decisions exported as OCEL events." .
+    stp:required  true ;
+    stp:minValue  0.0 ;
+    stp:maxValue  1.0 ;
+    stp:doc       "Fraction of admission decisions exported as OCEL events. Must be a valid fraction (stp:minValue/stp:maxValue = 0.0/1.0), checked by the generated validate() method." .
+
+stp:RetryCountField
+    a             stp:ConfigField ;
+    stp:inSection stp:TelemetrySection ;
+    stp:fieldName "retry_count" ;
+    stp:rustType  "u32" ;
+    stp:required  false ;
+    stp:doc       "Optional export-retry attempts; omitted keys deserialize as None, not a hardcoded default -- proves stp:required=false actually changes the generated field shape (Option<u32> + #[serde(default)]), not just documents it." .

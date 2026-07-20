@@ -1,0 +1,43 @@
+---
+to: crates/tcps-ffi/include/tcps.h
+force: true
+---
+#ifndef TCPS_V26_7_19_H
+#define TCPS_V26_7_19_H
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct tcps_request_v1 {
+    uint64_t authority_mask;
+    uint64_t ready_mask;
+    uint32_t maximum_time;
+    uint8_t deterministic_required;
+    uint8_t receipt_required;
+    uint8_t reserved[2];
+    uint64_t timestamp;
+} tcps_request_v1;
+
+typedef struct tcps_outcome_v1 {
+    uint16_t kind;
+    uint16_t reason;
+    uint16_t tool;
+    uint16_t route;
+    uint16_t mass;
+    uint16_t reserved;
+    uint64_t eligible_mask;
+    uint64_t ready_mask;
+    uint32_t policy_id;
+} tcps_outcome_v1;
+
+uint32_t tcps_version_v1(void);
+tcps_outcome_v1 tcps_select_v1(tcps_request_v1 request);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

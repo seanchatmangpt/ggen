@@ -1,0 +1,8 @@
+# MESSAGE: tcps_ffi:LibModule / tcps_ffi:HeaderFile / tcps_ffi:CargoManifest must have a non-empty tcps_ffi:sourceText (verbatim source, not a placeholder) — this file checks non-emptiness of a present value (translated from shapes.ttl sh:minLength 1; any row = an empty sourceText literal)
+PREFIX tcps_ffi: <http://seanchatmangpt.github.io/packs/tcps-ffi#>
+SELECT ?s ?class WHERE {
+  ?s a ?class ; tcps_ffi:sourceText ?v .
+  VALUES ?class { tcps_ffi:LibModule tcps_ffi:HeaderFile tcps_ffi:CargoManifest }
+  FILTER(STRLEN(STR(?v)) < 1)
+}
+ORDER BY ?s ?class

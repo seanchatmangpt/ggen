@@ -1,0 +1,8 @@
+# MESSAGE: every ctt:CliBoundaryTest must carry testName/binary/expectExitCode/coversAxiom (translated from shapes.ttl sh:minCount 1; any row = a test individual missing the bound ?missing property)
+PREFIX ctt: <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#>
+SELECT ?s ?missing WHERE {
+  ?s a ctt:CliBoundaryTest .
+  VALUES ?missing { ctt:testName ctt:binary ctt:expectExitCode ctt:coversAxiom }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

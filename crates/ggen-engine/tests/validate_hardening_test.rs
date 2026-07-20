@@ -97,7 +97,10 @@ fn shacl_property_chain(n: usize) -> String {
     );
     for i in 0..n {
         if i + 1 < n {
-            doc.push_str(&format!("ex:ps{i} sh:path ex:p ; sh:property ex:ps{} .\n", i + 1));
+            doc.push_str(&format!(
+                "ex:ps{i} sh:path ex:p ; sh:property ex:ps{} .\n",
+                i + 1
+            ));
         } else {
             doc.push_str(&format!("ex:ps{i} sh:path ex:p .\n"));
         }
@@ -121,8 +124,11 @@ fn validate_reaches_validator() {
 
     // A real parse error must surface, naming the file.
     let bad_path = dir.path().join("broken.ttl");
-    std::fs::write(&bad_path, "@prefix ex: <http://example.org/>\nex:a ex:p ex:b")
-        .expect("write broken.ttl");
+    std::fs::write(
+        &bad_path,
+        "@prefix ex: <http://example.org/>\nex:a ex:p ex:b",
+    )
+    .expect("write broken.ttl");
     let err = handle_graph_validate(vec![utf8(bad_path)], vec![])
         .expect_err("syntactically invalid turtle must fail closed");
     let msg = err.to_string();
@@ -145,7 +151,11 @@ fn validate_reaches_validator() {
         .expect("well-formed turtle must validate");
     let files = out["files"].as_array().expect("files array");
     assert_eq!(files.len(), 1, "{out}");
-    assert_eq!(files[0]["quads"].as_u64(), Some(2), "real quad count: {out}");
+    assert_eq!(
+        files[0]["quads"].as_u64(),
+        Some(2),
+        "real quad count: {out}"
+    );
     let hash = files[0]["hash"].as_str().expect("hash string");
     assert_eq!(hash.len(), 64, "real 64-hex hash: {out}");
     assert!(
@@ -203,8 +213,8 @@ fn validate_does_not_panic() {
     // 1. Empty (0-byte) file: valid empty Turtle, must succeed with 0 quads.
     let empty_path = dir.path().join("empty.ttl");
     std::fs::write(&empty_path, "").expect("write empty.ttl");
-    let out = run(vec![utf8(empty_path)], vec![], "empty file")
-        .expect("empty file is valid (0 quads)");
+    let out =
+        run(vec![utf8(empty_path)], vec![], "empty file").expect("empty file is valid (0 quads)");
     assert_eq!(out["files"][0]["quads"].as_u64(), Some(0), "{out}");
 
     // 2. Whitespace-only file: also valid Turtle (comments/whitespace only).
@@ -272,8 +282,12 @@ fn validate_does_not_panic() {
         ")".repeat(n)
     );
     std::fs::write(&nested_path, doc).expect("write nested_collection.ttl");
-    run(vec![utf8(nested_path)], vec![], "deeply nested RDF collection")
-        .expect("moderately nested collection must parse without panicking");
+    run(
+        vec![utf8(nested_path)],
+        vec![],
+        "deeply nested RDF collection",
+    )
+    .expect("moderately nested collection must parse without panicking");
 
     // 8. THE regression: a long acyclic sh:node chain, well past the
     // pre-fix stack-overflow threshold (~500-1000). Must fail closed via
@@ -319,7 +333,8 @@ fn validate_does_not_panic() {
     )
     .expect("write selfloop_data.ttl");
     let prop_shapes_path = dir.path().join("property_chain_shapes.ttl");
-    std::fs::write(&prop_shapes_path, shacl_property_chain(1000)).expect("write property chain shapes");
+    std::fs::write(&prop_shapes_path, shacl_property_chain(1000))
+        .expect("write property chain shapes");
     let err = run(
         vec![utf8(selfloop_data_path)],
         vec![utf8(prop_shapes_path)],
@@ -389,7 +404,8 @@ fn validate_shacl_depth_guard_is_safe_on_small_stack_thread() {
     )
     .expect("write selfloop_data.ttl");
     let prop_shapes_path = dir.path().join("property_chain_shapes.ttl");
-    std::fs::write(&prop_shapes_path, shacl_property_chain(1000)).expect("write property chain shapes");
+    std::fs::write(&prop_shapes_path, shacl_property_chain(1000))
+        .expect("write property chain shapes");
 
     let node_files = vec![utf8(node_data_path)];
     let node_shapes = vec![utf8(node_shapes_path)];

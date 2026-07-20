@@ -1,0 +1,9 @@
+---
+to: src/青い川のダム.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-core#>
+    SELECT ?source WHERE { tcps:青い川のダムModule tcps:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source | trim_end }}

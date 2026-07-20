@@ -1,0 +1,15 @@
+services:
+  verify:
+    build:
+      context: .
+      dockerfile: containers/Dockerfile.verify
+    volumes:
+      - ./receipts:/work/receipts
+      - ./dist:/work/dist
+  wasm:
+    build:
+      context: .
+      dockerfile: containers/Dockerfile.wasm
+    volumes:
+      - ./receipts:/work/receipts
+      - ./dist:/work/dist

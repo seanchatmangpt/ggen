@@ -1,0 +1,71 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:c5e36f9515766a6b6fc1d6db5ecfcfa7",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-07-19T20:47:17+00:00",
+    "component": {
+      "type": "application",
+      "name": "豊田コード生産方式",
+      "version": "26.7.19"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "tcps-core",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-core@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-std",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-std@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-ffi",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-ffi@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-wasm",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-wasm@26.7.19"
+    },
+    {
+      "type": "application",
+      "name": "tcps-cli",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-cli@26.7.19"
+    }
+  ]
+}

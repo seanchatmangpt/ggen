@@ -1,0 +1,12 @@
+# MESSAGE: tcps:dependsOnModule must point at a declared tcps:Module individual (no dangling reference); Referenced tcps:Module must have a tcps:name (i.e. must actually be declared in the graph, not merely typed) (translated from shapes.ttl sh:class tcps:Module + sh:node tcps:ModuleNodeShape, inlined: any row = a dependsOnModule object that is not typed tcps:Module or lacks tcps:name)
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-cli#>
+SELECT ?s ?ref WHERE {
+  {
+    ?s a tcps:Module ; tcps:dependsOnModule ?ref .
+    FILTER NOT EXISTS { ?ref a tcps:Module }
+  } UNION {
+    ?s a tcps:Module ; tcps:dependsOnModule ?ref .
+    FILTER NOT EXISTS { ?ref tcps:name ?n }
+  }
+}
+ORDER BY ?s ?ref

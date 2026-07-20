@@ -1,0 +1,102 @@
+# mfact-pack ontology — the real pipeline and authority-directory structure
+# of ~/mfact ("mfact / procint"), transcribed from its README. mfact is a
+# real, in-the-wild ggen consumer: ggen projects a Lean 4 declaration
+# catalog from mfact's own packs/{lean-math-pack,quadrature-pack,
+# post-release-pack}, Lean admits it under a pinned toolchain, and mfact
+# certifies the result -- nothing there is hand-typed prose.
+
+@prefix mfa:  <http://seanchatmangpt.github.io/packs/mfact#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mfa:PipelineStage a rdfs:Class ; rdfs:label "mfact pipeline stage" .
+mfa:order a rdf:Property ; rdfs:domain mfa:PipelineStage ; rdfs:range xsd:integer .
+mfa:actor a rdf:Property ; rdfs:domain mfa:PipelineStage ; rdfs:range xsd:string .
+
+mfa:Project
+    a mfa:PipelineStage ; mfa:order 1 ; mfa:actor "ggen" ;
+    rdfs:label "Project" ;
+    rdfs:comment "ggen projects a Lean 4 declaration catalog from mfact's own packs/ (lean-math-pack, quadrature-pack, post-release-pack)." .
+
+mfa:Admit
+    a mfa:PipelineStage ; mfa:order 2 ; mfa:actor "Lean" ;
+    rdfs:label "Admit" ;
+    rdfs:comment "Lean admits the projected declaration catalog under the pinned toolchain." .
+
+mfa:Certify
+    a mfa:PipelineStage ; mfa:order 3 ; mfa:actor "mfact" ;
+    rdfs:label "Certify" ;
+    rdfs:comment "mfact certifies the admitted result: every standing claim (proven/stated counts, gate results, fixture status) is computed from a build, axiom audit, or git commit -- never hand-typed prose." .
+
+# --- Relational structure (closes part of the ontology-expressiveness gap
+# named in docs/packs/L5_VALIDATION_REPORT.md: "no relations between
+# PipelineStage and AuthorityDir"). mfa:handsOffTo chains the pipeline
+# instead of leaving stage order as a bare integer with no encoded
+# adjacency; mfa:writesTo/mfa:readsFrom ground each stage's actual
+# interaction with the authority-directory layer, both grounded directly in
+# the README prose already quoted in this file's header comment and in
+# mfa:PacksDir/mfa:ProcintDir/mfa:ReleaseDir/mfa:ArtifactLedger below (no
+# new claims about mfact beyond what its own README already states).
+mfa:handsOffTo a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:PipelineStage ;
+    rdfs:comment "The next stage in the pipeline that receives this stage's output. Encodes pipeline adjacency as a checkable relation, not merely an mfa:order integer a template must independently sort." .
+mfa:readsFrom a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:AuthorityDir ;
+    rdfs:comment "An authority directory this stage consumes as input." .
+mfa:writesTo a rdf:Property ;
+    rdfs:domain mfa:PipelineStage ; rdfs:range mfa:AuthorityDir ;
+    rdfs:comment "An authority directory this stage produces/updates output in." .
+
+mfa:Project mfa:handsOffTo mfa:Admit ; mfa:readsFrom mfa:PacksDir ; mfa:writesTo mfa:ProcintDir .
+mfa:Admit   mfa:handsOffTo mfa:Certify ; mfa:readsFrom mfa:ProcintDir .
+mfa:Certify mfa:writesTo mfa:ReleaseDir ; mfa:writesTo mfa:PaperDir ; mfa:writesTo mfa:ArtifactLedger .
+
+mfa:AuthorityDir a rdfs:Class ; rdfs:label "mfact top-level authority directory" .
+mfa:path a rdf:Property ; rdfs:domain mfa:AuthorityDir ; rdfs:range xsd:string .
+
+mfa:PacksDir     a mfa:AuthorityDir ; mfa:path "packs/"    ; rdfs:comment "Ontology fragments and Tera templates ggen renders from; the actual math source, never hand-edited downstream." .
+mfa:ProcintDir   a mfa:AuthorityDir ; mfa:path "procint/"  ; rdfs:comment "The rendered Lean 4 package: event logs, process models, conformance checking, Petri nets, OCEL, plus axiom audit and correctness-ladder fixtures." .
+mfa:PaperDir     a mfa:AuthorityDir ; mfa:path "paper/"    ; rdfs:comment "The LaTeX paper; standing-derived numbers are rendered fragments, never hand-typed." .
+mfa:ReleaseDir   a mfa:AuthorityDir ; mfa:path "release/"  ; rdfs:comment "The manifest, gates, and standing artifacts that are the actual authority for any claim about this project's state." .
+mfa:ArtifactLedger a mfa:AuthorityDir ; mfa:path ".mfact/artifacts.toml" ; rdfs:comment "The artifact ledger; authority comes from here, not file paths or headers." .
+
+# --- Receipt-engine surface (Target-API-fidelity dimension).
+#
+# Transcribed from a REAL, independently-authored `mfact-core` Rust crate
+# found on this machine at
+# ~/mfact/.claude/worktrees/wf_24b4eb65-119-19/crates/mfact-core (git commit
+# 154b62f956a on branch `worktree-wf_24b4eb65-119-19`; verified via
+# `git log --oneline -- crates/mfact-core` and `git branch -a --contains`).
+#
+# Honest provenance note: this crate does NOT exist on ~/mfact's `main`
+# branch. `main`'s own `docs/MFACT_CORE_DESIGN.md` states the contract is
+# still an "open decision for the domain owner" and that
+# `crates/mfact-core/` "contains only a stale target/ build directory...
+# There is no Cargo.toml, no src/, and no Rust source of any kind." The real
+# source used here lives on an unmerged agent worktree branch -- genuine,
+# independently-authored, same machine, same author as this repo, and
+# directly on-domain (it implements the exact receipted-pipeline surface
+# `mfa:Certify`'s rdfs:comment above already describes: "every standing
+# claim ... is computed from a build, axiom audit, or git commit"), but it
+# is exploratory/unmerged work, not mfact's shipped, canonical API. Scored
+# accordingly below -- see TARGET_VERIFICATION.md.
+#
+# Verbatim copies of the 3 source files (lib.rs, receipt.rs, validate.rs)
+# are checked into reference/mfact-core/src/ in this pack, with matching
+# BLAKE3... actually SHA-256 checksums recorded in TARGET_VERIFICATION.md.
+mfa:ReceiptEngine
+    a rdfs:Class ; rdfs:label "mfact-core's GgenReceiptEngine" ;
+    rdfs:comment "Real Rust struct from ~/mfact's mfact-core crate (unmerged worktree, see provenance note above): computes a deterministic chained-hash receipt over a slice of N-Quads Facts. Fields transcribed verbatim from src/receipt.rs, not paraphrased." .
+mfa:hashAlgorithm a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+mfa:orderingStrategy a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+mfa:refusesDuplicates a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:boolean .
+mfa:sourceFile a rdf:Property ; rdfs:domain mfa:ReceiptEngine ; rdfs:range xsd:string .
+
+mfa:GgenReceiptEngine
+    a mfa:ReceiptEngine ;
+    mfa:hashAlgorithm "BLAKE3" ;
+    mfa:orderingStrategy "canonical N-Quads lexicographic sort before chaining" ;
+    mfa:refusesDuplicates true ;
+    mfa:sourceFile "reference/mfact-core/src/receipt.rs" ;
+    rdfs:comment "seed = hash(engine seed); for each sorted, deduplicated N-Quad: acc = hash(acc + hash(nquad)). Duplicate N-Quads after sort refuse with Refusal::DuplicateElement; an empty engine seed refuses with Refusal::ValidationFailed at construction." .

@@ -51,14 +51,16 @@
 //!   `tests/generation_rules_e2e.rs`'s
 //!   `inference_rule_construct_is_visible_to_generation_rule_query` and
 //!   `inference_rule_when_guard_false_skips_construct`.
-//! - The law gate (N3 rule materialization + denial check, SHACL validation) — reuses
+//! - The law gate (N3 rule materialization + denial check, SPARQL gate queries) — reuses
 //!   `crate::sync::sync`'s exact frontmatter-path stage (same `GraphEngine` calls, same
-//!   `[FM-LAW-*]` refusal shape) rather than re-deriving it. Reads N3 rules from
-//!   `manifest.law.rules` and SHACL shapes from `manifest.validation.shacl` (**not** a
-//!   duplicated `law.shapes` field — see [`ggen_config::manifest::types::GgenManifest`]'s
-//!   struct doc comment for why). Load-bearing proof:
+//!   `[FM-LAW-*]` refusal shape, same `crate::sync::{parse_gate_source,evaluate_gate}`
+//!   helpers) rather than re-deriving it. Reads N3 rules from `manifest.law.rules` and
+//!   SPARQL gate files from `manifest.validation.gates` (**not** a duplicated `law.gates`
+//!   field — see [`ggen_config::manifest::types::GgenManifest`]'s struct doc comment for
+//!   why; a legacy non-empty `manifest.validation.shacl` is a loud `[FM-LAW-017]`
+//!   migration refusal, never silently ignored). Load-bearing proof:
 //!   `tests/generation_rules_e2e.rs`'s `law_gate_denial_violation_refuses_declarative_rules_sync`
-//!   and `law_gate_shacl_violation_refuses_declarative_rules_sync_naming_focus_node`.
+//!   and `law_gate_violation_refuses_declarative_rules_sync_naming_offending_node`.
 //!
 //! Deliberately deferred (a typed, loud [`AppError::fm_gen`] refusal naming the rule and the
 //! unimplemented variant — never a silent skip or a decorative success):
@@ -93,7 +95,10 @@ use tera::Value;
 use crate::{
     error::{AppError, Result, TemplateFailureCause},
     graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore},
-    sync::{hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions, SyncReport},
+    sync::{
+        hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions,
+        SyncReport,
+    },
     template::{
         build_tera, classify_tera_render_error, solutions_to_values, tera_error_full_chain,
         tera_error_location,
@@ -166,7 +171,10 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     }
 
     drop(load_guard);
-    load_span.record("pipeline.duration_ms", load_start.elapsed().as_millis() as u64);
+    load_span.record(
+        "pipeline.duration_ms",
+        load_start.elapsed().as_millis() as u64,
+    );
 
     // ── Inference — `[[inference.rules]]` CONSTRUCT materialization ───────
     //
@@ -236,17 +244,18 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         extract_start.elapsed().as_millis() as u64,
     );
 
-    // ── Law gate — N3 rule materialization + denial/SHACL validation ──────
+    // ── Law gate — N3 rule materialization + denial/SPARQL-gate checks ────
     //
     // Reuses the exact stage `crate::sync::sync` already runs for frontmatter
-    // projects (same `GraphEngine::{load_rules,materialize,check_denials,
-    // validate_shacl}` calls, same `[FM-LAW-*]` refusal shape) rather than
-    // re-deriving it — `manifest.law.rules` (N3/Datalog) and
-    // `manifest.validation.shacl` (SHACL shapes; deliberately not duplicated
-    // as `law.shapes` — see `ggen_config::manifest::types::GgenManifest`'s
-    // struct doc comment) are this schema's equivalents of
-    // `GgenConfig.law.{rules,shapes}`. Absent/empty on both fields runs no law
-    // stage at all, so pre-law declarative-rules projects sync unchanged.
+    // projects (same `GraphEngine::{load_rules,materialize,check_denials}`
+    // calls, same `crate::sync::{parse_gate_source,evaluate_gate}` gate
+    // helpers, same `[FM-LAW-*]` refusal shape) rather than re-deriving it —
+    // `manifest.law.rules` (N3/Datalog) and `manifest.validation.gates`
+    // (SPARQL gate files; deliberately not duplicated as `law.gates` — see
+    // `ggen_config::manifest::types::GgenManifest`'s struct doc comment) are
+    // this schema's equivalents of `GgenConfig.law.{rules,gates}`.
+    // Absent/empty on both fields runs no law stage at all, so pre-law
+    // declarative-rules projects sync unchanged.
     let validate_start = Instant::now();
     let validate_span = tracing::info_span!(
         "pipeline.validate",
@@ -289,33 +298,65 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             ));
         }
     }
-    for rel in &manifest.validation.shacl {
-        let shape_path = root.join(rel);
-        let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
+    // `[validation].shacl` (SHACL) was replaced by `[validation].gates`
+    // (SPARQL gate queries, below). The field stays deserializable so a
+    // legacy manifest gets THIS clear, typed refusal instead of a serde
+    // unknown-field error — a file that used to be law must never be
+    // silently ignored.
+    if !manifest.validation.shacl.is_empty() {
+        return Err(AppError::fm_law(
+            17,
+            format!(
+                "[validation].shacl ({} SHACL shapes file(s) declared) is no longer \
+                 supported at sync time; SHACL shape gates were replaced by \
+                 engine-independent SPARQL gate queries. Remediation: migrate to \
+                 [validation].gates = [\"…/*.rq\"] — each file holds one ASK (true = \
+                 violation) or SELECT (any row = violation) query, optionally \
+                 preceded by `# MESSAGE: <text>` comment lines.",
+                manifest.validation.shacl.len()
+            ),
+        ));
+    }
+    for rel in &manifest.validation.gates {
+        let gate_path = root.join(rel);
+        let src = std::fs::read_to_string(&gate_path).map_err(|e| {
             AppError::fm_law(
                 17,
                 format!(
-                    "SHACL shapes file `{}` unreadable: {e}. Remediation: fix [validation].shacl.",
-                    shape_path.display()
+                    "SPARQL gate file `{}` unreadable: {e}. Remediation: fix [validation].gates.",
+                    gate_path.display()
                 ),
             )
         })?;
         closure.insert(
-            rel_display(root, &shape_path),
-            hash_file_or_missing(&shape_path),
+            rel_display(root, &gate_path),
+            hash_file_or_missing(&gate_path),
         );
-        let outcome = graph.validate_shacl(&shapes_ttl)?;
-        if !outcome.conforms {
-            return Err(AppError::fm_law(
-                18,
-                format!(
-                    "SHACL shapes `{}` report {} violation(s): {}. \
-                     Remediation: fix the offending focus nodes or the shapes.",
-                    rel.display(),
-                    outcome.violations.len(),
-                    outcome.violations.join("; ")
-                ),
-            ));
+        let gate = crate::sync::parse_gate_source(&src);
+        match crate::sync::evaluate_gate(graph.as_ref(), &gate.query)? {
+            crate::sync::GateOutcome::Pass => {}
+            crate::sync::GateOutcome::NotAGate => {
+                return Err(AppError::fm_law(
+                    17,
+                    format!(
+                        "SPARQL gate `{}` is not a gate query: it must be an ASK \
+                         (true = violation) or a SELECT (any row = violation), not \
+                         a CONSTRUCT/DESCRIBE. Remediation: fix [validation].gates.",
+                        rel.display()
+                    ),
+                ));
+            }
+            crate::sync::GateOutcome::Violation(detail) => {
+                return Err(AppError::fm_law(
+                    18,
+                    format!(
+                        "SPARQL gate `{}` refused the sync: {}{detail}. \
+                         Remediation: fix the offending facts or the gate query.",
+                        rel.display(),
+                        gate.message_prefix(),
+                    ),
+                ));
+            }
         }
     }
 
@@ -435,16 +476,17 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         // inline/file template has no stable path to reuse as a Tera name
         // across rules).
         let tpl_name = format!("generation_rule::{}", rule.name);
-        tera.add_raw_template(&tpl_name, &template_text).map_err(|e| {
-            AppError::fm_gen_render_failure(
-                TemplateFailureCause::TemplateParseFailed,
-                &root_display,
-                &template_descriptor,
-                &rule.name,
-                format!("template rejected by Tera: {}", tera_error_full_chain(&e)),
-                tera_error_location(&e).as_deref(),
-            )
-        })?;
+        tera.add_raw_template(&tpl_name, &template_text)
+            .map_err(|e| {
+                AppError::fm_gen_render_failure(
+                    TemplateFailureCause::TemplateParseFailed,
+                    &root_display,
+                    &template_descriptor,
+                    &rule.name,
+                    format!("template rejected by Tera: {}", tera_error_full_chain(&e)),
+                    tera_error_location(&e).as_deref(),
+                )
+            })?;
 
         let per_row = rule.output_file.contains("{{");
         if per_row {
@@ -611,9 +653,7 @@ struct PendingGenWrite {
 /// `[FM-GEN-005]` on an unreadable query file; `[FM-GEN-006]` for the
 /// not-yet-implemented `Pack` variant (see the module doc comment).
 fn resolve_query_source(
-    root: &Path,
-    rule: &GenerationRule,
-    source: &QuerySource,
+    root: &Path, rule: &GenerationRule, source: &QuerySource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -654,9 +694,7 @@ fn resolve_query_source(
 /// not-yet-implemented `Pack`/`Git`/`Package` variants (see the module doc
 /// comment).
 fn resolve_template_source(
-    root: &Path,
-    rule: &GenerationRule,
-    source: &TemplateSource,
+    root: &Path, rule: &GenerationRule, source: &TemplateSource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -749,9 +787,9 @@ fn detect_file_tree_meta_spec(template_text: &str) -> bool {
         return false;
     };
     let foreach_key = serde_yaml::Value::String("foreach".to_string());
-    structure.iter().any(|entry| {
-        matches!(entry, serde_yaml::Value::Mapping(m) if m.contains_key(&foreach_key))
-    })
+    structure
+        .iter()
+        .any(|entry| matches!(entry, serde_yaml::Value::Mapping(m) if m.contains_key(&foreach_key)))
 }
 
 /// Render `rule.output_file` through Tera (it may reference the same
@@ -765,11 +803,7 @@ fn detect_file_tree_meta_spec(template_text: &str) -> bool {
 /// re-parses `output_file` on every call, so a parse failure surfaces
 /// here, not at the one-time `add_raw_template` above).
 fn render_output_file(
-    tera: &mut tera::Tera,
-    output_file: &str,
-    ctx: &tera::Context,
-    rule_name: &str,
-    example: &str,
+    tera: &mut tera::Tera, output_file: &str, ctx: &tera::Context, rule_name: &str, example: &str,
     template: &str,
 ) -> Result<String> {
     tera.render_str(output_file, ctx).map_err(|e| {
@@ -788,11 +822,7 @@ fn render_output_file(
 /// via [`classify_tera_render_error`] (see [`TemplateFailureCause`]'s own
 /// doc comment for the taxonomy this maps onto).
 fn render_template(
-    tera: &mut tera::Tera,
-    tpl_name: &str,
-    ctx: &tera::Context,
-    rule_name: &str,
-    example: &str,
+    tera: &mut tera::Tera, tpl_name: &str, ctx: &tera::Context, rule_name: &str, example: &str,
     template: &str,
 ) -> Result<String> {
     tera.render(tpl_name, ctx).map_err(|e| {
@@ -871,11 +901,7 @@ enum GenWriteOutcome {
 /// `[FM-GEN-009]` if an existing target cannot be read as UTF-8;
 /// propagates [`merge::merge_sections`] failures for `GenerationMode::Merge`.
 fn decide_and_maybe_apply(
-    root: &Path,
-    rel_to: &str,
-    body: &str,
-    mode: &GenerationMode,
-    dry_run: bool,
+    root: &Path, rel_to: &str, body: &str, mode: &GenerationMode, dry_run: bool,
 ) -> Result<GenWriteOutcome> {
     let target = crate::write::resolve_target(root, rel_to)?;
     let existing = match std::fs::read_to_string(&target) {

@@ -1,0 +1,9 @@
+# MESSAGE: ex:order and ex:code values must be xsd:integer (translated from the retired shapes.ttl sh:datatype xsd:integer)
+PREFIX ex:  <https://example.org/level-five#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  ?s a ex:Capability ; ?p ?value .
+  VALUES ?p { ex:order ex:code }
+  FILTER(DATATYPE(?value) != xsd:integer)
+}
+ORDER BY ?s ?p

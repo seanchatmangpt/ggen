@@ -1,4 +1,4 @@
 [pack]
 name = "chicago-tdd-tools-pack"
-version = "0.1.0"
-description = "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals."
+version = "0.3.0"
+description = "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals, dispatching through one reusable generated module (tests/chicago_tdd_tools_boundary_runtime.rs, from cli_boundary_runtime.rs.tmpl) that defines the real run_boundary_spec(spec) -> Result<(), String> dispatch function (parse BoundarySpec -> dispatch via CliHarness -> emit Result) instead of duplicating CliHarness-spawn-and-assert logic per generated test. Also generates its own proof test (tests/chicago_tdd_tools_boundary_proof.rs): since both generated files are still independent Tera+SPARQL renders of the same sparql: tests query (this proof cannot call the OTHER template's render logic in-process), the proof reads the REAL rendered text of both sibling files off disk and asserts the query-derived literals -- fn signatures, BoundarySpec field literals, axiom doc-comments, the include!/dispatch-function/struct definitions, and a 1:1 call-site count -- appear in them verbatim. EXPECTED_TEST_COUNT is tests | length at render time, not a hardcoded literal."

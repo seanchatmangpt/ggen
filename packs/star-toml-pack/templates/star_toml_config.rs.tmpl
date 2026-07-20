@@ -1,21 +1,36 @@
 ---
 to: src/star_toml_config.rs
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/star_toml_config
 sparql:
   a_sections: >
     PREFIX stp: <http://seanchatmangpt.github.io/packs/star-toml#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?sectionLabel ?sectionDoc WHERE {
-      ?sec a stp:ConfigSection ; rdfs:label ?sectionLabel ; stp:doc ?sectionDoc .
+    SELECT ?sectionLabel ?sectionDoc ?closedWorld ?loaderFn WHERE {
+      ?sec a stp:ConfigSection ; rdfs:label ?sectionLabel ; stp:doc ?sectionDoc ;
+           stp:closedWorld ?closedWorld ; stp:loaderFn ?loaderFn .
     } ORDER BY ?sectionLabel
   fields: >
     PREFIX stp: <http://seanchatmangpt.github.io/packs/star-toml#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?sectionLabel ?fieldName ?rustType ?fieldDoc WHERE {
+    SELECT ?sectionLabel ?fieldName ?rustType ?fieldDoc ?required WHERE {
       ?f a stp:ConfigField ;
          stp:inSection ?sec ;
          stp:fieldName ?fieldName ;
          stp:rustType ?rustType ;
-         stp:doc ?fieldDoc .
+         stp:doc ?fieldDoc ;
+         stp:required ?required .
+      ?sec rdfs:label ?sectionLabel .
+    } ORDER BY ?sectionLabel ?fieldName
+  bounds: >
+    PREFIX stp: <http://seanchatmangpt.github.io/packs/star-toml#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?sectionLabel ?fieldName ?minValue ?maxValue WHERE {
+      ?f a stp:ConfigField ;
+         stp:inSection ?sec ;
+         stp:fieldName ?fieldName ;
+         stp:minValue ?minValue ;
+         stp:maxValue ?maxValue .
       ?sec rdfs:label ?sectionLabel .
     } ORDER BY ?sectionLabel ?fieldName
 ---
@@ -24,16 +39,31 @@ sparql:
 //!
 //! Raw parse != trusted config: these structs are the schema surface; the
 //! admission decision belongs to star_toml's typestate pipeline.
+//!
+//! `#[serde(deny_unknown_fields)]` and the loader delegation below are NOT
+//! template-author assumptions: they are projected from each
+//! `stp:ConfigSection`'s `stp:closedWorld`/`stp:loaderFn` facts in
+//! `ontology.ttl`. Per-field optionality is likewise projected from
+//! `stp:required` rather than every field being unconditionally required.
+//!
+//! `validate()` on each section struct below is a behavior-contract
+//! projection: `stp:minValue`/`stp:maxValue` facts on a `stp:ConfigField`
+//! (e.g. `sample_rate` must be in `[0.0, 1.0]`) are a PRE-CONDITION on the
+//! admitted *value*, not the *shape* -- `#[derive(Deserialize)]` alone
+//! cannot express or check this; only the generated `validate()` body can.
+//! This is the ontology stating a behavior contract, not just structure.
 
 use serde::Deserialize;
 
 {% for s in a_sections %}/// {{ s.sectionDoc }}
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct {{ s.sectionLabel | pascal_case }}Config {
+{% if s.closedWorld %}#[serde(deny_unknown_fields)]
+{% endif %}pub struct {{ s.sectionLabel | pascal_case }}Config {
 {% for f in fields %}{% if f.sectionLabel == s.sectionLabel %}    /// {{ f.fieldDoc }}
-    pub {{ f.fieldName }}: {{ f.rustType }},
-{% endif %}{% endfor %}}
+{% if f.required %}    pub {{ f.fieldName }}: {{ f.rustType }},
+{% else %}    #[serde(default)]
+    pub {{ f.fieldName }}: Option<{{ f.rustType }}>,
+{% endif %}{% endif %}{% endfor %}}
 
 {% endfor %}/// Root of the admitted `*.toml` document (closed key set, fail closed).
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -43,13 +73,45 @@ pub struct StarTomlConfig {
     pub {{ s.sectionLabel | snake_case }}: {{ s.sectionLabel | pascal_case }}Config,
 {% endfor %}}
 
+{% for s in a_sections %}/// Behavior-contract check for `[{{ s.sectionLabel }}]` -- projected from
+/// this section's fields' `stp:minValue`/`stp:maxValue` facts. Returns
+/// `Err` describing the first violated bound, `Ok(())` if none are
+/// declared or all are satisfied. Deliberately separate from `serde`
+/// deserialization: a value can parse successfully and still fail this.
+impl {{ s.sectionLabel | pascal_case }}Config {
+    pub fn validate(&self) -> Result<(), String> {
+{% for b in bounds %}{% if b.sectionLabel == s.sectionLabel %}        if (self.{{ b.fieldName }} as f64) < {{ b.minValue }}f64 || (self.{{ b.fieldName }} as f64) > {{ b.maxValue }}f64 {
+            return Err(format!(
+                "{{ s.sectionLabel }}.{{ b.fieldName }} must be within [{{ b.minValue }}, {{ b.maxValue }}], got {}",
+                self.{{ b.fieldName }}
+            ));
+        }
+{% endif %}{% endfor %}        Ok(())
+    }
+}
+
+{% endfor %}{% set loader = a_sections | first %}
 impl StarTomlConfig {
-    /// Load and parse a config file via `star_toml` (env-expanded, closed keys).
+    /// Load and parse a config file via `{{ loader.loaderFn }}`
+    /// (env-expanded, closed keys) -- the loader's fully-qualified name
+    /// comes from `stp:loaderFn` in the ontology, not a template literal.
     ///
     /// # Errors
     /// Returns `star_toml::Error` on a missing file, TOML syntax error, or
-    /// any unknown key (deny_unknown_fields on every table).
+    /// any unknown key in a `stp:closedWorld` section.
     pub fn load(path: &std::path::Path) -> Result<Self, star_toml::Error> {
-        star_toml::load_file::<Self>(path)
+        {{ loader.loaderFn }}::<Self>(path)
+    }
+
+    /// Behavior-contract validation across every section -- calls each
+    /// generated `{Section}Config::validate()` (see above), short-circuiting
+    /// on the first violated `stp:minValue`/`stp:maxValue` bound. `load()`
+    /// does NOT call this automatically: a value can be a syntactically
+    /// admitted `StarTomlConfig` (closed keys, right types) and still fail
+    /// this pre-condition check, deliberately kept as a separate step so a
+    /// consumer can distinguish a parse failure from a bounds failure.
+    pub fn validate(&self) -> Result<(), String> {
+{% for s in a_sections %}        self.{{ s.sectionLabel | snake_case }}.validate()?;
+{% endfor %}        Ok(())
     }
 }

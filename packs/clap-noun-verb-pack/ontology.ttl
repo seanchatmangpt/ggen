@@ -42,12 +42,47 @@ cnv:args       a rdf:Property ; rdfs:label "argument specs" ; rdfs:comment
     "field|rust_type|required|about groups, one per argument, joined by @@. Empty string when the command takes no arguments." ;
     rdfs:domain cnv:Command ; rdfs:range xsd:string .
 
+# cnv:hasCommand is the formal object-property counterpart of the
+# noun/cnv:noun string-literal match the template used to rely on
+# exclusively: it lets a consumer (or a SHACL shape) walk Noun -> Command
+# via a real RDF edge instead of joining on string equality, and lets
+# shapes.ttl assert "every Noun has >=1 Command" as a structural
+# constraint rather than an implicit convention. Templates may still use
+# cnv:noun/cnv:verb for the SPARQL projection that drives Tera (a
+# GROUP_CONCAT/subquery join over cnv:hasCommand is more than this
+# engine's SPARQL support has been verified against — see ontology.ttl's
+# header note) but the string fields are now a projection of a structural
+# fact this ontology also states directly, not the only place the
+# relation exists.
+cnv:hasCommand a rdf:Property ; rdfs:label "has command" ; rdfs:comment
+    "Links a cnv:Noun to a cnv:Command it owns. Formal counterpart of the cnv:noun string-literal match." ;
+    rdfs:domain cnv:Noun ; rdfs:range cnv:Command .
+
+# cnv:staticResponse: when present on a cnv:Command, the command's entire
+# behavior -- not just its signature -- is specified in the ontology
+# itself as a literal JSON value. The template detects this property and
+# renders the handler's body inline (a bare `Ok(serde_json::json!(...))`
+# expression parsed from this literal), so that command requires ZERO
+# hand-written `crate::verbs::handlers::*` function: `cnv:handler` is
+# still recorded for documentation/consistency but is never called or
+# required to exist for a command carrying cnv:staticResponse. This is
+# the mechanism that lets a subset of commands close the handler gap to
+# genuinely zero, rather than merely restating that a gap exists: a
+# consumer wiring a new noun-verb command with fixed, deterministic output
+# (a capability listing, a static health/about payload, a fixed error
+# taxonomy entry) writes NO Rust at all -- only this ontology fact.
+cnv:staticResponse a rdf:Property ; rdfs:label "static response" ; rdfs:comment
+    "A literal serde_json-compatible expression (Rust source, e.g. a `json!({...})` argument) the template inlines directly as the command body. When present, no external handler fn is required or called for this command." ;
+    rdfs:domain cnv:Command ; rdfs:range xsd:string .
+
 # ── Nouns ────────────────────────────────────────────────────────────
 
 cnv:SessionNoun a cnv:Noun ; rdfs:label "session" ;
-    rdfs:comment "Manage authenticated session tokens." .
+    rdfs:comment "Manage authenticated session tokens." ;
+    cnv:hasCommand cnv:SessionLogin, cnv:SessionVerify, cnv:SessionPing .
 cnv:UserNoun    a cnv:Noun ; rdfs:label "user" ;
-    rdfs:comment "Manage user resources." .
+    rdfs:comment "Manage user resources." ;
+    cnv:hasCommand cnv:UserCreate .
 
 # ── Command individuals ──────────────────────────────────────────────
 
@@ -68,6 +103,16 @@ cnv:SessionVerify
     cnv:doc        "Verify the active session token against the stored keyring credential." ;
     cnv:returnType "serde_json::Value" ;
     cnv:args       "" .
+
+cnv:SessionPing
+    a              cnv:Command ;
+    cnv:noun       "session" ;
+    cnv:verb       "ping" ;
+    cnv:handler    "session_ping_handler" ;
+    cnv:doc        "Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required." ;
+    cnv:returnType "serde_json::Value" ;
+    cnv:args       "" ;
+    cnv:staticResponse "json!({ \"status\": \"alive\", \"noun\": \"session\", \"verb\": \"ping\" })" .
 
 cnv:UserCreate
     a              cnv:Command ;

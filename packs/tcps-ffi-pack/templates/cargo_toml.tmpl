@@ -1,0 +1,24 @@
+---
+to: crates/tcps-ffi/Cargo.toml
+force: true
+---
+[package]
+name = "tcps-ffi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "豊田コード生産方式の安定C ABI"
+
+[lib]
+name = "tcps_ffi"
+path = "src/lib.rs"
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[dependencies]
+tcps-core = { path = "../..", package = "tcps-generated" }
+
+[lints.rust]
+unsafe_code = "allow"
+missing_debug_implementations = "deny"

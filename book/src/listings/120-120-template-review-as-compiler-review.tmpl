@@ -1,0 +1,14 @@
+---
+to: src/generated/120_120_template_review_as_compiler_review.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章120 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 120: 120. Template Review as Compiler Review
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

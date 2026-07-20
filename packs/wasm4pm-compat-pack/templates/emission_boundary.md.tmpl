@@ -6,8 +6,25 @@ sparql:
     SELECT ?event_name ?object_type WHERE {
       ?et a w4pm:EventType ;
           w4pm:eventName ?event_name ;
-          w4pm:objectType ?object_type .
+          w4pm:hasObjectType ?object_type .
     } ORDER BY ?event_name
+  attribute_rows: |
+    PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
+    SELECT ?event_name ?attr_name ?attr_type ?requires_non_empty WHERE {
+      ?et a w4pm:EventType ;
+          w4pm:eventName ?event_name ;
+          w4pm:hasAttribute ?attr .
+      ?attr w4pm:attrName ?attr_name ;
+            w4pm:attrType ?attr_type .
+      OPTIONAL { ?attr w4pm:requiresNonEmpty ?requires_non_empty . }
+    } ORDER BY ?event_name ?attr_name
+  sequence_rows: |
+    PREFIX w4pm: <http://seanchatmangpt.github.io/packs/wasm4pm-compat#>
+    SELECT ?before_name ?after_name WHERE {
+      ?before w4pm:precedes ?after .
+      ?before w4pm:eventName ?before_name .
+      ?after w4pm:eventName ?after_name .
+    } ORDER BY ?before_name
 ---
 # wasm4pm-compat emission surface
 
@@ -20,6 +37,24 @@ conformance, fitness, precision, and variant extraction are owned by
 
 | Event type | Object type | Emit helper |
 |------------|-------------|-------------|
-{% for row in event_types %}| `{{ row.event_name }}` | `{{ row.object_type }}` | `emit_{{ row.event_name }}` |
+{% for row in event_types %}| `{{ row.event_name }}` | `{{ row.object_type | split(pat="#") | last }}` | `emit_{{ row.event_name }}` |
 {% endfor %}
-See `src/wasm4pm_compat_events.rs` for the generated `EmittedEventType` enum.
+## Declared attributes (per event type)
+
+| Event type | Attribute | Type | Non-empty required |
+|------------|-----------|------|---------------------|
+{% for a in attribute_rows %}| `{{ a.event_name }}` | `{{ a.attr_name }}` | `{{ a.attr_type | split(pat="#") | last }}` | {{ a.requires_non_empty | default(value="false") }} |
+{% endfor %}
+Every `true` row above is a real behavioral precondition (`w4pm:requiresNonEmpty` /
+`w4pm:requiresNonEmptyId`), not just documentation: the corresponding `emit_*` fn in
+`src/wasm4pm_compat_events.rs` enforces it with a real `debug_assert!` at call time.
+
+## Emission order
+
+A real `ggen sync run` emits these event types in the order the ontology's
+`w4pm:precedes` facts state:
+
+{% for s in sequence_rows %}1. `{{ s.before_name }}` precedes `{{ s.after_name }}`
+{% endfor %}
+See `src/wasm4pm_compat_events.rs` for the generated `EmittedEventType` enum
+and `emit_*` functions.

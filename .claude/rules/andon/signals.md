@@ -33,10 +33,11 @@ This is not a suggestion. This is the production discipline.
 
 ## Definition of Done
 
-The authoritative gate is `just pre-commit`, which chains 8 real checks (see `justfile`'s
+The authoritative gate is `just pre-commit`, which chains 9 real checks (see `justfile`'s
 `pre-commit:` recipe — verify this list against it before trusting this doc, since it has drifted
 before): `fmt-check`, `check`, `lint`, `test-lib`, `coherence-check`,
-`guard-process-intelligence-boundary`, `guard-cheat-scan`, `guard-claims-schema`. All 8 must be
+`guard-process-intelligence-boundary`, `guard-cheat-scan`, `guard-claims-schema`,
+`guard-pack-proofs`. All 9 must be
 green; a partial pass is a failure. `just timeout-check` is a separate pre-flight sanity check
 (confirms the `timeout` binary exists on PATH) — useful before running anything with a timeout,
 but it is not a build/test/quality gate and is not part of `pre-commit`. `just slo-check` and
@@ -44,7 +45,7 @@ full-workspace `cargo test` are additional checks worth running for performance-
 release work, but are not part of the standard `pre-commit` gate.
 
 ```bash
-just pre-commit   # the real Definition of Done — 8 gates, see above
+just pre-commit   # the real Definition of Done — 9 gates, see above
 ```
 
 ## The Trap

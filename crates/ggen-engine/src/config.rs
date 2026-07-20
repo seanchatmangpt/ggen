@@ -60,8 +60,8 @@ pub struct GgenConfig {
 }
 
 /// `[law]` — law-state inputs for the sync pipeline: rule files are
-/// materialized into the graph after the Enrich stage; shapes files gate
-/// rendering (violations are a typed refusal).
+/// materialized into the graph after the Enrich stage; SPARQL gate files
+/// gate rendering (violations are a typed refusal).
 #[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Law {
@@ -69,10 +69,33 @@ pub struct Law {
     /// listed order.
     #[serde(default)]
     pub rules: Vec<PathBuf>,
-    /// Turtle SHACL shapes file paths, relative to the manifest, each
-    /// validated against the post-materialization graph.
+    /// **Legacy, refused at sync time.** Turtle SHACL shapes file paths.
+    /// The SHACL sync gate was replaced by [`Law::gates`] (engine-
+    /// independent SPARQL gate queries); a non-empty `shapes` list makes
+    /// `sync` fail closed with a typed `[FM-LAW-012]` migration error. The
+    /// field stays deserializable (rather than being deleted) precisely so
+    /// an old config gets that clear refusal instead of an opaque
+    /// unknown-field serde error. `ggen law validate` (author-time tooling)
+    /// still reads it.
     #[serde(default)]
     pub shapes: Vec<PathBuf>,
+    /// SPARQL gate file paths (`*.rq`), relative to the manifest, each
+    /// evaluated against the post-materialization graph in listed order.
+    /// Each file holds optional leading `# MESSAGE: <text>` comment line(s)
+    /// followed by one query: ASK → `true` is a violation; SELECT → any
+    /// returned row is a violation (`[FM-LAW-013]`). Plain SPARQL, so gates
+    /// behave identically under the GraphLaw and Oxigraph engines.
+    #[serde(default)]
+    pub gates: Vec<PathBuf>,
+    /// Opt-in reflexive receipts: when `true`, `<root>/.ggen-v2/receipt-log.jsonl`
+    /// (if it exists) is parsed at Stage 1 and each successfully-parsed sync
+    /// receipt is inserted into the graph as a fixed-shape `ggenr:Sync`
+    /// fact cluster, before any template renders — so SPARQL SELECTs in
+    /// templates can see the project's own sync history. Defaults `false`:
+    /// existing projects are entirely unaffected (byte-identical output and
+    /// receipt/lock behavior) unless they opt in.
+    #[serde(default)]
+    pub reflexive: bool,
 }
 
 /// `[project]` — identity of the generating project.
@@ -153,6 +176,16 @@ fn default_true() -> bool {
 pub struct Templates {
     /// Template directory, relative to the manifest.
     pub dir: PathBuf,
+    /// When `true`, sync emits one engine-owned `src/ggen_pack_mods.rs`
+    /// aggregator listing a `#[path = "..."] pub mod ...;` mount for every
+    /// generated `src/*.rs` output (excluding the aggregator itself), so a
+    /// consumer's own `lib.rs` needs exactly one permanent
+    /// `include!("ggen_pack_mods.rs");` line instead of one hand-written
+    /// mount per pack. Single writer (the engine), so two packs can never
+    /// collide on it the way per-pack `to: src/lib.rs` templates did
+    /// (`FM-WRITE-008`). Default `false`: existing consumers unchanged.
+    #[serde(default)]
+    pub aggregate_modules: bool,
 }
 
 impl GgenConfig {
@@ -289,6 +322,9 @@ impl Validate for Law {
                 &shape.to_string_lossy(),
                 Some(false),
             );
+        }
+        for (i, gate) in self.gates.iter().enumerate() {
+            v.check_path(&format!("gates[{i}]"), &gate.to_string_lossy(), Some(false));
         }
     }
 }

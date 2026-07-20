@@ -541,9 +541,23 @@ pub enum GenerationMode {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct ValidationConfig {
-    /// SHACL shape files
+    /// SHACL shape files — **legacy, refused at sync time by ggen-engine's
+    /// declarative-rules path**: the SHACL sync gate was replaced by
+    /// `gates` (engine-independent SPARQL gate queries); a non-empty
+    /// `shacl` list makes `ggen sync` fail closed with a typed
+    /// `[FM-LAW-017]` migration error. Kept deserializable so an old
+    /// manifest gets that clear refusal, not a serde unknown-field error.
+    /// Author-time tooling (`ggen law validate`) still reads it.
     #[serde(default)]
     pub shacl: Vec<PathBuf>,
+
+    /// SPARQL gate file paths (`*.rq`), relative to the manifest, each
+    /// evaluated against the post-inference/materialization graph in
+    /// listed order by ggen-engine's declarative-rules sync path. Each
+    /// file: optional leading `# MESSAGE: <text>` comment line(s), then
+    /// one ASK (true = violation) or SELECT (any row = violation) query.
+    #[serde(default)]
+    pub gates: Vec<PathBuf>,
 
     /// Validate generated Rust syntax
     #[serde(default)]

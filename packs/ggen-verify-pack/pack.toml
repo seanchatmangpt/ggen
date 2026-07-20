@@ -1,0 +1,19 @@
+[pack]
+name = "ggen-verify-pack"
+version = "26.7.19"
+description = """
+Self-hosted verification gates: makes `ggen sync run` refuse when external
+check evidence (build/test/clippy/byte-identity results, emitted as ver:
+facts by a consumer's verify script) is missing, red, or stale. Closes the
+loop the reflexive-receipts feature opened: verification stops being a
+hand-run shell matrix and becomes admitted graph facts enforced by the same
+FM-PACK-013 gate mechanism as every other pack invariant, identically on
+both graph engines (see crates/ggen-engine/tests/reasoner_independence_e2e.rs).
+
+Consumer contract: wire this pack in [packs], add the emitter's output
+(evidence/checks.ttl) as an [ontology] source, and run the emitter before
+sync (e.g. `just verify-tcps` = emitter -> sync -> receipt verify). The
+freshness gate binds evidence to the latest ggenr:Sync receipt, so it
+requires [law] reflexive = true in the consumer; staleness detection lags
+one sync by construction (documented in gates/030_evidence_fresh.rq).
+"""

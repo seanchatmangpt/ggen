@@ -9,5 +9,6 @@ is a `noun verb` command registered through `#[clap_noun_verb_macros::verb]`.
 | `cognition` | `list` | `cognition_list_handler` | List every wasm4pm cognition breed in the generated catalog. |
 | `receipt` | `emit` | `receipt_emit_handler` | Emit a receipt_chained OCEL event for a given sync-receipt id. |
 | `session` | `login` | `session_login_handler` | Start an authenticated session and persist the token. |
+| `session` | `ping` | `session_ping_handler` | Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required. |
 | `session` | `verify` | `session_verify_handler` | Verify the active session token against the stored keyring credential. |
 | `user` | `create` | `user_create_handler` | Create a user resource and emit its serialized record. |

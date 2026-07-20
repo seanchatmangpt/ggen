@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>TCPS.Native</id>
+    <version>26.7.19</version>
+    <authors>Sean Chatman</authors>
+    <description>Toyota Code Production System native Rust library.</description>
+    <license type="expression">MIT OR Apache-2.0</license>
+  </metadata>
+</package>

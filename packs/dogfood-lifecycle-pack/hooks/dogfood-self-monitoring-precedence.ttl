@@ -1,0 +1,52 @@
+# dogfood-self-monitoring-precedence.ttl -- Composability declaration
+# (v26.7.18). A single additive triple, NOT a standalone hook pack: it adds
+# one `kh:after` triple to dogfood-lifecycle-pack's already-declared
+# dfl:derive_review_obligation hook node (../hook.ttl), naming
+# self-monitoring-pack's hook.ttl `smon:derive_escalation_obligation` as a
+# same-load ordering dependency.
+#
+# WHY THIS IS A SEPARATE FILE, NOT A property on ../hook.ttl's own hook node
+# directly: `hooks::compile_hooks` in praxis-graphlaw resolves every
+# `kh:after` IRI at hook-pack-load time and returns a hard error
+# ("unknown after-dependency") if the named hook is not present in THAT SAME
+# load. Putting this triple directly on ../hook.ttl's hook node would make
+# dogfood-lifecycle-pack's OWN derivation (Derivation power / Obligation
+# lifecycle) fail to load standalone -- exactly the kind of unwanted
+# cross-pack coupling a knowledge-hook pack must not impose on its primary
+# consumer. This file's ONE triple is therefore additive: load it ONLY when
+# composing dogfood-lifecycle-pack with self-monitoring-pack together, by
+# concatenating ../hook.ttl + this file + self-monitoring-pack/hook.ttl into
+# one `load_hook_pack` call (see the scratch-consumer test
+# `cross_pack_precedence_resolves_and_both_packs_derive_over_one_union_graph`
+# cited in README.md's "Composability — verified" section for the exact
+# recipe and its real, passing result).
+#
+# This is the literal L5 composability bar: "Hook families form a
+# governance stack; ordering and precedence are declared in RDF" -- the
+# declaration lives here, in RDF, not in prose; `hooks::schedule_hooks`'s
+# Kahn's-algorithm topological sort is what actually reads and enforces it.
+#
+# DISCLOSED VOLATILITY (found live, this session): self-monitoring-pack's
+# own hook.ttl is a SEPARATE pack's file this change does not edit, and its
+# hook IRIs are not stable across that pack's own maintenance passes -- this
+# session found its hook set had already been restructured (from a single
+# `smon:derive_escalation_obligation` hook, cited in this pack's own
+# ontology.ttl comments and README.md draft text, to four parameterized
+# hooks: `smon:prioritize_escalation_obligation_{low,medium,high}` and
+# `smon:flag_ungoverned_transition`) partway through this same session,
+# most likely by a concurrent agent working that pack in parallel. The
+# `kh:after` triple below names `smon:flag_ungoverned_transition` (the
+# current hook this session verified exists), NOT the originally-planned
+# `smon:derive_escalation_obligation` (which no longer exists in that file
+# as of this pass). If self-monitoring-pack renames or removes
+# `flag_ungoverned_transition` in a LATER pass, this file's `kh:after` will
+# again fail to resolve with "unknown after-dependency" the next time both
+# packs are co-loaded -- this is a real, disclosed cross-pack coupling risk
+# inherent to declaring precedence against another pack's hook IRI by name,
+# not a defect unique to this file.
+
+@prefix kh:   <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix dfl:  <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix smon: <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+
+dfl:derive_review_obligation kh:after smon:flag_ungoverned_transition .

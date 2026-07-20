@@ -84,8 +84,7 @@ ex:DogShape a sh:NodeShape ;
 /// against the post-materialization fact state, not just the raw input.
 #[test]
 fn check_denials_reports_violated_denial_after_materialization() {
-    const DENIAL_N3: &str =
-        "@prefix ex: <http://example.org/>. {?s a ex:Animal} => false.";
+    const DENIAL_N3: &str = "@prefix ex: <http://example.org/>. {?s a ex:Animal} => false.";
     let rules = format!("{RULE_N3}\n{DENIAL_N3}");
     let engine = GraphLawEngine::new();
     let denials = engine

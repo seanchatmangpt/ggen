@@ -1,0 +1,7 @@
+# MESSAGE: mfw:DocsSurface must have mfw:standingAuthority false — ~/mfw/AGENTS.md's law states docs/ is explanations and projections, never standing authority (translated from shapes.ttl sh:hasValue false; the missing-value case is covered by 010_required.rq since mfw:DocsSurface is a mfw:AuthoritySurface)
+PREFIX mfw: <http://seanchatmangpt.github.io/packs/mfw#>
+SELECT ?value WHERE {
+  mfw:DocsSurface mfw:standingAuthority ?value .
+  FILTER(STR(?value) != "false")
+}
+ORDER BY ?value

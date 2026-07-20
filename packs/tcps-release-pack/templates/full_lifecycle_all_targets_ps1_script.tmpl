@@ -1,0 +1,11 @@
+---
+to: infra/scripts/full-lifecycle-all-targets.ps1
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:FullLifecycleAllTargetsPs1Script tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

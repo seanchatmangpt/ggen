@@ -1,0 +1,10 @@
+# MESSAGE: every book:Chapter must carry both book:sourcePath and book:sourceText -- a chapter missing either cannot be transcribed to its output file and is a refusal, never a silent skip
+PREFIX book: <http://seanchatmangpt.github.io/packs/level-five-book#>
+SELECT ?chapter WHERE {
+  ?chapter a book:Chapter .
+  FILTER (
+    NOT EXISTS { ?chapter book:sourcePath ?p } ||
+    NOT EXISTS { ?chapter book:sourceText ?t }
+  )
+}
+ORDER BY ?chapter

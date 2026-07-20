@@ -1,0 +1,14 @@
+---
+to: src/generated/113_113_one_writer_per_output.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章113 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 113: 113. One Writer per Output
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

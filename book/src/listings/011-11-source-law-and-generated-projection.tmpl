@@ -1,0 +1,14 @@
+---
+to: src/generated/011_11_source_law_and_generated_projection.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章11 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 11: 11. Source Law and Generated Projection
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

@@ -1,0 +1,11 @@
+---
+to: infra/containers/Dockerfile.release
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:DockerfileReleaseArtifact tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

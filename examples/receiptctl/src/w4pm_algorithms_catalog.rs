@@ -601,7 +601,7 @@ pub const CATALOG: &[AlgorithmInfo] = &[
         algorithm_id: "streaming_log",
         label: "StreamingLog",
         category: "discovery",
-        wasm_export: "discover_streaming_log",
+        wasm_export: "streaming_dfg_begin",
         cli_alias: "",
     },
     AlgorithmInfo {
@@ -757,7 +757,7 @@ pub fn by_wasm_export(export: &str) -> Option<AlgorithmId> {
         "discover_dfg_simd" => Some(AlgorithmId::SimdStreamingDfg),
         "discover_simulated_annealing" => Some(AlgorithmId::SimulatedAnnealing),
         "discover_smart_engine" => Some(AlgorithmId::SmartEngine),
-        "discover_streaming_log" => Some(AlgorithmId::StreamingLog),
+        "streaming_dfg_begin" => Some(AlgorithmId::StreamingLog),
         "discover_transition_system" => Some(AlgorithmId::TransitionSystem),
         "compute_working_together_network" => Some(AlgorithmId::WorkingTogetherNetwork),
         "export_yawl" => Some(AlgorithmId::YawlExport),

@@ -1,0 +1,14 @@
+---
+to: src/generated/019_19_pack_templates.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章19 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 19: 19. Pack Templates
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

@@ -1,0 +1,20 @@
+{
+  "release": "v26.7.19",
+  "flavor": "production.2",
+  "rust": "1.97.1",
+  "edition": "2024",
+  "core": {
+    "no_std": true,
+    "external_dependencies": 0,
+    "unsafe": "forbidden"
+  },
+  "products": [
+    "core-rlib",
+    "std-adapter",
+    "cli",
+    "c-abi",
+    "wasm"
+  ],
+  "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+}
+

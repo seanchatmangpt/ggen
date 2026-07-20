@@ -1,0 +1,12 @@
+PREFIX pack: <https://example.org/ggen/pack#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?item ?path ?order ?title
+WHERE {
+  ?item a pack:GeneratedUnit ;
+        pack:outputPath ?path ;
+        pack:order ?order ;
+        dcterms:title ?title .
+  FILTER(STRSTARTS(STR(?item), "https://example.org/ggen/pack#"))
+}
+ORDER BY ?order ?path

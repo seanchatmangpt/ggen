@@ -1,0 +1,23 @@
+# MESSAGE: output-count regression between the two most recent syncs -- the latest recorded sync emitted fewer files than its predecessor, which is the signature of a silently-dropped template or pack (the bug class caught by hand twice this session). If the shrink is intentional, record a ver:AcceptedShrink individual carrying the latest sync's ggenr:chainHash and the reason -- visible and queryable, never a shrug. Requires [law] reflexive = true.
+PREFIX ver:   <http://seanchatmangpt.github.io/packs/ggen-verify#>
+PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
+SELECT ?latest ?prevCount ?latestCount WHERE {
+  ?latest a ggenr:Sync ;
+          ggenr:index ?i ;
+          ggenr:chainHash ?latestChain ;
+          ggenr:outputCount ?latestCount .
+  FILTER NOT EXISTS {
+    ?newer a ggenr:Sync ;
+           ggenr:index ?k .
+    FILTER(?k > ?i)
+  }
+  ?prev a ggenr:Sync ;
+        ggenr:index ?h ;
+        ggenr:outputCount ?prevCount .
+  FILTER(?h = ?i - 1)
+  FILTER(?latestCount < ?prevCount)
+  FILTER NOT EXISTS {
+    ?ok a ver:AcceptedShrink ;
+        ver:chainHash ?latestChain .
+  }
+}

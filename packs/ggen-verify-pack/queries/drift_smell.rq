@@ -1,0 +1,23 @@
+# Observability query, deliberately NOT a gate: consecutive syncs whose
+# graphHash changed while outputCount stayed identical. This is a drift
+# *smell* (ontology changed but nothing regenerated differently -- possibly
+# a template not consuming new facts), not a violation: any legitimate
+# ontology comment edit produces the same signature, so refusing on it
+# would train consumers to bypass gates. Run it ad hoc / in review:
+#   ggen graph query --file packs/ggen-verify-pack/queries/drift_smell.rq
+# (or whatever query verb the CLI exposes; it is plain SPARQL over the
+# union graph with [law] reflexive = true).
+PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
+SELECT ?earlier ?later ?count WHERE {
+  ?later a ggenr:Sync ;
+         ggenr:index ?j ;
+         ggenr:graphHash ?laterHash ;
+         ggenr:outputCount ?count .
+  ?earlier a ggenr:Sync ;
+           ggenr:index ?i ;
+           ggenr:graphHash ?earlierHash ;
+           ggenr:outputCount ?count .
+  FILTER(?j = ?i + 1)
+  FILTER(STR(?earlierHash) != STR(?laterHash))
+}
+ORDER BY ?i

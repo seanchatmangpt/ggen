@@ -6,21 +6,22 @@
 //! - `wasm4pm-cognition-pack` -> `src/w4pm_cognition_{catalog,dispatch}.rs`
 //! - `wasm4pm-compat-pack` -> `src/wasm4pm_compat_events.rs`
 //! - `chicago-tdd-tools-pack` -> `tests/chicago_tdd_tools_boundary.rs`
-//! - `wasm4pm-facts-pack` -> `docs/releases/*/BREED_ALGORITHM_REGISTRY.md` (docs only)
+//! - `wasm4pm-facts-pack` -> `src/wasm4pm_facts_registry.rs` + registry doc
+//!
+//! Consumer wiring is now exactly ONE permanent line (the `include!` below):
+//! `[templates] aggregate_modules = true` in ggen.toml makes `ggen sync`
+//! emit an engine-owned `src/ggen_pack_mods.rs` mounting every generated
+//! `src/*.rs` module. This replaced the previous one-mount-per-pack
+//! hand-wiring (four `#[path]` mounts + two per-pack `include!`s) that the
+//! L5 audits scored as the consumer-effort gap, and that produced the
+//! FM-WRITE-008 lib.rs collision when packs tried to generate the wiring
+//! themselves.
 
 use clap_noun_verb::Result;
 
 pub mod verbs;
 
-// GENERATED catalogs/emission surfaces — see each module's own header.
-#[path = "w4pm_algorithms_catalog.rs"]
-pub mod w4pm_algorithms_catalog;
-#[path = "w4pm_cognition_catalog.rs"]
-pub mod w4pm_cognition_catalog;
-#[path = "w4pm_cognition_dispatch.rs"]
-pub mod w4pm_cognition_dispatch;
-#[path = "wasm4pm_compat_events.rs"]
-pub mod wasm4pm_compat_events;
+include!("ggen_pack_mods.rs");
 
 /// Auto-discover and dispatch every registered `#[verb]` command.
 pub fn run() -> Result<()> {

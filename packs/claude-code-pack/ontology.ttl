@@ -1,0 +1,109 @@
+# claude-code-pack ontology: Claude Code Workflow scripts as RDF.
+#
+# Vocabulary: a ccw:Workflow owns ordered ccw:Phase individuals; each phase
+# owns ccw:AgentJob individuals (parallel within a phase unless
+# ccw:sequential true). Prompts are authored string literals. Templates
+# project these into runnable Workflow-tool JS scripts.
+#
+# The seeded individual below is a real, reusable workflow distilled from
+# this repository's own development sessions: the implement -> verify shape
+# with fan-out batches, used (in hand-written form) for the TCPS build, the
+# all-packs L5 push, and the SHACL->gates migration.
+
+@prefix ccw:  <http://seanchatmangpt.github.io/packs/claude-code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Vocabulary ------------------------------------------------------------
+
+ccw:Workflow a rdfs:Class ;
+    rdfs:comment "One Claude Code Workflow script: ccw:name (meta.name, kebab-case), ccw:description (meta.description), ordered ccw:hasPhase links." .
+
+ccw:Phase a rdfs:Class ;
+    rdfs:comment "One phase() group: ccw:title, ccw:detail, ccw:order (xsd:integer), ccw:isVerifyPhase (exactly one required per workflow -- gated), ccw:hasJob links." .
+
+ccw:AgentJob a rdfs:Class ;
+    rdfs:comment "One agent() call: ccw:label, ccw:prompt (authored literal -- the full agent instruction), ccw:effort (low/medium/high), ccw:parallelGroup (jobs sharing a group run inside one parallel())." .
+
+# --- Seeded workflow: implement-verify (the session-proven shape) -----------
+
+ccw:wf-implement-verify a ccw:Workflow ;
+    ccw:name "implement-verify" ;
+    ccw:description "Parallel implementation fan-out followed by a sequential independent-verification agent; the verify agent re-runs the full check matrix itself and reports real exit codes -- upstream agents' self-reports are inputs, never proof." ;
+    ccw:hasPhase ccw:wf-iv-implement, ccw:wf-iv-verify .
+
+ccw:wf-iv-implement a ccw:Phase ;
+    ccw:title "Implement" ;
+    ccw:detail "parallel implementation batches" ;
+    ccw:order 0 ;
+    ccw:isVerifyPhase false ;
+    ccw:hasJob ccw:wf-iv-job-implement .
+
+ccw:wf-iv-job-implement a ccw:AgentJob ;
+    ccw:label "implement" ;
+    ccw:effort "medium" ;
+    ccw:parallelGroup "batches" ;
+    ccw:prompt """You are one implementation batch of a larger fan-out. Read the real files named in your batch before editing anything -- never paraphrase from memory. Make the changes your batch owns, run the narrowest real command that exercises them (build or focused test), and report: files touched, the exact command run, and its real exit code. Do not claim completion without the command output. Do not touch files outside your batch.""" .
+
+ccw:wf-iv-verify a ccw:Phase ;
+    ccw:title "Verify" ;
+    ccw:detail "independent re-run of the full check matrix" ;
+    ccw:order 1 ;
+    ccw:isVerifyPhase true ;
+    ccw:hasJob ccw:wf-iv-job-verify .
+
+ccw:wf-iv-job-verify a ccw:AgentJob ;
+    ccw:label "verify" ;
+    ccw:effort "high" ;
+    ccw:parallelGroup "verify" ;
+    ccw:prompt """You are the independent verification agent. The implementation agents' reports are INPUTS, not proof: re-run the full check matrix yourself (workspace build, the relevant test suites, formatting), read the actual diffs of every claimed change, and fix real failures at their root cause -- never by weakening an assertion. Report every suite's exact pass/fail counts and any claim from the implementation phase that did not survive your re-run, named plainly. Do not commit.""" .
+
+# --- Agents & Skills (generated .claude/ surfaces) ---------------------------
+# Vendored vocabulary reference: reference/claude-code-config.ttl (from
+# ~/claude-code-config-lsp, itself a ggen-generated LSP whose ccc: ontology
+# models these exact config surfaces + their diagnostic law). This pack's
+# ccw:Agent/ccw:Skill individuals are projected into .claude/agents/*.md and
+# .claude/skills/*/SKILL.md by the templates.
+
+ccw:Agent a rdfs:Class ;
+    rdfs:comment "One Claude Code subagent definition (.claude/agents/<name>.md): ccw:name, ccw:description (the WHEN-to-use text shown to the dispatching model), ccw:tools (comma-separated allowlist or 'inherit'), ccw:prompt (the agent's system-prompt body, authored literal)." .
+
+ccw:Skill a rdfs:Class ;
+    rdfs:comment "One Claude Code skill (.claude/skills/<name>/SKILL.md): ccw:name, ccw:description (trigger text), ccw:prompt (the skill instruction body, authored literal)." .
+
+# Agent: the independent-verification role, distilled from this repo's own
+# session discipline (never accept an implementing agent's self-report).
+ccw:agent-independent-verifier a ccw:Agent ;
+    ccw:name "independent-verifier" ;
+    ccw:description "Use after any multi-agent implementation round, before committing: independently re-runs the full check matrix (build, tests, fmt, consumer syncs) and hand-reads the claimed diffs. Its report is the ground truth the commit message may cite." ;
+    ccw:tools "Bash, Read, Grep, Glob" ;
+    ccw:prompt """You are the independent verification agent for this repository. Upstream agents' reports are INPUTS, never proof.
+
+Re-run the full real check matrix yourself: workspace build, every affected test suite, formatting checks, and any consumer example syncs the change touches. Read the actual diffs of every claimed change against what the report said was done. Where the repo provides a mechanized loop (e.g. `just verify-tcps`, `just docs-sync`), prefer it over hand-typing the matrix, and treat a gate refusal as the finding, not an obstacle.
+
+Fix nothing silently: report every suite's exact pass/fail counts, every claim that did not survive your re-run (named plainly), and every file changed outside the claimed scope. Never weaken an assertion to make a suite pass. Do not commit.""" .
+
+# Agent: the verbatim-transcription role (the proven TCPS fan-out worker).
+ccw:agent-pack-transcriber a ccw:Agent ;
+    ccw:name "pack-transcriber" ;
+    ccw:description "Use for fan-out transcription of a real reference implementation into ggen pack ontology fragments: reads real files, embeds them as verbatim sourceText literals, verifies round-trip by checksum." ;
+    ccw:tools "Bash, Read, Write, Grep, Glob" ;
+    ccw:prompt """You transcribe real reference files into RDF ontology fragments for a ggen pack, using the byte-fidelity method proven by this repo's tcps-core-pack.
+
+Rules: read every source file with the Read tool -- never paraphrase or reconstruct from memory. Embed content as verbatim Turtle long-string literals, escaping only what Turtle's parser forces you to escape (and remember Turtle unescapes backslash sequences: a literal backslash in source must be doubled in the ontology or it will silently corrupt the round-trip -- this exact bug shipped once and was caught by a failing byte-identity check). After writing each fragment, verify the round-trip: the literal's decoded byte length must equal the source file's byte length. Report per-file: transcribed/verified, and name any file whose content required escaping.""" .
+
+# Skill: the L5 pack method itself, as an invocable checklist.
+ccw:skill-l5-pack-method a ccw:Skill ;
+    ccw:name "l5-pack-method" ;
+    ccw:description "Use when creating or maturing a ggen pack toward Level 5: the reference-oracle method (vendor a real implementation, transcribe verbatim, prove fidelity with the reference's own tests, gate everything)." ;
+    ccw:prompt """# The L5 Pack Method
+
+Follow these steps, in order, when building a ggen pack whose claim is completeness:
+
+1. **Find a real reference.** A finished, independently-authored implementation with its own test suite. If none exists, say so plainly -- do not fabricate one; score honestly lower.
+2. **Vendor it read-only** under the pack's reference/ directory. It is an oracle, never output, never hand-edited. Record its manifest hashes.
+3. **Transcribe verbatim** into ontology sourceText literals (whole files first; structured decomposition is a later refinement, not a prerequisite). Watch Turtle escaping: backslashes double, embedded triple-quotes escape.
+4. **Prove fidelity with the reference's own tests**, copied byte-identical (checksum before and after -- never retyped). A verbatim third-party suite passing against generated code beats any hand-written assertion.
+5. **Gate everything**: gates/*.rq with '# MESSAGE:' headers; every structural invariant a SELECT returning violations; a negative-case probe proven to refuse (FM-PACK-013) before you claim the gate works.
+6. **Prove idempotency**: sync twice, whole-tree diff -- only the receipt chain may differ.
+7. **Score honestly** in docs/packs/PACK_MATURITY_MODEL.md (via .specify/maturity.ttl): every cell cites a named artifact; no level without one. Known divergences from the reference get named allowlists with recorded reasons, never silence.""" .

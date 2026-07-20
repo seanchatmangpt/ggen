@@ -1,0 +1,12 @@
+# MESSAGE: obligation lifecycle implications: an obligation with smon:status smon:Discharged must carry smon:dischargedAt, and one with smon:status smon:Refused must carry smon:refusalReason (translated from shapes.ttl's two SHACL-Core "(NOT P) OR Q" sh:or workarounds — that encoding existed only because the engine's SHACL dialect is hardcoded CORE_ONLY and rejects sh:sparql; SPARQL states the real "if P then Q" intent directly)
+PREFIX smon: <http://seanchatmangpt.github.io/packs/self-monitoring#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s smon:status smon:Discharged . BIND(smon:dischargedAt AS ?missing)
+    FILTER NOT EXISTS { ?s smon:dischargedAt ?t }
+  } UNION {
+    ?s smon:status smon:Refused . BIND(smon:refusalReason AS ?missing)
+    FILTER NOT EXISTS { ?s smon:refusalReason ?r }
+  }
+}
+ORDER BY ?s ?missing

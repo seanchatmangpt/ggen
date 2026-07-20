@@ -142,12 +142,17 @@ ggenspec:PackRef-Git-version
 ggenspec:Templates
     a ggenspec:Section ; rdfs:label "Templates" ;
     rdfs:comment "Where Tera templates live (crate::config::Templates)." ;
-    ggenspec:hasField ggenspec:Templates-dir .
+    ggenspec:hasField ggenspec:Templates-dir , ggenspec:Templates-aggregate_modules .
 
 ggenspec:Templates-dir
     a ggenspec:Field ; ggenspec:name "dir" ; ggenspec:type ggenspec:Path ;
     ggenspec:required true ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
     rdfs:comment "Template directory, relative to the manifest. No traversal, no null bytes (Validator::check_path)." .
+
+ggenspec:Templates-aggregate_modules
+    a ggenspec:Field ; ggenspec:name "aggregate_modules" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "When true, sync emits one engine-owned src/ggen_pack_mods.rs aggregator mounting every generated src/*.rs module. Defaults to false (existing consumers unchanged). Was present on the struct without a TTL entry before 2026-07-19 — pre-existing drift caught by tests/ggen_toml_schema_match.rs and fixed alongside the Law-gates addition." .
 
 # ---------------------------------------------------------------------------
 # [law]
@@ -155,8 +160,8 @@ ggenspec:Templates-dir
 
 ggenspec:Law
     a ggenspec:Section ; rdfs:label "Law" ;
-    rdfs:comment "Law-state inputs for the sync pipeline (crate::config::Law): rules are materialized after Enrich; shapes gate rendering." ;
-    ggenspec:hasField ggenspec:Law-rules , ggenspec:Law-shapes .
+    rdfs:comment "Law-state inputs for the sync pipeline (crate::config::Law): rules are materialized after Enrich; SPARQL gate files gate rendering; reflexive opts receipt history into the graph." ;
+    ggenspec:hasField ggenspec:Law-rules , ggenspec:Law-shapes , ggenspec:Law-gates , ggenspec:Law-reflexive .
 
 ggenspec:Law-rules
     a ggenspec:Field ; ggenspec:name "rules" ; ggenspec:type ggenspec:ListOfPath ;
@@ -166,7 +171,17 @@ ggenspec:Law-rules
 ggenspec:Law-shapes
     a ggenspec:Field ; ggenspec:name "shapes" ; ggenspec:type ggenspec:ListOfPath ;
     ggenspec:required false ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
-    rdfs:comment "Turtle SHACL shapes file paths, relative to the manifest, each validated against the post-materialization graph. No traversal, no null bytes (Validator::check_path)." .
+    rdfs:comment "LEGACY, refused at sync time: Turtle SHACL shapes file paths. Replaced by Law-gates (SPARQL gate queries); a non-empty list makes sync fail closed with FM-LAW-012 naming the migration. Kept deserializable so old configs get that clear error, not a serde unknown-field failure. Still read by author-time `ggen law validate`." .
+
+ggenspec:Law-gates
+    a ggenspec:Field ; ggenspec:name "gates" ; ggenspec:type ggenspec:ListOfPath ;
+    ggenspec:required false ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
+    rdfs:comment "SPARQL gate file paths (*.rq), relative to the manifest, each evaluated against the post-materialization graph in listed order. Optional leading '# MESSAGE: <text>' lines, then one ASK (true = violation) or SELECT (any row = violation) query — FM-LAW-013 on violation. Engine-independent (plain SPARQL on both backends). No traversal, no null bytes (Validator::check_path)." .
+
+ggenspec:Law-reflexive
+    a ggenspec:Field ; ggenspec:name "reflexive" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Opt-in reflexive receipts: when true, .ggen-v2/receipt-log.jsonl is parsed at Stage 1 and each sync receipt is inserted as ggenr:Sync facts before templates render. Defaults to false. Was present on the struct without a TTL entry before 2026-07-19 — pre-existing drift fixed alongside the Law-gates addition." .
 
 # ---------------------------------------------------------------------------
 # Shared scalar/collection type markers

@@ -1,0 +1,11 @@
+[package]
+name = "canonical-level-five-consumer"
+version = "26.7.19"
+edition = "2024"
+publish = false
+
+# Standalone teaching example living inside the ggen repo checkout — keep it
+# out of the root cargo workspace.
+[workspace]
+
+[dependencies]

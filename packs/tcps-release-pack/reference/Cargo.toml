@@ -1,0 +1,53 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/tcps-core",
+    "crates/tcps-std",
+    "crates/tcps-ffi",
+    "crates/tcps-wasm",
+    "crates/tcps-cli",
+]
+default-members = [
+    "crates/tcps-core",
+    "crates/tcps-std",
+    "crates/tcps-cli",
+]
+
+[workspace.package]
+version = "26.7.19"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT OR Apache-2.0"
+authors = ["Sean Chatman"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+correctness = "deny"
+suspicious = "deny"
+perf = "deny"
+style = "warn"
+complexity = "warn"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+overflow-checks = true
+
+[profile.release-with-debug]
+inherits = "release"
+debug = 2
+strip = "none"
+
+[profile.size]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+strip = "symbols"

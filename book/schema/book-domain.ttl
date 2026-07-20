@@ -1,0 +1,9 @@
+# level-five-book consumer ontology — this project needs zero project-specific
+# facts: level-five-book-pack is fully self-contained, driven entirely from its
+# own pack ontology.ttl individuals (366 book:Chapter + 366 book:Listing).
+# Prefix declarations only, matching the pack's book: namespace
+# (see ../../packs/level-five-book-pack/ontology.ttl).
+
+@prefix book: <http://seanchatmangpt.github.io/packs/level-five-book#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

@@ -1,0 +1,48 @@
+# fixtures/pattern-ungoverned.ttl -- POSITIVE fixture for the L5-push
+# Governance-coverage catch-all detector (smon:flag_ungoverned_transition,
+# hook.ttl). Session shape: turn-1 (GroundingQuestion, topic "atomvm erlang
+# boot sequence") is immediately followed by turn-2, classified smon:Other
+# -- neither a SurveyResponse (the one pattern smon:derive_escalation_
+# obligation's severity-parameterized variants govern) nor a RunResponse/
+# BlockerResponse (the two kinds README's adversarial check 1 already
+# proves never warrant escalation). This turn-1/turn-2 pair therefore falls
+# OUTSIDE every pattern this pack's other hooks recognize -- exactly the
+# case smon:UngovernedTransition exists to flag.
+#
+# Expected result after materialize(): exactly ONE smon:UngovernedTransition
+# node, hasUngovernedQuestion -> <#turn-1>, hasUngovernedResponse ->
+# <#turn-2>; ZERO smon:EscalationObligation nodes (turn-2 is not a
+# SurveyResponse, so none of the three severity-parameterized hooks match).
+
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://seanchatmangpt.github.io/packs/self-monitoring/fixtures/pattern-ungoverned#> .
+
+<#operator>
+    a prov:Agent , prov:SoftwareAgent ;
+    dcterms:description "The Claude Code agent instance for this sample session." .
+
+<#session>
+    a                      dfl:Session ;
+    dcterms:identifier     "demo-pattern-ungoverned-1" ;
+    prov:wasAssociatedWith <#operator> ;
+    dcterms:description    "Sample session where a GroundingQuestion's response is classified Other -- neither survey, run, nor blocker -- so no existing pattern governs the transition." .
+
+<#turn-1>
+    a                  smon:Turn ;
+    dcterms:isPartOf   <#session> ;
+    dcterms:subject    "atomvm erlang boot sequence" ;
+    smon:sequenceIndex 1 ;
+    smon:turnKind      smon:GroundingQuestion ;
+    dcterms:description "\"Does AtomVM's boot sequence actually reach the Erlang shell on this board?\"" .
+
+<#turn-2>
+    a                       smon:Turn ;
+    dcterms:isPartOf        <#session> ;
+    dcterms:subject         "atomvm erlang boot sequence" ;
+    smon:sequenceIndex      2 ;
+    smon:turnKind           smon:Other ;
+    smon:immediatelyFollows <#turn-1> ;
+    dcterms:description     "A reply that neither surveys, runs, nor names a blocker -- e.g. a clarifying counter-question about which board revision is meant. Not classifiable as any of the other four TurnKind concepts." .

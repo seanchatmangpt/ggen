@@ -1,0 +1,17 @@
+# MESSAGE: every mfw:CycleStage must carry mfw:order/rdfs:label/mfw:nextStage (the cycle is a single closed loop, no dead ends), every mfw:AuthoritySurface mfw:path/rdfs:comment/mfw:standingAuthority (no surface may be silently undeclared — fail-closed per is_standing_authority's own contract), and every mfw:Crate rdfs:label (translated from shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property)
+PREFIX mfw:  <http://seanchatmangpt.github.io/packs/mfw#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a mfw:CycleStage .
+    VALUES ?missing { mfw:order rdfs:label mfw:nextStage }
+  } UNION {
+    ?s a mfw:AuthoritySurface .
+    VALUES ?missing { mfw:path rdfs:comment mfw:standingAuthority }
+  } UNION {
+    ?s a mfw:Crate .
+    VALUES ?missing { rdfs:label }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

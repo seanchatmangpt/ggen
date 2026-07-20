@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章80
+    a pack:生成単位 ;
+    dcterms:title "80. Source Text as a Transitional Technique"@en ;
+    pack:出力経路 "src/generated/080_80_source_text_as_a_transitional_technique.rs" ;
+    pack:順序 80 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

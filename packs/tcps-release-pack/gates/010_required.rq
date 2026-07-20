@@ -1,0 +1,17 @@
+# MESSAGE: every tcps:PackagingTarget must have tcps:manifestPath; every tcps:CiWorkflow must have tcps:triggerEvent; every tcps:CiPlatformConfig must have tcps:workflowBody; every tcps:ReleaseArtifact must have tcps:artifactBody; every tcps:Tier must have tcps:targetList (translated from shapes.ttl sh:minCount 1 on each class's shape; any row = a subject missing the bound ?missing property)
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a tcps:PackagingTarget . BIND(tcps:manifestPath AS ?missing)
+  } UNION {
+    ?s a tcps:CiWorkflow . BIND(tcps:triggerEvent AS ?missing)
+  } UNION {
+    ?s a tcps:CiPlatformConfig . BIND(tcps:workflowBody AS ?missing)
+  } UNION {
+    ?s a tcps:ReleaseArtifact . BIND(tcps:artifactBody AS ?missing)
+  } UNION {
+    ?s a tcps:Tier . BIND(tcps:targetList AS ?missing)
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

@@ -1,4 +1,4 @@
 [pack]
 name = "wasm4pm-algorithms-pack"
 version = "0.1.0"
-description = "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm)"
+description = "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm); generates tests/algorithms_catalog_proof.rs (literal-value proof against ontology.ttl for the CATALOG table and by_wasm_export/as_str dispatch), tests/algorithms_target_fidelity_proof.rs (real compiled call into pinned wasm4pm-compat for the 1/60 pi:verifiedAgainst row), and src/w4pm_algorithms_invocation_dispatch.rs + tests/algorithms_invocation_dispatch_proof.rs (a real AlgorithmId -> compiled external call dispatcher, honestly scoped to the same 1/60 verified row, with the other 59 failing closed via a typed DispatchError::NotComposable rather than a stub or panic)"

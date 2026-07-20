@@ -1,0 +1,7 @@
+{
+  "name": "@tcps/core",
+  "version": "26.7.19",
+  "description": "Toyota Code Production System WebAssembly capability boundary",
+  "license": "MIT OR Apache-2.0",
+  "files": ["tcps_wasm.wasm", "README.md"]
+}

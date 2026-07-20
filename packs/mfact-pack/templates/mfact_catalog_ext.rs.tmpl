@@ -1,0 +1,35 @@
+---
+to: src/mfact_catalog_ext.rs
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/mfact-pack
+unless_exists: true
+---
+//! Hand-editable extension point for `mfact_catalog`, created ONCE by
+//! `mfact-pack` and never silently clobbered afterward.
+//!
+//! This file demonstrates the pack's freeze/inject-coexistence mechanism
+//! (`docs/packs/L5_VALIDATION_REPORT.md`'s Regeneration-lifecycle gap:
+//! "no freeze/inject mechanism letting hand-edits and generated content
+//! coexist across regens"). Two engine-enforced guards stack here, verified
+//! live against a real scratch consumer (not merely asserted):
+//! `unless_exists: true` is the guard that actually fires on every re-sync
+//! once this file exists (confirmed: `ggen sync run`'s decision log reports
+//! `"skipped: unless_exists: ... already exists"`), so a hand-edit made
+//! after first generation was observed to survive a real subsequent
+//! `ggen sync run` unchanged. `freeze_policy: checksum` +
+//! `freeze_slots_dir` is also declared as a second, independent guard
+//! (`crates/ggen-engine/src/write.rs`'s `check_freeze`, decision order 5,
+//! after `unless_exists` at order 2) for the case this file's `to:` target
+//! is ever reached without `unless_exists` short-circuiting first -- its
+//! own checksum-mismatch branch was not separately exercised in this
+//! verification pass, since `unless_exists` always wins first here; stated
+//! honestly rather than implied as independently observed.
+//!
+//! Add hand-written logic that builds on the generated catalog here (e.g.
+//! project-specific dispatch over `mfact_catalog::MFACT_PIPELINE`). Mirrors
+//! `mfa:handsOffTo`/`mfa:writesTo` structure that is not yet itself
+//! ontology-expressed as executable behavior -- see the pack's honest
+//! Generation-depth/Handler-gap scoring for what remains L1/L2 here.
+
+#[allow(unused_imports)]
+use crate::mfact_catalog;

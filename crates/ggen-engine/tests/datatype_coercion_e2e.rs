@@ -72,7 +72,10 @@ fn xsd_integer_renders_through_arithmetic_proving_it_is_a_real_number() {
 
     run_sync(dir.path());
     let out = std::fs::read_to_string(dir.path().join("out/int.txt")).expect("read output");
-    assert_eq!(out, "43", "xsd:integer must arithmetic-add as a real number: {out:?}");
+    assert_eq!(
+        out, "43",
+        "xsd:integer must arithmetic-add as a real number: {out:?}"
+    );
 }
 
 /// `xsd:boolean` correctly gates `{% if %}`/`{% else %}` for BOTH `true`

@@ -1,0 +1,13 @@
+# MESSAGE: mfa:handsOffTo, when present, must point at another mfa:PipelineStage, and mfa:readsFrom/mfa:writesTo must point only at mfa:AuthorityDir individuals in the union graph (translated from shapes.ttl sh:class; enforceable here because sync gates run against the full union graph)
+PREFIX mfa: <http://seanchatmangpt.github.io/packs/mfact#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a mfa:PipelineStage ; mfa:handsOffTo ?value . BIND(mfa:handsOffTo AS ?p)
+    FILTER NOT EXISTS { ?value a mfa:PipelineStage }
+  } UNION {
+    ?s a mfa:PipelineStage ; ?p ?value .
+    VALUES ?p { mfa:readsFrom mfa:writesTo }
+    FILTER NOT EXISTS { ?value a mfa:AuthorityDir }
+  }
+}
+ORDER BY ?s ?p

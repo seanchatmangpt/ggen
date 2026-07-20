@@ -1,0 +1,37 @@
+name: all-built-in-targets
+
+on:
+  schedule:
+    - cron: "31 4 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tier3-best-effort:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable and nightly Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup toolchain install nightly --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build one target shard
+        run: >-
+          python tools/lifecycle.py build-all
+          --tiers 3
+          --product core
+          --shard-index ${{ matrix.shard }}
+          --shard-count 16
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier3-receipts-${{ matrix.shard }}
+          path: receipts/
+

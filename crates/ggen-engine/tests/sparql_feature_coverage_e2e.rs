@@ -152,7 +152,10 @@ fn filter_clause_restricts_result_set() {
 
     run_sync(dir.path());
     let out = std::fs::read_to_string(dir.path().join("out.txt")).expect("read output");
-    assert_eq!(out, "Alice;", "FILTER must restrict to only the matching row: {out:?}");
+    assert_eq!(
+        out, "Alice;",
+        "FILTER must restrict to only the matching row: {out:?}"
+    );
 }
 
 /// A `UNION` clause correctly combines two alternative patterns (`Person`

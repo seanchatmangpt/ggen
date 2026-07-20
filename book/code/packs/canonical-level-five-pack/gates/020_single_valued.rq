@@ -1,0 +1,9 @@
+# MESSAGE: ex:order and ex:code are single-valued on every ex:Capability (translated from the retired shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX ex: <https://example.org/level-five#>
+SELECT ?s ?p WHERE {
+  ?s a ex:Capability .
+  VALUES ?p { ex:order ex:code }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

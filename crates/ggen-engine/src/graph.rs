@@ -221,9 +221,7 @@ fn graph_pattern_has_graph_clause(pattern: &spargebra::algebra::GraphPattern) ->
         } => {
             graph_pattern_has_graph_clause(left)
                 || graph_pattern_has_graph_clause(right)
-                || expression
-                    .as_ref()
-                    .is_some_and(expression_has_graph_clause)
+                || expression.as_ref().is_some_and(expression_has_graph_clause)
         }
         GP::Filter { expr, inner } => {
             expression_has_graph_clause(expr) || graph_pattern_has_graph_clause(inner)
@@ -475,6 +473,16 @@ pub trait GraphEngine: Send + Sync {
     /// Typed refusal when the engine has no rule support, or on parse errors.
     fn load_rules(&self, rules: &str) -> Result<usize>;
 
+    /// Load a `kh:` Knowledge Hook pack (Turtle content: `kh:Hook`/
+    /// `kh:Action` individuals, e.g. a pack's `hook.ttl`), registering its
+    /// hooks so a subsequent [`GraphEngine::materialize`] fires them over
+    /// the union graph.
+    ///
+    /// # Errors
+    /// Typed refusal when the engine has no knowledge-hook support, or on
+    /// parse errors in the hook document.
+    fn load_hook_pack(&self, hook_ttl: &str) -> Result<()>;
+
     /// Forward-chain all loaded rules to fixpoint, folding derived facts
     /// back into the queryable state.
     ///
@@ -495,9 +503,7 @@ pub trait GraphEngine: Send + Sync {
     /// Typed refusal when the engine has no ShEx support, or on schema
     /// parse errors.
     fn validate_shex(
-        &self,
-        schema_shexc: &str,
-        shape_map: &[(String, String)],
+        &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome>;
 
     /// Evaluate every loaded denial rule (`{ body } => false.`) against the
@@ -718,9 +724,7 @@ impl GraphEngine for DeterministicGraph {
     }
 
     fn validate_shex(
-        &self,
-        _schema_shexc: &str,
-        _shape_map: &[(String, String)],
+        &self, _schema_shexc: &str, _shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome> {
         Err(AppError::fm_law(
             3,
@@ -733,6 +737,14 @@ impl GraphEngine for DeterministicGraph {
         Err(AppError::fm_law(
             1,
             "the oxigraph engine has no denial-rule support. \
+             Remediation: run with the default GraphLaw engine.",
+        ))
+    }
+
+    fn load_hook_pack(&self, _hook_ttl: &str) -> Result<()> {
+        Err(AppError::fm_law(
+            15,
+            "the oxigraph engine has no knowledge-hook support. \
              Remediation: run with the default GraphLaw engine.",
         ))
     }
@@ -767,6 +779,14 @@ pub struct GraphLawStore {
 struct LawState {
     /// Raw N3 rule documents, in load order.
     rules_src: Vec<String>,
+    /// Raw `kh:` Knowledge Hook pack documents (Turtle), in load order —
+    /// mirrors `rules_src`'s replay-on-rebuild treatment: `TripleStore` is
+    /// rebuilt from scratch at each `materialize()`/`validate_*`/
+    /// `check_denials` call (see [`GraphLawStore::build_law_store`]), so a
+    /// hook pack loaded via [`GraphEngine::load_hook_pack`] must be replayed
+    /// alongside the rules on every rebuild or it would silently vanish
+    /// after the first materialize.
+    hooks_src: Vec<String>,
     /// Reasoner state from the last `materialize()` (None before the first).
     store: Option<praxis_graphlaw::TripleStore>,
     /// Number of rules loaded into the reasoner.
@@ -802,11 +822,10 @@ impl GraphLawStore {
         Ok(lines.iter().map(|l| format!("{l} .\n")).collect())
     }
 
-    /// Build a fresh GraphLaw `TripleStore` over the mirror's facts and the
-    /// loaded rule documents.
+    /// Build a fresh GraphLaw `TripleStore` over the mirror's facts, the
+    /// loaded rule documents, and the loaded `kh:` hook-pack documents.
     fn build_law_store(
-        &self,
-        rules_src: &[String],
+        &self, rules_src: &[String], hooks_src: &[String],
     ) -> Result<(praxis_graphlaw::TripleStore, usize)> {
         use praxis_graphlaw::parser::Syntax;
         let nt = self.mirror_ntriples()?;
@@ -817,6 +836,11 @@ impl GraphLawStore {
         for src in rules_src {
             ts.load_rules(src)
                 .map_err(|e| AppError::fm_law(6, format!("GraphLaw rule load refused: {e}")))?;
+        }
+        for hook_src in hooks_src {
+            ts.load_hook_pack(hook_src).map_err(|e| {
+                AppError::fm_law(16, format!("GraphLaw hook pack load refused: {e}"))
+            })?;
         }
         let rules_loaded = ts.rules.len();
         Ok((ts, rules_loaded))
@@ -850,7 +874,7 @@ impl GraphEngine for GraphLawStore {
 
     fn materialize(&self) -> Result<MaterializeOutcome> {
         let mut state = self.law_state()?;
-        let (mut ts, rules_loaded) = self.build_law_store(&state.rules_src)?;
+        let (mut ts, rules_loaded) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
         let derived = ts
             .materialize()
             .map_err(|e| AppError::fm_law(9, format!("Reasoner materialize failed: {e}")))?;
@@ -903,7 +927,7 @@ impl GraphEngine for GraphLawStore {
         // Validate against the full current fact state (post-materialization
         // if materialize ran), by building a law store over the mirror.
         let state = self.law_state()?;
-        let (ts, _) = self.build_law_store(&state.rules_src)?;
+        let (ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
         let report = ts
             .validate_shacl(shapes_turtle)
             .map_err(|e| AppError::fm_law(8, format!("SHACL shapes graph refused: {e}")))?;
@@ -925,12 +949,10 @@ impl GraphEngine for GraphLawStore {
     }
 
     fn validate_shex(
-        &self,
-        schema_shexc: &str,
-        shape_map: &[(String, String)],
+        &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome> {
         let state = self.law_state()?;
-        let (ts, _) = self.build_law_store(&state.rules_src)?;
+        let (ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
         let report = ts
             .validate_shex_c(schema_shexc, shape_map)
             .map_err(|e| AppError::fm_law(9, format!("ShExC schema refused: {e}")))?;
@@ -958,12 +980,24 @@ impl GraphEngine for GraphLawStore {
                 // Denials are rules; without a materialize pass there is no
                 // reasoner state. Build one so `law validate` can be called
                 // without an explicit prior derive.
-                let (mut ts, _) = self.build_law_store(&state.rules_src)?;
+                let (mut ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
                 ts.materialize()
                     .map_err(|e| crate::AppError::fm_law(9, format!("Materialize failed: {e}")))?;
                 Ok(ts.check_denials())
             }
         }
+    }
+
+    fn load_hook_pack(&self, hook_ttl: &str) -> Result<()> {
+        // Parse (and hook-compile) eagerly against a throwaway probe so a
+        // bad hook document is refused at load time, not at the later
+        // materialize call — same convention as `load_rules` above.
+        let mut probe = praxis_graphlaw::TripleStore::new();
+        probe
+            .load_hook_pack(hook_ttl)
+            .map_err(|e| AppError::fm_law(16, format!("GraphLaw hook pack load refused: {e}")))?;
+        self.law_state()?.hooks_src.push(hook_ttl.to_string());
+        Ok(())
     }
 }
 
@@ -1157,8 +1191,7 @@ fn collect_blank_nodes(quads: &[Quad]) -> HashSet<BlankNode> {
 /// for every blank node, then map each to a `c14n{i}` label in signature
 /// order (ties broken by original label for determinism within this graph).
 fn canonical_blank_node_map(
-    quads: &[Quad],
-    blank_nodes: &HashSet<BlankNode>,
+    quads: &[Quad], blank_nodes: &HashSet<BlankNode>,
 ) -> Result<HashMap<BlankNode, BlankNode>> {
     let mut labels: HashMap<BlankNode, String> = blank_nodes
         .iter()
@@ -1209,9 +1242,7 @@ fn quad_touches(quad: &Quad, bnode: &BlankNode) -> bool {
 /// Render one neighborhood line for the signature of `bnode`, substituting
 /// `_:self` for the node itself and current labels for other blank nodes.
 fn neighborhood_line(
-    quad: &Quad,
-    bnode: &BlankNode,
-    labels: &HashMap<BlankNode, String>,
+    quad: &Quad, bnode: &BlankNode, labels: &HashMap<BlankNode, String>,
 ) -> String {
     let blank_repr = |b: &BlankNode| -> String {
         if b == bnode {

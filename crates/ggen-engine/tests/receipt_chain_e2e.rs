@@ -513,7 +513,11 @@ fn sign_then_verify_reports_signed_and_signature_valid_true() {
         .signature_hex
         .as_deref()
         .expect("signature_hex must be present after a real sync");
-    assert_eq!(sig_hex.len(), 128, "ed25519 signature is 64 bytes = 128 hex chars");
+    assert_eq!(
+        sig_hex.len(),
+        128,
+        "ed25519 signature is 64 bytes = 128 hex chars"
+    );
     assert!(sig_hex.chars().all(|c| c.is_ascii_hexdigit()));
 
     let signing_key_hex =

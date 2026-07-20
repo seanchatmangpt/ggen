@@ -1,0 +1,9 @@
+# MESSAGE: a w4c:Crate's rdfs:label and w4c:purpose must both be non-empty strings (translated from shapes.ttl's sh:datatype xsd:string + sh:minLength 1 constraints on both properties)
+PREFIX w4c:  <http://seanchatmangpt.github.io/packs/wasm4pm-crate#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p ?value WHERE {
+  ?s a w4c:Crate ; ?p ?value .
+  VALUES ?p { rdfs:label w4c:purpose }
+  FILTER(STRLEN(STR(?value)) = 0)
+}
+ORDER BY ?s ?p

@@ -1,0 +1,7 @@
+# MESSAGE: Referenced tcps:Module must have a tcps:name (i.e. must actually be declared in the graph, not merely typed) (translated from shapes.ttl tcps:ModuleNodeShape sh:property[sh:path tcps:name; sh:minCount 1], inlined into the referencing tcps:dependsOnModule check rather than recursed; any row = a dependency target with no tcps:name)
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-core#>
+SELECT ?s ?dep WHERE {
+  ?s tcps:dependsOnModule ?dep .
+  FILTER NOT EXISTS { ?dep tcps:name ?name }
+}
+ORDER BY ?s ?dep

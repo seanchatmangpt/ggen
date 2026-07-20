@@ -1,0 +1,21 @@
+# CQ6.1 (COMPETENCY_QUESTIONS.md concept 6): "Has the Board of Directors
+# adopted a resolution authorizing this specific merger/acquisition, and
+# when?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (1 row: board-resolution-meridian-2026-03-28 authorizing
+# deal/MHC-2026-0091 at 2026-03-28T16:00:00Z) via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/. fixtures/case-2.ttl asserts NO
+# ma:BoardResolution at all (its own header discloses this omission) --
+# confirmed 0 rows there, a real negative check exercising the pack's
+# optional-cardinality path, not an untested assumption.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?resolution ?deal ?adoptedAt WHERE {
+  ?resolution a ma:BoardResolution ;
+              ma:authorizesTransaction ?deal ;
+              prov:generatedAtTime ?adoptedAt .
+}

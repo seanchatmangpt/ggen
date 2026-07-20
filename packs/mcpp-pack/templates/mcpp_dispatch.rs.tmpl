@@ -1,0 +1,55 @@
+---
+to: src/mcpp_dispatch.rs
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/mcpp-pack
+sparql:
+  rows: |
+    PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+    SELECT ?noun ?verb WHERE {
+      ?c a cnv:Command ; cnv:noun ?noun ; cnv:verb ?verb .
+      FILTER(STRSTARTS(STR(?c), "http://seanchatmangpt.github.io/packs/mcpp#"))
+    } ORDER BY ?noun ?verb
+---
+//! Real subprocess dispatch shim for `~/mcpp`'s command surface, generated
+//! by `mcpp-pack` from `packs/mcpp-pack/ontology.ttl`'s `cnv:Command`
+//! individuals (`?noun`/`?verb` only -- see `mcpp_catalog.rs` for the
+//! richer `doc`/`args` projection of the same underlying facts).
+//!
+//! This closes the handler-gap dimension's concrete missing piece named by
+//! `docs/packs/L5_VALIDATION_REPORT.md`'s mcpp-pack section ("no compilable
+//! module that actually invokes or wraps `mcpp`"): every function below is
+//! a real, callable, compilable entry point. It is a *generic* dispatcher
+//! (it shells out to the real `mcpp` binary via `std::process::Command`)
+//! rather than a reimplementation of each command's behavior, so the
+//! handler gap is not fully zero (mcpp's own behavior still lives in
+//! mcpp's binary, not in ontology-specified logic or another pack's
+//! generated code) -- but no hand-written Rust handler function is
+//! required for any of the per-command wrappers to exist or compile; they
+//! are 100% ontology-driven.
+
+use std::process::Command;
+
+/// Build (but do not run) the `mcpp <noun> <verb> [extra_args...]` command.
+/// Exposed separately from `dispatch` so tests can assert on the
+/// constructed `Command`'s program/args without spawning a real process
+/// (see `mcpp_dispatch_proof.rs`, same pack).
+pub fn build_command(noun: &str, verb: &str, extra_args: &[String]) -> Command {
+    let mut cmd = Command::new("mcpp");
+    cmd.arg(noun).arg(verb);
+    cmd.args(extra_args);
+    cmd
+}
+
+/// Run `mcpp <noun> <verb> [extra_args...]` and return its captured output.
+/// Generic across every command in the catalog -- ontology-driven, not a
+/// hand-written per-command handler.
+pub fn dispatch(noun: &str, verb: &str, extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    build_command(noun, verb, extra_args).output()
+}
+
+{% for row in rows %}/// `mcpp {{ row.noun }} {{ row.verb }}` -- generated wrapper, ontology-driven.
+pub fn {{ row.noun | snake_case }}_{{ row.verb | snake_case }}(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("{{ row.noun }}", "{{ row.verb }}", extra_args)
+}
+
+{% endfor %}

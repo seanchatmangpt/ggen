@@ -1,0 +1,16 @@
+# CQ10.1: "What is the current status of this merger/acquisition -- signed,
+# pending regulatory approval, closed, terminated, or abandoned?" Verified
+# live this session against fixtures/case.ttl (ma:PendingRegulatoryApproval),
+# fixtures/case-2.ttl (ma:Terminated), and fixtures/mega-deal-second-request.ttl
+# (ma:Signed) via the scratch consumer -- one committed query answering the
+# same CQ correctly across three independent instances without modification,
+# direct evidence toward Question coverage's L4 bar ("CQs cover the decision
+# space, not just the authored scenario's slice").
+
+PREFIX cmns-cls: <https://www.omg.org/spec/Commons/Classifiers/>
+PREFIX fibo-cae-ce-act: <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/>
+
+SELECT ?deal ?status WHERE {
+  ?deal a fibo-cae-ce-act:MergerAcquisition ;
+        cmns-cls:isClassifiedBy ?status .
+}

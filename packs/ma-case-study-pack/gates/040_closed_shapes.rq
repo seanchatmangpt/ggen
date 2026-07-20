@@ -1,0 +1,38 @@
+# MESSAGE: closed-shape discipline on this pack's OWN minted ma: classes only (translated from shapes.ttl sh:closed true + sh:ignoredProperties; any row = a subject of a minted ma: class carrying a property outside that class's declared + ignored set; reused FIBO/Commons classes stay open, exactly as shapes.ttl's own header rationale says)
+PREFIX ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX odrl:    <http://www.w3.org/ns/odrl/2/>
+PREFIX cmns-bauth: <https://www.omg.org/spec/Commons/BusinessAuthorizations/>
+SELECT ?s ?p WHERE {
+  {
+    ?s a ma:DueDiligenceItem ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, odrl:action, odrl:target, odrl:assigner, odrl:assignee, ma:dueDiligenceDisposition))
+  } UNION {
+    ?s a ma:DisclosureScheduleItem ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, ma:qualifiesClause, ma:scheduleItemNumber))
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, odrl:action, odrl:target, odrl:assigner, odrl:assignee, ma:filingThresholdAmount, ma:triggeringStatute, ma:statutoryWaitingPeriodDays))
+  } UNION {
+    ?s a ma:BoardResolution ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, cmns-bauth:hasAuthorizingParty, cmns-bauth:hasAuthorizedParty, ma:authorizesTransaction, prov:generatedAtTime))
+  } UNION {
+    ?s a ma:ShareholderVote ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, ma:quorumPercentage, ma:voteOutcome))
+  } UNION {
+    ?s a ma:Ballot ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, dcterms:isPartOf, prov:wasAttributedTo, ma:ballotDirection))
+  } UNION {
+    ?s a ma:DealTermLineItem ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, ma:termType, ma:termValue))
+  } UNION {
+    ?s a ma:CounterOffer ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, ma:supersedes, prov:wasAttributedTo))
+  } UNION {
+    ?s a ma:FinancingCommitment ; ?p ?v .
+    FILTER(?p NOT IN (rdf:type, dcterms:description, ma:subjectToCondition))
+  }
+}
+ORDER BY ?s ?p

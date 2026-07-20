@@ -1,0 +1,31 @@
+# CQ8.2 (COMPETENCY_QUESTIONS.md concept 8): "What is the full counter-offer
+# chain for this negotiation, from the original offer to the latest
+# counter-offer?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. A first draft used the
+# SPARQL 1.1 property-path operator `ex:supersedes+`; a real repro (minimal
+# 2-hop fixture, scratch consumer, not this pack's own fixtures) proved this
+# engine's query() path silently returns 0 rows for `+`/`*` path operators
+# (no error, just an empty result set) rather than raising an error or
+# actually walking the path -- a real, disclosed engine limitation.
+# Rewritten to two explicit UNION hops, which is exhaustive for this pack's
+# fixtures (case-2.ttl's chain is exactly 2 supersedes hops deep: original
+# offer -> northgate-counter-1 -> solvane-counter-2). A future chain deeper
+# than 2 hops would need a third UNION arm; this is a disclosed limitation
+# of this specific query's fixed-depth UNION expansion, not of the
+# underlying data model.
+#
+# Verified live against fixtures/case-2.ttl via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?original ?counter1 ?counter2 WHERE {
+  { ?counter1 a ma:CounterOffer ; ma:supersedes ?original . }
+  UNION
+  {
+    ?counter1 a ma:CounterOffer ; ma:supersedes ?original .
+    ?counter2 a ma:CounterOffer ; ma:supersedes ?counter1 .
+  }
+}

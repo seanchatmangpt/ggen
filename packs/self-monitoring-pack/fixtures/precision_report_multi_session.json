@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-07-19T03:57:08Z",
+  "sessions_analyzed": 4,
+  "sessions": [
+    {
+      "session_id": "954927bf-594a-4857-930d-aa771e8d7e41",
+      "transcript": "/Users/sac/.claude/projects/-Users-sac-ggen/954927bf-594a-4857-930d-aa771e8d7e41.jsonl",
+      "total_turns": 3,
+      "turn_kind_counts": {
+        "Other": 3
+      },
+      "distinct_grounding_topics": 0,
+      "repeated_grounding_topics": [],
+      "hook_actions_fired": [],
+      "any_hook_fired": false,
+      "total_derived_triples": 0
+    },
+    {
+      "session_id": "fdacec23-d97a-4b99-95ce-4dafeb4f664f",
+      "transcript": "/Users/sac/.claude/projects/-Users-sac-ggen/fdacec23-d97a-4b99-95ce-4dafeb4f664f.jsonl",
+      "total_turns": 77,
+      "turn_kind_counts": {
+        "Other": 76,
+        "RunResponse": 1
+      },
+      "distinct_grounding_topics": 0,
+      "repeated_grounding_topics": [],
+      "hook_actions_fired": [],
+      "any_hook_fired": false,
+      "total_derived_triples": 0
+    },
+    {
+      "session_id": "7151d835-ec30-47b9-a311-719868bb3dc1",
+      "transcript": "/Users/sac/.claude/projects/-Users-sac-ggen/7151d835-ec30-47b9-a311-719868bb3dc1.jsonl",
+      "total_turns": 27,
+      "turn_kind_counts": {
+        "Other": 27
+      },
+      "distinct_grounding_topics": 0,
+      "repeated_grounding_topics": [],
+      "hook_actions_fired": [],
+      "any_hook_fired": false,
+      "total_derived_triples": 0
+    },
+    {
+      "session_id": "71c4fe30-83e3-42f6-9da7-c34833d8426e",
+      "transcript": "/Users/sac/.claude/projects/-Users-sac-ggen/71c4fe30-83e3-42f6-9da7-c34833d8426e.jsonl",
+      "total_turns": 206,
+      "turn_kind_counts": {
+        "Other": 200,
+        "RunResponse": 1,
+        "SurveyResponse": 3,
+        "BlockerResponse": 2
+      },
+      "distinct_grounding_topics": 0,
+      "repeated_grounding_topics": [],
+      "hook_actions_fired": [],
+      "any_hook_fired": false,
+      "total_derived_triples": 0
+    }
+  ],
+  "aggregate": {
+    "total_turns_across_sessions": 313,
+    "sessions_with_any_repeated_grounding_topic": 0,
+    "sessions_where_hook_fired": 0
+  },
+  "scope_limit": "Real firing/topic-repeat counts across N independently-dated real sessions -- genuine over-time data, not a repeated single snapshot. Does NOT include independent human-verified ground-truth labels for these additional sessions (see module docstring's HONEST SCOPE LIMIT) -- a true precision/recall metric needs that labeling, not yet computed here."
+}

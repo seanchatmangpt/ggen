@@ -1,0 +1,14 @@
+---
+to: src/generated/115_115_escaping_source_text.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章115 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 115: 115. Escaping Source Text
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

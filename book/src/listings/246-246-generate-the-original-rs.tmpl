@@ -1,0 +1,14 @@
+---
+to: src/generated/246_246_generate_the_original_rs.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章246 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 246: 246. Generate the Original `試験.rs`
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

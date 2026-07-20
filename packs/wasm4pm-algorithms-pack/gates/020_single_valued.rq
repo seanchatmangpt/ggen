@@ -1,0 +1,12 @@
+# MESSAGE: every pi:ProcessIntelligenceAlgorithm property is single-valued (translated from shapes.ttl sh:maxCount 1; any row = an algorithm carrying two distinct values for ?p)
+PREFIX pi: <https://wasm4pm.dev/pi#>
+SELECT ?s ?p WHERE {
+  ?s a pi:ProcessIntelligenceAlgorithm .
+  VALUES ?p {
+    pi:algorithmId pi:algorithmLabel pi:algorithmDoc pi:citation pi:category
+    pi:outputType pi:inputFormat pi:speedTier pi:qualityTier pi:wasmExport pi:cliAlias
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

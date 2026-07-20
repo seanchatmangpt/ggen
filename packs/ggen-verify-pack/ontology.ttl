@@ -1,0 +1,52 @@
+# ggen-verify-pack ontology: the ver: vocabulary for admitted verification
+# evidence, plus this pack's own policy individuals (which checks are
+# required, which known-red checks are allowlisted and why).
+#
+# Evidence facts themselves (ver:Check individuals with real exit codes) are
+# NEVER authored here -- they are emitted by a consumer's verify script
+# (e.g. examples/tcps-generated/scripts/verify.sh) into evidence/checks.ttl,
+# which the consumer wires as an [ontology] source. This file only defines
+# the vocabulary and the policy the gates enforce over that evidence.
+
+@prefix ver:  <http://seanchatmangpt.github.io/packs/ggen-verify#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Vocabulary ------------------------------------------------------------
+
+ver:Check a rdfs:Class ;
+    rdfs:comment "One externally-run verification command's recorded result. Emitted by the consumer's verify script, never hand-authored. Properties: ver:name (stable key, matches a ver:RequiredCheck), ver:tool (the exact command line run), ver:exitCode (real exit code, xsd:integer), ver:summary (human-readable result, e.g. '26/26'), ver:verifiedGraphHash (the graph_hash from .ggen-v2/receipt.json at emit time -- binds this evidence to the sync state it verified)." .
+
+ver:RequiredCheck a rdfs:Class ;
+    rdfs:comment "Policy: a check name that MUST be present as a ver:Check in the evidence graph for sync to proceed. Missing required evidence is a refusal, not a silent skip." .
+
+ver:KnownDivergence a rdfs:Class ;
+    rdfs:comment "Policy: a check name whose nonzero exit code is accepted, with the reason recorded here as rdfs:comment. This is the visible, queryable form of 'honest known failure' -- never a hidden shell-script || true." .
+
+# --- Required checks (policy) ----------------------------------------------
+
+ver:req-build a ver:RequiredCheck ;
+    ver:name "build" ;
+    rdfs:comment "cargo build --workspace on the generated tree must have been run and recorded." .
+
+ver:req-test a ver:RequiredCheck ;
+    ver:name "test-workspace" ;
+    rdfs:comment "cargo test --workspace on the generated tree must have been run and recorded." .
+
+ver:req-clippy-reference a ver:RequiredCheck ;
+    ver:name "clippy-reference-gate" ;
+    rdfs:comment "clippy under the reference's own real CI gate (-D clippy::correctness -D clippy::suspicious -D clippy::perf) must have been run and recorded." .
+
+ver:req-byte-identity a ver:RequiredCheck ;
+    ver:name "byte-identity" ;
+    rdfs:comment "The sha256 byte-identity sweep of generated files against the pack's source-manifest/reference set must have been run and recorded." .
+
+# --- Known divergences (allowlist, each with its receipt-grade why) ---------
+
+ver:kd-fmt a ver:KnownDivergence ;
+    ver:name "fmt-check" ;
+    rdfs:comment "cargo fmt --check fails on the verbatim-transcribed reference sources by inheritance: the reference itself fails its own 検査.sh fmt gate (65 hunks on the pristine reference, verified 2026-07-19). Reformatting would break byte-for-byte reference fidelity, which is this pack family's headline proof. Recorded red, accepted, disclosed." .
+
+ver:kd-clippy-blanket a ver:KnownDivergence ;
+    ver:name "clippy-blanket-warnings" ;
+    rdfs:comment "cargo clippy -- -D warnings fails on exactly one needless_range_loop (style lint) that exists identically in the real reference's own SHA-256 code; the reference's own real CI never uses -D warnings (it denies correctness/suspicious/perf only, under which everything passes -- that gate is the required check above). Recorded red, accepted, disclosed." .

@@ -1,0 +1,14 @@
+# CQ7.1: "Did the shareholder vote on this transaction pass, fail, or get
+# withdrawn, and what was the quorum?" Verified live this session against
+# both fixtures/case.ttl (expects ma:Passed, 82.50) and fixtures/case-2.ttl
+# (expects ma:Failed, 71.00) via the scratch consumer -- same query, two
+# independent case instances, two different real answers, no query
+# authoring change needed between them.
+
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?vote ?outcome ?quorum WHERE {
+  ?vote a ma:ShareholderVote ;
+        ma:voteOutcome ?outcome ;
+        ma:quorumPercentage ?quorum .
+}

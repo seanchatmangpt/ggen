@@ -1,0 +1,14 @@
+---
+to: src/generated/250_250_disclose_the_impl_divergence.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章250 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 250: 250. Disclose the `_impl` Divergence
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

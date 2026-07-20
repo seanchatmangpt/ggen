@@ -1,0 +1,5 @@
+FROM rust:1.97-bookworm
+WORKDIR /work
+COPY . .
+RUN rustup component add rustfmt clippy rust-src
+CMD ["python3", "tools/lifecycle.py", "verify"]

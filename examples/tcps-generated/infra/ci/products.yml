@@ -1,0 +1,158 @@
+name: platform-products
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build host products
+        run: |
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product core
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product std
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product ffi
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product cli
+          python tools/lifecycle.py test --target x86_64-unknown-linux-gnu
+          python tools/lifecycle.py package --target x86_64-unknown-linux-gnu
+          ./scripts/smoke/cli.sh
+          ./scripts/smoke/c-abi.sh
+      - name: Build Debian package
+        run: python tools/platform_package.py deb --target x86_64-unknown-linux-gnu --architecture amd64
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-products
+          path: |
+            dist/
+            receipts/
+
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+          rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc
+      - name: Build Windows products
+        shell: pwsh
+        run: |
+          foreach ($Target in @("x86_64-pc-windows-msvc", "i686-pc-windows-msvc", "aarch64-pc-windows-msvc")) {
+            python tools/lifecycle.py build --target $Target --product core
+            python tools/lifecycle.py build --target $Target --product ffi
+          }
+          python tools/lifecycle.py build --target x86_64-pc-windows-msvc --product std
+          python tools/lifecycle.py build --target x86_64-pc-windows-msvc --product cli
+          python tools/lifecycle.py test --target x86_64-pc-windows-msvc
+          python tools/lifecycle.py package --target x86_64-pc-windows-msvc
+          cargo run -p tcps-cli --bin tcps -- 検査
+          ./scripts/smoke/c-abi.ps1
+          python tools/platform_package.py nuget
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-products
+          path: |
+            dist/
+            receipts/
+
+  apple:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build Apple libraries
+        run: ./scripts/platform/apple.sh
+      - name: Create XCFramework
+        run: python tools/platform_package.py xcframework
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apple-products
+          path: |
+            dist/
+            receipts/
+
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build Android libraries
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          python scripts/platform/android.py
+      - name: Create AAR
+        run: python tools/platform_package.py aar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-products
+          path: |
+            dist/
+            receipts/
+
+  wasm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build WebAssembly products
+        run: |
+          python tools/lifecycle.py build --target wasm32-unknown-unknown --product core
+          python tools/lifecycle.py build --target wasm32-unknown-unknown --product wasm
+          python tools/lifecycle.py build --target wasm32-wasip1 --product core
+          python tools/lifecycle.py build --target wasm32-wasip1 --product wasm
+          ./scripts/smoke/wasm-node.sh
+          python tools/platform_package.py npm
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wasm-products
+          path: |
+            dist/
+            receipts/
+
+  embedded-and-uefi:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build representative freestanding targets
+        run: |
+          python tools/lifecycle.py build --target thumbv7em-none-eabi --product core
+          python tools/lifecycle.py build --target riscv32imac-unknown-none-elf --product core
+          python tools/lifecycle.py build --target x86_64-unknown-none --product core
+          python tools/lifecycle.py build --target x86_64-unknown-uefi --product core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freestanding-products
+          path: receipts/
+

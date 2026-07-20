@@ -1,0 +1,69 @@
+# MESSAGE: M&A value constraints (translated from shapes.ttl sh:datatype / sh:minInclusive / sh:maxInclusive / sh:in / sh:class / the qualifiesClause sh:or): hasOwnershipPercentage and quorumPercentage are xsd:decimal in [0, 100]; filingThresholdAmount / termValue are xsd:decimal; statutoryWaitingPeriodDays is xsd:integer; triggeringStatute / scheduleItemNumber are xsd:string; dueDiligenceDisposition is one of {ma:Open, ma:Satisfied, ma:Waived}; voteOutcome one of {ma:Passed, ma:Failed, ma:Withdrawn}; ballotDirection one of {ma:For, ma:Against, ma:Abstain}; termType one of {ma:PricePerShare, ma:ExchangeRatio, ma:Earnout, ma:EscrowPercentage}; cmns-id:isIdentifiedBy targets a LegalEntityIdentifier; a merger/acquisition's cmns-cls:isClassifiedBy targets a ma:DealStatus; ma:qualifiesClause targets a Representation or a Warranty; a ballot's dcterms:isPartOf targets a ma:ShareholderVote; ma:authorizesTransaction targets a MergerAcquisition; ma:supersedes targets a NonBindingTerm; ma:subjectToCondition targets a ma:FinancingOutCondition (the sh:class checks run against the union graph, where the referenced node's rdf:type is co-loaded)
+PREFIX ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+PREFIX cmns-id:    <https://www.omg.org/spec/Commons/Identifiers/>
+PREFIX cmns-cls:   <https://www.omg.org/spec/Commons/Classifiers/>
+PREFIX fibo-be-le-lei:   <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/>
+PREFIX fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/>
+PREFIX fibo-cae-ce-act:  <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a fibo-be-le-lei:RelationshipRecord ; fibo-be-le-lei:hasOwnershipPercentage ?value .
+    BIND(fibo-be-le-lei:hasOwnershipPercentage AS ?p)
+    FILTER(DATATYPE(?value) != xsd:decimal || ?value < 0 || ?value > 100)
+  } UNION {
+    ?s a ma:ShareholderVote ; ma:quorumPercentage ?value . BIND(ma:quorumPercentage AS ?p)
+    FILTER(DATATYPE(?value) != xsd:decimal || ?value < 0 || ?value > 100)
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation ; ma:filingThresholdAmount ?value . BIND(ma:filingThresholdAmount AS ?p)
+    FILTER(DATATYPE(?value) != xsd:decimal)
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation ; ma:triggeringStatute ?value . BIND(ma:triggeringStatute AS ?p)
+    FILTER(DATATYPE(?value) != xsd:string)
+  } UNION {
+    ?s a ma:RegulatoryFilingObligation ; ma:statutoryWaitingPeriodDays ?value . BIND(ma:statutoryWaitingPeriodDays AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer)
+  } UNION {
+    ?s a ma:DisclosureScheduleItem ; ma:scheduleItemNumber ?value . BIND(ma:scheduleItemNumber AS ?p)
+    FILTER(DATATYPE(?value) != xsd:string)
+  } UNION {
+    ?s a ma:DealTermLineItem ; ma:termValue ?value . BIND(ma:termValue AS ?p)
+    FILTER(DATATYPE(?value) != xsd:decimal)
+  } UNION {
+    ?s a ma:DueDiligenceItem ; ma:dueDiligenceDisposition ?value . BIND(ma:dueDiligenceDisposition AS ?p)
+    FILTER(?value NOT IN (ma:Open, ma:Satisfied, ma:Waived))
+  } UNION {
+    ?s a ma:ShareholderVote ; ma:voteOutcome ?value . BIND(ma:voteOutcome AS ?p)
+    FILTER(?value NOT IN (ma:Passed, ma:Failed, ma:Withdrawn))
+  } UNION {
+    ?s a ma:Ballot ; ma:ballotDirection ?value . BIND(ma:ballotDirection AS ?p)
+    FILTER(?value NOT IN (ma:For, ma:Against, ma:Abstain))
+  } UNION {
+    ?s a ma:DealTermLineItem ; ma:termType ?value . BIND(ma:termType AS ?p)
+    FILTER(?value NOT IN (ma:PricePerShare, ma:ExchangeRatio, ma:Earnout, ma:EscrowPercentage))
+  } UNION {
+    ?s a fibo-be-le-lei:LEIRegisteredEntity ; cmns-id:isIdentifiedBy ?value . BIND(cmns-id:isIdentifiedBy AS ?p)
+    FILTER NOT EXISTS { ?value a fibo-be-le-lei:LegalEntityIdentifier }
+  } UNION {
+    ?s a fibo-cae-ce-act:MergerAcquisition ; cmns-cls:isClassifiedBy ?value . BIND(cmns-cls:isClassifiedBy AS ?p)
+    FILTER NOT EXISTS { ?value a ma:DealStatus }
+  } UNION {
+    ?s a ma:DisclosureScheduleItem ; ma:qualifiesClause ?value . BIND(ma:qualifiesClause AS ?p)
+    FILTER NOT EXISTS { ?value a fibo-fnd-agr-ctr:Representation }
+    FILTER NOT EXISTS { ?value a fibo-fnd-agr-ctr:Warranty }
+  } UNION {
+    ?s a ma:Ballot ; dcterms:isPartOf ?value . BIND(dcterms:isPartOf AS ?p)
+    FILTER NOT EXISTS { ?value a ma:ShareholderVote }
+  } UNION {
+    ?s a ma:BoardResolution ; ma:authorizesTransaction ?value . BIND(ma:authorizesTransaction AS ?p)
+    FILTER NOT EXISTS { ?value a fibo-cae-ce-act:MergerAcquisition }
+  } UNION {
+    ?s a ma:CounterOffer ; ma:supersedes ?value . BIND(ma:supersedes AS ?p)
+    FILTER NOT EXISTS { ?value a fibo-fnd-agr-ctr:NonBindingTerm }
+  } UNION {
+    ?s a ma:FinancingCommitment ; ma:subjectToCondition ?value . BIND(ma:subjectToCondition AS ?p)
+    FILTER NOT EXISTS { ?value a ma:FinancingOutCondition }
+  }
+}
+ORDER BY ?s ?p

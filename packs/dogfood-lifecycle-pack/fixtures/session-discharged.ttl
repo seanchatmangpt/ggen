@@ -1,0 +1,53 @@
+# fixtures/session-discharged.ttl — same 4 events as session-good.ttl PLUS a
+# 5th Bash event, same agent (#mainAgent), same session, dfl:Ok, with a
+# HIGHER dfl:sequenceIndex than the Blocked event-4. This is the POSITIVE
+# fire case for hook.ttl's discharge_review_obligation hook: the Obligation
+# derive_review_obligation CONSTRUCTs from event-4 must end up
+# dfl:obligationStatus dfl:Discharged with dfl:dischargedBy <#event-5> after
+# materialize()'s second CONSTRUCT round. Verified by the scratch consumer
+# test (see README.md "Obligation derivation — verified").
+
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@base <http://seanchatmangpt.github.io/packs/dogfood-lifecycle/fixtures/session-discharged#> .
+
+<#operator>   a prov:Agent , prov:Person ; dcterms:description "Operator." .
+<#mainAgent>  a prov:Agent , prov:SoftwareAgent ; prov:actedOnBehalfOf <#operator> ; dcterms:description "Main agent." .
+
+<#session>
+    a                     dfl:Session ;
+    dcterms:identifier    "discharged-session-001" ;
+    prov:wasAssociatedWith <#mainAgent> ;
+    dcterms:description    "Session exercising the discharge path: blocked, then a later successful retry." .
+
+<urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae>
+    a prov:Entity ; dcterms:description "Bash input: 'just verify-all'." .
+<urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8>
+    a prov:Entity ; dcterms:description "Bash output." .
+
+<#event-1>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 1 ; time:inXSDDateTimeStamp "2026-07-18T10:00:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> .
+
+<#event-4>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 4 ; time:inXSDDateTimeStamp "2026-07-18T10:01:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Blocked ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Blocked by a governed surface." .
+
+<#event-5>
+    a dfl:ToolEvent ; dcterms:isPartOf <#session> ; skos:notation "Bash" ;
+    dfl:sequenceIndex 5 ; time:inXSDDateTimeStamp "2026-07-18T10:02:00Z"^^xsd:dateTimeStamp ;
+    dfl:outcome dfl:Ok ; prov:wasAssociatedWith <#mainAgent> ;
+    prov:used <urn:blake3:b2153b9c9a970f97be72df7d4ef039b1b2dcdc83a15c34b73d2e835b504e0bae> ;
+    prov:generated <urn:blake3:61b3a3d4b48db9233fa8e0fe0743dd2f9aab0947107066a8502cbbbbdb774bc8> ;
+    dcterms:description "Same agent retried and succeeded after the block — this discharges the Obligation derived from event-4." .

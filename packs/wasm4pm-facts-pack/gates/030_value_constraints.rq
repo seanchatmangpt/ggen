@@ -1,0 +1,32 @@
+# MESSAGE: compat:breedId/pi:algorithmId match ^[a-z][a-z0-9_]*$; pi:outputType is one of the 7 wasm4pm output kinds; pi:category is one of the 9 wasm4pm analysis categories; pi:standing is one of REGISTERED/DISPATCHABLE/REPLAYABLE (wasm4pm's 11-rung manufactured-reason ladder); pi:speedTier/pi:qualityTier are xsd:integer in [0,100] (translated from shapes.ttl sh:pattern/sh:in/sh:datatype/sh:minInclusive/sh:maxInclusive)
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a compat:CognitionBreed ; compat:breedId ?value . BIND(compat:breedId AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:algorithmId ?value . BIND(pi:algorithmId AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:outputType ?value . BIND(pi:outputType AS ?p)
+    FILTER(STR(?value) NOT IN ("petrinet", "dfg", "tree", "model", "ml_result", "analytics", "declare"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:category ?value . BIND(pi:category AS ?p)
+    FILTER(STR(?value) NOT IN (
+      "discovery", "conformance", "simulation", "prediction", "import_export",
+      "agentic", "discovery_analytics", "ml_analytics", "object_centric"
+    ))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:standing ?value . BIND(pi:standing AS ?p)
+    FILTER(STR(?value) NOT IN ("REGISTERED", "DISPATCHABLE", "REPLAYABLE"))
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:speedTier ?value . BIND(pi:speedTier AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || xsd:integer(?value) < 0 || xsd:integer(?value) > 100)
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm ; pi:qualityTier ?value . BIND(pi:qualityTier AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || xsd:integer(?value) < 0 || xsd:integer(?value) > 100)
+  }
+}
+ORDER BY ?s ?p

@@ -1,0 +1,37 @@
+[workspace]
+members = ["crates/tcps-std", "crates/tcps-ffi", "crates/tcps-wasm", "crates/tcps-cli"]
+
+[workspace.package]
+version = "26.7.19"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+authors = ["Sean Chatman"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+
+[workspace.lints.clippy]
+correctness = "deny"
+
+[package]
+name = "tcps-generated"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Canonical multi-pack ggen example: combines tcps-core-pack (24-module 豊田コード生産方式 no_std Rust) and tcps-release-pack (CI workflow / packaging manifests) into one end-to-end generated crate."
+
+[lib]
+name = "tcps_generated"
+path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
+# Real CliHarness subprocess boundary crossing, matching the pattern in
+# crates/ggen-engine/tests/framework_packs_e2e.rs. Path dependency into the
+# workspace crate -- this example is deliberately its own standalone
+# `[workspace]` (see above), so this is a plain path dep, not a member edge.
+chicago-tdd-tools = { path = "../../crates/chicago-tdd-tools", features = ["cli-proof"] }
+tempfile = "3"

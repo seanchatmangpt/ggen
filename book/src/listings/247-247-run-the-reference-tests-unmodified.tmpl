@@ -1,0 +1,14 @@
+---
+to: src/generated/247_247_run_the_reference_tests_unmodified.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章247 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 247: 247. Run the Reference Tests Unmodified
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

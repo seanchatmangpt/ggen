@@ -150,10 +150,7 @@ const GIT_PIN_FILE: &str = ".ggen-git-pin";
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
 /// - `[FM-PACK-011]` `git checkout <version>` failed
 fn resolve_git_pack_dir(
-    name: &str,
-    git: &str,
-    version: &str,
-    config_root: &Path,
+    name: &str, git: &str, version: &str, config_root: &Path,
 ) -> Result<PathBuf> {
     let cache_dir = config_root.join(".ggen-v2/git-packs").join(name);
     let pin_path = cache_dir.join(GIT_PIN_FILE);

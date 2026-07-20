@@ -1,0 +1,18 @@
+# MESSAGE: verification evidence is stale -- a ver:Check's ver:verifiedGraphHash does not match the latest ggenr:Sync receipt's graphHash, meaning the tree was re-synced after the evidence was emitted (re-run the consumer's verify emitter). Requires [law] reflexive = true in the consumer. Semantics note, disclosed not hidden: staleness detection lags one sync by construction -- the reflexive log only carries syncs 0..N-1 at load time, so the first sync after an un-re-verified change passes and the NEXT one refuses; the just verify-* recipe (emitter immediately before sync) closes the window in practice.
+PREFIX ver:   <http://seanchatmangpt.github.io/packs/ggen-verify#>
+PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
+SELECT ?checkName ?staleHash ?latestHash WHERE {
+  ?c a ver:Check ;
+     ver:name ?checkName ;
+     ver:verifiedGraphHash ?staleHash .
+  ?latest a ggenr:Sync ;
+          ggenr:index ?i ;
+          ggenr:graphHash ?latestHash .
+  FILTER NOT EXISTS {
+    ?other a ggenr:Sync ;
+           ggenr:index ?j .
+    FILTER(?j > ?i)
+  }
+  FILTER(STR(?staleHash) != STR(?latestHash))
+}
+ORDER BY ?checkName

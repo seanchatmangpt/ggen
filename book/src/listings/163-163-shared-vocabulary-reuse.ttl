@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章163
+    a pack:生成単位 ;
+    dcterms:title "163. Shared Vocabulary Reuse"@en ;
+    pack:出力経路 "src/generated/163_163_shared_vocabulary_reuse.rs" ;
+    pack:順序 163 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

@@ -1,0 +1,49 @@
+# mega-deal-second-request.ttl -- a third, independent, minimal deal fixture
+# added in the 2026-07-19 L5-push pass specifically to exercise
+# fixtures/hook.ttl's SECOND hook (`derive_ma_second_request_review_obligation`,
+# threshold USD 1,000,000,000), which no other committed fixture in this pack
+# crosses (case.ttl: 725M; adversarial-positive.ttl: 150M; case-2.ttl: 340M
+# -- see hook.ttl's own threshold-note comment for why 1B was chosen). Also
+# exercises the FIRST hook simultaneously (this deal is well above both
+# thresholds), proving Verdict authority now derives from 2 independent
+# rules over the same admitted graph, not just 1.
+#
+# VERIFIED LIVE (2026-07-19, this pass, NOT via the shared, off-limits-to-
+# edit `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`): a scratch
+# Rust binary at
+# `/private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-push-ma-case-study-pack/` path-depends on
+# `crates/praxis-graphlaw` (read-only use of the shared crate as a library;
+# no shared file was edited) and calls the same real
+# `TripleStore::load_hook_pack` + `.materialize()` mechanism directly against
+# this file + hook.ttl, confirming BOTH `ma:hasRegulatoryFilingObligation`
+# triples are derived (to `ma:hsr-act-notification-obligation` AND
+# `ma:second-request-review-obligation`) for this deal.
+#
+# SCENARIO: Meridian Holdings Group, Inc. (see case.ttl) proposes a third,
+# much larger acquisition -- Ashgrove Semiconductor Holdings, Inc. (target,
+# fictional) -- for USD 1,250,000,000, comfortably above both filing
+# thresholds. Same fictional-entity convention as case.ttl's own header
+# states.
+
+@prefix rdf:              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix schema:            <https://schema.org/> .
+@prefix cmns-cls:          <https://www.omg.org/spec/Commons/Classifiers/> .
+@prefix fibo-cae-ce-act:   <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/> .
+@prefix ma:                <http://seanchatmangpt.github.io/packs/ma-case-study#> .
+
+# Vocabulary restatement, disclosed (same reason as case.ttl's/case-2.ttl's
+# own headers).
+ma:Signed a ma:DealStatus .
+
+<https://deals.meridian-holdings.example.org/deal/MHC-2026-0311>
+    a fibo-cae-ce-act:MergerAcquisition ;
+    cmns-cls:isClassifiedBy ma:Signed ;
+    schema:amount [
+        a schema:MonetaryAmount ;
+        schema:value 1250000000 ;
+        schema:currency "USD"
+    ] ;
+    dcterms:description "Meridian Holdings Group, Inc. definitive agreement to acquire Ashgrove Semiconductor Holdings, Inc. for aggregate consideration of USD 1,250,000,000." .

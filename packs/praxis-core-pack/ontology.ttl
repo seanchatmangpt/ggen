@@ -1,8 +1,21 @@
 # praxis-core-pack ontology — refusal taxonomy domain.
 #
-# Mirrors praxis_core::refusal: RefusalScenario variants map to exactly one
-# 8-bucket RefusalCategory, and the DenialPolarity-lane scenarios carry the
-# bcinr_powl_receipt lane constant they correspond to.
+# Mirrors praxis_core::refusal in full: all 13 `RefusalScenario` variants
+# (3 Obligation-driven + 7 DenialPolarity-lane + 3 Kernel/andon), each
+# mapping to exactly one of the 8 `RefusalCategory` buckets (modeled as a
+# closed enumeration of individuals, referenced by object property rather
+# than a duplicated string literal) and to exactly one `bcinr_powl_receipt`
+# `DenialPolarity` lane constant (`praxis_core::refusal::denial_lane`,
+# total over all 13 variants — verified against
+# `crates/praxis-core/src/refusal.rs` 2026-07-18).
+#
+# Structural facts (L3 "ontology states structure: relations, cardinality,
+# error cases"): pxc:hasCategory is an object property onto a closed
+# 8-value pxc:RefusalCategory enumeration (not a string), pxc:variantKind
+# distinguishes unit variants (no payload) from struct variants (one named
+# field, typed), and pxc:hasField/pxc:fieldType record that field's shape
+# for the 6 struct variants -- error-case metadata a template can project
+# without hardcoding which variants carry data.
 
 @prefix pxc:  <http://seanchatmangpt.github.io/packs/praxis-core#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -12,12 +25,12 @@
 pxc:RefusalScenario
     a            rdfs:Class ;
     rdfs:label   "RefusalScenario" ;
-    rdfs:comment "A concrete praxis-core refusal scenario (closed enum variant)." .
+    rdfs:comment "A concrete praxis-core refusal scenario (closed enum variant, 13 total)." .
 
 pxc:RefusalCategory
     a            rdfs:Class ;
     rdfs:label   "RefusalCategory" ;
-    rdfs:comment "One of the 8 praxis-core refusal buckets." .
+    rdfs:comment "One of the 8 praxis-core refusal buckets (closed enumeration)." .
 
 pxc:scenarioName
     a            rdf:Property ;
@@ -25,16 +38,45 @@ pxc:scenarioName
     rdfs:domain  pxc:RefusalScenario ;
     rdfs:range   xsd:string .
 
-pxc:categoryName
+pxc:hasCategory
     a            rdf:Property ;
-    rdfs:label   "category name" ;
+    rdfs:label   "has category" ;
+    rdfs:comment "Object property onto exactly one pxc:RefusalCategory individual (closed enumeration, not a string)." ;
     rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   pxc:RefusalCategory .
+
+pxc:categoryLabel
+    a            rdf:Property ;
+    rdfs:label   "category label" ;
+    rdfs:comment "Lowercase Display form of a pxc:RefusalCategory individual, e.g. \"temporal\"." ;
+    rdfs:domain  pxc:RefusalCategory ;
     rdfs:range   xsd:string .
 
 pxc:denialLane
     a            rdf:Property ;
     rdfs:label   "denial lane constant" ;
-    rdfs:comment "bcinr_powl_receipt DenialPolarity lane constant name." ;
+    rdfs:comment "bcinr_powl_receipt DenialPolarity lane constant this scenario composes into (total over all 13 variants)." ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:variantKind
+    a            rdf:Property ;
+    rdfs:label   "variant kind" ;
+    rdfs:comment "\"unit\" (no payload) or \"struct\" (exactly one named, typed field) -- structural shape of the Rust enum variant." ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:hasField
+    a            rdf:Property ;
+    rdfs:label   "field name" ;
+    rdfs:comment "Name of the single payload field, for variantKind \"struct\" only." ;
+    rdfs:domain  pxc:RefusalScenario ;
+    rdfs:range   xsd:string .
+
+pxc:fieldType
+    a            rdf:Property ;
+    rdfs:label   "field type" ;
+    rdfs:comment "Rust type of the single payload field, for variantKind \"struct\" only." ;
     rdfs:domain  pxc:RefusalScenario ;
     rdfs:range   xsd:string .
 
@@ -44,36 +86,150 @@ pxc:note
     rdfs:domain  pxc:RefusalScenario ;
     rdfs:range   xsd:string .
 
-# ── DenialPolarity-lane scenarios (subset mirroring refusal.rs::category) ──
+# ── RefusalCategory: closed 8-value enumeration ─────────────────────────
+
+pxc:CategoryIdentity      a pxc:RefusalCategory ; rdfs:label "Identity" ;      pxc:categoryLabel "identity" .
+pxc:CategoryCapacity      a pxc:RefusalCategory ; rdfs:label "Capacity" ;      pxc:categoryLabel "capacity" .
+pxc:CategoryTopology       a pxc:RefusalCategory ; rdfs:label "Topology" ;      pxc:categoryLabel "topology" .
+pxc:CategoryTemporal      a pxc:RefusalCategory ; rdfs:label "Temporal" ;      pxc:categoryLabel "temporal" .
+pxc:CategoryLifecycle     a pxc:RefusalCategory ; rdfs:label "Lifecycle" ;     pxc:categoryLabel "lifecycle" .
+pxc:CategoryAuthorization a pxc:RefusalCategory ; rdfs:label "Authorization" ; pxc:categoryLabel "authorization" .
+pxc:CategoryPrerequisites a pxc:RefusalCategory ; rdfs:label "Prerequisites" ; pxc:categoryLabel "prerequisites" .
+pxc:CategoryReserved      a pxc:RefusalCategory ; rdfs:label "Reserved" ;      pxc:categoryLabel "reserved" .
+
+# ── RefusalScenario: all 13 variants (mirrors refusal.rs in full) ───────
+
+# -- Obligation-driven (struct variants, from `Obligation` via `From`) --
+
+pxc:BlockingConstraint
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "BlockingConstraint" ;
+    pxc:scenarioName  "BlockingConstraint" ;
+    pxc:hasCategory   pxc:CategoryLifecycle ;
+    pxc:denialLane    "OBJECT_LIFECYCLE_VIOLATION" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "reason" ;
+    pxc:fieldType     "String" ;
+    pxc:note          "An Obligation::BlockingConstraint was in force (never satisfiable by payload content alone)." .
+
+pxc:MissingEvidence
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "MissingEvidence" ;
+    pxc:scenarioName  "MissingEvidence" ;
+    pxc:hasCategory   pxc:CategoryPrerequisites ;
+    pxc:denialLane    "PRECONDITION_FAILED" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "evidence_type" ;
+    pxc:fieldType     "String" ;
+    pxc:note          "An Obligation::EvidenceRequired was not satisfied." .
+
+pxc:UnsatisfiedPrecondition
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "UnsatisfiedPrecondition" ;
+    pxc:scenarioName  "UnsatisfiedPrecondition" ;
+    pxc:hasCategory   pxc:CategoryPrerequisites ;
+    pxc:denialLane    "PRECONDITION_FAILED" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "predicate_id" ;
+    pxc:fieldType     "String" ;
+    pxc:note          "An Obligation::Precondition was not satisfied." .
+
+# -- DenialPolarity-lane scenarios (unit variants) --
 
 pxc:WatchdogDrained
     a                 pxc:RefusalScenario ;
     rdfs:label        "WatchdogDrained" ;
     pxc:scenarioName  "WatchdogDrained" ;
-    pxc:categoryName  "temporal" ;
+    pxc:hasCategory   pxc:CategoryTemporal ;
     pxc:denialLane    "WATCHDOG_DRAINED" ;
+    pxc:variantKind   "unit" ;
     pxc:note          "Watchdog budget drained before Judge completed." .
+
+pxc:PreconditionFailed
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "PreconditionFailed" ;
+    pxc:scenarioName  "PreconditionFailed" ;
+    pxc:hasCategory   pxc:CategoryPrerequisites ;
+    pxc:denialLane    "PRECONDITION_FAILED" ;
+    pxc:variantKind   "unit" ;
+    pxc:note          "DenialPolarity::PRECONDITION_FAILED lane fired directly." .
+
+pxc:SlaBreach
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "SlaBreach" ;
+    pxc:scenarioName  "SlaBreach" ;
+    pxc:hasCategory   pxc:CategoryTemporal ;
+    pxc:denialLane    "SLA_BREACH" ;
+    pxc:variantKind   "unit" ;
+    pxc:note          "DenialPolarity::SLA_BREACH lane fired directly." .
 
 pxc:AuthorizationDenied
     a                 pxc:RefusalScenario ;
     rdfs:label        "AuthorizationDenied" ;
     pxc:scenarioName  "AuthorizationDenied" ;
-    pxc:categoryName  "authorization" ;
+    pxc:hasCategory   pxc:CategoryAuthorization ;
     pxc:denialLane    "AUTHORIZATION_DENIED" ;
+    pxc:variantKind   "unit" ;
     pxc:note          "Credential or capability check failed at admission." .
 
 pxc:ResourceExhausted
     a                 pxc:RefusalScenario ;
     rdfs:label        "ResourceExhausted" ;
     pxc:scenarioName  "ResourceExhausted" ;
-    pxc:categoryName  "capacity" ;
+    pxc:hasCategory   pxc:CategoryCapacity ;
     pxc:denialLane    "RESOURCE_EXHAUSTED" ;
+    pxc:variantKind   "unit" ;
     pxc:note          "Resource capacity or quota limit reached." .
+
+pxc:ObjectLifecycleViolation
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "ObjectLifecycleViolation" ;
+    pxc:scenarioName  "ObjectLifecycleViolation" ;
+    pxc:hasCategory   pxc:CategoryLifecycle ;
+    pxc:denialLane    "OBJECT_LIFECYCLE_VIOLATION" ;
+    pxc:variantKind   "unit" ;
+    pxc:note          "DenialPolarity::OBJECT_LIFECYCLE_VIOLATION lane fired directly." .
 
 pxc:ConformanceGateFailed
     a                 pxc:RefusalScenario ;
     rdfs:label        "ConformanceGateFailed" ;
     pxc:scenarioName  "ConformanceGateFailed" ;
-    pxc:categoryName  "topology" ;
+    pxc:hasCategory   pxc:CategoryTopology ;
     pxc:denialLane    "CONFORMANCE_GATE_FAILED" ;
+    pxc:variantKind   "unit" ;
     pxc:note          "Conformance gate rejected the POWL replay projection." .
+
+# -- Kernel / andon lanes (struct variants) --
+
+pxc:KernelDenied
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "KernelDenied" ;
+    pxc:scenarioName  "KernelDenied" ;
+    pxc:hasCategory   pxc:CategoryAuthorization ;
+    pxc:denialLane    "CONFORMANCE_GATE_FAILED" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "pred_id" ;
+    pxc:fieldType     "u32" ;
+    pxc:note          "prolog8::Kernel::query returned QueryResult::Denied: query admissible but no supporting derivation." .
+
+pxc:KernelInvalid
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "KernelInvalid" ;
+    pxc:scenarioName  "KernelInvalid" ;
+    pxc:hasCategory   pxc:CategoryIdentity ;
+    pxc:denialLane    "CONFORMANCE_GATE_FAILED" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "rejection" ;
+    pxc:fieldType     "String" ;
+    pxc:note          "prolog8::Kernel::query returned QueryResult::Invalid: query/facts/rule failed prolog8 admission." .
+
+pxc:AndonInvariantViolated
+    a                 pxc:RefusalScenario ;
+    rdfs:label        "AndonInvariantViolated" ;
+    pxc:scenarioName  "AndonInvariantViolated" ;
+    pxc:hasCategory   pxc:CategoryTopology ;
+    pxc:denialLane    "CONFORMANCE_GATE_FAILED" ;
+    pxc:variantKind   "struct" ;
+    pxc:hasField      "invariant_id" ;
+    pxc:fieldType     "String" ;
+    pxc:note          "The optional lsp-max andon second gate ring fired a blocking, non-admission-allowed event." .

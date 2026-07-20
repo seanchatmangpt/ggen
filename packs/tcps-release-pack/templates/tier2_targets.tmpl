@@ -1,0 +1,11 @@
+---
+to: infra/targets/tier2.txt
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:Tier2 tcps:targetList ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

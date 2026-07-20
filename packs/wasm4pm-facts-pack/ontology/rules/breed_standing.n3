@@ -1,0 +1,7 @@
+@prefix compat: <https://wasm4pm.dev/ns#> .
+@prefix law: <http://seanchatmangpt.github.io/praxis/law#> .
+
+# Standing rule (PROJ-305 follow-through): a cognition breed that carries a
+# citation is EvidenceBound — the standing is DERIVED by the law stage, never
+# asserted in the fact file (breedStatus is CONSTRUCT-derived by design).
+{ ?b a compat:CognitionBreed . ?b compat:citation ?c . } => { ?b law:standing "EvidenceBound" . } .

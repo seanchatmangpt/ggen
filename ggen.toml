@@ -9,7 +9,11 @@ repository = "https://github.com/seanchatmangpt/ggen"
 [ontology]
 source = ".specify/cli-commands.ttl"
 base_iri = "http://ggen.org/cli#"
-imports = [".specify/cli-proof-tests.ttl"]
+imports = [
+  ".specify/cli-proof-tests.ttl",
+  ".specify/repo-facts.ttl",
+  ".specify/maturity.ttl",
+]
 
 [ontology.prefixes]
 cli     = "http://ggen.org/cli#"
@@ -68,6 +72,68 @@ template     = { file = ".specify/templates/cli/cli_proof_test.rs.tera" }
 output_file  = "crates/ggen-cli/tests/generated/cli_proof_tests.rs"
 skip_empty   = false
 mode         = "Overwrite"
+
+# ── Self-generated manuals (2026-07-19): the repo's own docs precipitate from
+# .specify/{repo-facts,maturity}.ttl. Each template pulls its tables itself via
+# the sparql() Tera function; the rule-level query is a minimal deterministic
+# anchor (ORDER BY per E0013 discipline). CLAUDE.md / README.md use mode=Merge:
+# only the single <<<<<<< GENERATED … >>>>>>> MANUAL region is replaced, every
+# byte outside the markers is preserved (generation_rules.rs `mod merge`).
+
+[[generation.rules]]
+name        = "docs-pack-maturity-model"
+query       = { inline = """
+PREFIX mat: <http://ggen.org/maturity#>
+SELECT ?t WHERE { ?x a mat:DocSection ; mat:sid "intro" ; mat:text ?t . } ORDER BY ?t
+""" }
+template    = { file = ".specify/templates/docs/pack_maturity_model.md.tera" }
+output_file = "docs/packs/PACK_MATURITY_MODEL.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-architecture-rules"
+query       = { inline = """
+PREFIX rf: <http://ggen.org/repo-facts#>
+SELECT ?v WHERE { rf:doc rf:workspaceVersion ?v . } ORDER BY ?v
+""" }
+template    = { file = ".specify/templates/docs/architecture_rules.md.tera" }
+output_file = ".claude/rules/architecture.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-tcps-status"
+query       = { inline = """
+PREFIX mat: <http://ggen.org/maturity#>
+SELECT ?t WHERE { ?x a mat:DocSection ; mat:sid "tcps-intro" ; mat:text ?t . } ORDER BY ?t
+""" }
+template    = { file = ".specify/templates/docs/tcps_status.md.tera" }
+output_file = "docs/packs/TCPS-STATUS.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-claude-md-region"
+query       = { inline = """
+PREFIX rf: <http://ggen.org/repo-facts#>
+SELECT ?v WHERE { rf:doc rf:crateCount ?v . } ORDER BY ?v
+""" }
+template    = { file = ".specify/templates/docs/claude_md_region.md.tera" }
+output_file = "CLAUDE.md"
+skip_empty  = false
+mode        = "Merge"
+
+[[generation.rules]]
+name        = "docs-readme-region"
+query       = { inline = """
+PREFIX rf: <http://ggen.org/repo-facts#>
+SELECT ?v WHERE { rf:doc rf:gateCount ?v . } ORDER BY ?v
+""" }
+template    = { file = ".specify/templates/docs/readme_region.md.tera" }
+output_file = "README.md"
+skip_empty  = false
+mode        = "Merge"
 
 [sync]
 enabled = true

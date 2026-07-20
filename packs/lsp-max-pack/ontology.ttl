@@ -1,14 +1,42 @@
 @prefix lm:   <http://seanchatmangpt.github.io/packs/lsp-max#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 # ── Classes ────────────────────────────────────────────────────────────
-# A regex lint rule consumed by an lsp-max RulePackServer (the AhoCorasick
-# rule engine loads [[rules]] tables from rules/*.toml).
+# A regex lint rule consumed by an lsp-max RulePackServer. Corrected
+# 2026-07-18: the real engine (`~/lsp-max/src/rule_pack_server.rs::evaluate`)
+# compiles `pattern` with `regex::Regex` and calls `Regex::find_iter` per
+# source line -- it is NOT AhoCorasick (an earlier revision of this file
+# claimed AhoCorasick; verified false by reading the target source directly).
 lm:LintRule a rdfs:Class ;
     rdfs:label "lsp-max RulePackServer lint rule" .
 
 lm:RulePack a rdfs:Class ;
     rdfs:label "lsp-max rule pack (a rules/*.toml file)" .
+
+# ── Structural fields (moved out of template-hardcoded literals) ──────
+# Verified 2026-07-18 against the real target struct,
+# `~/lsp-max/src/rule_pack_server.rs::Rule` (fields: id, name, severity,
+# pattern, path_globs, exclude_globs, message, rationale, eval_budget).
+# `path_globs`/`exclude_globs`/`eval_budget` used to live only as
+# hardcoded literals inside `rule_pack.toml.tmpl` -- a different template
+# author regenerating this pack would have had no ontology-side way to
+# discover these fields exist. They are now real RDF properties on each
+# `lm:LintRule` individual, and the template projects them instead of
+# inlining them. `lm:pathGlobs`/`lm:excludeGlobs` are space-separated
+# glob lists (Tera's `split(pat=" ")` turns them into a real list at
+# render time, matching `Vec<String>` on the real `Rule` struct).
+lm:pathGlobs a rdf:Property ;
+    rdfs:label "space-separated glob patterns scoping which files a rule applies to (Rule::path_globs)" ;
+    rdfs:domain lm:LintRule .
+
+lm:excludeGlobs a rdf:Property ;
+    rdfs:label "space-separated glob patterns excluding files from a rule (Rule::exclude_globs)" ;
+    rdfs:domain lm:LintRule .
+
+lm:evalBudget a rdf:Property ;
+    rdfs:label "latency classification: \"sync\" (<50ms, evaluated inline) or \"background\" (dispatched to a Tokio task) -- Rule::eval_budget / EvalBudget enum" ;
+    rdfs:domain lm:LintRule .
 
 # ── The pack itself ────────────────────────────────────────────────────
 lm:PraxisHygienePack a lm:RulePack ;
@@ -21,6 +49,9 @@ lm:UnwrapRule a lm:LintRule ;
     lm:name      "Unwrap in production path" ;
     lm:severity  "error" ;
     lm:pattern   "\\.unwrap\\(\\)|\\.expect\\(" ;
+    lm:pathGlobs "src/** crates/**" ;
+    lm:excludeGlobs "target/** .git/**" ;
+    lm:evalBudget "sync" ;
     lm:message   "unwrap()/expect() outside #[cfg(test)] panics the language server; return Result instead." ;
     lm:rationale "An lsp-max server must never panic mid-request; RulePackServer handlers return ClassifiedFindings, not aborts." .
 
@@ -29,6 +60,9 @@ lm:RawProtocolRule a lm:LintRule ;
     lm:name      "Raw protocol fallback" ;
     lm:severity  "warning" ;
     lm:pattern   "serde_json::Value|json!\\(" ;
+    lm:pathGlobs "src/** crates/**" ;
+    lm:excludeGlobs "target/** .git/**" ;
+    lm:evalBudget "background" ;
     lm:message   "Raw JSON fallback detected; use the generated metaModel.json protocol types." ;
     lm:rationale "Protocol completeness must not be faked with untyped serde_json fallback." .
 
@@ -37,5 +71,8 @@ lm:WallClockRule a lm:LintRule ;
     lm:name      "Wall clock in server code" ;
     lm:severity  "error" ;
     lm:pattern   "SystemTime::now|Instant::now" ;
+    lm:pathGlobs "src/** crates/**" ;
+    lm:excludeGlobs "target/** .git/**" ;
+    lm:evalBudget "sync" ;
     lm:message   "Wall-clock reads make receipts nondeterministic; thread time in from the transport boundary." ;
     lm:rationale "Deterministic replay of an lsp-max session requires clock-free handler logic." .

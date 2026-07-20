@@ -1,0 +1,22 @@
+[package]
+name = "tcps-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "日本語の原初豊田生産方式を実行可能なRust型として提供するno_std中核"
+keywords = ["tps", "jidoka", "kanban", "no-std", "typestate"]
+categories = ["no-std", "embedded"]
+
+[lib]
+name = "tcps_core"
+path = "src/lib.rs"
+
+[features]
+default = []
+
+[dependencies]
+
+[lints]
+workspace = true

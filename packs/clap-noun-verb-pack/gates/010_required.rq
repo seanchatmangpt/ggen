@@ -1,0 +1,14 @@
+# MESSAGE: every cnv:Command must carry noun/verb/handler/doc/returnType/args and every cnv:Noun its rdfs:label + rdfs:comment + at least one cnv:hasCommand (translated from shapes.ttl sh:minCount; any row = a subject missing the bound ?missing property)
+PREFIX cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a cnv:Command .
+    VALUES ?missing { cnv:noun cnv:verb cnv:handler cnv:doc cnv:returnType cnv:args }
+  } UNION {
+    ?s a cnv:Noun .
+    VALUES ?missing { rdfs:label rdfs:comment cnv:hasCommand }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

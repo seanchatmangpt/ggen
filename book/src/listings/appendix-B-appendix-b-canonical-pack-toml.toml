@@ -1,0 +1,13 @@
+[pack]
+name = "chapter-000-appendix-b-canonical-pack-toml"
+version = "26.7.19"
+description = "Appendix B — Canonical `pack.toml`"
+
+[law]
+ontology = "ontology.ttl"
+gates = ["gates/010_admission.rq"] # SPARQL admission gates; a legacy shapes.ttl now refuses with FM-PACK-012
+
+[verification]
+independent_reference = "reference/"
+sync_twice = true
+refuse_unexplained_drift = true

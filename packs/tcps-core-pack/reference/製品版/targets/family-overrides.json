@@ -1,0 +1,133 @@
+{
+  "families": {
+    "apple": {
+      "match": [
+        "-apple-"
+      ],
+      "sdk": "Xcode command-line tools and target platform SDK",
+      "runner": "native Apple device or simulator"
+    },
+    "android": {
+      "match": [
+        "-android"
+      ],
+      "sdk": "Android NDK",
+      "runner": "Android device or emulator"
+    },
+    "windows-msvc": {
+      "match": [
+        "windows-msvc"
+      ],
+      "sdk": "Visual Studio Build Tools",
+      "runner": "Windows"
+    },
+    "windows-gnu": {
+      "match": [
+        "windows-gnu",
+        "windows-gnullvm"
+      ],
+      "sdk": "MinGW or LLVM-mingw",
+      "runner": "Windows or Wine"
+    },
+    "linux-gnu": {
+      "match": [
+        "linux-gnu"
+      ],
+      "sdk": "matching GNU cross linker and sysroot",
+      "runner": "native, QEMU user, or remote host"
+    },
+    "linux-musl": {
+      "match": [
+        "linux-musl"
+      ],
+      "sdk": "matching musl cross linker",
+      "runner": "native, QEMU user, or remote host"
+    },
+    "wasm": {
+      "match": [
+        "wasm32",
+        "wasm64"
+      ],
+      "sdk": "WASI SDK, Emscripten, or no external linker depending on target",
+      "runner": "browser, Wasmtime, Node, or Emscripten"
+    },
+    "embedded": {
+      "match": [
+        "none-eabi",
+        "none-elf",
+        "unknown-none",
+        "msp430",
+        "avr-none"
+      ],
+      "sdk": "target linker or core-only rlib build",
+      "runner": "hardware or emulator"
+    },
+    "gpu": {
+      "match": [
+        "nvptx",
+        "amdgcn",
+        "bpf"
+      ],
+      "sdk": "vendor GPU/eBPF toolchain",
+      "runner": "GPU, kernel verifier, or simulator"
+    },
+    "bsd": {
+      "match": [
+        "freebsd",
+        "netbsd",
+        "openbsd",
+        "dragonfly"
+      ],
+      "sdk": "matching system linker/sysroot",
+      "runner": "native or virtual machine"
+    },
+    "solaris": {
+      "match": [
+        "solaris",
+        "illumos"
+      ],
+      "sdk": "matching system linker/sysroot",
+      "runner": "native or virtual machine"
+    },
+    "fuchsia": {
+      "match": [
+        "fuchsia"
+      ],
+      "sdk": "Fuchsia SDK",
+      "runner": "Fuchsia device or emulator"
+    },
+    "uefi": {
+      "match": [
+        "uefi"
+      ],
+      "sdk": "UEFI linker and image tooling",
+      "runner": "firmware or QEMU"
+    },
+    "qnx": {
+      "match": [
+        "nto-qnx"
+      ],
+      "sdk": "QNX Software Development Platform",
+      "runner": "QNX target"
+    },
+    "vxworks": {
+      "match": [
+        "vxworks"
+      ],
+      "sdk": "Wind River VxWorks SDK",
+      "runner": "VxWorks target"
+    },
+    "ohos": {
+      "match": [
+        "ohos"
+      ],
+      "sdk": "OpenHarmony SDK",
+      "runner": "OpenHarmony target"
+    },
+    "other": {
+      "match": [],
+      "sdk": "target-specific linker, SDK, and runtime",
+      "runner": "target-specific"
+    }
+  }
+}

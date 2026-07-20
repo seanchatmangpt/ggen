@@ -1,0 +1,31 @@
+trigger:
+- main
+
+strategy:
+  matrix:
+    linux:
+      imageName: ubuntu-24.04
+    macos:
+      imageName: macos-14
+    windows:
+      imageName: windows-2022
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+- checkout: self
+- script: |
+    rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+    rustup default 1.97.1
+  displayName: Install pinned Rust
+- script: python tools/lifecycle.py verify
+  displayName: Verify workspace
+- script: python tools/lifecycle.py matrix
+  displayName: Generate target matrix
+- task: PublishPipelineArtifact@1
+  condition: always()
+  inputs:
+    targetPath: receipts
+    artifact: receipts-$(imageName)
+

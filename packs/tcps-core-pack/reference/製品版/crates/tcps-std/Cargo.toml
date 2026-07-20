@@ -1,0 +1,18 @@
+[package]
+name = "tcps-std"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "豊田コード生産方式の標準ライブラリ統合、受領証永続化、環境観測"
+
+[lib]
+name = "tcps_std"
+path = "src/lib.rs"
+
+[dependencies]
+tcps-core = { path = "../tcps-core", version = "26.7.19" }
+
+[lints]
+workspace = true

@@ -1,0 +1,14 @@
+---
+to: src/generated/285_285_tera_syntax_inside_a_comment.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章285 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 285: 285. Tera Syntax inside a Comment
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

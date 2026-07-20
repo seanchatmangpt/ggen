@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章87
+    a pack:生成単位 ;
+    dcterms:title "87. Output-Path Boundaries"@en ;
+    pack:出力経路 "src/generated/087_87_output_path_boundaries.rs" ;
+    pack:順序 87 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

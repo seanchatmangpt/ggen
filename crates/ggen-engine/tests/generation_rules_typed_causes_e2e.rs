@@ -94,7 +94,10 @@ fn static_rule_flattens_first_row_columns_to_top_level_context() {
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
     let report = sync(dir.path(), SyncOptions::default()).expect("sync must succeed");
-    assert_eq!(report.written, vec![std::path::PathBuf::from("greeting.txt")]);
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("greeting.txt")]
+    );
     let content = std::fs::read_to_string(dir.path().join("greeting.txt")).expect("read output");
     assert_eq!(
         content, "Hello, alice!",

@@ -1,0 +1,13 @@
+{
+  "version": "v26.7.19",
+  "numbered_chapters": 336,
+  "appendices": 22,
+  "front_matter": 8,
+  "summary_entries": 366,
+  "listings": 366,
+  "tcps_reference_files": 132,
+  "tcps_core_pack_outputs": 43,
+  "tcps_release_pack_outputs": 89,
+  "project_record_sha256": "af585e5393a94ed158a23cddcfa479c2b32374b98e2b736933ecd878deb8566b",
+  "tcps_source_zip_sha256": "cfcd4f2f8dddb023782074b28c0849d01942921da12f2af1684253c9e3e54024"
+}

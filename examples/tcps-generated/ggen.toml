@@ -1,0 +1,32 @@
+[project]
+name = "tcps-generated"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+tcps = "http://seanchatmangpt.github.io/packs/tcps-core#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+tcps-core-pack = { path = "../../packs/tcps-core-pack" }
+tcps-release-pack = { path = "../../packs/tcps-release-pack" }
+tcps-std-pack = { path = "../../packs/tcps-std-pack" }
+tcps-ffi-pack = { path = "../../packs/tcps-ffi-pack" }
+tcps-wasm-pack = { path = "../../packs/tcps-wasm-pack" }
+tcps-cli-pack = { path = "../../packs/tcps-cli-pack" }
+# Self-hosted verification loop: ggen-verify-pack carries the policy + gates;
+# the local evidence/ mini-pack carries the ver:Check facts scripts/verify.sh
+# emits (real exit codes). Sync refuses if evidence is missing, red, or stale.
+ggen-verify-pack = { path = "../../packs/ggen-verify-pack" }
+tcps-evidence = { path = "evidence" }
+
+[templates]
+dir = "templates"
+aggregate_modules = true
+
+[law]
+# Reflexive receipts feed the freshness/regression gates (ggen-verify-pack
+# gates 030-050): the project's own sync history becomes queryable law.
+reflexive = true

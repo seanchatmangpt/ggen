@@ -1,0 +1,14 @@
+# MESSAGE: tcps_wasm:LibModule must have a non-empty tcps_wasm:sourceText; tcps_wasm:CargoManifest must have a non-empty tcps_wasm:manifestText — this file checks non-emptiness of a present value (translated from shapes.ttl sh:minLength 1; any row = an empty literal on the bound ?p)
+PREFIX tcps_wasm: <http://seanchatmangpt.github.io/packs/tcps-wasm#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a tcps_wasm:Module ; tcps_wasm:sourceText ?v .
+    BIND(tcps_wasm:sourceText AS ?p)
+    FILTER(STRLEN(STR(?v)) < 1)
+  } UNION {
+    ?s a tcps_wasm:Manifest ; tcps_wasm:manifestText ?v .
+    BIND(tcps_wasm:manifestText AS ?p)
+    FILTER(STRLEN(STR(?v)) < 1)
+  }
+}
+ORDER BY ?s ?p

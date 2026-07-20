@@ -1,0 +1,28 @@
+# MESSAGE: mfw:order must be an xsd:integer >= 1, mfw:standingAuthority an xsd:boolean, every constrained string property (rdfs:label, mfw:path, rdfs:comment) non-empty, and every mfw:nextStage edge must target another mfw:CycleStage individual in the union graph (translated from shapes.ttl sh:datatype/sh:minInclusive/sh:minLength/sh:class)
+PREFIX mfw:  <http://seanchatmangpt.github.io/packs/mfw#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a mfw:CycleStage ; mfw:order ?value . BIND(mfw:order AS ?p)
+    FILTER(DATATYPE(?value) != xsd:integer || ?value < 1)
+  } UNION {
+    ?s a mfw:CycleStage ; rdfs:label ?value . BIND(rdfs:label AS ?p)
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a mfw:CycleStage ; mfw:nextStage ?value . BIND(mfw:nextStage AS ?p)
+    FILTER NOT EXISTS { ?value a mfw:CycleStage }
+  } UNION {
+    ?s a mfw:AuthoritySurface ; ?p ?value .
+    VALUES ?p { mfw:path rdfs:comment }
+    FILTER(STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a mfw:AuthoritySurface ; mfw:standingAuthority ?value .
+    BIND(mfw:standingAuthority AS ?p)
+    FILTER(DATATYPE(?value) != xsd:boolean)
+  } UNION {
+    ?s a mfw:Crate ; rdfs:label ?value . BIND(rdfs:label AS ?p)
+    FILTER(STRLEN(STR(?value)) = 0)
+  }
+}
+ORDER BY ?s ?p

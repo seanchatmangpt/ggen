@@ -10,9 +10,16 @@ you can prove later exactly which ontology + template inputs produced which outp
 need prior RDF/SPARQL experience to try the quick start below; `ggen init` gives you a working
 example ontology and template to start from.
 
-Current version: `26.7.4` (nightly Rust toolchain, pinned via `rust-toolchain.toml`). This project is
+<<<<<<< GENERATED
+Current version: `26.7.18` (workspace version in `Cargo.toml`; nightly Rust toolchain
+`nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
+pre-commit`, which chains 9 gates: fmt-check → check → lint → test-lib → coherence-check → guard-process-intelligence-boundary → guard-cheat-scan → guard-claims-schema → guard-pack-proofs. This project is
 under active, fast-moving development — see [Maturity & Known Limitations](#maturity--known-limitations)
 before depending on it for anything production-critical.
+
+=======
+<!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->
+>>>>>>> MANUAL
 
 ## Quick Start
 
@@ -137,6 +144,7 @@ See [LICENSE](LICENSE) for licensing terms.
 
 Issues and pull requests are welcome at
 [github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen). Before submitting a PR,
-run `just pre-commit` (fmt-check → check → lint → test-lib → coherence-check →
-guard-process-intelligence-boundary → guard-cheat-scan → guard-claims-schema; 8 gates — see
-`CLAUDE.md` for the full contributor workflow and testing discipline).
+run `just pre-commit` — the current gate count and order are stated in the generated version
+block near the top of this README (source: `justfile`'s own `pre-commit:` line, transcribed
+into `.specify/repo-facts.ttl`); see `CLAUDE.md` for the full contributor workflow and testing
+discipline.

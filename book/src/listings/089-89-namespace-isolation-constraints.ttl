@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章89
+    a pack:生成単位 ;
+    dcterms:title "89. Namespace Isolation Constraints"@en ;
+    pack:出力経路 "src/generated/089_89_namespace_isolation_constraints.rs" ;
+    pack:順序 89 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

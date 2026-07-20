@@ -1,0 +1,9 @@
+---
+to: crates/tcps-wasm/src/lib.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps_wasm: <http://seanchatmangpt.github.io/packs/tcps-wasm#>
+    SELECT ?source WHERE { tcps_wasm:LibModule tcps_wasm:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source }}

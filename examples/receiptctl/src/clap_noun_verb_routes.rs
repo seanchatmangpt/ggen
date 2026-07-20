@@ -13,7 +13,8 @@
 //! Rust-reserved-word raw-identifier escaping.
 
 use clap_noun_verb::Result;
-use clap_noun_verb_macros::verb;/// List every wasm4pm process-intelligence algorithm in the generated catalog.
+use clap_noun_verb_macros::verb;
+use serde_json::json;/// List every wasm4pm process-intelligence algorithm in the generated catalog.
 #[verb("list", "algorithm")]
 fn algorithm_list(
 ) -> Result<serde_json::Value> {
@@ -47,6 +48,16 @@ fn session_login(
     crate::verbs::handlers::session_login_handler(
         token,
     )
+}
+
+/// Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required.
+#[verb("ping", "session")]
+fn session_ping(
+) -> Result<serde_json::Value> {
+    // Zero-handler command: cnv:staticResponse fully specifies this
+    // command's behavior in the ontology. No `crate::verbs::handlers::*`
+    // fn is called or required to exist for `session ping`.
+    Ok(json!({ "status": "alive", "noun": "session", "verb": "ping" }))
 }
 
 /// Verify the active session token against the stored keyring credential.
@@ -130,3 +141,602 @@ fn register_user_noun() {
     );
 }
 
+
+#[cfg(test)]
+mod clap_noun_verb_routes_proof_tests {
+    // Proof tests for this pack's own generated routes, in the same file
+    // (not a separate `tests/*.rs` file): the wrapper fns above (e.g.
+    // `session_login`, `session_verify`, `user_create`) and the noun
+    // registration fns are private to this module -- a separate
+    // integration-test crate under `tests/` has zero visibility into them
+    // (Rust privacy is unaffected by `pub mod`/`#[path]` re-mounting from a
+    // sibling or parent module). Only a `#[cfg(test)] mod` declared *inside*
+    // this same file is a descendant of this module and can `use super::*;`
+    // to reach them directly. This also avoids FM-WRITE-008 (two templates
+    // cannot both target `src/clap_noun_verb_routes.rs` in one `ggen sync`
+    // pass, even with `inject: true` on one of them) by construction: there
+    // is only ever one template, one `to:` target, for this file.
+    //
+    // Tier 1's per-command literals below (token/name/email fixture values)
+    // are still hand-written proof INPUTS -- that's normal Chicago-TDD
+    // arrange-phase data, not a drift risk. Tier 2's EXPECTED_* constants,
+    // by contrast, are rendered by this same template pass from the
+    // `commands`/`nouns` SPARQL projection that also produced the routes
+    // above (see this template's own Tera for-loops in Tier 2 below). A
+    // dropped, renamed, or mis-typed `cnv:Command`/`cnv:Noun` individual
+    // changes the generated routes AND the generated expectations in the
+    // same regen, so this is a real drift canary against the ontology, not
+    // a tautological self-comparison of hand-copied strings.
+    use super::*;
+
+    // ---- Tier 1: real calls through the generated wrapper into the real,
+    // hand-written `crate::verbs::handlers::*` seam (no mocks/test doubles --
+    // Chicago TDD real collaborator). A required/optional-arg mapping bug
+    // (e.g. `email` generated as `String` instead of `Option<String>`) fails
+    // to COMPILE here, before any assertion runs -- a stronger signal than an
+    // assert. The `.is_ok()` checks are genuine runtime assertions against
+    // the real handler's return value, not a mock interaction.
+
+    #[test]
+    fn session_login_takes_required_token_and_succeeds() {
+        // cnv:SessionLogin cnv:args "token|String|true|..." -> a single
+        // required `String` parameter (no `Option<..>` wrapper).
+        let result = session_login("proof-token".to_string());
+        assert!(
+            result.is_ok(),
+            "session_login(\"proof-token\") should succeed via the real handler: {result:?}"
+        );
+    }
+
+    #[test]
+    fn session_verify_is_zero_arg_and_succeeds() {
+        // cnv:SessionVerify cnv:args "" -> zero-arg function.
+        let result = session_verify();
+        assert!(
+            result.is_ok(),
+            "session_verify() should succeed via the real handler: {result:?}"
+        );
+    }
+
+    // cnv:SessionPing carries cnv:staticResponse -- its ENTIRE behavior,
+    // not just its signature, is specified in ontology.ttl. This asserts
+    // on actual output CONTENT (not merely `.is_ok()`), and the expected
+    // content below is the literal ontology fact
+    // `json!({ "status": "alive", "noun": "session", "verb": "ping" })`,
+    // reached with zero hand-written `crate::verbs::handlers::*` code:
+    // there is no `session_ping_handler` anywhere in this crate.
+    #[test]
+    fn session_ping_is_zero_handler_and_returns_its_ontology_specified_body() {
+        let result = session_ping().expect("session_ping has no handler dependency; always Ok");
+        assert_eq!(result["status"], "alive");
+        assert_eq!(result["noun"], "session");
+        assert_eq!(result["verb"], "ping");
+    }
+
+    #[test]
+    fn user_create_required_name_with_optional_email_present() {
+        // cnv:UserCreate cnv:args
+        // "name|String|true|...@@email|String|false|..." -> `name: String`
+        // required, `email: Option<String>` optional.
+        let result = user_create("Ada".to_string(), Some("ada@example.com".to_string()));
+        assert!(
+            result.is_ok(),
+            "user_create(\"Ada\", Some(email)) should succeed via the real handler: {result:?}"
+        );
+    }
+
+    #[test]
+    fn user_create_optional_email_absent() {
+        let result = user_create("Ada".to_string(), None);
+        assert!(
+            result.is_ok(),
+            "user_create(\"Ada\", None) should succeed via the real handler: {result:?}"
+        );
+    }
+
+    // ---- Tier 2: drift canary. Re-reads this same generated file's own
+    // source text at compile time and checks it against literal
+    // counts/strings rendered by THIS SAME TEMPLATE PASS from the same
+    // `commands`/`nouns` SPARQL-projected context that produced the routes
+    // above (see this template's own command/noun for-loops that emitted
+    // the wrapper fns and noun registrations) --
+    // NOT hand-transcribed by a human re-reading ontology.ttl. An ontology
+    // edit that adds/removes/renames a `cnv:Command`/`cnv:Noun` individual
+    // therefore regenerates BOTH the production code and these expected
+    // literals in the same `ggen sync` pass: there is no separate manual
+    // transcription step left to drift out of sync with the ontology.
+    const EXPECTED_COMMAND_COUNT: usize = 7;
+    const EXPECTED_NOUN_COUNT: usize = 5;
+    const EXPECTED_DOCS: &[&str] = &[
+        "List every wasm4pm process-intelligence algorithm in the generated catalog.",
+        "List every wasm4pm cognition breed in the generated catalog.",
+        "Emit a receipt_chained OCEL event for a given sync-receipt id.",
+        "Start an authenticated session and persist the token.",
+        "Zero-argument liveness check with a fixed response body -- entirely ontology-specified, no hand-written handler required.",
+        "Verify the active session token against the stored keyring credential.",
+        "Create a user resource and emit its serialized record.",
+    ];
+    const EXPECTED_NOUN_DESCRIPTIONS: &[&str] = &[
+        "Inspect the wasm4pm process-intelligence algorithm catalog.",
+        "Inspect the wasm4pm cognition breed catalog.",
+        "Emit OCEL events for the wasm4pm-compat receipt/pack lifecycle.",
+        "Manage authenticated session tokens.",
+        "Manage user resources.",
+    ];
+    //
+    // `src/clap_noun_verb_routes.rs` is this pack's own fixed `to:` path
+    // (see this template's frontmatter) -- not derived from `file!()`, so
+    // this is stable regardless of how the module happens to be mounted
+    // (`#[path = "..."]`, `mod`, etc.) by the consuming project.
+    //
+    // Two things this scan must account for, both discovered by actually
+    // running this test against a real consumer (`examples/receiptctl`),
+    // not assumed:
+    //
+    // 1. `include_str!` reads the WHOLE file, including this test module's
+    //    own source. A naive `.matches("#[verb(")` on the full text counts
+    //    the literal string inside this very assertion's argument as a
+    //    match too (off-by-one). `ROUTES_ONLY` slices `GENERATED_SOURCE` up
+    //    to the `#[cfg(test)]` marker -- text this template always emits
+    //    immediately before the test module -- so counts only look at the
+    //    actually-generated routes, never at this test's own source.
+    // 2. `clap-noun-verb-pack` is a routing pack, not a self-contained-data
+    //    pack: a consuming project's OWN ontology (e.g.
+    //    `examples/receiptctl/schema/domain.ttl`) can assert additional
+    //    `cnv:Command`/`cnv:Noun` individuals in the SAME `cnv:` namespace,
+    //    which the union graph legitimately adds to this file (receiptctl
+    //    itself does exactly this: 3 more commands, 3 more nouns, on top of
+    //    this pack's own 3 commands / 2 nouns). So this pack can only
+    //    guarantee its OWN individuals are present -- never that they are
+    //    the ONLY ones -- and the counts below are `>=`, not `==`.
+    const GENERATED_SOURCE: &str =
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/clap_noun_verb_routes.rs"));
+
+    fn routes_only() -> &'static str {
+        GENERATED_SOURCE
+            .split("#[cfg(test)]")
+            .next()
+            .expect("GENERATED_SOURCE is a non-empty &str; split always yields >=1 part")
+    }
+
+    #[test]
+    fn generated_source_has_at_least_this_packs_verb_commands() {
+        let count = routes_only().matches("#[verb(").count();
+        assert!(
+            count >= EXPECTED_COMMAND_COUNT,
+            "expected at least the {EXPECTED_COMMAND_COUNT} verb commands from this pack's own \
+             ontology.ttl (count itself rendered from the same `commands` SPARQL projection), \
+             found {count} in the generated routes portion (a consuming project's own ontology \
+             may legitimately add more)"
+        );
+    }
+
+    #[test]
+    fn generated_source_has_at_least_this_packs_registered_nouns() {
+        let count = routes_only()
+            .matches("CommandRegistry::register_noun(")
+            .count();
+        assert!(
+            count >= EXPECTED_NOUN_COUNT,
+            "expected at least the {EXPECTED_NOUN_COUNT} nouns from this pack's own ontology.ttl \
+             (count itself rendered from the same `nouns` SPARQL projection), found {count} in \
+             the generated routes portion (a consuming project's own ontology may legitimately \
+             add more)"
+        );
+    }
+
+    #[test]
+    fn generated_source_carries_literal_command_docs_from_ontology() {
+        for doc in EXPECTED_DOCS {
+            assert!(
+                GENERATED_SOURCE.contains(doc),
+                "generated routes missing doc comment {doc:?} (rendered from the same \
+                 `commands` projection as the routes themselves)"
+            );
+        }
+    }
+
+    #[test]
+    fn generated_source_carries_literal_noun_descriptions_from_ontology() {
+        for about in EXPECTED_NOUN_DESCRIPTIONS {
+            let needle = format!("\"{about}\"");
+            assert!(
+                GENERATED_SOURCE.contains(&needle),
+                "generated routes missing noun description {needle:?} (rendered from the same \
+                 `nouns` projection as the registrations themselves)"
+            );
+        }
+    }
+
+    #[test]
+    fn generated_source_marshals_user_create_args_with_correct_types() {
+        // Asserts the exact generated parameter-list text for `user_create`,
+        // proving `name` stayed required (`String`) and `email` stayed
+        // optional (`Option<String>`) per cnv:UserCreate's `cnv:args` literal.
+        assert!(GENERATED_SOURCE.contains("name: String,"));
+        assert!(GENERATED_SOURCE.contains("email: Option<String>,"));
+    }
+
+    // ---- Tier 3: real `#[verb]`-macro CLI dispatch (argv -> clap -> the
+    // `linkme`-registered noun/verb tree -> the real handler), NOT a direct
+    // Rust function call like Tier 1. Tier 1 proves the generated wrapper
+    // fns are callable and type-correct; it never exercises argv parsing,
+    // flag-name derivation, or the `linkme::distributed_slice` registration
+    // this file's own noun/verb registration code performs. A bug in any of
+    // those (e.g. a flag typo, a registry double-registration, a noun that
+    // silently fails to register) would pass every Tier 1/2 test and still
+    // break the real CLI binary.
+    //
+    // This MUST live inside this same file's `#[cfg(test)] mod` (a unit
+    // test, `cargo test --lib`) rather than a separate `tests/*.rs`
+    // integration-test file -- a real, verified constraint, not a stylistic
+    // choice: building this exact proof as a separate `tests/*.rs` file
+    // first (against a real scratch consumer, `clap-noun-verb = "26.7.4"`)
+    // found that `CommandRegistry::get_all_noun_names()` comes back EMPTY
+    // there, even though the exact same call from a `#[cfg(test)]` mod in
+    // this file (or from the real compiled `main.rs` binary) sees both
+    // nouns correctly. Root cause, confirmed with a throwaway debug probe
+    // in both positions: a `tests/*.rs` file is a SEPARATE crate that links
+    // against this crate's rlib; if nothing in that separate crate
+    // references any symbol from this crate, the linker has no reason to
+    // pull in the .o object containing this file's
+    // `#[linkme::distributed_slice(...)]` noun/verb registration statics,
+    // so they are silently absent from that test binary -- clap then
+    // reports `unexpected argument 'session' found` because the noun
+    // subcommand tree is empty, not because argv construction was wrong.
+    // `cargo test --lib` and the real compiled binary both compile this
+    // code as part of the SAME crate, so the statics are always present.
+    //
+    // `CommandRegistry::get()`/`.run(argv)` is `clap_noun_verb::cli::
+    // registry::CommandRegistry` (the `linkme`-backed singleton the
+    // `#[verb]` macro and this file's own noun-registration functions
+    // populate) -- NOT the unrelated, same-named `clap_noun_verb::
+    // CommandRegistry` re-exported at the crate root (a different,
+    // builder-style struct with `.new()`/`.with_config()` and no `.get()`
+    // at all; importing that one is a real compile error, found while
+    // building this proof).
+    //
+    // argv values are `"proof-value"` for every field: every `cnv:args`
+    // field in this pack's own ontology.ttl is `xsd:string`-typed, so a
+    // fixed literal is valid for any of them without per-field type-aware
+    // generation.
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_algorithm_list_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "algorithm".to_string(),
+            "list".to_string(),
+        ];
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `algorithm list` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_cognition_list_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "cognition".to_string(),
+            "list".to_string(),
+        ];
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `cognition list` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_receipt_emit_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "receipt".to_string(),
+            "emit".to_string(),
+        ];
+        argv.push("--sync_receipt_id".to_string());
+        argv.push("proof-value".to_string());
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `receipt emit` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_receipt_emit_fails_when_first_required_arg_is_missing() {
+        // Real negative-path proof: clap's own required-argument
+        // enforcement, exercised through the actual registered command --
+        // not a hand-written assertion about what clap SHOULD do. The
+        // first required field (per cnv:args ontology order) is omitted
+        // entirely (both its flag and value); every other field is still
+        // supplied.
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "receipt".to_string(),
+            "emit".to_string(),
+        ];
+        // omitted on purpose: --sync_receipt_id (the required field under test)
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_err(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `receipt emit` \
+             with a required argument omitted should fail via clap's own argument validation, not \
+             silently succeed: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_session_login_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "session".to_string(),
+            "login".to_string(),
+        ];
+        argv.push("--token".to_string());
+        argv.push("proof-value".to_string());
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `session login` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_session_login_fails_when_first_required_arg_is_missing() {
+        // Real negative-path proof: clap's own required-argument
+        // enforcement, exercised through the actual registered command --
+        // not a hand-written assertion about what clap SHOULD do. The
+        // first required field (per cnv:args ontology order) is omitted
+        // entirely (both its flag and value); every other field is still
+        // supplied.
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "session".to_string(),
+            "login".to_string(),
+        ];
+        // omitted on purpose: --token (the required field under test)
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_err(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `session login` \
+             with a required argument omitted should fail via clap's own argument validation, not \
+             silently succeed: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_session_ping_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "session".to_string(),
+            "ping".to_string(),
+        ];
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `session ping` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_session_verify_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "session".to_string(),
+            "verify".to_string(),
+        ];
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `session verify` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_user_create_succeeds_with_full_args() {
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "user".to_string(),
+            "create".to_string(),
+        ];
+        argv.push("--name".to_string());
+        argv.push("proof-value".to_string());
+        argv.push("--email".to_string());
+        argv.push("proof-value".to_string());
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_ok(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `user create` \
+             should succeed through the actual #[verb]-macro-registered path: {result:?}"
+        );
+    }
+
+    #[test]
+    #[allow(unused_mut)]
+    fn cli_dispatch_user_create_fails_when_first_required_arg_is_missing() {
+        // Real negative-path proof: clap's own required-argument
+        // enforcement, exercised through the actual registered command --
+        // not a hand-written assertion about what clap SHOULD do. The
+        // first required field (per cnv:args ontology order) is omitted
+        // entirely (both its flag and value); every other field is still
+        // supplied.
+        let mut argv: Vec<String> = vec![
+            "clap-noun-verb-pack-cli-dispatch-proof".to_string(),
+            "user".to_string(),
+            "create".to_string(),
+        ];
+        // omitted on purpose: --name (the required field under test)
+        argv.push("--email".to_string());
+        argv.push("proof-value".to_string());
+        // Lock, dispatch, and drop the guard BEFORE asserting: holding the
+        // lock across a failing `assert!` would poison the process-wide
+        // registry Mutex for every OTHER test in this binary (a real
+        // cascading-failure mode found while building this proof -- one
+        // deliberately-failing negative-path test turned every other
+        // dispatch test's `.expect("... never poisoned ...")` into a
+        // second, misleading panic).
+        let result = {
+            let registry = ::clap_noun_verb::cli::registry::CommandRegistry::get();
+            let registry = registry
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            registry.run(argv.clone())
+        };
+        assert!(
+            result.is_err(),
+            "real CLI dispatch (registry.run over argv {argv:?}) for `user create` \
+             with a required argument omitted should fail via clap's own argument validation, not \
+             silently succeed: {result:?}"
+        );
+    }
+
+
+}

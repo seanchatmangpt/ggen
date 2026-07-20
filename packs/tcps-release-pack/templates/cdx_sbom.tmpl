@@ -1,0 +1,11 @@
+---
+to: infra/evidence/source/tcps-v26.7.19.cdx.json
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:CdxSbomArtifact tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

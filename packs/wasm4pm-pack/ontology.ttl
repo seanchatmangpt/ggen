@@ -1,0 +1,82 @@
+# wasm4pm-pack ontology — the real crate map of the ~/wasm4pm workspace,
+# transcribed from ~/wasm4pm/Cargo.toml's members list and each crate's own
+# Cargo.toml description. Distinct in scope from packs/wasm4pm-{algorithms,
+# cognition,compat,facts}-pack, which model wasm4pm's process-intelligence
+# ANALYSIS ontology, not its crate structure.
+
+@prefix w4c:  <http://seanchatmangpt.github.io/packs/wasm4pm-crate#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+w4c:Crate a rdfs:Class ; rdfs:label "wasm4pm workspace crate" .
+w4c:purpose a rdf:Property ; rdfs:domain w4c:Crate ; rdfs:range xsd:string .
+
+# w4c:dependsOn -- real intra-workspace crate dependency edges, transcribed by
+# hand-grepping each member crate's own Cargo.toml [dependencies] table for a
+# `{workspace-member-name} = { ... }` / `{ path = "../..." }` line naming
+# another w4c:Crate individual (external deps like wasm4pm-compat, serde, etc.
+# are deliberately excluded -- this property models only the closed graph over
+# the 9 individuals declared above). Verified against
+# ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71 (2026-07-18):
+#   wasm4pm/Cargo.toml            -> wasm4pm-cognition (optional), miniml-core (optional, feature "miniml")
+#   crates/wasm4pm-cli/Cargo.toml -> wasm4pm
+#   crates/wasm4pm-cognition/Cargo.toml -> prolog8
+#   crates/wasm4pm-planner/Cargo.toml   -> prolog8, wasm4pm, wasm4pm-cognition
+# tps-metrics, miniml-core, prolog8, ocpq, bench-tools have zero intra-workspace
+# dependency edges onto another individual in this list (ocpq depends only on
+# the external wasm4pm-compat crate, not on any w4c:Crate).
+w4c:dependsOn a rdf:Property ; rdfs:domain w4c:Crate ; rdfs:range w4c:Crate ;
+    rdfs:comment "Direct intra-workspace crate dependency, hand-verified against a dated ~/wasm4pm commit (see property comment)." .
+
+w4c:wasm4pm
+    a w4c:Crate ; rdfs:label "wasm4pm" ;
+    w4c:purpose "High-performance process mining algorithms in WebAssembly for JavaScript/TypeScript." .
+
+w4c:tps-metrics
+    a w4c:Crate ; rdfs:label "tps-metrics" ;
+    w4c:purpose "Toyota Production System metrics collection and analysis." .
+
+w4c:wasm4pm-cli
+    a w4c:Crate ; rdfs:label "wasm4pm-cli" ;
+    w4c:purpose "The official wasm4pm process mining command-line interface." .
+
+w4c:miniml-core
+    a w4c:Crate ; rdfs:label "miniml" ;
+    w4c:purpose "A minimal, blazing-fast WASM-powered machine learning library with SIMD acceleration." .
+    # NOTE: individual IRI kept as w4c:miniml-core (matches the directory
+    # crates/miniml-core/) but rdfs:label corrected to "miniml" -- that is
+    # the real `[package] name` in crates/miniml-core/Cargo.toml (verified
+    # 2026-07-19 against ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71,
+    # line 3: `name = "miniml"`). The prior label "miniml-core" was a
+    # directory-name/package-name conflation: `cargo build -p miniml-core`
+    # fails in the real workspace (no such package); `cargo build -p miniml`
+    # is the real, buildable target. This pack generates `WASM4PM_CRATES`
+    # entries keyed by this label, so the bug was live in generated code,
+    # not just documentation.
+
+w4c:wasm4pm-cognition
+    a w4c:Crate ; rdfs:label "wasm4pm-cognition" ;
+    w4c:purpose "AutoSystems old-AI cognition kernel: frames, production rules, Prolog, STRIPS, Hearsay-II blackboard, BLAKE3 receipt chain, adversarial gates." .
+
+w4c:prolog8
+    a w4c:Crate ; rdfs:label "prolog8" ;
+    w4c:purpose "Byte-capped proof engine for policy, workflow, and agent action admission." .
+
+w4c:ocpq
+    a w4c:Crate ; rdfs:label "ocpq" ;
+    w4c:purpose "Object-centric process querying & constraints (binding boxes, query trees, E2O/O2O/TBE predicates, CHILD SET) per Kuesters & van der Aalst 2025." .
+
+w4c:bench-tools
+    a w4c:Crate ; rdfs:label "bench-tools" ;
+    w4c:purpose "Benchmark tools for the wasm4pm workspace." .
+
+w4c:wasm4pm-planner
+    a w4c:Crate ; rdfs:label "wasm4pm-planner" ;
+    w4c:purpose "wasm4pm-native PDDL-subset temporal planner with prolog8 admission gating and an MCP server -- a fresh design drawing on bcinr-pddl's durative-action scheduler and capability-router pattern." .
+
+# --- dependency edges (see w4c:dependsOn comment above for provenance) ---
+w4c:wasm4pm            w4c:dependsOn w4c:wasm4pm-cognition, w4c:miniml-core .
+w4c:wasm4pm-cli        w4c:dependsOn w4c:wasm4pm .
+w4c:wasm4pm-cognition  w4c:dependsOn w4c:prolog8 .
+w4c:wasm4pm-planner    w4c:dependsOn w4c:prolog8, w4c:wasm4pm, w4c:wasm4pm-cognition .

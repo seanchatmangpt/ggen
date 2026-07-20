@@ -1,0 +1,686 @@
+{
+  "rust_release": "1.97.1",
+  "snapshot_date": "2026-07-19",
+  "source": "https://doc.rust-lang.org/rustc/platform-support.html",
+  "policy": {
+    "1": "build and test guaranteed by Rust project",
+    "2": "build guaranteed by Rust project; test not universally guaranteed",
+    "3": "built-in target, no Rust project guarantee"
+  },
+  "targets": [
+    {
+      "target": "aarch64-apple-darwin",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-tvos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-tvos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-visionos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-visionos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-watchos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-watchos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "aarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "aarch64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    },
+    {
+      "target": "arm-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm64ec-pc-windows-msvc",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv5te-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv5te-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7a-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7a-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7r-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv8r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "i586-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i586-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-freebsd",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    },
+    {
+      "target": "loongarch64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "loongarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "loongarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "loongarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "nvptx64-nvidia-cuda",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "powerpc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64le-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64le-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv32i-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imafc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64a23-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "s390x-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "s390x-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "sparc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "sparcv9-sun-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv6m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7em-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7em-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7neon-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv8m.base-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv8m.main-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv8m.main-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "wasm32-unknown-emscripten",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-unknown-unknown",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip1",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip1-threads",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip2",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32v1-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-fortanix-unknown-sgx",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-freebsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-illumos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnuasan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnumsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnutsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnux32",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-netbsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "x86_64-unknown-redox",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    }
+  ],
+  "dynamic_rule": "Any target from rustc --print target-list absent from this snapshot is classified tier 3 until the snapshot is refreshed.",
+  "basis": "Rust 1.97 platform tiers; 1.97.1 is a compiler point release with the same platform support snapshot."
+}

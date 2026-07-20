@@ -465,7 +465,11 @@ pub(crate) fn load_templates_glob_lenient(templates_dir: &Path) -> Result<Tera> 
             }
         }; // continue above is deliberate: no further code in this loop body reads `content`
            // before falling to the next file if it wasn't produced.
-        match tera::Template::new(&rel_name, Some(path.to_string_lossy().to_string()), &content) {
+        match tera::Template::new(
+            &rel_name,
+            Some(path.to_string_lossy().to_string()),
+            &content,
+        ) {
             Ok(tpl) => {
                 tera.templates.insert(rel_name, tpl);
             }
@@ -579,8 +583,7 @@ pub(crate) fn tera_error_location(err: &tera::Error) -> Option<String> {
 /// [`TemplateFailureCause::TemplateRenderInternal`]. This walks past that
 /// one (or more) wrapper layer(s) to the real cause before classifying.
 pub(crate) fn classify_tera_render_error(
-    err: &tera::Error,
-    own_template_name: &str,
+    err: &tera::Error, own_template_name: &str,
 ) -> TemplateFailureCause {
     use std::error::Error as StdError;
     let mut current = err;
@@ -752,8 +755,7 @@ fn local_fn(args: &HashMap<String, Value>) -> tera::Result<Value> {
 /// same call is a hard error (never a silent pick of one); supplying
 /// neither names both accepted argument names in the error.
 fn rows_or_results_arg<'a>(
-    args: &'a HashMap<String, Value>,
-    fn_name: &str,
+    args: &'a HashMap<String, Value>, fn_name: &str,
 ) -> tera::Result<&'a Vec<Value>> {
     match (args.get("rows"), args.get("results")) {
         (Some(_), Some(_)) => Err(tera::Error::msg(format!(
@@ -1274,8 +1276,7 @@ mod tests {
             )
             .expect("render");
         assert_eq!(
-            rendered,
-            "alice_smith;alice_smith;alice_smith,bob_jones;false;2",
+            rendered, "alice_smith;alice_smith;alice_smith,bob_jones;false;2",
             "results= must behave identically to rows=, and results=+column= \
              must extract the scalar/list for that column"
         );
@@ -1316,17 +1317,19 @@ mod tests {
         .expect("map form parses");
         let bare_tpl = Template::parse(&format!("---\nto: out.rs\nsparql: {QUERY}\n---\nbody"))
             .expect("bare form parses");
-        let seq_tpl = Template::parse(&format!(
-            "---\nto: out.rs\nsparql:\n  - {QUERY}\n---\nbody"
-        ))
-        .expect("sequence form parses");
+        let seq_tpl = Template::parse(&format!("---\nto: out.rs\nsparql:\n  - {QUERY}\n---\nbody"))
+            .expect("sequence form parses");
 
         assert_eq!(
             map_tpl.frontmatter.sparql.get("people").map(String::as_str),
             Some(QUERY)
         );
         assert_eq!(
-            bare_tpl.frontmatter.sparql.get("default").map(String::as_str),
+            bare_tpl
+                .frontmatter
+                .sparql
+                .get("default")
+                .map(String::as_str),
             Some(QUERY),
             "bare string must be named `default`, matching ggen-core's convention"
         );

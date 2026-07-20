@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章308
+    a pack:生成単位 ;
+    dcterms:title "308. Create the Ontology-to-Artifact Matrix"@en ;
+    pack:出力経路 "src/generated/308_308_create_the_ontology_to_artifact_matrix.rs" ;
+    pack:順序 308 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .

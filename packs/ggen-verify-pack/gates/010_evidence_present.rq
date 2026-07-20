@@ -1,0 +1,11 @@
+# MESSAGE: required verification evidence is missing -- every ver:RequiredCheck must have a matching ver:Check fact in the evidence graph (run the consumer's verify emitter, e.g. scripts/verify.sh, before syncing); a missing check is a refusal, never a silent skip
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?requiredName WHERE {
+  ?req a ver:RequiredCheck ;
+       ver:name ?requiredName .
+  FILTER NOT EXISTS {
+    ?c a ver:Check ;
+       ver:name ?requiredName .
+  }
+}
+ORDER BY ?requiredName

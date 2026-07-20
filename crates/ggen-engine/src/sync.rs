@@ -291,8 +291,75 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
 
+    // P2: reflexive receipts (opt-in via `[law].reflexive`). Parses this
+    // project's own `<root>/.ggen-v2/receipt-log.jsonl` (if it exists) and
+    // inserts one fixed-shape `ggenr:Sync` fact cluster per
+    // successfully-parsed line, BEFORE any template renders — so a
+    // template's SPARQL SELECTs can see the project's own sync history
+    // (syncs 0..N-1) as ordinary graph facts. A line this sync itself is
+    // about to append is not yet in the log at this point in the pipeline
+    // (the log is only appended in Stage 5, non-dry-run), so a first sync
+    // with `reflexive = true` sees zero prior `ggenr:Sync` individuals.
+    //
+    // Reflexive off (the default) or on-but-unqueried leaves output
+    // byte-identical to a pre-reflexive project: the extra `ggenr:` facts
+    // only change `graph_hash` (and hence anything that actually SELECTs
+    // them), never the write path itself.
+    if config.law.reflexive {
+        let log_path = root.join(RECEIPT_LOG_REL_PATH);
+        if let Ok(raw) = std::fs::read_to_string(&log_path) {
+            let mut malformed_count: usize = 0;
+            for (idx, line) in raw.lines().enumerate() {
+                if line.trim().is_empty() {
+                    continue;
+                }
+                match serde_json::from_str::<SyncReceipt>(line) {
+                    Ok(receipt) => {
+                        let andon_label = format!("{:?}", receipt.record.andon);
+                        let ttl = format!(
+                            "@prefix ggenr: <http://seanchatmangpt.github.io/ggen/receipt#> .\n\
+                             ggenr:sync-{chain} a ggenr:Sync ;\n\
+                             \x20   ggenr:index {idx} ;\n\
+                             \x20   ggenr:chainHash \"{chain_esc}\" ;\n\
+                             \x20   ggenr:prevChainHash \"{prev_esc}\" ;\n\
+                             \x20   ggenr:graphHash \"{graph_esc}\" ;\n\
+                             \x20   ggenr:andon \"{andon_esc}\" ;\n\
+                             \x20   ggenr:outputCount {outputs} .\n",
+                            chain = receipt.record.chain_hash_hex,
+                            idx = idx,
+                            chain_esc = turtle_escape(&receipt.record.chain_hash_hex),
+                            prev_esc = turtle_escape(&receipt.record.prev_chain_hash_hex),
+                            graph_esc = turtle_escape(&receipt.payload.graph_hash),
+                            andon_esc = turtle_escape(&andon_label),
+                            outputs = receipt.payload.outputs.len(),
+                        );
+                        graph.insert_turtle(&ttl)?;
+                    }
+                    Err(_) => {
+                        // THE ONLY place in this pipeline allowed to
+                        // silently skip bad input: everywhere else fails
+                        // closed on a malformed governing input, but the
+                        // receipt log is history this sync's author does
+                        // not directly control byte-for-byte (an
+                        // older-tool-version or hand-edited line must not
+                        // brick every future sync of the project) — the
+                        // skip is recorded here, never silently hidden.
+                        closure.insert(
+                            format!("receipt-log:MALFORMED-{malformed_count}"),
+                            "MALFORMED".to_string(),
+                        );
+                        malformed_count += 1;
+                    }
+                }
+            }
+        }
+    }
+
     drop(load_guard);
-    load_span.record("pipeline.duration_ms", load_start.elapsed().as_millis() as u64);
+    load_span.record(
+        "pipeline.duration_ms",
+        load_start.elapsed().as_millis() as u64,
+    );
 
     // ── Stage 2: Enrich (single pass; see module docs) ──────────────────
     //
@@ -327,7 +394,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         extract_start.elapsed().as_millis() as u64,
     );
 
-    // ── Stage 2b: Law — materialize rules, then gate (SHACL, denials) ───
+    // ── Stage 2b: Law — materialize rules, then gate (denials, SPARQL gates)
     //
     // All optional-when-unconfigured: an absent `[law]` table runs no law
     // stage at all, so pre-law projects sync unchanged. With the oxigraph
@@ -342,24 +409,70 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let validate_guard = validate_span.enter();
 
-    if !config.law.rules.is_empty() {
-        for rel in &config.law.rules {
-            let rule_path = root.join(rel);
-            let src = std::fs::read_to_string(&rule_path).map_err(|e| {
-                AppError::fm_law(
-                    10,
-                    format!(
-                        "rule file `{}` unreadable: {e}. Remediation: fix [law].rules.",
-                        rule_path.display()
-                    ),
-                )
-            })?;
-            closure.insert(
-                rel_display(root, &rule_path),
-                hash_file_or_missing(&rule_path),
-            );
-            graph.load_rules(&src)?;
+    // [law].rules: load every declared N3/Datalog rule file. Always
+    // attempted (an empty `rules` list is simply a no-op loop) — splitting
+    // this out from the materialize/check_denials gate below lets a
+    // hook-only project (no [law].rules at all) still get its hook packs
+    // materialized.
+    for rel in &config.law.rules {
+        let rule_path = root.join(rel);
+        let src = std::fs::read_to_string(&rule_path).map_err(|e| {
+            AppError::fm_law(
+                10,
+                format!(
+                    "rule file `{}` unreadable: {e}. Remediation: fix [law].rules.",
+                    rule_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &rule_path),
+            hash_file_or_missing(&rule_path),
+        );
+        graph.load_rules(&src)?;
+    }
+
+    // Pack-shipped `kh:` Knowledge Hooks (P1, live pack hooks): any resolved
+    // pack may carry a `hook.ttl` next to its `ontology.ttl`/`shapes.ttl`.
+    // Loaded (and, below, materialized) BEFORE the pack SHACL-shapes loop
+    // runs, so hook-derived facts are visible to that gate too — a hook that
+    // derives a fact violating a pack's own shapes.ttl (or another pack's)
+    // must be catchable, not silently invisible to shape validation. The
+    // hook document joins the receipt closure like every other governing
+    // input.
+    let mut any_hook_loaded = false;
+    for pack in &packs {
+        let hook_path = pack.root.join("hook.ttl");
+        if !hook_path.is_file() {
+            continue;
         }
+        let hook_ttl = std::fs::read_to_string(&hook_path).map_err(|e| {
+            AppError::fm_pack(
+                14,
+                format!(
+                    "pack `{}`: hook.ttl at `{}` exists but is unreadable: {e}. \
+                     Remediation: fix the file's permissions/encoding or remove it.",
+                    pack.name,
+                    hook_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &hook_path),
+            hash_file_or_missing(&hook_path),
+        );
+        graph.load_hook_pack(&hook_ttl)?;
+        any_hook_loaded = true;
+    }
+
+    // Materialize once whenever there is anything to materialize: either
+    // [law].rules is non-empty, or at least one pack contributed a hook.ttl
+    // this run. A project with neither runs no law stage at all (existing
+    // behavior for pre-law projects is unchanged); a project with only
+    // [law].rules or only hook packs still gets a real materialize +
+    // check_denials pass (previously gated on `[law].rules` alone, which
+    // would have silently skipped materialization for a hook-only project).
+    if !config.law.rules.is_empty() || any_hook_loaded {
         graph.materialize()?;
         let denials = graph.check_denials()?;
         if !denials.is_empty() {
@@ -367,40 +480,165 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 11,
                 format!(
                     "{} denial rule(s) violated after materialization: {}. \
-                     Remediation: fix the facts or the denial rules in [law].rules.",
+                     Remediation: fix the facts or the denial rules in [law].rules \
+                     (or a pack's hook.ttl).",
                     denials.len(),
                     denials.join("; ")
                 ),
             ));
         }
     }
-    for rel in &config.law.shapes {
-        let shape_path = root.join(rel);
-        let shapes_ttl = std::fs::read_to_string(&shape_path).map_err(|e| {
+    // `[law].shapes` (SHACL) was replaced by `[law].gates` (SPARQL gate
+    // queries, below). The field stays deserializable so a legacy config
+    // gets THIS clear, typed refusal instead of a serde unknown-field error
+    // — a file that used to be law must never be silently ignored.
+    if !config.law.shapes.is_empty() {
+        return Err(AppError::fm_law(
+            12,
+            format!(
+                "[law].shapes ({} SHACL shapes file(s) declared) is no longer \
+                 supported at sync time; SHACL shape gates were replaced by \
+                 engine-independent SPARQL gate queries. Remediation: migrate to \
+                 [law].gates = [\"…/*.rq\"] — each file holds one ASK (true = \
+                 violation) or SELECT (any row = violation) query, optionally \
+                 preceded by `# MESSAGE: <text>` comment lines.",
+                config.law.shapes.len()
+            ),
+        ));
+    }
+
+    // `[law].gates`: SPARQL gate queries over the post-materialization
+    // union graph. Engine-independent by construction — `GraphEngine::query`
+    // answers ASK/SELECT on both backends (the GraphLaw store delegates to
+    // its oxigraph mirror, which holds every materialized derived fact), so
+    // the same gate refuses the same facts under either engine.
+    for rel in &config.law.gates {
+        let gate_path = root.join(rel);
+        let src = std::fs::read_to_string(&gate_path).map_err(|e| {
             AppError::fm_law(
                 12,
                 format!(
-                    "SHACL shapes file `{}` unreadable: {e}. Remediation: fix [law].shapes.",
-                    shape_path.display()
+                    "SPARQL gate file `{}` unreadable: {e}. Remediation: fix [law].gates.",
+                    gate_path.display()
                 ),
             )
         })?;
         closure.insert(
-            rel_display(root, &shape_path),
-            hash_file_or_missing(&shape_path),
+            rel_display(root, &gate_path),
+            hash_file_or_missing(&gate_path),
         );
-        let outcome = graph.validate_shacl(&shapes_ttl)?;
-        if !outcome.conforms {
-            return Err(AppError::fm_law(
-                13,
+        let gate = parse_gate_source(&src);
+        match evaluate_gate(graph.as_ref(), &gate.query)? {
+            GateOutcome::Pass => {}
+            GateOutcome::NotAGate => {
+                return Err(AppError::fm_law(
+                    12,
+                    format!(
+                        "SPARQL gate `{}` is not a gate query: it must be an ASK \
+                         (true = violation) or a SELECT (any row = violation), not \
+                         a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
+                        rel.display()
+                    ),
+                ));
+            }
+            GateOutcome::Violation(detail) => {
+                return Err(AppError::fm_law(
+                    13,
+                    format!(
+                        "SPARQL gate `{}` refused the sync: {}{detail}. \
+                         Remediation: fix the offending facts or the gate query.",
+                        rel.display(),
+                        gate.message_prefix(),
+                    ),
+                ));
+            }
+        }
+    }
+
+    // Pack-shipped SPARQL gates: any resolved pack may carry a `gates/`
+    // directory of `*.rq` files next to its `ontology.ttl`. Each one is
+    // evaluated (in sorted filename order) against the same union graph the
+    // templates will render from, and any violation refuses the sync
+    // outright — this is what makes cross-pack data drift (e.g. two packs
+    // mirroring the same subject IRI with diverged property values, which
+    // previously surfaced only as a downstream rustc duplicate-variant
+    // error, or not at all) refusable at sync time instead of detectable
+    // only by whichever consumer happens to compile the union. Packs
+    // without a `gates/` directory are unaffected. Every gate file joins
+    // the receipt closure like every other governing input. This replaces
+    // the previous pack `shapes.ttl` SHACL gate: gates are plain ASK/SELECT
+    // queries, so they behave identically under both graph engines.
+    for pack in &packs {
+        // A pack still shipping the legacy SHACL gate file gets a loud,
+        // typed refusal — a file that used to be law must never be silently
+        // ignored.
+        let legacy_shapes = pack.root.join("shapes.ttl");
+        if legacy_shapes.exists() {
+            return Err(AppError::fm_pack(
+                12,
                 format!(
-                    "SHACL shapes `{}` report {} violation(s): {}. \
-                     Remediation: fix the offending focus nodes or the shapes.",
-                    rel.display(),
-                    outcome.violations.len(),
-                    outcome.violations.join("; ")
+                    "pack `{}`: shapes.ttl at `{}` is no longer supported; pack \
+                     SHACL shape gates were replaced by engine-independent SPARQL \
+                     gate queries. Remediation: migrate to gates/*.rq — each file \
+                     holds one ASK (true = violation) or SELECT (any row = \
+                     violation) query, optionally preceded by `# MESSAGE: <text>` \
+                     comment lines — then delete shapes.ttl.",
+                    pack.name,
+                    legacy_shapes.display()
                 ),
             ));
+        }
+        for gate_path in list_gate_files(&pack.root.join("gates"), &pack.name)? {
+            let src = std::fs::read_to_string(&gate_path).map_err(|e| {
+                AppError::fm_pack(
+                    12,
+                    format!(
+                        "pack `{}`: gate `{}` exists but is unreadable: {e}. \
+                         Remediation: fix the file's permissions/encoding or remove it.",
+                        pack.name,
+                        gate_path.display()
+                    ),
+                )
+            })?;
+            closure.insert(
+                rel_display(root, &gate_path),
+                hash_file_or_missing(&gate_path),
+            );
+            let gate = parse_gate_source(&src);
+            match evaluate_gate(graph.as_ref(), &gate.query)? {
+                GateOutcome::Pass => {}
+                GateOutcome::NotAGate => {
+                    return Err(AppError::fm_pack(
+                        12,
+                        format!(
+                            "pack `{}`: gate `{}` is not a gate query: it must be an \
+                             ASK (true = violation) or a SELECT (any row = \
+                             violation), not a CONSTRUCT/DESCRIBE. Remediation: fix \
+                             or remove the gate file.",
+                            pack.name,
+                            gate_path.display()
+                        ),
+                    ));
+                }
+                GateOutcome::Violation(detail) => {
+                    return Err(AppError::fm_pack(
+                        13,
+                        format!(
+                            "pack `{}` gate `{}` refused the sync against the union \
+                             graph: {}{detail}. Remediation: fix the offending facts \
+                             (in this pack, another pack, or the project ontology — \
+                             gates run against the UNION, so a violation may come \
+                             from any graph source), or fix the gate query.",
+                            pack.name,
+                            gate_path
+                                .file_name()
+                                .unwrap_or(gate_path.as_os_str())
+                                .to_string_lossy(),
+                            gate.message_prefix(),
+                        ),
+                    ));
+                }
+            }
         }
     }
 
@@ -432,6 +670,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
+    // Storage slot for the synthetic module-aggregator template (declared
+    // before `pending` so its borrow can live as long as `pending`'s
+    // entries do; only populated when `[templates] aggregate_modules` is
+    // set — see below, after the render loop).
+    let mut aggregator_slot: Option<Template> = None;
     let mut pending: Vec<PendingWrite<'_>> = Vec::new();
 
     for (tpl_path, tpl) in &templates {
@@ -451,14 +694,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             }
         }
         let mut overlay_tera_slot;
-        let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) =
-            match &overlay {
-                Some(og) => {
-                    overlay_tera_slot = build_tera(Arc::clone(og))?;
-                    (og, &mut overlay_tera_slot)
-                }
-                None => (&graph, &mut tera),
-            };
+        let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) = match &overlay {
+            Some(og) => {
+                overlay_tera_slot = build_tera(Arc::clone(og))?;
+                (og, &mut overlay_tera_slot)
+            }
+            None => (&graph, &mut tera),
+        };
 
         // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows.
         let Some((named, results)) =
@@ -477,18 +719,17 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // the query per row. The common case (`determinism` unset/false)
         // never calls `extract_query_results` a second time: zero extra
         // query cost, zero behavior change.
-        let determinism_recheck: Option<ExtractedRows> = if tpl.frontmatter.determinism
-            == Some(true)
-        {
-            Some(extract_query_results(
-                active_graph.as_ref(),
-                tpl_path,
-                &tpl.frontmatter,
-                "determinism_recheck",
-            )?)
-        } else {
-            None
-        };
+        let determinism_recheck: Option<ExtractedRows> =
+            if tpl.frontmatter.determinism == Some(true) {
+                Some(extract_query_results(
+                    active_graph.as_ref(),
+                    tpl_path,
+                    &tpl.frontmatter,
+                    "determinism_recheck",
+                )?)
+            } else {
+                None
+            };
 
         let per_row = tpl.frontmatter.to.contains("{{");
         if per_row {
@@ -531,6 +772,94 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 to: tpl.frontmatter.to.clone(),
                 body,
                 tpl,
+            });
+        }
+    }
+
+    // `[templates] aggregate_modules = true`: emit one engine-owned
+    // aggregator (`src/ggen_pack_mods.rs`) mounting every generated
+    // `src/*.rs` output, so the consumer's own lib.rs needs exactly one
+    // permanent `include!("ggen_pack_mods.rs");` line rather than one
+    // hand-written mount per pack. Exactly one writer — this stage — so two
+    // packs can never collide on it the way per-pack `to: src/lib.rs`
+    // templates did (the duplicate-target refusal below still guards the
+    // aggregator path itself against a template claiming it directly).
+    // Deterministic: entries sorted by target path; mod names derived from
+    // the file stem. Skipped entirely (no file, not an empty file) when no
+    // `src/*.rs` outputs exist this run.
+    if config.templates.aggregate_modules {
+        const AGGREGATOR_REL_PATH: &str = "src/ggen_pack_mods.rs";
+        let mut mounts: Vec<(String, String)> = pending
+            .iter()
+            .filter(|pw| {
+                pw.to.starts_with("src/") && pw.to.ends_with(".rs") && pw.to != AGGREGATOR_REL_PATH
+            })
+            .map(|pw| {
+                let rel_to_src = pw.to.trim_start_matches("src/").to_string();
+                let mod_name = rel_to_src
+                    .trim_end_matches(".rs")
+                    .chars()
+                    .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+                    .collect::<String>();
+                (mod_name, rel_to_src)
+            })
+            .collect();
+        mounts.sort();
+        mounts.dedup();
+        if !mounts.is_empty() {
+            // Plain `//` comments, NOT `//!` inner docs: the file is meant
+            // to be consumed via `include!(...)` from the consumer's lib.rs,
+            // where pasted-in inner doc comments are a hard E0753 compile
+            // error (found by actually building a real consumer, not
+            // assumed).
+            let mut body = String::from(
+                "// GENERATED by `ggen sync` (`[templates] aggregate_modules = true`).\n\
+                 // One mount per generated `src/*.rs` output this run produced. Do not\n\
+                 // edit by hand — regenerated every sync. Consumer wiring: exactly one\n\
+                 // permanent line in your own lib.rs:\n\
+                 //     include!(\"ggen_pack_mods.rs\");\n\n",
+            );
+            for (mod_name, rel_to_src) in &mounts {
+                body.push_str(&format!(
+                    "#[path = \"{rel_to_src}\"]\npub mod {mod_name};\n"
+                ));
+            }
+            aggregator_slot = Some(Template {
+                frontmatter: Frontmatter {
+                    to: AGGREGATOR_REL_PATH.to_string(),
+                    sparql: BTreeMap::new(),
+                    construct: None,
+                    inject: false,
+                    before: None,
+                    after: None,
+                    at_line: None,
+                    skip_if: None,
+                    unless_exists: false,
+                    force: true,
+                    when: None,
+                    skip_empty: false,
+                    from: None,
+                    sh_before: None,
+                    sh_after: None,
+                    backup: false,
+                    shape: Vec::new(),
+                    determinism: None,
+                    freeze_policy: None,
+                    freeze_slots_dir: None,
+                    rdf: Vec::new(),
+                    rdf_inline: Vec::new(),
+                    prefixes: BTreeMap::new(),
+                    base: None,
+                },
+                body: String::new(),
+            });
+            let tpl_ref: &Template = aggregator_slot
+                .as_ref()
+                .expect("aggregator_slot was assigned Some on the previous statement");
+            pending.push(PendingWrite {
+                to: AGGREGATOR_REL_PATH.to_string(),
+                body,
+                tpl: tpl_ref,
             });
         }
     }
@@ -622,6 +951,154 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     Ok(report)
 }
 
+// ---------------------------------------------------------------------------
+// SPARQL gate queries — the engine-independent sync gate convention
+// ---------------------------------------------------------------------------
+
+/// A parsed SPARQL gate file: optional leading `# MESSAGE: <text>` comment
+/// line(s) (the operator-facing violation text), then one ASK or SELECT
+/// query. ASK → `true` is a violation; SELECT → any returned row is a
+/// violation. Used by `[law].gates`, pack `gates/*.rq`, and the
+/// declarative-rules `[validation].gates` (see `crate::generation_rules`).
+pub(crate) struct GateFile {
+    /// Joined text of the leading `# MESSAGE:` lines, if any.
+    pub message: Option<String>,
+    /// The query text (everything after the leading MESSAGE block —
+    /// further `#` lines are ordinary SPARQL comments and stay in place).
+    pub query: String,
+}
+
+impl GateFile {
+    /// `"<message>: "` when a MESSAGE was declared, `""` otherwise —
+    /// prefix form for violation error text.
+    pub(crate) fn message_prefix(&self) -> String {
+        self.message
+            .as_deref()
+            .map(|m| format!("{m}: "))
+            .unwrap_or_default()
+    }
+}
+
+/// Split a gate file's source into its optional leading `# MESSAGE:` block
+/// and the query text. Only *leading* `# MESSAGE:` lines are consumed;
+/// everything from the first non-MESSAGE line onward (including plain `#`
+/// comments, which are valid SPARQL) is the query.
+pub(crate) fn parse_gate_source(src: &str) -> GateFile {
+    let mut message_lines: Vec<String> = Vec::new();
+    let mut query_lines: Vec<&str> = Vec::new();
+    let mut in_header = true;
+    for line in src.lines() {
+        if in_header {
+            if let Some(rest) = line.trim_start().strip_prefix("# MESSAGE:") {
+                message_lines.push(rest.trim().to_string());
+                continue;
+            }
+            in_header = false;
+        }
+        query_lines.push(line);
+    }
+    GateFile {
+        message: if message_lines.is_empty() {
+            None
+        } else {
+            Some(message_lines.join(" "))
+        },
+        query: query_lines.join("\n"),
+    }
+}
+
+/// Outcome of evaluating one gate query.
+pub(crate) enum GateOutcome {
+    /// ASK returned `false`, or SELECT returned zero rows.
+    Pass,
+    /// ASK returned `true`, or SELECT returned ≥1 row — the detail string
+    /// carries the row count and the first row's bindings.
+    Violation(String),
+    /// The query produced CONSTRUCT/DESCRIBE results — not a gate; the
+    /// caller refuses with its own typed "invalid gate file" code.
+    NotAGate,
+}
+
+/// Evaluate one gate query against `graph` via [`GraphEngine::query`] —
+/// plain SPARQL, so the identical gate refuses the identical facts under
+/// both the GraphLaw and the Oxigraph engine.
+///
+/// # Errors
+/// Propagates query parse/evaluation failures (fail closed).
+pub(crate) fn evaluate_gate(graph: &dyn GraphEngine, query: &str) -> Result<GateOutcome> {
+    match graph.query(query)? {
+        EngineQueryResults::Boolean(false) => Ok(GateOutcome::Pass),
+        EngineQueryResults::Boolean(true) => {
+            Ok(GateOutcome::Violation("ASK returned true".to_string()))
+        }
+        EngineQueryResults::Solutions(rows) => match rows.first() {
+            None => Ok(GateOutcome::Pass),
+            Some(first) => {
+                let bindings: Vec<String> = first
+                    .iter()
+                    .map(|(var, value)| format!("?{var} = {}", engine_value_display(value)))
+                    .collect();
+                Ok(GateOutcome::Violation(format!(
+                    "SELECT returned {} row(s); first row: {{ {} }}",
+                    rows.len(),
+                    bindings.join(", ")
+                )))
+            }
+        },
+        EngineQueryResults::Graph(_) => Ok(GateOutcome::NotAGate),
+    }
+}
+
+/// Plain display form of an [`EngineValue`] for gate violation messages.
+fn engine_value_display(value: &crate::graph::EngineValue) -> String {
+    match value {
+        crate::graph::EngineValue::Bool(b) => b.to_string(),
+        crate::graph::EngineValue::Int(n) => n.to_string(),
+        crate::graph::EngineValue::Float(f) => f.to_string(),
+        crate::graph::EngineValue::String(s) => s.clone(),
+    }
+}
+
+/// The sorted `*.rq` files under a pack's `gates/` directory. A missing
+/// directory is simply "no gates" (empty vec); a directory that exists but
+/// cannot be enumerated is a typed `[FM-PACK-012]` refusal — an existing
+/// gate directory whose contents cannot be seen must never be silently
+/// treated as gateless (fail-open).
+fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
+    if !gates_dir.is_dir() {
+        return Ok(Vec::new());
+    }
+    let entries = std::fs::read_dir(gates_dir).map_err(|e| {
+        AppError::fm_pack(
+            12,
+            format!(
+                "pack `{pack_name}`: gates directory `{}` exists but is unreadable: {e}. \
+                 Remediation: fix the directory's permissions or remove it.",
+                gates_dir.display()
+            ),
+        )
+    })?;
+    let mut paths: Vec<PathBuf> = Vec::new();
+    for entry in entries {
+        let path = entry
+            .map_err(|e| {
+                AppError::fm_pack(
+                    12,
+                    format!(
+                        "pack `{pack_name}`: gates directory `{}` entry unreadable: {e}.",
+                        gates_dir.display()
+                    ),
+                )
+            })?
+            .path();
+        if path.is_file() && path.extension().is_some_and(|e| e == "rq") {
+            paths.push(path);
+        }
+    }
+    paths.sort();
+    Ok(paths)
+}
+
 /// Root-relative display form of a closure input path (falls back to the
 /// full path for inputs outside the project root, e.g. absolute pack dirs).
 ///
@@ -674,10 +1151,7 @@ type ExtractedRows = Option<(BTreeMap<String, Value>, Vec<Value>)>;
 /// `[FM-TPL-004]` if `when:` is present and is not an ASK query.
 /// Propagates `[FM-GRAPH-*]` from the underlying `GraphEngine::query` calls.
 fn extract_query_results(
-    active_graph: &dyn GraphEngine,
-    tpl_path: &Path,
-    frontmatter: &Frontmatter,
-    phase: &'static str,
+    active_graph: &dyn GraphEngine, tpl_path: &Path, frontmatter: &Frontmatter, phase: &'static str,
 ) -> Result<ExtractedRows> {
     if let Some(ask) = frontmatter.when.as_deref() {
         tracing::debug!(
@@ -733,10 +1207,7 @@ fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Con
 
 /// Render a Tera string, mapping errors to `[FM-TPL-017]`.
 fn render_str(
-    tera: &mut tera::Tera,
-    template: &str,
-    ctx: &tera::Context,
-    tpl_path: &Path,
+    tera: &mut tera::Tera, template: &str, ctx: &tera::Context, tpl_path: &Path,
 ) -> Result<String> {
     tera.render_str(template, ctx).map_err(|e| {
         AppError::fm_tpl(
@@ -785,13 +1256,8 @@ fn value_type_name(v: &Value) -> &'static str {
 /// Apply (or dry-run) one write and record the outcome and its decision.
 #[allow(clippy::too_many_arguments)]
 fn apply(
-    root: &Path,
-    rel_to: &str,
-    body: &str,
-    tpl: &Template,
-    opts: SyncOptions,
-    written: &mut Vec<PathBuf>,
-    skipped: &mut Vec<(PathBuf, String)>,
+    root: &Path, rel_to: &str, body: &str, tpl: &Template, opts: SyncOptions,
+    written: &mut Vec<PathBuf>, skipped: &mut Vec<(PathBuf, String)>,
     decisions: &mut BTreeMap<String, String>,
 ) -> Result<()> {
     if tpl.frontmatter.skip_empty && body.trim().is_empty() {
@@ -893,9 +1359,7 @@ fn run_shell_hook(root: &Path, cmd: &str, which: &str) -> Result<()> {
 /// # Errors
 /// Unreadable templates dir or any template parse failure (fail closed).
 pub fn discover_templates(
-    root: &Path,
-    config: &GgenConfig,
-    packs: &[crate::pack::Pack],
+    root: &Path, config: &GgenConfig, packs: &[crate::pack::Pack],
 ) -> Result<Vec<(PathBuf, Template)>> {
     let mut templates = load_templates(&root.join(&config.templates.dir))?;
     for pack in packs {
@@ -1012,14 +1476,9 @@ fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> R
 /// (`extract_query_results` was never called a second time by the caller).
 #[allow(clippy::too_many_arguments)]
 fn check_determinism(
-    tera: &mut tera::Tera,
-    body_template: &str,
-    tpl_path: &Path,
-    frontmatter: &crate::template::Frontmatter,
-    determinism_recheck: Option<&ExtractedRows>,
-    row_index: Option<usize>,
-    first_render: &str,
-    first_to: &str,
+    tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
+    frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
+    row_index: Option<usize>, first_render: &str, first_to: &str,
 ) -> Result<()> {
     let Some(recheck) = determinism_recheck else {
         return Ok(());
@@ -1169,9 +1628,7 @@ fn build_turtle_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) 
 /// - Propagates `[FM-GRAPH-*]` on any Turtle parse failure (the base
 ///   graph's re-serialized triples, or `rdf:`/`rdf_inline:` content).
 fn build_rdf_overlay(
-    base: &Arc<dyn GraphEngine>,
-    tpl_path: &Path,
-    fm: &Frontmatter,
+    base: &Arc<dyn GraphEngine>, tpl_path: &Path, fm: &Frontmatter,
 ) -> Result<Option<Arc<dyn GraphEngine>>> {
     if !declares_rdf_overlay(fm) {
         return Ok(None);
@@ -1442,6 +1899,15 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
         })?;
     std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
     Ok(())
+}
+
+/// Escape a plain string for embedding in a Turtle `"..."` literal
+/// (backslash and double-quote only — the values this is used for, hex
+/// hashes and a `{:?}`-formatted [`praxis_core::Andon`], never contain
+/// literal newlines in the sync-writer's own output, but escaping is
+/// unconditional rather than assumed).
+fn turtle_escape(s: &str) -> String {
+    s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 /// Lowercase hex of a 32-byte hash.

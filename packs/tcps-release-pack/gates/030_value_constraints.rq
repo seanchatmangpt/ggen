@@ -1,0 +1,18 @@
+# MESSAGE: tcps:manifestPath/tcps:triggerEvent/tcps:workflowBody/tcps:artifactBody/tcps:targetList must each be a non-empty xsd:string (translated from shapes.ttl sh:datatype xsd:string + sh:minLength 1 on each class's shape; any row = a present value that is not xsd:string or is empty)
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a tcps:PackagingTarget ; tcps:manifestPath ?value . BIND(tcps:manifestPath AS ?p)
+  } UNION {
+    ?s a tcps:CiWorkflow ; tcps:triggerEvent ?value . BIND(tcps:triggerEvent AS ?p)
+  } UNION {
+    ?s a tcps:CiPlatformConfig ; tcps:workflowBody ?value . BIND(tcps:workflowBody AS ?p)
+  } UNION {
+    ?s a tcps:ReleaseArtifact ; tcps:artifactBody ?value . BIND(tcps:artifactBody AS ?p)
+  } UNION {
+    ?s a tcps:Tier ; tcps:targetList ?value . BIND(tcps:targetList AS ?p)
+  }
+  FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) = 0)
+}
+ORDER BY ?s ?p

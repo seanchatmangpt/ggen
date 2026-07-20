@@ -1,0 +1,11 @@
+---
+to: infra/Cargo.toml
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:WorkspaceCargoTomlArtifact tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

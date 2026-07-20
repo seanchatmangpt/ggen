@@ -67,10 +67,7 @@ pub enum WriteOutcome {
 /// - `[FM-WRITE-007]` rendered body exceeds [`MAX_OUTPUT_BYTES`].
 /// - I/O errors from reading/writing the filesystem.
 pub fn plan_write(
-    root: &Path,
-    rel_to: &str,
-    rendered_body: &str,
-    frontmatter: &Frontmatter,
+    root: &Path, rel_to: &str, rendered_body: &str, frontmatter: &Frontmatter,
 ) -> Result<WriteOutcome> {
     if rendered_body.len() > MAX_OUTPUT_BYTES {
         return Err(AppError::fm_write(
@@ -158,10 +155,7 @@ pub fn plan_write(
 /// Evaluate `frontmatter.freeze_policy` against the current on-disk state.
 /// Returns `Some(reason)` when the write must be skipped on freeze grounds.
 fn check_freeze(
-    root: &Path,
-    rel_to: &str,
-    existing: Option<&str>,
-    frontmatter: &Frontmatter,
+    root: &Path, rel_to: &str, existing: Option<&str>, frontmatter: &Frontmatter,
 ) -> Result<Option<String>> {
     let Some(policy) = frontmatter.freeze_policy else {
         return Ok(None);
@@ -205,10 +199,7 @@ fn check_freeze(
 /// After a successful write under `freeze_policy: checksum`, record the new
 /// content's BLAKE3 checksum so the next run can detect manual edits.
 fn record_freeze_checksum(
-    root: &Path,
-    rel_to: &str,
-    written_content: &str,
-    frontmatter: &Frontmatter,
+    root: &Path, rel_to: &str, written_content: &str, frontmatter: &Frontmatter,
 ) -> Result<()> {
     if frontmatter.freeze_policy != Some(FreezePolicy::Checksum) {
         return Ok(());

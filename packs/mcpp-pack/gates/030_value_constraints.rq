@@ -1,0 +1,22 @@
+# MESSAGE: mcpp Command value constraints (translated from shapes.ttl sh:datatype / sh:minLength / sh:pattern; scoped to subjects in the mcpp# namespace, same rationale as 010_required.rq): cnv:noun and cnv:verb are non-empty xsd:strings; cnv:args, when non-empty, is @@-joined groups of exactly 4 pipe-separated fields (field|rust_type|required|about) with required in {true,false}; mcp:errorCase is an xsd:string of at least 20 chars describing the real non-zero-exit or fail-open condition (min 20 chars rules out a placeholder like 'TODO' or 'unknown')
+PREFIX cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
+PREFIX mcp: <http://seanchatmangpt.github.io/packs/mcpp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a cnv:Command ; ?p ?value .
+    VALUES ?p { cnv:noun cnv:verb }
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a cnv:Command ; cnv:args ?value . BIND(cnv:args AS ?p)
+    FILTER(
+      DATATYPE(?value) != xsd:string ||
+      !REGEX(STR(?value), "^$|^[^|@]+\\|[^|@]+\\|(true|false)\\|[^@]*(@@[^|@]+\\|[^|@]+\\|(true|false)\\|[^@]*)*$")
+    )
+  } UNION {
+    ?s a cnv:Command ; mcp:errorCase ?value . BIND(mcp:errorCase AS ?p)
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) < 20)
+  }
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/mcpp#"))
+}
+ORDER BY ?s ?p

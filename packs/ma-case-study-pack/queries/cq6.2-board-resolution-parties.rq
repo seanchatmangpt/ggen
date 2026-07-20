@@ -1,0 +1,17 @@
+# CQ6.2 (COMPETENCY_QUESTIONS.md concept 6): "Who is the authorizing party
+# and who is the authorized party for a given board resolution?"
+#
+# Added in the 2026-07-18 L5-push Round 3 pass. Verified live against
+# fixtures/case.ttl (1 row: board-of-directors-meridian ->
+# ceo-meridian-authorized-signatory) via the scratch consumer at
+# /private/tmp/claude-501/-Users-sac-ggen/70ac08c7-8655-49c4-baa2-018bc441bb4c/
+# scratchpad/l5-round3-ma-case-study-pack/.
+
+PREFIX cmns-bauth: <https://www.omg.org/spec/Commons/BusinessAuthorizations/>
+PREFIX ma: <http://seanchatmangpt.github.io/packs/ma-case-study#>
+
+SELECT ?resolution ?authorizingParty ?authorizedParty WHERE {
+  ?resolution a ma:BoardResolution ;
+              cmns-bauth:hasAuthorizingParty ?authorizingParty ;
+              cmns-bauth:hasAuthorizedParty ?authorizedParty .
+}

@@ -1,0 +1,26 @@
+# MESSAGE: every smon:Turn must carry its session ref (dcterms:isPartOf), a grounding topic (dcterms:subject), an ordering ordinal (smon:sequenceIndex) and a turn kind; every smon:EscalationObligation its two GroundingQuestion links + smon:reason; every smon:PrioritizedEscalationObligation additionally smon:severity/smon:deadlineHint/smon:status (the L5 parameterization lives on this class per hook.ttl's own retarget note); every smon:UngovernedTransition both turn links; every smon:OverdueEscalationObligation smon:escalates + smon:status (translated from shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property)
+PREFIX smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a smon:Turn .
+    VALUES ?missing { dcterms:isPartOf dcterms:subject smon:sequenceIndex smon:turnKind }
+  } UNION {
+    ?s a smon:EscalationObligation .
+    VALUES ?missing { smon:hasPriorGroundingQuestion smon:hasGroundingQuestion smon:reason }
+  } UNION {
+    ?s a smon:PrioritizedEscalationObligation .
+    VALUES ?missing {
+      smon:hasPriorGroundingQuestion smon:hasGroundingQuestion smon:reason
+      smon:severity smon:deadlineHint smon:status
+    }
+  } UNION {
+    ?s a smon:UngovernedTransition .
+    VALUES ?missing { smon:hasUngovernedQuestion smon:hasUngovernedResponse }
+  } UNION {
+    ?s a smon:OverdueEscalationObligation .
+    VALUES ?missing { smon:escalates smon:status }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

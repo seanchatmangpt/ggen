@@ -1,0 +1,34 @@
+stages: [verify, build, evidence]
+
+variables:
+  RUSTUP_TOOLCHAIN: "1.97.1"
+
+verify:
+  stage: verify
+  image: rust:1.97
+  script:
+    - python3 tools/lifecycle.py verify
+
+build-tier1-core:
+  stage: build
+  image: rust:1.97
+  parallel:
+    matrix:
+      - TARGET: [x86_64-unknown-linux-gnu, i686-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+  script:
+    - rustup target add "$TARGET"
+    - python3 tools/lifecycle.py build --target "$TARGET" --product core
+  artifacts:
+    when: always
+    paths: [receipts/]
+
+evidence:
+  stage: evidence
+  image: rust:1.97
+  script:
+    - python3 tools/lifecycle.py sbom
+    - python3 tools/lifecycle.py provenance
+    - python3 tools/lifecycle.py checksums
+  artifacts:
+    paths: [dist/, receipts/]
+

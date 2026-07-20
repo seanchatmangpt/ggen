@@ -1,0 +1,14 @@
+---
+to: src/generated/190_190_template_digests.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章190 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 190: 190. Template Digests
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

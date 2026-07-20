@@ -1,0 +1,21 @@
+# MESSAGE: every constrained mfa:PipelineStage/mfa:AuthorityDir/mfa:ReceiptEngine property — including mfa:handsOffTo, which when present points at exactly one other stage (the terminal stage carries none) — is single-valued (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX mfa:  <http://seanchatmangpt.github.io/packs/mfact#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a mfa:PipelineStage .
+    VALUES ?p { mfa:order mfa:actor rdfs:label rdfs:comment mfa:handsOffTo }
+  } UNION {
+    ?s a mfa:AuthorityDir .
+    VALUES ?p { mfa:path rdfs:comment }
+  } UNION {
+    ?s a mfa:ReceiptEngine .
+    VALUES ?p {
+      mfa:hashAlgorithm mfa:orderingStrategy mfa:refusesDuplicates
+      mfa:sourceFile rdfs:comment
+    }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

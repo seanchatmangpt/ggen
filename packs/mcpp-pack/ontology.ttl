@@ -1,0 +1,102 @@
+# mcpp-pack ontology — command surface of ~/mcpp.
+#
+# Source-verification pass (L2 target-API-fidelity bar: "verified by hand
+# against one target version, once"): every `cnv:Command` individual below
+# was hand-checked on 2026-07-18 against the real `#[verb]` function
+# signatures in ~/mcpp at pinned commit `ae1106887a824f107dc8ac76daff6ef1b8dbf6c4`
+# (github.com/seanchatmangpt/mcpp), not merely grepped from README prose.
+# Exact source citations (file:line, read directly, not inferred):
+#   aat live     -> crates/mcpp-server/src/cmds/aat.rs:76   fn live(release: Option<String>)
+#   aat run      -> crates/mcpp-server/src/cmds/aat.rs:27   fn run(release: Option<String>)
+#   aat verify   -> crates/mcpp-server/src/cmds/aat.rs:130  fn verify(release: Option<String>, require_live: Option<bool>)
+#   completions install -> crates/mcpp-server/src/cmds/completions.rs:53 fn install(shell: String)
+#   lsp routes   -> crates/mcpp-server/src/cmds/lsp.rs:16   fn routes()
+#   receipt list -> crates/mcpp-server/src/cmds/receipt.rs:17 fn list()
+#   relay verify-chain -> crates/mcpp-server/src/cmds/relay.rs:331 fn verify_chain(chain: String, trust_list: Option<PathBuf>)
+#   settlement verify -> crates/mcpp-server/src/cmds/settlement.rs:288 fn verify(release: String, chain: Option<String>)
+#   template lint -> crates/mcpp-server/src/cmds/template.rs:18 fn lint(path: Option<String>, format: Option<String>)
+#
+# This verification pass found and fixed one real fidelity bug the prior
+# README-grep introduced: the real verb is `relay verify-chain`
+# (`fn verify_chain`, README line 226: `mcpp relay verify-chain --chain
+# <path> --trust-list <path>`), not `relay verify` -- the previous
+# individual (`mcp:relay-verify`, verb "verify") named a command that does
+# not exist in ~/mcpp. Corrected below to `mcp:relay-verify-chain`.
+#
+# `cnv:args` (reused verbatim from packs/clap-noun-verb-pack's ontology,
+# same `field|rust_type|required|about@@...` encoding) now carries the real
+# argument names/types/cardinality read from the signatures above -- this
+# is the structural-facts half of the ontology-expressiveness L3 bar
+# ("argument names/types/cardinality, error cases"). Error-case facts
+# (the other L3 half) and behavioral contracts (L4: pre/post-conditions,
+# state transitions) are not yet modeled; see pack.toml and
+# docs/packs/L5_VALIDATION_REPORT.md for the remaining gap.
+#
+# Still self-acknowledged as a partial command surface: these are the 9
+# commands this pass could ground (either via the original README grep or,
+# now, direct source reading), not a full enumeration of every `#[verb]` in
+# ~/mcpp/crates/mcpp-server/src/cmds/ (that directory has more nouns --
+# eve, release, live_debug, automl, init, settlement's status/plan verbs,
+# receipt's show/emit/export/revoke/replay/archive/query verbs, etc. --
+# not modeled here; adding them is direct future work, not a blocker).
+#
+# Round 3 (2026-07-18) closure: `mcp:errorCase` added to all 9 commands --
+# the second half of the ontology-expressiveness L3 bar ("structure,
+# cardinality, error cases"; cnv:args from round 2 covered structure and
+# cardinality only). Every value below is a real `anyhow::bail!`/non-zero-exit
+# condition read directly from the same pinned commit's source (file:line
+# cited per triple, same commit `ae1106887a824f107dc8ac76daff6ef1b8dbf6c4`
+# still current -- re-checked 2026-07-18, `git log -1` in ~/mcpp still shows
+# this hash, so no re-verification of the args facts was needed this round).
+
+@prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
+@prefix mcp: <http://seanchatmangpt.github.io/packs/mcpp#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+mcp:aat-live
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "live" ;
+    rdfs:comment "Run a live AAT (admissible-action-trace) trace." ;
+    cnv:args "release|Option<String>|false|CalVer release tag, e.g. v26.5.19." ;
+    mcp:errorCase "Non-zero exit if any LIVE-01..LIVE-16 correlator check fails: bails with verdict!=Accepted, listing failed_checks and refusal_class (aat.rs:82-90, live_impl)." .
+
+mcp:aat-run
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "run" ;
+    cnv:args "release|Option<String>|false|CalVer release tag, e.g. v26.5.19." ;
+    mcp:errorCase "Non-zero exit if any of 19 probe families fails: LaunchVerdict::Refused prints the verdict JSON to stdout then bails with refusal_class + first_failing_probe (aat.rs:43-60, run_impl)." .
+
+mcp:aat-verify
+    a cnv:Command ; cnv:noun "aat" ; cnv:verb "verify" ;
+    cnv:args "release|Option<String>|false|CalVer release tag.@@require_live|Option<bool>|false|Cross-check the live verdict too." ;
+    mcp:errorCase "Non-zero exit if launch-report.json is absent (bails with a hint to run `aat run` first) or if the stored verdict is Refused; with --require_live true, also bails if live-runtime-verdict.json is absent (aat.rs:136-160, verify_impl)." .
+
+mcp:completions-install
+    a cnv:Command ; cnv:noun "completions" ; cnv:verb "install" ;
+    cnv:args "shell|String|true|Target shell: bash, zsh, or fish." ;
+    mcp:errorCase "Non-zero exit if `shell` is not one of bash/zsh/fish (case-insensitive): `unsupported shell '{other}' (accepted: bash, zsh, fish)` (completions.rs:58-66, parse_shell)." .
+
+mcp:lsp-routes
+    a cnv:Command ; cnv:noun "lsp" ; cnv:verb "routes" ;
+    cnv:args "" ;
+    mcp:errorCase "Non-zero exit if the `mcpp-lsp` binary (or $MCPP_LSP_BIN) is not on PATH (exec failure wrapped with a build hint), or if the spawned process itself exits non-zero (lsp.rs:20-28, routes_impl)." .
+
+mcp:receipt-list
+    a cnv:Command ; cnv:noun "receipt" ; cnv:verb "list" ;
+    cnv:args "" ;
+    mcp:errorCase "Fails open, not closed: returns an empty receipts array when .ggen/receipts/ does not exist -- the only real error path is a read_dir/entry I/O error surfaced as NounVerbError::execution_error (receipt.rs:16-27, fn list)." .
+
+mcp:relay-verify-chain
+    a cnv:Command ; cnv:noun "relay" ; cnv:verb "verify-chain" ;
+    rdfs:comment "Verify a multi-hop BLAKE3 relay chain end-to-end; reports the broken hop on failure." ;
+    cnv:args "chain|String|true|Path to the relay chain file.@@trust_list|Option<PathBuf>|false|Path to a trust-list file to validate hops against." ;
+    mcp:errorCase "Non-zero exit if the chain file `.mcpp/relay/<chain>.jsonl` does not exist: bails with a hint to run `relay send` or `relay show` first (relay.rs:344-352, verify_chain_impl)." .
+
+mcp:settlement-verify
+    a cnv:Command ; cnv:noun "settlement" ; cnv:verb "verify" ;
+    rdfs:comment "INFORMATIONAL settlement verification -- never gates admission (K-P09)." ;
+    cnv:args "release|String|true|CalVer release tag.@@chain|Option<String>|false|Relay chain id to verify settlement against." ;
+    mcp:errorCase "Never bails on a missing/invalid AAT or relay artifact: unreadable/absent evidence is pushed onto a `failures: Vec<String>` and reported as settlement_valid=false in the returned JSON, per K-P09 (settlement.rs:288-310, verify_impl)." .
+
+mcp:template-lint
+    a cnv:Command ; cnv:noun "template" ; cnv:verb "lint" ;
+    cnv:args "path|Option<String>|false|Directory to lint (default: routes/).@@format|Option<String>|false|Output format: text, json, or markdown." ;
+    mcp:errorCase "Non-zero exit (`mcpp-template-lint refused: N violation(s) across M file(s)`) if the doctrine scan finds any violation across the *.erl.tera tree; the report body is still eprintln'd before bailing (template.rs:33-40, lint_impl)." .

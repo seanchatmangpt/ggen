@@ -1,0 +1,9 @@
+---
+to: crates/tcps-std/src/lib.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps_std: <http://seanchatmangpt.github.io/packs/tcps-std#>
+    SELECT ?source WHERE { tcps_std:LibModule tcps_std:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source }}

@@ -1,0 +1,30 @@
+# MESSAGE: every single-valued smon property is single-valued: a turn has exactly one session ref/sequence index/turn kind (dcterms:subject may repeat), an obligation exactly one of each turn link, reason, severity, deadlineHint and status, an UngovernedTransition exactly one of each turn link, an OverdueEscalationObligation exactly one smon:escalates + smon:status (translated from shapes.ttl sh:maxCount 1; any row = a subject carrying two distinct values for ?p)
+PREFIX smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?s ?p WHERE {
+  {
+    ?s a smon:Turn .
+    VALUES ?p { dcterms:isPartOf smon:sequenceIndex smon:turnKind }
+  } UNION {
+    ?s a smon:EscalationObligation .
+    VALUES ?p {
+      smon:hasPriorGroundingQuestion smon:hasGroundingQuestion smon:reason
+      smon:severity smon:deadlineHint smon:status
+    }
+  } UNION {
+    ?s a smon:PrioritizedEscalationObligation .
+    VALUES ?p {
+      smon:hasPriorGroundingQuestion smon:hasGroundingQuestion smon:reason
+      smon:severity smon:deadlineHint smon:status
+    }
+  } UNION {
+    ?s a smon:UngovernedTransition .
+    VALUES ?p { smon:hasUngovernedQuestion smon:hasUngovernedResponse }
+  } UNION {
+    ?s a smon:OverdueEscalationObligation .
+    VALUES ?p { smon:escalates smon:status }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

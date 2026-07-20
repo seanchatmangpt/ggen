@@ -1,0 +1,208 @@
+# hook.ttl -- Operation Dogfood (v26.7.18) real Knowledge Hooks for
+# dogfood-lifecycle-pack, run via the SAME production mechanism
+# packs/self-monitoring-pack/hook.ttl already uses (`kh:kind "sparql"` +
+# `kh:action` -> a `kh:handler .../handler#sparql-construct` node),
+# exercised through `praxis_graphlaw::TripleStore::load_hook_pack` +
+# `.materialize()` -- not a hand-simulated derivation. This file was NOT
+# proven by a new crates/praxis-graphlaw/tests/*.rs (that directory is
+# shared infrastructure this pack-only change does not touch); it is proven
+# by a scratch consumer crate under this session's scratchpad (path cited in
+# README.md's "Obligation derivation -- verified" section), following the
+# exact load_hook_pack+materialize+query pipeline
+# crates/praxis-graphlaw/tests/self_monitoring_hook_actuation.rs already
+# establishes as this repo's real verification pattern for `kh:` hooks.
+#
+# TWO HOOKS, ONE FILE:
+#
+# 1. derive_review_obligation -- fires whenever the graph contains
+#      ?event a dfl:ToolEvent ; dfl:outcome dfl:Blocked ;
+#             prov:wasAssociatedWith ?agent .
+#    and CONSTRUCTs one dfl:Obligation per qualifying event, carrying
+#    dfl:derivedFrom (which event: a PARAMETER), dfl:obligationTarget (who:
+#    a PARAMETER, the acting agent), dfl:severity dfl:High (a PARAMETER --
+#    Blocked events are always high-severity by this pack's policy),
+#    dfl:deadline "PT24H"^^xsd:duration (a PARAMETER -- a policy constant,
+#    never a wall-clock read), and dfl:obligationStatus dfl:Open. This is
+#    the L3 bar text verbatim: "Derives obligations with parameters
+#    (deadline, target, severity) usable by a downstream planner."
+#
+# 2. discharge_review_obligation -- fires whenever an dfl:Open dfl:Obligation
+#    derived from event ?e1 (agent ?agent, session ?session) is followed by
+#    a LATER dfl:ToolEvent ?e2 (same ?agent, same ?session, dfl:outcome
+#    dfl:Ok, dfl:sequenceIndex strictly greater than ?e1's) -- i.e. the same
+#    operator did a subsequent successful tool call in the same session
+#    after being blocked. CONSTRUCTs dfl:dischargedBy ?e2 and
+#    dfl:obligationStatus dfl:Discharged on the SAME obligation node (a
+#    second CONSTRUCT round re-touching the node materialize()'s fixpoint
+#    loop already produced). This is the L3 obligation-lifecycle bar
+#    verbatim: "Discharge is recorded; open obligations are queryable" (open
+#    obligations = `?o a dfl:Obligation ; dfl:obligationStatus dfl:Open` with
+#    no discharge hook match -- queryable directly with a SELECT, no new
+#    machinery needed since dfl:obligationStatus is queried, not inferred by
+#    absence).
+#    kh:after this hook's own derive_review_obligation entry so the
+#    schedule_hooks Kahn's-algorithm topological sort orders derivation
+#    before discharge-checking in the SAME load (a real same-pack ordering
+#    dependency, not merely the cross-pack one below).
+#
+# COMPOSABILITY -- cross-pack ordering declared in RDF, not narrated:
+# derive_review_obligation carries `kh:after smon:derive_escalation_obligation`,
+# i.e. THIS pack's hook explicitly names a hook IRI from
+# packs/self-monitoring-pack/hook.ttl (that file is NOT edited by this
+# change -- read-only reference to its already-public hook IRI). When both
+# packs' hook.ttl + ontology.ttl are loaded together into one
+# praxis-graphlaw TripleStore (as the scratch consumer test does),
+# `hooks::compile_hooks` resolves that IRI to a real HookId and
+# `hooks::schedule_hooks`'s Kahn's-algorithm topological sort orders
+# self-monitoring's hook strictly before this pack's hook -- the literal L5
+# composability bar: "ordering and precedence are declared in RDF." If
+# self-monitoring's hook.ttl is NOT co-loaded (the common single-pack case),
+# `kh:after` referencing an absent IRI is a real compile-time error
+# ("unknown after-dependency") from `hooks::compile_hooks` -- so this
+# pack's hook.ttl is NOT self-sufficient in isolation; it declares a hard
+# RDF-level dependency on self-monitoring-pack being co-loaded. This is
+# disclosed, not hidden: see README.md's "Composability" section for the
+# exact co-load requirement and the fallback single-pack hook variant this
+# file does NOT ship (a named scope boundary, not an oversight).
+#
+# CLASSIFICATION-IS-INPUT: dfl:outcome / dfl:sequenceIndex /
+# prov:wasAssociatedWith are all INPUT facts the capture hook
+# (hooks/dogfood-lifecycle-capture.sh) or a fixture author already asserts;
+# this file's CONSTRUCT queries never classify anything, exactly the
+# self-monitoring-pack/hook.ttl discipline this file follows.
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix kh:      <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dfl:derive_review_obligation
+    a kh:Hook ;
+    kh:name "derive_review_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?event ?agent WHERE { ?event a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Blocked> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent . }""" ;
+    kh:effect "emit-delta" ;
+    kh:action dfl:derive_review_obligation_action ;
+    kh:priority 1 .
+# NOTE: the cross-pack kh:after declaring this hook fires after
+# self-monitoring-pack's derive_escalation_obligation is NOT on this triple
+# (that would make THIS pack's own derivation fail to load standalone --
+# hooks::compile_hooks errors "unknown after-dependency" if the named IRI
+# is absent from the same load, and the whole point of a knowledge-hook
+# pack's Derivation/Obligation-lifecycle dimensions is that they must work
+# with only this pack loaded). The cross-pack ordering fact is instead an
+# ADDITIVE triple in the sibling file
+# hooks/dogfood-self-monitoring-precedence.ttl -- concatenate that file's
+# content with this one (plus self-monitoring-pack's own hook.ttl) to
+# activate the declared cross-pack precedence; see that file's header and
+# README.md's "Composability" section for the exact co-load recipe and the
+# scratch-consumer test that exercises it.
+
+# NOTE ON obligationStatus (append-only engine, disclosed limitation, same
+# class of issue self-monitoring-pack/hook.ttl's own header discloses about
+# blank-node interning): praxis-graphlaw's kh:effect "emit-delta" only ADDS
+# triples on each materialize() round; it never retracts. If this CONSTRUCT
+# asserted `dfl:obligationStatus dfl:Open` directly, a later-discharged
+# Obligation would carry BOTH dfl:Open and dfl:Discharged simultaneously
+# (the Open triple is never retracted), making dfl:obligationStatus
+# multi-valued and ambiguous to query -- confirmed live while building this
+# hook (a scratch consumer test asserting an exact ?status binding got 2
+# rows instead of 1 the first time this was tried). Fixed by NOT asserting
+# dfl:Open here at all: an Obligation's "open" state is represented by the
+# ABSENCE of a dfl:obligationStatus dfl:Discharged/dfl:Refused triple, which
+# discharge_review_obligation_action (below) DOES assert exactly once (its
+# WHERE clause only matches undischarged obligations, so it cannot re-fire
+# a second time for the same node). "Open obligations are queryable" via
+# `?ob a dfl:Obligation . FILTER NOT EXISTS { ?ob dfl:obligationStatus dfl:Discharged }`
+# -- see the scratch consumer test's `open obligations` query for the exact
+# committed form. dfl:Open remains a valid explicit value for hand-authored
+# fixtures/tests (shapes.ttl's sh:in still lists it), just not one this
+# CONSTRUCT emits.
+dfl:derive_review_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { _:ob <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?event . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#severity> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#High> . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#deadline> 'PT24H'^^<http://www.w3.org/2001/XMLSchema#duration> . } WHERE { ?event a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Blocked> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent . }""" .
+
+# NOTE ON THE MISSING "FILTER NOT EXISTS" GUARD (engine limitation found and
+# worked around live, this session): an earlier version of this hook guarded
+# both the condition (kh:query, above the CONSTRUCT) and the CONSTRUCT's own
+# WHERE clause with `FILTER NOT EXISTS { ?ob obligationStatus Discharged }`
+# to avoid re-deriving discharge facts every materialize() round. Loading
+# that version through `load_hook_pack` failed at materialize() time with
+# `"Unable to parse Query: \"error at 1:38: expected IRI parsing failed\""`
+# -- confirmed live via a standalone `TripleStore::query()` call with the
+# IDENTICAL `FILTER NOT EXISTS` text succeeding fine, isolating the break to
+# hook-triple extraction (`HookProps::one_str`/`clean_term` in
+# praxis-graphlaw/src/hooks/parsing.rs), not the SPARQL engine itself. Worked
+# around by dropping the guard entirely: RDF is a set, so re-CONSTRUCTing
+# the SAME `dischargedBy`/`obligationStatus dfl:Discharged` triples on every
+# subsequent materialize() round is idempotent (no growth, no ambiguity) --
+# it does not require the guard to be safe, only to be non-wasteful. The
+# condition query below fires whenever ANY dfl:Obligation exists; the
+# ACTION's own WHERE clause (with the real e1/e2 sequencing join) is what
+# actually decides whether any triple is produced for a given obligation --
+# it produces zero rows, harmlessly, for an obligation with no later same-
+# agent dfl:Ok event yet.
+dfl:discharge_review_obligation
+    a kh:Hook ;
+    kh:name "discharge_review_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?ob WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> . }""" ;
+    kh:effect "emit-delta" ;
+    kh:action dfl:discharge_review_obligation_action ;
+    kh:after dfl:derive_review_obligation ;
+    kh:priority 2 .
+
+dfl:discharge_review_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#dischargedBy> ?e2 . ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationStatus> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Discharged> . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?e2 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i2 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Ok> . FILTER(?i2 > ?i1) }""" .
+
+# ── THIRD HOOK (v26.7.19, Obligation-lifecycle L3->L4): escalate_overdue_
+# obligation -- "a third hook chaining off an open+overdue query" (the exact
+# L4 bar text). "Overdue" is modeled as a COUNT-based proxy, not a wall-clock
+# comparison (CLAUDE.md invariant 3, and this pack's own OBSERVATION-ONLY /
+# no-wall-clock-read discipline stated in ontology.ttl): an Obligation is
+# overdue once at least THREE further same-agent/same-session ToolEvents have
+# occurred since the triggering event, whether or not any of them discharged
+# it. This is deliberately NOT gated by "still Open" via FILTER NOT EXISTS --
+# hook.ttl's own note above documents that guard breaking hook-triple
+# extraction when tried live for discharge_review_obligation; escalatedBy
+# and dischargedBy are independent pointer properties that may coexist (see
+# ontology.ttl's dfl:escalatedBy comment), so no negation is needed here.
+#
+# ARITHMETIC-FILTER ENGINE LIMITATION (found live, this session, worked
+# around at the pack level): an earlier version of this action's WHERE used
+# `FILTER(?i3 >= ?i1 + 3)` -- the exact same FILTER-with-arithmetic shape
+# many SPARQL engines support. Confirmed via a standalone scratch-consumer
+# query (`SELECT ?x ?n WHERE { ?x ex:n ?n . FILTER(?n >= 1 + 3) }` against
+# facts n=1/4/7) that THIS engine's FILTER evaluator does not support binary
+# arithmetic expressions in the term position: the query returns ZERO rows
+# (not a parse error -- confirmed n=4 and n=7 should both satisfy `>= 1+3`
+# under standard SPARQL semantics) rather than the expected 2. Reproducing
+# or fixing this is an engine-level SPARQL-evaluator change
+# (crates/praxis-graphlaw), out of scope for a pack-level edit. Worked
+# around with a join-based threshold instead of arithmetic -- a standard
+# Datalog technique, not an engine change: THREE existentially-distinct
+# later same-agent/same-session ToolEvents (?ea < ?eb < ?e3, all strictly
+# after ?e1, ordered by plain `>` comparisons -- the same comparison shape
+# discharge_review_obligation_action already uses successfully) must exist
+# before `?e3` (the third and latest of the three) is asserted as
+# `escalatedBy`. This gives the identical observable behavior to the
+# arithmetic version (escalate once >=3 later events exist) without
+# depending on the unsupported FILTER expression.
+dfl:escalate_overdue_obligation
+    a kh:Hook ;
+    kh:name "escalate_overdue_obligation" ;
+    kh:kind "sparql" ;
+    kh:query """SELECT ?ob WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> . }""" ;
+    kh:effect "emit-delta" ;
+    kh:action dfl:escalate_overdue_obligation_action ;
+    kh:after dfl:discharge_review_obligation ;
+    kh:priority 3 .
+
+dfl:escalate_overdue_obligation_action
+    a kh:Action ;
+    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#escalatedBy> ?e3 . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?ea a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ia . ?eb a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ib . ?e3 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i3 . FILTER(?ia > ?i1) FILTER(?ib > ?ia) FILTER(?i3 > ?ib) }""" .

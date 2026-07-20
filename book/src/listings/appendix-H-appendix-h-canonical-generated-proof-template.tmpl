@@ -1,0 +1,14 @@
+---
+to: src/generated/000_appendix_h_canonical_generated_proof_template.rs
+force: true
+sparql:
+  rows: |
+    PREFIX pack: <https://example.org/ggen/pack#>
+    SELECT ?name ?body WHERE {
+      pack:章0 pack:name ?name ; pack:sourceText ?body .
+    }
+---
+//! Generated for chapter 0: Appendix H — Canonical Generated-Proof Template
+{% for row in rows %}
+{{ row.body }}
+{% endfor %}

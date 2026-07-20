@@ -1,0 +1,9 @@
+# MESSAGE: a w4c:Crate must carry exactly one non-empty rdfs:label and exactly one non-empty w4c:purpose (translated from shapes.ttl's sh:minCount 1 constraints; any row = a subject missing the bound ?missing property)
+PREFIX w4c:  <http://seanchatmangpt.github.io/packs/wasm4pm-crate#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  ?s a w4c:Crate .
+  VALUES ?missing { rdfs:label w4c:purpose }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

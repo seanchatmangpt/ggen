@@ -324,11 +324,19 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs (in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema)"
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs)"
+
+# Pack-proof gate: re-sync the committed multi-pack consumer
+# (examples/receiptctl), verify regeneration is idempotent, and run its full
+# test suite (the generated proofs plus its own). Makes "the generated proof
+# suites pass" a checkable fact from repo state — see
+# scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.
+guard-pack-proofs:
+    ./scripts/ci/guard-pack-proofs.sh
 
 # Security vulnerability scan
 audit:
@@ -423,3 +431,40 @@ lsp-max-new:
         cargo check --manifest-path "$toml"
     done
     echo "all scaffold crates OK"
+
+# ── self-hosted verification (ggen-verify-pack pilot) ─────────────────────────
+
+# Run the tcps-generated self-verification loop: emit real check evidence,
+# sync (ggen-verify-pack gates refuse red/missing/stale evidence), verify the
+# receipt chain. One command replaces the hand-run matrix.
+verify-tcps:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd examples/tcps-generated
+    bash scripts/verify.sh
+    # The evidence mini-pack's content changes every emitter run BY DESIGN,
+    # which collides with ggen.lock's pack-content pinning (FM-PACK-008).
+    # Re-lock intentionally each run. KNOWN LIMITATION of the pilot: this
+    # also re-locks the six real packs, weakening lock protection for the
+    # duration of this recipe; the proper fix is the planned `ggen verify`
+    # engine verb writing evidence through a lock-exempt channel.
+    rm -f ggen.lock
+    ../../target/debug/ggen sync run
+    ../../target/debug/ggen receipt verify
+    echo "verify-tcps: evidence green, gates passed, receipt chain verified"
+
+# ── docs-through-ggen drift gate ──────────────────────────────────────────────
+
+# Re-sync the repo's own generated docs (root ./ggen.toml manifest: maturity
+# model, architecture rules, TCPS status, CLAUDE.md/README.md merge regions)
+# and the Level Five Packs book (book/ggen.toml), then run the book checkers.
+# Docs are committed in their generated state, so both syncs must be content
+# no-ops — any resulting `git diff` is drift and this gate exists to catch it.
+docs-sync:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./target/debug/ggen sync run
+    (cd book && ../target/debug/ggen sync run)
+    python3 book/scripts/check_book.py
+    python3 book/scripts/check_level_five.py
+    echo "docs-sync: root manuals + book re-synced, checkers green"

@@ -1,0 +1,17 @@
+# MESSAGE: every lm:LintRule must carry all 9 required properties and every lm:RulePack its rdfs:label + lm:packDescription (translated from shapes.ttl sh:minCount 1; any row = a subject missing the bound ?missing property)
+PREFIX lm:   <http://seanchatmangpt.github.io/packs/lsp-max#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a lm:LintRule .
+    VALUES ?missing {
+      lm:ruleId lm:name lm:severity lm:pattern lm:pathGlobs
+      lm:excludeGlobs lm:evalBudget lm:message lm:rationale
+    }
+  } UNION {
+    ?s a lm:RulePack .
+    VALUES ?missing { rdfs:label lm:packDescription }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Level Five Inspection Receipt",
+  "type": "object",
+  "required": [
+    "subject",
+    "version",
+    "inputs",
+    "checks",
+    "outcome"
+  ],
+  "properties": {
+    "subject": {
+      "type": "string"
+    },
+    "version": {
+      "const": "v26.7.19"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "outcome": {
+      "enum": [
+        "verified",
+        "refused",
+        "bounded",
+        "unsupported",
+        "inconsistent"
+      ]
+    }
+  }
+}

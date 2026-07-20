@@ -1,0 +1,29 @@
+---
+to: src/generated_catalog.rs
+force: true
+sparql:
+  rows: |
+    PREFIX ex: <https://example.org/level-five#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?label ?code WHERE {
+      ?item a ex:Capability ; rdfs:label ?label ; ex:code ?code .
+      FILTER(STRSTARTS(STR(?item), "https://example.org/level-five#"))
+    } ORDER BY ?code
+---
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Capability { pub name: &'static str, pub code: u16 }
+
+pub const CAPABILITIES: &[Capability] = &[
+{% for row in rows %}    Capability { name: "{{ row.label }}", code: {{ row.code }} },
+{% endfor %}];
+
+#[cfg(test)]
+mod generated_proof {
+    use super::*;
+    #[test]
+    fn independent_reference_values_survive_generation() {
+        assert_eq!(CAPABILITIES.len(), 3);
+        assert_eq!(CAPABILITIES[0], Capability { name: "alpha", code: 10 });
+        assert_eq!(CAPABILITIES[2], Capability { name: "gamma", code: 30 });
+    }
+}

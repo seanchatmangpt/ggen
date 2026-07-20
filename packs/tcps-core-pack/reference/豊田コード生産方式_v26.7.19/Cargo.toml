@@ -1,0 +1,16 @@
+[package]
+name = "tcps-v26-7-19"
+version = "26.7.19"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "豊田生産方式を日本語の意味体系とRust型で実行可能にする枠組み"
+
+[lib]
+name = "tcps_v26_7_19"
+path = "src/lib.rs"
+
+[features]
+default = []
+
+[dependencies]

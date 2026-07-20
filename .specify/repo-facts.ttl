@@ -1,0 +1,553 @@
+# repo-facts.ttl — real ggen repo facts as typed individuals.
+# GENERATED-DOC SOURCE: .claude/rules/architecture.md (Overwrite) and the
+# GENERATED regions of CLAUDE.md / README.md (Merge) are rendered from this
+# file by the docs-* rules in ggen.toml. Edit THIS file, then `ggen sync run`.
+# Facts transcribed 2026-07-19 from: Cargo.toml [workspace] members + each
+# crate's Cargo.toml, packs/*/pack.toml (28 dirs), justfile (pre-commit line
+# verified programmatically), CLAUDE.md's hand-audited table cells, and
+# .claude/rules/architecture.md's authored judgment prose (carried verbatim
+# as rf:ArchSection literals so nothing is lost).
+@prefix rf:   <http://ggen.org/repo-facts#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+rf:Crate a rdfs:Class . rf:Pack a rdfs:Class . rf:Gate a rdfs:Class .
+rf:Recipe a rdfs:Class . rf:DiagnosticCode a rdfs:Class .
+rf:ArchSection a rdfs:Class . rf:Doc a rdfs:Class .
+
+rf:doc a rf:Doc ;
+    rf:workspaceVersion "26.7.18" ;
+    rf:projectManifestVersion "26.7.1" ;
+    rf:toolchainChannel "nightly-2026-06-22" ;
+    rf:memberCount "16" ;
+    rf:crateCount "17" ;
+    rf:packCount "28" ;
+    rf:gateCount "9" ;
+    rf:crateMapIntro "Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries) plus the root `ggen` package = 17 total (`grep -c '^  \"crates/' Cargo.toml` → 16). Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). PR #257 (2026-07-17) added a 17th member, `ggen-cheat-scanner` (see Testing table below). For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.\n\n`ggen-core` is **fully deleted, not merely disconnected** (PR #255 retired it from the default path; PR #259 deleted the crate outright, 2026-07-17). `crates/ggen-core/` does not exist on disk. No workspace member depends on it; `ggen sync`/`doctor`/`graph`/`receipt` route to `ggen-engine` instead (`crates/ggen-cli/src/lib.rs`'s `inject_default_verbs`). The experimental, default-off `ggen wizard`/`sigma`/`inverse_sync` commands, which used to import `ggen_core::` symbols, were deleted in the same pass rather than re-pointed — see `crates/ggen-cli/src/cmds/mod.rs`'s \"REMOVED\" comments and `docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md` (marked superseded/executed)." ;
+    rf:diagIntro "All codes in the table below are implemented in `ggen-lsp`, not `ggen-engine`: the five\n`GGEN-*` codes are author-time analyzer output (`crates/ggen-lsp/src/analyzers/tera_analyzer.rs`,\naggregated in `crates/ggen-lsp/src/check.rs`); `E0011`/`E0013`/`E0015` are SPARQL-analyzer output\n(`crates/ggen-lsp/src/analyzers/sparql_analyzer.rs`). `E0011`/`E0013` are **also** independently\nre-implemented as sync-time hard errors in `crates/ggen-config/src/manifest/validation.rs` — two\nseparate implementations, not one shared one (confirmed 2026-07-17: `crates/ggen-core`, which an\nearlier version of this doc cited here, no longer exists — see Crate Map above). `ggen-engine`,\nthe live pipeline, does not currently implement any of these codes itself." .
+
+rf:crate_ggen_engine a rf:Crate ;
+    rf:order "001" ;
+    rf:dir "ggen-engine" ;
+    rf:package "ggen-engine" ;
+    rf:version "26.7.13" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "SPARQL-in-Tera code generation engine (vendored, renamed from praxis/crates/ggen)" ;
+    rf:summaryPurpose "The live code-generation pipeline behind `ggen sync` (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Five stages in `src/sync.rs` (OTEL spans `pipeline.load`/`extract`/`validate`/`generate`/`emit`); GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic only in `verbs::handlers`). `publish = false`" ;
+    rf:archPurpose "SPARQL-in-Tera code generation engine (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Now the live pipeline behind `ggen sync`: five stages (Resolve → Enrich → Extract → Render → Write) in `src/sync.rs`, GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic in `verbs::handlers` only), plus `config`/`graph`/`template`/`write`/`watch`/`pack`/`lint`/`law_engine`/`repl` modules. `publish = false`." .
+
+rf:crate_praxis_core a rf:Crate ;
+    rf:order "002" ;
+    rf:dir "praxis-core" ;
+    rf:package "praxis-core" ;
+    rf:version "26.7.2" ;
+    rf:group "praxis-kernel" ;
+    rf:cargoDescription "Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL." ;
+    rf:summaryPurpose "`ggen-engine`'s direct dependency: fused Law Object abstraction (obligation + lifecycle + receipt + OCEL) — `LawObject`, `Obligation`, `ReceiptRecord`. Vendored from `~/praxis/crates/praxis-core`; `publish = false`" ;
+    rf:archPurpose "Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL (`LawObject`, `Obligation`, `Andon`, `ReceiptRecord`). No longer exposes `ArazzoProjectionReceipt`/`arazzo` (removed 2026-07-17, PR #255 — dead weight, zero downstream consumers)" .
+
+rf:crate_praxis_graphlaw a rf:Crate ;
+    rf:order "003" ;
+    rf:dir "praxis-graphlaw" ;
+    rf:package "praxis-graphlaw" ;
+    rf:version "26.7.9" ;
+    rf:group "praxis-kernel" ;
+    rf:cargoDescription "Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of pbonte/roxi)" ;
+    rf:summaryPurpose "`ggen-engine`'s direct dependency and default graph backend: native N3/Datalog/SPARQL 1.1/SHACL/ShEx engine (fork of `pbonte/roxi`). Vendored from `~/praxis/crates/praxis-graphlaw`; `publish = false`" ;
+    rf:archPurpose "Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of `pbonte/roxi`) — `ggen-engine`'s default `EngineKind::GraphLaw` graph backend" .
+
+rf:crate_ggen_cli a rf:Crate ;
+    rf:order "004" ;
+    rf:dir "ggen-cli" ;
+    rf:package "ggen-cli-lib" ;
+    rf:version "workspace" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "CLI interface for ggen" ;
+    rf:summaryPurpose "CLI interface for ggen (binary + `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns" ;
+    rf:archPurpose "CLI interface for ggen (binary + library `ggen-cli-lib`); routes `sync`/`doctor`/`graph`/`receipt` to `ggen-engine`'s nouns" .
+
+rf:crate_ggen_config a rf:Crate ;
+    rf:order "005" ;
+    rf:dir "ggen-config" ;
+    rf:package "ggen-config" ;
+    rf:version "workspace" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "Configuration parser and validator for ggen.toml files" ;
+    rf:summaryPurpose "Defines only ONE of `ggen.toml`'s two incompatible schemas (depends on the published `star-toml` crate, not an embedded copy) — see \"ggen.toml has two schemas\" in `.claude/rules/architecture.md`" ;
+    rf:archPurpose "Defines and validates ONE of `ggen.toml`'s two schemas — the \"declarative-rules\" `GgenManifest` (depends on the published `star-toml` crate, not an embedded copy). Not sole authority over `ggen.toml` parsing; see \"ggen.toml has two schemas\" below" .
+
+rf:crate_ggen_marketplace a rf:Crate ;
+    rf:order "006" ;
+    rf:dir "ggen-marketplace" ;
+    rf:package "ggen-marketplace" ;
+    rf:version "workspace" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "Marketplace plugin for ggen - package management system" ;
+    rf:summaryPurpose "Marketplace / package management system for ggen" ;
+    rf:archPurpose "Marketplace / package management system for ggen" .
+
+rf:crate_ggen_graph a rf:Crate ;
+    rf:order "007" ;
+    rf:dir "ggen-graph" ;
+    rf:package "ggen-graph" ;
+    rf:version "workspace" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "Deterministic graph module for ggen" ;
+    rf:summaryPurpose "Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, deltas, validation hooks, transition receipts" ;
+    rf:archPurpose "Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, state-change deltas, validation hooks, and cryptographic transition receipts" .
+
+rf:crate_ggen_lsp a rf:Crate ;
+    rf:order "008" ;
+    rf:dir "ggen-lsp" ;
+    rf:package "ggen-lsp" ;
+    rf:version "workspace" ;
+    rf:group "agent-lsp" ;
+    rf:cargoDescription "Language server for ggen surfaces — analyzers, check, intel/mining, pack, route/repair, handlers." ;
+    rf:summaryPurpose "Language server for ggen surfaces (analyzers, check, intel, pack, route, repair); also exposes `check`/`init`/`mine` library APIs. Absorbed `ggen-lsp-mcp`, `ggen-a2a-mcp`, and `ggen-lsp-a2a` as feature-gated modules (`mcp`, `a2a`) in the 2026-07 consolidation" ;
+    rf:archPurpose "Language server for ggen surfaces — analyzers, `check`, `init`, `intel`/mining, `pack`, `route`/repair, handlers; also a library API. Absorbed `ggen-lsp-mcp` (MCP server exposing repair routes, feature `mcp`), `ggen-a2a-mcp` (A2A protocol + MCP server for agent-to-agent communication, module `a2a_mcp`), and `ggen-lsp-a2a` (A2A bridge over the mcp tools, feature `a2a`) as feature-gated modules" .
+
+rf:crate_ggen_cheat_scanner a rf:Crate ;
+    rf:order "009" ;
+    rf:dir "ggen-cheat-scanner" ;
+    rf:package "ggen-cheat-scanner" ;
+    rf:version "workspace" ;
+    rf:group "testing" ;
+    rf:cargoDescription "AST-based scanner for test-quality cheat patterns (vacuous asserts, tautological checks, assertion-free tests, mock-collaborator substitutes)" ;
+    rf:summaryPurpose "`syn`-based AST scanner (PR #257) detecting test-quality anti-patterns (vacuous asserts, tautological checks, no-assertion tests, mock imports) across the workspace; wired into `just pre-commit` via `guard-cheat-scan`" ;
+    rf:archPurpose "`syn`-based AST scanner (PR #257, modeled on `~/bcinr/tools/bcinr-cheat-scanner`) detecting test-quality anti-patterns across the workspace: CHEAT-T01 (vacuous-assert), CHEAT-T02 (tautological-result-check), CHEAT-T03 (no-assertion-test), CHEAT-T04 (mock-import). Wired into `just pre-commit` via the `guard-cheat-scan` recipe; currently fails on ~464 pre-existing findings (tracked, not blocking new work — see `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`'s TECH-DEBT-001). `publish = false`" .
+
+rf:crate_powl2_decompose a rf:Crate ;
+    rf:order "010" ;
+    rf:dir "powl2-decompose" ;
+    rf:package "powl2-decompose" ;
+    rf:version "26.6.30" ;
+    rf:group "praxis-kernel" ;
+    rf:cargoDescription "Kourani et al. Stage-1 decomposition: safe & sound WF-nets -> POWL 2.0. Separability is the admission predicate; non-separable nets are refused with a receipt." ;
+    rf:summaryPurpose "Vendored from `~/praxis/crates/powl2-decompose` (2026-07-17, PR #255): Kourani et al. Stage-1 WF-net → POWL 2.0 decomposition. `praxis-graphlaw`'s dependency (not published on crates.io). `publish = false`" ;
+    rf:archPurpose "Vendored from `~/praxis/crates/powl2-decompose` (2026-07-17, PR #255): Kourani et al. Stage-1 WF-net → POWL 2.0 decomposition. `praxis-graphlaw`'s dependency (not published on crates.io). `publish = false`" .
+
+rf:crate_chicago_tdd_tools a rf:Crate ;
+    rf:order "011" ;
+    rf:dir "chicago-tdd-tools" ;
+    rf:package "chicago-tdd-tools" ;
+    rf:version "26.7.1" ;
+    rf:group "testing" ;
+    rf:cargoDescription "Chicago TDD testing framework and tools for Rust projects" ;
+    rf:summaryPurpose "Dev/test-only Chicago-TDD utilities (property-testing, snapshot-testing, parameterized-testing, mutation-testing, concurrency-testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites — never a runtime dependency of any shipped binary. A trimmed vendor (source only — `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples/`/`benches/`/docs) of the ~106MB `~/chicago-tdd-tools` project, copied 2026-07-17 (PR #255) because its `cli-proof` feature isn't published to crates.io yet. `publish = false`. **License note:** its own optional `wasm4pm-cognition` re-export path is unrelated to `praxis-graphlaw`'s separate `wasm4pm-cognition` dependency, which carries a BUSL-1.1 (non-OSI) license on crates.io — see that dependency's Cargo.toml comment; mitigated only because it's optional and off by default" ;
+    rf:archPurpose "Dev/test-only Chicago-TDD utilities (property-testing, snapshot-testing, parameterized-testing, mutation-testing, concurrency-testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites — never a runtime dependency of any shipped binary. A trimmed vendor (source only — `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples/`/`benches/`/docs) of the ~106MB `~/chicago-tdd-tools` project, copied 2026-07-17 (PR #255) because its `cli-proof` feature isn't published to crates.io yet. `publish = false`. **License note:** its own optional `wasm4pm-cognition` re-export path is unrelated to `praxis-graphlaw`'s separate `wasm4pm-cognition` dependency, which carries a BUSL-1.1 (non-OSI) license on crates.io — see that dependency's Cargo.toml comment; mitigated only because it's optional and off by default" .
+
+rf:crate_bcinr_pddl a rf:Crate ;
+    rf:order "012" ;
+    rf:dir "bcinr-pddl" ;
+    rf:package "bcinr-pddl" ;
+    rf:version "26.6.26" ;
+    rf:group "praxis-kernel" ;
+    rf:cargoDescription "PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt: the BRCE candidate-future execution loop" ;
+    rf:summaryPurpose "Vendored from `~/bcinr/crates/bcinr-pddl` (2026-07-17, PR #255) — **not** the crates.io release: the published 26.6.26 lacks `Pddl8Error::PlanningFailed`/`.into_result()` that `praxis-graphlaw`'s code needs (version-tag/content divergence, confirmed by a failed build against the registry version before vendoring). PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt. `publish = false`" ;
+    rf:archPurpose "Vendored from `~/bcinr/crates/bcinr-pddl` (2026-07-17, PR #255) — **not** the crates.io release: the published 26.6.26 lacks `Pddl8Error::PlanningFailed`/`.into_result()` that `praxis-graphlaw`'s code needs (version-tag/content divergence, confirmed by a failed build against the registry version before vendoring). PDDL8 → POWL tape → Prolog8 admission → OCEL → BLAKE3 receipt. `publish = false`" .
+
+rf:crate_bcinr_mfw_ir a rf:Crate ;
+    rf:order "013" ;
+    rf:dir "bcinr-mfw-ir" ;
+    rf:package "bcinr-mfw-ir" ;
+    rf:version "26.6.26" ;
+    rf:group "praxis-kernel" ;
+    rf:cargoDescription "Shared IR types and trait contracts for the multifractal-workflow (MFW) planner: witness algebra, formal-law contracts, EventSet, causal/concurrency IR, POWL projection contracts." ;
+    rf:summaryPurpose "Vendored alongside `bcinr-pddl` (its own hard dependency, same divergence reasoning) — shared IR types/trait contracts for the multifractal-workflow planner. `publish = false`" ;
+    rf:archPurpose "Vendored alongside `bcinr-pddl` (its own hard dependency, same divergence reasoning) — shared IR types/trait contracts for the multifractal-workflow planner. `publish = false`" .
+
+rf:crate_genesis_types_v2 a rf:Crate ;
+    rf:order "014" ;
+    rf:dir "genesis-types-v2" ;
+    rf:package "genesis-types" ;
+    rf:version "workspace" ;
+    rf:group "genesis" ;
+    rf:cargoDescription "KNHK V2 type system — foundational data structures for workflow engine (workflow/pattern defs, execution state, errors, config)." ;
+    rf:summaryPurpose "KNHK V2 type system — foundational data structures for the workflow engine (workflow/pattern defs, execution state, errors, config); absorbed `genesis-schema-v2` as its `schema` module (OpenAPI specs, RDF ontology, 43 YAWL pattern definitions)" ;
+    rf:archPurpose "KNHK V2 type system — foundational data structures (workflow/pattern definitions, execution state/events, error and config types). Absorbed `genesis-schema-v2` as its `schema` module (OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation)" .
+
+rf:crate_genesis_core_v2 a rf:Crate ;
+    rf:order "015" ;
+    rf:dir "genesis-core-v2" ;
+    rf:package "genesis-core-v2" ;
+    rf:version "workspace" ;
+    rf:group "genesis" ;
+    rf:cargoDescription "KNHK V2 core — Pattern trait system, pattern registry, composition, zero-copy execution paths." ;
+    rf:summaryPurpose "KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths" ;
+    rf:archPurpose "KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths" .
+
+rf:crate_cpmp a rf:Crate ;
+    rf:order "016" ;
+    rf:dir "cpmp" ;
+    rf:package "cpmp" ;
+    rf:version "workspace" ;
+    rf:group "mapping" ;
+    rf:cargoDescription "Computer Project Mapping Protocol — scanner, capability classification, projection, receipts." ;
+    rf:summaryPurpose "Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts" ;
+    rf:archPurpose "Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts, symbol/db modules" .
+
+rf:crate_ggen a rf:Crate ;
+    rf:order "017" ;
+    rf:dir "ggen" ;
+    rf:package "ggen" ;
+    rf:version "26.7.18" ;
+    rf:group "root" ;
+    rf:cargoDescription "Workspace root package (pure library crate since v26.7.16; the ggen binary builds from ggen-cli-lib)" ;
+    rf:summaryPurpose "Workspace root package" .
+
+rf:pack_affidavit_pack a rf:Pack ;
+    rf:order "001" ;
+    rf:dir "affidavit-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + real executable certify-pipeline logic + reference doc, generated from domain vocabulary for ~/affidavit (crates.io `affidavit` v26.6.22, a cryptographic provenance/receipt engine). Modeled from its README's 'Core Concepts' section: a Receipt is an append-only BLAKE3-chained log of Events, each carrying a Commitment (a BLAKE3 digest of payload data -- payloads themselves are never stored in the receipt). Every CertifyStage/Command triple was hand-verified 2026-07-18 against the actual ~/affidavit README.md on disk (byte-for-byte match, not just 'plausible from prose'), version-pinned via afd:sourceVersion in ontology.ttl. No command-surface enumeration attempted for the other 55 verbs (the README documents 59 canonical verbs total in prose only, no table); this pack covers the receipt data model plus 4 named core verbs, not the full CLI. Generates: (1) src/affidavit_catalog.rs -- reference tables (CERTIFY_STAGES, CORE_VERBS); (2) src/affidavit_certify.rs -- real executable logic: an ontology-order-derived Stage dispatcher (next_stage/is_terminal), plus (round 3, 2026-07-18) two generic domain-independent structural primitives (check_strictly_increasing/check_unique) composed by check_stage() per-stage from the ontology's afd:checksMonotonic/afd:checksUnique boolean facts -- check_continuity() is now a thin named call into that ontology-driven dispatch rather than one hand-written affidavit-specific body, proven against adversarial duplicate/out-of-order inputs plus the composition/dispatch mechanism itself in tests/affidavit_certify_proof.rs; (3) docs/affidavit_reference.md; (4) src/affidavit_lib_wiring.rs (force:true, plain file -- NOT inject-mode; retargeted off src/lib.rs during round 2's cross-pack verification after two other packs collided writing to that same path in a shared consumer) containing `pub mod affidavit_catalog;`/`pub mod affidavit_certify;`, which the consumer must mount with one `include!(\\" .
+
+rf:pack_anti_llm_cheat_lsp_pack a rf:Pack ;
+    rf:order "002" ;
+    rf:dir "anti-llm-cheat-lsp-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc, generated from detector-rule vocabulary for ~/anti-llm-cheat-lsp, a process-mining LSP server (built on lsp-max) that detects LLM-generated code smells: victory-claim overclaiming, dead alternative functions, hedge comments, and unsafe/unverified-routing patterns. Modeled from its README's 6-layer detector stack and its 2-row Rule Index table (ANTI-LLM-DEAD-ALT-001, ANTI-LLM-HEDGE-001) -- the README states the full rule set is larger but only tabulates these two, so only these two are modeled as individuals. Round 2 (2026-07-19): generated detector functions were renamed and re-signed to match the real target exactly -- scan_for_dead_alt/scan_for_hedge, both (filepath: &str, content: &str) -> Vec<Observation>, with Observation/AntiLlmDiagnostic field-for-field ports of the target's src/{observations,diagnostics}.rs and evaluate/evaluate_hedge direct ports of dead_alt.rs::evaluate/hedge.rs::evaluate (against a generated, trimmed AntiLlmConfig carrying only the allowed_suppression_paths/is_suppression_allowed slice those two evaluate fns use). scan_for_hedge now compiles the ontology-sourced regex with the real `regex` crate (via a `hedge_re()` OnceLock, matching the target's own) instead of a hand-rolled substring approximation. The strongest fidelity artifact: the target's own #[cfg(test)] mod tests {..} blocks from dead_alt.rs:153-218 and hedge.rs:114-142 (commit a1bc775) are copied into src/anti_llm_cheat_catalog.rs with the sole edit being the enclosing mod identifier (tests -> dead_alt_tests/hedge_tests, since both can't be named `tests` in one file) -- sha256-verified byte-identical to the source with that line excluded -- and pass unmodified (34/34 total, 2026-07-19, fresh scratch consumer, real `ggen sync run` + `cargo test`, exit 0). Also generates a SPARQL-driven data-fidelity proof test (tests/anti_llm_cheat_catalog_proof.rs) plus adversarial behavioral tests for both scan functions. All 4 generated outputs use freeze_policy: checksum: a hand-edit to any generated file is detected and the next `ggen sync run` refuses to clobber it -- live-verified in a scratch consumer (2026-07-19: appending a comment to src/anti_llm_cheat_catalog.rs then re-running sync produced `\"skipped: frozen: freeze_policy=checksum, on-disk content no longer matches ggen's last-recorded checksum (manual edit detected)\"`, not a silent overwrite). The 4th template (anti_llm_cheat_lib_wiring.rs.tmpl) generates a pack-uniquely-named src/anti_llm_cheat_lsp_pack_lib_wiring.rs (never src/lib.rs itself, to avoid the cross-pack lib.rs collision bug found in round 2) and now also declares an inline `pub mod config { .. }` (the trimmed AntiLlmConfig) at the same crate-root scope, since evaluate/evaluate_hedge and the copied reference tests reference `crate::config::AntiLlmConfig` exactly as the target does -- the consumer still adds exactly one `include!(\"anti_llm_cheat_lsp_pack_lib_wiring.rs\");` line to their own lib.rs, once, and that line never needs to change across regens. This reduces but does not eliminate consumer effort (not L5: the include line is still a manual, one-time step; AntiLlmDiagnostic::to_lsp() was deliberately not ported, since it needs the heavy lsp_max::lsp_types dependency for no behavioral gain in a reference-only pack)." .
+
+rf:pack_cargo_cicd_pack a rf:Pack ;
+    rf:order "003" ;
+    rf:dir "cargo-cicd-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc + inject-mode mod-wiring, generated from a source-audited command-surface vocabulary for ~/cargo-cicd (crates.io `cargo-cicd`, real dependency: clap-noun-verb 26.6.2, confirmed via its Cargo.toml). Reuses packs/clap-noun-verb-pack's cnv: vocabulary (IRI reuse, not re-minted) since cargo-cicd is itself a real clap-noun-verb CLI. Round 2 (2026-07-18) replaced the original README-only transcription with a dated source audit against ~/cargo-cicd v26.7.6 (src/nouns/*.rs) -- 52 commands across 21 nouns, each carrying a cc:sourceFile citation; 9 rows additionally carry cc:targetOntologyConcept linking to cargo-cicd's own real SKOS/PROV-O ontology. Round 3 (2026-07-18) re-read every real `#[verb(...)]`-annotated `pub fn cmd_*` signature in that same source tree and added cc:argCount/cc:args call-metadata facts to all 51 live rows (39 genuinely zero-arg, 12 with real typed argument lists up to doctor-repo's 5) -- this is the first argument/call-metadata fact this pack has ever carried, clearing Ontology expressiveness's L2 bar for the first time. The generated catalog gained two new real functions (parse_args, args_are_consistent) plus 4 new adversarial/consistency proof tests exercising them against every row, not a hand-picked sample. All three regenerable artifacts (catalog, proof, reference doc) switched from force:true to freeze_policy:checksum/freeze_slots_dir -- live-verified in a scratch consumer: a hand-edit to the generated catalog now makes the next `ggen sync run` report 'skipped: frozen: ... manual edit detected' instead of silently clobbering it, while an unedited file still round-trips as 'skipped: unchanged'. cc:doctor-bare is retained, deprecated, for backward compatibility with the pre-audit bare-noun shape. Round 4 (2026-07-19) added the first real error/return-type facts: re-audited ~/cargo-cicd's 21 nouns/*.rs files (grep-confirmed every #[verb] cmd_* returns clap_noun_verb::Result<()>, uniform across all 51 live rows) and cross-referenced the real dependency ~/clap-noun-verb/src/error.rs for the 10 actual #[non_exhaustive] NounVerbError variant names (transcribed verbatim, not paraphrased). Generated catalog gained CARGO_CICD_RETURN_TYPE/CARGO_CICD_ERROR_ENUM/CARGO_CICD_ERROR_VARIANTS constants plus all_commands_share_return_contract(); proof gained 4 new tests (15 total, up from 11) covering exact-count drift, sortedness/dedup, and contract uniformity. Live-verified end-to-end in a scratch consumer (ggen sync run, real cargo test): 15/15 passing. This closes part of Ontology expressiveness/Target-API fidelity's L3 'error cases' gap that Round 3 explicitly left open, but stops short of L3 in full: no per-command error-path (which variant a given command actually raises) or exit-code facts are modeled -- only the shared enum-level contract, uniform across all rows." .
+
+rf:pack_chicago_tdd_tools_pack a rf:Pack ;
+    rf:order "004" ;
+    rf:dir "chicago-tdd-tools-pack" ;
+    rf:version "0.3.0" ;
+    rf:description "Generates CliHarness-based Chicago-style CLI boundary tests (#[test] fns crossing a real binary boundary) from ctt:CliBoundaryTest individuals, dispatching through one reusable generated module (tests/chicago_tdd_tools_boundary_runtime.rs, from cli_boundary_runtime.rs.tmpl) that defines the real run_boundary_spec(spec) -> Result<(), String> dispatch function (parse BoundarySpec -> dispatch via CliHarness -> emit Result) instead of duplicating CliHarness-spawn-and-assert logic per generated test. Also generates its own proof test (tests/chicago_tdd_tools_boundary_proof.rs): since both generated files are still independent Tera+SPARQL renders of the same sparql: tests query (this proof cannot call the OTHER template's render logic in-process), the proof reads the REAL rendered text of both sibling files off disk and asserts the query-derived literals -- fn signatures, BoundarySpec field literals, axiom doc-comments, the include!/dispatch-function/struct definitions, and a 1:1 call-site count -- appear in them verbatim. EXPECTED_TEST_COUNT is tests | length at render time, not a hardcoded literal." .
+
+rf:pack_clap_noun_verb_pack a rf:Pack ;
+    rf:order "005" ;
+    rf:dir "clap-noun-verb-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Generates clap-noun-verb route skeletons (noun-verb #[verb] fns calling handler stubs) from cnv:Command individuals in the pack ontology. Commands carrying cnv:staticResponse render their entire body inline from the ontology literal and require ZERO hand-written crate::verbs::handlers::* fn (see cnv:SessionPing) -- all other commands still delegate to a hand-written handler seam. cnv:Noun -> cnv:Command is a formal cnv:hasCommand object property, checked by shapes.ttl (cardinality + non-empty required fields on every Command/Noun). The same template also renders a #[cfg(test)] proof module into the end of that same generated routes file (private-fn visibility requires an in-file test mod, not a separate tests/*.rs -- and a second template targeting the same `to:` path would hit this engine's own FM-WRITE-008 duplicate-output guard) asserting real calls through the generated wrappers, actual-content assertions for the zero-handler command, and drift-canary literals rendered from the same commands/nouns SPARQL projection as the routes themselves (not hand-transcribed). Tier 3 (added 2026-07-19) exercises the REAL #[verb]-macro CLI dispatch path per command -- literal argv -> clap parsing -> the linkme-registered noun/verb tree -> the real handler -- via clap_noun_verb::cli::registry::CommandRegistry::get().run(argv), plus a real negative-path test per command with a required argument (clap's own required-arg enforcement failing closed, not a hand-written assertion about what it should do). Verified this MUST stay inside this file's own #[cfg(test)] mod, not a separate tests/*.rs integration-test crate: a separate test binary that references nothing else from the consumer crate never links in the .o containing this file's #[linkme::distributed_slice] registrations, so CommandRegistry::get_all_noun_names() comes back empty there even though the identical call from a unit test (or the real compiled binary) sees both nouns -- confirmed with a throwaway debug probe in both positions before settling on the in-file design." .
+
+rf:pack_claude_code_pack a rf:Pack ;
+    rf:order "006" ;
+    rf:dir "claude-code-pack" ;
+    rf:version "26.7.19" ;
+    rf:description "Generates Claude Code multi-agent workflow scripts (the Workflow tool's JS harness format: export const meta { name, description, phases } + phase()/agent()/parallel() body) from RDF individuals, mirroring the orchestration structure proven across this repo's own development sessions: parallel implementation fan-out, then a sequential verify agent, with the standing rule that a workflow's own self-report is never accepted as proof (the consumer re-runs the matrix). The ontology models ccw:Workflow -> ccw:Phase -> ccw:AgentJob, with prompts as authored literals (same sourceText discipline as tcps-core-pack). The gate refuses any workflow that lacks a verify phase -- the discipline is law, not convention." .
+
+rf:pack_dogfood_lifecycle_pack a rf:Pack ;
+    rf:order "007" ;
+    rf:dir "dogfood-lifecycle-pack" ;
+    rf:version "26.7.13" ;
+    rf:description "v26.7.13 Operation Dogfood session-lifecycle schema: the RDF vocabulary, SHACL shape, and sample fixtures for capturing a Claude Code session's tool events (Bash / Edit / Write / Read / Task / ...) as PROV-O provenance so that ggen can validate a session log. A PostToolUse hook appends one Turtle node per tool event and a session-end recipe runs `ggen graph validate --files <session.ttl> --shapes <shapes.ttl>`; this pack authors the vocabulary + shape + fixtures that loop targets (the hook and recipe themselves are wired by the parent session, not here). PUBLIC-ONTOLOGY-FIRST (mirrors packs/soc2-audit-pack and packs/dry-run-publish-pack): every relationship reuses a public vocabulary where one fits — prov: (Activity for the session and each tool event, Agent for the operator and subagents, used/generated/wasAssociatedWith/actedOnBehalfOf), dcterms: (identifier for the session id, isPartOf for the tool-event -> session ref, description), skos: (ConceptScheme + notation for the closed tool-name and outcome vocabularies), time: (inXSDDateTimeStamp for the wall-independent event timestamp). Content-addressed tool inputs/outputs use the repo's existing urn:blake3:<hex> scheme (crates/chatman-common provenance::content_address, crates/cng pipeline.rs ImportedArtifact). DISCLOSED MINTED TERMS (capability-justified, no public equivalent — each carries an rdfs:comment in ontology.ttl naming the checked public ontologies and why they do not fit): dfl:Session and dfl:ToolEvent (rdfs:subClassOf prov:Activity — PROV has no subtype distinguishing a session-scoped activity from a single tool invocation, and SHACL needs a precise sh:targetClass to require tool-event properties without imposing them on the session node); dfl:sequenceIndex (monotonic per-session ordinal — PROV has no event ordinal, OLO's olo:index requires full ordered-list slot membership); dfl:outcome + dfl:Outcome (a tool event's terminal status drawn from a CLOSED 3-value vocab ok/error/blocked — mirrors packs/jira-tracking-pack's closed jira:Status scheme; no public ontology enumerates tool-invocation outcomes). OBSERVATION-ONLY FENCE (structural, not merely stated): this pack MODELS the session lifecycle as observation/provenance; it never asserts authority, permission, or actuation — those are separate governed surfaces (admission, hooks, receipts in crates/praxis-graphlaw/src/chatman). No class, predicate, or individual here is named 'authorize', 'permit', 'grant', 'actuate', or 'execute'; the outcome vocabulary records what a tool event OBSERVABLY did (ok/error/blocked), never that it was permitted to. No external ontology is unioned — this pack's vocabulary is self-contained PROV/DCMI/SKOS/OWL-Time, so no ggen.toml extra_ontologies entry is required. No private namespace is minted beyond the disclosed capability-justified terms above." .
+
+rf:pack_ggen_verify_pack a rf:Pack ;
+    rf:order "008" ;
+    rf:dir "ggen-verify-pack" ;
+    rf:version "26.7.19" ;
+    rf:description "Self-hosted verification gates: makes `ggen sync run` refuse when external check evidence (build/test/clippy/byte-identity results, emitted as ver: facts by a consumer's verify script) is missing, red, or stale. Closes the loop the reflexive-receipts feature opened: verification stops being a hand-run shell matrix and becomes admitted graph facts enforced by the same FM-PACK-013 gate mechanism as every other pack invariant, identically on both graph engines (see crates/ggen-engine/tests/reasoner_independence_e2e.rs). Consumer contract: wire this pack in [packs], add the emitter's output (evidence/checks.ttl) as an [ontology] source, and run the emitter before sync (e.g. `just verify-tcps` = emitter -> sync -> receipt verify). The freshness gate binds evidence to the latest ggenr:Sync receipt, so it requires [law] reflexive = true in the consumer; staleness detection lags one sync by construction (documented in gates/030_evidence_fresh.rq)." .
+
+rf:pack_lsp_max_pack a rf:Pack ;
+    rf:order "009" ;
+    rf:dir "lsp-max-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Generates lsp-max RulePackServer rules/*.toml regex rule-pack files from LintRule individuals in the pack ontology (id, name, severity, pattern, path_globs, exclude_globs, message, rationale, eval_budget -- all ontology-sourced, field-for-field matching the real rule_pack_server.rs::Rule struct, verified 2026-07-18). Also generates its own proof test (rule_pack_proof.rs.tmpl -> tests/lsp_max_rule_pack_proof.rs) that parses the generated TOML/markdown with real toml/regex crates and checks them against literals hand-transcribed from ontology.ttl, including running each rule's pattern against real positive/negative code snippets. shapes.ttl (added 2026-07-19) SHACL-constrains every lm:LintRule field's cardinality/non-emptiness and closes lm:severity/lm:evalBudget to the real string sets rule_pack_server.rs actually recognizes -- run `ggen graph validate --files ontology.ttl --shapes shapes.ttl`." .
+
+rf:pack_ma_case_study_pack a rf:Pack ;
+    rf:order "010" ;
+    rf:dir "ma-case-study-pack" ;
+    rf:version "26.7.13" ;
+    rf:description "M&A / deal-desk case study vocabulary (ontology.ttl) + SHACL shapes (shapes.ttl) + competency questions (COMPETENCY_QUESTIONS.md), built from a real vocabulary-fit research pass over 10 domain concepts (entity/LEI, ownership percentage, due-diligence disposition, representation-and-warranty exceptions, regulatory filing thresholds, board authorization, shareholder votes, negotiated deal terms/counter-offers, financing conditions, closing/termination status). PUBLIC-ONTOLOGY-FIRST: FIBO (Financial Industry Business Ontology, read directly from the real vendored copy at crates/praxis-graphlaw/ontologies/industry/financial/fibo-master/, file:line cited per term in ontology.ttl's header) supplies a clean or strained public term for 8 of the 10 concepts (fibo-be-le-lei:LEIRegisteredEntity/LegalEntityIdentifier/hasOwnershipPercentage/RelationshipRecord for entity+LEI+ownership; fibo-fnd-agr-ctr:Representation/Warranty/DisclosureProvision/TermSheet/NonBindingTerm/ConditionPrecedent/TerminationProvision for contract clauses; fibo-fnd-agr-agr:Commitment for financing; fibo-cae-ce-act:MergerAcquisition/ActionStatus/RegulatoryAction and fibo-cae-ce-srca:TenderOffer/FormalOffer for the deal event and offers; fibo-be-oac-exec:BoardOfDirectors and fibo-be-oac-cctl:VotingShareholder for governance party roles); OMG Commons (cmns-bauth:Authorization/AuthorizingParty/AuthorizedParty/authorizes/hasAuthorizedParty/hasAuthorizingParty, cmns-rga:RegulatoryReport, cmns-cls:isClassifiedBy) supplies the live terms FIBO's own local Executives.rdf copies are deprecated in favor of; W3C ODRL (odrl:Duty) and PROV-O (prov:Activity/Entity/generatedAtTime/wasAttributedTo) and Dublin Core (dcterms:isPartOf) round out the reuse. Two false friends were checked and explicitly rejected, not silently avoided: fibo-be-le-cb:BoardAgreement (an agreement AMONG directors, not a board's resolution authorizing a transaction) and fibo-fnd-agr-ctr:hasTerm (contract DURATION, not a negotiated deal term). DISCLOSED ma: BRIDGE TERMS (minted only where the research found NO_PUBLIC_TERM_FOUND or a genuine STRAINED_FIT gap, each with an rdfs:comment in ontology.ttl naming the public terms checked and why they don't fit): ma:DueDiligenceItem/DueDiligenceDisposition (a checklist item's open/satisfied/waived status -- no public disposition vocabulary exists), ma:DisclosureScheduleItem/qualifiesClause/scheduleItemNumber (linking a disclosure exception to the specific clause it qualifies), ma:RegulatoryFilingObligation/filingThresholdAmount/triggeringStatute/statutoryWaitingPeriodDays (HSR-Act-style filing threshold and waiting period -- checked and rejected ELI as citation-only and LegalRuleML as a rule-markup language, neither a domain-term source), ma:BoardResolution/authorizesTransaction (a resolution document distinct from the false-friend BoardAgreement), ma:ShareholderVote/Ballot/voteOutcome/VoteOutcome/quorumPercentage/ballotDirection/BallotDirection (no vote/ballot/outcome structure exists in FIBO, W3C ORG, or any other checked candidate), ma:CounterOffer/supersedes/DealTermLineItem/DealTermType/termValue (negotiation-move sequencing and typed deal-term line items layered on TermSheet/NonBindingTerm), ma:FinancingCommitment/FinancingOutCondition/subjectToCondition (an M&A-specific financing-out condition, layered on the generic Commitment/ConditionPrecedent pair), ma:DealStatus + 5 concrete individuals (Signed/PendingRegulatoryApproval/Closed/Terminated/Abandoned instantiating FIBO's otherwise-abstract, zero-individual ActionStatus class). ontology.ttl is a TBox-only vocabulary pack (classes + properties + closed enumerations, mirroring packs/jira-tracking-pack and packs/dogfood-lifecycle-pack's own ontology.ttl shape); shapes.ttl applies sh:closed only to this pack's own minted ma: classes (open floor shapes for reused FIBO/Commons classes, matching packs/soc2-audit-pack's own org:Organization precedent). No external ontology file is unioned via ggen.toml extra_ontologies; every FIBO/Commons/ODRL/PROV/DCMI term is reused directly by IRI, never re-vendored or re-serialized into this pack. A LATER PASS (fixtures/, DESIGN.md) added a concrete Meridian Holdings Group / Corvantis Systems Acquirer/Target instance-data scenario across all 6 independent M&A processes docs/releases/v26.7.14/THESIS.md Section 33.12 names (buyer diligence, seller disclosure, financing, regulatory review, board authority, shareholder action), plus fixtures/hook.ttl (a real kh:Hook deriving an HSR-Act-style regulatory filing obligation, proven live by crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs) and the adversarial-positive.ttl/adversarial-negative.ttl G_x+/G_x- pair Section 33.11's semantic admission proof obligation names; see DESIGN.md for the full account." .
+
+rf:pack_mcpp_pack a rf:Pack ;
+    rf:order "011" ;
+    rf:dir "mcpp-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + subprocess dispatch shim + reference doc, generated from command-surface vocabulary for ~/mcpp (MCP+ admissible-work runtime, real dependency: clap-noun-verb = \"5\", confirmed via its Cargo.toml). Reuses packs/clap-noun-verb-pack's cnv: vocabulary (IRI reuse), including cnv:args for real argument facts. The 9 commands were originally grepped from ~/mcpp/README.md, then hand-verified on 2026-07-18 against the real #[verb] function signatures at pinned commit ae1106887a824f107dc8ac76daff6ef1b8dbf6c4 (see ontology.ttl's header for file:line citations) -- that pass found and fixed one real fidelity bug (relay's real verb is 'verify-chain', not 'verify'). Still a partial command surface: these 9 are not every #[verb] in ~/mcpp/crates/mcpp-server/src/cmds/. Generates: src/mcpp_catalog.rs (typed noun/verb/doc/args/error_case table), src/mcpp_dispatch.rs (a real, compilable, ontology-driven std::process::Command dispatch shim -- one generated wrapper fn per command, no hand-written handler required), docs/mcpp_reference.md, a pack-uniquely-named src/mcpp_lib_wiring.rs mod-aggregator (the consumer adds one `include!(\"mcpp_lib_wiring.rs\");` line to their own src/lib.rs -- retargeted off `to: src/lib.rs`/`inject: true` after round 2's cross-pack verification found that pattern collides via this engine's FM-WRITE-008 guard the moment 2 packs sharing it are wired into one real consumer), tests/mcpp_catalog_proof.rs (hand-transcribed, non-tautological data-table proof, now also asserting a per-row error_case is present and spot-checking its exact text) and tests/mcpp_dispatch_proof.rs (real behavior proof: introspects the actual std::process::Command built by each generated wrapper, plus two real error-path tests that spawn a nonexistent `mcpp` binary and assert on the genuine std::io::ErrorKind::NotFound -- not a mock). Round 3 (2026-07-18) added mcp:errorCase: a real, file:line-cited non-zero-exit/fail-open condition for all 9 commands read directly from the same pinned commit's source, closing the second half of the ontology-expressiveness L3 bar (cnv:args covered structure/cardinality in round 2; error cases were the missing half). All generated outputs use freeze_policy=checksum (not force:true): a hand-edit to a generated file is detected and the next sync skips it with an explicit 'manual edit detected' receipt entry instead of silently clobbering it -- re-verified this round against the modified templates. Round 4 (2026-07-19) added shapes.ttl: real SHACL constraints on cnv:Command (non-empty noun/verb, a well-formed cnv:args grammar, and a non-empty, non-placeholder mcp:errorCase) wired via a consumer's [law].shapes -- confirmed live in a scratch consumer: the real ontology passes ggen sync run's validate stage, and a deliberately-broken copy (one mcp:errorCase triple removed) is refused with a real FM-LAW-013 SHACL violation citing the exact focus node, not a no-op gate." .
+
+rf:pack_mfact_pack a rf:Pack ;
+    rf:order "012" ;
+    rf:dir "mfact-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc, generated from domain vocabulary for ~/mfact (README title: 'mfact / procint'), a receipted mathematical-manufacturing pipeline where ggen itself projects a Lean 4 declaration catalog that Lean admits and mfact certifies -- a real, in-the-wild downstream consumer of ggen, not merely an analogous project. Modeled from its README: the 3-actor pipeline (ggen projects -> Lean admits -> mfact certifies) and its 5 top-level authority directories (packs/, procint/, paper/, release/, .mfact/artifacts.toml). Also generates its own anti-drift proof test (tests/mfact_catalog_proof.rs) asserting the rendered catalog against literal values hand-transcribed from ontology.ttl." .
+
+rf:pack_mfw_pack a rf:Pack ;
+    rf:order "013" ;
+    rf:dir "mfw-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc + real transition-dispatch logic, generated from domain vocabulary for ~/mfw (MFW monorepo), a receipted process-consequence system. Modeled from its AGENTS.md: the 10-stage observe->admit->preserve standing->calculate residual->manufacture candidate->verify->authorize->actuate->receipt->replay cycle (asserted as explicit mfw:nextStage graph edges, not just an mfw:order integer), and its 9 top-level authority-surface directories (ontology/, profiles/, transform/, mfw-theory/, runtime/, verifier/, fixtures/, docs/, receipts/) -- each now also carrying a real mfw:standingAuthority boolean per ~/mfw/AGENTS.md's own law (docs/ is the one surface that never carries standing authority; every other surface does), driving a generated is_standing_authority(path) dispatch function rather than a hardcoded Rust special case. No per-crate description fields were populated in mfw-runtime/mfw-meaning/mfw-powl-miner/mfw-shacl's own Cargo.toml files (confirmed empty this pass), so those 4 workspace crates are named but not further characterized here. Generates real next_stage()/is_valid_transition()/is_standing_authority() dispatch driven entirely by ontology data (not hardcoded arithmetic or string comparisons), plus a self-check test module embedded directly in the generated catalog (mfw_catalog.rs.tmpl) whose expected counts -- including a non-standing-authority count -- come from independently-shaped SPARQL COUNT(...) aggregate queries, catching catalog/ontology drift on every `cargo test` without a human re-transcription step for those counts. The separate templates/mfw_catalog_proof.rs.tmpl proof (-> tests/mfw_catalog_proof.rs) remains additionally hand-transcribed against the ontology for the row-content spot checks (not just counts, now including the standing-authority rule spot check), and templates/mfw_catalog_mod_wiring.rs.tmpl writes `pub mod mfw_catalog;` to a pack-unique file (src/mfw_lib_wiring.rs, force:true) rather than injecting into the consumer's shared src/lib.rs -- that retarget (this pack originally targeted src/lib.rs with inject:true) was required once a real multi-pack consumer wired 2 packs doing the same thing and hit this engine's FM-WRITE-008 duplicate-output guard; the consumer must add one `include!(\"mfw_lib_wiring.rs\");` line to their own src/lib.rs, a real, disclosed remaining consumer-effort step, not zero. The ontology also carries a machine-readable mfw:SourceSnapshot (exact ~/mfw commit hash + date this pack was transcribed from) instead of only a prose claim -- ~/mfw remains a separate repository this workspace does not own, so its RDF cannot be imported directly as a live dependency." .
+
+rf:pack_osx_clnr_pack a rf:Pack ;
+    rf:order "014" ;
+    rf:dir "osx-clnr-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + real selection/parsing logic + a generated dispatch layer + reference doc, generated from domain vocabulary for ~/osx-clnr (a real local project, crates.io-bound `oclnr`, a plan-bound macOS disk auditor; real dependency: clap-noun-verb 26.6.2). Unlike cargo-cicd/mcpp, its README documents the pipeline in prose rather than a command table, so this pack models the pipeline's real nouns (audit -> plan -> delete -> receipt, plus snapshot/emergency) as oclnr:Stage individuals with real state-transition (`oclnr:nextStage`) edges, plus per-command `oclnr:Argument` structure (name/type/required/default/position) and a `oclnr:SnapshotSelectionPolicy`/`oclnr:ByteUnit` fact set -- all dated hand-verified 2026-07-18 directly against ~/osx-clnr's real source (src/nouns/{snapshot,receipt,emergency}.rs, src/domain/time.rs), not README/grep guessing. `templates/osx_clnr_plan.rs.tmpl` generates a REAL, compilable reimplementation of `~/osx-clnr`'s snapshot-selection and byte-size-parsing algorithm (`select_oldest_snapshots`/`parse_snapshot_date`/`parse_size_in_bytes`), with its unit table and date-suffix-length parameter SPARQL-derived from the ontology rather than hardcoded in the template. `templates/osx_clnr_dispatch.rs.tmpl` (round 3) closes part of the handler-gap: a new `oclnr:dispatchesTo` fact per `cnv:Command` names the real `osx_clnr_plan.rs` function that implements it (2 of 5 commands today), or the empty string if none is modeled yet; the template reads that fact to emit either a fully generated handler (zero hand-write) or a method on a generated `OclnrHandlerSeam` trait (the stable hand-write seam for the other 3) -- which commands land in which bucket is ontology-driven, not template-hardcoded. `templates/osx_clnr_mod_wiring.rs.tmpl` does NOT target the consumer's `src/lib.rs` directly (an earlier design that used `inject: true` there was retargeted after round-2 cross-pack verification found it collides with this engine's FM-WRITE-008 duplicate-output guard the moment a second pack does the same thing in one real consumer, e.g. wasm4pm-cognition-pack + wasm4pm-facts-pack in examples/receiptctl): it generates a pack-unique `src/osx_clnr_lib_wiring.rs` that the consumer mounts with one `include!(\"osx_clnr_lib_wiring.rs\");` line in their own `src/lib.rs` -- a real, disclosed, non-zero consumer-effort step, not 'wires ggen.toml, done'. Three proof suites ship: `osx_clnr_catalog_proof.rs.tmpl` (deliberately non-SPARQL, hand-transcribed anti-drift check on the reference catalog), `osx_clnr_plan_proof.rs.tmpl` (SPARQL-derived cardinality assertion + 13 behavioral tests against the real generated logic, including adversarial/error-path cases: empty input, unknown unit, garbage snapshot names, n=0, n larger than available), and `osx_clnr_dispatch_proof.rs.tmpl` (5 tests: 2 real generated handlers exercised including an adversarial rejection path, plus a dummy `OclnrHandlerSeam` impl proving the generated trait is real, compilable, callable Rust). L5-push round (2026-07-19): `osx_clnr_plan.rs.tmpl` gained `identify_thinned_snapshots`/`SnapshotThinReceipt`, transcribed field-for-field from `~/osx-clnr/src/domain/time.rs` (source-verified 2026-07-19; these two have no free ontology parameter, so unlike the unit table/date-suffix-length they are named individuals in `ontology.ttl` but their bodies are hand-transcribed, honestly documented as such rather than dressed up as SPARQL-driven). Two new templates, `osx_clnr_domain_time.rs.tmpl` (`src/domain/time.rs`, a `pub use crate::osx_clnr_plan::*;` re-export shim) and `osx_clnr_domain_mod.rs.tmpl` (`src/domain/mod.rs`), exist so a consumer crate literally packaged as `osx_clnr` exposes `osx_clnr::domain::time::*` at the SAME module path as the real reference -- which is what let `reference/verbatim_time_tests.rs` (the reference's own `test_snapshot_query_thin_parsing`/`test_size_parsing`, copied byte-identical from `~/osx-clnr/tests/integration_tests.rs`, checksum `14c560f1...5a61dd` before and after copy) compile and pass with ZERO modification, including its unedited `use osx_clnr::domain::time::{...}` import lines, against fully ontology-generated code -- verified live in a scratch consumer (`cargo test`: 32 passed, 0 failed, exit 0), not asserted from prose." .
+
+rf:pack_praxis_core_pack a rf:Pack ;
+    rf:order "015" ;
+    rf:dir "praxis-core-pack" ;
+    rf:version "0.3.0" ;
+    rf:description "praxis-core pack: generates the refusal-taxonomy reference table (Rust const table + markdown doc) from RefusalScenario individuals mirroring praxis_core::refusal. Also generates a proof test (tests/praxis_core_refusal_taxonomy_proof.rs) that checks the two artifacts against literal, hand-transcribed values from ontology.ttl -- no SPARQL re-derivation. L5-push round 3 (2026-07-19): switched the two primary generated artifacts (src/praxis_core_refusal_table.rs, docs/praxis_core_refusal_taxonomy.md) from force:true to freeze_policy:checksum (freeze_slots_dir: .ggen/freeze/praxis-core-pack) -- a hand-edit is now refused with a named checksum-mismatch error on the next sync instead of silently clobbered; verified live in a scratch consumer (edit -> refused; delete freeze cache -> falls back to FM-WRITE-005 hard refusal, not silent overwrite either way). Also implemented, for real, the `cfg(feature = \"praxis-core-live\")` compiled-fidelity block the proof template's docstring had claimed but never shipped: when a consumer depends on the real `praxis-core` crate and enables that feature, the generated proof now calls the REAL `RefusalScenario::category()` for all 13 variants and asserts agreement with this pack's generated table -- verified live (10/10 tests pass with the feature enabled via a path dependency in a scratch consumer; 8/8 pass without it, so the default path is unaffected). L5-push round 4 (2026-07-19): added templates/refusal_verbatim_reference_tests.rs.tmpl, generating tests/praxis_core_refusal_verbatim_reference_tests.rs -- a BYTE-IDENTICAL copy (checksummed sha256 30c0d52c...be24e2e0 before and after pasting, diff-verified against the extracted source) of the real #[cfg(test)] mod tests block from crates/praxis-core/src/refusal.rs lines 252-367 (the reference author's own 4 unit tests: category_mapping_is_total_over_obligations, category_mapping_is_total_over_denial_lanes, kernel_and_andon_scenarios_have_expected_categories, compose_denials_ors_lanes), gated behind #![cfg(feature = \"praxis-core-live\")] as a whole-file cfg so it contributes zero tests/compile cost when the consumer doesn't opt in. Verified live in a rebuilt scratch consumer with a direct optional dependency on both praxis-core (path) and bcinr-powl-receipt = \"26.6.24\" (required for the verbatim block's own `use bcinr_powl_receipt::denial::DenialPolarity`, which is not re-exported by praxis-core): cargo test feature-off is 8/8 passing (unaffected, new file compiles to 0 tests); cargo test --features praxis-core-live is 14/14 passing (10 existing + 4 verbatim reference tests, all green, 0 failures). This is the reference's OWN test suite recompiled and run here, not a new assertion informed by reading the source -- the strongest fidelity signal this pack can produce short of depending on praxis-core's own `cargo test` output directly. Honest scope: still opt-in (a consumer must discover and enable the feature) and not wired into this repo's CI/pre-commit, so this does not clear L4's 'the normal way' bar or L5's 'zero human in the loop' bar -- it strengthens Target-API fidelity within L3, it does not move the pack to L4/L5." .
+
+rf:pack_self_monitoring_pack a rf:Pack ;
+    rf:order "016" ;
+    rf:dir "self-monitoring-pack" ;
+    rf:version "26.7.13" ;
+    rf:description "Self-monitoring vocabulary + real Knowledge Hook for Claude Code's own answer-format pattern, dogfooding the EXACT kh:Hook SPARQL-CONSTRUCT mechanism already proven this session for the Solvane Global bribery case's obligation derivation (crates/multifractal-workflow/fixtures/bribery-case/hook.ttl + crates/multifractal-workflow/tests/bribery_case_fixture.rs), applied here to conversational turns instead of compliance cases. PUBLIC-ONTOLOGY-FIRST (mirrors packs/dogfood-lifecycle-pack and the bribery-case fixture): a conversational turn is a prov:Activity (smon:Turn, minted subclass -- PROV has no such subtype), the session reference reuses dcterms:isPartOf pointed at packs/dogfood-lifecycle-pack's OWN dfl:Session class (no re-minted smon:Session -- this is the IRI-reuse-across-files discipline applied at the vocabulary layer), the grounding_topic tag reuses dcterms:subject directly (checked and fits -- \"the topic of the resource\" is exactly \"which system/capability this turn concerns\", no bridge term needed), and turn-kind is a CLOSED 5-concept SKOS scheme (smon:GroundingQuestion / smon:SurveyResponse / smon:RunResponse / smon:BlockerResponse / smon:Other) mirroring dfl:Outcome's identical closed-scheme pattern. DISCLOSED MINTED TERMS (capability-justified, no public equivalent -- each carries an rdfs:comment in ontology.ttl naming the checked public ontologies and why they do not fit): smon:Turn (prov:Activity subclass), smon:sequenceIndex (mirrors dfl:sequenceIndex's identical rationale, domain-scoped), smon:immediatelyFollows (a direct turn-adjacency edge minted specifically because this session confirmed, by reading crates/praxis-graphlaw/src/sparql/plan.rs::extract_expression, that Expression::Add/Subtract are NOT implemented in this engine -- so \"the turn immediately after X\" is expressed as a graph-pattern join, never SPARQL arithmetic), smon:turnKind + smon:TurnKind (closed classification, mirrors dfl:outcome), smon:EscalationObligation + smon:hasPriorGroundingQuestion + smon:hasGroundingQuestion + smon:reason (the derived-fact node hook.ttl's kh:Hook CONSTRUCT query produces -- PROV's wasDerivedFrom/wasInformedBy checked and rejected on a genuine Entity-vs-Activity domain/range mismatch, not just unfashionable). CLASSIFICATION-IS-INPUT FENCE (structural, not merely stated): hook.ttl's SPARQL CONSTRUCT query only ever READS smon:turnKind, dcterms:subject, smon:sequenceIndex, and smon:immediatelyFollows -- every one of those is a fixture-hand-asserted INPUT fact; the hook never reads turn TEXT (no turn-content literal is even modeled in this vocabulary) and never classifies anything. Building an NLP classifier that reads raw Claude Code output and assigns smon:turnKind is a separate, explicitly out-of-scope problem this pack does not attempt or stub. Real live SPARQL-CONSTRUCT verification (not asserted): crates/praxis-graphlaw/tests/self_monitoring_hook_actuation.rs runs the real praxis_graphlaw::TripleStore::load_hook_pack + .materialize() + .query() pipeline against fixtures/pattern-fires.ttl (fires, derives exactly 1 smon:EscalationObligation), fixtures/pattern-does-not-fire.ttl (does not fire -- prior response was a RunResponse, not a SurveyResponse), and fixtures/pattern-different-topic.ttl (does not fire -- same_system/grounding_topic conjunct fails)." .
+
+rf:pack_star_toml_pack a rf:Pack ;
+    rf:order "017" ;
+    rf:dir "star-toml-pack" ;
+    rf:version "0.3.0" ;
+    rf:description "Generates a star_toml config-admission module: serde structs per ConfigSection (closed-world/loader/optionality projected from stp:closedWorld/stp:loaderFn/stp:required ontology facts, not hardcoded in the template), plus a generated validate() method per section projecting stp:minValue/stp:maxValue behavior-contract facts (a pre-condition on the admitted VALUE that serde's Deserialize cannot express -- e.g. sample_rate must be in [0.0, 1.0]), plus per-section admission docs and a Cargo.toml dependency snippet doc (docs/star_toml/CARGO_DEPENDENCIES.md, from stp:cargoDependency). Ships src/star_toml_lib_wiring.rs (pack-unique file, one include!() line needed in the consumer's own lib.rs -- NOT inject:true into src/lib.rs directly, after round-2 cross-pack verification found that pattern collides the moment two packs are wired into the same real consumer). Also generates its own executable proof test (tests/star_toml_config_proof.rs, no sparql: frontmatter) that hardcodes the ontology's section/field literals independently and exercises the real load_file round-trip, the stp:required=false optional-field path, the stp:minValue/stp:maxValue behavior-contract path (both an out-of-range value that parses but fails validate(), and an in-range value that passes), plus three fail-closed paths (unknown key, missing required field, missing file) against real TempDir-backed TOML files. Both generated-source templates use freeze_policy: checksum (not force: true) so a hand-edited output is refused, not silently overwritten, on the next sync." .
+
+rf:pack_tcps_cli_pack a rf:Pack ;
+    rf:order "018" ;
+    rf:dir "tcps-cli-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Toyota Production System (TCPS) CLI ontology: tcps-cli crate (2 binaries -- tcps main CLI, tcps-bench) RDF spec + SHACL shapes + Rust bin templates for the 豊田コード生産方式 CLI." .
+
+rf:pack_tcps_core_pack a rf:Pack ;
+    rf:order "019" ;
+    rf:dir "tcps-core-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Toyota Production System (TCPS) core ontology: 24-module RDF spec + SHACL shapes + Rust lib.rs template for the 豊田コード生産方式 no_std module set." .
+
+rf:pack_tcps_ffi_pack a rf:Pack ;
+    rf:order "020" ;
+    rf:dir "tcps-ffi-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "TCPS FFI crate (tcps-ffi): stable C ABI over tcps-core -- RDF spec (LibModule/HeaderFile/CargoManifest individuals with verbatim sourceText) + SHACL shapes + Rust/C templates for src/lib.rs, include/tcps.h, and Cargo.toml." .
+
+rf:pack_tcps_release_pack a rf:Pack ;
+    rf:order "021" ;
+    rf:dir "tcps-release-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Release-engineering surface for TCPS: CI workflow YAML (tier-1 build matrix, cross-host verify, supply-chain security policy) and packaging manifests (deb control, npm package.json, NuGet nuspec), plus rustup tier1/tier2 target lists, all driven from ontology individuals (tcps:CiWorkflow/tcps:PackagingTarget/tcps:Tier) whose body/manifest/target-list literals are the real, byte-for-byte content copied from a real product's release engineering, with SHACL requiring every packaging target to declare a non-empty manifest path and every CI workflow to declare at least one trigger event" .
+
+rf:pack_tcps_std_pack a rf:Pack ;
+    rf:order "022" ;
+    rf:dir "tcps-std-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "tcps-std: receipt persistence (受領証を保存する/受領証を文字列化する) and environment observation (実行環境) for 豊田コード生産方式, std-dependent, depends on tcps-core." .
+
+rf:pack_tcps_wasm_pack a rf:Pack ;
+    rf:order "023" ;
+    rf:dir "tcps-wasm-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "tcps-wasm: WebAssembly capability boundary (版番号/正準選択 extern \"C\" exports) for 豊田コード生産方式, depends on tcps-core." .
+
+rf:pack_wasm4pm_algorithms_pack a rf:Pack ;
+    rf:order "024" ;
+    rf:dir "wasm4pm-algorithms-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc for the wasm4pm process-intelligence ALGORITHM surface (catalog/caller surface only; all analysis stays in wasm4pm); generates tests/algorithms_catalog_proof.rs (literal-value proof against ontology.ttl for the CATALOG table and by_wasm_export/as_str dispatch), tests/algorithms_target_fidelity_proof.rs (real compiled call into pinned wasm4pm-compat for the 1/60 pi:verifiedAgainst row), and src/w4pm_algorithms_invocation_dispatch.rs + tests/algorithms_invocation_dispatch_proof.rs (a real AlgorithmId -> compiled external call dispatcher, honestly scoped to the same 1/60 verified row, with the other 59 failing closed via a typed DispatchError::NotComposable rather than a stub or panic)" .
+
+rf:pack_wasm4pm_cognition_pack a rf:Pack ;
+    rf:order "025" ;
+    rf:dir "wasm4pm-cognition-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "wasm4pm cognition breed catalog and typed dispatch-surface skeleton over the stable 6-verb ABI (cognition_show/run/verify/replay, system_build/verify); catalog/caller surface only — evidence and analysis stay in wasm4pm. Generates: src/w4pm_cognition_catalog.rs (typed catalog + compat:breedFamily grouping), src/w4pm_cognition_dispatch.rs (always-regenerated per-breed wrappers, force:true), src/w4pm_cognition_dispatch_handler.rs (hand-completed once, unless_exists:true freeze slot -- regen-safe across new breeds), docs/generated/W4PM_COGNITION_BREED_CATALOG.md, an lib.rs mod-wiring injection for the handler module, tests/w4pm_cognition_proof.rs (8-row hand-transcribed spot proof) and tests/w4pm_cognition_proof_full.rs (SPARQL-generated full 55-row round-trip proof, plus a second structurally-independent join-free COUNT aggregate query cross-checked against the catalog to catch a class of shared-query bug the row-enumeration check alone cannot)" .
+
+rf:pack_wasm4pm_compat_pack a rf:Pack ;
+    rf:order "026" ;
+    rf:dir "wasm4pm-compat-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "OCEL event-type emission enum and emit helper fns targeting wasm4pm-compat (emission surface only; all analysis stays in wasm4pm-compat), with an ontology-declared per-event attribute schema (w4pm:hasAttribute) and IRI-typed object bindings (w4pm:hasObjectType) driving real, non-empty OCELEventAttribute output, plus real behavioral preconditions (w4pm:requiresNonEmptyId / w4pm:requiresNonEmpty) compiled into a debug_assert! in each generated emit_* fn; also generates its own proof test (tests/wasm4pm_compat_events_proof.rs) covering exact EventType cardinality (via an independent SPARQL COUNT oracle), per-event relationship+attribute binding, a JSON round-trip, and real should_panic failure-path coverage for the precondition checks" .
+
+rf:pack_wasm4pm_facts_pack a rf:Pack ;
+    rf:order "027" ;
+    rf:dir "wasm4pm-facts-pack" ;
+    rf:version "0.2.1" ;
+    rf:description "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl (drift-checked against upstream, see DRIFT_LOG.md), plus (1) a SPARQL-projected registry-report template, (2) a generated typed Rust catalog module (src/wasm4pm_facts_registry.rs) with real lookup_breed/lookup_algorithm/algorithms_by_category functions, (3) an inject-mode mod-wiring template for the consumer's src/lib.rs, (4) SPARQL cardinality/range/enum gate queries (gates/010_required.rq, gates/020_single_valued.rq, gates/030_value_constraints.rq) evaluated automatically by `ggen sync run` against the union graph (SHACL shapes.ttl removed 2026-07-19, migrated to SPARQL gates -- see gates/ dir), (5) the bundled law rule (ontology/rules/breed_standing.n3) that CONSTRUCT-derives breed standing from citation presence -- see WIRING.md for the exact consumer [law] table needed to activate it -- and (6) two generated proof suites: a small hand-picked spot-check (tests/wasm4pm_facts_pack_registry_proof.rs) and a full-coverage mechanical proof over all 115 individuals cross-checked between two independently-issued SPARQL projections (tests/wasm4pm_facts_pack_full_coverage_proof.rs). L5-push round-3 (2026-07-19): re-ran scripts/check_upstream_drift.sh against a live ~/wasm4pm checkout and found the SAME 2 individuals from the round-2 fix (pi:Algo_optimized_dfg/pi:Algo_streaming_log's pi:wasmExport) had re-drifted on this branch despite the prior round's DRIFT_LOG entry claiming they were fixed -- corrected again (see DRIFT_LOG.md's 2026-07-19 entry) and confirmed the sibling wasm4pm-algorithms-pack still carries the stale value on the identical subject IRIs (flagged there, not fixed -- out of scope, another pack's directory). Also corrected WIRING.md, which still described the pre-round-2 inject-into-lib.rs mechanism even though the shipped template already uses the pack-unique-file + include!() mechanism -- doc/reality drift, now fixed to match the real template. L5-push round-4 (2026-07-19, later same day): the SAME 2 individuals re-drifted a THIRD time (root cause of the recurrence still not determined); re-fixed, re-ran the drift script (0/0 rows drifted), and this round additionally verified the fix reaches the generated artifact, not just ontology.ttl: built ggen, synced a fresh scratch consumer wiring only this pack, ran cargo test (18/18 generated proof tests pass), and grepped the generated src/wasm4pm_facts_registry.rs directly to confirm both rows carry wasm_export: \"discover_dfg\" -- see DRIFT_LOG.md's 2026-07-19 (round-4) entry for the full command transcript." .
+
+rf:pack_wasm4pm_pack a rf:Pack ;
+    rf:order "028" ;
+    rf:dir "wasm4pm-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + dependency graph + reference doc, generated from crate-map vocabulary for the ~/wasm4pm workspace itself (distinct from packs/wasm4pm-{algorithms,cognition,compat,facts}-pack, which model wasm4pm's ANALYSIS ontology surface -- this pack models the workspace's own crate structure). Transcribed from ~/wasm4pm/Cargo.toml's `[workspace] members` list and each member crate's own Cargo.toml `description` field: wasm4pm (core WASM process-mining algorithms), tps-metrics (Toyota Production System metrics), wasm4pm-cli, miniml (WASM ML; package name -- the crate lives at crates/miniml-core/ but its own Cargo.toml `[package] name` is `miniml`, not `miniml-core`; the ontology individual's IRI stayed w4c:miniml-core to match the directory, but its rdfs:label was corrected 2026-07-19 from the prior directory-derived \"miniml-core\" to the real package name \"miniml\" after a live re-check against ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71 -- the old label meant `cargo build -p miniml-core` in a generated-catalog-driven script would fail with \"package not found\"; this is a real, previously-undetected Target-API-fidelity bug in the generated WASM4PM_CRATES catalog, now fixed and covered by wasm4pm_crate_deps_proof.rs.tmpl's direct-dependency assertions), wasm4pm-cognition (old-AI cognition kernel), prolog8 (proof engine), ocpq (object-centric process querying), bench-tools, wasm4pm-planner (PDDL-subset temporal planner). `wasm4pm-lsp` was removed in v26.7.1 per that Cargo.toml's own comment (unbuildable in a clean checkout) and is intentionally NOT modeled as a live crate here. `ontology.ttl` also carries 7 real `w4c:dependsOn` intra-workspace dependency edges (e.g. wasm4pm-planner -> {prolog8, wasm4pm, wasm4pm-cognition}), hand-verified against ~/wasm4pm@b6fedcbef8d5fbdab4dbb9827226e802fe961a71 (2026-07-18) by grepping every member crate's own Cargo.toml [dependencies] table -- this is the pack's dated hand-verification note (L2 target-API-fidelity bar); re-verify against a newer wasm4pm commit before trusting the edge list on a later pass. src/wasm4pm_crate_deps.rs.tmpl renders those edges into a real traversal module (depends_on lookup, transitive_dependencies DFS with cycle-guard) -- genuine control flow driven by ontology data, not just a projected const array. wasm4pm_crate_mod_wiring.rs.tmpl is an inject-mode template that wires both generated modules into the consumer's src/lib.rs at the `// GENERATED catalogs/emission surfaces` marker (the same marker convention examples/receiptctl already uses), so a consumer no longer hand-writes the `mod` declarations. All three generated Rust files carry `freeze_policy: checksum` (+ `freeze_slots_dir = \".ggen/freeze/wasm4pm-pack\"`): a hand-edit made to a generated file between syncs now causes the next `ggen sync run` to refuse (Skipped, checksum mismatch) rather than silently clobbering it. The pack also generates two independent proof tests (tests/wasm4pm_crate_catalog_proof.rs, tests/wasm4pm_crate_deps_proof.rs) asserting the emitted catalog/graph's literal contents -- including the deps proof's transitive-closure, leaf-crate, unknown-crate-name, and self-loop checks -- against values hand-transcribed from ontology.ttl, independent of the SPARQL queries that produce the artifacts. Round-3 addition (shapes.ttl, since migrated 2026-07-19 to SPARQL gates -- see below) established a gate on w4c:Crate (exactly-one non-empty label/purpose, and every w4c:dependsOn target must itself be a w4c:Crate -- no dangling/external edges), verified live in both directions (passes on the real ontology, rejects a synthetic dangling-edge violation). The gate is now gates/010_required.rq + gates/020_single_valued.rq + gates/030_value_constraints.rq (label/purpose cardinality and non-emptiness) + gates/040_dependency_targets.rq (dependsOn target must be a w4c:Crate), evaluated automatically by `ggen sync run` against the union graph -- no separate validate invocation required. wasm4pm_crate_deps.rs.tmpl also gained transitive_dependencies_over(edges, name), a parameterized form of the traversal that transitive_dependencies now delegates to; this closes a real test gap -- the actual 7-edge w4c:dependsOn graph is acyclic, so nothing previously exercised the explicit visited-set cycle guard. wasm4pm_crate_deps_proof.rs.tmpl now proves that guard against a hand-built 3-node synthetic cycle (terminates, dedupes, correctly includes the start node when a real cycle makes it transitively reachable from itself)." .
+
+rf:gate_1 a rf:Gate ; rf:order "001" ; rf:name "fmt-check" .
+rf:gate_2 a rf:Gate ; rf:order "002" ; rf:name "check" .
+rf:gate_3 a rf:Gate ; rf:order "003" ; rf:name "lint" .
+rf:gate_4 a rf:Gate ; rf:order "004" ; rf:name "test-lib" .
+rf:gate_5 a rf:Gate ; rf:order "005" ; rf:name "coherence-check" .
+rf:gate_6 a rf:Gate ; rf:order "006" ; rf:name "guard-process-intelligence-boundary" .
+rf:gate_7 a rf:Gate ; rf:order "007" ; rf:name "guard-cheat-scan" .
+rf:gate_8 a rf:Gate ; rf:order "008" ; rf:name "guard-claims-schema" .
+rf:gate_9 a rf:Gate ; rf:order "009" ; rf:name "guard-pack-proofs" .
+
+rf:recipe_01 a rf:Recipe ;
+    rf:order "001" ;
+    rf:command "`just check`" ;
+    rf:purpose "`timeout 300s cargo check --workspace`" ;
+    rf:timeout "300s" .
+
+rf:recipe_02 a rf:Recipe ;
+    rf:order "002" ;
+    rf:command "`just test`" ;
+    rf:purpose "Full test suite (unit + integration + property); escalates from a 30s hot-cache attempt to a 600s cold-compile retry" ;
+    rf:timeout "30s→600s" .
+
+rf:recipe_03 a rf:Recipe ;
+    rf:order "003" ;
+    rf:command "`just test-lib`" ;
+    rf:purpose "`timeout 30s cargo test --lib --workspace` (fast dev loop)" ;
+    rf:timeout "30s" .
+
+rf:recipe_04 a rf:Recipe ;
+    rf:order "004" ;
+    rf:command "`just lint`" ;
+    rf:purpose "`cargo clippy --all-targets -- -D warnings` — **root `ggen` package only**, not `--workspace`; confirmed 2026-07-17 (`Checking` output names exactly one package). Real, untriaged debt exists in other crates once `--workspace` is added — see the `lint:` recipe's own comment in `justfile`" ;
+    rf:timeout "180s" .
+
+rf:recipe_05 a rf:Recipe ;
+    rf:order "005" ;
+    rf:command "`just pre-commit`" ;
+    rf:purpose "`fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` (9 gates; confirmed 2026-07-19 against the justfile's own `pre-commit:` dependency line — do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression" ;
+    rf:timeout "<2min" .
+
+rf:recipe_06 a rf:Recipe ;
+    rf:order "006" ;
+    rf:command "`just slo-check`" ;
+    rf:purpose "Performance SLOs — real wall-clock `date +%s` deltas around `cargo test -p ggen-engine --test receipt_chain_e2e` (180s threshold) plus a `cargo bench` startup check; see the `slo-check` recipe in `justfile`" ;
+    rf:timeout "-" .
+
+rf:recipe_07 a rf:Recipe ;
+    rf:order "007" ;
+    rf:command "`just audit`" ;
+    rf:purpose "Security vulnerabilities scan" ;
+    rf:timeout "-" .
+
+rf:recipe_08 a rf:Recipe ;
+    rf:order "008" ;
+    rf:command "`just doc`" ;
+    rf:purpose "Build HTML docs into `target/doc/`" ;
+    rf:timeout "-" .
+
+rf:recipe_09 a rf:Recipe ;
+    rf:order "009" ;
+    rf:command "`just test-doc`" ;
+    rf:purpose "Validate all `# Examples` blocks compile/run" ;
+    rf:timeout "-" .
+
+rf:recipe_10 a rf:Recipe ;
+    rf:order "010" ;
+    rf:command "`just bench`" ;
+    rf:purpose "`cargo bench` — **root `ggen` package only** (same scoping as `lint`; the root package does have 12 real `[[bench]]` entries, so this isn't a no-op, but it doesn't reach `ggen-engine`'s or other crates' benches). `just slo-check` separately targets the one bench that matters for the SLO gate (`cli_startup_performance`, which does live in the root package)" ;
+    rf:timeout "-" .
+
+rf:recipe_11 a rf:Recipe ;
+    rf:order "011" ;
+    rf:command "`just sync`" ;
+    rf:purpose "Runs `ggen sync --audit true` — **currently broken**: the live `sync run` verb (`crates/ggen-engine/src/verbs/sync.rs`) has no `--audit` flag (only `--dry-run`/`--watch`); confirmed 2026-07-17 by running the recipe (`error: unexpected argument '--audit' found`, exit 1)" ;
+    rf:timeout "-" .
+
+rf:recipe_12 a rf:Recipe ;
+    rf:order "012" ;
+    rf:command "`just sync-dry`" ;
+    rf:purpose "Runs `ggen sync --dry_run true` — **currently broken**: `--dry-run`/`--dry_run` is a bare switch on the live verb, it does not take a `true` value; confirmed 2026-07-17 by running the recipe (`error: unexpected argument 'true' found`, exit 1). Use `ggen sync run --dry-run` directly instead" ;
+    rf:timeout "-" .
+
+rf:recipe_13 a rf:Recipe ;
+    rf:order "013" ;
+    rf:command "`ggen graph validate` / `ggen law validate`" ;
+    rf:purpose "SHACL / law validation — there is no bare `ggen validate` noun (confirmed: `error: unrecognized subcommand 'validate'`); see `crates/ggen-engine/src/verbs/{graph.rs,law.rs}`" ;
+    rf:timeout "-" .
+
+rf:recipe_14 a rf:Recipe ;
+    rf:order "014" ;
+    rf:command "`ggen receipt verify`" ;
+    rf:purpose "Verify the BLAKE3 chain hash of the current sync receipt — **zero arguments**; always targets `.ggen-v2/receipt.json` under the resolved project root (`crates/ggen-engine/src/verbs/receipt.rs`)" ;
+    rf:timeout "-" .
+
+rf:diag_01 a rf:DiagnosticCode ;
+    rf:order "001" ;
+    rf:code "**GGEN-TPL-001**" ;
+    rf:surface "SPARQL ↔ Tera" ;
+    rf:severity "ERROR" ;
+    rf:meaning "Template consumes `{{ var }}` that SELECT does not produce." ;
+    rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" .
+
+rf:diag_02 a rf:DiagnosticCode ;
+    rf:order "002" ;
+    rf:code "**GGEN-OUT-001**" ;
+    rf:surface "SPARQL ↔ ggen.toml" ;
+    rf:severity "ERROR" ;
+    rf:meaning "`output_file` pattern consumes unbound variable." ;
+    rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" .
+
+rf:diag_03 a rf:DiagnosticCode ;
+    rf:order "003" ;
+    rf:code "**GGEN-YIELD-001**" ;
+    rf:surface "ggen.toml ↔ OS" ;
+    rf:severity "ERROR" ;
+    rf:meaning "`output_file` escapes the project root (Layer Violation)." ;
+    rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" .
+
+rf:diag_04 a rf:DiagnosticCode ;
+    rf:order "004" ;
+    rf:code "**GGEN-RULE-001**" ;
+    rf:surface "ggen.toml ↔ OS" ;
+    rf:severity "ERROR" ;
+    rf:meaning "`{file = ...}` binding points at a missing file." ;
+    rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" .
+
+rf:diag_05 a rf:DiagnosticCode ;
+    rf:order "005" ;
+    rf:code "**GGEN-QUERY-002**" ;
+    rf:surface "SPARQL" ;
+    rf:severity "WARNING" ;
+    rf:meaning "`SELECT *` used (disables provision checks)." ;
+    rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" .
+
+rf:diag_06 a rf:DiagnosticCode ;
+    rf:order "006" ;
+    rf:code "**E0011 / E0013**" ;
+    rf:surface "SPARQL" ;
+    rf:severity "WARNING*" ;
+    rf:meaning "`CONSTRUCT` / `SELECT` lacks `ORDER BY` (Strict Mode: ERROR)." ;
+    rf:owner "`ggen-lsp/src/analyzers/sparql_analyzer.rs` (author-time) **and** `ggen-config/src/manifest/validation.rs` (sync-time hard error; two independent implementations, not shared)" .
+
+rf:diag_07 a rf:DiagnosticCode ;
+    rf:order "007" ;
+    rf:code "**E0015**" ;
+    rf:surface "SPARQL" ;
+    rf:severity "WARNING" ;
+    rf:meaning "Identity `CONSTRUCT` detected (no-op mapping) — actively emitted, not reserved." ;
+    rf:owner "`ggen-lsp/src/analyzers/sparql_analyzer.rs`" .
+
+rf:arch_01 a rf:ArchSection ;
+    rf:order "001" ;
+    rf:sid "intro-and-codegen-core" ;
+    rf:text "Full public API surface derived from LSP `documentSymbol` sweep of all workspace crates.\n\nUse LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.\n\n## Crate Map (17 workspace members)\n\nRe-verified against `Cargo.toml` `members = [...]` on 2026-07-17 (16 array entries + the root\n`ggen` package = 17 total; `grep -c '^  \"crates/' Cargo.toml` → 16 — this exact count was\npreviously mis-stated in this file as 15/16 total; the miscount traced to `ggen-cheat-scanner`,\nadded by PR #257, never having been added to any table here — it now has its own row in the\nTesting infrastructure section below). The prior 12-member count (2026-07-16) is superseded: PR\n#255 (absolute-local-path Cargo dependency cleanup) added 4 more members — `powl2-decompose`,\n`chicago-tdd-tools` (+ its `chicago-tdd-tools/proc_macros` path-dependency, not itself a\ntop-level workspace member), `bcinr-pddl`, `bcinr-mfw-ir` — all `publish = false`, vendored to\neliminate `path = \"/Users/sac/...\"` dependencies that only resolved on one machine and broke CI\n(`cargo build --workspace` failing with \"No such file or directory\" for anyone else). See the\nPraxis kernel and Testing infrastructure sections below. Use `LSP workspaceSymbol` for live\nsymbol discovery — this table is orientation only. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`\nfor the 2026-07 pass's evidence base and phase-by-phase history.\n\n### Code generation core\n\n`ggen-core` is **fully deleted, not merely disconnected.** PR #255 (2026-07-16/17) first ported\nevery dependent off it and moved it from `[workspace] members` to root `Cargo.toml`'s `exclude`\nas an interim step; PR #259 (2026-07-17, \"remove ggen-core, rewrite README from first\nprinciples\") then deleted `crates/ggen-core/` outright. That interim \"excluded but present on\ndisk\" state — described at length in an earlier version of this note, including a 3-way\nstandalone-compile-failure demonstration — no longer exists and cannot be reproduced:\n`crates/ggen-core/` is absent from disk (`find crates -maxdepth 1 -iname 'ggen-core*'` → empty),\nand root `Cargo.toml`'s `exclude` list contains only `examples/7-agent-validation`. The\nexperimental, default-off `ggen wizard`/`sigma` commands (and `inverse_sync`), which used to\nimport now-nonexistent `ggen_core::` symbols, were deleted in the same pass rather than\nre-pointed — see `crates/ggen-cli/src/cmds/mod.rs`'s \"REMOVED\" comments and\n`docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md` (marked superseded/executed). `ggen-engine`\nis the sole live half of this split." .
+
+rf:arch_02 a rf:ArchSection ;
+    rf:order "002" ;
+    rf:sid "two-schemas-and-praxis" ;
+    rf:text "### ggen.toml has two schemas\n\n`ggen.toml` is parsed by one of two independently-defined, incompatible struct hierarchies,\nchosen by a raw-text pre-parse before any typed parse runs: `ggen_engine::generation_rules::\nhas_generation_rules` (`crates/ggen-engine/src/generation_rules.rs:108`) checks the raw TOML for\na non-empty `[[generation.rules]]` array. If present, `sync()`'s Stage 0 dispatch\n(`crates/ggen-engine/src/sync.rs:155`) parses the file as `ggen_config::manifest::GgenManifest`\n(`crates/ggen-config/src/manifest/types.rs:160`, the \"declarative-rules\" schema) — `[[packs]]` is\nan array-of-tables of a flat `PackRef { name, registry, path, version }`. If absent, it falls\nthrough to `ggen_engine::config::GgenConfig` (`crates/ggen-engine/src/config.rs:45`, the\n\"frontmatter\" schema) — `[packs]` is instead a table-of-tables (`BTreeMap<String, PackRef>`) of\nan untagged `PackRef` enum, `Path { path, .. } | Git { .. }`. Same table names throughout\n(`[project]`, `[ontology]`, `[packs]`, `[templates]`, `[law]`), genuinely divergent shapes, and\nno automated cross-drift guard between the two.\n\n### Praxis kernel (ggen-engine's direct dependencies)\n\nVendored alongside `ggen-engine` in the same migration pass — renamed copies of\n`~/praxis/crates/{praxis-core,praxis-graphlaw}`. Both `publish = false`.\n\n**Correction (2026-07-17, PR #255, verified live) — supersedes the prior \"assume it reaches\n`~/praxis`\" correction below:** every absolute `path = \"/Users/sac/...\"` Cargo dependency in this\nworkspace was found and removed. `praxis-core`'s `arazzo.rs` module (the sole consumer of the\n`powl2-decompose`/`wasm4pm-arazzo` path deps this note used to describe) was deleted outright —\nconfirmed unused by any downstream crate (`ggen-engine`, `ggen-cli`) before removal; its dead\n`chatman-common`-gated `signing` feature/module went with it. `ArazzoProjectionReceipt` is no\nlonger part of `praxis-core`'s public API — the table row below is corrected accordingly.\n`praxis-graphlaw`'s own `powl2-decompose` dependency (genuinely load-bearing, reachable from\n`ggen-engine` via `chatman/{closure,abi,powl_projection,engine}.rs`) is now satisfied by the new\n`crates/powl2-decompose` workspace member (vendored, not a live path back to `~/praxis`) rather\nthan an absolute path — see that row below. `cargo fmt --all`'s crash (the consequence this note\nused to warn about) is resolved as a side effect: nothing in this workspace's manifest graph\nreaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*\"/Users/sac'\n--include=\"Cargo.toml\" .` → empty." .
+
+rf:arch_03 a rf:ArchSection ;
+    rf:order "003" ;
+    rf:sid "testing" ;
+    rf:text "### Testing infrastructure" .
+
+rf:arch_04 a rf:ArchSection ;
+    rf:order "004" ;
+    rf:sid "agent-lsp" ;
+    rf:text "### Agent & LSP surface" .
+
+rf:arch_05 a rf:ArchSection ;
+    rf:order "005" ;
+    rf:sid "genesis" ;
+    rf:text "### Genesis / KNHK V2 kernel" .
+
+rf:arch_06 a rf:ArchSection ;
+    rf:order "006" ;
+    rf:sid "mapping" ;
+    rf:text "### Mapping & stewardship" .
+
+rf:arch_07 a rf:ArchSection ;
+    rf:order "007" ;
+    rf:sid "removed" ;
+    rf:text "### Removed in the 2026-07 consolidation pass\n\n`ggen-a2a-mcp`, `ggen-lsp-mcp`, `ggen-lsp-a2a` (absorbed into `ggen-lsp`), `genesis-schema-v2` (absorbed into `genesis-types-v2`), `star-toml` (removed from the workspace — now an external published dependency), `stpnt` and `genesis-core` (dead code, zero dependents). The prior dormant non-member directories (`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`, `ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`) were deleted earlier in the same pass. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` and git history for the removed code." .
+
+rf:arch_08 a rf:ArchSection ;
+    rf:order "008" ;
+    rf:sid "tail" ;
+    rf:text "## Cross-Cutting Patterns\n\n| Pattern | Where Used | Details |\n|---------|-----------|---------|\n| `pub type Result<T> = std::result::Result<T, CrateError>` | Most crates | Each crate has its own error enum via `thiserror` |\n| Builder pattern | `ggen-marketplace` | `with_*()` chain methods for optional config |\n| Typestate | `ggen-marketplace` (`Draft`/`Published`) | Compile-time state transitions |\n| Newtype wrappers | `ggen-marketplace` | Invariant encoding in types (e.g., `PackageId`) |\n| Async traits | `ggen-lsp` (`a2a_mcp` module, feature `mcp`/`a2a`) | `#[async_trait]` with `Result` returns |\n| RDF/SPARQL foundation | `ggen-graph`, `ggen-marketplace`, `ggen-engine` (via `praxis-graphlaw`/`oxigraph`) | Built on `oxigraph` triplestores (or `praxis-graphlaw`'s N3/Datalog/SHACL/ShEx engine, `ggen-engine`'s default) |\n| Pipeline architecture | `ggen-engine` (Resolve → Enrich → Extract → Render → Write, live) | Multi-stage deterministic transformation — see `ggen-engine/src/sync.rs` module doc for the current pipeline |\n| Deterministic hashing + transition receipts | `ggen-graph`; `ggen-engine` (via `praxis-core::ReceiptRecord`, chained BLAKE3 over `{graph_hash, outputs}`) | State-change detection (deltas) and cryptographic receipts |\n| Feature-gated module absorption | `ggen-lsp` (`mcp`/`a2a` features), `genesis-types-v2` (`schema` module) | Former sibling crates folded in behind Cargo features/modules, cycle-free |\n| Pattern trait / registry | `genesis-core-v2`, `genesis-types-v2::schema` | 43 YAWL workflow patterns, zero-copy execution |\n\n## Navigation\n\nThis file is orientation only. For any symbol lookup use the LSP tool:\n\n1. `LSP workspaceSymbol` — find a symbol position (use any `.rs` file as `filePath`).\n2. `LSP goToDefinition` — jump to the definition (works across re-exports).\n3. `LSP findReferences` — enumerate all usages across the workspace.\n4. `LSP goToImplementation` — find all implementers of a project-defined trait.\n\nSee `.claude/rules/rust/lsp.md` for the full LSP-first navigation contract." .

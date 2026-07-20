@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-evidence"
+version = "26.7.19"
+description = "GENERATED verification evidence (ver: facts) emitted by scripts/verify.sh; admitted into the union graph so ggen-verify-pack's gates can enforce it. Never hand-edited."

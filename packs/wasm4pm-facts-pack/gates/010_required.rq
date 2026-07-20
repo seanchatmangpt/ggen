@@ -1,0 +1,17 @@
+# MESSAGE: every compat:CognitionBreed must carry breedId/breedLabel/breedDoc/citation, and every pi:ProcessIntelligenceAlgorithm must carry all 11 required properties (translated from shapes.ttl's two sh:NodeShape sh:minCount 1 constraints; any row = a subject missing the bound ?missing property; compat:modulePath and pi:cliAlias are deliberately excluded here -- shapes.ttl declared them optional, maxCount 1 only, no minCount)
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a compat:CognitionBreed .
+    VALUES ?missing { compat:breedId compat:breedLabel compat:breedDoc compat:citation }
+  } UNION {
+    ?s a pi:ProcessIntelligenceAlgorithm .
+    VALUES ?missing {
+      pi:algorithmId pi:algorithmLabel pi:algorithmDoc pi:citation pi:outputType
+      pi:category pi:speedTier pi:qualityTier pi:wasmExport pi:inputFormat pi:standing
+    }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

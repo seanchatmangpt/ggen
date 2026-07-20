@@ -1,0 +1,7 @@
+# MESSAGE: tcps_std:LibModule must have a non-empty tcps_std:sourceText (translated from shapes.ttl tcps_std:LibModuleShape sh:property[sh:path tcps_std:sourceText; sh:minCount 1]; any row = a subject missing tcps_std:sourceText entirely)
+PREFIX tcps_std: <http://seanchatmangpt.github.io/packs/tcps-std#>
+SELECT ?s WHERE {
+  ?s a tcps_std:Module .
+  FILTER NOT EXISTS { ?s tcps_std:sourceText ?v }
+}
+ORDER BY ?s

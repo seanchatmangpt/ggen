@@ -111,7 +111,8 @@ cobertura.xml
 lcov.info
 
 # Documentation builds
-/book/
+# (/book/ is the vendored Level-Five Packs book SOURCE, tracked — see the
+# "Documentation build artifacts" section below for its build-output ignores)
 /docs/build/
 /docs/.vuepress/dist
 
@@ -524,7 +525,10 @@ test_results/
 # Documentation build artifacts
 docs/build/
 docs/.vuepress/dist
-book/
+# book/ is the vendored Level-Five Packs book SOURCE (tracked); only the
+# mdbook build output underneath it is an artifact.
+book/book/
+book/dist/
 
 # Dependency directories (if using vendored deps)
 vendor/

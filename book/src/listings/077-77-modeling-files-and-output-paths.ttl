@@ -1,0 +1,11 @@
+@prefix pack: <https://example.org/ggen/pack#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pack:章77
+    a pack:生成単位 ;
+    dcterms:title "77. Modeling Files and Output Paths"@en ;
+    pack:出力経路 "src/generated/077_77_modeling_files_and_output_paths.rs" ;
+    pack:順序 77 ;
+    pack:根拠 pack:独立参照 ;
+    prov:wasDerivedFrom pack:参照実装_v26_7_19 .
