@@ -209,6 +209,23 @@ jobs:
             sed -i "s/^appVersion: .*/appVersion: $NEW_VERSION/" helm/tai-chart/Chart.yaml
           fi
 
+      # Bumping the version-law source files above doesn't by itself propagate
+      # the new version into generated docs (README.md's merge region,
+      # generated_commands.rs, Cargo.lock's workspace-member versions, ...).
+      # Discovered live: the Publish Candidate workflow's docs-sync drift gate
+      # correctly refused a real bump (#290's 26.9.4) because README.md still
+      # said 26.9.3 -- this step closes that gap the way the version law
+      # itself defines it: edit the source fields, then run `ggen sync run` to
+      # propagate, in the SAME commit.
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Build ggen CLI
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Propagate version into generated docs (ggen sync run)
+        run: ./target/debug/ggen sync run
+
       - name: Commit version bump via PR
         # main has a repository ruleset ("Changes must be made through a pull
         # request") — a direct `git push` here is rejected with GH013
@@ -230,6 +247,13 @@ jobs:
           # did: the pathspec error made git add fail atomically for BOTH
           # arguments, and `|| true` silently swallowed it).
           git add Cargo.toml .specify/repo-facts.ttl ggen.toml crates/ggen-engine/Cargo.toml
+          # This job runs from a fresh checkout every time (fetch-depth: 0,
+          # nothing else touches the tree beforehand), so the only diffs
+          # present at this point are exactly what the version-law sed edits
+          # and `ggen sync run` above produced -- `git add -A` is safe here
+          # (not a general-purpose "stage everything", which would be unsafe
+          # in a normal dev checkout with unrelated local changes).
+          git add -A
           shopt -s nullglob
           helm_charts=(helm/*/Chart.yaml)
           if [ ${#helm_charts[@]} -gt 0 ]; then
