@@ -1397,19 +1397,26 @@ ghcli:DriftReport a ghcli:Command ;
     ghcli:doc "Runs terraform plan -detailed-exitcode in the generated module dir; classifies create/update/replace/delete and assigns andon per 第二十三章 (any delete => YELLOW; protection/secret/required-check removal => RED)" ;
     ghcli:scriptBody """#!/usr/bin/env bash
 set -euo pipefail
-# Usage: drift-report.sh [--dir <terraform-dir>]
-dir="infra/terraform/github"
+# Usage: drift-report.sh [--dir <terraform-dir>] [--owner <o>] [--repo <name>] [--secret-value <v>]
+dir="infra/terraform/github" ; owner="" ; repo="" ; secret=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) dir="$2"; shift 2 ;;
+    --owner) owner="$2"; shift 2 ;;
+    --repo) repo="$2"; shift 2 ;;
+    --secret-value) secret="$2"; shift 2 ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 [ -d "$dir" ] || { echo "terraform dir not found: $dir" >&2; exit 2; }
 cd "$dir"
+vars=()
+[ -n "$owner" ] && vars+=("-var=github_owner=${owner}")
+[ -n "$repo" ] && vars+=("-var=repository=${repo}")
+[ -n "$secret" ] && vars+=("-var=ggen_signing_key_value=${secret}")
 plan_out=$(mktemp)
 set +e
-terraform plan -detailed-exitcode -no-color > "$plan_out" 2>&1
+terraform plan -detailed-exitcode -no-color -input=false ${vars[@]+"${vars[@]}"} > "$plan_out" 2>&1
 code=$?
 set -e
 case "$code" in
@@ -1441,17 +1448,17 @@ ghtf:L5Condition a rdfs:Class ;
 ghtf:L5C01 a ghtf:L5Condition ; ghtf:num 1 ; ghtf:statement "全GitHub管理資源型を意味図式として認識する" ; ghtf:standing "ALIVE" ; ghtf:evidence "87/87 provider resource types + 75/75 data sources as catalog individuals in this ontology" .
 ghtf:L5C02 a ghtf:L5Condition ; ghtf:num 2 ; ghtf:statement "TCPSの望ましい状態を意味個体として持つ" ; ghtf:standing "PARTIAL" ; ghtf:evidence "repository settings + branch protection + 10 labels + milestone + secret-name declared; environments/team-access not yet instantiated" .
 ghtf:L5C03 a ghtf:L5Condition ; ghtf:num 3 ; ghtf:statement "Terraform構成を完全生成する" ; ghtf:standing "PARTIAL" ; ghtf:evidence "per-family .tf split generated; issues/teams/collaborators/environments/webhooks/files render as declared-empty placeholders" .
-ghtf:L5C04 a ghtf:L5Condition ; ghtf:num 4 ; ghtf:statement "gh CLI標準作業を完全生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "12/12 scripts of 第十七章 generated with arg-refusal and read/write separation" .
+ghtf:L5C04 a ghtf:L5Condition ; ghtf:num 4 ; ghtf:statement "gh CLI標準作業を完全生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "17/17 scripts generated (第十七章の12本 + accept-* acceptance standard work 5本) with arg-refusal and read/write separation" .
 ghtf:L5C05 a ghtf:L5Condition ; ghtf:num 5 ; ghtf:statement "説明書を完全生成する" ; ghtf:standing "PARTIAL" ; ghtf:evidence "catalog fan-out docs + core Japanese docs generated; per-chapter manuals partially stubbed" .
 ghtf:L5C06 a ghtf:L5Condition ; ghtf:num 6 ; ghtf:statement "検査票を生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "gates/010_required.rq extended over catalog+instances+commands" .
 ghtf:L5C07 a ghtf:L5Condition ; ghtf:num 7 ; ghtf:statement "清浄利用先で手直しなしに生成できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "gh_terraform_pack_e2e scaffolds a clean consumer and syncs untouched" .
 ghtf:L5C08 a ghtf:L5Condition ; ghtf:num 8 ; ghtf:statement "Terraform検証を通過する" ; ghtf:standing "ALIVE" ; ghtf:evidence "terraform init -backend=false && terraform validate green on generated module" .
 ghtf:L5C09 a ghtf:L5Condition ; ghtf:num 9 ; ghtf:statement "二回同期が一致する" ; ghtf:standing "ALIVE" ; ghtf:evidence "second sync writes nothing; ggen.lock byte-identical (e2e-asserted)" .
-ghtf:L5C10 a ghtf:L5Condition ; ghtf:num 10 ; ghtf:statement "使い捨てGitHubリポジトリで実地試験を通過する" ; ghtf:standing "実地未確認" ; ghtf:evidence "acceptance test exists, env-gated; not yet executed against a throwaway repo" .
-ghtf:L5C11 a ghtf:L5Condition ; ghtf:num 11 ; ghtf:statement "漂流を検知する" ; ghtf:standing "実地未確認" ; ghtf:evidence "drift-report.sh + acceptance drift-injection step exist; not yet executed live" .
-ghtf:L5C12 a ghtf:L5Condition ; ghtf:num 12 ; ghtf:statement "漂流を修復できる" ; ghtf:standing "実地未確認" ; ghtf:evidence "restore step in acceptance test; not yet executed live" .
+ghtf:L5C10 a ghtf:L5Condition ; ghtf:num 10 ; ghtf:statement "使い捨てGitHubリポジトリで実地試験を通過する" ; ghtf:standing "ALIVE" ; ghtf:evidence "full cycle green via generated standard work (accept-setup/import/apply/verify): receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20; verify pass with 19 labels, protection_contexts=5, delete_branch_on_merge=true" .
+ghtf:L5C11 a ghtf:L5Condition ; ghtf:num 11 ; ghtf:statement "漂流を検知する" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-drift-inject.sh mutated 異常 out-of-band; drift-report.sh returned drift=detected (plan -detailed-exitcode 2): receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20" .
+ghtf:L5C12 a ghtf:L5Condition ; ghtf:num 12 ; ghtf:statement "漂流を修復できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-apply.sh re-converged; drift-report.sh returned drift=none after repair: receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20" .
 ghtf:L5C13 a ghtf:L5Condition ; ghtf:num 13 ; ghtf:statement "削除を特別承認へ送る" ; ghtf:standing "PARTIAL" ; ghtf:evidence "drift-report.sh classifies deletes as YELLOW/RED; approval workflow is convention, not mechanized" .
-ghtf:L5C14 a ghtf:L5Condition ; ghtf:num 14 ; ghtf:statement "作動結果を受領する" ; ghtf:standing "PARTIAL" ; ghtf:evidence "generation side receipted via ggen chain; apply-side receipt schema defined, no live apply yet" .
+ghtf:L5C14 a ghtf:L5Condition ; ghtf:num 14 ; ghtf:statement "作動結果を受領する" ; ghtf:standing "PARTIAL" ; ghtf:evidence "generation side receipted via ggen chain; live acceptance run emitted its JSON receipt (receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20); apply-side receipts not yet chain-linked to .ggen-v2" .
 ghtf:L5C15 a ghtf:L5Condition ; ghtf:num 15 ; ghtf:statement "提供者版更新を意味図式から処理できる" ; ghtf:standing "PARTIAL" ; ghtf:evidence "version facts + 9-step procedure recorded; procedure never executed" .
 ghtf:L5C16 a ghtf:L5Condition ; ghtf:num 16 ; ghtf:statement "複数TCPSリポジトリへ適用できる" ; ghtf:standing "未実施" ; ghtf:evidence "repository is a variable, but only one consumer exercised" .
 ghtf:L5C17 a ghtf:L5Condition ; ghtf:num 17 ; ghtf:statement "利用者がTerraform資源詳細を知らなくても管理できる" ; ghtf:standing "PARTIAL" ; ghtf:evidence "instances + generated docs cover the common path; new resource types still require ontology literacy" .
@@ -1588,4 +1595,116 @@ GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (第六章�
 | standing上限 | 実地未確認 | PARTIAL | ALIVE (L5-STATUS.md) |
 
 受領証の存在しないGitHub変更を、TCPS正式作動として扱ってはならない。
+""" .
+
+#################################################################
+# Acceptance standard work (第二十四章) — the acceptance cycle itself is
+# generated standard work, not test-inlined commands (法則七). Label
+# tf-address/name facts feed accept-import.sh's projection.
+#################################################################
+
+ghtf:MainBranchProtection ghtf:tfAddress "github_branch_protection.main" .
+ghtf:L5ConditionLabel ghtf:tfAddress "github_issue_label.l5_condition" ; ghtf:labelName "l5-condition" .
+ghtf:LabelIjou ghtf:tfAddress "github_issue_label.ijou" ; ghtf:labelName "異常" .
+ghtf:LabelKaizen ghtf:tfAddress "github_issue_label.kaizen" ; ghtf:labelName "改善" .
+ghtf:LabelL5Jouken ghtf:tfAddress "github_issue_label.l5_jouken" ; ghtf:labelName "第五水準条件" .
+ghtf:LabelShoukoMachi ghtf:tfAddress "github_issue_label.shouko_machi" ; ghtf:labelName "証拠待ち" .
+ghtf:LabelKakuri ghtf:tfAddress "github_issue_label.kakuri" ; ghtf:labelName "隔離" .
+ghtf:LabelKoukaiTeishi ghtf:tfAddress "github_issue_label.koukai_teishi" ; ghtf:labelName "公開停止" .
+ghtf:LabelJuryouZumi ghtf:tfAddress "github_issue_label.juryou_zumi" ; ghtf:labelName "受領済み" .
+ghtf:LabelTerraformHyouryuu ghtf:tfAddress "github_issue_label.terraform_hyouryuu" ; ghtf:labelName "Terraform漂流" .
+ghtf:LabelGhSadouMachi ghtf:tfAddress "github_issue_label.gh_sadou_machi" ; ghtf:labelName "gh作動待ち" .
+
+ghcli:AcceptSetup a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "setup" ;
+    ghcli:scriptName "accept-setup.sh" ; ghcli:mutating true ;
+    ghcli:doc "Idempotent sandbox setup: create private repo if absent; bootstrap main branch if missing. Never deletes." ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-setup.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-setup.sh --repo <owner/name>" >&2; exit 2; }
+if ! gh api "repos/${repo}" >/dev/null 2>&1; then
+  gh repo create "$repo" --private
+  echo "created ${repo}"
+else
+  echo "reusing ${repo}"
+fi
+if ! gh api "repos/${repo}/branches/main" >/dev/null 2>&1; then
+  content=$(printf 'TCPS sandbox' | base64)
+  gh api -X PUT "repos/${repo}/contents/README.md" -f message="TCPS sandbox bootstrap commit" -f content="$content" >/dev/null
+  echo "bootstrapped main branch"
+fi
+""" .
+
+ghcli:AcceptApply a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "apply" ;
+    ghcli:scriptName "accept-apply.sh" ; ghcli:mutating true ;
+    ghcli:doc "Full terraform apply of the TCPS desired state onto the sandbox (第四段階作動 — sandbox only)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-apply.sh --dir <tf-dir> --owner <owner> --repo <name> [--secret-value <v>]
+dir="" ; owner="" ; repo="" ; secret="sandbox-dummy-value"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dir) dir="$2"; shift 2 ;;
+    --owner) owner="$2"; shift 2 ;;
+    --repo) repo="$2"; shift 2 ;;
+    --secret-value) secret="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$dir" ] && [ -n "$owner" ] && [ -n "$repo" ] || { echo "usage: accept-apply.sh --dir <tf-dir> --owner <owner> --repo <name> [--secret-value <v>]" >&2; exit 2; }
+cd "$dir"
+terraform apply -auto-approve -input=false "-var=github_owner=${owner}" "-var=repository=${repo}" "-var=ggen_signing_key_value=${secret}"
+""" .
+
+ghcli:AcceptDriftInject a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "drift-inject" ;
+    ghcli:scriptName "accept-drift-inject.sh" ; ghcli:mutating true ;
+    ghcli:doc "Sanctioned sabotage (第二十四章五号): mutate the 異常 label color out-of-band so drift detection can be proven" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-drift-inject.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-drift-inject.sh --repo <owner/name>" >&2; exit 2; }
+gh api -X PATCH "repos/${repo}/labels/異常" -f color=ffffff >/dev/null
+echo "drift injected: 異常 color=ffffff on ${repo}"
+""" .
+
+ghcli:AcceptVerify a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "verify" ;
+    ghcli:scriptName "accept-verify.sh" ; ghcli:mutating false ;
+    ghcli:doc "現地現物 verification of the applied desired state: labels present, merge policy, protection contexts >= 4; JSON summary" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-verify.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-verify.sh --repo <owner/name>" >&2; exit 2; }
+labels=$(gh api "repos/${repo}/labels" --jq '.[].name')
+echo "$labels" | grep -q "異常" || { echo "FAIL: label 異常 missing" >&2; exit 1; }
+dbm=$(gh api "repos/${repo}" --jq '.delete_branch_on_merge')
+[ "$dbm" = "true" ] || { echo "FAIL: delete_branch_on_merge=${dbm}" >&2; exit 1; }
+ctx=$(gh api "repos/${repo}/branches/main/protection" --jq '.required_status_checks.contexts | length')
+[ "${ctx:-0}" -ge 4 ] || { echo "FAIL: protection contexts=${ctx}" >&2; exit 1; }
+labelcount=$(echo "$labels" | grep -c . || true)
+echo '{"verify":"pass","repo":"'"$repo"'","labels":'"$labelcount"',"delete_branch_on_merge":true,"protection_contexts":'"$ctx"'}'
 """ .

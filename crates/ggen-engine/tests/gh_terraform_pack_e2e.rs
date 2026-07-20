@@ -84,7 +84,7 @@ const TF_FILES: [&str; 16] = [
     "README.md",
 ];
 
-const SCRIPTS: [&str; 12] = [
+const SCRIPTS: [&str; 17] = [
     "pr-create.sh",
     "pr-checks.sh",
     "pr-view-mergeable.sh",
@@ -97,6 +97,11 @@ const SCRIPTS: [&str; 12] = [
     "release-view.sh",
     "repo-state.sh",
     "drift-report.sh",
+    "accept-setup.sh",
+    "accept-import.sh",
+    "accept-apply.sh",
+    "accept-drift-inject.sh",
+    "accept-verify.sh",
 ];
 
 #[test]
@@ -232,16 +237,48 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         "drift-report.sh must use -detailed-exitcode: {drift}"
     );
 
+    // (5b) accept-import.sh projects ALL 10 label names from the ontology
+    // (ontology projection, not a hand-maintained list), and runs its own
+    // terraform init.
+    let accept_import = read(&project, "scripts/gh/accept-import.sh");
+    for label in [
+        "異常",
+        "改善",
+        "第五水準条件",
+        "証拠待ち",
+        "隔離",
+        "公開停止",
+        "受領済み",
+        "Terraform漂流",
+        "gh作動待ち",
+        "l5-condition",
+    ] {
+        assert!(
+            accept_import.contains(label),
+            "accept-import.sh missing projected label {label}: {accept_import}"
+        );
+    }
+    assert!(
+        accept_import.contains("terraform init"),
+        "accept-import.sh must self-init: {accept_import}"
+    );
+
     // (6a) ggen.lock records the pack.
     let lock = read(&project, "ggen.lock");
     assert!(lock.contains("[packs.gh-terraform-pack]"), "lock: {lock}");
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
-    // (7) L5 standing doc keeps its honest 実地未確認 marker.
+    // (7) L5 standing doc keeps honest non-green markers for genuinely
+    // unexercised conditions (multi-repo application, hand-off improvement),
+    // and carries the live acceptance receipt hash for the ALIVE rows.
     let l5 = read(&project, "docs/gh-terraform/L5-STATUS.md");
     assert!(
-        l5.contains("実地未確認"),
-        "L5-STATUS.md must preserve the honest unverified marker: {l5}"
+        l5.contains("未実施"),
+        "L5-STATUS.md must preserve honest 未実施 markers: {l5}"
+    );
+    assert!(
+        l5.contains("blake3:80aa8e6d"),
+        "L5-STATUS.md ALIVE rows must cite the live acceptance receipt: {l5}"
     );
 
     // (6) Second sync is a no-op: nothing written, lock byte-identical.

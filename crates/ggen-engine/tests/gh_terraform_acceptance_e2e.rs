@@ -1,8 +1,18 @@
 //! Tier-2 REAL-API acceptance test for `packs/gh-terraform-pack` per TCPS
 //! spec 第二十四・二十五章 (現地現物: go and see the real GitHub API state).
 //!
-//! Chicago TDD, real collaborators only: real `gh` CLI, real `terraform`
-//! binary, real GitHub API, a real throwaway repository. No mocks.
+//! Chicago TDD with the GENERATED artifacts as the real collaborators: the
+//! test syncs the pack, then drives the generated `scripts/gh/accept-*.sh`
+//! standard work — it never re-implements the gh/terraform operations inline
+//! (法則七: 人の記憶を標準にしない). The only direct process spawns are the
+//! two prerequisite probes in `gate()` (the irreducible bootstrap that must
+//! precede any generated artifact existing) and the generated scripts
+//! themselves.
+//!
+//! Repo deletion is deliberately NOT tested (user decision, 2026-07-20). The
+//! sandbox repo `<owner>/tcps-accept-test-sandbox` is created once if absent,
+//! reused across runs, and LEFT carrying the full TCPS desired state — it IS
+//! the living L5 exemplar repository.
 //!
 //! Ignored by default (Tier 2). Run explicitly:
 //!
@@ -12,13 +22,9 @@
 //! cargo test -p ggen-engine --test gh_terraform_acceptance_e2e -- --ignored --nocapture
 //! ```
 //!
-//! Prerequisites (the test panics loudly if any is missing):
-//! - `terraform` on PATH
-//! - `gh` on PATH and authenticated (`gh auth login`), ideally with the
-//!   `delete_repo` scope so the throwaway repo can be cleaned up.
-//!
-//! Env: `TCPS_ACCEPTANCE_PREFIX` overrides the throwaway repo name prefix
-//! (default `tcps-accept-test`).
+//! Prerequisites (panics loudly if missing): `terraform` on PATH; `gh`
+//! authenticated. Env: `TCPS_ACCEPTANCE_PREFIX` overrides the sandbox name
+//! prefix (default `tcps-accept-test`, sandbox = `<prefix>-sandbox`).
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -83,18 +89,27 @@ fn run(cmd: &mut Command) -> (i32, String, String) {
     )
 }
 
-fn run_ok(cmd: &mut Command, what: &str) -> String {
-    let (code, stdout, stderr) = run(cmd);
+/// Run one of the GENERATED standard-work scripts; return (exit, stdout, stderr).
+fn run_script(project: &Path, script: &str, args: &[&str]) -> (i32, String, String) {
+    let path = project.join("scripts/gh").join(script);
+    assert!(path.is_file(), "generated script missing: {script}");
+    run(Command::new("bash").arg(&path).args(args))
+}
+
+/// Run a generated script and require exit 0.
+fn script_ok(project: &Path, script: &str, args: &[&str]) -> String {
+    let (code, stdout, stderr) = run_script(project, script, args);
     assert_eq!(
         code, 0,
-        "{what} failed (exit {code})\nstdout:\n{stdout}\nstderr:\n{stderr}"
+        "{script} {args:?} failed (exit {code})\nstdout:\n{stdout}\nstderr:\n{stderr}"
     );
     stdout
 }
 
-/// Gate: hard panic with instructions if a prerequisite is missing
-/// (modeled on crates/ggen-cli/tests/llm_e2e_test.rs env gating).
-fn gate() -> (String, String) {
+/// Gate: the irreducible bootstrap boundary — the only direct spawns in this
+/// test. Everything past this point goes through generated standard work.
+/// (Modeled on crates/ggen-cli/tests/llm_e2e_test.rs env gating.)
+fn gate() -> String {
     if Command::new("terraform").arg("version").output().is_err() {
         panic!(
             "\n=== PREREQUISITE MISSING: terraform ===\n\
@@ -103,107 +118,32 @@ fn gate() -> (String, String) {
              Then re-run: just tf-acceptance\n"
         );
     }
-    let (code, token, stderr) = run(Command::new("gh").args(["auth", "token"]));
-    if code != 0 || token.trim().is_empty() {
+    let (code, owner, stderr) = run(Command::new("gh").args(["api", "user", "--jq", ".login"]));
+    if code != 0 || owner.trim().is_empty() {
         panic!(
             "\n=== PREREQUISITE MISSING: gh authentication ===\n\
              This Tier-2 acceptance test requires an authenticated GitHub CLI.\n\
-             Run: gh auth login   (ideally with the delete_repo scope:\n\
-                  gh auth refresh -h github.com -s delete_repo)\n\
+             Run: gh auth login\n\
              Then re-run: just tf-acceptance\n\
              gh stderr: {stderr}\n"
         );
     }
-    let owner = run_ok(
-        Command::new("gh").args(["api", "user", "--jq", ".login"]),
-        "gh api user",
-    );
-    (token.trim().to_owned(), owner.trim().to_owned())
-}
-
-// ── throwaway repo + cleanup guard ──────────────────────────────────────────
-
-struct ThrowawayRepo {
-    full_name: String, // owner/name
-}
-
-impl Drop for ThrowawayRepo {
-    fn drop(&mut self) {
-        let (code, _stdout, stderr) =
-            run(Command::new("gh").args(["repo", "delete", &self.full_name, "--yes"]));
-        if code != 0 {
-            // Never panic in Drop — but be LOUD about the leaked repo.
-            eprintln!(
-                "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\
-                 !!! LEAKED THROWAWAY REPO: {name}\n\
-                 !!! `gh repo delete {name} --yes` failed (exit {code}).\n\
-                 !!! Likely missing the delete_repo scope. Fix with:\n\
-                 !!!   gh auth refresh -h github.com -s delete_repo\n\
-                 !!!   gh repo delete {name} --yes\n\
-                 !!! stderr: {stderr}\n\
-                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n",
-                name = self.full_name,
-            );
-        } else {
-            eprintln!("[cleanup] deleted throwaway repo {}", self.full_name);
-        }
-    }
+    owner.trim().to_owned()
 }
 
 // ── the acceptance test ─────────────────────────────────────────────────────
 
-/// The label resource addresses in the generated main.tf we target-apply.
-/// Targeted apply avoids the github_repository resource conflicting with the
-/// pre-created throwaway repo.
-const LABEL_TARGETS: &[&str] = &[
-    "github_issue_label.ijou",
-    "github_issue_label.kaizen",
-    "github_issue_label.l5_jouken",
-    "github_issue_label.shouko_machi",
-    "github_issue_label.kakuri",
-    "github_issue_label.koukai_teishi",
-    "github_issue_label.juryou_zumi",
-    "github_issue_label.terraform_hyouryuu",
-    "github_issue_label.gh_sadou_machi",
-    "github_issue_label.l5_condition",
-];
-
-fn tf(dir: &Path, token: &str, args: &[&str]) -> (i32, String, String) {
-    let mut cmd = Command::new("terraform");
-    cmd.current_dir(dir).env("GITHUB_TOKEN", token).args(args);
-    run(&mut cmd)
-}
-
-fn with_targets_and_vars(base: &[&str], owner: &str, repo: &str) -> Vec<String> {
-    let mut v: Vec<String> = base.iter().map(|s| (*s).to_owned()).collect();
-    for t in LABEL_TARGETS {
-        v.push(format!("-target={t}"));
-    }
-    v.push(format!("-var=github_owner={owner}"));
-    v.push(format!("-var=repository={repo}"));
-    v
-}
-
 #[test]
 #[ignore] // Tier 2: real GitHub API + terraform. Run via `just tf-acceptance`.
 fn gh_terraform_pack_acceptance_real_api() {
-    // 1. Gate + credential bootstrap (via gh; user-authorized).
-    let (token, owner) = gate();
-    let prefix =
-        std::env::var("TCPS_ACCEPTANCE_PREFIX").unwrap_or_else(|_| "tcps-accept-test".to_owned());
-    let repo_name = format!("{prefix}-{}", std::process::id());
+    // 1. Gate (bootstrap boundary) + sandbox identity.
+    let owner = gate();
+    let repo_name = std::env::var("TCPS_ACCEPTANCE_PREFIX")
+        .unwrap_or_else(|_| "tcps-accept-test".to_owned())
+        + "-sandbox";
     let full_name = format!("{owner}/{repo_name}");
 
-    // 2. Create throwaway repo (private); guard deletes it on Drop.
-    run_ok(
-        Command::new("gh").args(["repo", "create", &full_name, "--private"]),
-        "gh repo create",
-    );
-    let _guard = ThrowawayRepo {
-        full_name: full_name.clone(),
-    };
-
-    // 3. Scaffold consumer + sync the pack (real ggen pipeline).
+    // 2. Sync the pack — from here on, generated standard work only.
     let (_dir, project) = scaffold();
     let result = sync(
         &project,
@@ -222,105 +162,86 @@ fn gh_terraform_pack_acceptance_real_api() {
         .trim_matches('"')
         .to_owned();
     let tf_dir = project.join("infra/terraform/github");
+    let tf_dir_s = tf_dir.to_string_lossy().into_owned();
 
-    // 4. terraform init + TARGETED apply of the label resources only.
-    let (init_code, init_out, init_err) = tf(&tf_dir, &token, &["init", "-input=false"]);
-    assert_eq!(
-        init_code, 0,
-        "terraform init failed:\n{init_out}\n{init_err}"
+    // 3. accept-setup.sh — idempotent sandbox setup (create-if-absent, never delete).
+    let setup_out = script_ok(&project, "accept-setup.sh", &["--repo", &full_name]);
+    println!("[setup] {}", setup_out.trim());
+
+    // 4. accept-import.sh (runs terraform init itself if needed) — import-convergence of everything already remote.
+    script_ok(
+        &project,
+        "accept-import.sh",
+        &["--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name],
     );
 
-    let apply_args = with_targets_and_vars(
-        &["apply", "-auto-approve", "-input=false"],
-        &owner,
-        &repo_name,
-    );
-    let apply_refs: Vec<&str> = apply_args.iter().map(String::as_str).collect();
-    let (apply_code, apply_out, apply_err) = tf(&tf_dir, &token, &apply_refs);
-    assert_eq!(
-        apply_code, 0,
-        "targeted terraform apply failed:\n{apply_out}\n{apply_err}"
+    // 5. accept-apply.sh — FULL desired state onto the sandbox (L5 exemplar).
+    script_ok(
+        &project,
+        "accept-apply.sh",
+        &["--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name],
     );
 
-    // 5. 現地現物: verify via the real GitHub API that 異常 exists.
-    let labels_json = run_ok(
-        Command::new("gh").args([
-            "api",
-            &format!("repos/{full_name}/labels"),
-            "--jq",
-            ".[].name",
-        ]),
-        "gh api labels",
+    // 6. accept-verify.sh — 現地現物 (labels, merge policy, protection contexts).
+    let verify1 = script_ok(&project, "accept-verify.sh", &["--repo", &full_name]);
+    assert!(
+        verify1.contains("\"verify\":\"pass\""),
+        "verify after apply: {verify1}"
+    );
+
+    // 7. Drift cycle: inject → drift-report detects (exit 1, andon YELLOW,
+    //    drift detected via plan exit 2) → repair apply → drift-report clean.
+    script_ok(&project, "accept-drift-inject.sh", &["--repo", &full_name]);
+    let (drift_code, drift_out, drift_err) = run_script(
+        &project,
+        "drift-report.sh",
+        &[
+            "--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name,
+            "--secret-value", "sandbox-dummy-value",
+        ],
+    );
+    assert_ne!(
+        drift_code, 0,
+        "drift-report must be non-zero on drift:\n{drift_out}\n{drift_err}"
     );
     assert!(
-        labels_json.lines().any(|l| l.trim() == "異常"),
-        "label 異常 not found on {full_name}; labels:\n{labels_json}"
+        drift_out.contains("\"drift\":\"detected\""),
+        "drift-report output: {drift_out}"
     );
 
-    // 6. Drift injection: mutate 異常's color out-of-band, expect plan exit 2.
-    run_ok(
-        Command::new("gh").args([
-            "api",
-            "-X",
-            "PATCH",
-            &format!("repos/{full_name}/labels/異常"),
-            "-f",
-            "color=ffffff",
-        ]),
-        "gh api PATCH label (drift injection)",
+    script_ok(
+        &project,
+        "accept-apply.sh",
+        &["--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name],
     );
-    let plan_args = with_targets_and_vars(
-        &["plan", "-detailed-exitcode", "-input=false"],
-        &owner,
-        &repo_name,
+    let clean_out = script_ok(
+        &project,
+        "drift-report.sh",
+        &[
+            "--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name,
+            "--secret-value", "sandbox-dummy-value",
+        ],
     );
-    let plan_refs: Vec<&str> = plan_args.iter().map(String::as_str).collect();
-    let (drift_plan_code, drift_out, drift_err) = tf(&tf_dir, &token, &plan_refs);
-    assert_eq!(
-        drift_plan_code, 2,
-        "expected drift (plan exit 2), got {drift_plan_code}:\n{drift_out}\n{drift_err}"
+    assert!(
+        clean_out.contains("\"drift\":\"none\""),
+        "drift-report after repair: {clean_out}"
     );
 
-    // Re-apply repairs the drift; plan then exits 0.
-    let (reapply_code, reapply_out, reapply_err) = tf(&tf_dir, &token, &apply_refs);
-    assert_eq!(
-        reapply_code, 0,
-        "repair apply failed:\n{reapply_out}\n{reapply_err}"
+    // 8. Final 現地現物 + receipt. The sandbox keeps the full desired state.
+    let verify2 = script_ok(&project, "accept-verify.sh", &["--repo", &full_name]);
+    assert!(
+        verify2.contains("\"verify\":\"pass\""),
+        "final verify: {verify2}"
     );
-    let (clean_plan_code, clean_out, clean_err) = tf(&tf_dir, &token, &plan_refs);
-    assert_eq!(
-        clean_plan_code, 0,
-        "expected clean plan (exit 0) after repair, got {clean_plan_code}:\n{clean_out}\n{clean_err}"
-    );
-
-    // 7. Targeted destroy, then Drop deletes the repo.
-    let destroy_args = with_targets_and_vars(
-        &["destroy", "-auto-approve", "-input=false"],
-        &owner,
-        &repo_name,
-    );
-    let destroy_refs: Vec<&str> = destroy_args.iter().map(String::as_str).collect();
-    let (destroy_code, destroy_out, destroy_err) = tf(&tf_dir, &token, &destroy_refs);
-    assert_eq!(
-        destroy_code, 0,
-        "targeted terraform destroy failed:\n{destroy_out}\n{destroy_err}"
-    );
-
-    // 8. Receipt JSON (printed; --nocapture makes it visible).
     println!(
         "{{\"receipt\":\"gh-terraform-acceptance\",\
          \"pack_content_hash\":\"{content_hash}\",\
          \"repo\":\"{full_name}\",\
-         \"steps\":{{\"init\":{init_code},\"apply\":{apply_code},\
-         \"drift_plan\":{drift_plan_code},\"repair_apply\":{reapply_code},\
-         \"clean_plan\":{clean_plan_code},\"destroy\":{destroy_code}}}}}"
-    );
-
-    // Drop the guard now so we can verify deletion happened (現地現物).
-    drop(_guard);
-    let (get_code, _o, _e) = run(Command::new("gh").args(["api", &format!("repos/{full_name}")]));
-    assert_ne!(
-        get_code, 0,
-        "throwaway repo {full_name} still exists after cleanup"
+         \"exemplar_left_applied\":true,\
+         \"standard_work\":[\"accept-setup.sh\",\"accept-import.sh\",\
+         \"accept-apply.sh\",\"accept-verify.sh\",\"accept-drift-inject.sh\",\
+         \"drift-report.sh\"],\
+         \"verify\":{verify}}}",
+        verify = verify2.trim(),
     );
 }
