@@ -479,3 +479,11 @@ docs-sync:
     python3 book/scripts/check_book.py
     python3 book/scripts/check_level_five.py
     echo "docs-sync: root manuals + book re-synced, checkers green"
+
+# ── Tier-2 REAL-API acceptance (gh-terraform-pack) ────────────────────────────
+
+# Real GitHub API + terraform acceptance test (TCPS 第二十四・二十五章).
+# Requires: terraform on PATH, `gh auth login` (ideally with delete_repo scope).
+# Creates and deletes a throwaway private repo. Ignored in normal test runs.
+tf-acceptance:
+    cargo test -p ggen-engine --test gh_terraform_acceptance_e2e -- --ignored --nocapture

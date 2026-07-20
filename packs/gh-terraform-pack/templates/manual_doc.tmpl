@@ -1,0 +1,10 @@
+---
+to: "docs/gh-terraform/{{ docName }}.md"
+sparql:
+  rows: |
+    PREFIX ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#>
+    SELECT ?docName ?content WHERE {
+      ?s a ghtf:ManualDoc ; ghtf:docName ?docName ; ghtf:content ?content .
+    } ORDER BY ?docName
+---
+{{ content }}
