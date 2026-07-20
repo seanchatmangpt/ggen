@@ -37,17 +37,22 @@ deterministic-build tooling.
 | 17 | 第二世代受領証が使用される (generation-2 receipts are used) | PARTIAL | Receipt v2 schema work is in progress (see task #104); not yet the sole receipt format everywhere |
 | 18 | 旧受領証から新受領証への移行が受領される (migration from old to new receipt format is itself receipted) | PARTIAL | Migration work in progress; no closing migration receipt yet |
 | 19 | 受領鎖を再生すると同じ憲法判定になる (replaying the receipt chain reproduces the same judgment) | PARTIAL | `ggen receipt verify` checks chain-hash integrity; full judgment-replay determinism is not separately proven |
-| 20 | 実行形式が定められた再現環境で再現される (the executable reproduces in a defined reproducible environment) | NOT MET | No reproducible-build pipeline (bit-identical rebuild) exists for ggen's own binary |
-| 21 | 配布物が独立して再生成される (distributed artifacts are independently regenerated) | NOT MET | Not attempted |
+| 20 | 実行形式が定められた再現環境で再現される (the executable reproduces in a defined reproducible environment) | PARTIAL | Updated from NOT MET: two fully independent `cargo build -p ggen-cli-lib --bin ggen --locked --release` invocations (separate `CARGO_TARGET_DIR`s, zero shared incremental state, same commit/toolchain/Cargo.lock) produced BIT-IDENTICAL binaries (`gen:ReproducibleBuildTest`, sha256 `64f494c2...` on both). Precisely scoped: this proves same-host/same-toolchain determinism, not cross-host/cross-OS reproducibility, which the condition's "defined reproducible environment" more strongly implies -- that stronger claim (`gen:crossHostVerified`) remains unverified, hence PARTIAL not ALIVE |
+| 21 | 配布物が独立して再生成される (distributed artifacts are independently regenerated) | ALIVE | Updated from NOT MET: the book's distributed artifacts (`book/dist/*`, `MANIFEST.sha256`, 935 files) were regenerated twice, fully independently (`book/` copied to two unrelated directories, `assemble_book.py`/`build_static_html.py`/`generate_manifest.py` run separately in each) -- `diff -rq` across both `dist/` trees and both manifests produced ZERO differences (`gen:IndependentArtifactRegenTest`). A real, directly-verified independent regeneration, not assumed |
 | 22 | 改善一件を手直しなしで次世代へ渡す (one real improvement passes to the next generation with zero manual touch-up) | PARTIAL | The version-law auto-propagation fix (PR #291) has held with zero manual intervention across two subsequent semantic-release auto-bump generations observed live (26.9.4->26.9.5->26.9.6: repo-facts.ttl/ggen.toml/ggen-engine's pin/README.md/Cargo.lock all stayed correctly in sync both times). This is real, narrow evidence for ONE specific improvement -- not yet formally receipted through the evidence-carrying path condition 10 requires (it's an agent's transcript observation, not a machine-checked receipt object). Conditions 2-4's candidate-generates-next-generation ggen loop is now ALIVE (see above), but that loop has not yet carried an actual code IMPROVEMENT across a generation boundary (G2->G3 changed nothing, by design, to prove idempotency) -- this row stays PARTIAL until a real improvement is shown surviving that specific loop |
 | 23 | 公開判定自体が受領証へ記録される (the publication judgment itself is recorded to a receipt) | ALIVE | Verified directly against a real, current receipt: `.ggen-v2/receipt.json`'s `payload.outputs` map contains `"docs/PUBLICATION_JUDGMENT.md": "<blake3-ish content hash>"` on every real `ggen sync run` -- this document's own content is genuinely, automatically recorded into the receipt chain, not merely capable of being. No SEPARATE dedicated field exists (e.g. a distinct `publication_judgment_hash` key) -- the generic per-output hash map is what carries it, which is what the condition's own wording asks for, nothing more |
 
 ## Conclusion
 
 Per 第二十九章's own rule, one unmet condition is sufficient to withhold Level Five publication.
-Conditions 20 and 21 above are NOT MET (reproducible/bit-identical builds, independently
-regenerated distribution artifacts) -- genuinely unstarted engineering, not narration. Every
-other row now reads ALIVE or PARTIAL-with-documented-rationale. **ggen remains a release
-candidate, not a Level Five publication, until 20 and 21 close.** `RELEASE_STANDING.json`/`.md`
-record `l5_publication_claim: WITHHELD` accordingly.
+No row above reads NOT MET as of this update. Condition 20 (reproducible builds) is PARTIAL:
+same-host bit-identical reproducibility is real and verified, but cross-host/cross-OS
+reproducibility -- the stronger claim "a defined reproducible environment" implies -- has not
+been verified (no second, independently-provisioned build host was used this pass). Conditions
+8 (semantic-contamination check) and 17-19 (generation-2 receipts as the sole format, closing
+migration receipt, full judgment-replay determinism) remain PARTIAL/UNVERIFIED with their own
+documented gaps above. **ggen remains a release candidate, not a confirmed Level Five
+publication, until every PARTIAL/UNVERIFIED row closes to ALIVE -- this pack does not declare
+that threshold crossed by itself.** `RELEASE_STANDING.json`/`.md` record
+`l5_publication_claim: WITHHELD` accordingly.
 
