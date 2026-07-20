@@ -146,8 +146,15 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: just guard-process-intelligence-boundary
-        run: just guard-process-intelligence-boundary
+      # Call the script directly, not via `just guard-process-intelligence-boundary`:
+      # this job runs no ./.github/actions/setup-ggen-build step (deliberately, per
+      # the comment above -- pure grep, no cargo/rust needed), so `just` itself was
+      # never installed here and every run of this job failed with "just: command
+      # not found" (exit 127) regardless of PR content. Fixed 2026-07-19. The script
+      # this recipe wraps (scripts/ci/guard-process-intelligence-boundary.sh) needs
+      # nothing beyond bash + grep, matching this job's own "no build required" intent.
+      - name: guard-process-intelligence-boundary.sh
+        run: ./scripts/ci/guard-process-intelligence-boundary.sh
 
   # Publish-safety guard (docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md):
   # no workspace member other than root `ggen` may be named "ggen" or ever publish.

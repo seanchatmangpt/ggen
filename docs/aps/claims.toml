@@ -62,8 +62,8 @@ id = "cli.init"
 standing = "ALIVE"
 gates = []
 falsifier = "cargo test -p ggen-cli-lib --test proof_init_test"
-evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, 9 cases, real filesystem checks" }
-notes = "Two known FOOTGUN bugs, tracked: malformed --force bool silently coerces to false (BUG-002); exit code 0 despite JSON status:error (BUG-003). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md."
+evidence = { commit = "627f84c5", date = "2026-07-17", method = "jtbd-workflow, 9 cases, real filesystem checks" }
+notes = "Both previously-tracked FOOTGUN bugs are fixed (627f84c5, #265): malformed --force bool now rejected via strict parse_bool_flag instead of silently coercing to false (BUG-002, init.rs:466,523-532); InitOutput{status:\"error\"} now promotes to a real Err instead of exiting 0 (BUG-003, init.rs:497-506). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md."
 
 [[claims]]
 id = "cli.law"
@@ -89,19 +89,19 @@ notes = "3 of 4 verbs proven (install/validate/list) with real lockfile digest +
 
 [[claims]]
 id = "cli.agent"
-standing = "ALIVE"
+standing = "PARTIAL"
 gates = []
 falsifier = "cargo test -p ggen-cli-lib --test agent_lifecycle_test"
-evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, full lifecycle re-run fresh with on-disk state checks" }
-notes = "One tracked bug: 'already installed' check reads a fixed global path instead of the project-local lockfile (BUG-004)."
+evidence = { commit = "627f84c5", date = "2026-07-17", method = "jtbd-workflow, full lifecycle re-run fresh with on-disk state checks" }
+notes = "`ggen agent install` is disabled (627f84c5, #265): it now returns a typed execution_error citing BUG-004 ('already installed' check reads a fixed global path instead of the project-local lockfile) instead of running with the bug live. Real logic preserved as #[allow(dead_code)] install_impl pending a fix (crates/ggen-cli/src/cmds/agent.rs:144-155). Standing downgraded from ALIVE to PARTIAL to reflect that the verb is currently a refusal, not a working path."
 
 [[claims]]
 id = "cli.doctor"
-standing = "PARTIAL"
+standing = "ALIVE"
 gates = []
 falsifier = "cargo test -p ggen-cli-lib --test doctor_adversarial_tests --features integration"
-evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, real sabotage scenarios on the frontmatter-schema path" }
-notes = "All three checks correct for the frontmatter (GgenConfig) schema; hard-fails on declarative-rules (GgenManifest) projects incl. this repo's own root ggen.toml — BUG-005, fix at crates/ggen-engine/src/verbs/handlers.rs:630."
+evidence = { commit = "627f84c5", date = "2026-07-17", method = "jtbd-workflow, real sabotage scenarios on the frontmatter-schema path" }
+notes = "BUG-005 fixed (627f84c5, #265): `handle_doctor` (crates/ggen-engine/src/verbs/handlers.rs:759) now dispatches through the same shared ggen_config::classify_ggen_toml classifier as sync(), via the new crates/ggen-engine/src/schema_dispatch.rs module, instead of unconditionally calling GgenConfig::load. No longer hard-fails with FM-CONFIG-002 on declarative-rules (GgenManifest) projects, including this repo's own root ggen.toml. (Prior evidence.commit f39b7972c's :630 citation was to code now superseded by handlers.rs:759 + schema_dispatch.rs.)"
 
 [[claims]]
 id = "cli.capability"
@@ -109,7 +109,7 @@ standing = "PARTIAL"
 gates = []
 falsifier = "target/debug/ggen capability list && target/debug/ggen capability inspect mcp"
 evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, real lockfile side-effect verification" }
-notes = "Happy path (list/inspect/enable) proven with real side effects. Gaps (GAP-001): unknown surface names silently return empty; enable has no wrong-context refusal; --projection unvalidated."
+notes = "GAP-001 fixed (2026-07-18, v26.7.18 release hardening pass, crates/ggen-cli/src/cmds/capability.rs): atomic_packs_for now propagates resolve_capability_to_packs's 'unknown surface' error instead of unwrap_or_default()-discarding it, so `enable`/`inspect` return a typed error for an unknown surface instead of silently returning atomic_packs: []; project_root() now checks ggen.toml exists before `enable` touches the lockfile. `inspect` re-enabled (was disabled 2026-07-17 pending exactly this fix). Remaining accepted gap: --projection is format-checked (must be a valid PackageId fragment) but not validated against a real projection registry — no such registry exists yet. Standing stays PARTIAL for that reason, not for the fixed issues above. Evidence coordinate will refresh to this pass's commit on next falsifier re-run."
 
 [[claims]]
 id = "cli.utils"
@@ -129,11 +129,11 @@ notes = "Zero pre-existing real test coverage (all prior tests targeted verbs th
 
 [[claims]]
 id = "cli.policy"
-standing = "BLOCKED"
+standing = "ALIVE"
 gates = []
 falsifier = "target/debug/ggen policy validate --profile enterprise-strict"
-evidence = { commit = "f39b7972c", date = "2026-07-17", method = "jtbd-workflow, deterministic reproduction across isolated HOME environments" }
-notes = "list/show ALIVE; check/validate — the noun's core enforcement JTBD — fail 100% of invocations on an internally-composed invalid package ID (BUG-001, root cause not yet localized). See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md. Falsifier fixed 2026-07-18: `ggen policy check` has no --profile flag at all (confirmed via --help), so the original falsifier failed on clap argument parsing before reaching the real bug; `policy validate` does take --profile and reproduces the described crash. `ggen policy check` (no flags) reproduces the same underlying error without --profile."
+evidence = { commit = "627f84c5", date = "2026-07-17", method = "jtbd-workflow, deterministic reproduction across isolated HOME environments" }
+notes = "BUG-001 fixed (627f84c5, #265): load_pack_contexts_from_project (crates/ggen-cli/src/cmds/policy.rs:112-175) now skips a malformed PackageId entry and reports it via LoadedPackContexts::malformed instead of aborting the whole command via `?` before Profile::enforce ever ran for any other pack. check/validate no longer fail 100% of invocations on one bad lockfile entry. See docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md. Falsifier note (2026-07-18, still accurate): `ggen policy check` has no --profile flag (confirmed via --help); `policy validate` does take --profile."
 
 # ── Release-level claims ─────────────────────────────────────────────────────
 

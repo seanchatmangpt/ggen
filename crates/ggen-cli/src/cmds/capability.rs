@@ -21,21 +21,36 @@ use ggen_marketplace::packs_registry::capability_registry::{
 // ── helpers ─────────────────────────────────────────────────────────────────
 
 fn project_root() -> Result<PathBuf> {
-    std::env::current_dir()
-        .map_err(|e| NounVerbError::execution_error(format!("cannot resolve project dir: {}", e)))
+    let dir = std::env::current_dir().map_err(|e| {
+        NounVerbError::execution_error(format!("cannot resolve project dir: {}", e))
+    })?;
+    if !dir.join("ggen.toml").exists() {
+        return Err(NounVerbError::argument_error(format!(
+            "not a ggen project: no ggen.toml found in {} (run `ggen init` first)",
+            dir.display()
+        )));
+    }
+    Ok(dir)
 }
 
 /// Resolve the atomic packs for a capability surface, appending a
 /// `projection-<proj>` pack when `--projection` is supplied.
-fn atomic_packs_for(surface: &str, projection: Option<&str>, runtime: Option<&str>) -> Vec<String> {
-    let mut packs = resolve_capability_to_packs(surface, projection, runtime).unwrap_or_default();
+///
+/// Propagates `resolve_capability_to_packs`'s "unknown surface" error instead
+/// of discarding it (GAP-001, `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`)
+/// — an unrecognised surface must be a typed refusal, not a silent empty result.
+fn atomic_packs_for(
+    surface: &str, projection: Option<&str>, runtime: Option<&str>,
+) -> Result<Vec<String>> {
+    let mut packs = resolve_capability_to_packs(surface, projection, runtime)
+        .map_err(NounVerbError::argument_error)?;
     if let Some(p) = projection {
         let projection_pack = format!("projection-{}", p);
         if !packs.contains(&projection_pack) {
             packs.push(projection_pack);
         }
     }
-    packs
+    Ok(packs)
 }
 
 fn require_surface(surface: &str) -> Result<()> {
@@ -56,7 +71,7 @@ pub fn enable(
     #[arg(index = 1)] surface: String, projection: Option<String>, runtime: Option<String>,
 ) -> Result<Value> {
     require_surface(&surface)?;
-    let packs = atomic_packs_for(&surface, projection.as_deref(), runtime.as_deref());
+    let packs = atomic_packs_for(&surface, projection.as_deref(), runtime.as_deref())?;
 
     // Reject before touching the lockfile: every atomic pack id -- including
     // the `projection-<projection>` pack `atomic_packs_for` synthesizes from a
@@ -130,32 +145,15 @@ pub fn list() -> Result<Value> {
 
 /// Inspect a capability surface: show the atomic packs it expands to.
 ///
-/// Disabled (2026-07-18): `require_surface` only checks for an empty string,
-/// not surface validity, and `atomic_packs_for` swallows
-/// `resolve_capability_to_packs`'s "unknown surface" error via
-/// `unwrap_or_default()` — so an unknown/typo'd surface silently returns
-/// `atomic_packs: []` with exit 0 instead of a typed refusal. Tracked as
-/// GAP-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`.
-/// Re-enable by routing this verb back to `inspect_impl` once
-/// `resolve_capability_to_packs`'s error is surfaced instead of discarded.
+/// Re-enabled (2026-07-18): was disabled because an unknown/typo'd surface
+/// silently returned `atomic_packs: []` with exit 0 instead of a typed
+/// refusal (GAP-001, `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`).
+/// `atomic_packs_for` now propagates `resolve_capability_to_packs`'s "unknown
+/// surface" error instead of discarding it, so this is safe to re-enable.
 #[verb]
 pub fn inspect(#[arg(index = 1)] surface: String) -> Result<Value> {
-    let _ = surface;
-    Err(NounVerbError::execution_error(
-        "ggen capability inspect is temporarily disabled: an unknown/typo'd surface name \
-         silently returns atomic_packs: [] with exit 0 instead of a typed error (GAP-001, see \
-         docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md)"
-            .to_string(),
-    ))
-}
-
-/// Real implementation of `inspect`, preserved for re-enabling once GAP-001 is
-/// fixed (fix-forward/non-deletion doctrine — not called while `inspect` above
-/// returns its typed refusal).
-#[allow(dead_code)]
-fn inspect_impl(surface: String) -> Result<Value> {
     require_surface(&surface)?;
-    let packs = atomic_packs_for(&surface, None, None);
+    let packs = atomic_packs_for(&surface, None, None)?;
     Ok(json!({
         "capability": surface,
         "atomic_packs": packs,

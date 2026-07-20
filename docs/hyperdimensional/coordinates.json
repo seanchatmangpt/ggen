@@ -1,0 +1,392 @@
+{
+  "$schema": "ggen-hyperdimensional-audit-v1",
+  "scope": "commits-last-2-days",
+  "commit_range": "cbf173f8..6967f38f",
+  "commit_count": 13,
+  "pr_range": "PR #255-#268",
+  "dimensions": {
+    "D1": "Dataflow",
+    "D2": "Control Flow",
+    "D3": "Architecture",
+    "D4": "Type System",
+    "D5": "Error Handling",
+    "D6": "Performance",
+    "D7": "Concurrency",
+    "D8": "Testing",
+    "D9": "External Interfaces",
+    "D10": "Invariants & Proofs"
+  },
+  "commits": [
+    { "sha": "cbf173f8", "pr": 255, "title": "Retire ggen-core in favor of a first-principles engine" },
+    { "sha": "8058558c", "pr": 258, "title": "docs: track JTBD-verification bugs in-repo + ggen-core removal proposal" },
+    { "sha": "a1ecb070", "pr": 256, "title": "docs+examples: archive stale ggen-core-era content, fix live CLI syntax" },
+    { "sha": "9cef6e40", "pr": 259, "title": "remove ggen-core, rewrite README from first principles" },
+    { "sha": "1b32d7b0", "pr": 260, "title": "Prepare crates.io publish readiness for the 7 real publish targets" },
+    { "sha": "27ed0bf9", "pr": 261, "title": "docs(aps): add machine-readable claims/standing ledger per APS 2030 audit" },
+    { "sha": "f27a6483", "pr": 262, "title": "docs: fix systemic drift found by a 10-agent Rust-core-team documentation audit" },
+    { "sha": "d0792d19", "pr": 263, "title": "fix(publish): mark cpmp, genesis-types-v2, genesis-core-v2 publish=false" },
+    { "sha": "75f080d4", "pr": 264, "title": "chore(release): bump version to 26.7.5" },
+    { "sha": "627f84c5", "pr": 265, "title": "fix: disable broken commands, fix policy/doctor/init bugs, archive examples, add canonical clap-noun-verb-cli example" },
+    { "sha": "b2927947", "pr": 266, "title": "chore(release): bump version to 26.7.6" },
+    { "sha": "271f8184", "pr": 267, "title": "feat(examples): receiptctl — multi-pack combined CLI (3 real projects)" },
+    { "sha": "6967f38f", "pr": 268, "title": "chore(release): bump version to 26.8.0" }
+  ],
+  "changes": [
+    {
+      "id": "C01",
+      "entity": "crates/ggen-core (whole crate)",
+      "type": "crate_deletion",
+      "dimensions": ["D1", "D3", "D4", "D5", "D7", "D9"],
+      "evidence": [
+        { "file": "crates/ggen-core/", "commit": "9cef6e40", "note": "git rm, directory absent from disk" },
+        { "file": "Cargo.toml", "commit": "cbf173f8", "note": "removed from [workspace] members, moved to exclude first" }
+      ],
+      "impact": "breaking",
+      "mitigation": "ggen-engine + praxis-core + praxis-graphlaw (vendored from ~/praxis) replace it as the live pipeline",
+      "verified": true
+    },
+    {
+      "id": "C02",
+      "entity": "Stage-0 schema dispatch (schema_dispatch.rs, config_schema.rs)",
+      "type": "new_abstraction",
+      "dimensions": ["D1", "D2", "D4", "D5"],
+      "evidence": [
+        { "file": "crates/ggen-engine/src/schema_dispatch.rs", "line": "60-67,69+", "commit": "627f84c5" },
+        { "file": "crates/ggen-config/src/config_schema.rs", "line": "177-213", "commit": "627f84c5" },
+        { "file": "crates/ggen-engine/src/sync.rs", "line": "147-169", "commit": "627f84c5" }
+      ],
+      "impact": "authority-deepening",
+      "detail": "Single shared classify-then-parse point (ConfigSchemaClassification -> ParsedGgenToml) replaces 6 ad-hoc call sites (sync, handle_doctor, handle_graph_validate, build_law_engine) that previously each hardcoded a schema assumption. Fixes BUG-005 (doctor unconditionally called frontmatter-only GgenConfig::load).",
+      "verified": true
+    },
+    {
+      "id": "C03",
+      "entity": "ReceiptPayload#[serde(deny_unknown_fields)]",
+      "type": "hardening",
+      "dimensions": ["D1", "D10"],
+      "evidence": [
+        { "file": "crates/ggen-engine/src/sync.rs", "line": "117-133", "commit": "627f84c5" }
+      ],
+      "impact": "reduces-drift",
+      "detail": "Tampered/corrupted stored receipt payloads with extra JSON fields now fail deserialization instead of silently loading.",
+      "verified": true
+    },
+    {
+      "id": "C04",
+      "entity": "crates/ggen-cli/src/cmds/{sync,graph,template,doctor}.rs — orphaned dead code with live ggen_core imports",
+      "type": "legacy_path_contamination",
+      "dimensions": ["D1", "D2", "D3"],
+      "evidence": [
+        { "file": "crates/ggen-cli/src/cmds/sync.rs", "line": "46-47,392,414-420,437,678", "note": "use ggen_core::codegen::{...} against a deleted crate" },
+        { "file": "crates/ggen-cli/src/cmds/graph.rs", "line": "61,105,139,169,201" },
+        { "file": "crates/ggen-cli/src/cmds/template.rs", "line": "69,90,91,118,158" },
+        { "file": "crates/ggen-cli/src/cmds/doctor.rs", "line": "7" },
+        { "file": "crates/ggen-cli/src/cmds/mod.rs", "line": "46,63,69", "note": "corresponding pub mod declarations are commented out, so this compiles despite dangling imports" }
+      ],
+      "impact": "gap",
+      "severity": "medium",
+      "detail": "Unlike wizard.rs/sigma.rs/inverse_sync.rs (deleted outright in PR #259), these 4 files were left on disk with real (non-commented) imports of the fully-deleted ggen-core crate. Only escapes compile failure because their `pub mod` lines are commented out in mod.rs. A maintainer grepping the cmds/ directory listing (not mod.rs) would wrongly assume these are live.",
+      "verified": true
+    },
+    {
+      "id": "C05",
+      "entity": "examples/receiptctl (multi-pack CLI) + shared pack ontology dedup fix",
+      "type": "new_example",
+      "dimensions": ["D1", "D9"],
+      "evidence": [
+        { "file": "examples/receiptctl/ggen.toml", "commit": "271f8184", "note": "unions 6 packs from 3 upstream projects via real [packs] mechanism" },
+        { "file": "packs/wasm4pm-algorithms-pack/ontology.ttl", "commit": "271f8184", "note": "duplicate pi:wasmExport \"discover_dfg\" renamed to unique discover_optimized_dfg" },
+        { "file": "packs/wasm4pm-facts-pack/ontology.ttl", "commit": "271f8184", "note": "duplicate export renamed to discover_streaming_log" }
+      ],
+      "impact": "improvement",
+      "detail": "Fixed a real duplicate-data bug (2 different packs asserting the same wasmExport name) that only surfaced when combining packs — caused duplicate SPARQL rows -> duplicate Rust enum variants -> compile error. Fix is at the shared-pack level, benefits all downstream consumers.",
+      "verified": true
+    },
+    {
+      "id": "C06",
+      "entity": "CLI commands removed: wizard, sigma, inverse_sync",
+      "type": "removal",
+      "dimensions": ["D2", "D3", "D9"],
+      "evidence": [
+        { "file": "crates/ggen-cli/src/cmds/wizard.rs", "commit": "9cef6e40", "note": "-1744 lines, deleted outright" },
+        { "file": "crates/ggen-cli/src/cmds/sigma.rs", "commit": "9cef6e40", "note": "-49 lines" },
+        { "file": "crates/ggen-cli/src/cmds/inverse_sync.rs", "commit": "9cef6e40", "note": "-359 lines" }
+      ],
+      "impact": "breaking",
+      "severity": "low",
+      "detail": "All three were already experimental/feature-gated or disconnected before removal — no default-build regression. Users invoking these now get clap's 'unrecognized subcommand'.",
+      "verified": true
+    },
+    {
+      "id": "C07",
+      "entity": "inject_default_verbs() + linkme force-link shim",
+      "type": "new_dispatch",
+      "dimensions": ["D2"],
+      "evidence": [
+        { "file": "crates/ggen-cli/src/lib.rs", "line": "102,225", "commit": "cbf173f8" }
+      ],
+      "impact": "authority-deepening",
+      "detail": "Rewrites bare `ggen sync`->`ggen sync run`, `ggen doctor`->`ggen doctor run`, `ggen receipt`->`ggen receipt verify` before dispatch to clap_noun_verb::CommandRegistry. `use ggen_engine as _;` force-links ggen-engine's #[linkme::distributed_slice] noun/verb registrations into the binary. `graph` deliberately excluded (no single obvious default verb).",
+      "verified": true
+    },
+    {
+      "id": "C08",
+      "entity": "ggen agent install / ggen capability inspect — disabled with typed refusal",
+      "type": "fail_closed",
+      "dimensions": ["D2", "D5", "D9"],
+      "evidence": [
+        { "file": "crates/ggen-cli/src/cmds/agent.rs", "line": "132-165", "commit": "627f84c5", "note": "BUG-004; real logic preserved as install_impl, #[allow(dead_code)]" },
+        { "file": "crates/ggen-cli/src/cmds/capability.rs", "line": "58-165", "commit": "627f84c5", "note": "GAP-001; real logic preserved as inspect_impl" }
+      ],
+      "impact": "breaking",
+      "severity": "medium",
+      "detail": "Both commands now always Err(NounVerbError::execution_error(...)) regardless of arguments — deliberate fail-closed design (a functioning-looking command became a hard dead end) rather than silently-wrong behavior. Still registered in --help, so automation depending on prior success paths breaks with a clear error, not silently.",
+      "verified": true
+    },
+    {
+      "id": "C09",
+      "entity": "Workspace membership churn (+7 crates, ggen-core removed)",
+      "type": "membership_change",
+      "dimensions": ["D3"],
+      "evidence": [
+        { "file": "Cargo.toml", "commit": "cbf173f8", "note": "added ggen-engine, praxis-core, praxis-graphlaw, powl2-decompose, chicago-tdd-tools, bcinr-pddl, bcinr-mfw-ir; removed ggen-core" },
+        { "file": "Cargo.toml", "commit": "f39b7972", "note": "added ggen-cheat-scanner (PR #257)" }
+      ],
+      "impact": "neutral",
+      "detail": "Root ggen package's [[bin]] removed, autobins=false — root becomes library-only; canonical binary now built from ggen-cli-lib.",
+      "verified": true
+    },
+    {
+      "id": "C10",
+      "entity": "Publish-flag narrowing: 7 -> 4 real crates.io targets",
+      "type": "publish_safety",
+      "dimensions": ["D3"],
+      "evidence": [
+        { "file": "crates/cpmp/Cargo.toml", "commit": "d0792d19", "note": "publish = false added" },
+        { "file": "crates/genesis-core-v2/Cargo.toml", "commit": "d0792d19" },
+        { "file": "crates/genesis-types-v2/Cargo.toml", "commit": "d0792d19" }
+      ],
+      "impact": "improvement",
+      "detail": "Real publish targets narrowed to ggen, ggen-config, ggen-graph, ggen-marketplace (only 4 crates with no publish= line). cargo publish on the other 3 now correctly refuses instead of silently being publishable-but-unintended.",
+      "verified": true
+    },
+    {
+      "id": "C11",
+      "entity": "ConfigSchemaClassification / ParsedGgenToml (new types)",
+      "type": "new_types",
+      "dimensions": ["D4"],
+      "evidence": [
+        { "file": "crates/ggen-config/src/config_schema.rs", "line": "177-213", "commit": "627f84c5" },
+        { "file": "crates/ggen-engine/src/schema_dispatch.rs", "line": "60-67", "commit": "627f84c5" }
+      ],
+      "impact": "authority-deepening",
+      "detail": "5-variant classifier (DeclarativeRules, Frontmatter, Ambiguous{matched}, Unsupported{observed_markers}, Malformed{diagnostic}) fails closed with typed codes rather than a generic TOML deserialize error.",
+      "verified": true
+    },
+    {
+      "id": "C12",
+      "entity": "GgenManifest::PackRef vs GgenConfig::PackRef — duplication remains",
+      "type": "known_gap",
+      "dimensions": ["D4"],
+      "evidence": [
+        { "file": "crates/ggen-config/src/manifest/types.rs", "line": "37-51", "note": "flat struct PackRef" },
+        { "file": "crates/ggen-engine/src/config.rs", "line": "105-125", "note": "untagged enum PackRef { Path, Git }" }
+      ],
+      "impact": "gap",
+      "severity": "low",
+      "detail": "Two independently-defined, incompatible PackRef types for the same [packs] table name, unresolved by this window's changes. ConfigSchemaClassification manages the ambiguity at dispatch time rather than eliminating the duplication. Each type's doc comment cross-references the other as 'not the same type' — a documented, not hidden, gap.",
+      "verified": true
+    },
+    {
+      "id": "C13",
+      "entity": "5 fail-open -> fail-closed bug fixes (BUG-001/002/003/004/005, GAP-001, FM-GEN-008)",
+      "type": "bugfix",
+      "dimensions": ["D5"],
+      "evidence": [
+        { "file": "crates/ggen-cli/src/cmds/policy.rs", "line": "87-249", "commit": "627f84c5", "note": "BUG-001: malformed lockfile entry no longer aborts whole command via bare ?" },
+        { "file": "crates/ggen-cli/src/cmds/init.rs", "line": "444-500", "commit": "627f84c5", "note": "BUG-002/003: --force garbage no longer silently becomes false" },
+        { "file": "crates/ggen-engine/src/verbs/handlers.rs", "line": "759-799", "commit": "627f84c5", "note": "BUG-005: doctor now dispatches through schema classifier" },
+        { "file": "crates/ggen-engine/src/error.rs", "line": "38-118", "commit": "627f84c5", "note": "FM-GEN-008: 10 typed TemplateFailureCause variants replace one generic message" }
+      ],
+      "impact": "improvement",
+      "detail": "Previously silent failures now surface correctly: init --force garbage, init error JSON payloads (were exit 0 despite status:error body), capability enable with malformed pack ids, agent install/capability inspect misleading exit-0-with-wrong-data.",
+      "verified": true
+    },
+    {
+      "id": "C14",
+      "entity": "E0011/E0013 stay warnings unless strict_mode=true",
+      "type": "known_gap",
+      "dimensions": ["D5"],
+      "evidence": [
+        { "file": "crates/ggen-config/src/manifest/validation.rs", "line": "114-131,183-202,334-345", "commit": "cbf173f8", "note": "unchanged since #255, not touched by later commits in this window" }
+      ],
+      "impact": "gap",
+      "severity": "low",
+      "detail": "By-design gap per module doc, but non-strict projects still get non-deterministic ORDER BY silently logged, not blocked.",
+      "verified": true
+    },
+    {
+      "id": "C15",
+      "entity": "New receipt-chain SLO gate (justfile slo-check, receipt_chain_e2e.rs, 180s)",
+      "type": "new_gate",
+      "dimensions": ["D6", "D10"],
+      "evidence": [
+        { "file": "justfile", "commit": "cbf173f8", "note": "slo-check recipe did not exist before this commit" },
+        { "file": "crates/ggen-engine/tests/receipt_chain_e2e.rs", "commit": "cbf173f8", "note": "new file, 739 lines, 15 tests" }
+      ],
+      "impact": "new-infrastructure",
+      "detail": "Not a changed baseline — this is brand-new automated timing infrastructure. No Duration/Instant assertions inside the test file itself; the 180s bound lives only in the justfile's real date-based wall-clock wrapper.",
+      "verified": true
+    },
+    {
+      "id": "C16",
+      "entity": "cli_startup_performance bench — untouched",
+      "type": "unchanged",
+      "dimensions": ["D6"],
+      "evidence": [
+        { "file": "Cargo.toml", "line": "775-776", "note": "zero diff across all 13 commits" }
+      ],
+      "impact": "neutral",
+      "detail": "Removing ggen-core changes the dependency graph (root package now library-only) but no static evidence the bench's compiled binary or startup path was touched; not independently re-run this session.",
+      "verified": "unverified-at-runtime"
+    },
+    {
+      "id": "C17",
+      "entity": "sync.rs / watch.rs pipeline is synchronous, not async",
+      "type": "clarification",
+      "dimensions": ["D7"],
+      "evidence": [
+        { "file": "crates/ggen-engine/src/sync.rs", "note": "no tokio::spawn, no async fn, no .await anywhere" },
+        { "file": "crates/ggen-engine/src/watch.rs", "line": "73,139,189,191", "note": "std::sync::mpsc::channel + thread::spawn (blocking OS thread, not tokio)" }
+      ],
+      "impact": "documentation-correction",
+      "detail": "Corrects an assumption in this audit's own D7 agent prompt (which described 'async pipeline stages') — the five-stage pipeline is fully synchronous. Concurrency primitives used: Arc<dyn GraphEngine> (immutable, no Mutex), std::sync::Mutex<LawState> in graph.rs:760, static OnceLock<Mutex<()>> test lock in keys.rs:232-234.",
+      "verified": true
+    },
+    {
+      "id": "C18",
+      "entity": "Concurrency-heavy code deleted alongside ggen-core (dead, not live)",
+      "type": "dead_code_removal",
+      "dimensions": ["D7"],
+      "evidence": [
+        { "file": "crates/ggen-core/examples/{advanced-cli-tool,async-web-service,embedded-iot,...}", "commit": "9cef6e40" },
+        { "file": "crates/ggen-core/tests/mcp_a2a/*", "commit": "9cef6e40", "note": "mock servers with tokio::spawn, Arc<RwLock<...>> caches" }
+      ],
+      "impact": "neutral",
+      "detail": "PR #259's own commit message confirms zero live Cargo dependency edges to any of this at deletion time — no new race conditions introduced, nothing incrementally modified.",
+      "verified": true
+    },
+    {
+      "id": "C19",
+      "entity": "London TDD mock removal (308 files, +1210/-14826 lines)",
+      "type": "test_quality",
+      "dimensions": ["D8"],
+      "evidence": [
+        { "file": "tests/mcp_a2a/", "commit": "f39b7972", "note": "mock_a2a_server.rs (1758 lines), mock_mcp_server.rs (1477 lines), e2e_bridge_tests.rs (1501 lines) deleted" },
+        { "file": "tests/common/mocks.rs", "commit": "f39b7972", "note": "-65 lines" },
+        { "file": "crates/ggen-cli/tests/mcp_error_handling.rs", "commit": "f39b7972", "note": "-1249 lines" },
+        { "file": "tests/cli.rs", "commit": "f39b7972", "note": "MockRegistryClient struct + 3 tests removed, ~15 real assert_cmd tests kept" }
+      ],
+      "impact": "improvement",
+      "detail": "No tests-archive/ directory exists on disk despite CLAUDE.md prescribing archival — mock tests were git rm'd outright, not archived (only docs were archived via git mv). Net effect: fewer but more trustworthy tests.",
+      "verified": true
+    },
+    {
+      "id": "C20",
+      "entity": "ggen-cheat-scanner added (4 AST rules, wired into pre-commit)",
+      "type": "new_tooling",
+      "dimensions": ["D8"],
+      "evidence": [
+        { "file": "crates/ggen-cheat-scanner/src/lib.rs", "commit": "f39b7972", "note": "480 lines, 4 syn-based rules: CHEAT-T01 vacuous-assert, CHEAT-T02 tautological-result-check, CHEAT-T03 no-assertion-test, CHEAT-T04 mock-import" },
+        { "file": "justfile", "line": "328,365-369", "note": "wired as guard-cheat-scan, part of the 8-gate pre-commit chain" }
+      ],
+      "impact": "improvement",
+      "detail": "Real, intentional red gate — currently fails just pre-commit, not decorative.",
+      "verified": true
+    },
+    {
+      "id": "C21",
+      "entity": "Cheat-scan finding count discrepancy: 515 (commit/jira/justfile) vs 464 (CLAUDE.md)",
+      "type": "contract_drift",
+      "dimensions": ["D8"],
+      "evidence": [
+        { "file": "docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md", "line": "156", "note": "515 findings" },
+        { "file": "justfile", "line": "363", "note": "515 findings (comment)" },
+        { "file": "CLAUDE.md", "commit": "f27a6483", "note": "~464 findings, introduced by the doc-drift-fix pass itself, not reconciled with jira/justfile" }
+      ],
+      "impact": "gap",
+      "severity": "medium",
+      "detail": "No scanner re-run evidence exists between the two counts in this window. Plausible explanation (515 -> 464 via ggen-core/src/* deletion in PR #259) is inference, not confirmed. cargo could not be executed in this audit's sandbox to get a live count (pinned nightly toolchain missing cargo binary despite rustup reporting it installed).",
+      "verified": "unreconciled"
+    },
+    {
+      "id": "C22",
+      "entity": "ggen.construct MCP tool response schema drift",
+      "type": "breaking_change",
+      "dimensions": ["D9"],
+      "evidence": [
+        { "file": "crates/ggen-lsp/src/a2a_mcp/mcp_server.rs", "commit": "cbf173f8", "note": "switched from ggen_core::codegen::pipeline::GenerationPipeline to ggen_engine::sync::sync(...)" }
+      ],
+      "impact": "breaking",
+      "severity": "medium",
+      "detail": "Dropped fields: duration_ms (no equivalent in ggen-engine's SyncReport), per-file size_bytes/content_hash. Added: graph_hash_hex. files_count now sourced from report.written.len() instead of state.generated_files.len(). No CHANGELOG or MCP schema doc found updated alongside this change. External MCP clients relying on duration_ms/content_hash break silently (missing keys, not an error).",
+      "verified": true
+    },
+    {
+      "id": "C23",
+      "entity": "ReceiptRecord / keys.rs / verbs/receipt.rs — vendored invariant chain",
+      "type": "new_vendor",
+      "dimensions": ["D10"],
+      "evidence": [
+        { "file": "crates/praxis-core/src/receipt_record.rs", "commit": "cbf173f8", "note": "190 lines, new. recompute_chain_hash() at L124-130, doc comment states it 'can never silently diverge from the live emission path'" },
+        { "file": "crates/ggen-engine/src/keys.rs", "commit": "cbf173f8", "note": "369 lines, new. Ed25519 key resolution; create_new/O_CREAT|O_EXCL guarantees never-overwrite under races" },
+        { "file": "crates/ggen-engine/src/verbs/receipt.rs", "commit": "cbf173f8", "note": "18 lines, generated, routes to handlers::handle_receipt_verify/history" }
+      ],
+      "impact": "neutral",
+      "detail": "Receipt verification chain (verbs/receipt.rs -> handlers::handle_receipt_verify -> praxis-core::ReceiptRecord::recompute_chain_hash) is structurally intact post-ggen-core-removal, no ggen-core references anywhere in it. Not modified after initial vendoring; only unit-test-verified in this window, no runtime re-execution.",
+      "verified": true
+    },
+    {
+      "id": "C24",
+      "entity": "docs/aps/claims.toml ledger — admitted self-flagged drift",
+      "type": "contract_drift",
+      "dimensions": ["D10"],
+      "evidence": [
+        { "file": "docs/aps/claims.toml", "line": "148-153", "commit": "d0792d19", "note": "release.package-contents-clean: method field says '7 real publish targets' while its own notes field (added same commit) says the real count is now 4" }
+      ],
+      "impact": "gap",
+      "severity": "low",
+      "detail": "This is an admitted, not hidden, drift — the ledger's own README.md:30-32 states evidence should only be updated when its falsifier is actually re-run. Deliberate, documented gap rather than silent staleness.",
+      "verified": true
+    },
+    {
+      "id": "C25",
+      "entity": "release.rustsec-quick-xml claim — BLOCKED, no exception_admitted_by",
+      "type": "known_gap",
+      "dimensions": ["D10"],
+      "evidence": [
+        { "file": "docs/aps/claims.toml", "line": "155-164" }
+      ],
+      "impact": "gap",
+      "severity": "low",
+      "detail": "By design fails guard-publish-standing's full (non-schema-only) mode. just pre-commit's guard-claims-schema only runs --schema-only, so this BLOCKED state doesn't currently gate commits, only a real cargo publish.",
+      "verified": true
+    }
+  ],
+  "gaps_summary": [
+    { "id": "C04", "class": "Legacy Path Contamination", "severity": "medium" },
+    { "id": "C12", "class": "Type Duplication (documented)", "severity": "low" },
+    { "id": "C14", "class": "Fail-Open Behavior (by design)", "severity": "low" },
+    { "id": "C21", "class": "Contract Drift (unreconciled)", "severity": "medium" },
+    { "id": "C22", "class": "Breaking Change (undocumented)", "severity": "medium" },
+    { "id": "C24", "class": "Contract Drift (admitted)", "severity": "low" },
+    { "id": "C25", "class": "Fail-Open Behavior (BLOCKED, gated at publish only)", "severity": "low" }
+  ],
+  "breaking_changes": ["C01", "C06", "C08", "C22"],
+  "improvements": ["C02", "C03", "C05", "C07", "C10", "C13", "C19", "C20"],
+  "crates_touched": [
+    "ggen-core (deleted)", "ggen-engine", "ggen-cli", "ggen-config", "praxis-core",
+    "praxis-graphlaw", "ggen-cheat-scanner", "ggen-lsp", "chicago-tdd-tools",
+    "cpmp", "genesis-core-v2", "genesis-types-v2"
+  ]
+}
