@@ -86,6 +86,7 @@ jobs:
           # on the evidence side of this pair.
           DRIFT_PATHSPEC=(
             .
+            ':!.ggen-v2/**'
             ':!**/.ggen-v2/**'
             ':!examples/tcps-generated/evidence/**'
             ':!examples/tcps-generated/receipts/**'
