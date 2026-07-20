@@ -41,7 +41,7 @@ use tera::Value;
 use crate::{
     config::GgenConfig,
     error::{AppError, Result},
-    graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore},
+    graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
     template::{build_tera, sparql_to_value, Frontmatter, Template},
     write::{plan_write, WriteOutcome},
 };
@@ -947,7 +947,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     };
 
     if !opts.dry_run {
-        write_receipt(root, &report)?;
+        write_receipt(root, &report, graph.as_ref())?;
         if !lock_entries.is_empty() {
             crate::pack::write_lock(root, &lock_entries)?;
         }
@@ -1779,7 +1779,14 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 /// Ed25519-signed over SHA-256, emitted once per pack install to
 /// `.ggen/receipts/pack-*.json`. Different lifecycles, different hash
 /// algorithms; neither replaces the other.
-pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
+///
+/// `graph`: the already-loaded project+pack union graph for this run,
+/// queried here for `ccn:Law` individuals (see the admission-items block
+/// below). Passing the live handle rather than re-loading anything keeps
+/// this a read against the exact same state the rest of the pipeline saw.
+pub(crate) fn write_receipt(
+    root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
+) -> Result<()> {
     use std::io::Write as _;
 
     // Bind every decision target that exists on disk (written this run or
@@ -1859,7 +1866,7 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
     // all-`Unknown`: this call site does not itself evaluate cross-generation
     // docs/tests/gates equivalence, and claiming otherwise would overclaim
     // checks that were never run (see `.claude/rules/no-overclaiming-rust.md`).
-    let admission_items: Vec<AdmissionItem> = report
+    let mut admission_items: Vec<AdmissionItem> = report
         .decisions
         .iter()
         .map(|(path, reason)| AdmissionItem {
@@ -1871,6 +1878,62 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
             obligations_created: Vec::new(),
         })
         .collect();
+
+    // L5 condition 13 (義務数が憲法判定後の未解決義務から計算される): one
+    // AdmissionItem per `ccn:Law` individual found in the already-loaded
+    // union graph -- `ccn:mechanized true` discharges an obligation named
+    // after the law, `ccn:mechanized false` creates one (an open
+    // obligation this generation did not resolve). Both branches use
+    // `AdmissionDecision::Admitted` deliberately: `ccn:mechanized` is a
+    // STATIC, HUMAN-AUTHORED assertion in the ontology, not something this
+    // pipeline independently re-verifies at sync time, so an unmechanized
+    // law is an honestly-recorded open obligation, not a fresh refusal this
+    // sync detected -- it must not flip the derived Andon level (that would
+    // overclaim a live verification that doesn't exist; see
+    // `packs/ggen-constitution-pack/ontology.ttl`'s own doc comment on
+    // `ccn:mechanized`). A project with no `ccn:Law` individuals loaded (no
+    // constitution pack) simply gets zero rows back -- this SELECT is
+    // always safe to run and does not require any `[law]`/`[packs]`
+    // configuration.
+    const CONSTITUTION_LAW_QUERY: &str = "PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>\nSELECT ?law ?mech WHERE { ?law a ccn:Law ; ccn:mechanized ?mech . } ORDER BY ?law";
+    if let EngineQueryResults::Solutions(rows) = graph.query(CONSTITUTION_LAW_QUERY)? {
+        for row in rows {
+            let Some(EngineValue::String(law_iri)) = row.get("law") else {
+                continue;
+            };
+            let law_id = law_iri
+                .rsplit(['#', '/'])
+                .next()
+                .unwrap_or(law_iri.as_str())
+                .to_string();
+            let mechanized = matches!(row.get("mech"), Some(EngineValue::Bool(true)));
+            admission_items.push(if mechanized {
+                AdmissionItem {
+                    evidence_id: format!("constitution:{law_id}"),
+                    observed_outcome: ObservedOutcome::Pass,
+                    decision: AdmissionDecision::Admitted,
+                    reason: "ccn:mechanized=true (static human-authored assertion in \
+                             packs/ggen-constitution-pack/ontology.ttl, not independently \
+                             re-verified by this pipeline)"
+                        .to_string(),
+                    obligations_discharged: vec![law_id],
+                    obligations_created: Vec::new(),
+                }
+            } else {
+                AdmissionItem {
+                    evidence_id: format!("constitution:{law_id}"),
+                    observed_outcome: ObservedOutcome::Fail,
+                    decision: AdmissionDecision::Admitted,
+                    reason: "ccn:mechanized=false: no enforcing mechanism found for this \
+                             constitutional principle yet -- an open obligation, not a \
+                             refusal this sync detected"
+                        .to_string(),
+                    obligations_discharged: Vec::new(),
+                    obligations_created: vec![law_id],
+                }
+            });
+        }
+    }
 
     let prev_ceiling = match &prev_head {
         Some(prev) => read_receipt_epoch(&prev.record)
