@@ -97,6 +97,69 @@ gen:G3 a gen:Generation ;
     # the EquivalenceMap's tracked classes (docs, config, generated source).
     gen:fixedPointWithPrevious true .
 
+# ── Reproducible build test (condition 20) ──────────────────────────────────
+# Two fully independent `cargo build -p ggen-cli-lib --bin ggen --locked
+# --release` invocations, each with its OWN CARGO_TARGET_DIR (/tmp/repro-
+# build-a, /tmp/repro-build-b -- no shared incremental state), run
+# sequentially against the same commit/toolchain/Cargo.lock, 2026-07-20.
+gen:ReproducibleBuildTest a gen:Generation ;
+    gen:inspects gen:G3 ;
+    gen:commit "bde338129b93bcc43745b860779c581fa8d95b96" ;
+    gen:toolchain "nightly-2026-06-22 (rustc 1.98.0-nightly 91fe22da8 2026-06-21)" ;
+    gen:buildACommand "CARGO_TARGET_DIR=/tmp/repro-build-a cargo build -p ggen-cli-lib --bin ggen --locked --release" ;
+    gen:buildBCommand "CARGO_TARGET_DIR=/tmp/repro-build-b cargo build -p ggen-cli-lib --bin ggen --locked --release" ;
+    gen:buildASha256 "64f494c25072ea2b198b8a6cf7b232bcf310f8640894918e1fda342643839810" ;
+    gen:buildBSha256 "64f494c25072ea2b198b8a6cf7b232bcf310f8640894918e1fda342643839810" ;
+    gen:bitIdentical true ;
+    # Honest scope limit: both builds ran on the SAME machine/OS/filesystem,
+    # sequentially, moments apart. This proves same-host, same-toolchain
+    # determinism (no timestamp/PID/hostname/tempdir leakage into the binary
+    # for this crate) -- it does NOT prove cross-host/cross-OS reproducibility,
+    # which condition 20's "defined reproducible environment" more strongly
+    # implies. That stronger claim remains unverified.
+    gen:crossHostVerified false .
+
+# ── Independent artifact regeneration test (condition 21) ───────────────────
+# The book's own distributed artifacts (book/dist/*.md, *.html, and
+# MANIFEST.sha256 -- the 配布物 this condition names) were regenerated TWICE,
+# independently: `book/` copied to two separate, unrelated directories
+# (/tmp/book-regen-a, /tmp/book-regen-b), then assemble_book.py ->
+# build_static_html.py -> generate_manifest.py run fully independently in
+# each, 2026-07-20.
+gen:IndependentArtifactRegenTest a gen:Generation ;
+    gen:inspects gen:ReproducibleBuildTest ;
+    gen:commit "bde338129b93bcc43745b860779c581fa8d95b96" ;
+    gen:regenACommand "assemble_book.py + build_static_html.py + generate_manifest.py run in /tmp/book-regen-a" ;
+    gen:regenBCommand "assemble_book.py + build_static_html.py + generate_manifest.py run in /tmp/book-regen-b" ;
+    gen:manifestFileCount 935 ;
+    # verified: `diff -rq dist_a dist_b` produced ZERO output (no differences
+    # of any kind -- content or file-list) and `diff MANIFEST.sha256_a
+    # MANIFEST.sha256_b` also produced ZERO output across all 935 manifested
+    # files.
+    gen:distDirsIdentical true ;
+    gen:manifestsIdentical true .
+
+# ── Real migration receipt + own-history replay (conditions 17/18/19) ───────
+# `crates/ggen-engine/src/sync.rs`'s sole `write_receipt` call site was
+# confirmed to unconditionally emit `schema: SCHEMA_V2` -- v2 is the sole
+# format this repo's engine writes (condition 17). This repo's real
+# v1->v2 boundary (receipt-log.jsonl entries 4->5) was bound by a real
+# `MigrationReceipt::new` call using the real chain hashes, written to
+# `.ggen-v2/migration-receipt.json` (condition 18). A new test,
+# `crates/ggen-engine/tests/receipt_chain_own_history_replay.rs`, loads this
+# repo's own real receipt-log.jsonl and replays the full real chain twice,
+# proving deterministic (andon, ceiling) aggregation against production data
+# (condition 19).
+gen:OwnHistoryMigrationAndReplay a gen:Generation ;
+    gen:inspects gen:G2Heterogeneous ;
+    gen:commit "bde338129b93bcc43745b860779c581fa8d95b96" ;
+    gen:migrationReceiptPath ".ggen-v2/migration-receipt.json" ;
+    gen:finalV1ChainHash "8c78d16867f4588a7f32e33f917efc5a699194596340e934a4e5be4c20379af8" ;
+    gen:firstV2ChainHash "f8581aed6629e0f85b4610ae20d5a7fb87e747d685ae351ab6a9f79a2148595e" ;
+    gen:replayTestName "replaying_this_repos_own_real_receipt_chain_twice_is_deterministic" ;
+    gen:replayDeterministic true ;
+    gen:soleReceiptFormatIsV2 true .
+
 # ── Heterogeneous dual manufacture (condition 6) ─────────────────────────────
 # The independently-built ggen 26.7.13 (installed at ~/.cargo/bin/ggen, a
 # DIFFERENT toolchain/build than the debug binary above -- built from an
