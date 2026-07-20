@@ -233,6 +233,44 @@ fn gh_terraform_pack_acceptance_real_api() {
         verify2.contains("\"verify\":\"pass\""),
         "final verify: {verify2}"
     );
+    // 9. accept-receipt.sh — append a hash-chained receipt line to the
+    //    durable committed ledger at <workspace>/.tcps/acceptance-receipts.jsonl.
+    let ledger_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.tcps");
+    std::fs::create_dir_all(&ledger_dir).expect("mkdir .tcps");
+    let ledger = ledger_dir.join("acceptance-receipts.jsonl");
+    let lines_before = std::fs::read_to_string(&ledger)
+        .map(|s| s.lines().count())
+        .unwrap_or(0);
+    let receipt_json = format!(
+        "{{\"receipt\":\"gh-terraform-acceptance\",\
+         \"pack_content_hash\":\"{content_hash}\",\
+         \"repo\":\"{full_name}\",\
+         \"verify\":{verify}}}",
+        verify = verify2.trim(),
+    );
+    let appended = script_ok(
+        &project,
+        "accept-receipt.sh",
+        &["--file", &ledger.display().to_string(), "--json", &receipt_json],
+    );
+    let after = std::fs::read_to_string(&ledger).expect("read .tcps ledger");
+    let lines_after: Vec<&str> = after.lines().collect();
+    assert_eq!(
+        lines_after.len(),
+        lines_before + 1,
+        "ledger must grow by exactly one line"
+    );
+    let new_line = lines_after.last().expect("new ledger line");
+    assert!(
+        new_line.contains("\"prev_hash\":"),
+        "appended receipt must carry prev_hash: {new_line}"
+    );
+    assert_eq!(
+        appended.trim(),
+        *new_line,
+        "accept-receipt.sh must print the appended line"
+    );
+
     println!(
         "{{\"receipt\":\"gh-terraform-acceptance\",\
          \"pack_content_hash\":\"{content_hash}\",\
