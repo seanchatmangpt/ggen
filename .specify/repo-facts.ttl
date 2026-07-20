@@ -15,7 +15,7 @@ rf:Recipe a rdfs:Class . rf:DiagnosticCode a rdfs:Class .
 rf:ArchSection a rdfs:Class . rf:Doc a rdfs:Class .
 
 rf:doc a rf:Doc ;
-    rf:workspaceVersion "26.7.6" ;
+    rf:workspaceVersion "26.7.18" ;
     rf:projectManifestVersion "26.7.1" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
     rf:memberCount "16" ;
@@ -189,7 +189,7 @@ rf:crate_ggen a rf:Crate ;
     rf:order "017" ;
     rf:dir "ggen" ;
     rf:package "ggen" ;
-    rf:version "26.7.6" ;
+    rf:version "26.7.18" ;
     rf:group "root" ;
     rf:cargoDescription "Workspace root package (pure library crate since v26.7.16; the ggen binary builds from ggen-cli-lib)" ;
     rf:summaryPurpose "Workspace root package" .
