@@ -371,6 +371,8 @@ fn legacy_payload_without_optional_fields_verifies() {
         andon: Andon::Green,
         obligation_count: 0,
         signature_hex: None,
+        schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
+        v2: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
     record.chain_hash_hex = chain.iter().map(|b| format!("{b:02x}")).collect();
@@ -720,6 +722,8 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
         andon: Andon::Green,
         obligation_count: 0,
         signature_hex: None, // legacy: predates signing
+        schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
+        v2: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
     record.chain_hash_hex = chain.iter().map(|b| format!("{b:02x}")).collect();

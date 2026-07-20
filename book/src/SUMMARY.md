@@ -385,6 +385,7 @@
 - [300. Distinguish Prototype and Product Standing](tcps-standing/300-prototype-vs-product.md)
 - [301. Close the Level Five Evidence Matrix](tcps-standing/301-close-evidence-matrix.md)
 - [302. The TCPS Level Five Acceptance Test](tcps-standing/302-tcps-l5-acceptance.md)
+- [337. 自らを造る機械は、自らを検査しなければならない](tcps-standing/337-jikoken-kensa.md)
 
 # Part XXIV — Build Your Own Level Five Pack
 

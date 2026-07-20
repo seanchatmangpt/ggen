@@ -1,0 +1,11 @@
+---
+to: RELEASE_STANDING.json
+force: true
+sparql:
+  row: |
+    PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+    SELECT ?body WHERE {
+      grp:ReleaseStandingJsonArtifact grp:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

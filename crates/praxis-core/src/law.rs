@@ -414,6 +414,8 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
             obligation_count: self.obligations.len() as u32,
             object_ids: meta.object_ids.clone(),
             signature_hex: None,
+            schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
+            v2: None,
         };
 
         let receipted = LawObject {

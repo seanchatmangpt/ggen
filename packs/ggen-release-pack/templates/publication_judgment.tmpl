@@ -1,0 +1,11 @@
+---
+to: docs/PUBLICATION_JUDGMENT.md
+force: true
+sparql:
+  row: |
+    PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+    SELECT ?body WHERE {
+      grp:PublicationJudgmentArtifact grp:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

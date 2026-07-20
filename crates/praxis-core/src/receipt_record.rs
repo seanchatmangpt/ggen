@@ -69,6 +69,19 @@ pub struct ReceiptRecord {
     /// Hex-encoded ed25519 signature over [`Self::chain_hash_hex`], present only when the record has been signed.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signature_hex: Option<String>,
+    /// Schema identity (see `crate::receipt_epoch`): [`crate::receipt_epoch::SCHEMA_V1`]
+    /// (the default -- every pre-existing receipt on disk lacks this field
+    /// entirely and deserializes as v1) or [`crate::receipt_epoch::SCHEMA_V2`].
+    /// Not part of the chain-hash computation (like [`Self::activity`]) --
+    /// purely descriptive, dispatched on by `crate::receipt_epoch::read_receipt_epoch`.
+    #[serde(default = "crate::receipt_epoch::default_schema")]
+    pub schema: String,
+    /// The v2 epoch payload (see `crate::receipt_epoch::ReceiptEpochV2`).
+    /// `None` on every v1 record; populated only when [`Self::schema`] is
+    /// [`crate::receipt_epoch::SCHEMA_V2`]. Not part of the chain-hash
+    /// computation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub v2: Option<crate::receipt_epoch::ReceiptEpochV2>,
 }
 
 /// Decode a 64-lowercase-hex-character string into 32 raw bytes.
@@ -150,6 +163,8 @@ mod tests {
             obligation_count: 0,
             object_ids: vec!["law:1111111111111111".to_string()],
             signature_hex: None,
+            schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
+            v2: None,
         }
     }
 

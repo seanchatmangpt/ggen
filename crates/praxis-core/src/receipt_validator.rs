@@ -308,6 +308,8 @@ mod tests {
                 obligation_count: 0,
                 object_ids: vec![format!("law:instr{i}")],
                 signature_hex: None,
+                schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
+                v2: None,
             };
             let chain_hash = record.recompute_chain_hash().expect("recompute");
             record.chain_hash_hex = hex::encode(chain_hash);

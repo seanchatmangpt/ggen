@@ -410,6 +410,17 @@ sync:
 sync-dry:
     {{GGEN}} sync --dry_run true
 
+# Generation-ledger receipt: runs a real `ggen sync run` (the live sync verb has
+# no per-rule scoping flag -- `sync_run(dry_run, watch)` in
+# crates/ggen-engine/src/verbs/sync.rs takes only those two args, confirmed by
+# reading it -- so this is the closest equivalent to "sync just this rule": a
+# full sync run, after which docs/GENERATIONS.md is regenerated from
+# .specify/generations.ttl by the docs-generations-ledger rule) and prints one
+# confirmation line naming the receipt this round actually produced.
+gen-receipt:
+    {{GGEN}} sync run
+    @echo "[gen-receipt] docs/GENERATIONS.md regenerated from .specify/generations.ttl; see .ggen-v2/receipt.json for this sync's chain hash."
+
 # Fast local health check (rust/cargo/git/marketplace/cache/ggen.toml).
 # Pass `all=true` to also run SLO microbenchmarks + observability probes.
 doctor all="false":
