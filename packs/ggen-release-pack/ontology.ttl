@@ -76,10 +76,25 @@ jobs:
       - name: Docs-through-ggen drift gate (docs-sync)
         run: |
           just docs-sync
-          if ! git diff --quiet; then
+          # Excludes receipt/evidence/lock artifacts that change EVERY sync run
+          # BY DESIGN (timestamps, chained hashes) -- not content drift in the
+          # actual generated docs this gate exists to catch. Discovered live:
+          # the first real run of this workflow (from #285/#287's merges)
+          # false-positived on exactly this churn even though every generated
+          # doc/markdown file was byte-identical. See justfile's verify-tcps
+          # recipe comment for the same "changes every run by design" property
+          # on the evidence side of this pair.
+          DRIFT_PATHSPEC=(
+            .
+            ':!**/.ggen-v2/**'
+            ':!examples/tcps-generated/evidence/**'
+            ':!examples/tcps-generated/receipts/**'
+            ':!examples/tcps-generated/ggen.lock'
+          )
+          if ! git diff --quiet -- "${DRIFT_PATHSPEC[@]}"; then
             echo "ANDON: docs-sync produced changes not already committed — drift detected"
-            git status --porcelain
-            git diff --stat
+            git status --porcelain -- "${DRIFT_PATHSPEC[@]}"
+            git diff --stat -- "${DRIFT_PATHSPEC[@]}"
             exit 1
           fi
           echo "docs-sync: no drift"

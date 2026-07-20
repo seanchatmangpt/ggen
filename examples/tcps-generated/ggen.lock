@@ -14,7 +14,7 @@ content_hash = "blake3:ae41d4da9845a3273f789cc9c311ed6f4c59d9b8b4731f29f6d0a4807
 
 [packs.tcps-evidence]
 source = "path:evidence"
-content_hash = "blake3:d4937d3e7b3ccf7f41f048da8b33f478cf7a8ac510f58e42c18b7f8cc0e20670"
+content_hash = "blake3:87d0b3f845133a5e4f6b3ce5b8720d117b92388b38d3cd8e7e64ddf063b766a0"
 
 [packs.tcps-ffi-pack]
 source = "path:../../packs/tcps-ffi-pack"
