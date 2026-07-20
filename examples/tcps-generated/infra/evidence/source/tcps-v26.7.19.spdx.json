@@ -1,0 +1,61 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "tcps-v26.7.19",
+  "documentNamespace": "urn:tcps:spdx:777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe",
+  "creationInfo": {
+    "created": "2026-07-19T20:47:17+00:00",
+    "creators": [
+      "Tool: tools/lifecycle.py"
+    ]
+  },
+  "packages": [
+    {
+      "name": "tcps-core",
+      "SPDXID": "SPDXRef-Package-tcps-core",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-std",
+      "SPDXID": "SPDXRef-Package-tcps-std",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-ffi",
+      "SPDXID": "SPDXRef-Package-tcps-ffi",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-wasm",
+      "SPDXID": "SPDXRef-Package-tcps-wasm",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-cli",
+      "SPDXID": "SPDXRef-Package-tcps-cli",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    }
+  ]
+}
+

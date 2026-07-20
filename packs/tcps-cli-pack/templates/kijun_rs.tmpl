@@ -1,0 +1,9 @@
+---
+to: crates/tcps-cli/src/基準.rs
+force: true
+sparql:
+  rows: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-cli#>
+    SELECT ?source WHERE { tcps:KijunModule tcps:sourceText ?source } ORDER BY ?source
+---
+{{ rows[0].source }}

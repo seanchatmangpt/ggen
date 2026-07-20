@@ -1,0 +1,11 @@
+---
+to: infra/evidence/source/source-evidence-verification.json
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:SourceEvidenceVerificationArtifact tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

@@ -1,0 +1,6 @@
+FROM rust:1.97-bookworm
+WORKDIR /work
+COPY . .
+RUN rustup target add wasm32-unknown-unknown wasm32-wasip1 wasm32-wasip2
+CMD ["sh", "scripts/platform/wasm.sh"]
+

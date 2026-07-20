@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-ffi-pack"
+version = "0.1.0"
+description = "TCPS FFI crate (tcps-ffi): stable C ABI over tcps-core -- RDF spec (LibModule/HeaderFile/CargoManifest individuals with verbatim sourceText) + SHACL shapes + Rust/C templates for src/lib.rs, include/tcps.h, and Cargo.toml."

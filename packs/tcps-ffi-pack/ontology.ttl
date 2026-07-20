@@ -1,0 +1,171 @@
+@prefix tcps_ffi: <http://seanchatmangpt.github.io/packs/tcps-ffi#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+tcps_ffi:LibRsModule a tcps_ffi:LibModule ;
+    tcps_ffi:name "lib" ;
+    tcps_ffi:order 0 ;
+    tcps_ffi:sourceText """#![deny(unsafe_op_in_unsafe_fn)]
+#![deny(missing_debug_implementations)]
+
+use tcps_core::正準::正準方策;
+use tcps_core::自動選択::{作業領域, 拒否理由, 選択する, 選択結果, 選択要求};
+use tcps_core::語彙::有無;
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 外部選択要求 {
+    pub 取得権限: u64,
+    pub 準備完了: u64,
+    pub 最大時間: u32,
+    pub 決定性必須: u8,
+    pub 受領証必須: u8,
+    pub 予約: [u8; 2],
+    pub 時刻: u64,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct 外部選択結果 {
+    pub 種別: u16,
+    pub 理由: u16,
+    pub 道具: u16,
+    pub 経路: u16,
+    pub 質量: u16,
+    pub 予約: u16,
+    pub 適格候補: u64,
+    pub 準備候補: u64,
+    pub 方策番号: u32,
+}
+
+#[unsafe(export_name = "tcps_version_v1")]
+pub extern "C" fn 版番号() -> u32 {
+    tcps_core::機械可読版
+}
+
+#[unsafe(export_name = "tcps_select_v1")]
+pub extern "C" fn 選択する外部関数(要求: 外部選択要求) -> 外部選択結果 {
+    let 方策 = 正準方策();
+    let mut 作業領域 = 作業領域::<3>::新規();
+    let 要求 = 選択要求 {
+        取得権限: 要求.取得権限,
+        準備完了: 要求.準備完了,
+        最大時間: 要求.最大時間,
+        決定性必須: 要求.決定性必須 != 0,
+        受領証必須: 要求.受領証必須 != 0,
+        時刻: 要求.時刻,
+    };
+
+    match 選択する(&方策, 要求, &mut 作業領域) {
+        選択結果::選択(提案) => 外部選択結果 {
+            種別: 1,
+            理由: 0,
+            道具: 提案.道具,
+            経路: 提案.経路,
+            質量: 提案.質量,
+            予約: 0,
+            適格候補: 提案.適格候補,
+            準備候補: 提案.準備候補,
+            方策番号: 提案.方策番号,
+        },
+        選択結果::拒否 { 理由, 適格候補, 準備候補, .. } => 外部選択結果 {
+            種別: 2,
+            理由: 理由.番号(),
+            道具: 0,
+            経路: 0,
+            質量: 0,
+            予約: 0,
+            適格候補,
+            準備候補,
+            方策番号: 方策.方策番号,
+        },
+    }
+}
+
+#[must_use]
+pub const fn 拒否理由番号(理由: 拒否理由) -> u16 {
+    理由.番号()
+}
+
+#[must_use]
+pub const fn 道具がある(値: u16) -> 有無<u16> {
+    if 値 == 0 { 有無::無い } else { 有無::有る(値) }
+}
+""" .
+
+tcps_ffi:LibRsModule rdfs:comment "stable C ABI surface over tcps-core: repr(C) request/outcome structs plus tcps_version_v1/tcps_select_v1 extern \"C\" entry points" .
+
+tcps_ffi:TcpsHeaderFile a tcps_ffi:HeaderFile ;
+    tcps_ffi:name "tcps" ;
+    tcps_ffi:order 1 ;
+    tcps_ffi:sourceText """#ifndef TCPS_V26_7_19_H
+#define TCPS_V26_7_19_H
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct tcps_request_v1 {
+    uint64_t authority_mask;
+    uint64_t ready_mask;
+    uint32_t maximum_time;
+    uint8_t deterministic_required;
+    uint8_t receipt_required;
+    uint8_t reserved[2];
+    uint64_t timestamp;
+} tcps_request_v1;
+
+typedef struct tcps_outcome_v1 {
+    uint16_t kind;
+    uint16_t reason;
+    uint16_t tool;
+    uint16_t route;
+    uint16_t mass;
+    uint16_t reserved;
+    uint64_t eligible_mask;
+    uint64_t ready_mask;
+    uint32_t policy_id;
+} tcps_outcome_v1;
+
+uint32_t tcps_version_v1(void);
+tcps_outcome_v1 tcps_select_v1(tcps_request_v1 request);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+""" .
+
+tcps_ffi:TcpsHeaderFile rdfs:comment "public C header declaring tcps_request_v1/tcps_outcome_v1 structs and the tcps_version_v1/tcps_select_v1 extern C functions" .
+
+tcps_ffi:CargoManifestFile a tcps_ffi:CargoManifest ;
+    tcps_ffi:name "cargo_toml" ;
+    tcps_ffi:order 2 ;
+    tcps_ffi:sourceText """[package]
+name = \"tcps-ffi\"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = \"豊田コード生産方式の安定C ABI\"
+
+[lib]
+name = \"tcps_ffi\"
+path = \"src/lib.rs\"
+crate-type = [\"rlib\", \"staticlib\", \"cdylib\"]
+
+[dependencies]
+tcps-core = { path = \"../..\", package = \"tcps-generated\" }
+
+[lints.rust]
+unsafe_code = \"allow\"
+missing_debug_implementations = \"deny\"
+""" .
+
+tcps_ffi:CargoManifestFile rdfs:comment "tcps-ffi crate manifest: rlib+staticlib+cdylib crate-types, tcps-core path dependency, unsafe_code allowed at crate scope" .
+
+tcps_ffi:CargoManifestFile tcps_ffi:dependsOnModule tcps_ffi:LibRsModule .
+tcps_ffi:TcpsHeaderFile tcps_ffi:dependsOnModule tcps_ffi:LibRsModule .

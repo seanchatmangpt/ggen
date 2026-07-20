@@ -1,0 +1,11 @@
+FROM rust:1.97.1-bookworm AS build
+WORKDIR /src
+COPY . .
+RUN cargo build -p tcps-cli --release --locked || cargo build -p tcps-cli --release
+
+FROM debian:bookworm-slim
+RUN useradd --system --uid 65532 --create-home tcps
+COPY --from=build /src/target/release/tcps /usr/local/bin/tcps
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/tcps"]
+CMD ["検査"]

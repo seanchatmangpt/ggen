@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tcps:schema:target-matrix.schema.json",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "source",
+    "targets"
+  ],
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target",
+          "tier",
+          "family",
+          "products"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+---
+to: infra/docs/PLATFORM_SUPPORT.md
+force: true
+sparql:
+  row: |
+    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-release#>
+    SELECT ?body WHERE {
+      tcps:PlatformSupportDocArtifact tcps:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

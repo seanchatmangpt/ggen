@@ -1,0 +1,14 @@
+Name: tcps
+Version: 26.7.19
+Release: 1%{?dist}
+Summary: Toyota Code Production System Rust library
+License: MIT OR Apache-2.0
+BuildArch: @ARCH@
+
+%description
+Japanese canonical Toyota Code Production System domain model in Rust.
+
+%files
+/usr/bin/tcps
+/usr/include/tcps.h
+

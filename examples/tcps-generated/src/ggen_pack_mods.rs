@@ -14,6 +14,8 @@ pub mod __;
 pub mod __;
 #[path = "改善.rs"]
 pub mod __;
+#[path = "正準.rs"]
+pub mod __;
 #[path = "系譜.rs"]
 pub mod __;
 #[path = "語彙.rs"]
@@ -39,6 +41,8 @@ pub mod ____;
 #[path = "人間中心.rs"]
 pub mod ____;
 #[path = "工程能力.rs"]
+pub mod ____;
+#[path = "暗号要約.rs"]
 pub mod ____;
 #[path = "標準作業.rs"]
 pub mod ____;

@@ -337,3 +337,6215 @@ jobs:
             dist/lcov.info
             receipts/
 """ .
+
+
+#################################################################
+# New Classes
+#################################################################
+
+tcps:CiPlatformConfig a rdfs:Class ;
+    rdfs:label "A non-GitHub-Actions CI platform configuration (GitLab CI, Azure Pipelines, etc.)" .
+
+#################################################################
+# CiWorkflow individuals (GitHub Actions)
+#################################################################
+
+tcps:AllBuiltinsWorkflow a tcps:CiWorkflow ;
+    rdfs:label "all built-in targets (tier-3 best-effort, sharded) workflow" ;
+    tcps:workflowName "all-built-in-targets" ;
+    tcps:triggerEvent "schedule" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: all-built-in-targets
+
+on:
+  schedule:
+    - cron: "31 4 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tier3-best-effort:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable and nightly Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup toolchain install nightly --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build one target shard
+        run: >-
+          python tools/lifecycle.py build-all
+          --tiers 3
+          --product core
+          --shard-index ${{ matrix.shard }}
+          --shard-count 16
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier3-receipts-${{ matrix.shard }}
+          path: receipts/
+""" .
+
+tcps:ProductsWorkflow a tcps:CiWorkflow ;
+    rdfs:label "platform products build workflow (linux/windows/apple/android/wasm/embedded)" ;
+    tcps:workflowName "platform-products" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "pull_request" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: platform-products
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build host products
+        run: |
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product core
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product std
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product ffi
+          python tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product cli
+          python tools/lifecycle.py test --target x86_64-unknown-linux-gnu
+          python tools/lifecycle.py package --target x86_64-unknown-linux-gnu
+          ./scripts/smoke/cli.sh
+          ./scripts/smoke/c-abi.sh
+      - name: Build Debian package
+        run: python tools/platform_package.py deb --target x86_64-unknown-linux-gnu --architecture amd64
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-products
+          path: |
+            dist/
+            receipts/
+
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+          rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc
+      - name: Build Windows products
+        shell: pwsh
+        run: |
+          foreach ($Target in @("x86_64-pc-windows-msvc", "i686-pc-windows-msvc", "aarch64-pc-windows-msvc")) {
+            python tools/lifecycle.py build --target $Target --product core
+            python tools/lifecycle.py build --target $Target --product ffi
+          }
+          python tools/lifecycle.py build --target x86_64-pc-windows-msvc --product std
+          python tools/lifecycle.py build --target x86_64-pc-windows-msvc --product cli
+          python tools/lifecycle.py test --target x86_64-pc-windows-msvc
+          python tools/lifecycle.py package --target x86_64-pc-windows-msvc
+          cargo run -p tcps-cli --bin tcps -- 検査
+          ./scripts/smoke/c-abi.ps1
+          python tools/platform_package.py nuget
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-products
+          path: |
+            dist/
+            receipts/
+
+  apple:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build Apple libraries
+        run: ./scripts/platform/apple.sh
+      - name: Create XCFramework
+        run: python tools/platform_package.py xcframework
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apple-products
+          path: |
+            dist/
+            receipts/
+
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build Android libraries
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME"
+          python scripts/platform/android.py
+      - name: Create AAR
+        run: python tools/platform_package.py aar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-products
+          path: |
+            dist/
+            receipts/
+
+  wasm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build WebAssembly products
+        run: |
+          python tools/lifecycle.py build --target wasm32-unknown-unknown --product core
+          python tools/lifecycle.py build --target wasm32-unknown-unknown --product wasm
+          python tools/lifecycle.py build --target wasm32-wasip1 --product core
+          python tools/lifecycle.py build --target wasm32-wasip1 --product wasm
+          ./scripts/smoke/wasm-node.sh
+          python tools/platform_package.py npm
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wasm-products
+          path: |
+            dist/
+            receipts/
+
+  embedded-and-uefi:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build representative freestanding targets
+        run: |
+          python tools/lifecycle.py build --target thumbv7em-none-eabi --product core
+          python tools/lifecycle.py build --target riscv32imac-unknown-none-elf --product core
+          python tools/lifecycle.py build --target x86_64-unknown-none --product core
+          python tools/lifecycle.py build --target x86_64-unknown-uefi --product core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freestanding-products
+          path: receipts/
+""" .
+
+tcps:ReleaseWorkflow a tcps:CiWorkflow ;
+    rdfs:label "tag-triggered release workflow (platform release + aggregate)" ;
+    tcps:workflowName "release" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  platform-release:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: bash
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+          rustup default 1.97.1
+      - name: Host release
+        run: python tools/lifecycle.py release --scope host
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-${{ matrix.os }}
+          path: |
+            dist/
+            receipts/
+
+  aggregate:
+    needs: platform-release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: collected
+          merge-multiple: false
+      - name: Aggregate platform artifacts
+        run: |
+          mkdir -p dist
+          find collected -type f -path '*/dist/*' -exec cp -n {} dist/ \\;
+          python tools/lifecycle.py sbom
+          python tools/lifecycle.py provenance
+          python tools/lifecycle.py checksums
+          python tools/lifecycle.py verify-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-release
+          path: dist/
+""" .
+
+tcps:SupplyChainWorkflow a tcps:CiWorkflow ;
+    rdfs:label "supply-chain evidence workflow (sbom/provenance/checksums)" ;
+    tcps:workflowName "supply-chain" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "schedule" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: supply-chain
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "11 2 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+          rustup default 1.97.1
+      - run: python tools/lifecycle.py verify
+      - run: python tools/lifecycle.py sbom
+      - run: python tools/lifecycle.py provenance
+      - run: python tools/lifecycle.py checksums
+      - run: python tools/lifecycle.py verify-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supply-chain-evidence
+          path: |
+            dist/
+            receipts/
+""" .
+
+tcps:Tier2RepresentativeWorkflow a tcps:CiWorkflow ;
+    rdfs:label "tier-2 representative build workflow" ;
+    tcps:workflowName "tier-2-representative" ;
+    tcps:triggerEvent "push" ;
+    tcps:triggerEvent "schedule" ;
+    tcps:triggerEvent "workflow_dispatch" ;
+    tcps:workflowBody """name: tier-2-representative
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-musl
+          - os: ubuntu-24.04
+            target: armv7-unknown-linux-gnueabihf
+          - os: ubuntu-24.04
+            target: riscv64gc-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: s390x-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: powerpc64le-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: aarch64-linux-android
+          - os: ubuntu-24.04
+            target: wasm32-unknown-unknown
+          - os: ubuntu-24.04
+            target: wasm32-wasip1
+          - os: ubuntu-24.04
+            target: thumbv7em-none-eabi
+          - os: ubuntu-24.04
+            target: riscv32imac-unknown-none-elf
+          - os: ubuntu-24.04
+            target: x86_64-unknown-uefi
+          - os: macos-14
+            target: x86_64-apple-darwin
+          - os: macos-14
+            target: aarch64-apple-ios
+          - os: macos-14
+            target: aarch64-apple-visionos
+          - os: windows-2022
+            target: x86_64-pc-windows-gnullvm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: bash
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build core
+        run: python tools/lifecycle.py build --target ${{ matrix.target }} --product core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier2-${{ matrix.target }}
+          path: receipts/
+""" .
+
+#################################################################
+# CiPlatformConfig individuals (GitLab CI, Azure Pipelines)
+#################################################################
+
+tcps:GitlabCiConfig a tcps:CiPlatformConfig ;
+    rdfs:label "GitLab CI pipeline configuration (verify/build/evidence stages)" ;
+    tcps:workflowName "gitlab-ci" ;
+    tcps:workflowBody """stages: [verify, build, evidence]
+
+variables:
+  RUSTUP_TOOLCHAIN: "1.97.1"
+
+verify:
+  stage: verify
+  image: rust:1.97
+  script:
+    - python3 tools/lifecycle.py verify
+
+build-tier1-core:
+  stage: build
+  image: rust:1.97
+  parallel:
+    matrix:
+      - TARGET: [x86_64-unknown-linux-gnu, i686-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+  script:
+    - rustup target add "$TARGET"
+    - python3 tools/lifecycle.py build --target "$TARGET" --product core
+  artifacts:
+    when: always
+    paths: [receipts/]
+
+evidence:
+  stage: evidence
+  image: rust:1.97
+  script:
+    - python3 tools/lifecycle.py sbom
+    - python3 tools/lifecycle.py provenance
+    - python3 tools/lifecycle.py checksums
+  artifacts:
+    paths: [dist/, receipts/]
+""" .
+
+tcps:AzurePipelinesConfig a tcps:CiPlatformConfig ;
+    rdfs:label "Azure Pipelines configuration (cross-platform verify matrix)" ;
+    tcps:workflowName "azure-pipelines" ;
+    tcps:workflowBody """trigger:
+- main
+
+strategy:
+  matrix:
+    linux:
+      imageName: ubuntu-24.04
+    macos:
+      imageName: macos-14
+    windows:
+      imageName: windows-2022
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+- checkout: self
+- script: |
+    rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+    rustup default 1.97.1
+  displayName: Install pinned Rust
+- script: python tools/lifecycle.py verify
+  displayName: Verify workspace
+- script: python tools/lifecycle.py matrix
+  displayName: Generate target matrix
+- task: PublishPipelineArtifact@1
+  condition: always()
+  inputs:
+    targetPath: receipts
+    artifact: receipts-$(imageName)
+""" .
+
+
+#################################################################
+# Classes
+#################################################################
+
+tcps:ReleaseArtifact a rdfs:Class ;
+    rdfs:label "A miscellaneous release-engineering file (container, config, policy, doc) rendered 1:1 from verbatim content" .
+
+#################################################################
+# ReleaseArtifact individuals
+#################################################################
+
+tcps:DockerfileReleaseArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "release container image Dockerfile" ;
+    tcps:artifactPath "containers/Dockerfile.release" ;
+    tcps:artifactBody """FROM rust:1.97.1-bookworm AS build
+WORKDIR /src
+COPY . .
+RUN cargo build -p tcps-cli --release --locked || cargo build -p tcps-cli --release
+
+FROM debian:bookworm-slim
+RUN useradd --system --uid 65532 --create-home tcps
+COPY --from=build /src/target/release/tcps /usr/local/bin/tcps
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/tcps"]
+CMD ["検査"]
+""" .
+
+tcps:DockerfileVerifyArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "verify container image Dockerfile" ;
+    tcps:artifactPath "containers/Dockerfile.verify" ;
+    tcps:artifactBody """FROM rust:1.97-bookworm
+WORKDIR /work
+COPY . .
+RUN rustup component add rustfmt clippy rust-src
+CMD ["python3", "tools/lifecycle.py", "verify"]
+""" .
+
+tcps:DockerfileWasmArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "wasm container image Dockerfile" ;
+    tcps:artifactPath "containers/Dockerfile.wasm" ;
+    tcps:artifactBody """FROM rust:1.97-bookworm
+WORKDIR /work
+COPY . .
+RUN rustup target add wasm32-unknown-unknown wasm32-wasip1 wasm32-wasip2
+CMD ["sh", "scripts/platform/wasm.sh"]
+""" .
+
+tcps:ComposeArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "docker compose service definitions" ;
+    tcps:artifactPath "compose.yaml" ;
+    tcps:artifactBody """services:
+  verify:
+    build:
+      context: .
+      dockerfile: containers/Dockerfile.verify
+    volumes:
+      - ./receipts:/work/receipts
+      - ./dist:/work/dist
+  wasm:
+    build:
+      context: .
+      dockerfile: containers/Dockerfile.wasm
+    volumes:
+      - ./receipts:/work/receipts
+      - ./dist:/work/dist
+""" .
+
+tcps:CargoConfigArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "cargo build configuration" ;
+    tcps:artifactPath ".cargo/config.toml" ;
+    tcps:artifactBody """[build]
+target-dir = "target"
+
+[term]
+color = "always"
+verbose = false
+
+[net]
+offline = false
+
+[env]
+TCPS_RELEASE_LINE = "v26.7.19"
+TCPS_RELEASE_FLAVOR = "production.1"
+""" .
+
+tcps:DenyTomlArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "cargo-deny supply-chain policy" ;
+    tcps:artifactPath "deny.toml" ;
+    tcps:artifactBody """[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+
+[licenses]
+version = 2
+allow = ["MIT", "Apache-2.0", "Unicode-3.0"]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+""" .
+
+tcps:ReleaseJsonArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "release line and product family manifest" ;
+    tcps:artifactPath "release.json" ;
+    tcps:artifactBody """{
+  "release": "v26.7.19",
+  "flavor": "production.2",
+  "rust": "1.97.1",
+  "edition": "2024",
+  "core": {
+    "no_std": true,
+    "external_dependencies": 0,
+    "unsafe": "forbidden"
+  },
+  "products": [
+    "core-rlib",
+    "std-adapter",
+    "cli",
+    "c-abi",
+    "wasm"
+  ],
+  "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+}
+""" .
+
+tcps:DependabotArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "Dependabot update schedule" ;
+    tcps:artifactPath ".github/dependabot.yml" ;
+    tcps:artifactBody """version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+""" .
+
+tcps:ContributingArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "contribution requirements" ;
+    tcps:artifactPath "CONTRIBUTING.md" ;
+    tcps:artifactBody """# Contributing
+
+Every change must preserve the Japanese canonical domain vocabulary and the distinction between selection, authorization, and actuation.
+
+Required sequence:
+
+1. State the originating abnormality.
+2. Name the failed invariant.
+3. Add a negative fixture that reproduces the defect.
+4. Implement the smallest countermeasure.
+5. Add or revise standardized work.
+6. Run `python tools/lifecycle.py verify`.
+7. Run affected target builds and tests.
+8. Attach receipts.
+
+Do not disable tests, weaken refusal types, introduce ambient authority, or convert an infrastructure gap into a successful status.
+""" .
+
+tcps:SecurityMdRootArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "root security model document" ;
+    tcps:artifactPath "SECURITY.md" ;
+    tcps:artifactBody """# Security Model
+
+## Trust boundaries
+
+- `tcps-core` has no filesystem, network, clock, process, allocator, dynamic loading, or tool-execution capability.
+- `tcps-std` may observe the host and atomically persist receipts.
+- `tcps-ffi` and `tcps-wasm` are serialization and ABI boundaries, not authority boundaries.
+- `青い川のダム` separates proposal, authorization, and actuation.
+- No adapter may construct `許可済み選択` except through `仲介者::許可する`.
+
+## Cryptography
+
+Production source, policy, artifact, SBOM, and provenance identity uses SHA-256. `簡易要約` is non-cryptographic and retained only for source compatibility.
+
+## Unsafe code
+
+The universal core forbids unsafe code. FFI and WASM crates permit the Rust 2024 unsafe export attributes required to create external symbols, but contain no unsafe blocks or unsafe functions.
+
+## Reporting
+
+Do not publish vulnerabilities before a fix and negative fixture exist. A security repair must identify the originating abnormality, failed invariant, countermeasure, superseded standard, revised standard, and replay evidence.
+""" .
+
+tcps:SupportArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "support intake requirements" ;
+    tcps:artifactPath "SUPPORT.md" ;
+    tcps:artifactBody """# Support
+
+Support is evidence-driven. Include the target triple, Rust version, host, lifecycle command, receipt, complete error output, and whether the failure occurred during target installation, compilation, linking, execution, packaging, signing, or replay.
+
+Tier 3 reports are accepted as best-effort data and do not imply a Rust project guarantee.
+""" .
+
+tcps:AbiDocArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "C ABI contract document" ;
+    tcps:artifactPath "docs/ABI.md" ;
+    tcps:artifactBody """# ABI Contract
+
+The C ABI is versioned independently from Rust's internal ABI.
+
+```c
+uint32_t tcps_version_v1(void);
+tcps_outcome_v1 tcps_select_v1(tcps_request_v1 request);
+```
+
+All records use `#[repr(C)]` and fixed-width integers. No pointers cross the v1 boundary. This avoids ownership, allocator, lifetime, alignment-of-borrowed-data, and callback reentrancy ambiguity.
+
+Outcome kind values:
+
+- `1`: selected
+- `2`: refused
+
+The C header is canonical at `include/tcps.h`. ABI compatibility must be checked on every platform package before promotion.
+""" .
+
+tcps:LifecycleDocArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "full lifecycle stations document" ;
+    tcps:artifactPath "docs/LIFECYCLE.md" ;
+    tcps:artifactBody """# Full Lifecycle
+
+```text
+observe → admit → verify → matrix → build → test → benchmark → package → SBOM → provenance → sign → publish → replay
+```
+
+## Observe
+
+`doctor` records toolchain, host, SDK helpers, signing tools, and runners.
+
+## Admit
+
+The source tree is rejected for missing canonical modules, unsafe code in the universal core, placeholders, malformed delimiters, or missing Japanese semantic vocabulary.
+
+## Verify
+
+The host path runs formatting, checking, tests, Clippy correctness/suspicious/performance lints, and documentation.
+
+## Matrix
+
+The active compiler supplies the complete target list. Official tier facts and external SDK requirements are joined onto each target.
+
+## Build
+
+Core is always the first product. Other products are pulled only when the target supports them. Tier 3 may use `build-std=core` but remains a distinct standing.
+
+## Test
+
+Tests run natively, through Wasmtime, Wine, or QEMU when an approved runner is detected. Hardware-only targets return `not-applicable` or `runtime-unavailable`, never a fabricated pass.
+
+## Benchmark
+
+The benchmark receipt applies only to the exact source digest, compiler, host, cache condition, iteration count, and timer boundary recorded by the invocation.
+
+## Package
+
+Each target package contains libraries, C header, licenses, README files, artifact digests, and target metadata. ZIP and tar.gz are universal containers; platform packaging may wrap them further.
+
+## Supply chain
+
+CycloneDX, SPDX, in-toto/SLSA, SHA-256, and optional signatures are generated after artifacts exist. Release verification re-hashes every subject.
+""" .
+
+tcps:PlatformSupportDocArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "platform support contract document" ;
+    tcps:artifactPath "docs/PLATFORM_SUPPORT.md" ;
+    tcps:artifactBody """# Platform Support Contract
+
+The project does not claim that all Rust targets are equivalent. It implements one universal `no_std` core and a capability-indexed product family.
+
+## Source of truth
+
+1. `rustc --print target-list` defines the built-in target set for the active compiler.
+2. `targets/official-platform-support-1.97.1.json` records the Rust 1.97.1 Tier 1 and Tier 2 snapshot.
+3. A discovered target absent from the snapshot is classified as Tier 3.
+4. `rustc --print cfg --target <triple>` supplies architecture, operating system, environment, pointer width, atomics, and other compiler facts.
+5. `targets/family-overrides.json` declares external SDK and runner requirements.
+
+## Standing levels
+
+| Result | Meaning |
+|---|---|
+| `built` | The named product compiled for the named target with the named source digest. |
+| `built-nightly-build-std` | Core compiled using nightly and `-Z build-std=core`. |
+| `tested` | Tests executed on the named native/emulated runner. |
+| `not-applicable` | The target is core-only and requires a target-specific hardware harness. |
+| `runtime-unavailable` | Build can exist, but no approved runner was present. |
+| `sdk-missing` | The Rust target exists; the required linker, sysroot, or proprietary SDK is absent. |
+| `target-unavailable` | The active toolchain cannot supply or construct the target's `core`/`std`. |
+| `compiler-refused` | The compiler rejected the source for a reason not classified as missing infrastructure. |
+| `timed-out` | The bounded lifecycle station exceeded its time budget. |
+
+A build-only receipt must never be presented as a runtime-test receipt.
+""" .
+
+tcps:PortingDocArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "new target porting checklist document" ;
+    tcps:artifactPath "docs/PORTING.md" ;
+    tcps:artifactBody """# Porting a New Target
+
+1. Confirm the target appears in `rustc --print target-list` or supply a reviewed custom target specification.
+2. Generate `rustc --print cfg --target <triple>` facts.
+3. Classify Rust support tier separately from this project's standing.
+4. Build `tcps-core` as an rlib first.
+5. Add only the products the target can represent.
+6. Record linker, sysroot, SDK, runner, hardware, and minimum platform version.
+7. Add a positive fixture, negative fixture, and target receipt.
+8. Execute on native hardware or an approved emulator before claiming runtime support.
+9. Add the target to a CI family without weakening other targets.
+10. Promote the target only after replay reproduces the original result.
+""" .
+
+tcps:SecurityDocArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "docs/ security model document" ;
+    tcps:artifactPath "docs/SECURITY.md" ;
+    tcps:artifactBody """# Security Model
+
+## Trust boundaries
+
+- `tcps-core` has no filesystem, network, clock, process, allocator, dynamic loading, or tool-execution capability.
+- `tcps-std` may observe the host and atomically persist receipts.
+- `tcps-ffi` and `tcps-wasm` are serialization and ABI boundaries, not authority boundaries.
+- `青い川のダム` separates proposal, authorization, and actuation.
+- No adapter may construct `許可済み選択` except through `仲介者::許可する`.
+
+## Cryptography
+
+Production source, policy, artifact, SBOM, and provenance identity uses SHA-256. `簡易要約` is non-cryptographic and retained only for source compatibility.
+
+## Unsafe code
+
+The universal core forbids unsafe code. FFI and WASM crates permit the Rust 2024 unsafe export attributes required to create external symbols, but contain no unsafe blocks or unsafe functions.
+
+## Reporting
+
+Do not publish vulnerabilities before a fix and negative fixture exist. A security repair must identify the originating abnormality, failed invariant, countermeasure, superseded standard, revised standard, and replay evidence.
+""" .
+
+
+#################################################################
+# Classes
+#################################################################
+
+tcps:ReleaseArtifact a rdfs:Class ;
+    rdfs:label "A release-tree file (evidence, manifest, doc, toolchain pin, or smoke test) carried verbatim from source to output" .
+
+#################################################################
+# ReleaseArtifact individuals -- evidence/source/*
+#################################################################
+
+tcps:DistSha256SumsArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "SHA-256 checksums for source evidence bundle" ;
+    tcps:artifactPath "evidence/source/DIST_SHA256SUMS" ;
+    tcps:artifactBody """e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .gitkeep
+294a4f9894e3d0415e32c49669365c0c67bae701973ea8b03559d2b49c5bd28a  tcps-v26.7.19.cdx.json
+f27031c2c0defb631662710f29c4496a4a4d6ecc1478592fda726000ce851078  tcps-v26.7.19.intoto.jsonl
+3d337d5912e3ecd93c71e82935e46fdf79f6115de493a2869e1333a16170d82c  tcps-v26.7.19.spdx.json
+""" .
+
+tcps:SourceEvidenceVerificationArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "verify-release step receipt (source evidence verification)" ;
+    tcps:artifactPath "evidence/source/source-evidence-verification.json" ;
+    tcps:artifactBody """{
+  "schema": "1",
+  "step": "verify-release",
+  "recorded_at": "2026-07-19T20:47:20+00:00",
+  "source_digest": "777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe",
+  "release": {
+    "release": "v26.7.19",
+    "flavor": "production.2",
+    "rust": "1.97.1",
+    "edition": "2024",
+    "core": {
+      "no_std": true,
+      "external_dependencies": 0,
+      "unsafe": "forbidden"
+    },
+    "products": [
+      "core-rlib",
+      "std-adapter",
+      "cli",
+      "c-abi",
+      "wasm"
+    ],
+    "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+  },
+  "status": "accepted",
+  "errors": []
+}
+""" .
+
+tcps:StructuralVerifyArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "verify step receipt (structural verification)" ;
+    tcps:artifactPath "evidence/source/structural-verify.json" ;
+    tcps:artifactBody """{
+  "schema": "1",
+  "step": "verify",
+  "recorded_at": "2026-07-19T20:47:15+00:00",
+  "source_digest": "d9cfc7b0cc529406b4f963a606baa707b9297c95fab24f8f7a31565a66db2698",
+  "release": {
+    "release": "v26.7.19",
+    "flavor": "production.2",
+    "rust": "1.97.1",
+    "edition": "2024",
+    "core": {
+      "no_std": true,
+      "external_dependencies": 0,
+      "unsafe": "forbidden"
+    },
+    "products": [
+      "core-rlib",
+      "std-adapter",
+      "cli",
+      "c-abi",
+      "wasm"
+    ],
+    "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+  },
+  "status": "accepted",
+  "structure_ok": true,
+  "errors": [],
+  "commands": []
+}
+""" .
+
+tcps:TargetMatrixReceiptArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "target-matrix step receipt" ;
+    tcps:artifactPath "evidence/source/target-matrix-receipt.json" ;
+    tcps:artifactBody """{
+  "schema": "1",
+  "step": "target-matrix",
+  "recorded_at": "2026-07-19T20:47:16+00:00",
+  "source_digest": "777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe",
+  "release": {
+    "release": "v26.7.19",
+    "flavor": "production.2",
+    "rust": "1.97.1",
+    "edition": "2024",
+    "core": {
+      "no_std": true,
+      "external_dependencies": 0,
+      "unsafe": "forbidden"
+    },
+    "products": [
+      "core-rlib",
+      "std-adapter",
+      "cli",
+      "c-abi",
+      "wasm"
+    ],
+    "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+  },
+  "status": "generated",
+  "path": "/mnt/data/豊田コード生産方式_製品版_v26.7.19/targets/target-matrix-snapshot.json",
+  "counts": {
+    "tier-1": 8,
+    "tier-2": 104
+  },
+  "source": "official-snapshot"
+}
+""" .
+
+tcps:CdxSbomArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "CycloneDX 1.5 SBOM for the release" ;
+    tcps:artifactPath "evidence/source/tcps-v26.7.19.cdx.json" ;
+    tcps:artifactBody """{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:c5e36f9515766a6b6fc1d6db5ecfcfa7",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-07-19T20:47:17+00:00",
+    "component": {
+      "type": "application",
+      "name": "豊田コード生産方式",
+      "version": "26.7.19"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "tcps-core",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-core@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-std",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-std@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-ffi",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-ffi@26.7.19"
+    },
+    {
+      "type": "library",
+      "name": "tcps-wasm",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-wasm@26.7.19"
+    },
+    {
+      "type": "application",
+      "name": "tcps-cli",
+      "version": "26.7.19",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/tcps-cli@26.7.19"
+    }
+  ]
+}
+""" .
+
+tcps:IntotoProvenanceArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "in-toto Statement / SLSA provenance predicate (JSONL)" ;
+    tcps:artifactPath "evidence/source/tcps-v26.7.19.intoto.jsonl" ;
+    tcps:artifactBody """{"_type":"https://in-toto.io/Statement/v1","subject":[{"name":".gitkeep","digest":{"sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},{"name":"tcps-v26.7.19.cdx.json","digest":{"sha256":"294a4f9894e3d0415e32c49669365c0c67bae701973ea8b03559d2b49c5bd28a"}},{"name":"tcps-v26.7.19.spdx.json","digest":{"sha256":"3d337d5912e3ecd93c71e82935e46fdf79f6115de493a2869e1333a16170d82c"}}],"predicateType":"https://slsa.dev/provenance/v1","predicate":{"buildDefinition":{"buildType":"urn:tcps:rust-lifecycle:v1","externalParameters":{"release":"v26.7.19","flavor":"production.2","rust":"1.97.1","edition":"2024","core":{"no_std":true,"external_dependencies":0,"unsafe":"forbidden"},"products":["core-rlib","std-adapter","cli","c-abi","wasm"],"target_strategy":"discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"},"internalParameters":{"rustc":null,"cargo":null,"host":null},"resolvedDependencies":[{"uri":"file:source-tree","digest":{"sha256":"777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe"}}]},"runDetails":{"builder":{"id":"tools/lifecycle.py"},"metadata":{"invocationId":"859178522920acf596a20fa90411893192899169f28fc53e9a9999fe28be573f","startedOn":"2026-07-19T20:47:18+00:00","finishedOn":"2026-07-19T20:47:18+00:00"}}}}
+""" .
+
+tcps:SpdxSbomArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "SPDX 2.3 SBOM for the release" ;
+    tcps:artifactPath "evidence/source/tcps-v26.7.19.spdx.json" ;
+    tcps:artifactBody """{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "tcps-v26.7.19",
+  "documentNamespace": "urn:tcps:spdx:777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe",
+  "creationInfo": {
+    "created": "2026-07-19T20:47:17+00:00",
+    "creators": [
+      "Tool: tools/lifecycle.py"
+    ]
+  },
+  "packages": [
+    {
+      "name": "tcps-core",
+      "SPDXID": "SPDXRef-Package-tcps-core",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-std",
+      "SPDXID": "SPDXRef-Package-tcps-std",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-ffi",
+      "SPDXID": "SPDXRef-Package-tcps-ffi",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-wasm",
+      "SPDXID": "SPDXRef-Package-tcps-wasm",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    },
+    {
+      "name": "tcps-cli",
+      "SPDXID": "SPDXRef-Package-tcps-cli",
+      "versionInfo": "26.7.19",
+      "downloadLocation": "NOASSERTION",
+      "licenseConcluded": "MIT OR Apache-2.0",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "filesAnalyzed": false
+    }
+  ]
+}
+""" .
+
+#################################################################
+# ReleaseArtifact individuals -- release-tree root files
+#################################################################
+
+tcps:WorkspaceCargoTomlArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "workspace Cargo.toml" ;
+    tcps:artifactPath "Cargo.toml" ;
+    tcps:artifactBody """[workspace]
+resolver = "2"
+members = [
+    "crates/tcps-core",
+    "crates/tcps-std",
+    "crates/tcps-ffi",
+    "crates/tcps-wasm",
+    "crates/tcps-cli",
+]
+default-members = [
+    "crates/tcps-core",
+    "crates/tcps-std",
+    "crates/tcps-cli",
+]
+
+[workspace.package]
+version = "26.7.19"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT OR Apache-2.0"
+authors = ["Sean Chatman"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+correctness = "deny"
+suspicious = "deny"
+perf = "deny"
+style = "warn"
+complexity = "warn"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+overflow-checks = true
+
+[profile.release-with-debug]
+inherits = "release"
+debug = 2
+strip = "none"
+
+[profile.size]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+""" .
+
+tcps:ReadmeJaArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "README.md (Japanese canonical)" ;
+    tcps:artifactPath "README.md" ;
+    tcps:artifactBody """# 豊田コード生産方式 製品版 v26.7.19
+
+原初の豊田生産方式を、日本語の歴史語彙・生産語彙・改善語彙を正準の意味体系としてRustへ写像した製品用ワークスペースです。英語の一般的なソフトウェア語彙へいったん翻訳してから実装するのではなく、`自働化`、`後工程引取り`、`標準作業`、`異常停止`、`真因`、`改善`を型・状態遷移・数量保存則・受領証として直接実装します。
+
+> このプロジェクトは独立した研究・実装であり、Toyota Motor CorporationまたはToyota Production Systemの公式成果物ではありません。
+
+## 固定処理系
+
+全工程はRust 1.97.1へ固定する。1.97.0で報告されたLLVM誤コンパイルを修正した点版であり、製品構築は1.97.0へ暗黙に後退してはならない。
+
+## 製品境界
+
+```text
+日本語TPS意味体系
+    ↓
+tcps-core          no_std・外部依存なし・全組込み対象の基準
+    ├── tcps-std   環境観測・受領証永続化
+    ├── tcps-ffi   C ABI・静的/動的ライブラリ
+    ├── tcps-wasm  WebAssembly能力境界
+    └── tcps-cli   現地検査・基準計測
+```
+
+中核則は変わりません。
+
+```text
+原問題 → 発明 → 不変条件 → 標準作業 → 実行 → 異常 → 停止 → 真因 → 対策 → 標準更新
+選択 ≠ 許可 ≠ 実行
+```
+
+## 対象対応
+
+Rustが組込み対象として認識する全三つ組は、実行時に次の命令から取得します。
+
+```bash
+rustc --print target-list
+```
+
+製品ライフサイクルは対象を三階層へ分類します。
+
+- 第一階層: Rustプロジェクトが構築と試験を保証する対象
+- 第二階層: Rustプロジェクトが構築を保証する対象。試験は対象ごとの実行環境が必要
+- 第三階層: コンパイラ内に存在するが保証のない対象。`nightly -Z build-std=core`を用いた最善努力
+
+`tcps-core`はすべての対象で構築を試みます。CLI、C ABI、WASM、Apple、Androidなどの製品は、その対象で意味のあるSDKと実行環境がある場合だけ追加します。SDK不足、実行環境不足、対象未配布、コンパイラ拒否は別々の結果として受領証へ記録されます。
+
+## 最短経路
+
+### Unix系
+
+```bash
+./scripts/bootstrap.sh
+./scripts/full-lifecycle.sh
+```
+
+### Windows PowerShell
+
+```powershell
+./scripts/bootstrap.ps1
+./scripts/full-lifecycle.ps1
+```
+
+### 全組込み対象の走査
+
+```bash
+./scripts/full-lifecycle-all-targets.sh
+```
+
+```powershell
+./scripts/full-lifecycle-all-targets.ps1
+```
+
+全対象で意味が共通する製品は`no_std`中核である。標準ライブラリ、C ABI、CLI、WASM、Apple、Androidなどの配布物は、対象能力とSDKが成立する工程だけで引き取る。
+
+## 個別工程
+
+```bash
+python3 tools/lifecycle.py doctor
+python3 tools/lifecycle.py verify
+python3 tools/lifecycle.py matrix
+python3 tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product core
+python3 tools/lifecycle.py test --target x86_64-unknown-linux-gnu
+python3 tools/lifecycle.py benchmark --iterations 1000000
+python3 tools/lifecycle.py package --target x86_64-unknown-linux-gnu
+python3 tools/lifecycle.py sbom
+python3 tools/lifecycle.py provenance
+python3 tools/lifecycle.py checksums
+python3 tools/lifecycle.py sign --method cosign
+python3 tools/lifecycle.py verify-release
+```
+
+## 全対象構築
+
+第一・第二階層の中核を構築します。
+
+```bash
+python3 tools/lifecycle.py build-all --tiers 1,2 --product core
+```
+
+第三階層を16分割して最善努力で構築します。
+
+```bash
+python3 tools/lifecycle.py build-all   --tiers 3   --product core   --shard-index 0   --shard-count 16
+```
+
+第三階層では、対象の`core`がrustup配布に存在しない場合、導入済みnightlyと`rust-src`を用いて`-Z build-std=core`を試します。結果を成功に見せかけることはありません。
+
+## プラットフォーム別経路
+
+| 系統 | スクリプト | 必要な外部能力 |
+|---|---|---|
+| Linux GNU/musl | `scripts/platform/linux.sh` | 対象ごとのリンカとsysroot |
+| Apple | `scripts/platform/apple.sh` | macOSとXcode SDK |
+| Android | `scripts/platform/android.py` | Android NDK |
+| Windows | `scripts/platform/windows.ps1` | MSVCまたはMinGW/LLVM-mingw |
+| WebAssembly | `scripts/platform/wasm.sh` | 対象に応じてWASI SDK/Emscripten/実行器 |
+| 組込み | `scripts/platform/embedded.sh` | 対象リンカ、実機またはエミュレータ |
+| BSD/Solaris | `scripts/platform/bsd-solaris.sh` | 対象sysrootまたは対象ホスト |
+| UEFI | `scripts/platform/uefi.sh` | UEFI画像作成器とQEMU/実機 |
+| GPU/eBPF | `scripts/platform/gpu.sh` | CUDA/ROCm/eBPFツールチェーン |
+
+## 受領証と供給網
+
+各工程は`receipts/`へJSON受領証を出します。公開物には次を生成します。
+
+- 対象行列
+- 対象別ZIPとtar.gz
+- SHA-256一覧
+- CycloneDX 1.5 SBOM
+- SPDX 2.3 SBOM
+- in-toto Statement / SLSA provenance
+- 任意のGPG、minisign、cosign署名
+
+中核には依存なしのSHA-256実装があり、製品方策の要約へ使用します。旧`簡易要約`は互換用の非暗号学的要約であり、製品の信頼境界には使用しません。
+
+## CI
+
+同梱経路:
+
+- GitHub Actions: ホスト検査、第一階層、代表第二階層、全組込み対象分割、供給網、公開
+- GitLab CI
+- Azure Pipelines
+
+第一階層は失敗を許容しません。第二階層は構築失敗を拒否します。第三階層は既定では最善努力ですが、`--strict-tier3`で拒否条件にできます。
+
+## ワークスペース
+
+```text
+crates/
+├── tcps-core   日本語TPS中核、no_std
+├── tcps-std    標準環境統合
+├── tcps-ffi    C ABI
+├── tcps-wasm   WebAssembly公開面
+└── tcps-cli    現地検査と基準計測
+
+tools/lifecycle.py       全環境共通ライフサイクル
+scripts/                 Bash、PowerShell、プラットフォーム別経路
+targets/                 公式階層スナップショットと対象系統
+schemas/                 受領証・対象行列・公開記録のJSON Schema
+packaging/               Debian、RPM、npm、NuGet、Apple、Android素材
+.github/workflows/       継続的検査と公開
+docs/                    運用・安全・移植・ABI文書
+```
+
+## 立脚点
+
+この生成環境にはRustツールチェーンがなく、外部ネットワークからrustupを取得できませんでした。そのため、この配布物は構造検査、Python実行器検査、対象分類検査、アーカイブ検査まで閉じています。Rustのコンパイル、Clippy、全試験、ABI生成、対象別構築の立脚点は、同梱CIまたは承認済みRust 1.97.1環境で受領証を生成した時点で成立します。
+
+## ライセンス
+
+MIT OR Apache-2.0
+""" .
+
+tcps:ReadmeEnArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "README_EN.md (English interoperability surface)" ;
+    tcps:artifactPath "README_EN.md" ;
+    tcps:artifactBody """# Toyota Code Production System — Production Edition v26.7.19
+
+A production-engineered Rust workspace that maps the original Toyota Production System directly from its Japanese historical and production vocabulary into types, state transitions, conservation laws, and receipts. The canonical domain language remains Japanese; English is documentation and interoperability surface only.
+
+> Independent research and implementation. This is not an official publication or product of Toyota Motor Corporation.
+
+## Pinned compiler
+
+The lifecycle pins Rust 1.97.1. This point release repairs an LLVM miscompilation reported in Rust 1.97.0; production builds must not silently fall back to 1.97.0.
+
+## Product boundary
+
+```text
+Japanese TPS semantic system
+    ↓
+tcps-core          no_std, dependency-free universal core
+    ├── tcps-std   environment observation and receipt persistence
+    ├── tcps-ffi   stable C ABI, static and dynamic libraries
+    ├── tcps-wasm  WebAssembly capability boundary
+    └── tcps-cli   gemba inspection and benchmark executable
+```
+
+The governing laws are:
+
+```text
+Original problem → invention → invariant → standardized work → execution → abnormality → stop → root cause → countermeasure → revised standard
+Selection ≠ authorization ≠ actuation
+```
+
+## Every Rust target, without false equivalence
+
+The lifecycle discovers the current compiler's complete built-in target set using:
+
+```bash
+rustc --print target-list
+```
+
+It then applies Rust's official tier model:
+
+- Tier 1: build and test are guaranteed by the Rust project.
+- Tier 2: build is guaranteed; runtime testing is not universally guaranteed.
+- Tier 3: the target exists in the compiler but carries no project guarantee.
+
+`tcps-core` is attempted for every discovered target. CLI, C ABI, WebAssembly, Apple frameworks, Android archives, and native tests are added only where the platform has the required standard library, linker, SDK, and runner. Missing SDK, missing runtime, unavailable target, timeout, and compiler refusal remain distinct receipted outcomes.
+
+## Start
+
+Unix:
+
+```bash
+./scripts/bootstrap.sh
+./scripts/full-lifecycle.sh
+```
+
+Windows PowerShell:
+
+```powershell
+./scripts/bootstrap.ps1
+./scripts/full-lifecycle.ps1
+```
+
+Complete built-in-target core sweep:
+
+```bash
+./scripts/full-lifecycle-all-targets.sh
+```
+
+```powershell
+./scripts/full-lifecycle-all-targets.ps1
+```
+
+Individual lifecycle stations:
+
+```bash
+python3 tools/lifecycle.py doctor
+python3 tools/lifecycle.py verify
+python3 tools/lifecycle.py matrix
+python3 tools/lifecycle.py build --target x86_64-unknown-linux-gnu --product core
+python3 tools/lifecycle.py test --target x86_64-unknown-linux-gnu
+python3 tools/lifecycle.py benchmark --iterations 1000000
+python3 tools/lifecycle.py package --target x86_64-unknown-linux-gnu
+python3 tools/lifecycle.py sbom
+python3 tools/lifecycle.py provenance
+python3 tools/lifecycle.py checksums
+python3 tools/lifecycle.py sign --method cosign
+python3 tools/lifecycle.py verify-release
+```
+
+## Build matrices
+
+All Tier 1 and Tier 2 core targets:
+
+```bash
+python3 tools/lifecycle.py build-all --tiers 1,2 --product core
+```
+
+One of sixteen Tier 3 best-effort shards:
+
+```bash
+python3 tools/lifecycle.py build-all --tiers 3 --product core --shard-index 0 --shard-count 16
+```
+
+For Tier 3, the lifecycle can fall back to an installed nightly toolchain with `rust-src` and `-Z build-std=core`. A failed build never becomes a successful receipt.
+
+## Supply-chain outputs
+
+Every lifecycle station emits JSON evidence under `receipts/`. Release output supports:
+
+- versioned target matrix;
+- per-target ZIP and tar.gz archives;
+- SHA-256 manifest;
+- CycloneDX 1.5 and SPDX 2.3 SBOMs;
+- in-toto Statement with SLSA provenance predicate;
+- optional GPG, minisign, or cosign signatures.
+
+The core includes a dependency-free `no_std` SHA-256 implementation for production identity. The older `簡易要約` function remains a compatibility-only non-cryptographic digest and is not used at the release trust boundary.
+
+## Current standing
+
+The artifact-generation environment had no Rust toolchain and could not resolve the rustup download host. Structural verification, Python lifecycle execution, target classification, and archive integrity were completed. Compilation, Clippy, Rust tests, ABI generation, and per-target build standing must be established by the included CI or an approved Rust 1.97.1 environment.
+
+## License
+
+MIT OR Apache-2.0
+""" .
+
+tcps:ReleaseStandingJsonArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "release standing declaration (JSON)" ;
+    tcps:artifactPath "RELEASE_STANDING.json" ;
+    tcps:artifactBody """{
+  "release": "v26.7.19",
+  "flavor": "production.2",
+  "source_standing": "structurally-accepted",
+  "binary_standing": "unverified-on-artifact-host",
+  "toolchain_required": "Rust 1.97.1",
+  "reasons": [
+    "cargo not installed on artifact host",
+    "rustc not installed on artifact host",
+    "rustup not installed on artifact host",
+    "network toolchain installation unavailable"
+  ],
+  "establish_binary_standing_with": [
+    "python tools/lifecycle.py verify",
+    "scripts/full-lifecycle.sh",
+    "scripts/full-lifecycle-all-targets.sh",
+    "GitHub Actions platform matrices"
+  ]
+}
+""" .
+
+tcps:ReleaseStandingMdArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "release standing declaration (Markdown)" ;
+    tcps:artifactPath "RELEASE_STANDING.md" ;
+    tcps:artifactBody """# Release Standing — v26.7.19 production.2
+
+## Accepted source standing
+
+- Complete Cargo workspace and local path dependency graph are present.
+- The universal core is `no_std`, dependency-free, and forbids unsafe code.
+- Japanese TPS domain identifiers remain canonical.
+- SHA-256 is used for policy and selection-request receipt identity.
+- Selection, authorization, and actuation are separate typed transitions.
+- Unix shell, PowerShell, Python, TOML, JSON, and YAML surfaces passed structural parsing.
+- The lifecycle generated a 112-target Tier 1/Tier 2 snapshot and dynamically admits additional compiler targets as Tier 3.
+- Source SBOM, provenance, checksums, and structural receipts are included under `evidence/source/`.
+
+## Standing not claimed on this host
+
+This artifact-generation host did not contain `cargo`, `rustc`, or `rustup`, and network installation was unavailable. Therefore the following remain unestablished here:
+
+- Rust parsing and type checking;
+- rustfmt and Clippy standing;
+- unit and integration test execution;
+- C ABI smoke execution;
+- WebAssembly smoke execution;
+- per-target compilation and SDK linkage;
+- benchmark measurements;
+- signed binary release standing.
+
+The included CI and lifecycle scripts are the required path for establishing those claims. A build receipt is not a test receipt, and a structurally accepted source archive is not a compiled binary release.
+""" .
+
+tcps:SourceManifestSha256Artifact a tcps:ReleaseArtifact ;
+    rdfs:label "SHA-256 manifest of the entire source tree" ;
+    tcps:artifactPath "SOURCE_MANIFEST.sha256" ;
+    tcps:artifactBody """c93aa1bbe204a2e27a6ae2b60afe83c0e6217d270df76de9b02b1adb0f8ff1d8  .cargo/config.toml
+0859128545a5611c5c16e1f74687ba43bd4c7dfd5088a75658b1b3a758d89146  .github/dependabot.yml
+6f7a805bcd902467bab91e1ed8859500b561e8e89200afbfd4b97f77ecbfa519  .github/workflows/all-builtins.yml
+825a03cbb5343ee6ae57b965ecba57e161d9636318fe45d14a0637c3927fd190  .github/workflows/products.yml
+9b84b8b2417fca941a403e4a693c6d0e3e5bcfb16a11ea87167eb59e02e01c19  .github/workflows/release.yml
+6d83649e69df5b185712aff3a0177a0d5199416957d72588452f3a6b6421d09d  .github/workflows/security.yml
+93dc482a3891686cac49abab8ecf8e4694894a0cbf38a173b31aad3b9f89381c  .github/workflows/supply-chain.yml
+b122cecf97f749f878aa17233022d7cc020f3e6bccccbf7afea2324e051df926  .github/workflows/tier1.yml
+a6421936191b82ab1c8c5ff99484fe21f406ca9544f202b9a6536721e82dbf1c  .github/workflows/tier2-representative.yml
+6f12451e815238b9497ff4013e0401e3e4ca5fc824334e39a31fc5c6e03a3399  .github/workflows/verify.yml
+512a2fbb157c1117a5e7e9f12bbd90659e078846c4738fe26627578ac6cdb1be  .gitignore
+fd7a1d46bb774c9b72f78fc40bcd53706b27af2ff3ef97b8347500d1e0748a01  .gitlab-ci.yml
+dde879b1c6bbfcdf6899feb2d7551f6000360c62d263a54a37bf38d192f5eac8  CHANGELOG.md
+d8a019e2a76561d00848de6ce116a86145968c26fb4a5e2032ac1fc3b630d677  CONTRIBUTING.md
+071b11142a39c12a980d0c4985cc931f5ecb9c5842cc6575ac1ef388a5231a4a  Cargo.toml
+f2afd2180c83fc2b9faad741599dfe2095fd2557df2e479873bf87af62cf111d  LICENSE-APACHE
+8cf1ff935b266805c96fb4d13d94550ff282ba70aeda449bd78b6d45ed73b29e  LICENSE-MIT
+3666d230b45c4b2b64ce4b27cd31fcd5e6014c2b7ede0db8b6527d66cdc4f53e  README.md
+3a80467f22bb7529811516064e070da382c328b0e410791b0faedaa8c6c206e8  README_EN.md
+1fa7a594c4a4cbd6bfe1b3355b1f63a3db5690ebeb5581adce9f549deff10a7b  RELEASE_STANDING.json
+e54586822d781322ccb3bcb6718f6d7d840594a5882d503da5a35e88374ae760  RELEASE_STANDING.md
+f3bc5f034034e8eed0aa46cfeb612efc9755df62105985df2d9fe22de34668ae  SECURITY.md
+0d10353fcb4afc3540ae7c4c67bca7e0c9810d01deaad2eb960954bdf5ff5f9a  SUPPORT.md
+8f4a12e39dd4f309003ac5fc4764d3ccc3dec272d3f50a3ec643339605948a29  azure-pipelines.yml
+8d6537ca95cd869b6ac2e339e12f43169a6ec63d5a37ac6be9a86c7f99d39cf9  compose.yaml
+b144814dc0a3c7315a81dfd58b8de5c235f71c9a68ad1e5ecc2bf6acde622627  containers/Dockerfile.release
+1ecdfbf41336756476aa4f176ff2182330e724edbdedd44d6193da7a5737faa2  containers/Dockerfile.verify
+7961424682450e114b758d718a2e9a8851bcb79f56a8c16843aadd69627821c7  containers/Dockerfile.wasm
+df71daa8c77ad029499e04484dddc1c281257a680dd71006e022425e0b72ccf4  crates/tcps-cli/Cargo.toml
+0011d2703c34dd079eee8e9394619ac375c75d7a86d44c4e8f6c5699e33c5380  crates/tcps-cli/src/main.rs
+745b6fda1c8634d38010636c8030b451048e3154760630b56af49e45e72d2c78  crates/tcps-cli/src/基準.rs
+a0233169a1ca9c769af9d5fabc908b757825aada4fc4add725fffd3042c8a96b  crates/tcps-core/Cargo.toml
+552e228f4bb61a44cad62809ffe86285252c072c1ae9f042ea442f52bf6251e9  crates/tcps-core/src/lib.rs
+020ea43d4652b626197ae2bc7e0e9c04b7390b1b35312c31b0c817fb97dc80c5  crates/tcps-core/src/かんばん.rs
+8a9689f72669bb2978f6ee57e9c08368f4303a56ea89de02ebcb264fc5490ed2  crates/tcps-core/src/アンドン.rs
+b822c9b9321420904cdb79760f2382abef0f5330960b639153ee95c7054e4947  crates/tcps-core/src/タクト.rs
+2cf2f94d6e481f36f1d1f272d838a9c41038d49a33272501e6989297b219434c  crates/tcps-core/src/ポカヨケ.rs
+e5785577aa4f48da26676eb8681158b12033f48f7efbaf4dfb40129092c16a3c  crates/tcps-core/src/ムリムラムダ.rs
+b25b2726e9a1c09fb9135766836d5585462db0ba77877f168058672e02e9ef80  crates/tcps-core/src/五回なぜ.rs
+9896cb4159b7e1a44f5bde91c4c9001d8d9b62fbddd51b08a044a17c5b84bf78  crates/tcps-core/src/人間中心.rs
+e5a2dc637874e9e739b8d01f527784e4d3537ee59b02cd9928df413d38687d20  crates/tcps-core/src/価値流.rs
+10b9bee5d5e4fa1667e7eeef8ba82daae86b8908dca3347fdd0dfecd08057f4b  crates/tcps-core/src/全体.rs
+610069d620ad623e9b08c03da795d8a8483b9521c554a284a72ab852ead5a399  crates/tcps-core/src/原点.rs
+5b4094e3c493f28b3ff55621209b1593af5b75b4a542e1bb2a874a0b3882dcbf  crates/tcps-core/src/受領証.rs
+2c1e6ed0be02ae74cc99b6c541a60909d6e691539d511be984b163f9876a6f64  crates/tcps-core/src/品質.rs
+ff9ed75cf4002a7327097feb7f1c9e69a369fe628467051efd045001cf1502b9  crates/tcps-core/src/安全.rs
+00568894981d9711839255e3cfa87f76bc0a24962a178827006e5d83598b7f39  crates/tcps-core/src/工程能力.rs
+f8dd97e2e84293e7cc4cc34f558b09f4a9f9cbd9a59f4732cfc11b4867db6569  crates/tcps-core/src/平準化.rs
+f624e7d4e7d8b1b84f6e7b7876c9f1e94d65b054a77ee8b44eba4ec2045c7776  crates/tcps-core/src/必要時生産.rs
+346966e157f2cb61369044f239e5923dda9c36ce79619d149cd5b02196bff1bc  crates/tcps-core/src/改善.rs
+ab53f2a9dc666b26f05f45724386c77ad430dd613b0f5791f3481ae19fe42409  crates/tcps-core/src/暗号要約.rs
+defb4389e00781ee182163205e73e600192ffb7046764f64c9d0090b69046ee2  crates/tcps-core/src/標準作業.rs
+230e9f856c433bf8409cb3569cb1ee24026b395988cd9c452bcff9ef41654718  crates/tcps-core/src/正準.rs
+5cac4db294540f3c10b0899b0ab0e6ad3679b2bb000fc16485e761fb9fe82787  crates/tcps-core/src/現地現物.rs
+0bed88240bdc523c62939c935a89ebe8f242cc98bccab56fffbd76081ad5d714  crates/tcps-core/src/系譜.rs
+93e7bc9333006597f550e64a9d64182dfb3cae32e7b27f9169944d46dae72629  crates/tcps-core/src/自働化.rs
+675e92ec97bd94b1ed727673bfb070c65ffb615786f7d08553e2aee9c2260e6e  crates/tcps-core/src/自動選択.rs
+86cbdb062ad5249684346b286d0e642db31c5cdf6359cf841d08962a7dc00335  crates/tcps-core/src/試験.rs
+d89979eabbe43499eb7c8529b69cc971fa4131ee27c3fc75720ab4ee8ed4acea  crates/tcps-core/src/語彙.rs
+bb3fca4cda515992739eaa2dc6ec354a27925642deee8d082f231bb82591fbd4  crates/tcps-core/src/青い川のダム.rs
+52c161f66403305e53ab0950780447e9855b25103fa227e4bdaa187402199b24  crates/tcps-ffi/Cargo.toml
+08b7180866368b9199af6e76f8ef2c5d69ae9b2bba20cba996a6d3558e112606  crates/tcps-ffi/include/tcps.h
+776bad723261af9377f3d22b276bd185f2f239777922439df1f5bff3fbf9edd0  crates/tcps-ffi/src/lib.rs
+20d7ebf109362eda3f4122bd5453422bc84ad7a90aff60c27ce655bfa33031d3  crates/tcps-std/Cargo.toml
+e414d1447a5d5513ac5dfcfc49879dbfd560f8b4cb46e4193dc9580d136cfdc3  crates/tcps-std/src/lib.rs
+4e254b0831825c19d7eff2d6c2bda6c4f9829043d644aec1a8edab20227677e4  crates/tcps-wasm/Cargo.toml
+e5b73da5103a95a176c207c97b3bfaeac4c2726f59ee746dcf998bd73c1977fd  crates/tcps-wasm/src/lib.rs
+ef8a021861fa83c973b514e4a925fc7e20814cc3fc3fe82f065d9249ada0a215  deny.toml
+3e64e518006ff99bc637e337b177c5df6f9135d3ed90327bfd976ad48c6efb55  docs/ABI.md
+98e14c1238ad291abab3c8e10cf3f349b4d08dde155621f4ca8029cd4cc736eb  docs/LIFECYCLE.md
+a74046454f5e3099e06d1ee8ed2966a256ad8c01774f3050204e86dbeadc84da  docs/PLATFORM_SUPPORT.md
+490e4a70d334e8fea06b723dd51106b976ea24115849178d680df298d3c6383d  docs/PORTING.md
+f3bc5f034034e8eed0aa46cfeb612efc9755df62105985df2d9fe22de34668ae  docs/SECURITY.md
+cf0649b1786e56a8a387c9e6e83b15da7e1a453a6124a5273d0e51b7459c7437  evidence/source/DIST_SHA256SUMS
+4559744c71ec139b3bb04cb15305b79ff4a90e51188a75ae8ccbab6e67658c4f  evidence/source/source-evidence-verification.json
+ea35b5eaa557c8ae6a534ac6d57b7dc17c54aecb2f17619e0ecdd54a41a4c5a8  evidence/source/structural-verify.json
+6fed7fe2db77543eb0c0f7b4872ed315b51183ef542e9d06dbea2ff2a76f98d0  evidence/source/target-matrix-receipt.json
+294a4f9894e3d0415e32c49669365c0c67bae701973ea8b03559d2b49c5bd28a  evidence/source/tcps-v26.7.19.cdx.json
+f27031c2c0defb631662710f29c4496a4a4d6ecc1478592fda726000ce851078  evidence/source/tcps-v26.7.19.intoto.jsonl
+3d337d5912e3ecd93c71e82935e46fdf79f6115de493a2869e1333a16170d82c  evidence/source/tcps-v26.7.19.spdx.json
+511791407150e76e788cdd3505a4cc0484c3e1a2647dab07f4494c8c4cc87655  fixtures/正準方策.txt
+08b7180866368b9199af6e76f8ef2c5d69ae9b2bba20cba996a6d3558e112606  include/tcps.h
+99e4661630536041dc519e12c6845a9d61bc7373897f2a727fc68499eab57338  packaging/android/AndroidManifest.xml
+c8db5abfacc4fdaca10455ccd13aa4939f2510194d21120367133e353e841469  packaging/apple/module.modulemap
+5c8bd80555a669d80baa8edf8043fa8bde77e13498bf8482eb5fedc16a739af3  packaging/deb/control.in
+199c2b2d38f37387581690dcd2330e75a89dc2405a76b395acf19309323a62ee  packaging/npm/package.json.in
+fc7a73f559ea32921eeb461e9c7f739b015432bdd891c0aeabff72e31c9775a2  packaging/nuget/tcps.nuspec.in
+99aed3f8dd916f6e826b3143a3926f3db06963bb930af0927f37dd009105cfe5  packaging/rpm/tcps.spec.in
+4a8ffd2ac47efd33925c7b40dbce92207b272d602dfe0b7121a4762909b0d0e5  release.json
+1325bbaec346d4dac5e45e2dc249f9c4e5ee01cc706490d824b4a439413506ce  rust-toolchain.toml
+00819400069c8246cdbff7a17076dd1f2ba70cdbd25dc51c4097d56421837508  schemas/build-receipt.schema.json
+3bce7818701d006b094c8004f5931f7def98ae0163819172ef4602faba00da3f  schemas/release-manifest.schema.json
+dc7356a1311f5e3c2a7118a1d3aa3a33eb95459884acac4c0f2bc92d0791059d  schemas/target-matrix.schema.json
+2211b3010fdc5f4e916bb098559850d969b97d8a127df8f054b373d141b360d9  scripts/advanced-verification.sh
+5e25a555b54b74b9a064b9867b843849bd95fef2ed3e57e953f3b13233cf4b84  scripts/bootstrap.ps1
+75d98d289fbc513c16d829288f14097f7f1793de313fcd4c213a0c47640e9026  scripts/bootstrap.sh
+ba939a88b3225ef8548a0acc96b9a494e214d4c18315c9589649332bcf4fcb65  scripts/ci/install-quality-tools.sh
+c880b10c4cc3f7f3eff95cf28c276bdcdb7f1940e80e2f0f2cea46fa2e7b199a  scripts/ci/merge-receipts.py
+be32dee0b92c6223636d61d4ed636b7aa1a2a147d07c3dcee8a5f0e097b2928a  scripts/full-lifecycle-all-targets.ps1
+16ebe60d83bbdc0c0b9797393c682185ef32f9acde84d86993ce1ac973c0372f  scripts/full-lifecycle-all-targets.sh
+0ec0120ff4cf23272bd61db1d3e6560163f4cfbe5d0ba150f9f0f24e49d49a41  scripts/full-lifecycle.ps1
+1ab0aa645f1d644e2158014a4946e06def0fa18a631e37a122779da9af7c383a  scripts/full-lifecycle.sh
+55561e4f507ed8798ad6dc1a4ead9b17f334d90095dc252dd54e157b6cdc6b1a  scripts/lifecycle.ps1
+fa7f2ea9b111d2fa8d2901e51d56b88afe02a60ecf42c95053adb22d8d208581  scripts/lifecycle.sh
+1ead4cc7347e443a6c6dca618884cc7283b8309e50e3e9165cec60df463e5616  scripts/platform/android.py
+34ab4e66e355b8658208339be3d9957090040f44e46a989a9355b98f21526a03  scripts/platform/apple.sh
+03cbf1ff0becb1bec1efc33c6c918de3a7d01fcc8d0f885aa3d91318c60d27dc  scripts/platform/bsd-solaris.sh
+d24207d9ae4629d7e27c47303c9763e3a5550a9fbe285152d26c7d1dd26abec2  scripts/platform/embedded.sh
+fafe4582ce30ed33783629104bfea359523ed5061393b4a1210d146e5f12b221  scripts/platform/gpu.sh
+0e268f9562da2199e74b4936e64440ba97fddb03b79dc6bdabdb7bbdcae536a3  scripts/platform/linux.sh
+a82d266486ab87340e493c88b588f28a9b13c49f6648d571cb0746d9e65727f7  scripts/platform/uefi.sh
+643d77b0dfb2570d1ce6939cfd0d00d690117bfebb31e6f9b36fc76c1f325959  scripts/platform/wasm.sh
+560bc74caf8cec4f24d79f649663f2b0a61ad0b53b7f9a04f80a2f7ed10c7df9  scripts/platform/windows.ps1
+0afce5c8b7a7dafa02f4d70e31fd42c379866049d3d45b21f5133fa099cf1816  scripts/publish-crates.ps1
+81a400ba6cf95c8f00238ca1c74a69dde2fbde36c43e113e9d996520603d4ab6  scripts/publish-crates.sh
+8a29adbb7637d7ad1ce15c51d58a0e60140d90b5676a5ccd0979d580a1f65e0f  scripts/reproducible-build.sh
+d7520219ce281f0581fff5698359ce2faf824b114b414d76eda3a0121e7a6d70  scripts/smoke/c-abi.ps1
+d82838506410d7221089840940a6ea94817a6d255745fc88a42c50d7a0fc763c  scripts/smoke/c-abi.sh
+bec93e1eb4ad0be4b0381aa7c3ac1e2ee9b321ab7b0458889ab698bc1aed6124  scripts/smoke/cli.sh
+80eefd9bb46fbe65fc6a6190d92a06646dabb97ea104aa59fa794240a992f4f3  scripts/smoke/wasm-node.sh
+dd6f2078c8f22b4f4804b81307be31f65646c6f65f4d09e5ca1daaffb61d59c0  targets/family-overrides.json
+329e7355cdf39a55d4f7c51ed6c8867389a35a536f0716e5953d36096ce2d97b  targets/official-platform-support-1.97.1.json
+49fb5f690fe3f39ee3aa321b1ec1ef5c739cb80533b1ed6401d668864d24e264  targets/target-matrix-snapshot.json
+7f6aa874d6fe3ce9ac37701eb65886acff7fb42c100268f0c9b067d952c1760f  targets/tier1.txt
+32b86d18fd5ef268970216481665fca6e38c32c4111938f480e6b5c856aba5ef  targets/tier2.txt
+f4b3fd89baf4c84323b24ed1dd01c66be8143eb78809031d8082ee2d66072b92  tests/c/abi_smoke.c
+230e8e5c34a995ac6c41e76cf13f926ee229079252a21c680bf544cb7a8003e1  tests/wasm/smoke.mjs
+836a0cc55e552dcc1a2f89253298ae562c4d9b5633fb2cb048103d78145bb699  tools/lifecycle.py
+ab0ba915dca6e081e6df13e3018b60d0e649f717f75f4f7a41047b49d7e12875  tools/platform_package.py
+""" .
+
+tcps:RustToolchainTomlArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "rustup toolchain pin" ;
+    tcps:artifactPath "rust-toolchain.toml" ;
+    tcps:artifactBody """[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+components = ["rustfmt", "clippy", "rust-src"]
+""" .
+
+tcps:AbiSmokeCArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "C ABI smoke test" ;
+    tcps:artifactPath "tests/c/abi_smoke.c" ;
+    tcps:artifactBody """#include <stdint.h>
+#include <stdio.h>
+#include "tcps.h"
+
+int main(void) {
+    if (tcps_version_v1() != 0x1A0713u) {
+        fputs("version mismatch\\n", stderr);
+        return 1;
+    }
+    const tcps_request_v1 request = {
+        .authority_mask = 1,
+        .ready_mask = 3,
+        .maximum_time = 999,
+        .deterministic_required = 1,
+        .receipt_required = 1,
+        .reserved = {0, 0},
+        .timestamp = 1000,
+    };
+    const tcps_outcome_v1 outcome = tcps_select_v1(request);
+    if (outcome.kind != 1 || outcome.tool != 1 || outcome.eligible_mask != 3 || outcome.ready_mask != 3) {
+        fprintf(stderr, "unexpected outcome kind=%u tool=%u eligible=%llu ready=%llu\\n",
+            (unsigned)outcome.kind,
+            (unsigned)outcome.tool,
+            (unsigned long long)outcome.eligible_mask,
+            (unsigned long long)outcome.ready_mask);
+        return 2;
+    }
+    puts("c-abi-smoke: accepted");
+    return 0;
+}
+""" .
+
+tcps:WasmSmokeMjsArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "WebAssembly smoke test" ;
+    tcps:artifactPath "tests/wasm/smoke.mjs" ;
+    tcps:artifactBody """import { readFile } from "node:fs/promises";
+
+const path = process.argv[2];
+if (!path) throw new Error("wasm path is required");
+const bytes = await readFile(path);
+const { instance } = await WebAssembly.instantiate(bytes, {});
+const version = instance.exports.tcps_wasm_version_v1();
+if (version !== 0x1A0713) throw new Error(`version mismatch: ${version}`);
+const outcome = instance.exports.tcps_wasm_select_canonical_v1(1n, 3n, 999, 1000n);
+const selected = (outcome >> 63n) & 1n;
+const tool = (outcome >> 48n) & 0x7fffn;
+if (selected !== 1n || tool !== 1n) throw new Error(`unexpected outcome: ${outcome}`);
+console.log("wasm-smoke: accepted");
+""" .
+
+
+#################################################################
+# New class (this fragment)
+#################################################################
+
+tcps:ReleaseArtifact a rdfs:Class ;
+    rdfs:label "A miscellaneous verbatim release-engineering artifact (packaging, target metadata, JSON schema)" .
+
+#################################################################
+# PackagingTarget individuals (new, this fragment)
+#################################################################
+
+tcps:RpmPackagingTarget a tcps:PackagingTarget ;
+    rdfs:label "rpm spec template" ;
+    tcps:ecosystem "rpm" ;
+    tcps:manifestPath "packaging/rpm/tcps.spec.in" ;
+    tcps:manifestBody """Name: tcps
+Version: 26.7.19
+Release: 1%{?dist}
+Summary: Toyota Code Production System Rust library
+License: MIT OR Apache-2.0
+BuildArch: @ARCH@
+
+%description
+Japanese canonical Toyota Code Production System domain model in Rust.
+
+%files
+/usr/bin/tcps
+/usr/include/tcps.h
+""" .
+
+tcps:AndroidManifestTarget a tcps:ReleaseArtifact ;
+    rdfs:label "Android manifest" ;
+    tcps:artifactPath "packaging/android/AndroidManifest.xml" ;
+    tcps:artifactBody """<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="24" />
+</manifest>
+""" .
+
+tcps:AppleModulemapTarget a tcps:ReleaseArtifact ;
+    rdfs:label "Apple modulemap" ;
+    tcps:artifactPath "packaging/apple/module.modulemap" ;
+    tcps:artifactBody """module TCPS {
+    header "tcps.h"
+    export *
+}
+""" .
+
+#################################################################
+# ReleaseArtifact individuals (new, this fragment)
+#################################################################
+
+tcps:FamilyOverridesArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "target family overrides" ;
+    tcps:artifactPath "targets/family-overrides.json" ;
+    tcps:artifactBody """{
+  "families": {
+    "apple": {
+      "match": [
+        "-apple-"
+      ],
+      "sdk": "Xcode command-line tools and target platform SDK",
+      "runner": "native Apple device or simulator"
+    },
+    "android": {
+      "match": [
+        "-android"
+      ],
+      "sdk": "Android NDK",
+      "runner": "Android device or emulator"
+    },
+    "windows-msvc": {
+      "match": [
+        "windows-msvc"
+      ],
+      "sdk": "Visual Studio Build Tools",
+      "runner": "Windows"
+    },
+    "windows-gnu": {
+      "match": [
+        "windows-gnu",
+        "windows-gnullvm"
+      ],
+      "sdk": "MinGW or LLVM-mingw",
+      "runner": "Windows or Wine"
+    },
+    "linux-gnu": {
+      "match": [
+        "linux-gnu"
+      ],
+      "sdk": "matching GNU cross linker and sysroot",
+      "runner": "native, QEMU user, or remote host"
+    },
+    "linux-musl": {
+      "match": [
+        "linux-musl"
+      ],
+      "sdk": "matching musl cross linker",
+      "runner": "native, QEMU user, or remote host"
+    },
+    "wasm": {
+      "match": [
+        "wasm32",
+        "wasm64"
+      ],
+      "sdk": "WASI SDK, Emscripten, or no external linker depending on target",
+      "runner": "browser, Wasmtime, Node, or Emscripten"
+    },
+    "embedded": {
+      "match": [
+        "none-eabi",
+        "none-elf",
+        "unknown-none",
+        "msp430",
+        "avr-none"
+      ],
+      "sdk": "target linker or core-only rlib build",
+      "runner": "hardware or emulator"
+    },
+    "gpu": {
+      "match": [
+        "nvptx",
+        "amdgcn",
+        "bpf"
+      ],
+      "sdk": "vendor GPU/eBPF toolchain",
+      "runner": "GPU, kernel verifier, or simulator"
+    },
+    "bsd": {
+      "match": [
+        "freebsd",
+        "netbsd",
+        "openbsd",
+        "dragonfly"
+      ],
+      "sdk": "matching system linker/sysroot",
+      "runner": "native or virtual machine"
+    },
+    "solaris": {
+      "match": [
+        "solaris",
+        "illumos"
+      ],
+      "sdk": "matching system linker/sysroot",
+      "runner": "native or virtual machine"
+    },
+    "fuchsia": {
+      "match": [
+        "fuchsia"
+      ],
+      "sdk": "Fuchsia SDK",
+      "runner": "Fuchsia device or emulator"
+    },
+    "uefi": {
+      "match": [
+        "uefi"
+      ],
+      "sdk": "UEFI linker and image tooling",
+      "runner": "firmware or QEMU"
+    },
+    "qnx": {
+      "match": [
+        "nto-qnx"
+      ],
+      "sdk": "QNX Software Development Platform",
+      "runner": "QNX target"
+    },
+    "vxworks": {
+      "match": [
+        "vxworks"
+      ],
+      "sdk": "Wind River VxWorks SDK",
+      "runner": "VxWorks target"
+    },
+    "ohos": {
+      "match": [
+        "ohos"
+      ],
+      "sdk": "OpenHarmony SDK",
+      "runner": "OpenHarmony target"
+    },
+    "other": {
+      "match": [],
+      "sdk": "target-specific linker, SDK, and runtime",
+      "runner": "target-specific"
+    }
+  }
+}
+""" .
+
+tcps:OfficialPlatformSupportArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "official platform support snapshot" ;
+    tcps:artifactPath "targets/official-platform-support-1.97.1.json" ;
+    tcps:artifactBody """{
+  "rust_release": "1.97.1",
+  "snapshot_date": "2026-07-19",
+  "source": "https://doc.rust-lang.org/rustc/platform-support.html",
+  "policy": {
+    "1": "build and test guaranteed by Rust project",
+    "2": "build guaranteed by Rust project; test not universally guaranteed",
+    "3": "built-in target, no Rust project guarantee"
+  },
+  "targets": [
+    {
+      "target": "aarch64-apple-darwin",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-ios-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-tvos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-tvos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-visionos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-visionos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-watchos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-apple-watchos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "aarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "aarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "aarch64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    },
+    {
+      "target": "arm-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "arm64ec-pc-windows-msvc",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv5te-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv5te-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "armv7a-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7a-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7r-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv7r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "armv8r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "i586-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i586-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-freebsd",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "i686-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    },
+    {
+      "target": "loongarch64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "loongarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "loongarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "loongarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "nvptx64-nvidia-cuda",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "powerpc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64le-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "powerpc64le-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv32i-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imafc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv32imc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64a23-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "riscv64gc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "riscv64imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "s390x-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "s390x-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "sparc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "sparcv9-sun-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv6m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7em-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7em-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv7neon-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "thumbv8m.base-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv8m.main-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "thumbv8m.main-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "wasm32-unknown-emscripten",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-unknown-unknown",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip1",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip1-threads",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32-wasip2",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "wasm32v1-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-fortanix-unknown-sgx",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-freebsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-illumos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnuasan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnumsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnutsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-gnux32",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-netbsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core"
+    },
+    {
+      "target": "x86_64-unknown-redox",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full"
+    },
+    {
+      "target": "x86_64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown"
+    }
+  ],
+  "dynamic_rule": "Any target from rustc --print target-list absent from this snapshot is classified tier 3 until the snapshot is refreshed.",
+  "basis": "Rust 1.97 platform tiers; 1.97.1 is a compiler point release with the same platform support snapshot."
+}
+""" .
+
+tcps:TargetMatrixSnapshotArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "target matrix snapshot" ;
+    tcps:artifactPath "targets/target-matrix-snapshot.json" ;
+    tcps:artifactBody """{
+  "schema": "1",
+  "generated_at": "2026-07-19T20:47:16+00:00",
+  "rustc": null,
+  "host": null,
+  "source": "official-snapshot",
+  "targets": [
+    {
+      "target": "aarch64-apple-darwin",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-tvos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-tvos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-visionos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-visionos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-watchos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-watchos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "fuchsia",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm64ec-pc-windows-msvc",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv5te-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv5te-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7a-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7a-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7r-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv8r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i586-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i586-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-freebsd",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "nvptx64-nvidia-cuda",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "gpu",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64le-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64le-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32i-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imafc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64a23-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "s390x-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "s390x-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "sparc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "sparcv9-sun-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv6m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7em-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7em-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7neon-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.base-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.main-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.main-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-unknown-emscripten",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-unknown-unknown",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip1",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip1-threads",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip2",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32v1-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-fortanix-unknown-sgx",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "other",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-freebsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "fuchsia",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-illumos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnuasan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnumsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnutsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnux32",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-netbsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-redox",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "other",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    }
+  ]
+}
+""" .
+
+tcps:BuildReceiptSchemaArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "build receipt JSON schema" ;
+    tcps:artifactPath "schemas/build-receipt.schema.json" ;
+    tcps:artifactBody """{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tcps:schema:build-receipt.schema.json",
+  "title": "TCPS Build Receipt",
+  "type": "object",
+  "required": [
+    "schema",
+    "step",
+    "recorded_at",
+    "source_digest",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string"
+    },
+    "step": {
+      "type": "string"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "product": {
+      "type": "string"
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    }
+  },
+  "additionalProperties": true
+}
+""" .
+
+tcps:ReleaseManifestSchemaArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "release manifest JSON schema" ;
+    tcps:artifactPath "schemas/release-manifest.schema.json" ;
+    tcps:artifactBody """{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tcps:schema:release-manifest.schema.json",
+  "type": "object",
+  "required": [
+    "release",
+    "flavor",
+    "rust",
+    "products"
+  ]
+}
+""" .
+
+tcps:TargetMatrixSchemaArtifact a tcps:ReleaseArtifact ;
+    rdfs:label "target matrix JSON schema" ;
+    tcps:artifactPath "schemas/target-matrix.schema.json" ;
+    tcps:artifactBody """{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tcps:schema:target-matrix.schema.json",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "source",
+    "targets"
+  ],
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target",
+          "tier",
+          "family",
+          "products"
+        ]
+      }
+    }
+  }
+}
+""" .
+
+
+#################################################################
+# Classes
+#################################################################
+
+tcps:ReleaseArtifact a rdfs:Class ;
+    rdfs:label "A verbatim release-engineering script or tool file (bootstrap/lifecycle/platform/smoke/CI helper)" .
+
+#################################################################
+# ReleaseArtifact individuals
+#################################################################
+
+tcps:BootstrapShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Cross-platform bootstrap (POSIX sh)" ;
+    tcps:artifactPath "scripts/bootstrap.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+TOOLCHAIN=${TCPS_RUST_TOOLCHAIN:-1.97.1}
+if ! command -v rustup >/dev/null 2>&1; then
+  echo "rustupがありません。https://rustup.rs の組織承認済み導入手順を実行してください。" >&2
+  exit 2
+fi
+rustup toolchain install "$TOOLCHAIN" --profile minimal --component rustfmt --component clippy --component rust-src
+rustup override set "$TOOLCHAIN"
+if [ "${TCPS_INSTALL_NIGHTLY:-0}" = "1" ]; then
+  rustup toolchain install nightly --profile minimal --component rust-src
+fi
+python3 "$(dirname "$0")/../tools/lifecycle.py" doctor
+""" .
+
+tcps:BootstrapPs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "Cross-platform bootstrap (PowerShell)" ;
+    tcps:artifactPath "scripts/bootstrap.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+$Toolchain = if ($env:TCPS_RUST_TOOLCHAIN) { $env:TCPS_RUST_TOOLCHAIN } else { "1.97.1" }
+if (-not (Get-Command rustup -ErrorAction SilentlyContinue)) {
+    throw "rustup is not installed. Use the organization-approved rustup installation procedure from https://rustup.rs."
+}
+rustup toolchain install $Toolchain --profile minimal --component rustfmt --component clippy --component rust-src
+rustup override set $Toolchain
+if ($env:TCPS_INSTALL_NIGHTLY -eq "1") {
+    rustup toolchain install nightly --profile minimal --component rust-src
+}
+& (Join-Path $PSScriptRoot "lifecycle.ps1") doctor
+""" .
+
+tcps:LifecycleShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Thin sh wrapper around tools/lifecycle.py" ;
+    tcps:artifactPath "scripts/lifecycle.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec python3 "$ROOT/tools/lifecycle.py" "$@"
+""" .
+
+tcps:LifecyclePs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "Thin PowerShell wrapper around tools/lifecycle.py" ;
+    tcps:artifactPath "scripts/lifecycle.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$Python = if (Get-Command python3 -ErrorAction SilentlyContinue) { "python3" } else { "python" }
+& $Python (Join-Path $Root "tools/lifecycle.py") @args
+exit $LASTEXITCODE
+""" .
+
+tcps:FullLifecycleShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Full local release lifecycle (sh)" ;
+    tcps:artifactPath "scripts/full-lifecycle.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+PY=${PYTHON:-python3}
+"$PY" "$ROOT/tools/lifecycle.py" doctor
+"$PY" "$ROOT/tools/lifecycle.py" verify
+"$PY" "$ROOT/tools/lifecycle.py" matrix
+HOST=$(rustc -vV | sed -n 's/^host: //p')
+"$PY" "$ROOT/tools/lifecycle.py" build --target "$HOST" --product core
+"$PY" "$ROOT/tools/lifecycle.py" build --target "$HOST" --product std
+"$PY" "$ROOT/tools/lifecycle.py" build --target "$HOST" --product ffi
+"$PY" "$ROOT/tools/lifecycle.py" build --target "$HOST" --product cli
+"$ROOT/scripts/smoke/cli.sh"
+"$ROOT/scripts/smoke/c-abi.sh"
+if [ "${TCPS_WASM_SMOKE:-0}" = "1" ]; then "$ROOT/scripts/smoke/wasm-node.sh"; fi
+"$PY" "$ROOT/tools/lifecycle.py" package --target "$HOST"
+"$PY" "$ROOT/tools/lifecycle.py" sbom
+"$PY" "$ROOT/tools/lifecycle.py" provenance
+"$PY" "$ROOT/tools/lifecycle.py" checksums
+"$PY" "$ROOT/tools/lifecycle.py" verify-release
+""" .
+
+tcps:FullLifecyclePs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "Full local release lifecycle (PowerShell)" ;
+    tcps:artifactPath "scripts/full-lifecycle.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+& (Join-Path $PSScriptRoot "lifecycle.ps1") doctor
+& (Join-Path $PSScriptRoot "lifecycle.ps1") verify
+& (Join-Path $PSScriptRoot "lifecycle.ps1") matrix
+$HostTarget = (rustc -vV | Select-String '^host: ').Line.Replace('host: ', '')
+foreach ($Product in @('core', 'std', 'ffi', 'cli')) {
+    & (Join-Path $PSScriptRoot "lifecycle.ps1") build --target $HostTarget --product $Product
+}
+cargo run -p tcps-cli --bin tcps -- 検査
+& (Join-Path $PSScriptRoot "smoke/c-abi.ps1")
+& (Join-Path $PSScriptRoot "lifecycle.ps1") package --target $HostTarget
+& (Join-Path $PSScriptRoot "lifecycle.ps1") sbom
+& (Join-Path $PSScriptRoot "lifecycle.ps1") provenance
+& (Join-Path $PSScriptRoot "lifecycle.ps1") checksums
+& (Join-Path $PSScriptRoot "lifecycle.ps1") verify-release
+""" .
+
+tcps:FullLifecycleAllTargetsShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Full release lifecycle across all target tiers (sh)" ;
+    tcps:artifactPath "scripts/full-lifecycle-all-targets.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+PY=${PYTHON:-python3}
+LIFE="$ROOT/tools/lifecycle.py"
+
+"$PY" "$LIFE" doctor
+"$PY" "$LIFE" verify
+"$PY" "$LIFE" matrix --output targets/target-matrix-active.json
+
+# The universal no_std core is the only product meaningful on every built-in target.
+"$PY" "$LIFE" build-all --tiers 1,2 --product core
+"$PY" "$LIFE" build-all --tiers 3 --product core
+
+HOST=$(rustc -vV | sed -n 's/^host: //p')
+"$PY" "$LIFE" test --target "$HOST"
+"$PY" "$LIFE" benchmark --iterations "${TCPS_BENCH_ITERATIONS:-1000000}"
+for PRODUCT in std ffi cli; do
+  "$PY" "$LIFE" build --target "$HOST" --product "$PRODUCT"
+done
+"$ROOT/scripts/smoke/cli.sh"
+"$ROOT/scripts/smoke/c-abi.sh"
+if [ "${TCPS_WASM_SMOKE:-0}" = "1" ]; then "$ROOT/scripts/smoke/wasm-node.sh"; fi
+"$PY" "$LIFE" package --target "$HOST"
+
+"$PY" "$LIFE" sbom
+"$PY" "$LIFE" provenance
+"$PY" "$LIFE" checksums
+"$PY" "$LIFE" verify-release
+""" .
+
+tcps:FullLifecycleAllTargetsPs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "Full release lifecycle across all target tiers (PowerShell)" ;
+    tcps:artifactPath "scripts/full-lifecycle-all-targets.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+$Lifecycle = Join-Path $PSScriptRoot "lifecycle.ps1"
+& $Lifecycle doctor
+& $Lifecycle verify
+& $Lifecycle matrix --output targets/target-matrix-active.json
+& $Lifecycle build-all --tiers 1,2 --product core
+& $Lifecycle build-all --tiers 3 --product core
+$HostTarget = (rustc -vV | Select-String '^host: ').Line.Replace('host: ', '')
+& $Lifecycle test --target $HostTarget
+$Iterations = if ($env:TCPS_BENCH_ITERATIONS) { $env:TCPS_BENCH_ITERATIONS } else { "1000000" }
+& $Lifecycle benchmark --iterations $Iterations
+foreach ($Product in @('std', 'ffi', 'cli')) {
+    & $Lifecycle build --target $HostTarget --product $Product
+}
+cargo run -p tcps-cli --bin tcps -- 検査
+& (Join-Path $PSScriptRoot "smoke/c-abi.ps1")
+& $Lifecycle package --target $HostTarget
+& $Lifecycle sbom
+& $Lifecycle provenance
+& $Lifecycle checksums
+& $Lifecycle verify-release
+""" .
+
+tcps:ReproducibleBuildShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Reproducible build comparison check" ;
+    tcps:artifactPath "scripts/reproducible-build.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+HOST=$(rustc -vV | sed -n 's/^host: //p')
+rm -rf .lifecycle/repro-a .lifecycle/repro-b
+CARGO_TARGET_DIR=.lifecycle/repro-a cargo build -p tcps-core --release --target "$HOST"
+CARGO_TARGET_DIR=.lifecycle/repro-b cargo build -p tcps-core --release --target "$HOST"
+A=$(find .lifecycle/repro-a -name 'libtcps_core*.rlib' -type f | head -1)
+B=$(find .lifecycle/repro-b -name 'libtcps_core*.rlib' -type f | head -1)
+[ -n "$A" ] && [ -n "$B" ] || { echo "rlibが見つかりません" >&2; exit 2; }
+cmp "$A" "$B" || { echo "再現構築不一致" >&2; exit 1; }
+echo "再現構築一致"
+""" .
+
+tcps:AdvancedVerificationShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Miri + coverage + audit + deny advanced verification" ;
+    tcps:artifactPath "scripts/advanced-verification.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+rustup toolchain install nightly --profile minimal --component miri --component rust-src
+cargo +nightly miri test -p tcps-core
+if cargo llvm-cov --version >/dev/null 2>&1; then
+  cargo llvm-cov --workspace --all-features --lcov --output-path dist/lcov.info
+else
+  echo "cargo-llvm-covがないため被覆率工程を省略しました" >&2
+fi
+if cargo audit --version >/dev/null 2>&1; then
+  cargo audit
+else
+  echo "cargo-auditがないため脆弱性台帳工程を省略しました" >&2
+fi
+if cargo deny --version >/dev/null 2>&1; then
+  cargo deny check
+else
+  echo "cargo-denyがないため許可・供給元工程を省略しました" >&2
+fi
+""" .
+
+tcps:PublishCratesShScript a tcps:ReleaseArtifact ;
+    rdfs:label "crates.io publish sequence (sh)" ;
+    tcps:artifactPath "scripts/publish-crates.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+python3 tools/lifecycle.py verify
+MODE=--dry-run
+[ "${TCPS_PUBLISH:-0}" = "1" ] && MODE=
+for PACKAGE in tcps-core tcps-std tcps-ffi tcps-wasm tcps-cli; do
+  echo "公開検査: $PACKAGE"
+  # shellcheck disable=SC2086
+  cargo publish -p "$PACKAGE" $MODE
+  if [ "${TCPS_PUBLISH:-0}" = "1" ]; then
+    echo "crates.io索引反映待機: $PACKAGE"
+    sleep "${TCPS_PUBLISH_WAIT_SECONDS:-30}"
+  fi
+done
+""" .
+
+tcps:PublishCratesPs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "crates.io publish sequence (PowerShell)" ;
+    tcps:artifactPath "scripts/publish-crates.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent $PSScriptRoot
+Set-Location $Root
+python tools/lifecycle.py verify
+$Packages = @("tcps-core", "tcps-std", "tcps-ffi", "tcps-wasm", "tcps-cli")
+foreach ($Package in $Packages) {
+    Write-Host "公開検査: $Package"
+    if ($env:TCPS_PUBLISH -eq "1") {
+        cargo publish -p $Package
+        $Wait = if ($env:TCPS_PUBLISH_WAIT_SECONDS) { [int]$env:TCPS_PUBLISH_WAIT_SECONDS } else { 30 }
+        Start-Sleep -Seconds $Wait
+    } else {
+        cargo publish -p $Package --dry-run
+    }
+}
+""" .
+
+tcps:InstallQualityToolsShScript a tcps:ReleaseArtifact ;
+    rdfs:label "CI: install cargo-audit/cargo-deny/cargo-llvm-cov" ;
+    tcps:artifactPath "scripts/ci/install-quality-tools.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+cargo install cargo-audit --locked
+cargo install cargo-deny --locked
+cargo install cargo-llvm-cov --locked
+""" .
+
+tcps:MergeReceiptsPyScript a tcps:ReleaseArtifact ;
+    rdfs:label "CI: merge JSON receipts into one document" ;
+    tcps:artifactPath "scripts/ci/merge-receipts.py" ;
+    tcps:artifactBody """#!/usr/bin/env python3
+from __future__ import annotations
+import json, sys
+from pathlib import Path
+output = Path(sys.argv[1])
+inputs = [Path(value) for value in sys.argv[2:]]
+records = []
+for root in inputs:
+    for path in sorted(root.rglob("*.json")):
+        try:
+            records.append(json.loads(path.read_text(encoding="utf-8")))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pass
+output.parent.mkdir(parents=True, exist_ok=True)
+output.write_text(json.dumps({"receipts": records}, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+""" .
+
+tcps:AndroidPlatformPyScript a tcps:ReleaseArtifact ;
+    rdfs:label "Android NDK cross-build helper" ;
+    tcps:artifactPath "scripts/platform/android.py" ;
+    tcps:artifactBody """#!/usr/bin/env python3
+from __future__ import annotations
+import os, platform, subprocess, sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+ndk = os.environ.get("ANDROID_NDK_HOME") or os.environ.get("ANDROID_NDK_ROOT")
+if not ndk:
+    raise SystemExit("ANDROID_NDK_HOMEまたはANDROID_NDK_ROOTを設定してください")
+host_map = {("Linux", "x86_64"): "linux-x86_64", ("Darwin", "x86_64"): "darwin-x86_64", ("Darwin", "arm64"): "darwin-x86_64", ("Windows", "AMD64"): "windows-x86_64"}
+host = host_map.get((platform.system(), platform.machine()))
+if not host:
+    raise SystemExit(f"未対応NDKホスト: {platform.system()} {platform.machine()}")
+bin_dir = Path(ndk) / "toolchains" / "llvm" / "prebuilt" / host / "bin"
+api = os.environ.get("TCPS_ANDROID_API", "24")
+targets = {
+    "aarch64-linux-android": f"aarch64-linux-android{api}-clang",
+    "armv7-linux-androideabi": f"armv7a-linux-androideabi{api}-clang",
+    "i686-linux-android": f"i686-linux-android{api}-clang",
+    "x86_64-linux-android": f"x86_64-linux-android{api}-clang",
+}
+for target, linker in targets.items():
+    key = "CARGO_TARGET_" + target.upper().replace("-", "_") + "_LINKER"
+    env = os.environ.copy()
+    env[key] = str(bin_dir / linker)
+    for product in ("core", "ffi"):
+        command = [sys.executable, str(ROOT / "tools/lifecycle.py"), "build", "--target", target, "--product", product]
+        code = subprocess.call(command, env=env)
+        if code != 0 and product == "core":
+            raise SystemExit(code)
+""" .
+
+tcps:ApplePlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Apple platform (macOS/iOS/tvOS/watchOS/visionOS) build sweep" ;
+    tcps:artifactPath "scripts/platform/apple.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+[ "$(uname -s)" = "Darwin" ] || { echo "Apple SDK構築はmacOS上で実行してください" >&2; exit 2; }
+xcode-select -p >/dev/null
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in   aarch64-apple-darwin x86_64-apple-darwin   aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios   aarch64-apple-tvos aarch64-apple-tvos-sim   aarch64-apple-watchos aarch64-apple-watchos-sim   aarch64-apple-visionos aarch64-apple-visionos-sim
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product ffi || true
+done
+""" .
+
+tcps:BsdSolarisPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "BSD/Solaris/illumos build sweep" ;
+    tcps:artifactPath "scripts/platform/bsd-solaris.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in x86_64-unknown-freebsd x86_64-unknown-netbsd x86_64-unknown-illumos x86_64-pc-solaris sparcv9-sun-solaris
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+done
+""" .
+
+tcps:EmbeddedPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Embedded/bare-metal target build sweep" ;
+    tcps:artifactPath "scripts/platform/embedded.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in   thumbv6m-none-eabi thumbv7m-none-eabi thumbv7em-none-eabi thumbv7em-none-eabihf   thumbv8m.base-none-eabi thumbv8m.main-none-eabi thumbv8m.main-none-eabihf   riscv32imac-unknown-none-elf riscv64gc-unknown-none-elf   aarch64-unknown-none x86_64-unknown-none
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+done
+""" .
+
+tcps:GpuPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "GPU/eBPF target build sweep" ;
+    tcps:artifactPath "scripts/platform/gpu.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in nvptx64-nvidia-cuda amdgcn-amd-amdhsa bpfel-unknown-none bpfeb-unknown-none
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+done
+""" .
+
+tcps:LinuxPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "Linux target build sweep" ;
+    tcps:artifactPath "scripts/platform/linux.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in   x86_64-unknown-linux-gnu i686-unknown-linux-gnu aarch64-unknown-linux-gnu   x86_64-unknown-linux-musl aarch64-unknown-linux-musl   armv7-unknown-linux-gnueabihf riscv64gc-unknown-linux-gnu   powerpc64le-unknown-linux-gnu s390x-unknown-linux-gnu
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+done
+""" .
+
+tcps:UefiPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "UEFI target build sweep" ;
+    tcps:artifactPath "scripts/platform/uefi.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in x86_64-unknown-uefi i686-unknown-uefi aarch64-unknown-uefi
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+done
+""" .
+
+tcps:WasmPlatformShScript a tcps:ReleaseArtifact ;
+    rdfs:label "WASM target build sweep" ;
+    tcps:artifactPath "scripts/platform/wasm.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+PY=${PYTHON:-python3}
+for TARGET in wasm32-unknown-unknown wasm32-wasip1 wasm32-wasip2 wasm32v1-none
+ do
+  "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product core || true
+  case "$TARGET" in
+    wasm32v1-none) ;;
+    *) "$PY" "$ROOT/tools/lifecycle.py" build --target "$TARGET" --product wasm || true ;;
+  esac
+done
+""" .
+
+tcps:WindowsPlatformPs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "Windows target build sweep (PowerShell)" ;
+    tcps:artifactPath "scripts/platform/windows.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Continue"
+$Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$Lifecycle = Join-Path $Root "scripts/lifecycle.ps1"
+$Targets = @(
+  "x86_64-pc-windows-msvc", "i686-pc-windows-msvc", "aarch64-pc-windows-msvc",
+  "x86_64-pc-windows-gnu", "i686-pc-windows-gnu",
+  "x86_64-pc-windows-gnullvm", "aarch64-pc-windows-gnullvm"
+)
+foreach ($Target in $Targets) {
+    & $Lifecycle build --target $Target --product core
+    & $Lifecycle build --target $Target --product ffi
+}
+""" .
+
+tcps:CAbiSmokeShScript a tcps:ReleaseArtifact ;
+    rdfs:label "C ABI smoke test (sh)" ;
+    tcps:artifactPath "scripts/smoke/c-abi.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+cd "$ROOT"
+mkdir -p .lifecycle
+HOST=$(rustc -vV | sed -n 's/^host: //p')
+cargo build -p tcps-ffi --release --target "$HOST"
+OUT="target/$HOST/release"
+CC=${CC:-cc}
+case "$(uname -s)" in
+  Darwin)
+    "$CC" tests/c/abi_smoke.c -Iinclude -L"$OUT" -ltcps_ffi -Wl,-rpath,"$OUT" -o .lifecycle/c-abi-smoke
+    ;;
+  *)
+    "$CC" tests/c/abi_smoke.c -Iinclude -L"$OUT" -ltcps_ffi -Wl,-rpath,"$OUT" -o .lifecycle/c-abi-smoke
+    ;;
+esac
+.lifecycle/c-abi-smoke
+""" .
+
+tcps:CAbiSmokePs1Script a tcps:ReleaseArtifact ;
+    rdfs:label "C ABI smoke test (PowerShell)" ;
+    tcps:artifactPath "scripts/smoke/c-abi.ps1" ;
+    tcps:artifactBody """$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+Set-Location $Root
+New-Item -ItemType Directory -Force .lifecycle | Out-Null
+$HostTarget = (rustc -vV | Select-String '^host: ').Line.Replace('host: ', '')
+cargo build -p tcps-ffi --release --target $HostTarget
+$Out = Join-Path $Root "target/$HostTarget/release"
+$Compiler = Get-Command cl.exe -ErrorAction SilentlyContinue
+if (-not $Compiler) { throw "cl.exe is required" }
+& cl.exe /nologo /I include tests/c/abi_smoke.c /link "/LIBPATH:$Out" tcps_ffi.lib "/OUT:.lifecycle/c-abi-smoke.exe"
+& ./.lifecycle/c-abi-smoke.exe
+""" .
+
+tcps:CliSmokeShScript a tcps:ReleaseArtifact ;
+    rdfs:label "CLI smoke test" ;
+    tcps:artifactPath "scripts/smoke/cli.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+cd "$ROOT"
+OUTPUT=$(cargo run -p tcps-cli --bin tcps -- 検査)
+printf '%s\\n' "$OUTPUT"
+printf '%s' "$OUTPUT" | grep '成立:' >/dev/null
+""" .
+
+tcps:WasmNodeSmokeShScript a tcps:ReleaseArtifact ;
+    rdfs:label "WASM-under-Node smoke test" ;
+    tcps:artifactPath "scripts/smoke/wasm-node.sh" ;
+    tcps:artifactBody """#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+cd "$ROOT"
+command -v node >/dev/null 2>&1 || { echo "nodeがありません" >&2; exit 2; }
+python3 tools/lifecycle.py build --target wasm32-unknown-unknown --product wasm
+node tests/wasm/smoke.mjs target/wasm32-unknown-unknown/release/tcps_wasm.wasm
+""" .
+
+tcps:LifecycleToolPyScript a tcps:ReleaseArtifact ;
+    rdfs:label "Product lifecycle executor (doctor/verify/build/package/sbom/provenance/release)" ;
+    tcps:artifactPath "tools/lifecycle.py" ;
+    tcps:artifactBody """#!/usr/bin/env python3
+""\"豊田コード生産方式 v26.7.19 製品ライフサイクル実行器。
+
+標準ライブラリだけで動作する。対象一覧は rustc --print target-list から取得し、
+公式スナップショットに存在しない対象は第三階層として扱う。
+""\"
+from __future__ import annotations
+
+import argparse
+import dataclasses
+import datetime as dt
+import hashlib
+import json
+import os
+import platform
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import time
+import zipfile
+from pathlib import Path
+from typing import Any, Iterable, Sequence
+
+ROOT = Path(__file__).resolve().parents[1]
+TARGET_DIR = ROOT / "target"
+DIST_DIR = ROOT / "dist"
+RECEIPT_DIR = ROOT / "receipts"
+STATE_DIR = ROOT / ".lifecycle"
+SNAPSHOT_PATH = ROOT / "targets" / "official-platform-support-1.97.1.json"
+OVERRIDES_PATH = ROOT / "targets" / "family-overrides.json"
+RELEASE_PATH = ROOT / "release.json"
+SCHEMA_VERSION = "1"
+
+
+class LifecycleError(RuntimeError):
+    ""\"A lifecycle operation could not preserve standing.""\"
+
+
+@dataclasses.dataclass(frozen=True)
+class CommandResult:
+    command: list[str]
+    returncode: int
+    stdout: str
+    stderr: str
+    duration_ms: int
+
+    @property
+    def succeeded(self) -> bool:
+        return self.returncode == 0
+
+
+@dataclasses.dataclass(frozen=True)
+class BuildOutcome:
+    target: str
+    product: str
+    tier: int
+    family: str
+    status: str
+    command: list[str]
+    duration_ms: int
+    receipt: str
+    detail: str
+
+
+def utc_now() -> str:
+    return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
+
+
+def ensure_dirs() -> None:
+    for path in (DIST_DIR, RECEIPT_DIR, STATE_DIR):
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def command_exists(name: str) -> bool:
+    return shutil.which(name) is not None
+
+
+def run(
+    command: Sequence[str],
+    *,
+    cwd: Path = ROOT,
+    env: dict[str, str] | None = None,
+    check: bool = False,
+    timeout: int | None = None,
+) -> CommandResult:
+    started = time.monotonic_ns()
+    merged = os.environ.copy()
+    if env:
+        merged.update(env)
+    try:
+        completed = subprocess.run(
+            list(command),
+            cwd=cwd,
+            env=merged,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
+        )
+        result = CommandResult(
+            command=list(command),
+            returncode=completed.returncode,
+            stdout=completed.stdout,
+            stderr=completed.stderr,
+            duration_ms=(time.monotonic_ns() - started) // 1_000_000,
+        )
+    except FileNotFoundError as exc:
+        result = CommandResult(
+            command=list(command),
+            returncode=127,
+            stdout="",
+            stderr=str(exc),
+            duration_ms=(time.monotonic_ns() - started) // 1_000_000,
+        )
+    except subprocess.TimeoutExpired as exc:
+        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
+        stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+        result = CommandResult(
+            command=list(command),
+            returncode=124,
+            stdout=stdout,
+            stderr=stderr + "\\n時間上限に到達しました",
+            duration_ms=(time.monotonic_ns() - started) // 1_000_000,
+        )
+    if check and not result.succeeded:
+        raise LifecycleError(
+            f"命令が失敗しました: {' '.join(result.command)}\\n{result.stderr.strip()}"
+        )
+    return result
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def source_files() -> list[Path]:
+    excluded = {"target", "dist", "receipts", "evidence", ".lifecycle", ".git", "__pycache__"}
+    files: list[Path] = []
+    for path in ROOT.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(part in excluded for part in path.relative_to(ROOT).parts):
+            continue
+        if path.suffix in {".pyc", ".pyo"} or path.name == "SOURCE_MANIFEST.sha256":
+            continue
+        files.append(path)
+    return sorted(files)
+
+
+def tree_digest(files: Iterable[Path] | None = None) -> str:
+    digest = hashlib.sha256()
+    for path in files or source_files():
+        relative = path.relative_to(ROOT).as_posix().encode("utf-8")
+        digest.update(len(relative).to_bytes(4, "big"))
+        digest.update(relative)
+        data_digest = bytes.fromhex(sha256_file(path))
+        digest.update(data_digest)
+    return digest.hexdigest()
+
+
+def tool_version(command: Sequence[str]) -> str | None:
+    result = run(command)
+    if not result.succeeded:
+        return None
+    text = (result.stdout or result.stderr).strip()
+    return text.splitlines()[0] if text else None
+
+
+def host_target() -> str | None:
+    if not command_exists("rustc"):
+        return None
+    result = run(["rustc", "-vV"])
+    if not result.succeeded:
+        return None
+    for line in result.stdout.splitlines():
+        if line.startswith("host: "):
+            return line.removeprefix("host: ").strip()
+    return None
+
+
+def official_records() -> dict[str, dict[str, Any]]:
+    snapshot = load_json(SNAPSHOT_PATH)
+    return {item["target"]: item for item in snapshot["targets"]}
+
+
+def family_for_target(target: str) -> str:
+    families = load_json(OVERRIDES_PATH)["families"]
+    for family, config in families.items():
+        if family == "other":
+            continue
+        if any(token in target for token in config["match"]):
+            return family
+    return "other"
+
+
+def target_products(target: str, std_kind: str) -> list[str]:
+    family = family_for_target(target)
+    products = ["core"]
+    if family == "wasm":
+        products.append("wasm")
+    if std_kind == "full" and family not in {"embedded", "gpu", "uefi", "wasm"}:
+        products.extend(["std", "ffi"])
+    if std_kind == "full" and family in {
+        "apple", "android", "windows-msvc", "windows-gnu", "linux-gnu", "linux-musl", "bsd", "solaris", "ohos", "fuchsia", "qnx", "vxworks", "other"
+    }:
+        products.append("cli")
+    return products
+
+
+def parse_cfg(target: str) -> dict[str, Any]:
+    if not command_exists("rustc"):
+        return {}
+    result = run(["rustc", "--print", "cfg", "--target", target], timeout=30)
+    if not result.succeeded:
+        return {"cfg_error": result.stderr.strip()}
+    cfg: dict[str, Any] = {}
+    flags: list[str] = []
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        match = re.fullmatch(r'([A-Za-z0-9_]+)="(.*)"', line)
+        if match:
+            key, value = match.groups()
+            if key in cfg:
+                current = cfg[key]
+                if not isinstance(current, list):
+                    current = [current]
+                current.append(value)
+                cfg[key] = current
+            else:
+                cfg[key] = value
+        else:
+            flags.append(line)
+    if flags:
+        cfg["flags"] = flags
+    return cfg
+
+
+def discover_targets() -> dict[str, Any]:
+    records = official_records()
+    source = "official-snapshot"
+    targets: list[str]
+    if command_exists("rustc"):
+        result = run(["rustc", "--print", "target-list"], timeout=60)
+        if result.succeeded:
+            targets = sorted({line.strip() for line in result.stdout.splitlines() if line.strip()})
+            source = "rustc --print target-list"
+        else:
+            targets = sorted(records)
+    else:
+        targets = sorted(records)
+
+    matrix: list[dict[str, Any]] = []
+    for target in targets:
+        official = records.get(target, {})
+        tier = int(official.get("tier", 3))
+        std_kind = str(official.get("standard_library", "unknown"))
+        family = family_for_target(target)
+        matrix.append(
+            {
+                "target": target,
+                "tier": tier,
+                "host_tools": bool(official.get("host_tools", False)),
+                "standard_library": std_kind,
+                "family": family,
+                "products": target_products(target, std_kind),
+                "cfg": parse_cfg(target) if command_exists("rustc") else {},
+            }
+        )
+    return {
+        "schema": SCHEMA_VERSION,
+        "generated_at": utc_now(),
+        "rustc": tool_version(["rustc", "--version", "--verbose"]),
+        "host": host_target(),
+        "source": source,
+        "targets": matrix,
+    }
+
+
+def receipt_path(step: str, suffix: str = "json") -> Path:
+    safe = re.sub(r"[^0-9A-Za-z_.-]+", "-", step).strip("-")
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return RECEIPT_DIR / f"{stamp}-{safe}.{suffix}"
+
+
+def write_step_receipt(step: str, payload: dict[str, Any]) -> Path:
+    ensure_dirs()
+    path = receipt_path(step)
+    value = {
+        "schema": SCHEMA_VERSION,
+        "step": step,
+        "recorded_at": utc_now(),
+        "source_digest": tree_digest(),
+        "release": load_json(RELEASE_PATH),
+        **payload,
+    }
+    write_json(path, value)
+    return path
+
+
+def doctor() -> int:
+    ensure_dirs()
+    tools = {
+        "python": sys.version.split()[0],
+        "platform": platform.platform(),
+        "cargo": tool_version(["cargo", "--version"]),
+        "rustc": tool_version(["rustc", "--version", "--verbose"]),
+        "rustup": tool_version(["rustup", "--version"]),
+        "rustfmt": tool_version(["rustfmt", "--version"]),
+        "clippy": tool_version(["cargo", "clippy", "--version"]),
+        "git": tool_version(["git", "--version"]),
+        "cmake": tool_version(["cmake", "--version"]),
+        "ninja": tool_version(["ninja", "--version"]),
+        "zig": tool_version(["zig", "version"]),
+        "cross": tool_version(["cross", "--version"]),
+        "wasmtime": tool_version(["wasmtime", "--version"]),
+        "node": tool_version(["node", "--version"]),
+        "qemu": tool_version(["qemu-system-x86_64", "--version"]),
+        "cosign": tool_version(["cosign", "version"]),
+        "minisign": tool_version(["minisign", "-v"]),
+        "gpg": tool_version(["gpg", "--version"]),
+    }
+    missing_required = [name for name in ("cargo", "rustc", "rustup") if tools[name] is None]
+    receipt = write_step_receipt(
+        "doctor",
+        {
+            "status": "ready" if not missing_required else "tool-missing",
+            "missing_required": missing_required,
+            "tools": tools,
+        },
+    )
+    print(json.dumps({"receipt": str(receipt), **tools}, ensure_ascii=False, indent=2))
+    return 0 if not missing_required else 2
+
+
+def structural_verify() -> tuple[bool, list[str]]:
+    errors: list[str] = []
+    required = [
+        ROOT / "Cargo.toml",
+        ROOT / "rust-toolchain.toml",
+        ROOT / "crates/tcps-core/src/lib.rs",
+        ROOT / "crates/tcps-ffi/include/tcps.h",
+        ROOT / "tools/lifecycle.py",
+        SNAPSHOT_PATH,
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"必須ファイルがありません: {path.relative_to(ROOT)}")
+
+    core_sources = sorted((ROOT / "crates/tcps-core/src").glob("*.rs"))
+    if not core_sources:
+        errors.append("中核Rustファイルがありません")
+    japanese = re.compile(r"[\\u3040-\\u30ff\\u3400-\\u9fff]")
+    forbidden = re.compile(r"\\b(TODO|FIXME|HACK|XXX)\\b")
+    for path in sorted(ROOT.rglob("*.rs")):
+        text = path.read_text(encoding="utf-8")
+        if forbidden.search(text):
+            errors.append(f"未閉鎖印があります: {path.relative_to(ROOT)}")
+        if path.is_relative_to(ROOT / "crates/tcps-core") and not japanese.search(text):
+            errors.append(f"中核に日本語意味語彙がありません: {path.relative_to(ROOT)}")
+        if path.is_relative_to(ROOT / "crates/tcps-core") and re.search(r"\\bunsafe\\b", text):
+            errors.append(f"中核でunsafeを検出しました: {path.relative_to(ROOT)}")
+        # Fast balance check, not a Rust parser.
+        pairs = [("{", "}"), ("(", ")"), ("[", "]")]
+        for opening, closing in pairs:
+            if text.count(opening) != text.count(closing):
+                errors.append(f"区切り数不一致 {opening}{closing}: {path.relative_to(ROOT)}")
+
+    invariants = {
+        "自働化": "src/自働化.rs",
+        "後工程引取り": "src/必要時生産.rs",
+        "選択と許可の分離": "src/青い川のダム.rs",
+        "受領証": "src/受領証.rs",
+    }
+    for name, relative in invariants.items():
+        path = ROOT / "crates/tcps-core" / relative
+        if not path.exists():
+            errors.append(f"不変条件の実装がありません: {name}")
+    return not errors, errors
+
+
+def verify(*, require_tools: bool = True) -> int:
+    ensure_dirs()
+    structure_ok, errors = structural_verify()
+    commands: list[dict[str, Any]] = []
+    if structure_ok and command_exists("cargo"):
+        command_list = [
+            ["cargo", "fmt", "--all", "--", "--check"],
+            ["cargo", "check", "--workspace", "--all-targets"],
+            ["cargo", "test", "--workspace", "--all-targets"],
+            ["cargo", "clippy", "--workspace", "--all-targets", "--", "-D", "clippy::correctness", "-D", "clippy::suspicious", "-D", "clippy::perf"],
+            ["cargo", "doc", "--workspace", "--no-deps"],
+        ]
+        for command in command_list:
+            result = run(command, timeout=1800)
+            commands.append(dataclasses.asdict(result))
+            if not result.succeeded:
+                errors.append(f"検査失敗: {' '.join(command)}")
+                break
+    elif require_tools:
+        errors.append("cargoがないため機械検査を実行できません")
+
+    status = "accepted" if structure_ok and not errors else "refused"
+    receipt = write_step_receipt(
+        "verify",
+        {"status": status, "structure_ok": structure_ok, "errors": errors, "commands": commands},
+    )
+    print(f"{status}: {receipt}")
+    for error in errors:
+        print(f"- {error}", file=sys.stderr)
+    return 0 if status == "accepted" else 1
+
+
+def installed_targets() -> dict[str, bool]:
+    if not command_exists("rustup"):
+        return {}
+    result = run(["rustup", "target", "list"])
+    if not result.succeeded:
+        return {}
+    values: dict[str, bool] = {}
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        target = line.split()[0]
+        values[target] = "(installed)" in line
+    return values
+
+
+def ensure_target(target: str, tier: int) -> tuple[bool, str]:
+    installed = installed_targets()
+    if installed.get(target, False):
+        return True, "installed"
+    if not command_exists("rustup"):
+        return False, "rustup-missing"
+    if tier == 3:
+        return False, "tier3-requires-build-std"
+    result = run(["rustup", "target", "add", target], timeout=900)
+    return result.succeeded, result.stderr.strip() or result.stdout.strip()
+
+
+def classify_failure(result: CommandResult) -> str:
+    text = (result.stdout + "\\n" + result.stderr).lower()
+    if result.returncode == 127:
+        return "tool-missing"
+    core_missing = [
+        "can't find crate for `core`",
+        "target may not be installed",
+        "does not support target",
+        "toolchain does not support target",
+        "component 'rust-std' for target",
+        "is unavailable",
+    ]
+    if any(token in text for token in core_missing):
+        return "target-unavailable"
+    sdk_tokens = [
+        "linker `",
+        "linker not found",
+        "cannot find -l",
+        "xcrun",
+        "android_ndk_home",
+        "ndk",
+        "link.exe",
+        "visual studio",
+        "sysroot",
+        "emcc",
+    ]
+    if any(token in text for token in sdk_tokens):
+        return "sdk-missing"
+    if result.returncode == 124:
+        return "timed-out"
+    return "compiler-refused"
+
+
+def cargo_build_command(target: str, product: str, profile: str, nightly: bool = False) -> list[str]:
+    cargo = "cargo"
+    prefix = [cargo]
+    if nightly:
+        prefix = [cargo, "+nightly"]
+    profile_args = ["--profile", profile]
+    build_std = ["-Z", "build-std=core"] if nightly else []
+    if product == "core":
+        return prefix + ["build", "-p", "tcps-core", "--lib", "--target", target] + profile_args + build_std
+    if product == "std":
+        return prefix + ["build", "-p", "tcps-std", "--lib", "--target", target] + profile_args
+    if product == "ffi":
+        return prefix + ["build", "-p", "tcps-ffi", "--target", target] + profile_args
+    if product == "wasm":
+        return prefix + ["build", "-p", "tcps-wasm", "--target", target] + profile_args
+    if product == "cli":
+        return prefix + ["build", "-p", "tcps-cli", "--target", target] + profile_args
+    raise LifecycleError(f"未知の製品です: {product}")
+
+
+def build_target(
+    target: str,
+    *,
+    product: str = "core",
+    profile: str = "release",
+    allow_nightly: bool = True,
+) -> BuildOutcome:
+    matrix = discover_targets()
+    item = next((entry for entry in matrix["targets"] if entry["target"] == target), None)
+    if item is None:
+        item = {
+            "target": target,
+            "tier": 3,
+            "family": family_for_target(target),
+            "standard_library": "unknown",
+            "products": ["core"],
+        }
+    tier = int(item["tier"])
+    family = str(item["family"])
+
+    if not command_exists("cargo"):
+        result = CommandResult(["cargo"], 127, "", "cargoがありません", 0)
+        status = "tool-missing"
+    else:
+        ready, detail = ensure_target(target, tier)
+        command = cargo_build_command(target, product, profile)
+        if ready or target == host_target():
+            result = run(command, timeout=3600)
+        else:
+            result = CommandResult(command, 1, "", detail, 0)
+
+        status = "built" if result.succeeded else classify_failure(result)
+        if (
+            not result.succeeded
+            and product == "core"
+            and allow_nightly
+            and tier == 3
+            and command_exists("rustup")
+        ):
+            toolchains = run(["rustup", "toolchain", "list"])
+            if toolchains.succeeded and "nightly" in toolchains.stdout:
+                nightly_command = cargo_build_command(target, product, profile, nightly=True)
+                nightly_result = run(nightly_command, timeout=3600)
+                if nightly_result.succeeded:
+                    result = nightly_result
+                    status = "built-nightly-build-std"
+                else:
+                    result = nightly_result
+                    status = classify_failure(result)
+
+    receipt = write_step_receipt(
+        f"build-{target}-{product}",
+        {
+            "status": status,
+            "target": target,
+            "product": product,
+            "tier": tier,
+            "family": family,
+            "command": result.command,
+            "returncode": result.returncode,
+            "duration_ms": result.duration_ms,
+            "stdout": result.stdout[-20000:],
+            "stderr": result.stderr[-20000:],
+        },
+    )
+    return BuildOutcome(
+        target=target,
+        product=product,
+        tier=tier,
+        family=family,
+        status=status,
+        command=result.command,
+        duration_ms=result.duration_ms,
+        receipt=str(receipt),
+        detail=(result.stderr or result.stdout).strip()[-2000:],
+    )
+
+
+def choose_targets(
+    matrix: dict[str, Any],
+    tiers: set[int],
+    family: str | None,
+    shard_index: int,
+    shard_count: int,
+) -> list[dict[str, Any]]:
+    selected = [
+        item
+        for item in matrix["targets"]
+        if int(item["tier"]) in tiers and (family is None or item["family"] == family)
+    ]
+    selected.sort(key=lambda item: item["target"])
+    if shard_count < 1 or not 0 <= shard_index < shard_count:
+        raise LifecycleError("分割番号が不正です")
+    return [item for index, item in enumerate(selected) if index % shard_count == shard_index]
+
+
+def build_all(
+    *,
+    tiers: set[int],
+    family: str | None,
+    product: str,
+    profile: str,
+    shard_index: int,
+    shard_count: int,
+    strict_tier3: bool,
+) -> int:
+    matrix = discover_targets()
+    write_json(STATE_DIR / "target-matrix.json", matrix)
+    selected = choose_targets(matrix, tiers, family, shard_index, shard_count)
+    outcomes: list[dict[str, Any]] = []
+    failed_required = False
+    for item in selected:
+        target = item["target"]
+        selected_products = [product] if product != "auto" else item["products"]
+        for selected_product in selected_products:
+            outcome = build_target(target, product=selected_product, profile=profile)
+            outcomes.append(dataclasses.asdict(outcome))
+            print(f"{target:42} {selected_product:6} {outcome.status}")
+            failed = not outcome.status.startswith("built")
+            if failed and (outcome.tier in {1, 2} or strict_tier3):
+                failed_required = True
+    summary = {
+        "status": "refused" if failed_required else "completed",
+        "tiers": sorted(tiers),
+        "family": family,
+        "product": product,
+        "shard_index": shard_index,
+        "shard_count": shard_count,
+        "outcomes": outcomes,
+    }
+    receipt = write_step_receipt("build-all", summary)
+    print(f"受領証: {receipt}")
+    return 1 if failed_required else 0
+
+
+
+def target_record(target: str) -> dict[str, Any]:
+    matrix = discover_targets()
+    item = next((entry for entry in matrix["targets"] if entry["target"] == target), None)
+    if item is not None:
+        return item
+    return {
+        "target": target,
+        "tier": 3,
+        "family": family_for_target(target),
+        "standard_library": "unknown",
+        "products": ["core"],
+    }
+
+
+def runner_for_target(target: str) -> tuple[list[str] | None, str]:
+    host = host_target()
+    if target == host:
+        return [], "native"
+    if target.startswith("wasm32-wasip1") and command_exists("wasmtime"):
+        return ["wasmtime"], "wasmtime"
+    if "windows-gnu" in target and command_exists("wine"):
+        return ["wine"], "wine"
+    arch = target.split("-", 1)[0]
+    qemu_map = {
+        "aarch64": "qemu-aarch64",
+        "arm": "qemu-arm",
+        "armv7": "qemu-arm",
+        "i686": "qemu-i386",
+        "powerpc": "qemu-ppc",
+        "powerpc64": "qemu-ppc64",
+        "powerpc64le": "qemu-ppc64le",
+        "riscv32": "qemu-riscv32",
+        "riscv64gc": "qemu-riscv64",
+        "s390x": "qemu-s390x",
+        "sparc64": "qemu-sparc64",
+        "x86_64": "qemu-x86_64",
+    }
+    executable = qemu_map.get(arch)
+    if executable and command_exists(executable):
+        return [executable], executable
+    return None, "runtime-unavailable"
+
+
+def test_target(target: str) -> int:
+    item = target_record(target)
+    if item.get("standard_library") == "core":
+        receipt = write_step_receipt(
+            f"test-{target}",
+            {
+                "status": "not-applicable",
+                "target": target,
+                "reason": "core-only target requires hardware or target-specific harness",
+            },
+        )
+        print(receipt)
+        return 0
+    ready, detail = ensure_target(target, int(item["tier"]))
+    if not ready and target != host_target():
+        receipt = write_step_receipt(
+            f"test-{target}",
+            {"status": "target-unavailable", "target": target, "reason": detail},
+        )
+        print(receipt)
+        return 1
+    runner, runner_name = runner_for_target(target)
+    if runner is None:
+        receipt = write_step_receipt(
+            f"test-{target}",
+            {
+                "status": "runtime-unavailable",
+                "target": target,
+                "reason": "build is possible but no approved runner was detected",
+            },
+        )
+        print(receipt)
+        return 1
+    env: dict[str, str] = {}
+    if runner:
+        key = "CARGO_TARGET_" + target.upper().replace("-", "_") + "_RUNNER"
+        env[key] = " ".join(runner)
+    command = ["cargo", "test", "-p", "tcps-core", "--target", target]
+    result = run(command, env=env, timeout=3600)
+    status = "tested" if result.succeeded else classify_failure(result)
+    receipt = write_step_receipt(
+        f"test-{target}",
+        {
+            "status": status,
+            "target": target,
+            "runner": runner_name,
+            "command": command,
+            "returncode": result.returncode,
+            "duration_ms": result.duration_ms,
+            "stdout": result.stdout[-20000:],
+            "stderr": result.stderr[-20000:],
+        },
+    )
+    print(receipt)
+    return 0 if result.succeeded else 1
+
+
+def benchmark(iterations: int) -> int:
+    if not command_exists("cargo"):
+        receipt = write_step_receipt(
+            "benchmark",
+            {"status": "tool-missing", "reason": "cargo is not installed"},
+        )
+        print(receipt)
+        return 1
+    command = [
+        "cargo",
+        "run",
+        "-p",
+        "tcps-cli",
+        "--bin",
+        "tcps-bench",
+        "--release",
+        "--",
+        str(iterations),
+    ]
+    result = run(command, timeout=3600)
+    parsed: dict[str, Any] | None = None
+    if result.succeeded:
+        for line in reversed(result.stdout.splitlines()):
+            try:
+                parsed = json.loads(line)
+                break
+            except json.JSONDecodeError:
+                continue
+    receipt = write_step_receipt(
+        "benchmark",
+        {
+            "status": "measured" if result.succeeded and parsed else "refused",
+            "iterations": iterations,
+            "host": host_target(),
+            "command": command,
+            "duration_ms": result.duration_ms,
+            "measurement": parsed,
+            "stdout": result.stdout[-20000:],
+            "stderr": result.stderr[-20000:],
+            "claim_boundary": "This receipt applies only to the named source digest, compiler, host, and invocation.",
+        },
+    )
+    print(receipt)
+    return 0 if result.succeeded and parsed else 1
+
+def cargo_artifact_root(target: str, profile: str) -> Path:
+    profile_dir = "release" if profile == "release" else profile
+    return TARGET_DIR / target / profile_dir
+
+
+def collect_artifacts(target: str, profile: str) -> list[Path]:
+    root = cargo_artifact_root(target, profile)
+    if not root.exists():
+        return []
+    patterns = [
+        "*.rlib", "*.a", "*.so", "*.dylib", "*.dll", "*.lib", "*.wasm", "*.exe", "tcps", "tcps-*"
+    ]
+    found: set[Path] = set()
+    for pattern in patterns:
+        for path in root.glob(pattern):
+            if path.is_file() and not path.name.endswith((".d", ".rmeta")):
+                found.add(path)
+    deps = root / "deps"
+    if deps.exists():
+        for pattern in ("libtcps_core-*.rlib", "libtcps_wasm*.wasm", "tcps*.dll", "libtcps_ffi*.so", "libtcps_ffi*.dylib", "libtcps_ffi*.a"):
+            found.update(path for path in deps.glob(pattern) if path.is_file())
+    return sorted(found)
+
+
+def package_target(target: str, *, profile: str = "release") -> int:
+    artifacts = collect_artifacts(target, profile)
+    if not artifacts:
+        receipt = write_step_receipt(
+            f"package-{target}",
+            {"status": "refused", "target": target, "reason": "build-artifacts-not-found"},
+        )
+        print(f"成果物がありません: {receipt}", file=sys.stderr)
+        return 1
+
+    package_root = DIST_DIR / f"tcps-v26.7.19-{target}"
+    if package_root.exists():
+        shutil.rmtree(package_root)
+    (package_root / "lib").mkdir(parents=True)
+    (package_root / "include").mkdir()
+    (package_root / "meta").mkdir()
+    for artifact in artifacts:
+        shutil.copy2(artifact, package_root / "lib" / artifact.name)
+    shutil.copy2(ROOT / "include/tcps.h", package_root / "include/tcps.h")
+    for name in ("README.md", "README_EN.md", "LICENSE-MIT", "LICENSE-APACHE"):
+        source = ROOT / name
+        if source.exists():
+            shutil.copy2(source, package_root / name)
+
+    metadata = {
+        "target": target,
+        "profile": profile,
+        "family": family_for_target(target),
+        "artifacts": [
+            {
+                "path": path.relative_to(package_root).as_posix(),
+                "size": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
+            for path in sorted(package_root.rglob("*"))
+            if path.is_file()
+        ],
+    }
+    write_json(package_root / "meta/package.json", metadata)
+
+    zip_path = DIST_DIR / f"tcps-v26.7.19-{target}.zip"
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for path in sorted(package_root.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(DIST_DIR))
+    tar_path = DIST_DIR / f"tcps-v26.7.19-{target}.tar.gz"
+    with tarfile.open(tar_path, "w:gz", compresslevel=9) as archive:
+        archive.add(package_root, arcname=package_root.name)
+
+    receipt = write_step_receipt(
+        f"package-{target}",
+        {
+            "status": "packaged",
+            "target": target,
+            "zip": str(zip_path.relative_to(ROOT)),
+            "zip_sha256": sha256_file(zip_path),
+            "tar": str(tar_path.relative_to(ROOT)),
+            "tar_sha256": sha256_file(tar_path),
+        },
+    )
+    print(zip_path)
+    print(tar_path)
+    print(receipt)
+    return 0
+
+
+def cargo_packages() -> list[dict[str, Any]]:
+    if command_exists("cargo"):
+        result = run(["cargo", "metadata", "--format-version", "1", "--no-deps"], timeout=120)
+        if result.succeeded:
+            data = json.loads(result.stdout)
+            return [
+                {
+                    "name": package["name"],
+                    "version": package["version"],
+                    "license": package.get("license"),
+                    "manifest_path": str(Path(package["manifest_path"]).relative_to(ROOT)),
+                }
+                for package in data["packages"]
+            ]
+    return [
+        {"name": "tcps-core", "version": "26.7.19", "license": "MIT OR Apache-2.0", "manifest_path": "crates/tcps-core/Cargo.toml"},
+        {"name": "tcps-std", "version": "26.7.19", "license": "MIT OR Apache-2.0", "manifest_path": "crates/tcps-std/Cargo.toml"},
+        {"name": "tcps-ffi", "version": "26.7.19", "license": "MIT OR Apache-2.0", "manifest_path": "crates/tcps-ffi/Cargo.toml"},
+        {"name": "tcps-wasm", "version": "26.7.19", "license": "MIT OR Apache-2.0", "manifest_path": "crates/tcps-wasm/Cargo.toml"},
+        {"name": "tcps-cli", "version": "26.7.19", "license": "MIT OR Apache-2.0", "manifest_path": "crates/tcps-cli/Cargo.toml"},
+    ]
+
+
+def generate_sbom() -> int:
+    ensure_dirs()
+    packages = cargo_packages()
+    serial = f"urn:uuid:{hashlib.sha256(tree_digest().encode()).hexdigest()[:32]}"
+    cyclonedx = {
+        "bomFormat": "CycloneDX",
+        "specVersion": "1.5",
+        "serialNumber": serial,
+        "version": 1,
+        "metadata": {
+            "timestamp": utc_now(),
+            "component": {
+                "type": "application",
+                "name": "豊田コード生産方式",
+                "version": "26.7.19",
+            },
+        },
+        "components": [
+            {
+                "type": "library" if package["name"] != "tcps-cli" else "application",
+                "name": package["name"],
+                "version": package["version"],
+                "licenses": [{"expression": package["license"] or "NOASSERTION"}],
+                "purl": f"pkg:cargo/{package['name']}@{package['version']}",
+            }
+            for package in packages
+        ],
+    }
+    spdx = {
+        "spdxVersion": "SPDX-2.3",
+        "dataLicense": "CC0-1.0",
+        "SPDXID": "SPDXRef-DOCUMENT",
+        "name": "tcps-v26.7.19",
+        "documentNamespace": f"urn:tcps:spdx:{tree_digest()}",
+        "creationInfo": {"created": utc_now(), "creators": ["Tool: tools/lifecycle.py"]},
+        "packages": [
+            {
+                "name": package["name"],
+                "SPDXID": f"SPDXRef-Package-{package['name']}",
+                "versionInfo": package["version"],
+                "downloadLocation": "NOASSERTION",
+                "licenseConcluded": package["license"] or "NOASSERTION",
+                "licenseDeclared": package["license"] or "NOASSERTION",
+                "filesAnalyzed": False,
+            }
+            for package in packages
+        ],
+    }
+    cyclonedx_path = DIST_DIR / "tcps-v26.7.19.cdx.json"
+    spdx_path = DIST_DIR / "tcps-v26.7.19.spdx.json"
+    write_json(cyclonedx_path, cyclonedx)
+    write_json(spdx_path, spdx)
+    receipt = write_step_receipt(
+        "sbom",
+        {
+            "status": "generated",
+            "cyclonedx": str(cyclonedx_path.relative_to(ROOT)),
+            "cyclonedx_sha256": sha256_file(cyclonedx_path),
+            "spdx": str(spdx_path.relative_to(ROOT)),
+            "spdx_sha256": sha256_file(spdx_path),
+        },
+    )
+    print(cyclonedx_path)
+    print(spdx_path)
+    print(receipt)
+    return 0
+
+
+def git_information() -> dict[str, Any]:
+    if not command_exists("git"):
+        return {"available": False}
+    top = run(["git", "rev-parse", "--show-toplevel"])
+    if not top.succeeded:
+        return {"available": True, "repository": False}
+    commit = run(["git", "rev-parse", "HEAD"])
+    status = run(["git", "status", "--porcelain"])
+    return {
+        "available": True,
+        "repository": True,
+        "commit": commit.stdout.strip() if commit.succeeded else None,
+        "dirty": bool(status.stdout.strip()) if status.succeeded else None,
+    }
+
+
+def generate_provenance() -> int:
+    subjects = []
+    for path in sorted(DIST_DIR.glob("*")):
+        if path.is_file() and path.name != "tcps-v26.7.19.intoto.jsonl":
+            subjects.append({"name": path.name, "digest": {"sha256": sha256_file(path)}})
+    statement = {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": subjects,
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "predicate": {
+            "buildDefinition": {
+                "buildType": "urn:tcps:rust-lifecycle:v1",
+                "externalParameters": load_json(RELEASE_PATH),
+                "internalParameters": {
+                    "rustc": tool_version(["rustc", "--version", "--verbose"]),
+                    "cargo": tool_version(["cargo", "--version"]),
+                    "host": host_target(),
+                },
+                "resolvedDependencies": [
+                    {"uri": "file:source-tree", "digest": {"sha256": tree_digest()}}
+                ],
+            },
+            "runDetails": {
+                "builder": {"id": "tools/lifecycle.py"},
+                "metadata": {
+                    "invocationId": hashlib.sha256((tree_digest() + utc_now()).encode()).hexdigest(),
+                    "startedOn": utc_now(),
+                    "finishedOn": utc_now(),
+                },
+            },
+        },
+    }
+    path = DIST_DIR / "tcps-v26.7.19.intoto.jsonl"
+    path.write_text(json.dumps(statement, ensure_ascii=False, separators=(",", ":")) + "\\n", encoding="utf-8")
+    receipt = write_step_receipt(
+        "provenance",
+        {
+            "status": "generated",
+            "path": str(path.relative_to(ROOT)),
+            "sha256": sha256_file(path),
+            "git": git_information(),
+        },
+    )
+    print(path)
+    print(receipt)
+    return 0
+
+
+def generate_checksums() -> int:
+    ensure_dirs()
+    lines = []
+    for path in sorted(DIST_DIR.glob("*")):
+        if path.is_file() and path.name not in {"SHA256SUMS", "SHA256SUMS.sig", "SHA256SUMS.asc"}:
+            lines.append(f"{sha256_file(path)}  {path.name}")
+    checksum_path = DIST_DIR / "SHA256SUMS"
+    checksum_path.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+    receipt = write_step_receipt(
+        "checksums",
+        {"status": "generated", "path": str(checksum_path.relative_to(ROOT)), "entries": len(lines)},
+    )
+    print(checksum_path)
+    print(receipt)
+    return 0
+
+
+def sign_checksums(method: str, key: str | None) -> int:
+    checksum_path = DIST_DIR / "SHA256SUMS"
+    if not checksum_path.exists():
+        generate_checksums()
+    if method == "none":
+        receipt = write_step_receipt("sign", {"status": "not-requested", "method": method})
+        print(receipt)
+        return 0
+    if method == "gpg":
+        if not command_exists("gpg"):
+            raise LifecycleError("gpgがありません")
+        command = ["gpg", "--batch", "--yes", "--armor", "--detach-sign", "--output", str(checksum_path) + ".asc"]
+        if key:
+            command.extend(["--local-user", key])
+        command.append(str(checksum_path))
+    elif method == "minisign":
+        if not command_exists("minisign"):
+            raise LifecycleError("minisignがありません")
+        if not key:
+            raise LifecycleError("minisign秘密鍵を指定してください")
+        command = ["minisign", "-S", "-s", key, "-m", str(checksum_path)]
+    elif method == "cosign":
+        if not command_exists("cosign"):
+            raise LifecycleError("cosignがありません")
+        command = ["cosign", "sign-blob", "--yes", "--output-signature", str(checksum_path) + ".sig"]
+        if key:
+            command.extend(["--key", key])
+        command.append(str(checksum_path))
+    else:
+        raise LifecycleError(f"未対応の署名方式です: {method}")
+    result = run(command, timeout=600)
+    receipt = write_step_receipt(
+        "sign",
+        {
+            "status": "signed" if result.succeeded else "refused",
+            "method": method,
+            "command": result.command,
+            "returncode": result.returncode,
+            "stderr": result.stderr,
+        },
+    )
+    print(receipt)
+    return 0 if result.succeeded else 1
+
+
+def verify_release() -> int:
+    checksum_path = DIST_DIR / "SHA256SUMS"
+    errors: list[str] = []
+    if not checksum_path.exists():
+        errors.append("SHA256SUMSがありません")
+    else:
+        for line in checksum_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            expected, name = line.split("  ", 1)
+            path = DIST_DIR / name
+            if not path.exists():
+                errors.append(f"成果物がありません: {name}")
+            elif sha256_file(path) != expected:
+                errors.append(f"要約不一致: {name}")
+    for required in ("tcps-v26.7.19.cdx.json", "tcps-v26.7.19.spdx.json", "tcps-v26.7.19.intoto.jsonl"):
+        if not (DIST_DIR / required).exists():
+            errors.append(f"供給網成果物がありません: {required}")
+    receipt = write_step_receipt(
+        "verify-release",
+        {"status": "accepted" if not errors else "refused", "errors": errors},
+    )
+    print(receipt)
+    for error in errors:
+        print(f"- {error}", file=sys.stderr)
+    return 0 if not errors else 1
+
+
+def release(scope: str, sign_method: str, sign_key: str | None) -> int:
+    if verify(require_tools=True) != 0:
+        return 1
+    matrix = discover_targets()
+    write_json(DIST_DIR / "target-matrix.json", matrix)
+    targets: list[str]
+    if scope == "host":
+        host = host_target()
+        if not host:
+            raise LifecycleError("ホスト対象を取得できません")
+        targets = [host]
+    elif scope == "tier1":
+        targets = [item["target"] for item in matrix["targets"] if item["tier"] == 1]
+    elif scope == "tier1-2":
+        targets = [item["target"] for item in matrix["targets"] if item["tier"] in {1, 2}]
+    elif scope == "all":
+        targets = [item["target"] for item in matrix["targets"]]
+    else:
+        targets = [scope]
+
+    failures = []
+    for target in targets:
+        outcome = build_target(target, product="core", profile="release")
+        print(f"{target}: {outcome.status}")
+        if not outcome.status.startswith("built"):
+            failures.append(dataclasses.asdict(outcome))
+            continue
+        package_target(target)
+
+    generate_sbom()
+    generate_provenance()
+    generate_checksums()
+    if sign_method != "none":
+        sign_checksums(sign_method, sign_key)
+    verification = verify_release()
+    receipt = write_step_receipt(
+        "release",
+        {
+            "status": "accepted" if not failures and verification == 0 else "partial",
+            "scope": scope,
+            "targets": targets,
+            "failures": failures,
+        },
+    )
+    print(receipt)
+    return 0 if not failures and verification == 0 else 1
+
+
+def clean() -> int:
+    for path in (TARGET_DIR, DIST_DIR, RECEIPT_DIR, STATE_DIR):
+        if path.exists():
+            shutil.rmtree(path)
+    ensure_dirs()
+    (DIST_DIR / ".gitkeep").touch()
+    (RECEIPT_DIR / ".gitkeep").touch()
+    print("清掃しました")
+    return 0
+
+
+def matrix_command(output: str | None) -> int:
+    matrix = discover_targets()
+    path = Path(output) if output else DIST_DIR / "target-matrix.json"
+    if not path.is_absolute():
+        path = ROOT / path
+    write_json(path, matrix)
+    counts: dict[str, int] = {}
+    for item in matrix["targets"]:
+        key = f"tier-{item['tier']}"
+        counts[key] = counts.get(key, 0) + 1
+    receipt = write_step_receipt(
+        "target-matrix",
+        {"status": "generated", "path": str(path), "counts": counts, "source": matrix["source"]},
+    )
+    print(json.dumps({"path": str(path), "counts": counts, "receipt": str(receipt)}, indent=2))
+    return 0
+
+
+def parse_tiers(value: str) -> set[int]:
+    tiers = {int(part.strip()) for part in value.split(",") if part.strip()}
+    if not tiers or not tiers.issubset({1, 2, 3}):
+        raise argparse.ArgumentTypeError("階層は1,2,3の組合せです")
+    return tiers
+
+
+def parser() -> argparse.ArgumentParser:
+    command = argparse.ArgumentParser(description=__doc__)
+    sub = command.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("doctor", help="道具とSDKの状態を観察する")
+    verify_parser = sub.add_parser("verify", help="ホスト上の完全検査を行う")
+    verify_parser.add_argument("--structure-only", action="store_true")
+
+    matrix_parser = sub.add_parser("matrix", help="対象行列を生成する")
+    matrix_parser.add_argument("--output")
+
+    build_parser = sub.add_parser("build", help="一つの対象を構築する")
+    build_parser.add_argument("--target", required=True)
+    build_parser.add_argument("--product", choices=["core", "std", "ffi", "wasm", "cli"], default="core")
+    build_parser.add_argument("--profile", default="release")
+    build_parser.add_argument("--no-nightly", action="store_true")
+
+    all_parser = sub.add_parser("build-all", help="対象行列を分割構築する")
+    all_parser.add_argument("--tiers", type=parse_tiers, default={1, 2})
+    all_parser.add_argument("--family")
+    all_parser.add_argument("--product", choices=["auto", "core", "std", "ffi", "wasm", "cli"], default="core")
+    all_parser.add_argument("--profile", default="release")
+    all_parser.add_argument("--shard-index", type=int, default=0)
+    all_parser.add_argument("--shard-count", type=int, default=1)
+    all_parser.add_argument("--strict-tier3", action="store_true")
+
+    test_parser = sub.add_parser("test", help="対象上で試験を実行する")
+    test_parser.add_argument("--target", required=True)
+
+    benchmark_parser = sub.add_parser("benchmark", help="ホスト上で閉路選択を計測する")
+    benchmark_parser.add_argument("--iterations", type=int, default=1_000_000)
+
+    package_parser = sub.add_parser("package", help="対象別配布物を作る")
+    package_parser.add_argument("--target", required=True)
+    package_parser.add_argument("--profile", default="release")
+
+    sub.add_parser("sbom", help="CycloneDXとSPDXを生成する")
+    sub.add_parser("provenance", help="in-toto/SLSA由来記録を生成する")
+    sub.add_parser("checksums", help="配布物要約を生成する")
+
+    sign_parser = sub.add_parser("sign", help="要約一覧を署名する")
+    sign_parser.add_argument("--method", choices=["none", "gpg", "minisign", "cosign"], default="none")
+    sign_parser.add_argument("--key")
+
+    release_parser = sub.add_parser("release", help="完全な公開経路を実行する")
+    release_parser.add_argument("--scope", default="host", help="host, tier1, tier1-2, all, または対象三つ組")
+    release_parser.add_argument("--sign-method", choices=["none", "gpg", "minisign", "cosign"], default="none")
+    release_parser.add_argument("--sign-key")
+
+    sub.add_parser("verify-release", help="公開成果物を再検証する")
+    sub.add_parser("clean", help="生成物を清掃する")
+    return command
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    ensure_dirs()
+    args = parser().parse_args(argv)
+    try:
+        if args.command == "doctor":
+            return doctor()
+        if args.command == "verify":
+            return verify(require_tools=not args.structure_only)
+        if args.command == "matrix":
+            return matrix_command(args.output)
+        if args.command == "build":
+            outcome = build_target(
+                args.target,
+                product=args.product,
+                profile=args.profile,
+                allow_nightly=not args.no_nightly,
+            )
+            print(json.dumps(dataclasses.asdict(outcome), ensure_ascii=False, indent=2))
+            return 0 if outcome.status.startswith("built") else 1
+        if args.command == "build-all":
+            return build_all(
+                tiers=args.tiers,
+                family=args.family,
+                product=args.product,
+                profile=args.profile,
+                shard_index=args.shard_index,
+                shard_count=args.shard_count,
+                strict_tier3=args.strict_tier3,
+            )
+        if args.command == "test":
+            return test_target(args.target)
+        if args.command == "benchmark":
+            return benchmark(args.iterations)
+        if args.command == "package":
+            return package_target(args.target, profile=args.profile)
+        if args.command == "sbom":
+            return generate_sbom()
+        if args.command == "provenance":
+            return generate_provenance()
+        if args.command == "checksums":
+            return generate_checksums()
+        if args.command == "sign":
+            return sign_checksums(args.method, args.key)
+        if args.command == "release":
+            return release(args.scope, args.sign_method, args.sign_key)
+        if args.command == "verify-release":
+            return verify_release()
+        if args.command == "clean":
+            return clean()
+    except LifecycleError as exc:
+        receipt = write_step_receipt(
+            f"{args.command}-refused",
+            {"status": "refused", "reason": str(exc)},
+        )
+        print(f"拒否: {exc}\\n受領証: {receipt}", file=sys.stderr)
+        return 2
+    raise AssertionError("unreachable")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+""" .
+
+tcps:PlatformPackagePyScript a tcps:ReleaseArtifact ;
+    rdfs:label "Platform-native packaging wrapper (npm/nuget/aar/xcframework/deb)" ;
+    tcps:artifactPath "tools/platform_package.py" ;
+    tcps:artifactBody """#!/usr/bin/env python3
+""\"Create optional platform-native wrappers around already-built TCPS artifacts.""\"
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import zipfile
+from pathlib import Path
+from typing import Sequence
+
+ROOT = Path(__file__).resolve().parents[1]
+TARGET = ROOT / "target"
+DIST = ROOT / "dist"
+
+
+def run(command: list[str]) -> None:
+    completed = subprocess.run(command, cwd=ROOT, check=False)
+    if completed.returncode != 0:
+        raise SystemExit(completed.returncode)
+
+
+def find_one(patterns: list[str]) -> Path:
+    found: list[Path] = []
+    for pattern in patterns:
+        found.extend(path for path in TARGET.glob(pattern) if path.is_file())
+    if not found:
+        raise SystemExit(f"No artifact matched: {patterns}")
+    return sorted(found)[0]
+
+
+def npm_package(wasm: Path | None) -> Path:
+    wasm = wasm or find_one([
+        "wasm32-unknown-unknown/release/tcps_wasm.wasm",
+        "wasm32-wasip1/release/tcps_wasm.wasm",
+        "wasm32-wasip2/release/tcps_wasm.wasm",
+    ])
+    root = DIST / "npm" / "tcps-core"
+    if root.exists():
+        shutil.rmtree(root)
+    root.mkdir(parents=True)
+    shutil.copy2(wasm, root / "tcps_wasm.wasm")
+    shutil.copy2(ROOT / "packaging/npm/package.json.in", root / "package.json")
+    shutil.copy2(ROOT / "README_EN.md", root / "README.md")
+    output = DIST / "tcps-core-26.7.19-npm.tgz"
+    with tarfile.open(output, "w:gz") as archive:
+        archive.add(root, arcname="package")
+    return output
+
+
+def nuget_package() -> Path:
+    root = DIST / "nuget" / "TCPS.Native.26.7.19"
+    if root.exists():
+        shutil.rmtree(root)
+    (root / "build/native/include").mkdir(parents=True)
+    (root / "runtimes").mkdir()
+    shutil.copy2(ROOT / "packaging/nuget/tcps.nuspec.in", root / "TCPS.Native.nuspec")
+    shutil.copy2(ROOT / "include/tcps.h", root / "build/native/include/tcps.h")
+    target_map = {
+        "win-x64": "x86_64-pc-windows-msvc",
+        "win-x86": "i686-pc-windows-msvc",
+        "win-arm64": "aarch64-pc-windows-msvc",
+    }
+    copied = 0
+    for runtime, target in target_map.items():
+        candidates = list((TARGET / target / "release").glob("tcps_ffi.*")) + list((TARGET / target / "release").glob("*tcps_ffi*"))
+        for artifact in candidates:
+            if artifact.suffix.lower() in {".dll", ".lib"} and artifact.is_file():
+                destination = root / "runtimes" / runtime / "native"
+                destination.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(artifact, destination / artifact.name)
+                copied += 1
+    if copied == 0:
+        raise SystemExit("No Windows FFI artifacts were found")
+    output = DIST / "TCPS.Native.26.7.19.nupkg"
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(root.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(root))
+    return output
+
+
+def aar_package() -> Path:
+    root = DIST / "android" / "tcps"
+    if root.exists():
+        shutil.rmtree(root)
+    root.mkdir(parents=True)
+    shutil.copy2(ROOT / "packaging/android/AndroidManifest.xml", root / "AndroidManifest.xml")
+    shutil.copy2(ROOT / "include/tcps.h", root / "tcps.h")
+    target_map = {
+        "arm64-v8a": "aarch64-linux-android",
+        "armeabi-v7a": "armv7-linux-androideabi",
+        "x86": "i686-linux-android",
+        "x86_64": "x86_64-linux-android",
+    }
+    copied = 0
+    for abi, target in target_map.items():
+        candidates = list((TARGET / target / "release").glob("libtcps_ffi.so"))
+        for artifact in candidates:
+            destination = root / "jni" / abi
+            destination.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(artifact, destination / "libtcps_ffi.so")
+            copied += 1
+    if copied == 0:
+        raise SystemExit("No Android FFI shared libraries were found")
+    output = DIST / "tcps-26.7.19.aar"
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(root.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(root))
+    return output
+
+
+def xcframework() -> Path:
+    if shutil.which("xcodebuild") is None:
+        raise SystemExit("xcodebuild is required")
+    pairs: list[tuple[Path, Path]] = []
+    for target in [
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "aarch64-apple-ios",
+        "aarch64-apple-ios-sim",
+        "x86_64-apple-ios",
+    ]:
+        lib = TARGET / target / "release" / "libtcps_ffi.a"
+        if lib.exists():
+            pairs.append((lib, ROOT / "include"))
+    if not pairs:
+        raise SystemExit("No Apple static libraries were found")
+    output = DIST / "TCPS.xcframework"
+    if output.exists():
+        shutil.rmtree(output)
+    command = ["xcodebuild", "-create-xcframework"]
+    for lib, headers in pairs:
+        command.extend(["-library", str(lib), "-headers", str(headers)])
+    command.extend(["-output", str(output)])
+    run(command)
+    return output
+
+
+def deb_package(target: str, architecture: str) -> Path:
+    if shutil.which("dpkg-deb") is None:
+        raise SystemExit("dpkg-deb is required")
+    root = DIST / "debian" / f"tcps-{architecture}"
+    if root.exists():
+        shutil.rmtree(root)
+    (root / "DEBIAN").mkdir(parents=True)
+    (root / "usr/bin").mkdir(parents=True)
+    (root / "usr/include").mkdir(parents=True)
+    (root / "usr/lib").mkdir(parents=True)
+    control = (ROOT / "packaging/deb/control.in").read_text(encoding="utf-8").replace("@ARCH@", architecture)
+    (root / "DEBIAN/control").write_text(control, encoding="utf-8")
+    binary = TARGET / target / "release" / "tcps"
+    if not binary.exists():
+        raise SystemExit(f"CLI artifact missing: {binary}")
+    shutil.copy2(binary, root / "usr/bin/tcps")
+    shutil.copy2(ROOT / "include/tcps.h", root / "usr/include/tcps.h")
+    for artifact in (TARGET / target / "release").glob("libtcps_ffi.*"):
+        if artifact.is_file():
+            shutil.copy2(artifact, root / "usr/lib" / artifact.name)
+    output = DIST / f"tcps_26.7.19_{architecture}.deb"
+    run(["dpkg-deb", "--build", "--root-owner-group", str(root), str(output)])
+    return output
+
+
+def parser() -> argparse.ArgumentParser:
+    command = argparse.ArgumentParser()
+    sub = command.add_subparsers(dest="command", required=True)
+    npm = sub.add_parser("npm")
+    npm.add_argument("--wasm", type=Path)
+    sub.add_parser("nuget")
+    sub.add_parser("aar")
+    sub.add_parser("xcframework")
+    deb = sub.add_parser("deb")
+    deb.add_argument("--target", default="x86_64-unknown-linux-gnu")
+    deb.add_argument("--architecture", default="amd64")
+    return command
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    DIST.mkdir(parents=True, exist_ok=True)
+    args = parser().parse_args(argv)
+    if args.command == "npm":
+        output = npm_package(args.wasm)
+    elif args.command == "nuget":
+        output = nuget_package()
+    elif args.command == "aar":
+        output = aar_package()
+    elif args.command == "xcframework":
+        output = xcframework()
+    elif args.command == "deb":
+        output = deb_package(args.target, args.architecture)
+    else:
+        raise AssertionError("unreachable")
+    print(output)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+""" .
+

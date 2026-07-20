@@ -1,0 +1,12 @@
+/target/
+/dist/*
+!/dist/.gitkeep
+/receipts/*
+!/receipts/.gitkeep
+/.lifecycle/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]

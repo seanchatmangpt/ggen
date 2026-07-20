@@ -1,0 +1,20 @@
+[package]
+name = "tcps-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "豊田コード生産方式のWebAssembly能力境界"
+
+[lib]
+name = "tcps_wasm"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+tcps-core = { path = "../tcps-core", version = "26.7.19" }
+
+[lints.rust]
+unsafe_code = "allow"
+missing_debug_implementations = "deny"

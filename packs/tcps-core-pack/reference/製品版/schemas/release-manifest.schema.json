@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tcps:schema:release-manifest.schema.json",
+  "type": "object",
+  "required": [
+    "release",
+    "flavor",
+    "rust",
+    "products"
+  ]
+}

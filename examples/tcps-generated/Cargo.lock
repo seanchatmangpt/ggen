@@ -536,11 +536,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "tcps-cli"
+version = "26.7.19"
+dependencies = [
+ "tcps-generated",
+ "tcps-std",
+]
+
+[[package]]
+name = "tcps-ffi"
+version = "26.7.19"
+dependencies = [
+ "tcps-generated",
+]
+
+[[package]]
 name = "tcps-generated"
 version = "0.1.0"
 dependencies = [
  "chicago-tdd-tools",
  "tempfile",
+]
+
+[[package]]
+name = "tcps-std"
+version = "26.7.19"
+dependencies = [
+ "tcps-generated",
+]
+
+[[package]]
+name = "tcps-wasm"
+version = "26.7.19"
+dependencies = [
+ "tcps-generated",
 ]
 
 [[package]]

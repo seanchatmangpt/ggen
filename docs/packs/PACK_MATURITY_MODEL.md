@@ -124,6 +124,29 @@ self-graded):**
 description of another system — the floor of L2, nowhere near a fragment *of the
 consumer's own system*.
 
+### The TCPS packs (6) — the first packs with a real, checkable fidelity oracle
+
+These 6 packs (`tcps-core-pack`, `tcps-release-pack`, `tcps-std-pack`, `tcps-ffi-pack`,
+`tcps-wasm-pack`, `tcps-cli-pack`) generate a real, independently-authored crate (Sean
+Chatman's "Toyota Code Production System," both the structure-definition and
+production-version zips) from RDF. Unlike every other codegen pack in this table, a
+finished, real implementation with its own real test suite already exists — full
+architecture in `/TCPS-PACK-ARD-PRD.md`. Verified live 2026-07-19/20 in
+`examples/tcps-generated`, a real 5-crate cargo workspace (`cargo build --workspace` /
+`cargo test --workspace` both exit 0):
+
+| Pack | Generation depth | Handler gap | Ontology expressiveness | Consumer effort | Test generation | Regen lifecycle | Target-API fidelity |
+|---|---|---|---|---|---|---|---|
+| tcps-core-pack | **L5** — all 26 real modules (24 structure-definition + 正準/暗号要約 from the product zip) precipitate from `ontology.ttl`'s `tcps:sourceText`/`tcps:Function` individuals; `lib.rs.tmpl` reproduces the real header/module list verbatim | L4 (zero hand-written logic in the generated lane; the 5 module/struct-name-shadowing fixes + 2 missing-const additions are pack-authoring fixes, not consumer handlers) | L3 (ontology carries real function bodies as structured `sourceText`, not a behavior-contract DSL — see out-of-scope note in the ARD/PRD) | **L5** (`examples/tcps-generated/ggen.toml` wires 6 packs; zero project-specific ontology needed) | **L5** — the reference author's own real `試験.rs` (product version, 16 tests), copied byte-identical, passes unmodified against generated code; `cargo test --workspace` 26/26 | L4 (regen is the only maintenance path; drift is diff-checkable against the checked-in `reference/` fixture; not yet L5 since a consumer still can't detect drift from the *live* upstream repo, only the pinned v26.7.19 snapshot) | L4 (fidelity checked and enforced against a pinned real version, not yet "definitional" per the calibration rule's L5 wording — see ARD/PRD §9 for what closing that gap requires) |
+| tcps-release-pack | L3 (full 132-file release surface — all CI/packaging/target-matrix/scripts/evidence files — transcribed and regenerated verbatim) | L4 | L2 (pure data transcription, no behavioral contract) | L5 | L2 (no generated test suite of its own; correctness checked by the workspace-level `cargo build/test/clippy` inspection receipt instead) | L4 | L3 (byte-verbatim against the pinned reference) |
+| tcps-std-pack / tcps-ffi-pack / tcps-wasm-pack / tcps-cli-pack | L4 (each crate's real source transcribed from the product reference; `tcps-std`'s own real test now compiles and passes) | L4 | L2 | L5 | L3 (tcps-std: 1/1 real reference test passing; tcps-ffi/wasm/cli: no tests in the reference itself, 0/0 honestly, not fabricated) | L4 | L4 (real `Cargo.toml` dependency wiring, verified by a real `cargo build --workspace`, not just file presence) |
+
+Artifacts backing every cell above: `examples/tcps-generated/receipts/inspection-receipt.json`
+(real `fmt`/`test`/`clippy`/`build` exit codes — `fmt` and `clippy` both honestly FAIL, for
+named, disclosed reasons, not swept under a passing aggregate), and
+`examples/tcps-generated/tests/tcps_conformance_e2e.rs` (7 Chicago-TDD cases, including
+idempotency and both packs' SHACL negative-gate cases).
+
 ### Knowledge-hook packs (2)
 
 | Pack | Derivation power | Actuation closure | Input acquisition | Fire precision | Obligation lifecycle | Composability | Governance coverage |

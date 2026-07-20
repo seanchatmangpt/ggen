@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-std-pack"
+version = "0.1.0"
+description = "tcps-std: receipt persistence (受領証を保存する/受領証を文字列化する) and environment observation (実行環境) for 豊田コード生産方式, std-dependent, depends on tcps-core."

@@ -1,0 +1,127 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps-cli#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+tcps:CargoTomlModule a tcps:Module ;
+    tcps:name "Cargo.toml" ;
+    tcps:order 0 ;
+    tcps:sourceText """[package]
+name = "tcps-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "豊田コード生産方式の現地検査用CLI"
+
+[[bin]]
+name = "tcps"
+path = "src/main.rs"
+
+[[bin]]
+name = "tcps-bench"
+path = "src/基準.rs"
+
+[dependencies]
+tcps-core = { path = "../..", package = "tcps-generated" }
+tcps-std = { path = "../tcps-std", version = "26.7.19" }
+
+[lints]
+workspace = true
+""" .
+
+tcps:CargoTomlModule rdfs:comment "Cargo manifest for the tcps-cli crate: declares the two binaries (tcps, tcps-bench) and their dependencies on tcps-core/tcps-std." .
+
+tcps:MainModule a tcps:Module ;
+    tcps:name "main" ;
+    tcps:order 1 ;
+    tcps:dependsOnModule tcps:CargoTomlModule ;
+    tcps:sourceText """#![forbid(unsafe_code)]
+
+use std::process::ExitCode;
+
+use tcps_core::全体::豊田生産方式;
+use tcps_std::実行環境;
+
+fn 使い方() {
+    println!("豊田コード生産方式 {}", tcps_core::版);
+    println!("使い方: tcps <検査|環境|版>");
+}
+
+fn main() -> ExitCode {
+    let 命令 = std::env::args().nth(1).unwrap_or_else(|| "検査".to_owned());
+    match 命令.as_str() {
+        "検査" => {
+            let 方式 = 豊田生産方式::原初形();
+            if 方式.二本柱が閉じている() {
+                println!("成立: 自働化と必要時生産の二本柱は閉じています");
+                ExitCode::SUCCESS
+            } else {
+                eprintln!("拒否: 二本柱が閉じていません");
+                ExitCode::FAILURE
+            }
+        }
+        "環境" => {
+            let 環境 = 実行環境::現在();
+            println!("操作体系={} 機械種別={} 版={}", 環境.操作体系, 環境.機械種別, 環境.版);
+            ExitCode::SUCCESS
+        }
+        "版" => {
+            println!("{} {}", tcps_core::版, tcps_core::配布種別);
+            ExitCode::SUCCESS
+        }
+        _ => {
+            使い方();
+            ExitCode::from(2)
+        }
+    }
+}
+""" .
+
+tcps:MainModule rdfs:comment "tcps main CLI binary entry point (src/main.rs): dispatches 検査 (inspect)/環境 (environment)/版 (version) subcommands over tcps_core::全体::豊田生産方式." .
+
+tcps:KijunModule a tcps:Module ;
+    tcps:name "基準" ;
+    tcps:order 2 ;
+    tcps:dependsOnModule tcps:CargoTomlModule ;
+    tcps:sourceText """#![forbid(unsafe_code)]
+
+use std::hint::black_box;
+use std::time::Instant;
+
+use tcps_core::正準::{正準方策, 正準要求};
+use tcps_core::自動選択::{作業領域, 選択する, 選択結果};
+
+fn main() {
+    let 回数 = std::env::args()
+        .nth(1)
+        .and_then(|値| 値.parse::<u64>().ok())
+        .unwrap_or(1_000_000);
+    let 方策 = 正準方策();
+    let mut 作業領域 = 作業領域::<3>::新規();
+
+    for 時刻 in 0..10_000 {
+        black_box(選択する(&方策, 正準要求(時刻), &mut 作業領域));
+    }
+
+    let 開始 = Instant::now();
+    let mut 選択数 = 0u64;
+    for 時刻 in 0..回数 {
+        let 結果 = black_box(選択する(&方策, 正準要求(時刻), &mut 作業領域));
+        if matches!(結果, 選択結果::選択(_)) {
+            選択数 += 1;
+        }
+    }
+    let 経過 = 開始.elapsed();
+    let 一回ナノ秒 = 経過.as_nanos() as f64 / 回数 as f64;
+    println!(
+        "{{\\"版\\":\\"{}\\",\\"回数\\":{},\\"選択数\\":{},\\"総ナノ秒\\":{},\\"一回ナノ秒\\":{:.3}}}",
+        tcps_core::版,
+        回数,
+        選択数,
+        経過.as_nanos(),
+        一回ナノ秒,
+    );
+}
+""" .
+
+tcps:KijunModule rdfs:comment "tcps-bench binary entry point (src/基準.rs): micro-benchmark harness for tcps_core::自動選択::選択する, printing JSON timing stats." .

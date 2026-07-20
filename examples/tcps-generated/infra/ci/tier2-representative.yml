@@ -1,0 +1,66 @@
+name: tier-2-representative
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-musl
+          - os: ubuntu-24.04
+            target: armv7-unknown-linux-gnueabihf
+          - os: ubuntu-24.04
+            target: riscv64gc-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: s390x-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: powerpc64le-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: aarch64-linux-android
+          - os: ubuntu-24.04
+            target: wasm32-unknown-unknown
+          - os: ubuntu-24.04
+            target: wasm32-wasip1
+          - os: ubuntu-24.04
+            target: thumbv7em-none-eabi
+          - os: ubuntu-24.04
+            target: riscv32imac-unknown-none-elf
+          - os: ubuntu-24.04
+            target: x86_64-unknown-uefi
+          - os: macos-14
+            target: x86_64-apple-darwin
+          - os: macos-14
+            target: aarch64-apple-ios
+          - os: macos-14
+            target: aarch64-apple-visionos
+          - os: windows-2022
+            target: x86_64-pc-windows-gnullvm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        shell: bash
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rust-src
+          rustup default 1.97.1
+      - name: Build core
+        run: python tools/lifecycle.py build --target ${{ matrix.target }} --product core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier2-${{ matrix.target }}
+          path: receipts/
+

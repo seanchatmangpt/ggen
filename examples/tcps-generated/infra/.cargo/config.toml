@@ -1,0 +1,14 @@
+[build]
+target-dir = "target"
+
+[term]
+color = "always"
+verbose = false
+
+[net]
+offline = false
+
+[env]
+TCPS_RELEASE_LINE = "v26.7.19"
+TCPS_RELEASE_FLAVOR = "production.1"
+

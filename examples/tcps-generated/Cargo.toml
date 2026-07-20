@@ -1,4 +1,19 @@
 [workspace]
+members = ["crates/tcps-std", "crates/tcps-ffi", "crates/tcps-wasm", "crates/tcps-cli"]
+
+[workspace.package]
+version = "26.7.19"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+authors = ["Sean Chatman"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+
+[workspace.lints.clippy]
+correctness = "deny"
 
 [package]
 name = "tcps-generated"

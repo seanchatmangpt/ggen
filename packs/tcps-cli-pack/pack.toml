@@ -1,0 +1,4 @@
+[pack]
+name = "tcps-cli-pack"
+version = "0.1.0"
+description = "Toyota Production System (TCPS) CLI ontology: tcps-cli crate (2 binaries -- tcps main CLI, tcps-bench) RDF spec + SHACL shapes + Rust bin templates for the 豊田コード生産方式 CLI."

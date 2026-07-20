@@ -52,22 +52,29 @@ fn copy_tree(src: &Path, dst: &Path) {
     }
 }
 
-/// Copy this example project (`ggen.toml`, `Cargo.toml`, `schema/`) plus both
-/// real packs it depends on into a fresh `TempDir`, preserving the exact
-/// relative-path shape the checked-in `ggen.toml` expects
+/// The 6 packs this example wires in `ggen.toml`'s `[packs]` table -- kept as
+/// one list so `scaffold()` and any future pack additions stay in sync by
+/// construction rather than by remembering to update two places.
+const WIRED_PACKS: [&str; 6] = [
+    "tcps-core-pack",
+    "tcps-release-pack",
+    "tcps-std-pack",
+    "tcps-ffi-pack",
+    "tcps-wasm-pack",
+    "tcps-cli-pack",
+];
+
+/// Copy this example project (`ggen.toml`, `Cargo.toml`, `schema/`) plus every
+/// real pack it depends on (`WIRED_PACKS`) into a fresh `TempDir`, preserving
+/// the exact relative-path shape the checked-in `ggen.toml` expects
 /// (`{ path = "../../packs/<name>" }`, resolved from `examples/tcps-generated/`).
 /// Returns `(tempdir_guard, project_root)`.
 fn scaffold() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
 
-    copy_tree(
-        &packs_dir().join("tcps-core-pack"),
-        &dir.path().join("packs/tcps-core-pack"),
-    );
-    copy_tree(
-        &packs_dir().join("tcps-release-pack"),
-        &dir.path().join("packs/tcps-release-pack"),
-    );
+    for pack in WIRED_PACKS {
+        copy_tree(&packs_dir().join(pack), &dir.path().join("packs").join(pack));
+    }
 
     let project = dir.path().join("examples/tcps-generated");
     let this_crate = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -90,14 +97,21 @@ fn scaffold() -> (TempDir, PathBuf) {
     (dir, project)
 }
 
-/// The 24 real module file names from the checked-in reference crate's own
-/// `src/` listing, plus `lib.rs` -- an independent oracle (read from the
-/// vendored reference, not hand-transcribed) that sync output is compared
-/// against. `試験.rs` is excluded: it is hand-copied by this repo's own
-/// workflow, never a `ggen sync` output.
+/// The 26 real module file names (24 from the original structure-definition
+/// zip plus `暗号要約.rs`/`正準.rs`, transcribed from the product zip this
+/// phase) from the checked-in **product** reference crate's own `src/`
+/// listing, plus `lib.rs` -- an independent oracle (read from the vendored
+/// reference, not hand-transcribed) that sync output is compared against.
+/// `試験.rs` is excluded: it is hand-copied by this repo's own workflow
+/// (from this same product reference, see `tests/`'s copy step below), never
+/// a `ggen sync` output. Uses the product reference
+/// (`reference/製品版/crates/tcps-core/src`), not the original
+/// structure-definition zip's `reference/豊田コード生産方式_v26.7.19/src`,
+/// because the latter predates `暗号要約`/`正準` and would only ever list 24
+/// modules -- the product reference is also where this test suite's own
+/// `試験.rs` fixture comes from, so both must be drawn from the same source.
 fn expected_core_module_files() -> Vec<String> {
-    let reference_src =
-        packs_dir().join("tcps-core-pack/reference/豊田コード生産方式_v26.7.19/src");
+    let reference_src = packs_dir().join("tcps-core-pack/reference/製品版/crates/tcps-core/src");
     let mut names: Vec<String> = std::fs::read_dir(&reference_src)
         .expect("read reference src/")
         .map(|e| e.expect("entry").file_name().to_string_lossy().into_owned())
@@ -188,6 +202,53 @@ fn sync_generates_release_pack_infra_outputs() {
     }
 }
 
+/// The 10 files the 4 new packs (`tcps-std-pack`/`tcps-ffi-pack`/
+/// `tcps-wasm-pack`/`tcps-cli-pack`) must write, each into its own
+/// `crates/tcps-<name>/` subdirectory -- chosen specifically to avoid
+/// colliding with `tcps-core-pack`'s own flat `src/` layout (§ design note in
+/// this repo's TCPS-PACK-ARD-PRD.md follow-up: the product's own
+/// `crates/tcps-{core,std,ffi,wasm,cli}/` shape, minus `tcps-core` itself,
+/// which stays at this example's root `src/` to preserve the
+/// already-proven 26-module baseline unchanged).
+fn expected_new_pack_output_files() -> [&'static str; 10] {
+    [
+        "crates/tcps-std/Cargo.toml",
+        "crates/tcps-std/src/lib.rs",
+        "crates/tcps-ffi/Cargo.toml",
+        "crates/tcps-ffi/src/lib.rs",
+        "crates/tcps-ffi/include/tcps.h",
+        "crates/tcps-wasm/Cargo.toml",
+        "crates/tcps-wasm/src/lib.rs",
+        "crates/tcps-cli/Cargo.toml",
+        "crates/tcps-cli/src/main.rs",
+        "crates/tcps-cli/src/基準.rs",
+    ]
+}
+
+#[test]
+fn sync_generates_all_4_new_pack_outputs_without_collision() {
+    let (_dir, project) = scaffold();
+
+    CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sync")
+        .assert_success();
+
+    for rel in expected_new_pack_output_files() {
+        assert!(
+            project.join(rel).is_file(),
+            "expected {rel} written by one of the 4 new packs (tcps-std/ffi/wasm/cli-pack)"
+        );
+    }
+
+    // The 4 new packs must not have clobbered tcps-core-pack's own flat
+    // src/ layout (the collision this subdirectory scheme exists to avoid).
+    assert!(project.join("src/lib.rs").is_file());
+    assert!(project.join("src/語彙.rs").is_file());
+}
+
 #[test]
 fn second_sync_is_byte_identical_idempotent() {
     let (_dir, project) = scaffold();
@@ -200,6 +261,7 @@ fn second_sync_is_byte_identical_idempotent() {
         .assert_success();
     let before = snapshot_tree(&project.join("src"));
     let before_infra = snapshot_tree(&project.join("infra"));
+    let before_crates = snapshot_tree(&project.join("crates"));
     let lock_before = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
 
     CliHarness::from_path(ggen_bin())
@@ -210,6 +272,7 @@ fn second_sync_is_byte_identical_idempotent() {
         .assert_success();
     let after = snapshot_tree(&project.join("src"));
     let after_infra = snapshot_tree(&project.join("infra"));
+    let after_crates = snapshot_tree(&project.join("crates"));
     let lock_after = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock 2");
 
     assert_eq!(
@@ -219,6 +282,12 @@ fn second_sync_is_byte_identical_idempotent() {
     assert_eq!(
         before_infra, after_infra,
         "second sync must leave every generated infra/ file byte-identical"
+    );
+    assert_eq!(
+        before_crates, after_crates,
+        "second sync must leave every generated crates/ file (the 4 new packs' \
+         output) byte-identical -- idempotency must hold across the full \
+         expanded 6-pack tree, not just the original 2-pack subset"
     );
     assert_eq!(
         lock_before, lock_after,

@@ -1,0 +1,30 @@
+{
+  "schema": "1",
+  "step": "verify",
+  "recorded_at": "2026-07-19T20:47:15+00:00",
+  "source_digest": "d9cfc7b0cc529406b4f963a606baa707b9297c95fab24f8f7a31565a66db2698",
+  "release": {
+    "release": "v26.7.19",
+    "flavor": "production.2",
+    "rust": "1.97.1",
+    "edition": "2024",
+    "core": {
+      "no_std": true,
+      "external_dependencies": 0,
+      "unsafe": "forbidden"
+    },
+    "products": [
+      "core-rlib",
+      "std-adapter",
+      "cli",
+      "c-abi",
+      "wasm"
+    ],
+    "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+  },
+  "status": "accepted",
+  "structure_ok": true,
+  "errors": [],
+  "commands": []
+}
+

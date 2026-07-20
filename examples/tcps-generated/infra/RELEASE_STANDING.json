@@ -1,0 +1,20 @@
+{
+  "release": "v26.7.19",
+  "flavor": "production.2",
+  "source_standing": "structurally-accepted",
+  "binary_standing": "unverified-on-artifact-host",
+  "toolchain_required": "Rust 1.97.1",
+  "reasons": [
+    "cargo not installed on artifact host",
+    "rustc not installed on artifact host",
+    "rustup not installed on artifact host",
+    "network toolchain installation unavailable"
+  ],
+  "establish_binary_standing_with": [
+    "python tools/lifecycle.py verify",
+    "scripts/full-lifecycle.sh",
+    "scripts/full-lifecycle-all-targets.sh",
+    "GitHub Actions platform matrices"
+  ]
+}
+

@@ -1,0 +1,33 @@
+name: supply-chain
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "11 2 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy --component rust-src
+          rustup default 1.97.1
+      - run: python tools/lifecycle.py verify
+      - run: python tools/lifecycle.py sbom
+      - run: python tools/lifecycle.py provenance
+      - run: python tools/lifecycle.py checksums
+      - run: python tools/lifecycle.py verify-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supply-chain-evidence
+          path: |
+            dist/
+            receipts/
+

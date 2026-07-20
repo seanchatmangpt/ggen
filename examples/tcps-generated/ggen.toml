@@ -12,6 +12,10 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 [packs]
 tcps-core-pack = { path = "../../packs/tcps-core-pack" }
 tcps-release-pack = { path = "../../packs/tcps-release-pack" }
+tcps-std-pack = { path = "../../packs/tcps-std-pack" }
+tcps-ffi-pack = { path = "../../packs/tcps-ffi-pack" }
+tcps-wasm-pack = { path = "../../packs/tcps-wasm-pack" }
+tcps-cli-pack = { path = "../../packs/tcps-cli-pack" }
 
 [templates]
 dir = "templates"

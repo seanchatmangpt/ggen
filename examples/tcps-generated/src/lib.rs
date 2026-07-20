@@ -45,12 +45,16 @@ pub mod アンドン;
 pub mod 改善;
 #[path = "受領証.rs"]
 pub mod 受領証_impl;
+#[path = "暗号要約.rs"]
+pub mod 暗号要約;
 #[path = "自動選択.rs"]
 pub mod 自動選択;
 #[path = "青い川のダム.rs"]
 pub mod 青い川のダム;
 #[path = "全体.rs"]
 pub mod 全体;
+#[path = "正準.rs"]
+pub mod 正準;
 #[path = "現地現物.rs"]
 pub mod 現地現物;
 #[path = "ポカヨケ.rs"]
@@ -74,6 +78,7 @@ pub use アンドン::*;
 pub use かんばん::*;
 pub use 原点::*;
 pub use 受領証_impl::*;
+pub use 暗号要約::*;
 pub use 品質::*;
 pub use 平準化::*;
 pub use 必要時生産::*;
@@ -85,6 +90,7 @@ pub use 自動選択::*;
 pub use 語彙::*;
 pub use 青い川のダム::*;
 pub use 全体::*;
+pub use 正準::*;
 pub use 現地現物::*;
 pub use ポカヨケ::*;
 pub use 五回なぜ_impl::*;
@@ -96,3 +102,5 @@ pub use 価値流_impl::*;
 pub use 工程能力_impl::*;
 
 pub const 版: &str = "v26.7.19";
+pub const 配布種別: &str = "製品版";
+pub const 機械可読版: u32 = 0x1A0713;

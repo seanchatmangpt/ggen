@@ -1,0 +1,32 @@
+{
+  "schema": "1",
+  "step": "target-matrix",
+  "recorded_at": "2026-07-19T20:47:16+00:00",
+  "source_digest": "777243759a6325d5d00f26b4db0fa19bebd2e43a1e8f24bb68cba06e6a058dbe",
+  "release": {
+    "release": "v26.7.19",
+    "flavor": "production.2",
+    "rust": "1.97.1",
+    "edition": "2024",
+    "core": {
+      "no_std": true,
+      "external_dependencies": 0,
+      "unsafe": "forbidden"
+    },
+    "products": [
+      "core-rlib",
+      "std-adapter",
+      "cli",
+      "c-abi",
+      "wasm"
+    ],
+    "target_strategy": "discover with rustc --print target-list; classify by official tier snapshot; build core universally; add products by capability"
+  },
+  "status": "generated",
+  "path": "/mnt/data/豊田コード生産方式_製品版_v26.7.19/targets/target-matrix-snapshot.json",
+  "counts": {
+    "tier-1": 8,
+    "tier-2": 104
+  },
+  "source": "official-snapshot"
+}

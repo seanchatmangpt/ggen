@@ -1,0 +1,1476 @@
+{
+  "schema": "1",
+  "generated_at": "2026-07-19T20:47:16+00:00",
+  "rustc": null,
+  "host": null,
+  "source": "official-snapshot",
+  "targets": [
+    {
+      "target": "aarch64-apple-darwin",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-ios-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-tvos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-tvos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-visionos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-visionos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-watchos",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-apple-watchos-sim",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "fuchsia",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "aarch64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "arm64ec-pc-windows-msvc",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv5te-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv5te-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-musleabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-musleabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7a-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7a-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7r-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv7r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "armv8r-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i586-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i586-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-freebsd",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "i686-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "loongarch64-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "nvptx64-nvidia-cuda",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "gpu",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64le-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "powerpc64le-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32i-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imafc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv32imc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64a23-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64gc-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64im-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "riscv64imac-unknown-none-elf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "s390x-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "s390x-unknown-none-softfloat",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "sparc64-unknown-linux-gnu",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "sparcv9-sun-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv6m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7em-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7em-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7m-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7neon-linux-androideabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.base-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.main-none-eabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "thumbv8m.main-none-eabihf",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-unknown-emscripten",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-unknown-unknown",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip1",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip1-threads",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32-wasip2",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "wasm32v1-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "wasm",
+      "products": [
+        "core",
+        "wasm"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-ios",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-apple-ios-macabi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "apple",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-fortanix-unknown-sgx",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "other",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-linux-android",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "android",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-solaris",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-gnullvm",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "windows-msvc",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-freebsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-fuchsia",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "fuchsia",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-illumos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "solaris",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "tier": 1,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnuasan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnumsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnutsan",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-gnux32",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "linux-gnu",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-musl",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "linux-musl",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-linux-ohos",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "ohos",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-netbsd",
+      "tier": 2,
+      "host_tools": true,
+      "standard_library": "full",
+      "family": "bsd",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-none",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "core",
+      "family": "embedded",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-redox",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "full",
+      "family": "other",
+      "products": [
+        "core",
+        "std",
+        "ffi",
+        "cli"
+      ],
+      "cfg": {}
+    },
+    {
+      "target": "x86_64-unknown-uefi",
+      "tier": 2,
+      "host_tools": false,
+      "standard_library": "unknown",
+      "family": "uefi",
+      "products": [
+        "core"
+      ],
+      "cfg": {}
+    }
+  ]
+}
+

@@ -1,0 +1,9 @@
+---
+to: crates/tcps-wasm/Cargo.toml
+force: true
+sparql:
+  rows: |
+    PREFIX tcps_wasm: <http://seanchatmangpt.github.io/packs/tcps-wasm#>
+    SELECT ?manifest WHERE { tcps_wasm:CargoManifest tcps_wasm:manifestText ?manifest } ORDER BY ?manifest
+---
+{{ rows[0].manifest }}
