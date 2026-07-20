@@ -912,6 +912,13 @@ perf.data.old
 build/
 dist/
 out/
+# Exception: the frozen TCPS reference oracle's dist/.gitkeep is a real,
+# checked-in fixture file (the tree is byte-identity-checked against 132 real
+# files by book/scripts/check_level_five.py), not a build artifact -- the
+# blanket `dist/` rule above was silently swallowing it, so a fresh clone had
+# only 131/132 files and check_level_five.py failed (found only in CI, since
+# every local dev checkout already had it from before the rule existed).
+!packs/tcps-core-pack/reference/製品版/dist/.gitkeep
 
 # Documentation builds
 docs/public/
