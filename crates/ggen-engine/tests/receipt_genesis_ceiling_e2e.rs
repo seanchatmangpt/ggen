@@ -353,6 +353,315 @@ fn red_test_check_lowers_ceiling_and_diverges_tests_class() {
     assert_eq!(epoch3.standing_ceiling, CeilingLevel::Red);
 }
 
+/// Producer-fact fixture for the four producer-fed classes: rewrites the
+/// project ontology with domain individuals, `ver:Check` evidence, docs
+/// manifest entries, and optional receipts/evidence/binary producer facts.
+/// Same single-ontology admission lane the generated producer scripts use
+/// (they write evidence/producers/*.ttl wired as ontology sources) -- the
+/// facts enter via the union graph, never via a side channel.
+#[allow(clippy::too_many_arguments)]
+fn write_ontology_with_producers(
+    root: &Path, names: &[&str], checks: &[(&str, i64)], docs: &[(&str, &str)],
+    receipts: Option<(i64, &str)>, evidence: Option<(i64, &str)>,
+    binary: Option<(i64, &str, &str)>, binary_skipped: bool,
+) {
+    let mut ttl = String::from(
+        "@prefix ex: <http://example.org/> .\n@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
+    );
+    for name in names {
+        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+    }
+    for (i, (name, exit)) in checks.iter().enumerate() {
+        ttl.push_str(&format!(
+            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} .\n"
+        ));
+    }
+    for (i, (path, sha)) in docs.iter().enumerate() {
+        ttl.push_str(&format!(
+            "ver:dm{i} a ver:DocsManifestEntry ; ver:path \"{path}\" ; ver:sha256 \"{sha}\" .\n"
+        ));
+    }
+    if let Some((exit, head)) = receipts {
+        ttl.push_str(&format!(
+            "ver:rc a ver:ReceiptsCheck ; ver:exitCode {exit} ; ver:chainHead \"{head}\" .\n"
+        ));
+    }
+    if let Some((exit, digest)) = evidence {
+        ttl.push_str(&format!(
+            "ver:ec a ver:EvidenceCheck ; ver:exitCode {exit} ; ver:requiredSetDigest \"{digest}\" .\n"
+        ));
+    }
+    if binary_skipped {
+        ttl.push_str("ver:bc a ver:BinaryCheck ; ver:skipped true .\n");
+    } else if let Some((exit, ha, hb)) = binary {
+        ttl.push_str(&format!(
+            "ver:bc a ver:BinaryCheck ; ver:exitCode {exit} ; ver:hashA \"{ha}\" ; ver:hashB \"{hb}\" .\n"
+        ));
+    }
+    std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
+}
+
+const DOCS_2: &[(&str, &str)] = &[("docs/a.md", "sha-a"), ("docs/b.md", "sha-b")];
+
+/// All four producers present: on the SECOND sync every one of the 8
+/// equivalence classes is genuinely evaluated (non-Unknown). docs /
+/// evidence / compiled_binary compare identities against receipt 1's
+/// recorded ones (`Equivalent`); receipts requires the producer's replayed
+/// chain head to equal the verified previous head (receipt 1's chain hash,
+/// only knowable after sync 1 -- exactly how the real pre-sync producer
+/// sees the chain); tests/gates compare `ver:Check` outcomes; source is
+/// honestly `Divergent` (the ontology gained the receipts fact between
+/// syncs) and config `Equivalent`.
+#[test]
+fn all_producers_make_all_eight_classes_evaluated_on_second_sync() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[("test-workspace", 0), ("build", 0)],
+        DOCS_2,
+        None,
+        Some((0, "req-digest-1")),
+        Some((0, "bin-hash-1", "bin-hash-1")),
+        false,
+    );
+    run_sync(dir.path());
+    let head1 = read_log(dir.path())[0].record.chain_hash_hex.clone();
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[("test-workspace", 0), ("build", 0)],
+        DOCS_2,
+        Some((0, head1.as_str())),
+        Some((0, "req-digest-1")),
+        Some((0, "bin-hash-1", "bin-hash-1")),
+        false,
+    );
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    assert_eq!(log.len(), 2);
+    let eq = &log[1].record.v2.as_ref().expect("v2").equivalence;
+    for (name, status) in [
+        ("source", &eq.source),
+        ("compiled_binary", &eq.compiled_binary),
+        ("docs", &eq.docs),
+        ("tests", &eq.tests),
+        ("receipts", &eq.receipts),
+        ("evidence", &eq.evidence),
+        ("gates", &eq.gates),
+        ("config", &eq.config),
+    ] {
+        assert_ne!(
+            status,
+            &EquivalenceStatus::Unknown,
+            "class `{name}` must be evaluated (8-of-8), got Unknown"
+        );
+    }
+    assert_eq!(eq.docs, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.evidence, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.compiled_binary, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.receipts, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.tests, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.gates, EquivalenceStatus::Equivalent);
+    assert_eq!(eq.config, EquivalenceStatus::Equivalent);
+    // The receipts producer fact was added between syncs -- an honest
+    // source divergence, not a test artifact to hide.
+    assert!(matches!(eq.source, EquivalenceStatus::Divergent(_)));
+}
+
+/// Sabotage, docs class: one manifest entry's sha256 changes between syncs
+/// (a tampered generated doc) -> docs `Divergent` naming the identity
+/// change, while an untouched evidence identity stays `Equivalent`.
+#[test]
+fn tampered_doc_makes_docs_class_divergent() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        DOCS_2,
+        None,
+        Some((0, "req-digest-1")),
+        None,
+        false,
+    );
+    run_sync(dir.path());
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[("docs/a.md", "sha-a"), ("docs/b.md", "sha-TAMPERED")],
+        None,
+        Some((0, "req-digest-1")),
+        None,
+        false,
+    );
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let eq = &log[1].record.v2.as_ref().expect("v2").equivalence;
+    match &eq.docs {
+        EquivalenceStatus::Divergent(reason) => assert!(
+            reason.contains("identity changed"),
+            "docs divergence must name the identity change, got: {reason}"
+        ),
+        other => panic!("tampered doc must make docs Divergent, got {other:?}"),
+    }
+    assert_eq!(eq.evidence, EquivalenceStatus::Equivalent);
+}
+
+/// Sabotage, receipts class: the producer reports a red chain replay
+/// (corrupted log line) -> receipts `Divergent` AND the gate axis goes Red
+/// by the meet law, lowering the standing ceiling.
+#[test]
+fn red_receipts_check_diverges_receipts_and_lowers_ceiling() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    run_sync(dir.path());
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[],
+        Some((1, "corrupt")),
+        None,
+        None,
+        false,
+    );
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let epoch = log[1].record.v2.as_ref().expect("v2");
+    assert!(matches!(
+        epoch.equivalence.receipts,
+        EquivalenceStatus::Divergent(_)
+    ));
+    assert_eq!(
+        epoch.standing_ceiling,
+        CeilingLevel::Red,
+        "a red receipts producer must lower the ceiling via the meet law"
+    );
+    assert_eq!(
+        ver_admission_outcome(&log[1], "class:receipts:corrupt"),
+        ObservedOutcome::Fail
+    );
+}
+
+/// Receipts honesty: a GREEN replay whose recorded head does not match the
+/// verified previous head (stale producer run) is `Divergent`, never
+/// rounded up to `Equivalent`.
+#[test]
+fn green_receipts_check_with_stale_head_is_divergent_not_equivalent() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    run_sync(dir.path());
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[],
+        Some((0, "not-the-real-previous-head")),
+        None,
+        None,
+        false,
+    );
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let eq = &log[1].record.v2.as_ref().expect("v2").equivalence;
+    match &eq.receipts {
+        EquivalenceStatus::Divergent(reason) => assert!(
+            reason.contains("does not match the"),
+            "reason must name the head mismatch, got: {reason}"
+        ),
+        other => panic!("stale head must make receipts Divergent, got {other:?}"),
+    }
+}
+
+/// Sabotage, evidence class: the evidence producer goes red (stale or
+/// incomplete required-check set) -> evidence `Divergent` + ceiling Red.
+#[test]
+fn red_evidence_check_diverges_evidence_and_lowers_ceiling() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[],
+        None,
+        Some((0, "req-digest-1")),
+        None,
+        false,
+    );
+    run_sync(dir.path());
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[],
+        None,
+        Some((1, "req-digest-1")),
+        None,
+        false,
+    );
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let epoch = log[1].record.v2.as_ref().expect("v2");
+    assert!(matches!(
+        epoch.equivalence.evidence,
+        EquivalenceStatus::Divergent(_)
+    ));
+    assert_eq!(epoch.standing_ceiling, CeilingLevel::Red);
+}
+
+/// Skip honesty: `--skip`'s explicit marker keeps compiled_binary Unknown
+/// (never rounded up) while the admission ledger RECORDS the skip -- so
+/// skipped and absent are distinguishable in the receipt itself. A red
+/// (non-reproducible) binary check on a later sync is `Divergent`.
+#[test]
+fn binary_skip_marker_stays_unknown_but_recorded_and_red_binary_diverges() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_producers(dir.path(), &["alice"], &[], &[], None, None, None, true);
+    run_sync(dir.path());
+    write_ontology_with_producers(dir.path(), &["alice"], &[], &[], None, None, None, true);
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let eq2 = &log[1].record.v2.as_ref().expect("v2").equivalence;
+    assert_eq!(eq2.compiled_binary, EquivalenceStatus::Unknown);
+    assert_eq!(
+        ver_admission_outcome(&log[1], "class:compiled_binary:skipped"),
+        ObservedOutcome::Unknown,
+        "the skip marker must be RECORDED, not silently identical to absence"
+    );
+
+    // Third sync: the producer really ran and the two cold builds differ.
+    write_ontology_with_producers(
+        dir.path(),
+        &["alice"],
+        &[],
+        &[],
+        None,
+        None,
+        Some((1, "hash-a", "hash-b")),
+        false,
+    );
+    run_sync(dir.path());
+    let log = read_log(dir.path());
+    let epoch3 = log[2].record.v2.as_ref().expect("v2");
+    assert!(matches!(
+        epoch3.equivalence.compiled_binary,
+        EquivalenceStatus::Divergent(_)
+    ));
+    assert_eq!(epoch3.standing_ceiling, CeilingLevel::Red);
+}
+
 /// Allowlist semantics (mirrors the pack's own `020_evidence_green.rq`
 /// gate): a red check whose name is an admitted `ver:KnownDivergence` is
 /// recorded as `Fail` honestly but does NOT lower its component axis, so

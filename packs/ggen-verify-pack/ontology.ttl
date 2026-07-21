@@ -27,6 +27,52 @@ ver:checkCommand a rdf:Property ;
 ver:KnownDivergence a rdfs:Class ;
     rdfs:comment "Policy: a check name whose nonzero exit code is accepted, with the reason recorded here as rdfs:comment. This is the visible, queryable form of 'honest known failure' -- never a hidden shell-script || true." .
 
+# --- Class-producer vocabulary (the four previously-Unknown classes) --------
+#
+# Each of the receipt equivalence map's four producer-fed classes
+# (docs, receipts, evidence, compiled_binary) has a dedicated generated
+# producer script (templates/produce_*.tmpl) that runs the class's contract
+# externally and emits the facts below into evidence/producers/*.ttl.
+# Sync only consumes admitted facts; a class with no producer fact stays
+# at the Unknown floor -- never inferred at sync time.
+
+ver:Producer a rdfs:Class ;
+    rdfs:comment "One generated class-producer script's ontology-declared configuration. Projected by templates/produce_*.tmpl into the consumer's scripts/produce-*.sh. Properties are per-producer (ver:docsDir, ver:freshnessWindowHours, ver:binaryCrate, ver:binaryName)." .
+
+ver:DocsManifestEntry a rdfs:Class ;
+    rdfs:comment "One generated documentation file's normalized manifest row: ver:path (project-relative) + ver:sha256. Emitted path-sorted by scripts/produce-docs-manifest.sh; sync derives the docs class identity as a blake3 digest over the sorted (path, sha256) list, so any tampered doc changes the identity and flips the docs class to Divergent on the next sync." .
+
+ver:ReceiptsCheck a rdfs:Class ;
+    rdfs:comment "The receipts producer's recorded result: schema-validates .ggen-v2/receipt-log.jsonl, replays the hash linkage (each record's prev_chain_hash_hex must equal its predecessor's chain_hash_hex, genesis all-zeros), and re-derives the head (last record's chain_hash_hex must match .ggen-v2/receipt.json's). Properties: ver:exitCode (real), ver:chainHead (the replayed head hash). Sync's receipts class is Equivalent only when the check is green AND ver:chainHead equals the verified previous head the new receipt chains from." .
+
+ver:EvidenceCheck a rdfs:Class ;
+    rdfs:comment "The evidence producer's recorded result over the ver: facts themselves: completeness (every ver:RequiredCheck name present as a ver:Check in evidence/ontology.ttl) and freshness (age of the evidence commit vs HEAD within ver:freshnessWindowHours). Properties: ver:exitCode (real), ver:requiredSetDigest (sha256 of the sorted required-check name set, the evidence class identity)." .
+
+ver:BinaryCheck a rdfs:Class ;
+    rdfs:comment "The compiled-binary producer's recorded result: a double cold build of the ggen binary (two fresh CARGO_TARGET_DIRs, --locked) plus sha256 compare -- the proven same-host reproducibility pattern. Properties: ver:exitCode (0 iff the two hashes match), ver:hashA, ver:hashB. EXPENSIVE, so the script takes --skip: it then emits only `ver:skipped true`, an explicit Unknown marker distinguishing skipped from absent -- sync keeps compiled_binary Unknown but records the marker in the admission ledger." .
+
+# --- Class-producer configuration (projected into the generated scripts) ----
+
+ver:producer-docs a ver:Producer ;
+    ver:name "docs" ;
+    ver:docsDir "docs" ;
+    rdfs:comment "Docs-manifest producer: sha256 every file under ver:docsDir, sorted by path." .
+
+ver:producer-receipts a ver:Producer ;
+    ver:name "receipts" ;
+    rdfs:comment "Receipt-log schema + chain-replay producer." .
+
+ver:producer-evidence a ver:Producer ;
+    ver:name "evidence" ;
+    ver:freshnessWindowHours 168 ;
+    rdfs:comment "Evidence completeness + freshness producer over the ver:RequiredCheck set (window: one week)." .
+
+ver:producer-binary a ver:Producer ;
+    ver:name "compiled-binary" ;
+    ver:binaryCrate "ggen-cli" ;
+    ver:binaryName "ggen" ;
+    rdfs:comment "Double-cold-build reproducibility producer for the ggen binary." .
+
 # --- Required checks (policy) ----------------------------------------------
 
 ver:req-build a ver:RequiredCheck ;
