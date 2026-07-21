@@ -1,0 +1,70 @@
+# MESSAGE: github-actions-pack security-refusal gate (L5C13: dangerous permissions go to
+# MESSAGE: special approval, mechanized). Refusals, any row = violation: (1) write-all —
+# MESSAGE: no gha:permissionCeiling and no gha:jobPermissions may contain "write-all";
+# MESSAGE: (2) unjustified write permissions — for a gha:Workflow that has entered the
+# MESSAGE: operation-derivation model (declares >=1 gha:performsOperation) or carries a
+# MESSAGE: generated body (gha:artifactBody), every "<scope>: write" in its ceiling must be
+# MESSAGE: justified by some declared gha:performsOperation whose gha:requiresPermission
+# MESSAGE: includes exactly that scope grant (unnecessary contents:write is refused by this
+# MESSAGE: same branch); as-built survey inventory without declared operations is a recorded
+# MESSAGE: finding, not yet in the derivation model, and is gated by 010's ceiling
+# MESSAGE: requirement instead; (3) mutable third-party action refs — every gha:usesAction
+# MESSAGE: value naming a remote action (contains "@", not a repo-local ./ path) must be
+# MESSAGE: pinned to a 40-hex commit SHA; (4) pull_request_target triggers require an
+# MESSAGE: explicit gha:prTargetJustification on the workflow; (5) every gha:requiredSecret
+# MESSAGE: on a workflow requires a declared gha:secretReason. Branches (3)-(5) are
+# MESSAGE: namespace-scoped to gha: subjects so this gate composes with other packs.
+PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?why WHERE {
+  {
+    ?s gha:permissionCeiling ?c .
+    FILTER(CONTAINS(LCASE(STR(?c)), "write-all"))
+    BIND("write-all permission ceiling refused: derive minimal permissions from declared operations instead" AS ?why)
+  } UNION {
+    ?s gha:jobPermissions ?c .
+    FILTER(CONTAINS(LCASE(STR(?c)), "write-all"))
+    BIND("write-all job permissions refused: derive minimal permissions from declared operations instead" AS ?why)
+  } UNION {
+    ?s a gha:Workflow .
+    ?s gha:permissionCeiling ?ceiling .
+    { ?s gha:performsOperation ?anyOp } UNION { ?s gha:artifactBody ?anyBody }
+    VALUES ?scope {
+      "actions" "attestations" "checks" "contents" "deployments" "discussions"
+      "id-token" "issues" "packages" "pages" "pull-requests" "repository-projects"
+      "security-events" "statuses"
+    }
+    BIND(CONCAT(?scope, ": write") AS ?grant)
+    FILTER(CONTAINS(LCASE(STR(?ceiling)), ?grant))
+    FILTER NOT EXISTS {
+      ?s gha:performsOperation ?op .
+      ?op gha:requiresPermission ?perm .
+      FILTER(LCASE(STR(?perm)) = ?grant)
+    }
+    BIND(CONCAT("permission ceiling grant `", ?grant, "` is not justified by any declared gha:performsOperation -> gha:requiresPermission mapping") AS ?why)
+  } UNION {
+    ?s gha:usesAction ?action .
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/github-actions#"))
+    FILTER(CONTAINS(STR(?action), "@"))
+    FILTER(!STRSTARTS(STR(?action), "./"))
+    FILTER(!REGEX(STR(?action), "@[0-9a-f]{40}$"))
+    BIND(CONCAT("mutable third-party action ref `", STR(?action), "` refused: pin to a 40-hex commit SHA") AS ?why)
+  } UNION {
+    ?s a gha:Workflow .
+    ?s gha:trigger ?t .
+    OPTIONAL { ?t rdfs:label ?tlabel }
+    FILTER(
+      CONTAINS(LCASE(STR(?t)), "pull_request_target") ||
+      CONTAINS(LCASE(STR(?t)), "pullrequesttarget") ||
+      (BOUND(?tlabel) && LCASE(STR(?tlabel)) = "pull_request_target")
+    )
+    FILTER NOT EXISTS { ?s gha:prTargetJustification ?j }
+    BIND("pull_request_target trigger without gha:prTargetJustification refused: unbounded pull_request_target grants fork code a token" AS ?why)
+  } UNION {
+    ?s a gha:Workflow .
+    ?s gha:requiredSecret ?sec .
+    FILTER NOT EXISTS { ?s gha:secretReason ?reason }
+    BIND(CONCAT("secret `", STR(?sec), "` consumed without a declared gha:secretReason") AS ?why)
+  }
+}
+ORDER BY ?s ?why
