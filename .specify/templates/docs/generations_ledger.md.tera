@@ -37,6 +37,27 @@ must inspect it before any row below may move from NOT MET to MET on that round'
 | Self-hosted evidence-loop script | `{{ g1.selfHostedEvidenceLoopScript }}` |
 | ...always exits 0 (records reality; gates judge it separately) | {{ g1.selfHostedEvidenceLoopExitsZeroAlways }} |
 
+## G4 — first real improvement across the generation boundary
+
+{%- set g4 = sparql(query='PREFIX gen: <http://ggen.org/generations#> SELECT ?commit ?producedBy ?toolchain ?producerBinarySha256 ?candidateBinarySha256 ?improvement ?receiptChainHash ?candidateReceiptChainHash ?fixedPointWithPrevious WHERE { gen:G4 a gen:Generation ; gen:commit ?commit ; gen:producedBy ?producedBy ; gen:toolchain ?toolchain ; gen:producerBinarySha256 ?producerBinarySha256 ; gen:candidateBinarySha256 ?candidateBinarySha256 ; gen:improvement ?improvement ; gen:receiptChainHash ?receiptChainHash ; gen:candidateReceiptChainHash ?candidateReceiptChainHash ; gen:fixedPointWithPrevious ?fixedPointWithPrevious . }') | first %}
+
+Unlike G3 (a deliberate zero-source-change fixed-point proof), G4 carried a genuine content
+improvement through the self-manufacture loop: the generation-N binary synced the improved
+sources, the candidate binary was rebuilt from the just-synced tree, and the candidate's own
+sync over the same sources reproduced the improvement byte-identically.
+
+| Fact | Value |
+|---|---|
+| Producer commit (origin/main at generation N) | `{{ g4.commit }}` |
+| Produced by | {{ g4.producedBy }} |
+| Toolchain | {{ g4.toolchain }} |
+| Producer binary sha256 | `{{ g4.producerBinarySha256 }}` |
+| Candidate binary sha256 | `{{ g4.candidateBinarySha256 }}` |
+| Improvement | {{ g4.improvement }} |
+| Generation-N sync receipt chain hash | `{{ g4.receiptChainHash }}` |
+| Candidate sync receipt chain hash | `{{ g4.candidateReceiptChainHash }}` |
+| Candidate outputs byte-identical to generation-N outputs | {{ g4.fixedPointWithPrevious }} |
+
 ## 15-condition doctrine Definition-of-Done
 
 {{ met_count }} of {{ dod | length }} conditions MET as of this round. A young lineage should show more NOT MET rows than MET ones — that is the honest, expected state, not a defect in this table.

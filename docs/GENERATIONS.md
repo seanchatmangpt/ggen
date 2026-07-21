@@ -30,6 +30,25 @@ must inspect it before any row below may move from NOT MET to MET on that round'
 | Self-hosted evidence-loop script | `examples/tcps-generated/scripts/verify.sh` |
 | ...always exits 0 (records reality; gates judge it separately) | true |
 
+## G4 — first real improvement across the generation boundary
+
+Unlike G3 (a deliberate zero-source-change fixed-point proof), G4 carried a genuine content
+improvement through the self-manufacture loop: the generation-N binary synced the improved
+sources, the candidate binary was rebuilt from the just-synced tree, and the candidate's own
+sync over the same sources reproduced the improvement byte-identically.
+
+| Fact | Value |
+|---|---|
+| Producer commit (origin/main at generation N) | `d4d0ffbc6209d775f8a97dc2894c61185aaff3c2` |
+| Produced by | ggen@26.14.0 release binary built from origin/main d4d0ffbc6 (generation N); candidate rebuilt from the just-synced tree (generation N+1) |
+| Toolchain | nightly-2026-06-22 |
+| Producer binary sha256 | `cdf9bb37a733c3ade4567a5133e455076c5138310001f15cfeb574badc047bd2` |
+| Candidate binary sha256 | `cdf9bb37a733c3ade4567a5133e455076c5138310001f15cfeb574badc047bd2` |
+| Improvement | repo-facts.ttl pack inventory de-staled: 4 missing rf:Pack individuals (ggen-constitution-pack, ggen-release-pack, gh-terraform-pack, level-five-book-pack) admitted; rf:packCount 28 -> 32; generated .claude/rules/architecture.md Pack Inventory now matches `ls packs` |
+| Generation-N sync receipt chain hash | `60a2d4006f8ba5f8226d3389a097717efa7594f7e03bd0ff6652fb4e0ad3ee35` |
+| Candidate sync receipt chain hash | `c00adca90dfaa9cb85d748d1b79cf86d08ec905d65ae7ea2021d81cb6e8bf5b4` |
+| Candidate outputs byte-identical to generation-N outputs | true |
+
 ## 15-condition doctrine Definition-of-Done
 
 5 of 16 conditions MET as of this round. A young lineage should show more NOT MET rows than MET ones — that is the honest, expected state, not a defect in this table.

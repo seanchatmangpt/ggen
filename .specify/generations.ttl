@@ -104,6 +104,52 @@ gen:G3 a gen:Generation ;
     # the EquivalenceMap's tracked classes (docs, config, generated source).
     gen:fixedPointWithPrevious true .
 
+# ── G4: FIRST real improvement carried across the generation boundary ───────
+# Unlike G3 (a deliberate zero-source-change fixed-point proof), G4 pushed a
+# genuine content improvement through the self-manufacture loop, 2026-07-20:
+# .specify/repo-facts.ttl's pack inventory was 4 rows stale vs reality (32
+# packs/*/pack.toml on disk, only 28 rf:Pack individuals + rf:packCount "28"
+# -- verified by `ls packs/*/pack.toml | wc -l` -> 32 vs `grep -c 'a rf:Pack'`
+# -> 28). The fix admitted rf:pack_ggen_constitution_pack,
+# rf:pack_ggen_release_pack, rf:pack_gh_terraform_pack,
+# rf:pack_level_five_book_pack (descriptions transcribed verbatim from each
+# pack.toml) and corrected rf:packCount to "32".
+#
+# Loop execution, all steps run for real (not narrated):
+#  (b) generation-N producer: release ggen built from origin/main d4d0ffbc6
+#      with its own clean CARGO_TARGET_DIR; `ggen sync run` over the improved
+#      sources regenerated .claude/rules/architecture.md -- Pack Inventory
+#      heading 28 -> 32 and 4 new table rows (sha256 of the regenerated file:
+#      7c575ccbdc0fd5ebdeed6f060fabddeb0a6a717bd810786d643c90151128ab0d).
+#  (c) candidate (generation N+1) producer: release ggen rebuilt FROM the
+#      just-synced tree into a second clean CARGO_TARGET_DIR; its own
+#      `ggen sync run` over the same sources in a fresh copy of the tree
+#      reported `"written": []` (every tracked output "unchanged: content
+#      identical") and `diff -r` (excluding .git and the .ggen-v2 receipt
+#      lane) between the two trees was empty -- the improvement is PRESENT in
+#      the candidate's output and generation-N/N+1 outputs are byte-identical.
+# Honest scope note: the improvement is ontology content, not engine code, so
+# the candidate binary is expectedly bit-identical to the producer binary
+# (both sha256 cdf9bb37a733c3ade4567a5133e455076c5138310001f15cfeb574badc047bd2,
+# consistent with gen:ReproducibleBuildTest's same-host determinism). The
+# boundary crossed is the manufacture loop (sources -> sync -> tree -> rebuilt
+# candidate -> its own sync), not a compiled-code delta.
+gen:G4 a gen:Generation ;
+    gen:inspects gen:G3 ;
+    gen:producedBy "ggen@26.14.0 release binary built from origin/main d4d0ffbc6 (generation N); candidate rebuilt from the just-synced tree (generation N+1)" ;
+    gen:commit "d4d0ffbc6209d775f8a97dc2894c61185aaff3c2" ;
+    gen:workspaceVersion "26.14.0" ;
+    gen:toolchain "nightly-2026-06-22" ;
+    gen:producerBinarySha256 "cdf9bb37a733c3ade4567a5133e455076c5138310001f15cfeb574badc047bd2" ;
+    gen:candidateBinarySha256 "cdf9bb37a733c3ade4567a5133e455076c5138310001f15cfeb574badc047bd2" ;
+    gen:improvement "repo-facts.ttl pack inventory de-staled: 4 missing rf:Pack individuals (ggen-constitution-pack, ggen-release-pack, gh-terraform-pack, level-five-book-pack) admitted; rf:packCount 28 -> 32; generated .claude/rules/architecture.md Pack Inventory now matches `ls packs`" ;
+    gen:receiptChainHash "60a2d4006f8ba5f8226d3389a097717efa7594f7e03bd0ff6652fb4e0ad3ee35" ;
+    gen:receiptPrevChainHash "824864cb31089ab3c33ad8aadbe6b97d718fce75df6a13ac481429e23d137a3d" ;
+    gen:candidateReceiptChainHash "c00adca90dfaa9cb85d748d1b79cf86d08ec905d65ae7ea2021d81cb6e8bf5b4" ;
+    gen:candidateOutputsByteIdenticalToPrevious true ;
+    gen:fixedPointWithPrevious true ;
+    gen:firstRealChangeAcrossLoop true .
+
 # ── Reproducible build test (condition 20) ──────────────────────────────────
 # Two fully independent `cargo build -p ggen-cli-lib --bin ggen --locked
 # --release` invocations, each with its OWN CARGO_TARGET_DIR (/tmp/repro-
@@ -181,6 +227,13 @@ gen:CrossHostReproducibilityCI a gen:Generation ;
 # zero of the 4 targets have a real green cross-host run.
 gen:CrossHostReproducibilityCIAllTargets a gen:Generation ;
     gen:inspects gen:CrossHostReproducibilityCI ;
+    # Back-filled 2026-07-20 for the hash-pin guard (same pattern as G1 /
+    # G2Heterogeneous above): the commit that admitted this entry's facts,
+    # verified via `git log -S CrossHostReproducibilityCIAllTargets --
+    # .specify/generations.ttl` -> d7a1f16f7 (PR #326). The entry originally
+    # carried no identity hash, which made guard-generation-hash-pin.sh red
+    # on main; this pins the ledger entry itself.
+    gen:commit "d7a1f16f7d8cd2962982df93c587ee9af509f02d" ;
     gen:mechanismPath ".github/workflows/release.yml" ;
     gen:mechanismJobs "build-release-repro (matrix replica a/b x 4 targets), verify-cross-host-reproducibility (matrix 4 targets)" ;
     gen:targetCovered "x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, x86_64-apple-darwin, aarch64-apple-darwin" ;
