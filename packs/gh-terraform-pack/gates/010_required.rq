@@ -4,7 +4,9 @@
 # a ghtf:successor OR ghtf:deadApi true; every ghtf:RepoManagementInstance must have a non-empty
 # ghtf:hclBody and a ghtf:family; every ghcli:Command must have a non-empty ghcli:scriptBody and
 # a ghcli:scriptName; every ghtf:DataSource must have ghtf:dsName, ghtf:scope, and ghtf:purpose;
-# every ghtf:L5Condition must have ghtf:standing and ghtf:evidence. Any row = a subject missing
+# every ghtf:L5Condition must have ghtf:standing and ghtf:evidence; every ghtf:SystemCondition
+# must have ghtf:standing and ghtf:evidence; every ghtf:GeneratedWorkflow must have a non-empty
+# ghtf:workflowBody and ghtf:workflowPath. Any row = a subject missing
 # its required property (for the deprecated branch: missing ghtf:successor while not carrying
 # ghtf:deadApi true).
 PREFIX ghtf:  <http://seanchatmangpt.github.io/packs/gh-terraform#>
@@ -37,6 +39,14 @@ SELECT ?s ?missing WHERE {
     ?s a ghtf:L5Condition . BIND(ghtf:standing AS ?missing)
   } UNION {
     ?s a ghtf:L5Condition . BIND(ghtf:evidence AS ?missing)
+  } UNION {
+    ?s a ghtf:SystemCondition . BIND(ghtf:standing AS ?missing)
+  } UNION {
+    ?s a ghtf:SystemCondition . BIND(ghtf:evidence AS ?missing)
+  } UNION {
+    ?s a ghtf:GeneratedWorkflow . BIND(ghtf:workflowBody AS ?missing)
+  } UNION {
+    ?s a ghtf:GeneratedWorkflow . BIND(ghtf:workflowPath AS ?missing)
   }
   FILTER NOT EXISTS { ?s ?missing ?any }
 }

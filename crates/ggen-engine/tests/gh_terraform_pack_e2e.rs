@@ -405,6 +405,65 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         "L5-STATUS.md must name the durable receipt chain file: {l5}"
     );
 
+    // (7b) Scheduled drift-detection workflow (第二十九章 condition 8):
+    // generated at .github/workflows/tcps-drift.yml, cron-scheduled,
+    // manually dispatchable, and NEVER contains a terraform apply.
+    let wf = read(&project, ".github/workflows/tcps-drift.yml");
+    assert!(wf.contains("name: tcps-drift"), "workflow name: {wf}");
+    assert!(wf.contains("schedule:"), "workflow must be scheduled: {wf}");
+    assert!(
+        wf.contains("cron") && wf.contains("43 6 * * *"),
+        "workflow must carry the cron expression: {wf}"
+    );
+    assert!(
+        wf.contains("workflow_dispatch"),
+        "workflow must allow manual dispatch: {wf}"
+    );
+    assert!(
+        !wf.contains("terraform apply"),
+        "drift workflow is read-only plan and must NEVER apply: {wf}"
+    );
+    assert!(
+        wf.contains("drift-report.sh") && wf.contains("accept-import.sh"),
+        "workflow must run the generated standard-work scripts: {wf}"
+    );
+    assert!(
+        wf.contains("Terraform漂流 detected"),
+        "workflow must open the andon issue on drift: {wf}"
+    );
+
+    // (7c) SYSTEM-L5-STATUS.md (第二十九章, 12 system conditions) renders
+    // exactly 12 data rows; condition 8 is honestly PARTIAL (first
+    // scheduled run pending) and cites the committed workflow.
+    let sys = read(&project, "docs/gh-terraform/SYSTEM-L5-STATUS.md");
+    let sys_rows = sys
+        .lines()
+        .filter(|l| l.starts_with("| ") && !l.starts_with("| #"))
+        .count();
+    assert_eq!(
+        sys_rows, 12,
+        "SYSTEM-L5-STATUS.md must render 12 rows: {sys}"
+    );
+    assert!(
+        sys.contains("PARTIAL") && sys.contains("first scheduled run pending"),
+        "condition 8 must stay honestly PARTIAL until a scheduled run exists: {sys}"
+    );
+    assert!(
+        sys.contains("tcps-drift.yml"),
+        "condition 8 evidence must cite the generated workflow: {sys}"
+    );
+    assert!(
+        sys.contains("ci-classify.sh in flight"),
+        "condition 9 must stay PARTIAL with in-flight evidence: {sys}"
+    );
+
+    // (7d) The 漂流対応 manual cites the scheduled workflow.
+    let hyouryuu = read(&project, "docs/gh-terraform/漂流対応.md");
+    assert!(
+        hyouryuu.contains("tcps-drift.yml"),
+        "漂流対応 manual must cite the scheduled drift workflow: {hyouryuu}"
+    );
+
     // (6) Second sync is a no-op: nothing written, lock byte-identical.
     let second = sync(
         &project,
