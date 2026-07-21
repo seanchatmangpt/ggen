@@ -1,0 +1,88 @@
+%% Target state after the intervention decisions in decision.md / decision-matrix.md
+%% Green = already correct (preservation). Yellow = repair/strengthening, do-now cheap-safe.
+%% Orange = rehabilitation, deferred with continuity plan. Red = replacement, deferred with
+%% migration plan. Dashed = external-authorization-gated, not implemented by this pass.
+graph TD
+    subgraph Sync["ggen sync run (live pipeline)"]
+        S0[Stage 0: schema dispatch]
+        S1[Stage 1: Resolve]
+        S2[Stage 2: Enrich]
+        S2B[Stage 2b: Law gates]
+        S3[Stage 3/4: Extract+Render]
+        S5[Stage 5: Write+Receipt]
+        S0-->S1-->S2-->S2B-->S3-->S5
+    end
+
+    subgraph Evidence["Evidence lane (item #1, strengthening)"]
+        VP[ggen-verify-pack producers]
+        REC8["8/8 receipt equivalence classes populated<br/>(was 2/8)"]
+        VP -.wire into.-> S5
+        S5 --> REC8
+    end
+    class VP,REC8 doNow
+
+    subgraph Andon["Andon derivation (item #2, repair)"]
+        GATES[Stage 2b gate results]
+        ANDON["andon: computed from gates<br/>(was hardcoded Green)"]
+        GATES --> ANDON
+        S2B --> GATES
+        ANDON --> S5
+    end
+    class GATES,ANDON doNow
+
+    subgraph Constitution["Constitution admission (item #6, rehabilitation)"]
+        CCN[ccn:Law facts]
+        BRIDGE["Phase 1: read-only SPARQL bridge<br/>(logs divergence, does not enforce)"]
+        ADMIT[praxis-core::DefaultLaw::admit<br/>unchanged, continues to run]
+        FUTURE["Phase 2 (future, separate):<br/>enforce mechanized=true subset only"]
+        CCN --> BRIDGE
+        BRIDGE -.observes, does not gate.-> ADMIT
+        BRIDGE --> FUTURE
+    end
+    class BRIDGE,FUTURE deferred
+    class ADMIT preserved
+
+    subgraph Fixtures["Sabotage coverage (item #5, strengthening)"]
+        F1[dogfood-lifecycle-pack: 8 fixtures]
+        F2[ma-case-study-pack: 1 fixture]
+        F3[self-monitoring-pack: 3 fixtures]
+        TESTS["#test fns added, following<br/>proven sibling pattern"]
+        F1 & F2 & F3 --> TESTS
+    end
+    class F1,F2,F3,TESTS doNow
+
+    subgraph Entry["just entry point (item #8, repair)"]
+        JS["just sync / just sync-dry<br/>flags corrected to --dry-run/--watch"]
+    end
+    class JS doNow
+
+    subgraph GH["GitHub governance (item #7, external-auth-gated)"]
+        BP["Branch protection on main"]
+        CO["CODEOWNERS"]
+        TF["gh-terraform-pack desired state<br/>(already merged, not yet applied)"]
+        TF -.requires user authorization to apply.-> BP
+        TF -.requires user authorization to apply.-> CO
+    end
+    class BP,CO,TF authGated
+
+    subgraph Docs["Doc/org drift (items #3,#4,#10,#11,#13)"]
+        ARCH["architecture.md pack table<br/>regenerated via ggen sync run"]
+        LAW12["Law XII citation corrected"]
+        ROOTMD["34 root .md files moved to docs/"]
+        SCRIPTS["scripts/ archive split"]
+    end
+    class ARCH,LAW12,ROOTMD,SCRIPTS doNow
+
+    subgraph Deferred["Deferred rehabilitation/replacement"]
+        TPL["Root templates/ (90 files)<br/>Phase 1: consumer trace, Phase 2: migrate live ones"]
+        EX["examples/ 4 archive dirs -> 1 canonical<br/>(after archive_ggen_core dead-code confirm)"]
+    end
+    class TPL rehab
+    class EX replace
+
+    classDef doNow fill:#2d5,stroke:#141,color:#000
+    classDef preserved fill:#8c8,stroke:#363,color:#000
+    classDef deferred fill:#fa3,stroke:#a60,color:#000
+    classDef rehab fill:#fa3,stroke:#a60,color:#000
+    classDef replace fill:#e55,stroke:#800,color:#fff
+    classDef authGated fill:#ccc,stroke:#555,stroke-dasharray: 5 5,color:#000

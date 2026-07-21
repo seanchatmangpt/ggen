@@ -1,0 +1,31 @@
+flowchart TD
+    subgraph PR["Pull-request load path"]
+        BR["feature/fork branch"] --> OPEN["PR opened against main"]
+        OPEN --> CI["ci.yml / quality.yml<br/>(pull_request trigger)"]
+        CI --> REVIEW["Human review"]
+        REVIEW -.->|"BLOCKING: no CODEOWNERS file<br/>anywhere in tree"| REVIEWGAP["No enforced reviewer assignment"]
+        REVIEW --> MERGE["merge to main"]
+        MERGE -.->|"BLOCKING: gh api .../branches/main/protection<br/>-> 404 Branch not protected.<br/>No required review, no required status<br/>check, no push restriction"| BYPASS["Direct push to main bypasses<br/>CI and review entirely"]
+        BR -.->|"BLOCKING: pre-commit.sh/pre-push.sh<br/>are main-only, no-op on every<br/>feature branch (CLAUDE.md)"| NOHOOK["Zero local hook guarantee<br/>on feature branches"]
+    end
+
+    subgraph ADMIN["Cross-cutting identity SPOF"]
+        A["seanchatmangpt<br/>sole collaborator, admin=true<br/>(gh api .../collaborators)"]
+    end
+    A -->|"is the only possible reviewer/merger"| REVIEW
+    A -->|"is the only push-access holder"| BYPASS
+
+    subgraph FLEET["Fleet-management load path"]
+        GHAP["github-actions-pack (merged, live, #347)"] --> FC["scripts/gh/fleet-census.sh"]
+        GTP["gh-terraform-pack (merged, live, #341/348/334)"] --> FC
+        FC --> CENSUS["docs/gh-terraform/FLEET-CENSUS.md<br/>labeled 'OBSERVATION, NOT DESIRED STATE'"]
+        CENSUS -.->|"BLOCKING: no reconciliation-loop evidence.<br/>Unknown whether any actuation is gated<br/>by census freshness"| RECONGAP["Census may diverge from live fleet<br/>with nothing detecting it"]
+        A -->|"plausibly sole cloud-actuation identity<br/>BLOCKING: not verified — no cloud IAM<br/>access in this survey"| TFAPPLY["terraform apply / tag push / secret<br/>mutation (external-authorization-gated,<br/>ACCEPTED per non-termination law:<br/>none executed by this survey)"]
+    end
+
+    classDef blocking fill:#c0392b,color:#fff,stroke:#000
+    classDef accepted fill:#f39c12,color:#000,stroke:#000
+    classDef unknown fill:#7f8c8d,color:#fff,stroke:#000
+    class REVIEWGAP,BYPASS,NOHOOK,RECONGAP blocking
+    class TFAPPLY accepted
+    class A blocking

@@ -1,0 +1,126 @@
+@prefix retrofit: <https://ggen.dev/ns/retrofit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Intervention decisions for the ggen self-retrofit, derived from
+# docs/retrofit/ggen/as-found/* and docs/retrofit/ggen/load-path/*.
+# See docs/retrofit/ggen/intervention/decision.md for full rationale per item.
+
+retrofit:Intervention a rdfs:Class .
+retrofit:class a rdfs:Class ;
+    rdfs:comment "One of: preservation, repair, strengthening, rehabilitation, replacement" .
+
+retrofit:int-01 a retrofit:Intervention ;
+    rdfs:label "Wire ggen-verify-pack evidence producers into ggen's own sync" ;
+    retrofit:class "strengthening" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/receipt-system.md#finding-1" ;
+    retrofit:priority "1"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "ggen.toml", "packs/ggen-verify-pack/**" .
+
+retrofit:int-02 a retrofit:Intervention ;
+    rdfs:label "Derive andon from gate results instead of hardcoded Green" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md#finding-1" ;
+    retrofit:priority "1"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "crates/ggen-engine/src/sync.rs" .
+
+retrofit:int-03 a retrofit:Intervention ;
+    rdfs:label "Regenerate stale pack-count table in architecture.md" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md#finding-6" ;
+    retrofit:priority "2"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles ".specify/repo-facts.ttl", ".claude/rules/architecture.md" .
+
+retrofit:int-04 a retrofit:Intervention ;
+    rdfs:label "Correct Law XII false test citation" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md#finding-1" ;
+    retrofit:priority "2"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "packs/ggen-constitution-pack/ontology.ttl" .
+
+retrofit:int-05 a retrofit:Intervention ;
+    rdfs:label "Close 12-fixture sabotage-coverage gap across 3 packs" ;
+    retrofit:class "strengthening" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/receipt-system.md#finding-6" ;
+    retrofit:priority "1"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "crates/praxis-graphlaw/tests/*.rs" .
+
+retrofit:int-06 a retrofit:Intervention ;
+    rdfs:label "Wire constitution ontology into praxis-core admission" ;
+    retrofit:class "rehabilitation" ;
+    retrofit:continuityPlan "Phase 1: read-only SPARQL divergence bridge, DefaultLaw::admit unchanged. Phase 2 (future): enforce mechanized=true subset only." ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md#finding-1" ;
+    retrofit:priority "3"^^xsd:integer ;
+    retrofit:cheapSafe false ;
+    retrofit:targetFiles "crates/praxis-core/src/law.rs" .
+
+retrofit:int-07 a retrofit:Intervention ;
+    rdfs:label "Branch protection, CODEOWNERS, single-admin collaborator" ;
+    retrofit:class "strengthening" ;
+    retrofit:evidencePath "docs/retrofit/ggen/load-path/all-load-paths.md" ;
+    retrofit:priority "3"^^xsd:integer ;
+    retrofit:cheapSafe false ;
+    retrofit:authorizationGated true ;
+    retrofit:targetFiles "GitHub repo settings (seanchatmangpt/ggen)" .
+
+retrofit:int-08 a retrofit:Intervention ;
+    rdfs:label "Fix just sync / just sync-dry invalid flags" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/repository.md" ;
+    retrofit:priority "1"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "justfile" .
+
+retrofit:int-09 a retrofit:Intervention ;
+    rdfs:label "Migrate root templates/ into pack-scoped convention" ;
+    retrofit:class "rehabilitation" ;
+    retrofit:continuityPlan "Phase 1: trace consumers, no deletion. Phase 2: migrate live-but-legacy templates per-pack, each validated by byte-diff sync before old file removed." ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/repository.md" ;
+    retrofit:priority "3"^^xsd:integer ;
+    retrofit:cheapSafe false ;
+    retrofit:targetFiles "templates/**" .
+
+retrofit:int-10 a retrofit:Intervention ;
+    rdfs:label "Move 34 root .md files into docs/" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/repository.md" ;
+    retrofit:priority "2"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "*.md" .
+
+retrofit:int-11 a retrofit:Intervention ;
+    rdfs:label "Split scripts/ into archive/current" ;
+    retrofit:class "repair" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/repository.md" ;
+    retrofit:priority "2"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "scripts/**" .
+
+retrofit:int-12 a retrofit:Intervention ;
+    rdfs:label "Consolidate 4 examples/ archive dirs into 1 canonical path" ;
+    retrofit:class "replacement" ;
+    retrofit:migrationPlan "git mv all four dirs' contents under examples/archive/<original-dirname>/ in a single commit; confirm archive_ggen_core dead-code status first; nothing deleted, only relocated." ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/repository.md" ;
+    retrofit:priority "3"^^xsd:integer ;
+    retrofit:cheapSafe false ;
+    retrofit:targetFiles "examples/_archive", "examples/archive", "examples/archive_2025", "examples/archive_ggen_core" .
+
+retrofit:int-13 a retrofit:Intervention ;
+    rdfs:label "Correct false mermaid-pack premise (documentation only)" ;
+    retrofit:class "preservation" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md#finding-4" ;
+    retrofit:priority "2"^^xsd:integer ;
+    retrofit:cheapSafe true ;
+    retrofit:targetFiles "docs/retrofit/ggen/intervention/decision.md" .
+
+# Top-4 implementation portfolio for the next phase
+retrofit:portfolio a rdfs:Class .
+retrofit:portfolio-item-1 a retrofit:portfolio ; retrofit:refersTo retrofit:int-02 ; retrofit:rank "1"^^xsd:integer .
+retrofit:portfolio-item-2 a retrofit:portfolio ; retrofit:refersTo retrofit:int-01 ; retrofit:rank "2"^^xsd:integer .
+retrofit:portfolio-item-3 a retrofit:portfolio ; retrofit:refersTo retrofit:int-05 ; retrofit:rank "3"^^xsd:integer .
+retrofit:portfolio-item-4 a retrofit:portfolio ; retrofit:refersTo retrofit:int-08 ; retrofit:rank "4"^^xsd:integer .

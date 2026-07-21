@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph before["Before (as-found)"]
+        direction TB
+        B1["ggen sync run"] --> B2["ReceiptEpochV2 built\nequivalence: source, config = evaluated\n6 other classes = Unknown\n(no ver:Check facts admitted)"]
+        B2 --> B3["ggen receipt verify /\njust pre-commit guard-pack-proofs\ntrust the honest Unknown"]
+    end
+
+    subgraph during["During transition (TW-GGEN-001 open, <= 14 days)"]
+        direction TB
+        D1["ggen sync run"] --> D2["ggen-verify-pack producers emit\nver:Check facts (test/lint/fmt/gate axes)"]
+        D2 --> D3["verify_check_axis() routes each fact\nto its ComponentLevels axis"]
+        D3 --> D4["compare_verify_class() evaluates\ntests/gates equivalence from\nadmitted ver: evidence\n(machinery already live pre-wiring)"]
+        D4 --> D5{"Inspection per sync:\nclass regressed to Unknown\nor spuriously Divergent?"}
+        D5 -- "yes: wiring defect" --> D6["Andon signal\nstop, fix, re-run\n(load stays on old-honest-Unknown\ninterpretation until fixed)"]
+        D5 -- "no: real evidence" --> D7["Count toward 3-green-cycle\n+ 1-green-CI threshold"]
+    end
+
+    subgraph after_success["After: success"]
+        direction TB
+        S1["ggen sync run"] --> S2["6/8 equivalence classes real\n(Equivalent/Divergent from ver: evidence)"]
+        S2 --> S3["ggen receipt verify /\nguard-pack-proofs trust\nreal per-check equivalence"]
+    end
+
+    subgraph after_rollback["After: rollback"]
+        direction TB
+        R1["ggen.toml reverted"] --> R2["ggen sync run"] --> R3["Receipt returns to\nhonest 6/8 Unknown\n(pre-TW-GGEN-001 state)"]
+    end
+
+    before -->|"ggen.toml edited,\nTW-GGEN-001 starts"| during
+    during -->|"3 green pre-commit +\n1 green CI"| after_success
+    during -->|"14-day max lifetime\nexceeded, or unfixable\nwiring defect"| after_rollback

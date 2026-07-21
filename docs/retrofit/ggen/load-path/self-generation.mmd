@@ -1,0 +1,37 @@
+flowchart TD
+    REPO["ggen repo's own<br/>.specify/repo-facts.ttl, generations.ttl"] --> PIPE["Same pipeline as generation.mmd<br/>applied reflexively"]
+    PIPE --> RCP[".ggen-v2/receipt.json (live, real file read)"]
+
+    RCP --> EQ["Equivalence map (8 classes)"]
+    EQ --> EQ1["source: Divergent (reason recorded)"]
+    EQ --> EQ2["config: Divergent (actuator changed)"]
+    EQ --> EQ3["compiled_binary: Unknown"]
+    EQ --> EQ4["docs: Unknown"]
+    EQ --> EQ5["tests: Unknown"]
+    EQ --> EQ6["receipts: Unknown"]
+    EQ --> EQ7["evidence: Unknown"]
+    EQ --> EQ8["gates: Unknown"]
+    EQ3 -.-> GAP
+    EQ4 -.-> GAP
+    EQ5 -.-> GAP
+    EQ6 -.-> GAP
+    EQ7 -.-> GAP
+    EQ8 -.-> GAP
+    GAP["BLOCKING: ggen-verify-pack's 4 evidence<br/>producers (PR #346) exist in code but are<br/>NOT wired into ggen's own sync loop —<br/>load path exists, not live"]
+
+    RCP --> CEIL["standing_ceiling: 'LegacyObserved'<br/>BLOCKING: hardcoded one-way cap,<br/>not computed from live gates"]
+    RCP --> ANDON["andon: 'Green'<br/>BLOCKING: hardcoded unconditionally<br/>at sync.rs:1857 write_receipt,<br/>not derived from gate results"]
+    RCP --> OBL["obligation_count: TWO disagreeing counters<br/>legacy=4 vs v2.Tracked{required:9,discharged:5}<br/>ACCEPTED: disclosed in PUBLICATION_JUDGMENT.md cond.13"]
+
+    PIPE --> FIX["Sabotage fixtures (per-pack)"]
+    FIX --> FIXGAP["BLOCKING: 12 fixtures across 3 packs<br/>(dogfood-lifecycle x8, ma-case-study x1,<br/>self-monitoring x3) have zero referencing<br/>Rust test by basename (unverified upper bound)"]
+
+    RCP --> JUDGE["docs/PUBLICATION_JUDGMENT.md"]
+    JUDGE --> J1["0 NOT MET / 10 PARTIAL / 13 ALIVE<br/>l5_publication_claim: WITHHELD"]
+
+    classDef blocking fill:#c0392b,color:#fff,stroke:#000
+    classDef accepted fill:#f39c12,color:#000,stroke:#000
+    classDef unknown fill:#7f8c8d,color:#fff,stroke:#000
+    class GAP,CEIL,ANDON,FIXGAP blocking
+    class OBL accepted
+    class EQ3,EQ4,EQ5,EQ6,EQ7,EQ8 unknown

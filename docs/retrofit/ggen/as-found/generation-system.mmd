@@ -1,0 +1,40 @@
+%% As-found generation pipeline (crates/ggen-engine/src/sync.rs), read from source
+%% 2026-07-20. Not a run trace -- see generation-system.md section 6.
+flowchart TD
+    A["ggen.toml"] --> B{"Stage 0: schema_dispatch::load\n(shared by sync/doctor/graph-validate/law_engine)"}
+    B -->|"[[generation.rules]] present"| B1["generation_rules::run\n(DeclarativeRules schema)"]
+    B -->|"frontmatter schema"| C["Stage 1: Resolve\nspan pipeline.load"]
+
+    C --> C1["read [ontology].source TTL\ninsert into GraphEngine\n(GraphLawStore default / DeterministicGraph)"]
+    C1 --> C2["pack::resolve + pack::check_lock\nunion each pack ontology.ttl\n+ extra_ontology_paths"]
+    C2 --> C3["discover_templates"]
+    C3 --> C4["bind input closure:\nactuator, project, ggen.toml,\nontology, pack ontologies, templates,\nfrom:/rdf: inputs\n(unreadable input -> MISSING, not dropped)"]
+    C4 --> C5{"[law].reflexive?"}
+    C5 -->|"yes"| C6["parse own .ggen-v2/receipt-log.jsonl\ninsert ggenr:Sync facts pre-render\n(malformed line -> closure MALFORMED-n, skipped)"]
+    C5 -->|"no"| D
+    C6 --> D["Stage 2: Enrich\nspan pipeline.extract"]
+
+    D --> D1["for each template w/o RDF overlay:\nrun construct: CONSTRUCT once\ninsert triples into shared graph\n(single pass, not fixed-point)"]
+    D1 --> E["Stage 2b: Law\nspan pipeline.validate"]
+
+    E --> E1{"[law] configured?"}
+    E1 -->|"no"| G
+    E1 -->|"yes, GraphLaw engine"| E2["load N3/Datalog rules\nmaterialize + denial/SPARQL gates"]
+    E1 -->|"yes, Oxigraph engine"| E3["typed [FM-LAW-*] refusal"]
+    E2 --> G["Stage 3/4: Extract+Render\nspan pipeline.generate"]
+
+    G --> G1["per template: overlay graph if rdf:/rdf_inline:\nconstruct: against overlay\nwhen: ASK guard\nsparql: named SELECT\nTera render body"]
+    G1 --> H["Stage 5: Write\nspan pipeline.emit"]
+
+    H --> H1["write::plan_write per output\nfreeze_policy precedence:\n1. none -> Create/Overwrite/Inject\n2. always + exists -> Skipped\n3. checksum + on-disk matches\n   last-recorded BLAKE3 -> not frozen\n4. checksum + drifted -> Skipped"]
+    H1 --> H2{"dry_run?"}
+    H2 -->|"yes"| I["SyncReport only\nno receipt written"]
+    H2 -->|"no"| H3["praxis_core::ReceiptRecord\nchain over {graph_hash, outputs BLAKE3}\nappend .ggen-v2/receipt-log.jsonl\nwrite .ggen-v2/receipt.json"]
+    H3 --> I
+
+    classDef stage fill:#2b6cb0,color:#fff,stroke:#1a365d;
+    classDef gate fill:#c05621,color:#fff,stroke:#7b341e;
+    classDef data fill:#2f855a,color:#fff,stroke:#22543d;
+    class C,D,E,G,H stage;
+    class B,C5,E1,H2 gate;
+    class A,I data;

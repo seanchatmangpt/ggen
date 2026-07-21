@@ -1,0 +1,184 @@
+@prefix retrofit: <https://ggen.dev/ontology/retrofit#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+# Load-path facts for ggen's 6 real load paths, as-found 2026-07-20.
+# Grounded in: docs/retrofit/ggen/as-found/{repository,generation-system,
+# architecture-semantics}.md, this-pass gh api checks (branch protection 404,
+# single collaborator), and .github/workflows/release.yml inspection.
+# retrofit:standing values: "Blocking" | "Accepted" | "Unknown" — never silently
+# filled; see retrofit:evidence / retrofit:evidencePath on each individual.
+
+retrofit:LoadPath a rdfs:Class .
+retrofit:SPOF a rdfs:Class .
+
+retrofit:standing a rdf:Property ;
+    rdfs:comment "Blocking | Accepted | Unknown" .
+retrofit:evidence a rdf:Property ;
+    rdfs:comment "Free-text pointer to the as-found evidence backing this fact." .
+retrofit:evidencePath a rdf:Property ;
+    rdfs:comment "Repo-relative path to the evidence artifact." .
+retrofit:affects a rdf:Property ;
+    rdfs:domain retrofit:SPOF ;
+    rdfs:range retrofit:LoadPath .
+
+## ---------------------------------------------------------------- Load paths
+
+retrofit:GenerationPath a retrofit:LoadPath ;
+    rdfs:label "Generation" ;
+    retrofit:entryPoint "crates/ggen-engine/src/sync.rs" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
+
+retrofit:SelfGenerationPath a retrofit:LoadPath ;
+    rdfs:label "Self-generation" ;
+    retrofit:entryPoint ".ggen-v2/receipt.json" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
+
+retrofit:PullRequestPath a retrofit:LoadPath ;
+    rdfs:label "Pull-request" ;
+    retrofit:entryPoint ".github/workflows/ci.yml" ;
+    retrofit:evidence "gh api repos/seanchatmangpt/ggen/branches/main/protection -> 404" .
+
+retrofit:ReleasePath a retrofit:LoadPath ;
+    rdfs:label "Release" ;
+    retrofit:entryPoint ".github/workflows/release.yml" ;
+    retrofit:evidence "release.yml: on: push: tags: + workflow_dispatch, confirmed by direct read" .
+
+retrofit:ConstitutionPath a retrofit:LoadPath ;
+    rdfs:label "Constitution" ;
+    retrofit:entryPoint "packs/ggen-constitution-pack/ontology.ttl" ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/architecture-semantics.md" .
+
+retrofit:FleetManagementPath a retrofit:LoadPath ;
+    rdfs:label "Fleet-management" ;
+    retrofit:entryPoint "scripts/gh/fleet-census.sh" ;
+    retrofit:evidencePath "docs/gh-terraform/FLEET-CENSUS.md" .
+
+## ---------------------------------------------------------------- SPOFs
+
+retrofit:SchemaDispatchAmbiguity a retrofit:SPOF ;
+    rdfs:label "ggen.toml two-schema dispatch has no cross-drift guard" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:GenerationPath ;
+    retrofit:evidence "generation_rules.rs:108 has_generation_rules; raw-text pre-parse, no shared validator between GgenManifest and GgenConfig" .
+
+retrofit:GeneratedTableDriftManifested a retrofit:SPOF ;
+    rdfs:label "Generated architecture.md pack-inventory table observed stale twice" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:GenerationPath, retrofit:SelfGenerationPath ;
+    retrofit:evidence "28-vs-32 then 32-vs-33 pack count drift, docs/retrofit/ggen/as-found/architecture-semantics.md finding 6" .
+
+retrofit:FreezeAlwaysNoDriftDetection a retrofit:SPOF ;
+    rdfs:label "write.rs freeze policy 'always' skips unconditionally with no drift check" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:GenerationPath ;
+    retrofit:evidencePath "crates/ggen-engine/src/write.rs" .
+
+retrofit:ReflexiveReceiptSkip a retrofit:SPOF ;
+    rdfs:label "Sanctioned silent-skip of malformed reflexive-receipt log line" ;
+    retrofit:standing "Accepted" ;
+    retrofit:affects retrofit:GenerationPath ;
+    retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
+
+retrofit:EquivalenceMapNotLive a retrofit:SPOF ;
+    rdfs:label "6 of 8 receipt equivalence classes Unknown on ggen's own sync" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:SelfGenerationPath ;
+    retrofit:evidence "Live .ggen-v2/receipt.json: source/config Divergent; compiled_binary/docs/tests/receipts/evidence/gates Unknown. ggen-verify-pack (PR #346) producers not wired into ggen's own sync loop." .
+
+retrofit:StandingCeilingHardcoded a retrofit:SPOF ;
+    rdfs:label "standing_ceiling hardcoded to LegacyObserved" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:SelfGenerationPath ;
+    retrofit:evidencePath ".ggen-v2/receipt.json" .
+
+retrofit:AndonHardcodedGreen a retrofit:SPOF ;
+    rdfs:label "andon field unconditionally hardcoded Green in write_receipt" ;
+    retrofit:standing "Accepted" ;
+    retrofit:affects retrofit:SelfGenerationPath, retrofit:ConstitutionPath ;
+    retrofit:evidence "RESOLVED as-found 2026-07-20/21 retrofit item #2 verification pass: sync.rs's legacy `andon` field (now ~L2464-2476, `write_receipt`) is derived from `epoch.andon: AndonLevel` via `derive_andon`/`ComponentLevels` precedence (crates/praxis-core/src/receipt_epoch.rs), not a hardcoded literal -- the surrounding comment at sync.rs:2461-2463 documents this as the exact migration that removed the hardcoded-Green literal this SPOF names (landed in one of #322/#336/#346, predating this retrofit item's assignment). A Stage 2b (validate) gate/denial refusal returns `Err` via `?` before `write_receipt` is ever called (sync.rs:482-559), so a red gate cannot reach the receipt as a false Green either -- confirmed live: `.ggen-v2/receipt.json`'s `record.andon` and `record.v2.andon` both read \"Green\" after a real `ggen sync run` on an unmodified tree, and `cargo build -p ggen-cli-lib --bin ggen` is clean. This as-found fact supersedes the stale evidencePath (`sync.rs:1857`, which is now inside a different fn, `verify_check_axis`, not `write_receipt`); no source change was required for this item." .
+
+retrofit:DualObligationCounters a retrofit:SPOF ;
+    rdfs:label "Legacy obligation_count=4 vs v2 Tracked{required:9,discharged:5} disagree by design" ;
+    retrofit:standing "Accepted" ;
+    retrofit:affects retrofit:SelfGenerationPath ;
+    retrofit:evidencePath "docs/PUBLICATION_JUDGMENT.md" .
+
+retrofit:SabotageFixtureCoverageGap a retrofit:SPOF ;
+    rdfs:label "12 sabotage fixtures across 3 packs have no referencing test" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:SelfGenerationPath ;
+    retrofit:evidence "dogfood-lifecycle-pack x8, ma-case-study-pack x1, self-monitoring-pack x3; literal-basename grep, disclosed as unverified upper bound" .
+
+retrofit:NoBranchProtection a retrofit:SPOF ;
+    rdfs:label "main branch has no protection rule" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath ;
+    retrofit:evidence "gh api repos/seanchatmangpt/ggen/branches/main/protection -> HTTP 404 Branch not protected" .
+
+retrofit:SingleAdminCollaborator a retrofit:SPOF ;
+    rdfs:label "Exactly one repo collaborator, admin=true, no CODEOWNERS" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath, retrofit:FleetManagementPath ;
+    retrofit:evidence "gh api repos/seanchatmangpt/ggen/collaborators -> [seanchatmangpt admin=true]; find . -iname CODEOWNERS -> empty" .
+
+retrofit:HooksMainOnlyNoOp a retrofit:SPOF ;
+    rdfs:label "pre-commit/pre-push hooks are main-only, silent no-op on every feature branch" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:PullRequestPath ;
+    retrofit:evidencePath "scripts/hooks/pre-commit.sh" .
+
+retrofit:ReleaseGateBrokenForWeeks a retrofit:SPOF ;
+    rdfs:label "One release.yml gate reported broken for weeks" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:ReleasePath ;
+    retrofit:evidence "As-found per task brief; exact commit range/gate not independently re-derived this pass (Unknown)" .
+
+retrofit:BrokenJustSyncRecipes a retrofit:SPOF ;
+    rdfs:label "just sync / just sync-dry recipes confirmed broken (nonexistent flags)" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:ReleasePath, retrofit:GenerationPath ;
+    retrofit:evidence "ggen sync --audit / --dry_run true: error: unexpected argument, confirmed by running the recipe" .
+
+retrofit:PartialPublishRollbackUnknown a retrofit:SPOF ;
+    rdfs:label "Partial-publish detection/rollback across 5 release targets not checked" ;
+    retrofit:standing "Unknown" ;
+    retrofit:affects retrofit:ReleasePath ;
+    retrofit:evidence "publish-registry.yml, publish-candidate.yml, homebrew-release.yml, release-debian.yml, docker-build-push.yml — independent workflows, no cross-check found" .
+
+retrofit:ConstitutionDescriptiveMirrorOnly a retrofit:SPOF ;
+    rdfs:label "ccn:Law facts have zero effect on live admission/receipt decisions" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:ConstitutionPath ;
+    retrofit:evidence "praxis-core::law::DefaultLaw::admit and ggen-engine::sync::write_receipt independent of ggen-constitution-pack; PUBLICATION_JUDGMENT.md condition 12 PARTIAL" .
+
+retrofit:LawXIIFalseCitation a retrofit:SPOF ;
+    rdfs:label "Law XII provenBy cites reasoner_independence_e2e which does not exist" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:ConstitutionPath ;
+    retrofit:evidence "Zero grep matches workspace-wide for reasoner_independence_e2e" .
+
+retrofit:UnmechanizedLawsDisclosed a retrofit:SPOF ;
+    rdfs:label "Laws VII, XI, XIV explicitly mechanized=false with named gaps" ;
+    retrofit:standing "Accepted" ;
+    retrofit:affects retrofit:ConstitutionPath ;
+    retrofit:evidencePath "packs/ggen-constitution-pack/ontology.ttl" .
+
+retrofit:FleetCensusObservationOnly a retrofit:SPOF ;
+    rdfs:label "Fleet census has no confirmed reconciliation loop against live fleet state" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:FleetManagementPath ;
+    retrofit:evidencePath "docs/gh-terraform/FLEET-CENSUS.md" .
+
+retrofit:FleetCloudIdentityUnverified a retrofit:SPOF ;
+    rdfs:label "Sole cloud-actuation identity for fleet-management not verified" ;
+    retrofit:standing "Unknown" ;
+    retrofit:affects retrofit:FleetManagementPath ;
+    retrofit:evidence "No cloud IAM access in this survey; repo-only evidence" .
+
+retrofit:CrossCuttingSingleAdmin a retrofit:SPOF ;
+    rdfs:label "seanchatmangpt is a SPOF across PR, release, and fleet-management paths simultaneously" ;
+    retrofit:standing "Blocking" ;
+    retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath, retrofit:FleetManagementPath ;
+    retrofit:evidence "Root cause referenced by retrofit:SingleAdminCollaborator; single fact underlying 3 of 6 load paths' SPOFs" .
