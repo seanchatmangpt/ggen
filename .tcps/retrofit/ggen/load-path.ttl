@@ -58,16 +58,16 @@ retrofit:FleetManagementPath a retrofit:LoadPath ;
 ## ---------------------------------------------------------------- SPOFs
 
 retrofit:SchemaDispatchAmbiguity a retrofit:SPOF ;
-    rdfs:label "ggen.toml two-schema dispatch has no cross-drift guard" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "ggen.toml two-schema dispatch -- RESOLVED, stale citation" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:GenerationPath ;
-    retrofit:evidence "generation_rules.rs:108 has_generation_rules; raw-text pre-parse, no shared validator between GgenManifest and GgenConfig" .
+    retrofit:evidence "STALE CITATION, real guard already exists: sync.rs Stage 0 (line 170) no longer calls the old ad-hoc generation_rules::has_generation_rules pre-parse this SPOF cited -- it calls crate::schema_dispatch::load(root), a dedicated module (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2) that is the SINGLE shared dispatch point for all 6 former ad-hoc call sites, backed by ggen_config::classify_ggen_toml's real Ambiguous{matched} classification (typed error FM-CONFIG-101) when more than one schema's markers fire simultaneously. 14/14 config_schema tests pass, including document_with_conflicting_markers_is_ambiguous and ambiguous_document_reports_the_ambiguous_code. This SPOF predates that fix's ledger update -- resolved by prior work (BUG-005 in that ticket's history), not by this generation; restanding only." .
 
 retrofit:GeneratedTableDriftManifested a retrofit:SPOF ;
-    rdfs:label "Generated architecture.md pack-inventory table observed stale twice" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "Generated architecture.md pack-inventory table -- RESOLVED, guard added" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:GenerationPath, retrofit:SelfGenerationPath ;
-    retrofit:evidence "28-vs-32 then 32-vs-33 pack count drift, docs/retrofit/ggen/as-found/architecture-semantics.md finding 6" .
+    retrofit:evidence "REPAIRED 2026-07-21: found drifted a THIRD time (32-vs-39, worse than the 28-vs-32/32-vs-33 this SPOF originally cited) -- confirming a one-time number bump never fixes recurring drift. Root cause: rf:packCount in .specify/repo-facts.ttl was a hand-maintained literal with nothing ever re-checking it. Real fix: scripts/ci/guard-pack-count.sh (new, matches the established guard-*.sh house pattern) compares rf:packCount against a live `find packs -mindepth 1 -maxdepth 1 -type d` count and refuses (BUILD_BROKEN) on any mismatch; wired into justfile's pre-commit chain as guard-pack-count. Sabotage-proven: tampering rf:packCount to a wrong value produces the exact refusal naming both counts; restoring it passes. rf:packCount corrected 32->39 (the real current count) as part of this fix." .
 
 retrofit:FreezeAlwaysNoDriftDetection a retrofit:SPOF ;
     retrofit:evidenceUpdate2026_07_21 "CONFIRMED, still Blocking, real blast radius measured: crates/ggen-engine/src/write.rs's decision order (its own module doc, lines 8-18) shows FreezePolicy::Always (~line 165-172) unconditionally returns Skipped when the target exists -- zero content comparison, unlike the sibling FreezePolicy::Checksum path (step 5 in the same decision order) which explicitly detects on-disk drift against ggen's last-recorded checksum before skipping. So an ontology/template change that would alter a freeze-always-policy file's content produces silent, permanent staleness with no warning, no drift signal, nothing -- exactly the SPOF's original claim, now precisely located in code rather than a bare file pointer. Real usage: 27 templates across packs/ declare freeze_policy (grep -rl freeze_policy packs/*/templates/). NOT fixed here: adding drift detection to Always mode is a real design change (would it warn, refuse, or just report? does it change behavior for templates deliberately relying on hand-completed bootstrap semantics, per this repo's own mode=Create precedent in CLAUDE.md?) -- needs the same dedicated attention as O-7b and StandingCeilingHardcoded's promotion mechanism, not a rushed patch." ;
@@ -108,34 +108,34 @@ retrofit:DualObligationCounters a retrofit:SPOF ;
     retrofit:evidence "CONFIRMED via direct code read: the two counters are genuinely different mechanisms over different data, not a drifted duplicate of the same fact. Legacy record.obligation_count (crates/praxis-core/src/law.rs:320/414) = self.obligations.len(), a coarse count of the v1 LawObject's own Vec<Obligation>. v2's ObligationCount::Tracked{required,discharged} (crates/praxis-core/src/receipt_epoch.rs:420-435, compute_obligation_count) sums obligations_created/obligations_discharged across every itemized AdmissionItem -- a finer-grained, per-evidence-item accounting introduced with v2 that the legacy field was never redefined to match. Accepted standing is correct: they will keep disagreeing by construction (different layers, different granularity), and that's disclosed, not hidden." .
 
 retrofit:SabotageFixtureCoverageGap a retrofit:SPOF ;
-    rdfs:label "12 sabotage fixtures across 3 packs have no referencing test" ;
+    rdfs:label "Sabotage fixture coverage -- narrower real gap confirmed, count corrected" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:SelfGenerationPath ;
-    retrofit:evidence "dogfood-lifecycle-pack x8, ma-case-study-pack x1, self-monitoring-pack x3; literal-basename grep, disclosed as unverified upper bound" .
+    retrofit:evidence "RE-VERIFIED 2026-07-21, composition changed, core gap narrower but real: dogfood-lifecycle-pack's 8 non-session-good.ttl fixtures (session-malformed, session-not-yet-overdue, session-error-not-blocked, session-discharged, session-iri-collision, session-escalated, session-adversarial-discharge, session-cross-session-collision) still have ZERO .rs test references anywhere -- only session-good.ttl is loaded (lint_validate_e2e.rs). Fully confirmed, unchanged. CORRECTION: contrary to the original '12 across 3 packs' framing, ma-case-study-pack and self-monitoring-pack's fixtures are MOSTLY already covered by real, pre-existing tests (ma_case_hook_actuation.rs, self_monitoring_hook_actuation.rs, self_monitoring_real_session_actuation.rs via include_str!, merged PR #255, predates this session) -- the original grep's 'unverified upper bound' caveat was warranted. Genuine remaining gaps: ma-case-study-pack's target-org-colliding.ttl (self-labeled ADVERSARIAL, untested) and mega-deal-second-request.ttl (its own header discloses verification only via an ad-hoc scratch binary, explicitly not via the shared test); self-monitoring-pack's pattern-overdue.ttl, pattern-ungoverned.ttl, pattern-fires-discharged.ttl. NOT fixed here: writing real tests for dogfood-lifecycle-pack's 8 + these 5 named fixtures is bounded, well-scoped follow-on work, named as the next SelfGenerationPath obligation rather than attempted this cycle." .
 
 retrofit:NoBranchProtection a retrofit:SPOF ;
-    rdfs:label "main branch has no protection rule" ;
+    rdfs:label "main branch has no protection rule -- EXTERNAL ACTUATION PACKET" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath ;
-    retrofit:evidence "gh api repos/seanchatmangpt/ggen/branches/main/protection -> HTTP 404 Branch not protected" .
+    retrofit:evidence "TERMINAL STATE REACHED 2026-07-21: fully covered by AP-001 (docs/retrofit/ggen/authorization-packets.md), plan hash computed and re-verified valid against live GitHub state. Stays Blocking (real, unresolved) but is no longer a bare diagnosis -- it is a fully-specified, ready-to-execute external actuation packet awaiting explicit user authorization. gh api repos/seanchatmangpt/ggen/branches/main/protection -> HTTP 404 Branch not protected, re-confirmed live." .
 
 retrofit:SingleAdminCollaborator a retrofit:SPOF ;
-    rdfs:label "Exactly one repo collaborator, admin=true, no CODEOWNERS" ;
+    rdfs:label "Exactly one repo collaborator, admin=true, no CODEOWNERS -- EXTERNAL ACTUATION PACKETS (partial)" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath, retrofit:FleetManagementPath ;
-    retrofit:evidence "gh api repos/seanchatmangpt/ggen/collaborators -> [seanchatmangpt admin=true]; find . -iname CODEOWNERS -> empty" .
+    retrofit:evidence "TERMINAL STATE REACHED 2026-07-21: CODEOWNERS half covered by AP-001; the actual single-point-of-failure fact (exactly one admin account) covered by AP-002, newly authored -- but AP-002 cannot name a specific second-admin identity (a genuine external trust decision, not internal design judgment) and so cannot be executed until the user supplies one. Both packets fully specified and ready. gh api repos/seanchatmangpt/ggen/collaborators -> [seanchatmangpt admin=true]; find . -iname CODEOWNERS -> empty, re-confirmed live." .
 
 retrofit:HooksMainOnlyNoOp a retrofit:SPOF ;
-    rdfs:label "pre-commit/pre-push hooks are main-only, silent no-op on every feature branch" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "pre-commit/pre-push hooks are main-only -- ACCEPTED, deliberate design" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:PullRequestPath ;
-    retrofit:evidencePath "scripts/hooks/pre-commit.sh" .
+    retrofit:evidence "RE-CONFIRMED CURRENT 2026-07-21: scripts/hooks/pre-commit.sh lines 9-13 and pre-push.sh's equivalent both still silently exit 0 on any non-main branch. This is not undisclosed: CLAUDE.md's own 'Git Hooks & Build Gotchas' section documents this as deliberate ('deliberate, not a bug... feature-branch validation deferred to PR-time CI: ci.yml/quality.yml trigger on pull_request'), with the explicit consequence named ('a green git commit/git push on a feature branch carries no hook-provided guarantee -- just pre-commit/just check/just test must be run manually'). Bounded accepted risk: scope=local hook silence on feature branches only, failure consequence=a developer skipping manual just pre-commit before pushing (mitigated by real PR-time CI enforcement), owner=documented in CLAUDE.md, review trigger=if PR-time CI itself is ever found to have a gap this silence could hide." .
 
 retrofit:ReleaseGateBrokenForWeeks a retrofit:SPOF ;
-    rdfs:label "One release.yml gate reported broken for weeks" ;
+    rdfs:label "release.yml audit gate -- REPAIRED, CI-confirmation pending" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:ReleasePath ;
-    retrofit:evidence "As-found per task brief; exact commit range/gate not independently re-derived this pass (Unknown)" .
+    retrofit:evidence "RESOLVED (root cause + fix), NOT YET CI-CONFIRMED, re-verified 2026-07-21: commit 53961f0ac / merged PR #349 identified the exact gate -- `cargo cicd status audit` hardcoded an OCEL evidence path but `wpm audit` only parses XES, so every release-workflow run refused with a format-mismatch error (confirmed against a real GH Actions run URL in that commit's own message). Live .github/workflows/release.yml now calls `wpm audit \"$XES\"` against the real events.xes sibling file, bypassing the OCEL-hardcoded path -- fix is committed and live. Kept Blocking, not restood Accepted, because that PR's own disclosed standing says a real green release.yml run post-fix is still required before this can claim Proven -- the fix is a workflow-file diff plus local reproduction, not that run. Next action: observe the next real release.yml execution; restand to Accepted only once a genuine green run is observed, not before." .
 
 retrofit:BrokenJustSyncRecipes a retrofit:SPOF ;
     rdfs:label "just sync / just sync-dry recipes -- RESOLVED, original flags no longer exist" ;
@@ -144,16 +144,16 @@ retrofit:BrokenJustSyncRecipes a retrofit:SPOF ;
     retrofit:evidence "RESOLVED, independently re-verified 2026-07-21: justfile's sync/sync-dry recipes (lines 414-419) already invoke `{{GGEN}} sync run` / `{{GGEN}} sync run --dry-run` -- not the `--audit`/`--dry_run true` flags this SPOF's original evidence cited, which no longer appear anywhere in the recipe. Confirmed live: `just sync-dry` runs, hits zero flag-parsing errors, and fails only on the separate, already-tracked O-3/O-7 evidence-gate refusal (FM-LAW-018, byte-identity still red) -- a genuinely different, already-known condition, not this SPOF's original claim. CLAUDE.md's own prose still describes the old broken flags as current, which is now stale generated-doc content (a minor, separate doc-drift item, not re-opening this SPOF)." .
 
 retrofit:PartialPublishRollbackUnknown a retrofit:SPOF ;
-    rdfs:label "Partial-publish detection/rollback across 5 release targets not checked" ;
-    retrofit:standing "Unknown" ;
+    rdfs:label "Partial-publish detection/rollback across 5 release targets -- CONFIRMED real gap" ;
+    retrofit:standing "Blocking" ;
     retrofit:affects retrofit:ReleasePath ;
-    retrofit:evidence "publish-registry.yml, publish-candidate.yml, homebrew-release.yml, release-debian.yml, docker-build-push.yml — independent workflows, no cross-check found" .
+    retrofit:evidence "RE-VERIFIED 2026-07-21, restood Unknown->Blocking (this is now a confirmed absence, not an unchecked unknown): all 5 files (publish-registry.yml 90 lines, publish-candidate.yml 107, homebrew-release.yml 121, release-debian.yml 169, docker-build-push.yml 282) read in full. publish-registry.yml/publish-candidate.yml have zero rollback/cleanup/failure-handling of any kind. homebrew-release.yml/release-debian.yml only post failure summaries or upload debug artifacts via if: failure()/always() -- no undo of already-published state. docker-build-push.yml's if: always() only uploads Trivy scan results. No cross-workflow coordination or partial-publish rollback mechanism exists anywhere. NOT fixed here: designing real cross-workflow rollback across 5 independent, differently-shaped release targets is a substantial, distinctly-scoped effort -- named as a future generation's obligation, not attempted this cycle given the volume of higher-priority work already closed." .
 
 retrofit:ConstitutionDescriptiveMirrorOnly a retrofit:SPOF ;
-    rdfs:label "ccn:Law facts have zero effect on live admission/receipt decisions" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "ccn:Law facts consulted but decision-inert by design -- confirmed, evidence corrected" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:ConstitutionPath ;
-    retrofit:evidence "praxis-core::law::DefaultLaw::admit and ggen-engine::sync::write_receipt independent of ggen-constitution-pack; PUBLICATION_JUDGMENT.md condition 12 PARTIAL" .
+    retrofit:evidence "CORRECTED MECHANISM, conclusion still holds, re-verified 2026-07-21: original evidence text ('write_receipt independent of ggen-constitution-pack') is now factually stale -- merged commit 8c9edb3e4 (PR #316) added a real ccn:Law/ccn:mechanized SPARQL query to sync.rs::write_receipt, emitting one AdmissionItem per constitutional law found. But the code deliberately hardcodes AdmissionDecision::Admitted on BOTH branches (mechanized true or false), with an explicit comment: 'it must not flip the derived Andon level (that would overclaim a live verification that doesn't exist)'. praxis-core::law::DefaultLaw::admit remains fully independent of ggen-constitution-pack (zero references), confirmed unchanged. Net: facts are consulted and mirrored into the receipt's obligation list (a real, if inert, improvement over pure disconnection), but by design still never change the pass/fail decision or Andon level -- the SPOF's substantive claim holds, Accepted standing correct given this is an honestly-disclosed, deliberate non-enforcement choice (the same discipline as the ccn:mechanized=false laws), not a hidden defect." .
 
 retrofit:LawXIIFalseCitation a retrofit:SPOF ;
     rdfs:label "Law XII engine-independence citation -- RESOLVED, corrected not fabricated" ;
@@ -174,13 +174,13 @@ retrofit:FleetCensusObservationOnly a retrofit:SPOF ;
     retrofit:evidence "BOUNDED ACCEPTED RISK, evidence-based, 2026-07-21: confirmed docs/gh-terraform/FLEET-CENSUS.md (408 lines, ~359 external repos across chatmangpt-org/EpicGames/etc.) is honestly self-labeled 'OBSERVATION, NOT DESIRED STATE' with a real generation timestamp -- it makes no currency claim a reader could be misled by, which is the actual false-standing risk this class of SPOF exists to catch, and that risk does not exist here. A real re-run-and-diff reconciliation loop against live fleet state is a substantial, distinctly-scoped engineering effort (359 external repos, none of them ggen itself) genuinely orthogonal to ggen's own self-retrofit correctness (FleetManagementPath does not intersect SelfGenerationPath/ConstitutionPath/ReleasePath, the paths this session's generations have been closing). Accepting as bounded risk rather than building it now: scope=documented staleness of a labeled snapshot only, no false-currency claim possible, failure consequence=a stale snapshot informing a future fleet decision (mitigated by the explicit label), owner=a future, separately-scoped fleet-reconciliation generation, review trigger=before any fleet-wide tier assignment or batch actuation is proposed from this data." .
 
 retrofit:FleetCloudIdentityUnverified a retrofit:SPOF ;
-    rdfs:label "Sole cloud-actuation identity for fleet-management not verified" ;
+    rdfs:label "Sole cloud-actuation identity for fleet-management -- genuinely unverifiable from this environment" ;
     retrofit:standing "Unknown" ;
     retrofit:affects retrofit:FleetManagementPath ;
-    retrofit:evidence "No cloud IAM access in this survey; repo-only evidence" .
+    retrofit:evidence "RE-CONFIRMED 2026-07-21: no cloud IAM access exists in this environment, then or now -- genuinely unverifiable, not merely unchecked. docs/gh-terraform/FLEET-CENSUS.md (the one adjacent artifact) is a read-only census of GitHub repository settings, not cloud/IAM infrastructure -- does not touch this claim. Stays Unknown honestly: this is not a bounded-accepted-risk (the risk's actual magnitude can't be assessed without the access this environment lacks) nor a repair (nothing to fix without first observing). Terminal state: named, correctly Unknown, requires either cloud IAM access being granted to a future investigation or explicit acceptance that this remains permanently unverifiable from a repo-only vantage point." .
 
 retrofit:CrossCuttingSingleAdmin a retrofit:SPOF ;
-    rdfs:label "seanchatmangpt is a SPOF across PR, release, and fleet-management paths simultaneously" ;
+    rdfs:label "seanchatmangpt is a SPOF across PR, release, and fleet-management -- EXTERNAL ACTUATION PACKETS (partial) + named residual gap" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:PullRequestPath, retrofit:ReleasePath, retrofit:FleetManagementPath ;
-    retrofit:evidence "Root cause referenced by retrofit:SingleAdminCollaborator; single fact underlying 3 of 6 load paths' SPOFs" .
+    retrofit:evidence "TERMINAL STATE REACHED 2026-07-21, with an honestly-named residual: root cause (sole admin account) is addressed by AP-002 (pending a user-supplied second-admin identity -- a genuine external trust decision, not derivable). PullRequestPath leg: partially addressed once AP-001+AP-002 both execute (branch protection + a real second reviewer). ReleasePath leg (tag-push/workflow_dispatch exposure on release.yml): NOT addressed by AP-001/AP-002 at all -- GitHub tag-protection rules are a separate settings surface, would need its own authorization packet, not yet authored (named as a follow-on, not fabricated here). FleetManagementPath leg: NOT addressed -- tracked separately as the genuinely-Unknown retrofit:FleetCloudIdentityUnverified. Stays Blocking honestly: 2 of 3 legs remain open even after AP-001/AP-002, correctly not overclaimed as fully closed by pointing at those two packets alone." .

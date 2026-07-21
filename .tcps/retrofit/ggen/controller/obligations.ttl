@@ -105,3 +105,10 @@ ctl:O-6-hygiene a ctl:Obligation ;
     ctl:priority 15 ;
     ctl:state ctl:READY ;
     ctl:nextAction "Lowest priority tier by design -- independently recounted 2026-07-21, real but must not displace O-3/O-4/O-5/AP-001. Deletion via reviewed PR with a full deletion ledger when picked up, not a silent rm." .
+
+ctl:O-8 a ctl:Obligation ;
+    rdfs:label "composed_packs_e2e::thirty_one_packs_compose_with_verify_gates_active is broken, pre-existing, unrelated to O-7a" ;
+    ctl:priority 1 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Discovered 2026-07-21 as a byproduct of verifying O-7a's tcps-release-pack force:true removal was safe (it was -- confirmed via git stash: this test fails IDENTICALLY with or without that change). crates/ggen-engine/tests/composed_packs_e2e.rs:317 hardcodes `[law]\\nreflexive = true\\n` into its generated fixture ggen.toml, but the live [law] table schema only accepts `rules`/`shapes` -- FM-CONFIG-002 TOML parse error, `unknown field 'reflexive'`. Priority 1 (false-Green risk): this test's own name claims to prove '31 packs compose with verify gates active,' but it has never actually reached that assertion -- it fails at config-parse time on every run, so it has been providing zero actual coverage while presumably showing as a normal-looking single test failure easy to overlook in a large suite. Root cause not yet determined: either the [law] schema dropped a `reflexive` field this fixture never got updated for, or this fixture was miswritten from the start. NOT fixed this cycle -- named as the next priority-1 obligation." ;
+    ctl:verificationRequirement "cargo test -p ggen-engine --test composed_packs_e2e thirty_one_packs_compose_with_verify_gates_active" .

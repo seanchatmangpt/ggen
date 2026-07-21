@@ -135,9 +135,23 @@ test:
     echo "⚠️  First compile >30s, escalating to 600s..."
     timeout 600s cargo test --workspace --tests
 
-# Unit/lib tests inside each crate
+# Unit/lib tests inside each crate — same 30s→600s cold-compile escalation
+# as `test` above (found 2026-07-21: a bare 30s timeout with no escalation
+# fired spuriously right after a target/ cache clear; the ggen-cheat-scanner
+# crate visible in the truncated output has zero tests and compiles
+# instantly -- the 30s was being spent compiling a LATER crate in the
+# workspace graph, not hanging).
 test-lib:
-    timeout 30s cargo test --lib --workspace
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if timeout 30s cargo test --lib --workspace; then
+        exit 0
+    else
+        status=$?
+    fi
+    [ "$status" -eq 124 ] || exit "$status"
+    echo "⚠️  First compile >30s, escalating to 600s..."
+    timeout 600s cargo test --lib --workspace
 
 # Doctests — validates all /// Examples blocks compile and run
 # NOTE: no `--exclude ggen-core` here (2026-07-17) -- ggen-core is excluded from
@@ -325,7 +339,7 @@ slo-check:
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
 # Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs → generation hash-pin (10 gates, in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs guard-generation-hash-pin
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
@@ -345,6 +359,13 @@ guard-pack-proofs:
 # scripts/ci/guard-generation-hash-pin.sh.
 guard-generation-hash-pin:
     ./scripts/ci/guard-generation-hash-pin.sh
+
+# Pack-count drift guard (.specify/repo-facts.ttl's rf:packCount vs the real
+# packs/ directory count): refuses when they diverge, the recurring failure
+# mode (retrofit:GeneratedTableDriftManifested) this guard exists to close.
+# See scripts/ci/guard-pack-count.sh.
+guard-pack-count:
+    ./scripts/ci/guard-pack-count.sh
 
 # Security vulnerability scan
 audit:

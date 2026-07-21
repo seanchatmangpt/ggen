@@ -463,3 +463,23 @@ gen:G5 a gen:Generation ;
     gen:candidateReceiptChainHash "62e0b8f92f17a057af9944a40f627abf8748a8302c01c729959bb6d6f04fcded" ;
     gen:fixedPointWithPrevious true ;
     gen:behavioralChangeAcrossLoop true .
+
+# ── G6: standing-promotion protocol (self-retrofit Generation 3) ───────────
+# Added 2026-07-21 closing a real gap this ledger itself had: genuine
+# generation-worthy behavioral source changes (praxis-core's
+# PromotionWitness machinery) landed via PR #360 with zero corresponding
+# gen:Generation entry until now. No producer/candidate binary hash pair was
+# captured at commit time for this specific change (unlike G4/G5's explicit
+# before/after diff dance) -- this entry does NOT fabricate one. Only
+# independently-verifiable facts below: the real commit, the real tests run
+# and their real pass counts, observed directly in this session, not
+# estimated or backfilled from narrative.
+gen:G6 a gen:Generation ;
+    gen:inspects gen:G5 ;
+    gen:commit "2f255951b3c5a70216f1cef6c766e2a508508226" ;
+    gen:commitSubject "retrofit(ggen): self-retrofit generation 2 -- wire ggen-verify-pack into ggen's own live sync (#360, squash-merge; carries the promotion-witness and BUG-004 commits from the source branch)" ;
+    gen:workspaceVersion "26.7.25" ;
+    gen:toolchain "nightly-2026-06-22" ;
+    gen:improvement "praxis-core::receipt_epoch gains PromotionWitness{from_ceiling,to_ceiling,evidence_receipts,closed_obligations,verifier_identity,authorization_basis}, validate_promotion(), and ReceiptEpochV2Builder::with_verified_promotion() -- the first lawful mechanism able to raise CeilingLevel::LegacyObserved's permanent floor (recoverable(prev)=prev never heals by design; the prior escape hatch, with_explicit_ceiling, was called nowhere in production sync.rs). Not yet wired into ggen-engine's live sync loop -- who holds verifier_identity trust in production is a named, deliberately unresolved external-business-intent question, not an oversight." ;
+    gen:behavioralWitness "cargo test -p praxis-core receipt_epoch, 8 new tests, all passing 2026-07-21: valid_promotion_witness_raises_the_ceiling, self_authored_promotion_is_refused, stale_from_ceiling_is_refused, non_raising_witness_is_refused, unsupported_witness_fields_are_each_refused, normal_generation_cannot_raise_a_depressed_ceiling (regression guard -- proves unwitnessed generation behavior is unchanged), promotion_ceiling_is_exactly_the_witnessed_to_ceiling_not_a_separately_set_one (sabotage: a stale with_explicit_ceiling call does not override a valid witness's own to_ceiling)." ;
+    gen:binaryStanding "unverified-reproducibility" .

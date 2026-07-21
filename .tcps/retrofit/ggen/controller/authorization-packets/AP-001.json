@@ -32,7 +32,8 @@
     "a test PR from a non-admin account is blocked from merging without review"
   ],
   "receipt_path_if_executed": "docs/retrofit/ggen/authorization-packets-executed/AP-001.json",
-  "target_state_last_reconfirmed": "2026-07-21T14:55:00Z",
+  "coverage_note": "Fully covers retrofit:NoBranchProtection. Only partially covers retrofit:SingleAdminCollaborator (CODEOWNERS half only) and retrofit:CrossCuttingSingleAdmin (does not touch the sole-admin root cause) -- see AP-002.json for the collaborator-grant half.",
+  "target_state_last_reconfirmed": "2026-07-21T16:30:00Z",
   "target_state_reconfirmed_facts": {
     "branch_protection": "404 (absent)",
     "codeowners_github": "404 (absent)",
