@@ -1,0 +1,15 @@
+---
+to: "docs/retrofit/reconciliation/状態照合.mmd"
+sparql:
+  states: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?index ?id ?label ?hash WHERE { ?s a ret:RepositoryState ; ret:generationIndex ?index ; ret:stateId ?id ; ret:stateKind ?kind ; ret:graphHash ?hash . ?kind skos:prefLabel ?label . } ORDER BY ?index
+  edges: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?fromIndex ?toIndex WHERE { ?from a ret:RepositoryState ; ret:generationIndex ?fromIndex ; ret:nextState ?to . ?to ret:generationIndex ?toIndex . } ORDER BY ?fromIndex
+---
+flowchart LR
+{% for s in states %}  g{{ s.index }}["{{ s.label }}\n{{ s.id }}\n{{ s.hash }}"]
+{% endfor %}{% for e in edges %}  g{{ e.fromIndex }} --> g{{ e.toIndex }}
+{% endfor %}

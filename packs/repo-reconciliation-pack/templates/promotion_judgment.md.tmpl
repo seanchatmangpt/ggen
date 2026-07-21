@@ -1,0 +1,24 @@
+---
+to: "docs/retrofit/reconciliation/再認証判定.md"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?andon ?ceiling ?allowed WHERE { ?r a ret:Reconciliation ; ret:andon ?andon ; ret:standingCeiling ?ceiling ; ret:promotionAllowed ?allowed . }
+  obligations: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?title ?status ?blocking WHERE { ?o a ret:Obligation ; dct:title ?title ; ret:obligationStatus ?status ; ret:blocking ?blocking . } ORDER BY ?title
+---
+# 再認証判定
+
+{% for r in rows %}- アンドン: `{{ r.andon }}`
+- standing上限: `{{ r.ceiling }}`
+- 昇格許可: `{{ r.allowed }}`
+{% endfor %}
+
+## 未解決義務
+
+| 義務 | 状態 | 停止性 |
+|---|---|---|
+{% for o in obligations %}| {{ o.title }} | {{ o.status }} | {{ o.blocking }} |
+{% endfor %}

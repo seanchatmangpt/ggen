@@ -1,0 +1,4 @@
+[pack]
+name = "repo-intervention-pack"
+version = "26.7.20"
+description = "保全、補修、補強、改修、取替を分類し、性能目標と段階介入を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): classification_required=true, performance_objective_required=true, rehabilitation_requires_continuity=true, replacement_requires_migration=true. Depends on: as_found_pack 26.7.20, load_path_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description)."

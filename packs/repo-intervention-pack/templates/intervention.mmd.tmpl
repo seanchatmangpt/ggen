@@ -1,0 +1,17 @@
+---
+to: "docs/retrofit/intervention/段階介入.mmd"
+sparql:
+  work: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?index ?title WHERE { ?w a ret:WorkPackage ; ret:sequenceIndex ?index ; dct:title ?title . } ORDER BY ?index
+  edges: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?fromIndex ?toIndex WHERE { ?from a ret:WorkPackage ; ret:sequenceIndex ?fromIndex ; ret:nextWorkPackage ?to . ?to ret:sequenceIndex ?toIndex . } ORDER BY ?fromIndex
+---
+flowchart LR
+  start["既存構造"]
+{% for w in work %}  w{{ w.index }}["{{ w.title }}"]
+{% endfor %}  start --> w10
+{% for e in edges %}  w{{ e.fromIndex }} --> w{{ e.toIndex }}
+{% endfor %}

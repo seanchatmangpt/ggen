@@ -1,0 +1,5 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?edge ?missing WHERE {
+ { ?edge a ret:LoadEdge . FILTER NOT EXISTS { ?edge ret:fromNode ?n . ?n a ret:LoadNode } BIND("fromNode" AS ?missing) }
+ UNION { ?edge a ret:LoadEdge . FILTER NOT EXISTS { ?edge ret:toNode ?n . ?n a ret:LoadNode } BIND("toNode" AS ?missing) }
+}

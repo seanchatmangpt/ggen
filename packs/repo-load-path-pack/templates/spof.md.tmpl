@@ -1,0 +1,13 @@
+---
+to: "docs/retrofit/load-path/単一故障点.md"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?spof ?effect ?blocking WHERE { ?spof a ret:SinglePointOfFailure ; ret:failureEffect ?effect ; ret:blocking ?blocking . } ORDER BY ?spof
+---
+# 単一故障点
+
+| 対象 | 影響 | 停止性 |
+|---|---|---|
+{% for r in rows %}| `{{ r.spof }}` | {{ r.effect }} | {{ r.blocking }} |
+{% endfor %}

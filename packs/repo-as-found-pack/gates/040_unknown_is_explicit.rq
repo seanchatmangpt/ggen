@@ -1,0 +1,5 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?unknown ?missing WHERE {
+ { ?unknown a ret:UnknownCondition . FILTER NOT EXISTS { ?unknown ret:unknownReason ?r } BIND("unknownReason" AS ?missing) }
+ UNION { ?unknown a ret:UnknownCondition . FILTER NOT EXISTS { ?unknown ret:blocking ?b } BIND("blocking" AS ?missing) }
+}

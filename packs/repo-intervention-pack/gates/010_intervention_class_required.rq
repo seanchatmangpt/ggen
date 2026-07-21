@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?i WHERE { ?i a ret:Intervention . FILTER NOT EXISTS { ?i ret:interventionClass ?c . ?c a ret:InterventionClass } }

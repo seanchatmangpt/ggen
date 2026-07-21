@@ -1,0 +1,8 @@
+---
+to: ".tcps/load-paths.json"
+sparql:
+  edges: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?id ?fromId ?toId ?load ?criticality WHERE { ?e a ret:LoadEdge ; ret:edgeId ?id ; ret:fromNode ?f ; ret:toNode ?t ; ret:loadKind ?load ; ret:criticality ?criticality . ?f ret:nodeId ?fromId . ?t ret:nodeId ?toId . } ORDER BY ?id
+---
+{"schema":"tcps-load-path-v1","edges":[{% for e in edges %}{"id":"{{ e.id }}","from":"{{ e.fromId }}","to":"{{ e.toId }}","load":"{{ e.load }}","criticality":"{{ e.criticality }}"}{% if not loop.last %},{% endif %}{% endfor %}]}

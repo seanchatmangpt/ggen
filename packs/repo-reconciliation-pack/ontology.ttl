@@ -1,0 +1,94 @@
+@prefix ret:  <https://seanchatmangpt.github.io/ontology/retrofit#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ret:RepositoryState a rdfs:Class .
+ret:StateKind a rdfs:Class .
+ret:Reconciliation a rdfs:Class .
+ret:Delta a rdfs:Class .
+ret:DeltaClass a rdfs:Class .
+ret:AdmissionDecision a rdfs:Class .
+ret:StandingComponent a rdfs:Class .
+ret:RecertificationReceipt a rdfs:Class .
+ret:PromotionDecision a rdfs:Class .
+ret:Obligation a rdfs:Class .
+
+ret:AsFound a ret:StateKind ; skos:prefLabel "現況"@ja .
+ret:AsDesired a ret:StateKind ; skos:prefLabel "設計"@ja .
+ret:AsBuilt a ret:StateKind ; skos:prefLabel "製造済み"@ja .
+ret:AsOperated a ret:StateKind ; skos:prefLabel "運用中"@ja .
+ret:Addition a ret:DeltaClass ; skos:prefLabel "追加"@ja .
+ret:Modification a ret:DeltaClass ; skos:prefLabel "変更"@ja .
+ret:Deletion a ret:DeltaClass ; skos:prefLabel "削除"@ja .
+ret:UnknownDelta a ret:DeltaClass ; skos:prefLabel "不明"@ja .
+ret:Admitted a ret:AdmissionDecision ; skos:prefLabel "受入れ"@ja .
+ret:Quarantined a ret:AdmissionDecision ; skos:prefLabel "隔離"@ja .
+ret:Refused a ret:AdmissionDecision ; skos:prefLabel "拒否"@ja .
+ret:Green a skos:Concept ; skos:prefLabel "緑"@ja .
+ret:Yellow a skos:Concept ; skos:prefLabel "黄"@ja .
+ret:Red a skos:Concept ; skos:prefLabel "赤"@ja .
+
+ret:stateId a rdf:Property .
+ret:stateKind a rdf:Property .
+ret:graphHash a rdf:Property .
+ret:generationIndex a rdf:Property .
+ret:deltaId a rdf:Property .
+ret:fromState a rdf:Property .
+ret:toState a rdf:Property .
+ret:deltaClass a rdf:Property .
+ret:targetSurface a rdf:Property .
+ret:beforeValue a rdf:Property .
+ret:afterValue a rdf:Property .
+ret:admissionDecision a rdf:Property .
+ret:decisionReason a rdf:Property .
+ret:blocking a rdf:Property .
+ret:obligation a rdf:Property .
+ret:obligationStatus a rdf:Property .
+ret:andon a rdf:Property .
+ret:standingCeiling a rdf:Property .
+ret:promotionAllowed a rdf:Property .
+ret:previousReceiptHash a rdf:Property .
+ret:receiptHash a rdf:Property .
+ret:nextState a rdf:Property .
+
+ret:StateFound a ret:RepositoryState ; ret:stateId "G0-as-found" ; ret:stateKind ret:AsFound ; ret:graphHash "blake3:UNKNOWN-AS-FOUND" ; ret:generationIndex 0 ; ret:nextState ret:StateDesired .
+ret:StateDesired a ret:RepositoryState ; ret:stateId "G1-as-desired" ; ret:stateKind ret:AsDesired ; ret:graphHash "blake3:UNKNOWN-AS-DESIRED" ; ret:generationIndex 1 ; ret:nextState ret:StateBuilt .
+ret:StateBuilt a ret:RepositoryState ; ret:stateId "G2-as-built" ; ret:stateKind ret:AsBuilt ; ret:graphHash "blake3:UNKNOWN-AS-BUILT" ; ret:generationIndex 2 ; ret:nextState ret:StateOperated .
+ret:StateOperated a ret:RepositoryState ; ret:stateId "G3-as-operated" ; ret:stateKind ret:AsOperated ; ret:graphHash "blake3:UNKNOWN-AS-OPERATED" ; ret:generationIndex 3 .
+
+ret:DeltaRuleset a ret:Delta ;
+  ret:deltaId "ruleset-create" ;
+  ret:fromState ret:StateFound ;
+  ret:toState ret:StateDesired ;
+  ret:deltaClass ret:Addition ;
+  ret:targetSurface "github_repository_ruleset.main" ;
+  ret:beforeValue "absent" ;
+  ret:afterValue "required" ;
+  ret:admissionDecision ret:Admitted ;
+  ret:decisionReason "TCPS主枝統治を製造する"@ja ;
+  ret:blocking false .
+
+ret:ObligationLiveApply a ret:Obligation ;
+  dct:title "実リポジトリへの明示承認付き適用"@ja ;
+  ret:obligationStatus "open" ;
+  ret:blocking true .
+
+ret:Reconciliation_001 a ret:Reconciliation ;
+  ret:fromState ret:StateFound ;
+  ret:toState ret:StateDesired ;
+  ret:obligation ret:ObligationLiveApply ;
+  ret:andon ret:Yellow ;
+  ret:standingCeiling ret:R4 ;
+  ret:promotionAllowed false .
+
+ret:Receipt_001 a ret:RecertificationReceipt ;
+  ret:previousReceiptHash "GENESIS" ;
+  ret:receiptHash "blake3:UNKNOWN-RECEIPT" ;
+  ret:andon ret:Yellow ;
+  ret:standingCeiling ret:R4 ;
+  ret:promotionAllowed false .

@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?cutover WHERE { ?cutover a ret:Cutover ; ret:removalReceipt ?receipt . FILTER NOT EXISTS { ?cutover ret:transferEvidence ?e . ?e a ret:LoadTransferEvidence ; ret:status "admitted" } }

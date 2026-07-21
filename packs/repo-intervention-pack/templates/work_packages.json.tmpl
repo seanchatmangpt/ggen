@@ -1,0 +1,9 @@
+---
+to: ".tcps/retrofit-work-packages.json"
+sparql:
+  work: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?index ?title ?reversible ?criterion WHERE { ?w a ret:WorkPackage ; ret:sequenceIndex ?index ; dct:title ?title ; ret:reversible ?reversible ; ret:acceptanceCriterion ?criterion . } ORDER BY ?index
+---
+{"schema":"tcps-retrofit-work-v1","workPackages":[{% for w in work %}{"sequence":{{ w.index }},"title":"{{ w.title }}","reversible":{{ w.reversible }},"acceptance":"{{ w.criterion }}"}{% if not loop.last %},{% endif %}{% endfor %}]}

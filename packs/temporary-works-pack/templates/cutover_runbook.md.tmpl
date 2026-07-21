@@ -1,0 +1,18 @@
+---
+to: "docs/retrofit/temporary-works/荷重移転手順.md"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?old ?new ?criterion ?rollback WHERE { ?c a ret:Cutover ; ret:oldPath ?old ; ret:newPath ?new ; ret:cutoverCriterion ?criterion ; ret:rollbackPlan ?p . ?p dct:title ?rollback . }
+---
+# 荷重移転手順
+
+{% for r in rows %}1. 旧経路 `{{ r.old }}` を観測する。
+2. 新経路 `{{ r.new }}` を影運転する。
+3. 移転条件「{{ r.criterion }}」を検査する。
+4. 明示承認後に一件の荷重を移す。
+5. 実結果を再観測する。
+6. 異常時は「{{ r.rollback }}」を実行する。
+7. 受領後にだけ旧経路撤去を計画する。
+{% endfor %}

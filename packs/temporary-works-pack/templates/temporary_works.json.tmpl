@@ -1,0 +1,8 @@
+---
+to: ".tcps/temporary-works.json"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?id ?owner ?expiry ?status WHERE { ?w a ret:TemporaryWork ; ret:temporaryWorkId ?id ; ret:owner ?owner ; ret:expiresAt ?expiry ; ret:status ?status . } ORDER BY ?id
+---
+{"schema":"tcps-temporary-works-v1","works":[{% for r in rows %}{"id":"{{ r.id }}","owner":"{{ r.owner }}","expiresAt":"{{ r.expiry }}","status":"{{ r.status }}"}{% if not loop.last %},{% endif %}{% endfor %}]}

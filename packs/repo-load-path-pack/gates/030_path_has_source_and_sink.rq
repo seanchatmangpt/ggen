@@ -1,0 +1,5 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?path ?missing WHERE {
+ { ?path a ret:LoadPath . FILTER NOT EXISTS { ?path ret:sourceNode ?s } BIND("sourceNode" AS ?missing) }
+ UNION { ?path a ret:LoadPath . FILTER NOT EXISTS { ?path ret:sinkNode ?s } BIND("sinkNode" AS ?missing) }
+}

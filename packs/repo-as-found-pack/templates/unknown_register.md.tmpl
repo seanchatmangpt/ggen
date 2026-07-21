@@ -1,0 +1,13 @@
+---
+to: "docs/retrofit/as-found/未知条件台帳.md"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?unknown ?reason ?blocking WHERE { ?unknown a ret:UnknownCondition ; ret:unknownReason ?reason ; ret:blocking ?blocking . } ORDER BY ?unknown
+---
+# 未知条件台帳
+
+| 未知条件 | 理由 | 停止性 |
+|---|---|---|
+{% for row in rows %}| `{{ row.unknown }}` | {{ row.reason }} | {{ row.blocking }} |
+{% endfor %}

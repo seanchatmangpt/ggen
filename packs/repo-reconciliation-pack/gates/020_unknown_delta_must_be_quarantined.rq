@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?delta WHERE { ?delta a ret:Delta ; ret:deltaClass ret:UnknownDelta ; ret:admissionDecision ?d . FILTER(?d != ret:Quarantined && ?d != ret:Refused) }
