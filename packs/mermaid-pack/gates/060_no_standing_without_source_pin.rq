@@ -1,0 +1,10 @@
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?diagram WHERE {
+  ?diagram a mer:Diagram ; mer:standingCeiling ?ceiling .
+  FILTER(?ceiling != "Observed")
+  FILTER NOT EXISTS {
+    ?diagram mer:diagramType ?type .
+    ?type mer:upstreamRelease ?release .
+    ?release <http://www.w3.org/ns/prov#value> ?commit .
+  }
+}

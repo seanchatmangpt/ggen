@@ -1,0 +1,512 @@
+@prefix mer:  <https://seanchatmangpt.github.io/ontology/mermaid#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+mer:DiagramType a rdfs:Class .
+mer:Diagram a rdfs:Class .
+mer:UpstreamRelease a rdfs:Class .
+mer:RendererSource a rdfs:Class .
+mer:AuthorityClass a rdfs:Class .
+mer:Normative a mer:AuthorityClass .
+mer:Observational a mer:AuthorityClass .
+mer:Reconciliation a mer:AuthorityClass .
+
+mer:diagramId a rdf:Property .
+mer:displayName a rdf:Property .
+mer:syntaxDeclaration a rdf:Property .
+mer:detectorPath a rdf:Property .
+mer:definitionPath a rdf:Property .
+mer:rendererPath a rdf:Property .
+mer:rendererAlternativePath a rdf:Property .
+mer:rendererNotes a rdf:Property .
+mer:sourceUrl a rdf:Property .
+mer:sourceConfidence a rdf:Property .
+mer:upstreamRelease a rdf:Property .
+mer:outputPath a rdf:Property .
+mer:sourceText a rdf:Property .
+mer:diagramType a rdf:Property .
+mer:authorityClass a rdf:Property .
+mer:generated a rdf:Property .
+mer:sourceGraphHash a rdf:Property .
+mer:generationIndex a rdf:Property .
+mer:standingCeiling a rdf:Property .
+
+mer:Mermaid_11_16_0 a mer:UpstreamRelease ;
+    dct:title "Mermaid 11.16.0" ;
+    dct:identifier "11.16.0" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid> ;
+    prov:value "f0ffb41c1ee1ff667b528e86c3b082249726eeef" ;
+    dct:license <https://opensource.org/license/mit> .
+
+mer:CentralDiagramAPI a mer:RendererSource ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagram-api/diagramAPI.ts> .
+
+mer:CentralOrchestration a mer:RendererSource ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagram-api/diagram-orchestration.ts> .
+
+mer:CentralDiagramRuntime a mer:RendererSource ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/Diagram.ts> .
+
+mer:Type_c4 a mer:DiagramType ;
+    mer:diagramId "c4" ;
+    mer:displayName "C4図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/c4/c4Detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/c4/c4Diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/c4/c4Renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_flowchart_v2 a mer:DiagramType ;
+    mer:diagramId "flowchart-v2" ;
+    mer:displayName "流れ図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/flowchart/flowDetector-v2.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_flowchart a mer:DiagramType ;
+    mer:diagramId "flowchart" ;
+    mer:displayName "旧式流れ図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/flowchart/flowDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_flowchart_elk a mer:DiagramType ;
+    mer:diagramId "flowchart-elk" ;
+    mer:displayName "ELK流れ図"@ja ;
+    mer:syntaxDeclaration "flowchart-elk" ;
+    mer:detectorPath "packages/mermaid/src/diagrams/flowchart/elk/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts" ;
+    mer:rendererNotes "Loads the shared flowDiagram and sets layout='elk'."@ja ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts> ;
+    mer:sourceConfidence "verified-shared-renderer" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_swimlane a mer:DiagramType ;
+    mer:diagramId "swimlane" ;
+    mer:displayName "泳線図"@ja ;
+    mer:syntaxDeclaration "swimlane-beta" ;
+    mer:detectorPath "packages/mermaid/src/diagrams/swimlanes/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/swimlanes/swimlanesDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts" ;
+    mer:rendererNotes "Uses createFlowDiagram(defaultLayout='swimlane'); shares the unified flowchart renderer."@ja ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts> ;
+    mer:sourceConfidence "verified-shared-renderer" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_er a mer:DiagramType ;
+    mer:diagramId "er" ;
+    mer:displayName "実体関連図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/er/erDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/er/erDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/er/erRenderer-unified.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/er/erRenderer-unified.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_gitGraph a mer:DiagramType ;
+    mer:diagramId "gitGraph" ;
+    mer:displayName "Git履歴図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/git/gitGraphDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/git/gitGraphDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/git/gitGraphRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/git/gitGraphRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_gantt a mer:DiagramType ;
+    mer:diagramId "gantt" ;
+    mer:displayName "ガント図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/gantt/ganttDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/gantt/ganttDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/gantt/ganttRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/gantt/ganttRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_info a mer:DiagramType ;
+    mer:diagramId "info" ;
+    mer:displayName "情報図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/info/infoDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/info/infoDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/info/infoRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/info/infoRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_pie a mer:DiagramType ;
+    mer:diagramId "pie" ;
+    mer:displayName "円図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/pie/pieDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/pie/pieDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/pie/pieRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/pie/pieRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_quadrantChart a mer:DiagramType ;
+    mer:diagramId "quadrantChart" ;
+    mer:displayName "四象限図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/quadrant-chart/quadrantDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/quadrant-chart/quadrantDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/quadrant-chart/quadrantRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/quadrant-chart/quadrantRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_xychart a mer:DiagramType ;
+    mer:diagramId "xychart" ;
+    mer:displayName "XY図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/xychart/xychartDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/xychart/xychartDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/xychart/xychartRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/xychart/xychartRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_requirement a mer:DiagramType ;
+    mer:diagramId "requirement" ;
+    mer:displayName "要求図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/requirement/requirementDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/requirement/requirementDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/requirement/requirementRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/requirement/requirementRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_sequence a mer:DiagramType ;
+    mer:diagramId "sequence" ;
+    mer:displayName "順序図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/sequence/sequenceDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/sequence/sequenceDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_classDiagram a mer:DiagramType ;
+    mer:diagramId "classDiagram" ;
+    mer:displayName "旧式クラス図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/class/classDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/class/classDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/class/classRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/class/classRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_classDiagram_v2 a mer:DiagramType ;
+    mer:diagramId "classDiagram-v2" ;
+    mer:displayName "クラス図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/class/classDetector-V2.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/class/classDiagram-v2.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/class/classRenderer-v3-unified.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/class/classRenderer-v3-unified.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_stateDiagram a mer:DiagramType ;
+    mer:diagramId "stateDiagram" ;
+    mer:displayName "旧式状態図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/state/stateDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/state/stateDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/state/stateRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/state/stateRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_stateDiagram_v2 a mer:DiagramType ;
+    mer:diagramId "stateDiagram-v2" ;
+    mer:displayName "状態図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/state/stateDetector-V2.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/state/stateDiagram-v2.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/state/stateRenderer-v3-unified.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/state/stateRenderer-v3-unified.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_journey a mer:DiagramType ;
+    mer:diagramId "journey" ;
+    mer:displayName "利用者行程図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/user-journey/journeyDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/user-journey/journeyDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/user-journey/journeyRenderer.js" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/user-journey/journeyRenderer.js> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_timeline a mer:DiagramType ;
+    mer:diagramId "timeline" ;
+    mer:displayName "時間線図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/timeline/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/timeline/timeline-definition.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/timeline/timelineRenderer.ts" ;
+    mer:rendererAlternativePath "packages/mermaid/src/diagrams/timeline/timelineRendererVertical.ts" ;
+    mer:rendererNotes "The definition selects horizontal or vertical renderer based on diagram direction."@ja ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/timeline/timelineRenderer.ts> ;
+    mer:sourceConfidence "verified-selectable-renderer" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_mindmap a mer:DiagramType ;
+    mer:diagramId "mindmap" ;
+    mer:displayName "思考地図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/mindmap/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/mindmap/mindmap-definition.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/mindmap/mindmapRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/mindmap/mindmapRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_kanban a mer:DiagramType ;
+    mer:diagramId "kanban" ;
+    mer:displayName "看板図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/kanban/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/kanban/kanban-definition.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/kanban/kanbanRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/kanban/kanbanRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_sankey a mer:DiagramType ;
+    mer:diagramId "sankey" ;
+    mer:displayName "サンキー図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/sankey/sankeyDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/sankey/sankeyDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/sankey/sankeyRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sankey/sankeyRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_packet a mer:DiagramType ;
+    mer:diagramId "packet" ;
+    mer:displayName "通信包図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/packet/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/packet/diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/packet/renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/packet/renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_radar a mer:DiagramType ;
+    mer:diagramId "radar" ;
+    mer:displayName "レーダー図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/radar/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/radar/diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/radar/renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/radar/renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_block a mer:DiagramType ;
+    mer:diagramId "block" ;
+    mer:displayName "区画図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/block/blockDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/block/blockDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/block/blockRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/block/blockRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_treeView a mer:DiagramType ;
+    mer:diagramId "treeView" ;
+    mer:displayName "木構造図"@ja ;
+    mer:syntaxDeclaration "treeView-beta" ;
+    mer:detectorPath "packages/mermaid/src/diagrams/treeView/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/treeView/diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/treeView/renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/treeView/renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_architecture a mer:DiagramType ;
+    mer:diagramId "architecture" ;
+    mer:displayName "構成図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/architecture/architectureDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/architecture/architectureDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/architecture/architectureRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/architecture/architectureRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_eventmodeling a mer:DiagramType ;
+    mer:diagramId "eventmodeling" ;
+    mer:displayName "事象モデリング図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/eventmodeling/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/eventmodeling/diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/eventmodeling/renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/eventmodeling/renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_ishikawa a mer:DiagramType ;
+    mer:diagramId "ishikawa" ;
+    mer:displayName "特性要因図"@ja ;
+    mer:syntaxDeclaration "ishikawa-beta" ;
+    mer:detectorPath "packages/mermaid/src/diagrams/ishikawa/ishikawaDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/ishikawa/ishikawaDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/ishikawa/ishikawaRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/ishikawa/ishikawaRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_venn a mer:DiagramType ;
+    mer:diagramId "venn" ;
+    mer:displayName "ベン図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/venn/vennDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/venn/vennDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/venn/vennRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/venn/vennRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_treemap a mer:DiagramType ;
+    mer:diagramId "treemap" ;
+    mer:displayName "樹形面積図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/treemap/detector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/treemap/diagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/treemap/renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/treemap/renderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_wardley a mer:DiagramType ;
+    mer:diagramId "wardley" ;
+    mer:displayName "ウォードリー図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/wardley/wardleyDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/wardley/wardleyDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/wardley/wardleyRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/wardley/wardleyRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_cynefin a mer:DiagramType ;
+    mer:diagramId "cynefin" ;
+    mer:displayName "クネビン図"@ja ;
+    mer:syntaxDeclaration "cynefin-beta" ;
+    mer:detectorPath "packages/mermaid/src/diagrams/cynefin/cynefinDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/cynefin/cynefinDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/cynefin/cynefinRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/cynefin/cynefinRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_railroad a mer:DiagramType ;
+    mer:diagramId "railroad" ;
+    mer:displayName "鉄道構文図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/railroad/railroadDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/railroad/railroadDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_railroad_ebnf a mer:DiagramType ;
+    mer:diagramId "railroad-ebnf" ;
+    mer:displayName "EBNF鉄道構文図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/railroad/ebnfDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/railroad/ebnfDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_railroad_abnf a mer:DiagramType ;
+    mer:diagramId "railroad-abnf" ;
+    mer:displayName "ABNF鉄道構文図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/railroad/abnfDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/railroad/abnfDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_railroad_peg a mer:DiagramType ;
+    mer:diagramId "railroad-peg" ;
+    mer:displayName "PEG鉄道構文図"@ja ;
+    mer:detectorPath "packages/mermaid/src/diagrams/railroad/pegDetector.ts" ;
+    mer:definitionPath "packages/mermaid/src/diagrams/railroad/pegDiagram.ts" ;
+    mer:rendererPath "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts> ;
+    mer:sourceConfidence "verified" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Type_zenuml a mer:DiagramType ;
+    mer:diagramId "zenuml" ;
+    mer:displayName "ZenUML順序図"@ja ;
+    mer:detectorPath "packages/mermaid-zenuml/src/detector.ts" ;
+    mer:definitionPath "packages/mermaid-zenuml/src/zenuml-definition.ts" ;
+    mer:rendererPath "packages/mermaid-zenuml/src/zenumlRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid-zenuml/src/zenumlRenderer.ts> ;
+    mer:sourceConfidence "verified-external" ;
+    mer:upstreamRelease mer:Mermaid_11_16_0 .
+
+mer:Diagram_RendererArchitecture a mer:Diagram ;
+    mer:diagramType mer:Type_flowchart_v2 ;
+    mer:outputPath "docs/architecture/mermaid-renderer-architecture.mmd" ;
+    mer:authorityClass mer:Normative ;
+    mer:generated true ;
+    mer:generationIndex 1 ;
+    mer:standingCeiling "SourcePinned" ;
+    mer:sourceText """flowchart LR
+    O[受入済みRDF] --> G[ggen]
+    G --> M[Mermaid原文]
+    M --> D[detectType]
+    D --> L[遅延読込]
+    L --> P[parser]
+    P --> DB[diagram DB]
+    DB --> R[renderer.draw]
+    R --> S[SVG]
+    S --> V[構文・描画検査]
+    V --> RC[受領証]
+""" .
+
+mer:Diagram_RendererResolution a mer:Diagram ;
+    mer:diagramType mer:Type_sequence ;
+    mer:outputPath "docs/architecture/renderer-source-resolution.mmd" ;
+    mer:authorityClass mer:Normative ;
+    mer:generated true ;
+    mer:generationIndex 1 ;
+    mer:standingCeiling "SourcePinned" ;
+    mer:sourceText """sequenceDiagram
+    participant G as ggen
+    participant O as diagram-orchestration.ts
+    participant D as Detector
+    participant F as Diagram Definition
+    participant R as Renderer
+    G->>O: 登録済み検出器を列挙
+    O-->>G: detector path
+    G->>D: loaderを解析
+    D-->>G: definition path
+    G->>F: renderer importを解析
+    F-->>G: renderer path
+    G->>R: commit固定URLを生成
+    R-->>G: 出典受領
+""" .
+
+mer:Diagram_AuthorityState a mer:Diagram ;
+    mer:diagramType mer:Type_stateDiagram_v2 ;
+    mer:outputPath "docs/architecture/diagram-authority-state.mmd" ;
+    mer:authorityClass mer:Normative ;
+    mer:generated true ;
+    mer:generationIndex 1 ;
+    mer:standingCeiling "Constitutional" ;
+    mer:sourceText """stateDiagram-v2
+    [*] --> Observed
+    Observed --> Quarantined: 出典不一致
+    Observed --> Admitted: 出典固定・構文合格
+    Quarantined --> Admitted: 再調査
+    Admitted --> Rendered: mmdc
+    Rendered --> Receipted: SVG要約保存
+    Receipted --> Stale: 上流版又は意味変更
+    Stale --> Observed
+""" .

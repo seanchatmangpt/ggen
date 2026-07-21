@@ -1,0 +1,4 @@
+@prefix mer: <https://seanchatmangpt.github.io/ontology/mermaid#> .
+mer:BadType a mer:DiagramType ;
+  mer:diagramId "bad" ;
+  mer:detectorPath "unknown" .
