@@ -482,6 +482,112 @@ impl ReceiptEpochV2 {
     }
 }
 
+/// A witnessed claim that the standing ceiling should rise from
+/// `from_ceiling` to `to_ceiling` -- the only lawful way to raise
+/// [`recoverable`]'s permanent floor (see that fn's doc comment: ordinary
+/// generation never heals a depressed ceiling, by design). A `PromotionWitness`
+/// is not evidence itself; it is a claim that sufficient evidence and process
+/// already exist, checked by [`validate_promotion`] before being trusted.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PromotionWitness {
+    /// The ceiling this witness claims to promote FROM. Must equal the
+    /// actual current ceiling at validation time -- a stale witness (written
+    /// against an earlier generation) is refused, not silently reinterpreted.
+    pub from_ceiling: CeilingLevel,
+    /// The ceiling this witness claims to promote TO. Must exceed
+    /// `from_ceiling` -- a witness is a promotion, not a lateral or downward
+    /// move (ordinary generation already handles those via `compute_ceiling`).
+    pub to_ceiling: CeilingLevel,
+    /// References (receipt chain hashes, or another content-addressed
+    /// pointer) to the receipts that constitute the evidence this promotion
+    /// is based on. Must be non-empty -- a promotion with no cited evidence
+    /// is refused.
+    pub evidence_receipts: Vec<String>,
+    /// Identifiers of the obligations this promotion's evidence discharges.
+    /// Must be non-empty -- a promotion isn't a status update, it is the
+    /// direct consequence of specific obligations closing.
+    pub closed_obligations: Vec<String>,
+    /// Identity of whoever verified the evidence and is vouching for this
+    /// promotion (e.g. an independent reviewer, a separate verification
+    /// agent's identity, a human's name/handle). Must differ from the
+    /// actuator identity performing the promotion -- see
+    /// [`validate_promotion`]'s anti-self-promotion check.
+    pub verifier_identity: String,
+    /// Free-text statement of why this promotion is authorized (what
+    /// process, policy, or decision permits it). Must be non-empty.
+    pub authorization_basis: String,
+}
+
+/// Validate a [`PromotionWitness`] against the actual current ceiling and the
+/// identity performing the promotion. Returns the validated `to_ceiling` on
+/// success; refuses (never silently clamps or ignores a violated invariant)
+/// with [`CoreError::PromotionRefused`] naming the specific reason otherwise.
+///
+/// This is the sole gate between "evidence exists that standing improved"
+/// and "the permanent floor `recoverable(prev)` actually rises" --
+/// [`recoverable`] itself never heals a ceiling by inference, exactly so
+/// that every rise has an inspectable, refusable witness like this one
+/// behind it, rather than an implicit or automatic promotion.
+pub fn validate_promotion(
+    current_ceiling: CeilingLevel, actuator_identity: &str, witness: &PromotionWitness,
+) -> Result<CeilingLevel, CoreError> {
+    if witness.from_ceiling != current_ceiling {
+        return Err(CoreError::PromotionRefused {
+            reason: format!(
+                "witness.from_ceiling {:?} does not match the actual current ceiling {:?} \
+                 -- stale or mismatched witness",
+                witness.from_ceiling, current_ceiling
+            ),
+        });
+    }
+    if witness.to_ceiling <= witness.from_ceiling {
+        return Err(CoreError::PromotionRefused {
+            reason: format!(
+                "to_ceiling {:?} does not exceed from_ceiling {:?} -- not a promotion \
+                 (a lateral or downward move is ordinary generation's job, not a witness's)",
+                witness.to_ceiling, witness.from_ceiling
+            ),
+        });
+    }
+    if witness.evidence_receipts.is_empty() {
+        return Err(CoreError::PromotionRefused {
+            reason: "evidence_receipts is empty -- a promotion must cite the receipts its \
+                      evidence is based on"
+                .to_string(),
+        });
+    }
+    if witness.closed_obligations.is_empty() {
+        return Err(CoreError::PromotionRefused {
+            reason: "closed_obligations is empty -- a promotion must name the obligations \
+                      whose closure justifies it"
+                .to_string(),
+        });
+    }
+    if witness.verifier_identity.trim().is_empty() {
+        return Err(CoreError::PromotionRefused {
+            reason: "verifier_identity is empty".to_string(),
+        });
+    }
+    if witness.verifier_identity == actuator_identity {
+        return Err(CoreError::PromotionRefused {
+            reason: format!(
+                "verifier_identity {:?} matches the actuator identity performing this \
+                 promotion -- self-authored promotions are refused, a promotion must be \
+                 vouched for by an identity distinct from whoever is applying it",
+                witness.verifier_identity
+            ),
+        });
+    }
+    if witness.authorization_basis.trim().is_empty() {
+        return Err(CoreError::PromotionRefused {
+            reason: "authorization_basis is empty -- a promotion must state what process, \
+                      policy, or decision authorizes it"
+                .to_string(),
+        });
+    }
+    Ok(witness.to_ceiling)
+}
+
 /// Builder for a genuine v2 [`ReceiptEpochV2`]: the only way to construct
 /// one outside of [`ReceiptEpochV2::legacy_bounded`], so `andon`,
 /// `obligation_count`, and (absent an explicit override) `standing_ceiling`
@@ -493,6 +599,12 @@ pub struct ReceiptEpochV2Builder {
     admission: Vec<AdmissionItem>,
     equivalence: EquivalenceMap,
     explicit_ceiling: Option<CeilingLevel>,
+    /// Set only by [`Self::with_verified_promotion`]. When `true`, `build()`
+    /// uses `explicit_ceiling` directly instead of capping it at
+    /// `compute_ceiling(prev, components)` -- the one narrow, explicitly-
+    /// witnessed exception to the ordinary meet, gated entirely by
+    /// [`validate_promotion`] having already succeeded.
+    promoted: bool,
 }
 
 impl ReceiptEpochV2Builder {
@@ -508,6 +620,7 @@ impl ReceiptEpochV2Builder {
             admission: Vec::new(),
             equivalence: EquivalenceMap::all_unknown(),
             explicit_ceiling: None,
+            promoted: false,
         }
     }
 
@@ -535,17 +648,44 @@ impl ReceiptEpochV2Builder {
         self
     }
 
+    /// Apply a validated [`PromotionWitness`]: the one lawful way to set
+    /// `standing_ceiling` above `compute_ceiling(prev, components)`. Runs
+    /// [`validate_promotion`] against `self.prev_ceiling` and
+    /// `actuator_identity`; refuses (propagating [`CoreError::PromotionRefused`])
+    /// rather than building an unwitnessed or self-authored rise.
+    ///
+    /// # Errors
+    /// Returns [`CoreError::PromotionRefused`] if the witness fails any
+    /// invariant `validate_promotion` checks.
+    pub fn with_verified_promotion(
+        mut self, witness: &PromotionWitness, actuator_identity: &str,
+    ) -> Result<Self, CoreError> {
+        let new_ceiling = validate_promotion(self.prev_ceiling, actuator_identity, witness)?;
+        self.explicit_ceiling = Some(new_ceiling);
+        self.promoted = true;
+        Ok(self)
+    }
+
     /// Compute the final [`ReceiptEpochV2`], refusing rather than silently
     /// clamping if an explicit ceiling override exceeds what the evidence
-    /// supports.
+    /// supports. A ceiling set via [`Self::with_verified_promotion`] is the
+    /// sole exception -- it has already been validated against the current
+    /// ceiling and evidence, so it is used directly rather than re-capped at
+    /// `compute_ceiling`, which is exactly the floor a promotion exists to
+    /// rise above.
     pub fn build(self) -> Result<ReceiptEpochV2, CoreError> {
         let allowed = compute_ceiling(self.prev_ceiling, &self.components);
-        let standing_ceiling = match self.explicit_ceiling {
-            Some(requested) if requested > allowed => {
-                return Err(CoreError::CeilingExceedsMeet { requested, allowed })
+        let standing_ceiling = if self.promoted {
+            self.explicit_ceiling
+                .expect("promoted=true is only ever set alongside explicit_ceiling")
+        } else {
+            match self.explicit_ceiling {
+                Some(requested) if requested > allowed => {
+                    return Err(CoreError::CeilingExceedsMeet { requested, allowed })
+                }
+                Some(requested) => requested,
+                None => allowed,
             }
-            Some(requested) => requested,
-            None => allowed,
         };
         let ledger = AdmissionLedger::Recorded(self.admission);
         let andon = derive_andon(&ledger);
@@ -761,5 +901,128 @@ mod tests {
             .with_explicit_ceiling(CeilingLevel::Green)
             .build();
         assert!(matches!(result, Err(CoreError::CeilingExceedsMeet { .. })));
+    }
+
+    fn valid_witness() -> PromotionWitness {
+        PromotionWitness {
+            from_ceiling: CeilingLevel::LegacyObserved,
+            to_ceiling: CeilingLevel::Green,
+            evidence_receipts: vec!["chain_hash:abc123".to_string()],
+            closed_obligations: vec!["O-99".to_string()],
+            verifier_identity: "independent-verifier".to_string(),
+            authorization_basis: "generation N reconciliation, all obligations closed"
+                .to_string(),
+        }
+    }
+
+    /// Normal generation, unwitnessed: LegacyObserved never rises, no matter
+    /// how green current evidence is -- `recoverable(prev)=prev` never heals.
+    #[test]
+    fn normal_generation_cannot_raise_a_depressed_ceiling() {
+        let components = ComponentLevels::uniform(AndonLevel::Green);
+        let epoch = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
+            .build()
+            .expect("build");
+        assert_eq!(epoch.standing_ceiling, CeilingLevel::LegacyObserved);
+    }
+
+    /// A validated promotion witness genuinely raises the ceiling above what
+    /// `compute_ceiling` alone would ever permit -- the one lawful exception.
+    #[test]
+    fn valid_promotion_witness_raises_the_ceiling() {
+        let components = ComponentLevels::uniform(AndonLevel::Green);
+        let witness = valid_witness();
+        let epoch = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
+            .with_verified_promotion(&witness, "actuator-identity")
+            .expect("witness validates")
+            .build()
+            .expect("build");
+        assert_eq!(epoch.standing_ceiling, CeilingLevel::Green);
+    }
+
+    /// Self-authored promotions (verifier == actuator) are refused, not
+    /// silently applied -- a promotion must be vouched for by a distinct
+    /// identity.
+    #[test]
+    fn self_authored_promotion_is_refused() {
+        let components = ComponentLevels::uniform(AndonLevel::Green);
+        let mut witness = valid_witness();
+        witness.verifier_identity = "actuator-identity".to_string();
+        let result = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
+            .with_verified_promotion(&witness, "actuator-identity");
+        assert!(matches!(result, Err(CoreError::PromotionRefused { .. })));
+    }
+
+    /// A witness whose `from_ceiling` doesn't match the actual current
+    /// ceiling (stale, or forged against a different generation) is refused.
+    #[test]
+    fn stale_from_ceiling_is_refused() {
+        let components = ComponentLevels::uniform(AndonLevel::Green);
+        let mut witness = valid_witness();
+        witness.from_ceiling = CeilingLevel::Yellow; // actual current is LegacyObserved
+        let result = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
+            .with_verified_promotion(&witness, "independent-actuator");
+        assert!(matches!(result, Err(CoreError::PromotionRefused { .. })));
+    }
+
+    /// A witness that doesn't actually raise the ceiling (to_ceiling <=
+    /// from_ceiling) is refused -- promotion, not a lateral/downward move.
+    #[test]
+    fn non_raising_witness_is_refused() {
+        let mut witness = valid_witness();
+        witness.to_ceiling = CeilingLevel::LegacyObserved; // == from_ceiling
+        let result = validate_promotion(CeilingLevel::LegacyObserved, "someone-else", &witness);
+        assert!(matches!(result, Err(CoreError::PromotionRefused { .. })));
+    }
+
+    /// Empty evidence, empty closed-obligations, and empty authorization
+    /// basis are each independently refused -- a promotion cannot ride on
+    /// an unsupported witness.
+    #[test]
+    fn unsupported_witness_fields_are_each_refused() {
+        let base = valid_witness();
+
+        let mut no_evidence = base.clone();
+        no_evidence.evidence_receipts.clear();
+        assert!(matches!(
+            validate_promotion(CeilingLevel::LegacyObserved, "someone-else", &no_evidence),
+            Err(CoreError::PromotionRefused { .. })
+        ));
+
+        let mut no_obligations = base.clone();
+        no_obligations.closed_obligations.clear();
+        assert!(matches!(
+            validate_promotion(CeilingLevel::LegacyObserved, "someone-else", &no_obligations),
+            Err(CoreError::PromotionRefused { .. })
+        ));
+
+        let mut no_basis = base;
+        no_basis.authorization_basis = String::new();
+        assert!(matches!(
+            validate_promotion(CeilingLevel::LegacyObserved, "someone-else", &no_basis),
+            Err(CoreError::PromotionRefused { .. })
+        ));
+    }
+
+    /// Sabotage: a promotion witness cannot be used to smuggle a ceiling
+    /// past what its own `to_ceiling` claims -- `build()` uses exactly the
+    /// validated `to_ceiling`, never a higher value from elsewhere in the
+    /// builder state (e.g. a stale `with_explicit_ceiling` call).
+    #[test]
+    fn promotion_ceiling_is_exactly_the_witnessed_to_ceiling_not_a_separately_set_one() {
+        let components = ComponentLevels::uniform(AndonLevel::Green);
+        let mut witness = valid_witness();
+        witness.to_ceiling = CeilingLevel::Yellow; // deliberately below Green
+        let epoch = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
+            .with_explicit_ceiling(CeilingLevel::Green) // must NOT win
+            .with_verified_promotion(&witness, "independent-actuator")
+            .expect("witness validates")
+            .build()
+            .expect("build");
+        assert_eq!(
+            epoch.standing_ceiling,
+            CeilingLevel::Yellow,
+            "promotion must use the witness's own to_ceiling, not a separately-set explicit ceiling"
+        );
     }
 }

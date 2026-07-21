@@ -161,6 +161,20 @@ pub enum CoreError {
         /// The highest ceiling `meet(recoverable(prev), supported(new))` allows.
         allowed: crate::receipt_epoch::CeilingLevel,
     },
+
+    /// [`crate::receipt_epoch::validate_promotion`]: a `PromotionWitness`
+    /// failed one of the promotion invariants (stale `from_ceiling`, not
+    /// actually a raise, missing evidence/closed-obligation citations, empty
+    /// authorization basis, or a self-authored verifier identity). Refused
+    /// rather than silently ignored -- `recoverable(prev)` is a permanent
+    /// one-way floor by design (see that fn's doc comment), so a promotion
+    /// that is accepted incorrectly can never be walked back by ordinary
+    /// generation.
+    #[error("promotion refused: {reason}")]
+    PromotionRefused {
+        /// Which invariant the witness violated.
+        reason: String,
+    },
 }
 
 /// Every [`CoreError`] name, in declaration order. Mirrors
@@ -172,7 +186,7 @@ pub enum CoreError {
 /// `tests::all_core_error_names_matches_enum` below, which builds one
 /// instance of every variant and zip-checks `name()` against this array in
 /// order.
-pub const ALL_CORE_ERROR_NAMES: [&str; 17] = [
+pub const ALL_CORE_ERROR_NAMES: [&str; 18] = [
     "ObligationUnmet",
     "SignatureInvalid",
     "ChainMismatch",
@@ -190,6 +204,7 @@ pub const ALL_CORE_ERROR_NAMES: [&str; 17] = [
     "UnrecognizedReceiptSchema",
     "ReceiptSchemaPayloadMismatch",
     "CeilingExceedsMeet",
+    "PromotionRefused",
 ];
 
 impl CoreError {
@@ -218,6 +233,7 @@ impl CoreError {
             CoreError::UnrecognizedReceiptSchema(_) => "UnrecognizedReceiptSchema",
             CoreError::ReceiptSchemaPayloadMismatch(_) => "ReceiptSchemaPayloadMismatch",
             CoreError::CeilingExceedsMeet { .. } => "CeilingExceedsMeet",
+            CoreError::PromotionRefused { .. } => "PromotionRefused",
         }
     }
 }
@@ -236,7 +252,7 @@ mod tests {
     fn all_core_error_names_len_matches_array() {
         assert_eq!(
             ALL_CORE_ERROR_NAMES.len(),
-            17,
+            18,
             "ALL_CORE_ERROR_NAMES size drifted"
         );
     }
@@ -288,6 +304,9 @@ mod tests {
             CoreError::CeilingExceedsMeet {
                 requested: crate::receipt_epoch::CeilingLevel::Green,
                 allowed: crate::receipt_epoch::CeilingLevel::Yellow,
+            },
+            CoreError::PromotionRefused {
+                reason: "gate".to_string(),
             },
         ];
         assert_eq!(all.len(), ALL_CORE_ERROR_NAMES.len());
