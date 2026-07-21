@@ -65,20 +65,23 @@ ctl:O-5-restand-FreezeAlwaysNoDriftDetection a ctl:Obligation ;
 ctl:O-4-restand-EquivalenceMapNotLive a ctl:Obligation ;
     rdfs:label "Restand retrofit:EquivalenceMapNotLive -- Generation 2 wired 2 of 6 previously-Unknown classes live" ;
     ctl:priority 11 ;
-    ctl:state ctl:READY ;
-    ctl:nextAction "Update ../load-path.ttl's EquivalenceMapNotLive individual with the real 2026-07-21 count/evidence, not the whole Generation-1-era claim." .
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "PR #360, retrofit/ggen-self-g2" ;
+    ctl:nextAction "Bookkeeping close 2026-07-21: ../load-path.ttl's EquivalenceMapNotLive individual already carries the real 2026-07-21 evidence (evidence class live via ggen-verify-pack gates 010/020, proven causal both directions; source/config remain Divergent; compiled_binary/docs/tests/receipts/gates remain Unknown; gates 030/040/050 unwired by design since ggen's own ggen.toml is declarative-rules schema) -- the restand work itself completed earlier this generation, this obligation was just never flipped off READY." .
 
 ctl:O-4-restand-AndonHardcodedGreen a ctl:Obligation ;
     rdfs:label "Restand retrofit:AndonHardcodedGreen -- evidence text already says Resolved, standing field still reads Accepted" ;
     ctl:priority 11 ;
-    ctl:state ctl:READY ;
-    ctl:nextAction "Correct the standing field to match its own already-verified evidence text -- bookkeeping fix, not a re-verification." .
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "retrofit/ggen-self-g2, as-found verification pass" ;
+    ctl:nextAction "Bookkeeping close 2026-07-21: ../load-path.ttl's AndonHardcodedGreen individual's standing field already correctly reads Accepted, matching its own evidence text (andon is derived via derive_andon/ComponentLevels, not hardcoded; confirmed live via a real ggen sync run reading Green from both record.andon and record.v2.andon). The restand work itself completed earlier this generation, this obligation was just never flipped off READY." .
 
 ctl:O-4-restand-BrokenJustSyncRecipes a ctl:Obligation ;
     rdfs:label "Restand retrofit:BrokenJustSyncRecipes -- already fixed per Generation 1 history and CLAUDE.md's live command table" ;
     ctl:priority 11 ;
-    ctl:state ctl:READY ;
-    ctl:nextAction "Confirm via CLAUDE.md's current 'just sync'/'just sync-dry' command table entries, then restand -- do not re-fix a fixed thing." .
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "retrofit/ggen-self-g2, as-found verification pass" ;
+    ctl:nextAction "Bookkeeping close 2026-07-21: ../load-path.ttl's BrokenJustSyncRecipes individual already reads Accepted with corrected evidence (justfile's sync/sync-dry recipes invoke 'sync run'/'sync run --dry-run', not the stale --audit/--dry_run true flags; confirmed live via a real 'just sync-dry' run hitting zero flag-parsing errors). The restand work itself completed earlier this generation, this obligation was just never flipped off READY." .
 
 ctl:O-5-evidence-pass a ctl:Obligation ;
     rdfs:label "6 SPOFs carry only a file-pointer as evidence, need a fresh evidence pass" ;
