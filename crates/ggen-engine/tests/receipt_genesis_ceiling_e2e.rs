@@ -2,14 +2,19 @@
 //! fresh (genesis) project's real `sync` receipts carry a COMPUTED
 //! `standing_ceiling` (never the `LegacyObserved` sentinel) and an
 //! equivalence map whose `source`/`config` classes are genuinely evaluated
-//! against the previous receipt's input closure — `Unknown` only where there
-//! is honestly nothing to compare (genesis) or nothing evaluated (the other
-//! six classes). Real syncs on a real filesystem, no mocks.
+//! against the previous receipt's input closure, and whose `tests`/`gates`
+//! classes (plus non-uniform per-axis `ComponentLevels`) are evaluated from
+//! admitted external `ver:Check` evidence (the ggen-verify-pack lane) when
+//! present — `Unknown` only where there is honestly nothing to compare
+//! (genesis, or no evidence for the class). Real syncs on a real
+//! filesystem, no mocks.
 
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
-use praxis_core::receipt_epoch::{CeilingLevel, EquivalenceStatus};
+use praxis_core::receipt_epoch::{
+    AdmissionLedger, AndonLevel, CeilingLevel, EquivalenceStatus, ObservedOutcome,
+};
 use tempfile::TempDir;
 
 const GGEN_TOML: &str = r#"
@@ -36,6 +41,33 @@ fn write_ontology(root: &Path, names: &[&str]) {
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
         ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+    }
+    std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
+}
+
+/// Rewrite the project ontology with domain individuals PLUS admitted
+/// `ver:` evidence facts (the ggen-verify-pack lane): one `ver:Check` per
+/// `(name, exit_code)` pair and one `ver:KnownDivergence` per allowlisted
+/// name. Same single-file lane the real emitter uses -- the facts enter via
+/// the union graph, never via any side channel.
+fn write_ontology_with_evidence(
+    root: &Path, names: &[&str], checks: &[(&str, i64)], known_divergences: &[&str],
+) {
+    let mut ttl = String::from(
+        "@prefix ex: <http://example.org/> .\n@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
+    );
+    for name in names {
+        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+    }
+    for (i, (name, exit)) in checks.iter().enumerate() {
+        ttl.push_str(&format!(
+            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} .\n"
+        ));
+    }
+    for (i, name) in known_divergences.iter().enumerate() {
+        ttl.push_str(&format!(
+            "ver:kd{i} a ver:KnownDivergence ; ver:name \"{name}\" .\n"
+        ));
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -198,4 +230,146 @@ fn ggen_toml_edit_diverges_config_not_source() {
         other => panic!("edited ggen.toml must make config Divergent, got {other:?}"),
     }
     assert_eq!(eq.source, EquivalenceStatus::Equivalent);
+}
+
+fn ver_admission_outcome(receipt: &SyncReceipt, evidence_id: &str) -> ObservedOutcome {
+    let epoch = receipt.record.v2.as_ref().expect("v2 epoch");
+    let AdmissionLedger::Recorded(items) = &epoch.admission else {
+        panic!("live receipt must carry a Recorded ledger");
+    };
+    items
+        .iter()
+        .find(|i| i.evidence_id == evidence_id)
+        .unwrap_or_else(|| panic!("admission item `{evidence_id}` missing"))
+        .observed_outcome
+        .clone()
+}
+
+/// Evidence consumption, green path: admitted `ver:Check` facts become
+/// recorded admission items on the first receipt (tests/gates still
+/// honestly `Unknown` -- the genesis receipt has no predecessor to compare
+/// outcomes against), and on the second sync the `tests` and `gates`
+/// equivalence classes are genuinely EVALUATED (`Equivalent`) instead of
+/// staying at the Unknown floor. Ceiling stays a computed Green (all
+/// evidence green, meet is the identity there).
+#[test]
+fn verify_evidence_makes_tests_and_gates_classes_evaluable() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_evidence(
+        dir.path(),
+        &["alice"],
+        &[("test-workspace", 0), ("build", 0)],
+        &[],
+    );
+    run_sync(dir.path());
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    assert_eq!(log.len(), 2);
+
+    // Receipt 1: evidence recorded, but no predecessor to compare against.
+    assert_eq!(
+        ver_admission_outcome(&log[0], "ver:test-workspace"),
+        ObservedOutcome::Pass
+    );
+    assert_eq!(
+        ver_admission_outcome(&log[0], "ver:build"),
+        ObservedOutcome::Pass
+    );
+    let eq1 = &log[0].record.v2.as_ref().expect("v2").equivalence;
+    assert_eq!(eq1.tests, EquivalenceStatus::Unknown);
+    assert_eq!(eq1.gates, EquivalenceStatus::Unknown);
+
+    // Receipt 2: both classes evaluated against receipt 1's recorded items.
+    let eq2 = &log[1].record.v2.as_ref().expect("v2").equivalence;
+    assert_eq!(eq2.tests, EquivalenceStatus::Equivalent);
+    assert_eq!(eq2.gates, EquivalenceStatus::Equivalent);
+
+    for receipt in &log {
+        let epoch = receipt.record.v2.as_ref().expect("v2");
+        assert_eq!(epoch.standing_ceiling, CeilingLevel::Green);
+        assert_eq!(epoch.andon, AndonLevel::Green);
+    }
+}
+
+/// Sabotage (meet law): a red `ver:Check` on the test axis lowers the
+/// standing ceiling to Red -- the four axes are now genuinely non-uniform
+/// (test Red from evidence, the others Green from clean admission) and the
+/// recorded ceiling is the weakest-of-four meet, not the admission-derived
+/// Green. The `tests` equivalence class simultaneously reports `Divergent`
+/// naming the flipped check, while `gates` (whose `build` check is
+/// unchanged) stays `Equivalent`. A third sync proves ceiling monotonicity:
+/// once Red, the meet with the Red prior keeps it Red.
+#[test]
+fn red_test_check_lowers_ceiling_and_diverges_tests_class() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_evidence(
+        dir.path(),
+        &["alice"],
+        &[("test-workspace", 0), ("build", 0)],
+        &[],
+    );
+    run_sync(dir.path());
+    // Sabotage: the externally-run test check goes red.
+    write_ontology_with_evidence(
+        dir.path(),
+        &["alice"],
+        &[("test-workspace", 1), ("build", 0)],
+        &[],
+    );
+    run_sync(dir.path());
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    assert_eq!(log.len(), 3);
+
+    let epoch2 = log[1].record.v2.as_ref().expect("v2");
+    assert_eq!(
+        epoch2.standing_ceiling,
+        CeilingLevel::Red,
+        "a red test check must lower the ceiling via the meet law"
+    );
+    // The red check was ADMITTED (recorded evidence, not a refusal this
+    // sync detected), so the derived andon stays Green while the ceiling
+    // drops -- the two signals are independent by design.
+    assert_eq!(epoch2.andon, AndonLevel::Green);
+    assert_eq!(
+        ver_admission_outcome(&log[1], "ver:test-workspace"),
+        ObservedOutcome::Fail
+    );
+    match &epoch2.equivalence.tests {
+        EquivalenceStatus::Divergent(reason) => assert!(
+            reason.contains("test-workspace"),
+            "divergence reason must name the flipped check, got: {reason}"
+        ),
+        other => panic!("flipped test check must make tests Divergent, got {other:?}"),
+    }
+    assert_eq!(epoch2.equivalence.gates, EquivalenceStatus::Equivalent);
+
+    // Monotonicity: identical re-sync cannot climb back above the Red prior.
+    let epoch3 = log[2].record.v2.as_ref().expect("v2");
+    assert_eq!(epoch3.standing_ceiling, CeilingLevel::Red);
+}
+
+/// Allowlist semantics (mirrors the pack's own `020_evidence_green.rq`
+/// gate): a red check whose name is an admitted `ver:KnownDivergence` is
+/// recorded as `Fail` honestly but does NOT lower its component axis, so
+/// the ceiling stays a computed Green.
+#[test]
+fn allowlisted_red_check_is_recorded_fail_but_does_not_lower_ceiling() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    write_ontology_with_evidence(dir.path(), &["alice"], &[("fmt-check", 1)], &["fmt-check"]);
+    run_sync(dir.path());
+
+    let log = read_log(dir.path());
+    let epoch = log[0].record.v2.as_ref().expect("v2");
+    assert_eq!(
+        ver_admission_outcome(&log[0], "ver:fmt-check"),
+        ObservedOutcome::Fail,
+        "the outcome is never laundered to Pass by the allowlist"
+    );
+    assert_eq!(epoch.standing_ceiling, CeilingLevel::Green);
 }
