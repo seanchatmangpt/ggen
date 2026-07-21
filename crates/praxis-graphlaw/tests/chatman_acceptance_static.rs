@@ -85,10 +85,19 @@ fn falsification_falsify_process_receipt_shadow_type() {
 /// because their parallel interleaving would make event order racy).
 #[test]
 fn zz_ocel_evidence_sealed() {
-    harness::seal_suite_evidence(&[
+    let (ocel, receipt) = harness::seal_suite_evidence(&[
         "fixtures/static/duplicate_canonical_tape_type.json",
         "fixtures/static/process_receipt_shadow_type.json",
         "fixtures/static/single_process_receipt_type.json",
         "fixtures/static/unique_canonical_tape_type.json",
     ]);
+    // The seal must have landed on disk — SealGuard::drop never
+    // panics, so this is the only place a failed seal can gate.
+    for sealed in [&ocel, &receipt] {
+        assert!(
+            sealed.is_file() && sealed.metadata().map(|m| m.len() > 0).unwrap_or(false),
+            "suite evidence not sealed: {}",
+            sealed.display()
+        );
+    }
 }

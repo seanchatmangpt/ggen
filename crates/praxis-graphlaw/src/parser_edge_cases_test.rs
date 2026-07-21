@@ -80,9 +80,11 @@ ex:list4 rdf:value ("a" "b" "c") .
 ex:list5 rdf:value (ex:a ex:b ex:c) .
         "#;
 
-        // Collections should parse without error; desugaring may vary, so
-        // completing construction (rather than a length bound) is the assertion.
-        let _store = TripleStore::from(ttl);
+        let store = TripleStore::from(ttl);
+        assert!(
+            store.len() > 0,
+            "collection statements must produce triples, got empty store"
+        );
     }
 
     /// Nested collections
@@ -96,7 +98,11 @@ ex:nested2 ex:value (ex:a (ex:b ex:c) ex:d) .
 ex:nested3 ex:value ((("x"))) .
         "#;
 
-        let _store = TripleStore::from(ttl);
+        let store = TripleStore::from(ttl);
+        assert!(
+            store.len() > 0,
+            "nested collection statements must produce triples, got empty store"
+        );
     }
 
     /// Blank node property lists
@@ -110,7 +116,12 @@ ex:company [ ex:name "Acme" ; ex:employees [ ex:name "Bob" ] ] .
 [ ex:orphan "no parent" ] .
         "#;
 
-        let _store = TripleStore::from(ttl);
+        let store = TripleStore::from(ttl);
+        assert!(
+            store.len() >= 3,
+            "each blank-node property list must produce at least its own triples, got {}",
+            store.len()
+        );
     }
 
     /// Multiple objects (comma operator)
@@ -159,7 +170,13 @@ ex:alice ex:knows ex:bob, ex:charlie ;
          ex:lives ex:chicago .
         "#;
 
-        let _store = TripleStore::from(ttl);
+        let store = TripleStore::from(ttl);
+        // 2 + 2 + 1 objects across the mixed comma/semicolon statement.
+        assert!(
+            store.len() >= 5,
+            "mixed comma/semicolon should expand to >= 5 triples, got {}",
+            store.len()
+        );
     }
 
     /// Bare "a" (rdf:type shorthand)

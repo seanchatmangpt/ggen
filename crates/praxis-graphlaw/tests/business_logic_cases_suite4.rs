@@ -140,5 +140,5 @@ fn test_suite4_idempotency_malformed_missing_field() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Missing kh:var field should fail
+    assert!(res.is_err(), "hook missing kh:var must fail gating");
 }

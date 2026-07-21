@@ -92,11 +92,18 @@ mod tests {
 
     #[test]
     fn test_target_type_creation() {
-        // Test that all TargetType variants can be created
-        let _node_target = TargetType::Node;
-        let _class_target = TargetType::Class;
-        let _subj_target = TargetType::SubjectsOf;
-        let _obj_target = TargetType::ObjectsOf;
+        // All four TargetType variants are distinct values.
+        let variants = [
+            TargetType::Node,
+            TargetType::Class,
+            TargetType::SubjectsOf,
+            TargetType::ObjectsOf,
+        ];
+        for (i, a) in variants.iter().enumerate() {
+            for b in &variants[i + 1..] {
+                assert_ne!(a, b, "TargetType variants must be distinct");
+            }
+        }
     }
 
     #[test]

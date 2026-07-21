@@ -76,9 +76,18 @@ fn test_observer() {
 
     subject.attach(&observer_a);
     subject.attach(&observer_b);
+    assert_eq!(subject.observers.len(), 2, "both observers attached");
+
     subject.add_data(1337);
     subject.notify_observers();
+    // Each of the 2 observers echoes its own data (0) back into the subject:
+    // [1337] + [0, 0].
+    assert_eq!(subject.data, vec![1337, 0, 0]);
+
     subject.add_data(1339);
     subject.detach(&observer_b);
+    assert_eq!(subject.observers.len(), 1, "observer_b detached");
     subject.notify_observers();
+    // Only observer_a echoes now: previous data + [1339] + [0].
+    assert_eq!(subject.data, vec![1337, 0, 0, 1339, 0]);
 }

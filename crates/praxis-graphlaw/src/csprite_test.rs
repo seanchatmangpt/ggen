@@ -91,9 +91,18 @@ fn test_rewrite_hierarchy_csprite() {
     let (_content, rules) = Parser::parse(data.to_string());
     println!("{:?}", rules);
 
-    let rc_rules = rules.into_iter().map(Arc::new).collect();
+    let rc_rules: Vec<_> = rules.into_iter().map(Arc::new).collect();
+    let original_len = rc_rules.len();
     let rewritten_rules = CSprite::rewrite_hierarchy(&rc_rules);
-    println!("{:?}", rewritten_rules);
+    // The 3-rule SubClass chain must survive rewriting as a non-empty rule
+    // set no larger than the input (hierarchy rewriting merges, never invents).
+    assert!(!rewritten_rules.is_empty(), "hierarchy rewrite dropped all rules");
+    assert!(
+        rewritten_rules.len() <= original_len,
+        "hierarchy rewrite grew the rule set: {} -> {}",
+        original_len,
+        rewritten_rules.len()
+    );
 }
 
 #[test]
@@ -267,8 +276,16 @@ fn test_materialize_window_does_not_panic_on_negated_body_literal_with_unbound_v
         g: None,
     });
 
-    // Must not panic.
-    let _inferred = store.materialize_window(vec![(0, trigger)]);
+    // Must not panic. Current (pinned) behavior: the rule whose negated body
+    // literal carries an otherwise-unbound variable is skipped rather than
+    // fired, so the window yields no inference — the regression this guards
+    // is the panic, and this assertion pins the skip semantics so any future
+    // change to fire-with-unbound-negation shows up loudly.
+    let inferred = store.materialize_window(vec![(0, trigger)]);
+    assert!(
+        inferred.is_empty(),
+        "unbound-negated-variable rule is expected to be skipped (no inference), got: {inferred:?}"
+    );
 }
 
 // #[test]

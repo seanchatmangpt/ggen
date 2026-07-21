@@ -133,7 +133,7 @@ fn falsification_falsify_triple_term_in_snapshot() {
 /// because their parallel interleaving would make event order racy).
 #[test]
 fn zz_ocel_evidence_sealed() {
-    harness::seal_suite_evidence(&[
+    let (ocel, receipt) = harness::seal_suite_evidence(&[
         "fixtures/triple8/snapshot_contains_only_atomic_terms.json",
         "fixtures/triple8/term_not_in_triple8_universe.json",
         "fixtures/triple8/terms_resolve_in_triple8_universe.json",
@@ -142,4 +142,13 @@ fn zz_ocel_evidence_sealed() {
         "fixtures/triple8/triple8_universe_within_bounds.json",
         "fixtures/triple8/triple_term_in_snapshot.json",
     ]);
+    // The seal must have landed on disk — SealGuard::drop never
+    // panics, so this is the only place a failed seal can gate.
+    for sealed in [&ocel, &receipt] {
+        assert!(
+            sealed.is_file() && sealed.metadata().map(|m| m.len() > 0).unwrap_or(false),
+            "suite evidence not sealed: {}",
+            sealed.display()
+        );
+    }
 }

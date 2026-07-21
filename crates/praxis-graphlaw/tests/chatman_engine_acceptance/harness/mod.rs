@@ -413,7 +413,7 @@ fn dispatch_scenario(path: &Path) -> Result<(Scenario, Result<String, Refusal>),
 ///
 /// # Complexity
 /// O(sum of fixture bytes) + O(n log n) sealing (n = event count).
-pub fn seal_suite_evidence(fixture_paths: &[&str]) {
+pub fn seal_suite_evidence(fixture_paths: &[&str]) -> (std::path::PathBuf, std::path::PathBuf) {
     let mut guard: Option<SealGuard> = None; // created once the suite is known
     for rel in fixture_paths {
         let path = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -435,7 +435,22 @@ pub fn seal_suite_evidence(fixture_paths: &[&str]) {
             Err(refusal) => record_refused(suite, &scenario.case, refusal.name()),
         }
     }
+    let suite = guard
+        .as_ref()
+        .expect("seal_suite_evidence: at least one fixture must dispatch")
+        .suite;
     drop(guard); // seals once, after all events are recorded
+
+    // Return the sealed evidence paths so callers can assert the seal
+    // actually landed on disk (SealGuard::drop deliberately never panics,
+    // so without this check a sealing failure would be silent).
+    let out_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(".cargo-cicd/ocel/chatman");
+    (
+        out_dir.join(format!("{suite}.ocel.json")),
+        out_dir.join(format!("{suite}.receipt.json")),
+    )
 }
 
 /// Receipt suite: hashes the canonical material through

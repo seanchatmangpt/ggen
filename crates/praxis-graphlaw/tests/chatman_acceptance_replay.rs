@@ -85,10 +85,19 @@ fn falsification_falsify_profile_symbol_table_mismatch() {
 /// because their parallel interleaving would make event order racy).
 #[test]
 fn zz_ocel_evidence_sealed() {
-    harness::seal_suite_evidence(&[
+    let (ocel, receipt) = harness::seal_suite_evidence(&[
         "fixtures/replay/graph_snapshot_mismatch.json",
         "fixtures/replay/graph_snapshot_replays_byte_identical.json",
         "fixtures/replay/profile_symbol_table_aligned.json",
         "fixtures/replay/profile_symbol_table_mismatch.json",
     ]);
+    // The seal must have landed on disk — SealGuard::drop never
+    // panics, so this is the only place a failed seal can gate.
+    for sealed in [&ocel, &receipt] {
+        assert!(
+            sealed.is_file() && sealed.metadata().map(|m| m.len() > 0).unwrap_or(false),
+            "suite evidence not sealed: {}",
+            sealed.display()
+        );
+    }
 }

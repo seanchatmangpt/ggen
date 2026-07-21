@@ -135,28 +135,23 @@ async_test!(admit_transition_on_missing_snapshot_refuses_without_hang, {
     Ok::<(), Refusal>(())
 });
 
-/// UNVERIFIED gap (per `.claude/rules/no-overclaiming.md`): driving
-/// `Refusal::BoundaryRequestMissingReceipt` (`ChatmanEngine::actuate`,
-/// `src/chatman/engine.rs:650`) requires a snapshot whose hook-definition
-/// triples make `TripleStore::validate_and_extract_hooks` +
-/// `hooks::construct` emit a `HookReceipt` with an empty
-/// `idempotency_key: String` (`src/hooks/construct.rs:12-16`). No fixture or
-/// existing test in this crate demonstrates that Turtle vocabulary end to
-/// end through `get_hook_receipts()`
-/// (`grep -rn "get_hook_receipts" src tests` found only the one call site in
-/// `src/chatman/engine.rs:913` and the definition in `src/lib.rs:536`, no
-/// worked example). Constructing one from scratch is out of scope for this
-/// test file's budget. This test is a loud, honest placeholder — it never
-/// silently passes as if the refusal were exercised.
-#[test]
-fn gap_boundary_request_missing_receipt_not_yet_driven() {
-    // UNVERIFIED: see module doc comment and this test's doc comment above
-    // for the exact file:line citations of why this refusal path is not
-    // exercised by this test file.
-    assert!(
-        true,
-        "documented gap: BoundaryRequestMissingReceipt (engine.rs:650) requires a hook \
-         definition producing an empty HookReceipt::idempotency_key (hooks/construct.rs:12-16); \
-         no such fixture exists in this crate as of this session"
-    );
-}
+// UNVERIFIED gap (per `.claude/rules/no-overclaiming.md`): driving
+// `Refusal::BoundaryRequestMissingReceipt` (`ChatmanEngine::actuate`,
+// `src/chatman/engine.rs:650`) requires a snapshot whose hook-definition
+// triples make `TripleStore::validate_and_extract_hooks` +
+// `hooks::construct` emit a `HookReceipt` with an empty
+// `idempotency_key: String` (`src/hooks/construct.rs:12-16`). No fixture or
+// existing test in this crate demonstrates that Turtle vocabulary end to
+// end through `get_hook_receipts()`
+// (`grep -rn "get_hook_receipts" src tests` found only the one call site in
+// `src/chatman/engine.rs:913` and the definition in `src/lib.rs:536`, no
+// worked example). Constructing one from scratch is out of scope for this
+// test file's budget.
+//
+// UNVERIFIED gap record (formerly the always-passing test
+// `gap_boundary_request_missing_receipt_not_yet_driven`, removed as a
+// CHEAT-T01 vacuous assert — an assert!(true) can never fail, so a comment
+// carries the same information without pretending to gate):
+// BoundaryRequestMissingReceipt (engine.rs:650) requires a hook definition
+// producing an empty HookReceipt::idempotency_key (hooks/construct.rs:12-16);
+// no such fixture exists in this crate as of this session.

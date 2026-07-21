@@ -381,17 +381,20 @@ fn s3_missing_pddl_refuses_plan_infeasible() -> Result<(), Refusal> {
 ex:a ex:knows ex:b ."#,
     );
     // Assert
-    refusal_check(result, "PlanInfeasible")
+    refusal_check(result, "PlanInfeasible")?;
+    Ok(())
 }
 
 #[test]
 fn s3_unreachable_goal_refuses_plan_infeasible() -> Result<(), Refusal> {
-    refusal_check(admit(SNAPSHOT_TTL_INFEASIBLE), "PlanInfeasible")
+    refusal_check(admit(SNAPSHOT_TTL_INFEASIBLE), "PlanInfeasible")?;
+    Ok(())
 }
 
 #[test]
 fn s4_duplicate_fire_refuses_trace_unlawful() -> Result<(), Refusal> {
-    refusal_check(admit(SNAPSHOT_TTL_DUPLICATE_FIRE), "TraceUnlawful")
+    refusal_check(admit(SNAPSHOT_TTL_DUPLICATE_FIRE), "TraceUnlawful")?;
+    Ok(())
 }
 
 #[test]
@@ -418,7 +421,8 @@ ex:world ceng:pddlProblem """
 )
 """ .
 "#;
-    refusal_check(admit(ttl), "TraceUnlawful")
+    refusal_check(admit(ttl), "TraceUnlawful")?;
+    Ok(())
 }
 
 #[test]
