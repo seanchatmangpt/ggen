@@ -58,7 +58,7 @@ fn test_reject_invalid_signatures() {
 #[test]
 fn test_require_trusted_keys() {
     // Only packages signed with trusted keys should be accepted
-    let trusted_keys = vec!["key_alice".to_string(), "key_bob".to_string()];
+    let trusted_keys = ["key_alice".to_string(), "key_bob".to_string()];
     let untrusted_key = "key_eve".to_string();
     assert!(
         !trusted_keys.contains(&untrusted_key),

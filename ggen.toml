@@ -17,6 +17,8 @@ imports = [
   ".specify/generations.ttl",
   "packs/ggen-constitution-pack/ontology.ttl",
   "packs/ggen-release-pack/ontology.ttl",
+  "packs/ggen-verify-pack/ontology.ttl",
+  "evidence/ontology.ttl",
 ]
 
 [ontology.prefixes]
@@ -227,6 +229,28 @@ output_file = "docs/PUBLICATION_JUDGMENT.md"
 skip_empty  = false
 mode        = "Overwrite"
 
+[[generation.rules]]
+name        = "verify-evidence-emitter"
+query       = { inline = """
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?name WHERE { ?req a ver:RequiredCheck ; ver:name ?name . } ORDER BY ?name
+""" }
+template    = { file = ".specify/templates/verify/verify_evidence_sh.sh.tera" }
+output_file = "scripts/verify-evidence.sh"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "verify-evidence-report"
+query       = { inline = """
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?name WHERE { ?req a ver:RequiredCheck ; ver:name ?name . } ORDER BY ?name
+""" }
+template    = { file = ".specify/templates/verify/verification_report.md.tera" }
+output_file = "VERIFICATION.md"
+skip_empty  = false
+mode        = "Overwrite"
+
 [validation]
 # Condition 8 (合成時に意味汚染がない / no semantic contamination at composition
 # time): the union graph built from [ontology].imports (including the two
@@ -238,7 +262,24 @@ mode        = "Overwrite"
 # more than one composed source. See crates/ggen-engine/tests/pack_e2e.rs's
 # cross_pack_conflicting_rdf_type_aborts_sync_citing_contamination_gate for
 # a real two-pack proof this fires.
-gates = [".specify/gates/cross-pack-contamination.rq"]
+#
+# ggen-verify-pack (Generation 2, SPOF #1/#6): only gates 010 (evidence
+# present) and 020 (evidence green) are wired -- both depend solely on
+# ver: facts admitted from evidence/ontology.ttl above. Gates 030/040/050
+# (freshness / andon-regression / output-count-regression) require
+# [law].reflexive = true and ggenr:Sync facts, a mechanism only implemented
+# on the OTHER ggen.toml schema (ggen_engine::config::GgenConfig,
+# "frontmatter") -- this repo's own manifest is the "declarative-rules"
+# schema (ggen_config::manifest::GgenManifest), whose [law] table has no
+# reflexive field at all. Wiring 030/040/050 here would be decorative: they
+# would never see a ggenr:Sync fact and could never fire. See
+# VERIFICATION.md's generated "Disclosed gap" section for the same note
+# projected from the graph.
+gates = [
+  ".specify/gates/cross-pack-contamination.rq",
+  "packs/ggen-verify-pack/gates/010_evidence_present.rq",
+  "packs/ggen-verify-pack/gates/020_evidence_green.rq",
+]
 
 [sync]
 enabled = true

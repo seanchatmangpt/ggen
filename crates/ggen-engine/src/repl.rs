@@ -31,7 +31,7 @@ pub fn split_shell_words(s: &str) -> Option<Vec<String>> {
             }
             ' ' | '\t' if !in_double && !in_single => {
                 if !cur.is_empty() {
-                    words.push(cur.drain(..).collect());
+                    words.push(std::mem::take(&mut cur));
                 }
             }
             c => cur.push(c),

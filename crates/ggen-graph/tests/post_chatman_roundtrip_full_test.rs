@@ -458,7 +458,7 @@ fn test_post_chatman_roundtrip_full_integration_all_poles_present() {
 
     // Create OCEL events
     let now = Utc::now();
-    let events = vec![
+    let events = [
         emit_pack_install("evt:install", now, "order-service", "1.0.0"),
         emit_pack_verify("evt:verify", now, "order-service", "1.0.0"),
     ];
