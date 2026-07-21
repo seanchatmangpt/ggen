@@ -4,6 +4,19 @@ on:
   push:
     tags:
       - "v*"
+  # workflow_dispatch exists because tag pushes made by semantic-release.yml
+  # use the default GITHUB_TOKEN, and GitHub suppresses `on: push` workflow
+  # runs for events created with GITHUB_TOKEN — so the tag push alone never
+  # fires this workflow (verified: zero release assets at any tag).
+  # workflow_dispatch/repository_dispatch triggered via the API are the
+  # documented exception and DO run with GITHUB_TOKEN, so semantic-release.yml
+  # dispatches this workflow explicitly after creating the tag.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach release assets to (e.g. v26.14.0)"
+        required: true
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,7 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # On workflow_dispatch, build the requested tag, not the default branch.
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Setup Rust and cache
         uses: ./.github/actions/setup-rust-cached
@@ -71,6 +87,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # On workflow_dispatch, build the requested tag, not the default branch.
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
@@ -119,6 +138,9 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
         with:
+          # softprops defaults tag_name to github.ref, which on workflow_dispatch
+          # would be refs/heads/main — pin it to the actual release tag instead.
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: |
             ggen-${{ matrix.target }}.tar.gz
             ggen-${{ matrix.target }}.tar.gz.sha256
@@ -128,116 +150,134 @@ jobs:
 
   # ── Cross-host reproducibility gate (L5 condition 20) ───────────────────────
   # build-release above never builds the SAME target triple twice, so nothing
-  # in that matrix can be diffed for byte-identical reproducibility. The two
-  # jobs below build x86_64-unknown-linux-gnu (cheapest/fastest of the 4 real
-  # targets) TWICE, as two independent GitHub Actions jobs. Two matrix/job
-  # legs that share a runner label (both "ubuntu-latest") are still two
-  # separate, independently-provisioned ephemeral VMs — never the same
-  # machine — so comparing their sha256 output is a genuine cross-host
-  # reproducibility test, distinct from the same-host test already recorded
-  # in .specify/generations.ttl's gen:ReproducibleBuildTest (two CARGO_TARGET_DIRs
-  # on ONE machine). Deliberately no `actions/cache` step in either replica job:
-  # the GitHub Actions cache backend is shared across jobs in this repo, and
-  # restoring replica B from a cache replica A populated would silently turn
-  # this into a cache-hit comparison instead of two genuinely independent cold
-  # builds — the one failure mode that would make this gate lie.
-  build-release-repro-a:
-    name: Cross-Host Repro — Replica A (x86_64-unknown-linux-gnu)
+  # in that matrix can be diffed for byte-identical reproducibility. The job
+  # below builds EVERY release target TWICE (replica a + replica b), as
+  # independent GitHub Actions matrix legs. Two matrix legs that share a
+  # runner label (e.g. both "ubuntu-latest") are still two separate,
+  # independently-provisioned ephemeral VMs — never the same machine — so
+  # comparing their sha256 output is a genuine cross-host reproducibility
+  # test, distinct from the same-host test already recorded in
+  # .specify/generations.ttl's gen:ReproducibleBuildTest (two
+  # CARGO_TARGET_DIRs on ONE machine). Deliberately no `actions/cache` step
+  # in any replica leg: the GitHub Actions cache backend is shared across
+  # jobs in this repo, and restoring replica B from a cache replica A
+  # populated would silently turn this into a cache-hit comparison instead
+  # of two genuinely independent cold builds — the one failure mode that
+  # would make this gate lie. Hashes travel by artifact, not job `outputs`:
+  # matrix legs share one outputs map (last writer wins), which would
+  # silently compare the wrong targets.
+  # Target/runner mapping mirrors build-release above exactly (same 4
+  # targets, same os, same cross tools + linker env for aarch64-linux).
+  build-release-repro:
+    name: Cross-Host Repro — Replica ${{ matrix.replica }} (${{ matrix.target }})
     needs: [release-health]
-    runs-on: ubuntu-latest
     timeout-minutes: 45
-    outputs:
-      sha256: ${{ steps.hash.outputs.sha256 }}
-      host: ${{ steps.hash.outputs.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [a, b]
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+        # include entries below match the original `target` axis, so each one
+        # only ADDS `os` to the 2 (replica a/b) combos for that target —
+        # yielding the full 8-leg cross-product with the same target→runner
+        # mapping as build-release.
+        include:
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # On workflow_dispatch, build the requested tag, not the default branch.
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
         with:
           toolchain: stable
-          targets: x86_64-unknown-linux-gnu
+          targets: ${{ matrix.target }}
 
-      - name: Build release (replica A, cold — no cache)
-        run: cargo build --release --target x86_64-unknown-linux-gnu -p ggen-cli-lib --bin ggen --locked
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
-      - name: Hash replica A binary
-        id: hash
+      - name: Build release (replica ${{ matrix.replica }}, cold — no cache)
+        run: cargo build --release --target ${{ matrix.target }} -p ggen-cli-lib --bin ggen --locked
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+
+      - name: Hash replica ${{ matrix.replica }} binary
         run: |
           set -euo pipefail
-          SHA=$(sha256sum target/x86_64-unknown-linux-gnu/release/ggen | awk '{print $1}')
-          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
-          echo "host=$(hostname)" >> "$GITHUB_OUTPUT"
-          echo "Replica A host: $(hostname)"
-          echo "Replica A sha256: ${SHA}"
+          SHA=$(shasum -a 256 target/${{ matrix.target }}/release/ggen | awk '{print $1}')
+          mkdir -p repro-hash
+          printf '%s\n' "${SHA}" > "repro-hash/sha256-${{ matrix.replica }}-${{ matrix.target }}.txt"
+          hostname > "repro-hash/host-${{ matrix.replica }}-${{ matrix.target }}.txt"
+          echo "Replica ${{ matrix.replica }} (${{ matrix.target }}) host: $(hostname)"
+          echo "Replica ${{ matrix.replica }} (${{ matrix.target }}) sha256: ${SHA}"
 
-      - name: Archive replica A binary for audit
-        run: |
-          mkdir -p release-repro-a
-          cp target/x86_64-unknown-linux-gnu/release/ggen release-repro-a/ggen-x86_64-unknown-linux-gnu-repro-a
-
-      - name: Upload replica A artifact
+      - name: Upload replica ${{ matrix.replica }} hash artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: repro-build-a
-          path: release-repro-a/ggen-x86_64-unknown-linux-gnu-repro-a
+          name: repro-hash-${{ matrix.replica }}-${{ matrix.target }}
+          path: repro-hash/
           retention-days: 7
 
-  build-release-repro-b:
-    name: Cross-Host Repro — Replica B (x86_64-unknown-linux-gnu)
-    needs: [release-health]
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    outputs:
-      sha256: ${{ steps.hash.outputs.sha256 }}
-      host: ${{ steps.hash.outputs.host }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
-        with:
-          toolchain: stable
-          targets: x86_64-unknown-linux-gnu
-
-      - name: Build release (replica B, cold — no cache)
-        run: cargo build --release --target x86_64-unknown-linux-gnu -p ggen-cli-lib --bin ggen --locked
-
-      - name: Hash replica B binary
-        id: hash
+      - name: Archive replica ${{ matrix.replica }} binary for audit
         run: |
-          set -euo pipefail
-          SHA=$(sha256sum target/x86_64-unknown-linux-gnu/release/ggen | awk '{print $1}')
-          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
-          echo "host=$(hostname)" >> "$GITHUB_OUTPUT"
-          echo "Replica B host: $(hostname)"
-          echo "Replica B sha256: ${SHA}"
+          mkdir -p release-repro
+          cp target/${{ matrix.target }}/release/ggen "release-repro/ggen-${{ matrix.target }}-repro-${{ matrix.replica }}"
 
-      - name: Archive replica B binary for audit
-        run: |
-          mkdir -p release-repro-b
-          cp target/x86_64-unknown-linux-gnu/release/ggen release-repro-b/ggen-x86_64-unknown-linux-gnu-repro-b
-
-      - name: Upload replica B artifact
+      - name: Upload replica ${{ matrix.replica }} binary artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: repro-build-b
-          path: release-repro-b/ggen-x86_64-unknown-linux-gnu-repro-b
+          name: repro-build-${{ matrix.replica }}-${{ matrix.target }}
+          path: release-repro/ggen-${{ matrix.target }}-repro-${{ matrix.replica }}
           retention-days: 7
 
   verify-cross-host-reproducibility:
-    name: Verify Cross-Host Reproducibility (x86_64-unknown-linux-gnu)
-    needs: [build-release-repro-a, build-release-repro-b]
+    name: Verify Cross-Host Reproducibility (${{ matrix.target }})
+    needs: [build-release-repro]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
     steps:
+      - name: Download replica hash artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: repro-hash-*-${{ matrix.target }}
+          path: hashes
+          merge-multiple: true
+
       - name: Compare replica sha256 hashes (fail loudly on divergence)
         run: |
           set -euo pipefail
-          HASH_A="${{ needs.build-release-repro-a.outputs.sha256 }}"
-          HASH_B="${{ needs.build-release-repro-b.outputs.sha256 }}"
-          HOST_A="${{ needs.build-release-repro-a.outputs.host }}"
-          HOST_B="${{ needs.build-release-repro-b.outputs.host }}"
+          TARGET="${{ matrix.target }}"
+          HASH_A=$(cat "hashes/sha256-a-${TARGET}.txt")
+          HASH_B=$(cat "hashes/sha256-b-${TARGET}.txt")
+          HOST_A=$(cat "hashes/host-a-${TARGET}.txt")
+          HOST_B=$(cat "hashes/host-b-${TARGET}.txt")
           echo "Replica A — host: ${HOST_A}, sha256: ${HASH_A}"
           echo "Replica B — host: ${HOST_B}, sha256: ${HASH_B}"
 
@@ -247,11 +287,11 @@ jobs:
           fi
 
           if [ "${HASH_A}" = "${HASH_B}" ]; then
-            echo "Cross-host reproducibility CONFIRMED for x86_64-unknown-linux-gnu:"
+            echo "Cross-host reproducibility CONFIRMED for ${TARGET}:"
             echo "  two independently-provisioned runners (${HOST_A} != ${HOST_B} expected) produced"
             echo "  BIT-IDENTICAL ggen binaries — sha256 ${HASH_A}"
           else
-            echo "ANDON: cross-host reproducibility FAILED for x86_64-unknown-linux-gnu"
+            echo "ANDON: cross-host reproducibility FAILED for ${TARGET}"
             echo "  replica A (${HOST_A}): ${HASH_A}"
             echo "  replica B (${HOST_B}): ${HASH_B}"
             echo "  same commit/toolchain/Cargo.lock produced DIFFERENT binaries on two separate hosts"
