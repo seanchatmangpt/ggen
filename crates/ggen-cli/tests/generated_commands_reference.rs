@@ -38,3 +38,27 @@ fn describe_command_resolves_sync_from_ontology() {
 fn describe_command_returns_none_for_undeclared_label() {
     assert_eq!(describe_command("no-such-command-label"), None);
 }
+
+// ── G5 behavioral witness ───────────────────────────────────────────────────
+// Added with the G5 ontology improvement (cli:ReceiptCommand and
+// cli:DoctorCommand admitted to .specify/cli-commands.ttl — both are real,
+// live CLI nouns the ontology previously omitted). This test FAILS against
+// the generation-N (producer) tree and PASSES after the producer binary
+// syncs the improved ontology into generated_commands.rs.
+
+#[test]
+fn g5_witness_describe_command_resolves_receipt_and_doctor() {
+    let receipt = describe_command("receipt");
+    assert!(
+        receipt.is_some(),
+        "cli:ReceiptCommand (label \"receipt\") must resolve via describe_command"
+    );
+    assert!(
+        receipt.unwrap_or_default().contains("BLAKE3"),
+        "receipt description must name the BLAKE3 chain it verifies"
+    );
+    assert!(
+        describe_command("doctor").is_some(),
+        "cli:DoctorCommand (label \"doctor\") must resolve via describe_command"
+    );
+}

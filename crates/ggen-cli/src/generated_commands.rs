@@ -6,9 +6,11 @@
 pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
     ("http://ggen.org/cli#DeployCommand", "deploy", "Deploy infrastructure to target environment"),
     ("http://ggen.org/cli#DescribeCommand", "describe", "Describe a resource (service, datastore, etc.) in detail"),
+    ("http://ggen.org/cli#DoctorCommand", "doctor", "Run fast local health checks over the project (manifest, ontology, generated outputs)"),
     ("http://ggen.org/cli#ExplainCommand", "explain", "Explain RDF concepts, properties, and relationships"),
     ("http://ggen.org/cli#GenerateCommand", "generate", "Generate infrastructure artifacts from RDF specifications"),
     ("http://ggen.org/cli#LogsCommand", "logs", "Stream logs from services"),
+    ("http://ggen.org/cli#ReceiptCommand", "receipt", "Verify the BLAKE3 chain hash and signature of the current sync receipt (.ggen-v2/receipt.json)"),
     ("http://ggen.org/cli#StatusCommand", "status", "Show current status of services and infrastructure"),
     ("http://ggen.org/cli#SyncCommand", "sync", "Synchronize specifications with RDF store and infrastructure"),
     ("http://ggen.org/cli#ValidateCommand", "validate", "Validate specifications and generated artifacts"),

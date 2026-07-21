@@ -49,6 +49,29 @@ sync over the same sources reproduced the improvement byte-identically.
 | Candidate sync receipt chain hash | `c00adca90dfaa9cb85d748d1b79cf86d08ec905d65ae7ea2021d81cb6e8bf5b4` |
 | Candidate outputs byte-identical to generation-N outputs | true |
 
+## G5 — first BEHAVIORAL change across the generation boundary
+
+G4 carried ontology content — producer and candidate binaries were bit-identical. G5 carries
+a change to generated implementation whose effect is behavioral: the improvement flows
+ontology → sync → generated Rust compiled into the workspace binary, so the candidate binary
+differs from the producer by construction, and a behavioral test that failed at generation N
+passes after the producer's sync.
+
+| Fact | Value |
+|---|---|
+| Bridge commit (generation N) | `19c0d3713e3de3dd6693550c4997295ef6a3ff89` |
+| Produced by | ggen@26.15.0 release binary built from the bridge commit (generation N, feat/g5-behavioral-boundary); candidate rebuilt from the just-synced tree (generation N+1) |
+| Toolchain | nightly-2026-06-22 |
+| Producer binary sha256 | `f7bff268b147b03a62547f07c6acb1c59fec2d021cde603080b65f8a0c46848c` |
+| Candidate binary sha256 | `adc642dd8e662a873ccba52083a1e17b39eeab0a2b6a2a4832b0c5f256951abf` |
+| Binaries differ (the point of G5) | true |
+| Improvement | cli-commands ontology de-staled against the LIVE CLI: cli:ReceiptCommand and cli:DoctorCommand admitted; generated COMMANDS_REFERENCE grows 8 -> 10 rows; describe_command(receipt/doctor) now resolves at runtime in the compiled binary |
+| Behavioral witness | cargo test -p ggen-cli-lib --test generated_commands_reference g5_witness_describe_command_resolves_receipt_and_doctor -- FAILED at generation N (3 passed; 1 failed), PASSES after producer sync (4 passed; 0 failed) |
+| Generated module sha256 (stable across candidate re-sync) | `07e09879ae9cd4113844f3e0e8dd05085ed3c919a9727a609013cb30b569ca84` |
+| Generation-N sync receipt chain hash | `5e51ad7769b7a566e8aebb3944b685c527807154b5d4a7ca43668639301c3124` |
+| Candidate sync receipt chain hash | `62e0b8f92f17a057af9944a40f627abf8748a8302c01c729959bb6d6f04fcded` |
+| Candidate re-sync over same sources is a fixed point | true |
+
 ## 15-condition doctrine Definition-of-Done
 
 5 of 16 conditions MET as of this round. A young lineage should show more NOT MET rows than MET ones — that is the honest, expected state, not a defect in this table.

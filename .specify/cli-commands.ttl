@@ -889,3 +889,36 @@ cli: a cli:Ontology ;
   cli:lastGeneratedAt "2026-01-08T10:30:00Z" ;
   cli:closureNotes "Added cli-schema.ttl (SHACL), class definitions, and artifact types to ggen-paas-ontology.ttl" ;
   .
+
+# ============================================================================
+# G5 (2026-07-21): de-stale the command reference against the LIVE CLI.
+# `ggen receipt verify` and `ggen doctor` exist (routed to ggen-engine's
+# nouns since the 2026-07 migration) but were never admitted here, so the
+# generated commands reference in ggen-cli could not describe them.
+# Behavioral witness: crates/ggen-cli/tests/
+# generated_commands_reference.rs::g5_witness_describe_command_resolves_receipt_and_doctor
+# ============================================================================
+
+cli:ReceiptCommand
+  a cli:Command ;
+  rdfs:label "receipt" ;
+  rdfs:comment "Verify the BLAKE3 chain hash and signature of the current sync receipt (.ggen-v2/receipt.json)" ;
+  cli:category cli:CategoryValidation ;
+  cli:examples """
+    ggen receipt verify
+    """ ;
+  dcterms:created "2026-07-21T00:00:00Z" ;
+  cli:version "26.15.0" ;
+  .
+
+cli:DoctorCommand
+  a cli:Command ;
+  rdfs:label "doctor" ;
+  rdfs:comment "Run fast local health checks over the project (manifest, ontology, generated outputs)" ;
+  cli:category cli:CategoryValidation ;
+  cli:examples """
+    ggen doctor run
+    """ ;
+  dcterms:created "2026-07-21T00:00:00Z" ;
+  cli:version "26.15.0" ;
+  .

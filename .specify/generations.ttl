@@ -411,3 +411,55 @@ gen:dod15 a gen:DoDCondition ;
     gen:text "A named future round (G2) exists that will independently inspect G1's claims -- i.e. this ledger names its own successor rather than claiming final standing." ;
     gen:status "MET" ;
     gen:evidence "gen:G2 (added 2026-07-20, a separate round from the one that authored G0/G1) records `gen:inspects gen:G1`; gen:G3 inspects G2; gen:G2Heterogeneous independently inspects G2 from a different toolchain. This ledger in turn names no successor of its own yet -- a future round must inspect G2/G3/G2Heterogeneous's claims before they can be treated as final, per the same discipline." .
+
+# ── G5: FIRST BEHAVIORAL change carried across the generation boundary ──────
+# G4 carried ontology CONTENT (docs de-staling); producer and candidate
+# binaries were bit-identical. G5 carries a change to GENERATED
+# IMPLEMENTATION whose effect is behavioral: the improvement flows
+# ontology -> sync -> generated Rust compiled into the workspace binary,
+# so the candidate binary DIFFERS from the producer by construction.
+#
+# Honest criteria (stated before scoring; each maps to a fact below):
+#   (1) improvement originates as an ontology edit
+#       -- .specify/cli-commands.ttl: cli:ReceiptCommand + cli:DoctorCommand
+#          admitted (both are real live CLI nouns the ontology omitted).
+#   (2) sync generates changed implementation code
+#       -- producer binary's `ggen sync run` rewrote the generated commands
+#          reference module in ggen-cli (2 new rows in COMMANDS_REFERENCE).
+#   (3) behavioral test FAILED before, PASSES after
+#       -- gen:behavioralWitness below; failure and pass both executed and
+#          recorded, not inferred.
+#   (4) candidate binary sha256 differs from producer binary sha256
+#       -- gen:producerBinarySha256 != gen:candidateBinarySha256 below.
+#   (5) candidate re-run over the same sources reproduces the same outputs
+#       -- 15/15 rule outputs "skipped: unchanged"; generated module sha256
+#          identical before/after the candidate's own sync (fixed point with
+#          the improvement embedded).
+#   (6) this entry records producer+candidate identities, both binary
+#       hashes, the witness, and output hash -- and passes
+#       scripts/ci/guard-generation-hash-pin.sh.
+#
+# Precondition finding (disclosed, it IS the bridge's justification): before
+# this round, the self-manufacture loop carried NO compiled behavior -- the
+# only generated .rs in the workspace build was never declared as a module,
+# had zero consumers, and every row was an empty string (template row-key
+# bug row["?cmd"] vs row["cmd"]). The bridge commit (gen:commit below) fixed
+# the template, wired `pub mod generated_commands` + a real consumer verb
+# (`ggen utils commands`), and added Chicago behavioral tests.
+gen:G5 a gen:Generation ;
+    gen:inspects gen:G4 ;
+    gen:producedBy "ggen@26.15.0 release binary built from the bridge commit (generation N, feat/g5-behavioral-boundary); candidate rebuilt from the just-synced tree (generation N+1)" ;
+    gen:commit "19c0d3713e3de3dd6693550c4997295ef6a3ff89" ;
+    gen:workspaceVersion "26.15.0" ;
+    gen:toolchain "nightly-2026-06-22" ;
+    gen:producerBinarySha256 "f7bff268b147b03a62547f07c6acb1c59fec2d021cde603080b65f8a0c46848c" ;
+    gen:candidateBinarySha256 "adc642dd8e662a873ccba52083a1e17b39eeab0a2b6a2a4832b0c5f256951abf" ;
+    gen:binariesDiffer true ;
+    gen:improvement "cli-commands ontology de-staled against the LIVE CLI: cli:ReceiptCommand and cli:DoctorCommand admitted; generated COMMANDS_REFERENCE grows 8 -> 10 rows; describe_command(receipt/doctor) now resolves at runtime in the compiled binary" ;
+    gen:behavioralWitness "cargo test -p ggen-cli-lib --test generated_commands_reference g5_witness_describe_command_resolves_receipt_and_doctor -- FAILED at generation N (3 passed; 1 failed), PASSES after producer sync (4 passed; 0 failed)" ;
+    gen:generatedOutputSha256 "07e09879ae9cd4113844f3e0e8dd05085ed3c919a9727a609013cb30b569ca84" ;
+    gen:receiptChainHash "5e51ad7769b7a566e8aebb3944b685c527807154b5d4a7ca43668639301c3124" ;
+    gen:receiptPrevChainHash "3a1ad857b0eaf244d8d041d45fc5ed24fb2fff0406fe4571f72f5c0d86f8aa2a" ;
+    gen:candidateReceiptChainHash "62e0b8f92f17a057af9944a40f627abf8748a8302c01c729959bb6d6f04fcded" ;
+    gen:fixedPointWithPrevious true ;
+    gen:behavioralChangeAcrossLoop true .
