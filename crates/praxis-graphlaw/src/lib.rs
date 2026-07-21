@@ -107,9 +107,64 @@ use crate::triples::{
 /// module. `extract_query_plan` only builds a `PlanNode` tree from immutable
 /// inputs -- no shared mutable state exists yet at the panic site, so
 /// `AssertUnwindSafe` does not paper over a real corruption risk here.
+/// True if any (arbitrarily nested) part of `pattern` is a VALUES clause.
+///
+/// This engine's executor does not implement VALUES: before this check, a
+/// query containing one planned "successfully" and then evaluated to ZERO
+/// rows — a silent false-pass for any violation-style SELECT (probed live
+/// 2026-07-21: identical colliding data yields 2 rows without VALUES, 0 rows
+/// with it; see `tests/dogfood_lifecycle_hook_actuation.rs::
+/// values_clause_is_refused_not_silent`). Unsupported must be a loud refusal,
+/// never an empty answer.
+fn pattern_contains_values(pattern: &spargebra::algebra::GraphPattern) -> bool {
+    use spargebra::algebra::GraphPattern as G;
+    match pattern {
+        G::Values { .. } => true,
+        G::Bgp { .. } | G::Path { .. } => false,
+        G::Join { left, right }
+        | G::Union { left, right }
+        | G::Minus { left, right }
+        | G::Lateral { left, right } => {
+            pattern_contains_values(left) || pattern_contains_values(right)
+        }
+        G::LeftJoin { left, right, .. } => {
+            pattern_contains_values(left) || pattern_contains_values(right)
+        }
+        G::Filter { inner, .. }
+        | G::Graph { inner, .. }
+        | G::Extend { inner, .. }
+        | G::OrderBy { inner, .. }
+        | G::Project { inner, .. }
+        | G::Distinct { inner }
+        | G::Reduced { inner }
+        | G::Slice { inner, .. }
+        | G::Group { inner, .. }
+        | G::Service { inner, .. } => pattern_contains_values(inner),
+    }
+}
+
+/// The top-level graph pattern of any query form.
+fn query_pattern(query: &Query) -> &spargebra::algebra::GraphPattern {
+    match query {
+        Query::Select { pattern, .. }
+        | Query::Construct { pattern, .. }
+        | Query::Describe { pattern, .. }
+        | Query::Ask { pattern, .. } => pattern,
+    }
+}
+
 pub(crate) fn plan_query_or_refuse(
     query: &Query, index: &TripleIndex,
 ) -> Result<crate::sparql::PlanNode, String> {
+    if pattern_contains_values(query_pattern(query)) {
+        return Err(
+            "SPARQL query planning refused (unsupported construct): VALUES is not \
+             implemented by this engine's executor and would silently evaluate to zero \
+             rows — rewrite the VALUES block as UNION branches, or evaluate on the \
+             oxigraph mirror"
+                .to_string(),
+        );
+    }
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| eval_query(query, index))).map_err(
         |panic_payload| {
             let detail = panic_payload
