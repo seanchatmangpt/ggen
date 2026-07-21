@@ -38,7 +38,7 @@ EXCLUDED_DIRS = {
 # Files to exclude from scanning (at the root level)
 EXCLUDED_FILES = {
     'CHANGELOG.md', 'FUSION_THESIS.md', 'ROLLBACK.md',
-    'PhD_THESIS_GGEN_ONTOLOGY_SYNTHESIS.md', 'MANIFESTO.md', 'LSP-ARD-PRD.md',
+    'PhD_THESIS_GGEN_ONTOLOGY_SYNTHESIS.md', 'MANIFESTO.md',
     'SKILLS.md'
 }
 

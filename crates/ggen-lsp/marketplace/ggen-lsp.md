@@ -75,4 +75,4 @@ Syntax highlighting, completion, diagnostics, and refactoring for ggen RDF/Tera/
 ## Support
 
 - Issues: [ggen GitHub](https://github.com/seanchatmangpt/ggen/issues)
-- Docs: [ggen LSP ARD-PRD](../../LSP-ARD-PRD.md)
+- Docs: [ggen LSP ARD-PRD](../../../docs/architecture/LSP-ARD-PRD.md)
