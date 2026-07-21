@@ -1,0 +1,30 @@
+{
+  "packet_id": "AP-002",
+  "operation": "gh api -X PUT repos/seanchatmangpt/ggen/collaborators/<second-account> -f permission=<level>",
+  "target": "seanchatmangpt/ggen, repository collaborator list",
+  "canonical_doc": "docs/retrofit/ggen/authorization-packets.md",
+  "reason": "retrofit:SingleAdminCollaborator / retrofit:CrossCuttingSingleAdmin (../load-path.ttl): AP-001's required-review branch protection cannot be meaningfully satisfied with only one collaborator on the repository -- there is no second reviewer to approve a PR the sole admin didn't author. AP-001 explicitly declines to change collaborator grants; this packet names the actual gap.",
+  "design_note": "WHO the second admin/collaborator should be, and at what permission level, is a real external trust decision that cannot be derived from repository law or evidence -- this is the DESIGN_UNCERTAINTY_LAW escalation exception, not an internal design choice being deferred out of caution.",
+  "plan_hash": null,
+  "plan_hash_blocked_reason": "Cannot be computed until the user supplies the target account identity and permission level -- both are required inputs to the exact API payload.",
+  "creates": ["a collaborator invitation on seanchatmangpt/ggen at the specified permission level (pending until accepted)"],
+  "updates": [],
+  "deletes": [],
+  "rollback": ["gh api -X DELETE repos/seanchatmangpt/ggen/collaborators/<account>"],
+  "post_checks": [
+    "gh api repos/seanchatmangpt/ggen/collaborators shows 2 entries",
+    "a test PR authored by the prior sole admin can be approved by the new collaborator, confirming AP-001's required-review rule is now satisfiable"
+  ],
+  "receipt_path_if_executed": "docs/retrofit/ggen/authorization-packets-executed/AP-002.json",
+  "target_state_last_reconfirmed": "2026-07-21T16:30:00Z",
+  "target_state_reconfirmed_facts": {
+    "collaborators": [{"login": "seanchatmangpt", "admin": true}]
+  },
+  "explicitly_out_of_scope": [
+    "ReleasePath tag-push/workflow_dispatch protection on release.yml -- a separate GitHub settings surface, needs its own packet, not yet authored",
+    "FleetManagementPath cloud-actuation identity -- tracked separately as retrofit:FleetCloudIdentityUnverified, genuinely Unknown, no cloud IAM access exists in this environment"
+  ],
+  "invalidation_condition": "Regenerate if seanchatmangpt/ggen's collaborator list changes before this executes, or if the user's intended second-admin identity changes.",
+  "status": "EXTERNALLY_GATED",
+  "required_authorization": "explicit user ! command supplying the target account identity and permission level, then executing the operation above -- this packet does not authorize itself and cannot even be fully planned without user input"
+}

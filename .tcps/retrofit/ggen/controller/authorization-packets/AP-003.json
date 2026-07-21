@@ -1,0 +1,35 @@
+{
+  "packet_id": "AP-003",
+  "operation": "gh pr merge 358 --squash (and/or 353) -- merging either release-bump PR to main",
+  "target": "seanchatmangpt/ggen, PRs #358 (release/bump-26.7.25) and #353 (release/bump-26.7.23)",
+  "canonical_doc": "docs/retrofit/ggen/authorization-packets.md (mirrored here; narrative doc to be updated alongside)",
+  "reason": "DISCOVERED 2026-07-21 during a routine open-PR sweep (priority-9 active-ruleset/merge-conflict check): 2 automated version-bump PRs (#358 created 2026-07-21T05:59:52Z, #353 created 2026-07-21T05:03:29Z) sit open, unmerged, both mergeStateStatus UNKNOWN. Merging either is the actual release-cutting action, not a routine code merge: .github/workflows/publish-candidate.yml triggers on every push to main and, per its own inline comment, 'on an all-green run creates+pushes a tag' -- which then fires the tags-only release.yml for the real asset build/upload. Confirmed this pipeline is real and already live (not hypothetical): it fired for this session's own PR #359 merge at 14:46:44Z (conclusion: success) and PR #360 merge at 16:26:10Z (conclusion: failure) -- pre-existing, already-operating repo automation, not something newly introduced by this session.",
+  "design_note": "Distinguished from this session's own PR merges (#359/#360/#361), which are explicitly authorized under 'merge non-destructive retrofit PRs when every required check is Green' -- those are ordinary code merges whose downstream tag/publish consequence is a systemic property of the repo's own pre-existing automation, not a decision this controller is making. Merging #358/#353 is different in kind: those PRs ARE the release-cutting artifact (a version bump authored specifically to trigger the next release), so merging one is functionally equivalent to deciding 'cut this release now' -- squarely 'release tag/publish', which the standing authorization explicitly withholds absent an explicit user ! command. This is not a judgment call this controller can resolve internally: which version to release and when is genuine external business/product intent (readiness, timing, what changes are bundled), not derivable from repository law or CI state.",
+  "plan_hash": null,
+  "plan_hash_blocked_reason": "Two open candidate PRs (#358 targeting v26.7.25, #353 targeting v26.7.23) with no way to derive from repo law which (if either) the user actually wants merged now, or whether both are stale/superseded and should be closed instead -- requires user direction, not just a computed diff.",
+  "creates": ["a merge commit on main", "(conditionally, if publish-candidate.yml's own verification job is all-green on that commit) a new git tag, which independently triggers release.yml's asset build/upload"],
+  "updates": ["Cargo.toml/Cargo.lock/README.md/.specify/repo-facts.ttl/ggen.toml/.ggen-v2/receipt* version/metadata fields, per the PR's own diff"],
+  "deletes": [],
+  "rollback": ["git revert <merge-commit> (does not un-publish an already-cut release/tag if the cascade completed first -- rollback of an already-published release is a separate, harder action)"],
+  "post_checks": [
+    "gh run list --workflow=publish-candidate.yml --branch main -- confirm outcome (success/failure) of the triggered run",
+    "git ls-remote --tags origin -- confirm whether a new tag was actually created",
+    "gh run list --workflow=release.yml -- confirm whether the asset-publish cascade fired and its outcome"
+  ],
+  "receipt_path_if_executed": "docs/retrofit/ggen/authorization-packets-executed/AP-003.json",
+  "target_state_last_reconfirmed": "2026-07-21T17:50:00Z",
+  "target_state_reconfirmed_facts": {
+    "pr_358": {"state": "OPEN", "mergeStateStatus": "UNKNOWN", "mergeable": "UNKNOWN", "createdAt": "2026-07-21T05:59:52Z"},
+    "pr_353": {"state": "OPEN", "mergeStateStatus": "UNKNOWN", "mergeable": "UNKNOWN", "createdAt": "2026-07-21T05:03:29Z"},
+    "publish_candidate_precedent": [
+      {"trigger_sha": "d1fd6934c8d295bf7a64702e4ec9ff1d98a5ddf9", "trigger": "PR #359 merge", "conclusion": "success"},
+      {"trigger_sha": "2f255951b3c5a70216f1cef6c766e2a508508226", "trigger": "PR #360 merge", "conclusion": "failure"}
+    ]
+  },
+  "explicitly_out_of_scope": [
+    "PR #210 (feat/ggen-lsp-source-laws, stale since 2026-06-08) -- observed in the same sweep, not a release PR and not a retrofit PR either; outside this controller's self-retrofit mandate entirely, named here only so it isn't silently lost, no action taken or proposed"
+  ],
+  "invalidation_condition": "Regenerate if #358/#353 are closed/merged/superseded by the user or another actor, or if publish-candidate.yml's trigger conditions change.",
+  "status": "EXTERNALLY_GATED",
+  "required_authorization": "explicit user ! command naming which PR (if either) to merge -- this packet does not authorize itself and cannot resolve which release the user actually wants cut"
+}

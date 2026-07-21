@@ -249,7 +249,9 @@ Verification results are admitted graph facts enforced by refusal gates — not 
 shell rituals:
 - **Admission gates are SPARQL** (`gates/*.rq`: `# MESSAGE:` header + one ASK/SELECT; violation =
   typed FM-PACK-012/013 refusal), engine-independent by construction (proven identical under
-  praxis-graphlaw and Oxigraph by `reasoner_independence_e2e`)
+  praxis-graphlaw and Oxigraph by `crates/ggen-engine/tests/reasoner_independence_e2e.rs`'s
+  `both_engines_sync_a_gated_pack_to_identical_outputs` and
+  `violating_fixture_is_refused_under_both_engines`)
 - **External check results enter the graph** through the same admission path as all law (evidence
   emitters → `ver:Check` facts → gates refuse missing, red, or stale evidence)
 - **Four-process separation**: observation (real runs) / evidence transport (unaltered) /
