@@ -3,8 +3,8 @@
 //! This module provides template generation capabilities using Tera templating engine.
 //! It supports variable validation, interactive prompts, and post-generation hooks.
 
-use crate::packs_registry::types::{Pack, PackTemplate};
 use crate::marketplace::error::{Error, Result};
+use crate::packs_registry::types::{Pack, PackTemplate};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -62,6 +62,20 @@ pub enum VariableType {
     Path,
     Email,
     Url,
+}
+
+/// Recursively collect every regular file under `dir` into `out`.
+fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in std::fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            collect_files_recursive(&path, out)?;
+        } else if path.is_file() {
+            out.push(path);
+        }
+    }
+    Ok(())
 }
 
 impl TemplateGenerator {
@@ -276,33 +290,76 @@ impl TemplateGenerator {
     }
 
     /// Generate files from template
+    ///
+    /// Reads every regular file under `template.path` (recursively), renders it through the
+    /// real Tera engine using `context`, and writes the rendered bytes to the equivalent
+    /// relative path under `target_dir`. This is a real filesystem walk + real Tera render —
+    /// no placeholder `format!` output.
     fn generate_files(
-        &mut self, template: &PackTemplate, _context: &Context, target_dir: &Path,
+        &self, template: &PackTemplate, context: &Context, target_dir: &Path,
     ) -> Result<Vec<PathBuf>> {
         let mut files_created = Vec::new();
 
-        // In a real implementation, this would:
-        // 1. Read template directory
-        // 2. Process each template file
-        // 3. Render using Tera
-        // 4. Write to target directory
+        let template_root = PathBuf::from(&template.path);
+        if !template_root.is_dir() {
+            return Err(Error::Other(format!(
+                "Template '{}' source directory does not exist or is not a directory: {}",
+                template.name,
+                template_root.display()
+            )));
+        }
 
-        // For now, we'll create a placeholder implementation
-        debug!("Generating from template at path: {}", template.path);
-
-        // Example: Create a basic file
-        let output_file = target_dir.join(format!("{}.generated", template.name));
-
-        // Render a simple template
-        let content = format!(
-            "# Generated from template: {}\n# Description: {}\n\n",
-            template.name, template.description
+        debug!(
+            "Generating from template '{}' at path: {}",
+            template.name,
+            template_root.display()
         );
 
-        std::fs::write(&output_file, content)?;
-        files_created.push(output_file);
+        let mut source_files = Vec::new();
+        collect_files_recursive(&template_root, &mut source_files)?;
+        source_files.sort();
 
-        info!("Created {} files", files_created.len());
+        for source_file in &source_files {
+            let relative = source_file.strip_prefix(&template_root).map_err(|e| {
+                Error::Other(format!(
+                    "Failed to compute relative path for '{}': {}",
+                    source_file.display(),
+                    e
+                ))
+            })?;
+
+            let raw = std::fs::read_to_string(source_file).map_err(|e| {
+                Error::Other(format!(
+                    "Failed to read template source file '{}': {}",
+                    source_file.display(),
+                    e
+                ))
+            })?;
+
+            // Render through the real Tera engine. Each file gets its own one-shot render
+            // (registered under its relative path so Tera error messages point back at the
+            // real source file).
+            let rendered = Tera::one_off(&raw, context, false).map_err(|e| {
+                Error::Other(format!(
+                    "Failed to render template file '{}': {}",
+                    relative.display(),
+                    e
+                ))
+            })?;
+
+            let output_file = target_dir.join(relative);
+            if let Some(parent) = output_file.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::write(&output_file, rendered)?;
+            files_created.push(output_file);
+        }
+
+        info!(
+            "Created {} files from template '{}'",
+            files_created.len(),
+            template.name
+        );
 
         Ok(files_created)
     }
@@ -373,26 +430,30 @@ impl TemplateGenerator {
         target_dir.join("package.json").exists()
     }
 
-    /// Interactive variable prompt (for CLI usage)
-    pub fn prompt_variables(&self, template: &PackTemplate) -> Result<HashMap<String, String>> {
+    /// Non-interactive variable resolution: fills each required variable from its declared
+    /// `default`, or a documented synthetic placeholder (`value_for_<name>`) when no default
+    /// exists. Does **not** read from stdin — there is currently no interactive-prompt code
+    /// path in this generator. Callers that need real user input must collect it themselves
+    /// (e.g. via a CLI prompt library) and pass the resulting map to
+    /// `generate_from_template`/`validate_variables` directly. Renamed from the former
+    /// `prompt_variables` (misnamed: it never prompted) to make the synthetic-default
+    /// behavior explicit at every call site.
+    pub fn resolve_variables_non_interactive(
+        &self, template: &PackTemplate,
+    ) -> Result<HashMap<String, String>> {
         let var_defs = self.extract_variable_definitions(template);
         let mut variables = HashMap::new();
 
         info!(
-            "Template '{}' requires {} variables",
+            "Template '{}' requires {} variables (non-interactive resolution)",
             template.name,
             var_defs.len()
         );
 
         for var_def in &var_defs {
-            let _prompt = if let Some(default) = &var_def.default {
-                format!("{} [{}]: ", var_def.description, default)
-            } else {
-                format!("{}: ", var_def.description)
-            };
-
-            // In a real CLI, we'd use something like dialoguer
-            // For now, just use defaults or placeholder values
+            // No interactive prompt path exists yet. Synthetic placeholder values are used
+            // only when no default is declared, and are clearly marked as such in the value
+            // itself so downstream consumers can detect fabricated content.
             let value = var_def
                 .default
                 .clone()
@@ -518,21 +579,85 @@ mod tests {
     }
 
     #[test]
-    fn test_generate_from_template() {
-        let mut generator = TemplateGenerator::new().unwrap();
-        let template = create_test_template();
+    fn test_generate_from_template_renders_real_tera_content() {
+        // Arrange: a real template source directory with real Tera syntax and a nested file.
+        let template_src = tempfile::tempdir().unwrap();
+        std::fs::write(
+            template_src.path().join("README.md"),
+            "# {{ project_name }}\n\nMaintained by {{ author }}.\n",
+        )
+        .unwrap();
+        std::fs::create_dir_all(template_src.path().join("src")).unwrap();
+        std::fs::write(
+            template_src.path().join("src/lib.rs"),
+            "// crate: {{ project_name }}\npub const AUTHOR: &str = \"{{ author }}\";\n",
+        )
+        .unwrap();
+
+        let template = PackTemplate {
+            name: "test-template".to_string(),
+            path: template_src.path().to_string_lossy().to_string(),
+            description: "A test template".to_string(),
+            variables: vec!["project_name".to_string(), "author".to_string()],
+        };
 
         let mut variables = HashMap::new();
         variables.insert("project_name".to_string(), "test-project".to_string());
         variables.insert("author".to_string(), "Test Author".to_string());
 
-        let temp_dir = tempfile::tempdir().unwrap();
-        let result = generator.generate_from_template(&template, variables, temp_dir.path());
+        let mut generator = TemplateGenerator::new().unwrap();
+        let target_dir = tempfile::tempdir().unwrap();
 
-        assert!(result.is_ok());
+        // Act
+        let result = generator.generate_from_template(&template, variables, target_dir.path());
+
+        // Assert: state-based verification against actual bytes on disk.
+        assert!(result.is_ok(), "generation failed: {:?}", result.err());
         let report = result.unwrap();
         assert!(report.success);
-        assert!(!report.files_created.is_empty());
+        assert_eq!(report.files_created.len(), 2);
+
+        let readme = std::fs::read_to_string(target_dir.path().join("README.md")).unwrap();
+        assert_eq!(readme, "# test-project\n\nMaintained by Test Author.\n");
+        // Never the placeholder stub this module used to emit.
+        assert!(!readme.contains("Generated from template:"));
+        assert!(!readme.contains("value_for_"));
+
+        let lib_rs = std::fs::read_to_string(target_dir.path().join("src/lib.rs")).unwrap();
+        assert_eq!(
+            lib_rs,
+            "// crate: test-project\npub const AUTHOR: &str = \"Test Author\";\n"
+        );
+    }
+
+    #[test]
+    fn test_generate_from_template_refuses_missing_source_directory() {
+        // Sabotage: template.path points at a directory that does not exist. The old
+        // placeholder implementation would have silently written fabricated content anyway;
+        // the real implementation must fail loudly instead.
+        let template = PackTemplate {
+            name: "ghost-template".to_string(),
+            path: "/nonexistent/path/that/should/never/exist/on/disk".to_string(),
+            description: "A template with no real source".to_string(),
+            variables: vec![],
+        };
+
+        let mut generator = TemplateGenerator::new().unwrap();
+        let target_dir = tempfile::tempdir().unwrap();
+
+        let result = generator.generate_from_template(&template, HashMap::new(), target_dir.path());
+
+        assert!(result.is_err());
+        let err = result.err().unwrap().to_string();
+        assert!(
+            err.contains("does not exist") || err.contains("not a directory"),
+            "unexpected error message: {err}"
+        );
+        // No fabricated file was written.
+        assert!(std::fs::read_dir(target_dir.path())
+            .unwrap()
+            .next()
+            .is_none());
     }
 
     #[test]
