@@ -51,8 +51,8 @@ fn ggen_config_source_path() -> PathBuf {
 /// `expect`) if the file fails to parse or the struct is not found -- both are real defects in
 /// this test's own assumptions about the source tree, not conditions to swallow.
 fn struct_field_names(source: &str, struct_name: &str) -> BTreeSet<String> {
-    let file = syn::parse_file(source)
-        .unwrap_or_else(|e| panic!("failed to parse source as Rust: {e}"));
+    let file =
+        syn::parse_file(source).unwrap_or_else(|e| panic!("failed to parse source as Rust: {e}"));
     for item in &file.items {
         if let syn::Item::Struct(item_struct) = item {
             if item_struct.ident == struct_name {
@@ -156,10 +156,15 @@ fn known_shared_table_names_exist_on_both_schemas() {
 #[test]
 fn shared_field_intersection_matches_frozen_baseline_exactly() {
     let (manifest_fields, config_fields) = read_both_schemas();
-    let known: BTreeSet<String> = KNOWN_SHARED_TABLE_NAMES.iter().map(|s| s.to_string()).collect();
+    let known: BTreeSet<String> = KNOWN_SHARED_TABLE_NAMES
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
 
-    let actual_intersection: BTreeSet<String> =
-        manifest_fields.intersection(&config_fields).cloned().collect();
+    let actual_intersection: BTreeSet<String> = manifest_fields
+        .intersection(&config_fields)
+        .cloned()
+        .collect();
 
     let newly_shared: BTreeSet<&String> = actual_intersection.difference(&known).collect();
     let no_longer_shared: BTreeSet<&String> = known.difference(&actual_intersection).collect();
