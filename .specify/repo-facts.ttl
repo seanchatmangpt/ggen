@@ -15,7 +15,7 @@ rf:Recipe a rdfs:Class . rf:DiagnosticCode a rdfs:Class .
 rf:ArchSection a rdfs:Class . rf:Doc a rdfs:Class .
 
 rf:doc a rf:Doc ;
-    rf:workspaceVersion "26.7.22" ;
+    rf:workspaceVersion "26.7.23" ;
     rf:projectManifestVersion "26.7.1" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
     rf:memberCount "16" ;
