@@ -2038,12 +2038,42 @@ jobs:
         with:
           terraform_wrapper: false
 
+      # Bootstrap fallback: prefer the latest release binary (asset name from
+      # release.yml's package step: ggen-x86_64-unknown-linux-gnu.tar.gz);
+      # only cargo-build when no runnable release binary exists.
+      - name: Try release ggen binary
+        id: relbin
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dir="$RUNNER_TEMP/relbin"
+          mkdir -p "$dir"
+          set +e
+          gh release download --repo seanchatmangpt/ggen --pattern 'ggen-x86_64-unknown-linux-gnu.tar.gz' --dir "$dir" &&
+            tar -xzf "$dir/ggen-x86_64-unknown-linux-gnu.tar.gz" -C "$dir" &&
+            "$dir/ggen" --version
+          ok=$?
+          set -e
+          if [ "$ok" -eq 0 ]; then
+            echo "release binary usable - skipping cargo build"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "path=$dir/ggen" >> "$GITHUB_OUTPUT"
+          else
+            echo "no usable release binary - falling back to cargo build"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "path=$GITHUB_WORKSPACE/target/debug/ggen" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: Swatinem/rust-cache@v2
+        if: steps.relbin.outputs.found != 'true'
 
       - name: Build ggen
+        if: steps.relbin.outputs.found != 'true'
         run: cargo build -p ggen-cli-lib --bin ggen
 
       - name: Scaffold consumer and sync
+        env:
+          GGEN_BIN: ${{ steps.relbin.outputs.path }}
         run: |
           consumer="$RUNNER_TEMP/consumer"
           mkdir -p "$consumer/templates"
@@ -2062,7 +2092,7 @@ jobs:
             echo 'dir = "templates"'
           } > "$consumer/ggen.toml"
           cd "$consumer"
-          "$GITHUB_WORKSPACE/target/debug/ggen" sync run
+          "$GGEN_BIN" sync run
 
       - name: Import state and report drift (read-only plan, never apply)
         env:
