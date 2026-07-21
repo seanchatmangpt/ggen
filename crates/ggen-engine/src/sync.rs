@@ -30,7 +30,8 @@ use std::{
 use praxis_core::{
     receipt_epoch::{
         read_receipt_epoch, AdmissionDecision, AdmissionItem, AndonLevel, CeilingLevel,
-        ComponentLevels, ObservedOutcome, ReceiptEpochV2Builder, SCHEMA_V2,
+        ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome, ReceiptEpochV2Builder,
+        SCHEMA_V2,
     },
     receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION},
     Andon,
@@ -1779,6 +1780,69 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 /// Ed25519-signed over SHA-256, emitted once per pack install to
 /// `.ggen/receipts/pack-*.json`. Different lifecycles, different hash
 /// algorithms; neither replaces the other.
+/// Which equivalence class (of [`EquivalenceMap`]'s 8) a closure key belongs
+/// to, for the two classes `ggen sync` can honestly evaluate from its own
+/// input-closure hashes. `None` means the key participates in neither
+/// evaluated class (e.g. `receipt-log:MALFORMED-*` markers, which are
+/// evidence-adjacent history, not a governing source/config input).
+///
+/// - `config`: the inputs that select/parameterize the pipeline rather than
+///   feed content into it — `ggen.toml` (the manifest), `project` (the bound
+///   project identity), and `actuator` (the ggen version that ran).
+/// - `source`: every other closure entry — ontologies (project + pack +
+///   extra), templates, and template-declared `from`/`rdf` inputs.
+fn closure_equivalence_class(key: &str) -> Option<&'static str> {
+    if key.starts_with("receipt-log:") {
+        return None;
+    }
+    match key {
+        "ggen.toml" | "project" | "actuator" => Some("config"),
+        _ => Some("source"),
+    }
+}
+
+/// Byte-hash equality over one equivalence class's slice of the input
+/// closure: this run's `{key -> blake3}` submap vs the previous receipt's.
+/// Divergence records WHICH keys differ (added/removed/changed), bounded to
+/// the first few so the reason stays a reason, not a dump.
+fn compare_closure_class(
+    class: &'static str, current: &BTreeMap<String, String>, previous: &BTreeMap<String, String>,
+) -> EquivalenceStatus {
+    let cur: BTreeMap<&String, &String> = current
+        .iter()
+        .filter(|(k, _)| closure_equivalence_class(k) == Some(class))
+        .collect();
+    let prev: BTreeMap<&String, &String> = previous
+        .iter()
+        .filter(|(k, _)| closure_equivalence_class(k) == Some(class))
+        .collect();
+    if cur == prev {
+        return EquivalenceStatus::Equivalent;
+    }
+    let mut diffs: Vec<String> = Vec::new();
+    for (k, v) in &cur {
+        match prev.get(*k) {
+            None => diffs.push(format!("added `{k}`")),
+            Some(pv) if pv != v => diffs.push(format!("changed `{k}`")),
+            Some(_) => {}
+        }
+    }
+    for k in prev.keys() {
+        if !cur.contains_key(*k) {
+            diffs.push(format!("removed `{k}`"));
+        }
+    }
+    let shown = diffs.iter().take(4).cloned().collect::<Vec<_>>().join(", ");
+    let suffix = if diffs.len() > 4 {
+        format!(" (+{} more)", diffs.len() - 4)
+    } else {
+        String::new()
+    };
+    EquivalenceStatus::Divergent(format!(
+        "closure {class} hashes differ from previous receipt: {shown}{suffix}"
+    ))
+}
+
 ///
 /// `graph`: the already-loaded project+pack union graph for this run,
 /// queried here for `ccn:Law` individuals (see the admission-items block
@@ -1787,6 +1851,7 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
 ) -> Result<()> {
+
     use std::io::Write as _;
 
     // Bind every decision target that exists on disk (written this run or
@@ -1862,10 +1927,13 @@ pub(crate) fn write_receipt(
     // quarantine/refusal concept yet -- so every item is honestly
     // `Admitted`; the precedence machinery (`derive_andon`) is real and
     // wired for the day a future stage does quarantine/refuse a specific
-    // output, not a decorative pass-through. The equivalence map is left
-    // all-`Unknown`: this call site does not itself evaluate cross-generation
-    // docs/tests/gates equivalence, and claiming otherwise would overclaim
-    // checks that were never run (see `.claude/rules/no-overclaiming-rust.md`).
+    // output, not a decorative pass-through. The equivalence map's `source`
+    // and `config` classes are the two this call site can honestly evaluate
+    // (byte-hash equality of the input closure vs the previous receipt's,
+    // see `compare_closure_class`); the other six classes stay explicitly
+    // `Unknown` because this call site does not evaluate them, and claiming
+    // otherwise would overclaim checks that were never run (see
+    // `.claude/rules/no-overclaiming-rust.md`).
     let mut admission_items: Vec<AdmissionItem> = report
         .decisions
         .iter()
@@ -1936,11 +2004,13 @@ pub(crate) fn write_receipt(
     }
 
     let prev_ceiling = match &prev_head {
-        Some(prev) => read_receipt_epoch(&prev.record)
-            .map_err(|e| {
-                AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
-            })?
-            .standing_ceiling,
+        Some(prev) => {
+            read_receipt_epoch(&prev.record)
+                .map_err(|e| {
+                    AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
+                })?
+                .standing_ceiling
+        }
         // Genesis: no prior evidence to constrain the ceiling yet -- Green
         // is the lattice's top/identity element (see `CeilingLevel::Green`).
         None => CeilingLevel::Green,
@@ -1965,7 +2035,22 @@ pub(crate) fn write_receipt(
     };
     let components = ComponentLevels::uniform(provisional_level);
 
-    let mut epoch_builder = ReceiptEpochV2Builder::new(prev_ceiling, components);
+    // Equivalence: `source`/`config` are evaluated against the previous
+    // receipt's input closure by byte-hash equality. Genesis (no previous
+    // receipt) has nothing to compare against, so both stay `Unknown`
+    // honestly rather than defaulting to `Equivalent`-from-absence.
+    let equivalence = match &prev_head {
+        Some(prev) => {
+            let mut map = EquivalenceMap::all_unknown();
+            map.source = compare_closure_class("source", &report.closure, &prev.payload.closure);
+            map.config = compare_closure_class("config", &report.closure, &prev.payload.closure);
+            map
+        }
+        None => EquivalenceMap::all_unknown(),
+    };
+
+    let mut epoch_builder =
+        ReceiptEpochV2Builder::new(prev_ceiling, components).equivalence(equivalence);
     for item in admission_items {
         epoch_builder = epoch_builder.admission_item(item);
     }

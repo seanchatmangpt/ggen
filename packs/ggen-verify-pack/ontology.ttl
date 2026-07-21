@@ -8,6 +8,7 @@
 # which the consumer wires as an [ontology] source. This file only defines
 # the vocabulary and the policy the gates enforce over that evidence.
 
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix ver:  <http://seanchatmangpt.github.io/packs/ggen-verify#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
@@ -20,6 +21,9 @@ ver:Check a rdfs:Class ;
 ver:RequiredCheck a rdfs:Class ;
     rdfs:comment "Policy: a check name that MUST be present as a ver:Check in the evidence graph for sync to proceed. Missing required evidence is a refusal, not a silent skip." .
 
+ver:checkCommand a rdf:Property ;
+    rdfs:comment "The exact shell command a ver:RequiredCheck runs to produce its ver:Check evidence. Projected by templates/verify_evidence_sh.tmpl (and mirrored by bootstrap/verify-evidence-bootstrap.sh) into the consumer's scripts/verify-evidence.sh emitter. The command is run via `bash -c` from the consumer root; its REAL exit code is recorded -- the emitter never judges, the gates do." .
+
 ver:KnownDivergence a rdfs:Class ;
     rdfs:comment "Policy: a check name whose nonzero exit code is accepted, with the reason recorded here as rdfs:comment. This is the visible, queryable form of 'honest known failure' -- never a hidden shell-script || true." .
 
@@ -27,19 +31,23 @@ ver:KnownDivergence a rdfs:Class ;
 
 ver:req-build a ver:RequiredCheck ;
     ver:name "build" ;
+    ver:checkCommand "cargo build --workspace" ;
     rdfs:comment "cargo build --workspace on the generated tree must have been run and recorded." .
 
 ver:req-test a ver:RequiredCheck ;
     ver:name "test-workspace" ;
+    ver:checkCommand "cargo test --workspace" ;
     rdfs:comment "cargo test --workspace on the generated tree must have been run and recorded." .
 
 ver:req-clippy-reference a ver:RequiredCheck ;
     ver:name "clippy-reference-gate" ;
+    ver:checkCommand "cargo clippy --workspace --all-targets -- -D clippy::correctness -D clippy::suspicious -D clippy::perf" ;
     rdfs:comment "clippy under the reference's own real CI gate (-D clippy::correctness -D clippy::suspicious -D clippy::perf) must have been run and recorded." .
 
 ver:req-byte-identity a ver:RequiredCheck ;
     ver:name "byte-identity" ;
-    rdfs:comment "The sha256 byte-identity sweep of generated files against the pack's source-manifest/reference set must have been run and recorded." .
+    ver:checkCommand "bash scripts/checks/byte-identity.sh" ;
+    rdfs:comment "The sha256 byte-identity sweep of generated files against the pack's source-manifest/reference set must have been run and recorded. The sweep itself is consumer-specific, so ver:checkCommand delegates to a consumer-provided hook script (scripts/checks/byte-identity.sh) that runs the real sweep and exits nonzero on any non-allowlisted divergence. examples/tcps-generated implements the equivalent sweep inline in its own scripts/verify.sh." .
 
 # --- Known divergences (allowlist, each with its receipt-grade why) ---------
 
