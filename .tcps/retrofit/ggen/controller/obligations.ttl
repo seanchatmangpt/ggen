@@ -1,0 +1,86 @@
+@prefix retrofit: <https://ggen.dev/ontology/retrofit#> .
+@prefix ctl:      <https://ggen.dev/ontology/retrofit-controller#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+# Controller obligation DAG for the ggen self-retrofit, seeded 2026-07-21 from
+# real observed state (PR #359/#360, the Generation-3 BUG-004 workflow's
+# independently-verified fix + reconcile, the 21-SPOF ledger in
+# ../load-path.ttl, and AP-001 in ../../../../docs/retrofit/ggen/authorization-packets.md).
+# ctl:state values: READY | ACTIVE | VERIFYING | WAITING_FOR_CI |
+#   DEPENDENCY_BLOCKED | EXTERNALLY_GATED | CLOSED | REFUSED | REPLACEMENT_REQUIRED
+
+ctl:Obligation a rdfs:Class .
+
+ctl:state a rdf:Property ; rdfs:comment "One of the 9 controller states -- never a generic BLOCKED." .
+ctl:priority a rdf:Property ; rdfs:comment "Integer, 1 = highest, per the mandate's 15-tier ordering." .
+ctl:nextAction a rdf:Property .
+ctl:verificationRequirement a rdf:Property .
+ctl:sabotageRequirement a rdf:Property .
+ctl:receiptRef a rdf:Property .
+
+ctl:O-1 a ctl:Obligation ;
+    rdfs:label "Wire ggen-verify-pack evidence into ggen's own live sync/gates" ;
+    ctl:priority 3 ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "PR #360 commit 7b07e8670" ;
+    rdfs:comment "Proven causal both directions: real clippy fix flipped a row green (3->2 refusal citations); adversarial tamper of a real fact flipped a row red, citing exactly the injected fact." .
+
+ctl:O-2 a ctl:Obligation ;
+    rdfs:label "Fix 3 real pre-existing clippy::correctness/perf violations surfaced by O-1" ;
+    ctl:priority 8 ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "PR #360 commit 7b07e8670" .
+
+ctl:O-3 a ctl:Obligation ;
+    rdfs:label "BUG-004: ggen agent install reads global path instead of project-local lockfile" ;
+    ctl:priority 4 ;
+    ctl:state ctl:VERIFYING ;
+    ctl:nextAction "Fix applied + independently reproduced (agent_lifecycle_test.rs 4/4, ggen-marketplace suite 429/429) + adversarial sabotage executed (Scenario A: global-decoy pack did not cause false already-installed, install landed project-local; Scenario B: genuine project-local duplicate correctly refused without --force, --force control succeeded). Re-running verify-evidence bootstrap + ggen sync run to confirm test-workspace flips green, then commit+push as a follow-up commit on branch retrofit/ggen-self-g2 (PR #360)." ;
+    ctl:verificationRequirement "cargo test -p ggen-cli-lib --test agent_lifecycle_test; cargo test -p ggen-marketplace; cargo clippy -p ggen-marketplace -p ggen-cli-lib -D correctness -D suspicious -D perf" ;
+    ctl:sabotageRequirement "Global-decoy-vs-project-local discrimination -- executed 2026-07-21, both scenarios passed with real filesystem evidence." .
+
+ctl:O-4-restand-EquivalenceMapNotLive a ctl:Obligation ;
+    rdfs:label "Restand retrofit:EquivalenceMapNotLive -- Generation 2 wired 2 of 6 previously-Unknown classes live" ;
+    ctl:priority 11 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Update ../load-path.ttl's EquivalenceMapNotLive individual with the real 2026-07-21 count/evidence, not the whole Generation-1-era claim." .
+
+ctl:O-4-restand-AndonHardcodedGreen a ctl:Obligation ;
+    rdfs:label "Restand retrofit:AndonHardcodedGreen -- evidence text already says Resolved, standing field still reads Accepted" ;
+    ctl:priority 11 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Correct the standing field to match its own already-verified evidence text -- bookkeeping fix, not a re-verification." .
+
+ctl:O-4-restand-BrokenJustSyncRecipes a ctl:Obligation ;
+    rdfs:label "Restand retrofit:BrokenJustSyncRecipes -- already fixed per Generation 1 history and CLAUDE.md's live command table" ;
+    ctl:priority 11 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Confirm via CLAUDE.md's current 'just sync'/'just sync-dry' command table entries, then restand -- do not re-fix a fixed thing." .
+
+ctl:O-5-evidence-pass a ctl:Obligation ;
+    rdfs:label "6 SPOFs carry only a file-pointer as evidence, need a fresh evidence pass" ;
+    ctl:priority 11 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "FreezeAlwaysNoDriftDetection, ReflexiveReceiptSkip, StandingCeilingHardcoded, DualObligationCounters, UnmechanizedLawsDisclosed, FleetCensusObservationOnly -- each needs its evidencePath's claim independently re-derived with an inline evidence string, same discipline as the other 15." .
+
+ctl:AP-001 a ctl:Obligation ;
+    rdfs:label "Branch protection + CODEOWNERS on seanchatmangpt/ggen" ;
+    ctl:priority 5 ;
+    ctl:state ctl:EXTERNALLY_GATED ;
+    ctl:receiptRef "docs/retrofit/ggen/authorization-packets.md, mirrored at ./authorization-packets/AP-001.json" ;
+    ctl:nextAction "Plan hash computation (local, non-actuating) is lawful prep work; the gh api PUT itself requires an explicit user ! command." .
+
+ctl:O-7 a ctl:Obligation ;
+    rdfs:label "Second-sync non-determinism in wasm4pm-cognition-pack's generated breed catalog doc" ;
+    ctl:priority 1 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Discovered 2026-07-21 while closing O-3 (full cargo test --workspace run, first full run in a while, unrelated to the BUG-004 fix). crates/ggen-engine/tests/cross_pack_matrix.rs: mega_project_all_packs_sync fails -- second sync rewrites docs/generated/W4PM_COGNITION_BREED_CATALOG.md when it must not; ontology_union_and_declaration_order_are_canonical fails -- reversed [packs] declaration order does not produce an identical receipt payload. Both are false-standing-risk class (idempotency/canonicality violations), priority 1. Investigate wasm4pm-cognition-pack's breed-catalog template for non-deterministic rendering (unstable iteration order over an unordered collection is the most likely cause of both symptoms)." ;
+    ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix mega_project_all_packs_sync ontology_union_and_declaration_order_are_canonical" .
+
+ctl:O-6-hygiene a ctl:Obligation ;
+    rdfs:label "Repository structural hygiene: 124 root files (~95 violations), orphaned templates/ (491 files), examples/archive/ 1547 tracked files" ;
+    ctl:priority 15 ;
+    ctl:state ctl:READY ;
+    ctl:nextAction "Lowest priority tier by design -- independently recounted 2026-07-21, real but must not displace O-3/O-4/O-5/AP-001. Deletion via reviewed PR with a full deletion ledger when picked up, not a silent rm." .

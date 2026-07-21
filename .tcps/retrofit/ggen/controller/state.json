@@ -1,0 +1,17 @@
+{
+  "controller": "TCPS ggen Autonomous Gap-Closure Controller",
+  "state": "ACTIVE",
+  "current_generation": "G3",
+  "generations": {
+    "G1": {"pr": 359, "status": "MERGED"},
+    "G2": {"pr": 360, "status": "OPEN", "objective": "wire ggen-verify-pack into ggen's own live sync"},
+    "G3": {"pr": null, "branch": "retrofit/ggen-self-g2", "status": "IN_PROGRESS", "objective": "close BUG-004 (agent install global-path bug)"}
+  },
+  "obligations_ref": ".tcps/retrofit/ggen/controller/obligations.ttl",
+  "events_ref": ".tcps/retrofit/ggen/controller/events.jsonl",
+  "authorization_packets_ref": ".tcps/retrofit/ggen/controller/authorization-packets/",
+  "coordinator_cron_job": "dc90c1c6",
+  "coordinator_schedule": "3-59/10 * * * *",
+  "last_updated": "2026-07-21T15:00:00Z",
+  "note": "This file is maintained by the controller across coordinator cycles. Standing is recomputed from live evidence each cycle, not manually asserted -- values here reflect the most recent recomputation, not a target or forecast."
+}

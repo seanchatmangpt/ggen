@@ -133,31 +133,20 @@ pub fn verify(
 /// Install a pack: write the lockfile with a non-empty digest and emit a signed
 /// provenance receipt. `--dry_run` previews without writing durable state.
 ///
-/// Disabled (2026-07-18): the "already installed" check reads a fixed global
-/// path (`~/.ggen/packs/<pack-id>`) instead of the project-local
-/// `.ggen/packs.lock`, so a caller in an isolated/CI environment can get a
-/// false "already installed" refusal purely from unrelated global machine
-/// state. Tracked as BUG-004 in
-/// `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`. Re-enable by
-/// routing this verb back to `install_impl` once the check is scoped to the
-/// project-local lockfile.
+/// The "already installed" check and the materialized install directory are
+/// both scoped to the project-local `<root>/.ggen/packs/<pack-id>` (BUG-004
+/// fix, see `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`),
+/// matching the project-local lockfile — no dependency on unrelated global
+/// machine state.
 #[verb]
 pub fn install(
     #[arg(index = 1)] pack_id: String, force: Option<bool>, dry_run: Option<bool>,
 ) -> Result<serde_json::Value> {
-    let _ = (pack_id, force, dry_run);
-    Err(NounVerbError::execution_error(
-        "ggen agent install is temporarily disabled: its \"already installed\" check reads a \
-         fixed global path instead of the project-local lockfile (BUG-004, see \
-         docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md)"
-            .to_string(),
-    ))
+    install_impl(pack_id, force, dry_run)
 }
 
-/// Real implementation of `install`, preserved for re-enabling once BUG-004 is
-/// fixed (fix-forward/non-deletion doctrine — not called while `install` above
-/// returns its typed refusal).
-#[allow(dead_code)]
+/// Real implementation of `install`, factored out of the `#[verb]` fn above so
+/// its signature can be reused directly.
 fn install_impl(
     pack_id: String, force: Option<bool>, dry_run: Option<bool>,
 ) -> Result<serde_json::Value> {

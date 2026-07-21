@@ -82,10 +82,10 @@ retrofit:ReflexiveReceiptSkip a retrofit:SPOF ;
     retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
 
 retrofit:EquivalenceMapNotLive a retrofit:SPOF ;
-    rdfs:label "6 of 8 receipt equivalence classes Unknown on ggen's own sync" ;
+    rdfs:label "5 of 8 receipt equivalence classes still Unknown on ggen's own sync" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:SelfGenerationPath ;
-    retrofit:evidence "Live .ggen-v2/receipt.json: source/config Divergent; compiled_binary/docs/tests/receipts/evidence/gates Unknown. ggen-verify-pack (PR #346) producers not wired into ggen's own sync loop." .
+    retrofit:evidence "Updated 2026-07-21 (self-retrofit Generation 2, PR #360): the `evidence` class is now live -- ggen-verify-pack's gates 010/020 were wired into ggen's own [validation].gates (previously only [ontology].imports admitted its facts, never routing through crate::pack::resolve() which evaluates gates), and proven causal both directions: a real clippy fix flipped a recorded ver:exitCode row from red to green and the live sync's refusal-citation count dropped accordingly; a real adversarial tamper of a currently-green fact flipped a row red, cited by name. source/config remain Divergent; compiled_binary/docs/tests/receipts/gates remain Unknown -- narrowing what's still open, not the whole original claim. ggen-verify-pack's own gates 030/040/050 (freshness/andon-regression/output-count-regression) remain unwired by design: this repo's own ggen.toml is the declarative-rules schema, which has no [law].reflexive, so those three gates could never fire here." .
 
 retrofit:StandingCeilingHardcoded a retrofit:SPOF ;
     rdfs:label "standing_ceiling hardcoded to LegacyObserved" ;

@@ -1,0 +1,45 @@
+{
+  "packet_id": "AP-001",
+  "operation": "gh api -X PUT repos/seanchatmangpt/ggen/branches/main/protection",
+  "secondary_operation": "commit a CODEOWNERS file to main",
+  "target": "seanchatmangpt/ggen, branch main",
+  "canonical_doc": "docs/retrofit/ggen/authorization-packets.md",
+  "reason": "Cross-cutting SPOF (NoBranchProtection / SingleAdminCollaborator / CrossCuttingSingleAdmin in ../load-path.ttl): single admin account, no branch protection, no CODEOWNERS -- can merge to main or push tags/releases with no second reviewer.",
+  "plan_hash": "22ca1e390ef7e0ce55d4f1b87fa8e65d5950ce5b1e196bc1b60b2012d777e2de",
+  "plan_hash_computed_at": "2026-07-21T15:15:00Z",
+  "plan_hash_source": "Constructed from packs/gh-terraform-pack/ontology.ttl's ghtf:MainBranchProtection HCL body (already-generated desired state, PR #341/#348/#334), translated to the equivalent GitHub REST API PUT body. Local computation only -- not sent.",
+  "plan_body": {
+    "required_status_checks": {
+      "strict": true,
+      "contexts": ["Check", "Test", "Build", "Doctest", "CI Status"]
+    },
+    "enforce_admins": true,
+    "required_pull_request_reviews": {
+      "required_approving_review_count": 1,
+      "require_code_owner_reviews": false
+    },
+    "restrictions": null
+  },
+  "creates": ["branch protection rule on main", "CODEOWNERS file at repo root"],
+  "updates": ["repository settings: branches/main/protection"],
+  "deletes": [],
+  "rollback": [
+    "gh api -X DELETE repos/seanchatmangpt/ggen/branches/main/protection",
+    "git rm CODEOWNERS && git commit"
+  ],
+  "post_checks": [
+    "gh api repos/seanchatmangpt/ggen/branches/main/protection returns non-404 with the expected required-checks list",
+    "a test PR from a non-admin account is blocked from merging without review"
+  ],
+  "receipt_path_if_executed": "docs/retrofit/ggen/authorization-packets-executed/AP-001.json",
+  "target_state_last_reconfirmed": "2026-07-21T14:55:00Z",
+  "target_state_reconfirmed_facts": {
+    "branch_protection": "404 (absent)",
+    "codeowners_github": "404 (absent)",
+    "codeowners_root": "404 (absent)",
+    "collaborators": [{"login": "seanchatmangpt", "admin": true}]
+  },
+  "invalidation_condition": "Regenerate plan_hash if ghtf:MainBranchProtection's HCL body changes, or if target_state_reconfirmed_facts no longer match a fresh gh api check.",
+  "status": "EXTERNALLY_GATED",
+  "required_authorization": "explicit user ! command executing the operation above -- this packet does not authorize itself"
+}
