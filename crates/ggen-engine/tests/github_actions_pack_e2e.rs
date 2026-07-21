@@ -80,9 +80,10 @@ const PRODUCTS: [&str; 4] = [
 fn assert_all_remote_refs_pinned(rel: &str, body: &str) {
     for line in body.lines() {
         let trimmed = line.trim();
-        let Some(rest) = trimmed.strip_prefix("uses:").or_else(|| {
-            trimmed.strip_prefix("- uses:")
-        }) else {
+        let Some(rest) = trimmed
+            .strip_prefix("uses:")
+            .or_else(|| trimmed.strip_prefix("- uses:"))
+        else {
             continue;
         };
         let spec = rest.trim().trim_matches(|c| c == '"' || c == '\'');
@@ -233,9 +234,7 @@ fn github_actions_pack_refuses_write_all_ceiling() {
 /// gha-namespace subject. The security gate must refuse and demand a pin.
 #[test]
 fn github_actions_pack_refuses_mutable_action_ref() {
-    let (_dir, project) = scaffold(
-        "gha:SabotageStep gha:usesAction \"actions/checkout@v4\" .\n",
-    );
+    let (_dir, project) = scaffold("gha:SabotageStep gha:usesAction \"actions/checkout@v4\" .\n");
 
     let err = sync(
         &project,
