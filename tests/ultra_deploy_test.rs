@@ -653,7 +653,10 @@ mod unit_tests {
 
     #[test]
     fn test_find_ggen_binary() {
-        // This test just verifies the function doesn't panic
-        let _ = UltraDeployTester::find_ggen_binary();
+        // Whatever the lookup resolves to, an Ok result must name a binary
+        // that actually exists on disk.
+        if let Ok(bin) = UltraDeployTester::find_ggen_binary() {
+            assert!(bin.exists(), "resolved ggen binary must exist: {}", bin.display());
+        }
     }
 }

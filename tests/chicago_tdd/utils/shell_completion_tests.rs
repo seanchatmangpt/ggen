@@ -144,12 +144,22 @@ fn test_shell_default_completion_dirs() {
         ShellType::PowerShell,
     ];
 
+    // HOME is always set in this repo's dev/CI test environments, and the
+    // lookup is a pure function of the environment: every shell must resolve
+    // a completion directory, and repeat calls must agree.
     for shell in &shells {
-        // Should return Some if HOME or XDG vars are set
         let dir = shell.default_completion_dir();
-        // Don't assert Some/None as it depends on environment,
-        // but ensure no panic
-        println!("{:?} default dir: {:?}", shell, dir);
+        if std::env::var_os("HOME").is_some() {
+            assert!(
+                dir.is_some(),
+                "{shell:?} must resolve a default completion dir when HOME is set"
+            );
+        }
+        assert_eq!(
+            dir,
+            shell.default_completion_dir(),
+            "{shell:?} completion-dir lookup must be deterministic"
+        );
     }
 }
 

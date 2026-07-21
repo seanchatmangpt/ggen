@@ -297,10 +297,12 @@ async fn test_template_variable_types() {
     };
 
     let result = generate_from_pack(&gen_input).await;
-    // Should handle various variable types
-    if result.is_ok() {
-        println!("✓ Various variable types handled correctly");
-    }
+    // A real pack with templates was selected above, so generation with
+    // string-typed variables of varied shapes must not error.
+    assert!(
+        result.is_ok(),
+        "generate_from_pack must handle string-encoded variable types: {result:?}"
+    );
 }
 
 #[tokio::test]

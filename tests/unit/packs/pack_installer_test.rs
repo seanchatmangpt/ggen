@@ -241,11 +241,11 @@ async fn test_install_multiple_packs_sequentially() {
 
         let result = install_pack_by_id(&input).await;
 
-        // Assert - Each should install independently
-        if result.is_ok() {
-            // Success - pack exists
-        } else {
-            // Expected if pack doesn't exist
-        }
+        // Assert - both packs exist in this repo's marketplace/packs catalog,
+        // and dry_run installs must succeed independently.
+        assert!(
+            result.is_ok(),
+            "dry-run install of known pack {pack_id} must succeed: {result:?}"
+        );
     }
 }

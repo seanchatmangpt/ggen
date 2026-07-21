@@ -163,6 +163,9 @@ impl<'ast> Visit<'ast> for AssertionCollector {
                 let m = mc.method.to_string();
                 if matches!(m.as_str(), "unwrap" | "expect" | "unwrap_err" | "expect_err")
                     || m.starts_with("assert")
+                    // cucumber's `.run_and_exit(...)` panics the test when any
+                    // scenario fails — the BDD-suite equivalent of an assert.
+                    || m == "run_and_exit"
                 {
                     self.any_failure_capable = true;
                 }

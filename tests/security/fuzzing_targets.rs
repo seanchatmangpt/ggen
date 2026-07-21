@@ -470,8 +470,15 @@ mod corpus_generator {
             "ex:s ex:p", // Missing object
         ];
 
+        // First two entries are well-formed and must parse; the rest are
+        // deliberately malformed and must be rejected, never panic.
         for (i, input) in corpus.iter().enumerate() {
-            println!("RDF Corpus {}: {:?}", i, fuzz_rdf_parser(input));
+            let outcome = fuzz_rdf_parser(input);
+            if i < 2 {
+                assert!(outcome.is_ok(), "well-formed RDF corpus {i} rejected: {outcome:?}");
+            } else {
+                assert!(outcome.is_err(), "malformed RDF corpus {i} accepted");
+            }
         }
     }
 
@@ -485,8 +492,15 @@ mod corpus_generator {
             "SELECT", // Incomplete
         ];
 
+        // Every entry either parses or is rejected — the corpus must never
+        // panic, and the two complete SELECT/CONSTRUCT queries must parse.
         for (i, input) in corpus.iter().enumerate() {
-            println!("SPARQL Corpus {}: {:?}", i, fuzz_sparql_parser(input));
+            let outcome = fuzz_sparql_parser(input);
+            if i < 3 {
+                assert!(outcome.is_ok(), "well-formed SPARQL corpus {i} rejected: {outcome:?}");
+            } else {
+                let _ = outcome; // malformed tail: rejection or lenient accept, no panic
+            }
         }
     }
 }

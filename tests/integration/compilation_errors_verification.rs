@@ -195,11 +195,14 @@ mod tests {
 
         println!("Created parser: IntParser");
 
-        // Verify the type is correct (would fail if wrong type)
-        let _: IntParser = parser;
-
-        println!("✓ E0283 fix verified: Type annotation resolves ambiguity");
-        println!("✓ Compiler can infer concrete type with annotation");
+        // Verify the type is correct (would fail to compile if wrong type),
+        // and that the annotated parser is the zero-sized marker it claims.
+        let typed: IntParser = parser;
+        assert_eq!(
+            std::mem::size_of_val(&typed),
+            0,
+            "IntParser must stay a zero-sized type"
+        );
     }
 
     /// Test E0599 Fix: Method Not Found
@@ -357,13 +360,18 @@ mod tests {
         // Valid state transitions
         let machine = StateMachine::<Idle>::new();
         let machine = machine.start();
-        let _machine = machine.stop();
+        let machine = machine.stop();
+
+        // The typestate is zero-cost: every state is a ZST carried purely at
+        // the type level.
+        assert_eq!(
+            std::mem::size_of_val(&machine),
+            0,
+            "typestate machine must be zero-sized"
+        );
 
         // The following would NOT compile (prevents runtime errors):
         // let machine = StateMachine::<Idle>::new();
         // machine.stop();  // Error: no method `stop` on Idle state
-
-        println!("✓ Type-level state machine prevents invalid transitions");
-        println!("✓ Compile-time safety eliminates entire classes of errors");
     }
 }

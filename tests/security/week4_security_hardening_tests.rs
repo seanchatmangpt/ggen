@@ -187,10 +187,10 @@ mod command_injection_tests {
 
     #[test]
     fn test_command_executor_git() {
-        // Test executor wrapper
+        // git is guaranteed in this repo's dev/CI environments (the test
+        // suite itself lives in a git checkout).
         let result = CommandExecutor::git(&["--version"]);
-        // Will fail if git not installed, but tests the API
-        let _ = result;
+        assert!(result.is_ok(), "git --version must succeed: {result:?}");
     }
 }
 
