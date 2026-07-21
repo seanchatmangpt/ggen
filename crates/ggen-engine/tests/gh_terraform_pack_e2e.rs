@@ -394,11 +394,7 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         !l5.contains("未実施"),
         "no 未実施 rows should remain after C16/C18 closure: {l5}"
     );
-    for receipt in [
-        "blake3:80aa8e6d",
-        "blake3:c394e85b",
-        "blake3:ae62dda5",
-    ] {
+    for receipt in ["blake3:80aa8e6d", "blake3:c394e85b", "blake3:ae62dda5"] {
         assert!(
             l5.contains(receipt),
             "L5-STATUS.md ALIVE rows must cite live receipt {receipt}: {l5}"
@@ -407,6 +403,65 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
     assert!(
         l5.contains(".tcps/acceptance-receipts.jsonl"),
         "L5-STATUS.md must name the durable receipt chain file: {l5}"
+    );
+
+    // (7b) Scheduled drift-detection workflow (第二十九章 condition 8):
+    // generated at .github/workflows/tcps-drift.yml, cron-scheduled,
+    // manually dispatchable, and NEVER contains a terraform apply.
+    let wf = read(&project, ".github/workflows/tcps-drift.yml");
+    assert!(wf.contains("name: tcps-drift"), "workflow name: {wf}");
+    assert!(wf.contains("schedule:"), "workflow must be scheduled: {wf}");
+    assert!(
+        wf.contains("cron") && wf.contains("43 6 * * *"),
+        "workflow must carry the cron expression: {wf}"
+    );
+    assert!(
+        wf.contains("workflow_dispatch"),
+        "workflow must allow manual dispatch: {wf}"
+    );
+    assert!(
+        !wf.contains("terraform apply"),
+        "drift workflow is read-only plan and must NEVER apply: {wf}"
+    );
+    assert!(
+        wf.contains("drift-report.sh") && wf.contains("accept-import.sh"),
+        "workflow must run the generated standard-work scripts: {wf}"
+    );
+    assert!(
+        wf.contains("Terraform漂流 detected"),
+        "workflow must open the andon issue on drift: {wf}"
+    );
+
+    // (7c) SYSTEM-L5-STATUS.md (第二十九章, 12 system conditions) renders
+    // exactly 12 data rows; condition 8 is honestly PARTIAL (first
+    // scheduled run pending) and cites the committed workflow.
+    let sys = read(&project, "docs/gh-terraform/SYSTEM-L5-STATUS.md");
+    let sys_rows = sys
+        .lines()
+        .filter(|l| l.starts_with("| ") && !l.starts_with("| #"))
+        .count();
+    assert_eq!(
+        sys_rows, 12,
+        "SYSTEM-L5-STATUS.md must render 12 rows: {sys}"
+    );
+    assert!(
+        sys.contains("PARTIAL") && sys.contains("first scheduled run pending"),
+        "condition 8 must stay honestly PARTIAL until a scheduled run exists: {sys}"
+    );
+    assert!(
+        sys.contains("tcps-drift.yml"),
+        "condition 8 evidence must cite the generated workflow: {sys}"
+    );
+    assert!(
+        sys.contains("ci-classify.sh in flight"),
+        "condition 9 must stay PARTIAL with in-flight evidence: {sys}"
+    );
+
+    // (7d) The 漂流対応 manual cites the scheduled workflow.
+    let hyouryuu = read(&project, "docs/gh-terraform/漂流対応.md");
+    assert!(
+        hyouryuu.contains("tcps-drift.yml"),
+        "漂流対応 manual must cite the scheduled drift workflow: {hyouryuu}"
     );
 
     // (6) Second sync is a no-op: nothing written, lock byte-identical.
@@ -496,7 +551,11 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
 
     let content = std::fs::read_to_string(&ledger).expect("read ledger");
     let lines: Vec<&str> = content.lines().collect();
-    assert_eq!(lines.len(), 2, "ledger must have exactly 2 lines: {content}");
+    assert_eq!(
+        lines.len(),
+        2,
+        "ledger must have exactly 2 lines: {content}"
+    );
 
     // Expected prev_hash = sha256 of the first line exactly as the script
     // hashes it (tail -n 1 output, i.e. line + trailing newline).
