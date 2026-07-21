@@ -86,8 +86,9 @@ ctl:O-4-restand-BrokenJustSyncRecipes a ctl:Obligation ;
 ctl:O-5-evidence-pass a ctl:Obligation ;
     rdfs:label "6 SPOFs carry only a file-pointer as evidence, need a fresh evidence pass" ;
     ctl:priority 11 ;
-    ctl:state ctl:READY ;
-    ctl:nextAction "FreezeAlwaysNoDriftDetection, ReflexiveReceiptSkip, StandingCeilingHardcoded, DualObligationCounters, UnmechanizedLawsDisclosed, FleetCensusObservationOnly -- each needs its evidencePath's claim independently re-derived with an inline evidence string, same discipline as the other 15." .
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "retrofit/ggen-self-g2, as-found verification pass; FreezeAlwaysNoDriftDetection's repair additionally in commits c0cddb253+69729d219" ;
+    ctl:nextAction "Bookkeeping close 2026-07-21: all 6 named SPOFs (FreezeAlwaysNoDriftDetection, ReflexiveReceiptSkip, StandingCeilingHardcoded, DualObligationCounters, UnmechanizedLawsDisclosed, FleetCensusObservationOnly) already carry a real inline evidence string in ../load-path.ttl, independently re-derived rather than a bare file-pointer -- 5 Accepted (ReflexiveReceiptSkip/DualObligationCounters/UnmechanizedLawsDisclosed/FleetCensusObservationOnly as disclosed-bounded-or-by-design divergences, plus FreezeAlwaysNoDriftDetection now Accepted since its full repair this generation, see O-5-restand-FreezeAlwaysNoDriftDetection), 1 correctly still Blocking (StandingCeilingHardcoded, since the production ceiling floor is unchanged by design pending a real trust decision -- see O-Promotion). The evidence pass itself completed earlier this generation, this parent obligation was just never flipped off READY." .
 
 ctl:AP-001 a ctl:Obligation ;
     rdfs:label "Branch protection + CODEOWNERS on seanchatmangpt/ggen" ;
