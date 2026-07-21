@@ -412,11 +412,11 @@ bench:
 
 # Full μ₁-μ₅ sync with cryptographic receipt
 sync:
-    {{GGEN}} sync --audit true
+    {{GGEN}} sync run
 
 # Preview sync without writing any files
 sync-dry:
-    {{GGEN}} sync --dry_run true
+    {{GGEN}} sync run --dry-run
 
 # Generation-ledger receipt: runs a real `ggen sync run` (the live sync verb has
 # no per-rule scoping flag -- `sync_run(dry_run, watch)` in
