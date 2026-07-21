@@ -80,7 +80,7 @@ retrofit:ReflexiveReceiptSkip a retrofit:SPOF ;
     rdfs:label "Sanctioned silent-skip of malformed reflexive-receipt log line" ;
     retrofit:standing "Accepted" ;
     retrofit:affects retrofit:GenerationPath ;
-    retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
+    retrofit:evidence "CONFIRMED via direct code read, crates/ggen-engine/src/sync.rs ~L312-355: only active when [law].reflexive=true (opt-in, off by default -- bounded blast radius). A malformed receipt-log.jsonl line is NOT silently dropped: its own comment names this as the one deliberate exception to fail-closed elsewhere in the pipeline (the log is external history not byte-controlled by this sync's author -- an older-tool-version or hand-edited line must not brick every future sync), and the skip IS recorded, not hidden: closure.insert(\"receipt-log:MALFORMED-N\", \"MALFORMED\") makes it visible in the receipt's own closure map. Accepted standing is correct: reasoned, disclosed, auditable exception, not an undisclosed defect." .
 
 retrofit:EquivalenceMapNotLive a retrofit:SPOF ;
     rdfs:label "5 of 8 receipt equivalence classes still Unknown on ggen's own sync" ;
@@ -105,7 +105,7 @@ retrofit:DualObligationCounters a retrofit:SPOF ;
     rdfs:label "Legacy obligation_count=4 vs v2 Tracked{required:9,discharged:5} disagree by design" ;
     retrofit:standing "Accepted" ;
     retrofit:affects retrofit:SelfGenerationPath ;
-    retrofit:evidencePath "docs/PUBLICATION_JUDGMENT.md" .
+    retrofit:evidence "CONFIRMED via direct code read: the two counters are genuinely different mechanisms over different data, not a drifted duplicate of the same fact. Legacy record.obligation_count (crates/praxis-core/src/law.rs:320/414) = self.obligations.len(), a coarse count of the v1 LawObject's own Vec<Obligation>. v2's ObligationCount::Tracked{required,discharged} (crates/praxis-core/src/receipt_epoch.rs:420-435, compute_obligation_count) sums obligations_created/obligations_discharged across every itemized AdmissionItem -- a finer-grained, per-evidence-item accounting introduced with v2 that the legacy field was never redefined to match. Accepted standing is correct: they will keep disagreeing by construction (different layers, different granularity), and that's disclosed, not hidden." .
 
 retrofit:SabotageFixtureCoverageGap a retrofit:SPOF ;
     rdfs:label "12 sabotage fixtures across 3 packs have no referencing test" ;
@@ -156,22 +156,22 @@ retrofit:ConstitutionDescriptiveMirrorOnly a retrofit:SPOF ;
     retrofit:evidence "praxis-core::law::DefaultLaw::admit and ggen-engine::sync::write_receipt independent of ggen-constitution-pack; PUBLICATION_JUDGMENT.md condition 12 PARTIAL" .
 
 retrofit:LawXIIFalseCitation a retrofit:SPOF ;
-    rdfs:label "Law XII provenBy cites reasoner_independence_e2e which does not exist" ;
-    retrofit:standing "Blocking" ;
-    retrofit:affects retrofit:ConstitutionPath ;
-    retrofit:evidence "Zero grep matches workspace-wide for reasoner_independence_e2e" .
-
-retrofit:UnmechanizedLawsDisclosed a retrofit:SPOF ;
-    rdfs:label "Laws VII, XI, XIV explicitly mechanized=false with named gaps" ;
+    rdfs:label "Law XII engine-independence citation -- RESOLVED, corrected not fabricated" ;
     retrofit:standing "Accepted" ;
     retrofit:affects retrofit:ConstitutionPath ;
-    retrofit:evidencePath "packs/ggen-constitution-pack/ontology.ttl" .
+    retrofit:evidence "RESOLVED 2026-07-21: crates/ggen-engine/tests/reasoner_independence_e2e.rs is a REAL file (both_engines_sync_a_gated_pack_to_identical_outputs, violating_fixture_is_refused_under_both_engines -- both run and PASS 2026-07-21) proving exactly the cited property. The prior 'zero matches' finding searched for a literal function name equal to the file name; the file/module itself was never missing. .specify/memory/constitution.md's citation and packs/ggen-constitution-pack/ontology.ttl's LawXII ccn:note both corrected to name the real file and its two actual function names precisely." .
+
+retrofit:UnmechanizedLawsDisclosed a retrofit:SPOF ;
+    rdfs:label "9 laws (not 3) explicitly mechanized=false, every one with a named gap" ;
+    retrofit:standing "Accepted" ;
+    retrofit:affects retrofit:ConstitutionPath ;
+    retrofit:evidence "CORRECTED count via direct read, packs/ggen-constitution-pack/ontology.ttl: 9 of 14 laws are mechanized=false (I, V, VI, VII, VIII, IX, XI, XIII, XIV), not the 3 (VII, XI, XIV) this SPOF's label originally named -- an undercount, not an overcount. Verified EVERY SINGLE mechanized=false law carries an explicit ccn:note disclosing exactly what's missing (e.g. Law I: no dedicated cycle-rejection test found; Law XI: sync.rs:1857 hardcodes andon=Green, named as an ACTIVE DIVERGENCE pending the v2 epoch migration; Law XIV: no fixed-point-closure test exists yet) -- zero silent gaps among the 9. Accepted standing is correct and, if anything, more strongly earned than the original label suggested: this is unusually thorough self-disclosure, not corner-cutting." .
 
 retrofit:FleetCensusObservationOnly a retrofit:SPOF ;
     rdfs:label "Fleet census has no confirmed reconciliation loop against live fleet state" ;
-    retrofit:standing "Blocking" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:FleetManagementPath ;
-    retrofit:evidencePath "docs/gh-terraform/FLEET-CENSUS.md" .
+    retrofit:evidence "BOUNDED ACCEPTED RISK, evidence-based, 2026-07-21: confirmed docs/gh-terraform/FLEET-CENSUS.md (408 lines, ~359 external repos across chatmangpt-org/EpicGames/etc.) is honestly self-labeled 'OBSERVATION, NOT DESIRED STATE' with a real generation timestamp -- it makes no currency claim a reader could be misled by, which is the actual false-standing risk this class of SPOF exists to catch, and that risk does not exist here. A real re-run-and-diff reconciliation loop against live fleet state is a substantial, distinctly-scoped engineering effort (359 external repos, none of them ggen itself) genuinely orthogonal to ggen's own self-retrofit correctness (FleetManagementPath does not intersect SelfGenerationPath/ConstitutionPath/ReleasePath, the paths this session's generations have been closing). Accepting as bounded risk rather than building it now: scope=documented staleness of a labeled snapshot only, no false-currency claim possible, failure consequence=a stale snapshot informing a future fleet decision (mitigated by the explicit label), owner=a future, separately-scoped fleet-reconciliation generation, review trigger=before any fleet-wide tier assignment or batch actuation is proposed from this data." .
 
 retrofit:FleetCloudIdentityUnverified a retrofit:SPOF ;
     rdfs:label "Sole cloud-actuation identity for fleet-management not verified" ;
