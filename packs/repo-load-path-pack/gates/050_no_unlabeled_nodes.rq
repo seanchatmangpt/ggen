@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?node WHERE { ?node a ret:LoadNode . FILTER NOT EXISTS { ?node ret:nodeLabel ?label } }

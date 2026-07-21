@@ -1,0 +1,4 @@
+[pack]
+name = "repo-reconciliation-pack"
+version = "26.7.20"
+description = "as-found、as-desired、as-built、as-operatedを照合し、差異、隔離、再認証、standing上限を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): all_deltas_are_classified=true, unknown_is_serialized=true, blocking_delta_prevents_promotion=true, standing_is_meet=true. Depends on: as_found_pack 26.7.20, load_path_pack 26.7.20, intervention_pack 26.7.20, temporary_works_pack 26.7.20, mermaid_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description)."

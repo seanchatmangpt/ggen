@@ -1,0 +1,1 @@
+負例は停止義務が開いたまま昇格を許可し、`040_blocking_obligation_prevents_promotion.rq`が拒否する。

@@ -1,0 +1,6 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?repo ?missing WHERE {
+ { ?repo a ret:Repository . FILTER NOT EXISTS { ?repo ret:repositoryName ?n } BIND("repositoryName" AS ?missing) }
+ UNION { ?repo a ret:Repository . FILTER NOT EXISTS { ?repo ret:repositoryUrl ?u } BIND("repositoryUrl" AS ?missing) }
+ UNION { ?repo a ret:Repository . FILTER NOT EXISTS { ?repo ret:defaultBranch ?b } BIND("defaultBranch" AS ?missing) }
+}

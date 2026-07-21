@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?x WHERE { ?x ret:andon ret:Red ; ret:promotionAllowed true . }

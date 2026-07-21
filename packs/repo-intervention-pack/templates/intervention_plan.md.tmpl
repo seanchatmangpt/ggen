@@ -1,0 +1,31 @@
+---
+to: "docs/retrofit/intervention/介入計画.md"
+sparql:
+  plans: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?id ?classLabel ?currentLabel ?targetLabel ?reason ?ceiling WHERE {
+      ?i a ret:Intervention ; ret:interventionId ?id ; ret:interventionClass ?class ; ret:currentObjective ?current ; ret:targetObjective ?target ; ret:rationale ?reason ; ret:standingCeiling ?ceiling .
+      ?class skos:prefLabel ?classLabel . ?current skos:prefLabel ?currentLabel . ?target skos:prefLabel ?targetLabel .
+    }
+  work: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?index ?title ?reversible ?criterion WHERE { ?w a ret:WorkPackage ; ret:sequenceIndex ?index ; dct:title ?title ; ret:reversible ?reversible ; ret:acceptanceCriterion ?criterion . } ORDER BY ?index
+---
+# 介入計画
+
+{% for p in plans %}- 識別: `{{ p.id }}`
+- 分類: **{{ p.classLabel }}**
+- 現在性能: {{ p.currentLabel }}
+- 目標性能: {{ p.targetLabel }}
+- 理由: {{ p.reason }}
+- standing上限: `{{ p.ceiling }}`
+{% endfor %}
+
+## 作業包
+
+| 順序 | 作業 | 可逆 | 受入れ条件 |
+|---:|---|---|---|
+{% for w in work %}| {{ w.index }} | {{ w.title }} | {{ w.reversible }} | {{ w.criterion }} |
+{% endfor %}

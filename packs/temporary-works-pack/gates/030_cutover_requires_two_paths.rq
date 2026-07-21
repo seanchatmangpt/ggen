@@ -1,0 +1,5 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?cutover ?missing WHERE {
+ { ?cutover a ret:Cutover . FILTER NOT EXISTS { ?cutover ret:oldPath ?p } BIND("oldPath" AS ?missing) }
+ UNION { ?cutover a ret:Cutover . FILTER NOT EXISTS { ?cutover ret:newPath ?p } BIND("newPath" AS ?missing) }
+}

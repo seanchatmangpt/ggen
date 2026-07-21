@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?r WHERE { ?r a ret:Reconciliation ; ret:promotionAllowed true ; ret:obligation ?o . ?o a ret:Obligation ; ret:blocking true ; ret:obligationStatus ?s . FILTER(?s != "discharged") }

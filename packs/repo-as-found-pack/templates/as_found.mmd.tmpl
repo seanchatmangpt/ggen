@@ -1,0 +1,11 @@
+---
+to: "docs/retrofit/as-found/現況構成.mmd"
+sparql:
+  nodes: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?name ?kind WHERE { ?s a ret:ObservedSurface ; ret:surfaceName ?name ; ret:surfaceKind ?kind . } ORDER BY ?kind ?name
+---
+flowchart LR
+  repo["既存リポジトリ"]
+{% for n in nodes %}  repo --> {{ loop.index }}["{{ n.kind }}: {{ n.name }}"]
+{% endfor %}

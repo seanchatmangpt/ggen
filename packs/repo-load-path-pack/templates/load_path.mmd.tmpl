@@ -1,0 +1,14 @@
+---
+to: "docs/retrofit/load-path/荷重経路.mmd"
+sparql:
+  nodes: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?id ?label WHERE { ?n a ret:LoadNode ; ret:nodeId ?id ; ret:nodeLabel ?label . } ORDER BY ?id
+  edges: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?fromId ?toId ?load WHERE { ?e a ret:LoadEdge ; ret:fromNode ?from ; ret:toNode ?to ; ret:loadKind ?load . ?from ret:nodeId ?fromId . ?to ret:nodeId ?toId . } ORDER BY ?fromId ?toId
+---
+flowchart LR
+{% for n in nodes %}  {{ n.id }}["{{ n.label }}"]
+{% endfor %}{% for e in edges %}  {{ e.fromId }} -->|"{{ e.load }}"| {{ e.toId }}
+{% endfor %}

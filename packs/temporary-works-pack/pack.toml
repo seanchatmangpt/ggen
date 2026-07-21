@@ -1,0 +1,4 @@
+[pack]
+name = "temporary-works-pack"
+version = "26.7.20"
+description = "影運転、二重経路、凍結、後退路、撤去条件を正式な仮設工として製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): temporary_work_requires_owner=true, temporary_work_requires_expiry=true, cutover_requires_rollback=true, removal_requires_transfer_evidence=true. Depends on: intervention_pack 26.7.20, load_path_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description)."

@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?spof WHERE { ?spof a ret:SinglePointOfFailure . FILTER NOT EXISTS { ?spof ret:blocking true } }

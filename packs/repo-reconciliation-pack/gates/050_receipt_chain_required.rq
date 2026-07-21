@@ -1,0 +1,6 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?receipt ?missing WHERE {
+ { ?receipt a ret:RecertificationReceipt . FILTER NOT EXISTS { ?receipt ret:previousReceiptHash ?h } BIND("previousReceiptHash" AS ?missing) }
+ UNION { ?receipt a ret:RecertificationReceipt . FILTER NOT EXISTS { ?receipt ret:receiptHash ?h } BIND("receiptHash" AS ?missing) }
+ UNION { ?receipt a ret:RecertificationReceipt . FILTER NOT EXISTS { ?receipt ret:standingCeiling ?s } BIND("standingCeiling" AS ?missing) }
+}

@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?delta WHERE { ?delta a ret:Delta ; ret:deltaClass ret:Deletion ; ret:admissionDecision ret:Admitted . FILTER NOT EXISTS { ?delta ret:decisionReason ?reason } }

@@ -1,0 +1,5 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?i ?missing WHERE {
+ { ?i a ret:Intervention . FILTER NOT EXISTS { ?i ret:currentObjective ?o } BIND("currentObjective" AS ?missing) }
+ UNION { ?i a ret:Intervention . FILTER NOT EXISTS { ?i ret:targetObjective ?o } BIND("targetObjective" AS ?missing) }
+}

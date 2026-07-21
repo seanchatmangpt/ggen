@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?observation WHERE { ?observation a ret:RepositoryObservation ; ret:standingCeiling ?s . FILTER(?s != ret:ObservedOnly) }

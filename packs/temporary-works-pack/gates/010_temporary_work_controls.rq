@@ -1,0 +1,8 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?work ?missing WHERE {
+ { ?work a ret:TemporaryWork . FILTER NOT EXISTS { ?work ret:owner ?v } BIND("owner" AS ?missing) }
+ UNION { ?work a ret:TemporaryWork . FILTER NOT EXISTS { ?work ret:purpose ?v } BIND("purpose" AS ?missing) }
+ UNION { ?work a ret:TemporaryWork . FILTER NOT EXISTS { ?work ret:inspectionMethod ?v } BIND("inspectionMethod" AS ?missing) }
+ UNION { ?work a ret:TemporaryWork . FILTER NOT EXISTS { ?work ret:expiresAt ?v } BIND("expiresAt" AS ?missing) }
+ UNION { ?work a ret:TemporaryWork . FILTER NOT EXISTS { ?work ret:removalTrigger ?v } BIND("removalTrigger" AS ?missing) }
+}

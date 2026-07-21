@@ -1,0 +1,8 @@
+---
+to: ".tcps/recertification-receipt.json"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?previous ?current ?andon ?ceiling ?allowed WHERE { ?r a ret:RecertificationReceipt ; ret:previousReceiptHash ?previous ; ret:receiptHash ?current ; ret:andon ?andon ; ret:standingCeiling ?ceiling ; ret:promotionAllowed ?allowed . }
+---
+{"schema":"tcps-recertification-v1","receipts":[{% for r in rows %}{"previous":"{{ r.previous }}","current":"{{ r.current }}","andon":"{{ r.andon }}","standingCeiling":"{{ r.ceiling }}","promotionAllowed":{{ r.allowed }}}{% if not loop.last %},{% endif %}{% endfor %}]}

@@ -1,0 +1,4 @@
+[pack]
+name = "repo-load-path-pack"
+version = "26.7.20"
+description = "既存リポジトリの運用荷重、依存路、単一故障点、切断集合を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): load_paths_are_observed=true, critical_edges_require_evidence=true, unknown_endpoints_refused=true. Depends on: as_found_pack 26.7.20, mermaid_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description)."

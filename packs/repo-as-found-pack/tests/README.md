@@ -1,0 +1,1 @@
+負例は観測時刻と観測方法を欠き、`020_observation_provenance.rq`が拒否しなければならない。

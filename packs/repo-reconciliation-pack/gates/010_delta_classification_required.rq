@@ -1,0 +1,6 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?delta ?missing WHERE {
+ { ?delta a ret:Delta . FILTER NOT EXISTS { ?delta ret:deltaClass ?class . ?class a ret:DeltaClass } BIND("deltaClass" AS ?missing) }
+ UNION { ?delta a ret:Delta . FILTER NOT EXISTS { ?delta ret:admissionDecision ?decision . ?decision a ret:AdmissionDecision } BIND("admissionDecision" AS ?missing) }
+ UNION { ?delta a ret:Delta . FILTER NOT EXISTS { ?delta ret:blocking ?b } BIND("blocking" AS ?missing) }
+}

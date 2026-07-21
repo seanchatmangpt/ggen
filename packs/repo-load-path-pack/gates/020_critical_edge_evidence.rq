@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?edge WHERE { ?edge a ret:LoadEdge ; ret:criticality ret:Critical . FILTER NOT EXISTS { ?edge ret:verifiedBy ?e . ?e a ret:VerificationEvidence } }

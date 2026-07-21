@@ -1,0 +1,51 @@
+@prefix ret:  <https://seanchatmangpt.github.io/ontology/retrofit#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ret:LoadNode a rdfs:Class .
+ret:LoadEdge a rdfs:Class .
+ret:LoadPath a rdfs:Class .
+ret:FailureMode a rdfs:Class .
+ret:SinglePointOfFailure a rdfs:Class .
+ret:CutSet a rdfs:Class .
+ret:VerificationEvidence a rdfs:Class .
+
+ret:nodeId a rdf:Property .
+ret:nodeLabel a rdf:Property .
+ret:nodeKind a rdf:Property .
+ret:edgeId a rdf:Property .
+ret:fromNode a rdf:Property .
+ret:toNode a rdf:Property .
+ret:loadKind a rdf:Property .
+ret:criticality a rdf:Property .
+ret:failureEffect a rdf:Property .
+ret:alternatePath a rdf:Property .
+ret:verifiedBy a rdf:Property .
+ret:pathMember a rdf:Property .
+ret:sequenceIndex a rdf:Property .
+ret:sourceNode a rdf:Property .
+ret:sinkNode a rdf:Property .
+ret:blocking a rdf:Property .
+ret:outputPath a rdf:Property .
+
+ret:NodeCommit a ret:LoadNode ; ret:nodeId "commit" ; ret:nodeLabel "変更"@ja ; ret:nodeKind "source" .
+ret:NodeCI a ret:LoadNode ; ret:nodeId "ci" ; ret:nodeLabel "CI検査"@ja ; ret:nodeKind "inspection" .
+ret:NodeArtifact a ret:LoadNode ; ret:nodeId "artifact" ; ret:nodeLabel "製品"@ja ; ret:nodeKind "product" .
+ret:NodeRelease a ret:LoadNode ; ret:nodeId "release" ; ret:nodeLabel "公開"@ja ; ret:nodeKind "promotion" .
+ret:NodeConsumer a ret:LoadNode ; ret:nodeId "consumer" ; ret:nodeLabel "下流利用先"@ja ; ret:nodeKind "sink" .
+
+ret:EvidenceCI a ret:VerificationEvidence ; dct:title "CI workflow and required-check observation" .
+ret:EvidenceRelease a ret:VerificationEvidence ; dct:title "release workflow and asset observation" .
+
+ret:EdgeCommitCI a ret:LoadEdge ; ret:edgeId "commit-ci" ; ret:fromNode ret:NodeCommit ; ret:toNode ret:NodeCI ; ret:loadKind "change" ; ret:criticality ret:Critical ; ret:failureEffect "変更が検査されない"@ja ; ret:verifiedBy ret:EvidenceCI .
+ret:EdgeCIArtifact a ret:LoadEdge ; ret:edgeId "ci-artifact" ; ret:fromNode ret:NodeCI ; ret:toNode ret:NodeArtifact ; ret:loadKind "standing" ; ret:criticality ret:Critical ; ret:failureEffect "未検査製品が生成される"@ja ; ret:verifiedBy ret:EvidenceCI .
+ret:EdgeArtifactRelease a ret:LoadEdge ; ret:edgeId "artifact-release" ; ret:fromNode ret:NodeArtifact ; ret:toNode ret:NodeRelease ; ret:loadKind "promotion" ; ret:criticality ret:Critical ; ret:failureEffect "不正製品が公開される"@ja ; ret:verifiedBy ret:EvidenceRelease .
+ret:EdgeReleaseConsumer a ret:LoadEdge ; ret:edgeId "release-consumer" ; ret:fromNode ret:NodeRelease ; ret:toNode ret:NodeConsumer ; ret:loadKind "distribution" ; ret:criticality ret:Critical ; ret:failureEffect "下流利用先が不正製品を受領する"@ja ; ret:verifiedBy ret:EvidenceRelease .
+
+ret:PrimaryReleasePath a ret:LoadPath ; ret:sourceNode ret:NodeCommit ; ret:sinkNode ret:NodeConsumer ; ret:pathMember ret:EdgeCommitCI, ret:EdgeCIArtifact, ret:EdgeArtifactRelease, ret:EdgeReleaseConsumer .
+ret:ReleaseGateSPOF a ret:SinglePointOfFailure ; ret:pathMember ret:EdgeArtifactRelease ; ret:blocking true ; ret:failureEffect "公開経路全体停止または無検査公開"@ja .
