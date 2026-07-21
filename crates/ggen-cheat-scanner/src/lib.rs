@@ -145,7 +145,13 @@ impl<'ast> Visit<'ast> for AssertionCollector {
         if matches!(name.as_str(), "assert" | "assert_eq" | "assert_ne") {
             self.asserts.push(m.clone());
             self.any_failure_capable = true;
-        } else if matches!(name.as_str(), "panic" | "unreachable" | "todo" | "unimplemented") {
+        } else if matches!(name.as_str(), "panic" | "unreachable" | "todo" | "unimplemented")
+            // Assertion *helper macros* by convention (`assert_eq_msg!`,
+            // `assert_err!`, proptest's `assert_matches!`…) — failure-capable,
+            // but not counted in `asserts` so T01's vacuous-assert check stays
+            // anchored to the std assert! family.
+            || name.starts_with("assert")
+        {
             self.any_failure_capable = true;
         }
         visit::visit_macro(self, m);
@@ -475,8 +481,21 @@ pub fn find_mock_substitutes(records: &[ImplRecord]) -> Vec<Finding> {
         by_trait.entry(r.trait_name.as_str()).or_default().push(r);
     }
 
+    // Ubiquitous std/serde traits implemented by virtually every type. A
+    // `FakeXxx: Default` next to a production `Yyy: Default` is not a
+    // collaborator substitution — the rule targets *domain* trait seams.
+    const UBIQUITOUS_TRAITS: &[&str] = &[
+        "Default", "Clone", "Debug", "Display", "PartialEq", "Eq", "PartialOrd", "Ord", "Hash",
+        "From", "Into", "TryFrom", "TryInto", "AsRef", "AsMut", "Deref", "DerefMut", "Drop",
+        "Iterator", "IntoIterator", "FromIterator", "FromStr", "Error", "Serialize",
+        "Deserialize",
+    ];
+
     let mut findings = Vec::new();
     for (trait_name, impls) in by_trait {
+        if UBIQUITOUS_TRAITS.contains(&trait_name) {
+            continue;
+        }
         let mock_impls: Vec<&&ImplRecord> = impls
             .iter()
             .filter(|r| is_mock_or_fake_name(&r.type_name))

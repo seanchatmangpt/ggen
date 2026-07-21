@@ -158,3 +158,14 @@ fn cheat_t03_does_not_flag_assert_helper_delegation() {
         "did not expect CHEAT-T03 on a test delegating to an assert_* helper fn, got: {findings:?}"
     );
 }
+
+#[test]
+fn cheat_t04_does_not_flag_shared_ubiquitous_std_trait() {
+    let (src, path) = fixture("t04_substitute_std_trait_clean.rs");
+    let records = collect_impls(&src, &path);
+    let findings = find_mock_substitutes(&records);
+    assert!(
+        findings.is_empty(),
+        "did not expect CHEAT-T04 when a Fake* type shares only `Default` with a production type, got: {findings:?}"
+    );
+}

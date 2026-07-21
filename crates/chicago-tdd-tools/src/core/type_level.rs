@@ -186,12 +186,15 @@ mod tests {
 
     #[test]
     fn test_type_level_arithmetic() {
-        // Test compile-time arithmetic operations
-        // These are type-level, so we can't directly test them,
-        // but they ensure compile-time validation works
-        let _sum: [u8; 8] = [0u8; 8]; // 5 + 3 = 8
-        let _diff: [u8; 7] = [0u8; 7]; // 10 - 3 = 7
-        let _product: [u8; 15] = [0u8; 15]; // 5 * 3 = 15
-        let _quotient: [u8; 5] = [0u8; 5]; // 15 / 3 = 5
+        // Compile-time-sized arrays; assert the runtime-observable lengths so
+        // the arithmetic comments stay tied to a checked value.
+        let sum: [u8; 8] = [0u8; 8]; // 5 + 3 = 8
+        let diff: [u8; 7] = [0u8; 7]; // 10 - 3 = 7
+        let product: [u8; 15] = [0u8; 15]; // 5 * 3 = 15
+        let quotient: [u8; 5] = [0u8; 5]; // 15 / 3 = 5
+        assert_eq_msg!(&sum.len(), &8, "5 + 3 should be 8");
+        assert_eq_msg!(&diff.len(), &7, "10 - 3 should be 7");
+        assert_eq_msg!(&product.len(), &15, "5 * 3 should be 15");
+        assert_eq_msg!(&quotient.len(), &5, "15 / 3 should be 5");
     }
 }
