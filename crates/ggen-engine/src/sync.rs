@@ -21,7 +21,7 @@
 //! emission path.
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     sync::Arc,
     time::Instant,
@@ -29,9 +29,9 @@ use std::{
 
 use praxis_core::{
     receipt_epoch::{
-        read_receipt_epoch, AdmissionDecision, AdmissionItem, AndonLevel, CeilingLevel,
-        ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome, ReceiptEpochV2Builder,
-        SCHEMA_V2,
+        read_receipt_epoch, AdmissionDecision, AdmissionItem, AdmissionLedger, AndonLevel,
+        CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome,
+        ReceiptEpochV2, ReceiptEpochV2Builder, SCHEMA_V2,
     },
     receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION},
     Andon,
@@ -1843,6 +1843,93 @@ fn compare_closure_class(
     ))
 }
 
+/// Which [`ComponentLevels`] axis an admitted external `ver:Check` fact's
+/// stable name (`ver:name`, e.g. `test-workspace`, `clippy-reference-gate`,
+/// `fmt-check`, `build`) feeds. Substring-based on purpose: the verify-pack
+/// vocabulary deliberately leaves `ver:name` open (consumers add their own
+/// required checks), so an unrecognized name lands on the `gate` aggregate
+/// axis -- exactly the "everything else passed/failed" bucket
+/// `ComponentLevels::gate`'s own doc comment reserves for it -- rather than
+/// being dropped.
+fn verify_check_axis(name: &str) -> &'static str {
+    if name.contains("test") {
+        "test"
+    } else if name.contains("clippy") || name.contains("lint") {
+        "lint"
+    } else if name.contains("fmt") {
+        "fmt"
+    } else {
+        "gate"
+    }
+}
+
+/// The `{check name -> observed outcome}` submap of one receipt's admission
+/// ledger restricted to external `ver:` evidence items on either the `test`
+/// axis (`test_axis == true`, feeding the `tests` equivalence class) or the
+/// three non-test axes (`test_axis == false`, feeding `gates`).
+fn verify_outcome_map(
+    items: &[AdmissionItem], test_axis: bool,
+) -> BTreeMap<String, ObservedOutcome> {
+    items
+        .iter()
+        .filter_map(|item| {
+            let name = item.evidence_id.strip_prefix("ver:")?;
+            if (verify_check_axis(name) == "test") == test_axis {
+                Some((name.to_string(), item.observed_outcome.clone()))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+/// Evaluate the `tests`/`gates` equivalence class from admitted external
+/// `ver:Check` evidence: this run's per-check outcomes vs the previous
+/// receipt's recorded `ver:` admission items. `Unknown` stays the honest
+/// answer whenever EITHER side has no evidence for the class -- absence of
+/// evidence is never promoted to `Equivalent`.
+fn compare_verify_class(
+    class: &'static str, test_axis: bool, current_items: &[AdmissionItem],
+    prev_epoch: &ReceiptEpochV2,
+) -> EquivalenceStatus {
+    let prev_items: &[AdmissionItem] = match &prev_epoch.admission {
+        AdmissionLedger::Recorded(items) => items,
+        AdmissionLedger::LegacyUnrecorded => &[],
+    };
+    let cur = verify_outcome_map(current_items, test_axis);
+    let prev = verify_outcome_map(prev_items, test_axis);
+    if cur.is_empty() || prev.is_empty() {
+        return EquivalenceStatus::Unknown;
+    }
+    if cur == prev {
+        return EquivalenceStatus::Equivalent;
+    }
+    let mut diffs: Vec<String> = Vec::new();
+    for (name, outcome) in &cur {
+        match prev.get(name) {
+            None => diffs.push(format!("added `{name}`")),
+            Some(prev_outcome) if prev_outcome != outcome => {
+                diffs.push(format!("changed `{name}`"))
+            }
+            Some(_) => {}
+        }
+    }
+    for name in prev.keys() {
+        if !cur.contains_key(name) {
+            diffs.push(format!("removed `{name}`"));
+        }
+    }
+    let shown = diffs.iter().take(4).cloned().collect::<Vec<_>>().join(", ");
+    let suffix = if diffs.len() > 4 {
+        format!(" (+{} more)", diffs.len() - 4)
+    } else {
+        String::new()
+    };
+    EquivalenceStatus::Divergent(format!(
+        "external ver:Check {class} outcomes differ from previous receipt: {shown}{suffix}"
+    ))
+}
+
 ///
 /// `graph`: the already-loaded project+pack union graph for this run,
 /// queried here for `ccn:Law` individuals (see the admission-items block
@@ -1851,7 +1938,6 @@ fn compare_closure_class(
 pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
 ) -> Result<()> {
-
     use std::io::Write as _;
 
     // Bind every decision target that exists on disk (written this run or
@@ -2003,23 +2089,91 @@ pub(crate) fn write_receipt(
         }
     }
 
-    let prev_ceiling = match &prev_head {
-        Some(prev) => {
-            read_receipt_epoch(&prev.record)
-                .map_err(|e| {
-                    AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
-                })?
-                .standing_ceiling
+    // ── External verification evidence (the ggen-verify-pack lane) ─────
+    //
+    // When the already-loaded union graph carries admitted `ver:Check`
+    // facts (emitted by a consumer's verify script per
+    // `packs/ggen-verify-pack/ontology.ttl` -- real exit codes of
+    // externally-run commands, never hand-authored), each one becomes an
+    // itemized admission entry AND live per-axis component evidence. A red
+    // check whose name is an allowlisted `ver:KnownDivergence` is recorded
+    // as `Fail` honestly but does not lower the axis -- the same accepted-
+    // divergence semantics the pack's own `020_evidence_green.rq` gate
+    // enforces. A graph with no `ver:Check` facts gets zero rows back and
+    // every axis stays at the uniform floor below.
+    const VERIFY_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name ?exit WHERE { ?c a ver:Check ; ver:name ?name ; ver:exitCode ?exit . } ORDER BY ?name";
+    const KNOWN_DIVERGENCE_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name WHERE { ?kd a ver:KnownDivergence ; ver:name ?name . } ORDER BY ?name";
+    let mut allowlisted_divergences: BTreeSet<String> = BTreeSet::new();
+    if let EngineQueryResults::Solutions(rows) = graph.query(KNOWN_DIVERGENCE_QUERY)? {
+        for row in rows {
+            if let Some(EngineValue::String(name)) = row.get("name") {
+                allowlisted_divergences.insert(name.clone());
+            }
         }
+    }
+    let mut ver_checks: BTreeMap<String, i64> = BTreeMap::new();
+    if let EngineQueryResults::Solutions(rows) = graph.query(VERIFY_CHECK_QUERY)? {
+        for row in rows {
+            let Some(EngineValue::String(name)) = row.get("name") else {
+                continue;
+            };
+            let Some(EngineValue::Int(exit)) = row.get("exit") else {
+                continue;
+            };
+            ver_checks.insert(name.clone(), *exit);
+        }
+    }
+    for (name, exit) in &ver_checks {
+        let pass = *exit == 0;
+        let allowlisted = allowlisted_divergences.contains(name);
+        admission_items.push(AdmissionItem {
+            evidence_id: format!("ver:{name}"),
+            observed_outcome: if pass {
+                ObservedOutcome::Pass
+            } else {
+                ObservedOutcome::Fail
+            },
+            decision: AdmissionDecision::Admitted,
+            reason: if pass {
+                "ver:Check exitCode=0 (externally-run evidence admitted via the graph)".to_string()
+            } else if allowlisted {
+                format!(
+                    "ver:Check exitCode={exit}, allowlisted as ver:KnownDivergence -- \
+                     recorded as Fail, does not lower the component axis"
+                )
+            } else {
+                format!(
+                    "ver:Check exitCode={exit} -- red external evidence; lowers the \
+                     `{}` component axis by the meet law",
+                    verify_check_axis(name)
+                )
+            },
+            obligations_discharged: Vec::new(),
+            obligations_created: Vec::new(),
+        });
+    }
+
+    let prev_epoch = match &prev_head {
+        Some(prev) => Some(read_receipt_epoch(&prev.record).map_err(|e| {
+            AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
+        })?),
+        None => None,
+    };
+    let prev_ceiling = match &prev_epoch {
+        Some(epoch) => epoch.standing_ceiling,
         // Genesis: no prior evidence to constrain the ceiling yet -- Green
         // is the lattice's top/identity element (see `CeilingLevel::Green`).
         None => CeilingLevel::Green,
     };
 
-    // This generation's only real signal is "did every output admit
-    // cleanly", so all four named components mirror that single level
-    // (see `ComponentLevels::uniform`'s doc comment) rather than fabricating
-    // independent lint/test/fmt results this call site never observed.
+    // The admission-derived level is this generation's uniform floor: every
+    // axis starts there (see `ComponentLevels::uniform`'s doc comment --
+    // sync-time has no independent lint/test/fmt observations of its own).
+    // Admitted external `ver:Check` evidence then refines individual axes
+    // strictly by the meet law: a red, non-allowlisted check lowers its axis
+    // to Red; a green (or allowlisted-red) check leaves the axis at the
+    // floor -- evidence can never raise an axis above the floor, and an axis
+    // with NO evidence stays exactly at the floor, never rounded up.
     let provisional_level = if admission_items
         .iter()
         .any(|i| i.decision == AdmissionDecision::Refused)
@@ -2033,20 +2187,42 @@ pub(crate) fn write_receipt(
     } else {
         AndonLevel::Green
     };
-    let components = ComponentLevels::uniform(provisional_level);
+    let mut components = ComponentLevels::uniform(provisional_level);
+    for (name, exit) in &ver_checks {
+        let evidence_level = if *exit == 0 || allowlisted_divergences.contains(name) {
+            AndonLevel::Green
+        } else {
+            AndonLevel::Red
+        };
+        let axis = match verify_check_axis(name) {
+            "test" => &mut components.test,
+            "lint" => &mut components.lint,
+            "fmt" => &mut components.fmt,
+            _ => &mut components.gate,
+        };
+        *axis = (*axis).min(evidence_level);
+    }
 
     // Equivalence: `source`/`config` are evaluated against the previous
-    // receipt's input closure by byte-hash equality. Genesis (no previous
-    // receipt) has nothing to compare against, so both stay `Unknown`
-    // honestly rather than defaulting to `Equivalent`-from-absence.
-    let equivalence = match &prev_head {
-        Some(prev) => {
+    // receipt's input closure by byte-hash equality; `tests`/`gates` are
+    // evaluated from admitted external `ver:Check` outcomes vs the previous
+    // receipt's recorded `ver:` admission items (see
+    // `compare_verify_class` -- `Unknown` whenever either side lacks
+    // evidence for the class). Genesis (no previous receipt) has nothing to
+    // compare against, so all four stay `Unknown` honestly rather than
+    // defaulting to `Equivalent`-from-absence. The remaining four classes
+    // stay explicitly `Unknown` because this call site does not evaluate
+    // them.
+    let equivalence = match (&prev_head, &prev_epoch) {
+        (Some(prev), Some(prev_epoch)) => {
             let mut map = EquivalenceMap::all_unknown();
             map.source = compare_closure_class("source", &report.closure, &prev.payload.closure);
             map.config = compare_closure_class("config", &report.closure, &prev.payload.closure);
+            map.tests = compare_verify_class("tests", true, &admission_items, prev_epoch);
+            map.gates = compare_verify_class("gates", false, &admission_items, prev_epoch);
             map
         }
-        None => EquivalenceMap::all_unknown(),
+        _ => EquivalenceMap::all_unknown(),
     };
 
     let mut epoch_builder =
