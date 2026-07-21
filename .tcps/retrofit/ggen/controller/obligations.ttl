@@ -36,10 +36,31 @@ ctl:O-2 a ctl:Obligation ;
 ctl:O-3 a ctl:Obligation ;
     rdfs:label "BUG-004: ggen agent install reads global path instead of project-local lockfile" ;
     ctl:priority 4 ;
-    ctl:state ctl:VERIFYING ;
-    ctl:nextAction "Fix applied + independently reproduced (agent_lifecycle_test.rs 4/4, ggen-marketplace suite 429/429) + adversarial sabotage executed (Scenario A: global-decoy pack did not cause false already-installed, install landed project-local; Scenario B: genuine project-local duplicate correctly refused without --force, --force control succeeded). Re-running verify-evidence bootstrap + ggen sync run to confirm test-workspace flips green, then commit+push as a follow-up commit on branch retrofit/ggen-self-g2 (PR #360)." ;
-    ctl:verificationRequirement "cargo test -p ggen-cli-lib --test agent_lifecycle_test; cargo test -p ggen-marketplace; cargo clippy -p ggen-marketplace -p ggen-cli-lib -D correctness -D suspicious -D perf" ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "commit 15c1a55a3, retrofit/ggen-self-g2" ;
+    ctl:verificationRequirement "cargo test -p ggen-cli-lib --test agent_lifecycle_test; cargo test -p ggen-marketplace; cargo clippy -p ggen-marketplace -p ggen-cli-lib -D correctness -D suspicious -D perf -- all passed" ;
     ctl:sabotageRequirement "Global-decoy-vs-project-local discrimination -- executed 2026-07-21, both scenarios passed with real filesystem evidence." .
+
+ctl:O-7b a ctl:Obligation ;
+    rdfs:label "ontology_union_and_declaration_order_are_canonical assertion scope" ;
+    ctl:priority 9 ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "commit 6d3b28e64, retrofit/ggen-self-g2" ;
+    ctl:nextAction "Fixed the test's assertion scope (exclude the legitimately order-sensitive closure.ggen.toml raw-byte hash), not engine behavior -- canonicalizing that one closure entry would have been an inconsistent special-case against every other raw-byte-hashed closure entry. Added a dedicated sabotage test proving the exclusion doesn't mask a genuine pack-set difference. 7/7 cross_pack_matrix tests pass." .
+
+ctl:O-Promotion a ctl:Obligation ;
+    rdfs:label "Standing-promotion protocol for the permanent LegacyObserved ceiling floor" ;
+    ctl:priority 3 ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "commit 3f080f7fa, retrofit/ggen-self-g2" ;
+    ctl:nextAction "Implemented PromotionWitness{from_ceiling,to_ceiling,evidence_receipts,closed_obligations,verifier_identity,authorization_basis} + validate_promotion() + ReceiptEpochV2Builder::with_verified_promotion() in praxis-core. 8 tests: valid promotion raises the ceiling, self-authored refused, stale from_ceiling refused, non-raising refused, each required-nonempty field independently refused, normal generation still cannot raise it (no regression), witnessed-value-wins sabotage. Deliberately NOT wired into ggen-engine's production sync.rs loop -- who holds verifier_identity trust in ggen's own autonomous context is genuine external business intent (who is authorized to vouch for ggen's own promotion), the narrow case the design-uncertainty law's escalation exception covers. The mechanism itself is real, tested, and callable once that trust decision is made." .
+
+ctl:O-5-restand-FreezeAlwaysNoDriftDetection a ctl:Obligation ;
+    rdfs:label "FreezePolicy::Always silent drift" ;
+    ctl:priority 1 ;
+    ctl:state ctl:CLOSED ;
+    ctl:receiptRef "commits c0cddb253 + 69729d219, retrofit/ggen-self-g2" ;
+    ctl:nextAction "Full repair, both halves: write.rs's check_freeze now compares candidate content against on-disk content for Always and returns a DRIFT-marked skip reason without changing mutation behavior (7 tests); sync.rs's admission-item construction detects the DRIFT marker and produces Fail+Quarantined with obligations_created:[FROZEN-DRIFT:<path>], pulling derived Andon off Green (2 real e2e tests against an actual parsed receipt.json, including a no-drift control/sabotage proving the detection discriminates rather than always-flagging)." .
 
 ctl:O-4-restand-EquivalenceMapNotLive a ctl:Obligation ;
     rdfs:label "Restand retrofit:EquivalenceMapNotLive -- Generation 2 wired 2 of 6 previously-Unknown classes live" ;
@@ -78,13 +99,6 @@ ctl:O-7a a ctl:Obligation ;
     ctl:state ctl:CLOSED ;
     ctl:nextAction "CLOSED for the 8-pack set crates/ggen-engine/tests/cross_pack_matrix.rs actually exercises (chicago-tdd-tools/clap-noun-verb/lsp-max/praxis-core/star-toml/wasm4pm-algorithms/wasm4pm-cognition/wasm4pm-compat): removed force:true from 18 template frontmatters across those 8 packs (the known write.rs defect class -- force mode always reports a file written even when byte-identical, breaking the 'second sync rewrites nothing' invariant). mega_project_all_packs_sync now passes. NOT closed workspace-wide: a grep found 160+ total force:true occurrences across packs/ -- most (e.g. tcps-release-pack's ~100) were never investigated, may or may not have a legitimate reason, out of scope for this generation. Separate, dedicated pass needed before claiming this class fully closed." ;
     ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix mega_project_all_packs_sync -- real run, passed 2026-07-21." .
-
-ctl:O-7b a ctl:Obligation ;
-    rdfs:label "ontology_union_and_declaration_order_are_canonical: closure.ggen.toml legitimately differs, test assertion may be too strong" ;
-    ctl:priority 9 ;
-    ctl:state ctl:READY ;
-    ctl:nextAction "Root-caused precisely: of 145 leaf JSON fields in the receipt payload, exactly ONE differs between alphabetical and reversed [packs] declaration order -- closure.ggen.toml's hash. This is because the two test-generated ggen.toml files are literally different byte sequences (declaration order swapped by construction) -- the closure's job is to hash the exact input file read, so a different-byte input legitimately produces a different closure entry. The SEPARATE, earlier graph_hash_hex assertion in the same test (crates/ggen-engine/tests/cross_pack_matrix.rs:294-297) already independently proves the actual semantic union (pack resolution -> merged graph) is order-independent, and it passes. The failing assertion at line 301 (whole-payload byte equality) is stronger than the test's own stated intent ('declaration order must not change the graph hash' / 'BTreeMap canonicalizes') and may simply be an incorrect test expectation, not an engine defect. NOT fixed here -- requires a judgment call (loosen the test assertion to exclude ggen.toml's own closure entry, vs. changing the engine to hash a canonicalized/reparsed ggen.toml instead of raw bytes, which would weaken the closure's raw-provenance guarantee) that deserves dedicated attention, not a rushed edit." ;
-    ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix ontology_union_and_declaration_order_are_canonical" .
 
 ctl:O-6-hygiene a ctl:Obligation ;
     rdfs:label "Repository structural hygiene: 124 root files (~95 violations), orphaned templates/ (491 files), examples/archive/ 1547 tracked files" ;
