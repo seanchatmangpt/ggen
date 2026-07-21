@@ -1,0 +1,432 @@
+@prefix gha:  <http://seanchatmangpt.github.io/packs/github-actions#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# github-actions-pack ontology — TCPS production process on events.
+# Terraform (gh-terraform-pack) = institutional state (工場配置);
+# Actions (this pack) = production process (生産工程) triggered by events.
+# As-built facts transcribed from packs/github-actions-pack/SURVEY.md
+# (origin/main f775fbb8b, 2026-07-20) — no fabrication.
+#################################################################
+
+#################################################################
+# Layer 1 — Event: when a production obligation comes into existence
+#################################################################
+
+gha:Event a rdfs:Class ;
+    rdfs:label "A GitHub event kind. An event is the moment a production obligation comes into existence; the workflow is the standard work that discharges it." .
+
+gha:obligationSemantics a rdf:Property ; rdfs:domain gha:Event ;
+    rdfs:label "One sentence: when this event creates a production obligation" .
+
+gha:EventPush a gha:Event ; rdfs:label "push" ;
+    gha:obligationSemantics "A commit has entered a governed ref, so the obligation to re-establish the standing of that ref (build, test, publish candidates, redeploy derived surfaces) comes into existence at the moment of the push." .
+gha:EventPullRequest a gha:Event ; rdfs:label "pull_request" ;
+    gha:obligationSemantics "A proposed change requests admission to a governed ref, creating the obligation to judge it against the line's gates before any merge standing can be acquired." .
+gha:EventMergeGroup a gha:Event ; rdfs:label "merge_group" ;
+    gha:obligationSemantics "A merge queue has assembled a candidate combination of changes, creating the obligation to prove the combination (not just each member) passes the gates before it reaches main." .
+gha:EventWorkflowDispatch a gha:Event ; rdfs:label "workflow_dispatch" ;
+    gha:obligationSemantics "A human (or an authorized workflow holding actions:write) has explicitly commissioned a run, so the obligation exists exactly once, on demand, with the dispatcher accountable for the inputs supplied." .
+gha:EventWorkflowCall a gha:Event ; rdfs:label "workflow_call" ;
+    gha:obligationSemantics "Another workflow has delegated part of its own obligation to this reusable workflow, which inherits the caller's context and must discharge the sub-obligation under the caller's permission ceiling." .
+gha:EventSchedule a gha:Event ; rdfs:label "schedule" ;
+    gha:obligationSemantics "Wall-clock time has crossed a declared cron boundary, creating a recurring obligation (typically drift detection or hygiene) that exists whether or not any human is watching." .
+gha:EventRelease a gha:Event ; rdfs:label "release" ;
+    gha:obligationSemantics "A release object has been published, creating the obligation to propagate that release to downstream distribution surfaces (package managers, formulae, notes) so the published claim becomes true everywhere." .
+gha:EventIssues a gha:Event ; rdfs:label "issues" ;
+    gha:obligationSemantics "An issue transition has occurred, creating the obligation to apply the line's issue standard work (labeling, triage, linked automation) to the changed issue." .
+gha:EventRepositoryDispatch a gha:Event ; rdfs:label "repository_dispatch" ;
+    gha:obligationSemantics "An external system has posted a typed event into the repository, creating an obligation whose meaning is defined entirely by the declared event type and payload contract, not by any git state change." .
+gha:EventDeployment a gha:Event ; rdfs:label "deployment" ;
+    gha:obligationSemantics "A deployment object has been created for an environment, creating the obligation to execute and then report the true status of that deployment against the environment's protection rules." .
+gha:EventWorkflowRun a gha:Event ; rdfs:label "workflow_run" ;
+    gha:obligationSemantics "Another workflow has completed, creating a follow-on obligation that must judge the completed run's real conclusion (not merely its occurrence) before acting on its products." .
+
+#################################################################
+# Layer 2 — Workflow: identity, purpose, ceiling, evidence, standing
+#################################################################
+
+gha:Workflow a rdfs:Class ;
+    rdfs:label "One workflow file: the standard work discharging the obligation created by its trigger events, under a declared permission ceiling, with declared evidence obligations and a declared standing effect." .
+
+gha:fileName          a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "identity: .github/workflows file name" .
+gha:purpose           a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "one-sentence purpose" .
+gha:trigger           a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:range gha:Event ; rdfs:label "event that brings this workflow's obligation into existence" .
+gha:requiredInput     a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "declared dispatch/call input" .
+gha:output            a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:range gha:Output ; rdfs:label "production output kind this workflow emits" .
+gha:requiredSecret    a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "secret name this workflow consumes" .
+gha:secretReason      a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "declared reason a secret is consumed (gate refuses secret use without one)" .
+gha:concurrencyPolicy a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "concurrency group policy (or 'none' — a finding)" .
+gha:environment       a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "deployment environment used" .
+gha:permissionCeiling a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "top-level GITHUB_TOKEN permissions ceiling as declared; 'job-level-only' when only jobs declare blocks" .
+gha:evidenceObligation a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "evidence the run must emit for its success claim to be admissible" .
+gha:standingEffect    a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "what standing a green run confers (and on what)" .
+gha:ownedBy           a rdf:Property ; rdfs:domain gha:Workflow ; rdfs:label "pack (or hand) that owns generation of this workflow; workflows owned elsewhere carry no body facts here" .
+
+# --- Workflows owned elsewhere: inventory stubs only, NO body facts ---
+gha:WfPublishCandidate a gha:Workflow ; gha:fileName "publish-candidate.yml" ; gha:ownedBy "ggen-release-pack" .
+gha:WfTcpsDrift        a gha:Workflow ; gha:fileName "tcps-drift.yml"        ; gha:ownedBy "gh-terraform-pack" .
+gha:WfTfAcceptance     a gha:Workflow ; gha:fileName "tf-acceptance.yml"     ; gha:ownedBy "hand-written (gh-terraform-pack acceptance session)" .
+
+# --- As-built workflows (21), facts from SURVEY.md ---
+
+gha:WfAutomatedRollback a gha:Workflow ; gha:fileName "automated-rollback.yml" ;
+    gha:purpose "Health-check a deployed environment and auto-revert to a prior release tag on failure" ;
+    gha:trigger gha:EventWorkflowDispatch ;
+    gha:requiredInput "environment (choice: staging|production)" ; gha:requiredInput "release tag" ;
+    gha:permissionCeiling "contents: write, deployments: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "KUBECONFIG_PROD" ;
+    gha:secretReason "kubeconfig for kubectl against the production cluster (SURVEY finding: piped through echo into a file — secret-use hygiene candidate)" ;
+    gha:output gha:OutStandingJudgment ;
+    gha:evidenceObligation "post-rollback-verification job result" ;
+    gha:standingEffect "restores deployment standing of the target environment to a known release" .
+
+gha:WfCi a gha:Workflow ; gha:fileName "ci.yml" ;
+    gha:purpose "Primary build/test gate for admission to main (check, build, test, doctest, integration, lsp crates, aggregate ci-status)" ;
+    gha:trigger gha:EventPullRequest ; gha:trigger gha:EventPush ; gha:trigger gha:EventMergeGroup ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref, cancel superseded" ;
+    gha:output gha:OutTestReport ;
+    gha:evidenceObligation "ci-status aggregate required check green" ;
+    gha:standingEffect "confers merge admissibility on the tested ref" .
+
+gha:WfDeployDocs a gha:Workflow ; gha:fileName "deploy-docs.yml" ;
+    gha:purpose "Build mdBook docs and push to gh-pages" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ; gha:secretReason "gh-pages branch push" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "published gh-pages content" ;
+    gha:standingEffect "public documentation reflects main" .
+
+gha:WfDockerBuildPush a gha:Workflow ; gha:fileName "docker-build-push.yml" ;
+    gha:purpose "Multi-registry container build, scan, sign, SBOM on version tags" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read, packages: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GCP_ARTIFACT_REGISTRY_KEY" ; gha:requiredSecret "GITHUB_TOKEN" ;
+    gha:secretReason "registry login for image push (GHCR + GCP Artifact Registry)" ;
+    gha:output gha:OutContainer ; gha:output gha:OutSbom ; gha:output gha:OutAttestation ;
+    gha:evidenceObligation "SBOM artifact upload + trivy SARIF to code scanning + cosign signature" ;
+    gha:standingEffect "tagged container images acquire signed, scanned distribution standing" .
+
+gha:WfDocker a gha:Workflow ; gha:fileName "docker.yml" ;
+    gha:purpose "Docker Hub image build/push on version tags; fails fast if credentials unset" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "DOCKER_USERNAME" ; gha:requiredSecret "DOCKER_TOKEN" ;
+    gha:secretReason "Docker Hub registry login" ;
+    gha:output gha:OutContainer ;
+    gha:evidenceObligation "pushed image digest" ;
+    gha:standingEffect "Docker Hub image tracks release tags" .
+
+gha:WfDocs a gha:Workflow ; gha:fileName "docs.yml" ;
+    gha:purpose "Markdown link checking on docs paths" ;
+    gha:trigger gha:EventPullRequest ; gha:trigger gha:EventPush ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref" ;
+    gha:output gha:OutTestReport ;
+    gha:evidenceObligation "link-check job result" ;
+    gha:standingEffect "docs changes acquire link-integrity standing" .
+
+gha:WfErlangCi a gha:Workflow ; gha:fileName "erlang-ci.yml" ;
+    gha:purpose "Erlang build/test/lint/release gate for tps-jidoka and tai-erlang-autonomics paths" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref" ;
+    gha:output gha:OutTestReport ; gha:output gha:OutBinary ;
+    gha:evidenceObligation "erlang-test-logs-otp<ver> artifacts + erlang-ci-status aggregate" ;
+    gha:standingEffect "Erlang crates acquire build/test standing per OTP version" .
+
+gha:WfErlangRelease a gha:Workflow ; gha:fileName "erlang-release.yml" ;
+    gha:purpose "Erlang component release: validate, matrix build (otp x os), GitHub release, optional Docker publish" ;
+    gha:trigger gha:EventPush ;
+    gha:permissionCeiling "contents: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ; gha:requiredSecret "DOCKER_USERNAME" ; gha:requiredSecret "DOCKER_PASSWORD" ;
+    gha:secretReason "release creation and conditional Docker publish" ;
+    gha:output gha:OutReleaseAsset ; gha:output gha:OutContainer ;
+    gha:evidenceObligation "release-<component>-otp<ver>-<os> artifacts attached to the release" ;
+    gha:standingEffect "erlang-v*/tps-jidoka-v*/tai-erlang-v* tags acquire released standing" .
+
+gha:WfExampleTpot2 a gha:Workflow ; gha:fileName "example-tpot2.yml" ;
+    gha:purpose "Verify the tpot2-wasm4pm-autoconfig example on its own paths" ;
+    gha:trigger gha:EventPullRequest ; gha:trigger gha:EventPush ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref" ;
+    gha:output gha:OutTestReport ;
+    gha:evidenceObligation "verify job result" ;
+    gha:standingEffect "example directory retains working standing" .
+
+gha:WfGenerateReleaseNotes a gha:Workflow ; gha:fileName "generate-release-notes.yml" ;
+    gha:purpose "Auto-generate changelog/notes when a release is published or dispatched for a tag" ;
+    gha:trigger gha:EventRelease ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:requiredInput "tag" ;
+    gha:permissionCeiling "job-level-only" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ; gha:secretReason "attach notes to the release" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "release-notes artifact" ;
+    gha:standingEffect "published releases carry generated notes" .
+
+gha:WfHomebrewRelease a gha:Workflow ; gha:fileName "homebrew-release.yml" ;
+    gha:purpose "Bump the Homebrew formula on release publication" ;
+    gha:trigger gha:EventRelease ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "HOMEBREW_TAP_TOKEN" ;
+    gha:secretReason "push formula bump to the tap repository (falls back to GITHUB_TOKEN)" ;
+    gha:output gha:OutPackage ;
+    gha:evidenceObligation "formula bump PR/commit in the tap" ;
+    gha:standingEffect "Homebrew distribution tracks the published release" .
+
+gha:WfMarketplaceDeploy a gha:Workflow ; gha:fileName "marketplace-deploy.yml" ;
+    gha:purpose "Build marketplace + docs and deploy to GitHub Pages" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read, pages: write, id-token: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:environment "pages" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "deploy-pages result" ;
+    gha:standingEffect "public marketplace site reflects main" .
+
+gha:WfMarketplaceDocs a gha:Workflow ; gha:fileName "marketplace-docs.yml" ;
+    gha:purpose "Deploy marketplace documentation to GitHub Pages" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "job-level-only" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "deploy-pages result" ;
+    gha:standingEffect "marketplace docs site reflects main" .
+
+gha:WfMarketplaceTest a gha:Workflow ; gha:fileName "marketplace-test.yml" ;
+    gha:purpose "Run marketplace test suite on push to main" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref" ;
+    gha:output gha:OutTestReport ;
+    gha:evidenceObligation "test-marketplace job result" ;
+    gha:standingEffect "marketplace crate retains test standing on main" .
+
+gha:WfMarketplaceValidate a gha:Workflow ; gha:fileName "marketplace-validate.yml" ;
+    gha:purpose "Marketplace validation, regression detection, and quality checks (Track F)" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref" ;
+    gha:output gha:OutTestReport ;
+    gha:evidenceObligation "regression report artifact" ;
+    gha:standingEffect "marketplace surface acquires regression-free standing" .
+
+gha:WfMarketplace a gha:Workflow ; gha:fileName "marketplace.yml" ;
+    gha:purpose "Deploy marketplace static site to GitHub Pages" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read, pages: write, id-token: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "deploy-pages result" ;
+    gha:standingEffect "marketplace Pages site reflects main" .
+
+gha:WfPublishRegistry a gha:Workflow ; gha:fileName "publish-registry.yml" ;
+    gha:purpose "Build and deploy registry documentation to GitHub Pages" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: read, pages: write, id-token: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:output gha:OutDocumentation ;
+    gha:evidenceObligation "deploy-pages result" ;
+    gha:standingEffect "registry site reflects main" .
+
+gha:WfQuality a gha:Workflow ; gha:fileName "quality.yml" ;
+    gha:purpose "Quality gates: fmt, clippy, audit, slo, process-intelligence-boundary, publish-target" ;
+    gha:trigger gha:EventPullRequest ; gha:trigger gha:EventPush ; gha:trigger gha:EventMergeGroup ;
+    gha:permissionCeiling "contents: read" ;
+    gha:concurrencyPolicy "group per ref, cancel superseded" ;
+    gha:output gha:OutTestReport ; gha:output gha:OutStandingJudgment ;
+    gha:evidenceObligation "all six gate jobs green" ;
+    gha:standingEffect "refs acquire quality-gate standing required for admission" .
+
+gha:WfReleaseDebian a gha:Workflow ; gha:fileName "release-debian.yml" ;
+    gha:purpose "Build and attach a Debian package on v*.*.* tags" ;
+    gha:trigger gha:EventPush ;
+    gha:permissionCeiling "contents: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ; gha:secretReason "upload the .deb as a release asset" ;
+    gha:output gha:OutPackage ; gha:output gha:OutReleaseAsset ;
+    gha:evidenceObligation ".deb artifact attached to the release" ;
+    gha:standingEffect "version tags acquire Debian distribution standing" .
+
+gha:WfRelease a gha:Workflow ; gha:fileName "release.yml" ;
+    gha:purpose "Primary release: health check, matrix binary build, reproducible rebuild, cross-host reproducibility verification" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:requiredInput "tag" ;
+    gha:permissionCeiling "contents: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ; gha:secretReason "create the GitHub release and upload assets" ;
+    gha:output gha:OutBinary ; gha:output gha:OutReleaseAsset ; gha:output gha:OutReceipt ;
+    gha:evidenceObligation "release binaries + repro-verification artifacts (cross-host byte identity)" ;
+    gha:standingEffect "v* tags acquire released, reproducibility-verified standing" .
+
+gha:WfSecretsSync a gha:Workflow ; gha:fileName "secrets-sync.yml" ;
+    gha:purpose "Verify, sync, audit, and rotation-check GitHub secrets against GCP-managed truth" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:requiredInput "sync_mode" ;
+    gha:permissionCeiling "contents: read (top) + per-job blocks on all 4 jobs" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GCP_WORKLOAD_IDENTITY_PROVIDER" ; gha:requiredSecret "GCP_SERVICE_ACCOUNT_EMAIL" ; gha:requiredSecret "GCP_PROJECT_ID" ;
+    gha:secretReason "workload-identity federation to read secret truth from GCP" ;
+    gha:output gha:OutDriftReport ;
+    gha:evidenceObligation "secrets-audit-report.md artifact" ;
+    gha:standingEffect "secret inventory acquires audited, drift-checked standing" .
+
+gha:WfSemanticRelease a gha:Workflow ; gha:fileName "semantic-release.yml" ;
+    gha:purpose "Conventional-commit analysis to SemVer release on push to main" ;
+    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+    gha:permissionCeiling "contents: write, packages: write, pull-requests: write, actions: write" ;
+    gha:concurrencyPolicy "group per workflow" ;
+    gha:requiredSecret "GITHUB_TOKEN" ;
+    gha:secretReason "create releases and dispatch follow-on workflows (actions:write documented as commissioning finding 2026-07-21: workflow_dispatch API 403s without it)" ;
+    gha:output gha:OutReleaseAsset ; gha:output gha:OutStandingJudgment ;
+    gha:evidenceObligation "created release for the computed version" ;
+    gha:standingEffect "main acquires continuously-versioned release standing" .
+
+#################################################################
+# Layer 3 — Job/Step: deps, runner, matrix, timeout, permissions,
+# artifacts, evidence, failure classification
+#################################################################
+
+gha:Job a rdfs:Class ;
+    rdfs:label "One job inside a workflow: a unit of production that may depend on other jobs, runs on a declared runner within a declared timeout, under (at most) the workflow's permission ceiling." .
+
+gha:inWorkflow            a rdf:Property ; rdfs:domain gha:Job ; rdfs:range gha:Workflow .
+gha:dependsOn             a rdf:Property ; rdfs:domain gha:Job ; rdfs:range gha:Job .
+gha:runner                a rdf:Property ; rdfs:domain gha:Job ; rdfs:label "runs-on value" .
+gha:matrixDimension       a rdf:Property ; rdfs:domain gha:Job ; rdfs:label "matrix axis, e.g. otp, os" .
+gha:timeoutMinutes        a rdf:Property ; rdfs:domain gha:Job .
+gha:condition             a rdf:Property ; rdfs:domain gha:Job ; rdfs:label "if: guard" .
+gha:jobPermissions        a rdf:Property ; rdfs:domain gha:Job ; rdfs:label "job-level permissions block (must be <= workflow ceiling)" .
+gha:artifactConsumed      a rdf:Property ; rdfs:domain gha:Job .
+gha:artifactProduced      a rdf:Property ; rdfs:domain gha:Job .
+gha:evidenceEmitted       a rdf:Property ; rdfs:domain gha:Job .
+gha:failureClassification a rdf:Property ; rdfs:domain gha:Job ;
+    rdfs:label "what a red result of this job means for the line (gate refusal vs production defect vs infrastructure fault)" .
+
+gha:executionStates a rdfs:Class ;
+    rdfs:label "The five-state distinction this pack's model is built on" ;
+    gha:enumLiteral "stepExecuted < stepSucceeded < jobSucceeded < evidenceAdmitted < standingAcquired" ;
+    rdfs:comment "stepExecuted: the step ran at all (it may have been skipped by an if: guard). stepSucceeded: the step exited 0 (or its failure was masked — continue-on-error makes stepSucceeded a lie unless declared). jobSucceeded: every non-masked step succeeded AND the runner completed within timeout. evidenceAdmitted: the job's declared evidence (artifact, report, receipt) actually exists and was accepted — a green job with a missing artifact has NOT admitted evidence. standingAcquired: the workflow's declared standing effect actually took hold (required check satisfied, release exists, site deployed). Each state does not imply the next; ci.yml's deleted continue-on-error matrix (SURVEY: header comment) is the recorded local proof that conflating them masks lies." .
+
+# Representative as-built job individuals (from SURVEY.md; runner is
+# ubuntu-latest throughout except matrix-os jobs, noted where so).
+
+gha:JobCiStatus a gha:Job ; gha:inWorkflow gha:WfCi ; rdfs:label "ci-status" ;
+    gha:runner "ubuntu-latest" ; gha:timeoutMinutes 5 ;
+    gha:dependsOn gha:JobCiTest ;
+    gha:evidenceEmitted "aggregate required-check conclusion" ;
+    gha:failureClassification "gate refusal: the ref is inadmissible; nothing downstream may treat it as green" .
+gha:JobCiTest a gha:Job ; gha:inWorkflow gha:WfCi ; rdfs:label "test" ;
+    gha:runner "ubuntu-latest" ; gha:timeoutMinutes 30 ;
+    gha:failureClassification "production defect: the change breaks the line; stop and fix, never mask" .
+gha:JobQualityClippy a gha:Job ; gha:inWorkflow gha:WfQuality ; rdfs:label "clippy" ;
+    gha:runner "ubuntu-latest" ; gha:timeoutMinutes 30 ;
+    gha:failureClassification "gate refusal: lint debt may not enter main" .
+gha:JobReleaseBuild a gha:Job ; gha:inWorkflow gha:WfRelease ; rdfs:label "build-release" ;
+    gha:runner "matrix.os" ; gha:matrixDimension "os" ; gha:timeoutMinutes 45 ;
+    gha:artifactProduced "release binaries" ;
+    gha:failureClassification "production defect on the release path: the tag cannot acquire released standing" .
+gha:JobReleaseReproVerify a gha:Job ; gha:inWorkflow gha:WfRelease ; rdfs:label "verify-cross-host-reproducibility" ;
+    gha:runner "ubuntu-latest" ; gha:matrixDimension "os" ; gha:timeoutMinutes 5 ;
+    gha:dependsOn gha:JobReleaseBuild ;
+    gha:artifactConsumed "repro-verification artifacts" ;
+    gha:evidenceEmitted "byte-identity verdict across hosts" ;
+    gha:failureClassification "evidence refusal: binaries exist but reproducibility evidence is not admitted; standing is withheld" .
+gha:JobErlangTests a gha:Job ; gha:inWorkflow gha:WfErlangCi ; rdfs:label "erlang-tests" ;
+    gha:runner "ubuntu-latest" ; gha:matrixDimension "otp" ; gha:timeoutMinutes 45 ;
+    gha:artifactProduced "erlang-test-logs-otp<matrix.otp>" ;
+    gha:evidenceEmitted "test logs per OTP version" ;
+    gha:failureClassification "production defect scoped to one OTP axis value" .
+gha:JobSecretsAudit a gha:Job ; gha:inWorkflow gha:WfSecretsSync ; rdfs:label "audit-secrets" ;
+    gha:runner "ubuntu-latest" ; gha:timeoutMinutes 15 ;
+    gha:jobPermissions "own job-level block (SURVEY: all 4 jobs carry one)" ;
+    gha:artifactProduced "secrets-audit-report.md" ;
+    gha:evidenceEmitted "audit report" ;
+    gha:failureClassification "infrastructure/drift fault: secret truth and GitHub state diverge" .
+
+#################################################################
+# Layer 4 — Production outputs
+#################################################################
+
+gha:Output a rdfs:Class ;
+    rdfs:label "A kind of production output a workflow can emit; the thing whose existence 'evidenceAdmitted' is judged against." .
+
+gha:OutBinary           a gha:Output ; rdfs:label "compiled-binary" .
+gha:OutTestReport       a gha:Output ; rdfs:label "test-report" .
+gha:OutDocumentation    a gha:Output ; rdfs:label "documentation" .
+gha:OutPackage          a gha:Output ; rdfs:label "package" .
+gha:OutContainer        a gha:Output ; rdfs:label "container" .
+gha:OutReleaseAsset     a gha:Output ; rdfs:label "release-asset" .
+gha:OutSbom             a gha:Output ; rdfs:label "sbom" .
+gha:OutAttestation      a gha:Output ; rdfs:label "attestation" .
+gha:OutReceipt          a gha:Output ; rdfs:label "receipt" .
+gha:OutDriftReport      a gha:Output ; rdfs:label "drift-report" .
+gha:OutStandingJudgment a gha:Output ; rdfs:label "standing-judgment" .
+
+#################################################################
+# Permission derivation — declared operations -> minimal GITHUB_TOKEN
+# permissions. The gates refuse ceilings not derivable from declared ops.
+#################################################################
+
+gha:Operation a rdfs:Class ;
+    rdfs:label "A declared operation a workflow performs; each maps to its minimal GITHUB_TOKEN permission set. Permissions not derivable from a declared operation are refused." .
+gha:requiresPermission a rdf:Property ; rdfs:domain gha:Operation ;
+    rdfs:label "one minimal scope:level fact" .
+
+gha:OpReadSource a gha:Operation ; rdfs:label "read-source" ;
+    gha:requiresPermission "contents: read" .
+gha:OpPublishTestResult a gha:Operation ; rdfs:label "publish-test-result" ;
+    gha:requiresPermission "checks: write" .
+gha:OpCreateAttestation a gha:Operation ; rdfs:label "create-attestation" ;
+    gha:requiresPermission "id-token: write" ;
+    gha:requiresPermission "attestations: write" ;
+    gha:requiresPermission "contents: read" .
+gha:OpReleaseAsset a gha:Operation ; rdfs:label "release-asset" ;
+    gha:requiresPermission "contents: write" .
+gha:OpDispatchWorkflow a gha:Operation ; rdfs:label "dispatch-workflow" ;
+    gha:requiresPermission "actions: write" ;
+    rdfs:comment "The commissioning finding: semantic-release.yml documents (2026-07-21) that the workflow_dispatch API returns 403 without actions:write — dispatching another workflow is a declared operation, not a free action." .
+gha:OpOpenIssue a gha:Operation ; rdfs:label "open-issue" ;
+    gha:requiresPermission "issues: write" .
+
+#################################################################
+# L5 conditions x18 — honest day-one standings for THIS pack.
+# Numbering and intent mirror the canonical TCPS L5 conditions
+# (gh-terraform-pack ontology L5C01-L5C18), restated for the
+# production-process (Actions) domain. Standings reflect exactly what
+# exists at this ontology's commit time: the ontology itself and
+# SURVEY.md exist; gates, templates, e2e proof, and live runs do not yet.
+#################################################################
+
+gha:L5Condition a rdfs:Class ;
+    rdfs:label "One of the 18 TCPS L5 conditions, restated for the Actions production process, with an honest current standing" .
+
+gha:L5C01 a gha:L5Condition ; gha:num 1 ; gha:statement "全GitHub Actions生産概念を意味図式として認識する" ; gha:standing "ALIVE" ; gha:evidence "This file defines the four layers (11 Events with obligation semantics, Workflow, Job/Step with the five-state enum, 11 Outputs) plus the 6-operation permission-derivation model." .
+gha:L5C02 a gha:L5Condition ; gha:num 2 ; gha:statement "生産工程の現状を意味個体として持つ" ; gha:standing "PARTIAL" ; gha:evidence "21/24 as-built workflows carried as individuals with SURVEY-verified facts; 3 owned elsewhere (publish-candidate, tcps-drift, tf-acceptance) are stubs by design. Job individuals cover a representative subset, not all ~60 jobs." .
+gha:L5C03 a gha:L5Condition ; gha:num 3 ; gha:statement "工程標準（workflow YAML）を完全生成する" ; gha:standing "未実施" ; gha:evidence "No templates exist at this commit; template agent owns templates/*.tmpl." .
+gha:L5C04 a gha:L5Condition ; gha:num 4 ; gha:statement "標準作業（運用スクリプト）を完全生成する" ; gha:standing "未実施" ; gha:evidence "No standard-work scripts generated yet." .
+gha:L5C05 a gha:L5Condition ; gha:num 5 ; gha:statement "説明書を完全生成する" ; gha:standing "未実施" ; gha:evidence "No generated manuals; only the hand-written pack README and SURVEY exist." .
+gha:L5C06 a gha:L5Condition ; gha:num 6 ; gha:statement "検査票（refusal gates）を生成する" ; gha:standing "未実施" ; gha:evidence "gates/ directory empty at this commit; the six refusals are specified in README/pack.toml but not yet mechanized." .
+gha:L5C07 a gha:L5Condition ; gha:num 7 ; gha:statement "清浄利用先で手直しなしに生成できる" ; gha:standing "未実施" ; gha:evidence "github_actions_pack_e2e.rs not yet written." .
+gha:L5C08 a gha:L5Condition ; gha:num 8 ; gha:statement "生成workflowが検証（YAML/actionlint相当）を通過する" ; gha:standing "未実施" ; gha:evidence "Nothing generated yet to validate." .
+gha:L5C09 a gha:L5Condition ; gha:num 9 ; gha:statement "二回同期が一致する" ; gha:standing "未実施" ; gha:evidence "No sync run yet for this pack." .
+gha:L5C10 a gha:L5Condition ; gha:num 10 ; gha:statement "実リポジトリの実行で実地試験を通過する" ; gha:standing "未実施" ; gha:evidence "No generated workflow has run on GitHub." .
+gha:L5C11 a gha:L5Condition ; gha:num 11 ; gha:statement "工程漂流（as-built と意味図式の差）を検知する" ; gha:standing "PARTIAL" ; gha:evidence "SURVEY.md is a real one-shot as-built extraction at f775fbb8b including a concrete drift finding (4 unpinned refs in tf-acceptance.yml); continuous detection is not mechanized." .
+gha:L5C12 a gha:L5Condition ; gha:num 12 ; gha:statement "工程漂流を修復できる" ; gha:standing "未実施" ; gha:evidence "The 4-unpinned-refs finding is recorded, not fixed (file owned outside this pack)." .
+gha:L5C13 a gha:L5Condition ; gha:num 13 ; gha:statement "危険な権限（write-all等）を特別承認へ送る" ; gha:standing "未実施" ; gha:evidence "Refusal list specified; no gate executes it yet." .
+gha:L5C14 a gha:L5Condition ; gha:num 14 ; gha:statement "作動結果を受領する" ; gha:standing "未実施" ; gha:evidence "No receipt emission for this pack's products yet." .
+gha:L5C15 a gha:L5Condition ; gha:num 15 ; gha:statement "行動版更新（action SHA更新）を意味図式から処理できる" ; gha:standing "PARTIAL" ; gha:evidence "Every third-party ref and its SHA is cataloged in SURVEY.md (grep-verified); an update procedure is not written." .
+gha:L5C16 a gha:L5Condition ; gha:num 16 ; gha:statement "複数リポジトリへ適用できる" ; gha:standing "未実施" ; gha:evidence "Single-repo model only (seanchatmangpt/ggen)." .
+gha:L5C17 a gha:L5Condition ; gha:num 17 ; gha:statement "利用者がActions詳細を知らなくても工程を管理できる" ; gha:standing "未実施" ; gha:evidence "No no-knowledge path (docs + fan-out) generated yet." .
+gha:L5C18 a gha:L5Condition ; gha:num 18 ; gha:statement "生成品への手直しなしで改善を一件通過する" ; gha:standing "未実施" ; gha:evidence "No improvement cycle possible before generation exists." .

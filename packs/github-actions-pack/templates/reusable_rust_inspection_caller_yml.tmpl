@@ -1,0 +1,10 @@
+---
+to: docs/github-actions/inspection-caller-example.yml
+sparql:
+  row: |
+    PREFIX gha: <http://seanchatmangpt.github.io/packs/github-actions#>
+    SELECT ?body WHERE {
+      gha:ReusableRustInspectionCaller gha:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

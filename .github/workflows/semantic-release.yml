@@ -85,24 +85,37 @@ jobs:
           echo "Features: $HAS_FEATURE"
           echo "Bugfixes: $HAS_BUGFIX"
 
-          # Calculate next version (SemVer)
+          # Calculate next version — CalVer ONLY: YY.M.patch (year.month.patch,
+          # e.g. 26.7.21 = 2026, July, patch 21). THIS REPO DOES NOT USE SEMVER.
+          # The previous SemVer arithmetic here minted impossible versions
+          # (26.9.x through 26.15.0 — there is no month 15); fixed 2026-07-21.
+          # RELEASE_TYPE still gates WHETHER a release happens (none = skip)
+          # and drives the changelog; it never influences the version number.
           CURRENT_VERSION="${{ steps.current-version.outputs.version }}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-
-          case $RELEASE_TYPE in
-            major)
-              NEXT_VERSION="$((MAJOR + 1)).0.0"
-              ;;
-            minor)
-              NEXT_VERSION="$MAJOR.$((MINOR + 1)).0"
-              ;;
-            patch)
-              NEXT_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
-              ;;
-            *)
-              NEXT_VERSION="$CURRENT_VERSION"
-              ;;
-          esac
+          YY=$(date -u +%y)
+          M=$(date -u +%-m)
+          if [ "$RELEASE_TYPE" = "none" ]; then
+            NEXT_VERSION="$CURRENT_VERSION"
+          elif [[ "$CURRENT_VERSION" =~ ^${YY}\.${M}\.([0-9]+)$ ]]; then
+            # Same calendar month: increment patch.
+            NEXT_VERSION="${YY}.${M}.$(( ${BASH_REMATCH[1]} + 1 ))"
+          else
+            # New month (or recovering from an unlawful non-CalVer version):
+            # continue from the highest existing vYY.M.* tag, else patch 0.
+            git fetch --tags --quiet origin || true
+            MAX_PATCH=$(git tag -l "v${YY}.${M}.*" | sed "s/^v${YY}\.${M}\.//" | sort -n | tail -1)
+            if [ -n "$MAX_PATCH" ]; then
+              NEXT_VERSION="${YY}.${M}.$(( MAX_PATCH + 1 ))"
+            else
+              NEXT_VERSION="${YY}.${M}.0"
+            fi
+          fi
+          # CalVer sanity gate: refuse to emit a version whose month is not 1-12.
+          NM=$(echo "$NEXT_VERSION" | cut -d. -f2)
+          if [ "$NM" -lt 1 ] || [ "$NM" -gt 12 ]; then
+            echo "ANDON RED: computed non-CalVer version ${NEXT_VERSION} — refusing"
+            exit 1
+          fi
 
           # Generate changelog from commits
           CHANGELOG=$(cat << 'EOF'
