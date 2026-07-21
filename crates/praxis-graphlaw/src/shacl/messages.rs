@@ -20,9 +20,7 @@ pub(crate) fn get_severity(shapes: &TripleIndex, shape_node: usize, vocab: &Voca
 
 /// Returns each sh:message value on `shape_node` paired with its language tag (if any)
 pub(crate) fn get_shape_messages(
-    shapes: &TripleIndex,
-    shape_node: usize,
-    vocab: &Vocab,
+    shapes: &TripleIndex, shape_node: usize, vocab: &Vocab,
 ) -> Vec<(Option<String>, String)> {
     get_objects(shapes, shape_node, vocab.sh_message)
         .into_iter()
@@ -56,13 +54,8 @@ pub(crate) fn pick_preferred_message(messages: &[(Option<String>, String)]) -> O
 
 /// Create a ValidationResult from individual components
 pub(crate) fn make_result(
-    focus_node: usize,
-    result_path: Option<usize>,
-    value: Option<usize>,
-    component: usize,
-    shape_node: usize,
-    severity: usize,
-    message: Option<String>,
+    focus_node: usize, result_path: Option<usize>, value: Option<usize>, component: usize,
+    shape_node: usize, severity: usize, message: Option<String>,
 ) -> ValidationResult {
     ValidationResult {
         focus_node: super::values::decode_to_term(focus_node),

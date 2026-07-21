@@ -233,10 +233,7 @@ impl Receipt {
     /// O(n) over the N-Quads lines for the sortedness check, plus O(bytes)
     /// for the BLAKE3 digest.
     pub fn from_canonical_nquads(
-        subject: &str,
-        witness: &str,
-        replay_hint: &str,
-        canon_nquads: &str,
+        subject: &str, witness: &str, replay_hint: &str, canon_nquads: &str,
     ) -> Result<Receipt, Refusal> {
         if canon_nquads.is_empty() {
             return Err(Refusal::MissingReceipt(

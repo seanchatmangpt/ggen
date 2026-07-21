@@ -109,9 +109,7 @@ fn day_of_week(p: &DateTimeParts) -> i64 {
 }
 
 fn eval_component(
-    pattern: &Triple,
-    bindings: &Binding,
-    extract: impl Fn(&DateTimeParts) -> f64,
+    pattern: &Triple, bindings: &Binding, extract: impl Fn(&DateTimeParts) -> f64,
 ) -> Option<Binding> {
     eval_functional(pattern, bindings, |pattern, bindings, row| {
         let s = resolve_operand(&pattern.s, bindings, row)?;

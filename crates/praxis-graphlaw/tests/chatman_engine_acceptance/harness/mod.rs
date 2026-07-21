@@ -906,10 +906,7 @@ fn next_ordinal() -> u64 {
 /// from outside chicago-tdd-tools (its event vector is `pub(crate)`); the
 /// `outcome` and `refusal` attributes carry the same information explicitly.
 fn emit_outcome(
-    suite: &str,
-    case: &str,
-    outcome: &'static str,
-    refusal_name: Option<&str>,
+    suite: &str, case: &str, outcome: &'static str, refusal_name: Option<&str>,
     severity: chicago_tdd_tools::core::governance::Severity,
 ) {
     let mut context = std::collections::HashMap::new();

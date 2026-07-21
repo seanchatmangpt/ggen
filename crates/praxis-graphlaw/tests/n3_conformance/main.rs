@@ -392,11 +392,7 @@ fn test_n3_conformance() {
 }
 
 fn write_manifest_report(
-    manifest_dir: &Path,
-    results: &[CaseResult],
-    total: usize,
-    passed: usize,
-    failed: usize,
+    manifest_dir: &Path, results: &[CaseResult], total: usize, passed: usize, failed: usize,
 ) {
     let manifests_dir: PathBuf = manifest_dir.join("docs/jira/26.7.4/manifests");
     fs::create_dir_all(&manifests_dir).expect("Failed to create manifests directory");

@@ -6,8 +6,7 @@ use std::fmt::Error;
 use std::rc::Rc;
 
 fn extract_triples(
-    triple_patterns: &Vec<spargebra::term::TriplePattern>,
-    _encoder: &mut Encoder,
+    triple_patterns: &Vec<spargebra::term::TriplePattern>, _encoder: &mut Encoder,
 ) -> Vec<Triple> {
     let mut triples = Vec::new();
     for spargebra::term::TriplePattern {
@@ -206,8 +205,7 @@ pub fn extract_query_plan(graph_pattern: &GraphPattern) -> PlanNode {
 }
 
 pub fn build_for_aggregate(
-    aggregate: &AggregateExpression,
-    _variables: &mut Vec<Variable>,
+    aggregate: &AggregateExpression, _variables: &mut Vec<Variable>,
 ) -> Result<PlanAggregation, String> {
     match aggregate {
         AggregateExpression::CountSolutions { distinct } => Ok(PlanAggregation {

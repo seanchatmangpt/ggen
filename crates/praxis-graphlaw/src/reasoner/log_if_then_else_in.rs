@@ -26,10 +26,7 @@ impl Reasoner {
     }
 
     pub(crate) fn process_log_if_then_else_in_rule(
-        rule: &Rule,
-        idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
+        rule: &Rule, idx: usize, triple_index: &TripleIndex, prev_limit: Option<usize>,
         current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();

@@ -266,8 +266,7 @@ impl OwlRlEngine {
     /// (via Arc::as_ref()) and mutable TripleStore indexes without copying.
     /// Multiple compile() calls on the same snapshot share zero-copy read-only access.
     pub fn compile(
-        &self,
-        index: &TripleIndex,
+        &self, index: &TripleIndex,
     ) -> Result<(Vec<crate::rule::Rule>, ScanReport), String> {
         let mut rules = Vec::new();
 

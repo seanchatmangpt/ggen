@@ -1851,7 +1851,6 @@ fn compare_closure_class(
 pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
 ) -> Result<()> {
-
     use std::io::Write as _;
 
     // Bind every decision target that exists on disk (written this run or

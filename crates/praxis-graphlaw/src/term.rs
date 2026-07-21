@@ -241,9 +241,7 @@ impl VarOrTerm {
     /// they're structurally compatible member-for-member (found via the
     /// real EYE `good_cobbler` corpus case).
     pub fn unify_list_pattern(
-        pattern_id: usize,
-        data_id: usize,
-        out_bindings: &mut Vec<(usize, usize)>,
+        pattern_id: usize, data_id: usize, out_bindings: &mut Vec<(usize, usize)>,
     ) -> bool {
         let (Some(p_members), Some(d_members)) = (
             Self::list_members_typed(pattern_id),
@@ -281,8 +279,7 @@ impl VarOrTerm {
     /// rule's list-valued head just copied the rule's own still-variable-
     /// containing pattern list verbatim, rather than the bound value.
     pub fn substitute_deep(
-        term: &VarOrTerm,
-        resolve: &impl Fn(usize) -> Option<usize>,
+        term: &VarOrTerm, resolve: &impl Fn(usize) -> Option<usize>,
     ) -> VarOrTerm {
         if term.is_var() {
             if let Some(val) = resolve(term.to_encoded()) {
@@ -394,10 +391,7 @@ impl Triple {
     }
 
     pub fn from_with_graph_name(
-        subject: String,
-        property: String,
-        object: String,
-        graph_name: String,
+        subject: String, property: String, object: String, graph_name: String,
     ) -> Triple {
         let mut triple = Self::from(subject, property, object);
         triple.g = Some(VarOrTerm::convert(graph_name));

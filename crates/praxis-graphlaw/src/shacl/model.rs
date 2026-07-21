@@ -166,8 +166,7 @@ impl ShapesGraph {
     /// pre-computed sh:closed allowed predicates and required property masks.
     /// O(|shapes| * |properties|) at parse time → O(log n) per validation.
     fn compile_all_shapes(
-        raw_index: &TripleIndex,
-        vocab: &super::Vocab,
+        raw_index: &TripleIndex, vocab: &super::Vocab,
     ) -> std::collections::HashMap<usize, CompiledShape> {
         use super::index_utils::get_objects;
 
@@ -216,9 +215,7 @@ impl ShapesGraph {
     /// Compile a single shape by pre-computing allowed predicates for sh:closed
     /// and building a required-property mask.
     fn compile_shape(
-        shape_node: usize,
-        raw_index: &TripleIndex,
-        vocab: &super::Vocab,
+        shape_node: usize, raw_index: &TripleIndex, vocab: &super::Vocab,
     ) -> CompiledShape {
         use super::index_utils::get_objects;
 

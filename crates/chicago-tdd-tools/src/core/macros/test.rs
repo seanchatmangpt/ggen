@@ -506,8 +506,6 @@ mod tests {
     // a test function with the same name, causing conflicts.
     // These tests verify the macro expansion works correctly.
 
-
-
     // Test fixture_test! macro expansion - verify it compiles and works
     // Note: This test verifies the macro expands correctly by using it directly
     fixture_test!(test_fixture_basic, fixture, {
@@ -565,9 +563,6 @@ mod tests {
             "DEFAULT_TEST_TIMEOUT_SECONDS should equal DEFAULT_UNIT_TEST_TIMEOUT_SECONDS"
         );
     }
-
-
-
 
     // Test to verify timeout enforcement works (FM9: Defense in depth verification)
     // FMEA Fix: Verifies that tokio::time::timeout actually enforces timeouts.

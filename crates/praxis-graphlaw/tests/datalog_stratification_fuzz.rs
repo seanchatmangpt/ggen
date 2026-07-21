@@ -89,13 +89,8 @@ fn independent_stratifiable(num_preds: usize, edges: &[(usize, usize, bool)]) ->
     // Tarjan helper: argument count follows the textbook algorithm state.
     #[allow(clippy::too_many_arguments, clippy::ptr_arg)]
     fn strongconnect(
-        v: usize,
-        adj: &Vec<Vec<usize>>,
-        index_counter: &mut usize,
-        stack: &mut Vec<usize>,
-        on_stack: &mut Vec<bool>,
-        indices: &mut Vec<Option<usize>>,
-        lowlink: &mut Vec<usize>,
+        v: usize, adj: &Vec<Vec<usize>>, index_counter: &mut usize, stack: &mut Vec<usize>,
+        on_stack: &mut Vec<bool>, indices: &mut Vec<Option<usize>>, lowlink: &mut Vec<usize>,
         sccs: &mut Vec<Vec<usize>>,
     ) {
         indices[v] = Some(*index_counter);

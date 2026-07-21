@@ -185,9 +185,7 @@ pub fn eval_expression<'a>(
 }
 
 fn partial_compare_helper<'a>(
-    a: &'a Box<PlanExpression>,
-    b: &'a Box<PlanExpression>,
-    ordering: Ordering,
+    a: &'a Box<PlanExpression>, b: &'a Box<PlanExpression>, ordering: Ordering,
     second_order: Option<Ordering>,
 ) -> Box<dyn Fn(&Vec<EncodedBinding>) -> Option<EncodedTerm> + 'a> {
     let a = eval_expression(a);

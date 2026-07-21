@@ -157,18 +157,9 @@ where
     I: Eq + PartialEq + Clone + Debug + Hash + Send + 'static,
 {
     pub fn new(
-        width: usize,
-        slide: usize,
-        tick: Tick,
-        report_strategy: ReportStrategy,
-        triples: &str,
-        syntax: Syntax,
-        rules: &str,
-        query_str: &str,
-        result_consumer: ResultConsumer<O>,
-        r2s: StreamOperator,
-        r2r: Box<dyn R2ROperator<I, O>>,
-        operation_mode: OperationMode,
+        width: usize, slide: usize, tick: Tick, report_strategy: ReportStrategy, triples: &str,
+        syntax: Syntax, rules: &str, query_str: &str, result_consumer: ResultConsumer<O>,
+        r2s: StreamOperator, r2r: Box<dyn R2ROperator<I, O>>, operation_mode: OperationMode,
     ) -> RSPEngine<I, O> {
         let mut report = Report::new();
         report.add(report_strategy);
@@ -264,11 +255,9 @@ where
     // outside `rsp_test.rs`'s own test functions -- this is test-only code today, not a live
     // production path, so this fix is precautionary hardening, not an active-incident repair.
     fn evaluate_r2r_and_call_r2s(
-        query: &Query,
-        consumer_temp: Arc<Mutex<Box<dyn R2ROperator<I, O>>>>,
+        query: &Query, consumer_temp: Arc<Mutex<Box<dyn R2ROperator<I, O>>>>,
         r2s_consumer: Arc<dyn Fn(O) + Send + Sync>,
-        r2s_operator: Arc<Mutex<Relation2StreamOperator<O>>>,
-        content: ContentContainer<I>,
+        r2s_operator: Arc<Mutex<Relation2StreamOperator<O>>>, content: ContentContainer<I>,
     ) {
         debug!("R2R operator retrieved graph {:?}", content);
         let time_stamp = content.get_last_timestamp_changed();

@@ -418,10 +418,7 @@ impl TripleIndex {
     }
 
     pub fn query_range(
-        &self,
-        query_triple: &Triple,
-        min_counter: usize,
-        max_counter: usize,
+        &self, query_triple: &Triple, min_counter: usize, max_counter: usize,
     ) -> Option<Binding> {
         let s_is_list_pattern = query_triple.s.is_term()
             && VarOrTerm::is_nonground_list_pattern(query_triple.s.to_encoded());
@@ -649,10 +646,7 @@ impl TripleIndex {
     /// Replaces the O(distinct_predicates * entries_per_bucket) indexed iteration
     /// with O(delta_size) flat scan, crucial for transitive-closure performance.
     fn query_range_delta_scan(
-        &self,
-        query_triple: &Triple,
-        min_counter: usize,
-        max_counter: usize,
+        &self, query_triple: &Triple, min_counter: usize, max_counter: usize,
     ) -> Option<Binding> {
         let mut matched_binding = Binding::new();
         let mut found_any = false;
@@ -730,12 +724,8 @@ impl TripleIndex {
     }
 
     fn query_range_list_pattern(
-        &self,
-        query_triple: &Triple,
-        min_counter: usize,
-        max_counter: usize,
-        s_is_list_pattern: bool,
-        o_is_list_pattern: bool,
+        &self, query_triple: &Triple, min_counter: usize, max_counter: usize,
+        s_is_list_pattern: bool, o_is_list_pattern: bool,
     ) -> Option<Binding> {
         let mut matched_binding = Binding::new();
 
@@ -829,10 +819,7 @@ impl TripleIndex {
     /// corpus cases (the real EYE `good_cobbler`/`peano` cases) are small
     /// fact sets, not indexed-lookup-scale data.
     fn query_list_pattern(
-        &self,
-        query_triple: &Triple,
-        triple_counter: Option<usize>,
-        s_is_list_pattern: bool,
+        &self, query_triple: &Triple, triple_counter: Option<usize>, s_is_list_pattern: bool,
         o_is_list_pattern: bool,
     ) -> Option<Binding> {
         let counter_check = triple_counter.unwrap_or(self.counter);
@@ -928,9 +915,7 @@ impl TripleIndex {
     }
 
     pub fn query_help<'a>(
-        &'a self,
-        query_triple: &'a Triple,
-        _triple_counter: Option<usize>,
+        &'a self, query_triple: &'a Triple, _triple_counter: Option<usize>,
     ) -> Box<dyn Iterator<Item = Vec<EncodedBinding>> + 'a> {
         //?s p o
         if query_triple.s.is_var() & query_triple.p.is_term() & query_triple.o.is_term() {
@@ -1186,8 +1171,7 @@ impl TripleIndex {
     }
 
     fn extract_binding_values_single_var<'a>(
-        variable: &'a VarOrTerm,
-        graph_var: &'a Option<VarOrTerm>,
+        variable: &'a VarOrTerm, graph_var: &'a Option<VarOrTerm>,
         indexes2: &'a Vec<(usize, usize, Option<Term>)>,
     ) -> Box<dyn Iterator<Item = Vec<EncodedBinding>> + 'a> {
         Box::new(
@@ -1218,9 +1202,7 @@ impl TripleIndex {
         )
     }
     fn check_quad_match_and_add(
-        query_triple: &&Triple,
-        matched_binding: &mut Binding,
-        graph_name: &Option<Term>,
+        query_triple: &&Triple, matched_binding: &mut Binding, graph_name: &Option<Term>,
     ) -> bool {
         match &query_triple.g {
             Some(VarOrTerm::Var(var_name)) if graph_name.is_some() => {

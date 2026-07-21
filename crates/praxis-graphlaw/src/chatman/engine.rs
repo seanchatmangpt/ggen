@@ -112,7 +112,9 @@ const EXTERNAL_CUT_DIGEST_TAG: &str = "chatman/engine/external-cut/v1";
 impl From<Pddl8Error> for Refusal {
     fn from(err: Pddl8Error) -> Self {
         match &err {
-            Pddl8Error::PlanningFailed(_) => Refusal::PlanInfeasible(format!("PlanningFailed: {err}")),
+            Pddl8Error::PlanningFailed(_) => {
+                Refusal::PlanInfeasible(format!("PlanningFailed: {err}"))
+            }
             Pddl8Error::ParseError(_) => Refusal::ValidationFailed(format!("ParseError: {err}")),
             Pddl8Error::BoundExceeded { .. } => {
                 Refusal::ValidationFailed(format!("BoundExceeded: {err}"))
@@ -343,10 +345,7 @@ fn external_cut_digest(outcome: &ExternalCutCompilationOutcome, root_element_id:
 /// [`powl_to_turtle`]'s admission/Turtle-emission cost plus the injected
 /// `compiler`'s own bound.
 fn compile_external_cut_digest(
-    snapshot_id: &str,
-    invocation_id: &str,
-    powl_region: &Powl,
-    compiler: &dyn ExternalCutCompiler,
+    snapshot_id: &str, invocation_id: &str, powl_region: &Powl, compiler: &dyn ExternalCutCompiler,
 ) -> Result<Digest, Refusal> {
     let base_iri = snapshot_id.trim_end_matches('/');
     let turtle = powl_to_turtle(powl_region, base_iri, Some(snapshot_id))?;
@@ -578,8 +577,7 @@ impl ChatmanEngine {
     /// # Complexity
     /// O(256) plus storage-open cost.
     pub fn open(
-        path: impl AsRef<std::path::Path>,
-        profile: EngineProfile,
+        path: impl AsRef<std::path::Path>, profile: EngineProfile,
     ) -> Result<Self, Refusal> {
         let path = path.as_ref();
         let store = Store::open(path).map_err(|e| {
@@ -627,9 +625,7 @@ impl ChatmanEngine {
     /// # Complexity
     /// O(bytes) scan plus parser/storage cost.
     pub fn load_snapshot(
-        &mut self,
-        snapshot_id: &GraphSnapshotId,
-        turtle: &str,
+        &mut self, snapshot_id: &GraphSnapshotId, turtle: &str,
     ) -> Result<(), Refusal> {
         if turtle.contains("<<") {
             return Err(Refusal::TripleTermInSnapshot(format!(
@@ -668,8 +664,7 @@ impl ChatmanEngine {
     /// OWL RL materialization + O(plan search) for the bounded BFS planner
     /// + O(e) over trace events.
     pub fn admit_transition(
-        &mut self,
-        envelope: InvocationEnvelope,
+        &mut self, envelope: InvocationEnvelope,
     ) -> Result<AdmittedTransition, Refusal> {
         if envelope.profile_id != self.router.gates().profile_id {
             return Err(Refusal::ProfileHashMismatch(format!(
@@ -768,9 +763,7 @@ impl ChatmanEngine {
     /// plus (only when a cut is present) the admission/Turtle-emission cost
     /// of [`powl_to_turtle`] and the injected compiler's own bound.
     pub fn admit_transition_with_external_cut(
-        &mut self,
-        envelope: InvocationEnvelope,
-        powl_region: &Powl,
+        &mut self, envelope: InvocationEnvelope, powl_region: &Powl,
         compiler: &dyn ExternalCutCompiler,
     ) -> Result<AdmittedTransition, Refusal> {
         let invocation_id = envelope.invocation_id.as_str().to_string();
@@ -834,11 +827,8 @@ impl ChatmanEngine {
     /// O(log c) for the two closure-state lookups (c = the socket's
     /// declared child count).
     pub fn admit_child_completion(
-        &self,
-        socket: &mut RecursiveSocketClosure,
-        child: &WorkflowSocketId,
-        child_snapshot_id: &GraphSnapshotId,
-        evidence: &ValidationReport,
+        &self, socket: &mut RecursiveSocketClosure, child: &WorkflowSocketId,
+        child_snapshot_id: &GraphSnapshotId, evidence: &ValidationReport,
     ) -> Result<(), Refusal> {
         // Real S1 check — the same private method `admit_transition` opens
         // and TOCTOU-rechecks every invocation with: a completion signal is
@@ -920,8 +910,7 @@ impl ChatmanEngine {
     /// One full S1-S5 run (see [`ChatmanEngine::admit_transition`]) plus nine
     /// O(1) digest comparisons.
     pub fn verify_replay(
-        receipt: &EngineProcessReceipt,
-        inputs: &ReplayInputs,
+        receipt: &EngineProcessReceipt, inputs: &ReplayInputs,
     ) -> Result<(), ReplayMismatch> {
         let mut engine = ChatmanEngine::in_memory(inputs.profile.clone())
             .map_err(ReplayMismatch::ReplayRefused)?;
@@ -1031,9 +1020,7 @@ impl ChatmanEngine {
     /// [`ChatmanEngine::admit_transition_with_external_cut`] pays for its
     /// Rail A/B compilation.
     pub fn verify_replay_with_external_cut(
-        receipt: &EngineProcessReceipt,
-        inputs: &ReplayInputs,
-        powl_region: Option<&Powl>,
+        receipt: &EngineProcessReceipt, inputs: &ReplayInputs, powl_region: Option<&Powl>,
         compiler: &dyn ExternalCutCompiler,
     ) -> Result<(), ReplayMismatch> {
         Self::verify_replay(receipt, inputs)?;
@@ -1200,10 +1187,7 @@ impl ChatmanEngine {
     /// verify against `prior_digest` — a real recompute-and-compare against
     /// the S1 output this stage was handed, checked before any S2 work runs.
     fn apply_owl_closure(
-        &mut self,
-        snapshot_id: &GraphSnapshotId,
-        prior_seal: &StageSeal,
-        prior_digest: &Digest,
+        &mut self, snapshot_id: &GraphSnapshotId, prior_seal: &StageSeal, prior_digest: &Digest,
     ) -> Result<(RouteDecision, Digest, Vec<HookReceipt>), Refusal> {
         prior_seal.verify("S1", prior_digest)?;
         let shape = QueryShape {
@@ -1290,10 +1274,7 @@ impl ChatmanEngine {
     /// used by the unsealed [`ChatmanEngine::plan_tape_for_snapshot`] side
     /// door) is unchanged; sealing is layered only at this S3 entry point.
     fn generate_pddl_plan(
-        &self,
-        snapshot_id: &GraphSnapshotId,
-        prior_seal: &StageSeal,
-        prior_digest: &Digest,
+        &self, snapshot_id: &GraphSnapshotId, prior_seal: &StageSeal, prior_digest: &Digest,
     ) -> Result<(Pddl8Tape, Digest), Refusal> {
         prior_seal.verify("S2", prior_digest)?;
         self.compute_pddl_plan(snapshot_id)
@@ -1322,8 +1303,7 @@ impl ChatmanEngine {
     /// `PDDL8_MAX_GROUND`, plan search bounded BFS
     /// (`PDDL8_MAX_PLAN_DEPTH`), digest O(tape bytes).
     pub fn plan_tape_for_snapshot(
-        &self,
-        snapshot_id: &GraphSnapshotId,
+        &self, snapshot_id: &GraphSnapshotId,
     ) -> Result<Pddl8Tape, Refusal> {
         // Re-run S1's presence check (read-only); the plan computation below
         // re-reads the snapshot's PDDL literals directly by snapshot_id, so
@@ -1368,8 +1348,7 @@ impl ChatmanEngine {
     /// search is bounded by `PDDL8_MAX_PLAN_DEPTH` (64) ticks, each tick
     /// bounded by `durative_actions.len()` applicability re-scan passes.
     pub fn plan_temporal_tape_for_snapshot(
-        &self,
-        snapshot_id: &GraphSnapshotId,
+        &self, snapshot_id: &GraphSnapshotId,
     ) -> Result<TemporalPlan, Refusal> {
         // Re-run S1's presence check (read-only), same as
         // `plan_tape_for_snapshot`.
@@ -1394,7 +1373,10 @@ impl ChatmanEngine {
         let domain = domain_from_pddl(&domain_text)?;
         let problem = problem_from_pddl(&problem_text)?;
         let ground = GroundTemporalProblem::build(&domain, &problem)?;
-        let plan = ground.find_temporal_plan().into_result().map_err(Pddl8Error::PlanningFailed)?;
+        let plan = ground
+            .find_temporal_plan()
+            .into_result()
+            .map_err(Pddl8Error::PlanningFailed)?;
         Ok(plan)
     }
 
@@ -1426,8 +1408,7 @@ impl ChatmanEngine {
     /// total actions/predicates/atoms; grounding bounded by
     /// `PDDL8_MAX_GROUND`; plan search bounded BFS (`PDDL8_MAX_PLAN_DEPTH`).
     pub fn plan_tape_for_snapshots(
-        &self,
-        snapshot_ids: &[GraphSnapshotId],
+        &self, snapshot_ids: &[GraphSnapshotId],
     ) -> Result<Pddl8Tape, Refusal> {
         if snapshot_ids.is_empty() {
             return Err(Refusal::PlanInfeasible(
@@ -1449,7 +1430,10 @@ impl ChatmanEngine {
         }
         let (domain, problem) = merge_pddl_fragments(domains, problems)?;
         let ground = GroundProblem::build(&domain, &problem, None)?;
-        let tape = ground.find_plan().into_result().map_err(Pddl8Error::PlanningFailed)?;
+        let tape = ground
+            .find_plan()
+            .into_result()
+            .map_err(Pddl8Error::PlanningFailed)?;
         Ok(tape)
     }
 
@@ -1463,8 +1447,7 @@ impl ChatmanEngine {
     /// Grounding is bounded by `PDDL8_MAX_GROUND`; plan search is bounded
     /// BFS (`PDDL8_MAX_PLAN_DEPTH`); the digest is O(tape bytes).
     fn compute_pddl_plan(
-        &self,
-        snapshot_id: &GraphSnapshotId,
+        &self, snapshot_id: &GraphSnapshotId,
     ) -> Result<(Pddl8Tape, Digest), Refusal> {
         let graph = snapshot_graph(snapshot_id)?;
         let domain_text = self
@@ -1486,7 +1469,10 @@ impl ChatmanEngine {
         let domain = domain_from_pddl(&domain_text)?;
         let problem = problem_from_pddl(&problem_text)?;
         let ground = GroundProblem::build(&domain, &problem, None)?;
-        let tape = ground.find_plan().into_result().map_err(Pddl8Error::PlanningFailed)?;
+        let tape = ground
+            .find_plan()
+            .into_result()
+            .map_err(Pddl8Error::PlanningFailed)?;
         let digest = tape_digest(&tape);
         Ok((tape, digest))
     }
@@ -1507,10 +1493,7 @@ impl ChatmanEngine {
     /// verify against `prior_digest` — checked before the OCEL trace is even
     /// read.
     fn admit_powl_trace(
-        &self,
-        snapshot_id: &GraphSnapshotId,
-        tape: &Pddl8Tape,
-        prior_seal: &StageSeal,
+        &self, snapshot_id: &GraphSnapshotId, tape: &Pddl8Tape, prior_seal: &StageSeal,
         prior_digest: &Digest,
     ) -> Result<String, Refusal> {
         prior_seal.verify("S3", prior_digest)?;
@@ -1731,9 +1714,7 @@ impl ChatmanEngine {
     /// O(m log m) over matches (collected and sorted so store iteration
     /// order can never leak into receipts).
     fn select_literal(
-        &self,
-        graph: &NamedNode,
-        predicate: &str,
+        &self, graph: &NamedNode, predicate: &str,
     ) -> Result<Option<String>, Refusal> {
         let query = format!(
             "SELECT ?v WHERE {{ GRAPH <{}> {{ ?s <{predicate}> ?v }} }}",
@@ -1799,8 +1780,7 @@ impl ChatmanEngine {
 /// O(a log a) over the total count a of actions, predicates, objects, and
 /// atoms (BTreeSet dedup lookups).
 fn merge_pddl_fragments(
-    domains: Vec<Pddl8Domain>,
-    problems: Vec<Pddl8Problem>,
+    domains: Vec<Pddl8Domain>, problems: Vec<Pddl8Problem>,
 ) -> Result<(Pddl8Domain, Pddl8Problem), Refusal> {
     let Some(first_domain) = domains.first() else {
         return Err(Refusal::PlanInfeasible(format!(
@@ -1922,9 +1902,7 @@ fn merge_pddl_fragments(
 /// # Complexity
 /// O(h log h) over hook receipts (canonical sort before hashing).
 fn trigger_knowledge_hooks(
-    hook_receipts: Vec<HookReceipt>,
-    trace_chain_hash: &str,
-    prior_seal: &StageSeal,
+    hook_receipts: Vec<HookReceipt>, trace_chain_hash: &str, prior_seal: &StageSeal,
     prior_digest: &Digest,
 ) -> Result<(Vec<BoundaryRequest>, Digest), Refusal> {
     prior_seal.verify("S4", prior_digest)?;
@@ -2127,11 +2105,8 @@ impl ChatmanEngine {
     /// # Complexity
     /// O(r) receipt verification plus the breed's own run cost.
     pub fn consult_breed(
-        &self,
-        breed: &str,
-        input: &wasm4pm_cognition::breeds::BreedInput,
-        covering_receipts: &[super::abi::Receipt],
-        override_requested: bool,
+        &self, breed: &str, input: &wasm4pm_cognition::breeds::BreedInput,
+        covering_receipts: &[super::abi::Receipt], override_requested: bool,
     ) -> Result<BreedWitness, Refusal> {
         if override_requested {
             return Err(Refusal::AgentOverrideDenied(format!(

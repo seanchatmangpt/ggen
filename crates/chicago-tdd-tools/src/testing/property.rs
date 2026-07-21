@@ -418,7 +418,11 @@ mod proptest_tests {
         // Root cause: Debug mode panics on overflow when adding large u32 values
         // Solution: Use wrapping arithmetic which maintains mathematical properties
         strategy.test(any::<(u32, u32)>(), |(x, y)| {
-            assert_eq!(x.wrapping_add(y), y.wrapping_add(x), "addition must commute");
+            assert_eq!(
+                x.wrapping_add(y),
+                y.wrapping_add(x),
+                "addition must commute"
+            );
             true
         });
     }

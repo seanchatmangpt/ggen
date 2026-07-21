@@ -578,12 +578,6 @@ mod logging_tests {
 mod tests {
     use super::*;
 
-
-
-
-
-
-
     #[test]
     fn test_write_alert() {
         let mut buffer = Vec::new();

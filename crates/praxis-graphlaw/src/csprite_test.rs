@@ -96,7 +96,10 @@ fn test_rewrite_hierarchy_csprite() {
     let rewritten_rules = CSprite::rewrite_hierarchy(&rc_rules);
     // The 3-rule SubClass chain must survive rewriting as a non-empty rule
     // set no larger than the input (hierarchy rewriting merges, never invents).
-    assert!(!rewritten_rules.is_empty(), "hierarchy rewrite dropped all rules");
+    assert!(
+        !rewritten_rules.is_empty(),
+        "hierarchy rewrite dropped all rules"
+    );
     assert!(
         rewritten_rules.len() <= original_len,
         "hierarchy rewrite grew the rule set: {} -> {}",

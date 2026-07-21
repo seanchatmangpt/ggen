@@ -13,10 +13,7 @@ use super::{CompiledHook, GraphDelta, HookVerdict, HookVerdictRecord};
 /// O(|H| * C) where |H| = number of hooks, C = per-condition evaluation cost
 /// (typically O(|F|) where |F| = triple store size, dominated by SHACL/SPARQL)
 pub fn evaluate_hooks(
-    hooks: &[CompiledHook],
-    post_state: &TripleStore,
-    delta: &GraphDelta,
-    history: &[GraphDelta],
+    hooks: &[CompiledHook], post_state: &TripleStore, delta: &GraphDelta, history: &[GraphDelta],
 ) -> Result<Vec<HookVerdictRecord>, String> {
     let mut records = Vec::with_capacity(hooks.len());
     for hook in hooks {

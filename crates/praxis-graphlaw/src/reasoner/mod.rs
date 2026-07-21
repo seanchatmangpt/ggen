@@ -138,11 +138,7 @@ impl DerivationGate {
     /// Premises are canonicalized (sorted) before comparison to ensure
     /// `{P1, P2}` and `{P2, P1}` are recognized as the same.
     pub fn admit_derivation(
-        &mut self,
-        fact: Triple,
-        rule_id: usize,
-        mut premises: Vec<Triple>,
-        round: usize,
+        &mut self, fact: Triple, rule_id: usize, mut premises: Vec<Triple>, round: usize,
     ) -> bool {
         // Canonicalize premises by sorting
         premises.sort_by(|a, b| {
@@ -176,15 +172,10 @@ pub struct Reasoner;
 
 impl Reasoner {
     pub fn materialize(
-        &self,
-        triple_index: &mut TripleIndex,
-        rules: &Vec<Rule>,
-        strata: &Vec<usize>,
+        &self, triple_index: &mut TripleIndex, rules: &Vec<Rule>, strata: &Vec<usize>,
         aggregates: &std::collections::HashMap<Rule, crate::triples::Aggregate>,
-        hooks: &Vec<crate::hooks::CompiledHook>,
-        receipts: &mut Vec<crate::hooks::HookReceipt>,
-        verdicts: &mut Vec<crate::hooks::HookVerdictRecord>,
-        removals: &mut Vec<Triple>,
+        hooks: &Vec<crate::hooks::CompiledHook>, receipts: &mut Vec<crate::hooks::HookReceipt>,
+        verdicts: &mut Vec<crate::hooks::HookVerdictRecord>, removals: &mut Vec<Triple>,
     ) -> Result<Vec<Triple>, String> {
         let mut inferred = Vec::new();
         if rules.is_empty() && hooks.is_empty() {
@@ -967,9 +958,7 @@ impl Reasoner {
     /// Declaration order becomes the de facto rule-priority order this
     /// needs (matching upstream EYE's textual rule order).
     pub(crate) fn apply_new_triple(
-        head: Triple,
-        triple_index: &mut TripleIndex,
-        inferred: &mut Vec<Triple>,
+        head: Triple, triple_index: &mut TripleIndex, inferred: &mut Vec<Triple>,
     ) -> bool {
         if triple_index.contains(&head) {
             return false;
@@ -987,9 +976,7 @@ impl Reasoner {
     /// which don't exist as queryable data. Returns `None` if any literal
     /// fails to hold for this row.
     pub(crate) fn eval_post_literals(
-        post_body: &[BodyLiteral],
-        start: Binding,
-        triple_index: &TripleIndex,
+        post_body: &[BodyLiteral], start: Binding, triple_index: &TripleIndex,
     ) -> Option<Binding> {
         let mut bindings = start;
         for lit in post_body {
@@ -1018,9 +1005,7 @@ impl Reasoner {
     /// otherwise (possibly a zero-column `Binding` when the formula's triples
     /// are already fully ground and match).
     pub(crate) fn eval_embedded_formula_against_store(
-        formula_id: usize,
-        row_binding: &Binding,
-        triple_index: &TripleIndex,
+        formula_id: usize, row_binding: &Binding, triple_index: &TripleIndex,
     ) -> Option<Binding> {
         let triples = VarOrTerm::formula_triples(formula_id)?;
         if triples.is_empty() {
@@ -1037,9 +1022,7 @@ impl Reasoner {
     }
 
     pub fn infer_rule_heads(
-        triple_index: &TripleIndex,
-        counter: Option<usize>,
-        matching_rules: Vec<Rule>,
+        triple_index: &TripleIndex, counter: Option<usize>, matching_rules: Vec<Rule>,
     ) -> Vec<Triple> {
         let mut new_triples = Vec::new();
         for rule in matching_rules {

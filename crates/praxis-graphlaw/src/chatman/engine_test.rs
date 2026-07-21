@@ -535,8 +535,7 @@ struct FakeExternalCutCompiler {
 
 impl ExternalCutCompiler for FakeExternalCutCompiler {
     fn compile(
-        &self,
-        request: &ExternalCutCompilationRequest<'_>,
+        &self, request: &ExternalCutCompilationRequest<'_>,
     ) -> Result<ExternalCutCompilationOutcome, Refusal> {
         Ok(ExternalCutCompilationOutcome {
             source_powl_digest_hex: blake3_combined(&["fake-source", request.region_turtle]),

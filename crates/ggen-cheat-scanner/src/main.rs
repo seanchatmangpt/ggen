@@ -5,7 +5,9 @@
 //! found. Follows the ALIVE/BUILD_BROKEN vocabulary used by the other guard
 //! scripts under `scripts/ci/`.
 
-use ggen_cheat_scanner::{collect_impls, find_mock_substitutes, get_rules, scan_source, should_skip, Finding};
+use ggen_cheat_scanner::{
+    collect_impls, find_mock_substitutes, get_rules, scan_source, should_skip, Finding,
+};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process;

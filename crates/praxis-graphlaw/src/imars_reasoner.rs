@@ -29,10 +29,7 @@ impl ImarsReasoner {
 
 impl WindowConsumer<Triple> for ImarsReasoner {
     fn update(
-        &mut self,
-        new: Vec<(i32, Rc<Triple>)>,
-        old: Vec<(i32, Rc<Triple>)>,
-        _ts: i32,
+        &mut self, new: Vec<(i32, Rc<Triple>)>, old: Vec<(i32, Rc<Triple>)>, _ts: i32,
     ) -> Vec<(i32, Triple)> {
         println!("Received new: {:?}, old: {:?}", new.len(), old.len());
         new.iter()

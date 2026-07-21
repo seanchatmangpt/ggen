@@ -35,10 +35,7 @@ impl<T> SimpleWindowConsumer<T> {
 }
 impl<T> WindowConsumer<T> for SimpleWindowConsumer<T> {
     fn update(
-        &mut self,
-        new: Vec<(i32, Rc<T>)>,
-        old: Vec<(i32, Rc<T>)>,
-        _ts: i32,
+        &mut self, new: Vec<(i32, Rc<T>)>, old: Vec<(i32, Rc<T>)>, _ts: i32,
     ) -> Vec<(i32, T)> {
         //println!("Received new: {:?}, old: {:?}", new.len(), old.len());
         self.new = new;

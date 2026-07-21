@@ -20,8 +20,7 @@ pub struct HookReceipt {
 }
 
 fn collect_triple_patterns(
-    gp: &spargebra::algebra::GraphPattern,
-    out: &mut Vec<spargebra::term::TriplePattern>,
+    gp: &spargebra::algebra::GraphPattern, out: &mut Vec<spargebra::term::TriplePattern>,
 ) {
     match gp {
         spargebra::algebra::GraphPattern::Bgp { patterns } => {
@@ -171,9 +170,7 @@ fn mint_or_reuse_construct_blank_node(query_str: &str, label: &str, row_key: &st
 /// node across every row of every `evaluate_construct` call for the
 /// process's whole lifetime, regardless of which solution produced it.
 fn instantiate_term_pattern(
-    tp: &TermPattern,
-    bindings: &[Binding],
-    ctx: &mut RowBlankNodeContext,
+    tp: &TermPattern, bindings: &[Binding], ctx: &mut RowBlankNodeContext,
 ) -> Option<String> {
     match tp {
         TermPattern::Variable(v) => {
@@ -220,9 +217,7 @@ fn instantiate_named_node_pattern(np: &NamedNodePattern, bindings: &[Binding]) -
 }
 
 fn instantiate_triple_pattern(
-    tp: &spargebra::term::TriplePattern,
-    row: &[Binding],
-    ctx: &mut RowBlankNodeContext,
+    tp: &spargebra::term::TriplePattern, row: &[Binding], ctx: &mut RowBlankNodeContext,
 ) -> Option<Triple> {
     let s_str = instantiate_term_pattern(&tp.subject, row, ctx)?;
     let p_str = instantiate_named_node_pattern(&tp.predicate, row)?;
@@ -252,8 +247,7 @@ fn instantiate_triple_pattern(
 /// round, reproduces byte-identical output, independent of how many prior
 /// calls have incremented `SYNTHETIC_COUNTER` for unrelated queries/rows.
 pub fn evaluate_construct(
-    query_str: &str,
-    triple_index: &TripleIndex,
+    query_str: &str, triple_index: &TripleIndex,
 ) -> Result<(Vec<Triple>, Vec<Triple>), String> {
     let query = SparqlParser::new()
         .parse_query(query_str)
@@ -316,10 +310,7 @@ pub fn evaluate_construct(
 }
 
 pub fn serialize_delta_quad(
-    hook_iri: &str,
-    triple: &Triple,
-    is_addition: bool,
-    lines: &mut Vec<String>,
+    hook_iri: &str, triple: &Triple, is_addition: bool, lines: &mut Vec<String>,
 ) {
     let s = clean_decoded_term(&Encoder::decode(&triple.s.to_encoded()).unwrap_or_default());
     let p = clean_decoded_term(&Encoder::decode(&triple.p.to_encoded()).unwrap_or_default());

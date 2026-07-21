@@ -31,11 +31,8 @@ impl Reasoner {
     /// (to run a genuine sub-query rather than a single ground lookup) so it
     /// is dispatched here rather than through the ordinary builtins module.
     pub(crate) fn process_log_not_includes_rule(
-        rule: &Rule,
-        not_includes_idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
-        current_limit: usize,
+        rule: &Rule, not_includes_idx: usize, triple_index: &TripleIndex,
+        prev_limit: Option<usize>, current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();
         let lit = &rule.body[not_includes_idx];

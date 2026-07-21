@@ -279,11 +279,7 @@ struct ScanVisitor<'a> {
 }
 
 fn check_test_fn_body(
-    fn_name: &str,
-    line: usize,
-    attrs: &[syn::Attribute],
-    block: &syn::Block,
-    file: &Path,
+    fn_name: &str, line: usize, attrs: &[syn::Attribute], block: &syn::Block, file: &Path,
     findings: &mut Vec<Finding>,
 ) {
     let mut collector = collect_assertions(block);
@@ -365,7 +361,9 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
                 rule_id: "CHEAT-T04",
                 file: self.file.to_path_buf(),
                 line: i.span().start().line,
-                message: "import of mockall -- forbidden London-TDD mocking library (Chicago TDD only)".to_string(),
+                message:
+                    "import of mockall -- forbidden London-TDD mocking library (Chicago TDD only)"
+                        .to_string(),
             });
         }
         visit::visit_item_use(self, i);
@@ -488,9 +486,30 @@ pub fn find_mock_substitutes(records: &[ImplRecord]) -> Vec<Finding> {
     // `FakeXxx: Default` next to a production `Yyy: Default` is not a
     // collaborator substitution — the rule targets *domain* trait seams.
     const UBIQUITOUS_TRAITS: &[&str] = &[
-        "Default", "Clone", "Debug", "Display", "PartialEq", "Eq", "PartialOrd", "Ord", "Hash",
-        "From", "Into", "TryFrom", "TryInto", "AsRef", "AsMut", "Deref", "DerefMut", "Drop",
-        "Iterator", "IntoIterator", "FromIterator", "FromStr", "Error", "Serialize",
+        "Default",
+        "Clone",
+        "Debug",
+        "Display",
+        "PartialEq",
+        "Eq",
+        "PartialOrd",
+        "Ord",
+        "Hash",
+        "From",
+        "Into",
+        "TryFrom",
+        "TryInto",
+        "AsRef",
+        "AsMut",
+        "Deref",
+        "DerefMut",
+        "Drop",
+        "Iterator",
+        "IntoIterator",
+        "FromIterator",
+        "FromStr",
+        "Error",
+        "Serialize",
         "Deserialize",
     ];
 

@@ -43,8 +43,7 @@ pub struct EquivalenceCanonical {
 /// Returns a String error if union-find operations fail (e.g., operations
 /// on non-existent IDs).
 pub fn canonicalize_equivalences(
-    data: &TripleIndex,
-    vocab: &Vocab,
+    data: &TripleIndex, vocab: &Vocab,
 ) -> Result<EquivalenceCanonical, String> {
     let mut class_uf = UnionFind::new();
     let mut property_uf = UnionFind::new();

@@ -101,8 +101,7 @@ pub trait PredicateBearer {
 /// O(|triples| * |bindings|) predicate comparisons; O(1) space. Bindings are
 /// bounded at 8 by the Need9 law, so this is O(8 * |triples|) in practice.
 pub fn state_mask<T: PredicateBearer>(
-    triples: &[T],
-    bindings: &[ConstraintBinding<T::Predicate>],
+    triples: &[T], bindings: &[ConstraintBinding<T::Predicate>],
 ) -> u8 {
     let mut state: u8 = 0;
     for triple in triples {
@@ -167,10 +166,8 @@ impl AdmissionTable8 {
     /// O(256) entry precomputation + O(n log n) name sort (n <= 8) +
     /// O(256) hashing work; O(256) space.
     pub fn from_masks(
-        constraint_names: Vec<String>,
-        required_mask: ConstraintMask,
-        forbidden_mask: ConstraintMask,
-        set_on_admit: ConstraintMask,
+        constraint_names: Vec<String>, required_mask: ConstraintMask,
+        forbidden_mask: ConstraintMask, set_on_admit: ConstraintMask,
         clear_on_admit: ConstraintMask,
     ) -> Result<Self, Refusal> {
         if constraint_names.len() > 8 {

@@ -175,7 +175,11 @@ mod tests {
         // Ok result must point at a real directory.
         if let Ok(dir) = result {
             assert_ne!(dir, PathBuf::from("/nonexistent/path/that/cannot/exist"));
-            assert!(dir.is_dir(), "resolved packs dir must exist: {}", dir.display());
+            assert!(
+                dir.is_dir(),
+                "resolved packs dir must exist: {}",
+                dir.display()
+            );
         }
     }
 

@@ -106,8 +106,7 @@ impl ProfileSymbolTable {
     /// O(n log n) in the number of input terms (sort + dedup + BTreeMap
     /// inserts), plus O(total term bytes) hashing.
     pub fn build(
-        profile_id: ProfileId,
-        terms: impl IntoIterator<Item = String>,
+        profile_id: ProfileId, terms: impl IntoIterator<Item = String>,
     ) -> Result<Self, Refusal> {
         // O(n log n): collect, sort, dedup.
         let mut sorted: Vec<String> = terms.into_iter().collect();
@@ -276,10 +275,7 @@ impl ProfileSymbolTable {
     /// # Complexity
     /// O(t log t) (delegates to [`Self::projection_hash`]).
     pub fn verify_projection(
-        &self,
-        snapshot_id: &GraphSnapshotId,
-        triples: &[RDFTriple8],
-        expected_hash: &str,
+        &self, snapshot_id: &GraphSnapshotId, triples: &[RDFTriple8], expected_hash: &str,
     ) -> Result<(), Refusal> {
         let actual = self.projection_hash(snapshot_id, triples);
         if actual != expected_hash {

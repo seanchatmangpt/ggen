@@ -200,11 +200,7 @@ pub fn merge_path(base_has_authority: bool, base_path: &str, ref_path: &str) -> 
 }
 
 pub fn build_iri(
-    scheme: &str,
-    authority: Option<&str>,
-    path: &str,
-    query: Option<&str>,
-    fragment: Option<&str>,
+    scheme: &str, authority: Option<&str>, path: &str, query: Option<&str>, fragment: Option<&str>,
 ) -> String {
     let mut out = String::new();
     out.push_str(scheme);

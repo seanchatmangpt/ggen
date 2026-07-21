@@ -207,9 +207,7 @@ impl RecursiveSocketClosure {
     /// additionally costs O(k log k) for its declare-time validation,
     /// k = `subset.len()`.
     pub fn declare(
-        closure: &ParentChildClosure,
-        socket: WorkflowSocketId,
-        law: ClosureLaw,
+        closure: &ParentChildClosure, socket: WorkflowSocketId, law: ClosureLaw,
     ) -> Result<Self, Refusal> {
         let child_set = closure.children_of(&socket);
         if child_set.is_empty() {
@@ -380,9 +378,7 @@ impl RecursiveSocketClosure {
     /// pre-computed by the caller — this function only inspects
     /// `evidence.conforms`/`evidence.results.len()`).
     pub fn promote_observed_to_admitted(
-        &mut self,
-        child: &WorkflowSocketId,
-        evidence: &ValidationReport,
+        &mut self, child: &WorkflowSocketId, evidence: &ValidationReport,
     ) -> Result<(), Refusal> {
         let socket = self.socket.clone();
         let state = self.child_state_mut(child)?;
@@ -422,9 +418,7 @@ impl RecursiveSocketClosure {
     /// # Complexity
     /// O(1).
     pub fn record_policy_decision(
-        &mut self,
-        authority: OperatorId,
-        verdict: bool,
+        &mut self, authority: OperatorId, verdict: bool,
     ) -> Result<(), Refusal> {
         if !matches!(self.law, ClosureLaw::PolicyDecides) {
             return Err(Refusal::ClosureLawPolicyNotDeclared(format!(
@@ -545,8 +539,7 @@ impl RecursiveSocketClosure {
     /// # Complexity
     /// O(log c).
     fn child_state_mut(
-        &mut self,
-        child: &WorkflowSocketId,
+        &mut self, child: &WorkflowSocketId,
     ) -> Result<&mut ChildCompletionState, Refusal> {
         let socket = self.socket.clone();
         self.children.get_mut(child).ok_or_else(|| {

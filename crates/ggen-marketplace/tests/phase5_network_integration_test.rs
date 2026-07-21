@@ -201,8 +201,7 @@ fn test_timeout_configuration_variants() {
     ];
 
     for timeout in timeouts {
-        let client =
-            MarketplaceClient::new("https://registry.example.com").with_timeout(timeout);
+        let client = MarketplaceClient::new("https://registry.example.com").with_timeout(timeout);
         // The timeout builder must not disturb the client's registry binding.
         assert_eq!(client.registry_url(), "https://registry.example.com");
     }

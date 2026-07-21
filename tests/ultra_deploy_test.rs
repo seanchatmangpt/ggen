@@ -656,7 +656,11 @@ mod unit_tests {
         // Whatever the lookup resolves to, an Ok result must name a binary
         // that actually exists on disk.
         if let Ok(bin) = UltraDeployTester::find_ggen_binary() {
-            assert!(bin.exists(), "resolved ggen binary must exist: {}", bin.display());
+            assert!(
+                bin.exists(),
+                "resolved ggen binary must exist: {}",
+                bin.display()
+            );
         }
     }
 }

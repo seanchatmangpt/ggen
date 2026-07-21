@@ -154,11 +154,16 @@ impl ComponentLevels {
 /// alone would support, with no reference to history.
 #[must_use]
 pub fn supported(components: &ComponentLevels) -> CeilingLevel {
-    [components.lint, components.test, components.fmt, components.gate]
-        .into_iter()
-        .map(CeilingLevel::from)
-        .min()
-        .unwrap_or(CeilingLevel::Green)
+    [
+        components.lint,
+        components.test,
+        components.fmt,
+        components.gate,
+    ]
+    .into_iter()
+    .map(CeilingLevel::from)
+    .min()
+    .unwrap_or(CeilingLevel::Green)
 }
 
 /// `recoverable(ceiling_n)`: how much of the previous generation's ceiling
@@ -755,9 +760,6 @@ mod tests {
         let result = ReceiptEpochV2Builder::new(CeilingLevel::Green, components)
             .with_explicit_ceiling(CeilingLevel::Green)
             .build();
-        assert!(matches!(
-            result,
-            Err(CoreError::CeilingExceedsMeet { .. })
-        ));
+        assert!(matches!(result, Err(CoreError::CeilingExceedsMeet { .. })));
     }
 }

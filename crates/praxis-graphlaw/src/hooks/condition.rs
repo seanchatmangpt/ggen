@@ -81,11 +81,8 @@ fn delta_touches(delta: &GraphDelta, var: &str) -> Result<bool, String> {
 /// O(|H| * C) where |H| = number of hooks, C = per-condition evaluation cost
 /// (typically O(|F|) where |F| = triple store size, dominated by SHACL/SPARQL)
 pub fn evaluate_condition(
-    condition: &HookCondition,
-    post_state: &TripleStore,
-    delta: &GraphDelta,
-    history: &[GraphDelta],
-    hook_iri: &str,
+    condition: &HookCondition, post_state: &TripleStore, delta: &GraphDelta,
+    history: &[GraphDelta], hook_iri: &str,
 ) -> Result<(bool, Option<TriggerDiagnostic>), String> {
     match condition {
         HookCondition::Datalog { program, goal } => {

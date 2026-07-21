@@ -475,9 +475,7 @@ pub(crate) fn resolve_operand(term: &VarOrTerm, bindings: &Binding, row: usize) 
 /// members that are ground terms (e.g. the literal " " in
 /// `( ?fn " " ?ln )`) are used as-is.
 pub(crate) fn subject_list_members(
-    term: &VarOrTerm,
-    bindings: &Binding,
-    row: usize,
+    term: &VarOrTerm, bindings: &Binding, row: usize,
 ) -> Option<Vec<usize>> {
     let list_id = resolve_operand(term, bindings, row)?;
     let member_ids = VarOrTerm::list_members(list_id)?;
@@ -561,9 +559,7 @@ pub(crate) fn copy_row(bindings: &Binding, row: usize, out: &mut Binding) {
 // -- constraint builtins (log:equalTo, math:greaterThan) ----------------
 
 pub(crate) fn eval_row_constraint(
-    pattern: &Triple,
-    bindings: &Binding,
-    check: impl Fn(usize, usize) -> bool,
+    pattern: &Triple, bindings: &Binding, check: impl Fn(usize, usize) -> bool,
 ) -> Option<Binding> {
     if bindings.is_empty() {
         // No prior rows: treat as a single ground/implicit row. A
@@ -598,8 +594,7 @@ pub(crate) fn eval_row_constraint(
 // -- functional builtins (math:sum, string:length/concat, list:length) --
 
 pub(crate) fn eval_functional(
-    pattern: &Triple,
-    bindings: &Binding,
+    pattern: &Triple, bindings: &Binding,
     compute: impl Fn(&Triple, &Binding, usize) -> Option<usize>,
 ) -> Option<Binding> {
     if !pattern.o.is_var() {
