@@ -2159,3 +2159,114 @@ ghtf:SC09 a ghtf:SystemCondition ; ghtf:num 9 ; ghtf:statement "CI異常が機�
 ghtf:SC10 a ghtf:SystemCondition ; ghtf:num 10 ; ghtf:statement "作動結果が受領証連鎖に残る" ; ghtf:standing "ALIVE" ; ghtf:evidence "sha256-chained .tcps/acceptance-receipts.jsonl holds 2 receipts; prev_hash of line 2 re-verified against sha256 of line 1 (3f8924f7...)" .
 ghtf:SC11 a ghtf:SystemCondition ; ghtf:num 11 ; ghtf:statement "複数リポジトリへ同一標準作業が適用できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "second sandbox seanchatmangpt/tcps-accept-test-2-sandbox accepted via the same generated standard work (verify pass, labels=19)" .
 ghtf:SC12 a ghtf:SystemCondition ; ghtf:num 12 ; ghtf:statement "改善が意味図式一件変更で通る" ; ghtf:standing "ALIVE" ; ghtf:evidence "ghtf:LabelHyoujun added as ontology individual only, resynced and applied (labels=20); no hand edits to generated files" .
+
+#################################################################
+# FLEET SECTION (Phase 2 vocabulary — ZERO application).
+# Tiered fleet model: D_r = B ⊕ O ⊕ X (baseline ⊕ tier-permitted
+# overrides ⊕ admitted deviations). Vocabulary + gates + one
+# EXEMPLAR individual only; no other repo is instantiated and no
+# fleet apply path exists yet. Self-contained: nothing above this
+# marker references anything below it.
+#################################################################
+
+ghtf:ManagedRepo a rdfs:Class ;
+    rdfs:label "A repository under fleet management: identity + tier + baseline profile + overrides + admitted deviations + observation/desired digests + receipts + andon + open obligations" .
+
+ghtf:Tier a rdfs:Class ;
+    rdfs:label "A fleet governance tier: names the protection level, review count, and evidence requirement a member repo must satisfy, and the exact override surfaces (ghtf:tierPermits) a member may claim" .
+
+ghtf:BaselineProfile a rdfs:Class ;
+    rdfs:label "The composition base B of D_r = B ⊕ O ⊕ X: a named set of ghtf:member links to existing desired-state individuals (never copies)" .
+
+ghtf:AcceptedDeviation a rdfs:Class ;
+    rdfs:label "An admitted deviation X from the composed state: MUST carry ghtf:admissionRef (gate-enforced) naming the admission decision record" .
+
+ghtf:ApprovalBatch a rdfs:Class ;
+    rdfs:label "Batch-approval receipt vocabulary (doc only, no apply path): ghtf:repoSet (multi), ghtf:perRepoPlanDigest (multi, repo=digest), ghtf:aggregatePlanDigest, ghtf:riskTier, ghtf:authorizedBy, ghtf:expiry, ghtf:maxMutations, ghtf:zeroDeleteCondition" .
+
+# --- Tier individuals (5) -------------------------------------
+
+ghtf:TierKijun a ghtf:Tier ;
+    ghtf:tierRank 1 ; ghtf:tierName "基準" ;
+    rdfs:label "fleet baseline" ;
+    ghtf:requiredProtectionLevel "main branch protected: strict status checks, force-push and deletion blocked" ;
+    ghtf:requiredReviewCount 1 ;
+    ghtf:evidenceRequirement "drift-report.sh andon GREEN on last scheduled run" ;
+    ghtf:tierPermits "labels", "milestones", "webhooks" .
+
+ghtf:TierJuuyou a ghtf:Tier ;
+    ghtf:tierRank 2 ; ghtf:tierName "重要" ;
+    rdfs:label "stronger protection and reviews" ;
+    ghtf:requiredProtectionLevel "基準 plus enforce_admins and required code-owner review" ;
+    ghtf:requiredReviewCount 2 ;
+    ghtf:evidenceRequirement "drift GREEN plus signed sync receipt (.ggen-v2/receipt.json) for every applied change" ;
+    ghtf:tierPermits "labels", "milestones" .
+
+ghtf:TierChuukaku a ghtf:Tier ;
+    ghtf:tierRank 3 ; ghtf:tierName "中核" ;
+    rdfs:label "highest evidence and reproducibility — ggen belongs here eventually" ;
+    ghtf:requiredProtectionLevel "重要 plus active ruleset with per-context required checks (Check/Test/Build/Doctest) and PR-only main" ;
+    ghtf:requiredReviewCount 2 ;
+    ghtf:evidenceRequirement "chained acceptance receipts (.tcps/acceptance-receipts.jsonl) plus cross-host reproducibility evidence; second sync byte-identical" ;
+    ghtf:tierPermits "labels", "environments" .
+
+ghtf:TierHozon a ghtf:Tier ;
+    ghtf:tierRank 4 ; ghtf:tierName "保存" ;
+    rdfs:label "read-only preservation" ;
+    ghtf:requiredProtectionLevel "archived / read-only: no mutation of any surface permitted" ;
+    ghtf:requiredReviewCount 0 ;
+    ghtf:evidenceRequirement "archive flag verified on last census read; no plan may propose changes" .
+    # deliberately NO ghtf:tierPermits: 保存 permits zero overrides.
+
+ghtf:TierJikken a ghtf:Tier ;
+    ghtf:tierRank 5 ; ghtf:tierName "実験" ;
+    rdfs:label "reduced controls with explicit limits" ;
+    ghtf:requiredProtectionLevel "main protected against deletion only; direct pushes allowed" ;
+    ghtf:requiredReviewCount 0 ;
+    ghtf:evidenceRequirement "explicit limits: no secrets surface, no production environment, repo must be private or clearly marked experimental" ;
+    ghtf:tierPermits "labels", "milestones", "webhooks", "branch-protection", "rulesets" .
+
+# --- Baseline profile B-kijun ---------------------------------
+# Members are LINKS to the existing desired-state individuals
+# declared earlier in this file — the composition base is shared
+# by reference, never copied.
+
+ghtf:BKijun a ghtf:BaselineProfile ;
+    ghtf:profileName "B-kijun" ;
+    rdfs:label "基準 baseline: labels vocabulary + merge policy + protection template, by reference" ;
+    ghtf:member ghtf:LabelIjou, ghtf:LabelKaizen, ghtf:LabelL5Jouken,
+        ghtf:LabelShoukoMachi, ghtf:LabelKakuri, ghtf:LabelKoukaiTeishi,
+        ghtf:LabelJuryouZumi, ghtf:LabelTerraformHyouryuu,
+        ghtf:LabelGhSadouMachi, ghtf:LabelHyoujun, ghtf:L5ConditionLabel ;
+    ghtf:member ghtf:TcpsRepositorySettings ;   # merge policy lives here
+    ghtf:member ghtf:MainBranchProtection .     # protection template
+
+# --- EXEMPLAR ManagedRepo (the only instantiated repo) --------
+# EXEMPLAR: ggen itself, tier 中核. Digests are carried from the
+# receipts already recorded in this ontology's L5 evidence, not
+# fabricated: observationDigest = the 2026-07-20 sandbox
+# accept/drift run receipt (drift detected then repaired, L5C11/
+# L5C12); desiredStateDigest = the latest chained pack content
+# hash (L5C18 improvement cycle). No other repo is instantiated
+# in Phase 2.
+
+ghtf:DevLintRootOnly a ghtf:AcceptedDeviation ;
+    ghtf:deviationText "just lint clips only the root ggen package, not --workspace; untriaged clippy debt exists in other crates" ;
+    ghtf:admissionRef "TECH-DEBT-001, docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md" .
+
+ghtf:RepoGgen a ghtf:ManagedRepo ;
+    rdfs:label "EXEMPLAR — seanchatmangpt/ggen (Phase 2 vocabulary exemplar; not yet fleet-applied)" ;
+    ghtf:repoIdentity "seanchatmangpt/ggen" ;
+    ghtf:ownershipGroup "core-team" ;
+    ghtf:tier ghtf:TierChuukaku ;
+    ghtf:baselineProfile ghtf:BKijun ;
+    ghtf:permittedOverride "labels" ;
+    ghtf:acceptedDeviation ghtf:DevLintRootOnly ;
+    ghtf:riskClass "central" ;
+    ghtf:observationDigest "blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b" ;
+    ghtf:desiredStateDigest "blake3:ae62dda51fb79b0037e663d3996e0c133e5391bc1f042586347b764c7d2f8fd4" ;
+    ghtf:lastVerifiedGeneration "gh_terraform_pack_e2e second-sync byte-identical (ggen.lock unchanged)" ;
+    ghtf:lastAppliedReceipt "chain line 3 of .tcps/acceptance-receipts.jsonl (pack hash blake3:ae62dda5..., 標準 label improvement cycle)" ;
+    ghtf:andon "GREEN" ;
+    ghtf:openObligation "SC08: first scheduled tcps-drift.yml run pending" ;
+    ghtf:openObligation "SC09: ci-classify.sh live-PR classification pending" .

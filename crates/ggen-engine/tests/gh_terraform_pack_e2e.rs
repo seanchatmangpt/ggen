@@ -633,3 +633,124 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
     );
     assert_eq!(out2.trim(), lines[1], "script must print the appended line");
 }
+
+/// Fleet section (Phase 2 vocabulary): FLEET-MODEL.md renders with the tiers
+/// table, the ⊕ law, the batch receipt schema, and the ggen EXEMPLAR row —
+/// and the exemplar individual passes gates/020_fleet.rq (the sync succeeding
+/// IS the pass, since pack gates run before Extract/Render/Write).
+#[test]
+fn fleet_model_doc_renders_and_exemplar_passes_gates() {
+    let (_dir, project) = scaffold();
+    sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync with fleet exemplar must pass gates/020_fleet.rq");
+
+    let doc = read(&project, "docs/gh-terraform/FLEET-MODEL.md");
+    // Tiers table: all five tiers, ranked.
+    for tier in ["基準", "重要", "中核", "保存", "実験"] {
+        assert!(doc.contains(tier), "FLEET-MODEL.md missing tier {tier}: {doc}");
+    }
+    // ⊕ law spelled out.
+    assert!(
+        doc.contains("D_r = B ⊕ O ⊕ X"),
+        "FLEET-MODEL.md missing the ⊕ composition law: {doc}"
+    );
+    // Batch receipt schema fields.
+    for field in [
+        "ghtf:repoSet",
+        "ghtf:perRepoPlanDigest",
+        "ghtf:aggregatePlanDigest",
+        "ghtf:riskTier",
+        "ghtf:authorizedBy",
+        "ghtf:expiry",
+        "ghtf:maxMutations",
+        "ghtf:zeroDeleteCondition",
+    ] {
+        assert!(doc.contains(field), "FLEET-MODEL.md missing {field}: {doc}");
+    }
+    // Baseline members are references to the existing individuals.
+    assert!(
+        doc.contains("MainBranchProtection") && doc.contains("TcpsRepositorySettings"),
+        "B-kijun member links missing: {doc}"
+    );
+    // The one EXEMPLAR row: ggen, tier 中核, real digests carried from the
+    // receipts already recorded in the ontology's L5 evidence.
+    assert!(
+        doc.contains("seanchatmangpt/ggen")
+            && doc.contains("blake3:80aa8e6d")
+            && doc.contains("blake3:ae62dda5"),
+        "EXEMPLAR row missing: {doc}"
+    );
+}
+
+/// Gate sabotage for gates/020_fleet.rq, three refusal shapes on the union
+/// graph (consumer ontology facts + pack facts): an override the tier does
+/// not permit, a ManagedRepo without a tier, and an acceptedDeviation with
+/// no admission reference. Each must refuse the sync BEFORE any write.
+#[test]
+fn fleet_gate_refuses_unpermitted_override_tierless_repo_and_unadmitted_deviation() {
+    let cases: [(&str, &str); 3] = [
+        (
+            // 中核 permits only "labels"/"environments" — "webhooks" is not permitted.
+            "@prefix ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#> .\n\
+             ghtf:RepoSabotage a ghtf:ManagedRepo ;\n\
+                 ghtf:repoIdentity \"seanchatmangpt/sabotage\" ;\n\
+                 ghtf:tier ghtf:TierChuukaku ;\n\
+                 ghtf:permittedOverride \"webhooks\" .\n",
+            "unpermitted override",
+        ),
+        (
+            "@prefix ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#> .\n\
+             ghtf:RepoTierless a ghtf:ManagedRepo ;\n\
+                 ghtf:repoIdentity \"seanchatmangpt/tierless\" .\n",
+            "missing tier",
+        ),
+        (
+            "@prefix ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#> .\n\
+             ghtf:RepoUnadmitted a ghtf:ManagedRepo ;\n\
+                 ghtf:repoIdentity \"seanchatmangpt/unadmitted\" ;\n\
+                 ghtf:tier ghtf:TierKijun ;\n\
+                 ghtf:acceptedDeviation ghtf:DevNoRef .\n\
+             ghtf:DevNoRef a ghtf:AcceptedDeviation ;\n\
+                 ghtf:deviationText \"deviation with no admission reference\" .\n",
+            "unadmitted deviation",
+        ),
+    ];
+
+    for (ttl, label) in cases {
+        let (_dir, project) = scaffold();
+        std::fs::write(project.join("ontology.ttl"), ttl).expect("write sabotage ontology");
+
+        let err = sync(
+            &project,
+            SyncOptions {
+                dry_run: false,
+                ..Default::default()
+            },
+        )
+        .expect_err(&format!("{label}: sync must refuse"));
+        let msg = format!("{err}");
+        assert!(
+            msg.contains("020_fleet"),
+            "{label}: refusal must cite the fleet gate: {msg}"
+        );
+        assert!(
+            msg.contains("⊕") || msg.contains("fleet"),
+            "{label}: gate # MESSAGE text must surface: {msg}"
+        );
+        // Refusal happens before Extract/Render/Write: no partial state.
+        assert!(
+            !project.join("infra/terraform/github/labels.tf").exists(),
+            "{label}: gate must refuse before any write"
+        );
+        assert!(
+            !project.join("ggen.lock").exists(),
+            "{label}: ggen.lock must not be written"
+        );
+    }
+}
