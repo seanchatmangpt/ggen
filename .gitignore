@@ -1037,3 +1037,4 @@ state/
 typosquat-report.txt
 .sbom/
 .agents/
+target-local*/
