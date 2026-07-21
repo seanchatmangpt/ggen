@@ -95,9 +95,9 @@ retrofit:StandingCeilingHardcoded a retrofit:SPOF ;
 
 retrofit:AndonHardcodedGreen a retrofit:SPOF ;
     rdfs:label "andon field unconditionally hardcoded Green in write_receipt" ;
-    retrofit:standing "Blocking" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:SelfGenerationPath, retrofit:ConstitutionPath ;
-    retrofit:evidence "crates/ggen-engine/src/sync.rs:1857 write_receipt" .
+    retrofit:evidence "RESOLVED as-found 2026-07-20/21 retrofit item #2 verification pass: sync.rs's legacy `andon` field (now ~L2464-2476, `write_receipt`) is derived from `epoch.andon: AndonLevel` via `derive_andon`/`ComponentLevels` precedence (crates/praxis-core/src/receipt_epoch.rs), not a hardcoded literal -- the surrounding comment at sync.rs:2461-2463 documents this as the exact migration that removed the hardcoded-Green literal this SPOF names (landed in one of #322/#336/#346, predating this retrofit item's assignment). A Stage 2b (validate) gate/denial refusal returns `Err` via `?` before `write_receipt` is ever called (sync.rs:482-559), so a red gate cannot reach the receipt as a false Green either -- confirmed live: `.ggen-v2/receipt.json`'s `record.andon` and `record.v2.andon` both read \"Green\" after a real `ggen sync run` on an unmodified tree, and `cargo build -p ggen-cli-lib --bin ggen` is clean. This as-found fact supersedes the stale evidencePath (`sync.rs:1857`, which is now inside a different fn, `verify_check_axis`, not `write_receipt`); no source change was required for this item." .
 
 retrofit:DualObligationCounters a retrofit:SPOF ;
     rdfs:label "Legacy obligation_count=4 vs v2 Tracked{required:9,discharged:5} disagree by design" ;
