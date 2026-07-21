@@ -103,7 +103,9 @@ pub fn plan_write(
         }
     }
 
-    if let Some(skip_reason) = check_freeze(root, rel_to, existing.as_deref(), frontmatter)? {
+    if let Some(skip_reason) =
+        check_freeze(root, rel_to, existing.as_deref(), rendered_body, frontmatter)?
+    {
         return Ok(WriteOutcome::Skipped(skip_reason));
     }
 
@@ -154,23 +156,37 @@ pub fn plan_write(
 
 /// Evaluate `frontmatter.freeze_policy` against the current on-disk state.
 /// Returns `Some(reason)` when the write must be skipped on freeze grounds.
+///
+/// `rendered_body` is the candidate content this run would have written had
+/// freeze not intervened. It is used ONLY to observe and report drift for
+/// `FreezePolicy::Always` (see that arm) -- never written to disk. Freeze
+/// semantics are unchanged: an `Always`-frozen target is never overwritten,
+/// drifted or not.
 fn check_freeze(
-    root: &Path, rel_to: &str, existing: Option<&str>, frontmatter: &Frontmatter,
+    root: &Path, rel_to: &str, existing: Option<&str>, rendered_body: &str,
+    frontmatter: &Frontmatter,
 ) -> Result<Option<String>> {
     let Some(policy) = frontmatter.freeze_policy else {
         return Ok(None);
     };
     match policy {
         FreezePolicy::Never => Ok(None),
-        FreezePolicy::Always => {
-            if existing.is_some() {
-                Ok(Some(
-                    "frozen: freeze_policy=always, target already exists".to_string(),
-                ))
-            } else {
-                Ok(None)
-            }
-        }
+        FreezePolicy::Always => match existing {
+            None => Ok(None),
+            Some(content) if content == rendered_body => Ok(Some(
+                "frozen: freeze_policy=always, target already exists (up to date, no drift)"
+                    .to_string(),
+            )),
+            Some(_) => Ok(Some(
+                "frozen: freeze_policy=always, target already exists -- DRIFT: candidate \
+                 content would differ from the on-disk (frozen) file, meaning the source \
+                 ontology/template has changed since this file was last generated or \
+                 hand-completed, but the frozen file was NOT updated to reflect it. \
+                 Remediation: review the drift and hand-update the frozen file, or drop \
+                 freeze_policy if it should track generation again."
+                    .to_string(),
+            )),
+        },
         FreezePolicy::Checksum => {
             let Some(content) = existing else {
                 return Ok(None);
@@ -569,5 +585,116 @@ mod tests {
             std::fs::read_to_string(dir.path().join("f.txt")).expect("read"),
             "one\ntwo\n"
         );
+    }
+
+    // -----------------------------------------------------------------
+    // FreezePolicy::Always drift observation (O-5 / FreezeAlwaysNoDriftDetection)
+    // -----------------------------------------------------------------
+
+    fn fm_always(to: &str) -> Frontmatter {
+        let mut f = fm(to);
+        f.freeze_policy = Some(FreezePolicy::Always);
+        f
+    }
+
+    #[test]
+    fn freeze_always_absent_target_writes_normally() {
+        let dir = TempDir::new().expect("tempdir");
+        let out = plan_write(dir.path(), "x.rs", "new\n", &fm_always("x.rs")).expect("plan");
+        assert_eq!(out, WriteOutcome::Written);
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("x.rs")).expect("read"),
+            "new\n"
+        );
+    }
+
+    #[test]
+    fn freeze_always_identical_content_skips_with_no_drift_reason() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("x.rs"), "same\n").expect("seed");
+        let out = plan_write(dir.path(), "x.rs", "same\n", &fm_always("x.rs")).expect("plan");
+        match out {
+            WriteOutcome::Skipped(reason) => {
+                assert!(reason.contains("no drift"), "{reason}");
+                assert!(!reason.contains("DRIFT:"), "{reason}");
+            }
+            other => panic!("expected Skipped, got {other:?}"),
+        }
+        // Freeze semantics unchanged: file on disk is untouched.
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("x.rs")).expect("read"),
+            "same\n"
+        );
+    }
+
+    #[test]
+    fn freeze_always_drifted_content_skips_but_reports_drift() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("x.rs"), "hand-completed old content\n").expect("seed");
+        let out = plan_write(
+            dir.path(),
+            "x.rs",
+            "regenerated new content\n",
+            &fm_always("x.rs"),
+        )
+        .expect("plan");
+        match out {
+            WriteOutcome::Skipped(reason) => {
+                assert!(reason.contains("DRIFT:"), "{reason}");
+            }
+            other => panic!("expected Skipped, got {other:?}"),
+        }
+        // The whole point: freeze mutation behavior is unchanged. The
+        // hand-completed file is NEVER overwritten by Always, drifted or not.
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("x.rs")).expect("read"),
+            "hand-completed old content\n"
+        );
+    }
+
+    /// Sabotage: a hand-completed bootstrap file (the exact scenario
+    /// freeze_policy=always exists for, per CLAUDE.md's mode=Create
+    /// precedent) that has diverged from what generation would now produce
+    /// must be reported as drifted, not silently treated as up to date --
+    /// proving the comparison actually runs, not just returns a constant.
+    #[test]
+    fn freeze_always_hand_completed_bootstrap_file_reports_real_drift() {
+        let dir = TempDir::new().expect("tempdir");
+        let hand_completed = "// bootstrap stub, hand-completed by a human after first generation\nfn analyzer() { /* real hand-written logic */ }\n";
+        std::fs::write(dir.path().join("analyzer.rs"), hand_completed).expect("seed");
+        let regenerated_candidate =
+            "// bootstrap stub, hand-completed by a human after first generation\nfn analyzer() { todo!() }\n";
+        let out = plan_write(
+            dir.path(),
+            "analyzer.rs",
+            regenerated_candidate,
+            &fm_always("analyzer.rs"),
+        )
+        .expect("plan");
+        assert!(
+            matches!(out, WriteOutcome::Skipped(ref r) if r.contains("DRIFT:")),
+            "{out:?}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("analyzer.rs")).expect("read"),
+            hand_completed,
+            "hand-completed content must survive untouched"
+        );
+    }
+
+    /// Second-sync idempotency under Always: running the identical plan
+    /// twice in a row must report the SAME (no-drift) outcome both times --
+    /// observation must not itself introduce nondeterminism.
+    #[test]
+    fn freeze_always_second_sync_idempotent_when_no_drift() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("x.rs"), "stable\n").expect("seed");
+        let out1 = plan_write(dir.path(), "x.rs", "stable\n", &fm_always("x.rs")).expect("plan1");
+        let out2 = plan_write(dir.path(), "x.rs", "stable\n", &fm_always("x.rs")).expect("plan2");
+        assert_eq!(out1, out2);
+        match out1 {
+            WriteOutcome::Skipped(ref r) => assert!(r.contains("no drift"), "{r}"),
+            other => panic!("expected Skipped, got {other:?}"),
+        }
     }
 }

@@ -70,6 +70,7 @@ retrofit:GeneratedTableDriftManifested a retrofit:SPOF ;
     retrofit:evidence "28-vs-32 then 32-vs-33 pack count drift, docs/retrofit/ggen/as-found/architecture-semantics.md finding 6" .
 
 retrofit:FreezeAlwaysNoDriftDetection a retrofit:SPOF ;
+    retrofit:evidenceUpdate2026_07_21 "CONFIRMED, still Blocking, real blast radius measured: crates/ggen-engine/src/write.rs's decision order (its own module doc, lines 8-18) shows FreezePolicy::Always (~line 165-172) unconditionally returns Skipped when the target exists -- zero content comparison, unlike the sibling FreezePolicy::Checksum path (step 5 in the same decision order) which explicitly detects on-disk drift against ggen's last-recorded checksum before skipping. So an ontology/template change that would alter a freeze-always-policy file's content produces silent, permanent staleness with no warning, no drift signal, nothing -- exactly the SPOF's original claim, now precisely located in code rather than a bare file pointer. Real usage: 27 templates across packs/ declare freeze_policy (grep -rl freeze_policy packs/*/templates/). NOT fixed here: adding drift detection to Always mode is a real design change (would it warn, refuse, or just report? does it change behavior for templates deliberately relying on hand-completed bootstrap semantics, per this repo's own mode=Create precedent in CLAUDE.md?) -- needs the same dedicated attention as O-7b and StandingCeilingHardcoded's promotion mechanism, not a rushed patch." ;
     rdfs:label "write.rs freeze policy 'always' skips unconditionally with no drift check" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:GenerationPath ;
@@ -82,12 +83,13 @@ retrofit:ReflexiveReceiptSkip a retrofit:SPOF ;
     retrofit:evidencePath "docs/retrofit/ggen/as-found/generation-system.md" .
 
 retrofit:EquivalenceMapNotLive a retrofit:SPOF ;
-    rdfs:label "6 of 8 receipt equivalence classes Unknown on ggen's own sync" ;
+    rdfs:label "5 of 8 receipt equivalence classes still Unknown on ggen's own sync" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:SelfGenerationPath ;
-    retrofit:evidence "Live .ggen-v2/receipt.json: source/config Divergent; compiled_binary/docs/tests/receipts/evidence/gates Unknown. ggen-verify-pack (PR #346) producers not wired into ggen's own sync loop." .
+    retrofit:evidence "Updated 2026-07-21 (self-retrofit Generation 2, PR #360): the `evidence` class is now live -- ggen-verify-pack's gates 010/020 were wired into ggen's own [validation].gates (previously only [ontology].imports admitted its facts, never routing through crate::pack::resolve() which evaluates gates), and proven causal both directions: a real clippy fix flipped a recorded ver:exitCode row from red to green and the live sync's refusal-citation count dropped accordingly; a real adversarial tamper of a currently-green fact flipped a row red, cited by name. source/config remain Divergent; compiled_binary/docs/tests/receipts/gates remain Unknown -- narrowing what's still open, not the whole original claim. ggen-verify-pack's own gates 030/040/050 (freshness/andon-regression/output-count-regression) remain unwired by design: this repo's own ggen.toml is the declarative-rules schema, which has no [law].reflexive, so those three gates could never fire here." .
 
 retrofit:StandingCeilingHardcoded a retrofit:SPOF ;
+    retrofit:evidenceUpdate2026_07_21 "Sharpened, still Blocking: NOT a literal hardcoded constant -- praxis_core::receipt_epoch::compute_ceiling genuinely computes `recoverable(prev).min(supported(components))` from real evidence each generation. The real defect: recoverable(prev)=prev is the identity function by explicit design ('nothing decays and nothing is inferred back up', receipt_epoch.rs:173-176), so once any generation's ceiling reads LegacyObserved (ranked below Yellow/Green in the lattice), the meet with any future supported() can never exceed it -- a genuine permanent one-way floor, confirmed live: current .ggen-v2/receipt.json's standing_ceiling is LegacyObserved with promotion_eligible:true (proving it went through the real computed path, not the separate legacy_bounded() sentinel constructor, which always forces promotion_eligible:false). The only escape hatch, ReceiptEpochV2Builder::with_explicit_ceiling, is called in exactly 2 places -- both inside crates/ggen-engine/tests/receipt_epoch_e2e.rs and praxis-core's own unit test -- crates/ggen-engine/src/sync.rs's real production builder chain (line 2453) never calls it. So ggen's own self-hosted receipts are structurally incapable of ever showing a ceiling above LegacyObserved in production, regardless of how much real evidence improves, until a deliberate promotion mechanism is designed and wired -- not a quick patch, a real architecture decision (what evidence justifies a one-time floor reset, who/what authorizes it, how it's receipted)." ;
     rdfs:label "standing_ceiling hardcoded to LegacyObserved" ;
     retrofit:standing "Blocking" ;
     retrofit:affects retrofit:SelfGenerationPath ;
@@ -136,10 +138,10 @@ retrofit:ReleaseGateBrokenForWeeks a retrofit:SPOF ;
     retrofit:evidence "As-found per task brief; exact commit range/gate not independently re-derived this pass (Unknown)" .
 
 retrofit:BrokenJustSyncRecipes a retrofit:SPOF ;
-    rdfs:label "just sync / just sync-dry recipes confirmed broken (nonexistent flags)" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "just sync / just sync-dry recipes -- RESOLVED, original flags no longer exist" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:ReleasePath, retrofit:GenerationPath ;
-    retrofit:evidence "ggen sync --audit / --dry_run true: error: unexpected argument, confirmed by running the recipe" .
+    retrofit:evidence "RESOLVED, independently re-verified 2026-07-21: justfile's sync/sync-dry recipes (lines 414-419) already invoke `{{GGEN}} sync run` / `{{GGEN}} sync run --dry-run` -- not the `--audit`/`--dry_run true` flags this SPOF's original evidence cited, which no longer appear anywhere in the recipe. Confirmed live: `just sync-dry` runs, hits zero flag-parsing errors, and fails only on the separate, already-tracked O-3/O-7 evidence-gate refusal (FM-LAW-018, byte-identity still red) -- a genuinely different, already-known condition, not this SPOF's original claim. CLAUDE.md's own prose still describes the old broken flags as current, which is now stale generated-doc content (a minor, separate doc-drift item, not re-opening this SPOF)." .
 
 retrofit:PartialPublishRollbackUnknown a retrofit:SPOF ;
     rdfs:label "Partial-publish detection/rollback across 5 release targets not checked" ;

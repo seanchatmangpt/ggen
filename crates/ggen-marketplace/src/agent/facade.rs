@@ -379,7 +379,7 @@ impl PackAgent {
 
         let input = InstallByIdInput {
             pack_id: req.pack_id.clone(),
-            target_dir: None,
+            target_dir: Some(self.root.join(".ggen").join("packs").join(&req.pack_id)),
             force: req.force,
             dry_run: req.dry_run,
         };

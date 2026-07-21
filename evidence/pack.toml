@@ -1,0 +1,4 @@
+[pack]
+name = "verify-evidence"
+version = "0.0.0"
+description = "GENERATED verification evidence (ver: facts) emitted by scripts/verify-evidence.sh (ggen-verify-pack); admitted into the union graph so ggen-verify-pack's gates can enforce it. Never hand-edited."
