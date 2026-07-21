@@ -72,12 +72,19 @@ ctl:AP-001 a ctl:Obligation ;
     ctl:receiptRef "docs/retrofit/ggen/authorization-packets.md, mirrored at ./authorization-packets/AP-001.json" ;
     ctl:nextAction "Plan hash computation (local, non-actuating) is lawful prep work; the gh api PUT itself requires an explicit user ! command." .
 
-ctl:O-7 a ctl:Obligation ;
-    rdfs:label "Second-sync non-determinism in wasm4pm-cognition-pack's generated breed catalog doc" ;
+ctl:O-7a a ctl:Obligation ;
+    rdfs:label "Second-sync non-determinism: force:true breaking idempotency across the pack ecosystem" ;
     ctl:priority 1 ;
+    ctl:state ctl:CLOSED ;
+    ctl:nextAction "CLOSED for the 8-pack set crates/ggen-engine/tests/cross_pack_matrix.rs actually exercises (chicago-tdd-tools/clap-noun-verb/lsp-max/praxis-core/star-toml/wasm4pm-algorithms/wasm4pm-cognition/wasm4pm-compat): removed force:true from 18 template frontmatters across those 8 packs (the known write.rs defect class -- force mode always reports a file written even when byte-identical, breaking the 'second sync rewrites nothing' invariant). mega_project_all_packs_sync now passes. NOT closed workspace-wide: a grep found 160+ total force:true occurrences across packs/ -- most (e.g. tcps-release-pack's ~100) were never investigated, may or may not have a legitimate reason, out of scope for this generation. Separate, dedicated pass needed before claiming this class fully closed." ;
+    ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix mega_project_all_packs_sync -- real run, passed 2026-07-21." .
+
+ctl:O-7b a ctl:Obligation ;
+    rdfs:label "ontology_union_and_declaration_order_are_canonical: closure.ggen.toml legitimately differs, test assertion may be too strong" ;
+    ctl:priority 9 ;
     ctl:state ctl:READY ;
-    ctl:nextAction "Discovered 2026-07-21 while closing O-3 (full cargo test --workspace run, first full run in a while, unrelated to the BUG-004 fix). crates/ggen-engine/tests/cross_pack_matrix.rs: mega_project_all_packs_sync fails -- second sync rewrites docs/generated/W4PM_COGNITION_BREED_CATALOG.md when it must not; ontology_union_and_declaration_order_are_canonical fails -- reversed [packs] declaration order does not produce an identical receipt payload. Both are false-standing-risk class (idempotency/canonicality violations), priority 1. Investigate wasm4pm-cognition-pack's breed-catalog template for non-deterministic rendering (unstable iteration order over an unordered collection is the most likely cause of both symptoms)." ;
-    ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix mega_project_all_packs_sync ontology_union_and_declaration_order_are_canonical" .
+    ctl:nextAction "Root-caused precisely: of 145 leaf JSON fields in the receipt payload, exactly ONE differs between alphabetical and reversed [packs] declaration order -- closure.ggen.toml's hash. This is because the two test-generated ggen.toml files are literally different byte sequences (declaration order swapped by construction) -- the closure's job is to hash the exact input file read, so a different-byte input legitimately produces a different closure entry. The SEPARATE, earlier graph_hash_hex assertion in the same test (crates/ggen-engine/tests/cross_pack_matrix.rs:294-297) already independently proves the actual semantic union (pack resolution -> merged graph) is order-independent, and it passes. The failing assertion at line 301 (whole-payload byte equality) is stronger than the test's own stated intent ('declaration order must not change the graph hash' / 'BTreeMap canonicalizes') and may simply be an incorrect test expectation, not an engine defect. NOT fixed here -- requires a judgment call (loosen the test assertion to exclude ggen.toml's own closure entry, vs. changing the engine to hash a canonicalized/reparsed ggen.toml instead of raw bytes, which would weaken the closure's raw-provenance guarantee) that deserves dedicated attention, not a rushed edit." ;
+    ctl:verificationRequirement "cargo test -p ggen-engine --test cross_pack_matrix ontology_union_and_declaration_order_are_canonical" .
 
 ctl:O-6-hygiene a ctl:Obligation ;
     rdfs:label "Repository structural hygiene: 124 root files (~95 violations), orphaned templates/ (491 files), examples/archive/ 1547 tracked files" ;
