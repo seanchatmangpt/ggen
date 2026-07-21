@@ -1,0 +1,34 @@
+# MESSAGE: github-actions-pack required-facts gate. Every gha:Workflow that this pack
+# MESSAGE: models as-built (i.e. NOT carrying gha:ownedBy, which marks inventory stubs whose
+# MESSAGE: body facts live in another pack) must declare gha:purpose, >=1 gha:trigger, and a
+# MESSAGE: gha:permissionCeiling. Every gha:Job must declare gha:runner, and must be covered
+# MESSAGE: by permissions: either its own gha:jobPermissions block or a gha:permissionCeiling
+# MESSAGE: on the gha:Workflow it is gha:inWorkflow of. Every gha:Workflow that carries a
+# MESSAGE: generated body (gha:artifactBody) must declare >=1 gha:evidenceObligation or an
+# MESSAGE: explicit gha:noEvidenceReason — a green run whose evidence nobody declared cannot
+# MESSAGE: reach evidenceAdmitted (see gha:executionStates). Any row = a subject missing the
+# MESSAGE: bound property. All patterns are typed with gha: classes, so this gate is
+# MESSAGE: namespace-scoped and composes with other packs' graphs without cross-firing.
+PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a gha:Workflow . BIND(gha:purpose AS ?missing)
+    FILTER NOT EXISTS { ?s gha:ownedBy ?owner }
+  } UNION {
+    ?s a gha:Workflow . BIND(gha:trigger AS ?missing)
+    FILTER NOT EXISTS { ?s gha:ownedBy ?owner }
+  } UNION {
+    ?s a gha:Workflow . BIND(gha:permissionCeiling AS ?missing)
+    FILTER NOT EXISTS { ?s gha:ownedBy ?owner }
+  } UNION {
+    ?s a gha:Job . BIND(gha:runner AS ?missing)
+  } UNION {
+    ?s a gha:Job . BIND(gha:jobPermissions AS ?missing)
+    FILTER NOT EXISTS { ?s gha:inWorkflow ?w . ?w gha:permissionCeiling ?ceiling }
+  } UNION {
+    ?s a gha:Workflow . ?s gha:artifactBody ?body . BIND(gha:evidenceObligation AS ?missing)
+    FILTER NOT EXISTS { ?s gha:noEvidenceReason ?reason }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
