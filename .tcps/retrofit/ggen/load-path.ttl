@@ -136,10 +136,10 @@ retrofit:ReleaseGateBrokenForWeeks a retrofit:SPOF ;
     retrofit:evidence "As-found per task brief; exact commit range/gate not independently re-derived this pass (Unknown)" .
 
 retrofit:BrokenJustSyncRecipes a retrofit:SPOF ;
-    rdfs:label "just sync / just sync-dry recipes confirmed broken (nonexistent flags)" ;
-    retrofit:standing "Blocking" ;
+    rdfs:label "just sync / just sync-dry recipes -- RESOLVED, original flags no longer exist" ;
+    retrofit:standing "Accepted" ;
     retrofit:affects retrofit:ReleasePath, retrofit:GenerationPath ;
-    retrofit:evidence "ggen sync --audit / --dry_run true: error: unexpected argument, confirmed by running the recipe" .
+    retrofit:evidence "RESOLVED, independently re-verified 2026-07-21: justfile's sync/sync-dry recipes (lines 414-419) already invoke `{{GGEN}} sync run` / `{{GGEN}} sync run --dry-run` -- not the `--audit`/`--dry_run true` flags this SPOF's original evidence cited, which no longer appear anywhere in the recipe. Confirmed live: `just sync-dry` runs, hits zero flag-parsing errors, and fails only on the separate, already-tracked O-3/O-7 evidence-gate refusal (FM-LAW-018, byte-identity still red) -- a genuinely different, already-known condition, not this SPOF's original claim. CLAUDE.md's own prose still describes the old broken flags as current, which is now stale generated-doc content (a minor, separate doc-drift item, not re-opening this SPOF)." .
 
 retrofit:PartialPublishRollbackUnknown a retrofit:SPOF ;
     rdfs:label "Partial-publish detection/rollback across 5 release targets not checked" ;
