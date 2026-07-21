@@ -56,8 +56,8 @@ mer:Type_c4 a mer:DiagramType ;
     mer:displayName "C4図"@ja ;
     mer:detectorPath "packages/mermaid/src/diagrams/c4/c4Detector.ts" ;
     mer:definitionPath "packages/mermaid/src/diagrams/c4/c4Diagram.ts" ;
-    mer:rendererPath "packages/mermaid/src/diagrams/c4/c4Renderer.js" ;
-    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.js> ;
+    mer:rendererPath "packages/mermaid/src/diagrams/c4/c4Renderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.ts> ;
     mer:sourceConfidence "verified" ;
     mer:upstreamRelease mer:Mermaid_11_16_0 .
 
@@ -190,8 +190,8 @@ mer:Type_sequence a mer:DiagramType ;
     mer:displayName "順序図"@ja ;
     mer:detectorPath "packages/mermaid/src/diagrams/sequence/sequenceDetector.ts" ;
     mer:definitionPath "packages/mermaid/src/diagrams/sequence/sequenceDiagram.ts" ;
-    mer:rendererPath "packages/mermaid/src/diagrams/sequence/sequenceRenderer.js" ;
-    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.js> ;
+    mer:rendererPath "packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts" ;
+    mer:sourceUrl <https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts> ;
     mer:sourceConfidence "verified" ;
     mer:upstreamRelease mer:Mermaid_11_16_0 .
 
