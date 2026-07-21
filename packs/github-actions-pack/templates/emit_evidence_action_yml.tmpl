@@ -1,0 +1,11 @@
+---
+to: .github/actions/emit-evidence/action.yml
+force: true
+sparql:
+  row: |
+    PREFIX gha: <http://seanchatmangpt.github.io/packs/github-actions#>
+    SELECT ?body WHERE {
+      gha:EmitEvidenceAction gha:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

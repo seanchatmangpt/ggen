@@ -80,3 +80,27 @@ Security finding: 4 mutable action refs, all in `tf-acceptance.yml`
 
 - `packs/gh-terraform-pack/` — institutional-state counterpart
 - `packs/tcps-release-pack/` — proven CI-workflow-generating pack shape
+
+## Generated products (B3) and the shadow-retrofit sequence
+
+Bodies live in `bodies.ttl` (separate file; consumers wire it via the pack entry's
+`extra_ontologies = ["packs/github-actions-pack/bodies.ttl"]` — `ggen-engine`'s
+`extra_ontology_paths` unions it after `ontology.ttl`). Products:
+
+1. 検査 — `.github/workflows/reusable-rust-inspection.yml` (reusable `workflow_call`:
+   fmt/lint/build/test/doctest + aggregate `inspection-status`, adapted from the real
+   ci.yml/quality.yml; derived permissions `contents: read` only — no job creates check
+   runs via the API, so `checks: write` is deliberately absent) +
+   `docs/github-actions/inspection-caller-example.yml` (caller example, docs-only).
+2. 受領 — `.github/actions/emit-evidence/action.yml` (delegates to the ggen-verify-pack
+   evidence emitter contract; one implementation of the `ver:` fact format, zero drift).
+3. `.github/actions/setup-ggen/action.yml` (release-asset-else-cargo-build bootstrap,
+   from the tcps-drift.yml pattern).
+4. Facts only: `tcps-drift.yml` → `gha:ownedBy "gh-terraform-pack"` (漂流検査);
+   `publish-candidate.yml`/`release.yml` → `gha:ownedBy "ggen-release-pack"` (公開).
+
+Shadow retrofit: generated products land BESIDE the handwritten ci.yml/quality.yml.
+Sequence: (a) generate + commit the reusable workflow (done, inert until called);
+(b) promote the caller example from `docs/github-actions/` into `.github/workflows/`;
+(c) run both in shadow until results agree; (d) retire the duplicated jobs from the
+handwritten ci.yml/quality.yml, keeping ci.yml's phase2/cargo-cicd/lsp-crates jobs.
