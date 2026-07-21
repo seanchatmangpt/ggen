@@ -84,7 +84,7 @@ const TF_FILES: [&str; 16] = [
     "README.md",
 ];
 
-const SCRIPTS: [&str; 19] = [
+const SCRIPTS: [&str; 20] = [
     "ci-classify.sh",
     "pr-create.sh",
     "pr-checks.sh",
@@ -104,6 +104,7 @@ const SCRIPTS: [&str; 19] = [
     "accept-drift-inject.sh",
     "accept-verify.sh",
     "accept-receipt.sh",
+    "fleet-census.sh",
 ];
 
 #[test]
@@ -632,4 +633,54 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
         lines[1]
     );
     assert_eq!(out2.trim(), lines[1], "script must print the appended line");
+}
+
+/// W3 fleet census (Phase 1, strictly read-only): the generated
+/// `fleet-census.sh` must contain zero mutating gh method flags, and the
+/// committed census outputs from the real run must exist in the repo with
+/// the OBSERVATION-NOT-DESIRED-STATE markers.
+#[test]
+fn fleet_census_script_is_read_only_and_outputs_are_committed() {
+    let (_dir, project) = scaffold();
+    sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let body = read(&project, "scripts/gh/fleet-census.sh");
+    for verb in ["POST", "PATCH", "PUT", "DELETE"] {
+        assert!(
+            !body.contains(&format!("-X {verb}")) && !body.contains(&format!("--method {verb}")),
+            "fleet-census.sh must be read-only; found mutating flag for {verb}"
+        );
+    }
+    assert!(
+        body.contains("OBSERVATION, NOT DESIRED STATE"),
+        "fleet-census.sh must mark its output as observation, not desired state"
+    );
+
+    // Committed real-run outputs (generated once by running the script for
+    // real against the authenticated gh account, then committed).
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let census = std::fs::read_to_string(repo_root.join("docs/gh-terraform/FLEET-CENSUS.md"))
+        .expect("docs/gh-terraform/FLEET-CENSUS.md missing — run scripts/gh/fleet-census.sh");
+    assert!(
+        census.contains("## Classification counts"),
+        "census missing classification counts"
+    );
+    assert!(
+        census.contains("## Hazard register"),
+        "census missing hazard register"
+    );
+    let observed = std::fs::read_to_string(repo_root.join(".specify/fleet-observed.ttl"))
+        .expect(".specify/fleet-observed.ttl missing — run scripts/gh/fleet-census.sh");
+    assert!(
+        observed.contains("OBSERVATION, NOT DESIRED STATE")
+            && observed.contains("a obs:RepoObservation"),
+        "fleet-observed.ttl missing observation markers"
+    );
 }

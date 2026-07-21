@@ -1,0 +1,10 @@
+---
+to: scripts/gh/fleet-census.sh
+sparql:
+  row: |
+    PREFIX ghcli: <http://seanchatmangpt.github.io/packs/gh-terraform#cli->
+    SELECT ?body WHERE {
+      ghcli:FleetCensus ghcli:scriptBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}
