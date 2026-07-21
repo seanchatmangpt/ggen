@@ -1,0 +1,4 @@
+[pack]
+name = "gh-terraform-pack"
+version = "0.1.0"
+description = "Generates Terraform GitHub-management config (integrations/github provider, real HCL bodies modeled verbatim on ~/dev/ranchr and ~/dev/beamops) plus a reusable gh CLI shell-script library, all driven from ghtf:/ghcli: RDF individuals whose bodies are real, byte-for-byte content — no engine changes, template files only echo stored literals."
