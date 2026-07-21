@@ -150,8 +150,7 @@ pub(crate) fn get_subjects(index: &TripleIndex, predicate: usize, object: usize)
 
 /// Get all (subject, object) pairs for a predicate (P-O-S indexed)
 pub(crate) fn get_triples_by_predicate(
-    index: &TripleIndex,
-    predicate: usize,
+    index: &TripleIndex, predicate: usize,
 ) -> Vec<(usize, usize)> {
     let mut result = Vec::new();
     if let Some(objs) = index.pos.get(&predicate) {

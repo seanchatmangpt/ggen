@@ -80,21 +80,6 @@ fn test_build_script_compiles() {
 }
 
 #[test]
-fn test_generated_template_metadata_accessible() {
-    // This test verifies that build.rs generates accessible template metadata
-    // The generated code is in OUT_DIR/templates.rs
-
-    // If we can import this in the future, we would test:
-    // - TEMPLATES static exists
-    // - templates_by_category function works
-    // - find_template function works
-    // - stats module exists
-
-    // For now, we verify the build succeeds (implicit in cargo test passing)
-    assert!(true, "If this test runs, build.rs succeeded");
-}
-
-#[test]
 fn test_template_categories_exist() {
     // Arrange: Known template categories
     let known_categories = vec![
@@ -107,16 +92,20 @@ fn test_template_categories_exist() {
     // Act: Check each category directory exists
     let templates_dir = Path::new("templates");
 
-    for category in known_categories {
-        let category_path = templates_dir.join(category);
-
-        // Assert: Category should exist
-        if category_path.exists() {
-            println!("✅ Category found: {}", category);
+    let mut found = 0usize;
+    for category in &known_categories {
+        if templates_dir.join(category).exists() {
+            found += 1;
         } else {
-            println!("⚠️  Category not found: {} (may have been removed)", category);
+            println!("⚠️  Category not found: {category} (may have been removed)");
         }
     }
+    // The templates tree must still carry at least one of the known
+    // categories — zero hits means discovery is broken or the tree moved.
+    assert!(
+        found > 0,
+        "none of the known template categories exist under templates/"
+    );
 }
 
 #[test]

@@ -137,7 +137,7 @@ fn falsification_falsify_warm_path_required() {
 /// because their parallel interleaving would make event order racy).
 #[test]
 fn zz_ocel_evidence_sealed() {
-    harness::seal_suite_evidence(&[
+    let (ocel, receipt) = harness::seal_suite_evidence(&[
         "fixtures/routing/hot_path_route_for_bounded_pattern.json",
         "fixtures/routing/least_expressive_route_violation.json",
         "fixtures/routing/n3_actuation_refused.json",
@@ -147,4 +147,13 @@ fn zz_ocel_evidence_sealed() {
         "fixtures/routing/unsupported_dialect.json",
         "fixtures/routing/warm_path_required.json",
     ]);
+    // The seal must have landed on disk — SealGuard::drop never
+    // panics, so this is the only place a failed seal can gate.
+    for sealed in [&ocel, &receipt] {
+        assert!(
+            sealed.is_file() && sealed.metadata().map(|m| m.len() > 0).unwrap_or(false),
+            "suite evidence not sealed: {}",
+            sealed.display()
+        );
+    }
 }

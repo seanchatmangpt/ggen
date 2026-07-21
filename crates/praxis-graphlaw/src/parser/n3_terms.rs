@@ -157,9 +157,7 @@ pub fn fresh_bnode() -> VarOrTerm {
 /// fresh blank node with no additional triples -- matching Turtle/N3
 /// semantics exactly.
 pub fn parse_bnode_props(
-    pair: Pair<Rule>,
-    prefixes: &PrefixMapper,
-    extra: &mut Vec<Triple>,
+    pair: Pair<Rule>, prefixes: &PrefixMapper, extra: &mut Vec<Triple>,
 ) -> VarOrTerm {
     let bnode = fresh_bnode();
     for child in pair.into_inner() {
@@ -175,10 +173,7 @@ pub fn parse_bnode_props(
 /// PredicateObjectList and for a `[ ... ]` bnode property list's inner one).
 /// Pushes one triple per (property, object) pair into `extra`.
 pub fn parse_predicate_object_list(
-    subject_vot: VarOrTerm,
-    pair: Pair<Rule>,
-    prefixes: &PrefixMapper,
-    extra: &mut Vec<Triple>,
+    subject_vot: VarOrTerm, pair: Pair<Rule>, prefixes: &PrefixMapper, extra: &mut Vec<Triple>,
 ) {
     let mut property_vot = VarOrTerm::new_var("p".to_string());
     let mut objects_vot: Vec<VarOrTerm> = Vec::new();
@@ -262,9 +257,7 @@ pub fn bracketed_iri_text(iri_ref_pair: Pair<'_, Rule>) -> &str {
 /// Object position (IRI, prefixed name, variable, blank node, literal, list,
 /// or quoted graph).
 pub fn term_from_pair(
-    child: Pair<Rule>,
-    prefixes: &PrefixMapper,
-    extra: &mut Vec<Triple>,
+    child: Pair<Rule>, prefixes: &PrefixMapper, extra: &mut Vec<Triple>,
 ) -> VarOrTerm {
     match child.as_rule() {
         Rule::IriRef => {
@@ -316,9 +309,7 @@ pub fn parse_path_predicate(pair: Pair<Rule>, prefixes: &PrefixMapper) -> VarOrT
 /// e.g. `x!p^q`) fold left-to-right: each segment's fresh existential
 /// becomes the base term for the next segment.
 pub fn parse_path_expr(
-    pair: Pair<Rule>,
-    prefixes: &PrefixMapper,
-    extra: &mut Vec<Triple>,
+    pair: Pair<Rule>, prefixes: &PrefixMapper, extra: &mut Vec<Triple>,
 ) -> VarOrTerm {
     let mut inner = pair.into_inner();
     let Some(head_pair) = inner.next() else {
@@ -472,9 +463,7 @@ pub fn expand_property(pair: Pair<Rule>, prefixes: &PrefixMapper) -> String {
 
 /// Parse an Object rule into a VarOrTerm.
 pub fn parse_object(
-    pair: Pair<Rule>,
-    prefixes: &PrefixMapper,
-    extra: &mut Vec<Triple>,
+    pair: Pair<Rule>, prefixes: &PrefixMapper, extra: &mut Vec<Triple>,
 ) -> VarOrTerm {
     match pair.into_inner().next() {
         Some(child) => term_from_pair(child, prefixes, extra),

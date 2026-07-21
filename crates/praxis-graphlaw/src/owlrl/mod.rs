@@ -266,8 +266,7 @@ impl OwlRlEngine {
     /// (via Arc::as_ref()) and mutable TripleStore indexes without copying.
     /// Multiple compile() calls on the same snapshot share zero-copy read-only access.
     pub fn compile(
-        &self,
-        index: &TripleIndex,
+        &self, index: &TripleIndex,
     ) -> Result<(Vec<crate::rule::Rule>, ScanReport), String> {
         let mut rules = Vec::new();
 
@@ -308,9 +307,12 @@ mod owlrl_test {
     #[test]
     fn test_vocabulary_initialized() {
         let vocab = OwlRlVocab::new();
-        // Encoder returns 0-indexed IDs; just verify they're initialized (non-zero is implementation detail)
-        let _ = vocab.rdf_type;
-        let _ = vocab.rdfs_subclass_of;
+        // Encoder returns 0-indexed IDs; the observable invariant is that
+        // distinct vocabulary terms get distinct encodings.
+        assert_ne!(
+            vocab.rdf_type, vocab.rdfs_subclass_of,
+            "rdf:type and rdfs:subClassOf must encode to distinct IDs"
+        );
     }
 
     #[test]
@@ -341,8 +343,9 @@ mod owlrl_test {
     #[test]
     fn test_engine_creation() {
         let engine = OwlRlEngine::new();
-        let vocab = &engine.vocab;
-        let _ = vocab.rdf_type;
+        // The engine's embedded vocabulary must be initialized with distinct
+        // encodings, same invariant as test_vocabulary_initialized.
+        assert_ne!(engine.vocab.rdf_type, engine.vocab.rdfs_subclass_of);
     }
 
     #[test]

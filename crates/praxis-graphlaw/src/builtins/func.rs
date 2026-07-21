@@ -43,8 +43,7 @@ pub(crate) const FUNC_STRING_LENGTH: &str =
 pub(crate) const FUNC_SUBSTRING: &str = "<http://www.w3.org/2007/rif-builtin-function#substring>";
 
 pub(crate) fn eval_lang_from_plain_literal(
-    pattern: &Triple,
-    bindings: &Binding,
+    pattern: &Triple, bindings: &Binding,
 ) -> Option<Binding> {
     eval_functional(pattern, bindings, |pattern, bindings, row| {
         // RIF's `func:lang-from-PlainLiteral` extracts a literal's
@@ -69,9 +68,7 @@ fn intern_boolean(value: bool) -> usize {
 }
 
 fn eval_numeric_binary(
-    pattern: &Triple,
-    bindings: &Binding,
-    op: impl Fn(f64, f64) -> Option<f64>,
+    pattern: &Triple, bindings: &Binding, op: impl Fn(f64, f64) -> Option<f64>,
 ) -> Option<Binding> {
     eval_functional(pattern, bindings, |pattern, bindings, row| {
         let members = subject_list_members(&pattern.s, bindings, row)?;
@@ -85,9 +82,7 @@ fn eval_numeric_binary(
 }
 
 fn eval_numeric_unary(
-    pattern: &Triple,
-    bindings: &Binding,
-    op: impl Fn(f64) -> f64,
+    pattern: &Triple, bindings: &Binding, op: impl Fn(f64) -> f64,
 ) -> Option<Binding> {
     eval_functional(pattern, bindings, |pattern, bindings, row| {
         let members = subject_list_members(&pattern.s, bindings, row)?;
@@ -100,9 +95,7 @@ fn eval_numeric_unary(
 }
 
 fn eval_numeric_predicate(
-    pattern: &Triple,
-    bindings: &Binding,
-    op: impl Fn(f64, f64) -> bool,
+    pattern: &Triple, bindings: &Binding, op: impl Fn(f64, f64) -> bool,
 ) -> Option<Binding> {
     eval_functional(pattern, bindings, |pattern, bindings, row| {
         let members = subject_list_members(&pattern.s, bindings, row)?;

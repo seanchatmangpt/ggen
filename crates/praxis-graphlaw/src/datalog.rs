@@ -61,8 +61,7 @@ fn relation_of(pattern: &Triple) -> usize {
 /// - Every variable in a negated body literal must share at least one variable with
 ///   some positive body literal (range-restriction).
 pub fn validate_rules(
-    rules: &[Rule],
-    aggregates: &HashMap<Rule, Aggregate>,
+    rules: &[Rule], aggregates: &HashMap<Rule, Aggregate>,
 ) -> Result<Vec<usize>, String> {
     // An empty ruleset is trivially stratifiable (zero predicates, zero strata) -- return
     // before the Bellman-Ford propagation below, which always executes its loop body at

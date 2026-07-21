@@ -418,7 +418,12 @@ mod proptest_tests {
         // Root cause: Debug mode panics on overflow when adding large u32 values
         // Solution: Use wrapping arithmetic which maintains mathematical properties
         strategy.test(any::<(u32, u32)>(), |(x, y)| {
-            x.wrapping_add(y) == y.wrapping_add(x)
+            assert_eq!(
+                x.wrapping_add(y),
+                y.wrapping_add(x),
+                "addition must commute"
+            );
+            true
         });
     }
 
@@ -430,7 +435,12 @@ mod proptest_tests {
         // Root cause: Debug mode panics on overflow when multiplying large u32 values
         // Solution: Use wrapping arithmetic which maintains distributive property
         strategy.test(any::<(u32, u32, u32)>(), |(a, b, c)| {
-            a.wrapping_mul(b.wrapping_add(c)) == a.wrapping_mul(b).wrapping_add(a.wrapping_mul(c))
+            assert_eq!(
+                a.wrapping_mul(b.wrapping_add(c)),
+                a.wrapping_mul(b).wrapping_add(a.wrapping_mul(c)),
+                "multiplication must distribute over addition"
+            );
+            true
         });
     }
 
@@ -438,7 +448,11 @@ mod proptest_tests {
     fn test_proptest_strategy_string_length() {
         let strategy = ProptestStrategy::new().with_cases(DEFAULT_PROPERTY_TEST_CASES);
         strategy.test(any::<String>(), |s| {
-            s.len() == s.chars().count() || s.len() >= s.chars().count()
+            assert!(
+                s.len() >= s.chars().count(),
+                "byte length must be >= char count for {s:?}"
+            );
+            true
         });
     }
 }

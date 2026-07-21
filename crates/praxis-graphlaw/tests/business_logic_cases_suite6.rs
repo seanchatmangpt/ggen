@@ -169,5 +169,8 @@ fn test_suite6_policy_conflict_unknown_effect_predicate() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Should fail: unknown predicate in kh: vocabulary
+    assert!(
+        res.is_err(),
+        "unknown predicate in kh: vocabulary must be rejected at load"
+    );
 }

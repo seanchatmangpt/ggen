@@ -153,6 +153,10 @@ mod tests {
                 context: "test".into(),
             },
         ));
-        let _ = format!("{err}");
+        let rendered = format!("{err}");
+        assert!(
+            rendered.contains("existential-preconditions"),
+            "Display must surface the unsupported feature name, got: {rendered}"
+        );
     }
 }

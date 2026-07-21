@@ -31,8 +31,7 @@ impl WindowReasoner {
         }
     }
     fn compute_diff(
-        new: &Vec<(i32, Rc<Triple>)>,
-        old: &Vec<(i32, Rc<Triple>)>,
+        new: &Vec<(i32, Rc<Triple>)>, old: &Vec<(i32, Rc<Triple>)>,
     ) -> (Vec<(i32, Rc<Triple>)>, Vec<(i32, Rc<Triple>)>) {
         if old.is_empty() {
             return (new.clone(), Vec::new());

@@ -53,9 +53,7 @@ impl CSprite {
         }
     }
     pub fn window_update(
-        &mut self,
-        new_data: Vec<(i32, Rc<Triple>)>,
-        _old_data: Vec<(i32, Rc<Triple>)>,
+        &mut self, new_data: Vec<(i32, Rc<Triple>)>, _old_data: Vec<(i32, Rc<Triple>)>,
         last_ts: &i32,
     ) {
         //remove expired data
@@ -128,8 +126,7 @@ impl CSprite {
         format!("{} {} {}", s, p, o)
     }
     pub fn materialize_window(
-        &mut self,
-        window_items: Vec<(i32, Rc<Triple>)>,
+        &mut self, window_items: Vec<(i32, Rc<Triple>)>,
     ) -> Vec<(i32, Triple)> {
         self.window_reasoner
             .materialize(
@@ -187,8 +184,7 @@ impl CSprite {
             .collect();
     }
     fn eval_backward_csprite(
-        &self,
-        rule_head: &Triple,
+        &self, rule_head: &Triple,
     ) -> (FxHashSet<Arc<Rule>>, Vec<Vec<Arc<Rule>>>) {
         let mut matched_rules = FxHashSet::default();
         let mut hierarchies = Vec::new();
@@ -204,12 +200,8 @@ impl CSprite {
         //self.eval_backward_csprite_helper_with_stack(rule_head)
     }
     fn eval_backward_csprite_helper(
-        &self,
-        rule_head: &Triple,
-        matched_rules: &mut FxHashSet<Arc<Rule>>,
-        hierarchy: bool,
-        hierarchies: &mut Vec<Vec<Arc<Rule>>>,
-        history: &mut FxHashSet<Triple>,
+        &self, rule_head: &Triple, matched_rules: &mut FxHashSet<Arc<Rule>>, hierarchy: bool,
+        hierarchies: &mut Vec<Vec<Arc<Rule>>>, history: &mut FxHashSet<Triple>,
     ) {
         if !history.insert(rule_head.clone()) {
             return;
@@ -246,8 +238,7 @@ impl CSprite {
         history.remove(rule_head);
     }
     fn eval_backward_csprite_helper_with_stack(
-        &self,
-        rule_head: &Triple,
+        &self, rule_head: &Triple,
     ) -> (FxHashSet<Arc<Rule>>, Vec<Vec<Arc<Rule>>>) {
         enum StackFrame {
             Enter { rule_head: Triple, hierarchy: bool },
@@ -324,11 +315,8 @@ pub struct CSpriteReasoner;
 
 impl CSpriteReasoner {
     pub fn materialize(
-        &mut self,
-        new_data: &Vec<(i32, Rc<Triple>)>,
-        triple_index: &mut TripleIndex,
-        rules_index: &RuleIndex,
-        window: &mut ImarsWindow<Triple>,
+        &mut self, new_data: &Vec<(i32, Rc<Triple>)>, triple_index: &mut TripleIndex,
+        rules_index: &RuleIndex, window: &mut ImarsWindow<Triple>,
     ) -> Vec<(i32, Rc<Triple>)> {
         let mut inferred = Vec::new();
         let mut counter = 0;
@@ -418,8 +406,7 @@ impl CSpriteReasoner {
         res
     }
     pub(crate) fn reconstruct_triples_from_bindings(
-        result_bindings: &mut Binding,
-        rule: &Rule,
+        result_bindings: &mut Binding, rule: &Rule,
     ) -> Vec<Vec<Triple>> {
         let mut counter = 0;
         let mut all_triples = Vec::new();

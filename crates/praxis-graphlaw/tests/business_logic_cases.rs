@@ -104,8 +104,10 @@ fn test_suite1_minimal_malformed_unknown_predicate() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Either fails at load or passes but unknown predicate is ignored
-    // Core discipline: unknown predicates in kh: vocabulary should be rejected
+    assert!(
+        res.is_err(),
+        "unknown predicate in kh: vocabulary must be rejected at load"
+    );
 }
 
 /// Negative: Approved fact remains absent when trigger condition not met
@@ -636,7 +638,7 @@ fn test_suite4_idempotency_malformed_missing_field() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Missing kh:var field should fail
+    assert!(res.is_err(), "hook missing kh:var must fail gating");
 }
 
 // =========================================================================
@@ -774,7 +776,7 @@ fn test_suite5_sla_escalation_malformed_operator() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Should reject invalid operator
+    assert!(res.is_err(), "invalid kh:op operator must be rejected");
 }
 
 /// Negative: SLA threshold hook missing kh:k field
@@ -965,7 +967,10 @@ fn test_suite6_policy_conflict_unknown_effect_predicate() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Should fail: unknown predicate in kh: vocabulary
+    assert!(
+        res.is_err(),
+        "unknown predicate in kh: vocabulary must be rejected at load"
+    );
 }
 
 // =========================================================================

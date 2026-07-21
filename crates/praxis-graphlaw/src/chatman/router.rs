@@ -160,9 +160,7 @@ impl ProfileGates {
     /// # Complexity
     /// O(1) — bit arithmetic only.
     pub fn new(
-        profile_id: ProfileId,
-        enabled_dialects_mask: u8,
-        actuation_dialects_mask: u8,
+        profile_id: ProfileId, enabled_dialects_mask: u8, actuation_dialects_mask: u8,
         max_hot_constraints: u8,
     ) -> Result<Self, Refusal> {
         if actuation_dialects_mask & Dialect::N3.mask_bit() != 0 {

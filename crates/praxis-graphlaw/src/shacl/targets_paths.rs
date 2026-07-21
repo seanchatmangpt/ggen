@@ -22,10 +22,7 @@ fn contains_triple(index: &TripleIndex, s: usize, p: usize, o: usize) -> bool {
 
 /// Get all focus nodes for a given shape, applying all target declarations
 pub(crate) fn get_focus_nodes(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    shape_id: usize,
-    vocab: &Vocab,
+    data: &TripleIndex, shapes: &TripleIndex, shape_id: usize, vocab: &Vocab,
 ) -> HashSet<usize> {
     let mut focus_nodes = HashSet::new();
 
@@ -115,10 +112,7 @@ pub(crate) fn get_focus_nodes(
 /// Evaluate a SHACL property path expression, returning all nodes reachable
 /// from `focus_node` by following the path.
 pub(crate) fn eval_path(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    focus_node: usize,
-    path_node: usize,
+    data: &TripleIndex, shapes: &TripleIndex, focus_node: usize, path_node: usize,
 ) -> Vec<usize> {
     // Sequence path (RDF list of steps)
     let rdf_first = Encoder::get("<http://www.w3.org/1999/02/22-rdf-syntax-ns#first>").unwrap_or(0);

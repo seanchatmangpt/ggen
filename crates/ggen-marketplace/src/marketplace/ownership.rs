@@ -574,7 +574,13 @@ mod tests {
     }
     #[test]
     fn test_merge_error_is_error() {
-        let _: Box<dyn std::error::Error> = Box::new(MergeError::ConflictDetected("test".into()));
+        let boxed: Box<dyn std::error::Error> =
+            Box::new(MergeError::ConflictDetected("test".into()));
+        // The trait-object Display must carry the variant's message through.
+        assert!(
+            boxed.to_string().contains("conflict detected"),
+            "Box<dyn Error> Display lost the variant message: {boxed}"
+        );
     }
     #[test]
     fn test_merge_result_serialization() {

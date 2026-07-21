@@ -169,9 +169,18 @@ mod tests {
         // must fall through to other lookups (which also fail in CI) → Err
         let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", "/nonexistent/path/that/cannot/exist");
         let result = get_packs_dir();
-        // We cannot assert Ok here because relative + home paths also absent in CI,
-        // but we confirm the function does not panic and returns a Result.
-        let _ = result;
+        // The contract under test: a missing env-var dir is SKIPPED. Whatever
+        // the fallbacks yield (Ok in a source checkout, Err in a bare CI env),
+        // the resolved dir must never be the nonexistent env-var path, and an
+        // Ok result must point at a real directory.
+        if let Ok(dir) = result {
+            assert_ne!(dir, PathBuf::from("/nonexistent/path/that/cannot/exist"));
+            assert!(
+                dir.is_dir(),
+                "resolved packs dir must exist: {}",
+                dir.display()
+            );
+        }
     }
 
     #[test]

@@ -33,9 +33,7 @@ use std::sync::Arc;
 /// # Returns
 /// A [`Binding`] mapping variable IDs to their possible ground values.
 pub fn eval_backward_with_history(
-    triple_index: &TripleIndex,
-    rule_index: &RuleIndex,
-    rule_head: &Triple,
+    triple_index: &TripleIndex, rule_index: &RuleIndex, rule_head: &Triple,
     history: &mut Vec<Triple>,
 ) -> Binding {
     let sub_rules: Vec<(Arc<Rule>, Vec<(usize, usize)>)> =

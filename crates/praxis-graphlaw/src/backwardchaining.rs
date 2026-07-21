@@ -36,9 +36,7 @@ impl BackwardChainer {
     }
 
     fn prove_inner(
-        triple_index: &TripleIndex,
-        rule_index: &RuleIndex,
-        goal: &Triple,
+        triple_index: &TripleIndex, rule_index: &RuleIndex, goal: &Triple,
         history: &mut FxHashSet<Triple>,
     ) -> bool {
         if triple_index.contains(goal) {
@@ -201,18 +199,14 @@ impl BackwardChainer {
     }
 
     pub fn eval_backward(
-        triple_index: &TripleIndex,
-        rule_index: &RuleIndex,
-        rule_head: &Triple,
+        triple_index: &TripleIndex, rule_index: &RuleIndex, rule_head: &Triple,
     ) -> Binding {
         let mut history = FxHashSet::default();
         Self::eval_backward_inner(triple_index, rule_index, rule_head, &mut history)
     }
 
     fn eval_backward_inner(
-        triple_index: &TripleIndex,
-        rule_index: &RuleIndex,
-        rule_head: &Triple,
+        triple_index: &TripleIndex, rule_index: &RuleIndex, rule_head: &Triple,
         history: &mut FxHashSet<Triple>,
     ) -> Binding {
         if !history.insert(rule_head.clone()) {
@@ -285,8 +279,7 @@ impl BackwardChainer {
     /// Returns the matching rules paired with variable substitution pairs
     /// `(rule_var, query_var)` for renaming after evaluation.
     pub fn find_subrules(
-        rules_index: &RuleIndex,
-        rule_head: &Triple,
+        rules_index: &RuleIndex, rule_head: &Triple,
     ) -> Vec<(Arc<Rule>, Vec<(usize, usize)>)> {
         let candidates: &[Arc<Rule>] = if rule_head.p.is_term() {
             // Fast path: look up only rules whose head predicate matches
@@ -314,9 +307,7 @@ impl BackwardChainer {
     }
 
     fn eval_triple_element(
-        left: &VarOrTerm,
-        right: &VarOrTerm,
-        var_names_sub: &mut Vec<(usize, usize)>,
+        left: &VarOrTerm, right: &VarOrTerm, var_names_sub: &mut Vec<(usize, usize)>,
     ) -> bool {
         if let (VarOrTerm::Var(left_name), VarOrTerm::Var(right_name)) = (left, right) {
             var_names_sub.push((left_name.name, right_name.name));
@@ -357,9 +348,7 @@ impl BackwardChainer {
     /// (`Binding::new().len() == 0` means both "one row, no columns" and
     /// "zero rows").
     pub fn solve(
-        triple_index: &TripleIndex,
-        rule_index: &RuleIndex,
-        goal_pattern: &Triple,
+        triple_index: &TripleIndex, rule_index: &RuleIndex, goal_pattern: &Triple,
     ) -> Vec<Binding> {
         let mut history = FxHashSet::default();
         let Some(raw) = Self::solve_inner(triple_index, rule_index, goal_pattern, &mut history, 0)
@@ -415,11 +404,8 @@ impl BackwardChainer {
     /// up represented by the same zero-column `Binding::new()`, and
     /// `TripleStore::prove`/`solve` reported both as proven.
     fn solve_inner(
-        triple_index: &TripleIndex,
-        rule_index: &RuleIndex,
-        goal: &Triple,
-        history: &mut FxHashSet<Triple>,
-        depth: usize,
+        triple_index: &TripleIndex, rule_index: &RuleIndex, goal: &Triple,
+        history: &mut FxHashSet<Triple>, depth: usize,
     ) -> Option<Binding> {
         if depth > Self::MAX_SOLVE_DEPTH {
             warn!(

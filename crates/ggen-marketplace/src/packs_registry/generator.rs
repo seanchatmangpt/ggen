@@ -97,7 +97,12 @@ mod tests {
             variables: BTreeMap::new(),
         };
 
-        // This will fail if pack doesn't exist, but tests the input structure
-        let _ = generate_from_pack(&input).await;
+        // `test-pack` is not a real pack in the repository's marketplace/packs
+        // catalog, so generation must refuse rather than fabricate output.
+        let result = generate_from_pack(&input).await;
+        assert!(
+            result.is_err(),
+            "generate_from_pack must fail for a nonexistent pack id, got: {result:?}"
+        );
     }
 }

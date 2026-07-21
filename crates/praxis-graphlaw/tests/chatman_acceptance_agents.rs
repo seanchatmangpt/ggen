@@ -120,7 +120,7 @@ fn falsification_falsify_witness_not_authority() {
 /// because their parallel interleaving would make event order racy).
 #[test]
 fn zz_ocel_evidence_sealed() {
-    harness::seal_suite_evidence(&[
+    let (ocel, receipt) = harness::seal_suite_evidence(&[
         "fixtures/agents/agent_acts_within_permits.json",
         "fixtures/agents/agent_override_denied.json",
         "fixtures/agents/breed_unpermitted.json",
@@ -128,4 +128,13 @@ fn zz_ocel_evidence_sealed() {
         "fixtures/agents/witness_not_authority.json",
         "fixtures/agents/witness_observes_only.json",
     ]);
+    // The seal must have landed on disk — SealGuard::drop never
+    // panics, so this is the only place a failed seal can gate.
+    for sealed in [&ocel, &receipt] {
+        assert!(
+            sealed.is_file() && sealed.metadata().map(|m| m.len() > 0).unwrap_or(false),
+            "suite evidence not sealed: {}",
+            sealed.display()
+        );
+    }
 }

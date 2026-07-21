@@ -166,8 +166,7 @@ fn extract_pattern_vars(pattern: &Triple) -> FxHashSet<usize> {
 /// # Complexity
 /// O(1) — checks if three positions (s, p, o) are bound or unbound.
 pub fn classify_pattern_selectivity(
-    pattern: &Triple,
-    bound_vars: &FxHashSet<usize>,
+    pattern: &Triple, bound_vars: &FxHashSet<usize>,
 ) -> Selectivity {
     let s_bound =
         pattern.s.is_term() || (pattern.s.is_var() && bound_vars.contains(&pattern.s.to_encoded()));

@@ -711,10 +711,12 @@ mod tests {
             ..Default::default()
         };
         let result = ObservabilityTest::with_config(config);
-        // Assert: Method returns Result (behavior test)
+        // With Weaver disabled there is no external detection to fail:
+        // construction must succeed.
         assert!(
-            result.is_ok() || result.is_err(),
-            "with_config() should return Result"
+            result.is_ok(),
+            "with_config(weaver_enabled=false) must construct: {:?}",
+            result.err().map(|e| e.to_string())
         );
     }
 
@@ -725,14 +727,15 @@ mod tests {
             weaver_enabled: false, // Disable Weaver to avoid auto-detection
             ..Default::default()
         };
-        if let Ok(test) = ObservabilityTest::with_config(config) {
-            // Test builder methods exist and work
-            let _test1 = test.with_registry(PathBuf::from("registry"));
-            let _test2 = _test1.with_weaver(false);
-            let _test3 = _test2.with_compile_time_validation(true);
-            // Assert: Builder pattern works (behavior test)
-            assert!(true, "Builder pattern should work");
-        }
+        let test = ObservabilityTest::with_config(config)
+            .expect("with_config(weaver_enabled=false) must construct");
+        // Each builder method must return the moved-through instance; the
+        // chain completing without panic + the terminal drop is the observable.
+        let chained = test
+            .with_registry(PathBuf::from("registry"))
+            .with_weaver(false)
+            .with_compile_time_validation(true);
+        drop(chained);
     }
 
     #[cfg(feature = "otel")]

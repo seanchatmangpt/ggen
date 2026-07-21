@@ -387,11 +387,8 @@ fn refuse_if_contains_newline(field_name: &str, field: &str) -> Result<(), Refus
 /// construction (`kind`'s own fields contribute at most 2 more lines,
 /// [`CompensationKind::canonical_fields`] is O(1)).
 pub fn manufacture_compensation_workflow(
-    remediates: PriorActuationRef,
-    kind: CompensationKind,
-    authority: OperatorId,
-    admitted_inputs: InputHandles,
-    expected_consequence: String,
+    remediates: PriorActuationRef, kind: CompensationKind, authority: OperatorId,
+    admitted_inputs: InputHandles, expected_consequence: String,
 ) -> Result<CompensationWorkflow, Refusal> {
     kind.validate()?;
     if remediates.prior_receipt_root.0.is_empty() {

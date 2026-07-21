@@ -103,9 +103,11 @@ fn test_suite1_minimal_malformed_unknown_predicate() {
             kh:unknownPredicate "should_fail" .
     "#;
 
-    let _res = store.load_hook_pack(hook_pack);
-    // Either fails at load or passes but unknown predicate is ignored
-    // Core discipline: unknown predicates in kh: vocabulary should be rejected
+    let res = store.load_hook_pack(hook_pack);
+    assert!(
+        res.is_err(),
+        "unknown predicate in kh: vocabulary must be rejected at load"
+    );
 }
 
 /// Negative: Approved fact remains absent when trigger condition not met

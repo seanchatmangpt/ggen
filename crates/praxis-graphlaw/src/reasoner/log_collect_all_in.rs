@@ -39,10 +39,7 @@ impl Reasoner {
     /// pre-computed by an ordinary whole-body query (the list doesn't exist
     /// as data until this step produces it).
     pub(crate) fn process_log_collect_all_in_rule(
-        rule: &Rule,
-        collect_idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
+        rule: &Rule, collect_idx: usize, triple_index: &TripleIndex, prev_limit: Option<usize>,
         current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();

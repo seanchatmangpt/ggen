@@ -136,7 +136,7 @@ fn test_suite5_sla_escalation_malformed_operator() {
     "#;
 
     let res = store.load_hook_pack(hook_pack);
-    // Should reject invalid operator
+    assert!(res.is_err(), "invalid kh:op operator must be rejected");
 }
 
 /// Negative: SLA threshold hook missing kh:k field

@@ -893,10 +893,6 @@ required-features = ["integration"]
 # FIBO Integration Tests for YAWL Workflow Generation
 # Process Mining Integration Tests
 [[test]]
-name = "a2a_rig_mcp_integration"
-path = "tests/a2a_rig_mcp_integration.rs"
-required-features = ["integration"]
-[[test]]
 name = "config_error_conversion_tests"
 path = "tests/config_error_conversion_tests.rs"
 required-features = ["integration"]

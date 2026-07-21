@@ -281,11 +281,7 @@ fn triplestore_escalation_rows(store: &TripleStore) -> Vec<(String, String, Stri
 /// # Complexity
 /// O(1): fixed-size string template.
 fn adversarial_pair_turtle(
-    topic: &str,
-    gq_seq: i64,
-    resp_seq: i64,
-    resp_kind: &str,
-    gq2_seq: i64,
+    topic: &str, gq_seq: i64, resp_seq: i64, resp_kind: &str, gq2_seq: i64,
 ) -> String {
     format!(
         r#"

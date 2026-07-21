@@ -59,9 +59,7 @@ impl Reasoner {
 
     #[allow(dead_code)]
     fn subsitute_binding(
-        var_name: &usize,
-        binding: &Binding,
-        binding_counter: &usize,
+        var_name: &usize, binding: &Binding, binding_counter: &usize,
     ) -> VarOrTerm {
         if let Some(s) = binding.get(var_name) {
             let iri = *s.get(*binding_counter).unwrap();
@@ -136,8 +134,7 @@ impl Reasoner {
     }
 
     pub fn substitute_rule_body_with_binding(
-        matching_rule: &Rule,
-        bindings: &Binding,
+        matching_rule: &Rule, bindings: &Binding,
     ) -> Vec<BodyLiteral> {
         let mut new_body = Vec::new();
         for body_lit in matching_rule.body.iter() {

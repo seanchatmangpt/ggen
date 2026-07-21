@@ -108,8 +108,7 @@ use crate::triples::{
 /// inputs -- no shared mutable state exists yet at the panic site, so
 /// `AssertUnwindSafe` does not paper over a real corruption risk here.
 pub(crate) fn plan_query_or_refuse(
-    query: &Query,
-    index: &TripleIndex,
+    query: &Query, index: &TripleIndex,
 ) -> Result<crate::sparql::PlanNode, String> {
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| eval_query(query, index))).map_err(
         |panic_payload| {
@@ -333,9 +332,7 @@ impl TripleStore {
         Ok(())
     }
     pub fn add_rule_with_aggregate(
-        &mut self,
-        rule: Rule,
-        aggregate: Aggregate,
+        &mut self, rule: Rule, aggregate: Aggregate,
     ) -> Result<(), String> {
         self.aggregates.insert(rule.clone(), aggregate);
         self.add_rules(vec![rule])
@@ -559,8 +556,7 @@ impl TripleStore {
     /// `shapes_turtle` is a Turtle-serialised SHACL shapes graph.
     /// Returns a `ValidationReport` describing conformance and any violations.
     pub fn validate_shacl(
-        &self,
-        shapes_turtle: &str,
+        &self, shapes_turtle: &str,
     ) -> Result<crate::shacl::ValidationReport, String> {
         let shapes = crate::shacl::ShapesGraph::parse(shapes_turtle)?;
         Ok(crate::shacl::Validator::validate(
@@ -575,9 +571,7 @@ impl TripleStore {
     /// `shape_map` is a slice of `(focus_node_iri, shape_label_iri)` pairs.
     /// Returns a `ShexValidationReport` describing conformance.
     pub fn validate_shex(
-        &self,
-        schema_json: &str,
-        shape_map: &[(String, String)],
+        &self, schema_json: &str, shape_map: &[(String, String)],
     ) -> Result<crate::shex::ShexValidationReport, Box<dyn std::error::Error>> {
         crate::shex::validate_shex(&self.triple_index, schema_json, shape_map)
     }
@@ -588,9 +582,7 @@ impl TripleStore {
     /// comment for scope) then delegates to the same validation path as
     /// `validate_shex`, so there is no separate/duplicated validation logic.
     pub fn validate_shex_c(
-        &self,
-        schema_shexc: &str,
-        shape_map: &[(String, String)],
+        &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<crate::shex_native::ShexValidationReport, String> {
         let schema = crate::shexc_parser::parse_shexc(schema_shexc)?;
         crate::shex_native::validate_shex_schema(&self.triple_index, &schema, shape_map)

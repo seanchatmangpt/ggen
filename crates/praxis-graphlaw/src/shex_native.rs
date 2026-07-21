@@ -174,9 +174,7 @@ pub struct ShexValidationFailure {
 }
 
 pub fn validate_shex_native(
-    data: &TripleIndex,
-    schema_json_str: &str,
-    shape_map: &[(String, String)],
+    data: &TripleIndex, schema_json_str: &str, shape_map: &[(String, String)],
 ) -> Result<ShexValidationReport, Box<dyn std::error::Error>> {
     let schema: Schema = serde_json::from_str(schema_json_str)?;
     validate_shex_schema(data, &schema, shape_map).map_err(Into::into)
@@ -188,9 +186,7 @@ pub fn validate_shex_native(
 /// ShExJ) reuse the exact same validation logic with no JSON round-trip and
 /// no duplicated code.
 pub fn validate_shex_schema(
-    data: &TripleIndex,
-    schema: &Schema,
-    shape_map: &[(String, String)],
+    data: &TripleIndex, schema: &Schema, shape_map: &[(String, String)],
 ) -> Result<ShexValidationReport, String> {
     let mut failures = Vec::new();
     let mut conforms = true;
@@ -243,10 +239,7 @@ fn encode_node(node_str: &str) -> usize {
 /// rather than recursing forever. This mirrors `shacl.rs::validate_shape`'s
 /// own `visited: &mut HashSet<(usize, usize)>` cycle-guard pattern exactly.
 fn validate_ref(
-    data: &TripleIndex,
-    schema: &Schema,
-    focus: usize,
-    se: &ShapeExprOrRef,
+    data: &TripleIndex, schema: &Schema, focus: usize, se: &ShapeExprOrRef,
     visited: &mut std::collections::HashSet<(usize, String)>,
 ) -> Result<(), Vec<String>> {
     match se {
@@ -268,10 +261,7 @@ fn validate_ref(
 }
 
 fn validate_node(
-    data: &TripleIndex,
-    schema: &Schema,
-    focus: usize,
-    se: &ShapeExpr,
+    data: &TripleIndex, schema: &Schema, focus: usize, se: &ShapeExpr,
     visited: &mut std::collections::HashSet<(usize, String)>,
 ) -> Result<(), Vec<String>> {
     match se {
@@ -365,10 +355,7 @@ fn validate_node(
 /// itself -- this is the exact fix for the gap found in the delegated
 /// crate).
 fn match_triple_expr(
-    data: &TripleIndex,
-    schema: &Schema,
-    focus: usize,
-    expr: &TripleExpr,
+    data: &TripleIndex, schema: &Schema, focus: usize, expr: &TripleExpr,
     visited: &mut std::collections::HashSet<(usize, String)>,
 ) -> (std::collections::HashSet<usize>, Vec<String>) {
     match expr {

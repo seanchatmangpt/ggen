@@ -49,8 +49,7 @@ fn decode(input: &EncodedBinding) -> Binding {
 }
 
 pub fn evaluate_plan_and_debug<'a>(
-    plan_node: &'a PlanNode,
-    triple_index: &'a TripleIndex,
+    plan_node: &'a PlanNode, triple_index: &'a TripleIndex,
 ) -> Box<dyn Iterator<Item = Vec<Binding>> + 'a> {
     Box::new(
         evaluate_plan(plan_node, triple_index)
@@ -59,8 +58,7 @@ pub fn evaluate_plan_and_debug<'a>(
 }
 
 pub fn evaluate_plan<'a>(
-    plan_node: &'a PlanNode,
-    triple_index: &'a TripleIndex,
+    plan_node: &'a PlanNode, triple_index: &'a TripleIndex,
 ) -> Box<dyn Iterator<Item = Vec<EncodedBinding>> + 'a> {
     match plan_node {
         PlanNode::QuadPattern { pattern: triple } => triple_index.query_help(triple, None),

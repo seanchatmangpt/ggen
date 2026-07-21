@@ -44,8 +44,7 @@ pub(crate) fn term_to_sparql_syntax(id: usize) -> String {
 /// row (for ASK queries this is the underlying WHERE-pattern's solutions —
 /// non-empty means the ASK would return true).
 pub(crate) fn evaluate_sparql_text(
-    data: &TripleIndex,
-    query_text: &str,
+    data: &TripleIndex, query_text: &str,
 ) -> Result<Vec<Vec<crate::tripleindex::EncodedBinding>>, String> {
     let query = spargebra::Query::parse(query_text, None).map_err(|e| e.to_string())?;
     let plan = crate::plan_query_or_refuse(&query, data)?;
@@ -82,9 +81,7 @@ pub(crate) fn substitute_this_as_bound_variable(query_text: &str, this_syntax: &
 /// CORE_ONLY is active (PROJ-407 Step 2). Returns true if constraint should
 /// be evaluated, false if it violates the boundary and should be skipped.
 pub(crate) fn check_sparql_boundary(
-    shapes: &TripleIndex,
-    shape_node: usize,
-    vocab: &Vocab,
+    shapes: &TripleIndex, shape_node: usize, vocab: &Vocab,
 ) -> bool {
     use super::model::SHACL_SPARQL_BOUNDARY;
 
@@ -107,14 +104,8 @@ pub(crate) fn check_sparql_boundary(
 /// NOTE: PROJ-407 Step 2 enforces SHACL-SPARQL dialect boundary (CORE_ONLY).
 /// SPARQL constraints are rejected at load time via check_sparql_boundary().
 pub(crate) fn validate_sparql_constraint(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    vocab: &Vocab,
-    this_node: usize,
-    shape_node: usize,
-    sparql_node: usize,
-    default_severity: usize,
-    default_msg: &Option<String>,
+    data: &TripleIndex, shapes: &TripleIndex, vocab: &Vocab, this_node: usize, shape_node: usize,
+    sparql_node: usize, default_severity: usize, default_msg: &Option<String>,
     results: &mut Vec<ValidationResult>,
 ) {
     use super::messages::{get_shape_messages, pick_preferred_message};

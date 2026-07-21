@@ -482,15 +482,6 @@ mod tests {
     #[cfg(feature = "otel")]
     use crate::observability::otel::types::{SpanContext, SpanId, SpanStatus, TraceId};
 
-    // Test feature-gated code paths (critical - verify features work correctly)
-    #[cfg(not(feature = "otel"))]
-    #[test]
-    fn test_otel_module_not_accessible_without_feature() {
-        // Verify otel module is not accessible without feature
-        // This test should compile and pass when otel feature is disabled
-        assert!(true, "otel module should not be accessible without feature");
-    }
-
     #[cfg(feature = "otel")]
     #[test]
     fn test_otel_error_variants() {

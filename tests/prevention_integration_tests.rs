@@ -16,25 +16,6 @@ mod prevention_tests {
     //     errors::{GgenError, Result, ErrorContext},
     // };
 
-    /// Test 1: PhantomData state machine prevents invalid transitions
-    #[test]
-    fn test_state_machine_compile_time_enforcement() {
-        // This test documents compile-time guarantees
-        // Actual enforcement is at compile time (code won't compile)
-
-        // ✅ VALID: Proper state transitions compile
-        // let registry = Registry::new()
-        //     .initialize(Path::new("templates")).unwrap()
-        //     .validate().unwrap();
-        // registry.search("pattern").unwrap();
-
-        // ❌ INVALID: The following would NOT compile (uncomment to verify):
-        // let registry = Registry::new();
-        // registry.search("pattern").unwrap();  // ERROR: no method `search`
-
-        // This test passes because it documents the guarantee
-    }
-
     /// Test 2: Trait contracts prevent integration failures
     #[test]
     fn test_trait_contract_enforcement() {

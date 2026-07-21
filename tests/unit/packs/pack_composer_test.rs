@@ -224,10 +224,16 @@ async fn test_compose_creates_output_directory() {
     };
 
     // Act
-    let _result = compose_packs(&input).await;
+    let result = compose_packs(&input).await;
 
-    // Assert - Directory should be created (if compose succeeded)
-    // Note: This test is best-effort as it depends on pack existence
+    // Assert - a successful compose MUST have created the output directory
+    // (best-effort on pack availability, but success without the directory
+    // would be decorative completion).
+    assert!(
+        result.is_err() || test_dir.exists(),
+        "compose_packs reported success but did not create {}",
+        test_dir.display()
+    );
 }
 
 #[tokio::test]

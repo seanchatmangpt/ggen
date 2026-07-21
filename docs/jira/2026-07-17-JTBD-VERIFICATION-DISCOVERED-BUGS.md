@@ -181,3 +181,30 @@ confidence that untested paths are covered. Not fixed in #257; needs a dedicated
 compile-only/type-shape tests).
 **Reproduce:** `cargo run -p ggen-cheat-scanner` from the repo root (exits nonzero with a full
 `file:line` violation list when any are found).
+
+**RETIRED 2026-07-20 (feat/cheat-scan-debt-retirement): 464 → 0. `guard-cheat-scan` is green
+(`ALIVE: no cheat patterns detected across 1152 scanned file(s)`).** The dedicated triage pass
+this entry called for was run to completion. The 464 split into two honest halves:
+
+1. **Scanner false positives (~305)** — the triage prediction above ("not all hits are equally
+   severe") was right: the T03 detector could not see `#[should_panic]` tests, Result-returning
+   tests using `?`, or `assert_*`-prefixed helper fns/macros (`assert_killed_at`,
+   `assert_eq_msg!`), and T04 flagged `FakeDataGenerator: Default` where the only shared trait
+   was a ubiquitous std trait. Fixed as scanner *precision* improvements (5 new clean fixtures +
+   tests in `crates/ggen-cheat-scanner/tests/`; positive fixtures still flag), not rule
+   weakening.
+2. **Genuine debt (~159)** — fixed for real or deleted per the London-TDD migration policy:
+   real observable-state assertions added across `bcinr-mfw-ir`, `bcinr-pddl`, `ggen-cli`,
+   `ggen-marketplace`, `chicago-tdd-tools`, `praxis-graphlaw`, and root `tests/`; deletions
+   include 50 all-`Ok(())` sham tests (`tests/marketplace_integration_tests.rs`,
+   `tests/security_validation_tests.rs`), the in-file-mock suite
+   `tests/a2a_rig_mcp_integration.rs` (+ its `[[test]]` entry), the dead-by-construction
+   `ggen-core-retired`-gated `tests/{tracing,graph_core_tests}.rs`, the unwired
+   `ggen-config/src/config/qa_integration_test.rs`, and assorted print-only/stringify!-only
+   tests. Notable strengthening: `praxis-graphlaw`'s 8 `zz_ocel_evidence_sealed` tests now
+   assert the sealed OCEL/receipt files exist (previously fail-open via a never-panicking
+   `Drop`).
+
+**Remaining count: 0.** Known pre-existing, *unrelated* failure surfaced during verification:
+`praxis-graphlaw`'s `chatman_acceptance_agents` suite fails on `main` because
+`tests/chatman_engine_acceptance/fixtures/agents/*.json` were never committed.

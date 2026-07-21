@@ -71,11 +71,8 @@ impl Reasoner {
     /// one of the `log:implies` literals). Results from every literal are
     /// pooled together and deduped.
     pub(crate) fn process_log_implies_rule(
-        rule: &Rule,
-        implies_indices: &[usize],
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
-        current_limit: usize,
+        rule: &Rule, implies_indices: &[usize], triple_index: &TripleIndex,
+        prev_limit: Option<usize>, current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();
 

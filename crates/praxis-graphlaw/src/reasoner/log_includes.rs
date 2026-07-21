@@ -30,10 +30,7 @@ impl Reasoner {
     /// entails the (row-instantiated) quoted formula. Rows for which it
     /// fails (zero solutions, or an unknown/malformed formula) are dropped.
     pub(crate) fn process_log_includes_rule(
-        rule: &Rule,
-        includes_idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
+        rule: &Rule, includes_idx: usize, triple_index: &TripleIndex, prev_limit: Option<usize>,
         current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();

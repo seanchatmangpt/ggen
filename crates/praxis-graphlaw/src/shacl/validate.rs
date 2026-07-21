@@ -49,14 +49,8 @@ pub(crate) const MAX_SHACL_VALIDATION_DEPTH: usize = 32;
 
 /// Returns true if the node conforms to the given shape (no violations).
 pub(crate) fn conforms_to_shape(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    vocab: &Vocab,
-    node: usize,
-    shape_node: usize,
-    visited: &mut HashSet<(usize, usize)>,
-    closure: &SubclassClosure,
-    depth: usize,
+    data: &TripleIndex, shapes: &TripleIndex, vocab: &Vocab, node: usize, shape_node: usize,
+    visited: &mut HashSet<(usize, usize)>, closure: &SubclassClosure, depth: usize,
 ) -> bool {
     let mut temp = Vec::new();
     validate_shape(
@@ -67,15 +61,9 @@ pub(crate) fn conforms_to_shape(
 
 /// Main shape validation function - validates a focus node against a shape
 pub(crate) fn validate_shape(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    vocab: &Vocab,
-    focus_node: usize,
-    shape_node: usize,
-    results: &mut Vec<ValidationResult>,
-    visited: &mut HashSet<(usize, usize)>,
-    closure: &SubclassClosure,
-    depth: usize,
+    data: &TripleIndex, shapes: &TripleIndex, vocab: &Vocab, focus_node: usize, shape_node: usize,
+    results: &mut Vec<ValidationResult>, visited: &mut HashSet<(usize, usize)>,
+    closure: &SubclassClosure, depth: usize,
 ) {
     use super::closure::has_class;
     use super::index_utils::{is_blank_node, is_iri, is_literal, is_shape_deactivated};
@@ -130,7 +118,15 @@ pub(crate) fn validate_shape(
     // -----------------------------------------------------------------------
     if !get_objects(shapes, shape_node, vocab.sh_path).is_empty() {
         validate_property_shape(
-            data, shapes, vocab, focus_node, shape_node, results, visited, closure, depth + 1,
+            data,
+            shapes,
+            vocab,
+            focus_node,
+            shape_node,
+            results,
+            visited,
+            closure,
+            depth + 1,
         );
     }
 
@@ -354,7 +350,16 @@ pub(crate) fn validate_shape(
     for and_list in get_objects(shapes, shape_node, vocab.sh_and) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, and_list);
         let conforms = sub_shapes.iter().all(|&sub| {
-            conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure, depth + 1)
+            conforms_to_shape(
+                data,
+                shapes,
+                vocab,
+                focus_node,
+                sub,
+                visited,
+                closure,
+                depth + 1,
+            )
         });
         if !conforms {
             results.push(make_result(
@@ -373,7 +378,16 @@ pub(crate) fn validate_shape(
     for or_list in get_objects(shapes, shape_node, vocab.sh_or) {
         let sub_shapes = super::index_utils::get_rdf_list(shapes, or_list);
         let conforms = sub_shapes.iter().any(|&sub| {
-            conforms_to_shape(data, shapes, vocab, focus_node, sub, visited, closure, depth + 1)
+            conforms_to_shape(
+                data,
+                shapes,
+                vocab,
+                focus_node,
+                sub,
+                visited,
+                closure,
+                depth + 1,
+            )
         });
         if !conforms {
             results.push(make_result(
@@ -395,7 +409,14 @@ pub(crate) fn validate_shape(
             .iter()
             .filter(|&&sub| {
                 conforms_to_shape(
-                    data, shapes, vocab, focus_node, sub, visited, closure, depth + 1,
+                    data,
+                    shapes,
+                    vocab,
+                    focus_node,
+                    sub,
+                    visited,
+                    closure,
+                    depth + 1,
                 )
             })
             .count();
@@ -415,7 +436,14 @@ pub(crate) fn validate_shape(
     // sh:not (node-level)
     for not_shape in get_objects(shapes, shape_node, vocab.sh_not) {
         if conforms_to_shape(
-            data, shapes, vocab, focus_node, not_shape, visited, closure, depth + 1,
+            data,
+            shapes,
+            vocab,
+            focus_node,
+            not_shape,
+            visited,
+            closure,
+            depth + 1,
         ) {
             results.push(make_result(
                 focus_node,
@@ -432,7 +460,14 @@ pub(crate) fn validate_shape(
     // sh:node (node-level)
     for node_shape in get_objects(shapes, shape_node, vocab.sh_node) {
         if !conforms_to_shape(
-            data, shapes, vocab, focus_node, node_shape, visited, closure, depth + 1,
+            data,
+            shapes,
+            vocab,
+            focus_node,
+            node_shape,
+            visited,
+            closure,
+            depth + 1,
         ) {
             results.push(make_result(
                 focus_node,
@@ -555,7 +590,15 @@ pub(crate) fn validate_shape(
     // -----------------------------------------------------------------------
     for ps in get_objects(shapes, shape_node, vocab.sh_property) {
         validate_property_shape(
-            data, shapes, vocab, focus_node, ps, results, visited, closure, depth + 1,
+            data,
+            shapes,
+            vocab,
+            focus_node,
+            ps,
+            results,
+            visited,
+            closure,
+            depth + 1,
         );
     }
 
@@ -574,15 +617,9 @@ pub(crate) fn validate_shape(
 
 /// Validate property shape (sh:property) constraints
 pub(crate) fn validate_property_shape(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    vocab: &Vocab,
-    focus_node: usize,
-    ps: usize,
-    results: &mut Vec<ValidationResult>,
-    visited: &mut HashSet<(usize, usize)>,
-    closure: &SubclassClosure,
-    depth: usize,
+    data: &TripleIndex, shapes: &TripleIndex, vocab: &Vocab, focus_node: usize, ps: usize,
+    results: &mut Vec<ValidationResult>, visited: &mut HashSet<(usize, usize)>,
+    closure: &SubclassClosure, depth: usize,
 ) {
     use super::closure::has_class;
     use super::values::{compare_numeric, get_lang_tag, match_regex};
@@ -1072,7 +1109,9 @@ pub(crate) fn validate_property_shape(
         let qvs = qvs_list[0];
         let conforming_count = v_nodes
             .iter()
-            .filter(|&&v| conforms_to_shape(data, shapes, vocab, v, qvs, visited, closure, depth + 1))
+            .filter(|&&v| {
+                conforms_to_shape(data, shapes, vocab, v, qvs, visited, closure, depth + 1)
+            })
             .count() as i64;
         for qmin in get_objects(shapes, ps, vocab.sh_qualified_min_count) {
             if let Ok(min) = get_integer_value(qmin) {
@@ -1173,7 +1212,14 @@ pub(crate) fn validate_property_shape(
     for not_shape in get_objects(shapes, ps, vocab.sh_not) {
         for &v in &v_nodes {
             if conforms_to_shape(
-                data, shapes, vocab, v, not_shape, visited, closure, depth + 1,
+                data,
+                shapes,
+                vocab,
+                v,
+                not_shape,
+                visited,
+                closure,
+                depth + 1,
             ) {
                 results.push(make_result(
                     focus_node,
@@ -1191,7 +1237,14 @@ pub(crate) fn validate_property_shape(
     for node_shape in get_objects(shapes, ps, vocab.sh_node) {
         for &v in &v_nodes {
             if !conforms_to_shape(
-                data, shapes, vocab, v, node_shape, visited, closure, depth + 1,
+                data,
+                shapes,
+                vocab,
+                v,
+                node_shape,
+                visited,
+                closure,
+                depth + 1,
             ) {
                 results.push(make_result(
                     focus_node,
@@ -1210,7 +1263,15 @@ pub(crate) fn validate_property_shape(
     for ps_nested in get_objects(shapes, ps, vocab.sh_property) {
         for &v in &v_nodes {
             validate_property_shape(
-                data, shapes, vocab, v, ps_nested, results, visited, closure, depth + 1,
+                data,
+                shapes,
+                vocab,
+                v,
+                ps_nested,
+                results,
+                visited,
+                closure,
+                depth + 1,
             );
         }
     }
@@ -1218,14 +1279,8 @@ pub(crate) fn validate_property_shape(
 
 /// Validate sh:closed and remove from visited set
 fn validate_shape_closed_and_targets_tail(
-    data: &TripleIndex,
-    shapes: &TripleIndex,
-    vocab: &Vocab,
-    focus_node: usize,
-    shape_node: usize,
-    severity: usize,
-    default_msg: Option<String>,
-    results: &mut Vec<ValidationResult>,
+    data: &TripleIndex, shapes: &TripleIndex, vocab: &Vocab, focus_node: usize, shape_node: usize,
+    severity: usize, default_msg: Option<String>, results: &mut Vec<ValidationResult>,
     visited: &mut HashSet<(usize, usize)>,
 ) {
     // sh:closed / sh:ignoredProperties

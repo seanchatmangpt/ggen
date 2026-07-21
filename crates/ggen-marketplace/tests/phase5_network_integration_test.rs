@@ -61,9 +61,9 @@ fn test_client_configuration_with_cache() {
 fn test_default_timeout_is_reasonable() {
     let client = MarketplaceClient::new("https://registry.example.com");
 
-    // Client should not panic during creation
-    // Default timeout should be set (30 seconds per implementation)
-    let _ = client;
+    // Creation with the default timeout must yield a client bound to the
+    // exact registry URL it was given.
+    assert_eq!(client.registry_url(), "https://registry.example.com");
 }
 
 // ============================================================================
@@ -170,16 +170,19 @@ fn test_cache_initialization() {
 /// Test client creation doesn't require network
 #[test]
 fn test_client_creation_offline() {
-    // This should succeed even if no network is available
-    let _client = MarketplaceClient::new("https://unreachable.example.com");
-    // Test passes if no panic
+    // Creation must succeed with no network available: it is pure
+    // configuration, observable via the stored registry URL.
+    let client = MarketplaceClient::new("https://unreachable.example.com");
+    assert_eq!(client.registry_url(), "https://unreachable.example.com");
 }
 
 /// Test client with unreachable registry
 #[test]
 fn test_client_with_unreachable_registry() {
-    let _client = MarketplaceClient::new("https://192.0.2.1:1"); // TEST-NET-1, non-routable
-                                                                 // Client creation should not fail; actual requests would fail/timeout
+    // TEST-NET-1, non-routable: creation must still succeed (no eager
+    // connection), keeping the URL as configured.
+    let client = MarketplaceClient::new("https://192.0.2.1:1");
+    assert_eq!(client.registry_url(), "https://192.0.2.1:1");
 }
 
 // ============================================================================
@@ -198,20 +201,18 @@ fn test_timeout_configuration_variants() {
     ];
 
     for timeout in timeouts {
-        let _client = MarketplaceClient::new("https://registry.example.com").with_timeout(timeout);
-        // Client creation should succeed with any reasonable timeout
+        let client = MarketplaceClient::new("https://registry.example.com").with_timeout(timeout);
+        // The timeout builder must not disturb the client's registry binding.
+        assert_eq!(client.registry_url(), "https://registry.example.com");
     }
 }
 
-/// Test timeout is enforced (framework test)
+/// Test an extreme (1ms) timeout still yields a correctly-bound client
 #[test]
 fn test_timeout_enforcement_framework() {
-    // Create client with very short timeout
-    let _client = MarketplaceClient::new("https://registry.example.com")
+    let client = MarketplaceClient::new("https://registry.example.com")
         .with_timeout(Duration::from_millis(1));
-
-    // Actual network call would timeout; this test just verifies
-    // the configuration doesn't panic during setup
+    assert_eq!(client.registry_url(), "https://registry.example.com");
 }
 
 // ============================================================================

@@ -146,9 +146,7 @@ fn resolve_iri(base: &Option<String>, raw: &str) -> String {
 }
 
 fn resolve_iri_pair(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<String, String> {
     // `pair` is an `Iri` (IriRef | PrefixedName), or occasionally the raw
     // IriRef/PrefixedName pair directly when called on an already-unwrapped
@@ -178,9 +176,7 @@ fn resolve_iri_pair(
 // ---------------------------------------------------------------------
 
 fn convert_shape_or(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExpr, String> {
     Ok(unwrap_or_ref(convert_shape_or_ref(prefixes, base, pair)?))
 }
@@ -192,9 +188,7 @@ fn convert_shape_or(
 /// inside another `ShapeAnd`/`ShapeOr`'s alternatives list, or a triple
 /// constraint's `value_expr`).
 fn convert_shape_or_ref(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExprOrRef, String> {
     let mut ands: Vec<ShapeExprOrRef> = pair
         .into_inner()
@@ -210,9 +204,7 @@ fn convert_shape_or_ref(
 }
 
 fn convert_shape_and_ref(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExprOrRef, String> {
     let mut nots: Vec<ShapeExprOrRef> = pair
         .into_inner()
@@ -228,9 +220,7 @@ fn convert_shape_and_ref(
 }
 
 fn convert_shape_not_ref(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExprOrRef, String> {
     let mut inner = pair.into_inner();
     let first = inner.next().ok_or("empty ShapeNot")?;
@@ -246,9 +236,7 @@ fn convert_shape_not_ref(
 }
 
 fn convert_shape_atom_ref(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExprOrRef, String> {
     let atom = pair.into_inner().next().ok_or("empty ShapeAtom")?;
     match atom.as_rule() {
@@ -288,9 +276,7 @@ fn unwrap_or_ref(r: ShapeExprOrRef) -> ShapeExpr {
 }
 
 fn convert_shape_definition(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExpr, String> {
     let mut closed = false;
     let mut extra = Vec::new();
@@ -325,9 +311,7 @@ fn convert_shape_definition(
 }
 
 fn convert_node_constraint(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<ShapeExpr, String> {
     let mut datatype = None;
     let mut node_kind = None;
@@ -446,9 +430,7 @@ fn find_unescaped_slash(s: &str) -> Option<usize> {
 }
 
 fn convert_value_set(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<Vec<ValueSetValue>, String> {
     let mut out = Vec::new();
     for p in pair.into_inner() {
@@ -511,18 +493,14 @@ fn unescape_string(quoted: &str) -> String {
 // ---------------------------------------------------------------------
 
 fn convert_triple_expr(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<TripleExpr, String> {
     let one_of = pair.into_inner().next().ok_or("empty TripleExpr")?;
     convert_one_of(prefixes, base, one_of)
 }
 
 fn convert_one_of(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<TripleExpr, String> {
     let mut each_ofs: Vec<TripleExpr> = pair
         .into_inner()
@@ -538,9 +516,7 @@ fn convert_one_of(
 }
 
 fn convert_each_of(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<TripleExpr, String> {
     let mut unaries: Vec<TripleExpr> = pair
         .into_inner()
@@ -556,9 +532,7 @@ fn convert_each_of(
 }
 
 fn convert_unary(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<TripleExpr, String> {
     let inner = pair.into_inner().next().ok_or("empty UnaryTripleExpr")?;
     match inner.as_rule() {
@@ -569,9 +543,7 @@ fn convert_unary(
 }
 
 fn convert_triple_constraint(
-    prefixes: &HashMap<String, String>,
-    base: &Option<String>,
-    pair: Pair<Rule>,
+    prefixes: &HashMap<String, String>, base: &Option<String>, pair: Pair<Rule>,
 ) -> Result<TripleExpr, String> {
     let mut parts = pair.into_inner();
     let predicate_pair = parts

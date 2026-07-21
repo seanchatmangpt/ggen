@@ -74,8 +74,7 @@ pub(crate) fn eval_string_contains(pattern: &Triple, bindings: &Binding) -> Opti
 }
 
 pub(crate) fn eval_string_contains_ignoring_case(
-    pattern: &Triple,
-    bindings: &Binding,
+    pattern: &Triple, bindings: &Binding,
 ) -> Option<Binding> {
     eval_row_constraint(
         pattern,
@@ -101,8 +100,7 @@ pub(crate) fn eval_string_ends_with(pattern: &Triple, bindings: &Binding) -> Opt
 }
 
 pub(crate) fn eval_string_equal_ignoring_case(
-    pattern: &Triple,
-    bindings: &Binding,
+    pattern: &Triple, bindings: &Binding,
 ) -> Option<Binding> {
     eval_row_constraint(
         pattern,
@@ -112,8 +110,7 @@ pub(crate) fn eval_string_equal_ignoring_case(
 }
 
 pub(crate) fn eval_string_not_equal_ignoring_case(
-    pattern: &Triple,
-    bindings: &Binding,
+    pattern: &Triple, bindings: &Binding,
 ) -> Option<Binding> {
     eval_row_constraint(
         pattern,

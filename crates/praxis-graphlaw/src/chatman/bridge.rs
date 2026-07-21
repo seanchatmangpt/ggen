@@ -232,9 +232,7 @@ impl<'a> TapeBridge<'a> {
     /// # Complexity
     /// O(len) over the v2 ops; len ≤ 64.
     pub fn new(
-        pddl: &'a Pddl8Tape,
-        powl_v2: &'a v2::PowlTape,
-        frames: Vec<PowlReplayFrame>,
+        pddl: &'a Pddl8Tape, powl_v2: &'a v2::PowlTape, frames: Vec<PowlReplayFrame>,
     ) -> Result<Self, Refusal> {
         let mut legacy = legacy_tape::PowlTape::new();
         // O(len): one lawful kind-mapping and field copy per source op.

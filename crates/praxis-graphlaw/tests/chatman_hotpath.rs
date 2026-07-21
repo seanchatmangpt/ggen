@@ -114,28 +114,22 @@ fn full_state_sweep_is_bounded_at_256_no_data_dependent_scan() -> Result<(), Ref
     Ok(())
 }
 
-/// (b) UNVERIFIED gap (per `.claude/rules/no-overclaiming.md`): no logical
-/// step counter incremented per table access/mask op exists in
-/// `src/chatman/admission8.rs` as of this session. `grep -n "counter\|tick"
-/// src/chatman/admission8.rs` returns no matches. Adding one requires
-/// touching `AdmissionTable8`'s field set and every constructor/lookup call
-/// site while preserving `table_hash`'s purity (the hash must stay a
-/// function of the table's *law*, never of query history) — this is not a
-/// "few lines, non-breaking" change per the task's own bar, so
-/// `admission8.rs` is left unmodified. This test documents the gap loudly
-/// instead of fabricating a counter value.
-#[test]
-fn gap_step_counter_not_yet_implemented() {
-    // UNVERIFIED: see module doc comment. Citing file:line —
-    // src/chatman/admission8.rs:118-283 (AdmissionTable8 struct + impl)
-    // carries no step-counter field or method as of this session.
-    assert!(
-        true,
-        "documented gap: AdmissionTable8 has no per-atom logical step counter \
-         (admission8.rs:118-283); adding one is a structural change to the hashed \
-         table identity, not a trivial additive change, so it was not made"
-    );
-}
+// (b) UNVERIFIED gap (per `.claude/rules/no-overclaiming.md`): no logical
+// step counter incremented per table access/mask op exists in
+// `src/chatman/admission8.rs` as of this session. `grep -n "counter\|tick"
+// src/chatman/admission8.rs` returns no matches. Adding one requires
+// touching `AdmissionTable8`'s field set and every constructor/lookup call
+// site while preserving `table_hash`'s purity (the hash must stay a
+// function of the table's *law*, never of query history) — this is not a
+// "few lines, non-breaking" change per the task's own bar, so
+// `admission8.rs` is left unmodified. This test documents the gap loudly
+// instead of fabricating a counter value.
+// UNVERIFIED gap record (formerly the always-passing test
+// `gap_step_counter_not_yet_implemented`, removed as a CHEAT-T01 vacuous
+// assert — assert!(true) can never fail, so a comment carries the same
+// information without pretending to gate): AdmissionTable8
+// (admission8.rs:118-283) has no per-atom logical step counter; adding one
+// is a structural change to the hashed table identity, so it was not made.
 
 /// Informational-only native timing. NOT a correctness gate — the hotpath
 /// doctrine (module doc above) forbids wall-clock timing as gating logic on
@@ -159,8 +153,7 @@ fn informational_native_timing_non_gating() -> Result<(), Refusal> {
          no comparable cycle counter per hotpath doctrine)"
     );
 
-    // Assert: always true. This test exists to record an observation, never
-    // to gate the suite on wall-clock time.
-    assert!(true, "informational only, never gates the suite");
+    // No wall-clock assertion, deliberately: this test records an
+    // observation and only fails if `table()` or a lookup refuses/panics.
     Ok(())
 }

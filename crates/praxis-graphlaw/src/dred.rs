@@ -114,8 +114,7 @@ impl DRed {
     /// Find all rules whose head matches `head_triple`, returning each rule with bound variable mappings.
     /// Uses the head-predicate index for efficient O(1) lookup.
     pub(crate) fn find_rules_by_head(
-        rules_index: &RuleIndex,
-        head_triple: &Triple,
+        rules_index: &RuleIndex, head_triple: &Triple,
     ) -> Vec<(Arc<Rule>, Binding)> {
         let candidates: &[Arc<Rule>] = if head_triple.p.is_term() {
             // Fast path: look up only rules whose head predicate matches

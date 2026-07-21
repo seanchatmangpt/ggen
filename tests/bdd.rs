@@ -21,7 +21,7 @@ use bdd::steps::*;
 async fn test_graph_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/graph.feature")
+        .run_and_exit("tests/bdd/features/graph.feature")
         .await;
 }
 
@@ -30,7 +30,7 @@ async fn test_graph_features() {
 async fn test_market_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/market.feature")
+        .run_and_exit("tests/bdd/features/market.feature")
         .await;
 }
 
@@ -39,7 +39,7 @@ async fn test_market_features() {
 async fn test_project_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/project.feature")
+        .run_and_exit("tests/bdd/features/project.feature")
         .await;
 }
 
@@ -48,7 +48,7 @@ async fn test_project_features() {
 async fn test_template_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/template.feature")
+        .run_and_exit("tests/bdd/features/template.feature")
         .await;
 }
 
@@ -57,7 +57,7 @@ async fn test_template_features() {
 async fn test_installation_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/installation.feature")
+        .run_and_exit("tests/bdd/features/installation.feature")
         .await;
 }
 
@@ -66,7 +66,7 @@ async fn test_installation_features() {
 async fn test_quickstart_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/quickstart.feature")
+        .run_and_exit("tests/bdd/features/quickstart.feature")
         .await;
 }
 
@@ -75,7 +75,7 @@ async fn test_quickstart_features() {
 async fn test_template_generation_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/template_generation.feature")
+        .run_and_exit("tests/bdd/features/template_generation.feature")
         .await;
 }
 
@@ -84,7 +84,7 @@ async fn test_template_generation_features() {
 async fn test_marketplace_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/marketplace.feature")
+        .run_and_exit("tests/bdd/features/marketplace.feature")
         .await;
 }
 
@@ -93,7 +93,7 @@ async fn test_marketplace_features() {
 async fn test_cli_commands_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/cli_commands.feature")
+        .run_and_exit("tests/bdd/features/cli_commands.feature")
         .await;
 }
 
@@ -102,7 +102,7 @@ async fn test_cli_commands_features() {
 async fn test_determinism_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/determinism.feature")
+        .run_and_exit("tests/bdd/features/determinism.feature")
         .await;
 }
 
@@ -111,7 +111,7 @@ async fn test_determinism_features() {
 async fn test_multi_language_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/multi_language.feature")
+        .run_and_exit("tests/bdd/features/multi_language.feature")
         .await;
 }
 
@@ -120,7 +120,7 @@ async fn test_multi_language_features() {
 async fn test_rdf_sparql_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features/rdf_sparql.feature")
+        .run_and_exit("tests/bdd/features/rdf_sparql.feature")
         .await;
 }
 
@@ -129,6 +129,6 @@ async fn test_rdf_sparql_features() {
 async fn test_all_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
-        .run("tests/bdd/features")
+        .run_and_exit("tests/bdd/features")
         .await;
 }

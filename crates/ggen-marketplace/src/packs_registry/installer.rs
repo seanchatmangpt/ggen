@@ -448,8 +448,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_installer_with_default_repo() {
-        // Just test creation doesn't panic
-        let _result = PackInstaller::with_default_repo();
+        // In a source checkout, `../../marketplace/packs` (from this crate's
+        // dir) exists, so repository discovery must succeed.
+        let _installer = PackInstaller::with_default_repo()
+            .expect("default pack repo must be discoverable from a source checkout");
     }
 
     #[test]

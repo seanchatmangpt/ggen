@@ -214,7 +214,10 @@ mod tests {
     fn test_nonexistent_ontology() {
         let content =
             OntologyLoader::load_content("http://example.com/nonexistent#", Path::new("."));
-        let _ = content;
+        assert!(
+            content.is_none(),
+            "an unknown ontology URI must not resolve to embedded content"
+        );
     }
 
     #[test]
@@ -371,13 +374,18 @@ mod tests {
 
     #[test]
     fn test_multiple_lookups_thread_safe() {
+        // Repeated lookups must be stable: the embedded RDF namespace always
+        // resolves, RDFS metadata is always present, and `owl` stays embedded.
         for _ in 0..100 {
-            let _ = OntologyLoader::load_content(
+            assert!(OntologyLoader::load_content(
                 "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                 Path::new("."),
+            )
+            .is_some());
+            assert!(
+                OntologyLoader::get_metadata("http://www.w3.org/2000/01/rdf-schema#").is_some()
             );
-            let _ = OntologyLoader::get_metadata("http://www.w3.org/2000/01/rdf-schema#");
-            let _ = OntologyLoader::is_embedded("owl");
+            assert!(OntologyLoader::is_embedded("owl"));
         }
     }
 }

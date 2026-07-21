@@ -506,31 +506,6 @@ mod tests {
     // a test function with the same name, causing conflicts.
     // These tests verify the macro expansion works correctly.
 
-    #[test]
-    fn test_test_macro_expansion() {
-        // Verify macro expands to valid test function
-        // This is tested by compilation success
-        let _ = stringify! {
-            test!(test_basic, {
-                let x = 1;
-                let y = x + 1;
-                assert_eq!(y, 2);
-            });
-        };
-    }
-
-    #[test]
-    fn test_async_test_macro_expansion() {
-        // Verify macro expands to valid async test function
-        let _ = stringify! {
-            async_test!(test_async_basic, {
-                let x = 1;
-                let y = x + 1;
-                assert_eq!(y, 2);
-            });
-        };
-    }
-
     // Test fixture_test! macro expansion - verify it compiles and works
     // Note: This test verifies the macro expands correctly by using it directly
     fixture_test!(test_fixture_basic, fixture, {
@@ -587,39 +562,6 @@ mod tests {
             &super::DEFAULT_UNIT_TEST_TIMEOUT_SECONDS,
             "DEFAULT_TEST_TIMEOUT_SECONDS should equal DEFAULT_UNIT_TEST_TIMEOUT_SECONDS"
         );
-    }
-
-    #[test]
-    fn test_async_test_with_timeout_macro_expansion() {
-        // Verify async_test_with_timeout macro expands correctly
-        let _ = stringify! {
-            async_test_with_timeout!(test_with_custom_timeout, 30, {
-                let x = 1;
-                assert_eq!(x, 1);
-            });
-        };
-    }
-
-    #[test]
-    fn test_fixture_test_with_timeout_macro_expansion() {
-        // Verify fixture_test_with_timeout macro expands correctly
-        let _ = stringify! {
-            fixture_test_with_timeout!(test_fixture_with_timeout, fixture, 30, {
-                let counter = fixture.test_counter();
-                assert!(counter >= 0);
-            });
-        };
-    }
-
-    #[cfg(feature = "weaver")]
-    #[test]
-    fn test_weaver_test_with_timeout_macro_expansion() {
-        // Verify weaver_test_with_timeout macro expands correctly
-        let _ = stringify! {
-            weaver_test_with_timeout!(test_weaver_with_timeout, 30, {
-                // Test body
-            });
-        };
     }
 
     // Test to verify timeout enforcement works (FM9: Defense in depth verification)

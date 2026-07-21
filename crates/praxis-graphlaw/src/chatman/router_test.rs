@@ -14,10 +14,7 @@ fn profile(enabled: u8, actuation: u8, max_hot: u8) -> ProfileGates {
 }
 
 fn shape(
-    constraint_count: u8,
-    requires_construct: bool,
-    requires_owl: bool,
-    requires_n3_builtins: bool,
+    constraint_count: u8, requires_construct: bool, requires_owl: bool, requires_n3_builtins: bool,
     wants_actuation: bool,
 ) -> QueryShape {
     QueryShape {
@@ -329,10 +326,7 @@ fn rule(rule_id: &str, builtins: &[N3Builtin], cost: u64) -> N3Rule {
 /// Builds a rule that additionally declares one or more recognized
 /// direct-actuation builtins (PROJ-780).
 fn rule_requesting_actuation(
-    rule_id: &str,
-    builtins: &[N3Builtin],
-    cost: u64,
-    actuation_builtins: &[N3ActuationBuiltin],
+    rule_id: &str, builtins: &[N3Builtin], cost: u64, actuation_builtins: &[N3ActuationBuiltin],
 ) -> N3Rule {
     N3Rule {
         rule_id: rule_id.to_string(),

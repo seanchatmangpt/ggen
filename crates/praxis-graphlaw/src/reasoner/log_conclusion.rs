@@ -83,10 +83,7 @@ impl Reasoner {
     /// pre-computed by an ordinary whole-body query since `?result` doesn't
     /// exist as data until this step produces it.
     pub(crate) fn process_log_conclusion_rule(
-        rule: &Rule,
-        idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
+        rule: &Rule, idx: usize, triple_index: &TripleIndex, prev_limit: Option<usize>,
         current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();

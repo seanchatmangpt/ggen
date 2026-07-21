@@ -42,10 +42,7 @@ impl Reasoner {
     }
 
     pub(crate) fn process_log_for_all_in_rule(
-        rule: &Rule,
-        for_all_idx: usize,
-        triple_index: &TripleIndex,
-        prev_limit: Option<usize>,
+        rule: &Rule, for_all_idx: usize, triple_index: &TripleIndex, prev_limit: Option<usize>,
         current_limit: usize,
     ) -> Vec<Triple> {
         let mut results = Vec::new();

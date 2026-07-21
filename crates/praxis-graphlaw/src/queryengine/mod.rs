@@ -13,15 +13,11 @@ pub use crate::builtins::BuiltinKind;
 
 pub trait QueryEngine {
     fn query(
-        data: &TripleIndex,
-        query_triples: &Vec<BodyLiteral>,
-        triple_counter: Option<usize>,
+        data: &TripleIndex, query_triples: &Vec<BodyLiteral>, triple_counter: Option<usize>,
     ) -> Option<Binding>;
 
     fn query_semi_naive(
-        data: &TripleIndex,
-        query_triples: &Vec<BodyLiteral>,
-        prev_limit: usize,
+        data: &TripleIndex, query_triples: &Vec<BodyLiteral>, prev_limit: usize,
         current_limit: usize,
     ) -> Option<Binding>;
 }
@@ -87,9 +83,7 @@ fn builtin_input_vars(lit: &BodyLiteral) -> std::collections::HashSet<usize> {
 
 impl QueryEngine for SimpleQueryEngine {
     fn query(
-        data: &TripleIndex,
-        query_triples: &Vec<BodyLiteral>,
-        triple_counter: Option<usize>,
+        data: &TripleIndex, query_triples: &Vec<BodyLiteral>, triple_counter: Option<usize>,
     ) -> Option<Binding> {
         let positive_lits: Vec<&BodyLiteral> =
             query_triples.iter().filter(|lit| !lit.negated).collect();
@@ -290,9 +284,7 @@ impl QueryEngine for SimpleQueryEngine {
     }
 
     fn query_semi_naive(
-        data: &TripleIndex,
-        query_triples: &Vec<BodyLiteral>,
-        prev_limit: usize,
+        data: &TripleIndex, query_triples: &Vec<BodyLiteral>, prev_limit: usize,
         current_limit: usize,
     ) -> Option<Binding> {
         let positive_lits: Vec<&BodyLiteral> =

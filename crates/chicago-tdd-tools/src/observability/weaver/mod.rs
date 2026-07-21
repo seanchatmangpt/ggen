@@ -693,18 +693,6 @@ pub fn validate_schema_static(registry_path: &std::path::Path) -> WeaverValidati
 mod tests {
     use super::*;
 
-    // Test feature-gated code paths (critical - verify features work correctly)
-    #[cfg(not(feature = "weaver"))]
-    #[test]
-    fn test_weaver_module_not_accessible_without_feature() {
-        // Verify weaver module is not accessible without feature
-        // This test should compile and pass when weaver feature is disabled
-        assert!(
-            true,
-            "weaver module should not be accessible without feature"
-        );
-    }
-
     #[cfg(feature = "weaver")]
     #[test]
     fn test_weaver_validation_error_variants() {

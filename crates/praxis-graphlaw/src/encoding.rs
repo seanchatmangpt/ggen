@@ -61,10 +61,7 @@ impl InternalEncoder {
     }
 
     pub fn add_literal(
-        &mut self,
-        value: String,
-        datatype: Option<String>,
-        lang: Option<String>,
+        &mut self, value: String, datatype: Option<String>, lang: Option<String>,
     ) -> usize {
         let value_id = self.add_literal_lexical(value);
         let datatype_id = datatype.map(|dt| self.add_iri(dt));

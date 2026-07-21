@@ -38,7 +38,10 @@ mod tests {
 
     #[test]
     fn test_swarm_protocol_available() {
-        // Verify swarm protocol modules are available
-        let _membership = SwarmMembership::new();
+        // A freshly-created membership must start empty with zero capacity.
+        let membership = SwarmMembership::new();
+        assert_eq!(membership.member_count(), 0);
+        assert_eq!(membership.active_members(), 0);
+        assert_eq!(membership.total_capacity(), 0);
     }
 }

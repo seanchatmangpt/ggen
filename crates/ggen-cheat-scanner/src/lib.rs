@@ -145,18 +145,53 @@ impl<'ast> Visit<'ast> for AssertionCollector {
         if matches!(name.as_str(), "assert" | "assert_eq" | "assert_ne") {
             self.asserts.push(m.clone());
             self.any_failure_capable = true;
-        } else if matches!(name.as_str(), "panic" | "unreachable" | "todo" | "unimplemented") {
+        } else if matches!(name.as_str(), "panic" | "unreachable" | "todo" | "unimplemented")
+            // Assertion *helper macros* by convention (`assert_eq_msg!`,
+            // `assert_err!`, proptest's `assert_matches!`…) — failure-capable,
+            // but not counted in `asserts` so T01's vacuous-assert check stays
+            // anchored to the std assert! family.
+            || name.starts_with("assert")
+        {
             self.any_failure_capable = true;
         }
         visit::visit_macro(self, m);
     }
 
     fn visit_expr(&mut self, e: &'ast Expr) {
-        if let Expr::MethodCall(mc) = e {
-            let m = mc.method.to_string();
-            if matches!(m.as_str(), "unwrap" | "expect" | "unwrap_err" | "expect_err") {
+        match e {
+            Expr::MethodCall(mc) => {
+                let m = mc.method.to_string();
+                if matches!(m.as_str(), "unwrap" | "expect" | "unwrap_err" | "expect_err")
+                    || m.starts_with("assert")
+                    // cucumber's `.run_and_exit(...)` panics the test when any
+                    // scenario fails — the BDD-suite equivalent of an assert.
+                    || m == "run_and_exit"
+                {
+                    self.any_failure_capable = true;
+                }
+            }
+            // `?` only compiles inside a fn returning Result/Option, so a test
+            // body containing it fails the harness on Err/None — it IS
+            // failure-capable (`#[test] fn x() -> Result<..>` shape).
+            Expr::Try(_) => {
                 self.any_failure_capable = true;
             }
+            // A call to an assertion *helper* fn (conventional `assert_*`
+            // prefix, e.g. `assert_killed_at(...)` in praxis-core's mutation
+            // tests) delegates the assert!s; the test still fails when the
+            // helper's assertion fires.
+            Expr::Call(c) => {
+                if let Expr::Path(p) = &*c.func {
+                    if p.path
+                        .segments
+                        .last()
+                        .is_some_and(|s| s.ident.to_string().starts_with("assert"))
+                    {
+                        self.any_failure_capable = true;
+                    }
+                }
+            }
+            _ => {}
         }
         visit::visit_expr(self, e);
     }
@@ -244,13 +279,17 @@ struct ScanVisitor<'a> {
 }
 
 fn check_test_fn_body(
-    fn_name: &str,
-    line: usize,
-    block: &syn::Block,
-    file: &Path,
+    fn_name: &str, line: usize, attrs: &[syn::Attribute], block: &syn::Block, file: &Path,
     findings: &mut Vec<Finding>,
 ) {
-    let collector = collect_assertions(block);
+    let mut collector = collect_assertions(block);
+
+    // A `#[should_panic]` test is failure-capable by construction: the
+    // harness FAILS it when the body does *not* panic, so "it can never
+    // fail" would be a false claim.
+    if has_attr_named(attrs, "should_panic") {
+        collector.any_failure_capable = true;
+    }
 
     // T01: vacuous-assert -- the only assertion-macro call in the body is
     // `assert!(true)`.
@@ -290,6 +329,7 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 item_fn_line(i),
+                &i.attrs,
                 &i.block,
                 self.file,
                 &mut self.findings,
@@ -303,6 +343,7 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 impl_item_fn_line(i),
+                &i.attrs,
                 &i.block,
                 self.file,
                 &mut self.findings,
@@ -320,7 +361,9 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
                 rule_id: "CHEAT-T04",
                 file: self.file.to_path_buf(),
                 line: i.span().start().line,
-                message: "import of mockall -- forbidden London-TDD mocking library (Chicago TDD only)".to_string(),
+                message:
+                    "import of mockall -- forbidden London-TDD mocking library (Chicago TDD only)"
+                        .to_string(),
             });
         }
         visit::visit_item_use(self, i);
@@ -439,8 +482,42 @@ pub fn find_mock_substitutes(records: &[ImplRecord]) -> Vec<Finding> {
         by_trait.entry(r.trait_name.as_str()).or_default().push(r);
     }
 
+    // Ubiquitous std/serde traits implemented by virtually every type. A
+    // `FakeXxx: Default` next to a production `Yyy: Default` is not a
+    // collaborator substitution — the rule targets *domain* trait seams.
+    const UBIQUITOUS_TRAITS: &[&str] = &[
+        "Default",
+        "Clone",
+        "Debug",
+        "Display",
+        "PartialEq",
+        "Eq",
+        "PartialOrd",
+        "Ord",
+        "Hash",
+        "From",
+        "Into",
+        "TryFrom",
+        "TryInto",
+        "AsRef",
+        "AsMut",
+        "Deref",
+        "DerefMut",
+        "Drop",
+        "Iterator",
+        "IntoIterator",
+        "FromIterator",
+        "FromStr",
+        "Error",
+        "Serialize",
+        "Deserialize",
+    ];
+
     let mut findings = Vec::new();
     for (trait_name, impls) in by_trait {
+        if UBIQUITOUS_TRAITS.contains(&trait_name) {
+            continue;
+        }
         let mock_impls: Vec<&&ImplRecord> = impls
             .iter()
             .filter(|r| is_mock_or_fake_name(&r.type_name))

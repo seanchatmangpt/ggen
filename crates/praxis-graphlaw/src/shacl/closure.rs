@@ -205,11 +205,7 @@ impl ClosureMatrix {
 
 /// Check if a value node has a given class (checking the subclass hierarchy)
 pub(crate) fn has_class(
-    data: &TripleIndex,
-    x: usize,
-    class: usize,
-    rdf_type: usize,
-    closure: &SubclassClosure,
+    data: &TripleIndex, x: usize, class: usize, rdf_type: usize, closure: &SubclassClosure,
 ) -> bool {
     let types = super::index_utils::get_objects(data, x, rdf_type);
     for t in types {

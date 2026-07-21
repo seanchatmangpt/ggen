@@ -518,56 +518,6 @@ mod integration_tests {
         }
     }
 
-    /// Test: Output directory options
-    #[test]
-    fn test_integration_output_directories() {
-        let output_dirs = vec![
-            PathBuf::from("."),
-            PathBuf::from(".workflows"),
-            PathBuf::from("/tmp/workflows"),
-            PathBuf::from("custom/output"),
-        ];
-
-        for output_dir in output_dirs {
-            let _: &PathBuf = &output_dir;
-        }
-    }
-
-    /// Test: Export format options
-    #[test]
-    fn test_integration_export_formats() {
-        let formats = vec![
-            Some("mermaid".to_string()),
-            Some("dot".to_string()),
-            Some("json".to_string()),
-            None,
-        ];
-
-        for format in formats {
-            let _: Option<String> = format;
-        }
-    }
-
-    /// Test: Summary flag behavior
-    #[test]
-    fn test_integration_summary_flag() {
-        let summary_values = vec![true, false];
-
-        for summary in summary_values {
-            let _: bool = summary;
-        }
-    }
-
-    /// Test: Pareto flag behavior
-    #[test]
-    fn test_integration_pareto_flag() {
-        let pareto_values = vec![true, false];
-
-        for pareto in pareto_values {
-            let _: bool = pareto;
-        }
-    }
-
     /// Test: Complete workflow event output
     #[test]
     fn test_integration_workflow_event() {
