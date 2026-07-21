@@ -25,6 +25,7 @@
 #![allow(clippy::expect_used)]
 
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use chicago_tdd_tools::cli_proof::CliHarness;
 use tempfile::TempDir;
@@ -236,4 +237,162 @@ fn thirty_packs_compose_into_one_consumer() {
         before, after,
         "second sync must be byte-identical outside .ggen-v2/"
     );
+}
+
+// ───────────────────────── capstone: 31-pack composition ─────────────────────
+//
+// The 30 packs above PLUS ggen-verify-pack (the verification capstone that the
+// module doc excludes from the base test). Here the exclusion reason is
+// answered head-on: the consumer runs the pack's committed bootstrap emitter
+// (packs/ggen-verify-pack/bootstrap/verify-evidence-bootstrap.sh) to produce
+// REAL `ver:` evidence facts, wires the `evidence/` mini-pack into ggen.toml
+// (the working-consumer pattern from examples/tcps-generated and
+// verify_pack_evidence_loop_e2e.rs), and syncs with the verify gates ACTIVE
+// over the entire 31-pack union graph. Sabotage (evidence facts emptied) must
+// refuse with FM-PACK-013 naming gate 010_evidence_present.
+//
+// Ground truth (hermetic run on this branch, 2026-07-20): green loop + sabotage
+// refusal in 24.4s wall clock (test-runner-reported, prebuilt `ggen` binary) —
+// under the 60s threshold, hence no `#[ignore]`.
+
+#[cfg(unix)]
+fn make_executable(path: &Path) {
+    use std::os::unix::fs::PermissionsExt;
+    let mut perms = std::fs::metadata(path).expect("metadata").permissions();
+    perms.set_mode(0o755);
+    std::fs::set_permissions(path, perms).expect("chmod");
+}
+
+/// Run a shell script from the consumer root with `stub_bin` prepended to
+/// PATH (real stub `cargo` — the house subprocess pattern); returns
+/// (exit_code, combined output).
+fn run_script(project: &Path, stub_bin: &Path, script: &Path) -> (i32, String) {
+    let path = format!(
+        "{}:{}",
+        stub_bin.display(),
+        std::env::var("PATH").expect("PATH")
+    );
+    let out = Command::new("bash")
+        .arg(script)
+        .current_dir(project)
+        .env("PATH", path)
+        .output()
+        .expect("run script");
+    (
+        out.status.code().unwrap_or(-1),
+        format!(
+            "{}{}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr)
+        ),
+    )
+}
+
+#[test]
+fn thirty_one_packs_compose_with_verify_gates_active() {
+    // ── Scaffold: the 30 proven packs + ggen-verify-pack ─────────────────
+    let dir = TempDir::new().expect("tempdir");
+    for pack in COMPOSED_PACKS.iter().chain(["ggen-verify-pack"].iter()) {
+        copy_tree(&packs_dir().join(pack), &dir.path().join(pack));
+    }
+
+    let project = dir.path().join("consumer");
+    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::create_dir_all(project.join("scripts/checks")).expect("mkdir checks");
+    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+
+    let packs_table: String = COMPOSED_PACKS
+        .iter()
+        .map(|p| format!("{p} = {{ path = \"../{p}\" }}\n"))
+        .collect();
+    std::fs::write(
+        project.join("ggen.toml"),
+        format!(
+            "[project]\nname = \"capstone-consumer\"\n\n\
+             [ontology]\nsource = \"ontology.ttl\"\n\n\
+             [packs]\n{packs_table}\
+             ggen-verify-pack = {{ path = \"../ggen-verify-pack\" }}\n\
+             verify-evidence = {{ path = \"evidence\", lock = false }}\n\n\
+             [templates]\ndir = \"templates\"\n\n\
+             [law]\nreflexive = true\n"
+        ),
+    )
+    .expect("write ggen.toml");
+
+    // The one consumer-specific required check: a REAL command whose REAL
+    // exit code lands in the evidence graph.
+    let hook = project.join("scripts/checks/byte-identity.sh");
+    std::fs::write(&hook, "#!/bin/sh\ntest -f ggen.toml\n").expect("write hook");
+    make_executable(&hook);
+
+    // Real stub cargo on PATH for the heavy `ver:checkCommand` cargo checks:
+    // it genuinely executes and genuinely exits 0.
+    let stub_bin = dir.path().join("stub-bin");
+    std::fs::create_dir_all(&stub_bin).expect("mkdir stub-bin");
+    let stub_cargo = stub_bin.join("cargo");
+    std::fs::write(&stub_cargo, "#!/bin/sh\necho stub-cargo \"$@\"\nexit 0\n")
+        .expect("write stub cargo");
+    make_executable(&stub_cargo);
+
+    // ── Phase 1: committed bootstrap emitter produces the evidence ───────
+    let bootstrap = dir
+        .path()
+        .join("ggen-verify-pack/bootstrap/verify-evidence-bootstrap.sh");
+    let (code, out) = run_script(&project, &stub_bin, &bootstrap);
+    assert_eq!(code, 0, "bootstrap must exit 0: {out}");
+    let evidence =
+        std::fs::read_to_string(project.join("evidence/ontology.ttl")).expect("evidence");
+    assert!(
+        evidence.contains("ver:exitCode 0"),
+        "green evidence recorded: {evidence}"
+    );
+
+    // ── Phase 2: sync over the 31-pack union, verify gates ACTIVE ────────
+    let output = CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run capstone sync");
+    output.assert_success();
+
+    let generated_emitter = project.join("scripts/verify-evidence.sh");
+    assert!(
+        generated_emitter.is_file(),
+        "capstone sync must generate scripts/verify-evidence.sh"
+    );
+    assert!(project.join("VERIFICATION.md").is_file());
+
+    // Lock still covers all 30 base packs alongside the capstone.
+    let lock = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
+    for pack in COMPOSED_PACKS.iter().chain(["ggen-verify-pack"].iter()) {
+        assert!(
+            lock.contains(&format!("[packs.{pack}]")),
+            "ggen.lock missing [packs.{pack}]"
+        );
+    }
+
+    // ── Phase 3: steady state — generated emitter re-run, resync green ───
+    let (code, out) = run_script(&project, &stub_bin, &generated_emitter);
+    assert_eq!(code, 0, "generated emitter must exit 0: {out}");
+    let output2 = CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run resync");
+    output2.assert_success();
+
+    // ── Phase 4: sabotage — evidence facts gone => FM-PACK-013 refusal ───
+    std::fs::write(
+        project.join("evidence/ontology.ttl"),
+        "@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
+    )
+    .expect("truncate evidence");
+    let sabotage = CliHarness::cargo_bin("ggen")
+        .args(["sync", "run"])
+        .current_dir(&project)
+        .run()
+        .expect("run sabotage sync");
+    sabotage.assert_failure();
+    sabotage.assert_stderr_contains("FM-PACK-013");
+    sabotage.assert_stderr_contains("010_evidence_present");
 }
