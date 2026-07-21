@@ -145,7 +145,7 @@ query       = { inline = """
 PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>
 SELECT ?num WHERE { ?law a ccn:Law ; ccn:principleNumber ?num . } ORDER BY ?num
 """ }
-template    = { file = "packs/ggen-constitution-pack/templates/constitution.md.tmpl" }
+template    = { file = "packs/ggen-constitution-pack/root-templates/constitution.md.tmpl" }
 output_file = "CONSTITUTION.md"
 skip_empty  = false
 mode        = "Overwrite"
