@@ -1,0 +1,1937 @@
+@prefix ghtf:  <http://seanchatmangpt.github.io/packs/gh-terraform#> .
+@prefix ghcli: <http://seanchatmangpt.github.io/packs/gh-terraform#cli-> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Classes
+#################################################################
+
+ghtf:TerraformResource a rdfs:Class ;
+    rdfs:label "A github Terraform provider resource TYPE this pack knows how to emit, carrying a real example HCL block modeled verbatim on ~/dev/ranchr/bend/modules/integrations/github and ~/dev/beamops" .
+
+ghtf:RepoManagementInstance a rdfs:Class ;
+    rdfs:label "A concrete desired-state fact for THIS repo (seanchatmangpt/ggen), referencing a ghtf:TerraformResource type and supplying real argument values as a rendered HCL block" .
+
+ghcli:Command a rdfs:Class ;
+    rdfs:label "A reusable gh CLI shell-script command, modeled on clap-noun-verb-pack's cnv:Command noun/verb shape" .
+
+#################################################################
+# ghtf:TerraformResource catalog (reference doc only — real example
+# bodies, verbatim/adapted from the real ranchr+beamops modules; provider
+# pin matches those modules exactly: integrations/github v5.41.0)
+#################################################################
+
+ghtf:GithubRepository a ghtf:TerraformResource ;
+    rdfs:label "github_repository" ;
+    ghtf:resourceType "github_repository" ;
+    ghtf:sourceExample "~/dev/beamops modules/integrations/github" ;
+    ghtf:hclBody """resource "github_repository" "kanban" {
+  name                   = local.repository_name
+  description            = "Taking the BEAM to production pragmatically."
+  visibility             = "private"
+  has_issues             = true
+  auto_init              = true
+  gitignore_template     = "Terraform"
+  delete_branch_on_merge = true
+}
+""" .
+
+ghtf:GithubBranchProtection a ghtf:TerraformResource ;
+    rdfs:label "github_branch_protection" ;
+    ghtf:resourceType "github_branch_protection" ;
+    ghtf:sourceExample "~/dev/ranchr/bend modules/integrations/github" ;
+    ghtf:hclBody """resource "github_branch_protection" "main" {
+  repository_id = var.repository
+  pattern        = "main"
+  lock_branch    = true
+  enforce_admins = true
+  required_status_checks {
+    strict   = true
+    contexts = var.status_checks
+  }
+  required_pull_request_reviews {
+    require_code_owner_reviews      = false
+    required_approving_review_count = 1
+  }
+}
+""" .
+
+ghtf:GithubIssueLabel a ghtf:TerraformResource ;
+    rdfs:label "github_issue_label" ;
+    ghtf:resourceType "github_issue_label" ;
+    ghtf:sourceExample "~/dev/ranchr/bend modules/integrations/github" ;
+    ghtf:hclBody """resource "github_issue_label" "this" {
+  repository  = var.repository
+  name        = var.label_name
+  color       = var.label_color
+  description = var.label_description
+}
+""" .
+
+ghtf:GithubRepositoryMilestone a ghtf:TerraformResource ;
+    rdfs:label "github_repository_milestone" ;
+    ghtf:resourceType "github_repository_milestone" ;
+    ghtf:sourceExample "~/dev/ranchr/bend modules/integrations/github" ;
+    ghtf:hclBody """resource "github_repository_milestone" "this" {
+  owner       = var.owner
+  repository  = var.repository
+  title       = var.milestone_title
+  description = var.milestone_description
+  state       = "open"
+}
+""" .
+
+ghtf:GithubIssue a ghtf:TerraformResource ;
+    rdfs:label "github_issue" ;
+    ghtf:resourceType "github_issue" ;
+    ghtf:sourceExample "~/dev/ranchr/bend modules/integrations/github" ;
+    ghtf:hclBody """resource "github_issue" "this" {
+  repository = var.repository
+  title      = var.issue_title
+  body       = var.issue_body
+  labels     = var.issue_labels
+}
+""" .
+
+ghtf:GithubActionsSecret a ghtf:TerraformResource ;
+    rdfs:label "github_actions_secret" ;
+    ghtf:resourceType "github_actions_secret" ;
+    ghtf:sourceExample "~/dev/ranchr/bend modules/integrations/github" ;
+    ghtf:hclBody """resource "github_actions_secret" "this" {
+  repository      = var.repository
+  secret_name     = var.secret_name
+  plaintext_value = var.secret_value
+}
+""" .
+
+ghtf:GithubRepositoryEnvironment a ghtf:TerraformResource ;
+    rdfs:label "github_repository_environment" ;
+    ghtf:resourceType "github_repository_environment" ;
+    ghtf:sourceExample "natural extension, same provider (integrations/github v5.41.0)" ;
+    ghtf:hclBody """resource "github_repository_environment" "this" {
+  repository  = var.repository
+  environment = var.environment_name
+}
+""" .
+
+ghtf:GithubRepositoryCollaborator a ghtf:TerraformResource ;
+    rdfs:label "github_repository_collaborator" ;
+    ghtf:resourceType "github_repository_collaborator" ;
+    ghtf:sourceExample "natural extension, same provider (integrations/github v5.41.0)" ;
+    ghtf:hclBody """resource "github_repository_collaborator" "this" {
+  repository = var.repository
+  username   = var.collaborator_username
+  permission = var.collaborator_permission
+}
+""" .
+
+ghtf:GithubTeam a ghtf:TerraformResource ;
+    rdfs:label "github_team / github_team_repository" ;
+    ghtf:resourceType "github_team" ;
+    ghtf:sourceExample "natural extension, same provider (integrations/github v5.41.0)" ;
+    ghtf:hclBody """resource "github_team" "this" {
+  name        = var.team_name
+  description = var.team_description
+  privacy     = "closed"
+}
+
+resource "github_team_repository" "this" {
+  team_id    = github_team.this.id
+  repository = var.repository
+  permission = var.team_permission
+}
+""" .
+
+ghtf:GithubRepositoryWebhook a ghtf:TerraformResource ;
+    rdfs:label "github_repository_webhook" ;
+    ghtf:resourceType "github_repository_webhook" ;
+    ghtf:sourceExample "natural extension, same provider (integrations/github v5.41.0)" ;
+    ghtf:hclBody """resource "github_repository_webhook" "this" {
+  repository = var.repository
+  active     = true
+  events     = var.webhook_events
+  configuration {
+    url          = var.webhook_url
+    content_type = "json"
+  }
+}
+""" .
+
+ghtf:GithubActionsVariable a ghtf:TerraformResource ;
+    rdfs:label "github_actions_variable" ;
+    ghtf:resourceType "github_actions_variable" ;
+    ghtf:sourceExample "natural extension, same provider (integrations/github v5.41.0)" ;
+    ghtf:hclBody """resource "github_actions_variable" "this" {
+  repository    = var.repository
+  variable_name = var.variable_name
+  value         = var.variable_value
+}
+""" .
+
+ghtf:GithubRepositoryFile a ghtf:TerraformResource ;
+    rdfs:label "github_repository_file" ;
+    ghtf:resourceType "github_repository_file" ;
+    ghtf:sourceExample "natural extension — the provider's own template-driven-file-in-repo resource, directly analogous to ggen's own generation model" ;
+    ghtf:hclBody """resource "github_repository_file" "this" {
+  repository          = var.repository
+  branch              = "main"
+  file                = var.file_path
+  content             = var.file_content
+  commit_message      = var.commit_message
+  overwrite_on_create = false
+}
+""" .
+
+ghtf:GithubRepositoryRuleset a ghtf:TerraformResource ;
+    rdfs:label "github_repository_ruleset" ;
+    ghtf:resourceType "github_repository_ruleset" ;
+    ghtf:sourceExample "the provider's newer, actively-maintained superset of github_branch_protection; included alongside it since the real examples use the older resource" ;
+    ghtf:hclBody """resource "github_repository_ruleset" "this" {
+  name        = var.ruleset_name
+  repository  = var.repository
+  target      = "branch"
+  enforcement = "active"
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+  rules {
+    required_status_checks {
+      required_check {
+        context = var.required_check_context
+      }
+    }
+    pull_request {
+      required_approving_review_count = 1
+    }
+  }
+}
+""" .
+
+#################################################################
+# ghtf:RepoManagementInstance — concrete desired-state for THIS repo
+# (seanchatmangpt/ggen). Rendered to infra/terraform/github/main.tf.
+# NOTE: generation only — `terraform apply` is never run by this pack or
+# its tests.
+#################################################################
+
+ghtf:Variables a ghtf:RepoManagementInstance ;
+    rdfs:label "declares the input variables referenced by every hclBody literal below" ;
+    ghtf:hclBody """variable "github_owner" {
+  description = "GitHub org/user that owns the managed repository."
+  type        = string
+  default     = "seanchatmangpt"
+}
+
+variable "repository" {
+  description = "Repository name to manage."
+  type        = string
+  default     = "ggen"
+}
+
+variable "ggen_signing_key_value" {
+  description = "Value for the GGEN_SIGNING_KEY actions secret. Supplied at apply time only; never stored in RDF or state committed to the repo."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+""" .
+
+ghtf:RequiredProviders a ghtf:RepoManagementInstance ;
+    rdfs:label "provider pin, matching the real ranchr/beamops examples exactly" ;
+    ghtf:hclBody """terraform {
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = "5.41.0"
+    }
+  }
+}
+
+provider "github" {
+  owner = var.github_owner
+}
+""" .
+
+ghtf:MainBranchProtection a ghtf:RepoManagementInstance ;
+    rdfs:label "main branch requires ci.yml Check/Test/Build/Doctest to pass" ;
+    ghtf:instanceOf ghtf:GithubBranchProtection ;
+    ghtf:hclBody """resource "github_branch_protection" "main" {
+  repository_id  = var.repository
+  pattern        = "main"
+  enforce_admins = true
+  required_status_checks {
+    strict = true
+    contexts = [
+      "Check",
+      "Test",
+      "Build",
+      "Doctest",
+      "CI Status",
+    ]
+  }
+  required_pull_request_reviews {
+    require_code_owner_reviews      = false
+    required_approving_review_count = 1
+  }
+}
+""" .
+
+ghtf:L5ConditionLabel a ghtf:RepoManagementInstance ;
+    rdfs:label "the l5-condition label used throughout this session's L5 PRs" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ;
+    ghtf:hclBody """resource "github_issue_label" "l5_condition" {
+  repository  = var.repository
+  name        = "l5-condition"
+  color       = "1d76db"
+  description = "Work closing one of the 23 L5 publication conditions"
+}
+""" .
+
+#################################################################
+# ghcli:Command — reusable gh CLI shell scripts, modeled on
+# clap-noun-verb-pack's cnv:Command noun/verb shape. Rendered to
+# scripts/gh/<verb-with-dashes>.sh.
+#################################################################
+
+ghcli:PrCreate a ghcli:Command ;
+    ghcli:noun "pr" ;
+    ghcli:verb "create" ;
+    ghcli:scriptName "pr-create.sh" ;
+    ghcli:doc "Open a PR from the current branch: gh pr create --fill" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: pr-create.sh [--title TITLE] [--body BODY]
+gh pr create --fill "$@"
+""" .
+
+ghcli:PrMerge a ghcli:Command ;
+    ghcli:noun "pr" ;
+    ghcli:verb "merge" ;
+    ghcli:scriptName "pr-merge.sh" ;
+    ghcli:doc "Squash-merge a PR and delete its branch: gh pr merge --squash --delete-branch" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: pr-merge.sh <pr-number>
+pr="${1:?usage: pr-merge.sh <pr-number>}"
+gh pr merge "$pr" --squash --delete-branch
+""" .
+
+ghcli:PrChecks a ghcli:Command ;
+    ghcli:noun "pr" ;
+    ghcli:verb "checks" ;
+    ghcli:scriptName "pr-checks.sh" ;
+    ghcli:doc "List CI check status for a PR: gh pr checks" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: pr-checks.sh <pr-number>
+pr="${1:?usage: pr-checks.sh <pr-number>}"
+gh pr checks "$pr"
+""" .
+
+ghcli:PrViewMergeable a ghcli:Command ;
+    ghcli:noun "pr" ;
+    ghcli:verb "view-mergeable" ;
+    ghcli:scriptName "pr-view-mergeable.sh" ;
+    ghcli:doc "Print a PR's mergeable state as JSON: gh pr view --json mergeable" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: pr-view-mergeable.sh <pr-number>
+pr="${1:?usage: pr-view-mergeable.sh <pr-number>}"
+gh pr view "$pr" --json mergeable,mergeStateStatus
+""" .
+
+ghcli:RunView a ghcli:Command ;
+    ghcli:noun "run" ;
+    ghcli:verb "view" ;
+    ghcli:scriptName "run-view.sh" ;
+    ghcli:doc "View a workflow run's status and logs: gh run view" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: run-view.sh <run-id> [--log]
+run="${1:?usage: run-view.sh <run-id> [--log]}"
+shift || true
+gh run view "$run" "$@"
+""" .
+
+#################################################################
+# Version facts (第十五章 提供者版管理)
+#################################################################
+
+ghtf:ProviderVersionFacts a ghtf:VersionFacts ;
+    ghtf:pinnedProviderVersion "5.41.0" ;
+    ghtf:latestProviderVersion "6.13.0" ;
+    ghtf:latestReleaseDate "2026-07-08" ;
+    ghtf:breakingChangeNote "v6.0.0: github_branch_protection restrict-pushes rework (#2045) + Terraform Plugin SDK v2 migration (#1780); v6.10.1 reverted allowed_merge_methods Required->Optional; v6.9.0 deprecated duplicate org team-role resources and has_downloads." .
+
+#################################################################
+# Full resource catalog (第十四章 組合せ最大化) — knowledge tier.
+# Every resource of integrations/github enumerated from docs/resources
+# on main (89 doc files). Catalog-only individuals carry NO hclBody —
+# an absent hclBody means "cataloged, not yet templated" (no fabricated
+# schemas). scope: repository | organization | enterprise | user.
+#################################################################
+
+# --- actions family (repo scope) ---
+ghtf:CatActionsEnvironmentSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_environment_secret" ; ghtf:scope "repository" ;
+    ghtf:purpose "Encrypted Actions secret scoped to a repo environment" ;
+    ghtf:requiredArg "environment", "repository", "secret_name" ;
+    ghtf:testConfigMinimal """resource "github_actions_environment_secret" "test" {
+  repository  = "{{ test_repo }}"
+  environment = "{{ test_environment }}"
+  secret_name = "TEST"
+  value       = "{{ test_value }}"
+}
+""" .
+
+ghtf:CatActionsEnvironmentVariable a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_environment_variable" ; ghtf:scope "repository" ;
+    ghtf:purpose "Plaintext Actions variable scoped to a repo environment" ;
+    ghtf:requiredArg "environment", "repository", "variable_name", "value" .
+
+ghtf:CatActionsRepositoryAccessLevel a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_repository_access_level" ; ghtf:scope "repository" ;
+    ghtf:purpose "Sets where a repo's actions/workflows may be reused" ;
+    ghtf:requiredArg "repository", "access_level" .
+
+ghtf:CatActionsRepositoryOidcTemplate a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_repository_oidc_subject_claim_customization_template" ; ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level OIDC subject claim template" ;
+    ghtf:requiredArg "use_default" .
+
+ghtf:CatActionsRepositoryPermissions a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_repository_permissions" ; ghtf:scope "repository" ;
+    ghtf:purpose "Per-repo Actions enablement/allowed-actions policy" ;
+    ghtf:requiredArg "repository", "github_owned_allowed" .
+
+# --- actions family (organization scope) ---
+ghtf:CatActionsHostedRunner a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_hosted_runner" ; ghtf:scope "organization" ;
+    ghtf:purpose "GitHub-hosted Actions runner for an org" ;
+    ghtf:requiredArg "name", "image", "size", "runner_group_id" .
+
+ghtf:CatActionsOrgOidcTemplate a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_oidc_subject_claim_customization_template" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level OIDC subject claim template" ;
+    ghtf:requiredArg "include_claim_keys" .
+
+ghtf:CatActionsOrgPermissions a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_permissions" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org Actions policy (which repos/actions allowed)" ;
+    ghtf:requiredArg "enabled_repositories" .
+
+ghtf:CatActionsOrgSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_secret" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level encrypted Actions secret" ;
+    ghtf:requiredArg "secret_name", "visibility" .
+
+ghtf:CatActionsOrgSecretRepositories a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_secret_repositories" ; ghtf:scope "organization" ;
+    ghtf:purpose "Repo allow-list for a selected org Actions secret" ;
+    ghtf:requiredArg "secret_name", "selected_repository_ids" .
+
+ghtf:CatActionsOrgSecretRepository a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_secret_repository" ; ghtf:scope "organization" ;
+    ghtf:purpose "Single repo grant to an org Actions secret" ;
+    ghtf:requiredArg "secret_name", "repository_id" .
+
+ghtf:CatActionsOrgVariable a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_variable" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level Actions variable" ;
+    ghtf:requiredArg "variable_name", "value", "visibility" .
+
+ghtf:CatActionsOrgVariableRepositories a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_variable_repositories" ; ghtf:scope "organization" ;
+    ghtf:purpose "Repo allow-list for a selected org Actions variable" ;
+    ghtf:requiredArg "variable_name", "selected_repository_ids" .
+
+ghtf:CatActionsOrgVariableRepository a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_variable_repository" ; ghtf:scope "organization" ;
+    ghtf:purpose "Single repo grant to an org Actions variable" ;
+    ghtf:requiredArg "variable_name", "repository_id" .
+
+ghtf:CatActionsOrgWorkflowPermissions a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_organization_workflow_permissions" ; ghtf:scope "organization" ;
+    ghtf:purpose "Default workflow token/approval permissions for an org" ;
+    ghtf:requiredArg "organization_slug" .
+
+ghtf:CatActionsRunnerGroup a ghtf:TerraformResource ;
+    ghtf:resourceType "github_actions_runner_group" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org self-hosted runner group" ;
+    ghtf:requiredArg "name" .
+
+# --- app family ---
+ghtf:CatAppInstallationRepositories a ghtf:TerraformResource ;
+    ghtf:resourceType "github_app_installation_repositories" ; ghtf:scope "organization" ;
+    ghtf:purpose "Installs a GitHub App on a set of repos" ;
+    ghtf:requiredArg "installation_id", "selected_repositories" .
+
+ghtf:CatAppInstallationRepository a ghtf:TerraformResource ;
+    ghtf:resourceType "github_app_installation_repository" ; ghtf:scope "organization" ;
+    ghtf:purpose "Installs a GitHub App on a single repo" ;
+    ghtf:requiredArg "installation_id", "repository" ;
+    ghtf:refAttr "name" .
+
+# --- branch family (repo scope) ---
+ghtf:CatBranch a ghtf:TerraformResource ;
+    ghtf:resourceType "github_branch" ; ghtf:scope "repository" ;
+    ghtf:purpose "Creates a git branch in a repo" ;
+    ghtf:requiredArg "repository", "branch" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_branch" "test" {
+  repository = github_repository.test.name
+  branch     = "test"
+}
+""" .
+
+ghtf:CatBranchDefault a ghtf:TerraformResource ;
+    ghtf:resourceType "github_branch_default" ; ghtf:scope "repository" ;
+    ghtf:purpose "Sets a repo's default branch" ;
+    ghtf:requiredArg "repository", "branch" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_branch_default" "test" {
+  repository = github_repository.test.name
+  branch     = "main"
+}
+""" .
+
+ghtf:CatBranchProtectionV3 a ghtf:TerraformResource ;
+    ghtf:resourceType "github_branch_protection_v3" ; ghtf:scope "repository" ;
+    ghtf:purpose "Branch protection via REST v3 (branch-name-based, older API)" ;
+    ghtf:requiredArg "repository", "branch" ;
+    ghtf:refAttr "name" .
+
+# --- codespaces family ---
+ghtf:CatCodespacesOrgSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_codespaces_organization_secret" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level Codespaces secret" ;
+    ghtf:requiredArg "secret_name", "visibility" .
+
+ghtf:CatCodespacesOrgSecretRepositories a ghtf:TerraformResource ;
+    ghtf:resourceType "github_codespaces_organization_secret_repositories" ; ghtf:scope "organization" ;
+    ghtf:purpose "Repo allow-list for an org Codespaces secret" ;
+    ghtf:requiredArg "secret_name", "selected_repository_ids" .
+
+ghtf:CatCodespacesSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_codespaces_secret" ; ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level Codespaces secret" ;
+    ghtf:requiredArg "repository", "secret_name" .
+
+ghtf:CatCodespacesUserSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_codespaces_user_secret" ; ghtf:scope "user" ;
+    ghtf:purpose "User-level Codespaces secret" ;
+    ghtf:requiredArg "secret_name" .
+
+# --- dependabot family ---
+ghtf:CatDependabotOrgSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_dependabot_organization_secret" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level Dependabot secret" ;
+    ghtf:requiredArg "secret_name", "visibility" .
+
+ghtf:CatDependabotOrgSecretRepositories a ghtf:TerraformResource ;
+    ghtf:resourceType "github_dependabot_organization_secret_repositories" ; ghtf:scope "organization" ;
+    ghtf:purpose "Repo allow-list for an org Dependabot secret" ;
+    ghtf:requiredArg "secret_name", "selected_repository_ids" .
+
+ghtf:CatDependabotOrgSecretRepository a ghtf:TerraformResource ;
+    ghtf:resourceType "github_dependabot_organization_secret_repository" ; ghtf:scope "organization" ;
+    ghtf:purpose "Single repo grant to an org Dependabot secret" ;
+    ghtf:requiredArg "secret_name", "repository_id" .
+
+ghtf:CatDependabotSecret a ghtf:TerraformResource ;
+    ghtf:resourceType "github_dependabot_secret" ; ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level Dependabot secret" ;
+    ghtf:requiredArg "repository", "secret_name" .
+
+# --- emu / enterprise family ---
+ghtf:CatEmuGroupMapping a ghtf:TerraformResource ;
+    ghtf:resourceType "github_emu_group_mapping" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Maps an EMU (Enterprise Managed User) IdP group to a team" ;
+    ghtf:requiredArg "team_slug", "group_id" .
+
+ghtf:CatEnterpriseActionsPermissions a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_actions_permissions" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Enterprise-wide Actions policy" ;
+    ghtf:requiredArg "enterprise_slug", "enabled_organizations" .
+
+ghtf:CatEnterpriseActionsRunnerGroup a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_actions_runner_group" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Enterprise self-hosted runner group" ;
+    ghtf:requiredArg "enterprise_slug", "name", "visibility" .
+
+ghtf:CatEnterpriseActionsWorkflowPermissions a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_actions_workflow_permissions" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Enterprise default workflow token permissions" ;
+    ghtf:requiredArg "enterprise_slug" .
+
+ghtf:CatEnterpriseIpAllowListEntry a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_ip_allow_list_entry" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Enterprise IP allow-list entry" ;
+    ghtf:requiredArg "enterprise_slug", "ip" .
+
+ghtf:CatEnterpriseOrganization a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_organization" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Creates/manages an org within an enterprise" ;
+    ghtf:requiredArg "enterprise_id", "name", "billing_email", "admin_logins" .
+
+ghtf:CatEnterpriseSecurityAnalysisSettings a ghtf:TerraformResource ;
+    ghtf:resourceType "github_enterprise_security_analysis_settings" ; ghtf:scope "enterprise" ;
+    ghtf:purpose "Enterprise GHAS / secret-scanning / push-protection defaults" ;
+    ghtf:requiredArg "enterprise_slug" .
+
+# --- issue / membership / organization / project / release families (f-r) ---
+ghtf:CatIssueLabels a ghtf:TerraformResource ;
+    ghtf:resourceType "github_issue_labels" ; ghtf:scope "repository" ;
+    ghtf:purpose "Manage ALL labels for a repo (authoritative; mutually exclusive with github_issue_label)" ;
+    ghtf:requiredArg "repository" .
+
+ghtf:CatMembership a ghtf:TerraformResource ;
+    ghtf:resourceType "github_membership" ; ghtf:scope "organization" ;
+    ghtf:purpose "Add/remove a user in the org (sends invite)" ;
+    ghtf:requiredArg "username" .
+
+ghtf:CatOrganizationBlock a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_block" ; ghtf:scope "organization" ;
+    ghtf:purpose "Block a user at org level" ;
+    ghtf:requiredArg "username" .
+
+ghtf:CatOrganizationCustomProperties a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_custom_properties" ; ghtf:scope "organization" ;
+    ghtf:purpose "Define org custom properties" ;
+    ghtf:requiredArg "property_name", "property_type" .
+
+ghtf:CatOrganizationCustomRole a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_custom_role" ; ghtf:scope "organization" ;
+    ghtf:purpose "Custom repo role (deprecated)" ;
+    ghtf:requiredArg "name", "base_role", "permissions" ;
+    ghtf:deprecated true ;
+    ghtf:successor "github_organization_repository_role" .
+
+ghtf:CatOrganizationProject a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_project" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level classic project — GitHub removed the classic Projects API" ;
+    ghtf:requiredArg "name" ;
+    ghtf:deprecated true ; ghtf:deadApi true .
+
+ghtf:CatOrganizationRepositoryRole a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_repository_role" ; ghtf:scope "organization" ;
+    ghtf:purpose "Custom repository role for the org" ;
+    ghtf:requiredArg "name", "base_role", "permissions" .
+
+ghtf:CatOrganizationRole a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_role" ; ghtf:scope "organization" ;
+    ghtf:purpose "Custom org role" ;
+    ghtf:requiredArg "name", "permissions" .
+
+ghtf:CatOrganizationRoleTeam a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_role_team" ; ghtf:scope "organization" ;
+    ghtf:purpose "Assign an org role to a team" ;
+    ghtf:requiredArg "role_id", "team_slug" .
+
+ghtf:CatOrganizationRoleTeamAssignment a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_role_team_assignment" ; ghtf:scope "organization" ;
+    ghtf:purpose "Team-to-org-role association (deprecated)" ;
+    ghtf:requiredArg "team_slug", "role_id" ;
+    ghtf:deprecated true ;
+    ghtf:successor "github_organization_role_team" .
+
+ghtf:CatOrganizationRoleUser a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_role_user" ; ghtf:scope "organization" ;
+    ghtf:purpose "Assign an org role to a user" ;
+    ghtf:requiredArg "role_id", "login" .
+
+ghtf:CatOrganizationRuleset a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_ruleset" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-wide ruleset (branch/tag/push rules)" ;
+    ghtf:requiredArg "name", "enforcement", "target", "rules" .
+
+ghtf:CatOrganizationSecurityManager a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_security_manager" ; ghtf:scope "organization" ;
+    ghtf:purpose "Grant a team security-manager role (deprecated)" ;
+    ghtf:requiredArg "team_slug" ;
+    ghtf:deprecated true ;
+    ghtf:successor "github_organization_role_team" .
+
+ghtf:CatOrganizationSettings a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_settings" ; ghtf:scope "organization" ;
+    ghtf:purpose "Manage org-wide settings" ;
+    ghtf:requiredArg "billing_email" .
+
+ghtf:CatOrganizationWebhook a ghtf:TerraformResource ;
+    ghtf:resourceType "github_organization_webhook" ; ghtf:scope "organization" ;
+    ghtf:purpose "Org-level webhook" ;
+    ghtf:requiredArg "events", "configuration" .
+
+ghtf:CatProjectCard a ghtf:TerraformResource ;
+    ghtf:resourceType "github_project_card" ; ghtf:scope "organization" ;
+    ghtf:purpose "Card in a classic project — GitHub removed the classic Projects API" ;
+    ghtf:requiredArg "column_id" ;
+    ghtf:deprecated true ; ghtf:deadApi true .
+
+ghtf:CatProjectColumn a ghtf:TerraformResource ;
+    ghtf:resourceType "github_project_column" ; ghtf:scope "organization" ;
+    ghtf:purpose "Column in a classic project — GitHub removed the classic Projects API" ;
+    ghtf:requiredArg "project_id", "name" ;
+    ghtf:deprecated true ; ghtf:deadApi true .
+
+ghtf:CatRelease a ghtf:TerraformResource ;
+    ghtf:resourceType "github_release" ; ghtf:scope "repository" ;
+    ghtf:purpose "Manage a GitHub release/tag" ;
+    ghtf:requiredArg "repository", "tag_name" ;
+    ghtf:testConfigMinimal """resource "github_release" "test" {
+  repository = "{{ test_repo }}"
+  tag_name   = "v1.0.0"
+}
+""" .
+
+# --- repository family (remaining, beyond the seeded 13) ---
+ghtf:CatRepositoryAutolinkReference a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_autolink_reference" ; ghtf:scope "repository" ;
+    ghtf:purpose "Autolink references (e.g. JIRA-123 to URL) for a repo" ;
+    ghtf:requiredArg "repository", "key_prefix", "target_url_template" .
+
+ghtf:CatRepositoryCollaborators a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_collaborators" ; ghtf:scope "repository" ;
+    ghtf:purpose "Authoritatively manage the complete set of user+team collaborators (conflicts with github_repository_collaborator)" ;
+    ghtf:requiredArg "repository" .
+
+ghtf:CatRepositoryCustomProperty a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_custom_property" ; ghtf:scope "repository" ;
+    ghtf:purpose "Set an org-defined custom property value on a repo" ;
+    ghtf:requiredArg "repository", "property_name", "property_type", "property_value" .
+
+ghtf:CatRepositoryDependabotSecurityUpdates a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_dependabot_security_updates" ; ghtf:scope "repository" ;
+    ghtf:purpose "Toggle Dependabot automated security fixes for a repo" ;
+    ghtf:requiredArg "repository", "enabled" .
+
+ghtf:CatRepositoryDeployKey a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_deploy_key" ; ghtf:scope "repository" ;
+    ghtf:purpose "Add/remove an SSH deploy key on a repo (all args ForceNew)" ;
+    ghtf:requiredArg "key", "read_only", "repository", "title" ;
+    ghtf:refAttr "name" .
+
+ghtf:CatRepositoryDeploymentBranchPolicy a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_deployment_branch_policy" ; ghtf:scope "repository" ;
+    ghtf:purpose "Branch-name policy controlling which branches deploy to an env" ;
+    ghtf:requiredArg "repository", "environment_name", "name" .
+
+ghtf:CatRepositoryEnvironmentDeploymentPolicy a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_environment_deployment_policy" ; ghtf:scope "repository" ;
+    ghtf:purpose "Environment deployment branch policy (branch_pattern or tag_pattern)" ;
+    ghtf:requiredArg "environment", "repository" .
+
+ghtf:CatRepositoryPages a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_pages" ; ghtf:scope "repository" ;
+    ghtf:purpose "Manage GitHub Pages config for a repo (successor to the deprecated inline pages block)" ;
+    ghtf:requiredArg "repository" .
+
+ghtf:CatRepositoryProject a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_project" ; ghtf:scope "repository" ;
+    ghtf:purpose "Classic repo-level project board" ;
+    ghtf:requiredArg "name", "repository" ;
+    ghtf:deprecated true ; ghtf:deadApi true .
+
+ghtf:CatRepositoryPullRequest a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_pull_request" ; ghtf:scope "repository" ;
+    ghtf:purpose "Manage/read a single PR" ;
+    ghtf:requiredArg "base_repository", "base_ref", "head_ref" .
+
+ghtf:CatRepositoryTopics a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_topics" ; ghtf:scope "repository" ;
+    ghtf:purpose "Manage the topics list on a repo (mutually exclusive with github_repository.topics)" ;
+    ghtf:requiredArg "repository", "topics" .
+
+ghtf:CatRepositoryVulnerabilityAlerts a ghtf:TerraformResource ;
+    ghtf:resourceType "github_repository_vulnerability_alerts" ; ghtf:scope "repository" ;
+    ghtf:purpose "Toggle Dependabot vulnerability alerts for a repo" ;
+    ghtf:requiredArg "repository" .
+
+# --- team family (remaining) ---
+ghtf:CatTeamMembers a ghtf:TerraformResource ;
+    ghtf:resourceType "github_team_members" ; ghtf:scope "organization" ;
+    ghtf:purpose "Authoritatively manage a team's full member set (conflicts with github_team_membership)" ;
+    ghtf:requiredArg "team_id" .
+
+ghtf:CatTeamMembership a ghtf:TerraformResource ;
+    ghtf:resourceType "github_team_membership" ; ghtf:scope "organization" ;
+    ghtf:purpose "Manage one user's membership in a team" ;
+    ghtf:requiredArg "team_id", "username" .
+
+ghtf:CatTeamRepository a ghtf:TerraformResource ;
+    ghtf:resourceType "github_team_repository" ; ghtf:scope "organization" ;
+    ghtf:purpose "Associate a team with a repo (grant access)" ;
+    ghtf:requiredArg "team_id", "repository" ;
+    ghtf:refAttr "id" ;
+    ghtf:testConfigMinimal """resource "github_team" "test" {
+  name        = "{{ test_prefix }}team"
+  description = "test"
+}
+
+resource "github_repository" "test" {
+  name = "{{ test_repo }}"
+}
+
+resource "github_team_repository" "test" {
+  team_id    = github_team.test.id
+  repository = github_repository.test.name
+  permission = "pull"
+}
+""" .
+
+ghtf:CatTeamSettings a ghtf:TerraformResource ;
+    ghtf:resourceType "github_team_settings" ; ghtf:scope "organization" ;
+    ghtf:purpose "Team settings (review request delegation)" ;
+    ghtf:requiredArg "team_id" .
+
+ghtf:CatTeamSyncGroupMapping a ghtf:TerraformResource ;
+    ghtf:resourceType "github_team_sync_group_mapping" ; ghtf:scope "organization" ;
+    ghtf:purpose "Map a team to IdP group(s) for SCIM/SSO sync" ;
+    ghtf:requiredArg "team_slug", "group" .
+
+# --- user family ---
+ghtf:CatUserGpgKey a ghtf:TerraformResource ;
+    ghtf:resourceType "github_user_gpg_key" ; ghtf:scope "user" ;
+    ghtf:purpose "Add a GPG key to the authenticated user" ;
+    ghtf:requiredArg "armored_public_key" .
+
+ghtf:CatUserInvitationAccepter a ghtf:TerraformResource ;
+    ghtf:resourceType "github_user_invitation_accepter" ; ghtf:scope "user" ;
+    ghtf:purpose "Accept a repo collaborator invitation" ;
+    ghtf:requiredArg "invitation_id" .
+
+ghtf:CatUserSshKey a ghtf:TerraformResource ;
+    ghtf:resourceType "github_user_ssh_key" ; ghtf:scope "user" ;
+    ghtf:purpose "Add an SSH key to the authenticated user" ;
+    ghtf:requiredArg "title", "key" .
+
+#################################################################
+# Data sources (75, enumerated from docs/data-sources on main)
+#################################################################
+
+ghtf:DataSource a rdfs:Class ;
+    rdfs:label "A read-only data source of the integrations/github provider" .
+
+ghtf:DsActionsEnvironmentPublicKey a ghtf:DataSource ; ghtf:dsName "actions_environment_public_key" ; ghtf:scope "repository" ; ghtf:purpose "Public key for encrypting an environment's Actions secrets" .
+ghtf:DsActionsEnvironmentSecrets a ghtf:DataSource ; ghtf:dsName "actions_environment_secrets" ; ghtf:scope "repository" ; ghtf:purpose "List secrets for a repo environment" .
+ghtf:DsActionsEnvironmentVariables a ghtf:DataSource ; ghtf:dsName "actions_environment_variables" ; ghtf:scope "repository" ; ghtf:purpose "List variables for a repo environment" .
+ghtf:DsActionsOrgOidcTemplate a ghtf:DataSource ; ghtf:dsName "actions_organization_oidc_subject_claim_customization_template" ; ghtf:scope "organization" ; ghtf:purpose "Org OIDC subject-claim template" .
+ghtf:DsActionsOrgPublicKey a ghtf:DataSource ; ghtf:dsName "actions_organization_public_key" ; ghtf:scope "organization" ; ghtf:purpose "Org-level Actions secrets public key" .
+ghtf:DsActionsOrgRegistrationToken a ghtf:DataSource ; ghtf:dsName "actions_organization_registration_token" ; ghtf:scope "organization" ; ghtf:purpose "Token to register org self-hosted runners" .
+ghtf:DsActionsOrgSecrets a ghtf:DataSource ; ghtf:dsName "actions_organization_secrets" ; ghtf:scope "organization" ; ghtf:purpose "List org Actions secrets" .
+ghtf:DsActionsOrgVariables a ghtf:DataSource ; ghtf:dsName "actions_organization_variables" ; ghtf:scope "organization" ; ghtf:purpose "List org Actions variables" .
+ghtf:DsActionsPublicKey a ghtf:DataSource ; ghtf:dsName "actions_public_key" ; ghtf:scope "repository" ; ghtf:purpose "Repo Actions secrets public key" .
+ghtf:DsActionsRegistrationToken a ghtf:DataSource ; ghtf:dsName "actions_registration_token" ; ghtf:scope "repository" ; ghtf:purpose "Token to register repo self-hosted runners" .
+ghtf:DsActionsRepoOidcTemplate a ghtf:DataSource ; ghtf:dsName "actions_repository_oidc_subject_claim_customization_template" ; ghtf:scope "repository" ; ghtf:purpose "Repo OIDC subject-claim template" .
+ghtf:DsActionsSecrets a ghtf:DataSource ; ghtf:dsName "actions_secrets" ; ghtf:scope "repository" ; ghtf:purpose "List repo Actions secrets" .
+ghtf:DsActionsVariables a ghtf:DataSource ; ghtf:dsName "actions_variables" ; ghtf:scope "repository" ; ghtf:purpose "List repo Actions variables" .
+ghtf:DsApp a ghtf:DataSource ; ghtf:dsName "app" ; ghtf:scope "organization" ; ghtf:purpose "Look up a GitHub App by slug" .
+ghtf:DsAppToken a ghtf:DataSource ; ghtf:dsName "app_token" ; ghtf:scope "organization" ; ghtf:purpose "Generate an installation access token for a GitHub App" .
+ghtf:DsBranch a ghtf:DataSource ; ghtf:dsName "branch" ; ghtf:scope "repository" ; ghtf:purpose "Details of a repository branch" .
+ghtf:DsBranchProtectionRules a ghtf:DataSource ; ghtf:dsName "branch_protection_rules" ; ghtf:scope "repository" ; ghtf:purpose "List branch protection rules for a repo" .
+ghtf:DsRef a ghtf:DataSource ; ghtf:dsName "ref" ; ghtf:scope "repository" ; ghtf:purpose "A Git reference (branch/tag ref)" .
+ghtf:DsTree a ghtf:DataSource ; ghtf:dsName "tree" ; ghtf:scope "repository" ; ghtf:purpose "Contents of a Git tree object" .
+ghtf:DsRepositoryBranches a ghtf:DataSource ; ghtf:dsName "repository_branches" ; ghtf:scope "repository" ; ghtf:purpose "List branches in a repo" .
+ghtf:DsSshKeys a ghtf:DataSource ; ghtf:dsName "ssh_keys" ; ghtf:scope "user" ; ghtf:purpose "GitHub's public SSH host keys" .
+ghtf:DsCodespacesOrgPublicKey a ghtf:DataSource ; ghtf:dsName "codespaces_organization_public_key" ; ghtf:scope "organization" ; ghtf:purpose "Org Codespaces secrets public key" .
+ghtf:DsCodespacesOrgSecrets a ghtf:DataSource ; ghtf:dsName "codespaces_organization_secrets" ; ghtf:scope "organization" ; ghtf:purpose "List org Codespaces secrets" .
+ghtf:DsCodespacesPublicKey a ghtf:DataSource ; ghtf:dsName "codespaces_public_key" ; ghtf:scope "repository" ; ghtf:purpose "Repo Codespaces secrets public key" .
+ghtf:DsCodespacesSecrets a ghtf:DataSource ; ghtf:dsName "codespaces_secrets" ; ghtf:scope "repository" ; ghtf:purpose "List repo Codespaces secrets" .
+ghtf:DsCodespacesUserPublicKey a ghtf:DataSource ; ghtf:dsName "codespaces_user_public_key" ; ghtf:scope "user" ; ghtf:purpose "User Codespaces secrets public key" .
+ghtf:DsCodespacesUserSecrets a ghtf:DataSource ; ghtf:dsName "codespaces_user_secrets" ; ghtf:scope "user" ; ghtf:purpose "List user Codespaces secrets" .
+ghtf:DsDependabotOrgPublicKey a ghtf:DataSource ; ghtf:dsName "dependabot_organization_public_key" ; ghtf:scope "organization" ; ghtf:purpose "Org Dependabot secrets public key" .
+ghtf:DsDependabotOrgSecrets a ghtf:DataSource ; ghtf:dsName "dependabot_organization_secrets" ; ghtf:scope "organization" ; ghtf:purpose "List org Dependabot secrets" .
+ghtf:DsDependabotPublicKey a ghtf:DataSource ; ghtf:dsName "dependabot_public_key" ; ghtf:scope "repository" ; ghtf:purpose "Repo Dependabot secrets public key" .
+ghtf:DsDependabotSecrets a ghtf:DataSource ; ghtf:dsName "dependabot_secrets" ; ghtf:scope "repository" ; ghtf:purpose "List repo Dependabot secrets" .
+ghtf:DsOrganization a ghtf:DataSource ; ghtf:dsName "organization" ; ghtf:scope "organization" ; ghtf:purpose "Details/metadata of an org" .
+ghtf:DsOrganizationAppInstallations a ghtf:DataSource ; ghtf:dsName "organization_app_installations" ; ghtf:scope "organization" ; ghtf:purpose "Apps installed on the org" .
+ghtf:DsOrganizationCustomProperties a ghtf:DataSource ; ghtf:dsName "organization_custom_properties" ; ghtf:scope "organization" ; ghtf:purpose "Org-defined custom properties" .
+ghtf:DsOrganizationCustomRole a ghtf:DataSource ; ghtf:dsName "organization_custom_role" ; ghtf:scope "organization" ; ghtf:purpose "A custom org repository role (legacy)" .
+ghtf:DsOrganizationExternalIdentities a ghtf:DataSource ; ghtf:dsName "organization_external_identities" ; ghtf:scope "organization" ; ghtf:purpose "SCIM/SSO external identities in the org" .
+ghtf:DsOrganizationIpAllowList a ghtf:DataSource ; ghtf:dsName "organization_ip_allow_list" ; ghtf:scope "organization" ; ghtf:purpose "Org IP allow-list entries" .
+ghtf:DsOrganizationRepositoryRole a ghtf:DataSource ; ghtf:dsName "organization_repository_role" ; ghtf:scope "organization" ; ghtf:purpose "A single org repository role" .
+ghtf:DsOrganizationRepositoryRoles a ghtf:DataSource ; ghtf:dsName "organization_repository_roles" ; ghtf:scope "organization" ; ghtf:purpose "List org repository roles" .
+ghtf:DsOrganizationRole a ghtf:DataSource ; ghtf:dsName "organization_role" ; ghtf:scope "organization" ; ghtf:purpose "A single org role" .
+ghtf:DsOrganizationRoleTeams a ghtf:DataSource ; ghtf:dsName "organization_role_teams" ; ghtf:scope "organization" ; ghtf:purpose "Teams assigned to an org role" .
+ghtf:DsOrganizationRoleUsers a ghtf:DataSource ; ghtf:dsName "organization_role_users" ; ghtf:scope "organization" ; ghtf:purpose "Users assigned to an org role" .
+ghtf:DsOrganizationRoles a ghtf:DataSource ; ghtf:dsName "organization_roles" ; ghtf:scope "organization" ; ghtf:purpose "List org roles" .
+ghtf:DsOrganizationSecurityManagers a ghtf:DataSource ; ghtf:dsName "organization_security_managers" ; ghtf:scope "organization" ; ghtf:purpose "Teams with security-manager role" .
+ghtf:DsOrganizationTeamSyncGroups a ghtf:DataSource ; ghtf:dsName "organization_team_sync_groups" ; ghtf:scope "organization" ; ghtf:purpose "IdP groups available for team sync" .
+ghtf:DsOrganizationTeams a ghtf:DataSource ; ghtf:dsName "organization_teams" ; ghtf:scope "organization" ; ghtf:purpose "List org teams" .
+ghtf:DsOrganizationWebhooks a ghtf:DataSource ; ghtf:dsName "organization_webhooks" ; ghtf:scope "organization" ; ghtf:purpose "List org webhooks" .
+ghtf:DsExternalGroups a ghtf:DataSource ; ghtf:dsName "external_groups" ; ghtf:scope "organization" ; ghtf:purpose "External (IdP) groups connected to the org" .
+ghtf:DsEnterprise a ghtf:DataSource ; ghtf:dsName "enterprise" ; ghtf:scope "enterprise" ; ghtf:purpose "Details of a GitHub Enterprise account" .
+ghtf:DsMembership a ghtf:DataSource ; ghtf:dsName "membership" ; ghtf:scope "organization" ; ghtf:purpose "A user's membership in an org" .
+ghtf:DsRepository a ghtf:DataSource ; ghtf:dsName "repository" ; ghtf:scope "repository" ; ghtf:purpose "Details of a single repo" .
+ghtf:DsRepositories a ghtf:DataSource ; ghtf:dsName "repositories" ; ghtf:scope "organization" ; ghtf:purpose "Search/list repos" .
+ghtf:DsRepositoryAutolinkReferences a ghtf:DataSource ; ghtf:dsName "repository_autolink_references" ; ghtf:scope "repository" ; ghtf:purpose "Autolink references configured on a repo" .
+ghtf:DsRepositoryCustomProperties a ghtf:DataSource ; ghtf:dsName "repository_custom_properties" ; ghtf:scope "repository" ; ghtf:purpose "Custom property values set on a repo" .
+ghtf:DsRepositoryDeployKeys a ghtf:DataSource ; ghtf:dsName "repository_deploy_keys" ; ghtf:scope "repository" ; ghtf:purpose "Deploy keys on a repo" .
+ghtf:DsRepositoryDeploymentBranchPolicies a ghtf:DataSource ; ghtf:dsName "repository_deployment_branch_policies" ; ghtf:scope "repository" ; ghtf:purpose "Deployment branch policies for an environment" .
+ghtf:DsRepositoryEnvironmentDeploymentPolicies a ghtf:DataSource ; ghtf:dsName "repository_environment_deployment_policies" ; ghtf:scope "repository" ; ghtf:purpose "Deployment policies for an environment" .
+ghtf:DsRepositoryEnvironments a ghtf:DataSource ; ghtf:dsName "repository_environments" ; ghtf:scope "repository" ; ghtf:purpose "List repo environments" .
+ghtf:DsRepositoryFile a ghtf:DataSource ; ghtf:dsName "repository_file" ; ghtf:scope "repository" ; ghtf:purpose "Contents of a file in a repo" .
+ghtf:DsRepositoryMilestone a ghtf:DataSource ; ghtf:dsName "repository_milestone" ; ghtf:scope "repository" ; ghtf:purpose "A repo milestone" .
+ghtf:DsRepositoryPages a ghtf:DataSource ; ghtf:dsName "repository_pages" ; ghtf:scope "repository" ; ghtf:purpose "GitHub Pages config for a repo" .
+ghtf:DsRepositoryPullRequest a ghtf:DataSource ; ghtf:dsName "repository_pull_request" ; ghtf:scope "repository" ; ghtf:purpose "A single pull request" .
+ghtf:DsRepositoryPullRequests a ghtf:DataSource ; ghtf:dsName "repository_pull_requests" ; ghtf:scope "repository" ; ghtf:purpose "List/search pull requests" .
+ghtf:DsRepositoryTeams a ghtf:DataSource ; ghtf:dsName "repository_teams" ; ghtf:scope "repository" ; ghtf:purpose "Teams with access to a repo" .
+ghtf:DsRepositoryWebhooks a ghtf:DataSource ; ghtf:dsName "repository_webhooks" ; ghtf:scope "repository" ; ghtf:purpose "List repo webhooks" .
+ghtf:DsCollaborators a ghtf:DataSource ; ghtf:dsName "collaborators" ; ghtf:scope "repository" ; ghtf:purpose "Collaborators on a repo" .
+ghtf:DsIssueLabels a ghtf:DataSource ; ghtf:dsName "issue_labels" ; ghtf:scope "repository" ; ghtf:purpose "Labels defined on a repo" .
+ghtf:DsRelease a ghtf:DataSource ; ghtf:dsName "release" ; ghtf:scope "repository" ; ghtf:purpose "A repo release" .
+ghtf:DsReleaseAsset a ghtf:DataSource ; ghtf:dsName "release_asset" ; ghtf:scope "repository" ; ghtf:purpose "A single release asset" .
+ghtf:DsUser a ghtf:DataSource ; ghtf:dsName "user" ; ghtf:scope "user" ; ghtf:purpose "Details of a single user" .
+ghtf:DsUsers a ghtf:DataSource ; ghtf:dsName "users" ; ghtf:scope "user" ; ghtf:purpose "Details of multiple users" .
+ghtf:DsUserExternalIdentity a ghtf:DataSource ; ghtf:dsName "user_external_identity" ; ghtf:scope "user" ; ghtf:purpose "A user's external (SSO) identity" .
+ghtf:DsTeam a ghtf:DataSource ; ghtf:dsName "team" ; ghtf:scope "organization" ; ghtf:purpose "Details of an org team" .
+ghtf:DsIpRanges a ghtf:DataSource ; ghtf:dsName "ip_ranges" ; ghtf:scope "user" ; ghtf:purpose "GitHub's published IP address ranges" .
+ghtf:DsRestApi a ghtf:DataSource ; ghtf:dsName "rest_api" ; ghtf:scope "repository" ; ghtf:purpose "Arbitrary read against the GitHub REST API" .
+
+#################################################################
+# Enrichment of the seeded individuals (scope / requiredArg / purpose /
+# refAttr / testConfigMinimal) — same subjects, additional triples.
+# requiredArg values from the provider docs tables; refAttr from the
+# provider's own acceptance tests (the attribute dependents reference).
+#################################################################
+
+ghtf:GithubRepository ghtf:scope "repository" ;
+    ghtf:purpose "Create/manage a repo in an org or personal account" ;
+    ghtf:requiredArg "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name       = "{{ test_repo }}"
+  visibility = "private"
+}
+""" .
+
+ghtf:GithubBranchProtection ghtf:scope "repository" ;
+    ghtf:purpose "Branch protection via GraphQL (pattern-based)" ;
+    ghtf:requiredArg "repository_id", "pattern" ;
+    ghtf:refAttr "node_id" ;
+    ghtf:breakingChange "v6.0.0 restrict-pushes rework (#2045)" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_branch_protection" "test" {
+  repository_id = github_repository.test.node_id
+  pattern       = "main"
+}
+""" .
+
+ghtf:GithubIssueLabel ghtf:scope "repository" ;
+    ghtf:purpose "Manage a single label (non-authoritative)" ;
+    ghtf:requiredArg "repository", "name", "color" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_issue_label" "test" {
+  repository  = github_repository.test.name
+  name        = "foo"
+  color       = "000000"
+  description = "{{ test_description }}"
+}
+""" .
+
+ghtf:GithubRepositoryMilestone ghtf:scope "repository" ;
+    ghtf:purpose "Manage a repo milestone" ;
+    ghtf:requiredArg "owner", "repository", "title" .
+
+ghtf:GithubIssue ghtf:scope "repository" ;
+    ghtf:purpose "Create/manage an issue in a repo" ;
+    ghtf:requiredArg "repository", "title" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name       = "{{ test_repo }}"
+  has_issues = true
+}
+
+resource "github_issue" "test" {
+  repository = github_repository.test.name
+  title      = github_repository.test.name
+}
+""" .
+
+ghtf:GithubActionsSecret ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level encrypted Actions secret" ;
+    ghtf:requiredArg "repository", "secret_name" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_actions_secret" "test" {
+  repository  = "{{ test_repo }}"
+  secret_name = "TEST"
+  value       = "{{ test_value }}"
+}
+""" .
+
+ghtf:GithubRepositoryEnvironment ghtf:scope "repository" ;
+    ghtf:purpose "Create/manage a deployment environment on a repo" ;
+    ghtf:requiredArg "environment", "repository" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name       = "{{ test_repo }}"
+  visibility = "public"
+}
+
+resource "github_repository_environment" "test" {
+  repository  = github_repository.test.name
+  environment = "{{ test_environment }}"
+}
+""" .
+
+ghtf:GithubRepositoryCollaborator ghtf:scope "repository" ;
+    ghtf:purpose "Add a single user as a repo collaborator" ;
+    ghtf:requiredArg "repository", "username" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_repository_collaborator" "test_repo_collaborator" {
+  repository = github_repository.test.name
+  username   = "{{ test_username }}"
+  permission = "triage"
+}
+""" .
+
+ghtf:GithubTeam ghtf:scope "organization" ;
+    ghtf:purpose "Create/manage an org team" ;
+    ghtf:requiredArg "name" ;
+    ghtf:refAttr "id" ;
+    ghtf:testConfigMinimal """resource "github_team" "test" {
+  name = "{{ test_prefix }}team"
+}
+""" .
+
+ghtf:GithubRepositoryWebhook ghtf:scope "repository" ;
+    ghtf:purpose "Manage a repo webhook" ;
+    ghtf:requiredArg "repository", "events", "configuration" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name        = "{{ test_repo }}"
+  description = "Terraform acceptance tests"
+}
+
+resource "github_repository_webhook" "test" {
+  depends_on = [github_repository.test]
+  repository = "{{ test_repo }}"
+
+  configuration {
+    url          = "https://google.de/webhook"
+    content_type = "json"
+    insecure_ssl = true
+  }
+
+  events = ["pull_request"]
+}
+""" .
+
+ghtf:GithubActionsVariable ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level Actions variable" ;
+    ghtf:requiredArg "repository", "variable_name", "value" ;
+    ghtf:testConfigMinimal """resource "github_actions_variable" "test" {
+  repository    = "{{ test_repo }}"
+  variable_name = "TEST"
+  value         = "{{ test_value }}"
+}
+""" .
+
+ghtf:GithubRepositoryFile ghtf:scope "repository" ;
+    ghtf:purpose "Manage a file's content within a repo" ;
+    ghtf:requiredArg "repository", "file", "content" ;
+    ghtf:refAttr "name" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_repository_file" "test" {
+  repository     = github_repository.test.name
+  branch         = "main"
+  file           = "test"
+  content        = "bar"
+  commit_message = "Managed by Terraform"
+  commit_author  = "Terraform User"
+  commit_email   = "terraform@example.com"
+}
+""" .
+
+ghtf:GithubRepositoryRuleset ghtf:scope "repository" ;
+    ghtf:purpose "Repo-level ruleset (branch/tag/push protections)" ;
+    ghtf:requiredArg "name", "target", "enforcement", "rules", "repository" ;
+    ghtf:refAttr "id" ;
+    ghtf:testConfigMinimal """resource "github_repository" "test" {
+  name      = "{{ test_repo }}"
+  auto_init = true
+}
+
+resource "github_repository_ruleset" "test" {
+  name        = "test"
+  repository  = github_repository.test.id
+  target      = "branch"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/heads/main"]
+      exclude = []
+    }
+  }
+
+  rules {
+    creation                = true
+    deletion                = true
+    required_linear_history = true
+  }
+}
+""" .
+
+#################################################################
+# 乙 TCPS desired state — additional RepoManagementInstance individuals
+# (第八〜十二章). Risk tiers per 第二十六章: 1=read, 2=low, 3=medium,
+# 4=high. Secret NAMES only — never values (第十二章).
+#################################################################
+
+ghtf:TcpsRepositorySettings a ghtf:RepoManagementInstance ;
+    rdfs:label "repository settings for the managed repo (第八章)" ;
+    ghtf:instanceOf ghtf:GithubRepository ;
+    ghtf:riskTier 3 ;
+    ghtf:hclBody """resource "github_repository" "managed" {
+  name                   = var.repository
+  description            = "Specification-driven code generation from RDF ontologies — A = μ(O)"
+  visibility             = "public"
+  has_issues             = true
+  has_wiki               = false
+  has_projects           = false
+  allow_squash_merge     = true
+  allow_merge_commit     = false
+  allow_rebase_merge     = false
+  delete_branch_on_merge = true
+  vulnerability_alerts   = true
+}
+""" .
+
+ghtf:LabelIjou a ghtf:RepoManagementInstance ;
+    rdfs:label "label 異常 (defect)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "ijou" {
+  repository  = var.repository
+  name        = "異常"
+  color       = "b60205"
+  description = "Defect: product, equipment, or standard abnormality"
+}
+""" .
+
+ghtf:LabelKaizen a ghtf:RepoManagementInstance ;
+    rdfs:label "label 改善 (improvement)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "kaizen" {
+  repository  = var.repository
+  name        = "改善"
+  color       = "0e8a16"
+  description = "Improvement: standard-work or process betterment"
+}
+""" .
+
+ghtf:LabelL5Jouken a ghtf:RepoManagementInstance ;
+    rdfs:label "label 第五水準条件 (L5 condition)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "l5_jouken" {
+  repository  = var.repository
+  name        = "第五水準条件"
+  color       = "1d76db"
+  description = "Work closing one of the L5 publication conditions"
+}
+""" .
+
+ghtf:LabelShoukoMachi a ghtf:RepoManagementInstance ;
+    rdfs:label "label 証拠待ち (awaiting evidence)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "shouko_machi" {
+  repository  = var.repository
+  name        = "証拠待ち"
+  color       = "fbca04"
+  description = "Claim recorded; verification evidence not yet captured"
+}
+""" .
+
+ghtf:LabelKakuri a ghtf:RepoManagementInstance ;
+    rdfs:label "label 隔離 (quarantined)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "kakuri" {
+  repository  = var.repository
+  name        = "隔離"
+  color       = "5319e7"
+  description = "Quarantined: excluded from the line until root cause is removed"
+}
+""" .
+
+ghtf:LabelKoukaiTeishi a ghtf:RepoManagementInstance ;
+    rdfs:label "label 公開停止 (publication halted)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "koukai_teishi" {
+  repository  = var.repository
+  name        = "公開停止"
+  color       = "000000"
+  description = "Publication blocked: a release condition is refused"
+}
+""" .
+
+ghtf:LabelJuryouZumi a ghtf:RepoManagementInstance ;
+    rdfs:label "label 受領済み (receipted)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "juryou_zumi" {
+  repository  = var.repository
+  name        = "受領済み"
+  color       = "c2e0c6"
+  description = "Action bound to a chain-linked receipt"
+}
+""" .
+
+ghtf:LabelTerraformHyouryuu a ghtf:RepoManagementInstance ;
+    rdfs:label "label Terraform漂流 (drift)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "terraform_hyouryuu" {
+  repository  = var.repository
+  name        = "Terraform漂流"
+  color       = "d93f0b"
+  description = "Observed state departed from declared desired state"
+}
+""" .
+
+ghtf:LabelGhSadouMachi a ghtf:RepoManagementInstance ;
+    rdfs:label "label gh作動待ち (awaiting gh action)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "gh_sadou_machi" {
+  repository  = var.repository
+  name        = "gh作動待ち"
+  color       = "bfdadc"
+  description = "Approved change awaiting its gh CLI standard-work execution"
+}
+""" .
+
+ghtf:LabelHyoujun a ghtf:RepoManagementInstance ;
+    rdfs:label "label 標準 (standard work)" ;
+    ghtf:instanceOf ghtf:GithubIssueLabel ; ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_issue_label" "hyoujun" {
+  repository  = var.repository
+  name        = "標準"
+  color       = "0052cc"
+  description = "Standard work: generated, receipted, reusable operation"
+}
+""" .
+
+ghtf:TcpsSecretNames a ghtf:RepoManagementInstance ;
+    rdfs:label "required actions secret NAMES (values never stored — 第十二章)" ;
+    ghtf:riskTier 4 ;
+    ghtf:secretName "GGEN_SIGNING_KEY" ;
+    ghtf:hclBody """# Secret NAMES are declared; values are supplied out-of-band (never in RDF).
+# 第十二章: 秘密値そのものを意味図式へ保存してはならない。
+resource "github_actions_secret" "ggen_signing_key" {
+  repository      = var.repository
+  secret_name     = "GGEN_SIGNING_KEY"
+  plaintext_value = var.ggen_signing_key_value # supplied at apply time only
+}
+""" .
+
+ghtf:ProductionEnvironment a ghtf:RepoManagementInstance ;
+    rdfs:label "production deployment environment for the managed repo" ;
+    ghtf:instanceOf ghtf:GithubRepositoryEnvironment ;
+    ghtf:riskTier 3 ;
+    ghtf:hclBody """resource "github_repository_environment" "production" {
+  repository  = var.repository
+  environment = "production"
+}
+""" .
+
+ghtf:TcpsL5Milestone a ghtf:RepoManagementInstance ;
+    rdfs:label "milestone tracking the v26.x TCPS L5 publication conditions" ;
+    ghtf:instanceOf ghtf:GithubRepositoryMilestone ;
+    ghtf:riskTier 2 ;
+    ghtf:hclBody """resource "github_repository_milestone" "tcps_l5" {
+  owner      = var.github_owner
+  repository = var.repository
+  title      = "v26.x TCPS L5"
+  state      = "open"
+}
+""" .
+
+ghtf:TcpsMainRuleset a ghtf:RepoManagementInstance ;
+    rdfs:label "active branch ruleset requiring the four real ci.yml checks on the default branch" ;
+    ghtf:instanceOf ghtf:GithubRepositoryRuleset ;
+    ghtf:riskTier 3 ;
+    ghtf:hclBody """resource "github_repository_ruleset" "tcps_main" {
+  name        = "tcps_main"
+  repository  = var.repository
+  target      = "branch"
+  enforcement = "active"
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+  rules {
+    required_status_checks {
+      required_check {
+        context = "Check"
+      }
+      required_check {
+        context = "Test"
+      }
+      required_check {
+        context = "Build"
+      }
+      required_check {
+        context = "Doctest"
+      }
+    }
+  }
+}
+""" .
+
+# Declared reasons why the remaining families are INTENTIONALLY empty.
+# NOT a ghtf:RepoManagementInstance (the 010_required gate would demand
+# hclBody + family); a plain individual whose per-family reason literals
+# are rendered as comments into the corresponding empty .tf files.
+ghtf:EmptyFamilyReasons rdfs:label "declared reasons for intentionally-empty Terraform families" ;
+    ghtf:emptyFamilyReason "issues: issue creation/closure flows through the gh CLI standard work (scripts/gh/issue-create.sh / issue-close.sh), not Terraform — issues are line events, not desired state" ;
+    ghtf:emptyFamilyReason "teams: github_team requires organization mode; seanchatmangpt/ggen is a single-user repository with no org teams to declare" ;
+    ghtf:emptyFamilyReason "collaborators: github_repository_collaborator requires org/multi-user administration; the single-user repository has no external collaborators to declare" ;
+    ghtf:emptyFamilyReason "webhooks: no webhook integrations are needed yet; CI is GitHub Actions (in-platform), so there is no external receiver to register" ;
+    ghtf:emptyFamilyReason "files: repository files are managed by ggen itself (A = μ(O), receipted sync), not by github_repository_file — Terraform-managed file content would create a second, competing authority" .
+
+#################################################################
+# 丁 gh CLI standard work — 7 additional commands (第十七章), completing
+# the 12-script surface. Read/write separated; writes preview + confirm.
+#################################################################
+
+ghcli:PrCloseStale a ghcli:Command ;
+    ghcli:noun "pr" ; ghcli:verb "close-stale" ;
+    ghcli:scriptName "pr-close-stale.sh" ; ghcli:mutating true ;
+    ghcli:doc "List stale PRs (default >30d inactive); close only with --confirm" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: pr-close-stale.sh --repo <owner/repo> [--days N] [--confirm]
+repo="" ; days=30 ; confirm=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    --days) days="$2"; shift 2 ;;
+    --confirm) confirm=1; shift ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: pr-close-stale.sh --repo <owner/repo> [--days N] [--confirm]" >&2; exit 2; }
+cutoff=$(date -v-"${days}"d +%Y-%m-%d 2>/dev/null || date -d "-${days} days" +%Y-%m-%d)
+stale=$(gh pr list --repo "$repo" --state open --search "updated:<$cutoff" --json number --jq .[].number)
+if [ -z "$stale" ]; then echo "no PRs inactive for ${days}+ days"; exit 0; fi
+echo "stale PRs (${days}+ days inactive):"
+for n in $stale; do
+  gh pr view "$n" --repo "$repo" --json number,title,updatedAt --jq '"#" + (.number|tostring) + " " + .title + " (updated " + .updatedAt + ")"'
+  echo
+done
+if [ "$confirm" -ne 1 ]; then
+  echo "preview only — re-run with --confirm to close"; exit 0
+fi
+for n in $stale; do
+  gh pr close "$n" --repo "$repo" --comment "Closed as stale (${days}+ days inactive) by TCPS standard work pr-close-stale.sh"
+done
+""" .
+
+ghcli:RunRerun a ghcli:Command ;
+    ghcli:noun "run" ; ghcli:verb "rerun" ;
+    ghcli:scriptName "run-rerun.sh" ; ghcli:mutating true ;
+    ghcli:doc "Re-run a failed workflow run (equipment-abnormality response, 第二十一章)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: run-rerun.sh --repo <owner/repo> <run-id> [--failed-only]
+repo="" ; failed=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    --failed-only) failed="--failed"; shift ;;
+    *) run="$1"; shift ;;
+  esac
+done
+[ -n "$repo" ] && [ -n "${run:-}" ] || { echo "usage: run-rerun.sh --repo <owner/repo> <run-id> [--failed-only]" >&2; exit 2; }
+gh run rerun "$run" --repo "$repo" ${failed}
+""" .
+
+ghcli:IssueCreate a ghcli:Command ;
+    ghcli:noun "issue" ; ghcli:verb "create" ;
+    ghcli:scriptName "issue-create.sh" ; ghcli:mutating true ;
+    ghcli:doc "Create an issue with title/body/labels (低危険変更, tier 2)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: issue-create.sh --repo <owner/repo> --title <t> [--body <b>] [--label <l>]...
+repo="" ; title="" ; body="" ; labels=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    --title) title="$2"; shift 2 ;;
+    --body) body="$2"; shift 2 ;;
+    --label) labels+=(--label "$2"); shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] && [ -n "$title" ] || { echo "usage: issue-create.sh --repo <owner/repo> --title <t> [--body <b>] [--label <l>]..." >&2; exit 2; }
+gh issue create --repo "$repo" --title "$title" --body "$body" "${labels[@]}"
+""" .
+
+ghcli:IssueClose a ghcli:Command ;
+    ghcli:noun "issue" ; ghcli:verb "close" ;
+    ghcli:scriptName "issue-close.sh" ; ghcli:mutating true ;
+    ghcli:doc "Close an issue; prints current state first (事前表示)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: issue-close.sh --repo <owner/repo> <issue-number> [--comment <c>]
+repo="" ; comment=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    --comment) comment="$2"; shift 2 ;;
+    *) n="$1"; shift ;;
+  esac
+done
+[ -n "$repo" ] && [ -n "${n:-}" ] || { echo "usage: issue-close.sh --repo <owner/repo> <issue-number> [--comment <c>]" >&2; exit 2; }
+echo "current state:"; gh issue view "$n" --repo "$repo" --json number,title,state,labels --jq '.'
+if [ -n "$comment" ]; then
+  gh issue close "$n" --repo "$repo" --comment "$comment"
+else
+  gh issue close "$n" --repo "$repo"
+fi
+""" .
+
+ghcli:ReleaseView a ghcli:Command ;
+    ghcli:noun "release" ; ghcli:verb "view" ;
+    ghcli:scriptName "release-view.sh" ; ghcli:mutating false ;
+    ghcli:doc "Read a release's assets/state as JSON (読取り, tier 1)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: release-view.sh --repo <owner/repo> [<tag>]
+repo="" ; tag=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) tag="$1"; shift ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: release-view.sh --repo <owner/repo> [<tag>]" >&2; exit 2; }
+if [ -n "$tag" ]; then
+  gh release view "$tag" --repo "$repo" --json tagName,name,isDraft,isPrerelease,publishedAt,assets
+else
+  gh release list --repo "$repo" --limit 10
+fi
+""" .
+
+ghcli:RepoState a ghcli:Command ;
+    ghcli:noun "repo" ; ghcli:verb "state" ;
+    ghcli:scriptName "repo-state.sh" ; ghcli:mutating false ;
+    ghcli:doc "Aggregated single-call repo state read: settings, protection, open PRs, latest run (現地現物, tier 1)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: repo-state.sh --repo <owner/repo>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: repo-state.sh --repo <owner/repo>" >&2; exit 2; }
+echo "== repository =="
+gh repo view "$repo" --json name,visibility,defaultBranchRef,isArchived,deleteBranchOnMerge --jq '.'
+echo "== branch protection (default branch) =="
+gh api "repos/${repo}/branches/$(gh repo view "$repo" --json defaultBranchRef --jq .defaultBranchRef.name)/protection" 2>/dev/null || echo "(no protection or no access)"
+echo "== open PRs =="
+gh pr list --repo "$repo" --state open --json number,title,mergeable --jq '.'
+echo "== latest workflow runs =="
+gh run list --repo "$repo" --limit 5
+""" .
+
+ghcli:DriftReport a ghcli:Command ;
+    ghcli:noun "drift" ; ghcli:verb "report" ;
+    ghcli:scriptName "drift-report.sh" ; ghcli:mutating false ;
+    ghcli:doc "Runs terraform plan -detailed-exitcode in the generated module dir; classifies create/update/replace/delete and assigns andon per 第二十三章 (any delete => YELLOW; protection/secret/required-check removal => RED)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: drift-report.sh [--dir <terraform-dir>] [--owner <o>] [--repo <name>] [--secret-value <v>]
+dir="infra/terraform/github" ; owner="" ; repo="" ; secret=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dir) dir="$2"; shift 2 ;;
+    --owner) owner="$2"; shift 2 ;;
+    --repo) repo="$2"; shift 2 ;;
+    --secret-value) secret="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -d "$dir" ] || { echo "terraform dir not found: $dir" >&2; exit 2; }
+cd "$dir"
+vars=()
+[ -n "$owner" ] && vars+=("-var=github_owner=${owner}")
+[ -n "$repo" ] && vars+=("-var=repository=${repo}")
+[ -n "$secret" ] && vars+=("-var=ggen_signing_key_value=${secret}")
+plan_out=$(mktemp)
+set +e
+terraform plan -detailed-exitcode -no-color -input=false ${vars[@]+"${vars[@]}"} > "$plan_out" 2>&1
+code=$?
+set -e
+case "$code" in
+  0) andon="GREEN" ; drift="none" ;;
+  2) andon="YELLOW" ; drift="detected" ;;
+  *) andon="RED" ; drift="plan-error" ;;
+esac
+deletes=$(grep -c "will be destroyed" "$plan_out" || true)
+if [ "${deletes:-0}" -gt 0 ]; then andon="YELLOW"; fi
+if grep -qE "github_branch_protection.*destroyed|github_actions_secret.*destroyed|required_status_checks" "$plan_out" && [ "${deletes:-0}" -gt 0 ]; then
+  andon="RED"
+fi
+creates=$(grep -c "will be created" "$plan_out" || true)
+updates=$(grep -c "will be updated in-place" "$plan_out" || true)
+replaces=$(grep -c "must be replaced" "$plan_out" || true)
+echo '{"andon":"'"$andon"'","drift":"'"$drift"'","create":'"${creates:-0}"',"update":'"${updates:-0}"',"replace":'"${replaces:-0}"',"delete":'"${deletes:-0}"'}'
+rm -f "$plan_out"
+[ "$andon" = "GREEN" ]
+""" .
+
+#################################################################
+# 己 L5 conditions for this pack (第二十八章, 18 conditions) — honest
+# initial standing. ALIVE only with evidence; PARTIAL/未実施 otherwise.
+#################################################################
+
+ghtf:L5Condition a rdfs:Class ;
+    rdfs:label "One of 第二十八章's 18 conditions for gh-terraform-pack reaching L5" .
+
+ghtf:L5C01 a ghtf:L5Condition ; ghtf:num 1 ; ghtf:statement "全GitHub管理資源型を意味図式として認識する" ; ghtf:standing "ALIVE" ; ghtf:evidence "87/87 provider resource types + 75/75 data sources as catalog individuals in this ontology" .
+ghtf:L5C02 a ghtf:L5Condition ; ghtf:num 2 ; ghtf:statement "TCPSの望ましい状態を意味個体として持つ" ; ghtf:standing "ALIVE" ; ghtf:evidence "repository settings + branch protection + 11 labels + milestone (ghtf:TcpsL5Milestone, v26.x TCPS L5) + environment (ghtf:ProductionEnvironment, production) + active ruleset (ghtf:TcpsMainRuleset, tcps_main) + secret-name declared as instances in this ontology" .
+ghtf:L5C03 a ghtf:L5Condition ; ghtf:num 3 ; ghtf:statement "Terraform構成を完全生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "per-family .tf split generated; every family without a declared instance renders an explicit intentionally-empty reason projected from ghtf:EmptyFamilyReasons (issues/teams/collaborators/webhooks/files), not a silent blank" .
+ghtf:L5C04 a ghtf:L5Condition ; ghtf:num 4 ; ghtf:statement "gh CLI標準作業を完全生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "17/17 scripts generated (第十七章の12本 + accept-* acceptance standard work 5本) with arg-refusal and read/write separation" .
+ghtf:L5C05 a ghtf:L5Condition ; ghtf:num 5 ; ghtf:statement "説明書を完全生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "catalog fan-out docs + core Japanese manuals all generated from ghtf:ManualDoc individuals, including pull-request標準作業, 漂流対応手順, 受入受領証連鎖, and 資源追加手順 (ghtf:DocShigenTsuikaTejun)" .
+ghtf:L5C06 a ghtf:L5Condition ; ghtf:num 6 ; ghtf:statement "検査票を生成する" ; ghtf:standing "ALIVE" ; ghtf:evidence "gates/010_required.rq extended over catalog+instances+commands" .
+ghtf:L5C07 a ghtf:L5Condition ; ghtf:num 7 ; ghtf:statement "清浄利用先で手直しなしに生成できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "gh_terraform_pack_e2e scaffolds a clean consumer and syncs untouched" .
+ghtf:L5C08 a ghtf:L5Condition ; ghtf:num 8 ; ghtf:statement "Terraform検証を通過する" ; ghtf:standing "ALIVE" ; ghtf:evidence "terraform init -backend=false && terraform validate green on generated module" .
+ghtf:L5C09 a ghtf:L5Condition ; ghtf:num 9 ; ghtf:statement "二回同期が一致する" ; ghtf:standing "ALIVE" ; ghtf:evidence "second sync writes nothing; ggen.lock byte-identical (e2e-asserted)" .
+ghtf:L5C10 a ghtf:L5Condition ; ghtf:num 10 ; ghtf:statement "使い捨てGitHubリポジトリで実地試験を通過する" ; ghtf:standing "ALIVE" ; ghtf:evidence "full cycle green via generated standard work (accept-setup/import/apply/verify): receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20; verify pass with 19 labels, protection_contexts=5, delete_branch_on_merge=true" .
+ghtf:L5C11 a ghtf:L5Condition ; ghtf:num 11 ; ghtf:statement "漂流を検知する" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-drift-inject.sh mutated 異常 out-of-band; drift-report.sh returned drift=detected (plan -detailed-exitcode 2): receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20" .
+ghtf:L5C12 a ghtf:L5Condition ; ghtf:num 12 ; ghtf:statement "漂流を修復できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-apply.sh re-converged; drift-report.sh returned drift=none after repair: receipt blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b, sandbox seanchatmangpt/tcps-accept-test-sandbox, 2026-07-20" .
+ghtf:L5C13 a ghtf:L5Condition ; ghtf:num 13 ; ghtf:statement "削除を特別承認へ送る" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-apply.sh mechanizes the gate: destructive plan without --approve-deletions exits 3, naming the destroyed resources; tier-1 subprocess sabotage proof (stub terraform reporting github_issue_label.ijou will be destroyed) asserts exit 3 and that apply never ran" .
+ghtf:L5C14 a ghtf:L5Condition ; ghtf:num 14 ; ghtf:statement "作動結果を受領する" ; ghtf:standing "ALIVE" ; ghtf:evidence "accept-receipt.sh appends sha256-chained JSONL to .tcps/acceptance-receipts.jsonl; live chain holds 2 receipts (pack hashes blake3:c394e85b... and blake3:ae62dda5...), prev_hash of line 2 re-verified this session against sha256 of line 1 (3f8924f7...)" .
+ghtf:L5C15 a ghtf:L5Condition ; ghtf:num 15 ; ghtf:statement "提供者版更新を意味図式から処理できる" ; ghtf:standing "PARTIAL" ; ghtf:evidence "9-step procedure documented (提供者版差.md); execution deferred by user decision" .
+ghtf:L5C16 a ghtf:L5Condition ; ghtf:num 16 ; ghtf:statement "複数TCPSリポジトリへ適用できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "second sandbox seanchatmangpt/tcps-accept-test-2-sandbox accepted via the same generated standard work: verify pass, labels=19, protection_contexts=5, delete_branch_on_merge=true (chain receipt pack hash blake3:c394e85b8316a4a20dad2831797c49e623b2dc942e24fb077ed06e1f26b0bdbd)" .
+ghtf:L5C17 a ghtf:L5Condition ; ghtf:num 17 ; ghtf:statement "利用者がTerraform資源詳細を知らなくても管理できる" ; ghtf:standing "ALIVE" ; ghtf:evidence "instances + generated docs cover the common path; 資源追加手順 manual gives a five-step, no-Terraform-knowledge path (pick from 資源一覧, add one ontology individual, resync) with a worked github_actions_variable example" .
+ghtf:L5C18 a ghtf:L5Condition ; ghtf:num 18 ; ghtf:statement "生成品への手直しなしで改善を一件通過する" ; ghtf:standing "ALIVE" ; ghtf:evidence "improvement cycle run through the line: new 標準 label added as ontology individual only (ghtf:LabelHyoujun), resynced, applied to seanchatmangpt/tcps-accept-test-sandbox — verify pass with labels=20 (chain receipt pack hash blake3:ae62dda51fb79b0037e663d3996e0c133e5391bc1f042586347b764c7d2f8fd4); git status shows no hand edits to generated files, only ontology/templates" .
+
+#################################################################
+# Family routing (第十六章 per-responsibility .tf split) — each
+# instance is routed to exactly one generated file by its family tag.
+#################################################################
+
+ghtf:Variables ghtf:family "variables" .
+ghtf:RequiredProviders ghtf:family "versions" .
+ghtf:MainBranchProtection ghtf:family "branch-protection" .
+ghtf:L5ConditionLabel ghtf:family "labels" .
+ghtf:TcpsRepositorySettings ghtf:family "repository" .
+ghtf:LabelIjou ghtf:family "labels" .
+ghtf:LabelKaizen ghtf:family "labels" .
+ghtf:LabelL5Jouken ghtf:family "labels" .
+ghtf:LabelShoukoMachi ghtf:family "labels" .
+ghtf:LabelKakuri ghtf:family "labels" .
+ghtf:LabelKoukaiTeishi ghtf:family "labels" .
+ghtf:LabelJuryouZumi ghtf:family "labels" .
+ghtf:LabelTerraformHyouryuu ghtf:family "labels" .
+ghtf:LabelGhSadouMachi ghtf:family "labels" .
+ghtf:LabelHyoujun ghtf:family "labels" .
+ghtf:TcpsSecretNames ghtf:family "secrets" .
+ghtf:ProductionEnvironment ghtf:family "environments" .
+ghtf:TcpsL5Milestone ghtf:family "milestones" .
+ghtf:TcpsMainRuleset ghtf:family "rulesets" .
+
+#################################################################
+# 第十八章 管理説明書 — manual docs as admitted standards (content is
+# the spec's own workflow text, so the doc IS the standard, not prose
+# drift). Index docs (資源一覧 etc.) are separate SPARQL-table templates.
+#################################################################
+
+ghtf:ManualDoc a rdfs:Class ;
+    rdfs:label "A generated management manual page (第十八章)" .
+
+ghtf:DocPullRequestHyoujunSagyou a ghtf:ManualDoc ;
+    ghtf:docName "pull-request標準作業" ;
+    ghtf:content """# pull-request標準作業
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (第二十章).
+
+```text
+変更枝作成 → 符号変更 → 現地検査 → pull request作成 → 必須検査待ち → review
+→ 統合可能性確認 → standing判定 → 統合 → 枝削除 → 受領
+```
+
+標準作業スクリプト (scripts/gh/) — 全一覧:
+
+| 作業 | スクリプト | 種別 |
+|---|---|---|
+| PR作成 | pr-create.sh | 変更 |
+| PR検査確認 | pr-checks.sh | 読取り |
+| PR統合可能性 | pr-view-mergeable.sh | 読取り |
+| PR統合 | pr-merge.sh | 変更(第四段階承認) |
+| 古い枝の整理 | pr-close-stale.sh | 変更(--confirm必須) |
+| workflow run観測 | run-view.sh | 読取り |
+| workflow run再実行 | run-rerun.sh | 変更(設備異常対応) |
+| issue作成 | issue-create.sh | 変更(低危険) |
+| issue終結 | issue-close.sh | 変更(事前表示) |
+| release観測 | release-view.sh | 読取り |
+| repo状態集約観測 | repo-state.sh | 読取り(現地現物) |
+| 漂流報告 | drift-report.sh | 読取り(plan分類+andon) |
+| 受入砂場設営 | accept-setup.sh | 変更(冪等・削除なし) |
+| 受入状態取込 | accept-import.sh | 変更(state import) |
+| 受入適用 | accept-apply.sh | 変更(砂場限定apply) |
+| 受入漂流注入 | accept-drift-inject.sh | 変更(承認済み破壊) |
+| 受入検証 | accept-verify.sh | 読取り(現地現物) |
+
+自動化が統合判断を代替してはならない。統合はstandingが受領された場合のみ許可する。
+""" .
+
+ghtf:DocCiIjouTaiou a ghtf:ManualDoc ;
+    ghtf:docName "CI異常対応" ;
+    ghtf:content """# CI異常対応
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (第二十一章).
+
+CI異常は三種類に分ける:
+
+1. **製品異常** — 符号、試験、生成物、設定の不良 → 製品を修正する。
+2. **設備異常** — runner、network、external service、tool installationの不良 → run-rerun.sh で再実行、または隔離。
+3. **標準異常** — 必須検査名、workflow条件、branch protection設定の漂流 → drift-report.sh でTerraform望ましい状態との差を調べる。
+
+手順: `pr-checks.sh` で現地状態を取得 → 分類 → 処置 → 失敗理由と処置を受領。
+
+無関係な検査を通すためだけの変更を行わない。
+""" .
+
+ghtf:DocTerraformTekiyouTejun a ghtf:ManualDoc ;
+    ghtf:docName "Terraform適用手順" ;
+    ghtf:content """# Terraform適用手順
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (第十九章 十工程).
+
+1. 変更要求 — 目的、対象資源、期待結果、危険度を記録する。
+2. 意味変更 — ontology.ttlを変更する。GitHub画面を先に変更してはならない。
+3. 再製造 — `ggen sync run`。
+4. 静的検査 — 二回同期、生成差分、`terraform fmt`、`terraform validate`、shell構文検査。
+5. 計画 — `terraform plan`。
+6. 差分受領 — 追加、変更、置換、削除を分類する (drift-report.sh)。
+7. 承認 — 外部作動の明示承認を得る。削除は別承認 (法則十一): accept-apply.sh は破壊計画を機械的に拒否し (exit 3)、`--approve-deletions` の明示承認でのみ進む。
+8. 作動 — 承認された `terraform apply` だけを実行する。
+9. 現地現物検査 — `repo-state.sh` / `gh api` で実状態を再観測する。
+10. 受領 — 計画と実結果を受領証へ結ぶ。
+
+`terraform plan` は差分観測であり、作動許可ではない (第四章)。
+""" .
+
+ghtf:DocHyouryuuTaiou a ghtf:ManualDoc ;
+    ghtf:docName "漂流対応" ;
+    ghtf:content """# 漂流対応
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (法則五・六、第二十三章).
+
+漂流 = 現在状態が望ましい状態から外れること。黙認しない。
+
+検知: `scripts/gh/drift-report.sh` — `terraform plan -detailed-exitcode` を分類し andon を返す:
+
+| 条件 | andon |
+|---|---|
+| 差分なし | GREEN |
+| 差分あり(削除なし) | YELLOW |
+| 削除を含む | YELLOW以上 |
+| branch protection解除・secret削除・required check削除 | RED (別承認) |
+
+対応: 意図しない差分は**異常** — 望ましい状態へ戻す (`terraform apply` 承認後)。
+意図した差分は**変更要求** — 意味図式を先に更新し再製造する。
+""" .
+
+ghtf:DocJuryoushouSetsumei a ghtf:ManualDoc ;
+    ghtf:docName "受領証説明" ;
+    ghtf:content """# 受領証説明
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (第六章・第三十章).
+
+受領証は次を結びつける:
+
+| 項目 | 出所 |
+|---|---|
+| 意味図式ハッシュ | ggen.lock の pack content_hash (blake3) |
+| 生成受領 | .ggen-v2/receipt.json (既存のggen連鎖受領証) |
+| Terraform計画要約 | drift-report.sh のJSON出力 (create/update/replace/delete + andon) |
+| 承認 | 作動段階 (第二十六章) に応じた明示承認の記録 |
+| 作動結果 | terraform apply / gh 命令の終了値と出力 |
+| 現地現物検査 | repo-state.sh / gh api による再観測 |
+| standing上限 | 実地未確認 | PARTIAL | ALIVE (L5-STATUS.md) |
+
+受領証の存在しないGitHub変更を、TCPS正式作動として扱ってはならない。
+
+## 受入受領証連鎖 (.tcps/acceptance-receipts.jsonl)
+
+受入標準作業 (accept-*) の作動結果は、追記専用のJSONL連鎖
+`.tcps/acceptance-receipts.jsonl` に記録する。書込みは
+`scripts/gh/accept-receipt.sh` のみが行う (他の経路での手書きは連鎖破壊)。
+
+連鎖規則:
+
+| 項目 | 規則 |
+|---|---|
+| 形式 | 一行一受領証のJSONL、追記専用 |
+| prev_hash | 直前行全体のsha256 (十六進) |
+| 先頭行 | genesis番兵: prev_hashは全零sha256番兵値 |
+| 検証 | 各行のprev_hashを前行の再計算sha256と突合し、一箇所でも不一致なら連鎖全体を不受領とする |
+
+連鎖の検証に失敗した受領証は存在しない受領証と同じに扱う。
+""" .
+
+ghtf:DocShigenTsuikaTejun a ghtf:ManualDoc ;
+    ghtf:docName "資源追加手順" ;
+    ghtf:content """# 資源追加手順
+
+GENERATED by `ggen sync` from `packs/gh-terraform-pack/ontology.ttl` (己 L5条件十七).
+
+利用者はTerraform資源の詳細を知らなくても、管理資源を追加できる。
+手順は五工程。手書きの `.tf` 編集は一切行わない (生成物は手直し禁止)。
+
+## 工程一: 資源型を選ぶ
+
+`docs/gh-terraform/資源一覧.md` を開き、目的に合う資源型を選ぶ。
+例: 「Actionsに平文の設定値を渡したい」→ `github_actions_variable`。
+
+## 工程二: 意味個体を追加する
+
+自分の `ontology.ttl` (利用先の意味図式) に個体を一つ追加する。
+必須述語は instanceOf / family / riskTier / hclBody の四つ (検査票が強制する)。
+
+実例 — Actions variable `TCPS_ENV` を追加する:
+
+```turtle
+ghtf:TcpsEnvVariable a ghtf:RepoManagementInstance ;
+    rdfs:label "actions variable TCPS_ENV" ;
+    ghtf:instanceOf ghtf:GithubActionsVariable ;
+    ghtf:family "secrets" ;
+    ghtf:riskTier 2 ;
+    ghtf:hclBody "(下のhclブロックの本文を三重引用符リテラルで入れる)" .
+```
+
+hclBody内の中身:
+
+```hcl
+resource "github_actions_variable" "tcps_env" {
+  repository    = var.repository
+  variable_name = "TCPS_ENV"
+  value         = "production"
+}
+```
+
+family がどの生成 `.tf` へ入るかを決める (例: "secrets" → secrets.tf、
+"labels" → labels.tf)。riskTier は承認段階を決める (第二十六章)。
+
+## 工程三: 再製造する
+
+```text
+ggen sync run
+```
+
+生成された `.tf` に個体のhclBodyが現れる。二回目の同期で差分が出ないことを確認する。
+
+## 工程四: 差分を観測し承認を得る
+
+```text
+scripts/gh/drift-report.sh --dir infra/terraform/github --owner <o> --repo <r>
+```
+
+計画差分が create 一件のみで andon が GREEN/YELLOW であることを確認し、
+riskTier に応じた承認を得る (削除を含む場合は別承認、法則十一)。
+
+## 工程五: 作動し受領する
+
+承認後に `scripts/gh/accept-apply.sh` で適用し、`repo-state.sh` で現地現物を
+再観測し、結果を受領証へ結ぶ (受領証説明.md 参照)。
+
+以上。利用者が書いたのは意味個体一つだけであり、Terraform構成・状態・
+計画の詳細は全て生成系が担う。
+""" .
+
+#################################################################
+# Acceptance standard work (第二十四章) — the acceptance cycle itself is
+# generated standard work, not test-inlined commands (法則七). Label
+# tf-address/name facts feed accept-import.sh's projection.
+#################################################################
+
+ghtf:MainBranchProtection ghtf:tfAddress "github_branch_protection.main" .
+ghtf:L5ConditionLabel ghtf:tfAddress "github_issue_label.l5_condition" ; ghtf:labelName "l5-condition" .
+ghtf:LabelIjou ghtf:tfAddress "github_issue_label.ijou" ; ghtf:labelName "異常" .
+ghtf:LabelKaizen ghtf:tfAddress "github_issue_label.kaizen" ; ghtf:labelName "改善" .
+ghtf:LabelL5Jouken ghtf:tfAddress "github_issue_label.l5_jouken" ; ghtf:labelName "第五水準条件" .
+ghtf:LabelShoukoMachi ghtf:tfAddress "github_issue_label.shouko_machi" ; ghtf:labelName "証拠待ち" .
+ghtf:LabelKakuri ghtf:tfAddress "github_issue_label.kakuri" ; ghtf:labelName "隔離" .
+ghtf:LabelKoukaiTeishi ghtf:tfAddress "github_issue_label.koukai_teishi" ; ghtf:labelName "公開停止" .
+ghtf:LabelJuryouZumi ghtf:tfAddress "github_issue_label.juryou_zumi" ; ghtf:labelName "受領済み" .
+ghtf:LabelTerraformHyouryuu ghtf:tfAddress "github_issue_label.terraform_hyouryuu" ; ghtf:labelName "Terraform漂流" .
+ghtf:LabelGhSadouMachi ghtf:tfAddress "github_issue_label.gh_sadou_machi" ; ghtf:labelName "gh作動待ち" .
+ghtf:LabelHyoujun ghtf:tfAddress "github_issue_label.hyoujun" ; ghtf:labelName "標準" .
+
+ghcli:AcceptSetup a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "setup" ;
+    ghcli:scriptName "accept-setup.sh" ; ghcli:mutating true ;
+    ghcli:doc "Idempotent sandbox setup: create private repo if absent; bootstrap main branch if missing. Never deletes." ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-setup.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-setup.sh --repo <owner/name>" >&2; exit 2; }
+if ! gh api "repos/${repo}" >/dev/null 2>&1; then
+  gh repo create "$repo" --private
+  echo "created ${repo}"
+else
+  echo "reusing ${repo}"
+fi
+if ! gh api "repos/${repo}/branches/main" >/dev/null 2>&1; then
+  content=$(printf 'TCPS sandbox' | base64)
+  gh api -X PUT "repos/${repo}/contents/README.md" -f message="TCPS sandbox bootstrap commit" -f content="$content" >/dev/null
+  echo "bootstrapped main branch"
+fi
+""" .
+
+ghcli:AcceptApply a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "apply" ;
+    ghcli:scriptName "accept-apply.sh" ; ghcli:mutating true ;
+    ghcli:doc "Full terraform apply of the TCPS desired state onto the sandbox (第四段階作動 — sandbox only). Pre-apply plan gate: destructive plans refuse with exit 3 unless --approve-deletions is passed (mechanized 第二十六章第四段階 deletion approval)" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-apply.sh --dir <tf-dir> --owner <owner> --repo <name> [--secret-value <v>] [--approve-deletions]
+dir="" ; owner="" ; repo="" ; secret="sandbox-dummy-value" ; approve_deletions=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dir) dir="$2"; shift 2 ;;
+    --owner) owner="$2"; shift 2 ;;
+    --repo) repo="$2"; shift 2 ;;
+    --secret-value) secret="$2"; shift 2 ;;
+    --approve-deletions) approve_deletions=1; shift ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$dir" ] && [ -n "$owner" ] && [ -n "$repo" ] || { echo "usage: accept-apply.sh --dir <tf-dir> --owner <owner> --repo <name> [--secret-value <v>] [--approve-deletions]" >&2; exit 2; }
+cd "$dir"
+planfile=$(mktemp)
+set +e
+terraform plan -detailed-exitcode -no-color -input=false "-var=github_owner=${owner}" "-var=repository=${repo}" "-var=ggen_signing_key_value=${secret}" >"$planfile" 2>&1
+plan_rc=$?
+set -e
+if [ "$plan_rc" -ne 0 ] && [ "$plan_rc" -ne 2 ]; then
+  cat "$planfile" >&2
+  rm -f "$planfile"
+  exit "$plan_rc"
+fi
+if grep -q "will be destroyed" "$planfile" && [ "$approve_deletions" -ne 1 ]; then
+  echo "ANDON RED: terraform plan destroys resources; refusing apply without --approve-deletions (第二十六章第四段階 mechanized deletion approval)" >&2
+  grep "will be destroyed" "$planfile" >&2
+  rm -f "$planfile"
+  exit 3
+fi
+rm -f "$planfile"
+terraform apply -auto-approve -input=false "-var=github_owner=${owner}" "-var=repository=${repo}" "-var=ggen_signing_key_value=${secret}"
+""" .
+
+ghcli:AcceptDriftInject a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "drift-inject" ;
+    ghcli:scriptName "accept-drift-inject.sh" ; ghcli:mutating true ;
+    ghcli:doc "Sanctioned sabotage (第二十四章五号): mutate the 異常 label color out-of-band so drift detection can be proven" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-drift-inject.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-drift-inject.sh --repo <owner/name>" >&2; exit 2; }
+gh api -X PATCH "repos/${repo}/labels/異常" -f color=ffffff >/dev/null
+echo "drift injected: 異常 color=ffffff on ${repo}"
+""" .
+
+ghcli:AcceptVerify a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "verify" ;
+    ghcli:scriptName "accept-verify.sh" ; ghcli:mutating false ;
+    ghcli:doc "現地現物 verification of the applied desired state: labels present, merge policy, protection contexts >= 4; JSON summary" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-verify.sh --repo <owner/name>
+repo=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] || { echo "usage: accept-verify.sh --repo <owner/name>" >&2; exit 2; }
+labels=$(gh api "repos/${repo}/labels" --jq '.[].name')
+echo "$labels" | grep -q "異常" || { echo "FAIL: label 異常 missing" >&2; exit 1; }
+dbm=$(gh api "repos/${repo}" --jq '.delete_branch_on_merge')
+[ "$dbm" = "true" ] || { echo "FAIL: delete_branch_on_merge=${dbm}" >&2; exit 1; }
+ctx=$(gh api "repos/${repo}/branches/main/protection" --jq '.required_status_checks.contexts | length')
+[ "${ctx:-0}" -ge 4 ] || { echo "FAIL: protection contexts=${ctx}" >&2; exit 1; }
+labelcount=$(echo "$labels" | grep -c . || true)
+echo '{"verify":"pass","repo":"'"$repo"'","labels":'"$labelcount"',"delete_branch_on_merge":true,"protection_contexts":'"$ctx"'}'
+""" .
+
+ghcli:AcceptReceipt a ghcli:Command ;
+    ghcli:noun "accept" ; ghcli:verb "receipt" ;
+    ghcli:scriptName "accept-receipt.sh" ; ghcli:mutating false ;
+    ghcli:doc "Append a hash-chained acceptance receipt line: prev_hash = sha256 of the last existing line (or genesis), injected via jq; prints the appended line" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: accept-receipt.sh --file <receipts.jsonl> --json <receipt-json-string>
+file=""
+json=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --file) file="$2"; shift 2 ;;
+    --json) json="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$file" ] || { echo "usage: accept-receipt.sh --file <receipts.jsonl> --json <receipt-json-string>" >&2; exit 2; }
+[ -n "$json" ] || { echo "usage: accept-receipt.sh --file <receipts.jsonl> --json <receipt-json-string>" >&2; exit 2; }
+command -v jq >/dev/null 2>&1 || { echo "accept-receipt.sh requires jq on PATH (brew install jq)" >&2; exit 2; }
+prev="genesis"
+if [ -s "$file" ]; then
+  prev=$(tail -n 1 "$file" | shasum -a 256 | cut -d " " -f 1)
+fi
+line=$(echo "$json" | jq -c --arg prev "$prev" '. + {prev_hash: $prev}')
+echo "$line" >> "$file"
+echo "$line"
+""" .

@@ -1,0 +1,48 @@
+name: Terraform Acceptance (gh-terraform-pack)
+
+# Tier-2 REAL-API acceptance test (TCPS 第二十四・二十五章): creates a
+# throwaway private repo via gh, target-applies the pack's label resources
+# with terraform, injects drift, verifies repair, destroys, deletes.
+# Manual trigger only; each real step is gated on TF_ACC_GITHUB_TOKEN being
+# configured (same step-level secret-gating idiom as erlang-release.yml's
+# Docker Hub steps).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tf-acceptance:
+    name: Real-API acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Note when token is not configured
+        if: secrets.TF_ACC_GITHUB_TOKEN == ''
+        run: echo "TF_ACC_GITHUB_TOKEN secret not configured; skipping real-API acceptance."
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+
+      - name: Authenticate gh with acceptance token
+        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        env:
+          TF_ACC_GITHUB_TOKEN: ${{ secrets.TF_ACC_GITHUB_TOKEN }}
+        run: echo "$TF_ACC_GITHUB_TOKEN" | gh auth login --with-token
+
+      - name: Run acceptance test
+        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        run: just tf-acceptance
