@@ -33,6 +33,10 @@ fn test_get_env_or() {
 
 #[test]
 fn test_is_ci() {
-    // Just ensure it doesn't panic
-    let _ = is_ci();
+    // is_ci() reads only the process environment, which does not change
+    // between two immediate calls — the observable contract is a stable,
+    // deterministic answer.
+    let first = is_ci();
+    let second = is_ci();
+    assert_eq!(first, second, "is_ci() must be deterministic within a process");
 }

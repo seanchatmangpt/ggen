@@ -128,3 +128,33 @@ fn cheat_t04_mock_substitute_does_not_flag_lone_trait_shape_stub() {
         "did not expect CHEAT-T04 when MockOnly is the sole implementer of UniqueTrait, got: {findings:?}"
     );
 }
+
+#[test]
+fn cheat_t03_does_not_flag_should_panic_test() {
+    let (src, path) = fixture("t03_should_panic_clean.rs");
+    let findings = scan_source(&src, &path);
+    assert!(
+        !rule_ids(&findings).contains(&"CHEAT-T03"),
+        "did not expect CHEAT-T03 on a #[should_panic] test (it fails when no panic occurs), got: {findings:?}"
+    );
+}
+
+#[test]
+fn cheat_t03_does_not_flag_try_operator_result_test() {
+    let (src, path) = fixture("t03_try_operator_clean.rs");
+    let findings = scan_source(&src, &path);
+    assert!(
+        !rule_ids(&findings).contains(&"CHEAT-T03"),
+        "did not expect CHEAT-T03 on a Result-returning test using `?` (fails on Err), got: {findings:?}"
+    );
+}
+
+#[test]
+fn cheat_t03_does_not_flag_assert_helper_delegation() {
+    let (src, path) = fixture("t03_assert_helper_clean.rs");
+    let findings = scan_source(&src, &path);
+    assert!(
+        !rule_ids(&findings).contains(&"CHEAT-T03"),
+        "did not expect CHEAT-T03 on a test delegating to an assert_* helper fn, got: {findings:?}"
+    );
+}

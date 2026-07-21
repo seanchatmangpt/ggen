@@ -216,7 +216,11 @@ mod tests {
             }),
         ];
         for v in variants {
-            let _ = format!("{v}");
+            let rendered = format!("{v}");
+            assert!(
+                !rendered.is_empty(),
+                "Display for {v:?} rendered an empty string"
+            );
         }
     }
 }

@@ -152,11 +152,37 @@ impl<'ast> Visit<'ast> for AssertionCollector {
     }
 
     fn visit_expr(&mut self, e: &'ast Expr) {
-        if let Expr::MethodCall(mc) = e {
-            let m = mc.method.to_string();
-            if matches!(m.as_str(), "unwrap" | "expect" | "unwrap_err" | "expect_err") {
+        match e {
+            Expr::MethodCall(mc) => {
+                let m = mc.method.to_string();
+                if matches!(m.as_str(), "unwrap" | "expect" | "unwrap_err" | "expect_err")
+                    || m.starts_with("assert")
+                {
+                    self.any_failure_capable = true;
+                }
+            }
+            // `?` only compiles inside a fn returning Result/Option, so a test
+            // body containing it fails the harness on Err/None — it IS
+            // failure-capable (`#[test] fn x() -> Result<..>` shape).
+            Expr::Try(_) => {
                 self.any_failure_capable = true;
             }
+            // A call to an assertion *helper* fn (conventional `assert_*`
+            // prefix, e.g. `assert_killed_at(...)` in praxis-core's mutation
+            // tests) delegates the assert!s; the test still fails when the
+            // helper's assertion fires.
+            Expr::Call(c) => {
+                if let Expr::Path(p) = &*c.func {
+                    if p.path
+                        .segments
+                        .last()
+                        .is_some_and(|s| s.ident.to_string().starts_with("assert"))
+                    {
+                        self.any_failure_capable = true;
+                    }
+                }
+            }
+            _ => {}
         }
         visit::visit_expr(self, e);
     }
@@ -246,11 +272,19 @@ struct ScanVisitor<'a> {
 fn check_test_fn_body(
     fn_name: &str,
     line: usize,
+    attrs: &[syn::Attribute],
     block: &syn::Block,
     file: &Path,
     findings: &mut Vec<Finding>,
 ) {
-    let collector = collect_assertions(block);
+    let mut collector = collect_assertions(block);
+
+    // A `#[should_panic]` test is failure-capable by construction: the
+    // harness FAILS it when the body does *not* panic, so "it can never
+    // fail" would be a false claim.
+    if has_attr_named(attrs, "should_panic") {
+        collector.any_failure_capable = true;
+    }
 
     // T01: vacuous-assert -- the only assertion-macro call in the body is
     // `assert!(true)`.
@@ -290,6 +324,7 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 item_fn_line(i),
+                &i.attrs,
                 &i.block,
                 self.file,
                 &mut self.findings,
@@ -303,6 +338,7 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 impl_item_fn_line(i),
+                &i.attrs,
                 &i.block,
                 self.file,
                 &mut self.findings,

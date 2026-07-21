@@ -386,12 +386,15 @@ mod tests {
 
     #[test]
     fn test_multiple_lookups_safe() {
+        // Repeated lookups over the static bundle must be stable: same
+        // hit/miss answers and same catalog sizes on every call.
+        let first_available = CoreOntologyBundle::available().len();
+        let first_all = CoreOntologyBundle::all().len();
         for _ in 0..100 {
-            let _ = CoreOntologyBundle::by_namespace("http://www.w3.org/2002/07/owl#");
-            let _ = CoreOntologyBundle::by_name("rdfs");
-            let _ = CoreOntologyBundle::available();
-            let _ = CoreOntologyBundle::all();
-            let _ = CoreOntologyBundle::stats();
+            assert!(CoreOntologyBundle::by_namespace("http://www.w3.org/2002/07/owl#").is_some());
+            assert!(CoreOntologyBundle::by_name("rdfs").is_some());
+            assert_eq!(CoreOntologyBundle::available().len(), first_available);
+            assert_eq!(CoreOntologyBundle::all().len(), first_all);
         }
     }
 

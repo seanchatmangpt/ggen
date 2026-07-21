@@ -287,20 +287,3 @@ fn test_llm_integration_without_api_key_fails_gracefully() {
     println!("✅ API key missing test PASSED (fails gracefully)");
 }
 
-#[test]
-fn test_groq_api_key_is_set() {
-    // This test just verifies the API key is available
-    // It doesn't make any API calls
-    let api_key = std::env::var("GROQ_API_KEY");
-
-    match api_key {
-        Ok(key) if !key.is_empty() => {
-            println!("✅ GROQ_API_KEY is set ({} chars)", key.len());
-            println!("   E2E tests with real API calls can run");
-        }
-        _ => {
-            println!("⚠️  GROQ_API_KEY is not set");
-            println!("   E2E tests with real API calls will be skipped");
-        }
-    }
-}

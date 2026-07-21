@@ -180,9 +180,10 @@ mod backward_compat_tests {
             })
             .collect();
 
-        // All concurrent searches should complete
+        // All concurrent search threads must complete without panicking —
+        // join() surfaces any thread panic as a test failure.
         for handle in handles {
-            let _ = handle.join();
+            handle.join().expect("concurrent search thread panicked");
         }
     }
 
@@ -209,11 +210,16 @@ mod backward_compat_tests {
     fn test_v1_json_output_format() {
         let result = run_marketplace_cmd(&["search", "test", "--format", "json"]);
 
+        // When the command succeeds with non-empty output, `--format json`
+        // MUST have produced parseable JSON — a parse failure is a real bug.
         if let Ok(output) = result {
-            // Should be valid JSON if format supported
             if !output.is_empty() {
-                let _: serde_json::Value =
-                    serde_json::from_str(&output).unwrap_or_else(|_| serde_json::json!({}));
+                let parsed: serde_json::Value = serde_json::from_str(&output)
+                    .expect("--format json produced non-JSON output");
+                assert!(
+                    parsed.is_object() || parsed.is_array(),
+                    "JSON output should be an object or array, got: {parsed}"
+                );
             }
         }
     }

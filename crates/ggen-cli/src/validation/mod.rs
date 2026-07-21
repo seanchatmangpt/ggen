@@ -190,10 +190,17 @@ mod tests {
 
     #[test]
     fn test_test_config_validator() {
-        // This test would validate actual clnrm config files if they exist
-        // For now, just test the structure
-        let path = Path::new("tests/clnrm/cli_commands.clnrm.toml");
-        // Don't fail if file doesn't exist in test environment
-        let _ = TestConfigValidator::validate_clnrm_config(path);
+        // Missing file must be a hard FileNotFound error…
+        let missing = Path::new("tests/clnrm/does_not_exist.clnrm.toml");
+        assert!(matches!(
+            TestConfigValidator::validate_clnrm_config(missing),
+            Err(ValidationError::FileNotFound(_))
+        ));
+
+        // …and an existing file must validate Ok.
+        let dir = tempfile::tempdir().expect("tempdir");
+        let existing = dir.path().join("cli_commands.clnrm.toml");
+        std::fs::write(&existing, "[meta]\nname = \"cli\"\n").expect("write clnrm fixture");
+        assert!(TestConfigValidator::validate_clnrm_config(&existing).is_ok());
     }
 }
