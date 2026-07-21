@@ -296,11 +296,66 @@ fn ontology_union_and_declaration_order_are_canonical() {
         "declaration order must not change the graph hash"
     );
 
-    let payload_a = serde_json::to_vec(&read_receipt(&project_a).payload).expect("payload a");
-    let payload_b = serde_json::to_vec(&read_receipt(&project_b).payload).expect("payload b");
+    // The closure's `ggen.toml` entry is a raw-byte hash of the config file
+    // actually read (real provenance: "this exact input produced this exact
+    // output"), same as every other closure entry -- deliberately NOT
+    // canonicalized, so it's not a counter-example to canonical parsing, it's
+    // a legitimate difference: project_a's and project_b's ggen.toml files
+    // are constructed with their `[packs]` entries in reversed textual order,
+    // so they are literally different byte sequences, and their raw-byte
+    // closure hashes are correctly different. The invariant this test
+    // actually needs -- that declaration order does not change parsed
+    // semantics -- is what `graph_hash_hex` (asserted above) already proves.
+    // Compare the rest of the payload (including every OTHER closure entry,
+    // all outputs, all decisions) for byte-identity, excluding only this one
+    // legitimately-order-sensitive raw-input hash.
+    let mut value_a = serde_json::to_value(read_receipt(&project_a).payload).expect("payload a");
+    let mut value_b = serde_json::to_value(read_receipt(&project_b).payload).expect("payload b");
+    for v in [&mut value_a, &mut value_b] {
+        v.get_mut("closure")
+            .and_then(|c| c.as_object_mut())
+            .expect("closure is an object")
+            .remove("ggen.toml");
+    }
     assert_eq!(
-        payload_a, payload_b,
-        "reversed [packs] declaration order must produce an identical receipt payload"
+        value_a, value_b,
+        "reversed [packs] declaration order must produce an identical receipt payload \
+         (modulo the raw-byte closure hash of ggen.toml itself, which legitimately differs \
+         because the two files are literally reordered, hence different, bytes)"
+    );
+}
+
+/// Sabotage for the assertion above: two GENUINELY different pack sets
+/// (not merely reordered) must NOT collapse to the same payload once the
+/// legitimately-order-sensitive `ggen.toml` closure entry is excluded --
+/// proving the exclusion isn't hiding a real semantic difference.
+#[test]
+fn declaration_order_exclusion_does_not_mask_a_genuine_pack_set_difference() {
+    let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
+    let (_dir_full, project_full) = scaffold_multi_pack_project(&names);
+    let report_full = sync(&project_full, SyncOptions::default()).expect("full sync");
+
+    let subset: Vec<&str> = names[..names.len() - 1].to_vec();
+    let (_dir_subset, project_subset) = scaffold_multi_pack_project(&subset);
+    let report_subset = sync(&project_subset, SyncOptions::default()).expect("subset sync");
+
+    assert_ne!(
+        report_full.graph_hash_hex, report_subset.graph_hash_hex,
+        "a genuinely different pack set must not produce the same graph hash"
+    );
+
+    let mut value_full = serde_json::to_value(read_receipt(&project_full).payload).expect("full payload");
+    let mut value_subset =
+        serde_json::to_value(read_receipt(&project_subset).payload).expect("subset payload");
+    for v in [&mut value_full, &mut value_subset] {
+        v.get_mut("closure")
+            .and_then(|c| c.as_object_mut())
+            .expect("closure is an object")
+            .remove("ggen.toml");
+    }
+    assert_ne!(
+        value_full, value_subset,
+        "excluding ggen.toml's closure entry must not mask a genuine pack-set difference"
     );
 }
 
