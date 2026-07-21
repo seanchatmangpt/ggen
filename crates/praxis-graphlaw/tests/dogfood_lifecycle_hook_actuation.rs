@@ -255,8 +255,12 @@ fn values_clause_is_refused_not_silent() {
     let err = store
         .query(GATE_020_SINGLE_VALUED)
         .expect_err("a VALUES query must be a loud refusal, never silent zero rows");
+    // Gate 020 contains BOTH VALUES and a trailing ORDER BY (also probed
+    // broken, refused since g15's full audit); the refusal names whichever
+    // it finds first — either is the correct loud-refusal behavior.
     assert!(
-        err.contains("VALUES"),
-        "names the unsupported construct: {err}"
+        err.contains("unsupported construct")
+            && (err.contains("VALUES") || err.contains("ORDER BY")),
+        "names an unsupported construct: {err}"
     );
 }

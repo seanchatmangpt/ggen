@@ -107,39 +107,104 @@ use crate::triples::{
 /// module. `extract_query_plan` only builds a `PlanNode` tree from immutable
 /// inputs -- no shared mutable state exists yet at the panic site, so
 /// `AssertUnwindSafe` does not paper over a real corruption risk here.
-/// True if any (arbitrarily nested) part of `pattern` is a VALUES clause.
+/// Returns the name of the first construct in `pattern` this engine's
+/// executor is PROVEN to mishandle, or `None` if the query avoids them all.
 ///
-/// This engine's executor does not implement VALUES: before this check, a
-/// query containing one planned "successfully" and then evaluated to ZERO
-/// rows — a silent false-pass for any violation-style SELECT (probed live
-/// 2026-07-21: identical colliding data yields 2 rows without VALUES, 0 rows
-/// with it; see `tests/dogfood_lifecycle_hook_actuation.rs::
-/// values_clause_is_refused_not_silent`). Unsupported must be a loud refusal,
-/// never an empty answer.
-fn pattern_contains_values(pattern: &spargebra::algebra::GraphPattern) -> bool {
+/// Every entry below was probed live against known data (2026-07-21, a
+/// 17-case battery; see `tests/sparql_unsupported_refusal.rs`), not assumed.
+/// Two failure shapes exist and both must be refusals, never answers:
+/// - silent ZERO rows (VALUES, ORDER BY, LIMIT/OFFSET, EXISTS,
+///   FILTER arithmetic, STRSTARTS/REGEX and other unimplemented functions)
+///   — a false PASS for any violation-style SELECT;
+/// - silently WRONG rows (DISTINCT does not deduplicate; FILTER NOT EXISTS
+///   is ignored outright, returning the UNFILTERED set — fail-open).
+///
+/// Constructs probed as working and deliberately still allowed: plain BGPs,
+/// UNION, OPTIONAL (+ !BOUND), MINUS, FILTER with =/!=/comparison on plain
+/// terms, STR(), GROUP BY with COUNT, nested SELECT subqueries. REDUCED is
+/// also allowed: not deduplicating is spec-conformant for REDUCED.
+fn find_unsupported_construct(pattern: &spargebra::algebra::GraphPattern) -> Option<&'static str> {
     use spargebra::algebra::GraphPattern as G;
     match pattern {
-        G::Values { .. } => true,
-        G::Bgp { .. } | G::Path { .. } => false,
+        G::Values { .. } => Some("VALUES (silently evaluates to zero rows)"),
+        G::OrderBy { .. } => Some("ORDER BY (silently evaluates to zero rows)"),
+        G::Slice { .. } => Some("LIMIT/OFFSET (silently evaluates to zero rows)"),
+        G::Distinct { inner } => {
+            // DISTINCT itself does not deduplicate (probed: duplicates
+            // returned) — wrong answers, refuse.
+            let _ = inner;
+            Some("DISTINCT (does not deduplicate; returns duplicate rows)")
+        }
+        G::Bgp { .. } | G::Path { .. } => None,
         G::Join { left, right }
         | G::Union { left, right }
         | G::Minus { left, right }
         | G::Lateral { left, right } => {
-            pattern_contains_values(left) || pattern_contains_values(right)
+            find_unsupported_construct(left).or_else(|| find_unsupported_construct(right))
         }
-        G::LeftJoin { left, right, .. } => {
-            pattern_contains_values(left) || pattern_contains_values(right)
+        G::LeftJoin {
+            left,
+            right,
+            expression,
+        } => find_unsupported_construct(left)
+            .or_else(|| find_unsupported_construct(right))
+            .or_else(|| expression.as_ref().and_then(find_unsupported_expression)),
+        G::Filter { expr, inner } => {
+            find_unsupported_expression(expr).or_else(|| find_unsupported_construct(inner))
         }
-        G::Filter { inner, .. }
-        | G::Graph { inner, .. }
-        | G::Extend { inner, .. }
-        | G::OrderBy { inner, .. }
+        G::Extend {
+            inner, expression, ..
+        } => find_unsupported_expression(expression).or_else(|| find_unsupported_construct(inner)),
+        G::Graph { inner, .. }
         | G::Project { inner, .. }
-        | G::Distinct { inner }
         | G::Reduced { inner }
-        | G::Slice { inner, .. }
         | G::Group { inner, .. }
-        | G::Service { inner, .. } => pattern_contains_values(inner),
+        | G::Service { inner, .. } => find_unsupported_construct(inner),
+    }
+}
+
+/// Expression-level half of [`find_unsupported_construct`]: FILTER/BIND
+/// expressions this executor is proven to mishandle.
+fn find_unsupported_expression(expr: &spargebra::algebra::Expression) -> Option<&'static str> {
+    use spargebra::algebra::Expression as E;
+    match expr {
+        // FILTER (NOT) EXISTS is IGNORED by the executor: NOT EXISTS returns
+        // the unfiltered set (fail-open), EXISTS returns zero rows.
+        E::Exists(_) => Some("EXISTS/NOT EXISTS in FILTER (ignored or zero rows)"),
+        // Arithmetic in FILTER silently yields zero rows (also documented in
+        // packs/dogfood-lifecycle-pack/hook.ttl's own engine-limitation note).
+        E::Add(..) | E::Subtract(..) | E::Multiply(..) | E::Divide(..) => {
+            Some("arithmetic in FILTER (silently evaluates to zero rows)")
+        }
+        E::UnaryPlus(inner) | E::UnaryMinus(inner) | E::Not(inner) => {
+            find_unsupported_expression(inner)
+        }
+        // Named functions: STR is probed-working; everything else (STRSTARTS,
+        // REGEX, ...) silently yields zero rows.
+        E::FunctionCall(function, args) => {
+            if matches!(function, spargebra::algebra::Function::Str) {
+                args.iter().find_map(find_unsupported_expression)
+            } else {
+                Some("SPARQL function other than STR (silently evaluates to zero rows)")
+            }
+        }
+        E::Or(a, b)
+        | E::And(a, b)
+        | E::Equal(a, b)
+        | E::SameTerm(a, b)
+        | E::Greater(a, b)
+        | E::GreaterOrEqual(a, b)
+        | E::Less(a, b)
+        | E::LessOrEqual(a, b) => {
+            find_unsupported_expression(a).or_else(|| find_unsupported_expression(b))
+        }
+        E::In(head, rest) => find_unsupported_expression(head)
+            .or_else(|| rest.iter().find_map(find_unsupported_expression)),
+        E::If(c, t, f) => find_unsupported_expression(c)
+            .or_else(|| find_unsupported_expression(t))
+            .or_else(|| find_unsupported_expression(f)),
+        E::Coalesce(items) => items.iter().find_map(find_unsupported_expression),
+        E::NamedNode(_) | E::Literal(_) | E::Variable(_) | E::Bound(_) => None,
     }
 }
 
@@ -156,14 +221,12 @@ fn query_pattern(query: &Query) -> &spargebra::algebra::GraphPattern {
 pub(crate) fn plan_query_or_refuse(
     query: &Query, index: &TripleIndex,
 ) -> Result<crate::sparql::PlanNode, String> {
-    if pattern_contains_values(query_pattern(query)) {
-        return Err(
-            "SPARQL query planning refused (unsupported construct): VALUES is not \
-             implemented by this engine's executor and would silently evaluate to zero \
-             rows — rewrite the VALUES block as UNION branches, or evaluate on the \
-             oxigraph mirror"
-                .to_string(),
-        );
+    if let Some(construct) = find_unsupported_construct(query_pattern(query)) {
+        return Err(format!(
+            "SPARQL query planning refused (unsupported construct): {construct} — this \
+             engine's executor would return a silently wrong or empty answer; rewrite \
+             the query around the construct, or evaluate on the oxigraph mirror"
+        ));
     }
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| eval_query(query, index))).map_err(
         |panic_payload| {
