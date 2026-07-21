@@ -394,11 +394,7 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         !l5.contains("未実施"),
         "no 未実施 rows should remain after C16/C18 closure: {l5}"
     );
-    for receipt in [
-        "blake3:80aa8e6d",
-        "blake3:c394e85b",
-        "blake3:ae62dda5",
-    ] {
+    for receipt in ["blake3:80aa8e6d", "blake3:c394e85b", "blake3:ae62dda5"] {
         assert!(
             l5.contains(receipt),
             "L5-STATUS.md ALIVE rows must cite live receipt {receipt}: {l5}"
@@ -496,7 +492,11 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
 
     let content = std::fs::read_to_string(&ledger).expect("read ledger");
     let lines: Vec<&str> = content.lines().collect();
-    assert_eq!(lines.len(), 2, "ledger must have exactly 2 lines: {content}");
+    assert_eq!(
+        lines.len(),
+        2,
+        "ledger must have exactly 2 lines: {content}"
+    );
 
     // Expected prev_hash = sha256 of the first line exactly as the script
     // hashes it (tail -n 1 output, i.e. line + trailing newline).
