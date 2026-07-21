@@ -1930,6 +1930,59 @@ fn compare_verify_class(
     ))
 }
 
+/// One class-producer fact read from the admitted union graph: the recorded
+/// exit code of the externally-run producer plus the identity string the
+/// class's equivalence comparison keys on (docs manifest digest, receipt
+/// chain head, required-set digest, binary sha256).
+struct ClassProducerFact {
+    exit: i64,
+    identity: String,
+}
+
+/// The identity string a previous receipt recorded for one producer-fed
+/// equivalence class, recovered from its admission ledger's
+/// `class:<class>:<identity>` evidence id. `None` when the previous
+/// generation had no producer fact for the class (Unknown floor, never
+/// rounded up).
+fn prev_class_identity(prev_epoch: &ReceiptEpochV2, class: &str) -> Option<String> {
+    let AdmissionLedger::Recorded(items) = &prev_epoch.admission else {
+        return None;
+    };
+    let prefix = format!("class:{class}:");
+    items
+        .iter()
+        .find_map(|i| i.evidence_id.strip_prefix(&prefix).map(str::to_string))
+}
+
+/// Generic producer-fed class evaluation (docs / evidence / compiled-binary
+/// share it; receipts has its own chain-linkage rule at the call site):
+/// no current fact -> `Unknown`; red current fact -> `Divergent` (never
+/// rounded up); green fact with no previous identity (or a previous
+/// explicit `skipped` marker) -> `Unknown`; identical identities ->
+/// `Equivalent`; differing -> `Divergent` naming both.
+fn compare_producer_class(
+    class: &'static str, current: Option<&ClassProducerFact>, prev_epoch: &ReceiptEpochV2,
+) -> EquivalenceStatus {
+    let Some(fact) = current else {
+        return EquivalenceStatus::Unknown;
+    };
+    if fact.exit != 0 {
+        return EquivalenceStatus::Divergent(format!(
+            "{class} producer recorded red evidence (exit {})",
+            fact.exit
+        ));
+    }
+    match prev_class_identity(prev_epoch, class) {
+        None => EquivalenceStatus::Unknown,
+        Some(prev) if prev == "skipped" => EquivalenceStatus::Unknown,
+        Some(prev) if prev == fact.identity => EquivalenceStatus::Equivalent,
+        Some(prev) => EquivalenceStatus::Divergent(format!(
+            "{class} identity changed from previous receipt: {prev} -> {}",
+            fact.identity
+        )),
+    }
+}
+
 ///
 /// `graph`: the already-loaded project+pack union graph for this run,
 /// queried here for `ccn:Law` individuals (see the admission-items block
@@ -2153,6 +2206,143 @@ pub(crate) fn write_receipt(
         });
     }
 
+    // ── Class-producer evidence (the four previously-Unknown classes) ───
+    //
+    // Each of `docs`/`receipts`/`evidence`/`compiled_binary` has a dedicated
+    // generated producer (packs/ggen-verify-pack/templates/produce_*.tmpl)
+    // that runs its class's contract externally and emits ver:-lane facts.
+    // Sync only CONSUMES those admitted facts -- it never infers a class
+    // verdict itself. A class with no producer fact stays at the Unknown
+    // floor; a producer that ran with `--skip` emits an explicit skipped
+    // marker so absence and skip are distinguished honestly.
+    const DOCS_MANIFEST_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?path ?sha WHERE { ?e a ver:DocsManifestEntry ; ver:path ?path ; ver:sha256 ?sha . } ORDER BY ?path";
+    const RECEIPTS_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?head WHERE { ?c a ver:ReceiptsCheck ; ver:exitCode ?exit ; ver:chainHead ?head . } ORDER BY ?head";
+    const EVIDENCE_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?dig WHERE { ?c a ver:EvidenceCheck ; ver:exitCode ?exit ; ver:requiredSetDigest ?dig . } ORDER BY ?dig";
+    const BINARY_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?ha WHERE { ?c a ver:BinaryCheck ; ver:exitCode ?exit ; ver:hashA ?ha ; ver:hashB ?hb . } ORDER BY ?ha";
+    const BINARY_SKIP_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?s WHERE { ?c a ver:BinaryCheck ; ver:skipped ?s . }";
+
+    // docs: the producer emits one ver:DocsManifestEntry per generated doc
+    // (path + sha256); the class identity is a blake3 digest over the
+    // path-sorted entry list, so any tampered doc changes the identity.
+    let docs_fact: Option<ClassProducerFact> = {
+        let mut entries: Vec<(String, String)> = Vec::new();
+        if let EngineQueryResults::Solutions(rows) = graph.query(DOCS_MANIFEST_QUERY)? {
+            for row in rows {
+                if let (Some(EngineValue::String(path)), Some(EngineValue::String(sha))) =
+                    (row.get("path"), row.get("sha"))
+                {
+                    entries.push((path.clone(), sha.clone()));
+                }
+            }
+        }
+        if entries.is_empty() {
+            None
+        } else {
+            entries.sort();
+            let mut hasher = blake3::Hasher::new();
+            for (path, sha) in &entries {
+                hasher.update(path.as_bytes());
+                hasher.update(b"\n");
+                hasher.update(sha.as_bytes());
+                hasher.update(b"\n");
+            }
+            Some(ClassProducerFact {
+                exit: 0,
+                identity: hasher.finalize().to_hex().to_string(),
+            })
+        }
+    };
+
+    let read_exit_ident = |query: &str, ident_var: &str| -> Result<Option<ClassProducerFact>> {
+        if let EngineQueryResults::Solutions(rows) = graph.query(query)? {
+            for row in rows {
+                if let (Some(EngineValue::Int(exit)), Some(EngineValue::String(ident))) =
+                    (row.get("exit"), row.get(ident_var))
+                {
+                    return Ok(Some(ClassProducerFact {
+                        exit: *exit,
+                        identity: ident.clone(),
+                    }));
+                }
+            }
+        }
+        Ok(None)
+    };
+    let receipts_fact = read_exit_ident(RECEIPTS_CHECK_QUERY, "head")?;
+    let evidence_fact = read_exit_ident(EVIDENCE_CHECK_QUERY, "dig")?;
+    let binary_fact = read_exit_ident(BINARY_CHECK_QUERY, "ha")?;
+    let mut binary_skipped = false;
+    if let EngineQueryResults::Solutions(rows) = graph.query(BINARY_SKIP_QUERY)? {
+        for row in rows {
+            binary_skipped |= matches!(row.get("s"), Some(EngineValue::Bool(true)))
+                || matches!(row.get("s"), Some(EngineValue::String(s)) if s == "true");
+        }
+    }
+
+    // Each present producer fact becomes one recorded admission item whose
+    // evidence id carries the class identity (`class:<class>:<identity>`),
+    // which is exactly what the NEXT sync's equivalence comparison reads
+    // back from this receipt. A red producer is recorded `Fail` and lowers
+    // the `gate` component axis by the meet law below.
+    let mut producer_red = false;
+    let mut push_producer_item =
+        |items: &mut Vec<AdmissionItem>, class: &str, fact: &ClassProducerFact, what: &str| {
+            let pass = fact.exit == 0;
+            items.push(AdmissionItem {
+                evidence_id: format!("class:{class}:{}", fact.identity),
+                observed_outcome: if pass {
+                    ObservedOutcome::Pass
+                } else {
+                    ObservedOutcome::Fail
+                },
+                decision: AdmissionDecision::Admitted,
+                reason: if pass {
+                    format!("{what} producer evidence admitted (exit 0)")
+                } else {
+                    format!(
+                        "{what} producer recorded red evidence (exit {}) -- lowers the \
+                         `gate` component axis by the meet law",
+                        fact.exit
+                    )
+                },
+                obligations_discharged: Vec::new(),
+                obligations_created: Vec::new(),
+            });
+        };
+    if let Some(fact) = &docs_fact {
+        push_producer_item(&mut admission_items, "docs", fact, "docs-manifest");
+    }
+    if let Some(fact) = &receipts_fact {
+        producer_red |= fact.exit != 0;
+        push_producer_item(&mut admission_items, "receipts", fact, "receipts-check");
+    }
+    if let Some(fact) = &evidence_fact {
+        producer_red |= fact.exit != 0;
+        push_producer_item(&mut admission_items, "evidence", fact, "evidence-check");
+    }
+    if binary_skipped {
+        // Explicit Unknown marker: the producer RAN and chose --skip.
+        // Distinguished from absence (no marker at all) honestly.
+        admission_items.push(AdmissionItem {
+            evidence_id: "class:compiled_binary:skipped".to_string(),
+            observed_outcome: ObservedOutcome::Unknown,
+            decision: AdmissionDecision::Admitted,
+            reason: "binary-check producer ran with --skip: explicit Unknown marker \
+                     (skipped, not absent); the compiled_binary class stays Unknown"
+                .to_string(),
+            obligations_discharged: Vec::new(),
+            obligations_created: Vec::new(),
+        });
+    } else if let Some(fact) = &binary_fact {
+        producer_red |= fact.exit != 0;
+        push_producer_item(
+            &mut admission_items,
+            "compiled_binary",
+            fact,
+            "binary-check",
+        );
+    }
+
     let prev_epoch = match &prev_head {
         Some(prev) => Some(read_receipt_epoch(&prev.record).map_err(|e| {
             AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
@@ -2202,6 +2392,11 @@ pub(crate) fn write_receipt(
         };
         *axis = (*axis).min(evidence_level);
     }
+    // A red class-producer fact (receipts/evidence/binary) lowers the `gate`
+    // aggregate axis by the same meet law -- evidence can lower, never raise.
+    if producer_red {
+        components.gate = components.gate.min(AndonLevel::Red);
+    }
 
     // Equivalence: `source`/`config` are evaluated against the previous
     // receipt's input closure by byte-hash equality; `tests`/`gates` are
@@ -2220,6 +2415,35 @@ pub(crate) fn write_receipt(
             map.config = compare_closure_class("config", &report.closure, &prev.payload.closure);
             map.tests = compare_verify_class("tests", true, &admission_items, prev_epoch);
             map.gates = compare_verify_class("gates", false, &admission_items, prev_epoch);
+            // The four producer-fed classes: evaluated ONLY from admitted
+            // producer facts (never inferred at sync). `docs`/`evidence`/
+            // `compiled_binary` compare this run's identity against the
+            // previous receipt's recorded one; `receipts` has a stronger
+            // rule -- the producer's replayed chain head must equal the
+            // VERIFIED previous head this very receipt chains from.
+            map.docs = compare_producer_class("docs", docs_fact.as_ref(), prev_epoch);
+            map.evidence = compare_producer_class("evidence", evidence_fact.as_ref(), prev_epoch);
+            map.compiled_binary = if binary_skipped {
+                EquivalenceStatus::Unknown
+            } else {
+                compare_producer_class("compiled_binary", binary_fact.as_ref(), prev_epoch)
+            };
+            map.receipts = match &receipts_fact {
+                None => EquivalenceStatus::Unknown,
+                Some(fact) if fact.exit != 0 => EquivalenceStatus::Divergent(format!(
+                    "receipts producer recorded red evidence (exit {}): the receipt log \
+                     failed schema validation or chain replay",
+                    fact.exit
+                )),
+                Some(fact) if fact.identity == prev.record.chain_hash_hex => {
+                    EquivalenceStatus::Equivalent
+                }
+                Some(fact) => EquivalenceStatus::Divergent(format!(
+                    "receipts producer replayed chain head {} does not match the \
+                     verified previous head {}",
+                    fact.identity, prev.record.chain_hash_hex
+                )),
+            };
             map
         }
         _ => EquivalenceMap::all_unknown(),
