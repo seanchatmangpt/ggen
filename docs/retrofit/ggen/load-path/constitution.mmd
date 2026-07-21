@@ -1,0 +1,20 @@
+flowchart TD
+    ONT["packs/ggen-constitution-pack/ontology.ttl<br/>14 ccn:Law individuals (I-XIV)<br/>single ccn: namespace, no public/private split<br/>BLOCKING: no isolation on who may add ccn:Law"] --> SEL["SPARQL SELECT"]
+    SEL --> DOC["CONSTITUTION.md (generated)"]
+    SEL --> GATE1["Gate: every Law has ccn:statement"]
+    SEL --> GATE2["Gate: mechanized=true requires provenBy"]
+
+    ONT --> L7["Law VII: mechanized=false<br/>ACCEPTED: disclosed gap"]
+    ONT --> L11["Law XI: mechanized=false<br/>ACCEPTED: disclosed gap"]
+    ONT --> L14["Law XIV: mechanized=false<br/>ACCEPTED: disclosed gap"]
+    ONT --> L12["Law XII: mechanized=true,<br/>provenBy cites reasoner_independence_e2e<br/>BLOCKING: zero grep matches workspace-wide —<br/>proof citation is currently false"]
+
+    DOC -.->|"NOT WIRED"| ADMIT["praxis-core::law::DefaultLaw::admit"]
+    DOC -.->|"NOT WIRED"| RCP["ggen-engine::sync::write_receipt<br/>(hardcoded andon: Green)"]
+    ADMIT --- GAP["BLOCKING: constitution is a descriptive<br/>mirror only. ccn:Law facts have zero effect<br/>on live admission/receipt decisions.<br/>Publication condition 12: PARTIAL"]
+    RCP --- GAP
+
+    classDef blocking fill:#c0392b,color:#fff,stroke:#000
+    classDef accepted fill:#f39c12,color:#000,stroke:#000
+    class ONT,L12,GAP blocking
+    class L7,L11,L14 accepted

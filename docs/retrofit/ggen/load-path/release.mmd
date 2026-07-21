@@ -1,0 +1,30 @@
+flowchart TD
+    ADMIN["Single admin account<br/>(seanchatmangpt, sole collaborator, admin=true)<br/>BLOCKING: cross-cutting SPOF"] --> PUSH["Direct push OR PR merge to main<br/>BLOCKING: no branch protection<br/>(gh api .../branches/main/protection -> 404)"]
+    PUSH --> SR["semantic-release.yml<br/>computes version, pushes tag"]
+    SR --> TAG["git tag push"]
+    TAG -->|"on: push: tags:"| REL["release.yml"]
+    ADMIN -.->|"or manual"| WD["workflow_dispatch<br/>ACCEPTED: documented fallback for<br/>API/repository_dispatch triggers"]
+    WD --> REL
+    REL --> BUILD["build/test job"]
+    BUILD -.->|"BLOCKING (reported, not<br/>re-verified this pass): one release.yml<br/>gate broken for weeks"| GATEFAIL["gate failure window —<br/>exact commit range/date: Unknown"]
+    BUILD --> GHREL["GitHub Release created"]
+    GHREL --> P1["publish-registry.yml"]
+    GHREL --> P2["publish-candidate.yml"]
+    GHREL --> P3["homebrew-release.yml"]
+    GHREL --> P4["release-debian.yml"]
+    GHREL --> P5["docker-build-push.yml"]
+    P1 -.-> PARTIAL
+    P2 -.-> PARTIAL
+    P3 -.-> PARTIAL
+    P4 -.-> PARTIAL
+    P5 -.-> PARTIAL
+    PARTIAL["Unknown: partial-publish detection/rollback<br/>across 5 independent publish targets<br/>not checked this pass"]
+
+    JUST["just sync / just sync-dry recipes"] -.->|"BLOCKING: confirmed broken<br/>(--audit / --dry_run true don't exist<br/>on live verb)"| JUSTFAIL["If any release automation calls these:<br/>fails loud (OK) unless wrapped in<br/>silent failure — Unknown, not checked"]
+
+    classDef blocking fill:#c0392b,color:#fff,stroke:#000
+    classDef accepted fill:#f39c12,color:#000,stroke:#000
+    classDef unknown fill:#7f8c8d,color:#fff,stroke:#000
+    class ADMIN,PUSH,GATEFAIL,JUSTFAIL blocking
+    class WD accepted
+    class PARTIAL unknown

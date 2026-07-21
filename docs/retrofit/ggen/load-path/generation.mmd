@@ -1,0 +1,25 @@
+flowchart TD
+    TTL[".specify/*.ttl<br/>(source of truth)"] --> S0["Stage 0: schema dispatch<br/>raw-text pre-parse<br/>ggen-engine/generation_rules.rs:108"]
+    S0 -->|"[[generation.rules]] present"| S0A["GgenManifest schema<br/>(ggen-config)"]
+    S0 -->|"absent"| S0B["GgenConfig schema<br/>(ggen-engine::config)"]
+    S0A -.->|"BLOCKING SPOF:<br/>no cross-drift guard<br/>between the two schemas"| S1
+    S0B -.-> S1
+    S1["Stage 1: Resolve<br/>ontology+pack union, input closure<br/>unreadable input -> literal MISSING"] --> S1R["reflexive-receipt sub-step (opt-in)<br/>ACCEPTED SPOF: sanctioned<br/>silent-skip on malformed log line"]
+    S1R --> S2["Stage 2: Enrich<br/>single-pass CONSTRUCT<br/>ACCEPTED: not fixed-point"]
+    S2 --> S2B["Stage 2b: Law (optional)<br/>engine-conditional refusal on Oxigraph"]
+    S2B --> GATES["Gates: [law].gates (project *.rq)<br/>+ pack gates/*.rq (globbed union)<br/>BLOCKING: no per-pack violation provenance"]
+    GATES --> S3["Stage 3: Extract"]
+    S3 --> S4["Stage 4: Render (Tera)"]
+    S4 --> S5["Stage 5: Write + receipt"]
+    S5 --> FREEZE{"freeze policy?"}
+    FREEZE -->|"always"| FA["skip unconditionally if target exists<br/>BLOCKING: no drift detection at all"]
+    FREEZE -->|"checksum"| FC["BLAKE3 drift check<br/>requires freeze_slots_dir<br/>else typed error FM-WRITE-006 (fails loud, OK)"]
+    FA --> OUT["Generated files:<br/>.claude/rules/architecture.md,<br/>docs/*.md, crates/**/generated_*.rs"]
+    FC --> OUT
+    OUT -.->|"BLOCKING: already manifested twice<br/>(pack count 28-vs-32, 32-vs-33)"| DRIFT["Stale generated docs<br/>trusted as ground truth by readers"]
+    OUT --> RCP[".ggen-v2/receipt.json<br/>BLAKE3 chained (praxis-core::ReceiptRecord)"]
+
+    classDef blocking fill:#c0392b,color:#fff,stroke:#000
+    classDef accepted fill:#f39c12,color:#000,stroke:#000
+    class S0A,S0B,DRIFT,FA,GATES blocking
+    class S1R,S2 accepted
