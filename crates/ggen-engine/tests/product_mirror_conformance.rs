@@ -108,7 +108,9 @@ fn scan_real_pipeline_stages() -> BTreeSet<String> {
         if !line.trim_end().ends_with("info_span!(") {
             continue;
         }
-        let Some(next) = lines.get(i + 1) else { continue };
+        let Some(next) = lines.get(i + 1) else {
+            continue;
+        };
         let trimmed = next.trim();
         if let Some(rest) = trimmed.strip_prefix("\"pipeline.") {
             if let Some(end) = rest.find('"') {
@@ -137,11 +139,7 @@ fn scan_real_fm_codes() -> BTreeSet<(String, u32)> {
     out
 }
 
-fn scan_dir_for_fm_codes(
-    dir: &Path,
-    families: &[&str],
-    out: &mut BTreeSet<(String, u32)>,
-) {
+fn scan_dir_for_fm_codes(dir: &Path, families: &[&str], out: &mut BTreeSet<(String, u32)>) {
     for entry in std::fs::read_dir(dir)
         .unwrap_or_else(|e| panic!("failed to read_dir {}: {e}", dir.display()))
     {
@@ -313,7 +311,10 @@ fn cli_verbs_ttl_matches_real_source() {
         ".specify/ggen-product.ttl declares CliVerb individual(s) with no matching \
          real #[clap_noun_verb_macros::verb(...)] site: {missing_from_source:?}"
     );
-    assert!(!from_ttl.is_empty(), "sanity: expected a non-empty verb surface");
+    assert!(
+        !from_ttl.is_empty(),
+        "sanity: expected a non-empty verb surface"
+    );
 }
 
 #[test]

@@ -81,7 +81,9 @@ fn v1_record(instruction_id: u64, prev_chain_hash_hex: &str) -> ReceiptRecord {
 
 /// Build a real, chain-hash-valid v2-shaped record chained onto
 /// `prev_chain_hash_hex`, carrying `epoch` as its `v2` payload.
-fn v2_record(instruction_id: u64, prev_chain_hash_hex: &str, epoch: ReceiptEpochV2) -> ReceiptRecord {
+fn v2_record(
+    instruction_id: u64, prev_chain_hash_hex: &str, epoch: ReceiptEpochV2,
+) -> ReceiptRecord {
     let payload_hash_hex = format!("{instruction_id:02x}").repeat(32)[..64].to_string();
     let legacy_andon = match epoch.andon {
         AndonLevel::Green => Andon::Green,
@@ -127,10 +129,13 @@ fn v2_record(instruction_id: u64, prev_chain_hash_hex: &str, epoch: ReceiptEpoch
 fn v1_only_reader_refuses_to_parse_a_v2_receipt() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
-    sync(dir.path(), SyncOptions {
-        dry_run: false,
-        ..Default::default()
-    })
+    sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
     .expect("real sync produces a v2 receipt");
 
     let raw = std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("read receipt");
@@ -139,7 +144,10 @@ fn v1_only_reader_refuses_to_parse_a_v2_receipt() {
 
     // Sanity: this really is a v2 receipt (has `schema`/`v2` keys unknown to
     // the pre-migration wire shape).
-    assert_eq!(record_json.get("schema").and_then(|v| v.as_str()), Some(SCHEMA_V2));
+    assert_eq!(
+        record_json.get("schema").and_then(|v| v.as_str()),
+        Some(SCHEMA_V2)
+    );
     assert!(record_json.get("v2").is_some());
 
     let result: Result<ReceiptRecordV1Legacy, _> = serde_json::from_value(record_json);
@@ -452,15 +460,27 @@ fn ceiling_above_the_meet_is_refused_at_construction() {
 fn replay_chain(
     v1: &ReceiptRecord, migration: &MigrationReceipt, v2s: &[ReceiptRecord],
 ) -> (AndonLevel, CeilingLevel) {
-    assert_eq!(migration.final_v1_chain_hash_hex, v1.chain_hash_hex, "migration must bind the real final v1 hash");
+    assert_eq!(
+        migration.final_v1_chain_hash_hex, v1.chain_hash_hex,
+        "migration must bind the real final v1 hash"
+    );
     let first_v2 = v2s.first().expect("at least one v2 record");
-    assert_eq!(migration.first_v2_chain_hash_hex, first_v2.chain_hash_hex, "migration must bind the real first v2 hash");
-    assert_eq!(first_v2.prev_chain_hash_hex, v1.chain_hash_hex, "chain hash continuity must not break across the v1/v2 boundary");
+    assert_eq!(
+        migration.first_v2_chain_hash_hex, first_v2.chain_hash_hex,
+        "migration must bind the real first v2 hash"
+    );
+    assert_eq!(
+        first_v2.prev_chain_hash_hex, v1.chain_hash_hex,
+        "chain hash continuity must not break across the v1/v2 boundary"
+    );
 
     let mut prev_chain_hash_hex = first_v2.chain_hash_hex.clone();
     let mut last_epoch = read_receipt_epoch(first_v2).expect("first v2 record readable");
     for record in &v2s[1..] {
-        assert_eq!(record.prev_chain_hash_hex, prev_chain_hash_hex, "chain hash continuity within the v2 epoch");
+        assert_eq!(
+            record.prev_chain_hash_hex, prev_chain_hash_hex,
+            "chain hash continuity within the v2 epoch"
+        );
         last_epoch = read_receipt_epoch(record).expect("v2 record readable");
         prev_chain_hash_hex = record.chain_hash_hex.clone();
     }
@@ -471,17 +491,20 @@ fn replay_chain(
 fn replaying_a_mixed_chain_twice_is_deterministic() {
     let v1 = v1_record(1, &"0".repeat(64));
 
-    let epoch1 = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, ComponentLevels::uniform(AndonLevel::Green))
-        .admission_item(AdmissionItem {
-            evidence_id: "out/a.txt".to_string(),
-            observed_outcome: ObservedOutcome::Pass,
-            decision: AdmissionDecision::Admitted,
-            reason: "written".to_string(),
-            obligations_discharged: vec![],
-            obligations_created: vec![],
-        })
-        .build()
-        .expect("epoch1 builds");
+    let epoch1 = ReceiptEpochV2Builder::new(
+        CeilingLevel::LegacyObserved,
+        ComponentLevels::uniform(AndonLevel::Green),
+    )
+    .admission_item(AdmissionItem {
+        evidence_id: "out/a.txt".to_string(),
+        observed_outcome: ObservedOutcome::Pass,
+        decision: AdmissionDecision::Admitted,
+        reason: "written".to_string(),
+        obligations_discharged: vec![],
+        obligations_created: vec![],
+    })
+    .build()
+    .expect("epoch1 builds");
     let v2_a = v2_record(2, &v1.chain_hash_hex, epoch1);
 
     let migration = MigrationReceipt::new(v1.chain_hash_hex.clone(), v2_a.chain_hash_hex.clone());
@@ -491,7 +514,10 @@ fn replaying_a_mixed_chain_twice_is_deterministic() {
         // carries -- LegacyObserved is a one-way cap (see
         // `receipt_epoch::recoverable`), so it stays capped even though
         // this generation's own evidence is clean.
-        v2_a.v2.as_ref().expect("v2_a has a v2 payload").standing_ceiling,
+        v2_a.v2
+            .as_ref()
+            .expect("v2_a has a v2 payload")
+            .standing_ceiling,
         ComponentLevels::uniform(AndonLevel::Yellow),
     )
     .admission_item(AdmissionItem {
@@ -510,7 +536,10 @@ fn replaying_a_mixed_chain_twice_is_deterministic() {
 
     let first = replay_chain(&v1, &migration, &v2s);
     let second = replay_chain(&v1, &migration, &v2s);
-    assert_eq!(first, second, "replaying the same chain twice must be deterministic");
+    assert_eq!(
+        first, second,
+        "replaying the same chain twice must be deterministic"
+    );
 
     // The final aggregate reflects the second (quarantined) generation:
     // Yellow andon, ceiling still capped at LegacyObserved (never promoted
