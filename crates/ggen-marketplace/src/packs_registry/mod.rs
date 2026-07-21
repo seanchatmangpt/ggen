@@ -17,6 +17,7 @@ pub mod generator;
 pub mod metadata;
 pub mod registry;
 pub mod repository;
+pub mod template_generator;
 pub mod types;
 pub mod validate;
 
