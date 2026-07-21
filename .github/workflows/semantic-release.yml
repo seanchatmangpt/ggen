@@ -282,6 +282,30 @@ jobs:
           draft: false
           prerelease: false
 
+      # The tag created above is pushed with the default GITHUB_TOKEN, and
+      # GitHub suppresses `on: push` workflow runs for events created with
+      # GITHUB_TOKEN — so release.yml's tag trigger NEVER fires from this
+      # workflow (verified: zero release assets exist at any tag).
+      # workflow_dispatch triggered via the API is the documented exception:
+      # it DOES run even when invoked with GITHUB_TOKEN. Dispatch release.yml
+      # explicitly for the tag we just created. This step only executes when a
+      # release/tag was actually created (job-level should-release gate plus
+      # default success() on the tag-creation step above).
+      - name: Trigger release.yml for the new tag (workflow_dispatch exception)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v${{ needs.analyze-commits.outputs.next-version }}"
+          # Fail loudly if the tag does not actually exist on the remote —
+          # dispatching release.yml for a nonexistent tag would fail at checkout.
+          if ! gh api "repos/${{ github.repository }}/git/ref/tags/${TAG}" >/dev/null 2>&1; then
+            echo "ANDON: tag ${TAG} not found on remote — refusing to dispatch release.yml"
+            exit 1
+          fi
+          gh workflow run release.yml -f tag="${TAG}"
+          echo "Dispatched release.yml for ${TAG}"
+
       - name: Update release notes
         run: |
           echo "## Release v${{ needs.analyze-commits.outputs.next-version }}" >> $GITHUB_STEP_SUMMARY
