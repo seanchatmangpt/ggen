@@ -1,0 +1,6 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?wp ?missing WHERE {
+ { ?wp a ret:WorkPackage . FILTER NOT EXISTS { ?wp ret:sequenceIndex ?n } BIND("sequenceIndex" AS ?missing) }
+ UNION { ?wp a ret:WorkPackage . FILTER NOT EXISTS { ?wp ret:acceptanceCriterion ?c } BIND("acceptanceCriterion" AS ?missing) }
+ UNION { ?wp a ret:WorkPackage . FILTER NOT EXISTS { ?wp ret:reversible ?r } BIND("reversible" AS ?missing) }
+}

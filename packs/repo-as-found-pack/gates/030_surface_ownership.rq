@@ -1,0 +1,2 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?surface WHERE { ?surface a ret:ObservedSurface . FILTER NOT EXISTS { ?surface ret:effectiveOwner ?owner } }

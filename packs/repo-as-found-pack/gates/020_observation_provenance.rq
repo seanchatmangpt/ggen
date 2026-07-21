@@ -1,0 +1,6 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+SELECT ?observation ?missing WHERE {
+ { ?observation a ret:RepositoryObservation . FILTER NOT EXISTS { ?observation ret:observedAt ?v } BIND("observedAt" AS ?missing) }
+ UNION { ?observation a ret:RepositoryObservation . FILTER NOT EXISTS { ?observation ret:observedBy ?v } BIND("observedBy" AS ?missing) }
+ UNION { ?observation a ret:RepositoryObservation . FILTER NOT EXISTS { ?observation ret:observationMethod ?v } BIND("observationMethod" AS ?missing) }
+}

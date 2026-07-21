@@ -1,0 +1,3 @@
+PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?work WHERE { ?work a ret:TemporaryWork ; ret:expiresAt ?expiry ; ret:status ?status . FILTER(?expiry < NOW() && ?status != "removed") }

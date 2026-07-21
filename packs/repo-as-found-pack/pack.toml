@@ -1,0 +1,4 @@
+[pack]
+name = "repo-as-found-pack"
+version = "26.7.20"
+description = "既存リポジトリの現況を現地現物で観測し、as-found台帳と未知条件を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): canonical_surface=observed-rdf, self_report_is_standing=false, unknown_is_explicit=true, mutation_allowed=false. Depends on: mermaid_pack 26.7.20 (declare this pack dependency in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description)."

@@ -1,0 +1,17 @@
+---
+to: "docs/retrofit/reconciliation/差異受領台帳.md"
+sparql:
+  deltas: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?id ?classLabel ?surface ?before ?after ?decisionLabel ?reason ?blocking WHERE {
+      ?d a ret:Delta ; ret:deltaId ?id ; ret:deltaClass ?class ; ret:targetSurface ?surface ; ret:beforeValue ?before ; ret:afterValue ?after ; ret:admissionDecision ?decision ; ret:decisionReason ?reason ; ret:blocking ?blocking .
+      ?class skos:prefLabel ?classLabel . ?decision skos:prefLabel ?decisionLabel .
+    } ORDER BY ?id
+---
+# 差異受領台帳
+
+| 差異 | 分類 | 面 | 前 | 後 | 判定 | 理由 | 停止性 |
+|---|---|---|---|---|---|---|---|
+{% for d in deltas %}| `{{ d.id }}` | {{ d.classLabel }} | `{{ d.surface }}` | `{{ d.before }}` | `{{ d.after }}` | {{ d.decisionLabel }} | {{ d.reason }} | {{ d.blocking }} |
+{% endfor %}

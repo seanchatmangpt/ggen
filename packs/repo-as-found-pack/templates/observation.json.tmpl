@@ -1,0 +1,13 @@
+---
+to: ".tcps/as-found-observation.json"
+sparql:
+  observations: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?repo ?at ?by ?method ?standing WHERE { ?o a ret:RepositoryObservation ; ret:repository ?repo ; ret:observedAt ?at ; ret:observedBy ?by ; ret:observationMethod ?method ; ret:standingCeiling ?standing . }
+---
+{
+  "schema": "tcps-as-found-v1",
+  "observations": [
+{% for o in observations %}    {"repository":"{{ o.repo }}","observedAt":"{{ o.at }}","observedBy":"{{ o.by }}","method":"{{ o.method }}","standing":"{{ o.standing }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

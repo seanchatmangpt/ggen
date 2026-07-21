@@ -1,0 +1,92 @@
+@prefix ret:  <https://seanchatmangpt.github.io/ontology/retrofit#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ret:Repository a rdfs:Class .
+ret:RepositoryObservation a rdfs:Class .
+ret:ObservedSurface a rdfs:Class .
+ret:UnknownCondition a rdfs:Class .
+ret:ManualOperation a rdfs:Class .
+ret:ExternalConsumer a rdfs:Class .
+ret:CredentialRequirement a rdfs:Class .
+ret:WorkflowSurface a rdfs:Class .
+ret:ReleaseSurface a rdfs:Class .
+ret:GeneratedSurface a rdfs:Class .
+
+ret:repository a rdf:Property .
+ret:repositoryName a rdf:Property .
+ret:repositoryUrl a rdf:Property .
+ret:defaultBranch a rdf:Property .
+ret:observedAt a rdf:Property .
+ret:observedBy a rdf:Property .
+ret:observationMethod a rdf:Property .
+ret:sourceReference a rdf:Property .
+ret:surfaceKind a rdf:Property .
+ret:surfaceName a rdf:Property .
+ret:surfacePath a rdf:Property .
+ret:effectiveOwner a rdf:Property .
+ret:criticality a rdf:Property .
+ret:standingCeiling a rdf:Property .
+ret:unknownReason a rdf:Property .
+ret:blocking a rdf:Property .
+ret:command a rdf:Property .
+ret:trigger a rdf:Property .
+ret:consumerName a rdf:Property .
+ret:credentialName a rdf:Property .
+ret:outputPath a rdf:Property .
+ret:status a rdf:Property .
+
+ret:Critical a skos:Concept ; skos:prefLabel "重大"@ja .
+ret:Important a skos:Concept ; skos:prefLabel "重要"@ja .
+ret:Ordinary a skos:Concept ; skos:prefLabel "通常"@ja .
+ret:ObservedOnly a skos:Concept ; skos:prefLabel "観測済み・未受入れ"@ja .
+ret:Unknown a skos:Concept ; skos:prefLabel "不明"@ja .
+
+ret:TCPSRepository a ret:Repository ;
+  ret:repositoryName "tcps-repository" ;
+  ret:repositoryUrl "https://github.com/OWNER/REPOSITORY" ;
+  ret:defaultBranch "main" .
+
+ret:Survey_001 a ret:RepositoryObservation ;
+  ret:repository ret:TCPSRepository ;
+  ret:observedAt "1979-01-01T00:00:00Z"^^xsd:dateTime ;
+  ret:observedBy "ggen repo observer" ;
+  ret:observationMethod "read-only repository and GitHub API survey" ;
+  ret:standingCeiling ret:ObservedOnly .
+
+ret:DefaultBranchSurface a ret:ObservedSurface ;
+  ret:repository ret:TCPSRepository ;
+  ret:surfaceKind "branch" ;
+  ret:surfaceName "main" ;
+  ret:effectiveOwner "GitHub repository configuration" ;
+  ret:criticality ret:Critical ;
+  ret:sourceReference "git symbolic-ref and GitHub API" .
+
+ret:CIWorkflowSurface a ret:WorkflowSurface, ret:ObservedSurface ;
+  ret:repository ret:TCPSRepository ;
+  ret:surfaceKind "workflow" ;
+  ret:surfaceName "CI" ;
+  ret:surfacePath ".github/workflows/ci.yml" ;
+  ret:effectiveOwner "repository workflow" ;
+  ret:criticality ret:Critical ;
+  ret:sourceReference "working tree" .
+
+ret:ReleaseManualUnknown a ret:UnknownCondition ;
+  ret:repository ret:TCPSRepository ;
+  ret:unknownReason "Whether any release is still performed from a maintainer workstation must be observed." ;
+  ret:blocking true ;
+  ret:status ret:Unknown .
+
+ret:AsFoundSurveyProduct a tcps:Product ;
+  ret:outputPath "docs/retrofit/as-found/現況調査票.md" .
+ret:UnknownRegisterProduct a tcps:Product ;
+  ret:outputPath "docs/retrofit/as-found/未知条件台帳.md" .
+ret:AsFoundDiagramProduct a tcps:Product ;
+  ret:outputPath "docs/retrofit/as-found/現況構成.mmd" .
+ret:ObservationJsonProduct a tcps:Product ;
+  ret:outputPath ".tcps/as-found-observation.json" .

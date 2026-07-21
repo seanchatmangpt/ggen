@@ -1,0 +1,13 @@
+---
+to: "docs/retrofit/temporary-works/仮設工台帳.md"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?id ?owner ?purpose ?load ?inspection ?expiry ?trigger ?status WHERE { ?w a ret:TemporaryWork ; ret:temporaryWorkId ?id ; ret:owner ?owner ; ret:purpose ?purpose ; ret:carriedLoad ?load ; ret:inspectionMethod ?inspection ; ret:expiresAt ?expiry ; ret:removalTrigger ?trigger ; ret:status ?status . } ORDER BY ?id
+---
+# 仮設工台帳
+
+| 識別 | 所有者 | 目的 | 荷重 | 検査 | 期限 | 撤去条件 | 状態 |
+|---|---|---|---|---|---|---|---|
+{% for r in rows %}| `{{ r.id }}` | {{ r.owner }} | {{ r.purpose }} | {{ r.load }} | {{ r.inspection }} | {{ r.expiry }} | {{ r.trigger }} | {{ r.status }} |
+{% endfor %}

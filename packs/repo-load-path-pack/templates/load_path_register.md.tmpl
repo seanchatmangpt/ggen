@@ -1,0 +1,16 @@
+---
+to: "docs/retrofit/load-path/荷重経路台帳.md"
+sparql:
+  edges: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?id ?fromLabel ?toLabel ?load ?criticality ?effect WHERE {
+      ?e a ret:LoadEdge ; ret:edgeId ?id ; ret:fromNode ?from ; ret:toNode ?to ; ret:loadKind ?load ; ret:criticality ?criticality ; ret:failureEffect ?effect .
+      ?from ret:nodeLabel ?fromLabel . ?to ret:nodeLabel ?toLabel .
+    } ORDER BY ?id
+---
+# 荷重経路台帳
+
+| 経路 | 起点 | 終点 | 荷重 | 重大度 | 破損時影響 |
+|---|---|---|---|---|---|
+{% for e in edges %}| `{{ e.id }}` | {{ e.fromLabel }} | {{ e.toLabel }} | {{ e.load }} | {{ e.criticality }} | {{ e.effect }} |
+{% endfor %}

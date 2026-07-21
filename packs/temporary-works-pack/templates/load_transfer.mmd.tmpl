@@ -1,0 +1,17 @@
+---
+to: "docs/retrofit/temporary-works/荷重移転.mmd"
+sparql:
+  rows: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?old ?new ?criterion WHERE { ?c a ret:Cutover ; ret:oldPath ?old ; ret:newPath ?new ; ret:cutoverCriterion ?criterion . }
+---
+flowchart LR
+{% for r in rows %}  old["旧経路: {{ r.old }}"]
+  shadow["影運転・比較"]
+  new["新経路: {{ r.new }}"]
+  receipt["受領証"]
+  old --> shadow
+  shadow -->|"{{ r.criterion }}"| new
+  new --> receipt
+  receipt -.異常.-> old
+{% endfor %}

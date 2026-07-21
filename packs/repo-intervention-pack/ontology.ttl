@@ -1,0 +1,65 @@
+@prefix ret:  <https://seanchatmangpt.github.io/ontology/retrofit#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ret:Intervention a rdfs:Class .
+ret:InterventionClass a rdfs:Class .
+ret:PerformanceObjective a rdfs:Class .
+ret:WorkPackage a rdfs:Class .
+ret:ContinuityPlan a rdfs:Class .
+ret:MigrationPlan a rdfs:Class .
+ret:AcceptanceCriterion a rdfs:Class .
+
+ret:Preservation a ret:InterventionClass ; skos:prefLabel "保全"@ja .
+ret:Repair a ret:InterventionClass ; skos:prefLabel "補修"@ja .
+ret:Strengthening a ret:InterventionClass ; skos:prefLabel "補強"@ja .
+ret:Rehabilitation a ret:InterventionClass ; skos:prefLabel "改修"@ja .
+ret:Replacement a ret:InterventionClass ; skos:prefLabel "取替"@ja .
+
+ret:R0 a ret:PerformanceObjective ; skos:prefLabel "R0 現況把握"@ja .
+ret:R1 a ret:PerformanceObjective ; skos:prefLabel "R1 崩壊防止"@ja .
+ret:R2 a ret:PerformanceObjective ; skos:prefLabel "R2 安全運用"@ja .
+ret:R3 a ret:PerformanceObjective ; skos:prefLabel "R3 継続使用"@ja .
+ret:R4 a ret:PerformanceObjective ; skos:prefLabel "R4 機能回復"@ja .
+ret:R5 a ret:PerformanceObjective ; skos:prefLabel "R5 TCPS第五水準"@ja .
+
+ret:interventionId a rdf:Property .
+ret:targetRepository a rdf:Property .
+ret:interventionClass a rdf:Property .
+ret:currentObjective a rdf:Property .
+ret:targetObjective a rdf:Property .
+ret:rationale a rdf:Property .
+ret:continuityPlan a rdf:Property .
+ret:migrationPlan a rdf:Property .
+ret:workPackage a rdf:Property .
+ret:sequenceIndex a rdf:Property .
+ret:reversible a rdf:Property .
+ret:acceptanceCriterion a rdf:Property .
+ret:rollbackBoundary a rdf:Property .
+ret:standingCeiling a rdf:Property .
+ret:nextWorkPackage a rdf:Property .
+
+ret:TCPSRetrofit a ret:Intervention ;
+  ret:interventionId "tcps-retrofit-001" ;
+  ret:targetRepository ret:TCPSRepository ;
+  ret:interventionClass ret:Rehabilitation ;
+  ret:currentObjective ret:R1 ;
+  ret:targetObjective ret:R5 ;
+  ret:rationale "手動管理を意味、製造、検査、受領へ移す"@ja ;
+  ret:continuityPlan ret:TCPSContinuity ;
+  ret:workPackage ret:WPObserve, ret:WPShadow, ret:WPTransfer, ret:WPCertify ;
+  ret:standingCeiling ret:R1 .
+
+ret:TCPSContinuity a ret:ContinuityPlan ;
+  dct:title "既存公開路を保持したまま影運転し、受領後に荷重移転する"@ja ;
+  ret:rollbackBoundary "旧公開路を無効化する直前"@ja .
+
+ret:WPObserve a ret:WorkPackage ; dct:title "現況観測"@ja ; ret:sequenceIndex 10 ; ret:reversible true ; ret:acceptanceCriterion "as-found台帳が完成"@ja ; ret:nextWorkPackage ret:WPShadow .
+ret:WPShadow a ret:WorkPackage ; dct:title "影運転"@ja ; ret:sequenceIndex 20 ; ret:reversible true ; ret:acceptanceCriterion "新旧結果比較が受領"@ja ; ret:nextWorkPackage ret:WPTransfer .
+ret:WPTransfer a ret:WorkPackage ; dct:title "荷重移転"@ja ; ret:sequenceIndex 30 ; ret:reversible true ; ret:acceptanceCriterion "一件の実運用が新経路を通過"@ja ; ret:nextWorkPackage ret:WPCertify .
+ret:WPCertify a ret:WorkPackage ; dct:title "再認証"@ja ; ret:sequenceIndex 40 ; ret:reversible false ; ret:acceptanceCriterion "standing上限が再計算"@ja .

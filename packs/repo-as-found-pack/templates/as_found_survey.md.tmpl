@@ -1,0 +1,28 @@
+---
+to: "docs/retrofit/as-found/現況調査票.md"
+sparql:
+  repos: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?name ?url ?branch WHERE { ?r a ret:Repository ; ret:repositoryName ?name ; ret:repositoryUrl ?url ; ret:defaultBranch ?branch . }
+  surfaces: |
+    PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
+    SELECT ?kind ?name ?path ?owner ?criticality WHERE {
+      ?s a ret:ObservedSurface ; ret:surfaceKind ?kind ; ret:surfaceName ?name ; ret:effectiveOwner ?owner ; ret:criticality ?criticality .
+      OPTIONAL { ?s ret:surfacePath ?path }
+    } ORDER BY ?kind ?name
+---
+# 現況調査票
+
+{% for r in repos %}- リポジトリ: **{{ r.name }}**
+- 所在: `{{ r.url }}`
+- 基準枝: `{{ r.branch }}`
+{% endfor %}
+
+## 観測面
+
+| 種類 | 名称 | 場所 | 現所有 | 重大度 |
+|---|---|---|---|---|
+{% for s in surfaces %}| {{ s.kind }} | {{ s.name }} | `{{ s.path | default(value="-") }}` | {{ s.owner }} | {{ s.criticality }} |
+{% endfor %}
+
+> 本票は観測であり、standingではない。
