@@ -1,0 +1,382 @@
+{
+  "repository": "mermaid-js/mermaid",
+  "version": "11.16.0",
+  "commit": "f0ffb41c1ee1ff667b528e86c3b082249726eeef",
+  "license": "MIT",
+  "centralSources": {
+    "orchestration": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagram-api/diagram-orchestration.ts",
+    "registration": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagram-api/diagramAPI.ts",
+    "runtime": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/Diagram.ts",
+    "rendererContract": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagram-api/types.ts"
+  },
+  "diagramTypes": [
+    {
+      "diagramId": "c4",
+      "displayNameJa": "C4図",
+      "detectorPath": "packages/mermaid/src/diagrams/c4/c4Detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/c4/c4Diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/c4/c4Renderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "flowchart-v2",
+      "displayNameJa": "流れ図",
+      "detectorPath": "packages/mermaid/src/diagrams/flowchart/flowDetector-v2.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "flowchart",
+      "displayNameJa": "旧式流れ図",
+      "detectorPath": "packages/mermaid/src/diagrams/flowchart/flowDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "flowchart-elk",
+      "displayNameJa": "ELK流れ図",
+      "detectorPath": "packages/mermaid/src/diagrams/flowchart/elk/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/flowchart/flowDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "confidence": "verified-shared-renderer",
+      "syntaxDeclaration": "flowchart-elk",
+      "rendererNotes": "Loads the shared flowDiagram and sets layout='elk'."
+    },
+    {
+      "diagramId": "swimlane",
+      "displayNameJa": "泳線図",
+      "detectorPath": "packages/mermaid/src/diagrams/swimlanes/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/swimlanes/swimlanesDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/flowchart/flowRenderer-v3-unified.ts",
+      "confidence": "verified-shared-renderer",
+      "syntaxDeclaration": "swimlane-beta",
+      "rendererNotes": "Uses createFlowDiagram(defaultLayout='swimlane'); shares the unified flowchart renderer."
+    },
+    {
+      "diagramId": "er",
+      "displayNameJa": "実体関連図",
+      "detectorPath": "packages/mermaid/src/diagrams/er/erDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/er/erDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/er/erRenderer-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/er/erRenderer-unified.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "gitGraph",
+      "displayNameJa": "Git履歴図",
+      "detectorPath": "packages/mermaid/src/diagrams/git/gitGraphDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/git/gitGraphDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/git/gitGraphRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/git/gitGraphRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "gantt",
+      "displayNameJa": "ガント図",
+      "detectorPath": "packages/mermaid/src/diagrams/gantt/ganttDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/gantt/ganttDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/gantt/ganttRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/gantt/ganttRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "info",
+      "displayNameJa": "情報図",
+      "detectorPath": "packages/mermaid/src/diagrams/info/infoDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/info/infoDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/info/infoRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/info/infoRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "pie",
+      "displayNameJa": "円図",
+      "detectorPath": "packages/mermaid/src/diagrams/pie/pieDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/pie/pieDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/pie/pieRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/pie/pieRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "quadrantChart",
+      "displayNameJa": "四象限図",
+      "detectorPath": "packages/mermaid/src/diagrams/quadrant-chart/quadrantDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/quadrant-chart/quadrantDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/quadrant-chart/quadrantRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/quadrant-chart/quadrantRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "xychart",
+      "displayNameJa": "XY図",
+      "detectorPath": "packages/mermaid/src/diagrams/xychart/xychartDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/xychart/xychartDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/xychart/xychartRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/xychart/xychartRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "requirement",
+      "displayNameJa": "要求図",
+      "detectorPath": "packages/mermaid/src/diagrams/requirement/requirementDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/requirement/requirementDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/requirement/requirementRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/requirement/requirementRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "sequence",
+      "displayNameJa": "順序図",
+      "detectorPath": "packages/mermaid/src/diagrams/sequence/sequenceDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/sequence/sequenceDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/sequence/sequenceRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "classDiagram",
+      "displayNameJa": "旧式クラス図",
+      "detectorPath": "packages/mermaid/src/diagrams/class/classDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/class/classDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/class/classRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/class/classRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "classDiagram-v2",
+      "displayNameJa": "クラス図",
+      "detectorPath": "packages/mermaid/src/diagrams/class/classDetector-V2.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/class/classDiagram-v2.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/class/classRenderer-v3-unified.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/class/classRenderer-v3-unified.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "stateDiagram",
+      "displayNameJa": "旧式状態図",
+      "detectorPath": "packages/mermaid/src/diagrams/state/stateDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/state/stateDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/state/stateRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/state/stateRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "stateDiagram-v2",
+      "displayNameJa": "状態図",
+      "detectorPath": "packages/mermaid/src/diagrams/state/stateDetector-V2.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/state/stateDiagram-v2.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/state/stateRenderer-v3-unified.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/state/stateRenderer-v3-unified.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "journey",
+      "displayNameJa": "利用者行程図",
+      "detectorPath": "packages/mermaid/src/diagrams/user-journey/journeyDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/user-journey/journeyDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/user-journey/journeyRenderer.js",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/user-journey/journeyRenderer.js",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "timeline",
+      "displayNameJa": "時間線図",
+      "detectorPath": "packages/mermaid/src/diagrams/timeline/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/timeline/timeline-definition.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/timeline/timelineRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/timeline/timelineRenderer.ts",
+      "confidence": "verified-selectable-renderer",
+      "rendererAlternatives": [
+        "packages/mermaid/src/diagrams/timeline/timelineRendererVertical.ts"
+      ],
+      "rendererNotes": "The definition selects horizontal or vertical renderer based on diagram direction."
+    },
+    {
+      "diagramId": "mindmap",
+      "displayNameJa": "思考地図",
+      "detectorPath": "packages/mermaid/src/diagrams/mindmap/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/mindmap/mindmap-definition.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/mindmap/mindmapRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/mindmap/mindmapRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "kanban",
+      "displayNameJa": "看板図",
+      "detectorPath": "packages/mermaid/src/diagrams/kanban/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/kanban/kanban-definition.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/kanban/kanbanRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/kanban/kanbanRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "sankey",
+      "displayNameJa": "サンキー図",
+      "detectorPath": "packages/mermaid/src/diagrams/sankey/sankeyDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/sankey/sankeyDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/sankey/sankeyRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sankey/sankeyRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "packet",
+      "displayNameJa": "通信包図",
+      "detectorPath": "packages/mermaid/src/diagrams/packet/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/packet/diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/packet/renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/packet/renderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "radar",
+      "displayNameJa": "レーダー図",
+      "detectorPath": "packages/mermaid/src/diagrams/radar/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/radar/diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/radar/renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/radar/renderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "block",
+      "displayNameJa": "区画図",
+      "detectorPath": "packages/mermaid/src/diagrams/block/blockDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/block/blockDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/block/blockRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/block/blockRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "treeView",
+      "displayNameJa": "木構造図",
+      "detectorPath": "packages/mermaid/src/diagrams/treeView/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/treeView/diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/treeView/renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/treeView/renderer.ts",
+      "confidence": "verified",
+      "syntaxDeclaration": "treeView-beta"
+    },
+    {
+      "diagramId": "architecture",
+      "displayNameJa": "構成図",
+      "detectorPath": "packages/mermaid/src/diagrams/architecture/architectureDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/architecture/architectureDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/architecture/architectureRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/architecture/architectureRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "eventmodeling",
+      "displayNameJa": "事象モデリング図",
+      "detectorPath": "packages/mermaid/src/diagrams/eventmodeling/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/eventmodeling/diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/eventmodeling/renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/eventmodeling/renderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "ishikawa",
+      "displayNameJa": "特性要因図",
+      "detectorPath": "packages/mermaid/src/diagrams/ishikawa/ishikawaDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/ishikawa/ishikawaDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/ishikawa/ishikawaRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/ishikawa/ishikawaRenderer.ts",
+      "confidence": "verified",
+      "syntaxDeclaration": "ishikawa-beta"
+    },
+    {
+      "diagramId": "venn",
+      "displayNameJa": "ベン図",
+      "detectorPath": "packages/mermaid/src/diagrams/venn/vennDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/venn/vennDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/venn/vennRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/venn/vennRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "treemap",
+      "displayNameJa": "樹形面積図",
+      "detectorPath": "packages/mermaid/src/diagrams/treemap/detector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/treemap/diagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/treemap/renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/treemap/renderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "wardley",
+      "displayNameJa": "ウォードリー図",
+      "detectorPath": "packages/mermaid/src/diagrams/wardley/wardleyDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/wardley/wardleyDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/wardley/wardleyRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/wardley/wardleyRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "cynefin",
+      "displayNameJa": "クネビン図",
+      "detectorPath": "packages/mermaid/src/diagrams/cynefin/cynefinDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/cynefin/cynefinDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/cynefin/cynefinRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/cynefin/cynefinRenderer.ts",
+      "confidence": "verified",
+      "syntaxDeclaration": "cynefin-beta"
+    },
+    {
+      "diagramId": "railroad",
+      "displayNameJa": "鉄道構文図",
+      "detectorPath": "packages/mermaid/src/diagrams/railroad/railroadDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/railroad/railroadDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "railroad-ebnf",
+      "displayNameJa": "EBNF鉄道構文図",
+      "detectorPath": "packages/mermaid/src/diagrams/railroad/ebnfDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/railroad/ebnfDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "railroad-abnf",
+      "displayNameJa": "ABNF鉄道構文図",
+      "detectorPath": "packages/mermaid/src/diagrams/railroad/abnfDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/railroad/abnfDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "railroad-peg",
+      "displayNameJa": "PEG鉄道構文図",
+      "detectorPath": "packages/mermaid/src/diagrams/railroad/pegDetector.ts",
+      "definitionPath": "packages/mermaid/src/diagrams/railroad/pegDiagram.ts",
+      "rendererPath": "packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/railroad/railroadRenderer.ts",
+      "confidence": "verified"
+    },
+    {
+      "diagramId": "zenuml",
+      "displayNameJa": "ZenUML順序図",
+      "detectorPath": "packages/mermaid-zenuml/src/detector.ts",
+      "definitionPath": "packages/mermaid-zenuml/src/zenuml-definition.ts",
+      "rendererPath": "packages/mermaid-zenuml/src/zenumlRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid-zenuml/src/zenumlRenderer.ts",
+      "confidence": "verified-external"
+    }
+  ],
+  "resolutionPolicy": {
+    "centralRegistry": "diagram-orchestration.ts enumerates detector/loader plugins",
+    "registration": "diagramAPI.ts registerDiagram stores DiagramDefinition and detector",
+    "runtime": "Diagram.fromText loads parser/db/renderer, Diagram.render calls renderer.draw",
+    "dynamicResolver": "scripts/resolve-renderers.mjs follows imports at the pinned commit and emits an exact machine-readable inventory"
+  }
+}

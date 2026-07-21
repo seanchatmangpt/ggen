@@ -1,0 +1,18 @@
+---
+to: "scripts/render-mermaid.sh"
+---
+{% raw %}#!/usr/bin/env bash
+set -euo pipefail
+
+mapfile -t diagrams < <(find docs diagrams -type f -name '*.mmd' 2>/dev/null | LC_ALL=C sort)
+if [[ ${#diagrams[@]} -eq 0 ]]; then
+  echo "MERMAID_NO_DIAGRAMS" >&2
+  exit 2
+fi
+
+for input in "${diagrams[@]}"; do
+  output="${input%.mmd}.svg"
+  npx --no-install mmdc     --input "$input"     --output "$output"     --configFile mermaid.config.json     --quiet
+  echo "GREEN $input -> $output"
+done
+{% endraw %}

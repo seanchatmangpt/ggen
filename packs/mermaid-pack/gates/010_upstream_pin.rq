@@ -1,0 +1,22 @@
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+SELECT ?release ?missing WHERE {
+  {
+    ?release a mer:UpstreamRelease .
+    FILTER NOT EXISTS { ?release dct:identifier ?version }
+    BIND("version" AS ?missing)
+  }
+  UNION
+  {
+    ?release a mer:UpstreamRelease .
+    FILTER NOT EXISTS { ?release prov:value ?commit }
+    BIND("commit" AS ?missing)
+  }
+  UNION
+  {
+    ?release a mer:UpstreamRelease .
+    FILTER NOT EXISTS { ?release dct:license ?license }
+    BIND("license" AS ?missing)
+  }
+}

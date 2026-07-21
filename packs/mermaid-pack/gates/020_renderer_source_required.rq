@@ -1,0 +1,32 @@
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?type ?missing WHERE {
+  {
+    ?type a mer:DiagramType .
+    FILTER NOT EXISTS { ?type mer:diagramId ?id }
+    BIND("diagramId" AS ?missing)
+  }
+  UNION
+  {
+    ?type a mer:DiagramType .
+    FILTER NOT EXISTS { ?type mer:detectorPath ?detector }
+    BIND("detectorPath" AS ?missing)
+  }
+  UNION
+  {
+    ?type a mer:DiagramType .
+    FILTER NOT EXISTS { ?type mer:definitionPath ?definition }
+    BIND("definitionPath" AS ?missing)
+  }
+  UNION
+  {
+    ?type a mer:DiagramType .
+    FILTER NOT EXISTS { ?type mer:rendererPath ?renderer }
+    BIND("rendererPath" AS ?missing)
+  }
+  UNION
+  {
+    ?type a mer:DiagramType .
+    FILTER NOT EXISTS { ?type mer:sourceUrl ?url }
+    BIND("sourceUrl" AS ?missing)
+  }
+}

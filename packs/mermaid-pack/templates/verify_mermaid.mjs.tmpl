@@ -1,0 +1,48 @@
+---
+to: "scripts/verify-mermaid.mjs"
+---
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
+import mermaid from 'mermaid';
+
+const root = process.cwd();
+const files = [];
+
+async function walk(dir) {
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walk(p);
+    else if (entry.isFile() && p.endsWith('.mmd')) files.push(p);
+  }
+}
+
+for (const candidate of ['docs', 'diagrams']) {
+  try { await walk(path.join(root, candidate)); } catch {}
+}
+
+if (files.length === 0) {
+  console.error('MERMAID_NO_DIAGRAMS: .mmd file was not found');
+  process.exit(2);
+}
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: 'strict',
+  htmlLabels: false,
+  flowchart: { defaultRenderer: 'dagre-wrapper' },
+  architecture: { randomize: false }
+});
+
+let failed = 0;
+for (const file of files.sort()) {
+  const source = await fs.readFile(file, 'utf8');
+  try {
+    const result = await mermaid.parse(source);
+    console.log(`GREEN ${path.relative(root, file)} ${result.diagramType}`);
+  } catch (error) {
+    failed += 1;
+    console.error(`RED ${path.relative(root, file)} ${error?.message ?? error}`);
+  }
+}
+process.exit(failed === 0 ? 0 : 1);

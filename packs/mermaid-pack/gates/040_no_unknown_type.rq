@@ -1,0 +1,5 @@
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?diagram ?type WHERE {
+  ?diagram a mer:Diagram ; mer:diagramType ?type .
+  FILTER NOT EXISTS { ?type a mer:DiagramType }
+}
