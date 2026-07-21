@@ -324,11 +324,11 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs (in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs
+# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs → generation hash-pin (10 gates, in sequence, fail fast)
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs guard-generation-hash-pin
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs)"
+    echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
 
 # Pack-proof gate: re-sync the committed multi-pack consumer
 # (examples/receiptctl), verify regeneration is idempotent, and run its full
@@ -337,6 +337,14 @@ pre-commit: fmt-check check lint test-lib coherence-check guard-process-intellig
 # scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.
 guard-pack-proofs:
     ./scripts/ci/guard-pack-proofs.sh
+
+# Generation-ledger hash-pin guard (.specify/generations.ttl): every
+# gen:Generation entry must carry a non-empty, well-formed identity hash fact
+# (commit / receiptChainHash / build sha256); previously recorded hash facts
+# are append-only vs origin/main; the G0..Gn chain must be monotonic. See
+# scripts/ci/guard-generation-hash-pin.sh.
+guard-generation-hash-pin:
+    ./scripts/ci/guard-generation-hash-pin.sh
 
 # Security vulnerability scan
 audit:

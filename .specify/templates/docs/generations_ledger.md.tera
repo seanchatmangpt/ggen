@@ -51,3 +51,7 @@ must inspect it before any row below may move from NOT MET to MET on that round'
 
 - `packs/level-five-book-pack` chapter 337 (自らを造る機械は、自らを検査しなければならない) — the doctrine this ledger's G0/G1 split implements.
 - `.claude/rules/coding-agent-mistakes.md` — the 6-question patch contract this ledger's evidence citations answer to.
+- `scripts/ci/guard-generation-hash-pin.sh` (`just guard-generation-hash-pin`, wired into
+  `just pre-commit`) — hash-pinning guard over this ledger's source ontology: every
+  generation entry must carry a non-empty, well-formed identity hash; recorded hashes are
+  append-only vs `origin/main`; the G-chain must be monotonic.
