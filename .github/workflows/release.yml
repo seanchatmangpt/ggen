@@ -65,7 +65,78 @@ jobs:
         run: cargo cicd workspace doctor
 
       - name: Process conformance gate (wpm oracle)
-        run: cargo cicd status audit
+        # `cargo cicd status audit` hardcodes wpm at events.ocel.json
+        # (seanchatmangpt/cargo-cicd src/nouns/status.rs:121/158-159), but
+        # `wpm audit` only parses XES (IEEE 1849) — every invocation refuses
+        # with a format-mismatch error, verdict [REFUSE] (confirmed:
+        # https://github.com/seanchatmangpt/ggen/actions/runs/29799637996).
+        # `wpm audit`'s own remediation text ("wpm run --algorithm dfg
+        # --format json <file>" / "wpm conformance <file>") does not resolve
+        # this: neither `wpm run` nor a top-level `wpm conformance`
+        # subcommand exists in wasm4pm-cli (confirmed by running
+        # `wpm --help` against a locally built binary — only `wpm mining
+        # discover|conformance` exists, and `mining conformance`'s
+        # token-replay function is a hardcoded stub that always
+        # `anyhow::bail!`s "not available in this build").
+        #
+        # cargo-cicd's own evidence writer (src/evidence.rs::append_events)
+        # already emits events.xes next to events.ocel.json in the same
+        # evidence dir on every invocation (confirmed: after `cargo cicd
+        # workspace doctor`, both files exist together), and cargo-cicd's
+        # own wpm shell adapter (src/integrations/wasm4pm_shell.rs::audit)
+        # is documented and written to accept an XES path — "wpm audit
+        # <input.xes>" is that module's own "confirmed working command".
+        # Confirmed locally: `wpm audit target/cargo-cicd/evidence/events.xes`
+        # exits 0 and prints a real TRUTHFUL/VARIANCE/DECEPTIVE conformance
+        # verdict against real evidence — no format error.
+        #
+        # Fixing status.rs's hardcoded path is out of scope here (separate
+        # repo, not this file); this step instead calls wpm directly against
+        # the XES sibling file cargo-cicd already produces, and reproduces
+        # cargo-cicd's own verdict vocabulary (infer_audit_verdict in
+        # wasm4pm_shell.rs: DECEPTIVE -> fail, VARIANCE -> warn/pass,
+        # TRUTHFUL -> pass) so this remains a real conformance gate, not a
+        # pass-through.
+        run: |
+          set -euo pipefail
+          EVIDENCE_DIR="target/cargo-cicd/evidence"
+          XES="$EVIDENCE_DIR/events.xes"
+
+          if [ ! -f "$XES" ]; then
+            echo "ANDON: no XES evidence at $XES after 'cargo cicd workspace doctor' — pull the cord"
+            echo "  (expected cargo-cicd's evidence writer to emit events.xes alongside events.ocel.json)"
+            ls -la "$EVIDENCE_DIR" 2>&1 || true
+            exit 1
+          fi
+
+          echo "wasm4pm evidence audit (direct wpm audit against XES, bypassing cargo-cicd's OCEL-hardcoded 'status audit')"
+          echo "evidence: $XES"
+
+          set +e
+          OUTPUT=$(wpm audit "$XES" 2>&1)
+          STATUS=$?
+          set -e
+
+          echo "$OUTPUT"
+          echo "wpm exit: $STATUS"
+
+          if [ "$STATUS" -ne 0 ]; then
+            echo "ANDON: wpm audit exited non-zero against $XES — pull the cord"
+            exit 1
+          fi
+
+          LOWER=$(echo "$OUTPUT" | tr '[:upper:]' '[:lower:]')
+          if echo "$LOWER" | grep -q "deceptive"; then
+            echo "verdict: [REFUSE] DECEPTIVE — event log does not prove a lawful process happened"
+            exit 1
+          elif echo "$LOWER" | grep -q "variance"; then
+            echo "verdict: [WARN] VARIANCE — accepted, ambient live-workspace traces show honest variance"
+          elif echo "$LOWER" | grep -q "truthful"; then
+            echo "verdict: [PASS] TRUTHFUL"
+          else
+            echo "ANDON: wpm audit report shape unrecognised (no TRUTHFUL/VARIANCE/DECEPTIVE token) — pull the cord"
+            exit 1
+          fi
 
   build-release:
     name: Build Release
