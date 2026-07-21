@@ -1,6 +1,5 @@
 ---
 to: scripts/verify-evidence.sh
-force: true
 sparql:
   checks: |
     PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
@@ -77,7 +76,6 @@ if [ ! -f evidence/templates/evidence_note.md.tmpl ]; then
   cat > evidence/templates/evidence_note.md.tmpl <<'EOF'
 ---
 to: receipts/EVIDENCE_NOTE.md
-force: true
 ---
 # Verification evidence admitted
 
