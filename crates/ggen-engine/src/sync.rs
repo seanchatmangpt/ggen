@@ -1873,11 +1873,13 @@ pub(crate) fn write_receipt(root: &Path, report: &SyncReport) -> Result<()> {
         .collect();
 
     let prev_ceiling = match &prev_head {
-        Some(prev) => read_receipt_epoch(&prev.record)
-            .map_err(|e| {
-                AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
-            })?
-            .standing_ceiling,
+        Some(prev) => {
+            read_receipt_epoch(&prev.record)
+                .map_err(|e| {
+                    AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
+                })?
+                .standing_ceiling
+        }
         // Genesis: no prior evidence to constrain the ceiling yet -- Green
         // is the lattice's top/identity element (see `CeilingLevel::Green`).
         None => CeilingLevel::Green,

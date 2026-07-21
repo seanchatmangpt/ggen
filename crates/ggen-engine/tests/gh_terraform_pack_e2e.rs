@@ -84,7 +84,8 @@ const TF_FILES: [&str; 16] = [
     "README.md",
 ];
 
-const SCRIPTS: [&str; 18] = [
+const SCRIPTS: [&str; 19] = [
+    "ci-classify.sh",
     "pr-create.sh",
     "pr-checks.sh",
     "pr-view-mergeable.sh",
@@ -370,6 +371,61 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         "apply must not run after refusal: {stdout}"
     );
 
+    // (5d) ci-classify.sh mechanized bucket classification (第二十九章
+    // condition 9): hermetic subprocess proof with a stub `gh` on PATH that
+    // reports one genuinely-failing required check ("Test", FAILURE — it IS
+    // reported, so it must bucket as 製品異常, not 標準異常) and one
+    // infrastructure-flavored failure ("weird-infra", text "runner timeout"
+    // — must bucket as 設備異常).
+    let gh_stub_dir = project.parent().expect("project parent").join("gh-stub");
+    std::fs::create_dir_all(&gh_stub_dir).expect("mkdir gh-stub");
+    let gh_stub = gh_stub_dir.join("gh");
+    std::fs::write(
+        &gh_stub,
+        "#!/usr/bin/env bash\n\
+         echo '[{\"name\":\"Test\",\"state\":\"FAILURE\",\"bucket\":\"fail\",\"link\":\"https://x\"},\
+         {\"name\":\"weird-infra\",\"state\":\"FAILURE\",\"bucket\":\"fail\",\"link\":\"runner timeout\"}]'\n\
+         exit 1\n",
+    )
+    .expect("write gh stub");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&gh_stub, std::fs::Permissions::from_mode(0o755))
+            .expect("chmod gh stub");
+    }
+    let gh_path_env = format!(
+        "{}:{}",
+        gh_stub_dir.display(),
+        std::env::var("PATH").unwrap_or_default()
+    );
+    let out = Command::new("bash")
+        .arg(project.join("scripts/gh/ci-classify.sh"))
+        .args(["--repo", "o/r", "--pr", "1"])
+        .env("PATH", &gh_path_env)
+        .output()
+        .expect("spawn ci-classify.sh stub run");
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "ci-classify.sh must exit 0; stdout: {stdout} stderr: {stderr}"
+    );
+    assert!(
+        stdout.contains(r#"{"check":"Test","bucket":"製品異常","recommend":"fix-product"}"#),
+        "Test is reported+failing, so it must be 製品異常: {stdout}"
+    );
+    assert!(
+        stdout
+            .contains(r#"{"check":"weird-infra","bucket":"設備異常","recommend":"run-rerun.sh"}"#),
+        "weird-infra matches the equipment regex, so it must be 設備異常: {stdout}"
+    );
+    assert!(
+        stdout.contains(r#""ci_classify":"done""#),
+        "summary line missing: {stdout}"
+    );
+
     // (6a) ggen.lock records the pack.
     let lock = read(&project, "ggen.lock");
     assert!(lock.contains("[packs.gh-terraform-pack]"), "lock: {lock}");
@@ -394,11 +450,7 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
         !l5.contains("未実施"),
         "no 未実施 rows should remain after C16/C18 closure: {l5}"
     );
-    for receipt in [
-        "blake3:80aa8e6d",
-        "blake3:c394e85b",
-        "blake3:ae62dda5",
-    ] {
+    for receipt in ["blake3:80aa8e6d", "blake3:c394e85b", "blake3:ae62dda5"] {
         assert!(
             l5.contains(receipt),
             "L5-STATUS.md ALIVE rows must cite live receipt {receipt}: {l5}"
@@ -496,7 +548,11 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
 
     let content = std::fs::read_to_string(&ledger).expect("read ledger");
     let lines: Vec<&str> = content.lines().collect();
-    assert_eq!(lines.len(), 2, "ledger must have exactly 2 lines: {content}");
+    assert_eq!(
+        lines.len(),
+        2,
+        "ledger must have exactly 2 lines: {content}"
+    );
 
     // Expected prev_hash = sha256 of the first line exactly as the script
     // hashes it (tail -n 1 output, i.e. line + trailing newline).

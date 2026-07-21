@@ -1377,6 +1377,59 @@ done
 gh run rerun "$run" --repo "$repo" ${failed}
 """ .
 
+ghcli:CiClassify a ghcli:Command ;
+    ghcli:noun "ci" ; ghcli:verb "classify" ;
+    ghcli:scriptName "ci-classify.sh" ; ghcli:mutating false ;
+    ghcli:doc "Mechanized CI abnormality classification (第二十九章 condition 9): bucket each non-passing check as 製品異常 / 設備異常 / 標準異常 with a recommended response" ;
+    ghcli:scriptBody """#!/usr/bin/env bash
+set -euo pipefail
+# Usage: ci-classify.sh --repo <owner/repo> --pr <n>
+# 第二十九章 condition 9: mechanized step 2 of CI異常対応.
+# Buckets: 製品異常 (product defect -> fix-product),
+#          設備異常 (equipment: runner/network/timeout/... -> run-rerun.sh),
+#          標準異常 (required check not wired/not reported -> drift-report.sh).
+repo="" ; pr=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) repo="$2"; shift 2 ;;
+    --pr) pr="$2"; shift 2 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "$repo" ] && [ -n "$pr" ] || { echo "usage: ci-classify.sh --repo <owner/repo> --pr <n>" >&2; exit 2; }
+
+checks_json="$(gh pr checks "$pr" --repo "$repo" --json name,state,bucket,link 2>/dev/null || true)"
+if ! echo "$checks_json" | jq -e 'type == "array"' >/dev/null 2>&1; then
+  plain="$(gh pr checks "$pr" --repo "$repo" 2>/dev/null || true)"
+  checks_json="$(echo "$plain" | while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    n="$(echo "$line" | cut -f1)"
+    s="$(echo "$line" | cut -f2)"
+    jq -cn --arg name "$n" --arg state "$s" --arg link "$line" '{name: $name, state: $state, bucket: $state, link: $link}'
+  done | jq -cs '.')"
+fi
+
+results="$(echo "$checks_json" | jq -c '.[]' | while IFS= read -r c; do
+  state="$(echo "$c" | jq -r '(.state // "") | ascii_upcase')"
+  case "$state" in SUCCESS|PASS|NEUTRAL|SKIPPED|SKIPPING) continue ;; esac
+  name="$(echo "$c" | jq -r '.name // ""')"
+  required=0
+  case "$name" in Check|Test|Build|Doctest|"CI Status") required=1 ;; esac
+  bucket="製品異常" ; recommend="fix-product"
+  if [ "$required" -eq 1 ] && { [ -z "$state" ] || [ "$state" = "MISSING" ] || [ "$state" = "NOT_REPORTED" ] || [ "$state" = "EXPECTED" ] || [ "$state" = "PENDING" ]; }; then
+    bucket="標準異常" ; recommend="drift-report.sh"
+  elif echo "$c" | grep -qiE 'runner|network|timeout|cancelled|infrastructure|rate.limit'; then
+    bucket="設備異常" ; recommend="run-rerun.sh"
+  fi
+  jq -cn --arg check "$name" --arg bucket "$bucket" --arg recommend "$recommend" '{check: $check, bucket: $bucket, recommend: $recommend}'
+done)"
+
+if [ -n "$results" ]; then
+  echo "$results"
+fi
+echo "$results" | jq -cs 'map(select(type == "object")) | {ci_classify: "done", counts: (group_by(.bucket) | map({(.[0].bucket): length}) | add // {})}'
+""" .
+
 ghcli:IssueCreate a ghcli:Command ;
     ghcli:noun "issue" ; ghcli:verb "create" ;
     ghcli:scriptName "issue-create.sh" ; ghcli:mutating true ;
@@ -1624,7 +1677,9 @@ CI異常は三種類に分ける:
 2. **設備異常** — runner、network、external service、tool installationの不良 → run-rerun.sh で再実行、または隔離。
 3. **標準異常** — 必須検査名、workflow条件、branch protection設定の漂流 → drift-report.sh でTerraform望ましい状態との差を調べる。
 
-手順: `pr-checks.sh` で現地状態を取得 → 分類 → 処置 → 失敗理由と処置を受領。
+手順: 1. `pr-checks.sh` で現地状態を取得 → 2. `ci-classify.sh --repo <owner/repo> --pr <n>` で機械分類
+(mechanized step 2 — 非合格検査ごとに bucket と recommend をJSON一行で出力し、最後に集計行を出す) →
+3. 処置 (fix-product / run-rerun.sh / drift-report.sh) → 4. 失敗理由と処置を受領。
 
 無関係な検査を通すためだけの変更を行わない。
 """ .
