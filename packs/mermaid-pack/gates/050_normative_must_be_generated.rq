@@ -1,0 +1,6 @@
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?diagram WHERE {
+  ?diagram a mer:Diagram ;
+           mer:authorityClass mer:Normative .
+  FILTER NOT EXISTS { ?diagram mer:generated true }
+}

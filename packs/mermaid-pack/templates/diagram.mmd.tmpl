@@ -1,0 +1,12 @@
+---
+to: "{{ outputPath }}"
+sparql:
+  diagram: |
+    PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+    SELECT ?outputPath ?sourceText WHERE {
+      ?diagram a mer:Diagram ;
+               mer:outputPath ?outputPath ;
+               mer:sourceText ?sourceText .
+    } ORDER BY ?outputPath
+---
+{{ sourceText }}

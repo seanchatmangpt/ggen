@@ -1,0 +1,24 @@
+---
+to: "docs/mermaid/描画器出典台帳.md"
+sparql:
+  rows: |
+    PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+    SELECT ?id ?name ?detector ?definition ?renderer ?source ?confidence WHERE {
+      ?type a mer:DiagramType ;
+            mer:diagramId ?id ;
+            mer:displayName ?name ;
+            mer:detectorPath ?detector ;
+            mer:definitionPath ?definition ;
+            mer:rendererPath ?renderer ;
+            mer:sourceUrl ?source ;
+            mer:sourceConfidence ?confidence .
+    } ORDER BY ?id
+---
+# Mermaid描画器出典台帳
+
+上流版はMermaid 11.16.0です。出典はcommit固定URLです。
+
+| 図種ID | 日本語名 | 検出器 | 定義 | 描画器 | 確認状態 |
+|---|---|---|---|---|---|
+{% for row in rows %}| `{{ row.id }}` | {{ row.name }} | `{{ row.detector }}` | `{{ row.definition }}` | [source]({{ row.source }}) | `{{ row.confidence }}` |
+{% endfor %}

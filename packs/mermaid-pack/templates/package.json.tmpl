@@ -1,0 +1,16 @@
+---
+to: "package.json"
+force: false
+---
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mermaid:verify": "node scripts/verify-mermaid.mjs",
+    "mermaid:render": "bash scripts/render-mermaid.sh"
+  },
+  "devDependencies": {
+    "mermaid": "11.16.0",
+    "@mermaid-js/mermaid-cli": "11.16.0"
+  }
+}

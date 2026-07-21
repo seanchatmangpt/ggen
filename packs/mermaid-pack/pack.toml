@@ -1,0 +1,4 @@
+[pack]
+name = "mermaid-pack"
+version = "26.7.20"
+description = "Mermaid全図種の意味駆動生成、上流描画器出典、検査、受領を行うTCPS製造票 (upstream mermaid-js/mermaid 11.16.0 @ f0ffb41c1ee1ff667b528e86c3b082249726eeef, MIT; license AGPL-3.0-or-later; normative_authority=rdf, renderer_sources_are_pinned=true — see ontology.ttl mer:UpstreamRelease/mer:RendererSource for the machine-readable pin)"

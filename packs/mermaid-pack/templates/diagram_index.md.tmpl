@@ -1,0 +1,20 @@
+---
+to: "docs/mermaid/図面台帳.md"
+sparql:
+  rows: |
+    PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+    SELECT ?path ?typeId ?authority ?standing WHERE {
+      ?diagram a mer:Diagram ;
+               mer:outputPath ?path ;
+               mer:diagramType ?type ;
+               mer:authorityClass ?authority ;
+               mer:standingCeiling ?standing .
+      ?type mer:diagramId ?typeId .
+    } ORDER BY ?path
+---
+# Mermaid図面台帳
+
+| 出力 | 図種 | 権威区分 | standing上限 |
+|---|---|---|---|
+{% for row in rows %}| `{{ row.path }}` | `{{ row.typeId }}` | `{{ row.authority }}` | `{{ row.standing }}` |
+{% endfor %}

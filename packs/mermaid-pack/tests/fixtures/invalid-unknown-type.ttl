@@ -1,0 +1,6 @@
+@prefix mer: <https://seanchatmangpt.github.io/ontology/mermaid#> .
+mer:BadDiagram a mer:Diagram ;
+  mer:diagramType mer:MissingType ;
+  mer:outputPath "bad.mmd" ;
+  mer:sourceText "flowchart LR\nA-->B" ;
+  mer:authorityClass mer:Normative .
