@@ -653,7 +653,10 @@ fn fleet_model_doc_renders_and_exemplar_passes_gates() {
     let doc = read(&project, "docs/gh-terraform/FLEET-MODEL.md");
     // Tiers table: all five tiers, ranked.
     for tier in ["基準", "重要", "中核", "保存", "実験"] {
-        assert!(doc.contains(tier), "FLEET-MODEL.md missing tier {tier}: {doc}");
+        assert!(
+            doc.contains(tier),
+            "FLEET-MODEL.md missing tier {tier}: {doc}"
+        );
     }
     // ⊕ law spelled out.
     assert!(
