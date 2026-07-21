@@ -2073,16 +2073,38 @@ pub(crate) fn write_receipt(
     // `Unknown` because this call site does not evaluate them, and claiming
     // otherwise would overclaim checks that were never run (see
     // `.claude/rules/no-overclaiming-rust.md`).
+    // A `freeze_policy: always` output whose write.rs skip reason names
+    // real drift (candidate content would differ from the frozen file on
+    // disk) is quarantined rather than silently Admitted-Green: the file is
+    // never overwritten (freeze semantics unchanged), but the fact that
+    // generation now wants to produce different content than what's frozen
+    // is real, load-bearing information this generation observed and must
+    // not drop. `Fail`+`Quarantined` (not `Refused`) mirrors the
+    // `ccn:mechanized=false` precedent immediately below: an honestly-
+    // recorded open obligation, not a fresh hard refusal.
     let mut admission_items: Vec<AdmissionItem> = report
         .decisions
         .iter()
-        .map(|(path, reason)| AdmissionItem {
-            evidence_id: path.clone(),
-            observed_outcome: ObservedOutcome::Pass,
-            decision: AdmissionDecision::Admitted,
-            reason: reason.clone(),
-            obligations_discharged: Vec::new(),
-            obligations_created: Vec::new(),
+        .map(|(path, reason)| {
+            if reason.contains("DRIFT:") {
+                AdmissionItem {
+                    evidence_id: path.clone(),
+                    observed_outcome: ObservedOutcome::Fail,
+                    decision: AdmissionDecision::Quarantined,
+                    reason: reason.clone(),
+                    obligations_discharged: Vec::new(),
+                    obligations_created: vec![format!("FROZEN-DRIFT:{path}")],
+                }
+            } else {
+                AdmissionItem {
+                    evidence_id: path.clone(),
+                    observed_outcome: ObservedOutcome::Pass,
+                    decision: AdmissionDecision::Admitted,
+                    reason: reason.clone(),
+                    obligations_discharged: Vec::new(),
+                    obligations_created: Vec::new(),
+                }
+            }
         })
         .collect();
 

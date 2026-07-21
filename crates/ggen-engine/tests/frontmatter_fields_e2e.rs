@@ -5,7 +5,8 @@
 
 use std::path::Path;
 
-use ggen_engine::sync::{sync, SyncOptions};
+use ggen_engine::sync::{sync, SyncOptions, RECEIPT_REL_PATH};
+use praxis_core::receipt_record::ReceiptRecord;
 use tempfile::TempDir;
 
 const GGEN_TOML: &str = r#"
@@ -227,6 +228,122 @@ fn freeze_always_skips_once_target_exists() {
         std::fs::read_to_string(dir.path().join("out.txt")).expect("unchanged"),
         "hand-written, never touch\n"
     );
+}
+
+/// The andon/obligation consequence of freeze:always drift (O-5 /
+/// FreezeAlwaysNoDriftDetection, second half): the scenario above
+/// (`freeze_always_skips_once_target_exists`) already proves the file is
+/// never overwritten. This proves the receipt now honestly records that
+/// drift was observed -- a `FROZEN-DRIFT:out.txt` obligation, a Quarantined
+/// (not Admitted) admission item for `out.txt`, and the derived Andon
+/// pulled to at least Yellow by it -- rather than silently reporting
+/// Admitted/Green as if nothing were amiss.
+#[test]
+fn freeze_always_drift_is_quarantined_and_creates_an_obligation_in_the_real_receipt() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    std::fs::write(dir.path().join("out.txt"), "hand-written, never touch\n").expect("seed");
+    write_template(
+        dir.path(),
+        "f.tmpl",
+        "---\nto: out.txt\nfreeze_policy: always\n---\ngenerated content\n",
+    );
+
+    sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let raw = std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("read receipt");
+    let whole: serde_json::Value = serde_json::from_str(&raw).expect("parse json");
+    let record_json = whole.get("record").expect("record field present").clone();
+    let record: ReceiptRecord = serde_json::from_value(record_json).expect("parse record");
+    let v2 = record.v2.expect("v2 epoch present");
+
+    let admission_items = match &v2.admission {
+        praxis_core::receipt_epoch::AdmissionLedger::Recorded(items) => items,
+        praxis_core::receipt_epoch::AdmissionLedger::LegacyUnrecorded => {
+            panic!("expected a recorded v2 admission ledger")
+        }
+    };
+    let out_item = admission_items
+        .iter()
+        .find(|i| i.evidence_id == "out.txt")
+        .expect("out.txt has an admission item");
+    assert_eq!(
+        out_item.decision,
+        praxis_core::receipt_epoch::AdmissionDecision::Quarantined,
+        "drifted frozen file must be Quarantined, not Admitted: {out_item:?}"
+    );
+    assert_eq!(
+        out_item.observed_outcome,
+        praxis_core::receipt_epoch::ObservedOutcome::Fail
+    );
+    assert_eq!(
+        out_item.obligations_created,
+        vec!["FROZEN-DRIFT:out.txt".to_string()]
+    );
+    assert!(out_item.reason.contains("DRIFT:"), "{}", out_item.reason);
+
+    // A single Quarantined item pulls the derived Andon to at least Yellow
+    // (never Green) -- proving the observation actually affects standing,
+    // not just an unread field.
+    assert_ne!(
+        v2.andon,
+        praxis_core::receipt_epoch::AndonLevel::Green,
+        "a quarantined frozen-drift item must not leave Andon at Green"
+    );
+}
+
+/// Sabotage/control for the test above: identical (non-drifted) frozen
+/// content must NOT be quarantined and must NOT create an obligation --
+/// proving the drift detection actually discriminates, not just always
+/// flags frozen files.
+#[test]
+fn freeze_always_no_drift_stays_admitted_with_no_obligation() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    std::fs::write(dir.path().join("out.txt"), "generated content\n").expect("seed identical");
+    write_template(
+        dir.path(),
+        "f.tmpl",
+        "---\nto: out.txt\nfreeze_policy: always\n---\ngenerated content\n",
+    );
+
+    sync(
+        dir.path(),
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let raw = std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("read receipt");
+    let whole: serde_json::Value = serde_json::from_str(&raw).expect("parse json");
+    let record_json = whole.get("record").expect("record field present").clone();
+    let record: ReceiptRecord = serde_json::from_value(record_json).expect("parse record");
+    let v2 = record.v2.expect("v2 epoch present");
+    let admission_items = match &v2.admission {
+        praxis_core::receipt_epoch::AdmissionLedger::Recorded(items) => items,
+        praxis_core::receipt_epoch::AdmissionLedger::LegacyUnrecorded => {
+            panic!("expected a recorded v2 admission ledger")
+        }
+    };
+    let out_item = admission_items
+        .iter()
+        .find(|i| i.evidence_id == "out.txt")
+        .expect("out.txt has an admission item");
+    assert_eq!(
+        out_item.decision,
+        praxis_core::receipt_epoch::AdmissionDecision::Admitted
+    );
+    assert!(out_item.obligations_created.is_empty());
+    assert!(!out_item.reason.contains("DRIFT:"), "{}", out_item.reason);
 }
 
 #[test]
