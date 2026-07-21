@@ -67,3 +67,46 @@ fn collect_ggen_env_vars(vars: &mut HashMap<String, String>) {
         }
     }
 }
+
+// ============================================================================
+// Ontology-generated command reference (crate::generated_commands)
+// ============================================================================
+
+/// One row of the ontology-declared CLI command reference.
+#[derive(Serialize)]
+struct CommandRefEntry {
+    label: String,
+    description: String,
+}
+
+/// Output for `ggen utils commands`.
+#[derive(Serialize)]
+struct CommandsReferenceOutput {
+    commands: Vec<CommandRefEntry>,
+    total: usize,
+}
+
+/// List the ontology-declared CLI command reference (generated from
+/// `.specify/cli-commands.ttl` into `crate::generated_commands`).
+#[verb]
+fn commands(describe: Option<String>) -> Result<CommandsReferenceOutput> {
+    let commands: Vec<CommandRefEntry> = match describe.as_deref() {
+        Some(label) => crate::generated_commands::describe_command(label)
+            .map(|comment| CommandRefEntry {
+                label: label.to_string(),
+                description: comment.to_string(),
+            })
+            .into_iter()
+            .collect(),
+        None => crate::generated_commands::COMMANDS_REFERENCE
+            .iter()
+            .filter(|(_, label, _)| !label.is_empty())
+            .map(|(_, label, comment)| CommandRefEntry {
+                label: (*label).to_string(),
+                description: (*comment).to_string(),
+            })
+            .collect(),
+    };
+    let total = commands.len();
+    Ok(CommandsReferenceOutput { commands, total })
+}

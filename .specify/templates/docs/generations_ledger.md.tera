@@ -58,6 +58,31 @@ sync over the same sources reproduced the improvement byte-identically.
 | Candidate sync receipt chain hash | `{{ g4.candidateReceiptChainHash }}` |
 | Candidate outputs byte-identical to generation-N outputs | {{ g4.fixedPointWithPrevious }} |
 
+## G5 — first BEHAVIORAL change across the generation boundary
+
+{%- set g5 = sparql(query='PREFIX gen: <http://ggen.org/generations#> SELECT ?commit ?producedBy ?toolchain ?producerBinarySha256 ?candidateBinarySha256 ?binariesDiffer ?improvement ?behavioralWitness ?generatedOutputSha256 ?receiptChainHash ?candidateReceiptChainHash ?fixedPointWithPrevious WHERE { gen:G5 a gen:Generation ; gen:commit ?commit ; gen:producedBy ?producedBy ; gen:toolchain ?toolchain ; gen:producerBinarySha256 ?producerBinarySha256 ; gen:candidateBinarySha256 ?candidateBinarySha256 ; gen:binariesDiffer ?binariesDiffer ; gen:improvement ?improvement ; gen:behavioralWitness ?behavioralWitness ; gen:generatedOutputSha256 ?generatedOutputSha256 ; gen:receiptChainHash ?receiptChainHash ; gen:candidateReceiptChainHash ?candidateReceiptChainHash ; gen:fixedPointWithPrevious ?fixedPointWithPrevious . }') | first %}
+
+G4 carried ontology content — producer and candidate binaries were bit-identical. G5 carries
+a change to generated implementation whose effect is behavioral: the improvement flows
+ontology → sync → generated Rust compiled into the workspace binary, so the candidate binary
+differs from the producer by construction, and a behavioral test that failed at generation N
+passes after the producer's sync.
+
+| Fact | Value |
+|---|---|
+| Bridge commit (generation N) | `{{ g5.commit }}` |
+| Produced by | {{ g5.producedBy }} |
+| Toolchain | {{ g5.toolchain }} |
+| Producer binary sha256 | `{{ g5.producerBinarySha256 }}` |
+| Candidate binary sha256 | `{{ g5.candidateBinarySha256 }}` |
+| Binaries differ (the point of G5) | {{ g5.binariesDiffer }} |
+| Improvement | {{ g5.improvement }} |
+| Behavioral witness | {{ g5.behavioralWitness }} |
+| Generated module sha256 (stable across candidate re-sync) | `{{ g5.generatedOutputSha256 }}` |
+| Generation-N sync receipt chain hash | `{{ g5.receiptChainHash }}` |
+| Candidate sync receipt chain hash | `{{ g5.candidateReceiptChainHash }}` |
+| Candidate re-sync over same sources is a fixed point | {{ g5.fixedPointWithPrevious }} |
+
 ## 15-condition doctrine Definition-of-Done
 
 {{ met_count }} of {{ dod | length }} conditions MET as of this round. A young lineage should show more NOT MET rows than MET ones — that is the honest, expected state, not a defect in this table.
