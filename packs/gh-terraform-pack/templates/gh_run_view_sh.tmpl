@@ -1,0 +1,10 @@
+---
+to: scripts/gh/run-view.sh
+sparql:
+  row: |
+    PREFIX ghcli: <http://seanchatmangpt.github.io/packs/gh-terraform#cli->
+    SELECT ?body WHERE {
+      ghcli:RunView ghcli:scriptBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}
