@@ -24,21 +24,36 @@ fn load_real_records() -> Vec<ReceiptRecord> {
         .map(|l| {
             let v: Value = serde_json::from_str(l).expect("each line is valid JSON");
             let record_json = v.get("record").cloned().unwrap_or(v);
-            serde_json::from_value(record_json).expect("each line's record deserializes as ReceiptRecord")
+            serde_json::from_value(record_json)
+                .expect("each line's record deserializes as ReceiptRecord")
         })
         .collect()
 }
 
-fn replay(v1: &ReceiptRecord, migration: &MigrationReceipt, v2s: &[ReceiptRecord]) -> (AndonLevel, CeilingLevel) {
-    assert_eq!(migration.final_v1_chain_hash_hex, v1.chain_hash_hex, "migration must bind the real final v1 hash");
+fn replay(
+    v1: &ReceiptRecord, migration: &MigrationReceipt, v2s: &[ReceiptRecord],
+) -> (AndonLevel, CeilingLevel) {
+    assert_eq!(
+        migration.final_v1_chain_hash_hex, v1.chain_hash_hex,
+        "migration must bind the real final v1 hash"
+    );
     let first_v2 = v2s.first().expect("at least one real v2 record");
-    assert_eq!(migration.first_v2_chain_hash_hex, first_v2.chain_hash_hex, "migration must bind the real first v2 hash");
-    assert_eq!(first_v2.prev_chain_hash_hex, v1.chain_hash_hex, "chain continuity must not break across this repo's real v1/v2 boundary");
+    assert_eq!(
+        migration.first_v2_chain_hash_hex, first_v2.chain_hash_hex,
+        "migration must bind the real first v2 hash"
+    );
+    assert_eq!(
+        first_v2.prev_chain_hash_hex, v1.chain_hash_hex,
+        "chain continuity must not break across this repo's real v1/v2 boundary"
+    );
 
     let mut prev = first_v2.chain_hash_hex.clone();
     let mut last_epoch = read_receipt_epoch(first_v2).expect("first real v2 record readable");
     for record in &v2s[1..] {
-        assert_eq!(record.prev_chain_hash_hex, prev, "chain continuity within this repo's real v2 history");
+        assert_eq!(
+            record.prev_chain_hash_hex, prev,
+            "chain continuity within this repo's real v2 history"
+        );
         last_epoch = read_receipt_epoch(record).expect("real v2 record readable");
         prev = record.chain_hash_hex.clone();
     }
@@ -52,7 +67,10 @@ fn replaying_this_repos_own_real_receipt_chain_twice_is_deterministic() {
         .iter()
         .position(|r| r.schema == praxis_core::receipt_epoch::SCHEMA_V2)
         .expect("this repo's real log contains at least one v2 record");
-    assert!(boundary > 0, "this repo's real log must contain at least one v1 record before the v2 boundary");
+    assert!(
+        boundary > 0,
+        "this repo's real log must contain at least one v1 record before the v2 boundary"
+    );
 
     let v1 = records[boundary - 1].clone();
     let v2s: Vec<ReceiptRecord> = records[boundary..].to_vec();
@@ -62,7 +80,13 @@ fn replaying_this_repos_own_real_receipt_chain_twice_is_deterministic() {
 
     let first = replay(&v1, &migration, &v2s);
     let second = replay(&v1, &migration, &v2s);
-    assert_eq!(first, second, "replaying this repo's own real receipt chain twice must be deterministic");
+    assert_eq!(
+        first, second,
+        "replaying this repo's own real receipt chain twice must be deterministic"
+    );
 
-    eprintln!("MIGRATION_RECEIPT_JSON={}", serde_json::to_string_pretty(&migration).unwrap());
+    eprintln!(
+        "MIGRATION_RECEIPT_JSON={}",
+        serde_json::to_string_pretty(&migration).unwrap()
+    );
 }

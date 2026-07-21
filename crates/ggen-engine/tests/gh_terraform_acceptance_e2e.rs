@@ -196,8 +196,14 @@ fn gh_terraform_pack_acceptance_real_api() {
         &project,
         "drift-report.sh",
         &[
-            "--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name,
-            "--secret-value", "sandbox-dummy-value",
+            "--dir",
+            &tf_dir_s,
+            "--owner",
+            &owner,
+            "--repo",
+            &repo_name,
+            "--secret-value",
+            "sandbox-dummy-value",
         ],
     );
     assert_ne!(
@@ -218,8 +224,14 @@ fn gh_terraform_pack_acceptance_real_api() {
         &project,
         "drift-report.sh",
         &[
-            "--dir", &tf_dir_s, "--owner", &owner, "--repo", &repo_name,
-            "--secret-value", "sandbox-dummy-value",
+            "--dir",
+            &tf_dir_s,
+            "--owner",
+            &owner,
+            "--repo",
+            &repo_name,
+            "--secret-value",
+            "sandbox-dummy-value",
         ],
     );
     assert!(
@@ -251,7 +263,12 @@ fn gh_terraform_pack_acceptance_real_api() {
     let appended = script_ok(
         &project,
         "accept-receipt.sh",
-        &["--file", &ledger.display().to_string(), "--json", &receipt_json],
+        &[
+            "--file",
+            &ledger.display().to_string(),
+            "--json",
+            &receipt_json,
+        ],
     );
     let after = std::fs::read_to_string(&ledger).expect("read .tcps ledger");
     let lines_after: Vec<&str> = after.lines().collect();

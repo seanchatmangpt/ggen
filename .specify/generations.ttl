@@ -32,6 +32,13 @@ gen:G0 a gen:Generation ;
 # Every count below was read from the live file, not estimated.
 gen:G1 a gen:Generation ;
     gen:inspects gen:G0 ;
+    # Back-filled 2026-07-20 for the hash-pin guard (scripts/ci/
+    # guard-generation-hash-pin.sh): the commit that admitted G1's facts into
+    # this ledger, verified via `git log --diff-filter=A --format=%H --
+    # .specify/generations.ttl` -> 3b294a8ce (PR #281). G1 originally carried
+    # no identity hash fact at all; this pins the ledger entry itself, it does
+    # not retroactively claim any binary hash for the G1 round.
+    gen:commit "3b294a8ce1efbd29076db5b0818c464b13d9868f" ;
     # verified: grep -c '^[[generation.rules]]' ggen.toml -> 9 pre-existing rules
     # at the moment this round's own "docs-generations-ledger" rule was added
     # (re-checked at that moment, since an earlier check in this same session
@@ -233,6 +240,12 @@ gen:OwnHistoryMigrationAndReplay a gen:Generation ;
 gen:G2Heterogeneous a gen:Generation ;
     gen:inspects gen:G2 ;
     gen:producedBy "ggen@26.7.13 (installed ~/.cargo/bin/ggen, independently built, predates the ggen.toml `version` field)" ;
+    # Back-filled 2026-07-20 for the hash-pin guard: the commit that admitted
+    # this entry's facts into the ledger, verified via `git log -S
+    # G2Heterogeneous -- .specify/generations.ttl` -> bde338129 (PR #302).
+    # The REFUSED run itself produced no receipt/binary hash to pin — this
+    # pins the ledger entry, not a manufactured artifact.
+    gen:commit "bde338129b93bcc43745b860779c581fa8d95b96" ;
     gen:outcome "REFUSED" ;
     # verified: `~/.cargo/bin/ggen sync run` on the live tree failed closed with
     # "[FM-CONFIG-002] invalid ggen.toml ... unknown field `version`, expected

@@ -399,7 +399,7 @@ rf:recipe_04 a rf:Recipe ;
 rf:recipe_05 a rf:Recipe ;
     rf:order "005" ;
     rf:command "`just pre-commit`" ;
-    rf:purpose "`fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` (9 gates; confirmed 2026-07-19 against the justfile's own `pre-commit:` dependency line — do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression" ;
+    rf:purpose "`fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` → `guard-generation-hash-pin` (10 gates; confirmed 2026-07-20 against the justfile's own `pre-commit:` dependency line — `guard-generation-hash-pin` validates the generation ledger's hash pins, appended 2026-07-20; do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression" ;
     rf:timeout "<2min" .
 
 rf:recipe_06 a rf:Recipe ;
