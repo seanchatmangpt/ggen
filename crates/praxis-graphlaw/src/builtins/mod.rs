@@ -537,12 +537,16 @@ pub(crate) fn intern_number(value: f64) -> usize {
 }
 
 pub(crate) fn intern_string(value: String) -> usize {
-    VarOrTerm::new_literal(
-        value,
-        Some("<http://www.w3.org/2001/XMLSchema#string>".to_string()),
-        None,
-    )
-    .to_encoded()
+    // `datatype: None` (an RDF 1.1 simple literal), not an explicit
+    // xsd:string annotation -- matches every other literal-producing path in
+    // this engine (parsed Turtle/N3 data, N3/Datalog rule literals, SPARQL
+    // CONSTRUCT template instantiation). A builtin's computed string result
+    // (string:concat, crypto:sha256, log:uri, ...) must encode identically to
+    // a hand-written literal with the same lexical value, or a rule/query
+    // comparing against it silently fails to unify. Found via the N3
+    // conformance corpus (`builtin_string_concat` et al.), which encodes its
+    // expected-triple fixtures as bare strings.
+    VarOrTerm::new_literal(value, None, None).to_encoded()
 }
 
 /// Copy every column's value at `row` from `bindings` into `out` -- used
