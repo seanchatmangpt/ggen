@@ -1246,7 +1246,12 @@ ghtf:TcpsSecretNames a ghtf:RepoManagementInstance ;
     ghtf:secretName "GGEN_SIGNING_KEY" ;
     ghtf:hclBody """# Secret NAMES are declared; values are supplied out-of-band (never in RDF).
 # 第十二章: 秘密値そのものを意味図式へ保存してはならない。
+# count-guarded: the resource is managed ONLY when a real value is supplied at
+# apply time — an absent value must never create a placeholder/empty secret
+# (a fake key is worse than no key: it would fail loudly at signing time
+# instead of the clear missing-secret error).
 resource "github_actions_secret" "ggen_signing_key" {
+  count           = var.ggen_signing_key_value == "" ? 0 : 1
   repository      = var.repository
   secret_name     = "GGEN_SIGNING_KEY"
   plaintext_value = var.ggen_signing_key_value # supplied at apply time only
