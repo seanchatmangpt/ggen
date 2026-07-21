@@ -57,6 +57,11 @@ tempfile = "3"
 # the macros + runtime features; the production `tokio` dep above intentionally
 # keeps only `sync` to stay lean. Cargo unifies these for the test build.
 tokio = { version = "1.47", features = ["macros", "rt", "rt-multi-thread"] }
+# Source-level struct introspection for tests/schema_parity_test.rs (L5 condition 1's
+# schema-parity drift guard: `GgenManifest` here vs `ggen_engine::config::GgenConfig`).
+# Same version already vendored by `ggen-cheat-scanner`; only the "full" parse feature is
+# needed here (no visit/extra-traits -- this test walks `syn::Item`s directly).
+syn = { version = "2", features = ["full"] }
 
 [lints]
 workspace = true
