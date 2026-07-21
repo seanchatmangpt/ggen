@@ -1,0 +1,2 @@
+{%- set r = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:MarketplaceDocsWorkflow grp:workflowBody ?body . }') | first -%}
+{{ r.body }}
