@@ -206,6 +206,17 @@ skip_empty  = false
 mode        = "Overwrite"
 
 [[generation.rules]]
+name        = "ggen-release-marketplace-docs-workflow"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:MarketplaceDocsWorkflow grp:workflowBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_marketplace_docs_workflow.yml.tera" }
+output_file = ".github/workflows/marketplace-docs.yml"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
 name        = "ggen-publication-judgment"
 query       = { inline = """
 PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
