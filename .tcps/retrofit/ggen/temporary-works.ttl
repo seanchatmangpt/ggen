@@ -1,0 +1,57 @@
+@prefix tw:   <urn:ggen:retrofit:temporary-works:> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix intv: <urn:ggen:retrofit:intervention:> .
+
+#################################################################
+# Temporary Works register for the ggen self-retrofit, top-4    #
+# cheap-and-safe intervention portfolio                         #
+# (docs/retrofit/ggen/intervention/decision-matrix.md).          #
+#                                                                 #
+# Per the task's own rule: only genuinely load-bearing cutovers  #
+# get a temporary-work individual. Additive strengthenings and   #
+# repairs of currently-non-functional paths are recorded here    #
+# too, but explicitly typed tw:NoTemporaryWorkNeeded with a      #
+# stated reason -- never silently omitted.                       #
+#################################################################
+
+tw:TW-GGEN-001
+    a tw:TemporaryWork ;
+    rdfs:label "Verify-pack evidence lane, dual-run parallel wiring" ;
+    tw:relatedInterventionItem intv:item-1 ;
+    tw:owner "agent implementing intervention item #1 (verify-pack wiring); escalates to seanchatmangpt on overrun" ;
+    tw:supportedLoad "every `ggen sync run` invocation on this repo during the window where ggen-verify-pack's 4 evidence producers are wired into ggen.toml but the resulting receipt-shape change (6/8 Unknown -> real equivalence) has not yet been confirmed stable" ;
+    tw:startCondition "ggen.toml edited to reference ggen-verify-pack AND the first `ggen sync run` after that edit succeeds" ;
+    tw:inspectionCadence "every ggen sync run during the transition window: diff v2.equivalence against the pre-wiring baseline (6/8 Unknown); confirm no class regresses to Unknown or flips Divergent without an understood real cause" ;
+    tw:failureResponse "Andon signal per .claude/rules/andon/signals.md: stop, do not merge, fix the wiring defect, re-run; do not special-case a check out of the pack without recording the exception in plan.md" ;
+    tw:rollbackProcedure "docs/retrofit/ggen/temporary-works/rollback.md: git revert the single ggen.toml wiring commit; verify receipt returns to 6/8-Unknown baseline; no receipt-chain surgery needed since Unknown is always a valid state" ;
+    tw:expirationCondition "14 days from start OR 3 consecutive green `just pre-commit` runs (incl. guard-pack-proofs) + 1 green pull_request-triggered CI run, whichever first" ;
+    tw:removalTrigger "on success: promote (delete/close this record, fold wiring into permanent ggen.toml state, no separate temp code path to remove); on failure: roll back per rollback.md and re-open intervention item #1 as deferred" ;
+    tw:maxLifetimeDays "14"^^xsd:integer ;
+    tw:andonConsequenceOfOverrun "HIGH Andon signal (andon/signals.md table) if still open past max lifetime without a Closed or RolledBack disposition recorded here" ;
+    tw:status "Open" ;
+    tw:statusAsOf "2026-07-20"^^xsd:date .
+
+#################################################################
+# Items with no temporary work needed, stated honestly per the  #
+# task's own instruction not to default into the template.      #
+#################################################################
+
+tw:item-2-andon-derivation
+    a tw:NoTemporaryWorkNeeded ;
+    rdfs:label "Fix hardcoded andon: Green in sync.rs" ;
+    tw:relatedInterventionItem intv:item-2 ;
+    tw:reason "Already landed on this branch before this plan was written: crates/ggen-engine/src/sync.rs:2461-2476 derives legacy_andon from the real v2 precedence machinery (epoch.andon), with an inline comment confirming the prior hardcoded-Green literal was replaced. Landed by PR #346 and prior lineage commits (afa346249, 0ea86999c). Nothing left to transition." ;
+    tw:verifiedAt "2026-07-20"^^xsd:date .
+
+tw:item-5-sabotage-coverage
+    a tw:NoTemporaryWorkNeeded ;
+    rdfs:label "Close 12-fixture sabotage-coverage gap across 3 packs" ;
+    tw:relatedInterventionItem intv:item-5 ;
+    tw:reason "Pure additive strengthening: new #[test] fns added to existing test files using an already-proven pattern (ma_case_hook_actuation.rs, self_monitoring_hook_actuation.rs). No live consumer depends on the absence of these tests; nothing is cut over; no old state to carry load away from." .
+
+tw:item-8-just-sync-flags
+    a tw:NoTemporaryWorkNeeded ;
+    rdfs:label "Fix just sync / just sync-dry invalid flags" ;
+    tw:relatedInterventionItem intv:item-8 ;
+    tw:reason "Both recipes currently fail on invocation (confirmed live: justfile:415 passes --audit true, justfile:419 passes --dry_run true, neither accepted by the live sync run verb). Going from always-errors to works has no transition window to protect -- nothing today depends on the old (broken) behavior succeeding." .

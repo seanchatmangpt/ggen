@@ -1,0 +1,36 @@
+stateDiagram-v2
+    [*] --> AsFound
+
+    AsFound: As-found (before TW-GGEN-001)\nggen.toml does not reference ggen-verify-pack\nreceipt v2.equivalence: 6/8 classes Unknown
+
+    AsFound --> TransitionOpen: ggen.toml edited to add\nggen-verify-pack reference\n(TW-GGEN-001 starts)
+
+    TransitionOpen: Transition window open (TW-GGEN-001)\nEvery `ggen sync run` inspected:\ndiff v2.equivalence vs Unknown baseline\nwatch for spurious Divergent (wiring defect)\nmax lifetime 14 days
+
+    TransitionOpen --> Inspecting: sync run
+    Inspecting --> TransitionOpen: class regressed to Unknown\nOR spurious Divergent\n(Andon signal, fix and re-run)
+    Inspecting --> GreenCycle: class correctly Equivalent/Divergent\n(real evidence, no wiring defect)
+
+    GreenCycle --> TransitionOpen: fewer than 3 green\npre-commit cycles so far
+    GreenCycle --> CICheck: 3rd green pre-commit cycle reached
+
+    CICheck --> TransitionOpen: CI run not yet green
+    CICheck --> Closed: pull_request CI green\n(3 green pre-commit + 1 green CI)
+
+    Closed: Closed (success)\nWiring folded into permanent ggen.toml\nTW-GGEN-001 record marked Closed\n6/8 classes real going forward
+
+    TransitionOpen --> RolledBack: 14-day max lifetime exceeded\nwithout 3 green + 1 green CI\nOR unfixable wiring defect
+
+    RolledBack: Rolled back\nggen.toml reverted to pre-TW-GGEN-001 state\nreceipt returns to honest 6/8 Unknown\nitem #1 re-opened as deferred in decision-matrix.md
+
+    Closed --> [*]
+    RolledBack --> [*]
+
+    note right of TransitionOpen
+      Andon consequence: if this state
+      persists past 14 days without a
+      Closed or RolledBack disposition
+      recorded in temporary-works.ttl,
+      that overrun is itself a HIGH
+      Andon signal (andon/signals.md).
+    end note
