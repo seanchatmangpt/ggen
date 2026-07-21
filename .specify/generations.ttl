@@ -166,6 +166,31 @@ gen:CrossHostReproducibilityCI a gen:Generation ;
     gen:executionBlockedBy "release.yml on: push tags v* -- no v* tag has been pushed since this commit" ;
     gen:mechanismWired true .
 
+# ── Cross-host reproducibility CI, all-targets matrix completion (condition 20) ─
+# Supersedes gen:CrossHostReproducibilityCI's single-target scope at the
+# MECHANISM level only: the two copy-pasted single-target replica jobs were
+# replaced by one matrixed job (`build-release-repro`, replica [a, b] x the
+# full 4-target release matrix = 8 independent legs, target->runner mapping
+# identical to build-release: apple-darwin targets on macos-latest,
+# linux-gnu targets on ubuntu-latest with the existing aarch64 cross-tools +
+# linker env), and the verify job is a 4-leg per-target matrix comparing
+# replica sha256 hashes delivered via per-target artifacts (matrix job
+# `outputs` share one map, last writer wins -- artifacts avoid that silent
+# cross-target mixup). Still deliberately cache-free in every replica leg.
+# everExecuted stays false: no v* tag has been pushed since either pass, so
+# zero of the 4 targets have a real green cross-host run.
+gen:CrossHostReproducibilityCIAllTargets a gen:Generation ;
+    gen:inspects gen:CrossHostReproducibilityCI ;
+    gen:mechanismPath ".github/workflows/release.yml" ;
+    gen:mechanismJobs "build-release-repro (matrix replica a/b x 4 targets), verify-cross-host-reproducibility (matrix 4 targets)" ;
+    gen:targetCovered "x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, x86_64-apple-darwin, aarch64-apple-darwin" ;
+    gen:targetsNotCovered "" ;
+    gen:yamlValidated true ;
+    gen:actionlintClean true ;
+    gen:everExecuted false ;
+    gen:executionBlockedBy "release.yml on: push tags v* -- no v* tag has been pushed since this commit" ;
+    gen:mechanismWired true .
+
 # ── Independent artifact regeneration test (condition 21) ───────────────────
 # The book's own distributed artifacts (book/dist/*.md, *.html, and
 # MANIFEST.sha256 -- the 配布物 this condition names) were regenerated TWICE,
