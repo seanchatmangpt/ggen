@@ -632,7 +632,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     };
 
     if !opts.dry_run {
-        write_receipt(root, &report)?;
+        write_receipt(root, &report, graph.as_ref())?;
     }
     Ok(report)
 }
