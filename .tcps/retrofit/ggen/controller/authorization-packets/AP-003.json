@@ -30,6 +30,7 @@
     "PR #210 (feat/ggen-lsp-source-laws, stale since 2026-06-08) -- observed in the same sweep, not a release PR and not a retrofit PR either; outside this controller's self-retrofit mandate entirely, named here only so it isn't silently lost, no action taken or proposed"
   ],
   "invalidation_condition": "Regenerate if #358/#353 are closed/merged/superseded by the user or another actor, or if publish-candidate.yml's trigger conditions change.",
-  "status": "EXTERNALLY_GATED",
-  "required_authorization": "explicit user ! command naming which PR (if either) to merge -- this packet does not authorize itself and cannot resolve which release the user actually wants cut"
+  "resolution": "RESOLVED 2026-07-21T18:00Z, this packet's own invalidation_condition fired: after PR #361 (Generation 4) merged, a fresh Generation 5 branch-from-main confirmed main's Cargo.toml is already at version 26.7.25 -- merged via a THIRD PR, #357 (chore(release): bump version to 26.7.25), which neither #358 nor #353 pointed at when this packet was first written (a sweep-timing gap, not an error in the original evidence). #358's own base commit is #357's merge commit, directly confirming it targets an already-shipped version. #353 targets an even older 26.7.23, superseded by the same fact. Both were STALE DUPLICATES, not live release candidates -- closing them applies zero version change and makes no release-cutting decision, so the external-business-intent question this packet named (which release to cut, and when) never actually arose. Closed both via `gh pr close` with an evidence-citing comment on each, not merged. No ! command was needed because the terminal action taken was cleanup of dead automation output, not a release decision.",
+  "status": "CLOSED",
+  "required_authorization": "N/A -- resolved without needing the release-decision authorization this packet originally named; see resolution field"
 }
