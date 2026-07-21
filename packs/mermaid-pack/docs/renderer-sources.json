@@ -15,8 +15,8 @@
       "displayNameJa": "C4図",
       "detectorPath": "packages/mermaid/src/diagrams/c4/c4Detector.ts",
       "definitionPath": "packages/mermaid/src/diagrams/c4/c4Diagram.ts",
-      "rendererPath": "packages/mermaid/src/diagrams/c4/c4Renderer.js",
-      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.js",
+      "rendererPath": "packages/mermaid/src/diagrams/c4/c4Renderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/c4/c4Renderer.ts",
       "confidence": "verified"
     },
     {
@@ -136,8 +136,8 @@
       "displayNameJa": "順序図",
       "detectorPath": "packages/mermaid/src/diagrams/sequence/sequenceDetector.ts",
       "definitionPath": "packages/mermaid/src/diagrams/sequence/sequenceDiagram.ts",
-      "rendererPath": "packages/mermaid/src/diagrams/sequence/sequenceRenderer.js",
-      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.js",
+      "rendererPath": "packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts",
+      "rendererUrl": "https://github.com/mermaid-js/mermaid/blob/f0ffb41c1ee1ff667b528e86c3b082249726eeef/packages/mermaid/src/diagrams/sequence/sequenceRenderer.ts",
       "confidence": "verified"
     },
     {
