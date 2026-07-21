@@ -1,17 +1,20 @@
-# MESSAGE: cnv:Command noun/verb/handler/doc/returnType and cnv:Noun label/comment must be non-empty (cnv:args may legitimately be empty for zero-arg commands), and every cnv:hasCommand target must itself be a cnv:Command in the union graph (translated from shapes.ttl sh:minLength/sh:class; the sh:class check is newly enforceable here because sync gates run against the full union, unlike per-file `ggen graph validate`)
+# MESSAGE: cnv:Command noun/verb/handler/doc/returnType and cnv:Noun label/comment must be non-empty (cnv:args may legitimately be empty for zero-arg commands), and every cnv:hasCommand target must itself be a cnv:Command in the union graph (translated from shapes.ttl sh:minLength/sh:class; the sh:class check is newly enforceable here because sync gates run against the full union, unlike per-file `ggen graph validate`). Each UNION arm is scoped by FILTER(STRSTARTS(...)) to this pack's own cnv namespace: the same union-graph composition that enables the sh:class check also means other composed packs' subjects are visible here, so without the scope this gate would misfire on foreign subjects.
 PREFIX cnv:  <http://seanchatmangpt.github.io/packs/clap-noun-verb#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?s ?p ?value WHERE {
   {
     ?s a cnv:Command ; ?p ?value .
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/clap-noun-verb#"))
     VALUES ?p { cnv:noun cnv:verb cnv:handler cnv:doc cnv:returnType }
     FILTER(STRLEN(STR(?value)) = 0)
   } UNION {
     ?s a cnv:Noun ; ?p ?value .
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/clap-noun-verb#"))
     VALUES ?p { rdfs:label rdfs:comment }
     FILTER(STRLEN(STR(?value)) = 0)
   } UNION {
     ?s a cnv:Noun ; cnv:hasCommand ?value . BIND(cnv:hasCommand AS ?p)
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/clap-noun-verb#"))
     FILTER NOT EXISTS { ?value a cnv:Command }
   }
 }
