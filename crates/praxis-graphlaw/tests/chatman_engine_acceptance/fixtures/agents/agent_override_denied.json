@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_AgentOverrideDenied",
+  "kind": "falsification",
+  "seed": 6650912384710255943,
+  "mutation": "Have the agent claim an override flag on a decision it holds no permit for.",
+  "expected_refusal": "AgentOverrideDenied",
+  "input": {"agent_id": "agent-alpha", "operator_id": "operator-1", "override_requested": true}
+}

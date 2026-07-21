@@ -1,0 +1,7 @@
+{
+  "case": "Accept_PermittedBreedExecutes",
+  "kind": "acceptance",
+  "seed": 2287401963854412098,
+  "expected_behavior": "breed_execution_permitted",
+  "input": {"agent_id": "agent-beta", "operator_id": "operator-1", "breed_requested": false}
+}

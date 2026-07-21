@@ -1,0 +1,6 @@
+{
+  "suite": "agent",
+  "digest_blake3": "ea7cbff4edf6f40d01cc5190c4f0cadf901e446f654959e6f7d5d5e1d22e939d",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}
