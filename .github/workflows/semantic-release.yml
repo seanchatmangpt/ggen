@@ -12,6 +12,10 @@ permissions:
   contents: write
   packages: write
   pull-requests: write
+  # Required by the post-tag `gh workflow run release.yml` dispatch step:
+  # the workflow_dispatch API needs actions:write even under the GITHUB_TOKEN
+  # exception (commissioning finding, 2026-07-21: HTTP 403 without it).
+  actions: write
 
 # Release workflow commits a version bump and creates a tag/release; never
 # cancel a run mid-publish.
