@@ -126,7 +126,7 @@ reaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*"/User
 
 `ggen-a2a-mcp`, `ggen-lsp-mcp`, `ggen-lsp-a2a` (absorbed into `ggen-lsp`), `genesis-schema-v2` (absorbed into `genesis-types-v2`), `star-toml` (removed from the workspace — now an external published dependency), `stpnt` and `genesis-core` (dead code, zero dependents). The prior dormant non-member directories (`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`, `ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`) were deleted earlier in the same pass. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` and git history for the removed code.
 
-## Pack Inventory (28 pack directories on disk)
+## Pack Inventory (32 pack directories on disk)
 
 Generated from every `packs/*/pack.toml` (name/version/description transcribed
 programmatically 2026-07-19; descriptions truncated for the table — the pack.toml
@@ -142,7 +142,11 @@ generated from `.specify/maturity.ttl`.
 | `clap-noun-verb-pack` | 0.1.0 | Generates clap-noun-verb route skeletons (noun-verb #[verb] fns calling handler stubs) from cnv:Command individuals in the pack ontology. Commands carrying cnv:staticResponse render their entire body inline from the onto… |
 | `claude-code-pack` | 26.7.19 | Generates Claude Code multi-agent workflow scripts (the Workflow tool's JS harness format: export const meta { name, description, phases } + phase()/agent()/parallel() body) from RDF individuals, mirroring the orchestrat… |
 | `dogfood-lifecycle-pack` | 26.7.13 | v26.7.13 Operation Dogfood session-lifecycle schema: the RDF vocabulary, SHACL shape, and sample fixtures for capturing a Claude Code session's tool events (Bash / Edit / Write / Read / Task / ...) as PROV-O provenance s… |
+| `ggen-constitution-pack` | 0.1.0 | ggen-constitution-pack (heal-thyself-r1): admitted-semantics mirror of .specify/memory/constitution.md v2.0.0. One ccn:Law individual per numbered constitutional principle (I-XIV), each carrying ccn:statement (verbatim/f… |
+| `ggen-release-pack` | 0.1.0 | Release-engineering surface for ggen itself: a GitHub Actions candidate-publish workflow (.github/workflows/publish-candidate.yml, push:[main] trigger only, never schedule/cron) that chains verify-tcps, docs-sync drift c… |
 | `ggen-verify-pack` | 26.7.19 | Self-hosted verification gates: makes `ggen sync run` refuse when external check evidence (build/test/clippy/byte-identity results, emitted as ver: facts by a consumer's verify script) is missing, red, or stale. Closes t… |
+| `gh-terraform-pack` | 0.1.0 | Generates Terraform GitHub-management config (integrations/github provider, real HCL bodies modeled verbatim on ~/dev/ranchr and ~/dev/beamops) plus a reusable gh CLI shell-script library, all driven from ghtf:/ghcli: RD… |
+| `level-five-book-pack` | 0.1.0 | Level Five book transcription pack: 366 book:Chapter + 366 book:Listing individuals carrying verbatim book:sourceText, fanned out to book/src/ via two per-row templates (engine per-row `to:` interpolation). ontology.ttl … |
 | `lsp-max-pack` | 0.1.0 | Generates lsp-max RulePackServer rules/*.toml regex rule-pack files from LintRule individuals in the pack ontology (id, name, severity, pattern, path_globs, exclude_globs, message, rationale, eval_budget -- all ontology-… |
 | `ma-case-study-pack` | 26.7.13 | M&A / deal-desk case study vocabulary (ontology.ttl) + SHACL shapes (shapes.ttl) + competency questions (COMPETENCY_QUESTIONS.md), built from a real vocabulary-fit research pass over 10 domain concepts (entity/LEI, owner… |
 | `mcpp-pack` | 0.1.0 | Typed Rust catalog + subprocess dispatch shim + reference doc, generated from command-surface vocabulary for ~/mcpp (MCP+ admissible-work runtime, real dependency: clap-noun-verb = "5", confirmed via its Cargo.toml). Reu… |
