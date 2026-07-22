@@ -220,9 +220,13 @@ fn sync_generates_release_pack_infra_outputs() {
         "infra/ci/security.yml",
         "infra/targets/tier1.txt",
         "infra/targets/tier2.txt",
-        "infra/packaging/deb/control",
-        "infra/packaging/npm/package.json",
-        "infra/packaging/nuget/tcps.nuspec",
+        // .in suffix matches each target's own tcps:manifestPath ontology
+        // fact (packaging/{deb,npm,nuget}/*.in) and rpm_spec.tmpl's existing
+        // correct sibling -- these three templates previously hardcoded a
+        // path missing the suffix, a real cross-template-drift-risk finding.
+        "infra/packaging/deb/control.in",
+        "infra/packaging/npm/package.json.in",
+        "infra/packaging/nuget/tcps.nuspec.in",
     ] {
         assert!(
             project.join(rel).is_file(),
