@@ -303,6 +303,30 @@ jobs:
             --ref "$TAG" \
             -f tag="$TAG"
 
+  # PartialPublishRollbackUnknown, same fix applied to the second silently-
+  # suppressed target: release-debian.yml's native `push: tags` trigger has
+  # the identical GITHUB_TOKEN suppression problem as homebrew-release.yml
+  # above (confirmed: 15 total runs ever, all failure, none since
+  # 2026-07-02). No `-f tag=` flag here -- release-debian.yml has no
+  # workflow_dispatch inputs; dispatching with --ref "$TAG" alone is
+  # sufficient, since scripts/build-debian-package.sh derives the real
+  # package version from GITHUB_REF_NAME, which is already the tag name
+  # once the runner is checked out at that ref.
+  dispatch-release-debian:
+    name: Dispatch Debian Package Build
+    needs: [build-release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch release-debian.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          gh workflow run release-debian.yml \
+            --repo "${{ github.repository }}" \
+            --ref "$TAG"
+
   # ── Cross-host reproducibility gate (L5 condition 20) ───────────────────────
   # build-release above never builds the SAME target triple twice, so nothing
   # in that matrix can be diffed for byte-identical reproducibility. The job
@@ -507,5 +531,6 @@ jobs:
             exit 1
           fi
 
-  # Homebrew formula update is now automatic -- see dispatch-homebrew-release
-  # above. SHA256 checksums are available in release assets as *.sha256 files.
+  # Homebrew formula update and the Debian package build are now automatic
+  # -- see dispatch-homebrew-release and dispatch-release-debian above.
+  # SHA256 checksums are available in release assets as *.sha256 files.

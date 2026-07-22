@@ -1,0 +1,9 @@
+ggen (26.7.45) unstable; urgency=medium
+
+  * Initial Debian packaging. This entry's version is a placeholder --
+    scripts/build-debian-package.sh rewrites this file's top entry with
+    the real release version and current date immediately before
+    calling debuild, so every real build carries a version that
+    actually matches the git tag being released, not this seed value.
+
+ -- Sean Chatman <sean@chatmangpt.com>  Tue, 22 Jul 2026 00:00:00 +0000
