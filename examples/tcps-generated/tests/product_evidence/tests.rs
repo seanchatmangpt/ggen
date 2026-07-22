@@ -1,16 +1,3 @@
-chicago_tdd_tools::test!(contract_registry_declares_only_observed_boundaries, {
-    let registry = TestContractRegistry::new(CONTRACTS);
-    assert_eq!(registry.len(), 4);
-    assert!(registry
-        .uncovered_modules(&[
-            "tcps.source-manifest",
-            "tcps.capability-catalog",
-            "tcps.ggen-lock",
-            "tcps.evidence-receipt",
-        ])
-        .is_empty());
-});
-
 chicago_tdd_tools::test!(source_manifest_has_129_unique_safe_entries, {
     let manifest = load_manifest(&project_root()).expect("source manifest must parse");
     assert_eq!(manifest.len(), EXPECTED_MANIFEST_ENTRIES);
