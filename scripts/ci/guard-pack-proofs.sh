@@ -20,6 +20,9 @@
 #     hand-written src/lib.rs). Exercises both the pre-existing
 #     hand-transcribed proof and the cap05 SPARQL-derived proof
 #     (star_toml_config_sparql_derived_proof.rs.tmpl).
+#   - examples/cargo-cicd-verify  (wires packs/cargo-cicd-pack; added L5
+#     wave 5, 2026-07-21/22, alongside cargo-cicd-pack's Round 5 dispatch-shim
+#     work -- see that pack's pack.toml for the evidence trail).
 #
 # Uses the release ggen binary if present (fast path), else builds the debug
 # one. Any sync refusal (including the pack-shapes gate FM-PACK-013), any
@@ -34,6 +37,7 @@ CONSUMERS=(
     "examples/receiptctl"
     "examples/praxis-core-verify"
     "examples/star-toml-verify"
+    "examples/cargo-cicd-verify"
 )
 
 GGEN_BIN="target/release/ggen"

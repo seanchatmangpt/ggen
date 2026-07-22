@@ -22,4 +22,5 @@ carry.
 | Date | Session transcript | Turns | GroundingQuestion turns | Repeated topics | Hook actions fired | Derived triples |
 |---|---|---|---|---|---|---|
 <!-- APPEND ROWS BELOW — one per measured session; never edit or delete prior rows -->
+| 2026-07-21 | `71c4fe30-83e3-42f6-9da7-c34833d8426e.jsonl` | 206 | 0 | 0 | 0 | 0 |
 | 2026-07-19 | `8089721d-6c81-4500-8d5a-7a92e9a72471.jsonl` | 545 | 0 | 0 | 0 | 0 |

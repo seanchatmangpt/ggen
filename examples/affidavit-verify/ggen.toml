@@ -1,0 +1,17 @@
+[project]
+name = "affidavit-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+afd = "http://seanchatmangpt.github.io/packs/affidavit#"
+cnv = "http://seanchatmangpt.github.io/packs/clap-noun-verb#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+affidavit-pack = { path = "../../packs/affidavit-pack" }
+
+[templates]
+dir = "templates"

@@ -1,0 +1,14 @@
+# affidavit-verify project ontology — deliberately empty of individuals.
+#
+# affidavit-pack's own ontology.ttl (packs/affidavit-pack/ontology.ttl) is a
+# complete, closed model of both the CertifyStage pipeline individuals and
+# (round 5) the DataStruct/DataField/ProfileIdVariant individuals; this
+# consumer adds no project-specific facts on top of it (mirrors
+# examples/praxis-core-verify/schema/domain.ttl's / examples/star-toml-verify
+# /schema/domain.ttl's same posture). This file exists only to satisfy
+# `[ontology] source` in ggen.toml — the real domain facts come entirely from
+# the wired pack.
+
+@prefix afd:  <http://seanchatmangpt.github.io/packs/affidavit#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

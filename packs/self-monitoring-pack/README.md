@@ -39,7 +39,9 @@ to solve.
 |---|---|
 | `ontology.ttl` | Turn-lifecycle vocabulary (PROV-O / DCTERMS / SKOS + disclosed `smon:` terms) |
 | `hook.ttl` | The real `kh:Hook` (SPARQL CONSTRUCT) that derives `smon:EscalationObligation` |
-| `shapes.ttl` | SHACL shapes for `smon:Turn` and `smon:EscalationObligation` nodes |
+| `gates/*.rq` | Admission gates (`010_required.rq`/`020_single_valued.rq`/`030_value_constraints.rq`/`040_lifecycle_conditionals.rq`) — **replaced `shapes.ttl`** (SHACL) repo-wide in commit `ad9106702` ("SHACL -> SPARQL gates on both engines", 2026-07-19), which deleted `shapes.ttl` from every pack including this one. Historical verification transcripts further down this README that reference `shapes.ttl`/`--shapes shapes.ttl` predate that migration and are kept as an accurate record of what actually ran at the time — see "Wiring the capture pipeline into the real admission path" below for the current mechanism and the real bug this drift caused |
+| `scripts/run_gates.py` | **New, this pass.** The real runner for `gates/*.rq` against arbitrary input (loads ontology.ttl + one Turtle file into one `rdflib.Graph`, runs every gate, any returned row = a violation). Built because `ggen graph validate` only understands SHACL `--shapes`, and this pack is deliberately never consumed via `ggen sync run` (the only other place `gates/*.rq` get auto-evaluated in this repo) — see the script's own header for the full "why" |
+| `scripts/capture_and_validate.sh` | The pack's real capture → admission → actuation pipeline (one operator command): `transcript_to_turtle.py` → `run_gates.py` → `actuate_escalation.py`. Fixed this pass — see below |
 | `fixtures/pattern-fires.ttl` | POSITIVE fixture: same-topic repeat GroundingQuestion after a survey-only response |
 | `fixtures/pattern-does-not-fire.ttl` | NEGATIVE fixture: first response was a RunResponse, not a survey |
 | `fixtures/pattern-different-topic.ttl` | NEGATIVE fixture: second GroundingQuestion is a different topic (same_system fails) |
@@ -47,6 +49,7 @@ to solve.
 | `fixtures/session-real-broad-topic.ttl` | DISCLOSED counterfactual (not the default) for the sensitivity check |
 | `scripts/transcript_to_turtle.py` | Capture script: real `.jsonl` transcript → `smon:` Turtle (disclosed heuristic, not NLU) |
 | `scripts/broaden_topic_experiment.py` | Disclosed counterfactual post-processor for sensitivity analysis only |
+| `scripts/actuate_escalation.py` | Hook actuation + receipting against one already-admitted Turtle file (fixture or capture output) — now chained as stage 3 of `capture_and_validate.sh` |
 
 The live verification harness is real Rust integration tests, not part of this pack's own files
 (packs are data, not crates): `crates/praxis-graphlaw/tests/self_monitoring_hook_actuation.rs`
@@ -387,6 +390,10 @@ gaps for this pack (all commands below actually run this pass, not narrated):
   turtle.py exists but isn't wired"). Confirmed live against a real transcript this pass (capture
   succeeds, `shapes_conform: true`). **Still not L4/L5:** one invocation per transcript, not a
   continuous/SHACL-gated-on-ingest daemon, and the pack does not yet own retention policy.
+  **UPDATE (round 4):** the `--shapes shapes.ttl` call above stopped working once `shapes.ttl`
+  was deleted repo-wide (commit `ad9106702`) — see "L5-push, round 4" below for the real bug,
+  the fix (`scripts/run_gates.py` + a 3-stage capture→admission→actuation pipeline), and a real
+  end-to-end run against a fresh transcript.
 - **Fire precision (L4, evidence strengthened, not yet L5):**
   `scripts/measure_fire_precision_multi_session.py` extends README's Stage 3 analysis (previously
   ONE archived transcript, analyzed once) across 4 additional real, independently-dated
@@ -503,6 +510,171 @@ scratch `cargo run --bin overdue_check` binary (both under this session's scratc
 committed here); and the `actuate_escalation.py --emit-receipt-graph --verify-round-trip`
 invocation shown above.
 
+## L5-push, round 4: wiring the capture pipeline into the real admission path
+
+`nextPromotionObligation` for this pack (`.specify/pack-l5-promotion.ttl`'s
+`l5p:pack_self_monitoring`) named this exact gap: "Input-acquisition L2
+(transcript_to_turtle.py exists but unwired). Wire the capture script."
+Round 2 above already built `capture_and_validate.sh` to chain capture with
+an admission check — but a real, confirmed bug meant that script no longer
+worked at all by the time this round started.
+
+### The real bug found (not hypothetical — reproduced live before any fix)
+
+Commit `ad9106702` ("SHACL -> SPARQL gates on both engines", 2026-07-19)
+migrated every pack's admission mechanism from SHACL (`shapes.ttl`) to
+SPARQL "gates" (`gates/*.rq`) and deleted
+`packs/self-monitoring-pack/shapes.ttl` as part of that migration — the
+same commit added this pack's own `gates/010_required.rq` through
+`gates/040_lifecycle_conditionals.rq` (1:1 translations of the deleted
+shapes, per their own `# MESSAGE:` headers) — but `capture_and_validate.sh`
+was never updated to match. Confirmed live, this round, before touching
+anything:
+
+```text
+$ scripts/capture_and_validate.sh <transcript.jsonl> <out.ttl> <session-id>
+== stage 1: capture (transcript_to_turtle.py) ==
+...wrote: <out.ttl> (21 triples)
+
+== stage 2: admission (ggen graph validate --shapes) ==
+ERROR: CLI execution failed: Command execution failed: shapes file
+`.../packs/self-monitoring-pack/shapes.ttl` unreadable: No such file or
+directory (os error 2)
+```
+(real exit code: 1 — `set -euo pipefail` correctly halted the script, but
+for the wrong reason: a missing file, not a real conformance check. The
+`gates/*.rq` files existed on disk this whole time with no runner
+anywhere in this repo that evaluates them against arbitrary input —
+`ggen graph validate` only understands SHACL `--shapes`, and `ggen sync
+run`'s automatic gate evaluation only applies to packs wired into a
+consuming project's `ggen.toml [packs]`, which this pack deliberately
+never is.)
+
+### The fix
+
+`scripts/run_gates.py` (new) — loads `ontology.ttl` + one input Turtle
+file into an `rdflib.Graph` (the same SPARQL 1.1 engine every other script
+in this pack already treats as its independent cross-check engine) and
+runs every `gates/*.rq` file verbatim, sorted by filename. Exits 0 only if
+every gate returns zero violation rows; exits 1 and prints every violating
+row otherwise. `capture_and_validate.sh` now chains three stages instead
+of two:
+
+```text
+stage 1: transcript_to_turtle.py   (capture:   .jsonl -> smon: Turtle)
+stage 2: run_gates.py              (admission: gates/*.rq, real SPARQL gates)
+stage 3: actuate_escalation.py     (actuation: real kh: hook mechanism on
+                                     the admitted facts, receipted, with
+                                     --emit-receipt-graph --verify-round-trip)
+```
+
+`set -euo pipefail` means a stage-2 admission failure genuinely blocks
+stage 3 — malformed/non-conforming captured facts never reach hook
+actuation. Confirmed live with an induced-tamper negative control (a
+scratch copy, never the tracked fixture — `smon:turnKind
+smon:GroundingQuestion` swapped for the out-of-scheme
+`smon:NotARealConcept`), reproducing the SHACL-era fail-closed guarantee
+under the new gate mechanism:
+
+```text
+[FAIL] 030_value_constraints.rq: closed vocabularies and typed targets...
+       violation: ['.../pattern-fires#turn-1', '...#turnKind', '...#NotARealConcept']
+       violation: ['.../pattern-fires#turn-4', '...#turnKind', '...#NotARealConcept']
+conforms: False
+exit: 1
+```
+and, chaining the exact stage-2→stage-3 sequence against that same
+tampered file: stage 3 never ran (no receipt directory was created),
+confirming the fail-closed property holds for the wired pipeline as a
+whole, not only for `run_gates.py` in isolation.
+
+### Real end-to-end run: real transcript in, real admitted facts out, real hook actuation on the newly admitted data
+
+```text
+$ scripts/capture_and_validate.sh \
+    ~/.claude/projects/-Users-sac-ggen/71c4fe30-83e3-42f6-9da7-c34833d8426e.jsonl \
+    <scratch>/real-e2e-71c4fe30.ttl real-e2e-71c4fe30
+
+== stage 1: capture ==
+total extracted turns: 206
+turnKind counts: {'Other': 200, 'RunResponse': 1, 'SurveyResponse': 3, 'BlockerResponse': 2}
+wrote: <scratch>/real-e2e-71c4fe30.ttl (1239 triples)
+
+== stage 2: admission ==
+[PASS] 010_required.rq  [PASS] 020_single_valued.rq
+[PASS] 030_value_constraints.rq  [PASS] 040_lifecycle_conditionals.rq
+conforms: True
+
+== stage 3: actuation ==
+outcome: actuated
+hooks: derive_escalation_obligation(0) prioritize_low(0) prioritize_medium(0)
+       prioritize_high(0) flag_ungoverned_transition(0) escalate_overdue(0)
+any_hook_fired: false
+round_trip: { round_trip_verified: true, actuation_receipt_count: 1 }
+```
+exit code: 0. Every `gates/*.rq` and every `kh:Hook` in `hook.ttl` really
+ran against real, freshly-captured facts from a real, previously-unused
+session transcript — receipted (`.smon/receipts/real-e2e-71c4fe30-*.json`
++ `.receipt.ttl`) and round-trip-verified (re-parsed into a fresh
+`rdflib.Graph` and confirmed the `smon:ActuationReceipt` fact is
+queryable), exactly the "capture -> admission -> real hook firing" chain
+this round set out to prove.
+
+**Zero firings, honestly reported, not the mechanism failing:** this
+transcript contains zero `GroundingQuestion` turns under
+`transcript_to_turtle.py`'s disclosed heuristic, so no firing is possible
+by construction — checked across all 7 other real, dated
+`-Users-sac-ggen` session transcripts available this round (capture-only
+scan, no full pipeline run needed to see the answer): every one has zero
+`GroundingQuestion` turns too, consistent with README's own earlier
+finding (real `GroundingQuestion` turns were only observed in the
+original `-Users-sac-praxis` session behind `session-real.ttl`). To
+confirm the wired actuation stage genuinely CAN fire (not merely that it
+structurally exists), `actuate_escalation.py` was also run through the
+same code path against the known-positive `fixtures/pattern-fires.ttl`:
+`any_hook_fired: true`, `derive_escalation_obligation_action` (4 rows) and
+`prioritize_escalation_obligation_low_action` (7 rows) fired. One new
+dated row was appended to `PRECISION_LEDGER.md` for the real transcript
+used above (`scripts/append_precision_measurement.sh`, pre-existing and
+unmodified).
+
+**Regression check:** all 12 pre-existing Rust tests across
+`self_monitoring_hook_actuation.rs` (3), `self_monitoring_lifecycle_
+fixtures.rs` (3), and `self_monitoring_real_session_actuation.rs` (6)
+still pass, unchanged (`cargo test -p praxis-graphlaw --test
+self_monitoring_hook_actuation --test self_monitoring_lifecycle_fixtures
+--test self_monitoring_real_session_actuation` — this round touched only
+Python scripts under `scripts/`, never `hook.ttl`/`ontology.ttl`/fixtures,
+so this is confirmation, not narration). All 6 existing hand-built
+fixtures (`pattern-fires`, `pattern-does-not-fire`,
+`pattern-different-topic`, `pattern-ungoverned`, `pattern-overdue`,
+`pattern-fires-discharged`) were also re-checked against the new
+`run_gates.py` and conform.
+
+### Still not L4/L5 (disclosed, not silently omitted)
+
+This is still one INVOCATION of a pipeline, run by a human or CI job
+against one transcript file at a time — not a running capture
+daemon/watch process (L4's bar) and not a pack that owns retention policy
+end to end (L5's bar). Actuation still requires a human/CI job to invoke
+this script; there is no live mid-session trigger, unchanged from
+README's pre-existing "does NOT prove" section. `docs/packs/
+PACK_MATURITY_MODEL.md` is GENERATED from `.specify/maturity.ttl`, and
+`docs/l5-promotion/L5_PROMOTION_PROGRAM.md` is GENERATED from
+`.specify/pack-l5-promotion.ttl` (edit the ontology, not the doc) — this
+round edited `.specify/pack-l5-promotion.ttl`'s
+`l5p:pack_self_monitoring` individual directly to record the fix, but
+deliberately did NOT run a repo-wide `ggen sync run` to regenerate every
+derived `.md` this pass (out of scope for this pack's own wiring fix, and
+the shared build environment was under real, confirmed disk pressure
+during this session — `df` showed the data volume at 100% capacity,
+511Mi–5.7Gi available, fluctuating, before the Rust regression tests
+above successfully compiled). `docs/packs/PACK_MATURITY_MODEL.md`'s
+Input-acquisition cell and `docs/l5-promotion/L5_PROMOTION_PROGRAM.md`'s
+`self-monitoring-pack` row will read stale (still citing "isn't wired")
+until a future `ggen sync run` regenerates them from the now-updated
+ontology — a named, disclosed follow-up, not a silent gap.
+
 ## Fence
 
 Observation/derivation only. No class, predicate, or individual is named `authorize` / `permit`
@@ -520,6 +692,11 @@ never a compliance verdict or an instruction actually carried out.
 - `scripts/transcript_to_turtle.py` / `scripts/broaden_topic_experiment.py` — the capture script
   and the disclosed sensitivity-analysis counterfactual, both documented in their own module
   docstrings
+- `scripts/run_gates.py` / `scripts/capture_and_validate.sh` — the real admission-gate runner and
+  the capture → admission → actuation pipeline it's chained into (see "L5-push, round 4" above)
+- `scripts/actuate_escalation.py` / `scripts/measure_fire_precision_multi_session.py` /
+  `scripts/append_precision_measurement.sh` — hook actuation + receipting, and the fire-precision
+  ledger accumulator (`PRECISION_LEDGER.md`)
 - `crates/multifractal-workflow/fixtures/bribery-case/` — the precedent this pack mirrors
 - `packs/dogfood-lifecycle-pack/` — the sibling pack whose `dfl:Session`/`dfl:Outcome` patterns
   this pack's `dcterms:isPartOf`/closed-SKOS-scheme design directly follows

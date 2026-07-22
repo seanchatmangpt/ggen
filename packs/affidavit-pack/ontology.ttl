@@ -102,3 +102,80 @@ afd:emit     a cnv:Command ; cnv:noun "affi" ; cnv:verb "emit"     ; rdfs:commen
 afd:assemble a cnv:Command ; cnv:noun "affi" ; cnv:verb "assemble" ; rdfs:comment "Finalize and seal the current receipt." .
 afd:verify   a cnv:Command ; cnv:noun "affi" ; cnv:verb "verify"   ; rdfs:comment "Run the certify pipeline against a receipt." .
 afd:show     a cnv:Command ; cnv:noun "affi" ; cnv:verb "show"     ; rdfs:comment "Inspect receipt details." .
+
+# ---------------------------------------------------------------------------
+# Round 5 (2026-07-21) -- cap01 partial closure for round 4's transcribed
+# modules (l5-promotion program, .specify/pack-l5-promotion.ttl
+# l5p:pack_affidavit's disclosed regression: round 4's src/affidavit_types.rs
+# /affidavit_chain.rs/affidavit_verifier.rs were "a hardcoded,
+# ontology-independent Rust port... NOT SPARQL-projected").
+#
+# Scope of this round, stated precisely: only the plain-data SHAPES in
+# src/affidavit_types.rs -- the four structs that carry no algorithmic
+# behavior of their own (ObjectRef/OperationEvent/CheckOutcome/Verdict) and
+# the single-variant ProfileId enum's name<->wire-string mapping -- are
+# promoted from hand-written struct/enum literals to facts below, projected
+# by affidavit_types.rs.tmpl's new `structs`/`fields`/`profile_variants`
+# SPARQL queries (same a_sections/fields/bounds pattern star-toml-pack and
+# praxis-core-pack already proved). NOT in scope, and still hand-written
+# hardcoded Rust (disclosed, not fabricated as closed): Blake3Hash's three
+# methods and its Display impl (thin delegation to the `blake3` crate,
+# genuinely not ontology-expressible data); Receipt's struct body, its
+# `sealed()` constructor, and its custom `Deserialize` impl (the chain-hash
+# forgery check -- real security logic, calls into affidavit_chain, not an
+# enumerable fact); canonical_bytes/sort_value (a generic JSON-canonicalization
+# algorithm with no affidavit-specific facts to derive from, same "generic
+# structural primitive" treatment round 3 gave check_strictly_increasing/
+# check_unique); and all of src/affidavit_chain.rs (ChainAssembler's rolling
+# BLAKE3 fold_event loop) and src/affidavit_verifier.rs (the six stage_* fns'
+# real format/hash/commitment checks) -- genuine algorithmic/cryptographic
+# logic that would require a computation-IR in the ontology to express, not
+# just data facts, and was not attempted this round. See pack.toml for the
+# full disclosure of what remains hardcoded after this round.
+afd:DataStruct a rdfs:Class ; rdfs:label "a plain-data Rust struct transcribed from ~/affidavit's real source" ;
+    rdfs:comment "Carries only field shape (name/type/order) -- never a struct with hand-written algorithmic behavior of its own (Blake3Hash, Receipt are deliberately NOT modeled here; see round-5 disclosure above)." .
+afd:DataField a rdfs:Class ; rdfs:label "a named field of an afd:DataStruct, in declared order" .
+
+afd:structName  a rdf:Property ; rdfs:domain afd:DataStruct ; rdfs:range xsd:string .
+afd:structDoc   a rdf:Property ; rdfs:domain afd:DataStruct ; rdfs:range xsd:string .
+afd:structOrder a rdf:Property ; rdfs:domain afd:DataStruct ; rdfs:range xsd:integer .
+
+afd:inStruct   a rdf:Property ; rdfs:domain afd:DataField ; rdfs:range afd:DataStruct .
+afd:fieldName  a rdf:Property ; rdfs:domain afd:DataField ; rdfs:range xsd:string .
+afd:fieldType  a rdf:Property ; rdfs:domain afd:DataField ; rdfs:range xsd:string ;
+    rdfs:comment "The literal Rust type exactly as declared in the checksummed reference (packs/affidavit-pack/reference/affidavit_v26.6.22_src/types.rs) -- e.g. 'Option<String>' is the literal fact, not a required-flag-derived wrapper (unlike star-toml-pack's ConfigField model, this pack's fields have no separate optionality axis)." .
+afd:fieldOrder a rdf:Property ; rdfs:domain afd:DataField ; rdfs:range xsd:integer .
+
+afd:objectRefStruct a afd:DataStruct ; afd:structName "ObjectRef" ; afd:structOrder 1 ;
+    afd:structDoc "A qualified reference from an operation-event to an OCEL object." .
+afd:objectRefStruct_id        a afd:DataField ; afd:inStruct afd:objectRefStruct ; afd:fieldName "id"        ; afd:fieldType "String"         ; afd:fieldOrder 1 .
+afd:objectRefStruct_objType   a afd:DataField ; afd:inStruct afd:objectRefStruct ; afd:fieldName "obj_type"  ; afd:fieldType "String"         ; afd:fieldOrder 2 .
+afd:objectRefStruct_qualifier a afd:DataField ; afd:inStruct afd:objectRefStruct ; afd:fieldName "qualifier" ; afd:fieldType "Option<String>" ; afd:fieldOrder 3 .
+
+afd:operationEventStruct a afd:DataStruct ; afd:structName "OperationEvent" ; afd:structOrder 2 ;
+    afd:structDoc "A single append-only operation-event in a receipt chain." .
+afd:operationEventStruct_id                a afd:DataField ; afd:inStruct afd:operationEventStruct ; afd:fieldName "id"                 ; afd:fieldType "String"            ; afd:fieldOrder 1 .
+afd:operationEventStruct_seq               a afd:DataField ; afd:inStruct afd:operationEventStruct ; afd:fieldName "seq"                ; afd:fieldType "u64"               ; afd:fieldOrder 2 .
+afd:operationEventStruct_eventType         a afd:DataField ; afd:inStruct afd:operationEventStruct ; afd:fieldName "event_type"         ; afd:fieldType "String"            ; afd:fieldOrder 3 .
+afd:operationEventStruct_objects           a afd:DataField ; afd:inStruct afd:operationEventStruct ; afd:fieldName "objects"            ; afd:fieldType "Vec<ObjectRef>"    ; afd:fieldOrder 4 .
+afd:operationEventStruct_payloadCommitment a afd:DataField ; afd:inStruct afd:operationEventStruct ; afd:fieldName "payload_commitment" ; afd:fieldType "Blake3Hash"        ; afd:fieldOrder 5 .
+
+afd:checkOutcomeStruct a afd:DataStruct ; afd:structName "CheckOutcome" ; afd:structOrder 3 ;
+    afd:structDoc "The result of a single decidable pipeline stage." .
+afd:checkOutcomeStruct_stage  a afd:DataField ; afd:inStruct afd:checkOutcomeStruct ; afd:fieldName "stage"  ; afd:fieldType "String" ; afd:fieldOrder 1 .
+afd:checkOutcomeStruct_passed a afd:DataField ; afd:inStruct afd:checkOutcomeStruct ; afd:fieldName "passed" ; afd:fieldType "bool"   ; afd:fieldOrder 2 .
+afd:checkOutcomeStruct_detail a afd:DataField ; afd:inStruct afd:checkOutcomeStruct ; afd:fieldName "detail" ; afd:fieldType "String" ; afd:fieldOrder 3 .
+
+afd:verdictStruct a afd:DataStruct ; afd:structName "Verdict" ; afd:structOrder 4 ;
+    afd:structDoc "The final verdict of the certify pipeline over a receipt." .
+afd:verdictStruct_accepted a afd:DataField ; afd:inStruct afd:verdictStruct ; afd:fieldName "accepted" ; afd:fieldType "bool"            ; afd:fieldOrder 1 .
+afd:verdictStruct_profile  a afd:DataField ; afd:inStruct afd:verdictStruct ; afd:fieldName "profile"  ; afd:fieldType "ProfileId"       ; afd:fieldOrder 2 .
+afd:verdictStruct_outcomes a afd:DataField ; afd:inStruct afd:verdictStruct ; afd:fieldName "outcomes" ; afd:fieldType "Vec<CheckOutcome>" ; afd:fieldOrder 3 .
+afd:verdictStruct_reason   a afd:DataField ; afd:inStruct afd:verdictStruct ; afd:fieldName "reason"   ; afd:fieldType "String"          ; afd:fieldOrder 4 .
+
+afd:ProfileIdVariant a rdfs:Class ; rdfs:label "a variant of the afd:ProfileId enum, with its as_str() wire-format mapping" .
+afd:variantName  a rdf:Property ; rdfs:domain afd:ProfileIdVariant ; rdfs:range xsd:string .
+afd:variantStr   a rdf:Property ; rdfs:domain afd:ProfileIdVariant ; rdfs:range xsd:string .
+afd:variantOrder a rdf:Property ; rdfs:domain afd:ProfileIdVariant ; rdfs:range xsd:integer .
+
+afd:profileIdCoreV1 a afd:ProfileIdVariant ; afd:variantName "CoreV1" ; afd:variantStr "core/v1" ; afd:variantOrder 1 .

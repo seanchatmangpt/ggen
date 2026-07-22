@@ -2,6 +2,26 @@
 to: src/affidavit_types.rs
 freeze_policy: checksum
 freeze_slots_dir: .ggen/freeze/affidavit-pack
+sparql:
+  structs: >
+    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
+    SELECT ?structName ?structDoc ?structOrder WHERE {
+      ?s a afd:DataStruct ; afd:structName ?structName ; afd:structDoc ?structDoc ;
+         afd:structOrder ?structOrder .
+    } ORDER BY ?structOrder
+  fields: >
+    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
+    SELECT ?structName ?fieldName ?fieldType ?fieldOrder WHERE {
+      ?f a afd:DataField ; afd:inStruct ?s ; afd:fieldName ?fieldName ;
+         afd:fieldType ?fieldType ; afd:fieldOrder ?fieldOrder .
+      ?s afd:structName ?structName .
+    } ORDER BY ?structName ?fieldOrder
+  profile_variants: >
+    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
+    SELECT ?variantName ?variantStr ?variantOrder WHERE {
+      ?v a afd:ProfileIdVariant ; afd:variantName ?variantName ; afd:variantStr ?variantStr ;
+         afd:variantOrder ?variantOrder .
+    } ORDER BY ?variantOrder
 ---
 //! Real receipt data model transcribed from `~/affidavit`'s
 //! `src/types.rs` (crates.io `affidavit` v26.6.22) -- `Blake3Hash`,
@@ -13,6 +33,23 @@ freeze_slots_dir: .ggen/freeze/affidavit-pack
 //! NOT transcribed -- out of scope for this pack's ontology, and not
 //! needed by the reference's own `chain.rs`/`verifier.rs` test modules
 //! this pack copies verbatim in `affidavit_chain.rs`/`affidavit_verifier.rs`.
+//!
+//! Round 5 (2026-07-21) cap01 partial closure -- see ontology.ttl's own
+//! "Round 5" comment block for the full disclosure. Summary: the four
+//! plain-data structs below (`ObjectRef`/`OperationEvent`/`CheckOutcome`/
+//! `Verdict`) and the `ProfileId` enum + its `as_str()` wire-mapping are now
+//! projected from `afd:DataStruct`/`afd:DataField`/`afd:ProfileIdVariant`
+//! facts via this file's own `structs`/`fields`/`profile_variants` SPARQL
+//! queries (same pattern star-toml-pack's `star_toml_config.rs.tmpl` and
+//! praxis-core-pack's refusal-taxonomy template already proved) -- adding a
+//! field or struct to the ontology changes generated output on the next
+//! `ggen sync run` with zero template edits. `Blake3Hash` (delegates to the
+//! `blake3` crate), `Receipt` (its custom `Deserialize` re-verifies the
+//! chain hash -- real security logic, not a data fact), and
+//! `canonical_bytes`/`sort_value` (a generic, domain-independent
+//! JSON-canonicalization algorithm) remain hand-written below -- disclosed,
+//! not fabricated as ontology-derived; there is no `afd:` fact they could be
+//! projected from without inventing a computation IR.
 //!
 //! Every struct/fn signature below is a byte-for-byte match against
 //! `packs/affidavit-pack/reference/affidavit_v26.6.22_src/types.rs`
@@ -107,24 +144,6 @@ impl<'de> Deserialize<'de> for Receipt {
     }
 }
 
-/// A qualified reference from an operation-event to an OCEL object.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ObjectRef {
-    pub id: String,
-    pub obj_type: String,
-    pub qualifier: Option<String>,
-}
-
-/// A single append-only operation-event in a receipt chain.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct OperationEvent {
-    pub id: String,
-    pub seq: u64,
-    pub event_type: String,
-    pub objects: Vec<ObjectRef>,
-    pub payload_commitment: Blake3Hash,
-}
-
 /// An immutable, content-addressed chain of operation-events.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Receipt {
@@ -135,35 +154,32 @@ pub struct Receipt {
     _seal: (),
 }
 
-/// The conformance profile a verdict was evaluated under.
+// --- afd:DataStruct-projected plain data shapes (round 5) -----------------
+// Field lists below come from afd:DataField facts (afd:fieldName/afd:fieldType
+// /afd:fieldOrder), not a hand-transcribed struct body. The derive list
+// (`Debug, Clone, PartialEq, Eq, Serialize, Deserialize`) is identical across
+// all four structs in the real reference, so it is emitted literally per
+// struct rather than added as a fifth ontology fact per struct -- a Rust
+// derive-attribute choice, not domain data (same treatment star-toml-pack's
+// template gives its own constant derive list).
+{% for s in structs %}/// {{ s.structDoc }}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct {{ s.structName }} {
+{% for f in fields %}{% if f.structName == s.structName %}    pub {{ f.fieldName }}: {{ f.fieldType }},
+{% endif %}{% endfor %}}
+
+{% endfor %}/// The conformance profile a verdict was evaluated under.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProfileId {
-    CoreV1,
-}
+{% for v in profile_variants %}    {{ v.variantName }},
+{% endfor %}}
 
 impl ProfileId {
     pub fn as_str(&self) -> &'static str {
         match self {
-            ProfileId::CoreV1 => "core/v1",
-        }
+{% for v in profile_variants %}            ProfileId::{{ v.variantName }} => "{{ v.variantStr }}",
+{% endfor %}        }
     }
-}
-
-/// The result of a single decidable pipeline stage.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CheckOutcome {
-    pub stage: String,
-    pub passed: bool,
-    pub detail: String,
-}
-
-/// The final verdict of the certify pipeline over a receipt.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Verdict {
-    pub accepted: bool,
-    pub profile: ProfileId,
-    pub outcomes: Vec<CheckOutcome>,
-    pub reason: String,
 }
 
 /// Produce deterministic, sorted-key JSON bytes for any serializable value.

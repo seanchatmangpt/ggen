@@ -1,0 +1,17 @@
+[project]
+name = "cargo-cicd-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+cnv = "http://seanchatmangpt.github.io/packs/clap-noun-verb#"
+cc = "http://seanchatmangpt.github.io/packs/cargo-cicd#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+cargo-cicd-pack = { path = "../../packs/cargo-cicd-pack" }
+
+[templates]
+dir = "templates"

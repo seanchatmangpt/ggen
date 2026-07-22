@@ -84,3 +84,95 @@ ctt:receiptctl-unknown-verb
   ctt:expectExitCode 1 ;
   ctt:stderrNeedle "error" ;
   ctt:coversAxiom "an unknown subcommand exits nonzero with a clap error on stderr" .
+
+# ── Negative-witness suite (cap06) ──────────────────────────────────
+#
+# The four individuals above are all happy-path (3) plus one incidental
+# sabotage case (receiptctl-unknown-verb). The five below were added
+# 2026-07-22 to turn that single incidental case into a systematic sabotage
+# suite covering the distinct real clap-noun-verb failure modes actually
+# observed against the built `examples/receiptctl` binary (verified live:
+# `cargo build -q` in examples/receiptctl, then each argv run directly with
+# stdout/stderr captured separately via shell redirection, matching exactly
+# how `chicago_tdd_tools::cli_proof::CliHarness::run` captures them via
+# `std::process::Command::output()` -- both are OS-level fd capture, not a
+# simulation). Every stderrNeedle below is a substring transcribed verbatim
+# from that real captured stderr, not invented.
+#
+# Three of the five reuse ctt:composesCommand against a REAL required-arg
+# command (cnv:ReceiptEmit / cnv:UserCreate / cnv:SessionLogin, all defined
+# with a required cnv:args field) precisely because composesCommand's SPARQL
+# binds argv to CONCAT(noun, " ", verb) only -- no flags -- which is exactly
+# the "required flag omitted" shape these sabotage cases need. This is the
+# second real use of composesCommand (previously exercised by exactly one
+# happy-path test, receiptctl-algorithm-list), now also proven on a sad path.
+
+ctt:receiptctl-receipt-emit-missing-required-arg
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl receipt emit missing required --sync-receipt-id boundary proof" ;
+  ctt:testName "receiptctl_receipt_emit_fails_without_required_arg" ;
+  ctt:binary "receiptctl" ;
+  ctt:composesCommand cnv:ReceiptEmit ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-07-22): `receiptctl receipt emit` with its
+  # required `--sync-receipt-id` flag omitted exits 1; stderr (captured
+  # separately from stdout) contains this exact substring.
+  ctt:stderrNeedle "required arguments were not provided" ;
+  ctt:coversAxiom "receipt emit without its required --sync-receipt-id flag fails closed via clap's own required-argument enforcement" .
+
+ctt:receiptctl-user-create-missing-required-arg
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl user create missing required --name boundary proof" ;
+  ctt:testName "receiptctl_user_create_fails_without_required_arg" ;
+  ctt:binary "receiptctl" ;
+  ctt:composesCommand cnv:UserCreate ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-07-22): same clap required-argument enforcement
+  # as receipt emit, exercised on a different noun/verb/flag combination.
+  ctt:stderrNeedle "required arguments were not provided" ;
+  ctt:coversAxiom "user create without its required --name flag fails closed via clap's own required-argument enforcement" .
+
+ctt:receiptctl-session-login-missing-required-arg
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl session login missing required --token boundary proof" ;
+  ctt:testName "receiptctl_session_login_fails_without_required_arg" ;
+  ctt:binary "receiptctl" ;
+  ctt:composesCommand cnv:SessionLogin ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-07-22): same clap required-argument enforcement
+  # as receipt emit / user create, third distinct noun/verb/flag combination.
+  ctt:stderrNeedle "required arguments were not provided" ;
+  ctt:coversAxiom "session login without its required --token flag fails closed via clap's own required-argument enforcement" .
+
+ctt:receiptctl-known-noun-unrecognized-verb
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl known-noun unrecognized-verb boundary proof" ;
+  ctt:testName "receiptctl_known_noun_unrecognized_verb_fails_closed" ;
+  ctt:binary "receiptctl" ;
+  # A distinct failure mode from receiptctl-unknown-verb above: there the
+  # TOP-LEVEL token itself is unrecognized (no noun matches "frobnicate" at
+  # all); here the noun "algorithm" IS registered but the verb under it is
+  # not, which clap resolves via its per-noun subcommand tree rather than
+  # the top-level command list -- a different code path, confirmed to
+  # produce a different message ("unrecognized subcommand" vs. the top-level
+  # "error:" text) when actually run.
+  ctt:args "algorithm frobnicate" ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-07-22).
+  ctt:stderrNeedle "unrecognized subcommand" ;
+  ctt:coversAxiom "a known noun with an unrecognized verb exits nonzero with a clap error on stderr, distinct from an entirely-unknown top-level noun" .
+
+ctt:receiptctl-unexpected-flag
+  a ctt:CliBoundaryTest ;
+  rdfs:label "receiptctl unexpected-flag boundary proof" ;
+  ctt:testName "receiptctl_unexpected_flag_fails_closed" ;
+  ctt:binary "receiptctl" ;
+  # A third distinct failure mode: a fully valid noun+verb pair
+  # ("algorithm list", zero required args) rejected only because of one
+  # unrecognized flag -- clap's unknown-argument enforcement, not its
+  # subcommand-resolution or required-argument enforcement.
+  ctt:args "algorithm list --bogus-flag" ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-07-22).
+  ctt:stderrNeedle "unexpected argument" ;
+  ctt:coversAxiom "an unrecognized flag on an otherwise-valid command exits nonzero with a clap error on stderr" .

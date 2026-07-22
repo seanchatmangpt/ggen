@@ -18,3 +18,13 @@ pub use cargo_cicd_catalog::{
     args_are_consistent, commands_for_noun, distinct_nouns, find_command, is_valid_command,
     parse_args, CargoCicdCommand, CARGO_CICD_COMMANDS,
 };
+
+// Handler-gap closure (cap02 / .specify/maturity.ttl's cg_010 mat:d2): a
+// real, generated, callable std::process::Command dispatch shim -- see
+// cargo_cicd_dispatch.rs.tmpl's module doc for what this does and does not
+// close. `pub mod` (not a `pub use` allowlist, unlike the catalog above)
+// because the 51 per-command wrapper functions are individually named and
+// generated -- callers reach them as `cargo_cicd_dispatch::git_status(&[])`,
+// mirroring mcpp-pack's identical `pub mod mcpp_dispatch;` choice in
+// mcpp_mod_wiring.rs.tmpl.
+pub mod cargo_cicd_dispatch;

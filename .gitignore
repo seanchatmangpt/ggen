@@ -999,6 +999,10 @@ direct_test_output.txt
 .claude/worktrees/
 .ggen/
 .ggen-receipts/
+# self-monitoring-pack's actuation receipts (scripts/actuate_escalation.py,
+# scripts/capture_and_validate.sh) -- timestamped, per-run artifacts, not
+# pack source
+packs/self-monitoring-pack/.smon/
 .metrics/
 .refactor/
 .removed-code-backup/
