@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_BreedUnpermitted",
+  "kind": "falsification",
+  "seed": 3305518827091644176,
+  "mutation": "Dispatch work to an agent breed absent from the permit list.",
+  "expected_refusal": "BreedUnpermitted",
+  "input": {"agent_id": "agent-beta", "operator_id": "operator-1", "breed_requested": true}
+}

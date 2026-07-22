@@ -1,0 +1,8 @@
+{
+  "case": "Falsify_WitnessNotAuthority",
+  "kind": "falsification",
+  "seed": 9971183640225587412,
+  "mutation": "Have a witness role attempt to author an authoritative decision triple.",
+  "expected_refusal": "WitnessNotAuthority",
+  "input": {"agent_id": "agent-witness", "operator_id": "operator-1", "witness_presented_as_authority": true}
+}

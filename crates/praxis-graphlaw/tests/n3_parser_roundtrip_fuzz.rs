@@ -49,7 +49,7 @@ fn escape_sequences_decode_to_expected_strings() {
         let actual = decode_all_stored_facts(&store);
 
         let expected_fact = format!(
-            "<http://example.org/s{idx}> <http://example.org/p{idx}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#string>",
+            "<http://example.org/s{idx}> <http://example.org/p{idx}> \"{}\"",
             expected_decoded
         );
         assert!(
@@ -82,11 +82,15 @@ proptest! {
                     (v.to_string(), format!("\"{v}\"^^<http://www.w3.org/2001/XMLSchema#integer>"))
                 }
                 1 => {
-                    // Per RDF 1.1, a plain string literal is xsd:string-typed;
-                    // this crate's decoder makes that explicit (verified by
-                    // running this test), not left implicit as bare `"v"`.
+                    // A bare string literal (no lang tag, no explicit
+                    // datatype) is encoded as an RDF 1.1 simple literal --
+                    // `datatype: None`, decoded without a `^^` suffix -- to
+                    // match the term encoding every other literal-producing
+                    // path in this engine already uses (SPARQL CONSTRUCT
+                    // template instantiation, hook-derived facts). See
+                    // `parser/n3_terms.rs::parse_literal_pair`'s doc comment.
                     let v = &str_vals[idx % str_vals.len()];
-                    (format!("\"{v}\""), format!("\"{v}\"^^<http://www.w3.org/2001/XMLSchema#string>"))
+                    (format!("\"{v}\""), format!("\"{v}\""))
                 }
                 _ => {
                     let other_subj = (subj + 1) % 6;

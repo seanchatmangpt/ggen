@@ -86,9 +86,22 @@ pub fn parse_literal_pair(pair: Pair<Rule>, prefixes: &PrefixMapper) -> VarOrTer
                             _ => {}
                         }
                     }
-                    // Plain string literal → xsd:string
-                    let xsd_string = "<http://www.w3.org/2001/XMLSchema#string>".to_string();
-                    return VarOrTerm::new_literal(lex, Some(xsd_string), None);
+                    // Plain string literal, no explicit datatype -- leave
+                    // `datatype: None` (an RDF 1.1 "simple literal") rather
+                    // than defaulting to an explicit xsd:string annotation.
+                    // The rest of this engine's literal encoding (the
+                    // generic `Encoder::add` path used by `Triple::from` /
+                    // `VarOrTerm::convert`, which SPARQL CONSTRUCT template
+                    // instantiation and most hook machinery go through) never
+                    // applies that default, so a plain string parsed here
+                    // used to encode to a *different* term than the
+                    // semantically-identical plain string produced
+                    // elsewhere -- silently breaking rule/query literal
+                    // matches against CONSTRUCT-derived or hook-derived
+                    // facts. `None` is the convention the rest of the engine
+                    // already depends on. Found via
+                    // `test_b6_multi_strata_evaluation`.
+                    return VarOrTerm::new_literal(lex, None, None);
                 }
                 return VarOrTerm::new_literal(String::new(), None, None);
             }
