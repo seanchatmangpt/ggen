@@ -141,6 +141,91 @@ chicago_tdd_tools::test!(all_4096_cells_execute_the_real_auto_select_contract, {
     );
 });
 
+chicago_tdd_tools::test!(pinned_scenarios_have_independent_expected_outcomes, {
+    let cases = [
+        (
+            Coordinates {
+                authority: 0,
+                readiness: 0,
+                time_budget: 0,
+                mode: 0,
+            },
+            OutcomeClass::RefusedNoEligible,
+            None,
+            None,
+            0,
+            0,
+        ),
+        (
+            Coordinates {
+                authority: 1,
+                readiness: 0,
+                time_budget: 0,
+                mode: 0,
+            },
+            OutcomeClass::RefusedNoReady,
+            None,
+            None,
+            1,
+            0,
+        ),
+        (
+            Coordinates {
+                authority: 1,
+                readiness: 1,
+                time_budget: 0,
+                mode: 0,
+            },
+            OutcomeClass::Selected,
+            Some(1),
+            Some(100),
+            1,
+            1,
+        ),
+        (
+            Coordinates {
+                authority: 1,
+                readiness: 2,
+                time_budget: 7,
+                mode: 0,
+            },
+            OutcomeClass::Selected,
+            Some(8),
+            Some(6_400),
+            129,
+            128,
+        ),
+        (
+            Coordinates {
+                authority: 1,
+                readiness: 1,
+                time_budget: 0,
+                mode: 4,
+            },
+            OutcomeClass::Selected,
+            Some(1),
+            Some(6_400),
+            1,
+            1,
+        ),
+    ];
+
+    for (coordinates, outcome, tool, mass, eligible_mask, ready_mask) in cases {
+        let gray = coordinates.packed();
+        let cell = Cell {
+            ordinal: ungray(gray),
+            gray,
+            coordinates,
+        };
+        let evidence = execute_cell(cell).expect("pinned scenario must execute");
+        assert_eq!(evidence.outcome, outcome, "{}", evidence.identity);
+        assert_eq!(evidence.selected_tool, tool, "{}", evidence.identity);
+        assert_eq!(evidence.selected_mass, mass, "{}", evidence.identity);
+        assert_eq!(evidence.eligible_mask, eligible_mask, "{}", evidence.identity);
+        assert_eq!(evidence.ready_mask, ready_mask, "{}", evidence.identity);
+    }
+});
+
 chicago_tdd_tools::test!(reverse_policy_exercises_the_first_lane_tie_break, {
     let policy = policy(true).expect("reverse tie policy");
     let request = 選択要求 {
