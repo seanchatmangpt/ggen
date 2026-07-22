@@ -1,0 +1,35 @@
+{
+  "status": "PARTIAL_ALIVE",
+  "description": "Mixed, real result: some ontology-evolution vectors regenerate cleanly with zero hand-repair; the exact vector this capability's own falsifier text suggests as an example ('add a new certificate kind') does not, and requires a hand-edit of a pack-source template. This is a genuine falsifier hit, not a tooling limitation, so this capability cannot honestly be marked ALIVE.",
+  "ggen_binary": "/Users/sac/ggen/target/release/ggen (ggen 26.7.26)",
+  "prerequisite": "This capability could only be evaluated (build+test the regenerated consumer) after applying the frontmatter-strip fix documented in evidence/consumer-replacement.json's FRONTMATTER_LEAK finding, in the scratch copy only.",
+  "trials": [
+    {
+      "trial": "A: add pcp:ck11 (CertificateKind, rustName \"Revocation\") -- the literal example the ledger's own falsifier names",
+      "ontology_change": "pcp:ck11 a pcp:CertificateKind ; pcp:order 11 ; pcp:rustName \"Revocation\" ; pcp:label \"Revocation certificate\" .",
+      "command": "ggen sync run --format json",
+      "result": "1 file regenerated (consumer/mfw-pcp-generated/src/certificates.rs), correctly including the new Revocation variant. No generated file was hand-edited.",
+      "then": "cargo test",
+      "test_outcome": "FAILED: tests/generated_proof.rs::certificate_inventory_is_complete -- assertion `left == right` failed, left: 11, right: 10",
+      "root_cause": "templates/tests/generated_proof.rs.tmpl line 8 hardcodes the literal Rust source `assert_eq!(certificates::ALL.len(), 10);` -- it is NOT templated from a SPARQL COUNT(?kind) over pcp:CertificateKind, so it never tracks ontology growth. This is an Epistemic Bypass (see .claude/rules/coding-agent-mistakes.md class 2 in the ggen repo): logic that should be derived from RDF is hardcoded inline.",
+      "hand_repair_required": "Yes -- fixing the now-red test requires hand-editing templates/tests/generated_proof.rs.tmpl (a pack source file) to either compute the count via a SPARQL COUNT query and Tera variable, or drop the hardcoded assertion. The generated .rs file itself needs no manual touch, but the pack cannot regenerate a passing test suite for this ontology class without a human fixing the template.",
+      "additional_hardcodes_observed_not_executed": [
+        "gates/01-certificate-count.rq: 'HAVING (COUNT(?kind) != 10)' -- would also now flag a structural mismatch for the same reason (observed by inspection, not independently run as its own trial)",
+        "gates/02-capability-count.rq and templates/README.md.tmpl's prose 'twelve evidence artifacts' carry the analogous hardcode for l5p:Capability (12); a capability-fact addition (the ledger falsifier's other suggested example) was not executed this pass but is expected to hit the same class of defect by inspection of the same pattern"
+      ]
+    },
+    {
+      "trial": "B: add pcp:o03 (ProofObligation) on top of trial A's ontology state",
+      "ontology_change": "pcp:o03 a pcp:ProofObligation ; pcp:order 3 ; pcp:identifier \"MFW-PCP-REVOKE-001\" ; pcp:statement \"a Revocation certificate strictly postdates the OpenReceipt it revokes\" ; pcp:status \"UNKNOWN\" ; pcp:rustStatus \"Unknown\" .",
+      "command": "ggen sync run --format json",
+      "result": "exactly 1 file regenerated (consumer/mfw-pcp-generated/src/obligations.rs), correctly containing the new obligation entry (id, statement, ObligationStatus::Unknown). No generated file was hand-edited.",
+      "then": "cargo test",
+      "test_outcome": "Same single pre-existing failure as trial A (certificate_inventory_is_complete); no NEW failure introduced by the obligation addition -- everything referencing obligations (ALL, all_proved()) is fully SPARQL-driven with no hardcoded count anywhere in the templates or gates.",
+      "hand_repair_required": "No -- this evolution vector is clean."
+    }
+  ],
+  "ontology_reverted_after_trials": true,
+  "falsifier_checked": "ontology change requires hand repair",
+  "falsifier_triggered": true,
+  "falsifier_trigger_detail": "Trial A (certificate-kind addition, the ledger's own suggested example) requires hand-editing templates/tests/generated_proof.rs.tmpl to keep the generated test suite green."
+}

@@ -1,0 +1,19 @@
+//! Generated receipt contracts.
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OpenReceipt { pub sequence: u64, pub action_digest: String, pub bundle_digest: String, pub previous_close_digest: Option<String> }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CloseReceipt { pub sequence: u64, pub open_digest: String, pub action_digest: String, pub bundle_digest: String, pub effect_succeeded: bool, pub postcondition_satisfied: bool, pub final_state_digest: String }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Level5GenerationReceipt {
+{% for row in results %}    pub {{ row["rustName"] }}: String,
+{% endfor %}}
+
+pub fn canonical_digest<T: Serialize>(value: &T) -> Result<String, serde_json::Error> {
+    let bytes = serde_json::to_vec(value)?;
+    Ok(blake3::hash(&bytes).to_hex().to_string())
+}

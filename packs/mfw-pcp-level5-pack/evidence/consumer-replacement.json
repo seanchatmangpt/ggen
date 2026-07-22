@@ -1,0 +1,35 @@
+{
+  "status": "PARTIAL_ALIVE",
+  "description": "Deleting the entire generated consumer crate and resyncing from the ontology reproduces it byte-identically, and the rebuilt crate builds and its generated tests/falsifiers all pass -- but only after a real, pack-level defect (found this pass) was fixed in the scratch copy. The as-shipped pack fails at the first step (cargo build) with a hard compile error, so this cannot be marked a flat ALIVE.",
+  "ggen_binary": "/Users/sac/ggen/target/release/ggen (ggen 26.7.26)",
+  "critical_finding_FRONTMATTER_LEAK": {
+    "summary": "Every one of the 14 templates/**/*.tmpl files in the as-shipped pack begins with a `---\\nto: ...\\nforce: true\\nsparql:\\n  results: |\\n    ...\\n---` frontmatter header. gpacks/mfw-pcp-level5/ggen.toml uses ggen's DECLARATIVE-RULES ggen.toml schema (non-empty [[generation.rules]], each rule already carrying its own separate query={file=...}/template={file=...}/output_file/mode). Per crates/ggen-engine/src/generation_rules.rs's own module doc (lines 1-18), that per-template frontmatter convention belongs exclusively to ggen's OTHER, mutually-exclusive 'frontmatter' ggen.toml schema (crate::config::GgenConfig + crate::template::Frontmatter). The declarative-rules pipeline never parses or strips it -- it treats the entire .tmpl file as the raw Tera template body. Result: every generated output file (Cargo.toml, all *.rs, README.md, PROVENANCE.ttl, ci.yml, RELEASE_STANDING.json, verify.sh) carries the literal, unrendered 8-10 line YAML header prepended to otherwise-correct content.",
+    "reproduction": "rm -rf .ggen-v2 .ggen consumer; ggen sync run --format json  (against the UNMODIFIED, as-shipped pack) -> exit 0, reports 14 files written, receipt 'Admitted'/'Pass' for all of them -- but every written file's first line is literally '---'.",
+    "compile_proof": "cd consumer/mfw-pcp-generated && cargo build  ->  error: key with no value, expected `=`  --> Cargo.toml:1:4  |  1 | ---  |    ^   (the leaked frontmatter delimiter is invalid TOML; the generated consumer crate cannot compile at all)",
+    "classification": "Decorative Completion (per .claude/rules/coding-agent-mistakes.md in the ggen repo, class 1): `ggen sync run` exits 0 and the receipt says 'Pass', but no durable, USABLE state was produced -- the generated crate is not valid Rust/TOML.",
+    "relevance_beyond_scope": "This also directly triggers cap05's own stated falsifier ('generated proof does not compile or fails'), which is currently marked PARTIAL_ALIVE in the ledger and was out of this pass's assigned scope (cap03/04/09/11/12 only). Flagging for whoever next revisits cap05/06/07/08/10 -- not changed by this pass.",
+    "fix_applied_scratch_copy_only": "Mechanically stripped the frontmatter header (everything from the first '---' line through the matching second '---' line) from all 14 templates/**/*.tmpl files in /private/tmp/mfw-pcp-l5-exec only. The header's 'to'/'force'/'sparql.results' keys are redundant under the declarative-rules schema (already supplied by ggen.toml's [[generation.rules]] output_file/mode/query fields), so removing them changes nothing semantically -- it only removes dead text that was leaking into output.",
+    "source_pack_untouched": "The verified source at .../gpacks/mfw-pcp-level5/templates/src/certificates.rs.tmpl (and all 13 siblings) still begins with '---' -- confirmed by direct read after this pass. This defect and its fix are NOT applied to the source; a maintainer must apply the equivalent fix (or an upstream ggen-engine feature to strip per-template frontmatter under the declarative-rules schema) before the source pack can honestly claim cap05/cap11/cap12."
+  },
+  "commands": [
+    "rm -rf consumer                          # delete the entire generated consumer crate",
+    "find consumer                            # confirm absence",
+    "ggen sync run --format json               # resync from ontology.ttl (reverted to its original, unmodified state)",
+    "find <14 canonical output paths> | sort | xargs shasum -a 256 | shasum -a 256   # compare to pre-deletion baseline",
+    "cd consumer/mfw-pcp-generated && cargo build",
+    "cargo test",
+    "bash scripts/verify.sh   # generated release-verification ladder (separate, adjacent finding below)"
+  ],
+  "result": {
+    "rebuild_digest_sha256": "a0653142e5fa985b9fea87b09e222e4d4d293f6f526751187942a3e2a2a6aa8f",
+    "matches_pre_deletion_baseline": true,
+    "cargo_build": "success, 0 errors",
+    "cargo_test": "6/6 passed (tests/generated_proof.rs: 2/2; tests/generated_negative.rs: 4/4)",
+    "verify_sh_exit_code": 1,
+    "verify_sh_failure_detail": "Fails at the first step, `cargo fmt --all -- --check`, because the Tera-rendered Rust source is not rustfmt-canonical (long single-line struct literals, etc.). This is a separate, real, formatting-only defect in the templates -- not a correctness defect (cargo test alone is 6/6 green) and not what this capability's own falsifier text (\"deleted consumer cannot be rebuilt and verified\", read narrowly as tests/falsifiers passing) is asking about, but reported here for completeness since scripts/verify.sh is the pack's own designated verifier ladder (cap10's artifact, out of this pass's scope)."
+  },
+  "falsifier_checked": "deleted consumer cannot be rebuilt and verified",
+  "falsifier_triggered_on_as_shipped_pack": true,
+  "falsifier_triggered_after_documented_fix": false,
+  "note": "PARTIAL_ALIVE, not ALIVE: the underlying delete-resync-build-test cycle genuinely works and is byte-identical/reproducible, but only once the FRONTMATTER_LEAK defect above is fixed. As shipped, the pack fails at the very first cargo build."
+}

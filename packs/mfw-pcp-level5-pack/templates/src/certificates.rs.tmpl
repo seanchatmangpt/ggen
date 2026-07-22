@@ -1,0 +1,16 @@
+//! Generated from RDF certificate-kind individuals. Do not edit.
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CertificateKind {
+{% for row in results %}    {{ row["rustName"] }},
+{% endfor %}}
+
+pub const ALL: &[CertificateKind] = &[
+{% for row in results %}    CertificateKind::{{ row["rustName"] }},
+{% endfor %}];
+
+pub const LABELS: &[(&str, &str)] = &[
+{% for row in results %}    ("{{ row["rustName"] }}", "{{ row["label"] }}"),
+{% endfor %}];

@@ -1,0 +1,20 @@
+{
+  "schema": "urn:mfw:pcp:release-standing:v1",
+  "declared_standing": "PARTIAL_ALIVE",
+  "level5_admitted": false,
+  "reason": "Live ggen receipt, repeat-run, erase-rebuild, semantic-diff, and consumer-replacement evidence must close before Level5 admission.",
+  "capabilities": [
+    {"order": 1, "name": "Authoritative semantic source", "artifact": "ontology.ttl"},
+    {"order": 2, "name": "Complete generation surface", "artifact": "ggen.toml"},
+    {"order": 3, "name": "Deterministic regeneration", "artifact": "evidence/repeat-run.json"},
+    {"order": 4, "name": "Fixed-point convergence", "artifact": "evidence/erase-rebuild.json"},
+    {"order": 5, "name": "Generated verification", "artifact": "templates/tests/generated_proof.rs.tmpl"},
+    {"order": 6, "name": "Generated negative witnesses", "artifact": "templates/tests/generated_negative.rs.tmpl"},
+    {"order": 7, "name": "Generated documentation", "artifact": "templates/README.md.tmpl"},
+    {"order": 8, "name": "Generated provenance", "artifact": "templates/PROVENANCE.ttl.tmpl"},
+    {"order": 9, "name": "Generated receipts", "artifact": "evidence/ggen-receipt.json"},
+    {"order": 10, "name": "Generated release surface", "artifact": "templates/ci.yml.tmpl"},
+    {"order": 11, "name": "Generated evolution path", "artifact": "evidence/semantic-diff.json"},
+    {"order": 12, "name": "Consumer replacement", "artifact": "evidence/consumer-replacement.json"}
+  ]
+}

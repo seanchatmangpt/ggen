@@ -1,0 +1,31 @@
+
+@prefix pcp: <urn:mfw:pcp:> .
+@prefix l5p: <http://ggen.org/l5-promotion#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pcp:LifecycleShape a sh:NodeShape ;
+  sh:targetClass pcp:Lifecycle ;
+  sh:property [ sh:path pcp:crateName ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[a-z][a-z0-9-]*$" ] ;
+  sh:property [ sh:path pcp:moduleName ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[a-z][a-z0-9_]*$" ] ;
+  sh:property [ sh:path pcp:version ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path pcp:gallStatus ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ( "PARTIAL_ALIVE" "ALIVE" "BLOCKED" "BUILD_BROKEN" "UNKNOWN" "UNSUPPORTED" ) ] .
+
+pcp:CertificateKindShape a sh:NodeShape ;
+  sh:targetClass pcp:CertificateKind ;
+  sh:property [ sh:path pcp:order ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ] ;
+  sh:property [ sh:path pcp:rustName ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[A-Z][A-Za-z0-9]*$" ] ;
+  sh:property [ sh:path pcp:label ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+pcp:ObligationShape a sh:NodeShape ;
+  sh:targetClass pcp:ProofObligation ;
+  sh:property [ sh:path pcp:identifier ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path pcp:statement ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path pcp:status ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ( "PROVED" "BLOCKED" "UNKNOWN" "UNSUPPORTED" ) ] ;
+  sh:property [ sh:path pcp:rustStatus ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ( "Proved" "Blocked" "Unknown" "Unsupported" ) ] .
+
+l5p:CapabilityShape a sh:NodeShape ;
+  sh:targetClass l5p:Capability ;
+  sh:property [ sh:path l5p:order ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 1 ; sh:maxInclusive 12 ] ;
+  sh:property [ sh:path l5p:capName ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path l5p:artifact ; sh:minCount 1 ; sh:maxCount 1 ] .

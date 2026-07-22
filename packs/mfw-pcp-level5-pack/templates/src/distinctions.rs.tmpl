@@ -1,0 +1,9 @@
+//! Generated bounded information-horizon ledger.
+
+pub const PRESERVED: &[&str] = &[
+{% for row in results %}{% if row["category"] == "Preserved" %}    "{{ row["text"] }}",
+{% endif %}{% endfor %}];
+
+pub const ERASED: &[&str] = &[
+{% for row in results %}{% if row["category"] == "Erased" %}    "{{ row["text"] }}",
+{% endif %}{% endfor %}];

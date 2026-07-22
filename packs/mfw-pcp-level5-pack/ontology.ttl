@@ -1,0 +1,99 @@
+
+@prefix pcp: <urn:mfw:pcp:> .
+@prefix l5p: <http://ggen.org/l5-promotion#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pcp:Lifecycle a rdfs:Class .
+pcp:CertificateKind a rdfs:Class .
+pcp:Distinction a rdfs:Class .
+pcp:ProofObligation a rdfs:Class .
+pcp:Invariant a rdfs:Class .
+pcp:ReceiptField a rdfs:Class .
+pcp:GeneratedArtifact a rdfs:Class .
+l5p:Capability a rdfs:Class .
+
+pcp:Level5Lifecycle a pcp:Lifecycle ;
+  pcp:crateName "mfw-pcp-generated" ;
+  pcp:moduleName "mfw_pcp_generated" ;
+  pcp:version "26.7.21" ;
+  pcp:description "Generated bounded verifier for proof-carrying plan admission, alignment, receipt pairing, replay, consequence admission, and standing closure" ;
+  pcp:gallStatus "PARTIAL_ALIVE" .
+
+pcp:ck01 a pcp:CertificateKind ; pcp:order 1 ; pcp:rustName "Admission" ; pcp:label "Admission certificate" .
+pcp:ck02 a pcp:CertificateKind ; pcp:order 2 ; pcp:rustName "Plan" ; pcp:label "Plan certificate" .
+pcp:ck03 a pcp:CertificateKind ; pcp:order 3 ; pcp:rustName "Projection" ; pcp:label "Projection certificate" .
+pcp:ck04 a pcp:CertificateKind ; pcp:order 4 ; pcp:rustName "Authority" ; pcp:label "Authority certificate" .
+pcp:ck05 a pcp:CertificateKind ; pcp:order 5 ; pcp:rustName "Environment" ; pcp:label "Environment certificate" .
+pcp:ck06 a pcp:CertificateKind ; pcp:order 6 ; pcp:rustName "OpenReceipt" ; pcp:label "Open receipt" .
+pcp:ck07 a pcp:CertificateKind ; pcp:order 7 ; pcp:rustName "CloseReceipt" ; pcp:label "Close receipt" .
+pcp:ck08 a pcp:CertificateKind ; pcp:order 8 ; pcp:rustName "Replay" ; pcp:label "Replay certificate" .
+pcp:ck09 a pcp:CertificateKind ; pcp:order 9 ; pcp:rustName "ConsequenceAdmission" ; pcp:label "Consequence admission certificate" .
+pcp:ck10 a pcp:CertificateKind ; pcp:order 10 ; pcp:rustName "StandingClosure" ; pcp:label "Standing closure certificate" .
+
+pcp:d01 a pcp:Distinction ; pcp:order 1 ; pcp:category "Preserved" ; pcp:text "action identity" .
+pcp:d02 a pcp:Distinction ; pcp:order 2 ; pcp:category "Preserved" ; pcp:text "parameter binding" .
+pcp:d03 a pcp:Distinction ; pcp:order 3 ; pcp:category "Preserved" ; pcp:text "causal dependence" .
+pcp:d04 a pcp:Distinction ; pcp:order 4 ; pcp:category "Preserved" ; pcp:text "authority scope" .
+pcp:d05 a pcp:Distinction ; pcp:order 5 ; pcp:category "Erased" ; pcp:text "arbitrary total serialization" .
+
+pcp:o01 a pcp:ProofObligation ; pcp:order 1 ;
+  pcp:identifier "MFW-KERNEL-001" ;
+  pcp:statement "ker(tau_Pi) equals admitted Mazurkiewicz trace equivalence" ;
+  pcp:status "BLOCKED" ; pcp:rustStatus "Blocked" .
+pcp:o02 a pcp:ProofObligation ; pcp:order 2 ;
+  pcp:identifier "MFW-PCP-LIVE-001" ;
+  pcp:statement "the generated consumer rebuild is byte-identical and passes the live verifier ladder" ;
+  pcp:status "UNKNOWN" ; pcp:rustStatus "Unknown" .
+
+pcp:i01 a pcp:Invariant ; pcp:order 1 ; pcp:testName "certificate_inventory_is_complete" ;
+  pcp:positive "all ten certificate kinds are generated" ; pcp:negative "deleting one kind is refused" .
+pcp:i02 a pcp:Invariant ; pcp:order 2 ; pcp:testName "receipt_pair_requires_exact_open_reference" ;
+  pcp:positive "close receipt references the exact open digest" ; pcp:negative "mutated open digest is refused" .
+pcp:i03 a pcp:Invariant ; pcp:order 3 ; pcp:testName "receipt_pair_requires_equal_sequence" ;
+  pcp:positive "open and close sequence numbers agree" ; pcp:negative "different sequence is refused" .
+pcp:i04 a pcp:Invariant ; pcp:order 4 ; pcp:testName "standing_requires_goal" ;
+  pcp:positive "goal and replay closure grant standing" ; pcp:negative "goal false is refused" .
+pcp:i05 a pcp:Invariant ; pcp:order 5 ; pcp:testName "standing_requires_all_effects" ;
+  pcp:positive "all effects succeeded" ; pcp:negative "failed effect is refused" .
+pcp:i06 a pcp:Invariant ; pcp:order 6 ; pcp:testName "bounded_is_not_exhausted" ;
+  pcp:positive "bounded remains bounded" ; pcp:negative "bounded promotion to exhausted is refused" .
+
+pcp:rf01 a pcp:ReceiptField ; pcp:order 1 ; pcp:rustName "source_graph_digest" .
+pcp:rf02 a pcp:ReceiptField ; pcp:order 2 ; pcp:rustName "shapes_digest" .
+pcp:rf03 a pcp:ReceiptField ; pcp:order 3 ; pcp:rustName "query_inventory_digest" .
+pcp:rf04 a pcp:ReceiptField ; pcp:order 4 ; pcp:rustName "template_inventory_digest" .
+pcp:rf05 a pcp:ReceiptField ; pcp:order 5 ; pcp:rustName "ggen_binary_digest" .
+pcp:rf06 a pcp:ReceiptField ; pcp:order 6 ; pcp:rustName "output_inventory_digest" .
+pcp:rf07 a pcp:ReceiptField ; pcp:order 7 ; pcp:rustName "falsifier_report_digest" .
+pcp:rf08 a pcp:ReceiptField ; pcp:order 8 ; pcp:rustName "replay_report_digest" .
+pcp:rf09 a pcp:ReceiptField ; pcp:order 9 ; pcp:rustName "verifier_report_digest" .
+
+pcp:a01 a pcp:GeneratedArtifact ; pcp:order 1 ; pcp:path "Cargo.toml" ; pcp:role "build manifest" .
+pcp:a02 a pcp:GeneratedArtifact ; pcp:order 2 ; pcp:path "src/lib.rs" ; pcp:role "public lifecycle verifier" .
+pcp:a03 a pcp:GeneratedArtifact ; pcp:order 3 ; pcp:path "src/certificates.rs" ; pcp:role "certificate registry" .
+pcp:a04 a pcp:GeneratedArtifact ; pcp:order 4 ; pcp:path "src/obligations.rs" ; pcp:role "proof obligation ledger" .
+pcp:a05 a pcp:GeneratedArtifact ; pcp:order 5 ; pcp:path "src/distinctions.rs" ; pcp:role "information-horizon ledger" .
+pcp:a06 a pcp:GeneratedArtifact ; pcp:order 6 ; pcp:path "src/receipts.rs" ; pcp:role "open and close receipt contract" .
+pcp:a07 a pcp:GeneratedArtifact ; pcp:order 7 ; pcp:path "src/replay.rs" ; pcp:role "receipt replay verifier" .
+pcp:a08 a pcp:GeneratedArtifact ; pcp:order 8 ; pcp:path "tests/generated_proof.rs" ; pcp:role "generated positive proof" .
+pcp:a09 a pcp:GeneratedArtifact ; pcp:order 9 ; pcp:path "tests/generated_negative.rs" ; pcp:role "generated falsifiers" .
+pcp:a10 a pcp:GeneratedArtifact ; pcp:order 10 ; pcp:path "README.md" ; pcp:role "generated documentation" .
+pcp:a11 a pcp:GeneratedArtifact ; pcp:order 11 ; pcp:path "PROVENANCE.ttl" ; pcp:role "generated provenance" .
+pcp:a12 a pcp:GeneratedArtifact ; pcp:order 12 ; pcp:path ".github/workflows/ci.yml" ; pcp:role "generated CI and release gate" .
+pcp:a13 a pcp:GeneratedArtifact ; pcp:order 13 ; pcp:path "RELEASE_STANDING.json" ; pcp:role "generated release standing" .
+pcp:a14 a pcp:GeneratedArtifact ; pcp:order 14 ; pcp:path "scripts/verify.sh" ; pcp:role "generated verifier ladder" .
+
+l5p:cap01 a l5p:Capability ; l5p:order 1 ; l5p:capName "Authoritative semantic source" ; l5p:artifact "ontology.ttl" .
+l5p:cap02 a l5p:Capability ; l5p:order 2 ; l5p:capName "Complete generation surface" ; l5p:artifact "ggen.toml" .
+l5p:cap03 a l5p:Capability ; l5p:order 3 ; l5p:capName "Deterministic regeneration" ; l5p:artifact "evidence/repeat-run.json" .
+l5p:cap04 a l5p:Capability ; l5p:order 4 ; l5p:capName "Fixed-point convergence" ; l5p:artifact "evidence/erase-rebuild.json" .
+l5p:cap05 a l5p:Capability ; l5p:order 5 ; l5p:capName "Generated verification" ; l5p:artifact "templates/tests/generated_proof.rs.tmpl" .
+l5p:cap06 a l5p:Capability ; l5p:order 6 ; l5p:capName "Generated negative witnesses" ; l5p:artifact "templates/tests/generated_negative.rs.tmpl" .
+l5p:cap07 a l5p:Capability ; l5p:order 7 ; l5p:capName "Generated documentation" ; l5p:artifact "templates/README.md.tmpl" .
+l5p:cap08 a l5p:Capability ; l5p:order 8 ; l5p:capName "Generated provenance" ; l5p:artifact "templates/PROVENANCE.ttl.tmpl" .
+l5p:cap09 a l5p:Capability ; l5p:order 9 ; l5p:capName "Generated receipts" ; l5p:artifact "evidence/ggen-receipt.json" .
+l5p:cap10 a l5p:Capability ; l5p:order 10 ; l5p:capName "Generated release surface" ; l5p:artifact "templates/ci.yml.tmpl" .
+l5p:cap11 a l5p:Capability ; l5p:order 11 ; l5p:capName "Generated evolution path" ; l5p:artifact "evidence/semantic-diff.json" .
+l5p:cap12 a l5p:Capability ; l5p:order 12 ; l5p:capName "Consumer replacement" ; l5p:artifact "evidence/consumer-replacement.json" .

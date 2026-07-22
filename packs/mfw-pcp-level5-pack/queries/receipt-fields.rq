@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?order ?rustName WHERE { ?x a pcp:ReceiptField ; pcp:order ?order ; pcp:rustName ?rustName . } ORDER BY ?order

@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?order ?testName ?positive ?negative WHERE { ?x a pcp:Invariant ; pcp:order ?order ; pcp:testName ?testName ; pcp:positive ?positive ; pcp:negative ?negative . } ORDER BY ?order

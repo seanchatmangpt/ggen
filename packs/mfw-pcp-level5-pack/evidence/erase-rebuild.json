@@ -1,0 +1,28 @@
+{
+  "status": "ALIVE",
+  "description": "Erasing the generated output tree entirely and rebuilding from `ggen sync run` produces output byte-identical to a plain incremental resync over existing output. Proven twice, both pre- and post-frontmatter-fix.",
+  "ggen_binary": "/Users/sac/ggen/target/release/ggen (ggen 26.7.26)",
+  "commands": [
+    "ggen sync run --format json          # incremental baseline (over existing output)",
+    "rm -rf consumer                      # erase generated output tree entirely",
+    "ggen sync run --format json          # clean rebuild",
+    "find <14 canonical output paths> | sort | xargs shasum -a 256 | shasum -a 256   # compare inventory digests"
+  ],
+  "runs": [
+    {
+      "label": "as-shipped pack (pristine templates)",
+      "incremental_digest_sha256": "d74aed997169772e60fbcd58f76341c9c9a16aed2ea5e6490b8c644b5ac89eab",
+      "clean_rebuild_digest_sha256": "d74aed997169772e60fbcd58f76341c9c9a16aed2ea5e6490b8c644b5ac89eab",
+      "identical": true
+    },
+    {
+      "label": "post-frontmatter-fix templates",
+      "incremental_digest_sha256": "a0653142e5fa985b9fea87b09e222e4d4d293f6f526751187942a3e2a2a6aa8f",
+      "clean_rebuild_digest_sha256": "a0653142e5fa985b9fea87b09e222e4d4d293f6f526751187942a3e2a2a6aa8f",
+      "identical": true
+    }
+  ],
+  "falsifier_checked": "clean rebuild differs from incremental output",
+  "falsifier_triggered": false,
+  "note": "Same scope caveat as cap03: this proves pipeline fixed-point convergence, not generated-code correctness."
+}
