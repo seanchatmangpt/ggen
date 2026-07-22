@@ -1,8 +1,34 @@
 name: Homebrew Release
 
+# WHY THIS WORKFLOW HAS NEVER ACTUALLY RUN (root-cause fix): `on: release:
+# types: [published]` only fires for a release event NOT created via the
+# repository's own GITHUB_TOKEN -- the same class of GitHub Actions
+# limitation release.yml's own header comment already documents for tag
+# pushes ("GitHub suppresses `on: push` workflow runs for events created
+# with GITHUB_TOKEN"). release.yml creates its GitHub Release via
+# softprops/action-gh-release using `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN
+# }}` (release.yml's own "Create GitHub Release" step), so the `published`
+# event it fires never triggers this workflow. Confirmed empirically: this
+# workflow's entire visible run history is exactly 3 runs (v0.2.4, v5.0.0,
+# v26.7.2 -- all from before or outside the current release.yml flow), never
+# once for any of the dozens of real v26.7.x releases since, despite every
+# one of those releases genuinely existing, published (not draft), with all
+# 4 binary assets attached (verified directly: `gh release view v26.7.43`).
+# Fixed the same way release.yml's own tag-push suppression was fixed:
+# release.yml explicitly dispatches this workflow via `gh workflow run`
+# (workflow_dispatch/repository_dispatch ARE the documented exception that
+# DOES work with GITHUB_TOKEN) right after creating the release, instead of
+# relying on the suppressed `published` event. The `release:` trigger stays
+# -- harmless, and still correct for any future release created through a
+# different path (e.g. manually, or with a real PAT).
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Published release tag to update the Homebrew formula for (e.g. v26.14.0)"
+        required: true
 
 env:
   CARGO_TERM_COLOR: always
@@ -30,7 +56,11 @@ jobs:
         uses: ./.github/actions/extract-semantic-version
         id: extract_version
         with:
-          version-source: 'tag'
+          # 'tag' reads github.event.release.tag_name (only populated on a
+          # real `release` event); 'input' reads the workflow_dispatch tag
+          # input below -- release.yml's dispatch always passes it.
+          version-source: ${{ github.event_name == 'workflow_dispatch' && 'input' || 'tag' }}
+          version-input: ${{ github.event.inputs.tag }}
           check-cargo-toml: 'true'
 
       - name: Validate Homebrew token
