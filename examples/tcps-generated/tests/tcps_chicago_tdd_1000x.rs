@@ -12,8 +12,6 @@
 //!   identities;
 //! - the receipt root binds the validated evidence rather than a rhetorical count.
 
-#![allow(clippy::expect_used)]
-
 mod support;
 
 use std::collections::{BTreeMap, BTreeSet};
