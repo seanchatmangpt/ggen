@@ -19,7 +19,7 @@ fn test_s4_automated_quarantine_and_refusal() {
         @prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
         @prefix ex: <http://example.org/> .
         
-        // Hook 1: Quarantine route
+        # Hook 1: Quarantine route
         ex:quarantine_hook a kh:Hook ;
             kh:name "quarantine_routing" ;
             kh:kind "sparql" ;
@@ -32,7 +32,7 @@ fn test_s4_automated_quarantine_and_refusal() {
             kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
             kh:query "CONSTRUCT { GRAPH <http://example.org/QuarantineGraph> { ?s ?p ?o } } WHERE { GRAPH <http://example.org/SystemGraph> { ?s ?p ?o } }" .
 
-        // Hook 2: Refusal on SystemGraph write
+        # Hook 2: Refusal on SystemGraph write
         ex:refusal_hook a kh:Hook ;
             kh:name "quarantine_refusal" ;
             kh:kind "sparql" ;
@@ -72,7 +72,7 @@ fn test_s4_ledger_balance_enforcement_and_audit() {
         @prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
         @prefix ex: <http://example.org/> .
         
-        // Hook 1: Enforce positive balance, refuse otherwise
+        # Hook 1: Enforce positive balance, refuse otherwise
         ex:balance_guard a kh:Hook ;
             kh:name "ledger_balance_guard" ;
             kh:kind "sparql" ;
@@ -129,7 +129,7 @@ fn test_s4_state_machine_transition_control() {
         ex:transition_guard a kh:Hook ;
             kh:name "lifecycle_transition_guard" ;
             kh:kind "sparql" ;
-            // Refuse if we transition from Draft to Approved, skipping UnderReview
+            # Refuse if we transition from Draft to Approved, skipping UnderReview
             kh:query "ASK { ?doc <http://example.org/old_state> 'Draft' ; <http://example.org/new_state> 'Approved' }" ;
             kh:effect "refuse" ;
             kh:reason "Lifecycle Violation: Cannot skip UnderReview state" .
