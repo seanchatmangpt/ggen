@@ -6,32 +6,78 @@ fn validate_capability(
     let bytes = read_nonempty(root, capability.path)?;
     let mut facts = validate_format(root, capability, &bytes)?;
     let actual_sha256 = sha256_hex(&bytes);
-    let manifest_bound = if let Some(manifest_path) = capability.manifest_path {
-        let expected = manifest
-            .get(manifest_path)
-            .ok_or_else(|| EvidenceError::InvalidData {
+
+    let reference_sha256 = match capability.reference_standing {
+        ReferenceStanding::ExactManifest => {
+            let manifest_path = capability.manifest_path.ok_or_else(|| EvidenceError::InvalidData {
                 identity: capability.id.to_owned(),
-                message: format!("manifest has no entry for {manifest_path}"),
+                message: "exact-manifest capability has no reference path".to_owned(),
             })?;
-        if expected != &actual_sha256 {
-            return Err(EvidenceError::InvalidData {
-                identity: capability.id.to_owned(),
-                message: format!("SHA-256 mismatch: expected {expected}, found {actual_sha256}"),
-            });
+            let expected = manifest
+                .get(manifest_path)
+                .ok_or_else(|| EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: format!("manifest has no entry for {manifest_path}"),
+                })?;
+            if expected != &actual_sha256 {
+                return Err(EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: format!(
+                        "undeclared SHA-256 drift: expected {expected}, found {actual_sha256}"
+                    ),
+                });
+            }
+            facts.push("exact-manifest-sha256-match");
+            Some(expected.clone())
         }
-        facts.push("manifest-sha256-match");
-        true
-    } else {
-        false
+        ReferenceStanding::DeclaredDerivative => {
+            let manifest_path = capability.manifest_path.ok_or_else(|| EvidenceError::InvalidData {
+                identity: capability.id.to_owned(),
+                message: "declared derivative has no source reference path".to_owned(),
+            })?;
+            let expected = manifest
+                .get(manifest_path)
+                .ok_or_else(|| EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: format!("manifest has no source entry for derivative {manifest_path}"),
+                })?;
+            if expected == &actual_sha256 {
+                return Err(EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: "declared derivative is now byte-identical and must be reclassified"
+                        .to_owned(),
+                });
+            }
+            facts.push("declared-generated-derivative");
+            Some(expected.clone())
+        }
+        ReferenceStanding::Independent => {
+            if capability.manifest_path.is_some() {
+                return Err(EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: "independent capability unexpectedly names a manifest path".to_owned(),
+                });
+            }
+            facts.push("independently-validated");
+            None
+        }
     };
 
     let facts_text = facts.join("\n");
+    let reference_text = reference_sha256.as_deref().unwrap_or("none");
+    let standing_text = match capability.reference_standing {
+        ReferenceStanding::ExactManifest => "exact-manifest",
+        ReferenceStanding::DeclaredDerivative => "declared-derivative",
+        ReferenceStanding::Independent => "independent",
+    };
     let digest = domain_digest(
-        "tcps/capability-evidence/v2",
+        "tcps/capability-evidence/v3",
         &[
             capability.id.as_bytes(),
             capability.path.as_bytes(),
+            standing_text.as_bytes(),
             actual_sha256.as_bytes(),
+            reference_text.as_bytes(),
             facts_text.as_bytes(),
         ],
     );
@@ -42,7 +88,8 @@ fn validate_capability(
         path: capability.path,
         byte_len: bytes.len(),
         sha256: actual_sha256,
-        manifest_bound,
+        reference_standing: capability.reference_standing,
+        reference_sha256,
         facts,
         evidence_digest: digest.to_hex(),
     })
@@ -80,23 +127,31 @@ fn receipt(
                     message: error.to_string(),
                 }
             })?;
-            let bytes: [u8; 32] =
-                decoded
-                    .try_into()
-                    .map_err(|_| EvidenceError::InvalidData {
-                        identity: item.id.to_owned(),
-                        message: "evidence digest is not 32 bytes".to_owned(),
-                    })?;
+            let bytes: [u8; 32] = decoded.try_into().map_err(|_| EvidenceError::InvalidData {
+                identity: item.id.to_owned(),
+                message: "evidence digest is not 32 bytes".to_owned(),
+            })?;
             Ok(EvidenceDigest::from_bytes(bytes))
         })
         .collect();
-    let root = merkle_root("tcps/evidence-root/v2", &leaves?)?;
+    let root = merkle_root("tcps/evidence-root/v3", &leaves?)?;
 
     Ok(EvidenceReceipt {
-        schema: "tcps-product-evidence/v2",
+        schema: "tcps-product-evidence/v3",
         capability_count: evidence.len(),
         manifest_entry_count,
-        manifest_bound_capabilities: evidence.iter().filter(|item| item.manifest_bound).count(),
+        exact_manifest_capabilities: evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::ExactManifest)
+            .count(),
+        declared_derivative_capabilities: evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
+            .count(),
+        independent_capabilities: evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::Independent)
+            .count(),
         pack_count: EXPECTED_PACKS.len(),
         evidence_root: root.to_hex(),
     })
