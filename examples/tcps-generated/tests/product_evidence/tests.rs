@@ -20,7 +20,7 @@ chicago_tdd_tools::test!(source_manifest_has_129_unique_safe_entries, {
 });
 
 chicago_tdd_tools::test!(all_43_capabilities_have_real_format_and_identity_evidence, {
-    let evidence = validate_all(&project_root()).expect("all capability evidence must stand");
+    let evidence = product_evidence().expect("all capability evidence must stand");
     assert_eq!(evidence.len(), 43);
     assert_eq!(
         evidence
@@ -40,7 +40,7 @@ chicago_tdd_tools::test!(all_43_capabilities_have_real_format_and_identity_evide
 });
 
 chicago_tdd_tools::test!(capability_kinds_cover_the_complete_product_boundary, {
-    let evidence = validate_all(&project_root()).expect("evidence");
+    let evidence = product_evidence().expect("evidence");
     let mut counts = BTreeMap::new();
     for item in evidence {
         *counts.entry(item.kind).or_insert(0_usize) += 1;
@@ -90,9 +90,9 @@ chicago_tdd_tools::test!(missing_capability_is_a_loud_refusal, {
 chicago_tdd_tools::test!(receipt_is_replay_stable_and_cryptographically_bound, {
     let root = project_root();
     let manifest = load_manifest(&root).expect("manifest");
-    let evidence = validate_all(&root).expect("evidence");
-    let first = receipt(&evidence, manifest.len()).expect("receipt");
-    let second = receipt(&evidence, manifest.len()).expect("receipt replay");
+    let evidence = product_evidence().expect("evidence");
+    let first = receipt(evidence, manifest.len()).expect("receipt");
+    let second = receipt(evidence, manifest.len()).expect("receipt replay");
     assert_eq!(first, second);
     assert_eq!(first.schema, "tcps-product-evidence/v2");
     assert_eq!(first.capability_count, 43);
@@ -104,8 +104,8 @@ chicago_tdd_tools::test!(receipt_is_replay_stable_and_cryptographically_bound, {
 chicago_tdd_tools::test!(receipt_json_is_valid_and_contains_the_evidence_index, {
     let root = project_root();
     let manifest = load_manifest(&root).expect("manifest");
-    let evidence = validate_all(&root).expect("evidence");
-    let receipt = receipt(&evidence, manifest.len()).expect("receipt");
+    let evidence = product_evidence().expect("evidence");
+    let receipt = receipt(evidence, manifest.len()).expect("receipt");
     let bundle = serde_json::json!({
         "receipt": receipt,
         "capabilities": evidence,
@@ -119,10 +119,10 @@ chicago_tdd_tools::test!(receipt_json_is_valid_and_contains_the_evidence_index, 
 chicago_tdd_tools::test!(receipt_root_changes_when_one_evidence_record_changes, {
     let root = project_root();
     let manifest = load_manifest(&root).expect("manifest");
-    let evidence = validate_all(&root).expect("evidence");
-    let original = receipt(&evidence, manifest.len()).expect("original receipt");
+    let evidence = product_evidence().expect("evidence");
+    let original = receipt(evidence, manifest.len()).expect("original receipt");
 
-    let mut mutated = evidence.clone();
+    let mut mutated = evidence.to_vec();
     mutated[0].evidence_digest = domain_digest(
         "tcps/adversarial-evidence-mutation/v1",
         &[mutated[0].evidence_digest.as_bytes()],
