@@ -14,12 +14,21 @@ concurrency:
 
 permissions:
   contents: read
+  statuses: write
 
 jobs:
   kernel:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Mark verifier pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=pending \
+            -f context=mfw-crown-independent-lean \
+            -f description='Lean kernel verification is running'
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
         with:
@@ -31,3 +40,21 @@ jobs:
       - name: Execute theorem inventory
         working-directory: examples/mfw-crown-independent-verify
         run: lake exe crown_verify_check
+      - name: Mark verifier success
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=success \
+            -f context=mfw-crown-independent-lean \
+            -f description='Lean build, theorem inventory, and nanoda passed'
+      - name: Mark verifier failure
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=failure \
+            -f context=mfw-crown-independent-lean \
+            -f description='Lean verification failed'
