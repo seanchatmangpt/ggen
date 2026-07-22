@@ -1,0 +1,129 @@
+# Detect Partial Publish — read-only fan-in over the 4 release targets a
+# single tag actually depends on.
+#
+# WHY THIS EXISTS (retrofit:PartialPublishRollbackUnknown,
+# .tcps/retrofit/ggen/load-path.ttl, standing: Blocking): a tag push fans
+# out to 4 independently-triggered, independently-shaped release targets —
+# release.yml (workflow_dispatch, 4 binary tarballs + 4 sha256 on one
+# Release object), release-debian.yml (push:tags, a .deb), docker-build-
+# push.yml (push:tags, 2 images / 2 registries), homebrew-release.yml
+# (release:published, bumps an EXTERNAL tap formula). None of the 4 knows
+# about the other 3, and nothing correlated them for a given tag. That gap
+# was not hypothetical:
+#   - release-debian.yml failed on a relative-path bug (real run:
+#     https://github.com/seanchatmangpt/ggen/actions/runs/28626795809,
+#     v26.7.2, conclusion=failure — reproduced by this workflow's own
+#     script during local validation).
+#   - docker-build-push.yml has never had a single successful run in its
+#     visible history — an invalid `now()` expression makes GitHub treat
+#     the whole file as unparseable, so every run fails before any job
+#     starts (0 jobs recorded). Fix is on branch fix/broken-publish-targets
+#     / PR #441 (open, not yet merged as of this workflow's authorship) —
+#     until that fix lands, GitHub also displays this workflow's run-list
+#     name as the literal file path rather than "Docker Build & Push
+#     (Multi-Registry)", which is why the workflow_run trigger below
+#     (which matches on the *declared* `name:`, not the path) will not
+#     actually fire for this leg until PR #441 merges. Adding the trigger
+#     now is a stated dependency, not a blocker — see the design note this
+#     implements.
+#   - homebrew-release.yml triggers on `release: types: [published]`, but
+#     GitHub suppresses that webhook for releases created with the default
+#     GITHUB_TOKEN (as release.yml's own Upload Release Assets step does) —
+#     confirmed empirically: zero runs of this workflow for any real
+#     v26.7.x tag, and the external tap formula
+#     (seanchatmangpt/homebrew-tap Formula/ggen.rb) is still pinned at a
+#     stale "0.2.4" as of this workflow's authorship.
+#
+# All three were invisible from release.yml's own run log — it has no
+# reason to know about the other 3 targets, and correctly reports "success"
+# for the one target it owns.
+#
+# READ-ONLY, HARD CONSTRAINT: this workflow and the script it calls
+# (scripts/ci/check-partial-publish.sh) only ever GET — `gh release view`,
+# `gh run list`, `gh api .../actions/runs/<id>/jobs`, `gh api
+# repos/<homebrew-tap>/contents/...`. Nothing here creates, deletes, or
+# modifies a tag, release, package, docker image, or the external tap repo.
+# `permissions: contents: read` (no `actions: write`, no push access to any
+# other repo) enforces that at the token level, not just by convention.
+# Auto-rollback / re-publish-retry is explicitly out of scope — see the
+# PartialPublishRollbackUnknown evidence — and would require a separate,
+# human-authorized change, not a flag on this workflow.
+#
+# Purely additive: zero edits to release.yml / release-debian.yml /
+# docker-build-push.yml / homebrew-release.yml. Deleting this file (and
+# scripts/ci/check-partial-publish.sh) fully removes the feature.
+name: Detect Partial Publish
+
+on:
+  # Re-fires once for each of the (up to 4) independent completions of a
+  # release cycle, rather than once right after release.yml finishes — this
+  # closes the async-timing gap (release-debian/docker/homebrew trigger off
+  # tag-push/release-published events and land minutes after release.yml's
+  # own workflow_dispatch run) without any sleep/poll/timeout. Each firing
+  # re-checks all 4 targets fresh, so a PENDING entry from an early firing
+  # naturally resolves to PASS/FAIL on a later firing once that workflow
+  # actually completes.
+  workflow_run:
+    workflows:
+      - "Release"
+      - "Build and Release Debian Package"
+      - "Docker Build & Push (Multi-Registry)"
+      - "Homebrew Release"
+    types: [completed]
+  # Manual / backfill checks — same read-only contract, TAG defaults to the
+  # most recent tag (scripts/ci/check-partial-publish.sh's own fallback)
+  # when left blank.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to check (defaults to latest)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+# Detection-only; never worth cancelling a check that's about to finish for
+# a fresher one to overwrite the same tag's evaluation mid-run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.event.inputs.tag || 'latest' }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check 4 correlated release targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Resolve target tag and run the detector
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # For release-debian.yml / docker-build-push.yml / homebrew-
+          # release.yml (push:tags / release:published triggers), head_branch
+          # on the triggering run IS the tag — confirmed against real run
+          # history (e.g. release-debian.yml runs show headBranch:"v26.7.2").
+          # For release.yml (workflow_dispatch-only), head_branch is always
+          # "main" — confirmed against real run history — and GitHub does
+          # not expose the workflow_dispatch `inputs.tag` on the completed
+          # run object, so there is no reliable way to recover the actual
+          # tag from that leg's triggering event. Treated as "unknown" below
+          # and left to the script's own latest-tag fallback rather than
+          # silently checking the wrong ref (main).
+          EVENT_TAG: ${{ github.event.workflow_run.head_branch }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG:-$EVENT_TAG}"
+          if [ "$TAG" = "main" ]; then
+            echo "Triggering run's head_branch is 'main' (release.yml workflow_dispatch leg has no recoverable tag) — falling back to latest tag."
+            TAG=""
+          fi
+          if [ -n "$TAG" ]; then
+            echo "Checking tag: $TAG"
+            bash scripts/ci/check-partial-publish.sh "$TAG" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No tag resolved from the trigger — checking the latest tag."
+            bash scripts/ci/check-partial-publish.sh | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
