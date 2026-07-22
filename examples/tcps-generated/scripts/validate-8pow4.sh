@@ -4,9 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-printf '%s\n' 'TCPS Chicago TDD 8^4 combinatorial innovation fabric'
-printf '%s\n' '8 × 8 × 8 × 8 = 4,096 exhaustive scenario cells'
-printf '%s\n' 'coverage ladder: 8 / 64 / 512 / 4,096'
+printf '%s\n' 'TCPS Auto Select 8^4 behavioral fabric'
+printf '%s\n' '8 authority × 8 readiness × 8 time × 8 mode = 4,096 real judgments'
+printf '%s\n' 'expected: 1,670 selected; 1,264 no-eligible; 1,162 no-ready'
 
 cargo test \
   --test tcps_chicago_tdd_1000x \
