@@ -1,165 +1,93 @@
-# TCPS Chicago TDD 8⁴ Combinatorial Innovation Fabric
+# TCPS Auto Select 8⁴ behavioral fabric
 
-This document specifies the executable 8⁴ layer in
-`tests/tcps_chicago_tdd_8pow4.rs`.
+The 8⁴ layer now executes the actual TCPS selection and authorization APIs. It no
+longer assigns unrelated files to synthetic combinations.
 
-## Purpose
-
-The merged 1000× fabric established one complete Chicago-TDD constitution for
-43 checked-in TCPS capabilities and compiled 1,204 obligations. The 8⁴ layer
-adds a second, orthogonal geometry for exploring the interaction space itself:
+## Four real eight-state factors
 
 ```text
-8 production layers
-× 8 TCPS doctrines
-× 8 execution surfaces
-× 8 standing states
-= 4,096 unique scenario cells
+8 authority masks
+× 8 readiness masks
+× 8 time budgets
+× 8 request and policy modes
+= 4,096 real Auto Select judgments
 ```
 
-The implementation does not replace the 1,204-obligation graph. It composes
-with it:
+The request and policy mode combines three independent binary conditions:
 
-```text
-real TCPS product
-→ 43 real filesystem witnesses
-→ 1,204 constitutional obligations
-→ 4,096 combinatorial scenario cells
-→ replay-stable receipt and evidence
-```
+- deterministic capability required;
+- receipt-capable capability required;
+- forward-score policy or reverse-score policy with an intentional top tie.
 
-## Four axes
+The other factors directly populate `選択要求` fields.
 
-### Production layer
+## Real execution
 
-1. meaning
-2. flow
-3. quality
-4. safety
-5. authority
-6. runtime
-7. release
-8. evidence
+For every cell, the fabric:
 
-### TCPS doctrine
+1. constructs a real eight-candidate `方策`;
+2. executes `自動選択::選択する`;
+3. compares the result with an independently authored public-contract oracle;
+4. checks eligibility and readiness masks;
+5. checks maximum ready mass and deterministic first-lane tie resolution;
+6. checks every workspace lane;
+7. checks typed refusal and receipt semantics;
+8. passes every selected proposal through `青い川のダム::仲介者::許可する`;
+9. checks the authorization receipt.
 
-1. standard work
-2. jidoka
-3. just in time
-4. heijunka
-5. kanban
-6. poka-yoke
-7. genchi genbutsu
-8. kaizen
+The complete matrix has these pinned outcomes:
 
-### Execution surface
+| Outcome | Count |
+|---|---:|
+| Selected and authorized | 1,670 |
+| Refused because no candidate is eligible | 1,264 |
+| Refused because eligible candidates are not ready | 1,162 |
+| Total | 4,096 |
 
-1. source
-2. native Rust
-3. `no_std`
-4. CLI
-5. FFI
-6. WASM
-7. packaging
-8. evidence
+The authorization suite separately falsifies wrong-tool, expired-capability,
+insufficient-authority, and wrong-policy paths.
 
-### Standing state
+## Coverage rails
 
-1. admitted
-2. selected
-3. authorized
-4. actuated
-5. receipted
-6. replayed
-7. refused
-8. unsupported
+The mathematical coverage ladder remains, but it now indexes real input states:
 
-The standing axis deliberately preserves refusal and unsupported as distinct
-states. Selection, authorization, and actuation also remain separate.
+- `8¹ = 8` marginal coverage;
+- `8² = 64` pairwise orthogonal coverage over `GF(8)`;
+- `8³ = 512` triple-wise orthogonal coverage;
+- `8⁴ = 4,096` exhaustive coverage.
 
-## 8-power coverage ladder
+The `GF(8)` multiplication table is pinned independently for the irreducible
+polynomial `x³ + x + 1`. The exhaustive rail uses a cyclic 12-bit Gray path, and
+the first sixteen values are pinned as independent known vectors.
 
-The compiler produces four lawful execution rails.
+## Receipt law
 
-| Rail | Cells | Guarantee |
-|---|---:|---|
-| `8¹` | 8 | every state of every axis appears once |
-| `8²` | 64 | every pair of axis states appears exactly once |
-| `8³` | 512 | every triple of axis states appears exactly once |
-| `8⁴` | 4,096 | every complete coordinate appears exactly once |
+Every scenario digest binds:
 
-The pairwise rail is an orthogonal array over `GF(8)`. Its rows are:
+- coordinates;
+- actual outcome class;
+- eligibility and readiness masks;
+- selected tool and mass when present;
+- actual selection receipt;
+- actual authorization receipt when present.
 
-```text
-x, y, x + y, x + 2y
-```
+The 4,096 digests are combined with a domain-separated BLAKE3 Merkle tree. The
+root is replay-stable and changes when any leaf changes.
 
-where addition is XOR and multiplication uses the irreducible polynomial
-`x³ + x + 1`.
+## Evidence artifacts
 
-The triple-wise rail uses:
+The test emits and validates:
 
-```text
-x, y, z, x + y + z
-```
+- `matrix-receipt.json`;
+- `scenario-evidence.jsonl`;
+- `scenario-plan.tsv`;
+- `coverage-rails.tsv`;
+- `merkle-root.txt`.
 
-Any three columns uniquely determine the fourth. Therefore all 512 possible
-three-axis projections occur once.
+The previous pseudo-OCEL and existence-only RDF projections were removed rather
+than represented as standards-compliant evidence.
 
-The exhaustive rail remains the completeness rail. Smaller rails reduce
-scenario execution when the required interaction strength is known.
-
-## Gray-path traversal
-
-The exhaustive rail is ordered by a cyclic 12-bit binary-reflected Gray code.
-Each axis occupies three bits. Adjacent cells therefore differ by exactly one
-bit in exactly one axis, including the final-to-first transition.
-
-This minimizes scenario setup churn while retaining all 4,096 coordinates.
-
-## Real witness compression
-
-Every cell is bound deterministically to one of the 43 real TCPS capability
-artifacts already used by the 1000× fabric.
-
-The 43 filesystem observations are executed once. Their admitted fingerprints
-discharge all 4,096 cells. Witness load is balanced to within one cell:
-
-```text
-minimum load = 95 cells
-maximum load = 96 cells
-```
-
-A missing artifact is a loud refusal. A cell cannot be discharged without its
-accepted real witness.
-
-## Orthogonality proofs
-
-The Chicago tests establish:
-
-- 512 occurrences of every one-axis state;
-- 64 occurrences of every two-axis state pair;
-- 8 occurrences of every three-axis state triple;
-- one occurrence of every full four-axis coordinate;
-- uniqueness of all cell identities;
-- bijection between ordinal, Gray value, and coordinates.
-
-## Receipt and evidence
-
-The artifact scenario emits:
-
-- `hypercube-receipt.json`
-- `hypercube.ttl`
-- `hypercube.ocel.json`
-- `hypercube-plan.tsv`
-- `hypercube-merkle.txt`
-- `coverage-ladder.tsv`
-
-The receipt binds the four axes, all four rail cardinalities, 43 real probes,
-all 4,096 discharges, witness-load bounds, and a deterministic Merkle root.
-Occurrence time remains outside semantic identity.
-
-## Running
+## Run
 
 From `examples/tcps-generated`:
 
@@ -167,13 +95,5 @@ From `examples/tcps-generated`:
 bash scripts/validate-8pow4.sh
 ```
 
-The script runs both layers:
-
-```text
-1,204-obligation constitutional fabric
-+
-4,096-cell combinatorial hypercube
-```
-
-No mock collaborator is introduced. All product probes read the actual
-checked-in TCPS consumer.
+The runner executes both the product-evidence fabric and the 8⁴ behavioral
+fabric.
