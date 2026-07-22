@@ -91,8 +91,9 @@ detail, and the ~50 integration tests are all real, present, and out of scope th
 
 ## README-documented Cargo features (15)
 
-Cargo.toml itself defines 26 feature flags total; the 15 below are the ones README.md's own
-three tables document (see ontology.ttl's header for the 11 undocumented ones out of scope).
+Cargo.toml itself defines 26 feature flags total; the 15 below are the
+ones README.md's own three tables document (see ontology.ttl's header for the undocumented ones
+out of scope).
 
 | Feature | Description | Default |
 |---|---|---|
