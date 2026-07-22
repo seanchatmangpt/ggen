@@ -1,0 +1,2 @@
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?order ?name ?artifact WHERE { ?x a l5p:Capability ; l5p:order ?order ; l5p:capName ?name ; l5p:artifact ?artifact . } ORDER BY ?order

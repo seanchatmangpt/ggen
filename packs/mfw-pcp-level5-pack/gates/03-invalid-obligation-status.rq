@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?obligation ?status WHERE { ?obligation a pcp:ProofObligation ; pcp:status ?status . FILTER(?status NOT IN ("PROVED", "BLOCKED", "UNKNOWN", "UNSUPPORTED")) } ORDER BY ?obligation

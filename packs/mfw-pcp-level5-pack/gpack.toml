@@ -1,0 +1,38 @@
+
+[gpack]
+id = "mfw.pcp.level5"
+name = "MFW Proof-Carrying Plan Level 5 Candidate"
+version = "26.7.21"
+description = "Generates a complete bounded PCP verifier crate, tests, falsifiers, documentation, provenance, CI, release standing, and replay artifacts from RDF."
+license = "AGPL-3.0-or-later"
+ggen_compat = ">=26.7.3 <27.0.0"
+
+[templates]
+patterns = ["templates/**/*.tmpl", "templates/**/*.tera"]
+includes = []
+
+[rdf]
+base = "urn:mfw:pcp:"
+patterns = ["ontology.ttl", "fixtures/**/*.ttl"]
+inline = []
+
+[rdf.prefixes]
+pcp = "urn:mfw:pcp:"
+l5p = "http://ggen.org/l5-promotion#"
+prov = "http://www.w3.org/ns/prov#"
+ocel = "https://w3id.org/ocel/ontology/"
+sh = "http://www.w3.org/ns/shacl#"
+
+[queries]
+patterns = ["queries/*.rq", "gates/*.rq"]
+
+[shapes]
+patterns = ["shapes.ttl"]
+
+[preset]
+config = "preset/strict.toml"
+
+[preset.vars]
+strict = "true"
+fail_on_missing_variable = "true"
+fail_on_empty_query = "true"

@@ -1,0 +1,2 @@
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?cap WHERE { ?cap a l5p:Capability . FILTER NOT EXISTS { ?cap l5p:artifact ?artifact . } } ORDER BY ?cap

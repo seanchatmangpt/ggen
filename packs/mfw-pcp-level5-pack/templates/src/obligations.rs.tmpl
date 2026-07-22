@@ -1,0 +1,13 @@
+//! Generated theorem-target ledger. A declaration is not proof standing.
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ObligationStatus { Proved, Blocked, Unknown, Unsupported }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProofObligation { pub id: &'static str, pub statement: &'static str, pub status: ObligationStatus }
+
+pub const ALL: &[ProofObligation] = &[
+{% for row in results %}    ProofObligation { id: "{{ row["identifier"] }}", statement: "{{ row["statement"] }}", status: ObligationStatus::{{ row["rustStatus"] }} },
+{% endfor %}];
+
+pub fn all_proved() -> bool { ALL.iter().all(|item| item.status == ObligationStatus::Proved) }

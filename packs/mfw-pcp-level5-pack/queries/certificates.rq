@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?order ?rustName ?label WHERE { ?x a pcp:CertificateKind ; pcp:order ?order ; pcp:rustName ?rustName ; pcp:label ?label . } ORDER BY ?order

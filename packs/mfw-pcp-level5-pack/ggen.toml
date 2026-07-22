@@ -1,0 +1,131 @@
+[project]
+name = "mfw-pcp-level5-consumer"
+version = "26.7.21"
+description = "Generate the bounded PCP verifier from RDF"
+authors = ["Sean Chatman"]
+license = "AGPL-3.0-or-later"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "urn:mfw:pcp:"
+imports = []
+
+[ontology.prefixes]
+pcp = "urn:mfw:pcp:"
+l5p = "http://ggen.org/l5-promotion#"
+prov = "http://www.w3.org/ns/prov#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/anchor.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/mfw-pcp-generated/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "lib"
+query = { file = "queries/anchor.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "certificates"
+query = { file = "queries/certificates.rq" }
+template = { file = "templates/src/certificates.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/certificates.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "obligations"
+query = { file = "queries/obligations.rq" }
+template = { file = "templates/src/obligations.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/obligations.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "distinctions"
+query = { file = "queries/distinctions.rq" }
+template = { file = "templates/src/distinctions.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/distinctions.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "receipts"
+query = { file = "queries/receipt-fields.rq" }
+template = { file = "templates/src/receipts.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/receipts.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "replay"
+query = { file = "queries/anchor.rq" }
+template = { file = "templates/src/replay.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/src/replay.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generated-proof"
+query = { file = "queries/invariants.rq" }
+template = { file = "templates/tests/generated_proof.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/tests/generated_proof.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generated-negative"
+query = { file = "queries/invariants.rq" }
+template = { file = "templates/tests/generated_negative.rs.tmpl" }
+output_file = "consumer/mfw-pcp-generated/tests/generated_negative.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "readme"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/README.md.tmpl" }
+output_file = "consumer/mfw-pcp-generated/README.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "provenance"
+query = { file = "queries/artifacts.rq" }
+template = { file = "templates/PROVENANCE.ttl.tmpl" }
+output_file = "consumer/mfw-pcp-generated/PROVENANCE.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "ci"
+query = { file = "queries/anchor.rq" }
+template = { file = "templates/ci.yml.tmpl" }
+output_file = "consumer/mfw-pcp-generated/.github/workflows/ci.yml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/mfw-pcp-generated/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/anchor.rq" }
+template = { file = "templates/scripts/verify.sh.tmpl" }
+output_file = "consumer/mfw-pcp-generated/scripts/verify.sh"
+skip_empty = false
+mode = "Overwrite"

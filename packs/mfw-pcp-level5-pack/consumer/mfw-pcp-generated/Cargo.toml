@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "mfw-pcp-generated"
+version = "26.7.21"
+edition = "2021"
+license = "AGPL-3.0-or-later"
+publish = false
+
+[dependencies]
+blake3 = "1.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+[lints.rust]
+unsafe_code = "forbid"

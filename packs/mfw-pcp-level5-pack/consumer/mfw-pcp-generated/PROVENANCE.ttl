@@ -1,0 +1,19 @@
+@prefix pcp: <urn:mfw:pcp:> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pcp:generated-subsystem a prov:Bundle ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-1 a prov:Entity ; pcp:path "Cargo.toml" ; pcp:role "build manifest" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-2 a prov:Entity ; pcp:path "src/lib.rs" ; pcp:role "public lifecycle verifier" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-3 a prov:Entity ; pcp:path "src/certificates.rs" ; pcp:role "certificate registry" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-4 a prov:Entity ; pcp:path "src/obligations.rs" ; pcp:role "proof obligation ledger" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-5 a prov:Entity ; pcp:path "src/distinctions.rs" ; pcp:role "information-horizon ledger" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-6 a prov:Entity ; pcp:path "src/receipts.rs" ; pcp:role "open and close receipt contract" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-7 a prov:Entity ; pcp:path "src/replay.rs" ; pcp:role "receipt replay verifier" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-8 a prov:Entity ; pcp:path "tests/generated_proof.rs" ; pcp:role "generated positive proof" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-9 a prov:Entity ; pcp:path "tests/generated_negative.rs" ; pcp:role "generated falsifiers" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-10 a prov:Entity ; pcp:path "README.md" ; pcp:role "generated documentation" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-11 a prov:Entity ; pcp:path "PROVENANCE.ttl" ; pcp:role "generated provenance" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-12 a prov:Entity ; pcp:path ".github/workflows/ci.yml" ; pcp:role "generated CI and release gate" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-13 a prov:Entity ; pcp:path "RELEASE_STANDING.json" ; pcp:role "generated release standing" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+pcp:artifact-14 a prov:Entity ; pcp:path "scripts/verify.sh" ; pcp:role "generated verifier ladder" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+

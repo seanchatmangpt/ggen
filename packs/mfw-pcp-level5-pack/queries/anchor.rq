@@ -1,0 +1,4 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?crate ?module ?version ?description ?status WHERE {
+  pcp:Level5Lifecycle pcp:crateName ?crate ; pcp:moduleName ?module ; pcp:version ?version ; pcp:description ?description ; pcp:gallStatus ?status .
+} ORDER BY ?crate

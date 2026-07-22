@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT (COUNT(?kind) AS ?actual) WHERE { ?kind a pcp:CertificateKind . } HAVING (COUNT(?kind) != 10)
