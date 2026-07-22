@@ -1,5 +1,49 @@
 name: Deploy Documentation to GitHub Pages
 
+# BLOCKED, SEPARATELY TRACKED, 3 STACKED PROBLEMS (2026-07-22) -- see
+# retrofit:GithubPagesEnvironmentStaleMasterPolicy in
+# .tcps/retrofit/ggen/load-path.ttl for the full evidence trail. This
+# workflow does NOT work yet even after this commit's fix; disclosed
+# honestly rather than claimed fixed.
+#
+# (1) Every run currently fails in ~2 seconds, before any step executes:
+#     "Branch main is not allowed to deploy to github-pages due to
+#     environment protection rules." Root cause, confirmed via `gh api
+#     repos/.../environments/github-pages/deployment-branch-policies`: the
+#     github-pages environment's custom branch policy names only "master"
+#     -- this repo's real default branch is "main", a stale rename gap.
+#     Fixing it means mutating repository environment protection rules,
+#     a permission-adjacent repo-settings change this session is not
+#     authorized to make without an explicit `!` command -- see AP-004 in
+#     docs/retrofit/ggen/authorization-packets.md.
+#
+# (2) FIXED in this commit (real, in-scope, no authorization needed):
+#     the bespoke `dtolnay/rust-toolchain@... toolchain: stable` step
+#     ignores rust-toolchain.toml's pinned nightly, never provisions the
+#     [patch.crates-io] siblings, never installs sccache -- the same
+#     class already fixed twice this session (release.yml PR #426,
+#     marketplace-test.yml). Currently masked by (1) always failing
+#     first; fixed now so the workflow is one step closer once (1) is
+#     authorized, not blocked on a second investigation cycle.
+#
+# (3) NOT FIXED, genuinely out of scope for this pass: even past (1) and
+#     (2), the "Build documentation" step (`mdbook build docs`) would
+#     fail -- docs/book.toml declares `src = "src"`, but docs/src/ was
+#     deleted 2026-03-31 (commit e611373, "delete 1,892 stale MD/TXT
+#     files") and never restored; this workflow was last touched
+#     2026-06-20, three months AFTER that deletion, without anyone
+#     noticing the source tree it builds no longer exists. book/ (this
+#     repo's other, actively-maintained mdbook project) is NOT a drop-in
+#     replacement -- it's scoped to "Manufacturing Level Five Packs"
+#     specifically, a narrower topic than this workflow's own "ggen
+#     Documentation" title implies. Redirecting this workflow to book/,
+#     restoring docs/src content, or retiring this workflow (and its
+#     near-duplicate sibling deploy-docs.yml, which independently
+#     references the same deleted docs/src/ via a different, older
+#     gh-pages-branch deployment mechanism) is a real documentation-
+#     scope/product decision, not a mechanical fix -- named here as a
+#     precise next obligation, not attempted this cycle.
+
 on:
   # Trigger whenever there is a push to the default branch
   push:
@@ -28,11 +72,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: stable
-          components: rustfmt, clippy
+          cache-key-suffix: publish-registry
 
       - name: Install mdbook
         run: |
