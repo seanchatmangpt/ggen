@@ -15,6 +15,7 @@
 mod support;
 
 use std::collections::BTreeSet;
+use std::sync::OnceLock;
 
 use chicago_tdd_tools::core::contract::{
     ResourceEnvelope, TestContract, TestContractRegistry,
