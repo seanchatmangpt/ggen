@@ -39,9 +39,23 @@ jobs:
           cache-key-suffix: tcps-generated-validation
 
       - name: Run product-evidence and 8^4 behavioral suites
+        shell: bash
         run: |
+          set +e
           cargo test \
             --manifest-path examples/tcps-generated/Cargo.toml \
             --test tcps_chicago_tdd_1000x \
             --test tcps_chicago_tdd_8pow4 \
-            -- --nocapture
+            -- --nocapture > tcps-generated-validation.log 2>&1
+          status=$?
+          cat tcps-generated-validation.log
+          exit "$status"
+
+      - name: Preserve validation log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tcps-generated-validation-log
+          path: tcps-generated-validation.log
+          if-no-files-found: error
+          retention-days: 7
