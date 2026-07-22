@@ -59,7 +59,7 @@ struct ExpectedBoundaryTest {
 /// Number of `ctt:CliBoundaryTest` individuals the SPARQL query above found
 /// at the time of the last `ggen sync run` — derived from `tests | length`,
 /// not a hand count.
-const EXPECTED_TEST_COUNT: usize = 4;
+const EXPECTED_TEST_COUNT: usize = 9;
 
 const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
     // receiptctl_algorithm_list_succeeds
@@ -78,6 +78,38 @@ const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
         stderr_field: None,
         axiom_doc: "/// Covers: receiptctl --help exits 0 with usage text",
     },
+    // receiptctl_known_noun_unrecognized_verb_fails_closed
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_known_noun_unrecognized_verb_fails_closed()",
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"unrecognized subcommand\"),"),
+        axiom_doc: "/// Covers: a known noun with an unrecognized verb exits nonzero with a clap error on stderr, distinct from an entirely-unknown top-level noun",
+    },
+    // receiptctl_receipt_emit_fails_without_required_arg
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_receipt_emit_fails_without_required_arg()",
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"required arguments were not provided\"),"),
+        axiom_doc: "/// Covers: receipt emit without its required --sync-receipt-id flag fails closed via clap's own required-argument enforcement",
+    },
+    // receiptctl_session_login_fails_without_required_arg
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_session_login_fails_without_required_arg()",
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"required arguments were not provided\"),"),
+        axiom_doc: "/// Covers: session login without its required --token flag fails closed via clap's own required-argument enforcement",
+    },
+    // receiptctl_unexpected_flag_fails_closed
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_unexpected_flag_fails_closed()",
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"unexpected argument\"),"),
+        axiom_doc: "/// Covers: an unrecognized flag on an otherwise-valid command exits nonzero with a clap error on stderr",
+    },
     // receiptctl_unknown_verb_fails_closed
     ExpectedBoundaryTest {
         fn_signature: "fn receiptctl_unknown_verb_fails_closed()",
@@ -85,6 +117,14 @@ const EXPECTED: [ExpectedBoundaryTest; EXPECTED_TEST_COUNT] = [
         stdout_field: None,
         stderr_field: Some("stderr_needle: Some(\"error\"),"),
         axiom_doc: "/// Covers: an unknown subcommand exits nonzero with a clap error on stderr",
+    },
+    // receiptctl_user_create_fails_without_required_arg
+    ExpectedBoundaryTest {
+        fn_signature: "fn receiptctl_user_create_fails_without_required_arg()",
+        exit_code_field: "exit_code: 1,",
+        stdout_field: None,
+        stderr_field: Some("stderr_needle: Some(\"required arguments were not provided\"),"),
+        axiom_doc: "/// Covers: user create without its required --name flag fails closed via clap's own required-argument enforcement",
     },
     // receiptctl_version_emits_name
     ExpectedBoundaryTest {

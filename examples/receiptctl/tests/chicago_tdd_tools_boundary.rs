@@ -37,6 +37,62 @@ fn receiptctl_help_lists_verbs() {
     .expect("boundary spec for receiptctl_help_lists_verbs");
 }
 
+/// Covers: a known noun with an unrecognized verb exits nonzero with a clap error on stderr, distinct from an entirely-unknown top-level noun
+#[test]
+fn receiptctl_known_noun_unrecognized_verb_fails_closed() {
+    run_boundary_spec(&BoundarySpec {
+        test_name: "receiptctl_known_noun_unrecognized_verb_fails_closed",
+        binary: "receiptctl",
+        args: "algorithm frobnicate",
+        exit_code: 1,
+        stdout_needle: None,
+        stderr_needle: Some("unrecognized subcommand"),
+    })
+    .expect("boundary spec for receiptctl_known_noun_unrecognized_verb_fails_closed");
+}
+
+/// Covers: receipt emit without its required --sync-receipt-id flag fails closed via clap's own required-argument enforcement
+#[test]
+fn receiptctl_receipt_emit_fails_without_required_arg() {
+    run_boundary_spec(&BoundarySpec {
+        test_name: "receiptctl_receipt_emit_fails_without_required_arg",
+        binary: "receiptctl",
+        args: "receipt emit",
+        exit_code: 1,
+        stdout_needle: None,
+        stderr_needle: Some("required arguments were not provided"),
+    })
+    .expect("boundary spec for receiptctl_receipt_emit_fails_without_required_arg");
+}
+
+/// Covers: session login without its required --token flag fails closed via clap's own required-argument enforcement
+#[test]
+fn receiptctl_session_login_fails_without_required_arg() {
+    run_boundary_spec(&BoundarySpec {
+        test_name: "receiptctl_session_login_fails_without_required_arg",
+        binary: "receiptctl",
+        args: "session login",
+        exit_code: 1,
+        stdout_needle: None,
+        stderr_needle: Some("required arguments were not provided"),
+    })
+    .expect("boundary spec for receiptctl_session_login_fails_without_required_arg");
+}
+
+/// Covers: an unrecognized flag on an otherwise-valid command exits nonzero with a clap error on stderr
+#[test]
+fn receiptctl_unexpected_flag_fails_closed() {
+    run_boundary_spec(&BoundarySpec {
+        test_name: "receiptctl_unexpected_flag_fails_closed",
+        binary: "receiptctl",
+        args: "algorithm list --bogus-flag",
+        exit_code: 1,
+        stdout_needle: None,
+        stderr_needle: Some("unexpected argument"),
+    })
+    .expect("boundary spec for receiptctl_unexpected_flag_fails_closed");
+}
+
 /// Covers: an unknown subcommand exits nonzero with a clap error on stderr
 #[test]
 fn receiptctl_unknown_verb_fails_closed() {
@@ -49,6 +105,20 @@ fn receiptctl_unknown_verb_fails_closed() {
         stderr_needle: Some("error"),
     })
     .expect("boundary spec for receiptctl_unknown_verb_fails_closed");
+}
+
+/// Covers: user create without its required --name flag fails closed via clap's own required-argument enforcement
+#[test]
+fn receiptctl_user_create_fails_without_required_arg() {
+    run_boundary_spec(&BoundarySpec {
+        test_name: "receiptctl_user_create_fails_without_required_arg",
+        binary: "receiptctl",
+        args: "user create",
+        exit_code: 1,
+        stdout_needle: None,
+        stderr_needle: Some("required arguments were not provided"),
+    })
+    .expect("boundary spec for receiptctl_user_create_fails_without_required_arg");
 }
 
 /// Covers: receiptctl --version exits 0 and prints a version string

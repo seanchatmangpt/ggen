@@ -2,7 +2,7 @@
 
 [packs.chicago-tdd-tools-pack]
 source = "path:../../packs/chicago-tdd-tools-pack"
-content_hash = "blake3:8125f92609b5a1e45dac7c4046680de9e6cd3cf4a6d848d6f4c2542dc833300c"
+content_hash = "blake3:9797ca322456149d3a8ad3722da5b16d716f54106d9a7872be8bd20759233827"
 
 [packs.clap-noun-verb-pack]
 source = "path:../../packs/clap-noun-verb-pack"
