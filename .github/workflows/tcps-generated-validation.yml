@@ -1,0 +1,47 @@
+name: TCPS Generated Validation
+
+on:
+  pull_request:
+    paths:
+      - "examples/tcps-generated/**"
+      - "crates/chicago-tdd-tools/**"
+      - ".github/workflows/tcps-generated-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "examples/tcps-generated/**"
+      - "crates/chicago-tdd-tools/**"
+      - ".github/workflows/tcps-generated-validation.yml"
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: product evidence + Auto Select 8^4
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target/tcps-generated-validation
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Provision pinned Rust and cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: tcps-generated-validation
+
+      - name: Run product-evidence and 8^4 behavioral suites
+        run: |
+          cargo test \
+            --manifest-path examples/tcps-generated/Cargo.toml \
+            --test tcps_chicago_tdd_1000x \
+            --test tcps_chicago_tdd_8pow4 \
+            -- --nocapture
