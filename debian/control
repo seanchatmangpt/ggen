@@ -1,0 +1,19 @@
+Source: ggen
+Section: devel
+Priority: optional
+Maintainer: Sean Chatman <sean@chatmangpt.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/seanchatmangpt/ggen
+Rules-Requires-Root: no
+
+Package: ggen
+Architecture: amd64
+Depends: ${misc:Depends}
+Description: deterministic, language-agnostic code generation from RDF
+ ggen is a deterministic, language-agnostic code generation framework
+ that treats software artifacts as projections of knowledge graphs.
+ .
+ This package ships the prebuilt `ggen` CLI binary. The Rust source
+ build itself happens before packaging (see debian/rules); this
+ package's own build step only stages the already-compiled binary.

@@ -1,9 +1,27 @@
 name: Build and Release Debian Package
 
+# WHY workflow_dispatch WAS ADDED (root-cause fix, retrofit:PartialPublishRollbackUnknown
+# follow-on): the native `push: tags` trigger below never actually fired for
+# any real release -- tags are created by semantic-release.yml using the
+# default GITHUB_TOKEN, and GitHub suppresses `on: push` workflow runs for
+# events created with GITHUB_TOKEN (the exact same suppression class
+# release.yml's own header comment already documented and worked around;
+# confirmed here too: 15 total runs ever, all failure, none since
+# 2026-07-02, despite dozens of real tags pushed since). Fixed the same
+# proven way: release.yml now explicitly `gh workflow run`s this workflow
+# --ref <tag> right after build-release completes (workflow_dispatch IS the
+# documented GITHUB_TOKEN exception). No separate `tag` input is needed --
+# dispatching with --ref <tag> checks the runner out at that ref, so
+# GITHUB_REF_NAME (which scripts/build-debian-package.sh reads to derive
+# the real package version) is already the tag name, exactly as it would be
+# for a native tag-push trigger. The native `push: tags` trigger stays --
+# harmless, and still correct if this workflow is ever reached a different
+# way (e.g. a real PAT-based tag push).
 on:
   push:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v26.5.19, etc.
+  workflow_dispatch:
 
 permissions:
   contents: write  # Required for creating releases
