@@ -12,6 +12,6 @@ sparql:
 flowchart LR
   start["既存構造"]
 {% for w in work %}  w{{ w.index }}["{{ w.title }}"]
-{% endfor %}  start --> w10
+{% endfor %}  start --> w{{ work[0].index }}
 {% for e in edges %}  w{{ e.fromIndex }} --> w{{ e.toIndex }}
 {% endfor %}
