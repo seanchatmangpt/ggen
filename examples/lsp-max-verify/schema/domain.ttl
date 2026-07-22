@@ -1,0 +1,13 @@
+# lsp-max-verify project ontology — deliberately empty of individuals.
+#
+# lsp-max-pack's own ontology.ttl (packs/lsp-max-pack/ontology.ttl) is a
+# complete, closed model of all 3 lm:LintRule individuals and the one
+# lm:RulePack individual; this consumer adds no project-specific facts on
+# top of it (unlike receiptctl/schema/domain.ttl, which unions in
+# project-specific cnv:Command individuals for clap-noun-verb-pack). This
+# file exists only to satisfy `[ontology] source` in ggen.toml — the real
+# domain facts come entirely from the wired pack.
+
+@prefix lm:   <http://seanchatmangpt.github.io/packs/lsp-max#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
