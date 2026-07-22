@@ -23,6 +23,15 @@
 #   - examples/cargo-cicd-verify  (wires packs/cargo-cicd-pack; added L5
 #     wave 5, 2026-07-21/22, alongside cargo-cicd-pack's Round 5 dispatch-shim
 #     work -- see that pack's pack.toml for the evidence trail).
+#   - examples/rmcp-verify        (wires packs/rmcp-pack; mirrors
+#     star-toml-verify's posture -- rmcp, like star-toml, is a real
+#     crates.io-published dependency, `rmcp = "2.2"`, not a
+#     workspace-internal path dependency). Exercises the hand-transcribed
+#     handler-catalog proof, the cap05 SPARQL-derived proof
+#     (rmcp_handler_catalog_sparql_derived_proof.rs.tmpl), the real-behavior
+#     stub-handler proof against the actual compiled rmcp crate, and the
+#     cap06 refusal-path/adversarial-input proof
+#     (rmcp_default_handler_proof.rs.tmpl).
 #
 # Uses the release ggen binary if present (fast path), else builds the debug
 # one. Any sync refusal (including the pack-shapes gate FM-PACK-013), any
@@ -38,6 +47,7 @@ CONSUMERS=(
     "examples/praxis-core-verify"
     "examples/star-toml-verify"
     "examples/cargo-cicd-verify"
+    "examples/rmcp-verify"
 )
 
 GGEN_BIN="target/release/ggen"
