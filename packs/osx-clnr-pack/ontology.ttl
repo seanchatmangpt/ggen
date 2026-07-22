@@ -139,6 +139,15 @@ oclnr:unit-mb a oclnr:ByteUnit ; oclnr:unitSuffix "mb" ; oclnr:unitMultiplier 10
 oclnr:unit-gb a oclnr:ByteUnit ; oclnr:unitSuffix "gb" ; oclnr:unitMultiplier 1000000000 .
 oclnr:unit-tb a oclnr:ByteUnit ; oclnr:unitSuffix "tb" ; oclnr:unitMultiplier 1000000000000 .
 
+# These same 5 individuals are now also the free parameter behind
+# `human_bytes` in `osx_clnr_plan.rs.tmpl` (added for the L5 reference-test
+# push, 2026-07-20): its `HUMAN_BYTE_UNIT_LABELS` ladder is the `units`
+# SPARQL query's `?suffix` column, uppercased -- same source of truth as
+# `BYTE_UNITS` above, not a second hardcoded copy of the unit list. Unlike
+# `identify_thinned_snapshots`/`SnapshotThinReceipt` below, `human_bytes`
+# genuinely has a free ontology parameter (the unit ladder's length/order),
+# so it is SPARQL-derived, not a third named-individual hand-transcription.
+
 oclnr:SnapshotSelectionPolicy
     a rdfs:Class ;
     rdfs:comment "The real oldest-N snapshot selection rule used by `oclnr snapshot delete --which oldest`: filter to parseable date-suffixed names, sort ascending (oldest first), truncate to N." .

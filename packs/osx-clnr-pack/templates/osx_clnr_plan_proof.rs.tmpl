@@ -25,8 +25,8 @@ sparql:
 mod osx_clnr_plan;
 
 use osx_clnr_plan::{
-    identify_thinned_snapshots, parse_size_in_bytes, parse_snapshot_date, select_oldest_snapshots,
-    SnapshotThinReceipt, BYTE_UNITS,
+    human_bytes, identify_thinned_snapshots, parse_size_in_bytes, parse_snapshot_date,
+    select_oldest_snapshots, SnapshotThinReceipt, BYTE_UNITS, HUMAN_BYTE_UNIT_LABELS,
 };
 
 #[test]
@@ -155,4 +155,38 @@ fn snapshot_thin_receipt_derives_thinned_field_from_before_and_after() {
     let receipt =
         SnapshotThinReceipt::new("/".to_string(), 1_000_000, 1_716_768_000, before, after);
     assert_eq!(receipt.snapshots_thinned, vec!["snap1".to_string()]);
+}
+
+#[test]
+fn human_byte_unit_ladder_has_the_ontology_derived_count() {
+    // SPARQL-derived, not hand-copied: {{ unit_count[0].n }} `oclnr:ByteUnit`
+    // individuals back BOTH `BYTE_UNITS` (parsing) and `HUMAN_BYTE_UNIT_LABELS`
+    // (display) -- same source of truth, same count.
+    assert_eq!(HUMAN_BYTE_UNIT_LABELS.len(), {{ unit_count[0].n }});
+    assert_eq!(HUMAN_BYTE_UNIT_LABELS.len(), BYTE_UNITS.len());
+}
+
+#[test]
+fn human_bytes_formats_gb_boundary() {
+    // Same fixture as the real ~/osx-clnr doctest for `human_bytes`,
+    // source-verified 2026-07-20.
+    assert_eq!(human_bytes(1_000_000_000), "1.00 GB");
+}
+
+#[test]
+fn human_bytes_formats_mb_boundary() {
+    assert_eq!(human_bytes(2_500_000), "2.50 MB");
+}
+
+#[test]
+fn human_bytes_is_the_exact_inverse_of_parse_size_in_bytes_at_unit_boundaries() {
+    let bytes = parse_size_in_bytes("1GB").unwrap();
+    assert_eq!(human_bytes(bytes), "1.00 GB");
+}
+
+#[test]
+fn human_bytes_formats_zero_bytes() {
+    // Adversarial / boundary: zero must format as the smallest unit, not
+    // panic or divide-by-zero on an empty ladder.
+    assert_eq!(human_bytes(0), "0.00 B");
 }

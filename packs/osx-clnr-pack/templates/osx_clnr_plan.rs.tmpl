@@ -110,6 +110,36 @@ pub fn identify_thinned_snapshots(before: &[String], after: &[String]) -> Vec<St
     before.iter().filter(|s| !after_set.contains(s)).cloned().collect()
 }
 
+/// Display labels for `human_bytes` below, ascending by magnitude --
+/// SPARQL-derived from the SAME `oclnr:ByteUnit` individuals as
+/// `BYTE_UNITS` above (the `units` query at the top of this template),
+/// just uppercased for display rather than lowercased for parsing. This is
+/// the real free ontology parameter `human_bytes` has (unlike
+/// `identify_thinned_snapshots`/`SnapshotThinReceipt` above): add or
+/// remove a `oclnr:ByteUnit` individual and this ladder's length/order
+/// changes with it on the next `ggen sync run`, exactly like `BYTE_UNITS`.
+pub const HUMAN_BYTE_UNIT_LABELS: &[&str] = &[
+{% for row in units %}    "{{ row.suffix | upper }}",
+{% endfor %}];
+
+/// Formats a byte count using the ontology-derived `HUMAN_BYTE_UNIT_LABELS`
+/// ladder, SI-decimal (1000-based). Mirrors `oclnr::domain::time::human_bytes`
+/// (source-verified 2026-07-20) -- the exact inverse of `parse_size_in_bytes`
+/// at unit boundaries, and (per the real source's own doc comment) the same
+/// definition its `oclnr::domain::tool_roots::human_bytes` and
+/// `oclnr::integration::progress::human_bytes` re-export paths point at; see
+/// `osx_clnr_domain_tool_roots.rs.tmpl` / `osx_clnr_integration_progress.rs.tmpl`
+/// for the shims that mirror those same two re-export paths here.
+pub fn human_bytes(bytes: u64) -> String {
+    let mut size = bytes as f64;
+    let mut unit = 0usize;
+    while size >= 1000.0 && unit < HUMAN_BYTE_UNIT_LABELS.len() - 1 {
+        size /= 1000.0;
+        unit += 1;
+    }
+    format!("{:.2} {}", size, HUMAN_BYTE_UNIT_LABELS[unit])
+}
+
 /// Terminal receipt of a local-snapshot-thinning execution. Mirrors
 /// `oclnr::domain::time::SnapshotThinReceipt` field-for-field (source-verified
 /// 2026-07-19; see `oclnr:SnapshotThinReceipt` in `ontology.ttl`).
