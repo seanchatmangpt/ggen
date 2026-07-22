@@ -1,7 +1,9 @@
 name: MFW Crown Independent Lean
 
 on:
-  pull_request:
+  push:
+    branches:
+      - agent/mfw-crown-independent-verifier
     paths:
       - "examples/mfw-crown-independent-verify/**"
       - ".github/workflows/mfw-crown-independent-lean.yml"
