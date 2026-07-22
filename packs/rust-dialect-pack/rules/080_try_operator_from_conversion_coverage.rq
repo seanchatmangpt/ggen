@@ -1,0 +1,38 @@
+# TYPING RULE (currently unexercised on this corpus — see note below):
+# the `?` operator requires a `From`/`Into` conversion path between the
+# inner and outer error types.
+#
+# Prior art: `expr?` inside a function returning `Result<T, E>` requires
+# `expr: Result<T, E2>` where `E2: Into<E>` (equivalently `From<E2> for E`
+# is implemented); it desugars to an early `return Err(From::from(e))` on
+# the `Err` arm. Formalized as the `Try`/`FromResidual` typing rule in RFC
+# 3058 ("Try Trait v2") and documented in the Rust Reference's "Try
+# expressions" section. thiserror's `#[from]` attribute (gec:ThiserrorVariant
+# / gec:hasFromConversion) is the library-level mechanism that supplies this
+# `From` impl in the corpus — e.g. affidavit_chain.rs.tmpl:43's `#[error("io
+# error at {path}: {source}")]` variant, gec:Variant_AffidavitChain_IoError.
+#
+# WHY THIS RULE IS AN APPLICABILITY CHECK, NOT A VIOLATION-FINDER: a full
+# From-conversion-consistency check (does every `?` site's source error type
+# actually have a `From` path to its function's declared error type?) needs
+# a grounded gec:ErrorPathFact with gec:usesTryOperator true to check against
+# — and this corpus has zero such facts. gec-facts.ttl's own comment on
+# gec:usesTryOperator states "Zero ? hits observed in tcps-core-pack" and
+# gec:ErrorPath_handle_snapshot explicitly asserts usesTryOperator false; no
+# other ErrorPathFact in the fixtures sets it true either. Writing a
+# violation-finder against zero grounded positive instances would either be
+# vacuously true forever (worthless) or, worse, would need to guess at
+# unmodeled function bodies to find a real case — fabrication this ontology's
+# own header explicitly forbids. This file instead asks the honest, narrower
+# question: does the corpus contain ANY function whose typing would trigger
+# the From-conversion rule at all? The answer, mechanically checked
+# 2026-07-21, is false — the exact blocking hop for a fuller rule here is
+# "no grounded `?`-using function signature exists yet in fixtures/gec-facts.ttl";
+# extending this file requires grounding that fact first, not writing a
+# rule against zero exercised cases.
+#
+# Verified 2026-07-21: ASK=false against ontology.ttl+fixtures/gec-facts.ttl
+# (query mechanics independently confirmed correct: ASK=true against a
+# one-off adversarial fixture planting a single gec:usesTryOperator true fact).
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK { ?ep gec:usesTryOperator true . }

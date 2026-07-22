@@ -1,0 +1,435 @@
+@prefix gec: <http://seanchatmangpt.github.io/packs/rust-dialect#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Grounded ABox fixtures for the GEC ontology + shapes. Every
+# individual below corresponds to a real file:line in this repo
+# as re-verified on 2026-07-21 (see ontology.ttl header). These
+# exist so shapes.ttl's sh:sparql rules have real conforming AND
+# real violating cases to run against, not synthetic examples.
+#################################################################
+
+#################################################################
+# Artifacts
+#################################################################
+
+gec:Artifact_TcpsFfiLib a gec:Artifact ;
+    gec:sourcePack "tcps-ffi-pack" ;
+    gec:templatePath "packs/tcps-ffi-pack/templates/lib.rs.tmpl" ;
+    gec:outputPath "crates/tcps-ffi/src/lib.rs" ;
+    gec:ffiBoundary true ;
+    gec:crateAttribute "#![deny(unsafe_op_in_unsafe_fn)]", "#![deny(missing_debug_implementations)]" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "Real unsafe keyword via #[unsafe(export_name=...)] on pub extern \"C\" fn — lib.rs.tmpl:37,42" .
+
+gec:Artifact_AffidavitTypes a gec:Artifact ;
+    gec:sourcePack "affidavit-pack" ;
+    gec:templatePath "packs/affidavit-pack/templates/affidavit_types.rs.tmpl" ;
+    gec:outputPath "src/affidavit_types.rs" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason
+        "Lifetime-generic trait impl impl<'de> Deserialize<'de> for Receipt — L112",
+        "Bounded generic fn canonical_bytes<T: Serialize> — L186",
+        "impl Into<String> argument-position impl-Trait — L77",
+        "Hand-written (non-derived) Deserialize with nested in-fn struct and closure-driven BTreeMap sort — L193-208" .
+
+gec:Artifact_CargoCicdCatalog a gec:Artifact ;
+    gec:sourcePack "cargo-cicd-pack" ;
+    gec:templatePath "packs/cargo-cicd-pack/templates/cargo_cicd_catalog.rs.tmpl" ;
+    gec:outputPath "src/cargo_cicd_catalog.rs" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "-> impl Iterator<Item = &'static CargoCicdCommand> + '_ return-position impl-Trait with anonymous lifetime and move closure — L75" .
+
+gec:Artifact_TcpsCoreOntology_実行器 a gec:Artifact ;
+    gec:sourcePack "tcps-core-pack" ;
+    gec:templatePath "packs/tcps-core-pack/ontology.ttl (tcps:sourceText literal)" ;
+    gec:outputPath "src/青い川のダム.rs" ;
+    gec:crateAttribute "#![no_std]" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "pub trait 実行器 { type 成果; type 失敗; ... } — associated types, Self:: projection — ontology.ttl:1433-1442" .
+
+gec:Artifact_TcpsCoreOntology_ポカヨケ a gec:Artifact ;
+    gec:sourcePack "tcps-core-pack" ;
+    gec:templatePath "packs/tcps-core-pack/ontology.ttl (tcps:sourceText literal)" ;
+    gec:outputPath "src/ポカヨケ.rs" ;
+    gec:crateAttribute "#![no_std]" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "pub trait 防止条件<入力> { ... } generic trait + two concrete impls — ontology.ttl:1577-1616" .
+
+gec:Artifact_TcpsFfiCargoCicdOsxClnrDispatchProofs a gec:Artifact ;
+    gec:sourcePack "cargo-cicd-pack" ;
+    gec:templatePath "packs/cargo-cicd-pack/templates/cargo_cicd_dispatch_proof.rs.tmpl" ;
+    gec:outputPath "tests/cargo_cicd_dispatch_proof.rs" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "&dyn Fn(&[String]) -> std::io::Result<std::process::Output> trait object — L137" .
+
+gec:Artifact_OsxClnrDispatch a gec:Artifact ;
+    gec:sourcePack "osx-clnr-pack" ;
+    gec:templatePath "packs/osx-clnr-pack/templates/osx_clnr_dispatch.rs.tmpl" ;
+    gec:outputPath "src/osx_clnr_dispatch.rs" ;
+    gec:dialectStatus gec:InCore ;
+    gec:crateAttribute "" .
+    # Non-generic project trait (OclnrHandlerSeam, L50) with plain &self methods stays InCore.
+    # Its own dispatch_proof.rs.tmpl sibling (below) is the NamedException file — the trait
+    # *definition* and the *test that exercises it as &dyn* are different Artifacts.
+
+gec:Artifact_OsxClnrDispatchProof a gec:Artifact ;
+    gec:sourcePack "osx-clnr-pack" ;
+    gec:templatePath "packs/osx-clnr-pack/templates/osx_clnr_dispatch_proof.rs.tmpl" ;
+    gec:outputPath "tests/osx_clnr_dispatch_proof.rs" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "let h: &dyn OclnrHandlerSeam = &DummyHandlers; — L69" .
+
+gec:Artifact_AntiLlmCheatCatalog a gec:Artifact ;
+    gec:sourcePack "anti-llm-cheat-lsp-pack" ;
+    gec:templatePath "packs/anti-llm-cheat-lsp-pack/templates/anti_llm_cheat_catalog.rs.tmpl" ;
+    gec:outputPath "src/anti_llm_cheat_catalog.rs" ;
+    gec:dialectStatus gec:InCoreHeightenedComplexity ;
+    gec:exceptionReason "N/A (not a NamedException — HeightenedComplexity only): byte-slicing lexer extract_fn_name, static OnceLock<Regex> + get_or_init (L65,277,284), stateful mutable-flag for loop over block comments" .
+
+#################################################################
+# Trait definitions + impls
+#################################################################
+
+gec:Trait_OclnrHandlerSeam a gec:TraitDefinition ;
+    gec:traitName "OclnrHandlerSeam" ;
+    gec:definedIn gec:Artifact_OsxClnrDispatch ;
+    gec:dialectStatus gec:InCore .
+    # zero gec:hasAssociatedType, zero gec:genericParam — osx_clnr_dispatch.rs.tmpl:50-55
+
+gec:Trait_実行器 a gec:TraitDefinition ;
+    gec:traitName "実行器" ;
+    gec:definedIn gec:Artifact_TcpsCoreOntology_実行器 ;
+    gec:hasAssociatedType gec:AssocType_成果, gec:AssocType_失敗 ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "trait declares associated types 成果/失敗 — tcps ontology.ttl:1434-1435" .
+
+gec:AssocType_成果 a gec:AssociatedTypeDecl ; gec:assocName "成果" .
+gec:AssocType_失敗 a gec:AssociatedTypeDecl ; gec:assocName "失敗" .
+
+gec:Trait_防止条件 a gec:TraitDefinition ;
+    gec:traitName "防止条件" ;
+    gec:definedIn gec:Artifact_TcpsCoreOntology_ポカヨケ ;
+    gec:genericParam gec:GenericParam_防止条件_入力 ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "generic trait definition, generic over 入力 — tcps ontology.ttl:1577" .
+
+gec:GenericParam_防止条件_入力 a gec:TypeGenericParam ;
+    gec:paramName "入力" .
+    # unbounded on its own, but the trait is still NamedException because it is a *generic
+    # trait definition* — the exception rule keys on generic-trait-DEFINITION, not on any
+    # particular param having a bound (see gec:TraitDefinitionExceptionRule in shapes.ttl).
+
+gec:Impl_防止条件_u32_範囲防止 a gec:TraitImpl ;
+    gec:implementsTrait gec:Trait_防止条件 ;
+    gec:forType [ a gec:PathType ; gec:typePath "範囲防止" ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "inherits NamedException from gec:Trait_防止条件 (implements a generic trait) — tcps ontology.ttl:1588" .
+    # inherits NamedException from gec:Trait_防止条件 per gec:TraitImplInheritsTraitExceptionShape
+    # even though this impl block itself (ontology.ttl:1588) carries no generic/lifetime params.
+
+gec:ExternalTrait_Deserialize a gec:TraitDefinition ;
+    gec:traitName "Deserialize" ;
+    gec:externalTrait true ;
+    gec:dialectStatus gec:InCore ;
+    gec:exceptionReason "N/A — the external trait declaration itself is not the exception; the *impl*'s own LifetimeGenericParam ('de) is what makes gec:Impl_Deserialize_Receipt a NamedException. dialectStatus is asserted InCore here only to satisfy TraitDefinitionShape's cardinality; the interesting exception lives on the TraitImpl, not this stub." .
+
+gec:Impl_Deserialize_Receipt a gec:TraitImpl ;
+    gec:implementsTrait gec:ExternalTrait_Deserialize ;
+    gec:forType [ a gec:PathType ; gec:typePath "Receipt" ] ;
+    gec:genericParam [ a gec:LifetimeGenericParam ; gec:paramName "de" ] ;
+    gec:definedIn gec:Artifact_AffidavitTypes ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "impl<'de> Deserialize<'de> for Receipt — lifetime-generic trait impl — affidavit_types.rs.tmpl:112" .
+
+gec:Impl_有無_値 a gec:InherentImpl ;
+    gec:forType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "有無" ] ;
+        gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+            gec:argType [ a gec:TypeParamRef ; gec:refersToParam "値" ] ] ] ;
+    gec:genericParam [ a gec:TypeGenericParam ; gec:paramName "値" ] ;
+    gec:dialectStatus gec:InCore .
+    # Genuinely an INHERENT impl (no trait), corrected from an earlier gec:TraitImpl typing
+    # that failed gec:implementsTrait's min-count-1 constraint under real pyshacl validation.
+    # ontology.ttl:13. Zero paramBound on 値.
+
+gec:Impl_成否_成功_失敗 a gec:InherentImpl ;
+    gec:forType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "成否" ] ;
+        gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+                          gec:argType [ a gec:TypeParamRef ; gec:refersToParam "成功" ] ],
+                        [ a gec:TypeArgumentType ; gec:argPosition 1 ;
+                          gec:argType [ a gec:TypeParamRef ; gec:refersToParam "失敗" ] ] ] ;
+    gec:genericParam [ a gec:TypeGenericParam ; gec:paramName "成功" ],
+                     [ a gec:TypeGenericParam ; gec:paramName "失敗" ] ;
+    gec:dialectStatus gec:InCore .
+    # ontology.ttl:29 — INHERENT impl (no trait), TWO unbounded type params, both zero
+    # gec:paramBound. This is the instance that corrects the "single-type-param" paraphrase:
+    # the rule is "any count of unbounded type params", grounded here directly against the
+    # corpus, not "single".
+
+gec:Impl_系譜台帳_constN a gec:InherentImpl ;
+    gec:forType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "系譜台帳" ] ;
+        gec:hasArgument [ a gec:TypeArgumentConst ; gec:argPosition 0 ;
+            gec:argConstValue "上限" ; gec:argConstIsParamRef true ] ] ;
+    gec:genericParam [ a gec:ConstGenericParam ; gec:paramName "上限" ; gec:constParamType "usize" ] ;
+    gec:dialectStatus gec:InCore .
+    # ontology.ttl:200 — INHERENT impl<const 上限: usize> 系譜台帳<上限>
+
+#################################################################
+# Function signatures
+#################################################################
+
+gec:Fn_選択する外部関数 a gec:FunctionSignature ;
+    gec:fnName "選択する外部関数" ;
+    gec:definedIn gec:Artifact_TcpsFfiLib ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:abi "C" ;
+    gec:hasParameter [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "要求" ;
+        gec:paramType [ a gec:PathType ; gec:typePath "外部選択要求" ] ] ;
+    gec:returnType [ a gec:PathType ; gec:typePath "外部選択結果" ] .
+    # lib.rs.tmpl:42-79
+
+gec:Effect_選択する外部関数_unsafe a gec:UnsafeAttributeEffect ;
+    gec:effectOf gec:Fn_選択する外部関数 ;
+    gec:exportName "tcps_select_v1" ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "#[unsafe(export_name = \"tcps_select_v1\")] — lib.rs.tmpl:42" .
+
+gec:Effect_選択する外部関数_extern a gec:ExternAbiEffect ;
+    gec:effectOf gec:Fn_選択する外部関数 ;
+    gec:abiName "C" .
+
+gec:Fn_canonical_bytes a gec:FunctionSignature ;
+    gec:fnName "canonical_bytes" ;
+    gec:definedIn gec:Artifact_AffidavitTypes ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:genericParam [ a gec:TypeGenericParam ; gec:paramName "T" ; gec:paramBound "Serialize" ] ;
+    gec:hasParameter [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "value" ;
+        gec:paramType [ a gec:ReferenceType ; gec:mutable false ;
+            gec:referent [ a gec:TypeParamRef ; gec:refersToParam "T" ] ] ] ;
+    gec:returnType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "Result" ] ;
+        gec:hasArgument
+            [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+              gec:argType [ a gec:GenericType ;
+                  gec:baseType [ a gec:PathType ; gec:typePath "Vec" ] ;
+                  gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+                      gec:argType [ a gec:PrimitiveType ; gec:primitiveName "u8" ] ] ] ],
+            [ a gec:TypeArgumentType ; gec:argPosition 1 ;
+              gec:argType [ a gec:PathType ; gec:typePath "serde_json::Error" ] ] ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "bounded generic param T: Serialize — affidavit_types.rs.tmpl:186" .
+
+gec:Fn_handle_snapshot_thin_bytes_budget a gec:FunctionSignature ;
+    gec:fnName "handle_snapshot_thin_bytes_budget" ;
+    gec:definedIn gec:Artifact_OsxClnrDispatch ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:hasParameter [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "bytes" ;
+        gec:paramType [ a gec:ReferenceType ; gec:mutable false ;
+            gec:referent [ a gec:PrimitiveType ; gec:primitiveName "str" ] ] ] ;
+    gec:returnType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "Result" ] ;
+        gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+                          gec:argType [ a gec:PrimitiveType ; gec:primitiveName "u64" ] ],
+                        [ a gec:TypeArgumentType ; gec:argPosition 1 ;
+                          gec:argType [ a gec:PathType ; gec:typePath "String" ] ] ] .
+    # osx_clnr_dispatch.rs.tmpl:41
+
+gec:ErrorPath_handle_snapshot a gec:StdResultPath ;
+    gec:errorPathOf gec:Fn_handle_snapshot_thin_bytes_budget ;
+    gec:okType [ a gec:PrimitiveType ; gec:primitiveName "u64" ] ;
+    gec:errType [ a gec:PathType ; gec:typePath "String" ] ;
+    gec:usesTryOperator false .
+
+#################################################################
+# Ownership-transfer edges (worked example: 選択する外部関数)
+#################################################################
+
+gec:Local_方策 a gec:LocalBinding ;
+    gec:bindingName "方策" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:PathType ; gec:typePath "正準方策" ] .
+    # let 方策 = 正準方策(); — lib.rs.tmpl:44
+
+gec:Local_作業領域 a gec:LocalBinding ;
+    gec:bindingName "作業領域" ; gec:isMutBinding true ;
+    gec:bindingType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "作業領域" ] ;
+        gec:hasArgument [ a gec:TypeArgumentConst ; gec:argPosition 0 ; gec:argConstValue "3" ] ] .
+    # let mut 作業領域 = 作業領域::<3>::新規(); — lib.rs.tmpl:45
+
+gec:Local_要求 a gec:LocalBinding ;
+    gec:bindingName "要求" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:PathType ; gec:typePath "選択要求" ] .
+    # let 要求 = 選択要求 { ... }; (shadows the fn param) — lib.rs.tmpl:46-53
+
+gec:Edge_方策_sharedBorrow a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:BorrowSharedTransfer ;
+    gec:fromSite gec:Local_方策 ;
+    gec:toSite [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "方策" ] ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+    # 選択する(&方策, 要求, &mut 作業領域) — lib.rs.tmpl:55
+
+gec:Edge_作業領域_mutBorrow a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:BorrowMutTransfer ;
+    gec:fromSite gec:Local_作業領域 ;
+    gec:toSite [ a gec:Parameter ; gec:paramIndex 2 ; gec:paramName "作業領域" ] ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+
+gec:Edge_要求_move a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:MoveTransfer ;
+    gec:fromSite gec:Local_要求 ;
+    gec:toSite [ a gec:Parameter ; gec:paramIndex 1 ; gec:paramName "要求" ] ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+    # 要求 passed by value, not by reference, into 選択する(...) — a real move, distinct
+    # from the field-level copies (取得権限 etc., all u64/u32/u8 Copy types) that built it.
+
+gec:Field_要求_取得権限 a gec:StructFieldSite ;
+    gec:ownerStruct [ a gec:PathType ; gec:typePath "選択要求" ] ;
+    gec:fieldName "取得権限" .
+
+gec:Edge_取得権限_copy a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:CopyTransfer ;
+    gec:fromSite [ a gec:StructFieldSite ; gec:ownerStruct [ a gec:PathType ; gec:typePath "外部選択要求" ] ; gec:fieldName "取得権限" ] ;
+    gec:toSite gec:Field_要求_取得権限 ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+    # 取得権限: 要求.取得権限 — u64 is Copy — lib.rs.tmpl:47
+
+#################################################################
+# Effect facts: macro consumption + panic/regex (heightened complexity)
+#################################################################
+
+gec:Effect_AffidavitChain_thiserror a gec:MacroConsumptionEffect ;
+    gec:macroKindProp gec:DeriveMacro ;
+    gec:macroPath "thiserror::Error" .
+    # #[derive(Debug, thiserror::Error)] — affidavit_chain.rs.tmpl:37
+
+gec:Variant_AffidavitChain_IoError a gec:ThiserrorVariant ;
+    gec:variantName "Io" ;
+    gec:errorMessageTemplate "io error at {path}: {source}" ;
+    gec:hasFromConversion true ;
+    gec:belongsToErrorEnum [ a gec:PathType ; gec:typePath "AffidavitChainError" ] .
+    # #[error("io error at {path}: {source}")] — affidavit_chain.rs.tmpl:43
+
+gec:Effect_ClapNounVerb_verb a gec:MacroConsumptionEffect ;
+    gec:macroKindProp gec:AttributeMacro ;
+    gec:macroPath "clap_noun_verb_macros::verb" .
+    # #[verb("{{ cmd.verb }}", "{{ cmd.noun }}")] — clap_noun_verb_routes.rs.tmpl:29
+
+gec:Effect_AntiLlmCheat_regex a gec:RegexCompilationEffect ;
+    gec:effectOf gec:Artifact_AntiLlmCheatCatalog .
+    # static RE: OnceLock<Regex> = OnceLock::new(); ... Regex::new(pattern).unwrap() — L277,284
+
+gec:Effect_AntiLlmCheat_panic a gec:PotentialPanicEffect ;
+    gec:effectOf gec:Artifact_AntiLlmCheatCatalog ;
+    gec:panicSite ".unwrap()" .
+    # Regex::new(pattern).unwrap() — L284; owning Artifact stays InCoreHeightenedComplexity,
+    # not NamedException, per gec:PotentialPanicNeverForcesExceptionShape.
+
+#################################################################
+# Impl-Trait / dyn-Trait structural instances
+#
+# Added to exercise rules/060 and rules/070 (packs/rust-dialect-pack/rules/) —
+# ontology.ttl's own gec:ImplPosition/gec:DynTraitObjectConstruct comments cited
+# these five sites by file:line already; every citation below was independently
+# re-read against the live template on 2026-07-21 before transcription (not
+# carried over from ontology.ttl's prose unverified).
+#################################################################
+
+gec:Fn_from_hex a gec:FunctionSignature ;
+    gec:fnName "from_hex" ;
+    gec:definedIn gec:Artifact_AffidavitTypes ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:hasParameter [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "hex" ;
+        gec:paramType gec:ImplTrait_from_hex_hex ] ;
+    gec:returnType [ a gec:PathType ; gec:typePath "Self" ] .
+    # pub fn from_hex(hex: impl Into<String>) -> Self — affidavit_types.rs.tmpl:77
+
+gec:ImplTrait_from_hex_hex a gec:ImplTraitType ;
+    gec:implPosition gec:ArgumentPosition ;
+    gec:boundTrait [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "Into" ] ;
+        gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+            gec:argType [ a gec:PathType ; gec:typePath "String" ] ] ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "argument-position impl Trait — affidavit_types.rs.tmpl:77" .
+
+gec:Fn_commands_for_noun a gec:FunctionSignature ;
+    gec:fnName "commands_for_noun" ;
+    gec:definedIn gec:Artifact_CargoCicdCatalog ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:hasParameter [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "noun" ;
+        gec:paramType [ a gec:ReferenceType ; gec:mutable false ;
+            gec:referent [ a gec:PrimitiveType ; gec:primitiveName "str" ] ] ] ;
+    gec:returnType gec:ImplTrait_commands_for_noun_return .
+    # pub fn commands_for_noun(noun: &str) -> impl Iterator<Item = &'static CargoCicdCommand> + '_
+    # — cargo_cicd_catalog.rs.tmpl:75. The trailing `+ '_` captured-lifetime bound on the opaque
+    # return type itself is not separately modeled — the ontology has no property for an extra
+    # lifetime bound on an ImplTraitType beyond gec:boundTrait. Honest gap; not needed for
+    # rule 060's quantifier classification (which only reads gec:implPosition).
+
+gec:ImplTrait_commands_for_noun_return a gec:ImplTraitType ;
+    gec:implPosition gec:ReturnPosition ;
+    gec:boundTrait [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "Iterator" ] ;
+        gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+            gec:argType [ a gec:ReferenceType ; gec:mutable false ;
+                gec:lifetime [ a gec:Lifetime ; gec:lifetimeLabel "'static" ; gec:lifetimeKindProp gec:StaticLifetime ] ;
+                gec:referent [ a gec:PathType ; gec:typePath "CargoCicdCommand" ] ] ] ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "return-position impl Trait — cargo_cicd_catalog.rs.tmpl:75" .
+
+gec:Local_h_dyn_OclnrHandlerSeam a gec:LocalBinding ;
+    gec:bindingName "h" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:ReferenceType ; gec:mutable false ;
+        gec:referent gec:TraitObjType_OclnrHandlerSeam ] .
+    # let h: &dyn OclnrHandlerSeam = &DummyHandlers; — osx_clnr_dispatch_proof.rs.tmpl:69
+
+gec:TraitObjType_OclnrHandlerSeam a gec:TraitObjectType ;
+    gec:dynBound [ a gec:PathType ; gec:typePath "OclnrHandlerSeam" ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "&dyn OclnrHandlerSeam — osx_clnr_dispatch_proof.rs.tmpl:69" .
+
+gec:Local_wrapper_as_dynFn_cargo a gec:LocalBinding ;
+    gec:bindingName "wrapper" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:ReferenceType ; gec:mutable false ;
+        gec:referent gec:TraitObjType_DynFn_cargo ] .
+    # let _ = wrapper as &dyn Fn(&[String]) -> std::io::Result<std::process::Output>;
+    # — cargo_cicd_dispatch_proof.rs.tmpl:137. Grounded as the `as`-cast TARGET type, not a
+    # literal `let wrapper: &dyn Fn(...) = ...` declaration — gec:LocalBinding is reused here
+    # as the closest existing class for "a named place with this type"; an honest modeling
+    # stretch, not a claim the source text contains that exact `let` form.
+
+gec:TraitObjType_DynFn_cargo a gec:TraitObjectType ;
+    gec:dynBound [ a gec:FnTraitBound ;
+        gec:fnParam [ a gec:ReferenceType ; gec:mutable false ;
+            gec:referent [ a gec:PathType ; gec:typePath "[String]" ] ] ;
+        gec:fnReturn [ a gec:GenericType ;
+            gec:baseType [ a gec:PathType ; gec:typePath "std::io::Result" ] ;
+            gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+                gec:argType [ a gec:PathType ; gec:typePath "std::process::Output" ] ] ] ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "&dyn Fn(&[String]) -> std::io::Result<std::process::Output> — cargo_cicd_dispatch_proof.rs.tmpl:137" .
+    # gec:PathType "[String]" for the slice parameter is a simplification: the ontology has no
+    # SliceType class (only fixed-size gec:ArrayType, "[T; N]"), so a `&[String]` slice
+    # reference's referent is flattened to a PathType string rather than precisely typed —
+    # an honest gap, noted rather than silently misclassified as ArrayType.
+
+gec:Local_wrapper_as_dynFn_mcpp a gec:LocalBinding ;
+    gec:bindingName "wrapper" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:ReferenceType ; gec:mutable false ;
+        gec:referent gec:TraitObjType_DynFn_mcpp ] .
+    # let _ = wrapper as &dyn Fn(&[String]) -> std::io::Result<std::process::Output>;
+    # — mcpp_dispatch_proof.rs.tmpl:73 (same cast-target caveat as the cargo-cicd instance above).
+
+gec:TraitObjType_DynFn_mcpp a gec:TraitObjectType ;
+    gec:dynBound [ a gec:FnTraitBound ;
+        gec:fnParam [ a gec:ReferenceType ; gec:mutable false ;
+            gec:referent [ a gec:PathType ; gec:typePath "[String]" ] ] ;
+        gec:fnReturn [ a gec:GenericType ;
+            gec:baseType [ a gec:PathType ; gec:typePath "std::io::Result" ] ;
+            gec:hasArgument [ a gec:TypeArgumentType ; gec:argPosition 0 ;
+                gec:argType [ a gec:PathType ; gec:typePath "std::process::Output" ] ] ] ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "&dyn Fn(&[String]) -> std::io::Result<std::process::Output> — mcpp_dispatch_proof.rs.tmpl:73" .

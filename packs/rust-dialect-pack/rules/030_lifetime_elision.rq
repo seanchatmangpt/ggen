@@ -1,0 +1,49 @@
+# TYPING RULE: lifetime elision, rule 1 of 3.
+#
+# Prior art: the Rust Reference, "Lifetime elision" — rule 1: "each elided
+# lifetime in the parameters (input positions) of a function or method
+# becomes a distinct lifetime parameter." (Originally specified in RFC 141,
+# "Lifetime elision".) This CONSTRUCT rule encodes exactly rule 1 — a
+# reference-typed parameter with no lifetime token written at all is tagged
+# gec:ElidedLifetime. Rules 2 ("if there is exactly one input lifetime
+# position, that lifetime is assigned to all elided output lifetimes") and 3
+# ("if there are multiple input lifetime positions but one is &self/&mut
+# self, self's lifetime is assigned to all elided output lifetimes") are
+# declared here but NOT encoded as a separate CONSTRUCT clause: no grounded
+# fixture in this corpus has a reference-typed RETURN type paired with an
+# elided-lifetime input to exercise them (both grounded reference-parameter
+# functions below return a non-reference type) — an honest gap, not a
+# fabricated rule.
+#
+# ggen template patterns this checks (both real, both hit by this rule):
+#   - packs/affidavit-pack/templates/affidavit_types.rs.tmpl:186
+#     `fn canonical_bytes<T: Serialize>(value: &T) -> ...` — gec:Fn_canonical_bytes
+#   - packs/osx-clnr-pack/templates/osx_clnr_dispatch.rs.tmpl:41
+#     `fn handle_snapshot_thin_bytes_budget(bytes: &str) -> ...` — gec:Fn_handle_snapshot_thin_bytes_budget
+#   - packs/cargo-cicd-pack/templates/cargo_cicd_catalog.rs.tmpl:75
+#     `fn commands_for_noun(noun: &str) -> impl Iterator<...> + '_` — gec:Fn_commands_for_noun
+# In all three, the corpus writes no lifetime token on the input `&T`/`&str`
+# parameter (gec:ElidedLifetime is, per its own ontology.ttl comment, "the
+# overwhelming majority of &T/&mut T occurrences in the corpus" — this rule
+# is what actually derives that classification as RDF facts rather than
+# leaving it as unstructured prose).
+#
+# Verified 2026-07-21: running this CONSTRUCT against
+# ontology.ttl+fixtures/gec-facts.ttl produces exactly 9 triples (3 new
+# gec:Lifetime blank nodes — one per grounded reference parameter above —
+# each carrying gec:lifetimeKindProp gec:ElidedLifetime, plus the 3
+# gec:lifetime edges attaching them to their ReferenceType).
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+CONSTRUCT {
+  ?refType gec:lifetime ?inferredLifetime .
+  ?inferredLifetime a gec:Lifetime ;
+                     gec:lifetimeKindProp gec:ElidedLifetime .
+}
+WHERE {
+  ?fn a gec:FunctionSignature ;
+      gec:hasParameter ?p .
+  ?p gec:paramType ?refType .
+  ?refType a gec:ReferenceType .
+  FILTER NOT EXISTS { ?refType gec:lifetime ?anyLifetime }
+  BIND(BNODE() AS ?inferredLifetime)
+}
