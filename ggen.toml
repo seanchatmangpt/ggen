@@ -21,6 +21,7 @@ imports = [
   "packs/ggen-verify-pack/ontology.ttl",
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
+  "evidence/producers/docs-manifest.ttl",
 ]
 
 [ontology.prefixes]
@@ -261,6 +262,26 @@ SELECT ?name WHERE { ?req a ver:RequiredCheck ; ver:name ?name . } ORDER BY ?nam
 """ }
 template    = { file = ".specify/templates/verify/verification_report.md.tera" }
 output_file = "VERIFICATION.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+# EquivalenceMapNotLive (retrofit SPOF, .tcps/retrofit/ggen/load-path.ttl):
+# wires the `docs` receipt-equivalence class from Unknown to a real live
+# check, the same shape as verify-evidence-emitter above. The pack's own
+# ver:Producer "docs" config (packs/ggen-verify-pack/ontology.ttl) and
+# producer template are already complete; this repo just needed its own
+# declarative-rules mirror (see the .tera file's header) plus this rule to
+# actually emit scripts/produce-docs-manifest.sh, and the emitted
+# evidence/producers/docs-manifest.ttl added to [ontology].imports below so
+# the next sync's producer facts are admitted into the graph sync reads.
+[[generation.rules]]
+name        = "verify-docs-manifest-producer"
+query       = { inline = """
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?dir WHERE { ?p a ver:Producer ; ver:name "docs" ; ver:docsDir ?dir . }
+""" }
+template    = { file = ".specify/templates/verify/produce_docs_manifest_sh.sh.tera" }
+output_file = "scripts/produce-docs-manifest.sh"
 skip_empty  = false
 mode        = "Overwrite"
 
