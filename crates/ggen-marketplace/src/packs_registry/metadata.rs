@@ -5,18 +5,21 @@ use crate::packs_registry::types::{Pack, PackFile};
 use std::fs;
 use std::path::PathBuf;
 
-/// Get packs directory
+/// Resolve the packs directory without erroring when none can be found.
 ///
 /// Resolution order (first match wins):
 /// 1. `GGEN_PACKS_DIR` environment variable (highest priority)
 /// 2. Relative paths (for development / source checkout)
 /// 3. `~/.ggen/packs` (conventional home location for installed binaries)
-pub fn get_packs_dir() -> Result<PathBuf> {
+///
+/// Returns `None` when no candidate exists on disk yet — a fresh install with
+/// nothing registered is a legitimate, non-error state, not a misconfiguration.
+fn try_get_packs_dir() -> Option<PathBuf> {
     // 1. GGEN_PACKS_DIR env var override — highest priority
     if let Ok(env_dir) = std::env::var("GGEN_PACKS_DIR") {
         let p = PathBuf::from(env_dir);
         if p.exists() && p.is_dir() {
-            return Ok(p);
+            return Some(p);
         }
     }
 
@@ -29,7 +32,7 @@ pub fn get_packs_dir() -> Result<PathBuf> {
 
     for path in relative_paths {
         if path.exists() && path.is_dir() {
-            return Ok(path);
+            return Some(path);
         }
     }
 
@@ -37,13 +40,25 @@ pub fn get_packs_dir() -> Result<PathBuf> {
     if let Some(home) = dirs::home_dir() {
         let p = home.join(".ggen").join("packs");
         if p.exists() && p.is_dir() {
-            return Ok(p);
+            return Some(p);
         }
     }
 
-    Err(crate::marketplace::error::Error::Other(
-        "Packs directory not found. Set GGEN_PACKS_DIR or create ~/.ggen/packs/".to_string(),
-    ))
+    None
+}
+
+/// Get packs directory, erroring when none can be resolved.
+///
+/// Use this for operations that target a specific pack (load/show) where an
+/// unresolvable directory is a real failure. Use [`try_get_packs_dir`] for
+/// listing, where "nothing registered yet" is a valid empty result, not an
+/// error.
+pub fn get_packs_dir() -> Result<PathBuf> {
+    try_get_packs_dir().ok_or_else(|| {
+        crate::marketplace::error::Error::Other(
+            "Packs directory not found. Set GGEN_PACKS_DIR or create ~/.ggen/packs/".to_string(),
+        )
+    })
 }
 
 /// Load pack from TOML file
@@ -71,8 +86,14 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
 }
 
 /// List all available packs
+///
+/// A packs directory that cannot be resolved at all (no `GGEN_PACKS_DIR`, no
+/// dev-relative checkout, no `~/.ggen/packs`) means zero packs are
+/// registered yet, not a failure — a fresh install must list cleanly.
 pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
-    let packs_dir = get_packs_dir()?;
+    let Some(packs_dir) = try_get_packs_dir() else {
+        return Ok(Vec::new());
+    };
     let mut packs = Vec::new();
 
     for entry in fs::read_dir(&packs_dir)? {
@@ -202,6 +223,32 @@ mod tests {
                 result.is_err(),
                 "expected Err when no packs dir is reachable"
             );
+        }
+    }
+
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn test_list_packs_returns_empty_not_err_when_no_dir_resolves() {
+        // Reproduces the real CI failure this test was written to close:
+        // `ggen pack list` in a fresh checkout with no GGEN_PACKS_DIR, no
+        // dev-relative marketplace/packs/, and (in CI) no ~/.ggen/packs/ must
+        // list zero packs, not refuse. Only meaningful when no fallback path
+        // happens to exist in this sandbox — mirrors the sibling test above.
+        let _guard = EnvVarGuard::unset("GGEN_PACKS_DIR");
+        let relative_exists = PathBuf::from("marketplace/packs").exists()
+            || PathBuf::from("../marketplace/packs").exists()
+            || PathBuf::from("../../marketplace/packs").exists();
+        let home_exists = dirs::home_dir()
+            .map(|h| h.join(".ggen").join("packs").exists())
+            .unwrap_or(false);
+        if !relative_exists && !home_exists {
+            let result = list_packs(None);
+            assert!(
+                result.is_ok(),
+                "expected Ok(empty) when no packs dir is reachable, got Err: {:?}",
+                result.err()
+            );
+            assert!(result.unwrap().is_empty(), "fresh install must list zero packs");
         }
     }
 
