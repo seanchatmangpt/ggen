@@ -342,3 +342,182 @@ fn generated_event_with_undeclared_object_is_refused_by_the_reference_crates_own
         .expect_err("an event linking to an undeclared object must be refused");
     assert_eq!(refusal.reason, OcelRefusal::DanglingEventObjectLink);
 }
+
+// ── Systematic sabotage suite: the remaining `OcelRefusal` variants ────────
+//
+// The four tests below extend the one incidental negative witness above
+// (`DanglingEventObjectLink`) into full coverage of every variant the
+// reference `wasm4pm-compat` `=26.6.29` crate's real `OcelRefusal` enum
+// declares (`src/ocel.rs`, confirmed on this machine against
+// `/Users/sac/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm4pm-compat-26.6.29/src/ocel.rs`
+// -- the exact pinned version this pack and `examples/receiptctl` depend on,
+// `=26.6.29`). None of this refusal LOGIC is invented here or in
+// `events.rs.tmpl`: every assertion below drives a real, already-shipped
+// reference function --
+// `OcelLog::validate` (via `LinkedOcel::admit`, same gate as the test
+// above) for `EmptyEventObjectLinks`, and `OcelLog::validate_gianola_2026_locality`
+// (Gianola et al. 2026 Assumptions 3 and 5, doc-tested in the reference
+// crate's own `src/ocel.rs`) for `MissingReferenceObject`,
+// `MultipleReferenceObjects`, and `ViolatesLocalityPrinciple`. Each test
+// still starts from this pack's own generated `emit_*` output, projected
+// onto the reference's admission-control `OcelLog` shape exactly as the
+// `DanglingEventObjectLink` test above does -- only the sabotage applied to
+// that projection differs per law.
+
+/// `OcelRefusal::EmptyEventObjectLinks` companion to the dangling-link test
+/// above: same `LinkedOcel::admit` gate, same `OcelLog::validate` function,
+/// but the OTHER structural law it enforces
+/// (`if self.e2o_links.is_empty() { return Err(OcelRefusal::EmptyEventObjectLinks); }`,
+/// `src/ocel.rs`) -- an object-centric log with a declared object and event
+/// but NO event-to-object links at all. This is the exact scenario the
+/// reference crate's own `tests/ocel_admission.rs::empty_e2o_is_refused_by_its_named_law`
+/// covers against a toy log; here it is driven from this pack's real
+/// `emit_receipt_chained` output instead, the one generated emit fn none of
+/// the other admission tests in this file exercise yet.
+#[test]
+fn generated_event_with_no_object_links_is_refused_by_the_reference_crates_own_law() {
+    use wasm4pm_compat::admission::Admit;
+    use wasm4pm_compat::evidence::Evidence;
+    use wasm4pm_compat::ocel::{LinkedOcel, Object, OcelLog, OcelRefusal};
+
+    let event = wasm4pm_compat_events::emit_receipt_chained(
+        "evt-8".to_string(),
+        literal_time(),
+        "receipt-xyz".to_string(),
+        "hash-of-chain".to_string(),
+    );
+    let object_id = event.relationships[0].object_id.clone();
+    let no_links = OcelLog::new(
+        [Object::new(&object_id, "SyncReceipt")], // object IS declared this time
+        [wasm4pm_compat::ocel::OcelEvent::new(&event.id, &event.event_type)],
+        [], // deliberately supply zero event-to-object links
+        [],
+        [],
+    );
+    let refusal = LinkedOcel::admit(Evidence::raw(no_links))
+        .expect_err("a log with no event-to-object links must be refused");
+    assert_eq!(refusal.reason, OcelRefusal::EmptyEventObjectLinks);
+}
+
+/// `OcelRefusal::MissingReferenceObject`: Gianola (2026) Assumption 3, "an
+/// event must have at least one reference object". `emit_pack_lock_verified`
+/// binds its real relationship to a `Pack`-typed object
+/// (`w4pm:PackLockVerified`'s `w4pm:hasObjectType` is `w4pm:Pack`), so
+/// asking the reference law whether this event has a reference object of
+/// type `"OntologyGraph"` finds zero matching links
+/// (`if ref_objs == 0 { return Err(OcelRefusal::MissingReferenceObject); }`,
+/// `OcelLog::validate_gianola_2026_locality`, `src/ocel.rs`) -- a real
+/// type-mismatch refusal, not a dangling or empty link.
+#[test]
+fn generated_pack_lock_verified_event_is_refused_for_missing_reference_object() {
+    use wasm4pm_compat::ocel::{EventObjectLink, Object, OcelLog, OcelRefusal};
+
+    let event = wasm4pm_compat_events::emit_pack_lock_verified(
+        "evt-9".to_string(),
+        literal_time(),
+        "pack-99".to_string(),
+        "hash-of-pack".to_string(),
+    );
+    let object_id = event.relationships[0].object_id.clone();
+    let log = OcelLog::new(
+        [Object::new(&object_id, "Pack")], // the event's REAL, generated object type
+        [wasm4pm_compat::ocel::OcelEvent::new(&event.id, &event.event_type)],
+        [EventObjectLink::new(&event.id, &object_id)],
+        [],
+        [],
+    );
+    let result = log.validate_gianola_2026_locality("OntologyGraph", "SomeChildType");
+    assert_eq!(result, Err(OcelRefusal::MissingReferenceObject));
+}
+
+/// `OcelRefusal::MultipleReferenceObjects`: Gianola (2026) Assumption 3, "an
+/// event has multiple reference objects"
+/// (`if ref_objs > 1 { return Err(OcelRefusal::MultipleReferenceObjects); }`,
+/// same function as above). `emit_graph_union_hashed`'s real relationship
+/// binds to exactly one `OntologyGraph`-typed object; this test sabotages
+/// the projected log by linking that same generated event to a SECOND
+/// `OntologyGraph`-typed object the generator never produced, so the
+/// reference law counts two reference-typed links for one event.
+#[test]
+fn generated_graph_union_hashed_event_is_refused_for_multiple_reference_objects() {
+    use wasm4pm_compat::ocel::{EventObjectLink, Object, OcelLog, OcelRefusal};
+
+    let event = wasm4pm_compat_events::emit_graph_union_hashed(
+        "evt-10".to_string(),
+        literal_time(),
+        "graph-abc".to_string(),
+        "hash-of-graph".to_string(),
+    );
+    let first_object_id = event.relationships[0].object_id.clone();
+    let second_object_id = "graph-def".to_string();
+    let log = OcelLog::new(
+        [
+            Object::new(&first_object_id, "OntologyGraph"),
+            Object::new(&second_object_id, "OntologyGraph"), // extra same-typed object
+        ],
+        [wasm4pm_compat::ocel::OcelEvent::new(&event.id, &event.event_type)],
+        [
+            EventObjectLink::new(&event.id, &first_object_id),
+            EventObjectLink::new(&event.id, &second_object_id), // sabotage: 2nd link
+        ],
+        [],
+        [],
+    );
+    let result = log.validate_gianola_2026_locality("OntologyGraph", "SomeChildType");
+    assert_eq!(result, Err(OcelRefusal::MultipleReferenceObjects));
+}
+
+/// `OcelRefusal::ViolatesLocalityPrinciple`: Gianola (2026) Assumption 5,
+/// the Locality Principle -- an event must not implicitly modify a
+/// relationship of an object other than its own reference object
+/// (`src/ocel.rs`'s own doctest on `validate_gianola_2026_locality` proves
+/// this exact shape with a `team`/`employee` example; this test reproduces
+/// that structure using two calls to this pack's real `emit_graph_union_hashed`
+/// instead of hand-invented events). `evt-11` binds reference object
+/// `graph-abc` and (via a sabotage link, same pattern as the two tests
+/// above) child object `shared-pack`; `evt-12` binds a DIFFERENT reference
+/// object, `graph-ghi`, to that SAME child. The child's parent silently
+/// flips between the two events -- exactly the implicit-deletion violation
+/// the law refuses.
+#[test]
+fn generated_graph_union_hashed_events_sharing_a_child_under_different_parents_violate_locality(
+) {
+    use wasm4pm_compat::ocel::{EventObjectLink, Object, OcelLog, OcelRefusal};
+
+    let evt_a = wasm4pm_compat_events::emit_graph_union_hashed(
+        "evt-11".to_string(),
+        literal_time(),
+        "graph-abc".to_string(),
+        "hash-of-graph".to_string(),
+    );
+    let evt_b = wasm4pm_compat_events::emit_graph_union_hashed(
+        "evt-12".to_string(),
+        literal_time(),
+        "graph-ghi".to_string(),
+        "hash-of-graph".to_string(),
+    );
+    let parent_a = evt_a.relationships[0].object_id.clone();
+    let parent_b = evt_b.relationships[0].object_id.clone();
+    let shared_child = "shared-pack".to_string();
+    let log = OcelLog::new(
+        [
+            Object::new(&parent_a, "OntologyGraph"),
+            Object::new(&parent_b, "OntologyGraph"),
+            Object::new(&shared_child, "Pack"),
+        ],
+        [
+            wasm4pm_compat::ocel::OcelEvent::new(&evt_a.id, &evt_a.event_type),
+            wasm4pm_compat::ocel::OcelEvent::new(&evt_b.id, &evt_b.event_type),
+        ],
+        [
+            EventObjectLink::new(&evt_a.id, &parent_a),
+            EventObjectLink::new(&evt_a.id, &shared_child), // evt_a: shared_child's parent = graph-abc
+            EventObjectLink::new(&evt_b.id, &parent_b),
+            EventObjectLink::new(&evt_b.id, &shared_child), // evt_b: same child, parent = graph-ghi
+        ],
+        [],
+        [],
+    );
+    let result = log.validate_gianola_2026_locality("OntologyGraph", "Pack");
+    assert_eq!(result, Err(OcelRefusal::ViolatesLocalityPrinciple));
+}

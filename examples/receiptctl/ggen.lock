@@ -18,7 +18,7 @@ content_hash = "blake3:35b86b8e606b76fc707ce4886b4f4528d8b58f51160a8ab27f54ac056
 
 [packs.wasm4pm-compat-pack]
 source = "path:../../packs/wasm4pm-compat-pack"
-content_hash = "blake3:b601bd9338c261c891feca214b660bc6090b97677af32f019b3f8eaa435768ec"
+content_hash = "blake3:7df38ed713b1a8723735e60ca1346743050f51004f9ca3bf0f4fb9b9288e8faa"
 
 [packs.wasm4pm-facts-pack]
 source = "path:../../packs/wasm4pm-facts-pack"
