@@ -2243,3 +2243,112 @@ tcps:正準Module tcps:dependsOnModule tcps:暗号要約Module .
 tcps:正準Module tcps:dependsOnModule tcps:自動選択Module .
 
 tcps:正準Module rdfs:comment "canonical policy for automatic tool/route selection" .
+
+# ---------------------------------------------------------------------------
+# Poka-yoke guard sabotage cases (l5p:cap06 -- Generated negative witnesses)
+#
+# These 12 individuals are the ontology-level source for
+# `templates/pokayoke_sabotage_proof.rs.tmpl`, which projects them (via a
+# real `sparql:` frontmatter query, no hardcoded EXPECTED array) into a
+# generated Rust test file that calls the REAL guard-condition logic already
+# shipped in the ポカヨケModule sourceText above (`範囲防止`/`一致防止`
+# implementing the `防止条件<入力>` trait's `検査する` method) with
+# adversarial and positive-control inputs, asserting `成否::失敗`/
+# `成否::成功` on the actual generated code -- not a subprocess `ggen sync`
+# refusal (that shape is already covered by
+# `examples/tcps-generated/tests/tcps_conformance_e2e.rs`'s
+# `shapes_gate_refuses_dangling_module_dependency`, which is a hand-written
+# test, not a pack-generated one, and only exercises the Module-dependency
+# graph shape, not the guard-condition runtime logic).
+#
+# Pass/fail is encoded as the individual's rdf:type (tcps:RangeGuardPassCase
+# vs tcps:RangeGuardFailCase, tcps:MatchGuardPassCase vs
+# tcps:MatchGuardFailCase) rather than a boolean predicate, deliberately: it
+# lets the template run two separate, independently-ordered SPARQL SELECTs
+# (one per expected outcome) with no in-template conditional branch on a
+# query-returned boolean literal at all -- simpler to review and with no
+# dependence on how this engine happens to serialize xsd:boolean into a
+# Tera-visible string.
+#
+# Every case's expected outcome was hand-computed by reading
+# `範囲防止::検査する`'s real condition (`入力 < 最小 || 入力 > 最大` ->
+# 失敗) and `一致防止::検査する`'s real condition (`(入力 & 必要印) ==
+# 必要印` -> 成功), independently of the SPARQL queries that will project
+# these facts into the generated test -- the queries only supply WHICH cases
+# exist and their raw inputs; they do not re-derive pass/fail themselves, so
+# a shared bug between the guard logic and this fixture data cannot hide a
+# real regression (same principle `wasm4pm_compat_events_proof.rs.tmpl`'s
+# own header documents for its hand-transcribed event-type literals).
+# ---------------------------------------------------------------------------
+
+tcps:rgcPassWithin a tcps:RangeGuardPassCase ;
+    tcps:caseName "pass_within_range" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 701 ;
+    tcps:rangeInput 150 ;
+    rdfs:comment "150 is inside [100,200]: 範囲防止::検査する must return 成否::成功(通過)." .
+
+tcps:rgcPassLowerBoundary a tcps:RangeGuardPassCase ;
+    tcps:caseName "pass_lower_boundary_inclusive" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 702 ;
+    tcps:rangeInput 100 ;
+    rdfs:comment "100 == 最小: the real condition is strict-less-than, so the lower bound is inclusive and must pass." .
+
+tcps:rgcPassUpperBoundary a tcps:RangeGuardPassCase ;
+    tcps:caseName "pass_upper_boundary_inclusive" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 703 ;
+    tcps:rangeInput 200 ;
+    rdfs:comment "200 == 最大: the real condition is strict-greater-than, so the upper bound is inclusive and must pass." .
+
+tcps:rgcFailBelowMinimum a tcps:RangeGuardFailCase ;
+    tcps:caseName "fail_below_minimum" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 704 ;
+    tcps:rangeInput 99 ;
+    rdfs:comment "99 < 100: adversarial input just below the floor -- must return 成否::失敗(防止理由{理由番号:704}), proving the guard fails closed, not just that it passes valid input." .
+
+tcps:rgcFailAboveMaximum a tcps:RangeGuardFailCase ;
+    tcps:caseName "fail_above_maximum" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 705 ;
+    tcps:rangeInput 201 ;
+    rdfs:comment "201 > 200: adversarial input just above the ceiling -- must return 成否::失敗(防止理由{理由番号:705})." .
+
+tcps:rgcFailFarBelowMinimum a tcps:RangeGuardFailCase ;
+    tcps:caseName "fail_far_below_minimum" ;
+    tcps:rangeMin 100 ; tcps:rangeMax 200 ; tcps:rangeReasonCode 706 ;
+    tcps:rangeInput 0 ;
+    rdfs:comment "0 is far outside [100,200] (a zeroed/uninitialized-looking input) -- must still return 成否::失敗(防止理由{理由番号:706})." .
+
+tcps:mgcPassExact a tcps:MatchGuardPassCase ;
+    tcps:caseName "pass_exact_match" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 801 ;
+    tcps:matchInput 10 ;
+    rdfs:comment "0b1010 & 0b1010 == 0b1010: input equals the required mask exactly -- must return 成否::成功(通過)." .
+
+tcps:mgcPassSupersetBits a tcps:MatchGuardPassCase ;
+    tcps:caseName "pass_superset_bits" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 802 ;
+    tcps:matchInput 14 ;
+    rdfs:comment "0b1110 & 0b1010 == 0b1010: input carries extra bits beyond the required mask, but all required bits are still present -- must pass." .
+
+tcps:mgcPassAllBitsSet a tcps:MatchGuardPassCase ;
+    tcps:caseName "pass_all_bits_set" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 803 ;
+    tcps:matchInput 255 ;
+    rdfs:comment "0b11111111 & 0b1010 == 0b1010: an all-ones input trivially contains every required bit -- must pass." .
+
+tcps:mgcFailMissingRequiredBit a tcps:MatchGuardFailCase ;
+    tcps:caseName "fail_missing_required_bit" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 804 ;
+    tcps:matchInput 8 ;
+    rdfs:comment "0b1000 & 0b1010 == 0b1000, which != 0b1010: input is missing bit 0x2 of the required mask -- adversarial near-miss, must return 成否::失敗(防止理由{理由番号:804})." .
+
+tcps:mgcFailZeroInput a tcps:MatchGuardFailCase ;
+    tcps:caseName "fail_zero_input" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 805 ;
+    tcps:matchInput 0 ;
+    rdfs:comment "0 & 0b1010 == 0, which != 0b1010: a zeroed/missing-permission input -- must return 成否::失敗(防止理由{理由番号:805})." .
+
+tcps:mgcFailWrongBitsEntirely a tcps:MatchGuardFailCase ;
+    tcps:caseName "fail_wrong_bits_entirely" ;
+    tcps:matchRequiredMask 10 ; tcps:matchReasonCode 806 ;
+    tcps:matchInput 5 ;
+    rdfs:comment "0b0101 & 0b1010 == 0, which != 0b1010: input's bits are entirely disjoint from the required mask (not merely partial overlap) -- must return 成否::失敗(防止理由{理由番号:806})." .

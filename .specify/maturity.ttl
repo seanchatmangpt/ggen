@@ -424,7 +424,7 @@ mat:tc_003 a mat:ScoreRow ;
     mat:l3 "L2" ;
     mat:d4 "L5" ;
     mat:l4 "L5" ;
-    mat:d5 "L3 (tcps-std: 1/1 real reference test passing; tcps-ffi/wasm/cli: no tests in the reference itself, 0/0 honestly, not fabricated)" ;
+    mat:d5 "L3 (tcps-std: 1/1 real reference test passing, plus 2 new l5p:cap06 generated sabotage tests as of 2026-07-22 (persistence_sabotage_proof.rs.tmpl, SPARQL-derived, not reference-transcribed); tcps-cli: 0 reference tests (the reference binary ships none) but 2 new l5p:cap06 generated dispatch-sabotage tests as of 2026-07-22 (dispatch_sabotage_proof.rs.tmpl, spawns the real compiled binary); tcps-ffi/wasm: still 0/0, honestly, not fabricated -- a real refusal path was identified (自動選択::選択する / 選択結果::拒否, reachable via both crates' C-ABI/WASM exports) but not yet closed, see l5p:pack_tcps_ffi's nextPromotionObligation in pack-l5-promotion.ttl. This dimension (d5) still measures byte-verbatim reference-test fidelity, a different axis from l5p:cap06's generated negative-witness coverage -- the two are related but not the same claim, disclosed here rather than conflated)" ;
     mat:l5 "L3" ;
     mat:d6 "L4" ;
     mat:l6 "L4" ;
