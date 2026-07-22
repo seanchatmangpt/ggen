@@ -1,0 +1,15 @@
+name = "mfw-crown-independent-verify"
+version = "0.1.0"
+defaultTargets = ["CrownVerify", "crown_verify_check"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.32.0"
+
+[[lean_lib]]
+name = "CrownVerify"
+
+[[lean_exe]]
+name = "crown_verify_check"
+root = "Main"
