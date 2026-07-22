@@ -1,0 +1,24 @@
+[workspace]
+
+[package]
+name = "star-toml-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of star-toml-pack: wires the generated star-toml config-admission module + both proof tests (hand-transcribed and SPARQL-derived) against the real star-toml crate. Mirrors examples/praxis-core-verify's posture: standalone workspace, minimal hand-written src/lib.rs (one include! line), no other hand-written production files."
+
+[lib]
+name = "star_toml_verify"
+path = "src/lib.rs"
+
+[dependencies]
+# Real crates.io dependency named by stp:cargoDependency in ontology.ttl.
+serde = { version = "1.0", features = ["derive"] }
+# Real crates.io dependency named by stp:loaderFn's owning crate /
+# stp:cargoDependency in ontology.ttl -- StarTomlConfig::load delegates to
+# its real star_toml::load_file.
+star-toml = "26.7"
+
+[dev-dependencies]
+# dev-dependency, proof tests only -- named by stp:cargoDependency.
+tempfile = "3"

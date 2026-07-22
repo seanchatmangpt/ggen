@@ -1,0 +1,16 @@
+[project]
+name = "star-toml-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+stp = "http://seanchatmangpt.github.io/packs/star-toml#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+star-toml-pack = { path = "../../packs/star-toml-pack" }
+
+[templates]
+dir = "templates"
