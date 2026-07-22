@@ -1,0 +1,56 @@
+# MESSAGE: rmcp value constraints (translated from implied SHACL sh:in / sh:datatype /
+# sh:minLength / sh:pattern per class; scoped to subjects in the rmcp# namespace, same rationale
+# as 010_required.rq). HandlerMethod: rmcp:role in {"server","client"}; rmcp:methodName/
+# rmcp:returnType non-empty xsd:string; rmcp:defaultBehavior an xsd:string of at least 10 chars
+# (rules out a placeholder). Macro: rmcp:macroKind = "attribute"; rmcp:appliesTo in {"fn","impl"};
+# rmcp:macroFields matches the real 3-column `field|type|usage` `@@`-joined-groups grammar (NOT
+# clap-noun-verb-pack's 4-column cnv:args shape -- see ontology.ttl's own rmcp:macroFields
+# comment for why). Transport: rmcp:transportRole in {"client","server","helper"};
+# rmcp:featureFlag/rmcp:transportPurpose non-empty xsd:string. Feature: rmcp:featureDefault is a
+# real xsd:boolean; rmcp:featureName/rmcp:featureDesc non-empty xsd:string.
+PREFIX rmcp: <http://seanchatmangpt.github.io/packs/rmcp#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a rmcp:HandlerMethod ; rmcp:role ?value . BIND(rmcp:role AS ?p)
+    FILTER(?value != "server" && ?value != "client")
+  } UNION {
+    ?s a rmcp:HandlerMethod ; ?p ?value .
+    VALUES ?p { rmcp:methodName rmcp:returnType }
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a rmcp:HandlerMethod ; rmcp:defaultBehavior ?value . BIND(rmcp:defaultBehavior AS ?p)
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) < 10)
+  } UNION {
+    ?s a rmcp:HandlerMethod ; rmcp:sourceFile ?value . BIND(rmcp:sourceFile AS ?p)
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) < 5)
+  } UNION {
+    ?s a rmcp:Macro ; rmcp:macroKind ?value . BIND(rmcp:macroKind AS ?p)
+    FILTER(?value != "attribute")
+  } UNION {
+    ?s a rmcp:Macro ; rmcp:appliesTo ?value . BIND(rmcp:appliesTo AS ?p)
+    FILTER(?value != "fn" && ?value != "impl")
+  } UNION {
+    ?s a rmcp:Macro ; rmcp:macroFields ?value . BIND(rmcp:macroFields AS ?p)
+    FILTER(
+      DATATYPE(?value) != xsd:string ||
+      !REGEX(STR(?value), "^[^|@]+\\|[^|@]+\\|[^@]*(@@[^|@]+\\|[^|@]+\\|[^@]*)*$")
+    )
+  } UNION {
+    ?s a rmcp:Transport ; rmcp:transportRole ?value . BIND(rmcp:transportRole AS ?p)
+    FILTER(?value != "client" && ?value != "server" && ?value != "helper")
+  } UNION {
+    ?s a rmcp:Transport ; ?p ?value .
+    VALUES ?p { rmcp:featureFlag rmcp:transportPurpose }
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) = 0)
+  } UNION {
+    ?s a rmcp:Feature ; rmcp:featureDefault ?value . BIND(rmcp:featureDefault AS ?p)
+    FILTER(DATATYPE(?value) != xsd:boolean)
+  } UNION {
+    ?s a rmcp:Feature ; ?p ?value .
+    VALUES ?p { rmcp:featureName rmcp:featureDesc }
+    FILTER(DATATYPE(?value) != xsd:string || STRLEN(STR(?value)) = 0)
+  }
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/rmcp#"))
+}
+ORDER BY ?s ?p

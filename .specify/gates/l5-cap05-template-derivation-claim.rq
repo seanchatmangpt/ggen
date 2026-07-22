@@ -1,0 +1,35 @@
+# MESSAGE: an l5p:Pack claims l5p:cap05 ("Generated verification": the proof
+# suite is itself generated from the ontology, expected values SPARQL-derived
+# -- not hardcoded literals) closed, by omitting l5p:cap05 from its own
+# l5p:missingCap list, but no admitted l5p:TemplateDerivationRecord for that
+# pack shows a template that both renders under tests/ (a real proof, not a
+# src/ data catalog -- wasm4pm-facts-pack's registry_catalog.rs.tmpl has a
+# real sparql: key but renders to src/, and correctly does NOT count) and
+# carries a real sparql: frontmatter key (not just any frontmatter -- a
+# hand-transcribed proof like praxis-core-pack's own refusal_taxonomy_proof.rs.tmpl
+# sibling, deliberately sparql:-free by its own header's stated reasoning,
+# correctly does NOT count on its own). Close cap05 with a real sparql:
+# -frontmatter proof template (see packs/praxis-core-pack/templates/
+# refusal_taxonomy_sparql_derived_proof.rs.tmpl or packs/star-toml-pack/
+# templates/star_toml_config_sparql_derived_proof.rs.tmpl) before removing
+# cap05 from missingCap, or refresh stale evidence: bash
+# scripts/ci/produce-l5-template-derivation-evidence.sh. l5p:CensusPending
+# packs are exempt (that Standing's own rdfs:label: "counted, not yet
+# adjudicated against the 12-capability bar" -- an absent missingCap entry
+# there means "not yet scored", not "claimed closed").
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?packId WHERE {
+  ?pack a l5p:Pack ;
+        l5p:packId ?packId ;
+        l5p:standing ?standing .
+  FILTER(?standing != l5p:CensusPending)
+  FILTER NOT EXISTS { ?pack l5p:missingCap l5p:cap05 }
+  FILTER NOT EXISTS {
+    ?rec a l5p:TemplateDerivationRecord ;
+         l5p:packId ?packId ;
+         l5p:renderTo ?to ;
+         l5p:hasSparqlFrontmatter true .
+    FILTER(STRSTARTS(?to, "tests/"))
+  }
+}
+ORDER BY ?packId

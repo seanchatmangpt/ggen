@@ -144,15 +144,41 @@ dogfood_bump_invocation_counter() {
 
 # dogfood_ingest_validate session_ttl_path
 #
-# ON-INGEST SHACL VALIDATION (closes the "validation is a later manual
-# batch step, not on ingest" gap): runs the real `ggen graph validate
-# --files <log> --shapes shapes.ttl` IMMEDIATELY after an event is
-# appended (not deferred to session-end), and appends ONE line per attempt
-# to <lifecycle-dir>/ingest-validation.jsonl recording whether that
-# snapshot of the growing log currently parses + conforms. Best-effort:
-# never fails the caller (a missing `ggen` binary, a missing `jq`, or any
-# other internal error is swallowed, matching this pack's existing
-# best-effort discipline for hooks that must never disrupt a session).
+# ON-INGEST VALIDATION (closes the "validation is a later manual batch
+# step, not on ingest" gap): runs `ggen graph validate --files <log>`
+# IMMEDIATELY after an event is appended (not deferred to session-end), and
+# appends ONE line per attempt to <lifecycle-dir>/ingest-validation.jsonl
+# recording whether that snapshot of the growing log currently parses.
+# Best-effort: never fails the caller (a missing `ggen` binary, a missing
+# `jq`, or any other internal error is swallowed, matching this pack's
+# existing best-effort discipline for hooks that must never disrupt a
+# session).
+#
+# REGRESSION FOUND AND FIXED FORWARD (2026-07-22, wave3 reverify-unverified-
+# docs pass): commit ad9106702 (2026-07-19, the same-day SHACL->SPARQL-gates
+# migration that added gates/{010_required,020_single_valued,
+# 030_value_constraints}.rq) deleted packs/dogfood-lifecycle-pack/shapes.ttl
+# but left this function's `--shapes "$(dogfood_shapes_path)"` argument
+# pointing at that now-nonexistent path. Live re-verification this pass
+# confirmed the real, reproducible effect: `ggen graph validate --files X
+# --shapes <missing-path>` errors out ("shapes file ... unreadable: No such
+# file or directory") on EVERY invocation regardless of whether the session
+# log is well-formed, so `shapes_conform` was unconditionally false in every
+# ingest-validation.jsonl record since that commit landed -- a permanent
+# false negative, not a narrowing. `ggen graph validate` has no `--gates`
+# flag (confirmed via `ggen graph validate --help`; gates/*.rq are wired
+# into `[validation].gates` sync-time admission or exercised directly via
+# `TripleStore::query()` in a Rust test, per
+# `crates/praxis-graphlaw/tests/dogfood_lifecycle_hook_actuation.rs`'s
+# `gate_020_rows` helper -- neither is a drop-in CLI substitute for a bash
+# script). Fixed minimally and disclosed: only pass `--shapes` when the file
+# actually exists, so a well-formed log's real Turtle-parseability is
+# reported accurately again instead of being permanently masked by a
+# dangling path. SHACL shape-conformance itself is NOT reinstated here (the
+# shapes it checked now live as gates/*.rq, not shapes.ttl) -- re-wiring
+# gate-conformance into this bash pipeline remains a real, disclosed,
+# NOT-closed follow-up (see dogfood-lifecycle-session-end.sh's matching
+# note).
 dogfood_ingest_validate() {
   local ttl_path="$1"
   [ -f "$ttl_path" ] || return 0
@@ -165,10 +191,21 @@ dogfood_ingest_validate() {
   [ -n "$ggen_bin" ] || return 0
   shapes="$(dogfood_shapes_path)"
 
-  if "$ggen_bin" graph validate --files "$ttl_path" --shapes "$shapes" >/dev/null 2>&1; then
-    ok=true
+  if [ -f "$shapes" ]; then
+    if "$ggen_bin" graph validate --files "$ttl_path" --shapes "$shapes" >/dev/null 2>&1; then
+      ok=true
+    else
+      ok=false
+    fi
   else
-    ok=false
+    # shapes.ttl no longer exists (see REGRESSION note above) -- fall back
+    # to a real Turtle PARSE check rather than reporting a false negative
+    # caused by a missing file.
+    if "$ggen_bin" graph validate --files "$ttl_path" >/dev/null 2>&1; then
+      ok=true
+    else
+      ok=false
+    fi
   fi
   ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   local rec

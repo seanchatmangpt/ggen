@@ -1,0 +1,39 @@
+# TYPING RULE: a `dyn Trait` trait object is a dynamically-sized type (DST)
+# and is only well-typed behind a pointer/reference.
+#
+# Prior art: the Rust language's dynamically-sized-type rule — `dyn Trait`
+# has no statically-known size (the vtable pointer is fixed but the pointee
+# varies by implementer), so the language forbids it from appearing by
+# value anywhere a `Sized` bound is implicitly required (a bare local, a
+# by-value parameter, a struct field without explicit indirection); every
+# use must be "behind a pointer" — `&dyn Trait`, `&mut dyn Trait`,
+# `Box<dyn Trait>`, `Rc<dyn Trait>`, etc. Specified in RFC 0401 ("The Sized
+# trait, DST coercions, and Dynamically Sized Types") and documented in the
+# Rust Reference's "Dynamically Sized Types" section. This rule checks the
+# `&dyn Trait` indirection form specifically, since that is the only one
+# observed in this corpus (gec:SmartPointerConstruct — Rc<, Arc<, Box< — is
+# gec:Unobserved corpus-wide per ontology.ttl §2, so `Box<dyn Trait>` is not
+# a grounded alternative to check against).
+#
+# ggen template patterns this checks (all 3 of the corpus's &dyn sites,
+# re-verified 2026-07-21 directly against the live template files):
+#   - packs/osx-clnr-pack/templates/osx_clnr_dispatch_proof.rs.tmpl:69
+#     `let h: &dyn OclnrHandlerSeam = &DummyHandlers;` — gec:TraitObjType_OclnrHandlerSeam
+#   - packs/cargo-cicd-pack/templates/cargo_cicd_dispatch_proof.rs.tmpl:137
+#     `&dyn Fn(&[String]) -> std::io::Result<std::process::Output>` — gec:TraitObjType_DynFn_cargo
+#   - packs/mcpp-pack/templates/mcpp_dispatch_proof.rs.tmpl:73 (identical
+#     shape) — gec:TraitObjType_DynFn_mcpp
+# In every grounded instance the gec:TraitObjectType individual is reached
+# only via a gec:ReferenceType's gec:referent edge, never used bare.
+#
+# Verified 2026-07-21: ASK=false against ontology.ttl+fixtures/gec-facts.ttl
+# (all 3 grounded dyn-Trait sites are behind a ReferenceType); ASK=true
+# against an adversarial fixture asserting a gec:TraitObjectType with no
+# enclosing gec:ReferenceType at all.
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK {
+  ?dyn a gec:TraitObjectType .
+  FILTER NOT EXISTS {
+    ?ref a gec:ReferenceType ; gec:referent ?dyn .
+  }
+}

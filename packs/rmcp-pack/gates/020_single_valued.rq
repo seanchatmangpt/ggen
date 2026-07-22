@@ -1,0 +1,23 @@
+# MESSAGE: every rmcp individual's own properties are single-valued (translated from an implied
+# SHACL sh:maxCount 1 per property; any row = a subject carrying two distinct values for ?p;
+# scoped to subjects in the rmcp# namespace, same rationale as 010_required.rq).
+PREFIX rmcp: <http://seanchatmangpt.github.io/packs/rmcp#>
+SELECT ?s ?p WHERE {
+  {
+    ?s a rmcp:HandlerMethod .
+    VALUES ?p { rmcp:role rmcp:methodName rmcp:paramsType rmcp:returnType rmcp:defaultBehavior rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Macro .
+    VALUES ?p { rmcp:macroName rmcp:macroKind rmcp:appliesTo rmcp:macroFields rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Transport .
+    VALUES ?p { rmcp:transportName rmcp:transportRole rmcp:featureFlag rmcp:transportPurpose rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Feature .
+    VALUES ?p { rmcp:featureName rmcp:featureDesc rmcp:featureDefault rmcp:sourceFile }
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/rmcp#"))
+}
+ORDER BY ?s ?p

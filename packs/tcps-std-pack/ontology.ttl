@@ -177,6 +177,47 @@ path = "src/lib.rs"
 [dependencies]
 tcps-core = { path = "../..", package = "tcps-generated" }
 
+[dev-dependencies]
+tempfile = "3"
+
 [lints]
 workspace = true
 """ .
+
+# ---------------------------------------------------------------------------
+# Persistence sabotage cases (l5p:cap06 -- Generated negative witnesses)
+#
+# Source for `templates/persistence_sabotage_proof.rs.tmpl`, which projects
+# these via a real `sparql:` frontmatter query (no hardcoded EXPECTED array)
+# into a generated integration test that calls the REAL
+# `受領証を保存する` (crates/tcps-std/src/lib.rs, transcribed verbatim above
+# as tcps_std:sourceText) with a genuinely adversarial filesystem
+# precondition. `受領証を保存する`'s own logic never branches on the
+# receipt's field values -- its only real conditional behavior is the
+# `io::Result` outcome of `fs::create_dir_all(根)?`, so this pack has
+# exactly one real failure mode to prove fails closed (not panics, not
+# silently succeeds): a `根` path whose parent component is a pre-existing
+# regular file, which makes `create_dir_all` fail at the OS level. A
+# 2-case suite (this adversarial case plus a positive control on a
+# genuinely writable root) is therefore exhaustive of this crate's testable
+# surface, not artificially thin -- unlike tcps-core-pack's guard-condition
+# cap06 closure, which has a much larger boundary-value space because its
+# guards branch on numeric input.
+# ---------------------------------------------------------------------------
+
+tcps_std:PersistCase a rdfs:Class ;
+    rdfs:comment "Class of ontology-declared cases for 受領証を保存するのsabotage/positive-control proof: case name, expected io::Result outcome (\"Ok\"/\"Err\"), and a 受領番号 to construct the sample receipt with." .
+
+tcps_std:pscValidRoot a tcps_std:PersistCase ;
+    tcps_std:caseName "valid_writable_root_succeeds" ;
+    tcps_std:rootScenario "Writable" ;
+    tcps_std:expectedOutcome "Ok" ;
+    tcps_std:receiptNumber 101 ;
+    rdfs:comment "根 resolves to a genuinely writable, not-yet-existing subdirectory of a real TempDir: fs::create_dir_all(根) must succeed and 受領証を保存する must return Ok(永続化結果) with 経路 under 根 -- positive control proving the guard isn't trivially fail-closed on everything." .
+
+tcps_std:pscRootBlockedByFile a tcps_std:PersistCase ;
+    tcps_std:caseName "root_blocked_by_existing_file_fails_closed" ;
+    tcps_std:rootScenario "FileBlocked" ;
+    tcps_std:expectedOutcome "Err" ;
+    tcps_std:receiptNumber 102 ;
+    rdfs:comment "根 is a child path of a location where a REGULAR FILE already exists in place of a directory: fs::create_dir_all(根) fails at the OS level (parent path component is not a directory), and 受領証を保存する must propagate that as Err, not panic and not silently succeed -- adversarial precondition violation, proving the persistence path fails closed. tcps_std:rootScenario is deliberately a SEPARATE predicate from tcps_std:expectedOutcome (not derived from it): an earlier draft of this fixture branched the test's own precondition construction on expectedOutcome directly, which made the assertion pass no matter what expectedOutcome said (the precondition always matched whatever outcome was expected) -- a live self-check caught it as tautological before this closure was recorded (see l5-promotion ontology's cap06 evidence for tcps-std-pack). Only rootScenario drives which filesystem precondition gets constructed; expectedOutcome is compared independently against the real result." .

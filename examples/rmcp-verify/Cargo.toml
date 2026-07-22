@@ -1,0 +1,21 @@
+[workspace]
+
+[package]
+name = "rmcp-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of rmcp-pack: wires the generated rmcp handler/macro/transport/feature catalogs, the real #[tool_router]/#[tool]/#[tool_handler] stub handler, and both proof tests (hand-transcribed catalog proof, real-behavior stub-handler proof) against the actual rmcp crate (github.com/modelcontextprotocol/rust-sdk, crates.io \"rmcp\"). Mirrors examples/star-toml-verify's posture: standalone workspace, minimal hand-written src/lib.rs (one include! line), no other hand-written production files -- chosen over examples/praxis-core-verify's posture because rmcp, like star-toml, is a real crates.io-published dependency, not a workspace-internal path dependency."
+
+[lib]
+name = "rmcp_verify"
+path = "src/lib.rs"
+
+[dependencies]
+# Real crates.io dependency named by rmcp:sourceFile citations throughout
+# ontology.ttl. Default features (base64, macros, server) already include
+# everything rmcp_stub_handler.rs's #[tool_router]/#[tool]/#[tool_handler]
+# needs -- confirmed live during rmcp-pack's grounding pass: `cargo add
+# rmcp` with zero extra feature flags compiled and ran the identical macro
+# invocation pattern this consumer wires in.
+rmcp = "2.2"

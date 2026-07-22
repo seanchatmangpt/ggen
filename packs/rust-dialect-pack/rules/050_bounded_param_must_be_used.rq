@@ -1,0 +1,46 @@
+# TYPING RULE: bounded-quantification well-formedness — a declared trait
+# bound must actually constrain a used type.
+#
+# Prior art: bounded parametric polymorphism's well-formedness condition
+# (classically F<:, bounded System F — Cardelli & Wegner, "On Understanding
+# Types, Data Abstraction, and Polymorphism", ACM Computing Surveys 17(4),
+# 1985) specialized to Rust trait bounds per the Rust Reference's "Trait and
+# lifetime bounds" section and Oxide's generic-function well-formedness
+# side-condition (Weiss et al., arXiv:1903.00982, section 3). For Rust
+# specifically: a generic parameter that is declared but never used anywhere
+# in the item's own signature is a real, named rustc/clippy diagnostic —
+# for impl blocks it is rustc error E0207 ("the type parameter is not
+# constrained by the impl trait, self type, or predicates"); for standalone
+# functions (this rule's target class, gec:FunctionSignature, not
+# gec:TraitImpl/gec:InherentImpl) the equivalent is clippy's
+# `extra_unused_type_parameters` lint, since an unused function-level type
+# parameter still compiles under rustc alone. This rule checks the function
+# case only — the impl-block/E0207 case is declared in this comment but not
+# separately encoded because no grounded fixture in this corpus has a
+# TraitImpl/InherentImpl with an unbounded-*or*-bounded generic param that
+# goes unreferenced (both grounded InCore inherent impls, 有無<値> and
+# 成否<成功,失敗>, DO reference their params — see gec:TypeParamRef usage in
+# fixtures/gec-facts.ttl).
+#
+# ggen template pattern this checks:
+#   packs/affidavit-pack/templates/affidavit_types.rs.tmpl:186
+#   `fn canonical_bytes<T: Serialize>(value: &T) -> Result<Vec<u8>, serde_json::Error>`
+#   — gec:Fn_canonical_bytes. T's gec:paramBound "Serialize" is discharged: T
+#   is referenced via gec:TypeParamRef inside the parameter's ReferenceType
+#   (`&T`), so the bound is not vacuous.
+#
+# Verified 2026-07-21: ASK=false against ontology.ttl+fixtures/gec-facts.ttl
+# (canonical_bytes's T:Serialize is used); ASK=true against an adversarial
+# fixture asserting a FunctionSignature with a bounded TypeGenericParam
+# ("U: Clone") that appears nowhere in its parameter or return types.
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK {
+  ?sig a gec:FunctionSignature ;
+       gec:genericParam ?gp .
+  ?gp a gec:TypeGenericParam ; gec:paramName ?pname ; gec:paramBound ?bound .
+  FILTER NOT EXISTS {
+    ?sig (gec:hasParameter/gec:paramType|gec:returnType) ?anyType .
+    ?anyType (gec:referent|gec:argType|gec:elementType|gec:tupleComponent)* ?ref .
+    ?ref a gec:TypeParamRef ; gec:refersToParam ?pname .
+  }
+}

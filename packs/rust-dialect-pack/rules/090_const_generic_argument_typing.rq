@@ -1,0 +1,43 @@
+# TYPING RULE: const-generic argument reference must resolve to a declared
+# const parameter of matching name on the enclosing impl.
+#
+# Prior art: RFC 2000 ("Const generics") — a const-generic argument slot
+# (the `<N>` in `Type<N>`) must be filled either by a constant expression
+# whose type matches the declared const parameter's type, or by an in-scope
+# const-generic parameter identifier of that same declared type; an
+# argument naming an identifier that is not actually a declared const
+# parameter in scope is a name-resolution/typing error (rustc E0412/E0425
+# territory — "cannot find value/type in this scope" — depending on
+# context). This rule checks the "names an in-scope declared const
+# parameter" half specifically (gec:argConstIsParamRef true), since that is
+# the only const-generic argument FORM in this corpus that references a
+# parameter rather than a literal.
+#
+# ggen template pattern this checks:
+#   packs/tcps-core-pack/ontology.ttl:200
+#   `impl<const 上限: usize> 系譜台帳<上限> { ... }` — gec:Impl_系譜台帳_constN.
+#   The type argument `上限` inside `系譜台帳<上限>` (gec:argConstIsParamRef
+#   true, gec:argConstValue "上限") must resolve to the impl's own declared
+#   `const 上限: usize` (gec:ConstGenericParam, gec:paramName "上限") — and it
+#   does. (The corpus's other const-generic instance,
+#   `作業領域::<3>::新規()` — lib.rs.tmpl:45, gec:Local_作業領域 — is a literal
+#   argument, gec:argConstIsParamRef unset/false, so it is out of this
+#   rule's scope by design: literals have no name to resolve.)
+#
+# Verified 2026-07-21: ASK=false against ontology.ttl+fixtures/gec-facts.ttl
+# (系譜台帳's `上限` argument correctly resolves to its own declared const
+# param); ASK=true against an adversarial fixture asserting a const-generic
+# argument referencing a name ("NOT_DECLARED") that is not among the
+# enclosing impl's declared gec:ConstGenericParam individuals.
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK {
+  ?impl a ?implType ; gec:forType ?ft .
+  VALUES ?implType { gec:TraitImpl gec:InherentImpl }
+  ?ft (gec:hasArgument/gec:argType)* ?anyGT .
+  ?anyGT a gec:GenericType ; gec:hasArgument ?arg .
+  ?arg a gec:TypeArgumentConst ; gec:argConstIsParamRef true ; gec:argConstValue ?refName .
+  FILTER NOT EXISTS {
+    ?impl gec:genericParam ?cgp .
+    ?cgp a gec:ConstGenericParam ; gec:paramName ?refName .
+  }
+}

@@ -1,0 +1,34 @@
+# MESSAGE: an l5p:Pack carries l5p:standing l5p:Level5 (TERMINAL: "all 12
+# capabilities closed with named artifacts", per that Standing individual's
+# own rdfs:label) while its own l5p:missingCap list still names open
+# capabilities -- enforces this ontology's own header comment bar ("do not
+# mark a pack l5p:Level5 by editing this file... requires a named, checkable
+# artifact for EACH of the 12 l5p:Capability individuals"). Close every
+# listed capability (see .specify/gates/l5-cap05-template-derivation-claim.rq
+# for cap05's own machine-checked bar) and clear l5p:missingCap entirely
+# before setting l5p:standing to l5p:Level5.
+#
+# DISCLOSED RESIDUAL GAP (not closed by this gate, named honestly rather
+# than silently assumed away): this is a NECESSARY condition only. A pack
+# whose l5p:missingCap was never populated at all (as opposed to correctly
+# emptied) would pass this gate while still lacking real per-capability
+# evidence. Every one of the l5p:Pack individuals in this file today does
+# carry a populated l5p:missingCap (verified 2026-07-22 by reading the whole
+# file), so this is a narrower, more contrived sabotage shape than "forgot
+# to clear the list" -- but it is real. Fully closing it needs a positive
+# per-capability evidence property (e.g. l5p:closedCap, mirroring
+# l5p:missingCap's own shape) checked against all 12 l5p:Capability
+# individuals via FILTER NOT EXISTS, the same idiom
+# packs/ggen-verify-pack/gates/010_evidence_present.rq already uses for its
+# own required-check completeness check. Not attempted in this pass because
+# it requires re-touching all l5p:Pack individuals' data, a larger and
+# separately-reviewable change -- flagged as the natural follow-on rather
+# than fabricating false coverage now.
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?packId ?missingCap WHERE {
+  ?pack a l5p:Pack ;
+        l5p:packId ?packId ;
+        l5p:standing l5p:Level5 ;
+        l5p:missingCap ?missingCap .
+}
+ORDER BY ?packId ?missingCap

@@ -1,0 +1,12 @@
+[workspace]
+
+[package]
+name = "wasm4pm-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of wasm4pm-pack: wires the generated crate-catalog + dependency-graph modules (src/wasm4pm_crate_catalog.rs, src/wasm4pm_crate_deps.rs) via the pack's lib_wiring include, and both proof suites (the pre-existing hand-transcribed proofs and the new SPARQL-derived catalog proof) against real compiled Rust, not a TempDir-ephemeral fixture. Mirrors examples/praxis-core-verify's/examples/lsp-max-verify's posture: standalone workspace, minimal hand-written src/lib.rs, no other hand-written production files."
+
+[lib]
+name = "wasm4pm_verify"
+path = "src/lib.rs"

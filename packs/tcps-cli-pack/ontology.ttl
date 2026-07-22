@@ -125,3 +125,59 @@ fn main() {
 """ .
 
 tcps:KijunModule rdfs:comment "tcps-bench binary entry point (src/基準.rs): micro-benchmark harness for tcps_core::自動選択::選択する, printing JSON timing stats." .
+
+# ---------------------------------------------------------------------------
+# CLI dispatch sabotage cases (l5p:cap06 -- Generated negative witnesses)
+#
+# Source for `templates/dispatch_sabotage_proof.rs.tmpl`, which projects
+# these via a real `sparql:` frontmatter query (no hardcoded EXPECTED array)
+# into a generated integration test that spawns the REAL compiled `tcps`
+# binary (env!("CARGO_BIN_EXE_tcps"), no mock process, no re-implemented
+# dispatch logic) with each declared argv and asserts on its REAL exit
+# code -- a genuine subprocess boundary crossing, same shape as
+# chicago-tdd-tools-pack's cap06 closure (real clap-noun-verb binary
+# invocations, not re-implemented dispatch). `main.rs`'s dispatch
+# (tcps:MainModule sourceText above) has exactly one real refusal path --
+# an unrecognized subcommand falls through to `_ => { 使い方();
+# ExitCode::from(2) }` -- plus three known-subcommand positive controls.
+# `検査`'s own conditional (`二本柱が閉じている()`) is NOT independently
+# adversarial-testable through the CLI's argv surface: 豊田生産方式::原初形()
+# is a hardcoded `const fn` with every boolean field `true`
+# (examples/tcps-generated/src/全体.rs), so 検査 always exits 0 in this
+# reference and there is no CLI argument that reaches the false branch --
+# out of scope for this closure, not silently ignored (see the
+# l5-promotion ontology's cap06 note for tcps-cli-pack for this same
+# disclosure at the promotion-program level).
+#
+# Real exit codes below were captured by actually building and running
+# ./target/debug/tcps with each argv (not guessed): 検査/版/環境 each exit
+# 0; an unrecognized argv (transcribed here as でたらめ, "nonsense") falls
+# through to the usage-and-exit-2 arm.
+# ---------------------------------------------------------------------------
+
+tcps:CliCase a rdfs:Class ;
+    rdfs:comment "Class of ontology-declared cases for the real `tcps` binary's dispatch sabotage/positive-control proof: argv to pass, and the real exit code that argv must produce." .
+
+tcps:cliInspectSucceeds a tcps:CliCase ;
+    tcps:caseName "inspect_known_subcommand_succeeds" ;
+    tcps:argv "検査" ;
+    tcps:expectedExitCode 0 ;
+    rdfs:comment "検査 is a real, recognized subcommand; 豊田生産方式::原初形()'s hardcoded 二本柱が閉じている() is always true in this reference, so this must exit 0 -- positive control." .
+
+tcps:cliVersionSucceeds a tcps:CliCase ;
+    tcps:caseName "version_known_subcommand_succeeds" ;
+    tcps:argv "版" ;
+    tcps:expectedExitCode 0 ;
+    rdfs:comment "版 is a real, recognized subcommand with no failure path -- positive control." .
+
+tcps:cliEnvSucceeds a tcps:CliCase ;
+    tcps:caseName "env_known_subcommand_succeeds" ;
+    tcps:argv "環境" ;
+    tcps:expectedExitCode 0 ;
+    rdfs:comment "環境 is a real, recognized subcommand with no failure path -- positive control." .
+
+tcps:cliUnknownSubcommandRefuses a tcps:CliCase ;
+    tcps:caseName "unknown_subcommand_refuses_with_exit_2" ;
+    tcps:argv "でたらめ" ;
+    tcps:expectedExitCode 2 ;
+    rdfs:comment "Adversarial input: an unrecognized subcommand string hits main.rs's `_ => { 使い方(); ExitCode::from(2) }` fallback arm -- the real binary must exit 2, not panic and not silently succeed as if it were a known command. This is the pack's only real refusal path reachable through the CLI's own argv surface." .

@@ -1,0 +1,43 @@
+# TYPING RULE: move-vs-Copy ownership-transfer discipline.
+#
+# Prior art: Rust's ownership rule ("each value has one owner; assignment or
+# by-value passing of a non-Copy value moves ownership out of the source
+# binding, invalidating further use of the source" — The Rust Programming
+# Language, Klabnik & Nichols, ch. 4.1 "What Is Ownership?") combined with
+# the Copy-trait exemption (types implementing `Copy` are duplicated, not
+# moved, on by-value use — Rust Reference, "Special types and traits: Copy").
+# Formalized as the used-once/substructural typing discipline for non-Copy
+# places (vs. the unrestricted-use discipline for Copy places) in Weiss,
+# Patterson, Matsakis & Ahmed, "Oxide: The Essence of Rust" (arXiv:1903.00982),
+# section 3's typing rule for a place expression's move.
+#
+# ggen template pattern this checks: packs/tcps-ffi-pack/templates/lib.rs.tmpl:43-77
+# (選択する外部関数). gec:Local_要求 (bindingType PathType "選択要求", a struct — not
+# Copy) is passed by value into 選択する(...) and is correctly modeled
+# gec:MoveTransfer (gec:Edge_要求_move) — this rule recomputes that expectation
+# from gec:bindingType and asserts it must match the declared
+# gec:ownershipTransferKind. Grounded scope: this rule only checks edges whose
+# gec:fromSite is a gec:LocalBinding (bindingType is asserted there); the
+# corpus's one field-to-field Copy example (gec:Edge_取得権限_copy, u64 — Copy)
+# sources from a gec:StructFieldSite, which the ontology does not attach a
+# type to (see gec:StructFieldSite in ontology.ttl) — an honest modeling gap,
+# not silently glossed over. Verified 2026-07-21: ASK=false against
+# ontology.ttl+fixtures/gec-facts.ttl (the one exercised case, Local_要求,
+# is correctly classified); ASK=true against an adversarial fixture asserting
+# a Copy-eligible u32 local wrongly declared gec:MoveTransfer.
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK
+WHERE {
+  ?edge a gec:OwnershipEdge ;
+        gec:ownershipTransferKind ?declaredKind ;
+        gec:fromSite ?binding .
+  ?binding a gec:LocalBinding ;
+           gec:bindingType ?t .
+  FILTER (?declaredKind IN (gec:MoveTransfer, gec:CopyTransfer))
+  BIND(EXISTS {
+    ?t a gec:PrimitiveType ; gec:primitiveName ?pn .
+    FILTER(?pn IN ("u8","u16","u32","u64","usize","i8","i16","i32","i64","isize","bool","f32","f64","char"))
+  } AS ?isCopyPrimitive)
+  BIND(IF(?isCopyPrimitive, gec:CopyTransfer, gec:MoveTransfer) AS ?expectedKind)
+  FILTER(?declaredKind != ?expectedKind)
+}
