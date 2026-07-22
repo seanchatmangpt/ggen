@@ -40,34 +40,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+      # BUG FIXED (2026-07-22): the bespoke `dtolnay/rust-toolchain@...
+      # toolchain: stable` + ad-hoc actions/cache steps below is the same
+      # class already root-caused and fixed twice this session (release.yml
+      # PR #426, marketplace-test.yml, publish-registry.yml -- see
+      # retrofit:BespokeToolchainSetupBypassesSccache). It never installs
+      # sccache, which .cargo/config.toml requires unconditionally
+      # (`rustc-wrapper = "sccache"`) -- confirmed real and live: 2 actual
+      # workflow_dispatch runs today (triggered by release.yml's own
+      # dispatch-release-debian job) both failed identically: `error: could
+      # not execute process 'sccache ... rustc -vV' (never executed) ...
+      # No such file or directory`. `targets: x86_64-unknown-linux-gnu` is
+      # dropped as redundant, not lost functionality -- ubuntu-latest
+      # runners are already x86_64, matching rustup's default target with
+      # no cross-compilation involved.
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: stable
-          targets: x86_64-unknown-linux-gnu
+          cache-key-suffix: release-debian
 
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y devscripts debhelper
-
-      - name: Cache cargo registry
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build Debian package
         run: |
