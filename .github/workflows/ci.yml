@@ -258,6 +258,22 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      # `cargo test --workspace` compiles debug builds of all 17 workspace
+      # crates PLUS a separate test binary per tests/*.rs file across all of
+      # them, on top of 4 provisioned sibling repos -- real, reproducing
+      # disk exhaustion confirmed on two independent runs of this exact job
+      # (PR #434, runs 29922038930/job 88929666446 and 88934847706: both
+      # failed with `System.IO.IOException: No space left on device`, the
+      # second after 13m43s of genuine work, not an instant crash -- ruling
+      # out a transient host flake). Standard runners only have ~14GB free;
+      # this reclaims the large preinstalled SDKs this job never touches.
+      - name: Free disk space (runner ships ~14GB free, this job needs more)
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          df -h /
       - name: Provision siblings + pinned nightly + cache
         uses: ./.github/actions/setup-ggen-build
         with:
