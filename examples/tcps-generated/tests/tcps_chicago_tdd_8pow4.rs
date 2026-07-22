@@ -12,17 +12,19 @@
 //! proposals are then passed through the real authorization boundary. No arbitrary
 //! witness assignment, fake OCEL, or existence-only discharge remains.
 
-mod support;
+#[path = "support/common.rs"]
+mod common;
+#[path = "support/sharding.rs"]
+mod sharding;
 
 use std::collections::BTreeSet;
 use std::sync::OnceLock;
 
+use common::{domain_digest, merkle_root, serialize_json, EvidenceDigest, EvidenceError};
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use sha2::{Digest as _, Sha256};
-use support::{
-    domain_digest, merkle_root, rendezvous_shard, serialize_json, EvidenceDigest, EvidenceError,
-};
+use sharding::rendezvous_shard;
 use tcps_generated::受領証_impl::{受領種別, 受領証, 要約値};
 use tcps_generated::自動選択::{
     候補, 作業領域, 拒否理由, 方策, 測度, 認知品種, 選択する, 選択提案, 選択結果,
