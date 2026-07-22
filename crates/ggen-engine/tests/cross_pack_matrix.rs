@@ -344,7 +344,8 @@ fn declaration_order_exclusion_does_not_mask_a_genuine_pack_set_difference() {
         "a genuinely different pack set must not produce the same graph hash"
     );
 
-    let mut value_full = serde_json::to_value(read_receipt(&project_full).payload).expect("full payload");
+    let mut value_full =
+        serde_json::to_value(read_receipt(&project_full).payload).expect("full payload");
     let mut value_subset =
         serde_json::to_value(read_receipt(&project_subset).payload).expect("subset payload");
     for v in [&mut value_full, &mut value_subset] {

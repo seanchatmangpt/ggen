@@ -248,7 +248,10 @@ mod tests {
                 "expected Ok(empty) when no packs dir is reachable, got Err: {:?}",
                 result.err()
             );
-            assert!(result.unwrap().is_empty(), "fresh install must list zero packs");
+            assert!(
+                result.unwrap().is_empty(),
+                "fresh install must list zero packs"
+            );
         }
     }
 

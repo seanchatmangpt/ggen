@@ -207,7 +207,11 @@ fn evidence_fresh_gate_refuses_stale_verified_hash_against_latest_sync() {
     // verifiedGraphHash that provably does not equal the first sync's real
     // graphHash (a fixed sentinel that is not valid BLAKE3 hex of anything
     // this pipeline could have produced).
-    write_ontology_with_stale_check(&project, &["alice"], "0000000000000000000000000000000000000000000000000000000000000000stale");
+    write_ontology_with_stale_check(
+        &project,
+        &["alice"],
+        "0000000000000000000000000000000000000000000000000000000000000000stale",
+    );
     let err = run_sync(&project)
         .expect_err("a verifiedGraphHash mismatched against the latest real sync must refuse");
     assert!(
