@@ -73,9 +73,16 @@ oclnr:emergency       a cnv:Command ; cnv:noun "emergency" ; cnv:verb "" ; rdfs:
 # whether to emit a real generated handler (dispatchesTo non-empty) or a
 # method on the hand-write seam trait `OclnrHandlerSeam` (dispatchesTo
 # empty) -- so adding a new command here with an empty dispatchesTo
-# automatically grows the required hand-write surface, and modeling its
-# real algorithm later (non-empty dispatchesTo) automatically shrinks it,
-# with no template edit either way.
+# automatically grows the required hand-write surface with no template edit.
+# CORRECTED (this pass): the reverse is NOT automatic. The generated-bucket
+# handler *bodies* in osx_clnr_dispatch.rs.tmpl are hand-authored per
+# command, one function per real algorithm, because each has a distinct
+# signature -- adding a new non-empty dispatchesTo value still requires a
+# matching hand-added function in that template; it is not template-loop-
+# generated. osx_clnr_dispatch_proof.rs.tmpl's
+# every_non_empty_dispatch_target_has_a_real_generated_handler test is the
+# SPARQL-derived safety net that catches drift here instead of letting a
+# new non-empty dispatch silently have no callable handler at all.
 oclnr:dispatchesTo a rdfs:Property ; rdfs:domain cnv:Command ; rdfs:range xsd:string ;
     rdfs:comment "Name of the osx_clnr_plan.rs function that implements this command's real behavior, or \"\" if none is modeled yet (hand-write seam)." .
 
