@@ -8,104 +8,97 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
     validate_workspace(&policy, expected, &workspace)?;
 
     let identity = cell.coordinates.identity();
-    let (
-        outcome,
-        eligible_mask,
-        ready_mask,
-        selected_tool,
-        selected_mass,
-        selection_receipt,
-        authorization_receipt,
-    ) = match (expected, actual) {
-        (
-            ExpectedOutcome::Selected {
-                index,
-                mass,
-                eligible_mask,
-                ready_mask,
-            },
-            選択結果::選択(proposal),
-        ) => {
-            let 有無::有る(expected_candidate) = policy.候補[index] else {
+    let (outcome, eligible_mask, ready_mask, selected_tool, selected_mass, selection_receipt, authorization_receipt) =
+        match (expected, actual) {
+            (
+                ExpectedOutcome::Selected {
+                    index,
+                    mass,
+                    eligible_mask,
+                    ready_mask,
+                },
+                選択結果::選択(proposal),
+            ) => {
+                let 有無::有る(expected_candidate) = policy.候補[index] else {
+                    return Err(EvidenceError::InvalidData {
+                        identity,
+                        message: "oracle winner lane is empty".to_owned(),
+                    });
+                };
+                if proposal.道具 != expected_candidate.道具
+                    || proposal.経路 != expected_candidate.経路
+                    || proposal.質量 != mass
+                    || proposal.適格候補 != eligible_mask
+                    || proposal.準備候補 != ready_mask
+                    || proposal.方策番号 != policy.方策番号
+                    || proposal.方策要約 != policy.方策要約
+                    || proposal.受領証.種別 != 受領種別::選択
+                    || proposal.受領証.道具 != 有無::有る(proposal.道具)
+                    || proposal.受領証.理由 != 有無::無い
+                {
+                    return Err(EvidenceError::InvalidData {
+                        identity,
+                        message: "selected proposal violates the public selection contract".to_owned(),
+                    });
+                }
+                let authorization = authorize(proposal, request.時刻)?;
+                (
+                    OutcomeClass::Selected,
+                    eligible_mask,
+                    ready_mask,
+                    Some(proposal.道具),
+                    Some(proposal.質量),
+                    proposal.受領証,
+                    Some(authorization),
+                )
+            }
+            (
+                ExpectedOutcome::Refused {
+                    reason,
+                    eligible_mask,
+                    ready_mask,
+                },
+                選択結果::拒否 {
+                    理由,
+                    適格候補,
+                    準備候補,
+                    受領証,
+                },
+            ) => {
+                if 理由 != reason
+                    || 適格候補 != eligible_mask
+                    || 準備候補 != ready_mask
+                    || 受領証.種別 != 受領種別::拒否
+                    || 受領証.道具 != 有無::無い
+                    || 受領証.理由 != 有無::有る(reason.番号())
+                {
+                    return Err(EvidenceError::InvalidData {
+                        identity,
+                        message: "refusal violates the public selection contract".to_owned(),
+                    });
+                }
+                let class = if reason == 拒否理由::適格候補なし {
+                    OutcomeClass::RefusedNoEligible
+                } else {
+                    OutcomeClass::RefusedNoReady
+                };
+                (
+                    class,
+                    eligible_mask,
+                    ready_mask,
+                    None,
+                    None,
+                    受領証,
+                    None,
+                )
+            }
+            (expected, actual) => {
                 return Err(EvidenceError::InvalidData {
                     identity,
-                    message: "oracle winner lane is empty".to_owned(),
-                });
-            };
-            if proposal.道具 != expected_candidate.道具
-                || proposal.経路 != expected_candidate.経路
-                || proposal.質量 != mass
-                || proposal.適格候補 != eligible_mask
-                || proposal.準備候補 != ready_mask
-                || proposal.方策番号 != policy.方策番号
-                || proposal.方策要約 != policy.方策要約
-                || proposal.受領証.種別 != 受領種別::選択
-                || proposal.受領証.道具 != 有無::有る(proposal.道具)
-                || proposal.受領証.理由 != 有無::無い
-            {
-                return Err(EvidenceError::InvalidData {
-                    identity,
-                    message: "selected proposal violates the public selection contract".to_owned(),
+                    message: format!("oracle/implementation mismatch: {expected:?} vs {actual:?}"),
                 });
             }
-            let authorization = authorize(proposal, request.時刻)?;
-            (
-                OutcomeClass::Selected,
-                eligible_mask,
-                ready_mask,
-                Some(proposal.道具),
-                Some(proposal.質量),
-                proposal.受領証,
-                Some(authorization),
-            )
-        }
-        (
-            ExpectedOutcome::Refused {
-                reason,
-                eligible_mask,
-                ready_mask,
-            },
-            選択結果::拒否 {
-                理由,
-                適格候補,
-                準備候補,
-                受領証,
-            },
-        ) => {
-            if 理由 != reason
-                || 適格候補 != eligible_mask
-                || 準備候補 != ready_mask
-                || 受領証.種別 != 受領種別::拒否
-                || 受領証.道具 != 有無::無い
-                || 受領証.理由 != 有無::有る(reason.番号())
-            {
-                return Err(EvidenceError::InvalidData {
-                    identity,
-                    message: "refusal violates the public selection contract".to_owned(),
-                });
-            }
-            let class = if reason == 拒否理由::適格候補なし {
-                OutcomeClass::RefusedNoEligible
-            } else {
-                OutcomeClass::RefusedNoReady
-            };
-            (
-                class,
-                eligible_mask,
-                ready_mask,
-                None,
-                None,
-                受領証,
-                None,
-            )
-        }
-        (expected, actual) => {
-            return Err(EvidenceError::InvalidData {
-                identity,
-                message: format!("oracle/implementation mismatch: {expected:?} vs {actual:?}"),
-            });
-        }
-    };
+        };
 
     let selection_digest = receipt_digest(selection_receipt);
     let authorization_digest = authorization_receipt.map(receipt_digest);
@@ -156,8 +149,13 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
     })
 }
 
-fn run_matrix() -> Result<Vec<ScenarioEvidence>, EvidenceError> {
-    cells()?.into_iter().map(execute_cell).collect()
+static MATRIX: OnceLock<Result<Vec<ScenarioEvidence>, EvidenceError>> = OnceLock::new();
+
+fn run_matrix() -> Result<&'static [ScenarioEvidence], EvidenceError> {
+    match MATRIX.get_or_init(|| cells()?.into_iter().map(execute_cell).collect()) {
+        Ok(results) => Ok(results.as_slice()),
+        Err(error) => Err(error.clone()),
+    }
 }
 
 fn evidence_leaves(results: &[ScenarioEvidence]) -> Result<Vec<EvidenceDigest>, EvidenceError> {
@@ -170,13 +168,10 @@ fn evidence_leaves(results: &[ScenarioEvidence]) -> Result<Vec<EvidenceDigest>, 
                     message: error.to_string(),
                 }
             })?;
-            let bytes: [u8; 32] =
-                bytes
-                    .try_into()
-                    .map_err(|_| EvidenceError::InvalidData {
-                        identity: result.identity.clone(),
-                        message: "scenario digest is not 32 bytes".to_owned(),
-                    })?;
+            let bytes: [u8; 32] = bytes.try_into().map_err(|_| EvidenceError::InvalidData {
+                identity: result.identity.clone(),
+                message: "scenario digest is not 32 bytes".to_owned(),
+            })?;
             Ok(EvidenceDigest::from_bytes(bytes))
         })
         .collect()
@@ -228,11 +223,10 @@ fn known_selected_proposal() -> 選択提案 {
 fn scenario_json_lines(results: &[ScenarioEvidence]) -> Result<String, EvidenceError> {
     let mut output = String::new();
     for result in results {
-        let line =
-            serde_json::to_string(result).map_err(|error| EvidenceError::InvalidData {
-                identity: result.identity.clone(),
-                message: error.to_string(),
-            })?;
+        let line = serde_json::to_string(result).map_err(|error| EvidenceError::InvalidData {
+            identity: result.identity.clone(),
+            message: error.to_string(),
+        })?;
         output.push_str(&line);
         output.push('\n');
     }
@@ -267,8 +261,7 @@ fn scenario_plan(results: &[ScenarioEvidence]) -> String {
 }
 
 fn coverage_plan(rails: &[Vec<Coordinates>; DIMENSIONS]) -> String {
-    let mut output =
-        String::from("strength\trow\tauthority\treadiness\ttime_budget\tmode\n");
+    let mut output = String::from("strength\trow\tauthority\treadiness\ttime_budget\tmode\n");
     for (index, rail) in rails.iter().enumerate() {
         for (row, coordinates) in rail.iter().enumerate() {
             output.push_str(&format!(
