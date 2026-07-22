@@ -1,0 +1,26 @@
+# MESSAGE: an l5p:Pack carries l5p:standing l5p:Level5 but no l5p:SabotageEvidence
+# individual cites a real fail-closed proof for it. l5p:cap06 ("Generated
+# negative witnesses") is one of the 12 required Level5 capabilities and its
+# own l5p:capDesc demands "Sabotage/falsification fixtures ... proving the
+# pack fails closed, not just that it succeeds" -- l5p:missingCap being empty
+# (see .specify/gates/l5-level5-standing-requires-closed-capabilities.rq) is
+# only a NEGATIVE signal: the pack's own author didn't flag cap06 as open.
+# It is not a POSITIVE artifact proving a sabotage test actually ran. This
+# gate adds that positive bar: at least one l5p:SabotageEvidence individual
+# naming this pack via l5p:packId, with a real l5p:sabotageCommand (the
+# literal command that was run) and a real l5p:sabotageResult (the literal
+# observed outcome -- an actual refusal code or test-failure signature, not
+# a bare assertion). Record one before setting l5p:standing to l5p:Level5.
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?packId WHERE {
+  ?pack a l5p:Pack ;
+        l5p:packId ?packId ;
+        l5p:standing l5p:Level5 .
+  FILTER NOT EXISTS {
+    ?ev a l5p:SabotageEvidence ;
+        l5p:packId ?packId ;
+        l5p:sabotageCommand ?cmd ;
+        l5p:sabotageResult ?res .
+  }
+}
+ORDER BY ?packId

@@ -54,6 +54,26 @@ l5p:TemplateDerivationRecord a rdfs:Class ;
     rdfs:comment "Properties: l5p:packId (which pack directory owns the template -- reuses the same property l5p:Pack individuals carry), l5p:templatePath (the .tmpl source file's repo-relative path), l5p:renderTo (its own `to:` frontmatter value -- where ggen sync writes the rendered output), l5p:hasSparqlFrontmatter (true iff the frontmatter block contains a real `sparql:` key, not just any frontmatter). None of l5p:Pack's own properties (l5p:packId, l5p:wave, l5p:standing, l5p:missingCap, ...) carry explicit rdf:Property declarations in this file either -- this vocabulary block matches that existing convention rather than importing packs/ggen-verify-pack/ontology.ttl's separate style wholesale." .
 
 # ---------------------------------------------------------------------------
+# Sabotage/drift-sensitivity evidence vocabulary (trust-hardening retrofit
+# part 2, 2026-07-22): closes the residual gap
+# .specify/gates/l5-level5-standing-requires-closed-capabilities.rq's own
+# MESSAGE discloses -- an empty l5p:missingCap is only a NEGATIVE signal
+# (the author didn't flag anything open); it is not a POSITIVE artifact
+# proving l5p:cap06 ("Generated negative witnesses": "Sabotage/falsification
+# fixtures ... generated, proving the pack fails closed, not just that it
+# succeeds") was actually satisfied. l5p:SabotageEvidence individuals are
+# hand-authored, unlike l5p:TemplateDerivationRecord above -- a sabotage
+# test is a discrete, already-executed event (flip a fact, resync, observe
+# the refusal, revert, resync, confirm clean -- the exact discipline this
+# session's own commits already narrate in prose), not a mechanically
+# rescannable file property, so there is no producer script to regenerate
+# it from disk. This vocabulary turns that citation into a structured,
+# gate-checkable fact instead of leaving it only in commit-message prose.
+l5p:SabotageEvidence a rdfs:Class ;
+    rdfs:label "a real, cited fail-closed sabotage/drift-sensitivity proof for one pack's l5p:cap06 closure" ;
+    rdfs:comment "Properties (all required by .specify/gates/l5-level5-requires-sabotage-evidence.rq): l5p:packId (which l5p:Pack this evidences -- reuses the same property l5p:Pack individuals carry), l5p:sabotageCommand (the literal command that was actually run to induce or detect the failure -- e.g. a specific fact flip plus `ggen sync run --dry-run`, never a description of a hypothetical command), l5p:sabotageResult (the real observed outcome -- must name an actual refusal code or test-failure signature, e.g. '[FM-LAW-018] refused', not a bare pass/fail claim), l5p:sabotageDate (when the cited test was performed, ISO 8601 date). A pack may carry more than one l5p:SabotageEvidence individual (one per distinct sabotage vector exercised); the gate only requires at least one." .
+
+# ---------------------------------------------------------------------------
 # Standing states (l5p:standing takes one of these five IRIs)
 # ---------------------------------------------------------------------------
 l5p:CensusPending a l5p:Standing ; rdfs:label "counted, not yet adjudicated against the 12-capability bar" .
