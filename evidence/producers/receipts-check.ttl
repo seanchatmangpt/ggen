@@ -3,4 +3,4 @@
 
 ver:receipts-check a ver:ReceiptsCheck ;
     ver:exitCode 0 ;
-    ver:chainHead "0ed8632a25a0cadbb59f5e5908aaebc77f4d72a567a6640465995db335d8ab59" .
+    ver:chainHead "209013fd0aa27029bcdd2e25e75973ac770f19d0565262ad74b6548c106b9bfa" .
