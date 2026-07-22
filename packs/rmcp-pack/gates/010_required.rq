@@ -1,0 +1,27 @@
+# MESSAGE: every rmcp individual carries its class's required properties (translated from an
+# implied SHACL sh:minCount 1 per class; scoped to subjects in the rmcp# namespace because this
+# pack, unlike mcpp-pack, does not reuse a class IRI from another pack, but the same
+# defense-in-depth rationale applies to any future union graph). HandlerMethod requires
+# role/methodName/paramsType/returnType/defaultBehavior/sourceFile (6); Macro requires
+# macroName/macroKind/appliesTo/macroFields/sourceFile (5); Transport requires
+# transportName/transportRole/featureFlag/transportPurpose/sourceFile (5); Feature requires
+# featureName/featureDesc/featureDefault/sourceFile (4).
+PREFIX rmcp: <http://seanchatmangpt.github.io/packs/rmcp#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a rmcp:HandlerMethod .
+    VALUES ?missing { rmcp:role rmcp:methodName rmcp:paramsType rmcp:returnType rmcp:defaultBehavior rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Macro .
+    VALUES ?missing { rmcp:macroName rmcp:macroKind rmcp:appliesTo rmcp:macroFields rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Transport .
+    VALUES ?missing { rmcp:transportName rmcp:transportRole rmcp:featureFlag rmcp:transportPurpose rmcp:sourceFile }
+  } UNION {
+    ?s a rmcp:Feature .
+    VALUES ?missing { rmcp:featureName rmcp:featureDesc rmcp:featureDefault rmcp:sourceFile }
+  }
+  FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/rmcp#"))
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
