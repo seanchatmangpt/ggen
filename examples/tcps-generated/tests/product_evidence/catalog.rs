@@ -29,7 +29,7 @@ const CONTRACTS: &[TestContract] = &[
     TestContract::new(
         "tcps-evidence/ggen-lock",
         &["tcps.ggen-lock"],
-        &["complete-pack-set", "content-addressed"],
+        &["complete-pack-set", "blake3-identity-format"],
         ResourceEnvelope::new(u64::MAX, 8 * 1024 * 1024, false, true, false),
         &["real-filesystem"],
     ),
