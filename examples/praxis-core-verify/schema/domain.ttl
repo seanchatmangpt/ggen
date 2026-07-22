@@ -1,0 +1,13 @@
+# praxis-core-verify project ontology — deliberately empty of individuals.
+#
+# praxis-core-pack's own ontology.ttl (packs/praxis-core-pack/ontology.ttl)
+# is a complete, closed model of all 13 pxc:RefusalScenario individuals and
+# the 8-value pxc:RefusalCategory enumeration; this consumer adds no
+# project-specific facts on top of it (unlike receiptctl/schema/domain.ttl,
+# which unions in project-specific cnv:Command individuals for
+# clap-noun-verb-pack). This file exists only to satisfy `[ontology] source`
+# in ggen.toml — the real domain facts come entirely from the wired pack.
+
+@prefix pxc:  <http://seanchatmangpt.github.io/packs/praxis-core#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
