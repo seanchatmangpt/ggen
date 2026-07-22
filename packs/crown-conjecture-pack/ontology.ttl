@@ -1,0 +1,140 @@
+# crown-conjecture-pack ontology: the cc: vocabulary for a proof-obligation ledger,
+# generated against the REAL Lean source at ~/mfw/mfw-theory/MFW/{Kernel,Concurrency,
+# TransformBasic}.lean. Every cc:LeanDefinition individual's signature was transcribed
+# by directly reading the cited file:line -- not paraphrased, not assumed. Re-verify
+# against the live file before trusting a citation if the source may have moved since
+# this ontology was written (2026-07-22).
+#
+# This pack does NOT attempt the proof. It generates a Lean skeleton with named `sorry`
+# holes for each real structural component the proof needs, plus a blocking-finding
+# citation for a real, currently-vacuous dependency this proof cannot honestly be
+# attempted against yet. ggen's role here is exactly its stated one: code (a .lean file)
+# precipitates from RDF facts about a proof obligation. It never invents the mathematics.
+
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:   <http://seanchatmangpt.github.io/packs/crown-conjecture#> .
+
+# --- Vocabulary --------------------------------------------------------------
+
+cc:FormalStanding a rdfs:Class ;
+    rdfs:comment "Mirrors bcinr-mfw-ir::contracts.rs's real FormalStanding enum (Proven/Stated/Conjectural/Blocked) -- the citation-and-refusal pattern this session's own PC-POWL2 survey identified as the one genuinely reusable mechanism for exactly this class of claim. Individuals of this class are NOT re-derived here; this pack cites the real standing recorded in the Lean source's own doc comments, never asserts a stronger one." .
+
+cc:Proven a cc:FormalStanding .
+cc:Stated a cc:FormalStanding .
+cc:Conjectural a cc:FormalStanding .
+cc:Blocked a cc:FormalStanding .
+
+cc:LeanDefinition a rdfs:Class ;
+    rdfs:comment "One real Lean 4 declaration this proof obligation depends on. Properties: cc:sourceFile, cc:sourceLine (or cc:sourceLineRange), cc:leanSignature (the real, verbatim declaration as it appears in source), cc:standing." .
+
+cc:ProofObligation a rdfs:Class ;
+    rdfs:comment "One real, named, unproved Lean Prop this pack tracks. Properties: cc:obligationName, cc:leanStatement (verbatim), cc:standing, cc:sourceFile, cc:sourceLineRange, cc:dependsOnDefinition (0+ cc:LeanDefinition), cc:hasProofStep (the ordered structural decomposition), cc:blockedBy (0+ cc:BlockingFinding)." .
+
+cc:ProofStep a rdfs:Class ;
+    rdfs:comment "One structural component of a proof attempt, per the 4-part decomposition this pack was generated from: unpack real definitions, prove the base commutation lemma, lift by induction over the equivalence relation's real inductive structure, discharge real side conditions. Properties: cc:stepOrder, cc:stepName, cc:stepDescription, cc:sorryLabel (the Lean sorry-hole identifier the template emits), cc:leanTacticSketch (optional -- a real, load-bearing sketch of the Lean case split, only present where the real inductive structure makes one concrete, e.g. the induction step's real 4-constructor case split)." .
+
+cc:BlockingFinding a rdfs:Class ;
+    rdfs:comment "A real, cited defect or gap found by directly reading the source, that blocks a proof obligation from being meaningfully attempted -- not a hypothetical risk, a confirmed one. Properties: cc:findingDescription, cc:sourceFile, cc:sourceLineRange, cc:severity." .
+
+cc:obligationName a rdf:Property .
+cc:leanStatement a rdf:Property .
+cc:sourceFile a rdf:Property .
+cc:sourceLine a rdf:Property .
+cc:sourceLineRange a rdf:Property .
+cc:leanSignature a rdf:Property .
+cc:dependsOnDefinition a rdf:Property .
+cc:hasProofStep a rdf:Property .
+cc:blockedBy a rdf:Property .
+cc:stepOrder a rdf:Property .
+cc:stepName a rdf:Property .
+cc:stepDescription a rdf:Property .
+cc:sorryLabel a rdf:Property .
+cc:leanTacticSketch a rdf:Property .
+cc:findingDescription a rdf:Property .
+cc:severity a rdf:Property .
+cc:standing a rdf:Property .
+
+# --- Real Lean definitions (transcribed directly from source, 2026-07-22) ---------
+
+cc:def_IndependenceRelation a cc:LeanDefinition ;
+    cc:sourceFile "mfw-theory/MFW/Concurrency.lean" ;
+    cc:sourceLineRange "17-21" ;
+    cc:leanSignature "structure IndependenceRelation (Action : Type) where\n  independent : Action -> Action -> Prop\n  symm : forall a b, independent a b -> independent b a" ;
+    cc:standing cc:Proven ;
+    rdfs:comment "The abstract independence relation the whole conjecture is stated over. Real, present, minimal (predicate + symmetry only) -- carries no connection to PDDL semantics by itself; that connection is TemporalIndependenceWitness, see the blocking finding below." .
+
+cc:def_TemporalIndependenceWitness a cc:LeanDefinition ;
+    cc:sourceFile "mfw-theory/MFW/Concurrency.lean" ;
+    cc:sourceLineRange "24-34" ;
+    cc:leanSignature "structure TemporalIndependenceWitness (Action State : Type) where\n  effectsCommute : Action -> Action -> State -> Prop\n  preconditionStable : Action -> Action -> State -> Prop\n  invariantStable : Action -> Action -> Prop\n  numericFlowCompatible : Action -> Action -> Prop\n  trajectoryPreserved : Action -> Action -> Prop" ;
+    cc:standing cc:Stated ;
+    rdfs:comment "The five real components a PDDL-3.1-faithful independence witness needs -- exactly the shape this proof's side-condition-discharge step must fill in. Stated (the type exists), not Proven (no real, non-trivial instance has ever been constructed -- see cc:finding_vacuous_witness)." .
+
+cc:def_IsLawful a cc:LeanDefinition ;
+    cc:sourceFile "mfw-theory/MFW/TransformBasic.lean" ;
+    cc:sourceLineRange "106-112" ;
+    cc:leanSignature "def IsLawful (Th : PlanningTheory) (b : BehaviorTrace Th) : Prop :=\n  exists (trace : List Th.State), b.stateTrace = some trace and trace.length = b.events.length + 1 and\n    (exists final in trace.getLast?, Th.isGoal final) and\n    (forall tc in Th.temporalConstraints, Th.temporalSatisfied tc b.timestamps) and\n    (forall trc in Th.trajectoryConstraints, Th.trajectorySatisfied trc trace)" ;
+    cc:standing cc:Proven ;
+    rdfs:comment "Real 5-conjunct lawfulness predicate: defined state trace, correct length, goal satisfied, temporal constraints satisfied, trajectory constraints satisfied. The commutation lemma (proof step 2) must show all five conjuncts survive an adjacent swap." .
+
+cc:def_TraceEquiv a cc:LeanDefinition ;
+    cc:sourceFile "mfw-theory/MFW/Concurrency.lean" ;
+    cc:sourceLineRange "64-73" ;
+    cc:leanSignature "inductive TraceEquiv {Action : Type} (I : IndependenceRelation Action) : List Action -> List Action -> Prop\n  | refl (s : List Action) : TraceEquiv I s s\n  | swap (pre : List Action) (a b : Action) (suf : List Action) (h : I.independent a b) :\n      TraceEquiv I (pre ++ [a, b] ++ suf) (pre ++ [b, a] ++ suf)\n  | trans (s1 s2 s3 : List Action) : TraceEquiv I s1 s2 -> TraceEquiv I s2 s3 -> TraceEquiv I s1 s3\n  | symm (s1 s2 : List Action) : TraceEquiv I s1 s2 -> TraceEquiv I s2 s1" ;
+    cc:standing cc:Proven ;
+    rdfs:comment "The REAL inductive definition, confirmed by direct read -- 4 constructors: refl, swap (the single-adjacent-pair primitive requiring I.independent a b), trans, symm. This confirms the proof's real strategy is induction on THIS derivation, not a bespoke induction over trace length or swap position as a first guess might assume -- refl is trivial, swap is exactly the commutation lemma (step 2), trans chains two induction hypotheses, symm needs IsLawful preserved bidirectionally." .
+
+cc:def_BehaviorTrace a cc:LeanDefinition ;
+    cc:sourceFile "mfw-theory/MFW/TransformBasic.lean" ;
+    cc:sourceLineRange "82-88" ;
+    cc:leanSignature "structure BehaviorTrace (Th : PlanningTheory) where\n  events : List Th.Action\n  timestamps : List Real\n  length_match : events.length = timestamps.length" ;
+    cc:standing cc:Proven .
+
+# --- The real blocking finding (found by direct read, not hypothesized) ------------
+
+cc:finding_vacuous_witness a cc:BlockingFinding ;
+    cc:sourceFile "mfw-theory/MFW/Concurrency.lean" ;
+    cc:sourceLineRange "36-44" ;
+    cc:severity "Load-bearing -- blocks any real (non-vacuous) attempt at proof step 4" ;
+    cc:findingDescription "The only TemporalIndependenceWitness instance ever constructed anywhere in this codebase, trivialTemporalIndependenceWitness, sets ALL FIVE real components (effectsCommute, preconditionStable, invariantStable, numericFlowCompatible, trajectoryPreserved) to `fun _ _ _ => True` -- vacuously true. The source's own comment states this outright: 'carries no proof obligations between its fields, so any concrete assignment instantiates it. mfact never constructed one.' A proof of TraceSwapPreservesLawful attempted against this witness would prove something about a vacuous independence notion, not real PDDL 3.1 semantics -- the swap constructor's hypothesis I.independent a b would carry no real content connecting it to what the two actions actually do. This is a real, present gap, not a hypothetical caution: constructing a genuinely non-trivial TemporalIndependenceWitness (with the 5 components' real proof obligations to Th.transition/Th.State properly threaded through) is a real PRIOR obligation the Crown Conjecture proof depends on, not optional polish." .
+
+# --- The proof obligation itself ----------------------------------------------------
+
+cc:obligation_TraceSwapPreservesLawful a cc:ProofObligation ;
+    cc:obligationName "TraceSwapPreservesLawful" ;
+    cc:sourceFile "mfw-theory/MFW/Kernel.lean" ;
+    cc:sourceLineRange "287-290" ;
+    cc:leanStatement "def TraceSwapPreservesLawful {Th : PlanningTheory} (I : IndependenceRelation Th.Action) (b1 b2 : BehaviorTrace Th) : Prop :=\n  TraceEquiv I b1.events b2.events -> IsLawful Th b1 -> IsLawful Th b2" ;
+    cc:standing cc:Conjectural ;
+    cc:dependsOnDefinition cc:def_IndependenceRelation, cc:def_TemporalIndependenceWitness, cc:def_IsLawful, cc:def_TraceEquiv, cc:def_BehaviorTrace ;
+    cc:blockedBy cc:finding_vacuous_witness ;
+    cc:hasProofStep cc:step1_unpack_definitions, cc:step2_commutation_lemma, cc:step3_induction_lift, cc:step4_side_conditions ;
+    rdfs:comment "Referred to as 'Crown Conjecture (1/7 -- Load-bearing)' in Kernel.lean's own doc comment (line 273), named CONJECTURAL there in exactly those words: 'stated as a def : Prop, not proved'. This pack tracks it structurally; it does not resolve it." .
+
+cc:step1_unpack_definitions a cc:ProofStep ;
+    cc:stepOrder "1"^^xsd:integer ;
+    cc:stepName "Unpack real definitions" ;
+    cc:stepDescription "Ground 'lawful' as IsLawful's real 5-conjunct existential (defined state trace, correct length, goal satisfied, temporal constraints, trajectory constraints) and 'independent' as IndependenceRelation.independent, grounded via a real (non-trivial) TemporalIndependenceWitness's 5 components -- not the symbolic gloss, the real Lean terms." ;
+    cc:sorryLabel "step1_definitions_unpacked" .
+
+cc:step2_commutation_lemma a cc:ProofStep ;
+    cc:stepOrder "2"^^xsd:integer ;
+    cc:stepName "Single-swap commutation lemma" ;
+    cc:stepDescription "The real mathematical core: for adjacent independent a, b with I.independent a b, show that if pre ++ [a,b] ++ suf is lawful then pre ++ [b,a] ++ suf is lawful, by case analysis over IsLawful's 5 conjuncts, using the witness's 5 components to show neither action's effect/precondition/invariant/numeric-flow/trajectory-constraint is disturbed by the other." ;
+    cc:sorryLabel "step2_commutation_lemma" ;
+    cc:leanTacticSketch "Corresponds exactly to the TraceEquiv.swap constructor case (Concurrency.lean:67-69): pre ++ [a,b] ++ suf -> pre ++ [b,a] ++ suf under h : I.independent a b." .
+
+cc:step3_induction_lift a cc:ProofStep ;
+    cc:stepOrder "3"^^xsd:integer ;
+    cc:stepName "Lift by induction over TraceEquiv's real inductive structure" ;
+    cc:stepDescription "TraceEquiv is confirmed inductive with 4 constructors (refl/swap/trans/symm), not an abstract closure -- so `induction h` on the real TraceEquiv derivation h : TraceEquiv I b1.events b2.events is the real proof strategy, not a bespoke length/position induction. refl: trivial (b1 = b2). swap: exactly proof step 2. trans: chain two induction hypotheses through the intermediate trace's lawfulness. symm: requires IsLawful to transfer backward too -- worth flagging explicitly since the conjecture's own statement (TraceEquiv -> IsLawful b1 -> IsLawful b2) is directional, so the symm case needs either a separately-proved backward direction or a demonstration that TraceEquiv's symm constructor doesn't actually need a fresh case (since TraceEquiv I s t already implies TraceEquiv I t s by symm, the forward statement instantiated at the swapped pair may suffice -- this needs to be checked against the real term, not assumed)." ;
+    cc:sorryLabel "step3_induction_lift" .
+
+cc:step4_side_conditions a cc:ProofStep ;
+    cc:stepOrder "4"^^xsd:integer ;
+    cc:stepName "Discharge side conditions on the independence witness" ;
+    cc:stepDescription "Requires a real, non-trivial TemporalIndependenceWitness with the 5 components' real proof obligations correctly connected to Th.transition/Th.State -- currently blocked, see cc:finding_vacuous_witness. Attempting steps 1-3 against trivialTemporalIndependenceWitness would technically type-check but prove nothing about real PDDL 3.1 semantics, since I.independent a b would carry no real content under that instantiation." ;
+    cc:sorryLabel "step4_side_conditions" ;
+    cc:leanTacticSketch "Not attemptable as a tactic sketch until a real witness exists -- this step's real content is constructing that witness, not proving a lemma about it." .
