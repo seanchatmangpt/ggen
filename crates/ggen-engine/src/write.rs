@@ -103,9 +103,13 @@ pub fn plan_write(
         }
     }
 
-    if let Some(skip_reason) =
-        check_freeze(root, rel_to, existing.as_deref(), rendered_body, frontmatter)?
-    {
+    if let Some(skip_reason) = check_freeze(
+        root,
+        rel_to,
+        existing.as_deref(),
+        rendered_body,
+        frontmatter,
+    )? {
         return Ok(WriteOutcome::Skipped(skip_reason));
     }
 

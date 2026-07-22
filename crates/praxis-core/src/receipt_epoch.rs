@@ -910,8 +910,7 @@ mod tests {
             evidence_receipts: vec!["chain_hash:abc123".to_string()],
             closed_obligations: vec!["O-99".to_string()],
             verifier_identity: "independent-verifier".to_string(),
-            authorization_basis: "generation N reconciliation, all obligations closed"
-                .to_string(),
+            authorization_basis: "generation N reconciliation, all obligations closed".to_string(),
         }
     }
 
@@ -992,7 +991,11 @@ mod tests {
         let mut no_obligations = base.clone();
         no_obligations.closed_obligations.clear();
         assert!(matches!(
-            validate_promotion(CeilingLevel::LegacyObserved, "someone-else", &no_obligations),
+            validate_promotion(
+                CeilingLevel::LegacyObserved,
+                "someone-else",
+                &no_obligations
+            ),
             Err(CoreError::PromotionRefused { .. })
         ));
 
