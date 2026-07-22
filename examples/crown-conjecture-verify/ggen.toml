@@ -1,0 +1,16 @@
+[project]
+name = "crown-conjecture-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+cc = "http://seanchatmangpt.github.io/packs/crown-conjecture#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+crown-conjecture-pack = { path = "../../packs/crown-conjecture-pack" }
+
+[templates]
+dir = "templates"
