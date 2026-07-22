@@ -223,6 +223,33 @@ jobs:
           cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
           echo "✅ Phase 2 test suite complete"
 
+  # ADVISORY, NON-BLOCKING. The `test` job above runs `--lib` only, so every
+  # crate's `tests/` integration suite has never executed in CI (retrofit
+  # ledger: retrofit:CiIntegrationTestsNeverRun, .tcps/retrofit/ggen/load-path.ttl
+  # -- discovered via two independent manifestations, including 2 tests that
+  # referenced a file deleted 60+ merged PRs earlier and never once failed CI).
+  # This job surfaces the TRUE current status WITHOUT continue-on-error
+  # masking, and is deliberately ABSENT from `ci-status.needs`, so its
+  # failure cannot block a PR or the merge queue -- there is a real, known,
+  # non-empty set of pre-existing integration-test failures (see the ledger
+  # entry for the inventory as of its last count) that must be fixed or
+  # explicitly quarantined before this can be promoted to required; flipping
+  # it straight to required would redden every PR immediately. Promote it to
+  # a required `needs:` of `ci-status` once that inventory is empty or every
+  # remaining red test has an explicit, disclosed quarantine.
+  integration-tests:
+    name: integration tests (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: integration
+      - name: cargo test (full workspace, including tests/)
+        run: cargo test --workspace --exclude ggen-lsp
+
   # ADVISORY, NON-BLOCKING. ggen-lsp (which since the 2026-07 consolidation pass
   # also carries the absorbed mcp/a2a modules behind features — see
   # CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md) is a LEAF crate that nothing
