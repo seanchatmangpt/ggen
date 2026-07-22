@@ -147,7 +147,7 @@ chicago_tdd_tools::test!(missing_capability_is_a_loud_refusal, {
     let empty = tempfile::TempDir::new().expect("tempdir");
     assert!(matches!(
         validate_capability(empty.path(), &manifest, &capability),
-        Err(EvidenceError::Missing { .. })
+        Err(EvidenceError::InvalidData { message, .. }) if message.starts_with("MISSING_ARTIFACT:")
     ));
 });
 
