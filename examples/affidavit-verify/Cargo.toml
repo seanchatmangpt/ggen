@@ -1,0 +1,21 @@
+[workspace]
+
+[package]
+name = "affidavit-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of affidavit-pack: wires the generated receipt data model + certify-pipeline logic + reference doc against real crates.io dependencies (blake3, serde, serde_json, thiserror). Exercises round 5's SPARQL-derived affidavit_types.rs (ObjectRef/OperationEvent/CheckOutcome/Verdict/ProfileId) alongside the still hand-written affidavit_chain.rs/affidavit_verifier.rs, proving the mixed-provenance module still compiles and all reference tests still pass. Mirrors examples/praxis-core-verify's / examples/star-toml-verify's posture: standalone workspace, minimal hand-written src/lib.rs (one include! line), no other hand-written production files."
+
+[lib]
+name = "affidavit_verify"
+path = "src/lib.rs"
+
+[dependencies]
+# Real crates.io dependencies named by pack.toml's round-4/round-5
+# disclosure ("ggen.toml wiring this pack + blake3/serde/serde_json/thiserror
+# deps").
+blake3 = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"

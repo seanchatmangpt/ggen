@@ -1,28 +1,3 @@
----
-to: src/affidavit_types.rs
-freeze_policy: checksum
-freeze_slots_dir: .ggen/freeze/affidavit-pack
-sparql:
-  structs: >
-    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
-    SELECT ?structName ?structDoc ?structOrder WHERE {
-      ?s a afd:DataStruct ; afd:structName ?structName ; afd:structDoc ?structDoc ;
-         afd:structOrder ?structOrder .
-    } ORDER BY ?structOrder
-  fields: >
-    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
-    SELECT ?structName ?fieldName ?fieldType ?fieldOrder WHERE {
-      ?f a afd:DataField ; afd:inStruct ?s ; afd:fieldName ?fieldName ;
-         afd:fieldType ?fieldType ; afd:fieldOrder ?fieldOrder .
-      ?s afd:structName ?structName .
-    } ORDER BY ?structName ?fieldOrder
-  profile_variants: >
-    PREFIX afd: <http://seanchatmangpt.github.io/packs/affidavit#>
-    SELECT ?variantName ?variantStr ?variantOrder WHERE {
-      ?v a afd:ProfileIdVariant ; afd:variantName ?variantName ; afd:variantStr ?variantStr ;
-         afd:variantOrder ?variantOrder .
-    } ORDER BY ?variantOrder
----
 //! Real receipt data model transcribed from `~/affidavit`'s
 //! `src/types.rs` (crates.io `affidavit` v26.6.22) -- `Blake3Hash`,
 //! `ObjectRef`, `OperationEvent`, `Receipt`, `ProfileId`, `CheckOutcome`,
@@ -162,23 +137,52 @@ pub struct Receipt {
 // struct rather than added as a fifth ontology fact per struct -- a Rust
 // derive-attribute choice, not domain data (same treatment star-toml-pack's
 // template gives its own constant derive list).
-{% for s in structs %}/// {{ s.structDoc }}
+/// A qualified reference from an operation-event to an OCEL object.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct {{ s.structName }} {
-{% for f in fields %}{% if f.structName == s.structName %}    pub {{ f.fieldName }}: {{ f.fieldType }},
-{% endif %}{% endfor %}}
+pub struct ObjectRef {
+    pub id: String,
+    pub obj_type: String,
+    pub qualifier: Option<String>,
+}
 
-{% endfor %}/// The conformance profile a verdict was evaluated under.
+/// A single append-only operation-event in a receipt chain.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OperationEvent {
+    pub id: String,
+    pub seq: u64,
+    pub event_type: String,
+    pub objects: Vec<ObjectRef>,
+    pub payload_commitment: Blake3Hash,
+}
+
+/// The result of a single decidable pipeline stage.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CheckOutcome {
+    pub stage: String,
+    pub passed: bool,
+    pub detail: String,
+}
+
+/// The final verdict of the certify pipeline over a receipt.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Verdict {
+    pub accepted: bool,
+    pub profile: ProfileId,
+    pub outcomes: Vec<CheckOutcome>,
+    pub reason: String,
+}
+
+/// The conformance profile a verdict was evaluated under.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProfileId {
-{% for v in profile_variants %}    {{ v.variantName }},
-{% endfor %}}
+    CoreV1,
+}
 
 impl ProfileId {
     pub fn as_str(&self) -> &'static str {
         match self {
-{% for v in profile_variants %}            ProfileId::{{ v.variantName }} => "{{ v.variantStr }}",
-{% endfor %}        }
+            ProfileId::CoreV1 => "core/v1",
+        }
     }
 }
 
