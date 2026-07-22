@@ -334,20 +334,30 @@ jobs:
       # guarantee on every later run, so the composite action isn't reused
       # wholesale here. Instead: the same sibling-provisioning recipe and the
       # same sccache install action, inlined, with no caching step at all.
+      # NOTE (2026-07-22, run 29915682895): the first real post-fix release.yml
+      # run confirmed this same script (and setup-ggen-build's identical copy)
+      # fails on every macOS-hosted job -- `declare -A` (associative arrays)
+      # doesn't exist in macOS's /bin/bash 3.2.57 (Apple ships no newer GPLv2
+      # bash); under `set -u` it misparses `[lsp-max]=...` as an arithmetic
+      # subtraction of two unset variables, failing "lsp: unbound variable"
+      # before any real work happens. Fixed here and in setup-ggen-build the
+      # same way: parallel indexed arrays instead of an associative one,
+      # confirmed correct on real bash 3.2.57 (local reproduction, this repo's
+      # own dev machine is macOS) and on modern bash.
       - name: Provision sibling dependency repos
         shell: bash
         run: |
           set -euo pipefail
           org="https://github.com/seanchatmangpt"
           parent="$GITHUB_WORKSPACE/.."
-          declare -A shas=(
-            [lsp-max]=7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59
-            [lsp-types-max]=6773e6017ca83c565785d0ec39d75304f62c3237
-            [wasm4pm]=0bb134b29245517ac4969a9f1916f5432931c5d0
-            [wasm4pm-compat]=e46155e209a750fda0218532d96ae17a9e10903e
-          )
-          for repo in lsp-max lsp-types-max wasm4pm wasm4pm-compat; do
-            dest="$parent/$repo"; sha="${shas[$repo]}"
+          # Parallel arrays, index-aligned -- keep repos[i]/shas[i] in lockstep.
+          repos=(lsp-max lsp-types-max wasm4pm wasm4pm-compat)
+          shas=(7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59 6773e6017ca83c565785d0ec39d75304f62c3237 0bb134b29245517ac4969a9f1916f5432931c5d0 e46155e209a750fda0218532d96ae17a9e10903e)
+          i=0
+          for repo in "${repos[@]}"; do
+            sha="${shas[$i]}"
+            i=$((i+1))
+            dest="$parent/$repo"
             if [ -d "$dest/.git" ]; then
               echo "sibling already present: $repo"
             else
