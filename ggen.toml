@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.7.33"
+version = "26.7.34"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
