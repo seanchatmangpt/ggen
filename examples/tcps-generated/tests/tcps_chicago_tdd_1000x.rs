@@ -17,6 +17,7 @@ mod support;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::OnceLock;
 
 use chicago_tdd_tools::core::contract::{
     ResourceEnvelope, TestContract, TestContractRegistry,
