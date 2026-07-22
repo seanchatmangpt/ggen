@@ -53,14 +53,13 @@ fn test_parse_literal_terms() {
     assert_eq!(2, result.len());
 
     // { ?s :hasValue 42 } => { ?s :status "active" } -- the head object is a
-    // plain xsd:string literal.
+    // plain (simple) literal, no explicit datatype in the source, so it
+    // decodes without a `^^` suffix -- matching every other literal-producing
+    // path in this engine (see `parser/n3_terms.rs::parse_literal_pair`).
     let r0 = &result[0];
     assert!(r0.head.o.is_term());
     let decoded0 = praxis_graphlaw::encoding::Encoder::decode(&r0.head.o.to_encoded()).unwrap();
-    assert_eq!(
-        decoded0,
-        "\"active\"^^<http://www.w3.org/2001/XMLSchema#string>"
-    );
+    assert_eq!(decoded0, "\"active\"");
     // And the body's numeric literal decodes as a proper xsd:integer, not an
     // opaque "<42>"-style IRI-shaped token.
     let body_obj = &r0.body[0].pattern.o;

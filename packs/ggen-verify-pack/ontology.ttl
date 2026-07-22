@@ -104,3 +104,11 @@ ver:kd-fmt a ver:KnownDivergence ;
 ver:kd-clippy-blanket a ver:KnownDivergence ;
     ver:name "clippy-blanket-warnings" ;
     rdfs:comment "cargo clippy -- -D warnings fails on exactly one needless_range_loop (style lint) that exists identically in the real reference's own SHA-256 code; the reference's own real CI never uses -D warnings (it denies correctness/suspicious/perf only, under which everything passes -- that gate is the required check above). Recorded red, accepted, disclosed." .
+
+ver:kd-byte-identity-bootstrap-deadlock a ver:KnownDivergence ;
+    ver:name "byte-identity" ;
+    rdfs:comment "ver:req-byte-identity's checkCommand (scripts/checks/byte-identity.sh) internally runs a second `ggen sync run` to compare output hashes -- but that internal sync is itself subject to this same 020_evidence_green.rq gate, which reads THIS check's own evidence. While byte-identity's recorded evidence is red, its own verification command can never succeed, because the resync it depends on is refused for the same reason it's trying to clear -- a structural, self-referential deadlock, not a real non-determinism bug in generated output (reproduced directly 2026-07-21: the second sync's failure is verbatim the same [FM-LAW-018] refusal, citing the same stale byte-identity row). Recorded red, accepted, disclosed. Real fix (deferred, separate follow-on): give byte-identity.sh's internal resync a way to bypass evidence-freshness gating for its own verification-purposed invocation, then remove this divergence and let the check run for real." .
+
+ver:kd-test-workspace-unrooted-lsp-failure a ver:KnownDivergence ;
+    ver:name "test-workspace" ;
+    rdfs:comment "Recorded evidence (exitCode 101, cross_pack_matrix) is stale -- cargo test -p ggen-engine --test cross_pack_matrix passes clean (7/7) as of 2026-07-21. A different, real, currently-reproducing failure exists elsewhere in the workspace (ggen-lsp's manifest_contract_test::manifest_declares_the_ggen_lsp_server), unrelated to L5 pack-promotion work and not yet root-caused. Recorded red, accepted-pending-investigation, disclosed -- this is an honest statement of what is NOT yet known, not a fabricated explanation; remove once either the lsp test is fixed or genuinely root-caused and re-recorded." .

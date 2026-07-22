@@ -1,0 +1,7 @@
+{
+  "case": "Accept_WitnessObservesOnly",
+  "kind": "acceptance",
+  "seed": 4419907732581063510,
+  "expected_behavior": "witness_observation_recorded",
+  "input": {"agent_id": "agent-witness", "operator_id": "operator-1", "witness_presented_as_authority": false}
+}

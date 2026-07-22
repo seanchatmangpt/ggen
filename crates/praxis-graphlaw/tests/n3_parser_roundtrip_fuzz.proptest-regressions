@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc aad56b4028e656366d361e4a2e8e3154bcb26e2ba5c887369eddeef8310d7c8f # shrinks to triples = [(0, 0, 0)], int_vals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], str_vals = ["a", "a", "a", "A", "a", "A", "a", "a", "A", "A", "a", "A"]
+cc 808f81e8da7f08ec0099f1276a67f3027c3fad6c6063b784bf31457dde0bb5c5 # shrinks to triples = [(0, 0, 1)], int_vals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], str_vals = ["A", "A", "a", "a", "A", "A", "a", "a", "a", "A", "a", "a"]

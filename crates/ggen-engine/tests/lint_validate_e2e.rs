@@ -245,9 +245,22 @@ fn graph_validate_empty_files_is_project_mode() {
 // direct handler calls
 // ---------------------------------------------------------------------
 // These exercise `handle_graph_validate(files, shapes)` against the real
-// `packs/dogfood-lifecycle-pack/shapes.ttl` SHACL shapes and its
-// `fixtures/session-good.ttl` conforming sample, plus a hand-built
-// violating fixture (a `dfl:ToolEvent` missing the required `dfl:outcome`).
+// `fixtures/session-good.ttl` conforming sample plus a hand-built violating
+// fixture (a `dfl:ToolEvent` missing the required `dfl:outcome`).
+//
+// SHAPES SOURCE (changed after these tests rotted silently): the pack's
+// `shapes.ttl` was deliberately DELETED in the SHACL->SPARQL-gates migration
+// (commit ad9106702 — its maxCount/minCount law now lives in
+// `gates/020_single_valued.rq` etc., covered by
+// `crates/praxis-graphlaw/tests/dogfood_lifecycle_hook_actuation.rs`), which
+// broke both tests below unnoticed because CI's Test job runs
+// `cargo test --lib` only — integration tests never run in CI. What these two
+// tests actually prove is the ENGINE's SHACL `--shapes` path (conform +
+// named-focus-node refusal), which is still a real, live engine surface
+// ([law].shapes / FM-LAW-013) — so they now carry their own minimal
+// self-contained shapes fixture, written to a TempDir, mirroring the
+// dfl:ToolEventShape they originally validated against, instead of depending
+// on a pack file whose law has migrated to a different mechanism.
 
 /// Repository `packs/` directory (relative to this crate's manifest;
 /// mirrors `cross_pack_matrix.rs`/`framework_packs_e2e.rs`).
@@ -255,13 +268,39 @@ fn packs_dir() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-/// A well-formed session log conforming to `dogfood-lifecycle-pack/shapes.ttl`
-/// validates with `--shapes`: exit is `Ok`, the file is reported with a
-/// positive quad count, a 64-hex hash, and `shapes_conform: true`.
+/// Minimal self-contained SHACL shapes doc mirroring the deleted pack
+/// `dfl:ToolEventShape`'s exactly-one-`dfl:outcome` constraint. Written to
+/// `dir` and returned as a Utf8 path for `handle_graph_validate`.
+fn write_toolevent_shapes(dir: &Path) -> Utf8PathBuf {
+    let path = dir.join("toolevent-shapes.ttl");
+    std::fs::write(
+        &path,
+        r#"
+        @prefix sh:  <http://www.w3.org/ns/shacl#> .
+        @prefix dfl: <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+
+        dfl:ToolEventShape
+            a sh:NodeShape ;
+            sh:targetClass dfl:ToolEvent ;
+            sh:property [
+                sh:path dfl:outcome ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:message "every dfl:ToolEvent carries exactly one dfl:outcome" ;
+            ] .
+        "#,
+    )
+    .expect("write shapes fixture");
+    Utf8PathBuf::from_path_buf(path).expect("utf8 path")
+}
+
+/// A well-formed session log conforming to the ToolEvent shape validates with
+/// `--shapes`: exit is `Ok`, the file is reported with a positive quad count,
+/// a 64-hex hash, and `shapes_conform: true`.
 #[test]
 fn graph_validate_files_with_shapes_conforms() {
-    let shapes = Utf8PathBuf::from_path_buf(packs_dir().join("dogfood-lifecycle-pack/shapes.ttl"))
-        .expect("utf8 path");
+    let dir = TempDir::new().expect("tempdir");
+    let shapes = write_toolevent_shapes(dir.path());
     let good = Utf8PathBuf::from_path_buf(
         packs_dir().join("dogfood-lifecycle-pack/fixtures/session-good.ttl"),
     )
@@ -320,8 +359,7 @@ fn graph_validate_files_with_shapes_violation_fails_named() {
     )
     .expect("write missing-outcome.ttl");
     let fb = Utf8PathBuf::from_path_buf(bad).expect("utf8 path");
-    let shapes = Utf8PathBuf::from_path_buf(packs_dir().join("dogfood-lifecycle-pack/shapes.ttl"))
-        .expect("utf8 path");
+    let shapes = write_toolevent_shapes(dir.path());
 
     let err =
         handle_graph_validate(vec![fb], vec![shapes]).expect_err("missing dfl:outcome must fail");
@@ -349,5 +387,32 @@ fn graph_validate_files_with_shapes_violation_fails_named() {
     assert!(
         msg.contains("outcome"),
         "names the offending property via the shape's sh:message: {msg}"
+    );
+}
+
+/// The pack's own adversarial IRI-collision fixture (two events merged onto
+/// one `<#event-1>` IRI, yielding double `skos:notation`/`dfl:outcome`) must
+/// also be refused via the SHACL cardinality path — same maxCount-1 law the
+/// pack now enforces via `gates/020_single_valued.rq` (that gate-level
+/// coverage lives in
+/// `crates/praxis-graphlaw/tests/dogfood_lifecycle_hook_actuation.rs`; this
+/// test proves the equivalent engine-level `--shapes` refusal names the
+/// colliding node).
+#[test]
+fn graph_validate_refuses_the_iri_collision_fixture_via_max_count() {
+    let dir = TempDir::new().expect("tempdir");
+    let shapes = write_toolevent_shapes(dir.path());
+    let colliding = Utf8PathBuf::from_path_buf(
+        packs_dir().join("dogfood-lifecycle-pack/fixtures/session-iri-collision.ttl"),
+    )
+    .expect("utf8 path");
+
+    let err = handle_graph_validate(vec![colliding], vec![shapes])
+        .expect_err("the merged double-outcome node must fail SHACL maxCount 1");
+    let msg = err.to_string();
+    assert!(msg.contains("SHACL"), "names SHACL: {msg}");
+    assert!(
+        msg.contains("event-1"),
+        "names the colliding focus node: {msg}"
     );
 }

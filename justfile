@@ -344,8 +344,9 @@ pre-commit: fmt-check check lint test-lib coherence-check guard-process-intellig
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
 
-# Pack-proof gate: re-sync the committed multi-pack consumer
-# (examples/receiptctl), verify regeneration is idempotent, and run its full
+# Pack-proof gate: re-sync each committed pack consumer (examples/receiptctl,
+# the multi-pack consumer; examples/praxis-core-verify, the praxis-core-pack
+# consumer), verify each regeneration is idempotent, and run each one's full
 # test suite (the generated proofs plus its own). Makes "the generated proof
 # suites pass" a checkable fact from repo state — see
 # scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.

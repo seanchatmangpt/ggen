@@ -1,0 +1,16 @@
+[project]
+name = "praxis-core-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+pxc = "http://seanchatmangpt.github.io/packs/praxis-core#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+praxis-core-pack = { path = "../../packs/praxis-core-pack" }
+
+[templates]
+dir = "templates"

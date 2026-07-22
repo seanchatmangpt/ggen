@@ -73,7 +73,7 @@ run_check '{{ row.name }}' '{{ row.command }}'
   done
 } > evidence/ontology.ttl
 
-echo "verify-evidence.sh: recorded ${#CHECK_NAMES[@]} checks -> evidence/ontology.ttl (graph hash binding: $GRAPH_HASH)"
+echo "verify-evidence.sh: recorded {{ '${#CHECK_NAMES[@]}' }} checks -> evidence/ontology.ttl (graph hash binding: $GRAPH_HASH)"
 for i in "${!CHECK_NAMES[@]}"; do
   echo "  ${CHECK_NAMES[$i]}: exit ${CHECK_CODES[$i]}"
 done

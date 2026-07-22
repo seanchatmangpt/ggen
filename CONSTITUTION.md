@@ -132,7 +132,7 @@ Verification results are admitted graph facts enforced by refusal gates, not att
 
 - **Mechanized:** true
 - **Enforced by:** packs/ggen-verify-pack/gates/010_evidence_present.rq, 020_evidence_green.rq, 030_evidence_fresh.rq, 040_latest_andon_green.rq, 050_output_count_regression.rq (all real SPARQL ASK/SELECT gate files, each carrying a # MESSAGE: header)
-- **Note:** Opt-in: these gates only fire when a consumer sets [law] reflexive = true. Also flagging a divergence: the constitution's own prose (line 252 of .specify/memory/constitution.md) cites a test named `reasoner_independence_e2e` as proving engine-independence (praxis-graphlaw vs Oxigraph agreement) for these gates -- grep across the whole workspace 2026-07-19 found zero matches for that function name. That specific sub-claim is unverified as written; the gates themselves are real.
+- **Note:** Opt-in: these gates only fire when a consumer sets [law] reflexive = true. RESOLVED 2026-07-21 (self-retrofit Generation 4): the constitution's engine-independence citation was corrected, not fabricated -- crates/ggen-engine/tests/reasoner_independence_e2e.rs is a real file proving exactly this property (both_engines_sync_a_gated_pack_to_identical_outputs and violating_fixture_is_refused_under_both_engines, both passing 2026-07-21), the prior 'zero matches' finding was searching for a literal function name matching the file name rather than the file/module itself. constitution.md's citation now names the real file and its two functions precisely.
 
 
 ### XIII. Canonical Vocabulary (原語保持)

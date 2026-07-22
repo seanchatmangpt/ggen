@@ -818,11 +818,6 @@ impl Reasoner {
                                             triple_index,
                                         ) {
                                             for t in adds {
-                                                println!(
-                                                    "HOOK ADDING TRIPLE: {:?} (o_encoded={})",
-                                                    t,
-                                                    t.o.to_encoded()
-                                                );
                                                 if Self::apply_new_triple(
                                                     t.clone(),
                                                     triple_index,

@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.7.25"
+version = "26.7.28"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -13,6 +13,7 @@ imports = [
   ".specify/cli-proof-tests.ttl",
   ".specify/repo-facts.ttl",
   ".specify/maturity.ttl",
+  ".specify/pack-l5-promotion.ttl",
   ".specify/ggen-product.ttl",
   ".specify/generations.ttl",
   "packs/ggen-constitution-pack/ontology.ttl",
@@ -94,6 +95,17 @@ SELECT ?t WHERE { ?x a mat:DocSection ; mat:sid "intro" ; mat:text ?t . } ORDER 
 """ }
 template    = { file = ".specify/templates/docs/pack_maturity_model.md.tera" }
 output_file = "docs/packs/PACK_MATURITY_MODEL.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "docs-l5-promotion-program"
+query       = { inline = """
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT ?t WHERE { ?x a l5p:DocSection ; l5p:sid "intro" ; l5p:text ?t . } ORDER BY ?t
+""" }
+template    = { file = ".specify/templates/docs/l5_promotion_program.md.tera" }
+output_file = "docs/l5-promotion/L5_PROMOTION_PROGRAM.md"
 skip_empty  = false
 mode        = "Overwrite"
 

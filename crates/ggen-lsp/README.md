@@ -166,11 +166,11 @@ Chicago TDD style (no mocks):
 - Real LSP protocol messages
 - 80%+ code coverage target
 
-See [LSP-ARD-PRD.md](../../LSP-ARD-PRD.md) for test strategy.
+See [LSP-ARD-PRD.md](../../docs/architecture/LSP-ARD-PRD.md) for test strategy.
 
 ## References
 
-- **Architecture**: [LSP-ARD-PRD.md](../../LSP-ARD-PRD.md) — full spec
+- **Architecture**: [LSP-ARD-PRD.md](../../docs/architecture/LSP-ARD-PRD.md) — full spec
 - **lsp-max**: [https://github.com/seanchatmangpt/lsp-max](https://github.com/seanchatmangpt/lsp-max) — law-state LSP runtime
 - **LSP Spec**: [https://microsoft.github.io/language-server-protocol/](https://microsoft.github.io/language-server-protocol/)
 

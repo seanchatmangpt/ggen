@@ -1,0 +1,7 @@
+{
+  "case": "Accept_AgentActsWithinPermits",
+  "kind": "acceptance",
+  "seed": 8123044517190337261,
+  "expected_behavior": "agent_action_permitted",
+  "input": {"agent_id": "agent-alpha", "operator_id": "operator-1"}
+}
