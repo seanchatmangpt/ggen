@@ -29,25 +29,33 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
       RUST_BACKTRACE: 1
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
       CARGO_TARGET_DIR: ${{ github.workspace }}/target/tcps-generated-validation
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Provision pinned Rust and cache
-        uses: ./.github/actions/setup-ggen-build
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:
-          cache-key-suffix: tcps-generated-validation
+          toolchain: nightly-2026-06-22
+          components: rustfmt
 
       - name: Run product-evidence and 8^4 behavioral suites
         shell: bash
         run: |
-          set +e
-          cargo test \
+          : > tcps-generated-validation.log
+          status=0
+          cargo fmt \
             --manifest-path examples/tcps-generated/Cargo.toml \
-            --test tcps_chicago_tdd_1000x \
-            --test tcps_chicago_tdd_8pow4 \
-            -- --nocapture > tcps-generated-validation.log 2>&1
-          status=$?
+            -- --check >> tcps-generated-validation.log 2>&1 || status=$?
+          if [ "$status" -eq 0 ]; then
+            cargo test \
+              --manifest-path examples/tcps-generated/Cargo.toml \
+              --test tcps_chicago_tdd_1000x \
+              --test tcps_chicago_tdd_8pow4 \
+              -- --nocapture >> tcps-generated-validation.log 2>&1 || status=$?
+          fi
           cat tcps-generated-validation.log
           exit "$status"
 
