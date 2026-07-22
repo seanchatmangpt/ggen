@@ -12,19 +12,20 @@
 //!   identities;
 //! - the receipt root binds the validated evidence rather than a rhetorical count.
 
-mod support;
+#[path = "support/common.rs"]
+mod common;
+#[path = "support/files.rs"]
+mod files;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::OnceLock;
 
+use common::{domain_digest, merkle_root, serialize_json, EvidenceDigest, EvidenceError};
+use files::{git_blob_oid, read_nonempty, sha256_hex, utf8};
 use serde::Serialize;
 use serde_json::Value as JsonValue;
-use support::{
-    domain_digest, git_blob_oid, merkle_root, read_nonempty, serialize_json, sha256_hex, utf8,
-    EvidenceDigest, EvidenceError,
-};
 
 include!("product_evidence/catalog.rs");
 include!("product_evidence/manifest.rs");
