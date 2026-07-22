@@ -1,0 +1,4 @@
+[pack]
+name = "crown-conjecture-pack"
+version = "0.1.0"
+description = "Generates a Lean 4 proof-obligation skeleton (named sorry holes, real cited definitions, a real blocking-finding citation) for mfw-theory's Crown Conjecture 1/7 (TraceSwapPreservesLawful, Kernel.lean:287-290), from an RDF ledger transcribed directly from the real Lean source. Does not attempt the proof -- ggen precipitates the skeleton from cited facts, a mathematician fills the sorry holes. Mirrors bcinr-mfw-ir::contracts.rs's real FormalStanding (Proven/Stated/Conjectural/Blocked) citation-and-refusal vocabulary, identified by this session's own PC-POWL2 ground-truth survey as the one genuinely reusable mechanism for this class of claim."
