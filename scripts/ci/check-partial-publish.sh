@@ -29,6 +29,25 @@
 # a detected gap (re-dispatching a workflow, editing the tap formula by
 # hand) is a separate, human-triggered action.
 #
+# REMEDIATION RUNBOOK (added retrofit:PartialPublishRollbackUnknown, the
+# smallest design closing real value on this SPOF without an automated
+# rollback engine that would itself need human authorization to build --
+# see .tcps/retrofit/ggen/load-path.ttl's evidenceUpdate for the two
+# designs considered): when a target FAILs, this script prints the exact
+# `gh workflow run` command a human operator would run to re-publish just
+# that target for the same tag -- text generation only, still zero
+# mutating calls. Each of the 4 targets already has a real
+# workflow_dispatch trigger (release.yml/homebrew-release.yml take a
+# `tag` input; release-debian.yml/docker-build-push.yml take none beyond
+# `--ref`) -- confirmed by reading each file's own `on:` block, not
+# assumed -- so the runbook never invents a remediation path, only names
+# the one that already exists and was proven live earlier this session
+# (PR #441/#446/#447 each added or exercised one of these exact
+# dispatches). No target's remediation is "delete/retag/republish
+# existing artifacts" -- that class of action (mutating an already-
+# published release/image/formula) remains correctly out of scope,
+# unchanged from every prior evidence pass on this SPOF.
+#
 # Usage:
 #   scripts/ci/check-partial-publish.sh [TAG]
 #   REPO=owner/repo scripts/ci/check-partial-publish.sh v26.7.44
@@ -82,9 +101,10 @@ if [ -z "$TAG" ]; then
 fi
 VERSION="${TAG#v}"
 
-# Rows accumulate as "Target|Status|Detail" (pipe-delimited; Detail must not
-# itself contain a literal '|' — enforced by construction below, never by
-# escaping untrusted input).
+# Rows accumulate as "Target|Status|Detail|Remediation" (pipe-delimited;
+# Detail/Remediation must not themselves contain a literal '|' — enforced
+# by construction below, never by escaping untrusted input). Remediation
+# is empty except on FAIL rows.
 ROWS=()
 OVERALL="PASS"
 
@@ -99,8 +119,8 @@ bump_overall() {
 }
 
 add_row() {
-  local target="$1" status="$2" detail="$3"
-  ROWS+=("${target}|${status}|${detail}")
+  local target="$1" status="$2" detail="$3" remediation="${4:-}"
+  ROWS+=("${target}|${status}|${detail}|${remediation}")
   bump_overall "$status"
 }
 
@@ -131,7 +151,8 @@ check_release_binaries() {
   if [ "${#missing[@]}" -eq 0 ]; then
     add_row "release.yml" "PASS" "all 8 assets present (4 tarballs + 4 sha256)"
   else
-    add_row "release.yml" "FAIL" "release exists but missing: $(IFS=,; echo "${missing[*]}")"
+    add_row "release.yml" "FAIL" "release exists but missing: $(IFS=,; echo "${missing[*]}")" \
+      "gh workflow run release.yml --ref ${TAG} -f tag=${TAG}"
   fi
 }
 
@@ -164,9 +185,11 @@ check_release_debian() {
   if [ "$status" != "completed" ]; then
     add_row "release-debian.yml" "PENDING" "run in progress (status=${status}) — ${url}"
   elif [ "$conclusion" != "success" ]; then
-    add_row "release-debian.yml" "FAIL" "run completed with conclusion=${conclusion} — ${url}"
+    add_row "release-debian.yml" "FAIL" "run completed with conclusion=${conclusion} — ${url}" \
+      "gh workflow run release-debian.yml --ref ${TAG}"
   else
-    add_row "release-debian.yml" "FAIL" "run succeeded but no .deb asset found on the release (contract drift) — ${url}"
+    add_row "release-debian.yml" "FAIL" "run succeeded but no .deb asset found on the release (contract drift) — ${url}" \
+      "gh workflow run release-debian.yml --ref ${TAG}"
   fi
 }
 
@@ -211,7 +234,8 @@ check_docker_build_push() {
   jobs_json="$(gh api "repos/$REPO/actions/runs/${run_id}/jobs" --jq '[.jobs[] | {name, conclusion}]' 2>/dev/null || echo '[]')"
 
   if [ "$(jq 'length' <<<"$jobs_json")" -eq 0 ]; then
-    add_row "docker-build-push.yml" "FAIL" "run completed with conclusion=${conclusion}, zero jobs scheduled (workflow file issue) — ${url}"
+    add_row "docker-build-push.yml" "FAIL" "run completed with conclusion=${conclusion}, zero jobs scheduled (workflow file issue) — ${url}" \
+      "gh workflow run docker-build-push.yml --ref ${TAG}"
     return
   fi
 
@@ -222,7 +246,8 @@ check_docker_build_push() {
   if [ "$controller_ok" = "success" ] && [ "$cli_ok" = "success" ]; then
     add_row "docker-build-push.yml" "PASS" "both images built (controller=success, cli=success; overall run conclusion=${conclusion} -- downstream scan/sign jobs may differ and do not affect this verdict) — ${url}"
   else
-    add_row "docker-build-push.yml" "FAIL" "controller job=${controller_ok}, cli job=${cli_ok} — ${url}"
+    add_row "docker-build-push.yml" "FAIL" "controller job=${controller_ok}, cli job=${cli_ok} — ${url}" \
+      "gh workflow run docker-build-push.yml --ref ${TAG}"
   fi
 }
 
@@ -268,9 +293,11 @@ check_homebrew() {
   if [ "$status" != "completed" ]; then
     add_row "homebrew-release.yml" "PENDING" "run in progress (status=${status}) — ${url}"
   elif [ "$conclusion" != "success" ]; then
-    add_row "homebrew-release.yml" "FAIL" "run completed with conclusion=${conclusion} — ${url}"
+    add_row "homebrew-release.yml" "FAIL" "run completed with conclusion=${conclusion} — ${url}" \
+      "gh workflow run homebrew-release.yml --ref ${TAG} -f tag=${TAG}"
   else
-    add_row "homebrew-release.yml" "FAIL" "run succeeded but tap formula still shows ${tap_version:-<unreadable>}, expected ${VERSION} (contract drift) — ${url}"
+    add_row "homebrew-release.yml" "FAIL" "run succeeded but tap formula still shows ${tap_version:-<unreadable>}, expected ${VERSION} (contract drift) — ${url}" \
+      "gh workflow run homebrew-release.yml --ref ${TAG} -f tag=${TAG}"
   fi
 }
 
@@ -288,8 +315,9 @@ echo "Repo: \`${REPO}\` · Checked: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 echo ""
 echo "| Target | Status | Detail |"
 echo "|--------|--------|--------|"
+FAILED_REMEDIATIONS=()
 for row in "${ROWS[@]}"; do
-  IFS='|' read -r target status detail <<<"$row"
+  IFS='|' read -r target status detail remediation <<<"$row"
   case "$status" in
     PASS) icon="PASS" ;;
     PENDING) icon="PENDING" ;;
@@ -297,6 +325,9 @@ for row in "${ROWS[@]}"; do
     *) icon="$status" ;;
   esac
   echo "| ${target} | ${icon} | ${detail} |"
+  if [ "$status" = "FAIL" ] && [ -n "$remediation" ]; then
+    FAILED_REMEDIATIONS+=("${target}|${remediation}")
+  fi
 done
 echo ""
 echo "**Overall: ${OVERALL}**"
@@ -307,6 +338,26 @@ elif [ "$OVERALL" = "PENDING" ]; then
   echo "All targets are either passing or still in flight for ${TAG}. Re-run after the in-flight workflows complete for a final verdict."
 else
   echo "All 4 correlated release targets confirmed published for ${TAG}."
+fi
+
+if [ "${#FAILED_REMEDIATIONS[@]}" -gt 0 ]; then
+  echo ""
+  echo "## Remediation Runbook"
+  echo ""
+  echo "Each failed target already has a real \`workflow_dispatch\` trigger (confirmed"
+  echo "live in the workflow file, not assumed). Re-running the command below re-"
+  echo "publishes ONLY that target for the SAME tag -- it does not touch, delete, or"
+  echo "modify anything already published by the other 3 targets. These commands are"
+  echo "printed for a human to review and run; this script never executes them."
+  echo ""
+  for entry in "${FAILED_REMEDIATIONS[@]}"; do
+    IFS='|' read -r target cmd <<<"$entry"
+    echo "**${target}**"
+    echo '```bash'
+    echo "$cmd"
+    echo '```'
+    echo ""
+  done
 fi
 
 if [ "$OVERALL" = "FAIL" ]; then
