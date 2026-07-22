@@ -19,7 +19,7 @@ chicago_tdd_tools::test!(source_manifest_has_129_unique_safe_entries, {
         .all(|path| !path.starts_with('/') && !path.contains("..")));
 });
 
-chicago_tdd_tools::test!(all_43_capabilities_have_real_format_and_identity_evidence, {
+chicago_tdd_tools::test!(all_43_capabilities_have_typed_reference_standing, {
     let evidence = product_evidence().expect("all capability evidence must stand");
     assert_eq!(evidence.len(), 43);
     assert_eq!(
@@ -31,12 +31,51 @@ chicago_tdd_tools::test!(all_43_capabilities_have_real_format_and_identity_evide
         43
     );
     assert_eq!(
-        evidence.iter().filter(|item| item.manifest_bound).count(),
-        41
+        evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::ExactManifest)
+            .count(),
+        37
+    );
+    assert_eq!(
+        evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
+            .count(),
+        4
+    );
+    assert_eq!(
+        evidence
+            .iter()
+            .filter(|item| item.reference_standing == ReferenceStanding::Independent)
+            .count(),
+        2
     );
     assert!(evidence
         .iter()
         .all(|item| item.byte_len > 0 && !item.facts.is_empty()));
+});
+
+chicago_tdd_tools::test!(declared_derivative_population_is_exact_and_named, {
+    let evidence = product_evidence().expect("evidence");
+    let derivatives: BTreeSet<_> = evidence
+        .iter()
+        .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
+        .map(|item| item.id)
+        .collect();
+    assert_eq!(
+        derivatives,
+        BTreeSet::from([
+            "core.auto-select",
+            "core.blue-river-dam",
+            "core.crypto-digest",
+            "core.kaizen",
+        ])
+    );
+    assert!(evidence
+        .iter()
+        .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
+        .all(|item| item.reference_sha256.as_ref().is_some_and(|digest| digest != &item.sha256)));
 });
 
 chicago_tdd_tools::test!(capability_kinds_cover_the_complete_product_boundary, {
@@ -52,20 +91,20 @@ chicago_tdd_tools::test!(capability_kinds_cover_the_complete_product_boundary, {
     assert_eq!(counts.get(&CapabilityKind::Manufacture), Some(&3));
 });
 
-chicago_tdd_tools::test!(ggen_lock_binds_exactly_the_eight_admitted_packs, {
+chicago_tdd_tools::test!(ggen_lock_names_exactly_the_eight_admitted_packs, {
     let bytes = read_nonempty(&project_root(), "ggen.lock").expect("ggen.lock");
     let count =
         validate_ggen_lock(utf8("ggen.lock", &bytes).expect("UTF-8")).expect("valid ggen lock");
     assert_eq!(count, EXPECTED_PACKS.len());
 });
 
-chicago_tdd_tools::test!(manifest_digest_mutation_is_refused, {
+chicago_tdd_tools::test!(exact_manifest_digest_mutation_is_refused, {
     let root = project_root();
     let manifest = load_manifest(&root).expect("manifest");
     let capability = CAPABILITIES
         .iter()
-        .find(|item| item.id == "core.auto-select")
-        .expect("auto-select capability");
+        .find(|item| item.id == "core.origin")
+        .expect("exact-manifest capability");
     let temp = tempfile::TempDir::new().expect("tempdir");
     let target = temp.path().join(capability.path);
     std::fs::create_dir_all(target.parent().expect("parent")).expect("mkdir");
@@ -74,7 +113,27 @@ chicago_tdd_tools::test!(manifest_digest_mutation_is_refused, {
     std::fs::write(&target, bytes).expect("write mutation");
 
     let result = validate_capability(temp.path(), &manifest, capability);
-    assert!(matches!(result, Err(EvidenceError::InvalidData { message, .. }) if message.contains("SHA-256 mismatch")));
+    assert!(matches!(result, Err(EvidenceError::InvalidData { message, .. }) if message.contains("undeclared SHA-256 drift")));
+});
+
+chicago_tdd_tools::test!(declared_derivative_becoming_exact_requires_reclassification, {
+    let root = project_root();
+    let manifest = load_manifest(&root).expect("manifest");
+    let capability = CAPABILITIES
+        .iter()
+        .find(|item| item.id == "core.kaizen")
+        .expect("declared derivative");
+    let manifest_path = capability.manifest_path.expect("source reference path");
+    let reference = root
+        .join("../../packs/tcps-core-pack/reference/製品版")
+        .join(manifest_path);
+    let temp = tempfile::TempDir::new().expect("tempdir");
+    let target = temp.path().join(capability.path);
+    std::fs::create_dir_all(target.parent().expect("parent")).expect("mkdir");
+    std::fs::copy(reference, target).expect("copy exact reference into derivative slot");
+
+    let result = validate_capability(temp.path(), &manifest, capability);
+    assert!(matches!(result, Err(EvidenceError::InvalidData { message, .. }) if message.contains("must be reclassified")));
 });
 
 chicago_tdd_tools::test!(missing_capability_is_a_loud_refusal, {
@@ -94,10 +153,12 @@ chicago_tdd_tools::test!(receipt_is_replay_stable_and_cryptographically_bound, {
     let first = receipt(evidence, manifest.len()).expect("receipt");
     let second = receipt(evidence, manifest.len()).expect("receipt replay");
     assert_eq!(first, second);
-    assert_eq!(first.schema, "tcps-product-evidence/v2");
+    assert_eq!(first.schema, "tcps-product-evidence/v3");
     assert_eq!(first.capability_count, 43);
     assert_eq!(first.manifest_entry_count, 129);
-    assert_eq!(first.manifest_bound_capabilities, 41);
+    assert_eq!(first.exact_manifest_capabilities, 37);
+    assert_eq!(first.declared_derivative_capabilities, 4);
+    assert_eq!(first.independent_capabilities, 2);
     assert_eq!(first.evidence_root.len(), 64);
 });
 
@@ -113,6 +174,10 @@ chicago_tdd_tools::test!(receipt_json_is_valid_and_contains_the_evidence_index, 
     let bytes = serialize_json(&bundle).expect("serialize bundle");
     let decoded: JsonValue = serde_json::from_slice(&bytes).expect("parse bundle");
     assert_eq!(decoded["receipt"]["capability_count"].as_u64(), Some(43));
+    assert_eq!(
+        decoded["receipt"]["exact_manifest_capabilities"].as_u64(),
+        Some(37)
+    );
     assert_eq!(decoded["capabilities"].as_array().map(Vec::len), Some(43));
 });
 
