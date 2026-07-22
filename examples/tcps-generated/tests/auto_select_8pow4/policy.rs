@@ -78,6 +78,25 @@ fn request(cell: Cell) -> 選択要求 {
     }
 }
 
+fn oracle_mass(measures: 測度) -> u16 {
+    let fields = [
+        measures.意味適合,
+        measures.証拠適合,
+        measures.権限適合,
+        measures.時間適合,
+        measures.後工程適合,
+        measures.信頼度,
+        measures.費用適合,
+    ];
+    let mut minimum = u8::MAX;
+    let mut maximum = u8::MIN;
+    for value in fields {
+        minimum = minimum.min(value);
+        maximum = maximum.max(value);
+    }
+    u16::from(minimum) * u16::from(maximum)
+}
+
 fn expected(policy: &方策<LANES>, request: 選択要求) -> ExpectedOutcome {
     let mut eligible_mask = 0_u64;
     let mut ready_mask = 0_u64;
@@ -99,7 +118,7 @@ fn expected(policy: &方策<LANES>, request: 選択要求) -> ExpectedOutcome {
             eligible && (request.準備完了 & candidate.必要準備) == candidate.必要準備;
         if ready {
             ready_mask |= 1_u64 << index;
-            let mass = candidate.測度.乗法質量();
+            let mass = oracle_mass(candidate.測度);
             if winner.is_none() || mass > winner_mass {
                 winner = Some(index);
                 winner_mass = mass;
@@ -178,7 +197,7 @@ fn validate_workspace(
     for index in 0..LANES {
         let expected_mass = if ready_mask & (1_u64 << index) != 0 {
             match policy.候補[index] {
-                有無::有る(candidate) => candidate.測度.乗法質量(),
+                有無::有る(candidate) => oracle_mass(candidate.測度),
                 有無::無い => 0,
             }
         } else {
