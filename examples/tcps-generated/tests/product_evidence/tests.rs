@@ -116,6 +116,24 @@ chicago_tdd_tools::test!(exact_manifest_digest_mutation_is_refused, {
     assert!(matches!(result, Err(EvidenceError::InvalidData { message, .. }) if message.contains("undeclared SHA-256 drift")));
 });
 
+chicago_tdd_tools::test!(declared_derivative_unpinned_drift_is_refused, {
+    let root = project_root();
+    let manifest = load_manifest(&root).expect("manifest");
+    let capability = CAPABILITIES
+        .iter()
+        .find(|item| item.id == "core.kaizen")
+        .expect("declared derivative");
+    let temp = tempfile::TempDir::new().expect("tempdir");
+    let target = temp.path().join(capability.path);
+    std::fs::create_dir_all(target.parent().expect("parent")).expect("mkdir");
+    let mut bytes = read_nonempty(&root, capability.path).expect("source");
+    bytes.push(b'\n');
+    std::fs::write(&target, bytes).expect("write derivative mutation");
+
+    let result = validate_capability(temp.path(), &manifest, capability);
+    assert!(matches!(result, Err(EvidenceError::InvalidData { message, .. }) if message.contains("undeclared derivative drift")));
+});
+
 chicago_tdd_tools::test!(declared_derivative_becoming_exact_requires_reclassification, {
     let root = project_root();
     let manifest = load_manifest(&root).expect("manifest");
@@ -153,7 +171,7 @@ chicago_tdd_tools::test!(receipt_is_replay_stable_and_cryptographically_bound, {
     let first = receipt(evidence, manifest.len()).expect("receipt");
     let second = receipt(evidence, manifest.len()).expect("receipt replay");
     assert_eq!(first, second);
-    assert_eq!(first.schema, "tcps-product-evidence/v3");
+    assert_eq!(first.schema, "tcps-product-evidence/v4");
     assert_eq!(first.capability_count, 43);
     assert_eq!(first.manifest_entry_count, 129);
     assert_eq!(first.exact_manifest_capabilities, 37);
