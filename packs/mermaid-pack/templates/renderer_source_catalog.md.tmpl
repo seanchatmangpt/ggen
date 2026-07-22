@@ -13,10 +13,16 @@ sparql:
             mer:sourceUrl ?source ;
             mer:sourceConfidence ?confidence .
     } ORDER BY ?id
+  version: |
+    PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+    PREFIX dct: <http://purl.org/dc/terms/>
+    SELECT ?id WHERE {
+      mer:Mermaid_11_16_0 dct:identifier ?id .
+    }
 ---
 # Mermaid描画器出典台帳
 
-上流版はMermaid 11.16.0です。出典はcommit固定URLです。
+上流版はMermaid {{ version[0].id }}です。出典はcommit固定URLです。
 
 | 図種ID | 日本語名 | 検出器 | 定義 | 描画器 | 確認状態 |
 |---|---|---|---|---|---|
