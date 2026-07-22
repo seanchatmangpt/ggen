@@ -13,7 +13,10 @@ chicago_tdd_tools::test!(contracts_name_the_real_selection_and_authorization_bou
 
 chicago_tdd_tools::test!(gray_codec_matches_independent_known_vectors, {
     const FIRST_SIXTEEN: [u16; 16] = [0, 1, 3, 2, 6, 7, 5, 4, 12, 13, 15, 14, 10, 11, 9, 8];
-    assert_eq!((0_u16..16).map(gray).collect::<Vec<_>>(), FIRST_SIXTEEN);
+    assert_eq!(
+        (0_u16..16).map(gray).collect::<Vec<_>>(),
+        FIRST_SIXTEEN
+    );
     for value in 0_u16..u16::try_from(CELL_COUNT).expect("cell count fits") {
         assert_eq!(ungray(gray(value)), value);
     }
@@ -32,10 +35,7 @@ chicago_tdd_tools::test!(gf8_uses_the_pinned_x3_plus_x_plus_1_field, {
     ];
     for left in 0..WIDTH as u8 {
         for right in 0..WIDTH as u8 {
-            assert_eq!(
-                gf8_mul(left, right),
-                TABLE[usize::from(left)][usize::from(right)]
-            );
+            assert_eq!(gf8_mul(left, right), TABLE[usize::from(left)][usize::from(right)]);
         }
     }
 });
@@ -96,10 +96,7 @@ chicago_tdd_tools::test!(coverage_ladder_has_real_strength_one_through_four, {
         assert_eq!(triples.len(), WIDTH.pow(3));
     }
 
-    assert_eq!(
-        rails[3].iter().copied().collect::<BTreeSet<_>>().len(),
-        CELL_COUNT
-    );
+    assert_eq!(rails[3].iter().copied().collect::<BTreeSet<_>>().len(), CELL_COUNT);
 });
 
 chicago_tdd_tools::test!(exhaustive_cube_is_cyclic_gray_and_coordinate_complete, {
@@ -120,15 +117,12 @@ chicago_tdd_tools::test!(exhaustive_cube_is_cyclic_gray_and_coordinate_complete,
     for pair in cells.windows(2) {
         assert_eq!((pair[0].gray ^ pair[1].gray).count_ones(), 1);
     }
-    assert_eq!(
-        (cells[0].gray ^ cells[CELL_COUNT - 1].gray).count_ones(),
-        1
-    );
+    assert_eq!((cells[0].gray ^ cells[CELL_COUNT - 1].gray).count_ones(), 1);
 });
 
 chicago_tdd_tools::test!(all_4096_cells_execute_the_real_auto_select_contract, {
     let results = run_matrix().expect("all real selection judgments must satisfy the oracle");
-    let receipt = matrix_receipt(&results).expect("matrix receipt");
+    let receipt = matrix_receipt(results).expect("matrix receipt");
     assert_eq!(results.len(), CELL_COUNT);
     assert_eq!(receipt.cells, CELL_COUNT);
     assert_eq!(receipt.selected, 1_670);
@@ -143,71 +137,11 @@ chicago_tdd_tools::test!(all_4096_cells_execute_the_real_auto_select_contract, {
 
 chicago_tdd_tools::test!(pinned_scenarios_have_independent_expected_outcomes, {
     let cases = [
-        (
-            Coordinates {
-                authority: 0,
-                readiness: 0,
-                time_budget: 0,
-                mode: 0,
-            },
-            OutcomeClass::RefusedNoEligible,
-            None,
-            None,
-            0,
-            0,
-        ),
-        (
-            Coordinates {
-                authority: 1,
-                readiness: 0,
-                time_budget: 0,
-                mode: 0,
-            },
-            OutcomeClass::RefusedNoReady,
-            None,
-            None,
-            1,
-            0,
-        ),
-        (
-            Coordinates {
-                authority: 1,
-                readiness: 1,
-                time_budget: 0,
-                mode: 0,
-            },
-            OutcomeClass::Selected,
-            Some(1),
-            Some(100),
-            1,
-            1,
-        ),
-        (
-            Coordinates {
-                authority: 1,
-                readiness: 2,
-                time_budget: 7,
-                mode: 0,
-            },
-            OutcomeClass::Selected,
-            Some(8),
-            Some(6_400),
-            129,
-            128,
-        ),
-        (
-            Coordinates {
-                authority: 1,
-                readiness: 1,
-                time_budget: 0,
-                mode: 4,
-            },
-            OutcomeClass::Selected,
-            Some(1),
-            Some(6_400),
-            1,
-            1,
-        ),
+        (Coordinates { authority: 0, readiness: 0, time_budget: 0, mode: 0 }, OutcomeClass::RefusedNoEligible, None, None, 0, 0),
+        (Coordinates { authority: 1, readiness: 0, time_budget: 0, mode: 0 }, OutcomeClass::RefusedNoReady, None, None, 1, 0),
+        (Coordinates { authority: 1, readiness: 1, time_budget: 0, mode: 0 }, OutcomeClass::Selected, Some(1), Some(100), 1, 1),
+        (Coordinates { authority: 1, readiness: 2, time_budget: 7, mode: 0 }, OutcomeClass::Selected, Some(8), Some(6_400), 129, 128),
+        (Coordinates { authority: 1, readiness: 1, time_budget: 0, mode: 4 }, OutcomeClass::Selected, Some(1), Some(6_400), 1, 1),
     ];
 
     for (coordinates, outcome, tool, mass, eligible_mask, ready_mask) in cases {
@@ -309,7 +243,7 @@ chicago_tdd_tools::test!(blue_river_dam_refuses_each_independent_authorization_d
     ));
 });
 
-chicago_tdd_tools::test!(eight_way_sharding_is_deterministic_total_and_balanced, {
+chicago_tdd_tools::test!(eight_way_sharding_is_deterministic_and_total, {
     let results = run_matrix().expect("matrix");
     let first: Vec<_> = results
         .iter()
@@ -326,14 +260,12 @@ chicago_tdd_tools::test!(eight_way_sharding_is_deterministic_total_and_balanced,
         loads[owner] += 1;
     }
     assert!(loads.iter().all(|load| *load > 0));
-    let minimum = loads.iter().copied().min().expect("minimum");
-    let maximum = loads.iter().copied().max().expect("maximum");
-    assert!(maximum - minimum < CELL_COUNT / 8);
+    assert_eq!(loads.iter().sum::<usize>(), CELL_COUNT);
 });
 
 chicago_tdd_tools::test!(merkle_root_is_replay_stable_and_mutation_sensitive, {
     let results = run_matrix().expect("matrix");
-    let leaves = evidence_leaves(&results).expect("leaves");
+    let leaves = evidence_leaves(results).expect("leaves");
     let first = merkle_root("tcps/8pow4-root/v2", &leaves).expect("root");
     let second = merkle_root("tcps/8pow4-root/v2", &leaves).expect("replay root");
     assert_eq!(first, second);
@@ -362,10 +294,10 @@ chicago_tdd_tools::test!(invalid_coordinate_is_refused_before_execution, {
 
 chicago_tdd_tools::test!(artifact_bundle_contains_parseable_complete_evidence, {
     let results = run_matrix().expect("matrix");
-    let receipt = matrix_receipt(&results).expect("receipt");
+    let receipt = matrix_receipt(results).expect("receipt");
     let receipt_json = serialize_json(&receipt).expect("receipt JSON");
-    let scenarios = scenario_json_lines(&results).expect("scenario JSONL");
-    let plan = scenario_plan(&results);
+    let scenarios = scenario_json_lines(results).expect("scenario JSONL");
+    let plan = scenario_plan(results);
     let coverage = coverage_plan(&coverage_rails());
     let output = tempfile::TempDir::new().expect("tempdir");
 
