@@ -1,3 +1,13 @@
+fn expected_derivative_blob_oid(capability_id: &str) -> Option<&'static str> {
+    match capability_id {
+        "core.kaizen" => Some("fe1e1444106941e9e165f5f23114b563945fd68d"),
+        "core.crypto-digest" => Some("60ee7f07a2ac2961bd334fe5787a61fd03ca297f"),
+        "core.auto-select" => Some("49e61f82ba719020e353dd53a12a47343699a5eb"),
+        "core.blue-river-dam" => Some("33f5ba218628f4d314ca97caee99ae4054157935"),
+        _ => None,
+    }
+}
+
 fn validate_capability(
     root: &Path,
     manifest: &BTreeMap<String, String>,
@@ -6,6 +16,7 @@ fn validate_capability(
     let bytes = read_nonempty(root, capability.path)?;
     let mut facts = validate_format(root, capability, &bytes)?;
     let actual_sha256 = sha256_hex(&bytes);
+    let actual_blob_oid = git_blob_oid(&bytes);
 
     let reference_sha256 = match capability.reference_standing {
         ReferenceStanding::ExactManifest => {
@@ -35,27 +46,48 @@ fn validate_capability(
                 identity: capability.id.to_owned(),
                 message: "declared derivative has no source reference path".to_owned(),
             })?;
-            let expected = manifest
+            let expected_source = manifest
                 .get(manifest_path)
                 .ok_or_else(|| EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
                     message: format!("manifest has no source entry for derivative {manifest_path}"),
                 })?;
-            if expected == &actual_sha256 {
+            if expected_source == &actual_sha256 {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
                     message: "declared derivative is now byte-identical and must be reclassified"
                         .to_owned(),
                 });
             }
+            let expected_blob_oid = expected_derivative_blob_oid(capability.id).ok_or_else(|| {
+                EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: "declared derivative has no pinned generated object identity".to_owned(),
+                }
+            })?;
+            if actual_blob_oid != expected_blob_oid {
+                return Err(EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: format!(
+                        "undeclared derivative drift: expected Git blob {expected_blob_oid}, found {actual_blob_oid}"
+                    ),
+                });
+            }
             facts.push("declared-generated-derivative");
-            Some(expected.clone())
+            facts.push("pinned-generated-git-object");
+            Some(expected_source.clone())
         }
         ReferenceStanding::Independent => {
             if capability.manifest_path.is_some() {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
                     message: "independent capability unexpectedly names a manifest path".to_owned(),
+                });
+            }
+            if expected_derivative_blob_oid(capability.id).is_some() {
+                return Err(EvidenceError::InvalidData {
+                    identity: capability.id.to_owned(),
+                    message: "independent capability unexpectedly has a derivative identity".to_owned(),
                 });
             }
             facts.push("independently-validated");
@@ -71,12 +103,13 @@ fn validate_capability(
         ReferenceStanding::Independent => "independent",
     };
     let digest = domain_digest(
-        "tcps/capability-evidence/v3",
+        "tcps/capability-evidence/v4",
         &[
             capability.id.as_bytes(),
             capability.path.as_bytes(),
             standing_text.as_bytes(),
             actual_sha256.as_bytes(),
+            actual_blob_oid.as_bytes(),
             reference_text.as_bytes(),
             facts_text.as_bytes(),
         ],
@@ -134,10 +167,10 @@ fn receipt(
             Ok(EvidenceDigest::from_bytes(bytes))
         })
         .collect();
-    let root = merkle_root("tcps/evidence-root/v3", &leaves?)?;
+    let root = merkle_root("tcps/evidence-root/v4", &leaves?)?;
 
     Ok(EvidenceReceipt {
-        schema: "tcps-product-evidence/v3",
+        schema: "tcps-product-evidence/v4",
         capability_count: evidence.len(),
         manifest_entry_count,
         exact_manifest_capabilities: evidence
