@@ -19,9 +19,6 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::OnceLock;
 
-use chicago_tdd_tools::core::contract::{
-    ResourceEnvelope, TestContract, TestContractRegistry,
-};
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use support::{
