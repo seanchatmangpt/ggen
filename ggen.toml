@@ -23,6 +23,7 @@ imports = [
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
   "evidence/producers/receipts-check.ttl",
+  "evidence/producers/evidence-check.ttl",
 ]
 
 [ontology.prefixes]
@@ -299,6 +300,26 @@ SELECT ?name WHERE { ?p a ver:Producer ; ver:name ?name . FILTER(?name = "receip
 """ }
 template    = { file = ".specify/templates/verify/produce_receipts_check_sh.sh.tera" }
 output_file = "scripts/produce-receipts-check.sh"
+skip_empty  = false
+mode        = "Overwrite"
+
+# EquivalenceMapNotLive, continued: wires `evidence` next, same shape as
+# `docs`/`receipts` above. packs/ggen-verify-pack's ver:Producer "evidence"
+# config and produce_evidence_check_sh.tmpl were already complete
+# (completeness + freshness over the ver:RequiredCheck set); this repo just
+# needed its own declarative-rules mirror plus this rule. Note this is a
+# DIFFERENT mechanism from gates 010/020 (which gate on ver:Check facts for
+# validation refusal) -- see retrofit:EquivalenceMapNotLive's
+# evidenceUpdate2026_07_22a for the correction that first named this
+# distinction.
+[[generation.rules]]
+name        = "verify-evidence-check-producer"
+query       = { inline = """
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?hours WHERE { ?p a ver:Producer ; ver:name "evidence" ; ver:freshnessWindowHours ?hours . }
+""" }
+template    = { file = ".specify/templates/verify/produce_evidence_check_sh.sh.tera" }
+output_file = "scripts/produce-evidence-check.sh"
 skip_empty  = false
 mode        = "Overwrite"
 
