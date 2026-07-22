@@ -190,43 +190,47 @@ the resolved project root and resolves the verifying key automatically
 (`crates/ggen-engine/src/verbs/receipt.rs`).
 
 You can also run `ggen doctor` at the repo root itself — `ggen` self-hosts its own `ggen.toml`
-and generates parts of `README.md`/`CLAUDE.md` from it. **As of this writing that actually fails**
-— worth showing honestly rather than the clean transcript an earlier draft of this page carried,
-because the failure is real, reproducible, and instructive about how `mode = "Merge"` generation
-rules work:
+and generates parts of `README.md`/`CLAUDE.md` from it:
 
 ```console
 $ /path/to/ggen/target/debug/ggen doctor
-ERROR: CLI execution failed: Command execution failed: doctor found 1 failing check(s): receipt_staleness: 2 receipt output(s) missing or hash-mismatched on disk: README.md, crates/ggen-cli/tests/generated/cli_proof_tests.rs
+{
+  "healthy": true,
+  "checks": {
+    "receipt_staleness": { "status": "pass", "detail": "every receipt output matches its recorded hash on disk", "stale": [] },
+    ...
+  }
+}
 ```
 
-Exit `1`, plain-text error (not the JSON body you'd get from a passing or a `"skip"`-only run).
-Two independent causes, both confirmed by direct investigation, not guessed:
+Exit `0`. This page is itself part of the same first-principles rewrite that produced this
+`README.md`, and while writing it we found and fixed a real defect in this exact interaction, worth
+disclosing rather than hiding now that it's resolved: `ggen.toml`'s `docs-readme-region`
+generation rule (`output_file = "README.md"`) uses `mode = "Merge"` — it only ever replaces the
+single `<<<<<<< GENERATED ... ======= ... >>>>>>> MANUAL` region in the target file, leaving every
+byte outside those markers untouched. An earlier commit on this same rewrite branch replaced
+`README.md` wholesale with hand-authored prose carrying no such markers, which made
+`receipt_staleness` fail exactly as this section used to describe. Merging this branch against a
+`main` that had moved forward surfaced the real conflict, and fixing it properly (restoring the
+`GENERATED`/`MANUAL` markers around the version/toolchain paragraph, not just papering over the
+symptom) is what makes the transcript above pass.
 
-- **`crates/ggen-cli/tests/generated/cli_proof_tests.rs` is a real, pre-existing gap, not
-  specific to this page.** That path is `.gitignore`d (`generated/` — line 158) and only ever
-  produced by a real (non-`--dry-run`) `ggen sync run` at the repo root. On any fresh clone of
-  `main` that hasn't run one yet, the file simply doesn't exist, so the checked-in
-  `.ggen-v2/receipt.json` (which does track it) reports it missing. Verified by cloning `main`
-  fresh into a scratch directory and running `doctor` there before ever syncing: same failure
-  shape, same `receipt_staleness` cause, different second filename (whichever other generated
-  path happened to be gitignored-and-ungenerated on that commit).
-- **`README.md` is the cause specific to this page.** `ggen.toml`'s `docs-readme-region`
-  generation rule (`output_file = "README.md"`) uses `mode = "Merge"`: it only ever replaces the
-  single `<<<<<<< GENERATED ... ======= ... >>>>>>> MANUAL` region in the target file, leaving
-  every byte outside those markers untouched. This page (and the rest of this doc rewrite) is
-  hand-authored prose with no such markers, so the checked-in receipt's recorded hash for
-  `README.md` no longer matches the file on disk.
+**The underlying engine behavior is still real and worth knowing, independent of this page's own
+now-fixed history:** tested directly against a throwaway copy, a real (non-`--dry-run`) sync's
+merge step, given a target file with no `<<<<<<< GENERATED`/`>>>>>>> MANUAL` markers to merge
+into, does not refuse or warn — it silently replaces the **entire file** with just the
+freshly-rendered generated region plus a placeholder manual comment (observed: took a 114-line
+`README.md` down to 10). If you ever hand-edit a `mode = "Merge"` target and remove its markers,
+`ggen sync run` (without `--dry-run`) will destroy that content silently rather than catching the
+mistake — a real Fail-Open gap in the write engine, not merely a hypothetical. `ggen sync run
+--dry-run` / `just sync-dry` are safe in every case tested here — verified separately, exit `0`,
+correctly report a `planned: write (dry-run)` outcome without touching the file.
 
-**Do not run `ggen sync run` (without `--dry-run`) or `just sync` at the ggen repo root itself
-while this is the state of things.** This was tested directly, against a throwaway copy of this
-exact branch, specifically so the real branch wouldn't be at risk: a real sync's merge step, given
-a target file with no `<<<<<<< GENERATED`/`>>>>>>> MANUAL` markers to merge into, does not refuse
-or warn — it silently replaces the **entire file** with just the freshly-rendered generated region
-plus a placeholder manual comment. On the test copy this took `README.md` from 114 lines down to
-10. `ggen sync run --dry-run` / `just sync-dry` are safe — verified separately, exit `0`, and
-correctly report `"README.md": "planned: write (dry-run)"` without touching the file (confirmed:
-`README.md` was untouched, same line count, after running `--dry-run` at the repo root).
+Separately, `crates/ggen-cli/tests/generated/cli_proof_tests.rs` is `.gitignore`d
+(`generated/` — line 158) and only ever produced by a real (non-`--dry-run`) `ggen sync run` at
+the repo root. On a fresh clone of `main` that hasn't run one yet, `doctor` reports it missing
+until the first real sync creates it — not a defect, just a precondition worth knowing before
+trusting `doctor`'s output on a brand-new checkout.
 
 ## `just sync` / `just sync-dry` — a real, live doc correction
 

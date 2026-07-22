@@ -368,6 +368,18 @@ guard-generation-hash-pin:
 guard-pack-count:
     ./scripts/ci/guard-pack-count.sh
 
+# L5 promotion trust-hardening: refreshes evidence/l5-template-derivation.ttl
+# (packs/*/templates/*.tmpl frontmatter facts) that
+# .specify/gates/l5-cap05-template-derivation-claim.rq consumes at
+# `ggen sync run` time. NOT wired into `pre-commit` (same reasoning as
+# guard-publish-target above: pre-commit does not invoke sync, so the gate
+# this refreshes evidence for never runs there either) -- run by hand after
+# editing any pack's templates/, before the next `just sync`/`just sync-dry`.
+# See scripts/ci/produce-l5-template-derivation-evidence.sh's own header for
+# the full staleness contract.
+l5-template-evidence:
+    ./scripts/ci/produce-l5-template-derivation-evidence.sh
+
 # Security vulnerability scan
 audit:
     cargo audit

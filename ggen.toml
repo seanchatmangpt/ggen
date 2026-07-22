@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.7.31"
+version = "26.7.32"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -20,6 +20,7 @@ imports = [
   "packs/ggen-release-pack/ontology.ttl",
   "packs/ggen-verify-pack/ontology.ttl",
   "evidence/ontology.ttl",
+  "evidence/l5-template-derivation.ttl",
 ]
 
 [ontology.prefixes]
@@ -287,8 +288,43 @@ mode        = "Overwrite"
 # would never see a ggenr:Sync fact and could never fire. See
 # VERIFICATION.md's generated "Disclosed gap" section for the same note
 # projected from the graph.
+#
+# L5 promotion trust-hardening (2026-07-22): the l5-cap05-template-derivation-claim
+# and l5-level5-standing-requires-closed-capabilities gates enforce
+# .specify/pack-l5-promotion.ttl's own header-comment honesty bar ("do not
+# mark a pack l5p:Level5 by editing this file"), which nothing previously
+# checked. Same evidence discipline as ggen-verify-pack above: an external
+# script (scripts/ci/produce-l5-template-derivation-evidence.sh) records
+# real facts into evidence/l5-template-derivation.ttl, the gate only
+# consumes them. Wiring this surfaced 5 real, previously-undetected drift
+# cases (packs claiming l5p:cap05 closed with no qualifying evidence);
+# corrected in the same commit that added the gate (missingCap now
+# correctly lists cap05 for tcps-core-pack, wasm4pm-compat-pack, mcpp-pack,
+# self-monitoring-pack, ggen-verify-pack) rather than landing a gate that
+# would refuse every `ggen sync run` on this checkout on day one. Known,
+# disclosed limitation shared with the ggen-verify-pack gates above: this
+# only protects `ggen sync run`/`docs-sync`/`gen-receipt` (the pipeline
+# stage these gates run in), not `just pre-commit`, which does not invoke
+# sync -- see scripts/ci/produce-l5-template-derivation-evidence.sh's own
+# header for the staleness contract this implies.
+#
+# L5 promotion trust-hardening part 2 (2026-07-22): l5-level5-requires-
+# sabotage-evidence closes the residual gap
+# l5-level5-standing-requires-closed-capabilities.rq's own MESSAGE disclosed:
+# an empty l5p:missingCap is a NEGATIVE signal only (nothing flagged as
+# open), not a POSITIVE artifact proving l5p:cap06's "fails closed" bar was
+# actually exercised. This gate requires at least one hand-authored
+# l5p:SabotageEvidence individual (real l5p:sabotageCommand +
+# l5p:sabotageResult, not a bare claim) citing the pack before l5p:standing
+# l5p:Level5 is admitted. No packs currently hold l5p:Level5 (verified
+# 2026-07-22 by reading the whole file), so this gate's day-one effect is
+# zero drift corrections -- it establishes the bar in front of the first
+# real promotion rather than retrofitting one after the fact.
 gates = [
   ".specify/gates/cross-pack-contamination.rq",
+  ".specify/gates/l5-cap05-template-derivation-claim.rq",
+  ".specify/gates/l5-level5-standing-requires-closed-capabilities.rq",
+  ".specify/gates/l5-level5-requires-sabotage-evidence.rq",
   "packs/ggen-verify-pack/gates/010_evidence_present.rq",
   "packs/ggen-verify-pack/gates/020_evidence_green.rq",
 ]

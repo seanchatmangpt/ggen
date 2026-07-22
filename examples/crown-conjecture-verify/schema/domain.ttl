@@ -1,0 +1,6 @@
+# crown-conjecture-verify project ontology — deliberately empty of individuals.
+# crown-conjecture-pack's own ontology.ttl is the complete, source-cited model;
+# this consumer adds no project-specific facts on top of it. Exists only to
+# satisfy [ontology] source in ggen.toml.
+
+@prefix cc: <http://seanchatmangpt.github.io/packs/crown-conjecture#> .

@@ -10,6 +10,17 @@ produced.
 MIT licensed. Rust workspace, 17 crates. Requires a pinned nightly toolchain (see
 [Getting Started](docs/GETTING_STARTED.md)).
 
+<<<<<<< GENERATED
+Current version: `26.7.32` (workspace version in `Cargo.toml`; nightly Rust toolchain
+`nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
+pre-commit`, which chains 9 gates: fmt-check → check → lint → test-lib → coherence-check → guard-process-intelligence-boundary → guard-cheat-scan → guard-claims-schema → guard-pack-proofs. This project is
+under active, fast-moving development — see [Maturity & Known Limitations](#maturity--known-limitations)
+before depending on it for anything production-critical.
+
+=======
+<!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->
+>>>>>>> MANUAL
+
 ## What actually happens when you run `ggen sync`
 
 The live pipeline (`crates/ggen-engine/src/sync.rs`, whose own module doc names it this way) has
@@ -90,13 +101,6 @@ this page surfaced live, reproducible gaps worth stating plainly rather than smo
   `docs/aps/claims.toml` drift; neither reproduced under repeated testing and both have been
   retracted. Full transcripts, exact commands, and exact file lines:
   [docs/PERFORMANCE_QUICK_START.md](docs/PERFORMANCE_QUICK_START.md).
-- **`ggen doctor` fails at this repo's own root right now** (`receipt_staleness`, exit `1`),
-  because this very README was rewritten by hand without preserving the
-  `<<<<<<< GENERATED / >>>>>>> MANUAL` markers its `mode = "Merge"` generation rule expects.
-  Checked directly (against a throwaway copy, not this branch): running `ggen sync run` or
-  `just sync` — without `--dry-run` — at the ggen repo root while this holds would silently
-  overwrite this file with just the auto-generated region. `--dry-run` / `just sync-dry` are
-  safe. Full explanation: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 - **The pack ecosystem's Level-5 maturity bar has not been reached by any pack** — real,
   ongoing, per-capability progress, not a finished state. See the pack ecosystem section above.
 - For the authoritative, falsifier-backed list of what's currently `ALIVE` / `PARTIAL` /

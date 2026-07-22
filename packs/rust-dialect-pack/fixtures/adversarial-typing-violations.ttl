@@ -1,0 +1,81 @@
+@prefix gec: <http://seanchatmangpt.github.io/packs/rust-dialect#> .
+
+#################################################################
+# Adversarial fixture for rules/*.rq (packs/rust-dialect-pack/rules/).
+#
+# NOT a grounded corpus fact -- every individual below is a deliberately
+# planted violation of one typing/borrow-check rule, existing solely to
+# prove each rule's SPARQL is a real violation-finder and not a vacuously
+# passing query. Load only alongside ontology.ttl + fixtures/gec-facts.ttl
+# when exercising rules/*.rq; never load against shapes.ttl expecting
+# conformance -- these individuals are intentionally malformed against at
+# least one rules/*.rq query (most also fail shapes.ttl's structural shapes,
+# which is expected and not a bug in shapes.ttl).
+#
+# One block per rule; each comment names which rules/NNN_*.rq file the
+# block is designed to trip and why. Verified 2026-07-21: every block below
+# flips its target rule's ASK result from false (against
+# ontology.ttl+fixtures/gec-facts.ttl alone) to true (with this file added).
+#################################################################
+
+# --- rules/010: a Copy-eligible u32 local wrongly declared MoveTransfer ---
+gec:Adv_LocalPrimitive a gec:LocalBinding ;
+    gec:bindingName "adv_count" ; gec:isMutBinding false ;
+    gec:bindingType [ a gec:PrimitiveType ; gec:primitiveName "u32" ] .
+
+gec:Adv_Edge_wrong_move a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:MoveTransfer ;
+    gec:fromSite gec:Adv_LocalPrimitive ;
+    gec:toSite [ a gec:Parameter ; gec:paramIndex 0 ; gec:paramName "adv_count" ] ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+
+# --- rules/020: a second mutable borrow of gec:Local_方策, which already
+# carries a live BorrowSharedTransfer edge (gec:Edge_方策_sharedBorrow) in
+# fixtures/gec-facts.ttl -- aliasing XOR mutability violation ---
+gec:Adv_Edge_方策_secondMutBorrow a gec:OwnershipEdge ;
+    gec:ownershipTransferKind gec:BorrowMutTransfer ;
+    gec:fromSite gec:Local_方策 ;
+    gec:toSite [ a gec:Parameter ; gec:paramIndex 9 ; gec:paramName "adv_alias" ] ;
+    gec:withinFunction gec:Fn_選択する外部関数 .
+
+# --- rules/040: a GenericType with two arguments both at position 0
+# (duplicate slot, not a contiguous 0..n-1 positional arity) ---
+gec:Adv_MalformedGeneric a gec:GenericType ;
+    gec:baseType [ a gec:PathType ; gec:typePath "Adv" ] ;
+    gec:hasArgument
+        [ a gec:TypeArgumentType ; gec:argPosition 0 ; gec:argType [ a gec:PrimitiveType ; gec:primitiveName "u8" ] ],
+        [ a gec:TypeArgumentType ; gec:argPosition 0 ; gec:argType [ a gec:PrimitiveType ; gec:primitiveName "bool" ] ] .
+
+# --- rules/050: a bounded TypeGenericParam ("U: Clone") never referenced
+# anywhere in the signature's parameter or return types ---
+gec:Adv_Fn_unused_bound a gec:FunctionSignature ;
+    gec:fnName "adv_unused_bound" ;
+    gec:definedIn gec:Artifact_AffidavitTypes ;
+    gec:receiverKind gec:NoReceiver ;
+    gec:genericParam [ a gec:TypeGenericParam ; gec:paramName "U" ; gec:paramBound "Clone" ] ;
+    gec:returnType [ a gec:PrimitiveType ; gec:primitiveName "bool" ] .
+
+# --- rules/070: a dyn Trait object with no enclosing ReferenceType (raw,
+# unsized use -- violates the dynamically-sized-type indirection rule) ---
+gec:Adv_TraitObjType_bare a gec:TraitObjectType ;
+    gec:dynBound [ a gec:PathType ; gec:typePath "AdvBareTrait" ] ;
+    gec:dialectStatus gec:NamedException ;
+    gec:exceptionReason "adversarial: bare dyn Trait with no enclosing ReferenceType" .
+
+# --- rules/080: proves the ASK query mechanics are live (not a query bug
+# masquerading as "honestly vacuous") by planting a single
+# usesTryOperator=true fact ---
+gec:Adv_ErrorPath_usesTry a gec:StdResultPath ;
+    gec:usesTryOperator true ;
+    gec:okType [ a gec:PrimitiveType ; gec:primitiveName "bool" ] ;
+    gec:errType [ a gec:PathType ; gec:typePath "AdvError" ] .
+
+# --- rules/090: a const-generic argument referencing an undeclared param
+# name ("NOT_DECLARED" is not among the impl's own ConstGenericParam set) ---
+gec:Adv_Impl_badConstRef a gec:InherentImpl ;
+    gec:forType [ a gec:GenericType ;
+        gec:baseType [ a gec:PathType ; gec:typePath "AdvConstThing" ] ;
+        gec:hasArgument [ a gec:TypeArgumentConst ; gec:argPosition 0 ;
+            gec:argConstValue "NOT_DECLARED" ; gec:argConstIsParamRef true ] ] ;
+    gec:genericParam [ a gec:ConstGenericParam ; gec:paramName "上限" ; gec:constParamType "usize" ] ;
+    gec:dialectStatus gec:InCore .

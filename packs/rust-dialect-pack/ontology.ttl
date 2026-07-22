@@ -1,0 +1,489 @@
+@prefix gec:  <http://seanchatmangpt.github.io/packs/rust-dialect#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# GEC — ggen-emitted-core: vocabulary for the Rust dialect ggen's
+# templates actually emit.
+#
+# Every class, property and controlled-vocabulary individual below
+# is grounded in a real construct directly re-observed in this repo
+# on 2026-07-21 (packs/*/templates/**/*.tmpl and the verbatim
+# tcps:sourceText literals in packs/tcps-core-pack/ontology.ttl).
+# gec:groundedAt values are "path:line" citations against the tree
+# as it stood at that grounding pass. Where the corpus contradicts
+# a summary claim handed to this design task, the correction is
+# noted inline (see gec:成否ImplOfFactsTrait below for the clearest
+# case: the source finding's prose said "single-type-param impls",
+# but packs/tcps-core-pack/ontology.ttl:29 emits a *two*-type-param
+# unbounded impl — the class/shape model the corpus, not the prose).
+#
+# Re-grounding note: independently re-running the finding's own
+# grep sweep on 2026-07-21 found 39 pack directories / 321 .tmpl
+# files / 107 *.rs.tmpl files, not the 32 packs / 280 templates /
+# 107 *.rs.tmpl the originating finding reported — the repo grew
+# between passes. The construct-level claims this ontology encodes
+# (trait/associated-type/dyn/unsafe/async/Rc-Arc-Box/macro_rules!
+# counts) were independently re-checked at the current grounding
+# pass and are unaffected by that count drift.
+#################################################################
+
+<http://seanchatmangpt.github.io/packs/rust-dialect>
+    a owl:Ontology ;
+    rdfs:label "GEC — ggen-emitted-core Rust dialect vocabulary" .
+
+#################################################################
+# 1. Controlled vocabularies
+#################################################################
+
+gec:DialectStatus a rdfs:Class ;
+    rdfs:label "Dialect status" ;
+    rdfs:comment "Classification of a boundary-relevant node against the GEC dialect ceiling." .
+
+gec:InCore a gec:DialectStatus ;
+    rdfs:label "In-core" ;
+    rdfs:comment "Falls inside the widened dialect ceiling with no elevated construct present." .
+
+gec:InCoreHeightenedComplexity a gec:DialectStatus ;
+    rdfs:label "In-core, heightened complexity" ;
+    rdfs:comment """No construct outside the dialect's allowed vocabulary is present, but the
+node exceeds 'straight-line or simple match' in degree — e.g. a stateful byte-slicing lexer,
+a static Regex compiled via OnceLock::get_or_init, or a mutable flag threaded across a for
+loop. Grounded in packs/anti-llm-cheat-lsp-pack/templates/anti_llm_cheat_catalog.rs.tmpl
+(OnceLock<Regex> at line 277, Regex::new(...).unwrap() at line 284). This status exists
+specifically so complexity-in-degree is not conflated with a new construct type — the two
+are validated by different shapes (see shapes.ttl)."""@en .
+
+gec:NamedException a gec:DialectStatus ;
+    rdfs:label "Named exception" ;
+    rdfs:comment "A construct outside the widened dialect ceiling is present; gec:exceptionReason is required." .
+
+gec:Unobserved a gec:DialectStatus ;
+    rdfs:label "Unobserved (zero hits as of the grounding pass)" ;
+    rdfs:comment """Used only on gec:LanguageConstruct individuals for constructs that were
+grepped for across the full corpus and returned zero matches (Rc<, Arc<, Box<, async fn,
+.await, macro_rules!, #[proc_macro, for<' higher-ranked lifetimes, bare `unsafe { }` blocks).
+This is an observation, not a language-level prohibition — re-verify with the same grep sweep
+before treating a new template as bound by it."""@en .
+
+gec:TransferKind a rdfs:Class ; rdfs:label "Ownership-transfer kind" .
+gec:MoveTransfer a gec:TransferKind .
+gec:CopyTransfer a gec:TransferKind .
+gec:BorrowSharedTransfer a gec:TransferKind .
+gec:BorrowMutTransfer a gec:TransferKind .
+gec:ConsumeBySelfTransfer a gec:TransferKind ;
+    rdfs:comment "Trait/inherent method receiver consumes `self` by value, not &self/&mut self." .
+gec:ReturnOwnTransfer a gec:TransferKind .
+gec:IntoConversionTransfer a gec:TransferKind ;
+    rdfs:comment "Ownership passed through a From/Into coercion, e.g. `impl Into<String>` argument then `.into()`." .
+
+gec:BorrowKind a rdfs:Class ; rdfs:label "Borrow kind" .
+gec:SharedBorrow a gec:BorrowKind .
+gec:MutableBorrow a gec:BorrowKind .
+
+gec:ReceiverKind a rdfs:Class ; rdfs:label "Method receiver kind" .
+gec:NoReceiver a gec:ReceiverKind ; rdfs:comment "Free function; not a method." .
+gec:ByRefReceiver a gec:ReceiverKind ; rdfs:comment "&self." .
+gec:ByMutRefReceiver a gec:ReceiverKind ; rdfs:comment "&mut self." .
+gec:ByValueReceiver a gec:ReceiverKind ; rdfs:comment "self (consuming)." .
+
+gec:ImplPosition a rdfs:Class ; rdfs:label "impl Trait position" .
+gec:ArgumentPosition a gec:ImplPosition ;
+    rdfs:comment "e.g. `pub fn from_hex(hex: impl Into<String>) -> Self` — affidavit_types.rs.tmpl:77." .
+gec:ReturnPosition a gec:ImplPosition ;
+    rdfs:comment "e.g. `-> impl Iterator<Item = &'static CargoCicdCommand> + '_` — cargo_cicd_catalog.rs.tmpl:75." .
+
+gec:LifetimeKind a rdfs:Class ; rdfs:label "Lifetime kind" .
+gec:NamedLifetime a gec:LifetimeKind ;
+    rdfs:comment "e.g. 'de in `impl<'de> Deserialize<'de> for Receipt` — affidavit_types.rs.tmpl:112." .
+gec:StaticLifetime a gec:LifetimeKind ;
+    rdfs:comment "'static, e.g. `Item = &'static CargoCicdCommand` — cargo_cicd_catalog.rs.tmpl:75." .
+gec:AnonymousLifetime a gec:LifetimeKind ;
+    rdfs:comment "'_, e.g. the trailing `+ '_` on the same impl-Trait return — cargo_cicd_catalog.rs.tmpl:75." .
+gec:ElidedLifetime a gec:LifetimeKind ;
+    rdfs:comment "No lifetime token written at all — the overwhelming majority of &T/&mut T occurrences in the corpus." .
+
+gec:MacroKind a rdfs:Class ; rdfs:label "Macro-consumption kind" .
+gec:DeriveMacro a gec:MacroKind ;
+    rdfs:comment "e.g. #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, thiserror::Error)] — pervasive." .
+gec:AttributeMacro a gec:MacroKind ;
+    rdfs:comment "e.g. #[verb(\"{{ cmd.verb }}\", \"{{ cmd.noun }}\")] — clap_noun_verb_routes.rs.tmpl:29; #[error(\"...\")] — affidavit_chain.rs.tmpl:39." .
+gec:FunctionLikeBuiltinMacro a gec:MacroKind ;
+    rdfs:comment "std built-ins: format!, vec!, assert!/assert_eq!, matches!, concat!, env!, include_str! — used throughout, never defined." .
+
+#################################################################
+# 2. Language-construct grep-sweep facts (the corpus-wide ceiling)
+#################################################################
+
+gec:LanguageConstruct a rdfs:Class ;
+    rdfs:label "Language construct (grep-sweep fact)" ;
+    rdfs:comment "One controlled-vocabulary individual per construct family the grounding pass swept the full *.rs.tmpl corpus for." .
+
+gec:constructLabel a rdf:Property ; rdfs:domain gec:LanguageConstruct ; rdfs:range xsd:string .
+gec:grepPattern     a rdf:Property ; rdfs:domain gec:LanguageConstruct ; rdfs:range xsd:string .
+gec:observedCount   a rdf:Property ; rdfs:domain gec:LanguageConstruct ; rdfs:range xsd:integer ;
+    rdfs:comment "Distinct source files matched, not occurrence count, unless stated otherwise. Non-negative by convention — see gec:argPosition's comment on the xsd:integer-vs-xsd:nonNegativeInteger choice." .
+gec:defaultStatus   a rdf:Property ; rdfs:domain gec:LanguageConstruct ; rdfs:range gec:DialectStatus .
+gec:groundedAt      a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "path:line citation. Repeatable; used on gec:LanguageConstruct individuals and on ABox instances alike." .
+
+gec:UnsafeBlockConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "raw `unsafe { ... }` block" ;
+    gec:grepPattern "unsafe \\{" ;
+    gec:observedCount 0 ;
+    gec:defaultStatus gec:Unobserved .
+
+gec:UnsafeAttributeConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "#[unsafe(export_name = \"...\")] attribute (Rust-2024 unsafe-attribute syntax)" ;
+    gec:grepPattern "#\\[unsafe\\(" ;
+    gec:observedCount 2 ;
+    gec:defaultStatus gec:NamedException ;
+    gec:groundedAt "packs/tcps-ffi-pack/templates/lib.rs.tmpl:37", "packs/tcps-ffi-pack/templates/lib.rs.tmpl:42",
+                   "packs/tcps-wasm-pack ontology-sourced lib.rs (crates/tcps-wasm/src/lib.rs)" .
+
+gec:SmartPointerConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "Rc<, Arc<, Box<" ;
+    gec:grepPattern "Rc<|Arc<|Box<" ;
+    gec:observedCount 0 ;
+    gec:defaultStatus gec:Unobserved .
+
+gec:AsyncConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "async fn / async move / .await" ;
+    gec:grepPattern "async fn|async move|\\.await" ;
+    gec:observedCount 0 ;
+    gec:defaultStatus gec:Unobserved .
+
+gec:MacroDefinitionConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "macro_rules! / #[proc_macro*] definitions" ;
+    gec:grepPattern "macro_rules!|#\\[proc_macro" ;
+    gec:observedCount 0 ;
+    gec:defaultStatus gec:Unobserved ;
+    rdfs:comment "Zero macro *definitions*; macro *consumption* (derive/attribute/builtin) is pervasive — see gec:MacroConsumptionEffect." .
+
+gec:HigherRankedLifetimeConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "for<'a> higher-ranked trait bounds" ;
+    gec:grepPattern "for<'" ;
+    gec:observedCount 0 ;
+    gec:defaultStatus gec:Unobserved .
+
+gec:ProjectTraitDefinitionConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "project-defined `pub trait` declarations" ;
+    gec:grepPattern "^pub trait |    pub trait " ;
+    gec:observedCount 3 ;
+    gec:defaultStatus gec:NamedException ;
+    rdfs:comment "3 total; exactly one (OclnrHandlerSeam) is InCore — see gec:TraitDefinitionExceptionRule in shapes.ttl for the discriminating rule (associated types / generic type params)." ;
+    gec:groundedAt "packs/osx-clnr-pack/templates/osx_clnr_dispatch.rs.tmpl:50",
+                   "packs/tcps-core-pack/ontology.ttl:1433",
+                   "packs/tcps-core-pack/ontology.ttl:1577" .
+
+gec:DynTraitObjectConstruct a gec:LanguageConstruct ;
+    gec:constructLabel "&dyn Trait / &dyn Fn(...) trait objects" ;
+    gec:grepPattern "&dyn " ;
+    gec:observedCount 3 ;
+    gec:defaultStatus gec:NamedException ;
+    gec:groundedAt "packs/osx-clnr-pack/templates/osx_clnr_dispatch_proof.rs.tmpl:69",
+                   "packs/cargo-cicd-pack/templates/cargo_cicd_dispatch_proof.rs.tmpl:137",
+                   "packs/mcpp-pack/templates/mcpp_dispatch_proof.rs.tmpl:73" .
+
+#################################################################
+# 3. Artifact — one generated Rust source file
+#################################################################
+
+gec:Artifact a rdfs:Class ; rdfs:label "Generated Rust source artifact" .
+
+gec:sourcePack   a rdf:Property ; rdfs:domain gec:Artifact ; rdfs:range xsd:string .
+gec:templatePath a rdf:Property ; rdfs:domain gec:Artifact ; rdfs:range xsd:string .
+gec:outputPath   a rdf:Property ; rdfs:domain gec:Artifact ; rdfs:range xsd:string .
+gec:ffiBoundary  a rdf:Property ; rdfs:domain gec:Artifact ; rdfs:range xsd:boolean ;
+    rdfs:comment "True only for tcps-ffi-pack/tcps-wasm-pack's C-ABI/WASM export surfaces." .
+gec:crateAttribute a rdf:Property ; rdfs:domain gec:Artifact ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. \"#![no_std]\", \"#![deny(unsafe_op_in_unsafe_fn)]\", \"#![forbid(unsafe_code)]\"." .
+gec:dialectStatus a rdf:Property ; rdfs:range gec:DialectStatus ;
+    rdfs:comment "Applicable to gec:Artifact and to every boundary-relevant node type below (FunctionSignature, TraitDefinition, TraitImpl, TraitObjectType, ImplTraitType, UnsafeAttributeEffect, ExternAbiEffect)." .
+gec:exceptionReason a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "Required whenever gec:dialectStatus is gec:NamedException." .
+
+#################################################################
+# 4. Type expressions
+#################################################################
+
+gec:TypeExpr a rdfs:Class ; rdfs:label "Type expression (abstract)" .
+
+gec:PrimitiveType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment "e.g. u8/u16/u32/u64/usize/bool — tcps-ffi-pack/templates/lib.rs.tmpl:14-20 (外部選択要求 struct fields)." .
+gec:primitiveName a rdf:Property ; rdfs:domain gec:PrimitiveType ; rdfs:range xsd:string .
+
+gec:PathType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment "Named type reference: struct/enum/Self/external-crate path. e.g. `Self`, `Receipt`, `tcps_core::語彙::有無`." .
+gec:typePath a rdf:Property ; rdfs:domain gec:PathType ; rdfs:range xsd:string .
+
+gec:TypeArgument a rdfs:Class ; rdfs:label "Generic type-argument (abstract)" .
+gec:TypeArgumentType a rdfs:Class ; rdfs:subClassOf gec:TypeArgument ;
+    rdfs:comment "A TypeExpr used as a generic argument, e.g. `値` in `有無<値>`." .
+gec:TypeArgumentConst a rdfs:Class ; rdfs:subClassOf gec:TypeArgument ;
+    rdfs:comment "A const-value argument, e.g. the literal `3` in `作業領域::<3>::新規()` — tcps-ffi-pack/templates/lib.rs.tmpl:45." .
+gec:argPosition  a rdf:Property ; rdfs:domain gec:TypeArgument ; rdfs:range xsd:integer ;
+    rdfs:comment "Non-negative by convention; shapes.ttl enforces this via sh:minInclusive 0 rather than requiring every Turtle literal to carry an explicit ^^xsd:nonNegativeInteger suffix (bare integer literals in Turtle are xsd:integer)." .
+gec:argType      a rdf:Property ; rdfs:domain gec:TypeArgumentType ; rdfs:range gec:TypeExpr .
+gec:argConstValue a rdf:Property ; rdfs:domain gec:TypeArgumentConst ; rdfs:range xsd:string ;
+    rdfs:comment "Source text of the const argument — a literal (\"3\", the array-length-style instantiation `作業領域::<3>::新規()`, tcps-ffi-pack/templates/lib.rs.tmpl:45) or, when gec:argConstIsParamRef is true, the name of a declared ConstGenericParam used at a call/type site." .
+gec:argConstIsParamRef a rdf:Property ; rdfs:domain gec:TypeArgumentConst ; rdfs:range xsd:boolean ;
+    rdfs:comment "True when gec:argConstValue names a declared const-generic parameter rather than a literal — e.g. `上限` filling the const-argument slot of `系譜台帳<上限>` inside `impl<const 上限: usize> 系譜台帳<上限>` (tcps ontology.ttl:200). Const arguments are values, not types, so this is modeled on gec:TypeArgumentConst rather than as a TypeExpr subclass." .
+
+gec:GenericType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment "Parameterized type application, e.g. `有無<値>` (tcps ontology.ttl:8), `成否<成功, 失敗>` (tcps ontology.ttl:24), `作業領域<3>` (const-generic instantiation)." .
+gec:baseType    a rdf:Property ; rdfs:domain gec:GenericType ; rdfs:range gec:PathType .
+gec:hasArgument a rdf:Property ; rdfs:domain gec:GenericType ; rdfs:range gec:TypeArgument ;
+    rdfs:comment "Required, >=1: a GenericType by definition carries at least one type argument (that is what distinguishes it from a bare PathType)." .
+
+gec:TypeParamRef a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment """Use-site reference, in TYPE position, to a type parameter declared
+elsewhere on the enclosing FunctionSignature/ImplBlock's gec:genericParam list — e.g. `T`
+used as `&T` inside `fn canonical_bytes<T: Serialize>(value: &T)` (affidavit_types.rs.tmpl:186),
+or `成功`/`失敗` used as the two type arguments of `成否<成功, 失敗>` inside
+`impl<成功, 失敗> 成否<成功, 失敗>` (tcps ontology.ttl:29). Distinct from
+gec:TypeGenericParam, which is the *declaration* site, not a use."""@en .
+gec:refersToParam a rdf:Property ; rdfs:domain gec:TypeParamRef ; rdfs:range xsd:string .
+
+gec:ReferenceType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment "&T / &mut T, with or without a named lifetime." .
+gec:referent a rdf:Property ; rdfs:domain gec:ReferenceType ; rdfs:range gec:TypeExpr .
+gec:mutable  a rdf:Property ; rdfs:range xsd:boolean ; rdfs:comment "Domain: gec:ReferenceType or gec:BorrowFact." .
+gec:lifetime a rdf:Property ; rdfs:domain gec:ReferenceType ; rdfs:range gec:Lifetime .
+
+gec:FnTraitBound a rdfs:Class ;
+    rdfs:comment "Fn(...)->... bound shape inside a dyn Fn trait object, e.g. `Fn(&[String]) -> std::io::Result<std::process::Output>` — cargo_cicd_dispatch_proof.rs.tmpl:137." .
+gec:fnParam  a rdf:Property ; rdfs:domain gec:FnTraitBound ; rdfs:range gec:TypeExpr .
+gec:fnReturn a rdf:Property ; rdfs:domain gec:FnTraitBound ; rdfs:range gec:TypeExpr .
+
+gec:TraitObjectType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment """`&dyn Trait` / `&dyn Fn(...) -> ...`. Always gec:NamedException in this
+corpus — see gec:DynTraitObjectConstruct and gec:TraitObjectTypeExceptionShape."""@en .
+gec:dynBound a rdf:Property ; rdfs:domain gec:TraitObjectType ;
+    rdfs:comment "Range: gec:PathType (a named trait, e.g. OclnrHandlerSeam) or gec:FnTraitBound (Fn(...)->...)." .
+
+gec:ImplTraitType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment """`impl Trait` in argument or return position. Both occurrences in the corpus
+sit inside already-exceptional files: argument-position `impl Into<String>` at
+affidavit_types.rs.tmpl:77, return-position `impl Iterator<Item=&'static T> + '_` at
+cargo_cicd_catalog.rs.tmpl:75."""@en .
+gec:implPosition a rdf:Property ; rdfs:domain gec:ImplTraitType ; rdfs:range gec:ImplPosition .
+gec:boundTrait   a rdf:Property ; rdfs:domain gec:ImplTraitType ; rdfs:range gec:TypeExpr .
+
+gec:ArrayType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ;
+    rdfs:comment "e.g. `[u8; 2]` — tcps-ffi-pack/templates/lib.rs.tmpl:19 (予約 field)." .
+gec:elementType a rdf:Property ; rdfs:domain gec:ArrayType ; rdfs:range gec:TypeExpr .
+gec:arrayLength a rdf:Property ; rdfs:domain gec:ArrayType ; rdfs:range xsd:integer ;
+    rdfs:comment "Non-negative by convention — see gec:argPosition's comment." .
+
+gec:TupleType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr .
+gec:tupleComponent a rdf:Property ; rdfs:domain gec:TupleType ; rdfs:range gec:TypeExpr .
+
+gec:UnitType a rdfs:Class ; rdfs:subClassOf gec:TypeExpr ; rdfs:comment "()." .
+
+#################################################################
+# 5. Lifetime / borrow facts
+#################################################################
+
+gec:Lifetime a rdfs:Class .
+gec:lifetimeLabel a rdf:Property ; rdfs:domain gec:Lifetime ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. \"'de\", \"'static\", \"'_\"." .
+gec:lifetimeKindProp a rdf:Property ; rdfs:domain gec:Lifetime ; rdfs:range gec:LifetimeKind .
+
+gec:BorrowFact a rdfs:Class ;
+    rdfs:comment "A borrow occurrence attached to a Parameter, ReturnType, or ReferenceType." .
+gec:borrowKind     a rdf:Property ; rdfs:domain gec:BorrowFact ; rdfs:range gec:BorrowKind .
+gec:borrowedType   a rdf:Property ; rdfs:domain gec:BorrowFact ; rdfs:range gec:TypeExpr .
+gec:borrowLifetime a rdf:Property ; rdfs:domain gec:BorrowFact ; rdfs:range gec:Lifetime .
+
+#################################################################
+# 6. Function signatures, generics, traits
+#################################################################
+
+gec:FunctionSignature a rdfs:Class .
+gec:fnName       a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range xsd:string .
+gec:definedIn    a rdf:Property ; rdfs:range gec:Artifact ;
+    rdfs:comment "Domain: gec:FunctionSignature, gec:TraitDefinition, gec:TraitImpl, or gec:InherentImpl." .
+gec:hasParameter a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range gec:Parameter .
+gec:returnType   a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range gec:TypeExpr .
+gec:receiverKind a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range gec:ReceiverKind .
+gec:isConstFn    a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range xsd:boolean ;
+    rdfs:comment "e.g. `pub const fn 拒否理由番号(...)` — tcps-ffi-pack/templates/lib.rs.tmpl:82." .
+gec:abi          a rdf:Property ; rdfs:domain gec:FunctionSignature ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. \"C\" for `pub extern \"C\" fn ...` — tcps-ffi-pack/templates/lib.rs.tmpl:38,43." .
+gec:genericParam a rdf:Property ; rdfs:range gec:GenericParam ;
+    rdfs:comment "Domain: gec:FunctionSignature, gec:TraitDefinition, gec:TraitImpl, or gec:InherentImpl." .
+
+gec:Parameter a rdfs:Class .
+gec:paramIndex a rdf:Property ; rdfs:domain gec:Parameter ; rdfs:range xsd:integer ;
+    rdfs:comment "Non-negative by convention — see gec:argPosition's comment on the xsd:integer-vs-xsd:nonNegativeInteger choice." .
+gec:paramName  a rdf:Property ; rdfs:domain gec:Parameter ; rdfs:range xsd:string .
+gec:paramType  a rdf:Property ; rdfs:domain gec:Parameter ; rdfs:range gec:TypeExpr .
+
+gec:GenericParam a rdfs:Class ; rdfs:label "Generic parameter (abstract)" .
+gec:TypeGenericParam a rdfs:Class ; rdfs:subClassOf gec:GenericParam ;
+    rdfs:comment "e.g. `値` in `impl<値> 有無<値>` (unbounded); `T` in `fn canonical_bytes<T: Serialize>` (bounded, affidavit_types.rs.tmpl:186)." .
+gec:paramBound a rdf:Property ; rdfs:domain gec:TypeGenericParam ; rdfs:range xsd:string ;
+    rdfs:comment "0 values = unbounded (in-core-eligible); >=1 value = bounded (always gec:NamedException in this corpus)." .
+gec:ConstGenericParam a rdfs:Class ; rdfs:subClassOf gec:GenericParam ;
+    rdfs:comment "e.g. `const 上限: usize` in `impl<const 上限: usize> 系譜台帳<上限>` — tcps ontology.ttl:200." .
+gec:constParamType a rdf:Property ; rdfs:domain gec:ConstGenericParam ; rdfs:range xsd:string .
+gec:LifetimeGenericParam a rdfs:Class ; rdfs:subClassOf gec:GenericParam ;
+    rdfs:comment "e.g. `'de` in `impl<'de> Deserialize<'de> for Receipt` — affidavit_types.rs.tmpl:112. Always gec:NamedException in this corpus." .
+
+gec:TraitDefinition a rdfs:Class ; rdfs:label "Project-defined trait declaration" .
+gec:traitName          a rdf:Property ; rdfs:domain gec:TraitDefinition ; rdfs:range xsd:string .
+gec:hasMethod          a rdf:Property ; rdfs:domain gec:TraitDefinition ; rdfs:range gec:FunctionSignature .
+gec:hasAssociatedType  a rdf:Property ; rdfs:domain gec:TraitDefinition ; rdfs:range gec:AssociatedTypeDecl .
+gec:externalTrait      a rdf:Property ; rdfs:domain gec:TraitDefinition ; rdfs:range xsd:boolean ;
+    rdfs:comment "True for a stub individual standing in for a non-project trait the corpus implements against (serde::Deserialize, std::iter::Iterator) rather than a full project-defined declaration." .
+
+gec:AssociatedTypeDecl a rdfs:Class ;
+    rdfs:comment "e.g. `type 成果;` / `type 失敗;` inside `pub trait 実行器` — tcps ontology.ttl:1434-1435." .
+gec:assocName a rdf:Property ; rdfs:domain gec:AssociatedTypeDecl ; rdfs:range xsd:string .
+
+gec:ImplBlock a rdfs:Class ; rdfs:label "impl block (abstract: trait impl or inherent impl)" ;
+    rdfs:comment """Rust distinguishes trait impls (`impl Trait for Type`) from inherent impls
+(`impl Type` / `impl<generics> Type<generics>`, no trait). The corpus's const-generic and
+unbounded-type-param 'single-type-param-style' impls the source finding described are
+overwhelmingly INHERENT impls, not trait impls — e.g. `impl<値> 有無<値> { ... }`
+(tcps ontology.ttl:13) and `impl<成功, 失敗> 成否<成功, 失敗> { ... }` (tcps ontology.ttl:29)
+declare no trait at all. Conflating the two under one gec:TraitImpl class was an earlier
+modeling error in this ontology, caught by pyshacl reporting gec:implementsTrait
+MinCountConstraintComponent violations against those three individuals when the shapes were
+run against grounded fixtures — fixed by this ImplBlock/TraitImpl/InherentImpl split."""@en .
+gec:forType      a rdf:Property ; rdfs:domain gec:ImplBlock ; rdfs:range gec:TypeExpr .
+
+gec:TraitImpl a rdfs:Class ; rdfs:subClassOf gec:ImplBlock ; rdfs:label "impl <Trait> for <Type> block" ;
+    rdfs:comment "e.g. `impl<'de> Deserialize<'de> for Receipt` (affidavit_types.rs.tmpl:112), `impl 防止条件<u32> for 範囲防止` (tcps ontology.ttl:1588)." .
+gec:implementsTrait a rdf:Property ; rdfs:domain gec:TraitImpl ; rdfs:range gec:TraitDefinition .
+
+gec:InherentImpl a rdfs:Class ; rdfs:subClassOf gec:ImplBlock ; rdfs:label "impl <Type> block (no trait)" ;
+    rdfs:comment "e.g. `impl<値> 有無<値> { ... }` (tcps ontology.ttl:13), `impl<成功, 失敗> 成否<成功, 失敗> { ... }` (tcps ontology.ttl:29), `impl<const 上限: usize> 系譜台帳<上限> { ... }` (tcps ontology.ttl:200)." .
+
+#################################################################
+# 7. Ownership-transfer edges
+#################################################################
+
+gec:OwnershipEdge a rdfs:Class ;
+    rdfs:comment """Reified move/borrow/copy/consume/return relation. Worked example grounded in
+tcps-ffi-pack/templates/lib.rs.tmpl:43-77 (選択する外部関数): the local `方策` is passed
+by shared borrow (&方策), the local `作業領域` by mutable borrow (&mut 作業領域), and the
+local `要求` (rebuilt struct, all-Copy u64/u32/u8 fields) is moved by value into
+`選択する(&方策, 要求, &mut 作業領域)`."""@en .
+gec:ownershipTransferKind a rdf:Property ; rdfs:domain gec:OwnershipEdge ; rdfs:range gec:TransferKind .
+gec:fromSite      a rdf:Property ; rdfs:domain gec:OwnershipEdge ;
+    rdfs:comment "Range: gec:Parameter, gec:LocalBinding, or gec:StructFieldSite." .
+gec:toSite        a rdf:Property ; rdfs:domain gec:OwnershipEdge ;
+    rdfs:comment "Range: gec:Parameter, gec:LocalBinding, gec:StructFieldSite, or gec:ReturnSlot." .
+gec:withinFunction a rdf:Property ; rdfs:domain gec:OwnershipEdge ; rdfs:range gec:FunctionSignature .
+
+gec:LocalBinding a rdfs:Class ;
+    rdfs:comment "e.g. `let mut 作業領域 = 作業領域::<3>::新規();` — tcps-ffi-pack/templates/lib.rs.tmpl:45." .
+gec:bindingName   a rdf:Property ; rdfs:domain gec:LocalBinding ; rdfs:range xsd:string .
+gec:bindingType   a rdf:Property ; rdfs:domain gec:LocalBinding ; rdfs:range gec:TypeExpr .
+gec:isMutBinding  a rdf:Property ; rdfs:domain gec:LocalBinding ; rdfs:range xsd:boolean .
+
+gec:StructFieldSite a rdfs:Class ;
+    rdfs:comment "A field-construction site, e.g. `取得権限: 要求.取得権限` inside the `選択要求 { ... }` literal — tcps-ffi-pack/templates/lib.rs.tmpl:46-53." .
+gec:ownerStruct a rdf:Property ; rdfs:domain gec:StructFieldSite ; rdfs:range gec:PathType .
+gec:fieldName   a rdf:Property ; rdfs:domain gec:StructFieldSite ; rdfs:range xsd:string .
+
+gec:ReturnSlot a rdfs:Class ; rdfs:comment "The function's return-value site." .
+
+#################################################################
+# 8. Effect facts
+#################################################################
+
+gec:EffectFact a rdfs:Class ; rdfs:label "Effect fact (abstract)" .
+gec:effectOf a rdf:Property ; rdfs:domain gec:EffectFact ;
+    rdfs:comment "Range: gec:FunctionSignature or gec:Artifact." .
+
+gec:UnsafeAttributeEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "#[unsafe(export_name = \"...\")] — tcps-ffi-pack/templates/lib.rs.tmpl:37,42. Never a raw unsafe{} block (gec:UnsafeBlockConstruct is Unobserved)." .
+gec:exportName a rdf:Property ; rdfs:domain gec:UnsafeAttributeEffect ; rdfs:range xsd:string .
+
+gec:ExternAbiEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "pub extern \"C\" fn ... — tcps-ffi-pack/templates/lib.rs.tmpl:38,43." .
+gec:abiName a rdf:Property ; rdfs:domain gec:ExternAbiEffect ; rdfs:range xsd:string .
+
+gec:ReprCEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "#[repr(C)] — tcps-ffi-pack/templates/lib.rs.tmpl:11,23." .
+
+gec:NoStdEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "#![no_std] crate attribute — packs/tcps-core-pack/templates/lib.rs.tmpl." .
+
+gec:MacroConsumptionEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "Consumption (never definition) of a derive/attribute/builtin macro." .
+gec:macroKindProp a rdf:Property ; rdfs:domain gec:MacroConsumptionEffect ; rdfs:range gec:MacroKind .
+gec:macroPath     a rdf:Property ; rdfs:domain gec:MacroConsumptionEffect ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. \"thiserror::Error\", \"clap_noun_verb_macros::verb\", \"format!\"." .
+
+gec:PotentialPanicEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment ".unwrap()/.expect() call — e.g. `Regex::new(pattern).unwrap()`, anti_llm_cheat_catalog.rs.tmpl:284. Allowed statuses: InCore or InCoreHeightenedComplexity, never forces NamedException by itself." .
+gec:panicSite a rdf:Property ; rdfs:domain gec:PotentialPanicEffect ; rdfs:range xsd:string .
+
+gec:RegexCompilationEffect a rdfs:Class ; rdfs:subClassOf gec:EffectFact ;
+    rdfs:comment "static X: OnceLock<Regex> = OnceLock::new(); ... get_or_init(...) — anti_llm_cheat_catalog.rs.tmpl:65,277,284." .
+
+#################################################################
+# 9. Error-path facts
+#################################################################
+
+gec:ErrorPathFact a rdfs:Class ; rdfs:label "Error-path fact (abstract)" .
+gec:errorPathOf a rdf:Property ; rdfs:domain gec:ErrorPathFact ; rdfs:range gec:FunctionSignature .
+
+gec:StdResultPath a rdfs:Class ; rdfs:subClassOf gec:ErrorPathFact ;
+    rdfs:comment "std::result::Result<T,E> — the norm outside tcps-core, e.g. `fn handle_snapshot_thin_bytes_budget(bytes: &str) -> Result<u64, String>` — osx_clnr_dispatch.rs.tmpl:41." .
+gec:CustomResultAnalogPath a rdfs:Class ; rdfs:subClassOf gec:ErrorPathFact ;
+    rdfs:comment "The no_std 成否<成功, 失敗> enum — tcps ontology.ttl:24-27, used because tcps-core is #![no_std] and cannot depend on std::result::Result." .
+gec:okType  a rdf:Property ; rdfs:range gec:TypeExpr ; rdfs:comment "Domain: gec:StdResultPath or gec:CustomResultAnalogPath." .
+gec:errType a rdf:Property ; rdfs:range gec:TypeExpr ; rdfs:comment "Domain: gec:StdResultPath or gec:CustomResultAnalogPath." .
+gec:usesTryOperator a rdf:Property ; rdfs:range xsd:boolean ;
+    rdfs:comment "Whether `?` is used within the function body. Domain: gec:StdResultPath or gec:CustomResultAnalogPath. Zero `?` hits observed in tcps-core-pack/ontology.ttl." .
+gec:analogOf a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. \"std::result::Result\" or \"std::option::Option\". Domain: gec:CustomResultAnalogPath or gec:CustomOptionAnalogPath." .
+
+gec:StdOptionPath a rdfs:Class ; rdfs:subClassOf gec:ErrorPathFact .
+gec:CustomOptionAnalogPath a rdfs:Class ; rdfs:subClassOf gec:ErrorPathFact ;
+    rdfs:comment "The no_std 有無<値> enum — tcps ontology.ttl:7-11." .
+
+gec:ThiserrorVariant a rdfs:Class ;
+    rdfs:comment "One #[error(\"...\")] arm of a #[derive(thiserror::Error)] enum — affidavit_chain.rs.tmpl:37-43." .
+gec:variantName          a rdf:Property ; rdfs:domain gec:ThiserrorVariant ; rdfs:range xsd:string .
+gec:errorMessageTemplate a rdf:Property ; rdfs:domain gec:ThiserrorVariant ; rdfs:range xsd:string .
+gec:hasFromConversion    a rdf:Property ; rdfs:domain gec:ThiserrorVariant ; rdfs:range xsd:boolean ;
+    rdfs:comment "True when the variant carries #[from], e.g. the io-error arm's implicit From<std::io::Error>." .
+gec:belongsToErrorEnum   a rdf:Property ; rdfs:domain gec:ThiserrorVariant ; rdfs:range gec:PathType .
+
+#################################################################
+# 10. Derived typing/borrow-check vocabulary
+#
+# Populated only by the SPARQL CONSTRUCT rules in rules/*.rq — never
+# hand-asserted on a grounded fixture individual. This section exists
+# so those rules have target vocabulary to write inferred facts into.
+# rules/030_lifetime_elision.rq reuses Section 5's existing
+# gec:Lifetime/gec:lifetimeKindProp/gec:ElidedLifetime unchanged (no
+# new vocabulary needed there); gec:QuantifierKind below is the one
+# genuinely new predicate rules/060 needs, since no existing property
+# records impl-Trait's universal-vs-existential typing status.
+#################################################################
+
+gec:QuantifierKind a rdfs:Class ; rdfs:label "impl-Trait quantifier kind (derived)" ;
+    rdfs:comment """Classifies whether a gec:ImplTraitType's position gives it universal or
+existential typing semantics, per RFC 1522 ('Conservative impl Trait') and RFC 1951's own
+design rationale: argument-position `impl Trait` desugars to a caller-chosen, universally
+quantified anonymous generic parameter (`fn f(x: impl Trait)` ≡ `fn f<T: Trait>(x: T)`);
+return-position `impl Trait` desugars to a callee-chosen, existentially quantified opaque type
+(the concrete type is picked once by the function body and hidden from callers). This ∀/∃
+reading is the standard account of abstract/opaque return types traced to Mitchell & Plotkin,
+'Abstract Types Have Existential Type', ACM TOPLAS 10(3), 1988. Populated exclusively by
+rules/060_impl_trait_quantifier_desugaring.rq."""@en .
+gec:UniversalQuantifier a gec:QuantifierKind ;
+    rdfs:comment "Argument-position impl Trait — caller picks the concrete type; the function is generic over it." .
+gec:ExistentialQuantifier a gec:QuantifierKind ;
+    rdfs:comment "Return-position impl Trait — the function picks (and hides) the concrete type; the caller knows only the trait bound." .
+gec:quantifierKind a rdf:Property ; rdfs:domain gec:ImplTraitType ; rdfs:range gec:QuantifierKind ;
+    rdfs:comment "Derived, not hand-asserted — see rules/060_impl_trait_quantifier_desugaring.rq." .
