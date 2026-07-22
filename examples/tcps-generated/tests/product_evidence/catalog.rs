@@ -11,37 +11,6 @@ const EXPECTED_PACKS: [&str; 8] = [
     "tcps-wasm-pack",
 ];
 
-const CONTRACTS: &[TestContract] = &[
-    TestContract::new(
-        "tcps-evidence/source-manifest",
-        &["tcps.source-manifest"],
-        &["unique-paths", "sha256-format", "exact-entry-count"],
-        ResourceEnvelope::new(u64::MAX, 64 * 1024 * 1024, false, true, false),
-        &["real-filesystem"],
-    ),
-    TestContract::new(
-        "tcps-evidence/capabilities",
-        &["tcps.capability-catalog"],
-        &["format-parse", "manifest-bound", "no-vacuous-discharge"],
-        ResourceEnvelope::new(u64::MAX, 64 * 1024 * 1024, false, true, false),
-        &["real-filesystem", "python3", "bash"],
-    ),
-    TestContract::new(
-        "tcps-evidence/ggen-lock",
-        &["tcps.ggen-lock"],
-        &["complete-pack-set", "blake3-identity-format"],
-        ResourceEnvelope::new(u64::MAX, 8 * 1024 * 1024, false, true, false),
-        &["real-filesystem"],
-    ),
-    TestContract::new(
-        "tcps-evidence/receipt",
-        &["tcps.evidence-receipt"],
-        &["cryptographic-root", "replay-stable", "mutation-sensitive"],
-        ResourceEnvelope::new(u64::MAX, 64 * 1024 * 1024, false, true, false),
-        &["real-filesystem"],
-    ),
-];
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(rename_all = "kebab-case")]
 enum CapabilityKind {
