@@ -175,7 +175,7 @@ l5p:pack_star_toml a l5p:Pack ; l5p:packId "star-toml-pack" ; l5p:wave l5p:wave5
     l5p:standing l5p:InProgress ;
     l5p:currentCeiling "L2 ceiling, L3 Test-generation (8/8, verified against the real crates.io v26.7.3 registry dependency, not CI-wired)" ;
     l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
-    l5p:nextPromotionObligation "Same lift as praxis-core-pack: wire its existing real proof into CI." .
+    l5p:nextPromotionObligation "CORRECTED 2026-07-21: CI-wiring alone will NOT close cap05 here either -- confirmed by direct inspection, star_toml_config_proof.rs.tmpl carries no sparql: frontmatter and hand-transcribes its expected values, same structural gap as praxis-core-pack (see that individual's own obligation text). Real next step is now wave-2 machinery (see l5p:wave2), not a per-pack CI-wiring lift: a reusable SPARQL-derived-proof template pattern, proven first on one pack, then applied here." .
 l5p:pack_lsp_max a l5p:Pack ; l5p:packId "lsp-max-pack" ; l5p:wave l5p:wave5 ;
     l5p:standing l5p:InProgress ;
     l5p:currentCeiling "L2 ceiling, L3 Test-generation (7/7, real regex/toml exercise); Target-API-fidelity UNVERIFIED" ;
