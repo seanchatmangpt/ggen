@@ -167,6 +167,19 @@ fn test_property_paths_comprehensive() {
 #[test]
 fn test_sparql_ask_constraint() {
     // sh:ask constraint: focus node must have an ex:age >= 18.
+    //
+    // NOTE: `SHACL_SPARQL_BOUNDARY = "CORE_ONLY"` (`src/shacl/model.rs`,
+    // PROJ-407 Step 2 -- a deliberate v26.7.8 threat-model decision, pinned
+    // by its own `shacl_test.rs::test_...boundary` unit test) makes
+    // `check_sparql_boundary` skip evaluating EVERY `sh:sparql` constraint
+    // node entirely (`src/shacl/validate.rs:572`'s `if
+    // check_sparql_boundary(...) { ... }` guard around the only call site of
+    // `validate_sparql_constraint`). The shape still loads successfully
+    // (`ShapesGraph::parse` does not reject it, despite the doc comment's
+    // "rejected at shape load time" phrasing -- a real, separately-tracked
+    // doc/implementation drift, not something this test changes). With
+    // sh:sparql as the shape's ONLY constraint, both Alice (30) and Bob (10)
+    // must conform: the age check that would flag Bob never runs.
     let shapes_str = r#"
         @prefix sh: <http://www.w3.org/ns/shacl#> .
         @prefix ex: <http://example.org/> .
@@ -188,23 +201,23 @@ fn test_sparql_ask_constraint() {
     let shapes = ShapesGraph::parse(shapes_str).unwrap();
     let report = Validator::validate(&data, &shapes);
 
-    assert!(!report.conforms);
-    assert_eq!(report.results.len(), 1);
-    assert!(report.results[0].focus_node.to_string().contains("Bob"));
-    assert_eq!(
-        report.results[0].message.as_deref(),
-        Some("Must be an adult")
+    assert!(
+        report.conforms,
+        "sh:sparql (sh:ask) is inert under SHACL_SPARQL_BOUNDARY = CORE_ONLY, so no violation \
+         can be produced regardless of data: {:?}",
+        report.results
     );
-    assert_eq!(
-        report.results[0].source_constraint_component.to_string(),
-        "<http://www.w3.org/ns/shacl#SPARQLConstraintComponent>"
-    );
+    assert!(report.results.is_empty());
 }
 
 #[test]
 fn test_sparql_select_constraint() {
-    // sh:select constraint: any solution row is a violation. Here it flags
-    // focus nodes that have two different ex:name values.
+    // sh:select constraint: any solution row is a violation. Here it would
+    // flag focus nodes that have two different ex:name values -- IF sh:sparql
+    // constraints were evaluated. See `test_sparql_ask_constraint`'s NOTE:
+    // `SHACL_SPARQL_BOUNDARY = "CORE_ONLY"` makes every sh:sparql constraint
+    // node inert (skipped, not evaluated), so with sh:sparql as the shape's
+    // ONLY constraint, both Alice (two names) and Bob (one name) conform.
     let shapes_str = r#"
         @prefix sh: <http://www.w3.org/ns/shacl#> .
         @prefix ex: <http://example.org/> .
@@ -226,16 +239,13 @@ fn test_sparql_select_constraint() {
     let shapes = ShapesGraph::parse(shapes_str).unwrap();
     let report = Validator::validate(&data, &shapes);
 
-    assert!(!report.conforms);
-    assert!(!report.results.is_empty());
-    assert!(report
-        .results
-        .iter()
-        .all(|r| r.focus_node.to_string().contains("Alice")));
-    assert!(report
-        .results
-        .iter()
-        .all(|r| r.message.as_deref() == Some("Must have a single name")));
+    assert!(
+        report.conforms,
+        "sh:sparql (sh:select) is inert under SHACL_SPARQL_BOUNDARY = CORE_ONLY, so no \
+         violation can be produced regardless of data: {:?}",
+        report.results
+    );
+    assert!(report.results.is_empty());
 }
 
 #[test]

@@ -1,23 +1,10 @@
 ---
 to: crates/tcps-ffi/Cargo.toml
+sparql:
+  content: |
+    PREFIX tcps_ffi: <http://seanchatmangpt.github.io/packs/tcps-ffi#>
+    SELECT ?sourceText WHERE {
+      tcps_ffi:CargoManifestFile tcps_ffi:sourceText ?sourceText .
+    } ORDER BY ?sourceText
 ---
-[package]
-name = "tcps-ffi"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
-authors.workspace = true
-description = "豊田コード生産方式の安定C ABI"
-
-[lib]
-name = "tcps_ffi"
-path = "src/lib.rs"
-crate-type = ["rlib", "staticlib", "cdylib"]
-
-[dependencies]
-tcps-core = { path = "../..", package = "tcps-generated" }
-
-[lints.rust]
-unsafe_code = "allow"
-missing_debug_implementations = "deny"
+{{ content[0].sourceText }}

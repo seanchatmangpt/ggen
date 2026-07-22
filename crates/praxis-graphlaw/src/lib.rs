@@ -112,9 +112,20 @@ use crate::triples::{
 ///
 /// Every entry below was probed live against known data (2026-07-21, a
 /// 17-case battery; see `tests/sparql_unsupported_refusal.rs`), not assumed.
-/// Two failure shapes exist and both must be refusals, never answers:
+/// A GRAPH-clause entry was added 2026-07-21 (CiIntegrationTestsNeverRun
+/// closure, retrofit/ggen-self-g4): probed live via `knowledge_hooks_e2e_tier4
+/// ::test_s4_automated_quarantine_and_refusal`'s original fixture (an ASK
+/// query with `GRAPH <iri> { ?s ?p ?o }` over a store that provably contains
+/// a matching quad in that named graph still returned zero rows / no hook
+/// fire), then root-caused to `extract_query_plan`'s exhaustive match in
+/// `sparql/plan.rs`: it has no `GraphPattern::Graph` arm, so it falls into
+/// the `_ => PlanNode::Done` catch-all, and `PlanNode::Done => Box::new(empty())`
+/// in `sparql/mod.rs` unconditionally yields zero rows for that whole
+/// subtree, independent of the named graph's actual contents.
+/// Three failure shapes exist and all three must be refusals, never answers:
 /// - silent ZERO rows (VALUES, ORDER BY, LIMIT/OFFSET, EXISTS,
-///   FILTER arithmetic, STRSTARTS/REGEX and other unimplemented functions)
+///   FILTER arithmetic, STRSTARTS/REGEX and other unimplemented functions,
+///   and now GRAPH <iri> { ... })
 ///   — a false PASS for any violation-style SELECT;
 /// - silently WRONG rows (DISTINCT does not deduplicate; FILTER NOT EXISTS
 ///   is ignored outright, returning the UNFILTERED set — fail-open).
@@ -129,6 +140,9 @@ fn find_unsupported_construct(pattern: &spargebra::algebra::GraphPattern) -> Opt
         G::Values { .. } => Some("VALUES (silently evaluates to zero rows)"),
         G::OrderBy { .. } => Some("ORDER BY (silently evaluates to zero rows)"),
         G::Slice { .. } => Some("LIMIT/OFFSET (silently evaluates to zero rows)"),
+        G::Graph { .. } => {
+            Some("GRAPH <iri> { ... } graph-pattern clause (silently evaluates to zero rows)")
+        }
         G::Distinct { inner } => {
             // DISTINCT itself does not deduplicate (probed: duplicates
             // returned) — wrong answers, refuse.
@@ -155,8 +169,7 @@ fn find_unsupported_construct(pattern: &spargebra::algebra::GraphPattern) -> Opt
         G::Extend {
             inner, expression, ..
         } => find_unsupported_expression(expression).or_else(|| find_unsupported_construct(inner)),
-        G::Graph { inner, .. }
-        | G::Project { inner, .. }
+        G::Project { inner, .. }
         | G::Reduced { inner }
         | G::Group { inner, .. }
         | G::Service { inner, .. } => find_unsupported_construct(inner),

@@ -54,6 +54,9 @@ fn test_outdated_binary_warning_triggers() {
     let past_time = SystemTime::now() - Duration::from_secs(3600);
     file.set_modified(past_time)
         .expect("Failed to set modified time");
+    // A file open for write cannot be exec'd (ETXTBSY on Linux) -- must close
+    // before Command::new(&cloned_bin_path) runs it below.
+    drop(file);
 
     // Touch the target binary to ensure it has a newer mtime
     let target_file = fs::OpenOptions::new()
@@ -63,6 +66,10 @@ fn test_outdated_binary_warning_triggers() {
     target_file
         .set_modified(SystemTime::now())
         .expect("Failed to set target modified time");
+    // current_bin is the shared cargo-built `ggen` binary other tests in this
+    // process may exec concurrently -- close the write handle immediately,
+    // same ETXTBSY reasoning as above, not just for cloned_bin_path.
+    drop(target_file);
 
     // 4. Run the outdated binary in the temp directory and check stderr
     let output = Command::new(&cloned_bin_path)
@@ -129,6 +136,9 @@ fn test_outdated_binary_warning_skips_when_configured() {
     let past_time = SystemTime::now() - Duration::from_secs(3600);
     file.set_modified(past_time)
         .expect("Failed to set modified time");
+    // A file open for write cannot be exec'd (ETXTBSY on Linux) -- must close
+    // before Command::new(&cloned_bin_path) runs it below.
+    drop(file);
 
     // 4. Run with bypass env var GGEN_SKIP_OUTDATED_WARNING=1
     let output = Command::new(&cloned_bin_path)

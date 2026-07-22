@@ -17,14 +17,22 @@ sparql:
 //! `packs/osx-clnr-pack/ontology.ttl`.
 //!
 //! Handler-gap closure: commands whose `oclnr:dispatchesTo` names a real
-//! function in `osx_clnr_plan.rs` get a fully generated handler below --
-//! zero hand-write required. Commands with an empty `oclnr:dispatchesTo`
-//! (no real algorithm modeled yet) instead get a method on
-//! `OclnrHandlerSeam`, a stable seam a consumer must implement to supply
-//! that domain-unique behavior. Which commands land in which bucket is
-//! read from the ontology, not decided by this template -- adding a new
-//! `cnv:Command` individual with an empty `dispatchesTo` grows the seam
-//! automatically on the next `ggen sync run`.
+//! function in `osx_clnr_plan.rs` get a fully generated handler below.
+//! Commands with an empty `oclnr:dispatchesTo` (no real algorithm modeled
+//! yet) instead get a method on `OclnrHandlerSeam`, a stable seam a
+//! consumer must implement to supply that domain-unique behavior. Which
+//! *bucket* a command falls into is read from the ontology, not decided by
+//! this template. The generated-bucket's handler *bodies* below are NOT
+//! template-loop-generated, though -- each real algorithm needs a distinct
+//! signature, so they are hand-authored per command; a new non-empty
+//! `oclnr:dispatchesTo` still requires a matching hand-added function here.
+//! `osx_clnr_dispatch_proof.rs.tmpl`'s
+//! `every_non_empty_dispatch_target_has_a_real_generated_handler` test is
+//! the SPARQL-derived safety net that catches the mismatch loudly if that
+//! ever falls out of sync, instead of a new dispatch target silently
+//! having no callable handler. Adding a new `cnv:Command` individual with
+//! an empty `dispatchesTo` grows the seam automatically on the next
+//! `ggen sync run`.
 
 use crate::osx_clnr_plan::{parse_size_in_bytes, select_oldest_snapshots};
 

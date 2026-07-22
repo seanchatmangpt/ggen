@@ -4,7 +4,6 @@
 #[cfg(test)]
 mod infrastructure_tests {
     use std::path::Path;
-    use std::process::Command;
 
     #[test]
     fn test_scripts_are_executable() {
@@ -77,54 +76,53 @@ mod infrastructure_tests {
         assert!(metrics_dir.is_dir(), "Metrics path should be a directory");
     }
 
+    // The three tests below used to shell out to `cargo make --list-all-steps`
+    // and check Makefile.toml's task names. This repo's own entry-point rule
+    // (.claude/rules/_core/absolute.md rule 4; CLAUDE.md throughout) forbids
+    // `cargo make` -- `just` is the sole sanctioned entry point, Makefile.toml
+    // is historical reference only, and `cargo-make` is not assumed installed
+    // in CI. These now check the real, current entry point (`justfile`)
+    // directly, repointed at each task's real justfile-era equivalent rather
+    // than inventing a recipe solely to satisfy a stale assertion.
+
     #[test]
     fn test_timeout_check_task_exists() {
         // Arrange & Act
-        let output = Command::new("cargo")
-            .args(["make", "--list-all-steps"])
-            .output()
-            .expect("Failed to run cargo make");
-
-        let stdout = String::from_utf8_lossy(&output.stdout);
+        let justfile = std::fs::read_to_string("justfile").expect("Failed to read justfile");
 
         // Assert
         assert!(
-            stdout.contains("timeout-check"),
-            "timeout-check task should exist in Makefile.toml"
+            justfile.contains("timeout-check:"),
+            "timeout-check recipe should exist in justfile"
         );
     }
 
     #[test]
     fn test_ci_gate_task_exists() {
         // Arrange & Act
-        let output = Command::new("cargo")
-            .args(["make", "--list-all-steps"])
-            .output()
-            .expect("Failed to run cargo make");
+        let justfile = std::fs::read_to_string("justfile").expect("Failed to read justfile");
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
-
-        // Assert
+        // Assert: this repo has no single recipe literally named `ci-gate` --
+        // `pre-commit` is the documented current equivalent (see
+        // .claude/rules/andon/signals.md's "Definition of Done": "The
+        // authoritative gate is `just pre-commit`"), chaining fmt-check,
+        // check, lint, test-lib, coherence-check, and the guard-* recipes.
         assert!(
-            stdout.contains("ci-gate"),
-            "ci-gate task should exist in Makefile.toml"
+            justfile.contains("pre-commit:"),
+            "pre-commit recipe (this repo's real CI-gate equivalent) should exist in justfile"
         );
     }
 
     #[test]
     fn test_pre_commit_hook_task_exists() {
         // Arrange & Act
-        let output = Command::new("cargo")
-            .args(["make", "--list-all-steps"])
-            .output()
-            .expect("Failed to run cargo make");
+        let justfile = std::fs::read_to_string("justfile").expect("Failed to read justfile");
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
-
-        // Assert
+        // Assert: Makefile.toml's `pre-commit-hook` task is `pre-commit` in
+        // the justfile era (see rename note above).
         assert!(
-            stdout.contains("pre-commit-hook"),
-            "pre-commit-hook task should exist in Makefile.toml"
+            justfile.contains("pre-commit:"),
+            "pre-commit recipe should exist in justfile"
         );
     }
 }
