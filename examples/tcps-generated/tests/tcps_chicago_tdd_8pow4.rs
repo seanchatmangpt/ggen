@@ -12,8 +12,6 @@
 //! proposals are then passed through the real authorization boundary. No arbitrary
 //! witness assignment, fake OCEL, or existence-only discharge remains.
 
-#![allow(clippy::expect_used)]
-
 mod support;
 
 use std::collections::BTreeSet;
