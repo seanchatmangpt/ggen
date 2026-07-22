@@ -1,0 +1,35 @@
+[workspace]
+
+[package]
+name = "praxis-core-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of praxis-core-pack: wires the generated refusal-taxonomy table + proof tests against the REAL praxis-core crate. Unlike the pack's own prior scratch-consumer verification (ephemeral, uncommitted, never CI-checked), this example makes the pack's opt-in `praxis-core-live` compiled-fidelity path the DEFAULT build, not something a human has to remember to enable."
+
+[lib]
+name = "praxis_core_verify"
+path = "src/lib.rs"
+
+[features]
+default = ["praxis-core-live"]
+# Compiled-fidelity path: links the REAL praxis-core crate (path dep, this
+# workspace's own crates/praxis-core) and bcinr-powl-receipt (required by
+# the generated verbatim reference tests' `use
+# bcinr_powl_receipt::denial::DenialPolarity`) so tests/praxis_core_refusal_taxonomy_proof.rs's
+# `live_fidelity` module and the whole of
+# tests/praxis_core_refusal_verbatim_reference_tests.rs compile and run
+# against the real subsystem, not just this pack's self-consistency. On by
+# default: the strongest verification path is the path every `cargo test`
+# takes, not an opt-in a consumer has to discover.
+praxis-core-live = ["dep:praxis-core", "dep:bcinr-powl-receipt"]
+
+[dependencies]
+# Workspace-internal crate, real path dependency (not published to
+# crates.io: praxis-core/Cargo.toml has `publish = false`).
+praxis-core = { path = "../../crates/praxis-core", optional = true }
+# Real crates.io dependency, same version praxis-core itself already pins
+# (crates/praxis-core/Cargo.toml) -- confirmed present in the workspace
+# Cargo.lock as `source = "registry+https://github.com/rust-lang/crates.io-index"`
+# before being added here, not assumed.
+bcinr-powl-receipt = { version = "26.6.24", optional = true }
