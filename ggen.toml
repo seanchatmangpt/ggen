@@ -22,6 +22,7 @@ imports = [
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
+  "evidence/producers/receipts-check.ttl",
 ]
 
 [ontology.prefixes]
@@ -282,6 +283,22 @@ SELECT ?dir WHERE { ?p a ver:Producer ; ver:name "docs" ; ver:docsDir ?dir . }
 """ }
 template    = { file = ".specify/templates/verify/produce_docs_manifest_sh.sh.tera" }
 output_file = "scripts/produce-docs-manifest.sh"
+skip_empty  = false
+mode        = "Overwrite"
+
+# EquivalenceMapNotLive, continued: wires `receipts` next, same shape as
+# `docs` above. packs/ggen-verify-pack's ver:Producer "receipts" config and
+# produce_receipts_check_sh.tmpl were already complete (schema-validates +
+# chain-replays .ggen-v2/receipt-log.jsonl); this repo just needed its own
+# declarative-rules mirror plus this rule.
+[[generation.rules]]
+name        = "verify-receipts-check-producer"
+query       = { inline = """
+PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>
+SELECT ?name WHERE { ?p a ver:Producer ; ver:name ?name . FILTER(?name = "receipts") }
+""" }
+template    = { file = ".specify/templates/verify/produce_receipts_check_sh.sh.tera" }
+output_file = "scripts/produce-receipts-check.sh"
 skip_empty  = false
 mode        = "Overwrite"
 
