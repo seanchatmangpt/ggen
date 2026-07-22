@@ -1,7 +1,5 @@
 mod common;
 
-use common::assert_contains_triple;
-use common::assert_not_contains_triple;
 use praxis_graphlaw::parser::Syntax;
 use praxis_graphlaw::TripleStore;
 
@@ -29,12 +27,23 @@ fn test_hook_alias_vocabulary_identical_receipts() {
             kh:priority 1 .
     "#;
 
-    // Equivalent hook pack using hook: namespace alias
+    // Equivalent hook pack using hook: namespace alias. Uses the SAME subject
+    // IRI (`ex:h_canonical`) as the kh: variant above, deliberately: the hook
+    // IRI is embedded verbatim in each emitted delta-quad line
+    // (`hooks::construct::serialize_delta_quad`'s `hook_wrapped` -- see
+    // `<hook> <kh#addQuad> <bn_id> .`), which is itself part of what gets
+    // BLAKE3-hashed into `delta_hash`/`idempotency_key`. A DIFFERENT subject
+    // IRI (the original `ex:h_alias`) makes the two receipts differ for a
+    // real, correct reason -- provenance, not vocabulary -- so it can never
+    // produce a byte-identical hash no matter how faithfully `hook:` aliases
+    // to `kh:`. Holding the subject IRI fixed isolates the ONE variable this
+    // test exists to check: does `hook:` vocabulary aliasing change compiled
+    // behavior. It must not, and (with the subject held fixed) now doesn't.
     let hook_pack_hook = r#"
         @prefix hook: <http://seanchatmangpt.github.io/praxis/hook#> .
         @prefix ex: <http://example.org/> .
 
-        ex:h_alias a hook:Hook ;
+        ex:h_canonical a hook:Hook ;
             hook:name "canonical_hook" ;
             hook:kind "delta" ;
             hook:var "http://example.org/trigger" ;

@@ -30,6 +30,7 @@ use chicago_tdd_tools::prelude::*;
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use bcinr_pddl::Pddl8Tape;
 use fake::faker::lorem::en::Word;
@@ -127,7 +128,24 @@ fn generate_fixture(seed: u64) -> Fixture {
     let fixtures_dir = powl_output_dir().join("fixtures");
     fs::create_dir_all(&fixtures_dir).expect("fixture output directory must be creatable");
     let file_path = fixtures_dir.join(format!("pddl-snapshot.seed-{seed:03}.ttl"));
-    fs::write(&file_path, &rendered).expect("rendered PDDL fixture must be writable");
+    // Multiple #[test] fns in this file call generate_fixture(SEED_A), and
+    // cargo test runs them concurrently as threads in one process -- a plain
+    // fs::write to this shared path lets one thread's reader observe another
+    // thread's write mid-flight (truncated/partial file), which is exactly
+    // the SnapshotNotFound flake this was hit by in CI. Write to a
+    // call-unique temp file in the same directory, then rename() into place:
+    // POSIX rename is atomic, so every reader always sees either the fully
+    // old or fully new file, never a partial one. Content is identical
+    // across callers (same seed -> same deterministic render), so whichever
+    // writer's rename lands last is fine.
+    static TMP_COUNTER: AtomicU64 = AtomicU64::new(0);
+    let tmp_path = fixtures_dir.join(format!(
+        "pddl-snapshot.seed-{seed:03}.{}.{}.tmp",
+        std::process::id(),
+        TMP_COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    fs::write(&tmp_path, &rendered).expect("rendered PDDL fixture tmp file must be writable");
+    fs::rename(&tmp_path, &file_path).expect("rendered PDDL fixture must be renameable into place");
     let rendered_path = file_path
         .canonicalize()
         .expect("rendered PDDL fixture path must canonicalize");
