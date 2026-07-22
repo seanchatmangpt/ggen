@@ -7,6 +7,11 @@ sparql:
       ?s a ghtf:RepoManagementInstance ; ghtf:family "labels" ;
          ghtf:tfAddress ?addr ; ghtf:labelName ?name .
     } ORDER BY ?addr
+  branchProtection: |
+    PREFIX ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#>
+    SELECT ?addr WHERE {
+      ghtf:MainBranchProtection ghtf:tfAddress ?addr .
+    }
 ---
 #!/usr/bin/env bash
 set -euo pipefail
@@ -40,6 +45,6 @@ import_if_exists() {
   fi
 }
 import_if_exists "repos/${owner}/${repo}" "github_repository.managed" "${repo}"
-import_if_exists "repos/${owner}/${repo}/branches/main/protection" "github_branch_protection.main" "${repo}:main"
+import_if_exists "repos/${owner}/${repo}/branches/main/protection" "{{ branchProtection[0].addr }}" "${repo}:main"
 {% for row in labels %}import_if_exists "repos/${owner}/${repo}/labels/{{ row.name }}" "{{ row.addr }}" "${repo}:{{ row.name }}"
 {% endfor %}
