@@ -1,0 +1,31 @@
+name: MFW Crown Independent Lean
+
+on:
+  pull_request:
+    paths:
+      - "examples/mfw-crown-independent-verify/**"
+      - ".github/workflows/mfw-crown-independent-lean.yml"
+
+concurrency:
+  group: mfw-crown-independent-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: examples/mfw-crown-independent-verify
+          build-args: "--wfail"
+          nanoda: true
+          nanoda-allow-sorry: false
+          use-mathlib-cache: true
+      - name: Execute theorem inventory
+        working-directory: examples/mfw-crown-independent-verify
+        run: lake exe crown_verify_check
