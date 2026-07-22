@@ -56,6 +56,15 @@ fn validate_all(root: &Path) -> Result<Vec<CapabilityEvidence>, EvidenceError> {
         .collect()
 }
 
+static PRODUCT_EVIDENCE: OnceLock<Result<Vec<CapabilityEvidence>, EvidenceError>> = OnceLock::new();
+
+fn product_evidence() -> Result<&'static [CapabilityEvidence], EvidenceError> {
+    match PRODUCT_EVIDENCE.get_or_init(|| validate_all(&project_root())) {
+        Ok(evidence) => Ok(evidence.as_slice()),
+        Err(error) => Err(error.clone()),
+    }
+}
+
 fn receipt(
     evidence: &[CapabilityEvidence],
     manifest_entry_count: usize,
