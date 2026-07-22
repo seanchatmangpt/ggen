@@ -1,0 +1,12 @@
+# wasm4pm-verify project ontology — deliberately empty of individuals.
+#
+# wasm4pm-pack's own ontology.ttl (packs/wasm4pm-pack/ontology.ttl) is a
+# complete, closed model of all 9 w4c:Crate individuals and the 7
+# w4c:dependsOn edges; this consumer adds no project-specific facts on top
+# of it (same posture as examples/lsp-max-verify/schema/domain.ttl). This
+# file exists only to satisfy `[ontology] source` in ggen.toml — the real
+# domain facts come entirely from the wired pack.
+
+@prefix w4c:  <http://seanchatmangpt.github.io/packs/wasm4pm-crate#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

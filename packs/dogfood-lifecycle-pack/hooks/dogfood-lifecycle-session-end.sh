@@ -92,11 +92,41 @@ fi
 
 args=()
 for f in "${files[@]}"; do args+=(--files "$f"); done
-args+=(--shapes "$shapes")
 
-echo "dogfood: validating ${#files[@]} session log(s) via ggen graph validate --files ... --shapes shapes.ttl ..."
+# REGRESSION FOUND AND FIXED FORWARD (2026-07-22, wave3 reverify-unverified-
+# docs pass): commit ad9106702 (2026-07-19) deleted shapes.ttl as part of the
+# SHACL->SPARQL-gates migration (see gates/{010_required,020_single_valued,
+# 030_value_constraints}.rq) but left this script's `--shapes "$shapes"`
+# argument pointing at the now-deleted file. Live re-verification confirmed
+# the real effect: `ggen graph validate --files ... --shapes <missing>`
+# errors on EVERY run regardless of whether the session log is well-formed
+# ("shapes file ... unreadable: No such file or directory"), so every
+# receipt's `parse_valid` was unconditionally false since that commit --
+# reproduced live against both the committed session-good.ttl fixture and a
+# freshly capture-generated log. `ggen graph validate` has no `--gates` flag
+# (confirmed: `ggen graph validate --help` lists only `--files`/`--shapes`);
+# gates/*.rq are consumed via `[validation].gates` sync-time admission or a
+# direct `TripleStore::query()` call (see
+# `crates/praxis-graphlaw/tests/dogfood_lifecycle_hook_actuation.rs`'s
+# `gate_020_rows` helper), neither a drop-in bash-CLI substitute. Fixed
+# minimally: only pass `--shapes` when the file exists, so a well-formed log
+# reports parse_valid:true again instead of a permanent false negative.
+# SHACL shape-conformance itself is NOT reinstated (disclosed, not glossed
+# over) -- re-wiring gate-conformance into this bash pipeline is a real,
+# separate, NOT-closed follow-up.
+if [ -f "$shapes" ]; then
+  args+=(--shapes "$shapes")
+  echo "dogfood: validating ${#files[@]} session log(s) via ggen graph validate --files ... --shapes shapes.ttl ..."
+else
+  echo "dogfood: WARNING shapes.ttl not found at $shapes (deleted by commit ad9106702's SHACL->SPARQL-gates migration; gate-conformance re-wiring is a disclosed, not-yet-closed follow-up -- see this script's own comment above) -- validating Turtle PARSE only, not SHACL shape-conformance, this run"
+  echo "dogfood: validating ${#files[@]} session log(s) via ggen graph validate --files ... (parse-only) ..."
+fi
 if ggen graph validate "${args[@]}" >/dev/null 2>&1; then
-  echo "dogfood: VALID — all ${#files[@]} session log(s) parse and conform to shapes.ttl"
+  if [ -f "$shapes" ]; then
+    echo "dogfood: VALID — all ${#files[@]} session log(s) parse and conform to shapes.ttl"
+  else
+    echo "dogfood: VALID (parse-only) — all ${#files[@]} session log(s) parse as Turtle"
+  fi
   rc=0
 else
   echo "dogfood: INVALID — at least one session log failed parse or SHACL shape-conformance validation:"

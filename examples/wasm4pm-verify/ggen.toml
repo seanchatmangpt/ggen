@@ -1,0 +1,16 @@
+[project]
+name = "wasm4pm-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+w4c = "http://seanchatmangpt.github.io/packs/wasm4pm-crate#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+wasm4pm-pack = { path = "../../packs/wasm4pm-pack" }
+
+[templates]
+dir = "templates"

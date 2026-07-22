@@ -13,7 +13,7 @@ table does not imply otherwise.
 | ID | Exact claim | Standing this session | Promotion evidence |
 |---|---|---|---|
 | M&A-C1 | Public-vocabulary fit determined for the M&A domain's 10 candidate concepts | ALIVE, narrowly: vocabulary-fit research completed for 10 concepts against FIBO, GLEIF LEI RDF, OMG Commons, W3C ODRL, and PROV-O | `ontology.ttl`'s header (grounding method + per-term file:line citations into the vendored FIBO copy at `crates/praxis-graphlaw/ontologies/industry/financial/fibo-master/`); `pack.toml`'s `description` field; `COMPETENCY_QUESTIONS.md` (10 numbered concepts, each tagged CLEAN_FIT/STRAINED_FIT/bridge term) |
-| M&A-C2 | Ontology + SHACL shapes pack built and validates | ALIVE, narrowly: `ontology.ttl` and `shapes.ttl` exist, are well-formed Turtle, and `ggen graph validate` reports `shapes_conform: true` against the main case fixture; the adversarial-negative fixture correctly fails with 2 named violations | `packs/ma-case-study-pack/{ontology.ttl,shapes.ttl}`; `ggen graph validate --files packs/ma-case-study-pack/fixtures/case.ttl,packs/ma-case-study-pack/ontology.ttl --shapes packs/ma-case-study-pack/shapes.ttl` → `{"files_checked": 2, "shapes_checked": 1, ...\"shapes_conform\": true}` for both files (re-run this session); same command against `adversarial-negative.ttl` → `SHACL validation failed, 2 violation(s)` (hasOwnershipPercentage range, missing `cmns-cls:isClassifiedBy`), matching the violations the fixture's own header discloses |
+| M&A-C2 | Ontology + SHACL shapes pack built and validates | **CORRECTION (2026-07-22, wave3 reverify-unverified-docs pass): `shapes.ttl` no longer exists** — deleted by commit `ad9106702` (2026-07-19, the same commit that added `gates/{010_required,020_single_valued,030_value_constraints,040_closed_shapes}.rq` as its replacement), so the exact command this row cites now fails: independently re-run this pass, `ggen graph validate --files ... --shapes packs/ma-case-study-pack/shapes.ttl` → `Error: ... shapes file ... unreadable: No such file or directory`, not `shapes_conform: true`. This is the SAME regression class found and fixed forward in `dogfood-lifecycle-pack`'s hook scripts this pass (see that pack's README/ontology entries) — but for THIS pack, `shapes.ttl` was never called from an executable production script (only from this doc and `pack.toml`'s descriptive `description` field), so there is no code path to fix; the SHACL-shape-conformance claim below is simply no longer reproducible as written. Turtle PARSE validation (no `--shapes`) still holds live: re-run this pass, `ggen graph validate --files ontology.ttl,fixtures/case.ttl,fixtures/case-2.ttl` → exit 0, 169+73+quads counted, no `--shapes` argument. Left below verbatim as the historical record of what was true before 2026-07-19, not a current-state claim | ORIGINAL (now-stale) claim, for the record: "`ontology.ttl` and `shapes.ttl` exist, are well-formed Turtle, and `ggen graph validate` reports `shapes_conform: true` against the main case fixture; the adversarial-negative fixture correctly fails with 2 named violations" — `packs/ma-case-study-pack/{ontology.ttl,shapes.ttl}`; `ggen graph validate --files packs/ma-case-study-pack/fixtures/case.ttl,packs/ma-case-study-pack/ontology.ttl --shapes packs/ma-case-study-pack/shapes.ttl` → `{"files_checked": 2, "shapes_checked": 1, ...\"shapes_conform\": true}` for both files (re-run this session); same command against `adversarial-negative.ttl` → `SHACL validation failed, 2 violation(s)` (hasOwnershipPercentage range, missing `cmns-cls:isClassifiedBy`), matching the violations the fixture's own header discloses |
 | M&A-C3 | Case fixture + Knowledge Hook built and tested | ALIVE, narrowly: one hook (`derive_ma_regulatory_filing_obligation`) fires correctly over the main case and the adversarial-positive fixture, and correctly does not fire over the adversarial-negative fixture; a fourth test confirms the hook-declared obligation catalog individual's closed property set | `crates/praxis-graphlaw/tests/ma_case_hook_actuation.rs`; `just test-bin ma_case_hook_actuation` → `test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out` (re-run this session, output byte-identical to the session's original run) |
 | M&A-C4 | PDDL8 compliance / deal-progression planning model exists for the case | PLANNED — not built. `pddl-domain.ttl` (313 lines) DOES exist as disconnected RDF data, but no projector, grounder, or solver step is wired to it anywhere in the repo. **Correction (2026-07-19, L5-push pass):** the file's own header previously cited `crates/multifractal-workflow/tests/ma_case_pddl.rs` as live proof of a real SPARQL-extraction → PDDL8 → grounder/solver round-trip; `crates/multifractal-workflow` does not exist anywhere in this workspace (confirmed this session), so that citation was false. The file's header was corrected in place to disclose this rather than removed | None. Would require the same `sc:hasObligation` RDF-triple → `pddl:init` PDDL atom-literal projection bribery-case's own `DESIGN.md` documents as its Stage 2, applied to `ma:hasRegulatoryFilingObligation` and the other 5 processes' derivable facts, PLUS standing up the currently-nonexistent `crates/multifractal-workflow` extraction/grounding pipeline itself — engine-level shared infrastructure this pack cannot safely build in isolation |
 | M&A-C5 | POWL v2 + Arazzo + Erlang/OTP dispatch chain exists for the case | PLANNED — not built. No POWL projection, no Arazzo workflow document, no Erlang/BEAM dispatch path exists for this case, matching zero of the Fortune-5 crown's F5-C6/F5-C7/F5-C8 structure | None |
@@ -67,7 +67,38 @@ entry for this pack:
   ontology.ttl --shapes shapes.ttl` and the same merged with `fixtures/case.ttl`/`case-2.ttl`:
   `shapes_conform: true` in all three cases (re-run this round).
 
-- **Committed, re-runnable CQ evidence (2026-07-19, L5-push pass)**: every `.rq` file's expected
+- **Committed, re-runnable CQ evidence — CORRECTION (2026-07-22, wave3 reverify-unverified-docs
+  pass) supersedes the 2026-07-19 entry below, which was FALSE, not merely stale**: the original
+  version of this bullet claimed `crates/praxis-graphlaw/tests/ma_case_study_competency_questions.rs`
+  was already committed with "9 passed, 0 failed". It was never committed at any point in this
+  repo's history — independently re-verified this pass via `git log --all --oneline -- '**/
+  ma_case_study_competency_questions.rs'` (zero results, every branch) and a fresh `find` over the
+  live checkout (file absent). This was a genuine doc fabrication, not an unverified-but-true
+  claim, and it is the concrete instance behind `.specify/pack-l5-promotion.ttl`'s and
+  `.specify/maturity.ttl`'s "per-CQ test coverage UNVERIFIED" notes for this pack — those notes
+  understated the problem (a false claim, not merely an unchecked one). Fixed forward, for real,
+  this pass: `crates/praxis-graphlaw/tests/ma_case_study_competency_questions.rs` now exists,
+  covering the same 6 queries the false claim named (CQ1.1, CQ1.2, CQ2.1, CQ3.1, CQ3.2, CQ7.1 —
+  concepts 1, 2, 3, 7) plus one extra negative check (CQ3.2 against `case-2.ttl`, 0 rows). Every
+  `.rq` file is loaded via `include_str!` (byte-identical to the committed query) and executed for
+  real via `praxis_graphlaw::TripleStore::query` against `fixtures/case.ttl` and, for CQ1.1/CQ7.1,
+  also `fixtures/case-2.ttl`. Every expected value was independently re-derived from the real
+  fixture text by this pass (grep + manual read of `case.ttl`/`case-2.ttl`), not copied unverified
+  from each query's own header comment. Live evidence, this session: `cargo test -p praxis-graphlaw
+  --test ma_case_study_competency_questions` → 9 passed, 0 failed; non-vacuity independently
+  confirmed by sabotage (changed `case.ttl`'s `hasOwnershipPercentage` from `100.00` to `42.00`,
+  re-ran the single affected test — it genuinely failed — then restored the fixture byte-for-byte,
+  confirmed via `diff`, and re-ran the full 9/9 green); no regression on the pack's other two test
+  files (`ma_case_hook_actuation`: 4/4, `ma_case_adversarial_fixtures`: 2/2, both re-run this
+  session). REMAINING GAP, disclosed not fixed: 18 of 24 `.rq` files (CQ3.3, CQ4.*, CQ5.*, CQ6.*,
+  CQ8.*, CQ9.*, CQ10.*, CQX.*) are still verified only by header comment/scratch consumer, not by
+  a committed test — this pass closes part of the gap, not all of it, same honest scope the
+  original (false) claim asserted for itself.
+
+- ~~Committed, re-runnable CQ evidence (2026-07-19, L5-push pass)~~ — **SUPERSEDED, see the
+  CORRECTION entry above; the file this bullet names did not exist.** Left below verbatim (not
+  deleted) as the record of what was claimed and when, per this document's own non-destructive
+  correction discipline (see M&A-C4's row above for precedent): "every `.rq` file's expected
   answer up to this point had been verified only in an ephemeral scratch consumer outside this
   repository (per each query's own header) — a real, disclosed gap named in
   `docs/packs/L5_VALIDATION_REPORT.md`'s "Question coverage" line. Closed for 6 of the 24
@@ -79,10 +110,7 @@ entry for this pack:
   also against `fixtures/case-2.ttl` — asserting the exact literal answer each header claims, not
   merely that the query parses. `cargo test -p praxis-graphlaw --test
   ma_case_study_competency_questions`: 9 passed, 0 failed (verified this session; also re-ran
-  `ma_case_hook_actuation`: 4 passed, 0 failed, no regression). REMAINING GAP, disclosed not
-  fixed: 18 of 24 `.rq` files (CQ3.3, CQ4.*, CQ5.*, CQ6.*, CQ8.*, CQ9.*, CQ10.*, CQX.*) are still
-  verified only by header comment/scratch consumer, not by a committed test — this pass closes
-  part of the gap, not all of it.
+  `ma_case_hook_actuation`: 4 passed, 0 failed, no regression)."
 
 ## See Also
 

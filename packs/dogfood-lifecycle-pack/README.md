@@ -405,11 +405,77 @@ Fail-closed confirmed with two induced-tamper tests against scratch copies of `r
 since the tampered `prev_chain_hash` feeds the recompute). Restoring the backup made `spotcheck`
 pass again (`diff` byte-identical to the pre-tamper backup).
 
-Note: `.cargo-cicd/lifecycle/` is gitignored (see `.gitignore:39`), so the receipts written
-during this verification run are local runtime data, not part of this change's tracked diff.
+Note: `.cargo-cicd/lifecycle/` is runtime data, not part of this change's tracked diff (the
+`.gitignore:39` citation this paragraph originally made no longer matches: re-checked
+2026-07-22, current `.gitignore` has no `.cargo-cicd`/`lifecycle` rule at all -- a separate
+stale citation, corrected here rather than left to mislead a future reader).
+
+## CORRECTION (2026-07-22, wave3 reverify-unverified-docs pass): shapes.ttl regression found and fixed forward
+
+Every "SHACL shape-conformance" / "`--shapes shapes.ttl`" claim below (the v26.7.13/18/19
+sections above) was true when written. It stopped being true on 2026-07-19: commit `ad9106702`
+(the SHACL->SPARQL-gates migration that added `gates/{010_required,020_single_valued,
+030_value_constraints}.rq`, in the SAME commit) deleted `packs/dogfood-lifecycle-pack/shapes.ttl`
+but left `hooks/dogfood-lib.sh`'s `dogfood_shapes_path()` and both
+`hooks/dogfood-lifecycle-session-end.sh`/`dogfood_ingest_validate`'s `--shapes "$shapes"`
+arguments pointing at that now-deleted path. Live re-verification this pass (real production
+scripts, real `ggen graph validate`, no scratch consumer) reproduced the effect precisely:
+
+```text
+$ ggen graph validate --files .../session-good.ttl --shapes packs/dogfood-lifecycle-pack/shapes.ttl
+Error: Command execution failed: shapes file `packs/dogfood-lifecycle-pack/shapes.ttl`
+unreadable: No such file or directory (os error 2)
+```
+
+...which made `hooks/dogfood-lifecycle-session-end.sh` report `INVALID` and write
+`parse_valid: false` for EVERY session log, well-formed or not, on every real invocation since
+that commit -- a silent, permanent false negative in the Actuation-closure receipt path, not a
+mere gap. (`ggen graph validate --help` confirms there is no `--gates` flag; the new gates/*.rq
+files are consumed via `[validation].gates` sync-time admission or a direct
+`TripleStore::query()` call in a Rust test, e.g. `crates/praxis-graphlaw/tests/
+dogfood_lifecycle_hook_actuation.rs`'s `gate_020_rows` helper -- neither is a drop-in CLI
+substitute a bash script can call.)
+
+Fixed minimally, forward, disclosed (not a reinstatement of SHACL checking, which the pack no
+longer has a `shapes.ttl` file to check against): both call sites now test `[ -f "$shapes" ]`
+first and fall back to a parse-only `ggen graph validate --files ...` call when the file is
+absent, so a well-formed log reports `parse_valid: true` again instead of an unconditional false
+negative. Re-verified live after the fix, real production scripts, no scratch consumer:
+
+```text
+$ bash hooks/dogfood-lifecycle-session-end.sh    # well-formed log only
+dogfood: WARNING shapes.ttl not found ... validating Turtle PARSE only ...
+dogfood: VALID (parse-only) — all 1 session log(s) parse as Turtle
+$ tail -1 .../receipts.jsonl | jq .parse_valid
+true
+$ (add fixtures/session-malformed.ttl to the batch) && bash hooks/dogfood-lifecycle-session-end.sh
+dogfood: INVALID — at least one session log failed parse ...   # negative path still fails closed
+```
+
+Receipt-chain hashing/tamper-detection itself was independently re-verified this pass and is
+NOT affected by the above (a separate code path in the same script) — real live re-run: 3
+genuinely chained records (2 well-formed + 1 malformed, all produced by the real
+`dogfood_append_event`/`dogfood-lifecycle-session-end.sh` pipeline, not hand-typed) recomputed
+correctly via `hooks/dogfood-lifecycle-receipt-spotcheck.sh` (`spotcheck: OK — 3 chained
+record(s) recompute correctly`); a real tamper test flipping the middle record's `chain_hash` to
+`d`×64 made spotcheck fail closed (`chain_hash mismatch`, names the record), and restoring the
+backup byte-for-byte (`diff` empty) made it pass again. Governance-gap per-tool attribution was
+also independently re-verified live and is unaffected: bumping the invocation counter for a
+`NotebookEdit` call with no matching capture correctly produced `governance_gap: true,
+governance_gap_tools: ["NotebookEdit"]`.
+
+STILL NOT closed by this fix: SHACL/gate shape-conformance checking itself is not reinstated in
+this bash pipeline (only Turtle parseability is checked when `shapes.ttl` is absent) -- wiring
+`gates/*.rq` into a CLI-invokable check (or reinstating a `shapes.ttl`) remains a real, disclosed,
+open follow-up, not attempted in this pass.
 
 ## Scope and named follow-ups
 
+- **SHACL shape-conformance: live AT THE TIME WRITTEN, now NOT — see the 2026-07-22 CORRECTION
+  section above.** `shapes.ttl` (named throughout this bullet) was deleted 2026-07-19 by commit
+  `ad9106702`; the bash pipeline currently does Turtle-parse-only validation, not SHACL
+  shape-conformance. Left below verbatim as the historical record of what was true when this
+  bullet was written, not as a current-state claim.
 - **SHACL shape-conformance: live.** `ggen graph validate --files X --shapes Y` (landed in
   commit 523cc6e4, reusing praxis-graphlaw's existing `GraphLawStore::validate_shacl`) performs
   real SHACL constraint evaluation, not just Turtle parse validation. `hooks/dogfood-
