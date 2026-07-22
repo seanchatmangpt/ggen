@@ -25,8 +25,8 @@ use chicago_tdd_tools::core::contract::{
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use support::{
-    domain_digest, merkle_root, read_nonempty, serialize_json, sha256_hex, utf8, EvidenceDigest,
-    EvidenceError,
+    domain_digest, git_blob_oid, merkle_root, read_nonempty, serialize_json, sha256_hex, utf8,
+    EvidenceDigest, EvidenceError,
 };
 
 include!("product_evidence/catalog.rs");
