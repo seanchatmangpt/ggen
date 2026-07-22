@@ -14,6 +14,11 @@
 #     default-features `cargo test -q`, the same plain invocation used for
 #     every consumer; that consumer also has a --no-default-features path,
 #     which this gate does not separately re-run.
+#   - examples/star-toml-verify   (wires packs/star-toml-pack; mirrors
+#     praxis-core-verify's posture -- standalone workspace, minimal
+#     hand-written src/lib.rs). Exercises both the pre-existing
+#     hand-transcribed proof and the cap05 SPARQL-derived proof
+#     (star_toml_config_sparql_derived_proof.rs.tmpl).
 #
 # Uses the release ggen binary if present (fast path), else builds the debug
 # one. Any sync refusal (including the pack-shapes gate FM-PACK-013), any
@@ -27,6 +32,7 @@ cd "$(git rev-parse --show-toplevel)"
 CONSUMERS=(
     "examples/receiptctl"
     "examples/praxis-core-verify"
+    "examples/star-toml-verify"
 )
 
 GGEN_BIN="target/release/ggen"
