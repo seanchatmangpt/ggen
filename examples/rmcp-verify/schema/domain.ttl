@@ -1,0 +1,14 @@
+# rmcp-verify project ontology — deliberately empty of individuals.
+#
+# rmcp-pack's own ontology.ttl (packs/rmcp-pack/ontology.ttl) is a complete,
+# closed model of the rmcp:HandlerMethod (43), rmcp:Macro (7),
+# rmcp:Transport (7), and rmcp:Feature (15) individuals; this consumer adds
+# no project-specific facts on top of it (mirrors
+# examples/star-toml-verify/schema/domain.ttl's and
+# examples/praxis-core-verify/schema/domain.ttl's same posture). This file
+# exists only to satisfy `[ontology] source` in ggen.toml — the real domain
+# facts come entirely from the wired pack.
+
+@prefix rmcp: <http://seanchatmangpt.github.io/packs/rmcp#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

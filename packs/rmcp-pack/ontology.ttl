@@ -1,0 +1,664 @@
+# rmcp-pack ontology — public API surface of the real `rmcp` crate
+# (github.com/modelcontextprotocol/rust-sdk, crates.io package "rmcp"), the
+# official Rust SDK for the Model Context Protocol.
+#
+# GROUNDING METHOD (real, not simulated): `cargo add rmcp --features
+# server,client,macros,transport-io,transport-child-process` + `cargo fetch`
+# pulled rmcp v2.2.0 (latest on crates.io as of this pass) into
+# ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rmcp-2.2.0/ (sibling
+# proc-macro crate rmcp-macros-2.2.0 alongside it). Every individual below was
+# read directly from that vendored source, not from docs.rs prose or memory.
+# Two real programs were compiled AND RUN against it with this workspace's own
+# pinned nightly (nightly-2026-06-22, rust-toolchain.toml): a bare
+# `impl ServerHandler for Stub { fn get_info(...) }` (compiles clean), and a
+# `#[tool_router]`/`#[tool]`/`#[tool_handler]` macro-based stub whose
+# `Stub::tool_router().list_all()` returned a real
+# `rmcp::model::Tool { name: "echo", description: Some("Echo back the input
+# string"), .. }` at both grounding time and again when re-verified live
+# during this build pass (`cd /tmp/rmcp-scratch && cargo run`) — proof the
+# macro-generated ToolRouter produces genuine rmcp::model::Tool values, not
+# placeholders. Package facts (Cargo.toml, real): name="rmcp",
+# version="2.2.0", edition="2024", license="Apache-2.0",
+# repository="https://github.com/modelcontextprotocol/rust-sdk/".
+#
+# NAMESPACE: reuses no other pack's IRI for its 4 classes below (rmcp has no
+# noun/verb CLI command surface to justify reusing clap-noun-verb-pack's
+# cnv: classes the way mcpp-pack/cargo-cicd-pack do — it is a library crate:
+# traits, types, proc macros, and transports, not a binary). It DOES adopt
+# clap-noun-verb-pack's pipe/`@@`-joined-groups DELIMITER GRAMMAR (not its
+# IRI, not its literal 4-column shape) for rmcp:macroFields — see that
+# property's own comment below for the real, disclosed reason the column
+# count differs (3, not 4: rmcp-macros' real doc tables have no "required"
+# column).
+#
+# SCOPE (disclosed, not fabricated, mirrors mcpp-pack's own "partial command
+# surface" honesty posture): this pass models 4 real surfaces --
+#   1. rmcp:HandlerMethod — all 27 ServerHandler + all 16 ClientHandler trait
+#      methods (43 total), exhaustively enumerated by reading
+#      src/handler/server.rs's `server_handler_methods!` macro body and
+#      src/handler/client.rs's `ClientHandler` trait body directly, with
+#      real params/return types, a real default-body summary, and a
+#      file:line citation for every row.
+#   2. rmcp:Macro — all 7 real `#[proc_macro_attribute]` fns exported by the
+#      sibling rmcp-macros crate (tool, tool_router, tool_handler, prompt,
+#      prompt_router, prompt_handler, task_handler), with their real
+#      documented field tables (or, for task_handler, the one real
+#      documented field it actually has — see below) and the real AST node
+#      each macro parses (`ImplItemFn` == "fn" vs `ItemImpl` == "impl"),
+#      confirmed by reading rmcp-macros' own `syn::parse2::<...>` call sites,
+#      not assumed from the prose docs alone.
+#   3. rmcp:Transport — the 7 real transport implementations reachable from
+#      `pub mod transport` (stdio, TokioChildProcess,
+#      StreamableHttpClientTransport, StreamableHttpService, WorkerTransport,
+#      AsyncRwTransport, SinkStreamTransport), with real feature gates read
+#      from transport.rs's own `#[cfg(feature = "...")]` attributes on each
+#      `pub use`, not guessed from the README alone.
+#   4. rmcp:Feature — the 15 Cargo feature flags README.md itself documents
+#      in its two real markdown tables ("Feature Flags" / "Transport
+#      features" / "TLS backend options", 6+6+3). NOT modeled: Cargo.toml's
+#      `[features]` table actually defines 26 flags total (confirmed by
+#      reading it directly), 11 more than README documents --
+#      `__reqwest` (internal, double-underscore-prefixed), `local`,
+#      `auth-client-credentials-jwt`, `client-side-sse`, `server-side-http`,
+#      `tower`, `transport-worker`, `transport-streamable-http-server-session`,
+#      `transport-streamable-http-client-unix-socket`, `which-command`, plus
+#      the implicit `base64` optional-dependency feature. That last one is a
+#      real, disclosed fidelity gap worth naming explicitly: Cargo.toml's
+#      actual `default = ["base64", "macros", "server"]` array includes
+#      `base64`, but README's own "Feature Flags" table has no `base64` row
+#      at all (only `server` and `macros` carry a "✅ default" mark there) --
+#      so README's own default column is not a complete account of
+#      Cargo.toml's real default set. rmcp:featureDefault below is therefore
+#      true for exactly the 2 rows README itself marks default (server,
+#      macros), which is a real subset of Cargo.toml's actual 3-entry
+#      default array, not the full array -- disclosed, not silently glossed.
+#   NOT modeled at all this pass (disclosed): the full JSON-RPC
+#   message/error-code enumeration (model/serde_impl.rs, error.rs), the
+#   streamable-HTTP session-store internals, auth/OAuth2 flow detail beyond
+#   type names, and the ~50 integration tests under tests/test_*.rs.
+#
+# ~/remo/rmcp was NOT used as a source: confirmed empty of Cargo.toml/src, so
+# it cannot be the real rmcp crate; the real crates.io source above is both
+# reachable and preferable.
+
+@prefix rmcp: <http://seanchatmangpt.github.io/packs/rmcp#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Classes ──────────────────────────────────────────────────────────────
+
+rmcp:HandlerMethod
+    a            rdfs:Class ;
+    rdfs:label   "HandlerMethod" ;
+    rdfs:comment "One real method of rmcp::ServerHandler or rmcp::ClientHandler (43 total: 27 server + 16 client), read directly from src/handler/{server,client}.rs." .
+
+rmcp:Macro
+    a            rdfs:Class ;
+    rdfs:label   "Macro" ;
+    rdfs:comment "One real #[proc_macro_attribute] fn exported by the rmcp-macros sibling crate (7 total), read directly from rmcp-macros/src/lib.rs." .
+
+rmcp:Transport
+    a            rdfs:Class ;
+    rdfs:label   "Transport" ;
+    rdfs:comment "One real transport implementation reachable from rmcp::transport (7 total), read directly from src/transport.rs's own #[cfg(feature = ...)]-gated pub use declarations." .
+
+rmcp:Feature
+    a            rdfs:Class ;
+    rdfs:label   "Feature" ;
+    rdfs:comment "One real Cargo feature flag documented in rmcp's own README.md (15 total: 6 core + 6 transport + 3 TLS-backend); Cargo.toml itself defines 26 total flags -- 11 more, undocumented, out of scope this pass (see ontology header)." .
+
+# ── Properties: rmcp:HandlerMethod ──────────────────────────────────────
+
+rmcp:role
+    a           rdf:Property ;
+    rdfs:label  "role" ;
+    rdfs:comment "\"server\" (rmcp::ServerHandler) or \"client\" (rmcp::ClientHandler)." ;
+    rdfs:domain rmcp:HandlerMethod ;
+    rdfs:range  xsd:string .
+
+rmcp:methodName
+    a           rdf:Property ;
+    rdfs:label  "method name" ;
+    rdfs:domain rmcp:HandlerMethod ;
+    rdfs:range  xsd:string .
+
+rmcp:paramsType
+    a            rdf:Property ;
+    rdfs:label   "params type" ;
+    rdfs:comment "The real Rust type of the method's request/notification parameter, exactly as it appears in the trait's own signature. Empty string for the handful of real methods that take no typed parameter beyond &self/context (e.g. ping, get_info, on_initialized)." ;
+    rdfs:domain  rmcp:HandlerMethod ;
+    rdfs:range   xsd:string .
+
+rmcp:returnType
+    a            rdf:Property ;
+    rdfs:label   "return type" ;
+    rdfs:comment "The real Ok(T) (for Result-returning async methods) or plain return type (for the few sync/notification methods)." ;
+    rdfs:domain  rmcp:HandlerMethod ;
+    rdfs:range   xsd:string .
+
+rmcp:defaultBehavior
+    a            rdf:Property ;
+    rdfs:label   "default behavior" ;
+    rdfs:comment "One real sentence summarizing the method's actual default trait-method body (e.g. \"returns Err(METHOD_NOT_FOUND)\" or \"returns Ok(T::default())\"), transcribed from the real source, not inferred from the method name." ;
+    rdfs:domain  rmcp:HandlerMethod ;
+    rdfs:range   xsd:string .
+
+# rmcp:sourceFile is shared across all 4 classes below (HandlerMethod, Macro,
+# Transport, Feature each carry it); rdfs:domain is deliberately left
+# unstated rather than force-fit to one class, since RDFS domain triples are
+# documentary only here (the real constraints live in gates/*.rq, which are
+# each explicitly scoped per class).
+rmcp:sourceFile
+    a            rdf:Property ;
+    rdfs:label   "source file" ;
+    rdfs:comment "file:line citation into the real vendored rmcp-2.2.0 (or rmcp-macros-2.2.0) source this pass read directly, relative to that crate's own root (e.g. \"src/handler/server.rs:311-317\")." ;
+    rdfs:range   xsd:string .
+
+# ── Properties: rmcp:Macro ──────────────────────────────────────────────
+
+rmcp:macroName
+    a           rdf:Property ;
+    rdfs:label  "macro name" ;
+    rdfs:domain rmcp:Macro ;
+    rdfs:range  xsd:string .
+
+rmcp:macroKind
+    a            rdf:Property ;
+    rdfs:label   "macro kind" ;
+    rdfs:comment "\"attribute\" for all 7 -- every one is declared #[proc_macro_attribute] in rmcp-macros/src/lib.rs, confirmed by reading each fn signature directly." ;
+    rdfs:domain  rmcp:Macro ;
+    rdfs:range   xsd:string .
+
+rmcp:appliesTo
+    a            rdf:Property ;
+    rdfs:label   "applies to" ;
+    rdfs:comment "The real syn AST node each macro's implementation parses its `input` TokenStream into: \"fn\" for syn::ImplItemFn (tool, prompt), \"impl\" for syn::ItemImpl (tool_router, tool_handler, prompt_router, prompt_handler, task_handler) -- confirmed by reading each macro's own syn::parse2::<...> call site in rmcp-macros/src/{tool,tool_router,tool_handler,prompt,prompt_router,prompt_handler,task_handler}.rs, not assumed from the doc prose." ;
+    rdfs:domain  rmcp:Macro ;
+    rdfs:range   xsd:string .
+
+rmcp:macroFields
+    a            rdf:Property ;
+    rdfs:label   "macro fields" ;
+    rdfs:comment "Real per-macro attribute fields, `@@`-joined groups of pipe-separated `field|type|usage` (3 columns), transcribed verbatim from each macro's own real `| field | type | usage |` doc table in rmcp-macros/src/lib.rs. Deliberately 3 columns, not clap-noun-verb-pack's cnv:args 4-column `field|rust_type|required|about` shape it otherwise inspired: rmcp-macros' real doc tables carry no \"required\" column at all (every field is optional with a stated default) -- reusing 4 columns here would fabricate a fact the real source does not state. Only the pipe/`@@` delimiter grammar is reused, not the column count. task_handler is the one real exception: its doc comment states one field's semantics in prose, not a table (rmcp-macros/src/lib.rs lines 303-309 have no `| field | type | usage |` markdown at all) -- its macroFields value is still a single field|type|usage group, transcribed from that prose plus the field's real default read from rmcp-macros/src/task_handler.rs, disclosed here as an honest asymmetry, not a template artifact." ;
+    rdfs:domain  rmcp:Macro ;
+    rdfs:range   xsd:string .
+
+# ── Properties: rmcp:Transport ──────────────────────────────────────────
+
+rmcp:transportName
+    a           rdf:Property ;
+    rdfs:label  "transport name" ;
+    rdfs:domain rmcp:Transport ;
+    rdfs:range  xsd:string .
+
+rmcp:transportRole
+    a            rdf:Property ;
+    rdfs:label   "transport role" ;
+    rdfs:comment "\"client\", \"server\", or \"helper\" (a generic building block used by both sides, e.g. WorkerTransport, AsyncRwTransport, SinkStreamTransport)." ;
+    rdfs:domain  rmcp:Transport ;
+    rdfs:range   xsd:string .
+
+rmcp:featureFlag
+    a            rdf:Property ;
+    rdfs:label   "feature flag" ;
+    rdfs:comment "The real Cargo feature gating this transport's pub use in src/transport.rs. One real transport (SinkStreamTransport) is unconditionally compiled with no feature gate at all -- its featureFlag value states that fact explicitly (\"(none -- unconditionally compiled, no feature gate)\") rather than being left empty or naming a fake feature." ;
+    rdfs:domain  rmcp:Transport ;
+    rdfs:range   xsd:string .
+
+rmcp:transportPurpose
+    a            rdf:Property ;
+    rdfs:label   "transport purpose" ;
+    rdfs:comment "One real sentence describing the transport, sourced from either README.md's own \"Transport features\" table (for the 5 transports it documents) or src/transport.rs's own module-level doc comment (for WorkerTransport and SinkStreamTransport, which README's table omits but transport.rs's own \"Helper Transport Types\" doc section covers directly)." ;
+    rdfs:domain  rmcp:Transport ;
+    rdfs:range   xsd:string .
+
+# ── Properties: rmcp:Feature ─────────────────────────────────────────────
+
+rmcp:featureName
+    a           rdf:Property ;
+    rdfs:label  "feature name" ;
+    rdfs:domain rmcp:Feature ;
+    rdfs:range  xsd:string .
+
+rmcp:featureDesc
+    a            rdf:Property ;
+    rdfs:label   "feature description" ;
+    rdfs:comment "Verbatim one-line description from README.md's own feature tables." ;
+    rdfs:domain  rmcp:Feature ;
+    rdfs:range   xsd:string .
+
+rmcp:featureDefault
+    a            rdf:Property ;
+    rdfs:label   "feature default" ;
+    rdfs:comment "true only for the 2 rows README.md's own \"Default\" column marks with a checkmark (server, macros). Cargo.toml's real default array is [\"base64\", \"macros\", \"server\"] -- a third entry, base64, is out of this pass's modeled scope (see ontology header); this property reflects README's own documented defaults, not the full Cargo.toml array." ;
+    rdfs:domain  rmcp:Feature ;
+    rdfs:range   xsd:boolean .
+
+# ── Individuals: rmcp:HandlerMethod — server (27), src/handler/server.rs ──
+# All default bodies read from the `server_handler_methods!` macro_rules!
+# body (lines 182-428); get_tool (329-331) and get_info (389-391) are the
+# two real sync (non-async, non-Result) methods in the whole trait.
+
+rmcp:server-enqueue-task
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "enqueue_task" ;
+    rmcp:paramsType "CallToolRequestParams" ; rmcp:returnType "CreateTaskResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::internal_error(\"Task processing not implemented\", None)) -- task-based tool invocation is opt-in via #[task_handler]." ;
+    rmcp:sourceFile "src/handler/server.rs:184-193" .
+
+rmcp:server-ping
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "ping" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Returns Ok(()) unconditionally." ;
+    rmcp:sourceFile "src/handler/server.rs:194-199" .
+
+rmcp:server-initialize
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "initialize" ;
+    rmcp:paramsType "InitializeRequestParams" ; rmcp:returnType "InitializeResult" ;
+    rmcp:defaultBehavior "Records the peer's declared info, negotiates the protocol version against self.get_info(), and returns Ok(info) with the negotiated version." ;
+    rmcp:sourceFile "src/handler/server.rs:201-213" .
+
+rmcp:server-complete
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "complete" ;
+    rmcp:paramsType "CompleteRequestParams" ; rmcp:returnType "CompleteResult" ;
+    rmcp:defaultBehavior "Returns Ok(CompleteResult::default())." ;
+    rmcp:sourceFile "src/handler/server.rs:214-220" .
+
+rmcp:server-set-level
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "set_level" ;
+    rmcp:paramsType "SetLevelRequestParams" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<SetLevelRequestMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:221-227" .
+
+rmcp:server-get-prompt
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "get_prompt" ;
+    rmcp:paramsType "GetPromptRequestParams" ; rmcp:returnType "GetPromptResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<GetPromptRequestMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:228-234" .
+
+rmcp:server-list-prompts
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "list_prompts" ;
+    rmcp:paramsType "Option<PaginatedRequestParams>" ; rmcp:returnType "ListPromptsResult" ;
+    rmcp:defaultBehavior "Returns Ok(ListPromptsResult::default()) (an empty prompt list, not an error)." ;
+    rmcp:sourceFile "src/handler/server.rs:235-241" .
+
+rmcp:server-list-resources
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "list_resources" ;
+    rmcp:paramsType "Option<PaginatedRequestParams>" ; rmcp:returnType "ListResourcesResult" ;
+    rmcp:defaultBehavior "Returns Ok(ListResourcesResult::default()) (an empty resource list, not an error)." ;
+    rmcp:sourceFile "src/handler/server.rs:242-248" .
+
+rmcp:server-list-resource-templates
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "list_resource_templates" ;
+    rmcp:paramsType "Option<PaginatedRequestParams>" ; rmcp:returnType "ListResourceTemplatesResult" ;
+    rmcp:defaultBehavior "Returns Ok(ListResourceTemplatesResult::default()) (an empty list, not an error)." ;
+    rmcp:sourceFile "src/handler/server.rs:249-257" .
+
+rmcp:server-read-resource
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "read_resource" ;
+    rmcp:paramsType "ReadResourceRequestParams" ; rmcp:returnType "ReadResourceResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<ReadResourceRequestMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:258-266" .
+
+rmcp:server-subscribe
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "subscribe" ;
+    rmcp:paramsType "SubscribeRequestParams" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<SubscribeRequestMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:267-273" .
+
+rmcp:server-unsubscribe
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "unsubscribe" ;
+    rmcp:paramsType "UnsubscribeRequestParams" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<UnsubscribeRequestMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:274-282" .
+
+rmcp:server-call-tool
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "call_tool" ;
+    rmcp:paramsType "CallToolRequestParams" ; rmcp:returnType "CallToolResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<CallToolRequestMethod>()). The method's own real doc comment (lines 283-310) explains a genuine API-design subtlety: Ok(CallToolResult::error(...)) reaches the caller's UI (rendered content), while Err(McpError) is a JSON-RPC protocol error the caller typically cannot read -- almost every \"tool didn't work\" path should return the former, not the latter." ;
+    rmcp:sourceFile "src/handler/server.rs:311-317" .
+
+rmcp:server-list-tools
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "list_tools" ;
+    rmcp:paramsType "Option<PaginatedRequestParams>" ; rmcp:returnType "ListToolsResult" ;
+    rmcp:defaultBehavior "Returns Ok(ListToolsResult::default()) (an empty tool list, not an error)." ;
+    rmcp:sourceFile "src/handler/server.rs:318-324" .
+
+rmcp:server-get-tool
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "get_tool" ;
+    rmcp:paramsType "&str" ; rmcp:returnType "Option<Tool>" ;
+    rmcp:defaultBehavior "Returns None (the one real sync, non-Result method besides get_info; its own doc comment notes returning None bypasses task-support validation, and that #[tool_handler] auto-implements it)." ;
+    rmcp:sourceFile "src/handler/server.rs:329-331" .
+
+rmcp:server-on-custom-request
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_custom_request" ;
+    rmcp:paramsType "CustomRequest" ; rmcp:returnType "CustomResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::new(ErrorCode::METHOD_NOT_FOUND, method, None)) using the custom request's own method name." ;
+    rmcp:sourceFile "src/handler/server.rs:332-344" .
+
+rmcp:server-on-cancelled
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_cancelled" ;
+    rmcp:paramsType "CancelledNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns () (a notification, not a request)." ;
+    rmcp:sourceFile "src/handler/server.rs:346-352" .
+
+rmcp:server-on-progress
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_progress" ;
+    rmcp:paramsType "ProgressNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/server.rs:353-359" .
+
+rmcp:server-on-initialized
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_initialized" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Logs \"client initialized\" via tracing::info!, then returns ()." ;
+    rmcp:sourceFile "src/handler/server.rs:360-366" .
+
+rmcp:server-on-roots-list-changed
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_roots_list_changed" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/server.rs:367-372" .
+
+rmcp:server-on-task-status
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_task_status" ;
+    rmcp:paramsType "TaskStatusNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/server.rs:373-379" .
+
+rmcp:server-on-custom-notification
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "on_custom_notification" ;
+    rmcp:paramsType "CustomNotification" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/server.rs:380-387" .
+
+rmcp:server-get-info
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "get_info" ;
+    rmcp:paramsType "" ; rmcp:returnType "ServerInfo" ;
+    rmcp:defaultBehavior "Returns ServerInfo::default() -- the one real sync method every #[tool_handler]/#[prompt_handler]-based server typically overrides (or lets the macro auto-generate)." ;
+    rmcp:sourceFile "src/handler/server.rs:389-391" .
+
+rmcp:server-list-tasks
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "list_tasks" ;
+    rmcp:paramsType "Option<PaginatedRequestParams>" ; rmcp:returnType "ListTasksResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<ListTasksMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:393-399" .
+
+rmcp:server-get-task-info
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "get_task_info" ;
+    rmcp:paramsType "GetTaskParams" ; rmcp:returnType "GetTaskResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<GetTaskMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:401-408" .
+
+rmcp:server-get-task-result
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "get_task_result" ;
+    rmcp:paramsType "GetTaskPayloadParams" ; rmcp:returnType "GetTaskPayloadResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<GetTaskPayloadMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:410-417" .
+
+rmcp:server-cancel-task
+    a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName "cancel_task" ;
+    rmcp:paramsType "CancelTaskParams" ; rmcp:returnType "CancelTaskResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<CancelTaskMethod>())." ;
+    rmcp:sourceFile "src/handler/server.rs:419-426" .
+
+# ── Individuals: rmcp:HandlerMethod — client (16), src/handler/client.rs ──
+
+rmcp:client-ping
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "ping" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "Returns Ok(()) unconditionally." ;
+    rmcp:sourceFile "src/handler/client.rs:90-95" .
+
+rmcp:client-create-message
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "create_message" ;
+    rmcp:paramsType "CreateMessageRequestParams" ; rmcp:returnType "CreateMessageResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::method_not_found::<CreateMessageRequestMethod>()) -- sampling is opt-in, real clients override this." ;
+    rmcp:sourceFile "src/handler/client.rs:97-105" .
+
+rmcp:client-list-roots
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "list_roots" ;
+    rmcp:paramsType "" ; rmcp:returnType "ListRootsResult" ;
+    rmcp:defaultBehavior "Returns Ok(ListRootsResult::default()) (an empty roots list, not an error)." ;
+    rmcp:sourceFile "src/handler/client.rs:107-112" .
+
+rmcp:client-create-elicitation
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "create_elicitation" ;
+    rmcp:paramsType "ElicitRequestParams" ; rmcp:returnType "ElicitResult" ;
+    rmcp:defaultBehavior "Returns Ok(ElicitResult { action: ElicitationAction::Decline, content: None, meta: None }) -- automatically declines every elicitation request; real interactive clients override this. The method's own doc comment (lines 114-169) includes a real, complete `impl ClientHandler for MyClient` example matching on ElicitRequestParams::{FormElicitationParam, UrlElicitationParam}." ;
+    rmcp:sourceFile "src/handler/client.rs:170-182" .
+
+rmcp:client-on-custom-request
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_custom_request" ;
+    rmcp:paramsType "CustomRequest" ; rmcp:returnType "CustomResult" ;
+    rmcp:defaultBehavior "Returns Err(McpError::new(ErrorCode::METHOD_NOT_FOUND, method, None)) using the custom request's own method name." ;
+    rmcp:sourceFile "src/handler/client.rs:184-196" .
+
+rmcp:client-on-cancelled
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_cancelled" ;
+    rmcp:paramsType "CancelledNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:198-204" .
+
+rmcp:client-on-progress
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_progress" ;
+    rmcp:paramsType "ProgressNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:205-211" .
+
+rmcp:client-on-logging-message
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_logging_message" ;
+    rmcp:paramsType "LoggingMessageNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:212-218" .
+
+rmcp:client-on-resource-updated
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_resource_updated" ;
+    rmcp:paramsType "ResourceUpdatedNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:219-225" .
+
+rmcp:client-on-resource-list-changed
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_resource_list_changed" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:226-231" .
+
+rmcp:client-on-tool-list-changed
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_tool_list_changed" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:232-237" .
+
+rmcp:client-on-prompt-list-changed
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_prompt_list_changed" ;
+    rmcp:paramsType "" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:238-243" .
+
+rmcp:client-on-url-elicitation-notification-complete
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_url_elicitation_notification_complete" ;
+    rmcp:paramsType "ElicitationResponseNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:245-251" .
+
+rmcp:client-on-task-status
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_task_status" ;
+    rmcp:paramsType "TaskStatusNotificationParam" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:252-258" .
+
+rmcp:client-on-custom-notification
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "on_custom_notification" ;
+    rmcp:paramsType "CustomNotification" ; rmcp:returnType "()" ;
+    rmcp:defaultBehavior "No-op: returns ()." ;
+    rmcp:sourceFile "src/handler/client.rs:259-266" .
+
+rmcp:client-get-info
+    a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName "get_info" ;
+    rmcp:paramsType "" ; rmcp:returnType "ClientInfo" ;
+    rmcp:defaultBehavior "Returns ClientInfo::default() -- the one real sync method in ClientHandler." ;
+    rmcp:sourceFile "src/handler/client.rs:268-270" .
+
+# ── Individuals: rmcp:Macro (7), rmcp-macros-2.2.0/src/lib.rs + submodules ─
+
+rmcp:macro-tool
+    a rmcp:Macro ; rmcp:macroName "tool" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "fn" ;
+    rmcp:macroFields "name|String|The name of the tool. If not provided, it defaults to the function name.@@description|String|A description of the tool. The document of this function will be used.@@input_schema|Expr|A JSON Schema object defining the expected parameters for the tool. If not provide, if will use the json schema of its argument with type `Parameters<T>`@@annotations|ToolAnnotationsAttribute|Additional tool information. Defaults to `None`." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:37-42 (doc 14-36); target AST confirmed via src/tool.rs:222 syn::parse2::<ImplItemFn>" .
+
+rmcp:macro-tool-router
+    a rmcp:Macro ; rmcp:macroName "tool_router" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "impl" ;
+    rmcp:macroFields "router|Ident|The name of the router function to be generated. Defaults to `tool_router`.@@vis|Visibility|The visibility of the generated router function. Defaults to empty.@@server_handler|flag|When set, also emits `#[::rmcp::tool_handler]` on `impl ServerHandler for Self` so you can omit a separate `#[tool_handler]` block." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:126-131 (doc 44-125); target AST confirmed via src/tool_router.rs:39 syn::parse2::<ItemImpl>" .
+
+rmcp:macro-tool-handler
+    a rmcp:Macro ; rmcp:macroName "tool_handler" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "impl" ;
+    rmcp:macroFields "router|Expr|The expression to access the `ToolRouter` instance. Defaults to `Self::tool_router()`.@@meta|Expr|Optional metadata for `ListToolsResult`.@@name|String|Custom server name. Defaults to `CARGO_CRATE_NAME`.@@version|String|Custom server version. Defaults to `CARGO_PKG_VERSION`.@@instructions|String|Optional human-readable instructions about using this server." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:194-199 (doc 133-193); target AST confirmed via src/tool_handler.rs:42 syn::parse2::<ItemImpl>; generates call_tool/list_tools/get_tool/get_info" .
+
+rmcp:macro-prompt
+    a rmcp:Macro ; rmcp:macroName "prompt" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "fn" ;
+    rmcp:macroFields "name|String|The name of the prompt. If not provided, it defaults to the function name.@@description|String|A description of the prompt. The document of this function will be used if not provided.@@arguments|Expr|An expression that evaluates to `Option<Vec<PromptArgument>>` defining the prompt's arguments. If not provided, it will automatically generate arguments from the `Parameters<T>` type found in the function signature." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:223-228 (doc 201-222); target AST confirmed via src/prompt.rs:82 syn::parse2::<ImplItemFn>" .
+
+rmcp:macro-prompt-router
+    a rmcp:Macro ; rmcp:macroName "prompt_router" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "impl" ;
+    rmcp:macroFields "router|Ident|The name of the router function to be generated. Defaults to `prompt_router`.@@vis|Visibility|The visibility of the generated router function. Defaults to empty." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:261-266 (doc 230-260); target AST confirmed via src/prompt_router.rs:21 syn::parse2::<ItemImpl>" .
+
+rmcp:macro-prompt-handler
+    a rmcp:Macro ; rmcp:macroName "prompt_handler" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "impl" ;
+    rmcp:macroFields "router|Expr|The expression to access the `PromptRouter` instance. Defaults to `Self::prompt_router()`.@@meta|Expr|Optional metadata for `ListPromptsResult`." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:296-301 (doc 268-295); target AST confirmed via src/prompt_handler.rs:26 syn::parse2::<ItemImpl>; also auto-generates get_info() with prompts capability if not already provided" .
+
+rmcp:macro-task-handler
+    a rmcp:Macro ; rmcp:macroName "task_handler" ; rmcp:macroKind "attribute" ; rmcp:appliesTo "impl" ;
+    rmcp:macroFields "processor|Expr|Custom accessor expression for a shared OperationProcessor; the real darling default (rmcp-macros/src/task_handler.rs:14-19) is `self.processor`, i.e. a field of type `Arc<Mutex<OperationProcessor>>`. Unlike the other 6 macros, this field is stated in prose (not a markdown table) in the macro's own doc comment." ;
+    rmcp:sourceFile "rmcp-macros-2.2.0/src/lib.rs:310-315 (doc 303-309); target AST confirmed via src/task_handler.rs:24 syn::parse2::<ItemImpl>; generates enqueue_task/list_tasks; requires the handler type to implement Clone (captured inside spawned futures, per the macro's own doc)" .
+
+# ── Individuals: rmcp:Transport (7), src/transport.rs + submodules ────────
+
+rmcp:transport-stdio
+    a rmcp:Transport ; rmcp:transportName "stdio" ; rmcp:transportRole "server" ;
+    rmcp:featureFlag "transport-io" ;
+    rmcp:transportPurpose "Server-side stdio transport (README.md's own \"Transport features\" table)." ;
+    rmcp:sourceFile "src/transport/io.rs:1-4 (pub fn stdio() -> (tokio::io::Stdin, tokio::io::Stdout)); gate: src/transport.rs:90-92 #[cfg(feature = \"transport-io\")]" .
+
+rmcp:transport-tokio-child-process
+    a rmcp:Transport ; rmcp:transportName "TokioChildProcess" ; rmcp:transportRole "client" ;
+    rmcp:featureFlag "transport-child-process" ;
+    rmcp:transportPurpose "Client-side stdio transport, spawns a child process (README.md's own \"Transport features\" table)." ;
+    rmcp:sourceFile "src/transport/child_process.rs:39 (pub struct TokioChildProcess); gate: src/transport.rs:82-86 #[cfg(feature = \"transport-child-process\")]" .
+
+rmcp:transport-streamable-http-client
+    a rmcp:Transport ; rmcp:transportName "StreamableHttpClientTransport" ; rmcp:transportRole "client" ;
+    rmcp:featureFlag "transport-streamable-http-client" ;
+    rmcp:transportPurpose "Streamable HTTP client, transport-agnostic (README.md's own \"Transport features\" table); really `pub type StreamableHttpClientTransport<C> = WorkerTransport<StreamableHttpClientWorker<C>>` -- a type alias composing the WorkerTransport helper, not a standalone struct." ;
+    rmcp:sourceFile "src/transport/streamable_http_client.rs:1166; gate: src/transport.rs:116-119 #[cfg(feature = \"transport-streamable-http-client\")]" .
+
+rmcp:transport-streamable-http-server
+    a rmcp:Transport ; rmcp:transportName "StreamableHttpService" ; rmcp:transportRole "server" ;
+    rmcp:featureFlag "transport-streamable-http-server" ;
+    rmcp:transportPurpose "Streamable HTTP server transport (README.md's own \"Transport features\" table)." ;
+    rmcp:sourceFile "src/transport/streamable_http_server/tower.rs:547 (pub struct StreamableHttpService<S, M>); gate: src/transport.rs:110-112 #[cfg(all(feature = \"transport-streamable-http-server\", not(feature = \"local\")))]" .
+
+rmcp:transport-worker
+    a rmcp:Transport ; rmcp:transportName "WorkerTransport" ; rmcp:transportRole "helper" ;
+    rmcp:featureFlag "transport-worker" ;
+    rmcp:transportPurpose "Runs a Worker and processes messages in another tokio task (src/transport.rs's own \"Helper Transport Types\" module doc, lines 12-15); not in README.md's own Transport features table -- disclosed, not a fabricated entry: it is real, reachable, and feature-gated, just undocumented there." ;
+    rmcp:sourceFile "src/transport/worker.rs:64 (pub struct WorkerTransport<W: Worker>); gate: src/transport.rs:77-80 #[cfg(feature = \"transport-worker\")]" .
+
+rmcp:transport-async-rw
+    a rmcp:Transport ; rmcp:transportName "AsyncRwTransport" ; rmcp:transportRole "helper" ;
+    rmcp:featureFlag "transport-async-rw" ;
+    rmcp:transportPurpose "Generic async read/write transport (README.md's own \"Transport features\" table); generic over `Role: ServiceRole`, used from both the client and server sides." ;
+    rmcp:sourceFile "src/transport/async_rw.rs:51 (pub struct AsyncRwTransport<Role: ServiceRole, R: AsyncRead, W: AsyncWrite>); gate: src/transport.rs:75-76 #[cfg(feature = \"transport-async-rw\")]" .
+
+rmcp:transport-sink-stream
+    a rmcp:Transport ; rmcp:transportName "SinkStreamTransport" ; rmcp:transportRole "helper" ;
+    rmcp:featureFlag "(none -- unconditionally compiled, no feature gate)" ;
+    rmcp:transportPurpose "Creates a transport from a Sink/Stream pair, e.g. a duplex object stream such as a websocket connection (src/transport.rs's own \"Helper Transport Types\" module doc, lines 24-27)." ;
+    rmcp:sourceFile "src/transport/sink_stream.rs:9 (pub struct SinkStreamTransport<Si, St>); src/transport.rs:73 `pub mod sink_stream;` -- unconditional, no #[cfg(...)]" .
+
+# ── Individuals: rmcp:Feature (15), README.md's own 3 real tables ────────
+# Core Features (6, lines 20-27):
+
+rmcp:feature-server
+    a rmcp:Feature ; rmcp:featureName "server" ;
+    rmcp:featureDesc "Server functionality and the tool system" ;
+    rmcp:featureDefault true ; rmcp:sourceFile "README.md:22" .
+
+rmcp:feature-client
+    a rmcp:Feature ; rmcp:featureName "client" ;
+    rmcp:featureDesc "Client functionality" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:23" .
+
+rmcp:feature-macros
+    a rmcp:Feature ; rmcp:featureName "macros" ;
+    rmcp:featureDesc "#[tool] / #[prompt] macros (re-exports rmcp-macros)" ;
+    rmcp:featureDefault true ; rmcp:sourceFile "README.md:24" .
+
+rmcp:feature-schemars
+    a rmcp:Feature ; rmcp:featureName "schemars" ;
+    rmcp:featureDesc "JSON Schema generation for tool definitions" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:25" .
+
+rmcp:feature-auth
+    a rmcp:Feature ; rmcp:featureName "auth" ;
+    rmcp:featureDesc "OAuth 2.0 authentication support" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:26" .
+
+rmcp:feature-elicitation
+    a rmcp:Feature ; rmcp:featureName "elicitation" ;
+    rmcp:featureDesc "Elicitation support" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:27" .
+
+# Transport features (6, lines 33-38):
+
+rmcp:feature-transport-io
+    a rmcp:Feature ; rmcp:featureName "transport-io" ;
+    rmcp:featureDesc "Server-side stdio transport" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:33" .
+
+rmcp:feature-transport-child-process
+    a rmcp:Feature ; rmcp:featureName "transport-child-process" ;
+    rmcp:featureDesc "Client-side stdio transport (spawns a child process)" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:34" .
+
+rmcp:feature-transport-async-rw
+    a rmcp:Feature ; rmcp:featureName "transport-async-rw" ;
+    rmcp:featureDesc "Generic async read/write transport" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:35" .
+
+rmcp:feature-transport-streamable-http-client
+    a rmcp:Feature ; rmcp:featureName "transport-streamable-http-client" ;
+    rmcp:featureDesc "Streamable HTTP client (transport-agnostic)" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:36" .
+
+rmcp:feature-transport-streamable-http-client-reqwest
+    a rmcp:Feature ; rmcp:featureName "transport-streamable-http-client-reqwest" ;
+    rmcp:featureDesc "Streamable HTTP client with default reqwest backend" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:37" .
+
+rmcp:feature-transport-streamable-http-server
+    a rmcp:Feature ; rmcp:featureName "transport-streamable-http-server" ;
+    rmcp:featureDesc "Streamable HTTP server transport" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:38" .
+
+# TLS backend options (3, lines 44-46):
+
+rmcp:feature-reqwest
+    a rmcp:Feature ; rmcp:featureName "reqwest" ;
+    rmcp:featureDesc "Uses rustls -- pure Rust TLS (recommended default)" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:44" .
+
+rmcp:feature-reqwest-native-tls
+    a rmcp:Feature ; rmcp:featureName "reqwest-native-tls" ;
+    rmcp:featureDesc "Uses platform-native TLS (OpenSSL / Secure Transport / SChannel)" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:45" .
+
+rmcp:feature-reqwest-tls-no-provider
+    a rmcp:Feature ; rmcp:featureName "reqwest-tls-no-provider" ;
+    rmcp:featureDesc "Uses rustls without a default crypto provider (bring your own)" ;
+    rmcp:featureDefault false ; rmcp:sourceFile "README.md:46" .
