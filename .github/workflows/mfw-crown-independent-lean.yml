@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   statuses: write
 
 jobs:
@@ -21,7 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - uses: actions/checkout@v4
       - name: Mark verifier pending
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -29,7 +31,6 @@ jobs:
             -f state=pending \
             -f context=mfw-crown-independent-lean \
             -f description='Lean kernel verification is running'
-      - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: examples/mfw-crown-independent-verify
@@ -40,21 +41,45 @@ jobs:
       - name: Execute theorem inventory
         working-directory: examples/mfw-crown-independent-verify
         run: lake exe crown_verify_check
-      - name: Mark verifier success
+      - name: Persist success receipt
         if: ${{ success() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p .verification
+          cat > .verification/mfw-crown-independent-status.md <<EOF
+          status: ALIVE
+          source_commit: ${GITHUB_SHA}
+          workflow_run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          checks: lake build --wfail; theorem inventory; nanoda; no sorry
+          EOF
           gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -f state=success \
             -f context=mfw-crown-independent-lean \
             -f description='Lean build, theorem inventory, and nanoda passed'
-      - name: Mark verifier failure
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .verification/mfw-crown-independent-status.md
+          git commit -m 'chore(verify): record Crown Lean success [skip ci]'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+      - name: Persist failure receipt
         if: ${{ failure() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p .verification
+          cat > .verification/mfw-crown-independent-status.md <<EOF
+          status: BUILD_BROKEN
+          source_commit: ${GITHUB_SHA}
+          workflow_run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          checks: Lean verification failed; inspect workflow run
+          EOF
           gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -f state=failure \
             -f context=mfw-crown-independent-lean \
-            -f description='Lean verification failed'
+            -f description='Lean verification failed' || true
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .verification/mfw-crown-independent-status.md
+          git commit -m 'chore(verify): record Crown Lean failure [skip ci]'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
