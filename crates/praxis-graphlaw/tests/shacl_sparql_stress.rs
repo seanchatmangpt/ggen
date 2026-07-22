@@ -18,8 +18,22 @@ fn build_data_index(data_str: &str) -> TripleIndex {
 
 /// A `sh:sparql` constraint combined with 2 ordinary constraints
 /// (`sh:targetClass` implicit via node shape + `sh:property` minCount) on
-/// the same shape -- all three must be independently enforced; violating
-/// any one must produce a violation, satisfying all three must conform.
+/// the same shape.
+///
+/// NOTE: `SHACL_SPARQL_BOUNDARY = "CORE_ONLY"` (`src/shacl/model.rs`,
+/// PROJ-407 Step 2 -- a deliberate v26.7.8 threat-model decision, pinned by
+/// its own `shacl_test.rs::test_...boundary` unit test) makes
+/// `check_sparql_boundary` skip evaluating EVERY `sh:sparql` constraint node
+/// entirely (`src/shacl/validate.rs:572`). The shape still loads
+/// successfully (a real, separately-tracked doc/implementation drift against
+/// the model.rs comment's "rejected at shape load time" phrasing -- fixing
+/// that is out of scope here since a real production shapes file,
+/// `ontologies/shapes/process-conformance.shacl.ttl`, uses `sh:sparql`, and
+/// this bounded pass does not have evidence that would be safe to reject at
+/// load time). So `sh:sparql` here is INERT: only the ordinary `sh:minCount`
+/// constraint is actually enforced, and this test now verifies exactly
+/// that -- the inert `sh:sparql` constraint's presence must not spuriously
+/// cause violations OR spuriously suppress the real ones.
 #[test]
 fn test_sparql_constraint_combined_with_ordinary_constraints() {
     let shapes_str = r#"
@@ -35,7 +49,7 @@ fn test_sparql_constraint_combined_with_ordinary_constraints() {
     "#;
     let shapes = ShapesGraph::parse(shapes_str).unwrap();
 
-    // Both satisfied: has age, non-negative.
+    // Both would be satisfied even if sh:sparql were live: has age, non-negative.
     let data_ok = build_data_index(
         "@prefix ex: <http://example.org/> .\nex:alice a ex:Person ; ex:age 30 .\n",
     );
@@ -44,20 +58,24 @@ fn test_sparql_constraint_combined_with_ordinary_constraints() {
         "valid non-negative age with age present must conform"
     );
 
-    // sh:sparql violated (negative age), sh:minCount satisfied.
+    // Would violate sh:sparql (negative age) if it were live; sh:minCount is
+    // satisfied. Since sh:sparql is inert under CORE_ONLY, this must conform.
     let data_negative =
         build_data_index("@prefix ex: <http://example.org/> .\nex:bob a ex:Person ; ex:age -5 .\n");
     let report_negative = Validator::validate(&data_negative, &shapes);
     assert!(
-        !report_negative.conforms,
-        "negative age must violate the sh:sparql constraint even though minCount is satisfied"
+        report_negative.conforms,
+        "sh:sparql is inert under SHACL_SPARQL_BOUNDARY = CORE_ONLY, so a negative age (which \
+         only the inert sh:sparql constraint would flag) must still conform: {:?}",
+        report_negative.results
     );
 
-    // sh:minCount violated (no age at all), sh:sparql trivially has no rows to flag.
+    // sh:minCount violated (no age at all) -- this is SHACL Core, not gated
+    // by CORE_ONLY, so it must still be enforced regardless of sh:sparql.
     let data_missing =
         build_data_index("@prefix ex: <http://example.org/> .\nex:carol a ex:Person .\n");
     let report_missing = Validator::validate(&data_missing, &shapes);
-    assert!(!report_missing.conforms, "missing age must violate sh:minCount even though the SPARQL constraint finds no negative-age rows to flag");
+    assert!(!report_missing.conforms, "missing age must violate sh:minCount (SHACL Core, unaffected by the sh:sparql boundary) regardless of the inert SPARQL constraint");
 }
 
 /// `sh:target`/`sh:SPARQLTarget` combined with `sh:targetClass` on the
