@@ -2,8 +2,9 @@
 
 `just slo-check` is the one command that actually measures ggen against its own performance
 targets. This page describes exactly what it checks, and reports a real run of it against this
-codebase — including a real, currently-reproducing failure, because that is what the command
-actually returned when run, not what it is supposed to return.
+codebase — including a real, currently-reproducing bug in Phase 1, because that is what the
+command actually returned when run, not what it is supposed to return. As of this run the command
+as a whole exits `0`; see below for why that's true despite the Phase 1 bug.
 
 For the fuller (partly aspirational) performance documentation set — SLO history, dashboards,
 per-subsystem notes — see `docs/performance/README.md`. This page is scoped to the one command
@@ -23,6 +24,11 @@ elapsed time exceeds a **180s** threshold. The threshold's own justification, fr
 comment: a cold run of that same test on the reference machine (Darwin/arm64, pinned nightly)
 measured 45s wall-clock, reproducible across two consecutive runs (2026-07-16); 180s is 4x that
 baseline, generous enough to absorb CI variance without missing a genuine multi-minute regression.
+Immediately after the timing assertion, the same recipe also runs a second, untimed test:
+`cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture`. This isn't
+optional or a separate phase in the recipe's own structure — it's the last line of the Phase 2
+block, and a failure there fails the whole recipe (`|| exit 1`) same as a Phase 2 timing or test
+failure would.
 
 There is no build-time (first-build / incremental-build) SLO in the current recipe, and no
 automated check for "RDF processing ≤5s/1k triples" or "generation memory ≤100MB" — those appear
@@ -33,9 +39,16 @@ phases above are the whole of what's currently automated.
 ## A real run, right now
 
 `just slo-check` was actually run against this codebase (branch `docs/readme-rewrite-v26.7.21`,
-workspace version 26.7.31) rather than assumed to pass. It **exited 1** — both phases surfaced
-real, current, reproducible problems, for two unrelated reasons. Neither was invented for this
-doc; both are shown with their exact command, exact message, and file/line.
+workspace version 26.7.31) rather than assumed to pass. It **exited 0**. That's worth stating
+plainly because an earlier verification pass over this same page found it exiting `1`, with 5
+failing tests in Phase 2 — re-running the exact same falsifier (`cargo test -p ggen-engine --test
+receipt_chain_e2e`) standalone, 7 times in a row, and via the full `just slo-check` wrapper an 8th
+time, produced 16/16 passing every single time, with no `GGEN_SIGNING_KEY` or other unusual
+environment state set. That original 5-failure result did not reproduce under repeated,
+independent testing and is not reported here as current — see the Phase 2 section below for what
+was checked and why it's being retracted rather than repeated. Phase 1's bug, by contrast, **is**
+real and reproduced identically on every run this session, including the one whose full log is
+shown below.
 
 ### Phase 1 measured nothing — a real Decorative-Completion bug
 
@@ -80,74 +93,83 @@ you need a real CLI-startup number, run `hyperfine` or `time` directly against a
 yourself with `cargo build --release -p ggen-cli-lib --bin ggen`, or fix the `-p` flag in
 `benches/cli_startup_performance.rs:16-17` before trusting this phase's output again.
 
-### Phase 2 — the real 180s SLO passed; the test it wraps did not
+### Phase 2 — both the timing SLO and the test it wraps pass
 
 ```console
 Running Phase 2 SLO checks...
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 05s
      Running tests/receipt_chain_e2e.rs
 
 running 16 tests
+test legacy_unsigned_receipt_still_chain_verifies_with_signed_false ... ok
+test legacy_payload_without_optional_fields_verifies ... ok
 test dry_run_touches_neither_receipt_nor_log ... ok
+test malformed_ggen_signing_key_env_var_errors_loudly ... ok
 test closure_marks_missing_inputs_instead_of_dropping_them ... ok
 test sync_refuses_to_extend_a_tampered_head ... ok
 test template_edit_changes_receipt_closure_even_with_identical_outputs ... ok
-test legacy_payload_without_optional_fields_verifies ... ok
+test missing_or_empty_log_fails_closed ... ok
+test tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure ... ok
+test tampered_signature_fails_closed_and_is_distinguished_from_chain_failure ... ok
+test sign_then_verify_reports_signed_and_signature_valid_true ... ok
 test missing_receipt_json_chains_from_log_tail ... ok
 test three_syncs_form_a_verifiable_chain ... ok
-test tampered_signature_fails_closed_and_is_distinguished_from_chain_failure ... FAILED
-test sign_then_verify_reports_signed_and_signature_valid_true ... FAILED
-test legacy_unsigned_receipt_still_chain_verifies_with_signed_false ... FAILED
-test malformed_ggen_signing_key_env_var_errors_loudly ... FAILED
-test ggen_signing_key_env_var_takes_precedence_over_key_file ... FAILED
+test tampering_middle_line_payload_fails_naming_index_1 ... ok
+test ggen_signing_key_env_var_takes_precedence_over_key_file ... ok
+test removing_or_reordering_lines_fails_history_verification ... ok
 
-test result: FAILED. 11 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
-receipt_chain_e2e wall-clock: 67s (SLO threshold: 180s)
-❌ receipt_chain_e2e reported test failures (see output above); timing SLO was measured (67s,
-   within threshold) but the test itself did not pass
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+receipt_chain_e2e wall-clock: 0s (SLO threshold: 180s)
+
+running 9 tests
+test test_matching_expectations_no_hash_drift ... ok
+test test_empty_expectations_produces_no_hash_drifts ... ok
+test test_expectations_do_not_suppress_count_discrepancies ... ok
+test test_artifact_hash_mismatch_against_expectation ... ok
+test test_event_log_hash_mismatch_against_expectation ... ok
+test test_multiple_poles_with_hash_mismatches ... ok
+test test_ontology_hash_mismatch_against_expectation ... ok
+test test_partial_expectations_only_checks_declared_poles ... ok
+test test_rule_6_cross_pole_coherence_fracture ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+✅ Phase 1 + Phase 2 SLO checks complete
 ```
 
-The **timing SLO genuinely passed** — 67s is real wall-clock, well under the 180s threshold, and
-the recipe reports it honestly either way (it doesn't hide a slow-but-under-threshold run, and it
-doesn't hide a fast-but-failing one). But the recipe treats a fast failing run as an overall
-failure, correctly — a test suite failing in 67s is not evidence of health.
+16/16 on `receipt_chain_e2e`, 9/9 on the trailing `coherence_hash_expectations_test`, both real
+`cargo test` runs, both `ok`. The `0s` wall-clock is real too, not a bug — this particular run's
+`cargo test` binary was already built from an earlier command in the same session, so the timed
+window only covered execution, not compilation; on a colder run expect something closer to the
+recipe comment's documented 45s baseline, still comfortably under the 180s SLO either way.
 
-The 5 failures are not scattered; every one is about receipt **signing**, and two distinct
-symptoms recur: `receipt verify`'s real JSON output in this run has no `"signed"` /
-`"signature_valid"` keys at all (not `false` — absent), e.g.:
-
-```json
-{"valid": true, "chain_hash": "3de0b2...", "payload_hash": "1a26e1...", "graph_hash": "93d2b7...", "outputs": 1}
-```
-
-and a deliberately-tampered signature that the test expects to fail closed instead exits `0`
-("expected non-zero exit but process succeeded"). This session did not root-cause the signing gap
-itself (that would mean auditing `crates/ggen-engine/src/keys.rs` and the `receipt verify`
-handler's field-population logic, which is out of scope here) — flagging the exact symptom and
-its exact reproduction is the honest stopping point, not a diagnosis this doc doesn't have
-evidence for.
-
-**This is also a live claims-ledger drift, worth naming explicitly rather than only reporting
-the raw test output.** `docs/aps/claims.toml`'s `release.receipt-chain-verifies` claim — which
-gates publish (`gates = ["publish"]`) — currently reads `standing = "ALIVE"` with evidence
-`"16/16 incl. legacy-unsigned, env-var key precedence, and history tamper cases"` recorded at
-commit `1b32d7b06` (2026-07-17), using the exact falsifier
-`cargo test -p ggen-engine --test receipt_chain_e2e`. Re-running that exact falsifier today
-(branch `docs/readme-rewrite-v26.7.21`, off `main` at `7351e14af`, well after that recorded
-commit) returns 11/16, not 16/16 — four of the five newly-failing tests are the signing/env-var
-ones the recorded evidence explicitly named as covered. Per `docs/aps/README.md`'s own
-maintenance rule ("if they disagree with this file, one of them is drift — fix the divergence,
-don't paper over it"), this is exactly that situation, caught live. This page does not edit
-`claims.toml` — that's a separate, deliberate action for whoever owns the release-gate decision,
-not a side effect of a docs pass — but the drift should not go unreported once found.
+An earlier draft of this page reported this exact test failing 5/16, all clustered around receipt
+**signing** (`tampered_signature_fails_closed_and_is_distinguished_from_chain_failure`,
+`sign_then_verify_reports_signed_and_signature_valid_true`,
+`legacy_unsigned_receipt_still_chain_verifies_with_signed_false`,
+`malformed_ggen_signing_key_env_var_errors_loudly`,
+`ggen_signing_key_env_var_takes_precedence_over_key_file`) and cited a matching claims-ledger
+drift against `docs/aps/claims.toml`'s `release.receipt-chain-verifies` claim (recorded evidence:
+"16/16", commit `1b32d7b06`, 2026-07-17). That specific result was checked here and did not
+reproduce: running the identical falsifier the claims ledger names
+(`cargo test -p ggen-engine --test receipt_chain_e2e`) 7 times standalone plus once more inside
+the full `just slo-check` wrapper — 8 independent runs total, clean shell environment, no
+`GGEN_SIGNING_KEY` set — returned 16/16 passing every time, with every one of those 5 previously-
+"failing" test names showing `ok`. The signing tests set `GGEN_SIGNING_KEY` only via
+`std::process::Command::env(...)` on child processes they spawn, not via `std::env::set_var` on
+the test binary's own process, so cross-test environment leakage under parallel execution isn't a
+plausible mechanism either. Given 8/8 clean runs against 1 originally-reported failing run, the
+5-failure result is being retracted here rather than repeated: there is currently no reproducible
+signing gap, and — checked directly — no drift against `docs/aps/claims.toml`'s recorded "16/16"
+evidence. Whatever produced the original single failing run was not re-established by this
+session and is not claimed to be understood.
 
 ## How to reproduce this yourself
 
 ```bash
-just slo-check                                    # full two-phase run, ~4-5 min from a warm cache
+just slo-check                                    # full run, exits 0; ~2-5 min depending on cache
 cargo build --release --bin ggen                   # reproduces the Phase-1 root cause directly
 cargo build --release -p ggen-cli-lib --bin ggen    # the working equivalent
-cargo test -p ggen-engine --test receipt_chain_e2e -- --nocapture  # Phase 2's test, standalone
+cargo test -p ggen-engine --test receipt_chain_e2e -- --nocapture          # Phase 2's main test
+cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture  # Phase 2's trailing test
 ```
 
 ## Other performance commands

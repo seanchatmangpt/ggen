@@ -8,7 +8,7 @@ says:
 |------|----------------|
 | [GETTING_STARTED.md](GETTING_STARTED.md) | Install, build, run a real sync, verify a receipt chain. Every command was actually run; output is transcribed. |
 | [FAQ.md](FAQ.md) | Real questions about this codebase — crate/pack counts, `ggen-core`'s fate, the two `ggen.toml` schemas, whether `just pre-commit` passes — each tied to a specific file or command. |
-| [PERFORMANCE_QUICK_START.md](PERFORMANCE_QUICK_START.md) | The one performance command (`just slo-check`) that's actually automated, and a real run of it against this codebase — including a currently-reproducing failure. |
+| [PERFORMANCE_QUICK_START.md](PERFORMANCE_QUICK_START.md) | The one performance command (`just slo-check`) that's actually automated, and a real run of it against this codebase — including a currently-reproducing Phase 1 bug, even though the command as a whole exits `0`. |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Development workflow, Chicago TDD testing policy, PR process. |
 
 For the repository root's project overview, quickstart, and known-limitations summary, see

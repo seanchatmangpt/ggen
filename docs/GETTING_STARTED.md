@@ -52,8 +52,14 @@ cargo build --workspace
 ```
 
 A real `cargo build --workspace` run against this codebase finished in **1m08s** and exited
-`0`, with 0 compiler errors and 19 warnings (13 in `ggen-engine`, 1 in `bcinr-pddl`, the rest
-scattered `missing_docs` lints) — tail of the real output:
+`0`, with 0 compiler errors and **14** real warnings (13 in `ggen-engine`, 1 in `bcinr-pddl`) —
+tail of the real output. A naive `grep -c '^warning:'` over the raw log returns 19, not 14; the
+other 5 lines are 2 build-script notices (`ggen@...: Discovered N templates/ontologies`, printed
+by `ggen`'s own `build.rs`, not a compiler warning), 1 unrelated Cargo notice
+(`profiles for the non root package will be ignored`), and the 2 per-crate summary lines
+(`` `ggen-engine` (lib) generated 13 warnings``, `` `bcinr-pddl` (lib) generated 1 warning``)
+double-counting warnings already tallied above. Verified reproducibly across two consecutive
+builds on this branch (identical warning text and count both times):
 
 ```console
    Compiling ggen-cli-lib v26.7.30 (/Users/sac/ggen/crates/ggen-cli)
@@ -79,50 +85,69 @@ re-exported from the crates.io-published `ggen` crate).
 
 ```console
 $ ./target/debug/ggen --version
-ggen 26.7.30
+ggen 26.7.31
 
 $ ./target/debug/ggen --help
 Usage: ggen [OPTIONS] [COMMAND]
 
 Commands:
-  init        Initialize a new ggen project with default structure and scripts...
-  policy      This module provides policy management commands wired to the marketplace layer.
-  pack        Pack Commands (singular alias for `packs`)
-  agent       Agent noun — the AGI-facing CLI surface over `crate::agent::PackAgent`.
+  init        Initialize a new ggen project with default structure and scripts.
+              Creates a minimal, working ggen project scaffold with:
+              - ggen.toml configuration
+              - schema/domain.ttl (RDF ontology with example)
+              - Makefile (setup, build, clean targets)
+              - scripts/startup.sh (project initialization script)
+              - templates/ (empty, ready for custom Tera templates)
+              - output directory (current directory by default)
+              [... full multi-section help text for `init` continues here; see `ggen init --help` ...]
   utils       Utils Commands - clap-noun-verb v3.4.0 Migration
-  sync        Run the ggen code-generation pipeline: resolve, enrich, extract, render, write.
   graph       Validate RDF/Turtle ontology graphs against praxis vocabulary constraints.
+  doctor      Check environment health: lockfile drift, orphaned artifacts, receipt staleness.
+  law         Law-state operations on the project graph: load rules, materialize, validate gates, explain derivations, export.
+  agent       Agent noun — the AGI-facing CLI surface over `crate::agent::PackAgent`.
+  pack        Pack Commands (singular alias for `packs`)
+  packs       Packs noun — lockfile-oriented, multi-pack project management (`ggen packs <verb>`).
+  policy      This module provides policy management commands wired to the marketplace layer.
   ontology    Ontology Commands - Embedded and Marketplace Ontology Management
   capability  Capability noun — resolve and enable capability surfaces (`ggen capability <verb>`).
-  law         Law-state operations on the project graph: load rules, materialize, validate
-              gates, explain derivations, export.
-  packs       Packs noun — lockfile-oriented, multi-pack project management (`ggen packs <verb>`).
+  sync        Run the ggen code-generation pipeline: resolve, enrich, extract, render, write.
   receipt     Inspect and verify sync receipt chains (BLAKE3-hashed provenance log).
-  doctor      Check environment health: lockfile drift, orphaned artifacts, receipt staleness.
   help        Print this message or the help of the given subcommand(s)
 
 Options:
-      --format <format>    [possible values: json, json-pretty, yaml, table, plain, tsv, quiet]
-      --select <select>
-      --introspect
-      --structured-errors
-      --autonomic
-  -h, --help
-  -V, --version
+      --format <format>    Output format [possible values: json, json-pretty, yaml, table, plain, tsv, quiet]
+      --select <select>    Select/project nested JSON output using JSONPath, key selection, or JMESPath query projections
+      --introspect         Introspect CLI capabilities as JSON Schema array for LLM tool-calling
+      --structured-errors  Output errors using StructuredError format
+      --autonomic          Enable autonomic features and output structured errors
+  -h, --help               Print help
+  -V, --version            Print version
 ```
 
-Both exited `0`. The version string ticked from `26.7.28` to `26.7.30` between two calls minutes
-apart during the run that produced this transcript — this repo bumps its own `Cargo.toml` version
-frequently (CalVer, `YY.M.patch`), including from concurrent activity on other branches while a
-session is live. At the time this doc was written, `Cargo.toml`'s `[workspace.package] version`
-read **26.7.31** — treat any single version string here as a snapshot, not a promise, and check
-`Cargo.toml` line 2 for what's actually current.
+Both exited `0`. Two things worth flagging about this transcript, both verified by actually
+running `--help` repeatedly (6 consecutive invocations of the same unchanged binary), not assumed:
+
+- **The order of the noun list (everything between `init` and `help`) is not stable across
+  invocations.** `init` is always first and `help` always last, but the 12 nouns in between came
+  back in 6 different orders across 6 consecutive runs of the identical binary — consistent with
+  unordered (hash-map-based) command registration rather than a fixed list. Don't treat the order
+  shown above as a contract; it's one real, valid snapshot, not *the* order.
+- **`init`'s own listed description is long** — a multi-paragraph usage/flags/output walkthrough,
+  reproduced identically on every run — not the short one-liner a `--help` summary might lead you
+  to expect. Elided above for length; run `ggen init --help` (or `ggen --help` itself) to see it
+  in full.
+
+The version string ticked from `26.7.28` to `26.7.30` at one point during the session that
+originally produced this page, then to `26.7.31` by the time of the most recent re-verification —
+this repo bumps its own `Cargo.toml` version frequently (CalVer, `YY.M.patch`), including from
+concurrent activity on other branches while a session is live. Treat any single version string
+here as a snapshot, not a promise, and check `Cargo.toml` line 2 for what's actually current.
 
 The canonical entry point also works and produces the same result:
 
 ```console
 $ cargo run -p ggen-cli-lib --bin ggen -- --version
-ggen 26.7.30
+ggen 26.7.31
 ```
 
 ## Run a real sync against an example project
@@ -165,24 +190,43 @@ the resolved project root and resolves the verifying key automatically
 (`crates/ggen-engine/src/verbs/receipt.rs`).
 
 You can also run `ggen doctor` at the repo root itself — `ggen` self-hosts its own `ggen.toml`
-and generates parts of `CLAUDE.md` from it:
+and generates parts of `README.md`/`CLAUDE.md` from it. **As of this writing that actually fails**
+— worth showing honestly rather than the clean transcript an earlier draft of this page carried,
+because the failure is real, reproducible, and instructive about how `mode = "Merge"` generation
+rules work:
 
 ```console
 $ /path/to/ggen/target/debug/ggen doctor
-{
-  "healthy": true,
-  "checks": {
-    "lockfile_drift": {"status": "skip", "detail": "skipped: pack resolution is not implemented for the declarative-rules ([[generation.rules]]) schema yet ..."},
-    "orphaned_artifacts": {"status": "skip", "detail": "skipped: template discovery is not implemented for the declarative-rules ([[generation.rules]]) schema yet."},
-    "receipt_staleness": {"status": "pass", "detail": "every receipt output matches its recorded hash on disk", "stale": []}
-  }
-}
+ERROR: CLI execution failed: Command execution failed: doctor found 1 failing check(s): receipt_staleness: 2 receipt output(s) missing or hash-mismatched on disk: README.md, crates/ggen-cli/tests/generated/cli_proof_tests.rs
 ```
 
-Exit `0`. The two `"skip"` entries are honest, not silently-passing: `ggen.toml` at the repo root
-uses the newer `[[generation.rules]]` declarative-rules schema, and `doctor`'s lockfile-drift and
-orphaned-artifact checks are implemented against the older frontmatter schema only — this is a
-real, current gap, not a fabricated caveat.
+Exit `1`, plain-text error (not the JSON body you'd get from a passing or a `"skip"`-only run).
+Two independent causes, both confirmed by direct investigation, not guessed:
+
+- **`crates/ggen-cli/tests/generated/cli_proof_tests.rs` is a real, pre-existing gap, not
+  specific to this page.** That path is `.gitignore`d (`generated/` — line 158) and only ever
+  produced by a real (non-`--dry-run`) `ggen sync run` at the repo root. On any fresh clone of
+  `main` that hasn't run one yet, the file simply doesn't exist, so the checked-in
+  `.ggen-v2/receipt.json` (which does track it) reports it missing. Verified by cloning `main`
+  fresh into a scratch directory and running `doctor` there before ever syncing: same failure
+  shape, same `receipt_staleness` cause, different second filename (whichever other generated
+  path happened to be gitignored-and-ungenerated on that commit).
+- **`README.md` is the cause specific to this page.** `ggen.toml`'s `docs-readme-region`
+  generation rule (`output_file = "README.md"`) uses `mode = "Merge"`: it only ever replaces the
+  single `<<<<<<< GENERATED ... ======= ... >>>>>>> MANUAL` region in the target file, leaving
+  every byte outside those markers untouched. This page (and the rest of this doc rewrite) is
+  hand-authored prose with no such markers, so the checked-in receipt's recorded hash for
+  `README.md` no longer matches the file on disk.
+
+**Do not run `ggen sync run` (without `--dry-run`) or `just sync` at the ggen repo root itself
+while this is the state of things.** This was tested directly, against a throwaway copy of this
+exact branch, specifically so the real branch wouldn't be at risk: a real sync's merge step, given
+a target file with no `<<<<<<< GENERATED`/`>>>>>>> MANUAL` markers to merge into, does not refuse
+or warn — it silently replaces the **entire file** with just the freshly-rendered generated region
+plus a placeholder manual comment. On the test copy this took `README.md` from 114 lines down to
+10. `ggen sync run --dry-run` / `just sync-dry` are safe — verified separately, exit `0`, and
+correctly report `"README.md": "planned: write (dry-run)"` without touching the file (confirmed:
+`README.md` was untouched, same line count, after running `--dry-run` at the repo root).
 
 ## `just sync` / `just sync-dry` — a real, live doc correction
 
@@ -205,12 +249,19 @@ sync-dry:
     ggen sync run --dry-run
 ```
 
-Both `just sync` and `just sync-dry` were run for real against this codebase and exited `0` —
-`just sync-dry` printed a real dry-run JSON report against the repo's own `ggen.toml`; `just sync`
-performed a real sync and appended a new signed entry to `.ggen-v2/receipt-log.jsonl`. The
-underlying CLI-flag bug the doc describes is real; the justfile recipes that would trigger it were
-fixed since that doc paragraph was written, and it hasn't caught up. Point stands generally for
-this project: prefer running the actual command over trusting a doc's claim about it.
+Both recipes were verified for real, but **not against this branch's own working tree** — see the
+warning two sections up: a real `just sync` (or `ggen sync run` without `--dry-run`) at the ggen
+repo root right now would overwrite this very file. `just sync-dry` is safe and was run directly
+against this codebase: exit `0`, a real dry-run JSON report against the repo's own `ggen.toml`.
+`just sync` (the real, writing variant) was verified against an isolated scratch copy of this
+branch instead, precisely to avoid that risk: exit `0`, and it did perform a real sync and append
+a new signed entry to `.ggen-v2/receipt-log.jsonl` there — confirming the CLI-flag bug fix
+(`--audit true` isn't reachable through the current justfile recipes) is real, without touching
+the actual branch. The underlying CLI-flag bug the doc describes is real; the justfile recipes
+that would trigger it were fixed since that doc paragraph was written, and it hasn't caught up.
+Point stands generally for this project: prefer running the actual command over trusting a doc's
+claim about it — just don't run the writing variant of `sync` at this repo's own root while
+`README.md` lacks its merge markers.
 
 ## Next steps
 

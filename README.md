@@ -76,20 +76,27 @@ capabilities yet — the program's own status per pack is "promotion actively un
 
 This section exists because the project's own claims ledger
 ([docs/aps/README.md](docs/aps/README.md), `docs/aps/claims.toml`) explicitly expects a prose
-mirror of its findings here — and because a real run performed while writing this page surfaced
-a live, reproducible gap worth stating plainly rather than smoothing over:
+mirror of its findings here — and because real runs performed while writing and re-verifying
+this page surfaced live, reproducible gaps worth stating plainly rather than smoothing over:
 
-- **`just slo-check` currently fails.** Its Phase 1 CLI-startup benchmark silently measures
-  nothing (an internal `cargo build --release --bin ggen` call fails because the root package's
-  own `[[bin]]` target was intentionally removed in a 2026-07-16 refactor, and the benchmark was
-  never updated to build `-p ggen-cli-lib` instead — the failure is swallowed and reported only
-  as a skip warning). Its Phase 2 wall-clock SLO passes (67s, well under the 180s threshold) but
-  the test it wraps (`receipt_chain_e2e`) currently fails 5 of 16 sub-tests, all clustered around
-  receipt **signing** — `ggen receipt verify`'s real output is missing the `"signed"`/
-  `"signature_valid"` fields this repo's own `CLAUDE.md` documents as always present. This also
-  means `docs/aps/claims.toml`'s `release.receipt-chain-verifies` claim (currently `ALIVE`,
-  gating publish) is stale as of this writing. Full transcripts, exact commands, and exact file
-  lines: [docs/PERFORMANCE_QUICK_START.md](docs/PERFORMANCE_QUICK_START.md).
+- **`just slo-check`'s Phase 1 CLI-startup benchmark silently measures nothing** (an internal
+  `cargo build --release --bin ggen` call fails because the root package's own `[[bin]]` target
+  was intentionally removed in a 2026-07-16 refactor, and the benchmark was never updated to
+  build `-p ggen-cli-lib` instead — the failure is swallowed and reported only as a skip
+  warning). This is real and currently reproducing. The command as a whole still exits `0`,
+  though: Phase 2's wall-clock SLO passes and, checked directly (8 independent runs, standalone
+  and via the full recipe), the `receipt_chain_e2e` test it wraps currently passes 16/16 — an
+  earlier draft of this section reported 5 failing sub-tests and a matching
+  `docs/aps/claims.toml` drift; neither reproduced under repeated testing and both have been
+  retracted. Full transcripts, exact commands, and exact file lines:
+  [docs/PERFORMANCE_QUICK_START.md](docs/PERFORMANCE_QUICK_START.md).
+- **`ggen doctor` fails at this repo's own root right now** (`receipt_staleness`, exit `1`),
+  because this very README was rewritten by hand without preserving the
+  `<<<<<<< GENERATED / >>>>>>> MANUAL` markers its `mode = "Merge"` generation rule expects.
+  Checked directly (against a throwaway copy, not this branch): running `ggen sync run` or
+  `just sync` — without `--dry-run` — at the ggen repo root while this holds would silently
+  overwrite this file with just the auto-generated region. `--dry-run` / `just sync-dry` are
+  safe. Full explanation: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 - **The pack ecosystem's Level-5 maturity bar has not been reached by any pack** — real,
   ongoing, per-capability progress, not a finished state. See the pack ecosystem section above.
 - For the authoritative, falsifier-backed list of what's currently `ALIVE` / `PARTIAL` /
