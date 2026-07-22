@@ -56,9 +56,23 @@ jobs:
           bash scripts/build-debian-package.sh
         shell: bash
 
+      # debuild/dpkg-buildpackage conventionally places its output ONE
+      # directory above the source package (scripts/build-debian-package.sh's
+      # own "Gate 10"/"Gate 11" steps read from "../ggen_*.deb*", confirming
+      # this). Both actions/upload-artifact and softprops/action-gh-release
+      # reject any path containing "../" (real, reproducing CI failure:
+      # "Invalid pattern '../ggen_*.deb*'. Relative pathing '.' and '..' is
+      # not allowed." -- confirmed on every run in this workflow's visible
+      # history). Copy the real build outputs into the workspace root so the
+      # later upload/release steps can reference them without traversal.
+      - name: Stage build artifacts into the workspace
+        run: |
+          cp ../ggen_*.deb ../ggen_*.deb.sha256 .
+          echo "✓ Staged $(ls ggen_*.deb ggen_*.deb.sha256)"
+
       - name: Verify build artifacts
         run: |
-          ls -lh ../ggen_*.deb* || (echo "Error: .deb not found" && exit 1)
+          ls -lh ggen_*.deb* || (echo "Error: .deb not found" && exit 1)
           ls -lh ggen.sha256 || (echo "Error: checksum not found" && exit 1)
           echo "✓ All artifacts present"
 
@@ -73,8 +87,8 @@ jobs:
         uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
         with:
           files: |
-            ../ggen_*.deb
-            ../ggen_*.deb.sha256
+            ggen_*.deb
+            ggen_*.deb.sha256
             ggen.sha256
             scripts/install-ggen.sh
           draft: false
@@ -149,7 +163,7 @@ jobs:
         with:
           name: debian-artifacts
           path: |
-            ../ggen_*.deb*
+            ggen_*.deb*
             ggen.sha256
             /tmp/debuild.log
           retention-days: 30

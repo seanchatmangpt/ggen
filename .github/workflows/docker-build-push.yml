@@ -1,5 +1,16 @@
 name: Docker Build & Push (Multi-Registry)
 
+# `now()` (in the build-args expression, "STAGE 1" job below) is NOT a valid
+# GitHub Actions expression function -- GitHub Actions has no such builtin.
+# Every reference to it makes the ENTIRE workflow file fail GitHub's own
+# expression-schema validation at parse time, before any job is scheduled --
+# confirmed real: every run in this workflow's visible history shows zero
+# jobs and "This run likely failed because of a workflow file issue.",
+# regardless of trigger (push to any branch, not just tags). Fixed by using
+# `github.run_started_at`, a real built-in context property (the workflow
+# run's own start timestamp), preserving the original fallback intent
+# (build date = commit timestamp if available, else "now").
+
 on:
   push:
     # Only build/push Docker images on version tags — not on every main push.
@@ -84,7 +95,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-            BUILD_DATE=${{ github.event.head_commit.timestamp || now() }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
 

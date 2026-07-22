@@ -22,8 +22,11 @@ env:
   CARGO_TERM_COLOR: always
 
 # Release workflow uploads release assets via softprops/action-gh-release.
+# actions: write is required for the dispatch-homebrew-release job's `gh
+# workflow run` call (dispatching homebrew-release.yml) below.
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -273,6 +276,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # PartialPublishRollbackUnknown (retrofit SPOF, .tcps/retrofit/ggen/load-path.ttl):
+  # homebrew-release.yml's `on: release: types: [published]` trigger never
+  # fires for a release created via this job's own GITHUB_TOKEN (same class
+  # of suppression this file's own header comment already documents for tag
+  # pushes) -- confirmed empirically: zero homebrew-release.yml runs for any
+  # real v26.7.x release. Fixed the same way this file's own tag-push
+  # suppression was fixed: explicitly dispatch via the API, which IS the
+  # documented GITHUB_TOKEN exception, instead of relying on the suppressed
+  # event. Runs once, after all 4 build-release matrix legs have uploaded
+  # their assets (not per-target), so homebrew-release.yml's own asset
+  # verification step sees a complete release.
+  dispatch-homebrew-release:
+    name: Dispatch Homebrew Formula Update
+    needs: [build-release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch homebrew-release.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          gh workflow run homebrew-release.yml \
+            --repo "${{ github.repository }}" \
+            --ref "$TAG" \
+            -f tag="$TAG"
+
   # ── Cross-host reproducibility gate (L5 condition 20) ───────────────────────
   # build-release above never builds the SAME target triple twice, so nothing
   # in that matrix can be diffed for byte-identical reproducibility. The job
@@ -477,5 +507,5 @@ jobs:
             exit 1
           fi
 
-  # Note: Homebrew formula update is done manually
-  # SHA256 checksums are available in release assets as *.sha256 files
+  # Homebrew formula update is now automatic -- see dispatch-homebrew-release
+  # above. SHA256 checksums are available in release assets as *.sha256 files.
