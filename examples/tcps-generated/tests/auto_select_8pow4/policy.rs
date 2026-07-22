@@ -97,6 +97,44 @@ fn oracle_mass(measures: 測度) -> u16 {
     u16::from(minimum) * u16::from(maximum)
 }
 
+fn oracle_request_digest(request: 選択要求) -> 要約値 {
+    let mut hasher = Sha256::new();
+    hasher.update(request.取得権限.to_le_bytes());
+    hasher.update(request.準備完了.to_le_bytes());
+    hasher.update(request.最大時間.to_le_bytes());
+    hasher.update([u8::from(request.決定性必須)]);
+    hasher.update([u8::from(request.受領証必須)]);
+    hasher.update(request.時刻.to_le_bytes());
+    要約値(hasher.finalize().into())
+}
+
+fn validate_decision_receipt(
+    receipt: 受領証,
+    policy: &方策<LANES>,
+    request: 選択要求,
+    expected_kind: 受領種別,
+    expected_tool: 有無<u16>,
+    expected_reason: 有無<u16>,
+) -> Result<(), EvidenceError> {
+    if receipt.受領番号 != request.時刻
+        || receipt.種別 != expected_kind
+        || receipt.工程 != 0
+        || receipt.時刻 != request.時刻
+        || receipt.標準番号 != policy.方策番号
+        || receipt.異常 != 有無::無い
+        || receipt.道具 != expected_tool
+        || receipt.理由 != expected_reason
+        || receipt.前要約 != oracle_request_digest(request)
+        || receipt.後要約 != policy.方策要約
+    {
+        return Err(EvidenceError::InvalidData {
+            identity: "tcps-decision-receipt".to_owned(),
+            message: format!("receipt fields violate the decision contract: {receipt:?}"),
+        });
+    }
+    Ok(())
+}
+
 fn expected(policy: &方策<LANES>, request: 選択要求) -> ExpectedOutcome {
     let mut eligible_mask = 0_u64;
     let mut ready_mask = 0_u64;
@@ -229,13 +267,23 @@ fn authorize(proposal: 選択提案, now: u64) -> Result<受領証, EvidenceErro
     match broker.許可する(proposal, capability, now) {
         成否::成功(authorized) => {
             let receipt = authorized.許可受領証();
-            if receipt.種別 != 受領種別::許可
+            if authorized.道具() != proposal.道具
+                || authorized.提案() != proposal
+                || authorized.能力札() != capability
+                || receipt.受領番号 != now
+                || receipt.種別 != 受領種別::許可
+                || receipt.工程 != 0
+                || receipt.時刻 != now
+                || receipt.標準番号 != proposal.方策番号
+                || receipt.異常 != 有無::無い
                 || receipt.道具 != 有無::有る(proposal.道具)
                 || receipt.理由 != 有無::無い
+                || receipt.前要約 != proposal.受領証.後要約
+                || receipt.後要約 != proposal.方策要約
             {
                 return Err(EvidenceError::InvalidData {
                     identity: "tcps-blue-river-dam".to_owned(),
-                    message: "authorization receipt does not bind the selected tool".to_owned(),
+                    message: "authorization output violates the broker contract".to_owned(),
                 });
             }
             Ok(receipt)
