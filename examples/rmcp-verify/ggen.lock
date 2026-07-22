@@ -2,4 +2,4 @@
 
 [packs.rmcp-pack]
 source = "path:../../packs/rmcp-pack"
-content_hash = "blake3:cc777b86a8732b4ca11f3f2963c1e76477862635a396d341d92db0f998628b5c"
+content_hash = "blake3:8df5c978b94408f7f83c0ace21767f1cade48408429c01e4938b559fa5b11f75"
