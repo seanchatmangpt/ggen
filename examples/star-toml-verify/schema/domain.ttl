@@ -1,0 +1,13 @@
+# star-toml-verify project ontology — deliberately empty of individuals.
+#
+# star-toml-pack's own ontology.ttl (packs/star-toml-pack/ontology.ttl) is a
+# complete, closed model of both stp:ConfigSection individuals (admission,
+# telemetry) and all five stp:ConfigField individuals; this consumer adds no
+# project-specific facts on top of it (mirrors
+# examples/praxis-core-verify/schema/domain.ttl's same posture). This file
+# exists only to satisfy `[ontology] source` in ggen.toml — the real domain
+# facts come entirely from the wired pack.
+
+@prefix stp:  <http://seanchatmangpt.github.io/packs/star-toml#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
