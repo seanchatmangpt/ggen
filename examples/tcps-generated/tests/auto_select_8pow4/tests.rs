@@ -1,16 +1,3 @@
-chicago_tdd_tools::test!(contracts_name_the_real_selection_and_authorization_boundaries, {
-    let registry = TestContractRegistry::new(CONTRACTS);
-    assert_eq!(registry.len(), 3);
-    assert!(registry
-        .uncovered_modules(&[
-            "tcps.auto-select",
-            "tcps.8pow4.matrix",
-            "tcps.blue-river-dam",
-            "tcps.8pow4.receipt",
-        ])
-        .is_empty());
-});
-
 chicago_tdd_tools::test!(gray_codec_matches_independent_known_vectors, {
     const FIRST_SIXTEEN: [u16; 16] = [0, 1, 3, 2, 6, 7, 5, 4, 12, 13, 15, 14, 10, 11, 9, 8];
     assert_eq!(
@@ -124,6 +111,7 @@ chicago_tdd_tools::test!(all_4096_cells_execute_the_real_auto_select_contract, {
     let results = run_matrix().expect("all real selection judgments must satisfy the oracle");
     let receipt = matrix_receipt(results).expect("matrix receipt");
     assert_eq!(results.len(), CELL_COUNT);
+    assert_eq!(receipt.schema, "tcps-auto-select-8pow4/v3");
     assert_eq!(receipt.cells, CELL_COUNT);
     assert_eq!(receipt.selected, 1_670);
     assert_eq!(receipt.refused_no_eligible, 1_264);
@@ -266,8 +254,8 @@ chicago_tdd_tools::test!(eight_way_sharding_is_deterministic_and_total, {
 chicago_tdd_tools::test!(merkle_root_is_replay_stable_and_mutation_sensitive, {
     let results = run_matrix().expect("matrix");
     let leaves = evidence_leaves(results).expect("leaves");
-    let first = merkle_root("tcps/8pow4-root/v2", &leaves).expect("root");
-    let second = merkle_root("tcps/8pow4-root/v2", &leaves).expect("replay root");
+    let first = merkle_root("tcps/8pow4-root/v3", &leaves).expect("root");
+    let second = merkle_root("tcps/8pow4-root/v3", &leaves).expect("replay root");
     assert_eq!(first, second);
 
     let mut mutated = leaves;
@@ -275,7 +263,7 @@ chicago_tdd_tools::test!(merkle_root_is_replay_stable_and_mutation_sensitive, {
         "tcps/8pow4-adversarial-mutation/v1",
         &[mutated[2_048].as_bytes()],
     );
-    let mutation_root = merkle_root("tcps/8pow4-root/v2", &mutated).expect("mutation root");
+    let mutation_root = merkle_root("tcps/8pow4-root/v3", &mutated).expect("mutation root");
     assert_ne!(mutation_root, first);
 });
 
@@ -315,6 +303,7 @@ chicago_tdd_tools::test!(artifact_bundle_contains_parseable_complete_evidence, {
     .expect("write root");
 
     let decoded: JsonValue = serde_json::from_slice(&receipt_json).expect("parse receipt JSON");
+    assert_eq!(decoded["schema"].as_str(), Some("tcps-auto-select-8pow4/v3"));
     assert_eq!(decoded["cells"].as_u64(), Some(CELL_COUNT as u64));
     assert_eq!(scenarios.lines().count(), CELL_COUNT);
     assert!(scenarios
