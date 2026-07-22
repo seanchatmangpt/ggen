@@ -1,0 +1,109 @@
+{#- docs/l5-promotion/L5_PROMOTION_PROGRAM.md — full projection of
+    .specify/pack-l5-promotion.ttl. Ten named artifacts as sections of one
+    generated doc: pack census, capability model, dependency graph
+    (per-pack wave placement stands in for dependency ordering until a
+    finer-grained l5p:dependsOn edge set is authored), promotion-wave plan,
+    per-pack obligations, consumer-replacement status, standing ledger,
+    incompatibility/supersession ledger, maximal-closure manifest, autosel
+    admission manifest. -#}
+{%- set S = sparql(query='PREFIX l5p: <http://ggen.org/l5-promotion#> SELECT ?sid ?text WHERE { ?x a l5p:DocSection ; l5p:sid ?sid ; l5p:text ?text . } ORDER BY ?sid') -%}
+{%- set intro = S | filter(attribute="sid", value="intro") | first -%}
+{%- set completion = S | filter(attribute="sid", value="completion") | first -%}
+{%- set packs = sparql(query='PREFIX l5p: <http://ggen.org/l5-promotion#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?id ?wave ?standing ?ceiling ?obligation WHERE { ?p a l5p:Pack ; l5p:packId ?id ; l5p:wave ?w ; l5p:standing ?s ; l5p:currentCeiling ?ceiling ; l5p:nextPromotionObligation ?obligation . ?w l5p:order ?wave . ?s rdfs:label ?standing . } ORDER BY ?wave ?id') -%}
+{%- set waves = sparql(query='PREFIX l5p: <http://ggen.org/l5-promotion#> SELECT ?order ?name ?desc WHERE { ?w a l5p:PromotionWave ; l5p:order ?order ; l5p:waveName ?name ; l5p:waveDesc ?desc . } ORDER BY ?order') -%}
+{%- set caps = sparql(query='PREFIX l5p: <http://ggen.org/l5-promotion#> SELECT ?order ?name ?desc WHERE { ?c a l5p:Capability ; l5p:order ?order ; l5p:capName ?name ; l5p:capDesc ?desc . } ORDER BY ?order') -%}
+{%- set missing = sparql(query='PREFIX l5p: <http://ggen.org/l5-promotion#> SELECT ?id ?capOrder ?capName WHERE { ?p a l5p:Pack ; l5p:packId ?id ; l5p:missingCap ?c . ?c l5p:order ?capOrder ; l5p:capName ?capName . } ORDER BY ?id ?capOrder') -%}
+# Level 5 Pack-Closure Promotion Program
+
+{{ intro.text }}
+
+## 1. Level 5 pack census ({{ packs | length }} packs)
+
+| Pack | Wave | Standing | Current ceiling |
+|---|---|---|---|
+{% for p in packs -%}
+| {{ p.id }} | {{ p.wave }} | {{ p.standing }} | {{ p.ceiling }} |
+{% endfor %}
+
+## 2. Level 5 capability model (12 required capabilities)
+
+| # | Capability | Definition |
+|---|---|---|
+{% for c in caps -%}
+| {{ c.order }} | {{ c.name }} | {{ c.desc }} |
+{% endfor %}
+
+## 3. Pack promotion dependency graph
+
+Wave placement is the current dependency-ordering proxy (see `.specify/pack-l5-promotion.ttl`'s
+`l5p:PromotionWave` individuals) until a finer per-pack `l5p:dependsOn` edge set is authored.
+Packs in an earlier wave are promotion prerequisites for packs in a later wave that reuse their
+vocabulary or generated surface.
+
+{% for w in waves -%}
+### Wave {{ w.order }} — {{ w.name }}
+
+{{ w.desc }}
+
+{% set wave_packs = packs | filter(attribute="wave", value=w.order) -%}
+{% for p in wave_packs -%}
+- **{{ p.id }}** — {{ p.standing }}
+{% endfor %}
+
+{% endfor -%}
+
+## 4. Shared promotion machinery map
+
+Wave 2 ("Reusable Level 5 promotion machinery") is the explicit charter for this artifact —
+see the wave-2 entry in section 3 above. Populated as machinery is actually extracted and
+proven reusable across ≥2 packs, not speculatively.
+
+## 5. Promotion-wave plan
+
+See section 3 (dependency graph) — the 9 waves ARE the plan, ordered `l5p:order` "1".."9".
+
+## 6. Per-pack promotion obligations
+
+| Pack | Missing capabilities | Next obligation |
+|---|---|---|
+{% for p in packs -%}
+{% set caps_for_pack = missing | filter(attribute="id", value=p.id) -%}
+| {{ p.id }} | {{ caps_for_pack | map(attribute="capName") | join(sep=", ") }} | {{ p.obligation }} |
+{% endfor %}
+
+## 7. Consumer-replacement ledger
+
+Capability 12 ("Consumer replacement") status per pack is tracked via the missing-capabilities
+column above (§6) — a pack with cap12 absent from its missing list has a proven
+delete-and-regenerate consumer path; see `.specify/pack-l5-promotion.ttl`'s per-pack
+`l5p:missingCap` triples for the authoritative source.
+
+## 8. Level 5 standing ledger
+
+| Standing | Pack count | Packs |
+|---|---|---|
+{% set standings = packs | group_by(attribute="standing") -%}
+{% for standing_name, standing_packs in standings -%}
+| {{ standing_name }} | {{ standing_packs | length }} | {{ standing_packs | map(attribute="id") | join(sep=", ") }} |
+{% endfor %}
+
+## 9. Incompatibility and supersession ledger
+
+No pack has yet reached `Incompatible` or `Superseded` terminal standing with a mechanically
+justified proof. This section populates as promotion work produces one.
+
+## 10. Maximal-closure manifest / autosel admission manifest
+
+{{ completion.text }}
+
+**Current admitted population: 0 packs.** No pack has reached full `Level5` standing yet
+(see §8 — the `Level5` row is currently empty). `autosel` may not be manufactured until this
+section lists a non-empty, mechanically-verified `Level5` population.
+
+## See Also
+
+- `docs/packs/PACK_MATURITY_MODEL.md` — the per-dimension maturity scoring this program's
+  census cross-references
+- `.specify/pack-l5-promotion.ttl` — edit here, not this file
+- `examples/tcps-generated/` — the wave-1 reference implementation this program's promotion
+  machinery generalizes from

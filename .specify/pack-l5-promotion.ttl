@@ -1,0 +1,273 @@
+# pack-l5-promotion.ttl — the Level 5 Pack-Closure Promotion Program.
+#
+# GENERATED-DOC SOURCE: docs/l5-promotion/L5_PROMOTION_PROGRAM.md is GENERATED
+# from this file by the `docs-l5-promotion-program` rule in ggen.toml. Edit
+# THIS file, not the doc.
+#
+# GOVERNING MANDATE (verbatim intent, see repo memory / session record):
+#   P = all compatible ggen packs
+#   L5(p) = pack p satisfies the full Level 5 contract (12 capabilities below)
+#   Promote(p) = the lawful manufacturing process that raises p to Level 5
+#   P_L5 = { Promote(p) | p in P }
+#   autosel = ggen(MaximalClosure(P_L5))
+#
+# Current maturity (see .specify/maturity.ttl / docs/packs/PACK_MATURITY_MODEL.md)
+# is an OBSERVATION, not a scope boundary. Every l5p:Pack individual below is a
+# promotion OBLIGATION until it reaches a terminal l5p:standing: l5p:Level5,
+# l5p:Incompatible, l5p:Superseded, or l5p:RejectedWithProof. l5p:CensusPending
+# and l5p:InProgress are non-terminal working states, not resting states.
+#
+# This file's own honesty bar: do not mark a pack l5p:Level5 by editing this
+# file. l5p:Level5 standing requires a named, checkable artifact for EACH of
+# the 12 l5p:Capability individuals below (see mat:cg_* rows'/tcps rows' own
+# "not yet L5 because..." disclosures in .specify/maturity.ttl for the honesty
+# precedent this file must match). Per that file's own calibration rule,
+# nothing in this repo has closed all 12 today -- including the 6 TCPS
+# packs, which are the REFERENCE BASIS for promotion machinery, not already-
+# finished Level 5 packs themselves.
+@prefix l5p:  <http://ggen.org/l5-promotion#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mat:  <http://ggen.org/maturity#> .
+
+l5p:Pack a rdfs:Class ; rdfs:label "a ggen pack under Level 5 promotion" .
+l5p:Capability a rdfs:Class ; rdfs:label "one of the 12 required Level 5 capabilities" .
+l5p:PromotionWave a rdfs:Class ; rdfs:label "a stage in the promotion sequence" .
+l5p:Standing a rdfs:Class ; rdfs:label "terminal or working standing state" .
+l5p:DocSection a rdfs:Class ; rdfs:label "authored prose section rendered verbatim" .
+
+# ---------------------------------------------------------------------------
+# Standing states (l5p:standing takes one of these five IRIs)
+# ---------------------------------------------------------------------------
+l5p:CensusPending a l5p:Standing ; rdfs:label "counted, not yet adjudicated against the 12-capability bar" .
+l5p:InProgress a l5p:Standing ; rdfs:label "promotion actively underway; ≥1 capability closed, ≥1 open" .
+l5p:ReferenceBasis a l5p:Standing ; rdfs:label "furthest-advanced pack(s); source of reusable promotion machinery, itself not yet full Level5" .
+l5p:Level5 a l5p:Standing ; rdfs:label "TERMINAL: all 12 capabilities closed with named artifacts" .
+l5p:Incompatible a l5p:Standing ; rdfs:label "TERMINAL: mechanically proven incompatible with the closure (named proof required)" .
+l5p:Superseded a l5p:Standing ; rdfs:label "TERMINAL: replaced by another pack; replacement relationship recorded" .
+l5p:RejectedWithProof a l5p:Standing ; rdfs:label "TERMINAL: explicit refusal witness recorded" .
+
+# ---------------------------------------------------------------------------
+# The 12 required Level 5 capabilities
+# ---------------------------------------------------------------------------
+l5p:cap01 a l5p:Capability ; l5p:order "01" ; l5p:capName "Authoritative semantic source" ;
+    l5p:capDesc "The pack's ontology is the sole source of truth for what gets built; no fact lives only in a template or hand-written module." .
+l5p:cap02 a l5p:Capability ; l5p:order "02" ; l5p:capName "Complete generation surface" ;
+    l5p:capDesc "Every file the consumer needs (types, logic, tests, docs, provenance, release surface) is generated -- no hand-authored production file required." .
+l5p:cap03 a l5p:Capability ; l5p:order "03" ; l5p:capName "Deterministic regeneration" ;
+    l5p:capDesc "The same ontology + templates produce byte-identical output on repeated ggen sync run, verified live, not asserted." .
+l5p:cap04 a l5p:Capability ; l5p:order "04" ; l5p:capName "Fixed-point convergence" ;
+    l5p:capDesc "Regeneration from a fully-deleted consumer converges to the same result as incremental regeneration -- erase-and-rebuild is a real, exercised path." .
+l5p:cap05 a l5p:Capability ; l5p:order "05" ; l5p:capName "Generated verification" ;
+    l5p:capDesc "The proof suite is itself generated from the ontology (not hand-written against generated code), and its expected values derive from ontology facts, not hardcoded literals." .
+l5p:cap06 a l5p:Capability ; l5p:order "06" ; l5p:capName "Generated negative witnesses" ;
+    l5p:capDesc "Sabotage/falsification fixtures (compile-fail, refusal-path, adversarial input) are generated, proving the pack fails closed, not just that it succeeds." .
+l5p:cap07 a l5p:Capability ; l5p:order "07" ; l5p:capName "Generated documentation" ;
+    l5p:capDesc "Reference docs are projected from the ontology, not hand-written prose describing generated code after the fact." .
+l5p:cap08 a l5p:Capability ; l5p:order "08" ; l5p:capName "Generated provenance" ;
+    l5p:capDesc "Every generated artifact traces to the ontology facts and template version that produced it (source-manifest / digest chain), machine-checkable." .
+l5p:cap09 a l5p:Capability ; l5p:order "09" ; l5p:capName "Generated receipts" ;
+    l5p:capDesc "Sync emits a cryptographic receipt covering this pack's contribution, chained and verifiable (ggen receipt verify)." .
+l5p:cap10 a l5p:Capability ; l5p:order "10" ; l5p:capName "Generated release surface" ;
+    l5p:capDesc "Packaging/CI/release artifacts for the generated subsystem are themselves generated, not hand-maintained alongside it." .
+l5p:cap11 a l5p:Capability ; l5p:order "11" ; l5p:capName "Generated evolution path" ;
+    l5p:capDesc "An upstream ontology or target-API change flows through to a re-synced consumer with a semantic diff and no manual repair." .
+l5p:cap12 a l5p:Capability ; l5p:order "12" ; l5p:capName "Consumer replacement" ;
+    l5p:capDesc "A consumer with zero knowledge of the target's own implementation can delete its generated tree and regenerate a working, tested, receipted subsystem from ggen.toml + the pack alone." .
+
+# ---------------------------------------------------------------------------
+# Promotion waves (the strategic sequence)
+# ---------------------------------------------------------------------------
+l5p:wave1 a l5p:PromotionWave ; l5p:order "1" ; l5p:waveName "Level 5 reference packs" ;
+    l5p:waveDesc "The 6 TCPS packs: furthest along today, source of the fidelity-oracle pattern (examples/tcps-generated) every later wave reuses." .
+l5p:wave2 a l5p:PromotionWave ; l5p:order "2" ; l5p:waveName "Reusable Level 5 promotion machinery" ;
+    l5p:waveDesc "Extract from wave 1: generic idempotent-regen verification, generic CI-wiring gate, a generation-rule pattern for ontology-derived (not hardcoded) test expectations, a generic negative-witness/sabotage harness pattern." .
+l5p:wave3 a l5p:PromotionWave ; l5p:order "3" ; l5p:waveName "Foundational packs" ;
+    l5p:waveDesc "Packs other packs' ontologies reuse vocabulary from (clap-noun-verb-pack's cnv: namespace is reused by mcpp-pack and cargo-cicd-pack; wasm4pm-facts-pack/wasm4pm-algorithms-pack underlie wasm4pm-cognition-pack)." .
+l5p:wave4 a l5p:PromotionWave ; l5p:order "4" ; l5p:waveName "Composition packs" ;
+    l5p:waveDesc "Packs whose generated surface composes multiple foundational vocabularies (wasm4pm-cognition-pack, wasm4pm-compat-pack, chicago-tdd-tools-pack)." .
+l5p:wave5 a l5p:PromotionWave ; l5p:order "5" ; l5p:waveName "Domain packs" ;
+    l5p:waveDesc "Packs modeling one external target crate/repo's domain (affidavit-pack, osx-clnr-pack, mfact-pack, mfw-pack, cargo-cicd-pack, mcpp-pack, anti-llm-cheat-lsp-pack, star-toml-pack, praxis-core-pack, wasm4pm-pack, lsp-max-pack)." .
+l5p:wave6 a l5p:PromotionWave ; l5p:order "6" ; l5p:waveName "Interface packs" ;
+    l5p:waveDesc "Knowledge-hook and case-study packs: self-monitoring-pack, dogfood-lifecycle-pack, ggen-verify-pack, ma-case-study-pack -- governance/verdict surfaces layered over the domain packs." .
+l5p:wave7 a l5p:PromotionWave ; l5p:order "7" ; l5p:waveName "Consumer packs" ;
+    l5p:waveDesc "Packs describing ggen/repo-self surfaces: claude-code-pack, gh-terraform-pack, github-actions-pack, level-five-book-pack, ggen-constitution-pack, ggen-release-pack -- census-pending as of this program's creation, unscored in .specify/maturity.ttl." .
+l5p:wave8 a l5p:PromotionWave ; l5p:order "8" ; l5p:waveName "Maximal closure" ;
+    l5p:waveDesc "Every non-terminal pack has reached Level5/Incompatible/Superseded/RejectedWithProof; compute MaximalClosure(P_L5)." .
+l5p:wave9 a l5p:PromotionWave ; l5p:order "9" ; l5p:waveName "autosel" ;
+    l5p:waveDesc "Generate autosel from MaximalClosure(P_L5). Not before wave 8 completes." .
+
+# ---------------------------------------------------------------------------
+# Pack census -- all 33 packs on disk (packs/*, verified via `ls packs/`).
+# currentCeiling cites the honest existing .specify/maturity.ttl scoring
+# where one exists; the 6 unscored packs are marked CensusPending with no
+# fabricated ceiling. missingCap references are the capabilities NOT yet
+# named-artifact-proven; for packs without a completed per-capability audit
+# yet, nextPromotionObligation says so honestly rather than guessing.
+# ---------------------------------------------------------------------------
+
+# --- Wave 1: TCPS reference packs (6) ---
+l5p:pack_tcps_core a l5p:Pack ; l5p:packId "tcps-core-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:ReferenceBasis ;
+    l5p:currentCeiling "L5 on Generation-depth/Consumer-effort/Test-generation; L4 on Handler-gap/Regen-lifecycle/Target-API-fidelity; L3 on Ontology-expressiveness (see mat:tcps rows)" ;
+    l5p:missingCap l5p:cap06, l5p:cap08, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Close cap11 (Regen-lifecycle doc's own gap: no live-upstream drift detection, only the pinned v26.7.19 snapshot); generate negative witnesses (cap06) -- none of the 26/26 passing tests are sabotage/refusal-path tests per the doc's own description." .
+l5p:pack_tcps_release a l5p:Pack ; l5p:packId "tcps-release-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L3-L5 mixed (L5 Consumer-effort, L4 Handler-gap/Regen-lifecycle, L3 Generation-depth/byte-verbatim fidelity/Test-generation, L2 Ontology-expressiveness)" ;
+    l5p:missingCap l5p:cap05, l5p:cap06, l5p:cap08 ;
+    l5p:nextPromotionObligation "cap05: 'no generated test suite of its own; correctness checked by the workspace-level cargo build/test/clippy inspection receipt instead' (doc's own words) -- author a real generated proof specific to the release surface itself." .
+l5p:pack_tcps_std a l5p:Pack ; l5p:packId "tcps-std-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2-L5 mixed (L5 Consumer-effort, L4 Generation-depth/Handler-gap/Regen-lifecycle/Target-API-fidelity, L3 Test-generation 1/1 real test, L2 Ontology-expressiveness)" ;
+    l5p:missingCap l5p:cap05, l5p:cap06 ;
+    l5p:nextPromotionObligation "1/1 test is real but thin; grow real proof coverage before claiming cap05 closed." .
+l5p:pack_tcps_ffi a l5p:Pack ; l5p:packId "tcps-ffi-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "same shape as tcps-std-pack; Test-generation 0/0 'honestly, not fabricated' per the doc -- the reference itself ships no tests" ;
+    l5p:missingCap l5p:cap05, l5p:cap06 ;
+    l5p:nextPromotionObligation "cap05 requires authoring real generated tests where the reference crate has none -- a genuine gap, not a doc omission." .
+l5p:pack_tcps_wasm a l5p:Pack ; l5p:packId "tcps-wasm-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:InProgress ; l5p:missingCap l5p:cap05, l5p:cap06 ;
+    l5p:currentCeiling "same shape as tcps-ffi-pack" ;
+    l5p:nextPromotionObligation "same as tcps-ffi-pack" .
+l5p:pack_tcps_cli a l5p:Pack ; l5p:packId "tcps-cli-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:InProgress ; l5p:missingCap l5p:cap05, l5p:cap06 ;
+    l5p:currentCeiling "same shape as tcps-ffi-pack" ;
+    l5p:nextPromotionObligation "same as tcps-ffi-pack" .
+
+# --- Wave 3/4/5: the 17 codegen packs (foundational/composition/domain, per real dependency knowledge) ---
+l5p:pack_clap_noun_verb a l5p:Pack ; l5p:packId "clap-noun-verb-pack" ; l5p:wave l5p:wave3 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling all dims except Test-generation L3 (9/9 in receiptctl, CI-wired via guard-pack-proofs.sh)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Handler-gap (cap02): every generated verb still delegates to a hand-written handler -- close by moving common dispatch behavior into the ontology as behavior contracts, the wave-2 machinery's central target." .
+l5p:pack_wasm4pm_facts a l5p:Pack ; l5p:packId "wasm4pm-facts-pack" ; l5p:wave l5p:wave3 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1 Handler-gap (doc only), L2 elsewhere, L3 Test-generation (12/12, CI-wired)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Pure registry/doc pack -- Handler-gap ceiling is structural (N/A vs L1 needs deciding: does this pack even need a handler surface, or is registry-only a legitimate terminal shape? Adjudicate before promoting further)." .
+l5p:pack_wasm4pm_algorithms a l5p:Pack ; l5p:packId "wasm4pm-algorithms-pack" ; l5p:wave l5p:wave3 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling, L3 Test-generation (22/22, CI-wired)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Catalog-only pack (deliberately, per its own pack.toml -- analysis stays in wasm4pm-compat). Handler-gap may be structurally N/A like wasm4pm-facts-pack; adjudicate." .
+l5p:pack_wasm4pm_compat a l5p:Pack ; l5p:packId "wasm4pm-compat-pack" ; l5p:wave l5p:wave4 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling, L3 Test-generation (13/13, CI-wired, real behavioral proof incl. a genuine refusal-path test)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Already has ONE real negative-witness test (OcelRefusal::DanglingEventObjectLink) -- closest of the wave-3/4 packs to cap06; extend to a systematic sabotage suite rather than one incidental case." .
+l5p:pack_wasm4pm_cognition a l5p:Pack ; l5p:packId "wasm4pm-cognition-pack" ; l5p:wave l5p:wave4 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2-L3 mixed (L2→L3 Ontology-expressiveness via shapes.ttl, L3 Test-generation 57/57 CI-wired)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11, l5p:cap12 ;
+    l5p:nextPromotionObligation "Dispatch handler is 'fails-closed, unwired to the real wasm-only implementation' by the pack's own deliberate design (native/wasm boundary) -- cap12 (consumer replacement) may be structurally blocked without a native-callable reference; name as Incompatible-pending-proof if unresolvable, do not leave silently InProgress forever." .
+l5p:pack_chicago_tdd_tools a l5p:Pack ; l5p:packId "chicago-tdd-tools-pack" ; l5p:wave l5p:wave4 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2-L3 mixed (L2→L3 Ontology-expressiveness via shapes.ttl, L3 Test-generation 8/8 CI-wired, meta-proof asserting on its own generated proof's text)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Generates boundary tests for a CLI it doesn't itself generate (Handler-gap L2) -- clearest wave-4 candidate for closing cap02 next, since the CliHarness primitive already exists and is API-shape-verified against the real reference." .
+l5p:pack_praxis_core a l5p:Pack ; l5p:packId "praxis-core-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling, L3 Test-generation (14/14 with praxis-core-live feature; opt-in, not CI-wired)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Test-generation is real (verbatim reference unit tests) but opt-in/not CI-wired -- 'not L4/L5 because nothing triggers this on a version bump without a human enabling the feature.' Make the feature default-on and CI-checked; this is the smallest lift in wave 5." .
+l5p:pack_star_toml a l5p:Pack ; l5p:packId "star-toml-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling, L3 Test-generation (8/8, verified against the real crates.io v26.7.3 registry dependency, not CI-wired)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Same lift as praxis-core-pack: wire its existing real proof into CI." .
+l5p:pack_lsp_max a l5p:Pack ; l5p:packId "lsp-max-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2 ceiling, L3 Test-generation (7/7, real regex/toml exercise); Target-API-fidelity UNVERIFIED" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Target-API-fidelity is UNVERIFIED (not re-audited) -- re-verify against the real lsp-max RulePackServer before any further promotion claim." .
+l5p:pack_cargo_cicd a l5p:Pack ; l5p:packId "cargo-cicd-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mostly, L3 Test-generation (15/15, source-audited against real ~/cargo-cicd v26.7.6)" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Handler-gap L1: catalog only, no real cargo-cicd invocation -- closing this needs a real dispatch shim like mcpp-pack's, not just a bigger catalog." .
+l5p:pack_mcpp a l5p:Pack ; l5p:packId "mcpp-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mixed, L3 Test-generation (18/18 incl. a real SHACL sabotage gate); Target-API-fidelity capped L1 by an UNRELATED external build break (wasm4pm-compat 26.6.29 fails to compile even on this repo's pinned nightly)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Has cap06 groundwork already (real SHACL sabotage gate proven live). Target-API-fidelity is blocked on an external, pre-existing wasm4pm-compat build break outside this pack's control -- name as a real, disclosed external dependency, not a pack defect." .
+l5p:pack_osx_clnr a l5p:Pack ; l5p:packId "osx-clnr-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mixed, L4 Test-generation (32/32, incl. 2 byte-identical verbatim reference tests passing against generated code)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Furthest-along wave-5 pack on Test-generation. Real named gap: only 2 of ~10 reference test files pulled in, and 2 functions are hand-transcribed not SPARQL-derived -- a silent-drift risk the doc itself names. Close by porting the remaining reference test files and deriving the 2 hand-transcribed functions from the ontology." .
+l5p:pack_affidavit a l5p:Pack ; l5p:packId "affidavit-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L3 mixed, L4 Test-generation (46/46 incl. real adversarial error-path coverage: tamper-a-commitment, chain-tamper, forgery-rejection)" ;
+    l5p:missingCap l5p:cap01, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Doc's own disclosed regression: round 4's new modules are 'a hardcoded, ontology-independent Rust port... NOT SPARQL-projected' -- this is a real cap01 (authoritative semantic source) violation the pack authors already flagged. Highest-priority fix in this pack specifically." .
+l5p:pack_anti_llm_cheat_lsp a l5p:Pack ; l5p:packId "anti-llm-cheat-lsp-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mixed, L4 Test-generation (34/34 incl. 8 verbatim reference tests)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Handler-gap L1 by deliberate design (reference-only, avoids a heavy lsp_max dependency) -- same structural-N/A question as wasm4pm-facts-pack/wasm4pm-algorithms-pack; adjudicate rather than assume promotable." .
+l5p:pack_wasm4pm a l5p:Pack ; l5p:packId "wasm4pm-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mostly, L3 Test-generation (10/10)" ;
+    l5p:missingCap l5p:cap01, l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Crate-map catalog only (L1->L2 across most dims, Cargo.toml-derived Target-API-fidelity) -- one of the least-advanced packs; needs real generation-depth work, not just CI wiring." .
+l5p:pack_mfact a l5p:Pack ; l5p:packId "mfact-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mostly, L3 Test-generation (14/14); Target-API-fidelity L1 (README-derived)" ;
+    l5p:missingCap l5p:cap01, l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "README-derived fidelity is the named weak point -- source-audit against the real ~/mfact repo before any generation-depth promotion, same lesson cargo-cicd-pack's own round-2/3 correction already taught this pack family." .
+l5p:pack_mfw a l5p:Pack ; l5p:packId "mfw-pack" ; l5p:wave l5p:wave5 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L1-L2 mostly, L3 Test-generation (13/13); Target-API-fidelity L1 (AGENTS.md-derived)" ;
+    l5p:missingCap l5p:cap01, l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Same fidelity-sourcing weakness as mfact-pack (AGENTS.md, not source-audited). Has real transition-dispatch logic already (per its own pack.toml) -- closest of the 3 mfact/mfw/wasm4pm-pack trio to a genuine Handler-gap win once fidelity is re-sourced." .
+
+# --- Wave 6: knowledge-hook + case-study packs ---
+l5p:pack_self_monitoring a l5p:Pack ; l5p:packId "self-monitoring-pack" ; l5p:wave l5p:wave6 ;
+    l5p:standing l5p:InProgress ;
+    l5p:currentCeiling "L2-L3 mixed (Derivation-power L3, Fire-precision L2→L3, rest L1-L2)" ;
+    l5p:missingCap l5p:cap02, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Doc's own gap list: Actuation-closure L1 (queryable only, acting is manual), Input-acquisition L2 (transcript_to_turtle.py exists but unwired). Wire the capture script -- names its own next step already." .
+l5p:pack_dogfood_lifecycle a l5p:Pack ; l5p:packId "dogfood-lifecycle-pack" ; l5p:wave l5p:wave6 ;
+    l5p:standing l5p:CensusPending ;
+    l5p:currentCeiling "L1-L2 across the board per .specify/maturity.ttl (Obligation-lifecycle L1, Actuation-closure receipting 'UNVERIFIED')" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Least-advanced hook pack; effect-receipting is UNVERIFIED (not just incomplete) -- re-verify current real state before promotion design." .
+l5p:pack_ggen_verify a l5p:Pack ; l5p:packId "ggen-verify-pack" ; l5p:wave l5p:wave1 ;
+    l5p:standing l5p:ReferenceBasis ;
+    l5p:currentCeiling "Its strong dimension is L3→L4 Actuation-closure (real FM-PACK-013 sync refusal, proven under both graph engines); rest L1-L3" ;
+    l5p:missingCap l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Doc's own words: loop is 'operator-triggered, not unattended' -- closing cap11 means making the derive->actuate->receipt->re-observe loop run without a human re-triggering sync." .
+l5p:pack_ma_case_study a l5p:Pack ; l5p:packId "ma-case-study-pack" ; l5p:wave l5p:wave6 ;
+    l5p:standing l5p:CensusPending ;
+    l5p:currentCeiling "Uniform L2 across all 7 case-study dimensions per .specify/maturity.ttl -- the least-differentiated pack in the whole scored population" ;
+    l5p:missingCap l5p:cap02, l5p:cap05, l5p:cap06, l5p:cap08, l5p:cap09, l5p:cap10, l5p:cap11 ;
+    l5p:nextPromotionObligation "Per-CQ test coverage is UNVERIFIED; adversarial fixtures exist but UNVERIFIED this session; planning integration UNVERIFIED. Re-run and re-verify all three before any promotion design -- this pack's doc entry is the most stale of the 27 scored packs." .
+
+# --- Wave 7: unscored packs (6, not in .specify/maturity.ttl at all -- confirmed via `ls packs/`) ---
+l5p:pack_claude_code a l5p:Pack ; l5p:packId "claude-code-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED -- never entered .specify/maturity.ttl" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed: read pack.toml/ontology.ttl fresh, score against all 7 codegen dimensions, determine wave placement." .
+l5p:pack_gh_terraform a l5p:Pack ; l5p:packId "gh-terraform-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed." .
+l5p:pack_github_actions a l5p:Pack ; l5p:packId "github-actions-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed." .
+l5p:pack_level_five_book a l5p:Pack ; l5p:packId "level-five-book-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed. Note: this pack transcribes book content (book:Chapter/book:Listing individuals) -- likely a different maturity SHAPE entirely (a 4th matrix?), adjudicate type before scoring against the existing 3 matrices." .
+l5p:pack_ggen_constitution a l5p:Pack ; l5p:packId "ggen-constitution-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed. Already imported into root ggen.toml's [ontology].imports -- higher priority than the other unscored packs since it's load-bearing for ggen's own self-description." .
+l5p:pack_ggen_release a l5p:Pack ; l5p:packId "ggen-release-pack" ; l5p:wave l5p:wave7 ;
+    l5p:standing l5p:CensusPending ; l5p:currentCeiling "UNSCORED" ;
+    l5p:nextPromotionObligation "First-ever maturity adjudication needed. Also already imported into root ggen.toml -- same priority note as ggen-constitution-pack." .
+
+# ---------------------------------------------------------------------------
+# Prose sections for the generated program doc
+# ---------------------------------------------------------------------------
+l5p:intro a l5p:DocSection ; l5p:order "s010" ; l5p:sid "intro" ;
+    l5p:text "GENERATED by `ggen sync` from `.specify/pack-l5-promotion.ttl` -- edit the ontology, not this file.\n\nGoverning equation: `autosel = ggen(MaximalClosure(P_L5))`, where `P_L5 = { Promote(p) | p in P }` and `P` is every compatible ggen pack. Current per-dimension maturity (see `docs/packs/PACK_MATURITY_MODEL.md`) is an OBSERVATION, not a scope boundary -- every pack below is a promotion obligation until it reaches a terminal standing." .
+l5p:completion a l5p:DocSection ; l5p:order "s090" ; l5p:sid "completion" ;
+    l5p:text "## Completion condition\n\nThis program is complete only when every pack below has reached `Level5`, `Incompatible`, `Superseded`, or `RejectedWithProof` -- AND `autosel` is generated from the maximal lawful closure of the resulting Level5 population -- AND `autosel` can be completely deleted and regenerated without hand-authored product implementation. It is NOT complete when `autosel` compiles, when the 6 TCPS packs compose, or when this workflow merely exists." .
