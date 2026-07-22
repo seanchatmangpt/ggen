@@ -48,38 +48,39 @@ crate: see `packs/rmcp-pack/ontology.ttl`'s header for the full disclosed scope 
 (JSON-RPC message/error-code enumeration, streamable-HTTP session internals, OAuth2 flow
 detail, and the ~50 integration tests are all real, present, and out of scope this pass).
 
-## ServerHandler methods (27)
+## ServerHandler methods ({{ server_rows | length }})
 
 | Method | Params | Returns | Default behavior | Source |
 |---|---|---|---|---|
 {% for row in server_rows %}| `{{ row.method_name }}` | `{{ row.params_type }}` | `{{ row.return_type }}` | {{ row.default_behavior }} | `{{ row.source_file }}` |
 {% endfor %}
 
-## ClientHandler methods (16)
+## ClientHandler methods ({{ client_rows | length }})
 
 | Method | Params | Returns | Default behavior | Source |
 |---|---|---|---|---|
 {% for row in client_rows %}| `{{ row.method_name }}` | `{{ row.params_type }}` | `{{ row.return_type }}` | {{ row.default_behavior }} | `{{ row.source_file }}` |
 {% endfor %}
 
-## rmcp-macros attribute macros (7)
+## rmcp-macros attribute macros ({{ macro_rows | length }})
 
 | Macro | Kind | Applies to | Fields (`field\|type\|usage`) | Source |
 |---|---|---|---|---|
 {% for row in macro_rows %}| `#[{{ row.macro_name }}]` | {{ row.macro_kind }} | {{ row.applies_to }} | {{ row.macro_fields | replace(from='|', to='\|') }} | `{{ row.source_file }}` |
 {% endfor %}
 
-## Transports (7)
+## Transports ({{ transport_rows | length }})
 
 | Transport | Role | Feature flag | Purpose | Source |
 |---|---|---|---|---|
 {% for row in transport_rows %}| `{{ row.transport_name }}` | {{ row.transport_role }} | `{{ row.feature_flag }}` | {{ row.transport_purpose }} | `{{ row.source_file }}` |
 {% endfor %}
 
-## README-documented Cargo features (15)
+## README-documented Cargo features ({{ feature_rows | length }})
 
-Cargo.toml itself defines 26 feature flags total; the 15 below are the ones README.md's own
-three tables document (see ontology.ttl's header for the 11 undocumented ones out of scope).
+Cargo.toml itself defines 26 feature flags total; the {{ feature_rows | length }} below are the
+ones README.md's own three tables document (see ontology.ttl's header for the undocumented ones
+out of scope).
 
 | Feature | Description | Default |
 |---|---|---|
