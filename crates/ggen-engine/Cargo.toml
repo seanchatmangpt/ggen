@@ -5,7 +5,7 @@
 # vendored copy (not a live path dependency back to ~/praxis) and must never
 # be published under any name from this workspace.
 name = "ggen-engine"
-version = "26.7.41"                       # CalVer YY.M.patch
+version = "26.7.42"                       # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
