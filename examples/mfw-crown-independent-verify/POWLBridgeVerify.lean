@@ -54,7 +54,7 @@ theorem injective_of_reverse_crown {Th : PlanningTheory} {α : Type}
   have hencoded :
       encode (canonicalTau S left) = encode (canonicalTau S right) := by
     rw [hleft, hright]
-    exact hxy
+    exact congrArg encode hxy
   have hcanonical : canonicalTau S left = canonicalTau S right :=
     crown_forward S (reverse left right hencoded)
   exact hleft.symm.trans (hcanonical.trans hright)
