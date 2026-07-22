@@ -120,7 +120,20 @@ clap = { version = "4.5", features = ["derive"] }
 clap-noun-verb = "=26.7.4"
 clap-noun-verb-macros = "=26.7.4"
 once_cell = "1.19"
-reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
+# default-features = false + explicit charset/http2/system-proxy (2026-07-22):
+# reqwest 0.12's own `default = ["default-tls", "charset", "http2",
+# "system-proxy"]` was staying enabled ADDITIONALLY alongside the
+# already-explicit "rustls-tls" below (Cargo features are additive, not a
+# replacement, unless default-features is disabled) -- meaning every
+# workspace member using this shared spec compiled BOTH TLS backends,
+# pulling in native-tls -> openssl-sys on Linux even though rustls-tls was
+# the only one anyone actually asked for. This broke cross-compiling the
+# release binary for aarch64-unknown-linux-gnu (missing target-arch OpenSSL
+# dev headers on the runner; found via a real release.yml run,
+# 29915682895) -- confirmed root cause by reading reqwest 0.12.28's own
+# Cargo.toml locally. Re-adding charset/http2/system-proxy explicitly so
+# nothing else default provided is lost, dropping only default-tls.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls", "charset", "http2", "system-proxy"] }
 tempfile = "3.23"
 futures = "0.3"
 futures-util = "0.3"

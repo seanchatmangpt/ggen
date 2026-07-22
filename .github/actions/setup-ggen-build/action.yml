@@ -59,19 +59,32 @@ runs:
     # becomes a DELIBERATE, reviewable bump of the SHA in the table below.
     - name: Provision sibling dependency repos
       shell: bash
+      # Uses parallel indexed arrays, not `declare -A` (associative arrays):
+      # macOS runners' /bin/bash is 3.2.57 (Apple ships no newer GPLv2 bash),
+      # which has no associative-array support at all -- `declare -A shas=(
+      # [lsp-max]=... )` under `set -u` misparses `[lsp-max]` as an arithmetic
+      # subtraction of two unset variables (`lsp` minus `max`), failing with
+      # "lsp: unbound variable" before any real work happens. Confirmed via
+      # direct local reproduction on real bash 3.2.57 (arm64-apple-darwin,
+      # matching macos-latest exactly) and via the real first-ever macOS
+      # invocation of this action, release.yml run 29915682895
+      # (2026-07-22): every macOS-hosted job failed here, every Linux-hosted
+      # job (modern bash 5.x) passed. This action's own indexed-array-only
+      # rewrite is confirmed to behave identically under both bash 3.2.57 and
+      # modern bash (same local reproduction, both versions installed).
       run: |
         set -euo pipefail
         org="https://github.com/seanchatmangpt"
         parent="$GITHUB_WORKSPACE/.."
         # Pinned sibling commit SHAs (bump deliberately; floating HEAD is forbidden).
-        declare -A shas=(
-          [lsp-max]=7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59
-          [lsp-types-max]=6773e6017ca83c565785d0ec39d75304f62c3237
-          [wasm4pm]=0bb134b29245517ac4969a9f1916f5432931c5d0
-          [wasm4pm-compat]=e46155e209a750fda0218532d96ae17a9e10903e
-        )
-        for repo in lsp-max lsp-types-max wasm4pm wasm4pm-compat; do
-          dest="$parent/$repo"; sha="${shas[$repo]}"
+        # Parallel arrays, index-aligned -- keep repos[i]/shas[i] in lockstep.
+        repos=(lsp-max lsp-types-max wasm4pm wasm4pm-compat)
+        shas=(7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59 6773e6017ca83c565785d0ec39d75304f62c3237 0bb134b29245517ac4969a9f1916f5432931c5d0 e46155e209a750fda0218532d96ae17a9e10903e)
+        i=0
+        for repo in "${repos[@]}"; do
+          sha="${shas[$i]}"
+          i=$((i+1))
+          dest="$parent/$repo"
           if [ -d "$dest/.git" ]; then
             echo "sibling already present: $repo"
           else
