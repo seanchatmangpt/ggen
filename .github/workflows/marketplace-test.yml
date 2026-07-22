@@ -1,5 +1,59 @@
 name: Marketplace Tests
 
+# Governance (on: scope) already decided and applied by an earlier pass --
+# see .github/CI_TEARDOWN.md section C.1: "Marketplace unit coverage belongs
+# in the normal suite, not a separate PR gate" -- disposition RETRIGGER
+# (drop pull_request, keep push:main + workflow_dispatch as an operational
+# check). That decision is unchanged here.
+#
+# CONTENT REPAIR (2026-07-22): this workflow has been failing on every push
+# to main. Two real, distinct, previously-undiagnosed bugs, both found by
+# reading the file against current repo state rather than assumed:
+#
+# (1) Same wrong-toolchain/missing-sccache/no-sibling-provisioning class
+#     already root-caused and fixed for release.yml's build-release jobs
+#     (PR #426, retrofit:ReleaseGateBrokenForWeeks): a bespoke
+#     `dtolnay/rust-toolchain@... toolchain: stable` step ignores
+#     rust-toolchain.toml's pinned nightly-2026-06-22 (the only channel that
+#     compiles this workspace), never provisions the `[patch.crates-io]`
+#     sibling repos (lsp-max/lsp-types-max/wasm4pm/wasm4pm-compat, required
+#     just to load the workspace), and never installs sccache (required
+#     unconditionally by .cargo/config.toml's `rustc-wrapper = "sccache"`).
+#     Real failure log: `error: could not execute process 'sccache ...
+#     rustc -vV' (never executed) ... No such file or directory`, exit 101.
+#     Fixed by switching to the proven `./.github/actions/setup-ggen-build`
+#     composite action every other CI job in this repo already uses.
+#
+# (2) All 3 original test invocations target things that no longer exist:
+#     `cargo test test_marketplace_local` matches zero test functions
+#     anywhere in the workspace (confirmed via full-repo search) -- it would
+#     silently report "0 tests run" and exit 0 if ever reached, a decorative
+#     no-op, not a real check. `cargo test -p ggen-core --lib
+#     registry::tests::test_registry_client_new` /
+#     `test_registry_index_structure` target the `ggen-core` package, which
+#     is fully deleted from this repo (PR #259, 2026-07-17) -- these would
+#     hard-fail with "package ID specification `ggen-core` did not match any
+#     packages" the moment the toolchain bug above was fixed and execution
+#     reached them; masked until now by (1) always failing first. The
+#     `GGEN_REGISTRY_URL` env var these steps set is also dead: confirmed
+#     unread by any current code (only `GGEN_MARKETPLACE_CACHE`, a different
+#     variable, is used, in crates/ggen-cli/tests/marketplace_sync_e2e.rs).
+#     Fixed by running the real, current, comprehensive test suite for the
+#     crate that now owns this domain (`ggen-marketplace`, per the crate map
+#     in CLAUDE.md) rather than guessing which single old test name is "the"
+#     successor to 3 narrow, stale invocations against a deleted crate.
+#     `ci.yml`'s own workspace-wide test steps already cover ggen-marketplace
+#     too (never excluded there, only ggen-lsp is) -- this workflow's real
+#     remaining value is being a fast, standalone, easy-to-read operational
+#     signal scoped to just this one crate, matching CI_TEARDOWN.md's
+#     "operational, not a PR gate" framing, not unique coverage.
+#
+# The unused "Install cargo-make" step (installed a tool via `cargo install
+# cargo-make`, then never once invoked `cargo make` anywhere in this file --
+# CI_ARCHITECTURE.md separately flags this workflow as one of several still
+# calling the pre-`just`-migration `cargo-make` tooling) is removed as dead
+# weight alongside the same repair pass.
+
 on:
   push:
     branches: [main]
@@ -21,45 +75,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: stable
+          cache-key-suffix: marketplace-test
 
-      - name: Cache cargo registry
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo-make
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/bin/cargo-make
-          key: ${{ runner.os }}-cargo-make
-
-      - name: Install cargo-make
-        run: cargo install cargo-make --locked --force
-
-      - name: Test local registry
-        run: cargo test test_marketplace_local
-        env:
-          GGEN_REGISTRY_URL: file://${{ github.workspace }}/registry/
-
-      - name: Test registry client creation
-        run: cargo test -p ggen-core --lib registry::tests::test_registry_client_new
-
-      - name: Test registry index parsing
-        run: cargo test -p ggen-core --lib registry::tests::test_registry_index_structure
+      - name: Test ggen-marketplace (lib + integration)
+        run: cargo test -p ggen-marketplace
