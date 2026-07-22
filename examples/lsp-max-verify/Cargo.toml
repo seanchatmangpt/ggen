@@ -1,0 +1,22 @@
+[workspace]
+
+[package]
+name = "lsp-max-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of lsp-max-pack: wires the generated rule-pack TOML files + markdown catalog and both proof tests (hand-transcribed and SPARQL-derived) against real toml/regex/serde parsing. Mirrors examples/praxis-core-verify's posture: standalone workspace, minimal hand-written src/lib.rs, no other hand-written production files."
+
+[lib]
+name = "lsp_max_verify"
+path = "src/lib.rs"
+
+[dev-dependencies]
+# Real crates.io dependencies, used only by the two generated proof tests
+# under tests/ (rule_pack_proof.rs.tmpl / rule_pack_sparql_derived_proof.rs.tmpl).
+# lsp-max-pack generates no Rust module for this crate's own src/ to depend
+# on -- its output (regex rule-pack TOML + a markdown catalog) is consumed
+# by an external lsp-max RulePackServer, not by this crate's production code.
+toml = "0.8"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }

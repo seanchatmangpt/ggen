@@ -4,8 +4,9 @@
 # Makes "the generated proof suites pass" a checkable fact from repo state,
 # not a claim about a session that once ran them: for each committed pack
 # consumer below, re-syncs it, verifies the re-sync was idempotent
-# (byte-identical generated output), and runs its full test suite (the
-# generated proofs plus its own).
+# (byte-identical generated output), verifies the sync's own cryptographic
+# receipt (BLAKE3 chain hash + signature, `ggen receipt verify`), and runs
+# its full test suite (the generated proofs plus its own).
 #
 # Consumers covered (same checks, same failure semantics, for each):
 #   - examples/receiptctl         (wires 6 packs)
@@ -14,6 +15,11 @@
 #     default-features `cargo test -q`, the same plain invocation used for
 #     every consumer; that consumer also has a --no-default-features path,
 #     which this gate does not separately re-run.
+#   - examples/star-toml-verify   (wires packs/star-toml-pack; mirrors
+#     praxis-core-verify's posture -- standalone workspace, minimal
+#     hand-written src/lib.rs). Exercises both the pre-existing
+#     hand-transcribed proof and the cap05 SPARQL-derived proof
+#     (star_toml_config_sparql_derived_proof.rs.tmpl).
 #
 # Uses the release ggen binary if present (fast path), else builds the debug
 # one. Any sync refusal (including the pack-shapes gate FM-PACK-013), any
@@ -27,6 +33,7 @@ cd "$(git rev-parse --show-toplevel)"
 CONSUMERS=(
     "examples/receiptctl"
     "examples/praxis-core-verify"
+    "examples/star-toml-verify"
 )
 
 GGEN_BIN="target/release/ggen"
@@ -46,6 +53,16 @@ for CONSUMER in "${CONSUMERS[@]}"; do
     echo "guard-pack-proofs: sync ${CONSUMER} (binary: ${GGEN_BIN})"
     (cd "$CONSUMER" && "$GGEN_BIN" sync run >/dev/null)
 
+    echo "guard-pack-proofs: verifying sync receipt (chain hash + signature) for ${CONSUMER}"
+    receipt_out="$(cd "$CONSUMER" && "$GGEN_BIN" receipt verify 2>/dev/null)"
+    receipt_valid="$(jq -r '.valid' <<<"$receipt_out")"
+    receipt_signed="$(jq -r '.signed' <<<"$receipt_out")"
+    receipt_sig_valid="$(jq -r '.signature_valid' <<<"$receipt_out")"
+    if [[ "$receipt_valid" != "true" || "$receipt_signed" != "true" || "$receipt_sig_valid" != "true" ]]; then
+        echo "guard-pack-proofs: FAIL — ${CONSUMER} receipt not valid/signed: ${receipt_out}" >&2
+        exit 1
+    fi
+
     echo "guard-pack-proofs: verifying idempotent regeneration for ${CONSUMER}"
     snapshot="$(mktemp -d)"
     trap 'rm -rf "$snapshot"' EXIT
@@ -62,7 +79,7 @@ for CONSUMER in "${CONSUMERS[@]}"; do
     echo "guard-pack-proofs: running ${CONSUMER} test suite"
     (cd "$CONSUMER" && cargo test -q)
 
-    echo "guard-pack-proofs: ${CONSUMER} OK (sync clean, idempotent, all generated proofs pass)"
+    echo "guard-pack-proofs: ${CONSUMER} OK (sync clean, idempotent, receipt valid+signed, all generated proofs pass)"
 done
 
-echo "guard-pack-proofs: OK (${#CONSUMERS[@]} consumers: sync clean, idempotent, all generated proofs pass)"
+echo "guard-pack-proofs: OK (${#CONSUMERS[@]} consumers: sync clean, idempotent, receipt valid+signed, all generated proofs pass)"
