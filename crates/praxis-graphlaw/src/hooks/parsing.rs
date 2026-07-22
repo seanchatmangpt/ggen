@@ -111,7 +111,11 @@ impl HookProps {
 /// # Algorithm
 /// For each triple: if the predicate URI is in the hook: namespace, lookup the
 /// local part in HOOK_ALIAS_MAP. If found, construct a new kh: URI with the mapped local part;
-/// otherwise leave the predicate unchanged (will be rejected in validation if unsupported).
+/// otherwise refuse -- an unrecognized `hook:` alias predicate is refused here, not left
+/// unchanged, because a `hook:`-namespaced predicate that fails this lookup is NOT in the
+/// `kh:` namespace afterward, so it would otherwise silently evade every downstream check
+/// that only inspects `kh:`-prefixed predicates (the SHACL closed-shape validation and the
+/// `ALLOWED_KH_PREDICATES` scan both key off `KH_NS`): a fail-open gap, not a deferred check.
 /// Subject and object are left unchanged.
 ///
 /// # Determinism
@@ -122,7 +126,12 @@ impl HookProps {
 /// O(|T|) where |T| is the number of input triples. Each triple is examined once.
 ///
 /// # Errors
-/// Returns the rewritten triples; validation failures occur downstream in validate_and_extract_hooks.
+/// Returns `Err` for any `hook:`-namespaced predicate not present in `HOOK_ALIAS_MAP`
+/// (found 2026-07-21: `test_hook_alias_unknown_predicate_refused` proved
+/// `hook:unknown_field` previously round-tripped through `load_hook_pack` unrejected --
+/// this closes that gap at its source instead of downstream). Other validation failures
+/// (unknown `kh:` predicates already rewritten, closed-shape violations, ...) still occur
+/// downstream in `validate_and_extract_hooks`, unchanged.
 ///
 /// # FIX #9
 /// Handles rdf:type → kh:Hook conversion from hook:Hook alias to kh:Hook canonical form.
@@ -141,11 +150,17 @@ fn rewrite_hook_alias(triples: &[Triple]) -> Result<Vec<Triple>, String> {
 
             // Rewrite predicates in hook: namespace
             if let Some(local) = cleaned_p.strip_prefix(HOOK_ALIAS_NS) {
-                if let Some((_, mapped_local)) =
-                    HOOK_ALIAS_MAP.iter().find(|(alias, _)| *alias == local)
-                {
-                    let new_p_uri = format!("{}{}", KH_NS, mapped_local);
-                    new_t.p = VarOrTerm::new_term(new_p_uri);
+                match HOOK_ALIAS_MAP.iter().find(|(alias, _)| *alias == local) {
+                    Some((_, mapped_local)) => {
+                        let new_p_uri = format!("{}{}", KH_NS, mapped_local);
+                        new_t.p = VarOrTerm::new_term(new_p_uri);
+                    }
+                    None => {
+                        return Err(format!(
+                            "unknown hook: alias predicate: hook:{} (not in HOOK_ALIAS_MAP)",
+                            local
+                        ));
+                    }
                 }
             }
 

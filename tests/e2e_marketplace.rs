@@ -285,8 +285,9 @@ fn test_hash_generation() -> Result<()> {
         .join("cli")
         .join("subcommand");
 
-    // Run hash generation script
-    let output = std::process::Command::new("./scripts/generate_registry_hashes")
+    // Run hash generation script (a real Cargo [[bin]] target, compiled fresh for
+    // whatever host is running the test -- not a platform-specific committed binary).
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_generate_registry_hashes"))
         .arg(templates_path.to_string_lossy().as_ref())
         .output()?;
 
