@@ -81,7 +81,7 @@ struct Capability {
 }
 
 macro_rules! capabilities {
-    ($(($id:literal, $kind:ident, $path:literal, $manifest:expr, $validator:ident)),+ $(,)?) => {
+    ($(($id:literal, $kind:ident, $path:expr, $manifest:expr, $validator:ident)),+ $(,)?) => {
         const CAPABILITIES: &[Capability] = &[
             $(Capability {
                 id: $id,
