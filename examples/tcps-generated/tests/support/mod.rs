@@ -3,6 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde::Serialize;
+use sha1::Sha1;
 use sha2::{Digest as _, Sha256};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -79,6 +80,14 @@ pub fn utf8<'a>(relative: &str, bytes: &'a [u8]) -> Result<&'a str, EvidenceErro
 
 pub fn sha256_hex(bytes: &[u8]) -> String {
     hex::encode(Sha256::digest(bytes))
+}
+
+pub fn git_blob_oid(bytes: &[u8]) -> String {
+    let header = format!("blob {}\0", bytes.len());
+    let mut hasher = Sha1::new();
+    hasher.update(header.as_bytes());
+    hasher.update(bytes);
+    hex::encode(hasher.finalize())
 }
 
 pub fn domain_digest(domain: &str, fields: &[&[u8]]) -> EvidenceDigest {
