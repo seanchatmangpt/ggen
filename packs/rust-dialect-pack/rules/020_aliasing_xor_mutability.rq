@@ -1,0 +1,40 @@
+# BORROW-CHECK RULE: aliasing XOR mutability.
+#
+# Prior art: Rust's core borrow-checker invariant — "at any given time, you
+# can have either one mutable reference or any number of immutable
+# references [to the same place]" (The Rust Programming Language, ch. 4.2
+# "References and Borrowing", the section titled "The Rules of References").
+# Given semantic teeth in Jung, Jourdan, Krebbers & Dreyer, "RustBelt:
+# Securing the Foundations of the Rust Programming Language" (POPL 2018),
+# whose λRust borrow-typing judgment distinguishes unique (mutable) from
+# shared borrows and forbids a unique borrow's lifetime from overlapping any
+# other live borrow of the same location; operationalized per-borrow (not
+# just per-type) in Jung, Dang, Kang & Dreyer, "Stacked Borrows: An Aliasing
+# Model for Rust" (ICFP 2020) via a live-borrow stack per memory location.
+#
+# ggen template pattern this checks: packs/tcps-ffi-pack/templates/lib.rs.tmpl:55
+# (選択する外部関数, call site `選択する(&方策, 要求, &mut 作業領域)`). The corpus's real
+# positive case is two DIFFERENT bindings borrowed at once (gec:Local_方策
+# shared, gec:Local_作業領域 mutable) — never the same place twice — so this
+# rule's job is to confirm no single gec:LocalBinding is ever the
+# gec:fromSite of both a gec:BorrowMutTransfer edge and any other borrow edge
+# within the same gec:FunctionSignature. Note: this repo has not independently
+# verified that crates/tcps-ffi (the configured gec:outputPath) is actually
+# materialized and compiled by rustc anywhere in CI — `find` confirmed
+# crates/tcps-ffi/ does not exist on disk as of this pass, so this rule is
+# grounded against the *template source text*, not against an observed rustc
+# borrow-check pass. Verified 2026-07-21: ASK=false against
+# ontology.ttl+fixtures/gec-facts.ttl; ASK=true against an adversarial
+# fixture asserting a second BorrowMutTransfer edge from gec:Local_方策 (which
+# already has a live BorrowSharedTransfer edge in the grounded fixtures).
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK
+WHERE {
+  ?fn a gec:FunctionSignature .
+  ?e1 a gec:OwnershipEdge ; gec:withinFunction ?fn ; gec:fromSite ?site ;
+      gec:ownershipTransferKind gec:BorrowMutTransfer .
+  ?e2 a gec:OwnershipEdge ; gec:withinFunction ?fn ; gec:fromSite ?site ;
+      gec:ownershipTransferKind ?k2 .
+  FILTER(?e1 != ?e2)
+  FILTER(?k2 IN (gec:BorrowMutTransfer, gec:BorrowSharedTransfer))
+}

@@ -1,0 +1,349 @@
+@prefix gec: <http://seanchatmangpt.github.io/packs/rust-dialect#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# SHACL shapes for the GEC (ggen-emitted-core) Rust dialect.
+#
+# Two rule families:
+#   (a) ordinary structural shapes — cardinality/datatype/sh:in,
+#       one per ontology.ttl class;
+#   (b) sh:sparql boundary shapes — the actual "is this construct
+#       in-dialect" logic, each one grounded in a specific
+#       corpus fact and cited by file:line in its sh:message, in
+#       the repo's own gates/*.rq convention (see
+#       packs/ma-case-study-pack/gates/*.rq for the precedent this
+#       follows: SPARQL-based validation as first-class RDF, not
+#       inline Rust/host-language logic — see
+#       .claude/rules/coding-agent-mistakes.md's Epistemic Bypass
+#       class for why that split matters).
+#################################################################
+
+#################################################################
+# (a) Structural shapes
+#################################################################
+
+gec:ArtifactShape a sh:NodeShape ;
+    sh:targetClass gec:Artifact ;
+    sh:property [ sh:path gec:sourcePack ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:templatePath ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:outputPath ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:ffiBoundary ; sh:datatype xsd:boolean ; sh:maxCount 1 ] ;
+    sh:property [
+        sh:path gec:dialectStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:InCore gec:InCoreHeightenedComplexity gec:NamedException )
+    ] .
+
+gec:ExceptionReasonRequiredShape a sh:NodeShape ;
+    sh:targetSubjectsOf gec:dialectStatus ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "dialectStatus = gec:NamedException requires at least one gec:exceptionReason." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:dialectStatus gec:NamedException .
+                FILTER NOT EXISTS { $this gec:exceptionReason ?r }
+            }
+        """ ;
+    ] .
+
+gec:LanguageConstructShape a sh:NodeShape ;
+    sh:targetClass gec:LanguageConstruct ;
+    sh:property [ sh:path gec:constructLabel ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:observedCount ; sh:datatype xsd:integer ; sh:minInclusive 0 ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [
+        sh:path gec:defaultStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:InCore gec:InCoreHeightenedComplexity gec:NamedException gec:Unobserved )
+    ] .
+
+gec:LanguageConstructGroundingShape a sh:NodeShape ;
+    sh:targetClass gec:LanguageConstruct ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "observedCount > 0 requires at least one gec:groundedAt citation." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:observedCount ?n .
+                FILTER (?n > 0)
+                FILTER NOT EXISTS { $this gec:groundedAt ?g }
+            }
+        """ ;
+    ] .
+
+gec:PrimitiveTypeShape a sh:NodeShape ;
+    sh:targetClass gec:PrimitiveType ;
+    sh:property [
+        sh:path gec:primitiveName ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( "u8" "u16" "u32" "u64" "usize" "i8" "i16" "i32" "i64" "isize" "bool" "f32" "f64" "char" "str" )
+    ] .
+
+gec:PathTypeShape a sh:NodeShape ;
+    sh:targetClass gec:PathType ;
+    sh:property [ sh:path gec:typePath ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:GenericTypeShape a sh:NodeShape ;
+    sh:targetClass gec:GenericType ;
+    sh:property [ sh:path gec:baseType ; sh:class gec:PathType ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:hasArgument ; sh:class gec:TypeArgument ; sh:minCount 1 ] .
+
+gec:TypeParamRefShape a sh:NodeShape ;
+    sh:targetClass gec:TypeParamRef ;
+    sh:property [ sh:path gec:refersToParam ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:TypeArgumentShape a sh:NodeShape ;
+    sh:targetClass gec:TypeArgumentType, gec:TypeArgumentConst ;
+    sh:property [ sh:path gec:argPosition ; sh:datatype xsd:integer ; sh:minInclusive 0 ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:TypeArgumentTypeShape a sh:NodeShape ;
+    sh:targetClass gec:TypeArgumentType ;
+    sh:property [ sh:path gec:argType ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:TypeArgumentConstShape a sh:NodeShape ;
+    sh:targetClass gec:TypeArgumentConst ;
+    sh:property [ sh:path gec:argConstValue ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:ReferenceTypeShape a sh:NodeShape ;
+    sh:targetClass gec:ReferenceType ;
+    sh:property [ sh:path gec:referent ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:mutable ; sh:datatype xsd:boolean ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:lifetime ; sh:class gec:Lifetime ; sh:maxCount 1 ] .
+
+gec:FunctionSignatureShape a sh:NodeShape ;
+    sh:targetClass gec:FunctionSignature ;
+    sh:property [ sh:path gec:fnName ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:definedIn ; sh:class gec:Artifact ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:returnType ; sh:class gec:TypeExpr ; sh:maxCount 1 ] ;
+    sh:property [
+        sh:path gec:receiverKind ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:NoReceiver gec:ByRefReceiver gec:ByMutRefReceiver gec:ByValueReceiver )
+    ] ;
+    sh:property [ sh:path gec:hasParameter ; sh:node gec:ParameterShape ] .
+
+gec:ParameterShape a sh:NodeShape ;
+    sh:property [ sh:path gec:paramIndex ; sh:datatype xsd:integer ; sh:minInclusive 0 ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:paramName ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:paramType ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:TraitDefinitionShape a sh:NodeShape ;
+    sh:targetClass gec:TraitDefinition ;
+    sh:property [ sh:path gec:traitName ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [
+        sh:path gec:dialectStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:InCore gec:NamedException )
+    ] .
+
+gec:ImplBlockShape a sh:NodeShape ;
+    sh:targetClass gec:TraitImpl, gec:InherentImpl ;
+    sh:property [ sh:path gec:forType ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [
+        sh:path gec:dialectStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:InCore gec:NamedException )
+    ] .
+
+gec:TraitImplShape a sh:NodeShape ;
+    sh:targetClass gec:TraitImpl ;
+    sh:property [ sh:path gec:implementsTrait ; sh:class gec:TraitDefinition ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:OwnershipEdgeShape a sh:NodeShape ;
+    sh:targetClass gec:OwnershipEdge ;
+    sh:property [ sh:path gec:ownershipTransferKind ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( gec:MoveTransfer gec:CopyTransfer gec:BorrowSharedTransfer gec:BorrowMutTransfer
+                gec:ConsumeBySelfTransfer gec:ReturnOwnTransfer gec:IntoConversionTransfer ) ] ;
+    sh:property [ sh:path gec:fromSite ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:toSite ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:withinFunction ; sh:class gec:FunctionSignature ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:ErrorPathFactShape a sh:NodeShape ;
+    sh:targetClass gec:StdResultPath, gec:CustomResultAnalogPath ;
+    sh:property [ sh:path gec:okType ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:errType ; sh:class gec:TypeExpr ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:usesTryOperator ; sh:datatype xsd:boolean ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:ThiserrorVariantShape a sh:NodeShape ;
+    sh:targetClass gec:ThiserrorVariant ;
+    sh:property [ sh:path gec:variantName ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:errorMessageTemplate ; sh:datatype xsd:string ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path gec:hasFromConversion ; sh:datatype xsd:boolean ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+gec:ImplTraitTypeQuantifierShape a sh:NodeShape ;
+    sh:targetClass gec:ImplTraitType ;
+    sh:property [
+        sh:path gec:quantifierKind ; sh:maxCount 1 ;
+        sh:in ( gec:UniversalQuantifier gec:ExistentialQuantifier )
+    ] .
+    # maxCount only (no minCount): gec:quantifierKind is populated post-hoc by
+    # rules/060_impl_trait_quantifier_desugaring.rq, not required on a hand-asserted
+    # ImplTraitType individual before that CONSTRUCT rule has run.
+
+#################################################################
+# (b) Dialect-boundary shapes — the actual ceiling, each a
+#     corpus-grounded rule, not a hypothetical restriction.
+#################################################################
+
+gec:TraitObjectTypeExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:TraitObjectType ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Every &dyn Trait / &dyn Fn(...) trait object must be dialectStatus gec:NamedException — observed only in dispatch/handler-seam proof files (osx_clnr_dispatch_proof.rs.tmpl:69, cargo_cicd_dispatch_proof.rs.tmpl:137, mcpp_dispatch_proof.rs.tmpl:73), never elsewhere in the corpus." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:ImplTraitTypeExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:ImplTraitType ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Every impl-Trait type (argument- or return-position) must be dialectStatus gec:NamedException — both corpus occurrences (affidavit_types.rs.tmpl:77 argument-position, cargo_cicd_catalog.rs.tmpl:75 return-position) sit inside already-exceptional files." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:UnsafeAttributeEffectExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:UnsafeAttributeEffect ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "#[unsafe(export_name=...)] must be dialectStatus gec:NamedException and its owning Artifact must have ffiBoundary=true — observed only in tcps-ffi-pack/tcps-wasm-pack's C-ABI/WASM export surfaces (lib.rs.tmpl:37,42), never a raw `unsafe {}` block anywhere in the corpus (gec:UnsafeBlockConstruct observedCount=0)." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                { FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException } }
+                UNION
+                {
+                    $this gec:effectOf ?fn .
+                    ?fn gec:definedIn ?artifact .
+                    FILTER NOT EXISTS { ?artifact gec:ffiBoundary true }
+                }
+            }
+        """ ;
+    ] .
+
+gec:LifetimeGenericParamExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:FunctionSignature, gec:TraitImpl, gec:InherentImpl ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Any FunctionSignature, TraitImpl, or InherentImpl carrying a gec:LifetimeGenericParam among its genericParam set must be dialectStatus gec:NamedException — the sole corpus instance is `impl<'de> Deserialize<'de> for Receipt` (affidavit_types.rs.tmpl:112)." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:genericParam ?gp .
+                ?gp a gec:LifetimeGenericParam .
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:BoundedTypeGenericParamExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:FunctionSignature, gec:TraitImpl, gec:InherentImpl ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Any FunctionSignature, TraitImpl, or InherentImpl carrying a gec:TypeGenericParam with a non-empty gec:paramBound must be dialectStatus gec:NamedException — the sole corpus instance is `fn canonical_bytes<T: Serialize>` (affidavit_types.rs.tmpl:186). An *unbounded* TypeGenericParam (no gec:paramBound at all) does NOT trigger this rule and may remain gec:InCore — e.g. the INHERENT impl `impl<値> 有無<値>` (tcps ontology.ttl:13) and the two-type-param INHERENT impl `impl<成功, 失敗> 成否<成功, 失敗>` (tcps ontology.ttl:29, both unbounded — note this corpus fact is 'any count of unbounded type params', not 'single', correcting an imprecise 'single-type-param' paraphrase against direct evidence)." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:genericParam ?gp .
+                ?gp a gec:TypeGenericParam .
+                ?gp gec:paramBound ?b .
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:TraitDefinitionExceptionRule a sh:NodeShape ;
+    sh:targetClass gec:TraitDefinition ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A TraitDefinition with any gec:hasAssociatedType, or any gec:genericParam of type gec:TypeGenericParam, must be dialectStatus gec:NamedException. Corpus: 実行器 (tcps ontology.ttl:1433-1441, 2 associated types) and 防止条件 (tcps ontology.ttl:1577, generic over 入力) are NamedException; OclnrHandlerSeam (osx_clnr_dispatch.rs.tmpl:50, zero associated types, zero generic params, plain &self methods returning Result<(),String>) is the one project trait that stays gec:InCore." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                { $this gec:hasAssociatedType ?a }
+                UNION
+                { $this gec:genericParam ?gp . ?gp a gec:TypeGenericParam }
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:TraitImplInheritsTraitExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:TraitImpl ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A TraitImpl of a NamedException TraitDefinition must itself be dialectStatus gec:NamedException (exception status propagates from trait to its impls) — e.g. `impl 防止条件<u32> for 範囲防止` (tcps ontology.ttl:1588) inherits NamedException from 防止条件 even though the impl block itself carries no generic/lifetime params." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:implementsTrait ?t .
+                ?t gec:dialectStatus gec:NamedException .
+                FILTER NOT EXISTS { $this gec:dialectStatus gec:NamedException }
+            }
+        """ ;
+    ] .
+
+gec:ConstGenericAndUnboundedInCoreShape a sh:NodeShape ;
+    sh:targetClass gec:TraitImpl, gec:InherentImpl ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "An InCore TraitImpl or InherentImpl's genericParam set must contain zero LifetimeGenericParam and zero bounded TypeGenericParam — only ConstGenericParam and/or unbounded TypeGenericParam are permitted at InCore status (grounded, all INHERENT impls: impl<const N: usize> T<N> — tcps ontology.ttl:200,375,726,803,1014; impl<値> 有無<値> — tcps ontology.ttl:13; impl<成功,失敗> 成否<成功,失敗> — tcps ontology.ttl:29)." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:dialectStatus gec:InCore .
+                $this gec:genericParam ?gp .
+                { ?gp a gec:LifetimeGenericParam }
+                UNION
+                { ?gp a gec:TypeGenericParam ; gec:paramBound ?b }
+            }
+        """ ;
+    ] .
+
+gec:PotentialPanicNeverForcesExceptionShape a sh:NodeShape ;
+    sh:targetClass gec:PotentialPanicEffect, gec:RegexCompilationEffect ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "gec:PotentialPanicEffect / gec:RegexCompilationEffect are degree-of-complexity signals, not dialect-boundary constructs — the owning FunctionSignature/Artifact's dialectStatus must be gec:InCore or gec:InCoreHeightenedComplexity, never gec:NamedException on the strength of this fact alone (anti_llm_cheat_catalog.rs.tmpl's lexer/regex/OnceLock code is explicitly 'not a new *type* exception' per the grounding finding)." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:effectOf ?owner .
+                ?owner gec:dialectStatus gec:NamedException .
+            }
+        """ ;
+    ] .
+
+gec:ZeroHitConstructsClosedShape a sh:NodeShape ;
+    sh:targetClass gec:UnsafeBlockConstruct, gec:SmartPointerConstruct, gec:AsyncConstruct,
+                   gec:MacroDefinitionConstruct, gec:HigherRankedLifetimeConstruct ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A zero-hit construct (unsafe{} block, Rc/Arc/Box, async/.await, macro_rules!/#[proc_macro, for<'a>) must keep observedCount=0 and defaultStatus=gec:Unobserved unless the ontology is re-grounded against a fresh grep sweep — this is an empirical fact about the corpus as of the grounding pass, not a language-level prohibition." ;
+        sh:select """
+            PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+            SELECT $this
+            WHERE {
+                $this gec:observedCount ?n .
+                FILTER (?n != 0)
+                FILTER NOT EXISTS { $this gec:defaultStatus gec:Unobserved }
+            }
+        """ ;
+    ] .

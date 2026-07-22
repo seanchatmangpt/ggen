@@ -1,0 +1,36 @@
+# TYPING RULE: generic type-application arity well-formedness (kinding).
+#
+# Prior art: the ordinary kinding judgment for parametric type application —
+# a generic type `Base<Arg_0, ..., Arg_{n-1}>` is well-formed only if its
+# supplied argument list is exactly positional 0..n-1 with no gaps and no
+# duplicate slots — the standard well-formedness side-condition
+# `Σ; Δ ⊢ τ` from System-F-style parametric polymorphism, specialized to
+# Rust generic-type instantiation in Weiss, Patterson, Matsakis & Ahmed,
+# "Oxide: The Essence of Rust" (arXiv:1903.00982) section 3.2, and reflected
+# informally in the Rust Reference's "Generic parameters"/"Paths" sections
+# (angle-bracket generic argument lists are positional).
+#
+# ggen template patterns this checks (four independent grounded arities):
+#   - packs/tcps-core-pack/ontology.ttl:8  `有無<値>`            — 1 arg, position 0
+#   - packs/tcps-core-pack/ontology.ttl:24 `成否<成功, 失敗>`     — 2 args, positions 0,1
+#     (gec:Impl_成否_成功_失敗 — the same instance that corrects the
+#     source finding's "single-type-param" paraphrase, see ontology.ttl §6)
+#   - packs/affidavit-pack/templates/affidavit_types.rs.tmpl:186 return type
+#     `Result<Vec<u8>, serde_json::Error>` — 2 args (positions 0,1) nesting a
+#     1-arg `Vec<u8>` (position 0) — gec:Fn_canonical_bytes
+#   - packs/tcps-ffi-pack/templates/lib.rs.tmpl:45 `作業領域::<3>::新規()` —
+#     1 const-generic arg, position 0 — gec:Local_作業領域
+#
+# Verified 2026-07-21: ASK=false against ontology.ttl+fixtures/gec-facts.ttl
+# (every grounded GenericType above is well-formed); ASK=true against an
+# adversarial fixture asserting a 2-argument GenericType with BOTH arguments
+# at gec:argPosition 0 (a duplicate/gapped slot).
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+ASK {
+  SELECT ?gt WHERE {
+    ?gt a gec:GenericType ; gec:hasArgument ?arg .
+    ?arg gec:argPosition ?pos .
+  }
+  GROUP BY ?gt
+  HAVING (COUNT(?arg) != COUNT(DISTINCT ?pos) || MAX(?pos) != (COUNT(DISTINCT ?pos) - 1))
+}

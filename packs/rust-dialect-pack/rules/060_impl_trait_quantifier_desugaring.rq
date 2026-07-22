@@ -1,0 +1,43 @@
+# TYPING RULE: impl-Trait position determines universal-vs-existential
+# quantifier desugaring.
+#
+# Prior art: RFC 1522 ("Conservative impl Trait") and RFC 1951 ("Expand
+# impl Trait") — argument-position `impl Trait` desugars to a caller-chosen,
+# universally quantified anonymous generic parameter (`fn f(x: impl Trait)`
+# is exactly `fn f<T: Trait>(x: T)`); return-position `impl Trait` desugars
+# to a callee-chosen, existentially quantified opaque type (the concrete
+# type is picked once by the function body and hidden from every caller,
+# who knows only the trait bound). This universal/existential (∀/∃) reading
+# is the standard account both RFCs and the language team's own design
+# writing use for abstract/opaque return types, tracing to Mitchell &
+# Plotkin, "Abstract Types Have Existential Type", ACM TOPLAS 10(3), 1988 —
+# the paper that first formalized "a module exporting an abstract type" as
+# an existential-type elimination, which is exactly what a function
+# returning `impl Trait` does at the signature level.
+#
+# ggen template patterns this checks (the corpus's only two impl-Trait
+# occurrences, one of each position — re-verified 2026-07-21 directly
+# against the live template files, not carried over from prose unverified):
+#   - packs/affidavit-pack/templates/affidavit_types.rs.tmpl:77
+#     `pub fn from_hex(hex: impl Into<String>) -> Self` — ARGUMENT position
+#     — gec:ImplTrait_from_hex_hex — must derive gec:UniversalQuantifier
+#   - packs/cargo-cicd-pack/templates/cargo_cicd_catalog.rs.tmpl:75
+#     `-> impl Iterator<Item = &'static CargoCicdCommand> + '_` — RETURN
+#     position — gec:ImplTrait_commands_for_noun_return — must derive
+#     gec:ExistentialQuantifier
+#
+# Target vocabulary: gec:quantifierKind / gec:QuantifierKind (ontology.ttl
+# §10), added specifically so this CONSTRUCT rule has somewhere to write its
+# derived classification — never hand-asserted on a grounded fixture.
+#
+# Verified 2026-07-21: running this CONSTRUCT against
+# ontology.ttl+fixtures/gec-facts.ttl produces exactly 2 triples, matching
+# the two grounded instances above with the expected quantifier kind each.
+PREFIX gec: <http://seanchatmangpt.github.io/packs/rust-dialect#>
+CONSTRUCT {
+  ?it gec:quantifierKind ?kind .
+}
+WHERE {
+  ?it a gec:ImplTraitType ; gec:implPosition ?pos .
+  BIND(IF(?pos = gec:ArgumentPosition, gec:UniversalQuantifier, gec:ExistentialQuantifier) AS ?kind)
+}
