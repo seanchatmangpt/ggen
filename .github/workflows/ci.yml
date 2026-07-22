@@ -261,13 +261,32 @@ jobs:
       # `cargo test --workspace` compiles debug builds of all 17 workspace
       # crates PLUS a separate test binary per tests/*.rs file across all of
       # them, on top of 4 provisioned sibling repos -- real, reproducing
-      # disk exhaustion confirmed on two independent runs of this exact job
-      # (PR #434, runs 29922038930/job 88929666446 and 88934847706: both
-      # failed with `System.IO.IOException: No space left on device`, the
-      # second after 13m43s of genuine work, not an instant crash -- ruling
-      # out a transient host flake). Standard runners only have ~14GB free;
-      # this reclaims the large preinstalled SDKs this job never touches.
-      - name: Free disk space (runner ships ~14GB free, this job needs more)
+      # disk exhaustion confirmed on THREE independent runs of this exact
+      # job:
+      #   - PR #434, run 29922038930, jobs 88929666446/88934847706 (before
+      #     any fix: crashed near-instantly, then after 13m43s)
+      #   - PR #435, run 29928336152, job 88951165655 (WITH the disk-reclaim
+      #     step below already applied): confirmed via the job's own `df -h /`
+      #     output that reclaiming preinstalled SDKs leaves 34G free on this
+      #     runner's real 72G disk -- genuinely more headroom than assumed,
+      #     yet still exhausted after 16m39s of real compilation, dying
+      #     mid-build on `ggen-engine`'s phase2_recipes_test with
+      #     `rustc-LLVM ERROR: IO failure on output stream: No space left on
+      #     device`. The reclaim step is real and helps (extends survival
+      #     time measurably) but is insufficient alone -- this workspace's
+      #     debug test-binary footprint exceeds even a cleaned 72G runner.
+      # Root cause of the remaining gap: [profile.test] in the root
+      # Cargo.toml sets `debug = true` (crates/../Cargo.toml:768) -- every
+      # one of the many test binaries this job builds carries full debug
+      # info, which dominates their on-disk size. Overriding it via
+      # CARGO_PROFILE_TEST_DEBUG below (Cargo env vars take precedence over
+      # Cargo.toml profile keys) disables debug info for JUST this CI job's
+      # cargo invocation -- local `cargo test` still gets debug = true
+      # (debugger/backtrace line info intact for developers), only this
+      # job's on-disk footprint shrinks. Purely a build-artifact size
+      # change: does not alter test semantics, pass/fail outcomes, or any
+      # other job.
+      - name: Free disk space (reclaims preinstalled SDKs this job never uses)
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
@@ -279,6 +298,8 @@ jobs:
         with:
           cache-key-suffix: integration
       - name: cargo test (full workspace, including tests/)
+        env:
+          CARGO_PROFILE_TEST_DEBUG: "false"
         run: cargo test --workspace --exclude ggen-lsp
 
   # ADVISORY, NON-BLOCKING. ggen-lsp (which since the 2026-07 consolidation pass
