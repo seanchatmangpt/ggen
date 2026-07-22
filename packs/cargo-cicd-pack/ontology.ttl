@@ -186,6 +186,16 @@ cc:claude-context-show a cnv:Command ; cnv:noun "claude_context" ; cnv:verb "sho
 # The 10 real `NounVerbError` variants below are transcribed directly from
 # `~/clap-noun-verb/src/error.rs` lines 11-51 (`#[derive(Error, Debug)]`,
 # `#[non_exhaustive]`) -- exact variant names, not paraphrased.
+#
+# ROUND 5 (2026-07-21): no new facts added below -- closes the handler-gap
+# dimension (.specify/maturity.ttl cg_010 mat:d2) purely by adding a new
+# template, packs/cargo-cicd-pack/templates/cargo_cicd_dispatch.rs.tmpl,
+# that projects the EXISTING cnv:noun/cnv:verb facts above into a real
+# std::process::Command dispatch shim (one wrapper fn per live command,
+# `cnv:verb != ""` only -- see that template's own header for why
+# cc:doctor-bare is excluded). See pack.toml's Round 5 note for the full
+# evidence trail (live sync + test in examples/cargo-cicd-verify, drift
+# proven via a real reversible edit to this file).
 cc:CommandContract a cc:ErrorContract ;
   cc:returnType "clap_noun_verb::Result<()>" ;
   cc:returnTypeSourceFile "src/nouns/*.rs (all 21 files, ~/cargo-cicd v26.7.6)" ;

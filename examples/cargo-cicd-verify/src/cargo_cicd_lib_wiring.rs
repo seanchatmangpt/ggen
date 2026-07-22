@@ -1,7 +1,3 @@
----
-to: src/cargo_cicd_lib_wiring.rs
-force: true
----
 // NOTE (fixed during the L5 push's cross-pack verification pass, 2026-07-19):
 // this template originally targeted `to: src/lib.rs` with `inject: true` --
 // which works in isolation (one pack, its own scratch consumer) but hits this

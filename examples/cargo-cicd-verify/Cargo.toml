@@ -1,0 +1,12 @@
+[workspace]
+
+[package]
+name = "cargo-cicd-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of cargo-cicd-pack: wires the generated command catalog (src/cargo_cicd_catalog.rs) and the real std::process::Command dispatch shim (src/cargo_cicd_dispatch.rs, closing cap02 / .specify/maturity.ttl's cg_010 mat:d2 handler-gap dimension) plus their generated proof tests, reference doc, and mod-wiring aggregator against a real `ggen sync run`. Unlike the pack's prior 'scratch consumer' verification (ephemeral, uncommitted, never CI-checked), this example is a permanent fixture the pack-proof gate (scripts/ci/guard-pack-proofs.sh) can re-sync and re-test."
+
+[lib]
+name = "cargo_cicd_verify"
+path = "src/lib.rs"
