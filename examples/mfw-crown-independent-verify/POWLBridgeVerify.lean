@@ -19,6 +19,7 @@ theorem realizedTau_forward {Th : PlanningTheory} {α : Type}
     {left right : BehavioralPhaseSpace Th}
     (h : LawfulTraceEquiv S left right) :
     transformEquiv (realizedTau S R) left right := by
+  change R.encode (canonicalTau S left) = R.encode (canonicalTau S right)
   exact congrArg R.encode (crown_forward S h)
 
 theorem realizedTau_reverse {Th : PlanningTheory} {α : Type}
@@ -27,8 +28,8 @@ theorem realizedTau_reverse {Th : PlanningTheory} {α : Type}
     {left right : BehavioralPhaseSpace Th}
     (h : transformEquiv (realizedTau S R) left right) :
     LawfulTraceEquiv S left right := by
-  apply crown_reverse S
-  exact R.injective h
+  change R.encode (canonicalTau S left) = R.encode (canonicalTau S right) at h
+  exact crown_reverse S (R.injective h)
 
 theorem realizedTau_kernel_iff {Th : PlanningTheory} {α : Type}
     (S : SemanticIndependence Th)
@@ -48,9 +49,15 @@ theorem injective_of_reverse_crown {Th : PlanningTheory} {α : Type}
         LawfulTraceEquiv S left right) :
     Function.Injective encode := by
   intro x y hxy
-  obtain ⟨left, rfl⟩ := canonicalTau_surjective S x
-  obtain ⟨right, rfl⟩ := canonicalTau_surjective S y
-  exact crown_forward S (reverse left right hxy)
+  rcases canonicalTau_surjective S x with ⟨left, hleft⟩
+  rcases canonicalTau_surjective S y with ⟨right, hright⟩
+  have hencoded :
+      encode (canonicalTau S left) = encode (canonicalTau S right) := by
+    rw [hleft, hright]
+    exact hxy
+  have hcanonical : canonicalTau S left = canonicalTau S right :=
+    crown_forward S (reverse left right hencoded)
+  exact hleft.symm.trans (hcanonical.trans hright)
 
 end Crown
 end MFW
