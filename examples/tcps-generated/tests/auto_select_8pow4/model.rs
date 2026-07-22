@@ -22,47 +22,6 @@ const MODE_LABELS: [&str; WIDTH] = [
     "deterministic-receipt-reverse-tie",
 ];
 
-const CONTRACTS: &[TestContract] = &[
-    TestContract::new(
-        "tcps-8pow4/selection-matrix",
-        &["tcps.auto-select", "tcps.8pow4.matrix"],
-        &[
-            "hard-gates-before-mass",
-            "maximum-ready-mass",
-            "deterministic-tie-break",
-            "typed-refusal",
-            "receipt-semantic-identity",
-        ],
-        ResourceEnvelope::new(u64::MAX, 128 * 1024 * 1024, false, false, false),
-        &[],
-    ),
-    TestContract::new(
-        "tcps-8pow4/authorization-boundary",
-        &["tcps.blue-river-dam"],
-        &[
-            "selection-not-authorization",
-            "tool-bound-capability",
-            "authority-bound-capability",
-            "expiry-bound-capability",
-            "policy-bound-capability",
-        ],
-        ResourceEnvelope::new(u64::MAX, 16 * 1024 * 1024, false, false, false),
-        &[],
-    ),
-    TestContract::new(
-        "tcps-8pow4/evidence",
-        &["tcps.8pow4.receipt"],
-        &[
-            "cryptographic-merkle-root",
-            "replay-stable",
-            "mutation-sensitive",
-            "deterministic-sharding",
-        ],
-        ResourceEnvelope::new(u64::MAX, 128 * 1024 * 1024, false, true, false),
-        &["real-filesystem"],
-    ),
-];
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 struct Coordinates {
     authority: u8,
