@@ -17,7 +17,6 @@ mod support;
 use std::collections::BTreeSet;
 use std::sync::OnceLock;
 
-use chicago_tdd_tools::core::contract::{ResourceEnvelope, TestContract};
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use sha2::{Digest as _, Sha256};
