@@ -8,9 +8,9 @@ sparql:
     } ORDER BY ?name
   phases: |
     PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
-    SELECT ?title ?detail ?order WHERE {
+    SELECT ?title ?detail ?order ?isVerifyPhase WHERE {
       ccw:wf-implement-verify ccw:hasPhase ?p .
-      ?p ccw:title ?title ; ccw:detail ?detail ; ccw:order ?order .
+      ?p ccw:title ?title ; ccw:detail ?detail ; ccw:order ?order ; ccw:isVerifyPhase ?isVerifyPhase .
     } ORDER BY ?order
   implement_prompt: |
     PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
@@ -39,7 +39,7 @@ export const meta = {
 const IMPLEMENT_PROMPT = {{ implement_prompt[0].prompt | json_encode | safe }}
 const VERIFY_PROMPT = {{ verify_prompt[0].prompt | json_encode | safe }}
 
-{% for p in phases %}{% if p.order == 0 %}phase('{{ p.title }}')
+{% for p in phases %}{% if not p.isVerifyPhase %}phase('{{ p.title }}')
 const implResults = await parallel((args.batches || []).map(b => () =>
   agent(IMPLEMENT_PROMPT + '\n\nYOUR BATCH: ' + b.label + '\n' + b.instructions,
     { label: 'impl:' + b.label, phase: '{{ p.title }}' })
