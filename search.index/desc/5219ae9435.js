@@ -1,0 +1,1 @@
+rd_("Bfggen - Ontology-Driven Code GenerationAmWorkspace version information")
