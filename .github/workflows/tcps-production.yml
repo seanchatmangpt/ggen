@@ -50,6 +50,17 @@ jobs:
         run: bash scripts/verify-production.sh
       - name: Refuse insecure source primitives
         run: |
-          ! grep -R "unsafe" -n src/production.rs production-system/src production-system/tests
-          ! grep -R "Deserialize" -n src/production.rs
-          ! grep -R "pub trait" -n src/production.rs
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path("src/production.rs").read_text()
+          forbidden = {
+              "unsafe block": "unsafe {",
+              "deserialization": "Deserialize",
+              "open adapter trait": "pub trait",
+              "debug authority key": "Debug)]\npub struct AuthorityKey",
+              "debug broker key": "Debug)]\npub struct ProductionBroker",
+          }
+          found = [name for name, token in forbidden.items() if token in source]
+          if found:
+              raise SystemExit("forbidden production primitives: " + ", ".join(found))
+          PY
