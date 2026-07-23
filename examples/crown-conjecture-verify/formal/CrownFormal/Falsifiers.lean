@@ -37,7 +37,7 @@ theorem constant_map_not_crown :
       TraceEq emptyBoolIndependence [false] [true] :=
     (crown [false] [true]).mp rfl
   have equalWords : [false] = [true] := traceEq_eq_of_empty equivalent
-  cases equalWords
+  exact (by decide : ([false] : List Bool) ≠ [true]) equalWords
 
 /-- Distinct Boolean actions are independent. -/
 def distinctBoolIndependence : Independence Bool where
