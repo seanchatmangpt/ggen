@@ -1,3 +1,33 @@
+# TWO BUGS FOUND AND FIXED (2026-07-23):
+#
+# (1) Bespoke toolchain setup, same class already found and fixed in 5 other
+#     workflows this session (retrofit:BespokeToolchainSetupBypassesSccache):
+#     `dtolnay/rust-toolchain@... toolchain: nightly` ignores rust-toolchain.toml's
+#     pinned nightly, never provisions the [patch.crates-io] sibling repos, never
+#     installs sccache. Real failure, every run: `error: could not execute process
+#     'sccache ... rustc -vV' (never executed) ... No such file or directory`,
+#     exit 101, at the very first cargo invocation. This file was missed by that
+#     sweep's own "closed" claim -- fixed here by swapping in the same proven
+#     ./.github/actions/setup-ggen-build composite action every other job uses.
+#
+# (2) The mdBook build/deploy half is removed, not fixed: `cd docs && mdbook build`
+#     has been broken since docs/src/ was deleted 2026-03-31 (1,892 stale files,
+#     a deliberate cleanup pass) and never restored. Because this was the SECOND
+#     step in one sequential job, its failure aborted the whole job before the
+#     Deploy step ever ran -- meaning `cargo doc`'s real, correctly-buildable API
+#     reference was ALSO never deployed, even though nothing was wrong with it.
+#     Rather than paper over the mdbook gap with continue-on-error (which would
+#     silently and permanently mask a real, open question -- this repo's own
+#     coding-agent-mistakes.md names exactly this as Fail-Open Behavior), the
+#     mdbook step is removed outright: what should back a public docs guide here
+#     (book/'s existing, narrower-scoped content; a restored docs/src/; or
+#     retiring the guide half entirely) is a real product-scope decision, not a
+#     mechanical bug -- see retrofit:GithubPagesEnvironmentStaleMasterPolicy in
+#     .tcps/retrofit/ggen/load-path.ttl and AP-008 in
+#     docs/retrofit/ggen/authorization-packets.md. This job now deploys only the
+#     part that's unambiguously real today (the Rust API reference); restoring a
+#     guide deploy is a follow-on once that decision lands, not blocked by
+#     anything in this fix.
 name: Deploy Documentation
 
 on:
@@ -28,16 +58,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: nightly
           components: rust-docs,rustfmt
-
-      - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@ee69d230fe19748b7abf22df32acaa93833fad08 # v2.0.0
-        with:
-          mdbook-version: "0.4.40"
+          cache-key-suffix: deploy-docs
 
       - name: Build API documentation
         run: |
@@ -45,20 +70,11 @@ jobs:
           cargo doc --no-deps
           echo "✅ API documentation built successfully"
 
-      - name: Build mdBook
-        run: |
-          set -euo pipefail
-          cd docs
-          mdbook build
-          echo "✅ mdBook built successfully"
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: |
-            target/doc
-            docs/book
+          publish_dir: target/doc
           publish_branch: gh-pages
           keep_files: false
           user_name: "github-actions[bot]"
@@ -70,7 +86,6 @@ jobs:
           set -euo pipefail
           echo "📚 Documentation deployed successfully!"
           echo ""
-          echo "📍 API Docs: https://seanchatmangpt.github.io/ggen/target/doc/"
-          echo "📍 Guides: https://seanchatmangpt.github.io/ggen/docs/book/"
+          echo "📍 API Docs: https://seanchatmangpt.github.io/ggen/"
           echo ""
           echo "✅ Deployment complete!"

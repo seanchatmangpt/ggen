@@ -211,3 +211,66 @@ requires the user to supply the actual PAT value before this can be executed.
 actuation class under this session's operating rules, same category as AP-001's branch
 protection. No agent has attempted either `gh api` call above. Written for the user's review and
 explicit go-ahead.
+
+## AP-008 — What should ggen's public documentation guide contain (docs-scope decision, not a GitHub mutation)
+
+**Different gate class from AP-001/002/004/005/007 above**: not a GitHub repo-settings mutation
+blocked by the explicit-`!` list, but a `DESIGN_UNCERTAINTY_LAW` escalation case in the same
+spirit as AP-006 (`verifier_identity` trust model) — a real product-scope question this session
+should surface cleanly rather than silently decide, since it fixes what public claim the project
+makes about its own documentation.
+
+- **Background**: two workflows try to deploy a documentation guide and both fail for the same
+  underlying reason — `docs/src/` (the mdbook source tree `publish-registry.yml`'s
+  `retrofit:GithubPagesEnvironmentStaleMasterPolicy` and `deploy-docs.yml` both build from) was
+  deleted 2026-03-31 (commit `e6113738`, "delete 1,892 stale MD/TXT files", a deliberate cleanup
+  pass) and never restored. `book/` is a real, actively-maintained mdbook project that exists
+  today (`book/book.toml`'s title: "ggen: Manufacturing Level Five Packs") and is already
+  content-verified as part of the real, working `publish-candidate.yml` pipeline (`Book gates
+  (check_book / check_level_five)` step, `book/scripts/check_book.py` /
+  `check_level_five.py`) — but it has never been built to HTML or deployed anywhere; it's
+  correctness-checked source only. This session's fix to `deploy-docs.yml` (see the accompanying
+  PR) removes its now-permanently-broken mdbook step and deploys only what's unambiguously real
+  today (the `cargo doc` Rust API reference) — it does not resolve this question, and was not
+  designed to.
+- **The decision**: what should back a public documentation *guide* (as opposed to the
+  auto-generated Rust API reference, which is unaffected either way):
+  - **Design A — deploy `book/` as the public guide.** Point `deploy-docs.yml` (and/or
+    `publish-registry.yml`, once AP-004 unblocks its environment policy) at `book/` instead of
+    the deleted `docs/`. Smallest technical change, reuses already-maintained, already
+    correctness-checked content. Risk: `deploy-docs.yml`'s own workflow name ("Deploy
+    Documentation") and a root-level public URL both imply comprehensive product documentation,
+    but `book/`'s actual title and scope are narrower ("Manufacturing Level Five Packs") —
+    a real public-facing scope mismatch, not a technical one.
+  - **Design B — restore `docs/src/` from git history.** Reverts the 2026-03-31 cleanup pass's
+    own considered decision to remove 1,892 files judged stale at the time. Recommended
+    *against*: nothing has re-verified that restored content is still accurate given four
+    months of subsequent architecture change (this session alone touched dozens of crates,
+    packs, and workflows) — resurrecting unverified stale content is a worse default than either
+    A or C.
+  - **Design C — retire the guide-deploy capability entirely, ship only the API reference.**
+    Consistent with this session's own `retrofit:MarketplaceValidateRetiredVestigial` precedent
+    (retire rather than repair when there's no real, current content to serve a workflow's
+    stated purpose). Correct if the maintainer does not currently want a public guide site at
+    all, or wants to defer that decision indefinitely. Loses whatever value a deployed guide
+    (even `book/`'s narrower one) would provide.
+  - No design is recommended over another here (unlike AP-001/AP-006/AP-007, where an internal
+    technical-soundness argument favored one option) — A vs. C is a genuine product-positioning
+    call about what ggen publicly claims to document, not a technical tradeoff this session can
+    resolve by itself.
+- **Plan hash**: not applicable — this packet requests a scope decision, not a mutation with a
+  fixed desired-state payload. Whichever design is chosen becomes an ordinary content/workflow
+  PR through this session's existing merge criteria (no `!` needed for that follow-on PR itself
+  — only the choice of scope is what's being surfaced here).
+- **Creates / Updates / Deletes**: nothing yet — this session has not picked a design.
+- **Rollback**: not applicable (no actuation proposed).
+- **Post-checks**: once a design is chosen and implemented, `deploy-docs.yml` (or
+  `publish-registry.yml`, once AP-004 lands) should deploy real, current content matching
+  whichever scope was chosen, observable at the live GitHub Pages URL.
+- **Receipt path**: none — no design has been chosen.
+
+**Non-actuation**: this packet requests a product-scope decision, not an infrastructure
+mutation — no agent has picked a design or restored/redirected any documentation content beyond
+what the accompanying PR already does (remove the dead mdbook step, keep the working API
+reference). Written so the user can approve one design (or propose a fourth) without this
+session silently deciding what ggen's public docs site claims to be.
