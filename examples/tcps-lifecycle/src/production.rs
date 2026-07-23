@@ -1,8 +1,8 @@
 //! Authenticated post-AGI production controller.
 //!
-//! Algebra supplies the typed state vector. Geometry supplies the admitted safe
+//! Algebra supplies a typed state vector. Geometry supplies an admitted safe
 //! region. Calculus supplies finite-difference rates. Ed25519 capabilities,
-//! single-use nonces, atomic desired-state writes, and a signed receipt chain
+//! single-use nonces, target-bound atomic writes, and a signed receipt chain
 //! supply authority, actuation, freshness, and replay resistance.
 
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
@@ -35,7 +35,7 @@ impl Digest {
 
     #[must_use]
     pub fn to_hex(self) -> String {
-        self.0.iter().map(|byte| format!("{byte:02x}")).collect()
+        encode_bytes(&self.0)
     }
 
     fn framed(domain: &str, parts: &[&[u8]]) -> Self {
@@ -60,7 +60,7 @@ pub struct PublicKey([u8; 32]);
 impl PublicKey {
     #[must_use]
     pub fn to_hex(self) -> String {
-        self.0.iter().map(|byte| format!("{byte:02x}")).collect()
+        encode_bytes(&self.0)
     }
 
     fn verifying_key(self) -> Result<VerifyingKey, Refusal> {
@@ -69,11 +69,12 @@ impl PublicKey {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[repr(u8)]
 pub enum Unit {
-    Changes,
-    Builds,
-    Deployments,
-    Requests,
+    Changes = 1,
+    Builds = 2,
+    Deployments = 3,
+    Requests = 4,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -153,6 +154,19 @@ impl SafeRegion {
             && state.receipt_gap <= self.max_receipt_gap
             && rate.error_basis_points_per_second_milli <= self.max_error_acceleration_milli
             && rate.latency_micros_per_second_milli <= self.max_latency_acceleration_milli
+    }
+
+    fn digest(self) -> Digest {
+        Digest::framed(
+            "tcps-safe-region/v1",
+            &[
+                &self.max_error_basis_points.to_le_bytes(),
+                &self.max_latency_micros.to_le_bytes(),
+                &self.max_receipt_gap.to_le_bytes(),
+                &self.max_error_acceleration_milli.to_le_bytes(),
+                &self.max_latency_acceleration_milli.to_le_bytes(),
+            ],
+        )
     }
 }
 
@@ -239,10 +253,13 @@ impl Topology {
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct Plan {
     cycle_id: String,
+    target_uri: String,
     regime: Regime,
     actions: Vec<Action>,
     source_digest: Digest,
     knowledge_digest: Digest,
+    observation_digest: Digest,
+    safe_region_digest: Digest,
     previous_receipt: Digest,
     target_topology: Topology,
     plan_digest: Digest,
@@ -267,6 +284,11 @@ impl Plan {
     #[must_use]
     pub const fn digest(&self) -> Digest {
         self.plan_digest
+    }
+
+    #[must_use]
+    pub fn target_uri(&self) -> &str {
+        &self.target_uri
     }
 }
 
@@ -391,8 +413,11 @@ pub struct Capability {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct ProductionReceipt {
     pub cycle_id: String,
+    pub target_uri: String,
     pub source_digest: Digest,
     pub knowledge_digest: Digest,
+    pub observation_digest: Digest,
+    pub safe_region_digest: Digest,
     pub plan_digest: Digest,
     pub previous_receipt: Digest,
     pub topology_before: Digest,
@@ -403,6 +428,8 @@ pub struct ProductionReceipt {
     pub executor: String,
     pub nonce: u128,
     pub epoch: u64,
+    pub expires_at_epoch: u64,
+    pub authorization_signature_digest: Digest,
     pub broker_public_key: String,
     pub receipt_digest: Digest,
     pub signature_hex: String,
@@ -410,6 +437,13 @@ pub struct ProductionReceipt {
 
 impl ProductionReceipt {
     pub fn verify(&self, broker_public_key: PublicKey) -> Result<(), Refusal> {
+        if self.broker_public_key != broker_public_key.to_hex() {
+            return Err(Refusal::InvalidReceiptSignature);
+        }
+        let expected = receipt_digest_from_fields(self, broker_public_key);
+        if expected != self.receipt_digest {
+            return Err(Refusal::InvalidReceiptDigest);
+        }
         let signature_bytes = decode_signature(&self.signature_hex)?;
         let signature = Signature::from_bytes(&signature_bytes);
         broker_public_key
@@ -432,12 +466,15 @@ pub enum Refusal {
     ExpiredCapability,
     InvalidCapability,
     InvalidPublicKey,
+    InvalidReceiptDigest,
     InvalidReceiptSignature,
     Replay,
     BrokenReceiptChain,
     WrongExecutor,
+    WrongTarget,
     InvalidPlan,
     EmptyCycle,
+    EmptyTarget,
     ActuationFailed,
 }
 
@@ -459,12 +496,15 @@ impl fmt::Display for Refusal {
             Self::ExpiredCapability => "capability is expired",
             Self::InvalidCapability => "capability signature or binding failed",
             Self::InvalidPublicKey => "public key is invalid",
+            Self::InvalidReceiptDigest => "receipt fields do not match its digest",
             Self::InvalidReceiptSignature => "broker receipt signature is invalid",
             Self::Replay => "capability nonce has already been consumed",
             Self::BrokenReceiptChain => "plan does not extend the current receipt chain",
             Self::WrongExecutor => "capability targets another executor",
+            Self::WrongTarget => "actuation target does not match the authorized plan",
             Self::InvalidPlan => "plan is not the canonical response for its regime",
             Self::EmptyCycle => "cycle identifier must be non-empty",
+            Self::EmptyTarget => "actuation target must be non-empty",
             Self::ActuationFailed => "desired-state actuation failed before receipt construction",
         })
     }
@@ -519,6 +559,7 @@ impl ProductionBroker {
     pub fn plan(
         &self,
         cycle_id: impl Into<String>,
+        target_uri: impl Into<String>,
         baseline: StateVector,
         observed: StateVector,
         rate: RateVector,
@@ -526,8 +567,12 @@ impl ProductionBroker {
         knowledge_digest: Digest,
     ) -> Result<Plan, Refusal> {
         let cycle_id = cycle_id.into();
+        let target_uri = target_uri.into();
         if cycle_id.is_empty() {
             return Err(Refusal::EmptyCycle);
+        }
+        if target_uri.is_empty() {
+            return Err(Refusal::EmptyTarget);
         }
         if baseline.demand.value == 0 {
             return Err(Refusal::ZeroBaseline);
@@ -544,6 +589,8 @@ impl ProductionBroker {
         if !self.safe_region.contains(observed, rate) {
             return Err(Refusal::UnsafeGeometry);
         }
+        let observation_digest = observation_digest(baseline, observed, rate);
+        let safe_region_digest = self.safe_region.digest();
         let regime = if observed.demand.value / baseline.demand.value
             >= PHASE_SHIFT_MULTIPLIER
         {
@@ -558,19 +605,25 @@ impl ProductionBroker {
         let target_topology = project_topology(&self.topology, regime, observed.demand.value)?;
         let plan_digest = plan_digest(
             &cycle_id,
+            &target_uri,
             regime,
             &actions,
             source_digest,
             knowledge_digest,
+            observation_digest,
+            safe_region_digest,
             self.last_receipt,
             target_topology.digest(),
         );
         Ok(Plan {
             cycle_id,
+            target_uri,
             regime,
             actions,
             source_digest,
             knowledge_digest,
+            observation_digest,
+            safe_region_digest,
             previous_receipt: self.last_receipt,
             target_topology,
             plan_digest,
@@ -591,6 +644,10 @@ impl ProductionBroker {
         if plan.previous_receipt != self.last_receipt {
             return Err(Refusal::BrokenReceiptChain);
         }
+        let actual_target = desired_state_path.as_ref().to_string_lossy();
+        if actual_target != plan.target_uri {
+            return Err(Refusal::WrongTarget);
+        }
         validate_plan(&plan, &self.topology)?;
 
         let topology_before = self.topology.digest();
@@ -605,21 +662,40 @@ impl ProductionBroker {
         self.topology = plan.target_topology.clone();
         self.consumed_nonces.insert(capability.nonce);
         let topology_after = self.topology.digest();
-        let receipt_digest = receipt_digest(
-            &plan,
+        let authorization_signature_digest =
+            Digest::from_bytes(&capability.signature.to_bytes());
+        let broker_public_key = self.signing_key.verifying_key().to_bytes();
+        let receipt_digest = receipt_digest_parts(
+            &plan.cycle_id,
+            &plan.target_uri,
+            plan.source_digest,
+            plan.knowledge_digest,
+            plan.observation_digest,
+            plan.safe_region_digest,
+            plan.plan_digest,
+            plan.previous_receipt,
             topology_before,
             topology_after,
             effect_digest,
-            &capability,
-            self.signing_key.verifying_key().to_bytes(),
+            &capability.selector,
+            &capability.authorizer,
+            &capability.executor,
+            capability.nonce,
+            capability.epoch,
+            capability.expires_at_epoch,
+            authorization_signature_digest,
+            broker_public_key,
         );
         let signature = self.signing_key.sign(&receipt_digest.0);
         self.last_receipt = receipt_digest;
 
         Ok(ProductionReceipt {
             cycle_id: plan.cycle_id,
+            target_uri: plan.target_uri,
             source_digest: plan.source_digest,
             knowledge_digest: plan.knowledge_digest,
+            observation_digest: plan.observation_digest,
+            safe_region_digest: plan.safe_region_digest,
             plan_digest: plan.plan_digest,
             previous_receipt: plan.previous_receipt,
             topology_before,
@@ -630,7 +706,9 @@ impl ProductionBroker {
             executor: capability.executor,
             nonce: capability.nonce,
             epoch: capability.epoch,
-            broker_public_key: PublicKey(self.signing_key.verifying_key().to_bytes()).to_hex(),
+            expires_at_epoch: capability.expires_at_epoch,
+            authorization_signature_digest,
+            broker_public_key: PublicKey(broker_public_key).to_hex(),
             receipt_digest,
             signature_hex: encode_bytes(&signature.to_bytes()),
         })
@@ -724,6 +802,33 @@ fn validate_plan(plan: &Plan, current: &Topology) -> Result<(), Refusal> {
     Ok(())
 }
 
+fn observation_digest(
+    baseline: StateVector,
+    observed: StateVector,
+    rate: RateVector,
+) -> Digest {
+    Digest::framed(
+        "tcps-observation-vector/v1",
+        &[
+            &baseline.demand.value.to_le_bytes(),
+            &[baseline.demand.unit as u8],
+            &baseline.demand.window_seconds.get().to_le_bytes(),
+            &baseline.error_basis_points.to_le_bytes(),
+            &baseline.latency_micros.to_le_bytes(),
+            &baseline.receipt_gap.to_le_bytes(),
+            &observed.demand.value.to_le_bytes(),
+            &[observed.demand.unit as u8],
+            &observed.demand.window_seconds.get().to_le_bytes(),
+            &observed.error_basis_points.to_le_bytes(),
+            &observed.latency_micros.to_le_bytes(),
+            &observed.receipt_gap.to_le_bytes(),
+            &rate.demand_per_second_milli.to_le_bytes(),
+            &rate.error_basis_points_per_second_milli.to_le_bytes(),
+            &rate.latency_micros_per_second_milli.to_le_bytes(),
+        ],
+    )
+}
+
 fn capability_message(
     plan_digest: Digest,
     selector: &str,
@@ -734,7 +839,7 @@ fn capability_message(
     expires_at_epoch: u64,
 ) -> Vec<u8> {
     framed_bytes(
-        "tcps-capability/v2",
+        "tcps-capability/v3",
         &[
             &plan_digest.0,
             selector.as_bytes(),
@@ -747,12 +852,16 @@ fn capability_message(
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn plan_digest(
     cycle_id: &str,
+    target_uri: &str,
     regime: Regime,
     actions: &[Action],
     source_digest: Digest,
     knowledge_digest: Digest,
+    observation_digest: Digest,
+    safe_region_digest: Digest,
     previous_receipt: Digest,
     target_topology: Digest,
 ) -> Digest {
@@ -765,43 +874,92 @@ fn plan_digest(
         .map(|action| *action as u8)
         .collect::<Vec<_>>();
     Digest::framed(
-        "tcps-production-plan/v2",
+        "tcps-production-plan/v3",
         &[
             cycle_id.as_bytes(),
+            target_uri.as_bytes(),
             &regime_byte,
             &action_bytes,
             &source_digest.0,
             &knowledge_digest.0,
+            &observation_digest.0,
+            &safe_region_digest.0,
             &previous_receipt.0,
             &target_topology.0,
         ],
     )
 }
 
-fn receipt_digest(
-    plan: &Plan,
+fn receipt_digest_from_fields(
+    receipt: &ProductionReceipt,
+    broker_public_key: PublicKey,
+) -> Digest {
+    receipt_digest_parts(
+        &receipt.cycle_id,
+        &receipt.target_uri,
+        receipt.source_digest,
+        receipt.knowledge_digest,
+        receipt.observation_digest,
+        receipt.safe_region_digest,
+        receipt.plan_digest,
+        receipt.previous_receipt,
+        receipt.topology_before,
+        receipt.topology_after,
+        receipt.effect_digest,
+        &receipt.selector,
+        &receipt.authorizer,
+        &receipt.executor,
+        receipt.nonce,
+        receipt.epoch,
+        receipt.expires_at_epoch,
+        receipt.authorization_signature_digest,
+        broker_public_key.0,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn receipt_digest_parts(
+    cycle_id: &str,
+    target_uri: &str,
+    source_digest: Digest,
+    knowledge_digest: Digest,
+    observation_digest: Digest,
+    safe_region_digest: Digest,
+    plan_digest: Digest,
+    previous_receipt: Digest,
     topology_before: Digest,
     topology_after: Digest,
     effect_digest: Digest,
-    capability: &Capability,
+    selector: &str,
+    authorizer: &str,
+    executor: &str,
+    nonce: u128,
+    epoch: u64,
+    expires_at_epoch: u64,
+    authorization_signature_digest: Digest,
     broker_public_key: [u8; 32],
 ) -> Digest {
     Digest::framed(
-        "tcps-production-receipt/v2",
+        "tcps-production-receipt/v3",
         &[
-            plan.cycle_id.as_bytes(),
-            &plan.source_digest.0,
-            &plan.knowledge_digest.0,
-            &plan.plan_digest.0,
-            &plan.previous_receipt.0,
+            cycle_id.as_bytes(),
+            target_uri.as_bytes(),
+            &source_digest.0,
+            &knowledge_digest.0,
+            &observation_digest.0,
+            &safe_region_digest.0,
+            &plan_digest.0,
+            &previous_receipt.0,
             &topology_before.0,
             &topology_after.0,
             &effect_digest.0,
-            capability.selector.as_bytes(),
-            capability.authorizer.as_bytes(),
-            capability.executor.as_bytes(),
-            &capability.nonce.to_le_bytes(),
-            &capability.epoch.to_le_bytes(),
+            selector.as_bytes(),
+            authorizer.as_bytes(),
+            executor.as_bytes(),
+            &nonce.to_le_bytes(),
+            &epoch.to_le_bytes(),
+            &expires_at_epoch.to_le_bytes(),
+            &authorization_signature_digest.0,
             &broker_public_key,
         ],
     )
@@ -821,9 +979,6 @@ fn atomic_write(path: &Path, nonce: u128, bytes: &[u8]) -> Result<(), Refusal> {
             .map_err(|_| Refusal::ActuationFailed)?;
         file.sync_all().map_err(|_| Refusal::ActuationFailed)?;
         drop(file);
-        if path.exists() {
-            fs::remove_file(path).map_err(|_| Refusal::ActuationFailed)?;
-        }
         fs::rename(&temp_path, path).map_err(|_| Refusal::ActuationFailed)?;
         Ok(())
     })();
