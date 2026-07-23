@@ -47,6 +47,7 @@ pub mod models;
 pub mod network;
 pub mod ontology;
 pub mod ownership;
+pub mod part_passport;
 pub mod policy;
 pub mod profile;
 pub mod rdf;
@@ -68,6 +69,14 @@ pub use metrics::MetricsCollector;
 pub use migration::{Migrator, UpgradeEdge};
 pub use models::*;
 pub use network::{MarketplaceClient, PackageMetadata as NetworkPackageMetadata};
+pub use part_passport::{
+    CausalPolarity, ClockDiscipline, ConformityMark, HostProfile, InputEnvelope,
+    IsolationClass, LifecyclePolicy, LifecycleState, NameplateMark, NonInterferenceProfile,
+    OutputContract, PartIdentity, PartPassport, PassportBinding, PassportValidationReport,
+    PassportViolation, PassportViolationCode, ProtocolRange, ResourceEnvelope, RetirementPolicy,
+    SubstitutionReport, SubstitutionViolation, SubstitutionViolationCode, TemporalProfile,
+    TimeoutSemantics, VerifierMark, VerifierStatus, CURRENT_PASSPORT_SCHEMA,
+};
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
@@ -87,6 +96,13 @@ pub mod prelude {
         migration::{Migrator, UpgradeEdge},
         models::{Manifest, Package, PackageId, PackageMetadata, PackageVersion},
         network::{MarketplaceClient, PackageMetadata as NetworkPackageMetadata},
+        part_passport::{
+            CausalPolarity, ClockDiscipline, ConformityMark, HostProfile, InputEnvelope,
+            IsolationClass, LifecyclePolicy, LifecycleState, NonInterferenceProfile,
+            OutputContract, PartIdentity, PartPassport, PassportBinding, ProtocolRange,
+            ResourceEnvelope, RetirementPolicy, TemporalProfile, TimeoutSemantics, VerifierMark,
+            VerifierStatus, CURRENT_PASSPORT_SCHEMA,
+        },
         registry::Registry,
         registry_rdf::RdfRegistry,
         search::SearchEngine,
