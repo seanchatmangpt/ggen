@@ -132,7 +132,10 @@ def additiveCertificate :
 
 /-- Explicit standing receipt: every semantic component is active. -/
 def additiveBoundaryReceipt : SemanticBoundaryReceipt additiveSemantics where
-  goal := .active 4 rfl 5 (by decide)
+  goal := .active 4 rfl 5
+    (by
+      change ¬((5 : Nat) = 4)
+      decide)
   preconditions := .active [1, 3]
     (by
       change (4 : Nat) ≤ 10
