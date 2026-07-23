@@ -24,7 +24,7 @@ theorem traceEq_eq_of_empty {left right : List Bool}
     left = right := by
   induction equivalent with
   | refl word => rfl
-  | swap prefix a b suffix independent => exact False.elim independent
+  | swap pre a b suf independent => exact False.elim independent
   | symm h ih => exact ih.symm
   | trans h₁ h₂ ih₁ ih₂ => exact ih₁.trans ih₂
 
