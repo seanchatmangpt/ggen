@@ -1,0 +1,56 @@
+@prefix nai: <https://ggen.dev/packs/nextjs-ai#> .
+@prefix app: <https://example.ggen.dev/nextjs-ai-verify#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+app:primaryModel a nai:Model ;
+  nai:modelId "openai/gpt-5.6-terra" ;
+  nai:modelLabel "GPT-5.6 Terra" ;
+  nai:modelRole "primary" .
+
+app:fallbackModel a nai:Model ;
+  nai:modelId "openai/gpt-5.6-luna" ;
+  nai:modelLabel "GPT-5.6 Luna" ;
+  nai:modelRole "fallback" .
+
+app:echoTool a nai:Tool ;
+  nai:toolName "system_echo" ;
+  nai:toolTitle "Echo admitted input" ;
+  nai:description "Returns the admitted input with a request-scoped receipt." ;
+  nai:toolKind "read" ;
+  nai:handlerKey "system.echo" ;
+  nai:inputSchemaJson "{\"type\":\"object\",\"properties\":{\"message\":{\"type\":\"string\",\"description\":\"Message to echo\"}},\"required\":[\"message\"],\"additionalProperties\":false}" ;
+  nai:approvalRequired false .
+
+app:createNoteTool a nai:Tool ;
+  nai:toolName "notes_create" ;
+  nai:toolTitle "Create a note" ;
+  nai:description "Creates a durable note through the application adapter." ;
+  nai:toolKind "mutate" ;
+  nai:handlerKey "notes.create" ;
+  nai:inputSchemaJson "{\"type\":\"object\",\"properties\":{\"title\":{\"type\":\"string\"},\"body\":{\"type\":\"string\"}},\"required\":[\"title\",\"body\"],\"additionalProperties\":false}" ;
+  nai:approvalRequired true .
+
+app:assistant a nai:Agent ;
+  nai:agentName "nextjs-ai-verify-agent" ;
+  nai:instructions "You are a precise application assistant. Use tools only when they materially advance the request. Never retry a denied tool. State the receipt status of every actuation." ;
+  nai:usesTool app:echoTool, app:createNoteTool .
+
+app:application a nai:Application ;
+  nai:packageName "nextjs-ai-verify" ;
+  nai:displayName "Next.js AI Verify" ;
+  nai:description "A graph-manufactured AI application with brokered tools and explicit receipts." ;
+  nai:defaultModel app:primaryModel ;
+  nai:fallbackModel app:fallbackModel ;
+  nai:maxSteps 12 ;
+  nai:maxDurationSeconds 60 ;
+  nai:databaseDialect "postgres" ;
+  nai:authStrategy "better-auth" ;
+  nai:telemetryEnabled true ;
+  nai:shadcnVersion "4.13.1" ;
+  nai:aiElementsVersion "1.9.0" ;
+  nai:aiSdkVersion "7.0.22" ;
+  nai:nextVersion "16.2.11" ;
+  nai:reactVersion "19.2.0" ;
+  nai:tailwindVersion "4.3.3" ;
+  nai:usesAgent app:assistant ;
+  nai:usesModel app:primaryModel, app:fallbackModel .
