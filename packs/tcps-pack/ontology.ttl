@@ -12,6 +12,7 @@ tcps:Stage a rdfs:Class .
 tcps:Invariant a rdfs:Class .
 tcps:ProjectionArtifact a rdfs:Class .
 tcps:AutonomicPolicy a rdfs:Class .
+tcps:ProductionKernelPolicy a rdfs:Class .
 tcps:PhaseRegime a rdfs:Class .
 tcps:AutonomicAction a rdfs:Class .
 
@@ -36,13 +37,23 @@ tcps:maxErrorBasisPoints a rdf:Property .
 tcps:knowledgeRequired a rdf:Property .
 tcps:rollbackRequired a rdf:Property .
 tcps:requiredAction a rdf:Property .
+tcps:authenticatedAuthority a rdf:Property .
+tcps:typedMeasurement a rdf:Property .
+tcps:derivativeFence a rdf:Property .
+tcps:geometricSafetyRegion a rdf:Property .
+tcps:replayProtection a rdf:Property .
+tcps:receiptChain a rdf:Property .
+tcps:appliesTopology a rdf:Property .
+tcps:sourceDigestBound a rdf:Property .
+tcps:knowledgeDigestBound a rdf:Property .
+tcps:capabilityExpiry a rdf:Property .
 
 tcps:Observe a tcps:Stage ; tcps:order 10 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Admit ; tcps:actuates false ; tcps:requiresReceipt false .
 tcps:Admit a tcps:Stage ; tcps:order 20 ; tcps:actor "praxis" ; tcps:next tcps:Project ; tcps:actuates false ; tcps:requiresReceipt true .
 tcps:Project a tcps:Stage ; tcps:order 30 ; tcps:actor "ggen" ; tcps:next tcps:Verify ; tcps:actuates true ; tcps:requiresReceipt true .
 tcps:Verify a tcps:Stage ; tcps:order 40 ; tcps:actor "cargo-cicd+Lean+praxis-l4+Aeneas" ; tcps:next tcps:Authorize ; tcps:actuates false ; tcps:requiresReceipt true .
 tcps:Authorize a tcps:Stage ; tcps:order 50 ; tcps:actor "praxis-blue-river-dam" ; tcps:next tcps:Execute ; tcps:actuates false ; tcps:requiresReceipt true .
-tcps:Execute a tcps:Stage ; tcps:order 60 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Release ; tcps:actuates true ; tcps:requiresReceipt true .
+tcps:Execute a tcps:Stage ; tcps:order 60 ; tcps:actor "enterprise-deployment-broker" ; tcps:next tcps:Release ; tcps:actuates true ; tcps:requiresReceipt true .
 tcps:Release a tcps:Stage ; tcps:order 70 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Deploy ; tcps:actuates true ; tcps:requiresReceipt true .
 tcps:Deploy a tcps:Stage ; tcps:order 80 ; tcps:actor "enterprise-deployment-broker" ; tcps:next tcps:Observe ; tcps:actuates true ; tcps:requiresReceipt true .
 
@@ -56,6 +67,11 @@ tcps:NoSelfAdjudication a tcps:Invariant ; rdfs:label "The worker that observes 
 tcps:EvidenceNotNarrative a tcps:Invariant ; rdfs:label "Narrative recommendations never determine standing; admitted evidence and an independent judgment do." .
 tcps:BoundedAutonomicActuation a tcps:Invariant ; rdfs:label "Every autonomic proposal has a finite action budget and an explicit rollback action." .
 tcps:PhaseShiftRequiresRecomposition a tcps:Invariant ; rdfs:label "At 1000x, the system recomposes production topology rather than tuning one capacity knob." .
+tcps:AuthenticatedCapability a tcps:Invariant ; rdfs:label "Every production capability is keyed, plan-bound, actor-bound, expiring, and single-use." .
+tcps:TypedObservationGeometry a tcps:Invariant ; rdfs:label "Only compatible units and observation windows inhabit the same production state geometry." .
+tcps:DerivativeSafetyFence a tcps:Invariant ; rdfs:label "Finite-difference rates must remain inside the admitted safety region before planning." .
+tcps:ReceiptChainContinuity a tcps:Invariant ; rdfs:label "Every production plan extends the currently admitted receipt digest." .
+tcps:EffectfulTopologyMutation a tcps:Invariant ; rdfs:label "Execution changes the admitted topology rather than merely hashing action names." .
 
 tcps:ContinuousRegime a tcps:PhaseRegime ; rdfs:label "continuous production regime below 1000x" .
 tcps:PhaseShift1000xRegime a tcps:PhaseRegime ; rdfs:label "qualitative production regime at or above 1000x" .
@@ -73,7 +89,7 @@ tcps:PhaseShift1000xPolicy
     tcps:maxErrorBasisPoints 100 ;
     tcps:observerActor "cargo-cicd" ;
     tcps:judgeActor "praxis" ;
-    tcps:executorActor "cargo-cicd" ;
+    tcps:executorActor "enterprise-deployment-broker" ;
     tcps:knowledgeRequired true ;
     tcps:rollbackRequired true ;
     tcps:requiresReceipt true ;
@@ -83,15 +99,34 @@ tcps:PhaseShift1000xPolicy
                         tcps:RequireProofCarryingReceipts,
                         tcps:StageCanaryRollback .
 
+tcps:AuthenticatedProductionKernel
+    a tcps:ProductionKernelPolicy ;
+    tcps:authenticatedAuthority true ;
+    tcps:typedMeasurement true ;
+    tcps:derivativeFence true ;
+    tcps:geometricSafetyRegion true ;
+    tcps:replayProtection true ;
+    tcps:receiptChain true ;
+    tcps:appliesTopology true ;
+    tcps:sourceDigestBound true ;
+    tcps:knowledgeDigestBound true ;
+    tcps:capabilityExpiry true ;
+    tcps:requiresReceipt true .
+
 tcps:RustLibrary a tcps:ProjectionArtifact ; tcps:projectionPath "src/lib.rs" .
 tcps:RustAutonomics a tcps:ProjectionArtifact ; tcps:projectionPath "src/autonomics.rs" .
+tcps:RustProductionKernel a tcps:ProjectionArtifact ; tcps:projectionPath "src/production.rs" .
 tcps:RustBinary a tcps:ProjectionArtifact ; tcps:projectionPath "src/main.rs" .
 tcps:RustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/lifecycle.rs" .
 tcps:AutonomicRustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/autonomics.rs" .
+tcps:ProductionKernelManifest a tcps:ProjectionArtifact ; tcps:projectionPath "production-system/Cargo.toml" .
+tcps:ProductionKernelRoot a tcps:ProjectionArtifact ; tcps:projectionPath "production-system/src/lib.rs" .
+tcps:ProductionKernelTests a tcps:ProjectionArtifact ; tcps:projectionPath "production-system/tests/production.rs" .
 tcps:AeneasKernelManifest a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/Cargo.toml" .
 tcps:AeneasKernel a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/src/lib.rs" .
 tcps:LeanLaw a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Basic.lean" .
 tcps:LeanAutonomics a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Autonomics.lean" .
+tcps:LeanProduction a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Production.lean" .
 tcps:LeanRefinementTarget a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Refinement.lean" .
 tcps:CargoManifest a tcps:ProjectionArtifact ; tcps:projectionPath "Cargo.toml" .
 tcps:CargoCicdPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "cicd.toml" .
@@ -99,8 +134,10 @@ tcps:PraxisObservation a tcps:ProjectionArtifact ; tcps:projectionPath "praxis/o
 tcps:ReleasePolicy a tcps:ProjectionArtifact ; tcps:projectionPath "release/release.toml" .
 tcps:DeploymentPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "deploy/production.toml" .
 tcps:VerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify.sh" .
+tcps:ProductionVerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify-production.sh" .
 tcps:AeneasVerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify-aeneas.sh" .
 tcps:LifecycleDocument a tcps:ProjectionArtifact ; tcps:projectionPath "LIFECYCLE.md" .
 tcps:AutonomicsDocument a tcps:ProjectionArtifact ; tcps:projectionPath "AUTONOMICS.md" .
 tcps:AdversarialReview a tcps:ProjectionArtifact ; tcps:projectionPath "ADVERSARIAL_REVIEW.md" .
 tcps:LifecycleWorkflow a tcps:ProjectionArtifact ; tcps:projectionPath ".github/workflows/tcps-lifecycle.yml" .
+tcps:ProductionWorkflow a tcps:ProjectionArtifact ; tcps:projectionPath ".github/workflows/tcps-production.yml" .
