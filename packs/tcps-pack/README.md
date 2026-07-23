@@ -20,3 +20,8 @@ projects the admitted system.
 The example is the conformance oracle. A pack change has standing only when a
 clean consumer can be reprojected and passes the example's Rust, Lean, Aeneas,
 Praxis, cargo-cicd, projection-equivalence, and autonomic falsification lifecycle.
+
+Source-level standing does not imply crown standing. Real signed Praxis and
+cargo-cicd receipts, OCEL replay, ggen fixed-point regeneration, Aeneas symbol
+binding, release provenance, deployment, and rollback remain required external
+evidence.
