@@ -1,15 +1,11 @@
 #![forbid(unsafe_code)]
-//! Executable TCPS software-production lifecycle.
-//!
-//! The typestate surface prevents actuation before Praxis admission,
-//! cargo-cicd verification, and plan-bound authorization.
+//! Executable TCPS lifecycle with affine capabilities and atomic receipts.
 //!
 //! ```compile_fail
 //! use tcps_lifecycle::{ProductionLine, ReferenceCargoCicdExecutor};
-//!
 //! let observed = ProductionLine::observe("change-1", 1, "standard-v1");
 //! let mut executor = ReferenceCargoCicdExecutor::green();
-//! observed.execute(&mut executor); // no method on ProductionLine<Observed>
+//! observed.execute(&mut executor);
 //! ```
 
 pub use tcps_aeneas_kernel as aeneas_kernel;
@@ -17,18 +13,12 @@ pub use tcps_aeneas_kernel as aeneas_kernel;
 use serde::Serialize;
 use std::{fmt, marker::PhantomData};
 
-#[derive(Debug)]
-pub struct Observed;
-#[derive(Debug)]
-pub struct Admitted;
-#[derive(Debug)]
-pub struct Planned;
-#[derive(Debug)]
-pub struct Authorized;
-#[derive(Debug)]
-pub struct Receipted;
-#[derive(Debug)]
-pub struct Stopped;
+#[derive(Debug)] pub struct Observed;
+#[derive(Debug)] pub struct Admitted;
+#[derive(Debug)] pub struct Planned;
+#[derive(Debug)] pub struct Authorized;
+#[derive(Debug)] pub struct Receipted;
+#[derive(Debug)] pub struct Stopped;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct Observation {
@@ -44,7 +34,6 @@ pub struct AdmissionReceipt {
     digest: String,
 }
 
-/// Evidence can only be manufactured by a cargo-cicd workcell.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct CargoCicdEvidence {
     build_green: bool,
@@ -63,9 +52,7 @@ impl CargoCicdEvidence {
     }
 
     #[must_use]
-    pub fn digest(&self) -> &str {
-        &self.evidence_digest
-    }
+    pub fn digest(&self) -> &str { &self.evidence_digest }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -76,7 +63,7 @@ pub struct ProductionPlan {
     plan_digest: String,
 }
 
-/// Affine, opaque, plan-bound authorization capability.
+/// Opaque affine capability. Only `ReferencePraxisGate::authorize` constructs it.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Authorization {
     plan_digest: String,
@@ -87,11 +74,10 @@ pub struct Authorization {
 impl Authorization {
     fn new(plan_digest: &str, approver: impl Into<String>) -> Self {
         let approver = approver.into();
-        let authorization_digest = digest(&[plan_digest, &approver, "authorize"]);
         Self {
             plan_digest: plan_digest.to_owned(),
+            authorization_digest: digest(&[plan_digest, &approver, "authorize"]),
             approver,
-            authorization_digest,
         }
     }
 }
@@ -107,20 +93,9 @@ pub struct ExecutionReceipt {
 }
 
 impl ExecutionReceipt {
-    #[must_use]
-    pub fn executor(&self) -> &str {
-        &self.executor
-    }
-
-    #[must_use]
-    pub fn receipt_digest(&self) -> &str {
-        &self.receipt_digest
-    }
-
-    #[must_use]
-    pub fn artifact_digest(&self) -> &str {
-        &self.artifact_digest
-    }
+    #[must_use] pub fn executor(&self) -> &str { &self.executor }
+    #[must_use] pub fn receipt_digest(&self) -> &str { &self.receipt_digest }
+    #[must_use] pub fn artifact_digest(&self) -> &str { &self.artifact_digest }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -130,10 +105,7 @@ pub struct Andon {
 }
 
 impl Andon {
-    #[must_use]
-    pub fn reason(&self) -> &str {
-        &self.reason
-    }
+    #[must_use] pub fn reason(&self) -> &str { &self.reason }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -165,11 +137,9 @@ pub trait AdmissionGate {
     fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal>;
 }
 
-/// Executors return only artifact evidence. The production line constructs and
-/// validates the receipt, so an executor cannot manufacture a successful receipt.
+/// The executor returns artifact evidence only. The framework manufactures the receipt.
 pub trait WorkcellExecutor {
     fn executor_name(&self) -> &str;
-
     fn execute(
         &mut self,
         observation: &Observation,
@@ -179,19 +149,14 @@ pub trait WorkcellExecutor {
 }
 
 #[derive(Clone, Debug)]
-pub struct ReferencePraxisGate {
-    admitted_standard_hash: String,
-}
+pub struct ReferencePraxisGate { admitted_standard_hash: String }
 
 impl ReferencePraxisGate {
     #[must_use]
     pub fn new(admitted_standard_hash: impl Into<String>) -> Self {
-        Self {
-            admitted_standard_hash: admitted_standard_hash.into(),
-        }
+        Self { admitted_standard_hash: admitted_standard_hash.into() }
     }
 
-    /// Praxis is the sole manufacturer of authorization capabilities.
     #[must_use]
     pub fn authorize(
         &self,
@@ -204,23 +169,15 @@ impl ReferencePraxisGate {
 
 impl AdmissionGate for ReferencePraxisGate {
     fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal> {
-        if observation.downstream_demand == 0 {
-            return Err(Refusal::ZeroDemand);
-        }
-        if observation.standard_hash.is_empty() {
-            return Err(Refusal::EmptyStandard);
-        }
+        if observation.downstream_demand == 0 { return Err(Refusal::ZeroDemand); }
+        if observation.standard_hash.is_empty() { return Err(Refusal::EmptyStandard); }
         if observation.standard_hash != self.admitted_standard_hash {
             return Err(Refusal::StandardNotAdmitted);
         }
         Ok(AdmissionReceipt {
             observation_id: observation.id.clone(),
             standard_hash: observation.standard_hash.clone(),
-            digest: digest(&[
-                &observation.id,
-                &observation.standard_hash,
-                "praxis-admit",
-            ]),
+            digest: digest(&[&observation.id, &observation.standard_hash, "praxis-admit"]),
         })
     }
 }
@@ -235,32 +192,19 @@ pub struct ReferenceCargoCicdExecutor {
 impl ReferenceCargoCicdExecutor {
     #[must_use]
     pub fn green() -> Self {
-        Self {
-            fail_execution: false,
-            verification_green: true,
-            executor_name: "cargo-cicd".to_owned(),
-        }
+        Self { fail_execution: false, verification_green: true, executor_name: "cargo-cicd".into() }
     }
 
     #[must_use]
     pub fn failing() -> Self {
-        Self {
-            fail_execution: true,
-            verification_green: true,
-            executor_name: "cargo-cicd".to_owned(),
-        }
+        Self { fail_execution: true, verification_green: true, executor_name: "cargo-cicd".into() }
     }
 
     #[must_use]
     pub fn verification_failing() -> Self {
-        Self {
-            fail_execution: false,
-            verification_green: false,
-            executor_name: "cargo-cicd".to_owned(),
-        }
+        Self { fail_execution: false, verification_green: false, executor_name: "cargo-cicd".into() }
     }
 
-    /// Manufacture evidence from observed workcell execution, not caller booleans.
     #[must_use]
     pub fn verify(
         &self,
@@ -290,9 +234,7 @@ impl ReferenceCargoCicdExecutor {
 }
 
 impl WorkcellExecutor for ReferenceCargoCicdExecutor {
-    fn executor_name(&self) -> &str {
-        &self.executor_name
-    }
+    fn executor_name(&self) -> &str { &self.executor_name }
 
     fn execute(
         &mut self,
@@ -304,7 +246,7 @@ impl WorkcellExecutor for ReferenceCargoCicdExecutor {
             self.fail_execution = false;
             return Err(Andon {
                 observation_id: observation.id.clone(),
-                reason: "workcell abnormality: executor refused the plan".to_owned(),
+                reason: "workcell abnormality: executor refused the plan".into(),
             });
         }
         Ok(digest(&[
@@ -335,11 +277,7 @@ impl ProductionLine<Observed> {
         standard_hash: impl Into<String>,
     ) -> Self {
         Self {
-            observation: Observation {
-                id: id.into(),
-                downstream_demand,
-                standard_hash: standard_hash.into(),
-            },
+            observation: Observation { id: id.into(), downstream_demand, standard_hash: standard_hash.into() },
             admission: None,
             plan: None,
             authorization: None,
@@ -365,9 +303,7 @@ impl ProductionLine<Observed> {
 
 impl ProductionLine<Admitted> {
     pub fn plan(self, evidence: CargoCicdEvidence) -> Result<ProductionLine<Planned>, Refusal> {
-        if !evidence.is_green() {
-            return Err(Refusal::EvidenceNotGreen);
-        }
+        if !evidence.is_green() { return Err(Refusal::EvidenceNotGreen); }
         let admission = self.admission.expect("admitted state owns admission receipt");
         let plan_digest = digest(&[
             &self.observation.id,
@@ -381,7 +317,7 @@ impl ProductionLine<Admitted> {
             admission: Some(admission),
             plan: Some(ProductionPlan {
                 observation_id,
-                workcell: "cargo-cicd".to_owned(),
+                workcell: "cargo-cicd".into(),
                 evidence_digest: evidence.evidence_digest,
                 plan_digest,
             }),
@@ -399,10 +335,7 @@ impl ProductionLine<Planned> {
         &self.plan.as_ref().expect("planned state owns plan").plan_digest
     }
 
-    pub fn authorize(
-        self,
-        authorization: Authorization,
-    ) -> Result<ProductionLine<Authorized>, Refusal> {
+    pub fn authorize(self, authorization: Authorization) -> Result<ProductionLine<Authorized>, Refusal> {
         let plan = self.plan.as_ref().expect("planned state owns plan");
         if authorization.plan_digest != plan.plan_digest {
             return Err(Refusal::AuthorizationMismatch);
@@ -425,10 +358,7 @@ impl ProductionLine<Authorized> {
         executor: &mut impl WorkcellExecutor,
     ) -> Result<ProductionLine<Receipted>, ProductionLine<Stopped>> {
         let plan = self.plan.as_ref().expect("authorized state owns plan");
-        let authorization = self
-            .authorization
-            .as_ref()
-            .expect("authorized state owns authorization");
+        let authorization = self.authorization.as_ref().expect("authorized state owns authorization");
         match executor.execute(&self.observation, plan, authorization) {
             Ok(artifact_digest) => {
                 let executor_name = executor.executor_name().to_owned();
@@ -439,19 +369,20 @@ impl ProductionLine<Authorized> {
                     &artifact_digest,
                     &executor_name,
                 ]);
+                let receipt = ExecutionReceipt {
+                    observation_id: plan.observation_id.clone(),
+                    plan_digest: plan.plan_digest.clone(),
+                    authorization_digest: authorization.authorization_digest.clone(),
+                    executor: executor_name,
+                    artifact_digest,
+                    receipt_digest,
+                };
                 Ok(ProductionLine {
                     observation: self.observation,
                     admission: self.admission,
                     plan: self.plan,
                     authorization: self.authorization,
-                    receipt: Some(ExecutionReceipt {
-                        observation_id: plan.observation_id.clone(),
-                        plan_digest: plan.plan_digest.clone(),
-                        authorization_digest: authorization.authorization_digest.clone(),
-                        executor: executor_name,
-                        artifact_digest,
-                        receipt_digest,
-                    }),
+                    receipt: Some(receipt),
                     andon: None,
                     state: PhantomData,
                 })
@@ -487,9 +418,7 @@ impl ProductionLine<Stopped> {
         updated_standard_hash: impl Into<String>,
     ) -> Result<ProductionLine<Observed>, Refusal> {
         let updated_standard_hash = updated_standard_hash.into();
-        if updated_standard_hash.is_empty() {
-            return Err(Refusal::EmptyStandard);
-        }
+        if updated_standard_hash.is_empty() { return Err(Refusal::EmptyStandard); }
         if updated_standard_hash == self.observation.standard_hash {
             return Err(Refusal::StandardUnchanged);
         }
