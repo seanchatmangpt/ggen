@@ -33,13 +33,14 @@ fn planned(
 #[test]
 fn downstream_demand_flows_to_framework_receipted_execution() {
     let (gate, planned, mut executor) = planned("change-1");
-    let authorization = gate.authorize(&planned, "release-manager");
-    let authorized = planned.authorize(authorization).expect("authorize");
+    let authorization = gate.authorize(&planned, "release-manager").expect("authorize");
+    let authorized = planned.authorize(authorization).expect("bind authorization");
     let receipted = authorized.execute(&mut executor).expect("execute");
 
     assert_eq!(receipted.receipt().executor(), "cargo-cicd");
     assert_eq!(receipted.receipt().receipt_digest().len(), 64);
     assert_eq!(receipted.receipt().artifact_digest().len(), 64);
+    assert_eq!(receipted.receipt().evidence_digest().len(), 64);
 }
 
 #[test]
@@ -78,16 +79,26 @@ fn authorization_is_opaque_and_bound_to_one_plan() {
         .plan(executor.verify("source-4b", vec!["b".to_owned()]))
         .expect("plan");
 
-    let wrong = gate.authorize(&first, "release-manager");
+    let wrong = gate.authorize(&first, "release-manager").expect("authorize first");
     let refusal = second.authorize(wrong).expect_err("wrong plan must refuse");
     assert_eq!(refusal, Refusal::AuthorizationMismatch);
 }
 
 #[test]
+fn praxis_cannot_authorize_a_plan_under_another_standard() {
+    let (_, planned, _) = planned("change-4c");
+    let wrong_gate = ReferencePraxisGate::new("standard-v2");
+    let refusal = wrong_gate
+        .authorize(&planned, "release-manager")
+        .expect_err("wrong standard must refuse");
+    assert_eq!(refusal, Refusal::StandardNotAdmitted);
+}
+
+#[test]
 fn abnormality_stops_and_unchanged_standard_cannot_restart() {
     let (gate, planned, _) = planned("change-5");
-    let authorization = gate.authorize(&planned, "release-manager");
-    let authorized = planned.authorize(authorization).expect("authorize");
+    let authorization = gate.authorize(&planned, "release-manager").expect("authorize");
+    let authorized = planned.authorize(authorization).expect("bind authorization");
     let mut executor = ReferenceCargoCicdExecutor::failing();
     let stopped = authorized.execute(&mut executor).expect_err("must stop");
 
@@ -101,8 +112,8 @@ fn abnormality_stops_and_unchanged_standard_cannot_restart() {
 #[test]
 fn updated_standard_reenters_observation_and_requires_readmission() {
     let (gate, planned, _) = planned("change-6");
-    let authorization = gate.authorize(&planned, "release-manager");
-    let authorized = planned.authorize(authorization).expect("authorize");
+    let authorization = gate.authorize(&planned, "release-manager").expect("authorize");
+    let authorized = planned.authorize(authorization).expect("bind authorization");
     let mut executor = ReferenceCargoCicdExecutor::failing();
     let stopped = authorized.execute(&mut executor).expect_err("must stop");
     let recovered = stopped.recover("standard-v2").expect("updated standard");
