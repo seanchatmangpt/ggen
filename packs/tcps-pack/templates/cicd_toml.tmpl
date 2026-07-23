@@ -30,6 +30,8 @@ snapshot_mode = "changed-only"
 require_clean_tree = true
 commit_after_phase = false
 
+# cargo-cicd remains a suggest-mode worker. TCPS/Praxis own classification and
+# independent judgment; cargo-cicd never promotes its own recommendation.
 [autonomic]
 enabled = true
 mode = "suggest"
@@ -37,6 +39,8 @@ mode = "suggest"
 [standing]
 ocel_logs = ["evidence/tcps-lifecycle.ocel.json"]
 process_validation = ["receipts/verification.json"]
-receipt_ledgers = ["receipts/verification.json"]
-claim_tables = ["LIFECYCLE.md"]
-clients = ["praxis", "praxis-l4", "ggen"]
+receipt_ledgers = []
+claim_tables = ["LIFECYCLE.md", "AUTONOMICS.md"]
+clients = [
+  { id = "tcps-lifecycle", path = ".", build_command = "cargo test --workspace --all-targets" },
+]
