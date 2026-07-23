@@ -1,8 +1,8 @@
 # Crown Formal
 
 This standalone Lean 4 and Mathlib project contains the formal trace kernel,
-its operational preservation theorem, decisive countermodels, and the repaired
-behavioral admission boundary.
+its operational preservation theorem, decisive countermodels, and an
+observation-factored behavioral adequacy boundary.
 
 ## 1. Exact abstract crown
 
@@ -34,18 +34,21 @@ of Mazurkiewicz trace equivalence.
 `transport_execution` manufactures a receipt derivation for every admitted
 serialization while retaining the exact final state.
 
-## 3. Semantic preservation and admitted standing
+## 3. Abstract semantic preservation and admitted standing
 
-`SemanticIndependenceCertificate` transports the abstract lawfulness
-conjunction:
+`SemanticIndependenceCertificate` transports the abstract word-level
+lawfulness conjunction:
 
 - successful transition replay;
 - final goal satisfaction;
 - precondition preservation;
 - invariant preservation;
 - numeric-flow compatibility;
-- temporal preservation;
-- trajectory preservation.
+- temporal-word preservation;
+- trajectory-word preservation.
+
+The last two fields are deliberately described as word-level projections. They
+are not a direct native schedule or state-trajectory model.
 
 The mathematical preservation proof is not itself sufficient for admitted
 standing. `AdmittedSemanticCrown` additionally requires:
@@ -59,21 +62,21 @@ The additive model activates every semantic component with acceptance and
 rejection witnesses and transports both lawfulness and a proof-relevant
 execution.
 
-## 4. Adequacy boundary: why the original event-only behavioral statement fails
+## 4. Adequacy boundary: why the event-only behavioral statement fails
 
 `Adequacy.lean` proves two independent exclusions.
 
 ### Timestamp countermodel
 
 Two behavior records may have identical event lists and therefore be
-trace-equivalent while carrying different timestamps. A temporal lawfulness
-predicate can accept one and reject the other. Therefore a theorem quantified
-over two arbitrary behavior records cannot preserve full lawfulness when its
-premise relates only their event projections.
+event-trace-equivalent while carrying different timestamps. A temporal
+lawfulness predicate can accept one and reject the other. Therefore a theorem
+quantified over two arbitrary behavior records cannot preserve full lawfulness
+when its premise relates only their event projections.
 
-The repaired `TimedTraceEq` relation includes both event trace equivalence and
-timestamp alignment. `timed_repaired_crown` then transports temporal
-lawfulness.
+The repaired timed model keys timestamps by unique event identity instead of
+list position. An admitted commutation therefore reorders event identities
+without silently reassigning their timestamps.
 
 ### Trajectory countermodel
 
@@ -86,31 +89,71 @@ different state traces:
 ```
 
 A trajectory observation can distinguish them. Final-state diamond equality is
-therefore insufficient for arbitrary native trajectory constraints; a concrete
-adapter must expose and prove the required trajectory relation.
+therefore insufficient for arbitrary native trajectory constraints.
+`AdditiveTrajectoryRelated` includes equality of the complete observed state
+trace and correctly refuses this swap.
 
-`CrownObservationAdmission` is the repaired behavioral boundary. It requires a
-native admitted relation that:
+## 5. Observation-factored behavioral crown
 
-1. projects to event trace equivalence;
-2. preserves the complete native lawfulness predicate bidirectionally.
+The previous behavioral boundary carried a field equivalent to the theorem it
+claimed to prove:
 
-## 5. Exact standing
+```text
+related left right → (lawful left ↔ lawful right)
+```
+
+That made the trace projection logically decorative. The refactored
+`CrownObservationAdmission` removes that field.
+
+Native lawfulness must now factor pointwise through:
+
+```text
+(classify I (events behavior), observe behavior)
+```
+
+A related pair must prove:
+
+1. event trace equivalence;
+2. equality of the admitted observation;
+3. equivalence-relation laws for the native relation.
+
+The derived `lawfulIff` theorem consumes `traceSound`, `classify_eq_iff`,
+`observationEq`, and `lawfulFactorization`. It no longer assumes pairwise
+lawfulness preservation.
+
+`AdmittedBehavioralCrown` additionally carries a related pair with distinct
+event serializations. This excludes an empty relation and an equality-only
+relation from receiving non-vacuous crown standing.
+
+The concrete timed instance includes the genuine swap:
+
+```text
+[false, true] ↔ [true, false]
+```
+
+with the same identity-keyed timestamp map. `timed_repaired_crown` derives
+lawfulness preservation from trace classification and observation equality.
+
+## 6. Exact standing
 
 - **Abstract quotient crown:** proved in source.
-- **Abstract replay and lawfulness preservation:** proved in source.
+- **Abstract replay and word-level lawfulness preservation:** proved in source.
 - **Proof-relevant execution transport:** proved in source.
-- **Non-vacuity receipts:** load-bearing through `AdmittedSemanticCrown`.
+- **Abstract non-vacuity receipts:** load-bearing through
+  `AdmittedSemanticCrown`.
 - **Event-only behavioral crown over arbitrary timestamps:** refuted by a
   kernel-visible countermodel.
-- **Repaired observation-admitted behavioral crown:** proved in source.
+- **Pairwise-lawfulness admission schema:** removed as circular.
+- **Observation-factored behavioral crown:** implemented in source.
+- **Nontrivial behavioral relation receipt:** implemented in source.
 - **Direct adapter to the external MFW `BehaviorTrace` and PDDL 3.1 model:** not
-  claimed by this standalone project; it requires an explicit schedule and
-  trajectory morphism rather than name-level correspondence.
+  claimed by this standalone project; it still requires explicit schedule and
+  state-trajectory observations in the owning theory.
 - **Executable canonical normal form for trace classes:** not claimed; the
   current canonical classifier is the mathematical quotient.
+- **Lean kernel standing for the refactor:** unknown until the branch is built.
 
-## 6. Verification commands
+## 7. Verification commands
 
 ```bash
 python3 scripts/audit.py
