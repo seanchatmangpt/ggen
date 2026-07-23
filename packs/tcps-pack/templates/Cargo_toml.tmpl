@@ -1,0 +1,30 @@
+---
+to: Cargo.toml
+force: true
+---
+[workspace]
+members = [".", "aeneas-kernel"]
+resolver = "2"
+
+[package]
+name = "tcps-lifecycle"
+version = "26.7.23"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT OR Apache-2.0"
+description = "Executable TCPS lifecycle and exact 1000x phase-shift autonomics reference"
+publish = false
+
+[dependencies]
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+tcps-aeneas-kernel = { path = "aeneas-kernel" }
+
+[dev-dependencies]
+static_assertions = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

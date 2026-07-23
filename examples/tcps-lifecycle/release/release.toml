@@ -1,0 +1,18 @@
+[release]
+source = "cargo-cicd"
+require_clean_tree = true
+require_changed_tests = true
+require_trybuild = true
+require_lean_kernel = true
+require_praxis_admission = true
+require_sbom = true
+require_provenance = true
+require_checksums = true
+require_signed_artifact = true
+immutable_digest = true
+
+[promotion]
+environments = ["development", "integration", "preproduction", "production"]
+rebuild_between_environments = false
+require_same_digest = true
+require_receipt_at_each_transition = true

@@ -1,0 +1,23 @@
+---
+to: praxis/observation.json
+force: true
+---
+{
+  "value": {
+    "kind": "tcps-software-production-demand",
+    "repository": "ggen/examples/tcps-lifecycle",
+    "observation_id": "change-42",
+    "downstream_demand": 1,
+    "standard_hash": "standard-v1",
+    "required_workcell": "cargo-cicd",
+    "required_proof": "TCPSLifecycle.successful_has_receipt"
+  },
+  "obligations": [
+    "admit-standard",
+    "verify-rust",
+    "verify-lean",
+    "authorize-plan",
+    "execute-through-cargo-cicd",
+    "issue-receipt"
+  ]
+}

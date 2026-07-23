@@ -1,0 +1,17 @@
+# MESSAGE: every TCPS autonomic policy must name its threshold, bounds, authorities, knowledge, rollback, and receipt law
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?policy WHERE {
+  ?policy a tcps:AutonomicPolicy .
+  FILTER (
+    NOT EXISTS { ?policy tcps:thresholdMultiplier ?threshold } ||
+    NOT EXISTS { ?policy tcps:maxActions ?maxActions } ||
+    NOT EXISTS { ?policy tcps:maxErrorBasisPoints ?maxError } ||
+    NOT EXISTS { ?policy tcps:observerActor ?observer } ||
+    NOT EXISTS { ?policy tcps:judgeActor ?judge } ||
+    NOT EXISTS { ?policy tcps:executorActor ?executor } ||
+    NOT EXISTS { ?policy tcps:knowledgeRequired true } ||
+    NOT EXISTS { ?policy tcps:rollbackRequired true } ||
+    NOT EXISTS { ?policy tcps:requiresReceipt true }
+  )
+}
+ORDER BY ?policy

@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+cd "$(dirname "$0")/.."
+mkdir -p evidence receipts
+
+CROWN=0
+if [[ "${1:-}" == "--crown" ]]; then
+  CROWN=1
+fi
+
+recorded_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+results_file="$(mktemp)"
+trap 'rm -f "$results_file"' EXIT
+
+run_check() {
+  local name="$1"; shift
+  local log="$(mktemp)"
+  "$@" >"$log" 2>&1
+  local code=$?
+  local summary
+  summary="$(tail -n 1 "$log" | tr '"' "'" | cut -c1-240)"
+  printf '%s\t%s\t%s\t%s\n' "$name" "$code" "$*" "$summary" >>"$results_file"
+  rm -f "$log"
+}
+
+run_optional_oracle() {
+  local name="$1" binary="$2"; shift 2
+  if command -v "$binary" >/dev/null 2>&1; then
+    run_check "$name" "$binary" "$@"
+  elif [[ "$CROWN" -eq 1 ]]; then
+    printf '%s\t127\t%s\t%s\n' "$name" "$binary" "required oracle missing" >>"$results_file"
+  else
+    printf '%s\t0\t%s\t%s\n' "$name" "$binary" "bounded: oracle unavailable outside --crown mode" >>"$results_file"
+  fi
+}
+
+run_check rust-test cargo test --workspace --all-targets
+run_check rust-doctest cargo test --workspace --doc
+run_check lean-kernel lake build
+run_optional_oracle cargo-cicd-doctor cargo-cicd workspace doctor
+run_optional_oracle cargo-cicd-verify cargo-cicd verify
+run_optional_oracle praxis-law my-conforming-project law judge "$(cat praxis/observation.json)"
+run_optional_oracle praxis-lean praxis-l4 verify --root . --receipts receipts/lean.jsonl
+if command -v charon >/dev/null 2>&1 && command -v aeneas >/dev/null 2>&1; then
+  run_check aeneas-refinement bash scripts/verify-aeneas.sh
+elif [[ "$CROWN" -eq 1 ]]; then
+  printf '%s\t127\t%s\t%s\n' "aeneas-refinement" "charon+aeneas" "required reverse-verification oracles missing" >>"$results_file"
+else
+  printf '%s\t0\t%s\t%s\n' "aeneas-refinement" "charon+aeneas" "bounded: reverse extraction unavailable outside --crown mode" >>"$results_file"
+fi
+
+python3 - "$recorded_at" "$results_file" <<'PY'
+import hashlib, json, pathlib, sys
+recorded_at, results_path = sys.argv[1:]
+rows = []
+for line in pathlib.Path(results_path).read_text().splitlines():
+    name, code, tool, summary = line.split("\t", 3)
+    rows.append({"name": name, "exit_code": int(code), "tool": tool, "summary": summary})
+source_files = sorted(
+    p for base in (pathlib.Path("src"), pathlib.Path("tests"), pathlib.Path("TCPSLifecycle"), pathlib.Path("aeneas-kernel"))
+    if base.exists() for p in base.rglob("*") if p.is_file()
+)
+h = hashlib.sha256()
+for path in source_files:
+    h.update(str(path).encode())
+    h.update(path.read_bytes())
+receipt = {
+    "schema": "tcps-lifecycle-verification/v1",
+    "recorded_at": recorded_at,
+    "source_digest": h.hexdigest(),
+    "status": "pass" if all(row["exit_code"] == 0 for row in rows) else "fail",
+    "checks": rows,
+}
+pathlib.Path("receipts/verification.json").write_text(json.dumps(receipt, indent=2) + "\n")
+with pathlib.Path("evidence/checks.ttl").open("w") as out:
+    out.write("@prefix tcpsv: <http://seanchatmangpt.github.io/packs/tcps-verification#> .\n\n")
+    for row in rows:
+        safe = row["name"].replace("-", "_")
+        out.write(f"tcpsv:{safe} a tcpsv:Check ; tcpsv:exitCode {row['exit_code']} ; tcpsv:tool {json.dumps(row['tool'])} ; tcpsv:summary {json.dumps(row['summary'])} .\n")
+print(json.dumps(receipt, indent=2))
+PY
+
+python3 - <<'PY'
+import json
+receipt = json.load(open("receipts/verification.json"))
+raise SystemExit(0 if receipt["status"] == "pass" else 1)
+PY

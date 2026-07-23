@@ -1,0 +1,13 @@
+# MESSAGE: the 1000x policy is missing one of its five required structural actions
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?required WHERE {
+  VALUES ?required {
+    tcps:PartitionDemand
+    tcps:EnablePullShards
+    tcps:RequireIndependentOracle
+    tcps:RequireProofCarryingReceipts
+    tcps:StageCanaryRollback
+  }
+  FILTER NOT EXISTS { tcps:PhaseShift1000xPolicy tcps:requiredAction ?required }
+}
+ORDER BY ?required

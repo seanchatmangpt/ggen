@@ -1,0 +1,24 @@
+---
+to: deploy/production.toml
+force: true
+---
+[deployment]
+environment = "production"
+artifact_digest_from = "receipts/release.json#/artifact_digest"
+strategy = "canary"
+canary_percent = 5
+promotion_requires_green_minutes = 30
+rollback_on_error_rate_percent = 1.0
+rollback_on_receipt_gap = true
+require_workload_identity = true
+require_read_only_root = true
+require_non_root = true
+require_network_policy = true
+require_observability = true
+require_deployment_receipt = true
+
+[authorization]
+selector = "tcps-auto-select"
+authorizer = "praxis-blue-river-dam"
+executor = "enterprise-deployment-broker"
+require_distinct_actors = true

@@ -1,0 +1,12 @@
+# MESSAGE: an autonomic observer or executor cannot adjudicate its own evidence
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?policy ?worker ?judge WHERE {
+  ?policy a tcps:AutonomicPolicy ;
+          tcps:observerActor ?observer ;
+          tcps:judgeActor ?judge ;
+          tcps:executorActor ?executor .
+  VALUES ?workerProperty { tcps:observerActor tcps:executorActor }
+  ?policy ?workerProperty ?worker .
+  FILTER(?worker = ?judge)
+}
+ORDER BY ?policy ?worker

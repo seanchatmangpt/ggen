@@ -1,0 +1,11 @@
+# MESSAGE: every tcps:Stage must have exactly the facts required for deterministic lifecycle ordering
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?stage WHERE {
+  ?stage a tcps:Stage .
+  FILTER (
+    NOT EXISTS { ?stage tcps:order ?order } ||
+    NOT EXISTS { ?stage tcps:actor ?actor } ||
+    NOT EXISTS { ?stage tcps:next ?next }
+  )
+}
+ORDER BY ?stage

@@ -1,0 +1,66 @@
+name: TCPS production kernel
+
+on:
+  pull_request:
+    paths:
+      - "examples/tcps-lifecycle/src/production.rs"
+      - "examples/tcps-lifecycle/production-system/**"
+      - "examples/tcps-lifecycle/TCPSLifecycle/Production.lean"
+      - "examples/tcps-lifecycle/scripts/verify-production.sh"
+      - "examples/tcps-lifecycle/deploy/**"
+      - "examples/tcps-lifecycle/release/**"
+      - "examples/tcps-lifecycle/cicd.toml"
+      - "examples/tcps-lifecycle/ggen.toml"
+      - "examples/tcps-lifecycle/schema/**"
+      - "packs/tcps-pack/**"
+      - ".github/workflows/tcps-production.yml"
+  push:
+    branches: [main]
+    paths:
+      - "examples/tcps-lifecycle/src/production.rs"
+      - "examples/tcps-lifecycle/production-system/**"
+      - "examples/tcps-lifecycle/TCPSLifecycle/Production.lean"
+      - "examples/tcps-lifecycle/scripts/verify-production.sh"
+      - "examples/tcps-lifecycle/deploy/**"
+      - "examples/tcps-lifecycle/release/**"
+      - "examples/tcps-lifecycle/cicd.toml"
+      - "examples/tcps-lifecycle/ggen.toml"
+      - "examples/tcps-lifecycle/schema/**"
+      - "packs/tcps-pack/**"
+      - ".github/workflows/tcps-production.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  production-kernel:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/tcps-lifecycle
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.86.0"
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: examples/tcps-lifecycle
+      - name: Verify authenticated production system
+        run: bash scripts/verify-production.sh
+      - name: Refuse insecure source primitives
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path("src/production.rs").read_text()
+          forbidden = {
+              "unsafe block": "unsafe {",
+              "deserialization": "Deserialize",
+              "open adapter trait": "pub trait",
+              "debug authority key": "Debug)]\npub struct AuthorityKey",
+              "debug broker key": "Debug)]\npub struct ProductionBroker",
+          }
+          found = [name for name, token in forbidden.items() if token in source]
+          if found:
+              raise SystemExit("forbidden production primitives: " + ", ".join(found))
+          PY

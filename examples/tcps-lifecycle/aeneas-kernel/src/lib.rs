@@ -1,0 +1,94 @@
+#![forbid(unsafe_code)]
+//! Safe, sequential, dependency-free TCPS kernel for Charon/Aeneas extraction.
+
+pub const PHASE_SHIFT_MULTIPLIER: u64 = 1_000;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum State {
+    Observed,
+    Admitted,
+    Planned,
+    Authorized,
+    Receipted,
+    Stopped,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Decision {
+    Admit,
+    Plan,
+    Authorize,
+    ExecuteGreen,
+    ExecuteAbnormal,
+    RecoverUpdated,
+    RecoverUnchanged,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PhaseRegime {
+    Continuous,
+    PhaseShift1000x,
+}
+
+#[must_use]
+pub const fn step(state: State, decision: Decision) -> Option<State> {
+    match (state, decision) {
+        (State::Observed, Decision::Admit) => Some(State::Admitted),
+        (State::Admitted, Decision::Plan) => Some(State::Planned),
+        (State::Planned, Decision::Authorize) => Some(State::Authorized),
+        (State::Authorized, Decision::ExecuteGreen) => Some(State::Receipted),
+        (State::Authorized, Decision::ExecuteAbnormal) => Some(State::Stopped),
+        (State::Stopped, Decision::RecoverUpdated) => Some(State::Observed),
+        _ => None,
+    }
+}
+
+/// Pure, overflow-free regime classifier suitable for Charon/Aeneas extraction.
+#[must_use]
+pub const fn classify_phase(baseline_units: u64, observed_units: u64) -> Option<PhaseRegime> {
+    if baseline_units == 0 {
+        None
+    } else if observed_units / baseline_units >= PHASE_SHIFT_MULTIPLIER {
+        Some(PhaseRegime::PhaseShift1000x)
+    } else {
+        Some(PhaseRegime::Continuous)
+    }
+}
+
+#[must_use]
+pub const fn successful(state: State) -> bool {
+    matches!(state, State::Receipted)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{classify_phase, step, Decision, PhaseRegime, State};
+
+    #[test]
+    fn only_authorized_green_execution_receipts() {
+        assert_eq!(
+            step(State::Authorized, Decision::ExecuteGreen),
+            Some(State::Receipted)
+        );
+        assert_eq!(step(State::Observed, Decision::ExecuteGreen), None);
+    }
+
+    #[test]
+    fn unchanged_standard_cannot_restart_stopped_line() {
+        assert_eq!(step(State::Stopped, Decision::RecoverUnchanged), None);
+        assert_eq!(
+            step(State::Stopped, Decision::RecoverUpdated),
+            Some(State::Observed)
+        );
+    }
+
+    #[test]
+    fn one_thousand_is_the_exact_phase_boundary() {
+        assert_eq!(classify_phase(10, 9_999), Some(PhaseRegime::Continuous));
+        assert_eq!(
+            classify_phase(10, 10_000),
+            Some(PhaseRegime::PhaseShift1000x)
+        );
+        assert_eq!(classify_phase(0, u64::MAX), None);
+    }
+}

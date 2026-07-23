@@ -1,0 +1,42 @@
+[workspace]
+name = "tcps-lifecycle"
+toolchain = "1.86"
+target_dir = "target"
+
+[state]
+dirty = false
+target_size_gb = 0.0
+changed_files = 0
+changed_tests = 0
+changed_trybuild_fixtures = 0
+
+[target]
+max_size_gb = 5
+prune_after_days = 14
+
+[test.changed]
+enabled = true
+base = "origin/main"
+
+[trybuild.changed]
+enabled = true
+snapshot_mode = "changed-only"
+
+[git.phase]
+require_clean_tree = true
+commit_after_phase = false
+
+# cargo-cicd remains a suggest-mode worker. TCPS/Praxis own classification and
+# independent judgment; cargo-cicd never promotes its own recommendation.
+[autonomic]
+enabled = true
+mode = "suggest"
+
+[standing]
+ocel_logs = ["evidence/tcps-lifecycle.ocel.json"]
+process_validation = ["receipts/verification.json"]
+receipt_ledgers = []
+claim_tables = ["LIFECYCLE.md", "AUTONOMICS.md"]
+clients = [
+  { id = "tcps-lifecycle", path = ".", build_command = "cargo test --workspace --all-targets" },
+]

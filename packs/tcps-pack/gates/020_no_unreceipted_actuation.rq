@@ -1,0 +1,7 @@
+# MESSAGE: every actuating TCPS stage must require a receipt
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?stage WHERE {
+  ?stage a tcps:Stage ; tcps:actuates true .
+  FILTER NOT EXISTS { ?stage tcps:requiresReceipt true }
+}
+ORDER BY ?stage
