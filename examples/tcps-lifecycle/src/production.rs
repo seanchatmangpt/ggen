@@ -1,14 +1,8 @@
 //! Authenticated post-AGI production controller.
 //!
-//! The controller closes the reference system around four mathematical objects:
-//!
-//! - algebra: a typed production state vector;
-//! - geometry: an admitted convex safety region;
-//! - calculus: finite-difference rates over a typed observation window;
-//! - cryptographic protocol: keyed capabilities, replay protection, and a receipt chain.
-//!
-//! No external implementation can impersonate the broker. The concrete broker
-//! verifies authority, applies topology mutations, and manufactures the receipt.
+//! Algebra supplies the typed state vector. Geometry supplies the admitted safe
+//! region. Calculus supplies finite-difference rates. A keyed capability and
+//! chained receipt protocol supplies authority, freshness, and replay resistance.
 
 use serde::Serialize;
 use std::{collections::BTreeSet, fmt, num::NonZeroU64};
@@ -43,6 +37,15 @@ impl Digest {
         }
         Self(*hasher.finalize().as_bytes())
     }
+
+    fn framed(domain: &str, parts: &[&[u8]]) -> Self {
+        let mut hasher = blake3::Hasher::new();
+        frame(&mut hasher, domain.as_bytes());
+        for part in parts {
+            frame(&mut hasher, part);
+        }
+        Self(*hasher.finalize().as_bytes())
+    }
 }
 
 impl fmt::Display for Digest {
@@ -59,17 +62,6 @@ pub enum Unit {
     Requests,
 }
 
-impl Unit {
-    const fn tag(self) -> u8 {
-        match self {
-            Self::Changes => 1,
-            Self::Builds => 2,
-            Self::Deployments => 3,
-            Self::Requests => 4,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub struct Measurement {
     pub value: u64,
@@ -80,11 +72,7 @@ pub struct Measurement {
 impl Measurement {
     #[must_use]
     pub const fn new(value: u64, unit: Unit, window_seconds: NonZeroU64) -> Self {
-        Self {
-            value,
-            unit,
-            window_seconds,
-        }
+        Self { value, unit, window_seconds }
     }
 
     fn compatible(self, other: Self) -> bool {
@@ -108,7 +96,11 @@ pub struct RateVector {
 }
 
 impl RateVector {
-    pub fn between(previous: StateVector, current: StateVector, elapsed: NonZeroU64) -> Result<Self, Refusal> {
+    pub fn between(
+        previous: StateVector,
+        current: StateVector,
+        elapsed: NonZeroU64,
+    ) -> Result<Self, Refusal> {
         if !previous.demand.compatible(current.demand) {
             return Err(Refusal::MeasurementMismatch);
         }
@@ -150,12 +142,13 @@ pub enum Regime {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[repr(u8)]
 pub enum Action {
-    PartitionDemand,
-    EnablePullShards,
-    RequireIndependentOracle,
-    RequireProofCarryingReceipts,
-    StageCanaryRollback,
+    PartitionDemand = 1,
+    EnablePullShards = 2,
+    RequireIndependentOracle = 3,
+    RequireProofCarryingReceipts = 4,
+    StageCanaryRollback = 5,
 }
 
 const PHASE_SHIFT_ACTIONS: [Action; MAX_ACTIONS] = [
@@ -193,18 +186,17 @@ impl Default for Topology {
 
 impl Topology {
     fn digest(&self) -> Digest {
-        Digest::from_bytes(
-            format!(
-                "{}:{}:{}:{}:{}:{}:{}",
-                self.generation,
-                self.shards,
-                self.pull_enabled,
-                self.independent_oracle_required,
-                self.proof_receipts_required,
-                self.canary_percent,
-                self.rollback_armed
-            )
-            .as_bytes(),
+        Digest::framed(
+            "tcps-topology/v1",
+            &[
+                &self.generation.to_le_bytes(),
+                &self.shards.to_le_bytes(),
+                &[self.pull_enabled as u8],
+                &[self.independent_oracle_required as u8],
+                &[self.proof_receipts_required as u8],
+                &[self.canary_percent],
+                &[self.rollback_armed as u8],
+            ],
         )
     }
 }
@@ -223,22 +215,15 @@ pub struct Plan {
 
 impl Plan {
     #[must_use]
-    pub fn regime(&self) -> Regime {
-        self.regime
-    }
+    pub const fn regime(&self) -> Regime { self.regime }
 
     #[must_use]
-    pub fn actions(&self) -> &[Action] {
-        &self.actions
-    }
+    pub fn actions(&self) -> &[Action] { &self.actions }
 
     #[must_use]
-    pub fn target_topology(&self) -> &Topology {
-        &self.target_topology
-    }
+    pub fn target_topology(&self) -> &Topology { &self.target_topology }
 }
 
-#[derive(Clone, Debug)]
 pub struct AuthorityKey {
     id: String,
     key: [u8; 32],
@@ -251,16 +236,11 @@ impl AuthorityKey {
         let mut hasher = blake3::Hasher::new_derive_key("tcps-authority-key/v1");
         frame(&mut hasher, id.as_bytes());
         frame(&mut hasher, secret);
-        Self {
-            id,
-            key: *hasher.finalize().as_bytes(),
-        }
+        Self { id, key: *hasher.finalize().as_bytes() }
     }
 
     #[must_use]
-    pub fn id(&self) -> &str {
-        &self.id
-    }
+    pub fn id(&self) -> &str { &self.id }
 
     pub fn authorize(
         &self,
@@ -280,16 +260,6 @@ impl AuthorityKey {
         if expires_at_epoch < epoch {
             return Err(Refusal::ExpiredCapability);
         }
-        let mac = capability_mac(
-            &self.key,
-            plan.plan_digest,
-            selector,
-            &self.id,
-            executor,
-            nonce,
-            epoch,
-            expires_at_epoch,
-        );
         Ok(Capability {
             plan_digest: plan.plan_digest,
             selector: selector.to_owned(),
@@ -298,7 +268,16 @@ impl AuthorityKey {
             nonce,
             epoch,
             expires_at_epoch,
-            mac,
+            mac: capability_mac(
+                &self.key,
+                plan.plan_digest,
+                selector,
+                &self.id,
+                executor,
+                nonce,
+                epoch,
+                expires_at_epoch,
+            ),
         })
     }
 }
@@ -318,6 +297,8 @@ pub struct Capability {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct ProductionReceipt {
     pub cycle_id: String,
+    pub source_digest: Digest,
+    pub knowledge_digest: Digest,
     pub plan_digest: Digest,
     pub previous_receipt: Digest,
     pub topology_before: Digest,
@@ -335,6 +316,8 @@ pub enum Refusal {
     ZeroBaseline,
     MeasurementMismatch,
     UnsafeGeometry,
+    MissingSource,
+    MissingKnowledge,
     EmptyActor,
     AuthorityCollapse,
     ExpiredCapability,
@@ -352,6 +335,8 @@ impl fmt::Display for Refusal {
             Self::ZeroBaseline => "baseline must be non-zero",
             Self::MeasurementMismatch => "measurements must use the same unit and window",
             Self::UnsafeGeometry => "state vector or derivative lies outside the admitted safe region",
+            Self::MissingSource => "source digest must be non-zero",
+            Self::MissingKnowledge => "knowledge digest must be non-zero",
             Self::EmptyActor => "all authority identities must be non-empty",
             Self::AuthorityCollapse => "selection, authorization, and execution must be distinct",
             Self::ExpiredCapability => "capability is expired",
@@ -367,7 +352,6 @@ impl fmt::Display for Refusal {
 
 impl std::error::Error for Refusal {}
 
-#[derive(Debug)]
 pub struct ProductionBroker {
     id: String,
     authority_id: String,
@@ -400,14 +384,10 @@ impl ProductionBroker {
     }
 
     #[must_use]
-    pub fn topology(&self) -> &Topology {
-        &self.topology
-    }
+    pub fn topology(&self) -> &Topology { &self.topology }
 
     #[must_use]
-    pub fn last_receipt(&self) -> Digest {
-        self.last_receipt
-    }
+    pub const fn last_receipt(&self) -> Digest { self.last_receipt }
 
     pub fn plan(
         &self,
@@ -419,12 +399,10 @@ impl ProductionBroker {
         knowledge_digest: Digest,
     ) -> Result<Plan, Refusal> {
         let cycle_id = cycle_id.into();
-        if cycle_id.is_empty() {
-            return Err(Refusal::EmptyCycle);
-        }
-        if baseline.demand.value == 0 {
-            return Err(Refusal::ZeroBaseline);
-        }
+        if cycle_id.is_empty() { return Err(Refusal::EmptyCycle); }
+        if baseline.demand.value == 0 { return Err(Refusal::ZeroBaseline); }
+        if source_digest == Digest::zero() { return Err(Refusal::MissingSource); }
+        if knowledge_digest == Digest::zero() { return Err(Refusal::MissingKnowledge); }
         if !baseline.demand.compatible(observed.demand) {
             return Err(Refusal::MeasurementMismatch);
         }
@@ -468,25 +446,19 @@ impl ProductionBroker {
         capability: Capability,
         current_epoch: u64,
     ) -> Result<ProductionReceipt, Refusal> {
-        if capability.executor != self.id {
-            return Err(Refusal::WrongExecutor);
-        }
-        if capability.authorizer != self.authority_id {
-            return Err(Refusal::InvalidCapability);
-        }
+        if capability.executor != self.id { return Err(Refusal::WrongExecutor); }
+        if capability.authorizer != self.authority_id { return Err(Refusal::InvalidCapability); }
         if capability.expires_at_epoch < current_epoch || capability.epoch > current_epoch {
             return Err(Refusal::ExpiredCapability);
         }
-        if capability.plan_digest != plan.plan_digest {
-            return Err(Refusal::InvalidCapability);
-        }
+        if capability.plan_digest != plan.plan_digest { return Err(Refusal::InvalidCapability); }
         if capability.selector == capability.authorizer
             || capability.selector == capability.executor
             || capability.authorizer == capability.executor
         {
             return Err(Refusal::AuthorityCollapse);
         }
-        let expected = capability_mac(
+        if capability_mac(
             &self.authority_key,
             capability.plan_digest,
             &capability.selector,
@@ -495,16 +467,12 @@ impl ProductionBroker {
             capability.nonce,
             capability.epoch,
             capability.expires_at_epoch,
-        );
-        if expected != capability.mac {
+        ) != capability.mac
+        {
             return Err(Refusal::InvalidCapability);
         }
-        if self.consumed_nonces.contains(&capability.nonce) {
-            return Err(Refusal::Replay);
-        }
-        if plan.previous_receipt != self.last_receipt {
-            return Err(Refusal::BrokenReceiptChain);
-        }
+        if self.consumed_nonces.contains(&capability.nonce) { return Err(Refusal::Replay); }
+        if plan.previous_receipt != self.last_receipt { return Err(Refusal::BrokenReceiptChain); }
         validate_plan(&plan, &self.topology)?;
 
         let topology_before = self.topology.digest();
@@ -516,6 +484,8 @@ impl ProductionBroker {
             "tcps-production-receipt/v1",
             &[
                 plan.cycle_id.as_bytes(),
+                &plan.source_digest.0,
+                &plan.knowledge_digest.0,
                 &plan.plan_digest.0,
                 &plan.previous_receipt.0,
                 &topology_before.0,
@@ -530,6 +500,8 @@ impl ProductionBroker {
         self.last_receipt = receipt_digest;
         Ok(ProductionReceipt {
             cycle_id: plan.cycle_id,
+            source_digest: plan.source_digest,
+            knowledge_digest: plan.knowledge_digest,
             plan_digest: plan.plan_digest,
             previous_receipt: plan.previous_receipt,
             topology_before,
@@ -570,9 +542,7 @@ fn validate_plan(plan: &Plan, current: &Topology) -> Result<(), Refusal> {
         Regime::Continuous => &[],
         Regime::PhaseShift1000x => &PHASE_SHIFT_ACTIONS,
     };
-    if plan.actions.as_slice() != canonical_actions {
-        return Err(Refusal::InvalidPlan);
-    }
+    if plan.actions.as_slice() != canonical_actions { return Err(Refusal::InvalidPlan); }
     if plan.regime == Regime::Continuous && &plan.target_topology != current {
         return Err(Refusal::InvalidPlan);
     }
@@ -623,20 +593,20 @@ fn plan_digest(
     previous_receipt: Digest,
     target_topology: Digest,
 ) -> Digest {
-    let mut bytes = Vec::new();
-    bytes.extend_from_slice(cycle_id.as_bytes());
-    bytes.push(match regime {
-        Regime::Continuous => 0,
-        Regime::PhaseShift1000x => 1,
-    });
-    for action in actions {
-        bytes.push(*action as u8);
-    }
-    bytes.extend_from_slice(&source_digest.0);
-    bytes.extend_from_slice(&knowledge_digest.0);
-    bytes.extend_from_slice(&previous_receipt.0);
-    bytes.extend_from_slice(&target_topology.0);
-    Digest::from_bytes(&bytes)
+    let regime_byte = [match regime { Regime::Continuous => 0, Regime::PhaseShift1000x => 1 }];
+    let action_bytes = actions.iter().map(|action| *action as u8).collect::<Vec<_>>();
+    Digest::framed(
+        "tcps-production-plan/v1",
+        &[
+            cycle_id.as_bytes(),
+            &regime_byte,
+            &action_bytes,
+            &source_digest.0,
+            &knowledge_digest.0,
+            &previous_receipt.0,
+            &target_topology.0,
+        ],
+    )
 }
 
 fn delta(previous: u64, current: u64) -> i128 {
