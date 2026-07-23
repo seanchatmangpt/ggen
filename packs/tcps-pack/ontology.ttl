@@ -28,7 +28,7 @@ tcps:executeActor a rdf:Property .
 tcps:Observe a tcps:Stage ; tcps:order 10 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Admit ; tcps:actuates false ; tcps:requiresReceipt false .
 tcps:Admit a tcps:Stage ; tcps:order 20 ; tcps:actor "praxis" ; tcps:next tcps:Project ; tcps:actuates false ; tcps:requiresReceipt true .
 tcps:Project a tcps:Stage ; tcps:order 30 ; tcps:actor "ggen" ; tcps:next tcps:Verify ; tcps:actuates true ; tcps:requiresReceipt true .
-tcps:Verify a tcps:Stage ; tcps:order 40 ; tcps:actor "cargo-cicd+Lean+praxis-l4" ; tcps:next tcps:Authorize ; tcps:actuates false ; tcps:requiresReceipt true .
+tcps:Verify a tcps:Stage ; tcps:order 40 ; tcps:actor "cargo-cicd+Lean+praxis-l4+Aeneas" ; tcps:next tcps:Authorize ; tcps:actuates false ; tcps:requiresReceipt true .
 tcps:Authorize a tcps:Stage ; tcps:order 50 ; tcps:actor "praxis-blue-river-dam" ; tcps:next tcps:Execute ; tcps:actuates false ; tcps:requiresReceipt true .
 tcps:Execute a tcps:Stage ; tcps:order 60 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Release ; tcps:actuates true ; tcps:requiresReceipt true .
 tcps:Release a tcps:Stage ; tcps:order 70 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Deploy ; tcps:actuates true ; tcps:requiresReceipt true .
@@ -39,15 +39,20 @@ tcps:NoUnreceiptedActuation a tcps:Invariant ; rdfs:label "Every actuation atomi
 tcps:NoRestartWithoutUpdatedStandard a tcps:Invariant ; rdfs:label "A stopped line returns to observation only with updated standard work." .
 tcps:SeparateSelectAuthorizeExecute a tcps:Invariant ; rdfs:label "Selection, authorization, and execution are distinct authorities." .
 tcps:PullBeforeProduction a tcps:Invariant ; rdfs:label "Positive downstream demand is required before admission." .
+tcps:AffineAuthorization a tcps:Invariant ; rdfs:label "Authorization capabilities are neither Clone nor Copy." .
 
 tcps:RustLibrary a tcps:ProjectionArtifact ; tcps:projectionPath "src/lib.rs" .
 tcps:RustBinary a tcps:ProjectionArtifact ; tcps:projectionPath "src/main.rs" .
 tcps:RustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/lifecycle.rs" .
+tcps:AeneasKernelManifest a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/Cargo.toml" .
+tcps:AeneasKernel a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/src/lib.rs" .
 tcps:LeanLaw a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Basic.lean" .
+tcps:LeanRefinementTarget a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Refinement.lean" .
 tcps:CargoManifest a tcps:ProjectionArtifact ; tcps:projectionPath "Cargo.toml" .
 tcps:CargoCicdPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "cicd.toml" .
 tcps:PraxisObservation a tcps:ProjectionArtifact ; tcps:projectionPath "praxis/observation.json" .
 tcps:ReleasePolicy a tcps:ProjectionArtifact ; tcps:projectionPath "release/release.toml" .
 tcps:DeploymentPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "deploy/production.toml" .
 tcps:VerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify.sh" .
+tcps:AeneasVerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify-aeneas.sh" .
 tcps:LifecycleDocument a tcps:ProjectionArtifact ; tcps:projectionPath "LIFECYCLE.md" .
