@@ -74,7 +74,7 @@ theorem Execution.run_eq {system : TransitionSystem State Action}
 execution. This closes the converse direction of `Execution.run_eq`: replay
 receipts are not merely inspectable after construction; they are recoverable
 from every admitted successful run. -/
-theorem Execution.of_run_eq {system : TransitionSystem State Action}
+def Execution.of_run_eq {system : TransitionSystem State Action}
     {state final : State} {word : List Action}
     (runResult : system.run state word = some final) :
     Execution system state word final := by
@@ -139,7 +139,7 @@ theorem successful_replay_iff (certificate : DiamondCertificate system I)
 /-- A proof-relevant execution can be replayed through any admitted trace
 commutation. The resulting derivation contains the transition receipts for the
 new serialization and retains the exact final state. -/
-theorem transport_execution (certificate : DiamondCertificate system I)
+def transport_execution (certificate : DiamondCertificate system I)
     {state final : State} {left right : List Action}
     (equivalent : TraceEq I left right)
     (execution : TransitionSystem.Execution system state left final) :

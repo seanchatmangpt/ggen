@@ -132,7 +132,9 @@ def additiveCertificate :
 
 /-- Explicit standing receipt: every semantic component is active. -/
 def additiveBoundaryReceipt : SemanticBoundaryReceipt additiveSemantics where
-  goal := .active 4 rfl 5 (by decide)
+  goal := .active 4 rfl 5 (by
+    change ¬(5 : Nat) = 4
+    decide)
   preconditions := .active [1, 3]
     (by
       change (4 : Nat) ≤ 10
@@ -227,7 +229,7 @@ theorem additive_swapped_lawful : additiveSemantics.Lawful [3, 1] :=
     additive_trace_swap additive_anchor_lawful
 
 /-- The proof-relevant execution receipt also transports to the swapped word. -/
-theorem additive_swapped_execution :
+def additive_swapped_execution :
     TransitionSystem.Execution additiveSystem 0 [3, 1] 4 := by
   have original : TransitionSystem.Execution additiveSystem 0 [1, 3] 4 :=
     TransitionSystem.Execution.of_run_eq (by decide)
