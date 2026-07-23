@@ -67,6 +67,33 @@ jobs:
               >> tcps-generated-validation.log 2>&1 || status=$?
           fi
 
+          # Emit exact source-to-consumer deltas for every currently refused
+          # manifest binding. This is diagnostic evidence only: diff status never
+          # changes the test outcome and cannot convert a refusal into acceptance.
+          reference_root="packs/tcps-core-pack/reference/製品版"
+          while IFS='|' read -r identity generated reference; do
+            [ -n "$identity" ] || continue
+            {
+              printf '\n===== DERIVATIVE DIFF %s =====\n' "$identity"
+              diff -u \
+                "$reference_root/$reference" \
+                "examples/tcps-generated/$generated" || true
+            } >> tcps-generated-validation.log 2>&1
+          done <<'DERIVATIVES'
+          runtime.std|crates/tcps-std/src/lib.rs|crates/tcps-std/src/lib.rs
+          runtime.wasm|crates/tcps-wasm/src/lib.rs|crates/tcps-wasm/src/lib.rs
+          runtime.cli|crates/tcps-cli/src/main.rs|crates/tcps-cli/src/main.rs
+          release.ci|infra/ci/tier1.yml|.github/workflows/tier1.yml
+          release.targets|infra/targets/tier1.txt|targets/tier1.txt
+          release.packaging.deb|infra/packaging/deb/control.in|packaging/deb/control.in
+          release.packaging.rpm|infra/packaging/rpm/tcps.spec.in|packaging/rpm/tcps.spec.in
+          release.packaging.npm|infra/packaging/npm/package.json.in|packaging/npm/package.json.in
+          release.packaging.nuget|infra/packaging/nuget/tcps.nuspec.in|packaging/nuget/tcps.nuspec.in
+          evidence.sbom.cyclonedx|infra/evidence/source/tcps-v26.7.19.cdx.json|evidence/source/tcps-v26.7.19.cdx.json
+          evidence.sbom.spdx|infra/evidence/source/tcps-v26.7.19.spdx.json|evidence/source/tcps-v26.7.19.spdx.json
+          evidence.provenance.in-toto|infra/evidence/source/tcps-v26.7.19.intoto.jsonl|evidence/source/tcps-v26.7.19.intoto.jsonl
+          DERIVATIVES
+
           tar -czf tcps-formatted-validation-sources.tar.gz \
             examples/tcps-generated/tests
 
