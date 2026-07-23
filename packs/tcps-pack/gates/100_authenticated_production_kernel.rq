@@ -1,0 +1,14 @@
+# MESSAGE: the production kernel must authenticate authority, expire and consume capabilities, chain receipts, and apply topology
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?kernel WHERE {
+  ?kernel a tcps:ProductionKernelPolicy .
+  FILTER (
+    NOT EXISTS { ?kernel tcps:authenticatedAuthority true } ||
+    NOT EXISTS { ?kernel tcps:replayProtection true } ||
+    NOT EXISTS { ?kernel tcps:receiptChain true } ||
+    NOT EXISTS { ?kernel tcps:capabilityExpiry true } ||
+    NOT EXISTS { ?kernel tcps:appliesTopology true } ||
+    NOT EXISTS { ?kernel tcps:requiresReceipt true }
+  )
+}
+ORDER BY ?kernel
