@@ -70,6 +70,29 @@ theorem Execution.run_eq {system : TransitionSystem State Action}
   | cons receipt tail ih =>
       simp [run, receipt, ih]
 
+/-- Every successful deterministic replay can be reified as a proof-relevant
+execution. This closes the converse direction of `Execution.run_eq`: replay
+receipts are not merely inspectable after construction; they are recoverable
+from every admitted successful run. -/
+theorem Execution.of_run_eq {system : TransitionSystem State Action}
+    {state final : State} {word : List Action}
+    (runResult : system.run state word = some final) :
+    Execution system state word final := by
+  induction word generalizing state with
+  | nil =>
+      have stateEq : state = final := by
+        simpa using runResult
+      subst final
+      exact .nil state
+  | cons action rest ih =>
+      simp only [run_cons] at runResult
+      cases stepResult : system.step state action with
+      | none =>
+          simp [stepResult] at runResult
+      | some next =>
+          simp [stepResult] at runResult
+          exact .cons stepResult (ih runResult)
+
 end TransitionSystem
 
 /-- Operational commutation tied directly to replay. -/
@@ -112,6 +135,19 @@ theorem successful_replay_iff (certificate : DiamondCertificate system I)
     (equivalent : TraceEq I left right) :
     system.run state left = some final ↔ system.run state right = some final := by
   rw [certificate.run_trace_eq state equivalent]
+
+/-- A proof-relevant execution can be replayed through any admitted trace
+commutation. The resulting derivation contains the transition receipts for the
+new serialization and retains the exact final state. -/
+theorem transport_execution (certificate : DiamondCertificate system I)
+    {state final : State} {left right : List Action}
+    (equivalent : TraceEq I left right)
+    (execution : TransitionSystem.Execution system state left final) :
+    TransitionSystem.Execution system state right final := by
+  apply TransitionSystem.Execution.of_run_eq
+  exact
+    (certificate.successful_replay_iff state final equivalent).mp
+      execution.run_eq
 
 end DiamondCertificate
 
