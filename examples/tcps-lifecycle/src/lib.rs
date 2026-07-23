@@ -12,6 +12,8 @@
 //! observed.execute(&mut executor); // no method on ProductionLine<Observed>
 //! ```
 
+pub use tcps_aeneas_kernel as aeneas_kernel;
+
 use serde::{Deserialize, Serialize};
 use std::{fmt, marker::PhantomData};
 
@@ -79,7 +81,7 @@ pub struct ProductionPlan {
     pub plan_digest: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Authorization {
     pub plan_digest: String,
     pub approver: String,
@@ -250,7 +252,7 @@ impl WorkcellExecutor for ReferenceCargoCicdExecutor {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct ProductionLine<State> {
     observation: Observation,
     admission: Option<AdmissionReceipt>,
