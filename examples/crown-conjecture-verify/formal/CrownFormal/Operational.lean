@@ -87,16 +87,16 @@ theorem run_trace_eq (certificate : DiamondCertificate system I)
     system.run state left = system.run state right := by
   induction equivalent with
   | refl word => rfl
-  | swap prefix a b suffix independent =>
+  | swap pre a b suf independent =>
       simp only [List.append_assoc]
-      rw [system.run_append state prefix ([a, b] ++ suffix)]
-      rw [system.run_append state prefix ([b, a] ++ suffix)]
-      cases prefixRun : system.run state prefix with
-      | none => simp [prefixRun]
+      rw [system.run_append state pre ([a, b] ++ suf)]
+      rw [system.run_append state pre ([b, a] ++ suf)]
+      cases preRun : system.run state pre with
+      | none => simp [preRun]
       | some middle =>
-          simp only [prefixRun, Option.bind_some]
-          rw [system.run_append middle [a, b] suffix]
-          rw [system.run_append middle [b, a] suffix]
+          simp only [preRun, Option.bind_some]
+          rw [system.run_append middle [a, b] suf]
+          rw [system.run_append middle [b, a] suf]
           rw [certificate.commute middle a b independent]
   | symm h ih => exact ih.symm
   | trans h₁ h₂ ih₁ ih₂ => exact ih₁.trans ih₂
