@@ -247,6 +247,86 @@ under this session's operating rules, the same category as AP-001/AP-002/AP-004.
 attempted `gh secret set` or requested/generated a token value. Written for the user's review;
 requires the user to supply the actual PAT value before this can be executed.
 
+## AP-006 — Choose the `verifier_identity` trust model for `PromotionWitness` (standing-ceiling promotion)
+
+**Different gate class from AP-001/002/004/005 above**: those four are GitHub repo-settings/
+secret mutations blocked by this session's "not authorized without an explicit `!`" list. This
+one isn't a GitHub mutation at all — it's an internal code-wiring decision blocked by
+`DESIGN_UNCERTAINTY_LAW`'s own carve-out: "who holds authority to vouch for a promotion witness
+in production" is genuine external business intent, not derivable from repository law. It's
+recorded here, in the same ledger, because it's the same shape of problem (an agent should not
+guess, and should not silently stay stuck): a real, fully-specified decision point, packaged
+once, non-blocking to everything else.
+
+- **Background**: `retrofit:StandingCeilingHardcoded` (`.tcps/retrofit/ggen/load-path.ttl`)
+  tracks that `praxis_core::receipt_epoch::compute_ceiling` computes
+  `recoverable(prev).min(supported(components))` every generation, and `recoverable(prev) =
+  prev` by explicit design (`receipt_epoch.rs:173-176`) — once a generation's ceiling reads
+  `LegacyObserved` it can never rise again via the normal meet path. The escape hatch,
+  `PromotionWitness` (`crates/praxis-core/src/receipt_epoch.rs:492-518`) +
+  `validate_promotion()` + `ReceiptEpochV2Builder::with_verified_promotion()`, is fully
+  implemented and tested (8 passing tests: valid promotion, self-authored refusal — checked at
+  `receipt_epoch.rs:571`, `witness.verifier_identity == actuator_identity` is refused — stale/
+  non-raising/empty-field refusals, no-regression on normal generations). It is deliberately
+  **not** wired into `crates/ggen-engine/src/sync.rs`'s production builder chain — confirmed
+  still true: line 2475-2480 calls plain `.build()`, never `.with_verified_promotion(witness)`.
+  What's missing isn't code; it's an answer to *where does a real `verifier_identity` value come
+  from in ggen's own autonomous self-retrofit loop*.
+- **The decision**: which of the following (or another design) should produce and vouch for a
+  `PromotionWitness` when a generation's obligations close and the ceiling is eligible to rise:
+  - **Design A — human-authored witness file.** A human manually authors/commits a
+    `promotion-witness.json` (or TOML) at a fixed path; `sync.rs`'s production path reads it if
+    present and its `to_ceiling` is eligible, calls `.with_verified_promotion()`, else falls back
+    to the existing unwitnessed `.build()`. Smallest possible change to `sync.rs` (one
+    conditional file read). `verifier_identity` is a real, accountable human name/handle.
+    Downside: doesn't scale with the autonomous retrofit loop's own cadence — a human must
+    remember to author this file every time a generation actually closes.
+  - **Design B — independent CI/service-identity auto-promotion.** A second CI job (or a
+    distinct bot/service account, structurally a different actuator identity from the main sync
+    run) independently re-reads `.tcps/retrofit/ggen/controller/obligations.ttl` and
+    `.ggen-v2/receipt-log.jsonl`, and if all of a generation's obligations are genuinely
+    `CLOSED`, authors and commits a `PromotionWitness` with `verifier_identity` set to that
+    distinct identity. Satisfies the self-vouching refusal structurally (different token/account
+    than the actuator). Fully autonomous, no human toil. Downside: raises the real question of
+    whether a second layer of the same automation is meaningfully "external" verification for
+    something as consequential as raising an autonomous self-generation system's own trust
+    ceiling — this is exactly the kind of call this packet exists to *not* make unilaterally.
+  - **Design C — CI proposes, human PR-merge is the verifier signal.** A CI job assembles the
+    candidate `PromotionWitness` (same obligation/receipt-log check as Design B) and opens a PR
+    containing it rather than auto-committing; a human's PR review-and-merge *is* the
+    `verifier_identity` signal (captured from the merge-commit author), with `authorization_basis`
+    citing the specific PR/generation. This mirrors the exact human-in-the-loop, PR-merge-as-
+    approval pattern this session already uses for every other retrofit PR in this repo — no new
+    trust primitive, just the existing one applied to this one additional case. Smallest design
+    that preserves already-lawful, already-exercised behavior in this repo, which is why it's the
+    one this packet recommends if no other constraint applies — but the actual choice is the
+    user's, since it fixes who is accountable for raising ggen's own ceiling, a real business
+    decision this session cannot derive from code or evidence alone.
+- **Plan hash**: not computed — this packet requests a design *choice*, not a specific mutation
+  with a fixed desired-state payload to hash against. Once a design is chosen, the resulting
+  `sync.rs` change is a normal, reviewable code PR through this session's existing merge
+  criteria (no `!` needed for that follow-on implementation PR itself).
+- **Creates / Updates / Deletes**: nothing yet — no design has been implemented against
+  production. Once chosen, the follow-on PR creates one new conditional branch in `sync.rs`'s
+  builder chain (plus, for Design B/C, one new CI job) and touches no other lawful behavior;
+  the unwitnessed `.build()` path remains the default whenever no valid witness is present, so
+  the change is strictly additive to the existing (already-correct) refusal-by-default behavior.
+- **Rollback**: reverting the follow-on `sync.rs` PR restores the current unwitnessed-only state
+  exactly; `PromotionWitness`/`validate_promotion` themselves are unaffected either way (already
+  merged, already tested, inert until wired in).
+- **Post-checks**: once implemented, a real promotion against a generation with genuinely closed
+  obligations should be observed to raise `.ggen-v2/receipt.json`'s ceiling exactly once, with
+  the witness's `verifier_identity`/`authorization_basis` visible in the receipt; a sabotage
+  case (self-authored or stale witness) should be observed to be refused with the existing,
+  already-tested error paths.
+- **Receipt path**: none written — no design has been chosen or implemented against production.
+
+**Non-actuation**: this packet requests a trust-model design decision, not an infrastructure
+mutation — no agent has picked a design or modified `sync.rs`'s production builder chain. All
+three designs above are fully specified so the user can approve one (or propose a fourth)
+without this session needing to guess an accountability structure for its own self-generation
+ceiling.
+
 ## AP-007 — Add a tag-protection ruleset to `seanchatmangpt/ggen` (ReleasePath leg of `retrofit:CrossCuttingSingleAdmin`)
 
 - **Operation**: `gh api -X POST repos/seanchatmangpt/ggen/rulesets` creating a new ruleset,
