@@ -6,4 +6,3 @@ Architecture: @ARCH@
 Maintainer: Sean Chatman
 Description: Toyota Code Production System Rust library and CLI
  Japanese canonical domain model with Rust production lifecycle tooling.
-
