@@ -1,3 +1,6 @@
 #![forbid(unsafe_code)]
 
-include!("../../src/production.rs");
+#[path = "../../src/production.rs"]
+mod kernel;
+
+pub use kernel::*;
