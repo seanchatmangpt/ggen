@@ -1,0 +1,64 @@
+PREFIX gpp: <https://ggen.dev/ns/part-passport#>
+
+SELECT
+  ?part_id ?family ?version ?manufacturer
+  ?artifact_digest ?source_graph_digest ?build_receipt ?batch_id
+  ?input_representation ?input_schema ?protocol_minimum ?protocol_maximum
+  ?max_payload_bytes ?clock ?max_events_per_second ?timeout_semantics ?wall_clock_access
+  ?output_representation ?output_schema ?artifact_type
+  ?deterministic_serialization ?receipt_required ?max_artifacts
+  ?max_memory_pages ?max_fuel ?max_execution_ms ?max_queue_depth ?max_concurrency ?ambient_io
+  ?isolation ?lifecycle_state ?policy_version ?revoke_credentials ?preserve_receipts
+  ?migration_target ?disposal_instructions
+WHERE {
+  ?passport a gpp:PartPassport ;
+      gpp:partId ?part_id ;
+      gpp:family ?family ;
+      gpp:partVersion ?version ;
+      gpp:manufacturer ?manufacturer ;
+      gpp:artifactDigest ?artifact_digest ;
+      gpp:sourceGraphDigest ?source_graph_digest ;
+      gpp:buildReceipt ?build_receipt ;
+      gpp:inputEnvelope ?input ;
+      gpp:outputContract ?output ;
+      gpp:resourceEnvelope ?resources ;
+      gpp:isolationClass ?isolation_iri ;
+      gpp:lifecyclePolicy ?lifecycle .
+
+  OPTIONAL { ?passport gpp:batchId ?batch_id . }
+
+  ?input gpp:representation ?input_representation ;
+      gpp:schema ?input_schema ;
+      gpp:minimumProtocol ?protocol_minimum ;
+      gpp:maximumProtocol ?protocol_maximum ;
+      gpp:maxPayloadBytes ?max_payload_bytes ;
+      gpp:clockDiscipline ?clock ;
+      gpp:maxEventsPerSecond ?max_events_per_second ;
+      gpp:timeoutSemantics ?timeout_semantics ;
+      gpp:wallClockAccess ?wall_clock_access .
+
+  ?output gpp:representation ?output_representation ;
+      gpp:schema ?output_schema ;
+      gpp:artifactType ?artifact_type ;
+      gpp:deterministicSerialization ?deterministic_serialization ;
+      gpp:receiptRequired ?receipt_required ;
+      gpp:maxArtifacts ?max_artifacts .
+
+  ?resources gpp:maxMemoryPages ?max_memory_pages ;
+      gpp:maxFuel ?max_fuel ;
+      gpp:maxExecutionMilliseconds ?max_execution_ms ;
+      gpp:maxQueueDepth ?max_queue_depth ;
+      gpp:maxConcurrency ?max_concurrency ;
+      gpp:ambientIo ?ambient_io .
+
+  ?lifecycle gpp:lifecycleState ?lifecycle_iri ;
+      gpp:policyVersion ?policy_version ;
+      gpp:revokeCredentials ?revoke_credentials ;
+      gpp:preserveReceipts ?preserve_receipts ;
+      gpp:disposalInstructions ?disposal_instructions .
+  OPTIONAL { ?lifecycle gpp:migrationTarget ?migration_target . }
+
+  BIND(REPLACE(STR(?isolation_iri), "^https://ggen.dev/ns/part-passport#", "") AS ?isolation)
+  BIND(REPLACE(STR(?lifecycle_iri), "^https://ggen.dev/ns/part-passport#", "") AS ?lifecycle_state)
+}
+ORDER BY ?part_id
