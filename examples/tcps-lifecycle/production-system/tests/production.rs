@@ -1,8 +1,9 @@
-use std::num::NonZeroU64;
+use std::{fs, num::NonZeroU64};
 use tcps_production::{
-    AuthorityKey, Digest, Measurement, ProductionBroker, RateVector, Refusal, Regime, SafeRegion,
-    StateVector, Unit,
+    AuthorityKey, BrokerKey, Digest, Measurement, ProductionBroker, RateVector, Refusal, Regime,
+    SafeRegion, StateVector, Unit,
 };
+use tempfile::tempdir;
 
 fn measurement(value: u64) -> Measurement {
     Measurement::new(value, Unit::Builds, NonZeroU64::new(60).expect("non-zero"))
@@ -27,30 +28,45 @@ fn region() -> SafeRegion {
     }
 }
 
-fn broker() -> (AuthorityKey, ProductionBroker) {
-    let authority = AuthorityKey::derive("praxis", b"production-secret-v1");
-    let broker = ProductionBroker::new("enterprise-deployment-broker", &authority, region())
-        .expect("broker");
-    (authority, broker)
+fn system() -> (AuthorityKey, BrokerKey, ProductionBroker) {
+    let authority = AuthorityKey::derive("praxis", b"production-authority-secret-v1")
+        .expect("authority");
+    let broker_key = BrokerKey::derive(
+        "enterprise-deployment-broker",
+        b"production-broker-secret-v1",
+    )
+    .expect("broker key");
+    let broker = ProductionBroker::new(
+        &broker_key,
+        authority.id(),
+        authority.public_key(),
+        region(),
+    )
+    .expect("broker");
+    (authority, broker_key, broker)
 }
 
-#[test]
-fn algebra_geometry_and_calculus_admit_exact_phase_shift() {
-    let (authority, mut broker) = broker();
+fn phase_plan(broker: &ProductionBroker, cycle: &str) -> tcps_production::Plan {
     let baseline = state(1);
     let observed = state(1_000);
     let rate = RateVector::between(baseline, observed, NonZeroU64::new(60).unwrap())
         .expect("rate");
-    let plan = broker
+    broker
         .plan(
-            "cycle-1",
+            cycle,
             baseline,
             observed,
             rate,
             Digest::from_bytes(b"source"),
             Digest::from_bytes(b"knowledge"),
         )
-        .expect("plan");
+        .expect("plan")
+}
+
+#[test]
+fn algebra_geometry_calculus_and_effect_form_one_receipted_actuation() {
+    let (authority, broker_key, mut broker) = system();
+    let plan = phase_plan(&broker, "cycle-1");
     assert_eq!(plan.regime(), Regime::PhaseShift1000x);
     assert_eq!(plan.actions().len(), 5);
     assert!(plan.target_topology().pull_enabled);
@@ -60,121 +76,104 @@ fn algebra_geometry_and_calculus_admit_exact_phase_shift() {
         .authorize(
             &plan,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             7,
             10,
             11,
         )
         .expect("capability");
-    let receipt = broker.execute(plan, capability, 10).expect("execute");
+    let directory = tempdir().unwrap();
+    let desired_state = directory.path().join("production-state.txt");
+    let receipt = broker
+        .execute_to_path(plan, capability, 10, &desired_state)
+        .expect("execute");
+
+    assert!(desired_state.is_file());
+    let state_text = fs::read_to_string(&desired_state).unwrap();
+    assert!(state_text.contains("pull_enabled=true"));
+    assert!(state_text.contains("rollback_armed=true"));
     assert_eq!(receipt.previous_receipt, Digest::zero());
     assert_eq!(broker.last_receipt(), receipt.receipt_digest);
     assert!(broker.topology().proof_receipts_required);
-    assert_eq!(broker.topology().canary_percent, 5);
+    receipt.verify(broker_key.public_key()).expect("broker signature");
 }
 
 #[test]
 fn replayed_capability_is_refused() {
-    let (authority, mut broker) = broker();
-    let baseline = state(1);
-    let observed = state(1_000);
-    let rate = RateVector::between(baseline, observed, NonZeroU64::new(60).unwrap()).unwrap();
-    let plan = broker
-        .plan(
-            "cycle-replay",
-            baseline,
-            observed,
-            rate,
-            Digest::from_bytes(b"source"),
-            Digest::from_bytes(b"knowledge"),
-        )
-        .unwrap();
-    let duplicate_plan = plan.clone();
+    let (authority, broker_key, mut broker) = system();
+    let first_plan = phase_plan(&broker, "cycle-replay");
+    let replay_plan = phase_plan(&broker, "cycle-replay");
+    assert_eq!(first_plan.digest(), replay_plan.digest());
     let first = authority
         .authorize(
-            &plan,
+            &first_plan,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             99,
             1,
             2,
         )
         .unwrap();
-    broker.execute(plan, first, 1).unwrap();
+    let directory = tempdir().unwrap();
+    broker
+        .execute_to_path(first_plan, first, 1, directory.path().join("state-a"))
+        .unwrap();
 
     let replay = authority
         .authorize(
-            &duplicate_plan,
+            &replay_plan,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             99,
             1,
             2,
         )
         .unwrap();
     assert!(matches!(
-        broker.execute(duplicate_plan, replay, 1),
+        broker.execute_to_path(replay_plan, replay, 1, directory.path().join("state-b")),
         Err(Refusal::Replay)
     ));
 }
 
 #[test]
 fn broken_receipt_ancestry_is_refused() {
-    let (authority, mut broker) = broker();
-    let baseline = state(1);
-    let observed = state(1_000);
-    let rate = RateVector::between(baseline, observed, NonZeroU64::new(60).unwrap()).unwrap();
-    let stale = broker
-        .plan(
-            "cycle-stale",
-            baseline,
-            observed,
-            rate,
-            Digest::from_bytes(b"source-a"),
-            Digest::from_bytes(b"knowledge"),
-        )
-        .unwrap();
-    let current = broker
-        .plan(
-            "cycle-current",
-            baseline,
-            observed,
-            rate,
-            Digest::from_bytes(b"source-b"),
-            Digest::from_bytes(b"knowledge"),
-        )
-        .unwrap();
+    let (authority, broker_key, mut broker) = system();
+    let stale = phase_plan(&broker, "cycle-stale");
+    let current = phase_plan(&broker, "cycle-current");
     let current_cap = authority
         .authorize(
             &current,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             1,
             1,
             2,
         )
         .unwrap();
-    broker.execute(current, current_cap, 1).unwrap();
+    let directory = tempdir().unwrap();
+    broker
+        .execute_to_path(current, current_cap, 1, directory.path().join("state-current"))
+        .unwrap();
 
     let stale_cap = authority
         .authorize(
             &stale,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             2,
             1,
             2,
         )
         .unwrap();
     assert!(matches!(
-        broker.execute(stale, stale_cap, 1),
+        broker.execute_to_path(stale, stale_cap, 1, directory.path().join("state-stale")),
         Err(Refusal::BrokenReceiptChain)
     ));
 }
 
 #[test]
 fn unit_or_window_mismatch_is_refused() {
-    let (_, broker) = broker();
+    let (_, _, broker) = system();
     let baseline = state(1);
     let mut observed = state(1_000);
     observed.demand = Measurement::new(
@@ -202,7 +201,7 @@ fn unit_or_window_mismatch_is_refused() {
 
 #[test]
 fn unsafe_geometric_state_is_refused_before_authorization() {
-    let (_, broker) = broker();
+    let (_, _, broker) = system();
     let baseline = state(1);
     let mut observed = state(1_000);
     observed.receipt_gap = 1;
@@ -221,40 +220,75 @@ fn unsafe_geometric_state_is_refused_before_authorization() {
 }
 
 #[test]
-fn collapsed_authorities_and_expired_capabilities_are_refused() {
-    let authority = AuthorityKey::derive("praxis", b"secret");
+fn collapsed_authorities_empty_secrets_and_expired_capabilities_refuse() {
     assert!(matches!(
-        ProductionBroker::new("praxis", &authority, region()),
+        AuthorityKey::derive("praxis", b""),
+        Err(Refusal::EmptySecret)
+    ));
+    let authority = AuthorityKey::derive("praxis", b"secret").unwrap();
+    let collapsed = BrokerKey::derive("praxis", b"broker-secret").unwrap();
+    assert!(matches!(
+        ProductionBroker::new(
+            &collapsed,
+            authority.id(),
+            authority.public_key(),
+            region()
+        ),
         Err(Refusal::AuthorityCollapse)
     ));
 
-    let mut broker = ProductionBroker::new("enterprise-deployment-broker", &authority, region())
-        .unwrap();
-    let baseline = state(1);
-    let observed = state(1_000);
-    let rate = RateVector::between(baseline, observed, NonZeroU64::new(60).unwrap()).unwrap();
-    let plan = broker
-        .plan(
-            "cycle-expired",
-            baseline,
-            observed,
-            rate,
-            Digest::from_bytes(b"source"),
-            Digest::from_bytes(b"knowledge"),
-        )
-        .unwrap();
+    let broker_key = BrokerKey::derive("enterprise-deployment-broker", b"broker-secret").unwrap();
+    let mut broker = ProductionBroker::new(
+        &broker_key,
+        authority.id(),
+        authority.public_key(),
+        region(),
+    )
+    .unwrap();
+    let plan = phase_plan(&broker, "cycle-expired");
     let capability = authority
         .authorize(
             &plan,
             "tcps-auto-select",
-            "enterprise-deployment-broker",
+            broker_key.id(),
             3,
             1,
             1,
         )
         .unwrap();
+    let directory = tempdir().unwrap();
     assert!(matches!(
-        broker.execute(plan, capability, 2),
+        broker.execute_to_path(plan, capability, 2, directory.path().join("state")),
         Err(Refusal::ExpiredCapability)
+    ));
+}
+
+#[test]
+fn broker_cannot_verify_authority_with_the_wrong_public_key() {
+    let authority = AuthorityKey::derive("praxis", b"authority-a").unwrap();
+    let wrong_authority = AuthorityKey::derive("praxis", b"authority-b").unwrap();
+    let broker_key = BrokerKey::derive("enterprise-deployment-broker", b"broker").unwrap();
+    let mut broker = ProductionBroker::new(
+        &broker_key,
+        authority.id(),
+        wrong_authority.public_key(),
+        region(),
+    )
+    .unwrap();
+    let plan = phase_plan(&broker, "cycle-wrong-key");
+    let capability = authority
+        .authorize(
+            &plan,
+            "tcps-auto-select",
+            broker_key.id(),
+            5,
+            1,
+            2,
+        )
+        .unwrap();
+    let directory = tempdir().unwrap();
+    assert!(matches!(
+        broker.execute_to_path(plan, capability, 1, directory.path().join("state")),
+        Err(Refusal::InvalidCapability)
     ));
 }
