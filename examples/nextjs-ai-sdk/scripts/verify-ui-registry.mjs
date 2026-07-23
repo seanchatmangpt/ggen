@@ -1,0 +1,10 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { blake3 } from "@noble/hashes/blake3.js";
+const lock = JSON.parse(await readFile("ui-registry.lock.json", "utf8"));
+const files = [...lock.registries.shadcn.components.map((name) => `components/ui/${name}.tsx`), ...lock.registries.aiElements.components.map((name) => `components/ai-elements/${name}.tsx`)];
+const hashes = {};
+for (const path of files) hashes[path] = Buffer.from(blake3(await readFile(path))).toString("hex");
+const digest = Buffer.from(blake3(new TextEncoder().encode(JSON.stringify(hashes)))).toString("hex");
+await mkdir(".ggen/receipts", { recursive: true });
+await writeFile(".ggen/receipts/ui-registry.json", JSON.stringify({ status: "ALIVE", algorithm: "blake3", upstream: lock.upstream, digest, files: hashes }, null, 2) + "\n");
+console.log(JSON.stringify({ status: "ALIVE", digest, fileCount: files.length }));

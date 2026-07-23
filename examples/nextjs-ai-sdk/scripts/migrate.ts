@@ -1,0 +1,9 @@
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { getPool } from "../lib/db/index.ts";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const migration = await readFile(resolve(here, "../drizzle/0000_nextjs_ai_sdk.sql"), "utf8");
+const pool = getPool();
+try { await pool.query(migration); console.log(JSON.stringify({ status: "ALIVE", boundary: "postgres-migration" })); } finally { await pool.end(); }

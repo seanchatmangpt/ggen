@@ -1,0 +1,55 @@
+@prefix nai: <https://ggen.dev/packs/nextjs-ai#> .
+@prefix app: <https://example.ggen.dev/nextjs-ai-sdk#> .
+
+app:primaryModel a nai:Model ;
+  nai:modelId "openai/gpt-5.4" ;
+  nai:modelLabel "GPT-5.4" ;
+  nai:modelRole "primary" .
+
+app:fallbackModel a nai:Model ;
+  nai:modelId "openai/gpt-5.4-mini" ;
+  nai:modelLabel "GPT-5.4 Mini" ;
+  nai:modelRole "fallback" .
+
+app:listNotesTool a nai:Tool ;
+  nai:toolName "notes_list" ;
+  nai:toolTitle "List notes" ;
+  nai:description "Reads the authenticated user's durable notes and emits a BLAKE3 receipt." ;
+  nai:toolKind "read" ;
+  nai:handlerKey "notes.list" ;
+  nai:inputSchemaJson "{\"type\":\"object\",\"properties\":{\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":50}},\"additionalProperties\":false}" ;
+  nai:approvalRequired false .
+
+app:createNoteTool a nai:Tool ;
+  nai:toolName "notes_create" ;
+  nai:toolTitle "Create a note" ;
+  nai:description "Creates an authenticated user's durable note and receipt in one database transaction." ;
+  nai:toolKind "mutate" ;
+  nai:handlerKey "notes.create" ;
+  nai:inputSchemaJson "{\"type\":\"object\",\"properties\":{\"title\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":160},\"body\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":10000}},\"required\":[\"title\",\"body\"],\"additionalProperties\":false}" ;
+  nai:approvalRequired true .
+
+app:assistant a nai:Agent ;
+  nai:agentName "nextjs-ai-sdk-agent" ;
+  nai:instructions "You are a precise application assistant. Use notes_list to read notes and notes_create only when the user explicitly asks to persist a note. Never retry a denied tool. After every tool call, report the returned receipt status and digest." ;
+  nai:usesTool app:listNotesTool, app:createNoteTool .
+
+app:application a nai:Application ;
+  nai:packageName "nextjs-ai-sdk" ;
+  nai:displayName "Next.js AI SDK" ;
+  nai:description "A graph-manufactured Next.js application with authenticated, brokered, receipted AI tools." ;
+  nai:defaultModel app:primaryModel ;
+  nai:fallbackModel app:fallbackModel ;
+  nai:maxSteps 12 ;
+  nai:maxDurationSeconds 60 ;
+  nai:databaseDialect "postgres" ;
+  nai:authStrategy "better-auth" ;
+  nai:telemetryEnabled true ;
+  nai:shadcnVersion "4.13.1" ;
+  nai:aiElementsVersion "1.9.0" ;
+  nai:aiSdkVersion "7.0.22" ;
+  nai:nextVersion "16.2.11" ;
+  nai:reactVersion "19.2.0" ;
+  nai:tailwindVersion "4.3.3" ;
+  nai:usesAgent app:assistant ;
+  nai:usesModel app:primaryModel, app:fallbackModel .

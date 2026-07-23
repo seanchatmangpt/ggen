@@ -1,0 +1,7 @@
+# MESSAGE: every mutating tool must require explicit AI SDK tool approval; any returned row is refused.
+PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+SELECT ?tool ?approvalRequired WHERE {
+  ?tool a nai:Tool ; nai:toolKind "mutate" ; nai:approvalRequired ?approvalRequired .
+  FILTER (?approvalRequired != true)
+}
+ORDER BY ?tool

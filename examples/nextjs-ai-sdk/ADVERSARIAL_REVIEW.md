@@ -1,0 +1,30 @@
+# Adversarial Review
+
+## Preserve
+
+The original artifact correctly selected Next.js, AI SDK, AI Elements, shadcn/ui, Better Auth, Drizzle, PostgreSQL, approval-aware tools, and ggen SPARQL/Tera projection. Those choices remain.
+
+## Findings and repairs
+
+| Severity | Finding | Consequence | Repair |
+|---|---|---|---|
+| P0 | `notes.create` and `system.echo` were fixture handlers returning hardcoded standing. | The example fabricated actuation and receipt evidence, violating the repository constitution. | Removed echo and implemented transactional PostgreSQL note creation/listing with persisted BLAKE3 receipts. |
+| P0 | Tests inspected source substrings and the browser shell without crossing LLM, auth, state, or receipt boundaries. | Green tests could coexist with a completely broken runtime. | Added a PostgreSQL broker integration test and a Playwright auth → gateway → approval → database → receipt path. |
+| P1 | Authentication was configured but not consumed by chat or tools. | Any caller could actuate without an admitted principal. | Chat now requires a Better Auth session and propagates the user identity to every tool receipt. |
+| P1 | A global mutable broker registered handlers through import side effects. | Development module re-evaluation could produce duplicate registration failures or divergent handler state. | Replaced registration with an immutable handler table and request-local broker. |
+| P1 | `AI_MODEL` used an unchecked TypeScript cast and the fallback was inert. | Environment configuration could bypass ontology admission and fallback claims were decorative. | Runtime model admission now refuses unknown IDs and the agent carries the admitted fallback through Gateway provider options. |
+| P1 | The admitted model IDs (`openai/gpt-5.6-terra` and `openai/gpt-5.6-luna`) did not exist in the Vercel AI Gateway model catalog. | A fully configured deployment would still fail at the first real model boundary. | Replaced them with catalog-backed `openai/gpt-5.4` and `openai/gpt-5.4-mini`; ontology remains the authority for selection and fallback. |
+| P1 | Database configuration threw during module evaluation. | Next.js build and route discovery could fail before a real database boundary was invoked. | Database and auth construction are lazy and return typed refusal at the boundary. |
+| P1 | Health always returned `ALIVE`; telemetry contained only a placeholder comment. | Operational surfaces could report success without dependencies. | Readiness now executes `select 1`, checks required configuration, and OpenTelemetry is registered through `@vercel/otel`. |
+| P1 | The checked-in gate runner did not execute the advertised negative mutation case; cardinality used an undeclared RDF prefix. | Admission evidence was incomplete and one gate was not standards-complete. | Declared RDF, added application-closure admission, parses every JSON schema, and requires the unsafe mutation case to be refused. |
+| P2 | The application imported AI Elements files that were absent from the archive. | A checkout could not compile until an external CLI wrote canonical application source. | Added an owned, source-complete adaptation of the pinned AI Elements 1.9 contracts and shadcn button; verification emits a BLAKE3 manifest over those checked-in paths. |
+| P2 | Local gate and projection checks labeled their bounded results `ALIVE`. | A partial checkpoint could be mistaken for end-to-end application standing. | Reclassified those receipts as `PARTIAL_ALIVE` with explicit `rdf-admission` and `projection-integrity` scopes; only real runtime boundaries may emit `ALIVE`. |
+| P1 | The prompt-input template embedded a double-brace JSX context literal, which is also Tera interpolation syntax. | The checked-in component and a real `ggen sync` could diverge or the template could fail to render. | Introduced a named `contextValue` and rendered `value={contextValue}`, eliminating the delimiter collision. |
+
+## Exclusions
+
+No package-manager lockfile is claimed because this environment could not resolve the npm registry. Direct dependencies are exactly pinned; transitive dependency closure remains `UNKNOWN` until `pnpm install` writes and verifies `pnpm-lock.yaml`. No live Vercel, Neon, Better Auth, or AI Gateway execution is claimed from the assembly environment.
+
+## Falsifier
+
+The example is not `ALIVE` unless `pnpm verify` crosses a real Neon database and Vercel AI Gateway, the mutation approval is exercised, a persisted note is observed, the receipt digest recomputes, the second `ggen sync run` is byte-identical, and the UI registry receipt names non-empty materialized files.

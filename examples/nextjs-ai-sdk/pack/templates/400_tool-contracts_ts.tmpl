@@ -1,0 +1,25 @@
+---
+to: "lib/ai/tool-contracts.ts"
+---
+export type ToolExecutionContext = Readonly<{
+  requestId: string;
+  userId: string;
+  signal?: AbortSignal;
+}>;
+
+export type ToolReceipt = Readonly<{
+  algorithm: "blake3";
+  digest: string;
+  requestId: string;
+  userId: string;
+  handlerKey: string;
+  status: "ALIVE";
+  occurredAt: string;
+}>;
+
+export type ToolExecutionResult<T = unknown> = Readonly<{
+  output: T;
+  receipt: ToolReceipt;
+}>;
+
+export type ToolHandler = (input: unknown, context: ToolExecutionContext) => Promise<ToolExecutionResult>;
