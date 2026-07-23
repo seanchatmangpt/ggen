@@ -19,10 +19,10 @@ universe u v
 /-- Predicate invariance under one admitted adjacent commutation. -/
 def SwapInvariant {Action : Type v} (I : Independence Action)
     (predicate : List Action → Prop) : Prop :=
-  ∀ prefix a b suffix,
+  ∀ pre a b suf,
     I.independent a b →
-    predicate (prefix ++ [a, b] ++ suffix) ↔
-    predicate (prefix ++ [b, a] ++ suffix)
+    predicate (pre ++ [a, b] ++ suf) ↔
+    predicate (pre ++ [b, a] ++ suf)
 
 /-- A list predicate invariant under generators is invariant under the full
 trace congruence. -/
@@ -33,8 +33,8 @@ theorem swapInvariant_trace_iff {Action : Type v} {I : Independence Action}
     predicate left ↔ predicate right := by
   induction equivalent with
   | refl word => exact Iff.rfl
-  | swap prefix a b suffix independent =>
-      exact invariant prefix a b suffix independent
+  | swap pre a b suf independent =>
+      exact invariant pre a b suf independent
   | symm h ih => exact ih.symm
   | trans h₁ h₂ ih₁ ih₂ => exact ih₁.trans ih₂
 
