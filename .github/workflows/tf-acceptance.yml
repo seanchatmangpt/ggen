@@ -17,32 +17,47 @@ jobs:
   tf-acceptance:
     name: Real-API acceptance
     runs-on: ubuntu-latest
+    # BUG FIXED (2026-07-23): `secrets.X` is not a recognized named-value
+    # inside a step `if:` condition -- GitHub Actions raises "Unrecognized
+    # named-value: 'secrets'" for that context, which fails the ENTIRE
+    # file's schema validation at parse time, before any `on:` filter is
+    # evaluated (confirmed real: every run on this workflow -- despite its
+    # own `on:` block declaring only workflow_dispatch -- showed
+    # `event: push` firing and failing on every single push to main; this
+    # was the same "step-level secret-gating idiom" this file's own header
+    # comment explicitly says was copied from erlang-release.yml, which
+    # carried the identical bug). Fixed the same way: stage the secret
+    # through a job-level `env:` var first (secrets ARE permitted inside
+    # `env:`), then reference that env var (not `secrets.*` directly)
+    # from `if:`.
+    env:
+      HAS_TF_ACC_TOKEN: ${{ secrets.TF_ACC_GITHUB_TOKEN != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Note when token is not configured
-        if: secrets.TF_ACC_GITHUB_TOKEN == ''
+        if: env.HAS_TF_ACC_TOKEN != 'true'
         run: echo "TF_ACC_GITHUB_TOKEN secret not configured; skipping real-API acceptance."
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Install just
         uses: extractions/setup-just@v2
-        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Authenticate gh with acceptance token
-        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        if: env.HAS_TF_ACC_TOKEN == 'true'
         env:
           TF_ACC_GITHUB_TOKEN: ${{ secrets.TF_ACC_GITHUB_TOKEN }}
         run: echo "$TF_ACC_GITHUB_TOKEN" | gh auth login --with-token
 
       - name: Run acceptance test
-        if: secrets.TF_ACC_GITHUB_TOKEN != ''
+        if: env.HAS_TF_ACC_TOKEN == 'true'
         run: just tf-acceptance

@@ -5,6 +5,15 @@ Extracted from `.github/workflows/*.yml` at origin/main `f775fbb8b` (24 workflow
 Build agents of `github-actions-pack`. Every field below was grepped from the real YAML, not
 recalled.
 
+**Known drift since this snapshot (recorded 2026-07-23, not backfilled into the survey body
+below to avoid fabricating historical data for a commit predating either change):**
+`marketplace-validate.yml` was deleted (`retrofit:MarketplaceValidateRetiredVestigial`,
+PR #455) — every dependency it invoked was nonexistent, no repair target existed.
+`detect-partial-publish.yml` was added (`retrofit:PartialPublishRollbackUnknown`) — read-only
+fan-in correlating a tag's 4 independent release targets. Current workflow-file count and
+ownership remain accurate; `packs/github-actions-pack/ontology.ttl` and `README.md` reflect
+both changes.
+
 ## Ownership (do NOT double-own)
 
 | Workflow | Owner | Note |

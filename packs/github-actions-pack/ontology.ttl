@@ -213,14 +213,14 @@ gha:WfMarketplaceTest a gha:Workflow ; gha:fileName "marketplace-test.yml" ;
     gha:evidenceObligation "test-marketplace job result" ;
     gha:standingEffect "marketplace crate retains test standing on main" .
 
-gha:WfMarketplaceValidate a gha:Workflow ; gha:fileName "marketplace-validate.yml" ;
-    gha:purpose "Marketplace validation, regression detection, and quality checks (Track F)" ;
-    gha:trigger gha:EventPush ; gha:trigger gha:EventWorkflowDispatch ;
+gha:WfDetectPartialPublish a gha:Workflow ; gha:fileName "detect-partial-publish.yml" ;
+    gha:purpose "Read-only fan-in correlating a tag's 4 independent release targets (release.yml, release-debian.yml, docker-build-push.yml, homebrew-release.yml); reports which have published for that tag" ;
+    gha:trigger gha:EventWorkflowRun ; gha:trigger gha:EventWorkflowDispatch ;
     gha:permissionCeiling "contents: read" ;
-    gha:concurrencyPolicy "group per ref" ;
-    gha:output gha:OutTestReport ;
-    gha:evidenceObligation "regression report artifact" ;
-    gha:standingEffect "marketplace surface acquires regression-free standing" .
+    gha:concurrencyPolicy "group per tag, no cancel-in-progress" ;
+    gha:output gha:OutStandingJudgment ;
+    gha:evidenceObligation "GITHUB_STEP_SUMMARY partial-publish table" ;
+    gha:standingEffect "a tag's true multi-target publish state becomes observable instead of inferred from release.yml's own single-target success" .
 
 gha:WfMarketplace a gha:Workflow ; gha:fileName "marketplace.yml" ;
     gha:purpose "Deploy marketplace static site to GitHub Pages" ;

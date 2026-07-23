@@ -218,8 +218,8 @@ pub fn namespaces() -> VerbResult<NamespacesListOutput> {
 /// Check the status and availability of an ontology.
 ///
 /// Usage:
-///   ggen ontology status http://www.w3.org/1999/02/22-rdf-syntax-ns#
-///   ggen ontology status <uri>
+///   `ggen ontology status http://www.w3.org/1999/02/22-rdf-syntax-ns#`
+///   `ggen ontology status <uri>`
 #[verb]
 pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
     let is_embedded = OntologyLoader::is_embedded(&uri);
@@ -261,8 +261,8 @@ pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
 /// Display detailed metadata for an ontology.
 ///
 /// Usage:
-///   ggen ontology info http://www.w3.org/1999/02/22-rdf-syntax-ns#
-///   ggen ontology info <uri>
+///   `ggen ontology info http://www.w3.org/1999/02/22-rdf-syntax-ns#`
+///   `ggen ontology info <uri>`
 #[verb]
 pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
     // Try to get metadata from core bundle
@@ -299,7 +299,7 @@ pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
 /// Usage:
 ///   ggen ontology search financial
 ///   ggen ontology search healthcare
-///   ggen ontology search <domain>
+///   `ggen ontology search <domain>`
 ///
 /// Note: This is a placeholder for marketplace integration.
 #[verb]
@@ -321,7 +321,7 @@ pub fn search(query: String) -> VerbResult<OntologySearchOutput> {
 ///
 /// Usage:
 ///   ggen ontology install acme/base@1.2.3
-///   ggen ontology install <package>@<version>
+///   `ggen ontology install <package>@<version>`
 ///
 /// This command:
 /// 1. Parses the package@version format
