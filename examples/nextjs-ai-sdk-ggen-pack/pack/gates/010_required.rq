@@ -1,0 +1,9 @@
+PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+SELECT ?subject ?missing WHERE {
+  { ?subject a nai:Application . VALUES ?missing { nai:packageName nai:displayName nai:description nai:defaultModel nai:maxSteps nai:maxDurationSeconds nai:databaseDialect nai:authStrategy nai:telemetryEnabled nai:shadcnVersion nai:aiElementsVersion nai:aiSdkVersion nai:nextVersion nai:reactVersion nai:tailwindVersion nai:usesAgent } }
+  UNION { ?subject a nai:Model . VALUES ?missing { nai:modelId nai:modelLabel nai:modelRole } }
+  UNION { ?subject a nai:Agent . VALUES ?missing { nai:agentName nai:instructions nai:usesTool } }
+  UNION { ?subject a nai:Tool . VALUES ?missing { nai:toolName nai:toolTitle nai:description nai:toolKind nai:handlerKey nai:inputSchemaJson nai:approvalRequired } }
+  FILTER NOT EXISTS { ?subject ?missing ?value }
+}
+ORDER BY ?subject ?missing

@@ -1,0 +1,17 @@
+---
+to: "app/api/chat/route.ts"
+---
+import { createAgentUIStreamResponse, type UIMessage } from "ai";
+import { createAppAgent } from "@/lib/ai/agent";
+import { auth } from "@/lib/auth";
+export const runtime = "nodejs";
+export const maxDuration = 60;
+export async function POST(request: Request): Promise<Response> {
+  const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user?.id) return Response.json({ code: "AUTH_REQUIRED", requestId }, { status: 401 });
+  const body = (await request.json()) as { messages?: UIMessage[] };
+  if (!Array.isArray(body.messages)) return Response.json({ code: "INVALID_MESSAGES", requestId }, { status: 400 });
+  const agent = createAppAgent({ requestId, userId: session.user.id, signal: request.signal });
+  return createAgentUIStreamResponse({ agent, uiMessages: body.messages, abortSignal: request.signal, timeout: { totalMs: maxDuration * 1000 }, headers: { "x-request-id": requestId } });
+}

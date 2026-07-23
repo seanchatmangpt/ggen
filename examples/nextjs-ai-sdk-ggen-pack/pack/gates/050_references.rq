@@ -1,0 +1,8 @@
+PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+SELECT ?subject ?predicate ?target WHERE {
+  { ?subject a nai:Application ; nai:defaultModel ?target . FILTER NOT EXISTS { ?target a nai:Model } BIND(nai:defaultModel AS ?predicate) }
+  UNION { ?subject a nai:Application ; nai:fallbackModel ?target . FILTER NOT EXISTS { ?target a nai:Model } BIND(nai:fallbackModel AS ?predicate) }
+  UNION { ?subject a nai:Application ; nai:usesAgent ?target . FILTER NOT EXISTS { ?target a nai:Agent } BIND(nai:usesAgent AS ?predicate) }
+  UNION { ?subject a nai:Agent ; nai:usesTool ?target . FILTER NOT EXISTS { ?target a nai:Tool } BIND(nai:usesTool AS ?predicate) }
+}
+ORDER BY ?subject ?predicate
