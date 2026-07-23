@@ -8,8 +8,8 @@ use tcps_lifecycle::{
     ReferencePraxisGate, Refusal,
 };
 
-assert_not_impl_any!(Authorization: Copy);
-assert_not_impl_any!(ProductionLine<Receipted>: Copy);
+assert_not_impl_any!(Authorization: Clone, Copy);
+assert_not_impl_any!(ProductionLine<Receipted>: Clone, Copy);
 
 #[test]
 fn downstream_demand_flows_to_receipted_execution() {
