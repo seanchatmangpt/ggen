@@ -1,0 +1,446 @@
+#![forbid(unsafe_code)]
+//! Executable TCPS software-production lifecycle.
+//!
+//! The typestate surface prevents an observation from being executed before
+//! Praxis admission, cargo-cicd evidence, and explicit authorization.
+//!
+//! ```compile_fail
+//! use tcps_lifecycle::{ProductionLine, ReferenceCargoCicdExecutor};
+//!
+//! let observed = ProductionLine::observe("change-1", 1, "standard-v1");
+//! let mut executor = ReferenceCargoCicdExecutor::green();
+//! observed.execute(&mut executor); // no method on ProductionLine<Observed>
+//! ```
+
+use serde::{Deserialize, Serialize};
+use std::{fmt, marker::PhantomData};
+
+#[derive(Debug)]
+pub struct Observed;
+#[derive(Debug)]
+pub struct Admitted;
+#[derive(Debug)]
+pub struct Planned;
+#[derive(Debug)]
+pub struct Authorized;
+#[derive(Debug)]
+pub struct Receipted;
+#[derive(Debug)]
+pub struct Stopped;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Observation {
+    pub id: String,
+    pub downstream_demand: u32,
+    pub standard_hash: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AdmissionReceipt {
+    pub observation_id: String,
+    pub standard_hash: String,
+    pub digest: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CargoCicdEvidence {
+    pub build_green: bool,
+    pub tests_green: bool,
+    pub trybuild_green: bool,
+    pub lean_green: bool,
+    pub changed_scope: Vec<String>,
+    pub source_digest: String,
+}
+
+impl CargoCicdEvidence {
+    #[must_use]
+    pub fn green(source_digest: impl Into<String>) -> Self {
+        Self {
+            build_green: true,
+            tests_green: true,
+            trybuild_green: true,
+            lean_green: true,
+            changed_scope: vec!["tcps-lifecycle".to_owned()],
+            source_digest: source_digest.into(),
+        }
+    }
+
+    #[must_use]
+    pub const fn is_green(&self) -> bool {
+        self.build_green && self.tests_green && self.trybuild_green && self.lean_green
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProductionPlan {
+    pub observation_id: String,
+    pub workcell: String,
+    pub evidence_digest: String,
+    pub plan_digest: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Authorization {
+    pub plan_digest: String,
+    pub approver: String,
+    pub authorization_digest: String,
+}
+
+impl Authorization {
+    #[must_use]
+    pub fn for_plan(plan_digest: impl Into<String>, approver: impl Into<String>) -> Self {
+        let plan_digest = plan_digest.into();
+        let approver = approver.into();
+        let authorization_digest = digest(&[&plan_digest, &approver, "authorize"]);
+        Self {
+            plan_digest,
+            approver,
+            authorization_digest,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExecutionReceipt {
+    pub observation_id: String,
+    pub plan_digest: String,
+    pub authorization_digest: String,
+    pub executor: String,
+    pub artifact_digest: String,
+    pub receipt_digest: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Andon {
+    pub observation_id: String,
+    pub reason: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Refusal {
+    ZeroDemand,
+    StandardNotAdmitted,
+    EvidenceNotGreen,
+    AuthorizationMismatch,
+    MissingReceipt,
+}
+
+impl fmt::Display for Refusal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let message = match self {
+            Self::ZeroDemand => "downstream demand must be positive",
+            Self::StandardNotAdmitted => "observation standard is not admitted",
+            Self::EvidenceNotGreen => "cargo-cicd or Lean evidence is not green",
+            Self::AuthorizationMismatch => "authorization does not match the plan",
+            Self::MissingReceipt => "executor returned an invalid or missing receipt",
+        };
+        f.write_str(message)
+    }
+}
+
+impl std::error::Error for Refusal {}
+
+pub trait AdmissionGate {
+    fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal>;
+}
+
+pub trait WorkcellExecutor {
+    fn execute(
+        &mut self,
+        observation: &Observation,
+        plan: &ProductionPlan,
+        authorization: &Authorization,
+    ) -> Result<ExecutionReceipt, Andon>;
+}
+
+#[derive(Clone, Debug)]
+pub struct ReferencePraxisGate {
+    admitted_standard_hash: String,
+}
+
+impl ReferencePraxisGate {
+    #[must_use]
+    pub fn new(admitted_standard_hash: impl Into<String>) -> Self {
+        Self {
+            admitted_standard_hash: admitted_standard_hash.into(),
+        }
+    }
+}
+
+impl AdmissionGate for ReferencePraxisGate {
+    fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal> {
+        if observation.downstream_demand == 0 {
+            return Err(Refusal::ZeroDemand);
+        }
+        if observation.standard_hash != self.admitted_standard_hash {
+            return Err(Refusal::StandardNotAdmitted);
+        }
+        Ok(AdmissionReceipt {
+            observation_id: observation.id.clone(),
+            standard_hash: observation.standard_hash.clone(),
+            digest: digest(&[
+                &observation.id,
+                &observation.standard_hash,
+                "praxis-admit",
+            ]),
+        })
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ReferenceCargoCicdExecutor {
+    fail_next: bool,
+    executor_name: String,
+}
+
+impl ReferenceCargoCicdExecutor {
+    #[must_use]
+    pub fn green() -> Self {
+        Self {
+            fail_next: false,
+            executor_name: "cargo-cicd".to_owned(),
+        }
+    }
+
+    #[must_use]
+    pub fn failing() -> Self {
+        Self {
+            fail_next: true,
+            executor_name: "cargo-cicd".to_owned(),
+        }
+    }
+}
+
+impl WorkcellExecutor for ReferenceCargoCicdExecutor {
+    fn execute(
+        &mut self,
+        observation: &Observation,
+        plan: &ProductionPlan,
+        authorization: &Authorization,
+    ) -> Result<ExecutionReceipt, Andon> {
+        if self.fail_next {
+            self.fail_next = false;
+            return Err(Andon {
+                observation_id: observation.id.clone(),
+                reason: "workcell abnormality: executor refused the plan".to_owned(),
+            });
+        }
+
+        let artifact_digest = digest(&[
+            &observation.id,
+            &plan.plan_digest,
+            &authorization.authorization_digest,
+            "artifact",
+        ]);
+        let receipt_digest = digest(&[
+            &observation.id,
+            &plan.plan_digest,
+            &authorization.authorization_digest,
+            &artifact_digest,
+            &self.executor_name,
+        ]);
+        Ok(ExecutionReceipt {
+            observation_id: observation.id.clone(),
+            plan_digest: plan.plan_digest.clone(),
+            authorization_digest: authorization.authorization_digest.clone(),
+            executor: self.executor_name.clone(),
+            artifact_digest,
+            receipt_digest,
+        })
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ProductionLine<State> {
+    observation: Observation,
+    admission: Option<AdmissionReceipt>,
+    plan: Option<ProductionPlan>,
+    authorization: Option<Authorization>,
+    receipt: Option<ExecutionReceipt>,
+    andon: Option<Andon>,
+    state: PhantomData<State>,
+}
+
+impl ProductionLine<Observed> {
+    #[must_use]
+    pub fn observe(
+        id: impl Into<String>,
+        downstream_demand: u32,
+        standard_hash: impl Into<String>,
+    ) -> Self {
+        Self {
+            observation: Observation {
+                id: id.into(),
+                downstream_demand,
+                standard_hash: standard_hash.into(),
+            },
+            admission: None,
+            plan: None,
+            authorization: None,
+            receipt: None,
+            andon: None,
+            state: PhantomData,
+        }
+    }
+
+    pub fn admit(
+        self,
+        gate: &impl AdmissionGate,
+    ) -> Result<ProductionLine<Admitted>, Refusal> {
+        let admission = gate.admit(&self.observation)?;
+        Ok(ProductionLine {
+            observation: self.observation,
+            admission: Some(admission),
+            plan: None,
+            authorization: None,
+            receipt: None,
+            andon: None,
+            state: PhantomData,
+        })
+    }
+}
+
+impl ProductionLine<Admitted> {
+    pub fn plan(
+        self,
+        evidence: CargoCicdEvidence,
+    ) -> Result<ProductionLine<Planned>, Refusal> {
+        if !evidence.is_green() {
+            return Err(Refusal::EvidenceNotGreen);
+        }
+        let admission = self.admission.expect("admitted state owns admission receipt");
+        let evidence_digest = digest(&[
+            &evidence.source_digest,
+            &serde_json::to_string(&evidence.changed_scope)
+                .expect("changed scope is serializable"),
+        ]);
+        let plan_digest = digest(&[
+            &self.observation.id,
+            &admission.digest,
+            &evidence_digest,
+            "cargo-cicd-workcell",
+        ]);
+        Ok(ProductionLine {
+            observation: self.observation.clone(),
+            admission: Some(admission),
+            plan: Some(ProductionPlan {
+                observation_id: self.observation.id,
+                workcell: "cargo-cicd".to_owned(),
+                evidence_digest,
+                plan_digest,
+            }),
+            authorization: None,
+            receipt: None,
+            andon: None,
+            state: PhantomData,
+        })
+    }
+}
+
+impl ProductionLine<Planned> {
+    #[must_use]
+    pub fn plan_digest(&self) -> &str {
+        &self.plan.as_ref().expect("planned state owns plan").plan_digest
+    }
+
+    pub fn authorize(
+        self,
+        authorization: Authorization,
+    ) -> Result<ProductionLine<Authorized>, Refusal> {
+        let plan = self.plan.as_ref().expect("planned state owns plan");
+        if authorization.plan_digest != plan.plan_digest {
+            return Err(Refusal::AuthorizationMismatch);
+        }
+        Ok(ProductionLine {
+            observation: self.observation,
+            admission: self.admission,
+            plan: self.plan,
+            authorization: Some(authorization),
+            receipt: None,
+            andon: None,
+            state: PhantomData,
+        })
+    }
+}
+
+impl ProductionLine<Authorized> {
+    pub fn execute(
+        self,
+        executor: &mut impl WorkcellExecutor,
+    ) -> Result<ProductionLine<Receipted>, ProductionLine<Stopped>> {
+        let plan = self.plan.as_ref().expect("authorized state owns plan");
+        let authorization = self
+            .authorization
+            .as_ref()
+            .expect("authorized state owns authorization");
+        match executor.execute(&self.observation, plan, authorization) {
+            Ok(receipt)
+                if receipt.plan_digest == plan.plan_digest
+                    && receipt.authorization_digest == authorization.authorization_digest =>
+            {
+                Ok(ProductionLine {
+                    observation: self.observation,
+                    admission: self.admission,
+                    plan: self.plan,
+                    authorization: self.authorization,
+                    receipt: Some(receipt),
+                    andon: None,
+                    state: PhantomData,
+                })
+            }
+            Ok(_) => Err(ProductionLine {
+                andon: Some(Andon {
+                    observation_id: self.observation.id.clone(),
+                    reason: Refusal::MissingReceipt.to_string(),
+                }),
+                observation: self.observation,
+                admission: self.admission,
+                plan: self.plan,
+                authorization: self.authorization,
+                receipt: None,
+                state: PhantomData,
+            }),
+            Err(andon) => Err(ProductionLine {
+                observation: self.observation,
+                admission: self.admission,
+                plan: self.plan,
+                authorization: self.authorization,
+                receipt: None,
+                andon: Some(andon),
+                state: PhantomData,
+            }),
+        }
+    }
+}
+
+impl ProductionLine<Receipted> {
+    #[must_use]
+    pub fn receipt(&self) -> &ExecutionReceipt {
+        self.receipt.as_ref().expect("receipted state owns receipt")
+    }
+}
+
+impl ProductionLine<Stopped> {
+    #[must_use]
+    pub fn andon(&self) -> &Andon {
+        self.andon.as_ref().expect("stopped state owns andon")
+    }
+
+    #[must_use]
+    pub fn recover(self, updated_standard_hash: impl Into<String>) -> ProductionLine<Observed> {
+        ProductionLine::observe(
+            self.observation.id,
+            self.observation.downstream_demand,
+            updated_standard_hash,
+        )
+    }
+}
+
+fn digest(parts: &[&str]) -> String {
+    let mut hasher = blake3::Hasher::new();
+    for part in parts {
+        hasher.update(&(part.len() as u64).to_le_bytes());
+        hasher.update(part.as_bytes());
+    }
+    hasher.finalize().to_hex().to_string()
+}
