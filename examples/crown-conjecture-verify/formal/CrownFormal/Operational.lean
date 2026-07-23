@@ -88,6 +88,7 @@ theorem run_trace_eq (certificate : DiamondCertificate system I)
   induction equivalent with
   | refl word => rfl
   | swap prefix a b suffix independent =>
+      simp only [List.append_assoc]
       rw [system.run_append state prefix ([a, b] ++ suffix)]
       rw [system.run_append state prefix ([b, a] ++ suffix)]
       cases prefixRun : system.run state prefix with
