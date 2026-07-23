@@ -1,0 +1,11 @@
+# MESSAGE: the TCPS phase-shift policy must remain exactly 1000x with five bounded actions, rollback, and receipts
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?policy ?threshold ?maxActions WHERE {
+  ?policy a tcps:AutonomicPolicy ;
+          tcps:thresholdMultiplier ?threshold ;
+          tcps:maxActions ?maxActions ;
+          tcps:rollbackRequired ?rollback ;
+          tcps:requiresReceipt ?receipt .
+  FILTER(?threshold != 1000 || ?maxActions != 5 || ?rollback != true || ?receipt != true)
+}
+ORDER BY ?policy
