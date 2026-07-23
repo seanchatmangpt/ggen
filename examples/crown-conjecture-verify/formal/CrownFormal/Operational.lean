@@ -46,10 +46,10 @@ theorem run_append (system : TransitionSystem State Action)
   | nil => simp
   | cons action rest ih =>
       simp only [List.cons_append, run_cons]
-      cases stepResult : system.step state action with
-      | none => simp [stepResult]
+      cases system.step state action with
+      | none => simp
       | some next =>
-          simpa [stepResult] using ih next
+          simpa using ih next
 
 /-- Proof-relevant execution derivation retaining every transition receipt. -/
 inductive Execution (system : TransitionSystem State Action) :
