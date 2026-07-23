@@ -77,7 +77,9 @@ theorem event_only_lawfulness_not_preserved :
   intro claimed
   have transferred : TimestampLawful false timedBad :=
     claimed timedGood timedBad timed_events_trace_eq (by rfl)
-  have refused : ¬ TimestampLawful false timedBad := by decide
+  have refused : ¬ TimestampLawful false timedBad := by
+    change ¬((1 : Nat) = 0)
+    decide
   exact refused transferred
 
 /-- A sufficient timed relation: event words are trace-equivalent and the
@@ -304,7 +306,9 @@ def timedAdmittedCrown :
   witnessLeft := timedSwapLeft
   witnessRight := timedSwapRight
   witnessRelated := timed_nontrivial_related
-  distinctEvents := by decide
+  distinctEvents := by
+    change ([false, true] : List Bool) ≠ [true, false]
+    decide
 
 /-- The repaired theorem transports timed lawfulness by deriving it from trace
 classification and observation equality rather than assuming pairwise
