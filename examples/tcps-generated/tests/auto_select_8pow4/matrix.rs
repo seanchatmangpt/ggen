@@ -80,7 +80,9 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
             if 理由 != reason || 適格候補 != eligible_mask || 準備候補 != ready_mask {
                 return Err(EvidenceError::InvalidData {
                     identity,
-                    message: "refusal violates the public selection contract".to_owned(),
+                    message: format!(
+                        "refusal violates public contract: expected {reason:?}/{eligible_mask:#x}/{ready_mask:#x}, found {理由:?}/{適格候補:#x}/{準備候補:#x}"
+                    ),
                 });
             }
             validate_decision_receipt(
@@ -91,13 +93,8 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
                 有無::無い,
                 有無::有る(reason.番号()),
             )?;
-            let class = if reason == 拒否理由::適格候補なし {
-                OutcomeClass::RefusedNoEligible
-            } else {
-                OutcomeClass::RefusedNoReady
-            };
             (
-                class,
+                OutcomeClass::from_refusal(reason)?,
                 eligible_mask,
                 ready_mask,
                 None,
@@ -116,18 +113,13 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
 
     let selection_digest = receipt_digest(selection_receipt);
     let authorization_digest = authorization_receipt.map(receipt_digest);
-    let outcome_code = match outcome {
-        OutcomeClass::Selected => 0_u8,
-        OutcomeClass::RefusedNoEligible => 1_u8,
-        OutcomeClass::RefusedNoReady => 2_u8,
-    };
     let tool = selected_tool.unwrap_or_default();
     let mass = selected_mass.unwrap_or_default();
     let authorization_bytes = authorization_digest
         .map(|digest| *digest.as_bytes())
         .unwrap_or([0; 32]);
     let evidence_digest = domain_digest(
-        "tcps/8pow4-scenario/v3",
+        "tcps/8pow4-scenario/v4",
         &[
             &cell.ordinal.to_le_bytes(),
             &cell.gray.to_le_bytes(),
@@ -136,7 +128,7 @@ fn execute_cell(cell: Cell) -> Result<ScenarioEvidence, EvidenceError> {
                 cell.coordinates.readiness,
                 cell.coordinates.time_budget,
                 cell.coordinates.mode,
-                outcome_code,
+                outcome.code(),
             ],
             &eligible_mask.to_le_bytes(),
             &ready_mask.to_le_bytes(),
@@ -191,24 +183,25 @@ fn evidence_leaves(results: &[ScenarioEvidence]) -> Result<Vec<EvidenceDigest>, 
         .collect()
 }
 
+fn count_outcome(results: &[ScenarioEvidence], outcome: OutcomeClass) -> usize {
+    results
+        .iter()
+        .filter(|result| result.outcome == outcome)
+        .count()
+}
+
 fn matrix_receipt(results: &[ScenarioEvidence]) -> Result<MatrixReceipt, EvidenceError> {
     let leaves = evidence_leaves(results)?;
-    let root = merkle_root("tcps/8pow4-root/v3", &leaves)?;
+    let root = merkle_root("tcps/8pow4-root/v4", &leaves)?;
     Ok(MatrixReceipt {
-        schema: "tcps-auto-select-8pow4/v3",
+        schema: "tcps-auto-select-8pow4/v4",
         cells: results.len(),
-        selected: results
-            .iter()
-            .filter(|result| result.outcome == OutcomeClass::Selected)
-            .count(),
-        refused_no_eligible: results
-            .iter()
-            .filter(|result| result.outcome == OutcomeClass::RefusedNoEligible)
-            .count(),
-        refused_no_ready: results
-            .iter()
-            .filter(|result| result.outcome == OutcomeClass::RefusedNoReady)
-            .count(),
+        selected: count_outcome(results, OutcomeClass::Selected),
+        refused_authority: count_outcome(results, OutcomeClass::RefusedAuthority),
+        refused_determinism: count_outcome(results, OutcomeClass::RefusedDeterminism),
+        refused_receipt: count_outcome(results, OutcomeClass::RefusedReceipt),
+        refused_time: count_outcome(results, OutcomeClass::RefusedTime),
+        refused_no_ready: count_outcome(results, OutcomeClass::RefusedNoReady),
         authorization_receipts: results
             .iter()
             .filter(|result| result.authorization_receipt.is_some())
