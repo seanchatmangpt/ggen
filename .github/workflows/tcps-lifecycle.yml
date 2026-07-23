@@ -1,0 +1,92 @@
+name: TCPS lifecycle
+
+on:
+  pull_request:
+    paths:
+      - "examples/tcps-lifecycle/**"
+      - "packs/tcps-pack/**"
+      - ".github/workflows/tcps-lifecycle.yml"
+  push:
+    branches: [main]
+    paths:
+      - "examples/tcps-lifecycle/**"
+      - "packs/tcps-pack/**"
+      - ".github/workflows/tcps-lifecycle.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/tcps-lifecycle
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.86.0"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: examples/tcps-lifecycle
+      - run: cargo test --workspace --all-targets --locked
+      - run: cargo test --workspace --doc --locked
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+  lean:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/tcps-lifecycle
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: examples/tcps-lifecycle
+
+  projection-equivalence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare pack template bodies with reference artifacts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          pairs = {
+              "Cargo_toml.tmpl": "Cargo.toml",
+              "README_md.tmpl": "README.md",
+              "LIFECYCLE_md.tmpl": "LIFECYCLE.md",
+              "TCPSLifecycle_Basic_lean.tmpl": "TCPSLifecycle/Basic.lean",
+              "TCPSLifecycle_Refinement_lean.tmpl": "TCPSLifecycle/Refinement.lean",
+              "aeneas_kernel_Cargo_toml.tmpl": "aeneas-kernel/Cargo.toml",
+              "aeneas_kernel_src_lib_rs.tmpl": "aeneas-kernel/src/lib.rs",
+              "cicd_toml.tmpl": "cicd.toml",
+              "deploy_production_toml.tmpl": "deploy/production.toml",
+              "lakefile_lean.tmpl": "lakefile.lean",
+              "lean-toolchain.tmpl": "lean-toolchain",
+              "praxis_observation_json.tmpl": "praxis/observation.json",
+              "release_release_toml.tmpl": "release/release.toml",
+              "scripts_verify_aeneas_sh.tmpl": "scripts/verify-aeneas.sh",
+              "scripts_verify_sh.tmpl": "scripts/verify.sh",
+              "src_lib_rs.tmpl": "src/lib.rs",
+              "src_main_rs.tmpl": "src/main.rs",
+              "tests_lifecycle_rs.tmpl": "tests/lifecycle.rs",
+          }
+          templates = Path("packs/tcps-pack/templates")
+          example = Path("examples/tcps-lifecycle")
+          failures = []
+          for template_name, output_name in pairs.items():
+              text = (templates / template_name).read_text()
+              if not text.startswith("---\n") or "\n---\n" not in text[4:]:
+                  failures.append(f"{template_name}: missing frontmatter")
+                  continue
+              body = text.split("\n---\n", 1)[1]
+              expected = (example / output_name).read_text()
+              if body != expected:
+                  failures.append(f"{template_name} != {output_name}")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print(f"verified {len(pairs)} canonical projections")
+          PY
