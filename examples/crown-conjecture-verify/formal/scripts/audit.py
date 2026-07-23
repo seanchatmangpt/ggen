@@ -51,7 +51,7 @@ required = {
     ],
     "CrownFormal/Examples.lean": [
         "additiveAdmittedCrown",
-        "additive_swapped_execution",
+        "def additive_swapped_execution",
     ],
     "CrownFormal/Adequacy.lean": [
         "event_only_lawfulness_not_preserved",
@@ -73,21 +73,28 @@ for relative, names in required.items():
         if name not in text:
             findings.append(f"{relative}: missing required declaration {name}")
 
-operational_path = root / "CrownFormal/Operational.lean"
-operational = operational_path.read_text()
-proof_relevant_theorems = {
-    r"\btheorem\s+Execution\.of_run_eq\b": (
-        "Execution.of_run_eq returns Type and must be declared with def"
-    ),
-    r"\btheorem\s+transport_execution\b": (
-        "transport_execution returns Type and must be declared with def"
-    ),
+proof_relevant_declarations = {
+    "CrownFormal/Operational.lean": {
+        r"\btheorem\s+Execution\.of_run_eq\b": (
+            "Execution.of_run_eq returns Type and must be declared with def"
+        ),
+        r"\btheorem\s+transport_execution\b": (
+            "transport_execution returns Type and must be declared with def"
+        ),
+    },
+    "CrownFormal/Examples.lean": {
+        r"\btheorem\s+additive_swapped_execution\b": (
+            "additive_swapped_execution returns Type and must be declared with def"
+        ),
+    },
 }
-for pattern, message in proof_relevant_theorems.items():
-    match = re.search(pattern, operational)
-    if match:
-        line = operational.count("\n", 0, match.start()) + 1
-        findings.append(f"CrownFormal/Operational.lean:{line}: {message}")
+for relative, patterns in proof_relevant_declarations.items():
+    text = (root / relative).read_text()
+    for pattern, message in patterns.items():
+        match = re.search(pattern, text)
+        if match:
+            line = text.count("\n", 0, match.start()) + 1
+            findings.append(f"{relative}:{line}: {message}")
 
 adequacy_path = root / "CrownFormal/Adequacy.lean"
 adequacy = adequacy_path.read_text()
