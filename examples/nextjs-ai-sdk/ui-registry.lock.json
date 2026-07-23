@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "admittedAt": "ontology",
+  "mode": "owned-adaptation",
+  "upstream": {
+    "repository": "vercel/ai-elements",
+    "release": "1.9.0"
+  },
+  "registries": {
+    "shadcn": {
+      "cliVersion": "4.13.1",
+      "components": [
+        "button"
+      ]
+    },
+    "aiElements": {
+      "cliVersion": "1.9.0",
+      "components": [
+        "conversation",
+        "message",
+        "prompt-input",
+        "tool",
+        "confirmation"
+      ]
+    }
+  },
+  "canonicalTargets": [
+    "components/ui",
+    "components/ai-elements"
+  ]
+}

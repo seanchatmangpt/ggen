@@ -1,0 +1,49 @@
+---
+to: "lib/ai/models.ts"
+sparql:
+  models: >
+      PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+      SELECT ?modelId ?modelLabel ?modelRole WHERE { ?model a nai:Model ; nai:modelId ?modelId ; nai:modelLabel ?modelLabel ; nai:modelRole ?modelRole } ORDER BY ?modelRole ?modelId
+  apps: >
+      PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+      SELECT ?packageName ?displayName ?description ?defaultModelId ?fallbackModelId ?maxSteps ?maxDurationSeconds
+             ?databaseDialect ?authStrategy ?telemetryEnabled ?shadcnVersion ?aiElementsVersion ?aiSdkVersion
+             ?nextVersion ?reactVersion ?tailwindVersion
+      WHERE {
+        ?app a nai:Application ;
+             nai:packageName ?packageName ; nai:displayName ?displayName ; nai:description ?description ;
+             nai:defaultModel ?defaultModel ; nai:maxSteps ?maxSteps ; nai:maxDurationSeconds ?maxDurationSeconds ;
+             nai:databaseDialect ?databaseDialect ; nai:authStrategy ?authStrategy ; nai:telemetryEnabled ?telemetryEnabled ;
+             nai:shadcnVersion ?shadcnVersion ; nai:aiElementsVersion ?aiElementsVersion ; nai:aiSdkVersion ?aiSdkVersion ;
+             nai:nextVersion ?nextVersion ; nai:reactVersion ?reactVersion ; nai:tailwindVersion ?tailwindVersion .
+        ?defaultModel nai:modelId ?defaultModelId .
+        OPTIONAL { ?app nai:fallbackModel ?fallback . ?fallback nai:modelId ?fallbackModelId }
+      }
+---
+import "server-only";
+import { gateway } from "@ai-sdk/gateway";
+
+export const admittedModels = [
+{% for model in models %}  { id: "{{ model.modelId }}", label: "{{ model.modelLabel }}", role: "{{ model.modelRole }}" },
+{% endfor %}] as const;
+
+export type AdmittedModelId = (typeof admittedModels)[number]["id"];
+const admittedModelIds = new Set<string>(admittedModels.map(({ id }) => id));
+
+export class ModelRefusedError extends Error {
+  readonly code = "MODEL_NOT_ADMITTED";
+}
+
+{% for app in apps %}function resolvePrimaryModel(): AdmittedModelId {
+  const requested = process.env.AI_MODEL ?? "{{ app.defaultModelId }}";
+  if (!admittedModelIds.has(requested)) {
+    throw new ModelRefusedError(`AI_MODEL ${requested} is not admitted by schema/domain.ttl`);
+  }
+  return requested as AdmittedModelId;
+}
+
+export const PRIMARY_MODEL_ID = resolvePrimaryModel();
+export const FALLBACK_MODEL_ID: AdmittedModelId = "{{ app.fallbackModelId }}";
+export const model = gateway(PRIMARY_MODEL_ID);
+export const gatewayProviderOptions = { gateway: { models: [FALLBACK_MODEL_ID] } } as const;
+{% endfor %}

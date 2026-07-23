@@ -1,0 +1,51 @@
+---
+to: "ui-registry.lock.json"
+sparql:
+  apps: >
+      PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+      SELECT ?packageName ?displayName ?description ?defaultModelId ?fallbackModelId ?maxSteps ?maxDurationSeconds
+             ?databaseDialect ?authStrategy ?telemetryEnabled ?shadcnVersion ?aiElementsVersion ?aiSdkVersion
+             ?nextVersion ?reactVersion ?tailwindVersion
+      WHERE {
+        ?app a nai:Application ;
+             nai:packageName ?packageName ; nai:displayName ?displayName ; nai:description ?description ;
+             nai:defaultModel ?defaultModel ; nai:maxSteps ?maxSteps ; nai:maxDurationSeconds ?maxDurationSeconds ;
+             nai:databaseDialect ?databaseDialect ; nai:authStrategy ?authStrategy ; nai:telemetryEnabled ?telemetryEnabled ;
+             nai:shadcnVersion ?shadcnVersion ; nai:aiElementsVersion ?aiElementsVersion ; nai:aiSdkVersion ?aiSdkVersion ;
+             nai:nextVersion ?nextVersion ; nai:reactVersion ?reactVersion ; nai:tailwindVersion ?tailwindVersion .
+        ?defaultModel nai:modelId ?defaultModelId .
+        OPTIONAL { ?app nai:fallbackModel ?fallback . ?fallback nai:modelId ?fallbackModelId }
+      }
+---
+{% for app in apps %}{
+  "schemaVersion": 2,
+  "admittedAt": "ontology",
+  "mode": "owned-adaptation",
+  "upstream": {
+    "repository": "vercel/ai-elements",
+    "release": "{{ app.aiElementsVersion }}"
+  },
+  "registries": {
+    "shadcn": {
+      "cliVersion": "{{ app.shadcnVersion }}",
+      "components": [
+        "button"
+      ]
+    },
+    "aiElements": {
+      "cliVersion": "{{ app.aiElementsVersion }}",
+      "components": [
+        "conversation",
+        "message",
+        "prompt-input",
+        "tool",
+        "confirmation"
+      ]
+    }
+  },
+  "canonicalTargets": [
+    "components/ui",
+    "components/ai-elements"
+  ]
+}
+{% endfor %}
