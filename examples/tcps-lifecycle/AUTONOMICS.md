@@ -1,0 +1,94 @@
+# TCPS 1000x phase-shift autonomics
+
+## Phase shift
+
+A 1000x increase is not treated as an ordinary capacity adjustment. It changes the
+kind of production system required.
+
+\[
+\text{phaseShift}(b,o) \iff b > 0 \land \frac{o}{b} \ge 1000
+\]
+
+The implementation uses integer arithmetic and an exact boundary. A 999.9x
+observation remains in the continuous regime. An exact 1000x observation enters
+the phase-shift regime.
+
+## Control loop
+
+```text
+cargo-cicd observation
+  -> TCPS classification
+  -> TCPS bounded proposal
+  -> Praxis independent judgment
+  -> cargo-cicd execution
+  -> TCPS atomic receipt
+  -> new observation
+```
+
+This is a receipted MAPE-K loop:
+
+| MAPE-K concern | Concrete authority |
+|---|---|
+| Monitor | cargo-cicd observes repository and production evidence. |
+| Analyze | TCPS classifies continuous operation versus a 1000x phase shift. |
+| Plan | TCPS constructs a finite adaptation proposal from admitted knowledge. |
+| Execute | cargo-cicd applies only a Praxis-authorized plan. |
+| Knowledge | The policy is RDF-resident and bound into the plan and receipt by digest. |
+
+## Separation law
+
+The worker is not the judge.
+
+```text
+observer = cargo-cicd
+executor = cargo-cicd
+judge    = praxis
+```
+
+Cargo-cicd may manufacture evidence and execute authorized work. It may not
+adjudicate that evidence. Narrative recommendations do not determine standing.
+Only the independently bound authorization capability advances the autonomic
+loop.
+
+## Bounded phase-shift response
+
+A 1000x phase shift produces exactly five structural actions:
+
+1. Partition demand into independently receiptable units.
+2. Enable pull-based production shards.
+3. Require an independent conformance oracle.
+4. Require proof-carrying receipts for successful work.
+5. Stage canary deployment and rollback before promotion.
+
+The response does not merely increase worker count or concurrency. It changes the
+production topology while retaining a fair completeness rail and explicit
+rollback.
+
+## Safety fences
+
+The loop refuses or stops when:
+
+- the baseline is zero;
+- the source or knowledge digest is missing;
+- the observation error rate exceeds the admitted safety fence;
+- the action budget exceeds five;
+- the plan does not match its classified regime;
+- observer, executor, or judge identities violate authority separation;
+- authorization does not bind the plan and knowledge digest;
+- execution returns no adaptation evidence;
+- the workcell raises an abnormality.
+
+There is no successful unreceipted autonomic state:
+
+```text
+Authorized -> Receipted
+Authorized -> Stopped
+```
+
+## Standing
+
+The reference implementation proves the source-level control law. Fortune 5
+standing additionally requires authenticated external cargo-cicd evidence,
+Praxis judgment, signed receipts, OCEL replay, ggen fixed-point regeneration,
+and deployment/rollback evidence. The reference types do not claim those
+external credentials.
