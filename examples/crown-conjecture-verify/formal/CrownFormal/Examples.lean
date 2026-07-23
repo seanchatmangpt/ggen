@@ -102,22 +102,21 @@ def additiveCertificate :
 def additiveBoundaryReceipt : SemanticBoundaryReceipt additiveSemantics where
   preconditions := .active [1, 3]
     (by
-      change boundedPreconditions [1, 3]
+      change (4 : Nat) ≤ 10
       decide)
     [11]
     (by
-      change ¬ boundedPreconditions [11]
+      change ¬(11 : Nat) ≤ 10
       decide)
   invariants := .neutral (fun _ => True.intro)
   numericFlows := .active [1, 3]
     (by
-      change evenNumericFlow [1, 3]
-      exact ⟨2, rfl⟩)
+      change Even (4 : Nat)
+      decide)
     [1, 2]
     (by
-      change ¬ evenNumericFlow [1, 2]
-      rintro ⟨k, hk⟩
-      omega)
+      change ¬Even (3 : Nat)
+      decide)
   temporal := .neutral (fun _ => True.intro)
   trajectory := .neutral (fun _ => True.intro)
 
@@ -126,10 +125,10 @@ theorem additive_anchor_lawful : additiveSemantics.Lawful [1, 3] := by
   refine ⟨4, ?_, rfl, ?_, trivial, ?_, trivial, trivial⟩
   · change additiveSystem.run 0 [1, 3] = some 4
     decide
-  · change boundedPreconditions [1, 3]
+  · change (4 : Nat) ≤ 10
     decide
-  · change evenNumericFlow [1, 3]
-    exact ⟨2, rfl⟩
+  · change Even (4 : Nat)
+    decide
 
 /-- Swapped serialization is trace-equivalent. -/
 theorem additive_trace_swap :
