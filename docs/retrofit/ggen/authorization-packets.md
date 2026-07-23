@@ -157,6 +157,56 @@ it can even be planned precisely, let alone executed.
   workflow and its near-duplicate `deploy-docs.yml`), not an environment-permission question,
   and not addressed here.
 
+## AP-005 — Provision a `HOMEBREW_TAP_TOKEN` secret for `seanchatmangpt/ggen`
+
+- **Operation**: `gh secret set HOMEBREW_TAP_TOKEN -R seanchatmangpt/ggen` with a real GitHub
+  Personal Access Token (classic or fine-grained) that has write/fork access to the external
+  `seanchatmangpt/homebrew-tap` repository.
+- **Target**: `seanchatmangpt/ggen`'s repository secrets (Settings → Secrets and variables →
+  Actions), consumed by `.github/workflows/homebrew-release.yml`'s "Bump Homebrew Formula" step
+  (`mislav/bump-homebrew-formula-action`).
+- **Why it's proposed**: confirmed this pass via a real, live dispatch — `release.yml`'s own
+  `Dispatch Homebrew Formula Update` job (part of a fully green `release.yml` run,
+  databaseId 29968670738, triggered by the real `v26.7.52` release) successfully invoked
+  `homebrew-release.yml`, which then failed with `HttpError: Resource not accessible by
+  integration - https://docs.github.com/rest/repos/forks#create-a-fork`. Reading the failing
+  step directly: `env: COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN
+  }}` — the workflow already anticipates needing a dedicated token and falls back to the
+  default `GITHUB_TOKEN` when `HOMEBREW_TAP_TOKEN` isn't configured. That fallback is
+  guaranteed to fail: the default `GITHUB_TOKEN` is scoped to the repository the workflow runs
+  in and has no access — not even fork access — to a different, external repository
+  (`seanchatmangpt/homebrew-tap`), confirmed via `gh api repos/seanchatmangpt/ggen/actions/
+  secrets` returning zero secrets configured at any point checked this session. This is not a
+  code bug: the automation is correctly written and was always waiting on this one credential.
+- **Plan hash**: not computed — no template/generated desired-state artifact to hash against;
+  the operation is fully specified above (set one named secret to a value the user must supply
+  and this session cannot generate, since it requires real write authority over an external
+  repository this session has no standing to act on).
+- **Creates**: one new repository secret, `HOMEBREW_TAP_TOKEN`.
+- **Updates**: nothing existing (this is the first time this secret would be set — confirmed
+  zero secrets currently configured).
+- **Deletes**: nothing.
+- **Rollback**: `gh secret remove HOMEBREW_TAP_TOKEN -R seanchatmangpt/ggen` removes it cleanly;
+  the workflow's own `|| secrets.GITHUB_TOKEN` fallback means removing the secret returns the
+  workflow to its exact current (failing) state, not a worse one.
+- **Post-checks**: `gh workflow run homebrew-release.yml -f tag=v26.7.52` (a real, already-proven
+  dispatch path, needs no new release) completes with the "Bump Homebrew Formula" step
+  succeeding; `gh api repos/seanchatmangpt/homebrew-tap/contents/Formula/ggen.rb` shows the
+  formula's `version` field updated to match.
+- **Receipt path**: none written — this packet has not been executed. If authorized and run,
+  the executing agent should record confirmation (not the token itself) under
+  `docs/retrofit/ggen/authorization-packets-executed/AP-005.json`.
+- **Explicitly out of scope for this packet**: generating or choosing the PAT itself is not
+  something this session can do — it requires a human with real GitHub account authority over
+  `seanchatmangpt/homebrew-tap` to create a token and supply its value. This packet only
+  specifies the mechanical operation (where the value goes, what consumes it, how to verify and
+  roll back), not the credential's origin.
+
+**Non-actuation**: secret provisioning is an externally-authorization-gated actuation class
+under this session's operating rules, the same category as AP-001/AP-002/AP-004. No agent has
+attempted `gh secret set` or requested/generated a token value. Written for the user's review;
+requires the user to supply the actual PAT value before this can be executed.
+
 **Non-actuation**: environment protection-rule mutation is a permission-adjacent repo-settings
 actuation class under this session's operating rules, same category as AP-001's branch
 protection. No agent has attempted either `gh api` call above. Written for the user's review and
