@@ -56,9 +56,11 @@ jobs:
 
           example_pairs = {
               "ADVERSARIAL_REVIEW_md.tmpl": "ADVERSARIAL_REVIEW.md",
+              "AUTONOMICS_md.tmpl": "AUTONOMICS.md",
               "Cargo_toml.tmpl": "Cargo.toml",
               "README_md.tmpl": "README.md",
               "LIFECYCLE_md.tmpl": "LIFECYCLE.md",
+              "TCPSLifecycle_Autonomics_lean.tmpl": "TCPSLifecycle/Autonomics.lean",
               "TCPSLifecycle_Basic_lean.tmpl": "TCPSLifecycle/Basic.lean",
               "TCPSLifecycle_Refinement_lean.tmpl": "TCPSLifecycle/Refinement.lean",
               "aeneas_kernel_Cargo_toml.tmpl": "aeneas-kernel/Cargo.toml",
@@ -71,8 +73,10 @@ jobs:
               "release_release_toml.tmpl": "release/release.toml",
               "scripts_verify_aeneas_sh.tmpl": "scripts/verify-aeneas.sh",
               "scripts_verify_sh.tmpl": "scripts/verify.sh",
+              "src_autonomics_rs.tmpl": "src/autonomics.rs",
               "src_lib_rs.tmpl": "src/lib.rs",
               "src_main_rs.tmpl": "src/main.rs",
+              "tests_autonomics_rs.tmpl": "tests/autonomics.rs",
               "tests_lifecycle_rs.tmpl": "tests/lifecycle.rs",
           }
           root_pairs = {
