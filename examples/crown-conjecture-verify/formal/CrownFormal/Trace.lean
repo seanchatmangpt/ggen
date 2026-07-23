@@ -133,7 +133,9 @@ theorem classify_eq_iff {α : Type u} (I : Independence α)
     (left right : List α) :
     classify I left = classify I right ↔ TraceEq I left right := by
   constructor
-  · exact Quotient.exact
-  · exact Quotient.sound
+  · intro h
+    exact Quotient.exact h
+  · intro h
+    exact Quotient.sound h
 
 end CrownFormal
