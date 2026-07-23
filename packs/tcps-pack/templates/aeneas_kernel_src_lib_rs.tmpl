@@ -22,7 +22,7 @@ pub enum Decision {
     Authorize,
     ExecuteGreen,
     ExecuteAbnormal,
-    RecoverWithUpdatedStandard,
+    Recover { standard_updated: bool },
 }
 
 #[must_use]
@@ -33,7 +33,9 @@ pub const fn step(state: State, decision: Decision) -> Option<State> {
         (State::Planned, Decision::Authorize) => Some(State::Authorized),
         (State::Authorized, Decision::ExecuteGreen) => Some(State::Receipted),
         (State::Authorized, Decision::ExecuteAbnormal) => Some(State::Stopped),
-        (State::Stopped, Decision::RecoverWithUpdatedStandard) => Some(State::Observed),
+        (State::Stopped, Decision::Recover { standard_updated: true }) => {
+            Some(State::Observed)
+        }
         _ => None,
     }
 }
@@ -54,5 +56,27 @@ mod tests {
             Some(State::Receipted)
         );
         assert_eq!(step(State::Observed, Decision::ExecuteGreen), None);
+    }
+
+    #[test]
+    fn unchanged_standard_cannot_restart_stopped_line() {
+        assert_eq!(
+            step(
+                State::Stopped,
+                Decision::Recover {
+                    standard_updated: false,
+                },
+            ),
+            None
+        );
+        assert_eq!(
+            step(
+                State::Stopped,
+                Decision::Recover {
+                    standard_updated: true,
+                },
+            ),
+            Some(State::Observed)
+        );
     }
 }
