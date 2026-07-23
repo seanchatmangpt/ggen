@@ -39,7 +39,8 @@ if [[ -f "$BINDING" ]]; then
     status="binding-refused-for-admission-token"
     exit_code=3
   elif grep -q 'AeneasModel' "$BINDING" \
-    && grep -q 'rustStep_sound' "$BINDING"; then
+    && grep -q 'rustStep_sound' "$BINDING" \
+    && grep -q 'rustClassifyPhase' "$BINDING"; then
     status="refinement-bound-and-kernel-checked"
     exit_code=0
   else
@@ -65,13 +66,16 @@ if binding.exists():
     h.update(binding.name.encode())
     h.update(binding.read_bytes())
 receipt.write_text(json.dumps({
-    'schema': 'tcps-aeneas-refinement/v1',
+    'schema': 'tcps-aeneas-refinement/v2',
     'status': status,
     'llbc': str(llbc),
     'lean_models': [str(path) for path in files],
     'binding': str(binding) if binding.exists() else None,
     'digest': h.hexdigest(),
-    'semantic_target': 'TCPSLifecycle.Refinement.rustStep_sound',
+    'semantic_targets': [
+        'TCPSLifecycle.Refinement.rustStep_sound',
+        'TCPSLifecycle.Refinement.rustClassifyPhase'
+    ],
     'standing': 'pass' if status == 'refinement-bound-and-kernel-checked' else 'refused'
 }, indent=2) + '\n')
 PY
