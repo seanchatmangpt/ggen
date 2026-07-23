@@ -1,0 +1,37 @@
+[project]
+name = "ggen-part-passport-example"
+version = "1.0.0"
+description = "RDF-manufactured causal rating plate for Genesis-bearing interchangeable parts"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+
+[ontology]
+source = "crown-kernel.ttl"
+base_iri = "https://ggen.dev/examples/part-passport/crown-kernel#"
+imports = [
+  "../../ontologies/ggen-part-passport.ttl",
+]
+
+[ontology.prefixes]
+gpp = "https://ggen.dev/ns/part-passport#"
+prov = "http://www.w3.org/ns/prov#"
+odrl = "http://www.w3.org/ns/odrl/2/"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "part-passport-json"
+query = { file = "queries/passport.rq" }
+template = { file = "templates/passport.json.tera" }
+output_file = "generated/crown-kernel.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "part-passport-nameplate"
+query = { file = "queries/passport.rq" }
+template = { file = "templates/nameplate.txt.tera" }
+output_file = "generated/crown-kernel.nameplate.txt"
+skip_empty = false
+mode = "Overwrite"

@@ -1,0 +1,159 @@
+@prefix gpp: <https://ggen.dev/ns/part-passport#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.dev/ns/part-passport>
+    a owl:Ontology ;
+    dcterms:title "ggen Genesis-Bearing Interchangeable Part Passport" ;
+    dcterms:description "A causal rating plate for software parts: identity, conditioned input, guaranteed output, polarity, capacity, isolation, conformity, independent verification, noninterference, and lifecycle." ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+
+gpp:PartPassport a rdfs:Class ;
+    rdfs:label "Part passport" ;
+    rdfs:comment "Machine-readable standing surface for one exact interchangeable artifact." .
+
+gpp:InputEnvelope a rdfs:Class ;
+    rdfs:label "Conditioned input envelope" ;
+    rdfs:comment "The admitted event rail visible to the deterministic part." .
+
+gpp:OutputContract a rdfs:Class ;
+    rdfs:label "Output contract" ;
+    rdfs:comment "The bounded standing-bearing consequence promised by a part." .
+
+gpp:CausalPolarity a rdfs:Class ;
+    rdfs:label "Causal polarity" ;
+    rdfs:comment "Direction of consumption, production, authority, and emitted intent." .
+
+gpp:ResourceEnvelope a rdfs:Class ;
+    rdfs:label "Resource envelope" ;
+    rdfs:comment "Maximum memory, fuel, time, queue, and concurrency draw." .
+
+gpp:ConformityMark a rdfs:Class ;
+    rdfs:label "Conformity mark" ;
+    rdfs:comment "A self-declared or externally issued statement tied to an exact artifact digest." .
+
+gpp:VerifierMark a rdfs:Class ;
+    rdfs:label "Verifier mark" ;
+    rdfs:comment "Independent verification result with evidence coordinates." .
+
+gpp:NonInterferenceProfile a rdfs:Class ;
+    rdfs:label "Noninterference profile" ;
+    rdfs:comment "Explicit read, write, emit, and forbidden shared-environment surfaces." .
+
+gpp:LifecyclePolicy a rdfs:Class ;
+    rdfs:label "Lifecycle policy" ;
+    rdfs:comment "Installation, deprecation, revocation, migration, and retirement law." .
+
+# Controlled concepts
+
+gpp:Ambient a gpp:IsolationClass ; rdfs:label "Ambient authority" .
+gpp:CapabilityIsolated a gpp:IsolationClass ; rdfs:label "Capability isolated" .
+gpp:DoubleInsulated a gpp:IsolationClass ; rdfs:label "Double insulated" .
+gpp:IsolationClass a rdfs:Class .
+
+gpp:Experimental a gpp:LifecycleState .
+gpp:Candidate a gpp:LifecycleState .
+gpp:Stable a gpp:LifecycleState .
+gpp:Deprecated a gpp:LifecycleState .
+gpp:Revoked a gpp:LifecycleState .
+gpp:LifecycleState a rdfs:Class .
+
+gpp:Passed a gpp:VerifierStatus .
+gpp:Failed a gpp:VerifierStatus .
+gpp:Unknown a gpp:VerifierStatus .
+gpp:VerifierRevoked a gpp:VerifierStatus .
+gpp:VerifierStatus a rdfs:Class .
+
+# Passport identity and binding
+
+gpp:partId a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:family a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:partVersion a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:manufacturer a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range prov:Agent .
+gpp:artifactDigest a rdf:Property ; rdfs:range xsd:string .
+gpp:sourceGraphDigest a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:buildReceipt a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range prov:Entity .
+gpp:batchId a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:softwareBillOfMaterials a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range spdx:SpdxDocument .
+
+# Structural links
+
+gpp:inputEnvelope a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:InputEnvelope .
+gpp:outputContract a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:OutputContract .
+gpp:causalPolarity a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:CausalPolarity .
+gpp:resourceEnvelope a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:ResourceEnvelope .
+gpp:nonInterferenceProfile a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:NonInterferenceProfile .
+gpp:lifecyclePolicy a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:LifecyclePolicy .
+gpp:isolationClass a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:IsolationClass .
+gpp:hostProfile a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:jurisdictionProfile a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range xsd:string .
+gpp:conformityMark a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:ConformityMark .
+gpp:verifierMark a rdf:Property ; rdfs:domain gpp:PartPassport ; rdfs:range gpp:VerifierMark .
+
+# Input envelope
+
+gpp:representation a rdf:Property ; rdfs:range xsd:string .
+gpp:schema a rdf:Property ; rdfs:range xsd:anyURI .
+gpp:minimumProtocol a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:maximumProtocol a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:maxPayloadBytes a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:acceptedEventType a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:requiredField a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:clockDiscipline a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:maxEventsPerSecond a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:timeoutSemantics a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:string .
+gpp:wallClockAccess a rdf:Property ; rdfs:domain gpp:InputEnvelope ; rdfs:range xsd:boolean .
+
+# Output contract
+
+gpp:artifactType a rdf:Property ; rdfs:domain gpp:OutputContract ; rdfs:range xsd:string .
+gpp:deterministicSerialization a rdf:Property ; rdfs:domain gpp:OutputContract ; rdfs:range xsd:boolean .
+gpp:receiptRequired a rdf:Property ; rdfs:domain gpp:OutputContract ; rdfs:range xsd:boolean .
+gpp:maxArtifacts a rdf:Property ; rdfs:domain gpp:OutputContract ; rdfs:range xsd:nonNegativeInteger .
+
+# Causal polarity and authority
+
+gpp:consumes a rdf:Property ; rdfs:domain gpp:CausalPolarity ; rdfs:range xsd:string .
+gpp:produces a rdf:Property ; rdfs:domain gpp:CausalPolarity ; rdfs:range xsd:string .
+gpp:requiresAuthority a rdf:Property ; rdfs:domain gpp:CausalPolarity ; rdfs:range odrl:Permission .
+gpp:emitsIntent a rdf:Property ; rdfs:domain gpp:CausalPolarity ; rdfs:range xsd:string .
+
+# Resource and limited-consequence envelope
+
+gpp:maxMemoryPages a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:maxFuel a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:maxExecutionMilliseconds a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:maxQueueDepth a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:maxConcurrency a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:nonNegativeInteger .
+gpp:ambientIo a rdf:Property ; rdfs:domain gpp:ResourceEnvelope ; rdfs:range xsd:boolean .
+
+# Evidence marks
+
+gpp:profile a rdf:Property ; rdfs:range xsd:string .
+gpp:issuer a rdf:Property ; rdfs:range prov:Agent .
+gpp:evidence a rdf:Property ; rdfs:range prov:Entity .
+gpp:selfDeclared a rdf:Property ; rdfs:domain gpp:ConformityMark ; rdfs:range xsd:boolean .
+gpp:verifiedProperty a rdf:Property ; rdfs:domain gpp:VerifierMark ; rdfs:range xsd:string .
+gpp:verifierStatus a rdf:Property ; rdfs:domain gpp:VerifierMark ; rdfs:range gpp:VerifierStatus .
+
+# Noninterference and lifecycle
+
+gpp:mayRead a rdf:Property ; rdfs:domain gpp:NonInterferenceProfile ; rdfs:range xsd:string .
+gpp:mayWrite a rdf:Property ; rdfs:domain gpp:NonInterferenceProfile ; rdfs:range xsd:string .
+gpp:mayEmit a rdf:Property ; rdfs:domain gpp:NonInterferenceProfile ; rdfs:range xsd:string .
+gpp:forbiddenSurface a rdf:Property ; rdfs:domain gpp:NonInterferenceProfile ; rdfs:range xsd:string .
+gpp:lifecycleState a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range gpp:LifecycleState .
+gpp:policyVersion a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range xsd:string .
+gpp:revokeCredentials a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range xsd:boolean .
+gpp:preserveReceipts a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range xsd:boolean .
+gpp:migrationTarget a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range gpp:PartPassport .
+gpp:disposalInstructions a rdf:Property ; rdfs:domain gpp:LifecyclePolicy ; rdfs:range xsd:string .

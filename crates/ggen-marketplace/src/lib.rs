@@ -1,6 +1,7 @@
 //! # ggen-marketplace - Package marketplace system
 //!
-//! Marketplace plugin providing package management, discovery, and installation for ggen.
+//! Marketplace plugin providing package management, discovery, installation,
+//! and Genesis-bearing interchangeable-part passports for ggen.
 
 // Crate-level lint exceptions for marketplace implementation and test code:
 // - expect_used: RwLock/Mutex expect() on poisoned locks is intentional (panics on invariant violation)
@@ -18,5 +19,9 @@ pub mod packs_registry;
 pub mod sync_profile;
 
 pub use marketplace::{
-    Manifest, Package, PackageId, QualityScore, RdfRegistry, SparqlSearchEngine,
+    CausalPolarity, ConformityMark, HostProfile, InputEnvelope, IsolationClass, LifecyclePolicy,
+    LifecycleState, Manifest, NonInterferenceProfile, OutputContract, Package, PackageId,
+    PartIdentity, PartPassport, PassportBinding, PassportValidationReport, ProtocolRange,
+    QualityScore, RdfRegistry, ResourceEnvelope, RetirementPolicy, SparqlSearchEngine,
+    SubstitutionReport, TemporalProfile, VerifierMark, VerifierStatus, CURRENT_PASSPORT_SCHEMA,
 };

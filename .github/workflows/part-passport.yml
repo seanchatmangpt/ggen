@@ -1,0 +1,91 @@
+name: Part Passport
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/part-passport.yml"
+      - "crates/ggen-marketplace/**"
+      - "examples/part-passport/**"
+      - "ontologies/ggen-part-passport.ttl"
+      - "ontologies/shapes/ggen-part-passport.shacl.ttl"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/part-passport.yml"
+      - "crates/ggen-marketplace/**"
+      - "examples/part-passport/**"
+      - "ontologies/ggen-part-passport.ttl"
+      - "ontologies/shapes/ggen-part-passport.shacl.ttl"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  manufacture-and-verify:
+    name: manufacture and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: part-passport
+
+      - name: Preserve expected projections
+        run: |
+          cp examples/part-passport/generated/crown-kernel.json /tmp/crown-kernel.json
+          cp examples/part-passport/generated/crown-kernel.nameplate.txt /tmp/crown-kernel.nameplate.txt
+          rm examples/part-passport/generated/crown-kernel.json
+          rm examples/part-passport/generated/crown-kernel.nameplate.txt
+
+      - name: Manufacture passport from RDF with the real ggen CLI
+        working-directory: examples/part-passport
+        run: >-
+          cargo run --manifest-path ../../Cargo.toml
+          -p ggen-cli-lib --bin ggen -- sync run
+
+      - name: Refuse generated drift
+        run: |
+          cmp /tmp/crown-kernel.json examples/part-passport/generated/crown-kernel.json
+          cmp /tmp/crown-kernel.nameplate.txt examples/part-passport/generated/crown-kernel.nameplate.txt
+          git diff --exit-code -- examples/part-passport/generated
+
+      - name: Validate generated JSON and Rust standing
+        run: |
+          python3 -m json.tool examples/part-passport/generated/crown-kernel.json >/dev/null
+          cargo test -p ggen-marketplace part_passport
+          cargo test -p ggen-marketplace --test part_passport_fixture
+
+      - name: Install independent SHACL verifier
+        run: python3 -m pip install --disable-pip-version-check pyshacl==0.30.1
+
+      - name: Validate public RDF passport law
+        run: |
+          cat ontologies/ggen-part-passport.ttl \
+              examples/part-passport/crown-kernel.ttl \
+              > /tmp/crown-kernel-with-vocabulary.ttl
+          python3 scripts/onto_shacl_check.py \
+            /tmp/crown-kernel-with-vocabulary.ttl \
+            ontologies/shapes/ggen-part-passport.shacl.ttl
+
+      - name: Prove double-insulation falsifier
+        run: |
+          sed 's/gpp:ambientIo false/gpp:ambientIo true/' \
+            examples/part-passport/crown-kernel.ttl \
+            > /tmp/crown-kernel-invalid-ambient.ttl
+          cat ontologies/ggen-part-passport.ttl \
+              /tmp/crown-kernel-invalid-ambient.ttl \
+              > /tmp/crown-kernel-invalid-with-vocabulary.ttl
+          if python3 scripts/onto_shacl_check.py \
+              /tmp/crown-kernel-invalid-with-vocabulary.ttl \
+              ontologies/shapes/ggen-part-passport.shacl.ttl; then
+            echo "double-insulated passport incorrectly admitted ambient IO" >&2
+            exit 1
+          fi
