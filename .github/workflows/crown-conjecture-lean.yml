@@ -12,6 +12,10 @@ on:
       - ".github/workflows/crown-conjecture-lean.yml"
   workflow_dispatch:
 
+concurrency:
+  group: crown-conjecture-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -19,14 +23,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Refuse incomplete or trust-expanding source
         working-directory: examples/crown-conjecture-verify/formal
         run: python3 scripts/audit.py
       - name: Install Lean and attempt build
         id: lean-action
         continue-on-error: true
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: examples/crown-conjecture-verify/formal
           auto-config: false
@@ -47,14 +51,14 @@ jobs:
           } 2>&1 | tee crown-build.log
       - name: Upload build receipt
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: crown-build-receipt
           path: examples/crown-conjecture-verify/formal/crown-build.log
           if-no-files-found: error
       - name: Independent checker
         if: steps.crown-build.outcome == 'success'
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
           lake-package-directory: examples/crown-conjecture-verify/formal
           auto-config: false
