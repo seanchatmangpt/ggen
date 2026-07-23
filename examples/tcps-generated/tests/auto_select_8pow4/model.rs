@@ -4,9 +4,7 @@ const CELL_COUNT: usize = WIDTH * WIDTH * WIDTH * WIDTH;
 const LANES: usize = 8;
 const BROKER_AUTHORITY: u64 = 1 << 8;
 
-const AUTHORITY_LABELS: [&str; WIDTH] = [
-    "none", "a", "b", "a+b", "c", "a+c", "b+c", "a+b+c",
-];
+const AUTHORITY_LABELS: [&str; WIDTH] = ["none", "a", "b", "a+b", "c", "a+c", "b+c", "a+b+c"];
 const READINESS_LABELS: [&str; WIDTH] = [
     "none", "r1", "r2", "r1+r2", "r3", "r1+r3", "r2+r3", "r1+r2+r3",
 ];
@@ -109,8 +107,38 @@ enum ExpectedOutcome {
 #[serde(rename_all = "kebab-case")]
 enum OutcomeClass {
     Selected,
-    RefusedNoEligible,
+    RefusedAuthority,
+    RefusedDeterminism,
+    RefusedReceipt,
+    RefusedTime,
     RefusedNoReady,
+}
+
+impl OutcomeClass {
+    const fn code(self) -> u8 {
+        match self {
+            Self::Selected => 0,
+            Self::RefusedAuthority => 1,
+            Self::RefusedDeterminism => 2,
+            Self::RefusedReceipt => 3,
+            Self::RefusedTime => 4,
+            Self::RefusedNoReady => 5,
+        }
+    }
+
+    fn from_refusal(reason: 拒否理由) -> Result<Self, EvidenceError> {
+        match reason {
+            拒否理由::権限不足 => Ok(Self::RefusedAuthority),
+            拒否理由::決定性不足 => Ok(Self::RefusedDeterminism),
+            拒否理由::受領証不足 => Ok(Self::RefusedReceipt),
+            拒否理由::時間超過 => Ok(Self::RefusedTime),
+            拒否理由::準備候補なし => Ok(Self::RefusedNoReady),
+            other => Err(EvidenceError::InvalidData {
+                identity: "tcps-8pow4-outcome-class".to_owned(),
+                message: format!("matrix received non-matrix refusal: {other:?}"),
+            }),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -134,7 +162,10 @@ struct MatrixReceipt {
     schema: &'static str,
     cells: usize,
     selected: usize,
-    refused_no_eligible: usize,
+    refused_authority: usize,
+    refused_determinism: usize,
+    refused_receipt: usize,
+    refused_time: usize,
     refused_no_ready: usize,
     authorization_receipts: usize,
     merkle_root: String,
