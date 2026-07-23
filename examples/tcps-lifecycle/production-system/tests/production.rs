@@ -1,4 +1,4 @@
-use std::{fs, num::NonZeroU64};
+use std::{fs, num::NonZeroU64, path::Path};
 use tcps_production::{
     AuthorityKey, BrokerKey, Digest, Measurement, ProductionBroker, RateVector, Refusal, Regime,
     SafeRegion, StateVector, Unit,
@@ -46,7 +46,11 @@ fn system() -> (AuthorityKey, BrokerKey, ProductionBroker) {
     (authority, broker_key, broker)
 }
 
-fn phase_plan(broker: &ProductionBroker, cycle: &str) -> tcps_production::Plan {
+fn phase_plan(
+    broker: &ProductionBroker,
+    cycle: &str,
+    target: &Path,
+) -> tcps_production::Plan {
     let baseline = state(1);
     let observed = state(1_000);
     let rate = RateVector::between(baseline, observed, NonZeroU64::new(60).unwrap())
@@ -54,6 +58,7 @@ fn phase_plan(broker: &ProductionBroker, cycle: &str) -> tcps_production::Plan {
     broker
         .plan(
             cycle,
+            target.to_string_lossy(),
             baseline,
             observed,
             rate,
@@ -66,9 +71,12 @@ fn phase_plan(broker: &ProductionBroker, cycle: &str) -> tcps_production::Plan {
 #[test]
 fn algebra_geometry_calculus_and_effect_form_one_receipted_actuation() {
     let (authority, broker_key, mut broker) = system();
-    let plan = phase_plan(&broker, "cycle-1");
+    let directory = tempdir().unwrap();
+    let desired_state = directory.path().join("production-state.txt");
+    let plan = phase_plan(&broker, "cycle-1", &desired_state);
     assert_eq!(plan.regime(), Regime::PhaseShift1000x);
     assert_eq!(plan.actions().len(), 5);
+    assert_eq!(plan.target_uri(), desired_state.to_string_lossy());
     assert!(plan.target_topology().pull_enabled);
     assert!(plan.target_topology().rollback_armed);
 
@@ -82,8 +90,6 @@ fn algebra_geometry_calculus_and_effect_form_one_receipted_actuation() {
             11,
         )
         .expect("capability");
-    let directory = tempdir().unwrap();
-    let desired_state = directory.path().join("production-state.txt");
     let receipt = broker
         .execute_to_path(plan, capability, 10, &desired_state)
         .expect("execute");
@@ -99,10 +105,31 @@ fn algebra_geometry_calculus_and_effect_form_one_receipted_actuation() {
 }
 
 #[test]
+fn receipt_field_tampering_is_detected_before_signature_acceptance() {
+    let (authority, broker_key, mut broker) = system();
+    let directory = tempdir().unwrap();
+    let target = directory.path().join("state");
+    let plan = phase_plan(&broker, "cycle-tamper", &target);
+    let capability = authority
+        .authorize(&plan, "tcps-auto-select", broker_key.id(), 8, 1, 2)
+        .unwrap();
+    let mut receipt = broker
+        .execute_to_path(plan, capability, 1, &target)
+        .unwrap();
+    receipt.target_uri.push_str("-redirected");
+    assert!(matches!(
+        receipt.verify(broker_key.public_key()),
+        Err(Refusal::InvalidReceiptDigest)
+    ));
+}
+
+#[test]
 fn replayed_capability_is_refused() {
     let (authority, broker_key, mut broker) = system();
-    let first_plan = phase_plan(&broker, "cycle-replay");
-    let replay_plan = phase_plan(&broker, "cycle-replay");
+    let directory = tempdir().unwrap();
+    let target = directory.path().join("state-replay");
+    let first_plan = phase_plan(&broker, "cycle-replay", &target);
+    let replay_plan = phase_plan(&broker, "cycle-replay", &target);
     assert_eq!(first_plan.digest(), replay_plan.digest());
     let first = authority
         .authorize(
@@ -114,9 +141,8 @@ fn replayed_capability_is_refused() {
             2,
         )
         .unwrap();
-    let directory = tempdir().unwrap();
     broker
-        .execute_to_path(first_plan, first, 1, directory.path().join("state-a"))
+        .execute_to_path(first_plan, first, 1, &target)
         .unwrap();
 
     let replay = authority
@@ -130,7 +156,7 @@ fn replayed_capability_is_refused() {
         )
         .unwrap();
     assert!(matches!(
-        broker.execute_to_path(replay_plan, replay, 1, directory.path().join("state-b")),
+        broker.execute_to_path(replay_plan, replay, 1, &target),
         Err(Refusal::Replay)
     ));
 }
@@ -138,8 +164,11 @@ fn replayed_capability_is_refused() {
 #[test]
 fn broken_receipt_ancestry_is_refused() {
     let (authority, broker_key, mut broker) = system();
-    let stale = phase_plan(&broker, "cycle-stale");
-    let current = phase_plan(&broker, "cycle-current");
+    let directory = tempdir().unwrap();
+    let stale_target = directory.path().join("state-stale");
+    let current_target = directory.path().join("state-current");
+    let stale = phase_plan(&broker, "cycle-stale", &stale_target);
+    let current = phase_plan(&broker, "cycle-current", &current_target);
     let current_cap = authority
         .authorize(
             &current,
@@ -150,9 +179,8 @@ fn broken_receipt_ancestry_is_refused() {
             2,
         )
         .unwrap();
-    let directory = tempdir().unwrap();
     broker
-        .execute_to_path(current, current_cap, 1, directory.path().join("state-current"))
+        .execute_to_path(current, current_cap, 1, &current_target)
         .unwrap();
 
     let stale_cap = authority
@@ -166,14 +194,32 @@ fn broken_receipt_ancestry_is_refused() {
         )
         .unwrap();
     assert!(matches!(
-        broker.execute_to_path(stale, stale_cap, 1, directory.path().join("state-stale")),
+        broker.execute_to_path(stale, stale_cap, 1, &stale_target),
         Err(Refusal::BrokenReceiptChain)
     ));
 }
 
 #[test]
+fn authorized_plan_cannot_be_redirected_to_another_target() {
+    let (authority, broker_key, mut broker) = system();
+    let directory = tempdir().unwrap();
+    let authorized_target = directory.path().join("authorized");
+    let redirected_target = directory.path().join("redirected");
+    let plan = phase_plan(&broker, "cycle-target", &authorized_target);
+    let capability = authority
+        .authorize(&plan, "tcps-auto-select", broker_key.id(), 4, 1, 2)
+        .unwrap();
+    assert!(matches!(
+        broker.execute_to_path(plan, capability, 1, &redirected_target),
+        Err(Refusal::WrongTarget)
+    ));
+    assert!(!redirected_target.exists());
+}
+
+#[test]
 fn unit_or_window_mismatch_is_refused() {
     let (_, _, broker) = system();
+    let directory = tempdir().unwrap();
     let baseline = state(1);
     let mut observed = state(1_000);
     observed.demand = Measurement::new(
@@ -189,6 +235,7 @@ fn unit_or_window_mismatch_is_refused() {
     assert!(matches!(
         broker.plan(
             "cycle-unit",
+            directory.path().join("state").to_string_lossy(),
             baseline,
             observed,
             rate,
@@ -202,6 +249,7 @@ fn unit_or_window_mismatch_is_refused() {
 #[test]
 fn unsafe_geometric_state_is_refused_before_authorization() {
     let (_, _, broker) = system();
+    let directory = tempdir().unwrap();
     let baseline = state(1);
     let mut observed = state(1_000);
     observed.receipt_gap = 1;
@@ -209,6 +257,7 @@ fn unsafe_geometric_state_is_refused_before_authorization() {
     assert!(matches!(
         broker.plan(
             "cycle-unsafe",
+            directory.path().join("state").to_string_lossy(),
             baseline,
             observed,
             rate,
@@ -245,7 +294,9 @@ fn collapsed_authorities_empty_secrets_and_expired_capabilities_refuse() {
         region(),
     )
     .unwrap();
-    let plan = phase_plan(&broker, "cycle-expired");
+    let directory = tempdir().unwrap();
+    let target = directory.path().join("state");
+    let plan = phase_plan(&broker, "cycle-expired", &target);
     let capability = authority
         .authorize(
             &plan,
@@ -256,9 +307,8 @@ fn collapsed_authorities_empty_secrets_and_expired_capabilities_refuse() {
             1,
         )
         .unwrap();
-    let directory = tempdir().unwrap();
     assert!(matches!(
-        broker.execute_to_path(plan, capability, 2, directory.path().join("state")),
+        broker.execute_to_path(plan, capability, 2, &target),
         Err(Refusal::ExpiredCapability)
     ));
 }
@@ -275,7 +325,9 @@ fn broker_cannot_verify_authority_with_the_wrong_public_key() {
         region(),
     )
     .unwrap();
-    let plan = phase_plan(&broker, "cycle-wrong-key");
+    let directory = tempdir().unwrap();
+    let target = directory.path().join("state");
+    let plan = phase_plan(&broker, "cycle-wrong-key", &target);
     let capability = authority
         .authorize(
             &plan,
@@ -286,9 +338,8 @@ fn broker_cannot_verify_authority_with_the_wrong_public_key() {
             2,
         )
         .unwrap();
-    let directory = tempdir().unwrap();
     assert!(matches!(
-        broker.execute_to_path(plan, capability, 1, directory.path().join("state")),
+        broker.execute_to_path(plan, capability, 1, &target),
         Err(Refusal::InvalidCapability)
     ));
 }
