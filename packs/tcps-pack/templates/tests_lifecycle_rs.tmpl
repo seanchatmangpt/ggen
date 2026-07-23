@@ -1,0 +1,94 @@
+---
+to: tests/lifecycle.rs
+force: true
+---
+use static_assertions::assert_not_impl_any;
+use tcps_lifecycle::{
+    Authorization, CargoCicdEvidence, ProductionLine, Receipted, ReferenceCargoCicdExecutor,
+    ReferencePraxisGate, Refusal,
+};
+
+assert_not_impl_any!(Authorization: Copy);
+assert_not_impl_any!(ProductionLine<Receipted>: Copy);
+
+#[test]
+fn downstream_demand_flows_to_receipted_execution() {
+    let gate = ReferencePraxisGate::new("standard-v1");
+    let admitted = ProductionLine::observe("change-1", 1, "standard-v1")
+        .admit(&gate)
+        .expect("admission");
+    let planned = admitted
+        .plan(CargoCicdEvidence::green("source-1"))
+        .expect("plan");
+    let authorization = Authorization::for_plan(planned.plan_digest(), "release-manager");
+    let authorized = planned.authorize(authorization).expect("authorize");
+    let mut executor = ReferenceCargoCicdExecutor::green();
+    let receipted = authorized.execute(&mut executor).expect("execute");
+
+    assert_eq!(receipted.receipt().executor, "cargo-cicd");
+    assert_eq!(receipted.receipt().receipt_digest.len(), 64);
+}
+
+#[test]
+fn zero_demand_is_refused_before_planning() {
+    let gate = ReferencePraxisGate::new("standard-v1");
+    let refusal = ProductionLine::observe("change-2", 0, "standard-v1")
+        .admit(&gate)
+        .expect_err("zero demand must refuse");
+    assert_eq!(refusal, Refusal::ZeroDemand);
+}
+
+#[test]
+fn red_evidence_stops_before_authorization() {
+    let gate = ReferencePraxisGate::new("standard-v1");
+    let admitted = ProductionLine::observe("change-3", 1, "standard-v1")
+        .admit(&gate)
+        .expect("admission");
+    let mut evidence = CargoCicdEvidence::green("source-3");
+    evidence.lean_green = false;
+    let refusal = admitted.plan(evidence).expect_err("red evidence must refuse");
+    assert_eq!(refusal, Refusal::EvidenceNotGreen);
+}
+
+#[test]
+fn authorization_is_bound_to_one_plan() {
+    let gate = ReferencePraxisGate::new("standard-v1");
+    let planned = ProductionLine::observe("change-4", 1, "standard-v1")
+        .admit(&gate)
+        .expect("admission")
+        .plan(CargoCicdEvidence::green("source-4"))
+        .expect("plan");
+    let wrong = Authorization::for_plan("another-plan", "release-manager");
+    let refusal = planned.authorize(wrong).expect_err("wrong plan must refuse");
+    assert_eq!(refusal, Refusal::AuthorizationMismatch);
+}
+
+#[test]
+fn abnormality_raises_and_on_and_requires_new_standard() {
+    let gate = ReferencePraxisGate::new("standard-v1");
+    let planned = ProductionLine::observe("change-5", 1, "standard-v1")
+        .admit(&gate)
+        .expect("admission")
+        .plan(CargoCicdEvidence::green("source-5"))
+        .expect("plan");
+    let authorization = Authorization::for_plan(planned.plan_digest(), "release-manager");
+    let authorized = planned.authorize(authorization).expect("authorize");
+    let mut executor = ReferenceCargoCicdExecutor::failing();
+    let stopped = authorized.execute(&mut executor).expect_err("must stop");
+
+    assert!(stopped.andon().reason.contains("abnormality"));
+    let recovered = stopped.recover("standard-v2");
+    let new_gate = ReferencePraxisGate::new("standard-v2");
+    recovered.admit(&new_gate).expect("updated standard admits");
+}
+
+#[test]
+fn typestate_markers_add_no_runtime_storage() {
+    use std::mem::size_of;
+    use tcps_lifecycle::{Observed, Planned};
+
+    assert_eq!(
+        size_of::<ProductionLine<Observed>>(),
+        size_of::<ProductionLine<Planned>>()
+    );
+}
