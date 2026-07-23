@@ -21,8 +21,8 @@ def SwapInvariant {Action : Type v} (I : Independence Action)
     (predicate : List Action → Prop) : Prop :=
   ∀ pre a b suf,
     I.independent a b →
-    predicate (pre ++ [a, b] ++ suf) ↔
-    predicate (pre ++ [b, a] ++ suf)
+      (predicate (pre ++ [a, b] ++ suf) ↔
+       predicate (pre ++ [b, a] ++ suf))
 
 /-- A list predicate invariant under generators is invariant under the full
 trace congruence. -/
@@ -106,11 +106,17 @@ theorem lawful_trace_iff
   · rintro ⟨final, run, goal, pre, inv, num, time, traj⟩
     refine ⟨final, ?_, goal, preconditions.mp pre, invariants.mp inv,
       numeric.mp num, temporal.mp time, trajectory.mp traj⟩
-    exact replay ▸ run
+    calc
+      semantics.system.run semantics.initial right =
+          semantics.system.run semantics.initial left := replay.symm
+      _ = some final := run
   · rintro ⟨final, run, goal, pre, inv, num, time, traj⟩
     refine ⟨final, ?_, goal, preconditions.mpr pre, invariants.mpr inv,
       numeric.mpr num, temporal.mpr time, trajectory.mpr traj⟩
-    exact replay.symm ▸ run
+    calc
+      semantics.system.run semantics.initial left =
+          semantics.system.run semantics.initial right := replay
+      _ = some final := run
 
 /-- Directional form matching the original crown obligation. -/
 theorem traceSwapPreservesLawful
