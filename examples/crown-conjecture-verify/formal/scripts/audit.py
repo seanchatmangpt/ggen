@@ -57,7 +57,13 @@ required = {
         "event_only_lawfulness_not_preserved",
         "additive_same_final_different_state_trace",
         "trajectory_observation_counterexample",
+        "additive_trajectory_relation_refuses_swap",
         "CrownObservationAdmission",
+        "relationEquivalence",
+        "observationEq",
+        "lawfulFactorization",
+        "AdmittedBehavioralCrown",
+        "timed_nontrivial_related",
         "timed_repaired_crown",
     ],
 }
@@ -66,6 +72,48 @@ for relative, names in required.items():
     for name in names:
         if name not in text:
             findings.append(f"{relative}: missing required declaration {name}")
+
+adequacy_path = root / "CrownFormal/Adequacy.lean"
+adequacy = adequacy_path.read_text()
+
+# Regression guard: the pre-refactor interface assumed the exact pairwise
+# theorem it claimed to derive. The repaired interface must factor lawfulness
+# pointwise and derive pairwise preservation from equal semantic coordinates.
+anti_patterns = {
+    r"lawfulIff\s*:\s*∀\s*\{left right\}": (
+        "pairwise lawfulness equivalence reintroduced as a structure field"
+    ),
+    r"timestamps\s*:\s*List\s+Nat": (
+        "positional timestamp lists reintroduced; timestamps must remain keyed "
+        "by event identity"
+    ),
+}
+for pattern, message in anti_patterns.items():
+    match = re.search(pattern, adequacy)
+    if match:
+        line = adequacy.count("\n", 0, match.start()) + 1
+        findings.append(f"CrownFormal/Adequacy.lean:{line}: {message}")
+
+lawful_iff_match = re.search(
+    r"theorem lawfulIff\b(?P<body>.*?)(?=\n/--|\nend CrownObservationAdmission)",
+    adequacy,
+    flags=re.DOTALL,
+)
+if lawful_iff_match is None:
+    findings.append("CrownFormal/Adequacy.lean: missing derived lawfulIff theorem")
+else:
+    body = lawful_iff_match.group("body")
+    for dependency in [
+        "lawfulFactorization",
+        "classify_eq_iff",
+        "traceSound",
+        "observationEq",
+    ]:
+        if dependency not in body:
+            findings.append(
+                "CrownFormal/Adequacy.lean: derived lawfulIff does not consume "
+                f"{dependency}"
+            )
 
 if findings:
     print("\n".join(findings))
