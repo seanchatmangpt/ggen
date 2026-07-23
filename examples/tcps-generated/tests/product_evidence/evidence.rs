@@ -9,9 +9,7 @@ fn expected_derivative_blob_oid(capability_id: &str) -> Option<&'static str> {
 }
 
 fn validate_capability(
-    root: &Path,
-    manifest: &BTreeMap<String, String>,
-    capability: &Capability,
+    root: &Path, manifest: &BTreeMap<String, String>, capability: &Capability,
 ) -> Result<CapabilityEvidence, EvidenceError> {
     let bytes = read_nonempty(root, capability.path)?;
     let mut facts = validate_format(root, capability, &bytes)?;
@@ -20,16 +18,20 @@ fn validate_capability(
 
     let reference_sha256 = match capability.reference_standing {
         ReferenceStanding::ExactManifest => {
-            let manifest_path = capability.manifest_path.ok_or_else(|| EvidenceError::InvalidData {
-                identity: capability.id.to_owned(),
-                message: "exact-manifest capability has no reference path".to_owned(),
-            })?;
-            let expected = manifest
-                .get(manifest_path)
-                .ok_or_else(|| EvidenceError::InvalidData {
-                    identity: capability.id.to_owned(),
-                    message: format!("manifest has no entry for {manifest_path}"),
-                })?;
+            let manifest_path =
+                capability
+                    .manifest_path
+                    .ok_or_else(|| EvidenceError::InvalidData {
+                        identity: capability.id.to_owned(),
+                        message: "exact-manifest capability has no reference path".to_owned(),
+                    })?;
+            let expected =
+                manifest
+                    .get(manifest_path)
+                    .ok_or_else(|| EvidenceError::InvalidData {
+                        identity: capability.id.to_owned(),
+                        message: format!("manifest has no entry for {manifest_path}"),
+                    })?;
             if expected != &actual_sha256 {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
@@ -42,16 +44,22 @@ fn validate_capability(
             Some(expected.clone())
         }
         ReferenceStanding::DeclaredDerivative => {
-            let manifest_path = capability.manifest_path.ok_or_else(|| EvidenceError::InvalidData {
-                identity: capability.id.to_owned(),
-                message: "declared derivative has no source reference path".to_owned(),
-            })?;
-            let expected_source = manifest
-                .get(manifest_path)
-                .ok_or_else(|| EvidenceError::InvalidData {
-                    identity: capability.id.to_owned(),
-                    message: format!("manifest has no source entry for derivative {manifest_path}"),
-                })?;
+            let manifest_path =
+                capability
+                    .manifest_path
+                    .ok_or_else(|| EvidenceError::InvalidData {
+                        identity: capability.id.to_owned(),
+                        message: "declared derivative has no source reference path".to_owned(),
+                    })?;
+            let expected_source =
+                manifest
+                    .get(manifest_path)
+                    .ok_or_else(|| EvidenceError::InvalidData {
+                        identity: capability.id.to_owned(),
+                        message: format!(
+                            "manifest has no source entry for derivative {manifest_path}"
+                        ),
+                    })?;
             if expected_source == &actual_sha256 {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
@@ -59,12 +67,14 @@ fn validate_capability(
                         .to_owned(),
                 });
             }
-            let expected_blob_oid = expected_derivative_blob_oid(capability.id).ok_or_else(|| {
-                EvidenceError::InvalidData {
-                    identity: capability.id.to_owned(),
-                    message: "declared derivative has no pinned generated object identity".to_owned(),
-                }
-            })?;
+            let expected_blob_oid =
+                expected_derivative_blob_oid(capability.id).ok_or_else(|| {
+                    EvidenceError::InvalidData {
+                        identity: capability.id.to_owned(),
+                        message: "declared derivative has no pinned generated object identity"
+                            .to_owned(),
+                    }
+                })?;
             if actual_blob_oid != expected_blob_oid {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
@@ -87,7 +97,8 @@ fn validate_capability(
             if expected_derivative_blob_oid(capability.id).is_some() {
                 return Err(EvidenceError::InvalidData {
                     identity: capability.id.to_owned(),
-                    message: "independent capability unexpectedly has a derivative identity".to_owned(),
+                    message: "independent capability unexpectedly has a derivative identity"
+                        .to_owned(),
                 });
             }
             facts.push("independently-validated");
@@ -130,10 +141,29 @@ fn validate_capability(
 
 fn validate_all(root: &Path) -> Result<Vec<CapabilityEvidence>, EvidenceError> {
     let manifest = load_manifest(root)?;
-    CAPABILITIES
-        .iter()
-        .map(|capability| validate_capability(root, &manifest, capability))
-        .collect()
+    let mut evidence = Vec::with_capacity(CAPABILITIES.len());
+    let mut refusals = Vec::new();
+
+    for capability in CAPABILITIES {
+        match validate_capability(root, &manifest, capability) {
+            Ok(item) => evidence.push(item),
+            Err(error) => refusals.push(format!("{} => {error}", capability.id)),
+        }
+    }
+
+    if refusals.is_empty() {
+        Ok(evidence)
+    } else {
+        Err(EvidenceError::InvalidData {
+            identity: "tcps-capability-census".to_owned(),
+            message: format!(
+                "{} of {} capability contracts refused:\n{}",
+                refusals.len(),
+                CAPABILITIES.len(),
+                refusals.join("\n")
+            ),
+        })
+    }
 }
 
 static PRODUCT_EVIDENCE: OnceLock<Result<Vec<CapabilityEvidence>, EvidenceError>> = OnceLock::new();
@@ -146,20 +176,18 @@ fn product_evidence() -> Result<&'static [CapabilityEvidence], EvidenceError> {
 }
 
 fn receipt(
-    evidence: &[CapabilityEvidence],
-    manifest_entry_count: usize,
+    evidence: &[CapabilityEvidence], manifest_entry_count: usize,
 ) -> Result<EvidenceReceipt, EvidenceError> {
     let mut sorted = evidence.to_vec();
     sorted.sort_by_key(|item| item.id);
     let leaves: Result<Vec<_>, _> = sorted
         .iter()
         .map(|item| {
-            let decoded = hex::decode(&item.evidence_digest).map_err(|error| {
-                EvidenceError::InvalidData {
+            let decoded =
+                hex::decode(&item.evidence_digest).map_err(|error| EvidenceError::InvalidData {
                     identity: item.id.to_owned(),
                     message: error.to_string(),
-                }
-            })?;
+                })?;
             let bytes: [u8; 32] = decoded.try_into().map_err(|_| EvidenceError::InvalidData {
                 identity: item.id.to_owned(),
                 message: "evidence digest is not 32 bytes".to_owned(),
