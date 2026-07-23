@@ -11,21 +11,10 @@ on:
       - "packs/tcps-cli-pack/**"
       - "packs/tcps-release-pack/**"
       - ".github/workflows/tcps-generated-validation.yml"
-  push:
-    branches: [main]
-    paths:
-      - "examples/tcps-generated/**"
-      - "crates/chicago-tdd-tools/**"
-      - "packs/tcps-core-pack/**"
-      - "packs/tcps-std-pack/**"
-      - "packs/tcps-wasm-pack/**"
-      - "packs/tcps-cli-pack/**"
-      - "packs/tcps-release-pack/**"
-      - ".github/workflows/tcps-generated-validation.yml"
-  merge_group:
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +22,7 @@ concurrency:
 
 jobs:
   validate:
-    name: product evidence + Auto Select 8^4
+    name: resolve lock + product evidence + Auto Select 8^4
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -44,6 +33,9 @@ jobs:
       CARGO_TARGET_DIR: ${{ github.workspace }}/target/tcps-generated-validation
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
       - name: Install pinned Rust toolchain
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
@@ -66,13 +58,27 @@ jobs:
           cat tcps-generated-validation.log
           exit "$status"
 
-      - name: Preserve validation and resolved lockfile
+      - name: Commit resolved nested lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          lock="examples/tcps-generated/Cargo.lock"
+          if git diff --quiet -- "$lock"; then
+            echo "LOCKFILE_ALREADY_ADMITTED"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$lock"
+          git commit -m "chore(tcps): admit generated validation lockfile"
+          git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+
+      - name: Preserve validation log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: tcps-generated-lock-resolution
-          path: |
-            tcps-generated-validation.log
-            examples/tcps-generated/Cargo.lock
+          name: tcps-generated-validation-log
+          path: tcps-generated-validation.log
           if-no-files-found: error
           retention-days: 7
