@@ -152,4 +152,3 @@ mod 試験 {
         assert!(内容.contains("受領番号"));
     }
 }
-
