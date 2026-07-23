@@ -46,4 +46,3 @@ jobs:
         with:
           name: tier1-${{ matrix.target }}
           path: receipts/
-

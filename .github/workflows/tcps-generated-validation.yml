@@ -1,0 +1,77 @@
+name: TCPS Generated Validation
+
+on:
+  pull_request:
+    paths:
+      - "examples/tcps-generated/**"
+      - "crates/chicago-tdd-tools/**"
+      - "packs/tcps-core-pack/**"
+      - "packs/tcps-std-pack/**"
+      - "packs/tcps-wasm-pack/**"
+      - "packs/tcps-cli-pack/**"
+      - "packs/tcps-release-pack/**"
+      - ".github/workflows/tcps-generated-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "examples/tcps-generated/**"
+      - "crates/chicago-tdd-tools/**"
+      - "packs/tcps-core-pack/**"
+      - "packs/tcps-std-pack/**"
+      - "packs/tcps-wasm-pack/**"
+      - "packs/tcps-cli-pack/**"
+      - "packs/tcps-release-pack/**"
+      - ".github/workflows/tcps-generated-validation.yml"
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: product evidence + Auto Select 8^4
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target/tcps-generated-validation
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
+
+      - name: Execute admitted evidence and behavioral suites
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > tcps-generated-validation.log
+          status=0
+
+          cargo test \
+            --locked \
+            --manifest-path examples/tcps-generated/Cargo.toml \
+            --test tcps_chicago_tdd_1000x \
+            --test tcps_chicago_tdd_8pow4 \
+            -- --nocapture > tcps-generated-validation.log 2>&1 || status=$?
+
+          cat tcps-generated-validation.log
+          exit "$status"
+
+      - name: Preserve validation log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tcps-generated-validation-log
+          path: tcps-generated-validation.log
+          if-no-files-found: error
+          retention-days: 7

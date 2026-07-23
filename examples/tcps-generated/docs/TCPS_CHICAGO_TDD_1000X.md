@@ -1,109 +1,119 @@
-# TCPS Chicago TDD 1000x Validation Fabric
+# TCPS product-evidence fabric
 
-This document describes the executable validation compiler in
-`tests/tcps_chicago_tdd_1000x.rs`.
-
-## Purpose
-
-The fabric gives the complete checked-in TCPS product one traceable Chicago-TDD
-constitution without duplicating the same filesystem execution for every rule.
-It compiles:
+The original `tcps_chicago_tdd_1000x` test declared:
 
 ```text
-43 capabilities × 4 constitutional surfaces × 7 universal laws
-= 1,204 independently addressable obligations
+43 capabilities × 4 surfaces × 7 laws = 1,204 obligations
 ```
 
-A single real observation of a capability artifact discharges the 28 obligations
-attached to that capability. Obligation identities remain separate in the RDF and
-OCEL projections even though execution is compressed.
+but discharged every obligation by reading one file. A readable source file does
+not prove replayability, authority separation, idempotency, refusal behavior, or
+implementation on every runtime surface. That Cartesian product was removed.
 
-## Chicago TDD posture
+## Current evidence law
 
-The implementation follows the classicist form used by the repository's vendored
-`chicago-tdd-tools` crate:
+The replacement validates only claims that are actually observed.
 
-- assertions inspect observable product state;
-- probes use the real checked-in TCPS filesystem;
-- no collaborator is mocked;
-- every capability has a first-class `TestContract`;
-- refusal is explicit when an expected product artifact is absent;
-- outputs are receipts and evidence, not private implementation assertions.
+### Product manifest
 
-## Capability population
+`infra/SOURCE_MANIFEST.sha256` must contain exactly 129 unique, relative paths.
+Every digest must be a well-formed SHA-256 value.
 
-The 43 capabilities include:
+### Capability population
 
-- all 26 public TCPS core modules;
-- the standard-library, FFI, WASM, and CLI runtimes;
-- CI and target declarations;
-- Debian, RPM, npm, and NuGet packaging;
-- CycloneDX, SPDX, and in-toto evidence;
-- the source manifest;
-- lifecycle and reproducible-build machinery;
-- the ggen fixed-point lock surface.
+The 43 declared TCPS capabilities are validated through their actual artifact
+formats:
 
-## Constitutional surfaces
+- 26 core Rust modules;
+- four runtime entrypoints;
+- six release and packaging surfaces;
+- four evidence surfaces;
+- three manufacturing surfaces.
 
-Each capability receives obligations across four aggregate surfaces. Each surface
-contains three execution or evidence channels, for twelve channels total.
+Rust is parsed with `syn`. YAML, JSON, JSONL, TOML, and XML are parsed with their
+real parsers. The Python lifecycle program is syntax-compiled by Python, and the
+reproducible-build script is checked by `bash -n`.
 
-| Surface | Channels |
-|---|---|
-| Source | ontology, template, generated source |
-| Runtime | native, `no_std`, CLI |
-| Boundary | FFI, WASM, packaging |
-| Evidence | receipt, provenance, lifecycle |
+Reference standing is typed rather than collapsed:
 
-## Universal laws
+- **36 exact-manifest capabilities** must match their declared product SHA-256;
+- **5 declared generated derivatives** retain a source-manifest identity and an
+  exact generated Git-object identity;
+- **2 independent capabilities**—the manifest itself and `ggen.lock`—use their
+  own validators.
 
-Every capability-surface pair receives these seven laws:
+The five declared derivatives are:
 
-1. deterministic;
-2. state observable;
-3. real collaborators;
-4. refusal preserved;
-5. authority separated;
-6. replayable;
-7. idempotent.
+- `core.kaizen` (`改善.rs`);
+- `core.crypto-digest` (`暗号要約.rs`);
+- `core.auto-select` (`自動選択.rs`);
+- `core.blue-river-dam` (`青い川のダム.rs`);
+- `runtime.std` (`crates/tcps-std/src/lib.rs`).
 
-## Evidence compiler
+The standard-library adapter differs only at the disclosed module/type collision
+boundary: it imports `受領証_impl` rather than the reference module path.
 
-The executable test fabric produces four isolated artifacts during its artifact
-bundle scenario:
+Auto Select has an additional source-ownership proof. The generated Rust file must
+be byte-identical to the single `tcps:sourceTextOverride` literal admitted by
+`schema/domain.ttl`. A missing, duplicated, mutated, or unprojected override is a
+loud refusal.
 
-- `fabric-receipt.json`;
-- `obligations.ttl`;
-- `evidence.ocel.json`;
-- `execution-plan.tsv`.
+An exact capability that drifts is refused. A declared derivative that changes
+without a new pinned identity is refused. A declared derivative that becomes
+byte-identical is also refused until its standing is reclassified.
 
-The semantic fingerprint excludes the occurrence timestamp. Replaying the same
-TCPS state therefore preserves semantic identity while occurrence evidence may
-retain a different wall-clock time.
+### Manufacturing projection law
 
-## Deterministic sharding
+The runtime, release, package, SBOM, and provenance templates preserve source
+literal bytes exactly. A source literal already carries its terminal newline; the
+Tera templates use right-trimmed interpolation so they do not manufacture a second
+blank line. Eleven former “derivatives” were eliminated by correcting that source
+law rather than weakening comparison.
 
-All 1,204 obligations can be assigned to any nonzero number of workers through
-rendezvous hashing. The same obligation and shard count always produce the same
-owner. The eight-shard acceptance case proves total, deterministic assignment.
+### ggen composition lock
 
-## Running
+`ggen.lock` must contain exactly these eight admitted packs:
+
+- `ggen-verify-pack`;
+- `tcps-cli-pack`;
+- `tcps-core-pack`;
+- `tcps-evidence`;
+- `tcps-ffi-pack`;
+- `tcps-release-pack`;
+- `tcps-std-pack`;
+- `tcps-wasm-pack`.
+
+Every pack must use a path source and a syntactically valid BLAKE3 identity. This
+checks the complete lock population and identity format; it does not claim that the
+pack contents were independently rehashed by this test.
+
+### Evidence receipt
+
+Each capability produces a content-addressed evidence record containing its actual
+SHA-256 digest, Git-object identity, typed reference standing, reference digest
+when applicable, observed format facts, and a domain-separated BLAKE3 evidence
+digest. The 43 records are sorted by capability identity and combined into a
+domain-separated Merkle root.
+
+No occurrence timestamp participates in semantic identity.
+
+## Removed antipatterns
+
+- universal-law claims inferred from file existence;
+- self-fulfilling 1,204-obligation arithmetic;
+- derivative artifacts masquerading as exact identity;
+- an expanding derivative allowlist used to hide generator whitespace defects;
+- FNV-1a represented as receipt-grade cryptography;
+- hand-built JSON strings;
+- nonconforming JSON labeled as OCEL;
+- nonempty-output assertions used as semantic evidence;
+- duplicated execution presented as coverage compression;
+- fail-fast admission that concealed the complete drift population.
+
+## Run
 
 From `examples/tcps-generated`:
 
 ```bash
-scripts/validate-1000x.sh
+bash scripts/validate-1000x.sh
 ```
-
-Equivalent direct command:
-
-```bash
-cargo test --test tcps_chicago_tdd_1000x -- --nocapture
-```
-
-## Standing boundary
-
-The fabric validates the TCPS product currently checked into this consumer. It does
-not replace the pack-level generation law, ggen sync conformance suite, or existing
-byte-identity and sabotage proofs. It composes those product surfaces into one
-complete Chicago-TDD obligation graph.
