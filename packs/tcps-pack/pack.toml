@@ -1,4 +1,4 @@
 [pack]
 name = "tcps-pack"
-version = "0.1.0"
-description = "Unified Toyota Code Production System pack: one semantic owner for software-production flow control, Rust typestates, Lean law, Praxis admission, cargo-cicd execution, release policy, deployment policy, and lifecycle evidence. Extracted from examples/tcps-lifecycle; projected code is canonical source, never second-class generated output."
+version = "0.2.0"
+description = "Unified Toyota Code Production System pack with exact 1000x phase-shift autonomics: one semantic owner for software-production flow control, affine Rust typestates, Lean law, Aeneas refinement targets, Praxis judgment, cargo-cicd observation/execution, bounded factory recomposition, release policy, deployment policy, and lifecycle evidence. Extracted from examples/tcps-lifecycle; projected code is canonical source, never second-class generated output."
