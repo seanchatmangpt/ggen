@@ -12,7 +12,9 @@ fn main() {
     let planned = admitted
         .plan(evidence)
         .expect("cargo-cicd evidence must be green");
-    let authorization = gate.authorize(&planned, "release-manager");
+    let authorization = gate
+        .authorize(&planned, "release-manager")
+        .expect("Praxis authorization must admit the plan standard");
     let authorized = planned
         .authorize(authorization)
         .expect("authorization must bind the plan");
