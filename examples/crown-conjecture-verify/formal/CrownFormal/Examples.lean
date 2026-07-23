@@ -48,7 +48,7 @@ def evenNumericFlow (word : List Nat) : Prop :=
 def additiveSemantics : PlanningSemantics Nat Nat where
   system := additiveSystem
   initial := 0
-  goal := fun final => final = 3
+  goal := fun final => final = 4
   preconditions := boundedPreconditions
   invariants := fun _ => True
   numericFlows := evenNumericFlow
@@ -87,28 +87,28 @@ def additiveCertificate :
 
 /-- Explicit standing receipt distinguishes active and neutral components. -/
 def additiveBoundaryReceipt : SemanticBoundaryReceipt additiveSemantics where
-  preconditions := .active [1, 2] (by decide) [11] (by decide)
+  preconditions := .active [1, 3] (by decide) [11] (by decide)
   invariants := .neutral (fun _ => True.intro)
   numericFlows := .active [1, 3] (by decide) [1, 2] (by decide)
   temporal := .neutral (fun _ => True.intro)
   trajectory := .neutral (fun _ => True.intro)
 
 /-- Anchor execution is lawful. -/
-theorem additive_anchor_lawful : additiveSemantics.Lawful [1, 2] := by
-  refine ⟨3, ?_, rfl, ?_, trivial, ?_, trivial, trivial⟩
+theorem additive_anchor_lawful : additiveSemantics.Lawful [1, 3] := by
+  refine ⟨4, ?_, rfl, ?_, trivial, ?_, trivial, trivial⟩
   · decide
   · decide
   · decide
 
 /-- Swapped serialization is trace-equivalent. -/
 theorem additive_trace_swap :
-    TraceEq distinctNatIndependence [1, 2] [2, 1] := by
+    TraceEq distinctNatIndependence [1, 3] [3, 1] := by
   simpa using
-    (TraceEq.swap (I := distinctNatIndependence) [] 1 2 [] (by decide))
+    (TraceEq.swap (I := distinctNatIndependence) [] 1 3 [] (by decide))
 
 /-- The original crown obligation is discharged on a concrete non-vacuous
 planning semantics. -/
-theorem additive_swapped_lawful : additiveSemantics.Lawful [2, 1] :=
+theorem additive_swapped_lawful : additiveSemantics.Lawful [3, 1] :=
   additiveCertificate.traceSwapPreservesLawful
     additive_trace_swap additive_anchor_lawful
 
