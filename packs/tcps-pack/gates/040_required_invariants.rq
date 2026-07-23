@@ -8,6 +8,10 @@ SELECT ?required WHERE {
     tcps:SeparateSelectAuthorizeExecute
     tcps:PullBeforeProduction
     tcps:AffineAuthorization
+    tcps:NoSelfAdjudication
+    tcps:EvidenceNotNarrative
+    tcps:BoundedAutonomicActuation
+    tcps:PhaseShiftRequiresRecomposition
   }
   FILTER NOT EXISTS { ?required a tcps:Invariant }
 }
