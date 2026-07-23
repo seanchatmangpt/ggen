@@ -1,6 +1,6 @@
 # tcps-pack
 
-`tcps-pack` is the unified production-system pack extracted from
+`tcps-pack` 0.2.0 is the unified production-system pack extracted from
 `examples/tcps-lifecycle`. Its atomic boundary is the complete TCPS control law,
 not one language, tool, or deployment surface.
 
