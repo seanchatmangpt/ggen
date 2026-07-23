@@ -1,3 +1,7 @@
+[workspace]
+members = [".", "aeneas-kernel"]
+resolver = "2"
+
 [package]
 name = "tcps-lifecycle"
 version = "26.7.0"
@@ -11,6 +15,7 @@ publish = false
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tcps-aeneas-kernel = { path = "aeneas-kernel" }
 
 [dev-dependencies]
 static_assertions = "1"
