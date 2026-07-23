@@ -8,17 +8,24 @@
 //! observed.execute(&mut executor);
 //! ```
 
+pub mod autonomics;
 pub use tcps_aeneas_kernel as aeneas_kernel;
 
 use serde::Serialize;
 use std::{fmt, marker::PhantomData};
 
-#[derive(Debug)] pub struct Observed;
-#[derive(Debug)] pub struct Admitted;
-#[derive(Debug)] pub struct Planned;
-#[derive(Debug)] pub struct Authorized;
-#[derive(Debug)] pub struct Receipted;
-#[derive(Debug)] pub struct Stopped;
+#[derive(Debug)]
+pub struct Observed;
+#[derive(Debug)]
+pub struct Admitted;
+#[derive(Debug)]
+pub struct Planned;
+#[derive(Debug)]
+pub struct Authorized;
+#[derive(Debug)]
+pub struct Receipted;
+#[derive(Debug)]
+pub struct Stopped;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct Observation {
@@ -51,9 +58,20 @@ impl CargoCicdEvidence {
         self.build_green && self.tests_green && self.trybuild_green && self.lean_green
     }
 
-    #[must_use] pub fn digest(&self) -> &str { &self.evidence_digest }
-    #[must_use] pub fn source_digest(&self) -> &str { &self.source_digest }
-    #[must_use] pub fn changed_scope(&self) -> &[String] { &self.changed_scope }
+    #[must_use]
+    pub fn digest(&self) -> &str {
+        &self.evidence_digest
+    }
+
+    #[must_use]
+    pub fn source_digest(&self) -> &str {
+        &self.source_digest
+    }
+
+    #[must_use]
+    pub fn changed_scope(&self) -> &[String] {
+        &self.changed_scope
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -65,7 +83,10 @@ pub struct ProductionPlan {
 }
 
 impl ProductionPlan {
-    #[must_use] pub fn evidence_digest(&self) -> &str { &self.evidence_digest }
+    #[must_use]
+    pub fn evidence_digest(&self) -> &str {
+        &self.evidence_digest
+    }
 }
 
 /// Opaque affine capability. Only `ReferencePraxisGate::authorize` constructs it.
@@ -88,7 +109,10 @@ impl Authorization {
         }
     }
 
-    #[must_use] pub fn approver(&self) -> &str { &self.approver }
+    #[must_use]
+    pub fn approver(&self) -> &str {
+        &self.approver
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -103,10 +127,25 @@ pub struct ExecutionReceipt {
 }
 
 impl ExecutionReceipt {
-    #[must_use] pub fn executor(&self) -> &str { &self.executor }
-    #[must_use] pub fn receipt_digest(&self) -> &str { &self.receipt_digest }
-    #[must_use] pub fn artifact_digest(&self) -> &str { &self.artifact_digest }
-    #[must_use] pub fn evidence_digest(&self) -> &str { &self.evidence_digest }
+    #[must_use]
+    pub fn executor(&self) -> &str {
+        &self.executor
+    }
+
+    #[must_use]
+    pub fn receipt_digest(&self) -> &str {
+        &self.receipt_digest
+    }
+
+    #[must_use]
+    pub fn artifact_digest(&self) -> &str {
+        &self.artifact_digest
+    }
+
+    #[must_use]
+    pub fn evidence_digest(&self) -> &str {
+        &self.evidence_digest
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -116,7 +155,10 @@ pub struct Andon {
 }
 
 impl Andon {
-    #[must_use] pub fn reason(&self) -> &str { &self.reason }
+    #[must_use]
+    pub fn reason(&self) -> &str {
+        &self.reason
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -150,9 +192,10 @@ pub trait AdmissionGate {
     fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal>;
 }
 
-/// The executor returns artifact evidence only. The framework manufactures the receipt.
+/// Executors return artifact evidence only. The framework manufactures receipts.
 pub trait WorkcellExecutor {
     fn executor_name(&self) -> &str;
+
     fn execute(
         &mut self,
         observation: &Observation,
@@ -162,12 +205,16 @@ pub trait WorkcellExecutor {
 }
 
 #[derive(Clone, Debug)]
-pub struct ReferencePraxisGate { admitted_standard_hash: String }
+pub struct ReferencePraxisGate {
+    admitted_standard_hash: String,
+}
 
 impl ReferencePraxisGate {
     #[must_use]
     pub fn new(admitted_standard_hash: impl Into<String>) -> Self {
-        Self { admitted_standard_hash: admitted_standard_hash.into() }
+        Self {
+            admitted_standard_hash: admitted_standard_hash.into(),
+        }
     }
 
     pub fn authorize(
@@ -188,8 +235,12 @@ impl ReferencePraxisGate {
 
 impl AdmissionGate for ReferencePraxisGate {
     fn admit(&self, observation: &Observation) -> Result<AdmissionReceipt, Refusal> {
-        if observation.downstream_demand == 0 { return Err(Refusal::ZeroDemand); }
-        if observation.standard_hash.is_empty() { return Err(Refusal::EmptyStandard); }
+        if observation.downstream_demand == 0 {
+            return Err(Refusal::ZeroDemand);
+        }
+        if observation.standard_hash.is_empty() {
+            return Err(Refusal::EmptyStandard);
+        }
         if observation.standard_hash != self.admitted_standard_hash {
             return Err(Refusal::StandardNotAdmitted);
         }
@@ -211,17 +262,29 @@ pub struct ReferenceCargoCicdExecutor {
 impl ReferenceCargoCicdExecutor {
     #[must_use]
     pub fn green() -> Self {
-        Self { fail_execution: false, verification_green: true, executor_name: "cargo-cicd".into() }
+        Self {
+            fail_execution: false,
+            verification_green: true,
+            executor_name: "cargo-cicd".into(),
+        }
     }
 
     #[must_use]
     pub fn failing() -> Self {
-        Self { fail_execution: true, verification_green: true, executor_name: "cargo-cicd".into() }
+        Self {
+            fail_execution: true,
+            verification_green: true,
+            executor_name: "cargo-cicd".into(),
+        }
     }
 
     #[must_use]
     pub fn verification_failing() -> Self {
-        Self { fail_execution: false, verification_green: false, executor_name: "cargo-cicd".into() }
+        Self {
+            fail_execution: false,
+            verification_green: false,
+            executor_name: "cargo-cicd".into(),
+        }
     }
 
     #[must_use]
@@ -253,7 +316,9 @@ impl ReferenceCargoCicdExecutor {
 }
 
 impl WorkcellExecutor for ReferenceCargoCicdExecutor {
-    fn executor_name(&self) -> &str { &self.executor_name }
+    fn executor_name(&self) -> &str {
+        &self.executor_name
+    }
 
     fn execute(
         &mut self,
@@ -296,7 +361,11 @@ impl ProductionLine<Observed> {
         standard_hash: impl Into<String>,
     ) -> Self {
         Self {
-            observation: Observation { id: id.into(), downstream_demand, standard_hash: standard_hash.into() },
+            observation: Observation {
+                id: id.into(),
+                downstream_demand,
+                standard_hash: standard_hash.into(),
+            },
             admission: None,
             plan: None,
             authorization: None,
@@ -328,8 +397,12 @@ impl ProductionLine<Observed> {
 
 impl ProductionLine<Admitted> {
     pub fn plan(self, evidence: CargoCicdEvidence) -> Result<ProductionLine<Planned>, Refusal> {
-        if !evidence.is_green() { return Err(Refusal::EvidenceNotGreen); }
-        let admission = self.admission.expect("admitted state owns admission receipt");
+        if !evidence.is_green() {
+            return Err(Refusal::EvidenceNotGreen);
+        }
+        let admission = self
+            .admission
+            .expect("admitted state owns admission receipt");
         let plan_digest = digest(&[
             &self.observation.id,
             &admission.digest,
@@ -360,7 +433,10 @@ impl ProductionLine<Planned> {
         &self.plan.as_ref().expect("planned state owns plan").plan_digest
     }
 
-    pub fn authorize(self, authorization: Authorization) -> Result<ProductionLine<Authorized>, Refusal> {
+    pub fn authorize(
+        self,
+        authorization: Authorization,
+    ) -> Result<ProductionLine<Authorized>, Refusal> {
         let plan = self.plan.as_ref().expect("planned state owns plan");
         let expected = digest(&[
             &plan.plan_digest,
@@ -392,7 +468,10 @@ impl ProductionLine<Authorized> {
         executor: &mut impl WorkcellExecutor,
     ) -> Result<ProductionLine<Receipted>, ProductionLine<Stopped>> {
         let plan = self.plan.as_ref().expect("authorized state owns plan");
-        let authorization = self.authorization.as_ref().expect("authorized state owns authorization");
+        let authorization = self
+            .authorization
+            .as_ref()
+            .expect("authorized state owns authorization");
         if executor.executor_name().is_empty() || executor.executor_name() != plan.workcell {
             return Err(self.stop("workcell abnormality: executor identity mismatch"));
         }
@@ -441,7 +520,10 @@ impl ProductionLine<Authorized> {
 
     fn stop(self, reason: &str) -> ProductionLine<Stopped> {
         ProductionLine {
-            andon: Some(Andon { observation_id: self.observation.id.clone(), reason: reason.into() }),
+            andon: Some(Andon {
+                observation_id: self.observation.id.clone(),
+                reason: reason.into(),
+            }),
             observation: self.observation,
             admission: self.admission,
             plan: self.plan,
@@ -470,7 +552,9 @@ impl ProductionLine<Stopped> {
         updated_standard_hash: impl Into<String>,
     ) -> Result<ProductionLine<Observed>, Refusal> {
         let updated_standard_hash = updated_standard_hash.into();
-        if updated_standard_hash.is_empty() { return Err(Refusal::EmptyStandard); }
+        if updated_standard_hash.is_empty() {
+            return Err(Refusal::EmptyStandard);
+        }
         if updated_standard_hash == self.observation.standard_hash {
             return Err(Refusal::StandardUnchanged);
         }
@@ -483,7 +567,11 @@ impl ProductionLine<Stopped> {
 }
 
 fn admission_digest(observation: &Observation) -> String {
-    digest(&[&observation.id, &observation.standard_hash, "praxis-admit"])
+    digest(&[
+        &observation.id,
+        &observation.standard_hash,
+        "praxis-admit",
+    ])
 }
 
 fn digest(parts: &[&str]) -> String {
