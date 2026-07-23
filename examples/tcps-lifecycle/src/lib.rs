@@ -51,8 +51,9 @@ impl CargoCicdEvidence {
         self.build_green && self.tests_green && self.trybuild_green && self.lean_green
     }
 
-    #[must_use]
-    pub fn digest(&self) -> &str { &self.evidence_digest }
+    #[must_use] pub fn digest(&self) -> &str { &self.evidence_digest }
+    #[must_use] pub fn source_digest(&self) -> &str { &self.source_digest }
+    #[must_use] pub fn changed_scope(&self) -> &[String] { &self.changed_scope }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -63,23 +64,31 @@ pub struct ProductionPlan {
     plan_digest: String,
 }
 
+impl ProductionPlan {
+    #[must_use] pub fn evidence_digest(&self) -> &str { &self.evidence_digest }
+}
+
 /// Opaque affine capability. Only `ReferencePraxisGate::authorize` constructs it.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Authorization {
     plan_digest: String,
+    standard_hash: String,
     approver: String,
     authorization_digest: String,
 }
 
 impl Authorization {
-    fn new(plan_digest: &str, approver: impl Into<String>) -> Self {
+    fn new(plan_digest: &str, standard_hash: &str, approver: impl Into<String>) -> Self {
         let approver = approver.into();
         Self {
             plan_digest: plan_digest.to_owned(),
-            authorization_digest: digest(&[plan_digest, &approver, "authorize"]),
+            standard_hash: standard_hash.to_owned(),
+            authorization_digest: digest(&[plan_digest, standard_hash, &approver, "authorize"]),
             approver,
         }
     }
+
+    #[must_use] pub fn approver(&self) -> &str { &self.approver }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -87,6 +96,7 @@ pub struct ExecutionReceipt {
     observation_id: String,
     plan_digest: String,
     authorization_digest: String,
+    evidence_digest: String,
     executor: String,
     artifact_digest: String,
     receipt_digest: String,
@@ -96,6 +106,7 @@ impl ExecutionReceipt {
     #[must_use] pub fn executor(&self) -> &str { &self.executor }
     #[must_use] pub fn receipt_digest(&self) -> &str { &self.receipt_digest }
     #[must_use] pub fn artifact_digest(&self) -> &str { &self.artifact_digest }
+    #[must_use] pub fn evidence_digest(&self) -> &str { &self.evidence_digest }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -112,6 +123,7 @@ impl Andon {
 pub enum Refusal {
     ZeroDemand,
     StandardNotAdmitted,
+    InvalidAdmissionReceipt,
     EvidenceNotGreen,
     AuthorizationMismatch,
     StandardUnchanged,
@@ -123,8 +135,9 @@ impl fmt::Display for Refusal {
         f.write_str(match self {
             Self::ZeroDemand => "downstream demand must be positive",
             Self::StandardNotAdmitted => "observation standard is not admitted",
+            Self::InvalidAdmissionReceipt => "admission receipt does not bind the observation",
             Self::EvidenceNotGreen => "cargo-cicd or Lean evidence is not green",
-            Self::AuthorizationMismatch => "authorization does not match the plan",
+            Self::AuthorizationMismatch => "authorization does not match the plan and standard",
             Self::StandardUnchanged => "restart requires updated standard work",
             Self::EmptyStandard => "standard work hash must be non-empty",
         })
@@ -157,13 +170,19 @@ impl ReferencePraxisGate {
         Self { admitted_standard_hash: admitted_standard_hash.into() }
     }
 
-    #[must_use]
     pub fn authorize(
         &self,
         plan: &ProductionLine<Planned>,
         approver: impl Into<String>,
-    ) -> Authorization {
-        Authorization::new(plan.plan_digest(), approver)
+    ) -> Result<Authorization, Refusal> {
+        if plan.observation.standard_hash != self.admitted_standard_hash {
+            return Err(Refusal::StandardNotAdmitted);
+        }
+        Ok(Authorization::new(
+            plan.plan_digest(),
+            &self.admitted_standard_hash,
+            approver,
+        ))
     }
 }
 
@@ -177,7 +196,7 @@ impl AdmissionGate for ReferencePraxisGate {
         Ok(AdmissionReceipt {
             observation_id: observation.id.clone(),
             standard_hash: observation.standard_hash.clone(),
-            digest: digest(&[&observation.id, &observation.standard_hash, "praxis-admit"]),
+            digest: admission_digest(observation),
         })
     }
 }
@@ -289,6 +308,12 @@ impl ProductionLine<Observed> {
 
     pub fn admit(self, gate: &impl AdmissionGate) -> Result<ProductionLine<Admitted>, Refusal> {
         let admission = gate.admit(&self.observation)?;
+        if admission.observation_id != self.observation.id
+            || admission.standard_hash != self.observation.standard_hash
+            || admission.digest != admission_digest(&self.observation)
+        {
+            return Err(Refusal::InvalidAdmissionReceipt);
+        }
         Ok(ProductionLine {
             observation: self.observation,
             admission: Some(admission),
@@ -337,7 +362,16 @@ impl ProductionLine<Planned> {
 
     pub fn authorize(self, authorization: Authorization) -> Result<ProductionLine<Authorized>, Refusal> {
         let plan = self.plan.as_ref().expect("planned state owns plan");
-        if authorization.plan_digest != plan.plan_digest {
+        let expected = digest(&[
+            &plan.plan_digest,
+            &self.observation.standard_hash,
+            &authorization.approver,
+            "authorize",
+        ]);
+        if authorization.plan_digest != plan.plan_digest
+            || authorization.standard_hash != self.observation.standard_hash
+            || authorization.authorization_digest != expected
+        {
             return Err(Refusal::AuthorizationMismatch);
         }
         Ok(ProductionLine {
@@ -359,13 +393,17 @@ impl ProductionLine<Authorized> {
     ) -> Result<ProductionLine<Receipted>, ProductionLine<Stopped>> {
         let plan = self.plan.as_ref().expect("authorized state owns plan");
         let authorization = self.authorization.as_ref().expect("authorized state owns authorization");
+        if executor.executor_name().is_empty() || executor.executor_name() != plan.workcell {
+            return Err(self.stop("workcell abnormality: executor identity mismatch"));
+        }
         match executor.execute(&self.observation, plan, authorization) {
-            Ok(artifact_digest) => {
+            Ok(artifact_digest) if !artifact_digest.is_empty() => {
                 let executor_name = executor.executor_name().to_owned();
                 let receipt_digest = digest(&[
                     &self.observation.id,
                     &plan.plan_digest,
                     &authorization.authorization_digest,
+                    &plan.evidence_digest,
                     &artifact_digest,
                     &executor_name,
                 ]);
@@ -373,6 +411,7 @@ impl ProductionLine<Authorized> {
                     observation_id: plan.observation_id.clone(),
                     plan_digest: plan.plan_digest.clone(),
                     authorization_digest: authorization.authorization_digest.clone(),
+                    evidence_digest: plan.evidence_digest.clone(),
                     executor: executor_name,
                     artifact_digest,
                     receipt_digest,
@@ -387,6 +426,7 @@ impl ProductionLine<Authorized> {
                     state: PhantomData,
                 })
             }
+            Ok(_) => Err(self.stop("workcell abnormality: empty artifact evidence")),
             Err(andon) => Err(ProductionLine {
                 observation: self.observation,
                 admission: self.admission,
@@ -396,6 +436,18 @@ impl ProductionLine<Authorized> {
                 andon: Some(andon),
                 state: PhantomData,
             }),
+        }
+    }
+
+    fn stop(self, reason: &str) -> ProductionLine<Stopped> {
+        ProductionLine {
+            andon: Some(Andon { observation_id: self.observation.id.clone(), reason: reason.into() }),
+            observation: self.observation,
+            admission: self.admission,
+            plan: self.plan,
+            authorization: self.authorization,
+            receipt: None,
+            state: PhantomData,
         }
     }
 }
@@ -428,6 +480,10 @@ impl ProductionLine<Stopped> {
             updated_standard_hash,
         ))
     }
+}
+
+fn admission_digest(observation: &Observation) -> String {
+    digest(&[&observation.id, &observation.standard_hash, "praxis-admit"])
 }
 
 fn digest(parts: &[&str]) -> String {
