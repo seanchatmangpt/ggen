@@ -1,0 +1,69 @@
+---
+to: TCPSLifecycle/Basic.lean
+force: true
+---
+import Std
+
+namespace TCPSLifecycle
+
+inductive State where
+  | observed
+  | admitted
+  | planned
+  | authorized
+  | receipted
+  | stopped
+  deriving DecidableEq, Repr
+
+inductive Transition : State → State → Prop where
+  | admit : Transition .observed .admitted
+  | plan : Transition .admitted .planned
+  | authorize : Transition .planned .authorized
+  | executeReceipted : Transition .authorized .receipted
+  | stopOnAbnormality : Transition .authorized .stopped
+  | recoverWithUpdatedStandard : Transition .stopped .observed
+
+inductive Outcome where
+  | receipted (digest : String)
+  | stopped (reason : String)
+  deriving Repr
+
+def Successful : Outcome → Prop
+  | .receipted _ => True
+  | .stopped _ => False
+
+theorem successful_has_receipt {outcome : Outcome} (h : Successful outcome) :
+    ∃ digest, outcome = .receipted digest := by
+  cases outcome with
+  | receipted digest => exact ⟨digest, rfl⟩
+  | stopped reason => cases h
+
+theorem observed_cannot_execute_directly :
+    ¬ Transition .observed .receipted := by
+  intro h
+  cases h
+
+theorem admitted_cannot_execute_directly :
+    ¬ Transition .admitted .receipted := by
+  intro h
+  cases h
+
+theorem planned_requires_authorization :
+    ¬ Transition .planned .receipted := by
+  intro h
+  cases h
+
+structure Authorization where
+  planDigest : String
+
+structure Receipt where
+  planDigest : String
+
+def Corresponds (authorization : Authorization) (receipt : Receipt) : Prop :=
+  authorization.planDigest = receipt.planDigest
+
+theorem authorized_receipt_corresponds (digest : String) :
+    Corresponds ⟨digest⟩ ⟨digest⟩ := by
+  rfl
+
+end TCPSLifecycle
