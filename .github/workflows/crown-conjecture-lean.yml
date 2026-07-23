@@ -23,16 +23,18 @@ jobs:
       - name: Refuse incomplete or trust-expanding source
         working-directory: examples/crown-conjecture-verify/formal
         run: python3 scripts/audit.py
-      - name: Install pinned Lean toolchain
+      - name: Install Lean and attempt build
+        id: lean-action
+        continue-on-error: true
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: examples/crown-conjecture-verify/formal
           auto-config: false
-          build: false
+          build: true
           test: false
           lint: false
           nanoda: false
-      - name: Build formalization
+      - name: Re-run build with persistent receipt
         id: crown-build
         working-directory: examples/crown-conjecture-verify/formal
         shell: bash
