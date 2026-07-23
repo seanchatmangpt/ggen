@@ -53,12 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compare pack template bodies with reference artifacts
+      - name: Compare every pack template body with its canonical artifact
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          pairs = {
+          example_pairs = {
+              "ADVERSARIAL_REVIEW_md.tmpl": "ADVERSARIAL_REVIEW.md",
               "Cargo_toml.tmpl": "Cargo.toml",
               "README_md.tmpl": "README.md",
               "LIFECYCLE_md.tmpl": "LIFECYCLE.md",
@@ -78,19 +79,36 @@ jobs:
               "src_main_rs.tmpl": "src/main.rs",
               "tests_lifecycle_rs.tmpl": "tests/lifecycle.rs",
           }
+          root_pairs = {
+              "github_workflows_tcps_lifecycle_yml.tmpl": ".github/workflows/tcps-lifecycle.yml",
+          }
           templates = Path("packs/tcps-pack/templates")
           example = Path("examples/tcps-lifecycle")
           failures = []
-          for template_name, output_name in pairs.items():
+
+          actual = {path.name for path in templates.glob("*.tmpl")}
+          expected_names = set(example_pairs) | set(root_pairs)
+          if actual != expected_names:
+              failures.append(
+                  f"template inventory mismatch: missing={sorted(expected_names - actual)} "
+                  f"unexpected={sorted(actual - expected_names)}"
+              )
+
+          def body(template_name: str) -> str:
               text = (templates / template_name).read_text()
               if not text.startswith("---\n") or "\n---\n" not in text[4:]:
                   failures.append(f"{template_name}: missing frontmatter")
-                  continue
-              body = text.split("\n---\n", 1)[1]
-              expected = (example / output_name).read_text()
-              if body != expected:
+                  return ""
+              return text.split("\n---\n", 1)[1]
+
+          for template_name, output_name in example_pairs.items():
+              if body(template_name) != (example / output_name).read_text():
                   failures.append(f"{template_name} != {output_name}")
+          for template_name, output_name in root_pairs.items():
+              if body(template_name) != Path(output_name).read_text():
+                  failures.append(f"{template_name} != {output_name}")
+
           if failures:
               raise SystemExit("\n".join(failures))
-          print(f"verified {len(pairs)} canonical projections")
+          print(f"verified {len(expected_names)} canonical projections")
           PY
