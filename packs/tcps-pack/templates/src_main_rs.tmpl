@@ -2,6 +2,9 @@
 to: src/main.rs
 force: true
 ---
+use tcps_lifecycle::autonomics::{
+    AutonomicPolicy, ReferenceAutonomicCargoCicd, ReferenceAutonomicPraxis,
+};
 use tcps_lifecycle::{ProductionLine, ReferenceCargoCicdExecutor, ReferencePraxisGate};
 
 fn main() {
@@ -23,11 +26,39 @@ fn main() {
         .authorize(authorization)
         .expect("authorization must bind the plan");
 
-    match authorized.execute(&mut executor) {
-        Ok(receipted) => println!("{}", receipted.receipt().receipt_digest()),
+    let lifecycle_receipt = match authorized.execute(&mut executor) {
+        Ok(receipted) => receipted.receipt().receipt_digest().to_owned(),
         Err(stopped) => {
             eprintln!("ANDON: {}", stopped.andon().reason());
             std::process::exit(1);
         }
-    }
+    };
+
+    let policy = AutonomicPolicy::phase_shift_1000x("tcps-knowledge-v1")
+        .expect("autonomic knowledge must be admitted");
+    let mut autonomic_worker = ReferenceAutonomicCargoCicd::green();
+    let proposed = autonomic_worker
+        .observe("autonomic-cycle-42", 1, 1_000, 0, &lifecycle_receipt)
+        .expect("cargo-cicd observation")
+        .classify(&policy)
+        .expect("safe phase classification")
+        .propose(&policy)
+        .expect("bounded TCPS proposal");
+    let praxis = ReferenceAutonomicPraxis::new("praxis");
+    let authorization = praxis
+        .authorize(&proposed, "production-controller")
+        .expect("independent Praxis judgment");
+    let authorized = proposed
+        .authorize(authorization)
+        .expect("authorization must bind plan and knowledge");
+    let autonomic_receipt = match authorized.apply(&mut autonomic_worker) {
+        Ok(receipted) => receipted.receipt().receipt_digest().to_owned(),
+        Err(stopped) => {
+            eprintln!("AUTONOMIC ANDON: {}", stopped.andon().reason());
+            std::process::exit(1);
+        }
+    };
+
+    println!("lifecycle={lifecycle_receipt}");
+    println!("autonomic={autonomic_receipt}");
 }
