@@ -32,9 +32,13 @@ required = {
         "DiamondCertificate",
         "run_trace_eq",
         "Execution.run_eq",
+        "Execution.of_run_eq",
+        "transport_execution",
     ],
     "CrownFormal/Semantics.lean": [
         "SemanticBoundaryReceipt",
+        "OperationalBoundaryReceipt",
+        "AdmittedSemanticCrown",
         "traceSwapPreservesLawful",
     ],
     "CrownFormal/Crown.lean": [
@@ -44,6 +48,17 @@ required = {
     "CrownFormal/Falsifiers.lean": [
         "constant_map_not_crown",
         "no_false_diamond",
+    ],
+    "CrownFormal/Examples.lean": [
+        "additiveAdmittedCrown",
+        "additive_swapped_execution",
+    ],
+    "CrownFormal/Adequacy.lean": [
+        "event_only_lawfulness_not_preserved",
+        "additive_same_final_different_state_trace",
+        "trajectory_observation_counterexample",
+        "CrownObservationAdmission",
+        "timed_repaired_crown",
     ],
 }
 for relative, names in required.items():
