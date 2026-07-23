@@ -34,6 +34,11 @@ of Mazurkiewicz trace equivalence.
 `transport_execution` manufactures a receipt derivation for every admitted
 serialization while retaining the exact final state.
 
+Both manufacturers are definitions because they return `Execution ... : Type`.
+They are not theorem declarations: Lean reserves `theorem` for proposition-valued
+results. A clean build of the merged #466 source exposed and this branch repairs
+that declaration-sort defect.
+
 ## 3. Abstract semantic preservation and admitted standing
 
 `SemanticIndependenceCertificate` transports the abstract word-level
@@ -138,7 +143,9 @@ lawfulness preservation from trace classification and observation equality.
 
 - **Abstract quotient crown:** proved in source.
 - **Abstract replay and word-level lawfulness preservation:** proved in source.
-- **Proof-relevant execution transport:** proved in source.
+- **Proof-relevant execution declaration sort:** repaired from invalid
+  proposition-only `theorem` syntax to `def`.
+- **Proof-relevant execution transport:** implemented in source.
 - **Abstract non-vacuity receipts:** load-bearing through
   `AdmittedSemanticCrown`.
 - **Event-only behavioral crown over arbitrary timestamps:** refuted by a
@@ -151,7 +158,8 @@ lawfulness preservation from trace classification and observation equality.
   state-trajectory observations in the owning theory.
 - **Executable canonical normal form for trace classes:** not claimed; the
   current canonical classifier is the mathematical quotient.
-- **Lean kernel standing for the refactor:** unknown until the branch is built.
+- **Lean kernel standing for the current head:** determined only by the latest
+  workflow receipt, never inferred from source inspection.
 
 ## 7. Verification commands
 
