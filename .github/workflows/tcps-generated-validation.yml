@@ -5,12 +5,22 @@ on:
     paths:
       - "examples/tcps-generated/**"
       - "crates/chicago-tdd-tools/**"
+      - "packs/tcps-core-pack/**"
+      - "packs/tcps-std-pack/**"
+      - "packs/tcps-wasm-pack/**"
+      - "packs/tcps-cli-pack/**"
+      - "packs/tcps-release-pack/**"
       - ".github/workflows/tcps-generated-validation.yml"
   push:
     branches: [main]
     paths:
       - "examples/tcps-generated/**"
       - "crates/chicago-tdd-tools/**"
+      - "packs/tcps-core-pack/**"
+      - "packs/tcps-std-pack/**"
+      - "packs/tcps-wasm-pack/**"
+      - "packs/tcps-cli-pack/**"
+      - "packs/tcps-release-pack/**"
       - ".github/workflows/tcps-generated-validation.yml"
   merge_group:
 
@@ -39,82 +49,29 @@ jobs:
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:
           toolchain: nightly-2026-06-22
-          components: rustfmt
 
-      - name: Format projection and execute validation suites
+      - name: Execute checked-in evidence and behavioral suites
         shell: bash
         run: |
           set -uo pipefail
           : > tcps-generated-validation.log
           status=0
 
-          # The generated TCPS product is byte-governed by SOURCE_MANIFEST.sha256
-          # and declared derivative identities. Only handwritten validation code is
-          # projected through rustfmt; generated product bytes remain untouched.
-          mapfile -t validation_sources < <(
-            find examples/tcps-generated/tests \
-              -type f \
-              -name '*.rs' \
-              -print | LC_ALL=C sort
-          )
-          if [ "${#validation_sources[@]}" -eq 0 ]; then
-            printf '%s\n' 'NO_VALIDATION_SOURCES' >> tcps-generated-validation.log
-            status=1
-          else
-            rustfmt \
-              --edition 2021 \
-              "${validation_sources[@]}" \
-              >> tcps-generated-validation.log 2>&1 || status=$?
-          fi
-
-          # Emit exact source-to-consumer deltas for every currently refused
-          # manifest binding. This is diagnostic evidence only: diff status never
-          # changes the test outcome and cannot convert a refusal into acceptance.
-          reference_root="packs/tcps-core-pack/reference/製品版"
-          while IFS='|' read -r identity generated reference; do
-            [ -n "$identity" ] || continue
-            {
-              printf '\n===== DERIVATIVE DIFF %s =====\n' "$identity"
-              diff -u \
-                "$reference_root/$reference" \
-                "examples/tcps-generated/$generated" || true
-            } >> tcps-generated-validation.log 2>&1
-          done <<'DERIVATIVES'
-          runtime.std|crates/tcps-std/src/lib.rs|crates/tcps-std/src/lib.rs
-          runtime.wasm|crates/tcps-wasm/src/lib.rs|crates/tcps-wasm/src/lib.rs
-          runtime.cli|crates/tcps-cli/src/main.rs|crates/tcps-cli/src/main.rs
-          release.ci|infra/ci/tier1.yml|.github/workflows/tier1.yml
-          release.targets|infra/targets/tier1.txt|targets/tier1.txt
-          release.packaging.deb|infra/packaging/deb/control.in|packaging/deb/control.in
-          release.packaging.rpm|infra/packaging/rpm/tcps.spec.in|packaging/rpm/tcps.spec.in
-          release.packaging.npm|infra/packaging/npm/package.json.in|packaging/npm/package.json.in
-          release.packaging.nuget|infra/packaging/nuget/tcps.nuspec.in|packaging/nuget/tcps.nuspec.in
-          evidence.sbom.cyclonedx|infra/evidence/source/tcps-v26.7.19.cdx.json|evidence/source/tcps-v26.7.19.cdx.json
-          evidence.sbom.spdx|infra/evidence/source/tcps-v26.7.19.spdx.json|evidence/source/tcps-v26.7.19.spdx.json
-          evidence.provenance.in-toto|infra/evidence/source/tcps-v26.7.19.intoto.jsonl|evidence/source/tcps-v26.7.19.intoto.jsonl
-          DERIVATIVES
-
-          tar -czf tcps-formatted-validation-sources.tar.gz \
-            examples/tcps-generated/tests
-
-          if [ "$status" -eq 0 ]; then
-            cargo test \
-              --manifest-path examples/tcps-generated/Cargo.toml \
-              --test tcps_chicago_tdd_1000x \
-              --test tcps_chicago_tdd_8pow4 \
-              -- --nocapture >> tcps-generated-validation.log 2>&1 || status=$?
-          fi
+          cargo test \
+            --locked \
+            --manifest-path examples/tcps-generated/Cargo.toml \
+            --test tcps_chicago_tdd_1000x \
+            --test tcps_chicago_tdd_8pow4 \
+            -- --nocapture > tcps-generated-validation.log 2>&1 || status=$?
 
           cat tcps-generated-validation.log
           exit "$status"
 
-      - name: Preserve validation evidence
+      - name: Preserve validation log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: tcps-generated-validation-evidence
-          path: |
-            tcps-generated-validation.log
-            tcps-formatted-validation-sources.tar.gz
+          name: tcps-generated-validation-log
+          path: tcps-generated-validation.log
           if-no-files-found: error
           retention-days: 7
