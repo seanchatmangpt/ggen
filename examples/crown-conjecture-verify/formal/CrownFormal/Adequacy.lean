@@ -66,7 +66,9 @@ theorem event_only_lawfulness_not_preserved :
   intro claimed
   have transferred : TimestampLawful timedBad :=
     claimed timedGood timedBad timed_events_trace_eq (by rfl)
-  have refused : ¬ TimestampLawful timedBad := by decide
+  have refused : ¬ TimestampLawful timedBad := by
+    unfold TimestampLawful
+    decide
   exact refused transferred
 
 /-- A sufficient repaired relation for the timed countermodel: events are
