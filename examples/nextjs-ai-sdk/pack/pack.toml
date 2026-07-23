@@ -1,0 +1,12 @@
+[pack]
+name = "nextjs-ai-sdk-pack"
+version = "26.7.23"
+description = "Projects an admitted Next.js 16 + AI SDK 7 application with AI Elements, shadcn/ui, Better Auth, Neon/PostgreSQL, Drizzle, approval-gated tools, OpenTelemetry, and BLAKE3 receipts into canonical source paths."
+
+[law]
+ontology = "ontology.ttl"
+gates = ["gates/010_required.rq", "gates/020_cardinality.rq", "gates/030_constraints.rq", "gates/040_mutation_approval.rq", "gates/050_references.rq", "gates/060_uniqueness.rq", "gates/070_application_closure.rq"]
+
+[verification]
+sync_twice = true
+refuse_unexplained_drift = true
