@@ -1,0 +1,28 @@
+# TCPS lifecycle reference implementation
+
+This example is the reference implementation used to derive `packs/tcps-pack`.
+It is deliberately implemented before the unified pack: the pack must reproduce
+observed working artifacts rather than invent a second, template-only design.
+
+The example assigns distinct responsibilities:
+
+- **TCPS** controls flow, abnormality handling, standard work, pull, and restart.
+- **Praxis** admits observations, plans consequences, checks Lean, and receipts law.
+- **cargo-cicd** observes and executes repository workcells and emits process evidence.
+- **ggen** projects this admitted production system into canonical repository paths.
+
+Run the local verification rail:
+
+```bash
+bash scripts/verify.sh
+```
+
+Run the complete external-oracle rail when `cargo-cicd`, `my-conforming-project`,
+and `praxis-l4` are installed:
+
+```bash
+bash scripts/verify.sh --crown
+```
+
+No projected artifact is placed under a `generated/` directory. The Rust, Lean,
+release, deployment, and evidence surfaces are canonical project artifacts.
