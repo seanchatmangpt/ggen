@@ -27,7 +27,7 @@ jobs:
       - name: Refuse incomplete or trust-expanding source
         working-directory: examples/crown-conjecture-verify/formal
         run: python3 scripts/audit.py
-      - name: Install Lean and attempt build
+      - name: Install Lean and compile once
         id: lean-action
         continue-on-error: true
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
@@ -37,6 +37,7 @@ jobs:
           build: true
           test: false
           lint: false
+          leanchecker: false
           nanoda: false
       - name: Re-run build with persistent receipt
         id: crown-build
@@ -56,7 +57,7 @@ jobs:
           name: crown-build-receipt
           path: examples/crown-conjecture-verify/formal/crown-build.log
           if-no-files-found: error
-      - name: Independent checker
+      - name: Independent Lean environment checker
         if: steps.crown-build.outcome == 'success'
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1
         with:
@@ -65,5 +66,5 @@ jobs:
           build: false
           test: false
           lint: false
-          nanoda: true
-          nanoda-allow-sorry: false
+          leanchecker: true
+          nanoda: false
