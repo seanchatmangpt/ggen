@@ -21,6 +21,7 @@ inductive Transition : State → State → Prop where
 
 structure Authorization where
   planDigest : String
+  deriving DecidableEq, Repr
 
 structure Receipt where
   observationId : String
@@ -28,11 +29,12 @@ structure Receipt where
   authorizationDigest : String
   artifactDigest : String
   receiptDigest : String
+  deriving DecidableEq, Repr
 
 inductive Outcome where
   | receipted (receipt : Receipt)
   | stopped (reason : String)
-  deriving Repr
+  deriving DecidableEq, Repr
 
 def Successful : Outcome → Prop
   | .receipted _ => True
