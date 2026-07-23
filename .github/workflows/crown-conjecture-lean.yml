@@ -23,11 +23,40 @@ jobs:
       - name: Refuse incomplete or trust-expanding source
         working-directory: examples/crown-conjecture-verify/formal
         run: python3 scripts/audit.py
-      - name: Kernel and independent checker verification
+      - name: Install pinned Lean toolchain
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: examples/crown-conjecture-verify/formal
-          build: true
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          nanoda: false
+      - name: Build formalization
+        id: crown-build
+        working-directory: examples/crown-conjecture-verify/formal
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            lake update
+            lake exe cache get
+            lake build
+          } 2>&1 | tee crown-build.log
+      - name: Upload build receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crown-build-receipt
+          path: examples/crown-conjecture-verify/formal/crown-build.log
+          if-no-files-found: error
+      - name: Independent checker
+        if: steps.crown-build.outcome == 'success'
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: examples/crown-conjecture-verify/formal
+          auto-config: false
+          build: false
           test: false
           lint: false
           nanoda: true
