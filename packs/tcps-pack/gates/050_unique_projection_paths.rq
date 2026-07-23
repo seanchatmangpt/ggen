@@ -1,0 +1,8 @@
+# MESSAGE: two TCPS projection artifacts claim the same canonical path
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?path ?left ?right WHERE {
+  ?left a tcps:ProjectionArtifact ; tcps:projectionPath ?path .
+  ?right a tcps:ProjectionArtifact ; tcps:projectionPath ?path .
+  FILTER(STR(?left) < STR(?right))
+}
+ORDER BY ?path ?left ?right
