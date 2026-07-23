@@ -44,11 +44,31 @@ jobs:
       - name: Run product-evidence and 8^4 behavioral suites
         shell: bash
         run: |
+          set -uo pipefail
           : > tcps-generated-validation.log
           status=0
-          cargo fmt \
-            --manifest-path examples/tcps-generated/Cargo.toml \
-            -- --check >> tcps-generated-validation.log 2>&1 || status=$?
+
+          # The generated TCPS product is byte-governed by SOURCE_MANIFEST.sha256
+          # and the declared-derivative identities. Reformatting that product would
+          # mutate the subject under proof. Rustfmt therefore judges only the
+          # handwritten validation implementation introduced by this workflow.
+          mapfile -t validation_sources < <(
+            find examples/tcps-generated/tests \
+              -type f \
+              -name '*.rs' \
+              -print | LC_ALL=C sort
+          )
+          if [ "${#validation_sources[@]}" -eq 0 ]; then
+            printf '%s\n' 'NO_VALIDATION_SOURCES' >> tcps-generated-validation.log
+            status=1
+          else
+            rustfmt \
+              --edition 2021 \
+              --check \
+              "${validation_sources[@]}" \
+              >> tcps-generated-validation.log 2>&1 || status=$?
+          fi
+
           if [ "$status" -eq 0 ]; then
             cargo test \
               --manifest-path examples/tcps-generated/Cargo.toml \
@@ -56,6 +76,7 @@ jobs:
               --test tcps_chicago_tdd_8pow4 \
               -- --nocapture >> tcps-generated-validation.log 2>&1 || status=$?
           fi
+
           cat tcps-generated-validation.log
           exit "$status"
 
