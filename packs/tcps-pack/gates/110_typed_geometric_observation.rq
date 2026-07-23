@@ -1,0 +1,13 @@
+# MESSAGE: production planning requires typed measurements, derivative fencing, geometric admission, and bound source/knowledge digests
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?kernel WHERE {
+  ?kernel a tcps:ProductionKernelPolicy .
+  FILTER (
+    NOT EXISTS { ?kernel tcps:typedMeasurement true } ||
+    NOT EXISTS { ?kernel tcps:derivativeFence true } ||
+    NOT EXISTS { ?kernel tcps:geometricSafetyRegion true } ||
+    NOT EXISTS { ?kernel tcps:sourceDigestBound true } ||
+    NOT EXISTS { ?kernel tcps:knowledgeDigestBound true }
+  )
+}
+ORDER BY ?kernel
