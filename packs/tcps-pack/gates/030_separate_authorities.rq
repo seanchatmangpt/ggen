@@ -1,0 +1,13 @@
+# MESSAGE: a TCPS production-system instance must not assign the same actor to selection, authorization, or execution
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?system ?actor WHERE {
+  ?system a tcps:ProductionSystem .
+  {
+    ?system tcps:selectActor ?actor ; tcps:authorizeActor ?actor .
+  } UNION {
+    ?system tcps:selectActor ?actor ; tcps:executeActor ?actor .
+  } UNION {
+    ?system tcps:authorizeActor ?actor ; tcps:executeActor ?actor .
+  }
+}
+ORDER BY ?system ?actor
