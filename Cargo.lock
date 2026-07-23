@@ -1527,7 +1527,7 @@ checksum = "7704b5fdd17b18ae31c4c1da5a2e0305a2bf17b5249300a9ee9ed7b72114c636"
 
 [[package]]
 name = "cpmp"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "blake3",
@@ -2788,7 +2788,7 @@ dependencies = [
 
 [[package]]
 name = "genesis-core-v2"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "async-trait",
  "blake3",
@@ -2809,7 +2809,7 @@ dependencies = [
 
 [[package]]
 name = "genesis-types"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "blake3",
  "chrono",
@@ -2862,7 +2862,7 @@ dependencies = [
 
 [[package]]
 name = "ggen"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2915,7 +2915,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cheat-scanner"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2925,7 +2925,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cli-lib"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2999,7 +2999,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-config"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "blake3",
  "chrono",
@@ -3023,7 +3023,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-engine"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3070,7 +3070,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-graph"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "blake3",
  "chrono",
@@ -3091,7 +3091,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -3130,7 +3130,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-marketplace"
-version = "26.7.48"
+version = "26.7.51"
 dependencies = [
  "anyhow",
  "async-trait",

@@ -108,3 +108,56 @@ Terraform/API payload once authorized — it was not invoked to actually apply a
 actuation class under this session's operating rules. No agent has attempted this API call.
 Written for the user's review; requires the user to supply the target account identity before
 it can even be planned precisely, let alone executed.
+
+## AP-004 — Allow `main` to deploy to the `github-pages` environment on `seanchatmangpt/ggen`
+
+- **Operation**: `gh api -X POST repos/seanchatmangpt/ggen/environments/github-pages/deployment-branch-policies
+  -f name=main` (add `main` as an allowed deployment branch), optionally followed by
+  `gh api -X DELETE repos/seanchatmangpt/ggen/environments/github-pages/deployment-branch-policies/36744262`
+  (remove the stale `master` entry — safe either way, since `master` doesn't exist as a branch
+  in this repo and can never itself trigger a deployment).
+- **Target**: `seanchatmangpt/ggen`, the `github-pages` deployment environment's branch policy
+  (Settings → Environments → github-pages → Deployment branches and tags).
+- **Why it's proposed**: confirmed this pass via `gh api repos/seanchatmangpt/ggen/environments/
+  github-pages` (`deployment_branch_policy: {protected_branches: false, custom_branch_policies:
+  true}`) and `.../deployment-branch-policies` (`branch_policies: [{"name": "master", "id":
+  36744262}]`) — every run of `.github/workflows/publish-registry.yml` ("Deploy Documentation to
+  GitHub Pages", which declares `environment: {name: github-pages}`) fails in ~2 seconds with
+  "Branch main is not allowed to deploy to github-pages due to environment protection rules,"
+  before any build step executes. This repo's real default/only branch is `main`; the
+  environment's policy naming `master` is a stale artifact (environment created 2025-10-09,
+  predating or never updated for whatever point this repo's default branch became `main`) — a
+  rename gap, not a deliberate restriction.
+- **Plan hash**: not computed — this operation has no template/generated desired-state artifact
+  to hash against (unlike AP-001's `gh-terraform-pack`-generated HCL); the API call itself is the
+  plan, stated in full above. Re-verified live 2026-07-22 — target state unchanged (still only
+  `master` listed, still no `main`).
+- **Creates**: one new deployment-branch-policy entry (`name: main`) on the `github-pages`
+  environment.
+- **Updates**: nothing existing (the `master` entry is left in place unless the optional DELETE
+  is also run).
+- **Deletes**: nothing, unless the optional DELETE step is included (removes the dead `master`
+  policy entry; harmless either way since no branch named `master` exists in this repo).
+- **Rollback**: `gh api -X DELETE repos/seanchatmangpt/ggen/environments/github-pages/deployment-branch-policies/<new-id>`
+  (the id returned by the POST response) removes the added policy entry; if the optional `master`
+  DELETE was also run, `gh api -X POST .../deployment-branch-policies -f name=master` restores it.
+  Both are single-command, non-destructive to any deployment history.
+- **Post-checks**: `gh api repos/seanchatmangpt/ggen/environments/github-pages/deployment-branch-policies`
+  shows `main` in the list; a subsequent push to `main` (or `gh workflow run publish-registry.yml`)
+  no longer fails at the environment-protection-rule check (it may still fail further in, at the
+  build steps — see the separate, real, disclosed docs/src/ gap named in
+  `retrofit:GithubPagesEnvironmentStaleMasterPolicy`, which this packet does not claim to fix).
+- **Receipt path**: none written — this packet has not been executed. If authorized and run, the
+  executing agent should record the `gh api` response bodies under
+  `docs/retrofit/ggen/authorization-packets-executed/AP-004.json`.
+- **Explicitly out of scope for this packet**: the missing `docs/src/` mdbook source tree
+  (deleted 2026-03-31, never restored) that would make `publish-registry.yml`'s build step fail
+  even after this environment-policy fix and this session's separate toolchain-setup fix land —
+  a documentation-scope/product decision (redirect to `book/`, restore content, or retire this
+  workflow and its near-duplicate `deploy-docs.yml`), not an environment-permission question,
+  and not addressed here.
+
+**Non-actuation**: environment protection-rule mutation is a permission-adjacent repo-settings
+actuation class under this session's operating rules, same category as AP-001's branch
+protection. No agent has attempted either `gh api` call above. Written for the user's review and
+explicit go-ahead.

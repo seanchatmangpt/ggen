@@ -97,6 +97,13 @@ ctl:AP-001 a ctl:Obligation ;
     ctl:receiptRef "docs/retrofit/ggen/authorization-packets.md, mirrored at ./authorization-packets/AP-001.json" ;
     ctl:nextAction "Plan hash computation (local, non-actuating) is lawful prep work; the gh api PUT itself requires an explicit user ! command." .
 
+ctl:AP-004 a ctl:Obligation ;
+    rdfs:label "Allow main to deploy to the github-pages environment on seanchatmangpt/ggen" ;
+    ctl:priority 14 ;
+    ctl:state ctl:EXTERNALLY_GATED ;
+    ctl:receiptRef "docs/retrofit/ggen/authorization-packets.md" ;
+    ctl:nextAction "DISCOVERED 2026-07-22 investigating publish-registry.yml's ('Deploy Documentation to GitHub Pages') repeated main-push failures. Root cause confirmed via gh api: the github-pages environment's deployment-branch-policy names only 'master', a stale artifact of a branch rename this repo's real default (main) never got added to. Plan (add 'main' via gh api POST, optionally remove the dead 'master' entry via DELETE) is fully specified and non-destructive but is a permission-adjacent repo-settings mutation, same class as AP-001 -- requires an explicit user ! command. A second, real, disclosed-not-fixed problem (docs/src/ deleted 2026-03-31, never restored -- see retrofit:GithubPagesEnvironmentStaleMasterPolicy in ../load-path.ttl) means this workflow will not actually succeed even once AP-004 is authorized; that gap is a separate documentation-scope decision, not part of this packet." .
+
 ctl:AP-003 a ctl:Obligation ;
     rdfs:label "2 open release-bump PRs (#358, #353) -- RESOLVED, both were stale duplicates, closed without needing a release decision" ;
     ctl:priority 6 ;
