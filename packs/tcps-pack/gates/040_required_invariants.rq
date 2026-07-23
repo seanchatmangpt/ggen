@@ -1,0 +1,14 @@
+# MESSAGE: the unified TCPS pack is missing a load-bearing production invariant
+PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps#>
+SELECT ?required WHERE {
+  VALUES ?required {
+    tcps:StopOnAbnormality
+    tcps:NoUnreceiptedActuation
+    tcps:NoRestartWithoutUpdatedStandard
+    tcps:SeparateSelectAuthorizeExecute
+    tcps:PullBeforeProduction
+    tcps:AffineAuthorization
+  }
+  FILTER NOT EXISTS { ?required a tcps:Invariant }
+}
+ORDER BY ?required
