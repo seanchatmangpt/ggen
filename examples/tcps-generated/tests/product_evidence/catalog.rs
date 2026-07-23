@@ -100,7 +100,7 @@ capabilities!(
     ("core.takt", Core, "src/タクト.rs", Some("crates/tcps-core/src/タクト.rs"), ExactManifest, RustLibrary),
     ("core.value-stream", Core, "src/価値流.rs", Some("crates/tcps-core/src/価値流.rs"), ExactManifest, RustLibrary),
     ("core.process-capability", Core, "src/工程能力.rs", Some("crates/tcps-core/src/工程能力.rs"), ExactManifest, RustLibrary),
-    ("runtime.std", Runtime, "crates/tcps-std/src/lib.rs", Some("crates/tcps-std/src/lib.rs"), ExactManifest, RustLibrary),
+    ("runtime.std", Runtime, "crates/tcps-std/src/lib.rs", Some("crates/tcps-std/src/lib.rs"), DeclaredDerivative, RustLibrary),
     ("runtime.ffi", Runtime, "crates/tcps-ffi/src/lib.rs", Some("crates/tcps-ffi/src/lib.rs"), ExactManifest, RustLibrary),
     ("runtime.wasm", Runtime, "crates/tcps-wasm/src/lib.rs", Some("crates/tcps-wasm/src/lib.rs"), ExactManifest, RustLibrary),
     ("runtime.cli", Runtime, "crates/tcps-cli/src/main.rs", Some("crates/tcps-cli/src/main.rs"), ExactManifest, RustBinary),
