@@ -1,0 +1,11 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:ggen:example:tcps-lifecycle>
+    a tcps:ProductionSystem ;
+    tcps:repositoryPath "examples/tcps-lifecycle" ;
+    tcps:downstreamDemand 1 ;
+    tcps:standardHash "standard-v1" ;
+    tcps:selectActor "tcps-auto-select" ;
+    tcps:authorizeActor "praxis-blue-river-dam" ;
+    tcps:executeActor "cargo-cicd" .
