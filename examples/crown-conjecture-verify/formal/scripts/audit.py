@@ -32,8 +32,8 @@ required = {
         "DiamondCertificate",
         "run_trace_eq",
         "Execution.run_eq",
-        "Execution.of_run_eq",
-        "transport_execution",
+        "def Execution.of_run_eq",
+        "def transport_execution",
     ],
     "CrownFormal/Semantics.lean": [
         "SemanticBoundaryReceipt",
@@ -72,6 +72,22 @@ for relative, names in required.items():
     for name in names:
         if name not in text:
             findings.append(f"{relative}: missing required declaration {name}")
+
+operational_path = root / "CrownFormal/Operational.lean"
+operational = operational_path.read_text()
+proof_relevant_theorems = {
+    r"\btheorem\s+Execution\.of_run_eq\b": (
+        "Execution.of_run_eq returns Type and must be declared with def"
+    ),
+    r"\btheorem\s+transport_execution\b": (
+        "transport_execution returns Type and must be declared with def"
+    ),
+}
+for pattern, message in proof_relevant_theorems.items():
+    match = re.search(pattern, operational)
+    if match:
+        line = operational.count("\n", 0, match.start()) + 1
+        findings.append(f"CrownFormal/Operational.lean:{line}: {message}")
 
 adequacy_path = root / "CrownFormal/Adequacy.lean"
 adequacy = adequacy_path.read_text()
