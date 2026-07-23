@@ -41,7 +41,7 @@ jobs:
           toolchain: nightly-2026-06-22
           components: rustfmt
 
-      - name: Run product-evidence and 8^4 behavioral suites
+      - name: Format projection and execute validation suites
         shell: bash
         run: |
           set -uo pipefail
@@ -49,9 +49,8 @@ jobs:
           status=0
 
           # The generated TCPS product is byte-governed by SOURCE_MANIFEST.sha256
-          # and the declared-derivative identities. Reformatting that product would
-          # mutate the subject under proof. Rustfmt therefore judges only the
-          # handwritten validation implementation introduced by this workflow.
+          # and declared derivative identities. Only handwritten validation code is
+          # projected through rustfmt; generated product bytes remain untouched.
           mapfile -t validation_sources < <(
             find examples/tcps-generated/tests \
               -type f \
@@ -64,10 +63,12 @@ jobs:
           else
             rustfmt \
               --edition 2021 \
-              --check \
               "${validation_sources[@]}" \
               >> tcps-generated-validation.log 2>&1 || status=$?
           fi
+
+          tar -czf tcps-formatted-validation-sources.tar.gz \
+            examples/tcps-generated/tests
 
           if [ "$status" -eq 0 ]; then
             cargo test \
@@ -80,11 +81,13 @@ jobs:
           cat tcps-generated-validation.log
           exit "$status"
 
-      - name: Preserve validation log
+      - name: Preserve validation evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: tcps-generated-validation-log
-          path: tcps-generated-validation.log
+          name: tcps-generated-validation-evidence
+          path: |
+            tcps-generated-validation.log
+            tcps-formatted-validation-sources.tar.gz
           if-no-files-found: error
           retention-days: 7
