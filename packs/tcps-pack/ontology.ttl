@@ -1,0 +1,53 @@
+@prefix tcps: <http://seanchatmangpt.github.io/packs/tcps#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://seanchatmangpt.github.io/packs/tcps>
+    a rdfs:Resource ;
+    rdfs:label "Unified TCPS software-production system" .
+
+tcps:ProductionSystem a rdfs:Class .
+tcps:Stage a rdfs:Class .
+tcps:Invariant a rdfs:Class .
+tcps:ProjectionArtifact a rdfs:Class .
+
+tcps:order a rdf:Property .
+tcps:actor a rdf:Property .
+tcps:next a rdf:Property .
+tcps:actuates a rdf:Property .
+tcps:requiresReceipt a rdf:Property .
+tcps:projectionPath a rdf:Property .
+tcps:repositoryPath a rdf:Property .
+tcps:downstreamDemand a rdf:Property .
+tcps:standardHash a rdf:Property .
+tcps:selectActor a rdf:Property .
+tcps:authorizeActor a rdf:Property .
+tcps:executeActor a rdf:Property .
+
+tcps:Observe a tcps:Stage ; tcps:order 10 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Admit ; tcps:actuates false ; tcps:requiresReceipt false .
+tcps:Admit a tcps:Stage ; tcps:order 20 ; tcps:actor "praxis" ; tcps:next tcps:Project ; tcps:actuates false ; tcps:requiresReceipt true .
+tcps:Project a tcps:Stage ; tcps:order 30 ; tcps:actor "ggen" ; tcps:next tcps:Verify ; tcps:actuates true ; tcps:requiresReceipt true .
+tcps:Verify a tcps:Stage ; tcps:order 40 ; tcps:actor "cargo-cicd+Lean+praxis-l4" ; tcps:next tcps:Authorize ; tcps:actuates false ; tcps:requiresReceipt true .
+tcps:Authorize a tcps:Stage ; tcps:order 50 ; tcps:actor "praxis-blue-river-dam" ; tcps:next tcps:Execute ; tcps:actuates false ; tcps:requiresReceipt true .
+tcps:Execute a tcps:Stage ; tcps:order 60 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Release ; tcps:actuates true ; tcps:requiresReceipt true .
+tcps:Release a tcps:Stage ; tcps:order 70 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Deploy ; tcps:actuates true ; tcps:requiresReceipt true .
+tcps:Deploy a tcps:Stage ; tcps:order 80 ; tcps:actor "enterprise-deployment-broker" ; tcps:next tcps:Observe ; tcps:actuates true ; tcps:requiresReceipt true .
+
+tcps:StopOnAbnormality a tcps:Invariant ; rdfs:label "An abnormality stops production and raises an andon." .
+tcps:NoUnreceiptedActuation a tcps:Invariant ; rdfs:label "Every actuation atomically emits a receipt or refuses." .
+tcps:NoRestartWithoutUpdatedStandard a tcps:Invariant ; rdfs:label "A stopped line returns to observation only with updated standard work." .
+tcps:SeparateSelectAuthorizeExecute a tcps:Invariant ; rdfs:label "Selection, authorization, and execution are distinct authorities." .
+tcps:PullBeforeProduction a tcps:Invariant ; rdfs:label "Positive downstream demand is required before admission." .
+
+tcps:RustLibrary a tcps:ProjectionArtifact ; tcps:projectionPath "src/lib.rs" .
+tcps:RustBinary a tcps:ProjectionArtifact ; tcps:projectionPath "src/main.rs" .
+tcps:RustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/lifecycle.rs" .
+tcps:LeanLaw a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Basic.lean" .
+tcps:CargoManifest a tcps:ProjectionArtifact ; tcps:projectionPath "Cargo.toml" .
+tcps:CargoCicdPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "cicd.toml" .
+tcps:PraxisObservation a tcps:ProjectionArtifact ; tcps:projectionPath "praxis/observation.json" .
+tcps:ReleasePolicy a tcps:ProjectionArtifact ; tcps:projectionPath "release/release.toml" .
+tcps:DeploymentPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "deploy/production.toml" .
+tcps:VerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify.sh" .
+tcps:LifecycleDocument a tcps:ProjectionArtifact ; tcps:projectionPath "LIFECYCLE.md" .
