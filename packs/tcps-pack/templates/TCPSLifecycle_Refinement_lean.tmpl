@@ -12,7 +12,8 @@ inductive RustDecision where
   | authorize
   | executeGreen
   | executeAbnormal
-  | recoverWithUpdatedStandard
+  | recoverUpdated
+  | recoverUnchanged
   deriving DecidableEq, Repr
 
 def rustStep : TCPSLifecycle.State → RustDecision → Option TCPSLifecycle.State
@@ -21,17 +22,8 @@ def rustStep : TCPSLifecycle.State → RustDecision → Option TCPSLifecycle.Sta
   | .planned, .authorize => some .authorized
   | .authorized, .executeGreen => some .receipted
   | .authorized, .executeAbnormal => some .stopped
-  | .stopped, .recoverWithUpdatedStandard => some .observed
+  | .stopped, .recoverUpdated => some .observed
   | _, _ => none
-
-def CorrespondingDecision : RustDecision →
-    TCPSLifecycle.State → TCPSLifecycle.State → Prop
-  | .admit => TCPSLifecycle.Transition
-  | .plan => TCPSLifecycle.Transition
-  | .authorize => TCPSLifecycle.Transition
-  | .executeGreen => TCPSLifecycle.Transition
-  | .executeAbnormal => TCPSLifecycle.Transition
-  | .recoverWithUpdatedStandard => TCPSLifecycle.Transition
 
 theorem rustStep_sound {from to : TCPSLifecycle.State} {decision : RustDecision}
     (h : rustStep from decision = some to) :
@@ -50,12 +42,15 @@ theorem rust_success_is_receipted {state : TCPSLifecycle.State}
     state = .receipted := by
   simpa [rustStep] using h.symm
 
+theorem unchanged_recovery_is_refused :
+    rustStep .stopped .recoverUnchanged = none := by
+  rfl
+
 /-!
 `rustStep` is the expected pure model of `aeneas-kernel/src/lib.rs`. Crown
-standing requires `scripts/verify-aeneas.sh` to regenerate the model from Rust
-with Charon/Aeneas and bind the generated symbols to this theorem. Until that
-external receipt exists, this file proves the semantic target but does not claim
-end-to-end extraction correspondence.
+standing additionally requires `scripts/verify-aeneas.sh` to regenerate the
+model from Rust and prove the generated `step` definition extensionally equal to
+`rustStep`. Extraction without that binding is explicitly insufficient.
 -/
 
 end TCPSLifecycle.Refinement
