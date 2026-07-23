@@ -1,0 +1,188 @@
+# TCPS software-production lifecycle
+
+## Purpose
+
+This document is executable standard work for taking one downstream software
+demand from observation through a Fortune 5 production deployment. The
+reference implementation beside this document is authoritative for the first
+unified `tcps-pack`; the pack is extracted from this example after the example
+has standing.
+
+## System roles
+
+| System | Production role |
+|---|---|
+| TCPS | Governs pull, standard work, jidoka, andon, authorization separation, kaizen, and restart. |
+| Praxis | Admits observations, constructs consequence plans, checks Lean proofs, and issues/replays law receipts. |
+| cargo-cicd | Observes Cargo/Git state, selects affected work, executes tests and release workcells, and emits XES/OCEL evidence. |
+| ggen | Projects the admitted production definition into canonical Rust, Lean, test, release, deployment, and documentation artifacts. |
+
+## Lifecycle state machine
+
+```text
+Observed
+  -> Admitted by Praxis
+  -> Planned from green cargo-cicd and Lean evidence
+  -> Authorized by a plan-bound capability
+  -> Receipted execution through cargo-cicd
+
+Authorized
+  -> Stopped on abnormality
+  -> Observed only after standard work is updated
+```
+
+There is no successful `Executed` state without a receipt. The Rust API moves
+from `Authorized` directly to `Receipted`; an abnormal execution moves to
+`Stopped`. The Lean theorem `successful_has_receipt` states the same law.
+
+## Phase 1 — Observe downstream demand
+
+Input is a concrete repository change, defect, dependency update, or release
+request. `cargo-cicd` observes the real workspace and Git state. The observation
+is represented in `praxis/observation.json` and the consumer facts in
+`schema/domain.ttl`.
+
+Acceptance:
+
+- positive downstream demand;
+- named repository and observation identifier;
+- current standard-work hash;
+- named workcell and proof obligation.
+
+## Phase 2 — Admit through Praxis
+
+Praxis judges the observation as a law object. Admission binds the observation
+to the current standard and emits an admission receipt. A zero-demand request or
+unknown standard refuses before planning.
+
+Reference command:
+
+```bash
+my-conforming-project law judge "$(cat praxis/observation.json)"
+```
+
+## Phase 3 — Project canonical artifacts with ggen
+
+`ggen sync run` loads `schema/domain.ttl` and `packs/tcps-pack/ontology.ttl`,
+runs pack gates, and projects into ordinary project paths. Repeated sync with
+unchanged admitted input must be byte-identical.
+
+```bash
+ggen sync run
+ggen receipt verify
+```
+
+The pack must not write a `generated/` directory.
+
+## Phase 4 — Execute repository standard work
+
+The cargo-cicd workcell performs the affected work, not the TCPS pack itself.
+The configured sequence is:
+
+```bash
+cargo-cicd workspace doctor
+cargo-cicd test changed
+cargo-cicd trybuild full
+cargo-cicd verify
+cargo-cicd sbom generate
+```
+
+The local reference also runs `cargo test --all-targets`, Rust doctests, and
+`lake build` directly so the core evidence does not depend on one wrapper.
+
+## Phase 5 — Lean admission
+
+`lake build` checks `TCPSLifecycle/Basic.lean`. The proof rail establishes:
+
+- observed work cannot execute directly;
+- admitted work cannot execute directly;
+- planned work requires authorization;
+- every successful outcome contains a receipt;
+- authorization and receipt plan digests correspond.
+
+Praxis then performs no-sorry and unauthorized-axiom checks:
+
+```bash
+praxis-l4 verify --root . --receipts receipts/lean.jsonl
+```
+
+## Phase 6 — Plan and authorize
+
+Green evidence is converted into a plan digest. Authorization is a non-`Copy`
+capability bound to exactly that digest. Selection, authorization, and execution
+are assigned to distinct actors by both ontology and deployment policy.
+
+Any digest mismatch refuses before actuation.
+
+## Phase 7 — Execute and receipt atomically
+
+The only successful executor result is an `ExecutionReceipt`. The receipt binds:
+
+- observation identifier;
+- plan digest;
+- authorization digest;
+- executor identity;
+- artifact digest;
+- receipt digest.
+
+An executor abnormality raises an andon and returns `ProductionLine<Stopped>`.
+The line can return to `Observed` only with an updated standard hash.
+
+## Phase 8 — Release manufacture
+
+`release/release.toml` requires a clean tree, affected tests, compile-fail tests,
+Lean kernel acceptance, Praxis admission, SBOM, provenance, checksums, signature,
+and immutable digest promotion.
+
+No environment rebuilds the artifact. Development, integration,
+preproduction, and production receive the same digest.
+
+## Phase 9 — Fortune 5 deployment
+
+`deploy/production.toml` requires:
+
+- artifact digest obtained from the release receipt;
+- canary rollout;
+- bounded promotion window;
+- automatic rollback thresholds;
+- workload identity and network policy;
+- non-root and read-only execution;
+- observability and a deployment receipt;
+- distinct selection, authorization, and execution actors.
+
+The enterprise deployment broker is the only actuator.
+
+## Phase 10 — Observe, improve, and replay
+
+Runtime evidence returns to the observation layer. Any failure becomes an andon,
+then a Praxis consequence plan, then a change to ontology, standard work, proof,
+fixture, or production policy. A one-off patch is not closure.
+
+The complete replay input is:
+
+```text
+ontology + pack version + templates + toolchains + lockfiles + receipts
+```
+
+## Acceptance matrix
+
+| Gate | Named artifact |
+|---|---|
+| Semantic admission | Praxis law receipt |
+| Projection | ggen sync receipt |
+| Rust protocol law | `src/lib.rs` and compile-fail doctest |
+| Rust behavior | `tests/lifecycle.rs` |
+| Lean law | `TCPSLifecycle/Basic.lean` |
+| Repository evidence | `cicd.toml` and cargo-cicd receipts |
+| Release law | `release/release.toml` |
+| Deployment law | `deploy/production.toml` |
+| Aggregate judgment | `receipts/verification.json` |
+| Graph evidence | `evidence/checks.ttl` |
+
+## Pack extraction rule
+
+A file enters `tcps-pack` only because the working example proves it is required
+for one of these lifecycle gates. The example remains the conformance oracle.
+Pack promotion requires deleting the consumer projection, re-syncing from the
+pack, and obtaining byte-identical artifacts plus green Rust, Lean, Praxis, and
+cargo-cicd receipts.
