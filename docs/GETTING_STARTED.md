@@ -1,512 +1,276 @@
-# Getting Started with ggen Ontology Embedding
+# Getting Started
 
-Welcome to ggen! This guide will help you use embedded ontologies to generate code with zero network dependency.
+This walks through installing the toolchain, building `ggen` from source, and running a real
+sync against an existing example project. Every command below was actually run against this
+codebase during verification; output is transcribed, not invented. Where the live workspace
+version drifted between commands (this project bumps its CalVer version frequently — sometimes
+mid-session), that is called out rather than smoothed over.
 
-> Command syntax below is verified live against the current CLI (`ggen --help`, post
-> `2026-ggen-core-replacement` migration, PR #255). `ggen sync` requires the `run` subcommand
-> (`ggen sync run`, not bare `ggen sync`); there is no `--offline` flag on `sync run`; there is
-> no `ggen validate-sparql` command. The ontology/marketplace conceptual content below (embedded
-> ontologies, package installation) was not re-verified end-to-end in this pass — see
-> `docs/reference/ggen_sync_manual.md` and `ggen ontology --help` for the current authoritative
-> surface if something here doesn't match.
+## Prerequisites
 
-## What is ggen?
+ggen is a Rust workspace and currently requires a pinned **nightly** toolchain — not stable.
+`rust-toolchain.toml` at the repo root pins it:
 
-ggen is a specification-driven code generation tool that transforms RDF ontologies into typed source code. **The key innovation in v26.5.28 is ontology embedding**: 12 W3C standard ontologies are compiled into the binary, meaning you can generate code completely offline.
-
-## Installation
-
-### From Cargo
-
-```bash
-cargo install ggen-cli
+```toml
+[toolchain]
+channel = "nightly-2026-06-22"
+components = ["rustfmt", "clippy"]
 ```
 
-### From Source
+Two crates.io dependencies force nightly rather than stable: `wasm4pm-compat` (reached via
+`ggen-lsp` → `lsp-max` → `lsp-max-runtime`, which uses `#![feature(unsized_const_params,
+min_specialization, const_trait_impl, portable_simd)]`) and `libsqlite3-sys` 0.38.x (reached via
+`cpmp` → `rusqlite`'s `bundled` feature, which uses the unstable `cfg_select!` macro in its build
+script). You do not need to select this toolchain by hand — `rustup` reads `rust-toolchain.toml`
+automatically as soon as you run any `cargo`/`rustc` command inside the repo, and will offer to
+install it if it isn't present.
+
+You also need [`just`](https://github.com/casey/just) — it is this repo's single command-runner
+entry point (never `cargo make`, never a bare `cargo <task>` for gated work; see `CLAUDE.md`).
+
+Verified toolchain versions on the machine this guide was written on:
+
+```console
+$ rustc --version && cargo --version
+rustc 1.98.0-nightly (91fe22da8 2026-06-21)
+cargo 1.98.0-nightly (a595d0da2 2026-06-20)
+
+$ just --version
+just 1.56.0
+```
+
+`rustup show` confirms the pin is actually honored, not just declared: it reports
+`nightly-2026-06-22-aarch64-apple-darwin` as active, "**overridden by
+`/Users/sac/ggen/rust-toolchain.toml`**".
+
+## Clone and build
 
 ```bash
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
-cargo install --path crates/ggen-cli
+cargo build --workspace
 ```
 
-### Verify Installation
+A real `cargo build --workspace` run against this codebase finished in **1m08s** and exited
+`0`, with 0 compiler errors and **14** real warnings (13 in `ggen-engine`, 1 in `bcinr-pddl`) —
+tail of the real output. A naive `grep -c '^warning:'` over the raw log returns 19, not 14; the
+other 5 lines are 2 build-script notices (`ggen@...: Discovered N templates/ontologies`, printed
+by `ggen`'s own `build.rs`, not a compiler warning), 1 unrelated Cargo notice
+(`profiles for the non root package will be ignored`), and the 2 per-crate summary lines
+(`` `ggen-engine` (lib) generated 13 warnings``, `` `bcinr-pddl` (lib) generated 1 warning``)
+double-counting warnings already tallied above. Verified reproducibly across two consecutive
+builds on this branch (identical warning text and count both times):
+
+```console
+   Compiling ggen-cli-lib v26.7.30 (/Users/sac/ggen/crates/ggen-cli)
+warning: `ggen-engine` (lib) generated 13 warnings (run `cargo fix --lib -p ggen-engine` to apply 1 suggestion)
+   Compiling ggen-lsp v26.7.30 (/Users/sac/ggen/crates/ggen-lsp)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 08s
+```
+
+That run reused a partially warm `target/` directory (already 51G from earlier same-day builds),
+so 1m08s is **not** a from-empty-`target/` number — a genuinely cold build was not measured. This
+workspace is large (17 crates, several vendored dependency crates including a native SPARQL/SHACL
+engine) — budget more time on a first, truly clean checkout, especially without a warm
+[`sccache`](https://github.com/mozilla/sccache) cache (this repo's `.cargo/config.toml` wires
+`sccache` in as the `rustc-wrapper` by default).
+
+The CLI binary lives at `target/debug/ggen` after the build. It is built from the `ggen-cli-lib`
+crate (`crates/ggen-cli`) — **not** from the root `ggen` package, which is now a thin, largely
+inert library shell (`src/lib.rs` re-exports only a `VERSION` const, because its real dependency
+chain — `ggen-engine` → `praxis-core`/`praxis-graphlaw` — is `publish = false` and can't be
+re-exported from the crates.io-published `ggen` crate).
+
+## Verify the build
+
+```console
+$ ./target/debug/ggen --version
+ggen 26.7.31
+
+$ ./target/debug/ggen --help
+Usage: ggen [OPTIONS] [COMMAND]
+
+Commands:
+  init        Initialize a new ggen project with default structure and scripts.
+              Creates a minimal, working ggen project scaffold with:
+              - ggen.toml configuration
+              - schema/domain.ttl (RDF ontology with example)
+              - Makefile (setup, build, clean targets)
+              - scripts/startup.sh (project initialization script)
+              - templates/ (empty, ready for custom Tera templates)
+              - output directory (current directory by default)
+              [... full multi-section help text for `init` continues here; see `ggen init --help` ...]
+  utils       Utils Commands - clap-noun-verb v3.4.0 Migration
+  graph       Validate RDF/Turtle ontology graphs against praxis vocabulary constraints.
+  doctor      Check environment health: lockfile drift, orphaned artifacts, receipt staleness.
+  law         Law-state operations on the project graph: load rules, materialize, validate gates, explain derivations, export.
+  agent       Agent noun — the AGI-facing CLI surface over `crate::agent::PackAgent`.
+  pack        Pack Commands (singular alias for `packs`)
+  packs       Packs noun — lockfile-oriented, multi-pack project management (`ggen packs <verb>`).
+  policy      This module provides policy management commands wired to the marketplace layer.
+  ontology    Ontology Commands - Embedded and Marketplace Ontology Management
+  capability  Capability noun — resolve and enable capability surfaces (`ggen capability <verb>`).
+  sync        Run the ggen code-generation pipeline: resolve, enrich, extract, render, write.
+  receipt     Inspect and verify sync receipt chains (BLAKE3-hashed provenance log).
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+      --format <format>    Output format [possible values: json, json-pretty, yaml, table, plain, tsv, quiet]
+      --select <select>    Select/project nested JSON output using JSONPath, key selection, or JMESPath query projections
+      --introspect         Introspect CLI capabilities as JSON Schema array for LLM tool-calling
+      --structured-errors  Output errors using StructuredError format
+      --autonomic          Enable autonomic features and output structured errors
+  -h, --help               Print help
+  -V, --version            Print version
+```
+
+Both exited `0`. Two things worth flagging about this transcript, both verified by actually
+running `--help` repeatedly (6 consecutive invocations of the same unchanged binary), not assumed:
+
+- **The order of the noun list (everything between `init` and `help`) is not stable across
+  invocations.** `init` is always first and `help` always last, but the 12 nouns in between came
+  back in 6 different orders across 6 consecutive runs of the identical binary — consistent with
+  unordered (hash-map-based) command registration rather than a fixed list. Don't treat the order
+  shown above as a contract; it's one real, valid snapshot, not *the* order.
+- **`init`'s own listed description is long** — a multi-paragraph usage/flags/output walkthrough,
+  reproduced identically on every run — not the short one-liner a `--help` summary might lead you
+  to expect. Elided above for length; run `ggen init --help` (or `ggen --help` itself) to see it
+  in full.
+
+The version string ticked from `26.7.28` to `26.7.30` at one point during the session that
+originally produced this page, then to `26.7.31` by the time of the most recent re-verification —
+this repo bumps its own `Cargo.toml` version frequently (CalVer, `YY.M.patch`), including from
+concurrent activity on other branches while a session is live. Treat any single version string
+here as a snapshot, not a promise, and check `Cargo.toml` line 2 for what's actually current.
+
+The canonical entry point also works and produces the same result:
+
+```console
+$ cargo run -p ggen-cli-lib --bin ggen -- --version
+ggen 26.7.31
+```
+
+## Run a real sync against an example project
+
+`examples/praxis-core-verify` is a real, committed ggen consumer project (its own `ggen.toml`,
+ontology, templates, and an existing sync receipt from a prior real run). Point the binary you
+just built at it:
 
 ```bash
-ggen --version
-# Output: ggen 26.5.28
+cd examples/praxis-core-verify
+/path/to/ggen/target/debug/ggen sync run --dry-run
 ```
 
-## Your First Generation (5 minutes)
+This exited `0` and printed real JSON: all 6 tracked outputs reported
+`"skipped": "unchanged: content identical"`, with a populated `graph_hash_hex` and a populated
+`packs.praxis-core-pack` hash, plus five real OTEL pipeline spans (`pipeline.load`, `.extract`,
+`.validate`, `.generate`, `.emit`), each carrying a real `pipeline.duration_ms`.
 
-### Step 1: Create a Project Directory
+Running it for real (no `--dry-run`) is idempotent — same result, `"written": []`, everything
+skipped as unchanged. Two runs producing byte-identical output is the sync pipeline's own
+determinism claim, and this is what it looks like in practice, not by inspection of the source.
 
-```bash
-mkdir my-ggen-project
-cd my-ggen-project
-```
+Then verify the cryptographic receipt chain:
 
-### Step 2: Initialize a Project
-
-```bash
-ggen init
-```
-
-This creates 7 files/dirs (confirmed live via `ggen init`'s own JSON output,
-`"total_files": 7`):
-- `ggen.toml` — Project configuration
-- `schema/domain.ttl` — Your RDF ontology (example)
-- `templates/example.txt.tera` — Directory + example Tera template
-- `Makefile`, `.gitignore`, `README.md`, `scripts/startup.sh` — supporting project scaffolding
-
-Note: `ggen init` does **not** create a `.ggen/` directory — that only appears as a line inside
-the generated `.gitignore`. `.ggen/` (and `.ggen-v2/`) get created later, on first `ggen sync run`.
-
-### Step 3: Check Available Embedded Ontologies
-
-```bash
-ggen ontology list --embedded
-```
-
-Output shows all 12 core ontologies available offline:
-- RDF (http://www.w3.org/1999/02/22-rdf-syntax-ns#)
-- RDFS (http://www.w3.org/2000/01/rdf-schema#)
-- OWL (http://www.w3.org/2002/07/owl#)
-- DC (Dublin Core Terms)
-- DCAT (Data Catalog)
-- FOAF (Friend of a Friend)
-- VCARD (vCard)
-- SKOS (Simple Knowledge Organization System)
-- PROV (PROV-O)
-- And 3 more...
-
-### Step 4: Use an Embedded Ontology
-
-Edit `ggen.toml` (this is the real "declarative-rules" schema `ggen init` scaffolds and
-`ggen sync run` parses — confirmed against `crates/ggen-cli/src/cmds/init.rs`'s `GGEN_TOML`
-const; the `[pipeline]`/`ontology_uri`/`[[pipelines.steps]]`/`[output].file` shape shown in an
-earlier version of this doc does not exist anywhere in the codebase):
-
-```toml
-[project]
-name = "my-ggen-project"
-version = "0.1.0"
-
-[ontology]
-source = "schema/domain.ttl"
-standard_only = true
-
-[generation]
-output_dir = "."
-
-[[generation.rules]]
-name = "rdf-properties"
-query = { inline = """
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-SELECT ?resource
-WHERE {
-  ?resource rdf:type rdf:Property .
-}
-""" }
-template = { file = "templates/example.txt.tera" }
-output_file = "properties.json"
-mode = "Overwrite"
-```
-
-### Step 5: Generate Code
-
-```bash
-ggen sync run --dry-run
-```
-
-This shows what will be generated without writing files.
-
-```bash
-ggen sync run
-```
-
-This generates your code. Check the generated artifacts in your project.
-
-### Step 6: Verify Determinism
-
-Run the same command again:
-
-```bash
-ggen sync run
-```
-
-You'll see the exact same output hash (deterministic generation). This proves the code generation is reproducible.
-
-## Common Workflows
-
-### Workflow 1: Offline Code Generation
-
-Perfect for environments without internet access.
-
-```bash
-# All core ontologies work without network
-ggen ontology status http://www.w3.org/2002/07/owl#
-# Output: EMBEDDED (available offline)
-
-# Generate code (embedded ontologies resolve locally; no --offline flag exists on `sync run`)
-ggen sync run
-```
-
-### Workflow 2: Mix Embedded + Marketplace Packages
-
-Start with embedded ontologies, add domain-specific packages.
-
-```bash
-# Install a domain-specific package (financial services)
-ggen ontology install financial/banking@1.0.0
-
-# Use it in your pipeline
-ggen sync run
-```
-
-### Workflow 3: Multi-Domain Code Generation
-
-Generate code from multiple ontologies in one run.
-
-```bash
-# List what's available
-ggen ontology search financial
-
-# Create a lock file (reproducible dependencies)
-ggen ontology lock
-
-# Generate code
-ggen sync run
-```
-
-## Hello World Examples
-
-### Example 1: Generate JSON Schema from RDF
-
-**File: `ggen.toml`**
-```toml
-[project]
-name = "json-schema-example"
-version = "0.1.0"
-
-[ontology]
-source = "schema/domain.ttl"
-standard_only = true
-
-[generation]
-output_dir = "."
-
-[[generation.rules]]
-name = "json-schema"
-query = { inline = """
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?class ?label
-WHERE {
-  ?class rdf:type rdfs:Class .
-  ?class rdfs:label ?label .
-}
-ORDER BY ?label
-""" }
-template = { file = "templates/json_schema.tera" }
-output_file = "schema.json"
-mode = "Overwrite"
-```
-
-**File: `templates/json_schema.tera`**
-```jinja2
+```console
+$ /path/to/ggen/target/debug/ggen receipt verify
 {
-  "definitions": [
-    {% for row in results %}
-    {
-      "name": "{{ row.class }}",
-      "label": "{{ row.label }}"
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-  ]
+  "valid": true,
+  "chain_hash": "966ea779718097ee25bd5e8f6ce3b497ed1a5630c727adbded8fae23b6cb510e",
+  "payload_hash": "c4e2fb91a846d1d4dd414b2fd52ee4675444d96589c20ec8099d9f7795ca6611",
+  "graph_hash": "4539047ec45ff68ca06c3d7bb1decddb759278b2a268a5929b0a9aa91be1a81e",
+  "outputs": 6,
+  "signed": true,
+  "signature_valid": true
 }
 ```
 
-Run:
-```bash
-ggen sync run
-cat schema.json
-```
+Exit `0`. `receipt verify` takes zero arguments — it always targets `.ggen-v2/receipt.json` under
+the resolved project root and resolves the verifying key automatically
+(`crates/ggen-engine/src/verbs/receipt.rs`).
 
-### Example 2: Generate TypeScript Types from OWL
+You can also run `ggen doctor` at the repo root itself — `ggen` self-hosts its own `ggen.toml`
+and generates parts of `README.md`/`CLAUDE.md` from it:
 
-**File: `ggen.toml`**
-```toml
-[project]
-name = "typescript-types-example"
-version = "0.1.0"
-
-[ontology]
-source = "schema/domain.ttl"
-standard_only = true
-
-[generation]
-output_dir = "."
-
-[[generation.rules]]
-name = "typescript-types"
-query = { inline = """
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-SELECT ?class ?property ?type
-WHERE {
-  ?class a owl:Class .
-  ?class a ?property .
-  ?property a owl:ObjectProperty | owl:DatatypeProperty .
+```console
+$ /path/to/ggen/target/debug/ggen doctor
+{
+  "healthy": true,
+  "checks": {
+    "receipt_staleness": { "status": "pass", "detail": "every receipt output matches its recorded hash on disk", "stale": [] },
+    ...
+  }
 }
-""" }
-template = { file = "templates/typescript_types.tera" }
-output_file = "types.ts"
-mode = "Overwrite"
 ```
 
-**File: `templates/typescript_types.tera`**
-```typescript
-{% for class in results | group_by(attribute="class") %}
-export interface {{ class.key | title }} {
-  {% for prop in class.value %}
-  {{ prop.property }}: {{ prop.type }};
-  {% endfor %}
-}
-{% endfor %}
+Exit `0`. This page is itself part of the same first-principles rewrite that produced this
+`README.md`, and while writing it we found and fixed a real defect in this exact interaction, worth
+disclosing rather than hiding now that it's resolved: `ggen.toml`'s `docs-readme-region`
+generation rule (`output_file = "README.md"`) uses `mode = "Merge"` — it only ever replaces the
+single `<<<<<<< GENERATED ... ======= ... >>>>>>> MANUAL` region in the target file, leaving every
+byte outside those markers untouched. An earlier commit on this same rewrite branch replaced
+`README.md` wholesale with hand-authored prose carrying no such markers, which made
+`receipt_staleness` fail exactly as this section used to describe. Merging this branch against a
+`main` that had moved forward surfaced the real conflict, and fixing it properly (restoring the
+`GENERATED`/`MANUAL` markers around the version/toolchain paragraph, not just papering over the
+symptom) is what makes the transcript above pass.
+
+**The underlying engine behavior is still real and worth knowing, independent of this page's own
+now-fixed history:** tested directly against a throwaway copy, a real (non-`--dry-run`) sync's
+merge step, given a target file with no `<<<<<<< GENERATED`/`>>>>>>> MANUAL` markers to merge
+into, does not refuse or warn — it silently replaces the **entire file** with just the
+freshly-rendered generated region plus a placeholder manual comment (observed: took a 114-line
+`README.md` down to 10). If you ever hand-edit a `mode = "Merge"` target and remove its markers,
+`ggen sync run` (without `--dry-run`) will destroy that content silently rather than catching the
+mistake — a real Fail-Open gap in the write engine, not merely a hypothetical. `ggen sync run
+--dry-run` / `just sync-dry` are safe in every case tested here — verified separately, exit `0`,
+correctly report a `planned: write (dry-run)` outcome without touching the file.
+
+Separately, `crates/ggen-cli/tests/generated/cli_proof_tests.rs` is `.gitignore`d
+(`generated/` — line 158) and only ever produced by a real (non-`--dry-run`) `ggen sync run` at
+the repo root. On a fresh clone of `main` that hasn't run one yet, `doctor` reports it missing
+until the first real sync creates it — not a defect, just a precondition worth knowing before
+trusting `doctor`'s output on a brand-new checkout.
+
+## `just sync` / `just sync-dry` — a real, live doc correction
+
+`ggen sync run --audit true` genuinely fails — the live verb has no `--audit` flag (only
+`--dry-run`/`--watch`):
+
+```console
+$ ggen sync run --audit true
+error: unexpected argument '--audit' found
+```
+Exit `1`. If you see this claim repeated elsewhere (including in this repo's own `CLAUDE.md`,
+which still describes `just sync`/`just sync-dry` as "currently broken" for this reason), check
+the **actual justfile recipes** before trusting that — they no longer pass the broken flags:
+
+```make
+sync:
+    ggen sync run
+
+sync-dry:
+    ggen sync run --dry-run
 ```
 
-## Understanding ggen.toml
+Both recipes were verified for real, but **not against this branch's own working tree** — see the
+warning two sections up: a real `just sync` (or `ggen sync run` without `--dry-run`) at the ggen
+repo root right now would overwrite this very file. `just sync-dry` is safe and was run directly
+against this codebase: exit `0`, a real dry-run JSON report against the repo's own `ggen.toml`.
+`just sync` (the real, writing variant) was verified against an isolated scratch copy of this
+branch instead, precisely to avoid that risk: exit `0`, and it did perform a real sync and append
+a new signed entry to `.ggen-v2/receipt-log.jsonl` there — confirming the CLI-flag bug fix
+(`--audit true` isn't reachable through the current justfile recipes) is real, without touching
+the actual branch. The underlying CLI-flag bug the doc describes is real; the justfile recipes
+that would trigger it were fixed since that doc paragraph was written, and it hasn't caught up.
+Point stands generally for this project: prefer running the actual command over trusting a doc's
+claim about it — just don't run the writing variant of `sync` at this repo's own root while
+`README.md` lacks its merge markers.
 
-**ggen.toml has two independently-parsed, incompatible schemas** (see
-`.claude/rules/architecture.md`'s "ggen.toml has two schemas" section for the full mechanism).
-What `ggen init` scaffolds, and what this guide's examples use, is the "declarative-rules"
-schema (`ggen_config::manifest::GgenManifest`) — chosen automatically whenever the file has a
-non-empty `[[generation.rules]]` array. The fields below are verified against
-`crates/ggen-cli/src/cmds/init.rs`'s `GGEN_TOML` scaffold const:
+## Next steps
 
-```toml
-[project]
-name = "my-ggen-project"
-version = "0.1.0"
-
-[ontology]
-# Path to your RDF ontology file (Turtle format)
-source = "schema/domain.ttl"
-# Restrict to standard ontologies (schema.org, FOAF, Dublin Core, SKOS, etc.)
-standard_only = true
-
-[generation]
-output_dir = "."
-
-# One or more generation rules; each pairs a SPARQL query with a template
-[[generation.rules]]
-name = "example-rule"
-# Inline SPARQL, or { file = "path/to/query.sparql" }
-query = { inline = """
-SELECT ?resource ?label
-WHERE {
-  ?resource a rdf:Property .
-  ?resource rdfs:label ?label .
-}
-ORDER BY ?label
-""" }
-# Template file, relative to the project root
-template = { file = "templates/output.tera" }
-# Output file path, relative to output_dir
-output_file = "generated.json"
-# Create | Overwrite — Create silently skips files that already exist
-mode = "Overwrite"
-
-[sync]
-enabled = true
-on_change = "manual"
-validate_after = true
-conflict_mode = "fail"
-
-[rdf]
-formats = ["turtle"]
-default_format = "turtle"
-strict_validation = false
-```
-
-There is no `[pipeline]`/`ontology_uri`/`[[pipelines.steps]]`/bare-`sparql`-string shape, and no
-`[validation].strict_mode` field, in either real schema — an earlier version of this doc invented
-one that the codebase has never implemented.
-
-## Troubleshooting
-
-### "Ontology not found" Error
-
-```bash
-$ ggen sync run
-Error: Ontology http://example.com/custom.ttl not found
-```
-
-**Solution**: Check if the ontology is embedded or installed.
-
-```bash
-ggen ontology list --embedded
-ggen ontology status http://example.com/custom.ttl
-```
-
-If not found, install from marketplace:
-```bash
-ggen ontology install example/custom@1.0.0
-```
-
-Or load from file:
-```bash
-# In ggen.toml, use file:// URI
-ontology_uri = "file:///home/user/my-ontology.ttl"
-ggen sync run
-```
-
-### "SPARQL Query Error" Error
-
-```bash
-$ ggen sync run
-Error: SPARQL parse error: unexpected token
-```
-
-**Solution**: Validate your SPARQL syntax. There is no standalone `ggen validate-sparql`
-command — `ggen graph validate` validates a Turtle ontology graph (not a raw SPARQL string), and
-`ggen sync run --dry-run` will surface SPARQL parse errors from your `ggen.toml` pipeline steps
-without writing files:
-
-```bash
-ggen sync run --dry-run
-```
-
-Most common issues:
-- Missing period at end of query
-- Misspelled RDF properties
-- Using undefined prefixes
-
-### "Permission Denied" Error
-
-```bash
-Error: Permission denied: .ggen/cache
-```
-
-**Solution**: Fix cache directory permissions.
-
-```bash
-chmod -R u+w .ggen/cache
-ggen sync run
-```
-
-## Performance Tips
-
-### Tip 1: Embedded Ontologies Resolve Without Network Calls
-
-Embedded ontologies are compiled into the binary and looked up locally — no flag is needed to
-avoid network access for them (there is no `--offline` flag on `ggen sync run`):
-
-```bash
-ggen sync run
-```
-
-### Tip 2: Create Lock Files for Reproducibility
-
-Lock files pin package versions and prevent upgrades:
-
-```bash
-ggen ontology lock
-ggen sync run
-```
-
-Lock files ensure the same code generation in CI/CD.
-
-### Tip 3: Cache Marketplace Packages
-
-Once installed, packages are cached locally:
-
-```bash
-ggen ontology install financial/banking@1.0.0
-# First run: downloads from marketplace (~500 ms)
-
-ggen sync run
-# Subsequent runs: uses cache (<10 ms)
-```
-
-### Tip 4: Batch Multiple Generation Rules
-
-If you have multiple `[[generation.rules]]` entries in `ggen.toml`, they run sequentially.
-Combine queries where possible rather than adding more rules than you need:
-
-```toml
-[[generation.rules]]
-name = "combined-rule"
-query = { inline = """
-SELECT ?resource ?label ?comment
-WHERE {
-  ?resource a rdf:Property .
-  ?resource rdfs:label ?label .
-  OPTIONAL { ?resource rdfs:comment ?comment . }
-}
-""" }
-template = { file = "templates/output.tera" }
-output_file = "generated.json"
-mode = "Overwrite"
-```
-
-## Next Steps
-
-1. **[Read the User Guide](./USAGE_GUIDE.md)** — Comprehensive workflows and advanced usage
-2. **[Check the API Reference](./API_REFERENCE.md)** — Full API documentation for custom integrations
-3. **[Browse Examples](../examples/)** — 40+ ready-to-run projects
-4. **[Run the Tests](../crates/ggen-core/tests/)** — See integration tests for complex patterns
-
-## Key Concepts
-
-### Embedded Ontologies
-
-W3C standard ontologies (RDF, RDFS, OWL, etc.) are compiled into the binary. They're always available, even without internet.
-
-**Advantages:**
-- Zero network latency
-- Works offline
-- Reproducible (no version changes)
-- 12 KB binary size overhead
-
-### Marketplace Packages
-
-Domain-specific ontologies you install separately. Perfect for financial, healthcare, manufacturing domains.
-
-**Advantages:**
-- Specialized vocabularies
-- Kept up-to-date
-- Versioned and signed
-- Optional (only install what you need)
-
-### Deterministic Generation
-
-Every `ggen sync run` produces identical output for the same inputs. Verified with SHA-256 hashes.
-
-**Benefits:**
-- Reproducible CI/CD
-- Cryptographic receipts prove what was generated
-- Prevents accidental divergence
-
-## Getting Help
-
-- **Stuck?** Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
-- **Questions?** See [FAQ.md](./FAQ.md)
-- **Want to contribute?** [See CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Report a bug?** [GitHub Issues](https://github.com/seanchatmangpt/ggen/issues)
-
-## What's Next in ggen?
-
-- **Phase 7**: Private registry support (self-hosted ontology marketplace)
-- **Phase 8**: GUI marketplace browser
-- **Phase 9**: Custom ontology registration
-- **Phase 10**: Performance optimizations (parallel pipeline stages)
-
----
-
-**Happy generating!** 🎉
-
-For more details, see:
-- [USAGE_GUIDE.md](./USAGE_GUIDE.md) — Complete workflows
-- [API_REFERENCE.md](./API_REFERENCE.md) — Rust API documentation
-- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — Common issues and solutions
+- Chicago TDD workflow (RED → GREEN → REFACTOR) and the RDF-spec-first development cycle:
+  `CLAUDE.md`'s Workflow section, or `.claude/rules/_core/workflow.md`.
+- Full local validation gate: `just pre-commit` — see `docs/FAQ.md` for what it actually checks.
+- Performance-sensitive work: `docs/PERFORMANCE_QUICK_START.md`.
+- Everything else indexed: `docs/README.md`.

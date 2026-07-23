@@ -1,14 +1,14 @@
 # ggen
 
-**ggen turns an RDF/Turtle ontology and a set of Tera templates into generated source code, with a
-cryptographically-signed receipt proving what ran.**
+**ggen is a deterministic, language-agnostic code generation framework that treats software
+artifacts as projections of knowledge graphs** — the description in this crate's own
+`Cargo.toml`. Concretely: you write an RDF/Turtle ontology plus Tera templates carrying SPARQL
+frontmatter; `ggen sync run` queries the ontology, renders the templates, writes the results to
+disk, and produces a BLAKE3-chained cryptographic receipt proving exactly what ran and what it
+produced.
 
-If you already keep a domain model as data (RDF triples) rather than as scattered structs across
-services, ggen lets you write that model once and project it into as many target languages/files as
-you have templates for — and every generation run produces a BLAKE3-hashed, chain-linked receipt so
-you can prove later exactly which ontology + template inputs produced which output files. You do not
-need prior RDF/SPARQL experience to try the quick start below; `ggen init` gives you a working
-example ontology and template to start from.
+MIT licensed. Rust workspace, 17 crates. Requires a pinned nightly toolchain (see
+[Getting Started](docs/GETTING_STARTED.md)).
 
 <<<<<<< GENERATED
 Current version: `26.7.56` (workspace version in `Cargo.toml`; nightly Rust toolchain
@@ -21,130 +21,105 @@ before depending on it for anything production-critical.
 <!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->
 >>>>>>> MANUAL
 
-## Quick Start
+## What actually happens when you run `ggen sync`
+
+The live pipeline (`crates/ggen-engine/src/sync.rs`, whose own module doc names it this way) has
+five stages: **Resolve → Enrich → Extract → Render → Write**.
+
+1. **Resolve** — reads your ontology (`.ttl`) and any pack ontologies you depend on into an RDF
+   store — either `praxis-graphlaw` (a native N3/Datalog/SPARQL/SHACL/ShEx engine, the default)
+   or plain `oxigraph`.
+2. **Enrich** — runs each template's `construct:` SPARQL query once against that store, in a
+   single pass (not a fixed-point loop).
+3. **Extract + Render** — runs `when:`/`sparql:` `SELECT` queries into rows and renders every
+   template through Tera, entirely in memory — nothing touches disk yet, so a mid-run failure
+   leaves nothing partial behind.
+4. **Write** — applies the already-rendered output using Hygen-style create/inject/skip write
+   semantics.
+5. A `praxis-core::ReceiptRecord` is chained (BLAKE3) over `{graph_hash, outputs}` and written to
+   `.ggen-v2/receipt.json`, with the full log at `.ggen-v2/receipt-log.jsonl`.
+
+One honest caveat, because it's real and it's in the code, not a criticism from outside: the
+pipeline's own OpenTelemetry span names don't line up 1:1 with these stage names — the
+`pipeline.extract` span actually wraps step 2 (Enrich), and the genuine SPARQL row-extraction
+work happens inside the `pipeline.generate` span. See [docs/FAQ.md](docs/FAQ.md) for the full
+stage-to-span table and for why the older "A = μ(O)" framing some docs and examples still use
+doesn't match this implementation's actual stage or span names.
+
+## Quickstart
 
 ```bash
-# 1. Build from source (not yet published to crates.io under this name)
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
-cargo build -p ggen-cli-lib --bin ggen
-# binary is at target/debug/ggen
-
-# 2. Initialize a project (creates ggen.toml, schema/domain.ttl, templates/, and more — see below)
-mkdir my-project && cd my-project
-/path/to/ggen init
-
-# 3. Preview generation (no files written)
-ggen sync run --dry-run
-
-# 4. Run for real — writes output files and a signed receipt
-ggen sync run
-
-# 5. Verify the receipt's cryptographic chain
-ggen receipt verify
+cargo build --workspace          # nightly toolchain auto-selected via rust-toolchain.toml
+cargo run -p ggen-cli-lib --bin ggen -- --help
 ```
 
-Every step above was run against a fresh `ggen init` scaffold as part of writing this README. `ggen
-init` creates 7 files: `ggen.toml`, `schema/domain.ttl` (an example ontology),
-`templates/example.txt.tera`, `scripts/startup.sh`, `Makefile`, `.gitignore`, and `README.md`
-(confirmed via the command's own `total_files: 7` JSON output). Edit `schema/domain.ttl` with your
-own domain model and add templates under `templates/`, then re-run `ggen sync run`.
+**There is currently no `cargo install ggen` path to the CLI.** The root `ggen` crate published
+to crates.io is a pure library shell (it re-exports only a `VERSION` const — its real dependency
+chain is `publish = false` and can't ship to the registry). The actual CLI binary is built from
+`ggen-cli-lib` (`crates/ggen-cli`), which is itself `publish = false` — build it from a clone.
+This repo's own `justfile` defines its canonical invocation as
+`cargo run -p ggen-cli-lib --bin ggen --`.
 
-## What actually works today
+For a full, verified install → build → run → verify walkthrough — every command in this section
+was actually run against this codebase, with real output — see
+[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 
-Confirmed by direct execution, not by reading source:
+## The pack ecosystem
 
-- `ggen init` — scaffolds a new project (ggen.toml, example ontology, example template)
-- `ggen sync run [--dry-run]` — the five-stage pipeline (load → extract → validate → generate →
-  emit), with OpenTelemetry spans per stage and a graph-hash-addressed output decision log
-- `ggen receipt verify` — verifies the BLAKE3 chain hash and Ed25519 signature of the current sync
-  receipt (`.ggen-v2/receipt.json`); reports `signed: true/false` and `signature_valid`
-- `ggen graph validate --files <path>` — parses and hashes a Turtle file, reporting quad count
-- `ggen --help` — full noun/verb surface: `init`, `ontology`, `receipt`, `packs`/`pack`, `doctor`,
-  `capability`, `graph`, `utils`, `policy`, `agent`, `law`, and more (`ggen <noun> --help` for each)
+40 pack directories currently live under `packs/` (`ls packs/ | wc -l`). Each pack is a
+self-contained `ontology.ttl` + `templates/*.tmpl` + `gates/*.rq` (SPARQL-translated SHACL
+constraints) + `pack.toml` bundle that `ggen sync run` composes into generated Rust modules,
+tests, docs, and a cryptographic receipt for a consumer project. Real examples: `rmcp-pack`
+models the actual `rmcp` crate (MCP Rust SDK) from its vendored source, with 26/26 generated
+proof tests passing in a real consumer; `affidavit-pack` transcribes another real project's
+receipt/chain/verifier logic byte-checksummed against the live crate, reusing that project's own
+tests (46/46 passing).
 
-Under the hood, the live pipeline is `ggen-engine` (a native SPARQL-in-Tera engine backed by
-`praxis-graphlaw`, an N3/Datalog/SPARQL/SHACL/ShEx implementation) — not the older `ggen-core`
-crate, which no longer exists in this repo at all (see Architecture below).
+A formal 12-capability Level-5 promotion program
+(`docs/l5-promotion/L5_PROMOTION_PROGRAM.md`) tracks a subset of these packs against a "pack +
+ggen alone builds, tests, and receipts the subsystem" maturity bar. No pack has closed all 12
+capabilities yet — the program's own status per pack is "promotion actively underway." See
+[docs/FAQ.md](docs/FAQ.md) for more.
 
-## Maturity & Known Limitations
+## Known limitations
 
-This is pre-1.0 software with real, currently-open rough edges. Documented here rather than
-discovered by you:
+This section exists because the project's own claims ledger
+([docs/aps/README.md](docs/aps/README.md), `docs/aps/claims.toml`) explicitly expects a prose
+mirror of its findings here — and because real runs performed while writing and re-verifying
+this page surfaced live, reproducible gaps worth stating plainly rather than smoothing over:
 
-- **`ggen.toml` has two incompatible schemas.** Which one a command expects depends on whether it
-  reads a raw `[[generation.rules]]` array or not. In practice this means the `ggen.toml` that
-  `ggen init` generates is **not** accepted by `ggen doctor` or `ggen law validate` — both fail with
-  `TOML parse error ... unknown field 'version', expected 'name'` on a stock `ggen init` output,
-  confirmed by direct execution. If you hit this, check which schema the command you're running
-  expects before assuming your ontology is at fault.
-- **`ggen policy check`/`ggen policy validate` are not usable standalone.** `policy check` requires
-  packs to already be installed (`ggen packs install <pack-id>` first) and fails otherwise; `policy
-  validate` requires a `--profile` argument with no default. Neither is a drop-in "validate my
-  project" command yet.
-- **`just sync` and `just sync-dry` are currently broken** — they pass flags (`--audit`, positional
-  `true` after `--dry_run`) that the live `sync run` verb doesn't accept. Use `ggen sync run
-  [--dry-run]` directly instead of the `just` wrappers for sync.
-- **`just lint` and `just bench` only cover the root `ggen` package**, not `--workspace` — passing
-  clippy/bench cleanly on `just lint` does not mean every crate in the workspace is clean.
-- **`ggen-core` is deleted.** The legacy engine was disconnected from the workspace and then
-  removed entirely (PR #259, 2026-07-17); it survives only in git history. Treat any doc or
-  comment that still mentions it as historical.
-- **No published crate yet.** Install from source; there is no `cargo install ggen-cli` that
-  resolves to this project today.
-
-The machine-readable version of this section — per-command standing (`ALIVE`/`PARTIAL`/
-`BLOCKED`/`UNVERIFIED`), the exact falsifier command for each claim, and the evidence
-coordinates behind them — lives in [`docs/aps/claims.toml`](docs/aps/claims.toml)
-(see [`docs/aps/README.md`](docs/aps/README.md)). If this prose and that ledger disagree, one
-of them is drift: fix the divergence, don't pick a favorite.
-
-If something above is stale by the time you read it, trust a live run over this file — commands are
-the ground truth, not prose.
+- **`just slo-check`'s Phase 1 CLI-startup benchmark silently measures nothing** (an internal
+  `cargo build --release --bin ggen` call fails because the root package's own `[[bin]]` target
+  was intentionally removed in a 2026-07-16 refactor, and the benchmark was never updated to
+  build `-p ggen-cli-lib` instead — the failure is swallowed and reported only as a skip
+  warning). This is real and currently reproducing. The command as a whole still exits `0`,
+  though: Phase 2's wall-clock SLO passes and, checked directly (8 independent runs, standalone
+  and via the full recipe), the `receipt_chain_e2e` test it wraps currently passes 16/16 — an
+  earlier draft of this section reported 5 failing sub-tests and a matching
+  `docs/aps/claims.toml` drift; neither reproduced under repeated testing and both have been
+  retracted. Full transcripts, exact commands, and exact file lines:
+  [docs/PERFORMANCE_QUICK_START.md](docs/PERFORMANCE_QUICK_START.md).
+- **The pack ecosystem's Level-5 maturity bar has not been reached by any pack** — real,
+  ongoing, per-capability progress, not a finished state. See the pack ecosystem section above.
+- For the authoritative, falsifier-backed list of what's currently `ALIVE` / `PARTIAL` /
+  `BLOCKED` / `UNVERIFIED` across CLI nouns and release gates, read `docs/aps/claims.toml`
+  directly rather than trusting a prose summary (including this one) to stay current.
 
 ## Documentation
 
-- `CLAUDE.md` (repo root) — architecture, crate map, workflow, and the rules this project holds
-  itself to (Chicago TDD, evidence-first documentation, OTEL validation)
-- `.claude/rules/architecture.md` — the actively-maintained crate map and cross-cutting patterns
-- `docs/INDEX.md` — full documentation index (tutorials, per-noun command reference, marketplace
-  architecture)
-- `docs/GETTING_STARTED.md` — a longer walkthrough of ontology embedding and your first generation
-
-## Architecture (short version)
-
-```
-ggen.toml → RDF ontology (Turtle) → SPARQL extraction → Tera templates → generated code
-                                                                        ↘ BLAKE3 receipt chain
-```
-
-The live pipeline (`ggen-engine`) has five stages — Resolve, Enrich, Extract, Render, Write — each
-emitting its own OpenTelemetry span (`pipeline.load`, `.extract`, `.validate`, `.generate`,
-`.emit`). Its default graph backend is `praxis-graphlaw`, a native N3/Datalog/SPARQL/SHACL/ShEx
-engine vendored into this workspace. See `.claude/rules/architecture.md` for the full 17-crate
-breakdown; this README intentionally doesn't duplicate it.
-
-## Testing
-
-This project uses Chicago-style TDD exclusively (real collaborators — real filesystems, real
-databases, real HTTP — no mocks or test doubles). See `.claude/rules/rust/testing.md` for the full
-policy if you're contributing tests.
-
-```bash
-just check   # compile check
-just test    # full test suite
-just lint    # clippy (root package only — see Known Limitations)
-```
+- [docs/README.md](docs/README.md) — full documentation index
+- [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — verified install/build/run walkthrough
+- [docs/FAQ.md](docs/FAQ.md) — grounded answers to real questions about this codebase
+- [docs/PERFORMANCE_QUICK_START.md](docs/PERFORMANCE_QUICK_START.md) — the one performance
+  command that's actually automated, and what it returns right now
+- [CONTRIBUTING.md](CONTRIBUTING.md) — development workflow, testing policy, PR process
+- [CLAUDE.md](CLAUDE.md) — the full project rulebook this codebase is developed under (Chicago
+  TDD, evidence-first documentation, the `just` entry point, Andon stop-the-line discipline)
+- [SECURITY.md](SECURITY.md) — vulnerability reporting
+- [CHANGELOG.md](CHANGELOG.md) — release history
 
 ## License
 
-See [LICENSE](LICENSE) for licensing terms.
-
-## Contributing
-
-Issues and pull requests are welcome at
-[github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen). Before submitting a PR,
-run `just pre-commit` — the current gate count and order are stated in the generated version
-block near the top of this README (source: `justfile`'s own `pre-commit:` line, transcribed
-into `.specify/repo-facts.ttl`); see `CLAUDE.md` for the full contributor workflow and testing
-discipline.
+MIT — see [LICENSE](LICENSE).

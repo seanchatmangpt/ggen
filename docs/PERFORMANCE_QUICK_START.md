@@ -1,502 +1,183 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+# Performance Quick Start
 
-- [Performance Optimization Quick Start Guide](#performance-optimization-quick-start-guide)
-  - [🚀 Quick Start](#-quick-start)
-    - [1. Run Performance Benchmarks (5 minutes)](#1-run-performance-benchmarks-5-minutes)
-    - [2. Check Current Performance (1 minute)](#2-check-current-performance-1-minute)
-    - [3. Identify Bottlenecks (10 minutes)](#3-identify-bottlenecks-10-minutes)
-    - [4. Apply Quick Wins (30 minutes)](#4-apply-quick-wins-30-minutes)
-      - [Quick Win &#035;1: Lazy RDF Loading](#quick-win-1-lazy-rdf-loading)
-      - [Quick Win &#035;2: Cache Instrumentation](#quick-win-2-cache-instrumentation)
-      - [Quick Win &#035;3: Parallel Template Generation](#quick-win-3-parallel-template-generation)
-    - [5. Verify Improvements (5 minutes)](#5-verify-improvements-5-minutes)
-  - [🎯 Performance Targets](#-performance-targets)
-  - [🔥 Common Performance Issues & Fixes](#-common-performance-issues--fixes)
-    - [Issue 1: Slow Template Generation](#issue-1-slow-template-generation)
-    - [Issue 2: High Memory Usage](#issue-2-high-memory-usage)
-    - [Issue 3: Slow Lockfile Operations](#issue-3-slow-lockfile-operations)
-    - [Issue 4: Slow SPARQL Queries](#issue-4-slow-sparql-queries)
-  - [📊 Continuous Performance Monitoring](#-continuous-performance-monitoring)
-    - [Add to CI/CD Pipeline](#add-to-cicd-pipeline)
-    - [Performance Alerts](#performance-alerts)
-  - [🛠️ Advanced Profiling Tools](#-advanced-profiling-tools)
-    - [1. Flamegraph (CPU Profiling)](#1-flamegraph-cpu-profiling)
-    - [2. Heaptrack (Memory Profiling)](#2-heaptrack-memory-profiling)
-    - [3. Valgrind (Memory Leaks)](#3-valgrind-memory-leaks)
-    - [4. perf (Linux CPU Profiling)](#4-perf-linux-cpu-profiling)
-    - [5. Instruments (macOS)](#5-instruments-macos)
-  - [📈 Performance Optimization Checklist](#-performance-optimization-checklist)
-  - [📚 Further Reading](#-further-reading)
-  - [🤝 Contributing Performance Improvements](#-contributing-performance-improvements)
+`just slo-check` is the one command that actually measures ggen against its own performance
+targets. This page describes exactly what it checks, and reports a real run of it against this
+codebase — including a real, currently-reproducing bug in Phase 1, because that is what the
+command actually returned when run, not what it is supposed to return. As of this run the command
+as a whole exits `0`; see below for why that's true despite the Phase 1 bug.
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+For the fuller (partly aspirational) performance documentation set — SLO history, dashboards,
+per-subsystem notes — see `docs/performance/README.md`. This page is scoped to the one command
+you can run right now and trust the exit code of.
 
-# Performance Optimization Quick Start Guide
+## What `just slo-check` checks
 
-**TL;DR**: Follow these steps to profile, benchmark, and optimize ggen performance.
+Two phases, read directly from the `slo-check:` recipe in `justfile`:
 
-## 🚀 Quick Start
+**Phase 1** — `cargo bench --bench cli_startup_performance -- --test`. Runs the
+`cli_startup_performance` Criterion benchmark (root `ggen` package's `benches/`) in test mode:
+help-command startup, CLI execution, cold/warm start, and startup-component timings.
 
-### 1. Run Performance Benchmarks (5 minutes)
+**Phase 2** — a real wall-clock timing assertion (`date +%s` before/after, not a printed claim)
+around `cargo test -p ggen-engine --test receipt_chain_e2e -- --nocapture`, failing loudly if
+elapsed time exceeds a **180s** threshold. The threshold's own justification, from the recipe's
+comment: a cold run of that same test on the reference machine (Darwin/arm64, pinned nightly)
+measured 45s wall-clock, reproducible across two consecutive runs (2026-07-16); 180s is 4x that
+baseline, generous enough to absorb CI variance without missing a genuine multi-minute regression.
+Immediately after the timing assertion, the same recipe also runs a second, untimed test:
+`cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture`. This isn't
+optional or a separate phase in the recipe's own structure — it's the last line of the Phase 2
+block, and a failure there fails the whole recipe (`|| exit 1`) same as a Phase 2 timing or test
+failure would.
+
+There is no build-time (first-build / incremental-build) SLO in the current recipe, and no
+automated check for "RDF processing ≤5s/1k triples" or "generation memory ≤100MB" — those appear
+in some older docs as aspirational targets but are not wired into anything that runs today. Do
+not treat a table of numbers in another doc as a live guarantee; `just slo-check`'s two real
+phases above are the whole of what's currently automated.
+
+## A real run, right now
+
+`just slo-check` was actually run against this codebase (branch `docs/readme-rewrite-v26.7.21`,
+workspace version 26.7.31) rather than assumed to pass. It **exited 0**. That's worth stating
+plainly because an earlier verification pass over this same page found it exiting `1`, with 5
+failing tests in Phase 2 — re-running the exact same falsifier (`cargo test -p ggen-engine --test
+receipt_chain_e2e`) standalone, 7 times in a row, and via the full `just slo-check` wrapper an 8th
+time, produced 16/16 passing every single time, with no `GGEN_SIGNING_KEY` or other unusual
+environment state set. That original 5-failure result did not reproduce under repeated,
+independent testing and is not reported here as current — see the Phase 2 section below for what
+was checked and why it's being retracted rather than repeated. Phase 1's bug, by contrast, **is**
+real and reproduced identically on every run this session, including the one whose full log is
+shown below.
+
+### Phase 1 measured nothing — a real Decorative-Completion bug
+
+The bench's log looked clean:
+
+```console
+Running Phase 1 SLO checks...
+    Finished `bench` profile [optimized] target(s) in 2m 20s
+     Running benches/cli_startup_performance.rs
+Gnuplot not found, using plotters backend
+Warning: Failed to build ggen binary. Skipping CLI startup benchmarks.
+Warning: ggen binary not found. Skipping CLI execution benchmarks.
+Warning: ggen binary not found. Skipping cold/warm start benchmarks.
+Warning: ggen binary not found. Skipping startup components benchmarks.
+```
+
+No `error:` line, `cargo bench` exits `0`, `just slo-check` moves on to Phase 2 — but all four
+benchmark groups silently no-op. `benches/cli_startup_performance.rs:16-20` shows why: it shells
+out to `cargo build --release --bin ggen` (stdout/stderr both sent to `Stdio::null()`, so the
+real reason never reaches the log) and treats any failure as "skip, don't fail the bench." Running
+that exact suppressed command directly, unsuppressed, reproduces the real error immediately:
+
+```console
+$ cargo build --release --bin ggen
+error: no bin target named `ggen` in default-run packages
+help: available bin in `ggen-cli-lib` package:
+    ggen
+```
+
+Root cause, confirmed by reading root `Cargo.toml`'s own comment (lines 31-39): the root `ggen`
+package's own `[[bin]] name = "ggen"` was deliberately **removed** in the 2026-07-16 CLI-routing
+flip (it was a byte-identical duplicate of `ggen-cli-lib`'s bin target, and kept the two packages
+racing for `target/debug/ggen`). `ggen-cli-lib` (`crates/ggen-cli`) still declares
+`[[bin]] name = "ggen"` and is the real, live binary target — but a bare `--bin ggen` at the
+workspace root only searches "default-run packages," and the bench's build command was never
+updated to add `-p ggen-cli-lib`. So it now fails, unconditionally, every time — this is not
+flaky or environment-specific, it will fail identically on a clean checkout.
+
+Net effect, stated precisely: **Phase 1 of `just slo-check` currently benchmarks nothing.** It
+exits looking clean because the bench file treats "binary not found" as a skip, not a failure. If
+you need a real CLI-startup number, run `hyperfine` or `time` directly against a binary you built
+yourself with `cargo build --release -p ggen-cli-lib --bin ggen`, or fix the `-p` flag in
+`benches/cli_startup_performance.rs:16-17` before trusting this phase's output again.
+
+### Phase 2 — both the timing SLO and the test it wraps pass
+
+```console
+Running Phase 2 SLO checks...
+     Running tests/receipt_chain_e2e.rs
+
+running 16 tests
+test legacy_unsigned_receipt_still_chain_verifies_with_signed_false ... ok
+test legacy_payload_without_optional_fields_verifies ... ok
+test dry_run_touches_neither_receipt_nor_log ... ok
+test malformed_ggen_signing_key_env_var_errors_loudly ... ok
+test closure_marks_missing_inputs_instead_of_dropping_them ... ok
+test sync_refuses_to_extend_a_tampered_head ... ok
+test template_edit_changes_receipt_closure_even_with_identical_outputs ... ok
+test missing_or_empty_log_fails_closed ... ok
+test tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure ... ok
+test tampered_signature_fails_closed_and_is_distinguished_from_chain_failure ... ok
+test sign_then_verify_reports_signed_and_signature_valid_true ... ok
+test missing_receipt_json_chains_from_log_tail ... ok
+test three_syncs_form_a_verifiable_chain ... ok
+test tampering_middle_line_payload_fails_naming_index_1 ... ok
+test ggen_signing_key_env_var_takes_precedence_over_key_file ... ok
+test removing_or_reordering_lines_fails_history_verification ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+receipt_chain_e2e wall-clock: 0s (SLO threshold: 180s)
+
+running 9 tests
+test test_matching_expectations_no_hash_drift ... ok
+test test_empty_expectations_produces_no_hash_drifts ... ok
+test test_expectations_do_not_suppress_count_discrepancies ... ok
+test test_artifact_hash_mismatch_against_expectation ... ok
+test test_event_log_hash_mismatch_against_expectation ... ok
+test test_multiple_poles_with_hash_mismatches ... ok
+test test_ontology_hash_mismatch_against_expectation ... ok
+test test_partial_expectations_only_checks_declared_poles ... ok
+test test_rule_6_cross_pole_coherence_fracture ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+✅ Phase 1 + Phase 2 SLO checks complete
+```
+
+16/16 on `receipt_chain_e2e`, 9/9 on the trailing `coherence_hash_expectations_test`, both real
+`cargo test` runs, both `ok`. The `0s` wall-clock is real too, not a bug — this particular run's
+`cargo test` binary was already built from an earlier command in the same session, so the timed
+window only covered execution, not compilation; on a colder run expect something closer to the
+recipe comment's documented 45s baseline, still comfortably under the 180s SLO either way.
+
+An earlier draft of this page reported this exact test failing 5/16, all clustered around receipt
+**signing** (`tampered_signature_fails_closed_and_is_distinguished_from_chain_failure`,
+`sign_then_verify_reports_signed_and_signature_valid_true`,
+`legacy_unsigned_receipt_still_chain_verifies_with_signed_false`,
+`malformed_ggen_signing_key_env_var_errors_loudly`,
+`ggen_signing_key_env_var_takes_precedence_over_key_file`) and cited a matching claims-ledger
+drift against `docs/aps/claims.toml`'s `release.receipt-chain-verifies` claim (recorded evidence:
+"16/16", commit `1b32d7b06`, 2026-07-17). That specific result was checked here and did not
+reproduce: running the identical falsifier the claims ledger names
+(`cargo test -p ggen-engine --test receipt_chain_e2e`) 7 times standalone plus once more inside
+the full `just slo-check` wrapper — 8 independent runs total, clean shell environment, no
+`GGEN_SIGNING_KEY` set — returned 16/16 passing every time, with every one of those 5 previously-
+"failing" test names showing `ok`. The signing tests set `GGEN_SIGNING_KEY` only via
+`std::process::Command::env(...)` on child processes they spawn, not via `std::env::set_var` on
+the test binary's own process, so cross-test environment leakage under parallel execution isn't a
+plausible mechanism either. Given 8/8 clean runs against 1 originally-reported failing run, the
+5-failure result is being retracted here rather than repeated: there is currently no reproducible
+signing gap, and — checked directly — no drift against `docs/aps/claims.toml`'s recorded "16/16"
+evidence. Whatever produced the original single failing run was not re-established by this
+session and is not claimed to be understood.
+
+## How to reproduce this yourself
 
 ```bash
-# Run shell script benchmarks (simple, fast)
-./scripts/performance_benchmark.sh
-
-# Run Criterion benchmarks (detailed, slower)
-cargo bench --bench performance_benchmark
-
-# Run Criterion with flamegraph
-cargo bench --bench performance_benchmark -- --profile-time=10
+just slo-check                                    # full run, exits 0; ~2-5 min depending on cache
+cargo build --release --bin ggen                   # reproduces the Phase-1 root cause directly
+cargo build --release -p ggen-cli-lib --bin ggen    # the working equivalent
+cargo test -p ggen-engine --test receipt_chain_e2e -- --nocapture          # Phase 2's main test
+cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture  # Phase 2's trailing test
 ```
 
-**Expected Output**:
-```
-template_parsing/simple_template:  1.2ms ± 0.1ms  ✅
-template_caching/cache_hit:        0.8ms ± 0.05ms ✅
-rdf_operations/insert_small:       12ms  ± 2ms    ✅
-lockfile_load_100_entries:         45ms  ± 5ms    ⚠️
-```
-
----
-
-### 2. Check Current Performance (1 minute)
+## Other performance commands
 
 ```bash
-# CLI startup time
-time target/release/ggen --help
-# Expected: ~10ms ✅
-
-# Memory usage
-/usr/bin/time -l target/release/ggen --version
-# Expected: ~11MB ✅
-
-# Template generation (create test template first)
-time target/release/ggen generate test.tmpl
-# Expected: <100ms ✅
+just bench     # cargo bench, root `ggen` package only (same scoping issue as above applies
+               # to any bench in this package that shells out to `--bin ggen` without `-p`)
+just audit     # cargo audit — security vulnerability scan, unrelated to timing SLOs
 ```
 
----
-
-### 3. Identify Bottlenecks (10 minutes)
-
-```bash
-# Generate flamegraph (install with: cargo install flamegraph)
-cargo flamegraph --release --bin ggen -- generate large_template.tmpl
-
-# Open flamegraph.svg in browser
-open flamegraph.svg
-```
-
-**What to look for**:
-- Wide bars = time spent in that function
-- Red bars = CPU-bound operations
-- Green bars = I/O operations
-
-**Common bottlenecks**:
-- `Template::parse` - YAML parsing
-- `Graph::insert_turtle` - RDF parsing
-- `Tera::render` - Template rendering
-- `fs::write` - Disk I/O
-
----
-
-### 4. Apply Quick Wins (30 minutes)
-
-#### Quick Win #1: Lazy RDF Loading
-
-**File**: `ggen-core/src/generator.rs`
-
-```rust
-// BEFORE:
-tmpl.process_graph(&mut self.pipeline.graph, ...)?;
-
-// AFTER:
-if tmpl.has_graph_usage() {
-    tmpl.process_graph(&mut self.pipeline.graph, ...)?;
-}
-```
-
-Add helper method to `Template`:
-```rust
-impl Template {
-    pub fn has_graph_usage(&self) -> bool {
-        self.front.query.is_some() ||
-        self.front.graph.is_some() ||
-        self.body.contains("query_results")
-    }
-}
-```
-
-**Expected improvement**: 40-60% faster for templates without RDF
-
----
-
-#### Quick Win #2: Cache Instrumentation
-
-**File**: `ggen-core/src/template_cache.rs`
-
-```rust
-use std::sync::atomic::{AtomicU64, Ordering};
-
-pub struct TemplateCache {
-    cache: Arc<Mutex<LruCache<String, Arc<Template>>>>,
-    hits: Arc<AtomicU64>,
-    misses: Arc<AtomicU64>,
-}
-
-impl TemplateCache {
-    pub fn new(capacity: usize) -> Self {
-        Self {
-            cache: Arc::new(Mutex::new(LruCache::new(cap))),
-            hits: Arc::new(AtomicU64::new(0)),
-            misses: Arc::new(AtomicU64::new(0)),
-        }
-    }
-
-    pub fn get_or_parse(&self, path: &Path) -> Result<Arc<Template>> {
-        let mut cache = self.cache.lock().unwrap();
-
-        if let Some(template) = cache.get(&path_str) {
-            self.hits.fetch_add(1, Ordering::Relaxed);
-            return Ok(Arc::clone(template));
-        }
-
-        self.misses.fetch_add(1, Ordering::Relaxed);
-        // ... parse template ...
-    }
-
-    pub fn hit_rate(&self) -> f64 {
-        let hits = self.hits.load(Ordering::Relaxed) as f64;
-        let misses = self.misses.load(Ordering::Relaxed) as f64;
-        if hits + misses > 0.0 {
-            hits / (hits + misses)
-        } else {
-            0.0
-        }
-    }
-}
-```
-
----
-
-#### Quick Win #3: Parallel Template Generation
-
-**File**: `ggen-core/src/templates/generator.rs`
-
-```rust
-use rayon::prelude::*;
-
-pub fn generate_bulk(templates: Vec<PathBuf>, output_dir: PathBuf) -> Result<Vec<PathBuf>> {
-    templates
-        .par_iter()
-        .map(|template_path| {
-            let pipeline = Pipeline::new()?;
-            let ctx = GenContext::new(template_path.clone(), output_dir.clone());
-            let mut generator = Generator::new(pipeline, ctx);
-            generator.generate()
-        })
-        .collect::<Result<Vec<_>>>()
-}
-```
-
-**Expected improvement**: 2-4x faster for bulk generation
-
----
-
-### 5. Verify Improvements (5 minutes)
-
-```bash
-# Re-run benchmarks
-cargo bench --bench performance_benchmark
-
-# Compare results
-# Before: template_parsing/simple: 5.2ms
-# After:  template_parsing/simple: 2.8ms  ← 46% improvement ✅
-```
-
----
-
-## 🎯 Performance Targets
-
-| Operation | Target | Current | Status |
-|-----------|--------|---------|--------|
-| CLI startup | <50ms | ~10ms | ✅ EXCELLENT |
-| Template parse | <10ms | ~1-5ms | ✅ EXCELLENT |
-| Template render | <50ms | ~5-50ms | ⚠️ MONITOR |
-| RDF insert (small) | <50ms | ~5-20ms | ✅ GOOD |
-| Lockfile load (100) | <50ms | ~20-50ms | ⚠️ MONITOR |
-| Project scaffold | <2000ms | Unknown | ⚠️ MEASURE |
-
----
-
-## 🔥 Common Performance Issues & Fixes
-
-### Issue 1: Slow Template Generation
-
-**Symptoms**:
-- `ggen generate` takes >500ms
-- Flamegraph shows time in `Template::parse`
-
-**Diagnosis**:
-```bash
-# Check if template has RDF blocks
-grep -E "graph:|query:" template.tmpl
-```
-
-**Fix**:
-- Apply Quick Win #1 (lazy RDF loading)
-- Consider caching templates (Quick Win #2)
-
----
-
-### Issue 2: High Memory Usage
-
-**Symptoms**:
-- Memory >100MB for simple operations
-- OOM errors on large projects
-
-**Diagnosis**:
-```bash
-# Profile memory
-/usr/bin/time -l target/release/ggen generate template.tmpl
-# Check "maximum resident set size"
-```
-
-**Fixes**:
-1. Reduce template cache size (default: 100)
-   ```rust
-   TemplateCache::new(50) // Reduce to 50
-   ```
-
-2. Clear graph after generation
-   ```rust
-   graph.clear()?; // Free memory
-   ```
-
-3. Use streaming for large files
-   ```rust
-   // Instead of reading entire file
-   let content = fs::read_to_string(path)?;
-
-   // Use buffered reader
-   let file = File::open(path)?;
-   let reader = BufReader::new(file);
-   ```
-
----
-
-### Issue 3: Slow Lockfile Operations
-
-**Symptoms**:
-- `ggen pack install` takes >5 seconds
-- Flamegraph shows time in `resolve_dependencies`
-
-**Diagnosis**:
-```bash
-# Check number of dependencies
-cat ggen.lock | grep "id =" | wc -l
-```
-
-**Fixes**:
-1. Parallel dependency resolution
-   ```rust
-   use rayon::prelude::*;
-
-   manifest.dependencies
-       .par_iter()  // ← Parallel
-       .map(|dep| resolve_dependency(dep))
-       .collect()
-   ```
-
-2. Lazy dependency resolution
-   ```rust
-   // Only resolve when needed
-   if lockfile.needs_resolution() {
-       resolve_dependencies()?;
-   }
-   ```
-
----
-
-### Issue 4: Slow SPARQL Queries
-
-**Symptoms**:
-- Templates with RDF take >200ms
-- Flamegraph shows time in `Graph::query`
-
-**Diagnosis**:
-```bash
-# Check query complexity
-cat template.tmpl | grep -A 10 "query:"
-```
-
-**Fixes**:
-1. Optimize SPARQL queries
-   ```sparql
-   # BEFORE (slow):
-   SELECT ?value WHERE {
-     ?s ?p ?value .
-     FILTER(?p = ex:name)
-   }
-
-   # AFTER (fast):
-   SELECT ?value WHERE {
-     ?s ex:name ?value .
-   }
-   ```
-
-2. Use query result caching (already implemented)
-   ```rust
-   // Queries are automatically cached
-   graph.query(sparql)?; // First call: slow
-   graph.query(sparql)?; // Second call: fast ✅
-   ```
-
----
-
-## 📊 Continuous Performance Monitoring
-
-### Add to CI/CD Pipeline
-
-```yaml
-# .github/workflows/performance.yml
-name: Performance Tests
-
-on: [pull_request]
-
-jobs:
-  benchmark:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build release
-        run: cargo build --release
-
-      - name: Run benchmarks
-        run: cargo bench --bench performance_benchmark
-
-      - name: Check for regressions
-        run: |
-          # Fail if any benchmark is >10% slower
-          cargo bench -- --save-baseline main
-          cargo bench -- --baseline main --test
-```
-
----
-
-### Performance Alerts
-
-Set up alerts for key metrics:
-
-```rust
-// In benchmarks
-if result.p99 > 50 { // 50ms threshold
-    panic!("Performance regression: p99={}ms", result.p99);
-}
-```
-
----
-
-## 🛠️ Advanced Profiling Tools
-
-### 1. Flamegraph (CPU Profiling)
-
-```bash
-cargo install flamegraph
-cargo flamegraph --release --bin ggen -- generate template.tmpl
-open flamegraph.svg
-```
-
-### 2. Heaptrack (Memory Profiling)
-
-```bash
-# macOS
-brew install heaptrack
-
-# Profile
-heaptrack target/release/ggen generate template.tmpl
-
-# Visualize
-heaptrack_gui heaptrack.ggen.*.gz
-```
-
-### 3. Valgrind (Memory Leaks)
-
-```bash
-# Linux only
-valgrind --leak-check=full target/release/ggen generate template.tmpl
-```
-
-### 4. perf (Linux CPU Profiling)
-
-```bash
-# Record
-perf record -g target/release/ggen generate template.tmpl
-
-# Report
-perf report
-```
-
-### 5. Instruments (macOS)
-
-```bash
-# Profile with Xcode Instruments
-instruments -t "Time Profiler" target/release/ggen generate template.tmpl
-```
-
----
-
-## 📈 Performance Optimization Checklist
-
-Before committing performance improvements:
-
-- [ ] Run `cargo bench` and verify improvement
-- [ ] Check memory usage hasn't increased
-- [ ] Verify correctness with `cargo test`
-- [ ] Update PERFORMANCE_ANALYSIS.md with findings
-- [ ] Add regression test to prevent future regressions
-- [ ] Profile with flamegraph to confirm bottleneck is fixed
-- [ ] Document the optimization in code comments
-
----
-
-## 📚 Further Reading
-
-- [Full Performance Analysis](./PERFORMANCE_ANALYSIS.md)
-- [Rust Performance Book](https://nnethercote.github.io/perf-book/)
-- [Criterion Benchmarking Guide](https://bheisler.github.io/criterion.rs/book/)
-- [Flamegraph Interpretation](http://www.brendangregg.com/flamegraphs.html)
-
----
-
-## 🤝 Contributing Performance Improvements
-
-1. Run benchmarks BEFORE changes
-   ```bash
-   cargo bench -- --save-baseline before
-   ```
-
-2. Make your changes
-
-3. Run benchmarks AFTER changes
-   ```bash
-   cargo bench -- --baseline before
-   ```
-
-4. Document improvements in PR description
-   ```markdown
-   ## Performance Impact
-   - template_parsing: 5.2ms → 2.8ms (46% improvement)
-   - lockfile_load_100: 45ms → 18ms (60% improvement)
-   ```
-
-5. Include flamegraph comparison (optional but helpful)
-
----
-
-**Last Updated**: 2025-11-18
-**Maintained by**: Performance Benchmarker Agent
+Both were read from the live `justfile`; only `slo-check` was actually executed for this page.
