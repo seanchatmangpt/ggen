@@ -12,12 +12,12 @@ Lean receipt rather than source plausibility.
 
 | Severity | Finding | Consequence | Repair |
 | --- | --- | --- | --- |
-| P0 | `Execution.of_run_eq` and `transport_execution` were declared as `theorem` while returning `Execution ... : Type`. | The merged source did not survive a clean `lake build`; Lean rejects theorem declarations whose result is not a proposition. | Reclassified both proof-relevant manufacturers as `def` and added a declaration-kind regression guard. |
+| P0 | `Execution.of_run_eq`, `transport_execution`, and `additive_swapped_execution` were declared as `theorem` while returning `Execution ... : Type`. | The merged source did not survive a clean `lake build`; Lean rejects theorem declarations whose result is not a proposition. | Reclassified all three proof-relevant manufacturers as `def` and added declaration-kind regression guards. |
 | P0 | `CrownObservationAdmission.lawfulIff` was the exact pairwise theorem the interface claimed to derive. | The repaired crown was circular. `preservesLawful` projected the assumed theorem and did not consume `traceSound`. | Replaced pairwise lawfulness admission with pointwise factorization through `(TraceClass I, Observation)`. The derived theorem consumes `traceSound`, `classify_eq_iff`, `observationEq`, and `lawfulFactorization`. |
 | P0 | The behavioral relation could be empty or equality-only. | The theorem could receive vacuous standing without one admitted serialization change. | Added `AdmittedBehavioralCrown` with a related witness pair whose event serializations are distinct. |
 | P1 | Timed behavior stored timestamps by list position. | Swapping events could silently reassign timestamps to different occurrences while raw timestamp-list equality still held. | Timed behavior now uses unique event identities and a timestamp map keyed by identity. |
 | P1 | The trajectory falsifier was explanatory but not connected to a refusal relation. | A downstream adapter still lacked a kernel-visible statement that the additive swap must be rejected when full state traces are observed. | Added `AdditiveTrajectoryRelated` and proved that it refuses `[1, 3] ↔ [3, 1]`. |
-| P1 | The source audit checked declaration names but not theorem shape or declaration sort. | The old circular field or the invalid Type-valued theorem declarations could return while the audit remained green. | Added anti-regression checks for the pairwise `lawfulIff` field, positional timestamps, required theorem dependencies, and proof-relevant declaration kinds. |
+| P1 | The source audit checked declaration names but not theorem shape or declaration sort. | The old circular field or invalid Type-valued theorem declarations could return while the audit remained green. | Added anti-regression checks for the pairwise `lawfulIff` field, positional timestamps, required theorem dependencies, and all three proof-relevant declaration kinds. |
 | P2 | README language called abstract word predicates native temporal and trajectory preservation. | The documentation blurred abstract projection semantics with native schedules and state trajectories. | Reclassified those fields as word-level projections and documented the remaining MFW adapter boundary. |
 
 ## Preserved results
@@ -30,8 +30,8 @@ The review did not invalidate:
 - the intended proof-relevant execution reification and transport calculus;
 - the timestamp and intermediate-state countermodels.
 
-The execution calculus required a declaration-sort repair before it could be
-accepted by Lean.
+The execution calculus required declaration-sort repairs before Lean could
+accept its proof-relevant outputs.
 
 ## Refactored calculus
 
@@ -66,8 +66,8 @@ run receipt → Execution
 Execution × TraceEq → Execution
 ```
 
-Those declarations live in `Type`; proposition-only `theorem` syntax is not
-used for them.
+Those declarations and their concrete additive witness live in `Type`;
+proposition-only `theorem` syntax is not used for them.
 
 ## Exclusions
 
@@ -80,7 +80,7 @@ This refactor still does not claim:
 ## Standing
 
 - Abstract trace kernel: preserved.
-- Invalid proof-relevant declaration sort: found by clean build and repaired.
+- Invalid proof-relevant declaration sorts: found by clean build and repaired.
 - Circular behavioral admission: refuted and removed.
 - Observation-factored behavioral theorem: source complete.
 - Nontrivial behavioral receipt: source complete.
