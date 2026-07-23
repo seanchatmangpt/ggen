@@ -43,7 +43,7 @@ theorem constant_map_not_crown :
 def distinctBoolIndependence : Independence Bool where
   independent := fun a b => a ≠ b
   symmetric := fun h => Ne.symm h
-  irreflexive := fun a h => h rfl
+  irreflexive := fun _ h => h rfl
 
 /-- Order-sensitive transition system: `false` writes `false`; `true` toggles. -/
 def orderSensitiveSystem : TransitionSystem Bool Bool where
@@ -62,7 +62,10 @@ independence relation. -/
 theorem no_false_diamond :
     ¬ DiamondCertificate orderSensitiveSystem distinctBoolIndependence := by
   intro certificate
-  have commute := certificate.commute true false true (by decide)
+  have distinct : distinctBoolIndependence.independent false true := by
+    change false ≠ true
+    decide
+  have commute := certificate.commute true false true distinct
   exact orderSensitive_replays_differ commute
 
 end CrownFormal
