@@ -22,14 +22,14 @@ chicago_tdd_tools::test!(all_43_capabilities_have_typed_reference_standing, {
             .iter()
             .filter(|item| item.reference_standing == ReferenceStanding::ExactManifest)
             .count(),
-        37
+        36
     );
     assert_eq!(
         evidence
             .iter()
             .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
             .count(),
-        4
+        5
     );
     assert_eq!(
         evidence
@@ -57,12 +57,62 @@ chicago_tdd_tools::test!(declared_derivative_population_is_exact_and_named, {
             "core.blue-river-dam",
             "core.crypto-digest",
             "core.kaizen",
+            "runtime.std",
         ])
     );
     assert!(evidence
         .iter()
         .filter(|item| item.reference_standing == ReferenceStanding::DeclaredDerivative)
-        .all(|item| item.reference_sha256.as_ref().is_some_and(|digest| digest != &item.sha256)));
+        .all(|item| item
+            .reference_sha256
+            .as_ref()
+            .is_some_and(|digest| digest != &item.sha256)));
+});
+
+chicago_tdd_tools::test!(auto_select_derivative_is_the_exact_rdf_projection, {
+    let root = project_root();
+    let generated = read_nonempty(&root, "src/自動選択.rs").expect("generated Auto Select");
+    validate_auto_select_override(&root, &generated).expect("RDF override must equal projection");
+
+    let evidence = product_evidence().expect("evidence");
+    let auto_select = evidence
+        .iter()
+        .find(|item| item.id == "core.auto-select")
+        .expect("Auto Select evidence");
+    assert!(auto_select
+        .facts
+        .contains(&"rdf-source-override-byte-match"));
+});
+
+chicago_tdd_tools::test!(duplicate_auto_select_rdf_override_is_refused, {
+    let root = project_root();
+    let bytes = read_nonempty(&root, "schema/domain.ttl").expect("domain ontology");
+    let text = utf8("schema/domain.ttl", &bytes).expect("UTF-8");
+    let duplicate = format!(
+        "{text}\n{AUTO_SELECT_OVERRIDE_PREFIX}duplicate{AUTO_SELECT_OVERRIDE_SUFFIX}\n"
+    );
+    assert!(matches!(
+        extract_single_auto_select_override(&duplicate),
+        Err(EvidenceError::InvalidData { message, .. })
+            if message.contains("exactly one") || message.contains("multiple")
+    ));
+});
+
+chicago_tdd_tools::test!(auto_select_rdf_projection_mutation_is_refused, {
+    let root = project_root();
+    let ontology = read_nonempty(&root, "schema/domain.ttl").expect("domain ontology");
+    let mut generated = read_nonempty(&root, "src/自動選択.rs").expect("generated Auto Select");
+    generated[0] ^= 1;
+
+    let temp = tempfile::TempDir::new().expect("tempdir");
+    std::fs::create_dir_all(temp.path().join("schema")).expect("schema directory");
+    std::fs::write(temp.path().join("schema/domain.ttl"), ontology).expect("write ontology");
+
+    assert!(matches!(
+        validate_auto_select_override(temp.path(), &generated),
+        Err(EvidenceError::InvalidData { message, .. })
+            if message.contains("projection mismatch")
+    ));
 });
 
 chicago_tdd_tools::test!(capability_kinds_cover_the_complete_product_boundary, {
@@ -158,11 +208,11 @@ chicago_tdd_tools::test!(receipt_is_replay_stable_and_cryptographically_bound, {
     let first = receipt(evidence, manifest.len()).expect("receipt");
     let second = receipt(evidence, manifest.len()).expect("receipt replay");
     assert_eq!(first, second);
-    assert_eq!(first.schema, "tcps-product-evidence/v4");
+    assert_eq!(first.schema, "tcps-product-evidence/v5");
     assert_eq!(first.capability_count, 43);
     assert_eq!(first.manifest_entry_count, 129);
-    assert_eq!(first.exact_manifest_capabilities, 37);
-    assert_eq!(first.declared_derivative_capabilities, 4);
+    assert_eq!(first.exact_manifest_capabilities, 36);
+    assert_eq!(first.declared_derivative_capabilities, 5);
     assert_eq!(first.independent_capabilities, 2);
     assert_eq!(first.evidence_root.len(), 64);
 });
@@ -181,7 +231,11 @@ chicago_tdd_tools::test!(receipt_json_is_valid_and_contains_the_evidence_index, 
     assert_eq!(decoded["receipt"]["capability_count"].as_u64(), Some(43));
     assert_eq!(
         decoded["receipt"]["exact_manifest_capabilities"].as_u64(),
-        Some(37)
+        Some(36)
+    );
+    assert_eq!(
+        decoded["receipt"]["declared_derivative_capabilities"].as_u64(),
+        Some(5)
     );
     assert_eq!(decoded["capabilities"].as_array().map(Vec::len), Some(43));
 });
