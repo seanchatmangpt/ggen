@@ -376,7 +376,9 @@ pub struct ReferenceAutonomicPraxis {
 impl ReferenceAutonomicPraxis {
     #[must_use]
     pub fn new(judge: impl Into<String>) -> Self {
-        Self { judge: judge.into() }
+        Self {
+            judge: judge.into(),
+        }
     }
 
     pub fn authorize(
@@ -527,43 +529,50 @@ impl AutonomicLoop<Authorized> {
         executor: &mut ReferenceAutonomicCargoCicd,
     ) -> Result<AutonomicLoop<Receipted>, AutonomicLoop<Stopped>> {
         let plan = self.plan.as_ref().expect("authorized state owns a plan");
-        let authorization = self
-            .authorization
-            .as_ref()
-            .expect("authorized state owns authorization");
         if executor.actor.is_empty() || executor.actor != plan.workcell {
             return Err(self.stop(AutonomicRefusal::WorkcellMismatch.to_string()));
         }
-        match executor.apply(plan) {
+
+        let execution = executor.apply(plan);
+        match execution {
             Ok(adaptation_digest) if !adaptation_digest.is_empty() => {
+                let authorization = self
+                    .authorization
+                    .as_ref()
+                    .expect("authorized state owns authorization");
+                let receipt = AutonomicReceipt {
+                    cycle_id: plan.cycle_id.clone(),
+                    regime: plan.regime,
+                    evidence_digest: plan.evidence_digest.clone(),
+                    plan_digest: plan.plan_digest.clone(),
+                    authorization_digest: authorization.authorization_digest.clone(),
+                    adaptation_digest,
+                    observer: plan.observer.clone(),
+                    judge: authorization.judge.clone(),
+                    executor: executor.actor.clone(),
+                    receipt_digest: String::new(),
+                };
                 let receipt_digest = digest(&[
-                    &plan.cycle_id,
-                    &plan.evidence_digest,
-                    &plan.plan_digest,
-                    &authorization.authorization_digest,
-                    &adaptation_digest,
-                    &plan.observer,
-                    &authorization.judge,
-                    &executor.actor,
+                    &receipt.cycle_id,
+                    &receipt.evidence_digest,
+                    &receipt.plan_digest,
+                    &receipt.authorization_digest,
+                    &receipt.adaptation_digest,
+                    &receipt.observer,
+                    &receipt.judge,
+                    &receipt.executor,
                     "autonomic-receipt",
                 ]);
+                let receipt = AutonomicReceipt {
+                    receipt_digest,
+                    ..receipt
+                };
                 Ok(AutonomicLoop {
-                    receipt: Some(AutonomicReceipt {
-                        cycle_id: plan.cycle_id.clone(),
-                        regime: plan.regime,
-                        evidence_digest: plan.evidence_digest.clone(),
-                        plan_digest: plan.plan_digest.clone(),
-                        authorization_digest: authorization.authorization_digest.clone(),
-                        adaptation_digest,
-                        observer: plan.observer.clone(),
-                        judge: authorization.judge.clone(),
-                        executor: executor.actor.clone(),
-                        receipt_digest,
-                    }),
                     evidence: self.evidence,
                     regime: self.regime,
                     plan: self.plan,
                     authorization: self.authorization,
+                    receipt: Some(receipt),
                     andon: None,
                     state: PhantomData,
                 })
@@ -616,8 +625,10 @@ fn validate_actions(
     actions: &[AutonomicAction],
 ) -> Result<(), AutonomicRefusal> {
     let valid = match regime {
-        PhaseRegime::Continuous => actions == [AutonomicAction::PreserveStandardWork],
-        PhaseRegime::PhaseShift1000x => actions == PHASE_SHIFT_ACTIONS,
+        PhaseRegime::Continuous => {
+            actions == [AutonomicAction::PreserveStandardWork].as_slice()
+        }
+        PhaseRegime::PhaseShift1000x => actions == PHASE_SHIFT_ACTIONS.as_slice(),
     };
     if valid {
         Ok(())
