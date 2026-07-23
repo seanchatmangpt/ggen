@@ -186,9 +186,7 @@ pub struct ResourceEnvelope {
 }
 
 /// Isolation strength. Ordering permits minimum-isolation comparisons.
-#[derive(
-    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
-)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum IsolationClass {
     Ambient,
@@ -274,10 +272,7 @@ pub enum LifecycleState {
 impl LifecycleState {
     #[must_use]
     pub fn allows_new_installation(self) -> bool {
-        matches!(
-            self,
-            Self::Experimental | Self::Candidate | Self::Stable
-        )
+        matches!(self, Self::Experimental | Self::Candidate | Self::Stable)
     }
 }
 
@@ -636,11 +631,7 @@ impl PartPassport {
         for mark in &self.conformity {
             require_non_empty(&mut report, "conformity.profile", &mark.profile);
             require_non_empty(&mut report, "conformity.issuer", &mark.issuer);
-            require_non_empty(
-                &mut report,
-                "conformity.evidence_uri",
-                &mark.evidence_uri,
-            );
+            require_non_empty(&mut report, "conformity.evidence_uri", &mark.evidence_uri);
             validate_evidence_digest(
                 &mut report,
                 "conformity.artifact_digest",
@@ -664,7 +655,10 @@ impl PartPassport {
                 &self.identity.artifact_digest,
             );
 
-            if matches!(verifier.status, VerifierStatus::Failed | VerifierStatus::Revoked) {
+            if matches!(
+                verifier.status,
+                VerifierStatus::Failed | VerifierStatus::Revoked
+            ) {
                 report.push(PassportViolation::new(
                     PassportViolationCode::FailedVerifier,
                     "verifiers.status",
@@ -827,11 +821,9 @@ impl PartPassport {
             self.resources.max_concurrency
         )
         .expect("String writes cannot fail");
-        writeln!(&mut label, "ISOLATION: {:?}", self.isolation)
-            .expect("String writes cannot fail");
+        writeln!(&mut label, "ISOLATION: {:?}", self.isolation).expect("String writes cannot fail");
         writeln!(&mut label, "HOSTS: {hosts}").expect("String writes cannot fail");
-        writeln!(&mut label, "CONFORMITY: {conformity}")
-            .expect("String writes cannot fail");
+        writeln!(&mut label, "CONFORMITY: {conformity}").expect("String writes cannot fail");
         writeln!(&mut label, "VERIFIED: {verifiers}").expect("String writes cannot fail");
         writeln!(&mut label, "LIFECYCLE: {:?}", self.lifecycle.state)
             .expect("String writes cannot fail");
@@ -996,10 +988,7 @@ impl PartPassport {
             );
         }
 
-        if !noninterference_is_substitutable(
-            &self.noninterference,
-            &required.noninterference,
-        ) {
+        if !noninterference_is_substitutable(&self.noninterference, &required.noninterference) {
             report.reject(
                 SubstitutionViolationCode::NonInterference,
                 "candidate widens the admitted side-effect surface",
@@ -1116,8 +1105,8 @@ fn validate_noninterference_conflicts(profile: &NonInterferenceProfile) -> Vec<S
 }
 
 fn compare_equal<T: Eq + fmt::Debug>(
-    report: &mut SubstitutionReport, code: SubstitutionViolationCode, candidate: &T,
-    required: &T, label: &str,
+    report: &mut SubstitutionReport, code: SubstitutionViolationCode, candidate: &T, required: &T,
+    label: &str,
 ) {
     if candidate != required {
         report.reject(
@@ -1282,10 +1271,12 @@ mod tests {
         let mut candidate = required.clone();
         candidate.identity.artifact_digest = format!("blake3:{}", "c".repeat(64));
         for mark in &mut candidate.conformity {
-            mark.artifact_digest.clone_from(&candidate.identity.artifact_digest);
+            mark.artifact_digest
+                .clone_from(&candidate.identity.artifact_digest);
         }
         for mark in &mut candidate.verifiers {
-            mark.artifact_digest.clone_from(&candidate.identity.artifact_digest);
+            mark.artifact_digest
+                .clone_from(&candidate.identity.artifact_digest);
         }
         candidate.resources.max_memory_pages = 32;
         candidate.resources.max_fuel = 4_000_000;

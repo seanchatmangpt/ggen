@@ -70,12 +70,12 @@ pub use migration::{Migrator, UpgradeEdge};
 pub use models::*;
 pub use network::{MarketplaceClient, PackageMetadata as NetworkPackageMetadata};
 pub use part_passport::{
-    CausalPolarity, ClockDiscipline, ConformityMark, HostProfile, InputEnvelope,
-    IsolationClass, LifecyclePolicy, LifecycleState, NameplateMark, NonInterferenceProfile,
-    OutputContract, PartIdentity, PartPassport, PassportBinding, PassportValidationReport,
-    PassportViolation, PassportViolationCode, ProtocolRange, ResourceEnvelope, RetirementPolicy,
-    SubstitutionReport, SubstitutionViolation, SubstitutionViolationCode, TemporalProfile,
-    TimeoutSemantics, VerifierMark, VerifierStatus, CURRENT_PASSPORT_SCHEMA,
+    CausalPolarity, ClockDiscipline, ConformityMark, HostProfile, InputEnvelope, IsolationClass,
+    LifecyclePolicy, LifecycleState, NameplateMark, NonInterferenceProfile, OutputContract,
+    PartIdentity, PartPassport, PassportBinding, PassportValidationReport, PassportViolation,
+    PassportViolationCode, ProtocolRange, ResourceEnvelope, RetirementPolicy, SubstitutionReport,
+    SubstitutionViolation, SubstitutionViolationCode, TemporalProfile, TimeoutSemantics,
+    VerifierMark, VerifierStatus, CURRENT_PASSPORT_SCHEMA,
 };
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
