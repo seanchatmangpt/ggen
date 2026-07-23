@@ -50,7 +50,7 @@ jobs:
         with:
           toolchain: nightly-2026-06-22
 
-      - name: Execute checked-in evidence and behavioral suites
+      - name: Resolve lockfile and execute checked-in suites
         shell: bash
         run: |
           set -uo pipefail
@@ -58,7 +58,6 @@ jobs:
           status=0
 
           cargo test \
-            --locked \
             --manifest-path examples/tcps-generated/Cargo.toml \
             --test tcps_chicago_tdd_1000x \
             --test tcps_chicago_tdd_8pow4 \
@@ -67,11 +66,13 @@ jobs:
           cat tcps-generated-validation.log
           exit "$status"
 
-      - name: Preserve validation log
+      - name: Preserve validation and resolved lockfile
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: tcps-generated-validation-log
-          path: tcps-generated-validation.log
+          name: tcps-generated-lock-resolution
+          path: |
+            tcps-generated-validation.log
+            examples/tcps-generated/Cargo.lock
           if-no-files-found: error
           retention-days: 7
