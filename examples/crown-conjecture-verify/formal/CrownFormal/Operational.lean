@@ -73,7 +73,9 @@ theorem Execution.run_eq {system : TransitionSystem State Action}
 /-- Every successful deterministic replay can be reified as a proof-relevant
 execution. This closes the converse direction of `Execution.run_eq`: replay
 receipts are not merely inspectable after construction; they are recoverable
-from every admitted successful run. -/
+from every admitted successful run. This is a definition, not a theorem,
+because its result inhabits `Type`: it manufactures an `Execution` receipt
+rather than proving a `Prop`. -/
 def Execution.of_run_eq {system : TransitionSystem State Action}
     {state final : State} {word : List Action}
     (runResult : system.run state word = some final) :
@@ -138,7 +140,9 @@ theorem successful_replay_iff (certificate : DiamondCertificate system I)
 
 /-- A proof-relevant execution can be replayed through any admitted trace
 commutation. The resulting derivation contains the transition receipts for the
-new serialization and retains the exact final state. -/
+new serialization and retains the exact final state. This is a definition
+because it returns a new `Execution` object in `Type`, manufacturing the
+transition receipts for the target serialization. -/
 def transport_execution (certificate : DiamondCertificate system I)
     {state final : State} {left right : List Action}
     (equivalent : TraceEq I left right)

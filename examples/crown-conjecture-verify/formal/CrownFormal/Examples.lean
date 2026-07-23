@@ -228,7 +228,8 @@ theorem additive_swapped_lawful : additiveSemantics.Lawful [3, 1] :=
   additiveAdmittedCrown.traceSwapPreservesLawful
     additive_trace_swap additive_anchor_lawful
 
-/-- The proof-relevant execution receipt also transports to the swapped word. -/
+/-- The proof-relevant execution receipt also transports to the swapped word.
+This is a definition because its result inhabits `Execution ... : Type`. -/
 def additive_swapped_execution :
     TransitionSystem.Execution additiveSystem 0 [3, 1] 4 := by
   have original : TransitionSystem.Execution additiveSystem 0 [1, 3] 4 :=
