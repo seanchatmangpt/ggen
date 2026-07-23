@@ -1,0 +1,27 @@
+---
+to: Cargo.toml
+force: true
+---
+[package]
+name = "tcps-lifecycle"
+version = "26.7.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT OR Apache-2.0"
+description = "Executable reference lifecycle for the unified TCPS ggen pack"
+publish = false
+
+[dependencies]
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+static_assertions = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
