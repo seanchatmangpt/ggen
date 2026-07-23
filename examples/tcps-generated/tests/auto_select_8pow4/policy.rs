@@ -4,23 +4,15 @@ fn candidate(lane: usize, reverse_tie: bool) -> 候補 {
     const DETERMINISTIC: [bool; LANES] = [true, false, true, false, true, true, false, true];
     const RECEIPT_CAPABLE: [bool; LANES] = [true, true, false, true, false, true, true, true];
     const PREDICTED_TIME: [u32; LANES] = [0, 1, 5, 10, 20, 50, 100, 200];
-    const FORWARD_SCORE: [u8; LANES] = [10, 20, 30, 40, 50, 60, 70, 80];
-    const REVERSE_TIE_SCORE: [u8; LANES] = [80, 80, 70, 60, 50, 40, 30, 20];
+    const FORWARD_FLOOR: [u8; LANES] = [10, 20, 30, 40, 50, 60, 70, 80];
+    const REVERSE_TIE_FLOOR: [u8; LANES] = [80, 80, 70, 60, 50, 40, 30, 20];
 
-    let score = if reverse_tie {
-        REVERSE_TIE_SCORE[lane]
+    let floor = if reverse_tie {
+        REVERSE_TIE_FLOOR[lane]
     } else {
-        FORWARD_SCORE[lane]
+        FORWARD_FLOOR[lane]
     };
-    let measures = 測度 {
-        意味適合: score,
-        証拠適合: score,
-        権限適合: score,
-        時間適合: score,
-        後工程適合: score,
-        信頼度: score,
-        費用適合: score,
-    };
+    let measures = heterogeneous_measures(floor, lane % 7);
     let kind = match lane % 5 {
         0 => 認知品種::正確なグラフ検索,
         1 => 認知品種::決定的規則推論,
@@ -40,6 +32,40 @@ fn candidate(lane: usize, reverse_tie: bool) -> 候補 {
         予測時間: PREDICTED_TIME[lane],
         測度: measures,
     }
+}
+
+fn heterogeneous_measures(floor: u8, controlling_field: usize) -> 測度 {
+    let mut fields = [
+        floor.saturating_add(11),
+        floor.saturating_add(13),
+        floor.saturating_add(17),
+        floor.saturating_add(19),
+        floor.saturating_add(23),
+        floor.saturating_add(29),
+        floor.saturating_add(31),
+    ];
+    fields[controlling_field] = floor;
+    測度 {
+        意味適合: fields[0],
+        証拠適合: fields[1],
+        権限適合: fields[2],
+        時間適合: fields[3],
+        後工程適合: fields[4],
+        信頼度: fields[5],
+        費用適合: fields[6],
+    }
+}
+
+fn measure_fields(measures: 測度) -> [u8; 7] {
+    [
+        measures.意味適合,
+        measures.証拠適合,
+        measures.権限適合,
+        measures.時間適合,
+        measures.後工程適合,
+        measures.信頼度,
+        measures.費用適合,
+    ]
 }
 
 fn policy(reverse_tie: bool) -> Result<方策<LANES>, EvidenceError> {
@@ -79,22 +105,11 @@ fn request(cell: Cell) -> 選択要求 {
 }
 
 fn oracle_mass(measures: 測度) -> u16 {
-    let fields = [
-        measures.意味適合,
-        measures.証拠適合,
-        measures.権限適合,
-        measures.時間適合,
-        measures.後工程適合,
-        measures.信頼度,
-        measures.費用適合,
-    ];
     let mut minimum = u8::MAX;
-    let mut maximum = u8::MIN;
-    for value in fields {
+    for value in measure_fields(measures) {
         minimum = minimum.min(value);
-        maximum = maximum.max(value);
     }
-    u16::from(minimum) * u16::from(maximum)
+    u16::from(minimum) * u16::from(minimum)
 }
 
 fn oracle_request_digest(request: 選択要求) -> 要約値 {
@@ -136,6 +151,17 @@ fn validate_decision_receipt(
 }
 
 fn expected(policy: &方策<LANES>, request: 選択要求) -> ExpectedOutcome {
+    if policy.件数 == 0 {
+        return ExpectedOutcome::Refused {
+            reason: 拒否理由::適格候補なし,
+            eligible_mask: 0,
+            ready_mask: 0,
+        };
+    }
+
+    let mut authority_mask = 0_u64;
+    let mut determinism_mask = 0_u64;
+    let mut receipt_mask = 0_u64;
     let mut eligible_mask = 0_u64;
     let mut ready_mask = 0_u64;
     let mut winner = None;
@@ -143,40 +169,65 @@ fn expected(policy: &方策<LANES>, request: 選択要求) -> ExpectedOutcome {
 
     for index in 0..policy.件数 {
         let 有無::有る(candidate) = policy.候補[index] else {
-            continue;
+            return ExpectedOutcome::Refused {
+                reason: 拒否理由::方策矛盾,
+                eligible_mask: 0,
+                ready_mask: 0,
+            };
         };
-        let eligible = (request.取得権限 & candidate.必要権限) == candidate.必要権限
-            && (!request.決定性必須 || candidate.決定的)
-            && (!request.受領証必須 || candidate.受領証対応)
-            && candidate.予測時間 <= request.最大時間;
-        if eligible {
-            eligible_mask |= 1_u64 << index;
-        }
-        let ready =
-            eligible && (request.準備完了 & candidate.必要準備) == candidate.必要準備;
-        if ready {
-            ready_mask |= 1_u64 << index;
-            let mass = oracle_mass(candidate.測度);
-            if winner.is_none() || mass > winner_mass {
-                winner = Some(index);
-                winner_mass = mass;
+        let bit = 1_u64 << index;
+        if (request.取得権限 & candidate.必要権限) == candidate.必要権限 {
+            authority_mask |= bit;
+            if !request.決定性必須 || candidate.決定的 {
+                determinism_mask |= bit;
+                if !request.受領証必須 || candidate.受領証対応 {
+                    receipt_mask |= bit;
+                    if candidate.予測時間 <= request.最大時間 {
+                        eligible_mask |= bit;
+                        if (request.準備完了 & candidate.必要準備)
+                            == candidate.必要準備
+                        {
+                            ready_mask |= bit;
+                            let mass = oracle_mass(candidate.測度);
+                            if winner.is_none() || mass > winner_mass {
+                                winner = Some(index);
+                                winner_mass = mass;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    match winner {
-        Some(index) => ExpectedOutcome::Selected {
+    let reason = if authority_mask == 0 {
+        Some(拒否理由::権限不足)
+    } else if request.決定性必須 && determinism_mask == 0 {
+        Some(拒否理由::決定性不足)
+    } else if request.受領証必須 && receipt_mask == 0 {
+        Some(拒否理由::受領証不足)
+    } else if eligible_mask == 0 {
+        Some(拒否理由::時間超過)
+    } else if ready_mask == 0 {
+        Some(拒否理由::準備候補なし)
+    } else {
+        None
+    };
+
+    match (reason, winner) {
+        (Some(reason), _) => ExpectedOutcome::Refused {
+            reason,
+            eligible_mask,
+            ready_mask,
+        },
+        (None, Some(index)) => ExpectedOutcome::Selected {
             index,
             mass: winner_mass,
             eligible_mask,
             ready_mask,
         },
-        None => ExpectedOutcome::Refused {
-            reason: if eligible_mask == 0 {
-                拒否理由::適格候補なし
-            } else {
-                拒否理由::準備候補なし
-            },
+        (None, None) => ExpectedOutcome::Refused {
+            reason: 拒否理由::方策矛盾,
             eligible_mask,
             ready_mask,
         },
