@@ -3,26 +3,36 @@ use ggen_marketplace::marketplace::{
 };
 
 const CROWN_PASSPORT: &str =
-    include_str!("../../../examples/part-passport/crown-kernel.json");
+    include_str!("../../../examples/part-passport/generated/crown-kernel.json");
+const CROWN_NAMEPLATE: &str =
+    include_str!("../../../examples/part-passport/generated/crown-kernel.nameplate.txt");
 
 fn passport() -> PartPassport {
-    serde_json::from_str(CROWN_PASSPORT).expect("canonical passport fixture must deserialize")
+    serde_json::from_str(CROWN_PASSPORT)
+        .expect("ggen-manufactured passport fixture must deserialize")
 }
 
 #[test]
-fn canonical_fixture_is_admitted() {
+fn manufactured_fixture_is_admitted() {
     let passport = passport();
     let report = passport.validate();
     assert!(report.is_valid(), "{:#?}", report.violations);
 }
 
 #[test]
-fn canonical_fixture_projects_a_causal_nameplate() {
+fn manufactured_nameplate_exposes_the_causal_rating() {
+    assert!(CROWN_NAMEPLATE.contains("GGEN PART PASSPORT"));
+    assert!(CROWN_NAMEPLATE.contains("MODEL: crown-kernel"));
+    assert!(CROWN_NAMEPLATE.contains("INPUT: application/ld+json"));
+    assert!(CROWN_NAMEPLATE.contains("OUTPUT: application/json"));
+    assert!(CROWN_NAMEPLATE.contains("MARKS: O* D NAA II LCS IV NI RET"));
+}
+
+#[test]
+fn rust_projection_derives_equivalent_nameplate_marks() {
     let label = passport().render_nameplate();
     assert!(label.contains("GGEN PART PASSPORT"));
     assert!(label.contains("MODEL: crown-kernel"));
-    assert!(label.contains("INPUT: application/ld+json"));
-    assert!(label.contains("OUTPUT: application/json"));
     assert!(label.contains("MARKS: O* D NAA II LCS IV NI RET"));
 }
 
@@ -67,8 +77,7 @@ fn widened_authority_breaks_interchangeability() {
 fn lower_resource_draw_preserves_substitutability() {
     let required = passport();
     let mut candidate = required.clone();
-    candidate.identity.artifact_digest =
-        format!("blake3:{}", "c".repeat(64));
+    candidate.identity.artifact_digest = format!("blake3:{}", "c".repeat(64));
     for mark in &mut candidate.conformity {
         mark.artifact_digest
             .clone_from(&candidate.identity.artifact_digest);
