@@ -4,11 +4,11 @@ resolver = "2"
 
 [package]
 name = "tcps-lifecycle"
-version = "26.7.0"
+version = "26.7.23"
 edition = "2021"
 rust-version = "1.86"
 license = "MIT OR Apache-2.0"
-description = "Executable reference lifecycle for the unified TCPS ggen pack"
+description = "Executable TCPS lifecycle and exact 1000x phase-shift autonomics reference"
 publish = false
 
 [dependencies]
