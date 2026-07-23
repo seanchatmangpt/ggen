@@ -58,21 +58,21 @@ def additiveSemantics : PlanningSemantics Nat Nat where
 /-- Bounded preconditions are swap-invariant. -/
 theorem boundedPreconditions_swap :
     SwapInvariant distinctNatIndependence boundedPreconditions := by
-  intro prefix a b suffix independent
+  intro pre a b suf independent
   unfold boundedPreconditions
   simp [List.sum_append, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 /-- Numeric parity is swap-invariant. -/
 theorem evenNumericFlow_swap :
     SwapInvariant distinctNatIndependence evenNumericFlow := by
-  intro prefix a b suffix independent
+  intro pre a b suf independent
   unfold evenNumericFlow
   simp [List.sum_append, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 /-- Neutral predicates are swap-invariant by construction. -/
 theorem true_swap_invariant :
     SwapInvariant distinctNatIndependence (fun _ : List Nat => True) := by
-  intro prefix a b suffix independent
+  intro pre a b suf independent
   exact Iff.rfl
 
 /-- Complete non-vacuous semantic independence certificate. -/
