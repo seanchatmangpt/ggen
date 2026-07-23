@@ -58,7 +58,11 @@ WHERE {
       gpp:disposalInstructions ?disposal_instructions .
   OPTIONAL { ?lifecycle gpp:migrationTarget ?migration_target . }
 
-  BIND(REPLACE(STR(?isolation_iri), "^https://ggen.dev/ns/part-passport#", "") AS ?isolation)
-  BIND(REPLACE(STR(?lifecycle_iri), "^https://ggen.dev/ns/part-passport#", "") AS ?lifecycle_state)
+  BIND(
+    IF(?isolation_iri = gpp:DoubleInsulated, "double_insulated",
+      IF(?isolation_iri = gpp:CapabilityIsolated, "capability_isolated", "ambient"))
+    AS ?isolation
+  )
+  BIND(LCASE(REPLACE(STR(?lifecycle_iri), "^https://ggen.dev/ns/part-passport#", "")) AS ?lifecycle_state)
 }
 ORDER BY ?part_id
