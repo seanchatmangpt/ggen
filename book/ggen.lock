@@ -2,4 +2,4 @@
 
 [packs.level-five-book-pack]
 source = "path:../packs/level-five-book-pack"
-content_hash = "blake3:01354229ea7430039377b133ffe1ebeabbc82147759af892a6165988b847e5d1"
+content_hash = "blake3:99130d59cb658b6daf6c258095e33f5735a299a03b4fabdf31a85e8232b054b4"

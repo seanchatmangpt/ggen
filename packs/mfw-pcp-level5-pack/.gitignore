@@ -1,0 +1,7 @@
+# Local ggen sync state for this self-contained pack -- mirrors
+# examples/receiptctl/.gitignore's convention (consumer-level generation
+# state is regenerable, not committed ground truth; the pack source and its
+# regenerated consumer output ARE committed).
+/.ggen
+/.ggen-v2
+/consumer/mfw-pcp-generated/target

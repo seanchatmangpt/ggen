@@ -11,4 +11,3 @@ Japanese canonical Toyota Code Production System domain model in Rust.
 %files
 /usr/bin/tcps
 /usr/include/tcps.h
-

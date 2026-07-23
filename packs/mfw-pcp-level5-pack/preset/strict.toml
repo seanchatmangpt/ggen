@@ -1,0 +1,13 @@
+
+[validation]
+shacl = true
+fail_on_warning = true
+fail_on_empty_query = true
+
+[generation]
+deterministic = true
+force = true
+
+[receipts]
+required = true
+hash = "blake3"

@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?order ?identifier ?statement ?status ?rustStatus WHERE { ?x a pcp:ProofObligation ; pcp:order ?order ; pcp:identifier ?identifier ; pcp:statement ?statement ; pcp:status ?status ; pcp:rustStatus ?rustStatus . } ORDER BY ?order

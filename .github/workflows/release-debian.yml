@@ -1,9 +1,27 @@
 name: Build and Release Debian Package
 
+# WHY workflow_dispatch WAS ADDED (root-cause fix, retrofit:PartialPublishRollbackUnknown
+# follow-on): the native `push: tags` trigger below never actually fired for
+# any real release -- tags are created by semantic-release.yml using the
+# default GITHUB_TOKEN, and GitHub suppresses `on: push` workflow runs for
+# events created with GITHUB_TOKEN (the exact same suppression class
+# release.yml's own header comment already documented and worked around;
+# confirmed here too: 15 total runs ever, all failure, none since
+# 2026-07-02, despite dozens of real tags pushed since). Fixed the same
+# proven way: release.yml now explicitly `gh workflow run`s this workflow
+# --ref <tag> right after build-release completes (workflow_dispatch IS the
+# documented GITHUB_TOKEN exception). No separate `tag` input is needed --
+# dispatching with --ref <tag> checks the runner out at that ref, so
+# GITHUB_REF_NAME (which scripts/build-debian-package.sh reads to derive
+# the real package version) is already the tag name, exactly as it would be
+# for a native tag-push trigger. The native `push: tags` trigger stays --
+# harmless, and still correct if this workflow is ever reached a different
+# way (e.g. a real PAT-based tag push).
 on:
   push:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v26.5.19, etc.
+  workflow_dispatch:
 
 permissions:
   contents: write  # Required for creating releases
@@ -22,43 +40,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b  # stable (2024-06)
+      # BUG FIXED (2026-07-22): the bespoke `dtolnay/rust-toolchain@...
+      # toolchain: stable` + ad-hoc actions/cache steps below is the same
+      # class already root-caused and fixed twice this session (release.yml
+      # PR #426, marketplace-test.yml, publish-registry.yml -- see
+      # retrofit:BespokeToolchainSetupBypassesSccache). It never installs
+      # sccache, which .cargo/config.toml requires unconditionally
+      # (`rustc-wrapper = "sccache"`) -- confirmed real and live: 2 actual
+      # workflow_dispatch runs today (triggered by release.yml's own
+      # dispatch-release-debian job) both failed identically: `error: could
+      # not execute process 'sccache ... rustc -vV' (never executed) ...
+      # No such file or directory`. `targets: x86_64-unknown-linux-gnu` is
+      # dropped as redundant, not lost functionality -- ubuntu-latest
+      # runners are already x86_64, matching rustup's default target with
+      # no cross-compilation involved.
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: stable
-          targets: x86_64-unknown-linux-gnu
+          cache-key-suffix: release-debian
 
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y devscripts debhelper
 
-      - name: Cache cargo registry
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Build Debian package
         run: |
           bash scripts/build-debian-package.sh
         shell: bash
 
+      # debuild/dpkg-buildpackage conventionally places its output ONE
+      # directory above the source package (scripts/build-debian-package.sh's
+      # own "Gate 10"/"Gate 11" steps read from "../ggen_*.deb*", confirming
+      # this). Both actions/upload-artifact and softprops/action-gh-release
+      # reject any path containing "../" (real, reproducing CI failure:
+      # "Invalid pattern '../ggen_*.deb*'. Relative pathing '.' and '..' is
+      # not allowed." -- confirmed on every run in this workflow's visible
+      # history). Copy the real build outputs into the workspace root so the
+      # later upload/release steps can reference them without traversal.
+      - name: Stage build artifacts into the workspace
+        run: |
+          cp ../ggen_*.deb ../ggen_*.deb.sha256 .
+          echo "✓ Staged $(ls ggen_*.deb ggen_*.deb.sha256)"
+
       - name: Verify build artifacts
         run: |
-          ls -lh ../ggen_*.deb* || (echo "Error: .deb not found" && exit 1)
+          ls -lh ggen_*.deb* || (echo "Error: .deb not found" && exit 1)
           ls -lh ggen.sha256 || (echo "Error: checksum not found" && exit 1)
           echo "✓ All artifacts present"
 
@@ -73,8 +100,8 @@ jobs:
         uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
         with:
           files: |
-            ../ggen_*.deb
-            ../ggen_*.deb.sha256
+            ggen_*.deb
+            ggen_*.deb.sha256
             ggen.sha256
             scripts/install-ggen.sh
           draft: false
@@ -149,7 +176,7 @@ jobs:
         with:
           name: debian-artifacts
           path: |
-            ../ggen_*.deb*
+            ggen_*.deb*
             ggen.sha256
             /tmp/debuild.log
           retention-days: 30

@@ -223,31 +223,83 @@ jobs:
           cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
           echo "✅ Phase 2 test suite complete"
 
-  # ADVISORY, NON-BLOCKING. The `test` job above runs `--lib` only, so every
-  # crate's `tests/` integration suite has never executed in CI (retrofit
-  # ledger: retrofit:CiIntegrationTestsNeverRun, .tcps/retrofit/ggen/load-path.ttl
-  # -- discovered via two independent manifestations, including 2 tests that
-  # referenced a file deleted 60+ merged PRs earlier and never once failed CI).
-  # This job surfaces the TRUE current status WITHOUT continue-on-error
-  # masking, and is deliberately ABSENT from `ci-status.needs`, so its
-  # failure cannot block a PR or the merge queue -- there is a real, known,
-  # non-empty set of pre-existing integration-test failures (see the ledger
-  # entry for the inventory as of its last count) that must be fixed or
-  # explicitly quarantined before this can be promoted to required; flipping
-  # it straight to required would redden every PR immediately. Promote it to
-  # a required `needs:` of `ci-status` once that inventory is empty or every
-  # remaining red test has an explicit, disclosed quarantine.
+  # REQUIRED (promoted 2026-07-21/22, retrofit/ggen-self-g4). The `test` job
+  # above runs `--lib` only, so every crate's `tests/` integration suite used
+  # to be invisible to CI (retrofit ledger: retrofit:CiIntegrationTestsNeverRun,
+  # .tcps/retrofit/ggen/load-path.ttl -- discovered via two independent
+  # manifestations, including 2 tests that referenced a file deleted 60+
+  # merged PRs earlier and never once failed CI). The 10 pre-existing
+  # praxis-graphlaw integration-test failures that blocked promotion are now
+  # fixed for real, no disclosed quarantines needed: 6 were test-authoring
+  # bugs (invalid GRAPH-quad CONSTRUCT-template SPARQL syntax; `effect =
+  # "refuse"` hooks return `Err`, not a silent `Ok(vec![])`; a naive
+  # multi-list edge concat isn't globally sorted; a receipt-hash-identity
+  # assertion compared receipts from two DIFFERENT hook subject IRIs; an
+  # `sh:sparql` constraint test predated the deliberate
+  # `SHACL_SPARQL_BOUNDARY = "CORE_ONLY"` policy, PROJ-407 Step 2) and 2 were
+  # real product defects, both repaired with a real fix + a pinned regression
+  # test: (1) this engine's SPARQL executor silently evaluated `GRAPH <iri> {
+  # ... }` WHERE-clause patterns as zero rows instead of matching the named
+  # graph (`sparql/plan.rs`'s `extract_query_plan` has no `GraphPattern::Graph`
+  # arm, falling into `_ => PlanNode::Done` => always-empty) -- now a loud,
+  # typed `plan_query_or_refuse` refusal naming GRAPH, joining the same
+  # established fail-closed net as VALUES/ORDER BY/etc.
+  # (retrofit:GraphLawValuesSilentZeroRows), pinned in
+  # `tests/sparql_unsupported_refusal.rs`; (2) `hook:`-namespace-aliased hook
+  # packs silently accepted any UNRECOGNIZED `hook:*` predicate (left
+  # unrewritten by `rewrite_hook_alias`, then invisible to every downstream
+  # `kh:`-namespace-scoped validation check) despite the function's own doc
+  # comment promising it would be "rejected in validation if unsupported" --
+  # now refused at the alias-rewrite step itself, closing the fail-open gap.
+  # This job now runs to a required, non-advisory conclusion.
   integration-tests:
-    name: integration tests (advisory)
+    name: integration tests
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      # `cargo test --workspace` compiles debug builds of all 17 workspace
+      # crates PLUS a separate test binary per tests/*.rs file across all of
+      # them, on top of 4 provisioned sibling repos -- real, reproducing
+      # disk exhaustion confirmed on THREE independent runs of this exact
+      # job:
+      #   - PR #434, run 29922038930, jobs 88929666446/88934847706 (before
+      #     any fix: crashed near-instantly, then after 13m43s)
+      #   - PR #435, run 29928336152, job 88951165655 (WITH the disk-reclaim
+      #     step below already applied): confirmed via the job's own `df -h /`
+      #     output that reclaiming preinstalled SDKs leaves 34G free on this
+      #     runner's real 72G disk -- genuinely more headroom than assumed,
+      #     yet still exhausted after 16m39s of real compilation, dying
+      #     mid-build on `ggen-engine`'s phase2_recipes_test with
+      #     `rustc-LLVM ERROR: IO failure on output stream: No space left on
+      #     device`. The reclaim step is real and helps (extends survival
+      #     time measurably) but is insufficient alone -- this workspace's
+      #     debug test-binary footprint exceeds even a cleaned 72G runner.
+      # Root cause of the remaining gap: [profile.test] in the root
+      # Cargo.toml sets `debug = true` (crates/../Cargo.toml:768) -- every
+      # one of the many test binaries this job builds carries full debug
+      # info, which dominates their on-disk size. Overriding it via
+      # CARGO_PROFILE_TEST_DEBUG below (Cargo env vars take precedence over
+      # Cargo.toml profile keys) disables debug info for JUST this CI job's
+      # cargo invocation -- local `cargo test` still gets debug = true
+      # (debugger/backtrace line info intact for developers), only this
+      # job's on-disk footprint shrinks. Purely a build-artifact size
+      # change: does not alter test semantics, pass/fail outcomes, or any
+      # other job.
+      - name: Free disk space (reclaims preinstalled SDKs this job never uses)
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          df -h /
       - name: Provision siblings + pinned nightly + cache
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: integration
       - name: cargo test (full workspace, including tests/)
+        env:
+          CARGO_PROFILE_TEST_DEBUG: "false"
         run: cargo test --workspace --exclude ggen-lsp
 
   # ADVISORY, NON-BLOCKING. ggen-lsp (which since the 2026-07 consolidation pass
@@ -279,11 +331,13 @@ jobs:
   # including skipped/cancelled (no honest job can be 'skipped' here).
   # NOTE: `lsp-crates` is intentionally NOT a dependency here — it is advisory.
   # Phase 2 is now a required dependency (inverse-sync + coherence gate validation).
+  # `integration-tests` is now a required dependency too (promoted 2026-07-21/22,
+  # retrofit/ggen-self-g4 -- see that job's own comment for the closure evidence).
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [check, build, test, doctest, phase2, cargo-cicd]
+    needs: [check, build, test, doctest, phase2, cargo-cicd, integration-tests]
     if: always()
     steps:
       - name: Assert all gating jobs succeeded
@@ -295,13 +349,15 @@ jobs:
           echo "doctest=${{ needs.doctest.result }}"
           echo "phase2=${{ needs.phase2.result }}"
           echo "cargo-cicd=${{ needs.cargo-cicd.result }}"
+          echo "integration-tests=${{ needs.integration-tests.result }}"
           if [ "${{ needs.check.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ] || \
              [ "${{ needs.test.result }}" != "success" ] || \
              [ "${{ needs.doctest.result }}" != "success" ] || \
              [ "${{ needs.phase2.result }}" != "success" ] || \
-             [ "${{ needs.cargo-cicd.result }}" != "success" ]; then
+             [ "${{ needs.cargo-cicd.result }}" != "success" ] || \
+             [ "${{ needs.integration-tests.result }}" != "success" ]; then
             echo "::error::One or more CI gating jobs failed."
             exit 1
           fi
-          echo "All CI gating jobs succeeded (including Phase 2: Inverse Sync + Coherence)."
+          echo "All CI gating jobs succeeded (including Phase 2: Inverse Sync + Coherence, and the full-workspace integration-test suite)."

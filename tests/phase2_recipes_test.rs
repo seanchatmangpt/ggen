@@ -235,16 +235,32 @@ fn test_ci_workflow_includes_phase2() {
     );
 }
 
-/// Test that CI status gate includes phase2 as required dependency
+/// Test that CI status gate includes phase2 and the other critical jobs as
+/// required dependencies.
+///
+/// Checks each required job name individually rather than matching the full
+/// `needs: [...]` line verbatim: a full-line match breaks every time a job
+/// is legitimately added to (or reordered within) the list, even when the
+/// invariant this test actually cares about -- phase2 and its siblings are
+/// still required -- continues to hold. This exact brittleness is what broke
+/// this test when `integration-tests` was correctly promoted from advisory
+/// to required and added to the real needs list.
 #[test]
 fn test_ci_status_requires_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
-    assert!(
-        ci_workflow.contains("needs: [check, build, test, doctest, phase2, cargo-cicd]"),
-        "CI status gate doesn't require phase2 job"
-    );
+    let needs_line = ci_workflow
+        .lines()
+        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("phase2"))
+        .expect("CI status gate's needs: [...] line (containing phase2) not found");
+
+    for required_job in ["check", "build", "test", "doctest", "phase2", "cargo-cicd"] {
+        assert!(
+            needs_line.contains(required_job),
+            "CI status gate doesn't require {required_job} job (needs line: {needs_line})"
+        );
+    }
 }
 
 /// Test that Makefile.toml has backward-compatible Phase 2 recipes

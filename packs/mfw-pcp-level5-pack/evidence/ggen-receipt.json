@@ -1,0 +1,44 @@
+{
+  "status": "ALIVE",
+  "description": "`ggen receipt verify` against the real, live sync receipt at .ggen-v2/receipt.json reports a valid, cryptographically signed BLAKE3 chain hash. Proven both pre- and post-frontmatter-fix, plus the full multi-record chain via `ggen receipt history`.",
+  "ggen_binary": "/Users/sac/ggen/target/release/ggen (ggen 26.7.26)",
+  "commands": [
+    "ggen sync run --format json",
+    "ggen receipt verify --format json",
+    "ggen receipt history --format json"
+  ],
+  "runs": [
+    {
+      "label": "as-shipped pack (pristine templates)",
+      "receipt_verify": {
+        "valid": true,
+        "chain_hash": "8335dda2ae1bd00facab899d3baa7b450509da2eb8b9bd478ffbe175330fb7fc",
+        "payload_hash": "9bee36facacffe8004639a2f34479ecfd492c96d2c7f05907c1a1c95159bd1af",
+        "graph_hash": "5dec52ed7cd8a2f2f92d9f43c95ff7b8468dc62f90c82f075349a88f6bab1038",
+        "outputs": 14,
+        "signed": true,
+        "signature_valid": true
+      }
+    },
+    {
+      "label": "post-frontmatter-fix templates",
+      "receipt_verify": {
+        "valid": true,
+        "chain_hash": "06800ebd8e49f9849e505f75f9f7834e35c1b1ca6a53372acf3777b7f721d6f9",
+        "payload_hash": "f5d80e160e45ce9d4b8e78d325b7af1e9780d978a12a3d738e87c6465ddefc3a",
+        "graph_hash": "5dec52ed7cd8a2f2f92d9f43c95ff7b8468dc62f90c82f075349a88f6bab1038",
+        "outputs": 14,
+        "signed": true,
+        "signature_valid": true
+      },
+      "receipt_history": {
+        "valid": true,
+        "records": 3,
+        "head_chain_hash": "06800ebd8e49f9849e505f75f9f7834e35c1b1ca6a53372acf3777b7f721d6f9"
+      }
+    }
+  ],
+  "falsifier_checked": "ggen receipt verification fails",
+  "falsifier_triggered": false,
+  "note": "Receipt cryptographic validity is independent of generated-code correctness -- the receipt records the sync pipeline's own I/O (files written + their hashes), not whether the written Rust compiles. Related, out-of-scope observation: the receipt's per-file admission decisions ('reason': 'written', 'observed_outcome': 'Pass') were emitted for the pristine pack's broken (frontmatter-leaked, non-compiling) output too -- the receipt correctly proves what ggen wrote, but 'Pass' here should not be read as 'the generated code is valid Rust/TOML/etc.'; ggen has no such check in its declarative-rules write path."
+}

@@ -1,0 +1,2 @@
+PREFIX l5p: <http://ggen.org/l5-promotion#>
+SELECT (COUNT(?cap) AS ?actual) WHERE { ?cap a l5p:Capability . } HAVING (COUNT(?cap) != 12)

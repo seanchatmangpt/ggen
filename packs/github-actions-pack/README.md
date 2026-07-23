@@ -41,6 +41,7 @@ this pack must not double-own any of them.
 | automated-rollback.yml | dispatch | contents:write, deployments:write | 5 | 0 |
 | ci.yml | PR, push main, merge_group | contents:read | 8 | 0 |
 | deploy-docs.yml | push main (paths), dispatch | contents:write | 1 | 0 |
+| detect-partial-publish.yml | workflow_run, dispatch | contents:read | 1 | 0 |
 | docker-build-push.yml | tag v*, dispatch | contents:read, packages:write | 4 | 0 |
 | docker.yml | tag v*, dispatch | contents:read | 1 | 0 |
 | docs.yml | PR/push (md paths) | contents:read | 1 | 0 |
@@ -52,7 +53,6 @@ this pack must not double-own any of them.
 | marketplace-deploy.yml | push main (paths), dispatch | read + pages/id-token:write | 3 | 0 |
 | marketplace-docs.yml | push main (paths), dispatch | (job-level only) | 1 | 0 |
 | marketplace-test.yml | push main, dispatch | contents:read | 1 | 0 |
-| marketplace-validate.yml | push (paths), dispatch | contents:read | 3 | 0 |
 | marketplace.yml | push main (paths), dispatch | read + pages/id-token:write | 2 | 0 |
 | publish-candidate.yml | push main | contents:write | 1 | 0 |
 | publish-registry.yml | push main, dispatch | read + pages/id-token:write | 1 | 0 |

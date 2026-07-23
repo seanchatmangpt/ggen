@@ -73,15 +73,29 @@ jobs:
             HASH=$(echo "$line" | cut -d' ' -f1)
             MSG=$(echo "$line" | cut -d' ' -f2-)
 
+            # BUG FIXED (2026-07-22): the character class `[ ]` (intended to
+            # match one literal space) sitting directly against the closing
+            # `]]` of the `[[ ]]` test -- `:[ ] ]]` -- is a bash parser
+            # syntax error ("syntax error in conditional expression:
+            # unexpected token `]'"), confirmed by reproducing it locally
+            # with the same bash grammar. Since `bash script.sh` parses the
+            # whole script before executing any of it, this aborted the
+            # entire step immediately (exit code 2, no changelog ever
+            # written) -- the workflow's only real run (v26.7.2,
+            # 2026-07-02) failed exactly this way. Fixed by replacing the
+            # bracket class with an escaped literal space (`\ `), which is
+            # semantically identical (still requires exactly one space after
+            # the colon) but not adjacent to `]]` in a way bash's tokenizer
+            # chokes on.
             if [[ "$MSG" =~ ^feat(\(.+\))?!: ]]; then
               BREAKING+="- **BREAKING**: ${MSG#feat*: } ($HASH)"$'\n'
-            elif [[ "$MSG" =~ ^feat(\(.+\))?:[ ] ]]; then
+            elif [[ "$MSG" =~ ^feat(\(.+\))?:\  ]]; then
               FEATURES+="- ${MSG#feat*: } ($HASH)"$'\n'
-            elif [[ "$MSG" =~ ^fix(\(.+\))?:[ ] ]]; then
+            elif [[ "$MSG" =~ ^fix(\(.+\))?:\  ]]; then
               BUGFIXES+="- ${MSG#fix*: } ($HASH)"$'\n'
-            elif [[ "$MSG" =~ ^perf(\(.+\))?:[ ] ]]; then
+            elif [[ "$MSG" =~ ^perf(\(.+\))?:\  ]]; then
               PERF+="- ${MSG#perf*: } ($HASH)"$'\n'
-            elif [[ "$MSG" =~ ^chore(\(.+\))?:[ ] ]]; then
+            elif [[ "$MSG" =~ ^chore(\(.+\))?:\  ]]; then
               CHORES+="- ${MSG#chore*: } ($HASH)"$'\n'
             fi
           done <<< "$COMMITS"

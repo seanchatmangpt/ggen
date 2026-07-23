@@ -1,0 +1,6 @@
+@prefix pcp: <urn:mfw:pcp:> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pcp:generated-subsystem a prov:Bundle ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+{% for row in results %}pcp:artifact-{{ row["order"] }} a prov:Entity ; pcp:path "{{ row["path"] }}" ; pcp:role "{{ row["role"] }}" ; prov:wasDerivedFrom pcp:Level5Lifecycle .
+{% endfor %}

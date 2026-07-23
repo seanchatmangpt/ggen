@@ -21,7 +21,9 @@ pub mod values;
 // Re-exports
 pub use canonicalization::UnionFind;
 pub use closure::{ClosureMatrix, SubclassClosure};
-pub use equivalence::{canonicalize_equivalences, EquivalenceCanonical};
+pub use equivalence::{
+    canonicalize_equivalences, render_all_equivalences_canonical, EquivalenceCanonical,
+};
 pub use model::{
     CompiledConstraint, CompiledShape, CompiledTarget, CostClass, PropertyMask, ShapesGraph,
     TargetType, SHACL_SPARQL_BOUNDARY,

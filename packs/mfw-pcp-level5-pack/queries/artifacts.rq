@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?order ?path ?role WHERE { ?x a pcp:GeneratedArtifact ; pcp:order ?order ; pcp:path ?path ; pcp:role ?role . } ORDER BY ?order

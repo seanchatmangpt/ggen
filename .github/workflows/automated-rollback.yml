@@ -221,12 +221,42 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
 
+      # BUG FIXED (2026-07-22): `${{ secrets[KUBECONFIG_VAR] }}` -- indexing
+      # the secrets context with a shell-computed variable -- is not valid
+      # GitHub Actions expression syntax. Secret references must be static/
+      # literal so GitHub can statically scan the workflow file to redact
+      # them from logs; a runtime-computed key defeats that and fails the
+      # ENTIRE file's schema validation at parse time (confirmed real:
+      # every run on this workflow -- despite its own `on:` block declaring
+      # only workflow_dispatch, schedule explicitly disabled -- shows zero
+      # jobs scheduled and "This run likely failed because of a workflow
+      # file issue", firing and failing on every single push to main
+      # regardless). Fixed with a static ternary expression selecting
+      # between two literal secret references.
+      #
+      # SECOND BUG FIXED (2026-07-23, found by adversarial code review):
+      # `cond && a || b` is GitHub Actions' only ternary-emulation idiom,
+      # and it has a well-documented falsy-middle-operand trap -- if `a`
+      # itself is falsy (here: KUBECONFIG_PROD unset/empty), the `||`
+      # branch is returned REGARDLESS of whether `cond` was true. Applied
+      # here, that meant: if KUBECONFIG_PROD was ever unset, a
+      # `production` rollback would silently decode the STAGING
+      # kubeconfig instead, with kubectl cluster-info and every later
+      # step succeeding against the wrong cluster -- no error, no signal,
+      # in a production-incident-response workflow. Fixed with an
+      # explicit, loud guard: fail immediately if environment=production
+      # was requested but the resulting kubeconfig is empty, rather than
+      # silently substituting staging.
       - name: Configure kubeconfig
+        env:
+          KUBECONFIG_B64: ${{ github.event.inputs.environment == 'production' && secrets.KUBECONFIG_PROD || secrets.KUBECONFIG_STAGING }}
         run: |
           mkdir -p $HOME/.kube
-          ENV_UPPER=$(echo "${{ github.event.inputs.environment }}" | tr '[:lower:]' '[:upper:]')
-          KUBECONFIG_VAR="KUBECONFIG_$ENV_UPPER"
-          echo "${{ secrets[KUBECONFIG_VAR] }}" | base64 -d > $HOME/.kube/config
+          if [ "${{ github.event.inputs.environment }}" = "production" ] && [ -z "$KUBECONFIG_B64" ]; then
+            echo "::error::KUBECONFIG_PROD secret is not set -- refusing to silently fall back to the staging kubeconfig for a production rollback." >&2
+            exit 1
+          fi
+          echo "$KUBECONFIG_B64" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Verify cluster connectivity
@@ -324,12 +354,21 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
 
+      # Same fixes as execute-rollback's identical step above: static
+      # ternary over literal secret references instead of a dynamic
+      # secrets[...] lookup, PLUS a loud guard against the ternary's
+      # falsy-middle-operand trap silently substituting the staging
+      # kubeconfig for production when KUBECONFIG_PROD is unset.
       - name: Configure kubeconfig
+        env:
+          KUBECONFIG_B64: ${{ github.event.inputs.environment == 'production' && secrets.KUBECONFIG_PROD || secrets.KUBECONFIG_STAGING }}
         run: |
           mkdir -p $HOME/.kube
-          ENV_UPPER=$(echo "${{ github.event.inputs.environment }}" | tr '[:lower:]' '[:upper:]')
-          KUBECONFIG_VAR="KUBECONFIG_$ENV_UPPER"
-          echo "${{ secrets[KUBECONFIG_VAR] }}" | base64 -d > $HOME/.kube/config
+          if [ "${{ github.event.inputs.environment }}" = "production" ] && [ -z "$KUBECONFIG_B64" ]; then
+            echo "::error::KUBECONFIG_PROD secret is not set -- refusing to silently fall back to the staging kubeconfig for a production rollback." >&2
+            exit 1
+          fi
+          echo "$KUBECONFIG_B64" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Check cluster state

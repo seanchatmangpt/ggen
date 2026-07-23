@@ -1,0 +1,28 @@
+{
+  "status": "ALIVE",
+  "description": "Two live `ggen sync run` invocations against the same ggen.toml/ontology.ttl produce byte-identical output inventories. Proven twice: (1) directly against the pristine, as-shipped pack templates (no modification), and (2) again after an unrelated template fix (see FRONTMATTER_LEAK finding referenced by evidence/consumer-replacement.json) was applied, for consistency. In both cases two consecutive runs matched exactly.",
+  "ggen_binary": "/Users/sac/ggen/target/release/ggen (ggen 26.7.26)",
+  "commands": [
+    "ggen sync run --format json   # run 1",
+    "ggen sync run --format json   # run 2, no other changes in between",
+    "find <14 canonical output paths> | sort | xargs shasum -a 256 | shasum -a 256   # inventory digest"
+  ],
+  "runs": [
+    {
+      "label": "as-shipped pack (pristine templates, frontmatter-leak bug still present)",
+      "run1_inventory_digest_sha256": "d74aed997169772e60fbcd58f76341c9c9a16aed2ea5e6490b8c644b5ac89eab",
+      "run2_inventory_digest_sha256": "d74aed997169772e60fbcd58f76341c9c9a16aed2ea5e6490b8c644b5ac89eab",
+      "identical": true
+    },
+    {
+      "label": "post-frontmatter-fix templates (used for cap11/cap12; canonical 14-path file list)",
+      "run1_inventory_digest_sha256": "a0653142e5fa985b9fea87b09e222e4d4d293f6f526751187942a3e2a2a6aa8f",
+      "run2_inventory_digest_sha256": "a0653142e5fa985b9fea87b09e222e4d4d293f6f526751187942a3e2a2a6aa8f",
+      "identical": true
+    }
+  ],
+  "graph_hash_hex": "5dec52ed7cd8a2f2f92d9f43c95ff7b8468dc62f90c82f075349a88f6bab1038",
+  "falsifier_checked": "two output inventory digests differ",
+  "falsifier_triggered": false,
+  "note": "This capability's falsifier concerns digest reproducibility of the sync pipeline, not correctness of the generated code, so it holds even against the pristine pack that (separately) fails to compile -- see evidence/consumer-replacement.json for that unrelated, real defect."
+}

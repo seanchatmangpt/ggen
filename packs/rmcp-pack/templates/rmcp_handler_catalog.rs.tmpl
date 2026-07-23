@@ -5,17 +5,19 @@ freeze_slots_dir: .ggen/freeze/rmcp-pack
 sparql:
   server_rows: >
     PREFIX rmcp: <http://seanchatmangpt.github.io/packs/rmcp#>
-    SELECT ?method_name ?params_type ?return_type ?default_behavior ?source_file WHERE {
-      ?m a rmcp:HandlerMethod ; rmcp:role "server" ; rmcp:methodName ?method_name ;
+    SELECT ?role ?method_name ?params_type ?return_type ?default_behavior ?source_file WHERE {
+      ?m a rmcp:HandlerMethod ; rmcp:role ?role ; rmcp:methodName ?method_name ;
          rmcp:paramsType ?params_type ; rmcp:returnType ?return_type ;
          rmcp:defaultBehavior ?default_behavior ; rmcp:sourceFile ?source_file .
+      FILTER(?role = "server")
     } ORDER BY ?method_name
   client_rows: >
     PREFIX rmcp: <http://seanchatmangpt.github.io/packs/rmcp#>
-    SELECT ?method_name ?params_type ?return_type ?default_behavior ?source_file WHERE {
-      ?m a rmcp:HandlerMethod ; rmcp:role "client" ; rmcp:methodName ?method_name ;
+    SELECT ?role ?method_name ?params_type ?return_type ?default_behavior ?source_file WHERE {
+      ?m a rmcp:HandlerMethod ; rmcp:role ?role ; rmcp:methodName ?method_name ;
          rmcp:paramsType ?params_type ; rmcp:returnType ?return_type ;
          rmcp:defaultBehavior ?default_behavior ; rmcp:sourceFile ?source_file .
+      FILTER(?role = "client")
     } ORDER BY ?method_name
 ---
 {%- set server_count = server_rows | length -%}
@@ -53,10 +55,10 @@ pub struct RmcpHandlerMethod {
 
 /// All 27 real `rmcp::ServerHandler` methods, ordered by method name.
 pub const RMCP_SERVER_METHODS: &[RmcpHandlerMethod] = &[
-{% for row in server_rows %}    RmcpHandlerMethod { role: "server", method_name: "{{ row.method_name }}", params_type: "{{ row.params_type }}", return_type: "{{ row.return_type }}", default_behavior: "{{ row.default_behavior | replace(from='"', to="'") }}", source_file: "{{ row.source_file | replace(from='"', to="'") }}" },
+{% for row in server_rows %}    RmcpHandlerMethod { role: "{{ row.role }}", method_name: "{{ row.method_name }}", params_type: "{{ row.params_type }}", return_type: "{{ row.return_type }}", default_behavior: "{{ row.default_behavior | replace(from='"', to="'") }}", source_file: "{{ row.source_file | replace(from='"', to="'") }}" },
 {% endfor %}];
 
 /// All 16 real `rmcp::ClientHandler` methods, ordered by method name.
 pub const RMCP_CLIENT_METHODS: &[RmcpHandlerMethod] = &[
-{% for row in client_rows %}    RmcpHandlerMethod { role: "client", method_name: "{{ row.method_name }}", params_type: "{{ row.params_type }}", return_type: "{{ row.return_type }}", default_behavior: "{{ row.default_behavior | replace(from='"', to="'") }}", source_file: "{{ row.source_file | replace(from='"', to="'") }}" },
+{% for row in client_rows %}    RmcpHandlerMethod { role: "{{ row.role }}", method_name: "{{ row.method_name }}", params_type: "{{ row.params_type }}", return_type: "{{ row.return_type }}", default_behavior: "{{ row.default_behavior | replace(from='"', to="'") }}", source_file: "{{ row.source_file | replace(from='"', to="'") }}" },
 {% endfor %}];

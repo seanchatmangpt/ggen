@@ -3,7 +3,9 @@
 /// Verifies that owl:sameAs, owl:equivalentClass, and owl:equivalentProperty
 /// relationships are correctly canonicalized through union-find structures.
 /// Receipt byte-identity is guaranteed across 5 determinism runs.
-use praxis_graphlaw::shacl::{canonicalize_equivalences, Validator};
+use praxis_graphlaw::shacl::{
+    canonicalize_equivalences, render_all_equivalences_canonical, Validator,
+};
 use praxis_graphlaw::tripleindex::TripleIndex;
 use praxis_graphlaw::triples::{Triple, VarOrTerm};
 
@@ -145,12 +147,20 @@ fn test_pattern4_canonical_edges_sorted() {
     assert!(result.is_ok());
 
     let canonical = result.unwrap();
-    let all_edges = [
-        canonical.class_edges.clone(),
-        canonical.property_edges.clone(),
-        canonical.term_edges.clone(),
-    ]
-    .concat();
+
+    // NOTE: a naive `[class_edges, property_edges, term_edges].concat()` is NOT
+    // guaranteed to be globally sorted even though each list is individually
+    // sorted by `UnionFind::render_canonical` -- and for this fixture it
+    // provably isn't: `canonicalize_equivalences` deliberately applies every
+    // owl:sameAs edge to ALL THREE union-finds (see `EquivalenceCanonical`'s
+    // field docs: "class_edges: owl:equivalentClass + owl:sameAs on classes"),
+    // so with only owl:sameAs triples present, class_edges == property_edges
+    // == term_edges here, and concatenating three identical sorted runs is a
+    // sawtooth, not a sorted sequence. The crate's own canonical, tested,
+    // hash-ready combinator for this is `render_all_equivalences_canonical`
+    // (sorts + dedups the combined set) -- use it instead of reimplementing
+    // (incorrectly) the same contract ad hoc.
+    let all_edges = render_all_equivalences_canonical(&canonical);
 
     // Verify edges are sorted
     assert!(

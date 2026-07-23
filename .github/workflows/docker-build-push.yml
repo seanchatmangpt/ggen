@@ -1,15 +1,45 @@
 name: Docker Build & Push (Multi-Registry)
 
+# `now()` (in the build-args expression, "STAGE 1" job below) is NOT a valid
+# GitHub Actions expression function -- GitHub Actions has no such builtin.
+# Every reference to it makes the ENTIRE workflow file fail GitHub's own
+# expression-schema validation at parse time, before any job is scheduled --
+# confirmed real: every run in this workflow's visible history shows zero
+# jobs and "This run likely failed because of a workflow file issue.",
+# regardless of trigger (push to any branch, not just tags). Fixed by using
+# `github.run_started_at`, a real built-in context property (the workflow
+# run's own start timestamp), preserving the original fallback intent
+# (build date = commit timestamp if available, else "now").
+#
+# GCP ARTIFACT REGISTRY PUBLISHING REMOVED (2026-07-22,
+# retrofit:PartialPublishRollbackUnknown follow-on -- title kept as
+# "Multi-Registry" as a historical marker, not a live claim; see this
+# note). This was never functional, not a regression: `REGISTRY_GCP:
+# artifacts.example.com` is an IANA documentation domain, not a real
+# registry (confirmed via dig/nslookup -- no A record), and
+# `GCP_ARTIFACT_REGISTRY_KEY` has never existed as a repo secret
+# (`gh api repos/.../actions/secrets` -> zero secrets configured, at
+# any point checked). Every reference to REGISTRY_GCP below (build
+# jobs' login+tag, scan-images' scan target, sign-and-sbom's SBOM/sign
+# target) was pointed at an image that could never actually exist.
+# Removed rather than left in place failing: continuing to publish
+# real GHCR images while a dead GCP branch fails downstream jobs (scan,
+# sign, SBOM) that were themselves scanning/signing the WRONG
+# (never-pushed) image reference is strictly worse than removing the
+# dead path outright. GHCR publishing (secrets.GITHUB_TOKEN, already
+# real and working) is untouched. Re-adding real GCP Artifact Registry
+# publishing is a distinct, future, externally-gated obligation --
+# needs an actual GCP project/registry and a real service-account key
+# provisioned as a repo secret, neither of which this session is
+# authorized to create.
+
 on:
   push:
     # Only build/push Docker images on version tags — not on every main push.
-    # GCP_ARTIFACT_REGISTRY_KEY is required; main-push builds would always fail
-    # without that secret being configured.
     tags: ['v*']
   workflow_dispatch:
 
 env:
-  REGISTRY_GCP: artifacts.example.com
   REGISTRY_GHCR: ghcr.io
   IMAGE_NAME_CONTROLLER: catalog-controller
   IMAGE_NAME_CLI: ggen-cli
@@ -43,13 +73,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      - name: Log in to GCP Artifact Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        with:
-          registry: ${{ env.REGISTRY_GCP }}
-          username: _json_key
-          password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
@@ -62,7 +85,6 @@ jobs:
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: |
-            ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}
             ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}
           tags: |
             type=ref,event=branch
@@ -84,7 +106,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-            BUILD_DATE=${{ github.event.head_commit.timestamp || now() }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
 
@@ -114,13 +136,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      - name: Log in to GCP Artifact Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        with:
-          registry: ${{ env.REGISTRY_GCP }}
-          username: _json_key
-          password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
@@ -133,7 +148,6 @@ jobs:
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: |
-            ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}
             ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}
           tags: |
             type=ref,event=branch
@@ -170,17 +184,33 @@ jobs:
     if: github.event_name != 'pull_request'
 
     steps:
+      # This job runs on a fresh runner -- build-controller/build-cli's own
+      # GHCR login does not carry over (Docker credentials are per-job, not
+      # shared across jobs in GitHub Actions). Missing here in every prior
+      # version of this file regardless of GCP/GHCR target: images pushed
+      # via GITHUB_TOKEN default to private visibility, so pulling one to
+      # scan it always needs its own fresh login. This was latent (never
+      # actually observed failing) only because the workflow never got this
+      # far before; real, necessary for the actual publish path to work now
+      # that the earlier GCP-related failures are fixed.
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Trivy vulnerability scanner (Controller)
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}
+          image-ref: ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}
           format: sarif
           output: trivy-controller.sarif
 
       - name: Run Trivy vulnerability scanner (CLI)
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
-          image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}
+          image-ref: ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}
           format: sarif
           output: trivy-cli.sarif
 
@@ -218,20 +248,19 @@ jobs:
       - name: Log in to registries
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          echo "${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}" | docker login ${{ env.REGISTRY_GCP }} --username _json_key --password-stdin
 
       - name: Generate SBOM (Controller)
         run: |
-          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
+          syft "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
             -o spdx-json > sbom-controller.spdx.json
-          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
+          syft "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
             -o cyclonedx-json > sbom-controller.cyclonedx.json
 
       - name: Generate SBOM (CLI)
         run: |
-          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
+          syft "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
             -o spdx-json > sbom-cli.spdx.json
-          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
+          syft "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
             -o cyclonedx-json > sbom-cli.cyclonedx.json
 
       - name: Sign Controller image (cosign)
@@ -239,28 +268,28 @@ jobs:
           COSIGN_EXPERIMENTAL: 1
         run: |
           cosign sign --yes \
-            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
+            "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
 
       - name: Sign CLI image (cosign)
         env:
           COSIGN_EXPERIMENTAL: 1
         run: |
           cosign sign --yes \
-            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
+            "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
 
       - name: Attach SBOM to Controller image (cosign)
         env:
           COSIGN_EXPERIMENTAL: 1
         run: |
           cosign attach attestation --attestation sbom-controller.spdx.json \
-            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
+            "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
 
       - name: Attach SBOM to CLI image (cosign)
         env:
           COSIGN_EXPERIMENTAL: 1
         run: |
           cosign attach attestation --attestation sbom-cli.spdx.json \
-            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
+            "${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
 
       - name: Upload SBOMs as artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

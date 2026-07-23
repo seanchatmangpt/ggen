@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+# debian/rules for ggen -- the Rust binary is already built by
+# scripts/build-debian-package.sh (Gate 4, `cargo build --release`)
+# before debuild ever runs, so this file's only real job is to stage
+# that prebuilt binary into the package; it must not invoke cargo
+# again (a second cold build inside debuild would be redundant and,
+# on the GitHub Actions runner, slower than the already-warm target/
+# directory the outer script just produced).
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# no-op: binary already built before debuild was invoked
+
+override_dh_auto_test:
+	# no-op: ggen's real test suite runs via `just test-lib`/`just
+	# pre-commit` in CI, not as part of Debian packaging
+
+override_dh_auto_install:
+	install -D -m 0755 target/release/ggen debian/ggen/usr/bin/ggen

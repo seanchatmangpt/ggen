@@ -1,0 +1,12 @@
+# Generated MFW proof-carrying-plan verifier
+
+This consumer tree is generated from `ontology.ttl`. Delete it and run `ggen sync run` to rebuild it.
+
+## Level-5 closure capabilities
+
+| Order | Capability | Required evidence artifact |
+|---:|---|---|
+{% for row in results %}| {{ row["order"] }} | {{ row["name"] }} | `{{ row["artifact"] }}` |
+{% endfor %}
+
+The presence of this generated file does not itself grant Level-5 standing. Standing requires all twelve evidence artifacts to be independently verified.

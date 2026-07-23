@@ -61,9 +61,20 @@ runs:
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
+      # Pinned via --rev (was --branch main, a floating ref): this repo's own
+      # release gate depends on cargo-cicd's evidence-writer output shape and
+      # exit behavior, both of which live entirely in an external, ggen-
+      # uncontrolled repository. With a floating branch, any upstream push to
+      # cargo-cicd changes this workflow's behavior with zero ggen-side
+      # commit -- exactly the failure-cause-keeps-moving pattern behind
+      # retrofit:ReleaseGateBrokenForWeeks (.tcps/retrofit/ggen/load-path.ttl).
+      # Pinning makes a release-gate failure reproducible and attributable to
+      # a named, fixed external commit instead of "whatever main happens to
+      # be right now" -- bump this --rev deliberately when cargo-cicd ships a
+      # real fix, not as a side effect of CI re-running.
       run: |
         for attempt in 1 2 3; do
-          cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --branch main --features autonomic,affidavit --locked && break
+          cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --rev 852a2d96550e6285b02245c054d3d4ac8c32198d --features autonomic,affidavit --locked && break
           echo "cargo-cicd install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
           sleep $((attempt * 8))
         done
@@ -82,10 +93,22 @@ runs:
     - name: Install wpm (wasm4pm process oracle)
       id: install-wpm
       if: contains(inputs.tools, 'wpm')
+      # Pinned via --rev (was --branch main), same reasoning as cargo-cicd
+      # above: the release gate's conformance verdict (TRUTHFUL/VARIANCE/
+      # DECEPTIVE) is computed entirely by wasm4pm's own fitness/precision
+      # algorithms -- code this repo does not own and, per this repo's own
+      # Process Intelligence Boundary rule (CLAUDE.md), must never
+      # reimplement. Pinning does not fix a DECEPTIVE verdict; it stops the
+      # verdict from depending on whatever wasm4pm@main happens to be at
+      # workflow-run time, so a real failure investigation has a fixed
+      # target instead of a moving one. Confirmed at this pin: installs and
+      # runs cleanly (the "unresolved imports" compile failure the fallback
+      # branch below describes was observed on an earlier main commit and no
+      # longer reproduces at this --rev).
       run: |
         installed=false
         for attempt in 1 2 3; do
-          if cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked; then
+          if cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --rev 98541a5ff11ccbc9c6f8dbaa40e08805e6a03730 --locked; then
             installed=true
             break
           fi
@@ -96,13 +119,17 @@ runs:
         if [ "$installed" = "true" ]; then
           echo "available=true" >> "$GITHUB_OUTPUT"
         else
-          # NOTE: as of 2026-07, github.com/seanchatmangpt/wasm4pm@main does not compile
-          # (unresolved imports: Ocel20, Xes1849, witness/witnesses module items). This is
-          # an upstream defect in a separate repository, out of scope for this repo to fix.
-          # We do NOT hard-fail this job on that external breakage; downstream steps must
-          # check the `wpm-available` output of this action and skip the wpm-dependent gate
-          # LOUDLY (never silently) when it is "false".
-          echo "::warning::wpm install failed after 3 attempts — upstream https://github.com/seanchatmangpt/wasm4pm@main is currently broken (unresolved imports). Skipping wpm-dependent process-conformance gate; this is a known external issue, not a regression in this repo."
+          # This install now targets a pinned --rev confirmed to install and run
+          # cleanly (see the comment above this step) -- so a failure here means
+          # something changed on the runner side (network flake, cargo/toolchain
+          # drift, or the pinned commit becoming unreachable, e.g. a force-push),
+          # not the previously-observed "wasm4pm@main doesn't compile" upstream
+          # defect that motivated pinning in the first place. Either way this is
+          # still out of scope for this repo to root-cause inline in CI. We do
+          # NOT hard-fail this job on that external breakage; downstream steps
+          # must check the `wpm-available` output of this action and skip the
+          # wpm-dependent gate LOUDLY (never silently) when it is "false".
+          echo "::warning::wpm install failed after 3 attempts at pinned rev 98541a5ff11ccbc9c6f8dbaa40e08805e6a03730 (github.com/seanchatmangpt/wasm4pm). Skipping wpm-dependent process-conformance gate; investigate as a runner/network issue or a moved/unreachable pin, not assumed upstream-broken-as-before."
           echo "available=false" >> "$GITHUB_OUTPUT"
         fi
       shell: bash

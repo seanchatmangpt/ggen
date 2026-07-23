@@ -1,0 +1,9 @@
+{
+  "schema": "urn:mfw:pcp:release-standing:v1",
+  "declared_standing": "PARTIAL_ALIVE",
+  "level5_admitted": false,
+  "reason": "Live ggen receipt, repeat-run, erase-rebuild, semantic-diff, and consumer-replacement evidence must close before Level5 admission.",
+  "capabilities": [
+{% for row in results %}    {"order": {{ row["order"] }}, "name": "{{ row["name"] }}", "artifact": "{{ row["artifact"] }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.7.34"
+version = "26.7.55"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -27,6 +27,7 @@ include = [
     "/LICENSE",
     "/README.md",
     "/CHANGELOG.md",
+    "scripts/generate_registry_hashes.rs",
 ]
 # autobins = false (2026-07-16, v26.7.16 CLI-routing flip): this package's own `[[bin]]
 # name = "ggen"` (formerly here, now removed) was a byte-identical duplicate of
@@ -44,6 +45,17 @@ include = [
 # package (`ggen` on crates.io) is now a pure library crate: `cargo add ggen` continues to
 # work; `cargo install ggen` no longer builds a CLI binary from this specific package.
 autobins = false
+
+# CI-portable replacement for the stale, macOS-arm64-only Mach-O binary that used to be
+# committed directly at scripts/generate_registry_hashes (ENOEXEC on Linux CI runners --
+# see tests/e2e_marketplace.rs::test_hash_generation, the only consumer). The real logic
+# always lived in scripts/generate_registry_hashes.rs; it just was never wired as a real
+# Cargo binary target, so nothing rebuilt it for the host running the test.
+[[bin]]
+name = "generate_registry_hashes"
+path = "scripts/generate_registry_hashes.rs"
+test = false
+doc = false
 
 [workspace]
 members = [
@@ -108,7 +120,20 @@ clap = { version = "4.5", features = ["derive"] }
 clap-noun-verb = "=26.7.4"
 clap-noun-verb-macros = "=26.7.4"
 once_cell = "1.19"
-reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
+# default-features = false + explicit charset/http2/system-proxy (2026-07-22):
+# reqwest 0.12's own `default = ["default-tls", "charset", "http2",
+# "system-proxy"]` was staying enabled ADDITIONALLY alongside the
+# already-explicit "rustls-tls" below (Cargo features are additive, not a
+# replacement, unless default-features is disabled) -- meaning every
+# workspace member using this shared spec compiled BOTH TLS backends,
+# pulling in native-tls -> openssl-sys on Linux even though rustls-tls was
+# the only one anyone actually asked for. This broke cross-compiling the
+# release binary for aarch64-unknown-linux-gnu (missing target-arch OpenSSL
+# dev headers on the runner; found via a real release.yml run,
+# 29915682895) -- confirmed root cause by reading reqwest 0.12.28's own
+# Cargo.toml locally. Re-adding charset/http2/system-proxy explicitly so
+# nothing else default provided is lost, dropping only default-tls.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls", "charset", "http2", "system-proxy"] }
 tempfile = "3.23"
 futures = "0.3"
 futures-util = "0.3"

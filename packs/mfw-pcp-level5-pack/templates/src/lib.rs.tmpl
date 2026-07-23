@@ -1,0 +1,12 @@
+#![forbid(unsafe_code)]
+//! {{ results[0]["description"] }}
+
+pub mod certificates;
+pub mod distinctions;
+pub mod obligations;
+pub mod receipts;
+pub mod replay;
+
+pub const GENERATED_CRATE: &str = "{{ results[0]["crate"] }}";
+pub const GENERATED_VERSION: &str = "{{ results[0]["version"] }}";
+pub const DECLARED_STANDING: &str = "{{ results[0]["status"] }}";

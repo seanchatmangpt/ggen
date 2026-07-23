@@ -1,0 +1,2 @@
+PREFIX pcp: <urn:mfw:pcp:>
+SELECT ?d WHERE { ?d a pcp:Distinction ; pcp:category "Preserved" ; pcp:text "arbitrary total serialization" . } ORDER BY ?d

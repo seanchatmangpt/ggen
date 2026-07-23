@@ -1,0 +1,3 @@
+
+@prefix pcp: <urn:mfw:pcp:> .
+pcp:fixture-positive pcp:openSequence 1 ; pcp:closeSequence 1 ; pcp:openDigest "open-a" ; pcp:closeOpenReference "open-a" ; pcp:goalSatisfied true ; pcp:allEffectsSucceeded true .

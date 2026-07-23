@@ -1,0 +1,116 @@
+{
+  "schema": "urn:mfw:pcp:l5-capability-ledger:v1",
+  "pack": "mfw-pcp-level5",
+  "version": "26.7.21",
+  "standing": "PARTIAL_ALIVE",
+  "level5_admitted": false,
+  "capabilities": [
+    {
+      "id": "cap01",
+      "name": "Authoritative semantic source",
+      "status": "ALIVE",
+      "artifact": "ontology.ttl",
+      "falsifier": "remove one certificate kind and run gates/01-certificate-count.rq"
+    },
+    {
+      "id": "cap02",
+      "name": "Complete generation surface",
+      "status": "ALIVE",
+      "artifact": "ggen.toml",
+      "falsifier": "delete any output rule and run the structural verifier"
+    },
+    {
+      "id": "cap03",
+      "name": "Deterministic regeneration",
+      "status": "ALIVE",
+      "artifact": "evidence/repeat-run.json",
+      "falsifier": "two output inventory digests differ",
+      "evidence_summary": "Two live `ggen sync run` invocations (ggen 26.7.26, /Users/sac/ggen/target/release/ggen) produced byte-identical 14-file output inventories. Verified twice: against the pristine as-shipped pack, and again after an unrelated template fix (see cap12). Falsifier not triggered.",
+      "verified_this_pass": "2026-07-21"
+    },
+    {
+      "id": "cap04",
+      "name": "Fixed-point convergence",
+      "status": "ALIVE",
+      "artifact": "evidence/erase-rebuild.json",
+      "falsifier": "clean rebuild differs from incremental output",
+      "evidence_summary": "Erasing the entire generated output tree and rebuilding via `ggen sync run` matched a plain incremental resync byte-for-byte. Verified twice (pre- and post- the same unrelated template fix). Falsifier not triggered.",
+      "verified_this_pass": "2026-07-21"
+    },
+    {
+      "id": "cap05",
+      "name": "Generated verification",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "templates/tests/generated_proof.rs.tmpl",
+      "falsifier": "generated proof does not compile or fails",
+      "note_from_2026_07_21_pass": "OUT OF SCOPE for this pass (only cap03/04/09/11/12 were assigned) -- status left unchanged. However, this pass found that the falsifier currently DOES trigger against the as-shipped pack: every generated .tmpl output (including tests/generated_proof.rs) carries a leaked, un-stripped Tera frontmatter header that breaks `cargo build` outright (see evidence/consumer-replacement.json's FRONTMATTER_LEAK finding). Flagged for whoever next revisits cap05, not adjudicated here."
+    },
+    {
+      "id": "cap06",
+      "name": "Generated negative witnesses",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "templates/tests/generated_negative.rs.tmpl",
+      "falsifier": "a declared mutation is accepted"
+    },
+    {
+      "id": "cap07",
+      "name": "Generated documentation",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "templates/README.md.tmpl",
+      "falsifier": "generated capability inventory differs from RDF"
+    },
+    {
+      "id": "cap08",
+      "name": "Generated provenance",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "templates/PROVENANCE.ttl.tmpl",
+      "falsifier": "an output lacks source derivation"
+    },
+    {
+      "id": "cap09",
+      "name": "Generated receipts",
+      "status": "ALIVE",
+      "artifact": "evidence/ggen-receipt.json",
+      "falsifier": "ggen receipt verification fails",
+      "evidence_summary": "`ggen receipt verify` and `ggen receipt history` both report valid=true, signed=true, signature_valid=true against real sync receipts. Verified twice (pre- and post- the same unrelated template fix). Falsifier not triggered.",
+      "verified_this_pass": "2026-07-21"
+    },
+    {
+      "id": "cap10",
+      "name": "Generated release surface",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "templates/ci.yml.tmpl",
+      "falsifier": "generated CI does not execute fmt, clippy, and tests"
+    },
+    {
+      "id": "cap11",
+      "name": "Generated evolution path",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "evidence/semantic-diff.json",
+      "falsifier": "ontology change requires hand repair",
+      "evidence_summary": "Real, mixed result: adding a pcp:ProofObligation regenerates cleanly with zero hand-repair. Adding a pcp:CertificateKind -- the exact example this falsifier names -- regenerates the generated .rs file correctly but leaves the generated test suite red (`certificate_inventory_is_complete` asserts a literal hardcoded 10 in templates/tests/generated_proof.rs.tmpl, not a SPARQL-derived count) until a human hand-edits that template. Falsifier DOES trigger for this vector, so this cannot be marked ALIVE.",
+      "verified_this_pass": "2026-07-21"
+    },
+    {
+      "id": "cap12",
+      "name": "Consumer replacement",
+      "status": "PARTIAL_ALIVE",
+      "artifact": "evidence/consumer-replacement.json",
+      "falsifier": "deleted consumer cannot be rebuilt and verified",
+      "evidence_summary": "Deleting the whole generated consumer crate and resyncing reproduces it byte-identically; `cargo build` succeeds and `cargo test` is 6/6 green -- but only after fixing a real, pack-wide defect (leaked, un-stripped template frontmatter breaking `cargo build` on the as-shipped pack; fixed in the scratch copy only, source pack untouched). Falsifier triggers on the as-shipped pack, does not trigger after the documented fix.",
+      "verified_this_pass": "2026-07-21"
+    }
+  ],
+  "admission_rule": "level5_admitted iff every capability status is ALIVE and every named evidence artifact verifies",
+  "notes_2026_07_21_pass": {
+    "scope": "Closed the 5 UNKNOWN capabilities (cap03, cap04, cap09, cap11, cap12) using a real ggen binary (ggen 26.7.26, /Users/sac/ggen/target/release/ggen) against a fresh scratch copy at /private/tmp/mfw-pcp-l5-exec. The verified source at gpacks/mfw-pcp-level5 was never modified.",
+    "critical_finding": "FRONTMATTER_LEAK: all 14 templates/**/*.tmpl files in the as-shipped pack carry a `---\\nto:...\\nsparql:...\\n---` frontmatter header that belongs to ggen's OTHER, mutually-exclusive 'frontmatter' ggen.toml schema. This pack's ggen.toml uses the DECLARATIVE-RULES schema instead (non-empty [[generation.rules]]), whose pipeline (crates/ggen-engine/src/generation_rules.rs) never strips per-template frontmatter -- it renders the whole .tmpl file, header included, as the output. Every generated file is broken as a result (`cargo build` fails immediately: invalid TOML at Cargo.toml:1). Fixed transparently in the scratch copy only (frontmatter stripped from all 14 templates, semantically a no-op since ggen.toml's own [[generation.rules]] entries already carry the equivalent query/template/output_file/mode fields) to make cap11/cap12 testable at all. Directly relevant to cap05's own falsifier too (not adjudicated in this pass -- out of assigned scope).",
+    "second_finding": "cap11's falsifier genuinely triggers for certificate-kind ontology additions: templates/tests/generated_proof.rs.tmpl hardcodes `assert_eq!(certificates::ALL.len(), 10)` as a literal instead of deriving it from a SPARQL COUNT over pcp:CertificateKind. Not fixed (unlike the frontmatter issue, this is exactly the defect class cap11 exists to catch, not a schema-dispatch mismatch) -- reported as a real, reproducible falsifier hit.",
+    "third_finding_out_of_scope": "The generated scripts/verify.sh (cap10's own artifact) fails at `cargo fmt --all -- --check` because Tera-rendered Rust source is not rustfmt-canonical. Does not affect cargo test (6/6 pass). Not adjudicated for cap10 (out of scope this pass)."
+  },
+  "notes_2026_07_22_landing_pass": {
+    "scope": "Landed this pack into packs/mfw-pcp-level5-pack/ (real ggen repo, worktree /private/tmp/wt-ggen-mfw-pcp-pack, branch retrofit/l5-mfw-pcp-pack) from the verified /private/tmp/mfw-pcp-l5-exec execution copy (already carrying the FRONTMATTER_LEAK fix baked into its templates). Re-verified cap03/cap04/cap09/cap12 live from the new location with a freshly built ggen 26.7.29 (target/release/ggen, built from this worktree) -- not merely copied evidence from the prior pass.",
+    "fourth_finding_NESTED_WORKSPACE": "A second, distinct real defect surfaced only by actually landing inside the ggen repo (not reproducible in the prior pass's standalone /private/tmp/mfw-pcp-l5-exec scratch copy, which was outside any cargo workspace): `cargo build` in the freshly-regenerated consumer/mfw-pcp-generated/ failed immediately with `error: current package believes it's in a workspace when it's not` because the generated Cargo.toml had no `[workspace]` table of its own, so Cargo tried to fold it into the parent ggen workspace's Cargo.toml. Fixed by adding an empty `[workspace]` table to the top of templates/Cargo.toml.tmpl (the same standalone-crate pattern examples/receiptctl/Cargo.toml already uses) -- confirmed by direct read, not assumption. After the fix: `cargo build` succeeds, `cargo test` is 6/6 green (2 generated_proof + 4 generated_negative, identical counts to the prior pass), two consecutive `ggen sync run` invocations from packs/mfw-pcp-level5-pack/ produced byte-identical 14-file inventories (digest 9f28bd59...800d), `rm -rf consumer` + resync reproduced the same digest (fixed-point convergence holds in the new location too), and `ggen receipt verify --format json` reported valid=true/signed=true/signature_valid=true (chain_hash 6fb2946b...5050, graph_hash unchanged at 5dec52ed...038, matching the prior pass exactly since the ontology and queries are untouched).",
+    "not_reaudited_this_pass": "cap11's certificate-kind falsifier hit and cap05/06/07/08/10's PARTIAL_ALIVE status were not re-run from the new location (the underlying template/ontology content for those is unchanged from the prior pass, and re-running an ontology-mutation trial against a real repo worktree carries more disruption risk than the standalone scratch copy) -- their status is carried forward from the 2026-07-21 pass, not re-verified 2026-07-22."
+  }
+}

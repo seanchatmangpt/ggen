@@ -421,17 +421,23 @@ mod live_fidelity {
 /// variant is ever added to refusal.rs without updating this pack's
 /// ontology, this test fails instead of silently drifting.
 ///
-/// Uses an absolute `include_str!` path into this specific `ggen` checkout
-/// (`/Users/sac/ggen`). This is deliberately environment-specific -- it
-/// proves the drift-detection MECHANISM works against real source in this
-/// repo's own CI/dev environment, not a portable claim; a consumer outside
-/// this checkout would need to repoint the path (or this template would
-/// need a workspace-root Tera variable the engine does not
-/// currently expose to pack templates -- an honest, named engine-level gap,
-/// not something this pack can paper over).
+/// BUG FIXED (2026-07-22): this used to hardcode an absolute
+/// `include_str!` path into one specific `ggen` checkout
+/// (`/Users/sac/ggen`), which broke on every other machine, including CI
+/// (`couldn't read /Users/sac/ggen/crates/praxis-core/src/refusal.rs: No
+/// such file or directory`, confirmed real: this exact error was masking
+/// `guard-pack-proofs` from ever passing in CI). No engine-level
+/// workspace-root Tera variable is actually needed to fix this --
+/// `include_str!` already resolves relative to the CURRENT SOURCE FILE
+/// (not the crate root or an absolute path), and this generated test's
+/// own location relative to `crates/praxis-core/src/refusal.rs` is fixed
+/// by this pack's own template structure (`examples/praxis-core-verify/
+/// tests/` is always three directories above the repo root), so a
+/// relative path is both portable AND simpler than the workspace-root
+/// variable the prior version of this comment thought was required.
 #[test]
 fn live_refusal_rs_variant_count_matches_generated_table() {
-    const REFUSAL_RS: &str = include_str!("/Users/sac/ggen/crates/praxis-core/src/refusal.rs");
+    const REFUSAL_RS: &str = include_str!("../../../crates/praxis-core/src/refusal.rs");
     let variant_arms = REFUSAL_RS
         .lines()
         .filter(|l| {

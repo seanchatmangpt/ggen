@@ -70,6 +70,10 @@ fn probed_broken_constructs_are_refused_not_silently_wrong() {
             "SELECT ?p WHERE { VALUES ?p { <urn:ex:p> } <urn:ex:a> ?p ?o }",
             "VALUES",
         ),
+        (
+            "SELECT ?o WHERE { GRAPH <urn:ex:g> { <urn:ex:a> <urn:ex:p> ?o } }",
+            "GRAPH",
+        ),
     ];
     for (query, expected_name) in broken {
         let err = s
