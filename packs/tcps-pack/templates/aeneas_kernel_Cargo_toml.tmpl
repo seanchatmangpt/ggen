@@ -1,0 +1,17 @@
+---
+to: aeneas-kernel/Cargo.toml
+force: true
+---
+[package]
+name = "tcps-aeneas-kernel"
+version = "26.7.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
