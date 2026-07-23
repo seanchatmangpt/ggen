@@ -15,7 +15,7 @@ namespace CrownFormal
 def distinctNatIndependence : Independence Nat where
   independent := fun a b => a ≠ b
   symmetric := fun h => Ne.symm h
-  irreflexive := fun a h => h rfl
+  irreflexive := fun _ h => h rfl
 
 /-- Additive transition semantics. -/
 def additiveSystem : TransitionSystem Nat Nat where
@@ -33,7 +33,7 @@ theorem additive_run (state : Nat) (word : List Nat) :
 def additiveDiamond :
     DiamondCertificate additiveSystem distinctNatIndependence where
   commute := by
-    intro state a b independent
+    intro state a b _independent
     simp [additive_run, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 /-- Nontrivial precondition: total requested increment is at most ten. -/
@@ -58,21 +58,21 @@ def additiveSemantics : PlanningSemantics Nat Nat where
 /-- Bounded preconditions are swap-invariant. -/
 theorem boundedPreconditions_swap :
     SwapInvariant distinctNatIndependence boundedPreconditions := by
-  intro pre a b suf independent
+  intro pre a b suf _independent
   unfold boundedPreconditions
   simp [List.sum_append, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 /-- Numeric parity is swap-invariant. -/
 theorem evenNumericFlow_swap :
     SwapInvariant distinctNatIndependence evenNumericFlow := by
-  intro pre a b suf independent
+  intro pre a b suf _independent
   unfold evenNumericFlow
   simp [List.sum_append, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 /-- Neutral predicates are swap-invariant by construction. -/
 theorem true_swap_invariant :
     SwapInvariant distinctNatIndependence (fun _ : List Nat => True) := by
-  intro pre a b suf independent
+  intro pre a b suf _independent
   exact Iff.rfl
 
 /-- Complete non-vacuous semantic independence certificate. -/
@@ -103,8 +103,11 @@ theorem additive_anchor_lawful : additiveSemantics.Lawful [1, 3] := by
 /-- Swapped serialization is trace-equivalent. -/
 theorem additive_trace_swap :
     TraceEq distinctNatIndependence [1, 3] [3, 1] := by
+  have distinct : distinctNatIndependence.independent 1 3 := by
+    change 1 ≠ 3
+    decide
   simpa using
-    (TraceEq.swap (I := distinctNatIndependence) [] 1 3 [] (by decide))
+    (TraceEq.swap (I := distinctNatIndependence) [] 1 3 [] distinct)
 
 /-- The original crown obligation is discharged on a concrete non-vacuous
 planning semantics. -/
