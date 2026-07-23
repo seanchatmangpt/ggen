@@ -1,6 +1,7 @@
 @prefix tcps: <http://seanchatmangpt.github.io/packs/tcps#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://seanchatmangpt.github.io/packs/tcps>
     a rdfs:Resource ;
@@ -10,6 +11,9 @@ tcps:ProductionSystem a rdfs:Class .
 tcps:Stage a rdfs:Class .
 tcps:Invariant a rdfs:Class .
 tcps:ProjectionArtifact a rdfs:Class .
+tcps:AutonomicPolicy a rdfs:Class .
+tcps:PhaseRegime a rdfs:Class .
+tcps:AutonomicAction a rdfs:Class .
 
 tcps:order a rdf:Property .
 tcps:actor a rdf:Property .
@@ -23,6 +27,15 @@ tcps:standardHash a rdf:Property .
 tcps:selectActor a rdf:Property .
 tcps:authorizeActor a rdf:Property .
 tcps:executeActor a rdf:Property .
+tcps:observerActor a rdf:Property .
+tcps:judgeActor a rdf:Property .
+tcps:executorActor a rdf:Property .
+tcps:thresholdMultiplier a rdf:Property .
+tcps:maxActions a rdf:Property .
+tcps:maxErrorBasisPoints a rdf:Property .
+tcps:knowledgeRequired a rdf:Property .
+tcps:rollbackRequired a rdf:Property .
+tcps:requiredAction a rdf:Property .
 
 tcps:Observe a tcps:Stage ; tcps:order 10 ; tcps:actor "cargo-cicd" ; tcps:next tcps:Admit ; tcps:actuates false ; tcps:requiresReceipt false .
 tcps:Admit a tcps:Stage ; tcps:order 20 ; tcps:actor "praxis" ; tcps:next tcps:Project ; tcps:actuates false ; tcps:requiresReceipt true .
@@ -39,13 +52,46 @@ tcps:NoRestartWithoutUpdatedStandard a tcps:Invariant ; rdfs:label "A stopped li
 tcps:SeparateSelectAuthorizeExecute a tcps:Invariant ; rdfs:label "Selection, authorization, and execution are distinct authorities." .
 tcps:PullBeforeProduction a tcps:Invariant ; rdfs:label "Positive downstream demand is required before admission." .
 tcps:AffineAuthorization a tcps:Invariant ; rdfs:label "Authorization and verification capabilities are opaque, non-Clone, and non-Copy." .
+tcps:NoSelfAdjudication a tcps:Invariant ; rdfs:label "The worker that observes or executes cannot judge its own evidence." .
+tcps:EvidenceNotNarrative a tcps:Invariant ; rdfs:label "Narrative recommendations never determine standing; admitted evidence and an independent judgment do." .
+tcps:BoundedAutonomicActuation a tcps:Invariant ; rdfs:label "Every autonomic proposal has a finite action budget and an explicit rollback action." .
+tcps:PhaseShiftRequiresRecomposition a tcps:Invariant ; rdfs:label "At 1000x, the system recomposes production topology rather than tuning one capacity knob." .
+
+tcps:ContinuousRegime a tcps:PhaseRegime ; rdfs:label "continuous production regime below 1000x" .
+tcps:PhaseShift1000xRegime a tcps:PhaseRegime ; rdfs:label "qualitative production regime at or above 1000x" .
+
+tcps:PartitionDemand a tcps:AutonomicAction .
+tcps:EnablePullShards a tcps:AutonomicAction .
+tcps:RequireIndependentOracle a tcps:AutonomicAction .
+tcps:RequireProofCarryingReceipts a tcps:AutonomicAction .
+tcps:StageCanaryRollback a tcps:AutonomicAction .
+
+tcps:PhaseShift1000xPolicy
+    a tcps:AutonomicPolicy ;
+    tcps:thresholdMultiplier 1000 ;
+    tcps:maxActions 5 ;
+    tcps:maxErrorBasisPoints 100 ;
+    tcps:observerActor "cargo-cicd" ;
+    tcps:judgeActor "praxis" ;
+    tcps:executorActor "cargo-cicd" ;
+    tcps:knowledgeRequired true ;
+    tcps:rollbackRequired true ;
+    tcps:requiresReceipt true ;
+    tcps:requiredAction tcps:PartitionDemand,
+                        tcps:EnablePullShards,
+                        tcps:RequireIndependentOracle,
+                        tcps:RequireProofCarryingReceipts,
+                        tcps:StageCanaryRollback .
 
 tcps:RustLibrary a tcps:ProjectionArtifact ; tcps:projectionPath "src/lib.rs" .
+tcps:RustAutonomics a tcps:ProjectionArtifact ; tcps:projectionPath "src/autonomics.rs" .
 tcps:RustBinary a tcps:ProjectionArtifact ; tcps:projectionPath "src/main.rs" .
 tcps:RustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/lifecycle.rs" .
+tcps:AutonomicRustTests a tcps:ProjectionArtifact ; tcps:projectionPath "tests/autonomics.rs" .
 tcps:AeneasKernelManifest a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/Cargo.toml" .
 tcps:AeneasKernel a tcps:ProjectionArtifact ; tcps:projectionPath "aeneas-kernel/src/lib.rs" .
 tcps:LeanLaw a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Basic.lean" .
+tcps:LeanAutonomics a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Autonomics.lean" .
 tcps:LeanRefinementTarget a tcps:ProjectionArtifact ; tcps:projectionPath "TCPSLifecycle/Refinement.lean" .
 tcps:CargoManifest a tcps:ProjectionArtifact ; tcps:projectionPath "Cargo.toml" .
 tcps:CargoCicdPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "cicd.toml" .
@@ -55,5 +101,6 @@ tcps:DeploymentPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "deploy/pr
 tcps:VerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify.sh" .
 tcps:AeneasVerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify-aeneas.sh" .
 tcps:LifecycleDocument a tcps:ProjectionArtifact ; tcps:projectionPath "LIFECYCLE.md" .
+tcps:AutonomicsDocument a tcps:ProjectionArtifact ; tcps:projectionPath "AUTONOMICS.md" .
 tcps:AdversarialReview a tcps:ProjectionArtifact ; tcps:projectionPath "ADVERSARIAL_REVIEW.md" .
 tcps:LifecycleWorkflow a tcps:ProjectionArtifact ; tcps:projectionPath ".github/workflows/tcps-lifecycle.yml" .
