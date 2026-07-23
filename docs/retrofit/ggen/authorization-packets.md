@@ -8,37 +8,71 @@ path) — never a bare "blocked".
 
 ## AP-001 — Apply branch protection + CODEOWNERS to `seanchatmangpt/ggen`
 
-- **Operation**: `gh api -X PUT repos/seanchatmangpt/ggen/branches/main/protection` (branch
-  protection ruleset) + commit a `CODEOWNERS` file to `main`.
-- **Target**: `seanchatmangpt/ggen`, branch `main`, GitHub repo settings (Settings → Branches)
-  and collaborator/review configuration.
-- **Why it's proposed**: confirmed this pass via `gh api repos/seanchatmangpt/ggen/branches/main/protection`
-  → `404` (no branch protection exists), and exactly one repository collaborator carries
-  `admin=true` with no `CODEOWNERS` file present. This is a cross-cutting SPOF across the
-  pull-request, release, and fleet-management load paths modeled in
-  `.tcps/retrofit/ggen/load-path.ttl` (item #7 in the intervention decision set,
-  `docs/retrofit/ggen/intervention/decision.md`) — a single account can merge to `main`
-  or push tags/releases with no second reviewer and no ownership routing.
-- **Plan hash**: `22ca1e390ef7e0ce55d4f1b87fa8e65d5950ce5b1e196bc1b60b2012d777e2de` — computed
-  2026-07-21 from `packs/gh-terraform-pack/ontology.ttl`'s `ghtf:MainBranchProtection` HCL body
-  (already-generated desired state, PRs #341/#348/#334), translated to the equivalent GitHub
-  REST API PUT body (`required_status_checks.strict=true`, contexts `Check/Test/Build/Doctest/
-  CI Status`, `enforce_admins=true`, `required_pull_request_reviews.required_approving_review_count=1`,
-  `require_code_owner_reviews=false`). Local computation only, not sent. Full plan body recorded
-  in `.tcps/retrofit/ggen/controller/authorization-packets/AP-001.json`. Re-verified live against
-  GitHub 2026-07-21 16:xx — target state unchanged (still 404 protection, still no CODEOWNERS,
-  still single admin), plan hash remains valid.
-- **Creates**: a branch protection rule on `main` (required reviews, required status checks
-  from `ci.yml`/`quality.yml`); a `CODEOWNERS` file at repo root.
-- **Updates**: repository settings (`branches/main/protection` object); no change to existing
-  collaborator admin grants is proposed by this packet alone (that is AP-002, below).
+- **CORRECTION (2026-07-23)**: this packet's original "Why it's proposed" claim — "no branch
+  protection exists" — was accurate for the legacy API it checked but materially incomplete
+  about the repo's real security posture, discovered while investigating
+  `retrofit:CrossCuttingSingleAdmin`'s named-but-never-written ReleasePath follow-on packet.
+  `gh api repos/seanchatmangpt/ggen/branches/main/protection` genuinely does return
+  `404 "Branch not protected"` — but that legacy endpoint only reflects *classic* branch
+  protection, a separate system from GitHub's newer repository Rulesets. `gh api
+  repos/seanchatmangpt/ggen/rulesets` shows a real, **active** ruleset (id `14609371`, name
+  `default`, target `~DEFAULT_BRANCH`) already exists, already enforcing `deletion` prevention,
+  `non_fast_forward` (no force-push) prevention, and a `pull_request` rule (direct pushes to
+  `main` are blocked, a PR is required) — but that `pull_request` rule's own parameters are
+  weak: `required_approving_review_count: 0`, `require_code_owner_review: false`, and there is
+  no `required_status_checks` rule at all, so CI passing is not currently enforced by this
+  ruleset either. Net effect, corrected: `main` is **not** wide open (force-push and direct
+  push are already blocked) but the two things this packet actually cares about — a real second
+  reviewer, and required CI checks — are genuinely still unenforced, so the underlying SPOF and
+  the case for AP-001 both stand; only the "starting from zero" framing was wrong.
+- **Design choice, resolved directly (not an external-business-intent escalation — this is an
+  internal technical-soundness question this session can and should answer)**: `gh-terraform-
+  pack`'s `ghtf:MainBranchProtection` (`packs/gh-terraform-pack/ontology.ttl:260-275`) targets
+  Terraform's `github_branch_protection` resource — the *classic* protection API, the same one
+  that returns 404 here. Applying it would layer a second, independent protection mechanism
+  alongside the existing active ruleset rather than fixing the one that's actually live; GitHub
+  documents that the most-restrictive rule wins when both systems overlap, so this would likely
+  still work, but two protection systems governing the same branch is a worse, harder-to-reason-
+  about steady state than one. **Operation below is updated accordingly**, from a classic-
+  protection PUT to a PATCH of the existing ruleset — the smallest change that fixes the actual
+  gap (weak review/status-check requirements) without introducing a second protection layer.
+- **Operation**: `gh api -X PUT repos/seanchatmangpt/ggen/rulesets/14609371` (update the
+  existing `default` ruleset's `pull_request` rule to `required_approving_review_count: 1`,
+  `require_code_owner_review: true`; add a `required_status_checks` rule with `strict: true` and
+  contexts `Check`, `Test`, `Build`, `Doctest`, `CI Status`) + commit a `CODEOWNERS` file to
+  `main`.
+- **Target**: `seanchatmangpt/ggen`, ruleset `14609371` on branch `main` (Settings → Rules →
+  Rulesets), and collaborator/review configuration.
+- **Why it's proposed**: see the CORRECTION above for the accurate current-state picture. This
+  is still a cross-cutting SPOF across the pull-request, release, and fleet-management load
+  paths modeled in `.tcps/retrofit/ggen/load-path.ttl` (item #7 in the intervention decision
+  set, `docs/retrofit/ggen/intervention/decision.md`) — a single account can merge to `main`
+  with zero required reviews and with CI not required to pass, and has no ownership routing.
+- **Plan hash**: the 2026-07-21 hash (`22ca1e390ef7e0ce55d4f1b87fa8e65d5950ce5b1e196bc1b60b2012d777e2de`)
+  was computed against the classic-protection PUT body and is **no longer the operation this
+  packet proposes** — superseded, not deleted, so a future reader doesn't mistake it for current.
+  The desired-state *parameters* it encoded (status-check contexts, `required_approving_review_
+  count=1`) remain correct and are carried into the ruleset PATCH body above; only the delivery
+  mechanism (which API, which resource) changed. A new plan hash for the ruleset PATCH body has
+  not been computed — recommended before actuation, not required to record this correction.
+- **Creates**: a `CODEOWNERS` file at repo root. No new ruleset is created (the existing one is
+  updated in place).
+- **Updates**: ruleset `14609371`'s `pull_request` rule parameters; adds a `required_status_
+  checks` rule to that same ruleset. No change to existing collaborator admin grants is proposed
+  by this packet alone (that is AP-002, below).
 - **Deletes**: nothing.
-- **Rollback**: `gh api -X DELETE repos/seanchatmangpt/ggen/branches/main/protection` removes
-  the protection rule; `git rm CODEOWNERS && git commit` removes the ownership file. Both are
-  single-command, non-destructive to any existing commit history.
-- **Post-checks**: `gh api repos/seanchatmangpt/ggen/branches/main/protection` returns non-404
-  with the expected required-checks list; a test PR from a non-admin account is blocked from
-  merging without review to confirm the rule is enforced, not just present.
+- **Rollback**: `gh api -X PUT repos/seanchatmangpt/ggen/rulesets/14609371` with the rule
+  parameters restored to their current values (`required_approving_review_count: 0`,
+  `require_code_owner_review: false`, no `required_status_checks` rule) returns the ruleset to
+  exactly its pre-actuation state — this does **not** delete the ruleset itself, since it
+  predates this packet and provides real baseline protection (deletion/force-push prevention)
+  that should survive a rollback of this packet's own changes. `git rm CODEOWNERS && git commit`
+  removes the ownership file.
+- **Post-checks**: `gh api repos/seanchatmangpt/ggen/rulesets/14609371` shows
+  `required_approving_review_count: 1`, `require_code_owner_review: true`, and a
+  `required_status_checks` rule with the expected contexts; a test PR from a non-admin account
+  is blocked from merging without both an approving review and green required checks, to
+  confirm the rule is enforced, not just present.
 - **Receipt path**: none written — this packet has not been executed. If authorized and run,
   the executing agent should record the `gh api` response body under
   `docs/retrofit/ggen/authorization-packets-executed/AP-001.json` as the receipt.
@@ -48,7 +82,8 @@ path) — never a bare "blocked".
   see Updates above) and does NOT meaningfully cover `retrofit:CrossCuttingSingleAdmin` (whose
   own stated root cause — the sole admin account itself — is exactly what AP-001 declines to
   touch; neither ReleasePath's tag-push/workflow_dispatch exposure nor FleetManagementPath's
-  cloud-actuation identity gap is addressed by branch-protection/CODEOWNERS at all). See AP-002.
+  cloud-actuation identity gap is addressed by branch-protection/CODEOWNERS at all). See AP-002
+  and AP-007 (below) for the ReleasePath leg.
 
 **Non-actuation**: applying branch protection and modifying collaborator/CODEOWNERS
 configuration are both externally-authorization-gated actuation classes under this session's
@@ -157,6 +192,11 @@ it can even be planned precisely, let alone executed.
   workflow and its near-duplicate `deploy-docs.yml`), not an environment-permission question,
   and not addressed here.
 
+**Non-actuation**: environment protection-rule mutation is a permission-adjacent repo-settings
+actuation class under this session's operating rules, same category as AP-001's branch
+protection. No agent has attempted either `gh api` call above. Written for the user's review and
+explicit go-ahead.
+
 ## AP-005 — Provision a `HOMEBREW_TAP_TOKEN` secret for `seanchatmangpt/ggen`
 
 - **Operation**: `gh secret set HOMEBREW_TAP_TOKEN -R seanchatmangpt/ggen` with a real GitHub
@@ -207,10 +247,59 @@ under this session's operating rules, the same category as AP-001/AP-002/AP-004.
 attempted `gh secret set` or requested/generated a token value. Written for the user's review;
 requires the user to supply the actual PAT value before this can be executed.
 
-**Non-actuation**: environment protection-rule mutation is a permission-adjacent repo-settings
-actuation class under this session's operating rules, same category as AP-001's branch
-protection. No agent has attempted either `gh api` call above. Written for the user's review and
-explicit go-ahead.
+## AP-007 — Add a tag-protection ruleset to `seanchatmangpt/ggen` (ReleasePath leg of `retrofit:CrossCuttingSingleAdmin`)
+
+- **Operation**: `gh api -X POST repos/seanchatmangpt/ggen/rulesets` creating a new ruleset,
+  `target: "tag"`, `conditions.ref_name.include: ["v*"]`, `enforcement: "active"`, with rules
+  `deletion` (a published version tag cannot be deleted) and `update` (a tag ref cannot be
+  force-moved to point at a different commit after creation).
+- **Target**: `seanchatmangpt/ggen`, a new tag-scoped ruleset (Settings → Rules → Rulesets).
+- **Why it's proposed**: `retrofit:CrossCuttingSingleAdmin` (`.tcps/retrofit/ggen/load-path.ttl`)
+  named this exact gap in its 2026-07-21 evidence — "ReleasePath leg (tag-push/workflow_dispatch
+  exposure on release.yml): NOT addressed by AP-001/AP-002 at all -- GitHub tag-protection rules
+  are a separate settings surface, would need its own authorization packet, not yet authored
+  (named as a follow-on, not fabricated here)" — but no packet was ever written for it.
+  Confirmed live this pass: `gh api repos/seanchatmangpt/ggen/tags/protection` → `404` (zero
+  classic tag protection), and none of the repo's rulesets target `tag` (the one existing
+  ruleset, `14609371`, targets `branch` only — see AP-001's correction above). `release.yml`
+  triggers on `push: tags: v*` and creates the real, user-visible release artifact this repo
+  ships; nothing currently prevents a tag from being deleted or silently repointed to a
+  different commit after a release has shipped, which would make an already-published version
+  number refer to different code with no record of the change.
+- **Design note, resolved directly (not an escalation)**: restricting *who* may create matching
+  tags in the first place is deliberately **not** included in this packet. With exactly one
+  collaborator on the repository today (confirmed via `gh api repos/seanchatmangpt/ggen/
+  collaborators`), a creation-restriction rule would have no one to restrict yet — it only
+  becomes meaningful once AP-002's second collaborator exists, and choosing which accounts may
+  cut a release is the same external trust question AP-002 already raises, not a new one. This
+  packet is scoped to the part that's valuable immediately regardless of collaborator count —
+  protecting a tag's integrity once created — which is why it's `deletion`+`update` only, not a
+  full tag-creation ACL. A future packet can add creation restriction once AP-002 lands.
+- **Plan hash**: not computed — the ruleset body above is fully specified inline and small
+  enough not to warrant a separate hash artifact (2 rule types, 1 condition), unlike AP-001's
+  larger, ontology-sourced body.
+- **Creates**: one new ruleset, `target: "tag"`, matching `v*`.
+- **Updates**: nothing existing.
+- **Deletes**: nothing.
+- **Rollback**: `gh api -X DELETE repos/seanchatmangpt/ggen/rulesets/<new-id>` removes the
+  ruleset cleanly; no existing tags or releases are affected either way (the rules are
+  prospective — they govern future deletion/update attempts, not the tags' present state).
+- **Post-checks**: `gh api repos/seanchatmangpt/ggen/rulesets` lists the new ruleset with
+  `target: "tag"` and `enforcement: "active"`; a test `git push --delete origin v0.0.0-test-tag`
+  or `git push --force origin <commit>:refs/tags/v0.0.0-test-tag` (against a disposable test tag
+  created for this check only, never a real release tag) is rejected by GitHub.
+- **Receipt path**: none written — this packet has not been executed. If authorized and run,
+  the executing agent should record the `gh api` response body under
+  `docs/retrofit/ggen/authorization-packets-executed/AP-007.json`.
+- **Coverage note**: closes the ReleasePath leg of `retrofit:CrossCuttingSingleAdmin` for tag
+  *integrity* (deletion/repoint protection). Does not address tag *creation* exposure (who may
+  push a new `v*` tag at all) — that remains open, deliberately deferred to a future packet
+  once AP-002 makes it a real multi-party question rather than a single-account no-op.
+
+**Non-actuation**: creating a tag-protection ruleset is a permission-adjacent repo-settings
+actuation class under this session's operating rules, same category as AP-001/AP-004. No agent
+has attempted `gh api -X POST .../rulesets`. Written for the user's review and explicit
+go-ahead.
 
 ## AP-008 — What should ggen's public documentation guide contain (docs-scope decision, not a GitHub mutation)
 
