@@ -1,0 +1,103 @@
+@prefix ex: <https://ggen.dev/examples/part-passport/crown-kernel#> .
+@prefix gpp: <https://ggen.dev/ns/part-passport#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:ggenFoundry a prov:Agent .
+ex:leanKernel a prov:Agent .
+ex:readAdmittedState a odrl:Permission .
+ex:buildReceipt a prov:Entity .
+ex:conformityEvidence a prov:Entity .
+ex:leanEvidence a prov:Entity .
+
+ex:crownKernelPassport
+    a gpp:PartPassport ;
+    gpp:partId "crown-kernel" ;
+    gpp:family "pc-powl2" ;
+    gpp:partVersion "26.7.57" ;
+    gpp:manufacturer ex:ggenFoundry ;
+    gpp:artifactDigest "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ;
+    gpp:sourceGraphDigest "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" ;
+    gpp:buildReceipt ex:buildReceipt ;
+    gpp:batchId "release-26.7.57" ;
+    gpp:inputEnvelope ex:input ;
+    gpp:outputContract ex:output ;
+    gpp:causalPolarity ex:polarity ;
+    gpp:resourceEnvelope ex:resources ;
+    gpp:isolationClass gpp:DoubleInsulated ;
+    gpp:hostProfile "server", "ci" ;
+    gpp:jurisdictionProfile "internal-production" ;
+    gpp:conformityMark ex:mfwConformity ;
+    gpp:verifierMark ex:leanVerification ;
+    gpp:nonInterferenceProfile ex:nonInterference ;
+    gpp:lifecyclePolicy ex:lifecycle .
+
+ex:input
+    a gpp:InputEnvelope ;
+    gpp:representation "application/ld+json" ;
+    gpp:schema <urn:ggen:schema:admitted-trace-event:v1> ;
+    gpp:minimumProtocol "1.0.0" ;
+    gpp:maximumProtocol "1.2.0" ;
+    gpp:maxPayloadBytes 65536 ;
+    gpp:acceptedEventType "trace.observed", "trace.replay" ;
+    gpp:requiredField "event_id", "aggregate_id", "sequence", "authority_receipt" ;
+    gpp:clockDiscipline "logical" ;
+    gpp:maxEventsPerSecond 10000 ;
+    gpp:timeoutSemantics "explicit_event" ;
+    gpp:wallClockAccess false .
+
+ex:output
+    a gpp:OutputContract ;
+    gpp:representation "application/json" ;
+    gpp:schema <urn:ggen:schema:crown-receipt:v1> ;
+    gpp:artifactType "CrownReceipt" ;
+    gpp:deterministicSerialization true ;
+    gpp:receiptRequired true ;
+    gpp:maxArtifacts 1 .
+
+ex:polarity
+    a gpp:CausalPolarity ;
+    gpp:consumes "AdmittedTraceEvent" ;
+    gpp:produces "CrownReceipt" ;
+    gpp:requiresAuthority ex:readAdmittedState ;
+    gpp:emitsIntent "emit:crown-receipt" .
+
+ex:resources
+    a gpp:ResourceEnvelope ;
+    gpp:maxMemoryPages 64 ;
+    gpp:maxFuel 5000000 ;
+    gpp:maxExecutionMilliseconds 20 ;
+    gpp:maxQueueDepth 1024 ;
+    gpp:maxConcurrency 1 ;
+    gpp:ambientIo false .
+
+ex:mfwConformity
+    a gpp:ConformityMark ;
+    gpp:profile "mfw-core-v1" ;
+    gpp:issuer ex:ggenFoundry ;
+    gpp:evidence ex:conformityEvidence ;
+    gpp:artifactDigest "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ;
+    gpp:selfDeclared true .
+
+ex:leanVerification
+    a gpp:VerifierMark ;
+    gpp:issuer ex:leanKernel ;
+    gpp:verifiedProperty "trace-kernel-equivalence" ;
+    gpp:evidence ex:leanEvidence ;
+    gpp:artifactDigest "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ;
+    gpp:verifierStatus gpp:Passed .
+
+ex:nonInterference
+    a gpp:NonInterferenceProfile ;
+    gpp:mayRead "admitted-state" ;
+    gpp:mayEmit "crown-receipt" ;
+    gpp:forbiddenSurface "filesystem", "network", "wall-clock" .
+
+ex:lifecycle
+    a gpp:LifecyclePolicy ;
+    gpp:lifecycleState gpp:Stable ;
+    gpp:policyVersion "1.0.0" ;
+    gpp:revokeCredentials true ;
+    gpp:preserveReceipts true ;
+    gpp:disposalInstructions "Revoke capability grants; preserve receipts and replay fixtures." .
