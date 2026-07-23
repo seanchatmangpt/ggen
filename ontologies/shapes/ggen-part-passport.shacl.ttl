@@ -1,0 +1,194 @@
+@prefix gpp: <https://ggen.dev/ns/part-passport#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# The shapes deliberately validate the public semantic surface rather than the
+# Rust representation. Rust and RDF are two projections of the same passport
+# law and must be checked independently.
+
+gpp:PartPassportShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:PartPassport ;
+    sh:closed false ;
+    sh:property [
+        sh:path gpp:partId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path gpp:family ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path gpp:partVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$"
+    ] ;
+    sh:property [
+        sh:path gpp:manufacturer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path gpp:artifactDigest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(blake3|sha256):[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path gpp:sourceGraphDigest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(blake3|sha256):[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path gpp:buildReceipt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [ sh:path gpp:inputEnvelope ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:InputEnvelope ] ;
+    sh:property [ sh:path gpp:outputContract ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:OutputContract ] ;
+    sh:property [ sh:path gpp:causalPolarity ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:CausalPolarity ] ;
+    sh:property [ sh:path gpp:resourceEnvelope ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:ResourceEnvelope ] ;
+    sh:property [ sh:path gpp:isolationClass ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:IsolationClass ] ;
+    sh:property [ sh:path gpp:hostProfile ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:nonInterferenceProfile ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:NonInterferenceProfile ] ;
+    sh:property [ sh:path gpp:lifecyclePolicy ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:LifecyclePolicy ] .
+
+gpp:InputEnvelopeShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:InputEnvelope ;
+    sh:property [ sh:path gpp:representation ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:schema ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:minimumProtocol ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path gpp:maximumProtocol ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path gpp:maxPayloadBytes ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:acceptedEventType ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:requiredField ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:maxEventsPerSecond ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:wallClockAccess ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+gpp:OutputContractShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:OutputContract ;
+    sh:property [ sh:path gpp:representation ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:schema ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:artifactType ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:deterministicSerialization ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path gpp:receiptRequired ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path gpp:maxArtifacts ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] .
+
+gpp:CausalPolarityShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:CausalPolarity ;
+    sh:property [ sh:path gpp:consumes ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:produces ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] .
+
+gpp:ResourceEnvelopeShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:ResourceEnvelope ;
+    sh:property [ sh:path gpp:maxMemoryPages ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:maxFuel ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:maxExecutionMilliseconds ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:maxQueueDepth ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:maxConcurrency ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minExclusive 0 ] ;
+    sh:property [ sh:path gpp:ambientIo ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+gpp:ConformityMarkShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:ConformityMark ;
+    sh:property [ sh:path gpp:profile ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:issuer ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:evidence ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:artifactDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^(blake3|sha256):[0-9a-f]{64}$" ] ;
+    sh:property [ sh:path gpp:selfDeclared ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+gpp:VerifierMarkShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:VerifierMark ;
+    sh:property [ sh:path gpp:issuer ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:verifiedProperty ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+    sh:property [ sh:path gpp:evidence ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+    sh:property [ sh:path gpp:artifactDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^(blake3|sha256):[0-9a-f]{64}$" ] ;
+    sh:property [ sh:path gpp:verifierStatus ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:VerifierStatus ] .
+
+gpp:LifecyclePolicyShape
+    a sh:NodeShape ;
+    sh:targetClass gpp:LifecyclePolicy ;
+    sh:property [ sh:path gpp:lifecycleState ; sh:minCount 1 ; sh:maxCount 1 ; sh:class gpp:LifecycleState ] ;
+    sh:property [ sh:path gpp:policyVersion ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path gpp:revokeCredentials ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path gpp:preserveReceipts ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path gpp:disposalInstructions ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] .
+
+# Double insulation is a constructive claim: ambient host IO must be false.
+gpp:DoubleInsulationConstraint
+    a sh:NodeShape ;
+    sh:targetClass gpp:PartPassport ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Double-insulated parts cannot use ambient host IO." ;
+        sh:select """
+            PREFIX gpp: <https://ggen.dev/ns/part-passport#>
+            SELECT $this WHERE {
+                $this gpp:isolationClass gpp:DoubleInsulated ;
+                      gpp:resourceEnvelope ?resources .
+                ?resources gpp:ambientIo true .
+            }
+        """
+    ] .
+
+# Stable is a standing state, not a marketing adjective.
+gpp:StableStandingConstraint
+    a sh:NodeShape ;
+    sh:targetClass gpp:PartPassport ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Stable parts require deterministic output, receipts, conformity, and a passed verifier." ;
+        sh:select """
+            PREFIX gpp: <https://ggen.dev/ns/part-passport#>
+            SELECT $this WHERE {
+                $this gpp:lifecyclePolicy ?lifecycle ;
+                      gpp:outputContract ?output .
+                ?lifecycle gpp:lifecycleState gpp:Stable .
+                FILTER (
+                    NOT EXISTS { ?output gpp:deterministicSerialization true }
+                    || NOT EXISTS { ?output gpp:receiptRequired true }
+                    || NOT EXISTS { $this gpp:conformityMark ?conformity }
+                    || NOT EXISTS {
+                        $this gpp:verifierMark ?verifier .
+                        ?verifier gpp:verifierStatus gpp:Passed .
+                    }
+                )
+            }
+        """
+    ] .
+
+# A part cannot simultaneously authorize and forbid the same mutation surface.
+gpp:NonInterferenceConstraint
+    a sh:NodeShape ;
+    sh:targetClass gpp:NonInterferenceProfile ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A surface cannot be both writable/emittable and forbidden." ;
+        sh:select """
+            PREFIX gpp: <https://ggen.dev/ns/part-passport#>
+            SELECT $this WHERE {
+                $this gpp:forbiddenSurface ?surface .
+                { $this gpp:mayWrite ?surface }
+                UNION
+                { $this gpp:mayEmit ?surface }
+            }
+        """
+    ] .

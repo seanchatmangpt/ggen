@@ -1,0 +1,128 @@
+{%- set p = sparql_results | first -%}
+{%- set events = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:inputEnvelope ?input . ?input gpp:acceptedEventType ?value . } ORDER BY ?value') -%}
+{%- set fields = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:inputEnvelope ?input . ?input gpp:requiredField ?value . } ORDER BY ?value') -%}
+{%- set consumes = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:causalPolarity ?polarity . ?polarity gpp:consumes ?value . } ORDER BY ?value') -%}
+{%- set produces = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:causalPolarity ?polarity . ?polarity gpp:produces ?value . } ORDER BY ?value') -%}
+{%- set authorities = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:causalPolarity ?polarity . ?polarity gpp:requiresAuthority ?value . } ORDER BY ?value') -%}
+{%- set intents = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:causalPolarity ?polarity . ?polarity gpp:emitsIntent ?value . } ORDER BY ?value') -%}
+{%- set hosts = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:hostProfile ?value . } ORDER BY ?value') -%}
+{%- set jurisdictions = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:jurisdictionProfile ?value . } ORDER BY ?value') -%}
+{%- set conformity = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?profile ?issuer ?evidence ?digest ?self_declared WHERE { ?passport a gpp:PartPassport ; gpp:conformityMark ?mark . ?mark gpp:profile ?profile ; gpp:issuer ?issuer ; gpp:evidence ?evidence ; gpp:artifactDigest ?digest ; gpp:selfDeclared ?self_declared . } ORDER BY ?profile ?issuer') -%}
+{%- set verifiers = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?verifier ?property ?evidence ?digest ?status WHERE { ?passport a gpp:PartPassport ; gpp:verifierMark ?mark . ?mark gpp:issuer ?verifier ; gpp:verifiedProperty ?property ; gpp:evidence ?evidence ; gpp:artifactDigest ?digest ; gpp:verifierStatus ?status_iri . BIND(LCASE(REPLACE(STR(?status_iri), "^https://ggen.dev/ns/part-passport#", "")) AS ?status) } ORDER BY ?verifier ?property') -%}
+{%- set may_read = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:nonInterferenceProfile ?profile . ?profile gpp:mayRead ?value . } ORDER BY ?value') -%}
+{%- set may_write = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:nonInterferenceProfile ?profile . ?profile gpp:mayWrite ?value . } ORDER BY ?value') -%}
+{%- set may_emit = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:nonInterferenceProfile ?profile . ?profile gpp:mayEmit ?value . } ORDER BY ?value') -%}
+{%- set forbidden = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:nonInterferenceProfile ?profile . ?profile gpp:forbiddenSurface ?value . } ORDER BY ?value') -%}
+{
+  "schema_version": 1,
+  "identity": {
+    "part_id": "{{ p.part_id }}",
+    "family": "{{ p.family }}",
+    "version": "{{ p.version }}",
+    "manufacturer": "{{ p.manufacturer }}",
+    "artifact_digest": "{{ p.artifact_digest }}",
+    "source_graph_digest": "{{ p.source_graph_digest }}",
+    "build_receipt": "{{ p.build_receipt }}"{% if p.batch_id is defined and p.batch_id != "" %},
+    "batch_id": "{{ p.batch_id }}"{% endif %}
+  },
+  "input": {
+    "representation": "{{ p.input_representation }}",
+    "schema": "{{ p.input_schema }}",
+    "protocol": {
+      "minimum": "{{ p.protocol_minimum }}",
+      "maximum": "{{ p.protocol_maximum }}"
+    },
+    "max_payload_bytes": {{ p.max_payload_bytes }},
+    "accepted_event_types": [{% for row in events %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "required_fields": [{% for row in fields %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "temporal": {
+      "clock": "{{ p.clock }}",
+      "max_events_per_second": {{ p.max_events_per_second }},
+      "timeout_semantics": "{{ p.timeout_semantics }}",
+      "wall_clock_access": {{ p.wall_clock_access }}
+    }
+  },
+  "output": {
+    "representation": "{{ p.output_representation }}",
+    "schema": "{{ p.output_schema }}",
+    "artifact_type": "{{ p.artifact_type }}",
+    "deterministic_serialization": {{ p.deterministic_serialization }},
+    "receipt_required": {{ p.receipt_required }},
+    "max_artifacts": {{ p.max_artifacts }}
+  },
+  "polarity": {
+    "consumes": [{% for row in consumes %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "produces": [{% for row in produces %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "requires_authorities": [{% for row in authorities %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "emits_intents": [{% for row in intents %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ]
+  },
+  "resources": {
+    "max_memory_pages": {{ p.max_memory_pages }},
+    "max_fuel": {{ p.max_fuel }},
+    "max_execution_ms": {{ p.max_execution_ms }},
+    "max_queue_depth": {{ p.max_queue_depth }},
+    "max_concurrency": {{ p.max_concurrency }},
+    "ambient_io": {{ p.ambient_io }}
+  },
+  "isolation": "{{ p.isolation }}",
+  "host_profiles": [{% for row in hosts %}
+    "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+  ],
+  "jurisdiction_profiles": [{% for row in jurisdictions %}
+    "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+  ],
+  "conformity": [{% for row in conformity %}
+    {
+      "profile": "{{ row.profile }}",
+      "issuer": "{{ row.issuer }}",
+      "evidence_uri": "{{ row.evidence }}",
+      "artifact_digest": "{{ row.digest }}",
+      "self_declared": {{ row.self_declared }}
+    }{% if not loop.last %},{% endif %}{% endfor %}
+  ],
+  "verifiers": [{% for row in verifiers %}
+    {
+      "verifier": "{{ row.verifier }}",
+      "property": "{{ row.property }}",
+      "evidence_uri": "{{ row.evidence }}",
+      "artifact_digest": "{{ row.digest }}",
+      "status": "{{ row.status }}"
+    }{% if not loop.last %},{% endif %}{% endfor %}
+  ],
+  "noninterference": {
+    "may_read": [{% for row in may_read %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "may_write": [{% for row in may_write %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "may_emit": [{% for row in may_emit %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ],
+    "forbidden": [{% for row in forbidden %}
+      "{{ row.value }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ]
+  },
+  "lifecycle": {
+    "state": "{{ p.lifecycle_state }}",
+    "policy_version": "{{ p.policy_version }}",
+    "retirement": {
+      "revoke_credentials": {{ p.revoke_credentials }},
+      "preserve_receipts": {{ p.preserve_receipts }}{% if p.migration_target is defined and p.migration_target != "" %},
+      "migration_target": "{{ p.migration_target }}"{% endif %},
+      "disposal_instructions": "{{ p.disposal_instructions }}"
+    }
+  }
+}

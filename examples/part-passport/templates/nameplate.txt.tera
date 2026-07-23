@@ -1,0 +1,24 @@
+{%- set p = sparql_results | first -%}
+{%- set hosts = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:hostProfile ?value . } ORDER BY ?value') -%}
+{%- set conformity = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:conformityMark ?mark . ?mark gpp:profile ?value . } ORDER BY ?value') -%}
+{%- set verifiers = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:verifierMark ?mark . ?mark gpp:issuer ?value ; gpp:verifierStatus gpp:Passed . } ORDER BY ?value') -%}
+{%- set authorities = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:causalPolarity ?polarity . ?polarity gpp:requiresAuthority ?value . } ORDER BY ?value') -%}
+{%- set forbidden = sparql(query='PREFIX gpp: <https://ggen.dev/ns/part-passport#> SELECT ?value WHERE { ?passport a gpp:PartPassport ; gpp:nonInterferenceProfile ?profile . ?profile gpp:forbiddenSurface ?value . } ORDER BY ?value') -%}
+GGEN PART PASSPORT
+MODEL: {{ p.part_id }}
+FAMILY: {{ p.family }}
+VERSION: {{ p.version }}
+MFR: {{ p.manufacturer }}
+INPUT: {{ p.input_representation }} {{ p.input_schema }} {{ p.protocol_minimum }}..{{ p.protocol_maximum }} {{ p.max_payload_bytes }}B MAX
+TEMPORAL: {{ p.clock }} {{ p.max_events_per_second }}/s {{ p.timeout_semantics }} wall-clock={{ p.wall_clock_access }}
+OUTPUT: {{ p.output_representation }} {{ p.output_schema }} {{ p.artifact_type }} x{{ p.max_artifacts }} MAX
+RESOURCES: {{ p.max_memory_pages }} pages / {{ p.max_fuel }} fuel / {{ p.max_execution_ms }}ms / q{{ p.max_queue_depth }} / c{{ p.max_concurrency }}
+ISOLATION: {{ p.isolation }}
+HOSTS: {% for row in hosts %}{{ row.value }}{% if not loop.last %},{% endif %}{% endfor %}
+CONFORMITY: {% for row in conformity %}{{ row.value }}{% if not loop.last %},{% endif %}{% endfor %}
+VERIFIED: {% for row in verifiers %}{{ row.value }}{% if not loop.last %},{% endif %}{% endfor %}
+AUTHORITY: {% for row in authorities %}{{ row.value }}{% if not loop.last %},{% endif %}{% endfor %}
+FORBIDDEN: {% for row in forbidden %}{{ row.value }}{% if not loop.last %},{% endif %}{% endfor %}
+LIFECYCLE: {{ p.lifecycle_state }}
+DIGEST: {{ p.artifact_digest }}
+MARKS: O*{% if p.deterministic_serialization == true %} D{% endif %}{% if p.ambient_io == false %} NAA{% endif %}{% if p.isolation == "double_insulated" %} II{% endif %}{% if authorities | length > 0 or forbidden | length > 0 %} LCS{% endif %}{% if verifiers | length > 0 %} IV{% endif %} NI{% if p.preserve_receipts == true %} RET{% endif %}

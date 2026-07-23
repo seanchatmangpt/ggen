@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "part_id": "crown-kernel",
+    "family": "pc-powl2",
+    "version": "26.7.57",
+    "manufacturer": "https://ggen.dev/examples/part-passport/crown-kernel#ggenFoundry",
+    "artifact_digest": "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "source_graph_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "build_receipt": "https://ggen.dev/examples/part-passport/crown-kernel#buildReceipt",
+    "batch_id": "release-26.7.57"
+  },
+  "input": {
+    "representation": "application/ld+json",
+    "schema": "urn:ggen:schema:admitted-trace-event:v1",
+    "protocol": {
+      "minimum": "1.0.0",
+      "maximum": "1.2.0"
+    },
+    "max_payload_bytes": 65536,
+    "accepted_event_types": [
+      "trace.observed",
+      "trace.replay"
+    ],
+    "required_fields": [
+      "aggregate_id",
+      "authority_receipt",
+      "event_id",
+      "sequence"
+    ],
+    "temporal": {
+      "clock": "logical",
+      "max_events_per_second": 10000,
+      "timeout_semantics": "explicit_event",
+      "wall_clock_access": false
+    }
+  },
+  "output": {
+    "representation": "application/json",
+    "schema": "urn:ggen:schema:crown-receipt:v1",
+    "artifact_type": "CrownReceipt",
+    "deterministic_serialization": true,
+    "receipt_required": true,
+    "max_artifacts": 1
+  },
+  "polarity": {
+    "consumes": [
+      "AdmittedTraceEvent"
+    ],
+    "produces": [
+      "CrownReceipt"
+    ],
+    "requires_authorities": [
+      "https://ggen.dev/examples/part-passport/crown-kernel#readAdmittedState"
+    ],
+    "emits_intents": [
+      "emit:crown-receipt"
+    ]
+  },
+  "resources": {
+    "max_memory_pages": 64,
+    "max_fuel": 5000000,
+    "max_execution_ms": 20,
+    "max_queue_depth": 1024,
+    "max_concurrency": 1,
+    "ambient_io": false
+  },
+  "isolation": "double_insulated",
+  "host_profiles": [
+    "ci",
+    "server"
+  ],
+  "jurisdiction_profiles": [
+    "internal-production"
+  ],
+  "conformity": [
+    {
+      "profile": "mfw-core-v1",
+      "issuer": "https://ggen.dev/examples/part-passport/crown-kernel#ggenFoundry",
+      "evidence_uri": "https://ggen.dev/examples/part-passport/crown-kernel#conformityEvidence",
+      "artifact_digest": "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "self_declared": true
+    }
+  ],
+  "verifiers": [
+    {
+      "verifier": "https://ggen.dev/examples/part-passport/crown-kernel#leanKernel",
+      "property": "trace-kernel-equivalence",
+      "evidence_uri": "https://ggen.dev/examples/part-passport/crown-kernel#leanEvidence",
+      "artifact_digest": "blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "passed"
+    }
+  ],
+  "noninterference": {
+    "may_read": [
+      "admitted-state"
+    ],
+    "may_write": [
+    ],
+    "may_emit": [
+      "crown-receipt"
+    ],
+    "forbidden": [
+      "filesystem",
+      "network",
+      "wall-clock"
+    ]
+  },
+  "lifecycle": {
+    "state": "stable",
+    "policy_version": "1.0.0",
+    "retirement": {
+      "revoke_credentials": true,
+      "preserve_receipts": true,
+      "disposal_instructions": "Revoke capability grants; preserve receipts and replay fixtures."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+GGEN PART PASSPORT
+MODEL: crown-kernel
+FAMILY: pc-powl2
+VERSION: 26.7.57
+MFR: https://ggen.dev/examples/part-passport/crown-kernel#ggenFoundry
+INPUT: application/ld+json urn:ggen:schema:admitted-trace-event:v1 1.0.0..1.2.0 65536B MAX
+TEMPORAL: logical 10000/s explicit_event wall-clock=false
+OUTPUT: application/json urn:ggen:schema:crown-receipt:v1 CrownReceipt x1 MAX
+RESOURCES: 64 pages / 5000000 fuel / 20ms / q1024 / c1
+ISOLATION: double_insulated
+HOSTS: ci,server
+CONFORMITY: mfw-core-v1
+VERIFIED: https://ggen.dev/examples/part-passport/crown-kernel#leanKernel
+AUTHORITY: https://ggen.dev/examples/part-passport/crown-kernel#readAdmittedState
+FORBIDDEN: filesystem,network,wall-clock
+LIFECYCLE: stable
+DIGEST: blake3:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+MARKS: O* D NAA II LCS IV NI RET
