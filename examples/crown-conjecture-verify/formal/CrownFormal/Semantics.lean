@@ -3,18 +3,21 @@ import CrownFormal.Operational
 set_option autoImplicit false
 
 /-!
-# Component-complete planning semantics
+# Component-complete abstract planning semantics
 
 Lawfulness is a conjunction over replay, goal, precondition, invariant,
-numeric, temporal, and trajectory components. Each component is connected to
-an explicit adjacent-swap preservation theorem. A separate standing receipt
-forces every all-accepting component to be declared neutral rather than being
-silently mistaken for evidence.
+numeric, temporal, and trajectory components. Each word-indexed component is
+connected to an explicit adjacent-swap preservation theorem.
+
+The preservation theorem and the non-vacuity ledger are deliberately separate
+objects. `AdmittedSemanticCrown` is the admission boundary that requires both:
+no semantic certificate receives admitted standing merely because its proof
+fields happen to be inhabited.
 -/
 
 namespace CrownFormal
 
-universe u v
+universe u v w
 
 /-- Predicate invariance under one admitted adjacent commutation. -/
 def SwapInvariant {Action : Type v} (I : Independence Action)
@@ -38,7 +41,9 @@ theorem swapInvariant_trace_iff {Action : Type v} {I : Independence Action}
   | symm h ih => exact ih.symm
   | trans h₁ h₂ ih₁ ih₂ => exact ih₁.trans ih₂
 
-/-- Executable planning semantics with all PDDL-relevant lawfulness layers. -/
+/-- Executable abstract planning semantics with explicitly separated
+lawfulness layers. These predicates are an adequacy interface; a concrete PDDL
+or workflow model must still prove that its native semantics maps into them. -/
 structure PlanningSemantics (State : Type u) (Action : Type v) where
   system : TransitionSystem State Action
   initial : State
@@ -118,7 +123,9 @@ theorem lawful_trace_iff
           semantics.system.run semantics.initial right := replay
       _ = some final := run
 
-/-- Directional form matching the original crown obligation. -/
+/-- Directional form of semantic preservation. This theorem is intentionally
+available on the mathematical certificate itself; admitted standing is exposed
+separately by `AdmittedSemanticCrown`. -/
 theorem traceSwapPreservesLawful
     (certificate : SemanticIndependenceCertificate semantics I)
     {left right : List Action} (equivalent : TraceEq I left right)
@@ -128,26 +135,80 @@ theorem traceSwapPreservesLawful
 
 end SemanticIndependenceCertificate
 
-/-- Explicit standing of a semantic component. An unconstrained component is
-legal only when declared neutral. An active component must carry both an
-acceptance and a rejection witness. -/
-inductive ComponentStanding {Action : Type v}
-    (predicate : List Action → Prop) : Type v
-  | neutral (allAccept : ∀ word, predicate word)
+/-- Explicit standing of a semantic component over any input type. An
+unconstrained component is legal only when declared neutral. An active
+component must carry both an acceptance and a rejection witness. -/
+inductive ComponentStanding {Input : Type w}
+    (predicate : Input → Prop) : Type w
+  | neutral (allAccept : ∀ input, predicate input)
   | active
-      (acceptedWord : List Action)
-      (accepted : predicate acceptedWord)
-      (rejectedWord : List Action)
-      (rejected : ¬ predicate rejectedWord)
+      (acceptedInput : Input)
+      (accepted : predicate acceptedInput)
+      (rejectedInput : Input)
+      (rejected : ¬ predicate rejectedInput)
 
-/-- Evidence ledger for all non-transition semantic layers. -/
+/-- Evidence ledger for every non-transition semantic layer, including the
+goal predicate. The earlier ledger omitted goal standing, allowing a constant
+`True` goal to pass without disclosure. -/
 structure SemanticBoundaryReceipt
     {State : Type u} {Action : Type v}
     (semantics : PlanningSemantics State Action) where
+  goal : ComponentStanding semantics.goal
   preconditions : ComponentStanding semantics.preconditions
   invariants : ComponentStanding semantics.invariants
   numericFlows : ComponentStanding semantics.numericFlows
   temporal : ComponentStanding semantics.temporal
   trajectory : ComponentStanding semantics.trajectory
+
+/-- A concrete successful independent pair. This refuses the vacuous case in
+which a diamond theorem is inhabited only because the independence relation
+has no witnesses or every two-step replay fails. -/
+structure OperationalBoundaryReceipt
+    {State : Type u} {Action : Type v}
+    (semantics : PlanningSemantics State Action)
+    (I : Independence Action) where
+  state : State
+  leftAction : Action
+  rightAction : Action
+  independent : I.independent leftAction rightAction
+  final : State
+  leftReplay :
+    semantics.system.run state [leftAction, rightAction] = some final
+  rightReplay :
+    semantics.system.run state [rightAction, leftAction] = some final
+
+/-- Admitted crown evidence couples the preservation proof to explicit
+semantic and operational standing. The receipt fields are therefore part of
+the type consumed by downstream theorems rather than disconnected examples. -/
+structure AdmittedSemanticCrown
+    {State : Type u} {Action : Type v}
+    (semantics : PlanningSemantics State Action)
+    (I : Independence Action) where
+  preservation : SemanticIndependenceCertificate semantics I
+  boundary : SemanticBoundaryReceipt semantics
+  operational : OperationalBoundaryReceipt semantics I
+
+namespace AdmittedSemanticCrown
+
+variable {State : Type u} {Action : Type v}
+variable {semantics : PlanningSemantics State Action}
+variable {I : Independence Action}
+
+/-- Admitted bidirectional lawfulness preservation. -/
+theorem lawful_trace_iff
+    (certificate : AdmittedSemanticCrown semantics I)
+    {left right : List Action} (equivalent : TraceEq I left right) :
+    semantics.Lawful left ↔ semantics.Lawful right :=
+  certificate.preservation.lawful_trace_iff equivalent
+
+/-- Admitted directional lawfulness preservation. -/
+theorem traceSwapPreservesLawful
+    (certificate : AdmittedSemanticCrown semantics I)
+    {left right : List Action} (equivalent : TraceEq I left right)
+    (lawful : semantics.Lawful left) :
+    semantics.Lawful right :=
+  (certificate.lawful_trace_iff equivalent).mp lawful
+
+end AdmittedSemanticCrown
 
 end CrownFormal
