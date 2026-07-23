@@ -34,10 +34,11 @@ of Mazurkiewicz trace equivalence.
 `transport_execution` manufactures a receipt derivation for every admitted
 serialization while retaining the exact final state.
 
-Both manufacturers are definitions because they return `Execution ... : Type`.
-They are not theorem declarations: Lean reserves `theorem` for proposition-valued
-results. A clean build of the merged #466 source exposed and this branch repairs
-that declaration-sort defect.
+Those manufacturers and the concrete `additive_swapped_execution` witness are
+definitions because they return `Execution ... : Type`. They are not theorem
+declarations: Lean reserves `theorem` for proposition-valued results. A clean
+build of the merged #466 source exposed and this branch repairs all three
+declaration-sort defects.
 
 ## 3. Abstract semantic preservation and admitted standing
 
@@ -143,8 +144,9 @@ lawfulness preservation from trace classification and observation equality.
 
 - **Abstract quotient crown:** proved in source.
 - **Abstract replay and word-level lawfulness preservation:** proved in source.
-- **Proof-relevant execution declaration sort:** repaired from invalid
-  proposition-only `theorem` syntax to `def`.
+- **Proof-relevant execution declaration sorts:** repaired for
+  `Execution.of_run_eq`, `transport_execution`, and
+  `additive_swapped_execution`.
 - **Proof-relevant execution transport:** implemented in source.
 - **Abstract non-vacuity receipts:** load-bearing through
   `AdmittedSemanticCrown`.
