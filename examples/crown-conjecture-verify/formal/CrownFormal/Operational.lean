@@ -45,7 +45,11 @@ theorem run_append (system : TransitionSystem State Action)
   induction left generalizing state with
   | nil => simp
   | cons action rest ih =>
-      simp [run, ih]
+      simp only [List.cons_append, run_cons]
+      cases stepResult : system.step state action with
+      | none => simp [stepResult]
+      | some next =>
+          simpa [stepResult] using ih next
 
 /-- Proof-relevant execution derivation retaining every transition receipt. -/
 inductive Execution (system : TransitionSystem State Action) :
@@ -91,10 +95,10 @@ theorem run_trace_eq (certificate : DiamondCertificate system I)
       simp only [List.append_assoc]
       rw [system.run_append state pre ([a, b] ++ suf)]
       rw [system.run_append state pre ([b, a] ++ suf)]
-      cases preRun : system.run state pre with
-      | none => simp [preRun]
+      cases system.run state pre with
+      | none => simp
       | some middle =>
-          simp only [preRun, Option.bind_some]
+          simp only [Option.bind_some]
           rw [system.run_append middle [a, b] suf]
           rw [system.run_append middle [b, a] suf]
           rw [certificate.commute middle a b independent]
