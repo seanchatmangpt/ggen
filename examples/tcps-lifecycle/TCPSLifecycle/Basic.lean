@@ -19,8 +19,18 @@ inductive Transition : State → State → Prop where
   | stopOnAbnormality : Transition .authorized .stopped
   | recoverWithUpdatedStandard : Transition .stopped .observed
 
+structure Authorization where
+  planDigest : String
+
+structure Receipt where
+  observationId : String
+  planDigest : String
+  authorizationDigest : String
+  artifactDigest : String
+  receiptDigest : String
+
 inductive Outcome where
-  | receipted (digest : String)
+  | receipted (receipt : Receipt)
   | stopped (reason : String)
   deriving Repr
 
@@ -29,9 +39,9 @@ def Successful : Outcome → Prop
   | .stopped _ => False
 
 theorem successful_has_receipt {outcome : Outcome} (h : Successful outcome) :
-    ∃ digest, outcome = .receipted digest := by
+    ∃ receipt, outcome = .receipted receipt := by
   cases outcome with
-  | receipted digest => exact ⟨digest, rfl⟩
+  | receipted receipt => exact ⟨receipt, rfl⟩
   | stopped reason => cases h
 
 theorem observed_cannot_execute_directly :
@@ -49,17 +59,26 @@ theorem planned_requires_authorization :
   intro h
   cases h
 
-structure Authorization where
-  planDigest : String
-
-structure Receipt where
-  planDigest : String
-
 def Corresponds (authorization : Authorization) (receipt : Receipt) : Prop :=
   authorization.planDigest = receipt.planDigest
 
-theorem authorized_receipt_corresponds (digest : String) :
-    Corresponds ⟨digest⟩ ⟨digest⟩ := by
+theorem authorized_receipt_corresponds
+    (observationId planDigest authorizationDigest artifactDigest receiptDigest : String) :
+    Corresponds ⟨planDigest⟩
+      ⟨observationId, planDigest, authorizationDigest, artifactDigest, receiptDigest⟩ := by
   rfl
+
+def ValidRecovery (oldStandard newStandard : String) : Prop :=
+  newStandard ≠ "" ∧ newStandard ≠ oldStandard
+
+theorem unchanged_standard_cannot_restart (standard : String) :
+    ¬ ValidRecovery standard standard := by
+  intro h
+  exact h.2 rfl
+
+theorem empty_standard_cannot_restart (standard : String) :
+    ¬ ValidRecovery standard "" := by
+  intro h
+  exact h.1 rfl
 
 end TCPSLifecycle
