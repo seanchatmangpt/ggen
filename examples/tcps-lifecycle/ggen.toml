@@ -1,0 +1,20 @@
+[project]
+name = "tcps-lifecycle"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+tcps = "http://seanchatmangpt.github.io/packs/tcps#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+tcps-pack = { path = "../../packs/tcps-pack" }
+
+[templates]
+dir = "templates"
+aggregate_modules = false
+
+[law]
+reflexive = true
