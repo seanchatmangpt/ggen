@@ -22,6 +22,8 @@ The autonomic reference is documented in `AUTONOMICS.md`. Its exact boundary is:
 At 1000x the controller partitions demand, enables pull shards, requires an
 independent oracle and proof-carrying receipts, and stages canary rollback. The
 loop is typestate-constrained and can only finish as `Receipted` or `Stopped`.
+The example binary executes the ordinary lifecycle and uses its receipt as the
+source evidence for a complete 1000x autonomic cycle.
 
 Run the local verification rail:
 
@@ -40,3 +42,7 @@ Authorization, verification evidence, autonomic evidence, autonomic plans, and
 autonomic authorization are affine capabilities. No projected artifact is placed
 under a `generated/` directory. Rust, Lean, Aeneas, release, deployment,
 autonomics, and evidence surfaces are canonical project artifacts.
+
+Source-level standing does not imply crown standing. Signed external receipts,
+OCEL replay, Aeneas symbol binding, fixed-point regeneration, deployment, and
+rollback evidence remain mandatory.
