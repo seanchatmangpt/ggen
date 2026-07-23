@@ -34,9 +34,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: examples/tcps-lifecycle
-      - run: cargo test --workspace --all-targets --locked
-      - run: cargo test --workspace --doc --locked
-      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --all-targets
+      - run: cargo test --workspace --doc
+      - run: cargo clippy --workspace --all-targets -- -D warnings
 
   lean:
     runs-on: ubuntu-latest
