@@ -35,13 +35,20 @@ run_optional_oracle() {
   fi
 }
 
-run_check rust-test cargo test --all-targets
-run_check rust-doctest cargo test --doc
+run_check rust-test cargo test --workspace --all-targets
+run_check rust-doctest cargo test --workspace --doc
 run_check lean-kernel lake build
 run_optional_oracle cargo-cicd-doctor cargo-cicd workspace doctor
 run_optional_oracle cargo-cicd-verify cargo-cicd verify
 run_optional_oracle praxis-law my-conforming-project law judge "$(cat praxis/observation.json)"
 run_optional_oracle praxis-lean praxis-l4 verify --root . --receipts receipts/lean.jsonl
+if command -v charon >/dev/null 2>&1 && command -v aeneas >/dev/null 2>&1; then
+  run_check aeneas-refinement bash scripts/verify-aeneas.sh
+elif [[ "$CROWN" -eq 1 ]]; then
+  printf '%s\t127\t%s\t%s\n' "aeneas-refinement" "charon+aeneas" "required reverse-verification oracles missing" >>"$results_file"
+else
+  printf '%s\t0\t%s\t%s\n' "aeneas-refinement" "charon+aeneas" "bounded: reverse extraction unavailable outside --crown mode" >>"$results_file"
+fi
 
 python3 - "$recorded_at" "$results_file" <<'PY'
 import hashlib, json, pathlib, sys
@@ -51,7 +58,7 @@ for line in pathlib.Path(results_path).read_text().splitlines():
     name, code, tool, summary = line.split("\t", 3)
     rows.append({"name": name, "exit_code": int(code), "tool": tool, "summary": summary})
 source_files = sorted(
-    p for base in (pathlib.Path("src"), pathlib.Path("tests"), pathlib.Path("TCPSLifecycle"))
+    p for base in (pathlib.Path("src"), pathlib.Path("tests"), pathlib.Path("TCPSLifecycle"), pathlib.Path("aeneas-kernel"))
     if base.exists() for p in base.rglob("*") if p.is_file()
 )
 h = hashlib.sha256()
