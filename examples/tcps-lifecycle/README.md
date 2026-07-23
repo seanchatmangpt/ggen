@@ -10,6 +10,7 @@ The example assigns distinct responsibilities:
 - **Praxis** admits observations, plans consequences, checks Lean, and receipts law.
 - **cargo-cicd** observes and executes repository workcells and emits process evidence.
 - **ggen** projects this admitted production system into canonical repository paths.
+- **Charon/Aeneas** independently functionalize the isolated safe Rust kernel for Lean refinement.
 
 Run the local verification rail:
 
@@ -18,11 +19,13 @@ bash scripts/verify.sh
 ```
 
 Run the complete external-oracle rail when `cargo-cicd`, `my-conforming-project`,
-and `praxis-l4` are installed:
+`praxis-l4`, `charon`, and `aeneas` are installed:
 
 ```bash
 bash scripts/verify.sh --crown
 ```
 
-No projected artifact is placed under a `generated/` directory. The Rust, Lean,
-release, deployment, and evidence surfaces are canonical project artifacts.
+The authorization capability and typestate line are affine: neither implements
+`Clone` nor `Copy`. No projected artifact is placed under a `generated/`
+directory. Rust, Lean, Aeneas, release, deployment, and evidence surfaces are
+canonical project artifacts.
