@@ -1,7 +1,6 @@
 @prefix tcps: <http://seanchatmangpt.github.io/packs/tcps#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://seanchatmangpt.github.io/packs/tcps>
     a rdfs:Resource ;
@@ -39,7 +38,7 @@ tcps:NoUnreceiptedActuation a tcps:Invariant ; rdfs:label "Every actuation atomi
 tcps:NoRestartWithoutUpdatedStandard a tcps:Invariant ; rdfs:label "A stopped line returns to observation only with updated standard work." .
 tcps:SeparateSelectAuthorizeExecute a tcps:Invariant ; rdfs:label "Selection, authorization, and execution are distinct authorities." .
 tcps:PullBeforeProduction a tcps:Invariant ; rdfs:label "Positive downstream demand is required before admission." .
-tcps:AffineAuthorization a tcps:Invariant ; rdfs:label "Authorization capabilities are neither Clone nor Copy." .
+tcps:AffineAuthorization a tcps:Invariant ; rdfs:label "Authorization and verification capabilities are opaque, non-Clone, and non-Copy." .
 
 tcps:RustLibrary a tcps:ProjectionArtifact ; tcps:projectionPath "src/lib.rs" .
 tcps:RustBinary a tcps:ProjectionArtifact ; tcps:projectionPath "src/main.rs" .
@@ -56,3 +55,5 @@ tcps:DeploymentPolicy a tcps:ProjectionArtifact ; tcps:projectionPath "deploy/pr
 tcps:VerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify.sh" .
 tcps:AeneasVerificationScript a tcps:ProjectionArtifact ; tcps:projectionPath "scripts/verify-aeneas.sh" .
 tcps:LifecycleDocument a tcps:ProjectionArtifact ; tcps:projectionPath "LIFECYCLE.md" .
+tcps:AdversarialReview a tcps:ProjectionArtifact ; tcps:projectionPath "ADVERSARIAL_REVIEW.md" .
+tcps:LifecycleWorkflow a tcps:ProjectionArtifact ; tcps:projectionPath ".github/workflows/tcps-lifecycle.yml" .
