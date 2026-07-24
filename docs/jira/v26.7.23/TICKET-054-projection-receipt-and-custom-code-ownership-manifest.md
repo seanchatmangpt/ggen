@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -126,3 +126,39 @@ TICKET-056/057 (final receipt/verifier report) fold this manifest in.
 
 - both manifests generated
 - completeness check against real filesystem passes
+
+## Implementation notes (real evidence)
+
+- `packs/wasm4pm-interview-assist-pack/scripts/hash-tree.py` written (real BLAKE3 tree hasher,
+  same algorithm/style as `scripts/hash-corpus.py`). Run for real against `queries/` and
+  `templates/`: `queries/` -> 16 files, combined hash
+  `b97054570d591f6c6661de012e0b8a28ecbb9db1e6e51e75e431deec020ab077`; `templates/` -> 10 files,
+  combined hash `1aa11354551077777eea2ff468503dc903c3244c0deac12ff7def6334c1c12cc`.
+- `projection-receipt.json` aggregates: TICKET-001's `corpus-manifest.json` `combined_hash`
+  (`0c7e5242...`, read verbatim not recomputed) + the two tree hashes above. TICKET-010's
+  `projection-manifest.json` (a listed Input) was searched for and NOT found on disk
+  (`find . -maxdepth 1 -iname "projection-manifest.json"` -> empty) -- the `output_manifest`
+  field is honestly `null` rather than fabricated, and `missing_inputs` documents this. This is
+  why the ticket is PARTIAL_ALIVE, not ALIVE: TICKET-054 depends on TICKET-010, which has not
+  landed.
+- `custom-code-ownership-manifest.json`: ran `find examples/interview-assist/lib/adapters -type
+  f` twice during this session (~5 minutes apart, to give parallel workstream-H agents time, per
+  the task instruction) -- both runs returned the same 7 files: `monaco-adapter.ts`,
+  `sandbox-executor.ts`, `persistence-adapter.ts`, `ollama-adapter.ts`, `checksum-adapter.ts`,
+  `accessibility-platform-adapter.ts`, `policy-check-stub.ts`. 6 of 7 matched to their owning
+  TICKET-034..039 by that ticket's real Outputs list, with justification/reduction-path text
+  copied verbatim from each ticket (not paraphrased). 1 file, `policy-check-stub.ts`, does not
+  appear in any of TICKET-034..039's Outputs lists as read in this session -- flagged as an
+  `orphan_files` entry rather than given an invented justification.
+  Cross-checked TICKET-034..039's own Status headers: all 6 are still `PLANNED` in the tracker
+  despite their output files already existing on disk -- noted in the manifest's `status` field
+  ("workstream H ticket statuses not confirmed ALIVE") since this ticket's own Admission gates
+  require "All workstream H tickets (034-039) complete," which is not yet true.
+- Negative-test / completeness check (per the ticket's own falsifier): every file returned by the
+  real `find` has a manifest entry (7 files, 7 entries) -- the check passes in the sense that
+  nothing is silently omitted, but 1 entry is marked orphan/incomplete rather than a full pass,
+  which is why the manifest's own `status` field says "SNAPSHOT -- INCOMPLETE" and this ticket is
+  PARTIAL_ALIVE, not ALIVE.
+- Both manifest files are explicitly marked as snapshots requiring re-generation once TICKET-010
+  and all of TICKET-034-039 close, per this ticket's own Admission gates and the task
+  instruction.

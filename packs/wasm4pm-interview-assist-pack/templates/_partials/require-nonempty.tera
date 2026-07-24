@@ -1,0 +1,16 @@
+{#- TICKET-005: shared fail-loudly macros. No domain constants here — every -#}
+{#- domain-specific resource/predicate name is a caller-supplied argument.   -#}
+{#- See packs/wasm4pm-interview-assist-pack/docs/graph-data-refusal-policy.md -#}
+
+{% macro require_nonempty(rows, resource) %}
+  {%- if rows | length == 0 -%}
+    {{ __GGEN_REQUIRED_QUERY_RETURNED_ZERO_ROWS_FOR__[resource] }}
+  {%- endif -%}
+{% endmacro require_nonempty %}
+
+{% macro require_single(rows, field, resource) %}
+  {%- set values = rows | map(attribute=field) | unique -%}
+  {%- if values | length > 1 -%}
+    {{ __GGEN_CONTRADICTORY_VALUES_FOR__[resource][field][values | join(sep=" vs ")] }}
+  {%- endif -%}
+{% endmacro require_single %}

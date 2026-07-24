@@ -143,3 +143,15 @@ TICKET-012 builds the app layout on top of this root config.
 
 Status left at PARTIAL_ALIVE, not ALIVE, pending the schema:version gap resolution and the
 remaining two output files.
+
+## Update 2026-07-23 — schema:version gap resolved in RDF
+
+`<product/interview-assist>` in `ontology/10-product.ttl` now carries a real
+`schema:version "0.1.0"` triple (added this session). Rebuilt
+`ontology.ttl` via `python3 scripts/build-ontology.py` (110031 bytes, 13 prefixes) and
+re-verified `python3 scripts/validate-shacl.py` → `CONFORMS: True` (1790 triples). Re-ran all 9
+`gates/*.rq` via real rdflib queries against the rebuilt `ontology.ttl` — all 9 return 0 rows
+(pass, same as before the edit). The RDF-side gap this ticket flagged is closed; the
+`package.json` template still needs to be repointed from the hardcoded `"0.1.0"` literal to the
+now-real `schema:version` SPARQL binding — that template edit is not done in this update, so
+status remains PARTIAL_ALIVE, not ALIVE.

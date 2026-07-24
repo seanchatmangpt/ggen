@@ -1,0 +1,21 @@
+# Expected: 11 rows -- the manufacturing-chain PROV-O resources (6 prov:Entity:
+# raw-observation, admitted-observation, refusal, generated-application-state,
+# test-result, accessibility-projection; + 2 prov:Activity: admission-activity,
+# sandbox-execution-activity) plus the 2 receipt/* prov:Entity resources
+# (entry-1, entry-2-final) plus the 1 receipt/checksum-algorithm-blake3
+# spdx:Checksum resource (ARD Section 3.16 Receipt Ledger + Section 14
+# Decisive Acceptance Test evidence chain) (TICKET-003/TICKET-020). The
+# per-receipt-entry inline spdx:checksum blank nodes are not separately
+# counted here (no stable IRI). Verified against the real corpus 2026-07-23.
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX spdx: <http://spdx.org/rdf/terms#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?resource ?type ?label WHERE {
+  ?resource a ?type .
+  OPTIONAL { ?resource rdfs:label ?label }
+  FILTER(
+    (?type = prov:Entity || ?type = prov:Activity || ?type = spdx:Checksum) &&
+    (CONTAINS(STR(?resource), "/manufacturing-chain/") || CONTAINS(STR(?resource), "/receipt/"))
+  )
+}
+ORDER BY ?resource

@@ -12,11 +12,13 @@ here on purpose — see the PR #489 report's audit for the full whitelist.
 | `skos:Concept` (phase-scheme) | 14 | `Phase` discriminated union (TICKET-016) + transition table (TICKET-021) | `queries/phases.rq` |
 | `skos:Concept` (event-family-scheme) | 15 | `EventFamily` discriminated union (TICKET-016) + routing table (TICKET-022) | `queries/event-families.rq` |
 | `skos:ConceptScheme` | 5 | source of the `skos:hasTopConcept` ordering used by the two unions above | n/a (queried inline via the two queries above) |
-| `odrl:Set` | 6 | policy-check function inputs (TICKET-028) | not yet written — TICKET-028 scope |
-| `odrl:Permission`/`odrl:Prohibition` | (blank nodes under the 6 Sets) | permission/prohibition matcher input (TICKET-028) | not yet written — TICKET-028 scope |
-| `prov:Entity`/`prov:Activity` | manufacturing-chain + receipt resources | `TransitionReceipt` type (TICKET-020) | not yet written — TICKET-020 scope |
-| `dcat:Dataset`/`Distribution`/`DataService` | 1/9/1 | pack manifest type (out of scope for the live runtime; documentation only) | n/a |
-| `spdx:Checksum` | 3 (1 named + 2 blank) | `Checksum` interface field (TICKET-020) | not yet written — TICKET-020 scope |
+| `odrl:Set` | 6 | policy-check function inputs (TICKET-028) | `queries/policies.rq` (6 rows, verified) |
+| `odrl:Permission`/`odrl:Prohibition` | 17 (blank nodes under the 6 Sets) | permission/prohibition matcher input (TICKET-028) | `queries/policy-rules.rq` (17 rows, verified) |
+| `prov:Entity`/`prov:Activity` | 11 (manufacturing-chain + receipt resources; see below) | `TransitionReceipt` type (TICKET-020) | `queries/receipts.rq` (11 rows, verified) |
+| `dcat:Dataset`/`Distribution`/`DataService` | 1/9/1 | pack manifest type (out of scope for the live runtime; documentation only) | `queries/datasets.rq` (11 rows, verified) |
+| `spdx:Checksum` | 3 (1 named + 2 blank) | `Checksum` interface field (TICKET-020) | `queries/receipts.rq` selects the 1 named (`receipt/checksum-algorithm-blake3`); the 2 per-receipt-entry inline checksums are blank nodes with no stable IRI, not separately selectable |
+| `schema:DigitalDocument` (`req/ard-refusal-*`) | 16 refusal codes + 1 governing rule | `RefusalCode` union (TICKET-021/029) | `queries/refusal-codes.rq` (16 rows, verified; excludes the governing-rule resource by design) |
+| `skos:Concept`+`schema:Action` (`acceptance-step/*`) | 10 | Decisive Acceptance Test step sequence (documentation/test-harness only) | `queries/acceptance-steps.rq` (10 rows in `dcterms:requires` order, verified) |
 | `hydra:Operation` | 7 (subset of capability/* `schema:Action`) | HTTP-shaped capability subset → route generation (TICKET-013/027) | not yet written — TICKET-013 scope |
 
 ## Excluded from this mapping (confirmed not instantiated in the current corpus)
@@ -28,6 +30,12 @@ against the concatenated `ontology.ttl` — same 14-prefix result, 0 violations)
 
 ## Status
 
-Rows for TICKET-016/021/022/026 (state types, transitions, capability registry) are the only ones
-with a real, verified query. Rows referencing TICKET-013/020/028 note "not yet written" honestly
-— those tickets have not been reached in this implementation pass (see progress report).
+Rows for TICKET-016/021/022/026 (state types, transitions, capability registry) and, as of this
+session (2026-07-23, TICKET-003 continuation), the TICKET-020/028 rows (receipts, DCAT datasets,
+ODRL policy/policy-rule detail) plus refusal codes and acceptance steps now all have real,
+verified queries with row counts confirmed against the actual `ontology.ttl` corpus via `rdflib`
+(see `queries/*.rq` header comments and TICKET-003's Implementation notes for the run evidence).
+The `hydra:Operation` row (TICKET-013 scope) still says "not yet written" honestly — a
+`queries/hydra-operations.rq` file exists on disk from another parallel agent's session but was
+not authored or independently re-verified in this pass, so this table's TICKET-013 row is left
+unchanged rather than claimed without direct verification.

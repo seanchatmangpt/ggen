@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -113,3 +113,27 @@ Workstream I (verification tickets) consume this config directly.
 
 - configs generated and load cleanly
 - reused examples/nextjs-ai-sdk's proven structure rather than inventing new config from scratch
+
+## Implementation notes (real evidence)
+
+- Copied `examples/nextjs-ai-sdk/{tsconfig.json,playwright.config.ts,vitest.config.ts}` into
+  `examples/interview-assist/` verbatim (per the task's "reuse proven conventions" instruction),
+  adapted only where the source referenced nothing project-specific (none of the three files
+  needed edits beyond being copied as-is — no project name is embedded in any of them).
+- Ran `npx tsc --noEmit` for real from `examples/interview-assist/`. Result: **config-level
+  errors are absent** — every reported error is `TS2307 Cannot find module` /
+  `TS2580 Cannot find name 'process'/'Buffer'` style, i.e. missing `node_modules` packages
+  (`next`, `react`, `@playwright/test`, `@types/node`), not a tsconfig/jsx/module-resolution
+  misconfiguration. This is the expected signal that the config itself is structurally sound.
+- **Root cause of the missing deps, reported not hidden:** `examples/interview-assist/package.json`
+  currently belongs to a different, concurrently-running workstream (workstream H,
+  "interview-assist-adapters", TICKET-034-039) — hand-authored with a *different* dependency set
+  (`vitest`, `typescript`, `blake3`; no `next`/`react`/`@playwright/test`/`@types/node`). This
+  session's own pack template (`010_package_json.tmpl`, owned by TICKET-011, not this ticket)
+  would generate a different, Next.js-shaped `package.json`, but overwriting workstream H's file
+  was out of scope for this ticket and this session's explicit non-destructive mandate re: other
+  agents' work — left untouched.
+- PARTIAL_ALIVE: the three config files are real, copied-from-proven-source, and demonstrated
+  free of config-level `tsc` errors; full `npx tsc --noEmit` success is BLOCKED on a
+  cross-workstream `package.json`/dependency conflict outside this ticket's scope, not on
+  anything wrong with the config files themselves.

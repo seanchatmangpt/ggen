@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -129,3 +129,39 @@ TICKET-029 (timeout/result/refusal handling) and TICKET-035 (sandbox executor) c
 - both checkers generated and RDF-driven
 - prohibited-mode denial test passes as a hard safety gate
 - practice-mode allowance test passes
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- New queries `packs/wasm4pm-interview-assist-pack/queries/capability-preconditions.rq` (42 rows,
+  direct `dcterms:requires` edges among `capability/*`) and
+  `packs/wasm4pm-interview-assist-pack/queries/policy-permissions.rq` (odrl:Permission/Prohibition
+  statements across all 6 `policy/*` `odrl:Set` resources) — both run via rdflib against
+  `ontology/30-capabilities.ttl` and `ontology/50-policy.ttl`.
+- Wrote `examples/interview-assist/lib/domain/preconditions.ts` (`DIRECT_REQUIRES` map +
+  `transitiveRequires` graph-walk + `checkPreconditions`) and
+  `examples/interview-assist/lib/domain/policy-check.ts` (`POLICY_STATEMENTS` + `checkPolicy`,
+  prohibition-wins-over-permission, unspecified treated as fail-closed by callers), plus reusable
+  templates `templates/028a_preconditions_ts.tmpl` and `templates/028b_policy_check_ts.tmpl`
+  (Tera `group_by` over the query rows).
+- **SAFETY-CRITICAL TEST — real output** (`node --experimental-strip-types
+  __tests__/policy-check.test.mjs`), the ticket's non-negotiable falsifier:
+  ```
+  === SAFETY-CRITICAL TEST: policy/prohibited-mode denial ===
+  checkPolicy("prohibited-action/hidden-overlay", "policy/prohibited-mode") -> denied
+  checkPolicy("prohibited-action/screen-capture-evasion", "policy/prohibited-mode") -> denied
+  checkPolicy("prohibited-action/monitoring-bypass", "policy/prohibited-mode") -> denied
+  checkPolicy("prohibited-action/disguised-process", "policy/prohibited-mode") -> denied
+  checkPolicy("prohibited-action/covert-audio-capture", "policy/prohibited-mode") -> denied
+  checkPolicy("prohibited-action/misrepresent-unaided-work", "policy/prohibited-mode") -> denied
+  PASS: all 6 prohibited-action/* resources denied under policy/prohibited-mode
+  ```
+- Positive-path test (proving not fail-closed-always), real output:
+  `checkPolicy("authority-action/execute-code", "policy/practice-mode") -> allowed`.
+- Precondition-closure test against real data (`run-complete-test-suite` requires both
+  `run-visible-test` and `run-hidden-test`, transitively also `runtime/execute`,
+  `runtime/compile`, `runtime/select-language`) — real output confirmed the exact chain named in
+  the ticket's Objective, plus unmet/met cases for `runtime/execute` with and without `compile`
+  satisfied (`__tests__/preconditions.test.mjs`, all PASS).
+- No mocks; all data is the real admitted RDF, loaded via rdflib and consumed by the generated
+  TS at real runtime through `node --experimental-strip-types` (Node v25.9.0 built-in TS type
+  stripping, no compilation step, no test doubles).

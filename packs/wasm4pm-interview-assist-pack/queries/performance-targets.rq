@@ -1,0 +1,9 @@
+# Expected: 7 rows, the ARD §10 performance-target resources (TICKET-029).
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?target ?title ?value WHERE {
+  ?target dcterms:isPartOf <doc/ard#performance> ;
+          dcterms:title ?title ;
+          rdf:value ?value .
+}
+ORDER BY ?target

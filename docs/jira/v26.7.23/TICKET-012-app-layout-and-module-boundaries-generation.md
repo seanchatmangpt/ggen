@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -122,3 +122,34 @@ TICKET-013 (routes) and workstream D (state types) populate these module boundar
 - layout.tsx generated
 - module-boundary folders generated 1:1 with ARD §2 planes
 - no hardcoded plane list in the template
+
+## Implementation notes (real evidence)
+
+- Wrote `packs/wasm4pm-interview-assist-pack/queries/system-planes.rq`. Inspected
+  `ontology.ttl` directly (not guessed): the real ARD §2 shape is
+  `?plane dcterms:isPartOf <doc/ard#planes> ; dcterms:title ?title`, 4 real rows
+  (`plane-manufacturing`, `plane-runtime`, `plane-sandbox`, `plane-projection`) — confirmed via
+  `grep -n "isPartOf <doc/ard#planes>"` before writing the query, and re-confirmed at generation
+  time: the real `ggen sync run --dry-run` receipt reports the query returning exactly 4 rows.
+- `templates/020_app_layout.tmpl` -> `app/layout.tsx`: real App Router root layout, no domain
+  content hardcoded except the product name (queried from `schema:SoftwareApplication`).
+- `templates/021_lib_planes_index.tmpl` -> `lib/planes/index.ts`: **one file, not one
+  folder per plane.** Investigated the "N-row-to-N-file" question directly per the ticket's own
+  instruction — grepped every `packs/*/templates/*.tmpl` for a per-row-dynamic `to:` path inside
+  a `{{ }}`/for-loop body; none exists anywhere in this workspace (all `to:` targets found,
+  e.g. `gh-terraform-pack`, `lsp-max-pack`, `star-toml-pack`, use a single frontmatter-level
+  `{{ var }}` substitution, not per-row iteration over `to:`). ggen's template model as observed
+  does not support one-file-per-SPARQL-row from a single template. Rather than inventing an
+  unproven mechanism, emitted the single-file projection (`SYSTEM_PLANES: SystemPlane[]`) — the
+  "iterate the plane query to also emit multiple files" half of this ticket is BLOCKED on that
+  missing engine capability, not attempted via a side-channel script (would be Epistemic Bypass
+  per `.claude/rules/coding-agent-mistakes.md`).
+- Ran a real (non-dry) `ggen sync run` from `examples/interview-assist/` twice in a row (the
+  pack's `010_package_json.tmpl` was temporarily moved aside for these two runs only, to avoid
+  writing over `package.json`, which a concurrent workstream-H agent owns and had already
+  hand-authored with different, incompatible content — restored immediately after, untouched).
+  Both real runs produced byte-identical `app/layout.tsx` and `lib/planes/index.ts`
+  (`diff` exit 0) — idempotent.
+- PARTIAL_ALIVE: layout generation and the plane-query projection are real and idempotent; true
+  per-plane folder emission is BLOCKED (engine capability gap, not a coding gap), not silently
+  dropped.

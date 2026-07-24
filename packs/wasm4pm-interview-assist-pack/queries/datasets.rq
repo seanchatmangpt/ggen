@@ -1,0 +1,11 @@
+# Expected: 11 rows -- 1 dcat:Dataset (pack/interview-pack) + 9 dcat:Distribution
+# + 1 dcat:DataService (service/self-play-factory) (PRD Section 1, ARD Section
+# 2.1) (TICKET-003).
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?resource ?type ?title WHERE {
+  ?resource a ?type ;
+            dcterms:title ?title .
+  FILTER(?type IN (dcat:Dataset, dcat:Distribution, dcat:DataService))
+}
+ORDER BY ?resource

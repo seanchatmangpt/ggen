@@ -1,0 +1,30 @@
+{
+  "name": "interview-assist",
+  "private": true,
+  "version": "0.1.0",
+  "description": "InterviewAssist: RDF-projected Next.js app shell (TICKET-011..015) + generated domain/capability types (TICKET-016..029) + thin custom-boundary adapters (TICKET-034..039).",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "blake3": "^2.1.7",
+    "next": "16.2.11",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.9",
+    "typescript": "^5.6.3",
+    "@playwright/test": "^1.48.2",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7"
+  }
+}

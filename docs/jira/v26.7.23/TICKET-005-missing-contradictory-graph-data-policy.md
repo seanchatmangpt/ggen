@@ -2,7 +2,30 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
+
+## Implementation notes (real evidence)
+
+- Policy doc: `packs/wasm4pm-interview-assist-pack/docs/graph-data-refusal-policy.md` (new).
+- Macro: `packs/wasm4pm-interview-assist-pack/templates/_partials/require-nonempty.tera` (new) —
+  `require_nonempty(rows, resource)` and `require_single(rows, field, resource)`, both generic
+  (no domain constants), triggering a Tera undefined-variable render error on violation.
+- Fixture query: `packs/wasm4pm-interview-assist-pack/queries/product-metadata-required.rq`
+  (new, marked `# required`).
+- Negative test run for real via rdflib (not fabricated): copied `ontology.ttl` to
+  `/tmp/scratch-ontology.ttl`, removed `<product/interview-assist> schema:name "InterviewAssist"`,
+  re-serialized, re-parsed, ran the fixture query — **0 rows** on the mutilated copy, **1 row** on
+  the real `ontology.ttl`. Transcript in the policy doc.
+- **Gap, honestly flagged**: the macro's actual fail-loudly behavior inside a real Tera render
+  (does the undefined-variable trick really propagate to a non-zero `ggen sync run` exit code?)
+  was NOT verified end-to-end against `ggen-engine`'s renderer this session — no template in this
+  pack invokes the macro yet, and per the task's CRITICAL RULES this session must not run
+  `ggen sync run` (non-dry) against `examples/interview-assist/`. This is why status is
+  PARTIAL_ALIVE, not ALIVE: the SPARQL/rdflib-level refusal precondition is proven; the
+  Tera-render-level propagation is asserted from Tera's documented default undefined-variable
+  behavior, not independently executed.
+- Not yet done: TICKET-003's query catalog headers have not been swept to mark every query
+  required/optional (rule 4) — only the one new fixture query carries the `# required` marker.
 
 ## Parent
 

@@ -1,0 +1,10 @@
+# Expected: 6 rows, one per odrl:Set policy resource (authority-broker-default,
+# practice-mode, mock-interview-mode, live-assistance-mode, assessment-mode,
+# prohibited-mode) -- ARD Section 3.15 + PRD Section 4 operating modes (TICKET-003).
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?policy ?isPartOf WHERE {
+  ?policy a odrl:Set ;
+          dcterms:isPartOf ?isPartOf .
+}
+ORDER BY ?policy

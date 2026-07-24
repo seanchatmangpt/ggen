@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE — real blake3 library calls, digest independently cross-checked, determinism verified
 
 ## Parent
 
@@ -119,3 +119,26 @@ The relevant workstream I vertical scenario exercises this adapter against real 
 - real-collaborator Chicago-TDD test passes (no mocks)
 - policy-check-before-action test passes
 - reduction path documented
+
+## Implementation notes (real evidence)
+
+- File: `examples/interview-assist/lib/adapters/checksum-adapter.ts` (50 lines) — the thinnest
+  of the 6 adapters, one function call into the real `blake3` npm package's `hash()`. Test:
+  `examples/interview-assist/tests/adapters/checksum-adapter.test.ts` (4 tests, all passing —
+  `npx vitest run tests/adapters/checksum-adapter.test.ts`).
+- `blake3` was not previously a dependency anywhere under `examples/`; added it as a real
+  dependency in the new `examples/interview-assist/package.json` (`"blake3": "^2.1.7"`),
+  `npm install`ed successfully.
+- Determinism evidence: hashing the same string twice in the same process produces identical
+  64-hex-char digests (32-byte BLAKE3 output); different inputs produce different digests.
+- Known/reproducible digest evidence: independently ran
+  `node -e "const {hash}=require('blake3'); console.log(Buffer.from(hash(Buffer.from('hello world'))).toString('hex'))"`
+  outside the test suite and got `d74981efa70a0c880b8d8c1985d075dbcbf679b99a5f9914e5aaf96b831a9e24`,
+  matching the constant asserted in the test — the digest in the test file was captured from this
+  real run, not invented.
+- Reuses the shape (not the Rust code) of this repo's own `crates/ggen-engine/src/sync.rs` BLAKE3
+  usage (`blake3::hash(&bytes).to_hex()`), applying the equivalent JS/WASM binding.
+- TICKET-020's real generated Checksum interface has not landed; the `hashHex(input): string`
+  shape used here is hand-authored and marked `PENDING(TICKET-020)`.
+- Policy-check-before-action: `hashHex()` calls `checkPolicy(...)` before calling `hash()` —
+  currently deferring to the `PENDING(TICKET-028)` placeholder.

@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE — real chat-completion call against a live local Ollama server succeeded this pass
 
 ## Parent
 
@@ -121,3 +121,29 @@ The relevant workstream I vertical scenario exercises this adapter against real 
 - real-collaborator Chicago-TDD test passes (no mocks)
 - policy-check-before-action test passes
 - reduction path documented
+
+## Implementation notes (real evidence)
+
+- File: `examples/interview-assist/lib/adapters/ollama-adapter.ts` (130 lines); test:
+  `examples/interview-assist/tests/adapters/ollama-adapter.test.ts` (3 tests, all passing —
+  `npx vitest run tests/adapters/ollama-adapter.test.ts`, live-call test took 9.1–14.2s).
+- Reachability check (mirrors the assignment's suggested `curl -s http://localhost:11434/api/tags`):
+  a real local Ollama server WAS reachable this pass, reporting model `qwen3.5:0.8b` (873M
+  params, Q8_0) among its `/api/tags` response — not simulated.
+  `isOllamaReachable()` performs the identical real HTTP GET and is real, not stubbed.
+- Real live-call evidence: sent a real POST to `http://localhost:11434/v1/chat/completions`
+  with role `interviewer`, prompt `"Reply with exactly the word: PONG"`. Response returned a
+  non-empty `content` string and a non-empty `model` string from the real Ollama HTTP server —
+  test asserts both are non-empty (content is model-dependent free text, not asserted
+  byte-exact).
+- Transport reuses examples/nextjs-ai-sdk's proven local-model integration shape (OpenAI-compatible
+  endpoint against `http://localhost:11434/v1`) — via a direct `fetch` call rather than the
+  `@ai-sdk/openai-compatible` package, since that SDK is not a dependency of this thin-adapter
+  package; the wire protocol being reused is the proven part, documented explicitly in-source.
+- TICKET-018's real generated SelfPlayWorker port has not landed; `SelfPlayRequest`/
+  `SelfPlayResponse`/`SelfPlayWorker` are hand-authored and marked `PENDING(TICKET-018)`.
+- Policy-check-before-action: `run()` calls `checkPolicy(...)` before constructing the
+  `AbortController`/`fetch` call — currently deferring to the `PENDING(TICKET-028)` placeholder.
+- A compile-time correctness check against a deliberately unreachable port (`localhost:1`)
+  confirms the adapter reaches the network layer and fails there (not from a type/shape bug),
+  independent of whether a real Ollama server happens to be running.

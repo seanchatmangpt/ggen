@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -119,3 +119,41 @@ TICKET-035 (subprocess sandbox executor) is wrapped by this timeout logic at int
 - withTimeout generated and RDF-sourced where ARD §10 specifies a target
 - never-resolving-handler test passes
 - chaos kill test passes
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- New query `packs/wasm4pm-interview-assist-pack/queries/performance-targets.rq` run via rdflib
+  against `ontology/20-requirements.ttl`'s ARD §10 block: 7 rows
+  (`req/ard-perf-editor-admission` .. `req/ard-perf-replay-divergence`).
+- Inspected the real resource shape before guessing (per the assignment's instruction): each is a
+  `schema:DigitalDocument` with `dcterms:isPartOf <doc/ard#performance>`, `dcterms:title`, and a
+  free-text `rdf:value` string (e.g. `"compile dispatch < 50 ms"`) — **none is a
+  machine-usable numeric millisecond figure for a capability-execution timeout bound**; they are
+  latency budgets for pipeline stages (editor admission, rule evaluation, semantic retrieval,
+  hypothesis update, first projection, compile dispatch) plus one zero-divergence invariant, not
+  a candidate-code wall-clock cap. Documented this honestly in the generated file's own comment
+  rather than silently repurposing e.g. the 50ms compile-dispatch figure for an unrelated
+  execution-timeout use, and set `DEFAULT_CAPABILITY_TIMEOUT_MS = 10_000` as an explicit,
+  reviewable default — satisfying the ticket's exclusion ("no magic-number timeout hardcoded
+  without ... an explicitly documented and reviewed default").
+- Wrote `examples/interview-assist/lib/domain/timeout-wrapper.ts` (`withTimeout`,
+  `PERFORMANCE_TARGETS` admitted verbatim, `AdmissionResult`) and reusable template
+  `templates/029_timeout_wrapper_ts.tmpl`.
+- **PRIMARY FALSIFIER — real async wall-clock test, not a type-check**
+  (`node --experimental-strip-types __tests__/timeout-wrapper.test.mjs`), wrapping a genuinely
+  never-resolving `new Promise(() => {})`:
+  ```
+  withTimeout(never-resolving, bound=300ms) -> status=refused elapsedMs=302 realElapsed=302
+  withTimeout(fast handler) -> status=ok result=42
+  PASS timeout-wrapper.test.mjs: bounded-return-time confirmed (302ms real elapsed vs 300ms bound)
+  ```
+  Real `Date.now()` deltas measured outside the function under test, asserting the wrapper's
+  return happens within the configured bound (+150ms slack for scheduler jitter) and not before
+  it — proving the wrapper genuinely bounds execution rather than being decorative, and that
+  fast handlers still resolve normally (`status: "ok"`, correct `result`).
+- Scope note, stated honestly: `refusal.ts` (TICKET-017) doesn't exist yet (see TICKET-026 notes)
+  — `TimeoutRefusalCode` is a single-member literal type sourced from
+  `capability/runtime/enforce-timeout` rather than importing a shared enum. The chaos test
+  (externally killing a wrapped process mid-execution) and the TICKET-047 composed-with-real-
+  subprocess integration are out of this round's scope (require TICKET-035's sandbox executor,
+  not assigned this round) — not run, not claimed.

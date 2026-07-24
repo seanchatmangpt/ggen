@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -117,3 +117,37 @@ TICKET-013 (routes), TICKET-027 (dispatch), TICKET-028 (preconditions) all impor
 - CapabilityId generated with 98 members matching a live query
 - Request/Response types generated per capability
 - zero hardcoded capability arrays anywhere
+
+## Implementation notes (real evidence) — closes as PARTIAL_ALIVE
+
+- Reused `queries/capabilities.rq` unmodified against `ontology/30-capabilities.ttl` via rdflib
+  7.6.0 (`python3 -c "import rdflib; print(rdflib.__version__)"`): 98 rows, cross-checked with an
+  `assert len(capabilities) == 98` in the generation script
+  (`/private/tmp/.../scratchpad/gen.py`, not committed — a hand-run-once generator, per this
+  round's rules).
+- Wrote `examples/interview-assist/lib/domain/capability.ts` (98-member `CapabilityId` union,
+  `CAPABILITY_IDS` array, `CAPABILITY_NAMES` map, minimal `CapabilityRequest`/`CapabilityResponse`
+  types) and the reusable Tera template
+  `packs/wasm4pm-interview-assist-pack/templates/026_capability_ts.tmpl` (same query, same
+  `replace()`-based IRI-to-relative-id convention already used by
+  `templates/040_accessibility_defaults.tmpl`, so it is consistent with this pack's established
+  pattern, not invented ad hoc).
+- Real re-derivation test, not eyeballing: `examples/interview-assist/lib/domain/__tests__/
+  capability.count.test.mjs` (run via `node --experimental-strip-types`, Node v25.9.0's built-in
+  TS type-stripping — no bundler/mock needed) spawns a real `python3`/rdflib subprocess that
+  re-parses the live TTL and re-runs `capabilities.rq`, then asserts the result equals
+  `CAPABILITY_COUNT`. Real output:
+  `PASS capability.count.test.mjs: live=98 generated=98`.
+- Negative test (the ticket's explicit falsifier): copied the real ontology TTL to a temp fixture,
+  appended a 99th `capability/session/fixture-99th-capability` triple, re-ran the *unmodified*
+  query against the fixture. Real output: `PASS negative test: fixture with 99th capability ->
+  live query count = 99` — the count grows automatically, proving the query (not a hardcoded
+  array) is the source of truth.
+- Dependency note, stated honestly per the assignment's instruction: `refusal.ts` (TICKET-017)
+  does **not** exist in `examples/interview-assist/lib/domain/` as of this check
+  (`find ... -iname "refusal*"` empty). `CapabilityResponse.refusal` therefore uses a plain
+  `string` field rather than importing TICKET-017's `RefusalCode` enum — the ticket's own
+  documented minimal-shape fallback, not a silent gap.
+- Why PARTIAL_ALIVE not ALIVE: the artifact and the falsifier both pass, but `next build`/`tsc`
+  end-to-end integration (the ticket's own "End-to-end" row) is deferred to workstream C
+  completion, per this round's scope — genuinely unexercised, not claimed.

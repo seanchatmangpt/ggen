@@ -1,0 +1,17 @@
+# Expected: 10 rows, the acceptance-step/1..10 skos:Concept+schema:Action
+# resources from the Decisive Acceptance Test scheme, in dcterms:requires
+# order (ARD Section 14) (TICKET-003). Order must read: build the system ->
+# create the sandbox -> replay the interview -> reproduce all admitted state
+# transitions -> reproduce all code executions -> reproduce all visible and
+# hidden test outcomes -> reproduce all accessibility projections -> verify
+# that no prohibited capability was invoked -> reproduce the final session
+# state -> match the final receipt hash.
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+SELECT ?step ?name ?stepNum WHERE {
+  ?step a skos:Concept, schema:Action ;
+        skos:inScheme <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/acceptance-test-scheme> ;
+        schema:name ?name .
+  BIND(xsd:integer(STRAFTER(STR(?step), "/acceptance-step/")) AS ?stepNum)
+}
+ORDER BY ?stepNum
