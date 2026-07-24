@@ -24,4 +24,4 @@ function resolvePrimaryModel(): AdmittedModelId {
 export const PRIMARY_MODEL_ID = resolvePrimaryModel();
 export const FALLBACK_MODEL_ID: AdmittedModelId = "openai/gpt-5.4-mini";
 export const model = gateway(PRIMARY_MODEL_ID);
-export const gatewayProviderOptions = { gateway: { models: [FALLBACK_MODEL_ID] } } as const;
+export const gatewayProviderOptions = { gateway: { models: [FALLBACK_MODEL_ID] as string[] } };

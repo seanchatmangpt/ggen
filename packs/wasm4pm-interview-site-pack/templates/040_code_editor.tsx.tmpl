@@ -1,0 +1,37 @@
+---
+to: "components/editor/CodeEditor.tsx"
+---
+"use client";
+
+import Editor from "@monaco-editor/react";
+
+// Uses @monaco-editor/react's default CDN loader (jsdelivr). Self-hosting
+// monaco-editor's web workers under Next.js/Turbopack is a known rough
+// edge (worker module-specifier resolution fails); the CDN loader's own
+// loader.js configures workers correctly, so it's the more robust choice
+// for this Phase 0 MVP despite the extra network dependency.
+
+export interface CodeEditorProps {
+  language: "python" | "rust";
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const MONACO_LANGUAGE: Record<CodeEditorProps["language"], string> = {
+  python: "python",
+  rust: "rust",
+};
+
+const EDITOR_OPTIONS = { minimap: { enabled: false }, fontSize: 14 };
+
+export function CodeEditor({ language, value, onChange }: CodeEditorProps) {
+  return (
+    <Editor
+      height="60vh"
+      language={MONACO_LANGUAGE[language]}
+      value={value}
+      onChange={(next) => onChange(next ?? "")}
+      options={EDITOR_OPTIONS}
+    />
+  );
+}

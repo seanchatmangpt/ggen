@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-interview-site-pack"
+version = "0.1.0"
+description = "SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private site: vocabulary and generated Next.js sandbox experiment. It is not the canonical InterviewAssist application pack and must not drive TICKET-001 through TICKET-057. The admitted replacement is packs/wasm4pm-interview-assist-pack/, whose public-ontology graph supplies domain meaning to later reusable templates and generated ports. See SUPERSEDED.md."

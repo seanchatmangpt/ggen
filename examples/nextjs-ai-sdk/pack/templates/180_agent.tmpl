@@ -33,7 +33,7 @@ import type { ToolExecutionContext } from "./tool-broker";
     instructions: `{{ agent.instructions }}`,
     tools: createTools(context),
     stopWhen: stepCountIs({{ app.maxSteps }}),
-    experimental_telemetry: { isEnabled: {{ app.telemetryEnabled }}, functionId: "{{ agent.agentName }}", metadata: { requestId: context.requestId, userId: context.userId } },
+    experimental_telemetry: { isEnabled: {{ app.telemetryEnabled }}, functionId: "{{ agent.agentName }}" },
   });
 }
 

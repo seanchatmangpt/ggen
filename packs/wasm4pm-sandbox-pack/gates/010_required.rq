@@ -1,0 +1,8 @@
+# MESSAGE: every sbx:SandboxCapability must carry capabilityId/capabilityLabel/language/operation/doc/timeoutMs/authorityScope (requiresCapability stays genuinely optional; any row = a capability missing the bound ?missing property)
+PREFIX sbx: <https://ggen.dev/packs/wasm4pm-sandbox#>
+SELECT ?s ?missing WHERE {
+  ?s a sbx:SandboxCapability .
+  VALUES ?missing { sbx:capabilityId sbx:capabilityLabel sbx:language sbx:operation sbx:doc sbx:timeoutMs sbx:authorityScope }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

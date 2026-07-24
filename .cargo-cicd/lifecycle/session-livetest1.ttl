@@ -1,0 +1,30 @@
+@prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:dfl:agent:livetest1> a prov:SoftwareAgent , prov:Agent .
+
+<urn:dfl:session:livetest1> a dfl:Session , prov:Activity ;
+    dcterms:identifier "livetest1" ;
+    prov:wasAssociatedWith <urn:dfl:agent:livetest1> .
+<urn:dfl:event:livetest1:0> a dfl:ToolEvent , prov:Activity ;
+    dcterms:isPartOf <urn:dfl:session:livetest1> ;
+    prov:wasAssociatedWith <urn:dfl:agent:livetest1> ;
+    skos:notation "Bash" ;
+    dfl:sequenceIndex "0"^^xsd:integer ;
+    time:inXSDDateTimeStamp "2026-07-22T03:44:51Z"^^xsd:dateTimeStamp ;
+    prov:used <urn:blake3:aaaa> ;
+    prov:generated <urn:blake3:bbbb> ;
+    dfl:outcome dfl:Ok .
+<urn:dfl:event:livetest1:1> a dfl:ToolEvent , prov:Activity ;
+    dcterms:isPartOf <urn:dfl:session:livetest1> ;
+    prov:wasAssociatedWith <urn:dfl:agent:livetest1> ;
+    skos:notation "Write" ;
+    dfl:sequenceIndex "1"^^xsd:integer ;
+    time:inXSDDateTimeStamp "2026-07-22T03:44:51Z"^^xsd:dateTimeStamp ;
+    prov:used <urn:blake3:cccc> ;
+    prov:generated <urn:blake3:dddd> ;
+    dfl:outcome dfl:Blocked .

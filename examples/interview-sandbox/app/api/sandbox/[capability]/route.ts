@@ -1,0 +1,83 @@
+import { NextRequest, NextResponse } from "next/server";
+import { isCapabilityId, capabilityInfo } from "@/lib/capabilities";
+import { isExecutionRefusal } from "@/lib/executor-contract";
+import { getExecutor } from "@/lib/executor";
+
+/** Hard cap on the raw request body -- rejected before JSON parsing, so an
+ * oversized payload can't even be buffered/parsed first. */
+const MAX_BODY_BYTES = 2_000_000;
+
+/** Minimal in-memory per-process rate limit. Not auth, not persistent
+ * across restarts/instances -- a cheap mitigation bounding how much damage
+ * an unauthenticated client can do per minute, matching this Phase 0
+ * example's explicitly disclosed single-operator scope (see lib/executor.ts). */
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 100;
+const requestTimestamps: number[] = [];
+
+function rateLimited(): boolean {
+  const now = Date.now();
+  while (requestTimestamps.length > 0 && requestTimestamps[0]! < now - RATE_LIMIT_WINDOW_MS) {
+    requestTimestamps.shift();
+  }
+  if (requestTimestamps.length >= RATE_LIMIT_MAX_REQUESTS) return true;
+  requestTimestamps.push(now);
+  return false;
+}
+
+export async function POST(request: NextRequest, { params }: { params: Promise<{ capability: string }> }) {
+  if (rateLimited()) {
+    return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
+  }
+
+  const { capability } = await params;
+  if (!isCapabilityId(capability)) {
+    return NextResponse.json({ error: "UNSUPPORTED_CAPABILITY", capability }, { status: 404 });
+  }
+
+  const info = capabilityInfo(capability);
+  if (!info.executesCode) {
+    // Every non-executing capability in this Phase 0 example (session/
+    // problem/editor categories) is cataloged but has no real handler yet
+    // -- 501, and an honest message, rather than a 400 that reads as "your
+    // request was wrong" when the actual gap is "this isn't built yet."
+    return NextResponse.json(
+      { error: "NOT_IMPLEMENTED_IN_PHASE_0", capability, detail: "cataloged but no handler exists in this example yet" },
+      { status: 501 },
+    );
+  }
+
+  // Reject a declared-oversized body before reading it at all (protects
+  // against buffering a huge payload into memory); the post-read length
+  // check below is defense-in-depth for chunked requests with no
+  // Content-Length header.
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (declaredLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "PAYLOAD_TOO_LARGE", maxBytes: MAX_BODY_BYTES }, { status: 413 });
+  }
+  const rawBody = await request.text();
+  if (rawBody.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "PAYLOAD_TOO_LARGE", maxBytes: MAX_BODY_BYTES }, { status: 413 });
+  }
+
+  const body = ((): unknown => {
+    try {
+      return JSON.parse(rawBody);
+    } catch {
+      return null;
+    }
+  })();
+  const files = (body && typeof body === "object" && "files" in body ? (body as { files: unknown }).files : undefined) as
+    | Record<string, string>
+    | undefined;
+  if (!files || Object.keys(files).length === 0) {
+    return NextResponse.json({ error: "NO_SOURCE_PROVIDED" }, { status: 400 });
+  }
+
+  const executor = getExecutor();
+  const result = await executor.execute({ capability, files, timeoutMs: info.timeoutMs });
+  if (isExecutionRefusal(result)) {
+    return NextResponse.json({ error: result.kind.toUpperCase(), ...result }, { status: 422 });
+  }
+  return NextResponse.json(result);
+}

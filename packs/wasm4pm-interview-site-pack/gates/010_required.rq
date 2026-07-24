@@ -1,0 +1,8 @@
+# MESSAGE: every site:InterviewCapability must carry capabilityId/capabilityLabel/category/httpMethod/route/doc/timeoutMs/authorityScope/executesCode (any row = a capability missing the bound ?missing property)
+PREFIX site: <https://ggen.dev/packs/wasm4pm-interview-site#>
+SELECT ?s ?missing WHERE {
+  ?s a site:InterviewCapability .
+  VALUES ?missing { site:capabilityId site:capabilityLabel site:category site:httpMethod site:route site:doc site:timeoutMs site:authorityScope site:executesCode }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

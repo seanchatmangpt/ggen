@@ -1,5 +1,0 @@
-export async function register(): Promise<void> {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    // Register OpenTelemetry exporters here. AI SDK telemetry is enabled in the agent.
-  }
-}

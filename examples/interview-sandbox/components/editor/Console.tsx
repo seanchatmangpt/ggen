@@ -1,0 +1,38 @@
+export interface ConsoleResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  durationMs: number;
+}
+
+export interface ConsoleProps {
+  result: ConsoleResult | null;
+  error: string | null;
+  pending: boolean;
+}
+
+const CONSOLE_STYLE = {
+  background: "#1e1e1e",
+  color: "#d4d4d4",
+  padding: "0.75rem",
+  minHeight: "8rem",
+  overflow: "auto",
+  fontFamily: "monospace",
+  fontSize: "0.85rem",
+};
+
+export function Console({ result, error, pending }: ConsoleProps) {
+  return (
+    <pre data-testid="console-output" style={CONSOLE_STYLE}>
+      {pending ? "Running..." : null}
+      {error ? `Error: ${error}` : null}
+      {result
+        ? [
+            result.stdout,
+            result.stderr ? `\n[stderr]\n${result.stderr}` : "",
+            `\n[exit ${result.exitCode}, ${result.durationMs}ms]`,
+          ].join("")
+        : null}
+    </pre>
+  );
+}
