@@ -1,0 +1,219 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Document graph: PRD, ARD, their sections, and authorship.
+#
+# Every numbered section of both source documents is its own addressable
+# resource (schema:DigitalDocument + prov:Entity), linked to its parent via
+# dcterms:isPartOf/dcterms:hasPart, carrying its heading as dcterms:title
+# and a faithful capture of its content as rdf:value. Full normative
+# ("shall"/"must") sentences are additionally lifted into their own
+# resources in 20-requirements.ttl -- this file provides the document
+# structure they attach to, not a duplicate of their content.
+# ---------------------------------------------------------------------------
+
+<doc/prd>
+    a schema:DigitalDocument, prov:Entity ;
+    dcterms:title "InterviewAssist Product Requirements Document" ;
+    schema:version "0.1" ;
+    schema:creativeWorkStatus "Product definition" ;
+    dcterms:description "Accessible technical interview preparation and authorized live interview assistance." ;
+    dcterms:hasPart
+        <doc/prd#summary>, <doc/prd#problem>, <doc/prd#objective>, <doc/prd#modes>,
+        <doc/prd#users>, <doc/prd#scenario>, <doc/prd#sandbox>, <doc/prd#capability-ontology>,
+        <doc/prd#task-taxonomy>, <doc/prd#self-play>, <doc/prd#runtime-cognition>,
+        <doc/prd#ui>, <doc/prd#zero-input>, <doc/prd#admission-states>,
+        <doc/prd#success-metrics>, <doc/prd#mlp>, <doc/prd#benchmarks>, <doc/prd#launch-criterion> .
+
+<doc/ard>
+    a schema:DigitalDocument, prov:Entity ;
+    dcterms:title "InterviewAssist Architecture Requirements Document" ;
+    schema:version "0.1" ;
+    dcterms:description "Local-first, event-sourced, ontology-grounded, proof-carrying manufacturing architecture. Primary implementation: Rust and WebAssembly." ;
+    dcterms:hasPart
+        <doc/ard#objective>, <doc/ard#planes>, <doc/ard#components>, <doc/ard#dataflow>,
+        <doc/ard#tech-choices>, <doc/ard#sandbox-api>, <doc/ard#event-model>,
+        <doc/ard#security>, <doc/ard#accessibility-req>, <doc/ard#performance>,
+        <doc/ard#refusal-taxonomy>, <doc/ard#verification-ladder>, <doc/ard#phases>,
+        <doc/ard#decisive-acceptance-test>, <doc/ard#decisive-product-choice> .
+
+# ---- PRD sections ----
+
+<doc/prd#summary> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "1. Product summary" ;
+    rdf:value "InterviewAssist is a local-first, accessible technical interview environment that observes the natural events of a coding interview and automatically presents the candidate with the most relevant verified assistance. The candidate is not required to prompt a chatbot, choose a question category, press a next button, or operate a parallel conversation. The production system uses small local language models for offline self-play, domain bootstrapping, counterexample generation, and pack construction. The live runtime does not require an LLM; it operates from admitted interview packs containing ontologies, rules, cases, workflow state machines, algorithms, test strategies, accessibility projections, and refusal conditions." .
+
+<doc/prd#problem> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "2. Customer problem" ;
+    rdf:value "Technical interviews impose simultaneous workloads: understanding an unfamiliar problem, remembering algorithms and language facilities, communicating reasoning, writing syntactically valid code, testing and debugging, responding to changing requirements, monitoring time, interpreting interviewer feedback, and operating an unfamiliar interview platform. This burden is particularly severe for candidates with motor-access, visual-access, auditory-access, speech, working-memory, processing-speed, anxiety, or AAC-reliance requirements. Existing assistance also presents an epistemic problem: generated suggestions may be unsupported, unrelated to the candidate's experience, or incorrect." .
+
+<doc/prd#objective> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "3. Product objective" ;
+    rdf:value "InterviewAssist shall provide a complete accessible technical interview environment in which: the interview begins with no runtime configuration; the coding task is represented as an admitted problem model; likely solution paths are constructed from explicit capabilities; code can be written, compiled, executed, tested, and repaired; natural candidate activity advances the workflow; assistance is projected automatically through the admitted accessibility surface; uncertain interpretations remain visibly uncertain; incorrect candidates are rejected through executable verification; session behavior can be replayed; the final result includes a complete evidence receipt." .
+
+<doc/prd#modes> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "4. Intended operating modes" ;
+    dcterms:hasPart <doc/prd#mode-practice>, <doc/prd#mode-mock>, <doc/prd#mode-live>, <doc/prd#mode-assessment>, <doc/prd#mode-prohibited> .
+<doc/prd#mode-practice> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.1 Practice mode" ;
+    rdf:value "The candidate conducts self-directed or simulated interviews. All InterviewAssist capabilities may be enabled." .
+<doc/prd#mode-mock> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.2 Accessible mock-interview mode" ;
+    rdf:value "A human or synthetic interviewer conducts the interview. InterviewAssist operates as an accessibility and preparation tool with the consent of all participants." .
+<doc/prd#mode-live> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.3 Authorized live-assistance mode" ;
+    rdf:value "An employer or interviewer explicitly permits InterviewAssist or an equivalent assistive coding tool. The permitted capability envelope is declared before the session." .
+<doc/prd#mode-assessment> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.4 Assessment mode" ;
+    rdf:value "An employer uses InterviewAssist as the official interview environment and determines available assistance, accessibility accommodations, permitted references, scoring rules, observation policy, and retained evidence." .
+<doc/prd#mode-prohibited> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.5 Prohibited mode" ;
+    rdf:value "InterviewAssist shall not provide covert assistance in an assessment that prohibits outside tools. The product shall not include hidden overlays, screen-capture evasion, monitoring bypasses, disguised processes, covert audio capture, or mechanisms designed to misrepresent unaided work." .
+
+<doc/prd#users> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "5. Primary users" ;
+    rdf:value "Candidate, Interviewer, Accessibility coordinator, Interview-content designer, Researcher -- see 10-product.ttl for each modeled as schema:Role." .
+
+<doc/prd#scenario> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "6. First product scenario" ;
+    rdf:value "A candidate begins a 60-minute technical mock interview in a browser containing a verbal problem statement, a text problem statement, a code editor, a language runtime, public and hidden tests, interviewer follow-up questions, one changing requirement, one introduced bug or failing edge case, a complexity discussion, and a final explanation. InterviewAssist automatically detects the start of the session, loads the relevant job and language pack, parses the problem, extracts constraints, classifies likely algorithm families, presents a stable solution scaffold, tracks what the candidate has explained, observes code edits and executions, interprets compiler and test results, proposes the next debugging operation, predicts likely follow-ups, and produces a post-session receipt. No explicit candidate control input is required." .
+
+<doc/prd#sandbox> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "7. Reference interview sandbox" ;
+    rdf:value "InterviewAssist shall initially ship with a self-hosted sandbox rather than depending on private integrations with commercial interview platforms. The sandbox must represent the common denominator of modern coding interview products: browser-based collaborative editor, language selection, compile and execute, custom standard input, predefined visible tests, hidden tests, console output, multi-file projects, repository-backed tasks, diff view, code review tasks, debugging tasks, feature implementation tasks, front-end preview, terminal access where permitted, interviewer notes, chat, audio or caption event input, system-design surface, session recording and replay, configurable assistance policy. The self-hosted reference environment becomes both the InterviewAssist product surface and the executable benchmark harness." .
+
+<doc/prd#capability-ontology> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "8. Capability ontology" ;
+    rdf:value "The sandbox shall provide the first canonical capability list, across eight families: 8.1 Session, 8.2 Problem, 8.3 Editor, 8.4 Runtime, 8.5 Verification, 8.6 Interview cognition, 8.7 Accessibility, 8.8 Governance -- see 30-capabilities.ttl for every individual capability modeled as schema:Action." .
+
+<doc/prd#task-taxonomy> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "9. Coding-task taxonomy" ;
+    dcterms:hasPart <doc/prd#task-algorithm>, <doc/prd#task-debugging>, <doc/prd#task-feature>, <doc/prd#task-review>, <doc/prd#task-design> .
+<doc/prd#task-algorithm> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.1 Algorithm implementation" ;
+    rdf:value "Arrays and strings, maps and sets, stacks and queues, trees and graphs, dynamic programming, sorting and searching, intervals, recursion and backtracking." .
+<doc/prd#task-debugging> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.2 Debugging" ;
+    rdf:value "The candidate receives a failing implementation and must reproduce the failure, localize the cause, form hypotheses, repair the implementation, and prevent regression." .
+<doc/prd#task-feature> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.3 Feature implementation" ;
+    rdf:value "The candidate receives a small repository and must understand existing structure, implement a feature, modify multiple files, preserve existing behavior, and add tests." .
+<doc/prd#task-review> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.4 Code review" ;
+    rdf:value "The candidate must identify correctness defects, security defects, performance defects, maintainability concerns, missing tests, and architectural violations." .
+<doc/prd#task-design> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.5 System design" ;
+    rdf:value "The candidate must construct requirements, constraints, components, interfaces, data flows, failure modes, scaling strategy, security boundaries, observability, and verification strategy." .
+
+<doc/prd#self-play> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "10. Self-play requirements" ;
+    rdf:value "The bootstrap plane shall use local models under 9B parameters to manufacture candidate interview knowledge: interviewer questions, candidate responses, progressive follow-ups, ambiguous phrasings, requirement changes, implementation candidates, test cases, counterexamples, debugging traces, explanation rubrics, ontology extensions, and accessibility disturbances. Synthetic output remains unadmitted until it passes relevant verification gates. The system shall preserve generation model, model version, prompt or constructor identifier, seed, source pack, resulting candidate, verifier results, and admission decision." .
+
+<doc/prd#runtime-cognition> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "11. Runtime cognition requirements" ;
+    rdf:value "The live runtime shall use deterministic event routing, explicit state machines, public ontology alignment, semantic retrieval, production rules, certainty factors, case-based reasoning, executable verifier feedback, and Multifractal Workflow. The runtime may optionally use a local model when the declared policy permits it, but correct operation shall not depend on a live LLM." .
+
+<doc/prd#ui> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "12. User-interface requirements" ;
+    rdf:value "Interview surface: problem statement, editor, tests, console, interviewer communication. Cognition surface: current task classification, current interview phase, active constraints, likely solution families, current answer sequence, covered concepts, unresolved concepts, current verification state, likely follow-up. The cognition surface shall default to concise cues, not complete scripted answers. The system shall support a secondary-device display, but no design shall require one." .
+
+<doc/prd#zero-input> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "13. Zero-input behavior" ;
+    rdf:value "The system shall advance from observable interview events: interviewer utterance changes active question hypotheses; candidate speech marks explanation elements as covered; editor changes update implementation state; compiler diagnostics activate repair tracks; test failures activate counterexample analysis; passing tests advance verification state; silence preserves the current scaffold; a requirement change reopens affected obligations. Manual controls may exist as an accessibility fallback but shall not be necessary for ordinary operation." .
+
+<doc/prd#admission-states> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "14. Admission states" ;
+    rdf:value "Every material claim or artifact shall have one of: PARTIAL_ALIVE, ALIVE, BLOCKED, BUILD_BROKEN, UNKNOWN, UNSUPPORTED. UNKNOWN shall not be treated as admitted. UNSUPPORTED shall not be silently promoted to candidate fact. A passing visible test shall not imply complete correctness." .
+
+<doc/prd#success-metrics> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "15. Success metrics" ;
+    rdf:value "Product metrics: time from question completion to first useful cue; question-family classification accuracy; candidate-reported cognitive load; number of explicit runtime interactions; percentage of sessions completed with zero explicit input; accessibility task completion rate; unsupported personal-claim surface rate; assistance-policy violation rate. Coding metrics: Pass@1, Pass@k, compile rate, visible/hidden-test pass rate, mutation score, counterexample discovery rate, repair success rate, explanation completeness, complexity classification accuracy. Manufacturing metrics: admitted pack deltas per compute unit, valid cases per self-play run, duplicate candidate rate, false-admission rate, replay determinism, pack build time, pack size, runtime latency." .
+
+<doc/prd#mlp> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "16. Minimum lovable product" ;
+    rdf:value "One self-hosted browser sandbox; Python and Rust; algorithm and debugging interviews; visible and hidden tests; caption or transcript ingestion; automatic question classification; automatic constraint extraction; algorithm-family ranking; explanation scaffolds; compiler and test feedback routing; passive concept tracking; high-contrast and screen-reader-compatible output; zero-input runtime; local session recording; deterministic replay; post-session receipt; local small-model self-play pack generation." .
+
+<doc/prd#benchmarks> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "17. Initial benchmark set" ;
+    rdf:value "HumanEval; MBPP; LiveCodeBench; CodeFlowBench-style progressive tasks; FVAPPS-style formalized coding problems; custom spoken paraphrases; custom accessibility disturbance fixtures; custom interview-phase transitions. Repository tasks and SWE-bench-class work are deferred until the algorithm and debugging vertical is ALIVE." .
+
+<doc/prd#launch-criterion> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "18. Launch criterion" ;
+    rdf:value "InterviewAssist v0.1 may be called ALIVE only when: a candidate completes a full mock coding interview without explicit assistant input; the system maintains the correct interview phase; the system identifies the primary algorithm or debugging track; the sandbox compiles and executes the candidate code; visible and hidden tests are independently evaluated; incorrect assistance is not silently admitted; the complete session can be replayed; the accessibility verifier passes; the policy envelope is enforced; the final session receipt matches the replayed event trace." .
+
+# ---- ARD sections ----
+
+<doc/ard#objective> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "1. Architectural objective" ;
+    rdf:value "InterviewAssist shall transform an interview event stream into accessible, verified assistance without requiring explicit runtime control by the candidate. Pipeline: O (raw observation) -> O* (admitted session state) -> C (constructed candidate cognition) -> P (selected/proof-carrying workflow) -> A (assistance projection or sandbox operation) -> R (resulting receipt) -> replay(R). No external actuation may occur without an applicable authority envelope." .
+
+<doc/ard#planes> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "2. System planes" ;
+    dcterms:hasPart <doc/ard#plane-manufacturing>, <doc/ard#plane-runtime>, <doc/ard#plane-sandbox>, <doc/ard#plane-projection> .
+<doc/ard#plane-manufacturing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.1 Manufacturing plane" ;
+    rdf:value "Builds cognition packs before live use: import public ontologies, ingest job/candidate artifacts, run local-model self-play, generate candidate rules and cases, generate tests and counterexamples, construct workflow models, validate ontology extensions, project canonical Rust and WASM artifacts, build receipts and manifests." .
+<doc/ard#plane-runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.2 Runtime cognition plane" ;
+    rdf:value "Maintains the live interview state: receive admitted events, maintain blackboard state, retain parallel hypotheses, execute production rules, retrieve cases, construct answer scaffolds, route compiler and test evidence, advance Multifractal Workflows, issue projection intents." .
+<doc/ard#plane-sandbox> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.3 Sandbox actuation plane" ;
+    rdf:value "Executes code and verification operations: compile, run, test, isolate, time-limit, memory-limit, capture output, capture diagnostics, calculate coverage, reset state, replay executions." .
+<doc/ard#plane-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.4 Projection plane" ;
+    rdf:value "Presents assistance through accessible interfaces: visual cues, screen-reader regions, captions, text-to-speech, Braille output, reduced-density layouts, state-stable updates, optional secondary-device display." .
+
+<doc/ard#components> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "3. Core components" ;
+    rdf:value "Session Orchestrator (3.1), Event Gateway (3.2), Admission Engine (3.3), Semantic Graph (3.4), CONSTRUCT Engine (3.5), Blackboard (3.6), Hypothesis Manager (3.7), Capability Registry (3.8), Workflow Engine (3.9), Sandbox Manager (3.10), Test and Verification Engine (3.11), Self-Play Factory (3.12), Pack Compiler (3.13), Accessibility Projector (3.14), Authority Broker (3.15), Receipt Ledger (3.16) -- see 40-events-workflow.ttl for the Session Orchestrator's 13-state lifecycle, 30-capabilities.ttl for the Capability Registry's contents, 50-policy.ttl for the Authority Broker, 60-provenance-receipts.ttl for the Receipt Ledger." .
+
+<doc/ard#dataflow> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "4. Reference data flow" ;
+    rdf:value "Job description, resume, question pack, accessibility profile -> pre-session admission -> semantic graph -> self-play factory -> candidate rules/cases/tests/workflows -> verification and admission -> pack compiler -> canonical Rust/WASM interview pack -- live boundary -- audio/captions/editor/runtime events -> event gateway -> admission engine -> blackboard -> hypothesis manager + CONSTRUCT + workflow engine -> projection intent or sandbox capability request -> authority broker -> accessibility projector or sandbox manager -> observed consequence -> receipt ledger -> replay and residue." .
+
+<doc/ard#tech-choices> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "5. Initial technology choices" ;
+    rdf:value "Application shell: browser application, installable PWA, optional local companion process. Core language: Rust. Browser execution: WebAssembly. Semantic store: RDF-compatible local graph store with SPARQL query/CONSTRUCT. Workflow representation: POWL-compatible process graph. Event representation: OCEL-aligned object-centric events. Provenance: PROV-O-aligned. Constraint validation: SHACL. Policy: ODRL-aligned capability policy. Content addressing: BLAKE3. Local model runtime: Ollama-compatible adapter, isolated from authority decisions." .
+
+<doc/ard#sandbox-api> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "6. Sandbox API boundary" ;
+    rdf:value "trait InterviewSandbox { create_session, apply_file_delta, compile, execute, run_tests, snapshot, reset } -- all methods return typed receipts or typed refusals." .
+
+<doc/ard#event-model> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "7. Event model" ;
+    rdf:value "Canonical event families: SessionEvent, ParticipantEvent, QuestionEvent, SpeechEvent, EditorEvent, FileEvent, CompilerEvent, ExecutionEvent, TestEvent, HypothesisEvent, WorkflowEvent, ProjectionEvent, AccessibilityEvent, PolicyEvent, ReceiptEvent. Every visible state must be derivable from the event log." .
+
+<doc/ard#security> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "8. Security requirements" ;
+    rdf:value "Network denied by default in execution sandboxes; no host filesystem access; no inherited environment secrets; bounded CPU, memory, time, and output; authenticated participant identities where required; encrypted local personal evidence; explicit retention policy; revocable sensor permissions; complete external-actuation audit; deterministic environment fingerprint; dependency pinning; malicious-code fixtures; sandbox escape testing." .
+
+<doc/ard#accessibility-req> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "9. Accessibility requirements" ;
+    rdf:value "Targets WCAG 2.2 AA as a baseline, but compliance is not sufficient evidence of zero-input usability. The verifier shall test: complete keyboard path, zero-keyboard path, screen-reader order, focus stability, non-color state communication, content-density constraints, refresh stability, caption timing, speech-output interruption behavior, reduced-motion behavior, zoom and reflow, assistive-device event replay." .
+
+<doc/ard#performance> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "10. Performance requirements" ;
+    rdf:value "editor event admission < 25ms; rule evaluation < 25ms; semantic retrieval < 50ms; hypothesis update < 50ms; first projection after stable event < 250ms; compile dispatch < 50ms; session replay divergence 0. Compiler/test execution duration depends on the selected language and task. The UI must not block while compilation or self-play runs." .
+
+<doc/ard#refusal-taxonomy> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "11. Failure and refusal taxonomy" ;
+    rdf:value "UNSUPPORTED_LANGUAGE, UNSUPPORTED_RUNTIME, INVALID_PROBLEM_SPEC, STALE_SESSION_EVENT, UNAUTHORIZED_SENSOR, UNAUTHORIZED_EXECUTION, UNAUTHORIZED_RECORDING, SANDBOX_TIMEOUT, SANDBOX_MEMORY_LIMIT, SANDBOX_ESCAPE_DETECTED, NONDETERMINISTIC_REPLAY, UNSUPPORTED_PERSONAL_CLAIM, INSUFFICIENT_CLASSIFICATION_EVIDENCE, INACCESSIBLE_PROJECTION, PACK_VALIDATION_FAILED, HIDDEN_TEST_INTEGRITY_FAILED. Failures must not collapse into inferred truth." .
+
+<doc/ard#verification-ladder> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "12. Verification ladder" ;
+    rdf:value "Unit: event parsing, rule execution, confidence updates, capability preconditions, accessibility projection constraints. Integration: editor-to-gateway, gateway-to-admission, admission-to-workflow, workflow-to-sandbox, sandbox-to-cognition, cognition-to-accessibility-projector. End-to-end: complete algorithm interview, complete debugging interview, zero-input candidate session, screen-reader candidate session, transcript-only candidate session. Chaos: transcript corruption, delayed/duplicate/out-of-order events, sandbox termination, model failure, graph-store failure, accessibility device disconnect. Stress: long session, large repository, high-frequency editor updates, repeated test runs, multiple simultaneous hypotheses. Benchmark: HumanEval, MBPP, LiveCodeBench subset, progressive interview tasks, accessibility fixture suite. Verifier report: independent reproduction of pack build, benchmark results, complete session, receipt hashes, replay outcome." .
+
+<doc/ard#phases> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "13. Phased implementation" ;
+    dcterms:hasPart <doc/ard#phase-0>, <doc/ard#phase-1>, <doc/ard#phase-2>, <doc/ard#phase-3>, <doc/ard#phase-4>, <doc/ard#phase-5> .
+
+<doc/ard#decisive-acceptance-test> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "14. Decisive acceptance test" ;
+    rdf:value "A fresh machine receives the InterviewAssist source tree, pinned toolchains, one interview pack, one accessibility profile, one recorded interviewer event stream. The verifier must build the system, create the sandbox, replay the interview, reproduce all admitted state transitions, reproduce all code executions, reproduce all visible/hidden test outcomes, reproduce all accessibility projections, verify no prohibited capability was invoked, reproduce the final session state, match the final receipt hash. Only then is the architecture ALIVE." .
+
+<doc/ard#decisive-product-choice> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "Decisive product choice" ;
+    rdf:value "The first sandbox should be self-hosted and API-first, with CoderPad, HackerRank, and CodeSignal represented as compatibility profiles rather than immediate integrations, because the commercial platforms do not publicly expose the complete live event and execution interfaces InterviewAssist needs. First implementation target: Python + Rust + algorithm/debugging tasks + visible/hidden tests + caption events + zero-input cognition + receipt/replay." .
+
+# ---- Authorship / provenance of the documents themselves ----
+
+<agent/product-doctrine>
+    a foaf:Agent ;
+    foaf:name "InterviewAssist product doctrine" .
+
+<doc/prd> prov:wasAttributedTo <agent/product-doctrine> ; dcterms:creator <agent/product-doctrine> .
+<doc/ard> prov:wasAttributedTo <agent/product-doctrine> ; dcterms:creator <agent/product-doctrine> ;
+    dcterms:relation <doc/prd> .

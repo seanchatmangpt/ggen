@@ -1,0 +1,108 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Product graph: InterviewAssist as a software project, its user roles, and
+# its operating-mode vocabulary as SKOS concepts.
+# ---------------------------------------------------------------------------
+
+<product/interview-assist>
+    a schema:SoftwareApplication, doap:Project ;
+    doap:name "InterviewAssist" ;
+    schema:name "InterviewAssist" ;
+    schema:description "A local-first, accessible technical interview environment that observes interview events and automatically presents verified assistance." ;
+    doap:programming-language "Rust", "WebAssembly", "Python" ;
+    dcterms:subject "accessible technical interviews", "coding-interview sandbox", "self-play manufacturing" ;
+    dcterms:conformsTo <doc/prd>, <doc/ard> ;
+    dcterms:isPartOf <product-scheme> .
+
+# ---- Doctrine and operating modes as one SKOS concept scheme ----
+
+<product-scheme>
+    a skos:ConceptScheme ;
+    skos:prefLabel "InterviewAssist product doctrine and operating modes" ;
+    skos:hasTopConcept <doctrine/participation>, <doctrine/cognition-maintenance>, <mode/practice>, <mode/mock-interview>, <mode/live-assistance>, <mode/assessment>, <mode/prohibited> .
+
+<doctrine/participation>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "The candidate participates in the interview" ;
+    skos:definition "The candidate, not InterviewAssist, performs the interview; the system observes and assists, it does not substitute." .
+
+<doctrine/cognition-maintenance>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "InterviewAssist maintains the interview cognition" ;
+    skos:definition "The system's role is bounded to maintaining phase, hypotheses, evidence, and lawful next action -- not producing the candidate's answers." ;
+    skos:related <doctrine/participation> .
+
+<mode/practice>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Practice mode" ;
+    skos:definition "The candidate conducts self-directed or simulated interviews. All InterviewAssist capabilities may be enabled." ;
+    dcterms:isPartOf <doc/prd#mode-practice> .
+
+<mode/mock-interview>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Accessible mock-interview mode" ;
+    skos:definition "A human or synthetic interviewer conducts the interview; InterviewAssist operates as an accessibility and preparation tool with consent of all participants." ;
+    dcterms:isPartOf <doc/prd#mode-mock> .
+
+<mode/live-assistance>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Authorized live-assistance mode" ;
+    skos:definition "An employer or interviewer explicitly permits InterviewAssist; the permitted capability envelope is declared before the session." ;
+    dcterms:isPartOf <doc/prd#mode-live> .
+
+<mode/assessment>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Assessment mode" ;
+    skos:definition "An employer uses InterviewAssist as the official interview environment and determines the assistance/accessibility/scoring/retention policy." ;
+    dcterms:isPartOf <doc/prd#mode-assessment> .
+
+<mode/prohibited>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Prohibited mode" ;
+    skos:definition "InterviewAssist shall not provide covert assistance in an assessment that prohibits outside tools: no hidden overlays, no screen-capture evasion, no monitoring bypasses, no disguised processes, no covert audio capture, no misrepresentation of unaided work." ;
+    skos:related <mode/assessment> ;
+    dcterms:isPartOf <doc/prd#mode-prohibited> .
+
+# ---- User roles ----
+# schema.org's canonical Role pattern is an intermediary node connecting an
+# agent to a context via a domain-specific relation (e.g. schema:employee);
+# InterviewAssist's roles aren't employment/organizational relations, so
+# each role here is modeled directly as schema:Role + foaf:Agent (the agent
+# class appropriate for a role a person or system plays), not forced through
+# a schema.org property whose domain doesn't fit.
+
+<role/candidate> a schema:Role, foaf:Agent ; schema:roleName "Candidate" ;
+    schema:description "Wants to demonstrate actual engineering ability while reducing working-memory and interface burden." .
+<role/interviewer> a schema:Role, foaf:Agent ; schema:roleName "Interviewer" ;
+    schema:description "Wants to evaluate reasoning, implementation, debugging, verification, and communication under a declared assistance policy." .
+<role/accessibility-coordinator> a schema:Role, foaf:Agent ; schema:roleName "Accessibility coordinator" ;
+    schema:description "Wants explicit, testable accommodations rather than an informal claim that an interface is accessible." .
+<role/content-designer> a schema:Role, foaf:Agent ; schema:roleName "Interview-content designer" ;
+    schema:description "Wants to create questions, repositories, tests, scoring policies, and expected competency models." .
+<role/researcher> a schema:Role, foaf:Agent ; schema:roleName "Researcher" ;
+    schema:description "Wants reproducible evidence about candidate behavior, assistance effectiveness, self-play, and coding performance." .
+
+<doc/prd#users> dcterms:hasPart <role/candidate>, <role/interviewer>, <role/accessibility-coordinator>, <role/content-designer>, <role/researcher> .
