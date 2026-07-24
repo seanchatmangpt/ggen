@@ -1,0 +1,8 @@
+# required
+# Used by TICKET-005 as the fail-loudly fixture query, and available for
+# TICKET-011's package.json name/version/description projection.
+PREFIX schema: <https://schema.org/>
+SELECT ?name WHERE {
+  <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/product/interview-assist>
+    schema:name ?name .
+}

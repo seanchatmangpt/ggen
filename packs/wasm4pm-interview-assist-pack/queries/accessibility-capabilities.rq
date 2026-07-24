@@ -1,0 +1,9 @@
+# Expected: 16 rows, the capability/accessibility/* schema:Action resources (TICKET-015).
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?capability ?name WHERE {
+  ?capability a schema:Action ;
+              schema:name ?name ;
+              dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability-category/accessibility> .
+}
+ORDER BY ?capability

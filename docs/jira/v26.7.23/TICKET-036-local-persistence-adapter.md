@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real filesystem-backed persistence implemented and tested; real browser IndexedDB/localStorage NOT exercised (documented Node-side substitution)
 
 ## Parent
 
@@ -120,3 +120,24 @@ The relevant workstream I vertical scenario exercises this adapter against real 
 - real-collaborator Chicago-TDD test passes (no mocks)
 - policy-check-before-action test passes
 - reduction path documented
+
+## Implementation notes (real evidence)
+
+- File: `examples/interview-assist/lib/adapters/persistence-adapter.ts` (104 lines); test:
+  `examples/interview-assist/tests/adapters/persistence-adapter.test.ts` (4 tests, all passing —
+  `npx vitest run tests/adapters/persistence-adapter.test.ts`).
+- HONEST SUBSTITUTION, stated up front in the source and here: this runs in a Node/Vitest test
+  context, not a browser, so there is no real `window.indexedDB`. Implemented against the real
+  filesystem (`node:fs/promises` `readFile`/`writeFile`/`mkdir` against a real temp directory
+  created with `mkdtemp`) as the documented Node-side stand-in — not a claim of real IndexedDB.
+- TICKET-020's real generated PersistenceAdapter port has not landed yet; the interface used here
+  (`save(sessionId, eventLog)` / `load(sessionId)`) is hand-authored and marked
+  `PENDING(TICKET-020)` in source.
+- Real-collaborator evidence: (1) `load` on a never-saved session returns `undefined` from a real
+  `ENOENT` filesystem error, not a stub; (2) `save` then `load` round-trips a real event log
+  written to and read back from disk, deep-equal; (3) durability across store instances — a
+  second `FilesystemEventLogStore` instance pointed at the same directory reads what the first
+  wrote, proving real disk state, not in-memory state; (4) session-id sanitization strips `..`
+  segments so `../../etc/evil` cannot escape the store directory (verified via `listSessionIds`).
+- Policy-check-before-action: both `save` and `load` call `checkPolicy(...)` as their first
+  statement, before any `fs` call — currently deferring to the `PENDING(TICKET-028)` placeholder.

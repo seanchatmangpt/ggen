@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — DOM-free logic implemented and tested; Monaco DOM mount is UNVERIFIED (no browser test run this pass)
 
 ## Parent
 
@@ -119,3 +119,24 @@ The relevant workstream I vertical scenario exercises this adapter against real 
 - real-collaborator Chicago-TDD test passes (no mocks)
 - policy-check-before-action test passes
 - reduction path documented
+
+## Implementation notes (real evidence)
+
+- File: `examples/interview-assist/lib/adapters/monaco-adapter.ts` (82 lines); test:
+  `examples/interview-assist/tests/adapters/monaco-adapter.test.ts` (4 tests, all passing —
+  `npx vitest run tests/adapters/monaco-adapter.test.ts`).
+- TICKET-031 (editor-shell.tsx generated props) has not generated in this session —
+  `EditorShellProps` is hand-authored and explicitly marked `PENDING(TICKET-031)` in the source
+  comment; it must be reconciled against the real generated shape once TICKET-031 lands, not
+  treated as final.
+- What's tested: `languageIdForCapability` (pure capability->Monaco-language-id mapping) and
+  `buildMonacoConfig` (builds the editor config object, calling the policy check first). Both
+  are DOM-free, real (not mocked) function calls — no `monaco-editor` import is faked.
+- What's UNVERIFIED: actually mounting `monaco.editor.create(...)` against a real DOM node plus
+  its web-worker language service. Monaco requires a browser DOM + worker environment; this was
+  not exercised via Playwright in this pass (TICKET-039's harness itself is BLOCKED — see that
+  ticket's notes) — stated honestly rather than mocked or claimed working.
+- Policy-check-before-action: `buildMonacoConfig` calls `checkPolicy(...)` from
+  `policy-check-stub.ts` before returning a config; TICKET-028's real generated check does not
+  exist yet, so this currently calls a documented default-allow placeholder, not a real domain
+  decision — the call-site wiring is real, the check body is PENDING(TICKET-028).

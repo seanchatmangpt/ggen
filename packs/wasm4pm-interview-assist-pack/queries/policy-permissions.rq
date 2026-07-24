@@ -1,0 +1,13 @@
+# Expected: odrl:Permission/Prohibition statements across the 6 policy/*
+# odrl:Set resources (TICKET-028). Each row is one statement, keyed by the
+# policy and the schema:Action resource its odrl:action points at (a
+# capability/*, authority-action/*, or prohibited-action/* resource).
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+SELECT ?policy ?kind ?action WHERE {
+  ?policy a odrl:Set .
+  { ?policy odrl:permission ?stmt . BIND("permission" AS ?kind) }
+  UNION
+  { ?policy odrl:prohibition ?stmt . BIND("prohibition" AS ?kind) }
+  ?stmt odrl:action ?action .
+}
+ORDER BY ?policy ?kind ?action

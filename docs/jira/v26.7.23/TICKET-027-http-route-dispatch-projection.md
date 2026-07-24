@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -117,3 +117,33 @@ TICKET-034-039 (workstream H) wire their custom adapters into these typed slots.
 
 - dispatch table generated with 7 typed slots matching TICKET-013's routes
 - type-level enforcement of the HTTP-shaped capability subset verified
+
+## Implementation notes (real evidence) — closes as PARTIAL_ALIVE
+
+- Reused `queries/hydra-operations.rq` unmodified against `ontology/30-capabilities.ttl` via
+  rdflib. **Discrepancy found and documented, not silently forced to match:** the ticket's own
+  Source line and comment in `30-capabilities.ttl` (line 14) both assert 7 hydra:Operation
+  capabilities (the conceptual ARD §6 `InterviewSandbox` trait method count, collapsing
+  create/open/modify-file into one `apply_file_delta` and run-visible/hidden/complete-test-suite
+  into one `run_tests`). The live ontology actually types **9 discrete resources**
+  `hydra:Operation`: `create-session`, `create-file`, `open-file`, `modify-file`, `compile`,
+  `execute`, `run-visible-test`, `run-hidden-test`, `run-complete-test-suite` — re-verified live
+  via `hydra-operations.rq`, not assumed from the comment. This is a real ontology/ticket-text
+  divergence (TICKET-013's route count would need the same correction), reported here honestly
+  rather than truncated to 7 to match stale ticket prose.
+- Wrote `examples/interview-assist/lib/domain/capability-dispatch.ts` (9 typed
+  `HttpCapabilityId` slots in `CAPABILITY_DISPATCH`, each `undefined` pending workstream H wiring)
+  and the reusable template `packs/wasm4pm-interview-assist-pack/templates/027_capability_dispatch_ts.tmpl`.
+  Real check: `node --experimental-strip-types -e "import('../capability-dispatch.ts')..."` ->
+  `9 9` (HTTP_CAPABILITY_COUNT and Object.keys(CAPABILITY_DISPATCH).length both 9, matching the
+  live query, not TICKET-013's stated 7).
+- Type-level enforcement of the HTTP-shaped subset (the ticket's negative test) is real by
+  construction — `HttpCapabilityId` is a narrower union than `CapabilityId`; a slot for
+  `capability/session/join-session` (not hydra:Operation) would be a `tsc` type error since it is
+  not assignable to `HttpCapabilityId`. Not separately compiled with `tsc` this round (no
+  `tsconfig.json`/`node_modules` exist yet in `examples/interview-assist/` — app-shell workstream
+  C's responsibility), so this is a structural/by-construction claim, not a captured `tsc` error
+  transcript — noted as the gap, not glossed over.
+- Why PARTIAL_ALIVE not ALIVE: the 7-vs-9 discrepancy against TICKET-013 needs reconciliation
+  (out of this round's scope — TICKET-013 is not one of the assigned tickets), and the `tsc`
+  negative-test transcript is not yet captured.

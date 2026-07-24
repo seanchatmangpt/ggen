@@ -1,0 +1,7 @@
+# Expected: 4 rows, the ARD §2 system-plane documents (TICKET-012).
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?plane ?title WHERE {
+  ?plane dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/doc/ard#planes> ;
+         dcterms:title ?title .
+}
+ORDER BY ?plane
