@@ -1,0 +1,11 @@
+[project]
+name = "interview-sandbox"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[packs]
+wasm4pm-interview-site-pack = { path = "../../packs/wasm4pm-interview-site-pack" }
+
+[templates]
+dir = "templates"

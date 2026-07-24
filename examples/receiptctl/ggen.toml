@@ -16,6 +16,7 @@ wasm4pm-algorithms-pack = { path = "../../packs/wasm4pm-algorithms-pack" }
 wasm4pm-cognition-pack = { path = "../../packs/wasm4pm-cognition-pack" }
 wasm4pm-compat-pack = { path = "../../packs/wasm4pm-compat-pack" }
 wasm4pm-facts-pack = { path = "../../packs/wasm4pm-facts-pack" }
+wasm4pm-sandbox-pack = { path = "../../packs/wasm4pm-sandbox-pack" }
 
 [templates]
 dir = "templates"

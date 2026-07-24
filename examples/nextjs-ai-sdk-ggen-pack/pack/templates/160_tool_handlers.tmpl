@@ -1,8 +1,0 @@
----
-to: "lib/ai/tool-handlers.ts"
----
-import "server-only";
-import { toolBroker } from "./tool-broker";
-
-toolBroker.register("system.echo", async (input, context) => ({ input, receipt: { requestId: context.requestId, handlerKey: "system.echo", status: "ALIVE" } }));
-toolBroker.register("notes.create", async (input, context) => ({ input, receipt: { requestId: context.requestId, handlerKey: "notes.create", status: "PARTIAL_ALIVE" }, warning: "Fixture adapter only; replace with a transactional repository implementation." }));

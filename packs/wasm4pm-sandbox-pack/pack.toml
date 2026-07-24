@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-sandbox-pack"
+version = "0.1.0"
+description = "InterviewAssist Phase 0 capability-registry catalog: typed compile/execute/test operations for Python and Rust, projected from admitted sbx:SandboxCapability individuals. Catalog/caller surface only -- the real subprocess actuator (isolation, timeout, stdout/exit-code capture) is implemented natively in wasm4pm's own wasm4pm-sandbox crate, matching the existing wasm4pm-cognition-pack/wasm4pm-compat-pack/wasm4pm-algorithms-pack/wasm4pm-facts-pack precedent (evidence and execution stay in wasm4pm; ggen generates the typed catalog and dispatch trait only). Generates: src/sandbox_catalog.rs (typed CapabilityId enum + precondition/timeout/authority-scope metadata table) and src/sandbox_actuator_trait.rs (the SandboxActuator dispatch trait a real actuator implements)."

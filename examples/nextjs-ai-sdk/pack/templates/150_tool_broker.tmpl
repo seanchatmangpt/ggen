@@ -14,7 +14,7 @@ export class ToolRefusedError extends Error {
 export class ToolBroker {
   constructor(private readonly handlers: Readonly<Record<string, ToolHandler>>) {}
 
-  invoke(handlerKey: string, input: unknown, context: ToolExecutionContext): Promise<ToolExecutionResult> {
+  async invoke(handlerKey: string, input: unknown, context: ToolExecutionContext): Promise<ToolExecutionResult> {
     const handler = this.handlers[handlerKey];
     if (!handler) throw new ToolRefusedError(handlerKey);
     return trace.getTracer("nextjs-ai-sdk.tool-broker").startActiveSpan(`tool.${handlerKey}`, async (span) => {
