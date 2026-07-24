@@ -1,0 +1,8 @@
+# Expected: 14 rows, the session lifecycle skos:Concept scheme in order (TICKET-003/TICKET-016/TICKET-021).
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?phase ?label WHERE {
+  ?phase a skos:Concept ;
+         skos:inScheme <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/phase-scheme> ;
+         skos:prefLabel ?label .
+}
+ORDER BY ?phase

@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -114,3 +114,11 @@ TICKET-010 (idempotent sync) depends on a validated pack.toml.
 
 - pack.toml deserializes cleanly through the real struct
 - no invented fields
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- `pack.toml`'s existing `[pack] name/version/description` fields were exercised by the real
+  `ggen sync run --dry-run` invocations above — deserialization succeeded (no `deny_unknown_fields`
+  error surfaced; the run proceeded past pack.toml parsing to ontology/template resolution).
+- Description text updated to reflect the pack's real current state (post TICKET-006/009) rather
+  than the stale pre-resolution text from the PR #489 phase.

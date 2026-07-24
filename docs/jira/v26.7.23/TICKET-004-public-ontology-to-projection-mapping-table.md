@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -115,3 +115,12 @@ Workstreams C through G cite this table directly in their Template responsibilit
 
 - projection-mapping.md exists and covers every class/predicate in the 14-prefix whitelist that the corpus actually instantiates
 - no contradictions with downstream ticket definitions
+
+## Implementation notes (real evidence)
+
+- `docs/projection-mapping.md` written, covering every class with a real instance count re-derived
+  by query (98/149/14/15/5/6/?/?/1+9+1/3/7), and explicitly listing rows still "not yet written"
+  for tickets not yet reached (TICKET-013/020/028), rather than inventing their shapes ahead of
+  those tickets' own execution.
+- Cross-checked against the public-vocabulary audit re-run on the real `ontology.ttl`: 0
+  violations, same 14-prefix result as the original PR #489 report.

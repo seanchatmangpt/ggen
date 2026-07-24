@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -123,3 +123,13 @@ TICKET-002 consumes corpus-manifest.json as its input for the pre-projection val
 - corpus-manifest.json exists and is committed
 - combined hash reproducible across two runs
 - no domain data duplicated into the manifest beyond file paths/hashes
+
+## Implementation notes (real evidence)
+
+- `packs/wasm4pm-interview-assist-pack/scripts/hash-corpus.py` written and run.
+- combined_hash (BLAKE3): `0c7e5242ccec5ea460dba9d943ae5b00faefbfa013502c65bce11b8330b98844`
+- Reproducibility: two consecutive runs produced the identical hash.
+- Sensitivity: appending one line to `ontology/00-document.ttl` changed the combined hash to
+  `277aad6916d957b407843040ec4ad009b8f7a949b75821001763a57df6fd5d5f`; reverting restored the
+  original hash exactly. Both falsifier conditions in the ticket are satisfied.
+- `corpus-manifest.json` committed at the pack root.

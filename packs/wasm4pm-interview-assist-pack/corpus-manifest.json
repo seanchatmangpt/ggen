@@ -1,0 +1,70 @@
+{
+  "pack": "wasm4pm-interview-assist-pack",
+  "ticket": "TICKET-001",
+  "algorithm": "BLAKE3",
+  "file_order": [
+    "ontology/00-document.ttl",
+    "ontology/10-product.ttl",
+    "ontology/20-requirements.ttl",
+    "ontology/30-capabilities.ttl",
+    "ontology/40-events-workflow.ttl",
+    "ontology/50-policy.ttl",
+    "ontology/60-provenance-receipts.ttl",
+    "ontology/70-packs-datasets.ttl",
+    "ontology/80-acceptance.ttl",
+    "shapes/interview-assist.shacl.ttl"
+  ],
+  "files": [
+    {
+      "path": "ontology/00-document.ttl",
+      "blake3": "9d73cc528d1d2c12e75fda74333fb980d9efee10b60ece9e1ab0821d6cb6fe9c",
+      "bytes": 28243
+    },
+    {
+      "path": "ontology/10-product.ttl",
+      "blake3": "7addb2b471dd2f2113ab5bf9a77ea9f7db608d7d5b8e1ba0b8846b9e9b3dd5be",
+      "bytes": 6215
+    },
+    {
+      "path": "ontology/20-requirements.ttl",
+      "blake3": "eb2cc1d92d7d763a5e0c32fdb3e40b4c4052598a47df8aec05cd7ee1909500f1",
+      "bytes": 21691
+    },
+    {
+      "path": "ontology/30-capabilities.ttl",
+      "blake3": "8a4b08373a09cc39a4847c0ceee40d59e49e0e0628b5c15ce11a6dde6468bc8a",
+      "bytes": 20603
+    },
+    {
+      "path": "ontology/40-events-workflow.ttl",
+      "blake3": "1d3c734601bed3ff6077f456d57f17c5b70b8f1231489ac8bf0c69100b1e58c0",
+      "bytes": 12254
+    },
+    {
+      "path": "ontology/50-policy.ttl",
+      "blake3": "bd30f15d76300eecfc137133f59dc511a1d0ecf864b95615b299f9d2b184ff6c",
+      "bytes": 7375
+    },
+    {
+      "path": "ontology/60-provenance-receipts.ttl",
+      "blake3": "85cf204e78197a402075777749a979ea7c8ca494144e64608caeecb219b85e89",
+      "bytes": 5036
+    },
+    {
+      "path": "ontology/70-packs-datasets.ttl",
+      "blake3": "4690e5016a3c9b9326a51e44e4564b3f3074b9f855d72ca407c12efb942bf6e4",
+      "bytes": 3140
+    },
+    {
+      "path": "ontology/80-acceptance.ttl",
+      "blake3": "7c7f1e3b73e4e6e330b5b9f3a00387565802f9c781538c84bbd38f4ec37a02e4",
+      "bytes": 8127
+    },
+    {
+      "path": "shapes/interview-assist.shacl.ttl",
+      "blake3": "1af74b46a320f5a872606d422d67a71b4972f16a2b984c5a25af3bd5b1787356",
+      "bytes": 5496
+    }
+  ],
+  "combined_hash": "0c7e5242ccec5ea460dba9d943ae5b00faefbfa013502c65bce11b8330b98844"
+}

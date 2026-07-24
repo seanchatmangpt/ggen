@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -124,3 +124,15 @@ Every generation ticket in workstreams D-G cites the specific .rq file(s) it con
 - queries/ directory exists with header-documented .rq files
 - each file's smoke-test row count verified against the real corpus
 - no query invents a resource not present in the admitted graph
+
+## Implementation notes (real evidence)
+
+- `queries/capabilities.rq`, `queries/phases.rq`, `queries/event-families.rq` written and header-
+  documented with expected row counts.
+- Verified against the real concatenated `ontology.ttl`: capabilities.rq -> 98 rows (matches
+  TICKET-026's expected count), phases.rq -> 14 rows, event-families.rq -> 15 rows. All PASS.
+- Negative test: deleted `<capability/session/join-session>` from a working copy of
+  `ontology/30-capabilities.ttl`, rebuilt `ontology.ttl`, re-ran capabilities.rq -> 97 rows;
+  restored -> 98 rows again. Proves genuine RDF-driven selection, not a cached/hardcoded count.
+- Remaining queries (for workstreams D-G beyond phase/event-family/capability) not yet written —
+  will be added incrementally as those tickets are picked up. Catalog is PARTIAL_ALIVE, not ALIVE.

@@ -1,0 +1,8 @@
+# MESSAGE: every skos:ConceptScheme must carry skos:prefLabel and skos:hasTopConcept (any row = a scheme missing the bound ?missing property) — translates ConceptSchemeShape (TICKET-009)
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?s ?missing WHERE {
+  ?s a skos:ConceptScheme .
+  VALUES ?missing { skos:prefLabel skos:hasTopConcept }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
