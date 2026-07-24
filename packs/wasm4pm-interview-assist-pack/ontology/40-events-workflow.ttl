@@ -1,0 +1,123 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Event and workflow graph: ARD §7 event-family taxonomy (as SKOS, since
+# these are a controlled vocabulary of kinds, matching the phase-concept
+# treatment required for §3.1) and the ARD §3.1 Session Orchestrator's
+# 14-state lifecycle with its legal transitions. Preserves the distinction
+# required: a phase concept (skos:Concept) vs a transition plan
+# (schema:Action + prov:Plan) vs a transition execution occurrence
+# (prov:Activity) vs the resulting state entity (prov:Entity, classified by
+# a phase concept via dcterms:type).
+# ---------------------------------------------------------------------------
+
+<event-family-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist canonical event families (ARD Section 7)" ;
+    dcterms:isPartOf <doc/ard#event-model> ;
+    skos:hasTopConcept
+        <event-family/session>, <event-family/participant>, <event-family/question>, <event-family/speech>,
+        <event-family/editor>, <event-family/file>, <event-family/compiler>, <event-family/execution>,
+        <event-family/test>, <event-family/hypothesis>, <event-family/workflow>, <event-family/projection>,
+        <event-family/accessibility>, <event-family/policy>, <event-family/receipt> .
+
+<event-family/session>       a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "SessionEvent" .
+<event-family/participant>   a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ParticipantEvent" .
+<event-family/question>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "QuestionEvent" .
+<event-family/speech>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "SpeechEvent" .
+<event-family/editor>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "EditorEvent" .
+<event-family/file>          a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "FileEvent" .
+<event-family/compiler>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "CompilerEvent" .
+<event-family/execution>     a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ExecutionEvent" .
+<event-family/test>          a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "TestEvent" .
+<event-family/hypothesis>    a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "HypothesisEvent" .
+<event-family/workflow>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "WorkflowEvent" .
+<event-family/projection>    a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ProjectionEvent" .
+<event-family/accessibility> a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "AccessibilityEvent" .
+<event-family/policy>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "PolicyEvent" .
+<event-family/receipt>       a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ReceiptEvent" .
+
+# ---- Natural interview inputs/outputs cited in PRD §13 as concrete
+# instances of the families above, connected via dcterms:type. ----
+
+<observed-input/interviewer-utterance> a prov:Entity ; dcterms:type <event-family/speech> ; rdfs:label "interviewer utterance changes active question hypotheses" .
+<observed-input/candidate-speech> a prov:Entity ; dcterms:type <event-family/speech> ; rdfs:label "candidate speech marks explanation elements as covered" .
+<observed-input/editor-change> a prov:Entity ; dcterms:type <event-family/editor> ; rdfs:label "editor changes update implementation state" .
+<observed-input/compiler-diagnostic> a prov:Entity ; dcterms:type <event-family/compiler> ; rdfs:label "compiler diagnostics activate repair tracks" .
+<observed-input/test-failure> a prov:Entity ; dcterms:type <event-family/test> ; rdfs:label "test failures activate counterexample analysis" .
+<observed-input/test-pass> a prov:Entity ; dcterms:type <event-family/test> ; rdfs:label "passing tests advance verification state" .
+<observed-input/requirement-change> a prov:Entity ; dcterms:type <event-family/question> ; rdfs:label "a requirement change reopens affected obligations" .
+
+# ---------------------------------------------------------------------------
+# Session lifecycle (ARD §3.1): 14 ordered phase concepts.
+# ---------------------------------------------------------------------------
+
+<phase-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist session lifecycle (ARD Section 3.1)" ;
+    dcterms:isPartOf <doc/ard#components> ;
+    skos:hasTopConcept
+        <phase/created>, <phase/preparing>, <phase/ready>, <phase/introduction>, <phase/problem-presentation>,
+        <phase/clarification>, <phase/planning>, <phase/implementation>, <phase/execution>, <phase/debugging>,
+        <phase/explanation>, <phase/follow-up>, <phase/complete>, <phase/refused> .
+
+<phase/created>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "CREATED" ; skos:narrower <phase/preparing> .
+<phase/preparing>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PREPARING" ; skos:broader <phase/created> ; skos:narrower <phase/ready> .
+<phase/ready>                a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "READY" ; skos:broader <phase/preparing> ; skos:narrower <phase/introduction> .
+<phase/introduction>         a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "INTRODUCTION" ; skos:broader <phase/ready> ; skos:narrower <phase/problem-presentation> .
+<phase/problem-presentation> a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PROBLEM_PRESENTATION" ; skos:broader <phase/introduction> ; skos:narrower <phase/clarification> .
+<phase/clarification>        a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "CLARIFICATION" ; skos:broader <phase/problem-presentation> ; skos:narrower <phase/planning> .
+<phase/planning>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PLANNING" ; skos:broader <phase/clarification> ; skos:narrower <phase/implementation> .
+<phase/implementation>       a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "IMPLEMENTATION" ; skos:broader <phase/planning> ; skos:narrower <phase/execution> .
+<phase/execution>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "EXECUTION" ; skos:broader <phase/implementation> ; skos:narrower <phase/debugging> .
+<phase/debugging>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "DEBUGGING" ; skos:broader <phase/execution> ; skos:related <phase/implementation> ; skos:narrower <phase/explanation> .
+<phase/explanation>          a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "EXPLANATION" ; skos:broader <phase/debugging> ; skos:narrower <phase/follow-up> .
+<phase/follow-up>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "FOLLOW_UP" ; skos:broader <phase/explanation> ; skos:narrower <phase/complete> .
+<phase/complete>             a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "COMPLETE" ; skos:broader <phase/follow-up> .
+<phase/refused>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "REFUSED" ;
+    skos:related <phase/created>, <phase/preparing>, <phase/ready>, <phase/introduction>, <phase/problem-presentation>,
+                 <phase/clarification>, <phase/planning>, <phase/implementation>, <phase/execution>, <phase/debugging>,
+                 <phase/explanation>, <phase/follow-up> ;
+    skos:definition "Reachable from any non-terminal phase on a typed refusal (ARD Section 11); not enumerated as 12 separate transition-plan resources below for brevity, since every edge shares the same semantics -- see req/ard-refusal-* in 20-requirements.ttl for the refusal codes themselves." .
+
+# ---------------------------------------------------------------------------
+# Transition plans (the abstract, allowed state changes) -- schema:Action +
+# prov:Plan, schema:object = source phase, schema:result = target phase.
+# One resource per adjacent pair in the documented normal path.
+# ---------------------------------------------------------------------------
+
+<transition-plan/created-to-preparing>              a schema:Action, prov:Plan ; schema:name "created-to-preparing" ; schema:object <phase/created> ; schema:result <phase/preparing> .
+<transition-plan/preparing-to-ready>                a schema:Action, prov:Plan ; schema:name "preparing-to-ready" ; schema:object <phase/preparing> ; schema:result <phase/ready> .
+<transition-plan/ready-to-introduction>             a schema:Action, prov:Plan ; schema:name "ready-to-introduction" ; schema:object <phase/ready> ; schema:result <phase/introduction> .
+<transition-plan/introduction-to-problem>           a schema:Action, prov:Plan ; schema:name "introduction-to-problem" ; schema:object <phase/introduction> ; schema:result <phase/problem-presentation> .
+<transition-plan/problem-to-clarification>          a schema:Action, prov:Plan ; schema:name "problem-to-clarification" ; schema:object <phase/problem-presentation> ; schema:result <phase/clarification> .
+<transition-plan/clarification-to-planning>         a schema:Action, prov:Plan ; schema:name "clarification-to-planning" ; schema:object <phase/clarification> ; schema:result <phase/planning> .
+<transition-plan/planning-to-implementation>        a schema:Action, prov:Plan ; schema:name "planning-to-implementation" ; schema:object <phase/planning> ; schema:result <phase/implementation> .
+<transition-plan/implementation-to-execution>       a schema:Action, prov:Plan ; schema:name "implementation-to-execution" ; schema:object <phase/implementation> ; schema:result <phase/execution> .
+<transition-plan/execution-to-debugging>            a schema:Action, prov:Plan ; schema:name "execution-to-debugging" ; schema:object <phase/execution> ; schema:result <phase/debugging> .
+<transition-plan/debugging-to-explanation>          a schema:Action, prov:Plan ; schema:name "debugging-to-explanation" ; schema:object <phase/debugging> ; schema:result <phase/explanation> .
+<transition-plan/debugging-to-implementation>       a schema:Action, prov:Plan ; schema:name "debugging-to-implementation" ; schema:object <phase/debugging> ; schema:result <phase/implementation> ;
+    rdfs:comment "Debugging may reopen implementation (skos:related <phase/implementation> above), not only advance forward." .
+<transition-plan/explanation-to-follow-up>          a schema:Action, prov:Plan ; schema:name "explanation-to-follow-up" ; schema:object <phase/explanation> ; schema:result <phase/follow-up> .
+<transition-plan/follow-up-to-complete>             a schema:Action, prov:Plan ; schema:name "follow-up-to-complete" ; schema:object <phase/follow-up> ; schema:result <phase/complete> .
+
+# ---------------------------------------------------------------------------
+# One concrete transition-execution occurrence, distinct from its plan and
+# from the phase concept: an activity that used the READY phase entity and
+# generated a new state entity classified as INTRODUCTION.
+# ---------------------------------------------------------------------------
+
+<phase-state/ready-instance-example>       a prov:Entity ; dcterms:type <phase/ready> .
+<phase-state/introduction-instance-example> a prov:Entity ; dcterms:type <phase/introduction> .
+
+<transition-occurrence/example-ready-to-introduction>
+    a prov:Activity ;
+    prov:used <phase-state/ready-instance-example> ;
+    prov:generated <phase-state/introduction-instance-example> ;
+    prov:qualifiedAssociation [
+        a prov:Association ;
+        prov:hadPlan <transition-plan/ready-to-introduction>
+    ] .

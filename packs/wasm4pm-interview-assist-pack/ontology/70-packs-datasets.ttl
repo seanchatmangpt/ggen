@@ -1,0 +1,46 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Pack/dataset graph: the manufacturing plane's admitted interview pack
+# (PRD Section 1, ARD Section 2.1) modeled as a DCAT dataset with one
+# distribution per artifact kind it bundles.
+# ---------------------------------------------------------------------------
+
+<pack/interview-pack>
+    a dcat:Dataset ;
+    dcterms:title "InterviewAssist admitted interview pack" ;
+    dcterms:description "Ontologies, rules, cases, workflow state machines, algorithms, test strategies, accessibility projections, and refusal conditions -- the live runtime operates from this pack, not from a live LLM." ;
+    dcterms:conformsTo <doc/prd>, <doc/ard> ;
+    prov:wasGeneratedBy <component/pack-compiler> ;
+    dcat:distribution
+        <pack/interview-pack/domain-ontology>, <pack/interview-pack/question-corpus>,
+        <pack/interview-pack/assistance-rules>, <pack/interview-pack/static-examples>,
+        <pack/interview-pack/constraints>, <pack/interview-pack/test-fixtures>,
+        <pack/interview-pack/accessibility-profiles>, <pack/interview-pack/replay-streams>,
+        <pack/interview-pack/expected-receipts> .
+
+<pack/interview-pack/domain-ontology>       a dcat:Distribution ; dcterms:title "domain ontology" ; dcterms:format "text/turtle" .
+<pack/interview-pack/question-corpus>       a dcat:Distribution ; dcterms:title "question corpus" .
+<pack/interview-pack/assistance-rules>      a dcat:Distribution ; dcterms:title "assistance rules" .
+<pack/interview-pack/static-examples>       a dcat:Distribution ; dcterms:title "static examples" .
+<pack/interview-pack/constraints>           a dcat:Distribution ; dcterms:title "constraints" .
+<pack/interview-pack/test-fixtures>         a dcat:Distribution ; dcterms:title "test fixtures" .
+<pack/interview-pack/accessibility-profiles> a dcat:Distribution ; dcterms:title "accessibility profiles" .
+<pack/interview-pack/replay-streams>        a dcat:Distribution ; dcterms:title "replay streams" .
+<pack/interview-pack/expected-receipts>     a dcat:Distribution ; dcterms:title "expected receipts" ; dcterms:relation <receipt/entry-2-final> .
+
+# ---- Self-play factory as the dcat:DataService producing pack deltas (ARD 3.12, PRD §10) ----
+
+<service/self-play-factory>
+    a dcat:DataService ;
+    dcterms:title "Self-Play Factory" ;
+    dcterms:description "Runs local models outside the live critical path: interviewer generator, candidate solver, test generator, technical critic, accessibility critic, adversarial mutator, candidate judge." ;
+    dcat:servesDataset <pack/interview-pack> ;
+    prov:wasAssociatedWith <component/self-play-factory> ;
+    dcterms:isPartOf <doc/prd#self-play> .

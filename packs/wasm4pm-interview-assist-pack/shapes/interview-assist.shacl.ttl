@@ -1,0 +1,116 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix spdx:    <http://spdx.org/rdf/terms#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/shapes/> .
+
+# ---------------------------------------------------------------------------
+# SHACL shapes over the InterviewAssist admitted-ontology graph
+# (ontology/00-document.ttl .. 80-acceptance.ttl). Every sh:path below is a
+# public-ontology predicate; every sh:targetClass is a public-ontology class.
+# Not consumed by ggen-engine (SHACL is not wired into the live pipeline --
+# see .claude/rules/architecture.md) -- validated directly via pyshacl for
+# this pre-projection phase.
+# ---------------------------------------------------------------------------
+
+<DigitalDocumentShape>
+    a sh:NodeShape ;
+    sh:targetClass schema:DigitalDocument ;
+    sh:property
+        [ sh:path dcterms:title ; sh:minCount 1 ; sh:datatype xsd:string ] ,
+        [ sh:path dcterms:isPartOf ; sh:minCount 0 ] ;
+    sh:message "Every schema:DigitalDocument (section, requirement, document) must carry a dcterms:title." .
+
+<RequirementShape>
+    a sh:NodeShape ;
+    sh:targetClass schema:DigitalDocument ;
+    sh:property
+        [ sh:path rdf:value ; sh:minCount 0 ; sh:message "Requirement/section resources should carry rdf:value with their normative text where transcribed verbatim (advisory: not every schema:DigitalDocument is a requirement leaf, so minCount stays 0 at this NodeShape and is enforced by convention, not a hard cardinality)." ] .
+
+<ActionShape>
+    a sh:NodeShape ;
+    sh:targetClass schema:Action ;
+    sh:property
+        [ sh:path schema:name ; sh:minCount 1 ; sh:message "Every capability/authority/prohibited/acceptance-step schema:Action must carry schema:name." ] .
+
+<ConceptSchemeShape>
+    a sh:NodeShape ;
+    sh:targetClass skos:ConceptScheme ;
+    sh:property
+        [ sh:path skos:prefLabel ; sh:minCount 1 ] ,
+        [ sh:path skos:hasTopConcept ; sh:minCount 1 ; sh:message "Every ConceptScheme (event families, phases, doctrine, implementation phases, acceptance-test steps) must enumerate its top concepts." ] .
+
+<ConceptShape>
+    a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:property
+        [ sh:path skos:inScheme ; sh:minCount 1 ] ,
+        [ sh:path skos:prefLabel ; sh:minCount 0 ] .
+
+<PolicySetShape>
+    a sh:NodeShape ;
+    sh:targetClass odrl:Set ;
+    sh:property
+        [ sh:path dcterms:isPartOf ; sh:minCount 1 ; sh:message "Every ODRL policy Set must trace back to the PRD/ARD section that mandates it." ] ,
+        [ sh:path odrl:permission ; sh:minCount 0 ] ,
+        [ sh:path odrl:prohibition ; sh:minCount 0 ] .
+
+<PermissionShape>
+    a sh:NodeShape ;
+    sh:targetObjectsOf odrl:permission ;
+    sh:property
+        [ sh:path odrl:action ; sh:minCount 1 ; sh:message "Every odrl:Permission must target a schema:Action resource via odrl:action (never a bare literal or a new ODRL action term)." ] ,
+        [ sh:path odrl:assignee ; sh:minCount 1 ] .
+
+<ProhibitionShape>
+    a sh:NodeShape ;
+    sh:targetObjectsOf odrl:prohibition ;
+    sh:property
+        [ sh:path odrl:action ; sh:minCount 1 ; sh:message "Every odrl:Prohibition must target a schema:Action resource via odrl:action." ] ,
+        [ sh:path odrl:assignee ; sh:minCount 1 ] .
+
+<ProvenanceEntityShape>
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property
+        [ sh:path rdfs:label ; sh:minCount 0 ] ,
+        [ sh:path dcterms:type ; sh:minCount 0 ; sh:message "Manufacturing-chain / observed-input / phase-state entities should classify themselves via dcterms:type pointing at the appropriate event-family or phase concept." ] .
+
+<ReceiptEntityShape>
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property
+        [ sh:path spdx:checksum ; sh:minCount 0 ; sh:message "Receipt-ledger entities (receipt/entry-*) must carry an spdx:checksum blank node with algorithm + checksumValue; advisory-level (minCount 0 at the shared prov:Entity NodeShape since not all prov:Entity individuals are receipts) -- enforced by convention on the receipt/* resources specifically." ] .
+
+<ProvenanceActivityShape>
+    a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    sh:property
+        [ sh:path prov:used ; sh:minCount 0 ] ,
+        [ sh:path prov:wasAssociatedWith ; sh:minCount 0 ] .
+
+<DatasetShape>
+    a sh:NodeShape ;
+    sh:targetClass dcat:Dataset ;
+    sh:property
+        [ sh:path dcterms:title ; sh:minCount 1 ] ,
+        [ sh:path dcat:distribution ; sh:minCount 1 ; sh:message "Every dcat:Dataset (interview pack) must enumerate its dcat:Distribution artifacts." ] .
+
+<DistributionShape>
+    a sh:NodeShape ;
+    sh:targetClass dcat:Distribution ;
+    sh:property
+        [ sh:path dcterms:title ; sh:minCount 1 ] .
+
+<DataServiceShape>
+    a sh:NodeShape ;
+    sh:targetClass dcat:DataService ;
+    sh:property
+        [ sh:path dcat:servesDataset ; sh:minCount 1 ; sh:message "The self-play factory DataService must declare which Dataset (pack) it serves." ] .

@@ -1,0 +1,199 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Requirement graph: every normative ("shall"/"must") statement in PRD §3,
+# §7, §8, §10, §13, §14, §18 and ARD §1, §8, §9, §10, §11, §12 as its own
+# addressable resource. dcterms:isPartOf points back to the owning document
+# section from 00-document.ttl; rdf:value carries the exact normative
+# sentence/clause, not a paraphrase.
+# ---------------------------------------------------------------------------
+
+# ---- PRD §3 Product objective (10 numbered requirements) ----
+
+<req/prd-obj-1> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Zero-config start" ;
+    rdf:value "the interview can begin with no runtime configuration" .
+<req/prd-obj-2> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Admitted problem model" ;
+    rdf:value "the coding task is represented as an admitted problem model" .
+<req/prd-obj-3> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Explicit-capability solution paths" ;
+    rdf:value "likely solution paths are constructed from explicit capabilities" .
+<req/prd-obj-4> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Full code lifecycle" ;
+    rdf:value "code can be written, compiled, executed, tested, and repaired" .
+<req/prd-obj-5> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Natural activity advances workflow" ;
+    rdf:value "natural candidate activity advances the workflow" .
+<req/prd-obj-6> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Automatic accessible projection" ;
+    rdf:value "assistance is projected automatically through the admitted accessibility surface" .
+<req/prd-obj-7> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Visible uncertainty" ;
+    rdf:value "uncertain interpretations remain visibly uncertain" .
+<req/prd-obj-8> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Executable-verification rejection" ;
+    rdf:value "incorrect candidates are rejected through executable verification" .
+<req/prd-obj-9> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Replayable session behavior" ;
+    rdf:value "session behavior can be replayed" .
+<req/prd-obj-10> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Complete evidence receipt" ;
+    rdf:value "the final result includes a complete evidence receipt" .
+
+# ---- PRD §7 Reference sandbox ----
+
+<req/prd-sandbox-self-hosted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#sandbox> ; dcterms:title "Self-hosted sandbox, not private platform integration" ;
+    rdf:value "InterviewAssist shall initially ship with a self-hosted sandbox rather than depending on private integrations with commercial interview platforms." .
+<req/prd-sandbox-common-denominator> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#sandbox> ; dcterms:title "Common-denominator sandbox surface" ;
+    rdf:value "The sandbox must represent the common denominator of modern coding interview products." ;
+    dcterms:requires <req/prd-sandbox-self-hosted> .
+
+# ---- PRD §8 Capability ontology ----
+
+<req/prd-capability-list> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "Canonical capability list" ;
+    rdf:value "The sandbox shall provide the first canonical capability list." .
+
+# ---- PRD §10 Self-play requirements ----
+
+<req/prd-selfplay-local-models> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Sub-9B local self-play models" ;
+    rdf:value "The bootstrap plane shall use local models under 9B parameters to manufacture candidate interview knowledge." .
+<req/prd-selfplay-unadmitted-until-verified> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Synthetic output unadmitted until verified" ;
+    rdf:value "Synthetic output remains unadmitted until it passes relevant verification gates." ;
+    dcterms:requires <req/prd-selfplay-local-models> .
+<req/prd-selfplay-preserve-provenance> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Preserve self-play provenance" ;
+    rdf:value "The system shall preserve generation model, model version, prompt or constructor identifier, seed, source pack, resulting candidate, verifier results, and admission decision." .
+
+# ---- PRD §13 Zero-input behavior ----
+
+<req/prd-zeroinput-advance-from-events> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#zero-input> ; dcterms:title "Advance from observable events" ;
+    rdf:value "The system shall advance from observable interview events." .
+<req/prd-zeroinput-manual-fallback-only> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#zero-input> ; dcterms:title "Manual controls are accessibility fallback only" ;
+    rdf:value "Manual controls may exist as an accessibility fallback but shall not be necessary for ordinary operation." .
+
+# ---- PRD §14 Admission states ----
+
+<req/prd-admission-vocabulary> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "Fixed admission-state vocabulary" ;
+    rdf:value "Every material claim or artifact shall have one of the following states: PARTIAL_ALIVE, ALIVE, BLOCKED, BUILD_BROKEN, UNKNOWN, UNSUPPORTED." .
+<req/prd-admission-unknown-not-admitted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "UNKNOWN is not admitted" ;
+    rdf:value "UNKNOWN shall not be treated as admitted." ;
+    dcterms:requires <req/prd-admission-vocabulary> .
+<req/prd-admission-unsupported-not-promoted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "UNSUPPORTED not silently promoted" ;
+    rdf:value "UNSUPPORTED shall not be silently promoted to candidate fact." ;
+    dcterms:requires <req/prd-admission-vocabulary> .
+<req/prd-admission-visible-test-not-complete> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "A passing visible test is not complete correctness" ;
+    rdf:value "A passing visible test shall not imply complete correctness." .
+
+# ---- PRD §18 Launch criterion (10 numbered acceptance requirements) ----
+
+<req/prd-launch-1> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Zero explicit-assistant-input completion" ;
+    rdf:value "a candidate completes a full mock coding interview without explicit assistant input" .
+<req/prd-launch-2> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Correct interview phase maintained" ;
+    rdf:value "the system maintains the correct interview phase" .
+<req/prd-launch-3> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Primary track identified" ;
+    rdf:value "the system identifies the primary algorithm or debugging track" .
+<req/prd-launch-4> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Sandbox compiles and executes" ;
+    rdf:value "the sandbox compiles and executes the candidate code" .
+<req/prd-launch-5> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Independent visible/hidden test evaluation" ;
+    rdf:value "visible and hidden tests are independently evaluated" .
+<req/prd-launch-6> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "No silent admission of incorrect assistance" ;
+    rdf:value "incorrect assistance is not silently admitted" .
+<req/prd-launch-7> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Complete session replay" ;
+    rdf:value "the complete session can be replayed" .
+<req/prd-launch-8> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Accessibility verifier passes" ;
+    rdf:value "the accessibility verifier passes" .
+<req/prd-launch-9> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Policy envelope enforced" ;
+    rdf:value "the policy envelope is enforced" .
+<req/prd-launch-10> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Final receipt matches replayed trace" ;
+    rdf:value "the final session receipt matches the replayed event trace" .
+
+# ---- ARD §1 Architectural objective ----
+
+<req/ard-obj-transform-events> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#objective> ; dcterms:title "Transform events into verified assistance without explicit control" ;
+    rdf:value "InterviewAssist shall transform an interview event stream into accessible, verified assistance without requiring explicit runtime control by the candidate." .
+<req/ard-obj-authority-required> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#objective> ; dcterms:title "No actuation without authority envelope" ;
+    rdf:value "No external actuation may occur without an applicable authority envelope." .
+
+# ---- ARD §8 Security requirements (12 items) ----
+
+<req/ard-sec-network-denied> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Network denied by default" ;
+    rdf:value "network denied by default in execution sandboxes" .
+<req/ard-sec-no-host-fs> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "No host filesystem access" ;
+    rdf:value "no host filesystem access" .
+<req/ard-sec-no-inherited-secrets> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "No inherited environment secrets" ;
+    rdf:value "no inherited environment secrets" .
+<req/ard-sec-bounded-resources> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Bounded CPU/memory/time/output" ;
+    rdf:value "bounded CPU, memory, time, and output" .
+<req/ard-sec-authenticated-participants> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Authenticated participant identities" ;
+    rdf:value "authenticated participant identities where required" .
+<req/ard-sec-encrypted-evidence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Encrypted local personal evidence" ;
+    rdf:value "encrypted local personal evidence" .
+<req/ard-sec-retention-policy> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Explicit retention policy" ;
+    rdf:value "explicit retention policy" .
+<req/ard-sec-revocable-sensors> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Revocable sensor permissions" ;
+    rdf:value "revocable sensor permissions" .
+<req/ard-sec-actuation-audit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Complete external-actuation audit" ;
+    rdf:value "complete external-actuation audit" .
+<req/ard-sec-deterministic-fingerprint> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Deterministic environment fingerprint" ;
+    rdf:value "deterministic environment fingerprint" .
+<req/ard-sec-dependency-pinning> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Dependency pinning" ;
+    rdf:value "dependency pinning" .
+<req/ard-sec-malicious-fixtures-escape-testing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Malicious-code fixtures and sandbox-escape testing" ;
+    rdf:value "malicious-code fixtures; sandbox escape testing" .
+
+# ---- ARD §9 Accessibility requirements (WCAG baseline + 12 verifier tests) ----
+
+<req/ard-a11y-wcag-baseline> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "WCAG 2.2 AA as baseline, not sufficient" ;
+    rdf:value "The system shall target WCAG 2.2 AA as a baseline, but compliance shall not be treated as sufficient evidence of zero-input usability." .
+<req/ard-a11y-keyboard-path> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Complete keyboard path" ; rdf:value "complete keyboard path" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-zero-keyboard-path> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Zero-keyboard path" ; rdf:value "zero-keyboard path" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-screenreader-order> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Screen-reader order" ; rdf:value "screen-reader order" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-focus-stability> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Focus stability" ; rdf:value "focus stability" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-non-color-state> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Non-color state communication" ; rdf:value "non-color state communication" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-content-density> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Content-density constraints" ; rdf:value "content-density constraints" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-refresh-stability> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Refresh stability" ; rdf:value "refresh stability" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-caption-timing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Caption timing" ; rdf:value "caption timing" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-speech-interruption> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Speech-output interruption behavior" ; rdf:value "speech-output interruption behavior" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-reduced-motion> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Reduced-motion behavior" ; rdf:value "reduced-motion behavior" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-zoom-reflow> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Zoom and reflow" ; rdf:value "zoom and reflow" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-assistive-device-replay> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Assistive-device event replay" ; rdf:value "assistive-device event replay" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+
+# ---- ARD §10 Performance requirements (7 numeric targets) ----
+
+<req/ard-perf-editor-admission> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Editor event admission < 25ms" ; rdf:value "editor event admission < 25 ms" .
+<req/ard-perf-rule-evaluation> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Rule evaluation < 25ms" ; rdf:value "rule evaluation < 25 ms" .
+<req/ard-perf-semantic-retrieval> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Semantic retrieval < 50ms" ; rdf:value "semantic retrieval < 50 ms" .
+<req/ard-perf-hypothesis-update> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Hypothesis update < 50ms" ; rdf:value "hypothesis update < 50 ms" .
+<req/ard-perf-first-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "First projection after stable event < 250ms" ; rdf:value "first projection after stable event < 250 ms" .
+<req/ard-perf-compile-dispatch> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Compile dispatch < 50ms" ; rdf:value "compile dispatch < 50 ms" .
+<req/ard-perf-replay-divergence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Zero session replay divergence" ; rdf:value "session replay divergence 0" .
+
+# ---- ARD §11 Refusal taxonomy (16 required refusal codes + 1 governing rule) ----
+
+<req/ard-refusal-unsupported-language> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_LANGUAGE" ; rdf:value "UNSUPPORTED_LANGUAGE" .
+<req/ard-refusal-unsupported-runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_RUNTIME" ; rdf:value "UNSUPPORTED_RUNTIME" .
+<req/ard-refusal-invalid-problem-spec> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INVALID_PROBLEM_SPEC" ; rdf:value "INVALID_PROBLEM_SPEC" .
+<req/ard-refusal-stale-session-event> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "STALE_SESSION_EVENT" ; rdf:value "STALE_SESSION_EVENT" .
+<req/ard-refusal-unauthorized-sensor> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_SENSOR" ; rdf:value "UNAUTHORIZED_SENSOR" .
+<req/ard-refusal-unauthorized-execution> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_EXECUTION" ; rdf:value "UNAUTHORIZED_EXECUTION" .
+<req/ard-refusal-unauthorized-recording> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_RECORDING" ; rdf:value "UNAUTHORIZED_RECORDING" .
+<req/ard-refusal-sandbox-timeout> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_TIMEOUT" ; rdf:value "SANDBOX_TIMEOUT" .
+<req/ard-refusal-sandbox-memory-limit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_MEMORY_LIMIT" ; rdf:value "SANDBOX_MEMORY_LIMIT" .
+<req/ard-refusal-sandbox-escape-detected> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_ESCAPE_DETECTED" ; rdf:value "SANDBOX_ESCAPE_DETECTED" .
+<req/ard-refusal-nondeterministic-replay> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "NONDETERMINISTIC_REPLAY" ; rdf:value "NONDETERMINISTIC_REPLAY" .
+<req/ard-refusal-unsupported-personal-claim> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_PERSONAL_CLAIM" ; rdf:value "UNSUPPORTED_PERSONAL_CLAIM" .
+<req/ard-refusal-insufficient-classification-evidence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INSUFFICIENT_CLASSIFICATION_EVIDENCE" ; rdf:value "INSUFFICIENT_CLASSIFICATION_EVIDENCE" .
+<req/ard-refusal-inaccessible-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INACCESSIBLE_PROJECTION" ; rdf:value "INACCESSIBLE_PROJECTION" .
+<req/ard-refusal-pack-validation-failed> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "PACK_VALIDATION_FAILED" ; rdf:value "PACK_VALIDATION_FAILED" .
+<req/ard-refusal-hidden-test-integrity-failed> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "HIDDEN_TEST_INTEGRITY_FAILED" ; rdf:value "HIDDEN_TEST_INTEGRITY_FAILED" .
+<req/ard-refusal-no-inferred-truth> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "Failures must not collapse into inferred truth" ;
+    rdf:value "Failures must not collapse into inferred truth." .
+
+# ---- ARD §12 Verification ladder (5 tiers, each a requirement to reproduce a category) ----
+
+<req/ard-verify-unit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Unit verification tier" ;
+    rdf:value "event parsing, rule execution, confidence updates, capability preconditions, accessibility projection constraints" .
+<req/ard-verify-integration> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Integration verification tier" ;
+    rdf:value "editor to event gateway, event gateway to admission, admission to workflow, workflow to sandbox, sandbox result to cognition, cognition to accessibility projector" .
+<req/ard-verify-e2e> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "End-to-end verification tier" ;
+    rdf:value "complete algorithm interview, complete debugging interview, zero-input candidate session, screen-reader candidate session, transcript-only candidate session" .
+<req/ard-verify-chaos> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Chaos verification tier" ;
+    rdf:value "transcript corruption, delayed events, duplicate events, out-of-order events, sandbox termination, model failure, graph-store failure, accessibility device disconnect" .
+<req/ard-verify-stress> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Stress verification tier" ;
+    rdf:value "long session, large repository, high-frequency editor updates, repeated test runs, multiple simultaneous hypotheses" .

@@ -1,0 +1,92 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Policy graph: ARD Section 3.15 authority classes and the PRD's 5
+# operating-mode permission envelopes, as ODRL. odrl:action always points
+# at a schema:Action resource (either from 30-capabilities.ttl or one of
+# the authority-class / prohibited-action stubs declared here) -- never a
+# new odrl:action term, per the instruction to represent the target as a
+# product action resource rather than inventing an ODRL action.
+# ---------------------------------------------------------------------------
+
+# ---- ARD §3.15 authority classes, as action resources an ODRL statement can target ----
+
+<authority-action/observe>      a schema:Action ; schema:name "observe" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/admit>        a schema:Action ; schema:name "admit" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/project>      a schema:Action ; schema:name "project" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/execute-code> a schema:Action ; schema:name "execute_code" ; dcterms:isPartOf <doc/ard#components> ; dcterms:requires <capability/runtime/execute> .
+<authority-action/record>       a schema:Action ; schema:name "record" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/retain>       a schema:Action ; schema:name "retain" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/export>       a schema:Action ; schema:name "export" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/communicate>  a schema:Action ; schema:name "communicate" ; dcterms:isPartOf <doc/ard#components> .
+
+# ---- PRD §4.5 prohibited-mode actions (excluded from the product, not part of 30-capabilities.ttl's admitted set) ----
+
+<prohibited-action/hidden-overlay>        a schema:Action ; schema:name "hidden overlay" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/screen-capture-evasion> a schema:Action ; schema:name "screen-capture evasion" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/monitoring-bypass>     a schema:Action ; schema:name "monitoring bypass" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/disguised-process>     a schema:Action ; schema:name "disguised process" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/covert-audio-capture>  a schema:Action ; schema:name "covert audio capture" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/misrepresent-unaided-work> a schema:Action ; schema:name "misrepresent unaided work" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+
+# ---- ARD §3.15 Authority Broker default policy for live candidate mode ----
+
+<policy/authority-broker-default>
+    a odrl:Set ;
+    dcterms:isPartOf <doc/ard#components> ;
+    odrl:permission
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/observe> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/admit> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+          odrl:constraint [ a odrl:Constraint ; odrl:leftOperand odrl:spatial ; odrl:operator odrl:eq ; odrl:rightOperand "the declared sandbox"^^xsd:string ] ] ;
+    odrl:prohibition
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/communicate> ;
+          rdfs:comment "external messaging" ] ,
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/record> ;
+          rdfs:comment "undisclosed recording" ] ,
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+          rdfs:comment "code submission (on the candidate's behalf, outside the declared sandbox)" ] .
+
+# ---- PRD §4 operating-mode policies ----
+
+<policy/practice-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-practice> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+        rdfs:comment "All InterviewAssist capabilities may be enabled." ] .
+
+<policy/mock-interview-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-mock> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <role/interviewer> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/observe> ;
+        rdfs:comment "Operates as an accessibility and preparation tool with the consent of all participants." ] .
+
+<policy/live-assistance-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-live> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <role/interviewer> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ;
+        odrl:constraint [ a odrl:Constraint ; odrl:leftOperand odrl:event ; odrl:operator odrl:eq ; odrl:rightOperand "declared before the session"^^xsd:string ] ;
+        rdfs:comment "An employer or interviewer explicitly permits InterviewAssist or an equivalent assistive coding tool." ] .
+
+<policy/assessment-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-assessment> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner [ a schema:Organization ; schema:name "employer" ] ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ;
+        rdfs:comment "Employer determines available assistance, accessibility accommodations, permitted references, scoring rules, observation policy, and retained evidence." ] .
+
+<policy/prohibited-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-prohibited> ;
+    odrl:prohibition
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/hidden-overlay> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/screen-capture-evasion> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/monitoring-bypass> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/disguised-process> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/covert-audio-capture> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/misrepresent-unaided-work> ] .
+
+# ---- PRD §8.8 governance capabilities exercised through these policies ----
+
+<policy/authority-broker-default> dcterms:requires <capability/governance/declare-assistance-policy> .
