@@ -2,7 +2,9 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real reducer/replay/transition-table evidence proven and passing; Playwright
+layer blocked by the real `next build` regression documented in TICKET-040's notes (same root
+cause, not restated in full here)
 
 ## Parent
 
@@ -118,3 +120,29 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence (`next build`/`next dev` both fail with a reproduced `node:module` client-bundling
+  error, traced to `checksum-adapter.ts` reaching `page.tsx`'s client bundle via
+  `reducer.ts -> receipt-emitter.ts`). Authored as a real vitest test instead.
+- File: `examples/interview-assist/tests/scenarios/first-interaction.test.ts` (3 tests). Real
+  run: `npx vitest run tests/scenarios/first-interaction.test.ts` → 3/3 passed, 2ms.
+    sha256: `4e732e31664526ccc43c91f455a3ed493ccba4b417b7f1522b818e99112ce062`
+- Acceptance criterion: real event log
+  `[{family:"ParticipantEvent", type:"identify-participant-roles"}, {family:"WorkflowEvent",
+  targetPhase:"PREPARING"}, {family:"WorkflowEvent", targetPhase:"READY"}]` folded through the
+  real `replaySession` (TICKET-025, which itself folds the real `sessionReducer`) — admitted,
+  final `phase === "READY"`. Cross-checked against the real generated
+  `PHASE_TRANSITIONS["CREATED"] === ["PREPARING"]` and `PHASE_TRANSITIONS["PREPARING"] ===
+  ["READY"]` (TICKET-021) rather than restating those edges as independent literals.
+- Negative test 1: `sessionReducer({phase:"CREATED"}, {family:"WorkflowEvent",
+  targetPhase:"READY"})` (direct skip, no intermediate PREPARING) → refused,
+  `code === "STALE_SESSION_EVENT"`; cross-checked against the real `isLegalTransition("CREATED",
+  "READY") === false`.
+- Negative test 2 (replay form): the same illegal jump placed mid-log, followed by an event that
+  WOULD be legal from CREATED — `replaySession` halts at the refusal (per TICKET-025's documented
+  "does not continue folding past a refusal" behavior) and never reaches the trailing legal event.
+- Full-suite regression check: `npx vitest run` → 85/85 passed (see TICKET-040's notes for the
+  full run). `npx tsc --noEmit` → clean.

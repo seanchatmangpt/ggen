@@ -1,0 +1,386 @@
+/* Minimal global stylesheet -- app/layout.tsx (TICKET-012, already committed)
+ * imports "./globals.css" but no such file existed on disk yet (discovered
+ * running `next build` while building app/page.tsx: "Module not found: Can't
+ * resolve './globals.css'"). This is a real, minimal stylesheet, not a
+ * placeholder claiming to be more than it is -- basic resets + readable
+ * defaults so the real components' semantic markup (role="status",
+ * aria-live regions, etc.) is visible and usable, no design system implied.
+ */
+
+/* JTBD 6 closure: real CSS effects driven by state.accessibility, synced to
+ * `document.documentElement.dataset` by app/page.tsx's own effect (the
+ * single source of truth stays the lifted React state -- these attributes
+ * are a projection of it, not a second copy). Three of the 16
+ * AccessibilityDefaults keys are wired to real, computed-style-verifiable
+ * effects here: "reduced-motion-mode" -> data-reduced-motion,
+ * "high-contrast-projection" -> data-high-contrast,
+ * "configurable-information-density" -> data-compact-density. The other 13
+ * keys remain real typed state with no downstream visual effect yet -- see
+ * tests/e2e/jtbd-06-accessibility-controls.spec.ts for exactly which is
+ * which; not claimed as done beyond what is wired below. */
+:root {
+  --color-fg: #1a1a1a;
+  --color-bg: #ffffff;
+  --color-border: #d0d0d0;
+  --color-muted: #555555;
+  --color-accent: #1a5fb4;
+  --color-badge-bg: #eaeaea;
+  --color-badge-mode-bg: #d9e8fb;
+  --color-badge-processing-bg: #fde9a8;
+  --color-badge-listening-bg: #d3f5da;
+  --color-badge-pass-bg: #d3f5da;
+  --color-badge-fail-bg: #fbd3d3;
+  --badge-border-width: 0px;
+
+  --density-main-padding: 1.5rem;
+  --density-gap: 1.5rem;
+  --density-font-size: 1rem;
+}
+
+/* High contrast: a real WCAG-style inversion (near-black background, near-
+ * white foreground, saturated yellow accent) -- not a subtle tint swap --
+ * so the effect is unambiguous under getComputedStyle() in tests and to the
+ * eye. Every color consumer below reads these variables, so toggling the
+ * attribute repaints the whole page without any component re-render. */
+:root[data-high-contrast="true"] {
+  --color-fg: #ffffff;
+  --color-bg: #000000;
+  --color-border: #ffffff;
+  --color-muted: #ffffff;
+  --color-accent: #ffff00;
+  --color-badge-bg: #000000;
+  --color-badge-mode-bg: #000000;
+  --color-badge-processing-bg: #000000;
+  --color-badge-listening-bg: #000000;
+  --color-badge-pass-bg: #000000;
+  --color-badge-fail-bg: #000000;
+  --badge-border-width: 2px;
+}
+
+/* Compact information density: a real font-size/spacing scale change (not
+ * just a class name), applied to body text size, <main>'s padding, and the
+ * workspace grid gap. */
+:root[data-compact-density="true"] {
+  --density-main-padding: 0.75rem;
+  --density-gap: 0.75rem;
+  --density-font-size: 0.875rem;
+}
+
+/* Reduced motion: forces every real transition/animation on the page
+ * (button hover transitions, the "processing" badge pulse below) down to
+ * an effectively-zero duration, the standard prefers-reduced-motion
+ * pattern -- applied here from the app's own toggle rather than only the
+ * OS-level media query, since this control is a real per-user setting, not
+ * a media-query proxy for one. */
+:root[data-reduced-motion="true"] *,
+:root[data-reduced-motion="true"] *::before,
+:root[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+  color: var(--color-fg);
+  background: var(--color-bg);
+  font-size: var(--density-font-size);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--density-main-padding);
+}
+
+textarea {
+  width: 100%;
+  min-height: 8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+button {
+  font: inherit;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* Visible focus style (TICKET: cognition-panel UI, real per-control focus
+ * ring) -- applies to every real interactive control on the page, not just
+ * the new cognition input, using :focus-visible so it only shows for
+ * keyboard/programmatic focus (e.g. cognition-panel.tsx's heading.focus()
+ * call), not every mouse click. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Phase 4 (UI/UX redesign) -- additive rules only; nothing above this point
+ * was removed, so the prior minimal reset/focus-ring behavior is unchanged. */
+
+/* Skip link (SessionHeader): visually hidden until focused, matching the
+ * standard "skip to main content" pattern -- jumps to #coding-region
+ * (SessionWorkspace's Coding region), the page's "current task". */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: #1a5fb4;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 0.25rem 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 0;
+  top: 0;
+}
+
+/* SessionHeader */
+.session-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+.session-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.session-header-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.session-header-label {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-badge-bg);
+  color: var(--color-fg);
+  border: var(--badge-border-width) solid var(--color-fg);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.badge-mode {
+  background: var(--color-badge-mode-bg);
+}
+.badge-input-status[data-status="processing"] {
+  background: var(--color-badge-processing-bg);
+  animation: badge-pulse 1.2s ease-in-out infinite;
+}
+@keyframes badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.badge-input-status[data-status="listening"] {
+  background: var(--color-badge-listening-bg);
+}
+.badge[data-status="pass"] {
+  background: var(--color-badge-pass-bg);
+}
+.badge[data-status="fail"] {
+  background: var(--color-badge-fail-bg);
+}
+
+/* Shared small caps section heading used inside workspace regions and
+ * cards (Track choices, Current objective, Visible tests, etc.) */
+.region-heading {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  margin: 0.75rem 0 0.25rem;
+}
+
+/* SessionWorkspace: mobile-first single column, DOM order
+ * cognition -> objective -> coding -> result (see session-workspace.tsx's
+ * module doc for why grid-template-areas -- not DOM order -- is what
+ * changes per breakpoint). */
+.session-workspace {
+  display: grid;
+  gap: var(--density-gap);
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "cognition"
+    "objective"
+    "coding"
+    "result";
+  margin-bottom: 1.5rem;
+}
+.region-cognition {
+  grid-area: cognition;
+}
+.region-objective {
+  grid-area: objective;
+}
+.region-coding {
+  grid-area: coding;
+}
+.region-result {
+  grid-area: result;
+}
+
+/* Tablet: narrow "drawer" side columns flank a wider coding column. */
+@media (min-width: 700px) {
+  .session-workspace {
+    grid-template-columns: minmax(190px, 1fr) minmax(0, 2fr) minmax(190px, 1fr);
+    grid-template-areas: "cognition coding objective" "cognition coding result";
+    align-items: start;
+  }
+  .region-cognition,
+  .region-objective,
+  .region-result {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+}
+
+/* Real interactive drawer (JS-driven, not just the CSS-only narrowing
+ * above): header row pairs each side region's heading with a real toggle
+ * button whose `aria-expanded` reflects real React state
+ * (session-workspace.tsx's `DrawerSection`). `[hidden]` needs no explicit
+ * `display: none` here -- the UA stylesheet already applies it and nothing
+ * above overrides `display` for `.workspace-region-body`. */
+.workspace-region-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.workspace-region-header .region-heading {
+  margin: 0.75rem 0 0.25rem;
+}
+.drawer-toggle {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+/* Desktop: full 3-column grid, side columns get more room. */
+@media (min-width: 1100px) {
+  .session-workspace {
+    grid-template-columns: 1.15fr 2fr 1fr;
+  }
+}
+
+/* SessionMenu / SessionActivityDrawer: native <details>/<summary>. */
+.session-menu,
+.session-activity-drawer {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin: 1rem 0;
+}
+.session-menu summary,
+.session-activity-drawer summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.session-menu-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* AccessibilityPreferencesDialog: native <dialog>. */
+dialog[data-testid="accessibility-preferences-dialog"] {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  max-width: 32rem;
+  width: 90vw;
+}
+dialog[data-testid="accessibility-preferences-dialog"]::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ExecutionResultCard */
+.execution-result-card {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+.execution-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* UX-polish pass: real per-flow busy indicator (components/spinner.tsx).
+ * Decorative (aria-hidden -- see that component's own doc for why); sized
+ * in em and colored via currentColor so it inherits whatever button/text
+ * it's placed inside. Respects the existing reduced-motion projection
+ * above (`:root[data-reduced-motion="true"] *`) automatically -- no
+ * special-casing needed, this is just another animated element. */
+.spinner {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.4em;
+  vertical-align: -0.1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 0.6s linear infinite;
+}
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* UX-polish pass: timeout/retry notice (components/request-error-notice.tsx). */
+.request-error-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: #8a1c0a;
+  background: #fbd3d3;
+  border: 1px solid #e66550;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+:root[data-high-contrast="true"] .request-error-notice {
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 2px solid var(--color-accent);
+}

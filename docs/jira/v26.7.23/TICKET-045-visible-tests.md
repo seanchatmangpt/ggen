@@ -2,7 +2,8 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real pytest execution evidence proven and passing; Playwright layer blocked by
+the real `next build` regression documented in TICKET-040's notes
 
 ## Parent
 
@@ -120,3 +121,23 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test driving `run_pytest` (TICKET-035's sandbox executor)
+  instead.
+- File: `examples/interview-assist/tests/scenarios/visible-tests.test.ts` (2 tests). Real run:
+  `npx vitest run tests/scenarios/visible-tests.test.ts` → 2/2 passed, 1170ms.
+    sha256: `8e42e682d38b4ef1635224af00f03192885eef277ef8469ada92a545e14d88eb`
+- Acceptance criterion, including the ticket's own "matching an independent manual run" clause: a
+  correct `add(a,b) -> a+b` implementation + a real visible pytest test → real `run_pytest` exit
+  0, `stdout` matches `1 passed`. Independently re-verified by a SEPARATE, directly-spawned
+  `python3 -m pytest -q` process in its own fresh temp directory (not a re-read of the executor's
+  own self-report) — also `1 passed`.
+- Negative test: a deliberately wrong implementation (`a - b` instead of `a + b`) → real
+  `run_pytest` exit non-zero, `stdout` matches `1 failed` AND contains the real pytest
+  assertion-rewrite diff `"assert -1 == 5"` (verified independently against a bare pytest run
+  before wiring the assertion — `add(2,3)` under the wrong implementation really does yield
+  `-1`) — not a generic "test failed" message.
+- Full-suite regression check: `npx vitest run` → 85/85 passed. `npx tsc --noEmit` → clean.

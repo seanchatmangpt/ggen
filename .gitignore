@@ -207,6 +207,12 @@ eggs/
 .eggs/
 lib/
 !.claude/hooks/lib/
+# The blanket Python-venv `lib/` rule above also matches
+# examples/interview-assist/lib/{domain,adapters,accessibility,client}/ -- real,
+# hand-authored/ggen-generated TypeScript source, not a venv artifact. Un-ignore it;
+# examples/interview-assist/lib/wasm/wasm4pm-cognition/ still has its own local
+# wasm-pack-generated .gitignore (a real build artifact, correctly excluded).
+!examples/interview-assist/lib/
 lib64/
 parts/
 sdist/

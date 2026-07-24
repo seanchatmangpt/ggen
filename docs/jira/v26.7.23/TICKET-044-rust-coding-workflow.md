@@ -2,7 +2,9 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real rustc compile+execute evidence proven and passing; Playwright layer blocked
+by the real `next build` regression documented in TICKET-040's notes (the underlying sandbox
+executor itself is fully real and unaffected — this is purely a browser-rendering blocker)
 
 ## Parent
 
@@ -121,3 +123,33 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test driving the real subprocess sandbox executor
+  (TICKET-035) instead.
+- File: `examples/interview-assist/tests/scenarios/rust-coding-workflow.test.ts` (3 tests). Real
+  run: `npx vitest run tests/scenarios/rust-coding-workflow.test.ts` → 3/3 passed, 844ms
+  (compile+execute test 658ms).
+    sha256: `254361e157c73f5c493029469e5bdc3e8adf5e6bde6bdd912a8bbb42fc92a233`
+- Distinct from `tests/adapters/sandbox-executor.test.ts` (which proves `execute_rust`, a
+  combined compile+run, alone): this test dispatches `compile_rust` and `execute_rust` as two
+  SEPARATE real `rustc`-then-binary subprocess calls, matching the ticket's own compile-then-
+  execute steps. `fn main() { println!("{}", 1 + 1); }` → real `compile_rust` exit 0, real
+  `execute_rust` `stdout.trim() === "2"`, `exitCode === 0`.
+- Negative test: real Rust type error (`let x: i32 = "not a number";`). Independently verified
+  against a bare `rustc` invocation before wiring the assertion:
+  ```
+  error[E0308]: mismatched types
+   --> main.rs:1:26
+    |
+  1 | fn main() { let x: i32 = "not a number"; println!("{}", x); }
+    |                    ---   ^^^^^^^^^^^^^^ expected `i32`, found `&str`
+  ```
+  Test asserts `compiled.exitCode !== 0`, `compiled.stderr` contains `"error[E0308]"` and
+  `"mismatched types"` — rustc's real diagnostic text, not fabricated.
+- Language-parameterization proof (third test): the same `getSandboxExecutor()` instance handles
+  both `compile_python` and `compile_rust` in the same test, both succeeding — proves the sandbox
+  is not Python-only.
+- Full-suite regression check: `npx vitest run` → 85/85 passed. `npx tsc --noEmit` → clean.

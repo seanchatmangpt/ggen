@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -124,3 +124,41 @@ TICKET-024 (selectors) and workstream I's vertical scenarios exercise this reduc
 - reducer generated/authored with zero domain literals
 - illegal-transition and unknown-event-family negative tests pass
 - CI literal-string check wired
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Hand-authored `lib/domain/reducer.ts` (this ticket's own classification: "Template: 75% /
+  Custom code: 25%" — the dispatch skeleton is reusable structure containing only calls into
+  RDF-derived tables, not RDF-row-generated itself, so no `.tmpl` file). Imports `Phase` from
+  `phase.ts` (TICKET-016), `ALL_EVENT_FAMILIES`/`EventFamily` from `event-family.ts`
+  (TICKET-016), `AdmissionResult`/`RefusalCode` from `refusal.ts` (TICKET-017),
+  `isLegalTransition` from `phase-transitions.ts` (TICKET-021), `EVENT_ROUTING` from
+  `event-routing.ts` (TICKET-022).
+- **Falsifier, run for real from `examples/interview-assist/`:**
+  ```
+  $ grep -E '"(CREATED|PREPARING|READY|INTRODUCTION|PROBLEM_PRESENTATION|CLARIFICATION|PLANNING|IMPLEMENTATION|EXECUTION|DEBUGGING|EXPLANATION|FOLLOW_UP|COMPLETE|REFUSED)"' lib/domain/reducer.ts
+  $ echo "exit code: $?"
+  exit code: 1
+  ```
+  Zero matches (grep's own exit-code-1-means-no-match convention) — confirmed with a second,
+  independent mechanism too: `tests/domain/reducer.test.ts`'s own test re-reads the file at
+  runtime via `node:fs` and applies the identical regex against the live `ALL_PHASES` list,
+  asserting `matches` is `[]`.
+- Both refusal branches (unrecognized event family; illegal transition) resolve to
+  `RefusalCode` `"STALE_SESSION_EVENT"` — the closest fit among refusal.ts's 16 admitted codes
+  for "an event that does not apply to the session as it currently stands"; no 17th code was
+  invented to split the two cases (documented in the file's own comment above
+  `unrecognizedFamilyCode`/`illegalTransitionCode`).
+- Chicago TDD: `tests/domain/reducer.test.ts` composes the *real* generated
+  `phase-transitions.ts`/`event-routing.ts`/`refusal.ts` — nothing mocked. 6 tests: legal
+  transition admits and updates `state.phase`; illegal transition (CREATED→COMPLETE, the
+  ticket's own example) refuses with `STALE_SESSION_EVENT` and leaves the caller's state object
+  unmutated; unknown event family refuses with a named, non-empty code and a reason string
+  naming the bad family (never silently ignored); a routed event with no `targetPhase` admits
+  as a pass-through no-op; all 15 real `ALL_EVENT_FAMILIES` dispatch without throwing; the
+  no-literal falsifier itself as a live test. `npx vitest run` →
+  `tests/domain/reducer.test.ts (6 tests)`, all pass.
+- `npx tsc --noEmit`: zero errors, including `noUncheckedIndexedAccess`-driven checks on
+  `EVENT_ROUTING[event.family as EventFamily]` (typed `string | undefined`, handled with an
+  explicit `undefined` guard, not a non-null assertion).
+- SHA-256 of `reducer.ts`: `04f6c0e678ff746fcf390a2fb9b59a48d525789a02221fe7e623afd78e579c4a`.

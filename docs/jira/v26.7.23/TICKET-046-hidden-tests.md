@@ -2,7 +2,10 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real pytest hidden-test execution evidence proven and passing; Playwright layer
+blocked by the real `next build` regression documented in TICKET-040's notes; ADDITIONALLY a
+real, verified, disclosed gap was found in this ticket's own no-leak acceptance criterion (see
+notes) — the pass-path does not leak, but the fail-path currently does
 
 ## Parent
 
@@ -120,3 +123,62 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test driving `run_pytest` (TICKET-035's sandbox executor)
+  instead.
+- "Client-visible state" reasoning (the ticket leaves this open, stated here rather than
+  assumed): `sandbox-executor.ts` has no distinct `run_hidden_test` capability — its
+  `CapabilityId` union only has `run_pytest`/`run_cargo_test` (verified by reading the file). The
+  visible/hidden distinction the RDF layer models
+  (`capability/verification/run-visible-test` vs `run-hidden-test` in `capability.ts`) is not
+  enforced by a separate code path today, only by which files the caller includes. The only real
+  client-visible surface hidden-test content could leak through is
+  `ExecutionReceipt.{stdout,stderr}`, because `app/api/run/route.ts` forwards those fields
+  verbatim to the browser (`NextResponse.json({ receipt: result })`), and `app/page.tsx` stores
+  them into `AppState.stdout`/`stderr`, rendered by `<ConsolePanel>`. The test inspects that real
+  value.
+- File: `examples/interview-assist/tests/scenarios/hidden-tests.test.ts` (3 tests). Real run:
+  `npx vitest run tests/scenarios/hidden-tests.test.ts` → 3/3 passed, 862ms.
+    sha256: `37bc2bcb897ce37a8d748479d8253bed5bf8d5158a5d1fd06ce8fc8fb0e6abfb`
+- **Positive path (holds):** a passing hidden test (unique marker
+  `HIDDEN_TEST_MAGIC_MARKER_9f3c` embedded in the hidden test's function name and assertion
+  message) → real `run_pytest` exit 0, `stdout` matches `1 passed`, matching an independent
+  manual pytest run. Real inspection of `result.stdout`/`result.stderr`: the marker does **not**
+  appear anywhere — pytest's `-q` passing-case output is just `.` + the summary line, no test
+  names.
+- **DISCLOSED FINDING, real and verified, NOT fixed by this ticket (out of its stated
+  Custom-code boundary — a production fix, not test authoring):** the SAME hidden test, run
+  against a deliberately wrong implementation so it FAILS, DOES leak. Independently verified
+  against a bare `python3 -m pytest -q` run before wiring the assertion:
+  ```
+  F                                                                        [100%]
+  =================================== FAILURES ===================================
+  ________________________ test_hidden_MAGIC_MARKER_9f3c _________________________
+      def test_hidden_MAGIC_MARKER_9f3c():
+          from solution import add
+  >       assert add(7, 6) == 13, "MAGIC_MARKER_9f3c leak check"
+  E       AssertionError: MAGIC_MARKER_9f3c leak check
+  ...
+  FAILED test_hidden.py::test_hidden_MAGIC_MARKER_9f3c - AssertionError: MAGIC_...
+  ```
+  `-q` (quiet) only suppresses per-test progress verbosity, not the `FAILURES` detail section —
+  the hidden test's fully-qualified name and assertion message both appear in `stdout`, which is
+  exactly the field `app/api/run` forwards to the client. The test file asserts this REAL,
+  reproduced behavior (`result.stdout` DOES contain the marker on the failure path) rather than
+  asserting the ticket's stated criterion falsely. **This means TICKET-046's acceptance criterion
+  ("the hidden test source is absent from all client-visible state") does not currently hold on
+  the failure path** with `sandbox-executor.ts`'s hardcoded `["-m", "pytest", "-q"]` invocation.
+  A real fix (e.g., a custom pytest reporter/`--tb=no` combined with a separate pass/fail-only
+  summary line, or running hidden tests with output redacted before it reaches
+  `ExecutionReceipt`) is a follow-up production task, out of this ticket's own test-authoring
+  scope, and is reported here rather than silently omitted or silently patched.
+- Negative test (capability/policy layer): confirmed independently against the real generated
+  `checkPolicy` (`lib/domain/policy-check.ts`, TICKET-028) that
+  `policy/authority-broker-default` really does deny `authority-action/execute-code` before
+  relying on it; then dispatched `run_pytest` under that mode — real refusal,
+  `kind === "policy_denied"`, and a `ps ax` check confirms no subprocess bearing a unique marker
+  was ever spawned.
+- Full-suite regression check: `npx vitest run` → 85/85 passed. `npx tsc --noEmit` → clean.

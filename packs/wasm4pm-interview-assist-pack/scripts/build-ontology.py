@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TICKET-006: deterministic concatenation of the 9 hand-edited ontology/*.ttl
+"""TICKET-006: deterministic concatenation of the hand-edited ontology/*.ttl
 source files into the pack's root ontology.ttl, which crates/ggen-engine's
 resolve_pack_dir (pack.rs:271-280) requires to exist as a single file.
 
@@ -28,6 +28,7 @@ ONTOLOGY_FILES = [
     "ontology/60-provenance-receipts.ttl",
     "ontology/70-packs-datasets.ttl",
     "ontology/80-acceptance.ttl",
+    "ontology/90-cognition-bridge.ttl",
 ]
 
 PREFIX_RE = re.compile(r"^@prefix\s+(\S+)\s+<([^>]+)>\s*\.\s*$")

@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -117,3 +117,35 @@ TICKET-048 and TICKET-049 (workstream I) exercise this directly as their core me
 
 - replaySession implemented, reusing TICKET-023's reducer with no divergent logic
 - match and tamper-detection tests both pass
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Hand-authored `lib/domain/replay.ts` (this ticket's classification: "Template: 80% / Custom
+  code: 20%", same control-flow-design-judgment basis as TICKET-023 — no `.tmpl` file). Folds
+  `sessionReducer` (TICKET-023) over the event log starting from `ALL_PHASES[0]` (read from the
+  generated table, not a `"CREATED"` literal, so this file carries no phase string of its own),
+  stopping at the first refusal rather than continuing past it. Reuses TICKET-023's reducer (and
+  transitively TICKET-021's `isLegalTransition`) exactly — no separate replay-specific
+  transition logic, per Architecture Decision 12 as required.
+- `ALL_PHASES[0]` types as `Phase | undefined` under this project's `noUncheckedIndexedAccess:
+  true` — handled with a real runtime `undefined` guard that throws (documented as an invariant
+  check, not expected to fire, since phase.ts's own TICKET-016 falsifier already proves 14
+  members), not a `!` assertion or `any`.
+- Chicago TDD, `tests/domain/replay.test.ts`, real generated tables composed throughout:
+  - Built a real 4-event log covering 4 real admitted transition-plan edges
+    (CREATED→PREPARING→READY→INTRODUCTION→PROBLEM_PRESENTATION). `replaySession` over it is
+    compared against an independent live-sequential-reduction helper (calls `sessionReducer`
+    directly in a local loop, not via `replaySession`) — both reach the identical
+    `SessionState`, `phase: "PROBLEM_PRESENTATION"`.
+  - **Tamper test 1** (illegal mutation): 3rd event's `targetPhase` changed from the legal
+    `READY→INTRODUCTION` to the illegal `READY→COMPLETE`. Untampered replay: `status:
+    "admitted"`. Tampered replay: `status: "refused"`. `expect(tampered).not.toEqual(untampered)`
+    passes — genuine divergence, not a hash-only check, since replay.ts itself does not compute
+    a hash (that composition is TICKET-020's receipt type + a later ticket's job; this ticket's
+    own text frames tamper detection as "the shared implementation" TICKET-049 will build on,
+    not a hash it must itself produce).
+  - **Tamper test 2** (truncation): dropped the 4th event. Final phase differs (`INTRODUCTION`
+    vs `PROBLEM_PRESENTATION`) — the same divergence mechanism catches a different tamper shape.
+  - `npx vitest run` → `tests/domain/replay.test.ts (4 tests)`, all pass.
+- `npx tsc --noEmit`: zero errors.
+- SHA-256 of `replay.ts`: `a0b0309adb5aabd2dd762524344f778aa915dd094be930a0e6c00eb5db9267cd`.
