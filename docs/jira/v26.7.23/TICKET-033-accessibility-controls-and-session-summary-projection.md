@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -125,3 +125,17 @@ TICKET-053 (full decisive acceptance test) verifies this component displays the 
 - accessibility-controls.tsx generated with 16 controls
 - session-summary.tsx generated with exact checksum display
 - missing-checksum negative test passes
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real templates: `080_accessibility_controls_tsx.tmpl`, `081_session_summary_tsx.tmpl`.
+- **Real component tests**: `accessibility-controls.test.tsx` asserts exactly 16 real controls
+  render (matching `AccessibilityDefaults`' real key count, not a hardcoded 16 in the test
+  itself -- `Object.keys(ALL_FALSE).length` is asserted `=== 16` first). `session-summary.test.tsx`
+  asserts the checksum displayed is byte-exact to the receipt's real value, and that a missing
+  checksum renders an explicit "Receipt incomplete" state, never a blank or fabricated hash --
+  directly supporting acceptance-step/10.
+- Real `ggen sync run`, `tsc --noEmit` clean, full-tree idempotency re-verified.
+
+Workstream G (TICKET-030 through TICKET-033) is now fully ALIVE, real-sync-verified, with real
+component-level tests (5 new tests, 29/29 total passing across the whole app).

@@ -1,0 +1,7 @@
+# Expected: 8 rows, the ARD Section 3.15 authority-action/* schema:Action resources (TICKET-019).
+PREFIX schema: <https://schema.org/>
+SELECT ?c ?name WHERE {
+  ?c a schema:Action ; schema:name ?name .
+  FILTER(CONTAINS(STR(?c), "/authority-action/"))
+}
+ORDER BY ?c

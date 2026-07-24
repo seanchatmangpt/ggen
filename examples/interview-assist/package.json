@@ -1,8 +1,8 @@
 {
-  "name": "interview-assist",
-  "private": true,
+  "name": "interviewassist",
   "version": "0.1.0",
-  "description": "InterviewAssist: RDF-projected Next.js app shell (TICKET-011..015) + generated domain/capability types (TICKET-016..029) + thin custom-boundary adapters (TICKET-034..039).",
+  "description": "A local-first, accessible technical interview environment that observes interview events and automatically presents verified assistance.",
+  "private": true,
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
@@ -28,3 +28,4 @@
     "@types/react-dom": "^19.1.7"
   }
 }
+

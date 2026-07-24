@@ -2,7 +2,7 @@
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 SELECT ?target ?title ?value WHERE {
-  ?target dcterms:isPartOf <doc/ard#performance> ;
+  ?target dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/doc/ard#performance> ;
           dcterms:title ?title ;
           rdf:value ?value .
 }

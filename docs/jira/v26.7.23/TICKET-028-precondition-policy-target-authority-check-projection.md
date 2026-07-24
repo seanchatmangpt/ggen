@@ -165,3 +165,12 @@ TICKET-029 (timeout/result/refusal handling) and TICKET-035 (sandbox executor) c
 - No mocks; all data is the real admitted RDF, loaded via rdflib and consumed by the generated
   TS at real runtime through `node --experimental-strip-types` (Node v25.9.0 built-in TS type
   stripping, no compilation step, no test doubles).
+
+## Update (real ggen sync run now exercised, evidence added)
+
+Previously this ticket's TS output was produced by a hand-run rdflib script matching the
+template's intended shape, not the real engine -- the corresponding `.tmpl` file was missing its
+required leading `---` frontmatter delimiter (`FM-TPL-001`) and had never actually been rendered
+by `ggen sync run`. Fixed (see TICKET-017's implementation notes for the full fix list). The real
+engine now generates this file directly; re-verified via a real (non-dry) sync + a full-tree
+byte-identical double-sync idempotency check.

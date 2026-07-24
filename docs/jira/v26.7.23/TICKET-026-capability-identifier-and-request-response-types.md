@@ -151,3 +151,12 @@ TICKET-013 (routes), TICKET-027 (dispatch), TICKET-028 (preconditions) all impor
 - Why PARTIAL_ALIVE not ALIVE: the artifact and the falsifier both pass, but `next build`/`tsc`
   end-to-end integration (the ticket's own "End-to-end" row) is deferred to workstream C
   completion, per this round's scope — genuinely unexercised, not claimed.
+
+## Update (real ggen sync run now exercised, evidence added)
+
+Previously this ticket's TS output was produced by a hand-run rdflib script matching the
+template's intended shape, not the real engine -- the corresponding `.tmpl` file was missing its
+required leading `---` frontmatter delimiter (`FM-TPL-001`) and had never actually been rendered
+by `ggen sync run`. Fixed (see TICKET-017's implementation notes for the full fix list). The real
+engine now generates this file directly; re-verified via a real (non-dry) sync + a full-tree
+byte-identical double-sync idempotency check.
