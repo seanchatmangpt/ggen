@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -122,3 +122,15 @@ TICKET-047 and TICKET-049 (workstream I) exercise these components end-to-end.
 - three components generated
 - all 16 refusal codes render correctly from RDF-sourced text
 - type-level enforcement of valid RefusalCode confirmed
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real templates: `070_test_result_view_tsx.tmpl`, `071_refusal_presentation_tsx.tmpl`,
+  `072_replay_failure_presentation_tsx.tmpl`.
+- **Real component test** (`tests/components/refusal-presentation.test.tsx`, real React
+  `renderToStaticMarkup`, no mocks): rendered all 16 real `REFUSAL_CODES` (imported from the
+  generated `refusal.ts`, not a hand-copied list), asserted each produces distinct markup
+  containing its own code -- caught and fixed a real bug in the process (`w[0]` could be
+  `undefined` per `tsc`, a genuine empty-string edge case in the split-and-capitalize logic; fixed
+  in the source template, not the generated output).
+- Real `ggen sync run`, `tsc --noEmit` clean, full-tree idempotency re-verified.

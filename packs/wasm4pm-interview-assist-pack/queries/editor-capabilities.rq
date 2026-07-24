@@ -1,0 +1,8 @@
+# Expected: 12 rows, capability/editor/* (TICKET-018/TICKET-031).
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?c ?name WHERE {
+  ?c a schema:Action ; schema:name ?name ;
+     dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability-category/editor> .
+}
+ORDER BY ?c

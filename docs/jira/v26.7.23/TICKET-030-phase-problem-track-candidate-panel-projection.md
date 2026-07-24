@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -127,3 +127,14 @@ TICKET-013's app shell composes these panels into the session page.
 - three components generated
 - real-fixture render tests pass
 - no hardcoded domain labels in JSX
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real templates: `050_phase_indicator_tsx.tmpl`, `051_problem_panel_tsx.tmpl`,
+  `052_track_candidate_panel_tsx.tmpl`. Props typed against the real, now-existing
+  `lib/domain/phase.ts`/`problem-state.ts`/`track-candidate.ts` (workstream D, completed this
+  session) -- no stub types, per the decision to finish D before G.
+- Real `ggen sync run` produced all 3 components in `examples/interview-assist/components/`.
+- `npx tsc --noEmit`: clean, zero errors, across the whole codebase including these 3 files.
+- Full-tree idempotency re-verified (byte-identical SHA-256 across `lib/`, `app/`, `components/`,
+  `package.json` over two consecutive real syncs).

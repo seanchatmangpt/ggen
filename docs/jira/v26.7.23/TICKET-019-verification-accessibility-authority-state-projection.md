@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -118,3 +118,14 @@ TICKET-028 (precondition/policy-target/authority-check projection) consumes Auth
 
 - three state types generated with correct field counts
 - TICKET-018's macro reused, not duplicated
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real templates `019a_verification_state_ts.tmpl`, `019b_accessibility_state_ts.tmpl` (reuses
+  the already-verified `accessibility-capabilities.rq`), `019c_authority_state_ts.tmpl` (new
+  `authority-actions.rq`).
+- Real `ggen sync run`: field counts verified by direct grep -- verification-state.ts=13,
+  accessibility-state.ts=16, authority-state.ts=8 -- exact match against independently confirmed
+  counts (13 verification capabilities, 16 accessibility capabilities, 8 authority-action/*
+  resources).
+- Full-tree idempotency re-verified.

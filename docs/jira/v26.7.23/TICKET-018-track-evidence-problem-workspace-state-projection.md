@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -121,3 +121,16 @@ TICKET-023 (reducer generation) operates over these state types.
 
 - three state types generated with field counts matching their capability-category sources
 - field-name derivation heuristic documented and tested
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real templates `018a_problem_state_ts.tmpl`, `018b_workspace_state_ts.tmpl`,
+  `018c_track_candidate_ts.tmpl` (queries: `problem-capabilities.rq`, `editor-capabilities.rq`,
+  `cognition-capabilities.rq`). Field-key derivation convention chosen: quoted relative-IRI-path
+  string keys (e.g. `"problem/load-problem-statement"?: unknown`) rather than a camelCase
+  heuristic -- avoids inventing an un-admitted naming transform; still fully valid, type-checked
+  TypeScript, and traceable 1:1 back to its source capability.
+- Real `ggen sync run` produced all 3 files; field counts verified by direct grep:
+  problem-state.ts=11, workspace-state.ts=12, track-candidate.ts=13 -- exact match against the
+  independently-confirmed capability-category counts (11/12/13).
+- Full idempotency re-verified (see TICKET-017 notes for the whole-tree double-sync method).

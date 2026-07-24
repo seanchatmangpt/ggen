@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -113,3 +113,15 @@ TICKET-054-057 (receipt/replay workstream J) implement/consume this type at runt
 ## Definition of done
 
 - receipt.ts generated matching the RDF receipt shape exactly
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real template `020_receipt_ts.tmpl`. Interface shape hand-matched to the real predicate union
+  observed on `receipt/entry-1`/`receipt/entry-2-final` (prov:used, prov:generated,
+  prov:wasDerivedFrom, dcterms:relation, spdx:checksum/algorithm/checksumValue) -- verified by
+  direct inspection of `ontology/60-provenance-receipts.ttl`, not idealized.
+- Real `ggen sync run` produced `lib/domain/receipt.ts` with `RECEIPT_ENTRY_COUNT = 2`, matching
+  the real corpus (2 receipt/* prov:Entity resources with spdx:checksum).
+- Full-tree idempotency re-verified across all of workstream D's outputs together.
+
+Workstream D (TICKET-016 through TICKET-020) is now fully ALIVE, real-sync-verified.

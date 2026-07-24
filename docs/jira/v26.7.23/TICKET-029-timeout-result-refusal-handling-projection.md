@@ -157,3 +157,12 @@ TICKET-035 (subprocess sandbox executor) is wrapped by this timeout logic at int
   (externally killing a wrapped process mid-execution) and the TICKET-047 composed-with-real-
   subprocess integration are out of this round's scope (require TICKET-035's sandbox executor,
   not assigned this round) — not run, not claimed.
+
+## Update (real ggen sync run now exercised, evidence added)
+
+Previously this ticket's TS output was produced by a hand-run rdflib script matching the
+template's intended shape, not the real engine -- the corresponding `.tmpl` file was missing its
+required leading `---` frontmatter delimiter (`FM-TPL-001`) and had never actually been rendered
+by `ggen sync run`. Fixed (see TICKET-017's implementation notes for the full fix list). The real
+engine now generates this file directly; re-verified via a real (non-dry) sync + a full-tree
+byte-identical double-sync idempotency check.

@@ -155,3 +155,13 @@ re-verified `python3 scripts/validate-shacl.py` → `CONFORMS: True` (1790 tripl
 `package.json` template still needs to be repointed from the hardcoded `"0.1.0"` literal to the
 now-real `schema:version` SPARQL binding — that template edit is not done in this update, so
 status remains PARTIAL_ALIVE, not ALIVE.
+
+## Update: schema:version gap closed for real
+
+`<product/interview-assist>` now carries a real `schema:version "0.1.0"` triple (added by a prior
+parallel-agent pass), and `templates/010_package_json.tmpl` now binds it via SPARQL instead of a
+hardcoded literal -- the exact gap this ticket flagged is resolved. The dependency block is also
+now inside the template itself (not a separately hand-merged file), matching this ticket's own
+documented custom-boundary carve-out for external ecosystem version pins. Verified via a real
+`ggen sync run` producing a correct `package.json` with `"version": "0.1.0"` sourced from RDF.
+Still PARTIAL_ALIVE, not ALIVE: `next.config.ts` is not yet generated (TICKET-012's scope).

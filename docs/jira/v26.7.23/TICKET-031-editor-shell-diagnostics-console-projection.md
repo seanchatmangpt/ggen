@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -119,3 +119,13 @@ TICKET-034 (Monaco runtime adapter) implements this generated props interface.
 - editor-shell.tsx props interface generated with 12 capability-derived props
 - diagnostics/console panel scaffolds generated
 - tsc enforces prop completeness
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real template `060_editor_shell_tsx.tmpl`: `EditorShellProps` has exactly 12
+  capability-derived callback props, generated from `queries/editor-capabilities.rq` (12 rows,
+  same query TICKET-018 already verified). `061_diagnostics_panel_tsx.tmpl`,
+  `062_console_panel_tsx.tmpl` (non-RDF-driven, structural only, per this ticket's own scope).
+- `npx tsc --noEmit` clean -- proves the 12-prop port is a real, type-checked contract (an
+  incomplete implementation of `EditorShellProps` would fail to compile).
+- Real `ggen sync run`, full-tree idempotency re-verified.

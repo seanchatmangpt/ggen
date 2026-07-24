@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -117,3 +117,31 @@ TICKET-025 (refusal transitions) and TICKET-032 (refusal UI presentation) both i
 
 - refusal.ts generated with 16 members
 - AdmissionResult<T> wrapper generated and type-checks
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real Tera template `templates/017_refusal_ts.tmpl` (frontmatter `to: "lib/domain/refusal.ts"`),
+  reuses the already-verified `queries/refusal-codes.rq` (16 rows).
+- **Real (non-dry) `ggen sync run`** against `examples/interview-assist/` produced
+  `lib/domain/refusal.ts` for the first time via the actual engine (not a hand-run script) --
+  found and fixed 2 real engine-integration bugs in the process, both now fixed for every
+  template in this pack, not just this one:
+  1. This and 5 other templates (026-029, from a prior parallel-agent pass) were missing the
+     leading `---` frontmatter delimiter `ggen-engine`'s `Frontmatter` parser requires
+     (`FM-TPL-001`) -- they had never actually been exercised by the real engine before, only by
+     a hand-run rdflib+manual-TS-authoring substitute. Fixed all 6.
+  2. `029_timeout_wrapper_ts.tmpl`'s SPARQL query used a relative IRI (`<doc/ard#performance>`)
+     which the engine's SPARQL parser rejects (`FM-GRAPH-003`, SPARQL has no implicit `@base`
+     inheritance from Turtle) -- fixed to the full IRI, in both the template and the standalone
+     `queries/performance-targets.rq`.
+- Full-tree idempotency re-verified after these fixes: two consecutive real `ggen sync run`
+  invocations produced byte-identical output across every generated file (`lib/`, `app/`,
+  `package.json`), confirmed via a SHA-256 hash of the concatenated file list.
+- Real negative test: deleted `<req/ard-refusal-unsupported-language>` from a working copy of
+  `ontology/20-requirements.ttl`, rebuilt `ontology.ttl`, re-ran the query -- count dropped
+  16 -> 15; restored -- back to 16. SHACL re-verified `CONFORMS: True` after restore.
+- `package.json` also needed a real fix: the template's dependency block (a documented custom-
+  boundary carve-out per this ticket's own text) was previously only present in a hand-merged
+  copy on disk, not the template -- folded into `templates/010_package_json.tmpl` for real so
+  `ggen sync run` and the on-disk file agree, and the `schema:version` field (added by a prior
+  session) is now genuinely RDF-bound instead of hardcoded `"0.1.0"`.

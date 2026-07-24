@@ -147,3 +147,12 @@ TICKET-034-039 (workstream H) wire their custom adapters into these typed slots.
 - Why PARTIAL_ALIVE not ALIVE: the 7-vs-9 discrepancy against TICKET-013 needs reconciliation
   (out of this round's scope — TICKET-013 is not one of the assigned tickets), and the `tsc`
   negative-test transcript is not yet captured.
+
+## Update (real ggen sync run now exercised, evidence added)
+
+Previously this ticket's TS output was produced by a hand-run rdflib script matching the
+template's intended shape, not the real engine -- the corresponding `.tmpl` file was missing its
+required leading `---` frontmatter delimiter (`FM-TPL-001`) and had never actually been rendered
+by `ggen sync run`. Fixed (see TICKET-017's implementation notes for the full fix list). The real
+engine now generates this file directly; re-verified via a real (non-dry) sync + a full-tree
+byte-identical double-sync idempotency check.
