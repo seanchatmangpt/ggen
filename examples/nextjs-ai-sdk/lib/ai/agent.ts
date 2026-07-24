@@ -11,7 +11,7 @@ export function createAppAgent(context: ToolExecutionContext) {
     instructions: `You are a precise application assistant. Use notes_list to read notes and notes_create only when the user explicitly asks to persist a note. Never retry a denied tool. After every tool call, report the returned receipt status and digest.`,
     tools: createTools(context),
     stopWhen: stepCountIs(12),
-    experimental_telemetry: { isEnabled: true, functionId: "nextjs-ai-sdk-agent", metadata: { requestId: context.requestId, userId: context.userId } },
+    experimental_telemetry: { isEnabled: true, functionId: "nextjs-ai-sdk-agent" },
   });
 }
 

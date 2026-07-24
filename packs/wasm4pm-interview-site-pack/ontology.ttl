@@ -1,0 +1,201 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix site: <https://ggen.dev/packs/wasm4pm-interview-site#> .
+
+# InterviewAssist Phase 0 Next.js reference sandbox site (ARD §7) -- the
+# 80/20 HackerRank/CoderPad/CodeSignal-equivalent surface: browser editor,
+# language selection, compile/execute, visible/hidden tests, console.
+#
+# Same "catalog/wiring only" boundary already enforced for
+# wasm4pm-sandbox-pack: this ontology and its templates generate the typed
+# capability catalog, the Next.js route dispatch, and the UI wiring. They do
+# NOT execute code -- the real executor is a small hand-written
+# lib/executor.ts in the consuming project (same split as sandbox_actuator_trait.rs).
+#
+# compile_python/execute_python/run_pytest/compile_rust/execute_rust/
+# run_cargo_test intentionally reuse the SAME capabilityId strings as
+# wasm4pm-sandbox-pack's sbx:SandboxCapability individuals -- the Rust and
+# TS sides describe the same six capabilities from two runtime surfaces,
+# not divergent ones.
+
+site:Application a rdfs:Class ;
+  rdfs:comment "The generated Next.js interview-sandbox site." .
+site:InterviewCapability a rdfs:Class ;
+  rdfs:comment "One typed HTTP-dispatchable capability of the sandbox site." .
+
+site:packageName    a rdf:Property ; rdfs:domain site:Application ; rdfs:range xsd:string .
+site:displayName     a rdf:Property ; rdfs:domain site:Application ; rdfs:range xsd:string .
+site:description      a rdf:Property ; rdfs:domain site:Application ; rdfs:range xsd:string .
+
+site:capabilityId    a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:capabilityLabel a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:category          a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:httpMethod        a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:route              a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:doc                a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+site:timeoutMs          a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:integer .
+site:authorityScope     a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:string .
+# executesCode marks the subset of capabilities the generated route handler
+# actually dispatches to the hand-written executor -- everything else
+# (session/problem/editor capabilities) is pure server-side state, no
+# subprocess involved.
+site:executesCode       a rdf:Property ; rdfs:domain site:InterviewCapability ; rdfs:range xsd:boolean .
+
+site:App_interviewSandbox a site:Application ;
+  site:packageName "interview-sandbox" ;
+  site:displayName "Interview Sandbox" ;
+  site:description "Self-hosted reference coding-interview sandbox (Next.js + Monaco): browser editor, language selection, compile/execute, visible/hidden tests, console -- the HackerRank/CoderPad/CodeSignal-equivalent surface for InterviewAssist Phase 0." .
+
+# ---- Session ----
+
+site:Cap_create_session a site:InterviewCapability ;
+  site:capabilityId    "create_session" ;
+  site:capabilityLabel "CreateSession" ;
+  site:category          "session" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/create_session" ;
+  site:doc                "Creates a new sandbox session and returns its id." ;
+  site:timeoutMs          2000 ;
+  site:authorityScope     "session.create" ;
+  site:executesCode       false .
+
+site:Cap_record_event a site:InterviewCapability ;
+  site:capabilityId    "record_event" ;
+  site:capabilityLabel "RecordEvent" ;
+  site:category          "session" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/record_event" ;
+  site:doc                "Appends one provenance event to the session's event log." ;
+  site:timeoutMs          2000 ;
+  site:authorityScope     "session.record" ;
+  site:executesCode       false .
+
+# ---- Problem ----
+
+site:Cap_load_problem a site:InterviewCapability ;
+  site:capabilityId    "load_problem" ;
+  site:capabilityLabel "LoadProblem" ;
+  site:category          "problem" ;
+  site:httpMethod        "GET" ;
+  site:route              "/api/sandbox/load_problem" ;
+  site:doc                "Returns the active problem statement, examples, and starter code for the session." ;
+  site:timeoutMs          2000 ;
+  site:authorityScope     "problem.read" ;
+  site:executesCode       false .
+
+site:Cap_extract_constraints a site:InterviewCapability ;
+  site:capabilityId    "extract_constraints" ;
+  site:capabilityLabel "ExtractConstraints" ;
+  site:category          "problem" ;
+  site:httpMethod        "GET" ;
+  site:route              "/api/sandbox/extract_constraints" ;
+  site:doc                "Returns the structured constraint list (input bounds, time/space targets) for the active problem." ;
+  site:timeoutMs          2000 ;
+  site:authorityScope     "problem.read" ;
+  site:executesCode       false .
+
+# ---- Editor ----
+
+site:Cap_create_file a site:InterviewCapability ;
+  site:capabilityId    "create_file" ;
+  site:capabilityLabel "CreateFile" ;
+  site:category          "editor" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/create_file" ;
+  site:doc                "Adds a new file to the session's in-memory workspace." ;
+  site:timeoutMs          1000 ;
+  site:authorityScope     "editor.write" ;
+  site:executesCode       false .
+
+site:Cap_open_file a site:InterviewCapability ;
+  site:capabilityId    "open_file" ;
+  site:capabilityLabel "OpenFile" ;
+  site:category          "editor" ;
+  site:httpMethod        "GET" ;
+  site:route              "/api/sandbox/open_file" ;
+  site:doc                "Returns the current content of a workspace file." ;
+  site:timeoutMs          1000 ;
+  site:authorityScope     "editor.read" ;
+  site:executesCode       false .
+
+site:Cap_modify_file a site:InterviewCapability ;
+  site:capabilityId    "modify_file" ;
+  site:capabilityLabel "ModifyFile" ;
+  site:category          "editor" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/modify_file" ;
+  site:doc                "Replaces the content of a workspace file with the candidate's edit." ;
+  site:timeoutMs          1000 ;
+  site:authorityScope     "editor.write" ;
+  site:executesCode       false .
+
+# ---- Runtime ----
+
+site:Cap_compile_python a site:InterviewCapability ;
+  site:capabilityId    "compile_python" ;
+  site:capabilityLabel "CompilePython" ;
+  site:category          "runtime" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/compile_python" ;
+  site:doc                "Syntax-checks a candidate Python file via `python -m py_compile` in an isolated subprocess." ;
+  site:timeoutMs          5000 ;
+  site:authorityScope     "sandbox.compile" ;
+  site:executesCode       true .
+
+site:Cap_execute_python a site:InterviewCapability ;
+  site:capabilityId    "execute_python" ;
+  site:capabilityLabel "ExecutePython" ;
+  site:category          "runtime" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/execute_python" ;
+  site:doc                "Runs a candidate Python file in an isolated subprocess and captures stdout/stderr/exit status." ;
+  site:timeoutMs          10000 ;
+  site:authorityScope     "sandbox.execute" ;
+  site:executesCode       true .
+
+site:Cap_compile_rust a site:InterviewCapability ;
+  site:capabilityId    "compile_rust" ;
+  site:capabilityLabel "CompileRust" ;
+  site:category          "runtime" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/compile_rust" ;
+  site:doc                "Builds a candidate Rust file via `rustc` in an isolated subprocess." ;
+  site:timeoutMs          60000 ;
+  site:authorityScope     "sandbox.compile" ;
+  site:executesCode       true .
+
+site:Cap_execute_rust a site:InterviewCapability ;
+  site:capabilityId    "execute_rust" ;
+  site:capabilityLabel "ExecuteRust" ;
+  site:category          "runtime" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/execute_rust" ;
+  site:doc                "Runs the binary produced by compile_rust in an isolated subprocess and captures stdout/stderr/exit status." ;
+  site:timeoutMs          10000 ;
+  site:authorityScope     "sandbox.execute" ;
+  site:executesCode       true .
+
+# ---- Verification ----
+
+site:Cap_run_pytest a site:InterviewCapability ;
+  site:capabilityId    "run_pytest" ;
+  site:capabilityLabel "RunPytest" ;
+  site:category          "verification" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/run_pytest" ;
+  site:doc                "Runs `pytest` against a candidate Python solution plus its test file in an isolated subprocess." ;
+  site:timeoutMs          20000 ;
+  site:authorityScope     "sandbox.execute" ;
+  site:executesCode       true .
+
+site:Cap_run_cargo_test a site:InterviewCapability ;
+  site:capabilityId    "run_cargo_test" ;
+  site:capabilityLabel "RunCargoTest" ;
+  site:category          "verification" ;
+  site:httpMethod        "POST" ;
+  site:route              "/api/sandbox/run_cargo_test" ;
+  site:doc                "Runs `cargo test` against a candidate Rust crate in an isolated subprocess." ;
+  site:timeoutMs          60000 ;
+  site:authorityScope     "sandbox.execute" ;
+  site:executesCode       true .

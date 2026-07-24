@@ -1,0 +1,12 @@
+# MESSAGE: every site:InterviewCapability property is single-valued (any row = a capability carrying two distinct values for ?p)
+PREFIX site: <https://ggen.dev/packs/wasm4pm-interview-site#>
+SELECT ?s ?p WHERE {
+  ?s a site:InterviewCapability .
+  VALUES ?p {
+    site:capabilityId site:capabilityLabel site:category site:httpMethod
+    site:route site:doc site:timeoutMs site:authorityScope site:executesCode
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

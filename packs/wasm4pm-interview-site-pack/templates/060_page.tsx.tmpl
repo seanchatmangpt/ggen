@@ -1,0 +1,98 @@
+---
+to: "app/page.tsx"
+sparql:
+  apps: |
+    PREFIX site: <https://ggen.dev/packs/wasm4pm-interview-site#>
+    SELECT ?displayName WHERE {
+      ?app a site:Application ; site:displayName ?displayName .
+    } LIMIT 1
+---
+"use client";
+
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { Console, type ConsoleResult } from "@/components/editor/Console";
+
+// monaco-editor touches `window` at module-evaluation time, so it must
+// never be evaluated during SSR -- dynamic import with ssr:false keeps its
+// module graph entirely out of the server bundle.
+const CodeEditor = dynamic(() => import("@/components/editor/CodeEditor").then((m) => m.CodeEditor), { ssr: false });
+
+const STARTER: Record<"python" | "rust", string> = {
+  python: 'print("hello from the sandbox")\n',
+  rust: 'fn main() {\n    println!("hello from the sandbox");\n}\n',
+};
+
+const EXECUTE_CAPABILITY: Record<"python" | "rust", string> = {
+  python: "execute_python",
+  rust: "execute_rust",
+};
+
+const SOURCE_FILE: Record<"python" | "rust", string> = {
+  python: "solution.py",
+  rust: "src/main.rs",
+};
+
+const MAIN_STYLE = { maxWidth: 960, margin: "0 auto", padding: "1rem" };
+const TOOLBAR_STYLE = { display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.5rem" };
+
+export default function Page() {
+  const [language, setLanguage] = useState<"python" | "rust">("python");
+  const [source, setSource] = useState(STARTER.python);
+  const [result, setResult] = useState<ConsoleResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function run() {
+    setPending(true);
+    setError(null);
+    setResult(null);
+    try {
+      const capability = EXECUTE_CAPABILITY[language];
+      const response = await fetch(`/api/sandbox/${capability}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: { [SOURCE_FILE[language]]: source } }),
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        setError(body.error ?? `HTTP ${response.status}`);
+      } else {
+        setResult(body);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <main style={MAIN_STYLE}>
+      {% for app in apps %}<h1>{{ app.displayName }}</h1>
+      {% endfor %}
+      <div style={TOOLBAR_STYLE}>
+        <label htmlFor="language-select">Language</label>
+        <select
+          id="language-select"
+          value={language}
+          onChange={(event) => {
+            const next = event.target.value as "python" | "rust";
+            setLanguage(next);
+            setSource(STARTER[next]);
+            setResult(null);
+            setError(null);
+          }}
+        >
+          <option value="python">Python</option>
+          <option value="rust">Rust</option>
+        </select>
+        <button onClick={run} disabled={pending}>
+          {pending ? "Running…" : "Run"}
+        </button>
+      </div>
+      <CodeEditor language={language} value={source} onChange={setSource} />
+      <Console result={result} error={error} pending={pending} />
+    </main>
+  );
+}

@@ -6,6 +6,7 @@ import {
   DefaultChatTransport,
   isToolUIPart,
   lastAssistantMessageIsCompleteWithApprovalResponses,
+  type DynamicToolUIPart,
   type ToolUIPart,
 } from "ai";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
@@ -89,7 +90,7 @@ function ToolPart({
   part,
   onApproval,
 }: {
-  part: ToolUIPart;
+  part: ToolUIPart | DynamicToolUIPart;
   onApproval: (id: string, approved: boolean) => void;
 }) {
   return (
