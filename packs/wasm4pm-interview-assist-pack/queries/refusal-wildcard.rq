@@ -1,0 +1,12 @@
+# Expected: 12 rows, phase/refused's skos:related members (TICKET-021).
+# REFUSED is reachable from any non-terminal phase (ARD Section 11) -- 12,
+# not 14, since COMPLETE and REFUSED itself are terminal/self and excluded
+# from the related set. See 40-events-workflow.ttl's phase/refused
+# skos:definition for why this is a documented rule rather than 12 more
+# transition-plan/* resources.
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?from ?fromLabel WHERE {
+  <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/phase/refused> skos:related ?from .
+  ?from skos:prefLabel ?fromLabel .
+}
+ORDER BY ?fromLabel

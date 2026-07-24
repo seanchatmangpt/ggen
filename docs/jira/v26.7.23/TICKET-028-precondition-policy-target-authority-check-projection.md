@@ -174,3 +174,77 @@ required leading `---` frontmatter delimiter (`FM-TPL-001`) and had never actual
 by `ggen sync run`. Fixed (see TICKET-017's implementation notes for the full fix list). The real
 engine now generates this file directly; re-verified via a real (non-dry) sync + a full-tree
 byte-identical double-sync idempotency check.
+
+## Update (cross-workstream wiring gap closed: workstream H adapters now call the real checkPolicy)
+
+**The gap.** Workstream H (`examples/interview-assist/lib/adapters/*.ts`) was built before this
+ticket's real `lib/domain/policy-check.ts` existed, against `lib/adapters/policy-check-stub.ts`'s
+placeholder shape `checkPolicy({capability}) -> {allowed, reason}` -- a default-allow stub, by
+design, documented as PENDING(TICKET-028). The real generated checker that landed here has a
+different, RDF-authentic shape: `checkPolicy(action: string, activeMode: PolicyId):
+PolicyDecision`, where `action` must be one of the 8 `authority-action/*` / 6
+`prohibited-action/*` resources in 50-policy.ttl, not the ad hoc local capability strings
+(`"compile_python"`, `"checksum_hash"`, ...) every adapter actually passes. Swapping the import
+was never going to be the one-line change the stub's own docstring predicted; this update closes
+that disclosed mismatch honestly rather than force-fitting it.
+
+**What changed.** New file `examples/interview-assist/lib/adapters/policy-check-adapter.ts`: a
+real, documented mapping from each adapter-local capability id to the `authority-action/*`
+resource it represents (ontology-grounded for execute-code via 50-policy.ttl's own
+`dcterms:requires <capability/runtime/execute>` annotation; categorical best-fit for `project`,
+grounded in the odrl:Permission `rdfs:comment` text under `policy/live-assistance-mode` and
+`policy/assessment-mode`), delegating the actual permit/deny decision to the real
+`lib/domain/policy-check.ts::checkPolicy`. Four adapters now import from it instead of the stub:
+`sandbox-executor.ts`, `monaco-adapter.ts` (both -> `authority-action/execute-code`),
+`ollama-adapter.ts`, `accessibility-platform-adapter.ts` (both -> `authority-action/project`).
+Each gained an optional `activeMode?: PolicyId` field (default `policy/practice-mode`, grounded
+in that mode's own `rdfs:comment`: "All InterviewAssist capabilities may be enabled.").
+
+**Two adapters deliberately NOT swapped.** `checksum-adapter.ts` (raw BLAKE3 hashing) and
+`persistence-adapter.ts` (local event-log save/load) stay on the stub. Verified
+(`grep -n dcterms:requires 30-capabilities.ttl`) neither adapter's capability is linked to any
+`authority-action/*` resource, and separately verified
+(`grep -c 'authority-action/retain\|authority-action/export' 50-policy.ttl` -> 2, both bare
+`a schema:Action` declarations) that even the closest-sounding authority class (`retain`) never
+appears in any of the 6 `odrl:permission`/`odrl:prohibition` statements -- it is ungoverned by
+every admitted policy today, not merely by this wiring pass. Forcing a mapping would be Epistemic
+Bypass (coding-agent-mistakes.md); both files carry an explicit code comment stating this and
+pointing at `policy-check-adapter.ts`'s module doc.
+
+**Real proof the wiring is load-bearing, not decorative.** Verified directly against the real
+generated checker before wiring anything:
+```
+$ node --experimental-strip-types -e '
+import { checkPolicy } from "./lib/domain/policy-check.ts";
+console.log(checkPolicy("authority-action/execute-code", "policy/practice-mode"));
+console.log(checkPolicy("authority-action/execute-code", "policy/authority-broker-default"));
+'
+allowed
+denied
+```
+`policy/authority-broker-default` carries BOTH a permission and a prohibition on
+`authority-action/execute-code` in the real admitted RDF (permission: "within the declared
+sandbox"; prohibition: "code submission ... outside the declared sandbox") -- the real
+`checkPolicy` resolves that conflict prohibition-wins, so it denies. Added a new test to
+`tests/adapters/sandbox-executor.test.ts` asserting exactly this: calling `execute()` with
+`activeMode: "policy/authority-broker-default"` returns `{kind: "policy_denied"}` and spawns no
+subprocess (verified via a real `ps ax` scan for a unique marker string). Real output:
+```
+$ npx vitest run tests/adapters/
+ Test Files  6 passed (6)
+      Tests  25 passed (25)   # was 24 before this change; +1 is the new denial test
+```
+All 6 pre-existing adapter test files stayed green with zero behavior changes to their assertions
+-- `policy/practice-mode` (the new default) permits `execute-code` unconditionally, so
+`execute_python`/`execute_rust` subprocess tests, `buildMonacoConfig`, `buildAnnouncement`, and
+the ollama self-play tests all still pass through the real checker exactly as before.
+
+**Groundwork surfaced by this pass (not this ticket's scope, noted for the record):** building
+`app/page.tsx` (workstream I groundwork, not tied to a numbered ticket) required a real end-to-end
+POST to a sandbox-executor-backed API route and surfaced that
+`app/api/sandbox/[capability]/route.ts` (pre-existing, TICKET-013) only validates a capability id
+and echoes `{status:"accepted"}` -- it never calls a real executor despite its name implying
+dispatch. A new `app/api/run/route.ts` was added alongside it (not a replacement) that does call
+the real `sandbox-executor.ts`, now policy-checked as described above; reconciling or removing the
+decorative `[capability]` route is out of this task's scope and is flagged here rather than
+silently left implying it already does real dispatch.

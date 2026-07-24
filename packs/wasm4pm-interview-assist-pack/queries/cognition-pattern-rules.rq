@@ -1,0 +1,25 @@
+# Expected: 8 rows -- 4 per cognition-bridge/{two-sum,valid-parentheses}-*
+# schema:Action resource (90-cognition-bridge.ttl Part B -- InterviewAssist's
+# own vertical-slice pattern-rule catalog, NOT transcribed from
+# wasm4pm-cognition). Feeds BreedInput.rules for a real
+# cognition_run(breed="eliza") call.
+#
+# The FILTER below matches any resource under cognition-bridge/ (not just
+# two-sum-*/valid-parentheses-*): it is a defensive scope narrower than
+# needed, since Part A's ABI-contract resources (also under
+# cognition-bridge/) never carry a "ruleKeyword" additionalProperty and so
+# never satisfy the WHERE clause's required triple pattern in the first
+# place. Adding a third track requires no query/template change -- only new
+# ontology resources with the same shape.
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?rule ?keyword ?conclusion ?targetTrackId ?certainty WHERE {
+  ?rule a schema:Action ;
+        schema:additionalProperty ?pKeyword, ?pConclusion, ?pTrack, ?pCertainty .
+  ?pKeyword schema:name "ruleKeyword" ; schema:value ?keyword .
+  ?pConclusion schema:name "ruleConclusion" ; schema:value ?conclusion .
+  ?pTrack schema:name "targetTrackId" ; schema:value ?targetTrackId .
+  ?pCertainty schema:name "ruleCertainty" ; schema:value ?certainty .
+  FILTER(CONTAINS(STR(?rule), "/cognition-bridge/"))
+}
+ORDER BY ?rule

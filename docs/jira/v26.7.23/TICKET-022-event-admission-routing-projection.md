@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -114,3 +114,35 @@ TICKET-023 (reducer) dispatches through this routing table.
 ## Definition of done
 
 - routing table generated with 15 entries
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Reused `queries/event-families.rq` verbatim (already verified 15 rows, TICKET-016). Also
+  created `queries/observed-inputs.rq` — TICKET-022's own Inputs list cites it as "TICKET-018
+  reuse", but grep of `packs/wasm4pm-interview-assist-pack/queries/` before this ticket showed
+  it was never actually created by TICKET-018 (its own file lists it as "(new)", not delivered);
+  created it now. First version over-matched (11 rows, not 7) because
+  `?input a prov:Entity ; dcterms:type ?family` also matches unrelated `manufacturing-chain/*`
+  resources elsewhere in the merged ontology (real bug found via live rdflib run, not assumed) —
+  fixed with a `FILTER(CONTAINS(STR(?input), "/observed-input/"))` guard; re-verified 7 rows.
+- Real Tera template `templates/022_event_routing_ts.tmpl`, starts with `---`. Handler-name
+  derivation is plain string concatenation (`"handle" + label`), not a camelCase-from-IRI
+  transform — the ticket text's premise ("already established and unit-tested in TICKET-018")
+  does not hold: `problem-state.ts`'s own header comment says it explicitly avoided inventing
+  such a heuristic ("avoids inventing a camelCase-derivation heuristic not present in the
+  admitted graph"). No such heuristic existed to reuse; string concatenation on the
+  already-PascalCase `skos:prefLabel` values (e.g. `"SessionEvent"` → `"handleSessionEvent"`) is
+  simpler and needs no heuristic at all.
+- Real (non-dry) `ggen sync run` wrote `lib/domain/event-routing.ts` for the first time —
+  `"lib/domain/event-routing.ts": "written"` in the sync summary.
+- **Real test**, `tests/domain/event-routing.test.ts`, matching this pack's own established
+  Chicago-TDD pattern (`lib/domain/__tests__/capability.count.test.mjs`'s real-rdflib-subprocess
+  re-derivation, not a hardcoded constant): spawns `python3` running the live
+  `queries/event-families.rq` against the live `ontology.ttl` and asserts the generated module's
+  `EVENT_ROUTING_ENTRY_COUNT`/`Object.keys(EVENT_ROUTING).length` match that live count (15), plus
+  a per-family presence check and the `SessionEvent → "handleSessionEvent"` acceptance case.
+  `npx vitest run` → `tests/domain/event-routing.test.ts (3 tests)`, all pass.
+- `npx tsc --noEmit`: zero errors.
+- Idempotency: second real sync reported
+  `"lib/domain/event-routing.ts": "skipped: unchanged: content identical"`.
+- SHA-256: `3ca1df5831b5211a7e4abfcd032e499f5dea61987be330b004a9f5c82252eee8`.

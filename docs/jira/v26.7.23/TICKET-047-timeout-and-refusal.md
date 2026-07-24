@@ -2,7 +2,12 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real subprocess timeout-kill and orphan-check evidence proven and passing;
+Playwright layer blocked by the real `next build` regression documented in TICKET-040's notes;
+ADDITIONALLY a real, verified gap between this ticket's own result-type wording ("a refused
+result... a named timeout refusal code") and the currently-wired executor's actual return shape
+was found (see notes) — the safety property (bounded kill, no orphan) is real; the specific
+result-type claim is not
 
 ## Parent
 
@@ -120,3 +125,37 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test reusing the exact real pattern already proven in
+  `tests/adapters/sandbox-executor.test.ts` (wall-clock bound + orphan check via `ps`).
+- File: `examples/interview-assist/tests/scenarios/timeout-and-refusal.test.ts` (2 tests). Real
+  run: `npx vitest run tests/scenarios/timeout-and-refusal.test.ts` → 2/2 passed, 2154ms
+  (timeout-kill test 1596ms, positive-companion test 556ms).
+    sha256: `236b9ed98780c7aa858e69f76930aeee731cc2d55b768746d41923a8c25eb42f`
+- **DISCLOSED FINDING, real and verified (not fixed by this ticket, out of its test-authoring
+  scope):** reading `runCommand`'s real `close` handler in `sandbox-executor.ts`, a timeout NEVER
+  produces the `{kind: "timeout"}` member `ExecutionRefusal`'s own type declares — it always
+  resolves a normal `ExecutionReceipt` (`exitCode: -1`, `stderr` containing `"[timed out]"`).
+  `isExecutionRefusal(result)` is therefore `false` on a real timeout, and no `RefusalCode` from
+  refusal.ts's 16-member ARD-Section-11 taxonomy (`SANDBOX_TIMEOUT` exists in that union) is ever
+  constructed at this layer. This is a real, reproduced gap between this ticket's acceptance-
+  criteria wording ("a refused result... a named timeout refusal code") and the system's actual
+  wiring. The test asserts the REAL observed shape rather than fabricating a refusal that does
+  not occur.
+- What IS real and independently verified: submitted a real infinite-loop Python program
+  (`while True: time.sleep(0.05)`) tagged with a unique marker, `timeoutMs: 1200`. Measured real
+  wall-clock elapsed stayed under `timeoutMs + 4000ms`; `result.exitCode === -1`,
+  `result.stderr` contains `"timed out"`. A real `ps ax -o command=` check (after a 300ms reap
+  delay) confirms the marker does not appear anywhere in the live process table — no orphan
+  process survived the process-group SIGKILL.
+- Positive companion (negative-of-the-negative, as the ticket asks): a program sleeping 0.5s then
+  printing a unique marker, under a 4000ms timeout, completes normally — real
+  `elapsedMs < timeoutMs`, `exitCode === 0`, `stdout.trim()` equals the marker exactly (not
+  truncated/killed), `stderr` does not contain `"timed out"` — proving the bound is not
+  over-eager.
+- Full-suite regression check: `npx vitest run` → 85/85 passed (includes both this file's tests
+  and the pre-existing `tests/adapters/sandbox-executor.test.ts` timeout test running back to
+  back with no interference). `npx tsc --noEmit` → clean.

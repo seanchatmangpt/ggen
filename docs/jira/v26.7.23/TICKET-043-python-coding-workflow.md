@@ -2,7 +2,10 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real subprocess compile+execute evidence proven and passing; Playwright layer
+blocked by the real `next build` regression documented in TICKET-040's notes (the underlying
+sandbox executor itself is fully real and unaffected — this is purely a browser-rendering
+blocker)
 
 ## Parent
 
@@ -120,3 +123,28 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test driving the real subprocess sandbox executor
+  (TICKET-035) instead.
+- File: `examples/interview-assist/tests/scenarios/python-coding-workflow.test.ts` (2 tests).
+  Real run: `npx vitest run tests/scenarios/python-coding-workflow.test.ts` → 2/2 passed, 154ms.
+    sha256: `1c1371f7bf49e326fae1bc54c7a4bae02869f44bb1308e8c0f1b89470ef954c4`
+- Distinct from `tests/adapters/sandbox-executor.test.ts` (which proves `execute_python` alone):
+  this test dispatches `compile_python` (real `python3 -m py_compile`) THEN `execute_python` as
+  two separate real subprocess calls, matching the ticket's create-file → compile → execute
+  steps. `compile_python` real exit code 0, then `execute_python` on `print(1 + 1)` → real
+  captured `stdout.trim() === "2"`, `exitCode === 0`.
+- Negative test: real syntax error (`def broken(:\n    print('unbalanced'\n`). Independently
+  verified against a bare `python3 -m py_compile` before wiring the assertion:
+  ```
+  File "solution.py", line 1
+      def broken(:
+                 ^
+  SyntaxError: invalid syntax
+  ```
+  Test asserts `compiled.exitCode !== 0`, `compiled.stderr` contains `"SyntaxError"` and
+  `"solution.py"` — a real, specific diagnostic, not a generic failure string.
+- Full-suite regression check: `npx vitest run` → 85/85 passed. `npx tsc --noEmit` → clean.

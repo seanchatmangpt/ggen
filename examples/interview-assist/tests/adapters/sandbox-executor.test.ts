@@ -62,6 +62,32 @@ describe("sandbox-executor (real subprocess, no mocks)", () => {
     expect(psOutput.includes(marker)).toBe(false);
   }, 10_000);
 
+  it("denies via the real RDF-driven policy check under policy/authority-broker-default without spawning anything (TICKET-028 wiring closure -- proves this isn't the old default-allow stub)", async () => {
+    const executor = getSandboxExecutor();
+    const marker = `interview_assist_policy_denial_probe_${Date.now()}`;
+    const result = await executor.execute({
+      capability: "execute_python",
+      files: { "solution.py": `print("${marker}")` },
+      timeoutMs: 5_000,
+      activeMode: "policy/authority-broker-default",
+    });
+    // Under policy/authority-broker-default, real 50-policy.ttl data
+    // carries BOTH a permission and a prohibition on authority-action/execute-code
+    // (the prohibition covers "code submission outside the declared
+    // sandbox"); lib/domain/policy-check.ts's real checkPolicy resolves
+    // that conflict prohibition-wins-over-permission, so this call must be
+    // denied -- verified directly against the real generated checker
+    // (`node --experimental-strip-types`) before wiring this test.
+    expect(isExecutionRefusal(result)).toBe(true);
+    if (isExecutionRefusal(result)) {
+      expect(result.kind).toBe("policy_denied");
+    }
+    // Real proof no subprocess ran: the marker string never reached a live
+    // process (nothing was spawned to print it).
+    const psOutput = execSync("ps ax -o command=").toString();
+    expect(psOutput.includes(marker)).toBe(false);
+  });
+
   it("refuses without spawning when no source files are provided", async () => {
     const executor = getSandboxExecutor();
     const result = await executor.execute({ capability: "execute_python", files: {}, timeoutMs: 5_000 });

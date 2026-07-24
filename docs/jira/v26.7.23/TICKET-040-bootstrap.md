@@ -2,7 +2,10 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real reducer/RDF-generated-table evidence proven and passing; the ticket's own
+stated primary verification layer (Playwright against a real running dev server / real `next
+build`) is currently blocked by a real, reproduced production regression outside this ticket's
+scope (see notes)
 
 ## Parent
 
@@ -122,3 +125,58 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- **Playwright-vs-vitest substitution, honestly disclosed (applies to TICKET-040 through
+  TICKET-047 uniformly, restated once here in full, cross-referenced by the other 7 tickets'
+  notes):** a real `npx next build` against `examples/interview-assist/` (run 2026-07-23) FAILS:
+  ```
+  ▲ Next.js 16.2.11 (Turbopack)
+    Creating an optimized production build ...
+  Build error occurred
+  Error: Turbopack build failed with 1 errors:
+  ./app/page.tsx
+  Code generation for chunk item errored
+  ...the chunking context (unknown) does not support external modules (request: node:module)
+  ```
+  Root cause, traced by reading the real import graph: `app/page.tsx` (`"use client"`) imports
+  `lib/domain/reducer.ts`, which unconditionally imports `lib/domain/receipt-emitter.ts`
+  (TICKET-055), which imports `lib/adapters/checksum-adapter.ts`, whose top-level
+  `import { createRequire } from "node:module"` is a real Node builtin that cannot be bundled
+  into a browser chunk. `checksum-adapter.ts`'s own module doc only ever audited this import
+  against SERVER route bundling (`app/api/receipt/route.ts`); TICKET-055's later wiring of
+  `reducer.ts -> receipt-emitter.ts -> checksum-adapter.ts` is what newly drags it into
+  `page.tsx`'s CLIENT bundle. `npx next dev` reproduces the same failure at request time (`GET /
+  500`, identical `node:module` chunking error, captured in the real dev-server log). This is a
+  real, reproduced regression — **not** an environment/installation gap: Playwright itself is
+  installed and working (`npx playwright --version` → `1.61.1`; `chromium-1181` present under
+  `~/Library/Caches/ms-playwright`). Fixing this bundling bug is outside every one of these 8
+  tickets' own stated Custom-code boundary ("no new production custom code introduced by this
+  ticket, only test code exercising existing adapters"), so it is reported here unfixed rather
+  than silently patched or silently ignored. This corrects an earlier claim (passed into this
+  session) that `app/page.tsx` was already "next-build-clean" — it is `tsc --noEmit`-clean
+  (reverified this session, zero errors) but **not** `next build`-clean; the two are not the same
+  claim and should not have been conflated.
+  Per this workflow's explicit fallback clause, all 8 scenarios below are authored as real
+  vitest tests against real collaborators (real reducer, real RDF-generated tables, real
+  subprocess execution) instead of browser-driven Playwright specs.
+- File: `examples/interview-assist/tests/scenarios/bootstrap.test.ts` (5 tests). Real run:
+  `npx vitest run tests/scenarios/bootstrap.test.ts` → 5/5 passed, 3ms.
+    sha256: `0c06db98b57949e9a2c7437da03d448c7a390aadffd7c6f236571afc842c5dc1`
+- Acceptance criterion: dispatched a real `{family: "SessionEvent", type: "create-session"}`
+  event through the real `sessionReducer` (TICKET-023) from a fresh `{phase: "CREATED"}` state —
+  admitted, `result.value.phase === "CREATED"`, sourced from the reducer's own return value.
+- Also verified `capability/session/create-session` is a real, present key in the RDF-generated
+  `CAPABILITY_DISPATCH` table (TICKET-027, `HTTP_CAPABILITY_COUNT === 9`) — the real dispatch slot
+  the ticket names exists, even though (disclosed, not in this ticket's scope) no adapter handler
+  is wired into it yet.
+- Negative tests (both real, both passing): `checkPreconditions("capability/session/start-interview",
+  new Set())` and `checkPreconditions("capability/session/join-session", new Set())` — both real
+  TICKET-028 `dcterms:requires`-derived edges — return `met: false`, `missing` containing
+  `"capability/session/create-session"`. A positive control (`checkPreconditions(..., new
+  Set(["capability/session/create-session"]))` → `met: true`) proves the check is a real gate,
+  not an always-false stub.
+- Full-suite regression check: `npx vitest run` (whole `examples/interview-assist/` suite,
+  including this file) → **85/85 passed**, 24 test files, 11.78s wall clock. `npx tsc --noEmit` →
+  clean, zero errors.

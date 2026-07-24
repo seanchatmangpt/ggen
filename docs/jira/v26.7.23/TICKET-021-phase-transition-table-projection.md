@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -118,3 +118,42 @@ TICKET-023 (reducer generation) enforces transitions via this table.
 - transition table generated
 - exhaustive 14x14 truth-table test passes
 - no permissive fallback
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- Real queries: `queries/transition-plans.rq` (13 rows, transition-plan/* schema:object/
+  schema:result pairs joined to skos:prefLabel) and `queries/refusal-wildcard.rq` (12 rows,
+  phase/refused's skos:related set). Verified via a real rdflib run against
+  `packs/wasm4pm-interview-assist-pack/ontology.ttl`:
+  `python3 -c "...g.query(open('queries/transition-plans.rq').read())..."` → 13;
+  same pattern against `refusal-wildcard.rq` → 12.
+- Real Tera template `templates/021_phase_transitions_ts.tmpl` (two named `sparql:` queries,
+  `edges` + `wildcard`), starts with a literal `---` (checked). Real (non-dry) `ggen sync run`
+  from `examples/interview-assist/` (after `rm ggen.lock`, per this session's own template-change
+  rule) wrote `lib/domain/phase-transitions.ts` for the first time via the actual engine —
+  `"lib/domain/phase-transitions.ts": "written"` in the sync summary.
+- `PHASE_TRANSITIONS` is typed `Partial<Record<Phase, readonly Phase[]>>` (not a bare
+  `Record<Phase, Phase[]>`) — matches this pack's own precedented adjacency-table pattern
+  (`028a_preconditions_ts.tmpl`'s `DIRECT_REQUIRES: Partial<Record<CapabilityId, ...>>`); the
+  two terminal phases (COMPLETE, REFUSED) have zero transition-plan edges and are simply absent
+  from the object rather than present with `[]`, and `isLegalTransition` handles the missing-key
+  case via `?? []`. `noUncheckedIndexedAccess: true` in `tsconfig.json` requires this — a bare
+  `Record` would still type-check the literal but `PHASE_TRANSITIONS[from]` reads would carry a
+  spurious `| undefined` either way, so `Partial` is the honest type.
+- **Real exhaustive 14x14 truth-table test**, `tests/domain/phase-transitions.test.ts`: an
+  independently-transcribed second encoding of the 13 edges + 12-member wildcard set (not a
+  mirror of the generated file's own logic) checked against `isLegalTransition` for all 196
+  pairs. `npx vitest run` → `tests/domain/phase-transitions.test.ts (4 tests)` all pass,
+  including the acceptance-criteria case (DEBUGGING↔EXPLANATION forward,
+  DEBUGGING↔IMPLEMENTATION backward, both true) and the ticket's own negative test
+  (`isLegalTransition("CREATED", "COMPLETE")` → `false`).
+- **Real negative test on the RDF layer itself** (in-memory only, real `ontology.ttl` file on
+  disk untouched): removed the `<transition-plan/created-to-preparing>` triple from the parsed
+  graph in a python3/rdflib session and re-ran `queries/transition-plans.rq` — row count dropped
+  13 → 12; `queries/refusal-wildcard.rq` count unaffected (still 12), confirming the two query
+  files are independent, not accidentally coupled.
+- `npx tsc --noEmit` from `examples/interview-assist/`: zero errors (whole project, including
+  this file and its consumers).
+- Idempotency: a second real `ggen sync run` (lock file present, no template changes) reported
+  `"lib/domain/phase-transitions.ts": "skipped: unchanged: content identical"`.
+- SHA-256 of the generated file: `de589f0dea8ecfe230dbf78ade833936b3817d7eed3b58c357de6f067a20f4f7`.

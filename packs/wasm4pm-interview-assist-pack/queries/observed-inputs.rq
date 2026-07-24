@@ -1,0 +1,12 @@
+# Expected: 7 rows, the observed-input/* prov:Entity resources (PRD §13's
+# concrete instances of raw events mapped to event families via
+# dcterms:type) (TICKET-022; referenced but never created by TICKET-018).
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?input ?family ?familyLabel WHERE {
+  ?input a prov:Entity ;
+         dcterms:type ?family .
+  ?family <http://www.w3.org/2004/02/skos/core#prefLabel> ?familyLabel .
+  FILTER(CONTAINS(STR(?input), "/observed-input/"))
+}
+ORDER BY ?input

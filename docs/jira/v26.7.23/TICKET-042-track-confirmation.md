@@ -2,7 +2,8 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — real selector/reducer evidence proven and passing; Playwright layer blocked by
+the real `next build` regression documented in TICKET-040's notes
 
 ## Parent
 
@@ -118,3 +119,29 @@ TICKET-053 (full decisive acceptance test) composes all 14 scenarios' proven pat
 - test passes against the real composed system
 - no mocked core collaborator
 - negative case included
+
+## Implementation notes (real evidence)
+
+- Playwright-vs-vitest substitution: see TICKET-040's Implementation notes for the full real
+  evidence. Authored as a real vitest test instead.
+- File: `examples/interview-assist/tests/scenarios/track-confirmation.test.ts` (2 tests). Real
+  run: `npx vitest run tests/scenarios/track-confirmation.test.ts` → 2/2 passed, 2ms.
+    sha256: `ee46dcdaa6fa66be8361af214f01fa8ff989db3c6b81e3a43f16d30e27b018d5`
+- Test-fixture derivation, disclosed plainly: the real system has no reducer step that turns
+  observed-input events into `TrackCandidate[]` (page.tsx's `addTrackCandidate` is a UI-only
+  state mutation, not reducer-routed). The test file's local (non-exported, not new production
+  code) `deriveCandidatesFromEvents` helper first runs every fixture event through the real
+  `sessionReducer` (asserting it is genuinely admitted) before folding its declared
+  `candidateId`/`rank`/`evidenceKey` fields into a `TrackCandidate[]`, so the real TICKET-024
+  selectors run over data derived from a real admitted event sequence, not a hand-set array.
+- Acceptance criterion: two events (`family: "EditorEvent"`/`"SpeechEvent"`) implying candidates
+  `family-two-pointer` (rank 2) and `family-hash-map` (rank 1) both carrying
+  `cognition/rank-solution-families` evidence → real `selectRankedSolutionFamilies` returns both,
+  rank-ascending (`["family-hash-map", "family-two-pointer"]`). Not-a-stub proof: re-running with
+  the ranks swapped flips the returned order (`["family-two-pointer", "family-hash-map"]`) — a
+  fixed 2-item stub would not respond to the input change.
+- Negative test: a single event carrying `cognition/abstain-under-insufficient-evidence` evidence
+  (real, admitted via `sessionReducer`) → real `selectAbstention` returns `true`; the derived
+  candidate array (carrying no `rank-solution-families` evidence) makes
+  `selectRankedSolutionFamilies` correctly return `[]` rather than a fabricated ranking.
+- Full-suite regression check: `npx vitest run` → 85/85 passed. `npx tsc --noEmit` → clean.

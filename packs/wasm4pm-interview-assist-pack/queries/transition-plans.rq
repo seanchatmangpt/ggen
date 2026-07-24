@@ -1,0 +1,18 @@
+# Expected: 13 rows, the transition-plan/* schema:Action + prov:Plan resources
+# (ARD §3.1 Session Orchestrator's legal forward path plus the one documented
+# debugging->implementation backward edge) (TICKET-021). The REFUSED wildcard
+# rule (reachable from any non-terminal phase) is a separate query -- see
+# queries/refusal-wildcard.rq -- since it is documented on phase/refused as a
+# skos:related rule, not enumerated here as 12 more transition-plan resources.
+PREFIX schema: <https://schema.org/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?plan ?name ?from ?fromLabel ?to ?toLabel WHERE {
+  ?plan a schema:Action, prov:Plan ;
+        schema:name ?name ;
+        schema:object ?from ;
+        schema:result ?to .
+  ?from skos:prefLabel ?fromLabel .
+  ?to skos:prefLabel ?toLabel .
+}
+ORDER BY ?plan
