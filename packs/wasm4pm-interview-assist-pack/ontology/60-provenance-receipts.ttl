@@ -1,0 +1,97 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix spdx:    <http://spdx.org/rdf/terms#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Provenance and receipt graph (ARD Section 3.16 Receipt Ledger + Section 14
+# Decisive Acceptance Test's evidence chain), as PROV-O. Checksums use SPDX
+# with the algorithm carried as a plain literal on spdx:algorithm rather
+# than one of SPDX's fixed checksumAlgorithm_* individuals, since BLAKE3 is
+# not among them -- flagged in the final report as a real, disclosed
+# limitation rather than silently mistyped.
+# ---------------------------------------------------------------------------
+
+# ---- One canonical manufacturing/admission/execution/receipt chain ----
+
+<manufacturing-chain/raw-observation>
+    a prov:Entity ;
+    rdfs:label "raw observation" ;
+    dcterms:type <event-family/editor> .
+
+<manufacturing-chain/admission-activity>
+    a prov:Activity ;
+    rdfs:label "admission activity" ;
+    prov:used <manufacturing-chain/raw-observation> ;
+    prov:wasAssociatedWith <component/admission-engine> .
+
+<manufacturing-chain/admitted-observation>
+    a prov:Entity ;
+    rdfs:label "admitted observation" ;
+    prov:wasGeneratedBy <manufacturing-chain/admission-activity> ;
+    prov:wasDerivedFrom <manufacturing-chain/raw-observation> ;
+    prov:qualifiedGeneration [ a prov:Generation ; prov:activity <manufacturing-chain/admission-activity> ] .
+
+<manufacturing-chain/refusal>
+    a prov:Entity ;
+    rdfs:label "refusal (alternate admission outcome)" ;
+    prov:wasGeneratedBy <manufacturing-chain/admission-activity> ;
+    dcterms:type <req/ard-refusal-insufficient-classification-evidence> .
+
+<manufacturing-chain/generated-application-state>
+    a prov:Entity ;
+    rdfs:label "generated application state" ;
+    prov:wasDerivedFrom <manufacturing-chain/admitted-observation> ;
+    dcterms:type <phase/implementation> .
+
+<manufacturing-chain/sandbox-execution-activity>
+    a prov:Activity ;
+    rdfs:label "sandbox execution" ;
+    prov:used <manufacturing-chain/generated-application-state> ;
+    prov:wasAssociatedWith <component/sandbox-manager> ;
+    prov:qualifiedAssociation [ a prov:Association ; prov:hadPlan <capability/runtime/execute> ] .
+
+<manufacturing-chain/test-result>
+    a prov:Entity ;
+    rdfs:label "test result" ;
+    prov:wasGeneratedBy <manufacturing-chain/sandbox-execution-activity> ;
+    dcterms:type <capability/verification/run-visible-test> .
+
+<manufacturing-chain/accessibility-projection>
+    a prov:Entity ;
+    rdfs:label "accessibility projection" ;
+    prov:wasDerivedFrom <manufacturing-chain/test-result> ;
+    prov:wasAssociatedWith <component/accessibility-projector> .
+
+# ---- Receipt chain: two chained receipts, the second the "final receipt" ----
+
+<receipt/checksum-algorithm-blake3>
+    a spdx:Checksum ;
+    spdx:algorithm "BLAKE3" ;
+    rdfs:comment "SPDX's checksumAlgorithm controlled vocabulary does not enumerate BLAKE3; the algorithm name is carried as a plain literal rather than forced into a mismatched checksumAlgorithm_* individual." .
+
+<receipt/entry-1>
+    a prov:Entity ;
+    rdfs:label "receipt entry (Receipt Ledger fields: admitted inputs, selected capabilities, policy envelope, workflow transitions, code versions, compiler identity, test identity, execution result, projection events, accessibility checks, final state)" ;
+    prov:used <manufacturing-chain/admitted-observation>, <capability/runtime/execute>, <policy/authority-broker-default> ;
+    prov:generated <manufacturing-chain/generated-application-state> ;
+    spdx:checksum [ a spdx:Checksum ; spdx:algorithm "BLAKE3" ; spdx:checksumValue "0000000000000000000000000000000000000000000000000000000000000000" ] .
+
+<receipt/entry-2-final>
+    a prov:Entity ;
+    rdfs:label "final receipt" ;
+    prov:used <manufacturing-chain/test-result>, <manufacturing-chain/accessibility-projection> ;
+    prov:wasDerivedFrom <receipt/entry-1> ;
+    dcterms:relation <receipt/entry-1> ;
+    spdx:checksum [ a spdx:Checksum ; spdx:algorithm "BLAKE3" ; spdx:checksumValue "1111111111111111111111111111111111111111111111111111111111111111" ] .
+
+# ---- Component actors referenced above (ARD Section 3, for prov:wasAssociatedWith) ----
+
+<component/admission-engine>        a prov:Agent ; rdfs:label "Admission Engine (ARD 3.3)" .
+<component/sandbox-manager>         a prov:Agent ; rdfs:label "Sandbox Manager (ARD 3.10)" .
+<component/accessibility-projector> a prov:Agent ; rdfs:label "Accessibility Projector (ARD 3.14)" .
+<component/self-play-factory>       a prov:Agent ; rdfs:label "Self-Play Factory (ARD 3.12)" .
+<component/pack-compiler>           a prov:Agent ; rdfs:label "Pack Compiler (ARD 3.13)" .
