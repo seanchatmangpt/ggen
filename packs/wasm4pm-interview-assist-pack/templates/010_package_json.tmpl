@@ -1,0 +1,28 @@
+---
+to: "package.json"
+sparql:
+  products: |
+    PREFIX schema: <https://schema.org/>
+    SELECT ?name ?description WHERE {
+      ?product a schema:SoftwareApplication ;
+               schema:name ?name ;
+               schema:description ?description .
+    } LIMIT 1
+---
+{% for p in products %}{
+  "name": "{{ p.name | lower }}",
+  "version": "0.1.0",
+  "description": "{{ p.description }}",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  }
+}
+{% endfor %}

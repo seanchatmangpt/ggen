@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -122,3 +122,16 @@ TICKET-010 (idempotent sync) runs these gates as part of `ggen sync run`.
 
 - 14 gates exist, one per NodeShape
 - all agree with pyshacl on both the clean corpus and the known broken fixture
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- 9 enforceable SHACL shapes (of the 14 total; 5 are advisory `minCount 0` shapes with no gate
+  equivalent, honestly noted, not fabricated) translated into `gates/010`..`090_*.rq`.
+- All 9 gates verified PASS (0 rows) against the real corpus via direct SPARQL execution.
+- Cross-check against pyshacl: reintroduced the same real `transition-plan/*` missing-`schema:name`
+  bug used in TICKET-002; gate `020_action_has_name.rq` found **exactly the same 13 resources**
+  pyshacl's violation report named (byte-for-byte identical resource-name list, verified by set
+  comparison). This is the strongest possible cross-check available — not merely "both fail," but
+  "both fail on the identical evidence."
+- Gates are proven live-loaded: the real `ggen sync run` in TICKET-010's evidence read
+  `gates/090_dataservice_serves_dataset.rq` (visible in its own receipt output) among others.

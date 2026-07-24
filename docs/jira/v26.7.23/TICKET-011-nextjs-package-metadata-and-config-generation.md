@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -122,3 +122,24 @@ TICKET-012 builds the app layout on top of this root config.
 
 - package.json/next.config.ts/tsconfig.json generated and verified against RDF source
 - negative test (missing required field) passes
+
+## Implementation notes (real evidence — PARTIAL, not complete)
+
+- Only the `package.json` name/description slice of this ticket is done: real
+  `templates/010_package_json.tmpl` queries `<product/interview-assist>`'s `schema:name`/
+  `schema:description` and projects a real `package.json`, verified via a real `ggen sync run`
+  against `/tmp/interview-assist-dryrun` (see TICKET-006/010 evidence).
+- **Honest gap versus this ticket's own spec**: `schema:version` does not exist on
+  `<product/interview-assist>` in the admitted RDF (checked directly — only `doap:name`,
+  `schema:name`, `schema:description`, `doap:programming-language`, `dcterms:subject`,
+  `dcterms:conformsTo` are present). The generated `package.json`'s `"version"` field is
+  currently a hardcoded `"0.1.0"`, which is a real violation of this ticket's own `## Exclusions`
+  ("no product name/version/description literal hardcoded ... outside the SPARQL-bound variable").
+  Flagged honestly rather than silently accepted — TICKET-005's missing-graph-data policy applies:
+  either add `schema:version` to the admitted RDF (preferred) or explicitly document version as
+  an npm/build-tooling concern outside RDF's remit before this ticket can close ALIVE.
+- `next.config.ts`/`tsconfig.json` templates not yet written.
+- Dependency list is hand-maintained per the ticket's own accepted custom-boundary carve-out.
+
+Status left at PARTIAL_ALIVE, not ALIVE, pending the schema:version gap resolution and the
+remaining two output files.

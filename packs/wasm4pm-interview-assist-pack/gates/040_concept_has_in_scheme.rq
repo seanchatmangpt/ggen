@@ -1,0 +1,7 @@
+# MESSAGE: every skos:Concept must carry skos:inScheme (any row = a concept not linked back to its scheme) — translates ConceptShape (TICKET-009)
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?s WHERE {
+  ?s a skos:Concept .
+  FILTER NOT EXISTS { ?s skos:inScheme ?scheme }
+}
+ORDER BY ?s

@@ -1,0 +1,7 @@
+# MESSAGE: every schema:Action must carry schema:name (any row = a capability/authority/prohibited/acceptance-step/transition-plan action missing it) — translates ActionShape (TICKET-009)
+PREFIX schema: <https://schema.org/>
+SELECT ?s WHERE {
+  ?s a schema:Action .
+  FILTER NOT EXISTS { ?s schema:name ?n }
+}
+ORDER BY ?s

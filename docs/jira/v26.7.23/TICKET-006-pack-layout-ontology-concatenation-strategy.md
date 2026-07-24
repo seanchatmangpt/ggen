@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -121,3 +121,21 @@ TICKET-009 (gate integration) and all later `ggen sync run` invocations depend o
 - live engine behavior re-verified, not assumed
 - concatenation script (or extra_ontologies wiring) exists and produces a verified-correct single-file ontology
 - decision and justification documented
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- `scripts/build-ontology.py` concatenates the 9 source files into `ontology.ttl` (1789 triples,
+  matches the independently-known union count exactly).
+- **Real ABA test against the live ggen binary** (`target/debug/ggen sync run --dry-run` against
+  a minimal consuming project at `/tmp/interview-assist-dryrun`):
+  - With `ontology.ttl` removed: `[FM-PACK-004] pack wasm4pm-interview-assist-pack: ontology.ttl
+    missing` (the original blocker, reproduced live, not assumed).
+  - With `ontology.ttl` restored: that error is gone; the dry-run advances to `[FM-PACK-005]
+    zero templates` — the expected next gate, proving the ontology-loading blocker is genuinely
+    resolved, not worked around.
+- Falsifier does not hold: the live engine's actual auto-load behavior was re-verified against
+  current source (`crates/ggen-engine/src/pack.rs:271-280`), not carried forward from a prior
+  session's assumption — see Explore agent findings in this session's transcript.
+- Later in this same session, TICKET-011's first template was added and a real (non-dry) `ggen
+  sync run` was exercised twice, producing a byte-identical generated `package.json` both times —
+  further confirming this ticket's resolution holds end-to-end, not just at the dry-run stage.

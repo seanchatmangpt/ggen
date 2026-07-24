@@ -1,0 +1,9 @@
+# MESSAGE: every dcat:Dataset must carry dcterms:title and dcat:distribution (any row = a pack/dataset missing the bound ?missing property) — translates DatasetShape (TICKET-009)
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?s ?missing WHERE {
+  ?s a dcat:Dataset .
+  VALUES ?missing { dcterms:title dcat:distribution }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

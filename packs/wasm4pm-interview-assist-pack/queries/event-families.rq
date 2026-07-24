@@ -1,0 +1,8 @@
+# Expected: 15 rows, the ARD §7 event-family scheme (TICKET-003/TICKET-016/TICKET-022).
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?family ?label WHERE {
+  ?family a skos:Concept ;
+          skos:inScheme <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/event-family-scheme> ;
+          skos:prefLabel ?label .
+}
+ORDER BY ?family
