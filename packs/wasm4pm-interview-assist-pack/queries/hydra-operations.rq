@@ -1,0 +1,9 @@
+# Expected: 7 rows, the hydra:Operation-typed capability/* resources (TICKET-013).
+PREFIX schema: <https://schema.org/>
+PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
+SELECT ?operation ?name ?method WHERE {
+  ?operation a hydra:Operation ;
+             schema:name ?name ;
+             hydra:method ?method .
+}
+ORDER BY ?operation

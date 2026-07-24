@@ -2,7 +2,24 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
+
+## Implementation notes (real evidence)
+
+- `examples/interview-assist/lib/domain/phase.ts` — 14-member `Phase` union, order taken from a
+  real rdflib SPARQL walk of `skos:broader` chains in `ontology.ttl` (not hand-guessed; see
+  transcript below), matching `queries/phases.rq`'s existing verified 14-row count.
+- `examples/interview-assist/lib/domain/event-family.ts` — 15-member `EventFamily` union, from a
+  real run of `queries/event-families.rq` against `ontology.ttl` (15 rows).
+- Real negative tests (scratch copies only — `ontology/40-events-workflow.ttl` was copied to
+  `/tmp`, never the real pack file was mutated): deleting `phase/debugging` from a scratch copy
+  and rebuilding a scratch full-ontology graph in `/tmp/scratch-ontology-dir` dropped
+  `phases.rq`'s row count from 14 to 13; deleting `event-family/compiler` the same way dropped
+  `event-families.rq`'s row count from 15 to 14. Both confirmed by direct rdflib query output,
+  not asserted.
+- **Gap**: this ticket's title also covers "session ... state types" (session/workspace state) —
+  that slice was not done in this pass; see TICKET-018 (still PLANNED). No `session-state.ts` was
+  written here. Status left PARTIAL_ALIVE, not ALIVE, for that reason.
 
 ## Parent
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -113,3 +113,11 @@ Workstreams C-G write their templates into this scaffold.
 
 - scaffold exists
 - verified against a real existing pack's layout, not invented
+
+## Implementation notes (real evidence) — closes as ALIVE
+
+- `queries/`, `templates/`, `gates/` (already existed), `docs/` created, matching
+  `wasm4pm-interview-site-pack`'s and `wasm4pm-sandbox-pack`'s real on-disk layout convention
+  (read directly, not assumed).
+- Proven load-bearing, not decorative: the real `ggen sync run` in TICKET-006/010's evidence
+  actually read `templates/010_package_json.tmpl` and `gates/*.rq` from these exact directories.

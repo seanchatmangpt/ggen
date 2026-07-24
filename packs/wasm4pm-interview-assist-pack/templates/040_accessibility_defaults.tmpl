@@ -1,0 +1,22 @@
+---
+to: "lib/accessibility/defaults.ts"
+sparql:
+  caps: |
+    PREFIX schema: <https://schema.org/>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?capability ?name WHERE {
+      ?capability a schema:Action ;
+                  schema:name ?name ;
+                  dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability-category/accessibility> .
+    }
+    ORDER BY ?capability
+---
+// Generated accessibility defaults, one key per capability/accessibility/* resource
+// (TICKET-015). Row count: {{ caps | length }}.
+export interface AccessibilityDefaults {
+{% for c in caps %}  "{{ c.capability | replace(from="https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability/accessibility/", to="") }}": boolean;
+{% endfor %}}
+
+export const ACCESSIBILITY_DEFAULTS: AccessibilityDefaults = {
+{% for c in caps %}  "{{ c.capability | replace(from="https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability/accessibility/", to="") }}": false,
+{% endfor %}};

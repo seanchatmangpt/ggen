@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -116,3 +116,20 @@ TICKET-033 (accessibility UI projection) consumes this generated config.
 
 - defaults.ts generated 1:1 with the 16 accessibility capabilities
 - no hardcoded feature list
+
+## Implementation notes (real evidence)
+
+- Wrote `packs/wasm4pm-interview-assist-pack/queries/accessibility-capabilities.rq`. Verified
+  the real shape in `ontology.ttl` before writing (`?cap a schema:Action ; schema:name ?name ;
+  dcterms:isPartOf <capability-category/accessibility>`) and confirmed the row count matches the
+  ticket's claim exactly: `grep -c` against the 16 `capability/accessibility/*` triples returns
+  16, and the real `ggen sync run --dry-run` receipt / generated file both carry exactly 16 keys.
+- `templates/040_accessibility_defaults.tmpl` -> `lib/accessibility/defaults.ts`: one boolean
+  key per capability (id derived by stripping the pack's base IRI prefix, leaving e.g.
+  `"zero-motor-input-operation"`, `"keyboard-only-operation"`, ... 16 total), both a
+  `AccessibilityDefaults` interface and a `ACCESSIBILITY_DEFAULTS` const, all defaulted `false`.
+- Ran a real (non-dry) `ggen sync run` against `examples/interview-assist/` twice; the generated
+  `lib/accessibility/defaults.ts` was byte-identical across both runs (`diff` exit 0) —
+  idempotent. Manually counted the written file's key list: 16, matching the query.
+- ALIVE: query and template verified against real ontology content and real generated-file row
+  count, not the ticket's stated count alone.

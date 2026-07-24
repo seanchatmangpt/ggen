@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+ALIVE
 
 ## Parent
 
@@ -119,3 +119,28 @@ TICKET-026-029 (capability registry/API projection) provide the dispatch target 
 - routes generated 1:1 with hydra:Operation capabilities
 - HTTP methods verified against hydra:method
 - no domain logic inline
+
+## Implementation notes (real evidence)
+
+- Wrote `packs/wasm4pm-interview-assist-pack/queries/hydra-operations.rq` per the ticket's own
+  instruction to inspect `ontology.ttl` directly rather than guess. Found the real shape:
+  `?op a hydra:Operation ; schema:name ?name ; hydra:method ?method`.
+- **Row-count discrepancy, reported not hidden:** the ticket states "the 7 hydra:Operation-typed
+  capability/* resources." `grep -c "a schema:Action, hydra:Operation" ontology.ttl` and the real
+  SPARQL result both return **9**, not 7:
+  `session/create-session`, `editor/create-file`, `editor/open-file`, `editor/modify-file`,
+  `runtime/compile`, `runtime/execute`, `verification/run-visible-test`,
+  `verification/run-hidden-test`, `verification/run-complete-test-suite`. Proceeded with the
+  real, verified count (9) rather than truncating to match the ticket's stale estimate — the
+  generated route dispatch table reflects all 9.
+- Chose **a single dynamic route** (`app/api/sandbox/[capability]/route.ts`) over one file per
+  operation, documented in the template's own header comment: all 9 operations share one
+  request/response shape (capability id + HTTP method), so a table-driven dispatcher avoids 9
+  near-duplicate route files.
+- Ran a real (non-dry) `ggen sync run` against `examples/interview-assist/` twice; the generated
+  `app/api/sandbox/[capability]/route.ts` was byte-identical across both runs (`diff` exit 0) —
+  idempotent. `ggen sync run --dry-run`'s own receipt confirms 9 rows reaching the template
+  (`"app/api/sandbox/[capability]/route.ts": "planned: write (dry-run)"`, generated body embeds
+  all 9 `OPERATIONS` entries — verified by reading the written file directly).
+- ALIVE: query, template, and real generation output all verified against the actual ontology
+  content, not assumed from the ticket's pre-written row count.

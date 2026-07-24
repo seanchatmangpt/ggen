@@ -1,0 +1,10 @@
+# Expected: 42 rows (direct dcterms:requires edges among capability/* resources,
+# TICKET-028). Used by preconditions.ts's transitive-closure walker.
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?capability ?requires WHERE {
+  ?capability a schema:Action ;
+              dcterms:requires ?requires .
+  FILTER(CONTAINS(STR(?capability), "/capability/"))
+}
+ORDER BY ?capability ?requires

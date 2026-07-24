@@ -1,0 +1,24 @@
+---
+to: "lib/planes/index.ts"
+sparql:
+  planes: |
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?plane ?title WHERE {
+      ?plane dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/doc/ard#planes> ;
+             dcterms:title ?title .
+    }
+    ORDER BY ?plane
+---
+// Generated from ARD §2 system-planes (TICKET-012). One entry per plane query row.
+// A true one-folder-per-row split was not attempted: no pack in this workspace uses a
+// per-row-dynamic "to:" path inside a for-loop body (grep across packs/*/templates/*.tmpl
+// confirmed only single, static `to:` targets per template file). This module is the
+// single-file projection of the same 4 rows instead.
+export interface SystemPlane {
+  id: string;
+  title: string;
+}
+
+export const SYSTEM_PLANES: SystemPlane[] = [
+{% for pl in planes %}  { id: "{{ pl.plane }}", title: "{{ pl.title }}" },
+{% endfor %}];

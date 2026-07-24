@@ -1,0 +1,37 @@
+{
+  "pack": "wasm4pm-interview-assist-pack",
+  "ticket": "TICKET-054",
+  "generated_at": "2026-07-23T00:00:00Z",
+  "algorithm": "BLAKE3",
+  "note": "PARTIAL snapshot: TICKET-010's projection-manifest.json (a listed Input, an output-manifest of generated template outputs) was not found on disk at generation time -- 'find . -maxdepth 1 -iname \"projection-manifest.json\"' returned nothing. This receipt aggregates the 3 hash sources that DO exist (corpus, queries, templates) and honestly omits the output-manifest field rather than fabricating one. Re-run scripts/hash-tree.py and this aggregation once TICKET-010 lands.",
+  "sources": {
+    "corpus_manifest": {
+      "path": "corpus-manifest.json",
+      "combined_hash": "0c7e5242ccec5ea460dba9d943ae5b00faefbfa013502c65bce11b8330b98844",
+      "note": "verbatim from TICKET-001's corpus-manifest.json, re-read at generation time, not recomputed here"
+    },
+    "queries_tree": {
+      "path": "queries/",
+      "file_count": 16,
+      "combined_hash": "b97054570d591f6c6661de012e0b8a28ecbb9db1e6e51e75e431deec020ab077",
+      "computed_by": "scripts/hash-tree.py queries",
+      "note": "16 files present: capabilities.rq, phases.rq, event-families.rq (TICKET-003 original 3) + refusal-codes.rq, policies.rq, policy-rules.rq, receipts.rq, datasets.rq, acceptance-steps.rq (this session's 6) + accessibility-capabilities.rq, hydra-operations.rq, system-planes.rq, capability-preconditions.rq, performance-targets.rq, policy-permissions.rq, product-metadata-required.rq (7 more from other parallel agents' sessions, not independently re-verified for row-count correctness by this ticket)"
+    },
+    "templates_tree": {
+      "path": "templates/",
+      "file_count": 10,
+      "combined_hash": "1aa11354551077777eea2ff468503dc903c3244c0deac12ff7def6334c1c12cc",
+      "computed_by": "scripts/hash-tree.py templates",
+      "note": "10 files present (9 .tmpl + 1 templates/_partials/require-nonempty.tera), written by another parallel agent's session (templates/ is out of scope for this agent per its task boundary) -- hashed honestly as-is, sparse or not"
+    },
+    "output_manifest": null
+  },
+  "missing_inputs": [
+    {
+      "expected": "projection-manifest.json (TICKET-010)",
+      "status": "not found on disk",
+      "impact": "output-manifest field of this receipt is null; this receipt is not the full TICKET-054 projection receipt until TICKET-010 lands and this file is regenerated"
+    }
+  ],
+  "status": "PARTIAL_ALIVE"
+}

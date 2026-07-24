@@ -1,0 +1,10 @@
+node_modules/
+.next/
+playwright-report/
+test-results/
+.env
+.env.local
+.ggen/keys/
+.ggen/cache/
+.ggen/tmp/
+tsconfig.tsbuildinfo

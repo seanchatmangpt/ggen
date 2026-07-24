@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -115,3 +115,28 @@ Workstreams C through G cite this table directly in their Template responsibilit
 
 - projection-mapping.md exists and covers every class/predicate in the 14-prefix whitelist that the corpus actually instantiates
 - no contradictions with downstream ticket definitions
+
+## Implementation notes (real evidence)
+
+- `docs/projection-mapping.md` written, covering every class with a real instance count re-derived
+  by query (98/149/14/15/5/6/?/?/1+9+1/3/7), and explicitly listing rows still "not yet written"
+  for tickets not yet reached (TICKET-013/020/028), rather than inventing their shapes ahead of
+  those tickets' own execution.
+- Cross-checked against the public-vocabulary audit re-run on the real `ontology.ttl`: 0
+  violations, same 14-prefix result as the original PR #489 report.
+
+## Implementation notes (real evidence) — session 2026-07-23 continuation
+
+- Filled in the previously-"not yet written" `odrl:Set`, `odrl:Permission`/`odrl:Prohibition`,
+  `prov:Entity`/`prov:Activity`, `dcat:Dataset`/`Distribution`/`DataService`, `spdx:Checksum`
+  rows now that TICKET-003's `queries/policies.rq`, `queries/policy-rules.rq`,
+  `queries/receipts.rq`, `queries/datasets.rq` exist and are verified (see TICKET-003's
+  Implementation notes for the real row counts: 6/17/11/11 respectively). Added 2 new rows for
+  `schema:DigitalDocument` (refusal codes, 16 rows via `queries/refusal-codes.rq`) and
+  `skos:Concept`+`schema:Action` (acceptance steps, 10 rows in order via
+  `queries/acceptance-steps.rq`) that the original table omitted.
+- The `hydra:Operation` (TICKET-013) row is left unchanged ("not yet written — TICKET-013
+  scope") — a `queries/hydra-operations.rq` file exists on disk from another parallel agent's
+  session but was not authored or independently re-run in this pass; claiming it here without
+  direct verification would be exactly the overclaiming this table's Status section already
+  disclaims. Status remains PARTIAL_ALIVE for that reason, not ALIVE.

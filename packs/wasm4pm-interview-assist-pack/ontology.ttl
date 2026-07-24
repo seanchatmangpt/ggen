@@ -1,0 +1,1067 @@
+# GENERATED FILE — do not hand-edit.
+# Built by scripts/build-ontology.py from ontology/*.ttl (TICKET-006).
+# Edit the source files under ontology/, then re-run the script.
+
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---- from ontology/00-document.ttl ----
+# ---------------------------------------------------------------------------
+# Document graph: PRD, ARD, their sections, and authorship.
+#
+# Every numbered section of both source documents is its own addressable
+# resource (schema:DigitalDocument + prov:Entity), linked to its parent via
+# dcterms:isPartOf/dcterms:hasPart, carrying its heading as dcterms:title
+# and a faithful capture of its content as rdf:value. Full normative
+# ("shall"/"must") sentences are additionally lifted into their own
+# resources in 20-requirements.ttl -- this file provides the document
+# structure they attach to, not a duplicate of their content.
+# ---------------------------------------------------------------------------
+
+<doc/prd>
+    a schema:DigitalDocument, prov:Entity ;
+    dcterms:title "InterviewAssist Product Requirements Document" ;
+    schema:version "0.1" ;
+    schema:creativeWorkStatus "Product definition" ;
+    dcterms:description "Accessible technical interview preparation and authorized live interview assistance." ;
+    dcterms:hasPart
+        <doc/prd#summary>, <doc/prd#problem>, <doc/prd#objective>, <doc/prd#modes>,
+        <doc/prd#users>, <doc/prd#scenario>, <doc/prd#sandbox>, <doc/prd#capability-ontology>,
+        <doc/prd#task-taxonomy>, <doc/prd#self-play>, <doc/prd#runtime-cognition>,
+        <doc/prd#ui>, <doc/prd#zero-input>, <doc/prd#admission-states>,
+        <doc/prd#success-metrics>, <doc/prd#mlp>, <doc/prd#benchmarks>, <doc/prd#launch-criterion> .
+
+<doc/ard>
+    a schema:DigitalDocument, prov:Entity ;
+    dcterms:title "InterviewAssist Architecture Requirements Document" ;
+    schema:version "0.1" ;
+    dcterms:description "Local-first, event-sourced, ontology-grounded, proof-carrying manufacturing architecture. Primary implementation: Rust and WebAssembly." ;
+    dcterms:hasPart
+        <doc/ard#objective>, <doc/ard#planes>, <doc/ard#components>, <doc/ard#dataflow>,
+        <doc/ard#tech-choices>, <doc/ard#sandbox-api>, <doc/ard#event-model>,
+        <doc/ard#security>, <doc/ard#accessibility-req>, <doc/ard#performance>,
+        <doc/ard#refusal-taxonomy>, <doc/ard#verification-ladder>, <doc/ard#phases>,
+        <doc/ard#decisive-acceptance-test>, <doc/ard#decisive-product-choice> .
+
+# ---- PRD sections ----
+
+<doc/prd#summary> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "1. Product summary" ;
+    rdf:value "InterviewAssist is a local-first, accessible technical interview environment that observes the natural events of a coding interview and automatically presents the candidate with the most relevant verified assistance. The candidate is not required to prompt a chatbot, choose a question category, press a next button, or operate a parallel conversation. The production system uses small local language models for offline self-play, domain bootstrapping, counterexample generation, and pack construction. The live runtime does not require an LLM; it operates from admitted interview packs containing ontologies, rules, cases, workflow state machines, algorithms, test strategies, accessibility projections, and refusal conditions." .
+
+<doc/prd#problem> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "2. Customer problem" ;
+    rdf:value "Technical interviews impose simultaneous workloads: understanding an unfamiliar problem, remembering algorithms and language facilities, communicating reasoning, writing syntactically valid code, testing and debugging, responding to changing requirements, monitoring time, interpreting interviewer feedback, and operating an unfamiliar interview platform. This burden is particularly severe for candidates with motor-access, visual-access, auditory-access, speech, working-memory, processing-speed, anxiety, or AAC-reliance requirements. Existing assistance also presents an epistemic problem: generated suggestions may be unsupported, unrelated to the candidate's experience, or incorrect." .
+
+<doc/prd#objective> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "3. Product objective" ;
+    rdf:value "InterviewAssist shall provide a complete accessible technical interview environment in which: the interview begins with no runtime configuration; the coding task is represented as an admitted problem model; likely solution paths are constructed from explicit capabilities; code can be written, compiled, executed, tested, and repaired; natural candidate activity advances the workflow; assistance is projected automatically through the admitted accessibility surface; uncertain interpretations remain visibly uncertain; incorrect candidates are rejected through executable verification; session behavior can be replayed; the final result includes a complete evidence receipt." .
+
+<doc/prd#modes> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "4. Intended operating modes" ;
+    dcterms:hasPart <doc/prd#mode-practice>, <doc/prd#mode-mock>, <doc/prd#mode-live>, <doc/prd#mode-assessment>, <doc/prd#mode-prohibited> .
+<doc/prd#mode-practice> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.1 Practice mode" ;
+    rdf:value "The candidate conducts self-directed or simulated interviews. All InterviewAssist capabilities may be enabled." .
+<doc/prd#mode-mock> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.2 Accessible mock-interview mode" ;
+    rdf:value "A human or synthetic interviewer conducts the interview. InterviewAssist operates as an accessibility and preparation tool with the consent of all participants." .
+<doc/prd#mode-live> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.3 Authorized live-assistance mode" ;
+    rdf:value "An employer or interviewer explicitly permits InterviewAssist or an equivalent assistive coding tool. The permitted capability envelope is declared before the session." .
+<doc/prd#mode-assessment> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.4 Assessment mode" ;
+    rdf:value "An employer uses InterviewAssist as the official interview environment and determines available assistance, accessibility accommodations, permitted references, scoring rules, observation policy, and retained evidence." .
+<doc/prd#mode-prohibited> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#modes> ; dcterms:title "4.5 Prohibited mode" ;
+    rdf:value "InterviewAssist shall not provide covert assistance in an assessment that prohibits outside tools. The product shall not include hidden overlays, screen-capture evasion, monitoring bypasses, disguised processes, covert audio capture, or mechanisms designed to misrepresent unaided work." .
+
+<doc/prd#users> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "5. Primary users" ;
+    rdf:value "Candidate, Interviewer, Accessibility coordinator, Interview-content designer, Researcher -- see 10-product.ttl for each modeled as schema:Role." .
+
+<doc/prd#scenario> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "6. First product scenario" ;
+    rdf:value "A candidate begins a 60-minute technical mock interview in a browser containing a verbal problem statement, a text problem statement, a code editor, a language runtime, public and hidden tests, interviewer follow-up questions, one changing requirement, one introduced bug or failing edge case, a complexity discussion, and a final explanation. InterviewAssist automatically detects the start of the session, loads the relevant job and language pack, parses the problem, extracts constraints, classifies likely algorithm families, presents a stable solution scaffold, tracks what the candidate has explained, observes code edits and executions, interprets compiler and test results, proposes the next debugging operation, predicts likely follow-ups, and produces a post-session receipt. No explicit candidate control input is required." .
+
+<doc/prd#sandbox> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "7. Reference interview sandbox" ;
+    rdf:value "InterviewAssist shall initially ship with a self-hosted sandbox rather than depending on private integrations with commercial interview platforms. The sandbox must represent the common denominator of modern coding interview products: browser-based collaborative editor, language selection, compile and execute, custom standard input, predefined visible tests, hidden tests, console output, multi-file projects, repository-backed tasks, diff view, code review tasks, debugging tasks, feature implementation tasks, front-end preview, terminal access where permitted, interviewer notes, chat, audio or caption event input, system-design surface, session recording and replay, configurable assistance policy. The self-hosted reference environment becomes both the InterviewAssist product surface and the executable benchmark harness." .
+
+<doc/prd#capability-ontology> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "8. Capability ontology" ;
+    rdf:value "The sandbox shall provide the first canonical capability list, across eight families: 8.1 Session, 8.2 Problem, 8.3 Editor, 8.4 Runtime, 8.5 Verification, 8.6 Interview cognition, 8.7 Accessibility, 8.8 Governance -- see 30-capabilities.ttl for every individual capability modeled as schema:Action." .
+
+<doc/prd#task-taxonomy> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "9. Coding-task taxonomy" ;
+    dcterms:hasPart <doc/prd#task-algorithm>, <doc/prd#task-debugging>, <doc/prd#task-feature>, <doc/prd#task-review>, <doc/prd#task-design> .
+<doc/prd#task-algorithm> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.1 Algorithm implementation" ;
+    rdf:value "Arrays and strings, maps and sets, stacks and queues, trees and graphs, dynamic programming, sorting and searching, intervals, recursion and backtracking." .
+<doc/prd#task-debugging> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.2 Debugging" ;
+    rdf:value "The candidate receives a failing implementation and must reproduce the failure, localize the cause, form hypotheses, repair the implementation, and prevent regression." .
+<doc/prd#task-feature> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.3 Feature implementation" ;
+    rdf:value "The candidate receives a small repository and must understand existing structure, implement a feature, modify multiple files, preserve existing behavior, and add tests." .
+<doc/prd#task-review> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.4 Code review" ;
+    rdf:value "The candidate must identify correctness defects, security defects, performance defects, maintainability concerns, missing tests, and architectural violations." .
+<doc/prd#task-design> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#task-taxonomy> ; dcterms:title "9.5 System design" ;
+    rdf:value "The candidate must construct requirements, constraints, components, interfaces, data flows, failure modes, scaling strategy, security boundaries, observability, and verification strategy." .
+
+<doc/prd#self-play> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "10. Self-play requirements" ;
+    rdf:value "The bootstrap plane shall use local models under 9B parameters to manufacture candidate interview knowledge: interviewer questions, candidate responses, progressive follow-ups, ambiguous phrasings, requirement changes, implementation candidates, test cases, counterexamples, debugging traces, explanation rubrics, ontology extensions, and accessibility disturbances. Synthetic output remains unadmitted until it passes relevant verification gates. The system shall preserve generation model, model version, prompt or constructor identifier, seed, source pack, resulting candidate, verifier results, and admission decision." .
+
+<doc/prd#runtime-cognition> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "11. Runtime cognition requirements" ;
+    rdf:value "The live runtime shall use deterministic event routing, explicit state machines, public ontology alignment, semantic retrieval, production rules, certainty factors, case-based reasoning, executable verifier feedback, and Multifractal Workflow. The runtime may optionally use a local model when the declared policy permits it, but correct operation shall not depend on a live LLM." .
+
+<doc/prd#ui> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "12. User-interface requirements" ;
+    rdf:value "Interview surface: problem statement, editor, tests, console, interviewer communication. Cognition surface: current task classification, current interview phase, active constraints, likely solution families, current answer sequence, covered concepts, unresolved concepts, current verification state, likely follow-up. The cognition surface shall default to concise cues, not complete scripted answers. The system shall support a secondary-device display, but no design shall require one." .
+
+<doc/prd#zero-input> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "13. Zero-input behavior" ;
+    rdf:value "The system shall advance from observable interview events: interviewer utterance changes active question hypotheses; candidate speech marks explanation elements as covered; editor changes update implementation state; compiler diagnostics activate repair tracks; test failures activate counterexample analysis; passing tests advance verification state; silence preserves the current scaffold; a requirement change reopens affected obligations. Manual controls may exist as an accessibility fallback but shall not be necessary for ordinary operation." .
+
+<doc/prd#admission-states> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "14. Admission states" ;
+    rdf:value "Every material claim or artifact shall have one of: PARTIAL_ALIVE, ALIVE, BLOCKED, BUILD_BROKEN, UNKNOWN, UNSUPPORTED. UNKNOWN shall not be treated as admitted. UNSUPPORTED shall not be silently promoted to candidate fact. A passing visible test shall not imply complete correctness." .
+
+<doc/prd#success-metrics> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "15. Success metrics" ;
+    rdf:value "Product metrics: time from question completion to first useful cue; question-family classification accuracy; candidate-reported cognitive load; number of explicit runtime interactions; percentage of sessions completed with zero explicit input; accessibility task completion rate; unsupported personal-claim surface rate; assistance-policy violation rate. Coding metrics: Pass@1, Pass@k, compile rate, visible/hidden-test pass rate, mutation score, counterexample discovery rate, repair success rate, explanation completeness, complexity classification accuracy. Manufacturing metrics: admitted pack deltas per compute unit, valid cases per self-play run, duplicate candidate rate, false-admission rate, replay determinism, pack build time, pack size, runtime latency." .
+
+<doc/prd#mlp> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "16. Minimum lovable product" ;
+    rdf:value "One self-hosted browser sandbox; Python and Rust; algorithm and debugging interviews; visible and hidden tests; caption or transcript ingestion; automatic question classification; automatic constraint extraction; algorithm-family ranking; explanation scaffolds; compiler and test feedback routing; passive concept tracking; high-contrast and screen-reader-compatible output; zero-input runtime; local session recording; deterministic replay; post-session receipt; local small-model self-play pack generation." .
+
+<doc/prd#benchmarks> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "17. Initial benchmark set" ;
+    rdf:value "HumanEval; MBPP; LiveCodeBench; CodeFlowBench-style progressive tasks; FVAPPS-style formalized coding problems; custom spoken paraphrases; custom accessibility disturbance fixtures; custom interview-phase transitions. Repository tasks and SWE-bench-class work are deferred until the algorithm and debugging vertical is ALIVE." .
+
+<doc/prd#launch-criterion> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd> ;
+    dcterms:title "18. Launch criterion" ;
+    rdf:value "InterviewAssist v0.1 may be called ALIVE only when: a candidate completes a full mock coding interview without explicit assistant input; the system maintains the correct interview phase; the system identifies the primary algorithm or debugging track; the sandbox compiles and executes the candidate code; visible and hidden tests are independently evaluated; incorrect assistance is not silently admitted; the complete session can be replayed; the accessibility verifier passes; the policy envelope is enforced; the final session receipt matches the replayed event trace." .
+
+# ---- ARD sections ----
+
+<doc/ard#objective> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "1. Architectural objective" ;
+    rdf:value "InterviewAssist shall transform an interview event stream into accessible, verified assistance without requiring explicit runtime control by the candidate. Pipeline: O (raw observation) -> O* (admitted session state) -> C (constructed candidate cognition) -> P (selected/proof-carrying workflow) -> A (assistance projection or sandbox operation) -> R (resulting receipt) -> replay(R). No external actuation may occur without an applicable authority envelope." .
+
+<doc/ard#planes> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "2. System planes" ;
+    dcterms:hasPart <doc/ard#plane-manufacturing>, <doc/ard#plane-runtime>, <doc/ard#plane-sandbox>, <doc/ard#plane-projection> .
+<doc/ard#plane-manufacturing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.1 Manufacturing plane" ;
+    rdf:value "Builds cognition packs before live use: import public ontologies, ingest job/candidate artifacts, run local-model self-play, generate candidate rules and cases, generate tests and counterexamples, construct workflow models, validate ontology extensions, project canonical Rust and WASM artifacts, build receipts and manifests." .
+<doc/ard#plane-runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.2 Runtime cognition plane" ;
+    rdf:value "Maintains the live interview state: receive admitted events, maintain blackboard state, retain parallel hypotheses, execute production rules, retrieve cases, construct answer scaffolds, route compiler and test evidence, advance Multifractal Workflows, issue projection intents." .
+<doc/ard#plane-sandbox> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.3 Sandbox actuation plane" ;
+    rdf:value "Executes code and verification operations: compile, run, test, isolate, time-limit, memory-limit, capture output, capture diagnostics, calculate coverage, reset state, replay executions." .
+<doc/ard#plane-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#planes> ; dcterms:title "2.4 Projection plane" ;
+    rdf:value "Presents assistance through accessible interfaces: visual cues, screen-reader regions, captions, text-to-speech, Braille output, reduced-density layouts, state-stable updates, optional secondary-device display." .
+
+<doc/ard#components> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "3. Core components" ;
+    rdf:value "Session Orchestrator (3.1), Event Gateway (3.2), Admission Engine (3.3), Semantic Graph (3.4), CONSTRUCT Engine (3.5), Blackboard (3.6), Hypothesis Manager (3.7), Capability Registry (3.8), Workflow Engine (3.9), Sandbox Manager (3.10), Test and Verification Engine (3.11), Self-Play Factory (3.12), Pack Compiler (3.13), Accessibility Projector (3.14), Authority Broker (3.15), Receipt Ledger (3.16) -- see 40-events-workflow.ttl for the Session Orchestrator's 13-state lifecycle, 30-capabilities.ttl for the Capability Registry's contents, 50-policy.ttl for the Authority Broker, 60-provenance-receipts.ttl for the Receipt Ledger." .
+
+<doc/ard#dataflow> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "4. Reference data flow" ;
+    rdf:value "Job description, resume, question pack, accessibility profile -> pre-session admission -> semantic graph -> self-play factory -> candidate rules/cases/tests/workflows -> verification and admission -> pack compiler -> canonical Rust/WASM interview pack -- live boundary -- audio/captions/editor/runtime events -> event gateway -> admission engine -> blackboard -> hypothesis manager + CONSTRUCT + workflow engine -> projection intent or sandbox capability request -> authority broker -> accessibility projector or sandbox manager -> observed consequence -> receipt ledger -> replay and residue." .
+
+<doc/ard#tech-choices> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "5. Initial technology choices" ;
+    rdf:value "Application shell: browser application, installable PWA, optional local companion process. Core language: Rust. Browser execution: WebAssembly. Semantic store: RDF-compatible local graph store with SPARQL query/CONSTRUCT. Workflow representation: POWL-compatible process graph. Event representation: OCEL-aligned object-centric events. Provenance: PROV-O-aligned. Constraint validation: SHACL. Policy: ODRL-aligned capability policy. Content addressing: BLAKE3. Local model runtime: Ollama-compatible adapter, isolated from authority decisions." .
+
+<doc/ard#sandbox-api> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "6. Sandbox API boundary" ;
+    rdf:value "trait InterviewSandbox { create_session, apply_file_delta, compile, execute, run_tests, snapshot, reset } -- all methods return typed receipts or typed refusals." .
+
+<doc/ard#event-model> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "7. Event model" ;
+    rdf:value "Canonical event families: SessionEvent, ParticipantEvent, QuestionEvent, SpeechEvent, EditorEvent, FileEvent, CompilerEvent, ExecutionEvent, TestEvent, HypothesisEvent, WorkflowEvent, ProjectionEvent, AccessibilityEvent, PolicyEvent, ReceiptEvent. Every visible state must be derivable from the event log." .
+
+<doc/ard#security> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "8. Security requirements" ;
+    rdf:value "Network denied by default in execution sandboxes; no host filesystem access; no inherited environment secrets; bounded CPU, memory, time, and output; authenticated participant identities where required; encrypted local personal evidence; explicit retention policy; revocable sensor permissions; complete external-actuation audit; deterministic environment fingerprint; dependency pinning; malicious-code fixtures; sandbox escape testing." .
+
+<doc/ard#accessibility-req> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "9. Accessibility requirements" ;
+    rdf:value "Targets WCAG 2.2 AA as a baseline, but compliance is not sufficient evidence of zero-input usability. The verifier shall test: complete keyboard path, zero-keyboard path, screen-reader order, focus stability, non-color state communication, content-density constraints, refresh stability, caption timing, speech-output interruption behavior, reduced-motion behavior, zoom and reflow, assistive-device event replay." .
+
+<doc/ard#performance> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "10. Performance requirements" ;
+    rdf:value "editor event admission < 25ms; rule evaluation < 25ms; semantic retrieval < 50ms; hypothesis update < 50ms; first projection after stable event < 250ms; compile dispatch < 50ms; session replay divergence 0. Compiler/test execution duration depends on the selected language and task. The UI must not block while compilation or self-play runs." .
+
+<doc/ard#refusal-taxonomy> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "11. Failure and refusal taxonomy" ;
+    rdf:value "UNSUPPORTED_LANGUAGE, UNSUPPORTED_RUNTIME, INVALID_PROBLEM_SPEC, STALE_SESSION_EVENT, UNAUTHORIZED_SENSOR, UNAUTHORIZED_EXECUTION, UNAUTHORIZED_RECORDING, SANDBOX_TIMEOUT, SANDBOX_MEMORY_LIMIT, SANDBOX_ESCAPE_DETECTED, NONDETERMINISTIC_REPLAY, UNSUPPORTED_PERSONAL_CLAIM, INSUFFICIENT_CLASSIFICATION_EVIDENCE, INACCESSIBLE_PROJECTION, PACK_VALIDATION_FAILED, HIDDEN_TEST_INTEGRITY_FAILED. Failures must not collapse into inferred truth." .
+
+<doc/ard#verification-ladder> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "12. Verification ladder" ;
+    rdf:value "Unit: event parsing, rule execution, confidence updates, capability preconditions, accessibility projection constraints. Integration: editor-to-gateway, gateway-to-admission, admission-to-workflow, workflow-to-sandbox, sandbox-to-cognition, cognition-to-accessibility-projector. End-to-end: complete algorithm interview, complete debugging interview, zero-input candidate session, screen-reader candidate session, transcript-only candidate session. Chaos: transcript corruption, delayed/duplicate/out-of-order events, sandbox termination, model failure, graph-store failure, accessibility device disconnect. Stress: long session, large repository, high-frequency editor updates, repeated test runs, multiple simultaneous hypotheses. Benchmark: HumanEval, MBPP, LiveCodeBench subset, progressive interview tasks, accessibility fixture suite. Verifier report: independent reproduction of pack build, benchmark results, complete session, receipt hashes, replay outcome." .
+
+<doc/ard#phases> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "13. Phased implementation" ;
+    dcterms:hasPart <doc/ard#phase-0>, <doc/ard#phase-1>, <doc/ard#phase-2>, <doc/ard#phase-3>, <doc/ard#phase-4>, <doc/ard#phase-5> .
+
+<doc/ard#decisive-acceptance-test> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "14. Decisive acceptance test" ;
+    rdf:value "A fresh machine receives the InterviewAssist source tree, pinned toolchains, one interview pack, one accessibility profile, one recorded interviewer event stream. The verifier must build the system, create the sandbox, replay the interview, reproduce all admitted state transitions, reproduce all code executions, reproduce all visible/hidden test outcomes, reproduce all accessibility projections, verify no prohibited capability was invoked, reproduce the final session state, match the final receipt hash. Only then is the architecture ALIVE." .
+
+<doc/ard#decisive-product-choice> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard> ;
+    dcterms:title "Decisive product choice" ;
+    rdf:value "The first sandbox should be self-hosted and API-first, with CoderPad, HackerRank, and CodeSignal represented as compatibility profiles rather than immediate integrations, because the commercial platforms do not publicly expose the complete live event and execution interfaces InterviewAssist needs. First implementation target: Python + Rust + algorithm/debugging tasks + visible/hidden tests + caption events + zero-input cognition + receipt/replay." .
+
+# ---- Authorship / provenance of the documents themselves ----
+
+<agent/product-doctrine>
+    a foaf:Agent ;
+    foaf:name "InterviewAssist product doctrine" .
+
+<doc/prd> prov:wasAttributedTo <agent/product-doctrine> ; dcterms:creator <agent/product-doctrine> .
+<doc/ard> prov:wasAttributedTo <agent/product-doctrine> ; dcterms:creator <agent/product-doctrine> ;
+    dcterms:relation <doc/prd> .
+
+# ---- from ontology/10-product.ttl ----
+# ---------------------------------------------------------------------------
+# Product graph: InterviewAssist as a software project, its user roles, and
+# its operating-mode vocabulary as SKOS concepts.
+# ---------------------------------------------------------------------------
+
+<product/interview-assist>
+    a schema:SoftwareApplication, doap:Project ;
+    doap:name "InterviewAssist" ;
+    schema:name "InterviewAssist" ;
+    schema:version "0.1.0" ;
+    schema:description "A local-first, accessible technical interview environment that observes interview events and automatically presents verified assistance." ;
+    doap:programming-language "Rust", "WebAssembly", "Python" ;
+    dcterms:subject "accessible technical interviews", "coding-interview sandbox", "self-play manufacturing" ;
+    dcterms:conformsTo <doc/prd>, <doc/ard> ;
+    dcterms:isPartOf <product-scheme> .
+
+# ---- Doctrine and operating modes as one SKOS concept scheme ----
+
+<product-scheme>
+    a skos:ConceptScheme ;
+    skos:prefLabel "InterviewAssist product doctrine and operating modes" ;
+    skos:hasTopConcept <doctrine/participation>, <doctrine/cognition-maintenance>, <mode/practice>, <mode/mock-interview>, <mode/live-assistance>, <mode/assessment>, <mode/prohibited> .
+
+<doctrine/participation>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "The candidate participates in the interview" ;
+    skos:definition "The candidate, not InterviewAssist, performs the interview; the system observes and assists, it does not substitute." .
+
+<doctrine/cognition-maintenance>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "InterviewAssist maintains the interview cognition" ;
+    skos:definition "The system's role is bounded to maintaining phase, hypotheses, evidence, and lawful next action -- not producing the candidate's answers." ;
+    skos:related <doctrine/participation> .
+
+<mode/practice>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Practice mode" ;
+    skos:definition "The candidate conducts self-directed or simulated interviews. All InterviewAssist capabilities may be enabled." ;
+    dcterms:isPartOf <doc/prd#mode-practice> .
+
+<mode/mock-interview>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Accessible mock-interview mode" ;
+    skos:definition "A human or synthetic interviewer conducts the interview; InterviewAssist operates as an accessibility and preparation tool with consent of all participants." ;
+    dcterms:isPartOf <doc/prd#mode-mock> .
+
+<mode/live-assistance>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Authorized live-assistance mode" ;
+    skos:definition "An employer or interviewer explicitly permits InterviewAssist; the permitted capability envelope is declared before the session." ;
+    dcterms:isPartOf <doc/prd#mode-live> .
+
+<mode/assessment>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Assessment mode" ;
+    skos:definition "An employer uses InterviewAssist as the official interview environment and determines the assistance/accessibility/scoring/retention policy." ;
+    dcterms:isPartOf <doc/prd#mode-assessment> .
+
+<mode/prohibited>
+    a skos:Concept ;
+    skos:inScheme <product-scheme> ;
+    skos:topConceptOf <product-scheme> ;
+    skos:prefLabel "Prohibited mode" ;
+    skos:definition "InterviewAssist shall not provide covert assistance in an assessment that prohibits outside tools: no hidden overlays, no screen-capture evasion, no monitoring bypasses, no disguised processes, no covert audio capture, no misrepresentation of unaided work." ;
+    skos:related <mode/assessment> ;
+    dcterms:isPartOf <doc/prd#mode-prohibited> .
+
+# ---- User roles ----
+# schema.org's canonical Role pattern is an intermediary node connecting an
+# agent to a context via a domain-specific relation (e.g. schema:employee);
+# InterviewAssist's roles aren't employment/organizational relations, so
+# each role here is modeled directly as schema:Role + foaf:Agent (the agent
+# class appropriate for a role a person or system plays), not forced through
+# a schema.org property whose domain doesn't fit.
+
+<role/candidate> a schema:Role, foaf:Agent ; schema:roleName "Candidate" ;
+    schema:description "Wants to demonstrate actual engineering ability while reducing working-memory and interface burden." .
+<role/interviewer> a schema:Role, foaf:Agent ; schema:roleName "Interviewer" ;
+    schema:description "Wants to evaluate reasoning, implementation, debugging, verification, and communication under a declared assistance policy." .
+<role/accessibility-coordinator> a schema:Role, foaf:Agent ; schema:roleName "Accessibility coordinator" ;
+    schema:description "Wants explicit, testable accommodations rather than an informal claim that an interface is accessible." .
+<role/content-designer> a schema:Role, foaf:Agent ; schema:roleName "Interview-content designer" ;
+    schema:description "Wants to create questions, repositories, tests, scoring policies, and expected competency models." .
+<role/researcher> a schema:Role, foaf:Agent ; schema:roleName "Researcher" ;
+    schema:description "Wants reproducible evidence about candidate behavior, assistance effectiveness, self-play, and coding performance." .
+
+<doc/prd#users> dcterms:hasPart <role/candidate>, <role/interviewer>, <role/accessibility-coordinator>, <role/content-designer>, <role/researcher> .
+
+# ---- from ontology/20-requirements.ttl ----
+# ---------------------------------------------------------------------------
+# Requirement graph: every normative ("shall"/"must") statement in PRD §3,
+# §7, §8, §10, §13, §14, §18 and ARD §1, §8, §9, §10, §11, §12 as its own
+# addressable resource. dcterms:isPartOf points back to the owning document
+# section from 00-document.ttl; rdf:value carries the exact normative
+# sentence/clause, not a paraphrase.
+# ---------------------------------------------------------------------------
+
+# ---- PRD §3 Product objective (10 numbered requirements) ----
+
+<req/prd-obj-1> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Zero-config start" ;
+    rdf:value "the interview can begin with no runtime configuration" .
+<req/prd-obj-2> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Admitted problem model" ;
+    rdf:value "the coding task is represented as an admitted problem model" .
+<req/prd-obj-3> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Explicit-capability solution paths" ;
+    rdf:value "likely solution paths are constructed from explicit capabilities" .
+<req/prd-obj-4> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Full code lifecycle" ;
+    rdf:value "code can be written, compiled, executed, tested, and repaired" .
+<req/prd-obj-5> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Natural activity advances workflow" ;
+    rdf:value "natural candidate activity advances the workflow" .
+<req/prd-obj-6> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Automatic accessible projection" ;
+    rdf:value "assistance is projected automatically through the admitted accessibility surface" .
+<req/prd-obj-7> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Visible uncertainty" ;
+    rdf:value "uncertain interpretations remain visibly uncertain" .
+<req/prd-obj-8> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Executable-verification rejection" ;
+    rdf:value "incorrect candidates are rejected through executable verification" .
+<req/prd-obj-9> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Replayable session behavior" ;
+    rdf:value "session behavior can be replayed" .
+<req/prd-obj-10> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#objective> ; dcterms:title "Complete evidence receipt" ;
+    rdf:value "the final result includes a complete evidence receipt" .
+
+# ---- PRD §7 Reference sandbox ----
+
+<req/prd-sandbox-self-hosted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#sandbox> ; dcterms:title "Self-hosted sandbox, not private platform integration" ;
+    rdf:value "InterviewAssist shall initially ship with a self-hosted sandbox rather than depending on private integrations with commercial interview platforms." .
+<req/prd-sandbox-common-denominator> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#sandbox> ; dcterms:title "Common-denominator sandbox surface" ;
+    rdf:value "The sandbox must represent the common denominator of modern coding interview products." ;
+    dcterms:requires <req/prd-sandbox-self-hosted> .
+
+# ---- PRD §8 Capability ontology ----
+
+<req/prd-capability-list> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "Canonical capability list" ;
+    rdf:value "The sandbox shall provide the first canonical capability list." .
+
+# ---- PRD §10 Self-play requirements ----
+
+<req/prd-selfplay-local-models> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Sub-9B local self-play models" ;
+    rdf:value "The bootstrap plane shall use local models under 9B parameters to manufacture candidate interview knowledge." .
+<req/prd-selfplay-unadmitted-until-verified> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Synthetic output unadmitted until verified" ;
+    rdf:value "Synthetic output remains unadmitted until it passes relevant verification gates." ;
+    dcterms:requires <req/prd-selfplay-local-models> .
+<req/prd-selfplay-preserve-provenance> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#self-play> ; dcterms:title "Preserve self-play provenance" ;
+    rdf:value "The system shall preserve generation model, model version, prompt or constructor identifier, seed, source pack, resulting candidate, verifier results, and admission decision." .
+
+# ---- PRD §13 Zero-input behavior ----
+
+<req/prd-zeroinput-advance-from-events> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#zero-input> ; dcterms:title "Advance from observable events" ;
+    rdf:value "The system shall advance from observable interview events." .
+<req/prd-zeroinput-manual-fallback-only> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#zero-input> ; dcterms:title "Manual controls are accessibility fallback only" ;
+    rdf:value "Manual controls may exist as an accessibility fallback but shall not be necessary for ordinary operation." .
+
+# ---- PRD §14 Admission states ----
+
+<req/prd-admission-vocabulary> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "Fixed admission-state vocabulary" ;
+    rdf:value "Every material claim or artifact shall have one of the following states: PARTIAL_ALIVE, ALIVE, BLOCKED, BUILD_BROKEN, UNKNOWN, UNSUPPORTED." .
+<req/prd-admission-unknown-not-admitted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "UNKNOWN is not admitted" ;
+    rdf:value "UNKNOWN shall not be treated as admitted." ;
+    dcterms:requires <req/prd-admission-vocabulary> .
+<req/prd-admission-unsupported-not-promoted> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "UNSUPPORTED not silently promoted" ;
+    rdf:value "UNSUPPORTED shall not be silently promoted to candidate fact." ;
+    dcterms:requires <req/prd-admission-vocabulary> .
+<req/prd-admission-visible-test-not-complete> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#admission-states> ; dcterms:title "A passing visible test is not complete correctness" ;
+    rdf:value "A passing visible test shall not imply complete correctness." .
+
+# ---- PRD §18 Launch criterion (10 numbered acceptance requirements) ----
+
+<req/prd-launch-1> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Zero explicit-assistant-input completion" ;
+    rdf:value "a candidate completes a full mock coding interview without explicit assistant input" .
+<req/prd-launch-2> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Correct interview phase maintained" ;
+    rdf:value "the system maintains the correct interview phase" .
+<req/prd-launch-3> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Primary track identified" ;
+    rdf:value "the system identifies the primary algorithm or debugging track" .
+<req/prd-launch-4> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Sandbox compiles and executes" ;
+    rdf:value "the sandbox compiles and executes the candidate code" .
+<req/prd-launch-5> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Independent visible/hidden test evaluation" ;
+    rdf:value "visible and hidden tests are independently evaluated" .
+<req/prd-launch-6> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "No silent admission of incorrect assistance" ;
+    rdf:value "incorrect assistance is not silently admitted" .
+<req/prd-launch-7> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Complete session replay" ;
+    rdf:value "the complete session can be replayed" .
+<req/prd-launch-8> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Accessibility verifier passes" ;
+    rdf:value "the accessibility verifier passes" .
+<req/prd-launch-9> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Policy envelope enforced" ;
+    rdf:value "the policy envelope is enforced" .
+<req/prd-launch-10> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#launch-criterion> ; dcterms:title "Final receipt matches replayed trace" ;
+    rdf:value "the final session receipt matches the replayed event trace" .
+
+# ---- ARD §1 Architectural objective ----
+
+<req/ard-obj-transform-events> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#objective> ; dcterms:title "Transform events into verified assistance without explicit control" ;
+    rdf:value "InterviewAssist shall transform an interview event stream into accessible, verified assistance without requiring explicit runtime control by the candidate." .
+<req/ard-obj-authority-required> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#objective> ; dcterms:title "No actuation without authority envelope" ;
+    rdf:value "No external actuation may occur without an applicable authority envelope." .
+
+# ---- ARD §8 Security requirements (12 items) ----
+
+<req/ard-sec-network-denied> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Network denied by default" ;
+    rdf:value "network denied by default in execution sandboxes" .
+<req/ard-sec-no-host-fs> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "No host filesystem access" ;
+    rdf:value "no host filesystem access" .
+<req/ard-sec-no-inherited-secrets> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "No inherited environment secrets" ;
+    rdf:value "no inherited environment secrets" .
+<req/ard-sec-bounded-resources> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Bounded CPU/memory/time/output" ;
+    rdf:value "bounded CPU, memory, time, and output" .
+<req/ard-sec-authenticated-participants> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Authenticated participant identities" ;
+    rdf:value "authenticated participant identities where required" .
+<req/ard-sec-encrypted-evidence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Encrypted local personal evidence" ;
+    rdf:value "encrypted local personal evidence" .
+<req/ard-sec-retention-policy> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Explicit retention policy" ;
+    rdf:value "explicit retention policy" .
+<req/ard-sec-revocable-sensors> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Revocable sensor permissions" ;
+    rdf:value "revocable sensor permissions" .
+<req/ard-sec-actuation-audit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Complete external-actuation audit" ;
+    rdf:value "complete external-actuation audit" .
+<req/ard-sec-deterministic-fingerprint> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Deterministic environment fingerprint" ;
+    rdf:value "deterministic environment fingerprint" .
+<req/ard-sec-dependency-pinning> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Dependency pinning" ;
+    rdf:value "dependency pinning" .
+<req/ard-sec-malicious-fixtures-escape-testing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#security> ; dcterms:title "Malicious-code fixtures and sandbox-escape testing" ;
+    rdf:value "malicious-code fixtures; sandbox escape testing" .
+
+# ---- ARD §9 Accessibility requirements (WCAG baseline + 12 verifier tests) ----
+
+<req/ard-a11y-wcag-baseline> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "WCAG 2.2 AA as baseline, not sufficient" ;
+    rdf:value "The system shall target WCAG 2.2 AA as a baseline, but compliance shall not be treated as sufficient evidence of zero-input usability." .
+<req/ard-a11y-keyboard-path> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Complete keyboard path" ; rdf:value "complete keyboard path" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-zero-keyboard-path> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Zero-keyboard path" ; rdf:value "zero-keyboard path" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-screenreader-order> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Screen-reader order" ; rdf:value "screen-reader order" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-focus-stability> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Focus stability" ; rdf:value "focus stability" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-non-color-state> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Non-color state communication" ; rdf:value "non-color state communication" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-content-density> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Content-density constraints" ; rdf:value "content-density constraints" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-refresh-stability> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Refresh stability" ; rdf:value "refresh stability" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-caption-timing> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Caption timing" ; rdf:value "caption timing" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-speech-interruption> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Speech-output interruption behavior" ; rdf:value "speech-output interruption behavior" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-reduced-motion> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Reduced-motion behavior" ; rdf:value "reduced-motion behavior" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-zoom-reflow> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Zoom and reflow" ; rdf:value "zoom and reflow" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+<req/ard-a11y-assistive-device-replay> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#accessibility-req> ; dcterms:title "Assistive-device event replay" ; rdf:value "assistive-device event replay" ; dcterms:requires <req/ard-a11y-wcag-baseline> .
+
+# ---- ARD §10 Performance requirements (7 numeric targets) ----
+
+<req/ard-perf-editor-admission> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Editor event admission < 25ms" ; rdf:value "editor event admission < 25 ms" .
+<req/ard-perf-rule-evaluation> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Rule evaluation < 25ms" ; rdf:value "rule evaluation < 25 ms" .
+<req/ard-perf-semantic-retrieval> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Semantic retrieval < 50ms" ; rdf:value "semantic retrieval < 50 ms" .
+<req/ard-perf-hypothesis-update> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Hypothesis update < 50ms" ; rdf:value "hypothesis update < 50 ms" .
+<req/ard-perf-first-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "First projection after stable event < 250ms" ; rdf:value "first projection after stable event < 250 ms" .
+<req/ard-perf-compile-dispatch> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Compile dispatch < 50ms" ; rdf:value "compile dispatch < 50 ms" .
+<req/ard-perf-replay-divergence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#performance> ; dcterms:title "Zero session replay divergence" ; rdf:value "session replay divergence 0" .
+
+# ---- ARD §11 Refusal taxonomy (16 required refusal codes + 1 governing rule) ----
+
+<req/ard-refusal-unsupported-language> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_LANGUAGE" ; rdf:value "UNSUPPORTED_LANGUAGE" .
+<req/ard-refusal-unsupported-runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_RUNTIME" ; rdf:value "UNSUPPORTED_RUNTIME" .
+<req/ard-refusal-invalid-problem-spec> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INVALID_PROBLEM_SPEC" ; rdf:value "INVALID_PROBLEM_SPEC" .
+<req/ard-refusal-stale-session-event> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "STALE_SESSION_EVENT" ; rdf:value "STALE_SESSION_EVENT" .
+<req/ard-refusal-unauthorized-sensor> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_SENSOR" ; rdf:value "UNAUTHORIZED_SENSOR" .
+<req/ard-refusal-unauthorized-execution> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_EXECUTION" ; rdf:value "UNAUTHORIZED_EXECUTION" .
+<req/ard-refusal-unauthorized-recording> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNAUTHORIZED_RECORDING" ; rdf:value "UNAUTHORIZED_RECORDING" .
+<req/ard-refusal-sandbox-timeout> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_TIMEOUT" ; rdf:value "SANDBOX_TIMEOUT" .
+<req/ard-refusal-sandbox-memory-limit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_MEMORY_LIMIT" ; rdf:value "SANDBOX_MEMORY_LIMIT" .
+<req/ard-refusal-sandbox-escape-detected> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "SANDBOX_ESCAPE_DETECTED" ; rdf:value "SANDBOX_ESCAPE_DETECTED" .
+<req/ard-refusal-nondeterministic-replay> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "NONDETERMINISTIC_REPLAY" ; rdf:value "NONDETERMINISTIC_REPLAY" .
+<req/ard-refusal-unsupported-personal-claim> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "UNSUPPORTED_PERSONAL_CLAIM" ; rdf:value "UNSUPPORTED_PERSONAL_CLAIM" .
+<req/ard-refusal-insufficient-classification-evidence> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INSUFFICIENT_CLASSIFICATION_EVIDENCE" ; rdf:value "INSUFFICIENT_CLASSIFICATION_EVIDENCE" .
+<req/ard-refusal-inaccessible-projection> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "INACCESSIBLE_PROJECTION" ; rdf:value "INACCESSIBLE_PROJECTION" .
+<req/ard-refusal-pack-validation-failed> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "PACK_VALIDATION_FAILED" ; rdf:value "PACK_VALIDATION_FAILED" .
+<req/ard-refusal-hidden-test-integrity-failed> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "HIDDEN_TEST_INTEGRITY_FAILED" ; rdf:value "HIDDEN_TEST_INTEGRITY_FAILED" .
+<req/ard-refusal-no-inferred-truth> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#refusal-taxonomy> ; dcterms:title "Failures must not collapse into inferred truth" ;
+    rdf:value "Failures must not collapse into inferred truth." .
+
+# ---- ARD §12 Verification ladder (5 tiers, each a requirement to reproduce a category) ----
+
+<req/ard-verify-unit> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Unit verification tier" ;
+    rdf:value "event parsing, rule execution, confidence updates, capability preconditions, accessibility projection constraints" .
+<req/ard-verify-integration> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Integration verification tier" ;
+    rdf:value "editor to event gateway, event gateway to admission, admission to workflow, workflow to sandbox, sandbox result to cognition, cognition to accessibility projector" .
+<req/ard-verify-e2e> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "End-to-end verification tier" ;
+    rdf:value "complete algorithm interview, complete debugging interview, zero-input candidate session, screen-reader candidate session, transcript-only candidate session" .
+<req/ard-verify-chaos> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Chaos verification tier" ;
+    rdf:value "transcript corruption, delayed events, duplicate events, out-of-order events, sandbox termination, model failure, graph-store failure, accessibility device disconnect" .
+<req/ard-verify-stress> a schema:DigitalDocument ; dcterms:isPartOf <doc/ard#verification-ladder> ; dcterms:title "Stress verification tier" ;
+    rdf:value "long session, large repository, high-frequency editor updates, repeated test runs, multiple simultaneous hypotheses" .
+
+# ---- from ontology/30-capabilities.ttl ----
+# ---------------------------------------------------------------------------
+# Capability graph: the full PRD §8.1-8.8 capability ontology (98 items
+# across 8 categories), each a schema:Action. The 7 capabilities that
+# correspond directly to the ARD §6 InterviewSandbox trait's HTTP-shaped
+# methods (create_session, apply_file_delta [-> create/open/modify file],
+# compile, execute, run_tests) are additionally typed hydra:Operation.
+# Preconditions between capabilities use dcterms:requires -- a defensible
+# but non-canonical stretch of a document/dataset-level DCMI property to
+# link two schema:Action instances; flagged in the final report, not
+# silently presented as an exact-fit public predicate.
+# ---------------------------------------------------------------------------
+
+<capability-category/session> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.1 Session capabilities" .
+<capability-category/problem> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.2 Problem capabilities" .
+<capability-category/editor> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.3 Editor capabilities" .
+<capability-category/runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.4 Runtime capabilities" .
+<capability-category/verification> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.5 Verification capabilities" .
+<capability-category/interview-cognition> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.6 Interview cognition capabilities" .
+<capability-category/accessibility> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.7 Accessibility capabilities" .
+<capability-category/governance> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.8 Governance capabilities" .
+
+# ---- 8.1 Session (9) ----
+<capability/session/create-session> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "create session" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/join-session> a schema:Action ; schema:name "join session" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/create-session> .
+<capability/session/identify-participant-roles> a schema:Action ; schema:name "identify participant roles" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/start-interview> a schema:Action ; schema:name "start interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/create-session> .
+<capability/session/pause-interview> a schema:Action ; schema:name "pause interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/start-interview> .
+<capability/session/end-interview> a schema:Action ; schema:name "end interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/start-interview> .
+<capability/session/manage-interview-phases> a schema:Action ; schema:name "manage interview phases" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/record-event-provenance> a schema:Action ; schema:name "record event provenance" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/replay-session> a schema:Action ; schema:name "replay session" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/record-event-provenance> .
+
+# ---- 8.2 Problem (11) ----
+<capability/problem/load-problem-statement> a schema:Action ; schema:name "load problem statement" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/parse-examples> a schema:Action ; schema:name "parse examples" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/identify-input-format> a schema:Action ; schema:name "identify input format" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-output-format> a schema:Action ; schema:name "identify output format" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/extract-constraints> a schema:Action ; schema:name "extract constraints" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/identify-required-function-signature> a schema:Action ; schema:name "identify required function signature" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-prohibited-operations> a schema:Action ; schema:name "identify prohibited operations" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-performance-target> a schema:Action ; schema:name "identify performance target" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/apply-requirement-delta> a schema:Action ; schema:name "apply requirement delta" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/reveal-clarification> a schema:Action ; schema:name "reveal clarification" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/reveal-hidden-condition> a schema:Action ; schema:name "reveal hidden condition" ; dcterms:isPartOf <capability-category/problem> .
+
+# ---- 8.3 Editor (12) ----
+<capability/editor/create-file> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "create file" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/open-file> a schema:Action, hydra:Operation ; hydra:method "GET" ; schema:name "open file" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/modify-file> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "modify file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/rename-file> a schema:Action ; schema:name "rename file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/delete-file> a schema:Action ; schema:name "delete file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/navigate-symbol> a schema:Action ; schema:name "navigate symbol" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/inspect-definition> a schema:Action ; schema:name "inspect definition" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/inspect-references> a schema:Action ; schema:name "inspect references" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/format-source> a schema:Action ; schema:name "format source" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/apply-deterministic-refactor> a schema:Action ; schema:name "apply deterministic refactor" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/display-diagnostics> a schema:Action ; schema:name "display diagnostics" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/display-diff> a schema:Action ; schema:name "display diff" ; dcterms:isPartOf <capability-category/editor> .
+
+# ---- 8.4 Runtime (14) ----
+<capability/runtime/select-language> a schema:Action ; schema:name "select language" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/select-language-version> a schema:Action ; schema:name "select language version" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/select-language> .
+<capability/runtime/compile> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "compile" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/select-language> .
+<capability/runtime/execute> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "execute" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/compile> .
+<capability/runtime/provide-standard-input> a schema:Action ; schema:name "provide standard input" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/terminate-process> a schema:Action ; schema:name "terminate process" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/enforce-timeout> a schema:Action ; schema:name "enforce timeout" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/enforce-memory-limit> a schema:Action ; schema:name "enforce memory limit" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-standard-output> a schema:Action ; schema:name "capture standard output" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-standard-error> a schema:Action ; schema:name "capture standard error" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-exit-status> a schema:Action ; schema:name "capture exit status" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/isolate-filesystem> a schema:Action ; schema:name "isolate filesystem" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/isolate-network> a schema:Action ; schema:name "isolate network" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/reset-environment> a schema:Action ; schema:name "reset environment" ; dcterms:isPartOf <capability-category/runtime> .
+
+# ---- 8.5 Verification (13) ----
+<capability/verification/run-example> a schema:Action ; schema:name "run example" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-visible-test> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run visible test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-hidden-test> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run hidden test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-focused-test> a schema:Action ; schema:name "run focused test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-complete-test-suite> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run complete test suite" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/verification/run-visible-test>, <capability/verification/run-hidden-test> .
+<capability/verification/generate-candidate-test> a schema:Action ; schema:name "generate candidate test" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/generate-property> a schema:Action ; schema:name "generate property" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/mutate-implementation> a schema:Action ; schema:name "mutate implementation" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/calculate-coverage> a schema:Action ; schema:name "calculate coverage" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/verification/run-complete-test-suite> .
+<capability/verification/calculate-complexity-evidence> a schema:Action ; schema:name "calculate complexity evidence" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/compare-implementations> a schema:Action ; schema:name "compare implementations" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/detect-nondeterminism> a schema:Action ; schema:name "detect nondeterminism" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/replay-execution> a schema:Action ; schema:name "replay execution" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/session/replay-session> .
+
+# ---- 8.6 Interview cognition (13) ----
+<capability/cognition/detect-speech-act> a schema:Action ; schema:name "detect speech act" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/classify-question-family> a schema:Action ; schema:name "classify question family" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/detect-speech-act> .
+<capability/cognition/maintain-parallel-hypotheses> a schema:Action ; schema:name "maintain parallel hypotheses" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/classify-question-family> .
+<capability/cognition/rank-solution-families> a schema:Action ; schema:name "rank solution families" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/maintain-parallel-hypotheses> .
+<capability/cognition/construct-answer-scaffold> a schema:Action ; schema:name "construct answer scaffold" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/rank-solution-families> .
+<capability/cognition/retrieve-candidate-evidence> a schema:Action ; schema:name "retrieve candidate evidence" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/mark-concept-covered> a schema:Action ; schema:name "mark concept covered" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/detect-missing-explanation> a schema:Action ; schema:name "detect missing explanation" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/mark-concept-covered> .
+<capability/cognition/infer-current-debugging-state> a schema:Action ; schema:name "infer current debugging state" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/predict-likely-follow-up> a schema:Action ; schema:name "predict likely follow-up" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/maintain-parallel-hypotheses> .
+<capability/cognition/detect-topic-transition> a schema:Action ; schema:name "detect topic transition" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/preserve-unresolved-residue> a schema:Action ; schema:name "preserve unresolved residue" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/abstain-under-insufficient-evidence> a schema:Action ; schema:name "abstain under insufficient evidence" ; dcterms:isPartOf <capability-category/interview-cognition> .
+
+# ---- 8.7 Accessibility (16) ----
+<capability/accessibility/zero-motor-input-operation> a schema:Action ; schema:name "zero-motor-input operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/keyboard-only-operation> a schema:Action ; schema:name "keyboard-only operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/screen-reader-semantic-regions> a schema:Action ; schema:name "screen-reader semantic regions" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/braille-display-output> a schema:Action ; schema:name "Braille-display output" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/caption-driven-operation> a schema:Action ; schema:name "caption-driven operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/text-to-speech-projection> a schema:Action ; schema:name "text-to-speech projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/high-contrast-projection> a schema:Action ; schema:name "high-contrast projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/magnified-single-cue-projection> a schema:Action ; schema:name "magnified single-cue projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/reduced-motion-mode> a schema:Action ; schema:name "reduced-motion mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/stable-layout-mode> a schema:Action ; schema:name "stable-layout mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/configurable-information-density> a schema:Action ; schema:name "configurable information density" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/extended-processing-time-mode> a schema:Action ; schema:name "extended processing-time mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/augmentative-communication-projection> a schema:Action ; schema:name "augmentative communication projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/non-color-dependent-status> a schema:Action ; schema:name "non-color-dependent status" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/controllable-audio-retention> a schema:Action ; schema:name "controllable audio retention" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/controllable-transcript-retention> a schema:Action ; schema:name "controllable transcript retention" ; dcterms:isPartOf <capability-category/accessibility> .
+
+# ---- 8.8 Governance (10) ----
+<capability/governance/declare-assistance-policy> a schema:Action ; schema:name "declare assistance policy" ; dcterms:isPartOf <capability-category/governance> .
+<capability/governance/declare-allowed-sensors> a schema:Action ; schema:name "declare allowed sensors" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-allowed-knowledge-sources> a schema:Action ; schema:name "declare allowed knowledge sources" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-permitted-projections> a schema:Action ; schema:name "declare permitted projections" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-prohibited-actions> a schema:Action ; schema:name "declare prohibited actions" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/authorize-recording> a schema:Action ; schema:name "authorize recording" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/authorize-retention> a schema:Action ; schema:name "authorize retention" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/revoke-authority> a schema:Action ; schema:name "revoke authority" ; dcterms:isPartOf <capability-category/governance> .
+<capability/governance/produce-policy-receipt> a schema:Action ; schema:name "produce policy receipt" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/produce-session-receipt> a schema:Action ; schema:name "produce session receipt" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/session/end-interview> .
+
+# ---- from ontology/40-events-workflow.ttl ----
+# ---------------------------------------------------------------------------
+# Event and workflow graph: ARD §7 event-family taxonomy (as SKOS, since
+# these are a controlled vocabulary of kinds, matching the phase-concept
+# treatment required for §3.1) and the ARD §3.1 Session Orchestrator's
+# 14-state lifecycle with its legal transitions. Preserves the distinction
+# required: a phase concept (skos:Concept) vs a transition plan
+# (schema:Action + prov:Plan) vs a transition execution occurrence
+# (prov:Activity) vs the resulting state entity (prov:Entity, classified by
+# a phase concept via dcterms:type).
+# ---------------------------------------------------------------------------
+
+<event-family-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist canonical event families (ARD Section 7)" ;
+    dcterms:isPartOf <doc/ard#event-model> ;
+    skos:hasTopConcept
+        <event-family/session>, <event-family/participant>, <event-family/question>, <event-family/speech>,
+        <event-family/editor>, <event-family/file>, <event-family/compiler>, <event-family/execution>,
+        <event-family/test>, <event-family/hypothesis>, <event-family/workflow>, <event-family/projection>,
+        <event-family/accessibility>, <event-family/policy>, <event-family/receipt> .
+
+<event-family/session>       a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "SessionEvent" .
+<event-family/participant>   a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ParticipantEvent" .
+<event-family/question>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "QuestionEvent" .
+<event-family/speech>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "SpeechEvent" .
+<event-family/editor>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "EditorEvent" .
+<event-family/file>          a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "FileEvent" .
+<event-family/compiler>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "CompilerEvent" .
+<event-family/execution>     a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ExecutionEvent" .
+<event-family/test>          a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "TestEvent" .
+<event-family/hypothesis>    a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "HypothesisEvent" .
+<event-family/workflow>      a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "WorkflowEvent" .
+<event-family/projection>    a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ProjectionEvent" .
+<event-family/accessibility> a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "AccessibilityEvent" .
+<event-family/policy>        a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "PolicyEvent" .
+<event-family/receipt>       a skos:Concept ; skos:inScheme <event-family-scheme> ; skos:prefLabel "ReceiptEvent" .
+
+# ---- Natural interview inputs/outputs cited in PRD §13 as concrete
+# instances of the families above, connected via dcterms:type. ----
+
+<observed-input/interviewer-utterance> a prov:Entity ; dcterms:type <event-family/speech> ; rdfs:label "interviewer utterance changes active question hypotheses" .
+<observed-input/candidate-speech> a prov:Entity ; dcterms:type <event-family/speech> ; rdfs:label "candidate speech marks explanation elements as covered" .
+<observed-input/editor-change> a prov:Entity ; dcterms:type <event-family/editor> ; rdfs:label "editor changes update implementation state" .
+<observed-input/compiler-diagnostic> a prov:Entity ; dcterms:type <event-family/compiler> ; rdfs:label "compiler diagnostics activate repair tracks" .
+<observed-input/test-failure> a prov:Entity ; dcterms:type <event-family/test> ; rdfs:label "test failures activate counterexample analysis" .
+<observed-input/test-pass> a prov:Entity ; dcterms:type <event-family/test> ; rdfs:label "passing tests advance verification state" .
+<observed-input/requirement-change> a prov:Entity ; dcterms:type <event-family/question> ; rdfs:label "a requirement change reopens affected obligations" .
+
+# ---------------------------------------------------------------------------
+# Session lifecycle (ARD §3.1): 14 ordered phase concepts.
+# ---------------------------------------------------------------------------
+
+<phase-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist session lifecycle (ARD Section 3.1)" ;
+    dcterms:isPartOf <doc/ard#components> ;
+    skos:hasTopConcept
+        <phase/created>, <phase/preparing>, <phase/ready>, <phase/introduction>, <phase/problem-presentation>,
+        <phase/clarification>, <phase/planning>, <phase/implementation>, <phase/execution>, <phase/debugging>,
+        <phase/explanation>, <phase/follow-up>, <phase/complete>, <phase/refused> .
+
+<phase/created>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "CREATED" ; skos:narrower <phase/preparing> .
+<phase/preparing>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PREPARING" ; skos:broader <phase/created> ; skos:narrower <phase/ready> .
+<phase/ready>                a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "READY" ; skos:broader <phase/preparing> ; skos:narrower <phase/introduction> .
+<phase/introduction>         a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "INTRODUCTION" ; skos:broader <phase/ready> ; skos:narrower <phase/problem-presentation> .
+<phase/problem-presentation> a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PROBLEM_PRESENTATION" ; skos:broader <phase/introduction> ; skos:narrower <phase/clarification> .
+<phase/clarification>        a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "CLARIFICATION" ; skos:broader <phase/problem-presentation> ; skos:narrower <phase/planning> .
+<phase/planning>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "PLANNING" ; skos:broader <phase/clarification> ; skos:narrower <phase/implementation> .
+<phase/implementation>       a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "IMPLEMENTATION" ; skos:broader <phase/planning> ; skos:narrower <phase/execution> .
+<phase/execution>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "EXECUTION" ; skos:broader <phase/implementation> ; skos:narrower <phase/debugging> .
+<phase/debugging>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "DEBUGGING" ; skos:broader <phase/execution> ; skos:related <phase/implementation> ; skos:narrower <phase/explanation> .
+<phase/explanation>          a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "EXPLANATION" ; skos:broader <phase/debugging> ; skos:narrower <phase/follow-up> .
+<phase/follow-up>            a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "FOLLOW_UP" ; skos:broader <phase/explanation> ; skos:narrower <phase/complete> .
+<phase/complete>             a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "COMPLETE" ; skos:broader <phase/follow-up> .
+<phase/refused>              a skos:Concept ; skos:inScheme <phase-scheme> ; skos:prefLabel "REFUSED" ;
+    skos:related <phase/created>, <phase/preparing>, <phase/ready>, <phase/introduction>, <phase/problem-presentation>,
+                 <phase/clarification>, <phase/planning>, <phase/implementation>, <phase/execution>, <phase/debugging>,
+                 <phase/explanation>, <phase/follow-up> ;
+    skos:definition "Reachable from any non-terminal phase on a typed refusal (ARD Section 11); not enumerated as 12 separate transition-plan resources below for brevity, since every edge shares the same semantics -- see req/ard-refusal-* in 20-requirements.ttl for the refusal codes themselves." .
+
+# ---------------------------------------------------------------------------
+# Transition plans (the abstract, allowed state changes) -- schema:Action +
+# prov:Plan, schema:object = source phase, schema:result = target phase.
+# One resource per adjacent pair in the documented normal path.
+# ---------------------------------------------------------------------------
+
+<transition-plan/created-to-preparing>              a schema:Action, prov:Plan ; schema:name "created-to-preparing" ; schema:object <phase/created> ; schema:result <phase/preparing> .
+<transition-plan/preparing-to-ready>                a schema:Action, prov:Plan ; schema:name "preparing-to-ready" ; schema:object <phase/preparing> ; schema:result <phase/ready> .
+<transition-plan/ready-to-introduction>             a schema:Action, prov:Plan ; schema:name "ready-to-introduction" ; schema:object <phase/ready> ; schema:result <phase/introduction> .
+<transition-plan/introduction-to-problem>           a schema:Action, prov:Plan ; schema:name "introduction-to-problem" ; schema:object <phase/introduction> ; schema:result <phase/problem-presentation> .
+<transition-plan/problem-to-clarification>          a schema:Action, prov:Plan ; schema:name "problem-to-clarification" ; schema:object <phase/problem-presentation> ; schema:result <phase/clarification> .
+<transition-plan/clarification-to-planning>         a schema:Action, prov:Plan ; schema:name "clarification-to-planning" ; schema:object <phase/clarification> ; schema:result <phase/planning> .
+<transition-plan/planning-to-implementation>        a schema:Action, prov:Plan ; schema:name "planning-to-implementation" ; schema:object <phase/planning> ; schema:result <phase/implementation> .
+<transition-plan/implementation-to-execution>       a schema:Action, prov:Plan ; schema:name "implementation-to-execution" ; schema:object <phase/implementation> ; schema:result <phase/execution> .
+<transition-plan/execution-to-debugging>            a schema:Action, prov:Plan ; schema:name "execution-to-debugging" ; schema:object <phase/execution> ; schema:result <phase/debugging> .
+<transition-plan/debugging-to-explanation>          a schema:Action, prov:Plan ; schema:name "debugging-to-explanation" ; schema:object <phase/debugging> ; schema:result <phase/explanation> .
+<transition-plan/debugging-to-implementation>       a schema:Action, prov:Plan ; schema:name "debugging-to-implementation" ; schema:object <phase/debugging> ; schema:result <phase/implementation> ;
+    rdfs:comment "Debugging may reopen implementation (skos:related <phase/implementation> above), not only advance forward." .
+<transition-plan/explanation-to-follow-up>          a schema:Action, prov:Plan ; schema:name "explanation-to-follow-up" ; schema:object <phase/explanation> ; schema:result <phase/follow-up> .
+<transition-plan/follow-up-to-complete>             a schema:Action, prov:Plan ; schema:name "follow-up-to-complete" ; schema:object <phase/follow-up> ; schema:result <phase/complete> .
+
+# ---------------------------------------------------------------------------
+# One concrete transition-execution occurrence, distinct from its plan and
+# from the phase concept: an activity that used the READY phase entity and
+# generated a new state entity classified as INTRODUCTION.
+# ---------------------------------------------------------------------------
+
+<phase-state/ready-instance-example>       a prov:Entity ; dcterms:type <phase/ready> .
+<phase-state/introduction-instance-example> a prov:Entity ; dcterms:type <phase/introduction> .
+
+<transition-occurrence/example-ready-to-introduction>
+    a prov:Activity ;
+    prov:used <phase-state/ready-instance-example> ;
+    prov:generated <phase-state/introduction-instance-example> ;
+    prov:qualifiedAssociation [
+        a prov:Association ;
+        prov:hadPlan <transition-plan/ready-to-introduction>
+    ] .
+
+# ---- from ontology/50-policy.ttl ----
+# ---------------------------------------------------------------------------
+# Policy graph: ARD Section 3.15 authority classes and the PRD's 5
+# operating-mode permission envelopes, as ODRL. odrl:action always points
+# at a schema:Action resource (either from 30-capabilities.ttl or one of
+# the authority-class / prohibited-action stubs declared here) -- never a
+# new odrl:action term, per the instruction to represent the target as a
+# product action resource rather than inventing an ODRL action.
+# ---------------------------------------------------------------------------
+
+# ---- ARD §3.15 authority classes, as action resources an ODRL statement can target ----
+
+<authority-action/observe>      a schema:Action ; schema:name "observe" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/admit>        a schema:Action ; schema:name "admit" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/project>      a schema:Action ; schema:name "project" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/execute-code> a schema:Action ; schema:name "execute_code" ; dcterms:isPartOf <doc/ard#components> ; dcterms:requires <capability/runtime/execute> .
+<authority-action/record>       a schema:Action ; schema:name "record" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/retain>       a schema:Action ; schema:name "retain" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/export>       a schema:Action ; schema:name "export" ; dcterms:isPartOf <doc/ard#components> .
+<authority-action/communicate>  a schema:Action ; schema:name "communicate" ; dcterms:isPartOf <doc/ard#components> .
+
+# ---- PRD §4.5 prohibited-mode actions (excluded from the product, not part of 30-capabilities.ttl's admitted set) ----
+
+<prohibited-action/hidden-overlay>        a schema:Action ; schema:name "hidden overlay" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/screen-capture-evasion> a schema:Action ; schema:name "screen-capture evasion" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/monitoring-bypass>     a schema:Action ; schema:name "monitoring bypass" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/disguised-process>     a schema:Action ; schema:name "disguised process" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/covert-audio-capture>  a schema:Action ; schema:name "covert audio capture" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+<prohibited-action/misrepresent-unaided-work> a schema:Action ; schema:name "misrepresent unaided work" ; dcterms:isPartOf <doc/prd#mode-prohibited> .
+
+# ---- ARD §3.15 Authority Broker default policy for live candidate mode ----
+
+<policy/authority-broker-default>
+    a odrl:Set ;
+    dcterms:isPartOf <doc/ard#components> ;
+    odrl:permission
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/observe> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/admit> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ] ,
+        [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+          odrl:constraint [ a odrl:Constraint ; odrl:leftOperand odrl:spatial ; odrl:operator odrl:eq ; odrl:rightOperand "the declared sandbox"^^xsd:string ] ] ;
+    odrl:prohibition
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/communicate> ;
+          rdfs:comment "external messaging" ] ,
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/record> ;
+          rdfs:comment "undisclosed recording" ] ,
+        [ a odrl:Prohibition ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+          rdfs:comment "code submission (on the candidate's behalf, outside the declared sandbox)" ] .
+
+# ---- PRD §4 operating-mode policies ----
+
+<policy/practice-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-practice> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <product/interview-assist> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/execute-code> ;
+        rdfs:comment "All InterviewAssist capabilities may be enabled." ] .
+
+<policy/mock-interview-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-mock> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <role/interviewer> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/observe> ;
+        rdfs:comment "Operates as an accessibility and preparation tool with the consent of all participants." ] .
+
+<policy/live-assistance-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-live> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner <role/interviewer> ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ;
+        odrl:constraint [ a odrl:Constraint ; odrl:leftOperand odrl:event ; odrl:operator odrl:eq ; odrl:rightOperand "declared before the session"^^xsd:string ] ;
+        rdfs:comment "An employer or interviewer explicitly permits InterviewAssist or an equivalent assistive coding tool." ] .
+
+<policy/assessment-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-assessment> ;
+    odrl:permission [ a odrl:Permission ; odrl:assigner [ a schema:Organization ; schema:name "employer" ] ; odrl:assignee <role/candidate> ; odrl:action <authority-action/project> ;
+        rdfs:comment "Employer determines available assistance, accessibility accommodations, permitted references, scoring rules, observation policy, and retained evidence." ] .
+
+<policy/prohibited-mode>
+    a odrl:Set ; dcterms:isPartOf <doc/prd#mode-prohibited> ;
+    odrl:prohibition
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/hidden-overlay> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/screen-capture-evasion> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/monitoring-bypass> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/disguised-process> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/covert-audio-capture> ] ,
+        [ a odrl:Prohibition ; odrl:assignee <role/candidate> ; odrl:action <prohibited-action/misrepresent-unaided-work> ] .
+
+# ---- PRD §8.8 governance capabilities exercised through these policies ----
+
+<policy/authority-broker-default> dcterms:requires <capability/governance/declare-assistance-policy> .
+
+# ---- from ontology/60-provenance-receipts.ttl ----
+# ---------------------------------------------------------------------------
+# Provenance and receipt graph (ARD Section 3.16 Receipt Ledger + Section 14
+# Decisive Acceptance Test's evidence chain), as PROV-O. Checksums use SPDX
+# with the algorithm carried as a plain literal on spdx:algorithm rather
+# than one of SPDX's fixed checksumAlgorithm_* individuals, since BLAKE3 is
+# not among them -- flagged in the final report as a real, disclosed
+# limitation rather than silently mistyped.
+# ---------------------------------------------------------------------------
+
+# ---- One canonical manufacturing/admission/execution/receipt chain ----
+
+<manufacturing-chain/raw-observation>
+    a prov:Entity ;
+    rdfs:label "raw observation" ;
+    dcterms:type <event-family/editor> .
+
+<manufacturing-chain/admission-activity>
+    a prov:Activity ;
+    rdfs:label "admission activity" ;
+    prov:used <manufacturing-chain/raw-observation> ;
+    prov:wasAssociatedWith <component/admission-engine> .
+
+<manufacturing-chain/admitted-observation>
+    a prov:Entity ;
+    rdfs:label "admitted observation" ;
+    prov:wasGeneratedBy <manufacturing-chain/admission-activity> ;
+    prov:wasDerivedFrom <manufacturing-chain/raw-observation> ;
+    prov:qualifiedGeneration [ a prov:Generation ; prov:activity <manufacturing-chain/admission-activity> ] .
+
+<manufacturing-chain/refusal>
+    a prov:Entity ;
+    rdfs:label "refusal (alternate admission outcome)" ;
+    prov:wasGeneratedBy <manufacturing-chain/admission-activity> ;
+    dcterms:type <req/ard-refusal-insufficient-classification-evidence> .
+
+<manufacturing-chain/generated-application-state>
+    a prov:Entity ;
+    rdfs:label "generated application state" ;
+    prov:wasDerivedFrom <manufacturing-chain/admitted-observation> ;
+    dcterms:type <phase/implementation> .
+
+<manufacturing-chain/sandbox-execution-activity>
+    a prov:Activity ;
+    rdfs:label "sandbox execution" ;
+    prov:used <manufacturing-chain/generated-application-state> ;
+    prov:wasAssociatedWith <component/sandbox-manager> ;
+    prov:qualifiedAssociation [ a prov:Association ; prov:hadPlan <capability/runtime/execute> ] .
+
+<manufacturing-chain/test-result>
+    a prov:Entity ;
+    rdfs:label "test result" ;
+    prov:wasGeneratedBy <manufacturing-chain/sandbox-execution-activity> ;
+    dcterms:type <capability/verification/run-visible-test> .
+
+<manufacturing-chain/accessibility-projection>
+    a prov:Entity ;
+    rdfs:label "accessibility projection" ;
+    prov:wasDerivedFrom <manufacturing-chain/test-result> ;
+    prov:wasAssociatedWith <component/accessibility-projector> .
+
+# ---- Receipt chain: two chained receipts, the second the "final receipt" ----
+
+<receipt/checksum-algorithm-blake3>
+    a spdx:Checksum ;
+    spdx:algorithm "BLAKE3" ;
+    rdfs:comment "SPDX's checksumAlgorithm controlled vocabulary does not enumerate BLAKE3; the algorithm name is carried as a plain literal rather than forced into a mismatched checksumAlgorithm_* individual." .
+
+<receipt/entry-1>
+    a prov:Entity ;
+    rdfs:label "receipt entry (Receipt Ledger fields: admitted inputs, selected capabilities, policy envelope, workflow transitions, code versions, compiler identity, test identity, execution result, projection events, accessibility checks, final state)" ;
+    prov:used <manufacturing-chain/admitted-observation>, <capability/runtime/execute>, <policy/authority-broker-default> ;
+    prov:generated <manufacturing-chain/generated-application-state> ;
+    spdx:checksum [ a spdx:Checksum ; spdx:algorithm "BLAKE3" ; spdx:checksumValue "0000000000000000000000000000000000000000000000000000000000000000" ] .
+
+<receipt/entry-2-final>
+    a prov:Entity ;
+    rdfs:label "final receipt" ;
+    prov:used <manufacturing-chain/test-result>, <manufacturing-chain/accessibility-projection> ;
+    prov:wasDerivedFrom <receipt/entry-1> ;
+    dcterms:relation <receipt/entry-1> ;
+    spdx:checksum [ a spdx:Checksum ; spdx:algorithm "BLAKE3" ; spdx:checksumValue "1111111111111111111111111111111111111111111111111111111111111111" ] .
+
+# ---- Component actors referenced above (ARD Section 3, for prov:wasAssociatedWith) ----
+
+<component/admission-engine>        a prov:Agent ; rdfs:label "Admission Engine (ARD 3.3)" .
+<component/sandbox-manager>         a prov:Agent ; rdfs:label "Sandbox Manager (ARD 3.10)" .
+<component/accessibility-projector> a prov:Agent ; rdfs:label "Accessibility Projector (ARD 3.14)" .
+<component/self-play-factory>       a prov:Agent ; rdfs:label "Self-Play Factory (ARD 3.12)" .
+<component/pack-compiler>           a prov:Agent ; rdfs:label "Pack Compiler (ARD 3.13)" .
+
+# ---- from ontology/70-packs-datasets.ttl ----
+# ---------------------------------------------------------------------------
+# Pack/dataset graph: the manufacturing plane's admitted interview pack
+# (PRD Section 1, ARD Section 2.1) modeled as a DCAT dataset with one
+# distribution per artifact kind it bundles.
+# ---------------------------------------------------------------------------
+
+<pack/interview-pack>
+    a dcat:Dataset ;
+    dcterms:title "InterviewAssist admitted interview pack" ;
+    dcterms:description "Ontologies, rules, cases, workflow state machines, algorithms, test strategies, accessibility projections, and refusal conditions -- the live runtime operates from this pack, not from a live LLM." ;
+    dcterms:conformsTo <doc/prd>, <doc/ard> ;
+    prov:wasGeneratedBy <component/pack-compiler> ;
+    dcat:distribution
+        <pack/interview-pack/domain-ontology>, <pack/interview-pack/question-corpus>,
+        <pack/interview-pack/assistance-rules>, <pack/interview-pack/static-examples>,
+        <pack/interview-pack/constraints>, <pack/interview-pack/test-fixtures>,
+        <pack/interview-pack/accessibility-profiles>, <pack/interview-pack/replay-streams>,
+        <pack/interview-pack/expected-receipts> .
+
+<pack/interview-pack/domain-ontology>       a dcat:Distribution ; dcterms:title "domain ontology" ; dcterms:format "text/turtle" .
+<pack/interview-pack/question-corpus>       a dcat:Distribution ; dcterms:title "question corpus" .
+<pack/interview-pack/assistance-rules>      a dcat:Distribution ; dcterms:title "assistance rules" .
+<pack/interview-pack/static-examples>       a dcat:Distribution ; dcterms:title "static examples" .
+<pack/interview-pack/constraints>           a dcat:Distribution ; dcterms:title "constraints" .
+<pack/interview-pack/test-fixtures>         a dcat:Distribution ; dcterms:title "test fixtures" .
+<pack/interview-pack/accessibility-profiles> a dcat:Distribution ; dcterms:title "accessibility profiles" .
+<pack/interview-pack/replay-streams>        a dcat:Distribution ; dcterms:title "replay streams" .
+<pack/interview-pack/expected-receipts>     a dcat:Distribution ; dcterms:title "expected receipts" ; dcterms:relation <receipt/entry-2-final> .
+
+# ---- Self-play factory as the dcat:DataService producing pack deltas (ARD 3.12, PRD §10) ----
+
+<service/self-play-factory>
+    a dcat:DataService ;
+    dcterms:title "Self-Play Factory" ;
+    dcterms:description "Runs local models outside the live critical path: interviewer generator, candidate solver, test generator, technical critic, accessibility critic, adversarial mutator, candidate judge." ;
+    dcat:servesDataset <pack/interview-pack> ;
+    prov:wasAssociatedWith <component/self-play-factory> ;
+    dcterms:isPartOf <doc/prd#self-play> .
+
+# ---- from ontology/80-acceptance.ttl ----
+# ---------------------------------------------------------------------------
+# Acceptance graph: ARD §13 phases 0-5, §14 Decisive Acceptance Test (10
+# individually identified steps), and the Decisive Product Choice's
+# concrete vertical-scope targets.
+# ---------------------------------------------------------------------------
+
+<phase-implementation-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist phased implementation (ARD Section 13)" ;
+    dcterms:isPartOf <doc/ard#phases> ;
+    skos:hasTopConcept <impl-phase/0>, <impl-phase/1>, <impl-phase/2>, <impl-phase/3>, <impl-phase/4>, <impl-phase/5> .
+
+<impl-phase/0> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 0 -- Capability probe" ;
+    dcterms:isPartOf <doc/ard#phase-0> ; skos:narrower <impl-phase/1> ;
+    dcterms:hasPart <doc/prd#capability-ontology>, <event-family-scheme>, <doc/ard#refusal-taxonomy>, <acceptance-artifact/one-python-task>, <acceptance-artifact/one-rust-task> .
+<impl-phase/1> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 1 -- Deterministic mock interview" ;
+    dcterms:isPartOf <doc/ard#phase-1> ; skos:broader <impl-phase/0> ; skos:narrower <impl-phase/2> ;
+    dcterms:hasPart <acceptance-artifact/text-problem>, <capability/editor/open-file>, <capability/runtime/compile>, <capability/verification/run-complete-test-suite>, <phase-scheme>, <acceptance-artifact/static-assistance-pack>, <receipt/entry-2-final> ;
+    rdfs:comment "No speech and no model." .
+<impl-phase/2> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 2 -- Zero-input cognition" ;
+    dcterms:isPartOf <doc/ard#phase-2> ; skos:broader <impl-phase/1> ; skos:narrower <impl-phase/3> ;
+    dcterms:hasPart <event-family/speech>, <capability/cognition/classify-question-family>, <capability/cognition/maintain-parallel-hypotheses>, <capability/cognition/mark-concept-covered> .
+<impl-phase/3> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 3 -- Self-play manufacturing" ;
+    dcterms:isPartOf <doc/ard#phase-3> ; skos:broader <impl-phase/2> ; skos:narrower <impl-phase/4> ;
+    dcterms:hasPart <service/self-play-factory>, <doc/prd#self-play>, <doc/prd#benchmarks> .
+<impl-phase/4> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 4 -- Accessibility crown" ;
+    dcterms:isPartOf <doc/ard#phase-4> ; skos:broader <impl-phase/3> ; skos:narrower <impl-phase/5> ;
+    dcterms:hasPart <capability/accessibility/screen-reader-semantic-regions>, <capability/accessibility/braille-display-output>, <capability/accessibility/text-to-speech-projection>, <capability/accessibility/stable-layout-mode>, <capability/accessibility/zero-motor-input-operation> .
+<impl-phase/5> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 5 -- Repository interviews" ;
+    dcterms:isPartOf <doc/ard#phase-5> ; skos:broader <impl-phase/4> ;
+    dcterms:hasPart <doc/prd#task-feature>, <doc/prd#task-debugging>, <doc/prd#task-review>, <capability/editor/display-diff> .
+
+<acceptance-artifact/one-python-task> a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/0> ; dcterms:title "one Python task" .
+<acceptance-artifact/one-rust-task>   a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/0> ; dcterms:title "one Rust task" .
+<acceptance-artifact/text-problem>    a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/1> ; dcterms:title "text problem" .
+<acceptance-artifact/static-assistance-pack> a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/1> ; dcterms:title "static assistance pack" ; dcterms:relation <pack/interview-pack> .
+
+# ---------------------------------------------------------------------------
+# Decisive Acceptance Test (ARD §14) -- 10 individually identified steps.
+# ---------------------------------------------------------------------------
+
+<acceptance-test-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist Decisive Acceptance Test (ARD Section 14)" ;
+    dcterms:isPartOf <doc/ard#decisive-acceptance-test> ;
+    skos:hasTopConcept
+        <acceptance-step/1>, <acceptance-step/2>, <acceptance-step/3>, <acceptance-step/4>, <acceptance-step/5>,
+        <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8>, <acceptance-step/9>, <acceptance-step/10> .
+
+<acceptance-step/1>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "build the system" .
+<acceptance-step/2>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "create the sandbox" ; dcterms:requires <acceptance-step/1> .
+<acceptance-step/3>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "replay the interview" ; dcterms:requires <acceptance-step/2> ; dcterms:relation <capability/session/replay-session> .
+<acceptance-step/4>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all admitted state transitions" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <phase-scheme> .
+<acceptance-step/5>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all code executions" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <capability/runtime/execute> .
+<acceptance-step/6>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all visible and hidden test outcomes" ; dcterms:requires <acceptance-step/5> ; dcterms:relation <capability/verification/run-complete-test-suite> .
+<acceptance-step/7>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all accessibility projections" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <manufacturing-chain/accessibility-projection> .
+<acceptance-step/8>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "verify that no prohibited capability was invoked" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <policy/prohibited-mode> .
+<acceptance-step/9>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce the final session state" ; dcterms:requires <acceptance-step/4>, <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8> .
+<acceptance-step/10> a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "match the final receipt hash" ; dcterms:requires <acceptance-step/9> ; dcterms:relation <receipt/entry-2-final> .
+
+<doc/ard#decisive-acceptance-test> dcterms:hasPart <acceptance-step/1>, <acceptance-step/2>, <acceptance-step/3>, <acceptance-step/4>, <acceptance-step/5>, <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8>, <acceptance-step/9>, <acceptance-step/10> .
+
+# ---------------------------------------------------------------------------
+# Decisive Product Choice -- vertical scope (Python + Rust, algorithm and
+# debugging tasks, visible/hidden tests, caption events, zero-input
+# cognition, receipt/replay). Full normative text already captured verbatim
+# in <doc/ard#decisive-product-choice> (00-document.ttl); this section
+# connects it to the concrete resources it names.
+# ---------------------------------------------------------------------------
+
+<doc/ard#decisive-product-choice>
+    dcterms:hasPart
+        <doc/prd#task-algorithm>, <doc/prd#task-debugging>,
+        <capability/verification/run-visible-test>, <capability/verification/run-hidden-test>,
+        <event-family/speech>, <event-family/session>,
+        <capability/session/replay-session>, <capability/governance/produce-session-receipt> .

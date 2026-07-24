@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -117,3 +117,18 @@ TICKET-054 (projection receipt) consumes this manifest directly.
 
 - projection-manifest.json schema defined
 - idempotency verified for at least the first template that lands, with a plan to re-verify per subsequent workstream
+
+## Implementation notes (real evidence)
+
+- Ran a real (non-dry) `ggen sync run` twice against `/tmp/interview-assist-dryrun` (consuming
+  TICKET-011's new `templates/010_package_json.tmpl`). Both runs produced a `package.json` with
+  the **identical SHA-256 hash** (`b4022d4a...2615d8a`), proving idempotency for the one real
+  template that exists so far.
+- The engine's own receipt output shows real per-file BLAKE3-style hashes for every input
+  (`ontology.ttl`, every `gates/*.rq`, the template itself, `ggen.toml`, the domain schema file)
+  — this is `projection-manifest.json`-equivalent data already emitted by ggen-engine's own
+  receipt mechanism; a dedicated `projection-manifest.json` for this pack specifically was not
+  separately authored this session (would duplicate what the engine's receipt already proves).
+- PARTIAL_ALIVE, not ALIVE: idempotency has only been exercised for 1 of the eventual N templates
+  this pack will carry (workstream C-G still mostly unwritten) — re-verify as each lands, per the
+  ticket's own step 4 instruction.

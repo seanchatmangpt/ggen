@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE
 
 ## Parent
 
@@ -122,3 +122,13 @@ Every subsequent projection ticket (011+) invokes this gate as a precondition be
 - script exists, is executable, and is committed
 - passes against the real current corpus
 - fails against a deliberately broken fixture
+
+## Implementation notes (real evidence)
+
+- `packs/wasm4pm-interview-assist-pack/scripts/validate-shacl.py` written; wraps pyshacl.validate()
+  with a real non-zero exit code and a written report (`shacl-validation-report.txt`).
+- Positive: `CONFORMS: True`, 1789 triples, exit 0 against the real current corpus.
+- Negative: reintroduced the real `transition-plan/*` missing-`schema:name` bug (13 resources) —
+  script reported `CONFORMS: False`, printed the 13 violating resources, exited 1. Restored the
+  corpus and re-ran: exit 0 again. This is the exact real bug found and fixed earlier in this
+  project, re-used as the negative fixture per the ticket's own falsifier.

@@ -1,0 +1,11 @@
+[project]
+name = "interview-assist"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[packs]
+wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }
+
+[templates]
+dir = "templates"

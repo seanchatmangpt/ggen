@@ -17,6 +17,7 @@
     a schema:SoftwareApplication, doap:Project ;
     doap:name "InterviewAssist" ;
     schema:name "InterviewAssist" ;
+    schema:version "0.1.0" ;
     schema:description "A local-first, accessible technical interview environment that observes interview events and automatically presents verified assistance." ;
     doap:programming-language "Rust", "WebAssembly", "Python" ;
     dcterms:subject "accessible technical interviews", "coding-interview sandbox", "self-play manufacturing" ;

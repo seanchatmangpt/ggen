@@ -2,7 +2,7 @@
 
 ## Status
 
-PLANNED
+PARTIAL_ALIVE — accessibility-adapter DOM-free logic implemented and tested; Playwright harness BLOCKED (no app-shell dev server exists yet to drive)
 
 ## Parent
 
@@ -122,3 +122,29 @@ The relevant workstream I vertical scenario exercises this adapter against real 
 - real-collaborator Chicago-TDD test passes (no mocks)
 - policy-check-before-action test passes
 - reduction path documented
+
+## Implementation notes (real evidence)
+
+- Files: `examples/interview-assist/lib/adapters/accessibility-platform-adapter.ts` (97 lines),
+  `examples/interview-assist/tests/harness/playwright-setup.ts` (34 lines). Test:
+  `examples/interview-assist/tests/adapters/accessibility-platform-adapter.test.ts` (4 tests,
+  all passing — `npx vitest run tests/adapters/accessibility-platform-adapter.test.ts`).
+- Accessibility-adapter half: `ariaLiveForSeverity`/`buildAnnouncement` (DOM-free severity ->
+  ARIA `aria-live` politeness mapping + announcement construction, calling the policy check
+  first) are real, unit-tested logic. `announceToLiveRegion` (writes into a real `[aria-live]`
+  DOM node) and `speak` (real Web Speech API `speechSynthesis`/`SpeechSynthesisUtterance`) are
+  present in source but NOT exercised this pass — jsdom has no `SpeechSynthesis` polyfill, and
+  this package's toolchain has no jsdom dependency either; both are documented in-source as
+  requiring a real browser (Playwright), not mocked to fake a pass.
+- Playwright harness half: BLOCKED as instructed. `examples/interview-assist/playwright.config.ts`
+  does not exist — in fact NOTHING existed under `examples/interview-assist/` before this
+  ticket set ran (`find examples/interview-assist` returned empty); the app-shell/TICKET-014
+  workstream this depends on has not generated yet. Delivered
+  `tests/harness/playwright-setup.ts` as a real, runnable base config (reusing
+  examples/nextjs-ai-sdk's config shape) that TICKET-014's future app-shell generation can point
+  at, but it has NOT been run against a live dev server in this pass — no such server exists.
+  Stated as BLOCKED rather than claimed working.
+- TICKET-033's real generated accessibility-controls.tsx port has not landed; the
+  `AccessibilityControlsProps` interface is hand-authored and marked `PENDING(TICKET-033)`.
+- Policy-check-before-action: `buildAnnouncement` calls `checkPolicy(...)` before returning —
+  currently deferring to the `PENDING(TICKET-028)` placeholder.
