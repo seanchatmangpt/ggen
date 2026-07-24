@@ -1,0 +1,9 @@
+import { expect, test } from "@playwright/test";
+
+test("chat shell renders and accepts input", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Admitted AI Workspace" })).toBeVisible();
+  const prompt = page.getByPlaceholder("Ask or request an action");
+  await prompt.fill("Echo hello");
+  await expect(prompt).toHaveValue("Echo hello");
+});

@@ -1,0 +1,43 @@
+@prefix nai: <https://ggen.dev/packs/nextjs-ai#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+nai:Application a rdfs:Class .
+nai:Model a rdfs:Class .
+nai:Agent a rdfs:Class .
+nai:Tool a rdfs:Class .
+
+nai:packageName a rdf:Property .
+nai:displayName a rdf:Property .
+nai:description a rdf:Property .
+nai:defaultModel a rdf:Property .
+nai:fallbackModel a rdf:Property .
+nai:maxSteps a rdf:Property .
+nai:maxDurationSeconds a rdf:Property .
+nai:databaseDialect a rdf:Property .
+nai:authStrategy a rdf:Property .
+nai:telemetryEnabled a rdf:Property .
+nai:shadcnVersion a rdf:Property .
+nai:aiElementsVersion a rdf:Property .
+nai:aiSdkVersion a rdf:Property .
+nai:nextVersion a rdf:Property .
+nai:reactVersion a rdf:Property .
+nai:tailwindVersion a rdf:Property .
+nai:usesAgent a rdf:Property .
+nai:usesModel a rdf:Property .
+nai:usesTool a rdf:Property .
+
+nai:modelId a rdf:Property .
+nai:modelLabel a rdf:Property .
+nai:modelRole a rdf:Property .
+
+nai:agentName a rdf:Property .
+nai:instructions a rdf:Property .
+
+nai:toolName a rdf:Property .
+nai:toolTitle a rdf:Property .
+nai:toolKind a rdf:Property .
+nai:handlerKey a rdf:Property .
+nai:inputSchemaJson a rdf:Property .
+nai:approvalRequired a rdf:Property .
