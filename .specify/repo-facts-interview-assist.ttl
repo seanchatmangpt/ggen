@@ -1,0 +1,13 @@
+# Repository inventory fact for the InterviewAssist specification pack.
+#
+# This is repository metadata, not InterviewAssist domain vocabulary. The product
+# specification remains exclusively in packs/wasm4pm-interview-assist-pack/ontology/.
+# Imported by root ggen.toml so the generated architecture pack inventory includes
+# the pack without hand-editing .claude/rules/architecture.md.
+@prefix rf: <http://ggen.org/repo-facts#> .
+
+rf:pack_wasm4pm_interview_assist_pack a rf:Pack ;
+    rf:order "029" ;
+    rf:dir "wasm4pm-interview-assist-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "InterviewAssist PRD/ARD represented as admitted public-ontology RDF using schema.org, DCTERMS, PROV-O, SKOS, ODRL, DCAT, SPDX, Hydra, DOAP, and FOAF with no project-local classes or predicates. Nine ontology graphs plus one SHACL shapes graph form the canonical pre-projection specification; the 57-ticket backlog under docs/jira/v26.7.23/ defines the downstream handoff to reusable templates, thin custom adapters, Chicago-TDD verification, receipts, and deterministic replay. No application implementation is included in this pack revision." .
