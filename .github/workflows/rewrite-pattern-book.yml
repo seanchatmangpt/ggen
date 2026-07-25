@@ -1,0 +1,50 @@
+name: Rewrite pattern-language mdBook
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/post-agi-docs-core-team
+    paths:
+      - book/src/SUMMARY.md
+      - book/scripts/rewrite_pattern_language.py
+      - .github/workflows/rewrite-pattern-book.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rewrite-pattern-book-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  rewrite:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Materialize every SUMMARY chapter
+        run: python3 book/scripts/rewrite_pattern_language.py
+
+      - name: Verify mdBook graph and pattern grammar
+        run: python3 book/scripts/check_book.py
+
+      - name: Verify Level Five book structure
+        run: python3 book/scripts/check_level_five.py
+
+      - name: Commit the complete chapter tree
+        shell: bash
+        run: |
+          if git diff --quiet -- book/src; then
+            echo "Pattern-language chapter tree is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add book/src
+          git commit -m "docs(book): materialize full Alexander pattern language"
+          git push origin HEAD:${{ github.ref_name }}
