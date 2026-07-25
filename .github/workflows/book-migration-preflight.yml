@@ -17,15 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout feature branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: agent/post-agi-docs-core-team
-          fetch-depth: 1
-          show-progress: false
-
-      - name: Run complete migration without publication
+      - name: Quiet shallow clone and run migration
         run: |
           set -euo pipefail
+          git clone --quiet --depth=1 \
+            --branch agent/post-agi-docs-core-team \
+            https://github.com/seanchatmangpt/ggen.git candidate
+          cd candidate
           python3 book/scripts/migrate_full_book_to_aligned_pack_law.py
           python3 book/scripts/check_book.py
