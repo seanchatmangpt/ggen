@@ -11,7 +11,6 @@ ttl_chapters = {
     if record.kind == "Chapter" and record.path.endswith(".md")
 }
 ttl_listings = {record.path for record in records if record.kind == "Listing"}
-normalized = {Path(record.path).as_posix() for record in records}
 summary = (validator.SRC / "SUMMARY.md").read_text(encoding="utf-8")
 summary_links = set(re.findall(r"\[[^\]]+\]\(([^)]+\.md)\)", summary))
 manual_links = {"README.md"}
@@ -30,16 +29,19 @@ actual_listings = {path for path in actual_paths if path.startswith("listings/")
 print(f"LISTING_FILES_NOT_TTL {sorted(actual_listings - ttl_listings)}")
 print(f"TTL_LISTINGS_NOT_FILES {sorted(ttl_listings - actual_listings)}")
 
+print("SUMMARY_335_339")
+for line in summary.splitlines():
+    if re.search(r"\b33[5-9]\.", line):
+        print(line)
+
+print("TTL_335_339")
 for record in records:
-    if "337" in record.path:
-        print(
-            "TTL_337 "
-            f"kind={record.kind} raw={record.path!r} normalized={Path(record.path).as_posix()!r} "
-            f"in_actual={Path(record.path).as_posix() in actual_paths}"
-        )
+    if re.search(r"(?:^|/)33[5-9]-", record.path):
+        print(f"kind={record.kind} subject={record.subject} path={record.path!r}")
+
 for path in sorted(actual_paths):
-    if "337" in path:
-        print(f"ACTUAL_337 raw={path!r} in_normalized={path in normalized}")
+    if re.search(r"(?:^|/)33[5-9]-", path):
+        print(f"ACTUAL_335_339 {path!r}")
 
 for target in ("SUMMARY.md", "theme/level-five.css"):
     path = validator.SRC / Path(target)
