@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Span-safe access to book:Chapter sourceText literals in pack ontology.
 
-The level-five book ontology contains large Turtle long-string literals. A
-single cross-record regex is unsafe because Markdown and code listings can
-contain quote-like material. This module anchors on chapter subjects and the
-chapter's final book:hasListing predicate, then selects the final *unescaped*
-triple-quote delimiter before that predicate as the sourceText terminator.
+The ontology embeds Markdown, Rust, TOML, SPARQL and Turtle examples inside
+long-string literals. Subject-like text inside those literals is data, not an
+ontology record. This module performs a small lexical scan, admitting chapter
+subjects only while outside unescaped Turtle triple-quoted strings.
 """
 
 from __future__ import annotations
@@ -14,8 +13,8 @@ from dataclasses import dataclass
 import re
 from typing import Mapping
 
-CHAPTER_START_RE = re.compile(
-    r"(?m)^book:chapter-[^\s]+\s+a\s+book:Chapter\s*;"
+CHAPTER_LINE_RE = re.compile(
+    r"^book:chapter-[^\s]+\s+a\s+book:Chapter\s*;"
 )
 SOURCE_PATH_RE = re.compile(r'(?m)^\s*book:sourcePath\s+"([^"]+)"\s*;')
 SOURCE_OPEN_RE = re.compile(r'(?m)^\s*book:sourceText\s+"""')
@@ -43,50 +42,70 @@ def is_escaped(text: str, index: int) -> bool:
     return backslashes % 2 == 1
 
 
-def closing_delimiter(ontology: str, source_start: int, listing_start: int) -> int:
-    candidates = [
-        match.start()
-        for match in TRIPLE_QUOTE_RE.finditer(ontology, source_start, listing_start)
-        if not is_escaped(ontology, match.start())
-    ]
-    if not candidates:
-        return -1
-    return candidates[-1]
+def unescaped_triples(text: str, start: int = 0, end: int | None = None):
+    stop = len(text) if end is None else end
+    for match in TRIPLE_QUOTE_RE.finditer(text, start, stop):
+        if not is_escaped(text, match.start()):
+            yield match.start()
+
+
+def chapter_subject_starts(ontology: str) -> list[int]:
+    starts: list[int] = []
+    inside_long_string = False
+    offset = 0
+
+    for line in ontology.splitlines(keepends=True):
+        if not inside_long_string and CHAPTER_LINE_RE.match(line):
+            starts.append(offset)
+
+        line_end = offset + len(line)
+        for _position in unescaped_triples(ontology, offset, line_end):
+            inside_long_string = not inside_long_string
+        offset = line_end
+
+    if inside_long_string:
+        raise ValueError("ontology ends inside an unterminated triple-quoted literal")
+    return starts
+
+
+def first_unescaped_triple(text: str, start: int, end: int) -> int:
+    return next(unescaped_triples(text, start, end), -1)
 
 
 def parse_chapters(ontology: str) -> list[ChapterRecord]:
-    starts = list(CHAPTER_START_RE.finditer(ontology))
+    starts = chapter_subject_starts(ontology)
     records: list[ChapterRecord] = []
 
-    for index, start_match in enumerate(starts):
-        search_end = starts[index + 1].start() if index + 1 < len(starts) else len(ontology)
-        block = ontology[start_match.start():search_end]
+    for index, subject_start in enumerate(starts):
+        search_end = starts[index + 1] if index + 1 < len(starts) else len(ontology)
+        block = ontology[subject_start:search_end]
 
         path_match = SOURCE_PATH_RE.search(block)
         open_match = SOURCE_OPEN_RE.search(block)
-        listing_matches = list(HAS_LISTING_RE.finditer(block))
-        if path_match is None or open_match is None or not listing_matches:
+        if path_match is None or open_match is None:
             raise ValueError(
-                f"malformed book:Chapter at byte {start_match.start()}: "
-                f"path={path_match is not None} source={open_match is not None} "
-                f"listing={bool(listing_matches)}"
+                f"malformed top-level book:Chapter at byte {subject_start}: "
+                f"path={path_match is not None} source={open_match is not None}"
             )
 
-        listing_match = listing_matches[-1]
-        source_start = start_match.start() + open_match.end()
-        listing_start = start_match.start() + listing_match.start()
-        source_end = closing_delimiter(ontology, source_start, listing_start)
+        path = path_match.group(1)
+        source_start = subject_start + open_match.end()
+        source_end = first_unescaped_triple(ontology, source_start, search_end)
         if source_end < source_start:
-            raise ValueError(
-                f"chapter {path_match.group(1)} has no closing sourceText delimiter"
-            )
+            raise ValueError(f"chapter {path} has no closing sourceText delimiter")
 
-        record_end = start_match.start() + listing_match.end()
+        trailing_start = source_end + 3
+        trailing = ontology[trailing_start:search_end]
+        listing_match = HAS_LISTING_RE.search(trailing)
+        if listing_match is None:
+            raise ValueError(f"chapter {path} has no top-level book:hasListing predicate")
+
+        record_end = trailing_start + listing_match.end()
         records.append(
             ChapterRecord(
-                subject_start=start_match.start(),
+                subject_start=subject_start,
                 record_end=record_end,
-                path=path_match.group(1),
+                path=path,
                 source_start=source_start,
                 source_end=source_end,
             )
