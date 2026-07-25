@@ -5,6 +5,10 @@ The ontology embeds Markdown, Rust, TOML, SPARQL and Turtle examples inside
 long-string literals. Subject-like text inside those literals is data, not an
 ontology record. This module performs a small lexical scan, admitting chapter
 subjects only while outside unescaped Turtle triple-quoted strings.
+
+Numbered chapters commonly carry book:hasListing in the same record. Appendices
+and reference chapters may not; listing ownership is irrelevant to replacing
+the chapter's sourceText and is therefore recorded when present, not required.
 """
 
 from __future__ import annotations
@@ -31,6 +35,7 @@ class ChapterRecord:
     path: str
     source_start: int
     source_end: int
+    has_listing: bool
 
 
 def is_escaped(text: str, index: int) -> bool:
@@ -98,9 +103,12 @@ def parse_chapters(ontology: str) -> list[ChapterRecord]:
         trailing = ontology[trailing_start:search_end]
         listing_match = HAS_LISTING_RE.search(trailing)
         if listing_match is None:
-            raise ValueError(f"chapter {path} has no top-level book:hasListing predicate")
+            record_end = trailing_start
+            has_listing = False
+        else:
+            record_end = trailing_start + listing_match.end()
+            has_listing = True
 
-        record_end = trailing_start + listing_match.end()
         records.append(
             ChapterRecord(
                 subject_start=subject_start,
@@ -108,6 +116,7 @@ def parse_chapters(ontology: str) -> list[ChapterRecord]:
                 path=path,
                 source_start=source_start,
                 source_end=source_end,
+                has_listing=has_listing,
             )
         )
 
@@ -144,7 +153,11 @@ def main() -> None:
     repo = Path(__file__).resolve().parents[2]
     path = repo / "packs" / "level-five-book-pack" / "ontology.ttl"
     records = parse_chapters(path.read_text(encoding="utf-8"))
-    print(f"book ontology chapter records: {len(records)}")
+    with_listing = sum(record.has_listing for record in records)
+    print(
+        f"book ontology chapter records: {len(records)}; "
+        f"inline listings: {with_listing}"
+    )
 
 
 if __name__ == "__main__":
