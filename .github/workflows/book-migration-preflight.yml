@@ -22,6 +22,7 @@ jobs:
         with:
           ref: agent/post-agi-docs-core-team
           fetch-depth: 1
+          show-progress: false
 
       - name: Run complete migration without publication
         run: |
