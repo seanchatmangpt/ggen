@@ -224,8 +224,8 @@ def validate_template(path: Path, *, kind: str, variable: str) -> None:
         fail(f"{path}: output law must remain exactly '{{{{ source | trim_end }}}}'")
 
 
-def digest(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def digest_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def validate(
@@ -248,7 +248,7 @@ def validate(
         templates_dir / "listing.tmpl", kind="Listing", variable="listing"
     )
 
-    ontology_text = ontology_path.read_text(encoding="utf-8")
+    ontology_text = ontology_path.read_text(encoding="utf-8", newline="")
     records = parse_records(ontology_text)
     chapters = [record for record in records if record.kind == "Chapter"]
     listings = [record for record in records if record.kind == "Listing"]
@@ -279,12 +279,12 @@ def validate(
         if not output_path.is_file():
             mismatches.append(f"missing {record.path} for {record.subject}")
             continue
-        expected = record.source.rstrip()
-        actual = output_path.read_text(encoding="utf-8")
+        expected = record.source.rstrip().encode("utf-8")
+        actual = output_path.read_bytes()
         if actual != expected:
             mismatches.append(
-                f"byte mismatch {record.path}: expected_sha256={digest(expected)} "
-                f"actual_sha256={digest(actual)} subject={record.subject}"
+                f"byte mismatch {record.path}: expected_sha256={digest_bytes(expected)} "
+                f"actual_sha256={digest_bytes(actual)} subject={record.subject}"
             )
 
     actual_paths = {
@@ -334,8 +334,8 @@ def sabotage() -> None:
         shutil.copytree(SRC, temp_src)
 
         output = temp_src / chapter.path
-        original_output = output.read_text(encoding="utf-8")
-        output.write_text(original_output + "\nSABOTAGE_OUTPUT", encoding="utf-8")
+        original_output = output.read_bytes()
+        output.write_bytes(original_output + b"\nSABOTAGE_OUTPUT")
         expect_refusal(
             "generated-output-byte",
             lambda: validate(
@@ -344,15 +344,19 @@ def sabotage() -> None:
                 src_root=temp_src,
             ),
         )
-        output.write_text(original_output, encoding="utf-8")
+        output.write_bytes(original_output)
 
-        ontology_text = (temp_pack / "ontology.ttl").read_text(encoding="utf-8")
+        ontology_text = (temp_pack / "ontology.ttl").read_text(
+            encoding="utf-8", newline=""
+        )
         mutated = (
             ontology_text[: chapter.source_content_start]
             + "SABOTAGE_TTL"
             + ontology_text[chapter.source_content_start :]
         )
-        (temp_pack / "ontology.ttl").write_text(mutated, encoding="utf-8")
+        (temp_pack / "ontology.ttl").write_text(
+            mutated, encoding="utf-8", newline=""
+        )
         expect_refusal(
             "ontology-sourceText",
             lambda: validate(
@@ -361,7 +365,9 @@ def sabotage() -> None:
                 src_root=temp_src,
             ),
         )
-        (temp_pack / "ontology.ttl").write_text(ontology_text, encoding="utf-8")
+        (temp_pack / "ontology.ttl").write_text(
+            ontology_text, encoding="utf-8", newline=""
+        )
 
         chapter_template = temp_templates / "chapter.md.tmpl"
         original_template = chapter_template.read_text(encoding="utf-8")
