@@ -69,9 +69,14 @@ def skip_quoted(text: str, start: int, delimiter: str) -> int:
 
 
 def top_level_subjects(text: str) -> list[tuple[int, str, str]]:
-    """Find chapter/listing subjects only while outside Turtle literals/comments."""
+    """Find chapter/listing subjects only while outside Turtle literals/comments.
+
+    RDF type is authoritative. Subject identifiers are intentionally not used to
+    infer type because historical listing individuals may retain chapter-prefixed
+    names such as `book:chapter-...-listing`.
+    """
     pattern = re.compile(
-        r"book:(?P<subject>(?P<prefix>chapter|listing)-[^\s]+)\s+"
+        r"book:(?P<subject>(?:chapter|listing)-[^\s]+)\s+"
         r"a\s+book:(?P<class_name>Chapter|Listing)\s*;"
     )
     found: list[tuple[int, str, str]] = []
@@ -99,15 +104,7 @@ def top_level_subjects(text: str) -> list[tuple[int, str, str]]:
                 j += 1
             match = pattern.match(text, j)
             if match:
-                prefix = match.group("prefix")
-                class_name = match.group("class_name")
-                expected = "Chapter" if prefix == "chapter" else "Listing"
-                if class_name != expected:
-                    fail(
-                        f"subject book:{match.group('subject')} has class {class_name}, "
-                        f"expected {expected}"
-                    )
-                found.append((j, class_name, match.group("subject")))
+                found.append((j, match.group("class_name"), match.group("subject")))
         i += 1
     return found
 
