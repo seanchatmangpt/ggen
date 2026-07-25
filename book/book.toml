@@ -12,5 +12,4 @@ create-missing = false
 [output.html]
 default-theme = "light"
 preferred-dark-theme = "navy"
-additional-css = ["theme/level-five.css"]
 git-repository-url = "https://github.com/seanchatmangpt/ggen"
