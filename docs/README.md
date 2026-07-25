@@ -1,57 +1,99 @@
-# Documentation
+# ggen Documentation
 
-Start with the four pages written for exactly this purpose — each grounded in a real,
-verified-this-pass run against the codebase, not reconstructed from what this kind of doc usually
-says:
+```yaml
+class: REFERENCE
+standing: PARTIAL_ALIVE
+scope: documentation routing and authority
+owner: ggen core team
+```
 
-| Page | What it's for |
-|------|----------------|
-| [GETTING_STARTED.md](GETTING_STARTED.md) | Install, build, run a real sync, verify a receipt chain. Every command was actually run; output is transcribed. |
-| [FAQ.md](FAQ.md) | Real questions about this codebase — crate/pack counts, `ggen-core`'s fate, the two `ggen.toml` schemas, whether `just pre-commit` passes — each tied to a specific file or command. |
-| [PERFORMANCE_QUICK_START.md](PERFORMANCE_QUICK_START.md) | The one performance command (`just slo-check`) that's actually automated, and a real run of it against this codebase — including a currently-reproducing Phase 1 bug, even though the command as a whole exits `0`. |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Development workflow, Chicago TDD testing policy, PR process. |
+This directory is the documentation control plane for ggen. Route by task and authority; do not select a document merely because its title appears relevant.
 
-For the repository root's project overview, quickstart, and known-limitations summary, see
-[../README.md](../README.md).
+## Start by outcome
 
-## Everything else
+| Outcome | Canonical document |
+|---|---|
+| Understand ggen's system boundary and first build | [../README.md](../README.md) |
+| Build, run a sync, verify its receipt, and replay the result | [GETTING_STARTED.md](GETTING_STARTED.md) |
+| Resolve implementation questions and known caveats | [FAQ.md](FAQ.md) |
+| Determine whether a capability currently has standing | [aps/README.md](aps/README.md) and `aps/claims.toml` |
+| Apply documentation law or review a documentation change | [CORE_TEAM_DOCUMENTATION_STANDARD.md](CORE_TEAM_DOCUMENTATION_STANDARD.md) |
+| Inspect the current documentation audit and migration boundary | [DOCUMENTATION_AUDIT.md](DOCUMENTATION_AUDIT.md) |
+| Navigate the complete long-lived tree | [INDEX.md](INDEX.md) |
+| Contribute code or documentation | [../CONTRIBUTING.md](../CONTRIBUTING.md) |
 
-`docs/` holds a large, long-lived documentation tree — well over 100 files and subdirectories
-covering architecture, the pack marketplace, the Level-5 pack-promotion program, research notes,
-ADRs, planning history, and more. **[INDEX.md](INDEX.md)** is the actively-maintained directory
-map for all of it — a full tree with a currency note per directory (what's live, what's archived,
-what's flagged for a maintainer decision). Start there for anything not covered by the four pages
-above.
+## Authority order
 
-A few entry points worth naming directly, because they're the ones a new reader most often wants:
+When documents overlap or conflict, resolve authority in this order:
 
-- **Architecture / crate map** — `../CLAUDE.md` and `../.claude/rules/architecture.md` at the
-  repo root are the actively-maintained sources; `reference/workspace/crates.md` under this
-  directory is a lighter-weight sibling.
-- **`sync` command reference** — [reference/ggen_sync_manual.md](reference/ggen_sync_manual.md)
-- **Pack / marketplace architecture** — [marketplace/ARCHITECTURE.md](marketplace/ARCHITECTURE.md)
-- **Pack maturity tracking** —
-  [l5-promotion/L5_PROMOTION_PROGRAM.md](l5-promotion/L5_PROMOTION_PROGRAM.md) (the
-  12-capability Level-5 bar, per pack) and
-  [packs/PACK_MATURITY_MODEL.md](packs/PACK_MATURITY_MODEL.md) (a narrower, stricter,
-  not-yet-reconciled sibling calibration — the two currently disagree in places; treat the L5
-  program doc as more current, and re-check both before trusting either as a snapshot of "how
-  mature is pack X right now").
-- **Claims / release-standing ledger** — [aps/README.md](aps/README.md) and its `claims.toml`:
-  a machine-readable claim → falsifier → evidence → standing record for release-relevant
-  assertions about ggen. This is the authoritative source for "does X actually work," ahead of
-  any prose (including this page) — a falsifier is a command you can re-run yourself.
-- **Agent implementation guides** — [agent/README.md](agent/README.md)
-- **Performance documentation hub** (broader than the Quick Start above; includes some
-  aspirational/not-yet-automated targets, clearly marked as such) —
-  [performance/README.md](performance/README.md)
+1. machine-enforced guards, schemas, and verifier code;
+2. admitted ontologies/specifications and generated projections;
+3. claims ledgers with executable falsifiers;
+4. normative core-team documents;
+5. verified operational guides;
+6. current references;
+7. revision-bound evidence reports;
+8. planning and historical material.
 
-## A caution about this directory
+A lower-authority document must not reconcile a conflict by rhetoric. Identify the conflicting objects, preserve both observations, classify standing, and route to the owning source.
 
-Several subdirectories are explicitly flagged in `INDEX.md` as unreconciled duplicates or
-archive-adjacent content that was never moved into `archive/` (`explanations/` vs.
-`explanation/`, `how-to-guides/` vs. `how-to/`, `preserved/`). That flagging is itself accurate
-as of `INDEX.md`'s own last-verified date — check that date before assuming today's directory
-listing still matches its description one-for-one, and prefer a fresh `ls docs/` over trusting
-any cached directory count (including any specific number quoted in this file or `INDEX.md`) if
-the exact figure matters to what you're doing.
+## Documentation classes
+
+Maintained documentation is classified as one of:
+
+- `NORMATIVE` — repository law, invariants, interfaces, or contribution rules;
+- `OPERATIONAL` — executable procedures with admission, receipt, replay, and failure behavior;
+- `REFERENCE` — current structures, schemas, commands, or APIs;
+- `EVIDENCE` — revision-bound runs, audits, benchmarks, or verifier reports;
+- `DECISION` — accepted architecture or product decisions;
+- `PLANNING` — intended work that does not claim implementation;
+- `HISTORICAL` — superseded material preserved for provenance;
+- `GENERATED` — projections edited only through their admitted source.
+
+The full contract is defined in [CORE_TEAM_DOCUMENTATION_STANDARD.md](CORE_TEAM_DOCUMENTATION_STANDARD.md).
+
+## System and architecture
+
+| Surface | Purpose |
+|---|---|
+| `../CLAUDE.md` | Repository implementation doctrine, enforced boundaries, generated architecture summary, and core development rules. |
+| `../.claude/rules/architecture.md` | Generated, detailed architecture projection. Edit its source ontology rather than the generated file. |
+| [reference/workspace/crates.md](reference/workspace/crates.md) | Lightweight workspace crate reference. |
+| [reference/ggen_sync_manual.md](reference/ggen_sync_manual.md) | Sync command reference. |
+| [marketplace/ARCHITECTURE.md](marketplace/ARCHITECTURE.md) | Pack and marketplace architecture. |
+
+## Verification and standing
+
+| Surface | Purpose |
+|---|---|
+| [aps/README.md](aps/README.md) | Claims-ledger model and usage. |
+| `aps/claims.toml` | Claim → falsifier → evidence → standing records. |
+| [PERFORMANCE_QUICK_START.md](PERFORMANCE_QUICK_START.md) | Current automated performance path and its admitted limitations. |
+| [performance/README.md](performance/README.md) | Broader performance documentation, including explicitly aspirational targets. |
+| [l5-promotion/L5_PROMOTION_PROGRAM.md](l5-promotion/L5_PROMOTION_PROGRAM.md) | Per-capability Level-5 pack promotion program. |
+| [packs/PACK_MATURITY_MODEL.md](packs/PACK_MATURITY_MODEL.md) | Sibling pack-maturity calibration; reconcile disagreements before asserting current maturity. |
+
+## Agents and operators
+
+- [agent/README.md](agent/README.md) routes agent implementation guidance.
+- [GETTING_STARTED.md](GETTING_STARTED.md) is the canonical operator path for source build, sync, receipt verification, and replay.
+- [FAQ.md](FAQ.md) records grounded answers and implementation caveats that do not belong in the front-door overview.
+
+## Long-lived tree
+
+`docs/` contains architecture, pack, research, ADR, planning, evidence, and historical trees accumulated across multiple repository generations. [INDEX.md](INDEX.md) is the directory map, but a directory listing is not proof of currency.
+
+Known taxonomy conflicts include archive-adjacent content and near-duplicate trees such as `explanations/` versus `explanation/` and `how-to-guides/` versus `how-to/`. Until each surface is classified and verified, its aggregate standing is `UNKNOWN`; this does not assert that the content is false.
+
+## Reader safety
+
+Before executing instructions from any document, determine:
+
+1. its class and standing;
+2. the revision or generated source it describes;
+3. whether the command inspects or actuates;
+4. its prerequisites and refusal conditions;
+5. the receipt or verifier that proves the consequence;
+6. whether a higher-authority source supersedes it.
+
+For the current audit boundary and corpus migration protocol, read [DOCUMENTATION_AUDIT.md](DOCUMENTATION_AUDIT.md).
