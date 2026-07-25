@@ -1,45 +1,91 @@
-# ggen: Manufacturing Level Five Packs
+# The ggen Pack Language
 
-**Version:** v26.7.19
+**Version:** v26.7.59 documentation branch
 
-This book is the complete source for a 336-chapter mdBook and its companion Level Five pack laboratory. Its objective is mechanical: by the end of the book, a reader should be able to create a ggen pack that generates, verifies, safely regenerates, receipts, and evolves a complete subsystem for a zero-knowledge consumer.
+This mdBook is a pattern language for writing ggen packs that manufacture verified software. It does not treat every chapter as an already implemented feature. Each pattern must be read against the repository’s live ownership surfaces, committed packs, consumers, tests and explicit gaps.
+
+Start with the [Repository Capability and Pack Map](CAPABILITY_MAP.md). It distinguishes:
+
+- an implemented crate or command;
+- a committed pack witness;
+- a partially demonstrated capability;
+- a normative target with no current witness;
+- historical evidence that cannot establish current standing.
 
 ## Canonical equation
 
 ```text
-pack + ggen
-    -> complete subsystem
-    + independent proof
-    + safe regeneration
-    + drift refusal
-    + lifecycle receipts
+A = μ(O*)
+
+admitted observation
+    → lawful manufacturing
+    → consumer-visible artifact
+    → independent verification
+    → replayable receipt
 ```
+
+For a pack writer, this expands to:
+
+```text
+pack law + ggen
+    → admitted graph state
+    → deterministic projection
+    → bounded write
+    → real consumer consequence
+    → verifier evidence
+    → receipt or typed refusal
+```
+
+## Repository-grounded reading rule
+
+Every chapter must answer five concrete questions:
+
+1. Which live crate or command owns this capability?
+2. Which exact repository path can falsify the chapter’s claim?
+3. Which committed pack demonstrates the pattern, when one exists?
+4. Which consumer or test observes the consequence?
+5. Is the chapter currently `IMPLEMENTED`, `PACK_WITNESS`, `PARTIAL`, or `TARGET`?
+
+A marketplace descriptor, archived document, generated listing or case-study statement is not by itself proof of a live pack capability.
 
 ## Included products
 
-- `src/` — the complete mdBook source.
-- `src/listings/` — one companion code listing for every numbered chapter and appendix.
-- `code/packs/` — canonical Level Five packs, including the TCPS core and release packs.
-- `code/examples/` — real consumer layouts and certification laboratories.
-- `code/case-studies/tcps-v26.7.19-reference/` — the complete 132-file production reference product.
-- `scripts/` — structural checks, manifest generation, static assembly, and Level Five acceptance checks.
+- `src/` — the mdBook source and pattern chapters.
+- `src/CAPABILITY_MAP.md` — current crate, pack, consumer and standing alignment.
+- `src/listings/` — companion listings used by chapter laboratories.
+- `code/packs/` — canonical Level Five laboratory packs.
+- `code/examples/` — consumer layouts and certification laboratories.
+- `code/case-studies/tcps-v26.7.19-reference/` — the TCPS reference product retained for comparison.
+- `scripts/` — structural checks, corpus transformation and Level Five acceptance checks.
 - `schemas/` — receipt and certification schemas.
-- `dist/` — an assembled Markdown edition and a standalone HTML edition.
+
+The repository’s live `packs/`, `crates/`, `examples/` and `tests/` directories take precedence over book-local examples when establishing current capability standing.
 
 ## Standing
 
-This environment does not contain `cargo`, `rustc`, `ggen`, or `mdbook`. The repository is structurally verified, every `SUMMARY.md` link resolves, all chapters contain code and acceptance gates, pack/reference inventories are checked, manifests are generated, and the ZIP is tested. Rust compilation, actual ggen synchronization, and mdBook rendering must be executed in an approved toolchain before assigning binary or generator standing.
+The book source and pattern grammar are structurally materialized. Capability standing is mixed:
 
-## Build
+- deterministic graph, manifest, engine, pack-resolution and marketplace primitives are implemented;
+- several packs have real consumer and proof witnesses;
+- complete multi-pack, multi-target Level Five substitution remains partial;
+- some practicum and certification chapters are normative targets until their full current-head laboratories execute.
+
+Do not promote the whole book to `ALIVE` from structural checks alone.
+
+## Build and falsification
 
 ```bash
-python3 scripts/check_book.py
-python3 scripts/check_level_five.py
-python3 scripts/assemble_book.py
+python3 book/scripts/check_book.py
+python3 book/scripts/check_level_five.py
+python3 book/scripts/assemble_book.py
 
-# In a machine with mdBook and the target toolchain:
-mdbook build
-cd code/examples/canonical-level-five-consumer
-ggen sync run
-cargo test --all-targets
+# Representative live capability checks
+cargo test -p ggen-graph
+cargo test -p ggen-marketplace
+cargo test -p ggen-engine --test reasoner_independence_e2e
+
+# Book rendering
+mdbook build book
 ```
+
+Record exact command outcomes. A command printed here is a falsifier, not evidence that it passed in the reader’s environment.
