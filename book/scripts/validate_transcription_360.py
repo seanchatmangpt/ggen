@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Independent TTL → Tera contract → generated-byte validation for the book."""
+"""Independent TTL → Tera contract → generated-byte validation for the book.
+
+The validator covers the complete `level-five-book-pack` transcription boundary:
+
+- every top-level `book:Chapter` and `book:Listing` in `ontology.ttl`;
+- both Tera/SPARQL templates and their literal output suffixes;
+- all 734 pack-owned files under `book/src`;
+- the absence of missing, duplicate, unsafe, mismatched, or unowned pack outputs.
+
+`README.md`, `SUMMARY.md`, and `theme/level-five.css` are explicit mdBook-owned
+manual/static surfaces outside the transcription pack. They remain subject to the
+structural book checker and mdBook renderer, not silently treated as pack output.
+"""
 
 from __future__ import annotations
 
