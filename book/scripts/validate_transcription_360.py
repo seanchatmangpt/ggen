@@ -18,6 +18,7 @@ TEMPLATES = PACK / "templates"
 SRC = REPO / "book/src"
 EXPECTED = {"Chapter": 367, "Listing": 367}
 MANUAL = {"README.md"}
+EXPRESSION = "{{ source | trim_end }}"
 
 
 class ValidationError(RuntimeError):
@@ -171,8 +172,8 @@ def parse_records(ontology: str) -> list[Record]:
     return records
 
 
-def validate_template(path: Path, kind: str, variable: str) -> None:
-    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+def validate_template(path: Path, kind: str, variable: str) -> bytes:
+    text = read_raw(path).replace("\r\n", "\n")
     markers = (
         'to: "src/{{ path }}"',
         "SELECT ?path ?source WHERE {",
@@ -186,8 +187,15 @@ def validate_template(path: Path, kind: str, variable: str) -> None:
             fail(f"{path}: expected exactly one contract marker {marker!r}")
     if text.count("---") != 2:
         fail(f"{path}: invalid Tera front matter")
-    if text.split("---", 2)[2].strip() != "{{ source | trim_end }}":
-        fail(f"{path}: output law is not exactly source | trim_end")
+    body = text.split("---", 2)[2]
+    if body.startswith("\n"):
+        body = body[1:]
+    if not body.startswith(EXPRESSION):
+        fail(f"{path}: output law does not begin with {EXPRESSION}")
+    suffix = body[len(EXPRESSION):]
+    if suffix not in {"", "\n"}:
+        fail(f"{path}: unsupported literal Tera suffix {suffix!r}")
+    return suffix.encode("utf-8")
 
 
 def sha(data: bytes) -> str:
@@ -202,8 +210,10 @@ def validate(
     inventory = {path.name for path in templates.iterdir() if path.is_file()}
     if inventory != {"chapter.md.tmpl", "listing.tmpl"}:
         fail(f"template inventory mismatch: {sorted(inventory)}")
-    validate_template(templates / "chapter.md.tmpl", "Chapter", "chapter")
-    validate_template(templates / "listing.tmpl", "Listing", "listing")
+    suffixes = {
+        "Chapter": validate_template(templates / "chapter.md.tmpl", "Chapter", "chapter"),
+        "Listing": validate_template(templates / "listing.tmpl", "Listing", "listing"),
+    }
 
     ontology = read_raw(ontology_path)
     records = parse_records(ontology)
@@ -231,7 +241,7 @@ def validate(
         if not output.is_file():
             mismatches.append(f"missing {record.path} for {record.subject}")
             continue
-        expected_bytes = record.source.rstrip().encode("utf-8")
+        expected_bytes = record.source.rstrip().encode("utf-8") + suffixes[record.kind]
         actual_bytes = output.read_bytes()
         if actual_bytes != expected_bytes:
             mismatches.append(
@@ -303,11 +313,8 @@ def sabotage() -> None:
         write_raw(temp_pack / "ontology.ttl", ontology)
 
         template = temp_templates / "chapter.md.tmpl"
-        original_template = template.read_text(encoding="utf-8")
-        template.write_text(
-            original_template.replace("source | trim_end", "source | trim"),
-            encoding="utf-8",
-        )
+        original_template = read_raw(template)
+        write_raw(template, original_template.replace("source | trim_end", "source | trim"))
         expect_refusal(
             "tera-output-law",
             lambda: validate(temp_pack / "ontology.ttl", temp_templates, temp_src),
