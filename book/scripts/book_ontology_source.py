@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Span-safe access to book:Chapter sourceText literals in pack ontology.
 
-The level-five book ontology contains large Turtle long-string literals.  A
+The level-five book ontology contains large Turtle long-string literals. A
 single cross-record regex is unsafe because Markdown and code listings can
-contain quote-like material.  This module anchors on chapter subjects and the
-chapter's final book:hasListing predicate, then chooses the final triple-quote
-delimiter before that predicate as the sourceText terminator.
+contain quote-like material. This module anchors on chapter subjects and the
+chapter's final book:hasListing predicate, then selects the final *unescaped*
+triple-quote delimiter before that predicate as the sourceText terminator.
 """
 
 from __future__ import annotations
@@ -22,6 +22,7 @@ SOURCE_OPEN_RE = re.compile(r'(?m)^\s*book:sourceText\s+"""')
 HAS_LISTING_RE = re.compile(
     r"(?m)^\s*book:hasListing\s+book:[^\s]+\s*\.\s*$"
 )
+TRIPLE_QUOTE_RE = re.compile(r'"""')
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,26 @@ class ChapterRecord:
     path: str
     source_start: int
     source_end: int
+
+
+def is_escaped(text: str, index: int) -> bool:
+    backslashes = 0
+    cursor = index - 1
+    while cursor >= 0 and text[cursor] == "\\":
+        backslashes += 1
+        cursor -= 1
+    return backslashes % 2 == 1
+
+
+def closing_delimiter(ontology: str, source_start: int, listing_start: int) -> int:
+    candidates = [
+        match.start()
+        for match in TRIPLE_QUOTE_RE.finditer(ontology, source_start, listing_start)
+        if not is_escaped(ontology, match.start())
+    ]
+    if not candidates:
+        return -1
+    return candidates[-1]
 
 
 def parse_chapters(ontology: str) -> list[ChapterRecord]:
@@ -54,7 +75,7 @@ def parse_chapters(ontology: str) -> list[ChapterRecord]:
         listing_match = listing_matches[-1]
         source_start = start_match.start() + open_match.end()
         listing_start = start_match.start() + listing_match.start()
-        source_end = ontology.rfind('"""', source_start, listing_start)
+        source_end = closing_delimiter(ontology, source_start, listing_start)
         if source_end < source_start:
             raise ValueError(
                 f"chapter {path_match.group(1)} has no closing sourceText delimiter"
