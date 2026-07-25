@@ -24,5 +24,5 @@ jobs:
             --branch agent/post-agi-docs-core-team \
             https://github.com/seanchatmangpt/ggen.git candidate
           cd candidate
-          python3 book/scripts/migrate_full_book_to_aligned_pack_law.py
+          python3 book/scripts/run_complete_book_migration.py
           python3 book/scripts/check_book.py
