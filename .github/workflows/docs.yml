@@ -1,23 +1,30 @@
 name: Docs
 
-# Consolidates the three legacy docs workflows' LIGHTWEIGHT, no-cargo checks:
-#   - toc.yml              -> TOC freshness via technote-space/toc-generator (CHECK_ONLY)
-#   - docs-validation.yml  -> (cargo doc-example validation intentionally NOT folded here;
-#   - validate-docs.yml    -> that is cargo-dependent and belongs in the Rust CI path,
-#                             not a fast docs gate. Folding it would reintroduce heavy
-#                             tooling the CI contract forbids.)
-# What remains here is honest and instant: a stdlib relative-link check (advisory).
+# Fast repository link diagnostics plus a blocking self-hosted book gate.
+# The book gate builds the real ggen CLI, executes book/ggen.toml, verifies
+# receipts, runs both structural checkers, renders mdBook, and proves that a
+# second sync changes no tracked book content outside runtime receipt state.
 
 on:
   pull_request:
     paths:
       - '**/*.md'
       - 'docs/**'
+      - 'book/**'
+      - 'packs/level-five-book-pack/**'
+      - 'ggen.toml'
+      - 'justfile'
+      - '.github/workflows/docs.yml'
   push:
-    branches: [main]
+    branches: [main, agent/post-agi-docs-core-team]
     paths:
       - '**/*.md'
       - 'docs/**'
+      - 'book/**'
+      - 'packs/level-five-book-pack/**'
+      - 'ggen.toml'
+      - 'justfile'
+      - '.github/workflows/docs.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,11 +34,6 @@ permissions:
   contents: read
 
 jobs:
-  # NOTE: the legacy toc.yml used technote-space/toc-generator, which PUSHES the
-  # regenerated TOC back to the branch even in CHECK_ONLY mode — incompatible with
-  # least-privilege `permissions: contents: read` (it 403'd as github-actions[bot]).
-  # A TOC freshness gate that requires write access to a PR branch is an anti-pattern;
-  # dropped here. (Follow-up: a non-pushing stdlib TOC check could be added later.)
   links:
     name: Relative markdown links (advisory)
     runs-on: ubuntu-latest
@@ -45,40 +47,27 @@ jobs:
         with:
           python-version: '3.11'
 
-      # ADVISORY / non-blocking. The repo carries ~1100 pre-existing broken
-      # relative links (mostly under docs/). Gating PRs on that inherited debt
-      # would be red-for-the-wrong-reasons (exactly the CI we are replacing).
-      # So this job ANNOTATES broken links (GitHub `::warning::`) but always
-      # exits 0. The blocking docs gate is the deterministic `toc` job above.
-      # Per CI_CONVENTIONS §7: the only acceptable non-blocking job is one
-      # explicitly documented as advisory — this is that job. When the backlog
-      # is cleared, flip `--strict` on to make it blocking.
-      #
-      # Stdlib-only structural check: every relative markdown link target
-      # ([text](path) / [text](path#anchor)) must exist on disk. We skip
-      # http(s)/mailto/anchor-only links and code fences. No network, no deps.
       - name: Check relative links (warn only)
         run: |
           python3 - <<'PY'
           import re, sys
           from pathlib import Path
 
-          ROOT = Path(".").resolve()
-          SKIP_DIRS = {".git", "node_modules", "target", "__pycache__", ".venv"}
-          # [text](dest "title")  -- capture dest only
+          ROOT = Path('.').resolve()
+          SKIP_DIRS = {'.git', 'node_modules', 'target', '__pycache__', '.venv'}
           LINK = re.compile(r'\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
           FENCE = re.compile(r'^\s*(```|~~~)')
 
           def is_external(dest: str) -> bool:
               return (
-                  dest.startswith(("http://", "https://", "mailto:", "tel:", "//"))
-                  or dest.startswith("#")            # in-page anchor
-                  or dest.startswith("{")            # template/jinja placeholder
-                  or "://" in dest
+                  dest.startswith(('http://', 'https://', 'mailto:', 'tel:', '//'))
+                  or dest.startswith('#')
+                  or dest.startswith('{')
+                  or '://' in dest
               )
 
           md_files = [
-              p for p in ROOT.rglob("*.md")
+              p for p in ROOT.rglob('*.md')
               if not any(part in SKIP_DIRS for part in p.relative_to(ROOT).parts)
           ]
 
@@ -86,40 +75,103 @@ jobs:
           checked = 0
           for md in md_files:
               try:
-                  lines = md.read_text(encoding="utf-8", errors="replace").splitlines()
-              except OSError as e:
-                  print(f"::warning::cannot read {md}: {e}")
+                  lines = md.read_text(encoding='utf-8', errors='replace').splitlines()
+              except OSError as exc:
+                  print(f'::warning::cannot read {md}: {exc}')
                   continue
               in_fence = False
-              for ln, line in enumerate(lines, 1):
+              for line_number, line in enumerate(lines, 1):
                   if FENCE.match(line):
                       in_fence = not in_fence
                       continue
                   if in_fence:
                       continue
-                  for m in LINK.finditer(line):
-                      dest = m.group(1).strip()
+                  for match in LINK.finditer(line):
+                      dest = match.group(1).strip()
                       if not dest or is_external(dest):
                           continue
-                      # strip query/anchor; resolve relative to the md file's dir
-                      path_part = dest.split("#", 1)[0].split("?", 1)[0]
+                      path_part = dest.split('#', 1)[0].split('?', 1)[0]
                       if not path_part:
-                          continue  # pure-anchor like (#section)
+                          continue
                       target = (md.parent / path_part).resolve()
                       checked += 1
                       if not target.exists():
-                          rel = md.relative_to(ROOT)
-                          broken.append((rel, ln, dest))
+                          broken.append((md.relative_to(ROOT), line_number, dest))
 
-          print(f"Scanned {len(md_files)} markdown files; checked {checked} relative links.")
+          print(f'Scanned {len(md_files)} markdown files; checked {checked} relative links.')
           if broken:
-              for rel, ln, dest in broken:
-                  # advisory: annotate as a warning, never fail the build
-                  print(f"::warning file={rel},line={ln}::broken relative link -> {dest}")
-              print(f"ADVISORY: {len(broken)} broken relative link(s) found "
-                    f"(non-blocking; see annotations).")
+              for rel, line_number, dest in broken:
+                  print(f'::warning file={rel},line={line_number}::broken relative link -> {dest}')
+              print(f'ADVISORY: {len(broken)} broken relative link(s) found.')
           else:
-              print("OK: all relative markdown links resolve.")
-          # Advisory job: always succeed.
+              print('OK: all relative markdown links resolve.')
           sys.exit(0)
           PY
+
+  book-self-hosted:
+    name: ggen self-hosted mdBook
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: book-self-hosted
+
+      - name: Build the real ggen CLI
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: First ggen manufacture and receipt verification
+        run: |
+          set -euo pipefail
+          cd book
+          ../target/debug/ggen sync run
+          ../target/debug/ggen receipt verify
+
+      - name: Validate every selected chapter and Level Five artifact
+        run: |
+          set -euo pipefail
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+
+      - name: Build the mdBook renderer
+        run: cargo install mdbook --locked --version 0.4.52
+
+      - name: Render the complete mdBook
+        run: mdbook build book
+
+      - name: Refuse first-run source or generated-product drift
+        run: |
+          set -euo pipefail
+          drift=$(git status --porcelain=v1 --untracked-files=all -- \
+            book \
+            ':(exclude)book/.ggen-v2/**' \
+            ':(exclude)book/book/**')
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo '::error::book/ggen.toml did not reproduce the committed book source byte-for-byte.'
+            exit 1
+          fi
+
+      - name: Second ggen manufacture proves idempotency
+        run: |
+          set -euo pipefail
+          cd book
+          ../target/debug/ggen sync run
+          ../target/debug/ggen receipt verify
+          cd ..
+          drift=$(git status --porcelain=v1 --untracked-files=all -- \
+            book \
+            ':(exclude)book/.ggen-v2/**' \
+            ':(exclude)book/book/**')
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo '::error::second ggen sync changed tracked book content.'
+            exit 1
+          fi
+          echo 'ggen self-hosted mdBook: sync, receipt, checkers, render, and idempotency are green.'
