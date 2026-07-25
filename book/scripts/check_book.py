@@ -39,6 +39,19 @@ for candidate in sorted(path_candidates):
 if unresolved:
     raise SystemExit("CAPABILITY_MAP.md: unresolved repository paths:\n" + "\n".join(unresolved))
 
+# The capability map is a repository ledger and intentionally does not use the
+# Alexander pattern grammar.  Validate its own required structure instead.
+for marker in (
+    "## Standing vocabulary",
+    "## Capability ownership",
+    "## Pack witnesses",
+    "## Field-to-capability alignment",
+    "## Chapter citation rule",
+    "## Verification",
+):
+    if marker not in capability_map:
+        raise SystemExit(f"CAPABILITY_MAP.md: missing ledger marker {marker}")
+
 required_pattern_markers = [
     "## Context",
     "## Problem",
@@ -53,16 +66,19 @@ required_pattern_markers = [
     "## Acceptance gate",
     "## Connections",
     "## Standing statement",
+    "## Repository capability alignment",
 ]
 
 chapters = []
+pattern_chapters = []
 for relative in links:
     path = src / relative
     if path.suffix != ".md" or not path.exists():
         continue
     chapters.append(path)
-    if relative == "README.md":
+    if relative in {"README.md", "CAPABILITY_MAP.md"}:
         continue
+    pattern_chapters.append(path)
     text = path.read_text(encoding="utf-8")
     for marker in required_pattern_markers:
         if marker not in text:
@@ -74,5 +90,5 @@ for relative in links:
 
 print(
     f"OK: {len(links)} links, {len(chapters)} markdown files, "
-    f"{len(field_numbers)} fields aligned to live capability map"
+    f"{len(pattern_chapters)} patterns, {len(field_numbers)} fields aligned"
 )
