@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'book/scripts/validate_transcription_360.py'
+      - 'book/scripts/diagnose_transcription_360.py'
       - 'book/src/**'
       - 'packs/level-five-book-pack/**'
       - '.github/workflows/book-360-preflight.yml'
@@ -24,5 +25,6 @@ jobs:
             --branch agent/post-agi-docs-core-team \
             https://github.com/seanchatmangpt/ggen.git candidate
           cd candidate
+          python3 book/scripts/diagnose_transcription_360.py
           python3 book/scripts/validate_transcription_360.py
           python3 book/scripts/validate_transcription_360.py --sabotage
