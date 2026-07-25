@@ -11,6 +11,7 @@ ttl_chapters = {
     if record.kind == "Chapter" and record.path.endswith(".md")
 }
 ttl_listings = {record.path for record in records if record.kind == "Listing"}
+normalized = {Path(record.path).as_posix() for record in records}
 summary = (validator.SRC / "SUMMARY.md").read_text(encoding="utf-8")
 summary_links = set(re.findall(r"\[[^\]]+\]\(([^)]+\.md)\)", summary))
 manual_links = {"README.md"}
@@ -21,12 +22,24 @@ print(f"SUMMARY_MD_LINKS {len(summary_links)}")
 print(f"SUMMARY_NOT_TTL {sorted(summary_links - ttl_chapters - manual_links)}")
 print(f"TTL_NOT_SUMMARY {sorted(ttl_chapters - summary_links)}")
 
-actual_listings = {
+actual_paths = {
     path.relative_to(validator.SRC).as_posix()
-    for path in (validator.SRC / "listings").rglob("*") if path.is_file()
+    for path in validator.SRC.rglob("*") if path.is_file()
 }
+actual_listings = {path for path in actual_paths if path.startswith("listings/")}
 print(f"LISTING_FILES_NOT_TTL {sorted(actual_listings - ttl_listings)}")
 print(f"TTL_LISTINGS_NOT_FILES {sorted(ttl_listings - actual_listings)}")
+
+for record in records:
+    if "337" in record.path:
+        print(
+            "TTL_337 "
+            f"kind={record.kind} raw={record.path!r} normalized={Path(record.path).as_posix()!r} "
+            f"in_actual={Path(record.path).as_posix() in actual_paths}"
+        )
+for path in sorted(actual_paths):
+    if "337" in path:
+        print(f"ACTUAL_337 raw={path!r} in_normalized={path in normalized}")
 
 for target in ("SUMMARY.md", "theme/level-five.css"):
     path = validator.SRC / Path(target)
