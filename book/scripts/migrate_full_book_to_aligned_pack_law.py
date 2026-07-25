@@ -2,7 +2,7 @@
 """Rebuild, rewrite, align, and promote the complete ggen pack-writer book.
 
 This one-time migration repairs the authority inversion created when generated
-book/src files were edited directly.  It uses every existing book:Chapter in
+book/src files were edited directly. It uses every existing book:Chapter in
 level-five-book-pack, reconstructs a complete 19-field SUMMARY, applies the
 Alexander rewrite to the complete linked set, appends real repository evidence,
 and writes the exact resulting bytes back into book:sourceText pack law.
@@ -17,6 +17,7 @@ import subprocess
 import sys
 
 import align_and_promote_book_source as base
+from book_ontology_source import parse_chapters, replace_sources
 
 REPO = base.REPO
 SRC = base.SRC
@@ -225,25 +226,25 @@ def add_capability_link(summary: str) -> str:
 def main() -> None:
     ontology = ONTOLOGY.read_text(encoding="utf-8")
     ontology = base.append_capability_subject(ontology)
-    matches = list(base.CHAPTER_RE.finditer(ontology))
-    if len(matches) < 367:
-        raise SystemExit(f"expected at least 367 chapter records; found {len(matches)}")
+    records = parse_chapters(ontology)
+    if len(records) < 367:
+        raise SystemExit(f"expected at least 367 chapter records; found {len(records)}")
 
-    paths = [match.group("path") for match in matches]
-    if len(paths) != len(set(paths)):
-        raise SystemExit("duplicate chapter source paths in pack ontology")
-
+    paths = [record.path for record in records]
     SUMMARY.write_text(build_complete_summary(paths), encoding="utf-8")
 
     # With the full graph restored, the existing deterministic rewriter now
     # processes every linked chapter rather than the earlier hand-selected set.
     subprocess.run(
-        [sys.executable, str(BOOK_SCRIPT := BOOK_REWRITER)],
+        [sys.executable, str(BOOK_REWRITER)],
         cwd=REPO,
         check=True,
     )
 
-    SUMMARY.write_text(add_capability_link(SUMMARY.read_text(encoding="utf-8")), encoding="utf-8")
+    SUMMARY.write_text(
+        add_capability_link(SUMMARY.read_text(encoding="utf-8")),
+        encoding="utf-8",
+    )
 
     aligned: dict[str, str] = {}
     for path in paths:
@@ -252,19 +253,15 @@ def main() -> None:
             raise SystemExit(f"chapter product missing: {path}")
         updated = base.align_chapter(path, target.read_text(encoding="utf-8"))
         target.write_text(updated, encoding="utf-8")
-        aligned[path] = updated
+        aligned[path] = base.escape_turtle_long(updated)
 
-    def replace(match: re.Match[str]) -> str:
-        path = match.group("path")
-        return match.group("prefix") + base.escape_turtle_long(aligned[path]) + match.group("suffix")
-
-    updated_ontology, replaced = base.CHAPTER_RE.subn(replace, ontology)
-    if replaced != len(matches):
-        raise SystemExit(f"source promotion mismatch: matched={len(matches)} replaced={replaced}")
-
+    updated_ontology = replace_sources(ontology, aligned)
     ONTOLOGY.write_text(updated_ontology.rstrip() + "\n", encoding="utf-8")
 
-    summary_links = re.findall(r"\[[^\]]+\]\(([^)]+\.md)\)", SUMMARY.read_text(encoding="utf-8"))
+    summary_links = re.findall(
+        r"\[[^\]]+\]\(([^)]+\.md)\)",
+        SUMMARY.read_text(encoding="utf-8"),
+    )
     expected_links = {path for path in paths if path != "SUMMARY.md"}
     if set(summary_links) != expected_links:
         missing = sorted(expected_links - set(summary_links))
