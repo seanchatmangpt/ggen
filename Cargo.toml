@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.7.59"
+version = "26.15.2"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -176,13 +176,13 @@ rig-core = "0.15.1"
 # cmds/mod.rs and crates/ggen-cli/Cargo.toml). crates/ggen-core/ itself is
 # untouched on disk, per this project's fix-forward / non-deletion doctrine.
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.7.2" }
-ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
+ggen-graph = { path = "crates/ggen-graph", version = "26.15.2" }
 # ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
 # docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
 # package/tests/examples/benches re-point away from ggen_core:: onto these,
 # file by file, as each file's specific symbols land a real port destination.
-ggen-config = { path = "crates/ggen-config", version = "26.7.2" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.7.2" }
+ggen-config = { path = "crates/ggen-config", version = "26.15.2" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.15.2" }
 ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
