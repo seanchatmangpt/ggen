@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   preflight:
-    name: Complete book source-law migration preflight
+    name: Complete book migration and render preflight
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
-      - name: Quiet shallow clone and run migration
+      - name: Quiet shallow clone and validate migration
         run: |
           set -euo pipefail
           git clone --quiet --depth=1 \
@@ -26,3 +26,15 @@ jobs:
           cd candidate
           python3 book/scripts/run_complete_book_migration.py
           python3 book/scripts/check_book.py
+
+      - name: Install mdBook quietly
+        run: |
+          set -euo pipefail
+          if ! cargo install mdbook --locked --version 0.4.52 --quiet >/tmp/mdbook-install.log 2>&1; then
+            tail -200 /tmp/mdbook-install.log
+            exit 1
+          fi
+
+      - name: Render migrated book
+        working-directory: candidate
+        run: mdbook build book
