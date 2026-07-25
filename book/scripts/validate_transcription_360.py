@@ -17,7 +17,7 @@ ONTOLOGY = PACK / "ontology.ttl"
 TEMPLATES = PACK / "templates"
 SRC = REPO / "book/src"
 EXPECTED = {"Chapter": 367, "Listing": 367}
-MANUAL = {"README.md"}
+MANUAL = {"README.md", "SUMMARY.md", "theme/level-five.css"}
 EXPRESSION = "{{ source | trim_end }}"
 
 
@@ -264,7 +264,7 @@ def validate(
 
     print(
         "OK 360: ttl_chapters=367 ttl_listings=367 tera_templates=2 "
-        f"generated_outputs={len(expected_paths)} manual_outputs=1 "
+        f"generated_outputs={len(expected_paths)} manual_outputs={len(MANUAL)} "
         "byte_mismatches=0 extras=0"
     )
     return records
