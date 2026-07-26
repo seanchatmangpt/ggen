@@ -5,7 +5,10 @@ use mfw_pcp_generated::receipts::{canonical_digest, CloseReceipt, OpenReceipt};
 use mfw_pcp_generated::replay::{close_standing, verify_pair};
 
 #[test]
-fn certificate_inventory_is_complete() { assert_eq!(certificates::ALL.len(), 10); }
+fn certificate_inventory_is_complete() {
+    assert_eq!(certificates::ALL.len(), certificates::EXPECTED_COUNT);
+    assert_eq!(certificates::LABELS.len(), certificates::EXPECTED_COUNT);
+}
 
 #[test]
 fn exact_receipt_pair_and_goal_close_standing() {
