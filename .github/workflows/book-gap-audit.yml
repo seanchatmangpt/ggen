@@ -29,6 +29,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          show-progress: false
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -90,10 +92,27 @@ jobs:
           echo "SHELL_CENSUS scripts=$count failures=$failures" | tee -a gap-report.txt
           test "$failures" -eq 0
 
+      - name: Package read-only authority inputs
+        run: |
+          tar -czf book-authority-inputs.tar.gz \
+            packs/level-five-book-pack \
+            book/src/CAPABILITY_MAP.md \
+            book/ggen.toml \
+            book/ggen.lock \
+            book/schema/book-domain.ttl \
+            book/scripts/validate_transcription_360.py
+
       - name: Upload gap report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: book-gap-report
           path: gap-report.txt
+          if-no-files-found: error
+
+      - name: Upload read-only authority inputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: book-authority-inputs-${{ github.sha }}
+          path: book-authority-inputs.tar.gz
           if-no-files-found: error
