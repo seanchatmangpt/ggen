@@ -142,4 +142,6 @@ jobs:
             generation-output-dir-regression.log
             consumer-repair.log
             /tmp/tcps-relock.log
+            /tmp/tcps-fmt.log
+            /tmp/tcps-clippy.log
           if-no-files-found: warn
