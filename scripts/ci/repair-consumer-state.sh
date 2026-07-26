@@ -183,18 +183,23 @@ if bad:
     raise SystemExit('REFUSED unexpected consumer drift:\n' + '\n'.join(bad))
 PY
 
-git config user.name 'ggen consumer repair'
-git config user.email 'actions@users.noreply.github.com'
-# `git rm` above already stages the temporary workflow/script deletions. Add
-# only surviving authority/product paths here; naming deleted paths again is a
-# pathspec error and must not block publication after all proofs are green.
-git add -A -- \
-  crates/ggen-engine/src/generation_rules.rs \
-  crates/ggen-engine/tests/generation_output_dir_e2e.rs \
-  examples/tpot2-wasm4pm-autoconfig/ggen.toml \
-  examples/tcps-generated \
-  ':(exclude)examples/tcps-generated/.ggen-v2/**'
-git diff --cached --check
-git commit -m 'fix(examples): reconcile current consumer authority'
-git push origin HEAD:agent/chicago-gap-closure
-echo "CONSUMER_REPAIR_COMMIT $(git rev-parse HEAD)"
+{
+  set -x
+  git config user.name 'ggen consumer repair'
+  git config user.email 'actions@users.noreply.github.com'
+  git status --short
+  # `git rm` above already stages the temporary workflow/script deletions. Add
+  # only surviving authority/product paths here.
+  git add -A -- \
+    crates/ggen-engine/src/generation_rules.rs \
+    crates/ggen-engine/tests/generation_output_dir_e2e.rs \
+    examples/tpot2-wasm4pm-autoconfig/ggen.toml \
+    examples/tcps-generated \
+    ':(exclude)examples/tcps-generated/.ggen-v2/**'
+  git status --short
+  git diff --cached --stat
+  git diff --cached --check
+  git commit -m 'fix(examples): reconcile current consumer authority'
+  git push origin HEAD:agent/chicago-gap-closure
+  echo "CONSUMER_REPAIR_COMMIT $(git rev-parse HEAD)"
+} 2>&1 | tee /tmp/consumer-final-git.log
