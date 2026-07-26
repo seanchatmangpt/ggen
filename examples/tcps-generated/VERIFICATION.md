@@ -13,7 +13,7 @@ This file rendering at all means the evidence gates passed on the last sync.
 | clippy-blanket-warnings | 101 | `cargo clippy --workspace --all-targets -- -D warnings` |
 | clippy-reference-gate | 0 | `cargo clippy --workspace --all-targets -- -D clippy::correctness -D clippy::suspicious -D clippy::perf` |
 | fmt-check | 1 | `cargo fmt --check` |
-| test-workspace | 0 | `cargo test --workspace` |
+| test-workspace | 101 | `cargo test --workspace` |
 
 
 ## Known divergences (allowlisted red checks, each with its recorded reason)

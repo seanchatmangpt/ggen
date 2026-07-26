@@ -43,8 +43,7 @@ mode = "Overwrite"
         "the configured output root must be part of the receipted target"
     );
     assert_eq!(
-        std::fs::read_to_string(dir.path().join("generated/ggen.toml"))
-            .expect("generated output"),
+        std::fs::read_to_string(dir.path().join("generated/ggen.toml")).expect("generated output"),
         "generated=alive\n"
     );
     assert_eq!(

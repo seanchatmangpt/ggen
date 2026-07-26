@@ -236,19 +236,20 @@ output_file = "objectives.json"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
-# [validation] — ACTIVATE the SHACL gate + strict determinism mode.
-# SHACL enforcement is gated by a NON-EMPTY `shacl` list (independent of
-# strict_mode; types.rs:399-414). Without this section the imported
-# tpot-shapes.ttl was loaded as data only and never enforced (research/06).
-# Every OperatorShape / PipelineStageShape / FitnessObjectiveShape constraint
-# passes the derived data (research/06 datatype check: BIND fitness is xsd:decimal;
-# tiers are xsd:integer; forCategory ∈ the 9 frozen categories). strict_mode
-# elevates missing-ORDER-BY (E0011) to a hard error — safe here because all 6
-# SELECTs AND both inline inference CONSTRUCTs now carry ORDER BY. Basis:
-# source analysis in research/01,06,07 (this container cannot run `ggen sync`).
+# [validation] — engine-independent SPARQL law gates + strict determinism.
+# The former sync-time SHACL hook is deliberately retained only as documentary
+# ontology input. Executable validation now uses three SELECT gates; any returned
+# row is a refusal. Together they preserve the exact-one, datatype, node-kind,
+# class, and frozen-enumeration constraints previously expressed by the three
+# SHACL NodeShapes. The gates execute after inference, so they validate all 60
+# derived tpot:Operator individuals as well as static stages/objectives.
 # -----------------------------------------------------------------------------
 [validation]
-shacl = ["ontology/tpot-shapes.ttl"]
+gates = [
+    "gates/010_pipeline_stage_contract.rq",
+    "gates/020_operator_contract.rq",
+    "gates/030_fitness_objective_contract.rq",
+]
 strict_mode = true
 
 # -----------------------------------------------------------------------------

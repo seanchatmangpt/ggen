@@ -20,7 +20,7 @@ tcps-cli-pack = { path = "../../packs/tcps-cli-pack" }
 # the local evidence/ mini-pack carries the ver:Check facts scripts/verify.sh
 # emits (real exit codes). Sync refuses if evidence is missing, red, or stale.
 ggen-verify-pack = { path = "../../packs/ggen-verify-pack" }
-tcps-evidence = { path = "evidence" }
+tcps-evidence = { path = "evidence", lock = false }
 
 [templates]
 dir = "templates"

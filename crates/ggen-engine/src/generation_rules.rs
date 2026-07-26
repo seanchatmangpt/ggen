@@ -105,6 +105,16 @@ use crate::{
     },
 };
 
+fn scoped_output_file(output_dir: &Path, output_file: &str) -> String {
+    if output_dir.as_os_str().is_empty() || output_dir == Path::new(".") {
+        return output_file.to_owned();
+    }
+    output_dir
+        .join(output_file)
+        .to_string_lossy()
+        .replace('\\', "/")
+}
+
 /// Run every `[[generation.rules]]` entry in `manifest` against a fresh
 /// graph loaded from `manifest.ontology`, producing the same
 /// [`SyncReport`]/receipt shape [`crate::sync::sync`]'s frontmatter path
@@ -389,13 +399,14 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     let root_display = root.display().to_string();
 
     for rule in &manifest.generation.rules {
+        let output_file = scoped_output_file(&manifest.generation.output_dir, &rule.output_file);
         if let Some(ask) = rule.when.as_deref() {
             match graph.query(ask)? {
                 EngineQueryResults::Boolean(true) => {}
                 EngineQueryResults::Boolean(false) => {
                     let reason = format!("when guard false (rule `{}`)", rule.name);
-                    decisions.insert(rule.output_file.clone(), format!("skipped: {reason}"));
-                    skipped.push((PathBuf::from(&rule.output_file), reason));
+                    decisions.insert(output_file.clone(), format!("skipped: {reason}"));
+                    skipped.push((PathBuf::from(&output_file), reason));
                     continue;
                 }
                 _ => {
@@ -438,8 +449,8 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
 
         if rows.is_empty() && rule.skip_empty {
             let reason = "skip_empty: query returned no rows".to_string();
-            decisions.insert(rule.output_file.clone(), format!("skipped: {reason}"));
-            skipped.push((PathBuf::from(&rule.output_file), reason));
+            decisions.insert(output_file.clone(), format!("skipped: {reason}"));
+            skipped.push((PathBuf::from(&output_file), reason));
             continue;
         }
 
@@ -488,7 +499,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 )
             })?;
 
-        let per_row = rule.output_file.contains("{{");
+        let per_row = output_file.contains("{{");
         if per_row {
             for row in &row_values {
                 let mut ctx = tera::Context::new();
@@ -506,7 +517,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 }
                 let to = render_output_file(
                     &mut tera,
-                    &rule.output_file,
+                    &output_file,
                     &ctx,
                     &rule.name,
                     &root_display,
@@ -551,9 +562,9 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 &root_display,
                 &template_descriptor,
             )?;
-            validate_rendered_body(&rule.name, &rule.output_file, &body)?;
+            validate_rendered_body(&rule.name, &output_file, &body)?;
             pending.push(PendingGenWrite {
-                to: rule.output_file.clone(),
+                to: output_file.clone(),
                 body,
                 mode: rule.mode.clone(),
             });
