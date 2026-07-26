@@ -44,7 +44,7 @@ jobs:
       - name: Install independent RDF parser
         run: python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
 
-      - name: Repair generation output-root authority and bind verifier paths
+      - name: Repair generation output-root authority
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -113,50 +113,7 @@ jobs:
                   raise SystemExit(f'REFUSED engine replacement {old!r}: expected={expected} observed={observed}')
               text = text.replace(old, new)
           engine.write_text(text, encoding='utf-8', newline='')
-
-          script = Path('scripts/ci/repair-consumer-state.sh')
-          script_text = script.read_text(encoding='utf-8')
-          old_tpot = '''  ../../target/debug/ggen sync run
-            ../../target/debug/ggen receipt verify
-            find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-before.sha256
-            ../../target/debug/ggen sync run
-            ../../target/debug/ggen receipt verify
-            find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-after.sha256
-            cmp /tmp/tpot-before.sha256 /tmp/tpot-after.sha256
-          '''
-          new_tpot = '''  ../../target/debug/ggen sync run
-            ../../target/debug/ggen receipt verify
-            ../../target/debug/ggen sync run
-            ../../target/debug/ggen receipt verify
-          '''
-          old_tpot = '\n'.join(line[10:] if line.startswith('          ') else line for line in old_tpot.splitlines()) + '\n'
-          new_tpot = '\n'.join(line[10:] if line.startswith('          ') else line for line in new_tpot.splitlines()) + '\n'
-          if script_text.count(old_tpot) != 1:
-              raise SystemExit(f'REFUSED TPOT verifier patch precondition: {script_text.count(old_tpot)}')
-          script_text = script_text.replace(old_tpot, new_tpot)
-
-          old_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n}"
-          new_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n    'crates/ggen-engine/src/generation_rules.rs',\n    'crates/ggen-engine/tests/generation_output_dir_e2e.rs',\n}"
-          if script_text.count(old_allowed) != 1:
-              raise SystemExit(f'REFUSED allowed-path patch: {script_text.count(old_allowed)}')
-          script_text = script_text.replace(old_allowed, new_allowed)
-
-          old_add = '''  scripts/ci/repair-consumer-state.sh \\
-            examples/tpot2-wasm4pm-autoconfig/ggen.toml \\
-            examples/tcps-generated
-          '''
-          new_add = '''  scripts/ci/repair-consumer-state.sh \\
-            crates/ggen-engine/src/generation_rules.rs \\
-            crates/ggen-engine/tests/generation_output_dir_e2e.rs \\
-            examples/tpot2-wasm4pm-autoconfig/ggen.toml \\
-            examples/tcps-generated
-          '''
-          old_add = '\n'.join(line[10:] if line.startswith('          ') else line for line in old_add.splitlines()) + '\n'
-          new_add = '\n'.join(line[10:] if line.startswith('          ') else line for line in new_add.splitlines()) + '\n'
-          if script_text.count(old_add) != 1:
-              raise SystemExit(f'REFUSED staged-path patch: {script_text.count(old_add)}')
-          script.write_text(script_text.replace(old_add, new_add), encoding='utf-8', newline='')
-          print('REPAIRED GenerationConfig.output_dir actuation and verifier bindings')
+          print('REPAIRED GenerationConfig.output_dir actuation')
           PY
 
       - name: Prove generation output-root regression
