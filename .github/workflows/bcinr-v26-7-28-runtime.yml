@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - agent/v26.7.28-bcinr-runtime-pack
+  pull_request:
+    branches:
+      - main
+    paths:
+      - examples/bcinr-v26-7-28/**
+      - .github/workflows/bcinr-v26-7-28-runtime.yml
   workflow_dispatch:
 
 permissions:
@@ -22,13 +28,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: ./.github/actions/setup-ggen-build
         with:
-          components: rustfmt, clippy
+          components: rustfmt,clippy
+          cache-key-suffix: bcinr-v26-7-28
 
       - name: Manufacture projections through the real ggen CLI
         working-directory: examples/bcinr-v26-7-28
-        run: cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run
+        shell: bash
+        run: |
+          set +e
+          cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run \
+            > /tmp/bcinr-v26-7-28-ggen.log 2>&1
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            tail -n 120 /tmp/bcinr-v26-7-28-ggen.log
+            exit "$status"
+          fi
+          tail -n 30 /tmp/bcinr-v26-7-28-ggen.log
 
       - name: Validate generated contracts
         working-directory: examples/bcinr-v26-7-28
@@ -72,18 +90,17 @@ jobs:
           fi
 
       - name: Publish manufactured bytes to the branch
-        id: publish
+        if: github.event_name == 'push'
         run: |
           git diff --check
           git add examples/bcinr-v26-7-28/generated
           if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "manufactured projections already match"
           else
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
             git commit -m "chore(v26.7.28): materialize BCINR runtime projections"
             git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Prove second-sync byte identity
