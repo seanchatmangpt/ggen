@@ -7,6 +7,7 @@ on:
       - 'packs/**'
       - 'examples/**'
       - 'marketplace/**'
+      - 'crates/ggen-engine/tests/book_gap_closure_e2e.rs'
       - '.github/workflows/book-gap-audit.yml'
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - 'packs/**'
       - 'examples/**'
       - 'marketplace/**'
+      - 'crates/ggen-engine/tests/book_gap_closure_e2e.rs'
       - '.github/workflows/book-gap-audit.yml'
 
 permissions:
@@ -22,7 +24,7 @@ permissions:
 
 jobs:
   census:
-    name: Compact claim and asset census
+    name: Chicago claim and asset census
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -31,6 +33,9 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.11'
+
+      - name: Install independent RDF parser
+        run: python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
 
       - name: Initialize report
         run: : > gap-report.txt
@@ -57,33 +62,17 @@ jobs:
           raise SystemExit(bool(failures))
           PY
 
-      - name: Turtle corpus
+      - name: Bounded Turtle corpus
+        run: python3 book/scripts/validate_ttl_corpus.py | tee -a gap-report.txt
+
+      - name: Chicago state tests without process collaborators
         run: |
-          python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
-          set +e
-          python3 - <<'PY' | tee -a gap-report.txt
-          from pathlib import Path
-          from rdflib import Graph
-          files = sorted(set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
-          failures = []
-          triples = 0
-          for path in files:
-              graph = Graph()
-              try:
-                  graph.parse(path, format='turtle')
-                  triples += len(graph)
-              except Exception as error:
-                  failures.append(f'{path}: {error}')
-          print(f'TTL_CENSUS files={len(files)} triples={triples} failures={len(failures)}')
-          for failure in failures:
-              print(f'TTL_ERROR {failure}')
-          raise SystemExit(bool(failures))
-          PY
-          status=${PIPESTATUS[0]}
-          exit "$status"
+          python3 -m unittest -v \
+            book.tests.test_gap_closure_chicago.TurtleCorpusStateTests \
+            book.tests.test_gap_closure_chicago.CapabilityLedgerStateTests \
+            2>&1 | tee -a gap-report.txt
 
       - name: Generated shell laboratory syntax
-        if: always()
         run: |
           failures=0
           count=0
