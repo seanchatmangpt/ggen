@@ -12,6 +12,9 @@ on:
       - .github/workflows/bcinr-v26-7-28-runtime.yml
   workflow_dispatch:
 
+env:
+  CARGO_INCREMENTAL: 0
+
 permissions:
   contents: write
 
