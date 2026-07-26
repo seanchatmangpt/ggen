@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/repair-consumer-state-pr.yml'
       - 'scripts/ci/repair-consumer-state.sh'
+      - 'crates/ggen-engine/src/generation_rules.rs'
+      - 'crates/ggen-engine/tests/generation_output_dir_e2e.rs'
       - 'examples/crown-conjecture-verify/**'
       - 'examples/tpot2-wasm4pm-autoconfig/**'
       - 'examples/tcps-generated/**'
@@ -42,16 +44,79 @@ jobs:
       - name: Install independent RDF parser
         run: python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
 
-      - name: Build real ggen CLI
-        run: cargo build --quiet -p ggen-cli-lib --bin ggen
-
-      - name: Bind TPOT identity proof to consumer replay
+      - name: Repair generation output-root authority and bind verifier paths
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
+          engine = Path('crates/ggen-engine/src/generation_rules.rs')
+          text = engine.read_text(encoding='utf-8')
+          helper_marker = '/// Run every `[[generation.rules]]` entry in `manifest` against a fresh\n'
+          helper = '''fn scoped_output_file(output_dir: &Path, output_file: &str) -> String {
+              if output_dir.as_os_str().is_empty() || output_dir == Path::new(".") {
+                  return output_file.to_owned();
+              }
+              output_dir
+                  .join(output_file)
+                  .to_string_lossy()
+                  .replace('\\\\', "/")
+          }
+
+          '''
+          helper = '\n'.join(line[10:] if line.startswith('          ') else line for line in helper.splitlines()) + '\n'
+          if text.count(helper_marker) != 1:
+              raise SystemExit(f'REFUSED helper insertion marker: {text.count(helper_marker)}')
+          if 'fn scoped_output_file(' in text:
+              raise SystemExit('REFUSED scoped_output_file already exists')
+          text = text.replace(helper_marker, helper + helper_marker)
+
+          loop = '    for rule in &manifest.generation.rules {\n'
+          loop_replacement = loop + '''        let output_file = scoped_output_file(
+                      &manifest.generation.output_dir,
+                      &rule.output_file,
+                  );
+          '''
+          loop_replacement = '\n'.join(
+              line[10:] if line.startswith('          ') else line
+              for line in loop_replacement.splitlines()
+          ) + '\n'
+          if text.count(loop) != 1:
+              raise SystemExit(f'REFUSED generation loop marker: {text.count(loop)}')
+          text = text.replace(loop, loop_replacement)
+
+          replacements = {
+              'decisions.insert(rule.output_file.clone(), format!("skipped: {reason}"));':
+                  'decisions.insert(output_file.clone(), format!("skipped: {reason}"));',
+              'skipped.push((PathBuf::from(&rule.output_file), reason));':
+                  'skipped.push((PathBuf::from(&output_file), reason));',
+              'let per_row = rule.output_file.contains("{{");':
+                  'let per_row = output_file.contains("{{");',
+              '                    &rule.output_file,\n':
+                  '                    &output_file,\n',
+              '            validate_rendered_body(&rule.name, &rule.output_file, &body)?;':
+                  '            validate_rendered_body(&rule.name, &output_file, &body)?;',
+              '                to: rule.output_file.clone(),':
+                  '                to: output_file.clone(),',
+          }
+          expected_counts = {
+              'decisions.insert(rule.output_file.clone(), format!("skipped: {reason}"));': 2,
+              'skipped.push((PathBuf::from(&rule.output_file), reason));': 2,
+              'let per_row = rule.output_file.contains("{{");': 1,
+              '                    &rule.output_file,\n': 1,
+              '            validate_rendered_body(&rule.name, &rule.output_file, &body)?;': 1,
+              '                to: rule.output_file.clone(),': 1,
+          }
+          for old, new in replacements.items():
+              observed = text.count(old)
+              expected = expected_counts[old]
+              if observed != expected:
+                  raise SystemExit(f'REFUSED engine replacement {old!r}: expected={expected} observed={observed}')
+              text = text.replace(old, new)
+          engine.write_text(text, encoding='utf-8', newline='')
+
           script = Path('scripts/ci/repair-consumer-state.sh')
-          text = script.read_text(encoding='utf-8')
-          old = '''  ../../target/debug/ggen sync run
+          script_text = script.read_text(encoding='utf-8')
+          old_tpot = '''  ../../target/debug/ggen sync run
             ../../target/debug/ggen receipt verify
             find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-before.sha256
             ../../target/debug/ggen sync run
@@ -59,18 +124,47 @@ jobs:
             find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-after.sha256
             cmp /tmp/tpot-before.sha256 /tmp/tpot-after.sha256
           '''
-          new = '''  ../../target/debug/ggen sync run
+          new_tpot = '''  ../../target/debug/ggen sync run
             ../../target/debug/ggen receipt verify
             ../../target/debug/ggen sync run
             ../../target/debug/ggen receipt verify
           '''
-          old = '\n'.join(line[10:] if line.startswith('          ') else line for line in old.splitlines()) + '\n'
-          new = '\n'.join(line[10:] if line.startswith('          ') else line for line in new.splitlines()) + '\n'
-          if text.count(old) != 1:
-              raise SystemExit(f'REFUSED TPOT verifier patch precondition: observed={text.count(old)}')
-          script.write_text(text.replace(old, new), encoding='utf-8', newline='')
-          print('BOUND TPOT identity to RealConsumerStateTests.tree_digest')
+          old_tpot = '\n'.join(line[10:] if line.startswith('          ') else line for line in old_tpot.splitlines()) + '\n'
+          new_tpot = '\n'.join(line[10:] if line.startswith('          ') else line for line in new_tpot.splitlines()) + '\n'
+          if script_text.count(old_tpot) != 1:
+              raise SystemExit(f'REFUSED TPOT verifier patch precondition: {script_text.count(old_tpot)}')
+          script_text = script_text.replace(old_tpot, new_tpot)
+
+          old_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n}"
+          new_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n    'crates/ggen-engine/src/generation_rules.rs',\n}"
+          if script_text.count(old_allowed) != 1:
+              raise SystemExit(f'REFUSED allowed-path patch: {script_text.count(old_allowed)}')
+          script_text = script_text.replace(old_allowed, new_allowed)
+
+          old_add = '''  scripts/ci/repair-consumer-state.sh \\
+            examples/tpot2-wasm4pm-autoconfig/ggen.toml \\
+            examples/tcps-generated
+          '''
+          new_add = '''  scripts/ci/repair-consumer-state.sh \\
+            crates/ggen-engine/src/generation_rules.rs \\
+            examples/tpot2-wasm4pm-autoconfig/ggen.toml \\
+            examples/tcps-generated
+          '''
+          old_add = '\n'.join(line[10:] if line.startswith('          ') else line for line in old_add.splitlines()) + '\n'
+          new_add = '\n'.join(line[10:] if line.startswith('          ') else line for line in new_add.splitlines()) + '\n'
+          if script_text.count(old_add) != 1:
+              raise SystemExit(f'REFUSED staged-path patch: {script_text.count(old_add)}')
+          script.write_text(script_text.replace(old_add, new_add), encoding='utf-8', newline='')
+          print('REPAIRED GenerationConfig.output_dir actuation and verifier bindings')
           PY
+
+      - name: Prove generation output-root regression
+        run: |
+          cargo fmt --all -- --check
+          cargo test -p ggen-engine --test generation_output_dir_e2e
+
+      - name: Build real ggen CLI
+        run: cargo build --quiet -p ggen-cli-lib --bin ggen
 
       - name: Execute bounded consumer reconciliation
         run: |
