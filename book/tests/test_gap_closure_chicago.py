@@ -54,10 +54,12 @@ def receipt_files(root: Path) -> list[Path]:
 
 
 class TurtleCorpusStateTests(unittest.TestCase):
-    def test_active_turtle_is_valid_and_archive_quarantine_is_exact(self) -> None:
+    def test_active_turtle_is_valid_and_quarantine_is_exact(self) -> None:
         result = validate_ttl.validate(ROOT)
         self.assertTrue(result.ok, result)
-        self.assertEqual(11, result.quarantined)
+        self.assertEqual(12, result.quarantined)
+        self.assertEqual(11, result.archive_quarantined)
+        self.assertEqual(1, result.negative_fixtures)
         self.assertGreater(result.active_valid, 0)
         self.assertGreater(result.triples, 0)
         self.assertEqual((), result.unexpected_invalid)
@@ -65,13 +67,36 @@ class TurtleCorpusStateTests(unittest.TestCase):
         self.assertEqual((), result.illegal_quarantine)
         self.assertEqual((), result.live_references)
 
-    def test_quarantine_is_archive_only_and_reasoned(self) -> None:
+    def test_quarantine_separates_archive_state_from_executable_negative_fixture(self) -> None:
         entries = validate_ttl.load_quarantine(ROOT)
-        self.assertEqual(11, len(entries))
-        for path, reason in entries.items():
-            self.assertTrue(path.startswith("examples/archive/"), path)
-            self.assertTrue((ROOT / path).is_file(), path)
-            self.assertGreaterEqual(len(reason), 20, path)
+        self.assertEqual(12, len(entries))
+
+        archive = [entry for entry in entries.values() if entry.kind == "archive"]
+        negative = [entry for entry in entries.values() if entry.kind == "negative_fixture"]
+        self.assertEqual(11, len(archive))
+        self.assertEqual(1, len(negative))
+
+        for entry in archive:
+            self.assertTrue(entry.path.startswith("examples/archive/"), entry.path)
+            self.assertTrue((ROOT / entry.path).is_file(), entry.path)
+            self.assertGreaterEqual(len(entry.reason), 20, entry.path)
+            self.assertEqual("", entry.evidence_path)
+            self.assertEqual("", entry.evidence_marker)
+
+        fixture = negative[0]
+        self.assertEqual(
+            "packs/dogfood-lifecycle-pack/fixtures/session-malformed.ttl",
+            fixture.path,
+        )
+        self.assertTrue((ROOT / fixture.path).is_file())
+        self.assertEqual(
+            "book/tests/test_gap_closure_chicago.py",
+            fixture.evidence_path,
+        )
+        self.assertEqual(
+            "test_declared_malformed_turtle_fixture_is_rejected_by_real_graph_validator",
+            fixture.evidence_marker,
+        )
 
 
 class CapabilityLedgerStateTests(unittest.TestCase):
@@ -111,6 +136,26 @@ class CapabilityLedgerStateTests(unittest.TestCase):
 class RealConsumerStateTests(unittest.TestCase):
     def run_checked(self, cwd: Path, *args: str) -> None:
         subprocess.run([os.environ["GGEN_BIN"], *args], cwd=cwd, check=True)
+
+    def test_declared_malformed_turtle_fixture_is_rejected_by_real_graph_validator(self) -> None:
+        pack = ROOT / "packs/dogfood-lifecycle-pack"
+        fixture = pack / "fixtures/session-malformed.ttl"
+        completed = subprocess.run(
+            [
+                os.environ["GGEN_BIN"],
+                "graph",
+                "validate",
+                "--files",
+                str(fixture),
+            ],
+            cwd=pack,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        evidence = completed.stdout + completed.stderr
+        self.assertNotEqual(0, completed.returncode, evidence)
+        self.assertIn("session-malformed.ttl", evidence)
 
     def test_discoverable_current_consumers_are_two_sync_idempotent(self) -> None:
         consumers = sorted(
