@@ -39,11 +39,16 @@ jobs:
       - name: Initialize report
         run: ': > gap-report.txt'
       - name: Capability claim coverage
-        run: python3 book/scripts/audit_claim_coverage.py | tee -a gap-report.txt
+        run: |
+          set -o pipefail
+          python3 book/scripts/audit_claim_coverage.py | tee -a gap-report.txt
       - name: Executable gap registry coverage
-        run: python3 book/scripts/validate_gap_closure.py | tee -a gap-report.txt
+        run: |
+          set -o pipefail
+          python3 book/scripts/validate_gap_closure.py | tee -a gap-report.txt
       - name: TOML corpus
         run: |
+          set -o pipefail
           python3 - <<'PY' | tee -a gap-report.txt
           from pathlib import Path
           import tomllib
@@ -61,9 +66,12 @@ jobs:
           raise SystemExit(bool(failures))
           PY
       - name: Bounded Turtle corpus
-        run: python3 book/scripts/validate_ttl_corpus.py | tee -a gap-report.txt
+        run: |
+          set -o pipefail
+          python3 book/scripts/validate_ttl_corpus.py | tee -a gap-report.txt
       - name: Chicago state tests without process collaborators
         run: |
+          set -o pipefail
           python3 -m unittest -v \
             book.tests.test_gap_closure_chicago.TurtleCorpusStateTests \
             book.tests.test_gap_closure_chicago.CapabilityLedgerStateTests \
