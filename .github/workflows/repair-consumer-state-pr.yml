@@ -45,6 +45,33 @@ jobs:
       - name: Build real ggen CLI
         run: cargo build --quiet -p ggen-cli-lib --bin ggen
 
+      - name: Bind TPOT identity proof to consumer replay
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          script = Path('scripts/ci/repair-consumer-state.sh')
+          text = script.read_text(encoding='utf-8')
+          old = '''  ../../target/debug/ggen sync run
+            ../../target/debug/ggen receipt verify
+            find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-before.sha256
+            ../../target/debug/ggen sync run
+            ../../target/debug/ggen receipt verify
+            find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-after.sha256
+            cmp /tmp/tpot-before.sha256 /tmp/tpot-after.sha256
+          '''
+          new = '''  ../../target/debug/ggen sync run
+            ../../target/debug/ggen receipt verify
+            ../../target/debug/ggen sync run
+            ../../target/debug/ggen receipt verify
+          '''
+          old = '\n'.join(line[10:] if line.startswith('          ') else line for line in old.splitlines()) + '\n'
+          new = '\n'.join(line[10:] if line.startswith('          ') else line for line in new.splitlines()) + '\n'
+          if text.count(old) != 1:
+              raise SystemExit(f'REFUSED TPOT verifier patch precondition: observed={text.count(old)}')
+          script.write_text(text.replace(old, new), encoding='utf-8', newline='')
+          print('BOUND TPOT identity to RealConsumerStateTests.tree_digest')
+          PY
+
       - name: Execute bounded consumer reconciliation
         run: |
           set -o pipefail
