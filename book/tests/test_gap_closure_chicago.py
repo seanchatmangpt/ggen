@@ -38,9 +38,20 @@ def tree_digest(root: Path) -> str:
     return digest.hexdigest()
 
 
+def receipt_files(root: Path) -> list[Path]:
+    return sorted(
+        path
+        for path in root.rglob("*")
+        if path.is_file()
+        and (
+            "receipt" in path.name.lower()
+            or ".ggen-v2" in path.parts
+        )
+    )
+
+
 class ArchiveTurtleStateTests(unittest.TestCase):
     def test_repair_is_idempotent_and_every_target_parses(self) -> None:
-        # Arrange: copy the actual malformed fixture state into an isolated place.
         with tempfile.TemporaryDirectory() as directory:
             sandbox = Path(directory)
             for relative in repair.REPAIRS:
@@ -49,14 +60,11 @@ class ArchiveTurtleStateTests(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
 
-            # Act: mutate real files with the production repair function.
             first = repair.apply(sandbox, write=True)
             after_first = tree_digest(sandbox)
             second = repair.apply(sandbox, write=True)
             after_second = tree_digest(sandbox)
 
-            # Assert: all eleven defects were repaired, no second mutation occurs,
-            # and an independent Turtle parser admits the resulting state.
             self.assertEqual(set(repair.REPAIRS), {p.relative_to(sandbox).as_posix() for p in first})
             self.assertEqual([], second)
             self.assertEqual(after_first, after_second)
@@ -94,13 +102,16 @@ class CapabilityLedgerStateTests(unittest.TestCase):
         text = (ROOT / "book/src/CAPABILITY_MAP.md").read_text(encoding="utf-8")
         rows = [line for line in text.splitlines() if line.startswith("| `packs/")]
         self.assertGreater(len(rows), 0)
+        manifests = list((ROOT / "examples").rglob("ggen.toml"))
         for row in rows:
             pack = row.split("`", 2)[1]
             self.assertTrue((ROOT / pack / "pack.toml").is_file(), pack)
             if "**PACK_WITNESS**" in row:
-                pack_name = Path(pack).name.removesuffix("-pack")
-                consumers = [p.parent for p in (ROOT / "examples").rglob("ggen.toml")]
-                bound = any(pack_name in p.read_text(encoding="utf-8", errors="replace") for p in (ROOT / "examples").rglob("ggen.toml"))
+                pack_dir = Path(pack).name
+                bound = any(
+                    pack_dir in manifest.read_text(encoding="utf-8", errors="replace")
+                    for manifest in manifests
+                )
                 self.assertTrue(bound, f"PACK_WITNESS without consumer binding: {pack}")
 
 
@@ -116,16 +127,23 @@ class RealConsumerStateTests(unittest.TestCase):
         )
         self.assertGreaterEqual(len(consumers), 8)
         for consumer in consumers:
-            before = tree_digest(consumer)
             self.run_checked(consumer, "sync", "run")
             self.run_checked(consumer, "receipt", "verify")
             once = tree_digest(consumer)
+            receipts_once = receipt_files(consumer)
+
             self.run_checked(consumer, "sync", "run")
             self.run_checked(consumer, "receipt", "verify")
             twice = tree_digest(consumer)
+            receipts_twice = receipt_files(consumer)
+
             self.assertEqual(once, twice, consumer.relative_to(ROOT))
-            # A consumer may be initially stale, but the second sync must close it.
-            self.assertTrue(before == once or before != once)
+            self.assertGreater(len(receipts_once), 0, consumer.relative_to(ROOT))
+            self.assertEqual(
+                [p.relative_to(consumer) for p in receipts_once],
+                [p.relative_to(consumer) for p in receipts_twice],
+                consumer.relative_to(ROOT),
+            )
 
 
 if __name__ == "__main__":
