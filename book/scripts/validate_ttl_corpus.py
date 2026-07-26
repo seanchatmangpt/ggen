@@ -2,8 +2,9 @@
 """Validate active Turtle and enforce a bounded archive quarantine.
 
 This is an independent state oracle: it reads the actual repository tree,
-parses every Turtle file with rdflib, and verifies that the observed invalid set
-is exactly the declared archive-only quarantine.
+parses every Turtle file with rdflib, rejects invalid IRI terms that rdflib only
+warns about, and verifies that the observed invalid set is exactly the declared
+archive-only quarantine.
 """
 from __future__ import annotations
 
@@ -13,10 +14,11 @@ import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from rdflib import Graph
+from rdflib import Graph, URIRef
 
 ROOT = Path(__file__).resolve().parents[2]
 QUARANTINE = ROOT / "book/ttl-quarantine.toml"
+IRIREF_FORBIDDEN = frozenset('<>"{}|^`\\')
 
 
 @dataclass(frozen=True)
@@ -77,6 +79,18 @@ def live_text_files(root: Path) -> list[Path]:
     return sorted(files)
 
 
+def invalid_iri_terms(graph: Graph) -> tuple[str, ...]:
+    invalid: set[str] = set()
+    for triple in graph:
+        for term in triple:
+            if not isinstance(term, URIRef):
+                continue
+            value = str(term)
+            if any(ord(character) <= 0x20 or character in IRIREF_FORBIDDEN for character in value):
+                invalid.add(value)
+    return tuple(sorted(invalid))
+
+
 def validate(root: Path = ROOT) -> Result:
     quarantine = load_quarantine(root)
     turtle_files = sorted(set((root / "packs").rglob("*.ttl")) | set((root / "examples").rglob("*.ttl")))
@@ -89,6 +103,12 @@ def validate(root: Path = ROOT) -> Result:
         graph = Graph()
         try:
             graph.parse(path, format="turtle")
+            invalid_iris = invalid_iri_terms(graph)
+            if invalid_iris:
+                sample = invalid_iris[0].replace("\n", "\\n")
+                raise ValueError(
+                    f"invalid IRI terms={len(invalid_iris)} first={sample!r}"
+                )
             triples += len(graph)
             if relative not in quarantine:
                 active_valid += 1
