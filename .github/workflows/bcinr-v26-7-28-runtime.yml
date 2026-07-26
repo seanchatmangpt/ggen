@@ -31,14 +31,17 @@ jobs:
       - uses: ./.github/actions/setup-ggen-build
         with:
           components: rustfmt,clippy
-          cache-key-suffix: bcinr-v26-7-28
+          cache-key-suffix: build
 
-      - name: Manufacture projections through the real ggen CLI
+      - name: Build the real ggen CLI
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture projections through the built ggen CLI
         working-directory: examples/bcinr-v26-7-28
         shell: bash
         run: |
           set +e
-          cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run \
+          timeout 600 ../../target/debug/ggen sync run \
             > /tmp/bcinr-v26-7-28-ggen.log 2>&1
           status=$?
           set -e
@@ -115,5 +118,5 @@ jobs:
       - name: Prove second-sync byte identity
         working-directory: examples/bcinr-v26-7-28
         run: |
-          cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run
+          ../../target/debug/ggen sync run
           git diff --exit-code -- generated
