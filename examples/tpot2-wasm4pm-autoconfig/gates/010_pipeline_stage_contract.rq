@@ -1,0 +1,62 @@
+# MESSAGE: PipelineStage contract violated.
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+SELECT ?node ?reason WHERE {
+  ?node a tpot:PipelineStage .
+  {
+    FILTER NOT EXISTS { ?node tpot:stageId ?value }
+    BIND("missing-stageId" AS ?reason)
+  } UNION {
+    ?node tpot:stageId ?value .
+    FILTER(!isLiteral(?value))
+    BIND("stageId-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:stageId ?value .
+    FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("stageId-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:stageId ?left, ?right .
+    FILTER(?left != ?right)
+    BIND("multiple-stageId" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:stageOrder ?value }
+    BIND("missing-stageOrder" AS ?reason)
+  } UNION {
+    ?node tpot:stageOrder ?value .
+    FILTER(!isLiteral(?value))
+    BIND("stageOrder-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:stageOrder ?value .
+    FILTER(isLiteral(?value) && datatype(?value) != xsd:integer)
+    BIND("stageOrder-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:stageOrder ?left, ?right .
+    FILTER(?left != ?right)
+    BIND("multiple-stageOrder" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:forCategory ?value }
+    BIND("missing-forCategory" AS ?reason)
+  } UNION {
+    ?node tpot:forCategory ?value .
+    FILTER(!isLiteral(?value))
+    BIND("forCategory-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:forCategory ?value .
+    FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("forCategory-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:forCategory ?value .
+    FILTER(?value NOT IN (
+      "import_export", "discovery", "object_centric", "discovery_analytics",
+      "conformance", "ml_analytics", "prediction", "simulation", "agentic"
+    ))
+    BIND("forCategory-outside-frozen-set" AS ?reason)
+  } UNION {
+    ?node tpot:forCategory ?left, ?right .
+    FILTER(?left != ?right)
+    BIND("multiple-forCategory" AS ?reason)
+  }
+}
+ORDER BY ?node ?reason
