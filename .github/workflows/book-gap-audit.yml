@@ -127,7 +127,7 @@ jobs:
         if: steps.inspect.outputs.needs_repair == 'true'
         uses: ./.github/actions/setup-ggen-build
         with:
-          cache-key-suffix: bounded-book-authority-repair-v2
+          cache-key-suffix: phase2
       - name: Install independent RDF parser
         if: steps.inspect.outputs.needs_repair == 'true'
         run: python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
@@ -164,7 +164,16 @@ jobs:
         run: python3 book/scripts/validate_transcription_360.py --sabotage
       - name: Bounded Turtle oracle after promotion
         if: steps.inspect.outputs.needs_repair == 'true'
-        run: python3 book/scripts/validate_ttl_corpus.py
+        run: |
+          set -o pipefail
+          python3 book/scripts/validate_ttl_corpus.py --json 2>&1 | tee ttl-after-promotion.json
+      - name: Upload Turtle refusal evidence
+        if: always() && steps.inspect.outputs.needs_repair == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: turtle-after-promotion-${{ github.sha }}
+          path: ttl-after-promotion.json
+          if-no-files-found: warn
       - name: Executable gap registry after promotion
         if: steps.inspect.outputs.needs_repair == 'true'
         run: python3 book/scripts/validate_gap_closure.py
