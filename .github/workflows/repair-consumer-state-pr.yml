@@ -136,7 +136,7 @@ jobs:
           script_text = script_text.replace(old_tpot, new_tpot)
 
           old_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n}"
-          new_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n    'crates/ggen-engine/src/generation_rules.rs',\n}"
+          new_allowed = "    'examples/tpot2-wasm4pm-autoconfig/ggen.toml',\n    'crates/ggen-engine/src/generation_rules.rs',\n    'crates/ggen-engine/tests/generation_output_dir_e2e.rs',\n}"
           if script_text.count(old_allowed) != 1:
               raise SystemExit(f'REFUSED allowed-path patch: {script_text.count(old_allowed)}')
           script_text = script_text.replace(old_allowed, new_allowed)
@@ -147,6 +147,7 @@ jobs:
           '''
           new_add = '''  scripts/ci/repair-consumer-state.sh \\
             crates/ggen-engine/src/generation_rules.rs \\
+            crates/ggen-engine/tests/generation_output_dir_e2e.rs \\
             examples/tpot2-wasm4pm-autoconfig/ggen.toml \\
             examples/tcps-generated
           '''
@@ -160,8 +161,12 @@ jobs:
 
       - name: Prove generation output-root regression
         run: |
-          cargo fmt --all -- --check
-          cargo test -p ggen-engine --test generation_output_dir_e2e
+          set -o pipefail
+          {
+            cargo fmt --all
+            cargo fmt --all -- --check
+            cargo test -p ggen-engine --test generation_output_dir_e2e
+          } 2>&1 | tee generation-output-dir-regression.log
 
       - name: Build real ggen CLI
         run: cargo build --quiet -p ggen-cli-lib --bin ggen
@@ -177,6 +182,7 @@ jobs:
         with:
           name: consumer-repair-failure-${{ github.sha }}
           path: |
+            generation-output-dir-regression.log
             consumer-repair.log
             /tmp/tcps-relock.log
           if-no-files-found: warn
