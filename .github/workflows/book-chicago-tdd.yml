@@ -42,6 +42,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
+          show-progress: false
 
       - name: Provision siblings and pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
@@ -52,7 +53,7 @@ jobs:
         run: python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
 
       - name: Build the real ggen CLI
-        run: cargo build -p ggen-cli-lib --bin ggen
+        run: cargo build --quiet -p ggen-cli-lib --bin ggen
 
       - name: Validate bounded Turtle state
         run: python3 book/scripts/validate_ttl_corpus.py
