@@ -1,0 +1,220 @@
+version = 1
+policy = "A gap is closed only by real-state Chicago tests or an independent oracle on the exact candidate. Broad workspace green is not sufficient."
+
+[[obligation]]
+id = "pack-cargo-cicd"
+subject = "packs/cargo-cicd-pack"
+kind = "pack"
+evidence = ["consumer-replay", "maximal-composition"]
+
+[[obligation]]
+id = "pack-wasm4pm-facts"
+subject = "packs/wasm4pm-facts-pack"
+kind = "pack"
+evidence = ["consumer-replay", "maximal-composition"]
+
+[[obligation]]
+id = "pack-affidavit"
+subject = "packs/affidavit-pack"
+kind = "pack"
+evidence = ["consumer-replay", "maximal-composition"]
+
+[[obligation]]
+id = "pack-chicago-tdd-tools"
+subject = "packs/chicago-tdd-tools-pack"
+kind = "pack"
+evidence = ["maximal-composition", "real-cli-harness"]
+
+[[obligation]]
+id = "pack-repo-as-found"
+subject = "packs/repo-as-found-pack"
+kind = "pack"
+evidence = ["gap-pack-composition"]
+
+[[obligation]]
+id = "pack-repo-load-path"
+subject = "packs/repo-load-path-pack"
+kind = "pack"
+evidence = ["gap-pack-composition"]
+
+[[obligation]]
+id = "pack-repo-intervention"
+subject = "packs/repo-intervention-pack"
+kind = "pack"
+evidence = ["gap-pack-composition"]
+
+[[obligation]]
+id = "pack-repo-reconciliation"
+subject = "packs/repo-reconciliation-pack"
+kind = "pack"
+evidence = ["gap-pack-composition"]
+
+[[obligation]]
+id = "pack-temporary-works"
+subject = "packs/temporary-works-pack"
+kind = "pack"
+evidence = ["gap-pack-composition"]
+
+[[obligation]]
+id = "pack-claude-code"
+subject = "packs/claude-code-pack"
+kind = "pack"
+evidence = ["maximal-composition"]
+
+[[obligation]]
+id = "pack-gh-terraform"
+subject = "packs/gh-terraform-pack"
+kind = "pack"
+evidence = ["maximal-composition"]
+
+[[obligation]]
+id = "pack-mfw-pcp-level5"
+subject = "packs/mfw-pcp-level5-pack"
+kind = "pack"
+evidence = ["gap-pack-composition", "mfw-evolution", "consumer-replay"]
+
+[[obligation]]
+id = "pack-ma-case-study"
+subject = "packs/ma-case-study-pack"
+kind = "pack"
+evidence = ["maximal-composition"]
+
+[[obligation]]
+id = "field-whole-manufacturing"
+subject = "I. Whole Manufacturing System"
+kind = "field"
+evidence = ["book-360", "maximal-composition", "named-capability-suites"]
+
+[[obligation]]
+id = "field-pack-living-part"
+subject = "II. Pack as a Living Part"
+kind = "field"
+evidence = ["gap-pack-composition", "receipt-verification", "lock-content-hashes"]
+
+[[obligation]]
+id = "field-standing-before-scale"
+subject = "IV. Standing before Scale"
+kind = "field"
+evidence = ["anti-cheat-suite", "sabotage-refusal", "consumer-replay"]
+
+[[obligation]]
+id = "field-independent-reality"
+subject = "V. Independent Reality"
+kind = "field"
+evidence = ["reasoner-independence", "book-360", "turtle-independent-oracle"]
+
+[[obligation]]
+id = "field-complete-product-surfaces"
+subject = "IX. Complete Product Surfaces"
+kind = "field"
+evidence = ["tcps-generated-suite", "maximal-composition"]
+
+[[obligation]]
+id = "field-pack-neighborhood"
+subject = "XII. Pack Neighborhood"
+kind = "field"
+evidence = ["maximal-composition", "gap-pack-composition", "sabotage-refusal"]
+
+[[obligation]]
+id = "field-time-change-repair"
+subject = "XIII. Time, Change and Repair"
+kind = "field"
+evidence = ["consumer-replay", "mfw-evolution", "book-two-sync"]
+
+[[obligation]]
+id = "field-receipts-standing"
+subject = "XIV. Receipts and Standing"
+kind = "field"
+evidence = ["receipt-verification", "verify-capstone", "sabotage-refusal"]
+
+[[obligation]]
+id = "field-level-five-sequence"
+subject = "XVI. Level Five Sequence"
+kind = "field"
+evidence = ["level-five-inventory", "tcps-generated-suite", "maximal-composition"]
+
+[[obligation]]
+id = "field-tcps-complete"
+subject = "XVII. TCPS Complete Pattern"
+kind = "field"
+evidence = ["tcps-generated-suite", "book-two-sync", "level-five-inventory"]
+
+[[obligation]]
+id = "field-new-language"
+subject = "XVIII. Make a New Language"
+kind = "field"
+evidence = ["mfw-evolution", "consumer-replay"]
+
+[[obligation]]
+id = "field-certification-laboratories"
+subject = "XIX. Certification Laboratories"
+kind = "field"
+evidence = ["book-360", "turtle-independent-oracle", "consumer-replay", "gap-pack-composition", "maximal-composition", "verify-capstone", "tcps-generated-suite", "named-capability-suites", "level-five-inventory"]
+
+[evidence."book-360"]
+path = "book/scripts/validate_transcription_360.py"
+marker = "validate_transcription_360.py --sabotage"
+
+[evidence."turtle-independent-oracle"]
+path = "book/scripts/validate_ttl_corpus.py"
+marker = "Validate bounded Turtle state"
+
+[evidence."consumer-replay"]
+path = "book/tests/test_gap_closure_chicago.py"
+marker = "test_discoverable_current_consumers_are_two_sync_idempotent"
+
+[evidence."gap-pack-composition"]
+path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"
+marker = "six_gap_packs_resolve_compose_receipt_and_replay_idempotently"
+
+[evidence."mfw-evolution"]
+path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"
+marker = "mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair"
+
+[evidence."maximal-composition"]
+path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
+marker = "thirty_packs_compose_into_one_consumer"
+
+[evidence."verify-capstone"]
+path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
+marker = "thirty_one_packs_compose_with_verify_gates_active"
+
+[evidence."real-cli-harness"]
+path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
+marker = "CliHarness::cargo_bin"
+
+[evidence."sabotage-refusal"]
+path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
+marker = "FM-PACK-013"
+
+[evidence."reasoner-independence"]
+path = "crates/ggen-engine/tests/reasoner_independence_e2e.rs"
+marker = "reasoner"
+
+[evidence."named-capability-suites"]
+path = ".github/workflows/book-chicago-tdd.yml"
+marker = "Execute named engine, graph, marketplace, and anti-cheat falsifiers"
+
+[evidence."anti-cheat-suite"]
+path = ".github/workflows/book-chicago-tdd.yml"
+marker = "cargo test -p ggen-cheat-scanner"
+
+[evidence."receipt-verification"]
+path = ".github/workflows/book-chicago-tdd.yml"
+marker = "receipt verify"
+
+[evidence."lock-content-hashes"]
+path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"
+marker = "content_hash = \"blake3:"
+
+[evidence."book-two-sync"]
+path = ".github/workflows/docs.yml"
+marker = "Second manufacture proves content idempotency"
+
+[evidence."level-five-inventory"]
+path = "book/scripts/check_level_five.py"
+marker = "check_level_five.py"
+
+[evidence."tcps-generated-suite"]
+path = "examples/tcps-generated/Cargo.toml"
+marker = "tcps-generated"
