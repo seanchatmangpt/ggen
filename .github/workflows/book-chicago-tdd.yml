@@ -36,7 +36,7 @@ jobs:
   chicago:
     name: Real-state gap closure
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 90
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -57,6 +57,9 @@ jobs:
       - name: Validate bounded Turtle state
         run: python3 book/scripts/validate_ttl_corpus.py
 
+      - name: Validate total executable gap registry
+        run: python3 book/scripts/validate_gap_closure.py
+
       - name: Execute Python Chicago state and consumer tests
         env:
           GGEN_BIN: ${{ github.workspace }}/target/debug/ggen
@@ -67,6 +70,9 @@ jobs:
 
       - name: Execute maximal pack composition capstones
         run: cargo test -p ggen-engine --test composed_packs_e2e -- --nocapture
+
+      - name: Execute TCPS generated product workspace
+        run: cargo test --manifest-path examples/tcps-generated/Cargo.toml -- --nocapture
 
       - name: Execute named engine, graph, marketplace, and anti-cheat falsifiers
         run: |
@@ -80,6 +86,7 @@ jobs:
           python3 book/scripts/check_book.py
           python3 book/scripts/check_level_five.py
           python3 book/scripts/audit_claim_coverage.py
+          python3 book/scripts/validate_gap_closure.py
 
       - name: Refuse tracked drift from all real-state tests
         run: |
