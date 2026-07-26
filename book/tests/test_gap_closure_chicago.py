@@ -10,6 +10,7 @@ import hashlib
 import importlib.util
 import os
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -22,6 +23,7 @@ def load_module(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
