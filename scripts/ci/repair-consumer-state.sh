@@ -185,9 +185,10 @@ PY
 
 git config user.name 'ggen consumer repair'
 git config user.email 'actions@users.noreply.github.com'
+# `git rm` above already stages the temporary workflow/script deletions. Add
+# only surviving authority/product paths here; naming deleted paths again is a
+# pathspec error and must not block publication after all proofs are green.
 git add -A -- \
-  .github/workflows/repair-consumer-state-pr.yml \
-  scripts/ci/repair-consumer-state.sh \
   crates/ggen-engine/src/generation_rules.rs \
   crates/ggen-engine/tests/generation_output_dir_e2e.rs \
   examples/tpot2-wasm4pm-autoconfig/ggen.toml \
