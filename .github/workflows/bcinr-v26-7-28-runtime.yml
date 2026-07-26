@@ -48,6 +48,15 @@ jobs:
           fi
           tail -n 30 /tmp/bcinr-v26-7-28-ggen.log
 
+      - name: Retain manufacturer diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcinr-v26-7-28-ggen-diagnostic
+          path: /tmp/bcinr-v26-7-28-ggen.log
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Validate generated contracts
         working-directory: examples/bcinr-v26-7-28
         run: |
