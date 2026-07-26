@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Validate active Turtle and enforce a bounded archive quarantine.
+"""Validate active Turtle and enforce bounded invalid-fixture standing.
 
 This is an independent state oracle: it reads the actual repository tree,
 parses every Turtle file with rdflib, rejects invalid IRI terms that rdflib only
 warns about, and verifies that the observed invalid set is exactly the declared
-archive-only quarantine.
+archive or executable-negative-fixture boundary.
 """
 from __future__ import annotations
 
@@ -28,11 +28,22 @@ class Finding:
 
 
 @dataclass(frozen=True)
+class QuarantineEntry:
+    path: str
+    reason: str
+    kind: str
+    evidence_path: str
+    evidence_marker: str
+
+
+@dataclass(frozen=True)
 class Result:
     files: int
     active_valid: int
     triples: int
     quarantined: int
+    archive_quarantined: int
+    negative_fixtures: int
     unexpected_invalid: tuple[Finding, ...]
     stale_quarantine: tuple[str, ...]
     illegal_quarantine: tuple[str, ...]
@@ -48,18 +59,27 @@ class Result:
         )
 
 
-def load_quarantine(root: Path = ROOT) -> dict[str, str]:
+def load_quarantine(root: Path = ROOT) -> dict[str, QuarantineEntry]:
     data = tomllib.loads((root / "book/ttl-quarantine.toml").read_text(encoding="utf-8"))
     entries = data.get("entry", [])
-    result: dict[str, str] = {}
-    for entry in entries:
-        path = str(entry["path"])
-        reason = str(entry["reason"]).strip()
+    result: dict[str, QuarantineEntry] = {}
+    for raw in entries:
+        path = str(raw["path"])
+        reason = str(raw["reason"]).strip()
+        kind = str(raw.get("kind", "archive")).strip()
+        evidence_path = str(raw.get("evidence_path", "")).strip()
+        evidence_marker = str(raw.get("evidence_marker", "")).strip()
         if path in result:
             raise ValueError(f"duplicate quarantine path: {path}")
         if not reason:
             raise ValueError(f"empty quarantine reason: {path}")
-        result[path] = reason
+        result[path] = QuarantineEntry(
+            path=path,
+            reason=reason,
+            kind=kind,
+            evidence_path=evidence_path,
+            evidence_marker=evidence_marker,
+        )
     return result
 
 
@@ -89,6 +109,26 @@ def invalid_iri_terms(graph: Graph) -> tuple[str, ...]:
             if any(ord(character) <= 0x20 or character in IRIREF_FORBIDDEN for character in value):
                 invalid.add(value)
     return tuple(sorted(invalid))
+
+
+def quarantine_is_legal(root: Path, entry: QuarantineEntry) -> bool:
+    target = root / entry.path
+    if not target.is_file():
+        return False
+    if entry.kind == "archive":
+        return entry.path.startswith("examples/archive/")
+    if entry.kind != "negative_fixture":
+        return False
+    if not entry.path.startswith("packs/") or "/fixtures/" not in entry.path:
+        return False
+    if not entry.evidence_path.startswith("book/tests/"):
+        return False
+    if not entry.evidence_marker.startswith("test_"):
+        return False
+    evidence = root / entry.evidence_path
+    if not evidence.is_file():
+        return False
+    return entry.evidence_marker in evidence.read_text(encoding="utf-8", errors="replace")
 
 
 def validate(root: Path = ROOT) -> Result:
@@ -122,18 +162,16 @@ def validate(root: Path = ROOT) -> Result:
     )
     stale = tuple(sorted(declared - observed))
     illegal = tuple(
-        sorted(
-            path
-            for path in declared
-            if not path.startswith("examples/archive/")
-            or not (root / path).is_file()
-        )
+        sorted(path for path, entry in quarantine.items() if not quarantine_is_legal(root, entry))
     )
 
+    archive_paths = sorted(
+        path for path, entry in quarantine.items() if entry.kind == "archive"
+    )
     references: list[str] = []
     for source in live_text_files(root):
         text = source.read_text(encoding="utf-8", errors="replace")
-        for quarantined in sorted(declared):
+        for quarantined in archive_paths:
             # Require the exact repository-relative path. Basename matching is
             # unsound for generic names such as ontology.ttl or domain.ttl.
             if quarantined in text:
@@ -141,11 +179,15 @@ def validate(root: Path = ROOT) -> Result:
                     f"{source.relative_to(root).as_posix()} -> {quarantined}"
                 )
 
+    archive_count = sum(entry.kind == "archive" for entry in quarantine.values())
+    negative_count = sum(entry.kind == "negative_fixture" for entry in quarantine.values())
     return Result(
         files=len(turtle_files),
         active_valid=active_valid,
         triples=triples,
         quarantined=len(declared),
+        archive_quarantined=archive_count,
+        negative_fixtures=negative_count,
         unexpected_invalid=unexpected,
         stale_quarantine=stale,
         illegal_quarantine=illegal,
@@ -165,6 +207,8 @@ def main() -> int:
             "TTL_CORPUS "
             f"files={result.files} active_valid={result.active_valid} "
             f"triples={result.triples} quarantined={result.quarantined} "
+            f"archive_quarantined={result.archive_quarantined} "
+            f"negative_fixtures={result.negative_fixtures} "
             f"unexpected_invalid={len(result.unexpected_invalid)} "
             f"stale_quarantine={len(result.stale_quarantine)} "
             f"illegal_quarantine={len(result.illegal_quarantine)} "
