@@ -1,8 +1,13 @@
 # Summary
 
-[**ggen: Manufacturing Level Five Packs**](README.md)
+[**The ggen Pack Language: Patterns for Manufacturing Verified Software**](README.md)
 
-# Front Matter
+> A complete pattern language generated from every `book:Chapter` carried by `level-five-book-pack`.
+> Read from the whole manufacturing system toward local construction, then return through consumers, verification, receipts, and replay.
+
+# Using the Pattern Language
+
+- [Repository Capability and Pack Map](CAPABILITY_MAP.md)
 
 - [Preface: Ontology Is the Production System](front-matter/preface.md)
 - [Who This Book Is For](front-matter/audience.md)
@@ -15,7 +20,9 @@
 
 ---
 
-# Part I — ggen as a Manufacturing Compiler
+# Field I — The Whole Manufacturing System
+
+These patterns establish the largest boundary: a pack is a lawful manufacturing system spanning admission, projection, bounded writes, consumers, and receipts.
 
 - [1. From Code Generation to Manufacturing](foundations/001-manufacturing-not-codegen.md)
 - [2. The Artifact Equation](foundations/002-artifact-equation.md)
@@ -30,7 +37,9 @@
 - [11. Source Law and Generated Projection](foundations/011-source-law-generated-projection.md)
 - [12. Why Generated Files Are Not Authority](foundations/012-generated-files-not-authority.md)
 
-# Part II — What a Pack Actually Is
+# Field II — The Pack as a Living Part
+
+A pack must have identity, a declared boundary, a consumption path, owned outputs, executable gates, and replayable provenance.
 
 - [13. Packs as Routable Capability Cells](pack-model/013-routable-capability-cells.md)
 - [14. Pack Boundaries](pack-model/014-pack-boundaries.md)
@@ -45,7 +54,9 @@
 - [23. Pack Reference Oracles](pack-model/023-pack-reference-oracles.md)
 - [24. Pack Receipts](pack-model/024-pack-receipts.md)
 
-# Part III — Pack Taxonomy
+# Field III — Choose the Right Kind of Part
+
+Select the smallest pack form that carries the required law, behavior, proof, and lifecycle.
 
 - [25. Why Pack Type Must Be Explicit](pack-taxonomy/025-explicit-pack-type.md)
 - [26. Type One: Codegen Packs](pack-taxonomy/026-codegen-packs.md)
@@ -60,7 +71,9 @@
 - [35. When the Pack Must Generate Proof](pack-taxonomy/035-generate-proof.md)
 - [36. When the Pack Must Generate a Whole Product](pack-taxonomy/036-generate-whole-product.md)
 
-# Part IV — The Pack Maturity Ladder
+# Field IV — Standing before Scale
+
+Advance only through observed maturity cells; a directory or successful render is not completion.
 
 - [37. L0: Inert](maturity/037-l0-inert.md)
 - [38. L1: Syntactically Valid](maturity/038-l1-syntactically-valid.md)
@@ -79,7 +92,9 @@
 - [51. Why One Overall Level Is Insufficient](maturity/051-no-single-level.md)
 - [52. The Level Five Calibration Rule](maturity/052-l5-calibration-rule.md)
 
-# Part V — Define the Independent Reference
+# Field V — Independent Reality
+
+A pack cannot certify itself against an oracle manufactured from the same assumptions.
 
 - [53. The Reference Is the Customer](reference/053-reference-is-customer.md)
 - [54. Independent Means Independent](reference/054-independent-means-independent.md)
@@ -94,7 +109,9 @@
 - [63. Disclosed Corrective Divergence](reference/063-corrective-divergence.md)
 - [64. When the Reference Is Defective](reference/064-defective-reference.md)
 
-# Part VI — Model the Domain in RDF
+# Field VI — The Ontology Neighborhood
+
+Model stable semantic identities and relations before selecting target-language syntax.
 
 - [65. Start from Real Source](ontology/065-start-from-real-source.md)
 - [66. One Semantic Identity per Domain Concept](ontology/066-one-semantic-identity.md)
@@ -113,7 +130,9 @@
 - [79. Modeling Historical Lineage](ontology/079-modeling-lineage.md)
 - [80. Source Text as a Transitional Technique](ontology/080-source-text-transitional.md)
 
-# Part VII — Admit the Pack with SPARQL Gates
+# Field VII — Admission Gates
+
+Parse first, admit second; malformed or unsafe states must be refused before actuation.
 
 - [81. Syntax Is Not Admission](admission/081-syntax-not-admission.md)
 - [82. Pack Gates as Production Law](admission/082-pack-shapes-production-law.md)
@@ -130,7 +149,9 @@
 - [93. Adversarial Fixtures](admission/093-adversarial-fixtures.md)
 - [94. Fail-Closed Pack Loading](admission/094-fail-closed-loading.md)
 
-# Part VIII — Project with SPARQL
+# Field VIII — Deterministic Projection
+
+SPARQL selects admitted facts and Tera projects them without silently broadening ownership.
 
 - [95. SELECT as a Typed Extraction Surface](sparql/095-select-extraction.md)
 - [96. CONSTRUCT as Derived Law](sparql/096-construct-derived-law.md)
@@ -144,9 +165,6 @@
 - [104. Query Contracts](sparql/104-query-contracts.md)
 - [105. Query Fixtures](sparql/105-query-fixtures.md)
 - [106. Detecting Cross-Pack Leakage](sparql/106-detecting-cross-pack-leakage.md)
-
-# Part IX — Render with Tera
-
 - [107. Templates Are Projection Law](tera/107-templates-projection-law.md)
 - [108. Front Matter](tera/108-template-front-matter.md)
 - [109. Output Ownership](tera/109-output-ownership.md)
@@ -162,7 +180,9 @@
 - [119. Formatting without Semantic Drift](tera/119-formatting-without-drift.md)
 - [120. Template Review as Compiler Review](tera/120-template-review.md)
 
-# Part X — Generate Complete Rust Surfaces
+# Field IX — Complete Product Surfaces
+
+Generate coherent modules, crates, interfaces, and manifests rather than fragments requiring hidden repair.
 
 - [121. Generate Modules, Not Fragments](rust-generation/121-modules-not-fragments.md)
 - [122. Generate Public Types](rust-generation/122-public-types.md)
@@ -179,7 +199,9 @@
 - [133. Generate C ABI Surfaces](rust-generation/133-c-abi.md)
 - [134. Generate WebAssembly Surfaces](rust-generation/134-wasm.md)
 
-# Part XI — Generate Proof beside Product
+# Field X — Proof beside Product
+
+Every generated capability needs an independently meaningful verifier at the same scale.
 
 - [135. Why Generated Code Needs Generated Proof](generated-proof/135-code-needs-proof.md)
 - [136. Avoid Tautological Tests](generated-proof/136-avoid-tautology.md)
@@ -196,7 +218,9 @@
 - [147. Mutation Tests](generated-proof/147-mutation-tests.md)
 - [148. Proof Receipts](generated-proof/148-proof-receipts.md)
 
-# Part XII — Build a Real Consumer
+# Field XI — The Consumer Place
+
+Standing is established in a clean consumer without access to the pack author's tacit knowledge.
 
 - [149. A Pack without a Consumer Is Not Finished](consumer/149-pack-needs-consumer.md)
 - [150. `ggen.toml`](consumer/150-ggen-toml.md)
@@ -211,7 +235,9 @@
 - [159. Test the Consumer](consumer/159-test-consumer.md)
 - [160. Consume the Same Pack Twice](consumer/160-two-consumers.md)
 
-# Part XIII — Compose Multiple Packs Safely
+# Field XII — The Pack Neighborhood
+
+Composition creates a union graph and shared output tree, introducing interference forces that must be proven absent.
 
 - [161. The Union Graph](composition/161-union-graph.md)
 - [162. Namespace Safety](composition/162-namespace-safety.md)
@@ -226,7 +252,9 @@
 - [171. Composition Receipts](composition/171-composition-receipts.md)
 - [172. Proving Safe Union](composition/172-proving-safe-union.md)
 
-# Part XIV — Regeneration, Idempotency, and Drift
+# Field XIII — Time, Change, and Repair
+
+Regeneration is ordinary operation and must preserve lawful local work while exposing drift.
 
 - [173. Regeneration Is Normal Operation](regeneration/173-regeneration-normal.md)
 - [174. Sync Once](regeneration/174-sync-once.md)
@@ -243,7 +271,9 @@
 - [185. Longitudinal Verification](regeneration/185-longitudinal-verification.md)
 - [186. Evolution without Hand Editing](regeneration/186-evolution-without-hand-editing.md)
 
-# Part XV — Receipts, Manifests, and Supply-Chain Standing
+# Field XIV — Receipts and Standing
+
+Evidence binds admitted observations, actuation, consequences, and replayable standing.
 
 - [187. Every Station Emits Evidence](receipts/187-every-station-evidence.md)
 - [188. Input Digests](receipts/188-input-digests.md)
@@ -260,7 +290,9 @@
 - [199. in-toto and SLSA](receipts/199-provenance.md)
 - [200. Signing and Verification](receipts/200-signing-verification.md)
 
-# Part XVI — Extend ggen for Level Five Work
+# Field XV — Change the Engine Only at the Boundary
+
+Prefer pack law; extend shared engine machinery only for semantics no pack can lawfully carry alone.
 
 - [201. Pack-Shipped Gates Must Execute](engine/201-pack-shapes-execute.md)
 - [202. Fail-Closed Pack Admission](engine/202-fail-closed-pack-admission.md)
@@ -275,7 +307,9 @@
 - [211. When Engine Work Is Unavoidable](engine/211-engine-work-unavoidable.md)
 - [212. Prove the Engine Change against Multiple Packs](engine/212-engine-change-multipack-proof.md)
 
-# Part XVII — Design the Level Five Pack
+# Field XVI — The Level Five Sequence
+
+Apply the patterns as a generative sequence that names every artifact, verifier, drift rule, and receipt before implementation closes options.
 
 - [213. Write the ARD and PRD](level-five-design/213-write-ard-prd.md)
 - [214. Define the Complete Product Surface](level-five-design/214-complete-product-surface.md)
@@ -290,7 +324,9 @@
 - [223. Define the Release Surface](level-five-design/223-define-release-surface.md)
 - [224. Define the Level Five Definition of Done](level-five-design/224-level-five-dod.md)
 
-# Part XVIII — TCPS Case Study I: The Canonical Domain
+# Field XVII — A Complete Pattern in Practice: TCPS
+
+TCPS demonstrates the language at product scale through canonical vocabulary, complete generation, release manufacturing, defects, and standing.
 
 - [225. Why TCPS Is the Right Level Five Case Study](tcps-core/225-why-tcps.md)
 - [226. Japanese Vocabulary as Canonical Law](tcps-core/226-japanese-vocabulary.md)
@@ -308,9 +344,6 @@
 - [238. 平準化 and アンドン](tcps-core/238-heijunka-andon.md)
 - [239. 改善 and 受領証](tcps-core/239-kaizen-receipts.md)
 - [240. 自動選択, 青い川のダム, 全体](tcps-core/240-auto-select-blue-river-whole.md)
-
-# Part XIX — TCPS Case Study II: Generate the Core Crate
-
 - [241. Create `tcps-core-pack`](tcps-generation/241-create-core-pack.md)
 - [242. Transcribe the Reference into RDF](tcps-generation/242-transcribe-reference.md)
 - [243. Generate All 24 Modules](tcps-generation/243-generate-24-modules.md)
@@ -323,9 +356,6 @@
 - [250. Disclose the `_impl` Divergence](tcps-generation/250-impl-divergence.md)
 - [251. Six-Case Conformance E2E](tcps-generation/251-six-case-e2e.md)
 - [252. Sync-Twice Idempotency](tcps-generation/252-sync-twice.md)
-
-# Part XX — TCPS Case Study III: Generate the Product Workspace
-
 - [253. Move from One Crate to Five](tcps-product/253-one-to-five-crates.md)
 - [254. `tcps-core`](tcps-product/254-tcps-core.md)
 - [255. `tcps-std`](tcps-product/255-tcps-std.md)
@@ -338,9 +368,6 @@
 - [262. Generate WASM Interfaces and Smoke Tests](tcps-product/262-wasm-smoke.md)
 - [263. Generate CLI Acceptance Paths](tcps-product/263-cli-acceptance.md)
 - [264. Run the Richer Product Test Suite](tcps-product/264-product-test-suite.md)
-
-# Part XXI — TCPS Case Study IV: Generate the Release System
-
 - [265. Create `tcps-release-pack`](tcps-release/265-create-release-pack.md)
 - [266. Inventory All 132 Product Files](tcps-release/266-inventory-132-files.md)
 - [267. Generate Seven GitHub Workflows](tcps-release/267-github-workflows.md)
@@ -355,9 +382,6 @@
 - [276. Generate Docker and Compose Assets](tcps-release/276-docker-compose.md)
 - [277. Generate Lifecycle Scripts](tcps-release/277-lifecycle-scripts.md)
 - [278. Generate SBOM, Provenance, and Signing Paths](tcps-release/278-supply-chain-assets.md)
-
-# Part XXII — TCPS Case Study V: The Defect Ledger
-
 - [279. Why Syntax Validation Was Insufficient](tcps-failures/279-syntax-insufficient.md)
 - [280. Inert Packs with No Consumption Path](tcps-failures/280-inert-packs.md)
 - [281. Shared-Class Cross-Contamination](tcps-failures/281-shared-class-contamination.md)
@@ -370,9 +394,6 @@
 - [288. Hidden Regression Found by `receiptctl`](tcps-failures/288-receiptctl-regression.md)
 - [289. Pre-Tool Hook Failures versus Product Failures](tcps-failures/289-hook-vs-product-failure.md)
 - [290. Turn Every Defect into a New Standard](tcps-failures/290-defect-to-standard.md)
-
-# Part XXIII — TCPS Case Study VI: Inspection and Standing
-
 - [291. Generate the Inspection Receipt](tcps-standing/291-inspection-receipt.md)
 - [292. Record `cargo fmt --check`](tcps-standing/292-format-receipt.md)
 - [293. Record `cargo test --all-targets`](tcps-standing/293-test-receipt.md)
@@ -385,9 +406,10 @@
 - [300. Distinguish Prototype and Product Standing](tcps-standing/300-prototype-vs-product.md)
 - [301. Close the Level Five Evidence Matrix](tcps-standing/301-close-evidence-matrix.md)
 - [302. The TCPS Level Five Acceptance Test](tcps-standing/302-tcps-l5-acceptance.md)
-- [337. 自らを造る機械は、自らを検査しなければならない](tcps-standing/337-jikoken-kensa.md)
 
-# Part XXIV — Build Your Own Level Five Pack
+# Field XVIII — Make a New Language of Your Own
+
+Apply the complete language to a new bounded domain and manufacture a certification bundle rather than a demonstration.
 
 - [303. Select a Bounded Product Surface](practicum/303-select-product-surface.md)
 - [304. Locate an Independent Reference](practicum/304-locate-reference.md)
@@ -408,28 +430,30 @@
 - [319. Score the Seven Dimensions](practicum/319-score-seven-dimensions.md)
 - [320. Present the Level Five Certification Bundle](practicum/320-certification-bundle.md)
 
-# Part XXV — The Level Five Certification Laboratory
+# Field XIX — Certification Laboratories
 
-- [321. Laboratory One: Detect an Inert Pack](certification/321-detect-inert-pack.md)
-- [322. Laboratory Two: Add a Real Consumption Path](certification/322-add-consumption-path.md)
-- [323. Laboratory Three: Stop Namespace Leakage](certification/323-stop-namespace-leakage.md)
-- [324. Laboratory Four: Resolve Output Ownership](certification/324-resolve-output-ownership.md)
-- [325. Laboratory Five: Generate a Complete Rust Module](certification/325-generate-rust-module.md)
-- [326. Laboratory Six: Generate an Independent Proof](certification/326-generate-independent-proof.md)
-- [327. Laboratory Seven: Reuse a Verbatim Test](certification/327-verbatim-test.md)
-- [328. Laboratory Eight: Build a Zero-Knowledge Consumer](certification/328-zero-knowledge-consumer.md)
-- [329. Laboratory Nine: Compose Eleven Packs](certification/329-compose-eleven-packs.md)
-- [330. Laboratory Ten: Prove Byte-Identical Regeneration](certification/330-byte-identical-regeneration.md)
-- [331. Laboratory Eleven: Refuse Reference Drift](certification/331-refuse-reference-drift.md)
-- [332. Laboratory Twelve: Emit a Complete Receipt Chain](certification/332-complete-receipt-chain.md)
-- [333. Laboratory Thirteen: Generate a Multi-Crate Product](certification/333-multicrate-product.md)
-- [334. Laboratory Fourteen: Generate Release Scaffolding](certification/334-release-scaffolding.md)
-- [335. Laboratory Fifteen: Run the Final Adversarial Audit](certification/335-adversarial-audit.md)
+Break, observe, repair, and receipt each crown property under adversarial laboratory conditions.
+
+- [321. Detect an Inert Pack](certification/321-detect-inert-pack.md)
+- [322. Add a Real Consumption Path](certification/322-add-consumption-path.md)
+- [323. Stop Namespace Leakage](certification/323-stop-namespace-leakage.md)
+- [324. Resolve Output Ownership](certification/324-resolve-output-ownership.md)
+- [325. Generate a Complete Rust Module](certification/325-generate-rust-module.md)
+- [326. Generate an Independent Proof](certification/326-generate-independent-proof.md)
+- [327. Reuse a Verbatim Test](certification/327-verbatim-test.md)
+- [328. Build a Zero-Knowledge Consumer](certification/328-zero-knowledge-consumer.md)
+- [329. Compose Eleven Packs](certification/329-compose-eleven-packs.md)
+- [330. Prove Byte-Identical Regeneration](certification/330-byte-identical-regeneration.md)
+- [331. Refuse Reference Drift](certification/331-refuse-reference-drift.md)
+- [332. Emit a Complete Receipt Chain](certification/332-complete-receipt-chain.md)
+- [333. Generate a Multi-Crate Product](certification/333-multicrate-product.md)
+- [334. Generate Release Scaffolding](certification/334-release-scaffolding.md)
+- [335. Run the Final Adversarial Audit](certification/335-adversarial-audit.md)
 - [336. Graduation: A Level Five Pack](certification/336-graduation.md)
 
 ---
 
-# Appendices
+# Pattern Reference
 
 - [Appendix A — Canonical Pack Directory Layout](appendices/a-pack-layout.md)
 - [Appendix B — Canonical `pack.toml`](appendices/b-pack-toml.md)

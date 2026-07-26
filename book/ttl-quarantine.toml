@@ -1,0 +1,46 @@
+version = 1
+policy = "Only syntactically invalid Turtle under examples/archive may be quarantined. Quarantined files must not be referenced by live packs, marketplace descriptors, or non-archive consumers. New invalid Turtle is refused."
+
+[[entry]]
+path = "examples/archive/_validation_rules.ttl"
+reason = "Historical SHACL fixture uses an unbound default prefix."
+
+[[entry]]
+path = "examples/archive/bree-semantic-scheduler/bree-paas-generation.ttl"
+reason = "Historical scheduler fixture uses an unbound default prefix."
+
+[[entry]]
+path = "examples/archive/comprehensive-rust-showcase/data/domain.ttl"
+reason = "Historical showcase encodes a comma-separated pseudo-list rather than an RDF collection."
+
+[[entry]]
+path = "examples/archive/event-horizon/02-data-model/rdf-first/product-catalog.ttl"
+reason = "Historical product catalog contains an unterminated property statement."
+
+[[entry]]
+path = "examples/archive/factory-paas/templates/otel_sparql_queries.ttl"
+reason = "Historical observability fixture references an unbound affiliate prefix."
+
+[[entry]]
+path = "examples/archive/fastapi-from-rdf/domain.ttl"
+reason = "Historical FastAPI fixture uses comma-separated RDF collection items."
+
+[[entry]]
+path = "examples/archive/gcp-erlang-autonomics/.specify/specs/010-erlang-autonomic-c4/c4-components.ttl"
+reason = "Historical C4 fixture uses semicolon-separated collection items."
+
+[[entry]]
+path = "examples/archive/gcp-erlang-autonomics/.specify/specs/010-erlang-autonomic-c4/c4-deployment.ttl"
+reason = "Historical deployment fixture uses semicolon-separated collection items."
+
+[[entry]]
+path = "examples/archive/gcp-erlang-autonomics/.specify/specs/010-erlang-autonomic-c4/sku-mapping.ttl"
+reason = "Historical SKU fixture uses comma-separated collection items and a trailing comma."
+
+[[entry]]
+path = "examples/archive/maturity-matrix-showcase/level2-small/ontology.ttl"
+reason = "Historical maturity fixture references an unbound xsd prefix."
+
+[[entry]]
+path = "examples/archive/self-play/ontology.ttl"
+reason = "Historical self-play fixture encodes a pseudo-list as a blank node."
