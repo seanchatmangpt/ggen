@@ -1,0 +1,92 @@
+name: Book Gap Audit
+
+on:
+  pull_request:
+    paths:
+      - 'book/**'
+      - 'packs/**'
+      - 'examples/**'
+      - 'marketplace/**'
+      - '.github/workflows/book-gap-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'book/**'
+      - 'packs/**'
+      - 'examples/**'
+      - 'marketplace/**'
+      - '.github/workflows/book-gap-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    name: Compact claim and asset census
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.11'
+
+      - name: Capability claim coverage
+        run: python3 book/scripts/audit_claim_coverage.py
+
+      - name: TOML corpus
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+          files = sorted(set(Path('packs').rglob('*.toml')) | set(Path('marketplace/packs').rglob('*.toml')))
+          failures = []
+          for path in files:
+              try:
+                  with path.open('rb') as stream:
+                      tomllib.load(stream)
+              except Exception as error:
+                  failures.append(f'{path}: {error}')
+          print(f'TOML_CENSUS files={len(files)} failures={len(failures)}')
+          for failure in failures:
+              print(f'TOML_ERROR {failure}')
+          raise SystemExit(bool(failures))
+          PY
+
+      - name: Turtle corpus
+        run: |
+          python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
+          python3 - <<'PY'
+          from pathlib import Path
+          from rdflib import Graph
+          files = sorted(set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
+          failures = []
+          triples = 0
+          for path in files:
+              graph = Graph()
+              try:
+                  graph.parse(path, format='turtle')
+                  triples += len(graph)
+              except Exception as error:
+                  failures.append(f'{path}: {error}')
+          print(f'TTL_CENSUS files={len(files)} triples={triples} failures={len(failures)}')
+          for failure in failures:
+              print(f'TTL_ERROR {failure}')
+          raise SystemExit(bool(failures))
+          PY
+
+      - name: Generated shell laboratory syntax
+        if: always()
+        run: |
+          failures=0
+          count=0
+          while IFS= read -r -d '' script; do
+            count=$((count + 1))
+            if ! bash -n "$script"; then
+              echo "SHELL_ERROR $script"
+              failures=$((failures + 1))
+            fi
+          done < <(find book/src/listings -type f -name '*.sh' -print0)
+          echo "SHELL_CENSUS scripts=$count failures=$failures"
+          test "$failures" -eq 0
