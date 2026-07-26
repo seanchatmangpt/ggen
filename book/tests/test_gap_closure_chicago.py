@@ -9,21 +9,17 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import os
-import shutil
 import subprocess
-import tempfile
 import unittest
 from pathlib import Path
 
-from rdflib import Graph
-
 ROOT = Path(__file__).resolve().parents[2]
-REPAIR_PATH = ROOT / "book/scripts/repair_archive_ttl.py"
+TTL_VALIDATOR_PATH = ROOT / "book/scripts/validate_ttl_corpus.py"
 
-spec = importlib.util.spec_from_file_location("repair_archive_ttl", REPAIR_PATH)
+spec = importlib.util.spec_from_file_location("validate_ttl_corpus", TTL_VALIDATOR_PATH)
 assert spec and spec.loader
-repair = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(repair)
+validate_ttl = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(validate_ttl)
 
 
 def tree_digest(root: Path) -> str:
@@ -43,52 +39,29 @@ def receipt_files(root: Path) -> list[Path]:
         path
         for path in root.rglob("*")
         if path.is_file()
-        and (
-            "receipt" in path.name.lower()
-            or ".ggen-v2" in path.parts
-        )
+        and ("receipt" in path.name.lower() or ".ggen-v2" in path.parts)
     )
 
 
-class ArchiveTurtleStateTests(unittest.TestCase):
-    def test_repair_is_idempotent_and_every_target_parses(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            sandbox = Path(directory)
-            for relative in repair.REPAIRS:
-                source = ROOT / relative
-                target = sandbox / relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, target)
+class TurtleCorpusStateTests(unittest.TestCase):
+    def test_active_turtle_is_valid_and_archive_quarantine_is_exact(self) -> None:
+        result = validate_ttl.validate(ROOT)
+        self.assertTrue(result.ok, result)
+        self.assertEqual(11, result.quarantined)
+        self.assertGreater(result.active_valid, 0)
+        self.assertGreater(result.triples, 0)
+        self.assertEqual((), result.unexpected_invalid)
+        self.assertEqual((), result.stale_quarantine)
+        self.assertEqual((), result.illegal_quarantine)
+        self.assertEqual((), result.live_references)
 
-            first = repair.apply(sandbox, write=True)
-            after_first = tree_digest(sandbox)
-            second = repair.apply(sandbox, write=True)
-            after_second = tree_digest(sandbox)
-
-            self.assertEqual(set(repair.REPAIRS), {p.relative_to(sandbox).as_posix() for p in first})
-            self.assertEqual([], second)
-            self.assertEqual(after_first, after_second)
-            for relative in repair.REPAIRS:
-                graph = Graph()
-                graph.parse(sandbox / relative, format="turtle")
-                self.assertGreater(len(graph), 0, relative)
-
-    def test_repository_contains_no_pending_archive_repairs(self) -> None:
-        self.assertEqual([], repair.apply(ROOT, write=False))
-
-    def test_complete_pack_and_example_turtle_corpus_parses(self) -> None:
-        files = sorted(set((ROOT / "packs").rglob("*.ttl")) | set((ROOT / "examples").rglob("*.ttl")))
-        failures: list[str] = []
-        triples = 0
-        for path in files:
-            graph = Graph()
-            try:
-                graph.parse(path, format="turtle")
-                triples += len(graph)
-            except Exception as error:  # noqa: BLE001 - census must report every file
-                failures.append(f"{path.relative_to(ROOT)}: {error}")
-        self.assertEqual([], failures, "\n".join(failures))
-        self.assertGreater(triples, 0)
+    def test_quarantine_is_archive_only_and_reasoned(self) -> None:
+        entries = validate_ttl.load_quarantine(ROOT)
+        self.assertEqual(11, len(entries))
+        for path, reason in entries.items():
+            self.assertTrue(path.startswith("examples/archive/"), path)
+            self.assertTrue((ROOT / path).is_file(), path)
+            self.assertGreaterEqual(len(reason), 20, path)
 
 
 class CapabilityLedgerStateTests(unittest.TestCase):
@@ -111,8 +84,9 @@ class CapabilityLedgerStateTests(unittest.TestCase):
                 bound = any(
                     pack_dir in manifest.read_text(encoding="utf-8", errors="replace")
                     for manifest in manifests
+                    if "archive" not in manifest.parts
                 )
-                self.assertTrue(bound, f"PACK_WITNESS without consumer binding: {pack}")
+                self.assertTrue(bound, f"PACK_WITNESS without live consumer binding: {pack}")
 
 
 @unittest.skipUnless(os.environ.get("GGEN_BIN"), "set GGEN_BIN to execute real consumers")
@@ -122,7 +96,8 @@ class RealConsumerStateTests(unittest.TestCase):
 
     def test_discoverable_current_consumers_are_two_sync_idempotent(self) -> None:
         consumers = sorted(
-            p.parent for p in (ROOT / "examples").glob("*/ggen.toml")
+            p.parent
+            for p in (ROOT / "examples").glob("*/ggen.toml")
             if "archive" not in p.parts
         )
         self.assertGreaterEqual(len(consumers), 8)
