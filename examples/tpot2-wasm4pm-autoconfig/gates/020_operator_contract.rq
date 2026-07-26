@@ -1,0 +1,107 @@
+# MESSAGE: Derived Operator contract violated.
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:   <https://wasm4pm.dev/pi#>
+PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+SELECT ?node ?reason WHERE {
+  ?node a tpot:Operator .
+  {
+    FILTER NOT EXISTS { ?node tpot:operatorId ?value }
+    BIND("missing-operatorId" AS ?reason)
+  } UNION {
+    ?node tpot:operatorId ?value . FILTER(!isLiteral(?value))
+    BIND("operatorId-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:operatorId ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("operatorId-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:operatorId ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-operatorId" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:wrapsAlgorithm ?value }
+    BIND("missing-wrapsAlgorithm" AS ?reason)
+  } UNION {
+    ?node tpot:wrapsAlgorithm ?value . FILTER(!isIRI(?value))
+    BIND("wrapsAlgorithm-not-iri" AS ?reason)
+  } UNION {
+    ?node tpot:wrapsAlgorithm ?value . FILTER NOT EXISTS { ?value a pi:ProcessIntelligenceAlgorithm }
+    BIND("wrapsAlgorithm-wrong-class" AS ?reason)
+  } UNION {
+    ?node tpot:wrapsAlgorithm ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-wrapsAlgorithm" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:atStage ?value }
+    BIND("missing-atStage" AS ?reason)
+  } UNION {
+    ?node tpot:atStage ?value . FILTER(!isIRI(?value))
+    BIND("atStage-not-iri" AS ?reason)
+  } UNION {
+    ?node tpot:atStage ?value . FILTER NOT EXISTS { ?value a tpot:PipelineStage }
+    BIND("atStage-wrong-class" AS ?reason)
+  } UNION {
+    ?node tpot:atStage ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-atStage" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:fitnessScore ?value }
+    BIND("missing-fitnessScore" AS ?reason)
+  } UNION {
+    ?node tpot:fitnessScore ?value . FILTER(!isLiteral(?value))
+    BIND("fitnessScore-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:fitnessScore ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:decimal)
+    BIND("fitnessScore-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:fitnessScore ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-fitnessScore" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:opSpeedTier ?value }
+    BIND("missing-opSpeedTier" AS ?reason)
+  } UNION {
+    ?node tpot:opSpeedTier ?value . FILTER(!isLiteral(?value))
+    BIND("opSpeedTier-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:opSpeedTier ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:integer)
+    BIND("opSpeedTier-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:opSpeedTier ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-opSpeedTier" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:opQualityTier ?value }
+    BIND("missing-opQualityTier" AS ?reason)
+  } UNION {
+    ?node tpot:opQualityTier ?value . FILTER(!isLiteral(?value))
+    BIND("opQualityTier-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:opQualityTier ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:integer)
+    BIND("opQualityTier-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:opQualityTier ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-opQualityTier" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:opCategory ?value }
+    BIND("missing-opCategory" AS ?reason)
+  } UNION {
+    ?node tpot:opCategory ?value . FILTER(!isLiteral(?value))
+    BIND("opCategory-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:opCategory ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("opCategory-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:opCategory ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-opCategory" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:wasmExport ?value }
+    BIND("missing-wasmExport" AS ?reason)
+  } UNION {
+    ?node tpot:wasmExport ?value . FILTER(!isLiteral(?value))
+    BIND("wasmExport-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:wasmExport ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("wasmExport-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:wasmExport ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-wasmExport" AS ?reason)
+  }
+}
+ORDER BY ?node ?reason
