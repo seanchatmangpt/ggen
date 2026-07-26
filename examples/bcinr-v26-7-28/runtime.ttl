@@ -1,0 +1,135 @@
+@prefix bvr: <https://ggen.dev/ns/bcinr-v26-7-28#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.dev/examples/bcinr-v26-7-28/runtime>
+    a bvr:RuntimeProfile ;
+    dcterms:title "BCINR v26.7.28 manufactured temporal runtime" ;
+    dcterms:description "A deterministic, no-LLM temporal planning, allocation, execution, evidence, and replay substrate." ;
+    dcterms:hasVersion "26.7.28" ;
+    bvr:abiVersion 1 ;
+    bvr:receiptVersion 1 ;
+    bvr:maximumTemporalSteps 64 ;
+    bvr:logicalTimeUnit "millisecond" ;
+    bvr:receiptAlgorithm "BLAKE3" ;
+    bvr:deterministic true ;
+    bvr:llmDependency false ;
+    bvr:stableRustSafety true ;
+    bvr:nightlySpecialization true ;
+    bvr:panicAcrossBoundary false ;
+    bvr:ambientAuthority false ;
+    bvr:canonicalStatus "ALIVE|PARTIAL_ALIVE|BLOCKED|BUILD_BROKEN|UNKNOWN|UNSUPPORTED" ;
+    prov:wasAttributedTo <https://github.com/seanchatmangpt/ggen> .
+
+bvr:InvalidTime a bvr:Refusal ; bvr:code 1 ; skos:prefLabel "invalid_time" .
+bvr:DurationOutOfBounds a bvr:Refusal ; bvr:code 2 ; skos:prefLabel "duration_out_of_bounds" .
+bvr:UnknownAction a bvr:Refusal ; bvr:code 3 ; skos:prefLabel "unknown_action" .
+bvr:OverlappingDuplicate a bvr:Refusal ; bvr:code 4 ; skos:prefLabel "overlapping_duplicate" .
+bvr:PlanBoundExceeded a bvr:Refusal ; bvr:code 5 ; skos:prefLabel "plan_bound_exceeded" .
+bvr:PlanningFailed a bvr:Refusal ; bvr:code 6 ; skos:prefLabel "planning_failed" .
+bvr:ExecutionDenied a bvr:Refusal ; bvr:code 7 ; skos:prefLabel "execution_denied" .
+bvr:GoalNotReached a bvr:Refusal ; bvr:code 8 ; skos:prefLabel "goal_not_reached" .
+bvr:EvidenceMismatch a bvr:Refusal ; bvr:code 9 ; skos:prefLabel "evidence_mismatch" .
+bvr:ReplayMismatch a bvr:Refusal ; bvr:code 10 ; skos:prefLabel "replay_mismatch" .
+
+bvr:ParallelSoftwareDelivery
+    a bvr:Scenario ;
+    bvr:scenarioId "parallel_software_delivery" ;
+    bvr:workers 9 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:DynamicTeamFormation
+    a bvr:Scenario ;
+    bvr:scenarioId "dynamic_team_formation" ;
+    bvr:workers 6 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution true ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:WorkerSubstitution
+    a bvr:Scenario ;
+    bvr:scenarioId "worker_substitution" ;
+    bvr:workers 3 ;
+    bvr:requiresConcurrency false ;
+    bvr:requiresSubstitution true ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:SharedAcceleratorContention
+    a bvr:Scenario ;
+    bvr:scenarioId "shared_accelerator_contention" ;
+    bvr:workers 4 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:DeadlineAwareVerification
+    a bvr:Scenario ;
+    bvr:scenarioId "deadline_aware_verification" ;
+    bvr:workers 5 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "BLOCKED" .
+
+bvr:LongRunningSupervision
+    a bvr:Scenario ;
+    bvr:scenarioId "long_running_supervision" ;
+    bvr:workers 3 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution true ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:SpeculativeExecution
+    a bvr:Scenario ;
+    bvr:scenarioId "speculative_execution" ;
+    bvr:workers 4 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation true ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:AdversarialWorker
+    a bvr:Scenario ;
+    bvr:scenarioId "adversarial_worker" ;
+    bvr:workers 2 ;
+    bvr:requiresConcurrency false ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "REFUSED" .
+
+bvr:HumanApprovalSimulation
+    a bvr:Scenario ;
+    bvr:scenarioId "human_approval_simulation" ;
+    bvr:workers 3 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval true ;
+    bvr:expectedStanding "ALIVE" .
+
+bvr:DistributedTraceReconstruction
+    a bvr:Scenario ;
+    bvr:scenarioId "distributed_trace_reconstruction" ;
+    bvr:workers 8 ;
+    bvr:requiresConcurrency true ;
+    bvr:requiresSubstitution false ;
+    bvr:requiresSpeculation false ;
+    bvr:requiresHumanApproval false ;
+    bvr:expectedStanding "ALIVE" .
