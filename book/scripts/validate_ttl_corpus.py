@@ -114,7 +114,9 @@ def validate(root: Path = ROOT) -> Result:
     for source in live_text_files(root):
         text = source.read_text(encoding="utf-8", errors="replace")
         for quarantined in sorted(declared):
-            if quarantined in text or Path(quarantined).name in text:
+            # Require the exact repository-relative path. Basename matching is
+            # unsound for generic names such as ontology.ttl or domain.ttl.
+            if quarantined in text:
                 references.append(
                     f"{source.relative_to(root).as_posix()} -> {quarantined}"
                 )
