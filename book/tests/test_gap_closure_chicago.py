@@ -15,11 +15,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TTL_VALIDATOR_PATH = ROOT / "book/scripts/validate_ttl_corpus.py"
+GAP_VALIDATOR_PATH = ROOT / "book/scripts/validate_gap_closure.py"
 
-spec = importlib.util.spec_from_file_location("validate_ttl_corpus", TTL_VALIDATOR_PATH)
-assert spec and spec.loader
-validate_ttl = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(validate_ttl)
+
+def load_module(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+validate_ttl = load_module("validate_ttl_corpus", TTL_VALIDATOR_PATH)
+validate_gaps = load_module("validate_gap_closure", GAP_VALIDATOR_PATH)
 
 
 def tree_digest(root: Path) -> str:
@@ -65,6 +73,14 @@ class TurtleCorpusStateTests(unittest.TestCase):
 
 
 class CapabilityLedgerStateTests(unittest.TestCase):
+    def test_every_declared_gap_has_bound_executable_evidence(self) -> None:
+        errors, counters = validate_gaps.validate()
+        self.assertEqual([], errors)
+        self.assertEqual(25, counters["obligations"])
+        self.assertEqual(25, counters["declared_gaps"])
+        self.assertEqual(counters["evidence_records"], counters["used_evidence"])
+        self.assertEqual(0, counters["errors"])
+
     def test_no_stale_pattern_337_claim_remains(self) -> None:
         capability_map = (ROOT / "book/src/CAPABILITY_MAP.md").read_text(encoding="utf-8")
         summary = (ROOT / "book/src/SUMMARY.md").read_text(encoding="utf-8")
