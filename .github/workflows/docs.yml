@@ -58,6 +58,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          show-progress: false
 
       - name: Set up Python 3.11
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -127,6 +129,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          show-progress: false
 
       - name: Provision siblings and pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
@@ -143,7 +146,15 @@ jobs:
         run: |
           set -euo pipefail
           cd book
-          ../target/debug/ggen sync run
+          ../target/debug/ggen sync run 2>&1 | tee ../book-manufacture.log
+
+      - name: Upload manufacture failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: book-manufacture-failure-${{ github.sha }}
+          path: book-manufacture.log
+          if-no-files-found: error
 
       - name: Verify manufacture receipt
         run: |
