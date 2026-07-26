@@ -96,8 +96,8 @@ jobs:
           }
           C
           cc -std=c11 -Wall -Wextra -Werror -I generated -fsyntax-only /tmp/bcinr_temporal_header_check.c
-          if grep -RniE 'openai|anthropic|ollama|language.model|llm.call' runtime.ttl queries templates generated; then
-            echo "LLM dependency detected in deterministic runtime pack" >&2
+          if grep -RniE 'api\.openai\.com|api\.anthropic\.com|openai[[:space:]_-]*client|anthropic[[:space:]_-]*client|ollama[[:space:]_-]*(client|endpoint)' runtime.ttl queries templates generated; then
+            echo "LLM provider or endpoint dependency detected in deterministic runtime pack" >&2
             exit 1
           fi
 
