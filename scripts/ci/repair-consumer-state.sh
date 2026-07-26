@@ -188,14 +188,18 @@ PY
   git config user.name 'ggen consumer repair'
   git config user.email 'actions@users.noreply.github.com'
   git status --short
-  # `git rm` above already stages the temporary workflow/script deletions. Add
-  # only surviving authority/product paths here.
-  git add -A -- \
+  # `git rm` above already stages the temporary workflow/script deletions.
+  # Stage only the exact surviving files observed in the bounded drift receipt.
+  git add -- \
     crates/ggen-engine/src/generation_rules.rs \
     crates/ggen-engine/tests/generation_output_dir_e2e.rs \
     examples/tpot2-wasm4pm-autoconfig/ggen.toml \
-    examples/tcps-generated \
-    ':(exclude)examples/tcps-generated/.ggen-v2/**'
+    examples/tcps-generated/VERIFICATION.md \
+    examples/tcps-generated/evidence/ontology.ttl \
+    examples/tcps-generated/ggen.lock \
+    examples/tcps-generated/ggen.toml \
+    examples/tcps-generated/receipts/EVIDENCE_SNAPSHOT.md \
+    examples/tcps-generated/receipts/inspection-receipt.json
   git status --short
   git diff --cached --stat
   git diff --cached --check
