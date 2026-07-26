@@ -7,6 +7,10 @@ pub enum CertificateKind {
 {% for row in results %}    {{ row["rustName"] }},
 {% endfor %}}
 
+/// Ontology-derived inventory cardinality. This is generated from the SPARQL
+/// result set and must evolve whenever a CertificateKind individual is added.
+pub const EXPECTED_COUNT: usize = {{ results | length }};
+
 pub const ALL: &[CertificateKind] = &[
 {% for row in results %}    CertificateKind::{{ row["rustName"] }},
 {% endfor %}];
