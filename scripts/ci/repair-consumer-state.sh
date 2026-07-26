@@ -120,14 +120,19 @@ rm examples/tcps-generated/ggen.lock
 (
   cd examples/tcps-generated
 
-  # The freshness gate compares verification evidence to the latest reflexive
-  # sync receipt. Emit once against the pre-repair receipt so the re-lock sync
-  # can lawfully run, then emit again against the new graph before replay.
   bash scripts/verify.sh
   ../../target/debug/ggen sync run 2>&1 | tee /tmp/tcps-relock.log
   ../../target/debug/ggen receipt verify
 
+  # Preserve the real red-check output before the emitter compresses it to a
+  # one-line summary. These diagnostics are artifacts only, never authority.
+  cargo fmt --check > /tmp/tcps-fmt.log 2>&1 || true
+  cargo clippy --workspace --all-targets -- -D warnings > /tmp/tcps-clippy.log 2>&1 || true
+
   bash scripts/verify.sh
+  # Evidence is a locked local pack. Its lawful regeneration changes its
+  # content hash, so intentionally re-lock the full pack set before validation.
+  rm ggen.lock
   ../../target/debug/ggen sync run
   ../../target/debug/ggen receipt verify
 
