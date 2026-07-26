@@ -1,0 +1,40 @@
+# MESSAGE: FitnessObjective contract violated.
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+SELECT ?node ?reason WHERE {
+  ?node a tpot:FitnessObjective .
+  {
+    FILTER NOT EXISTS { ?node tpot:metric ?value }
+    BIND("missing-metric" AS ?reason)
+  } UNION {
+    ?node tpot:metric ?value . FILTER(!isLiteral(?value))
+    BIND("metric-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:metric ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("metric-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:metric ?value . FILTER(?value NOT IN ("qualityTier", "speedTier"))
+    BIND("metric-outside-frozen-set" AS ?reason)
+  } UNION {
+    ?node tpot:metric ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-metric" AS ?reason)
+  } UNION {
+    FILTER NOT EXISTS { ?node tpot:direction ?value }
+    BIND("missing-direction" AS ?reason)
+  } UNION {
+    ?node tpot:direction ?value . FILTER(!isLiteral(?value))
+    BIND("direction-not-literal" AS ?reason)
+  } UNION {
+    ?node tpot:direction ?value . FILTER(isLiteral(?value) && datatype(?value) != xsd:string)
+    BIND("direction-wrong-datatype" AS ?reason)
+  } UNION {
+    ?node tpot:direction ?value . FILTER(?value NOT IN ("maximize", "minimize"))
+    BIND("direction-outside-frozen-set" AS ?reason)
+  } UNION {
+    ?node tpot:direction ?left, ?right . FILTER(?left != ?right)
+    BIND("multiple-direction" AS ?reason)
+  }
+}
+ORDER BY ?node ?reason
