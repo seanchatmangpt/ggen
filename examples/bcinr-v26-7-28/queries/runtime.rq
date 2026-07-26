@@ -1,0 +1,28 @@
+PREFIX bvr: <https://ggen.dev/ns/bcinr-v26-7-28#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT
+  ?title ?description ?version ?abi_version ?receipt_version
+  ?maximum_temporal_steps ?logical_time_unit ?receipt_algorithm
+  ?deterministic ?llm_dependency ?stable_rust_safety
+  ?nightly_specialization ?panic_across_boundary ?ambient_authority
+  ?canonical_status
+WHERE {
+  ?runtime a bvr:RuntimeProfile ;
+      dcterms:title ?title ;
+      dcterms:description ?description ;
+      dcterms:hasVersion ?version ;
+      bvr:abiVersion ?abi_version ;
+      bvr:receiptVersion ?receipt_version ;
+      bvr:maximumTemporalSteps ?maximum_temporal_steps ;
+      bvr:logicalTimeUnit ?logical_time_unit ;
+      bvr:receiptAlgorithm ?receipt_algorithm ;
+      bvr:deterministic ?deterministic ;
+      bvr:llmDependency ?llm_dependency ;
+      bvr:stableRustSafety ?stable_rust_safety ;
+      bvr:nightlySpecialization ?nightly_specialization ;
+      bvr:panicAcrossBoundary ?panic_across_boundary ;
+      bvr:ambientAuthority ?ambient_authority ;
+      bvr:canonicalStatus ?canonical_status .
+}
+ORDER BY ?version
