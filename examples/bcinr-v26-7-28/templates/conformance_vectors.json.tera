@@ -1,0 +1,21 @@
+{%- set p = sparql_results | first -%}
+{%- set scenarios = sparql(query='PREFIX bvr: <https://ggen.dev/ns/bcinr-v26-7-28#> SELECT ?id ?workers ?concurrency ?substitution ?speculation ?human ?standing WHERE { ?scenario a bvr:Scenario ; bvr:scenarioId ?id ; bvr:workers ?workers ; bvr:requiresConcurrency ?concurrency ; bvr:requiresSubstitution ?substitution ; bvr:requiresSpeculation ?speculation ; bvr:requiresHumanApproval ?human ; bvr:expectedStanding ?standing . } ORDER BY ?id') -%}
+{
+  "runtime_version": "{{ p.version }}",
+  "abi_version": {{ p.abi_version }},
+  "receipt_version": {{ p.receipt_version }},
+  "llm_calls": 0,
+  "scenarios": [
+{%- for row in scenarios %}
+    {
+      "id": "{{ row.id }}",
+      "workers": {{ row.workers }},
+      "requires_concurrency": {% if row.concurrency == true %}true{% else %}false{% endif %},
+      "requires_substitution": {% if row.substitution == true %}true{% else %}false{% endif %},
+      "requires_speculation": {% if row.speculation == true %}true{% else %}false{% endif %},
+      "requires_human_approval": {% if row.human == true %}true{% else %}false{% endif %},
+      "expected_standing": "{{ row.standing }}"
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}
