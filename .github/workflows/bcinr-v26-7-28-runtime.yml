@@ -40,6 +40,7 @@ jobs:
           root = Path("generated")
           required = {
               "temporal_contract.rs",
+              "swarm_scenarios.rs",
               "bcinr_temporal.h",
               "bcinr-temporal.wit",
               "conformance_vectors.json",
@@ -56,6 +57,7 @@ jobs:
           assert len({item["id"] for item in vectors["scenarios"]}) == 10
           PY
           rustc --edition 2021 --crate-type lib generated/temporal_contract.rs -o /tmp/libbcinr_temporal_contract.rlib
+          rustc --edition 2021 --crate-type lib generated/swarm_scenarios.rs -o /tmp/libbcinr_swarm_scenarios.rlib
           cat > /tmp/bcinr_temporal_header_check.c <<'C'
           #include "bcinr_temporal.h"
           int main(void) {
