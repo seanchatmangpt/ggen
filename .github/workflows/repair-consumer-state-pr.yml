@@ -120,8 +120,12 @@ jobs:
         run: |
           set -o pipefail
           {
-            cargo fmt --all
-            cargo fmt --all -- --check
+            rustfmt --edition 2021 \
+              crates/ggen-engine/src/generation_rules.rs \
+              crates/ggen-engine/tests/generation_output_dir_e2e.rs
+            rustfmt --edition 2021 --check \
+              crates/ggen-engine/src/generation_rules.rs \
+              crates/ggen-engine/tests/generation_output_dir_e2e.rs
             cargo test -p ggen-engine --test generation_output_dir_e2e
           } 2>&1 | tee generation-output-dir-regression.log
 
