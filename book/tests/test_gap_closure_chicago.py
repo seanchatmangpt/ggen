@@ -11,12 +11,27 @@ import importlib.util
 import os
 import subprocess
 import sys
+import tomllib
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TTL_VALIDATOR_PATH = ROOT / "book/scripts/validate_ttl_corpus.py"
 GAP_VALIDATOR_PATH = ROOT / "book/scripts/validate_gap_closure.py"
+
+TCPS_CONSUMER = Path("examples/tcps-generated")
+PRE_SYNC_HOOKS: dict[Path, tuple[str, ...]] = {
+    TCPS_CONSUMER: ("bash", "scripts/verify.sh"),
+}
+VOLATILE_OBSERVATION_PATHS: dict[Path, frozenset[Path]] = {
+    TCPS_CONSUMER: frozenset(
+        {
+            Path("evidence/ontology.ttl"),
+            Path("receipts/inspection-receipt.json"),
+            Path("receipts/EVIDENCE_SNAPSHOT.md"),
+        }
+    ),
+}
 
 
 def load_module(name: str, path: Path):
@@ -32,12 +47,15 @@ validate_ttl = load_module("validate_ttl_corpus", TTL_VALIDATOR_PATH)
 validate_gaps = load_module("validate_gap_closure", GAP_VALIDATOR_PATH)
 
 
-def tree_digest(root: Path) -> str:
+def tree_digest(root: Path, excluded: frozenset[Path] = frozenset()) -> str:
     digest = hashlib.sha256()
     for path in sorted(p for p in root.rglob("*") if p.is_file()):
-        if any(part in {".git", "target", ".ggen-v2", "book"} for part in path.relative_to(root).parts):
+        relative = path.relative_to(root)
+        if relative in excluded:
             continue
-        digest.update(path.relative_to(root).as_posix().encode())
+        if any(part in {".git", "target", ".ggen-v2", "book"} for part in relative.parts):
+            continue
+        digest.update(relative.as_posix().encode())
         digest.update(b"\0")
         digest.update(path.read_bytes())
         digest.update(b"\0")
@@ -131,6 +149,16 @@ class CapabilityLedgerStateTests(unittest.TestCase):
                 )
                 self.assertTrue(bound, f"PACK_WITNESS without live consumer binding: {pack}")
 
+    def test_self_observing_tcps_evidence_pack_is_explicitly_unlocked(self) -> None:
+        with (ROOT / TCPS_CONSUMER / "ggen.toml").open("rb") as stream:
+            manifest = tomllib.load(stream)
+        evidence = manifest["packs"]["tcps-evidence"]
+        self.assertIs(
+            evidence.get("lock"),
+            False,
+            "regenerated verification evidence must never be content-pinned",
+        )
+
 
 @unittest.skipUnless(os.environ.get("GGEN_BIN"), "set GGEN_BIN to execute real consumers")
 class RealConsumerStateTests(unittest.TestCase):
@@ -154,6 +182,32 @@ class RealConsumerStateTests(unittest.TestCase):
                 f"stderr:\n{completed.stderr}"
             )
         return completed
+
+    def run_pre_sync_hook(self, consumer: Path) -> None:
+        relative = consumer.relative_to(ROOT)
+        hook = PRE_SYNC_HOOKS.get(relative)
+        if hook is None:
+            return
+        completed = subprocess.run(
+            list(hook),
+            cwd=consumer,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if completed.returncode != 0:
+            self.fail(
+                "consumer pre-sync hook refused\n"
+                f"consumer={relative}\n"
+                f"command={' '.join(hook)}\n"
+                f"exit={completed.returncode}\n"
+                f"stdout:\n{completed.stdout}\n"
+                f"stderr:\n{completed.stderr}"
+            )
+        print(
+            f"CONSUMER_PRE_SYNC_OK consumer={relative} command={' '.join(hook)}",
+            flush=True,
+        )
 
     def test_declared_malformed_turtle_fixture_is_rejected_by_real_graph_validator(self) -> None:
         pack = ROOT / "packs/dogfood-lifecycle-pack"
@@ -184,16 +238,19 @@ class RealConsumerStateTests(unittest.TestCase):
         self.assertGreaterEqual(len(consumers), 8)
         for consumer in consumers:
             relative = consumer.relative_to(ROOT)
+            excluded = VOLATILE_OBSERVATION_PATHS.get(relative, frozenset())
             with self.subTest(consumer=relative.as_posix()):
                 print(f"CONSUMER_REPLAY_START consumer={relative}", flush=True)
+                self.run_pre_sync_hook(consumer)
                 self.run_checked(consumer, "sync", "run")
                 self.run_checked(consumer, "receipt", "verify")
-                once = tree_digest(consumer)
+                once = tree_digest(consumer, excluded)
                 receipts_once = receipt_files(consumer)
 
+                self.run_pre_sync_hook(consumer)
                 self.run_checked(consumer, "sync", "run")
                 self.run_checked(consumer, "receipt", "verify")
-                twice = tree_digest(consumer)
+                twice = tree_digest(consumer, excluded)
                 receipts_twice = receipt_files(consumer)
 
                 self.assertEqual(once, twice, relative)
@@ -205,7 +262,8 @@ class RealConsumerStateTests(unittest.TestCase):
                 )
                 print(
                     "CONSUMER_REPLAY_OK "
-                    f"consumer={relative} digest={twice} receipts={len(receipts_twice)}",
+                    f"consumer={relative} digest={twice} receipts={len(receipts_twice)} "
+                    f"excluded_observations={len(excluded)}",
                     flush=True,
                 )
 
