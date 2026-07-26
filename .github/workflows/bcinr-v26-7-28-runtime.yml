@@ -104,6 +104,14 @@ jobs:
             exit 1
           fi
 
+      - name: Retain manufactured contract family
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcinr-v26-7-28-generated-contracts
+          path: examples/bcinr-v26-7-28/generated
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Publish manufactured bytes to the branch
         if: github.event_name == 'push'
         run: |
