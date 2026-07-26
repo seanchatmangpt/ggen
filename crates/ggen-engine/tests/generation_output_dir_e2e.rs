@@ -3,6 +3,7 @@
 //! A non-default `[generation].output_dir` must scope every rule output. The
 //! test deliberately names an output `ggen.toml`: ignoring the configured root
 //! would overwrite the source manifest and change the schema on the next sync.
+//! This reproduces the TPOT consumer failure that exposed the engine defect.
 
 use std::path::PathBuf;
 
