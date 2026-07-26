@@ -27,6 +27,14 @@ skip_empty = false
 mode = "Overwrite"
 
 [[generation.rules]]
+name = "manufactured-swarm-descriptors"
+query = { file = "queries/runtime.rq" }
+template = { file = "templates/swarm_scenarios.rs.tera" }
+output_file = "generated/swarm_scenarios.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
 name = "c-abi-temporal-contract"
 query = { file = "queries/runtime.rq" }
 template = { file = "templates/bcinr_temporal.h.tera" }
