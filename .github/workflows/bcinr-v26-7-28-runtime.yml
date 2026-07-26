@@ -1,0 +1,91 @@
+name: BCINR v26.7.28 Runtime Manufacturer
+
+on:
+  push:
+    branches:
+      - agent/v26.7.28-bcinr-runtime-pack
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bcinr-v26-7-28-runtime-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  manufacture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Manufacture projections through the real ggen CLI
+        working-directory: examples/bcinr-v26-7-28
+        run: cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run
+
+      - name: Validate generated contracts
+        working-directory: examples/bcinr-v26-7-28
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("generated")
+          required = {
+              "temporal_contract.rs",
+              "bcinr_temporal.h",
+              "bcinr-temporal.wit",
+              "conformance_vectors.json",
+          }
+          actual = {path.name for path in root.iterdir() if path.is_file()}
+          missing = sorted(required - actual)
+          if missing:
+              raise SystemExit(f"missing generated projections: {missing}")
+
+          vectors = json.loads((root / "conformance_vectors.json").read_text())
+          assert vectors["runtime_version"] == "26.7.28"
+          assert vectors["llm_calls"] == 0
+          assert len(vectors["scenarios"]) == 10
+          assert len({item["id"] for item in vectors["scenarios"]}) == 10
+          PY
+          rustc --edition 2021 --crate-type lib generated/temporal_contract.rs -o /tmp/libbcinr_temporal_contract.rlib
+          cat > /tmp/bcinr_temporal_header_check.c <<'C'
+          #include "bcinr_temporal.h"
+          int main(void) {
+              bcinr_temporal_runtime_profile profile = {0};
+              return profile.llm_dependency;
+          }
+          C
+          cc -std=c11 -Wall -Wextra -Werror -I generated -fsyntax-only /tmp/bcinr_temporal_header_check.c
+          if grep -RniE 'openai|anthropic|ollama|language.model|llm.call' runtime.ttl queries templates generated; then
+            echo "LLM dependency detected in deterministic runtime pack" >&2
+            exit 1
+          fi
+
+      - name: Publish manufactured bytes to the branch
+        id: publish
+        run: |
+          git diff --check
+          git add examples/bcinr-v26-7-28/generated
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git commit -m "chore(v26.7.28): materialize BCINR runtime projections"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prove second-sync byte identity
+        working-directory: examples/bcinr-v26-7-28
+        run: |
+          cargo run --manifest-path ../../Cargo.toml -p ggen-cli-lib --bin ggen -- sync run
+          git diff --exit-code -- generated
