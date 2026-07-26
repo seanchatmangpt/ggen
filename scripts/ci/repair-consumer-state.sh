@@ -136,8 +136,6 @@ rm examples/tcps-generated/ggen.lock
 (
   cd examples/tcps-generated
 
-  # ggen-verify-pack's steady-state contract is emitter-then-sync. Evidence is
-  # intentionally unlocked because it changes on every observation cycle.
   bash scripts/verify.sh
   ../../target/debug/ggen sync run 2>&1 | tee /tmp/tcps-relock.log
   ../../target/debug/ggen receipt verify
@@ -187,13 +185,14 @@ PY
 
 git config user.name 'ggen consumer repair'
 git config user.email 'actions@users.noreply.github.com'
-git add -A \
+git add -A -- \
   .github/workflows/repair-consumer-state-pr.yml \
   scripts/ci/repair-consumer-state.sh \
   crates/ggen-engine/src/generation_rules.rs \
   crates/ggen-engine/tests/generation_output_dir_e2e.rs \
   examples/tpot2-wasm4pm-autoconfig/ggen.toml \
-  examples/tcps-generated
+  examples/tcps-generated \
+  ':(exclude)examples/tcps-generated/.ggen-v2/**'
 git diff --cached --check
 git commit -m 'fix(examples): reconcile current consumer authority'
 git push origin HEAD:agent/chicago-gap-closure
