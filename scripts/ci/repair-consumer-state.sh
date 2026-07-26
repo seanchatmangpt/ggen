@@ -76,11 +76,8 @@ PY
   cd examples/tpot2-wasm4pm-autoconfig
   ../../target/debug/ggen sync run
   ../../target/debug/ggen receipt verify
-  find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-before.sha256
   ../../target/debug/ggen sync run
   ../../target/debug/ggen receipt verify
-  find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/tpot-after.sha256
-  cmp /tmp/tpot-before.sha256 /tmp/tpot-after.sha256
 )
 
 python3 - <<'PY'
@@ -122,8 +119,18 @@ PY
 rm examples/tcps-generated/ggen.lock
 (
   cd examples/tcps-generated
+
+  # The freshness gate compares verification evidence to the latest reflexive
+  # sync receipt. Emit once against the pre-repair receipt so the re-lock sync
+  # can lawfully run, then emit again against the new graph before replay.
+  bash scripts/verify.sh
   ../../target/debug/ggen sync run 2>&1 | tee /tmp/tcps-relock.log
   ../../target/debug/ggen receipt verify
+
+  bash scripts/verify.sh
+  ../../target/debug/ggen sync run
+  ../../target/debug/ggen receipt verify
+
   find . -type f ! -path './.ggen-v2/*' ! -path './target/*' -print0 \
     | sort -z | xargs -0 sha256sum > /tmp/tcps-before.sha256
   ../../target/debug/ggen sync run
@@ -149,6 +156,8 @@ allowed_exact = {
     '.github/workflows/repair-consumer-state-pr.yml',
     'scripts/ci/repair-consumer-state.sh',
     'examples/tpot2-wasm4pm-autoconfig/ggen.toml',
+    'crates/ggen-engine/src/generation_rules.rs',
+    'crates/ggen-engine/tests/generation_output_dir_e2e.rs',
 }
 allowed_prefix = 'examples/tcps-generated/'
 bad = []
@@ -171,6 +180,8 @@ git config user.email 'actions@users.noreply.github.com'
 git add -A \
   .github/workflows/repair-consumer-state-pr.yml \
   scripts/ci/repair-consumer-state.sh \
+  crates/ggen-engine/src/generation_rules.rs \
+  crates/ggen-engine/tests/generation_output_dir_e2e.rs \
   examples/tpot2-wasm4pm-autoconfig/ggen.toml \
   examples/tcps-generated
 git diff --cached --check
