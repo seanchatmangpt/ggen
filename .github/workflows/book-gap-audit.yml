@@ -32,12 +32,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Initialize report
+        run: : > gap-report.txt
+
       - name: Capability claim coverage
-        run: python3 book/scripts/audit_claim_coverage.py
+        run: python3 book/scripts/audit_claim_coverage.py | tee -a gap-report.txt
 
       - name: TOML corpus
         run: |
-          python3 - <<'PY'
+          python3 - <<'PY' | tee -a gap-report.txt
           from pathlib import Path
           import tomllib
           files = sorted(set(Path('packs').rglob('*.toml')) | set(Path('marketplace/packs').rglob('*.toml')))
@@ -57,7 +60,8 @@ jobs:
       - name: Turtle corpus
         run: |
           python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
-          python3 - <<'PY'
+          set +e
+          python3 - <<'PY' | tee -a gap-report.txt
           from pathlib import Path
           from rdflib import Graph
           files = sorted(set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
@@ -75,6 +79,8 @@ jobs:
               print(f'TTL_ERROR {failure}')
           raise SystemExit(bool(failures))
           PY
+          status=${PIPESTATUS[0]}
+          exit "$status"
 
       - name: Generated shell laboratory syntax
         if: always()
@@ -84,9 +90,17 @@ jobs:
           while IFS= read -r -d '' script; do
             count=$((count + 1))
             if ! bash -n "$script"; then
-              echo "SHELL_ERROR $script"
+              echo "SHELL_ERROR $script" | tee -a gap-report.txt
               failures=$((failures + 1))
             fi
           done < <(find book/src/listings -type f -name '*.sh' -print0)
-          echo "SHELL_CENSUS scripts=$count failures=$failures"
+          echo "SHELL_CENSUS scripts=$count failures=$failures" | tee -a gap-report.txt
           test "$failures" -eq 0
+
+      - name: Upload gap report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: book-gap-report
+          path: gap-report.txt
+          if-no-files-found: error
