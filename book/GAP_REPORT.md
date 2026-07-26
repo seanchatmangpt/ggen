@@ -27,7 +27,7 @@ GAP FIELD_NOT_CROWN_COMPLETE XII. Pack Neighborhood — 161–172: **PARTIAL**
 GAP FIELD_NOT_CROWN_COMPLETE XIII. Time, Change and Repair — 173–186: **PACK_WITNESS** for checksum/idempotency; longitudinal repair is **PARTIAL**
 GAP FIELD_NOT_CROWN_COMPLETE XIV. Receipts and Standing — 187–200: **PARTIAL** across the full supply chain
 GAP FIELD_NOT_CROWN_COMPLETE XVI. Level Five Sequence — 213–224: **PARTIAL**
-GAP FIELD_NOT_CROWN_COMPLETE XVII. TCPS Complete Pattern — 225–302, 337: **PARTIAL** until current-head full toolchain replay
+GAP FIELD_NOT_CROWN_COMPLETE XVII. TCPS Complete Pattern — 225–302: **PARTIAL** until current-head full toolchain replay
 GAP FIELD_NOT_CROWN_COMPLETE XVIII. Make a New Language — 303–320: **TARGET**
 GAP FIELD_NOT_CROWN_COMPLETE XIX. Certification Laboratories — 321–336: **PARTIAL** until all laboratories execute on current head
 CLAIM_COVERAGE pack_rows=17 field_rows=21 chapter_files=366 chapter_alignment_sections=366 evidence_paths=49 consumer_witnesses=8 declared_gaps=25 errors=0 gaps=25
