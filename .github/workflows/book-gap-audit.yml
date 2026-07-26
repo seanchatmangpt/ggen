@@ -43,6 +43,9 @@ jobs:
       - name: Capability claim coverage
         run: python3 book/scripts/audit_claim_coverage.py | tee -a gap-report.txt
 
+      - name: Executable gap registry coverage
+        run: python3 book/scripts/validate_gap_closure.py | tee -a gap-report.txt
+
       - name: TOML corpus
         run: |
           python3 - <<'PY' | tee -a gap-report.txt
