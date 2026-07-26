@@ -1,0 +1,18 @@
+{
+  "runtime_version": "26.7.28",
+  "abi_version": 1,
+  "receipt_version": 1,
+  "llm_calls": 0,
+  "scenarios": [
+    { "id": "adversarial_worker", "workers": 2, "requires_concurrency": false, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "REFUSED" },
+    { "id": "deadline_aware_verification", "workers": 5, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "BLOCKED" },
+    { "id": "distributed_trace_reconstruction", "workers": 8, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "dynamic_team_formation", "workers": 6, "requires_concurrency": true, "requires_substitution": true, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "human_approval_simulation", "workers": 3, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": true, "expected_standing": "ALIVE" },
+    { "id": "long_running_supervision", "workers": 3, "requires_concurrency": true, "requires_substitution": true, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "parallel_software_delivery", "workers": 9, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "shared_accelerator_contention", "workers": 4, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "speculative_execution", "workers": 4, "requires_concurrency": true, "requires_substitution": false, "requires_speculation": true, "requires_human_approval": false, "expected_standing": "ALIVE" },
+    { "id": "worker_substitution", "workers": 3, "requires_concurrency": false, "requires_substitution": true, "requires_speculation": false, "requires_human_approval": false, "expected_standing": "ALIVE" }
+  ]
+}
