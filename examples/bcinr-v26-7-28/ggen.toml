@@ -1,0 +1,51 @@
+[project]
+name = "bcinr-v26-7-28-runtime"
+version = "26.7.28"
+description = "Manufacture safe Rust, C ABI, WIT, and deterministic conformance surfaces for BCINR temporal execution"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT OR Apache-2.0"
+
+[ontology]
+source = "runtime.ttl"
+base_iri = "https://ggen.dev/examples/bcinr-v26-7-28/"
+
+[ontology.prefixes]
+bvr = "https://ggen.dev/ns/bcinr-v26-7-28#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+skos = "http://www.w3.org/2004/02/skos/core#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "safe-rust-temporal-contract"
+query = { file = "queries/runtime.rq" }
+template = { file = "templates/temporal_contract.rs.tera" }
+output_file = "generated/temporal_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "c-abi-temporal-contract"
+query = { file = "queries/runtime.rq" }
+template = { file = "templates/bcinr_temporal.h.tera" }
+output_file = "generated/bcinr_temporal.h"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "wit-temporal-contract"
+query = { file = "queries/runtime.rq" }
+template = { file = "templates/bcinr-temporal.wit.tera" }
+output_file = "generated/bcinr-temporal.wit"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "swarm-conformance-vectors"
+query = { file = "queries/runtime.rq" }
+template = { file = "templates/conformance_vectors.json.tera" }
+output_file = "generated/conformance_vectors.json"
+skip_empty = false
+mode = "Overwrite"
