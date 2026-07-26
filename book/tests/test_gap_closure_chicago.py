@@ -134,8 +134,26 @@ class CapabilityLedgerStateTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("GGEN_BIN"), "set GGEN_BIN to execute real consumers")
 class RealConsumerStateTests(unittest.TestCase):
-    def run_checked(self, cwd: Path, *args: str) -> None:
-        subprocess.run([os.environ["GGEN_BIN"], *args], cwd=cwd, check=True)
+    def run_checked(self, cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        command = [os.environ["GGEN_BIN"], *args]
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if completed.returncode != 0:
+            relative = cwd.relative_to(ROOT)
+            self.fail(
+                "consumer command refused\n"
+                f"consumer={relative}\n"
+                f"command={' '.join(command)}\n"
+                f"exit={completed.returncode}\n"
+                f"stdout:\n{completed.stdout}\n"
+                f"stderr:\n{completed.stderr}"
+            )
+        return completed
 
     def test_declared_malformed_turtle_fixture_is_rejected_by_real_graph_validator(self) -> None:
         pack = ROOT / "packs/dogfood-lifecycle-pack"
@@ -165,23 +183,31 @@ class RealConsumerStateTests(unittest.TestCase):
         )
         self.assertGreaterEqual(len(consumers), 8)
         for consumer in consumers:
-            self.run_checked(consumer, "sync", "run")
-            self.run_checked(consumer, "receipt", "verify")
-            once = tree_digest(consumer)
-            receipts_once = receipt_files(consumer)
+            relative = consumer.relative_to(ROOT)
+            with self.subTest(consumer=relative.as_posix()):
+                print(f"CONSUMER_REPLAY_START consumer={relative}", flush=True)
+                self.run_checked(consumer, "sync", "run")
+                self.run_checked(consumer, "receipt", "verify")
+                once = tree_digest(consumer)
+                receipts_once = receipt_files(consumer)
 
-            self.run_checked(consumer, "sync", "run")
-            self.run_checked(consumer, "receipt", "verify")
-            twice = tree_digest(consumer)
-            receipts_twice = receipt_files(consumer)
+                self.run_checked(consumer, "sync", "run")
+                self.run_checked(consumer, "receipt", "verify")
+                twice = tree_digest(consumer)
+                receipts_twice = receipt_files(consumer)
 
-            self.assertEqual(once, twice, consumer.relative_to(ROOT))
-            self.assertGreater(len(receipts_once), 0, consumer.relative_to(ROOT))
-            self.assertEqual(
-                [p.relative_to(consumer) for p in receipts_once],
-                [p.relative_to(consumer) for p in receipts_twice],
-                consumer.relative_to(ROOT),
-            )
+                self.assertEqual(once, twice, relative)
+                self.assertGreater(len(receipts_once), 0, relative)
+                self.assertEqual(
+                    [p.relative_to(consumer) for p in receipts_once],
+                    [p.relative_to(consumer) for p in receipts_twice],
+                    relative,
+                )
+                print(
+                    "CONSUMER_REPLAY_OK "
+                    f"consumer={relative} digest={twice} receipts={len(receipts_twice)}",
+                    flush=True,
+                )
 
 
 if __name__ == "__main__":
