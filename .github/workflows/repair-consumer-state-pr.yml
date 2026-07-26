@@ -148,4 +148,5 @@ jobs:
             /tmp/tcps-relock.log
             /tmp/tcps-fmt.log
             /tmp/tcps-clippy.log
+            /tmp/consumer-final-git.log
           if-no-files-found: warn
