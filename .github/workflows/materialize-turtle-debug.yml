@@ -1,0 +1,49 @@
+name: Turtle Debug Snapshot
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/materialize-turtle-debug.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    name: Materialize exact Turtle oracle inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          show-progress: false
+      - name: Package path-preserving oracle inputs
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tarfile
+
+          root = Path('.')
+          suffixes = {'.toml', '.ttl', '.md', '.tera', '.json', '.yaml', '.yml'}
+          files = []
+          for base_name in ('packs', 'marketplace', 'examples'):
+              base = root / base_name
+              if base.exists():
+                  files.extend(path for path in base.rglob('*') if path.is_file() and path.suffix.lower() in suffixes)
+          files.extend([
+              root / 'book/ttl-quarantine.toml',
+              root / 'book/scripts/validate_ttl_corpus.py',
+          ])
+          unique = sorted(set(files))
+          with tarfile.open('turtle-oracle-inputs.tar.gz', 'w:gz') as archive:
+              for path in unique:
+                  archive.add(path, arcname=path.as_posix())
+          print(f'TURTLE_SNAPSHOT files={len(unique)}')
+          PY
+      - name: Upload exact oracle inputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: turtle-oracle-inputs-${{ github.sha }}
+          path: turtle-oracle-inputs.tar.gz
+          if-no-files-found: error
