@@ -1,5 +1,5 @@
-version = 1
-policy = "Only syntactically invalid Turtle under examples/archive may be quarantined. Quarantined files must not be referenced by live packs, marketplace descriptors, or non-archive consumers. New invalid Turtle is refused."
+version = 2
+policy = "Syntactically invalid Turtle is refused unless it is either historical archive state under examples/archive or an exact negative fixture under packs/*/fixtures with a bound executable Chicago falsifier. Archive invalids must not be referenced by live packs, marketplace descriptors, or non-archive consumers."
 
 [[entry]]
 path = "examples/archive/_validation_rules.ttl"
@@ -44,3 +44,10 @@ reason = "Historical maturity fixture references an unbound xsd prefix."
 [[entry]]
 path = "examples/archive/self-play/ontology.ttl"
 reason = "Historical self-play fixture encodes a pseudo-list as a blank node."
+
+[[entry]]
+path = "packs/dogfood-lifecycle-pack/fixtures/session-malformed.ttl"
+kind = "negative_fixture"
+reason = "Deliberately malformed production-pack fixture; the real ggen graph validator must reject it and name the file."
+evidence_path = "book/tests/test_gap_closure_chicago.py"
+evidence_marker = "test_declared_malformed_turtle_fixture_is_rejected_by_real_graph_validator"
