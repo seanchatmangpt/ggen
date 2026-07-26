@@ -1,6 +1,6 @@
 const MANIFEST_PATH: &str = "infra/SOURCE_MANIFEST.sha256";
 const EXPECTED_MANIFEST_ENTRIES: usize = 129;
-const EXPECTED_PACKS: [&str; 8] = [
+const EXPECTED_ADMITTED_PACKS: [&str; 8] = [
     "ggen-verify-pack",
     "tcps-cli-pack",
     "tcps-core-pack",
@@ -10,6 +10,16 @@ const EXPECTED_PACKS: [&str; 8] = [
     "tcps-std-pack",
     "tcps-wasm-pack",
 ];
+const EXPECTED_LOCKED_PACKS: [&str; 7] = [
+    "ggen-verify-pack",
+    "tcps-cli-pack",
+    "tcps-core-pack",
+    "tcps-ffi-pack",
+    "tcps-release-pack",
+    "tcps-std-pack",
+    "tcps-wasm-pack",
+];
+const SELF_OBSERVING_UNLOCKED_PACK: &str = "tcps-evidence";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(rename_all = "kebab-case")]
