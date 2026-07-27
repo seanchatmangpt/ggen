@@ -1,0 +1,69 @@
+# MESSAGE: identifiers, value kinds, operators, roots, operations, and replay policies must remain inside the compiler's admitted closed sets; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?property ?value WHERE {
+  {
+    ?subject a cnv:Cli ; cnv:crateName ?value .
+    BIND(cnv:crateName AS ?property)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_-]*$"))
+  } UNION {
+    ?subject a cnv:Cli ; cnv:binaryName ?value .
+    BIND(cnv:binaryName AS ?property)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_-]*$"))
+  } UNION {
+    ?subject cnv:name ?value .
+    BIND(cnv:name AS ?property)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9-]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:fieldName ?value .
+    BIND(cnv:fieldName AS ?property)
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:valueKind ?value .
+    BIND(cnv:valueKind AS ?property)
+    FILTER(STR(?value) NOT IN ("string", "i64", "u64", "f64", "bool", "path"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position ?value .
+    BIND(cnv:position AS ?property)
+    FILTER(xsd:integer(?value) < 0)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:shortFlag ?value .
+    BIND(cnv:shortFlag AS ?property)
+    FILTER(STRLEN(STR(?value)) != 1 || !REGEX(STR(?value), "^[A-Za-z0-9]$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:longFlag ?value .
+    BIND(cnv:longFlag AS ?property)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9-]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:environmentVariable ?value .
+    BIND(cnv:environmentVariable AS ?property)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9_]*$"))
+  } UNION {
+    ?subject a cnv:ExpressionBehavior ; cnv:operator ?value .
+    BIND(cnv:operator AS ?property)
+    FILTER(STR(?value) NOT IN ("add", "subtract", "multiply", "divide", "concat"))
+  } UNION {
+    ?subject a cnv:FilesystemBoundary ; cnv:allowedOperation ?value .
+    BIND(cnv:allowedOperation AS ?property)
+    FILTER(STR(?value) NOT IN ("read-json", "write-json"))
+  } UNION {
+    ?subject a cnv:FilesystemBoundary ; cnv:replayMode ?value .
+    BIND(cnv:replayMode AS ?property)
+    FILTER(STR(?value) NOT IN ("exact-output", "verify-observed-output", "none"))
+  } UNION {
+    ?subject a cnv:FilesystemBoundary ; cnv:rootPath ?value .
+    BIND(cnv:rootPath AS ?property)
+    FILTER(STRSTARTS(STR(?value), "/") || CONTAINS(STR(?value), "..") || CONTAINS(STR(?value), "\\"))
+  } UNION {
+    ?subject ?property ?value .
+    VALUES ?property {
+      cnv:binaryName cnv:crateName cnv:version cnv:edition cnv:rustVersion cnv:about
+      cnv:name cnv:fieldName cnv:longFlag cnv:environmentVariable cnv:defaultValue
+      cnv:group cnv:requires cnv:conflictsWith cnv:valueHint cnv:helpHeading
+      cnv:jsonValue cnv:refusalCode cnv:refusalMessage cnv:rootPath cnv:idArgument
+      cnv:leftArgument cnv:rightArgument
+    }
+    FILTER(CONTAINS(STR(?value), "@@") || CONTAINS(STR(?value), "|"))
+  }
+}
+ORDER BY ?subject ?property
