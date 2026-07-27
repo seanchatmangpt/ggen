@@ -132,6 +132,16 @@ fn real_cli_{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}_matches_admi
         "stderr must carry the admitted refusal code: {:?}",
         String::from_utf8_lossy(&output.stderr)
     );
+    let replay = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(!replay.status.success(), "refusal replay must remain nonzero");
+    assert_eq!(
+        replay.stderr, output.stderr,
+        "deterministic refusal replay must reproduce byte-identical stderr"
+    );
 {%- else %}
     assert!(
         output.status.success(),
@@ -164,6 +174,16 @@ fn real_cli_{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}_matches_admi
     assert_eq!(bytes_after_refusal, bytes, "duplicate refusal must not mutate the record");
 {%- else %}
     assert!(!value.is_null(), "successful generated behavior must return a JSON value");
+    let replay = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(replay.status.success(), "deterministic replay must succeed");
+    assert_eq!(
+        replay.stdout, output.stdout,
+        "deterministic replay must reproduce byte-identical stdout"
+    );
 {%- endif %}
 {%- endif %}
 }
