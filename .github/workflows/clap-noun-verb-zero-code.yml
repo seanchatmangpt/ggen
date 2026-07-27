@@ -116,6 +116,15 @@ jobs:
           jq -e '.name == "Widget" and .tag == "production"' .inventory/items/Widget.json
           "$binary" item list | jq -e '.total == 1 and .records[0].name == "Widget"'
 
+          "$binary" item create DefaultWidget > default.json
+          jq -e '.record.name == "DefaultWidget" and .record.tag == "general"' default.json
+          jq -e '.name == "DefaultWidget" and .tag == "general"' .inventory/items/DefaultWidget.json
+
+          INVENTORY_TAG=from-env "$binary" item create EnvWidget > environment.json
+          jq -e '.record.name == "EnvWidget" and .record.tag == "from-env"' environment.json
+          jq -e '.name == "EnvWidget" and .tag == "from-env"' .inventory/items/EnvWidget.json
+          "$binary" item list | jq -e '.total == 3'
+
           if "$binary" system refuse > refusal.out 2> refusal.err; then
             echo '::error::ontology-declared refusal unexpectedly succeeded'
             exit 1
