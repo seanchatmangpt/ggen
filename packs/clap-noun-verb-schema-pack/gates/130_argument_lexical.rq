@@ -1,0 +1,15 @@
+# MESSAGE: test and default lexical values must parse as their declared Rust value kind; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?argument ?property ?kind ?value WHERE {
+  ?argument a cnv:Argument ; cnv:valueKind ?kind ; ?property ?value .
+  VALUES ?property { cnv:testValue cnv:defaultValue }
+  FILTER(
+    (STR(?kind) = "bool" && STR(?value) NOT IN ("true", "false")) ||
+    (STR(?kind) = "i64" && !REGEX(STR(?value), "^-?[0-9]+$")) ||
+    (STR(?kind) = "u64" && !REGEX(STR(?value), "^[0-9]+$")) ||
+    (STR(?kind) = "f64" && !REGEX(STR(?value), "^-?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$")) ||
+    (STR(?kind) = "path" && (STRLEN(STR(?value)) = 0 || CONTAINS(STR(?value), "\u0000")))
+  )
+}
+ORDER BY ?argument ?property
