@@ -1,0 +1,21 @@
+---
+to: src/main.rs
+sparql:
+  rows: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?crate_name WHERE { ?cli a cnv:Cli ; cnv:crateName ?crate_name . }
+    ORDER BY ?crate_name
+---
+//! GENERATED binary entry point. Do not edit.
+
+use std::process::ExitCode;
+
+fn main() -> ExitCode {
+    match {{ rows[0].crate_name | replace(from="-", to="_") }}::run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("ERROR: {error}");
+            ExitCode::FAILURE
+        }
+    }
+}
