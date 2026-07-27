@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-crate-pack"
+version = "1.0.0"
+description = "Manufactures Cargo.toml, src/main.rs, and src/lib.rs for a complete clap-noun-verb binary from one admitted cnv:Cli individual."
