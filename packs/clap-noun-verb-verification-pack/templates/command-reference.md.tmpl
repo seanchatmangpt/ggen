@@ -19,7 +19,7 @@ sparql:
            (STR(?position_value) AS ?position)
            (COALESCE(STR(?long), "") AS ?long_flag)
            (COALESCE(STR(?short), "") AS ?short_flag)
-           (COALESCE(STR(?environment), "") AS ?environment)
+           (COALESCE(STR(?environment_raw), "") AS ?environment)
     WHERE {
       ?command a cnv:Command ; cnv:hasArgument ?argument .
       ?argument a cnv:Argument ; cnv:name ?name ; cnv:about ?about ;
@@ -27,7 +27,7 @@ sparql:
                 cnv:position ?position_value .
       OPTIONAL { ?argument cnv:longFlag ?long }
       OPTIONAL { ?argument cnv:shortFlag ?short }
-      OPTIONAL { ?argument cnv:environmentVariable ?environment }
+      OPTIONAL { ?argument cnv:environmentVariable ?environment_raw }
     }
     ORDER BY ?command ?position_value ?name
 ---

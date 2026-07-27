@@ -1,5 +1,7 @@
 ---
 to: tests/zero_code_cli.rs
+force: true
+sh_after: rustfmt tests/zero_code_cli.rs
 sparql:
   cli: |
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
@@ -9,8 +11,8 @@ sparql:
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
     SELECT ?command ?noun ?verb ?behavior_kind
            (COALESCE(STR(?root), "") AS ?root_path)
-           (COALESCE(STR(?id_argument), "") AS ?id_argument)
-           (COALESCE(STR(?refusal_code), "") AS ?refusal_code)
+           (COALESCE(STR(?id_argument_raw), "") AS ?id_argument)
+           (COALESCE(STR(?refusal_code_raw), "") AS ?refusal_code)
     WHERE {
       ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
       ?command a cnv:Command ; cnv:name ?verb ; cnv:belongsToNoun ?noun_node ; cnv:hasBehavior ?behavior .
@@ -23,8 +25,8 @@ sparql:
         (cnv:RefusalBehavior "refusal")
       }
       ?behavior a ?behavior_type .
-      OPTIONAL { ?behavior cnv:idArgument ?id_argument }
-      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code }
+      OPTIONAL { ?behavior cnv:idArgument ?id_argument_raw }
+      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code_raw }
       OPTIONAL { ?behavior cnv:usesBoundary ?boundary . ?boundary cnv:rootPath ?root . }
     }
     ORDER BY ?noun ?verb
