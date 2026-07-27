@@ -39,6 +39,10 @@ SELECT ?subject ?property ?value WHERE {
     BIND(cnv:environmentVariable AS ?property)
     FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9_]*$"))
   } UNION {
+    ?subject a cnv:Argument ; cnv:valueDelimiter ?value .
+    BIND(cnv:valueDelimiter AS ?property)
+    FILTER(STRLEN(STR(?value)) != 1)
+  } UNION {
     ?subject a cnv:ExpressionBehavior ; cnv:operator ?value .
     BIND(cnv:operator AS ?property)
     FILTER(STR(?value) NOT IN ("add", "subtract", "multiply", "divide", "concat"))
@@ -58,7 +62,7 @@ SELECT ?subject ?property ?value WHERE {
     ?subject ?property ?value .
     VALUES ?property {
       cnv:binaryName cnv:crateName cnv:version cnv:edition cnv:rustVersion cnv:about
-      cnv:name cnv:fieldName cnv:longFlag cnv:environmentVariable cnv:defaultValue
+      cnv:name cnv:fieldName cnv:testValue cnv:longFlag cnv:environmentVariable cnv:defaultValue
       cnv:group cnv:requires cnv:conflictsWith cnv:valueHint cnv:helpHeading
       cnv:jsonValue cnv:refusalCode cnv:refusalMessage cnv:rootPath cnv:idArgument
       cnv:leftArgument cnv:rightArgument
