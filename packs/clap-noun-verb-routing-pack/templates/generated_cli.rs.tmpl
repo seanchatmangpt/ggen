@@ -4,16 +4,16 @@ sparql:
   commands: |
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
     SELECT ?command ?noun ?verb ?about ?behavior_kind
-           (COALESCE(?json, "") AS ?json_value)
-           (COALESCE(?operator, "") AS ?operator)
-           (COALESCE(?left, "") AS ?left_argument)
-           (COALESCE(?right, "") AS ?right_argument)
-           (COALESCE(?root, "") AS ?root_path)
-           (COALESCE(?receipt, false) AS ?receipt_required)
-           (COALESCE(?replay, "none") AS ?replay_mode)
-           (COALESCE(?id_argument, "") AS ?id_argument)
-           (COALESCE(?refusal_code, "") AS ?refusal_code)
-           (COALESCE(?refusal_message, "") AS ?refusal_message)
+           (COALESCE(STR(?json), "") AS ?json_value)
+           (COALESCE(STR(?operator), "") AS ?operator)
+           (COALESCE(STR(?left), "") AS ?left_argument)
+           (COALESCE(STR(?right), "") AS ?right_argument)
+           (COALESCE(STR(?root), "") AS ?root_path)
+           (COALESCE(STR(?receipt), "false") AS ?receipt_required)
+           (COALESCE(STR(?replay), "none") AS ?replay_mode)
+           (COALESCE(STR(?id_argument), "") AS ?id_argument)
+           (COALESCE(STR(?refusal_code), "") AS ?refusal_code)
+           (COALESCE(STR(?refusal_message), "") AS ?refusal_message)
     WHERE {
       ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
       ?command a cnv:Command ; cnv:name ?verb ; cnv:about ?about ;
@@ -42,26 +42,28 @@ sparql:
     ORDER BY ?noun ?verb
   arguments: |
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
-    SELECT ?command ?name ?field ?about ?value_kind ?required ?position
-           (COALESCE(?long, "") AS ?long_flag)
-           (COALESCE(?short, "") AS ?short_flag)
-           (COALESCE(?environment, "") AS ?environment)
-           (COALESCE(?default, "") AS ?default_value)
-           (COALESCE(?group, "") AS ?group_name)
-           (COALESCE(?requires, "") AS ?requires_name)
-           (COALESCE(?conflicts, "") AS ?conflicts_name)
-           (COALESCE(?hint, "") AS ?value_hint)
-           (COALESCE(?hidden, false) AS ?hidden)
-           (COALESCE(?global, false) AS ?global)
-           (COALESCE(?exclusive, false) AS ?exclusive)
-           (COALESCE(?heading, "") AS ?help_heading)
-           (COALESCE(?multiple, false) AS ?multiple)
-           (COALESCE(?delimiter, "") AS ?value_delimiter)
+    SELECT ?command ?name ?field ?about ?value_kind
+           (STR(?required_value) AS ?required)
+           (STR(?position_value) AS ?position)
+           (COALESCE(STR(?long), "") AS ?long_flag)
+           (COALESCE(STR(?short), "") AS ?short_flag)
+           (COALESCE(STR(?environment), "") AS ?environment)
+           (COALESCE(STR(?default), "") AS ?default_value)
+           (COALESCE(STR(?group), "") AS ?group_name)
+           (COALESCE(STR(?requires), "") AS ?requires_name)
+           (COALESCE(STR(?conflicts), "") AS ?conflicts_name)
+           (COALESCE(STR(?hint), "") AS ?value_hint)
+           (COALESCE(STR(?hidden_value), "false") AS ?hidden)
+           (COALESCE(STR(?global_value), "false") AS ?global)
+           (COALESCE(STR(?exclusive_value), "false") AS ?exclusive)
+           (COALESCE(STR(?heading), "") AS ?help_heading)
+           (COALESCE(STR(?multiple_value), "false") AS ?multiple)
+           (COALESCE(STR(?delimiter), "") AS ?value_delimiter)
     WHERE {
       ?command a cnv:Command ; cnv:hasArgument ?argument .
       ?argument a cnv:Argument ; cnv:name ?name ; cnv:fieldName ?field ;
                 cnv:about ?about ; cnv:valueKind ?value_kind ;
-                cnv:required ?required ; cnv:position ?position .
+                cnv:required ?required_value ; cnv:position ?position_value .
       OPTIONAL { ?argument cnv:longFlag ?long }
       OPTIONAL { ?argument cnv:shortFlag ?short }
       OPTIONAL { ?argument cnv:environmentVariable ?environment }
@@ -70,14 +72,14 @@ sparql:
       OPTIONAL { ?argument cnv:requires ?requires }
       OPTIONAL { ?argument cnv:conflictsWith ?conflicts }
       OPTIONAL { ?argument cnv:valueHint ?hint }
-      OPTIONAL { ?argument cnv:hidden ?hidden }
-      OPTIONAL { ?argument cnv:global ?global }
-      OPTIONAL { ?argument cnv:exclusive ?exclusive }
+      OPTIONAL { ?argument cnv:hidden ?hidden_value }
+      OPTIONAL { ?argument cnv:global ?global_value }
+      OPTIONAL { ?argument cnv:exclusive ?exclusive_value }
       OPTIONAL { ?argument cnv:helpHeading ?heading }
-      OPTIONAL { ?argument cnv:multiple ?multiple }
+      OPTIONAL { ?argument cnv:multiple ?multiple_value }
       OPTIONAL { ?argument cnv:valueDelimiter ?delimiter }
     }
-    ORDER BY ?command ?position ?field
+    ORDER BY ?command ?position_value ?field
   nouns: |
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
     SELECT ?name ?about WHERE { ?noun a cnv:Noun ; cnv:name ?name ; cnv:about ?about . }
@@ -102,11 +104,12 @@ use crate::generated_boundaries::FilesystemBoundarySpec;
 fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- for arg in arguments %}
 {%- if arg.command == cmd.command %}
+{%- if arg.value_kind == "string" %}{% set_global rust_type = "String" %}{% elif arg.value_kind == "i64" %}{% set_global rust_type = "i64" %}{% elif arg.value_kind == "u64" %}{% set_global rust_type = "u64" %}{% elif arg.value_kind == "f64" %}{% set_global rust_type = "f64" %}{% elif arg.value_kind == "bool" %}{% set_global rust_type = "bool" %}{% elif arg.value_kind == "path" %}{% set_global rust_type = "std::path::PathBuf" %}{% endif %}
     /// {{ arg.about }}{% if arg.environment %} [env: {{ arg.environment }}]{% endif %}{% if arg.default_value %} [default: {{ arg.default_value }}]{% endif %}{% if arg.group_name %} [group: {{ arg.group_name }}]{% endif %}{% if arg.requires_name %} [requires: {{ arg.requires_name }}]{% endif %}{% if arg.conflicts_name %} [conflicts: {{ arg.conflicts_name }}]{% endif %}{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.exclusive == "true" %} [exclusive]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
 {%- if arg.position == "0" %}
-    #[arg(long = "{{ arg.long_flag }}"{% if arg.short_flag %}, short = '{{ arg.short_flag }}'{% endif %})]
+    #[arg(long = "{{ arg.long_flag }}"{% if arg.short_flag %}, short = '{{ arg.short_flag }}'{% endif %}{% if arg.value_delimiter %}, value_delimiter = '{{ arg.value_delimiter }}'{% endif %})]
 {%- endif %}
-    {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{% endif %}{% if arg.value_kind == "string" %}String{% elif arg.value_kind == "i64" %}i64{% elif arg.value_kind == "u64" %}u64{% elif arg.value_kind == "f64" %}f64{% elif arg.value_kind == "bool" %}bool{% elif arg.value_kind == "path" %}std::path::PathBuf{% endif %}{% if arg.multiple == "true" %}>{% elif arg.required != "true" and not (arg.value_kind == "bool" and arg.position == "0") %}>{% endif %}{% if arg.multiple != "true" and arg.required != "true" and not (arg.value_kind == "bool" and arg.position == "0") %}{% endif %},
+    {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{{ rust_type }}>{% elif arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}{{ rust_type }}{% else %}Option<{{ rust_type }}>{% endif %},
 {%- endif %}
 {%- endfor %}
 ) -> Result<Value> {
