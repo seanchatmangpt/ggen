@@ -1,0 +1,16 @@
+# MESSAGE: distinct RDF routes must not normalize to the same generated Rust symbol; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?symbol (COUNT(DISTINCT ?command) AS ?count) WHERE {
+  ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
+  ?command a cnv:Command ; cnv:name ?verb ; cnv:belongsToNoun ?noun_node .
+  BIND(
+    CONCAT(
+      REPLACE(LCASE(STR(?noun)), "-", "_"),
+      "_",
+      REPLACE(LCASE(STR(?verb)), "-", "_")
+    ) AS ?symbol
+  )
+}
+GROUP BY ?symbol
+HAVING (COUNT(DISTINCT ?command) > 1)
+ORDER BY ?symbol
