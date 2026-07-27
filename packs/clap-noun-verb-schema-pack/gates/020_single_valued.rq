@@ -6,8 +6,11 @@ SELECT ?subject ?property (COUNT(?value) AS ?count) WHERE {
     cnv:name cnv:fieldName cnv:valueKind cnv:required cnv:position cnv:testValue
     cnv:belongsToNoun cnv:hasBehavior
     cnv:longFlag cnv:shortFlag cnv:environmentVariable cnv:defaultValue
-    cnv:group cnv:requires cnv:conflictsWith cnv:valueHint cnv:hidden cnv:global
-    cnv:exclusive cnv:helpHeading cnv:multiple cnv:valueDelimiter
+    cnv:valueName cnv:alias cnv:action cnv:group cnv:requires cnv:conflictsWith
+    cnv:valueHint cnv:hidden cnv:global cnv:exclusive cnv:helpHeading cnv:longHelp
+    cnv:displayOrder cnv:multiple cnv:trailingVariableArgument
+    cnv:allowNegativeNumbers cnv:nextLineHelp cnv:minimumValue cnv:maximumValue
+    cnv:minimumLength cnv:maximumLength cnv:valueDelimiter
     cnv:jsonValue cnv:operator cnv:leftArgument cnv:rightArgument
     cnv:usesBoundary cnv:idArgument cnv:refusalCode cnv:refusalMessage
     cnv:rootPath cnv:receiptRequired cnv:replayMode
