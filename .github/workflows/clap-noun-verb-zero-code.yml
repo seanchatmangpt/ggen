@@ -1,0 +1,156 @@
+name: Universal zero-code clap-noun-verb CLI
+
+on:
+  pull_request:
+    paths:
+      - 'packs/clap-noun-verb-*/**'
+      - 'examples/zero-code-inventoryctl/**'
+      - 'docs/how-to/clap-noun-verb/**'
+      - '.github/workflows/clap-noun-verb-zero-code.yml'
+      - 'crates/ggen-engine/**'
+  push:
+    branches: [main]
+    paths:
+      - 'packs/clap-noun-verb-*/**'
+      - 'examples/zero-code-inventoryctl/**'
+      - 'docs/how-to/clap-noun-verb/**'
+      - '.github/workflows/clap-noun-verb-zero-code.yml'
+      - 'crates/ggen-engine/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  zero-code:
+    name: Sync, compile, execute, receipt, replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision sibling crates and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: clap-noun-verb-zero-code
+
+      - name: Assert the consumer has only two authored source files
+        working-directory: examples/zero-code-inventoryctl
+        run: |
+          set -euo pipefail
+          mapfile -t authored < <(find . -maxdepth 1 -type f -printf '%f\n' | sort)
+          printf '%s\n' "${authored[@]}"
+          test "${#authored[@]}" -eq 2
+          test "${authored[0]}" = 'ggen.toml'
+          test "${authored[1]}" = 'ontology.ttl'
+          test ! -e Cargo.toml
+          test ! -e src
+          test ! -e tests
+
+      - name: Build the real ggen compiler
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture the complete Rust crate
+        working-directory: examples/zero-code-inventoryctl
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          test -f Cargo.toml
+          test -f src/main.rs
+          test -f src/lib.rs
+          test -f src/generated_cli.rs
+          test -f src/generated_behavior.rs
+          test -f src/generated_boundaries.rs
+          test -f tests/zero_code_cli.rs
+          test -f docs/command-reference.md
+          find Cargo.toml src tests docs -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum > /tmp/cnv-first-sync.sha256
+
+      - name: Enforce Rust formatting
+        working-directory: examples/zero-code-inventoryctl
+        run: cargo fmt --manifest-path Cargo.toml --all -- --check
+
+      - name: Enforce Clippy without warnings
+        working-directory: examples/zero-code-inventoryctl
+        run: cargo clippy --manifest-path Cargo.toml --all-targets --all-features -- -D warnings
+
+      - name: Execute unit and real-binary integration tests
+        working-directory: examples/zero-code-inventoryctl
+        run: cargo test --manifest-path Cargo.toml --all-targets --all-features -- --nocapture
+
+      - name: Execute the manufactured binary through public argv
+        run: |
+          set -euo pipefail
+          manifest="$GITHUB_WORKSPACE/examples/zero-code-inventoryctl/Cargo.toml"
+          cargo build --manifest-path "$manifest"
+          target_dir=$(cargo metadata --manifest-path "$manifest" --format-version 1 --no-deps | jq -r '.target_directory')
+          binary="$target_dir/debug/inventoryctl"
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          cd "$work"
+
+          "$binary" --help > help.txt
+          grep -q 'item' help.txt
+          grep -q 'math' help.txt
+          grep -q 'system' help.txt
+
+          "$binary" system ping | jq -e '.status == "alive"'
+          "$binary" system echo hello --uppercase | jq -e '.message == "hello" and .uppercase == true'
+          "$binary" math add 2 3 | jq -e '. == 5'
+
+          "$binary" item create Widget --tag production > receipt.json
+          jq -e '.status == "written"' receipt.json
+          digest=$(jq -r '.blake3' receipt.json)
+          test "${#digest}" -eq 64
+          test "$digest" = "$(b3sum .inventory/items/Widget.json | awk '{print $1}')"
+          "$binary" item list | jq -e '.total == 1 and .records[0].name == "Widget"'
+
+          if "$binary" system refuse > refusal.out 2> refusal.err; then
+            echo '::error::ontology-declared refusal unexpectedly succeeded'
+            exit 1
+          fi
+          grep -q 'DEMONSTRATION_REFUSAL' refusal.err
+
+          if "$binary" session login --token secret > specimen.out 2> specimen.err; then
+            echo '::error::the compiler inherited specimen commands'
+            exit 1
+          fi
+
+      - name: Refuse handler seams and placeholders
+        working-directory: examples/zero-code-inventoryctl
+        run: |
+          set -euo pipefail
+          if rg -n 'handlers::|todo!|unimplemented!|staticResponse|cnv:args' src tests docs; then
+            echo '::error::generated product contains a legacy seam or placeholder'
+            exit 1
+          fi
+
+      - name: Prove second-sync byte idempotence
+        working-directory: examples/zero-code-inventoryctl
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          find Cargo.toml src tests docs -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum > /tmp/cnv-second-sync.sha256
+          diff -u /tmp/cnv-first-sync.sha256 /tmp/cnv-second-sync.sha256
+
+      - name: Assert source inputs remain authoritative
+        working-directory: examples/zero-code-inventoryctl
+        run: |
+          set -euo pipefail
+          test -f ggen.toml
+          test -f ontology.ttl
+          test "$(find . -maxdepth 1 -type f \( -name 'ggen.toml' -o -name 'ontology.ttl' \) | wc -l)" -eq 2
