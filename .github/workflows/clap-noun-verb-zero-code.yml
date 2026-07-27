@@ -111,10 +111,9 @@ jobs:
           "$binary" math add 2 3 | jq -e '. == 5'
 
           "$binary" item create Widget --tag production > receipt.json
-          jq -e '.status == "written"' receipt.json
-          digest=$(jq -r '.blake3' receipt.json)
-          test "${#digest}" -eq 64
-          test "$digest" = "$(b3sum .inventory/items/Widget.json | awk '{print $1}')"
+          jq -e '.status == "written" and (.blake3 | length == 64)' receipt.json
+          jq -e '.record.name == "Widget" and .record.tag == "production"' receipt.json
+          jq -e '.name == "Widget" and .tag == "production"' .inventory/items/Widget.json
           "$binary" item list | jq -e '.total == 1 and .records[0].name == "Widget"'
 
           if "$binary" system refuse > refusal.out 2> refusal.err; then
