@@ -1,0 +1,45 @@
+# MESSAGE: normalized noun, verb, argument, positional, and flag surfaces must be unique; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?scope ?kind ?value (COUNT(DISTINCT ?subject) AS ?count) WHERE {
+  {
+    ?cli a cnv:Cli ; cnv:hasNoun ?subject .
+    ?subject cnv:name ?name .
+    BIND(?cli AS ?scope)
+    BIND("noun" AS ?kind)
+    BIND(LCASE(STR(?name)) AS ?value)
+  } UNION {
+    ?noun a cnv:Noun ; cnv:hasCommand ?subject .
+    ?subject cnv:name ?name .
+    BIND(?noun AS ?scope)
+    BIND("verb" AS ?kind)
+    BIND(LCASE(STR(?name)) AS ?value)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?subject .
+    ?subject cnv:fieldName ?field .
+    BIND(?command AS ?scope)
+    BIND("field" AS ?kind)
+    BIND(LCASE(STR(?field)) AS ?value)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?subject .
+    ?subject cnv:position ?position .
+    FILTER(xsd:integer(?position) > 0)
+    BIND(?command AS ?scope)
+    BIND("position" AS ?kind)
+    BIND(STR(?position) AS ?value)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?subject .
+    ?subject cnv:longFlag ?flag .
+    BIND(?command AS ?scope)
+    BIND("long-flag" AS ?kind)
+    BIND(LCASE(STR(?flag)) AS ?value)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?subject .
+    ?subject cnv:shortFlag ?flag .
+    BIND(?command AS ?scope)
+    BIND("short-flag" AS ?kind)
+    BIND(STR(?flag) AS ?value)
+  }
+}
+GROUP BY ?scope ?kind ?value
+HAVING (COUNT(DISTINCT ?subject) > 1)
+ORDER BY ?scope ?kind ?value
