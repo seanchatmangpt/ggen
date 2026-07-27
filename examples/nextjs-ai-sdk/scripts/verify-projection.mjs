@@ -1,0 +1,12 @@
+import { readFile, readdir } from "node:fs/promises";
+import { blake3 } from "@noble/hashes/blake3.js";
+
+const required = ["app/api/chat/route.ts","components/chat/chat.tsx","lib/ai/agent.ts","lib/ai/tool-broker.ts","lib/ai/tools.ts","lib/receipts/blake3.ts","ui-registry.lock.json"];
+const hashes = {};
+for (const path of required) hashes[path] = Buffer.from(blake3(await readFile(path))).toString("hex");
+const paths = await readdir(".", { recursive: true });
+const forbidden = paths.filter((path) => /(^|\/)generated(\/|$)/.test(path));
+if (forbidden.length) throw new Error(`forbidden generated paths: ${forbidden.join(", ")}`);
+const receipt = JSON.parse(await readFile(".ggen/receipts/ui-registry.json", "utf8"));
+if (receipt.status !== "ALIVE" || !receipt.files || Object.keys(receipt.files).length === 0) throw new Error("UI registry receipt is absent or empty");
+console.log(JSON.stringify({ status: "PARTIAL_ALIVE", scope: "projection-integrity", algorithm: "blake3", hashes, uiRegistryReceipt: receipt.digest }, null, 2));

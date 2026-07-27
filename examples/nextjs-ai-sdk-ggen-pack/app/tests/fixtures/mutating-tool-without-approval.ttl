@@ -1,0 +1,3 @@
+@prefix nai: <https://ggen.dev/packs/nextjs-ai#> .
+@prefix bad: <https://example.ggen.dev/bad#> .
+bad:unsafe a nai:Tool ; nai:toolName "unsafe_delete" ; nai:toolTitle "Unsafe" ; nai:description "Must be refused" ; nai:toolKind "mutate" ; nai:handlerKey "unsafe.delete" ; nai:inputSchemaJson "{}" ; nai:approvalRequired false .

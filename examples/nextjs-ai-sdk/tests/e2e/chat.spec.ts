@@ -1,0 +1,17 @@
+import { expect, test } from "@playwright/test";
+
+test("authenticated approval crosses gateway, broker, PostgreSQL, and receipt surfaces", async ({ page }) => {
+  const email = `e2e-${crypto.randomUUID()}@example.invalid`;
+  await page.goto("/");
+  await page.getByLabel("Name").fill("E2E User");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(`Aa1!${crypto.randomUUID()}`);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByRole("heading", { name: "Admitted AI Workspace" })).toBeVisible();
+  await page.getByPlaceholder("Ask or request an action").fill("Create a note titled Receipt E2E with body The real boundary was crossed. Use notes_create now.");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByText("Approve this tool execution?")).toBeVisible({ timeout: 60_000 });
+  await page.getByRole("button", { name: "Approve" }).click();
+  await expect(page.getByText(/"status":\s*"ALIVE"/)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/"digest":\s*"[0-9a-f]{64}"/)).toBeVisible();
+});

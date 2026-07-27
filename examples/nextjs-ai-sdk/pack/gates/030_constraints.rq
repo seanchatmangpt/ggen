@@ -1,0 +1,13 @@
+# MESSAGE: enum, numeric, identifier, and JSON-schema constraints must hold; any returned row is refused.
+PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+SELECT ?subject ?field ?value WHERE {
+  { ?subject a nai:Application ; nai:databaseDialect ?value . FILTER (?value NOT IN ("postgres")) BIND(nai:databaseDialect AS ?field) }
+  UNION { ?subject a nai:Application ; nai:authStrategy ?value . FILTER (?value NOT IN ("better-auth", "none")) BIND(nai:authStrategy AS ?field) }
+  UNION { ?subject a nai:Application ; nai:maxSteps ?value . FILTER (?value < 1 || ?value > 64) BIND(nai:maxSteps AS ?field) }
+  UNION { ?subject a nai:Application ; nai:maxDurationSeconds ?value . FILTER (?value < 1 || ?value > 300) BIND(nai:maxDurationSeconds AS ?field) }
+  UNION { ?subject a nai:Tool ; nai:toolKind ?value . FILTER (?value NOT IN ("read", "mutate")) BIND(nai:toolKind AS ?field) }
+  UNION { ?subject a nai:Tool ; nai:toolName ?value . FILTER (!REGEX(STR(?value), "^[A-Za-z][A-Za-z0-9_]*$")) BIND(nai:toolName AS ?field) }
+  UNION { ?subject a nai:Tool ; nai:handlerKey ?value . FILTER (!REGEX(STR(?value), "^[a-z][a-z0-9.-]*$") ) BIND(nai:handlerKey AS ?field) }
+  UNION { ?subject a nai:Tool ; nai:inputSchemaJson ?value . FILTER (!REGEX(STR(?value), "^\\s*\\{.*\\}\\s*$")) BIND(nai:inputSchemaJson AS ?field) }
+}
+ORDER BY ?subject ?field

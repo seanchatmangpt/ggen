@@ -1,0 +1,10 @@
+# MESSAGE: application default/fallback models and agents must be members of the application's admitted usesModel/usesAgent closure.
+PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
+SELECT ?app ?relation ?target WHERE {
+  { ?app a nai:Application ; nai:defaultModel ?target . BIND(nai:defaultModel AS ?relation) FILTER NOT EXISTS { ?app nai:usesModel ?target } }
+  UNION
+  { ?app a nai:Application ; nai:fallbackModel ?target . BIND(nai:fallbackModel AS ?relation) FILTER NOT EXISTS { ?app nai:usesModel ?target } }
+  UNION
+  { ?app a nai:Application ; nai:usesAgent ?target . BIND(nai:usesAgent AS ?relation) FILTER NOT EXISTS { ?target a nai:Agent } }
+}
+ORDER BY ?app ?relation ?target
