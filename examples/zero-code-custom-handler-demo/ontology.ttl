@@ -1,0 +1,65 @@
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+
+# Demonstrates cnv:CustomBehavior, the sole, explicitly admitted escape hatch
+# from the closed six-primitive zero-code behavior set. `system ping` stays on
+# the closed path (no Rust). `price lookup` opts out and routes to a
+# hand-written `crate::custom_handlers::price_lookup` -- see
+# docs/how-to/clap-noun-verb/zero-code-cli.md's "Opting a command out of
+# closed zero-code" section.
+
+cnv:CustomHandlerDemoCli
+    a cnv:Cli ;
+    cnv:binaryName "custom-handler-demo" ;
+    cnv:crateName "custom-handler-demo" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Demonstrates the cnv:CustomBehavior opt-out escape hatch." ;
+    cnv:hasNoun cnv:SystemNoun, cnv:PriceNoun .
+
+# ── Closed command (no Rust) ────────────────────────────────────────────────
+
+cnv:SystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Inspect the system." ;
+    cnv:hasCommand cnv:SystemPing .
+
+cnv:SystemPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return a deterministic liveness value." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:PingBehavior .
+
+cnv:PingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\"}" .
+
+# ── Opted-out command (hand-written Rust, scaffolded once) ─────────────────
+
+cnv:PriceNoun
+    a cnv:Noun ;
+    cnv:name "price" ;
+    cnv:about "Domain-specific pricing logic that the six closed primitives cannot express." ;
+    cnv:hasCommand cnv:PriceLookup .
+
+cnv:PriceLookup
+    a cnv:Command ;
+    cnv:name "lookup" ;
+    cnv:about "Look up a price via hand-written domain logic." ;
+    cnv:belongsToNoun cnv:PriceNoun ;
+    cnv:hasArgument cnv:PriceSku ;
+    cnv:hasBehavior cnv:PricingBehavior .
+
+cnv:PriceSku
+    a cnv:Argument ;
+    cnv:name "sku" ;
+    cnv:fieldName "sku" ;
+    cnv:valueKind "string" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "SKU-1" ;
+    cnv:about "Product SKU." .
+
+cnv:PricingBehavior a cnv:CustomBehavior .

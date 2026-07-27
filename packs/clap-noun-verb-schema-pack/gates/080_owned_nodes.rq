@@ -1,0 +1,25 @@
+# MESSAGE: every argument and behavior individual must be owned by exactly one command; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?subject ?kind (COUNT(?command) AS ?owner_count) WHERE {
+  {
+    ?subject a cnv:Argument .
+    OPTIONAL { ?command a cnv:Command ; cnv:hasArgument ?subject . }
+    BIND("argument" AS ?kind)
+  } UNION {
+    ?subject a cnv:Behavior .
+    OPTIONAL { ?command a cnv:Command ; cnv:hasBehavior ?subject . }
+    BIND("behavior" AS ?kind)
+  } UNION {
+    VALUES ?behavior_type {
+      cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
+      cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+      cnv:CustomBehavior
+    }
+    ?subject a ?behavior_type .
+    OPTIONAL { ?command a cnv:Command ; cnv:hasBehavior ?subject . }
+    BIND("behavior" AS ?kind)
+  }
+}
+GROUP BY ?subject ?kind
+HAVING (COUNT(DISTINCT ?command) != 1)
+ORDER BY ?kind ?subject

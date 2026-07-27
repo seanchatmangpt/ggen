@@ -1,0 +1,30 @@
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+
+# Explicit opt-in specimen. The compiler packs never depend on this graph.
+
+cnv:SpecimenCli
+    a cnv:Cli ;
+    cnv:binaryName "cnv-specimen" ;
+    cnv:crateName "cnv-specimen" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Minimal zero-code clap-noun-verb specimen." ;
+    cnv:hasNoun cnv:SpecimenSystemNoun .
+
+cnv:SpecimenSystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Inspect the optional specimen." ;
+    cnv:hasCommand cnv:SpecimenPing .
+
+cnv:SpecimenPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return the specimen liveness value." ;
+    cnv:belongsToNoun cnv:SpecimenSystemNoun ;
+    cnv:hasBehavior cnv:SpecimenPingBehavior .
+
+cnv:SpecimenPingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\",\"source\":\"clap-noun-verb-specimen-pack\"}" .

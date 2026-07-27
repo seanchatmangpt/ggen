@@ -1,0 +1,33 @@
+[package]
+name = "openapi-cnv-reflect"
+description = "Reflects an OpenAPI 3.x document into a cnv:Cli RDF ontology consumable by the zero-code clap-noun-verb compiler (packs/clap-noun-verb-*-pack), instead of hand-authoring one RDF fact block per command."
+readme = "README.md"
+keywords = ["openapi", "rdf", "codegen", "clap-noun-verb"]
+categories = ["development-tools"]
+homepage = "https://github.com/seanchatmangpt/ggen"
+publish = false
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+oxigraph = { workspace = true }
+clap = { workspace = true }
+
+[dev-dependencies]
+chicago-tdd-tools = { path = "../chicago-tdd-tools", features = ["cli-proof"] }
+tempfile = { workspace = true }

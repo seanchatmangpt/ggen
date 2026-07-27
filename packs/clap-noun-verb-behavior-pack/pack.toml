@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-behavior-pack"
+version = "1.0.0"
+description = "Generates the typed, closed behavior interpreter used by zero-code commands: static JSON, echo, expressions, filesystem write/list, and explicit refusal. The interpreter accepts no Rust source and exposes no dynamic handler seam."

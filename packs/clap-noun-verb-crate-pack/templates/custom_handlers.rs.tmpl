@@ -1,0 +1,36 @@
+---
+to: src/custom_handlers.rs
+unless_exists: true
+skip_empty: true
+sh_after: rustfmt src/custom_handlers.rs
+sparql:
+  commands: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?noun ?verb ?about WHERE {
+      ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
+      ?command a cnv:Command ; cnv:name ?verb ; cnv:about ?about ;
+               cnv:belongsToNoun ?noun_node ; cnv:hasBehavior ?behavior .
+      ?behavior a cnv:CustomBehavior .
+    }
+    ORDER BY ?noun ?verb
+---
+{% if commands | length > 0 %}//! Hand-written domain logic for every `cnv:CustomBehavior` command.
+//!
+//! GENERATED ONCE by ggen (`unless_exists: true` — this file is scaffolding,
+//! never overwritten by a later `ggen sync run`, so your edits below are
+//! safe). Every function here is called directly by `src/generated_cli.rs`;
+//! a missing or renamed function is a compile error, not a silent gap. This
+//! is the sole consumer handler seam the zero-code compiler ever emits, and
+//! only for commands that explicitly opted out of the closed behavior
+//! primitives by declaring `cnv:CustomBehavior` in the ontology.
+
+use clap_noun_verb::Result;
+use serde_json::{Map, Value};
+
+{% for cmd in commands %}/// `{{ cmd.noun }} {{ cmd.verb }}` -- {{ cmd.about }}
+pub fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(inputs: Map<String, Value>) -> Result<Value> {
+    let _ = inputs;
+    todo!("implement {{ cmd.noun }} {{ cmd.verb }}")
+}
+
+{% endfor %}{% endif %}

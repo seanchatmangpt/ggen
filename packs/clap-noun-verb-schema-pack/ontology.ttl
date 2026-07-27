@@ -1,0 +1,143 @@
+# Universal zero-code clap-noun-verb compiler vocabulary.
+#
+# This graph defines law only. It intentionally contains no cnv:Cli, cnv:Noun,
+# cnv:Command, cnv:Argument, or cnv:Behavior individuals, so composing the
+# schema pack cannot alter a consumer's public command surface.
+
+@prefix cnv:  <https://clap-noun-verb.dev/ontology#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Core model ───────────────────────────────────────────────────────────────
+
+cnv:Cli a rdfs:Class ;
+    rdfs:label "CLI" ;
+    rdfs:comment "One complete Rust binary manufactured from an admitted RDF graph." .
+
+cnv:Noun a rdfs:Class ;
+    rdfs:label "Noun" ;
+    rdfs:comment "A resource or domain entity that owns one or more verbs." .
+
+cnv:Command a rdfs:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A noun-verb command with exactly one admitted behavior." .
+
+cnv:Argument a rdfs:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "A first-class typed command argument with an executable test witness." .
+
+cnv:Behavior a rdfs:Class ;
+    rdfs:label "Behavior" ;
+    rdfs:comment "A bounded executable behavior interpreted by generated Rust." .
+
+cnv:Boundary a rdfs:Class ;
+    rdfs:label "Boundary" ;
+    rdfs:comment "An explicitly admitted external actuation boundary." .
+
+# ── Behavior kinds ───────────────────────────────────────────────────────────
+
+cnv:StaticJsonBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Return a bounded JSON value parsed from cnv:jsonValue." .
+
+cnv:EchoBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Return the command's typed arguments as a JSON object." .
+
+cnv:ExpressionBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Evaluate one admitted arithmetic or string operator over named arguments." .
+
+cnv:FilesystemWriteBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Atomically persist command arguments as JSON through an admitted filesystem boundary." .
+
+cnv:FilesystemListBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Read and return sorted JSON records through an admitted filesystem boundary." .
+
+cnv:RefusalBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Fail closed with a declared code and message." .
+
+cnv:CustomBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Explicit, per-command opt-out of the closed primitive set: routes to a hand-written crate::custom_handlers::<noun>_<verb> function scaffolded once (never overwritten) by clap-noun-verb-crate-pack. A command carrying this behavior is not zero-code -- it is the sole, loudly-declared escape hatch, admitted by the same closed gate (gates/090_behavior_kind.rq) as every other behavior kind rather than bypassing it." .
+
+cnv:FilesystemBoundary a rdfs:Class ; rdfs:subClassOf cnv:Boundary ;
+    rdfs:comment "A rooted filesystem capability with an explicit operation allow-list." .
+
+# ── CLI properties ───────────────────────────────────────────────────────────
+
+cnv:binaryName a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range xsd:string .
+cnv:crateName a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range xsd:string .
+cnv:version a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range xsd:string .
+cnv:edition a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range xsd:string .
+cnv:rustVersion a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range xsd:string .
+cnv:about a rdf:Property ; rdfs:range xsd:string .
+cnv:hasNoun a rdf:Property ; rdfs:domain cnv:Cli ; rdfs:range cnv:Noun .
+
+# ── Noun and command properties ──────────────────────────────────────────────
+
+cnv:name a rdf:Property ; rdfs:range xsd:string .
+cnv:hasCommand a rdf:Property ; rdfs:domain cnv:Noun ; rdfs:range cnv:Command .
+cnv:belongsToNoun a rdf:Property ; rdfs:domain cnv:Command ; rdfs:range cnv:Noun .
+cnv:hasArgument a rdf:Property ; rdfs:domain cnv:Command ; rdfs:range cnv:Argument .
+cnv:hasBehavior a rdf:Property ; rdfs:domain cnv:Command ; rdfs:range cnv:Behavior .
+
+# ── Argument properties ──────────────────────────────────────────────────────
+
+cnv:fieldName a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:valueKind a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: string, i64, u64, f64, bool, path." .
+cnv:required a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:position a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer ;
+    rdfs:comment "Positive positional index. Zero means option/flag." .
+cnv:testValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "A CLI lexical witness used by generated real-dispatch tests." .
+cnv:longFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Must equal fieldName with underscores converted to hyphens because clap-noun-verb derives long flags." .
+cnv:shortFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:environmentVariable a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:defaultValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:valueName a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:alias a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "One additional long-option alias in the current compiler profile." .
+cnv:action a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: set, set_true, set_false, count, append." .
+cnv:group a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:requires a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:conflictsWith a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:valueHint a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:hidden a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:global a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:exclusive a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:helpHeading a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:longHelp a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:displayOrder a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
+cnv:multiple a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:trailingVariableArgument a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:allowNegativeNumbers a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:nextLineHelp a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:minimumValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:maximumValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:minimumLength a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
+cnv:maximumLength a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
+cnv:valueDelimiter a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Reserved for a future clap-noun-verb release; every current use is refused before rendering." .
+
+# ── Behavior properties ──────────────────────────────────────────────────────
+
+cnv:jsonValue a rdf:Property ; rdfs:domain cnv:StaticJsonBehavior ; rdfs:range xsd:string ;
+    rdfs:comment "JSON data only. Rust source is never admitted through this property." .
+cnv:operator a rdf:Property ; rdfs:domain cnv:ExpressionBehavior ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: add, subtract, multiply, divide, concat." .
+cnv:leftArgument a rdf:Property ; rdfs:domain cnv:ExpressionBehavior ; rdfs:range xsd:string .
+cnv:rightArgument a rdf:Property ; rdfs:domain cnv:ExpressionBehavior ; rdfs:range xsd:string .
+cnv:usesBoundary a rdf:Property ; rdfs:domain cnv:Behavior ; rdfs:range cnv:Boundary .
+cnv:idArgument a rdf:Property ; rdfs:domain cnv:FilesystemWriteBehavior ; rdfs:range xsd:string .
+cnv:refusalCode a rdf:Property ; rdfs:domain cnv:RefusalBehavior ; rdfs:range xsd:string .
+cnv:refusalMessage a rdf:Property ; rdfs:domain cnv:RefusalBehavior ; rdfs:range xsd:string .
+
+# ── Boundary properties ──────────────────────────────────────────────────────
+
+cnv:rootPath a rdf:Property ; rdfs:domain cnv:FilesystemBoundary ; rdfs:range xsd:string .
+cnv:allowedOperation a rdf:Property ; rdfs:domain cnv:Boundary ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set for filesystem boundaries: read-json, write-json." .
+cnv:receiptRequired a rdf:Property ; rdfs:domain cnv:Boundary ; rdfs:range xsd:boolean .
+cnv:replayMode a rdf:Property ; rdfs:domain cnv:Boundary ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: exact-output, verify-observed-output, none." .

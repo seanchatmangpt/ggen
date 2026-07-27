@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-specimen-pack"
+version = "1.0.0"
+description = "Optional complete specimen CLI graph for tutorials and smoke tests. This pack is never imported by the zero-code compiler packs, so framework composition cannot inject session, user, or demonstration commands into a consumer CLI."

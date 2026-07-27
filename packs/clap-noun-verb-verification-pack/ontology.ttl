@@ -1,0 +1,6 @@
+# clap-noun-verb-verification-pack ontology.
+#
+# This pack ships templates only: it renders from the consumer's own
+# cnv:Cli graph (populated by clap-noun-verb-schema-pack's vocabulary) and
+# declares no pack-local individuals of its own. This file exists to
+# satisfy FM-PACK-004 (every pack must ship an ontology.ttl).

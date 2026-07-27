@@ -1,0 +1,208 @@
+---
+to: tests/zero_code_cli.rs
+force: true
+sh_after: rustfmt tests/zero_code_cli.rs
+sparql:
+  cli: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?binary_name WHERE { ?cli a cnv:Cli ; cnv:binaryName ?binary_name . }
+    ORDER BY ?binary_name
+  commands: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?noun ?verb ?behavior_kind
+           (COALESCE(STR(?root), "") AS ?root_path)
+           (COALESCE(STR(?id_argument_raw), "") AS ?id_argument)
+           (COALESCE(STR(?refusal_code_raw), "") AS ?refusal_code)
+    WHERE {
+      ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
+      ?command a cnv:Command ; cnv:name ?verb ; cnv:belongsToNoun ?noun_node ; cnv:hasBehavior ?behavior .
+      VALUES (?behavior_type ?behavior_kind) {
+        (cnv:StaticJsonBehavior "static-json")
+        (cnv:EchoBehavior "echo")
+        (cnv:ExpressionBehavior "expression")
+        (cnv:FilesystemWriteBehavior "filesystem-write")
+        (cnv:FilesystemListBehavior "filesystem-list")
+        (cnv:RefusalBehavior "refusal")
+      }
+      ?behavior a ?behavior_type .
+      OPTIONAL { ?behavior cnv:idArgument ?id_argument_raw }
+      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code_raw }
+      OPTIONAL { ?behavior cnv:usesBoundary ?boundary . ?boundary cnv:rootPath ?root . }
+    }
+    ORDER BY ?noun ?verb
+  arguments: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?field ?value_kind ?test_value
+           (STR(?required_value) AS ?required)
+           (STR(?position_value) AS ?position)
+           (COALESCE(STR(?long), "") AS ?long_flag)
+    WHERE {
+      ?command a cnv:Command ; cnv:hasArgument ?argument .
+      ?argument a cnv:Argument ; cnv:fieldName ?field ; cnv:valueKind ?value_kind ;
+                cnv:testValue ?test_value ; cnv:required ?required_value ; cnv:position ?position_value .
+      OPTIONAL { ?argument cnv:longFlag ?long }
+    }
+    ORDER BY ?command ?position_value ?field
+---
+//! Real compiled-binary conformance tests GENERATED from the admitted CLI graph.
+
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use serde_json::Value;
+
+const BINARY: &str = env!("CARGO_BIN_EXE_{{ cli[0].binary_name }}");
+
+struct TestWorkspace {
+    root: PathBuf,
+}
+
+impl TestWorkspace {
+    fn new(label: &str) -> Self {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("the test clock must be after the Unix epoch")
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "{{ cli[0].binary_name }}-{label}-{}-{nonce}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&root).expect("create isolated CLI test workspace");
+        Self { root }
+    }
+
+    #[allow(dead_code)]
+    fn path(&self) -> &Path {
+        &self.root
+    }
+
+    fn run(&self, noun: &str, verb: &str, arguments: &[&str]) -> Output {
+        let mut command = Command::new(BINARY);
+        command.current_dir(&self.root).arg(noun).arg(verb).args(arguments);
+        command.output().expect("execute generated CLI binary")
+    }
+}
+
+impl Drop for TestWorkspace {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.root);
+    }
+}
+
+#[allow(dead_code)]
+fn parse_stdout(output: &Output) -> Value {
+    serde_json::from_slice(&output.stdout).unwrap_or_else(|error| {
+        panic!(
+            "generated CLI stdout must be JSON: {error}; stdout={:?}; stderr={:?}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        )
+    })
+}
+
+{% for cmd in commands %}{%- set_global has_required = false %}{%- set_global id_test_value = "" %}
+#[test]
+fn real_cli_{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}_matches_admitted_behavior() {
+    let workspace = TestWorkspace::new("{{ cmd.noun | snake_case }}-{{ cmd.verb | snake_case }}");
+    let arguments: &[&str] = &[
+{%- for arg in arguments %}
+{%- if arg.command == cmd.command %}
+{%- if arg.required == "true" %}{% set_global has_required = true %}{% endif %}
+{%- if arg.field == cmd.id_argument %}{% set_global id_test_value = arg.test_value %}{% endif %}
+{%- if arg.position == "0" %}
+{%- if arg.value_kind == "bool" %}
+{%- if arg.test_value == "true" %}
+        "--{{ arg.long_flag }}",
+{%- endif %}
+{%- else %}
+        "--{{ arg.long_flag }}",
+        {{ arg.test_value | json_encode | safe }},
+{%- endif %}
+{%- else %}
+        {{ arg.test_value | json_encode | safe }},
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+    ];
+    let output = workspace.run({{ cmd.noun | json_encode | safe }}, {{ cmd.verb | json_encode | safe }}, arguments);
+{%- if cmd.behavior_kind == "refusal" %}
+    assert!(!output.status.success(), "refusal behavior must exit nonzero");
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains({{ cmd.refusal_code | json_encode | safe }}),
+        "stderr must carry the admitted refusal code: {:?}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let replay = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(!replay.status.success(), "refusal replay must remain nonzero");
+    assert_eq!(
+        replay.stderr, output.stderr,
+        "deterministic refusal replay must reproduce byte-identical stderr"
+    );
+{%- else %}
+    assert!(
+        output.status.success(),
+        "generated CLI command failed: stdout={:?}; stderr={:?}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value = parse_stdout(&output);
+{%- if cmd.behavior_kind == "filesystem-write" %}
+    let digest = value["blake3"].as_str().expect("write receipt must contain a BLAKE3 digest");
+    assert_eq!(digest.len(), 64, "BLAKE3 digest must be 32 bytes in hexadecimal");
+    let persisted = workspace
+        .path()
+        .join({{ cmd.root_path | json_encode | safe }})
+        .join(format!("{}.json", {{ id_test_value | json_encode | safe }}));
+    let bytes = fs::read(&persisted).expect("filesystem behavior must persist the admitted record");
+    assert_eq!(blake3::hash(&bytes).to_hex().as_str(), digest);
+
+    let duplicate = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(
+        !duplicate.status.success(),
+        "the generated no-clobber boundary must reject duplicate record creation"
+    );
+    let bytes_after_refusal =
+        fs::read(&persisted).expect("the first record must survive duplicate refusal");
+    assert_eq!(bytes_after_refusal, bytes, "duplicate refusal must not mutate the record");
+{%- else %}
+    assert!(!value.is_null(), "successful generated behavior must return a JSON value");
+    let replay = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(replay.status.success(), "deterministic replay must succeed");
+    assert_eq!(
+        replay.stdout, output.stdout,
+        "deterministic replay must reproduce byte-identical stdout"
+    );
+{%- endif %}
+{%- endif %}
+}
+
+{% if has_required %}#[test]
+fn real_cli_{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}_refuses_missing_required_arguments() {
+    let workspace = TestWorkspace::new("{{ cmd.noun | snake_case }}-{{ cmd.verb | snake_case }}-missing");
+    let output = workspace.run({{ cmd.noun | json_encode | safe }}, {{ cmd.verb | json_encode | safe }}, &[]);
+    assert!(
+        !output.status.success(),
+        "clap must reject a generated command when required arguments are omitted"
+    );
+}
+
+{% endif %}{% endfor %}#[test]
+fn real_cli_refuses_unknown_surface() {
+    let workspace = TestWorkspace::new("unknown-command");
+    let output = workspace.run("ggen-absent-noun", "ggen-absent-verb", &[]);
+    assert!(!output.status.success(), "unknown command surface must fail closed");
+}

@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-verification-pack"
+version = "1.0.0"
+description = "Generates real compiled-binary tests and command-reference documentation from the same admitted CLI graph as production routes. Tests exercise success, structured refusal, required-argument rejection, unknown-command rejection, filesystem actuation, and BLAKE3 receipt binding without mocks."

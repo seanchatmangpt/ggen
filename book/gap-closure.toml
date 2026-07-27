@@ -165,7 +165,7 @@ marker = "test_discoverable_current_consumers_are_two_sync_idempotent"
 
 [evidence."gap-pack-composition"]
 path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"
-marker = "six_gap_packs_resolve_compose_receipt_and_replay_idempotently"
+marker = "five_gap_packs_resolve_compose_receipt_and_replay_idempotently"
 
 [evidence."mfw-evolution"]
 path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"

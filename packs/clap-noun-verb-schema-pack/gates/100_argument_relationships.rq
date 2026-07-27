@@ -1,0 +1,38 @@
+# MESSAGE: requires/conflicts relationships must name a different argument in the same command and defaults must not coexist with required=true; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?argument ?violation ?detail WHERE {
+  {
+    ?command a cnv:Command ; cnv:hasArgument ?argument .
+    ?argument cnv:requires ?target .
+    FILTER NOT EXISTS {
+      ?command cnv:hasArgument ?target_argument .
+      ?target_argument cnv:fieldName ?target .
+      FILTER(?target_argument != ?argument)
+    }
+    BIND("unresolved-requires" AS ?violation)
+    BIND(STR(?target) AS ?detail)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?argument .
+    ?argument cnv:conflictsWith ?target .
+    FILTER NOT EXISTS {
+      ?command cnv:hasArgument ?target_argument .
+      ?target_argument cnv:fieldName ?target .
+      FILTER(?target_argument != ?argument)
+    }
+    BIND("unresolved-conflict" AS ?violation)
+    BIND(STR(?target) AS ?detail)
+  } UNION {
+    ?argument a cnv:Argument ; cnv:required true ; cnv:defaultValue ?default .
+    BIND("required-argument-has-default" AS ?violation)
+    BIND(STR(?default) AS ?detail)
+  } UNION {
+    ?argument a cnv:Argument ; cnv:multiple true ; cnv:required false .
+    BIND("repeated-argument-must-be-required" AS ?violation)
+    BIND("Vec arguments are always present and must declare required=true" AS ?detail)
+  } UNION {
+    ?argument a cnv:Argument ; cnv:valueKind "bool" ; cnv:position 0 ; cnv:required true .
+    BIND("boolean-flag-cannot-be-required" AS ?violation)
+    BIND("boolean options are presence flags and must declare required=false" AS ?detail)
+  }
+}
+ORDER BY ?argument ?violation

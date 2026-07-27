@@ -1,0 +1,40 @@
+# MESSAGE: argument positions and option names must be representable by clap-noun-verb 26.7.4; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cnv:Argument ; cnv:position 0 ; cnv:fieldName ?field ; cnv:longFlag ?long .
+    BIND(REPLACE(STR(?field), "_", "-") AS ?derived)
+    FILTER(STR(?long) != ?derived)
+    BIND("long-flag-must-match-macro-derived-name" AS ?violation)
+    BIND(CONCAT("expected --", ?derived, ", found --", STR(?long)) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position ?position ; cnv:longFlag ?long .
+    FILTER(xsd:integer(?position) > 0)
+    BIND("positional-cannot-have-long-flag" AS ?violation)
+    BIND(STR(?long) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position ?position ; cnv:shortFlag ?short .
+    FILTER(xsd:integer(?position) > 0)
+    BIND("positional-cannot-have-short-flag" AS ?violation)
+    BIND(STR(?short) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position ?position ; cnv:valueKind "bool" .
+    FILTER(xsd:integer(?position) > 0)
+    BIND("bool-is-always-a-flag" AS ?violation)
+    BIND(STR(?position) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position 0 ; cnv:multiple true ; cnv:valueKind "bool" .
+    BIND("repeated-bool-unsupported" AS ?violation)
+    BIND("bool flags use SetTrue; repeated values require a non-bool Vec<T>" AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:group ?group ; cnv:exclusive true .
+    BIND("group-and-exclusive-are-incompatible" AS ?violation)
+    BIND(STR(?group) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:requires ?target ; cnv:conflictsWith ?target .
+    BIND("same-target-required-and-conflicting" AS ?violation)
+    BIND(STR(?target) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

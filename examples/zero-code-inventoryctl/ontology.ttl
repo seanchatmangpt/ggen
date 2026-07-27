@@ -1,0 +1,187 @@
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# The only application source file. Every Rust artifact, route, behavior,
+# boundary, test, and documentation page is projected from this graph.
+
+cnv:InventoryCli
+    a cnv:Cli ;
+    cnv:binaryName "inventoryctl" ;
+    cnv:crateName "inventoryctl" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Manage inventory resources through a fully generated noun-verb CLI." ;
+    cnv:hasNoun cnv:ItemNoun, cnv:MathNoun, cnv:SystemNoun .
+
+# ── Nouns ────────────────────────────────────────────────────────────────────
+
+cnv:ItemNoun
+    a cnv:Noun ;
+    cnv:name "item" ;
+    cnv:about "Create and inspect inventory items." ;
+    cnv:hasCommand cnv:ItemCreate, cnv:ItemList .
+
+cnv:MathNoun
+    a cnv:Noun ;
+    cnv:name "math" ;
+    cnv:about "Evaluate bounded typed expressions." ;
+    cnv:hasCommand cnv:MathAdd .
+
+cnv:SystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Inspect the generated system and exercise explicit refusal." ;
+    cnv:hasCommand cnv:SystemEcho, cnv:SystemPing, cnv:SystemRefuse .
+
+# ── Item commands ────────────────────────────────────────────────────────────
+
+cnv:ItemCreate
+    a cnv:Command ;
+    cnv:name "create" ;
+    cnv:about "Atomically create one inventory item and return a content-bound receipt." ;
+    cnv:belongsToNoun cnv:ItemNoun ;
+    cnv:hasArgument cnv:ItemName, cnv:ItemTag ;
+    cnv:hasBehavior cnv:CreateItemBehavior .
+
+cnv:ItemName
+    a cnv:Argument ;
+    cnv:name "name" ;
+    cnv:fieldName "name" ;
+    cnv:valueKind "string" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "Widget" ;
+    cnv:about "Stable item identifier and display name." .
+
+cnv:ItemTag
+    a cnv:Argument ;
+    cnv:name "tag" ;
+    cnv:fieldName "tag" ;
+    cnv:valueKind "string" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:testValue "production" ;
+    cnv:longFlag "tag" ;
+    cnv:shortFlag "t" ;
+    cnv:environmentVariable "INVENTORY_TAG" ;
+    cnv:defaultValue "general" ;
+    cnv:valueHint "Unknown" ;
+    cnv:helpHeading "Metadata" ;
+    cnv:about "Optional item classification tag." .
+
+cnv:CreateItemBehavior
+    a cnv:FilesystemWriteBehavior ;
+    cnv:usesBoundary cnv:InventoryStore ;
+    cnv:idArgument "name" .
+
+cnv:ItemList
+    a cnv:Command ;
+    cnv:name "list" ;
+    cnv:about "List every persisted inventory item in deterministic filename order." ;
+    cnv:belongsToNoun cnv:ItemNoun ;
+    cnv:hasBehavior cnv:ListItemsBehavior .
+
+cnv:ListItemsBehavior
+    a cnv:FilesystemListBehavior ;
+    cnv:usesBoundary cnv:InventoryStore .
+
+cnv:InventoryStore
+    a cnv:FilesystemBoundary ;
+    cnv:rootPath ".inventory/items" ;
+    cnv:allowedOperation "read-json", "write-json" ;
+    cnv:receiptRequired true ;
+    cnv:replayMode "verify-observed-output" .
+
+# ── Expression command ───────────────────────────────────────────────────────
+
+cnv:MathAdd
+    a cnv:Command ;
+    cnv:name "add" ;
+    cnv:about "Add two signed 64-bit integers through the generated expression interpreter." ;
+    cnv:belongsToNoun cnv:MathNoun ;
+    cnv:hasArgument cnv:AddLeft, cnv:AddRight ;
+    cnv:hasBehavior cnv:AddBehavior .
+
+cnv:AddLeft
+    a cnv:Argument ;
+    cnv:name "left" ;
+    cnv:fieldName "left" ;
+    cnv:valueKind "i64" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "2" ;
+    cnv:about "Left operand." .
+
+cnv:AddRight
+    a cnv:Argument ;
+    cnv:name "right" ;
+    cnv:fieldName "right" ;
+    cnv:valueKind "i64" ;
+    cnv:required true ;
+    cnv:position 2 ;
+    cnv:testValue "3" ;
+    cnv:about "Right operand." .
+
+cnv:AddBehavior
+    a cnv:ExpressionBehavior ;
+    cnv:operator "add" ;
+    cnv:leftArgument "left" ;
+    cnv:rightArgument "right" .
+
+# ── Pure and refusal commands ────────────────────────────────────────────────
+
+cnv:SystemEcho
+    a cnv:Command ;
+    cnv:name "echo" ;
+    cnv:about "Return typed command inputs as a JSON object." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasArgument cnv:EchoMessage, cnv:EchoUppercase ;
+    cnv:hasBehavior cnv:SystemEchoBehavior .
+
+cnv:EchoMessage
+    a cnv:Argument ;
+    cnv:name "message" ;
+    cnv:fieldName "message" ;
+    cnv:valueKind "string" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "hello" ;
+    cnv:about "Message to return." .
+
+cnv:EchoUppercase
+    a cnv:Argument ;
+    cnv:name "uppercase" ;
+    cnv:fieldName "uppercase" ;
+    cnv:valueKind "bool" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:testValue "true" ;
+    cnv:longFlag "uppercase" ;
+    cnv:shortFlag "u" ;
+    cnv:about "Include an uppercase-request flag in the returned input object." .
+
+cnv:SystemEchoBehavior a cnv:EchoBehavior .
+
+cnv:SystemPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return a deterministic ontology-owned liveness value." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:PingBehavior .
+
+cnv:PingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\",\"compiler\":\"clap-noun-verb-zero-code\"}" .
+
+cnv:SystemRefuse
+    a cnv:Command ;
+    cnv:name "refuse" ;
+    cnv:about "Exercise a typed ontology-declared refusal path." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:ExplicitRefusal .
+
+cnv:ExplicitRefusal
+    a cnv:RefusalBehavior ;
+    cnv:refusalCode "DEMONSTRATION_REFUSAL" ;
+    cnv:refusalMessage "This command is intentionally refused by the admitted graph." .

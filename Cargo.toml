@@ -81,6 +81,11 @@ members = [
   "crates/genesis-core-v2",
   "crates/cpmp",
   "crates/ggen-cheat-scanner",
+  # Lever 1 (docs/how-to/clap-noun-verb/zero-code-cli.md phase-change analysis):
+  # reflects an OpenAPI 3.x document into a cnv:Cli ontology.ttl consumable
+  # unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one
+  # reflection pass instead of N hand-authored RDF fact blocks.
+  "crates/openapi-cnv-reflect",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under

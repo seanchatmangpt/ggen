@@ -14,13 +14,22 @@ use tempfile::TempDir;
 
 /// Packs that were declared PARTIAL solely because the capability ledger did
 /// not bind them to an executable composition consumer.
-const GAP_PACKS: [&str; 6] = [
+///
+/// `mfw-pcp-level5-pack` is deliberately excluded from this list: it is
+/// self-contained (its own internal `ggen.toml` uses the declarative-rules
+/// schema and generates into `consumer/mfw-pcp-generated/`), so its
+/// templates carry no `---` frontmatter block -- composing it into a
+/// generic frontmatter-schema consumer alongside these five packs is a
+/// structural mismatch, not something this pack was ever meant to support.
+/// It gets its own dedicated test below,
+/// `mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair`,
+/// which correctly copies it alone and drives it through its own `ggen.toml`.
+const GAP_PACKS: [&str; 5] = [
     "repo-as-found-pack",
     "repo-load-path-pack",
     "repo-intervention-pack",
     "repo-reconciliation-pack",
     "temporary-works-pack",
-    "mfw-pcp-level5-pack",
 ];
 
 fn packs_dir() -> PathBuf {
@@ -110,7 +119,7 @@ fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
 }
 
 #[test]
-fn six_gap_packs_resolve_compose_receipt_and_replay_idempotently() {
+fn five_gap_packs_resolve_compose_receipt_and_replay_idempotently() {
     let (_directory, project) = scaffold_gap_pack_consumer();
 
     assert_cli_success(&project, &["sync", "run"]);
@@ -177,8 +186,7 @@ fn mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair() {
     assert!(certificates.contains("Evolution"));
     assert!(certificates.contains("EXPECTED_COUNT: usize = 11"));
 
-    let proof =
-        std::fs::read_to_string(generated.join("tests/generated_proof.rs")).expect("proof");
+    let proof = std::fs::read_to_string(generated.join("tests/generated_proof.rs")).expect("proof");
     assert!(proof.contains("certificates::EXPECTED_COUNT"));
     assert!(!proof.contains("ALL.len(), 10"));
 

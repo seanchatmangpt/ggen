@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-schema-pack"
+version = "1.0.0"
+description = "Public RDF vocabulary and fail-closed admission gates for manufacturing complete clap-noun-verb CLI crates without consumer-authored Rust. This pack contains no command individuals and therefore never injects specimen CLI surface into a consumer graph."

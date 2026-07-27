@@ -1,0 +1,4 @@
+[pack]
+name = "clap-noun-verb-routing-pack"
+version = "1.0.0"
+description = "Generates typed clap-noun-verb routes, noun registrations, argument metadata, and closed BehaviorSpec dispatch from first-class cnv:Argument and cnv:Behavior nodes. No generated route calls a consumer handler."

@@ -1,0 +1,60 @@
+# MESSAGE: booleans, positions, versions, editions, and bounded identifiers must have compiler-safe lexical forms and datatypes; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?property ?value WHERE {
+  {
+    ?subject ?property ?value .
+    VALUES ?property {
+      cnv:required cnv:hidden cnv:global cnv:exclusive cnv:multiple cnv:receiptRequired
+    }
+    FILTER(DATATYPE(?value) != xsd:boolean)
+  } UNION {
+    ?subject cnv:position ?value .
+    BIND(cnv:position AS ?property)
+    FILTER(DATATYPE(?value) != xsd:integer)
+  } UNION {
+    ?subject a cnv:Cli ; cnv:version ?value .
+    BIND(cnv:version AS ?property)
+    FILTER(!REGEX(STR(?value), "^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$"))
+  } UNION {
+    ?subject a cnv:Cli ; cnv:edition ?value .
+    BIND(cnv:edition AS ?property)
+    FILTER(STR(?value) NOT IN ("2021", "2024"))
+  } UNION {
+    ?subject a cnv:Cli ; cnv:rustVersion ?value .
+    BIND(cnv:rustVersion AS ?property)
+    FILTER(!REGEX(STR(?value), "^1\\.[0-9]+(\\.[0-9]+)?$"))
+  } UNION {
+    ?subject a cnv:RefusalBehavior ; cnv:refusalCode ?value .
+    BIND(cnv:refusalCode AS ?property)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9_]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:helpHeading ?value .
+    BIND(cnv:helpHeading AS ?property)
+    FILTER(!REGEX(STR(?value), "^[A-Za-z0-9][A-Za-z0-9 _-]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:group ?value .
+    BIND(cnv:group AS ?property)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_-]*$"))
+  } UNION {
+    ?subject a cnv:Argument ; cnv:fieldName ?value .
+    BIND(cnv:fieldName AS ?property)
+    FILTER(STR(?value) IN ("self", "super", "crate"))
+  } UNION {
+    ?subject a cnv:Cli ; cnv:crateName ?value .
+    BIND(cnv:crateName AS ?property)
+    BIND(REPLACE(STR(?value), "-", "_") AS ?rust_name)
+    FILTER(?rust_name IN (
+      "as", "break", "const", "continue", "crate", "dyn", "else", "enum",
+      "extern", "false", "fn", "for", "if", "impl", "in", "let", "loop",
+      "match", "mod", "move", "mut", "pub", "ref", "return", "self",
+      "static", "struct", "super", "trait", "true", "try", "type", "unsafe",
+      "use", "where", "while", "async", "await"
+    ))
+  } UNION {
+    ?subject a cnv:Noun ; cnv:name "root" .
+    BIND(cnv:name AS ?property)
+    BIND("root" AS ?value)
+  }
+}
+ORDER BY ?subject ?property

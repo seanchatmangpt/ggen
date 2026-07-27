@@ -1,0 +1,38 @@
+# MESSAGE: every zero-code CLI node must contain the fields required by its class; any row is a refusal.
+PREFIX cnv:  <https://clap-noun-verb.dev/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?subject ?missing WHERE {
+  {
+    ?subject a cnv:Cli .
+    VALUES ?missing { cnv:binaryName cnv:crateName cnv:version cnv:edition cnv:rustVersion cnv:about cnv:hasNoun }
+  } UNION {
+    ?subject a cnv:Noun .
+    VALUES ?missing { cnv:name cnv:about cnv:hasCommand }
+  } UNION {
+    ?subject a cnv:Command .
+    VALUES ?missing { cnv:name cnv:about cnv:belongsToNoun cnv:hasBehavior }
+  } UNION {
+    ?subject a cnv:Argument .
+    VALUES ?missing { cnv:name cnv:fieldName cnv:valueKind cnv:required cnv:position cnv:testValue cnv:about }
+  } UNION {
+    ?subject a cnv:FilesystemBoundary .
+    VALUES ?missing { cnv:rootPath cnv:allowedOperation cnv:receiptRequired cnv:replayMode }
+  } UNION {
+    ?subject a cnv:StaticJsonBehavior .
+    VALUES ?missing { cnv:jsonValue }
+  } UNION {
+    ?subject a cnv:ExpressionBehavior .
+    VALUES ?missing { cnv:operator cnv:leftArgument cnv:rightArgument }
+  } UNION {
+    ?subject a cnv:FilesystemWriteBehavior .
+    VALUES ?missing { cnv:usesBoundary cnv:idArgument }
+  } UNION {
+    ?subject a cnv:FilesystemListBehavior .
+    VALUES ?missing { cnv:usesBoundary }
+  } UNION {
+    ?subject a cnv:RefusalBehavior .
+    VALUES ?missing { cnv:refusalCode cnv:refusalMessage }
+  }
+  FILTER NOT EXISTS { ?subject ?missing ?value }
+}
+ORDER BY ?subject ?missing

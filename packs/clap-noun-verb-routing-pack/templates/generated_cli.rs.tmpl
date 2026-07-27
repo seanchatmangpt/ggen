@@ -1,0 +1,241 @@
+---
+to: src/generated_cli.rs
+force: true
+sh_after: rustfmt src/generated_cli.rs
+sparql:
+  commands: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?noun ?verb ?about ?behavior_kind
+           (COALESCE(STR(?json), "") AS ?json_value)
+           (COALESCE(STR(?operator_raw), "") AS ?operator)
+           (COALESCE(STR(?left), "") AS ?left_argument)
+           (COALESCE(STR(?right), "") AS ?right_argument)
+           (COALESCE(STR(?root), "") AS ?root_path)
+           (COALESCE(STR(?receipt), "false") AS ?receipt_required)
+           (COALESCE(STR(?replay), "none") AS ?replay_mode)
+           (COALESCE(STR(?id_argument_raw), "") AS ?id_argument)
+           (COALESCE(STR(?refusal_code_raw), "") AS ?refusal_code)
+           (COALESCE(STR(?refusal_message_raw), "") AS ?refusal_message)
+    WHERE {
+      ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
+      ?command a cnv:Command ; cnv:name ?verb ; cnv:about ?about ;
+               cnv:belongsToNoun ?noun_node ; cnv:hasBehavior ?behavior .
+      VALUES (?behavior_type ?behavior_kind) {
+        (cnv:StaticJsonBehavior "static-json")
+        (cnv:EchoBehavior "echo")
+        (cnv:ExpressionBehavior "expression")
+        (cnv:FilesystemWriteBehavior "filesystem-write")
+        (cnv:FilesystemListBehavior "filesystem-list")
+        (cnv:RefusalBehavior "refusal")
+        (cnv:CustomBehavior "custom")
+      }
+      ?behavior a ?behavior_type .
+      OPTIONAL { ?behavior cnv:jsonValue ?json }
+      OPTIONAL { ?behavior cnv:operator ?operator_raw }
+      OPTIONAL { ?behavior cnv:leftArgument ?left }
+      OPTIONAL { ?behavior cnv:rightArgument ?right }
+      OPTIONAL { ?behavior cnv:idArgument ?id_argument_raw }
+      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code_raw }
+      OPTIONAL { ?behavior cnv:refusalMessage ?refusal_message_raw }
+      OPTIONAL {
+        ?behavior cnv:usesBoundary ?boundary .
+        ?boundary cnv:rootPath ?root ; cnv:receiptRequired ?receipt ; cnv:replayMode ?replay .
+      }
+    }
+    ORDER BY ?noun ?verb
+  arguments: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?name ?field ?about ?value_kind
+           (STR(?required_value) AS ?required)
+           (STR(?position_value) AS ?position)
+           (COALESCE(STR(?short), "") AS ?short_flag)
+           (COALESCE(STR(?environment_raw), "") AS ?environment)
+           (COALESCE(STR(?default), "") AS ?default_value)
+           (COALESCE(STR(?group), "") AS ?group_name)
+           (COALESCE(STR(?requires), "") AS ?requires_name)
+           (COALESCE(STR(?conflicts), "") AS ?conflicts_name)
+           (COALESCE(STR(?hint), "") AS ?value_hint)
+           (COALESCE(STR(?hidden_value), "false") AS ?hidden)
+           (COALESCE(STR(?global_value), "false") AS ?global)
+           (COALESCE(STR(?exclusive_value), "false") AS ?exclusive)
+           (COALESCE(STR(?heading), "") AS ?help_heading)
+           (COALESCE(STR(?multiple_value), "false") AS ?multiple)
+    WHERE {
+      ?command a cnv:Command ; cnv:hasArgument ?argument .
+      ?argument a cnv:Argument ; cnv:name ?name ; cnv:fieldName ?field ;
+                cnv:about ?about ; cnv:valueKind ?value_kind ;
+                cnv:required ?required_value ; cnv:position ?position_value .
+      OPTIONAL { ?argument cnv:shortFlag ?short }
+      OPTIONAL { ?argument cnv:environmentVariable ?environment_raw }
+      OPTIONAL { ?argument cnv:defaultValue ?default }
+      OPTIONAL { ?argument cnv:group ?group }
+      OPTIONAL { ?argument cnv:requires ?requires }
+      OPTIONAL { ?argument cnv:conflictsWith ?conflicts }
+      OPTIONAL { ?argument cnv:valueHint ?hint }
+      OPTIONAL { ?argument cnv:hidden ?hidden_value }
+      OPTIONAL { ?argument cnv:global ?global_value }
+      OPTIONAL { ?argument cnv:exclusive ?exclusive_value }
+      OPTIONAL { ?argument cnv:helpHeading ?heading }
+      OPTIONAL { ?argument cnv:multiple ?multiple_value }
+    }
+    ORDER BY ?command ?position_value ?field
+  nouns: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?name ?about WHERE { ?noun a cnv:Noun ; cnv:name ?name ; cnv:about ?about . }
+    ORDER BY ?name
+---
+//! Typed noun-verb routes GENERATED from first-class RDF arguments.
+//!
+//! Every body closes through `BehaviorSpec`, except commands carrying the
+//! explicit, admitted `cnv:CustomBehavior` opt-out, which route to a
+//! hand-written `crate::custom_handlers::<noun>_<verb>` function instead. That
+//! is the sole consumer handler seam this compiler ever emits, and it is
+//! visible per-command in the source ontology, not a blanket escape hatch.
+
+use clap_noun_verb::{NounVerbError, Result};
+use clap_noun_verb_macros::verb;
+use serde::Serialize;
+use serde_json::{Map, Value};
+
+{%- set_global has_closed_command = false %}
+{%- for cmd in commands %}{% if cmd.behavior_kind != "custom" %}{% set_global has_closed_command = true %}{% endif %}{% endfor -%}
+{% if has_closed_command %}use crate::generated_behavior::{self, BehaviorSpec};
+{% endif -%}
+
+{%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
+
+{% for cmd in commands %}{%- set_global has_arguments = false %}{% for arg in arguments %}{% if arg.command == cmd.command %}{% set_global has_arguments = true %}{% endif %}{% endfor %}#[doc = {{ cmd.about | json_encode | safe }}]
+{% if has_arguments %}#[doc = ""]
+#[doc = "# Arguments"]
+{% for arg in arguments %}{% if arg.command == cmd.command %}/// * `{{ arg.field }}` - Generated argument metadata.{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
+{% endif %}{% endfor %}{% endif %}#[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
+fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
+{%- for arg in arguments %}
+{%- if arg.command == cmd.command %}
+{%- if arg.value_kind == "string" %}{% set_global rust_type = "String" %}{% elif arg.value_kind == "i64" %}{% set_global rust_type = "i64" %}{% elif arg.value_kind == "u64" %}{% set_global rust_type = "u64" %}{% elif arg.value_kind == "f64" %}{% set_global rust_type = "f64" %}{% elif arg.value_kind == "bool" %}{% set_global rust_type = "bool" %}{% elif arg.value_kind == "path" %}{% set_global rust_type = "std::path::PathBuf" %}{% endif %}
+    #[arg(
+        help = {{ arg.about | json_encode | safe }}{% if arg.position != "0" %},
+        index = {{ arg.position }}{% endif %}{% if arg.short_flag %},
+        short = '{{ arg.short_flag }}'{% endif %}{% if arg.environment %},
+        env = {{ arg.environment | json_encode | safe }}{% endif %}{% if arg.default_value %},
+        default_value = {{ arg.default_value | json_encode | safe }}{% endif %}{% if arg.group_name %},
+        group = {{ arg.group_name | json_encode | safe }}{% endif %}{% if arg.requires_name %},
+        requires = {{ arg.requires_name | json_encode | safe }}{% endif %}{% if arg.conflicts_name %},
+        conflicts_with = {{ arg.conflicts_name | json_encode | safe }}{% endif %}{% if arg.exclusive == "true" %},
+        exclusive = true{% endif %}
+    )]
+    {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{{ rust_type }}>{% elif arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}{{ rust_type }}{% else %}Option<{{ rust_type }}>{% endif %},
+{%- endif %}
+{%- endfor %}
+) -> Result<Value> {
+    let {% if has_arguments %}mut {% endif %}inputs = Map::new();
+{%- for arg in arguments %}
+{%- if arg.command == cmd.command %}
+{%- if arg.multiple == "true" or arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}
+    inputs.insert(
+        "{{ arg.field }}".to_owned(),
+        encode_input("{{ arg.field }}", &{% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %})?,
+    );
+{%- else %}
+    if let Some(value) = {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %} {
+        inputs.insert("{{ arg.field }}".to_owned(), encode_input("{{ arg.field }}", &value)?);
+    }
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+{%- if cmd.behavior_kind == "custom" %}
+    crate::custom_handlers::{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(inputs)
+{%- else %}
+    generated_behavior::execute(
+{%- if cmd.behavior_kind == "static-json" %}
+        BehaviorSpec::StaticJson { json: {{ cmd.json_value | json_encode | safe }} },
+{%- elif cmd.behavior_kind == "echo" %}
+        BehaviorSpec::Echo,
+{%- elif cmd.behavior_kind == "expression" %}
+        BehaviorSpec::Expression {
+            operator: {{ cmd.operator | json_encode | safe }},
+            left: {{ cmd.left_argument | json_encode | safe }},
+            right: {{ cmd.right_argument | json_encode | safe }},
+        },
+{%- elif cmd.behavior_kind == "filesystem-write" %}
+        BehaviorSpec::FilesystemWrite {
+            boundary: crate::generated_boundaries::FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode | safe }},
+                receipt_required: {{ cmd.receipt_required }},
+                replay_mode: {{ cmd.replay_mode | json_encode | safe }},
+            },
+            id_argument: {{ cmd.id_argument | json_encode | safe }},
+        },
+{%- elif cmd.behavior_kind == "filesystem-list" %}
+        BehaviorSpec::FilesystemList {
+            boundary: crate::generated_boundaries::FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode | safe }},
+                receipt_required: {{ cmd.receipt_required }},
+                replay_mode: {{ cmd.replay_mode | json_encode | safe }},
+            },
+        },
+{%- elif cmd.behavior_kind == "refusal" %}
+        BehaviorSpec::Refusal {
+            code: {{ cmd.refusal_code | json_encode | safe }},
+            message: {{ cmd.refusal_message | json_encode | safe }},
+        },
+{%- endif %}
+        inputs,
+    )
+{%- endif %}
+}
+
+{% endfor %}{% for noun in nouns %}#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_{{ noun.name | snake_case | upper }}_NOUN: fn() = register_{{ noun.name | snake_case }}_noun;
+
+fn register_{{ noun.name | snake_case }}_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        {{ noun.name | json_encode | safe }},
+        {{ noun.about | json_encode | safe }},
+    );
+}
+
+{% endfor %}#[allow(dead_code)]
+fn encode_input<T: Serialize>(name: &str, value: &T) -> Result<Value> {
+    serde_json::to_value(value).map_err(|error| {
+        NounVerbError::execution_error(format!("failed to encode generated argument {name:?}: {error}"))
+    })
+}
+
+#[cfg(test)]
+mod generated_route_proofs {
+    const GENERATED_SOURCE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/generated_cli.rs"));
+
+    fn routes_only() -> &'static str {
+        GENERATED_SOURCE.split("#[cfg(test)]").next().unwrap_or(GENERATED_SOURCE)
+    }
+
+    #[test]
+    fn every_admitted_command_became_one_registered_verb() {
+        assert_eq!(routes_only().matches("#[verb(").count(), {{ commands | length }});
+    }
+
+    #[test]
+    fn no_consumer_handler_seam_survives_generation() {
+        // `custom_handlers::` is the sole, explicitly admitted escape hatch
+        // (cnv:CustomBehavior); strip it before checking for the legacy,
+        // unbounded `handlers::` seam this compiler never emits otherwise.
+        let without_admitted_custom_seam = routes_only().replace("custom_handlers::", "");
+        assert!(!without_admitted_custom_seam.contains("handlers::"));
+        assert!(!routes_only().contains("todo!"));
+        assert!(!routes_only().contains("unimplemented!"));
+    }
+
+    #[test]
+    fn every_custom_command_routes_to_its_own_handler() {
+        // Proves per-command wiring, not just that a seam exists somewhere:
+        // each cnv:CustomBehavior command must call the one handler function
+        // named after ITS OWN noun and verb, not a neighboring command's.
+{% for cmd in commands %}{% if cmd.behavior_kind == "custom" %}        assert!(
+            routes_only().contains("custom_handlers::{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}("),
+            "{{ cmd.noun }} {{ cmd.verb }} must route to its own custom handler"
+        );
+{% endif %}{% endfor %}
+    }
+}
