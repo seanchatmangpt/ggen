@@ -86,10 +86,16 @@ cnv:position a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer 
     rdfs:comment "Positive positional index. Zero means option/flag." .
 cnv:testValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
     rdfs:comment "A CLI lexical witness used by generated real-dispatch tests." .
-cnv:longFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:longFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Must equal fieldName with underscores converted to hyphens because clap-noun-verb derives long flags." .
 cnv:shortFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:environmentVariable a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:defaultValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:valueName a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:alias a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "One additional long-option alias in the current compiler profile." .
+cnv:action a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: set, set_true, set_false, count, append." .
 cnv:group a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:requires a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:conflictsWith a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
@@ -98,8 +104,18 @@ cnv:hidden a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
 cnv:global a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
 cnv:exclusive a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
 cnv:helpHeading a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:longHelp a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:displayOrder a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
 cnv:multiple a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
-cnv:valueDelimiter a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:trailingVariableArgument a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:allowNegativeNumbers a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:nextLineHelp a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
+cnv:minimumValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:maximumValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
+cnv:minimumLength a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
+cnv:maximumLength a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer .
+cnv:valueDelimiter a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "Reserved for a future clap-noun-verb release; every current use is refused before rendering." .
 
 # ── Behavior properties ──────────────────────────────────────────────────────
 
