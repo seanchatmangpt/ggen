@@ -241,7 +241,10 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root = std::env::temp_dir().join(format!("cnv-symlink-test-{}-{nonce}", std::process::id()));
+        let root = PathBuf::from(format!(
+            ".cnv-symlink-test-{}-{nonce}",
+            std::process::id()
+        ));
         let target = root.join("target");
         let link = root.join("link");
         fs::create_dir_all(&target).unwrap();
