@@ -1,0 +1,9 @@
+# MESSAGE: every cnv:Noun must belong to exactly one cnv:Cli; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?noun (COUNT(?cli) AS ?owner_count) WHERE {
+  ?noun a cnv:Noun .
+  OPTIONAL { ?cli a cnv:Cli ; cnv:hasNoun ?noun . }
+}
+GROUP BY ?noun
+HAVING (COUNT(?cli) != 1)
+ORDER BY ?noun
