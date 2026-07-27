@@ -1,0 +1,27 @@
+# MESSAGE: positional arguments must be contiguous from one and required arguments cannot follow optional positional arguments; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?command ?violation ?detail WHERE {
+  {
+    SELECT ?command (COUNT(DISTINCT ?position) AS ?count) (MAX(xsd:integer(?position)) AS ?maximum) WHERE {
+      ?command a cnv:Command ; cnv:hasArgument ?argument .
+      ?argument cnv:position ?position .
+      FILTER(xsd:integer(?position) > 0)
+    }
+    GROUP BY ?command
+    HAVING (MAX(xsd:integer(?position)) != COUNT(DISTINCT ?position))
+    BIND("non-contiguous-positional-indices" AS ?violation)
+    BIND(CONCAT("count=", STR(?count), ", max=", STR(?maximum)) AS ?detail)
+  } UNION {
+    ?command a cnv:Command ; cnv:hasArgument ?optional, ?required .
+    ?optional cnv:position ?optional_position ; cnv:required false .
+    ?required cnv:position ?required_position ; cnv:required true .
+    FILTER(
+      xsd:integer(?optional_position) > 0 &&
+      xsd:integer(?required_position) > xsd:integer(?optional_position)
+    )
+    BIND("required-positional-follows-optional" AS ?violation)
+    BIND(CONCAT(STR(?optional_position), " before ", STR(?required_position)) AS ?detail)
+  }
+}
+ORDER BY ?command ?violation
