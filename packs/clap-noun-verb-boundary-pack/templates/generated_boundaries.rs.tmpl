@@ -43,7 +43,7 @@ pub fn write_json(
     fs::create_dir_all(&root).map_err(|error| execution_error("create boundary root", &error))?;
     refuse_symlink_components(&root)?;
 
-    let safe_id = admitted_component(id)?;
+    let safe_id = admitted_record_id(id)?;
     let destination = root.join(format!("{safe_id}.json"));
     let bytes = serde_json::to_vec_pretty(value)
         .map_err(|error| execution_error("serialize boundary value", &error))?;
@@ -141,9 +141,22 @@ fn admitted_root(root: &str) -> Result<PathBuf> {
             "filesystem boundary root must be a non-empty relative path",
         ));
     }
+
     for component in path.components() {
         match component {
-            Component::Normal(_) | Component::CurDir => {}
+            Component::CurDir => {}
+            Component::Normal(component) => {
+                let text = component.to_str().ok_or_else(|| {
+                    NounVerbError::execution_error(
+                        "filesystem boundary root must contain valid UTF-8 components",
+                    )
+                })?;
+                if !portable_component(text, true) {
+                    return Err(NounVerbError::execution_error(format!(
+                        "filesystem boundary root contains a non-portable component: {text:?}"
+                    )));
+                }
+            }
             Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
                 return Err(NounVerbError::execution_error(format!(
                     "filesystem boundary root contains a forbidden component: {root}"
@@ -154,19 +167,37 @@ fn admitted_root(root: &str) -> Result<PathBuf> {
     Ok(path.to_path_buf())
 }
 
-fn admitted_component(component: &str) -> Result<String> {
-    let valid = !component.is_empty()
-        && component != "."
-        && component != ".."
-        && component
-            .chars()
-            .all(|character| character.is_alphanumeric() || matches!(character, '-' | '_' | '.'));
-    if !valid {
+fn admitted_record_id(component: &str) -> Result<String> {
+    if !portable_component(component, false) {
         return Err(NounVerbError::execution_error(format!(
-            "filesystem boundary refused unsafe record identifier: {component:?}"
+            "filesystem boundary refused unsafe or non-portable record identifier: {component:?}"
         )));
     }
     Ok(component.to_owned())
+}
+
+fn portable_component(component: &str, allow_dot: bool) -> bool {
+    if component.is_empty() || component.len() > 128 || windows_reserved_name(component) {
+        return false;
+    }
+
+    component.chars().all(|character| {
+        character.is_ascii_alphanumeric()
+            || matches!(character, '-' | '_')
+            || (allow_dot && character == '.')
+    })
+}
+
+fn windows_reserved_name(component: &str) -> bool {
+    let stem = component
+        .split_once('.')
+        .map_or(component, |(stem, _extension)| stem)
+        .to_ascii_uppercase();
+    matches!(stem.as_str(), "CON" | "PRN" | "AUX" | "NUL")
+        || stem
+            .strip_prefix("COM")
+            .or_else(|| stem.strip_prefix("LPT"))
+            .is_some_and(|number| matches!(number, "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"))
 }
 
 fn refuse_symlink_components(path: &Path) -> Result<()> {
@@ -216,20 +247,40 @@ mod tests {
 
     #[test]
     fn unsafe_record_identifiers_are_refused() {
-        for value in ["", ".", "..", "../escape", "a/b", "a\\b"] {
-            assert!(admitted_component(value).is_err(), "{value:?} must be refused");
+        for value in [
+            "",
+            ".",
+            "..",
+            "../escape",
+            "a/b",
+            "a\\b",
+            "café",
+            "Widget.1",
+            "CON",
+            "com1",
+            "LPT9",
+        ] {
+            assert!(
+                admitted_record_id(value).is_err(),
+                "{value:?} must be refused"
+            );
         }
     }
 
     #[test]
     fn safe_record_identifiers_are_preserved() {
-        assert_eq!(admitted_component("Widget-1.0").unwrap(), "Widget-1.0");
+        assert_eq!(
+            admitted_record_id("Widget-1_0").unwrap(),
+            "Widget-1_0"
+        );
     }
 
     #[test]
-    fn parent_roots_are_refused() {
+    fn parent_and_non_portable_roots_are_refused() {
         assert!(admitted_root("../outside").is_err());
         assert!(admitted_root("/absolute").is_err());
+        assert!(admitted_root("data/café").is_err());
+        assert!(admitted_root("data/CON").is_err());
     }
 
     #[cfg(unix)]
