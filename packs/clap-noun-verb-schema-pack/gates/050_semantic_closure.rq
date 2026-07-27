@@ -1,0 +1,65 @@
+# MESSAGE: command ownership, argument references, behavior kinds, and boundary capabilities must close before rendering; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?noun a cnv:Noun ; cnv:hasCommand ?subject .
+    FILTER NOT EXISTS { ?subject cnv:belongsToNoun ?noun }
+    BIND("inverse-command-ownership" AS ?violation)
+    BIND(STR(?noun) AS ?detail)
+  } UNION {
+    ?subject a cnv:Command ; cnv:belongsToNoun ?noun .
+    FILTER NOT EXISTS { ?noun cnv:hasCommand ?subject }
+    BIND("inverse-command-ownership" AS ?violation)
+    BIND(STR(?noun) AS ?detail)
+  } UNION {
+    ?subject a cnv:Command ; cnv:hasBehavior ?behavior .
+    FILTER NOT EXISTS {
+      VALUES ?kind {
+        cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
+        cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+      }
+      ?behavior a ?kind .
+    }
+    BIND("unsupported-behavior-kind" AS ?violation)
+    BIND(STR(?behavior) AS ?detail)
+  } UNION {
+    ?subject a cnv:FilesystemWriteBehavior ; cnv:usesBoundary ?boundary .
+    FILTER NOT EXISTS { ?boundary a cnv:FilesystemBoundary ; cnv:allowedOperation "write-json" }
+    BIND("write-boundary-not-admitted" AS ?violation)
+    BIND(STR(?boundary) AS ?detail)
+  } UNION {
+    ?subject a cnv:FilesystemListBehavior ; cnv:usesBoundary ?boundary .
+    FILTER NOT EXISTS { ?boundary a cnv:FilesystemBoundary ; cnv:allowedOperation "read-json" }
+    BIND("read-boundary-not-admitted" AS ?violation)
+    BIND(STR(?boundary) AS ?detail)
+  } UNION {
+    ?behavior a cnv:ExpressionBehavior ; cnv:leftArgument ?name .
+    ?subject a cnv:Command ; cnv:hasBehavior ?behavior .
+    FILTER NOT EXISTS { ?subject cnv:hasArgument ?arg . ?arg cnv:fieldName ?name }
+    BIND("missing-left-argument" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?behavior a cnv:ExpressionBehavior ; cnv:rightArgument ?name .
+    ?subject a cnv:Command ; cnv:hasBehavior ?behavior .
+    FILTER NOT EXISTS { ?subject cnv:hasArgument ?arg . ?arg cnv:fieldName ?name }
+    BIND("missing-right-argument" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?behavior a cnv:FilesystemWriteBehavior ; cnv:idArgument ?name .
+    ?subject a cnv:Command ; cnv:hasBehavior ?behavior .
+    FILTER NOT EXISTS { ?subject cnv:hasArgument ?arg . ?arg cnv:fieldName ?name }
+    BIND("missing-id-argument" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:position 0 .
+    FILTER NOT EXISTS { ?subject cnv:longFlag ?flag }
+    BIND("option-missing-long-flag" AS ?violation)
+    BIND("position=0 requires cnv:longFlag" AS ?detail)
+  } UNION {
+    ?subject a cnv:Argument ; cnv:valueKind "bool" ; cnv:required false ; cnv:position ?position .
+    FILTER(?position > 0)
+    BIND("optional-bool-positional-unsupported" AS ?violation)
+    BIND(STR(?position) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation
