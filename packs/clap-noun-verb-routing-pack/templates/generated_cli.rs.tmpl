@@ -95,11 +95,10 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::generated_behavior::{self, BehaviorSpec};
-use crate::generated_boundaries::FilesystemBoundarySpec;
 
 {%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
 
-{% for cmd in commands %}/// {{ cmd.about }}
+{% for cmd in commands %}{%- set_global has_arguments = false %}{% for arg in arguments %}{% if arg.command == cmd.command %}{% set_global has_arguments = true %}{% endif %}{% endfor %}/// {{ cmd.about }}
 #[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
 fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- for arg in arguments %}
@@ -113,7 +112,7 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- endif %}
 {%- endfor %}
 ) -> Result<Value> {
-    let mut inputs = Map::new();
+    let {% if has_arguments %}mut {% endif %}inputs = Map::new();
 {%- for arg in arguments %}
 {%- if arg.command == cmd.command %}
 {%- if arg.multiple == "true" or arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}
@@ -131,36 +130,36 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 
     generated_behavior::execute(
 {%- if cmd.behavior_kind == "static-json" %}
-        BehaviorSpec::StaticJson { json: {{ cmd.json_value | json_encode() }} },
+        BehaviorSpec::StaticJson { json: {{ cmd.json_value | json_encode | safe }} },
 {%- elif cmd.behavior_kind == "echo" %}
         BehaviorSpec::Echo,
 {%- elif cmd.behavior_kind == "expression" %}
         BehaviorSpec::Expression {
-            operator: {{ cmd.operator | json_encode() }},
-            left: {{ cmd.left_argument | json_encode() }},
-            right: {{ cmd.right_argument | json_encode() }},
+            operator: {{ cmd.operator | json_encode | safe }},
+            left: {{ cmd.left_argument | json_encode | safe }},
+            right: {{ cmd.right_argument | json_encode | safe }},
         },
 {%- elif cmd.behavior_kind == "filesystem-write" %}
         BehaviorSpec::FilesystemWrite {
-            boundary: FilesystemBoundarySpec {
-                root: {{ cmd.root_path | json_encode() }},
+            boundary: crate::generated_boundaries::FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode | safe }},
                 receipt_required: {{ cmd.receipt_required }},
-                replay_mode: {{ cmd.replay_mode | json_encode() }},
+                replay_mode: {{ cmd.replay_mode | json_encode | safe }},
             },
-            id_argument: {{ cmd.id_argument | json_encode() }},
+            id_argument: {{ cmd.id_argument | json_encode | safe }},
         },
 {%- elif cmd.behavior_kind == "filesystem-list" %}
         BehaviorSpec::FilesystemList {
-            boundary: FilesystemBoundarySpec {
-                root: {{ cmd.root_path | json_encode() }},
+            boundary: crate::generated_boundaries::FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode | safe }},
                 receipt_required: {{ cmd.receipt_required }},
-                replay_mode: {{ cmd.replay_mode | json_encode() }},
+                replay_mode: {{ cmd.replay_mode | json_encode | safe }},
             },
         },
 {%- elif cmd.behavior_kind == "refusal" %}
         BehaviorSpec::Refusal {
-            code: {{ cmd.refusal_code | json_encode() }},
-            message: {{ cmd.refusal_message | json_encode() }},
+            code: {{ cmd.refusal_code | json_encode | safe }},
+            message: {{ cmd.refusal_message | json_encode | safe }},
         },
 {%- endif %}
         inputs,
@@ -172,8 +171,8 @@ static REGISTER_{{ noun.name | snake_case | upper }}_NOUN: fn() = register_{{ no
 
 fn register_{{ noun.name | snake_case }}_noun() {
     ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
-        {{ noun.name | json_encode() }},
-        {{ noun.about | json_encode() }},
+        {{ noun.name | json_encode | safe }},
+        {{ noun.about | json_encode | safe }},
     );
 }
 
