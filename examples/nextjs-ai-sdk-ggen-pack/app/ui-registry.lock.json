@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "admittedAt": "ontology",
+  "registries": {
+    "shadcn": {
+      "cliVersion": "4.13.1",
+      "components": ["button", "card", "badge", "separator", "tooltip", "dropdown-menu"]
+    },
+    "aiElements": {
+      "cliVersion": "1.9.0",
+      "components": ["conversation", "message", "prompt-input", "tool", "confirmation", "reasoning", "suggestion"]
+    }
+  },
+  "canonicalTargets": ["components/ui", "components/ai-elements"]
+}

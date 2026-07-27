@@ -1,0 +1,33 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { Chat } from "@/components/chat/chat";
+
+export function AuthGate() {
+  const session = authClient.useSession();
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-up");
+  const [error, setError] = useState<string>();
+  if (session.isPending) return <main className="grid min-h-screen place-items-center">Loading session</main>;
+  if (session.data?.user) return <main className="mx-auto flex min-h-screen max-w-5xl flex-col p-4 md:p-8"><Chat /></main>;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setError(undefined);
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email")); const password = String(data.get("password"));
+    const result = mode === "sign-up"
+      ? await authClient.signUp.email({ name: String(data.get("name")), email, password })
+      : await authClient.signIn.email({ email, password });
+    if (result.error) setError(result.error.message ?? "Authentication refused");
+  }
+
+  return <main className="grid min-h-screen place-items-center p-6"><form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-xl border bg-card p-6 shadow-sm">
+    <h1 className="text-xl font-semibold">{mode === "sign-up" ? "Create account" : "Sign in"}</h1>
+    {mode === "sign-up" ? <input name="name" aria-label="Name" required className="w-full rounded-md border p-2" /> : null}
+    <input name="email" type="email" aria-label="Email" required className="w-full rounded-md border p-2" />
+    <input name="password" type="password" aria-label="Password" minLength={8} required className="w-full rounded-md border p-2" />
+    {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+    <button type="submit" className="w-full rounded-md bg-primary p-2 text-primary-foreground">{mode === "sign-up" ? "Create account" : "Sign in"}</button>
+    <button type="button" className="w-full text-sm underline" onClick={() => setMode(mode === "sign-up" ? "sign-in" : "sign-up")}>{mode === "sign-up" ? "Use an existing account" : "Create a new account"}</button>
+  </form></main>;
+}

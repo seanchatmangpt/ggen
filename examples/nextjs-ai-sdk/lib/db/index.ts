@@ -1,0 +1,27 @@
+import "server-only";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
+import ws from "ws";
+import * as schema from "./schema";
+
+neonConfig.webSocketConstructor = ws;
+
+export class DatabaseConfigurationRefusedError extends Error {
+  readonly code = "DATABASE_CONFIGURATION_REFUSED";
+}
+
+let pool: Pool | undefined;
+let database: NeonDatabase<typeof schema> | undefined;
+
+export function getPool(): Pool {
+  if (pool) return pool;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new DatabaseConfigurationRefusedError("DATABASE_URL is required at the database boundary");
+  pool = new Pool({ connectionString });
+  return pool;
+}
+
+export function getDatabase(): NeonDatabase<typeof schema> {
+  database ??= drizzle(getPool(), { schema });
+  return database;
+}

@@ -1,0 +1,17 @@
+[project]
+name = "nextjs-ai-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+nai = "https://ggen.dev/packs/nextjs-ai#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[packs]
+nextjs-ai-sdk-pack = { path = "../pack" }
+
+[templates]
+dir = "templates"

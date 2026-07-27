@@ -11,7 +11,11 @@ ontology + templates + policy → admitted graph → deterministic artifacts →
 MIT licensed. Rust workspace. The pinned toolchain and verified build path are documented in [Getting Started](docs/GETTING_STARTED.md).
 
 <<<<<<< GENERATED
-Current version: `26.7.59` (workspace version in `Cargo.toml`; nightly Rust toolchain `nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The repository Definition of Done is `just pre-commit`. Treat this project as fast-moving and inspect the claims ledger before depending on a capability in production.
+Current version: `26.7.60` (workspace version in `Cargo.toml`; nightly Rust toolchain
+`nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
+pre-commit`, which chains 9 gates: fmt-check → check → lint → test-lib → coherence-check → guard-process-intelligence-boundary → guard-cheat-scan → guard-claims-schema → guard-pack-proofs. This project is
+under active, fast-moving development — see [Maturity & Known Limitations](#maturity--known-limitations)
+before depending on it for anything production-critical.
 
 =======
 <!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->

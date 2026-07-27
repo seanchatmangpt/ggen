@@ -1,0 +1,4 @@
+[pack]
+name = "nextjs-ai-sdk-pack"
+version = "26.7.23"
+description = "Manufactures a canonical Next.js 16 + React 19 + Vercel AI SDK 7 + AI Elements + shadcn/ui application from admitted RDF facts. Projects directly into first-class source paths; pins external UI registry inputs; routes every tool through a typed broker; requires approval for mutating tools; emits tests, deployment configuration, and provenance metadata."
