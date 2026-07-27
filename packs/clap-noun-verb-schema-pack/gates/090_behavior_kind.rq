@@ -1,0 +1,15 @@
+# MESSAGE: every command behavior must have exactly one supported executable kind; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?behavior (COUNT(DISTINCT ?behavior_type) AS ?kind_count) WHERE {
+  ?command a cnv:Command ; cnv:hasBehavior ?behavior .
+  OPTIONAL {
+    VALUES ?behavior_type {
+      cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
+      cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+    }
+    ?behavior a ?behavior_type .
+  }
+}
+GROUP BY ?behavior
+HAVING (COUNT(DISTINCT ?behavior_type) != 1)
+ORDER BY ?behavior
