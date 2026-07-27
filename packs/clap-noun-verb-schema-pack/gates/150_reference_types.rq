@@ -1,0 +1,41 @@
+# MESSAGE: graph edges must point to individuals of the class required by the compiler; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT ?subject ?property ?target WHERE {
+  {
+    ?subject a cnv:Cli ; cnv:hasNoun ?target .
+    BIND(cnv:hasNoun AS ?property)
+    FILTER NOT EXISTS { ?target a cnv:Noun }
+  } UNION {
+    ?subject a cnv:Noun ; cnv:hasCommand ?target .
+    BIND(cnv:hasCommand AS ?property)
+    FILTER NOT EXISTS { ?target a cnv:Command }
+  } UNION {
+    ?subject a cnv:Command ; cnv:belongsToNoun ?target .
+    BIND(cnv:belongsToNoun AS ?property)
+    FILTER NOT EXISTS { ?target a cnv:Noun }
+  } UNION {
+    ?subject a cnv:Command ; cnv:hasArgument ?target .
+    BIND(cnv:hasArgument AS ?property)
+    FILTER NOT EXISTS { ?target a cnv:Argument }
+  } UNION {
+    ?subject a cnv:Command ; cnv:hasBehavior ?target .
+    BIND(cnv:hasBehavior AS ?property)
+    FILTER NOT EXISTS {
+      VALUES ?kind {
+        cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
+        cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+      }
+      ?target a ?kind
+    }
+  } UNION {
+    ?subject cnv:usesBoundary ?target .
+    BIND(cnv:usesBoundary AS ?property)
+    FILTER NOT EXISTS { ?target a cnv:FilesystemBoundary }
+  } UNION {
+    ?target a cnv:FilesystemBoundary .
+    BIND(cnv:usesBoundary AS ?property)
+    BIND(?target AS ?subject)
+    FILTER NOT EXISTS { ?behavior cnv:usesBoundary ?target }
+  }
+}
+ORDER BY ?subject ?property ?target
