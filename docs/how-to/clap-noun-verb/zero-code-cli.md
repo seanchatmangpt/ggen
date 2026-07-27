@@ -13,6 +13,11 @@ my-cli/
 interpreter, boundary adapters, integration tests, and command reference.
 Generated Rust is a product of the graph. Do not edit it.
 
+`ontology.ttl` doesn't have to be hand-authored, either: if you're wrapping an
+existing API, see [reflect-openapi.md](reflect-openapi.md) for deriving it
+from an OpenAPI 3.x document instead — one reflection pass instead of one
+hand-typed RDF block per command.
+
 ## 1. Compose the compiler
 
 ```toml

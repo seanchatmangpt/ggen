@@ -97,7 +97,10 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use serde_json::{Map, Value};
 
-use crate::generated_behavior::{self, BehaviorSpec};
+{%- set_global has_closed_command = false %}
+{%- for cmd in commands %}{% if cmd.behavior_kind != "custom" %}{% set_global has_closed_command = true %}{% endif %}{% endfor -%}
+{% if has_closed_command %}use crate::generated_behavior::{self, BehaviorSpec};
+{% endif -%}
 
 {%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
 
