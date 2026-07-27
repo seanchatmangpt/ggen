@@ -1,4 +1,4 @@
-# MESSAGE: identifiers, value kinds, operators, roots, operations, and replay policies must remain inside the compiler's admitted closed sets; any row is a refusal.
+# MESSAGE: identifiers, value kinds, hints, operators, roots, operations, and replay policies must remain inside the compiler's admitted closed sets; any row is a refusal.
 PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT ?subject ?property ?value WHERE {
@@ -17,7 +17,7 @@ SELECT ?subject ?property ?value WHERE {
   } UNION {
     ?subject a cnv:Argument ; cnv:fieldName ?value .
     BIND(cnv:fieldName AS ?property)
-    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
   } UNION {
     ?subject a cnv:Argument ; cnv:valueKind ?value .
     BIND(cnv:valueKind AS ?property)
@@ -39,9 +39,17 @@ SELECT ?subject ?property ?value WHERE {
     BIND(cnv:environmentVariable AS ?property)
     FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9_]*$"))
   } UNION {
+    ?subject a cnv:Argument ; cnv:valueHint ?value .
+    BIND(cnv:valueHint AS ?property)
+    FILTER(STR(?value) NOT IN (
+      "FilePath", "DirPath", "CommandName", "CommandString", "Username",
+      "Hostname", "Url", "EmailAddress", "Unknown"
+    ))
+  } UNION {
     ?subject a cnv:Argument ; cnv:valueDelimiter ?value .
     BIND(cnv:valueDelimiter AS ?property)
-    FILTER(STRLEN(STR(?value)) != 1)
+    # clap-noun-verb 26.7.4 does not admit value_delimiter in #[arg].
+    FILTER(true)
   } UNION {
     ?subject a cnv:ExpressionBehavior ; cnv:operator ?value .
     BIND(cnv:operator AS ?property)
