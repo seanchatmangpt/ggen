@@ -94,20 +94,26 @@ use crate::generated_behavior::{self, BehaviorSpec};
 
 {%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
 
-{% for cmd in commands %}{%- set_global has_arguments = false %}{% for arg in arguments %}{% if arg.command == cmd.command %}{% set_global has_arguments = true %}{% endif %}{% endfor %}/// {{ cmd.about }}
-{% if has_arguments %}///
-/// # Arguments
-{% for arg in arguments %}{% if arg.command == cmd.command %}/// * `{{ arg.field }}` - {{ arg.about }}{% if arg.environment %} [env: {{ arg.environment }}]{% endif %}{% if arg.default_value %} [default: {{ arg.default_value }}]{% endif %}{% if arg.group_name %} [group: {{ arg.group_name }}]{% endif %}{% if arg.requires_name %} [requires: {{ arg.requires_name }}]{% endif %}{% if arg.conflicts_name %} [conflicts: {{ arg.conflicts_name }}]{% endif %}{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.exclusive == "true" %} [exclusive]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
+{% for cmd in commands %}{%- set_global has_arguments = false %}{% for arg in arguments %}{% if arg.command == cmd.command %}{% set_global has_arguments = true %}{% endif %}{% endfor %}#[doc = {{ cmd.about | json_encode | safe }}]
+{% if has_arguments %}#[doc = ""]
+#[doc = "# Arguments"]
+{% for arg in arguments %}{% if arg.command == cmd.command %}/// * `{{ arg.field }}` - Generated argument metadata.{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
 {% endif %}{% endfor %}{% endif %}#[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
 fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- for arg in arguments %}
 {%- if arg.command == cmd.command %}
 {%- if arg.value_kind == "string" %}{% set_global rust_type = "String" %}{% elif arg.value_kind == "i64" %}{% set_global rust_type = "i64" %}{% elif arg.value_kind == "u64" %}{% set_global rust_type = "u64" %}{% elif arg.value_kind == "f64" %}{% set_global rust_type = "f64" %}{% elif arg.value_kind == "bool" %}{% set_global rust_type = "bool" %}{% elif arg.value_kind == "path" %}{% set_global rust_type = "std::path::PathBuf" %}{% endif %}
-{%- if arg.position != "0" %}
-    #[arg(index = {{ arg.position }})]
-{%- elif arg.short_flag %}
-    #[arg(short = '{{ arg.short_flag }}')]
-{%- endif %}
+    #[arg(
+        help = {{ arg.about | json_encode | safe }}{% if arg.position != "0" %},
+        index = {{ arg.position }}{% endif %}{% if arg.short_flag %},
+        short = '{{ arg.short_flag }}'{% endif %}{% if arg.environment %},
+        env = {{ arg.environment | json_encode | safe }}{% endif %}{% if arg.default_value %},
+        default_value = {{ arg.default_value | json_encode | safe }}{% endif %}{% if arg.group_name %},
+        group = {{ arg.group_name | json_encode | safe }}{% endif %}{% if arg.requires_name %},
+        requires = {{ arg.requires_name | json_encode | safe }}{% endif %}{% if arg.conflicts_name %},
+        conflicts_with = {{ arg.conflicts_name | json_encode | safe }}{% endif %}{% if arg.exclusive == "true" %},
+        exclusive = true{% endif %}
+    )]
     {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{{ rust_type }}>{% elif arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}{{ rust_type }}{% else %}Option<{{ rust_type }}>{% endif %},
 {%- endif %}
 {%- endfor %}
