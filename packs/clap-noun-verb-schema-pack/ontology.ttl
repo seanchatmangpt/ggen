@@ -25,7 +25,7 @@ cnv:Command a rdfs:Class ;
 
 cnv:Argument a rdfs:Class ;
     rdfs:label "Argument" ;
-    rdfs:comment "A first-class typed command argument." .
+    rdfs:comment "A first-class typed command argument with an executable test witness." .
 
 cnv:Behavior a rdfs:Class ;
     rdfs:label "Behavior" ;
@@ -84,6 +84,8 @@ cnv:valueKind a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string 
 cnv:required a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:boolean .
 cnv:position a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:integer ;
     rdfs:comment "Positive positional index. Zero means option/flag." .
+cnv:testValue a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string ;
+    rdfs:comment "A CLI lexical witness used by generated real-dispatch tests." .
 cnv:longFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:shortFlag a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
 cnv:environmentVariable a rdf:Property ; rdfs:domain cnv:Argument ; rdfs:range xsd:string .
