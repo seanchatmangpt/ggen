@@ -1,0 +1,190 @@
+# Manufacture a zero-code `clap-noun-verb` CLI
+
+The universal compiler turns an admitted RDF command graph into a complete Rust
+binary. The application author owns two source files:
+
+```text
+my-cli/
+├── ggen.toml
+└── ontology.ttl
+```
+
+`ggen sync run` manufactures the manifest, crate roots, typed routes, behavior
+interpreter, boundary adapters, integration tests, and command reference.
+Generated Rust is a product of the graph. Do not edit it.
+
+## 1. Compose the compiler
+
+```toml
+[project]
+name = "my-cli"
+
+[ontology]
+source = "ontology.ttl"
+
+[ontology.prefixes]
+cnv = "https://clap-noun-verb.dev/ontology#"
+
+[packs]
+clap-noun-verb-schema-pack = { path = "../../packs/clap-noun-verb-schema-pack" }
+clap-noun-verb-crate-pack = { path = "../../packs/clap-noun-verb-crate-pack" }
+clap-noun-verb-routing-pack = { path = "../../packs/clap-noun-verb-routing-pack" }
+clap-noun-verb-behavior-pack = { path = "../../packs/clap-noun-verb-behavior-pack" }
+clap-noun-verb-boundary-pack = { path = "../../packs/clap-noun-verb-boundary-pack" }
+clap-noun-verb-verification-pack = { path = "../../packs/clap-noun-verb-verification-pack" }
+
+[templates]
+dir = "."
+aggregate_modules = false
+```
+
+The schema pack contains law only. It has no command individuals. The optional
+`clap-noun-verb-specimen-pack` is deliberately absent, so framework composition
+cannot change the CLI's public surface.
+
+## 2. Declare the CLI graph
+
+```turtle
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+
+cnv:ExampleCli
+    a cnv:Cli ;
+    cnv:binaryName "examplectl" ;
+    cnv:crateName "examplectl" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Example generated CLI." ;
+    cnv:hasNoun cnv:SystemNoun .
+
+cnv:SystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Inspect the system." ;
+    cnv:hasCommand cnv:SystemPing .
+
+cnv:SystemPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return liveness." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:PingBehavior .
+
+cnv:PingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\"}" .
+```
+
+Static values are JSON data, not Rust source. Malformed JSON reaches a generated
+real-binary test and fails. Arbitrary source text is never evaluated.
+
+## 3. Add typed arguments
+
+Arguments are first-class RDF nodes. Every argument carries a lexical test
+witness so the verification pack can exercise the real parser.
+
+```turtle
+cnv:ItemName
+    a cnv:Argument ;
+    cnv:name "name" ;
+    cnv:fieldName "name" ;
+    cnv:valueKind "string" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "Widget" ;
+    cnv:about "Item identifier." .
+```
+
+Options use position `0` and require a long flag:
+
+```turtle
+cnv:ItemTag
+    a cnv:Argument ;
+    cnv:name "tag" ;
+    cnv:fieldName "tag" ;
+    cnv:valueKind "string" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:testValue "production" ;
+    cnv:longFlag "tag" ;
+    cnv:shortFlag "t" ;
+    cnv:environmentVariable "INVENTORY_TAG" ;
+    cnv:about "Item tag." .
+```
+
+The compiler maps the closed value-kind set to Rust types:
+
+| RDF value kind | Rust type |
+|---|---|
+| `string` | `String` |
+| `i64` | `i64` |
+| `u64` | `u64` |
+| `f64` | `f64` |
+| `bool` | `bool` |
+| `path` | `PathBuf` |
+
+Unsupported kinds fail before rendering.
+
+## 4. Select one behavior
+
+Every command has exactly one admitted behavior kind:
+
+- `cnv:StaticJsonBehavior`
+- `cnv:EchoBehavior`
+- `cnv:ExpressionBehavior`
+- `cnv:FilesystemWriteBehavior`
+- `cnv:FilesystemListBehavior`
+- `cnv:RefusalBehavior`
+
+Generated commands dispatch through a Rust enum. There is no string-selected
+handler and no `crate::handlers::*` seam.
+
+A mutating filesystem command must use a boundary that admits `write-json`,
+requires a receipt, and declares a replay policy other than `none`:
+
+```turtle
+cnv:InventoryStore
+    a cnv:FilesystemBoundary ;
+    cnv:rootPath ".inventory/items" ;
+    cnv:allowedOperation "read-json", "write-json" ;
+    cnv:receiptRequired true ;
+    cnv:replayMode "verify-observed-output" .
+```
+
+The generated adapter validates relative paths, refuses parent traversal and
+symlink entries, writes a fully synced temporary inode, publishes it through a
+no-clobber hard link, and returns a BLAKE3 digest bound to the persisted bytes.
+
+## 5. Manufacture and verify
+
+```bash
+ggen sync run
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test --all-targets -- --nocapture
+cargo run -- --help
+```
+
+The generated integration suite invokes the compiled binary through
+`CARGO_BIN_EXE_*`. It does not call route functions directly and does not mock
+boundaries. Required-argument and unknown-command paths must fail nonzero.
+Filesystem tests read the real persisted bytes and recompute the emitted BLAKE3
+digest.
+
+Run sync a second time and compare generated bytes. A graph and pack closure that
+did not change must manufacture the identical product.
+
+## Authority boundaries
+
+```text
+ontology.ttl       application authority
+compiler packs     manufacturing law
+generated Rust     derived product
+runtime boundary   admitted actuation
+BLAKE3 response    content receipt
+generated tests    executable falsifier
+```
+
+A CLI does not qualify as zero-code when it contains a consumer-authored Rust
+handler, a generated placeholder, an unadmitted boundary, or an unreceipted
+mutation.
