@@ -1,19 +1,21 @@
 ---
 to: src/generated_cli.rs
+force: true
+sh_after: rustfmt src/generated_cli.rs
 sparql:
   commands: |
     PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
     SELECT ?command ?noun ?verb ?about ?behavior_kind
            (COALESCE(STR(?json), "") AS ?json_value)
-           (COALESCE(STR(?operator), "") AS ?operator)
+           (COALESCE(STR(?operator_raw), "") AS ?operator)
            (COALESCE(STR(?left), "") AS ?left_argument)
            (COALESCE(STR(?right), "") AS ?right_argument)
            (COALESCE(STR(?root), "") AS ?root_path)
            (COALESCE(STR(?receipt), "false") AS ?receipt_required)
            (COALESCE(STR(?replay), "none") AS ?replay_mode)
-           (COALESCE(STR(?id_argument), "") AS ?id_argument)
-           (COALESCE(STR(?refusal_code), "") AS ?refusal_code)
-           (COALESCE(STR(?refusal_message), "") AS ?refusal_message)
+           (COALESCE(STR(?id_argument_raw), "") AS ?id_argument)
+           (COALESCE(STR(?refusal_code_raw), "") AS ?refusal_code)
+           (COALESCE(STR(?refusal_message_raw), "") AS ?refusal_message)
     WHERE {
       ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
       ?command a cnv:Command ; cnv:name ?verb ; cnv:about ?about ;
@@ -25,15 +27,16 @@ sparql:
         (cnv:FilesystemWriteBehavior "filesystem-write")
         (cnv:FilesystemListBehavior "filesystem-list")
         (cnv:RefusalBehavior "refusal")
+        (cnv:CustomBehavior "custom")
       }
       ?behavior a ?behavior_type .
       OPTIONAL { ?behavior cnv:jsonValue ?json }
-      OPTIONAL { ?behavior cnv:operator ?operator }
+      OPTIONAL { ?behavior cnv:operator ?operator_raw }
       OPTIONAL { ?behavior cnv:leftArgument ?left }
       OPTIONAL { ?behavior cnv:rightArgument ?right }
-      OPTIONAL { ?behavior cnv:idArgument ?id_argument }
-      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code }
-      OPTIONAL { ?behavior cnv:refusalMessage ?refusal_message }
+      OPTIONAL { ?behavior cnv:idArgument ?id_argument_raw }
+      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code_raw }
+      OPTIONAL { ?behavior cnv:refusalMessage ?refusal_message_raw }
       OPTIONAL {
         ?behavior cnv:usesBoundary ?boundary .
         ?boundary cnv:rootPath ?root ; cnv:receiptRequired ?receipt ; cnv:replayMode ?replay .
@@ -46,7 +49,7 @@ sparql:
            (STR(?required_value) AS ?required)
            (STR(?position_value) AS ?position)
            (COALESCE(STR(?short), "") AS ?short_flag)
-           (COALESCE(STR(?environment), "") AS ?environment)
+           (COALESCE(STR(?environment_raw), "") AS ?environment)
            (COALESCE(STR(?default), "") AS ?default_value)
            (COALESCE(STR(?group), "") AS ?group_name)
            (COALESCE(STR(?requires), "") AS ?requires_name)
@@ -63,7 +66,7 @@ sparql:
                 cnv:about ?about ; cnv:valueKind ?value_kind ;
                 cnv:required ?required_value ; cnv:position ?position_value .
       OPTIONAL { ?argument cnv:shortFlag ?short }
-      OPTIONAL { ?argument cnv:environmentVariable ?environment }
+      OPTIONAL { ?argument cnv:environmentVariable ?environment_raw }
       OPTIONAL { ?argument cnv:defaultValue ?default }
       OPTIONAL { ?argument cnv:group ?group }
       OPTIONAL { ?argument cnv:requires ?requires }
@@ -83,7 +86,11 @@ sparql:
 ---
 //! Typed noun-verb routes GENERATED from first-class RDF arguments.
 //!
-//! Every body closes through `BehaviorSpec`. There is no consumer handler seam.
+//! Every body closes through `BehaviorSpec`, except commands carrying the
+//! explicit, admitted `cnv:CustomBehavior` opt-out, which route to a
+//! hand-written `crate::custom_handlers::<noun>_<verb>` function instead. That
+//! is the sole consumer handler seam this compiler ever emits, and it is
+//! visible per-command in the source ontology, not a blanket escape hatch.
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
@@ -134,6 +141,9 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- endif %}
 {%- endfor %}
 
+{%- if cmd.behavior_kind == "custom" %}
+    crate::custom_handlers::{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(inputs)
+{%- else %}
     generated_behavior::execute(
 {%- if cmd.behavior_kind == "static-json" %}
         BehaviorSpec::StaticJson { json: {{ cmd.json_value | json_encode | safe }} },
@@ -170,6 +180,7 @@ fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- endif %}
         inputs,
     )
+{%- endif %}
 }
 
 {% endfor %}{% for noun in nouns %}#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
@@ -204,8 +215,24 @@ mod generated_route_proofs {
 
     #[test]
     fn no_consumer_handler_seam_survives_generation() {
-        assert!(!routes_only().contains("handlers::"));
+        // `custom_handlers::` is the sole, explicitly admitted escape hatch
+        // (cnv:CustomBehavior); strip it before checking for the legacy,
+        // unbounded `handlers::` seam this compiler never emits otherwise.
+        let without_admitted_custom_seam = routes_only().replace("custom_handlers::", "");
+        assert!(!without_admitted_custom_seam.contains("handlers::"));
         assert!(!routes_only().contains("todo!"));
         assert!(!routes_only().contains("unimplemented!"));
+    }
+
+    #[test]
+    fn every_custom_command_routes_to_its_own_handler() {
+        // Proves per-command wiring, not just that a seam exists somewhere:
+        // each cnv:CustomBehavior command must call the one handler function
+        // named after ITS OWN noun and verb, not a neighboring command's.
+{% for cmd in commands %}{% if cmd.behavior_kind == "custom" %}        assert!(
+            routes_only().contains("custom_handlers::{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}("),
+            "{{ cmd.noun }} {{ cmd.verb }} must route to its own custom handler"
+        );
+{% endif %}{% endfor %}
     }
 }

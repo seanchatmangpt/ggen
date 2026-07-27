@@ -17,6 +17,7 @@ SELECT ?subject ?violation ?detail WHERE {
       VALUES ?kind {
         cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
         cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+        cnv:CustomBehavior
       }
       ?behavior a ?kind .
     }

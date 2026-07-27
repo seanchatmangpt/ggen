@@ -24,6 +24,7 @@ SELECT ?subject ?property ?target WHERE {
       VALUES ?kind {
         cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
         cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+        cnv:CustomBehavior
       }
       ?target a ?kind
     }

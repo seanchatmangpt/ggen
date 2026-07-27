@@ -13,6 +13,7 @@ SELECT ?subject ?kind (COUNT(?command) AS ?owner_count) WHERE {
     VALUES ?behavior_type {
       cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
       cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+      cnv:CustomBehavior
     }
     ?subject a ?behavior_type .
     OPTIONAL { ?command a cnv:Command ; cnv:hasBehavior ?subject . }

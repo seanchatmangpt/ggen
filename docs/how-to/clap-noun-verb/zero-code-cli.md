@@ -135,9 +135,10 @@ Every command has exactly one admitted behavior kind:
 - `cnv:FilesystemWriteBehavior`
 - `cnv:FilesystemListBehavior`
 - `cnv:RefusalBehavior`
+- `cnv:CustomBehavior` (see [Opting a command out of closed zero-code](#opting-a-command-out-of-closed-zero-code) below)
 
 Generated commands dispatch through a Rust enum. There is no string-selected
-handler and no `crate::handlers::*` seam.
+handler and no `crate::handlers::*` seam for any of the first six kinds.
 
 A mutating filesystem command must use a boundary that admits `write-json`,
 requires a receipt, and declares a replay policy other than `none`:
@@ -154,6 +155,48 @@ cnv:InventoryStore
 The generated adapter validates relative paths, refuses parent traversal and
 symlink entries, writes a fully synced temporary inode, publishes it through a
 no-clobber hard link, and returns a BLAKE3 digest bound to the persisted bytes.
+
+## Opting a command out of closed zero-code
+
+`cnv:CustomBehavior` is the sole, explicitly admitted escape hatch. It is
+per-command, not per-CLI: most commands can stay on the closed six-primitive
+set while one command opts out.
+
+```turtle
+cnv:PricingLookup
+    a cnv:Command ;
+    cnv:name "lookup" ;
+    cnv:about "Look up a live price." ;
+    cnv:belongsToNoun cnv:PriceNoun ;
+    cnv:hasBehavior cnv:PricingBehavior .
+
+cnv:PricingBehavior a cnv:CustomBehavior .
+```
+
+The first `ggen sync run` scaffolds `src/custom_handlers.rs` with one typed
+stub per opted-out command (`pub fn <noun>_<verb>(inputs: Map<String, Value>)
+-> Result<Value>`), each body a bare `todo!(...)`. That file is written with
+`unless_exists: true` — every later `ggen sync run` leaves it alone, so your
+hand-written domain logic is never clobbered. A missing or misnamed handler
+function is a Rust compile error, not a silent generation gap; a generated
+test (`every_custom_command_routes_to_its_own_handler` in
+`src/generated_cli.rs`) additionally proves each custom command routes to its
+*own* handler and not a neighboring command's.
+
+A command opting into `cnv:CustomBehavior` is, for that command only, no
+longer zero-code — it requires hand-written Rust, same as any ordinary
+`crate::handlers::*` seam. The rest of the CLI stays fully closed and
+receipted. This is the intended tradeoff for domain logic the six primitives
+cannot express (calling an external API, querying a database, multi-step or
+conditional business rules) — not a general-purpose way to bypass admission.
+
+See `examples/zero-code-custom-handler-demo/` for a complete, runnable proof:
+one closed `system ping` command alongside one `price lookup` command that
+opts out and looks up a price from a small hand-written table (a real branch
+on argument value, not expressible by any of the six primitives). Its
+`src/custom_handlers.rs` is committed as authored source (not a scaffolded
+`todo!()` stub) so `cargo test` after `ggen sync run` exercises real,
+deterministic output.
 
 ## 5. Manufacture and verify
 
@@ -185,6 +228,6 @@ BLAKE3 response    content receipt
 generated tests    executable falsifier
 ```
 
-A CLI does not qualify as zero-code when it contains a consumer-authored Rust
-handler, a generated placeholder, an unadmitted boundary, or an unreceipted
-mutation.
+A command does not qualify as zero-code when it contains a consumer-authored
+Rust handler that was not explicitly admitted via `cnv:CustomBehavior`, a
+generated placeholder, an unadmitted boundary, or an unreceipted mutation.

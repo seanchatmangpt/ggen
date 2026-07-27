@@ -55,6 +55,9 @@ cnv:FilesystemListBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
 cnv:RefusalBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
     rdfs:comment "Fail closed with a declared code and message." .
 
+cnv:CustomBehavior a rdfs:Class ; rdfs:subClassOf cnv:Behavior ;
+    rdfs:comment "Explicit, per-command opt-out of the closed primitive set: routes to a hand-written crate::custom_handlers::<noun>_<verb> function scaffolded once (never overwritten) by clap-noun-verb-crate-pack. A command carrying this behavior is not zero-code -- it is the sole, loudly-declared escape hatch, admitted by the same closed gate (gates/090_behavior_kind.rq) as every other behavior kind rather than bypassing it." .
+
 cnv:FilesystemBoundary a rdfs:Class ; rdfs:subClassOf cnv:Boundary ;
     rdfs:comment "A rooted filesystem capability with an explicit operation allow-list." .
 

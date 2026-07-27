@@ -6,6 +6,7 @@ SELECT ?behavior (COUNT(DISTINCT ?behavior_type) AS ?kind_count) WHERE {
     VALUES ?behavior_type {
       cnv:StaticJsonBehavior cnv:EchoBehavior cnv:ExpressionBehavior
       cnv:FilesystemWriteBehavior cnv:FilesystemListBehavior cnv:RefusalBehavior
+      cnv:CustomBehavior
     }
     ?behavior a ?behavior_type .
   }
