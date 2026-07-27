@@ -149,6 +149,19 @@ fn real_cli_{{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}_matches_admi
         .join(format!("{}.json", {{ id_test_value | json_encode | safe }}));
     let bytes = fs::read(&persisted).expect("filesystem behavior must persist the admitted record");
     assert_eq!(blake3::hash(&bytes).to_hex().as_str(), digest);
+
+    let duplicate = workspace.run(
+        {{ cmd.noun | json_encode | safe }},
+        {{ cmd.verb | json_encode | safe }},
+        arguments,
+    );
+    assert!(
+        !duplicate.status.success(),
+        "the generated no-clobber boundary must reject duplicate record creation"
+    );
+    let bytes_after_refusal =
+        fs::read(&persisted).expect("the first record must survive duplicate refusal");
+    assert_eq!(bytes_after_refusal, bytes, "duplicate refusal must not mutate the record");
 {%- else %}
     assert!(!value.is_null(), "successful generated behavior must return a JSON value");
 {%- endif %}
