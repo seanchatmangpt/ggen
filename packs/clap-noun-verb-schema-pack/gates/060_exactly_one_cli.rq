@@ -1,0 +1,6 @@
+# MESSAGE: a zero-code compilation unit must contain exactly one cnv:Cli; any row is a refusal.
+PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+SELECT (COUNT(?cli) AS ?cli_count) WHERE {
+  ?cli a cnv:Cli .
+}
+HAVING (COUNT(?cli) != 1)
