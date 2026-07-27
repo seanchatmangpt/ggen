@@ -39,9 +39,9 @@ pub fn write_json(
     value: &Value,
 ) -> Result<Value> {
     let root = admitted_root(spec.root)?;
-    refuse_symlink_if_present(&root)?;
+    refuse_symlink_components(&root)?;
     fs::create_dir_all(&root).map_err(|error| execution_error("create boundary root", &error))?;
-    refuse_symlink_if_present(&root)?;
+    refuse_symlink_components(&root)?;
 
     let safe_id = admitted_component(id)?;
     let destination = root.join(format!("{safe_id}.json"));
@@ -98,7 +98,7 @@ pub fn list_json(spec: FilesystemBoundarySpec) -> Result<Value> {
     if !root.exists() {
         return Ok(json!({ "total": 0, "records": [] }));
     }
-    refuse_symlink_if_present(&root)?;
+    refuse_symlink_components(&root)?;
 
     let mut paths = Vec::new();
     for entry in fs::read_dir(&root).map_err(|error| execution_error("read boundary root", &error))? {
@@ -169,15 +169,33 @@ fn admitted_component(component: &str) -> Result<String> {
     Ok(component.to_owned())
 }
 
-fn refuse_symlink_if_present(path: &Path) -> Result<()> {
-    match fs::symlink_metadata(path) {
-        Ok(metadata) if metadata.file_type().is_symlink() => Err(NounVerbError::execution_error(
-            format!("filesystem boundary refused symlink root {}", path.display()),
-        )),
-        Ok(_) => Ok(()),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(execution_error("inspect filesystem boundary", &error)),
+fn refuse_symlink_components(path: &Path) -> Result<()> {
+    let mut current = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::CurDir => continue,
+            Component::Normal(component) => current.push(component),
+            Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
+                return Err(NounVerbError::execution_error(format!(
+                    "filesystem boundary contained a forbidden component: {}",
+                    path.display()
+                )));
+            }
+        }
+
+        match fs::symlink_metadata(&current) {
+            Ok(metadata) if metadata.file_type().is_symlink() => {
+                return Err(NounVerbError::execution_error(format!(
+                    "filesystem boundary refused symlink component {}",
+                    current.display()
+                )));
+            }
+            Ok(_) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(execution_error("inspect filesystem boundary", &error)),
+        }
     }
+    Ok(())
 }
 
 fn unique_temporary_path(root: &Path, id: &str) -> Result<PathBuf> {
@@ -212,5 +230,23 @@ mod tests {
     fn parent_roots_are_refused() {
         assert!(admitted_root("../outside").is_err());
         assert!(admitted_root("/absolute").is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn intermediate_symlink_components_are_refused() {
+        use std::os::unix::fs::symlink;
+
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!("cnv-symlink-test-{}-{nonce}", std::process::id()));
+        let target = root.join("target");
+        let link = root.join("link");
+        fs::create_dir_all(&target).unwrap();
+        symlink(&target, &link).unwrap();
+        assert!(refuse_symlink_components(&link.join("child")).is_err());
+        fs::remove_dir_all(&root).unwrap();
     }
 }
