@@ -13,7 +13,7 @@ SELECT ?subject ?missing WHERE {
     VALUES ?missing { cnv:name cnv:about cnv:belongsToNoun cnv:hasBehavior }
   } UNION {
     ?subject a cnv:Argument .
-    VALUES ?missing { cnv:name cnv:fieldName cnv:valueKind cnv:required cnv:position cnv:about }
+    VALUES ?missing { cnv:name cnv:fieldName cnv:valueKind cnv:required cnv:position cnv:testValue cnv:about }
   } UNION {
     ?subject a cnv:FilesystemBoundary .
     VALUES ?missing { cnv:rootPath cnv:allowedOperation cnv:receiptRequired cnv:replayMode }
