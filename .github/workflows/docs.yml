@@ -193,7 +193,13 @@ jobs:
           from pathlib import Path
           from rdflib import Graph
 
-          files = sorted(set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
+          # examples/archive/ is explicitly out of the build boundary (same doctrine as root
+          # Cargo.toml's `exclude` for retired members): historical/dead example content,
+          # never validated live. Filtering it here, not deleting it -- non-deletion doctrine.
+          files = sorted(
+              (set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
+              - set(Path('examples/archive').rglob('*.ttl'))
+          )
           failures = []
           triples = 0
           for path in files:
