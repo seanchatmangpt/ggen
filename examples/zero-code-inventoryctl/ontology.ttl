@@ -137,7 +137,7 @@ cnv:SystemEcho
     cnv:about "Return typed command inputs as a JSON object." ;
     cnv:belongsToNoun cnv:SystemNoun ;
     cnv:hasArgument cnv:EchoMessage, cnv:EchoUppercase ;
-    cnv:hasBehavior cnv:EchoBehavior .
+    cnv:hasBehavior cnv:SystemEchoBehavior .
 
 cnv:EchoMessage
     a cnv:Argument ;
@@ -161,7 +161,7 @@ cnv:EchoUppercase
     cnv:shortFlag "u" ;
     cnv:about "Include an uppercase-request flag in the returned input object." .
 
-cnv:EchoBehavior a cnv:EchoBehavior .
+cnv:SystemEchoBehavior a cnv:EchoBehavior .
 
 cnv:SystemPing
     a cnv:Command ;
