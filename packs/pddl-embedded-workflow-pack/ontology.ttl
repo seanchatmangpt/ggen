@@ -1,0 +1,97 @@
+# pddl-embedded-workflow pack ontology — hand-authored action bindings for
+# one bcinr-pddl EmbeddedWorkflow domain.
+#
+# This ontology does NOT encode PDDL syntax (preconditions, effects, typing).
+# It encodes only what the generated Rust binding needs: the action's name
+# (must match the real PDDL domain text's action name exactly — this is
+# checked at gate time only for internal consistency of this file, not
+# cross-checked against the PDDL text itself; a consumer's own integration
+# test should assert ActionBinding::supported_actions() against the real
+# domain, per the lifecycle document's Stage 2), the Rust enum variant name
+# to generate for it, and which of bcinr-pddl's three workflow_cmd::adapters
+# it should route through by default.
+
+@prefix wf:   <http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Schema ──────────────────────────────────────────────────────────
+
+wf:Domain
+  a rdfs:Class ;
+  rdfs:label "Embedded Workflow Domain" ;
+  rdfs:comment "One bcinr_pddl::EmbeddedWorkflow domain: its Rust module name, binding name, and the actions it admits." .
+
+wf:Action
+  a rdfs:Class ;
+  rdfs:label "Domain Action" ;
+  rdfs:comment "One PDDL domain action this pack generates a Rust command variant and binding arm for." .
+
+wf:ExecutionKind
+  a rdfs:Class ;
+  rdfs:label "Execution Kind" ;
+  rdfs:comment "Which of bcinr-pddl's workflow_cmd::adapters projections an action's command routes through by default." .
+
+wf:domainName    a rdfs:Property ; rdfs:label "PDDL domain name" ; rdfs:comment "Must match the real PDDL domain text's (define (domain ...)) name." ; rdfs:range xsd:string .
+wf:bindingName   a rdfs:Property ; rdfs:label "ActionBinding::binding_name() value" ; rdfs:range xsd:string .
+wf:moduleName    a rdfs:Property ; rdfs:label "Rust module/file stem to generate" ; rdfs:range xsd:string .
+wf:commandEnum   a rdfs:Property ; rdfs:label "generated command enum name" ; rdfs:range xsd:string .
+wf:hasAction     a rdfs:Property ; rdfs:label "action belonging to this domain" ; rdfs:range wf:Action .
+
+wf:actionName    a rdfs:Property ; rdfs:label "PDDL action name" ; rdfs:comment "Must match the real PDDL domain text's :action name exactly." ; rdfs:range xsd:string .
+wf:variant       a rdfs:Property ; rdfs:label "generated Rust enum variant name" ; rdfs:range xsd:string .
+wf:arity         a rdfs:Property ; rdfs:label "number of :parameters this action takes" ; rdfs:range xsd:integer .
+wf:executionKind a rdfs:Property ; rdfs:label "default adapter routing for this action" ; rdfs:range wf:ExecutionKind .
+
+wf:Local
+  a wf:ExecutionKind ;
+  rdfs:label "local" ;
+  rdfs:comment "Routes through workflow_cmd::adapters::TaskGroupAdapter by default." .
+
+wf:Durable
+  a wf:ExecutionKind ;
+  rdfs:label "durable" ;
+  rdfs:comment "Routes through workflow_cmd::adapters::OutboxAdapter by default." .
+
+wf:HumanApproval
+  a wf:ExecutionKind ;
+  rdfs:label "human-approval" ;
+  rdfs:comment "Routes through workflow_cmd::adapters::ApprovalAdapter by default." .
+
+# ── Individuals: the fulfillment domain from examples/embedded_workflow.rs ──
+#
+# Transcribed directly from crates/bcinr-pddl/examples/embedded_workflow.rs's
+# DOMAIN constant and its hand-written Command enum / TryFrom impl (order-42,
+# reserve-inventory + notify-customer, both zero-arity, both gated on the
+# `paid` predicate) — not an invented example. Execution-kind assignment is
+# this pack's own addition, not present in the original example: reserving
+# inventory is modeled as an in-process local operation; notifying the
+# customer is modeled as durable (delivery must survive a process restart),
+# which is a defensible real-world default, not the only correct one — a
+# consumer can override either at the adapter-routing call site.
+
+wf:fulfillment
+  a wf:Domain ;
+  rdfs:label "Order fulfillment embedded workflow" ;
+  rdfs:comment "Modeled on crates/bcinr-pddl/examples/embedded_workflow.rs." ;
+  wf:domainName "fulfillment" ;
+  wf:bindingName "fulfillment-command-v1" ;
+  wf:moduleName "embedded_workflow_generated" ;
+  wf:commandEnum "Command" ;
+  wf:hasAction wf:reserve-inventory, wf:notify-customer .
+
+wf:reserve-inventory
+  a wf:Action ;
+  rdfs:comment "Reserves inventory once the order is paid." ;
+  wf:actionName "reserve-inventory" ;
+  wf:variant "ReserveInventory" ;
+  wf:arity 0 ;
+  wf:executionKind wf:Local .
+
+wf:notify-customer
+  a wf:Action ;
+  rdfs:comment "Notifies the customer once the order is paid; durable so delivery survives a restart." ;
+  wf:actionName "notify-customer" ;
+  wf:variant "NotifyCustomer" ;
+  wf:arity 0 ;
+  wf:executionKind wf:Durable .

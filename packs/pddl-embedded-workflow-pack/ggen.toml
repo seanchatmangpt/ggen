@@ -1,0 +1,45 @@
+# Standalone sync manifest for exercising this pack directly (`cd` into this
+# directory and run `ggen sync run`). A real consumer does not use this file
+# as-is: they copy the [[generation.rules]] rule below into their OWN
+# ggen.toml, point `output_dir`/`output_file` at their own crate (e.g.
+# `crates/bcinr-pddl/examples/`), and add this pack's `ontology.ttl` path to
+# their `[ontology].imports` list alongside their own domain instance data.
+
+[project]
+name = "pddl-embedded-workflow-pack"
+version = "0.1.0"
+description = "Standalone sync manifest for pddl-embedded-workflow-pack's own demo generation."
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#"
+
+[ontology.prefixes]
+wf   = "http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
+
+[inference]
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "embedded-workflow-bindings"
+query = { inline = """
+PREFIX wf:   <http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?domainName ?bindingName ?commandEnum ?actionName ?variant ?arity ?kind ?comment
+WHERE {
+  ?d a wf:Domain ; wf:domainName ?domainName ; wf:bindingName ?bindingName ;
+     wf:commandEnum ?commandEnum ; wf:hasAction ?a .
+  ?a a wf:Action ; wf:actionName ?actionName ; wf:variant ?variant ;
+     wf:arity ?arity ; wf:executionKind ?k .
+  ?k rdfs:label ?kind .
+  OPTIONAL { ?a rdfs:comment ?comment }
+}
+ORDER BY ?actionName
+""" }
+template = { file = "templates/embedded_workflow_bindings.rs.tera" }
+output_file = "tests/embedded_workflow_generated.rs"
+mode = "Overwrite"
