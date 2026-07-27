@@ -1,0 +1,202 @@
+---
+to: src/generated_cli.rs
+sparql:
+  commands: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?noun ?verb ?about ?behavior_kind
+           (COALESCE(?json, "") AS ?json_value)
+           (COALESCE(?operator, "") AS ?operator)
+           (COALESCE(?left, "") AS ?left_argument)
+           (COALESCE(?right, "") AS ?right_argument)
+           (COALESCE(?root, "") AS ?root_path)
+           (COALESCE(?receipt, false) AS ?receipt_required)
+           (COALESCE(?replay, "none") AS ?replay_mode)
+           (COALESCE(?id_argument, "") AS ?id_argument)
+           (COALESCE(?refusal_code, "") AS ?refusal_code)
+           (COALESCE(?refusal_message, "") AS ?refusal_message)
+    WHERE {
+      ?noun_node a cnv:Noun ; cnv:name ?noun ; cnv:hasCommand ?command .
+      ?command a cnv:Command ; cnv:name ?verb ; cnv:about ?about ;
+               cnv:belongsToNoun ?noun_node ; cnv:hasBehavior ?behavior .
+      VALUES (?behavior_type ?behavior_kind) {
+        (cnv:StaticJsonBehavior "static-json")
+        (cnv:EchoBehavior "echo")
+        (cnv:ExpressionBehavior "expression")
+        (cnv:FilesystemWriteBehavior "filesystem-write")
+        (cnv:FilesystemListBehavior "filesystem-list")
+        (cnv:RefusalBehavior "refusal")
+      }
+      ?behavior a ?behavior_type .
+      OPTIONAL { ?behavior cnv:jsonValue ?json }
+      OPTIONAL { ?behavior cnv:operator ?operator }
+      OPTIONAL { ?behavior cnv:leftArgument ?left }
+      OPTIONAL { ?behavior cnv:rightArgument ?right }
+      OPTIONAL { ?behavior cnv:idArgument ?id_argument }
+      OPTIONAL { ?behavior cnv:refusalCode ?refusal_code }
+      OPTIONAL { ?behavior cnv:refusalMessage ?refusal_message }
+      OPTIONAL {
+        ?behavior cnv:usesBoundary ?boundary .
+        ?boundary cnv:rootPath ?root ; cnv:receiptRequired ?receipt ; cnv:replayMode ?replay .
+      }
+    }
+    ORDER BY ?noun ?verb
+  arguments: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?command ?name ?field ?about ?value_kind ?required ?position
+           (COALESCE(?long, "") AS ?long_flag)
+           (COALESCE(?short, "") AS ?short_flag)
+           (COALESCE(?environment, "") AS ?environment)
+           (COALESCE(?default, "") AS ?default_value)
+           (COALESCE(?group, "") AS ?group_name)
+           (COALESCE(?requires, "") AS ?requires_name)
+           (COALESCE(?conflicts, "") AS ?conflicts_name)
+           (COALESCE(?hint, "") AS ?value_hint)
+           (COALESCE(?hidden, false) AS ?hidden)
+           (COALESCE(?global, false) AS ?global)
+           (COALESCE(?exclusive, false) AS ?exclusive)
+           (COALESCE(?heading, "") AS ?help_heading)
+           (COALESCE(?multiple, false) AS ?multiple)
+           (COALESCE(?delimiter, "") AS ?value_delimiter)
+    WHERE {
+      ?command a cnv:Command ; cnv:hasArgument ?argument .
+      ?argument a cnv:Argument ; cnv:name ?name ; cnv:fieldName ?field ;
+                cnv:about ?about ; cnv:valueKind ?value_kind ;
+                cnv:required ?required ; cnv:position ?position .
+      OPTIONAL { ?argument cnv:longFlag ?long }
+      OPTIONAL { ?argument cnv:shortFlag ?short }
+      OPTIONAL { ?argument cnv:environmentVariable ?environment }
+      OPTIONAL { ?argument cnv:defaultValue ?default }
+      OPTIONAL { ?argument cnv:group ?group }
+      OPTIONAL { ?argument cnv:requires ?requires }
+      OPTIONAL { ?argument cnv:conflictsWith ?conflicts }
+      OPTIONAL { ?argument cnv:valueHint ?hint }
+      OPTIONAL { ?argument cnv:hidden ?hidden }
+      OPTIONAL { ?argument cnv:global ?global }
+      OPTIONAL { ?argument cnv:exclusive ?exclusive }
+      OPTIONAL { ?argument cnv:helpHeading ?heading }
+      OPTIONAL { ?argument cnv:multiple ?multiple }
+      OPTIONAL { ?argument cnv:valueDelimiter ?delimiter }
+    }
+    ORDER BY ?command ?position ?field
+  nouns: |
+    PREFIX cnv: <https://clap-noun-verb.dev/ontology#>
+    SELECT ?name ?about WHERE { ?noun a cnv:Noun ; cnv:name ?name ; cnv:about ?about . }
+    ORDER BY ?name
+---
+//! Typed noun-verb routes GENERATED from first-class RDF arguments.
+//!
+//! Every body closes through `BehaviorSpec`. There is no consumer handler seam.
+
+use clap_noun_verb::{NounVerbError, Result};
+use clap_noun_verb_macros::verb;
+use serde::Serialize;
+use serde_json::{Map, Value};
+
+use crate::generated_behavior::{self, BehaviorSpec};
+use crate::generated_boundaries::FilesystemBoundarySpec;
+
+{%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
+
+{% for cmd in commands %}/// {{ cmd.about }}
+#[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
+fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
+{%- for arg in arguments %}
+{%- if arg.command == cmd.command %}
+    /// {{ arg.about }}{% if arg.environment %} [env: {{ arg.environment }}]{% endif %}{% if arg.default_value %} [default: {{ arg.default_value }}]{% endif %}{% if arg.group_name %} [group: {{ arg.group_name }}]{% endif %}{% if arg.requires_name %} [requires: {{ arg.requires_name }}]{% endif %}{% if arg.conflicts_name %} [conflicts: {{ arg.conflicts_name }}]{% endif %}{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.exclusive == "true" %} [exclusive]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
+{%- if arg.position == "0" %}
+    #[arg(long = "{{ arg.long_flag }}"{% if arg.short_flag %}, short = '{{ arg.short_flag }}'{% endif %})]
+{%- endif %}
+    {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{% endif %}{% if arg.value_kind == "string" %}String{% elif arg.value_kind == "i64" %}i64{% elif arg.value_kind == "u64" %}u64{% elif arg.value_kind == "f64" %}f64{% elif arg.value_kind == "bool" %}bool{% elif arg.value_kind == "path" %}std::path::PathBuf{% endif %}{% if arg.multiple == "true" %}>{% elif arg.required != "true" and not (arg.value_kind == "bool" and arg.position == "0") %}>{% endif %}{% if arg.multiple != "true" and arg.required != "true" and not (arg.value_kind == "bool" and arg.position == "0") %}{% endif %},
+{%- endif %}
+{%- endfor %}
+) -> Result<Value> {
+    let mut inputs = Map::new();
+{%- for arg in arguments %}
+{%- if arg.command == cmd.command %}
+{%- if arg.multiple == "true" or arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}
+    inputs.insert(
+        "{{ arg.field }}".to_owned(),
+        encode_input("{{ arg.field }}", &{% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %})?,
+    );
+{%- else %}
+    if let Some(value) = {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %} {
+        inputs.insert("{{ arg.field }}".to_owned(), encode_input("{{ arg.field }}", &value)?);
+    }
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+    generated_behavior::execute(
+{%- if cmd.behavior_kind == "static-json" %}
+        BehaviorSpec::StaticJson { json: {{ cmd.json_value | json_encode() }} },
+{%- elif cmd.behavior_kind == "echo" %}
+        BehaviorSpec::Echo,
+{%- elif cmd.behavior_kind == "expression" %}
+        BehaviorSpec::Expression {
+            operator: {{ cmd.operator | json_encode() }},
+            left: {{ cmd.left_argument | json_encode() }},
+            right: {{ cmd.right_argument | json_encode() }},
+        },
+{%- elif cmd.behavior_kind == "filesystem-write" %}
+        BehaviorSpec::FilesystemWrite {
+            boundary: FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode() }},
+                receipt_required: {{ cmd.receipt_required }},
+                replay_mode: {{ cmd.replay_mode | json_encode() }},
+            },
+            id_argument: {{ cmd.id_argument | json_encode() }},
+        },
+{%- elif cmd.behavior_kind == "filesystem-list" %}
+        BehaviorSpec::FilesystemList {
+            boundary: FilesystemBoundarySpec {
+                root: {{ cmd.root_path | json_encode() }},
+                receipt_required: {{ cmd.receipt_required }},
+                replay_mode: {{ cmd.replay_mode | json_encode() }},
+            },
+        },
+{%- elif cmd.behavior_kind == "refusal" %}
+        BehaviorSpec::Refusal {
+            code: {{ cmd.refusal_code | json_encode() }},
+            message: {{ cmd.refusal_message | json_encode() }},
+        },
+{%- endif %}
+        inputs,
+    )
+}
+
+{% endfor %}{% for noun in nouns %}#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_{{ noun.name | snake_case | upper }}_NOUN: fn() = register_{{ noun.name | snake_case }}_noun;
+
+fn register_{{ noun.name | snake_case }}_noun() {
+    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(
+        {{ noun.name | json_encode() }},
+        {{ noun.about | json_encode() }},
+    );
+}
+
+{% endfor %}fn encode_input<T: Serialize>(name: &str, value: &T) -> Result<Value> {
+    serde_json::to_value(value).map_err(|error| {
+        NounVerbError::execution_error(format!("failed to encode generated argument {name:?}: {error}"))
+    })
+}
+
+#[cfg(test)]
+mod generated_route_proofs {
+    const GENERATED_SOURCE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/generated_cli.rs"));
+
+    fn routes_only() -> &'static str {
+        GENERATED_SOURCE.split("#[cfg(test)]").next().unwrap_or(GENERATED_SOURCE)
+    }
+
+    #[test]
+    fn every_admitted_command_became_one_registered_verb() {
+        assert_eq!(routes_only().matches("#[verb(").count(), {{ commands | length }});
+    }
+
+    #[test]
+    fn no_consumer_handler_seam_survives_generation() {
+        assert!(!routes_only().contains("handlers::"));
+        assert!(!routes_only().contains("todo!"));
+        assert!(!routes_only().contains("unimplemented!"));
+    }
+}
