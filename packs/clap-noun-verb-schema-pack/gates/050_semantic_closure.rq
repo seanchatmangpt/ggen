@@ -24,8 +24,14 @@ SELECT ?subject ?violation ?detail WHERE {
     BIND(STR(?behavior) AS ?detail)
   } UNION {
     ?subject a cnv:FilesystemWriteBehavior ; cnv:usesBoundary ?boundary .
-    FILTER NOT EXISTS { ?boundary a cnv:FilesystemBoundary ; cnv:allowedOperation "write-json" }
-    BIND("write-boundary-not-admitted" AS ?violation)
+    FILTER NOT EXISTS {
+      ?boundary a cnv:FilesystemBoundary ;
+                cnv:allowedOperation "write-json" ;
+                cnv:receiptRequired true ;
+                cnv:replayMode ?replay .
+      FILTER(STR(?replay) != "none")
+    }
+    BIND("write-boundary-must-be-admitted-receipted-and-replayable" AS ?violation)
     BIND(STR(?boundary) AS ?detail)
   } UNION {
     ?subject a cnv:FilesystemListBehavior ; cnv:usesBoundary ?boundary .
