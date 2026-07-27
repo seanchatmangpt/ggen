@@ -45,7 +45,6 @@ sparql:
     SELECT ?command ?name ?field ?about ?value_kind
            (STR(?required_value) AS ?required)
            (STR(?position_value) AS ?position)
-           (COALESCE(STR(?long), "") AS ?long_flag)
            (COALESCE(STR(?short), "") AS ?short_flag)
            (COALESCE(STR(?environment), "") AS ?environment)
            (COALESCE(STR(?default), "") AS ?default_value)
@@ -58,13 +57,11 @@ sparql:
            (COALESCE(STR(?exclusive_value), "false") AS ?exclusive)
            (COALESCE(STR(?heading), "") AS ?help_heading)
            (COALESCE(STR(?multiple_value), "false") AS ?multiple)
-           (COALESCE(STR(?delimiter), "") AS ?value_delimiter)
     WHERE {
       ?command a cnv:Command ; cnv:hasArgument ?argument .
       ?argument a cnv:Argument ; cnv:name ?name ; cnv:fieldName ?field ;
                 cnv:about ?about ; cnv:valueKind ?value_kind ;
                 cnv:required ?required_value ; cnv:position ?position_value .
-      OPTIONAL { ?argument cnv:longFlag ?long }
       OPTIONAL { ?argument cnv:shortFlag ?short }
       OPTIONAL { ?argument cnv:environmentVariable ?environment }
       OPTIONAL { ?argument cnv:defaultValue ?default }
@@ -77,7 +74,6 @@ sparql:
       OPTIONAL { ?argument cnv:exclusive ?exclusive_value }
       OPTIONAL { ?argument cnv:helpHeading ?heading }
       OPTIONAL { ?argument cnv:multiple ?multiple_value }
-      OPTIONAL { ?argument cnv:valueDelimiter ?delimiter }
     }
     ORDER BY ?command ?position_value ?field
   nouns: |
@@ -99,14 +95,18 @@ use crate::generated_behavior::{self, BehaviorSpec};
 {%- set reserved = ["as","break","const","continue","crate","dyn","else","enum","extern","false","fn","for","if","impl","in","let","loop","match","mod","move","mut","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","unsafe","use","where","while","async","await","abstract","become","box","do","final","macro","override","priv","typeof","unsized","virtual","yield"] -%}
 
 {% for cmd in commands %}{%- set_global has_arguments = false %}{% for arg in arguments %}{% if arg.command == cmd.command %}{% set_global has_arguments = true %}{% endif %}{% endfor %}/// {{ cmd.about }}
-#[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
+{% if has_arguments %}///
+/// # Arguments
+{% for arg in arguments %}{% if arg.command == cmd.command %}/// * `{{ arg.field }}` - {{ arg.about }}{% if arg.environment %} [env: {{ arg.environment }}]{% endif %}{% if arg.default_value %} [default: {{ arg.default_value }}]{% endif %}{% if arg.group_name %} [group: {{ arg.group_name }}]{% endif %}{% if arg.requires_name %} [requires: {{ arg.requires_name }}]{% endif %}{% if arg.conflicts_name %} [conflicts: {{ arg.conflicts_name }}]{% endif %}{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.exclusive == "true" %} [exclusive]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
+{% endif %}{% endfor %}{% endif %}#[verb("{{ cmd.verb }}", "{{ cmd.noun }}")]
 fn {{ cmd.noun | snake_case }}_{{ cmd.verb | snake_case }}(
 {%- for arg in arguments %}
 {%- if arg.command == cmd.command %}
 {%- if arg.value_kind == "string" %}{% set_global rust_type = "String" %}{% elif arg.value_kind == "i64" %}{% set_global rust_type = "i64" %}{% elif arg.value_kind == "u64" %}{% set_global rust_type = "u64" %}{% elif arg.value_kind == "f64" %}{% set_global rust_type = "f64" %}{% elif arg.value_kind == "bool" %}{% set_global rust_type = "bool" %}{% elif arg.value_kind == "path" %}{% set_global rust_type = "std::path::PathBuf" %}{% endif %}
-    /// {{ arg.about }}{% if arg.environment %} [env: {{ arg.environment }}]{% endif %}{% if arg.default_value %} [default: {{ arg.default_value }}]{% endif %}{% if arg.group_name %} [group: {{ arg.group_name }}]{% endif %}{% if arg.requires_name %} [requires: {{ arg.requires_name }}]{% endif %}{% if arg.conflicts_name %} [conflicts: {{ arg.conflicts_name }}]{% endif %}{% if arg.value_hint %} [value_hint: {{ arg.value_hint }}]{% endif %}{% if arg.hidden == "true" %} [hide]{% endif %}{% if arg.global == "true" %} [global]{% endif %}{% if arg.exclusive == "true" %} [exclusive]{% endif %}{% if arg.help_heading %} [help_heading: {{ arg.help_heading }}]{% endif %}
-{%- if arg.position == "0" %}
-    #[arg(long = "{{ arg.long_flag }}"{% if arg.short_flag %}, short = '{{ arg.short_flag }}'{% endif %}{% if arg.value_delimiter %}, value_delimiter = '{{ arg.value_delimiter }}'{% endif %})]
+{%- if arg.position != "0" %}
+    #[arg(index = {{ arg.position }})]
+{%- elif arg.short_flag %}
+    #[arg(short = '{{ arg.short_flag }}')]
 {%- endif %}
     {% if arg.field in reserved %}r#{{ arg.field }}{% else %}{{ arg.field }}{% endif %}: {% if arg.multiple == "true" %}Vec<{{ rust_type }}>{% elif arg.required == "true" or (arg.value_kind == "bool" and arg.position == "0") %}{{ rust_type }}{% else %}Option<{{ rust_type }}>{% endif %},
 {%- endif %}
@@ -176,7 +176,8 @@ fn register_{{ noun.name | snake_case }}_noun() {
     );
 }
 
-{% endfor %}fn encode_input<T: Serialize>(name: &str, value: &T) -> Result<Value> {
+{% endfor %}#[allow(dead_code)]
+fn encode_input<T: Serialize>(name: &str, value: &T) -> Result<Value> {
     serde_json::to_value(value).map_err(|error| {
         NounVerbError::execution_error(format!("failed to encode generated argument {name:?}: {error}"))
     })
