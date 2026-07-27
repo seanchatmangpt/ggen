@@ -98,7 +98,7 @@ fn execute_expression(
         "multiply" => numeric_value(as_f64(left)? * as_f64(right)?),
         "divide" => {
             let divisor = as_f64(right)?;
-            if divisor == 0.0 {
+            if is_signed_zero(divisor) {
                 return Err(NounVerbError::execution_error(
                     "division by zero was refused",
                 ));
@@ -109,6 +109,10 @@ fn execute_expression(
             "unsupported generated expression operator {other:?}"
         ))),
     }
+}
+
+fn is_signed_zero(value: f64) -> bool {
+    matches!(value.to_bits(), 0 | 0x8000_0000_0000_0000)
 }
 
 fn as_f64(value: &Value) -> Result<f64> {
@@ -169,18 +173,20 @@ mod tests {
     }
 
     #[test]
-    fn division_by_zero_fails_closed() {
-        let mut inputs = Map::new();
-        inputs.insert("left".to_owned(), json!(2));
-        inputs.insert("right".to_owned(), json!(0));
-        assert!(execute(
-            BehaviorSpec::Expression {
-                operator: "divide",
-                left: "left",
-                right: "right",
-            },
-            inputs,
-        )
-        .is_err());
+    fn division_by_signed_zero_fails_closed() {
+        for divisor in [0.0, -0.0] {
+            let mut inputs = Map::new();
+            inputs.insert("left".to_owned(), json!(2));
+            inputs.insert("right".to_owned(), json!(divisor));
+            assert!(execute(
+                BehaviorSpec::Expression {
+                    operator: "divide",
+                    left: "left",
+                    right: "right",
+                },
+                inputs,
+            )
+            .is_err());
+        }
     }
 }
