@@ -1,0 +1,19 @@
+[package]
+name = "ggen-architecture"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Pure deterministic Fortune 5 enterprise-architecture kernel: lifecycle, dependency closure, SLOs, capacity, multi-region, identity, KMS, observability, autonomic intents, and receipts."
+keywords = ["enterprise-architecture", "slo", "spiffe", "kms", "autonomic"]
+categories = ["development-tools"]
+publish = false
+
+[dependencies]
+blake3 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true
