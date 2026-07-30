@@ -21,10 +21,11 @@
 ggenspec:Frontmatter
     a               ggenspec:Section ;
     rdfs:label      "Frontmatter" ;
-    rdfs:comment    "Closed frontmatter key set for a ggen template, Hygen semantics (crate::template::Frontmatter)." ;
+    rdfs:comment    "Closed frontmatter key set for a ggen template: Hygen-derived write semantics plus ontology-driven output-phase Tera projection (crate::template::Frontmatter)." ;
     ggenspec:hasField
         ggenspec:Frontmatter-to ,
         ggenspec:Frontmatter-sparql ,
+        ggenspec:Frontmatter-for_each ,
         ggenspec:Frontmatter-construct ,
         ggenspec:Frontmatter-inject ,
         ggenspec:Frontmatter-before ,
@@ -58,6 +59,11 @@ ggenspec:Frontmatter-sparql
     ggenspec:required false ;
     rdfs:comment "Named SPARQL queries available to the template body. Defaults to empty." .
 
+ggenspec:Frontmatter-for_each
+    a ggenspec:Field ; ggenspec:name "for_each" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Explicit named sparql result governing projection cardinality. Dynamic to paths fan out per row; static paths aggregate row-rendered bodies. Defaults to absent, preserving historical implicit driver behavior." .
+
 ggenspec:Frontmatter-construct
     a ggenspec:Field ; ggenspec:name "construct" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
@@ -69,14 +75,14 @@ ggenspec:Frontmatter-inject
     rdfs:comment "Inject into an existing file instead of creating a new one. Defaults to false." .
 
 ggenspec:Frontmatter-before
-    a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Inject before the first line containing this marker." .
+    rdfs:comment "Inject before a host-content selector. Bare strings preserve contains+line+first; structured declarations support contains|exact|regex, auto|line|file scope, first|last|unique|nth occurrence, one-based index, case sensitivity, and trim. Pattern is Tera-rendered per output." .
 
 ggenspec:Frontmatter-after
-    a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Inject after the first line containing this marker." .
+    rdfs:comment "Inject after a host-content selector. Same matcher algebra and sane defaults as before." .
 
 ggenspec:Frontmatter-at_line
     a ggenspec:Field ; ggenspec:name "at_line" ; ggenspec:type xsd:nonNegativeInteger ;
@@ -84,9 +90,9 @@ ggenspec:Frontmatter-at_line
     rdfs:comment "Inject at this 1-based line number." .
 
 ggenspec:Frontmatter-skip_if
-    a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Skip the write when the existing file already contains this substring." .
+    rdfs:comment "Skip when a host-content selector matches. Bare strings preserve whole-file substring behavior; structured declarations use the shared matcher algebra with auto resolving to file scope." .
 
 ggenspec:Frontmatter-unless_exists
     a ggenspec:Field ; ggenspec:name "unless_exists" ; ggenspec:type xsd:boolean ;
@@ -116,12 +122,12 @@ ggenspec:Frontmatter-from
 ggenspec:Frontmatter-sh_before
     a ggenspec:Field ; ggenspec:name "sh_before" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Shell command run before the write decision, cwd = project root. Refused (not executed) if it matches shell_safety::check_shell_command_safe's denylist — a bounded denylist, not a sandbox." .
+    rdfs:comment "Shell command Tera-rendered per output and run after all templates render but before this output's write decision, cwd = project root. It still runs when the later write decision skips. Refused if it matches the bounded shell denylist; this is not a sandbox." .
 
 ggenspec:Frontmatter-sh_after
     a ggenspec:Field ; ggenspec:name "sh_after" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Shell command run after a successful Written/Injected outcome (never after Skipped). Same denylist and cwd as sh_before." .
+    rdfs:comment "Shell command Tera-rendered per output and run after a successful Written/Injected outcome (never after Skipped). Same bounded denylist and cwd as sh_before." .
 
 ggenspec:Frontmatter-backup
     a ggenspec:Field ; ggenspec:name "backup" ; ggenspec:type xsd:boolean ;
@@ -131,7 +137,7 @@ ggenspec:Frontmatter-backup
 ggenspec:Frontmatter-shape
     a ggenspec:Field ; ggenspec:name "shape" ; ggenspec:type ggenspec:ListOfString ;
     ggenspec:required false ;
-    rdfs:comment "SHACL shape file paths (relative to the project root) declared as governing this output. LIMITATION: existence-checked only — no SHACL engine runs in this crate yet, so listed shapes are not evaluated against rendered output." .
+    rdfs:comment "Tera-renderable SHACL shape file paths (relative to the project root) declared as governing each output. LIMITATION: existence-checked only — no SHACL engine runs in this crate yet, so listed shapes are not evaluated against rendered output." .
 
 ggenspec:Frontmatter-determinism
     a ggenspec:Field ; ggenspec:name "determinism" ; ggenspec:type xsd:boolean ;
@@ -146,7 +152,7 @@ ggenspec:Frontmatter-freeze_policy
 ggenspec:Frontmatter-freeze_slots_dir
     a ggenspec:Field ; ggenspec:name "freeze_slots_dir" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Directory (relative to the project root) storing per-output BLAKE3 checksums for freeze_policy: checksum. Required when that policy is set; ignored otherwise." .
+    rdfs:comment "Tera-renderable directory (relative to the project root) storing per-output BLAKE3 checksums for freeze_policy: checksum. Required when that policy is set; ignored otherwise." .
 
 ggenspec:FreezePolicy
     a ggenspec:EnumType ;
@@ -175,3 +181,27 @@ ggenspec:Frontmatter-base
 
 ggenspec:MapOfString  a ggenspec:MapType ; ggenspec:valueType xsd:string .
 ggenspec:ListOfString a ggenspec:ListType ; ggenspec:valueType xsd:string .
+
+
+ggenspec:MatchDeclaration
+    a ggenspec:UnionType ;
+    ggenspec:variant xsd:string , ggenspec:MatchRule ;
+    rdfs:comment "Either a compatibility bare string or a structured MatchRule." .
+
+ggenspec:MatchRule
+    a ggenspec:ObjectType ;
+    ggenspec:requiredField "pattern" ;
+    ggenspec:optionalField "matcher" , "scope" , "occurrence" , "index" , "case_sensitive" , "trim" ;
+    rdfs:comment "Defaults: matcher=contains, scope=auto, occurrence=first, index=1, case_sensitive=true, trim=false." .
+
+ggenspec:MatchKind
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "contains" , "exact" , "regex" .
+
+ggenspec:MatchScope
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "auto" , "line" , "file" .
+
+ggenspec:MatchOccurrence
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "first" , "last" , "unique" , "nth" .

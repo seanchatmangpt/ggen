@@ -3050,6 +3050,7 @@ dependencies = [
  "predicates",
  "proptest",
  "rand 0.8.6",
+ "regex",
  "rmcp 0.11.0",
  "rmcp-macros 0.11.0",
  "rustyline",
