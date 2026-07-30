@@ -126,17 +126,24 @@ structure DeploymentObservation where
   observedP99Ticks : Nat
   canaryValidated : Bool
   stagingValidated : Bool
+  promotionReceiptReady : Bool
   quorumAcks : Nat
+  crossRegionReplicationReady : Bool
   receiptSynchronized : Bool
   failoverReady : Bool
   legalHoldReady : Bool
+  observedSpiffeId : String
   spiffeAuthenticated : Bool
   certificateAgeSeconds : Nat
   keyAgeSeconds : Nat
   mtlsEstablished : Bool
+  awsKmsReady : Bool
+  azureKeyVaultReady : Bool
+  hashicorpVaultReady : Bool
   networkPolicyEnforced : Bool
   firewallPolicyEnforced : Bool
   otelCorrelated : Bool
+  alertsReady : Bool
   deriving Repr, DecidableEq
 
 def sloCompliant (obs : DeploymentObservation) : Bool :=
@@ -148,22 +155,24 @@ def sloCompliant (obs : DeploymentObservation) : Bool :=
 def allPromotionGates (obs : DeploymentObservation) : Bool :=
   canaryRequired && obs.canaryValidated &&
   stagingValidationRequired && obs.stagingValidated &&
+  promotionReceiptRequired && obs.promotionReceiptReady &&
   decide (regionQuorum ≤ obs.quorumAcks) &&
-  crossRegionReplicationRequired &&
+  crossRegionReplicationRequired && obs.crossRegionReplicationReady &&
   receiptSynchronizationRequired && obs.receiptSynchronized &&
   failoverRequired && obs.failoverReady &&
   legalHoldRequired && obs.legalHoldReady &&
   mtlsRequired && obs.mtlsEstablished &&
-  obs.spiffeAuthenticated &&
+  decide (obs.observedSpiffeId = spiffeId) && obs.spiffeAuthenticated &&
   decide (obs.certificateAgeSeconds ≤ certificateRefreshSeconds) &&
   decide (obs.keyAgeSeconds ≤ keyRotationSeconds) &&
-  awsKmsRequired && azureKeyVaultRequired && hashicorpVaultRequired &&
+  awsKmsRequired && obs.awsKmsReady &&
+  azureKeyVaultRequired && obs.azureKeyVaultReady &&
+  hashicorpVaultRequired && obs.hashicorpVaultReady &&
   networkPolicyRequired && obs.networkPolicyEnforced &&
   firewallPolicyRequired && obs.firewallPolicyEnforced &&
   otelRequired && obs.otelCorrelated &&
   sloAlertRequired && guardAlertRequired &&
-  receiptMismatchAlertRequired && performanceDegradationAlertRequired &&
-  promotionReceiptRequired
+  receiptMismatchAlertRequired && performanceDegradationAlertRequired && obs.alertsReady
 
 def promotionDecision (obs : DeploymentObservation) : PromotionDecision :=
   match sloCompliant obs, allPromotionGates obs with
@@ -182,17 +191,24 @@ def canonicalObservation : DeploymentObservation := {
   observedP99Ticks := 0
   canaryValidated := true
   stagingValidated := true
+  promotionReceiptReady := true
   quorumAcks := 3
+  crossRegionReplicationReady := true
   receiptSynchronized := true
   failoverReady := true
   legalHoldReady := true
+  observedSpiffeId := spiffeId
   spiffeAuthenticated := true
   certificateAgeSeconds := 1800
   keyAgeSeconds := 3600
   mtlsEstablished := true
+  awsKmsReady := true
+  azureKeyVaultReady := true
+  hashicorpVaultReady := true
   networkPolicyEnforced := true
   firewallPolicyEnforced := true
   otelCorrelated := true
+  alertsReady := true
 }
 
 def canaryObservation : DeploymentObservation := { canonicalObservation with stage := .canary }
@@ -206,6 +222,11 @@ def securityExpiryObservation : DeploymentObservation := {
 }
 def receiptMismatchObservation : DeploymentObservation := { canonicalObservation with receiptSynchronized := false }
 def failoverUnreadyObservation : DeploymentObservation := { canonicalObservation with failoverReady := false }
+def identityMismatchObservation : DeploymentObservation := { canonicalObservation with observedSpiffeId := "spiffe://untrusted.example/ns/default/sa/unknown" }
+def kmsUnreadyObservation : DeploymentObservation := { canonicalObservation with azureKeyVaultReady := false }
+def replicationUnreadyObservation : DeploymentObservation := { canonicalObservation with crossRegionReplicationReady := false }
+def promotionReceiptMissingObservation : DeploymentObservation := { canonicalObservation with promotionReceiptReady := false }
+def alertsUnreadyObservation : DeploymentObservation := { canonicalObservation with alertsReady := false }
 
 theorem fortune5_slo_ordering :
     r1P99Nanos < w1P99Nanos ∧ w1P99Nanos < c1P99Nanos ∧ r1TickBudget = 8 := by
@@ -255,6 +276,21 @@ theorem receipt_mismatch_refused : promotionDecision receiptMismatchObservation 
 theorem failover_unready_refused : promotionDecision failoverUnreadyObservation = .refuse := by
   decide
 
+theorem identity_mismatch_refused : promotionDecision identityMismatchObservation = .refuse := by
+  decide
+
+theorem kms_unready_refused : promotionDecision kmsUnreadyObservation = .refuse := by
+  decide
+
+theorem replication_unready_refused : promotionDecision replicationUnreadyObservation = .refuse := by
+  decide
+
+theorem promotion_receipt_missing_refused : promotionDecision promotionReceiptMissingObservation = .refuse := by
+  decide
+
+theorem alerts_unready_refused : promotionDecision alertsUnreadyObservation = .refuse := by
+  decide
+
 structure Fortune5ProofReceipt : Type where
   sloOrderingProof : r1P99Nanos < w1P99Nanos ∧ w1P99Nanos < c1P99Nanos ∧ r1TickBudget = 8
   quorumMajorityProof : regionQuorum ≤ regionCount ∧ (2 * regionQuorum) > regionCount
@@ -277,6 +313,11 @@ structure Fortune5ProofReceipt : Type where
   securityRefusalProof : promotionDecision securityExpiryObservation = .refuse
   receiptRefusalProof : promotionDecision receiptMismatchObservation = .refuse
   failoverRefusalProof : promotionDecision failoverUnreadyObservation = .refuse
+  identityRefusalProof : promotionDecision identityMismatchObservation = .refuse
+  kmsRefusalProof : promotionDecision kmsUnreadyObservation = .refuse
+  replicationRefusalProof : promotionDecision replicationUnreadyObservation = .refuse
+  promotionReceiptRefusalProof : promotionDecision promotionReceiptMissingObservation = .refuse
+  alertsRefusalProof : promotionDecision alertsUnreadyObservation = .refuse
 
 structure ProofReceipt : Type where
   theoremName : String
@@ -300,6 +341,11 @@ def fortune5ProofReceipt : Fortune5ProofReceipt := {
   securityRefusalProof := security_expiry_refused
   receiptRefusalProof := receipt_mismatch_refused
   failoverRefusalProof := failover_unready_refused
+  identityRefusalProof := identity_mismatch_refused
+  kmsRefusalProof := kms_unready_refused
+  replicationRefusalProof := replication_unready_refused
+  promotionReceiptRefusalProof := promotion_receipt_missing_refused
+  alertsRefusalProof := alerts_unready_refused
 }
 
 def proofReceipt : ProofReceipt := {
@@ -341,7 +387,7 @@ def proofReceiptJson (receipt : ProofReceipt) : String :=
   ",\"kms\":[\"aws-kms\",\"azure-key-vault\",\"hashicorp-vault\"],\"network_policy_required\":" ++ boolJson networkPolicyRequired ++
   ",\"firewall_policy_required\":" ++ boolJson firewallPolicyRequired ++
   "},\"observability\":{\"otel_required\":" ++ boolJson otelRequired ++
-  ",\"alerts\":[\"slo-violation\",\"guard-failure\",\"receipt-mismatch\",\"performance-degradation\"]},\"theorems\":[\"fortune5_slo_ordering\",\"fortune5_quorum_majority\",\"fortune5_security_limits\",\"fortune5_controls_enabled\",\"canonical_promotion\",\"canary_promotion\",\"production_holds\",\"slo_violation_rolls_back\",\"quorum_loss_refused\",\"security_expiry_refused\",\"receipt_mismatch_refused\",\"failover_unready_refused\"]}}\n"
+  ",\"alerts\":[\"slo-violation\",\"guard-failure\",\"receipt-mismatch\",\"performance-degradation\"]},\"theorems\":[\"fortune5_slo_ordering\",\"fortune5_quorum_majority\",\"fortune5_security_limits\",\"fortune5_controls_enabled\",\"canonical_promotion\",\"canary_promotion\",\"production_holds\",\"slo_violation_rolls_back\",\"quorum_loss_refused\",\"security_expiry_refused\",\"receipt_mismatch_refused\",\"failover_unready_refused\",\"identity_mismatch_refused\",\"kms_unready_refused\",\"replication_unready_refused\",\"promotion_receipt_missing_refused\",\"alerts_unready_refused\"]}}\n"
 
 end Lean4Rust
 {% endfor %}
