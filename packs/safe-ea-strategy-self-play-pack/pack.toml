@@ -1,0 +1,11 @@
+[pack]
+name = "safe-ea-strategy-self-play-pack"
+version = "26.7.30"
+description = """
+Ontology-first, deterministic, non-LLM self-play for SAFe delivery use cases and
+Enterprise Architecture as Strategy. ggen manufactures a Rust scenario runner,
+independent receipt/replay verifier, real process-boundary tests, scenario manifest,
+and use-case matrix. Role policies choose legal moves under explicit utility weights,
+authority tokens, guards, invariants, choice groups, and round ceilings. The kernel
+may manufacture BRCE-addressed intent but performs no external actuation.
+"""

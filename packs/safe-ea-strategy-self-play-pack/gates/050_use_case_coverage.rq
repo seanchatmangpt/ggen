@@ -1,0 +1,11 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?required ?violation WHERE {
+  VALUES ?required {
+    sp:SafePortfolioEpicFunnel sp:SafePiPlanning sp:SafeDependencyResolution
+    sp:SafeArchitectureRunway sp:SafeSystemDemoReleaseGate sp:SafeInspectAndAdapt
+    sp:EaOperatingModel sp:EaCoreDiagram sp:EaDigitizedPlatform
+    sp:EaEngagementModel sp:EaValueRealization sp:EaTransitionArchitecture
+  }
+  FILTER NOT EXISTS { ?scenario a sp:Scenario ; sp:coversUseCase ?required }
+  BIND("required use case not covered" AS ?violation)
+}

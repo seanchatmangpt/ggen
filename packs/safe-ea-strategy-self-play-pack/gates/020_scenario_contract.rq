@@ -1,0 +1,35 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?scenario ?violation WHERE {
+  ?scenario a sp:Scenario .
+  {
+    FILTER NOT EXISTS { ?scenario sp:scenarioId ?id }
+    BIND("missing scenarioId" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:maxRounds ?rounds FILTER(?rounds > 0 && ?rounds <= 64) }
+    BIND("maxRounds must be within 1..64" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:coversUseCase ?useCase }
+    BIND("scenario requires use-case coverage" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:hasPolicy ?policy }
+    BIND("scenario requires actor policies" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:hasAction ?action }
+    BIND("scenario requires candidate actions" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:hasInitialMetric ?initial }
+    BIND("scenario requires initial state" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:hasInvariant ?invariant }
+    BIND("scenario requires invariants" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?scenario sp:hasGoal ?goal }
+    BIND("scenario requires goals" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS {
+      ?scenario sp:hasPolicy ?verifierPolicy .
+      ?verifierPolicy sp:actorRole sp:EvidenceVerifier .
+    }
+    BIND("scenario requires independent EvidenceVerifier policy" AS ?violation)
+  }
+}

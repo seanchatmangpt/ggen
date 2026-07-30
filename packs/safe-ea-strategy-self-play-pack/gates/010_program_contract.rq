@@ -1,0 +1,28 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?program ?violation WHERE {
+  ?program a sp:SelfPlayProgram .
+  {
+    FILTER NOT EXISTS { ?program sp:programId ?programId }
+    BIND("missing programId" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:executionMode sp:DeterministicRuleSelfPlay }
+    BIND("executionMode must be DeterministicRuleSelfPlay" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:llmCalls 0 }
+    BIND("llmCalls must equal zero" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:directActuation false }
+    BIND("directActuation must be false" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:requiredBroker "BRCE" }
+    BIND("requiredBroker must be BRCE" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:hasScenario ?scenario }
+    BIND("program requires scenarios" AS ?violation)
+  } UNION {
+    FILTER NOT EXISTS { ?program sp:witness ?witness ; sp:falsifier ?falsifier ;
+                                sp:independentVerifier ?verifier ; sp:receiptVerifier ?receipt ;
+                                sp:replayCommand ?replay }
+    BIND("program proof closure incomplete" AS ?violation)
+  }
+}

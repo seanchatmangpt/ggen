@@ -1,0 +1,19 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject sp:llmCalls ?calls .
+    FILTER(?calls != 0)
+    BIND("LLM calls are forbidden" AS ?violation)
+  } UNION {
+    ?subject sp:directActuation true .
+    BIND("direct actuation is forbidden" AS ?violation)
+  } UNION {
+    ?subject sp:requiredBroker ?broker .
+    FILTER(STR(?broker) != "BRCE")
+    BIND("broker must be BRCE" AS ?violation)
+  } UNION {
+    ?subject sp:executionMode ?mode .
+    FILTER(?mode != sp:DeterministicRuleSelfPlay)
+    BIND("execution mode must be deterministic rule self-play" AS ?violation)
+  }
+}

@@ -1,0 +1,43 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a sp:ActorPolicy .
+    {
+      FILTER NOT EXISTS { ?subject sp:actorRole ?actor }
+      BIND("policy missing actorRole" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:minimumUtility ?minimum }
+      BIND("policy missing minimumUtility" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:hasWeight ?weight }
+      BIND("policy missing utility weight" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:authorityToken ?authority }
+      BIND("policy missing authority token" AS ?violation)
+    }
+  } UNION {
+    ?subject a sp:Action .
+    {
+      FILTER NOT EXISTS { ?subject sp:actionId ?id }
+      BIND("action missing actionId" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:actorRole ?actor }
+      BIND("action missing actorRole" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:choiceGroup ?group }
+      BIND("action missing choiceGroup" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:brokerIntent ?brokerIntent }
+      BIND("action missing brokerIntent" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:hasEffect ?effect }
+      BIND("action missing effect" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:requiresAuthority ?authority }
+      BIND("action missing authority requirement" AS ?violation)
+    } UNION {
+      FILTER NOT EXISTS { ?subject sp:hasEvidence ?evidence }
+      BIND("action missing evidence" AS ?violation)
+    }
+  }
+}
