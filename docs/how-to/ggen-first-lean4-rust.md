@@ -83,15 +83,15 @@ The ontology admits the enterprise requirements as executable policy rather than
 | Capability | Admitted law |
 |---|---|
 | SLO tracking | R1 ≤ 2 ns P99 / 8 RDTSC ticks, W1 ≤ 1 ms P99, C1 ≤ 500 ms P99 |
-| Promotion | Canary and staging validation are mandatory; SLO violation rolls back; any failed control refuses promotion |
-| Multi-region | At least three regions, majority quorum, cross-region replication, synchronized receipts, failover readiness, legal-hold readiness |
-| Identity | Exact SPIFFE workload identity, authentication, certificate age ≤ 1 hour |
-| Key management | AWS KMS, Azure Key Vault, and HashiCorp Vault required; key age ≤ 24 hours |
+| Promotion | Canary and staging validation plus a promotion receipt are mandatory; SLO violation rolls back; any failed control refuses promotion |
+| Multi-region | At least three regions, majority quorum, observed cross-region replication, synchronized receipts, failover readiness, legal-hold readiness |
+| Identity | Observed SPIFFE identity must exactly equal the admitted workload identity; authentication and certificate age ≤ 1 hour are required |
+| Key management | Runtime readiness receipts for AWS KMS, Azure Key Vault, and HashiCorp Vault are required; key age ≤ 24 hours |
 | Network security | mTLS, network policy, and firewall policy required |
 | Observability | OTEL correlation plus SLO, guard, receipt-mismatch, and degradation alerts |
 | Receipts | Proof digest and regional receipt digest independently recomputed before acceptance |
 
-Lean proves threshold ordering, majority quorum, security time bounds, all required controls, healthy canary/staging/production outcomes, SLO rollback, and refusal for quorum, security, receipt, or failover failures.
+Lean proves threshold ordering, majority quorum, security time bounds, all required controls, healthy canary/staging/production outcomes, SLO rollback, and refusal for quorum, security, receipt synchronization, failover, identity, KMS, replication, promotion-receipt, or alert-evidence failures.
 
 ## Runtime scenarios
 
@@ -106,6 +106,11 @@ cargo run --bin lean-proof-cell -- quorum-loss 9
 cargo run --bin lean-proof-cell -- security-expired 9
 cargo run --bin lean-proof-cell -- receipt-mismatch 9
 cargo run --bin lean-proof-cell -- failover-unready 9
+cargo run --bin lean-proof-cell -- identity-mismatch 9
+cargo run --bin lean-proof-cell -- kms-unready 9
+cargo run --bin lean-proof-cell -- replication-unready 9
+cargo run --bin lean-proof-cell -- promotion-receipt-missing 9
+cargo run --bin lean-proof-cell -- alerts-unready 9
 ```
 
 The receipt verifier independently recomputes both BLAKE3 bindings:
