@@ -8,7 +8,9 @@ on:
       - "docs/architecture/MACHINERY_AUTOMATION_AUTONOMICS.md"
       - ".github/workflows/architecture-autonomics.yml"
   push:
-    branches: [main]
+    branches:
+      - main
+      - "agent/**"
     paths:
       - "architecture/**"
       - "tools/ggen-architecture/**"
