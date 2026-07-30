@@ -85,6 +85,14 @@ def main() -> int:
         "candidate.standing | pascal_case" in lib_template,
         "IMPLICIT_STANDING_CASE_CONVERSION_REFUSED",
     )
+    for required_layout in (
+        "};{% endfor %}\n\n{% for d in design %}const DESIGN",
+        "};{% endfor %}\n\n#[derive(Debug)]",
+        'return refuse(\n            "INSUFFICIENT_DIMENSIONS"',
+        "let expected = options_by_dimension\n                .values()",
+        "transaction.join(safe_relative(&envelope.receipt.output_relative_path)?)",
+    ):
+        refuse(required_layout not in lib_template, "RUSTFMT_STABLE_LIBRARY_LAYOUT_MISSING")
 
     main_template = (PACK / "templates/main.rs.tmpl").read_text(encoding="utf-8")
     refuse(
