@@ -1,0 +1,4 @@
+[pack]
+name = "ggen-lean4-rust-pipeline-pack"
+version = "0.1.0"
+description = "Manufactures a Lean 4 proof-and-emitter program from RDF. The Lean kernel admits a bounded-successor theorem bundle before the executable may emit a Rust crate. The Rust product compiles, executes, and binds its runtime receipt to the Lean proof receipt with BLAKE3."
