@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 CONSUMER="$ROOT/examples/combinatorial-maximalism"
-GGEN="$ROOT/target/debug/ggen"
 MANIFEST="$CONSUMER/generated/cmd-cell/Cargo.toml"
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-/tmp/ggen-cmd-target}"
+GGEN="$CARGO_TARGET_DIR/debug/ggen"
 
 generated_digest_manifest() {
   sha256sum \
