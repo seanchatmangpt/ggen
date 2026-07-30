@@ -1,0 +1,32 @@
+# Any row refuses sync: exact three-role self-play and non-actuating bounded autonomics.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?subject ?problem ?value
+WHERE {
+  {
+    SELECT (ca:DeterministicSelfPlay AS ?subject) ("wrong-self-play-role-count" AS ?problem) (COUNT(?role) AS ?value)
+    WHERE { ?role a ca:SelfPlayRole . }
+    HAVING(COUNT(?role) != 3)
+  }
+  UNION
+  {
+    ?profile a ca:AutonomicProfile ; ca:maxCycles ?value .
+    FILTER(?value < 1 || ?value > 8)
+    BIND(?profile AS ?subject)
+    BIND("invalid-autonomic-bound" AS ?problem)
+  }
+  UNION
+  {
+    ?profile a ca:AutonomicProfile ; ca:directActuation ?value .
+    FILTER(?value != false)
+    BIND(?profile AS ?subject)
+    BIND("autonomic-direct-actuation" AS ?problem)
+  }
+  UNION
+  {
+    ?role a ca:SelfPlayRole ; ca:order ?value .
+    FILTER(?value < 1 || ?value > 3)
+    BIND(?role AS ?subject)
+    BIND("invalid-self-play-order" AS ?problem)
+  }
+}
