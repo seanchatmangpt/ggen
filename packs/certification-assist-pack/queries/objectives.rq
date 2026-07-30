@@ -26,7 +26,10 @@ WHERE {
     ca:why ?why ;
     ca:tradeoff ?tradeoff ;
     ca:watchFor ?watchFor .
-  OPTIONAL { ?objective ca:requiresObjective ?requires . }
-  BIND(IF(BOUND(?requires), REPLACE(STR(?requires), "^.*#", ""), "") AS ?requiresSlug)
+  OPTIONAL {
+    ?objective ca:requiresObjective ?requires .
+    ?requires ca:slug ?requiredSlugValue .
+  }
+  BIND(COALESCE(?requiredSlugValue, "") AS ?requiresSlug)
 }
 ORDER BY ?order
