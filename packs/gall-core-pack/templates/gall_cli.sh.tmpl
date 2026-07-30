@@ -45,6 +45,18 @@ ready_file() {
   return "$code"
 }
 
+all_work_file() {
+  local target="$1"
+  python3 - "$target" <<'PY'
+import csv
+import sys
+from pathlib import Path
+rows = list(csv.DictReader(Path("automation/GALL_AUTOMATION_WORK_ITEMS.csv").open(newline="", encoding="utf-8")))
+rows.sort(key=lambda row: (int(row["Implementation Order"]), row["Work Item ID"]))
+Path(sys.argv[1]).write_text("".join(f"{row['Work Item ID']}\n" for row in rows), encoding="utf-8")
+PY
+}
+
 noun="${1:-}"
 verb="${2:-}"
 case "$noun:$verb" in
@@ -141,6 +153,14 @@ case "$noun:$verb" in
     "${RECEIPTS[@]}"
     ;;
   crown:)
+    file="$(mktemp)"
+    trap 'rm -f "$file"' EXIT
+    all_work_file "$file"
+    while IFS= read -r work_item; do
+      [ -n "$work_item" ] || continue
+      "${CONTROL[@]}" verify "$work_item"
+      "${CONTROL[@]}" complete "$work_item"
+    done <"$file"
     "${CONTROL[@]}" crown
     "${RECEIPTS[@]}" --crown
     ;;
