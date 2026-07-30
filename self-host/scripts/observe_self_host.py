@@ -6,6 +6,7 @@ Pipeline:
   -> Git-object byte semantics
   -> file-header generation authority
   -> live authority and load-path normalization
+  -> independently verified standalone products
   -> active root-output authority
   -> Gall program/checkpoint/work-item projection
   -> deterministic RDF/JSON/receipt outputs
@@ -99,6 +100,60 @@ def canonical_load_bearing(path: str, authority: str) -> bool:
     return path.startswith(("crates/", "packs/", "scripts/", ".github/actions/", ".github/workflows/"))
 
 
+def admit_standalone_products(root: Path, observation: dict[str, Any]) -> dict[str, Any]:
+    """Convert independently verified non-workspace crates into explicit load paths."""
+    workflow_paths = [
+        str(file["path"])
+        for file in observation["files"]
+        if str(file["path"]).startswith(".github/workflows/")
+    ]
+    workflow_text = {
+        path: MODEL.read_bytes(root, path).decode("utf-8", errors="replace")
+        for path in workflow_paths
+    }
+    verified: dict[str, str] = {}
+    for package in observation["cargo_packages"]:
+        path = str(package["path"])
+        parts = PurePosixPath(path).parts
+        if len(parts) != 2 or parts[0] != "crates" or path in observation["workspace_members"]:
+            continue
+        manifest = f"{path}/Cargo.toml"
+        for workflow, text in workflow_text.items():
+            if manifest in text or f"working-directory: {path}" in text or f"cd {path}" in text:
+                verified[path] = workflow
+                break
+    if not verified:
+        return observation
+    observation["findings"] = [
+        finding
+        for finding in observation["findings"]
+        if not (
+            finding["category"] == "workspace-closure"
+            and any(finding["evidence_path"] == f"{path}/Cargo.toml" for path in verified)
+        )
+    ]
+    known_ids = {item["id"] for item in observation["load_paths"]}
+    for path, workflow in sorted(verified.items()):
+        identity = f"standalone-{PurePosixPath(path).name}"
+        if identity in known_ids:
+            continue
+        observation["load_paths"].append(
+            {
+                "id": identity,
+                "source": f"{path}/Cargo.toml",
+                "actuator": workflow,
+                "receipt": "GitHub Actions exact-head job and commit check suite",
+                "standing": "PARTIAL_ALIVE",
+            }
+        )
+    observation["load_paths"] = sorted(observation["load_paths"], key=lambda item: item["id"])
+    observation["counts"]["findings"] = len(observation["findings"])
+    observation["counts"]["blocking_findings"] = sum(
+        item["severity"] == "Blocking" for item in observation["findings"]
+    )
+    return observation
+
+
 def finalize_active_outputs(observation: dict[str, Any]) -> dict[str, Any]:
     """Treat every root manifest output as a generated consequence by contract."""
     owned = {
@@ -126,7 +181,8 @@ def observe(root: Path) -> dict[str, object]:
         file["generated_marker"] = has_generated_header(root, str(file["path"]))
     NORMALIZER.authority_for = canonical_authority
     NORMALIZER.load_bearing = canonical_load_bearing
-    return finalize_active_outputs(NORMALIZER.normalize(observation, MODEL))
+    normalized = NORMALIZER.normalize(observation, MODEL)
+    return finalize_active_outputs(admit_standalone_products(root, normalized))
 
 
 def main() -> int:
