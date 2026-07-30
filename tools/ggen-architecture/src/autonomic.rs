@@ -227,4 +227,335 @@ impl<'a> AutonomicController<'a> {
                 self.analyze_stimulus(stimulus, &mut diagnoses, &mut intents)?;
             }
         } else {
-  ²È="24€€€€€€€…ÍÍ•Ñ}¥°(€€€€€€€€€€€€€€€‘•Á•¹‘•¹å}¥°(€€€€€€€€€€€ô€ôøì(€€€€€€€€€€€€€€€±•Ğ…ÍÍ•Ğ€ôÍ•±˜¹ÍÑ…Ñ”¹É•¥ÍÑÉä¹…ÍÍ•Ğ¡…ÍÍ•Ñ}¥¤üì(€€€€€€€€€€€€€€€¥˜€……ÍÍ•Ğ¹‘•Á•¹‘•¹¥•Ì¹½¹Ñ…¥¹Ì¡‘•Á•¹‘•¹å}¥¤ì(€€€€€€€€€€€€€€€€€€€É•ÑÕÉ¸ÉÈ¡É¡¥Ñ•ÑÕÉ•ÉÉ½Èèé…¹±¥¹•Á•¹‘•¹äì(€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥è…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€‘•Á•¹‘•¹å}¥è‘•Á•¹‘•¹å}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€€€€€‘¥…¹½Í•Ì¹ÁÕÍ ¡¥…¹½Í¥Ìì(€€€€€€€€€€€€€€€€€€€½‘”è€‰µUQ<´ĞÀÄˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€Í•Ù•É¥ÑäèM•Ù•É¥ÑäèéÉ¥Ñ¥…°°(€€€€€€€€€€€€€€€€€€€ÍÕ‰©•Ğè…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€É…Ñ¥½¹…±”è™½Éµ…Ğ„ ‰É•ÅÕ¥É•‘•Á•¹‘•¹äí‘•Á•¹‘•¹å}¥‘õ€¥ÌÕ¹…Ù…¥±…‰±”ˆ¤°(€€€€€€€€€€€€€€€€€€€…™™•Ñ•‘}…ÍÍ•ÑÌèÙ•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¤°‘•Á•¹‘•¹å}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€€€€¥¹Ñ•¹ÑÌ¹ÁÕÍ ¡É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èé	±½­AÉ½µ½Ñ¥½¸°(€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€Ù•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰‘•Á•¹‘•¹ä½ÕÑ…”•Ù¥‘•¹”…‘µ¥ÑÑ•ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÁÉ½µ½Ñ¥½¹}…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÁÉ½µ½Ñ¥½¹}É•™ÕÍ…±}É••¥ÁĞˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l ‰‘•Á•¹‘•¹å}¥ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°‘•Á•¹‘•¹å}¥¹±½¹” ¤¥t¤°(€€€€€€€€€€€€€€€€¤ü¤ì(€€€€€€€€€€€€€€€¥¹Ñ•¹ÑÌ¹ÁÕÍ ¡É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èéI•Á±…¹QÉ…¹Í¥Ñ¥½¸°(€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€Ù•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¤°‘•Á•¹‘•¹å}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰…±Ñ•É¹…Ñ¥Ù”‰Õ¥±‘¥¹œ‰±½­Ì¥‘•¹Ñ¥™¥•ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰…É¡¥Ñ•ÑÕÉ•}Á±…¹¹•Èˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰Á±…¹}•ÉÑ¥™¥…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l ‰Õ¹…Ù…¥±…‰±•}‘•Á•¹‘•¹äˆ¹Ñ½}ÍÑÉ¥¹œ ¤°‘•Á•¹‘•¹å}¥¹±½¹” ¤¥t¤°(€€€€€€€€€€€€€€€€¤ü¤ì(€€€€€€€€€€€ô(€€€€€€€€€€€MÑ¥µÕ±ÕÌèé1¥™•å±••…‘±¥¹”ì…ÍÍ•Ñ}¥°Ñ…É•Ğô€ôøì(€€€€€€€€€€€€€€€±•Ğ…ÍÍ•Ğ€ôÍ•±˜¹ÍÑ…Ñ”¹É•¥ÍÑÉä¹…ÍÍ•Ğ¡…ÍÍ•Ñ}¥¤üì(€€€€€€€€€€€€€€€¥˜…ÍÍ•Ğ¹±¥™•å±”¹…±±½İÌ ©Ñ…É•Ğ¤ì(€€€€€€€€€€€€€€€€€€€‘¥…¹½Í•Ì¹ÁÕÍ ¡¥…¹½Í¥Ìì(€€€€€€€€€€€€€€€€€€€€€€€½‘”è€‰µUQ<´ÔÀÈˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€Í•Ù•É¥ÑäèM•Ù•É¥Ñäèé]…É¹¥¹œ°(€€€€€€€€€€€€€€€€€€€€€€€ÍÕ‰©•Ğè…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€É…Ñ¥½¹…±”è™½Éµ…Ğ„ (€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰±¥™•å±”‘•…‘±¥¹”É•ÅÕ•ÍÑÌíô€´øíôˆ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ğ¹±¥™•å±”°Ñ…É•Ğ(€€€€€€€€€€€€€€€€€€€€€€€€¤°(€€€€€€€€€€€€€€€€€€€€€€€…™™•Ñ•‘}…ÍÍ•ÑÌèÙ•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€€€€€€€€¥¹Ñ•¹ÑÌ¹ÁÕÍ ¡É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èéÉ•…Ñ•5¥É…Ñ¥½¹A±…¸°(€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€Í•±˜¹ÍÑ…Ñ”¹É•¥ÍÑÉä¹¥µÁ…Ñ}É•Á½ÉĞ¡…ÍÍ•Ñ}¥¤ü¹…™™•Ñ•°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l(€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰ÍÕ•ÍÍ½È¥‘•¹Ñ¥™¥•ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰É½±±‰…¬Á½±¥ä…‘µ¥ÑÑ•ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰…É¡¥Ñ•ÑÕÉ•}Á±…¹¹•Èˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l(€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰µ¥É…Ñ¥½¹}Á±…¸ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰Á±…¹}•ÉÑ¥™¥…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ ‰™É½´ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°…ÍÍ•Ğ¹±¥™•å±”¹Ñ½}ÍÑÉ¥¹œ ¤¤°(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ ‰Ñ¼ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°Ñ…É•Ğ¹Ñ½}ÍÑÉ¥¹œ ¤¤°(€€€€€€€€€€€€€€€€€€€€€€€t¤°(€€€€€€€€€€€€€€€€€€€€¤ü¤ì(€€€€€€€€€€€€€€€ô•±Í”ì(€€€€€€€€€€€€€€€€€€€‘¥…¹½Í•Ì¹ÁÕÍ ¡¥…¹½Í¥Ìì(€€€€€€€€€€€€€€€€€€€€€€€½‘”è€‰µUQ<´ÔÀÄˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€€€€€Í•Ù•É¥ÑäèM•Ù•É¥ÑäèéÉÉ½È°(€€€€€€€€€€€€€€€€€€€€€€€ÍÕ‰©•Ğè…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€É…Ñ¥½¹…±”è™½Éµ…Ğ„ (€€€€€€€€€€€€€€€€€€€€€€€€€€€€‰É•ÅÕ•ÍÑ•±¥™•å±”ÑÉ…¹Í¥Ñ¥½¸íô€´øíô¥ÌÕ¹±…İ™Õ°ˆ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ğ¹±¥™•å±”°Ñ…É•Ğ(€€€€€€€€€€€€€€€€€€€€€€€€¤°(€€€€€€€€€€€€€€€€€€€€€€€…™™•Ñ•‘}…ÍÍ•ÑÌèÙ•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€€€€€€€€¥¹Ñ•¹ÑÌ¹ÁÕÍ ¡É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èé	±½­AÉ½µ½Ñ¥½¸°(€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€Ù•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰±¥™•å±”±…Ü•Ù…±Õ…Ñ•ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰±¥™•å±•}…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÑÉ…¹Í¥Ñ¥½¹}É•™ÕÍ…±}É••¥ÁĞˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ ‰™É½´ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°…ÍÍ•Ğ¹±¥™•å±”¹Ñ½}ÍÑÉ¥¹œ ¤¤°(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ ‰Ñ¼ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°Ñ…É•Ğ¹Ñ½}ÍÑÉ¥¹œ ¤¤°(€€€€€€€€€€€€€€€€€€€€€€€t¤°(€€€€€€€€€€€€€€€€€€€€¤ü¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€ô(€€€€€€€€€€€MÑ¥µÕ±ÕÌèéMÑ…¹‘¥¹¡…¹•ì…ÍÍ•Ñ}¥°ÍÑ…¹‘¥¹œô€ôøì(€€€€€€€€€€€€€€€Í•±˜¹ÍÑ…Ñ”¹É•¥ÍÑÉä¹…ÍÍ•Ğ¡…ÍÍ•Ñ}¥¤üì(€€€€€€€€€€€€€€€±•ĞÍ•Ù•É¥Ñä€ôµ…Ñ ÍÑ…¹‘¥¹œì(€€€€€€€€€€€€€€€€€€€MÑ…¹‘¥¹œèé±¥Ù”€ôøM•Ù•É¥Ñäèé%¹™¼°(€€€€€€€€€€€€€€€€€€€MÑ…¹‘¥¹œèéA…ÉÑ¥…±±¥Ù”ğMÑ…¹‘¥¹œèéU¹­¹½İ¸€ôøM•Ù•É¥Ñäèé]…É¹¥¹œ°(€€€€€€€€€€€€€€€€€€€MÑ…¹‘¥¹œèé	±½­•(€€€€€€€€€€€€€€€€€€€ğMÑ…¹‘¥¹œèé	Õ¥±‘	É½­•¸(€€€€€€€€€€€€€€€€€€€ğMÑ…¹‘¥¹œèéU¹ÍÕÁÁ½ÉÑ•(€€€€€€€€€€€€€€€€€€€ğMÑ…¹‘¥¹œèéI•Ñ¥É•€ôøM•Ù•É¥ÑäèéÉÉ½È°(€€€€€€€€€€€€€€€ôì(€€€€€€€€€€€€€€€‘¥…¹½Í•Ì¹ÁÕÍ ¡¥…¹½Í¥Ìì(€€€€€€€€€€€€€€€€€€€½‘”è€‰µUQ<´ØÀÄˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€Í•Ù•É¥Ñä°(€€€€€€€€€€€€€€€€€€€ÍÕ‰©•Ğè…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€É…Ñ¥½¹…±”è™½Éµ…Ğ„ ‰•Ù¥‘•¹”ÍÑ…¹‘¥¹œ¡…¹•Ñ¼íÍÑ…¹‘¥¹œèıôˆ¤°(€€€€€€€€€€€€€€€€€€€…™™•Ñ•‘}…ÍÍ•ÑÌèÙ•Œ…m…ÍÍ•Ñ}¥¹±½¹” ¥t°(€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€€€€¥˜Í•Ù•É¥Ñä€øôM•Ù•É¥ÑäèéÉÉ½Èì(€€€€€€€€€€€€€€€€€€€¥¹Ñ•¹ÑÌ¹ÁÕÍ ¡É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èé	±½­AÉ½µ½Ñ¥½¸°(€€€€€€€€€€€€€€€€€€€€€€€…ÍÍ•Ñ}¥¹±½¹” ¤°(€€€€€€€€€€€€€€€€€€€€€€€Í•±˜¹ÍÑ…Ñ”¹É•¥ÍÑÉä¹¥µÁ…Ñ}É•Á½ÉĞ¡…ÍÍ•Ñ}¥¤ü¹…™™•Ñ•°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÍÑ…¹‘¥¹œ½‰Í•ÉÙ…Ñ¥½¸…‘µ¥ÑÑ•ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÁÉ½µ½Ñ¥½¹}…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰ÁÉ½µ½Ñ¥½¹}É•™ÕÍ…±}É••¥ÁĞˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€€€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l ‰ÍÑ…¹‘¥¹œˆ¹Ñ½}ÍÑÉ¥¹œ ¤°™½Éµ…Ğ„ ‰íÍÑ…¹‘¥¹œèıôˆ¤¥t¤°(€€€€€€€€€€€€€€€€€€€€¤ü¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€ô(€€€€€€€ô(€€€€€€€=¬  ¤¤(€€€ô((€€€™¸…Á…¥Ñå}¥¹Ñ•¹Ğ (€€€€€€€­¥¹è%¹Ñ•¹Ñ-¥¹°Í…µÁ±”è€™…Á…¥ÑåM…µÁ±”°±•Ù•°è…Á…¥Ñå1•Ù•°°(€€€€¤€´øI•ÍÕ±ĞñÉ¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğøì(€€€€€€€É¡¥Ñ•ÑÕÉ•%¹Ñ•¹Ğèé‰Õ¥± (€€€€€€€€€€€­¥¹°(€€€€€€€€€€€Í…µÁ±”¹±…‰•°¹±½¹” ¤°(€€€€€€€€€€€Y•Œèé¹•Ü ¤°(€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l‰…Á…¥ÑäÍ…µÁ±”…‘µ¥ÑÑ•ˆ¹Ñ½}ÍÑÉ¥¹œ ¥t¤°(€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡mµ…Ñ ­¥¹ì(€€€€€€€€€€€€€€€%¹Ñ•¹Ñ-¥¹èé	±½­AÉ½µ½Ñ¥½¸€ôø€‰ÁÉ½µ½Ñ¥½¹}…Ñ”ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€|€ôø€‰…É¡¥Ñ•ÑÕÉ•}ÁÉ½™¥±•Èˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€õt¤°(€€€€€€€€€€€	QÉ••M•Ğèé™É½´¡l(€€€€€€€€€€€€€€€€‰…Á…¥Ñå}É•Á½ÉĞˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€‰…Á…¥Ñå}É••¥ÁĞˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€t¤°(€€€€€€€€€€€	QÉ••5…Àèé™É½´¡l(€€€€€€€€€€€€€€€€ ‰…Á…¥Ñå}±•Ù•°ˆ¹Ñ½}ÍÑÉ¥¹œ ¤°™½Éµ…Ğ„ ‰í±•Ù•°èıôˆ¤¤°(€€€€€€€€€€€€€€€€ ‰•±…ÁÍ•‘}µÌˆ¹Ñ½}ÍÑÉ¥¹œ ¤°Í…µÁ±”¹•±…ÁÍ•‘}µÌ¹Ñ½}ÍÑÉ¥¹œ ¤¤°(€€€€€€€€€€€€€€€€ (€€€€€€€€€€€€€€€€€€€€‰Á•…­}µ•µ½Éå}‰åÑ•Ìˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€Í…µÁ±”¹Á•…­}µ•µ½Éå}‰åÑ•Ì¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€¤°(€€€€€€€€€€€€€€€€ (€€€€€€€€€€€€€€€€€€€€‰İ½É­±½…‘}Õ¹¥ÑÌˆ¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€€€€Í…µÁ±”¹İ½É­±½…¹Õ¹¥ÑÌ ¤¹Ñ½}ÍÑÉ¥¹œ ¤°(€€€€€€€€€€€€€€€€¤°(€€€€€€€€€€€t¤°(€€€€€€€€¤(€€€ô)ô(
+            diagnoses.push(Diagnosis {
+                code: "EA-AUTO-000".to_string(),
+                severity: Severity::Info,
+                subject: self.state.name.clone(),
+                rationale: "autonomic cycles are disabled by policy".to_string(),
+                affected_assets: Vec::new(),
+            });
+        }
+
+        let limit = self.state.autonomic_policy.max_intents_per_cycle;
+        if intents.len() > limit {
+            diagnoses.push(Diagnosis {
+                code: "EA-AUTO-009".to_string(),
+                severity: Severity::Warning,
+                subject: self.state.name.clone(),
+                rationale: format!(
+                    "{} candidate intents exceeded the bounded cycle limit of {}",
+                    intents.len(),
+                    limit
+                ),
+                affected_assets: Vec::new(),
+            });
+            intents.truncate(limit);
+        }
+
+        diagnoses.sort_by(|left, right| {
+            right
+                .severity
+                .cmp(&left.severity)
+                .then(left.code.cmp(&right.code))
+                .then(left.subject.cmp(&right.subject))
+        });
+        intents.sort_by(|left, right| {
+            left.kind
+                .cmp(&right.kind)
+                .then(left.subject.cmp(&right.subject))
+                .then(left.intent_id.cmp(&right.intent_id))
+        });
+
+        let receipt_hash = deterministic_hash(
+            "autonomic_cycle",
+            &CycleReceiptBody {
+                observed_at: &observed_at,
+                stimuli: &stimuli,
+                diagnoses: &diagnoses,
+                intents: &intents,
+                actuation_performed: false,
+            },
+        )?;
+
+        Ok(AutonomicCycle {
+            cycle_id: receipt_hash.clone(),
+            observed_at,
+            stimuli,
+            diagnoses,
+            intents,
+            actuation_performed: false,
+            receipt_hash,
+        })
+    }
+
+    fn analyze_stimulus(
+        &self, stimulus: &Stimulus, diagnoses: &mut Vec<Diagnosis>,
+        intents: &mut Vec<ArchitectureIntent>,
+    ) -> Result<()> {
+        match stimulus {
+            Stimulus::Capacity { sample } => {
+                let mut samples = self.state.capacity_samples.clone();
+                samples.push(sample.clone());
+                let envelope = CapacityEnvelope::analyze(&samples, &self.state.capacity_policy);
+                let level = self.state.capacity_policy.classify(sample);
+                match level {
+                    CapacityLevel::Healthy => diagnoses.push(Diagnosis {
+                        code: "EA-AUTO-101".to_string(),
+                        severity: Severity::Info,
+                        subject: sample.label.clone(),
+                        rationale: "capacity sample remains inside the admitted envelope"
+                            .to_string(),
+                        affected_assets: Vec::new(),
+                    }),
+                    CapacityLevel::Warning => {
+                        diagnoses.push(Diagnosis {
+                            code: "EA-AUTO-102".to_string(),
+                            severity: Severity::Warning,
+                            subject: sample.label.clone(),
+                            rationale: format!(
+                                "capacity warning at {} workload units; first knee: {}",
+                                sample.workload.units(),
+                                envelope.first_knee.as_deref().unwrap_or("not observed")
+                            ),
+                            affected_assets: Vec::new(),
+                        });
+                        intents.push(self.capacity_intent(IntentKind::Reprofile, sample, level)?);
+                    }
+                    CapacityLevel::Refuse => {
+                        diagnoses.push(Diagnosis {
+                            code: "EA-AUTO-103".to_string(),
+                            severity: Severity::Critical,
+                            subject: sample.label.clone(),
+                            rationale: "capacity refusal threshold crossed".to_string(),
+                            affected_assets: Vec::new(),
+                        });
+                        intents.push(self.capacity_intent(
+                            IntentKind::BlockPromotion,
+                            sample,
+                            level,
+                        )?);
+                        intents.push(self.capacity_intent(IntentKind::Reprofile, sample, level)?);
+                    }
+                }
+            }
+            Stimulus::AssetChanged { asset_id } => {
+                let impact = self.state.registry.impact_report(asset_id)?;
+                diagnoses.push(Diagnosis {
+                    code: "EA-AUTO-201".to_string(),
+                    severity: Severity::Warning,
+                    subject: asset_id.clone(),
+                    rationale: format!(
+                        "architecture change affects {} registered assets",
+                        impact.affected.len()
+                    ),
+                    affected_assets: impact.affected.clone(),
+                });
+                intents.push(ArchitectureIntent::build(
+                    IntentKind::Revalidate,
+                    asset_id.clone(),
+                    impact.ordered_revalidation,
+                    BTreeSet::from(["dependency impact report admitted".to_string()]),
+                    BTreeSet::from(["verification_runner".to_string()]),
+                    BTreeSet::from([
+                        "validation_report".to_string(),
+                        "revalidation_receipt".to_string(),
+                    ]),
+                    BTreeMap::new(),
+                )?);
+            }
+            Stimulus::DriftDetected {
+                asset_id,
+                expected_hash,
+                observed_hash,
+            } => {
+                self.state.registry.asset(asset_id)?;
+                diagnoses.push(Diagnosis {
+                    code: "EA-AUTO-301".to_string(),
+                    severity: Severity::Critical,
+                    subject: asset_id.clone(),
+                    rationale: "observed state does not match the admitted digest".to_string(),
+                    affected_assets: vec![asset_id.clone()],
+                });
+                let payload = BTreeMap::from([
+                    ("expected_hash".to_string(), expected_hash.clone()),
+                    ("observed_hash".to_string(), observed_hash.clone()),
+                ]);
+                intents.push(ArchitectureIntent::build(
+                    IntentKind::BlockPromotion,
+                    asset_id.clone(),
+                    vec![asset_id.clone()],
+                    BTreeSet::from(["drift evidence admitted".to_string()]),
+                    BTreeSet::from(["promotion_gate".to_string()]),
+                    BTreeSet::from(["promotion_refusal_receipt".to_string()]),
+                    payload.clone(),
+                )?);
+                intents.push(ArchitectureIntent::build(
+                    IntentKind::RebuildProjection,
+                    asset_id.clone(),
+                    vec![asset_id.clone()],
+                    BTreeSet::from([
+                        "authoritative source hash verified".to_string(),
+                        "write scope admitted".to_string(),
+                    ]),
+                    BTreeSet::from(["generated_artifact_writer".to_string()]),
+                    BTreeSet::from(["artifact_digest".to_string(), "rebuild_receipt".to_string()]),
+                    payload,
+                )?);
+            }
+            Stimulus::DependencyUnavailable {
+                asset_id,
+                dependency_id,
+            } => {
+                let asset = self.state.registry.asset(asset_id)?;
+                if !asset.dependencies.contains(dependency_id) {
+                    return Err(ArchitectureError::DanglingDependency {
+                        asset_id: asset_id.clone(),
+                        dependency_id: dependency_id.clone(),
+                    });
+                }
+                diagnoses.push(Diagnosis {
+                    code: "EA-AUTO-401".to_string(),
+                    severity: Severity::Critical,
+                    subject: asset_id.clone(),
+                    rationale: format!("required dependency `{dependency_id}` is unavailable"),
+                    affected_assets: vec![asset_id.clone(), dependency_id.clone()],
+                });
+                intents.push(ArchitectureIntent::build(
+                    IntentKind::BlockPromotion,
+                    asset_id.clone(),
+                    vec![asset_id.clone()],
+                    BTreeSet::from(["dependency outage evidence admitted".to_string()]),
+                    BTreeSet::from(["promotion_gate".to_string()]),
+                    BTreeSet::from(["promotion_refusal_receipt".to_string()]),
+                    BTreeMap::from([("dependency_id".to_string(), dependency_id.clone())]),
+                )?);
+                intents.push(ArchitectureIntent::build(
+                    IntentKind::ReplanTransition,
+                    asset_id.clone(),
+                    vec![asset_id.clone(), dependency_id.clone()],
+                    BTreeSet::from(["alternative building blocks identified".to_string()]),
+                    BTreeSet::from(["architecture_planner".to_string()]),
+                    BTreeSet::from(["plan_certificate".to_string()]),
+                    BTreeMap::from([("unavailable_dependency".to_string(), dependency_id.clone())]),
+                )?);
+            }
+            Stimulus::LifecycleDeadline { asset_id, target } => {
+                let asset = self.state.registry.asset(asset_id)?;
+                if !asset.lifecycle.allows(*target) {
+                    diagnoses.push(Diagnosis {
+                        code: "EA-AUTO-501".to_string(),
+                        severity: Severity::Error,
+                        subject: asset_id.clone(),
+                        rationale: format!(
+                            "requested lifecycle transition {} -> {} is unlawful",
+                            asset.lifecycle, target
+                        ),
+                        affected_assets: vec![asset_id.clone()],
+                    });
+                    intents.push(ArchitectureIntent::build(
+                        IntentKind::BlockPromotion,
+                        asset_id.clone(),
+                        vec![asset_id.clone()],
+                        BTreeSet::from(["lifecycle law evaluated".to_string()]),
+                        BTreeSet::from(["lifecycle_gate".to_string()]),
+                        BTreeSet::from(["transition_refusal_receipt".to_string()]),
+                        BTreeMap::from([
+                            ("from".to_string(), asset.lifecycle.to_string()),
+                            ("to".to_string(), target.to_string()),
+                        ]),
+                    )?);
+                } else {
+                    diagnoses.push(Diagnosis {
+                        code: "EA-AUTO-502".to_string(),
+                        severity: Severity::Warning,
+                        subject: asset_id.clone(),
+                        rationale: format!(
+                            "lifecycle deadline requests {} -> {}",
+                            asset.lifecycle, target
+                        ),
+                        affected_assets: vec![asset_id.clone()],
+                    });
+                    intents.push(ArchitectureIntent::build(
+                        IntentKind::CreateMigrationPlan,
+                        asset_id.clone(),
+                        self.state.registry.impact_report(asset_id)?.affected,
+                        BTreeSet::from([
+                            "successor identified".to_string(),
+                            "rollback policy admitted".to_string(),
+                        ]),
+                        BTreeSet::from(["architecture_planner".to_string()]),
+                        BTreeSet::from([
+                            "migration_plan".to_string(),
+                            "plan_certificate".to_string(),
+                        ]),
+                        BTreeMap::from([
+                            ("from".to_string(), asset.lifecycle.to_string()),
+                            ("to".to_string(), target.to_string()),
+                        ]),
+                    )?);
+                }
+            }
+            Stimulus::StandingChanged { asset_id, standing } => {
+                self.state.registry.asset(asset_id)?;
+                let severity = match standing {
+                    Standing::Alive => Severity::Info,
+                    Standing::PartialAlive | Standing::Unknown => Severity::Warning,
+                    Standing::Blocked
+                    | Standing::BuildBroken
+                    | Standing::Unsupported
+                    | Standing::Retired => Severity::Error,
+                };
+                diagnoses.push(Diagnosis {
+                    code: "EA-AUTO-601".to_string(),
+                    severity,
+                    subject: asset_id.clone(),
+                    rationale: format!("evidence standing changed to {standing:?}"),
+                    affected_assets: vec![asset_id.clone()],
+                });
+                if severity >= Severity::Error {
+                    intents.push(ArchitectureIntent::build(
+                        IntentKind::BlockPromotion,
+                        asset_id.clone(),
+                        self.state.registry.impact_report(asset_id)?.affected,
+                        BTreeSet::from(["standing observation admitted".to_string()]),
+                        BTreeSet::from(["promotion_gate".to_string()]),
+                        BTreeSet::from(["promotion_refusal_receipt".to_string()]),
+                        BTreeMap::from([("standing".to_string(), format!("{standing:?}"))]),
+                    )?);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn capacity_intent(
+        &self, kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,
+    ) -> Result<ArchitectureIntent> {
+        ArchitectureIntent::build(
+            kind,
+            sample.label.clone(),
+            Vec::new(),
+            BTreeSet::from(["capacity sample admitted".to_string()]),
+            BTreeSet::from([match kind {
+                IntentKind::BlockPromotion => "promotion_gate".to_string(),
+                _ => "architecture_profiler".to_string(),
+            }]),
+            BTreeSet::from([
+                "capacity_report".to_string(),
+                "capacity_receipt".to_string(),
+            ]),
+            BTreeMap::from([
+                ("capacity_level".to_string(), format!("{level:?}")),
+                ("elapsed_ms".to_string(), sample.elapsed_ms.to_string()),
+                (
+                    "peak_memory_bytes".to_string(),
+                    sample.peak_memory_bytes.to_string(),
+                ),
+                (
+                    "workload_units".to_string(),
+                    sample.workload.units().to_string(),
+                ),
+            ]),
+        )
+    }
+}
