@@ -1,6 +1,6 @@
 # ggen-first Lean 4 to Rust
 
-`ggen-lean4-rust-pipeline-pack` manufactures a Lean 4 proof library and emitter executable from an admitted RDF graph. Lean checks the proof bundle before that executable may emit a Rust crate. The resulting Rust binary produces a BLAKE3-bound execution receipt referencing the Lean proof receipt.
+`ggen-lean4-rust-pipeline-pack` manufactures a Lean 4 proof library and emitter executable from an admitted RDF graph. Lean checks the proof bundle before that executable may emit a Rust crate. The Rust product contains a Fortune 5 deployment-policy evaluator, cryptographic receipt verifier, and executable SLO probe.
 
 ## Source boundary
 
@@ -11,22 +11,23 @@ ggen.toml
 ontology.ttl
 ```
 
-There is no handwritten Lean file, Rust file, Cargo manifest, test, receipt schema, or pipeline report in the consumer surface.
+There is no handwritten Lean file, Rust file, Cargo manifest, test, receipt schema, policy evaluator, benchmark probe, or pipeline report in the consumer surface. `ggen.lock` is ggen-owned root state.
 
 ## Law-state route
 
 ```text
 parse RDF
 → run fail-closed graph gates
-→ ggen emits a complete Lean library-plus-executable project and a signed sync receipt
-→ Lean kernel checks the theorem bundle
-→ leanchecker independently checks the proof library environment
+→ ggen emits a complete Lean library-plus-executable project and signed sync receipt
+→ Lean kernel checks the bounded-successor and Fortune 5 theorem bundles
+→ leanchecker independently checks the proof-library environment
 → the admitted Lean executable emits Cargo.toml and Rust source
 → rustfmt canonicalizes the emitted Rust
 → Clippy and tests admit the crate
-→ the public binary executes
-→ BLAKE3 binds the execution receipt to proof-receipt.json
-→ replay and second-emission identity are verified
+→ promotion scenarios execute
+→ BLAKE3 binds execution and regional receipts to proof-receipt.json
+→ SLO probe emits measured P50/P95/P99 and the resulting promotion decision
+→ sabotage, receipt tamper, replay, and second-emission identity are verified
 ```
 
 ## Why this is Lean 4 to Rust rather than parallel projection
@@ -37,14 +38,16 @@ The pack contains no Rust template. ggen owns these outputs:
 generated/lean/lean-toolchain
 generated/lean/lake-manifest.json
 generated/lean/lakefile.lean
+generated/lean/Fortune5Policy.lean
+generated/lean/RustLib.lean
+generated/lean/RustMain.lean
+generated/lean/RustEvidence.lean
 generated/lean/Lean4RustPipeline.lean
 generated/lean/Main.lean
 generated/PIPELINE.md
 ```
 
-`Lean4RustPipeline.lean` owns the definitions, theorems, proof-carrying receipt, and Rust emitter. `Main.lean` is a minimal executable route into the admitted library. This separation produces a package-level `.olean` that can be independently replayed by `leanchecker` without collapsing the executable into the proof surface.
-
-The manufactured `lake-manifest.json` declares an empty dependency set. It is part of the deterministic Lean project rather than an unreceipted setup mutation performed by CI.
+`Fortune5Policy.lean` owns definitions, theorems, and proof receipts. `RustLib.lean`, `RustMain.lean`, and `RustEvidence.lean` own the Lean-held Rust projections. `Lean4RustPipeline.lean` owns emission only. `Main.lean` is the minimal executable route. The root module produces a package-level `.olean` for independent `leanchecker` replay.
 
 `generated/rust/` does not exist after `ggen sync run`. It appears only after:
 
@@ -54,24 +57,72 @@ lake build
 lake exe emitRust
 ```
 
-The Lean emitter accepts a `ProofReceipt` value whose fields contain the universal bound proof, concrete witness proof, and fixed-point proof. If any theorem is absent or invalid, the executable does not compile and Rust cannot be emitted.
+The Lean executable emits:
 
-## Current semantic cell
+```text
+generated/rust/Cargo.toml
+generated/rust/src/lib.rs
+generated/rust/src/main.rs
+generated/rust/src/bin/verify_receipt.rs
+generated/rust/src/bin/slo_probe.rs
+```
 
-The first admitted cell is a bounded successor:
+## Bounded-successor cell
 
 ```text
 step(x) = x + 1  when x < bound
 step(x) = bound  otherwise
 ```
 
-Lean proves:
+The specimen uses bound `10` and witness `9 → 10`. Lean proves `step_le`, `step_witness`, and `step_fixed_point`.
 
-- `step_le`: every result is at most the declared bound;
-- `step_witness`: the declared witness input reaches the declared output;
-- `step_fixed_point`: the bound is a fixed point.
+## Fortune 5 capability cell
 
-The specimen uses bound `10` and witness `9 → 10`.
+The ontology admits the enterprise requirements as executable policy rather than prose:
+
+| Capability | Admitted law |
+|---|---|
+| SLO tracking | R1 ≤ 2 ns P99 / 8 RDTSC ticks, W1 ≤ 1 ms P99, C1 ≤ 500 ms P99 |
+| Promotion | Canary and staging validation are mandatory; SLO violation rolls back; any failed control refuses promotion |
+| Multi-region | At least three regions, majority quorum, cross-region replication, synchronized receipts, failover readiness, legal-hold readiness |
+| Identity | Exact SPIFFE workload identity, authentication, certificate age ≤ 1 hour |
+| Key management | AWS KMS, Azure Key Vault, and HashiCorp Vault required; key age ≤ 24 hours |
+| Network security | mTLS, network policy, and firewall policy required |
+| Observability | OTEL correlation plus SLO, guard, receipt-mismatch, and degradation alerts |
+| Receipts | Proof digest and regional receipt digest independently recomputed before acceptance |
+
+Lean proves threshold ordering, majority quorum, security time bounds, all required controls, healthy canary/staging/production outcomes, SLO rollback, and refusal for quorum, security, receipt, or failover failures.
+
+## Runtime scenarios
+
+The emitted binary supports deterministic scenarios:
+
+```bash
+cargo run --bin lean-proof-cell -- canonical 9
+cargo run --bin lean-proof-cell -- canary 9
+cargo run --bin lean-proof-cell -- production 9
+cargo run --bin lean-proof-cell -- slo-violation 9
+cargo run --bin lean-proof-cell -- quorum-loss 9
+cargo run --bin lean-proof-cell -- security-expired 9
+cargo run --bin lean-proof-cell -- receipt-mismatch 9
+cargo run --bin lean-proof-cell -- failover-unready 9
+```
+
+The receipt verifier independently recomputes both BLAKE3 bindings:
+
+```bash
+cargo run --bin verify_receipt -- \
+  ../evidence/execution-canonical.json \
+  ../lean/proof-receipt.json
+```
+
+The SLO probe performs release-mode batched RDTSC and steady-clock measurements. It emits P50, P95, P99, the R1 nanosecond and tick targets, compliance, and the promotion decision:
+
+```bash
+cargo run --release --bin slo_probe
+```
+
+The only generated Rust `unsafe` surface is two audited LFENCE/RDTSC blocks in this probe; the policy library, execution binary, and receipt verifier remain safe Rust. A hosted-runner result is a measurement receipt, not a universal performance guarantee. A target violation lawfully produces `ROLLBACK` rather than being masked.
 
 ## Verification
 
@@ -81,8 +132,8 @@ Run from the repository root after Lean is installed:
 bash scripts/verify-lean4-rust-pipeline.sh
 ```
 
-The repository workflow bootstraps the generated Lean project first, installs the exact toolchain declared by the ontology, independently checks the proof environment, then executes the complete verifier.
+The verifier covers graph admission, signed ggen receipts, Lean build, leanchecker, Rust formatting, Clippy, unit tests, promotion scenarios, actual SLO measurement, isolated-unsafe audit, receipt recomputation, tamper refusal, policy sabotage, and two levels of byte-identity replay.
 
 ## Exclusions
 
-This v1 pipeline does not claim arbitrary Lean extraction, total semantic equivalence between Lean and Rust, automatic translation of unrestricted recursive functions, foreign-function correctness, or side-effect equivalence. It proves and compiles one bounded, pure, finite successor cell. Extension requires adding a new admitted semantic cell rather than weakening this boundary.
+This checkpoint does not claim arbitrary Lean extraction, unrestricted recursion translation, FFI correctness, side-effect equivalence, or a deployed Fortune 5 control plane. It implements the complete policy/admission/evidence cell. Real SPIRE, KMS, OTEL collectors, regional replication, quorum transport, firewalls, and deployment systems remain downstream actuators and must return observations and receipts to this law.
