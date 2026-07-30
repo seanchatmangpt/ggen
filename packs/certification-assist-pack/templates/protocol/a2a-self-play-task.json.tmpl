@@ -1,0 +1,83 @@
+{% for row in results %}{% if row["slug"] == "architecture-narration" %}{
+  "id": "self-play-architecture-narration-v26-7-30",
+  "contextId": "certification-assist-systems-dominion",
+  "status": {
+    "state": "TASK_STATE_COMPLETED",
+    "timestamp": "2026-07-30T20:00:00Z"
+  },
+  "artifacts": [
+    {
+      "artifactId": "architecture-narration-adjudication",
+      "name": "Capability Standing Adjudication",
+      "description": "Bounded result from Candidate Twin, Examiner Twin, and Domain Adjudicator self-play.",
+      "parts": [
+        {
+          "data": {
+            "objective": "{{ row["slug"] }}",
+            "currentStanding": {{ row["currentStanding"] }},
+            "targetStanding": {{ row["targetStanding"] }},
+            "drawNext": "{{ row["drawNext"] }}",
+            "tradeoff": "{{ row["tradeoff"] }}",
+            "standingPromoted": false
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  ],
+  "history": [
+    {
+      "messageId": "candidate-twin-turn-1",
+      "contextId": "certification-assist-systems-dominion",
+      "taskId": "self-play-architecture-narration-v26-7-30",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "data": {
+            "selfPlayRole": "candidate-twin",
+            "statement": "{{ row["sayNext"] }}"
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "messageId": "examiner-twin-turn-1",
+      "contextId": "certification-assist-systems-dominion",
+      "taskId": "self-play-architecture-narration-v26-7-30",
+      "role": "ROLE_AGENT",
+      "parts": [
+        {
+          "data": {
+            "selfPlayRole": "examiner-twin",
+            "challenge": "{{ row["watchFor"] }}"
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "messageId": "domain-adjudicator-turn-1",
+      "contextId": "certification-assist-systems-dominion",
+      "taskId": "self-play-architecture-narration-v26-7-30",
+      "role": "ROLE_AGENT",
+      "parts": [
+        {
+          "data": {
+            "selfPlayRole": "domain-adjudicator",
+            "rationale": "{{ row["why"] }}",
+            "standingPromoted": false
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "protocolVersion": "1.0",
+    "deterministic": true,
+    "receiptAlgorithm": "BLAKE3",
+    "standingPromotionAuthority": "external evidence-gated broker"
+  }
+}
+{% endif %}{% endfor %}
