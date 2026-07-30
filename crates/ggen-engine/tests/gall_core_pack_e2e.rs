@@ -3,8 +3,8 @@
 //! Real boundaries throughout: real filesystem, real pack loading, real
 //! Oxigraph/SPARQL gates, real Tera generation, real git commits/worktrees,
 //! real bash and Python commands, real ggen receipt verification, admitted
-//! evidence, APS-grade Jira and coding-agent projections, generated automation,
-//! tracker actuation, chained receipts, and named sabotage refusals.
+//! evidence, APS-grade tracker and coding-agent projections, generated
+//! automation, chained receipts, and named sabotage refusals.
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
@@ -190,7 +190,7 @@ ex:work-item-002 a gall:WorkItem ;
     gall:workItemId "GALL-CORE-002" ;
     gall:issueType gall:Task ;
     gall:summary "Verify the generated Gall work package" ;
-    gall:objective "Prove that Jira tickets agent work orders dependency graphs and automation are generated from the admitted work graph" ;
+    gall:objective "Prove that tracker tickets agent work orders dependency graphs and automation are generated from the admitted work graph" ;
     gall:rationale "A coding agent requires one consistent machine-derived instruction and execution surface rather than manually synchronized ticket prose" ;
     gall:belongsToProgram ex:program ;
     gall:belongsToCheckpoint ex:checkpoint-000 ;
@@ -212,7 +212,7 @@ ex:work-item-002 a gall:WorkItem ;
     gall:mustDo "Inspect every generated ticket and automation surface and preserve the declared proof order" ;
     gall:mustNotDo "Do not rewrite generated work artifacts by hand or omit prohibited scope" ;
     gall:outOfScope "Using live network side effects in the local lifecycle test" ;
-    gall:acceptanceCriterion "The Jira CSV automation manifest and agent work orders contain both work item identities" ;
+    gall:acceptanceCriterion "The tracker CSV automation manifest and agent work orders contain both work item identities" ;
     gall:definitionOfDone "The work-item dependency graph and automation receipts prove the order from GALL-CORE-001 to GALL-CORE-002" ;
     gall:verificationCommand "test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv" ;
     gall:evidenceArtifact "docs/GALL_AGENT_WORK_ORDERS.md" ;
@@ -312,11 +312,14 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
         "docs/GALL_AGENT_WORK_ORDERS.md",
         "docs/GALL_JIRA_TICKET_CATALOG.md",
         "docs/GALL_WORK_ITEM_DAG.dot",
+        "docs/GALL_AUTOMATION_RUNBOOK.md",
         "jira/GALL_JIRA_WORK_ITEMS.csv",
         "automation/GALL_AUTOMATION_WORK_ITEMS.csv",
         "automation/schemas/gall-automation-receipt.schema.json",
         "scripts/gall/control_plane.py",
         "scripts/gall/tracker_sync.py",
+        "scripts/gall/agent_executor.py",
+        "scripts/gall/snapshot_work_evidence.py",
         "scripts/gall/verify_automation_receipts.py",
         "scripts/gall/gall",
         "scripts/gall/run-checkpoints.sh",
@@ -341,7 +344,7 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     );
 
     let jira = std::fs::read_to_string(project.join("jira/GALL_JIRA_WORK_ITEMS.csv"))
-        .expect("Jira CSV");
+        .expect("tracker CSV");
     assert!(jira.contains("Project Key,Issue Type,Summary"), "{jira}");
     assert!(jira.contains("GALL-CORE-001"), "{jira}");
     assert!(jira.contains("GALL-CORE-002"), "{jira}");
@@ -475,11 +478,13 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     assert!(crown_report.contains("GALL-CORE-CROWN"), "{crown_report}");
     assert!(crown_report.contains("**ALIVE**"), "{crown_report}");
 
-    run_ok(
-        &project,
-        "bash",
-        &["scripts/gall/gall", "crown"],
-    );
+    run_ok(&project, "bash", &["scripts/gall/gall", "crown"]);
+
+    let completion = std::fs::read_to_string(
+        project.join("receipts/gall/work-items/GALL-CORE-001/completion.json"),
+    )
+    .expect("current completion receipt");
+    assert!(completion.contains("evidence_snapshot_digest"), "{completion}");
 
     let evidence_path = project.join("evidence/gall/ontology.ttl");
     let evidence = std::fs::read_to_string(&evidence_path).expect("read evidence");
