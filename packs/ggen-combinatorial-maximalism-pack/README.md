@@ -28,4 +28,6 @@ The included consumer at `examples/combinatorial-maximalism/` is the executable 
 bash scripts/verify-combinatorial-maximalism-pack.sh
 ```
 
-A green run crosses generation, compilation, process, filesystem, receipt, replay, refusal, sabotage, and second-sync boundaries. It does not claim that every possible CMD consumer is correct; it proves this pack and specimen are alive at the declared boundary.
+The verifier reports `ALIVE` only after the manufactured cell crosses generation, compilation, process, filesystem, receipt, replay, refusal, sabotage, and second-sync boundaries. Before that receipt exists, the implementation remains `PARTIAL_ALIVE`; an unobserved or unsupported boundary is never promoted by assertion.
+
+A green run proves this pack and specimen are alive at the declared boundary. It does not claim that every possible CMD consumer is correct.
