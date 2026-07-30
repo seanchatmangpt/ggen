@@ -21,7 +21,7 @@
 ggenspec:Frontmatter
     a               ggenspec:Section ;
     rdfs:label      "Frontmatter" ;
-    rdfs:comment    "Closed frontmatter key set for a ggen template, Hygen semantics (crate::template::Frontmatter)." ;
+    rdfs:comment    "Closed frontmatter key set for a ggen template: Hygen-derived write semantics plus ontology-driven output-phase Tera projection (crate::template::Frontmatter)." ;
     ggenspec:hasField
         ggenspec:Frontmatter-to ,
         ggenspec:Frontmatter-sparql ,
@@ -71,12 +71,12 @@ ggenspec:Frontmatter-inject
 ggenspec:Frontmatter-before
     a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Inject before the first line containing this marker." .
+    rdfs:comment "Inject before the first line containing this marker. Tera-rendered per output from the same query context as to: and the body." .
 
 ggenspec:Frontmatter-after
     a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Inject after the first line containing this marker." .
+    rdfs:comment "Inject after the first line containing this marker. Tera-rendered per output from the same query context as to: and the body." .
 
 ggenspec:Frontmatter-at_line
     a ggenspec:Field ; ggenspec:name "at_line" ; ggenspec:type xsd:nonNegativeInteger ;
@@ -86,7 +86,7 @@ ggenspec:Frontmatter-at_line
 ggenspec:Frontmatter-skip_if
     a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Skip the write when the existing file already contains this substring." .
+    rdfs:comment "Skip the write when the existing file already contains this substring. Tera-rendered per output, enabling row-specific idempotence." .
 
 ggenspec:Frontmatter-unless_exists
     a ggenspec:Field ; ggenspec:name "unless_exists" ; ggenspec:type xsd:boolean ;
@@ -116,12 +116,12 @@ ggenspec:Frontmatter-from
 ggenspec:Frontmatter-sh_before
     a ggenspec:Field ; ggenspec:name "sh_before" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Shell command run before the write decision, cwd = project root. Refused (not executed) if it matches shell_safety::check_shell_command_safe's denylist — a bounded denylist, not a sandbox." .
+    rdfs:comment "Shell command Tera-rendered per output and run after all templates render but before this output's write decision, cwd = project root. It still runs when the later write decision skips. Refused if it matches the bounded shell denylist; this is not a sandbox." .
 
 ggenspec:Frontmatter-sh_after
     a ggenspec:Field ; ggenspec:name "sh_after" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Shell command run after a successful Written/Injected outcome (never after Skipped). Same denylist and cwd as sh_before." .
+    rdfs:comment "Shell command Tera-rendered per output and run after a successful Written/Injected outcome (never after Skipped). Same bounded denylist and cwd as sh_before." .
 
 ggenspec:Frontmatter-backup
     a ggenspec:Field ; ggenspec:name "backup" ; ggenspec:type xsd:boolean ;
@@ -131,7 +131,7 @@ ggenspec:Frontmatter-backup
 ggenspec:Frontmatter-shape
     a ggenspec:Field ; ggenspec:name "shape" ; ggenspec:type ggenspec:ListOfString ;
     ggenspec:required false ;
-    rdfs:comment "SHACL shape file paths (relative to the project root) declared as governing this output. LIMITATION: existence-checked only — no SHACL engine runs in this crate yet, so listed shapes are not evaluated against rendered output." .
+    rdfs:comment "Tera-renderable SHACL shape file paths (relative to the project root) declared as governing each output. LIMITATION: existence-checked only — no SHACL engine runs in this crate yet, so listed shapes are not evaluated against rendered output." .
 
 ggenspec:Frontmatter-determinism
     a ggenspec:Field ; ggenspec:name "determinism" ; ggenspec:type xsd:boolean ;
@@ -146,7 +146,7 @@ ggenspec:Frontmatter-freeze_policy
 ggenspec:Frontmatter-freeze_slots_dir
     a ggenspec:Field ; ggenspec:name "freeze_slots_dir" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
-    rdfs:comment "Directory (relative to the project root) storing per-output BLAKE3 checksums for freeze_policy: checksum. Required when that policy is set; ignored otherwise." .
+    rdfs:comment "Tera-renderable directory (relative to the project root) storing per-output BLAKE3 checksums for freeze_policy: checksum. Required when that policy is set; ignored otherwise." .
 
 ggenspec:FreezePolicy
     a ggenspec:EnumType ;

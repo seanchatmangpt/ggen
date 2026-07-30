@@ -96,10 +96,10 @@ pub const RECEIPT_REL_PATH: &str = ".ggen-v2/receipt.json";
 /// One fully-rendered template awaiting `apply` — the boundary between the
 /// "may fail" render pass and the write pass, which by construction only
 /// begins once every template in the run has rendered successfully.
-struct PendingWrite<'a> {
+struct PendingWrite {
     to: String,
     body: String,
-    tpl: &'a Template,
+    frontmatter: Frontmatter,
 }
 
 /// Relative path of the append-only receipt history log (one JSON line per
@@ -675,16 +675,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
-    // Storage slot for the synthetic module-aggregator template (declared
-    // before `pending` so its borrow can live as long as `pending`'s
-    // entries do; only populated when `[templates] aggregate_modules` is
-    // set — see below, after the render loop).
-    let mut aggregator_slot: Option<Template> = None;
-    let mut pending: Vec<PendingWrite<'_>> = Vec::new();
+    // Every pending write owns the output-phase frontmatter rendered from
+    // the same semantic context as its path and body.
+    let mut pending: Vec<PendingWrite> = Vec::new();
 
     for (tpl_path, tpl) in &templates {
-        check_shape_files_exist(root, tpl_path, &tpl.frontmatter.shape)?;
-
         // Gap 1: per-template RDF overlay (`rdf:`/`rdf_inline:`) — a brand
         // new store layered over the base graph's current triples, built
         // fresh for every template that declares either field so it is
@@ -748,6 +743,9 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 }
                 let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
                 let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+                let frontmatter =
+                    render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
+                check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
                 check_determinism(
                     active_tera,
                     &tpl.body,
@@ -756,13 +754,21 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     determinism_recheck.as_ref(),
                     Some(row_index),
                     &body,
-                    &to,
+                    &frontmatter,
                 )?;
-                pending.push(PendingWrite { to, body, tpl });
+                pending.push(PendingWrite {
+                    to,
+                    body,
+                    frontmatter,
+                });
             }
         } else {
             let ctx = base_context(&named, &results);
+            let to = tpl.frontmatter.to.clone();
             let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+            let frontmatter =
+                render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
+            check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
             check_determinism(
                 active_tera,
                 &tpl.body,
@@ -771,12 +777,12 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 determinism_recheck.as_ref(),
                 None,
                 &body,
-                &tpl.frontmatter.to,
+                &frontmatter,
             )?;
             pending.push(PendingWrite {
-                to: tpl.frontmatter.to.clone(),
+                to,
                 body,
-                tpl,
+                frontmatter,
             });
         }
     }
@@ -829,42 +835,36 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     "#[path = \"{rel_to_src}\"]\npub mod {mod_name};\n"
                 ));
             }
-            aggregator_slot = Some(Template {
-                frontmatter: Frontmatter {
-                    to: AGGREGATOR_REL_PATH.to_string(),
-                    sparql: BTreeMap::new(),
-                    construct: None,
-                    inject: false,
-                    before: None,
-                    after: None,
-                    at_line: None,
-                    skip_if: None,
-                    unless_exists: false,
-                    force: true,
-                    when: None,
-                    skip_empty: false,
-                    from: None,
-                    sh_before: None,
-                    sh_after: None,
-                    backup: false,
-                    shape: Vec::new(),
-                    determinism: None,
-                    freeze_policy: None,
-                    freeze_slots_dir: None,
-                    rdf: Vec::new(),
-                    rdf_inline: Vec::new(),
-                    prefixes: BTreeMap::new(),
-                    base: None,
-                },
-                body: String::new(),
-            });
-            let tpl_ref: &Template = aggregator_slot
-                .as_ref()
-                .expect("aggregator_slot was assigned Some on the previous statement");
+            let frontmatter = Frontmatter {
+                to: AGGREGATOR_REL_PATH.to_string(),
+                sparql: BTreeMap::new(),
+                construct: None,
+                inject: false,
+                before: None,
+                after: None,
+                at_line: None,
+                skip_if: None,
+                unless_exists: false,
+                force: true,
+                when: None,
+                skip_empty: false,
+                from: None,
+                sh_before: None,
+                sh_after: None,
+                backup: false,
+                shape: Vec::new(),
+                determinism: None,
+                freeze_policy: None,
+                freeze_slots_dir: None,
+                rdf: Vec::new(),
+                rdf_inline: Vec::new(),
+                prefixes: BTreeMap::new(),
+                base: None,
+            };
             pending.push(PendingWrite {
                 to: AGGREGATOR_REL_PATH.to_string(),
                 body,
-                tpl: tpl_ref,
+                frontmatter,
             });
         }
     }
@@ -913,7 +913,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             root,
             &pw.to,
             &pw.body,
-            pw.tpl,
+            &pw.frontmatter,
             opts,
             &mut written,
             &mut skipped,
@@ -1226,6 +1226,47 @@ fn render_str(
     })
 }
 
+/// Render one optional output-phase string through the same Tera context
+/// as the output path and body.
+fn render_optional_output_field(
+    tera: &mut tera::Tera, value: Option<&str>, ctx: &tera::Context, tpl_path: &Path,
+) -> Result<Option<String>> {
+    value
+        .map(|template| render_str(tera, template, ctx, tpl_path))
+        .transpose()
+}
+
+/// Compile the output-phase frontmatter for one materialized projection.
+///
+/// Resolve/enrich/extract fields remain static because they determine the
+/// semantic context itself. Structural markers, idempotence needles,
+/// hooks, shape paths, and checksum-slot paths are rendered after query
+/// extraction so one ontology row can lawfully specialize the complete
+/// write lifecycle rather than only `to:` and the body.
+fn render_output_frontmatter(
+    tera: &mut tera::Tera, source: &Frontmatter, ctx: &tera::Context, tpl_path: &Path,
+    rendered_to: &str,
+) -> Result<Frontmatter> {
+    let mut rendered = source.clone();
+    rendered.to = rendered_to.to_string();
+    rendered.before = render_optional_output_field(tera, source.before.as_deref(), ctx, tpl_path)?;
+    rendered.after = render_optional_output_field(tera, source.after.as_deref(), ctx, tpl_path)?;
+    rendered.skip_if =
+        render_optional_output_field(tera, source.skip_if.as_deref(), ctx, tpl_path)?;
+    rendered.sh_before =
+        render_optional_output_field(tera, source.sh_before.as_deref(), ctx, tpl_path)?;
+    rendered.sh_after =
+        render_optional_output_field(tera, source.sh_after.as_deref(), ctx, tpl_path)?;
+    rendered.freeze_slots_dir =
+        render_optional_output_field(tera, source.freeze_slots_dir.as_deref(), ctx, tpl_path)?;
+    rendered.shape = source
+        .shape
+        .iter()
+        .map(|shape| render_str(tera, shape, ctx, tpl_path))
+        .collect::<Result<Vec<_>>>()?;
+    Ok(rendered)
+}
+
 /// Summarize a Tera context's top-level keys (and, for arrays, their
 /// length) for a render-failure error message — enough to spot a typo'd
 /// variable name (`row.nuon` vs `row.noun`) without dumping the full,
@@ -1261,11 +1302,11 @@ fn value_type_name(v: &Value) -> &'static str {
 /// Apply (or dry-run) one write and record the outcome and its decision.
 #[allow(clippy::too_many_arguments)]
 fn apply(
-    root: &Path, rel_to: &str, body: &str, tpl: &Template, opts: SyncOptions,
+    root: &Path, rel_to: &str, body: &str, frontmatter: &Frontmatter, opts: SyncOptions,
     written: &mut Vec<PathBuf>, skipped: &mut Vec<(PathBuf, String)>,
     decisions: &mut BTreeMap<String, String>,
 ) -> Result<()> {
-    if tpl.frontmatter.skip_empty && body.trim().is_empty() {
+    if frontmatter.skip_empty && body.trim().is_empty() {
         let reason = "skip_empty: rendered body empty".to_string();
         decisions.insert(rel_to.to_string(), format!("skipped: {reason}"));
         skipped.push((PathBuf::from(rel_to), reason));
@@ -1310,22 +1351,22 @@ fn apply(
         return Ok(());
     }
 
-    if let Some(cmd) = tpl.frontmatter.sh_before.as_deref() {
+    if let Some(cmd) = frontmatter.sh_before.as_deref() {
         run_shell_hook(root, cmd, "sh_before")?;
     }
 
-    match plan_write(root, rel_to, body, &tpl.frontmatter)? {
+    match plan_write(root, rel_to, body, frontmatter)? {
         WriteOutcome::Written => {
             decisions.insert(rel_to.to_string(), "written".to_string());
             written.push(PathBuf::from(rel_to));
-            if let Some(cmd) = tpl.frontmatter.sh_after.as_deref() {
+            if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
         WriteOutcome::Injected => {
             decisions.insert(rel_to.to_string(), "injected".to_string());
             written.push(PathBuf::from(rel_to));
-            if let Some(cmd) = tpl.frontmatter.sh_after.as_deref() {
+            if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
@@ -1483,7 +1524,7 @@ fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> R
 fn check_determinism(
     tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
     frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
-    row_index: Option<usize>, first_render: &str, first_to: &str,
+    row_index: Option<usize>, first_render: &str, first_frontmatter: &Frontmatter,
 ) -> Result<()> {
     let Some(recheck) = determinism_recheck else {
         return Ok(());
@@ -1528,17 +1569,18 @@ fn check_determinism(
         None => base_context(named2, results2),
     };
 
-    // The templated `to:` path is part of the output — a non-deterministic
-    // path escapes a body-only check.
+    // The complete output-phase frontmatter is part of the projection.
+    // Recheck path, injection markers, idempotence needle, hook commands,
+    // shape paths, and checksum-slot path against independently extracted
+    // bindings; body-only determinism would leave those consequences open.
     let second_to = render_str(tera, &frontmatter.to, &ctx2, tpl_path)?;
-    if second_to != first_to {
+    let second_frontmatter =
+        render_output_frontmatter(tera, frontmatter, &ctx2, tpl_path, &second_to)?;
+    if &second_frontmatter != first_frontmatter {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the `to:` path from a \
-                 second, independent query execution produced `{second_to}` after \
-                 `{first_to}`. \
-                 Remediation: remove non-deterministic terms from the query or from `to:`.",
+                "{}: `determinism: true` violated — re-rendering output-phase                  frontmatter from a second, independent query execution produced                  different path, composition, hook, shape, or freeze-slot semantics.                  Remediation: remove non-deterministic terms from the query or                  output-phase frontmatter.",
                 tpl_path.display()
             ),
         ));
