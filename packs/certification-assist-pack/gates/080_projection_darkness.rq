@@ -1,0 +1,30 @@
+# Any row refuses sync: every objective has a complete whiteboard projection and the fixture is genuine Triple Darkness.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?subject ?problem
+WHERE {
+  {
+    ?subject a ca:CredentialObjective .
+    VALUES (?property ?problem) {
+      (ca:drawNext "missing-draw-next")
+      (ca:sayNext "missing-say-next")
+      (ca:why "missing-why")
+      (ca:tradeoff "missing-tradeoff")
+      (ca:watchFor "missing-watch-for")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  }
+  UNION
+  {
+    ?subject a ca:HorizonGap ;
+      ca:knowledgePresent ?knowledge ; ca:gapAwareness ?awareness ; ca:dependencyKnown ?dependency .
+    FILTER(?knowledge != false || ?awareness != false || ?dependency != false)
+    BIND("fixture-not-triple-darkness" AS ?problem)
+  }
+  UNION
+  {
+    ?subject a ca:HorizonGap ; ca:requiredForSlug ?slug .
+    FILTER NOT EXISTS { ?objective a ca:CredentialObjective ; ca:slug ?slug }
+    BIND("darkness-dependency-target-missing" AS ?problem)
+  }
+}
