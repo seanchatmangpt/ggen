@@ -103,3 +103,5 @@ jobs:
           git fetch origin agent/gbb-000-canonical-kernel
           git rebase origin/agent/gbb-000-canonical-kernel
           git push origin HEAD:agent/non-llm-safe-ea-self-play
+
+# This carrier workflow removes itself after successful source admission.
