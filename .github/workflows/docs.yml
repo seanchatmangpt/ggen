@@ -42,8 +42,6 @@ jobs:
               line[10:] if line.startswith("          ") else line
               for line in embedded.splitlines()
           )
-          # Keep the generated Rust compatible with the repository's pinned
-          # toolchain rather than depending on newer Option conveniences.
           script = script.replace(
               '.as_deref().is_none_or(|v| v.trim().is_empty())',
               '.as_deref().map_or(true, |v| v.trim().is_empty())',
@@ -80,6 +78,7 @@ jobs:
           set -euo pipefail
           git checkout origin/main -- .github/workflows/docs.yml
           rm .github/workflows/frontmatter-best-practices.yml
+          rm docs/.frontmatter-best-practices-trigger
           git diff --check
           git config user.name "ggen frontmatter best practices"
           git config user.email "actions@github.com"
@@ -92,6 +91,7 @@ jobs:
                   crates/ggen-engine/tests/frontmatter_lint_best_practices.rs \
                   docs/reference/frontmatter-maximalism.md \
                   docs/reference/template-directives.md \
+                  docs/.frontmatter-best-practices-trigger \
                   .github/workflows/docs.yml \
                   .github/workflows/frontmatter-best-practices.yml
           git commit -m "feat(engine): enforce frontmatter best practices"
