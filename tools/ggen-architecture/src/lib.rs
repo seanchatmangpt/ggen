@@ -24,8 +24,9 @@ pub use capacity::{
 pub use doctor::{DoctorFinding, DoctorReport, DoctorStatus};
 pub use error::{ArchitectureError, Result};
 pub use fortune5::{
-    ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5Catalog, Fortune5Dimension,
-    Fortune5Domain, Fortune5Finding, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
+    ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5AutonomicPlan,
+    Fortune5Catalog, Fortune5Dimension, Fortune5Domain, Fortune5Finding, Fortune5Intent,
+    Fortune5IntentKind, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
 };
 pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
 pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
