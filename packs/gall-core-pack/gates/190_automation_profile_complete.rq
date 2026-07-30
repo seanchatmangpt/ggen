@@ -1,4 +1,5 @@
 # MESSAGE: Gall automation profile is incomplete -- every program with work items must declare one profile covering tracker, execution, agent, concurrency, branch, runtime, and receipt policy
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
 SELECT ?program ?programId ?profile ?missing WHERE {
   ?program a gall:GallProgram ; gall:hasWorkItem ?workItem .
