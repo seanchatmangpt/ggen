@@ -65,7 +65,7 @@ sha256sum \
   "$EXAMPLE/generated/PIPELINE.md" \
   > /tmp/lean4-rust-ggen-first.sha256
 
-if rg -n '\b(sorry|axiom|admit|unsafe|partial_fixpoint)\b' \
+if grep -Enw '(sorry|axiom|admit|unsafe|partial_fixpoint)' \
   "$EXAMPLE/generated/lean/Lean4RustPipeline.lean" \
   "$EXAMPLE/generated/lean/Main.lean"; then
   echo '::error::generated Lean source expands trust or contains an incomplete proof'
