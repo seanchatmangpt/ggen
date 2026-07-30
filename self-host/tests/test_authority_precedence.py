@@ -66,6 +66,33 @@ class AuthorityPrecedence(unittest.TestCase):
             )
         )
 
+    def test_standalone_crate_with_exact_manifest_workflow_is_a_load_path_not_an_orphan(self) -> None:
+        root = make_repo(
+            '[project]\nname="x"\nversion="0.1.0"\n\n[ontology]\nsource="ontology.ttl"\n\n[generation]\noutput_dir="."\n'
+        )
+        crate = root / "crates" / "isolated"
+        crate.mkdir(parents=True)
+        (crate / "Cargo.toml").write_text('[package]\nname="isolated"\nversion="0.1.0"\n', encoding="utf-8")
+        workflow = root / ".github" / "workflows" / "isolated.yml"
+        workflow.parent.mkdir(parents=True)
+        workflow.write_text(
+            "name: isolated\non: workflow_dispatch\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: cargo test --manifest-path crates/isolated/Cargo.toml\n",
+            encoding="utf-8",
+        )
+        git(root, "add", ".")
+        git(root, "commit", "-m", "standalone product")
+        observation = OBSERVER.observe(root)
+        self.assertFalse(
+            any(
+                item["category"] == "workspace-closure"
+                and item["evidence_path"] == "crates/isolated/Cargo.toml"
+                for item in observation["findings"]
+            )
+        )
+        load_path = next(item for item in observation["load_paths"] if item["id"] == "standalone-isolated")
+        self.assertEqual(load_path["actuator"], ".github/workflows/isolated.yml")
+        self.assertEqual(load_path["standing"], "PARTIAL_ALIVE")
+
 
 if __name__ == "__main__":
     unittest.main()
