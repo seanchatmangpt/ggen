@@ -1,0 +1,6 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+SELECT ?capability ?surface
+WHERE {
+  ?capability a aa:Capability ; aa:requiresSurface ?surface .
+  FILTER (?surface NOT IN (aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay))
+}
