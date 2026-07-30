@@ -8,8 +8,7 @@ MCP_SMOKE="$ROOT/MCP_SMOKE.jsonl"
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/../../target}"
 
-# Generated sources are formatted only in the ephemeral consumer. Authored repository files remain read-only.
-cargo fmt --manifest-path "$CONSUMER/Cargo.toml"
+# Test and execute exactly the bytes manufactured by ggen. Do not mutate them before receipt verification.
 cargo test --manifest-path "$CONSUMER/Cargo.toml"
 (
   cd "$ROOT"
