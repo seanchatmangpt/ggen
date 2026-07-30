@@ -1,10 +1,19 @@
 {
-  "protocolVersion": "1.0.0",
   "name": "CertificationAssist",
   "description": "Evidence-backed credential decomposition, capability standing, self-play, whiteboard projection, and bounded speedrun planning.",
-  "url": "https://chatmangpt.com/a2a/certification-assist",
-  "preferredTransport": "JSONRPC",
+  "supportedInterfaces": [
+    {
+      "url": "https://chatmangpt.com/a2a/certification-assist",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://chatmangpt.com",
+    "organization": "ChatmanGPT"
+  },
   "version": "26.7.30",
+  "documentationUrl": "https://chatmangpt.com/docs/certification-assist",
   "capabilities": {
     "streaming": false,
     "pushNotifications": false,
