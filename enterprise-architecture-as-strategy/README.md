@@ -1,24 +1,34 @@
 # Enterprise Architecture as Strategy with ggen
 
-This directory contains a standalone mdBook.
+This directory contains a standalone mdBook and a portable PDF build path.
 
-## Build HTML
+## Build and validate
+
+Requirements: Python 3, mdBook, Pandoc, and XeLaTeX.
 
 ```bash
-mdbook build
+./build.sh
 ```
 
-## Build the combined manuscript and PDF
+The build performs four stages:
+
+1. validate every `SUMMARY.md` target;
+2. build the mdBook HTML site;
+3. assemble the ordered Markdown manuscript;
+4. render the PDF with Pandoc and XeLaTeX.
+
+Individual stages may also be run directly:
 
 ```bash
 python3 scripts/validate.py
+mdbook build
 python3 scripts/assemble.py
-python /home/oai/skills/pdfs/scripts/md_to_pdf.py \
-  dist/enterprise-architecture-as-strategy.md \
-  --output dist/enterprise-architecture-as-strategy-with-ggen.pdf \
-  --pdf_engine xelatex \
-  --resource_path src \
-  --extra=--toc
+pandoc dist/enterprise-architecture-as-strategy.md \
+  -o dist/enterprise-architecture-as-strategy-with-ggen.pdf \
+  --pdf-engine=xelatex \
+  --resource-path=src \
+  --toc \
+  -V geometry:margin=0.8in
 ```
 
-The committed Markdown is authoritative. Generated HTML and PDF outputs are release artifacts and should not replace source.
+The committed Markdown is authoritative. Generated HTML, combined Markdown, and PDF outputs are release artifacts and should not replace source.
