@@ -75,6 +75,8 @@ def main() -> int:
         "def emitRust (receipt : ProofReceipt)",
         "def main : IO Unit := emitRust proofReceipt",
         "IO.FS.writeFile \"../rust/src/lib.rs\" rustLib",
+        "let mut receipt = String::from",
+        "println!(\\\"{receipt}\\\")",
         "lean_proof_blake3",
     ):
         refuse(required not in lean_template, f"LEAN_PROOF_PIPELINE_SURFACE_MISSING:{required}")
