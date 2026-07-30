@@ -1,0 +1,15 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?capability
+WHERE {
+  ?capability a aa:Capability .
+  FILTER NOT EXISTS { ?capability aa:order ?order }
+  UNION FILTER NOT EXISTS { ?capability aa:slug ?slug }
+  UNION FILTER NOT EXISTS { ?capability aa:rustVariant ?variant }
+  UNION FILTER NOT EXISTS { ?capability rdfs:label ?name }
+  UNION FILTER NOT EXISTS { ?capability aa:category ?category }
+  UNION FILTER NOT EXISTS { ?capability aa:outcome ?outcome }
+  UNION FILTER NOT EXISTS { ?capability aa:implementation ?implementation }
+  UNION FILTER NOT EXISTS { ?capability aa:verifier ?verifier }
+  UNION FILTER NOT EXISTS { ?capability aa:falsifier ?falsifier }
+}
