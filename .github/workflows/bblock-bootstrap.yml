@@ -15,7 +15,7 @@ concurrency:
 jobs:
   manufacture:
     name: Manufacture and verify cloud building blocks
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 40
     env:
       CARGO_TERM_COLOR: always
@@ -43,10 +43,19 @@ jobs:
       - name: Expand admitted payload
         run: |
           cat .github/bblock-bootstrap/payload.* > /tmp/bblock-payload.b64
-          base64 --decode /tmp/bblock-payload.b64 > /tmp/bblock-payload.tar.gz
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          Path('/tmp/bblock-payload.tar.gz').write_bytes(base64.b64decode(Path('/tmp/bblock-payload.b64').read_bytes()))
+          PY
           tar -xzf /tmp/bblock-payload.tar.gz -C .
           cat .github/bblock-bootstrap/script.* > /tmp/bblock-bootstrap.sh.gz.b64
-          base64 --decode /tmp/bblock-bootstrap.sh.gz.b64 | gzip -d > /tmp/bblock-bootstrap.sh
+          python3 - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          compressed = base64.b64decode(Path('/tmp/bblock-bootstrap.sh.gz.b64').read_bytes())
+          Path('/tmp/bblock-bootstrap.sh').write_bytes(gzip.decompress(compressed))
+          PY
           chmod +x /tmp/bblock-bootstrap.sh
 
       - name: Implement, verify, and publish exact source
