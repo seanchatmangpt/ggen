@@ -26,6 +26,22 @@ root_bblock = root_bblock.replace("catalog_root: Option<String>", "catalog: Opti
 root_bblock = root_bblock.replace("catalog_root(catalog_root)?", "catalog_root(catalog)?")
 root_bblock_path.write_text(root_bblock, encoding="utf-8")
 
+architecture_cargo = Path("tools/ggen-architecture/Cargo.toml")
+architecture_manifest = architecture_cargo.read_text(encoding="utf-8")
+architecture_manifest = architecture_manifest.replace("\n[workspace]\n", "\n")
+architecture_cargo.write_text(architecture_manifest, encoding="utf-8")
+Path("tools/ggen-architecture/Cargo.lock").unlink(missing_ok=True)
+
+root_workspace_path = Path("Cargo.toml")
+root_workspace = root_workspace_path.read_text(encoding="utf-8")
+if '  "tools/ggen-architecture",\n' not in root_workspace:
+    root_workspace = root_workspace.replace(
+        '  "crates/ggen-cli",\n',
+        '  "crates/ggen-cli",\n  "tools/ggen-architecture",\n',
+        1,
+    )
+root_workspace_path.write_text(root_workspace, encoding="utf-8")
+
 cli_cargo_path = Path("crates/ggen-cli/Cargo.toml")
 cli_cargo = cli_cargo_path.read_text(encoding="utf-8")
 if "ggen-architecture" not in cli_cargo:
