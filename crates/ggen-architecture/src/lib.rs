@@ -207,7 +207,9 @@ pub struct CapacityEnvelope {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum CapacityStanding {
     WithinEnvelope,
-    ScaleOut { required_replicas: u32 },
+    ScaleOut {
+        required_replicas: u32,
+    },
     AdmissionControl {
         required_replicas: u32,
         maximum_replicas: u32,
@@ -420,12 +422,8 @@ pub struct ArchitectureIntent {
 
 impl ArchitectureIntent {
     fn new(
-        source_asset: AssetId,
-        kind: ArchitectureIntentKind,
-        priority: IntentPriority,
-        reason: String,
-        constraints: BTreeMap<String, String>,
-        evidence: BTreeSet<String>,
+        source_asset: AssetId, kind: ArchitectureIntentKind, priority: IntentPriority,
+        reason: String, constraints: BTreeMap<String, String>, evidence: BTreeSet<String>,
     ) -> Self {
         let identity = canonical_digest(&(
             INTENT_SCHEMA,
@@ -821,11 +819,8 @@ impl ArchitectureModel {
 
     fn dependency_cycle_violations(&self) -> Vec<Violation> {
         fn visit(
-            id: &str,
-            model: &ArchitectureModel,
-            visiting: &mut BTreeSet<String>,
-            visited: &mut BTreeSet<String>,
-            violations: &mut Vec<Violation>,
+            id: &str, model: &ArchitectureModel, visiting: &mut BTreeSet<String>,
+            visited: &mut BTreeSet<String>, violations: &mut Vec<Violation>,
         ) {
             if visited.contains(id) {
                 return;
@@ -885,11 +880,8 @@ impl ArchitectureModel {
             return Err(KernelError::DependencyCycle(violation.subject));
         }
 
-        let mut indegree: BTreeMap<String, usize> = self
-            .assets
-            .keys()
-            .map(|id| (id.clone(), 0_usize))
-            .collect();
+        let mut indegree: BTreeMap<String, usize> =
+            self.assets.keys().map(|id| (id.clone(), 0_usize)).collect();
         let mut reverse: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
         for (id, asset) in &self.assets {
             for dependency in &asset.dependencies {
@@ -993,9 +985,7 @@ impl ArchitectureModel {
     }
 
     pub fn evaluate_slo(
-        &self,
-        slo_id: &str,
-        measurement: Option<&SliMeasurement>,
+        &self, slo_id: &str, measurement: Option<&SliMeasurement>,
     ) -> Result<SloEvaluation, KernelError> {
         let slo = self
             .slos
@@ -1044,10 +1034,7 @@ impl ArchitectureModel {
     }
 
     pub fn evaluate_promotion(
-        &self,
-        gate_id: &str,
-        context: &PromotionContext,
-        observations: &EnterpriseObservation,
+        &self, gate_id: &str, context: &PromotionContext, observations: &EnterpriseObservation,
     ) -> Result<PromotionDecision, KernelError> {
         let gate = self
             .promotion_gates
@@ -1117,8 +1104,7 @@ impl ArchitectureModel {
 
     /// Pure MAPE-K policy evaluation. Returns broker-addressed intents only.
     pub fn evaluate_autonomics(
-        &self,
-        observations: &EnterpriseObservation,
+        &self, observations: &EnterpriseObservation,
     ) -> Result<Vec<ArchitectureIntent>, KernelError> {
         let mut intents = Vec::new();
 
@@ -1188,14 +1174,8 @@ impl ArchitectureModel {
                             "required-replicas".to_string(),
                             required_replicas.to_string(),
                         ),
-                        (
-                            "maximum-replicas".to_string(),
-                            maximum_replicas.to_string(),
-                        ),
-                        (
-                            "unmet-capacity".to_string(),
-                            unmet_capacity.to_string(),
-                        ),
+                        ("maximum-replicas".to_string(), maximum_replicas.to_string()),
+                        ("unmet-capacity".to_string(), unmet_capacity.to_string()),
                     ]);
                     intents.push(ArchitectureIntent::new(
                         asset_id.clone(),
@@ -1276,10 +1256,7 @@ impl ArchitectureModel {
                     ArchitectureIntentKind::RenewIdentity,
                     IntentPriority::Critical,
                     "SPIFFE SVID is inside the renewal safety boundary".to_string(),
-                    BTreeMap::from([(
-                        "ttl-remaining-seconds".to_string(),
-                        ttl.to_string(),
-                    )]),
+                    BTreeMap::from([("ttl-remaining-seconds".to_string(), ttl.to_string())]),
                     BTreeSet::from([format!("spiffe:{asset_id}:renewal-due")]),
                 ));
             }
@@ -1299,12 +1276,18 @@ impl ArchitectureModel {
         }
 
         intents.sort_by(|left, right| {
-            (&left.priority, &left.source_asset, &left.kind, &left.intent_id).cmp(&(
-                &right.priority,
-                &right.source_asset,
-                &right.kind,
-                &right.intent_id,
-            ))
+            (
+                &left.priority,
+                &left.source_asset,
+                &left.kind,
+                &left.intent_id,
+            )
+                .cmp(&(
+                    &right.priority,
+                    &right.source_asset,
+                    &right.kind,
+                    &right.intent_id,
+                ))
         });
         Ok(intents)
     }
@@ -1329,12 +1312,8 @@ pub struct ReceiptEnvelope {
 
 impl ReceiptEnvelope {
     pub fn issue<I: Serialize, O: Serialize>(
-        operation: impl Into<String>,
-        subject: impl Into<String>,
-        revision: impl Into<String>,
-        input: &I,
-        output: &O,
-        previous_digest: impl Into<String>,
+        operation: impl Into<String>, subject: impl Into<String>, revision: impl Into<String>,
+        input: &I, output: &O, previous_digest: impl Into<String>,
     ) -> Result<Self, KernelError> {
         let mut receipt = Self {
             schema: RECEIPT_SCHEMA.to_string(),
@@ -1523,10 +1502,7 @@ mod tests {
                     criticality: Criticality::Tier2,
                     dependencies: BTreeSet::new(),
                     capabilities: BTreeSet::new(),
-                    regions: BTreeSet::from([
-                        "us-west-2".to_string(),
-                        "us-east-1".to_string(),
-                    ]),
+                    regions: BTreeSet::from(["us-west-2".to_string(), "us-east-1".to_string()]),
                     evidence: BTreeSet::new(),
                     tags: BTreeMap::new(),
                 },
@@ -1542,10 +1518,7 @@ mod tests {
                     criticality: Criticality::Tier2,
                     dependencies: BTreeSet::new(),
                     capabilities: BTreeSet::new(),
-                    regions: BTreeSet::from([
-                        "us-west-2".to_string(),
-                        "us-east-1".to_string(),
-                    ]),
+                    regions: BTreeSet::from(["us-west-2".to_string(), "us-east-1".to_string()]),
                     evidence: BTreeSet::new(),
                     tags: BTreeMap::new(),
                 },
@@ -1559,10 +1532,7 @@ mod tests {
                     lifecycle: LifecycleState::Admitted,
                     owner: "commerce".to_string(),
                     criticality: Criticality::Tier0,
-                    dependencies: BTreeSet::from([
-                        "identity".to_string(),
-                        "ledger".to_string(),
-                    ]),
+                    dependencies: BTreeSet::from(["identity".to_string(), "ledger".to_string()]),
                     capabilities: BTreeSet::from(["execute-orders".to_string()]),
                     regions: BTreeSet::from([
                         "us-west-2".to_string(),
@@ -1665,7 +1635,7 @@ mod tests {
                 asset_id: "orders".to_string(),
                 trust_domain: "corp.example".to_string(),
                 allowed_spiffe_ids: BTreeSet::from([
-                    "spiffe://corp.example/ns/commerce/sa/orders".to_string(),
+                    "spiffe://corp.example/ns/commerce/sa/orders".to_string()
                 ]),
                 mtls_required: true,
                 max_svid_ttl_seconds: 3_600,
@@ -1757,7 +1727,10 @@ mod tests {
         let report = fixture()
             .impact_analysis(["identity"])
             .expect("impact analysis");
-        assert_eq!(report.directly_affected, BTreeSet::from(["orders".to_string()]));
+        assert_eq!(
+            report.directly_affected,
+            BTreeSet::from(["orders".to_string()])
+        );
         assert_eq!(
             report.transitively_affected,
             BTreeSet::from(["checkout".to_string(), "orders".to_string()])
@@ -1819,13 +1792,20 @@ mod tests {
             )
             .expect("denied decision");
         assert!(!denied.allowed);
-        assert!(denied.reasons.iter().any(|reason| reason.contains("approvals")));
+        assert!(denied
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("approvals")));
     }
 
     #[test]
     fn autonomics_emit_brce_intents_without_actuation() {
         let mut model = fixture();
-        model.capacities.get_mut("orders").expect("capacity").observed_load = 4_000.0;
+        model
+            .capacities
+            .get_mut("orders")
+            .expect("capacity")
+            .observed_load = 4_000.0;
         let observations = EnterpriseObservation {
             measurements: BTreeMap::from([(
                 "orders-availability".to_string(),
@@ -1858,14 +1838,20 @@ mod tests {
         ] {
             assert!(kinds.contains(&required), "missing {required:?}");
         }
-        assert!(intents.iter().all(|intent| intent.broker == REQUIRED_BROKER));
+        assert!(intents
+            .iter()
+            .all(|intent| intent.broker == REQUIRED_BROKER));
         assert!(intents.iter().all(|intent| intent.schema == INTENT_SCHEMA));
     }
 
     #[test]
     fn capacity_exhaustion_manufactures_admission_control_intent() {
         let mut model = fixture();
-        model.capacities.get_mut("orders").expect("capacity").observed_load = 100_000.0;
+        model
+            .capacities
+            .get_mut("orders")
+            .expect("capacity")
+            .observed_load = 100_000.0;
         let intents = model
             .evaluate_autonomics(&EnterpriseObservation::default())
             .expect("autonomics");
