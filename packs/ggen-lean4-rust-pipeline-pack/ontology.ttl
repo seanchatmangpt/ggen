@@ -25,6 +25,10 @@ lr:ExecutionReceipt a rdfs:Class ;
     rdfs:label "Rust execution receipt bound to a Lean proof receipt" ;
     rdfs:subClassOf prov:Entity .
 
+lr:Fortune5Policy a rdfs:Class ;
+    rdfs:label "Fortune 5 deployment admission and promotion policy" ;
+    rdfs:subClassOf prov:Entity .
+
 lr:crateName a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:identifier .
 lr:rustFunctionName a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:identifier .
 lr:leanToolchain a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:requires .
@@ -35,6 +39,43 @@ lr:proofTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string
 lr:witnessTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:references .
 lr:fixedPointTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:references .
 lr:receiptAlgorithm a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:format .
+
+lr:r1P99Nanos a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:r1TickBudget a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:w1P99Nanos a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:c1P99Nanos a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:r1Measurement a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string .
+lr:w1Measurement a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string .
+lr:c1Measurement a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string .
+
+lr:canaryRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:stagingValidationRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:autoRollbackRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:promotionReceiptRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+
+lr:regionCount a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:positiveInteger .
+lr:regionQuorum a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:positiveInteger .
+lr:crossRegionReplicationRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:receiptSynchronizationRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:failoverRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:legalHoldRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+
+lr:spiffeId a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:anyURI .
+lr:certificateRefreshSeconds a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:positiveInteger .
+lr:keyRotationSeconds a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:positiveInteger .
+lr:mtlsRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:awsKmsRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:azureKeyVaultRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:hashicorpVaultRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:networkPolicyRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:firewallPolicyRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+
+lr:otelRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:sloAlertRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:guardAlertRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:receiptMismatchAlertRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+lr:performanceDegradationAlertRequired a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:boolean .
+
 lr:manufactures a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range prov:Entity ; rdfs:subPropertyOf prov:generated .
 lr:admittedBy a rdf:Property ; rdfs:domain lr:RustArtifact ; rdfs:range lr:ProofReceipt ; rdfs:subPropertyOf prov:wasDerivedFrom .
 lr:bindsProofReceipt a rdf:Property ; rdfs:domain lr:ExecutionReceipt ; rdfs:range lr:ProofReceipt ; rdfs:subPropertyOf prov:wasDerivedFrom .
