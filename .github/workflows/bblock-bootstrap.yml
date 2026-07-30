@@ -12,14 +12,10 @@ concurrency:
   group: bblock-bootstrap-${{ github.run_id }}
   cancel-in-progress: false
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   manufacture:
     name: Manufacture and verify cloud building blocks
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
       CARGO_TERM_COLOR: always
