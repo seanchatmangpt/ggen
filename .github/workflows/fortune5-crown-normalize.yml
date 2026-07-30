@@ -43,29 +43,10 @@ jobs:
 
           path = Path('crates/ggen-architecture/src/building_block.rs')
           source = path.read_text()
-
-          old_fixture = '''        let replacement_id = RealizationId::from("replacement");
-          let mut replacement = match block.realizations.values().next() {
-              Some(value) => value.clone(),
-              None => return,
-          };
-          '''
-          new_fixture = '''        let replacement_id = RealizationId::from("replacement");
-          let source_id = RealizationId::from("realization-v1");
-          let mut replacement = block.realizations[&source_id].clone();
-          '''
-          assert source.count(old_fixture) == 1, 'unexpected substitution fixture cardinality'
-          source = source.replace(old_fixture, new_fixture)
-
-          old_assessment = '''        let assessment =
-              block.assess_substitution(&RealizationId::from("realization-v1"), &replacement_id);
-          '''
-          new_assessment = '''        let assessment = block.assess_substitution(&source_id, &replacement_id);
-          '''
-          assert source.count(old_assessment) == 1, 'unexpected substitution assessment cardinality'
-          source = source.replace(old_assessment, new_assessment)
-
-          path.write_text(source)
+          old = 'None => return,'
+          new = 'None => unreachable!("sample block must contain its source realization"),'
+          assert source.count(old) == 1, 'unexpected silent-return cardinality'
+          path.write_text(source.replace(old, new))
           PY
 
       - name: Normalize exact architecture workspace
