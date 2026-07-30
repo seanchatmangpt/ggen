@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -93,7 +94,10 @@ def operation_plan(control: ControlPlane) -> dict[str, Any]:
 
 def write_plan(control: ControlPlane) -> Path:
     path = control.runtime_dir / "tracker-sync-plan.json"
-    path.write_text(json.dumps(operation_plan(control), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(operation_plan(control), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     return path
 
 
@@ -120,6 +124,64 @@ def jira_adf(text: str) -> dict[str, Any]:
     return {"type": "doc", "version": 1, "content": paragraphs}
 
 
+def jira_existing_outward_links(
+    base: str, issue_key: str, headers: dict[str, str]
+) -> tuple[int, set[str], Any]:
+    status, issue = request_json(
+        f"{base}/rest/api/3/issue/{urllib.parse.quote(issue_key)}?fields=issuelinks",
+        headers=headers,
+    )
+    if status >= 300:
+        return status, set(), issue
+    outward: set[str] = set()
+    for link in issue.get("fields", {}).get("issuelinks", []):
+        linked = link.get("outwardIssue")
+        if linked and linked.get("key"):
+            outward.add(linked["key"])
+        inward = link.get("inwardIssue")
+        if inward and inward.get("key"):
+            outward.add(inward["key"])
+    return status, outward, issue
+
+
+def jira_transition(
+    base: str,
+    issue_key: str,
+    target_status: str,
+    headers: dict[str, str],
+) -> tuple[int, Any]:
+    status, transitions = request_json(
+        f"{base}/rest/api/3/issue/{urllib.parse.quote(issue_key)}/transitions",
+        headers=headers,
+    )
+    if status >= 300:
+        return status, transitions
+    for transition in transitions.get("transitions", []):
+        if transition.get("name", "").casefold() == target_status.casefold():
+            return request_json(
+                f"{base}/rest/api/3/issue/{urllib.parse.quote(issue_key)}/transitions",
+                method="POST",
+                payload={"transition": {"id": transition["id"]}},
+                headers=headers,
+            )
+    return 422, {"error": f"no Jira transition named {target_status}"}
+
+
+def jira_status_map() -> dict[str, str]:
+    raw = os.environ.get("GALL_JIRA_STATUS_MAP", "").strip()
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"GALL_JIRA_STATUS_MAP is invalid JSON: {exc}") from exc
+    if not isinstance(parsed, dict) or not all(
+        isinstance(key, str) and isinstance(value, str) for key, value in parsed.items()
+    ):
+        raise SystemExit("GALL_JIRA_STATUS_MAP must be a JSON object of Gall state to Jira transition")
+    return parsed
+
+
 def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
     base = os.environ.get("JIRA_BASE_URL", "").strip().rstrip("/")
     if not base.startswith("https://"):
@@ -130,10 +192,20 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
     for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
         marker = label_id(item)
         jql = f'project = "{control.config["Project Key"]}" AND labels = "{marker}"'
-        search_url = f"{base}/rest/api/3/search/jql?jql={urllib.parse.quote(jql)}&maxResults=2&fields=key"
+        search_url = (
+            f"{base}/rest/api/3/search/jql?jql={urllib.parse.quote(jql)}"
+            "&maxResults=2&fields=key"
+        )
         search_status, search = request_json(search_url, headers=headers)
         if search_status >= 300:
-            results.append({"work_item_id": item.id, "stage": "search", "status": search_status, "response": search})
+            results.append(
+                {
+                    "work_item_id": item.id,
+                    "stage": "search",
+                    "status": search_status,
+                    "response": search,
+                }
+            )
             continue
         issues = search.get("issues", [])
         fields: dict[str, Any] = {
@@ -142,7 +214,9 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
             "issuetype": {"name": item.row["Issue Type"]},
             "priority": {"name": item.row["Priority"]},
             "description": jira_adf(work_order_body(control, item)),
-            "labels": sorted(set(item.values("Labels") + ["gall", marker, status_label(control, item)])),
+            "labels": sorted(
+                set(item.values("Labels") + ["gall", marker, status_label(control, item)])
+            ),
         }
         if os.environ.get("GALL_JIRA_USE_COMPONENTS") == "1":
             fields["components"] = [{"name": item.row["Component"]}]
@@ -157,7 +231,10 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
             operation = "update"
         else:
             status, response = request_json(
-                f"{base}/rest/api/3/issue", method="POST", payload={"fields": fields}, headers=headers
+                f"{base}/rest/api/3/issue",
+                method="POST",
+                payload={"fields": fields},
+                headers=headers,
             )
             key = response.get("key", "") if status < 300 else ""
             operation = "create"
@@ -174,14 +251,27 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
         )
 
     link_type = os.environ.get("JIRA_DEPENDENCY_LINK_TYPE", "Blocks")
-    existing_links: set[tuple[str, str]] = set()
+    link_cache: dict[str, set[str]] = {}
     for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
         inward = issue_keys.get(item.id)
         if not inward:
             continue
+        if inward not in link_cache:
+            status, links, response = jira_existing_outward_links(base, inward, headers)
+            results.append(
+                {
+                    "operation": "inspect-links",
+                    "work_item_id": item.id,
+                    "status": status,
+                    "response": response if status >= 300 else {"linked_keys": sorted(links)},
+                }
+            )
+            if status >= 300:
+                continue
+            link_cache[inward] = links
         for dependency in item.dependencies:
             outward = issue_keys.get(dependency)
-            if not outward or (outward, inward) in existing_links:
+            if not outward or outward in link_cache[inward]:
                 continue
             status, response = request_json(
                 f"{base}/rest/api/3/issueLink",
@@ -193,7 +283,8 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
                 },
                 headers=headers,
             )
-            existing_links.add((outward, inward))
+            if status < 300:
+                link_cache[inward].add(outward)
             results.append(
                 {
                     "operation": "link",
@@ -203,6 +294,23 @@ def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
                     "response": response,
                 }
             )
+
+    transitions = jira_status_map()
+    for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
+        issue_key = issue_keys.get(item.id)
+        target = transitions.get(status_for(control, item))
+        if not issue_key or not target:
+            continue
+        status, response = jira_transition(base, issue_key, target, headers)
+        results.append(
+            {
+                "operation": "transition",
+                "work_item_id": item.id,
+                "target": target,
+                "status": status,
+                "response": response,
+            }
+        )
     return results
 
 
@@ -216,6 +324,32 @@ def github_headers() -> dict[str, str]:
     }
 
 
+def github_label_color(label: str) -> str:
+    return hashlib.sha256(label.encode("utf-8")).hexdigest()[:6]
+
+
+def github_ensure_label(
+    base: str, label: str, headers: dict[str, str]
+) -> tuple[int, Any]:
+    status, response = request_json(
+        f"{base}/labels/{urllib.parse.quote(label, safe='')}", headers=headers
+    )
+    if status == 200:
+        return status, response
+    if status != 404:
+        return status, response
+    return request_json(
+        f"{base}/labels",
+        method="POST",
+        payload={
+            "name": label,
+            "color": github_label_color(label),
+            "description": "Generated and managed by the Gall control plane",
+        },
+        headers=headers,
+    )
+
+
 def github_apply(control: ControlPlane) -> list[dict[str, Any]]:
     repository = os.environ.get("GITHUB_REPOSITORY", "").strip()
     if repository.count("/") != 1:
@@ -223,27 +357,59 @@ def github_apply(control: ControlPlane) -> list[dict[str, Any]]:
     base = f"https://api.github.com/repos/{repository}"
     headers = github_headers()
     results: list[dict[str, Any]] = []
+    desired_labels: set[str] = {"gall", "gall-ready", "gall-blocked", "gall-complete"}
+    for item in control.items:
+        desired_labels.update(item.values("Labels"))
+        desired_labels.add(label_id(item))
+    for label in sorted(desired_labels):
+        status, response = github_ensure_label(base, label, headers)
+        results.append(
+            {
+                "operation": "ensure-label",
+                "label": label,
+                "status": status,
+                "response": response,
+            }
+        )
+        if status >= 300:
+            return results
+
     for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
         marker = label_id(item)
         query = urllib.parse.urlencode({"state": "all", "labels": marker, "per_page": 2})
         search_status, issues = request_json(f"{base}/issues?{query}", headers=headers)
         if search_status >= 300:
-            results.append({"work_item_id": item.id, "stage": "search", "status": search_status, "response": issues})
+            results.append(
+                {
+                    "work_item_id": item.id,
+                    "stage": "search",
+                    "status": search_status,
+                    "response": issues,
+                }
+            )
             continue
-        labels = sorted(set(item.values("Labels") + ["gall", marker, status_label(control, item)]))
+        labels = sorted(
+            set(item.values("Labels") + ["gall", marker, status_label(control, item)])
+        )
         payload = {
             "title": f"[{item.id}] {item.row['Summary']}",
             "body": work_order_body(control, item),
             "labels": labels,
+            "state": "closed" if status_for(control, item) == "complete" else "open",
         }
         if issues:
             number = issues[0]["number"]
             status, response = request_json(
-                f"{base}/issues/{number}", method="PATCH", payload=payload, headers=headers
+                f"{base}/issues/{number}",
+                method="PATCH",
+                payload=payload,
+                headers=headers,
             )
             operation = "update"
         else:
-            status, response = request_json(f"{base}/issues", method="POST", payload=payload, headers=headers)
+            status, response = request_json(
+                f"{base}/issues", method="POST", payload=payload, headers=headers
+            )
             number = response.get("number", "") if status < 300 else ""
             operation = "create"
         results.append(
@@ -285,7 +451,7 @@ def apply(control: ControlPlane) -> int:
         {
             "provider": control.config["Tracker Provider"],
             "plan": str(plan_path.relative_to(ROOT)),
-            "plan_sha256": __import__("hashlib").sha256(plan_path.read_bytes()).hexdigest(),
+            "plan_sha256": hashlib.sha256(plan_path.read_bytes()).hexdigest(),
         },
     )
     provider = control.config["Tracker Provider"]
@@ -299,7 +465,9 @@ def apply(control: ControlPlane) -> int:
         raise SystemExit(f"unsupported tracker provider: {provider}")
     passed = all(int(result.get("status", 500)) < 300 for result in results)
     result_path = control.runtime_dir / "tracker-sync-result.json"
-    result_path.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    result_path.write_text(
+        json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     receipt = control.write_receipt(
         "tracker-apply-result",
         {
@@ -322,7 +490,11 @@ def main() -> int:
     plan_path = write_plan(control)
     if args.command == "plan":
         receipt = control.write_receipt(
-            "tracker-sync-plan", {"plan": str(plan_path.relative_to(ROOT)), "provider": control.config["Tracker Provider"]}
+            "tracker-sync-plan",
+            {
+                "plan": str(plan_path.relative_to(ROOT)),
+                "provider": control.config["Tracker Provider"],
+            },
         )
         print(f"plan={plan_path.relative_to(ROOT)} receipt={receipt.relative_to(ROOT)}")
         return 0
