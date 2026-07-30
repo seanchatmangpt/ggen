@@ -73,6 +73,8 @@ use std::path::{Component, Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+// One policy is selected by each admitted design; the alternate remains a generated capability.
+#[allow(dead_code)]
 enum CoverageMode {
     Exhaustive,
     Pairwise,
