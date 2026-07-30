@@ -1,0 +1,91 @@
+name: Architecture Autonomics
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "architecture/**"
+      - "tools/ggen-architecture/**"
+      - "docs/architecture/MACHINERY_AUTOMATION_AUTONOMICS.md"
+      - ".github/workflows/architecture-autonomics.yml"
+  push:
+    branches:
+      - main
+      - "agent/**"
+    paths:
+      - "architecture/**"
+      - "tools/ggen-architecture/**"
+      - ".github/workflows/architecture-autonomics.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: architecture-autonomics-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify machinery and autonomic receipts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTC_WRAPPER: ""
+      GGEN_ARCHITECTURE_OBSERVED_AT: synthetic-proof-v1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tools/ggen-architecture
+
+      - name: Format
+        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all -- --check
+
+      - name: Check
+        run: cargo check --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
+
+      - name: Clippy
+        run: cargo clippy --manifest-path tools/ggen-architecture/Cargo.toml --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
+
+      - name: Manufacture architecture receipts
+        run: bash architecture/run-autonomics.sh
+
+      - name: Prove zero direct actuation
+        run: |
+          test "$(jq -r '.actuation_performed' target/architecture-receipts/autonomic-cycle.json)" = "false"
+          test "$(jq '.intents | length > 0' target/architecture-receipts/autonomic-cycle.json)" = "true"
+          test "$(jq -r '.actuation_performed' target/architecture-receipts/fortune5-autonomic-plan.json)" = "false"
+
+      - name: Prove Fortune 5 contract
+        run: |
+          test "$(jq '.dimensions | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
+          test "$(jq '[.dimensions[].obligations[]] | length' target/architecture-receipts/fortune5-catalog.json)" = "63"
+          test "$(jq -r '.level_five_ready' target/architecture-receipts/fortune5-assessment.json)" = "true"
+          test "$(jq '.alive_dimensions' target/architecture-receipts/fortune5-assessment.json)" = "21"
+          test "$(jq '.passed_obligations' target/architecture-receipts/fortune5-assessment.json)" = "63"
+          test "$(jq -r '.synthetic' target/architecture-receipts/fortune5-assessment.json)" = "true"
+          test "$(jq '[.intents[].kind] | index("submit_promotion") == null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
+          test "$(jq '[.intents[].kind] | index("reverify") != null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
+
+      - name: Upload receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-autonomic-receipts
+          path: target/architecture-receipts
+          if-no-files-found: error

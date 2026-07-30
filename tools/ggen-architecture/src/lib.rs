@@ -1,0 +1,33 @@
+//! Executable enterprise architecture machinery for the ggen ecosystem.
+//!
+//! The crate deliberately stops at bounded intent generation. It can observe,
+//! diagnose, plan, and receipt architecture changes, but it cannot actuate a
+//! filesystem, process, network, deployment, or external system directly.
+
+pub mod autonomic;
+pub mod capacity;
+pub mod doctor;
+pub mod error;
+pub mod fortune5;
+pub mod model;
+pub mod receipt;
+pub mod registry;
+pub mod state;
+
+pub use autonomic::{
+    ArchitectureIntent, AutonomicController, AutonomicCycle, Diagnosis, IntentKind, Stimulus,
+};
+pub use capacity::{
+    CapacityEnvelope, CapacityFinding, CapacityLevel, CapacityPolicy, CapacitySample,
+    WorkloadVector,
+};
+pub use doctor::{DoctorFinding, DoctorReport, DoctorStatus};
+pub use error::{ArchitectureError, Result};
+pub use fortune5::{
+    ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5AutonomicPlan,
+    Fortune5Catalog, Fortune5Dimension, Fortune5Domain, Fortune5Finding, Fortune5Intent,
+    Fortune5IntentKind, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
+};
+pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
+pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
+pub use state::{ArchitectureState, AutonomicPolicy};

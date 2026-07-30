@@ -1,0 +1,139 @@
+@prefix ea: <https://ggen.dev/ontology/enterprise-architecture#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<https://ggen.dev/ontology/enterprise-architecture>
+    a owl:Ontology ;
+    rdfs:label "ggen Enterprise Architecture" ;
+    rdfs:comment "Lifecycle, dependency, capacity, governance, evidence, and autonomic intent vocabulary for the Chatman Ecosystem." .
+
+ea:ArchitectureAsset a owl:Class .
+ea:Capability a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Product a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Service a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Component a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Repository a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Ontology a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Pack a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Projection a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Requirement a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Policy a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:TransitionArchitecture a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:WorkPackage a owl:Class ; rdfs:subClassOf ea:ArchitectureAsset .
+ea:Evidence a owl:Class ; rdfs:subClassOf prov:Entity, ea:ArchitectureAsset .
+ea:Receipt a owl:Class ; rdfs:subClassOf ea:Evidence .
+
+ea:LifecycleState a owl:Class .
+ea:Discovered a ea:LifecycleState .
+ea:Identified a ea:LifecycleState .
+ea:Qualified a ea:LifecycleState .
+ea:Admitted a ea:LifecycleState .
+ea:Active a ea:LifecycleState .
+ea:Deprecated a ea:LifecycleState .
+ea:Retired a ea:LifecycleState .
+ea:Archived a ea:LifecycleState .
+
+ea:Standing a owl:Class .
+ea:UNKNOWN a ea:Standing .
+ea:PARTIAL_ALIVE a ea:Standing .
+ea:ALIVE a ea:Standing .
+ea:BLOCKED a ea:Standing .
+ea:BUILD_BROKEN a ea:Standing .
+ea:UNSUPPORTED a ea:Standing .
+
+ea:Stimulus a owl:Class .
+ea:Diagnosis a owl:Class .
+ea:ArchitectureIntent a owl:Class .
+ea:CapacitySample a owl:Class ; rdfs:subClassOf ea:Evidence .
+ea:CapacityPolicy a owl:Class ; rdfs:subClassOf ea:Policy .
+ea:AutonomicCycle a owl:Class ; rdfs:subClassOf prov:Activity .
+
+ea:dependsOn a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureAsset ;
+    rdfs:range ea:ArchitectureAsset .
+
+ea:replaces a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureAsset ;
+    rdfs:range ea:ArchitectureAsset .
+
+ea:hasLifecycleState a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureAsset ;
+    rdfs:range ea:LifecycleState .
+
+ea:hasStanding a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureAsset ;
+    rdfs:range ea:Standing .
+
+ea:hasOwner a owl:DatatypeProperty ;
+    rdfs:domain ea:ArchitectureAsset ;
+    rdfs:range xsd:string .
+
+ea:observedStimulus a owl:ObjectProperty ;
+    rdfs:domain ea:AutonomicCycle ;
+    rdfs:range ea:Stimulus .
+
+ea:producedDiagnosis a owl:ObjectProperty ;
+    rdfs:domain ea:AutonomicCycle ;
+    rdfs:range ea:Diagnosis .
+
+ea:producedIntent a owl:ObjectProperty ;
+    rdfs:domain ea:AutonomicCycle ;
+    rdfs:range ea:ArchitectureIntent .
+
+ea:requiresCapability a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureIntent ;
+    rdfs:range ea:Capability .
+
+ea:expectsEvidence a owl:ObjectProperty ;
+    rdfs:domain ea:ArchitectureIntent ;
+    rdfs:range ea:Evidence .
+
+ea:actuationPerformed a owl:DatatypeProperty ;
+    rdfs:domain ea:AutonomicCycle ;
+    rdfs:range xsd:boolean .
+
+ea:elapsedMilliseconds a owl:DatatypeProperty ;
+    rdfs:domain ea:CapacitySample ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ea:peakMemoryBytes a owl:DatatypeProperty ;
+    rdfs:domain ea:CapacitySample ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ea:ArchitectureAssetShape a sh:NodeShape ;
+    sh:targetClass ea:ArchitectureAsset ;
+    sh:property [
+        sh:path ea:hasLifecycleState ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path ea:hasStanding ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+ea:ActiveAssetShape a sh:NodeShape ;
+    sh:targetSubjectsOf ea:hasLifecycleState ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Active architecture assets require an accountable owner." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this ea:hasLifecycleState ea:Active .
+              FILTER NOT EXISTS { $this ea:hasOwner ?owner }
+            }
+        """
+    ] .
+
+ea:AutonomicCycleShape a sh:NodeShape ;
+    sh:targetClass ea:AutonomicCycle ;
+    sh:property [
+        sh:path ea:actuationPerformed ;
+        sh:hasValue false ;
+        sh:message "Autonomic cycles may emit intents but may not perform actuation."
+    ] .
