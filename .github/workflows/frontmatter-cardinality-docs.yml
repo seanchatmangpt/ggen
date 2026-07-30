@@ -54,9 +54,9 @@ jobs:
           )
           text = replace_once(
               text,
-              '| Derive and extract | `construct`, `when`, `sparql` | Manufacture and select the admitted knowledge view. |',
-              '| Derive, extract, and cardinality | `construct`, `when`, `sparql`, `for_each` | Manufacture and select the admitted knowledge view, then explicitly name the row set governing projection multiplicity. |',
-              'phase table',
+              '  -> establish output cardinality and Tera context',
+              '  -> select explicit for_each cardinality or preserve legacy implicit rows\n  -> establish fan-out, aggregate, or whole-output Tera context',
+              'lifecycle cardinality',
           )
           text = replace_once(
               text,
