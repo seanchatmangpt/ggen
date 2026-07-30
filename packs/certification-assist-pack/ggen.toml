@@ -81,6 +81,14 @@ skip_empty = false
 mode = "Overwrite"
 
 [[generation.rules]]
+name = "a2a-self-play-task"
+query = { file = "queries/objectives.rq" }
+template = { file = "templates/protocol/a2a-self-play-task.json.tmpl" }
+output_file = "consumer/certification-assist/protocol/a2a-self-play-task.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
 name = "capability-standing-document"
 query = { file = "queries/capabilities.rq" }
 template = { file = "templates/docs/CAPABILITY_STANDING.md.tmpl" }
