@@ -1,11 +1,8 @@
 [project]
 name = "ggen-self-host"
-version = "26.7.30"
-description = "ggen repository dogfood consumer: observe exact tree, admit RDF, manufacture retrofit work and receipts"
 
 [ontology]
 source = "ontology.ttl"
-base_iri = "http://seanchatmangpt.github.io/packs/ggen-self-host#"
 
 [ontology.prefixes]
 gsh = "http://seanchatmangpt.github.io/packs/ggen-self-host#"
@@ -20,14 +17,3 @@ ggen-self-host-pack = { path = "../packs/ggen-self-host-pack" }
 [templates]
 dir = "templates"
 aggregate_modules = true
-
-[sync]
-enabled = true
-on_change = "manual"
-validate_after = true
-conflict_mode = "fail"
-
-[rdf]
-formats = ["turtle"]
-default_format = "turtle"
-strict_validation = true
