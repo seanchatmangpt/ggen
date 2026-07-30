@@ -63,7 +63,10 @@ def main() -> int:
 
     lean_template = (PACK / "templates/Main.lean.tmpl").read_text(encoding="utf-8")
     for forbidden in FORBIDDEN_LEAN:
-        refuse(forbidden in lean_template, f"LEAN_TRUST_EXPANSION_REFUSED:{forbidden}")
+        refuse(
+            re.search(rf"\b{re.escape(forbidden)}\b", lean_template) is not None,
+            f"LEAN_TRUST_EXPANSION_REFUSED:{forbidden}",
+        )
     for required in (
         "theorem step_le",
         "theorem step_witness",
