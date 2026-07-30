@@ -28,12 +28,10 @@ sparql:
     ORDER BY ?dimension_name ?option_name
   candidates: |
     PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
-    SELECT ?candidate_name ?standing
-           (COALESCE(STR(?authority), "") AS ?authorized_by)
-           ?output_path WHERE {
+    SELECT ?candidate_name ?standing ?authority ?output_path WHERE {
       ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate .
       ?candidate cmd:name ?candidate_name ; cmd:standing ?standing ; cmd:outputRelativePath ?output_path .
-      OPTIONAL { ?candidate cmd:authorizedBy ?authority }
+      OPTIONAL { ?candidate cmd:authorizedBy ?authority . }
     }
     ORDER BY ?candidate_name
   selections: |
@@ -77,7 +75,7 @@ sparql:
 {% for option in options %}    {"dimension": {{ option.dimension_name | json_encode | safe }}, "name": {{ option.option_name | json_encode | safe }}, "reversible": {{ option.reversible }}, "resource_cost": {{ option.resource_cost }}}{% if not loop.last %},{% endif %}
 {% endfor %}  ],
   "candidates": [
-{% for candidate in candidates %}    {"name": {{ candidate.candidate_name | json_encode | safe }}, "standing": {{ candidate.standing | json_encode | safe }}, "authorized_by": {% if candidate.authorized_by %}{{ candidate.authorized_by | json_encode | safe }}{% else %}null{% endif %}, "output_relative_path": {{ candidate.output_path | json_encode | safe }}}{% if not loop.last %},{% endif %}
+{% for candidate in candidates %}    {"name": {{ candidate.candidate_name | json_encode | safe }}, "standing": {{ candidate.standing | json_encode | safe }}, "authorized_by": {% if candidate.authority %}{{ candidate.authority | json_encode | safe }}{% else %}null{% endif %}, "output_relative_path": {{ candidate.output_path | json_encode | safe }}}{% if not loop.last %},{% endif %}
 {% endfor %}  ],
   "selections": [
 {% for selection in selections %}    {"candidate": {{ selection.candidate_name | json_encode | safe }}, "dimension": {{ selection.dimension_name | json_encode | safe }}, "option": {{ selection.option_name | json_encode | safe }}}{% if not loop.last %},{% endif %}
