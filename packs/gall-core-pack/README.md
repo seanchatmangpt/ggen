@@ -7,16 +7,16 @@ exclusions, and optional release crown as RDF.
 
 The ontology is the only authority. ggen manufactures the roadmap, dependency
 graphs, Jira and GitHub tracker projections, coding-agent instructions,
-operator CLI, scheduler, handoff bundles, tracker convergence, verification
-state, receipts, replay, CI workflow, checkpoint evidence, standing ledger, and
-crown report.
+operator CLI, scheduler, isolated agent worktrees, tracker convergence,
+verification state, evidence snapshots, receipts, replay, CI workflow,
+checkpoint evidence, standing ledger, and crown report.
 
 ## What the pack ships
 
 | Piece | Generated or authored surface | Role |
 |---|---|---|
 | Gall vocabulary | `ontology.ttl` | Programs, capabilities, checkpoints, APS work items, automation profiles, obligations, evidence, exclusions, standings, archetypes, and crowns |
-| Constitutional gates | `gates/*.rq` | 33 fail-closed gates covering contracts, cardinality, DAGs, proof order, lifecycle values, automation policy, path safety, crowns, replay, freshness, and evidence |
+| Constitutional gates | `gates/*.rq` | 35 fail-closed gates covering contracts, cardinality, DAGs, proof order, lifecycle values, automation type and ownership, path safety, crowns, replay, freshness, and evidence |
 | Roadmap | `docs/GALL_CHECKPOINT_ROADMAP.md` | Total checkpoint, ticket, and automation program |
 | Checkpoint DAG | `docs/GALL_CHECKPOINT_DAG.dot` | Proof dependency graph |
 | Work-item DAG | `docs/GALL_WORK_ITEM_DAG.dot` | Executable ticket dependency graph |
@@ -26,9 +26,11 @@ crown report.
 | Automation manifest | `automation/GALL_AUTOMATION_WORK_ITEMS.csv` | Complete machine input for scheduling and actuation |
 | Receipt schema | `automation/schemas/gall-automation-receipt.schema.json` | Receipt envelope contract |
 | Operator CLI | `scripts/gall/gall` | Noun-verb entry point for the complete lifecycle |
-| Control plane | `scripts/gall/control_plane.py` | DAG validation, readiness, handoff, agent invocation, verification, completion, replay, and crown |
+| Control plane | `scripts/gall/control_plane.py` | DAG validation, readiness, handoff, verification, completion, replay, and crown |
+| Agent executor | `scripts/gall/agent_executor.py` | Isolated Git worktree execution with changed-path enforcement |
+| Evidence snapshotter | `scripts/gall/snapshot_work_evidence.py` | Content-addressed file and directory evidence snapshots |
 | Tracker synchronizer | `scripts/gall/tracker_sync.py` | Idempotent Jira Cloud, GitHub Issues, or file-tracker convergence |
-| Receipt verifier | `scripts/gall/verify_automation_receipts.py` | Independent digest-chain and manifest-freshness verification |
+| Receipt verifier | `scripts/gall/verify_automation_receipts.py` | Independent digest-chain, exact-revision, evidence-drift, and manifest-freshness verification |
 | Checkpoint runner | `scripts/gall/run-checkpoints.sh` | Real actuation, witness, falsifier, receipt verification, and detached-worktree replay |
 | Automation workflow | `.github/workflows/gall-control-plane.yml` | Pull-request planning plus protected manual advancement, tracker, agent, and crown jobs |
 | Automation runbook | `docs/GALL_AUTOMATION_RUNBOOK.md` | Generated operator and secret configuration guide |
@@ -49,7 +51,7 @@ Gall mechanizes its stable principles:
 - governance becomes explicit assignee, reviewer, and approval authority;
 - transparency becomes mandatory objective and rationale;
 - adversarial review becomes a required falsification question;
-- auditability becomes commands, evidence paths, and receipts;
+- auditability becomes commands, content-addressed evidence, and receipts;
 - automation becomes generated tracker, agent, scheduler, replay, and CI
   surfaces.
 
@@ -129,8 +131,9 @@ Allowed agent modes:
 - `gall:CommandAgent`
 
 Parallelism is bounded from 1 through 64. Branch patterns must include
-`{workItemId}`. Runtime and receipt directories must remain project-relative and
-outside `.git`.
+`{workItemId}` and cannot escape through absolute or parent paths. Runtime and
+receipt directories must remain project-relative and outside `.git`. Profile
+identity is unique and one profile cannot govern multiple programs.
 
 ## Zero-unreceipted actuation
 
@@ -154,9 +157,11 @@ Plan mode is credential-free. Network or agent actuation requires all of:
 4. an intent receipt is durable before execution;
 5. the result is recorded afterward.
 
-Automation receipts form a SHA-256 predecessor chain bound to the exact generated
+Automation receipts form a SHA-256 predecessor chain bound to the generated
 automation manifest and Git revision. The independent verifier recomputes every
-digest and rejects stale or detached receipt files.
+digest, verifies receipt membership, rejects stale material, and at crown time
+requires current-revision verification, evidence snapshot, and completion
+receipts for every work item.
 
 ## Operator CLI
 
@@ -167,6 +172,8 @@ bash scripts/gall/gall work status
 bash scripts/gall/gall work next
 bash scripts/gall/gall work dispatch WORK_ITEM_ID
 bash scripts/gall/gall work dispatch-ready
+bash scripts/gall/gall work inspect WORK_ITEM_ID
+bash scripts/gall/gall work remove-worktree WORK_ITEM_ID
 bash scripts/gall/gall work verify WORK_ITEM_ID
 bash scripts/gall/gall work complete WORK_ITEM_ID
 bash scripts/gall/gall work advance
@@ -178,11 +185,13 @@ bash scripts/gall/gall replay
 bash scripts/gall/gall crown
 ```
 
-`work next` returns only dependency-ready work, bounded by the declared maximum
-parallelism. `work advance` executes verification for all currently ready items
-and emits completion receipts only for green work.
+`work next` returns only dependency-ready work, bounded by declared maximum
+parallelism. `work advance` executes verification and evidence snapshots for all
+ready items and emits completion receipts only for green work. `crown` refreshes
+all work evidence in proof order at the exact sealed revision before checking
+checkpoint and receipt closure.
 
-## Coding-agent handoff and invocation
+## Coding-agent handoff and isolated invocation
 
 A safe handoff bundle is always available:
 
@@ -206,9 +215,20 @@ Then:
 bash scripts/gall/gall work dispatch EX-GALL-001 --apply
 ```
 
-The work-order path is appended as the final argument. Standard output, standard
-error, intent, and result receipts remain in the generated runtime and receipt
-directories.
+The public CLI creates a dedicated Git branch and isolated worktree, appends the
+work-order path as the final agent argument, calculates the complete changed-file
+set, refuses every forbidden or unauthorized path, runs the ticket verifiers in
+the isolated worktree, and emits an intent/result receipt. It never merges or
+pushes the branch automatically.
+
+Use these commands for review and cleanup:
+
+```bash
+bash scripts/gall/gall work inspect EX-GALL-001
+bash scripts/gall/gall work remove-worktree EX-GALL-001
+```
+
+Removal is refused while uncommitted changes remain.
 
 ## Tracker convergence
 
@@ -260,7 +280,7 @@ and receipt verification. `workflow_dispatch` can independently request:
 
 - verification and completion of ready work;
 - external tracker application;
-- one coding-agent handoff or invocation;
+- one coding-agent handoff or isolated invocation;
 - automation crown verification.
 
 Tracker and agent jobs use the `gall-external-actuation` environment so repository
@@ -279,9 +299,10 @@ execution, and automation surfaces. Missing execution evidence remains
 
 A declared crown activates hard release gates. Every checkpoint must be included
 and dependency-closed. Every checkpoint needs green exact-revision evidence,
-and every work item needs a green completion receipt. The automation crown also
-requires the checkpoint ledger to derive `ALIVE` and the receipt chain to verify
-against the current manifest.
+and every work item needs current-revision verification, content-addressed
+evidence, and completion receipts. The automation crown also requires the
+checkpoint ledger to derive `ALIVE` and the receipt chain to verify against the
+current manifest.
 
 ## Consumer wiring
 
@@ -421,7 +442,7 @@ The pack deliberately separates:
 
 1. ggen generation and graph admission;
 2. real shell, filesystem, Git, tracker, and optional agent boundaries;
-3. observed receipts;
+3. observed receipts and content-addressed evidence;
 4. independent receipt and crown verification.
 
 Neither the generated runner nor the control plane may directly assert `ALIVE`.
