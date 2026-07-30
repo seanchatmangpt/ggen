@@ -1,0 +1,133 @@
+@prefix f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#> .
+@prefix ex: <https://example.org/fortune5/> .
+
+ex:program a f5:EnterpriseArchitectureProgram ;
+    f5:programId "FORTUNE5-E2E" ;
+    f5:releaseIdentity "v26.7.30" ;
+    f5:hasAsset ex:orders ;
+    f5:hasCapability ex:execute-orders ;
+    f5:hasRegion ex:us-west, ex:us-east, ex:us-central ;
+    f5:hasPromotionGate ex:orders-production ;
+    f5:hasAutonomicPolicy ex:autonomics .
+
+ex:execute-orders a f5:EnterpriseCapability ;
+    f5:capabilityId "execute-orders" ;
+    f5:title "Execute orders" ;
+    f5:owner "commerce" ;
+    f5:lifecycleState f5:Active ;
+    f5:realizedBy ex:orders .
+
+ex:us-west a f5:Region ;
+    f5:regionId "us-west-2" ;
+    f5:provider "aws" ;
+    f5:jurisdiction "US" ;
+    f5:faultDomain "aws-us-west" ;
+    f5:active true .
+
+ex:us-east a f5:Region ;
+    f5:regionId "us-east-1" ;
+    f5:provider "aws" ;
+    f5:jurisdiction "US" ;
+    f5:faultDomain "aws-us-east" ;
+    f5:active true .
+
+ex:us-central a f5:Region ;
+    f5:regionId "us-central1" ;
+    f5:provider "gcp" ;
+    f5:jurisdiction "US" ;
+    f5:faultDomain "gcp-us-central" ;
+    f5:active true .
+
+ex:orders a f5:ArchitectureAsset ;
+    f5:assetId "orders" ;
+    f5:title "Order execution service" ;
+    f5:owner "commerce" ;
+    f5:criticality f5:Tier0 ;
+    f5:lifecycleState f5:Admitted ;
+    f5:realizesCapability ex:execute-orders ;
+    f5:deployedIn ex:us-west, ex:us-east, ex:us-central ;
+    f5:hasSlo ex:orders-availability ;
+    f5:hasCapacityEnvelope ex:orders-capacity ;
+    f5:hasReplicationPolicy ex:orders-replication ;
+    f5:hasIdentityPolicy ex:orders-identity ;
+    f5:hasKmsPolicy ex:orders-kms ;
+    f5:hasObservabilityPolicy ex:orders-observability .
+
+ex:orders-availability a f5:SloDefinition ;
+    f5:sloId "orders-availability" ;
+    f5:sliKind "availability" ;
+    f5:direction "at-least" ;
+    f5:target 99.99 ;
+    f5:windowSeconds 2592000 ;
+    f5:minimumSamples 1000 ;
+    f5:fastBurnThreshold 14.4 .
+
+ex:orders-capacity a f5:CapacityEnvelope ;
+    f5:minReplicas 3 ;
+    f5:maxReplicas 12 ;
+    f5:unitCapacity 1000.0 ;
+    f5:reserveRatio 0.20 .
+
+ex:orders-replication a f5:ReplicationPolicy ;
+    f5:replicationMode f5:Strong ;
+    f5:replicatesTo ex:us-west, ex:us-east, ex:us-central ;
+    f5:writeQuorum 2 ;
+    f5:readQuorum 2 ;
+    f5:rpoSeconds 0 ;
+    f5:rtoSeconds 60 ;
+    f5:allowedJurisdiction "US" .
+
+ex:orders-identity a f5:IdentityPolicy ;
+    f5:trustDomain "corp.example" ;
+    f5:allowedSpiffeId "spiffe://corp.example/ns/commerce/sa/orders" ;
+    f5:mtlsRequired true ;
+    f5:maxSvidTtlSeconds 3600 ;
+    f5:workloadAttestationRequired true .
+
+ex:orders-kms a f5:KmsPolicy ;
+    f5:kmsProvider "aws-kms" ;
+    f5:keyAlias "alias/orders-prod" ;
+    f5:rotationDays 30 ;
+    f5:hsmBacked true ;
+    f5:envelopeEncryption true ;
+    f5:decryptAuditRequired true ;
+    f5:breakGlassDualControl true .
+
+ex:orders-observability a f5:ObservabilityPolicy ;
+    f5:logsRequired true ;
+    f5:metricsRequired true ;
+    f5:tracesRequired true ;
+    f5:profilesRequired true ;
+    f5:correlationIdsRequired true ;
+    f5:redactionRequired true ;
+    f5:retentionDays 400 ;
+    f5:otlpEndpointClass "regional-collector" .
+
+ex:orders-production a f5:PromotionGate ;
+    f5:gateId "orders-production" ;
+    f5:fromState f5:Admitted ;
+    f5:toState f5:Active ;
+    f5:requiredEvidence "threat-model", "load-test", "replay-receipt" ;
+    f5:minimumApprovals 2 ;
+    f5:requireSloGreen true ;
+    f5:requireReceiptReplay true ;
+    f5:requireSecurityControls true .
+
+ex:autonomics a f5:AutonomicPolicy ;
+    f5:autonomicPolicyId "fortune5-autonomics" ;
+    f5:broker "BRCE" ;
+    f5:directActuation false ;
+    f5:maxParallelism 16 ;
+    f5:receiptAlgorithm "blake3" .
+
+ex:hot-path a f5:ExecutionPath ;
+    f5:executionPath f5:Hot ;
+    f5:maxTriples 8 ;
+    f5:maxJoins 0 ;
+    f5:simplePredicatesRequired true .
+
+ex:warm-path a f5:ExecutionPath ;
+    f5:executionPath f5:Warm ;
+    f5:maxTriples 1000 ;
+    f5:maxJoins 4 ;
+    f5:simplePredicatesRequired true .
