@@ -1,0 +1,20 @@
+[project]
+name = "ggen-first-lean4-rust"
+
+[ontology]
+source = "ontology.ttl"
+
+[ontology.prefixes]
+dcterms = "http://purl.org/dc/terms/"
+lr = "https://chatmangpt.com/ontology/lean4-rust#"
+prov = "http://www.w3.org/ns/prov#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[packs]
+ggen-lean4-rust-pipeline-pack = { path = "../../packs/ggen-lean4-rust-pipeline-pack" }
+
+[templates]
+dir = "."
+aggregate_modules = false
