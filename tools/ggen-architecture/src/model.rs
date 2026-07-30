@@ -106,9 +106,7 @@ impl fmt::Display for LifecycleState {
 }
 
 /// Evidence standing used across the Chatman Ecosystem.
-#[derive(
-    Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Standing {
     /// No sufficient observation exists.
@@ -127,7 +125,6 @@ pub enum Standing {
     /// The capability has been intentionally withdrawn.
     Retired,
 }
-
 
 /// Severity shared by diagnostics, doctor findings, and autonomic diagnoses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

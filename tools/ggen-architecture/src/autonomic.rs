@@ -441,30 +441,7 @@ impl<'a> AutonomicController<'a> {
             }
             Stimulus::LifecycleDeadline { asset_id, target } => {
                 let asset = self.state.registry.asset(asset_id)?;
-                if !asset.lifecycle.allows(*target) {
-                    diagnoses.push(Diagnosis {
-                        code: "EA-AUTO-501".to_string(),
-                        severity: Severity::Error,
-                        subject: asset_id.clone(),
-                        rationale: format!(
-                            "requested lifecycle transition {} -> {} is unlawful",
-                            asset.lifecycle, target
-                        ),
-                        affected_assets: vec![asset_id.clone()],
-                    });
-                    intents.push(ArchitectureIntent::build(
-                        IntentKind::BlockPromotion,
-                        asset_id.clone(),
-                        vec![asset_id.clone()],
-                        BTreeSet::from(["lifecycle law evaluated".to_string()]),
-                        BTreeSet::from(["lifecycle_gate".to_string()]),
-                        BTreeSet::from(["transition_refusal_receipt".to_string()]),
-                        BTreeMap::from([
-                            ("from".to_string(), asset.lifecycle.to_string()),
-                            ("to".to_string(), target.to_string()),
-                        ]),
-                    )?);
-                } else {
+                if asset.lifecycle.allows(*target) {
                     diagnoses.push(Diagnosis {
                         code: "EA-AUTO-502".to_string(),
                         severity: Severity::Warning,
@@ -488,6 +465,29 @@ impl<'a> AutonomicController<'a> {
                             "migration_plan".to_string(),
                             "plan_certificate".to_string(),
                         ]),
+                        BTreeMap::from([
+                            ("from".to_string(), asset.lifecycle.to_string()),
+                            ("to".to_string(), target.to_string()),
+                        ]),
+                    )?);
+                } else {
+                    diagnoses.push(Diagnosis {
+                        code: "EA-AUTO-501".to_string(),
+                        severity: Severity::Error,
+                        subject: asset_id.clone(),
+                        rationale: format!(
+                            "requested lifecycle transition {} -> {} is unlawful",
+                            asset.lifecycle, target
+                        ),
+                        affected_assets: vec![asset_id.clone()],
+                    });
+                    intents.push(ArchitectureIntent::build(
+                        IntentKind::BlockPromotion,
+                        asset_id.clone(),
+                        vec![asset_id.clone()],
+                        BTreeSet::from(["lifecycle law evaluated".to_string()]),
+                        BTreeSet::from(["lifecycle_gate".to_string()]),
+                        BTreeSet::from(["transition_refusal_receipt".to_string()]),
                         BTreeMap::from([
                             ("from".to_string(), asset.lifecycle.to_string()),
                             ("to".to_string(), target.to_string()),

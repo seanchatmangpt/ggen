@@ -325,8 +325,7 @@ impl CapacityEnvelope {
             return Some(right.elapsed_ms);
         }
         let additional_units = target_units.saturating_sub(right_units);
-        let additional_ms = u128::from(elapsed_delta)
-            .saturating_mul(u128::from(additional_units))
+        let additional_ms = u128::from(elapsed_delta).saturating_mul(u128::from(additional_units))
             / u128::from(units_delta);
         let predicted = u128::from(right.elapsed_ms).saturating_add(additional_ms);
         u64::try_from(predicted).ok()
