@@ -1,0 +1,25 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?capability
+WHERE {
+  ?capability a f5:RequiredCapability .
+  {
+    FILTER NOT EXISTS { ?capability f5:order ?order }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:slug ?slug }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:rustVariant ?variant }
+  } UNION {
+    FILTER NOT EXISTS { ?capability rdfs:label ?label }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:category ?category }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:outcome ?outcome }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:implementationArtifact ?artifact }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:verifierCommand ?verifier }
+  } UNION {
+    FILTER NOT EXISTS { ?capability f5:falsifier ?falsifier }
+  }
+}
