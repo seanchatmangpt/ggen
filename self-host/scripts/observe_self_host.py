@@ -14,8 +14,9 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from types import ModuleType
+from typing import Any
 
 
 GENERATED_HEADER = re.compile(
@@ -49,10 +50,58 @@ def has_generated_header(root: Path, path: str) -> bool:
     return any(GENERATED_HEADER.match(line) for line in header.splitlines()[:24])
 
 
+def canonical_authority(file: dict[str, Any]) -> str:
+    """Classify by provenance before location: generated law is not authored law."""
+    path = str(file["path"])
+    p = PurePosixPath(path)
+    parts = set(p.parts)
+    suffix = p.suffix.lower()
+    if parts & NORMALIZER.ARCHIVE_SEGMENTS or any(part.startswith("archive_") for part in p.parts):
+        return "Archive"
+    if path.startswith("evidence/") or "/receipts/" in path or path.endswith("receipt.json"):
+        return "VerificationEvidence"
+    if suffix in NORMALIZER.TEMPLATE_EXTENSIONS:
+        return "Template"
+    if "/tests/" in path or "/fixtures/" in path or path.startswith("tests/"):
+        return "TestFixture"
+    if file["generated_marker"]:
+        return "GeneratedConsequence"
+    if (
+        path in {"Cargo.toml", "ggen.toml", "rust-toolchain.toml", "CONSTITUTION.md"}
+        or path.startswith(".specify/") and suffix in {".ttl", ".rq"}
+        or re.match(r"^packs/[^/]+/(ontology\.ttl|pack\.toml|gates/.*\.rq)$", path)
+        or path == "self-host/ontology.ttl"
+    ):
+        return "AuthoredConstitution"
+    if path.startswith(NORMALIZER.BOOTSTRAP_PREFIXES):
+        return "BootstrapKernel"
+    if path.startswith(".github/workflows/") and suffix in {".yml", ".yaml"}:
+        return "Workflow"
+    if suffix in NORMALIZER.SOURCE_EXTENSIONS:
+        return "ExecutableSource"
+    if suffix == ".md" or path.startswith("docs/") or path.startswith("book/"):
+        return "Documentation"
+    if suffix in NORMALIZER.CONFIG_EXTENSIONS or p.name in {"justfile", "Makefile", "Makefile.toml"}:
+        return "Configuration"
+    return "Asset"
+
+
+def canonical_load_bearing(path: str, authority: str) -> bool:
+    if authority in {"Archive", "Template", "TestFixture", "VerificationEvidence", "Documentation", "Asset"}:
+        return False
+    if authority in {"AuthoredConstitution", "BootstrapKernel", "Workflow"}:
+        return True
+    if path in {"Cargo.toml", "ggen.toml", "justfile"}:
+        return True
+    return path.startswith(("crates/", "packs/", "scripts/", ".github/actions/", ".github/workflows/"))
+
+
 def observe(root: Path) -> dict[str, object]:
     observation = EXACT.observe(root)
     for file in observation["files"]:
         file["generated_marker"] = has_generated_header(root, str(file["path"]))
+    NORMALIZER.authority_for = canonical_authority
+    NORMALIZER.load_bearing = canonical_load_bearing
     return NORMALIZER.normalize(observation, MODEL)
 
 
