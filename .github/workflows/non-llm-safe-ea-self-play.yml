@@ -14,11 +14,11 @@ permissions:
 
 concurrency:
   group: non-llm-safe-ea-self-play-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   manufacture-and-self-play:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - name: Checkout exact candidate
