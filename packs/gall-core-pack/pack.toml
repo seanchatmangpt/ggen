@@ -1,0 +1,13 @@
+[pack]
+name = "gall-core-pack"
+version = "26.7.30"
+description = """
+Constitutional ggen-first Gall checkpoint framework. Declares programs,
+capabilities, dependency-closed checkpoints, evidence obligations, exclusions,
+clean-revision replay, and release crowns as graph objects. Generates the
+checkpoint roadmap, dependency DAG, evidence-derived status ledger, and a real
+checkpoint runner that records command exit codes into an admitted evidence
+mini-pack. Pack gates refuse incomplete checkpoint contracts, cycles, duplicate
+identities, unsafe local paths, manually asserted standing, incomplete crowns,
+missing or red evidence, non-independent replay, and stale evidence.
+"""
