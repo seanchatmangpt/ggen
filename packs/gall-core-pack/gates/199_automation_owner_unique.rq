@@ -1,0 +1,9 @@
+# MESSAGE: Gall automation profile is shared across programs -- each automation profile must have exactly one owning Gall program
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?profile ?automationProfileId (COUNT(DISTINCT ?program) AS ?ownerCount) WHERE {
+  ?profile a gall:AutomationProfile ; gall:automationProfileId ?automationProfileId .
+  ?program a gall:GallProgram ; gall:hasAutomationProfile ?profile .
+}
+GROUP BY ?profile ?automationProfileId
+HAVING(COUNT(DISTINCT ?program) != 1)
+ORDER BY ?automationProfileId
