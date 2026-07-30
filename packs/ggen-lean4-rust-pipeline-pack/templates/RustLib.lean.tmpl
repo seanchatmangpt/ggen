@@ -75,17 +75,24 @@ def rustLib : String :=
   "    pub observed_p99_ticks: u64,\n" ++
   "    pub canary_validated: bool,\n" ++
   "    pub staging_validated: bool,\n" ++
+  "    pub promotion_receipt_ready: bool,\n" ++
   "    pub quorum_acks: u64,\n" ++
+  "    pub cross_region_replication_ready: bool,\n" ++
   "    pub receipt_synchronized: bool,\n" ++
   "    pub failover_ready: bool,\n" ++
   "    pub legal_hold_ready: bool,\n" ++
+  "    pub observed_spiffe_id: &'static str,\n" ++
   "    pub spiffe_authenticated: bool,\n" ++
   "    pub certificate_age_seconds: u64,\n" ++
   "    pub key_age_seconds: u64,\n" ++
   "    pub mtls_established: bool,\n" ++
+  "    pub aws_kms_ready: bool,\n" ++
+  "    pub azure_key_vault_ready: bool,\n" ++
+  "    pub hashicorp_vault_ready: bool,\n" ++
   "    pub network_policy_enforced: bool,\n" ++
   "    pub firewall_policy_enforced: bool,\n" ++
   "    pub otel_correlated: bool,\n" ++
+  "    pub alerts_ready: bool,\n" ++
   "}\n\n" ++
   "pub fn {{ p.function_name }}(x: u64) -> u64 {\n" ++
   "    if x < BOUND { x + 1 } else { BOUND }\n" ++
@@ -118,22 +125,24 @@ def rustLib : String :=
   "pub const fn all_promotion_gates(observation: &DeploymentObservation) -> bool {\n" ++
   "    CANARY_REQUIRED && observation.canary_validated\n" ++
   "        && STAGING_VALIDATION_REQUIRED && observation.staging_validated\n" ++
+  "        && PROMOTION_RECEIPT_REQUIRED && observation.promotion_receipt_ready\n" ++
   "        && observation.quorum_acks >= REGION_QUORUM\n" ++
-  "        && CROSS_REGION_REPLICATION_REQUIRED\n" ++
+  "        && CROSS_REGION_REPLICATION_REQUIRED && observation.cross_region_replication_ready\n" ++
   "        && RECEIPT_SYNCHRONIZATION_REQUIRED && observation.receipt_synchronized\n" ++
   "        && FAILOVER_REQUIRED && observation.failover_ready\n" ++
   "        && LEGAL_HOLD_REQUIRED && observation.legal_hold_ready\n" ++
-  "        && observation.spiffe_authenticated\n" ++
+  "        && observation.observed_spiffe_id == SPIFFE_ID && observation.spiffe_authenticated\n" ++
   "        && observation.certificate_age_seconds <= CERTIFICATE_REFRESH_SECONDS\n" ++
   "        && observation.key_age_seconds <= KEY_ROTATION_SECONDS\n" ++
   "        && MTLS_REQUIRED && observation.mtls_established\n" ++
-  "        && AWS_KMS_REQUIRED && AZURE_KEY_VAULT_REQUIRED && HASHICORP_VAULT_REQUIRED\n" ++
+  "        && AWS_KMS_REQUIRED && observation.aws_kms_ready\n" ++
+  "        && AZURE_KEY_VAULT_REQUIRED && observation.azure_key_vault_ready\n" ++
+  "        && HASHICORP_VAULT_REQUIRED && observation.hashicorp_vault_ready\n" ++
   "        && NETWORK_POLICY_REQUIRED && observation.network_policy_enforced\n" ++
   "        && FIREWALL_POLICY_REQUIRED && observation.firewall_policy_enforced\n" ++
   "        && OTEL_REQUIRED && observation.otel_correlated\n" ++
   "        && SLO_ALERT_REQUIRED && GUARD_ALERT_REQUIRED\n" ++
-  "        && RECEIPT_MISMATCH_ALERT_REQUIRED && PERFORMANCE_DEGRADATION_ALERT_REQUIRED\n" ++
-  "        && PROMOTION_RECEIPT_REQUIRED\n" ++
+  "        && RECEIPT_MISMATCH_ALERT_REQUIRED && PERFORMANCE_DEGRADATION_ALERT_REQUIRED && observation.alerts_ready\n" ++
   "}\n\n" ++
   "pub const fn evaluate_promotion(observation: &DeploymentObservation) -> PromotionDecision {\n" ++
   "    if !slo_compliant(observation) {\n" ++
@@ -151,10 +160,11 @@ def rustLib : String :=
   "pub const fn canonical_observation() -> DeploymentObservation {\n" ++
   "    DeploymentObservation {\n" ++
   "        stage: DeploymentStage::Staging, slo_class: SloClass::C1, observed_p99_ns: 400_000_000, observed_p99_ticks: 0,\n" ++
-  "        canary_validated: true, staging_validated: true, quorum_acks: 3, receipt_synchronized: true,\n" ++
-  "        failover_ready: true, legal_hold_ready: true, spiffe_authenticated: true,\n" ++
-  "        certificate_age_seconds: 1_800, key_age_seconds: 3_600, mtls_established: true,\n" ++
-  "        network_policy_enforced: true, firewall_policy_enforced: true, otel_correlated: true,\n" ++
+  "        canary_validated: true, staging_validated: true, promotion_receipt_ready: true, quorum_acks: 3,\n" ++
+  "        cross_region_replication_ready: true, receipt_synchronized: true, failover_ready: true, legal_hold_ready: true,\n" ++
+  "        observed_spiffe_id: SPIFFE_ID, spiffe_authenticated: true, certificate_age_seconds: 1_800, key_age_seconds: 3_600,\n" ++
+  "        mtls_established: true, aws_kms_ready: true, azure_key_vault_ready: true, hashicorp_vault_ready: true,\n" ++
+  "        network_policy_enforced: true, firewall_policy_enforced: true, otel_correlated: true, alerts_ready: true,\n" ++
   "    }\n" ++
   "}\n\n" ++
   "pub fn scenario_observation(name: &str) -> Option<DeploymentObservation> {\n" ++
@@ -168,6 +178,11 @@ def rustLib : String :=
   "        \"security-expired\" => { observation.certificate_age_seconds = CERTIFICATE_REFRESH_SECONDS + 1; observation.key_age_seconds = KEY_ROTATION_SECONDS + 1; },\n" ++
   "        \"receipt-mismatch\" => observation.receipt_synchronized = false,\n" ++
   "        \"failover-unready\" => observation.failover_ready = false,\n" ++
+  "        \"identity-mismatch\" => observation.observed_spiffe_id = \"spiffe://untrusted.example/ns/default/sa/unknown\",\n" ++
+  "        \"kms-unready\" => observation.azure_key_vault_ready = false,\n" ++
+  "        \"replication-unready\" => observation.cross_region_replication_ready = false,\n" ++
+  "        \"promotion-receipt-missing\" => observation.promotion_receipt_ready = false,\n" ++
+  "        \"alerts-unready\" => observation.alerts_ready = false,\n" ++
   "        _ => return None,\n" ++
   "    }\n" ++
   "    Some(observation)\n" ++
@@ -207,6 +222,16 @@ def rustLib : String :=
   "    fn receipt_mismatch_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"receipt-mismatch\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
   "    #[test]\n" ++
   "    fn failover_unready_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"failover-unready\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
+  "    #[test]\n" ++
+  "    fn identity_mismatch_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"identity-mismatch\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
+  "    #[test]\n" ++
+  "    fn kms_unready_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"kms-unready\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
+  "    #[test]\n" ++
+  "    fn replication_unready_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"replication-unready\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
+  "    #[test]\n" ++
+  "    fn promotion_receipt_missing_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"promotion-receipt-missing\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
+  "    #[test]\n" ++
+  "    fn alerts_unready_refuses() { assert_eq!(evaluate_promotion(&scenario_observation(\"alerts-unready\").unwrap()), PromotionDecision::Refuse); }\n\n" ++
   "    #[test]\n" ++
   "    fn all_kms_and_network_controls_are_required() { assert_eq!(SUPPORTED_KMS_PROVIDERS, [\"aws-kms\", \"azure-key-vault\", \"hashicorp-vault\"]); assert!(MTLS_REQUIRED && NETWORK_POLICY_REQUIRED && FIREWALL_POLICY_REQUIRED); }\n\n" ++
   "    #[test]\n" ++
