@@ -41,20 +41,20 @@ jobs:
           script = actuator.split("python3 <<'PY'\n", 1)[1].split("\n          PY", 1)[0]
           script = textwrap.dedent(script)
 
-          start = script.index('          # Machine-readable schema stays exact with the Rust struct.')
-          end = script.index('          sync_path = Path("crates/ggen-engine/src/sync.rs")', start)
-          repaired_schema = '''          # Machine-readable schema stays exact with the Rust struct.
+          start = script.index('# Machine-readable schema stays exact with the Rust struct.')
+          end = script.index('sync_path = Path("crates/ggen-engine/src/sync.rs")', start)
+          repaired_schema = '''# Machine-readable schema stays exact with the Rust struct.
           schema_path = Path("crates/ggen-engine/schema/frontmatter-schema.ttl")
           schema = schema_path.read_text()
-          old_fields = "        ggenspec:Frontmatter-sparql ,\\n        ggenspec:Frontmatter-construct ,"
+          old_fields = "        ggenspec:Frontmatter-sparql ,\n        ggenspec:Frontmatter-construct ,"
           if schema.count(old_fields) != 1:
               raise SystemExit(f"schema field list drifted: {schema.count(old_fields)}")
           schema = schema.replace(
               old_fields,
-              "        ggenspec:Frontmatter-sparql ,\\n        ggenspec:Frontmatter-for_each ,\\n        ggenspec:Frontmatter-construct ,",
+              "        ggenspec:Frontmatter-sparql ,\n        ggenspec:Frontmatter-for_each ,\n        ggenspec:Frontmatter-construct ,",
               1,
           )
-          old_construct = "\\nggenspec:Frontmatter-construct\\n"
+          old_construct = "\nggenspec:Frontmatter-construct\n"
           if schema.count(old_construct) != 1:
               raise SystemExit(f"schema construct marker drifted: {schema.count(old_construct)}")
           schema = schema.replace(
