@@ -161,6 +161,11 @@ def main() -> int:
         "theorem security_expiry_refused",
         "theorem receipt_mismatch_refused",
         "theorem failover_unready_refused",
+        "theorem identity_mismatch_refused",
+        "theorem kms_unready_refused",
+        "theorem replication_unready_refused",
+        "theorem promotion_receipt_missing_refused",
+        "theorem alerts_unready_refused",
         "structure Fortune5ProofReceipt",
         "structure ProofReceipt",
         "fortune5 := fortune5ProofReceipt",
@@ -169,11 +174,28 @@ def main() -> int:
         refuse(required not in proof_template, f"LEAN_PROOF_PIPELINE_SURFACE_MISSING:{required}")
 
     rust_lib_template = (PACK / "templates/RustLib.lean.tmpl").read_text(encoding="utf-8")
-    for required in ("R1_TICK_BUDGET", "observed_p99_ticks", "regional_receipt_digest"):
+    for required in (
+        "R1_TICK_BUDGET",
+        "observed_p99_ticks",
+        "promotion_receipt_ready",
+        "cross_region_replication_ready",
+        "observed_spiffe_id",
+        "aws_kms_ready",
+        "alerts_ready",
+        "regional_receipt_digest",
+    ):
         refuse(required not in rust_lib_template, f"RUST_LIBRARY_SURFACE_MISSING:{required}")
 
     rust_main_template = (PACK / "templates/RustMain.lean.tmpl").read_text(encoding="utf-8")
-    for required in ("ggen.lean4-rust/execution/v2", "region_receipt_blake3", "promotion_decision_name"):
+    for required in (
+        "ggen.lean4-rust/execution/v2",
+        "region_receipt_blake3",
+        "promotion_receipt_ready",
+        "observed_spiffe_id",
+        "azure_key_vault_ready",
+        "alerts_ready",
+        "promotion_decision_name",
+    ):
         refuse(required not in rust_main_template, f"RUST_EXECUTION_SURFACE_MISSING:{required}")
 
     rust_evidence_template = (PACK / "templates/RustEvidence.lean.tmpl").read_text(encoding="utf-8")
