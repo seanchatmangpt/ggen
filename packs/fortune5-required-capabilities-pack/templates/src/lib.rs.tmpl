@@ -1,0 +1,40 @@
+//! GENERATED from the Fortune-5 required capability ontology.
+
+use ggen_marketplace::{
+    Fortune5Assessment, Fortune5Reference, Fortune5Standing, ALL_FORTUNE5_CAPABILITIES,
+    REQUIRED_PROOF_SURFACES,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct GeneratedCapability {
+    pub order: u8,
+    pub slug: &'static str,
+    pub rust_variant: &'static str,
+    pub category: &'static str,
+}
+
+pub const GENERATED_CAPABILITIES: &[GeneratedCapability] = &[
+{% for row in results %}    GeneratedCapability {
+        order: {{ row["order"] }},
+        slug: "{{ row["slug"] }}",
+        rust_variant: "{{ row["rustVariant"] }}",
+        category: "{{ row["category"] }}",
+    },
+{% endfor %}];
+
+pub fn verify() -> Result<Fortune5Assessment, Box<dyn std::error::Error>> {
+    if GENERATED_CAPABILITIES.len() != ALL_FORTUNE5_CAPABILITIES.len() {
+        return Err("generated capability inventory does not match canonical contract".into());
+    }
+    if GENERATED_CAPABILITIES.len() * REQUIRED_PROOF_SURFACES.len() != 57 {
+        return Err("generated proof-obligation count is not 57".into());
+    }
+
+    let root = tempfile::tempdir()?;
+    let proof = Fortune5Reference::new(root.path().join("fortune5")).prove_all()?;
+    proof.verify()?;
+    if proof.assessment_receipt.assessment.standing != Fortune5Standing::Alive {
+        return Err("executed Fortune-5 crown is not ALIVE".into());
+    }
+    Ok(proof.assessment_receipt.assessment)
+}

@@ -1,0 +1,36 @@
+PREFIX rwr: <https://ggen.dev/ontology/rwr-level5#>
+
+SELECT DISTINCT ?dimension WHERE {
+  ?dimension a rwr:Dimension .
+  {
+    FILTER NOT EXISTS { ?dimension rwr:order ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:dimensionName ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:domain ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:level5Outcome ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:requiresSurface ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:implementationArtifact ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:verifierCommand ?value }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?dimension rwr:falsifier ?value }
+  }
+}

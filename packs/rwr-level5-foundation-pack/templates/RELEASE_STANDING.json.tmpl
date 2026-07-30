@@ -1,0 +1,11 @@
+{
+  "schema": "rwr-level5-release-standing/v1",
+  "target_stage": "DigitalEcosystem",
+  "required_standing": "ALIVE",
+  "declared_standing": "UNKNOWN",
+  "level5_admitted": false,
+  "admission_rule": "The generated consumer must execute all 21 dimensions, externalize 63 proof surfaces, and replay the assessment receipt to ALIVE.",
+  "dimensions": [
+{% for row in results %}    {"order": {{ row["order"] }}, "name": "{{ row["name"] }}", "artifact": "{{ row["artifact"] }}", "verifier": "{{ row["verifier"] }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

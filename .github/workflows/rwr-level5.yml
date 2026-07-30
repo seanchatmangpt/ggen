@@ -1,0 +1,65 @@
+name: RWR Level 5
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-graph/src/rwr/**"
+      - "crates/ggen-graph/src/lib.rs"
+      - "crates/ggen-graph/tests/rwr_level5_e2e.rs"
+      - "packs/rwr-level5-foundation-pack/**"
+      - "docs/architecture/RWR_LEVEL5_FOUNDATION_FOR_EXECUTION.md"
+      - ".github/workflows/rwr-level5.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/ggen-graph/src/rwr/**"
+      - "crates/ggen-graph/src/lib.rs"
+      - "crates/ggen-graph/tests/rwr_level5_e2e.rs"
+      - "packs/rwr-level5-foundation-pack/**"
+      - "docs/architecture/RWR_LEVEL5_FOUNDATION_FOR_EXECUTION.md"
+      - ".github/workflows/rwr-level5.yml"
+
+concurrency:
+  group: rwr-level5-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  crown:
+    name: 21 dimensions / 63 surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: rwr-level5
+
+      - name: Execute direct RWR crown verifier
+        run: cargo test -p ggen-graph --test rwr_level5_e2e
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Generate the ontology-first consumer twice
+        working-directory: packs/rwr-level5-foundation-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/rwr-level5-foundation -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/rwr-level5-foundation -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute generated consumer crown verifier
+        working-directory: packs/rwr-level5-foundation-pack
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path consumer/rwr-level5-foundation/Cargo.toml
+          ../../target/debug/ggen receipt verify
+          bash consumer/rwr-level5-foundation/scripts/verify.sh
+          grep -q '"standing": "ALIVE"' consumer/rwr-level5-foundation/VERIFIER_REPORT.json

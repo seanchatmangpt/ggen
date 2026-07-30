@@ -1,0 +1,11 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+SELECT ?capability ?surface
+WHERE {
+  ?capability a f5:RequiredCapability .
+  VALUES ?surface {
+    f5:PositiveExecution
+    f5:NegativeRefusal
+    f5:ReceiptReplay
+  }
+  FILTER NOT EXISTS { ?capability f5:requiresSurface ?surface }
+}

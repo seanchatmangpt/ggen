@@ -1,0 +1,85 @@
+[project]
+name = "rwr-level5-foundation-consumer"
+version = "26.7.30"
+description = "Generate and execute the complete Ross-Weill-Robertson Level-5 foundation matrix"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/ontology/rwr-level5#"
+imports = []
+
+[ontology.prefixes]
+rwr = "https://ggen.dev/ontology/rwr-level5#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/rwr-level5-foundation/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/requirements.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/rwr-level5-foundation/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-binary"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/src/bin/verify.rs.tmpl" }
+output_file = "consumer/rwr-level5-foundation/src/bin/verify.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "full-matrix-proof"
+query = { file = "queries/requirements.rq" }
+template = { file = "templates/tests/full_matrix.rs.tmpl" }
+output_file = "consumer/rwr-level5-foundation/tests/full_matrix.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "matrix-document"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/RWR_LEVEL5_MATRIX.md.tmpl" }
+output_file = "consumer/rwr-level5-foundation/RWR_LEVEL5_MATRIX.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/rwr-level5-foundation/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/scripts/verify.sh.tmpl" }
+output_file = "consumer/rwr-level5-foundation/scripts/verify.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "consumer-ci"
+query = { file = "queries/dimensions.rq" }
+template = { file = "templates/ci.yml.tmpl" }
+output_file = "consumer/rwr-level5-foundation/.github/workflows/ci.yml"
+skip_empty = false
+mode = "Overwrite"

@@ -1,0 +1,13 @@
+PREFIX rwr: <https://ggen.dev/ontology/rwr-level5#>
+
+SELECT ?order ?dimension ?name ?domain ?outcome ?artifact ?verifier ?falsifier WHERE {
+  ?dimension a rwr:Dimension ;
+    rwr:order ?order ;
+    rwr:dimensionName ?name ;
+    rwr:domain ?domain ;
+    rwr:level5Outcome ?outcome ;
+    rwr:implementationArtifact ?artifact ;
+    rwr:verifierCommand ?verifier ;
+    rwr:falsifier ?falsifier .
+}
+ORDER BY ?order

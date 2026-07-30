@@ -21,6 +21,7 @@ pub mod interchangeable;
 pub mod ocel;
 pub mod prelude;
 pub mod receipt;
+pub mod rwr;
 pub mod shacl;
 pub mod sparql;
 pub mod vocab;
