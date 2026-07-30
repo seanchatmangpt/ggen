@@ -70,6 +70,18 @@ jobs:
         run: |
           test "$(jq -r '.actuation_performed' target/architecture-receipts/autonomic-cycle.json)" = "false"
           test "$(jq '.intents | length > 0' target/architecture-receipts/autonomic-cycle.json)" = "true"
+          test "$(jq -r '.actuation_performed' target/architecture-receipts/fortune5-autonomic-plan.json)" = "false"
+
+      - name: Prove Fortune 5 contract
+        run: |
+          test "$(jq '.dimensions | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
+          test "$(jq '[.dimensions[].obligations[]] | length' target/architecture-receipts/fortune5-catalog.json)" = "63"
+          test "$(jq -r '.level_five_ready' target/architecture-receipts/fortune5-assessment.json)" = "true"
+          test "$(jq '.alive_dimensions' target/architecture-receipts/fortune5-assessment.json)" = "21"
+          test "$(jq '.passed_obligations' target/architecture-receipts/fortune5-assessment.json)" = "63"
+          test "$(jq -r '.synthetic' target/architecture-receipts/fortune5-assessment.json)" = "true"
+          test "$(jq '[.intents[].kind] | index("submit_promotion") == null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
+          test "$(jq '[.intents[].kind] | index("reverify") != null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
 
       - name: Upload receipts
         uses: actions/upload-artifact@v4
