@@ -1,0 +1,15 @@
+# MESSAGE: Gall exclusion contract is incomplete -- every exclusion must name the excluded object and give a reason
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?exclusion ?missing WHERE {
+  ?exclusion a gall:Exclusion .
+  {
+    FILTER NOT EXISTS { ?exclusion gall:excludedObject ?value }
+    BIND("gall:excludedObject" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?exclusion gall:reason ?value }
+    BIND("gall:reason" AS ?missing)
+  }
+}
+ORDER BY ?exclusion ?missing
