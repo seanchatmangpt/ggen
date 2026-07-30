@@ -9,6 +9,7 @@ pub mod capacity;
 pub mod doctor;
 pub mod error;
 pub mod fortune5;
+pub mod level5_crown;
 pub mod model;
 pub mod receipt;
 pub mod registry;
@@ -27,6 +28,10 @@ pub use fortune5::{
     ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5AutonomicPlan,
     Fortune5Catalog, Fortune5Dimension, Fortune5Domain, Fortune5Finding, Fortune5Intent,
     Fortune5IntentKind, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
+};
+pub use level5_crown::{
+    CrownEvidence, CrownFinding, LevelFiveCrownAssessment, LevelFiveCrownProgram,
+    OperationalGuards, ReleaseTruth, SlaGovernor, TaxonomyProfileClosure,
 };
 pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
 pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
