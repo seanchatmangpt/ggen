@@ -6,6 +6,7 @@ Pipeline:
   -> Git-object byte semantics
   -> file-header generation authority
   -> live authority and load-path normalization
+  -> constitutional placeholder refusal
   -> experimental/research namespace fences
   -> independently verified standalone products
   -> active root-output authority
@@ -30,6 +31,10 @@ GENERATED_HEADER = re.compile(
     r"Generated\b.*\bDO NOT EDIT"
     r")(?:\b|\s|-->|$)",
     re.IGNORECASE,
+)
+CONSTITUTIONAL_SENTINELS = (
+    "OWNER/REPOSITORY",
+    "1979-01-01T00:00:00Z",
 )
 
 
@@ -99,6 +104,41 @@ def canonical_load_bearing(path: str, authority: str) -> bool:
     if path in {"Cargo.toml", "ggen.toml", "justfile"}:
         return True
     return path.startswith(("crates/", "packs/", "scripts/", ".github/actions/", ".github/workflows/"))
+
+
+def detect_constitutional_placeholders(root: Path, observation: dict[str, Any]) -> dict[str, Any]:
+    """Refuse sample identities and dates embedded in live constitutional law."""
+    additions: list[dict[str, Any]] = []
+    for file in observation["files"]:
+        if file["authority_class"] != "AuthoredConstitution" or not file["load_bearing"]:
+            continue
+        path = str(file["path"])
+        text = MODEL.read_bytes(root, path).decode("utf-8", errors="replace")
+        present = [sentinel for sentinel in CONSTITUTIONAL_SENTINELS if sentinel in text]
+        if not present:
+            continue
+        additions.append(
+            MODEL.finding(
+                "constitutional-placeholder",
+                "High",
+                f"Constitutional surface `{path}` embeds sample observation values: {', '.join(present)}.",
+                path,
+                "Move sample individuals into a named fixture and project exact repository observations into the consumer graph at execution time.",
+                "A schema may be reusable, but sample repository identities and timestamps cannot establish standing for the live repository.",
+                "Do not replace the sentinel with a newly hand-copied owner, repository, date, count, or workflow list.",
+                "The constitutional file contains only reusable vocabulary and policy; exact repository individuals are emitted by the observer and independently verified.",
+                "python3 self-host/scripts/observe_self_host.py --check",
+            )
+        )
+    observation["findings"] = sorted(
+        {item["finding_id"]: item for item in observation["findings"] + additions}.values(),
+        key=lambda item: (item["severity_order"], item["category"], item["finding_id"]),
+    )
+    observation["counts"]["findings"] = len(observation["findings"])
+    observation["counts"]["blocking_findings"] = sum(
+        item["severity"] == "Blocking" for item in observation["findings"]
+    )
+    return observation
 
 
 def preserve_research_fences(root: Path, observation: dict[str, Any]) -> dict[str, Any]:
@@ -222,6 +262,7 @@ def observe(root: Path) -> dict[str, object]:
     NORMALIZER.authority_for = canonical_authority
     NORMALIZER.load_bearing = canonical_load_bearing
     normalized = NORMALIZER.normalize(observation, MODEL)
+    normalized = detect_constitutional_placeholders(root, normalized)
     normalized = preserve_research_fences(root, normalized)
     normalized = admit_standalone_products(root, normalized)
     return finalize_active_outputs(normalized)
