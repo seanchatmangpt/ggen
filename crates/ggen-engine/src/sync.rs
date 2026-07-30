@@ -102,6 +102,13 @@ struct PendingWrite {
     frontmatter: Frontmatter,
 }
 
+#[derive(Debug, Clone, Copy)]
+enum ProjectionMode {
+    Whole,
+    Row(usize),
+    Aggregate,
+}
+
 /// Relative path of the append-only receipt history log (one JSON line per
 /// non-dry-run sync) under the project root.
 pub const RECEIPT_LOG_REL_PATH: &str = ".ggen-v2/receipt-log.jsonl";
@@ -731,16 +738,39 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 None
             };
 
-        let per_row = tpl.frontmatter.to.contains("{{");
-        if per_row {
+        let fan_out = tpl.frontmatter.to.contains("{{");
+        let explicit_driver = tpl.frontmatter.for_each.is_some();
+        if explicit_driver && !fan_out {
+            let Some((body, frontmatter)) = render_aggregate_projection(
+                active_tera,
+                &tpl.body,
+                tpl_path,
+                &tpl.frontmatter,
+                &named,
+                &results,
+            )?
+            else {
+                continue;
+            };
+            check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+            check_determinism(
+                active_tera,
+                &tpl.body,
+                tpl_path,
+                &tpl.frontmatter,
+                determinism_recheck.as_ref(),
+                ProjectionMode::Aggregate,
+                &body,
+                &frontmatter,
+            )?;
+            pending.push(PendingWrite {
+                to: tpl.frontmatter.to.clone(),
+                body,
+                frontmatter,
+            });
+        } else if fan_out {
             for (row_index, row) in results.iter().enumerate() {
-                let mut ctx = base_context(&named, &results);
-                ctx.insert("row", row);
-                if let Value::Object(map) = row {
-                    for (k, v) in map {
-                        ctx.insert(k, v);
-                    }
-                }
+                let ctx = row_context(&named, &results, row);
                 let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
                 let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
                 let frontmatter =
@@ -752,7 +782,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     tpl_path,
                     &tpl.frontmatter,
                     determinism_recheck.as_ref(),
-                    Some(row_index),
+                    ProjectionMode::Row(row_index),
                     &body,
                     &frontmatter,
                 )?;
@@ -775,7 +805,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 tpl_path,
                 &tpl.frontmatter,
                 determinism_recheck.as_ref(),
-                None,
+                ProjectionMode::Whole,
                 &body,
                 &frontmatter,
             )?;
@@ -838,6 +868,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             let frontmatter = Frontmatter {
                 to: AGGREGATOR_REL_PATH.to_string(),
                 sparql: BTreeMap::new(),
+                for_each: None,
                 construct: None,
                 inject: false,
                 before: None,
@@ -1191,12 +1222,37 @@ fn extract_query_results(
         );
         named.insert(key.clone(), sparql_to_value(active_graph, query)?);
     }
-    // Driving rows: the first named query (BTreeMap key order) with an
-    // array result; empty when no SELECT produced rows.
-    let results: Vec<Value> = named
-        .values()
-        .find_map(|v| v.as_array().cloned())
-        .unwrap_or_default();
+    let results: Vec<Value> = if let Some(driver) = frontmatter.for_each.as_deref() {
+        let value = named.get(driver).ok_or_else(|| {
+            AppError::fm_tpl(
+                19,
+                format!(
+                    "{}: `for_each: {driver}` does not name a declared `sparql:` result. \
+                     Remediation: add that named query or correct `for_each`.",
+                    tpl_path.display()
+                ),
+            )
+        })?;
+        value.as_array().cloned().ok_or_else(|| {
+            AppError::fm_tpl(
+                19,
+                format!(
+                    "{}: `for_each: {driver}` must name an array-valued SELECT/graph result, \
+                     but that query returned {}. Remediation: point `for_each` at a SELECT \
+                     result that yields the intended projection rows.",
+                    tpl_path.display(),
+                    value_type_name(value)
+                ),
+            )
+        })?
+    } else {
+        // Historical compatibility: the first named query in BTreeMap key
+        // order with an array result remains the implicit driving row set.
+        named
+            .values()
+            .find_map(|v| v.as_array().cloned())
+            .unwrap_or_default()
+    };
     Ok(Some((named, results)))
 }
 
@@ -1206,6 +1262,17 @@ fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Con
     ctx.insert("results", results);
     for (k, v) in named {
         ctx.insert(k, v);
+    }
+    ctx
+}
+
+fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) -> tera::Context {
+    let mut ctx = base_context(named, results);
+    ctx.insert("row", row);
+    if let Value::Object(map) = row {
+        for (k, v) in map {
+            ctx.insert(k, v);
+        }
     }
     ctx
 }
@@ -1277,6 +1344,40 @@ fn render_output_frontmatter(
         .map(|shape| render_str(tera, shape, ctx, tpl_path))
         .collect::<Result<Vec<_>>>()?;
     Ok(rendered)
+}
+
+fn render_aggregate_projection(
+    tera: &mut tera::Tera, body_template: &str, tpl_path: &Path, frontmatter: &Frontmatter,
+    named: &BTreeMap<String, Value>, results: &[Value],
+) -> Result<Option<(String, Frontmatter)>> {
+    if results.is_empty() {
+        return Ok(None);
+    }
+    let mut body = String::new();
+    let mut canonical_frontmatter: Option<Frontmatter> = None;
+    for (row_index, row) in results.iter().enumerate() {
+        let ctx = row_context(named, results, row);
+        body.push_str(&render_str(tera, body_template, &ctx, tpl_path)?);
+        let candidate =
+            render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &frontmatter.to)?;
+        if let Some(expected) = &canonical_frontmatter {
+            if expected != &candidate {
+                return Err(AppError::fm_tpl(
+                    20,
+                    format!(
+                        "{}: static `to:` with `for_each` produced row-varying output-phase \
+                         frontmatter at row {row_index}. One target must have one composition, \
+                         hook, shape, and ownership law. Remediation: make those properties \
+                         invariant across rows or include a row binding in `to:` to fan out.",
+                        tpl_path.display()
+                    ),
+                ));
+            }
+        } else {
+            canonical_frontmatter = Some(candidate);
+        }
+    }
+    Ok(canonical_frontmatter.map(|frontmatter| (body, frontmatter)))
 }
 
 /// Summarize a Tera context's top-level keys (and, for arrays, their
@@ -1541,32 +1642,15 @@ fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> R
     Ok(())
 }
 
-/// When `frontmatter.determinism == Some(true)`, re-render the template's
-/// `to:` path and body against `determinism_recheck` — the result of a
-/// genuinely SECOND, independent execution of this template's declared
-/// queries (`when:`, `sparql:`; see [`extract_query_results`]), built by the
-/// caller once per template — and refuse if either differs from the first
-/// render. This is a real, enforced assertion of query-*and*-render
-/// determinism, not merely a second render against the first run's
-/// already-fixed context (which would only catch Tera-level nondeterminism,
-/// e.g. a `now()` call, never a query that returns different bindings or
-/// row order on a second, independent execution against identical graph
-/// state).
-///
-/// `row_index` selects which row of the second extraction's `results`
-/// corresponds to the row being checked (`None` for a non-per-row
-/// template). A row-count mismatch between the first and second extraction
-/// (the second run producing fewer rows than `row_index` needs) is itself a
-/// determinism violation, refused with the same `[FM-TPL-009]` code.
-///
-/// `determinism_recheck` is `None` when `frontmatter.determinism` is not
-/// `Some(true)` — in that case this function is a no-op, at zero cost
-/// (`extract_query_results` was never called a second time by the caller).
+/// When `frontmatter.determinism == Some(true)`, independently re-run
+/// extraction and reproduce the same whole, row-fanout, or static aggregate
+/// projection. Query order, output bytes, paths, and lifecycle law are all
+/// part of the assertion.
 #[allow(clippy::too_many_arguments)]
 fn check_determinism(
     tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
     frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
-    row_index: Option<usize>, first_render: &str, first_frontmatter: &Frontmatter,
+    mode: ProjectionMode, first_render: &str, first_frontmatter: &Frontmatter,
 ) -> Result<()> {
     let Some(recheck) = determinism_recheck else {
         return Ok(());
@@ -1583,59 +1667,72 @@ fn check_determinism(
         ));
     };
 
-    let ctx2 = match row_index {
-        Some(idx) => {
+    let (second_render, second_frontmatter) = match mode {
+        ProjectionMode::Whole => {
+            let ctx = base_context(named2, results2);
+            let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+            let second_frontmatter =
+                render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+            let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+            (second_render, second_frontmatter)
+        }
+        ProjectionMode::Row(idx) => {
             let row2 = results2.get(idx).ok_or_else(|| {
                 AppError::fm_tpl(
                     9,
                     format!(
-                        "{}: `determinism: true` violated — re-running the named `sparql:` \
-                         queries a second, independent time produced {} row(s), which does \
-                         not cover row index {idx} the first run produced. \
-                         Remediation: add an ORDER BY (and, if paginating, a stable tie-break) \
-                         to every `sparql:` query so row count and order are stable across runs.",
+                        "{}: `determinism: true` violated — the second independent query \
+                         execution produced {} row(s), which does not cover row index {idx}. \
+                         Remediation: add a complete ORDER BY with a stable tie-break.",
                         tpl_path.display(),
                         results2.len()
                     ),
                 )
             })?;
-            let mut ctx = base_context(named2, results2);
-            ctx.insert("row", row2);
-            if let Value::Object(map) = row2 {
-                for (k, v) in map {
-                    ctx.insert(k, v);
-                }
-            }
-            ctx
+            let ctx = row_context(named2, results2, row2);
+            let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+            let second_frontmatter =
+                render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+            let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+            (second_render, second_frontmatter)
         }
-        None => base_context(named2, results2),
+        ProjectionMode::Aggregate => render_aggregate_projection(
+            tera,
+            body_template,
+            tpl_path,
+            frontmatter,
+            named2,
+            results2,
+        )?
+        .ok_or_else(|| {
+            AppError::fm_tpl(
+                9,
+                format!(
+                    "{}: `determinism: true` violated — the second independent `for_each` \
+                     execution produced zero rows after the first produced an aggregate output.",
+                    tpl_path.display()
+                ),
+            )
+        })?,
     };
 
-    // The complete output-phase frontmatter is part of the projection.
-    // Recheck path, injection markers, idempotence needle, hook commands,
-    // shape paths, and checksum-slot path against independently extracted
-    // bindings; body-only determinism would leave those consequences open.
-    let second_to = render_str(tera, &frontmatter.to, &ctx2, tpl_path)?;
-    let second_frontmatter =
-        render_output_frontmatter(tera, frontmatter, &ctx2, tpl_path, &second_to)?;
     if &second_frontmatter != first_frontmatter {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering output-phase                  frontmatter from a second, independent query execution produced                  different path, composition, hook, shape, or freeze-slot semantics.                  Remediation: remove non-deterministic terms from the query or                  output-phase frontmatter.",
+                "{}: `determinism: true` violated — the second independent execution \
+                 produced different path, cardinality, composition, hook, shape, or \
+                 ownership semantics.",
                 tpl_path.display()
             ),
         ));
     }
-    let second_render = render_str(tera, body_template, &ctx2, tpl_path)?;
     if second_render != first_render {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the template body from a \
-                 second, independent query execution produced different output. \
-                 Remediation: remove non-deterministic terms from the query or from this \
-                 template.",
+                "{}: `determinism: true` violated — the second independent execution \
+                 produced different output bytes.",
                 tpl_path.display()
             ),
         ));

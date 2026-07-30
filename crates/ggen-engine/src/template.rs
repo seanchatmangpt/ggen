@@ -45,6 +45,13 @@ pub struct Frontmatter {
     /// deserializer), replicated faithfully.
     #[serde(default, deserialize_with = "sparql_map")]
     pub sparql: BTreeMap<String, String>,
+    /// Explicit named `sparql:` result that governs projection cardinality.
+    /// When set, dynamic `to:` paths fan out once per row; static paths
+    /// aggregate one body rendering per row into a single output. When
+    /// absent, the historical first-array/`to`-contains-`{{` behavior is
+    /// preserved exactly.
+    #[serde(default)]
+    pub for_each: Option<String>,
     /// Optional CONSTRUCT query whose result feeds the template.
     #[serde(default)]
     pub construct: Option<String>,
@@ -339,7 +346,7 @@ impl Template {
                 2,
                 format!(
                     "frontmatter rejected: {e}. \
-                     Remediation: use only the closed key set (to, sparql, construct, \
+                     Remediation: use only the closed key set (to, sparql, for_each, construct, \
                      inject, before, after, at_line, skip_if, unless_exists, force, \
                      when, skip_empty, from, sh_before, sh_after, backup, shape, \
                      determinism, freeze_policy, freeze_slots_dir, rdf, rdf_inline, \
