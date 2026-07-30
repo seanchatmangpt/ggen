@@ -1,0 +1,51 @@
+---
+to: generated/PIPELINE.md
+force: true
+sparql:
+  pipeline: |
+    PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?title ?bound ?witness_input ?witness_output ?proof_theorem
+           ?witness_theorem ?fixed_point_theorem ?toolchain WHERE {
+      ?pipeline a lr:Pipeline ;
+                dcterms:title ?title ;
+                lr:bound ?bound ;
+                lr:witnessInput ?witness_input ;
+                lr:witnessOutput ?witness_output ;
+                lr:proofTheorem ?proof_theorem ;
+                lr:witnessTheorem ?witness_theorem ;
+                lr:fixedPointTheorem ?fixed_point_theorem ;
+                lr:leanToolchain ?toolchain .
+    }
+    LIMIT 1
+---
+{% for p in pipeline %}# {{ p.title }}
+
+## Law-state route
+
+```text
+ontology.ttl
+→ ggen graph admission
+→ ggen-manufactured Main.lean
+→ Lean kernel admission
+→ Lean executable emits Rust
+→ rustfmt + Clippy + tests
+→ public Rust execution
+→ BLAKE3 execution receipt bound to proof-receipt.json
+```
+
+## Admitted bounded-successor cell
+
+- Lean toolchain: `{{ p.toolchain }}`
+- Bound: `{{ p.bound }}`
+- Witness: `{{ p.witness_input }} → {{ p.witness_output }}`
+- Universal bound theorem: `{{ p.proof_theorem }}`
+- Concrete witness theorem: `{{ p.witness_theorem }}`
+- Fixed-point theorem: `{{ p.fixed_point_theorem }}`
+
+## Constitutional fence
+
+The Rust crate is not a sibling projection of the source ontology. ggen first manufactures the Lean proof-and-emitter program. The Rust source is written only by the executable that Lean has compiled after checking the theorem bundle.
+
+The v1 claim is deliberately bounded to a successor function with a finite natural-number cap. It does not claim general Lean extraction, arbitrary theorem-to-code synthesis, or semantic equivalence for unmodeled side effects.
+{% endfor %}
