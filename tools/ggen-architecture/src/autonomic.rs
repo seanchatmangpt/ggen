@@ -319,7 +319,7 @@ impl<'a> AutonomicController<'a> {
                             ),
                             affected_assets: Vec::new(),
                         });
-                        intents.push(self.capacity_intent(IntentKind::Reprofile, sample, level)?);
+                        intents.push(Self::capacity_intent(IntentKind::Reprofile, sample, level)?);
                     }
                     CapacityLevel::Refuse => {
                         diagnoses.push(Diagnosis {
@@ -329,12 +329,12 @@ impl<'a> AutonomicController<'a> {
                             rationale: "capacity refusal threshold crossed".to_string(),
                             affected_assets: Vec::new(),
                         });
-                        intents.push(self.capacity_intent(
+                        intents.push(Self::capacity_intent(
                             IntentKind::BlockPromotion,
                             sample,
                             level,
                         )?);
-                        intents.push(self.capacity_intent(IntentKind::Reprofile, sample, level)?);
+                        intents.push(Self::capacity_intent(IntentKind::Reprofile, sample, level)?);
                     }
                 }
             }
@@ -529,7 +529,7 @@ impl<'a> AutonomicController<'a> {
     }
 
     fn capacity_intent(
-        &self, kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,
+        kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,
     ) -> Result<ArchitectureIntent> {
         ArchitectureIntent::build(
             kind,
