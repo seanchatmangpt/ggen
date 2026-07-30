@@ -203,6 +203,22 @@ ex:checkpoint-000 a gall:Checkpoint, gall:RequiredCheckpoint ;
     gall:replayObligation ex:replay ;
     gall:hasWorkItem ex:work-item-001 .
 
+ex:witness a gall:PositiveWitness ;
+    gall:name "useful-system-executes" ;
+    gall:command "bash scripts/checks/witness.sh" .
+
+ex:falsifier a gall:NegativeFalsifier ;
+    gall:name "broken-system-is-refused" ;
+    gall:command "bash scripts/checks/falsifier.sh" .
+
+ex:receipt a gall:ReceiptObligation ;
+    gall:name "receipt-chain-verifies" ;
+    gall:command "ggen receipt verify" .
+
+ex:replay a gall:ReplayObligation ;
+    gall:name "clean-revision-replays" ;
+    gall:command "bash scripts/checks/replay.sh" .
+
 ex:work-item-001 a gall:WorkItem ;
     gall:workItemId "EX-GALL-001" ;
     gall:issueType gall:Task ;
