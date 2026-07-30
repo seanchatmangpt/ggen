@@ -36,27 +36,6 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Repair exact crown compiler drift
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path('tools/ggen-architecture/src/level5_crown.rs')
-          source = path.read_text()
-
-          old_profile = '            profile: catalog.profile,\n'
-          new_profile = '            profile: catalog.profile.clone(),\n'
-          assert source.count(old_profile) == 1, 'unexpected profile assignment cardinality'
-          source = source.replace(old_profile, new_profile)
-
-          old_evidence = '                    obligation_id: obligation.id.clone(),\n                    standing: Standing::Alive,\n'
-          new_evidence = '                    obligation_id: obligation.id.clone(),\n                    evidence_id: format!("evidence-{}", obligation.id),\n                    standing: Standing::Alive,\n'
-          assert source.count(old_evidence) == 1, 'unexpected ControlEvidence fixture cardinality'
-          source = source.replace(old_evidence, new_evidence)
-
-          path.write_text(source)
-          PY
-
       - name: Normalize exact architecture workspace
         run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
 
@@ -79,5 +58,5 @@ jobs:
             tools/ggen-architecture/src/lib.rs \
             tools/ggen-architecture/src/bin/ggen-architecture.rs \
             tools/ggen-architecture/tests/building_block.rs
-          git commit -m 'fix(architecture): repair crown compiler drift'
+          git commit -m 'style(architecture): apply pinned workspace rustfmt'
           git push origin "HEAD:${TARGET_BRANCH}"
