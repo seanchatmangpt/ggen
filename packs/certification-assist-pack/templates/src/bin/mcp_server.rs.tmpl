@@ -31,22 +31,31 @@ fn error(id: Value, code: i64, message: &str) -> Value {
     json!({"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}})
 }
 
-fn handle(request: Value) -> Value {
-    let id = request.get("id").cloned().unwrap_or(Value::Null);
+fn handle(request: Value) -> Option<Value> {
+    let id = request.get("id").cloned();
     let method = request
         .get("method")
         .and_then(Value::as_str)
         .unwrap_or_default();
-    match method {
+    if method.starts_with("notifications/") {
+        return None;
+    }
+    let id = id.unwrap_or(Value::Null);
+    Some(match method {
         "initialize" => response(
             id,
             json!({
                 "protocolVersion": "2025-11-25",
                 "capabilities": {"resources": {}, "tools": {}},
-                "serverInfo": {"name": "certification-assist", "version": "26.7.30"},
+                "serverInfo": {
+                    "name": "certification-assist",
+                    "version": "26.7.30",
+                    "description": "Read-only capability standing and bounded practice manufacturer"
+                },
                 "instructions": "Read capability standing and manufacture bounded probes. Standing promotion always requires admitted evidence and human approval."
             }),
         ),
+        "ping" => response(id, json!({})),
         "resources/list" => {
             let resources = SURFACES
                 .iter()
@@ -103,7 +112,7 @@ fn handle(request: Value) -> Value {
                             "idempotentHint": true,
                             "openWorldHint": false
                         },
-                        "requiresApproval": surface.requires_approval
+                        "execution": {"taskSupport": "forbidden"}
                     })
                 })
                 .collect::<Vec<_>>();
@@ -142,7 +151,7 @@ fn handle(request: Value) -> Value {
             }
         }
         _ => error(id, -32601, "method not found"),
-    }
+    })
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -152,7 +161,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             continue;
         }
         let request: Value = serde_json::from_str(&line)?;
-        println!("{}", serde_json::to_string(&handle(request))?);
+        if let Some(result) = handle(request) {
+            println!("{}", serde_json::to_string(&result)?);
+        }
     }
     Ok(())
 }
