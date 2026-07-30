@@ -1,78 +1,88 @@
 # gall-core-pack
 
-`gall-core-pack` is the constitutional ggen-first Gall checkpoint framework.
-A consumer declares its program, capability graph, dependency-closed checkpoints,
-APS-grade implementation work, evidence obligations, exclusions, and optional
-release crown as RDF. The pack manufactures the roadmap, checkpoint and work-item
-dependency graphs, Jira work package, coding-agent instructions, checkpoint runner,
-evidence-derived standing ledger, and crown report. SPARQL gates make incomplete,
-ambiguous, cyclic, or fraudulent systems unrepresentable at sync time.
+`gall-core-pack` is the constitutional ggen-first Gall checkpoint and execution
+framework. A consumer declares its program, capability graph, dependency-closed
+checkpoints, APS-grade work items, automation policy, evidence obligations,
+exclusions, and optional release crown as RDF.
+
+The ontology is the only authority. ggen manufactures the roadmap, dependency
+graphs, Jira and GitHub tracker projections, coding-agent instructions,
+operator CLI, scheduler, handoff bundles, tracker convergence, verification
+state, receipts, replay, CI workflow, checkpoint evidence, standing ledger, and
+crown report.
 
 ## What the pack ships
 
-| Piece | File | Role |
+| Piece | Generated or authored surface | Role |
 |---|---|---|
-| Gall vocabulary | `ontology.ttl` | Programs, capabilities, checkpoints, APS work items, obligations, evidence, exclusions, standings, archetypes, and crowns |
-| Constitutional gates | `gates/*.rq` | Contract completeness, cardinality, DAG closure, unique IDs, APS lifecycle values, Jira safety, no manual standing, safe paths and commands, crown coverage, green evidence, exact revision, clean replay, freshness, and exclusion consistency |
-| Roadmap | `templates/checkpoint_roadmap.md.tmpl` | Generates `docs/GALL_CHECKPOINT_ROADMAP.md` from the graph |
-| Checkpoint DAG | `templates/checkpoint_dag.dot.tmpl` | Generates `docs/GALL_CHECKPOINT_DAG.dot` |
-| Work-item DAG | `templates/work_item_dag.dot.tmpl` | Generates `docs/GALL_WORK_ITEM_DAG.dot` in executable proof order |
-| Jira import surface | `templates/jira_work_items.csv.tmpl` | Generates `jira/GALL_JIRA_WORK_ITEMS.csv` with one deterministic row per work item |
-| Jira catalog | `templates/jira_ticket_catalog.md.tmpl` | Generates complete human-readable ticket bodies at `docs/GALL_JIRA_TICKET_CATALOG.md` |
-| Coding-agent work orders | `templates/agent_work_orders.md.tmpl` | Generates normative `MUST`, `MUST NOT`, path, verification, evidence, review, and stop-condition instructions at `docs/GALL_AGENT_WORK_ORDERS.md` |
-| Standing ledger | `templates/status_ledger.md.tmpl` | Derives `UNKNOWN`, `PARTIAL_ALIVE`, or `ALIVE` from admitted evidence |
-| Crown report | `templates/crown_report.md.tmpl` | Renders release closure only after crown gates pass |
-| Evidence runner | `templates/run_checkpoints_sh.tmpl` | Generates `scripts/gall/run-checkpoints.sh`; runs real commands and clean-worktree replay, then emits `evidence/gall/ontology.ttl` |
+| Gall vocabulary | `ontology.ttl` | Programs, capabilities, checkpoints, APS work items, automation profiles, obligations, evidence, exclusions, standings, archetypes, and crowns |
+| Constitutional gates | `gates/*.rq` | 33 fail-closed gates covering contracts, cardinality, DAGs, proof order, lifecycle values, automation policy, path safety, crowns, replay, freshness, and evidence |
+| Roadmap | `docs/GALL_CHECKPOINT_ROADMAP.md` | Total checkpoint, ticket, and automation program |
+| Checkpoint DAG | `docs/GALL_CHECKPOINT_DAG.dot` | Proof dependency graph |
+| Work-item DAG | `docs/GALL_WORK_ITEM_DAG.dot` | Executable ticket dependency graph |
+| Jira import | `jira/GALL_JIRA_WORK_ITEMS.csv` | Deterministic ticket import surface |
+| Jira catalog | `docs/GALL_JIRA_TICKET_CATALOG.md` | Human-reviewable ticket bodies |
+| Agent work orders | `docs/GALL_AGENT_WORK_ORDERS.md` | Normative `MUST`, `MUST NOT`, path, verification, evidence, and stop-condition contracts |
+| Automation manifest | `automation/GALL_AUTOMATION_WORK_ITEMS.csv` | Complete machine input for scheduling and actuation |
+| Receipt schema | `automation/schemas/gall-automation-receipt.schema.json` | Receipt envelope contract |
+| Operator CLI | `scripts/gall/gall` | Noun-verb entry point for the complete lifecycle |
+| Control plane | `scripts/gall/control_plane.py` | DAG validation, readiness, handoff, agent invocation, verification, completion, replay, and crown |
+| Tracker synchronizer | `scripts/gall/tracker_sync.py` | Idempotent Jira Cloud, GitHub Issues, or file-tracker convergence |
+| Receipt verifier | `scripts/gall/verify_automation_receipts.py` | Independent digest-chain and manifest-freshness verification |
+| Checkpoint runner | `scripts/gall/run-checkpoints.sh` | Real actuation, witness, falsifier, receipt verification, and detached-worktree replay |
+| Automation workflow | `.github/workflows/gall-control-plane.yml` | Pull-request planning plus protected manual advancement, tracker, agent, and crown jobs |
+| Automation runbook | `docs/GALL_AUTOMATION_RUNBOOK.md` | Generated operator and secret configuration guide |
+| Standing ledger | `docs/GALL_STATUS_LEDGER.md` | Derived `UNKNOWN`, `PARTIAL_ALIVE`, or `ALIVE` |
+| Crown report | `docs/GALL_CROWN_REPORT.md` | Release closure after hard gates pass |
 
-## APS as ticket law
+## APS as executable work-package law
 
-The Agile Protocol Specification is used here as a source of work-package
-semantics, not as a second implementation repository. Gall mechanizes these APS
-principles:
+The Agile Protocol Specification informs the work-package semantics. It is not a
+runtime dependency and not a second implementation repository.
 
-- mutable and immutable lifecycle states become controlled `gall:ProtocolState`
-  values;
-- metadata richness becomes required ticket identity, release, checkpoint,
-  component, role, priority, and ordering fields;
+Gall mechanizes its stable principles:
+
+- lifecycle states become controlled `gall:ProtocolState` values;
+- metadata richness becomes mandatory identity, release, checkpoint, component,
+  role, priority, and order fields;
 - context-driven development becomes `gall:requiredContext`;
-- governance becomes explicit assignee, reviewer, and approval-gate authority;
+- governance becomes explicit assignee, reviewer, and approval authority;
 - transparency becomes mandatory objective and rationale;
-- adversarial agile review becomes a required falsification question;
-- auditability becomes verification commands and repository evidence paths;
-- automation becomes generated Jira, agent, dependency, and receipt surfaces.
+- adversarial review becomes a required falsification question;
+- auditability becomes commands, evidence paths, and receipts;
+- automation becomes generated tracker, agent, scheduler, replay, and CI
+  surfaces.
 
 The pack does not copy unfinished APS prose into tickets. It converts the stable
-principles into executable graph constraints.
+principles into graph constraints and generated consequences.
 
-## The checkpoint contract
+## Checkpoint contract
 
 Every `gall:Checkpoint` must declare:
 
-- one useful `gall:Capability`;
-- one runner command;
+- one useful capability;
+- one real runner command;
 - exactly one positive witness;
 - exactly one negative falsifier;
 - exactly one receipt verifier;
-- exactly one replay command;
+- exactly one clean-replay command;
 - every proof dependency;
-- at least one implementation `gall:WorkItem`.
+- at least one implementation work item.
 
-The generated runner records real exit codes. A negative falsifier command must
-exit `0` only when the system correctly detects or refuses the deliberately bad
-condition. The runner does not judge evidence and always exits `0`; pack gates
-judge the emitted graph facts on the next sync.
+The generated checkpoint runner records reality. It does not promote itself.
+SPARQL gates derive standing from admitted evidence on the next sync.
 
-## The work-item contract
+## Work-item contract
 
 Every `gall:WorkItem` belongs to exactly one program and checkpoint. It must
-provide enough information for a coding agent to act without inventing scope:
+contain enough information for a coding agent to execute without inventing
+scope:
 
-- stable `gall:workItemId`;
-- controlled Jira issue type, priority, and APS lifecycle state;
-- deterministic implementation order and dependencies;
-- summary, objective, and rationale;
+- stable identity and implementation order;
+- controlled issue type, priority, and APS lifecycle state;
+- objective and rationale;
 - component, assignee role, reviewer role, and approval gate;
-- required context files;
+- dependencies and required context;
 - allowed and forbidden write paths;
 - one or more `MUST` rules;
 - one or more `MUST NOT` rules;
@@ -80,49 +90,198 @@ provide enough information for a coding agent to act without inventing scope:
 - acceptance criteria and definition of done;
 - executable verification commands;
 - repository evidence artifacts;
-- adversarial review questions.
+- adversarial questions.
 
-Ticket dependencies must be acyclic. A prerequisite must have a lower
-`gall:implementationOrder`. Cross-checkpoint ticket dependencies are legal only
-when the owning checkpoint depends on the prerequisite checkpoint.
+Dependencies must be acyclic. Every prerequisite must have a lower
+`gall:implementationOrder`. A cross-checkpoint dependency is legal only when the
+checkpoint graph contains the corresponding proof dependency.
 
-## Generated Jira package
+## Automation-profile contract
 
-`jira/GALL_JIRA_WORK_ITEMS.csv` is a deterministic Jira mapping surface. It
-contains project key, issue type, summary, full description, priority, labels,
-component, external work-item identity, and dependency identities. Jira
-installations differ in custom-field and link mappings, so import mapping remains
-an external deployment action; the pack never performs an unreceipted network
-write.
+Every program with work items owns exactly one `gall:AutomationProfile`:
 
-`docs/GALL_JIRA_TICKET_CATALOG.md` provides the same tickets in reviewable form.
-`docs/GALL_AGENT_WORK_ORDERS.md` is the normative coding-agent execution surface.
-Changing any ticket fact means changing the ontology and regenerating all three.
+```turtle
+ex:automation-profile a gall:AutomationProfile ;
+    gall:automationProfileId "EX-AUTOMATION" ;
+    gall:trackerProvider gall:FileTracker ;
+    gall:executionMode gall:PlanOnly ;
+    gall:agentMode gall:HandoffOnly ;
+    gall:maxParallelism 4 ;
+    gall:branchPattern "agent/{workItemId}" ;
+    gall:runtimeDirectory ".gall" ;
+    gall:receiptDirectory "receipts/gall" .
+```
 
-## Two operating modes
+Allowed providers:
+
+- `gall:JiraCloud`
+- `gall:GitHubIssues`
+- `gall:FileTracker`
+
+Allowed actuation modes:
+
+- `gall:PlanOnly`
+- `gall:ApplyAllowed`
+
+Allowed agent modes:
+
+- `gall:HandoffOnly`
+- `gall:CommandAgent`
+
+Parallelism is bounded from 1 through 64. Branch patterns must include
+`{workItemId}`. Runtime and receipt directories must remain project-relative and
+outside `.git`.
+
+## Zero-unreceipted actuation
+
+Every external mutation follows:
+
+```text
+admitted graph
+→ deterministic plan
+→ intent receipt
+→ explicit apply boundary
+→ external response
+→ result receipt
+→ independent receipt verification
+```
+
+Plan mode is credential-free. Network or agent actuation requires all of:
+
+1. policy admits `gall:ApplyAllowed`;
+2. the operator explicitly requests apply;
+3. required environment credentials exist;
+4. an intent receipt is durable before execution;
+5. the result is recorded afterward.
+
+Automation receipts form a SHA-256 predecessor chain bound to the exact generated
+automation manifest and Git revision. The independent verifier recomputes every
+digest and rejects stale or detached receipt files.
+
+## Operator CLI
+
+```bash
+bash scripts/gall/gall automation plan
+bash scripts/gall/gall automation validate
+bash scripts/gall/gall work status
+bash scripts/gall/gall work next
+bash scripts/gall/gall work dispatch WORK_ITEM_ID
+bash scripts/gall/gall work dispatch-ready
+bash scripts/gall/gall work verify WORK_ITEM_ID
+bash scripts/gall/gall work complete WORK_ITEM_ID
+bash scripts/gall/gall work advance
+bash scripts/gall/gall tracker plan
+bash scripts/gall/gall tracker apply
+bash scripts/gall/gall checkpoint run
+bash scripts/gall/gall receipt verify
+bash scripts/gall/gall replay
+bash scripts/gall/gall crown
+```
+
+`work next` returns only dependency-ready work, bounded by the declared maximum
+parallelism. `work advance` executes verification for all currently ready items
+and emits completion receipts only for green work.
+
+## Coding-agent handoff and invocation
+
+A safe handoff bundle is always available:
+
+```bash
+bash scripts/gall/gall work dispatch EX-GALL-001
+```
+
+It contains a work order, exact branch, full ticket row, dependencies, paths,
+verification, and a bundle digest.
+
+External invocation additionally requires `gall:CommandAgent`, apply permission,
+and:
+
+```text
+GALL_AGENT_COMMAND=/path/to/agent --fixed-arguments
+```
+
+Then:
+
+```bash
+bash scripts/gall/gall work dispatch EX-GALL-001 --apply
+```
+
+The work-order path is appended as the final argument. Standard output, standard
+error, intent, and result receipts remain in the generated runtime and receipt
+directories.
+
+## Tracker convergence
+
+### File tracker
+
+`gall:FileTracker` materializes one current Markdown work order per ticket under
+the runtime directory. It is used by the real Chicago-TDD lifecycle without
+network access.
+
+### Jira Cloud
+
+Required environment:
+
+```text
+JIRA_BASE_URL=https://your-domain.atlassian.net
+JIRA_EMAIL=operator@example.com
+JIRA_API_TOKEN=secret
+```
+
+Optional environment:
+
+```text
+JIRA_DEPENDENCY_LINK_TYPE=Blocks
+GALL_JIRA_USE_COMPONENTS=1
+GALL_JIRA_STATUS_MAP={"blocked":"Blocked","ready":"To Do","complete":"Done"}
+```
+
+The synchronizer searches by stable Gall identity, creates or updates issues,
+inspects links before adding dependencies, and optionally converges lifecycle
+through deployment-specific transition names.
+
+### GitHub Issues
+
+Required environment:
+
+```text
+GITHUB_TOKEN=secret
+GITHUB_REPOSITORY=owner/repository
+```
+
+The synchronizer creates deterministic labels before issue upsert, identifies
+each issue through its stable Gall label, updates the full work order, and closes
+the issue only after a Gall completion receipt exists.
+
+## Generated GitHub Actions workflow
+
+Pull requests execute plan, source validation, ready-queue calculation, replay,
+and receipt verification. `workflow_dispatch` can independently request:
+
+- verification and completion of ready work;
+- external tracker application;
+- one coding-agent handoff or invocation;
+- automation crown verification.
+
+Tracker and agent jobs use the `gall-external-actuation` environment so repository
+approval rules can protect credentials and execution.
+
+## Planning and crown modes
 
 ### Planning mode
 
-Declare a `gall:GallProgram`, its checkpoints, and work items, but no
-`gall:Crown` yet. `ggen sync run` validates the graph and generates the roadmap,
-DAGs, Jira package, agent work orders, ledger, crown report, and executable
-runner. Missing execution evidence is shown as `UNKNOWN`, not silently promoted.
+Declare the program, checkpoints, work items, and automation profile without a
+crown. `ggen sync run` validates the graph and manufactures all planning,
+execution, and automation surfaces. Missing execution evidence remains
+`UNKNOWN`.
 
 ### Crown mode
 
-A declared `gall:Crown` activates hard release gates. Every program checkpoint
-must be included, dependencies must be closed, and every included checkpoint
-must have evidence showing:
-
-- runner exit `0`;
-- positive witness exit `0`;
-- negative falsifier exit `0`;
-- receipt verification exit `0`;
-- detached clean-worktree replay exit `0`;
-- a real git revision;
-- no tracked source dirtiness;
-- `gall:independentReplay true`;
-- graph-hash freshness against the latest reflexive sync receipt.
+A declared crown activates hard release gates. Every checkpoint must be included
+and dependency-closed. Every checkpoint needs green exact-revision evidence,
+and every work item needs a green completion receipt. The automation crown also
+requires the checkpoint ledger to derive `ALIVE` and the receipt chain to verify
+against the current manifest.
 
 ## Consumer wiring
 
@@ -146,13 +305,14 @@ reflexive = true
 After the first planning sync:
 
 ```bash
+ggen sync run
 git add .
 git commit -m "seal Gall planning artifacts"
-bash scripts/gall/run-checkpoints.sh
+bash scripts/gall/gall automation validate
+bash scripts/gall/gall work dispatch-ready
 ```
 
-The runner creates an evidence mini-pack. Wire it unlocked because its content
-changes on every real execution:
+The checkpoint runner creates an evidence mini-pack. Wire it unlocked:
 
 ```toml
 [packs]
@@ -160,20 +320,17 @@ gall-core-pack = { path = "../packs/gall-core-pack" }
 gall-evidence = { path = "evidence/gall", lock = false }
 ```
 
-Then add the crown to the ontology, commit the exact source revision, sync once,
-rerun the evidence runner against that crown revision, and sync again:
+Then activate the crown, seal the exact revision, rerun evidence, sync, and check
+closure:
 
 ```bash
 ggen sync run
 git add .
 git commit -m "seal Gall crown inputs"
-bash scripts/gall/run-checkpoints.sh
+bash scripts/gall/gall checkpoint run
 ggen sync run
+bash scripts/gall/gall crown
 ```
-
-Freshness follows the existing reflexive-receipt model: evidence is bound to the
-latest completed sync's graph hash, so stale detection lags one sync. Running the
-emitter immediately before the final crown sync closes that window.
 
 ## Minimal program shape
 
@@ -186,7 +343,18 @@ ex:program a gall:GallProgram ;
     gall:releaseIdentity "v1" ;
     gall:jiraProjectKey "EX" ;
     gall:hasCheckpoint ex:checkpoint-000 ;
-    gall:hasWorkItem ex:work-item-001 .
+    gall:hasWorkItem ex:work-item-001 ;
+    gall:hasAutomationProfile ex:automation-profile .
+
+ex:automation-profile a gall:AutomationProfile ;
+    gall:automationProfileId "EX-AUTOMATION" ;
+    gall:trackerProvider gall:FileTracker ;
+    gall:executionMode gall:PlanOnly ;
+    gall:agentMode gall:HandoffOnly ;
+    gall:maxParallelism 4 ;
+    gall:branchPattern "agent/{workItemId}" ;
+    gall:runtimeDirectory ".gall" ;
+    gall:receiptDirectory "receipts/gall" .
 
 ex:capability a gall:Capability ;
     gall:capabilityId "useful-system" ;
@@ -238,24 +406,23 @@ ex:work-item-001 a gall:WorkItem ;
     gall:allowedPath "src/" ;
     gall:forbiddenPath "vendor/" ;
     gall:mustDo "Cross the real execution boundary" ;
-    gall:mustNotDo "Do not replace execution with a simulated success" ;
+    gall:mustNotDo "Do not replace execution with simulated success" ;
     gall:outOfScope "Unrelated feature work" ;
     gall:acceptanceCriterion "The useful system executes successfully" ;
     gall:definitionOfDone "Witness falsifier receipt and replay are green" ;
     gall:verificationCommand "bash scripts/checks/verify.sh" ;
     gall:evidenceArtifact "receipts/EXAMPLE-GALL-000.json" ;
-    gall:adversarialQuestion "Would the verifier fail if the useful behavior were removed" .
+    gall:adversarialQuestion "Would the verifier fail if useful behavior were removed" .
 ```
 
 ## Non-self-certification boundary
 
-The pack deliberately uses two independent surfaces:
+The pack deliberately separates:
 
-1. ggen generates the runners and planning artifacts and receives execution
-   evidence as graph facts;
-2. the runner invokes real shell commands, real git revision inspection, and a
-   detached clean worktree.
+1. ggen generation and graph admission;
+2. real shell, filesystem, Git, tracker, and optional agent boundaries;
+3. observed receipts;
+4. independent receipt and crown verification.
 
-The generated runner does not declare the checkpoint `ALIVE`. The SPARQL status
-query and crown gates derive standing from the resulting evidence. A consumer
-that writes `gall:declaredStanding` is refused by name.
+Neither the generated runner nor the control plane may directly assert `ALIVE`.
+A consumer that authors `gall:declaredStanding` is refused by name.
