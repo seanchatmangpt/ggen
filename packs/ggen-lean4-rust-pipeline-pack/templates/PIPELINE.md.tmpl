@@ -26,8 +26,10 @@ sparql:
 ```text
 ontology.ttl
 → ggen graph admission
-→ ggen-manufactured Main.lean
+→ ggen-manufactured Lean4RustPipeline.lean proof library
+→ ggen-manufactured Main.lean emitter runner
 → Lean kernel admission
+→ leanchecker environment replay
 → Lean executable emits Rust
 → rustfmt + Clippy + tests
 → public Rust execution
@@ -45,7 +47,7 @@ ontology.ttl
 
 ## Constitutional fence
 
-The Rust crate is not a sibling projection of the source ontology. ggen first manufactures the Lean proof-and-emitter program. The Rust source is written only by the executable that Lean has compiled after checking the theorem bundle.
+The Rust crate is not a sibling projection of the source ontology. ggen first manufactures an independently checkable Lean proof library plus a minimal emitter runner. The Rust source is written only by the executable linked against the library that Lean has compiled after checking the theorem bundle.
 
 The v1 claim is deliberately bounded to a successor function with a finite natural-number cap. It does not claim general Lean extraction, arbitrary theorem-to-code synthesis, or semantic equivalence for unmodeled side effects.
 {% endfor %}
