@@ -57,8 +57,8 @@ fn lifecycle_state_machine_refuses_skipped_promotion() -> Result<(), Box<dyn Err
 }
 
 #[test]
-fn impact_analysis_returns_transitive_dependents_in_dependency_order(
-) -> Result<(), Box<dyn Error>> {
+fn impact_analysis_returns_transitive_dependents_in_dependency_order() -> Result<(), Box<dyn Error>>
+{
     let state = base_state()?;
     let impact = state.registry.impact_report("ontology-registry")?;
 
@@ -168,9 +168,8 @@ fn receipt_is_deterministic_for_identical_cycle() -> Result<(), Box<dyn Error>> 
 
 #[test]
 fn canonical_repository_state_parses_and_has_closed_dependencies() -> Result<(), Box<dyn Error>> {
-    let state: ArchitectureState = serde_json::from_str(include_str!(
-        "../../../architecture/ggen-enterprise.json"
-    ))?;
+    let state: ArchitectureState =
+        serde_json::from_str(include_str!("../../../architecture/ggen-enterprise.json"))?;
     assert!(state.registry.validate().is_empty());
     assert!(state.registry.assets.len() >= 10);
     Ok(())

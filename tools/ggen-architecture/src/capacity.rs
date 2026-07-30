@@ -137,8 +137,9 @@ impl CapacityPolicy {
                     "sample `{}` required {} ms, exceeding the {} ms refusal budget",
                     sample.label, sample.elapsed_ms, self.refuse_elapsed_ms
                 ),
-                remediation: "refuse promotion; profile phases and select a smaller architecture profile"
-                    .to_string(),
+                remediation:
+                    "refuse promotion; profile phases and select a smaller architecture profile"
+                        .to_string(),
             });
         } else if sample.elapsed_ms >= self.warn_elapsed_ms {
             findings.push(CapacityFinding {
@@ -148,8 +149,9 @@ impl CapacityPolicy {
                     "sample `{}` required {} ms, exceeding the {} ms warning budget",
                     sample.label, sample.elapsed_ms, self.warn_elapsed_ms
                 ),
-                remediation: "measure phase dominance and consider caching, pruning, or lazy materialization"
-                    .to_string(),
+                remediation:
+                    "measure phase dominance and consider caching, pruning, or lazy materialization"
+                        .to_string(),
             });
         }
 
@@ -172,8 +174,9 @@ impl CapacityPolicy {
                     "sample `{}` used {} bytes, exceeding the {} byte warning budget",
                     sample.label, sample.peak_memory_bytes, self.warn_memory_bytes
                 ),
-                remediation: "inspect graph density, blank-node canonicalization, and materialization growth"
-                    .to_string(),
+                remediation:
+                    "inspect graph density, blank-node canonicalization, and materialization growth"
+                        .to_string(),
             });
         }
 
@@ -201,8 +204,7 @@ impl CapacityPolicy {
                         "sample `{}` contains {} quads, exceeding the hard cap of {}",
                         sample.label, sample.workload.quads, max_quads
                     ),
-                    remediation: "refuse admission or split the ontology composition"
-                        .to_string(),
+                    remediation: "refuse admission or split the ontology composition".to_string(),
                 });
             }
         }
@@ -271,10 +273,7 @@ impl CapacityEnvelope {
         for pair in ordered.windows(2) {
             let left = &pair[0];
             let right = &pair[1];
-            let units_delta = right
-                .workload
-                .units()
-                .saturating_sub(left.workload.units());
+            let units_delta = right.workload.units().saturating_sub(left.workload.units());
             if units_delta == 0 {
                 continue;
             }
@@ -294,9 +293,7 @@ impl CapacityEnvelope {
         let latest_level = ordered
             .last()
             .map_or(CapacityLevel::Healthy, |sample| policy.classify(sample));
-        let max_observed_units = ordered
-            .last()
-            .map_or(0, |sample| sample.workload.units());
+        let max_observed_units = ordered.last().map_or(0, |sample| sample.workload.units());
 
         Self {
             samples: ordered,
@@ -328,9 +325,8 @@ impl CapacityEnvelope {
             return Some(right.elapsed_ms);
         }
         let additional_units = target_units.saturating_sub(right_units);
-        let additional_ms = (elapsed_delta as u128)
-            .saturating_mul(additional_units as u128)
-            / units_delta as u128;
+        let additional_ms =
+            (elapsed_delta as u128).saturating_mul(additional_units as u128) / units_delta as u128;
         let predicted = (right.elapsed_ms as u128).saturating_add(additional_ms);
         u64::try_from(predicted).ok()
     }

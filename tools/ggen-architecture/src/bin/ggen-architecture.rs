@@ -109,11 +109,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
                 0
             })
         }
-        Command::Impact {
-            state,
-            asset,
-            json,
-        } => {
+        Command::Impact { state, asset, json } => {
             let state = read_json(&state)?;
             let report = state.registry.impact_report(&asset)?;
             if json {
@@ -162,14 +158,16 @@ fn run() -> Result<u8, Box<dyn Error>> {
                     );
                 }
             }
-            Ok(if violations
-                .iter()
-                .any(|violation| violation.severity >= Severity::Error)
-            {
-                2
-            } else {
-                0
-            })
+            Ok(
+                if violations
+                    .iter()
+                    .any(|violation| violation.severity >= Severity::Error)
+                {
+                    2
+                } else {
+                    0
+                },
+            )
         }
         Command::Capacity { state, json } => {
             let state = read_json(&state)?;

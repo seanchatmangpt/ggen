@@ -191,8 +191,7 @@ impl ArchitectureRegistry {
 
     /// Produce dependency-safe lifecycle work for a bounded target set.
     pub fn plan_transitions(
-        &self,
-        targets: &BTreeMap<String, LifecycleState>,
+        &self, targets: &BTreeMap<String, LifecycleState>,
     ) -> Result<Vec<TransitionStep>> {
         let selected: BTreeSet<String> = targets.keys().cloned().collect();
         let order = self.topological_order(&selected)?;

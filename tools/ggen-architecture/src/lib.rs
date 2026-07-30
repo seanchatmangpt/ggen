@@ -22,8 +22,6 @@ pub use capacity::{
 };
 pub use doctor::{DoctorFinding, DoctorReport, DoctorStatus};
 pub use error::{ArchitectureError, Result};
-pub use model::{
-    ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep,
-};
+pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
 pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
 pub use state::{ArchitectureState, AutonomicPolicy};

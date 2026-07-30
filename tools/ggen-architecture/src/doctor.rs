@@ -124,9 +124,7 @@ impl DoctorReport {
                     Some((Severity::Warning, "active asset has UNKNOWN standing"))
                 }
                 Standing::Blocked => Some((Severity::Error, "asset standing is BLOCKED")),
-                Standing::BuildBroken => {
-                    Some((Severity::Error, "asset standing is BUILD_BROKEN"))
-                }
+                Standing::BuildBroken => Some((Severity::Error, "asset standing is BUILD_BROKEN")),
                 Standing::Unsupported if asset.lifecycle == LifecycleState::Active => {
                     Some((Severity::Error, "active asset standing is UNSUPPORTED"))
                 }
@@ -154,8 +152,7 @@ impl DoctorReport {
                 severity: Severity::Warning,
                 subject: state.name.clone(),
                 message: "no architecture capacity observations are registered".to_string(),
-                remediation: "run a count × density × rules × projections stress ramp"
-                    .to_string(),
+                remediation: "run a count × density × rules × projections stress ramp".to_string(),
             });
         } else if let Some(latest) = envelope.samples.last() {
             findings.extend(
@@ -238,8 +235,14 @@ impl DoctorReport {
                 .filter(|asset| asset.lifecycle == LifecycleState::Active)
                 .count() as u64,
         );
-        metrics.insert("capacity_samples".to_string(), envelope.samples.len() as u64);
-        metrics.insert("max_observed_units".to_string(), envelope.max_observed_units);
+        metrics.insert(
+            "capacity_samples".to_string(),
+            envelope.samples.len() as u64,
+        );
+        metrics.insert(
+            "max_observed_units".to_string(),
+            envelope.max_observed_units,
+        );
         metrics.insert(
             "capacity_latest_level".to_string(),
             match envelope.latest_level {

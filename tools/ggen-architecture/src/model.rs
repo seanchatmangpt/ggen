@@ -78,7 +78,10 @@ impl LifecycleState {
             (Self::Discovered, Self::Identified | Self::Retired)
                 | (Self::Identified, Self::Qualified | Self::Retired)
                 | (Self::Qualified, Self::Admitted | Self::Retired)
-                | (Self::Admitted, Self::Active | Self::Deprecated | Self::Retired)
+                | (
+                    Self::Admitted,
+                    Self::Active | Self::Deprecated | Self::Retired
+                )
                 | (Self::Active, Self::Deprecated)
                 | (Self::Deprecated, Self::Active | Self::Retired)
                 | (Self::Retired, Self::Archived)

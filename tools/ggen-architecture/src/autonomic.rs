@@ -139,13 +139,9 @@ struct IntentBody<'a> {
 
 impl ArchitectureIntent {
     fn build(
-        kind: IntentKind,
-        subject: String,
-        mut affected_assets: Vec<String>,
-        preconditions: BTreeSet<String>,
-        required_capabilities: BTreeSet<String>,
-        expected_evidence: BTreeSet<String>,
-        payload: BTreeMap<String, String>,
+        kind: IntentKind, subject: String, mut affected_assets: Vec<String>,
+        preconditions: BTreeSet<String>, required_capabilities: BTreeSet<String>,
+        expected_evidence: BTreeSet<String>, payload: BTreeMap<String, String>,
     ) -> Result<Self> {
         affected_assets.sort();
         affected_assets.dedup();
@@ -216,9 +212,7 @@ impl<'a> AutonomicController<'a> {
 
     /// Run one bounded autonomic cycle and emit intents only.
     pub fn run_cycle(
-        &self,
-        observed_at: impl Into<String>,
-        stimuli: Vec<Stimulus>,
+        &self, observed_at: impl Into<String>, stimuli: Vec<Stimulus>,
     ) -> Result<AutonomicCycle> {
         if self.state.autonomic_policy.direct_actuation_allowed {
             return Err(ArchitectureError::DirectActuationForbidden);
@@ -250,7 +244,8 @@ impl<'a> AutonomicController<'a> {
                 subject: self.state.name.clone(),
                 rationale: format!(
                     "{} candidate intents exceeded the bounded cycle limit of {}",
-                    intents.len(), limit
+                    intents.len(),
+                    limit
                 ),
                 affected_assets: Vec::new(),
             });
@@ -294,17 +289,14 @@ impl<'a> AutonomicController<'a> {
     }
 
     fn analyze_stimulus(
-        &self,
-        stimulus: &Stimulus,
-        diagnoses: &mut Vec<Diagnosis>,
+        &self, stimulus: &Stimulus, diagnoses: &mut Vec<Diagnosis>,
         intents: &mut Vec<ArchitectureIntent>,
     ) -> Result<()> {
         match stimulus {
             Stimulus::Capacity { sample } => {
                 let mut samples = self.state.capacity_samples.clone();
                 samples.push(sample.clone());
-                let envelope =
-                    CapacityEnvelope::analyze(&samples, &self.state.capacity_policy);
+                let envelope = CapacityEnvelope::analyze(&samples, &self.state.capacity_policy);
                 let level = self.state.capacity_policy.classify(sample);
                 match level {
                     CapacityLevel::Healthy => diagnoses.push(Diagnosis {
@@ -406,10 +398,7 @@ impl<'a> AutonomicController<'a> {
                         "write scope admitted".to_string(),
                     ]),
                     BTreeSet::from(["generated_artifact_writer".to_string()]),
-                    BTreeSet::from([
-                        "artifact_digest".to_string(),
-                        "rebuild_receipt".to_string(),
-                    ]),
+                    BTreeSet::from(["artifact_digest".to_string(), "rebuild_receipt".to_string()]),
                     payload,
                 )?);
             }
@@ -540,10 +529,7 @@ impl<'a> AutonomicController<'a> {
     }
 
     fn capacity_intent(
-        &self,
-        kind: IntentKind,
-        sample: &CapacitySample,
-        level: CapacityLevel,
+        &self, kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,
     ) -> Result<ArchitectureIntent> {
         ArchitectureIntent::build(
             kind,
