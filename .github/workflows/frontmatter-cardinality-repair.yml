@@ -43,7 +43,7 @@ jobs:
 
           start = script.index('# Machine-readable schema stays exact with the Rust struct.')
           end = script.index('sync_path = Path("crates/ggen-engine/src/sync.rs")', start)
-          repaired_schema = '''# Machine-readable schema stays exact with the Rust struct.
+          repaired_schema = r'''# Machine-readable schema stays exact with the Rust struct.
           schema_path = Path("crates/ggen-engine/schema/frontmatter-schema.ttl")
           schema = schema_path.read_text()
           old_fields = "        ggenspec:Frontmatter-sparql ,\n        ggenspec:Frontmatter-construct ,"
