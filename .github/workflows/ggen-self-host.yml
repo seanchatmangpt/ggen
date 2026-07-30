@@ -5,6 +5,7 @@ on:
     paths:
       - "self-host/**"
       - "packs/ggen-self-host-pack/**"
+      - "packs/gall-core-pack/**"
       - ".github/workflows/ggen-self-host.yml"
       - "Cargo.toml"
       - "ggen.toml"
@@ -52,7 +53,7 @@ jobs:
       - name: Independently verify revision, Git-object path set, bytes, and receipt
         run: python3 self-host/scripts/verify_observation.py
 
-      - name: Manufacture self-hosting consequences
+      - name: Manufacture self-hosting and Gall consequences
         run: |
           cd self-host
           ../target/debug/ggen sync run
@@ -62,18 +63,49 @@ jobs:
           test -s generated/AUTHORITY_MAP.md
           test -s generated/LOAD_PATHS.md
           test -s generated/OUTPUT_OWNERSHIP.md
-          test -s generated/RETROFIT_BACKLOG.md
-          test -s generated/GGEN_SELF_HOST_JIRA.csv
           test -s generated/SELF_HOST_CROWN.md
+          test -s docs/GALL_CHECKPOINT_ROADMAP.md
+          test -s docs/GALL_AGENT_WORK_ORDERS.md
+          test -s docs/GALL_JIRA_TICKET_CATALOG.md
+          test -s jira/GALL_JIRA_WORK_ITEMS.csv
+          test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv
+          test -s scripts/gall/gall
+          test -s scripts/gall/run-checkpoints.sh
           grep -q "$(git -C .. rev-parse HEAD)" generated/REPOSITORY_CENSUS.md
           grep -q "PARTIAL_ALIVE" generated/SELF_HOST_CROWN.md
+          grep -q "GGEN-DOGFOOD-CENSUS" docs/GALL_AGENT_WORK_ORDERS.md
+
+      - name: Execute Gall plan-only control plane and handoff
+        run: |
+          cd self-host
+          bash scripts/gall/gall automation validate
+          bash scripts/gall/gall work next | tee /tmp/gall-next.txt
+          grep -q "GGEN-DOGFOOD-CENSUS" /tmp/gall-next.txt
+          bash scripts/gall/gall work dispatch GGEN-DOGFOOD-CENSUS
+          bash scripts/gall/gall receipt verify
+          test -s .gall/dispatch/GGEN-DOGFOOD-CENSUS/WORK_ORDER.md
+          grep -q "MUST NOT" .gall/dispatch/GGEN-DOGFOOD-CENSUS/WORK_ORDER.md
+
+      - name: Execute Gall checkpoint witness, falsifier, receipt, and clean replay
+        run: |
+          cd self-host
+          bash scripts/gall/run-checkpoints.sh
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('evidence/gall/ontology.ttl').read_text()
+          for field in ['runnerExitCode', 'witnessExitCode', 'falsifierExitCode', 'receiptExitCode', 'replayExitCode']:
+              values = [int(value) for value in re.findall(rf'gall:{field} (\d+)', text)]
+              assert values and all(value == 0 for value in values), (field, values)
+          assert 'gall:independentReplay true' in text
+          PY
 
       - name: Prove second manufacture is byte-identical
         run: |
-          find self-host/generated self-host/observed self-host/ontology.ttl -type f -print0 \
+          find self-host/generated self-host/observed self-host/docs self-host/jira self-host/automation self-host/scripts/gall self-host/.github self-host/ontology.ttl -type f -print0 \
             | sort -z | xargs -0 sha256sum > /tmp/self-host-first.sha256
           (cd self-host && ../target/debug/ggen sync run && ../target/debug/ggen receipt verify)
-          find self-host/generated self-host/observed self-host/ontology.ttl -type f -print0 \
+          find self-host/generated self-host/observed self-host/docs self-host/jira self-host/automation self-host/scripts/gall self-host/.github self-host/ontology.ttl -type f -print0 \
             | sort -z | xargs -0 sha256sum > /tmp/self-host-second.sha256
           diff -u /tmp/self-host-first.sha256 /tmp/self-host-second.sha256
 
@@ -91,15 +123,20 @@ jobs:
 
       - name: Prove observer is read-only outside self-host
         run: |
-          git diff --exit-code -- . ':(exclude)self-host/ontology.ttl' ':(exclude)self-host/observed/**' ':(exclude)self-host/generated/**' ':(exclude)self-host/.ggen-v2/**' ':(exclude)self-host/ggen.lock'
+          git diff --exit-code -- . ':(exclude)self-host/ontology.ttl' ':(exclude)self-host/observed/**' ':(exclude)self-host/generated/**' ':(exclude)self-host/docs/**' ':(exclude)self-host/jira/**' ':(exclude)self-host/automation/**' ':(exclude)self-host/scripts/gall/**' ':(exclude)self-host/.github/**' ':(exclude)self-host/evidence/**' ':(exclude)self-host/receipts/**' ':(exclude)self-host/.gall/**' ':(exclude)self-host/.ggen-v2/**' ':(exclude)self-host/ggen.lock'
           ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py
 
-      - name: Upload observation and generated work package
+      - name: Upload observation, Gall work package, and receipts
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: ggen-self-host-${{ github.sha }}
           path: |
             self-host/observed
             self-host/generated
+            self-host/docs
+            self-host/jira
+            self-host/automation
+            self-host/evidence
+            self-host/receipts
             self-host/.ggen-v2
           if-no-files-found: error
