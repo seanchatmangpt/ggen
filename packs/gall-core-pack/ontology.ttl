@@ -1,10 +1,10 @@
 # gall-core-pack ontology
 #
 # Generic constitutional vocabulary for ggen-first Gall checkpoint programs.
-# Program-specific capabilities, checkpoints, commands, exclusions, evidence,
-# and crowns are declared by consumers. Standing is never authored: templates
-# derive it from admitted gall:CheckpointEvidence and the pack gates enforce
-# crown closure over that evidence.
+# Program-specific capabilities, checkpoints, work items, commands, exclusions,
+# evidence, and crowns are declared by consumers. Standing is never authored:
+# templates derive it from admitted gall:CheckpointEvidence and the pack gates
+# enforce crown closure over that evidence.
 
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -14,13 +14,13 @@
 # --- Core objects -----------------------------------------------------------
 
 gall:GallProgram a rdfs:Class ;
-    rdfs:comment "One complete checkpoint program for a repository, release, or bounded system. A program owns the declared capability and checkpoint universe from which ggen manufactures the roadmap, runners, evidence ledger, and crown report." .
+    rdfs:comment "One complete checkpoint program for a repository, release, or bounded system. A program owns the declared capability, checkpoint, and work-item universe from which ggen manufactures roadmaps, Jira tickets, agent work orders, runners, evidence ledgers, and crown reports." .
 
 gall:Capability a rdfs:Class ;
     rdfs:comment "A useful system consequence claimed by the program. Every checkpoint must produce at least one capability." .
 
 gall:Checkpoint a rdfs:Class ;
-    rdfs:comment "A dependency-closed proof cut that produces a useful capability and carries runner, positive-witness, negative-falsifier, receipt, and clean-replay obligations." .
+    rdfs:comment "A dependency-closed proof cut that produces a useful capability and carries runner, positive-witness, negative-falsifier, receipt, clean-replay, and implementation-work obligations." .
 
 gall:RequiredCheckpoint a rdfs:Class ;
     rdfs:subClassOf gall:Checkpoint ;
@@ -31,6 +31,32 @@ gall:Crown a rdfs:Class ;
 
 gall:Exclusion a rdfs:Class ;
     rdfs:comment "A first-class boundary for an object intentionally outside the admitted release domain. Exclusions require an object and a reason; they cannot silently remove a crowned checkpoint." .
+
+# --- APS-grade implementation work -----------------------------------------
+
+gall:WorkItem a rdfs:Class ;
+    rdfs:comment "One machine-actionable implementation unit projected into Jira and an LLM coding-agent work order. It is owned by exactly one Gall checkpoint and must state what to do, what not to do, where changes are allowed, how success is verified, and what evidence must remain." .
+
+gall:IssueType a rdfs:Class .
+gall:Epic a gall:IssueType ; gall:jiraName "Epic" .
+gall:Story a gall:IssueType ; gall:jiraName "Story" .
+gall:Task a gall:IssueType ; gall:jiraName "Task" .
+gall:Bug a gall:IssueType ; gall:jiraName "Bug" .
+gall:Spike a gall:IssueType ; gall:jiraName "Spike" .
+
+gall:ProtocolState a rdfs:Class .
+gall:Draft a gall:ProtocolState ; gall:stateName "Draft" .
+gall:Provisional a gall:ProtocolState ; gall:stateName "Provisional" .
+gall:InReview a gall:ProtocolState ; gall:stateName "In Review" .
+gall:Accepted a gall:ProtocolState ; gall:stateName "Accepted" .
+gall:Final a gall:ProtocolState ; gall:stateName "Final" .
+
+gall:Priority a rdfs:Class .
+gall:Highest a gall:Priority ; gall:priorityName "Highest" .
+gall:High a gall:Priority ; gall:priorityName "High" .
+gall:Medium a gall:Priority ; gall:priorityName "Medium" .
+gall:Low a gall:Priority ; gall:priorityName "Low" .
+gall:Lowest a gall:Priority ; gall:priorityName "Lowest" .
 
 # --- Obligations ------------------------------------------------------------
 
@@ -86,19 +112,54 @@ gall:CrownCheckpoint a gall:CheckpointArchetype .
 
 gall:programId a rdf:Property .
 gall:releaseIdentity a rdf:Property .
+gall:jiraProjectKey a rdf:Property .
 gall:hasCheckpoint a rdf:Property .
+gall:hasWorkItem a rdf:Property .
 gall:hasCrown a rdf:Property .
 gall:capabilityId a rdf:Property .
 gall:checkpointId a rdf:Property .
+gall:workItemId a rdf:Property .
 gall:crownId a rdf:Property .
 gall:title a rdf:Property .
+gall:summary a rdf:Property .
 gall:description a rdf:Property .
+gall:objective a rdf:Property .
+gall:rationale a rdf:Property .
 gall:archetype a rdf:Property .
 gall:producesCapability a rdf:Property .
 gall:requiresCheckpoint a rdf:Property .
+gall:belongsToProgram a rdf:Property .
+gall:belongsToCheckpoint a rdf:Property .
+gall:dependsOnWorkItem a rdf:Property .
 gall:ownsArtifact a rdf:Property .
 gall:artifactPath a rdf:Property .
 gall:includesCheckpoint a rdf:Property .
+
+# --- APS ticket and agent-work-order contract -------------------------------
+
+gall:issueType a rdf:Property .
+gall:jiraName a rdf:Property .
+gall:protocolState a rdf:Property .
+gall:stateName a rdf:Property .
+gall:priority a rdf:Property .
+gall:priorityName a rdf:Property .
+gall:implementationOrder a rdf:Property .
+gall:component a rdf:Property .
+gall:label a rdf:Property .
+gall:assigneeRole a rdf:Property .
+gall:reviewerRole a rdf:Property .
+gall:approvalGate a rdf:Property .
+gall:requiredContext a rdf:Property .
+gall:allowedPath a rdf:Property .
+gall:forbiddenPath a rdf:Property .
+gall:mustDo a rdf:Property .
+gall:mustNotDo a rdf:Property .
+gall:outOfScope a rdf:Property .
+gall:acceptanceCriterion a rdf:Property .
+gall:definitionOfDone a rdf:Property .
+gall:verificationCommand a rdf:Property .
+gall:evidenceArtifact a rdf:Property .
+gall:adversarialQuestion a rdf:Property .
 
 # --- Executable contract ----------------------------------------------------
 
