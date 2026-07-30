@@ -33,15 +33,42 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          perl -0pi -e 's/plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,\n        WriteOutcome, MAX_OUTPUT_BYTES,/plan_write, preflight_checksum_slot, preflight_structured_matchers,\n            validate_match_specs, WriteOutcome, MAX_OUTPUT_BYTES,/' crates/ggen-engine/src/sync.rs
           python3 <<'PY'
           from pathlib import Path
+
           source = Path('.github/workflows/frontmatter-best-practices.yml').read_text()
           embedded = source.split("python3 <<'PY'\n", 1)[1].split("\n          PY", 1)[0]
           script = "\n".join(
               line[10:] if line.startswith("          ") else line
               for line in embedded.splitlines()
           )
+
+          exact_helper = '''def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one anchor, found {count}")
+              return text.replace(old, new, 1)
+          '''
+          tolerant_helper = '''def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count == 1:
+                  return text.replace(old, new, 1)
+              pieces = re.split(r"([ \\t]+)", old)
+              pattern = "".join(
+                  r"[ \\t]+" if piece and piece.strip(" \\t") == "" else re.escape(piece)
+                  for piece in pieces
+              )
+              matches = list(re.finditer(pattern, text))
+              if len(matches) != 1:
+                  raise SystemExit(
+                      f"{label}: expected exactly one whitespace-tolerant anchor, found {len(matches)}"
+                  )
+              match = matches[0]
+              return text[:match.start()] + new + text[match.end():]
+          '''
+          if script.count(exact_helper) != 1:
+              raise SystemExit(f'replace_once helper count={script.count(exact_helper)}')
+          script = script.replace(exact_helper, tolerant_helper, 1)
           script = script.replace(
               '.as_deref().is_none_or(|v| v.trim().is_empty())',
               '.as_deref().map_or(true, |v| v.trim().is_empty())',
