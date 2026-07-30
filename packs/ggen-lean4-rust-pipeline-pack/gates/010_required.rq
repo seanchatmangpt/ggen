@@ -1,0 +1,30 @@
+# MESSAGE: a Lean 4 to Rust pipeline must declare every proof, codegen, toolchain, and receipt field; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    FILTER NOT EXISTS { ?pipeline a lr:Pipeline }
+    BIND(<urn:ggen:lean4-rust:missing-pipeline> AS ?subject)
+    BIND("pipeline-missing" AS ?violation)
+    BIND("exactly one lr:Pipeline is required" AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline .
+    VALUES (?property ?name) {
+      (dcterms:title "title")
+      (lr:crateName "crateName")
+      (lr:rustFunctionName "rustFunctionName")
+      (lr:leanToolchain "leanToolchain")
+      (lr:bound "bound")
+      (lr:witnessInput "witnessInput")
+      (lr:witnessOutput "witnessOutput")
+      (lr:proofTheorem "proofTheorem")
+      (lr:witnessTheorem "witnessTheorem")
+      (lr:fixedPointTheorem "fixedPointTheorem")
+      (lr:receiptAlgorithm "receiptAlgorithm")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND("required-field-missing" AS ?violation)
+    BIND(?name AS ?detail)
+  }
+}
+ORDER BY ?subject ?detail
