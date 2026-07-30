@@ -1,0 +1,96 @@
+---
+to: scripts/gall/snapshot_work_evidence.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED content-addressed snapshot for one Gall work item's evidence."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+from control_plane import ControlPlane, ROOT, safe_path
+
+
+def digest_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def digest_directory(path: Path) -> tuple[str, list[dict[str, Any]]]:
+    entries: list[dict[str, Any]] = []
+    digest = hashlib.sha256()
+    for child in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        relative = child.relative_to(path).as_posix()
+        child_digest = digest_file(child)
+        size = child.stat().st_size
+        entry = {"path": relative, "sha256": child_digest, "size": size}
+        entries.append(entry)
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(child_digest.encode("ascii"))
+        digest.update(b"\0")
+        digest.update(str(size).encode("ascii"))
+        digest.update(b"\n")
+    return digest.hexdigest(), entries
+
+
+def snapshot(path_text: str) -> dict[str, Any]:
+    path = safe_path(path_text)
+    if not path.exists():
+        return {"path": path_text, "exists": False}
+    if path.is_file():
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "file",
+            "sha256": digest_file(path),
+            "size": path.stat().st_size,
+        }
+    if path.is_dir():
+        digest, entries = digest_directory(path)
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "directory",
+            "sha256": digest,
+            "entries": entries,
+        }
+    return {"path": path_text, "exists": True, "kind": "unsupported"}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Snapshot Gall work evidence")
+    parser.add_argument("work_item_id")
+    args = parser.parse_args()
+    control = ControlPlane()
+    item = control.require_item(args.work_item_id)
+    artifacts = [snapshot(path) for path in item.values("Evidence Artifacts")]
+    passed = all(artifact.get("exists") and artifact.get("kind") != "unsupported" for artifact in artifacts)
+    receipt = control.write_receipt(
+        "evidence-snapshot",
+        {"passed": passed, "artifacts": artifacts},
+        item.id,
+    )
+    print(
+        json.dumps(
+            {
+                "passed": passed,
+                "work_item_id": item.id,
+                "receipt": str(receipt.relative_to(ROOT)),
+            },
+            sort_keys=True,
+        )
+    )
+    return 0 if passed else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
