@@ -69,14 +69,14 @@ ggenspec:Frontmatter-inject
     rdfs:comment "Inject into an existing file instead of creating a new one. Defaults to false." .
 
 ggenspec:Frontmatter-before
-    a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "before" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Inject before the first line containing this marker. Tera-rendered per output from the same query context as to: and the body." .
+    rdfs:comment "Inject before a host-content selector. Bare strings preserve contains+line+first; structured declarations support contains|exact|regex, auto|line|file scope, first|last|unique|nth occurrence, one-based index, case sensitivity, and trim. Pattern is Tera-rendered per output." .
 
 ggenspec:Frontmatter-after
-    a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "after" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Inject after the first line containing this marker. Tera-rendered per output from the same query context as to: and the body." .
+    rdfs:comment "Inject after a host-content selector. Same matcher algebra and sane defaults as before." .
 
 ggenspec:Frontmatter-at_line
     a ggenspec:Field ; ggenspec:name "at_line" ; ggenspec:type xsd:nonNegativeInteger ;
@@ -84,9 +84,9 @@ ggenspec:Frontmatter-at_line
     rdfs:comment "Inject at this 1-based line number." .
 
 ggenspec:Frontmatter-skip_if
-    a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type xsd:string ;
+    a ggenspec:Field ; ggenspec:name "skip_if" ; ggenspec:type ggenspec:MatchDeclaration ;
     ggenspec:required false ;
-    rdfs:comment "Skip the write when the existing file already contains this substring. Tera-rendered per output, enabling row-specific idempotence." .
+    rdfs:comment "Skip when a host-content selector matches. Bare strings preserve whole-file substring behavior; structured declarations use the shared matcher algebra with auto resolving to file scope." .
 
 ggenspec:Frontmatter-unless_exists
     a ggenspec:Field ; ggenspec:name "unless_exists" ; ggenspec:type xsd:boolean ;
@@ -175,3 +175,27 @@ ggenspec:Frontmatter-base
 
 ggenspec:MapOfString  a ggenspec:MapType ; ggenspec:valueType xsd:string .
 ggenspec:ListOfString a ggenspec:ListType ; ggenspec:valueType xsd:string .
+
+
+ggenspec:MatchDeclaration
+    a ggenspec:UnionType ;
+    ggenspec:variant xsd:string , ggenspec:MatchRule ;
+    rdfs:comment "Either a compatibility bare string or a structured MatchRule." .
+
+ggenspec:MatchRule
+    a ggenspec:ObjectType ;
+    ggenspec:requiredField "pattern" ;
+    ggenspec:optionalField "matcher" , "scope" , "occurrence" , "index" , "case_sensitive" , "trim" ;
+    rdfs:comment "Defaults: matcher=contains, scope=auto, occurrence=first, index=1, case_sensitive=true, trim=false." .
+
+ggenspec:MatchKind
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "contains" , "exact" , "regex" .
+
+ggenspec:MatchScope
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "auto" , "line" , "file" .
+
+ggenspec:MatchOccurrence
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "first" , "last" , "unique" , "nth" .

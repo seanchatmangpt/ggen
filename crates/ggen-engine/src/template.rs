@@ -51,18 +51,22 @@ pub struct Frontmatter {
     /// Inject into an existing file instead of creating a new one.
     #[serde(default)]
     pub inject: bool,
-    /// Inject before the first line containing this marker.
+    /// Inject before the selected host-content match. A bare string keeps
+    /// the historical `contains + line + first` behavior; a structured
+    /// declaration can opt into exact/regex matching and cardinality.
     #[serde(default)]
-    pub before: Option<String>,
-    /// Inject after the first line containing this marker.
+    pub before: Option<MatchSpec>,
+    /// Inject after the selected host-content match. Defaults are identical
+    /// to `before`.
     #[serde(default)]
-    pub after: Option<String>,
+    pub after: Option<MatchSpec>,
     /// Inject at this 1-based line number.
     #[serde(default)]
     pub at_line: Option<usize>,
-    /// Skip the write when the existing file already contains this substring.
+    /// Skip the write when the existing file satisfies this selector. A bare
+    /// string preserves the historical whole-file substring behavior.
     #[serde(default)]
-    pub skip_if: Option<String>,
+    pub skip_if: Option<MatchSpec>,
     /// Skip the write entirely when the target file already exists.
     #[serde(default)]
     pub unless_exists: bool,
@@ -139,6 +143,139 @@ pub struct Frontmatter {
     /// content. Ignored when both `rdf:` and `rdf_inline:` are empty.
     #[serde(default)]
     pub base: Option<String>,
+}
+
+/// Backward-compatible textual selector used by `before`, `after`, and
+/// `skip_if`.
+///
+/// Bare strings preserve the original Hygen-derived behavior. Structured
+/// declarations expose the complete matcher algebra while every optional
+/// property has a deterministic default.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(untagged)]
+pub enum MatchSpec {
+    /// Compatibility form. `before`/`after` resolve to
+    /// `contains + line + first`; `skip_if` resolves to
+    /// `contains + file + first`.
+    Literal(String),
+    /// Explicit matcher declaration.
+    Structured(MatchRule),
+}
+
+impl MatchSpec {
+    /// Pattern text, before output-phase Tera rendering.
+    pub fn pattern(&self) -> &str {
+        match self {
+            Self::Literal(pattern) => pattern,
+            Self::Structured(rule) => &rule.pattern,
+        }
+    }
+
+    /// Clone the declaration while replacing only its rendered pattern.
+    pub fn with_pattern(&self, pattern: String) -> Self {
+        match self {
+            Self::Literal(_) => Self::Literal(pattern),
+            Self::Structured(rule) => {
+                let mut rendered = rule.clone();
+                rendered.pattern = pattern;
+                Self::Structured(rendered)
+            }
+        }
+    }
+
+    /// Whether this declaration opted into the structured matcher algebra.
+    pub fn is_structured(&self) -> bool {
+        matches!(self, Self::Structured(_))
+    }
+}
+
+impl From<String> for MatchSpec {
+    fn from(value: String) -> Self {
+        Self::Literal(value)
+    }
+}
+
+impl From<&str> for MatchSpec {
+    fn from(value: &str) -> Self {
+        Self::Literal(value.to_string())
+    }
+}
+
+/// Explicit host-content matcher. All fields except `pattern` have sane,
+/// compatibility-oriented defaults.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct MatchRule {
+    /// Literal or regular-expression pattern. Tera-rendered per output.
+    pub pattern: String,
+    /// Matching algorithm. Defaults to `contains`.
+    #[serde(default)]
+    pub matcher: MatchKind,
+    /// Candidate scope. `auto` resolves to line scope for `before`/`after`
+    /// and file scope for `skip_if`.
+    #[serde(default)]
+    pub scope: MatchScope,
+    /// Which observed match supplies the consequence. Defaults to `first`.
+    #[serde(default)]
+    pub occurrence: MatchOccurrence,
+    /// One-based occurrence used by `nth`. Defaults to `1`.
+    #[serde(default = "default_match_index")]
+    pub index: usize,
+    /// Case-sensitive matching by default.
+    #[serde(default = "default_true")]
+    pub case_sensitive: bool,
+    /// Match original text by default; set true to trim candidate boundaries.
+    #[serde(default)]
+    pub trim: bool,
+}
+
+/// Matcher algorithm.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum MatchKind {
+    /// Candidate contains the pattern.
+    #[default]
+    Contains,
+    /// Candidate exactly equals the pattern.
+    Exact,
+    /// Rust `regex` pattern.
+    Regex,
+}
+
+/// Candidate scope.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum MatchScope {
+    /// Property-specific compatibility default.
+    #[default]
+    Auto,
+    /// Match each line independently. Occurrences count matching lines.
+    Line,
+    /// Match the complete file. Occurrences count non-overlapping spans.
+    File,
+}
+
+/// Match cardinality/selection law.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum MatchOccurrence {
+    /// Select the first observed match.
+    #[default]
+    First,
+    /// Select the last observed match.
+    Last,
+    /// Require exactly one observed match.
+    Unique,
+    /// Select the one-based `index` occurrence.
+    Nth,
+}
+
+const fn default_match_index() -> usize {
+    1
+}
+
+const fn default_true() -> bool {
+    true
 }
 
 /// Freeze policy for a frontmatter's output, once it has been written once.

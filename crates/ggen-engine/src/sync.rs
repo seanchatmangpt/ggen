@@ -43,8 +43,8 @@ use crate::{
     config::GgenConfig,
     error::{AppError, Result},
     graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
-    template::{build_tera, sparql_to_value, Frontmatter, Template},
-    write::{plan_write, WriteOutcome},
+    template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
+    write::{plan_write, preflight_structured_matchers, validate_match_specs, WriteOutcome},
 };
 
 /// Which [`GraphEngine`] a sync runs on.
@@ -1236,6 +1236,19 @@ fn render_optional_output_field(
         .transpose()
 }
 
+/// Render only the pattern inside a literal or structured match declaration,
+/// preserving its matcher/scope/occurrence defaults and explicit overrides.
+fn render_optional_match_field(
+    tera: &mut tera::Tera, value: Option<&MatchSpec>, ctx: &tera::Context, tpl_path: &Path,
+) -> Result<Option<MatchSpec>> {
+    value
+        .map(|spec| {
+            render_str(tera, spec.pattern(), ctx, tpl_path)
+                .map(|pattern| spec.with_pattern(pattern))
+        })
+        .transpose()
+}
+
 /// Compile the output-phase frontmatter for one materialized projection.
 ///
 /// Resolve/enrich/extract fields remain static because they determine the
@@ -1249,10 +1262,9 @@ fn render_output_frontmatter(
 ) -> Result<Frontmatter> {
     let mut rendered = source.clone();
     rendered.to = rendered_to.to_string();
-    rendered.before = render_optional_output_field(tera, source.before.as_deref(), ctx, tpl_path)?;
-    rendered.after = render_optional_output_field(tera, source.after.as_deref(), ctx, tpl_path)?;
-    rendered.skip_if =
-        render_optional_output_field(tera, source.skip_if.as_deref(), ctx, tpl_path)?;
+    rendered.before = render_optional_match_field(tera, source.before.as_ref(), ctx, tpl_path)?;
+    rendered.after = render_optional_match_field(tera, source.after.as_ref(), ctx, tpl_path)?;
+    rendered.skip_if = render_optional_match_field(tera, source.skip_if.as_ref(), ctx, tpl_path)?;
     rendered.sh_before =
         render_optional_output_field(tera, source.sh_before.as_deref(), ctx, tpl_path)?;
     rendered.sh_after =
@@ -1312,6 +1324,12 @@ fn apply(
         skipped.push((PathBuf::from(rel_to), reason));
         return Ok(());
     }
+    // Matcher syntax/configuration is admitted before any shell hook or
+    // filesystem actuation. Structured cardinality is then observed against
+    // the actual host file.
+    validate_match_specs(frontmatter)?;
+    let mut match_evidence = preflight_structured_matchers(root, rel_to, frontmatter)?;
+
     if opts.dry_run {
         // Dry run: classify without touching the filesystem or running
         // sh_before/sh_after (a dry run must have zero side effects).
@@ -1325,11 +1343,19 @@ fn apply(
                 skipped.push((PathBuf::from(rel_to), reason));
             }
             Ok(_) => {
-                decisions.insert(rel_to.to_string(), "planned: write (dry-run)".to_string());
+                let suffix = match_evidence_suffix(&match_evidence);
+                decisions.insert(
+                    rel_to.to_string(),
+                    format!("planned: write (dry-run){suffix}"),
+                );
                 written.push(PathBuf::from(rel_to));
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                decisions.insert(rel_to.to_string(), "planned: write (dry-run)".to_string());
+                let suffix = match_evidence_suffix(&match_evidence);
+                decisions.insert(
+                    rel_to.to_string(),
+                    format!("planned: write (dry-run){suffix}"),
+                );
                 written.push(PathBuf::from(rel_to));
             }
             Err(e) => {
@@ -1353,29 +1379,45 @@ fn apply(
 
     if let Some(cmd) = frontmatter.sh_before.as_deref() {
         run_shell_hook(root, cmd, "sh_before")?;
+        // Bind the post-hook host state used by the write decision. A hook
+        // that changes selector cardinality cannot silently reuse stale
+        // preflight evidence.
+        match_evidence = preflight_structured_matchers(root, rel_to, frontmatter)?;
     }
 
+    let evidence_suffix = match_evidence_suffix(&match_evidence);
     match plan_write(root, rel_to, body, frontmatter)? {
         WriteOutcome::Written => {
-            decisions.insert(rel_to.to_string(), "written".to_string());
+            decisions.insert(rel_to.to_string(), format!("written{evidence_suffix}"));
             written.push(PathBuf::from(rel_to));
             if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
         WriteOutcome::Injected => {
-            decisions.insert(rel_to.to_string(), "injected".to_string());
+            decisions.insert(rel_to.to_string(), format!("injected{evidence_suffix}"));
             written.push(PathBuf::from(rel_to));
             if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
         WriteOutcome::Skipped(reason) => {
-            decisions.insert(rel_to.to_string(), format!("skipped: {reason}"));
+            decisions.insert(
+                rel_to.to_string(),
+                format!("skipped: {reason}{evidence_suffix}"),
+            );
             skipped.push((PathBuf::from(rel_to), reason));
         }
     }
     Ok(())
+}
+
+fn match_evidence_suffix(evidence: &[String]) -> String {
+    if evidence.is_empty() {
+        String::new()
+    } else {
+        format!("; match={}", evidence.join(" | "))
+    }
 }
 
 /// Refuse `cmd` against the shell-command denylist, then run it with `root`

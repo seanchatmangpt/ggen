@@ -64,3 +64,38 @@ admit → derive → project → compose → actuate → verify → receipt → 
 ```
 
 Frontmatter maximalism does not mean every property executes in every phase. It means every property is used to its maximum lawful consequence under explicit phase, ownership, authority, and receipt boundaries.
+
+
+## Typed host-content matchers
+
+`before`, `after`, and `skip_if` accept either the historical bare string or a
+structured matcher.
+
+```yaml
+before:
+  pattern: '^\s*// GGEN:SLOT:{{ row.capability }}:END\s*$'
+  matcher: regex
+  scope: line
+  occurrence: unique
+```
+
+Every optional matcher property has a deterministic default:
+
+| Property | Default | Meaning |
+|---|---|---|
+| `matcher` | `contains` | Literal substring matching |
+| `scope` | `auto` | `line` for `before`/`after`; `file` for `skip_if` |
+| `occurrence` | `first` | Select the first admissible match |
+| `index` | `1` | One-based occurrence used by `nth` |
+| `case_sensitive` | `true` | Preserve byte-sensitive host conventions |
+| `trim` | `false` | Match the original candidate boundaries |
+
+Bare strings remain exactly backward compatible. Structured `unique` refuses
+multiple matches. Invalid or oversized regex patterns refuse before shell
+hooks. Regex execution uses Rust's linear-time `regex` engine and a bounded
+compiled-program size; zero-width file matches are refused.
+
+Matcher patterns are output-phase Tera projections. `determinism: true`
+therefore includes the rendered pattern and every matcher option. Structured
+match count and selected line range are appended to the sync decision so the
+receipt records the host-structure observation that authorized composition.

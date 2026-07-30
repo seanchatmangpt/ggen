@@ -26,9 +26,13 @@
 
 use std::path::{Component, Path, PathBuf};
 
+use regex::{Regex, RegexBuilder};
+
 use crate::{
     error::{AppError, Result},
-    template::{FreezePolicy, Frontmatter},
+    template::{
+        FreezePolicy, Frontmatter, MatchKind, MatchOccurrence, MatchRule, MatchScope, MatchSpec,
+    },
 };
 
 /// Hard cap on one rendered template's output size. A template producing
@@ -36,6 +40,11 @@ use crate::{
 /// or a runaway `{% for %}` — refusing loudly beats writing a
 /// multi-hundred-MB file no editor or `git diff` can handle.
 pub const MAX_OUTPUT_BYTES: usize = 10 * 1024 * 1024;
+
+/// Hard cap on a rendered host-content pattern. Rust's regex engine is
+/// linear-time, but bounded pattern size still prevents pathological compile
+/// memory and keeps frontmatter reviewable.
+pub const MAX_MATCH_PATTERN_BYTES: usize = 64 * 1024;
 
 /// Outcome of a planned-and-applied write.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,10 +74,14 @@ pub enum WriteOutcome {
 ///   not set (refuse silent clobber).
 /// - `[FM-WRITE-006]` `freeze_policy: checksum` set without `freeze_slots_dir`.
 /// - `[FM-WRITE-007]` rendered body exceeds [`MAX_OUTPUT_BYTES`].
+/// - `[FM-WRITE-008]` invalid or oversized matcher, zero-width file regex,
+///   or unsatisfied structured cardinality.
 /// - I/O errors from reading/writing the filesystem.
 pub fn plan_write(
     root: &Path, rel_to: &str, rendered_body: &str, frontmatter: &Frontmatter,
 ) -> Result<WriteOutcome> {
+    validate_match_specs(frontmatter)?;
+
     if rendered_body.len() > MAX_OUTPUT_BYTES {
         return Err(AppError::fm_write(
             7,
@@ -95,11 +108,19 @@ pub fn plan_write(
         )));
     }
 
-    if let (Some(needle), Some(content)) = (frontmatter.skip_if.as_deref(), existing.as_deref()) {
-        if !needle.is_empty() && content.contains(needle) {
-            return Ok(WriteOutcome::Skipped(format!(
-                "skip_if: existing file already contains {needle:?}"
-            )));
+    if let (Some(selector), Some(content)) = (frontmatter.skip_if.as_ref(), existing.as_deref()) {
+        // Historical empty `skip_if: ""` was a no-op; preserve that exact
+        // compatibility behavior while structured empty patterns refuse.
+        if !matches!(selector, MatchSpec::Literal(needle) if needle.is_empty()) {
+            let observation = observe_match(content, selector, MatchUse::SkipIf)?;
+            if observation.selected.is_some() {
+                let reason = if let MatchSpec::Literal(needle) = selector {
+                    format!("skip_if: existing file already contains {needle:?}")
+                } else {
+                    format!("skip_if: {}", observation.describe())
+                };
+                return Ok(WriteOutcome::Skipped(reason));
+            }
         }
     }
 
@@ -335,17 +356,399 @@ fn ensure_parent(target: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Compute the injected file content: `before` marker / `after` marker /
-/// `at_line` (1-based) / else append. Missing marker or out-of-range line
-/// fails closed.
+#[derive(Debug, Clone, Copy)]
+enum MatchUse {
+    Before,
+    After,
+    SkipIf,
+}
+
+impl MatchUse {
+    const fn label(self) -> &'static str {
+        match self {
+            Self::Before => "before",
+            Self::After => "after",
+            Self::SkipIf => "skip_if",
+        }
+    }
+
+    const fn default_scope(self) -> MatchScope {
+        match self {
+            Self::Before | Self::After => MatchScope::Line,
+            Self::SkipIf => MatchScope::File,
+        }
+    }
+
+    const fn requires_match(self) -> bool {
+        matches!(self, Self::Before | Self::After)
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct MatchSpan {
+    start: usize,
+    end: usize,
+    start_line: usize,
+    end_line: usize,
+}
+
+#[derive(Debug)]
+struct MatchObservation {
+    matcher: MatchKind,
+    scope: MatchScope,
+    occurrence: MatchOccurrence,
+    count: usize,
+    selected: Option<MatchSpan>,
+}
+
+impl MatchObservation {
+    fn describe(&self) -> String {
+        let selected = self.selected.map_or_else(
+            || "none".to_string(),
+            |span| {
+                if self.scope == MatchScope::Line || span.start_line == span.end_line {
+                    format!("line {}", span.start_line + 1)
+                } else {
+                    format!("lines {}-{}", span.start_line + 1, span.end_line + 1)
+                }
+            },
+        );
+        format!(
+            "matcher={:?}, scope={:?}, occurrence={:?}, matches={}, selected={selected}",
+            self.matcher, self.scope, self.occurrence, self.count
+        )
+        .to_lowercase()
+    }
+}
+
+#[derive(Debug)]
+enum CompiledMatcher<'a> {
+    Contains(&'a str),
+    Exact(&'a str),
+    Regex(Regex),
+}
+
+impl CompiledMatcher<'_> {
+    fn is_match(&self, candidate: &str) -> bool {
+        match self {
+            Self::Contains(pattern) => candidate.contains(pattern),
+            Self::Exact(pattern) => candidate == *pattern,
+            Self::Regex(regex) => regex.is_match(candidate),
+        }
+    }
+
+    fn find_spans(&self, candidate: &str) -> Vec<(usize, usize)> {
+        match self {
+            Self::Contains(pattern) => candidate
+                .match_indices(*pattern)
+                .map(|(start, value)| (start, start + value.len()))
+                .collect(),
+            Self::Exact(pattern) if candidate == *pattern => vec![(0, candidate.len())],
+            Self::Exact(_) => Vec::new(),
+            Self::Regex(regex) => regex
+                .find_iter(candidate)
+                .map(|m| (m.start(), m.end()))
+                .collect(),
+        }
+    }
+}
+
+struct ResolvedMatch<'a> {
+    pattern: &'a str,
+    matcher: MatchKind,
+    scope: MatchScope,
+    occurrence: MatchOccurrence,
+    index: usize,
+    case_sensitive: bool,
+    trim: bool,
+}
+
+fn resolve_match<'a>(spec: &'a MatchSpec, use_: MatchUse) -> Result<ResolvedMatch<'a>> {
+    let resolved = match spec {
+        MatchSpec::Literal(pattern) => ResolvedMatch {
+            pattern,
+            matcher: MatchKind::Contains,
+            scope: use_.default_scope(),
+            occurrence: MatchOccurrence::First,
+            index: 1,
+            case_sensitive: true,
+            trim: false,
+        },
+        MatchSpec::Structured(MatchRule {
+            pattern,
+            matcher,
+            scope,
+            occurrence,
+            index,
+            case_sensitive,
+            trim,
+        }) => ResolvedMatch {
+            pattern,
+            matcher: *matcher,
+            scope: if *scope == MatchScope::Auto {
+                use_.default_scope()
+            } else {
+                *scope
+            },
+            occurrence: *occurrence,
+            index: *index,
+            case_sensitive: *case_sensitive,
+            trim: *trim,
+        },
+    };
+
+    if resolved.pattern.len() > MAX_MATCH_PATTERN_BYTES {
+        return Err(AppError::fm_write(
+            8,
+            format!(
+                "{} pattern is {} bytes, over the {MAX_MATCH_PATTERN_BYTES}-byte cap",
+                use_.label(),
+                resolved.pattern.len()
+            ),
+        ));
+    }
+    if matches!(spec, MatchSpec::Structured(_)) && resolved.pattern.is_empty() {
+        return Err(AppError::fm_write(
+            8,
+            format!("{} structured pattern must not be empty", use_.label()),
+        ));
+    }
+    if resolved.index == 0 {
+        return Err(AppError::fm_write(
+            8,
+            format!(
+                "{} matcher index is one-based and must be at least 1",
+                use_.label()
+            ),
+        ));
+    }
+    Ok(resolved)
+}
+
+fn compile_matcher<'a>(resolved: &ResolvedMatch<'a>, label: &str) -> Result<CompiledMatcher<'a>> {
+    if resolved.case_sensitive {
+        match resolved.matcher {
+            MatchKind::Contains => return Ok(CompiledMatcher::Contains(resolved.pattern)),
+            MatchKind::Exact => return Ok(CompiledMatcher::Exact(resolved.pattern)),
+            MatchKind::Regex => {}
+        }
+    }
+
+    let expression = match resolved.matcher {
+        MatchKind::Contains => regex::escape(resolved.pattern),
+        MatchKind::Exact => format!(r"\A{}\z", regex::escape(resolved.pattern)),
+        MatchKind::Regex => resolved.pattern.to_string(),
+    };
+
+    let regex = RegexBuilder::new(&expression)
+        .case_insensitive(!resolved.case_sensitive)
+        .size_limit(1024 * 1024)
+        .build()
+        .map_err(|error| {
+            AppError::fm_write(
+                8,
+                format!(
+                    "{label} matcher rejected pattern {:?}: {error}. \
+                     Remediation: fix the pattern or use matcher: contains/exact.",
+                    resolved.pattern
+                ),
+            )
+        })?;
+    Ok(CompiledMatcher::Regex(regex))
+}
+
+fn candidate_view(candidate: &str, trim: bool) -> (&str, usize) {
+    if !trim {
+        return (candidate, 0);
+    }
+    let trimmed_start = candidate.trim_start();
+    let start = candidate.len() - trimmed_start.len();
+    let trimmed = trimmed_start.trim_end();
+    (trimmed, start)
+}
+
+fn line_for_offset(content: &str, offset: usize) -> usize {
+    content
+        .as_bytes()
+        .iter()
+        .take(offset.min(content.len()))
+        .filter(|byte| **byte == b'\n')
+        .count()
+}
+
+fn select_span(
+    spans: &[MatchSpan], resolved: &ResolvedMatch<'_>, use_: MatchUse,
+) -> Result<Option<MatchSpan>> {
+    let selected = match resolved.occurrence {
+        MatchOccurrence::First => spans.first().copied(),
+        MatchOccurrence::Last => spans.last().copied(),
+        MatchOccurrence::Unique => match spans {
+            [] => None,
+            [only] => Some(*only),
+            _ => {
+                return Err(AppError::fm_write(
+                    8,
+                    format!(
+                        "{} occurrence=unique expected exactly one match, observed {}",
+                        use_.label(),
+                        spans.len()
+                    ),
+                ));
+            }
+        },
+        MatchOccurrence::Nth => spans.get(resolved.index - 1).copied(),
+    };
+
+    if selected.is_none() && use_.requires_match() {
+        return Err(AppError::fm_write(
+            4,
+            format!(
+                "inject `{}` selector found no admissible match (observed {}, occurrence={:?}, index={}). \
+                 Remediation: fix the pattern/cardinality or add the intended host slot.",
+                use_.label(),
+                spans.len(),
+                resolved.occurrence,
+                resolved.index
+            ),
+        ));
+    }
+    Ok(selected)
+}
+
+fn observe_match(content: &str, spec: &MatchSpec, use_: MatchUse) -> Result<MatchObservation> {
+    let resolved = resolve_match(spec, use_)?;
+    let compiled = compile_matcher(&resolved, use_.label())?;
+    let mut spans = Vec::new();
+
+    match resolved.scope {
+        MatchScope::Auto => unreachable!("auto scope must resolve before matching"),
+        MatchScope::Line => {
+            let mut offset = 0usize;
+            for (line_index, segment) in content.split_inclusive('\n').enumerate() {
+                let line = segment.strip_suffix('\n').unwrap_or(segment);
+                let line = line.strip_suffix('\r').unwrap_or(line);
+                let (candidate, _) = candidate_view(line, resolved.trim);
+                if compiled.is_match(candidate) {
+                    spans.push(MatchSpan {
+                        start: offset,
+                        end: offset + line.len(),
+                        start_line: line_index,
+                        end_line: line_index,
+                    });
+                }
+                offset += segment.len();
+            }
+            if content.is_empty() {
+                let (candidate, _) = candidate_view(content, resolved.trim);
+                if compiled.is_match(candidate) {
+                    spans.push(MatchSpan {
+                        start: 0,
+                        end: 0,
+                        start_line: 0,
+                        end_line: 0,
+                    });
+                }
+            }
+        }
+        MatchScope::File => {
+            let (candidate, base_offset) = candidate_view(content, resolved.trim);
+            for (relative_start, relative_end) in compiled.find_spans(candidate) {
+                let start = base_offset + relative_start;
+                let end = base_offset + relative_end;
+                if start == end {
+                    return Err(AppError::fm_write(
+                        8,
+                        format!(
+                            "{} matcher produced an empty span at byte {start}; \
+                             zero-width structural matches are refused",
+                            use_.label()
+                        ),
+                    ));
+                }
+                let end_probe = end.saturating_sub(1);
+                spans.push(MatchSpan {
+                    start,
+                    end,
+                    start_line: line_for_offset(content, start),
+                    end_line: line_for_offset(content, end_probe),
+                });
+            }
+        }
+    }
+
+    let selected = select_span(&spans, &resolved, use_)?;
+    Ok(MatchObservation {
+        matcher: resolved.matcher,
+        scope: resolved.scope,
+        occurrence: resolved.occurrence,
+        count: spans.len(),
+        selected,
+    })
+}
+
+/// Validate matcher syntax/configuration without reading or changing the host
+/// file. Called before shell hooks so invalid regex never receives actuation.
+pub(crate) fn validate_match_specs(frontmatter: &Frontmatter) -> Result<()> {
+    for (spec, use_) in [
+        (frontmatter.before.as_ref(), MatchUse::Before),
+        (frontmatter.after.as_ref(), MatchUse::After),
+        (frontmatter.skip_if.as_ref(), MatchUse::SkipIf),
+    ] {
+        if let Some(spec) = spec {
+            let resolved = resolve_match(spec, use_)?;
+            let _ = compile_matcher(&resolved, use_.label())?;
+        }
+    }
+    Ok(())
+}
+
+/// Observe structured selectors against the current host state before shell or
+/// write actuation. Literal declarations retain their historical behavior and
+/// decision text; structured declarations contribute evidence to the sync
+/// decision/receipt.
+pub(crate) fn preflight_structured_matchers(
+    root: &Path, rel_to: &str, frontmatter: &Frontmatter,
+) -> Result<Vec<String>> {
+    validate_match_specs(frontmatter)?;
+    let target = resolve_target(root, rel_to)?;
+    let content = match std::fs::read_to_string(&target) {
+        Ok(content) => content,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => return Err(error.into()),
+    };
+
+    let mut evidence = Vec::new();
+    for (spec, use_) in [
+        (frontmatter.before.as_ref(), MatchUse::Before),
+        (frontmatter.after.as_ref(), MatchUse::After),
+        (frontmatter.skip_if.as_ref(), MatchUse::SkipIf),
+    ] {
+        if let Some(spec @ MatchSpec::Structured(_)) = spec {
+            let observation = observe_match(&content, spec, use_)?;
+            evidence.push(format!("{}: {}", use_.label(), observation.describe()));
+        }
+    }
+    Ok(evidence)
+}
+
+/// Compute the injected file content: `before` selector / `after` selector /
+/// `at_line` (1-based) / else append. Missing or ambiguous selector and
+/// out-of-range line fail closed.
 fn inject_into(existing: &str, body: &str, fm: &Frontmatter) -> Result<String> {
     let mut lines: Vec<&str> = existing.lines().collect();
     let body_lines: Vec<&str> = body.lines().collect();
 
-    let insert_at: usize = if let Some(marker) = fm.before.as_deref() {
-        find_marker_line(&lines, marker, "before")?
-    } else if let Some(marker) = fm.after.as_deref() {
-        find_marker_line(&lines, marker, "after")? + 1
+    let insert_at: usize = if let Some(selector) = fm.before.as_ref() {
+        observe_match(existing, selector, MatchUse::Before)?
+            .selected
+            .expect("required before match was checked")
+            .start_line
+    } else if let Some(selector) = fm.after.as_ref() {
+        observe_match(existing, selector, MatchUse::After)?
+            .selected
+            .expect("required after match was checked")
+            .end_line
+            + 1
     } else if let Some(at) = fm.at_line {
         if at == 0 || at > lines.len() + 1 {
             return Err(AppError::fm_write(
@@ -368,22 +771,6 @@ fn inject_into(existing: &str, body: &str, fm: &Frontmatter) -> Result<String> {
         out.push('\n');
     }
     Ok(out)
-}
-
-/// Index of the first line containing `marker`, or a fail-closed error.
-fn find_marker_line(lines: &[&str], marker: &str, kind: &str) -> Result<usize> {
-    lines
-        .iter()
-        .position(|l| l.contains(marker))
-        .ok_or_else(|| {
-            AppError::fm_write(
-                4,
-                format!(
-                    "inject `{kind}:` marker {marker:?} not found in target file. \
-                     Remediation: add the marker line or fix the frontmatter."
-                ),
-            )
-        })
 }
 
 #[cfg(test)]
@@ -483,8 +870,8 @@ mod tests {
         std::fs::write(dir.path().join("mod.rs"), "// modules\npub mod a;\n").expect("seed");
         let mut f = fm("mod.rs");
         f.inject = true;
-        f.after = Some("// modules".to_string());
-        f.skip_if = Some("pub mod b;".to_string());
+        f.after = Some(MatchSpec::from("// modules"));
+        f.skip_if = Some(MatchSpec::from("pub mod b;"));
 
         let out = plan_write(dir.path(), "mod.rs", "pub mod b;", &f).expect("inject");
         assert_eq!(out, WriteOutcome::Injected);
@@ -503,12 +890,148 @@ mod tests {
     }
 
     #[test]
+    fn structured_defaults_are_contains_auto_first_case_sensitive_untrimmed() {
+        let yaml = r#"
+to: x.rs
+before:
+  pattern: "// SLOT"
+"#;
+        let frontmatter: Frontmatter = serde_yaml::from_str(yaml).expect("frontmatter");
+        let Some(MatchSpec::Structured(rule)) = frontmatter.before else {
+            panic!("structured match rule");
+        };
+        assert_eq!(rule.matcher, MatchKind::Contains);
+        assert_eq!(rule.scope, MatchScope::Auto);
+        assert_eq!(rule.occurrence, MatchOccurrence::First);
+        assert_eq!(rule.index, 1);
+        assert!(rule.case_sensitive);
+        assert!(!rule.trim);
+    }
+
+    #[test]
+    fn regex_unique_injects_at_the_only_matching_line() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(
+            dir.path().join("mod.rs"),
+            "header\n  // GGEN:SLOT:COMMANDS  \nfooter\n",
+        )
+        .expect("seed");
+        let mut f = fm("mod.rs");
+        f.inject = true;
+        f.before = Some(MatchSpec::Structured(MatchRule {
+            pattern: r"^\s*// GGEN:SLOT:COMMANDS\s*$".to_string(),
+            matcher: MatchKind::Regex,
+            scope: MatchScope::Line,
+            occurrence: MatchOccurrence::Unique,
+            index: 1,
+            case_sensitive: true,
+            trim: false,
+        }));
+        let out = plan_write(dir.path(), "mod.rs", "generated", &f).expect("inject");
+        assert_eq!(out, WriteOutcome::Injected);
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("mod.rs")).expect("read"),
+            "header\ngenerated\n  // GGEN:SLOT:COMMANDS  \nfooter\n"
+        );
+    }
+
+    #[test]
+    fn unique_refuses_duplicate_matches() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("mod.rs"), "// SLOT\nbody\n// SLOT\n").expect("seed");
+        let mut f = fm("mod.rs");
+        f.inject = true;
+        f.before = Some(MatchSpec::Structured(MatchRule {
+            pattern: "// SLOT".to_string(),
+            matcher: MatchKind::Exact,
+            scope: MatchScope::Line,
+            occurrence: MatchOccurrence::Unique,
+            index: 1,
+            case_sensitive: true,
+            trim: false,
+        }));
+        let error = plan_write(dir.path(), "mod.rs", "generated", &f)
+            .expect_err("duplicate unique selector must refuse");
+        assert!(error.to_string().contains("FM-WRITE-008"), "{error}");
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("mod.rs")).expect("read"),
+            "// SLOT\nbody\n// SLOT\n"
+        );
+    }
+
+    #[test]
+    fn nth_uses_one_based_index() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("mod.rs"), "// SLOT\nbody\n// SLOT\n").expect("seed");
+        let mut f = fm("mod.rs");
+        f.inject = true;
+        f.after = Some(MatchSpec::Structured(MatchRule {
+            pattern: "// SLOT".to_string(),
+            matcher: MatchKind::Exact,
+            scope: MatchScope::Line,
+            occurrence: MatchOccurrence::Nth,
+            index: 2,
+            case_sensitive: true,
+            trim: false,
+        }));
+        plan_write(dir.path(), "mod.rs", "generated", &f).expect("inject");
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("mod.rs")).expect("read"),
+            "// SLOT\nbody\n// SLOT\ngenerated\n"
+        );
+    }
+
+    #[test]
+    fn regex_skip_if_defaults_to_file_scope() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("mod.rs"), "alpha\npub mod beta;\nomega\n").expect("seed");
+        let mut f = fm("mod.rs");
+        f.skip_if = Some(MatchSpec::Structured(MatchRule {
+            pattern: r"(?m)^pub mod beta;$".to_string(),
+            matcher: MatchKind::Regex,
+            scope: MatchScope::Auto,
+            occurrence: MatchOccurrence::First,
+            index: 1,
+            case_sensitive: true,
+            trim: false,
+        }));
+        let out = plan_write(dir.path(), "mod.rs", "replacement", &f).expect("plan");
+        assert!(
+            matches!(out, WriteOutcome::Skipped(ref reason) if reason.contains("matcher=regex"))
+        );
+    }
+
+    #[test]
+    fn invalid_regex_refuses_without_mutation() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("mod.rs"), "// SLOT\n").expect("seed");
+        let mut f = fm("mod.rs");
+        f.inject = true;
+        f.before = Some(MatchSpec::Structured(MatchRule {
+            pattern: "(".to_string(),
+            matcher: MatchKind::Regex,
+            scope: MatchScope::Line,
+            occurrence: MatchOccurrence::First,
+            index: 1,
+            case_sensitive: true,
+            trim: false,
+        }));
+        let error = plan_write(dir.path(), "mod.rs", "generated", &f)
+            .expect_err("invalid regex must refuse");
+        assert!(error.to_string().contains("FM-WRITE-008"), "{error}");
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("mod.rs")).expect("read"),
+            "// SLOT\n"
+        );
+    }
+
+    #[test]
     fn inject_before_marker() {
         let dir = TempDir::new().expect("tempdir");
         std::fs::write(dir.path().join("f.txt"), "one\ntwo\n").expect("seed");
         let mut f = fm("f.txt");
         f.inject = true;
-        f.before = Some("two".to_string());
+        f.before = Some(MatchSpec::from("two"));
         plan_write(dir.path(), "f.txt", "middle", &f).expect("inject");
         assert_eq!(
             std::fs::read_to_string(dir.path().join("f.txt")).expect("read"),
@@ -545,7 +1068,7 @@ mod tests {
         std::fs::write(dir.path().join("f.txt"), "one\n").expect("seed");
         let mut f = fm("f.txt");
         f.inject = true;
-        f.after = Some("// nowhere".to_string());
+        f.after = Some(MatchSpec::from("// nowhere"));
         let err = plan_write(dir.path(), "f.txt", "x", &f).expect_err("must refuse");
         assert!(err.to_string().contains("FM-WRITE-004"), "{err}");
     }
