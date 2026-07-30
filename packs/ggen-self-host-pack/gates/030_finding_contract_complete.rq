@@ -1,0 +1,15 @@
+# MESSAGE: GGEN_SELF_HOST_FINDING_INCOMPLETE -- every repository finding must be executable as an agent work package with explicit prohibitions and evidence
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+SELECT ?finding ?findingId ?missing WHERE {
+  ?finding a gsh:Finding .
+  OPTIONAL { ?finding gsh:findingId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?finding)) AS ?findingId)
+  VALUES ?required {
+    gsh:findingId gsh:category gsh:severity gsh:severityOrder gsh:summary
+    gsh:rationale gsh:remediation gsh:evidencePath gsh:mustDo gsh:mustNotDo
+    gsh:acceptanceCriterion gsh:verificationCommand gsh:status
+  }
+  FILTER NOT EXISTS { ?finding ?required ?value }
+  BIND(STR(?required) AS ?missing)
+}
+ORDER BY ?findingId ?missing
