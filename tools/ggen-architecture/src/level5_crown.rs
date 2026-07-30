@@ -358,10 +358,7 @@ struct CrownReceiptBody<'a> {
 
 impl LevelFiveCrownAssessment {
     /// Assess the exact Fortune 5 crown above a canonical profile assessment.
-    pub fn assess(
-        assessment: &Fortune5Assessment,
-        crown: &LevelFiveCrownProgram,
-    ) -> Result<Self> {
+    pub fn assess(assessment: &Fortune5Assessment, crown: &LevelFiveCrownProgram) -> Result<Self> {
         let taxonomy = TaxonomyProfileClosure::canonical();
         let mut findings = taxonomy.findings();
 
@@ -432,9 +429,7 @@ impl LevelFiveCrownAssessment {
                 &right.subject,
             ))
         });
-        let structurally_ready = findings
-            .iter()
-            .all(|item| item.severity < Severity::Error);
+        let structurally_ready = findings.iter().all(|item| item.severity < Severity::Error);
         let promotion_ready = structurally_ready && !assessment.synthetic;
         if assessment.synthetic {
             findings.push(finding(
@@ -495,11 +490,7 @@ impl LevelFiveCrownAssessment {
 }
 
 fn finding(
-    code: &str,
-    severity: Severity,
-    subject: &str,
-    message: &str,
-    remediation: &str,
+    code: &str, severity: Severity, subject: &str, message: &str, remediation: &str,
 ) -> CrownFinding {
     CrownFinding {
         code: code.to_string(),
@@ -581,8 +572,9 @@ mod tests {
 
     #[test]
     fn synthetic_level_five_proves_structure_but_not_promotion() {
-        let result = LevelFiveCrownAssessment::assess(&complete_assessment(true), &complete_crown())
-            .expect("crown assessment");
+        let result =
+            LevelFiveCrownAssessment::assess(&complete_assessment(true), &complete_crown())
+                .expect("crown assessment");
         assert!(result.structurally_ready, "{:?}", result.findings);
         assert!(!result.promotion_ready);
         assert_eq!(result.release_truths_alive, 6);

@@ -306,15 +306,15 @@ fn run() -> Result<u8, Box<dyn Error>> {
                         "release truths: {}/6",
                         crown_assessment.release_truths_alive
                     );
-                    println!(
-                        "SLA governors: {}/5",
-                        crown_assessment.sla_governors_alive
-                    );
+                    println!("SLA governors: {}/5", crown_assessment.sla_governors_alive);
                     println!(
                         "operational controls: {}/6",
                         crown_assessment.operational_controls_alive
                     );
-                    println!("structurally_ready: {}", crown_assessment.structurally_ready);
+                    println!(
+                        "structurally_ready: {}",
+                        crown_assessment.structurally_ready
+                    );
                     println!("promotion_ready: {}", crown_assessment.promotion_ready);
                     println!("synthetic: {}", crown_assessment.synthetic);
                     println!("receipt: {}", crown_assessment.receipt_hash);
