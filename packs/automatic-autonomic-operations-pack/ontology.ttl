@@ -1,0 +1,166 @@
+@prefix aa: <https://ggen.dev/ontology/automatic-autonomic#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#aa contract vocabulary
+aa:Capability a rdfs:Class .
+aa:ProofSurface a rdfs:Class .
+aa:requiresSurface a rdf:Property .
+aa:order a rdf:Property .
+aa:slug a rdf:Property .
+aa:rustVariant a rdf:Property .
+aa:category a rdf:Property .
+aa:outcome a rdf:Property .
+aa:implementation a rdf:Property .
+aa:verifier a rdf:Property .
+aa:falsifier a rdf:Property .
+
+aa:PositiveExecution a aa:ProofSurface ;
+  aa:slug "positive-execution" ;
+  aa:rustVariant "PositiveExecution" ;
+  aa:outcome "Observed execution crosses a real boundary." .
+
+aa:NegativeRefusal a aa:ProofSurface ;
+  aa:slug "negative-refusal" ;
+  aa:rustVariant "NegativeRefusal" ;
+  aa:outcome "A named falsifier is mechanically refused." .
+
+aa:ReceiptReplay a aa:ProofSurface ;
+  aa:slug "receipt-replay" ;
+  aa:rustVariant "ReceiptReplay" ;
+  aa:outcome "Evidence verifies and duplicate replay is refused." .
+
+aa:TriggerAdmission a aa:Capability ;
+  aa:order 1 ; aa:slug "trigger-admission" ; aa:rustVariant "TriggerAdmission" ;
+  rdfs:label "Trigger Admission" ; aa:category "Admission" ;
+  aa:outcome "Partial events are admitted into bounded observations." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Malformed or out-of-policy triggers are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:DeterministicRouting a aa:Capability ;
+  aa:order 2 ; aa:slug "deterministic-routing" ; aa:rustVariant "DeterministicRouting" ;
+  rdfs:label "Deterministic Routing" ; aa:category "Admission" ;
+  aa:outcome "Each admitted trigger maps to exactly one versioned route." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Missing and duplicate routes are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:IntentManufacturing a aa:Capability ;
+  aa:order 3 ; aa:slug "intent-manufacturing" ; aa:rustVariant "IntentManufacturing" ;
+  rdfs:label "Intent Manufacturing" ; aa:category "Manufacturing" ;
+  aa:outcome "Routes manufacture deterministic bounded intents." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Unsafe intent identities are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:ExactGrantDerivation a aa:Capability ;
+  aa:order 4 ; aa:slug "exact-grant-derivation" ; aa:rustVariant "ExactGrantDerivation" ;
+  rdfs:label "Exact Grant Derivation" ; aa:category "Governance" ;
+  aa:outcome "Authority is derived for exactly one action and payload." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Changed payloads and excluded dimensions are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:AtomicActuation a aa:Capability ;
+  aa:order 5 ; aa:slug "atomic-actuation" ; aa:rustVariant "AtomicActuation" ;
+  rdfs:label "Atomic Actuation" ; aa:category "Actuation" ;
+  aa:outcome "Artifact and receipt become visible atomically." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Duplicate action identities and partial transactions are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:ConsequenceVerification a aa:Capability ;
+  aa:order 6 ; aa:slug "consequence-verification" ; aa:rustVariant "ConsequenceVerification" ;
+  rdfs:label "Consequence Verification" ; aa:category "Actuation" ;
+  aa:outcome "Committed state is re-observed against an explicit postcondition." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Unverified consequences cannot be promoted." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:Idempotency a aa:Capability ;
+  aa:order 7 ; aa:slug "idempotency" ; aa:rustVariant "Idempotency" ;
+  rdfs:label "Idempotency" ; aa:category "Governance" ;
+  aa:outcome "One trigger identity cannot actuate twice." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Duplicate triggers and receipt replay are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:BoundedRetry a aa:Capability ;
+  aa:order 8 ; aa:slug "bounded-retry" ; aa:rustVariant "BoundedRetry" ;
+  rdfs:label "Bounded Retry" ; aa:category "Governance" ;
+  aa:outcome "Transient observations retry within deterministic bounds." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Zero or exhausted retry budgets are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:CircuitBreaking a aa:Capability ;
+  aa:order 9 ; aa:slug "circuit-breaking" ; aa:rustVariant "CircuitBreaking" ;
+  rdfs:label "Circuit Breaking" ; aa:category "Governance" ;
+  aa:outcome "Repeated failures open a fail-closed circuit." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Execution through an open circuit is refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:ErrorBudgetGating a aa:Capability ;
+  aa:order 10 ; aa:slug "error-budget-gating" ; aa:rustVariant "ErrorBudgetGating" ;
+  rdfs:label "Error Budget Gating" ; aa:category "Governance" ;
+  aa:outcome "Risky operations consume a bounded error budget." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Unfunded operations are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:AndonStopLine a aa:Capability ;
+  aa:order 11 ; aa:slug "andon-stop-line" ; aa:rustVariant "AndonStopLine" ;
+  rdfs:label "Andon Stop-the-Line" ; aa:category "Governance" ;
+  aa:outcome "Severity escalates monotonically and red stops execution." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "De-escalation and execution under red are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:LawfulRollback a aa:Capability ;
+  aa:order 12 ; aa:slug "lawful-rollback" ; aa:rustVariant "LawfulRollback" ;
+  rdfs:label "Lawful Rollback" ; aa:category "Actuation" ;
+  aa:outcome "Failed postconditions execute an admitted inverse when available." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Unreceipted or duplicate inverse actions are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:BoundedAutonomicRepair a aa:Capability ;
+  aa:order 13 ; aa:slug "bounded-autonomic-repair" ; aa:rustVariant "BoundedAutonomicRepair" ;
+  rdfs:label "Bounded Autonomic Repair" ; aa:category "Autonomics" ;
+  aa:outcome "MAPE-K repair converges within a hard cycle bound or refuses." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Zero and exhausted cycle budgets are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:CausalReceiptReplay a aa:Capability ;
+  aa:order 14 ; aa:slug "causal-receipt-replay" ; aa:rustVariant "CausalReceiptReplay" ;
+  rdfs:label "Causal Receipt Replay" ; aa:category "Evidence" ;
+  aa:outcome "Receipts form a tamper-evident predecessor chain." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Tampering and duplicate replay are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
+
+aa:KnowledgeHookEmission a aa:Capability ;
+  aa:order 15 ; aa:slug "knowledge-hook-emission" ; aa:rustVariant "KnowledgeHookEmission" ;
+  rdfs:label "Knowledge Hook Emission" ; aa:category "Evidence" ;
+  aa:outcome "Verified consequences emit non-actuating knowledge hooks." ;
+  aa:implementation "crates/ggen-graph/src/rwr/automatic.rs" ;
+  aa:verifier "cargo test -p ggen-graph --test automatic_autonomic_v26_7_31" ;
+  aa:falsifier "Malformed or causally detached hooks are refused." ;
+  aa:requiresSurface aa:PositiveExecution, aa:NegativeRefusal, aa:ReceiptReplay .
