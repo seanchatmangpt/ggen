@@ -30,7 +30,7 @@ concurrency:
 jobs:
   verify:
     name: Verify machinery and autonomic receipts
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 20
     env:
       CARGO_TERM_COLOR: always
