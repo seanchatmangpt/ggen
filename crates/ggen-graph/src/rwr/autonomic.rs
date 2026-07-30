@@ -58,11 +58,8 @@ pub struct AutonomicCycleReceipt {
 
 impl AutonomicCycleReceipt {
     fn issue(
-        initial_state_digest: [u8; 32],
-        final_state_digest: [u8; 32],
-        cycles: u8,
-        actuation_receipts: Vec<ActuationReceipt>,
-        converged: bool,
+        initial_state_digest: [u8; 32], final_state_digest: [u8; 32], cycles: u8,
+        actuation_receipts: Vec<ActuationReceipt>, converged: bool,
     ) -> Self {
         let receipt_digest = cycle_digest(
             &initial_state_digest,
@@ -105,11 +102,8 @@ impl AutonomicCycleReceipt {
 }
 
 fn cycle_digest(
-    initial_state_digest: &[u8; 32],
-    final_state_digest: &[u8; 32],
-    cycles: u8,
-    receipts: &[ActuationReceipt],
-    converged: bool,
+    initial_state_digest: &[u8; 32], final_state_digest: &[u8; 32], cycles: u8,
+    receipts: &[ActuationReceipt], converged: bool,
 ) -> [u8; 32] {
     let mut hasher = blake3::Hasher::new();
     put_len_prefixed(&mut hasher, b"rwr-autonomic-cycle/v1");
@@ -138,10 +132,7 @@ impl AutonomicController {
 
     /// Monitor, analyze, plan, execute, and re-monitor until converged or refused.
     pub fn converge(
-        &self,
-        cell: &mut ManagedCell,
-        machine: &FoundationMachine,
-        actuator: &FilesystemActuator,
+        &self, cell: &mut ManagedCell, machine: &FoundationMachine, actuator: &FilesystemActuator,
     ) -> Result<AutonomicCycleReceipt, AutonomicError> {
         if self.max_cycles == 0 {
             return Err(AutonomicError::ConvergenceBoundZero);
@@ -189,8 +180,7 @@ impl AutonomicController {
 }
 
 fn read_committed_state(
-    actuator: &FilesystemActuator,
-    action_id: &str,
+    actuator: &FilesystemActuator, action_id: &str,
 ) -> Result<Vec<u8>, AutonomicError> {
     let path = actuator
         .root()

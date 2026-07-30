@@ -202,9 +202,7 @@ impl Fortune5Capability {
             Self::AndonSignals => {
                 "Quality state escalates monotonically and red prevents further execution."
             }
-            Self::PokaYoke => {
-                "Out-of-range values and invalid lifecycle transitions are refused."
-            }
+            Self::PokaYoke => "Out-of-range values and invalid lifecycle transitions are refused.",
             Self::DistributedTracing => {
                 "Valid W3C trace context propagates while malformed context is refused."
             }
@@ -261,9 +259,7 @@ pub struct Fortune5CapabilityContract {
 
 /// Return one complete capability contract.
 #[must_use]
-pub const fn fortune5_contract(
-    capability: Fortune5Capability,
-) -> Fortune5CapabilityContract {
+pub const fn fortune5_contract(capability: Fortune5Capability) -> Fortune5CapabilityContract {
     Fortune5CapabilityContract {
         capability,
         category: capability.category(),
@@ -347,13 +343,8 @@ impl Fortune5EvidenceRecord {
     /// Construct a record from bytes observed at the boundary.
     #[must_use]
     pub fn observed(
-        id: impl Into<String>,
-        capability: Fortune5Capability,
-        surface: Fortune5ProofSurface,
-        outcome: Fortune5EvidenceOutcome,
-        source: impl Into<String>,
-        epoch: u64,
-        artifact: &[u8],
+        id: impl Into<String>, capability: Fortune5Capability, surface: Fortune5ProofSurface,
+        outcome: Fortune5EvidenceOutcome, source: impl Into<String>, epoch: u64, artifact: &[u8],
     ) -> Self {
         let id = id.into();
         let source = source.into();
@@ -446,11 +437,9 @@ impl Fortune5EvidenceLedger {
     }
 
     fn latest(
-        &self,
-        capability: Fortune5Capability,
+        &self, capability: Fortune5Capability,
     ) -> BTreeMap<Fortune5ProofSurface, &Fortune5EvidenceRecord> {
-        let mut latest: BTreeMap<Fortune5ProofSurface, &Fortune5EvidenceRecord> =
-            BTreeMap::new();
+        let mut latest: BTreeMap<Fortune5ProofSurface, &Fortune5EvidenceRecord> = BTreeMap::new();
         for record in self
             .records
             .iter()
@@ -486,10 +475,7 @@ impl Fortune5EvidenceLedger {
         }
     }
 
-    fn assess_capability(
-        &self,
-        capability: Fortune5Capability,
-    ) -> Fortune5CapabilityAssessment {
+    fn assess_capability(&self, capability: Fortune5Capability) -> Fortune5CapabilityAssessment {
         let latest = self.latest(capability);
         let mut satisfied_surfaces = Vec::new();
         let mut missing_surfaces = Vec::new();
@@ -548,9 +534,7 @@ pub struct Fortune5Assessment {
 impl Fortune5Assessment {
     /// All open capability/surface obligations.
     #[must_use]
-    pub fn open_obligations(
-        &self,
-    ) -> Vec<(Fortune5Capability, Fortune5ProofSurface)> {
+    pub fn open_obligations(&self) -> Vec<(Fortune5Capability, Fortune5ProofSurface)> {
         self.capabilities
             .iter()
             .flat_map(|assessment| {
@@ -735,8 +719,7 @@ impl Fortune5Reference {
     }
 
     fn run_capability(
-        &self,
-        capability: Fortune5Capability,
+        &self, capability: Fortune5Capability,
     ) -> Result<CapabilityProofBytes, Fortune5Error> {
         match capability {
             Fortune5Capability::InstallTruth => self.prove_install_truth(),
@@ -748,9 +731,7 @@ impl Fortune5Reference {
             Fortune5Capability::AtomicPackTaxonomy => self.prove_atomic_taxonomy(),
             Fortune5Capability::BundleProfileSystem => self.prove_bundle_profile(),
             Fortune5Capability::CliStartupSlo => self.prove_cli_startup_slo(),
-            Fortune5Capability::TemplateRenderingSlo => {
-                self.prove_template_rendering_slo()
-            }
+            Fortune5Capability::TemplateRenderingSlo => self.prove_template_rendering_slo(),
             Fortune5Capability::RdfQuerySlo => self.prove_rdf_query_slo(),
             Fortune5Capability::MemorySlo => self.prove_memory_slo(),
             Fortune5Capability::ConcurrencySlo => self.prove_concurrency_slo(),
@@ -866,11 +847,15 @@ impl Fortune5Reference {
             });
         }
         let conflicts = detect_conflicts(&incompatible);
-        let observed: BTreeSet<ConflictDimension> =
-            conflicts.iter().map(|conflict| conflict.dimension).collect();
+        let observed: BTreeSet<ConflictDimension> = conflicts
+            .iter()
+            .map(|conflict| conflict.dimension)
+            .collect();
         ensure(
             observed.len() == 10
-                && dimensions.iter().all(|dimension| observed.contains(dimension)),
+                && dimensions
+                    .iter()
+                    .all(|dimension| observed.contains(dimension)),
             "the ten conflict dimensions were not all exercised",
         )?;
         let report = serde_json::to_vec(&conflicts)
@@ -1033,14 +1018,8 @@ impl Fortune5Reference {
         )?;
 
         let cyclic = BundleRegistry::from_entries([
-            (
-                "a".to_string(),
-                vec![BundleItem::Bundle("b".to_string())],
-            ),
-            (
-                "b".to_string(),
-                vec![BundleItem::Bundle("a".to_string())],
-            ),
+            ("a".to_string(), vec![BundleItem::Bundle("b".to_string())]),
+            ("b".to_string(), vec![BundleItem::Bundle("a".to_string())]),
         ]);
         let refused = cyclic.expand("a").is_err();
         ensure(refused, "bundle cycle was admitted")?;
@@ -1058,19 +1037,29 @@ impl Fortune5Reference {
     }
 
     fn prove_cli_startup_slo(&self) -> Result<CapabilityProofBytes, Fortune5Error> {
-        prove_latency_slo("cli_startup", &[42, 48, 51, 55, 59, 63, 68, 74, 82, 91], 100, 140)
+        prove_latency_slo(
+            "cli_startup",
+            &[42, 48, 51, 55, 59, 63, 68, 74, 82, 91],
+            100,
+            140,
+        )
     }
 
-    fn prove_template_rendering_slo(
-        &self,
-    ) -> Result<CapabilityProofBytes, Fortune5Error> {
+    fn prove_template_rendering_slo(&self) -> Result<CapabilityProofBytes, Fortune5Error> {
         let typical = evaluate_upper_bound("template_typical", &[240, 310, 450, 620], 1_000)?;
         let large = evaluate_upper_bound("template_large", &[1_200, 2_300, 3_100, 4_200], 5_000)?;
-        ensure(typical.pass && large.pass, "valid template SLO observations failed")?;
+        ensure(
+            typical.pass && large.pass,
+            "valid template SLO observations failed",
+        )?;
         let refused = evaluate_upper_bound("template_large", &[5_500], 5_000)?.pass == false;
         ensure(refused, "large-template SLO breach was admitted")?;
         let receipt = sha256(
-            format!("{}:{}:{}:{}", typical.p90, typical.limit, large.p90, large.limit).as_bytes(),
+            format!(
+                "{}:{}:{}:{}",
+                typical.p90, typical.limit, large.p90, large.limit
+            )
+            .as_bytes(),
         );
         capability_bytes(
             &serde_json::json!({
@@ -1083,7 +1072,12 @@ impl Fortune5Reference {
     }
 
     fn prove_rdf_query_slo(&self) -> Result<CapabilityProofBytes, Fortune5Error> {
-        prove_latency_slo("rdf_query", &[21, 25, 29, 34, 40, 48, 55, 63, 75, 89], 100, 125)
+        prove_latency_slo(
+            "rdf_query",
+            &[21, 25, 29, 34, 40, 48, 55, 63, 75, 89],
+            100,
+            125,
+        )
     }
 
     fn prove_memory_slo(&self) -> Result<CapabilityProofBytes, Fortune5Error> {
@@ -1147,7 +1141,10 @@ impl Fortune5Reference {
             "Andon signal de-escalated without repair",
         )?;
         andon.raise(AndonSignal::Red);
-        ensure(!andon.may_proceed(), "red Andon signal did not stop the line")?;
+        ensure(
+            !andon.may_proceed(),
+            "red Andon signal did not stop the line",
+        )?;
         let refused = andon.require_proceed().is_err();
         ensure(refused, "red Andon controller admitted execution")?;
         let receipt = serde_json::to_vec(&andon)
@@ -1190,16 +1187,15 @@ impl Fortune5Reference {
     }
 
     fn prove_tracing(&self) -> Result<CapabilityProofBytes, Fortune5Error> {
-        let parent = TraceContext::parse(
-            "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-        )?;
+        let parent =
+            TraceContext::parse("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")?;
         let child = parent.child("compile");
         ensure(
             parent.trace_id == child.trace_id && parent.span_id != child.span_id,
             "trace context did not propagate causality",
         )?;
-        let refused = TraceContext::parse("00-00000000000000000000000000000000-0000000000000000-01")
-            .is_err();
+        let refused =
+            TraceContext::parse("00-00000000000000000000000000000000-0000000000000000-01").is_err();
         ensure(refused, "zero W3C trace context was admitted")?;
         let rendered = child.to_traceparent();
         let replayed = TraceContext::parse(&rendered)?;
@@ -1299,9 +1295,9 @@ impl Fortune5Reference {
 
     fn atomic_write(&self, relative: &Path, bytes: &[u8]) -> Result<(), Fortune5Error> {
         let destination = self.root.join(relative);
-        let parent = destination.parent().ok_or_else(|| {
-            Fortune5Error::Invariant("witness path has no parent".to_string())
-        })?;
+        let parent = destination
+            .parent()
+            .ok_or_else(|| Fortune5Error::Invariant("witness path has no parent".to_string()))?;
         fs::create_dir_all(parent)?;
         let staging = destination.with_extension("staged");
         fs::write(&staging, bytes)?;
@@ -1367,8 +1363,7 @@ struct DetectedConflict {
 }
 
 fn detect_conflicts(claims: &[ConflictClaim]) -> Vec<DetectedConflict> {
-    let mut groups: BTreeMap<(ConflictDimension, String), Vec<&ConflictClaim>> =
-        BTreeMap::new();
+    let mut groups: BTreeMap<(ConflictDimension, String), Vec<&ConflictClaim>> = BTreeMap::new();
     for claim in claims {
         groups
             .entry((claim.dimension, claim.key.clone()))
@@ -1377,10 +1372,8 @@ fn detect_conflicts(claims: &[ConflictClaim]) -> Vec<DetectedConflict> {
     }
     let mut conflicts = Vec::new();
     for ((dimension, key), group) in groups {
-        let values: BTreeSet<String> =
-            group.iter().map(|claim| claim.value.clone()).collect();
-        let packs: BTreeSet<String> =
-            group.iter().map(|claim| claim.pack.clone()).collect();
+        let values: BTreeSet<String> = group.iter().map(|claim| claim.value.clone()).collect();
+        let packs: BTreeSet<String> = group.iter().map(|claim| claim.pack.clone()).collect();
         if packs.len() > 1 && values.len() > 1 {
             conflicts.push(DetectedConflict {
                 dimension,
@@ -1427,10 +1420,7 @@ struct PackTrustContext {
     runtime: String,
 }
 
-fn enforce_trust(
-    profile: &TrustProfile,
-    context: &PackTrustContext,
-) -> Result<(), Fortune5Error> {
+fn enforce_trust(profile: &TrustProfile, context: &PackTrustContext) -> Result<(), Fortune5Error> {
     ensure(
         context.tier >= profile.minimum_tier,
         "pack trust tier is below profile minimum",
@@ -1450,13 +1440,11 @@ fn enforce_trust(
 }
 
 fn verify_signed_payload(
-    payload: &[u8],
-    signature: &Signature,
-    verifying_key: &VerifyingKey,
+    payload: &[u8], signature: &Signature, verifying_key: &VerifyingKey,
 ) -> Result<(), Fortune5Error> {
-    verifying_key
-        .verify(payload, signature)
-        .map_err(|error| Fortune5Error::Invariant(format!("signature verification failed: {error}")))
+    verifying_key.verify(payload, signature).map_err(|error| {
+        Fortune5Error::Invariant(format!("signature verification failed: {error}"))
+    })
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -1596,8 +1584,7 @@ impl AtomicPackCategory {
 
 fn validate_taxonomy(categories: &[AtomicPackCategory]) -> Result<(), Fortune5Error> {
     let observed: BTreeSet<AtomicPackCategory> = categories.iter().copied().collect();
-    let required: BTreeSet<AtomicPackCategory> =
-        AtomicPackCategory::all().into_iter().collect();
+    let required: BTreeSet<AtomicPackCategory> = AtomicPackCategory::all().into_iter().collect();
     ensure(
         categories.len() == required.len() && observed == required,
         "atomic pack taxonomy must contain each of nine categories exactly once",
@@ -1639,19 +1626,17 @@ impl BundleRegistry {
     }
 
     fn expand_into(
-        &self,
-        name: &str,
-        visiting: &mut BTreeSet<String>,
-        packs: &mut BTreeSet<String>,
+        &self, name: &str, visiting: &mut BTreeSet<String>, packs: &mut BTreeSet<String>,
     ) -> Result<(), Fortune5Error> {
         if !visiting.insert(name.to_string()) {
             return Err(Fortune5Error::Invariant(format!(
                 "bundle cycle refused at {name}"
             )));
         }
-        let items = self.entries.get(name).ok_or_else(|| {
-            Fortune5Error::Invariant(format!("unknown bundle refused: {name}"))
-        })?;
+        let items = self
+            .entries
+            .get(name)
+            .ok_or_else(|| Fortune5Error::Invariant(format!("unknown bundle refused: {name}")))?;
         for item in items {
             match item {
                 BundleItem::Pack(pack) => {
@@ -1675,9 +1660,7 @@ struct SloObservation {
 }
 
 fn evaluate_upper_bound(
-    name: &str,
-    values: &[u64],
-    limit: u64,
+    name: &str, values: &[u64], limit: u64,
 ) -> Result<SloObservation, Fortune5Error> {
     ensure(!values.is_empty(), &format!("{name} requires observations"))?;
     ensure(limit > 0, &format!("{name} requires a positive limit"))?;
@@ -1690,18 +1673,14 @@ fn evaluate_upper_bound(
 }
 
 fn prove_latency_slo(
-    name: &str,
-    passing_values: &[u64],
-    limit: u64,
-    failing_value: u64,
+    name: &str, passing_values: &[u64], limit: u64, failing_value: u64,
 ) -> Result<CapabilityProofBytes, Fortune5Error> {
     let admitted = evaluate_upper_bound(name, passing_values, limit)?;
     ensure(admitted.pass, "valid latency SLO observations failed")?;
     let refused = !evaluate_upper_bound(name, &[failing_value], limit)?.pass;
     ensure(refused, "latency SLO breach was admitted")?;
-    let receipt = sha256(
-        format!("{name}:{}:{}:{}", admitted.p90, limit, passing_values.len()).as_bytes(),
-    );
+    let receipt =
+        sha256(format!("{name}:{}:{}:{}", admitted.p90, limit, passing_values.len()).as_bytes());
     capability_bytes(
         &serde_json::json!({"name": name, "p90_ms": admitted.p90, "limit_ms": limit}),
         &serde_json::json!({"breach_refused": refused, "observed_ms": failing_value}),
@@ -1872,16 +1851,27 @@ impl TraceContext {
     fn parse(value: &str) -> Result<Self, Fortune5Error> {
         let parts: Vec<&str> = value.split('-').collect();
         ensure(parts.len() == 4, "traceparent must contain four fields")?;
-        ensure(parts[0].len() == 2, "traceparent version must be two hex digits")?;
+        ensure(
+            parts[0].len() == 2,
+            "traceparent version must be two hex digits",
+        )?;
         ensure(parts[1].len() == 32, "trace id must be 128-bit hex")?;
         ensure(parts[2].len() == 16, "span id must be 64-bit hex")?;
         ensure(parts[3].len() == 2, "trace flags must be two hex digits")?;
         ensure(
-            parts.iter().all(|part| part.bytes().all(|byte| byte.is_ascii_hexdigit())),
+            parts
+                .iter()
+                .all(|part| part.bytes().all(|byte| byte.is_ascii_hexdigit())),
             "traceparent contains non-hex digits",
         )?;
-        ensure(parts[1].bytes().any(|byte| byte != b'0'), "zero trace id refused")?;
-        ensure(parts[2].bytes().any(|byte| byte != b'0'), "zero span id refused")?;
+        ensure(
+            parts[1].bytes().any(|byte| byte != b'0'),
+            "zero trace id refused",
+        )?;
+        ensure(
+            parts[2].bytes().any(|byte| byte != b'0'),
+            "zero span id refused",
+        )?;
         Ok(Self {
             version: parts[0].to_ascii_lowercase(),
             trace_id: parts[1].to_ascii_lowercase(),
@@ -2003,9 +1993,8 @@ impl ErrorBudget {
             "SLO basis points must be 1..9999",
         )?;
         ensure(period_ms > 0, "error-budget period must be positive")?;
-        let allowed_failure_ms = period_ms
-            .saturating_mul(u64::from(10_000 - slo_basis_points))
-            / 10_000;
+        let allowed_failure_ms =
+            period_ms.saturating_mul(u64::from(10_000 - slo_basis_points)) / 10_000;
         ensure(
             allowed_failure_ms > 0,
             "error-budget allowance rounds to zero",
@@ -2034,8 +2023,7 @@ impl ErrorBudget {
     }
 
     fn can_deploy_risky_change(self) -> bool {
-        !self.breached()
-            && self.remaining_ms().saturating_mul(2) >= self.allowed_failure_ms
+        !self.breached() && self.remaining_ms().saturating_mul(2) >= self.allowed_failure_ms
     }
 
     fn require_risky_change(self) -> Result<(), Fortune5Error> {
@@ -2065,18 +2053,14 @@ fn capability_standing(
             .is_some_and(|record| record.outcome == Fortune5EvidenceOutcome::Pass)
     }) {
         Fortune5Standing::Alive
-    } else if latest.is_empty()
-        || outcomes.contains(&Fortune5EvidenceOutcome::Unknown)
-    {
+    } else if latest.is_empty() || outcomes.contains(&Fortune5EvidenceOutcome::Unknown) {
         Fortune5Standing::Unknown
     } else {
         Fortune5Standing::PartialAlive
     }
 }
 
-fn overall_standing(
-    capabilities: &[Fortune5CapabilityAssessment],
-) -> Fortune5Standing {
+fn overall_standing(capabilities: &[Fortune5CapabilityAssessment]) -> Fortune5Standing {
     if capabilities
         .iter()
         .any(|assessment| assessment.standing == Fortune5Standing::BuildBroken)
@@ -2109,9 +2093,7 @@ fn overall_standing(
 }
 
 fn capability_bytes(
-    positive: &serde_json::Value,
-    negative: &serde_json::Value,
-    replay: &serde_json::Value,
+    positive: &serde_json::Value, negative: &serde_json::Value, replay: &serde_json::Value,
 ) -> Result<CapabilityProofBytes, Fortune5Error> {
     Ok(CapabilityProofBytes {
         positive: serde_json::to_vec_pretty(positive)
@@ -2123,22 +2105,15 @@ fn capability_bytes(
     })
 }
 
-fn assessment_digest(
-    assessment: &Fortune5Assessment,
-) -> Result<[u8; 32], Fortune5Error> {
+fn assessment_digest(assessment: &Fortune5Assessment) -> Result<[u8; 32], Fortune5Error> {
     let bytes = serde_json::to_vec(assessment)
         .map_err(|error| Fortune5Error::Serialization(error.to_string()))?;
     Ok(sha256(&bytes))
 }
 
 fn evidence_digest(
-    id: &str,
-    capability: Fortune5Capability,
-    surface: Fortune5ProofSurface,
-    outcome: Fortune5EvidenceOutcome,
-    source: &str,
-    epoch: u64,
-    artifact_digest: &[u8; 32],
+    id: &str, capability: Fortune5Capability, surface: Fortune5ProofSurface,
+    outcome: Fortune5EvidenceOutcome, source: &str, epoch: u64, artifact_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = Sha256::new();
     put(&mut hasher, b"fortune5-evidence/v1");
@@ -2151,10 +2126,7 @@ fn evidence_digest(
 }
 
 fn chain_entry_digest(
-    index: u64,
-    kind: &str,
-    payload_digest: &[u8; 32],
-    previous_digest: &[u8; 32],
+    index: u64, kind: &str, payload_digest: &[u8; 32], previous_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = Sha256::new();
     put(&mut hasher, b"fortune5-receipt-chain/v1");

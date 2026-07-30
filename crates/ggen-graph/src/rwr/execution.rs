@@ -84,8 +84,7 @@ impl ExecutionPolicy {
     /// Construct a narrower policy.
     #[must_use]
     pub fn new(
-        allowed_dimensions: impl IntoIterator<Item = Dimension>,
-        max_payload_bytes: usize,
+        allowed_dimensions: impl IntoIterator<Item = Dimension>, max_payload_bytes: usize,
     ) -> Self {
         Self {
             allowed_dimensions: allowed_dimensions.into_iter().collect(),
@@ -234,10 +233,7 @@ impl ActuationReceipt {
 }
 
 fn actuation_receipt_digest(
-    action_id: &str,
-    dimension: Dimension,
-    artifact_path: &str,
-    payload_digest: &[u8; 32],
+    action_id: &str, dimension: Dimension, artifact_path: &str, payload_digest: &[u8; 32],
     grant_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = blake3::Hasher::new();
@@ -269,9 +265,7 @@ impl FilesystemActuator {
 
     /// Commit an authorized action and return its cryptographic receipt.
     pub fn actuate(
-        &self,
-        grant: &ExecutionGrant,
-        action: &Action,
+        &self, grant: &ExecutionGrant, action: &Action,
     ) -> Result<ActuationReceipt, ExecutionError> {
         grant.verify_for(action)?;
         fs::create_dir_all(self.root.join(".staging"))?;
@@ -295,11 +289,7 @@ impl FilesystemActuator {
     }
 
     fn stage_and_commit(
-        &self,
-        staging: &Path,
-        committed: &Path,
-        grant: &ExecutionGrant,
-        action: &Action,
+        &self, staging: &Path, committed: &Path, grant: &ExecutionGrant, action: &Action,
     ) -> Result<ActuationReceipt, ExecutionError> {
         let artifact_path = format!("committed/{}/artifact.bin", action.id);
         let receipt = ActuationReceipt::issue(action, grant, artifact_path);

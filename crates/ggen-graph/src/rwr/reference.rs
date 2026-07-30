@@ -12,9 +12,7 @@ use crate::rwr::execution::{
     Action, ActuationReceipt, ExecutionError, ExecutionPolicy, FilesystemActuator,
     FoundationMachine, ReplayVerifier,
 };
-use crate::rwr::matrix::{
-    contract, Dimension, MaturityLevel, ALL_DIMENSIONS, MATRIX_VERSION,
-};
+use crate::rwr::matrix::{contract, Dimension, MaturityLevel, ALL_DIMENSIONS, MATRIX_VERSION};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::fs::File;
@@ -178,10 +176,8 @@ impl ReferenceFoundation {
     }
 
     fn prove_refusal(&self, dimension: Dimension) -> Result<Value, ReferenceError> {
-        let narrow = FoundationMachine::new(ExecutionPolicy::new(
-            [Dimension::ProcessIntegration],
-            1024,
-        ));
+        let narrow =
+            FoundationMachine::new(ExecutionPolicy::new([Dimension::ProcessIntegration], 1024));
         let action = Action::new(
             format!("scenario-{}-unauthorized", dimension_slug(dimension)),
             dimension,
@@ -229,7 +225,10 @@ impl ReferenceFoundation {
             dimension,
             component,
         )?;
-        ensure(a.payload_digest == b.payload_digest, "component was not reused")?;
+        ensure(
+            a.payload_digest == b.payload_digest,
+            "component was not reused",
+        )?;
         Ok(json!({
             "kind": "measured-reuse",
             "offerings": 2,
@@ -247,8 +246,8 @@ impl ReferenceFoundation {
             b"state=degraded".to_vec(),
         )?;
         let mut cell = ManagedCell::new(b"state=healthy".to_vec(), initial.action_id);
-        let cycle = AutonomicController::new(3)
-            .converge(&mut cell, &self.machine, &self.actuator)?;
+        let cycle =
+            AutonomicController::new(3).converge(&mut cell, &self.machine, &self.actuator)?;
         cycle.verify()?;
         ensure(cycle.converged, "autonomic controller did not converge")?;
         Ok(json!({
@@ -280,10 +279,7 @@ impl ReferenceFoundation {
     }
 
     fn commit(
-        &self,
-        id: &str,
-        dimension: Dimension,
-        payload: Vec<u8>,
+        &self, id: &str, dimension: Dimension, payload: Vec<u8>,
     ) -> Result<ActuationReceipt, ReferenceError> {
         let action = Action::new(id, dimension, payload);
         let grant = self.machine.derive_grant(&action)?;

@@ -66,13 +66,8 @@ impl EvidenceRecord {
     #[must_use]
     #[allow(clippy::too_many_arguments)]
     pub fn observed(
-        id: impl Into<String>,
-        dimension: Dimension,
-        level: MaturityLevel,
-        surface: EvidenceSurface,
-        outcome: EvidenceOutcome,
-        source: impl Into<String>,
-        epoch: u64,
+        id: impl Into<String>, dimension: Dimension, level: MaturityLevel,
+        surface: EvidenceSurface, outcome: EvidenceOutcome, source: impl Into<String>, epoch: u64,
         artifact: &[u8],
     ) -> Self {
         let id = id.into();
@@ -125,14 +120,8 @@ fn put(hasher: &mut blake3::Hasher, bytes: &[u8]) {
 
 #[allow(clippy::too_many_arguments)]
 fn observation_digest(
-    id: &str,
-    dimension: Dimension,
-    level: MaturityLevel,
-    surface: EvidenceSurface,
-    outcome: EvidenceOutcome,
-    source: &str,
-    epoch: u64,
-    artifact_digest: &[u8; 32],
+    id: &str, dimension: Dimension, level: MaturityLevel, surface: EvidenceSurface,
+    outcome: EvidenceOutcome, source: &str, epoch: u64, artifact_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = blake3::Hasher::new();
     put(&mut hasher, b"rwr-evidence/v1");
@@ -171,7 +160,9 @@ impl EvidenceLedger {
     /// Create an empty ledger.
     #[must_use]
     pub const fn new() -> Self {
-        Self { records: Vec::new() }
+        Self {
+            records: Vec::new(),
+        }
     }
 
     /// Admit one immutable cryptographically valid observation.
@@ -222,7 +213,11 @@ impl EvidenceLedger {
 
     fn latest(&self, dimension: Dimension) -> BTreeMap<EvidenceSurface, &EvidenceRecord> {
         let mut latest: BTreeMap<EvidenceSurface, &EvidenceRecord> = BTreeMap::new();
-        for record in self.records.iter().filter(|record| record.dimension == dimension) {
+        for record in self
+            .records
+            .iter()
+            .filter(|record| record.dimension == dimension)
+        {
             let replace = match latest.get(&record.surface) {
                 Some(current) => {
                     record.epoch > current.epoch
@@ -290,8 +285,7 @@ impl EvidenceLedger {
 }
 
 fn attained_level(
-    required: &[EvidenceSurface],
-    latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
+    required: &[EvidenceSurface], latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
 ) -> Option<MaturityLevel> {
     const LEVELS: [MaturityLevel; 5] = [
         MaturityLevel::DigitalEcosystem,
@@ -310,8 +304,7 @@ fn attained_level(
 }
 
 fn dimension_standing(
-    required: &[EvidenceSurface],
-    latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
+    required: &[EvidenceSurface], latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
     attained_level: Option<MaturityLevel>,
 ) -> GallState {
     let outcomes: HashSet<EvidenceOutcome> = required
@@ -334,7 +327,10 @@ fn dimension_standing(
 }
 
 fn overall_standing(dimensions: &[DimensionAssessment]) -> GallState {
-    if dimensions.iter().all(|dimension| dimension.standing == GallState::Alive) {
+    if dimensions
+        .iter()
+        .all(|dimension| dimension.standing == GallState::Alive)
+    {
         return GallState::Alive;
     }
     for candidate in [
@@ -344,7 +340,10 @@ fn overall_standing(dimensions: &[DimensionAssessment]) -> GallState {
         GallState::Unknown,
         GallState::PartialAlive,
     ] {
-        if dimensions.iter().any(|dimension| dimension.standing == candidate) {
+        if dimensions
+            .iter()
+            .any(|dimension| dimension.standing == candidate)
+        {
             return candidate;
         }
     }

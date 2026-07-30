@@ -16,8 +16,8 @@ pub use evidence::{
     EvidenceRecord, GallState, MaturityAssessment,
 };
 pub use execution::{
-    Action, ActuationReceipt, ExecutionError, ExecutionGrant, ExecutionPolicy,
-    FilesystemActuator, FoundationMachine, ReplayVerifier,
+    Action, ActuationReceipt, ExecutionError, ExecutionGrant, ExecutionPolicy, FilesystemActuator,
+    FoundationMachine, ReplayVerifier,
 };
 pub use matrix::{
     all_contracts, contract, Dimension, DimensionContract, EvidenceSurface, MaturityLevel,

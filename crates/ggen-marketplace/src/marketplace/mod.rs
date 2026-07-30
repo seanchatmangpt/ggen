@@ -66,12 +66,11 @@ pub mod validation;
 pub use composition_receipt::CompositionReceipt;
 pub use error::{Error, Result};
 pub use fortune5::{
-    all_fortune5_contracts, fortune5_contract, Fortune5Assessment,
-    Fortune5AssessmentReceipt, Fortune5Capability, Fortune5CapabilityAssessment,
-    Fortune5CapabilityContract, Fortune5Category, Fortune5Error, Fortune5EvidenceLedger,
-    Fortune5EvidenceOutcome, Fortune5EvidenceRecord, Fortune5Proof, Fortune5ProofSurface,
-    Fortune5Reference, Fortune5Standing, ALL_FORTUNE5_CAPABILITIES,
-    FORTUNE5_CONTRACT_VERSION, REQUIRED_PROOF_SURFACES,
+    all_fortune5_contracts, fortune5_contract, Fortune5Assessment, Fortune5AssessmentReceipt,
+    Fortune5Capability, Fortune5CapabilityAssessment, Fortune5CapabilityContract, Fortune5Category,
+    Fortune5Error, Fortune5EvidenceLedger, Fortune5EvidenceOutcome, Fortune5EvidenceRecord,
+    Fortune5Proof, Fortune5ProofSurface, Fortune5Reference, Fortune5Standing,
+    ALL_FORTUNE5_CAPABILITIES, FORTUNE5_CONTRACT_VERSION, REQUIRED_PROOF_SURFACES,
 };
 pub use install::Installer;
 pub use metrics::MetricsCollector;
@@ -103,10 +102,10 @@ pub mod prelude {
         fortune5::{
             all_fortune5_contracts, fortune5_contract, Fortune5Assessment,
             Fortune5AssessmentReceipt, Fortune5Capability, Fortune5CapabilityAssessment,
-            Fortune5CapabilityContract, Fortune5Category, Fortune5Error,
-            Fortune5EvidenceLedger, Fortune5EvidenceOutcome, Fortune5EvidenceRecord,
-            Fortune5Proof, Fortune5ProofSurface, Fortune5Reference, Fortune5Standing,
-            ALL_FORTUNE5_CAPABILITIES, FORTUNE5_CONTRACT_VERSION, REQUIRED_PROOF_SURFACES,
+            Fortune5CapabilityContract, Fortune5Category, Fortune5Error, Fortune5EvidenceLedger,
+            Fortune5EvidenceOutcome, Fortune5EvidenceRecord, Fortune5Proof, Fortune5ProofSurface,
+            Fortune5Reference, Fortune5Standing, ALL_FORTUNE5_CAPABILITIES,
+            FORTUNE5_CONTRACT_VERSION, REQUIRED_PROOF_SURFACES,
         },
         install::Installer,
         metrics::MetricsCollector,

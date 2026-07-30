@@ -1,13 +1,13 @@
 use ggen_graph::rwr::{
-    Action, AutonomicController, Dimension, ExecutionError, ExecutionPolicy,
-    FilesystemActuator, FoundationMachine, GallState, ManagedCell, ReferenceFoundation,
-    ReplayVerifier, ALL_DIMENSIONS,
+    Action, AutonomicController, Dimension, ExecutionError, ExecutionPolicy, FilesystemActuator,
+    FoundationMachine, GallState, ManagedCell, ReferenceFoundation, ReplayVerifier, ALL_DIMENSIONS,
 };
 use std::fs::File;
 use std::io::Read;
 
 #[test]
-fn full_reference_foundation_closes_every_rwr_dimension() -> Result<(), Box<dyn std::error::Error>> {
+fn full_reference_foundation_closes_every_rwr_dimension() -> Result<(), Box<dyn std::error::Error>>
+{
     let temp = tempfile::tempdir()?;
     let proof_root = temp.path().join("rwr-level5-proof");
     let foundation = ReferenceFoundation::new(&proof_root);
@@ -15,7 +15,10 @@ fn full_reference_foundation_closes_every_rwr_dimension() -> Result<(), Box<dyn 
     let proof = foundation.prove_all()?;
     proof.verify()?;
 
-    assert_eq!(proof.assessment_receipt.assessment.standing, GallState::Alive);
+    assert_eq!(
+        proof.assessment_receipt.assessment.standing,
+        GallState::Alive
+    );
     assert!(proof.assessment_receipt.assessment.is_complete_matrix());
     assert_eq!(
         proof.assessment_receipt.assessment.dimensions.len(),
@@ -31,7 +34,10 @@ fn full_reference_foundation_closes_every_rwr_dimension() -> Result<(), Box<dyn 
 
     for record in proof.ledger.records() {
         let artifact_path = proof_root.join("actuation").join(&record.source);
-        assert!(artifact_path.is_file(), "missing external evidence: {artifact_path:?}");
+        assert!(
+            artifact_path.is_file(),
+            "missing external evidence: {artifact_path:?}"
+        );
         let mut bytes = Vec::new();
         File::open(artifact_path)?.read_to_end(&mut bytes)?;
         let observed: [u8; 32] = blake3::hash(&bytes).into();
@@ -42,13 +48,12 @@ fn full_reference_foundation_closes_every_rwr_dimension() -> Result<(), Box<dyn 
 }
 
 #[test]
-fn policy_refusal_and_receipt_replay_are_real_boundaries() -> Result<(), Box<dyn std::error::Error>> {
+fn policy_refusal_and_receipt_replay_are_real_boundaries() -> Result<(), Box<dyn std::error::Error>>
+{
     let temp = tempfile::tempdir()?;
     let actuator = FilesystemActuator::new(temp.path().join("actuation"));
-    let narrow_machine = FoundationMachine::new(ExecutionPolicy::new(
-        [Dimension::ProcessIntegration],
-        64,
-    ));
+    let narrow_machine =
+        FoundationMachine::new(ExecutionPolicy::new([Dimension::ProcessIntegration], 64));
 
     let refused = Action::new(
         "governance-bypass",
@@ -108,7 +113,10 @@ fn autonomic_controller_repairs_degraded_state_and_receipts_the_cycle(
     assert!(cycle.converged);
     assert_eq!(cycle.cycles, 1);
     assert_eq!(cycle.actuation_receipts.len(), 1);
-    assert_eq!(cycle.actuation_receipts[0].dimension, Dimension::AutonomicClosure);
+    assert_eq!(
+        cycle.actuation_receipts[0].dimension,
+        Dimension::AutonomicClosure
+    );
 
     let final_path = actuator
         .root()
