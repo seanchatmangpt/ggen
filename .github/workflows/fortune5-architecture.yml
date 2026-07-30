@@ -1,0 +1,73 @@
+name: Fortune 5 Architecture
+
+on:
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/ggen-architecture/**'
+      - 'packs/fortune5-architecture-pack/**'
+      - '.github/workflows/fortune5-architecture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fortune5-architecture-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  kernel-and-law:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Prove workspace and lock closure
+        run: cargo metadata --locked --no-deps --format-version 1 >/tmp/fortune5-metadata.json
+
+      - name: Enforce formatting
+        run: cargo fmt --check --package ggen-architecture
+
+      - name: Enforce warning-free kernel
+        run: cargo clippy -p ggen-architecture --all-targets -- -D warnings
+
+      - name: Execute Fortune 5 positive witnesses and falsifiers
+        run: cargo test -p ggen-architecture --all-targets
+
+      - name: Execute documentation tests
+        run: cargo test -p ggen-architecture --doc
+
+      - name: Prove kernel has no direct actuation imports
+        run: |
+          ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src
+          grep -RIn 'REQUIRED_BROKER.*BRCE\|pub const REQUIRED_BROKER' crates/ggen-architecture/src/lib.rs
+
+      - name: Parse ontology and SPARQL gates independently
+        run: |
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          python3 - <<'PY'
+          from pathlib import Path
+          from rdflib import Graph
+          from rdflib.plugins.sparql import prepareQuery
+
+          root = Path('packs/fortune5-architecture-pack')
+          graph = Graph()
+          graph.parse(root / 'ontology.ttl', format='turtle')
+          assert len(graph) > 100, len(graph)
+          gates = sorted((root / 'gates').glob('*.rq'))
+          assert len(gates) >= 5, gates
+          for gate in gates:
+              prepareQuery(gate.read_text())
+          print(f'FORTUNE5_LAW triples={len(graph)} gates={len(gates)}')
+          PY
+
+      - name: Refuse generated-law placeholders
+        run: |
+          ! grep -RInE 'TODO|FIXME|placeholder|mock success|fake success|return true;.*success|unimplemented!\(|todo!\(' crates/ggen-architecture packs/fortune5-architecture-pack
