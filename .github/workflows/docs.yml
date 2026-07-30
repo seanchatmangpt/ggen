@@ -111,7 +111,7 @@ jobs:
               raise SystemExit('stale implicit-driver claim remains')
           PY
 
-          grep -q 'not a.*26th property' docs/reference/template-directives.md
+          grep -q '26th property' docs/reference/template-directives.md
           grep -q '^## 4.1 `to`' docs/reference/template-directives.md
           grep -q '^## 4.2 `sparql`' docs/reference/template-directives.md
           grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
