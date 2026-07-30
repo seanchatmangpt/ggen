@@ -1,0 +1,26 @@
+# MESSAGE: Fortune 5 workflow-pattern coverage is incomplete -- every revised control-flow pattern WCP01-WCP43 requires implementation, positive witness, negative falsifier, and receipt-verifier evidence
+PREFIX f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+SELECT ?program ?programId ?pattern ?missing WHERE {
+  ?program a f5:EnterpriseArchitectureProgram ; f5:programId ?programId .
+  VALUES ?pattern {
+    f5:WCP01 f5:WCP02 f5:WCP03 f5:WCP04 f5:WCP05 f5:WCP06 f5:WCP07 f5:WCP08 f5:WCP09 f5:WCP10
+    f5:WCP11 f5:WCP12 f5:WCP13 f5:WCP14 f5:WCP15 f5:WCP16 f5:WCP17 f5:WCP18 f5:WCP19 f5:WCP20
+    f5:WCP21 f5:WCP22 f5:WCP23 f5:WCP24 f5:WCP25 f5:WCP26 f5:WCP27 f5:WCP28 f5:WCP29 f5:WCP30
+    f5:WCP31 f5:WCP32 f5:WCP33 f5:WCP34 f5:WCP35 f5:WCP36 f5:WCP37 f5:WCP38 f5:WCP39 f5:WCP40
+    f5:WCP41 f5:WCP42 f5:WCP43
+  }
+  VALUES ?requiredProperty {
+    f5:implementationEvidence
+    f5:positiveWitness
+    f5:negativeFalsifier
+    f5:receiptVerifier
+  }
+  FILTER NOT EXISTS {
+    ?program f5:hasWorkflowPatternEvidence ?evidence .
+    ?evidence a f5:WorkflowPatternEvidence ;
+              f5:workflowPattern ?pattern ;
+              ?requiredProperty ?value .
+  }
+  BIND(STR(?requiredProperty) AS ?missing)
+}
+ORDER BY ?programId ?pattern ?missing
