@@ -18,7 +18,7 @@ There is no handwritten Lean file, Rust file, Cargo manifest, test, receipt sche
 ```text
 parse RDF
 → run fail-closed graph gates
-→ ggen emits Lean source and a signed sync receipt
+→ ggen emits a complete Lean project and a signed sync receipt
 → Lean kernel checks the theorem bundle
 → the admitted Lean executable emits Cargo.toml and Rust source
 → rustfmt canonicalizes the emitted Rust
@@ -34,10 +34,13 @@ The pack contains no Rust template. ggen owns these outputs:
 
 ```text
 generated/lean/lean-toolchain
+generated/lean/lake-manifest.json
 generated/lean/lakefile.lean
 generated/lean/Main.lean
 generated/PIPELINE.md
 ```
+
+The manufactured `lake-manifest.json` declares an empty dependency set. It is part of the deterministic Lean project rather than an unreceipted setup mutation performed by CI.
 
 `generated/rust/` does not exist after `ggen sync run`. It appears only after:
 
