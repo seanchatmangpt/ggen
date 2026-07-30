@@ -1,0 +1,25 @@
+# MESSAGE: Gall work item order violates proof dependency -- prerequisites must have lower implementation order and cross-checkpoint work must follow the checkpoint DAG
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?workItemId ?dependencyId ?violation WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId ;
+            gall:implementationOrder ?order ;
+            gall:belongsToCheckpoint ?checkpoint ;
+            gall:dependsOnWorkItem ?dependency .
+  ?dependency a gall:WorkItem ;
+              gall:workItemId ?dependencyId ;
+              gall:implementationOrder ?dependencyOrder ;
+              gall:belongsToCheckpoint ?dependencyCheckpoint .
+  {
+    FILTER(xsd:integer(?dependencyOrder) >= xsd:integer(?order))
+    BIND("dependency implementationOrder is not lower" AS ?violation)
+  }
+  UNION
+  {
+    FILTER(?checkpoint != ?dependencyCheckpoint)
+    FILTER NOT EXISTS { ?checkpoint gall:requiresCheckpoint+ ?dependencyCheckpoint }
+    BIND("checkpoint DAG does not admit cross-checkpoint dependency" AS ?violation)
+  }
+}
+ORDER BY ?workItemId ?dependencyId ?violation
