@@ -44,9 +44,16 @@ jobs:
       - name: Provision pinned Rust formatter
         uses: ./.github/actions/setup-ggen-build
 
-      - name: Normalize admitted Rust source
+      - name: Normalize admitted source bytes
         shell: bash
-        run: rustfmt --edition 2021 crates/ggen-architecture/src/canonical.rs crates/ggen-architecture/src/self_play.rs
+        run: |
+          set -euo pipefail
+          rustfmt --edition 2021 crates/ggen-architecture/src/canonical.rs crates/ggen-architecture/src/self_play.rs
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('examples/safe-ea-strategy-self-play/ontology.ttl')
+          path.write_text(path.read_text().rstrip() + '\n')
+          PY
 
       - name: Parse ontologies and refusal gates
         shell: bash
