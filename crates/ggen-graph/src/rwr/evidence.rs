@@ -1,39 +1,40 @@
 //! Evidence admission, full-matrix assessment, and assessment receipts.
 
-use crate::rwr::matrix::{contract, Dimension, EvidenceSurface, MaturityLevel, ALL_DIMENSIONS, MATRIX_VERSION};
+use crate::rwr::matrix::{
+    contract, Dimension, EvidenceSurface, MaturityLevel, ALL_DIMENSIONS, MATRIX_VERSION,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
-/// Gall standing used by the RWR execution foundation.
+/// Gall standing emitted by the maturity assessor.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum GallState {
-    /// Some real execution exists, but the bounded crown contract is not closed.
+    /// Some real execution exists, but the bounded crown is open.
     PartialAlive,
-    /// Every required dimension is proven by observed Level-5 execution.
+    /// Every required dimension has observed Level-5 execution.
     Alive,
-    /// A policy, invariant, or evidence failure blocks promotion.
+    /// A falsifier or policy failure blocks promotion.
     Blocked,
-    /// The executable verifier or generated consumer failed to build.
+    /// The executable verifier failed to build.
     BuildBroken,
-    /// Required observation is missing or inconclusive.
+    /// Required evidence is absent or inconclusive.
     Unknown,
-    /// The requested capability is outside the admitted boundary.
+    /// The capability is outside the admitted boundary.
     Unsupported,
 }
 
-/// Outcome observed on one proof surface.
+/// Outcome observed on one evidence surface.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[repr(u8)]
 pub enum EvidenceOutcome {
-    /// The observation passed its real verifier.
+    /// The real verifier passed.
     Pass,
-    /// The observation crossed the boundary and falsified the claim.
+    /// The real verifier falsified the claim.
     Fail,
-    /// The executable verifier could not build.
+    /// The verifier could not build.
     BuildFailed,
-    /// The observation was not obtained.
+    /// No observation was obtained.
     Unknown,
-    /// The source cannot prove this surface within its declared boundary.
+    /// The source cannot prove the surface within its boundary.
     Unsupported,
 }
 
@@ -42,9 +43,9 @@ pub enum EvidenceOutcome {
 pub struct EvidenceRecord {
     /// Stable evidence identity.
     pub id: String,
-    /// Matrix dimension supported or falsified by this observation.
+    /// Matrix dimension supported or falsified.
     pub dimension: Dimension,
-    /// Highest maturity level directly exercised by this observation.
+    /// Highest maturity level directly exercised.
     pub level: MaturityLevel,
     /// Independent proof surface.
     pub surface: EvidenceSurface,
@@ -52,18 +53,18 @@ pub struct EvidenceRecord {
     pub outcome: EvidenceOutcome,
     /// Human- and machine-locatable evidence source.
     pub source: String,
-    /// Monotonic observation epoch. Later epochs supersede earlier observations
-    /// for current-state assessment while preserving history in the ledger root.
+    /// Monotonic observation epoch.
     pub epoch: u64,
     /// BLAKE3 of the externalized evidence bytes.
     pub artifact_digest: [u8; 32],
-    /// BLAKE3 binding all record fields.
+    /// BLAKE3 binding every record field.
     pub observation_digest: [u8; 32],
 }
 
 impl EvidenceRecord {
     /// Construct a record from bytes actually observed at the evidence boundary.
     #[must_use]
+    #[allow(clippy::too_many_arguments)]
     pub fn observed(
         id: impl Into<String>,
         dimension: Dimension,
@@ -76,7 +77,7 @@ impl EvidenceRecord {
     ) -> Self {
         let id = id.into();
         let source = source.into();
-        let artifact_digest: [u8; 32] = blake3::hash(artifact).into();
+        let artifact_digest = blake3::hash(artifact).into();
         let observation_digest = observation_digest(
             &id,
             dimension,
@@ -117,9 +118,9 @@ impl EvidenceRecord {
     }
 }
 
-fn put_len_prefixed(hasher: &mut blake3::Hasher, value: &[u8]) {
-    hasher.update(&(value.len() as u64).to_le_bytes());
-    hasher.update(value);
+fn put(hasher: &mut blake3::Hasher, bytes: &[u8]) {
+    hasher.update(&(bytes.len() as u64).to_le_bytes());
+    hasher.update(bytes);
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -134,31 +135,28 @@ fn observation_digest(
     artifact_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = blake3::Hasher::new();
-    put_len_prefixed(&mut hasher, b"rwr-evidence/v1");
-    put_len_prefixed(&mut hasher, id.as_bytes());
-    hasher.update(&[dimension as u8]);
-    hasher.update(&[level as u8]);
-    hasher.update(&[surface as u8]);
-    hasher.update(&[outcome as u8]);
-    put_len_prefixed(&mut hasher, source.as_bytes());
+    put(&mut hasher, b"rwr-evidence/v1");
+    put(&mut hasher, id.as_bytes());
+    hasher.update(&[dimension as u8, level as u8, surface as u8, outcome as u8]);
+    put(&mut hasher, source.as_bytes());
     hasher.update(&epoch.to_le_bytes());
     hasher.update(artifact_digest);
     hasher.finalize().into()
 }
 
-/// Evidence-ledger admission failure.
+/// Evidence-ledger and receipt failure.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum EvidenceError {
     /// Evidence identities are immutable and unique.
     #[error("duplicate evidence id refused: {0}")]
     DuplicateId(String),
-    /// The supplied record does not verify cryptographically.
+    /// The supplied record does not verify.
     #[error("evidence record digest mismatch: {0}")]
     DigestMismatch(String),
-    /// Assessment receipt serialization failed.
+    /// Assessment serialization failed.
     #[error("assessment serialization failed: {0}")]
     Serialization(String),
-    /// Assessment receipt hash does not match its payload.
+    /// Assessment receipt verification failed.
     #[error("assessment receipt digest mismatch")]
     ReceiptMismatch,
 }
@@ -176,7 +174,7 @@ impl EvidenceLedger {
         Self { records: Vec::new() }
     }
 
-    /// Admit one immutable observation.
+    /// Admit one immutable cryptographically valid observation.
     pub fn admit(&mut self, record: EvidenceRecord) -> Result<(), EvidenceError> {
         if !record.verify() {
             return Err(EvidenceError::DigestMismatch(record.id));
@@ -188,7 +186,7 @@ impl EvidenceLedger {
         Ok(())
     }
 
-    /// Read the complete immutable history.
+    /// Read the complete history.
     #[must_use]
     pub fn records(&self) -> &[EvidenceRecord] {
         &self.records
@@ -205,7 +203,7 @@ impl EvidenceLedger {
             .saturating_add(1)
     }
 
-    /// Cryptographic root over the complete evidence history.
+    /// Cryptographic root over the complete immutable history.
     #[must_use]
     pub fn root_digest(&self) -> [u8; 32] {
         let mut digests: Vec<[u8; 32]> = self
@@ -215,93 +213,84 @@ impl EvidenceLedger {
             .collect();
         digests.sort_unstable();
         let mut hasher = blake3::Hasher::new();
-        put_len_prefixed(&mut hasher, b"rwr-evidence-ledger/v1");
+        put(&mut hasher, b"rwr-evidence-ledger/v1");
         for digest in digests {
             hasher.update(&digest);
         }
         hasher.finalize().into()
     }
 
-    /// Assess all dimensions against the full Level-5 contract.
-    #[must_use]
-    pub fn assess(&self) -> MaturityAssessment {
-        let dimensions = ALL_DIMENSIONS
-            .iter()
-            .copied()
-            .map(|dimension| self.assess_dimension(dimension))
-            .collect::<Vec<_>>();
-        let standing = overall_standing(&dimensions);
-        MaturityAssessment {
-            matrix_version: MATRIX_VERSION.to_string(),
-            evidence_root: self.root_digest(),
-            standing,
-            dimensions,
-        }
-    }
-
-    fn latest_for_dimension(
-        &self,
-        dimension: Dimension,
-    ) -> BTreeMap<EvidenceSurface, &EvidenceRecord> {
-        let mut latest = BTreeMap::new();
+    fn latest(&self, dimension: Dimension) -> BTreeMap<EvidenceSurface, &EvidenceRecord> {
+        let mut latest: BTreeMap<EvidenceSurface, &EvidenceRecord> = BTreeMap::new();
         for record in self.records.iter().filter(|record| record.dimension == dimension) {
-            match latest.get(&record.surface) {
-                Some(current)
-                    if current.epoch > record.epoch
-                        || (current.epoch == record.epoch && current.id >= record.id) => {}
-                _ => {
-                    latest.insert(record.surface, record);
+            let replace = match latest.get(&record.surface) {
+                Some(current) => {
+                    record.epoch > current.epoch
+                        || (record.epoch == current.epoch && record.id > current.id)
                 }
+                None => true,
+            };
+            if replace {
+                latest.insert(record.surface, record);
             }
         }
         latest
     }
 
-    fn assess_dimension(&self, dimension: Dimension) -> DimensionAssessment {
-        let dimension_contract = contract(dimension);
-        let latest = self.latest_for_dimension(dimension);
-        let mut satisfied_surfaces = Vec::new();
-        let mut missing_surfaces = Vec::new();
-        let mut blocking_evidence = Vec::new();
+    /// Assess all dimensions against the full Level-5 contract.
+    #[must_use]
+    pub fn assess(&self) -> MaturityAssessment {
+        let dimensions: Vec<DimensionAssessment> = ALL_DIMENSIONS
+            .iter()
+            .copied()
+            .map(|dimension| self.assess_dimension(dimension))
+            .collect();
+        MaturityAssessment {
+            matrix_version: MATRIX_VERSION.to_string(),
+            evidence_root: self.root_digest(),
+            standing: overall_standing(&dimensions),
+            dimensions,
+        }
+    }
 
-        for surface in dimension_contract.required_surfaces {
+    fn assess_dimension(&self, dimension: Dimension) -> DimensionAssessment {
+        let required = contract(dimension).required_surfaces;
+        let latest = self.latest(dimension);
+        let mut satisfied = Vec::new();
+        let mut missing = Vec::new();
+        let mut blocking = Vec::new();
+        for surface in required {
             match latest.get(surface) {
                 Some(record)
                     if record.outcome == EvidenceOutcome::Pass
                         && record.level >= MaturityLevel::DigitalEcosystem =>
                 {
-                    satisfied_surfaces.push(*surface);
+                    satisfied.push(*surface);
                 }
                 Some(record) => {
-                    missing_surfaces.push(*surface);
+                    missing.push(*surface);
                     if record.outcome != EvidenceOutcome::Pass {
-                        blocking_evidence.push(record.id.clone());
+                        blocking.push(record.id.clone());
                     }
                 }
-                None => missing_surfaces.push(*surface),
+                None => missing.push(*surface),
             }
         }
-
-        let attained_level = attained_level(dimension_contract.required_surfaces, &latest);
-        let standing = dimension_standing(
-            dimension_contract.required_surfaces,
-            &latest,
-            attained_level,
-        );
-
+        let attained_level = attained_level(required, &latest);
+        let standing = dimension_standing(required, &latest, attained_level);
         DimensionAssessment {
             dimension,
             attained_level,
             standing,
-            satisfied_surfaces,
-            missing_surfaces,
-            blocking_evidence,
+            satisfied_surfaces: satisfied,
+            missing_surfaces: missing,
+            blocking_evidence: blocking,
         }
     }
 }
 
 fn attained_level(
-    required_surfaces: &[EvidenceSurface],
+    required: &[EvidenceSurface],
     latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
 ) -> Option<MaturityLevel> {
     const LEVELS: [MaturityLevel; 5] = [
@@ -311,9 +300,8 @@ fn attained_level(
         MaturityLevel::StandardizedTechnology,
         MaturityLevel::BusinessSilos,
     ];
-
     LEVELS.into_iter().find(|candidate| {
-        required_surfaces.iter().all(|surface| {
+        required.iter().all(|surface| {
             latest.get(surface).is_some_and(|record| {
                 record.outcome == EvidenceOutcome::Pass && record.level >= *candidate
             })
@@ -322,15 +310,14 @@ fn attained_level(
 }
 
 fn dimension_standing(
-    required_surfaces: &[EvidenceSurface],
+    required: &[EvidenceSurface],
     latest: &BTreeMap<EvidenceSurface, &EvidenceRecord>,
     attained_level: Option<MaturityLevel>,
 ) -> GallState {
-    let outcomes = required_surfaces
+    let outcomes: HashSet<EvidenceOutcome> = required
         .iter()
         .filter_map(|surface| latest.get(surface).map(|record| record.outcome))
-        .collect::<HashSet<_>>();
-
+        .collect();
     if outcomes.contains(&EvidenceOutcome::BuildFailed) {
         GallState::BuildBroken
     } else if outcomes.contains(&EvidenceOutcome::Fail) {
@@ -369,7 +356,7 @@ fn overall_standing(dimensions: &[DimensionAssessment]) -> GallState {
 pub struct DimensionAssessment {
     /// Assessed dimension.
     pub dimension: Dimension,
-    /// Highest level with all required surfaces passing.
+    /// Highest level with every required surface passing.
     pub attained_level: Option<MaturityLevel>,
     /// Gall standing for the dimension.
     pub standing: GallState,
@@ -377,25 +364,25 @@ pub struct DimensionAssessment {
     pub satisfied_surfaces: Vec<EvidenceSurface>,
     /// Required Level-5 surfaces not currently proven.
     pub missing_surfaces: Vec<EvidenceSurface>,
-    /// Latest falsifying or non-admitted evidence identities.
+    /// Latest falsifying evidence identities.
     pub blocking_evidence: Vec<String>,
 }
 
 /// Full-matrix assessment.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MaturityAssessment {
-    /// Contract version used to assess the ledger.
+    /// Contract version used.
     pub matrix_version: String,
     /// Root of the immutable evidence history.
     pub evidence_root: [u8; 32],
-    /// Crown standing. `Alive` requires every dimension to be `Alive`.
+    /// Conjunctive crown standing.
     pub standing: GallState,
-    /// Stable ordered per-dimension results.
+    /// Stable per-dimension results.
     pub dimensions: Vec<DimensionAssessment>,
 }
 
 impl MaturityAssessment {
-    /// Return every dimension/surface obligation still open at Level 5.
+    /// Return every dimension/surface obligation still open.
     #[must_use]
     pub fn open_obligations(&self) -> Vec<(Dimension, EvidenceSurface)> {
         self.dimensions
@@ -410,14 +397,14 @@ impl MaturityAssessment {
             .collect()
     }
 
-    /// Confirm that all 21 dimensions are present exactly once.
+    /// Confirm all 21 dimensions are present exactly once.
     #[must_use]
     pub fn is_complete_matrix(&self) -> bool {
-        let observed = self
+        let observed: BTreeSet<Dimension> = self
             .dimensions
             .iter()
             .map(|assessment| assessment.dimension)
-            .collect::<BTreeSet<_>>();
+            .collect();
         observed.len() == ALL_DIMENSIONS.len()
             && ALL_DIMENSIONS
                 .iter()
@@ -432,12 +419,12 @@ pub struct AssessmentReceipt {
     pub schema: String,
     /// Complete assessment payload.
     pub assessment: MaturityAssessment,
-    /// BLAKE3 over the canonical JSON payload.
+    /// BLAKE3 over canonical JSON of the assessment.
     pub receipt_digest: [u8; 32],
 }
 
 impl AssessmentReceipt {
-    /// Create a receipt from an assessment.
+    /// Issue a receipt from an assessment.
     pub fn issue(assessment: MaturityAssessment) -> Result<Self, EvidenceError> {
         let receipt_digest = assessment_digest(&assessment)?;
         Ok(Self {
@@ -447,13 +434,11 @@ impl AssessmentReceipt {
         })
     }
 
-    /// Verify the assessment receipt.
+    /// Verify this receipt.
     pub fn verify(&self) -> Result<(), EvidenceError> {
-        if self.schema != "rwr-assessment-receipt/v1" {
-            return Err(EvidenceError::ReceiptMismatch);
-        }
-        let expected = assessment_digest(&self.assessment)?;
-        if self.receipt_digest != expected {
+        if self.schema != "rwr-assessment-receipt/v1"
+            || self.receipt_digest != assessment_digest(&self.assessment)?
+        {
             return Err(EvidenceError::ReceiptMismatch);
         }
         Ok(())
@@ -464,7 +449,7 @@ fn assessment_digest(assessment: &MaturityAssessment) -> Result<[u8; 32], Eviden
     let payload = serde_json::to_vec(assessment)
         .map_err(|error| EvidenceError::Serialization(error.to_string()))?;
     let mut hasher = blake3::Hasher::new();
-    put_len_prefixed(&mut hasher, b"rwr-assessment/v1");
-    put_len_prefixed(&mut hasher, &payload);
+    put(&mut hasher, b"rwr-assessment/v1");
+    put(&mut hasher, &payload);
     Ok(hasher.finalize().into())
 }
