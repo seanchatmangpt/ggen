@@ -8,6 +8,7 @@ on:
       - 'crates/ggen-architecture/**'
       - 'packs/fortune5-architecture-pack/**'
       - 'examples/fortune5-architecture/**'
+      - 'docs/architecture/FORTUNE5_REQUIRED_CAPABILITIES.md'
       - '.github/workflows/fortune5-architecture.yml'
   workflow_dispatch:
 
@@ -66,13 +67,15 @@ jobs:
           test -s docs/FORTUNE5_ARCHITECTURE_CATALOG.md
           test -s docs/FORTUNE5_ARCHITECTURE_DAG.dot
           test -s docs/FORTUNE5_CONTROL_MATRIX.md
+          test -s docs/FORTUNE5_WORKFLOW_PATTERN_COVERAGE.md
+          test "$(grep -c '^| [0-9]' docs/FORTUNE5_WORKFLOW_PATTERN_COVERAGE.md)" -eq 43
 
       - name: Execute ontology gates and named sabotage independently
         run: |
           python3 -m pip install --disable-pip-version-check rdflib==7.1.4
           python3 - <<'PY'
           from pathlib import Path
-          from rdflib import Graph, Namespace, RDF, Literal
+          from rdflib import Graph, Namespace, Literal
           from rdflib.plugins.sparql import prepareQuery
 
           root = Path('packs/fortune5-architecture-pack')
@@ -80,10 +83,10 @@ jobs:
           graph = Graph()
           graph.parse(root / 'ontology.ttl', format='turtle')
           graph.parse(example, format='turtle')
-          assert len(graph) > 150, len(graph)
+          assert len(graph) > 500, len(graph)
 
           gates = sorted((root / 'gates').glob('*.rq'))
-          assert len(gates) >= 5, gates
+          assert len(gates) >= 7, gates
           for gate in gates:
               query = gate.read_text()
               prepareQuery(query)
@@ -107,7 +110,34 @@ jobs:
           kms_rows = list(missing_kms.query((root / 'gates/020_tier01_control_closure.rq').read_text()))
           assert any('hasKmsPolicy' in str(row) for row in kms_rows), kms_rows
 
-          print(f'FORTUNE5_LAW triples={len(graph)} gates={len(gates)} direct_refusals={len(direct_rows)} kms_refusals={len(kms_rows)}')
+          missing_supervision = Graph()
+          for triple in graph:
+              missing_supervision.add(triple)
+          missing_supervision.remove((ex.orders, f5.hasSupervisionPolicy, None))
+          supervision_rows = list(missing_supervision.query((root / 'gates/020_tier01_control_closure.rq').read_text()))
+          assert any('hasSupervisionPolicy' in str(row) for row in supervision_rows), supervision_rows
+
+          missing_pattern_receipt = Graph()
+          for triple in graph:
+              missing_pattern_receipt.add(triple)
+          missing_pattern_receipt.remove((ex.wcp43_evidence, f5.receiptVerifier, None))
+          pattern_rows = list(missing_pattern_receipt.query((root / 'gates/060_workflow_pattern_evidence.rq').read_text()))
+          assert any('WCP43' in str(row) and 'receiptVerifier' in str(row) for row in pattern_rows), pattern_rows
+
+          incomplete_dflss = Graph()
+          for triple in graph:
+              incomplete_dflss.add(triple)
+          incomplete_dflss.remove((ex.orders_dflss, f5.verifyEvidence, None))
+          dflss_rows = list(incomplete_dflss.query((root / 'gates/070_supervision_dflss_knhk_contract.rq').read_text()))
+          assert any('verifyEvidence' in str(row) for row in dflss_rows), dflss_rows
+
+          print(
+              'FORTUNE5_LAW '
+              f'triples={len(graph)} gates={len(gates)} '
+              f'direct_refusals={len(direct_rows)} kms_refusals={len(kms_rows)} '
+              f'supervision_refusals={len(supervision_rows)} pattern_refusals={len(pattern_rows)} '
+              f'dflss_refusals={len(dflss_rows)}'
+          )
           PY
 
       - name: Refuse generated-law placeholders
