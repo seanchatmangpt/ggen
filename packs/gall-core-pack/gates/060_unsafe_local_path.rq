@@ -1,0 +1,22 @@
+# MESSAGE: Gall checkpoint contains an unsafe local path -- artifact paths must be project-relative and commands must not depend on user-specific /Users or /home paths
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?field ?value WHERE {
+  {
+    ?owner gall:artifactPath ?value .
+    BIND("gall:artifactPath" AS ?field)
+    FILTER(REGEX(STR(?value), "^/") || REGEX(STR(?value), "(^|/)\\.\\.(/|$)"))
+  }
+  UNION
+  {
+    ?owner gall:runnerCommand ?value .
+    BIND("gall:runnerCommand" AS ?field)
+    FILTER(CONTAINS(STR(?value), "/Users/") || CONTAINS(STR(?value), "/home/"))
+  }
+  UNION
+  {
+    ?owner gall:command ?value .
+    BIND("gall:command" AS ?field)
+    FILTER(CONTAINS(STR(?value), "/Users/") || CONTAINS(STR(?value), "/home/"))
+  }
+}
+ORDER BY ?owner ?field
