@@ -1,10 +1,10 @@
 # gall-core-pack ontology
 #
 # Generic constitutional vocabulary for ggen-first Gall checkpoint programs.
-# Program-specific capabilities, checkpoints, work items, commands, exclusions,
-# evidence, and crowns are declared by consumers. Standing is never authored:
-# templates derive it from admitted gall:CheckpointEvidence and the pack gates
-# enforce crown closure over that evidence.
+# Program-specific capabilities, checkpoints, work items, automation profiles,
+# commands, exclusions, evidence, and crowns are declared by consumers. Standing
+# is never authored: templates derive it from admitted gall:CheckpointEvidence
+# and the pack gates enforce crown closure over that evidence.
 
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -14,7 +14,7 @@
 # --- Core objects -----------------------------------------------------------
 
 gall:GallProgram a rdfs:Class ;
-    rdfs:comment "One complete checkpoint program for a repository, release, or bounded system. A program owns the declared capability, checkpoint, and work-item universe from which ggen manufactures roadmaps, Jira tickets, agent work orders, runners, evidence ledgers, and crown reports." .
+    rdfs:comment "One complete checkpoint program for a repository, release, or bounded system. A program owns the declared capability, checkpoint, work-item, and automation universe from which ggen manufactures roadmaps, Jira tickets, agent work orders, control-plane commands, runners, evidence ledgers, and crown reports." .
 
 gall:Capability a rdfs:Class ;
     rdfs:comment "A useful system consequence claimed by the program. Every checkpoint must produce at least one capability." .
@@ -57,6 +57,24 @@ gall:High a gall:Priority ; gall:priorityName "High" .
 gall:Medium a gall:Priority ; gall:priorityName "Medium" .
 gall:Low a gall:Priority ; gall:priorityName "Low" .
 gall:Lowest a gall:Priority ; gall:priorityName "Lowest" .
+
+# --- Automation control plane ----------------------------------------------
+
+gall:AutomationProfile a rdfs:Class ;
+    rdfs:comment "Program-owned policy for deterministic work selection, agent handoff, external tracker synchronization, runtime state, receipts, and bounded parallelism. Plan mode is always available; apply mode requires explicit operator intent and environment credentials." .
+
+gall:TrackerProvider a rdfs:Class .
+gall:JiraCloud a gall:TrackerProvider ; gall:providerName "jira-cloud" .
+gall:GitHubIssues a gall:TrackerProvider ; gall:providerName "github-issues" .
+gall:FileTracker a gall:TrackerProvider ; gall:providerName "file-only" .
+
+gall:ExecutionMode a rdfs:Class .
+gall:PlanOnly a gall:ExecutionMode ; gall:modeName "plan-only" .
+gall:ApplyAllowed a gall:ExecutionMode ; gall:modeName "apply-allowed" .
+
+gall:AgentMode a rdfs:Class .
+gall:HandoffOnly a gall:AgentMode ; gall:agentModeName "handoff-only" .
+gall:CommandAgent a gall:AgentMode ; gall:agentModeName "command-agent" .
 
 # --- Obligations ------------------------------------------------------------
 
@@ -115,10 +133,12 @@ gall:releaseIdentity a rdf:Property .
 gall:jiraProjectKey a rdf:Property .
 gall:hasCheckpoint a rdf:Property .
 gall:hasWorkItem a rdf:Property .
+gall:hasAutomationProfile a rdf:Property .
 gall:hasCrown a rdf:Property .
 gall:capabilityId a rdf:Property .
 gall:checkpointId a rdf:Property .
 gall:workItemId a rdf:Property .
+gall:automationProfileId a rdf:Property .
 gall:crownId a rdf:Property .
 gall:title a rdf:Property .
 gall:summary a rdf:Property .
@@ -160,6 +180,19 @@ gall:definitionOfDone a rdf:Property .
 gall:verificationCommand a rdf:Property .
 gall:evidenceArtifact a rdf:Property .
 gall:adversarialQuestion a rdf:Property .
+
+# --- Automation policy fields ----------------------------------------------
+
+gall:trackerProvider a rdf:Property .
+gall:providerName a rdf:Property .
+gall:executionMode a rdf:Property .
+gall:modeName a rdf:Property .
+gall:agentMode a rdf:Property .
+gall:agentModeName a rdf:Property .
+gall:maxParallelism a rdf:Property .
+gall:branchPattern a rdf:Property .
+gall:runtimeDirectory a rdf:Property .
+gall:receiptDirectory a rdf:Property .
 
 # --- Executable contract ----------------------------------------------------
 
