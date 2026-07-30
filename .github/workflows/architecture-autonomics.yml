@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -72,10 +72,14 @@ jobs:
           test "$(jq '.intents | length > 0' target/architecture-receipts/autonomic-cycle.json)" = "true"
           test "$(jq -r '.actuation_performed' target/architecture-receipts/fortune5-autonomic-plan.json)" = "false"
 
-      - name: Prove Fortune 5 contract
+      - name: Prove canonical Fortune 5 profile
         run: |
           test "$(jq '.dimensions | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
+          test "$(jq '[.dimensions[].required_controls[]] | length' target/architecture-receipts/fortune5-catalog.json)" = "99"
           test "$(jq '[.dimensions[].obligations[]] | length' target/architecture-receipts/fortune5-catalog.json)" = "63"
+          test "$(jq '[.dimensions[].obligations[] | select(.kind == "design")] | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
+          test "$(jq '[.dimensions[].obligations[] | select(.kind == "operation")] | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
+          test "$(jq '[.dimensions[].obligations[] | select(.kind == "falsifier")] | length' target/architecture-receipts/fortune5-catalog.json)" = "21"
           test "$(jq -r '.level_five_ready' target/architecture-receipts/fortune5-assessment.json)" = "true"
           test "$(jq '.alive_dimensions' target/architecture-receipts/fortune5-assessment.json)" = "21"
           test "$(jq '.passed_obligations' target/architecture-receipts/fortune5-assessment.json)" = "63"
@@ -83,8 +87,48 @@ jobs:
           test "$(jq '[.intents[].kind] | index("submit_promotion") == null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
           test "$(jq '[.intents[].kind] | index("reverify") != null' target/architecture-receipts/fortune5-autonomic-plan.json)" = "true"
 
+      - name: Prove exact Level 5 crown
+        run: |
+          CROWN=target/architecture-receipts/fortune5-level5-crown.json
+          test "$(jq '.taxonomy.dimensions' "$CROWN")" = "21"
+          test "$(jq '.taxonomy.controls' "$CROWN")" = "99"
+          test "$(jq '.taxonomy.obligations' "$CROWN")" = "63"
+          test "$(jq '.taxonomy.design_obligations' "$CROWN")" = "21"
+          test "$(jq '.taxonomy.operation_obligations' "$CROWN")" = "21"
+          test "$(jq '.taxonomy.falsifier_obligations' "$CROWN")" = "21"
+          test "$(jq '.release_truths_alive' "$CROWN")" = "6"
+          test "$(jq '.sla_governors_alive' "$CROWN")" = "5"
+          test "$(jq '.operational_controls_alive' "$CROWN")" = "6"
+          test "$(jq -r '.structurally_ready' "$CROWN")" = "true"
+          test "$(jq -r '.promotion_ready' "$CROWN")" = "false"
+          test "$(jq -r '.synthetic' "$CROWN")" = "true"
+          test "$(jq -r '.receipt_hash | length == 64' "$CROWN")" = "true"
+
+      - name: Refuse crown sabotage
+        run: |
+          BIN=target/debug/ggen-architecture
+          cargo build --manifest-path tools/ggen-architecture/Cargo.toml --bin ggen-architecture
+          PROGRAM=architecture/fortune5/synthetic-level5.json
+
+          jq '.operational_guards.max_run_len = 9' architecture/fortune5-crown-synthetic.json > /tmp/crown-max-run.json
+          set +e
+          "$BIN" fortune5 crown --program "$PROGRAM" --crown /tmp/crown-max-run.json --json > /tmp/crown-max-run-result.json
+          code=$?
+          set -e
+          test "$code" -eq 2
+          jq -e '.findings[] | select(.code == "F5-GUARD-001")' /tmp/crown-max-run-result.json >/dev/null
+
+          jq '.direct_actuation_performed = true | .receipt_replay_verified = false' architecture/fortune5-crown-synthetic.json > /tmp/crown-actuation.json
+          set +e
+          "$BIN" fortune5 crown --program "$PROGRAM" --crown /tmp/crown-actuation.json --json > /tmp/crown-actuation-result.json
+          code=$?
+          set -e
+          test "$code" -eq 2
+          jq -e '.findings[] | select(.code == "F5-ACTUATION-001")' /tmp/crown-actuation-result.json >/dev/null
+          jq -e '.findings[] | select(.code == "F5-REPLAY-001")' /tmp/crown-actuation-result.json >/dev/null
+
       - name: Upload receipts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: architecture-autonomic-receipts
           path: target/architecture-receipts
