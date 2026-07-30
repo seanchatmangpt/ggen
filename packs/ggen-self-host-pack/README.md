@@ -8,11 +8,9 @@ exact Git tree
 → independent Git-object verification
 → admitted RDF
 → ggen pack resolution + gates
-→ repository census
-→ authority map
-→ load-path ledger
-→ output-ownership ledger
-→ Jira/agent work package
+→ repository census and authority ledgers
+→ gall-core checkpoint and work-item graph
+→ generated Jira, LLM work orders, scheduler, handoff, receipts, and replay
 → ggen receipt
 → second-sync byte identity
 ```
@@ -23,7 +21,7 @@ The observer is a deliberately small bootstrap kernel. It may read Git and track
 
 `observe_repository.py` contains the repository model. `observe_exact_tree.py` is the only supported executor: it binds symlinks and gitlinks to Git semantics and refuses ambient host-file traversal. `verify_observation.py` independently reconstructs the exact Git object set and verifies every observed byte and receipt binding.
 
-All human-facing reports and implementation tickets are pack projections. The observer emits facts; ggen admits and manufactures consequences.
+All human-facing repository reports are self-host-pack projections. All implementation planning and automation are `gall-core-pack` projections. The observer emits facts once; there is no second handwritten backlog or Jira authority.
 
 ## Lifecycle
 
@@ -35,11 +33,18 @@ python3 self-host/scripts/verify_observation.py
 cd self-host
 ../target/debug/ggen sync run
 ../target/debug/ggen receipt verify
+bash scripts/gall/gall automation validate
+bash scripts/gall/gall work next
+bash scripts/gall/gall work dispatch GGEN-DOGFOOD-CENSUS
+bash scripts/gall/run-checkpoints.sh
+bash scripts/gall/gall receipt verify
 ../target/debug/ggen sync run
 ../target/debug/ggen receipt verify
 ```
 
-Before observation, the seed ontology must be refused by `010_observation_complete.rq`. Planning mode may contain blocking findings and generates the complete retrofit backlog. A crown is separately asserted only after those findings are closed and clean replay is independently recorded.
+Before observation, the seed ontology must be refused by `010_observation_complete.rq`. Planning mode may contain blocking findings and generates the complete Gall retrofit program. The automation profile is deliberately `PlanOnly` plus `HandoffOnly`; no coding agent, tracker, Git, or cloud mutation is authorized by this checkpoint.
+
+A crown is separately asserted only after the generated work items close, blocking findings reach zero, every generated output has one owner, and clean replay is independently recorded.
 
 ## What this first checkpoint changes
 
