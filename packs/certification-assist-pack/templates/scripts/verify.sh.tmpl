@@ -49,8 +49,12 @@ assert mcp_responses[3]["result"]["isError"] is True
 assert "REFUSED" in mcp_responses[3]["result"]["content"][0]["text"]
 
 a2a = json.loads((consumer / "protocol/a2a-agent-card.json").read_text())
-assert a2a["protocolVersion"] == "1.0.0"
-assert a2a["preferredTransport"] == "JSONRPC"
+assert "protocolVersion" not in a2a
+assert "preferredTransport" not in a2a
+assert "url" not in a2a
+assert len(a2a["supportedInterfaces"]) == 1
+assert a2a["supportedInterfaces"][0]["protocolBinding"] == "JSONRPC"
+assert a2a["supportedInterfaces"][0]["protocolVersion"] == "1.0"
 assert len(a2a["skills"]) == 6
 
 speedrun = json.loads((consumer / "automation/SPEEDRUN_PLAN.json").read_text())
