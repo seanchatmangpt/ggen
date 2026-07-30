@@ -1,0 +1,26 @@
+{
+  "name": "certification-assist",
+  "version": "26.7.30",
+  "protocolVersion": "2025-11-25",
+  "taskAugmentation": false,
+  "instructions": "Expose capability standing as resources and bounded tools. Never directly promote standing.",
+  "resources": [
+{% for row in results %}{% if row["kind"] == "resource" %}    {
+      "name": "{{ row["name"] }}",
+      "uri": "{{ row["uri"] }}",
+      "description": "{{ row["description"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ],
+  "tools": [
+{% set first_tool = true %}{% for row in results %}{% if row["kind"] == "tool" %}{% if not first_tool %},{% endif %}
+    {
+      "name": "{{ row["name"] }}",
+      "description": "{{ row["description"] }}",
+      "requiresApproval": {{ row["requiresApproval"] }},
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false
+      }
+    }{% set_global first_tool = false %}{% endif %}{% endfor %}
+  ]
+}
