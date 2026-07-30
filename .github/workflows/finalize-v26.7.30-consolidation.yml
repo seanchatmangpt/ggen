@@ -150,10 +150,15 @@ jobs:
             git commit -m 'chore(consolidation): reconcile Cargo lock state'
           fi
 
-      - name: Verify engine admission boundary
+      - name: Normalize and verify engine admission boundary
         shell: bash
         run: |
           set -euo pipefail
+          cargo fmt --all
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'style(consolidation): normalize merged Rust sources'
+          fi
           cargo fmt --all -- --check
           cargo test -p ggen-engine
 
