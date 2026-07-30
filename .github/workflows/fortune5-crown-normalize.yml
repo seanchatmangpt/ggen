@@ -36,6 +36,38 @@ jobs:
         with:
           components: rustfmt
 
+      - name: Repair exact GBB falsifier fixture
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('crates/ggen-architecture/src/building_block.rs')
+          source = path.read_text()
+
+          old_fixture = '''        let replacement_id = RealizationId::from("replacement");
+          let mut replacement = match block.realizations.values().next() {
+              Some(value) => value.clone(),
+              None => return,
+          };
+          '''
+          new_fixture = '''        let replacement_id = RealizationId::from("replacement");
+          let source_id = RealizationId::from("realization-v1");
+          let mut replacement = block.realizations[&source_id].clone();
+          '''
+          assert source.count(old_fixture) == 1, 'unexpected substitution fixture cardinality'
+          source = source.replace(old_fixture, new_fixture)
+
+          old_assessment = '''        let assessment =
+              block.assess_substitution(&RealizationId::from("realization-v1"), &replacement_id);
+          '''
+          new_assessment = '''        let assessment = block.assess_substitution(&source_id, &replacement_id);
+          '''
+          assert source.count(old_assessment) == 1, 'unexpected substitution assessment cardinality'
+          source = source.replace(old_assessment, new_assessment)
+
+          path.write_text(source)
+          PY
+
       - name: Normalize exact architecture workspace
         run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
 
@@ -58,5 +90,5 @@ jobs:
             tools/ggen-architecture/src/lib.rs \
             tools/ggen-architecture/src/bin/ggen-architecture.rs \
             tools/ggen-architecture/tests/building_block.rs
-          git commit -m 'style(architecture): apply pinned workspace rustfmt'
+          git commit -m 'test(architecture): make substitution falsifier fail loud'
           git push origin "HEAD:${TARGET_BRANCH}"
