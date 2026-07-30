@@ -49,6 +49,9 @@ jobs:
       - name: Observe the exact Git tree
         run: python3 self-host/scripts/observe_repository.py
 
+      - name: Independently verify revision, path set, bytes, and receipt
+        run: python3 self-host/scripts/verify_observation.py
+
       - name: Manufacture self-hosting consequences
         run: |
           cd self-host
