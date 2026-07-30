@@ -1,0 +1,348 @@
+@prefix ca: <https://chatmangpt.com/ontology/certification-assist#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ceterms: <https://purl.org/ctdl/terms/> .
+@prefix ceasn: <https://purl.org/ctdlasn/terms/> .
+
+# Public-semantic alignment.
+ca:CredentialProfile a rdfs:Class ; rdfs:subClassOf ceterms:Credential .
+ca:CredentialObjective a rdfs:Class ; rdfs:subClassOf ceasn:Competency .
+ca:Capability a rdfs:Class ; rdfs:subClassOf ceasn:Competency .
+ca:EvidenceArtifact a rdfs:Class ; rdfs:subClassOf prov:Entity .
+ca:StandingReceipt a rdfs:Class ; rdfs:subClassOf prov:Entity .
+ca:PracticeActivity a rdfs:Class ; rdfs:subClassOf prov:Activity .
+ca:HorizonGap a rdfs:Class ; rdfs:subClassOf skos:Concept .
+ca:ProofSurface a rdfs:Class .
+ca:ProtocolSurface a rdfs:Class .
+ca:A2ASkill a rdfs:Class .
+ca:SelfPlayRole a rdfs:Class .
+ca:AutonomicProfile a rdfs:Class .
+
+ca:requiresSurface a rdf:Property .
+ca:order a rdf:Property .
+ca:slug a rdf:Property .
+ca:rustVariant a rdf:Property .
+ca:category a rdf:Property .
+ca:outcome a rdf:Property .
+ca:implementation a rdf:Property .
+ca:verifier a rdf:Property .
+ca:falsifier a rdf:Property .
+ca:examDomain a rdf:Property .
+ca:concept a rdf:Property .
+ca:currentStanding a rdf:Property .
+ca:targetStanding a rdf:Property .
+ca:interviewFrequency a rdf:Property .
+ca:ecosystemDependency a rdf:Property .
+ca:transferBreadth a rdf:Property .
+ca:gatekeepingValue a rdf:Property .
+ca:darknessRisk a rdf:Property .
+ca:learningCost a rdf:Property .
+ca:existingCoverage a rdf:Property .
+ca:requiresObjective a rdf:Property ; rdfs:subPropertyOf ceterms:requires .
+ca:drawNext a rdf:Property .
+ca:sayNext a rdf:Property .
+ca:why a rdf:Property .
+ca:tradeoff a rdf:Property .
+ca:watchFor a rdf:Property .
+ca:protocolKind a rdf:Property .
+ca:protocolName a rdf:Property .
+ca:protocolUri a rdf:Property .
+ca:description a rdf:Property ; rdfs:subPropertyOf dcterms:description .
+ca:taskSupport a rdf:Property .
+ca:requiresApproval a rdf:Property .
+ca:skillId a rdf:Property .
+ca:tags a rdf:Property .
+ca:knowledgePresent a rdf:Property .
+ca:gapAwareness a rdf:Property .
+ca:dependencyKnown a rdf:Property .
+ca:requiredForSlug a rdf:Property .
+ca:maxCycles a rdf:Property .
+ca:directActuation a rdf:Property .
+ca:promotionRequiresEvidence a rdf:Property .
+ca:externalStanding a rdf:Property .
+
+# Three independent proof surfaces.
+ca:PositiveExecution a ca:ProofSurface ;
+  ca:slug "positive-execution" ;
+  ca:rustVariant "PositiveExecution" ;
+  ca:outcome "A real bounded capability path executes." .
+
+ca:NegativeRefusal a ca:ProofSurface ;
+  ca:slug "negative-refusal" ;
+  ca:rustVariant "NegativeRefusal" ;
+  ca:outcome "A named falsifier is mechanically refused." .
+
+ca:ReceiptReplay a ca:ProofSurface ;
+  ca:slug "receipt-replay" ;
+  ca:rustVariant "ReceiptReplay" ;
+  ca:outcome "Evidence verifies, tampering fails, and duplicate replay is refused." .
+
+# Twelve-capability crown.
+ca:CredentialHorizonIngestion a ca:Capability ;
+  ca:order 1 ; ca:slug "credential-horizon-ingestion" ; ca:rustVariant "CredentialHorizonIngestion" ;
+  rdfs:label "Credential Horizon Ingestion" ; ca:category "Admission" ;
+  ca:outcome "Credential objectives become bounded competency records." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Missing, duplicate, or unweighted objectives are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:CapabilityStandingGraph a ca:Capability ;
+  ca:order 2 ; ca:slug "capability-standing-graph" ; ca:rustVariant "CapabilityStandingGraph" ;
+  rdfs:label "Capability Standing Graph" ; ca:category "Knowledge" ;
+  ca:outcome "Internal standing remains separate from external credentials." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "A certificate cannot self-promote internal standing." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:TripleDarknessDetection a ca:Capability ;
+  ca:order 3 ; ca:slug "triple-darkness-detection" ; ca:rustVariant "TripleDarknessDetection" ;
+  rdfs:label "Triple Darkness Detection" ; ca:category "Knowledge" ;
+  ca:outcome "Absent knowledge, absent gap awareness, and absent dependency awareness are distinguished." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Partially known gaps cannot be mislabeled Triple Darkness." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:MinimumSufficientHorizon a ca:Capability ;
+  ca:order 4 ; ca:slug "minimum-sufficient-horizon" ; ca:rustVariant "MinimumSufficientHorizon" ;
+  rdfs:label "Minimum Sufficient Horizon" ; ca:category "Planning" ;
+  ca:outcome "The smallest dependency-closed high-leverage objective set is selected." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Cycles and unsatisfied prerequisites are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:WhiteboardProjection a ca:Capability ;
+  ca:order 5 ; ca:slug "whiteboard-projection" ; ca:rustVariant "WhiteboardProjection" ;
+  rdfs:label "Whiteboard Projection" ; ca:category "Projection" ;
+  ca:outcome "Every objective yields DRAW NEXT, SAY NEXT, WHY, TRADEOFF, and WATCH FOR." ;
+  ca:implementation "consumer/certification-assist/docs/WHITEBOARD_PROJECTION.md" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Incomplete visual or narrative projections are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:PracticeManufacturing a ca:Capability ;
+  ca:order 6 ; ca:slug "practice-manufacturing" ; ca:rustVariant "PracticeManufacturing" ;
+  rdfs:label "Practice Manufacturing" ; ca:category "Manufacturing" ;
+  ca:outcome "Recall, explanation, whiteboard, lab, failure, and transfer probes are generated." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Unbounded or evidence-free practice cannot advance standing." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:DeterministicSelfPlay a ca:Capability ;
+  ca:order 7 ; ca:slug "deterministic-self-play" ; ca:rustVariant "DeterministicSelfPlay" ;
+  rdfs:label "Deterministic Self-Play" ; ca:category "Simulation" ;
+  ca:outcome "Candidate, examiner, and adjudicator exchange deterministic A2A messages and artifacts." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Missing roles or unverifiable adjudication are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:MCPBoundary a ca:Capability ;
+  ca:order 8 ; ca:slug "mcp-boundary" ; ca:rustVariant "MCPBoundary" ;
+  rdfs:label "MCP Resource and Tool Boundary" ; ca:category "Protocol" ;
+  ca:outcome "Skill data is exposed as resources and bounded tools without direct promotion." ;
+  ca:implementation "consumer/certification-assist/protocol/mcp-server.json" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Task augmentation or unapproved standing mutation is refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:A2ABoundary a ca:Capability ;
+  ca:order 9 ; ca:slug "a2a-boundary" ; ca:rustVariant "A2ABoundary" ;
+  rdfs:label "A2A Agent and Task Boundary" ; ca:category "Protocol" ;
+  ca:outcome "Stateful self-play uses Agent Card, Task, Message, Part, and Artifact contracts." ;
+  ca:implementation "consumer/certification-assist/protocol/a2a-agent-card.json" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Unknown agents, terminal-task restart, and detached artifacts are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:BoundedAutomation a ca:Capability ;
+  ca:order 10 ; ca:slug "bounded-automation" ; ca:rustVariant "BoundedAutomation" ;
+  rdfs:label "Bounded Automation" ; ca:category "Automation" ;
+  ca:outcome "Objectives are dependency-ordered by deterministic 80/20 priority." ;
+  ca:implementation "consumer/certification-assist/automation/SPEEDRUN_PLAN.json" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Objective cycles and zero-cost division are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:BoundedAutonomics a ca:Capability ;
+  ca:order 11 ; ca:slug "bounded-autonomics" ; ca:rustVariant "BoundedAutonomics" ;
+  rdfs:label "Bounded Autonomics" ; ca:category "Autonomics" ;
+  ca:outcome "MAPE-K manufactures practice intents within a hard cycle bound and stops before promotion." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Zero cycles, direct actuation, and evidence-free promotion are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+ca:StandingReceiptReplay a ca:Capability ;
+  ca:order 12 ; ca:slug "standing-receipt-replay" ; ca:rustVariant "StandingReceiptReplay" ;
+  rdfs:label "Standing Receipt and Replay" ; ca:category "Evidence" ;
+  ca:outcome "Promotions bind objective, evidence, predecessor, and deterministic receipt digest." ;
+  ca:implementation "consumer/certification-assist/src/lib.rs" ;
+  ca:verifier "cargo test --manifest-path consumer/certification-assist/Cargo.toml" ;
+  ca:falsifier "Tampering, skipped levels, and duplicate replay are refused." ;
+  ca:requiresSurface ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay .
+
+# Bounded systems-architecture speedrun fixture.
+ca:SystemsArchitectureSpeedrun a ca:CredentialProfile ;
+  dcterms:title "Systems Architecture 80/20 Speedrun" ;
+  dcterms:identifier "systems-architecture-speedrun-v26.7.30" ;
+  ca:externalStanding false .
+
+ca:NetworkFlow a ca:CredentialObjective ;
+  ca:order 1 ; ca:slug "network-flow" ; rdfs:label "Network Request Flow" ;
+  ca:examDomain "Networking" ; ca:concept "packet flow, DNS, routing, NAT, load balancing, trust boundaries" ;
+  ca:currentStanding 2 ; ca:targetStanding 8 ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 9 ; ca:transferBreadth 10 ; ca:gatekeepingValue 9 ; ca:darknessRisk 9 ; ca:learningCost 5 ; ca:existingCoverage 2 ;
+  ca:drawNext "Draw client, DNS, edge, load balancer, subnet, service, and authoritative store." ;
+  ca:sayNext "I will establish the complete packet path before selecting products." ;
+  ca:why "Every later latency, security, and failure decision depends on the real network path." ;
+  ca:tradeoff "Additional network boundaries improve isolation but add latency and operational state." ;
+  ca:watchFor "DNS failure, asymmetric routing, NAT exhaustion, firewall policy, and partitions." .
+
+ca:IdentityAuthority a ca:CredentialObjective ;
+  ca:order 2 ; ca:slug "identity-authority" ; rdfs:label "Identity and Authority" ;
+  ca:examDomain "Security" ; ca:concept "identity, authentication, authorization, least privilege, revocation, stale authority" ;
+  ca:currentStanding 3 ; ca:targetStanding 8 ;
+  ca:interviewFrequency 9 ; ca:ecosystemDependency 10 ; ca:transferBreadth 10 ; ca:gatekeepingValue 9 ; ca:darknessRisk 10 ; ca:learningCost 6 ; ca:existingCoverage 4 ;
+  ca:drawNext "Draw the identity provider, policy decision point, trust boundary, and authority flow." ;
+  ca:sayNext "Authentication identifies the actor; authorization binds one bounded action to policy." ;
+  ca:why "A correct topology is unsafe if stale or overbroad authority can still actuate." ;
+  ca:tradeoff "Stronger authorization and shorter credentials reduce risk but increase coordination and renewal load." ;
+  ca:watchFor "Revocation races, confused deputies, expired leases, fencing, and break-glass controls." .
+
+ca:AsyncMessaging a ca:CredentialObjective ;
+  ca:order 3 ; ca:slug "async-messaging" ; rdfs:label "Asynchronous Messaging" ;
+  ca:examDomain "Integration" ; ca:concept "queues, logs, retries, delivery semantics, idempotency, backpressure" ;
+  ca:currentStanding 4 ; ca:targetStanding 8 ; ca:requiresObjective ca:NetworkFlow ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 9 ; ca:transferBreadth 10 ; ca:gatekeepingValue 9 ; ca:darknessRisk 9 ; ca:learningCost 5 ; ca:existingCoverage 5 ;
+  ca:drawNext "Insert a durable asynchronous boundary between admission and downstream work." ;
+  ca:sayNext "The request records accepted work before consumers execute independently." ;
+  ca:why "Decoupling protects synchronous latency and absorbs bursts." ;
+  ca:tradeoff "The system now owes duplicate handling, ordering policy, retries, dead letters, and observability." ;
+  ca:watchFor "At-least-once delivery, poison messages, replay, partition keys, and stale workers." .
+
+ca:StateOwnership a ca:CredentialObjective ;
+  ca:order 4 ; ca:slug "state-ownership" ; rdfs:label "State Ownership" ;
+  ca:examDomain "Data" ; ca:concept "authoritative, derived, ephemeral, cached, replicated, and event state" ;
+  ca:currentStanding 4 ; ca:targetStanding 9 ; ca:requiresObjective ca:AsyncMessaging ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 10 ; ca:transferBreadth 10 ; ca:gatekeepingValue 10 ; ca:darknessRisk 9 ; ca:learningCost 6 ; ca:existingCoverage 5 ;
+  ca:drawNext "Mark one authoritative state owner and label every other state as derived or ephemeral." ;
+  ca:sayNext "I will separate accepted truth from projections, caches, and operational copies." ;
+  ca:why "Undefined ownership creates split-brain writes and irreconcilable recovery." ;
+  ca:tradeoff "Single ownership simplifies truth but may concentrate latency or availability risk." ;
+  ca:watchFor "Dual writes, cache invalidation, replay, schema evolution, and backup restoration." .
+
+ca:ConsistencyReplication a ca:CredentialObjective ;
+  ca:order 5 ; ca:slug "consistency-replication" ; rdfs:label "Consistency and Replication" ;
+  ca:examDomain "Distributed Systems" ; ca:concept "linearizability, serializability, causal and eventual consistency, quorum, replication" ;
+  ca:currentStanding 2 ; ca:targetStanding 9 ; ca:requiresObjective ca:StateOwnership ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 10 ; ca:transferBreadth 10 ; ca:gatekeepingValue 10 ; ca:darknessRisk 10 ; ca:learningCost 8 ; ca:existingCoverage 3 ;
+  ca:drawNext "Annotate the write path with consistency, quorum, replication, and read guarantees." ;
+  ca:sayNext "The required user-visible invariant determines the weakest sufficient consistency model." ;
+  ca:why "Replication without an explicit consistency contract produces misleading availability claims." ;
+  ca:tradeoff "Stronger consistency improves invariants but increases coordination latency and partition sensitivity." ;
+  ca:watchFor "Quorum loss, stale reads, write conflicts, leader changes, and impossibility boundaries." .
+
+ca:FailureDomains a ca:CredentialObjective ;
+  ca:order 6 ; ca:slug "failure-domains" ; rdfs:label "Failure Domains and Recovery" ;
+  ca:examDomain "Reliability" ; ca:concept "process, host, zone, region, dependency, operator, and data-corruption failure" ;
+  ca:currentStanding 3 ; ca:targetStanding 9 ; ca:requiresObjective ca:NetworkFlow ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 10 ; ca:transferBreadth 10 ; ca:gatekeepingValue 10 ; ca:darknessRisk 10 ; ca:learningCost 7 ; ca:existingCoverage 4 ;
+  ca:drawNext "Draw explicit process, zone, and region boundaries and place independent recovery paths." ;
+  ca:sayNext "I will state which failures the design survives rather than saying it is highly available." ;
+  ca:why "Availability has meaning only against named failures and recovery objectives." ;
+  ca:tradeoff "More redundancy improves resilience but adds cost, consistency, and operational complexity." ;
+  ca:watchFor "Correlated failures, hidden shared dependencies, recovery time, recovery point, and failback." .
+
+ca:Observability a ca:CredentialObjective ;
+  ca:order 7 ; ca:slug "observability" ; rdfs:label "Observability and Consequence Verification" ;
+  ca:examDomain "Operations" ; ca:concept "logs, metrics, traces, profiles, SLOs, alerts, and postcondition observation" ;
+  ca:currentStanding 5 ; ca:targetStanding 8 ; ca:requiresObjective ca:FailureDomains ;
+  ca:interviewFrequency 8 ; ca:ecosystemDependency 10 ; ca:transferBreadth 10 ; ca:gatekeepingValue 8 ; ca:darknessRisk 8 ; ca:learningCost 5 ; ca:existingCoverage 6 ;
+  ca:drawNext "Add telemetry flows and an independent observer for the critical user journey." ;
+  ca:sayNext "Command success is not consequence success; I will re-observe the declared postcondition." ;
+  ca:why "The system cannot govern or repair behavior it cannot independently observe." ;
+  ca:tradeoff "Higher telemetry fidelity improves diagnosis but consumes storage, compute, and privacy budget." ;
+  ca:watchFor "Cardinality, sampling, missing correlation, alert fatigue, and blind postconditions." .
+
+ca:ArchitectureNarration a ca:CredentialObjective ;
+  ca:order 8 ; ca:slug "architecture-narration" ; rdfs:label "Architecture Narration and Whiteboard Control" ;
+  ca:examDomain "Interview Performance" ; ca:concept "requirement decomposition, draw sequence, causal explanation, alternatives, and tradeoff defense" ;
+  ca:currentStanding 3 ; ca:targetStanding 10 ; ca:requiresObjective ca:ConsistencyReplication ;
+  ca:interviewFrequency 10 ; ca:ecosystemDependency 8 ; ca:transferBreadth 10 ; ca:gatekeepingValue 10 ; ca:darknessRisk 8 ; ca:learningCost 5 ; ca:existingCoverage 4 ;
+  ca:drawNext "Draw one complete critical path before adding scale, security, and failure overlays." ;
+  ca:sayNext "I will make each box and line answer one admitted requirement." ;
+  ca:why "A disciplined visual sequence externalizes reasoning and prevents disconnected component recall." ;
+  ca:tradeoff "A simplified first diagram improves comprehension but defers secondary concerns explicitly." ;
+  ca:watchFor "Hidden rubric changes, abstraction mismatch, premature product selection, and unsupported claims." .
+
+# Triple Darkness fixture: absent concept, absent gap awareness, absent dependency awareness.
+ca:FencingTokensGap a ca:HorizonGap ;
+  ca:order 1 ; ca:slug "fencing-tokens" ;
+  ca:concept "fencing tokens" ; ca:requiredForSlug "identity-authority" ;
+  ca:knowledgePresent false ; ca:gapAwareness false ; ca:dependencyKnown false ;
+  ca:description "A stale authority holder can continue writing unless the target rejects older authority epochs." .
+
+# MCP 2025-11-25 contract: resources and tools only; task augmentation remains absent.
+ca:SkillTwinResource a ca:ProtocolSurface ; ca:order 1 ; ca:protocolKind "resource" ;
+  ca:protocolName "skill-twin" ; ca:protocolUri "certification://skill-twin" ;
+  ca:description "Evidence-backed internal standing by capability and dimension." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:CredentialHorizonResource a ca:ProtocolSurface ; ca:order 2 ; ca:protocolKind "resource" ;
+  ca:protocolName "credential-horizon" ; ca:protocolUri "certification://credential-horizon" ;
+  ca:description "Admitted credential objectives and prerequisite graph." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:StandingReceiptResource a ca:ProtocolSurface ; ca:order 3 ; ca:protocolKind "resource" ;
+  ca:protocolName "standing-receipts" ; ca:protocolUri "certification://standing-receipts" ;
+  ca:description "Append-only standing evidence and replay receipts." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:DiagnoseGapTool a ca:ProtocolSurface ; ca:order 4 ; ca:protocolKind "tool" ;
+  ca:protocolName "diagnose-gap" ; ca:protocolUri "" ;
+  ca:description "Classify knowledge, recall, decision, drawing, execution, and Triple Darkness gaps." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:PlanSpeedrunTool a ca:ProtocolSurface ; ca:order 5 ; ca:protocolKind "tool" ;
+  ca:protocolName "plan-speedrun" ; ca:protocolUri "" ;
+  ca:description "Manufacture a dependency-closed 80/20 objective plan." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:GenerateProbeTool a ca:ProtocolSurface ; ca:order 6 ; ca:protocolKind "tool" ;
+  ca:protocolName "generate-probe" ; ca:protocolUri "" ;
+  ca:description "Generate recall, explanation, whiteboard, lab, failure, or transfer practice." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:EvaluateEvidenceTool a ca:ProtocolSurface ; ca:order 7 ; ca:protocolKind "tool" ;
+  ca:protocolName "evaluate-evidence" ; ca:protocolUri "" ;
+  ca:description "Evaluate evidence against one explicit crown condition." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval false .
+ca:ProposePromotionTool a ca:ProtocolSurface ; ca:order 8 ; ca:protocolKind "tool" ;
+  ca:protocolName "propose-promotion" ; ca:protocolUri "" ;
+  ca:description "Propose, but never directly apply, one evidence-bound standing transition." ;
+  ca:taskSupport "forbidden" ; ca:requiresApproval true .
+
+# A2A skills own stateful work and self-play.
+ca:DiagnoseCapabilityGapSkill a ca:A2ASkill ; ca:order 1 ; ca:skillId "diagnose-capability-gap" ;
+  rdfs:label "Diagnose Capability Gap" ; ca:description "Compare the Skill Twin with credential and ontology horizons." ; ca:tags "skills,diagnosis,triple-darkness" .
+ca:ManufacturePracticeSkill a ca:A2ASkill ; ca:order 2 ; ca:skillId "manufacture-practice-fixture" ;
+  rdfs:label "Manufacture Practice Fixture" ; ca:description "Generate a bounded exercise and falsifier for one objective." ; ca:tags "practice,ggen,verification" .
+ca:AdjudicateStandingSkill a ca:A2ASkill ; ca:order 3 ; ca:skillId "adjudicate-standing" ;
+  rdfs:label "Adjudicate Standing" ; ca:description "Return a typed standing decision from admitted evidence." ; ca:tags "evidence,standing,receipt" .
+ca:GenerateWhiteboardSkill a ca:A2ASkill ; ca:order 4 ; ca:skillId "generate-whiteboard-projection" ;
+  rdfs:label "Generate Whiteboard Projection" ; ca:description "Produce draw, speech, rationale, tradeoff, and follow-up guidance." ; ca:tags "interview,whiteboard,systems" .
+ca:RunSelfPlaySkill a ca:A2ASkill ; ca:order 5 ; ca:skillId "run-bounded-self-play" ;
+  rdfs:label "Run Bounded Self-Play" ; ca:description "Execute Candidate, Examiner, and Adjudicator turns as one receipted task." ; ca:tags "self-play,a2a,simulation" .
+ca:PlanSpeedrunSkill a ca:A2ASkill ; ca:order 6 ; ca:skillId "plan-speedrun" ;
+  rdfs:label "Plan Certification Speedrun" ; ca:description "Select the minimum sufficient dependency-closed objective horizon." ; ca:tags "automation,80-20,planning" .
+
+ca:CandidateTwin a ca:SelfPlayRole ; ca:order 1 ; ca:slug "candidate-twin" ; rdfs:label "Candidate Twin" .
+ca:ExaminerTwin a ca:SelfPlayRole ; ca:order 2 ; ca:slug "examiner-twin" ; rdfs:label "Examiner Twin" .
+ca:DomainAdjudicator a ca:SelfPlayRole ; ca:order 3 ; ca:slug "domain-adjudicator" ; rdfs:label "Domain Adjudicator" .
+
+ca:CertificationAssistAutonomics a ca:AutonomicProfile ;
+  ca:maxCycles 8 ; ca:directActuation false ; ca:promotionRequiresEvidence true ;
+  ca:description "Bounded MAPE-K may manufacture practice intents but cannot promote standing." .
