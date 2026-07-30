@@ -1,0 +1,177 @@
+name: Fortune 5 BBlock
+
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-cli/src/cmds/bblock.rs'
+      - 'crates/ggen-cli/src/cmds/mod.rs'
+      - 'packs/fortune5-deployment-blocks-pack/**'
+      - '.github/workflows/fortune5-bblock.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fortune5-bblock-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  catalog-cli-and-replay:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Independently prove ontology and retained catalog equivalence
+        run: |
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from rdflib import Graph, Namespace, RDF, Literal
+          from rdflib.plugins.sparql import prepareQuery
+
+          root = Path('packs/fortune5-deployment-blocks-pack')
+          catalog = json.loads((root / 'catalog/fortune5-bblocks.json').read_text())
+          graph = Graph()
+          graph.parse(root / 'ontology.ttl', format='turtle')
+          BB = Namespace('http://seanchatmangpt.github.io/packs/fortune5-bblock#')
+          EX = Namespace('https://ggen.io/fortune5/bblocks/')
+
+          assert catalog['schema'] == 'ggen.bblock.catalog.v1'
+          assert catalog['version'] == str(graph.value(EX.catalog, BB.catalogVersion))
+          assert graph.value(EX.catalog, BB.directActuation) == Literal(False)
+
+          providers = {}
+          for subject in graph.subjects(RDF.type, BB.Provider):
+              provider_id = str(graph.value(subject, BB.providerId))
+              providers[provider_id] = {
+                  'id': provider_id,
+                  'title': str(graph.value(subject, BB.title)),
+                  'aliases': sorted(str(value) for value in graph.objects(subject, BB.alias)),
+              }
+          expected_providers = {
+              item['id']: {**item, 'aliases': sorted(item['aliases'])}
+              for item in catalog['providers']
+          }
+          assert providers == expected_providers, (providers, expected_providers)
+          assert set(providers) == {'aws', 'azure', 'gcp'}
+
+          groups = {}
+          for subject in graph.subjects(RDF.type, BB.BlockGroup):
+              group_id = str(graph.value(subject, BB.groupId))
+              groups[group_id] = {
+                  'id': group_id,
+                  'title': str(graph.value(subject, BB.title)),
+                  'description': str(graph.value(subject, BB.description)),
+                  'directory': str(graph.value(subject, BB.outputDirectory)),
+                  'dependencies': sorted(
+                      str(graph.value(dep, BB.groupId))
+                      for dep in graph.objects(subject, BB.dependsOn)
+                  ),
+                  'common_packs': sorted(str(value) for value in graph.objects(subject, BB.commonPack)),
+                  'provider_packs': {
+                      'aws': sorted(str(value) for value in graph.objects(subject, BB.awsPack)),
+                      'azure': sorted(str(value) for value in graph.objects(subject, BB.azurePack)),
+                      'gcp': sorted(str(value) for value in graph.objects(subject, BB.gcpPack)),
+                  },
+              }
+          expected_groups = {
+              item['id']: {
+                  **item,
+                  'dependencies': sorted(item['dependencies']),
+                  'common_packs': sorted(item['common_packs']),
+                  'provider_packs': {
+                      provider: sorted(packs)
+                      for provider, packs in item['provider_packs'].items()
+                  },
+              }
+              for item in catalog['groups']
+          }
+          assert groups == expected_groups
+          assert len(groups) == 18
+          assert all(all(item['provider_packs'][p] for p in ('aws', 'azure', 'gcp')) for item in groups.values())
+
+          gates = sorted((root / 'gates').glob('*.rq'))
+          assert len(gates) >= 2
+          for path in gates:
+              query = path.read_text()
+              prepareQuery(query)
+              rows = list(graph.query(query))
+              assert not rows, (path.name, rows)
+
+          direct = Graph()
+          for triple in graph:
+              direct.add(triple)
+          direct.set((EX.catalog, BB.directActuation, Literal(True)))
+          assert list(direct.query((root / 'gates/020_safe_acyclic_broker_only.rq').read_text()))
+
+          cycle = Graph()
+          for triple in graph:
+              cycle.add(triple)
+          cycle.add((EX['global-network'], BB.dependsOn, EX['fortune5-complete']))
+          assert list(cycle.query((root / 'gates/020_safe_acyclic_broker_only.rq').read_text()))
+
+          print(f"BBLOCK_LAW providers={len(providers)} groups={len(groups)} triples={len(graph)} gates={len(gates)}")
+          PY
+
+      - name: Enforce formatting and compile the bblock noun
+        run: |
+          cargo fmt --manifest-path Cargo.toml --package ggen-cli-lib -- --check
+          cargo check -p ggen-cli-lib --lib
+          cargo test -p ggen-cli-lib bblock --lib
+
+      - name: Build the real ggen binary
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Exercise public noun-verb commands
+        run: |
+          GGEN="$PWD/target/debug/ggen"
+          "$GGEN" bblock validate > /tmp/bblock-validate.json
+          "$GGEN" bblock providers > /tmp/bblock-providers.json
+          "$GGEN" bblock list > /tmp/bblock-list.json
+          "$GGEN" bblock inspect fortune5-complete gpc > /tmp/bblock-inspect-gpc.json
+          test "$(jq -r '.status' /tmp/bblock-validate.json)" = "ALIVE"
+          test "$(jq '.providers' /tmp/bblock-validate.json)" = "3"
+          test "$(jq '.groups' /tmp/bblock-validate.json)" = "18"
+          test "$(jq -r '.provider' /tmp/bblock-inspect-gpc.json)" = "gcp"
+          test "$(jq '.resolved_groups | length > 14' /tmp/bblock-inspect-gpc.json)" = "true"
+          test "$(jq '[.packs[] | select(startswith("gcp-"))] | length > 0' /tmp/bblock-inspect-gpc.json)" = "true"
+
+      - name: Manufacture plan, directories, lockfile, and receipt chain
+        run: |
+          GGEN="$PWD/target/debug/ggen"
+          ROOT="$(mktemp -d)"
+          cd "$ROOT"
+          "$GGEN" bblock plan fortune5-complete aws > /tmp/bblock-plan-first.json
+          cp .ggen/bblocks/plans/aws/fortune5-complete.json /tmp/bblock-plan-bytes-first.json
+          "$GGEN" bblock plan fortune5-complete aws > /tmp/bblock-plan-second.json
+          cmp /tmp/bblock-plan-bytes-first.json .ggen/bblocks/plans/aws/fortune5-complete.json
+          test -s .ggen/bblocks/receipts/aws/fortune5-complete-plan-intent.json
+          test -s .ggen/bblocks/receipts/aws/fortune5-complete-plan-result.json
+
+          "$GGEN" bblock enable fortune5-complete aws > /tmp/bblock-enable.json
+          test -s .ggen/packs.lock
+          test -s .ggen/bblocks/groups/fortune5-complete.json
+          test -s .ggen/bblocks/receipts/aws/fortune5-complete-enable-intent.json
+          test -s .ggen/bblocks/receipts/aws/fortune5-complete-enable-result.json
+          test -d infrastructure/network
+          test -d infrastructure/security/kms
+          test -d infrastructure/control-plane
+          test -d infrastructure/fortune5
+          test "$(jq '.packs | length > 70' /tmp/bblock-enable.json)" = "true"
+
+      - name: Refuse unknown providers and direct cloud actuation imports
+        run: |
+          set +e
+          target/debug/ggen bblock inspect fortune5-complete oracle >/tmp/bblock-oracle.out 2>/tmp/bblock-oracle.err
+          code=$?
+          set -e
+          test "$code" -ne 0
+          ! grep -RInE 'reqwest|std::net|Command::new|terraform|pulumi|kubectl|aws_sdk|azure_|google_cloud' crates/ggen-cli/src/cmds/bblock.rs
