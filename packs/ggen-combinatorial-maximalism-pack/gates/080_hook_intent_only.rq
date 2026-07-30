@@ -1,0 +1,15 @@
+# MESSAGE: hooks manufacture intents and may not actuate; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:IntentHook ; cmd:directlyActuates ?actuation .
+    BIND("hook-direct-actuation-forbidden" AS ?violation)
+    BIND(STR(?actuation) AS ?detail)
+  } UNION {
+    ?subject a cmd:IntentHook ; cmd:emitsIntent ?intent .
+    FILTER NOT EXISTS { ?intent a cmd:Intent }
+    BIND("hook-output-must-be-intent" AS ?violation)
+    BIND(STR(?intent) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

@@ -1,0 +1,111 @@
+@prefix cmd:     <https://chatmangpt.com/ontology/cmd#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# Two orthogonal dimensions produce four reversible constructions. Only one
+# candidate has crossed verification and authorization; the graph does not
+# contain ACTUATED standing because actuation exists only as a runtime receipt.
+
+<urn:cmd:specimen> a cmd:DesignSpace ;
+    dcterms:title "Combinatorial maximalism filesystem specimen" ;
+    cmd:crateName "cmd-cell" ;
+    cmd:binaryName "cmdctl" ;
+    cmd:version "26.7.29" ;
+    cmd:coverageMode "exhaustive" ;
+    cmd:expectedCandidateCount 4 ;
+    cmd:maxCandidates 8 ;
+    cmd:hasDimension <urn:cmd:dimension:runtime>, <urn:cmd:dimension:serialization> ;
+    cmd:hasCandidate
+        <urn:cmd:candidate:native-json>,
+        <urn:cmd:candidate:native-turtle>,
+        <urn:cmd:candidate:wasm-json>,
+        <urn:cmd:candidate:wasm-turtle> ;
+    cmd:hasBroker <urn:cmd:broker:filesystem> .
+
+<urn:cmd:dimension:runtime> a cmd:Dimension ;
+    cmd:name "runtime" ;
+    cmd:order 1 ;
+    cmd:hasOption <urn:cmd:option:native>, <urn:cmd:option:wasm> .
+
+<urn:cmd:dimension:serialization> a cmd:Dimension ;
+    cmd:name "serialization" ;
+    cmd:order 2 ;
+    cmd:hasOption <urn:cmd:option:json>, <urn:cmd:option:turtle> .
+
+<urn:cmd:option:native> a cmd:Option ;
+    cmd:name "native" ;
+    cmd:belongsToDimension <urn:cmd:dimension:runtime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.0 .
+
+<urn:cmd:option:wasm> a cmd:Option ;
+    cmd:name "wasm" ;
+    cmd:belongsToDimension <urn:cmd:dimension:runtime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.5 .
+
+<urn:cmd:option:json> a cmd:Option ;
+    cmd:name "json" ;
+    cmd:belongsToDimension <urn:cmd:dimension:serialization> ;
+    cmd:reversible true ;
+    cmd:resourceCost 0.5 .
+
+<urn:cmd:option:turtle> a cmd:Option ;
+    cmd:name "turtle" ;
+    cmd:belongsToDimension <urn:cmd:dimension:serialization> ;
+    cmd:reversible true ;
+    cmd:resourceCost 0.75 .
+
+<urn:cmd:candidate:native-json> a cmd:Candidate ;
+    cmd:name "native-json" ;
+    cmd:standing "VERIFIED" ;
+    cmd:authorizedBy "cmd-specimen-authority" ;
+    cmd:selectsOption <urn:cmd:option:native>, <urn:cmd:option:json> ;
+    cmd:outputRelativePath "artifacts/native-json.json" ;
+    cmd:requiresProof <urn:cmd:proof:native-json-coverage>, <urn:cmd:proof:native-json-boundary> .
+
+<urn:cmd:candidate:native-turtle> a cmd:Candidate ;
+    cmd:name "native-turtle" ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:native>, <urn:cmd:option:turtle> ;
+    cmd:outputRelativePath "artifacts/native-turtle.ttl" .
+
+<urn:cmd:candidate:wasm-json> a cmd:Candidate ;
+    cmd:name "wasm-json" ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:wasm>, <urn:cmd:option:json> ;
+    cmd:outputRelativePath "artifacts/wasm-json.json" .
+
+<urn:cmd:candidate:wasm-turtle> a cmd:Candidate ;
+    cmd:name "wasm-turtle" ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:wasm>, <urn:cmd:option:turtle> ;
+    cmd:outputRelativePath "artifacts/wasm-turtle.ttl" .
+
+<urn:cmd:proof:native-json-coverage> a cmd:ProofObligation ;
+    cmd:proofId "CMD-EXHAUSTIVE-COVERAGE" ;
+    cmd:proofStatus "SATISFIED" .
+
+<urn:cmd:proof:native-json-boundary> a cmd:ProofObligation ;
+    cmd:proofId "CMD-RECEIPTED-BOUNDARY" ;
+    cmd:proofStatus "SATISFIED" .
+
+<urn:cmd:broker:filesystem> a cmd:Broker ;
+    cmd:name "filesystem-broker" ;
+    cmd:rootPath ".cmd/runtime" ;
+    cmd:receiptAlgorithm "blake3" ;
+    cmd:replayMode "exact-output" .
+
+<urn:cmd:actuation:native-json> a cmd:ActuationContract ;
+    cmd:name "native-json-actuation" ;
+    cmd:fromCandidate <urn:cmd:candidate:native-json> ;
+    cmd:throughBroker <urn:cmd:broker:filesystem> ;
+    cmd:receiptRequired true ;
+    cmd:producesReceipt <urn:cmd:receipt:runtime> .
+
+<urn:cmd:receipt:runtime> a cmd:Receipt .
+
+<urn:cmd:intent:materialize-native-json> a cmd:Intent .
+
+<urn:cmd:hook:design-selection> a cmd:IntentHook ;
+    cmd:emitsIntent <urn:cmd:intent:materialize-native-json> .
