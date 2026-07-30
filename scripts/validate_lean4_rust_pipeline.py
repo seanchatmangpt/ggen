@@ -22,6 +22,7 @@ EXPECTED_OUTPUTS = {
     "generated/lean/lean-toolchain",
     "generated/lean/lake-manifest.json",
     "generated/lean/lakefile.lean",
+    "generated/lean/Lean4RustPipeline.lean",
     "generated/lean/Main.lean",
     "generated/PIPELINE.md",
 }
@@ -78,10 +79,19 @@ def main() -> int:
         "LAKE_MANIFEST_CONTRACT_REFUSED",
     )
 
-    lean_template = (PACK / "templates/Main.lean.tmpl").read_text(encoding="utf-8")
+    lakefile_template = (PACK / "templates/lakefile.lean.tmpl").read_text(encoding="utf-8")
+    for required in (
+        "package Lean4RustPipeline",
+        "lean_lib Lean4RustPipeline",
+        "lean_exe emitRust",
+        "root := `Main",
+    ):
+        refuse(required not in lakefile_template, f"LEAN_PROJECT_TOPOLOGY_MISSING:{required}")
+
+    proof_template = (PACK / "templates/Lean4RustPipeline.lean.tmpl").read_text(encoding="utf-8")
     for forbidden in FORBIDDEN_LEAN:
         refuse(
-            re.search(rf"\b{re.escape(forbidden)}\b", lean_template) is not None,
+            re.search(rf"\b{re.escape(forbidden)}\b", proof_template) is not None,
             f"LEAN_TRUST_EXPANSION_REFUSED:{forbidden}",
         )
     for required in (
@@ -100,7 +110,11 @@ def main() -> int:
         "println!(\\\"{receipt}\\\")",
         "lean_proof_blake3",
     ):
-        refuse(required not in lean_template, f"LEAN_PROOF_PIPELINE_SURFACE_MISSING:{required}")
+        refuse(required not in proof_template, f"LEAN_PROOF_PIPELINE_SURFACE_MISSING:{required}")
+
+    runner_template = (PACK / "templates/Main.lean.tmpl").read_text(encoding="utf-8")
+    refuse("import Lean4RustPipeline" not in runner_template, "LEAN_RUNNER_IMPORT_MISSING")
+    refuse("Lean4Rust.main" not in runner_template, "LEAN_RUNNER_ROUTE_MISSING")
 
     consumer_files = sorted(path.name for path in CONSUMER.iterdir() if path.is_file())
     refuse(
