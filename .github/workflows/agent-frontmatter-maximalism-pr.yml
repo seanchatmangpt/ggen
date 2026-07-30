@@ -19,11 +19,7 @@ jobs:
 
       - name: Execute the bound patch program
         shell: bash
-        run: |
-          sed -n "/python3 <<'PY'/,/^          PY$/p" \
-            .github/workflows/agent-frontmatter-maximalism.yml \
-            | sed '1d;$d;s/^          //' > /tmp/apply-frontmatter-maximalism.py
-          python3 /tmp/apply-frontmatter-maximalism.py
+        run: python3 .github/frontmatter-maximalism.py
 
       - name: Format and statically verify the diff
         shell: bash
@@ -48,6 +44,7 @@ jobs:
       - name: Commit verified implementation
         shell: bash
         run: |
+          rm .github/frontmatter-maximalism.py
           rm .github/workflows/agent-frontmatter-maximalism.yml
           rm .github/workflows/agent-frontmatter-maximalism-pr.yml
           git config user.name "github-actions[bot]"
@@ -56,6 +53,7 @@ jobs:
                   crates/ggen-engine/schema/frontmatter-schema.ttl \
                   crates/ggen-engine/tests/frontmatter_maximalism_e2e.rs \
                   docs/reference/frontmatter-maximalism.md \
+                  .github/frontmatter-maximalism.py \
                   .github/workflows/agent-frontmatter-maximalism.yml \
                   .github/workflows/agent-frontmatter-maximalism-pr.yml
           git commit -m "feat(engine): maximize frontmatter projections"
