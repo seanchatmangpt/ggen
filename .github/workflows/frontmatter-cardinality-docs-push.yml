@@ -1,0 +1,58 @@
+name: Frontmatter cardinality docs push
+
+on:
+  push:
+    branches:
+      - agent/frontmatter-maximalism
+
+permissions:
+  contents: write
+
+concurrency:
+  group: frontmatter-cardinality-docs-push
+  cancel-in-progress: false
+
+jobs:
+  document:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Execute canonical documentation program
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          source = Path('.github/workflows/frontmatter-cardinality-docs.yml').read_text()
+          script = source.split("python3 <<'PY'\n", 1)[1].split("\n          PY", 1)[0]
+          exec(compile(textwrap.dedent(script), '<frontmatter-cardinality-docs>', 'exec'))
+          PY
+
+          grep -q 'exactly 25 properties' docs/reference/template-directives.md
+          grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
+          grep -q 'frontmatter_cardinality_e2e.rs' docs/reference/template-directives.md
+          grep -q '^## Explicit projection cardinality' docs/explanation/frontmatter-maximalism.md
+          git diff --check
+
+      - name: Publish documentation and remove launchers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/frontmatter-cardinality-docs.yml
+          rm .github/workflows/frontmatter-cardinality-docs-push.yml
+          git config user.name "ggen frontmatter docs"
+          git config user.email "actions@github.com"
+          git add docs/reference/template-directives.md \
+                  docs/explanation/frontmatter-maximalism.md \
+                  .github/workflows/frontmatter-cardinality-docs.yml \
+                  .github/workflows/frontmatter-cardinality-docs-push.yml
+          git commit -m "docs(engine): document explicit projection cardinality"
+          git push origin HEAD:agent/frontmatter-maximalism
