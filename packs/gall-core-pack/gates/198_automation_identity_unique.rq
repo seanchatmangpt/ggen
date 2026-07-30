@@ -1,0 +1,8 @@
+# MESSAGE: Gall automation profile identity is duplicated -- automationProfileId must identify exactly one profile
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?automationProfileId (COUNT(DISTINCT ?profile) AS ?count) WHERE {
+  ?profile a gall:AutomationProfile ; gall:automationProfileId ?automationProfileId .
+}
+GROUP BY ?automationProfileId
+HAVING(COUNT(DISTINCT ?profile) != 1)
+ORDER BY ?automationProfileId
