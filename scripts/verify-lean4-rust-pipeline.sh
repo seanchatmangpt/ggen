@@ -8,7 +8,21 @@ EVIDENCE="$EXAMPLE/generated/evidence"
 
 python3 "$ROOT/scripts/validate_lean4_rust_pipeline.py"
 
-mapfile -t authored < <(find "$EXAMPLE" -maxdepth 1 -type f -printf '%f\n' | sort)
+mapfile -t root_files < <(find "$EXAMPLE" -maxdepth 1 -type f -printf '%f\n' | sort)
+for root_file in "${root_files[@]}"; do
+  case "$root_file" in
+    ggen.lock | ggen.toml | ontology.ttl) ;;
+    *)
+      echo "::error::unexpected consumer root file: $root_file"
+      exit 1
+      ;;
+  esac
+done
+mapfile -t authored < <(
+  find "$EXAMPLE" -maxdepth 1 -type f \
+    \( -name 'ggen.toml' -o -name 'ontology.ttl' \) \
+    -printf '%f\n' | sort
+)
 printf '%s\n' "${authored[@]}"
 test "${#authored[@]}" -eq 2
 test "${authored[0]}" = "ggen.toml"
