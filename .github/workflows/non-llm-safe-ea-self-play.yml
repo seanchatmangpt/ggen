@@ -1,0 +1,173 @@
+name: Non-LLM SAFe EA Self-Play
+
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-architecture/**'
+      - 'packs/safe-ea-strategy-self-play-pack/**'
+      - 'examples/safe-ea-strategy-self-play/**'
+      - '.github/workflows/non-llm-safe-ea-self-play.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: non-llm-safe-ea-self-play-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  manufacture-and-self-play:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Validate canonical architecture kernel
+        run: |
+          cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --all --check
+          cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
+          cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets
+
+      - name: Prove pure non-LLM broker-only kernel boundary
+        run: |
+          ! grep -RInE 'std::process|std::fs|std::net|reqwest|rig_core|openai|anthropic|ollama|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src/self_play.rs
+          grep -n 'SELF_PLAY_REQUIRED_BROKER.*BRCE' crates/ggen-architecture/src/self_play.rs
+          grep -n 'actuation_performed: false' crates/ggen-architecture/src/self_play.rs
+
+      - name: Validate ontology and fail-closed gates
+        run: |
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          python3 - <<'PY'
+          from pathlib import Path
+          from rdflib import Graph, Namespace, Literal
+          from rdflib.plugins.sparql import prepareQuery
+
+          pack = Path('packs/safe-ea-strategy-self-play-pack')
+          example = Path('examples/safe-ea-strategy-self-play/ontology.ttl')
+          graph = Graph()
+          graph.parse(pack / 'ontology.ttl', format='turtle')
+          graph.parse(example, format='turtle')
+          assert len(graph) > 2000, len(graph)
+
+          gates = sorted((pack / 'gates').glob('*.rq'))
+          assert len(gates) == 6, gates
+          for gate in gates:
+              prepareQuery(gate.read_text())
+              rows = list(graph.query(gate.read_text()))
+              assert not rows, (gate.name, rows[:10])
+
+          sp = Namespace('https://ggen.dev/ontology/self-play#')
+          ex = Namespace('https://example.org/ea-self-play/')
+
+          direct = Graph()
+          for triple in graph:
+              direct.add(triple)
+          direct.remove((ex.program, sp.directActuation, None))
+          direct.add((ex.program, sp.directActuation, Literal(True)))
+          direct_rows = list(direct.query((pack / 'gates/040_non_llm_broker_only.rq').read_text()))
+          assert any('direct actuation' in str(row).lower() for row in direct_rows), direct_rows
+
+          llm = Graph()
+          for triple in graph:
+              llm.add(triple)
+          llm.remove((ex.program, sp.llmCalls, None))
+          llm.add((ex.program, sp.llmCalls, Literal(1)))
+          llm_rows = list(llm.query((pack / 'gates/040_non_llm_broker_only.rq').read_text()))
+          assert any('llm calls' in str(row).lower() for row in llm_rows), llm_rows
+
+          coverage = list(graph.query((pack / 'gates/050_use_case_coverage.rq').read_text()))
+          assert not coverage
+          print(f'SELF_PLAY_ONTOLOGY triples={len(graph)} gates={len(gates)} direct_refusals={len(direct_rows)} llm_refusals={len(llm_rows)}')
+          PY
+
+      - name: Build the real ggen compiler
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture the self-play cell twice
+        run: |
+          cd examples/safe-ea-strategy-self-play
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find generated docs -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/self-play-first.sha256
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find generated docs -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/self-play-second.sha256
+          diff -u /tmp/self-play-first.sha256 /tmp/self-play-second.sha256
+          test -s generated/scenarios.json
+          test -s generated/src/main.rs
+          test -s generated/src/bin/verifier.rs
+          test -s generated/tests/process_boundary.rs
+          test -s docs/SAFE_EA_SELF_PLAY_USE_CASES.md
+
+      - name: Validate generated manifest closure
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('examples/safe-ea-strategy-self-play/generated/scenarios.json')
+          data = json.loads(path.read_text())
+          assert data['program_id'] == 'safe-ea-strategy-self-play-v26.7.30'
+          assert len(data['scenarios']) == 4
+          assert len(data['scenario_use_cases']) == 12
+          assert len({row['use_case'] for row in data['scenario_use_cases']}) == 12
+          assert len(data['actions']) >= 24
+          assert len(data['invariants']) == 120
+          assert data['policy_authorities']
+          assert data['action_evidence']
+          print('SELF_PLAY_MANIFEST scenarios=4 use_cases=12 actions=' + str(len(data['actions'])))
+          PY
+
+      - name: Compile and execute generated process-boundary verifier
+        run: |
+          manifest=examples/safe-ea-strategy-self-play/generated/Cargo.toml
+          cargo fmt --manifest-path "$manifest" --all --check
+          cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+          cargo test --manifest-path "$manifest" --all-targets
+          target=examples/safe-ea-strategy-self-play/generated/target/debug
+          "$target/ea-self-play" > /tmp/ea-self-play-report.json
+          "$target/ea-self-play" > /tmp/ea-self-play-replay.json
+          cmp /tmp/ea-self-play-report.json /tmp/ea-self-play-replay.json
+          "$target/ea-self-play-verifier" < /tmp/ea-self-play-report.json | tee /tmp/ea-self-play-verification.txt
+
+      - name: Verify report standing and zero actuation
+        run: |
+          python3 - <<'PY'
+          import json
+          reports = json.load(open('/tmp/ea-self-play-report.json'))
+          assert len(reports) == 4
+          assert all(report['standing'] == 'ALIVE' for report in reports), reports
+          assert all(report['fixed_point'] is True for report in reports), reports
+          assert all(report['actuation_performed'] is False for report in reports), reports
+          receipts = [receipt for report in reports for receipt in report['receipts']]
+          assert receipts
+          assert all(receipt['actuation_performed'] is False for receipt in receipts)
+          assert any(receipt['broker_intent_emitted'] is True for receipt in receipts)
+          assert len({use_case for report in reports for use_case in report['use_cases']}) == 12
+          print(f'SELF_PLAY_ALIVE scenarios={len(reports)} receipts={len(receipts)} use_cases=12')
+          PY
+
+      - name: Refuse generated placeholders and model dependencies
+        run: |
+          ! grep -RInE 'TODO|FIXME|placeholder|mock success|fake success|unimplemented!\(|todo!\(' crates/ggen-architecture/src/self_play.rs packs/safe-ea-strategy-self-play-pack examples/safe-ea-strategy-self-play
+          ! grep -RInE '^use .*?(rig|openai|anthropic|ollama)|reqwest|async_openai' examples/safe-ea-strategy-self-play/generated/src crates/ggen-architecture/src/self_play.rs
+
+      - name: Upload exact self-play receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: non-llm-safe-ea-self-play
+          path: |
+            /tmp/ea-self-play-report.json
+            /tmp/ea-self-play-replay.json
+            /tmp/ea-self-play-verification.txt
+            examples/safe-ea-strategy-self-play/.ggen/receipts/
+            examples/safe-ea-strategy-self-play/docs/SAFE_EA_SELF_PLAY_USE_CASES.md
+          if-no-files-found: error
+          retention-days: 30
