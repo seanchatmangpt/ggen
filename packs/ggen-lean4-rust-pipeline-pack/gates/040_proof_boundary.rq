@@ -1,4 +1,4 @@
-# MESSAGE: v1 accepts only the explicit proof names, codegen surface, pinned Lean family, and BLAKE3 receipt boundary implemented by the generated emitter; any row is a refusal.
+# MESSAGE: v1 accepts only the explicit proof names, codegen surface, exact Lean toolchain, and BLAKE3 receipt boundary implemented by the generated emitter; any row is a refusal.
 PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
 SELECT ?subject ?violation ?detail WHERE {
   {
@@ -13,7 +13,7 @@ SELECT ?subject ?violation ?detail WHERE {
     BIND(STR(?value) AS ?detail)
   } UNION {
     ?subject a lr:Pipeline ; lr:leanToolchain ?value .
-    FILTER (!STRSTARTS(STR(?value), "leanprover/lean4:v4."))
+    FILTER (STR(?value) != "leanprover/lean4:v4.30.0")
     BIND("lean-toolchain-unpinned" AS ?violation)
     BIND(STR(?value) AS ?detail)
   } UNION {
