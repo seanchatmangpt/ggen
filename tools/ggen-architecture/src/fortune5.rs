@@ -705,10 +705,7 @@ impl Fortune5Assessment {
         };
         let standing = if level_five_ready {
             Standing::Alive
-        } else if findings
-            .iter()
-            .any(|item| item.severity >= Severity::Error)
-        {
+        } else if findings.iter().any(|item| item.severity >= Severity::Error) {
             Standing::Blocked
         } else if passed_obligations > 0 {
             Standing::PartialAlive
@@ -935,12 +932,8 @@ impl Fortune5AutonomicPlan {
 }
 
 fn build_intent(
-    kind: Fortune5IntentKind,
-    subject: &str,
-    preconditions: &[&str],
-    required_capabilities: &[&str],
-    expected_evidence: &[&str],
-    payload: &[(&str, &str)],
+    kind: Fortune5IntentKind, subject: &str, preconditions: &[&str],
+    required_capabilities: &[&str], expected_evidence: &[&str], payload: &[(&str, &str)],
 ) -> Result<Fortune5Intent> {
     let preconditions = preconditions
         .iter()
@@ -982,11 +975,7 @@ fn build_intent(
 }
 
 fn dimension(
-    id: &str,
-    domain: Fortune5Domain,
-    title: &str,
-    capability: &str,
-    controls: &[&str],
+    id: &str, domain: Fortune5Domain, title: &str, capability: &str, controls: &[&str],
 ) -> Fortune5Dimension {
     let required_controls = controls
         .iter()
@@ -1034,10 +1023,7 @@ fn dimension(
 }
 
 fn obligation(
-    dimension_id: &str,
-    kind: ProofKind,
-    description: &str,
-    evidence: &[&str],
+    dimension_id: &str, kind: ProofKind, description: &str, evidence: &[&str],
 ) -> ProofObligation {
     let suffix = match kind {
         ProofKind::Design => "design",
@@ -1053,9 +1039,7 @@ fn obligation(
 }
 
 fn validate_evidence(
-    evidence: &ControlEvidence,
-    obligation: &ProofObligation,
-    policy: &Fortune5Policy,
+    evidence: &ControlEvidence, obligation: &ProofObligation, policy: &Fortune5Policy,
 ) -> Vec<Fortune5Finding> {
     let mut findings = Vec::new();
 
@@ -1162,11 +1146,7 @@ const fn maturity_level(alive_dimensions: usize) -> u8 {
 }
 
 fn finding(
-    code: &str,
-    severity: Severity,
-    subject: &str,
-    message: impl Into<String>,
-    remediation: &str,
+    code: &str, severity: Severity, subject: &str, message: impl Into<String>, remediation: &str,
 ) -> Fortune5Finding {
     Fortune5Finding {
         code: code.to_string(),
