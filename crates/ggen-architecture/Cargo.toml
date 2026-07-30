@@ -9,6 +9,11 @@ keywords = ["enterprise-architecture", "building-blocks", "receipts", "autonomic
 categories = ["development-tools"]
 publish = false
 
+[package.metadata.ggen]
+checkpoint = "GBB-000"
+authority = "canonical-kernel"
+actuation = "broker-only"
+
 [lib]
 path = "src/canonical.rs"
 
