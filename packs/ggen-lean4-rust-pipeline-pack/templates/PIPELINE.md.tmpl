@@ -6,7 +6,9 @@ sparql:
     PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
     SELECT ?title ?bound ?witness_input ?witness_output ?proof_theorem
-           ?witness_theorem ?fixed_point_theorem ?toolchain WHERE {
+           ?witness_theorem ?fixed_point_theorem ?toolchain
+           ?r1_p99_ns ?r1_tick_budget ?w1_p99_ns ?c1_p99_ns ?region_count ?region_quorum
+           ?spiffe_id ?certificate_refresh_seconds ?key_rotation_seconds WHERE {
       ?pipeline a lr:Pipeline ;
                 dcterms:title ?title ;
                 lr:bound ?bound ;
@@ -15,7 +17,16 @@ sparql:
                 lr:proofTheorem ?proof_theorem ;
                 lr:witnessTheorem ?witness_theorem ;
                 lr:fixedPointTheorem ?fixed_point_theorem ;
-                lr:leanToolchain ?toolchain .
+                lr:leanToolchain ?toolchain ;
+                lr:r1P99Nanos ?r1_p99_ns ;
+                lr:r1TickBudget ?r1_tick_budget ;
+                lr:w1P99Nanos ?w1_p99_ns ;
+                lr:c1P99Nanos ?c1_p99_ns ;
+                lr:regionCount ?region_count ;
+                lr:regionQuorum ?region_quorum ;
+                lr:spiffeId ?spiffe_id ;
+                lr:certificateRefreshSeconds ?certificate_refresh_seconds ;
+                lr:keyRotationSeconds ?key_rotation_seconds .
     }
     LIMIT 1
 ---
@@ -25,15 +36,18 @@ sparql:
 
 ```text
 ontology.ttl
-→ ggen graph admission
-→ ggen-manufactured Lean4RustPipeline.lean proof library
-→ ggen-manufactured Main.lean emitter runner
+→ fail-closed ggen graph admission
+→ ggen-manufactured Fortune5Policy.lean proof library
+→ ggen-manufactured RustLib/RustMain/RustEvidence projections
+→ ggen-manufactured Lean4RustPipeline.lean emitter
+→ ggen-manufactured Main.lean runner
 → Lean kernel admission
 → leanchecker environment replay
-→ Lean executable emits Rust
+→ Lean executable emits Rust policy evaluator + receipt verifier + SLO probe
 → rustfmt + Clippy + tests
-→ public Rust execution
-→ BLAKE3 execution receipt bound to proof-receipt.json
+→ canary/staging/production promotion scenarios
+→ BLAKE3 proof and regional receipt verification
+→ sabotage + replay identity
 ```
 
 ## Admitted bounded-successor cell
@@ -45,9 +59,32 @@ ontology.ttl
 - Concrete witness theorem: `{{ p.witness_theorem }}`
 - Fixed-point theorem: `{{ p.fixed_point_theorem }}`
 
+## Fortune 5 policy cell
+
+- R1 P99 target: `{{ p.r1_p99_ns }}` ns / `{{ p.r1_tick_budget }}` RDTSC ticks
+- W1 P99 target: `{{ p.w1_p99_ns }}` ns
+- C1 P99 target: `{{ p.c1_p99_ns }}` ns
+- Multi-region topology: `{{ p.region_count }}` regions with quorum `{{ p.region_quorum }}`
+- Workload identity: `{{ p.spiffe_id }}`
+- Certificate refresh ceiling: `{{ p.certificate_refresh_seconds }}` seconds
+- Key rotation ceiling: `{{ p.key_rotation_seconds }}` seconds
+- Required KMS adapters: AWS KMS, Azure Key Vault, HashiCorp Vault
+- Required network controls: mTLS, network policy, firewall policy
+- Required observability: OTEL correlation and alerts for SLO, guard, receipt, and degradation failures
+
+## Promotion law
+
+```text
+SLO violation                         → ROLLBACK
+SLO pass + any admission gate failure → REFUSE
+healthy CANARY                        → PROMOTE_STAGING
+healthy STAGING                       → PROMOTE_PRODUCTION
+healthy PRODUCTION                    → HOLD
+```
+
 ## Constitutional fence
 
-The Rust crate is not a sibling projection of the source ontology. ggen first manufactures an independently checkable Lean proof library plus a minimal emitter runner. The Rust source is written only by the executable linked against the library that Lean has compiled after checking the theorem bundle.
+The Rust crate is not a sibling projection of the source ontology. ggen first manufactures an independently checkable Lean proof library plus a minimal emitter runner. Rust is written only by the executable linked against the kernel-admitted library.
 
-The v1 claim is deliberately bounded to a successor function with a finite natural-number cap. It does not claim general Lean extraction, arbitrary theorem-to-code synthesis, or semantic equivalence for unmodeled side effects.
+This cell proves and executes the Fortune 5 admission and promotion law. It does not claim that CI deployed real regions, SPIRE servers, cloud KMS instances, network policies, or production traffic. Those systems are downstream actuators that must present observations to this policy and return receipts.
 {% endfor %}
