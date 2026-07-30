@@ -1,0 +1,85 @@
+[project]
+name = "fortune5-required-foundation-consumer"
+version = "26.7.30"
+description = "Generate and execute the bounded Fortune-5 required capability contract"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/ontology/fortune5-required#"
+imports = []
+
+[ontology.prefixes]
+f5 = "https://ggen.dev/ontology/fortune5-required#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/fortune5-required-foundation/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/fortune5-required-foundation/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-binary"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/src/bin/verify.rs.tmpl" }
+output_file = "consumer/fortune5-required-foundation/src/bin/verify.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "full-contract-proof"
+query = { file = "queries/requirements.rq" }
+template = { file = "templates/tests/full_contract.rs.tmpl" }
+output_file = "consumer/fortune5-required-foundation/tests/full_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "capability-document"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/FORTUNE5_CAPABILITIES.md.tmpl" }
+output_file = "consumer/fortune5-required-foundation/FORTUNE5_CAPABILITIES.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/fortune5-required-foundation/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/scripts/verify.sh.tmpl" }
+output_file = "consumer/fortune5-required-foundation/scripts/verify.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "consumer-ci"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/ci.yml.tmpl" }
+output_file = "consumer/fortune5-required-foundation/.github/workflows/ci.yml"
+skip_empty = false
+mode = "Overwrite"
