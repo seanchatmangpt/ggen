@@ -2,8 +2,8 @@
 //!
 //! Real boundaries throughout: real filesystem, real pack loading, real
 //! Oxigraph/SPARQL gates, real Tera generation, real git commits/worktrees,
-//! real bash commands, real ggen receipt verification, admitted evidence, and
-//! a final evidence sabotage that must be refused by the named crown gate.
+//! real bash commands, real ggen receipt verification, admitted evidence,
+//! APS-grade Jira and coding-agent projections, and named sabotage refusals.
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -88,7 +88,9 @@ fn planning_ontology() -> String {
 ex:program a gall:GallProgram ;
     gall:programId "GALL-CORE-E2E" ;
     gall:releaseIdentity "v26.7.30-test" ;
-    gall:hasCheckpoint ex:checkpoint-000 .
+    gall:jiraProjectKey "GALL" ;
+    gall:hasCheckpoint ex:checkpoint-000 ;
+    gall:hasWorkItem ex:work-item-001, ex:work-item-002 .
 
 ex:capability a gall:Capability ;
     gall:capabilityId "real-useful-file" ;
@@ -103,7 +105,8 @@ ex:checkpoint-000 a gall:Checkpoint, gall:RequiredCheckpoint ;
     gall:negativeFalsifier ex:falsifier ;
     gall:receiptObligation ex:receipt ;
     gall:replayObligation ex:replay ;
-    gall:ownsArtifact ex:useful-artifact .
+    gall:ownsArtifact ex:useful-artifact ;
+    gall:hasWorkItem ex:work-item-001, ex:work-item-002 .
 
 ex:useful-artifact gall:artifactPath "out/useful.txt" .
 
@@ -122,6 +125,66 @@ ex:receipt a gall:ReceiptObligation ;
 ex:replay a gall:ReplayObligation ;
     gall:name "roadmap-replays-from-sealed-revision" ;
     gall:command "test -f docs/GALL_CHECKPOINT_ROADMAP.md" .
+
+ex:work-item-001 a gall:WorkItem ;
+    gall:workItemId "GALL-CORE-001" ;
+    gall:issueType gall:Task ;
+    gall:summary "Manufacture the useful checkpoint artifact" ;
+    gall:objective "Create the real useful file through the checkpoint runner" ;
+    gall:rationale "The executable floor must cross a real filesystem boundary before later proof surfaces can rely on it" ;
+    gall:belongsToProgram ex:program ;
+    gall:belongsToCheckpoint ex:checkpoint-000 ;
+    gall:implementationOrder 10 ;
+    gall:priority gall:Highest ;
+    gall:component "gall-runtime" ;
+    gall:label "gall" ;
+    gall:label "v26.7.30" ;
+    gall:assigneeRole "Rust implementation agent" ;
+    gall:reviewerRole "Gall evidence reviewer" ;
+    gall:approvalGate "Runner witness and receipt are green" ;
+    gall:protocolState gall:Draft ;
+    gall:requiredContext "docs/GALL_CHECKPOINT_ROADMAP.md" ;
+    gall:allowedPath "out/" ;
+    gall:forbiddenPath "crates/" ;
+    gall:mustDo "Execute the ontology-declared runner command without replacing the real filesystem boundary" ;
+    gall:mustNotDo "Do not hardcode a successful receipt or bypass the checkpoint runner" ;
+    gall:outOfScope "Changing unrelated workspace crates" ;
+    gall:acceptanceCriterion "The runner creates out/useful.txt containing exactly alive" ;
+    gall:definitionOfDone "The positive witness negative falsifier receipt verifier and clean replay all pass" ;
+    gall:verificationCommand "grep -qx alive out/useful.txt" ;
+    gall:evidenceArtifact "out/useful.txt" ;
+    gall:adversarialQuestion "Would this ticket still pass if the runner did not create the file" .
+
+ex:work-item-002 a gall:WorkItem ;
+    gall:workItemId "GALL-CORE-002" ;
+    gall:issueType gall:Task ;
+    gall:summary "Verify the generated Gall work package" ;
+    gall:objective "Prove that Jira tickets agent work orders and dependency graphs are generated from the admitted work graph" ;
+    gall:rationale "A coding agent requires one consistent machine-derived instruction surface rather than manually synchronized ticket prose" ;
+    gall:belongsToProgram ex:program ;
+    gall:belongsToCheckpoint ex:checkpoint-000 ;
+    gall:dependsOnWorkItem ex:work-item-001 ;
+    gall:implementationOrder 20 ;
+    gall:priority gall:High ;
+    gall:component "gall-planning" ;
+    gall:label "jira" ;
+    gall:label "coding-agent" ;
+    gall:assigneeRole "Verification agent" ;
+    gall:reviewerRole "Adversarial agile reviewer" ;
+    gall:approvalGate "Generated ticket surfaces are complete and mutually consistent" ;
+    gall:protocolState gall:Draft ;
+    gall:requiredContext "docs/GALL_AGENT_WORK_ORDERS.md" ;
+    gall:allowedPath "docs/" ;
+    gall:allowedPath "jira/" ;
+    gall:forbiddenPath "src/" ;
+    gall:mustDo "Inspect every generated ticket surface and preserve the declared proof order" ;
+    gall:mustNotDo "Do not rewrite generated ticket artifacts by hand or omit prohibited scope" ;
+    gall:outOfScope "Creating live Jira issues through network side effects" ;
+    gall:acceptanceCriterion "The Jira CSV contains both work item IDs and the agent work order names every required and prohibited behavior" ;
+    gall:definitionOfDone "The work-item dependency graph contains the edge from GALL-CORE-001 to GALL-CORE-002 and sabotage gates refuse malformed contracts" ;
+    gall:verificationCommand "test -s jira/GALL_JIRA_WORK_ITEMS.csv" ;
+    gall:evidenceArtifact "docs/GALL_AGENT_WORK_ORDERS.md" ;
+    gall:adversarialQuestion "Can an agent complete this ticket while violating a declared MUST NOT rule" .
 "#
     .to_string()
 }
@@ -209,36 +272,54 @@ fn scaffold() -> (TempDir, PathBuf) {
 fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
     let (_dir, project) = scaffold();
 
-    // Planning mode: contracts and DAG law are enforced, while absent evidence
-    // remains UNKNOWN so the pack can manufacture its own real runner.
     sync_project(&project).expect("planning sync");
     for path in [
         "docs/GALL_CHECKPOINT_ROADMAP.md",
         "docs/GALL_CHECKPOINT_DAG.dot",
         "docs/GALL_STATUS_LEDGER.md",
         "docs/GALL_CROWN_REPORT.md",
+        "docs/GALL_AGENT_WORK_ORDERS.md",
+        "docs/GALL_JIRA_TICKET_CATALOG.md",
+        "docs/GALL_WORK_ITEM_DAG.dot",
+        "jira/GALL_JIRA_WORK_ITEMS.csv",
         "scripts/gall/run-checkpoints.sh",
     ] {
         assert!(project.join(path).is_file(), "missing generated {path}");
     }
+
     let planning_ledger =
         std::fs::read_to_string(project.join("docs/GALL_STATUS_LEDGER.md"))
             .expect("planning ledger");
     assert!(planning_ledger.contains("UNKNOWN"), "{planning_ledger}");
 
-    // Seal the exact generated planning state, then execute the generated
-    // runner. Its replay command runs from a detached worktree at this commit.
+    let work_orders = std::fs::read_to_string(project.join("docs/GALL_AGENT_WORK_ORDERS.md"))
+        .expect("agent work orders");
+    assert!(work_orders.contains("GALL-CORE-001"), "{work_orders}");
+    assert!(work_orders.contains("GALL-CORE-002"), "{work_orders}");
+    assert!(work_orders.contains("### MUST NOT"), "{work_orders}");
+    assert!(work_orders.contains("### Agent stop conditions"), "{work_orders}");
+
+    let jira = std::fs::read_to_string(project.join("jira/GALL_JIRA_WORK_ITEMS.csv"))
+        .expect("Jira CSV");
+    assert!(jira.contains("Project Key,Issue Type,Summary"), "{jira}");
+    assert!(jira.contains("GALL-CORE-001"), "{jira}");
+    assert!(jira.contains("GALL-CORE-002"), "{jira}");
+
+    let work_item_dag = std::fs::read_to_string(project.join("docs/GALL_WORK_ITEM_DAG.dot"))
+        .expect("work item DAG");
+    assert!(
+        work_item_dag.contains("\"GALL-CORE-001\" -> \"GALL-CORE-002\""),
+        "{work_item_dag}"
+    );
+
     commit_all(&project, "seal generated Gall planning artifacts");
     run_generated_evidence(&project);
 
-    // Activate crown mode and admit the generated evidence mini-pack.
     write_manifest(&project, true);
     activate_crown(&project);
     commit_all(&project, "activate Gall crown");
     sync_project(&project).expect("first crown sync");
 
-    // Seal crown outputs so tracked source is clean, rerun evidence against the
-    // exact crown revision/graph, then perform the final enforcing sync.
     commit_all(&project, "seal Gall crown outputs");
     run_generated_evidence(&project);
     sync_project(&project).expect("final crown sync");
@@ -251,9 +332,6 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
     assert!(crown_report.contains("GALL-CORE-CROWN"), "{crown_report}");
     assert!(crown_report.contains("**ALIVE**"), "{crown_report}");
 
-    // Negative falsifier for the framework itself: sabotage the externally
-    // emitted falsifier result. The next real sync must refuse by the exact
-    // crown-evidence gate name; a generated status file cannot overrule it.
     let evidence_path = project.join("evidence/gall/ontology.ttl");
     let evidence = std::fs::read_to_string(&evidence_path).expect("read evidence");
     let sabotaged = evidence.replacen("gall:falsifierExitCode 0", "gall:falsifierExitCode 1", 1);
@@ -264,5 +342,44 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
     assert!(
         error.contains("100_crown_evidence_green"),
         "refusal must name the evidence gate: {error}"
+    );
+}
+
+#[test]
+fn missing_agent_prohibition_is_refused() {
+    let (_dir, project) = scaffold();
+    let ontology_path = project.join("ontology.ttl");
+    let ontology = std::fs::read_to_string(&ontology_path).expect("read ontology");
+    let malformed = ontology.replace(
+        "    gall:mustNotDo \"Do not hardcode a successful receipt or bypass the checkpoint runner\" ;\n",
+        "",
+    );
+    assert_ne!(malformed, ontology, "malformation must remove a real rule");
+    std::fs::write(&ontology_path, malformed).expect("write malformed ontology");
+
+    let error = sync_project(&project).expect_err("missing MUST NOT rule must refuse");
+    assert!(
+        error.contains("150_work_item_contract_complete"),
+        "refusal must name the work-item contract gate: {error}"
+    );
+    assert!(error.contains("mustNotDo"), "{error}");
+}
+
+#[test]
+fn cyclic_ticket_execution_order_is_refused() {
+    let (_dir, project) = scaffold();
+    let ontology_path = project.join("ontology.ttl");
+    let ontology = std::fs::read_to_string(&ontology_path).expect("read ontology");
+    let cyclic = ontology.replace(
+        "ex:work-item-001 a gall:WorkItem ;\n",
+        "ex:work-item-001 a gall:WorkItem ;\n    gall:dependsOnWorkItem ex:work-item-002 ;\n",
+    );
+    assert_ne!(cyclic, ontology, "cycle injection must alter ontology");
+    std::fs::write(&ontology_path, cyclic).expect("write cyclic ontology");
+
+    let error = sync_project(&project).expect_err("cyclic work items must refuse");
+    assert!(
+        error.contains("175_work_item_dependency_cycle"),
+        "refusal must name the cycle gate: {error}"
     );
 }
