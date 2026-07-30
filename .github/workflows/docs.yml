@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          perl -0pi -e 's/plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,\n        WriteOutcome, MAX_OUTPUT_BYTES,/plan_write, preflight_checksum_slot, preflight_structured_matchers,\n        validate_match_specs, WriteOutcome, MAX_OUTPUT_BYTES,/' crates/ggen-engine/src/sync.rs
+          perl -0pi -e 's/plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,\n        WriteOutcome, MAX_OUTPUT_BYTES,/plan_write, preflight_checksum_slot, preflight_structured_matchers,\n            validate_match_specs, WriteOutcome, MAX_OUTPUT_BYTES,/' crates/ggen-engine/src/sync.rs
           python3 <<'PY'
           from pathlib import Path
           source = Path('.github/workflows/frontmatter-best-practices.yml').read_text()
