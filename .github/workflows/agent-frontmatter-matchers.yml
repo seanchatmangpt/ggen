@@ -27,7 +27,6 @@ jobs:
           python3 <<'PY'
           import base64
           import gzip
-          import re
           import subprocess
           from pathlib import Path
 
@@ -39,10 +38,12 @@ jobs:
               ],
               text=True,
           )
-          match = re.search(r"printf '%s' '([^']+)' \\| base64", original)
-          if match is None:
-              raise SystemExit("verified matcher payload not found in staging commit")
-          script = gzip.decompress(base64.b64decode(match.group(1))).decode()
+          prefix = "printf '%s' '"
+          suffix = "' | base64 -d | gzip -d"
+          start = original.index(prefix) + len(prefix)
+          end = original.index(suffix, start)
+          payload = original[start:end]
+          script = gzip.decompress(base64.b64decode(payload)).decode()
           Path("/tmp/frontmatter-matchers.py").write_text(script)
           PY
           python3 /tmp/frontmatter-matchers.py
