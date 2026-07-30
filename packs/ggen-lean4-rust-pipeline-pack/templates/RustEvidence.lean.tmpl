@@ -1,0 +1,97 @@
+---
+to: generated/lean/RustEvidence.lean
+force: true
+---
+import Fortune5Policy
+import RustLib
+
+namespace Lean4Rust
+
+def rustReceiptVerifier : String :=
+  "use std::{env, fs};\n\n" ++
+  "use lean_proof_cell::regional_receipt_digest;\n\n" ++
+  "fn extract_string(document: &str, key: &str) -> Result<String, String> {\n" ++
+  "    let marker = format!(\"\\\"{key}\\\":\\\"\");\n" ++
+  "    let start = document.find(&marker).ok_or_else(|| format!(\"missing string field: {key}\"))? + marker.len();\n" ++
+  "    let tail = &document[start..];\n" ++
+  "    let end = tail.find('\\\"').ok_or_else(|| format!(\"unterminated string field: {key}\"))?;\n" ++
+  "    Ok(tail[..end].to_owned())\n" ++
+  "}\n\n" ++
+  "fn extract_u64(document: &str, key: &str) -> Result<u64, String> {\n" ++
+  "    let marker = format!(\"\\\"{key}\\\":\");\n" ++
+  "    let start = document.find(&marker).ok_or_else(|| format!(\"missing numeric field: {key}\"))? + marker.len();\n" ++
+  "    let digits: String = document[start..].chars().take_while(|character| character.is_ascii_digit()).collect();\n" ++
+  "    digits.parse::<u64>().map_err(|error| format!(\"invalid numeric field {key}: {error}\"))\n" ++
+  "}\n\n" ++
+  "fn main() -> Result<(), String> {\n" ++
+  "    let mut args = env::args().skip(1);\n" ++
+  "    let execution_path = args.next().ok_or_else(|| \"execution receipt path required\".to_owned())?;\n" ++
+  "    let proof_path = args.next().ok_or_else(|| \"proof receipt path required\".to_owned())?;\n" ++
+  "    let execution = fs::read_to_string(execution_path).map_err(|error| error.to_string())?;\n" ++
+  "    let proof = fs::read(proof_path).map_err(|error| error.to_string())?;\n" ++
+  "    let expected_proof = blake3::hash(&proof).to_hex().to_string();\n" ++
+  "    let observed_proof = extract_string(&execution, \"lean_proof_blake3\")?;\n" ++
+  "    if observed_proof != expected_proof { return Err(\"LEAN_PROOF_DIGEST_MISMATCH\".to_owned()); }\n" ++
+  "    let scenario = extract_string(&execution, \"scenario\")?;\n" ++
+  "    let quorum_acks = extract_u64(&execution, \"quorum_acks\")?;\n" ++
+  "    let expected_region = regional_receipt_digest(&proof, &scenario, quorum_acks);\n" ++
+  "    let observed_region = extract_string(&execution, \"region_receipt_blake3\")?;\n" ++
+  "    if observed_region != expected_region { return Err(\"REGION_RECEIPT_DIGEST_MISMATCH\".to_owned()); }\n" ++
+  "    let mut receipt = String::from(\"{\\\"valid\\\":true,\\\"lean_proof_blake3\\\":\\\"\");\n" ++
+  "    receipt.push_str(&expected_proof); receipt.push_str(\"\\\",\\\"region_receipt_blake3\\\":\\\"\"); receipt.push_str(&expected_region); receipt.push_str(\"\\\"}\");\n" ++
+  "    println!(\"{receipt}\");\n" ++
+  "    Ok(())\n" ++
+  "}\n"
+
+def rustSloProbe : String :=
+  "use std::{hint::black_box, time::Instant};\n\n" ++
+  "use lean_proof_cell::{bounded_step, canonical_observation, evaluate_promotion, promotion_decision_name, slo_target_ns, DeploymentStage, SloClass, R1_TICK_BUDGET};\n\n" ++
+  "#[cfg(target_arch = \"x86_64\")]\n" ++
+  "fn read_ticks() -> u64 {\n" ++
+  "    // SAFETY: LFENCE/RDTSC only read and order the processor timestamp counter.\n" ++
+  "    unsafe { core::arch::x86_64::_mm_lfence(); let ticks = core::arch::x86_64::_rdtsc(); core::arch::x86_64::_mm_lfence(); ticks }\n" ++
+  "}\n\n" ++
+  "#[cfg(target_arch = \"x86\")]\n" ++
+  "fn read_ticks() -> u64 {\n" ++
+  "    // SAFETY: LFENCE/RDTSC only read and order the processor timestamp counter.\n" ++
+  "    unsafe { core::arch::x86::_mm_lfence(); let ticks = core::arch::x86::_rdtsc(); core::arch::x86::_mm_lfence(); ticks }\n" ++
+  "}\n\n" ++
+  "#[cfg(not(any(target_arch = \"x86_64\", target_arch = \"x86\")))]\n" ++
+  "compile_error!(\"R1 RDTSC evidence requires x86 or x86_64\");\n\n" ++
+  "fn percentile(values: &[u64], percentile: usize) -> u64 {\n" ++
+  "    let index = ((values.len() - 1) * percentile).div_ceil(100);\n" ++
+  "    values[index]\n" ++
+  "}\n\n" ++
+  "fn main() {\n" ++
+  "    const SAMPLES: usize = 1024;\n" ++
+  "    const ITERATIONS: u64 = 4096;\n" ++
+  "    let mut nanoseconds = Vec::with_capacity(SAMPLES);\n" ++
+  "    let mut ticks = Vec::with_capacity(SAMPLES);\n" ++
+  "    for sample in 0..SAMPLES {\n" ++
+  "        let mut value = sample as u64;\n" ++
+  "        let started_ticks = read_ticks();\n" ++
+  "        let started = Instant::now();\n" ++
+  "        for _ in 0..ITERATIONS { value = black_box(bounded_step(black_box(value))); }\n" ++
+  "        black_box(value);\n" ++
+  "        let elapsed_ns = started.elapsed().as_nanos();\n" ++
+  "        let elapsed_ticks = read_ticks().saturating_sub(started_ticks);\n" ++
+  "        nanoseconds.push(elapsed_ns.div_ceil(u128::from(ITERATIONS)) as u64);\n" ++
+  "        ticks.push(elapsed_ticks.div_ceil(ITERATIONS));\n" ++
+  "    }\n" ++
+  "    nanoseconds.sort_unstable(); ticks.sort_unstable();\n" ++
+  "    let p50 = percentile(&nanoseconds, 50); let p95 = percentile(&nanoseconds, 95); let p99 = percentile(&nanoseconds, 99);\n" ++
+  "    let p50_ticks = percentile(&ticks, 50); let p95_ticks = percentile(&ticks, 95); let p99_ticks = percentile(&ticks, 99);\n" ++
+  "    let mut observation = canonical_observation();\n" ++
+  "    observation.stage = DeploymentStage::Staging; observation.slo_class = SloClass::R1; observation.observed_p99_ns = p99; observation.observed_p99_ticks = p99_ticks;\n" ++
+  "    let compliant = p99 <= slo_target_ns(SloClass::R1) && p99_ticks <= R1_TICK_BUDGET;\n" ++
+  "    let decision = evaluate_promotion(&observation);\n" ++
+  "    let mut receipt = String::from(\"{\\\"schema\\\":\\\"ggen.lean4-rust/slo-probe/v2\\\",\\\"class\\\":\\\"R1\\\",\\\"measurement\\\":\\\"rdtsc+steady-clock-batched\\\",\\\"samples\\\":\");\n" ++
+  "    receipt.push_str(&SAMPLES.to_string()); receipt.push_str(\",\\\"iterations_per_sample\\\":\"); receipt.push_str(&ITERATIONS.to_string());\n" ++
+  "    receipt.push_str(\",\\\"p50_ns\\\":\"); receipt.push_str(&p50.to_string()); receipt.push_str(\",\\\"p95_ns\\\":\"); receipt.push_str(&p95.to_string()); receipt.push_str(\",\\\"p99_ns\\\":\"); receipt.push_str(&p99.to_string());\n" ++
+  "    receipt.push_str(\",\\\"p50_ticks\\\":\"); receipt.push_str(&p50_ticks.to_string()); receipt.push_str(\",\\\"p95_ticks\\\":\"); receipt.push_str(&p95_ticks.to_string()); receipt.push_str(\",\\\"p99_ticks\\\":\"); receipt.push_str(&p99_ticks.to_string());\n" ++
+  "    receipt.push_str(\",\\\"target_ns\\\":\"); receipt.push_str(&slo_target_ns(SloClass::R1).to_string()); receipt.push_str(\",\\\"target_ticks\\\":\"); receipt.push_str(&R1_TICK_BUDGET.to_string()); receipt.push_str(\",\\\"compliant\\\":\"); receipt.push_str(if compliant { \"true\" } else { \"false\" });\n" ++
+  "    receipt.push_str(\",\\\"promotion_decision\\\":\\\"\"); receipt.push_str(promotion_decision_name(decision)); receipt.push_str(\"\\\"}\");\n" ++
+  "    println!(\"{receipt}\");\n" ++
+  "}\n"
+
+end Lean4Rust
