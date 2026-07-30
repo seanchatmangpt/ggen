@@ -1,0 +1,219 @@
+name: Consolidate ggen v26.7.30 PRs
+
+on:
+  push:
+    branches:
+      - agent/ggen-v26.7.30-consolidated
+    paths:
+      - .github/workflows/consolidate-ggen-v26.7.30.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ggen-v26.7.30-consolidation
+  cancel-in-progress: false
+
+jobs:
+  consolidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out consolidation branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/ggen-v26.7.30-consolidated
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge all source branches
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "ggen consolidation actuator"
+          git config user.email "actions@users.noreply.github.com"
+
+          branches=(
+            agent/fix-ontology-import-startup
+            agent/gall-core-pack
+            agent/enterprise-architecture-machinery
+            agent/fortune5-architecture-kernel
+            agent/ggen-self-host-retrofit
+            agent/gbb-000-canonical-kernel
+            agent/non-llm-safe-ea-self-play
+            agent/enterprise-architecture-as-strategy-book
+            agent/ggen-first-lean4-rust-pipeline
+            agent/level5-foundation-execution
+            agent/automatic-autonomic-v26.7.31
+            agent/certification-assist-v26.7.30
+          )
+
+          for branch in "${branches[@]}"; do
+            git fetch --no-tags origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"
+          done
+
+          merge_branch() {
+            local branch="$1"
+            local policy="$2"
+            local label="$3"
+
+            echo "::group::Merge ${label} (${branch})"
+            if git merge --no-ff --no-edit "origin/${branch}"; then
+              echo "Merged without conflicts"
+              echo "::endgroup::"
+              return 0
+            fi
+
+            mapfile -t conflicts < <(git diff --name-only --diff-filter=U)
+            if [[ ${#conflicts[@]} -eq 0 ]]; then
+              echo "Merge failed without unmerged paths"
+              git merge --abort || true
+              exit 1
+            fi
+
+            printf 'Conflicts:\n'
+            printf '  %s\n' "${conflicts[@]}"
+
+            for path in "${conflicts[@]}"; do
+              if [[ "$policy" == "lock-only" && "$path" == *Cargo.lock ]]; then
+                git checkout --ours -- "$path"
+              elif [[ "$policy" == "theirs" ]]; then
+                git checkout --theirs -- "$path"
+              elif [[ "$policy" == "ours" ]]; then
+                git checkout --ours -- "$path"
+              else
+                echo "Unexpected conflict for ${label}: ${path}"
+                git merge --abort || true
+                exit 1
+              fi
+              git add -- "$path"
+            done
+
+            git commit --no-edit
+            echo "::endgroup::"
+          }
+
+          echo "::group::Merge #502 with exact sync.rs union"
+          if ! git merge --no-ff --no-edit origin/agent/fix-ontology-import-startup; then
+            mapfile -t conflicts < <(git diff --name-only --diff-filter=U)
+            for path in "${conflicts[@]}"; do
+              case "$path" in
+                crates/ggen-engine/src/sync.rs|*Cargo.lock)
+                  git checkout --ours -- "$path"
+                  git add -- "$path"
+                  ;;
+                *)
+                  echo "Unexpected #502 conflict: ${path}"
+                  git merge --abort || true
+                  exit 1
+                  ;;
+              esac
+            done
+
+            python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("crates/ggen-engine/src/sync.rs")
+          text = path.read_text()
+
+          old_import = "    graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},"
+          new_import = """    graph::{
+                  DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
+                  TurtleDocument,
+              },"""
+          if old_import not in text:
+              raise SystemExit("#502 union refused: graph import anchor not found")
+          text = text.replace(old_import, new_import, 1)
+
+          start_marker = "    graph.insert_turtle(&ttl)?;"
+          end_marker = "    let templates = discover_templates(root, &config, &packs)?;"
+          start = text.find(start_marker)
+          end = text.find(end_marker, start)
+          if start < 0 or end < 0:
+              raise SystemExit("#502 union refused: ontology loading anchors not found")
+
+          replacement = r'''    // Resolve packs: union their ontologies into the same graph and append
+              // their templates (packs sorted by name, then template path). Pack
+              // content hashes are checked against ggen.lock before anything renders.
+              let packs = crate::pack::resolve(&config, root)?;
+              let lock_entries = crate::pack::lock_entries(&config, &packs)?;
+              crate::pack::check_lock(root, &lock_entries)?;
+              let mut ontology_sources = Vec::with_capacity(
+                  1 + packs
+                      .iter()
+                      .map(|pack| 1 + pack.extra_ontology_paths.len())
+                      .sum::<usize>(),
+              );
+              ontology_sources.push((rel_display(root, &ontology_path), ttl));
+              for pack in &packs {
+                  let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
+                      AppError::fm_pack(
+                          4,
+                          format!(
+                              "pack `{}`: ontology `{}` unreadable: {e}",
+                              pack.name,
+                              pack.ontology_path.display()
+                          ),
+                      )
+                  })?;
+                  ontology_sources.push((rel_display(root, &pack.ontology_path), pack_ttl));
+                  for (declared, extra_path) in &pack.extra_ontology_paths {
+                      let extra_ttl = std::fs::read_to_string(extra_path).map_err(|e| {
+                          AppError::fm_pack(
+                              4,
+                              format!(
+                                  "pack `{}`: extra ontology `{declared}` unreadable at `{}`: {e}",
+                                  pack.name,
+                                  extra_path.display()
+                              ),
+                          )
+                      })?;
+                      ontology_sources.push((declared.clone(), extra_ttl));
+                  }
+              }
+              let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+                  .iter()
+                  .map(|(label, content)| TurtleDocument::new(label, content))
+                  .collect();
+              let ontology_receipt = graph.insert_turtle_documents(&ontology_documents)?;
+              tracing::debug!(
+                  ontology.documents = ontology_receipt.documents,
+                  ontology.parsed_quads = ontology_receipt.parsed_quads,
+                  ontology.inserted_quads = ontology_receipt.inserted_quads,
+                  "ontology batch admitted"
+              );
+
+          '''
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text)
+          PY
+
+            git add crates/ggen-engine/src/sync.rs
+            git commit --no-edit
+          fi
+          echo "::endgroup::"
+
+          merge_branch agent/gall-core-pack lock-only "#503 Gall control plane"
+          merge_branch agent/enterprise-architecture-machinery lock-only "#505 enterprise architecture machinery"
+          merge_branch agent/fortune5-architecture-kernel theirs "#508 Fortune 5 architecture successor"
+          merge_branch agent/ggen-self-host-retrofit lock-only "#512 self-host retrofit"
+          merge_branch agent/gbb-000-canonical-kernel theirs "#510 canonical Building Block kernel"
+          merge_branch agent/non-llm-safe-ea-self-play lock-only "#513 non-LLM SAFe EA self-play"
+          merge_branch agent/enterprise-architecture-as-strategy-book lock-only "#504 Enterprise Architecture as Strategy book"
+          merge_branch agent/ggen-first-lean4-rust-pipeline lock-only "#506 Lean 4 to Rust admission pipeline"
+          merge_branch agent/level5-foundation-execution lock-only "#507 RWR Level 5 and Fortune-5 foundation"
+          merge_branch agent/automatic-autonomic-v26.7.31 lock-only "#511 automatic and autonomic execution"
+          merge_branch agent/certification-assist-v26.7.30 lock-only "#514 CertificationAssist"
+
+          if command -v cargo >/dev/null 2>&1; then
+            cargo generate-lockfile || echo "::warning::Root Cargo.lock regeneration failed; final CI must classify the lock state"
+          fi
+
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: reconcile consolidated generated state"
+          fi
+
+          git rm .github/workflows/consolidate-ggen-v26.7.30.yml
+          git commit -m "chore: remove one-use consolidation actuator"
+          git push origin HEAD:agent/ggen-v26.7.30-consolidated
