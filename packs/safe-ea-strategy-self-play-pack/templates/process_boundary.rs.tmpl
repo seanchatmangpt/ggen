@@ -11,7 +11,11 @@ fn run_engine() -> Vec<u8> {
     let output = Command::new(env!("CARGO_BIN_EXE_ea-self-play"))
         .output()
         .expect("execute real self-play process");
-    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
     output.stdout
 }
 
@@ -39,7 +43,9 @@ fn complete_safe_and_ea_suite_crosses_process_receipt_and_replay_boundaries() {
 
     let reports: Vec<SelfPlayReport> = serde_json::from_slice(&first).expect("parse real reports");
     assert_eq!(reports.len(), 4);
-    assert!(reports.iter().all(|report| report.standing == SelfPlayStanding::Alive));
+    assert!(reports
+        .iter()
+        .all(|report| report.standing == SelfPlayStanding::Alive));
     assert!(reports.iter().all(|report| !report.actuation_performed));
     assert!(reports.iter().all(|report| !report.receipts.is_empty()));
     assert!(reports
@@ -79,12 +85,17 @@ fn complete_safe_and_ea_suite_crosses_process_receipt_and_replay_boundaries() {
 #[test]
 fn tampered_real_receipt_is_refused_by_independent_process() {
     let real = run_engine();
-    let mut reports: Vec<SelfPlayReport> = serde_json::from_slice(&real).expect("parse real reports");
+    let mut reports: Vec<SelfPlayReport> =
+        serde_json::from_slice(&real).expect("parse real reports");
     let receipt = reports
         .first_mut()
         .and_then(|report| report.receipts.first_mut())
         .expect("real move receipt");
-    let replacement = if receipt.receipt_hash.starts_with('f') { "e" } else { "f" };
+    let replacement = if receipt.receipt_hash.starts_with('f') {
+        "e"
+    } else {
+        "f"
+    };
     receipt.receipt_hash.replace_range(0..1, replacement);
     let sabotaged = serde_json::to_vec_pretty(&reports).expect("serialize tampered real receipt");
 
