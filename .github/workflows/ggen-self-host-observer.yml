@@ -1,0 +1,69 @@
+name: ggen Self-Host Observer
+
+on:
+  pull_request:
+    paths:
+      - "self-host/**"
+      - "packs/ggen-self-host-pack/**"
+      - ".github/workflows/ggen-self-host-observer.yml"
+      - "Cargo.toml"
+      - "ggen.toml"
+      - "crates/**"
+      - "packs/**"
+      - ".specify/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-tree-observation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Compile raw model, Git semantics, normalizer, executor, and verifier
+        run: python3 -m py_compile self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py self-host/scripts/verify_observation.py
+
+      - name: Execute positive, negative, and Chesterton-fence tests
+        run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
+
+      - name: Observe exact Git tree and normalize live authority
+        run: python3 self-host/scripts/observe_self_host.py
+
+      - name: Independently verify exact revision and every tracked Git object
+        run: python3 self-host/scripts/verify_observation.py
+
+      - name: Refuse a tampered observation digest
+        run: |
+          cp self-host/observed/repository.json /tmp/repository.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('self-host/observed/repository.json')
+          value = json.loads(path.read_text())
+          value['observation_digest'] = '0' * 64
+          path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+          PY
+          set +e
+          python3 self-host/scripts/verify_observation.py >/tmp/tamper.out 2>/tmp/tamper.err
+          code=$?
+          set -e
+          mv /tmp/repository.json self-host/observed/repository.json
+          test "$code" -ne 0
+          grep -q "observation digest mismatch" /tmp/tamper.err
+
+      - name: Refuse observer actuation dependencies
+        run: |
+          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py
+
+      - name: Upload exact normalized observation
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-observation-${{ github.sha }}
+          path: self-host/observed
+          if-no-files-found: error

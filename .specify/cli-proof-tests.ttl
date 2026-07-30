@@ -1,8 +1,28 @@
 @prefix proof: <https://ggen.dev/ontology/cli-proof#> .
 @prefix tdd:   <https://ggen.dev/ontology/tdd#> .
+@prefix cdf:   <http://ggen.org/cli-defaults#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================
+# CLI compatibility law: noun-only argv defaults
+# ============================================================
+#
+# This graph owns only the compatibility relation that permits `ggen noun`
+# to mean `ggen noun default-verb`. The live noun/verb/argument/handler graph
+# is a separate authority and must be restored independently.
+
+cdf:DefaultVerbBinding a owl:Class .
+cdf:noun a owl:DatatypeProperty ; rdfs:domain cdf:DefaultVerbBinding ; rdfs:range xsd:string .
+cdf:verb a owl:DatatypeProperty ; rdfs:domain cdf:DefaultVerbBinding ; rdfs:range xsd:string .
+cdf:order a owl:DatatypeProperty ; rdfs:domain cdf:DefaultVerbBinding ; rdfs:range xsd:integer .
+
+cdf:sync a cdf:DefaultVerbBinding ; cdf:noun "sync" ; cdf:verb "run" ; cdf:order 1 .
+cdf:doctor a cdf:DefaultVerbBinding ; cdf:noun "doctor" ; cdf:verb "check" ; cdf:order 2 .
+cdf:graph a cdf:DefaultVerbBinding ; cdf:noun "graph" ; cdf:verb "query" ; cdf:order 3 .
+cdf:receipt a cdf:DefaultVerbBinding ; cdf:noun "receipt" ; cdf:verb "verify" ; cdf:order 4 .
 
 # ============================================================
 # CLI Proof Ontology Schema (inline)

@@ -1,0 +1,12 @@
+generated/
+observed/
+docs/
+jira/
+automation/
+scripts/gall/
+.github/
+evidence/
+receipts/
+.gall/
+.ggen-v2/
+ggen.lock

@@ -1,0 +1,9 @@
+# MESSAGE: GGEN_SELF_HOST_OUTPUT_CLAIM_INCOMPLETE -- every generated-output claim must name its consumer, owner, path, and claim kind
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+SELECT ?claim ?missing WHERE {
+  ?claim a gsh:OutputClaim .
+  VALUES ?required { gsh:consumer gsh:owner gsh:outputPath gsh:claimKind }
+  FILTER NOT EXISTS { ?claim ?required ?value }
+  BIND(STR(?required) AS ?missing)
+}
+ORDER BY ?claim ?missing
