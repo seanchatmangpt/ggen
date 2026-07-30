@@ -5,12 +5,13 @@
   "taskAugmentation": false,
   "instructions": "Expose capability standing as resources and bounded tools. Never directly promote standing.",
   "resources": [
-{% for row in results %}{% if row["kind"] == "resource" %}    {
+{% set first_resource = true %}{% for row in results %}{% if row["kind"] == "resource" %}{% if not first_resource %},{% endif %}
+    {
       "name": "{{ row["name"] }}",
       "uri": "{{ row["uri"] }}",
       "description": "{{ row["description"] }}"
-    }{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ],
+    }{% set_global first_resource = false %}{% endif %}{% endfor %}
+  ],
   "tools": [
 {% set first_tool = true %}{% for row in results %}{% if row["kind"] == "tool" %}{% if not first_tool %},{% endif %}
     {
