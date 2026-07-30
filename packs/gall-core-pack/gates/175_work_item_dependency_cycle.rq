@@ -1,0 +1,8 @@
+# MESSAGE: Gall work item dependency cycle detected -- Jira and coding-agent execution order must be acyclic
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItemId WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId ;
+            gall:dependsOnWorkItem+ ?workItem .
+}
+ORDER BY ?workItemId
