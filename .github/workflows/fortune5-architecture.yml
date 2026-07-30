@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: fortune5-architecture-${{ github.ref }}
@@ -20,11 +20,14 @@ concurrency:
 jobs:
   kernel-and-law:
     runs-on: ubuntu-24.04
+    env:
+      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
     steps:
-      - name: Checkout exact candidate
+      - name: Checkout exact candidate branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
+          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Provision siblings and pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
@@ -34,6 +37,20 @@ jobs:
 
       - name: Normalize kernel with pinned rustfmt
         run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml
+
+      - name: Commit only rustfmt-normalized kernel bytes
+        run: |
+          changed="$(git diff --name-only)"
+          if [ -z "$changed" ]; then
+            echo "kernel already normalized"
+            exit 0
+          fi
+          test "$changed" = "crates/ggen-architecture/src/lib.rs"
+          git config user.name "ggen architecture formatter"
+          git config user.email "ggen-architecture@users.noreply.github.com"
+          git add crates/ggen-architecture/src/lib.rs
+          git commit -m "style(architecture): apply pinned rustfmt"
+          git push origin "HEAD:${TARGET_BRANCH}"
 
       - name: Upload normalized kernel bytes
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
