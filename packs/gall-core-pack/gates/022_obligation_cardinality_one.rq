@@ -1,0 +1,16 @@
+# MESSAGE: Gall checkpoint has ambiguous evidence cardinality -- each checkpoint must link exactly one positive witness, one negative falsifier, one receipt obligation, and one replay obligation
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpointId ?kind (COUNT(?obligation) AS ?count) WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId .
+  VALUES (?link ?kind) {
+    (gall:positiveWitness "positive-witness")
+    (gall:negativeFalsifier "negative-falsifier")
+    (gall:receiptObligation "receipt")
+    (gall:replayObligation "replay")
+  }
+  ?checkpoint ?link ?obligation .
+}
+GROUP BY ?checkpointId ?kind
+HAVING(COUNT(?obligation) != 1)
+ORDER BY ?checkpointId ?kind
