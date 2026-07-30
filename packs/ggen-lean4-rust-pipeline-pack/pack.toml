@@ -1,0 +1,4 @@
+[pack]
+name = "ggen-lean4-rust-pipeline-pack"
+version = "0.2.0"
+description = "Manufactures an independently checkable Lean 4 proof library and emitter from RDF. Lean admits a bounded-successor cell plus a Fortune 5 deployment policy covering R1/W1/C1 SLOs, promotion rollback, multi-region quorum and receipt synchronization, SPIFFE/mTLS/KMS controls, and OTEL alerts before emitting a Rust evaluator, SLO probe, and cryptographic receipt verifier."

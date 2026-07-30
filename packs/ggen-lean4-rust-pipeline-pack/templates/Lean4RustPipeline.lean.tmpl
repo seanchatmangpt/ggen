@@ -1,0 +1,23 @@
+---
+to: generated/lean/Lean4RustPipeline.lean
+force: true
+---
+import Fortune5Policy
+import RustLib
+import RustMain
+import RustEvidence
+
+namespace Lean4Rust
+
+def emitRust (receipt : ProofReceipt) : IO Unit := do
+  IO.FS.createDirAll "../rust/src/bin"
+  IO.FS.writeFile "proof-receipt.json" (proofReceiptJson receipt)
+  IO.FS.writeFile "../rust/Cargo.toml" cargoToml
+  IO.FS.writeFile "../rust/src/lib.rs" rustLib
+  IO.FS.writeFile "../rust/src/main.rs" rustMain
+  IO.FS.writeFile "../rust/src/bin/verify_receipt.rs" rustReceiptVerifier
+  IO.FS.writeFile "../rust/src/bin/slo_probe.rs" rustSloProbe
+
+def main : IO Unit := emitRust proofReceipt
+
+end Lean4Rust

@@ -1,0 +1,13 @@
+---
+to: generated/lean/lean-toolchain
+force: true
+sparql:
+  pipeline: |
+    PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+    SELECT ?toolchain WHERE {
+      ?pipeline a lr:Pipeline ; lr:leanToolchain ?toolchain .
+    }
+    LIMIT 1
+---
+{% for p in pipeline %}{{ p.toolchain }}
+{% endfor %}

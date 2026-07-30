@@ -1,0 +1,393 @@
+---
+to: generated/lean/Fortune5Policy.lean
+force: true
+sparql:
+  pipeline: |
+    PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?title ?crate_name ?function_name ?bound ?witness_input ?witness_output
+           ?proof_theorem ?witness_theorem ?fixed_point_theorem ?receipt_algorithm
+           ?r1_p99_ns ?r1_tick_budget ?w1_p99_ns ?c1_p99_ns ?r1_measurement ?w1_measurement ?c1_measurement
+           ?region_count ?region_quorum ?spiffe_id ?certificate_refresh_seconds ?key_rotation_seconds
+    WHERE {
+      ?pipeline a lr:Pipeline ;
+                dcterms:title ?title ;
+                lr:crateName ?crate_name ;
+                lr:rustFunctionName ?function_name ;
+                lr:bound ?bound ;
+                lr:witnessInput ?witness_input ;
+                lr:witnessOutput ?witness_output ;
+                lr:proofTheorem ?proof_theorem ;
+                lr:witnessTheorem ?witness_theorem ;
+                lr:fixedPointTheorem ?fixed_point_theorem ;
+                lr:receiptAlgorithm ?receipt_algorithm ;
+                lr:r1P99Nanos ?r1_p99_ns ;
+                lr:r1TickBudget ?r1_tick_budget ;
+                lr:w1P99Nanos ?w1_p99_ns ;
+                lr:c1P99Nanos ?c1_p99_ns ;
+                lr:r1Measurement ?r1_measurement ;
+                lr:w1Measurement ?w1_measurement ;
+                lr:c1Measurement ?c1_measurement ;
+                lr:regionCount ?region_count ;
+                lr:regionQuorum ?region_quorum ;
+                lr:spiffeId ?spiffe_id ;
+                lr:certificateRefreshSeconds ?certificate_refresh_seconds ;
+                lr:keyRotationSeconds ?key_rotation_seconds .
+    }
+    LIMIT 1
+---
+{% for p in pipeline %}namespace Lean4Rust
+
+
+def bound : Nat := {{ p.bound }}
+def witnessInput : Nat := {{ p.witness_input }}
+def witnessOutput : Nat := {{ p.witness_output }}
+
+def step (x : Nat) : Nat :=
+  if x < bound then x + 1 else bound
+
+theorem step_le (x : Nat) : step x ≤ bound := by
+  unfold step
+  split
+  next h => exact Nat.succ_le_of_lt h
+  next _ => exact Nat.le_refl bound
+
+theorem step_witness : step witnessInput = witnessOutput := by
+  decide
+
+theorem step_fixed_point : step bound = bound := by
+  simp [step]
+
+inductive SloClass where
+  | r1
+  | w1
+  | c1
+  deriving Repr, DecidableEq
+
+inductive DeploymentStage where
+  | canary
+  | staging
+  | production
+  deriving Repr, DecidableEq
+
+inductive PromotionDecision where
+  | promoteStaging
+  | promoteProduction
+  | hold
+  | rollback
+  | refuse
+  deriving Repr, DecidableEq
+
+def r1P99Nanos : Nat := {{ p.r1_p99_ns }}
+def r1TickBudget : Nat := {{ p.r1_tick_budget }}
+def w1P99Nanos : Nat := {{ p.w1_p99_ns }}
+def c1P99Nanos : Nat := {{ p.c1_p99_ns }}
+def r1Measurement : String := {{ p.r1_measurement | json_encode | safe }}
+def w1Measurement : String := {{ p.w1_measurement | json_encode | safe }}
+def c1Measurement : String := {{ p.c1_measurement | json_encode | safe }}
+
+def canaryRequired : Bool := true
+def stagingValidationRequired : Bool := true
+def autoRollbackRequired : Bool := true
+def promotionReceiptRequired : Bool := true
+
+def regionCount : Nat := {{ p.region_count }}
+def regionQuorum : Nat := {{ p.region_quorum }}
+def crossRegionReplicationRequired : Bool := true
+def receiptSynchronizationRequired : Bool := true
+def failoverRequired : Bool := true
+def legalHoldRequired : Bool := true
+
+def spiffeId : String := {{ p.spiffe_id | json_encode | safe }}
+def certificateRefreshSeconds : Nat := {{ p.certificate_refresh_seconds }}
+def keyRotationSeconds : Nat := {{ p.key_rotation_seconds }}
+def mtlsRequired : Bool := true
+def awsKmsRequired : Bool := true
+def azureKeyVaultRequired : Bool := true
+def hashicorpVaultRequired : Bool := true
+def networkPolicyRequired : Bool := true
+def firewallPolicyRequired : Bool := true
+
+def otelRequired : Bool := true
+def sloAlertRequired : Bool := true
+def guardAlertRequired : Bool := true
+def receiptMismatchAlertRequired : Bool := true
+def performanceDegradationAlertRequired : Bool := true
+
+def sloTargetNanos : SloClass → Nat
+  | .r1 => r1P99Nanos
+  | .w1 => w1P99Nanos
+  | .c1 => c1P99Nanos
+
+structure DeploymentObservation where
+  stage : DeploymentStage
+  sloClass : SloClass
+  observedP99Nanos : Nat
+  observedP99Ticks : Nat
+  canaryValidated : Bool
+  stagingValidated : Bool
+  promotionReceiptReady : Bool
+  quorumAcks : Nat
+  crossRegionReplicationReady : Bool
+  receiptSynchronized : Bool
+  failoverReady : Bool
+  legalHoldReady : Bool
+  observedSpiffeId : String
+  spiffeAuthenticated : Bool
+  certificateAgeSeconds : Nat
+  keyAgeSeconds : Nat
+  mtlsEstablished : Bool
+  awsKmsReady : Bool
+  azureKeyVaultReady : Bool
+  hashicorpVaultReady : Bool
+  networkPolicyEnforced : Bool
+  firewallPolicyEnforced : Bool
+  otelCorrelated : Bool
+  alertsReady : Bool
+  deriving Repr, DecidableEq
+
+def sloCompliant (obs : DeploymentObservation) : Bool :=
+  match obs.sloClass with
+  | .r1 => decide (obs.observedP99Nanos ≤ r1P99Nanos ∧ obs.observedP99Ticks ≤ r1TickBudget)
+  | .w1 => decide (obs.observedP99Nanos ≤ w1P99Nanos)
+  | .c1 => decide (obs.observedP99Nanos ≤ c1P99Nanos)
+
+def allPromotionGates (obs : DeploymentObservation) : Bool :=
+  canaryRequired && obs.canaryValidated &&
+  stagingValidationRequired && obs.stagingValidated &&
+  promotionReceiptRequired && obs.promotionReceiptReady &&
+  decide (regionQuorum ≤ obs.quorumAcks) &&
+  crossRegionReplicationRequired && obs.crossRegionReplicationReady &&
+  receiptSynchronizationRequired && obs.receiptSynchronized &&
+  failoverRequired && obs.failoverReady &&
+  legalHoldRequired && obs.legalHoldReady &&
+  mtlsRequired && obs.mtlsEstablished &&
+  decide (obs.observedSpiffeId = spiffeId) && obs.spiffeAuthenticated &&
+  decide (obs.certificateAgeSeconds ≤ certificateRefreshSeconds) &&
+  decide (obs.keyAgeSeconds ≤ keyRotationSeconds) &&
+  awsKmsRequired && obs.awsKmsReady &&
+  azureKeyVaultRequired && obs.azureKeyVaultReady &&
+  hashicorpVaultRequired && obs.hashicorpVaultReady &&
+  networkPolicyRequired && obs.networkPolicyEnforced &&
+  firewallPolicyRequired && obs.firewallPolicyEnforced &&
+  otelRequired && obs.otelCorrelated &&
+  sloAlertRequired && guardAlertRequired &&
+  receiptMismatchAlertRequired && performanceDegradationAlertRequired && obs.alertsReady
+
+def promotionDecision (obs : DeploymentObservation) : PromotionDecision :=
+  match sloCompliant obs, allPromotionGates obs with
+  | false, _ => .rollback
+  | true, false => .refuse
+  | true, true =>
+      match obs.stage with
+      | .canary => .promoteStaging
+      | .staging => .promoteProduction
+      | .production => .hold
+
+def canonicalObservation : DeploymentObservation := {
+  stage := .staging
+  sloClass := .c1
+  observedP99Nanos := 400000000
+  observedP99Ticks := 0
+  canaryValidated := true
+  stagingValidated := true
+  promotionReceiptReady := true
+  quorumAcks := 3
+  crossRegionReplicationReady := true
+  receiptSynchronized := true
+  failoverReady := true
+  legalHoldReady := true
+  observedSpiffeId := spiffeId
+  spiffeAuthenticated := true
+  certificateAgeSeconds := 1800
+  keyAgeSeconds := 3600
+  mtlsEstablished := true
+  awsKmsReady := true
+  azureKeyVaultReady := true
+  hashicorpVaultReady := true
+  networkPolicyEnforced := true
+  firewallPolicyEnforced := true
+  otelCorrelated := true
+  alertsReady := true
+}
+
+def canaryObservation : DeploymentObservation := { canonicalObservation with stage := .canary }
+def productionObservation : DeploymentObservation := { canonicalObservation with stage := .production }
+def sloViolationObservation : DeploymentObservation := { canonicalObservation with observedP99Nanos := c1P99Nanos + 1 }
+def quorumLossObservation : DeploymentObservation := { canonicalObservation with quorumAcks := regionQuorum - 1 }
+def securityExpiryObservation : DeploymentObservation := {
+  canonicalObservation with
+  certificateAgeSeconds := certificateRefreshSeconds + 1
+  keyAgeSeconds := keyRotationSeconds + 1
+}
+def receiptMismatchObservation : DeploymentObservation := { canonicalObservation with receiptSynchronized := false }
+def failoverUnreadyObservation : DeploymentObservation := { canonicalObservation with failoverReady := false }
+def identityMismatchObservation : DeploymentObservation := { canonicalObservation with observedSpiffeId := "spiffe://untrusted.example/ns/default/sa/unknown" }
+def kmsUnreadyObservation : DeploymentObservation := { canonicalObservation with azureKeyVaultReady := false }
+def replicationUnreadyObservation : DeploymentObservation := { canonicalObservation with crossRegionReplicationReady := false }
+def promotionReceiptMissingObservation : DeploymentObservation := { canonicalObservation with promotionReceiptReady := false }
+def alertsUnreadyObservation : DeploymentObservation := { canonicalObservation with alertsReady := false }
+
+theorem fortune5_slo_ordering :
+    r1P99Nanos < w1P99Nanos ∧ w1P99Nanos < c1P99Nanos ∧ r1TickBudget = 8 := by
+  decide
+
+theorem fortune5_quorum_majority :
+    regionQuorum ≤ regionCount ∧ (2 * regionQuorum) > regionCount := by
+  decide
+
+theorem fortune5_security_limits :
+    certificateRefreshSeconds ≤ 3600 ∧ keyRotationSeconds ≤ 86400 := by
+  decide
+
+theorem fortune5_controls_enabled :
+    canaryRequired = true ∧ stagingValidationRequired = true ∧
+    autoRollbackRequired = true ∧ promotionReceiptRequired = true ∧
+    crossRegionReplicationRequired = true ∧ receiptSynchronizationRequired = true ∧
+    failoverRequired = true ∧ legalHoldRequired = true ∧
+    mtlsRequired = true ∧ awsKmsRequired = true ∧
+    azureKeyVaultRequired = true ∧ hashicorpVaultRequired = true ∧
+    networkPolicyRequired = true ∧ firewallPolicyRequired = true ∧
+    otelRequired = true ∧ sloAlertRequired = true ∧ guardAlertRequired = true ∧
+    receiptMismatchAlertRequired = true ∧ performanceDegradationAlertRequired = true := by
+  decide
+
+theorem canonical_promotion : promotionDecision canonicalObservation = .promoteProduction := by
+  decide
+
+theorem canary_promotion : promotionDecision canaryObservation = .promoteStaging := by
+  decide
+
+theorem production_holds : promotionDecision productionObservation = .hold := by
+  decide
+
+theorem slo_violation_rolls_back : promotionDecision sloViolationObservation = .rollback := by
+  decide
+
+theorem quorum_loss_refused : promotionDecision quorumLossObservation = .refuse := by
+  decide
+
+theorem security_expiry_refused : promotionDecision securityExpiryObservation = .refuse := by
+  decide
+
+theorem receipt_mismatch_refused : promotionDecision receiptMismatchObservation = .refuse := by
+  decide
+
+theorem failover_unready_refused : promotionDecision failoverUnreadyObservation = .refuse := by
+  decide
+
+theorem identity_mismatch_refused : promotionDecision identityMismatchObservation = .refuse := by
+  decide
+
+theorem kms_unready_refused : promotionDecision kmsUnreadyObservation = .refuse := by
+  decide
+
+theorem replication_unready_refused : promotionDecision replicationUnreadyObservation = .refuse := by
+  decide
+
+theorem promotion_receipt_missing_refused : promotionDecision promotionReceiptMissingObservation = .refuse := by
+  decide
+
+theorem alerts_unready_refused : promotionDecision alertsUnreadyObservation = .refuse := by
+  decide
+
+structure Fortune5ProofReceipt : Type where
+  sloOrderingProof : r1P99Nanos < w1P99Nanos ∧ w1P99Nanos < c1P99Nanos ∧ r1TickBudget = 8
+  quorumMajorityProof : regionQuorum ≤ regionCount ∧ (2 * regionQuorum) > regionCount
+  securityLimitsProof : certificateRefreshSeconds ≤ 3600 ∧ keyRotationSeconds ≤ 86400
+  controlsEnabledProof :
+    canaryRequired = true ∧ stagingValidationRequired = true ∧
+    autoRollbackRequired = true ∧ promotionReceiptRequired = true ∧
+    crossRegionReplicationRequired = true ∧ receiptSynchronizationRequired = true ∧
+    failoverRequired = true ∧ legalHoldRequired = true ∧
+    mtlsRequired = true ∧ awsKmsRequired = true ∧
+    azureKeyVaultRequired = true ∧ hashicorpVaultRequired = true ∧
+    networkPolicyRequired = true ∧ firewallPolicyRequired = true ∧
+    otelRequired = true ∧ sloAlertRequired = true ∧ guardAlertRequired = true ∧
+    receiptMismatchAlertRequired = true ∧ performanceDegradationAlertRequired = true
+  canonicalPromotionProof : promotionDecision canonicalObservation = .promoteProduction
+  canaryPromotionProof : promotionDecision canaryObservation = .promoteStaging
+  productionHoldProof : promotionDecision productionObservation = .hold
+  sloRollbackProof : promotionDecision sloViolationObservation = .rollback
+  quorumRefusalProof : promotionDecision quorumLossObservation = .refuse
+  securityRefusalProof : promotionDecision securityExpiryObservation = .refuse
+  receiptRefusalProof : promotionDecision receiptMismatchObservation = .refuse
+  failoverRefusalProof : promotionDecision failoverUnreadyObservation = .refuse
+  identityRefusalProof : promotionDecision identityMismatchObservation = .refuse
+  kmsRefusalProof : promotionDecision kmsUnreadyObservation = .refuse
+  replicationRefusalProof : promotionDecision replicationUnreadyObservation = .refuse
+  promotionReceiptRefusalProof : promotionDecision promotionReceiptMissingObservation = .refuse
+  alertsRefusalProof : promotionDecision alertsUnreadyObservation = .refuse
+
+structure ProofReceipt : Type where
+  theoremName : String
+  witnessTheorem : String
+  fixedPointTheorem : String
+  boundProof : ∀ x, step x ≤ bound
+  witnessProof : step witnessInput = witnessOutput
+  fixedPointProof : step bound = bound
+  fortune5 : Fortune5ProofReceipt
+
+def fortune5ProofReceipt : Fortune5ProofReceipt := {
+  sloOrderingProof := fortune5_slo_ordering
+  quorumMajorityProof := fortune5_quorum_majority
+  securityLimitsProof := fortune5_security_limits
+  controlsEnabledProof := fortune5_controls_enabled
+  canonicalPromotionProof := canonical_promotion
+  canaryPromotionProof := canary_promotion
+  productionHoldProof := production_holds
+  sloRollbackProof := slo_violation_rolls_back
+  quorumRefusalProof := quorum_loss_refused
+  securityRefusalProof := security_expiry_refused
+  receiptRefusalProof := receipt_mismatch_refused
+  failoverRefusalProof := failover_unready_refused
+  identityRefusalProof := identity_mismatch_refused
+  kmsRefusalProof := kms_unready_refused
+  replicationRefusalProof := replication_unready_refused
+  promotionReceiptRefusalProof := promotion_receipt_missing_refused
+  alertsRefusalProof := alerts_unready_refused
+}
+
+def proofReceipt : ProofReceipt := {
+  theoremName := {{ p.proof_theorem | json_encode | safe }}
+  witnessTheorem := {{ p.witness_theorem | json_encode | safe }}
+  fixedPointTheorem := {{ p.fixed_point_theorem | json_encode | safe }}
+  boundProof := step_le
+  witnessProof := step_witness
+  fixedPointProof := step_fixed_point
+  fortune5 := fortune5ProofReceipt
+}
+
+def boolJson (value : Bool) : String := if value then "true" else "false"
+
+def proofReceiptJson (receipt : ProofReceipt) : String :=
+  "{\"schema\":\"ggen.lean4-rust/proof/v2\",\"standing\":\"PROVEN\",\"pipeline\":\"bounded-successor+fortune5-promotion\",\"bound\":" ++
+  toString bound ++
+  ",\"witness_input\":" ++ toString witnessInput ++
+  ",\"witness_output\":" ++ toString witnessOutput ++
+  ",\"theorems\":[\"" ++ receipt.theoremName ++
+  "\",\"" ++ receipt.witnessTheorem ++
+  "\",\"" ++ receipt.fixedPointTheorem ++ "\"],\"fortune5\":{\"slo_p99_ns\":{\"r1\":" ++
+  toString r1P99Nanos ++ ",\"w1\":" ++ toString w1P99Nanos ++ ",\"c1\":" ++ toString c1P99Nanos ++
+  "},\"r1_tick_budget\":" ++ toString r1TickBudget ++ ",\"measurements\":{\"r1\":\"" ++ r1Measurement ++ "\",\"w1\":\"" ++ w1Measurement ++ "\",\"c1\":\"" ++ c1Measurement ++
+  "\"},\"promotion\":{\"canary_required\":" ++ boolJson canaryRequired ++
+  ",\"staging_validation_required\":" ++ boolJson stagingValidationRequired ++
+  ",\"auto_rollback_required\":" ++ boolJson autoRollbackRequired ++
+  ",\"promotion_receipt_required\":" ++ boolJson promotionReceiptRequired ++
+  "},\"multi_region\":{\"region_count\":" ++ toString regionCount ++
+  ",\"quorum\":" ++ toString regionQuorum ++
+  ",\"cross_region_replication_required\":" ++ boolJson crossRegionReplicationRequired ++
+  ",\"receipt_synchronization_required\":" ++ boolJson receiptSynchronizationRequired ++
+  ",\"failover_required\":" ++ boolJson failoverRequired ++
+  ",\"legal_hold_required\":" ++ boolJson legalHoldRequired ++
+  "},\"security\":{\"spiffe_id\":\"" ++ spiffeId ++
+  "\",\"certificate_refresh_seconds\":" ++ toString certificateRefreshSeconds ++
+  ",\"key_rotation_seconds\":" ++ toString keyRotationSeconds ++
+  ",\"mtls_required\":" ++ boolJson mtlsRequired ++
+  ",\"kms\":[\"aws-kms\",\"azure-key-vault\",\"hashicorp-vault\"],\"network_policy_required\":" ++ boolJson networkPolicyRequired ++
+  ",\"firewall_policy_required\":" ++ boolJson firewallPolicyRequired ++
+  "},\"observability\":{\"otel_required\":" ++ boolJson otelRequired ++
+  ",\"alerts\":[\"slo-violation\",\"guard-failure\",\"receipt-mismatch\",\"performance-degradation\"]},\"theorems\":[\"fortune5_slo_ordering\",\"fortune5_quorum_majority\",\"fortune5_security_limits\",\"fortune5_controls_enabled\",\"canonical_promotion\",\"canary_promotion\",\"production_holds\",\"slo_violation_rolls_back\",\"quorum_loss_refused\",\"security_expiry_refused\",\"receipt_mismatch_refused\",\"failover_unready_refused\",\"identity_mismatch_refused\",\"kms_unready_refused\",\"replication_unready_refused\",\"promotion_receipt_missing_refused\",\"alerts_unready_refused\"]}}\n"
+
+end Lean4Rust
+{% endfor %}

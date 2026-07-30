@@ -1,0 +1,64 @@
+# MESSAGE: every pipeline field is single-valued and exactly one pipeline owns the generated product; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a lr:Pipeline .
+    ?other a lr:Pipeline .
+    FILTER (?subject != ?other)
+    BIND("multiple-pipelines" AS ?violation)
+    BIND(STR(?other) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline .
+    VALUES (?property ?name) {
+      (dcterms:title "title")
+      (lr:crateName "crateName")
+      (lr:rustFunctionName "rustFunctionName")
+      (lr:leanToolchain "leanToolchain")
+      (lr:bound "bound")
+      (lr:witnessInput "witnessInput")
+      (lr:witnessOutput "witnessOutput")
+      (lr:proofTheorem "proofTheorem")
+      (lr:witnessTheorem "witnessTheorem")
+      (lr:fixedPointTheorem "fixedPointTheorem")
+      (lr:receiptAlgorithm "receiptAlgorithm")
+      (lr:r1P99Nanos "r1P99Nanos")
+      (lr:r1TickBudget "r1TickBudget")
+      (lr:w1P99Nanos "w1P99Nanos")
+      (lr:c1P99Nanos "c1P99Nanos")
+      (lr:r1Measurement "r1Measurement")
+      (lr:w1Measurement "w1Measurement")
+      (lr:c1Measurement "c1Measurement")
+      (lr:canaryRequired "canaryRequired")
+      (lr:stagingValidationRequired "stagingValidationRequired")
+      (lr:autoRollbackRequired "autoRollbackRequired")
+      (lr:promotionReceiptRequired "promotionReceiptRequired")
+      (lr:regionCount "regionCount")
+      (lr:regionQuorum "regionQuorum")
+      (lr:crossRegionReplicationRequired "crossRegionReplicationRequired")
+      (lr:receiptSynchronizationRequired "receiptSynchronizationRequired")
+      (lr:failoverRequired "failoverRequired")
+      (lr:legalHoldRequired "legalHoldRequired")
+      (lr:spiffeId "spiffeId")
+      (lr:certificateRefreshSeconds "certificateRefreshSeconds")
+      (lr:keyRotationSeconds "keyRotationSeconds")
+      (lr:mtlsRequired "mtlsRequired")
+      (lr:awsKmsRequired "awsKmsRequired")
+      (lr:azureKeyVaultRequired "azureKeyVaultRequired")
+      (lr:hashicorpVaultRequired "hashicorpVaultRequired")
+      (lr:networkPolicyRequired "networkPolicyRequired")
+      (lr:firewallPolicyRequired "firewallPolicyRequired")
+      (lr:otelRequired "otelRequired")
+      (lr:sloAlertRequired "sloAlertRequired")
+      (lr:guardAlertRequired "guardAlertRequired")
+      (lr:receiptMismatchAlertRequired "receiptMismatchAlertRequired")
+      (lr:performanceDegradationAlertRequired "performanceDegradationAlertRequired")
+    }
+    ?subject ?property ?left .
+    ?subject ?property ?right .
+    FILTER (?left != ?right)
+    BIND("field-not-single-valued" AS ?violation)
+    BIND(CONCAT(?name, ": ", STR(?left), " != ", STR(?right)) AS ?detail)
+  }
+}
+ORDER BY ?subject ?detail
