@@ -1,0 +1,16 @@
+# MESSAGE: Gall automation path is unsafe -- runtime and receipt directories must be project-relative and automation paths must not escape or target source-control internals
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?profile ?field ?value WHERE {
+  ?profile a gall:AutomationProfile .
+  VALUES ?property { gall:runtimeDirectory gall:receiptDirectory }
+  ?profile ?property ?value .
+  BIND(STR(?property) AS ?field)
+  FILTER(
+    REGEX(STR(?value), "^/") ||
+    REGEX(STR(?value), "(^|/)\\.\\.(/|$)") ||
+    REGEX(STR(?value), "(^|/)\\.git(/|$)") ||
+    CONTAINS(STR(?value), "/Users/") ||
+    CONTAINS(STR(?value), "/home/")
+  )
+}
+ORDER BY ?profile ?field

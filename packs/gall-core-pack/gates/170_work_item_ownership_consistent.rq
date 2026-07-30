@@ -1,0 +1,18 @@
+# MESSAGE: Gall work item ownership is inconsistent -- program, checkpoint, and work-item relations must agree bidirectionally
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItemId ?program ?checkpoint ?missing WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId ;
+            gall:belongsToProgram ?program ;
+            gall:belongsToCheckpoint ?checkpoint .
+  {
+    FILTER NOT EXISTS { ?program a gall:GallProgram ; gall:hasWorkItem ?workItem ; gall:hasCheckpoint ?checkpoint }
+    BIND("program ownership relation" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint a gall:Checkpoint ; gall:hasWorkItem ?workItem }
+    BIND("checkpoint ownership relation" AS ?missing)
+  }
+}
+ORDER BY ?workItemId ?missing

@@ -1,0 +1,546 @@
+---
+to: scripts/gall/control_plane.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED Gall work-package control plane.
+
+The admitted ontology remains authoritative. This program consumes the generated
+manifest, validates the work graph, selects dependency-ready work, creates agent
+handoff bundles, executes declared verification, records completion, plans
+tracker convergence, replays deterministic plans, and evaluates automation
+closure. External coding-agent execution is deliberately delegated to the
+isolated ``agent_executor.py`` boundary.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+
+ROOT = Path(__file__).resolve().parents[2]
+MANIFEST = ROOT / "automation/GALL_AUTOMATION_WORK_ITEMS.csv"
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def sha256_path(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def git_revision() -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, capture_output=True, check=False
+    )
+    return result.stdout.strip() if result.returncode == 0 else "UNVERSIONED"
+
+
+def split_values(value: str) -> list[str]:
+    return [part.strip() for part in value.split(" ; ") if part.strip()]
+
+
+def safe_path(raw: str) -> Path:
+    candidate = (ROOT / raw).resolve()
+    try:
+        candidate.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise SystemExit(f"unsafe generated path escapes repository: {raw}") from exc
+    return candidate
+
+
+@dataclass(frozen=True)
+class WorkItem:
+    row: dict[str, str]
+
+    @property
+    def id(self) -> str:
+        return self.row["Work Item ID"]
+
+    @property
+    def order(self) -> int:
+        return int(self.row["Implementation Order"])
+
+    @property
+    def dependencies(self) -> list[str]:
+        return split_values(self.row["Dependencies"])
+
+    def values(self, field: str) -> list[str]:
+        return split_values(self.row[field])
+
+
+class ControlPlane:
+    def __init__(self) -> None:
+        if not MANIFEST.is_file():
+            raise SystemExit(f"missing generated manifest: {MANIFEST.relative_to(ROOT)}")
+        with MANIFEST.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        if not rows:
+            raise SystemExit("automation manifest contains zero work items")
+        self.items = [WorkItem(row) for row in rows]
+        self.by_id = {item.id: item for item in self.items}
+        if len(self.by_id) != len(self.items):
+            raise SystemExit("duplicate work-item identity in generated manifest")
+
+        profile_fields = [
+            "Program ID",
+            "Release",
+            "Project Key",
+            "Automation Profile",
+            "Tracker Provider",
+            "Execution Mode",
+            "Agent Mode",
+            "Max Parallelism",
+            "Branch Pattern",
+            "Runtime Directory",
+            "Receipt Directory",
+        ]
+        first = rows[0]
+        for row in rows[1:]:
+            for field in profile_fields:
+                if row[field] != first[field]:
+                    raise SystemExit(f"automation profile drift across work items: {field}")
+        self.config = {field: first[field] for field in profile_fields}
+        self.runtime_dir = safe_path(first["Runtime Directory"])
+        self.receipt_dir = safe_path(first["Receipt Directory"])
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+        self.receipt_dir.mkdir(parents=True, exist_ok=True)
+        self.chain_path = self.receipt_dir / "automation-receipt-chain.jsonl"
+        self.manifest_digest = sha256_path(MANIFEST)
+        self.validate_graph()
+
+    def validate_graph(self) -> None:
+        orders: dict[int, str] = {}
+        for item in self.items:
+            if item.order in orders:
+                raise SystemExit(
+                    f"implementation order collision: {item.id} and {orders[item.order]}"
+                )
+            orders[item.order] = item.id
+            for dependency in item.dependencies:
+                if dependency not in self.by_id:
+                    raise SystemExit(f"{item.id} references unknown dependency {dependency}")
+                if self.by_id[dependency].order >= item.order:
+                    raise SystemExit(f"{item.id} dependency {dependency} violates proof order")
+        self._assert_acyclic()
+
+    def _assert_acyclic(self) -> None:
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(work_item_id: str) -> None:
+            if work_item_id in visited:
+                return
+            if work_item_id in visiting:
+                raise SystemExit(f"work-item cycle detected at {work_item_id}")
+            visiting.add(work_item_id)
+            for dependency in self.by_id[work_item_id].dependencies:
+                visit(dependency)
+            visiting.remove(work_item_id)
+            visited.add(work_item_id)
+
+        for work_item_id in self.by_id:
+            visit(work_item_id)
+
+    def receipt_path(self, work_item_id: str, kind: str) -> Path:
+        return self.receipt_dir / "work-items" / work_item_id / f"{kind}.json"
+
+    def load_receipt(self, work_item_id: str, kind: str) -> dict[str, Any] | None:
+        path = self.receipt_path(work_item_id, kind)
+        if not path.is_file():
+            return None
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    def is_complete(self, work_item_id: str) -> bool:
+        receipt = self.load_receipt(work_item_id, "completion")
+        return bool(
+            receipt
+            and receipt.get("manifest_sha256") == self.manifest_digest
+            and receipt.get("payload", {}).get("completed") is True
+        )
+
+    def ready_items(self) -> list[WorkItem]:
+        ready = [
+            item
+            for item in sorted(self.items, key=lambda candidate: (candidate.order, candidate.id))
+            if not self.is_complete(item.id)
+            and all(self.is_complete(dependency) for dependency in item.dependencies)
+        ]
+        return ready[: int(self.config["Max Parallelism"])]
+
+    def write_receipt(
+        self, operation: str, payload: dict[str, Any], work_item_id: str | None = None
+    ) -> Path:
+        previous_digest = "GENESIS"
+        if self.chain_path.is_file():
+            lines = [line for line in self.chain_path.read_text(encoding="utf-8").splitlines() if line]
+            if lines:
+                previous_digest = json.loads(lines[-1])["digest"]
+        envelope: dict[str, Any] = {
+            "schema": "gall.automation.receipt.v1",
+            "operation": operation,
+            "work_item_id": work_item_id,
+            "recorded_at": utc_now(),
+            "revision": git_revision(),
+            "manifest": str(MANIFEST.relative_to(ROOT)),
+            "manifest_sha256": self.manifest_digest,
+            "previous_digest": previous_digest,
+            "payload": payload,
+            "digest_algorithm": "sha256",
+        }
+        envelope["digest"] = hashlib.sha256(
+            previous_digest.encode("ascii") + canonical_bytes(envelope)
+        ).hexdigest()
+        self.chain_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.chain_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(envelope, sort_keys=True, ensure_ascii=False) + "\n")
+        target = (
+            self.receipt_path(work_item_id, operation)
+            if work_item_id
+            else self.receipt_dir / f"{operation}.json"
+        )
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_suffix(target.suffix + ".tmp")
+        temporary.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.replace(target)
+        return target
+
+    def plan_payload(self) -> dict[str, Any]:
+        return {
+            "program": self.config["Program ID"],
+            "release": self.config["Release"],
+            "automation_profile": self.config["Automation Profile"],
+            "tracker_provider": self.config["Tracker Provider"],
+            "execution_mode": self.config["Execution Mode"],
+            "agent_mode": self.config["Agent Mode"],
+            "max_parallelism": int(self.config["Max Parallelism"]),
+            "work_items": [
+                {
+                    "id": item.id,
+                    "order": item.order,
+                    "checkpoint": item.row["Checkpoint ID"],
+                    "dependencies": item.dependencies,
+                    "branch": self.config["Branch Pattern"].replace("{workItemId}", item.id),
+                }
+                for item in sorted(self.items, key=lambda candidate: (candidate.order, candidate.id))
+            ],
+        }
+
+    def command_plan(self) -> int:
+        payload = self.plan_payload()
+        plan_path = self.runtime_dir / "execution-plan.json"
+        plan_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        receipt = self.write_receipt(
+            "plan", {"plan": str(plan_path.relative_to(ROOT)), "items": len(self.items)}
+        )
+        print(f"plan={plan_path.relative_to(ROOT)} receipt={receipt.relative_to(ROOT)}")
+        return 0
+
+    def command_status(self) -> int:
+        ready_ids = {item.id for item in self.ready_items()}
+        for item in sorted(self.items, key=lambda candidate: (candidate.order, candidate.id)):
+            if self.is_complete(item.id):
+                state = "COMPLETE"
+            elif item.id in ready_ids:
+                state = "READY"
+            else:
+                state = "BLOCKED"
+            print(f"{item.id}\t{state}\torder={item.order}\tdeps={','.join(item.dependencies)}")
+        return 0
+
+    def command_next(self) -> int:
+        ready = self.ready_items()
+        if not ready:
+            print("no ready work items")
+            return 3
+        for item in ready:
+            print(item.id)
+        return 0
+
+    def require_item(self, work_item_id: str) -> WorkItem:
+        try:
+            return self.by_id[work_item_id]
+        except KeyError as exc:
+            raise SystemExit(f"unknown work item: {work_item_id}") from exc
+
+    def assert_ready(self, item: WorkItem) -> None:
+        incomplete = [dependency for dependency in item.dependencies if not self.is_complete(dependency)]
+        if incomplete:
+            raise SystemExit(f"{item.id} is blocked by incomplete dependencies: {', '.join(incomplete)}")
+
+    def render_work_order(self, item: WorkItem) -> str:
+        row = item.row
+        sections = [
+            f"# {item.id} — {row['Summary']}",
+            "",
+            f"Release: {row['Release']}",
+            f"Checkpoint: {row['Checkpoint ID']}",
+            f"Branch: {self.config['Branch Pattern'].replace('{workItemId}', item.id)}",
+            f"Assignee role: {row['Assignee Role']}",
+            f"Reviewer role: {row['Reviewer Role']}",
+            f"Approval gate: {row['Approval Gate']}",
+            "",
+            "## Objective",
+            row["Objective"],
+            "",
+            "## Rationale",
+            row["Rationale"],
+        ]
+        list_sections = [
+            ("Read first", item.values("Required Context")),
+            ("Allowed paths", item.values("Allowed Paths")),
+            ("Forbidden paths", item.values("Forbidden Paths")),
+            ("MUST", item.values("MUST")),
+            ("MUST NOT", item.values("MUST NOT")),
+            ("Out of scope", item.values("Out Of Scope")),
+            ("Acceptance criteria", item.values("Acceptance Criteria")),
+            ("Definition of done", item.values("Definition Of Done")),
+            ("Verification commands", item.values("Verification Commands")),
+            ("Evidence artifacts", item.values("Evidence Artifacts")),
+            ("Adversarial questions", item.values("Adversarial Questions")),
+        ]
+        for heading, values in list_sections:
+            sections.extend(["", f"## {heading}"])
+            sections.extend(f"- {value}" for value in values)
+        sections.extend(
+            [
+                "",
+                "## Stop conditions",
+                "Stop and classify the item BLOCKED rather than inventing scope when a dependency is incomplete, a required context file is missing, an allowed path is insufficient, a verifier cannot execute, or the requested change conflicts with a MUST NOT rule.",
+                "",
+            ]
+        )
+        return "\n".join(sections)
+
+    def command_dispatch(self, work_item_id: str, apply: bool) -> int:
+        item = self.require_item(work_item_id)
+        self.assert_ready(item)
+        if apply:
+            receipt = self.write_receipt(
+                "dispatch-refusal",
+                {
+                    "reason": "direct command-agent apply is forbidden; use the isolated agent executor",
+                    "required_command": f"bash scripts/gall/gall work dispatch {item.id} --apply",
+                },
+                item.id,
+            )
+            raise SystemExit(f"direct apply refused; receipt={receipt.relative_to(ROOT)}")
+        missing_context = [path for path in item.values("Required Context") if not safe_path(path).exists()]
+        if missing_context:
+            raise SystemExit(f"required context is missing: {', '.join(missing_context)}")
+        bundle = self.runtime_dir / "dispatch" / item.id
+        bundle.mkdir(parents=True, exist_ok=True)
+        work_order = bundle / "WORK_ORDER.md"
+        work_order.write_text(self.render_work_order(item), encoding="utf-8")
+        manifest = {
+            "work_item": item.row,
+            "dependencies": item.dependencies,
+            "branch": self.config["Branch Pattern"].replace("{workItemId}", item.id),
+            "work_order_sha256": sha256_path(work_order),
+        }
+        (bundle / "manifest.json").write_text(
+            json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        intent = self.write_receipt(
+            "dispatch-intent",
+            {"apply": False, "bundle": str(bundle.relative_to(ROOT))},
+            item.id,
+        )
+        result = self.write_receipt(
+            "dispatch-result",
+            {
+                "mode": "handoff",
+                "exit_code": 0,
+                "intent_receipt": str(intent.relative_to(ROOT)),
+                "work_order_sha256": sha256_path(work_order),
+            },
+            item.id,
+        )
+        print(f"bundle={bundle.relative_to(ROOT)} receipt={result.relative_to(ROOT)}")
+        return 0
+
+    def command_verify(self, work_item_id: str) -> int:
+        item = self.require_item(work_item_id)
+        self.assert_ready(item)
+        results: list[dict[str, Any]] = []
+        for shell_command in item.values("Verification Commands"):
+            completed = subprocess.run(
+                ["bash", "-lc", shell_command],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            results.append(
+                {
+                    "command": shell_command,
+                    "exit_code": completed.returncode,
+                    "stdout": completed.stdout[-4096:],
+                    "stderr": completed.stderr[-4096:],
+                }
+            )
+        evidence = [
+            {"path": path, "exists": safe_path(path).exists()}
+            for path in item.values("Evidence Artifacts")
+        ]
+        passed = all(result["exit_code"] == 0 for result in results) and all(
+            artifact["exists"] for artifact in evidence
+        )
+        receipt = self.write_receipt(
+            "verification",
+            {"passed": passed, "commands": results, "evidence": evidence},
+            item.id,
+        )
+        print(f"passed={str(passed).lower()} receipt={receipt.relative_to(ROOT)}")
+        return 0 if passed else 1
+
+    def command_complete(self, work_item_id: str) -> int:
+        item = self.require_item(work_item_id)
+        self.assert_ready(item)
+        verification_path = self.receipt_path(item.id, "verification")
+        snapshot_path = self.receipt_path(item.id, "evidence-snapshot")
+        verification = self.load_receipt(item.id, "verification")
+        snapshot = self.load_receipt(item.id, "evidence-snapshot")
+        for kind, receipt in [("verification", verification), ("evidence snapshot", snapshot)]:
+            if receipt is None:
+                raise SystemExit(f"{kind} receipt is missing for {item.id}")
+            if receipt.get("manifest_sha256") != self.manifest_digest:
+                raise SystemExit(f"{kind} receipt is stale for {item.id}")
+            if receipt.get("revision") != git_revision():
+                raise SystemExit(f"{kind} receipt is not from the current revision for {item.id}")
+            if receipt.get("payload", {}).get("passed") is not True:
+                raise SystemExit(f"{kind} receipt is not green for {item.id}")
+        receipt = self.write_receipt(
+            "completion",
+            {
+                "completed": True,
+                "verification_receipt": str(verification_path.relative_to(ROOT)),
+                "verification_digest": verification["digest"],
+                "evidence_snapshot_receipt": str(snapshot_path.relative_to(ROOT)),
+                "evidence_snapshot_digest": snapshot["digest"],
+            },
+            item.id,
+        )
+        print(f"completed={item.id} receipt={receipt.relative_to(ROOT)}")
+        return 0
+
+    def command_tracker_plan(self) -> int:
+        plan = {
+            "provider": self.config["Tracker Provider"],
+            "project_key": self.config["Project Key"],
+            "release": self.config["Release"],
+            "operations": [
+                {
+                    "operation": "upsert",
+                    "external_id": item.id,
+                    "issue_type": item.row["Issue Type"],
+                    "summary": item.row["Summary"],
+                    "priority": item.row["Priority"],
+                    "component": item.row["Component"],
+                    "dependencies": item.dependencies,
+                }
+                for item in sorted(self.items, key=lambda candidate: (candidate.order, candidate.id))
+            ],
+        }
+        path = self.runtime_dir / "tracker-plan.json"
+        path.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        receipt = self.write_receipt("tracker-plan", {"plan": str(path.relative_to(ROOT))})
+        print(f"tracker_plan={path.relative_to(ROOT)} receipt={receipt.relative_to(ROOT)}")
+        return 0
+
+    def command_replay(self) -> int:
+        expected = canonical_bytes(self.plan_payload())
+        with tempfile.TemporaryDirectory(prefix="gall-replay-") as temporary:
+            replay_path = Path(temporary) / "execution-plan.json"
+            replay_path.write_bytes(expected)
+            replay_digest = sha256_path(replay_path)
+        current = self.runtime_dir / "execution-plan.json"
+        if not current.is_file():
+            raise SystemExit("execution plan is missing; run plan first")
+        current_digest = hashlib.sha256(canonical_bytes(json.loads(current.read_text()))).hexdigest()
+        passed = current_digest == replay_digest
+        receipt = self.write_receipt(
+            "control-replay",
+            {"passed": passed, "expected_sha256": replay_digest, "actual_sha256": current_digest},
+        )
+        print(f"passed={str(passed).lower()} receipt={receipt.relative_to(ROOT)}")
+        return 0 if passed else 1
+
+    def command_crown(self) -> int:
+        incomplete = [item.id for item in self.items if not self.is_complete(item.id)]
+        ledger = ROOT / "docs/GALL_STATUS_LEDGER.md"
+        checkpoint_alive = ledger.is_file() and "**ALIVE**" in ledger.read_text(encoding="utf-8")
+        passed = not incomplete and checkpoint_alive
+        receipt = self.write_receipt(
+            "automation-crown",
+            {"passed": passed, "incomplete_work_items": incomplete, "checkpoint_alive": checkpoint_alive},
+        )
+        print(f"passed={str(passed).lower()} receipt={receipt.relative_to(ROOT)}")
+        return 0 if passed else 1
+
+
+def parser() -> argparse.ArgumentParser:
+    command = argparse.ArgumentParser(description="Gall generated automation control plane")
+    sub = command.add_subparsers(dest="command", required=True)
+    sub.add_parser("plan")
+    sub.add_parser("status")
+    sub.add_parser("next")
+    dispatch = sub.add_parser("dispatch")
+    dispatch.add_argument("work_item_id")
+    dispatch.add_argument("--apply", action="store_true")
+    verify = sub.add_parser("verify")
+    verify.add_argument("work_item_id")
+    complete = sub.add_parser("complete")
+    complete.add_argument("work_item_id")
+    sub.add_parser("tracker-plan")
+    sub.add_parser("replay")
+    sub.add_parser("crown")
+    return command
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    args = parser().parse_args(list(argv) if argv is not None else None)
+    control = ControlPlane()
+    if args.command == "plan":
+        return control.command_plan()
+    if args.command == "status":
+        return control.command_status()
+    if args.command == "next":
+        return control.command_next()
+    if args.command == "dispatch":
+        return control.command_dispatch(args.work_item_id, args.apply)
+    if args.command == "verify":
+        return control.command_verify(args.work_item_id)
+    if args.command == "complete":
+        return control.command_complete(args.work_item_id)
+    if args.command == "tracker-plan":
+        return control.command_tracker_plan()
+    if args.command == "replay":
+        return control.command_replay()
+    if args.command == "crown":
+        return control.command_crown()
+    raise SystemExit(f"unsupported command: {args.command}")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,33 @@
+---
+to: docs/GALL_WORK_ITEM_DAG.dot
+force: true
+sparql:
+  items: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    SELECT ?workItemId ?summary ?checkpointId ?order WHERE {
+      ?workItem a gall:WorkItem ;
+                gall:workItemId ?workItemId ;
+                gall:summary ?summary ;
+                gall:belongsToCheckpoint ?checkpoint ;
+                gall:implementationOrder ?order .
+      ?checkpoint gall:checkpointId ?checkpointId .
+    } ORDER BY xsd:integer(?order) ?workItemId
+  dependencies: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    SELECT ?workItemId ?dependencyId WHERE {
+      ?workItem a gall:WorkItem ;
+                gall:workItemId ?workItemId ;
+                gall:dependsOnWorkItem ?dependency .
+      ?dependency gall:workItemId ?dependencyId .
+    } ORDER BY ?workItemId ?dependencyId
+---
+digraph gall_work_items {
+  rankdir=LR;
+  graph [label="Gall work-item proof order", labelloc=t, fontsize=20];
+  node [shape=box, style=rounded];
+
+{% for item in items %}  "{{ item.workItemId }}" [label="{{ item.workItemId }}\n{{ item.summary }}\n{{ item.checkpointId }} / order {{ item.order }}"];
+{% endfor %}
+{% for dependency in dependencies %}  "{{ dependency.dependencyId }}" -> "{{ dependency.workItemId }}";
+{% endfor %}}

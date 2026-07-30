@@ -1,0 +1,198 @@
+---
+to: .github/workflows/gall-control-plane.yml
+force: true
+---
+{% raw %}name: Gall Control Plane
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      advance_ready:
+        description: Verify and complete every currently ready work item
+        required: false
+        default: false
+        type: boolean
+      tracker_apply:
+        description: Apply the generated tracker plan
+        required: false
+        default: false
+        type: boolean
+      work_item_id:
+        description: Work item to dispatch to an external coding agent
+        required: false
+        type: string
+      agent_apply:
+        description: Invoke GALL_AGENT_COMMAND for the selected work item
+        required: false
+        default: false
+        type: boolean
+      crown_check:
+        description: Verify automation and checkpoint crown closure
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: gall-control-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan-and-replay:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Provision Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Validate generated automation source and manufacture plans
+        run: bash scripts/gall/gall automation validate
+      - name: Record ready queue
+        run: |
+          bash scripts/gall/gall work status | tee .gall/work-status.txt
+          set +e
+          bash scripts/gall/gall work next | tee .gall/ready-work-items.txt
+          code=$?
+          set -e
+          test "$code" -eq 0 -o "$code" -eq 3
+      - name: Upload plan receipts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gall-control-plane-${{ github.sha }}
+          path: |
+            .gall/
+            receipts/gall/
+            automation/GALL_AUTOMATION_WORK_ITEMS.csv
+            automation/schemas/gall-automation-receipt.schema.json
+            jira/GALL_JIRA_WORK_ITEMS.csv
+            docs/GALL_AGENT_WORK_ORDERS.md
+            docs/GALL_AUTOMATION_RUNBOOK.md
+          if-no-files-found: error
+
+  advance-ready:
+    if: github.event_name == 'workflow_dispatch' && inputs.advance_ready
+    needs: plan-and-replay
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Provision Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify and complete ready work
+        run: |
+          bash scripts/gall/gall automation plan
+          bash scripts/gall/gall work advance
+      - name: Upload advancement receipts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gall-advance-${{ github.sha }}
+          path: |
+            .gall/
+            receipts/gall/
+          if-no-files-found: error
+
+  tracker-apply:
+    if: github.event_name == 'workflow_dispatch' && inputs.tracker_apply
+    needs: plan-and-replay
+    runs-on: ubuntu-24.04
+    environment: gall-external-actuation
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Provision Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Apply tracker synchronization
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          bash scripts/gall/gall automation plan
+          bash scripts/gall/gall tracker apply
+      - name: Upload tracker receipts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gall-tracker-receipts-${{ github.sha }}
+          path: |
+            .gall/
+            receipts/gall/
+          if-no-files-found: error
+
+  agent-dispatch:
+    if: github.event_name == 'workflow_dispatch' && inputs.work_item_id != ''
+    needs: plan-and-replay
+    runs-on: ubuntu-24.04
+    environment: gall-external-actuation
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Provision Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Create or actuate agent handoff
+        env:
+          GALL_AGENT_COMMAND: ${{ secrets.GALL_AGENT_COMMAND }}
+        run: |
+          bash scripts/gall/gall automation plan
+          if [ "${{ inputs.agent_apply }}" = "true" ]; then
+            bash scripts/gall/gall work dispatch "${{ inputs.work_item_id }}" --apply
+          else
+            bash scripts/gall/gall work dispatch "${{ inputs.work_item_id }}"
+          fi
+          bash scripts/gall/gall receipt verify
+      - name: Upload agent bundle and receipts
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gall-agent-${{ inputs.work_item_id }}-${{ github.sha }}
+          path: |
+            .gall/
+            receipts/gall/
+          if-no-files-found: error
+
+  crown-check:
+    if: github.event_name == 'workflow_dispatch' && inputs.crown_check
+    needs: plan-and-replay
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Provision Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify automation crown
+        run: |
+          bash scripts/gall/gall automation plan
+          bash scripts/gall/gall crown
+      - name: Upload crown receipt
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gall-crown-${{ github.sha }}
+          path: |
+            .gall/
+            receipts/gall/
+          if-no-files-found: error
+{% endraw %}

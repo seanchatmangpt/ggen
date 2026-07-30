@@ -1,0 +1,8 @@
+# MESSAGE: Gall standing was asserted manually -- gall:declaredStanding is forbidden because standing must be derived from observed evidence, never authored or hand-flipped
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpoint ?checkpointId ?declaredStanding WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId ;
+              gall:declaredStanding ?declaredStanding .
+}
+ORDER BY ?checkpointId

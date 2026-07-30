@@ -1,0 +1,27 @@
+# MESSAGE: Gall program contract is incomplete -- every gall:GallProgram must have programId, releaseIdentity, jiraProjectKey, and at least one checkpoint
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?program ?programId ?missing WHERE {
+  ?program a gall:GallProgram .
+  OPTIONAL { ?program gall:programId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?program)) AS ?programId)
+  {
+    FILTER NOT EXISTS { ?program gall:programId ?value }
+    BIND("gall:programId" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?program gall:releaseIdentity ?value }
+    BIND("gall:releaseIdentity" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?program gall:jiraProjectKey ?value }
+    BIND("gall:jiraProjectKey" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?program gall:hasCheckpoint ?value }
+    BIND("gall:hasCheckpoint" AS ?missing)
+  }
+}
+ORDER BY ?programId ?missing

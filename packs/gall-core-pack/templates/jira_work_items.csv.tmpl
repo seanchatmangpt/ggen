@@ -1,0 +1,68 @@
+---
+to: jira/GALL_JIRA_WORK_ITEMS.csv
+force: true
+sparql:
+  items: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    SELECT ?projectKey ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
+           ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
+           ?reviewerRole ?approvalGate
+           (GROUP_CONCAT(DISTINCT ?label; separator=" ; ") AS ?labels)
+           (GROUP_CONCAT(DISTINCT ?dependencyId; separator=" ; ") AS ?dependencies)
+           (GROUP_CONCAT(DISTINCT ?context; separator=" ; ") AS ?contexts)
+           (GROUP_CONCAT(DISTINCT ?allowed; separator=" ; ") AS ?allowedPaths)
+           (GROUP_CONCAT(DISTINCT ?forbidden; separator=" ; ") AS ?forbiddenPaths)
+           (GROUP_CONCAT(DISTINCT ?must; separator=" ; ") AS ?mustDo)
+           (GROUP_CONCAT(DISTINCT ?mustNot; separator=" ; ") AS ?mustNotDo)
+           (GROUP_CONCAT(DISTINCT ?outside; separator=" ; ") AS ?outOfScope)
+           (GROUP_CONCAT(DISTINCT ?acceptance; separator=" ; ") AS ?acceptanceCriteria)
+           (GROUP_CONCAT(DISTINCT ?done; separator=" ; ") AS ?definitionOfDone)
+           (GROUP_CONCAT(DISTINCT ?verify; separator=" ; ") AS ?verificationCommands)
+           (GROUP_CONCAT(DISTINCT ?evidence; separator=" ; ") AS ?evidenceArtifacts)
+           (GROUP_CONCAT(DISTINCT ?question; separator=" ; ") AS ?adversarialQuestions)
+    WHERE {
+      ?program a gall:GallProgram ;
+               gall:releaseIdentity ?releaseIdentity ;
+               gall:jiraProjectKey ?projectKey ;
+               gall:hasWorkItem ?workItem .
+      ?workItem a gall:WorkItem ;
+                gall:workItemId ?workItemId ;
+                gall:issueType ?issueTypeNode ;
+                gall:summary ?summary ;
+                gall:objective ?objective ;
+                gall:rationale ?rationale ;
+                gall:belongsToCheckpoint ?checkpoint ;
+                gall:implementationOrder ?order ;
+                gall:priority ?priorityNode ;
+                gall:component ?component ;
+                gall:protocolState ?stateNode ;
+                gall:assigneeRole ?assigneeRole ;
+                gall:reviewerRole ?reviewerRole ;
+                gall:approvalGate ?approvalGate ;
+                gall:requiredContext ?context ;
+                gall:allowedPath ?allowed ;
+                gall:forbiddenPath ?forbidden ;
+                gall:mustDo ?must ;
+                gall:mustNotDo ?mustNot ;
+                gall:outOfScope ?outside ;
+                gall:acceptanceCriterion ?acceptance ;
+                gall:definitionOfDone ?done ;
+                gall:verificationCommand ?verify ;
+                gall:evidenceArtifact ?evidence ;
+                gall:adversarialQuestion ?question .
+      ?issueTypeNode gall:jiraName ?issueType .
+      ?priorityNode gall:priorityName ?priority .
+      ?stateNode gall:stateName ?state .
+      ?checkpoint gall:checkpointId ?checkpointId ; gall:title ?checkpointTitle .
+      OPTIONAL { ?workItem gall:label ?label }
+      OPTIONAL { ?workItem gall:dependsOnWorkItem ?dependency . ?dependency gall:workItemId ?dependencyId }
+    }
+    GROUP BY ?projectKey ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
+             ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
+             ?reviewerRole ?approvalGate
+    ORDER BY xsd:integer(?order) ?workItemId
+---
+Project Key,Issue Type,Summary,Description,Priority,Labels,Components,External ID,Linked External IDs
+{% for item in items %}"{{ item.projectKey }}","{{ item.issueType }}","{{ item.summary }}","Release: {{ item.releaseIdentity }} | Checkpoint: {{ item.checkpointId }} - {{ item.checkpointTitle }} | APS state: {{ item.state }} | Objective: {{ item.objective }} | Rationale: {{ item.rationale }} | Read first: {{ item.contexts }} | Allowed paths: {{ item.allowedPaths }} | Forbidden paths: {{ item.forbiddenPaths }} | MUST: {{ item.mustDo }} | MUST NOT: {{ item.mustNotDo }} | Out of scope: {{ item.outOfScope }} | Acceptance: {{ item.acceptanceCriteria }} | Definition of done: {{ item.definitionOfDone }} | Verify: {{ item.verificationCommands }} | Evidence: {{ item.evidenceArtifacts }} | Adversarial review: {{ item.adversarialQuestions }} | Assignee role: {{ item.assigneeRole }} | Reviewer role: {{ item.reviewerRole }} | Approval gate: {{ item.approvalGate }}","{{ item.priority }}","{{ item.labels }}","{{ item.component }}","{{ item.workItemId }}","{{ item.dependencies }}"
+{% endfor %}

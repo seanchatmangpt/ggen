@@ -1,0 +1,22 @@
+# MESSAGE: Crowned Gall checkpoint evidence is incomplete or red -- runner, positive witness, negative falsifier, receipt verification, and clean-worktree replay must all record real exit code 0
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?crownId ?checkpointId ?runner ?witness ?falsifier ?receipt ?replay WHERE {
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  ?evidence a gall:CheckpointEvidence ;
+            gall:forCheckpoint ?checkpoint .
+  OPTIONAL { ?evidence gall:runnerExitCode ?runner }
+  OPTIONAL { ?evidence gall:witnessExitCode ?witness }
+  OPTIONAL { ?evidence gall:falsifierExitCode ?falsifier }
+  OPTIONAL { ?evidence gall:receiptExitCode ?receipt }
+  OPTIONAL { ?evidence gall:replayExitCode ?replay }
+  FILTER(
+    !BOUND(?runner) || !BOUND(?witness) || !BOUND(?falsifier) ||
+    !BOUND(?receipt) || !BOUND(?replay) ||
+    ?runner != 0 || ?witness != 0 || ?falsifier != 0 ||
+    ?receipt != 0 || ?replay != 0
+  )
+}
+ORDER BY ?crownId ?checkpointId

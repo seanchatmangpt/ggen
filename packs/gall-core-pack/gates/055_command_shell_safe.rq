@@ -1,0 +1,13 @@
+# MESSAGE: Gall command cannot be projected safely -- checkpoint commands must not contain single quotes because the generated runner uses single-quoted shell literals; put complex logic in a checked-in executable script and declare that script command instead
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?command WHERE {
+  {
+    ?owner gall:runnerCommand ?command .
+  }
+  UNION
+  {
+    ?owner gall:command ?command .
+  }
+  FILTER(CONTAINS(STR(?command), "'"))
+}
+ORDER BY ?owner

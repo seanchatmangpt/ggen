@@ -1,0 +1,27 @@
+---
+to: docs/GALL_CHECKPOINT_DAG.dot
+force: true
+sparql:
+  checkpoints: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    SELECT ?checkpointId ?title WHERE {
+      ?checkpoint a gall:Checkpoint ;
+                  gall:checkpointId ?checkpointId ;
+                  gall:title ?title .
+    } ORDER BY ?checkpointId
+  dependencies: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    SELECT ?checkpointId ?dependencyId WHERE {
+      ?checkpoint a gall:Checkpoint ;
+                  gall:checkpointId ?checkpointId ;
+                  gall:requiresCheckpoint ?dependency .
+      ?dependency gall:checkpointId ?dependencyId .
+    } ORDER BY ?checkpointId ?dependencyId
+---
+digraph gall_checkpoints {
+  rankdir=LR;
+  graph [label="ggen-first Gall checkpoint proof dependencies", labelloc=t];
+  node [shape=box];
+{% for checkpoint in checkpoints %}  "{{ checkpoint.checkpointId }}" [label="{{ checkpoint.checkpointId }}\n{{ checkpoint.title }}"];
+{% endfor %}{% for dependency in dependencies %}  "{{ dependency.dependencyId }}" -> "{{ dependency.checkpointId }}";
+{% endfor %}}

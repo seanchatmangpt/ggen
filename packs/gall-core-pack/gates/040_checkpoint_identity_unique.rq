@@ -1,0 +1,9 @@
+# MESSAGE: Gall checkpoint identity is not unique -- each gall:checkpointId must resolve to exactly one checkpoint
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpointId (COUNT(?checkpoint) AS ?count) WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId .
+}
+GROUP BY ?checkpointId
+HAVING(COUNT(?checkpoint) > 1)
+ORDER BY ?checkpointId

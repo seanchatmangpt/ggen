@@ -1,0 +1,24 @@
+# MESSAGE: Gall work item uses an uncontrolled Jira or APS value -- issue type, protocol state, and priority must be declared vocabulary individuals
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItemId ?field ?value WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId .
+  {
+    ?workItem gall:issueType ?value .
+    FILTER NOT EXISTS { ?value a gall:IssueType ; gall:jiraName ?name }
+    BIND("gall:issueType" AS ?field)
+  }
+  UNION
+  {
+    ?workItem gall:protocolState ?value .
+    FILTER NOT EXISTS { ?value a gall:ProtocolState ; gall:stateName ?name }
+    BIND("gall:protocolState" AS ?field)
+  }
+  UNION
+  {
+    ?workItem gall:priority ?value .
+    FILTER NOT EXISTS { ?value a gall:Priority ; gall:priorityName ?name }
+    BIND("gall:priority" AS ?field)
+  }
+}
+ORDER BY ?workItemId ?field

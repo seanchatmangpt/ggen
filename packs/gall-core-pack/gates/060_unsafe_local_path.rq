@@ -1,0 +1,35 @@
+# MESSAGE: Gall contract contains an unsafe local path -- artifact, ticket-scope, context, and evidence paths must be project-relative and commands must not depend on user-specific home paths
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?field ?value WHERE {
+  {
+    VALUES ?pathProperty {
+      gall:artifactPath
+      gall:allowedPath
+      gall:forbiddenPath
+      gall:requiredContext
+      gall:evidenceArtifact
+    }
+    ?owner ?pathProperty ?value .
+    BIND(STR(?pathProperty) AS ?field)
+    FILTER(REGEX(STR(?value), "^/") || REGEX(STR(?value), "(^|/)\\.\\.(/|$)"))
+  }
+  UNION
+  {
+    ?owner gall:runnerCommand ?value .
+    BIND("gall:runnerCommand" AS ?field)
+    FILTER(CONTAINS(STR(?value), "/Users/") || CONTAINS(STR(?value), "/home/"))
+  }
+  UNION
+  {
+    ?owner gall:command ?value .
+    BIND("gall:command" AS ?field)
+    FILTER(CONTAINS(STR(?value), "/Users/") || CONTAINS(STR(?value), "/home/"))
+  }
+  UNION
+  {
+    ?owner gall:verificationCommand ?value .
+    BIND("gall:verificationCommand" AS ?field)
+    FILTER(CONTAINS(STR(?value), "/Users/") || CONTAINS(STR(?value), "/home/"))
+  }
+}
+ORDER BY ?owner ?field
