@@ -3,7 +3,7 @@ to: scripts/gall/verify_automation_receipts.py
 force: true
 ---
 #!/usr/bin/env python3
-"""GENERATED independent verifier for the Gall automation receipt chain."""
+"""GENERATED independent verifier for Gall automation and work evidence."""
 from __future__ import annotations
 
 import argparse
@@ -23,6 +23,19 @@ def canonical_bytes(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
+def split_values(value: str) -> list[str]:
+    return [part.strip() for part in value.split(" ; ") if part.strip()]
+
+
+def safe_path(raw: str) -> Path:
+    path = (ROOT / raw).resolve()
+    try:
+        path.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise SystemExit(f"unsafe manifest path: {raw}") from exc
+    return path
+
+
 def manifest_rows() -> list[dict[str, str]]:
     with MANIFEST.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -32,17 +45,57 @@ def manifest_rows() -> list[dict[str, str]]:
 
 
 def manifest_receipt_dir(rows: list[dict[str, str]]) -> Path:
-    raw = rows[0]["Receipt Directory"]
-    path = (ROOT / raw).resolve()
-    try:
-        path.relative_to(ROOT.resolve())
-    except ValueError as exc:
-        raise SystemExit(f"unsafe receipt directory: {raw}") from exc
-    return path
+    return safe_path(rows[0]["Receipt Directory"])
 
 
 def sha256_path(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def digest_directory(path: Path) -> tuple[str, list[dict[str, Any]]]:
+    entries: list[dict[str, Any]] = []
+    digest = hashlib.sha256()
+    for child in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        relative = child.relative_to(path).as_posix()
+        child_digest = sha256_path(child)
+        size = child.stat().st_size
+        entry = {"path": relative, "sha256": child_digest, "size": size}
+        entries.append(entry)
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(child_digest.encode("ascii"))
+        digest.update(b"\0")
+        digest.update(str(size).encode("ascii"))
+        digest.update(b"\n")
+    return digest.hexdigest(), entries
+
+
+def artifact_snapshot(path_text: str) -> dict[str, Any]:
+    path = safe_path(path_text)
+    if not path.exists():
+        return {"path": path_text, "exists": False}
+    if path.is_file():
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "file",
+            "sha256": sha256_path(path),
+            "size": path.stat().st_size,
+        }
+    if path.is_dir():
+        digest, entries = digest_directory(path)
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "directory",
+            "sha256": digest,
+            "entries": entries,
+        }
+    return {"path": path_text, "exists": True, "kind": "unsupported"}
 
 
 def git_revision() -> str:
@@ -60,6 +113,22 @@ def load_receipt(path: Path, errors: list[str]) -> dict[str, Any] | None:
         return None
 
 
+def require_current_receipt(
+    work_item_id: str,
+    kind: str,
+    receipt: dict[str, Any] | None,
+    manifest_digest: str,
+    revision: str,
+    errors: list[str],
+) -> None:
+    if receipt is None:
+        return
+    if receipt.get("manifest_sha256") != manifest_digest:
+        errors.append(f"{work_item_id}: {kind} receipt is stale against the manifest")
+    if receipt.get("revision") != revision:
+        errors.append(f"{work_item_id}: {kind} receipt does not name exact crown revision")
+
+
 def verify_crown_receipts(
     rows: list[dict[str, str]], receipt_dir: Path, manifest_digest: str, errors: list[str]
 ) -> None:
@@ -68,23 +137,34 @@ def verify_crown_receipts(
         work_item_id = row["Work Item ID"]
         work_dir = receipt_dir / "work-items" / work_item_id
         verification_path = work_dir / "verification.json"
+        snapshot_path = work_dir / "evidence-snapshot.json"
         completion_path = work_dir / "completion.json"
         verification = load_receipt(verification_path, errors)
+        evidence_snapshot = load_receipt(snapshot_path, errors)
         completion = load_receipt(completion_path, errors)
-        for kind, receipt in [("verification", verification), ("completion", completion)]:
-            if receipt is None:
-                continue
-            if receipt.get("manifest_sha256") != manifest_digest:
-                errors.append(f"{work_item_id}: {kind} receipt is stale against the manifest")
-            if receipt.get("revision") != revision:
-                errors.append(f"{work_item_id}: {kind} receipt does not name exact crown revision")
+        for kind, receipt in [
+            ("verification", verification),
+            ("evidence-snapshot", evidence_snapshot),
+            ("completion", completion),
+        ]:
+            require_current_receipt(
+                work_item_id, kind, receipt, manifest_digest, revision, errors
+            )
         if verification is not None and verification.get("payload", {}).get("passed") is not True:
             errors.append(f"{work_item_id}: verification receipt is not green")
+        if evidence_snapshot is not None:
+            payload = evidence_snapshot.get("payload", {})
+            if payload.get("passed") is not True:
+                errors.append(f"{work_item_id}: evidence snapshot is not green")
+            recorded = payload.get("artifacts")
+            expected = [artifact_snapshot(path) for path in split_values(row["Evidence Artifacts"])]
+            if recorded != expected:
+                errors.append(f"{work_item_id}: evidence content has drifted since snapshot")
         if completion is not None and completion.get("payload", {}).get("completed") is not True:
             errors.append(f"{work_item_id}: completion receipt is not green")
         if verification is not None and completion is not None:
-            expected = str(verification_path.relative_to(ROOT))
-            if completion.get("payload", {}).get("verification_receipt") != expected:
+            expected_path = str(verification_path.relative_to(ROOT))
+            if completion.get("payload", {}).get("verification_receipt") != expected_path:
                 errors.append(f"{work_item_id}: completion does not bind the current verification receipt")
 
 
