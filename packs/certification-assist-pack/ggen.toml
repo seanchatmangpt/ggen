@@ -1,0 +1,129 @@
+[project]
+name = "certification-assist-consumer"
+version = "26.7.30"
+description = "Manufacture evidence-backed certification and systems-interview capability standing"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://chatmangpt.com/ontology/certification-assist#"
+imports = []
+
+[ontology.prefixes]
+ca = "https://chatmangpt.com/ontology/certification-assist#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+skos = "http://www.w3.org/2004/02/skos/core#"
+prov = "http://www.w3.org/ns/prov#"
+dcterms = "http://purl.org/dc/terms/"
+ceterms = "https://purl.org/ctdl/terms/"
+ceasn = "https://purl.org/ctdlasn/terms/"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/certification-assist/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/model.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/certification-assist/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-binary"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/src/bin/verify.rs.tmpl" }
+output_file = "consumer/certification-assist/src/bin/verify.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "mcp-server-binary"
+query = { file = "queries/mcp.rq" }
+template = { file = "templates/src/bin/mcp_server.rs.tmpl" }
+output_file = "consumer/certification-assist/src/bin/mcp_server.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "full-contract-tests"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/tests/full_contract.rs.tmpl" }
+output_file = "consumer/certification-assist/tests/full_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "mcp-contract"
+query = { file = "queries/mcp.rq" }
+template = { file = "templates/protocol/mcp-server.json.tmpl" }
+output_file = "consumer/certification-assist/protocol/mcp-server.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "a2a-agent-card"
+query = { file = "queries/a2a.rq" }
+template = { file = "templates/protocol/a2a-agent-card.json.tmpl" }
+output_file = "consumer/certification-assist/protocol/a2a-agent-card.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "a2a-self-play-task"
+query = { file = "queries/objectives.rq" }
+template = { file = "templates/protocol/a2a-self-play-task.json.tmpl" }
+output_file = "consumer/certification-assist/protocol/a2a-self-play-task.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "capability-standing-document"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/docs/CAPABILITY_STANDING.md.tmpl" }
+output_file = "consumer/certification-assist/docs/CAPABILITY_STANDING.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "whiteboard-projection"
+query = { file = "queries/objectives.rq" }
+template = { file = "templates/docs/WHITEBOARD_PROJECTION.md.tmpl" }
+output_file = "consumer/certification-assist/docs/WHITEBOARD_PROJECTION.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "speedrun-plan"
+query = { file = "queries/objectives.rq" }
+template = { file = "templates/automation/SPEEDRUN_PLAN.json.tmpl" }
+output_file = "consumer/certification-assist/automation/SPEEDRUN_PLAN.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/certification-assist/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verification-script"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/scripts/verify.sh.tmpl" }
+output_file = "consumer/certification-assist/scripts/verify.sh"
+skip_empty = false
+mode = "Overwrite"

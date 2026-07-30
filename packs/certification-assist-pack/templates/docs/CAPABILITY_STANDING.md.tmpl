@@ -1,0 +1,40 @@
+# CertificationAssist Capability Standing
+
+Version: **26.7.30**
+
+This document is generated from the admitted CertificationAssist ontology. It does not confer standing by itself.
+
+## Crown
+
+| # | Capability | Category | Required outcome | Falsifier |
+|---:|---|---|---|---|
+{% for row in results %}| {{ row["order"] }} | `{{ row["slug"] }}` — {{ row["name"] }} | {{ row["category"] }} | {{ row["outcome"] }} | {{ row["falsifier"] }} |
+{% endfor %}
+
+Each capability requires:
+
+1. positive execution;
+2. a named negative refusal;
+3. receipt verification and replay refusal.
+
+The bounded crown is **12 capabilities / 36 proof surfaces**.
+
+## Standing law
+
+```text
+UNSEEN
+→ DISCOVERED
+→ RECOGNIZED
+→ EXPLAINABLE
+→ DECIDABLE
+→ DRAWABLE
+→ EXECUTABLE
+→ ADVERSARIAL
+→ TRANSFERABLE
+→ GENERATIVE
+→ VERIFIED
+→ TEACHABLE
+→ DOMINANT
+```
+
+External certification is orthogonal. No badge, exam result, simulation score, or autonomic plan may skip an internal standing level or promote without admitted evidence.

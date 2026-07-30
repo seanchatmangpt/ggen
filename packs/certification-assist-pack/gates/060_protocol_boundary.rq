@@ -1,0 +1,46 @@
+# Any row refuses sync: exact MCP and A2A surfaces, no MCP task augmentation, and unique protocol identities.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?subject ?problem ?value
+WHERE {
+  {
+    SELECT (ca:MCPBoundary AS ?subject) ("wrong-mcp-surface-count" AS ?problem) (COUNT(?surface) AS ?value)
+    WHERE { ?surface a ca:ProtocolSurface . }
+    HAVING(COUNT(?surface) != 8)
+  }
+  UNION
+  {
+    SELECT (ca:A2ABoundary AS ?subject) ("wrong-a2a-skill-count" AS ?problem) (COUNT(?skill) AS ?value)
+    WHERE { ?skill a ca:A2ASkill . }
+    HAVING(COUNT(?skill) != 6)
+  }
+  UNION
+  {
+    ?subject a ca:ProtocolSurface ; ca:taskSupport ?value .
+    FILTER(?value != "forbidden")
+    BIND("mcp-task-augmentation-declared" AS ?problem)
+  }
+  UNION
+  {
+    ?subject a ca:ProtocolSurface ; ca:protocolKind ?kind .
+    FILTER(?kind NOT IN ("resource", "tool"))
+    BIND("unknown-mcp-kind" AS ?problem)
+    BIND(?kind AS ?value)
+  }
+  UNION
+  {
+    ?left a ca:ProtocolSurface ; ca:protocolName ?value .
+    ?right a ca:ProtocolSurface ; ca:protocolName ?value .
+    FILTER(STR(?left) < STR(?right))
+    BIND(?left AS ?subject)
+    BIND("duplicate-mcp-name" AS ?problem)
+  }
+  UNION
+  {
+    ?left a ca:A2ASkill ; ca:skillId ?value .
+    ?right a ca:A2ASkill ; ca:skillId ?value .
+    FILTER(STR(?left) < STR(?right))
+    BIND(?left AS ?subject)
+    BIND("duplicate-a2a-skill" AS ?problem)
+  }
+}

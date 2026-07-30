@@ -1,0 +1,9 @@
+use std::fs;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let report = certification_assist_consumer::verify()?;
+    let bytes = serde_json::to_vec_pretty(&report)?;
+    fs::write("VERIFIER_REPORT.json", &bytes)?;
+    println!("{}", String::from_utf8(bytes)?);
+    Ok(())
+}

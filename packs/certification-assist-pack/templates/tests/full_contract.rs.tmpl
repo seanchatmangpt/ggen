@@ -1,0 +1,172 @@
+use certification_assist_consumer::{
+    autonomic_learning_plan, is_triple_darkness, manufacture_probe, run_self_play, speedrun_plan,
+    whiteboard_projection, AssistError, EvidenceArtifact, ProbeKind, StandingLedger, StandingLevel,
+    StandingReplayVerifier, CAPABILITIES, HORIZON_GAPS, OBJECTIVES, REQUIRED_PROOF_SURFACES,
+    SELF_PLAY_ROLES,
+};
+
+#[test]
+fn exact_crown_and_objective_inventory_are_present() {
+    assert_eq!(CAPABILITIES.len(), 12);
+    assert_eq!(CAPABILITIES.len() * REQUIRED_PROOF_SURFACES, 36);
+    assert_eq!(OBJECTIVES.len(), 8);
+    assert_eq!(SELF_PLAY_ROLES.len(), 3);
+}
+
+#[test]
+fn speedrun_is_deterministic_dependency_closed_and_complete() {
+    let first = speedrun_plan().expect("first plan");
+    let second = speedrun_plan().expect("second plan");
+    assert_eq!(first, second);
+    assert_eq!(first.len(), OBJECTIVES.len());
+    for item in &first {
+        if let Some(required) = &item.prerequisite {
+            let required_position = first
+                .iter()
+                .position(|candidate| &candidate.objective_slug == required)
+                .expect("prerequisite in plan");
+            let item_position = first
+                .iter()
+                .position(|candidate| candidate.objective_slug == item.objective_slug)
+                .expect("objective in plan");
+            assert!(required_position < item_position);
+        }
+    }
+}
+
+#[test]
+fn triple_darkness_is_not_collapsed_into_an_ordinary_gap() {
+    let gap = HORIZON_GAPS[0];
+    assert!(is_triple_darkness(gap));
+    let partially_known = certification_assist_consumer::HorizonGap {
+        gap_awareness: true,
+        ..gap
+    };
+    assert!(!is_triple_darkness(partially_known));
+}
+
+#[test]
+fn systems_whiteboard_projection_is_complete() {
+    let projection = whiteboard_projection("async-messaging").expect("projection");
+    assert!(!projection.draw_next.is_empty());
+    assert!(!projection.say_next.is_empty());
+    assert!(!projection.why.is_empty());
+    assert!(!projection.tradeoff.is_empty());
+    assert!(!projection.watch_for.is_empty());
+}
+
+#[test]
+fn practice_manufacture_is_non_actuating() {
+    for kind in [
+        ProbeKind::Recall,
+        ProbeKind::Explanation,
+        ProbeKind::Whiteboard,
+        ProbeKind::Lab,
+        ProbeKind::Failure,
+        ProbeKind::Transfer,
+    ] {
+        let probe = manufacture_probe("network-flow", kind).expect("probe");
+        assert!(!probe.actuation_performed);
+        assert!(!probe.prompt.is_empty());
+    }
+}
+
+#[test]
+fn a2a_self_play_has_three_roles_and_a_receipted_artifact() {
+    let task = run_self_play("architecture-narration").expect("self play");
+    assert_eq!(task.messages.len(), 3);
+    assert_eq!(task.artifacts.len(), 1);
+    assert_ne!(task.digest, [0; 32]);
+}
+
+#[test]
+fn autonomics_manufacture_intents_but_never_promote() {
+    let report = autonomic_learning_plan().expect("autonomic plan");
+    assert!(report.planning_converged);
+    assert!(!report.standing_promoted);
+    assert!(report
+        .intents
+        .iter()
+        .all(|intent| !intent.actuation_performed && !intent.promotion_performed));
+}
+
+#[test]
+fn evidence_free_and_skipped_promotions_are_refused() {
+    let mut ledger = StandingLedger::new().expect("ledger");
+    assert!(matches!(
+        ledger.promote("network-flow", StandingLevel::Explainable, None),
+        Err(AssistError::MissingEvidence(_))
+    ));
+    let evidence = EvidenceArtifact::issue(
+        "network-flow-witness",
+        "network-flow",
+        "visualization",
+        b"drawn packet path",
+    );
+    assert!(matches!(
+        ledger.promote("network-flow", StandingLevel::Drawable, Some(&evidence)),
+        Err(AssistError::InvalidTransition { .. })
+    ));
+}
+
+#[test]
+fn evidence_bound_promotion_receipts_verify_and_duplicate_replay_refuses() {
+    let mut ledger = StandingLedger::new().expect("ledger");
+    let evidence = EvidenceArtifact::issue(
+        "network-flow-witness",
+        "network-flow",
+        "recognition",
+        b"packet flow explanation",
+    );
+    let receipt = ledger
+        .promote("network-flow", StandingLevel::Explainable, Some(&evidence))
+        .expect("promotion");
+    receipt.verify().expect("receipt verifies");
+    let mut replay = StandingReplayVerifier::default();
+    replay.replay(&receipt).expect("first replay");
+    assert_eq!(replay.replay(&receipt), Err(AssistError::DuplicateReplay));
+}
+
+#[test]
+fn out_of_order_replay_refusal_does_not_poison_verifier_state() {
+    let mut ledger = StandingLedger::new().expect("ledger");
+    let first_evidence = EvidenceArtifact::issue(
+        "network-flow-explanation",
+        "network-flow",
+        "understanding",
+        b"causal packet flow explanation",
+    );
+    let first = ledger
+        .promote(
+            "network-flow",
+            StandingLevel::Explainable,
+            Some(&first_evidence),
+        )
+        .expect("first promotion");
+    let second_evidence = EvidenceArtifact::issue(
+        "network-flow-decision",
+        "network-flow",
+        "decision",
+        b"select the route and trust boundary under explicit constraints",
+    );
+    let second = ledger
+        .promote("network-flow", StandingLevel::Decidable, Some(&second_evidence))
+        .expect("second promotion");
+
+    let mut replay = StandingReplayVerifier::default();
+    assert_eq!(replay.replay(&second), Err(AssistError::ReceiptMismatch));
+    replay.replay(&first).expect("predecessor replay");
+    replay.replay(&second).expect("successor replay after predecessor");
+}
+
+#[test]
+fn complete_crown_executes_existing_automatic_autonomic_rail() {
+    let report = certification_assist_consumer::verify().expect("crown");
+    assert_eq!(report.standing, "ALIVE");
+    assert_eq!(report.capabilities, 12);
+    assert_eq!(report.proof_surfaces, 36);
+    assert_eq!(report.objectives, 8);
+    assert!(report.triple_darkness_gaps >= 1);
+    assert_ne!(report.automatic_receipt, [0; 32]);
+    assert_ne!(report.autonomic_receipt, [0; 32]);
+}

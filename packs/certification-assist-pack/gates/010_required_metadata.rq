@@ -1,0 +1,31 @@
+# Any row refuses sync: every capability and objective must declare the complete contract.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?subject ?missing
+WHERE {
+  {
+    ?subject a ca:Capability .
+    VALUES (?property ?missing) {
+      (ca:order "order") (ca:slug "slug") (ca:rustVariant "rustVariant")
+      (rdfs:label "label") (ca:category "category") (ca:outcome "outcome")
+      (ca:implementation "implementation") (ca:verifier "verifier") (ca:falsifier "falsifier")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  }
+  UNION
+  {
+    ?subject a ca:CredentialObjective .
+    VALUES (?property ?missing) {
+      (ca:order "order") (ca:slug "slug") (rdfs:label "label")
+      (ca:examDomain "examDomain") (ca:concept "concept")
+      (ca:currentStanding "currentStanding") (ca:targetStanding "targetStanding")
+      (ca:interviewFrequency "interviewFrequency") (ca:ecosystemDependency "ecosystemDependency")
+      (ca:transferBreadth "transferBreadth") (ca:gatekeepingValue "gatekeepingValue")
+      (ca:darknessRisk "darknessRisk") (ca:learningCost "learningCost")
+      (ca:existingCoverage "existingCoverage") (ca:drawNext "drawNext")
+      (ca:sayNext "sayNext") (ca:why "why") (ca:tradeoff "tradeoff") (ca:watchFor "watchFor")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  }
+}

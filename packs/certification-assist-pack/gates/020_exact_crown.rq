@@ -1,0 +1,16 @@
+# Any row refuses sync: the first crown is exactly 12 capabilities and 36 capability/surface edges.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?kind ?observed ?expected
+WHERE {
+  {
+    SELECT ("capabilities" AS ?kind) (COUNT(DISTINCT ?capability) AS ?observed) (12 AS ?expected)
+    WHERE { ?capability a ca:Capability . }
+  }
+  UNION
+  {
+    SELECT ("proof-surfaces" AS ?kind) (COUNT(*) AS ?observed) (36 AS ?expected)
+    WHERE { ?capability a ca:Capability ; ca:requiresSurface ?surface . }
+  }
+  FILTER(?observed != ?expected)
+}

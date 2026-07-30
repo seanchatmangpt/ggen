@@ -1,0 +1,17 @@
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?order ?slug ?rustVariant ?name ?category ?outcome ?implementation ?verifier ?falsifier
+WHERE {
+  ?capability a ca:Capability ;
+    ca:order ?order ;
+    ca:slug ?slug ;
+    ca:rustVariant ?rustVariant ;
+    rdfs:label ?name ;
+    ca:category ?category ;
+    ca:outcome ?outcome ;
+    ca:implementation ?implementation ;
+    ca:verifier ?verifier ;
+    ca:falsifier ?falsifier .
+}
+ORDER BY ?order
