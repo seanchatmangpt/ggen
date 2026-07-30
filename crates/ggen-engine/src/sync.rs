@@ -42,7 +42,10 @@ use tera::Value;
 use crate::{
     config::GgenConfig,
     error::{AppError, Result},
-    graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
+    graph::{
+        DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
+        TurtleDocument,
+    },
     template::{build_tera, sparql_to_value, Frontmatter, Template},
     write::{plan_write, WriteOutcome},
 };
@@ -200,7 +203,6 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         EngineKind::GraphLaw => Arc::new(GraphLawStore::new()?),
         EngineKind::Oxigraph => Arc::new(DeterministicGraph::new()?),
     };
-    graph.insert_turtle(&ttl)?;
 
     // Resolve packs: union their ontologies into the same graph and append
     // their templates (packs sorted by name, then template path). Pack
@@ -208,6 +210,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let packs = crate::pack::resolve(&config, root)?;
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
+    let mut ontology_sources = Vec::with_capacity(
+        1 + packs
+            .iter()
+            .map(|pack| 1 + pack.extra_ontology_paths.len())
+            .sum::<usize>(),
+    );
+    ontology_sources.push((rel_display(root, &ontology_path), ttl));
     for pack in &packs {
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(
@@ -219,7 +228,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 ),
             )
         })?;
-        graph.insert_turtle(&pack_ttl)?;
+        ontology_sources.push((rel_display(root, &pack.ontology_path), pack_ttl));
         // Union each declared extra ontology (ggen.toml `extra_ontologies`)
         // after the pack's own ontology.ttl, in declaration order — the
         // in-manifest replacement for per-pack make-ontology.sh committed
@@ -235,9 +244,20 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     ),
                 )
             })?;
-            graph.insert_turtle(&extra_ttl)?;
+            ontology_sources.push((declared.clone(), extra_ttl));
         }
     }
+    let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
+    let ontology_receipt = graph.insert_turtle_documents(&ontology_documents)?;
+    tracing::debug!(
+        ontology.documents = ontology_receipt.documents,
+        ontology.parsed_quads = ontology_receipt.parsed_quads,
+        ontology.inserted_quads = ontology_receipt.inserted_quads,
+        "ontology batch admitted"
+    );
 
     let templates = discover_templates(root, &config, &packs)?;
 

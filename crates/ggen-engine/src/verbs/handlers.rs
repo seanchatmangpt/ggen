@@ -11,7 +11,7 @@ use clap_noun_verb::{NounVerbError, Result};
 
 use crate::config::GgenConfig;
 use crate::error::AppError;
-use crate::graph::DeterministicGraph;
+use crate::graph::{DeterministicGraph, GraphEngine, TurtleDocument};
 use crate::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH};
 
 /// Resolve the project root: the process working directory.
@@ -192,8 +192,8 @@ fn graph_validate_declarative_rules(
             ontology_path.display()
         ))
     })?;
-    let graph = DeterministicGraph::new().map_err(exec_err)?;
-    let mut quads = graph.insert_turtle(&ttl).map_err(exec_err)?;
+    let mut ontology_sources = Vec::with_capacity(1 + manifest.ontology.imports.len());
+    ontology_sources.push((ontology_path.display().to_string(), ttl));
     for import in &manifest.ontology.imports {
         let import_path = root.join(import);
         let import_ttl = std::fs::read_to_string(&import_path).map_err(|e| {
@@ -202,8 +202,17 @@ fn graph_validate_declarative_rules(
                 import_path.display()
             ))
         })?;
-        quads += graph.insert_turtle(&import_ttl).map_err(exec_err)?;
+        ontology_sources.push((import_path.display().to_string(), import_ttl));
     }
+    let documents: Vec<TurtleDocument<'_>> = ontology_sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
+    let graph = DeterministicGraph::new().map_err(exec_err)?;
+    let receipt = graph
+        .insert_turtle_documents(&documents)
+        .map_err(exec_err)?;
+    let quads = receipt.inserted_quads;
     let hash = graph.state_hash().map_err(exec_err)?;
 
     Ok(serde_json::json!({
