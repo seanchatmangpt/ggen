@@ -30,7 +30,7 @@ before: "// GGEN:SLOT:{{ row.capability }}:END"
 skip_if: "pub mod {{ row.generated_module }};"
 ```
 
-Marker matching remains first-line substring matching. Missing markers fail closed. Two outputs resolving to the same target in one sync are still refused rather than ordered implicitly.
+Bare-string markers retain the historical first-line substring behavior. Structured declarations can select `contains`, `exact`, or `regex` matching over line or file scope with explicit occurrence law. Missing insertion matches and ambiguous structured cardinality fail closed. Two outputs resolving to the same target in one sync are still refused rather than ordered implicitly.
 
 ## Shell lifecycle boundary
 
@@ -65,11 +65,9 @@ admit → derive → project → compose → actuate → verify → receipt → 
 
 Frontmatter maximalism does not mean every property executes in every phase. It means every property is used to its maximum lawful consequence under explicit phase, ownership, authority, and receipt boundaries.
 
-
 ## Typed host-content matchers
 
-`before`, `after`, and `skip_if` accept either the historical bare string or a
-structured matcher.
+`before`, `after`, and `skip_if` accept either the historical bare string or a structured matcher.
 
 ```yaml
 before:
@@ -90,12 +88,6 @@ Every optional matcher property has a deterministic default:
 | `case_sensitive` | `true` | Preserve byte-sensitive host conventions |
 | `trim` | `false` | Match the original candidate boundaries |
 
-Bare strings remain exactly backward compatible. Structured `unique` refuses
-multiple matches. Invalid or oversized regex patterns refuse before shell
-hooks. Regex execution uses Rust's linear-time `regex` engine and a bounded
-compiled-program size; zero-width file matches are refused.
+Bare strings remain exactly backward compatible. For `before` and `after`, `unique` requires exactly one match. For `skip_if`, zero matches means the condition is false while multiple matches under `unique` refuse ambiguity. Invalid or oversized regex patterns refuse before shell hooks. Regex execution uses Rust's linear-time `regex` engine and a bounded compiled-program size; zero-width file matches are refused.
 
-Matcher patterns are output-phase Tera projections. `determinism: true`
-therefore includes the rendered pattern and every matcher option. Structured
-match count and selected line range are appended to the sync decision so the
-receipt records the host-structure observation that authorized composition.
+Matcher patterns are output-phase Tera projections. `determinism: true` therefore includes the rendered pattern and every matcher option. Structured match count and selected line range are appended to the sync decision so the receipt records the host-structure observation that authorized composition.
