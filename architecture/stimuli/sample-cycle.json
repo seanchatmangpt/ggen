@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "asset_changed",
+    "asset_id": "enterprise-architecture-ontology"
+  },
+  {
+    "kind": "capacity",
+    "sample": {
+      "label": "synthetic-ontology-composition-warning",
+      "workload": {
+        "documents": 64,
+        "quads": 50000,
+        "blank_nodes": 500,
+        "rules": 25,
+        "shapes": 40,
+        "templates": 30,
+        "projections": 12
+      },
+      "elapsed_ms": 1400,
+      "peak_memory_bytes": 314572800,
+      "phase_ms": {
+        "admission": 330,
+        "materialization": 620,
+        "projection": 450
+      }
+    }
+  },
+  {
+    "kind": "drift_detected",
+    "asset_id": "ggen-engine",
+    "expected_hash": "blake3:expected",
+    "observed_hash": "blake3:observed"
+  }
+]
