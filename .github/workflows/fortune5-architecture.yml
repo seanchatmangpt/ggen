@@ -7,6 +7,7 @@ on:
       - 'Cargo.lock'
       - 'crates/ggen-architecture/**'
       - 'packs/fortune5-architecture-pack/**'
+      - 'examples/fortune5-architecture/**'
       - '.github/workflows/fortune5-architecture.yml'
   workflow_dispatch:
 
@@ -49,25 +50,66 @@ jobs:
           ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src
           grep -RIn 'REQUIRED_BROKER.*BRCE\|pub const REQUIRED_BROKER' crates/ggen-architecture/src/lib.rs
 
-      - name: Parse ontology and SPARQL gates independently
+      - name: Build the real ggen compiler
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture the complete Fortune 5 consumer twice
+        run: |
+          cd examples/fortune5-architecture
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find docs -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/fortune5-first.sha256
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find docs -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/fortune5-second.sha256
+          diff -u /tmp/fortune5-first.sha256 /tmp/fortune5-second.sha256
+          test -s docs/FORTUNE5_ARCHITECTURE_CATALOG.md
+          test -s docs/FORTUNE5_ARCHITECTURE_DAG.dot
+          test -s docs/FORTUNE5_CONTROL_MATRIX.md
+
+      - name: Execute ontology gates and named sabotage independently
         run: |
           python3 -m pip install --disable-pip-version-check rdflib==7.1.4
           python3 - <<'PY'
           from pathlib import Path
-          from rdflib import Graph
+          from rdflib import Graph, Namespace, RDF, Literal
           from rdflib.plugins.sparql import prepareQuery
 
           root = Path('packs/fortune5-architecture-pack')
+          example = Path('examples/fortune5-architecture/ontology.ttl')
           graph = Graph()
           graph.parse(root / 'ontology.ttl', format='turtle')
-          assert len(graph) > 100, len(graph)
+          graph.parse(example, format='turtle')
+          assert len(graph) > 150, len(graph)
+
           gates = sorted((root / 'gates').glob('*.rq'))
           assert len(gates) >= 5, gates
           for gate in gates:
-              prepareQuery(gate.read_text())
-          print(f'FORTUNE5_LAW triples={len(graph)} gates={len(gates)}')
+              query = gate.read_text()
+              prepareQuery(query)
+              rows = list(graph.query(query))
+              assert not rows, (gate.name, rows[:10])
+
+          f5 = Namespace('http://seanchatmangpt.github.io/packs/fortune5-architecture#')
+          ex = Namespace('https://example.org/fortune5/')
+
+          direct = Graph()
+          for triple in graph:
+              direct.add(triple)
+          direct.add((ex.autonomics, f5.directActuation, Literal(True)))
+          direct_rows = list(direct.query((root / 'gates/050_broker_only_autonomics.rq').read_text()))
+          assert direct_rows, 'direct actuation sabotage was not refused'
+
+          missing_kms = Graph()
+          for triple in graph:
+              missing_kms.add(triple)
+          missing_kms.remove((ex.orders, f5.hasKmsPolicy, None))
+          kms_rows = list(missing_kms.query((root / 'gates/020_tier01_control_closure.rq').read_text()))
+          assert any('hasKmsPolicy' in str(row) for row in kms_rows), kms_rows
+
+          print(f'FORTUNE5_LAW triples={len(graph)} gates={len(gates)} direct_refusals={len(direct_rows)} kms_refusals={len(kms_rows)}')
           PY
 
       - name: Refuse generated-law placeholders
         run: |
-          ! grep -RInE 'TODO|FIXME|placeholder|mock success|fake success|return true;.*success|unimplemented!\(|todo!\(' crates/ggen-architecture packs/fortune5-architecture-pack
+          ! grep -RInE 'TODO|FIXME|placeholder|mock success|fake success|return true;.*success|unimplemented!\(|todo!\(' crates/ggen-architecture packs/fortune5-architecture-pack examples/fortune5-architecture
