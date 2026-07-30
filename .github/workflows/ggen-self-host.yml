@@ -47,8 +47,8 @@ jobs:
       - name: Execute observer unit witnesses and falsifiers
         run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
 
-      - name: Observe the exact Git tree without ambient symlink traversal
-        run: python3 self-host/scripts/observe_exact_tree.py
+      - name: Observe exact Git tree and normalize live authority
+        run: python3 self-host/scripts/observe_self_host.py
 
       - name: Independently verify revision, Git-object path set, bytes, and receipt
         run: python3 self-host/scripts/verify_observation.py
@@ -124,7 +124,7 @@ jobs:
       - name: Prove observer is read-only outside self-host
         run: |
           git diff --exit-code -- . ':(exclude)self-host/ontology.ttl' ':(exclude)self-host/observed/**' ':(exclude)self-host/generated/**' ':(exclude)self-host/docs/**' ':(exclude)self-host/jira/**' ':(exclude)self-host/automation/**' ':(exclude)self-host/scripts/gall/**' ':(exclude)self-host/.github/**' ':(exclude)self-host/evidence/**' ':(exclude)self-host/receipts/**' ':(exclude)self-host/.gall/**' ':(exclude)self-host/.ggen-v2/**' ':(exclude)self-host/ggen.lock'
-          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py
+          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py
 
       - name: Upload observation, Gall work package, and receipts
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
