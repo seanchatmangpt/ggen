@@ -53,10 +53,16 @@ jobs:
         with:
           workspaces: tools/ggen-architecture
 
+      - name: Apply machine-applicable Clippy repairs
+        run: |
+          cargo clippy --fix \
+            --manifest-path tools/ggen-architecture/Cargo.toml \
+            --all-targets --allow-dirty --allow-staged || true
+
       - name: Format source
         run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
 
-      - name: Commit exact formatter output
+      - name: Commit exact compiler repairs
         if: github.event_name == 'pull_request'
         run: |
           if git diff --quiet -- tools/ggen-architecture; then
@@ -65,7 +71,7 @@ jobs:
           git config user.name "ggen architecture receipt bot"
           git config user.email "actions@users.noreply.github.com"
           git add tools/ggen-architecture
-          git commit -m "style(architecture): apply repository rustfmt"
+          git commit -m "fix(architecture): apply compiler-suggested repairs"
           git push origin "HEAD:${{ github.head_ref }}"
 
       - name: Check
