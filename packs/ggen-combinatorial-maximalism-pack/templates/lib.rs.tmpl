@@ -6,13 +6,9 @@ sparql:
   design: |
     PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
-    SELECT ?title ?coverage_variant ?expected ?maximum WHERE {
+    SELECT ?title ?coverage ?expected ?maximum WHERE {
       ?design a cmd:DesignSpace ; dcterms:title ?title ; cmd:coverageMode ?coverage ;
               cmd:expectedCandidateCount ?expected ; cmd:maxCandidates ?maximum .
-      VALUES (?coverage ?coverage_variant) {
-        ("exhaustive" "Exhaustive")
-        ("pairwise" "Pairwise")
-      }
     }
     LIMIT 1
   dimensions: |
@@ -32,15 +28,11 @@ sparql:
     ORDER BY ?dimension_name ?option_name
   candidates: |
     PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
-    SELECT ?candidate_name ?standing_variant
+    SELECT ?candidate_name ?standing
            (COALESCE(STR(?authority), "") AS ?authorized_by)
            ?output_path WHERE {
       ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate .
       ?candidate cmd:name ?candidate_name ; cmd:standing ?standing ; cmd:outputRelativePath ?output_path .
-      VALUES (?standing ?standing_variant) {
-        ("CANDIDATE" "Candidate")
-        ("VERIFIED" "Verified")
-      }
       OPTIONAL { ?candidate cmd:authorizedBy ?authority }
     }
     ORDER BY ?candidate_name
@@ -172,7 +164,7 @@ const OPTIONS: &[OptionSpec] = &[
 const CANDIDATES: &[CandidateSpec] = &[
 {% for candidate in candidates %}    CandidateSpec {
         name: {{ candidate.candidate_name | json_encode | safe }},
-        standing: Standing::{{ candidate.standing_variant }},
+        standing: Standing::{{ candidate.standing | pascal_case }},
         authorized_by: {% if candidate.authorized_by %}Some({{ candidate.authorized_by | json_encode | safe }}){% else %}None{% endif %},
         output_relative_path: {{ candidate.output_path | json_encode | safe }},
     },
@@ -203,7 +195,7 @@ const PROOFS: &[ProofSpec] = &[
 {% endfor %}
 {% for d in design %}pub const DESIGN: DesignSpec = DesignSpec {
     title: {{ d.title | json_encode | safe }},
-    coverage_mode: CoverageMode::{{ d.coverage_variant }},
+    coverage_mode: CoverageMode::{{ d.coverage | pascal_case }},
     expected_candidate_count: {{ d.expected }},
     max_candidates: {{ d.maximum }},
     dimensions: DIMENSIONS,
