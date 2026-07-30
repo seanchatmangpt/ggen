@@ -20,10 +20,10 @@ sparql:
     ORDER BY ?order
   candidates: |
     PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
-    SELECT ?name ?standing (COALESCE(STR(?authority), "none") AS ?authority) ?path WHERE {
+    SELECT ?name ?standing ?authority ?path WHERE {
       ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate .
       ?candidate cmd:name ?name ; cmd:standing ?standing ; cmd:outputRelativePath ?path .
-      OPTIONAL { ?candidate cmd:authorizedBy ?authority }
+      OPTIONAL { ?candidate cmd:authorizedBy ?authority . }
     }
     ORDER BY ?name
   broker: |
@@ -53,7 +53,7 @@ sparql:
 
 | Candidate | Standing | Authority | Output |
 |---|---|---|---|
-{% for candidate in candidates %}| `{{ candidate.name }}` | `{{ candidate.standing }}` | `{{ candidate.authority }}` | `{{ candidate.path }}` |
+{% for candidate in candidates %}| `{{ candidate.name }}` | `{{ candidate.standing }}` | `{% if candidate.authority %}{{ candidate.authority }}{% else %}none{% endif %}` | `{{ candidate.path }}` |
 {% endfor %}
 {% for b in broker %}## Actuation boundary
 
