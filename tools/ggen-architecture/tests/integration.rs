@@ -1,11 +1,12 @@
-//! Integration proofs for lifecycle, impact, capacity, receipts, and zero actuation.
+//! Integration proofs for lifecycle, impact, capacity, receipts, Fortune 5, and zero actuation.
 
 use std::{collections::BTreeMap, error::Error};
 
 use ggen_architecture::{
     ArchitectureAsset, ArchitectureRegistry, ArchitectureState, AssetKind, AutonomicController,
     AutonomicPolicy, CapacityEnvelope, CapacityLevel, CapacityPolicy, CapacitySample, DoctorReport,
-    DoctorStatus, LifecycleState, Standing, Stimulus, WorkloadVector,
+    DoctorStatus, Fortune5Assessment, Fortune5AutonomicPlan, Fortune5Catalog, Fortune5IntentKind,
+    Fortune5Program, LifecycleState, Standing, Stimulus, WorkloadVector,
 };
 
 fn active_asset(id: &str, kind: AssetKind) -> ArchitectureAsset {
@@ -174,6 +175,82 @@ fn canonical_repository_state_parses_and_has_closed_dependencies() -> Result<(),
         serde_json::from_str(include_str!("../../../architecture/ggen-enterprise.json"))?;
     assert!(state.registry.validate().is_empty());
     assert!(state.registry.assets.len() >= 10);
+    Ok(())
+}
+
+#[test]
+fn fortune5_catalog_is_conjunctive_twenty_one_by_three() {
+    let catalog = Fortune5Catalog::canonical();
+
+    assert!(catalog.validate().is_empty());
+    assert_eq!(catalog.dimensions.len(), 21);
+    assert_eq!(catalog.obligations().count(), 63);
+    assert!(catalog
+        .dimensions
+        .iter()
+        .all(|dimension| dimension.obligations.len() == 3));
+}
+
+#[test]
+fn synthetic_fortune5_program_proves_the_assessment_machinery() -> Result<(), Box<dyn Error>> {
+    let program: Fortune5Program = serde_json::from_str(include_str!(
+        "../../../architecture/fortune5/synthetic-level5.json"
+    ))?;
+    let assessment = Fortune5Assessment::assess(&program)?;
+
+    assert!(assessment.synthetic);
+    assert!(assessment.level_five_ready);
+    assert_eq!(assessment.maturity_level, 5);
+    assert_eq!(assessment.alive_dimensions, 21);
+    assert_eq!(assessment.passed_obligations, 63);
+    assert!(assessment.findings.is_empty());
+    Ok(())
+}
+
+#[test]
+fn synthetic_fortune5_level_five_cannot_authorize_promotion() -> Result<(), Box<dyn Error>> {
+    let program: Fortune5Program = serde_json::from_str(include_str!(
+        "../../../architecture/fortune5/synthetic-level5.json"
+    ))?;
+    let assessment = Fortune5Assessment::assess(&program)?;
+    let plan = Fortune5AutonomicPlan::plan(&assessment)?;
+
+    assert!(!plan.actuation_performed);
+    assert_eq!(plan.intents.len(), 1);
+    assert_eq!(plan.intents[0].kind, Fortune5IntentKind::Reverify);
+    assert!(plan
+        .intents
+        .iter()
+        .all(|intent| !intent.required_capabilities.is_empty()));
+    Ok(())
+}
+
+#[test]
+fn fortune5_segregation_violation_blocks_and_plans_repair() -> Result<(), Box<dyn Error>> {
+    let mut program: Fortune5Program = serde_json::from_str(include_str!(
+        "../../../architecture/fortune5/synthetic-level5.json"
+    ))?;
+    if let Some(first) = program.evidence.first_mut() {
+        first.approver.clone_from(&first.producer);
+    }
+    let assessment = Fortune5Assessment::assess(&program)?;
+    let plan = Fortune5AutonomicPlan::plan(&assessment)?;
+
+    assert!(!assessment.level_five_ready);
+    assert_eq!(assessment.standing, Standing::Blocked);
+    assert!(assessment
+        .findings
+        .iter()
+        .any(|finding| finding.code == "F5-SOD-001"));
+    assert!(plan
+        .intents
+        .iter()
+        .any(|intent| intent.kind == Fortune5IntentKind::BlockPromotion));
+    assert!(plan
+        .intents
+        .iter()
+        .any(|intent| intent.kind == Fortune5IntentKind::RepairSegregation));
+    assert!(!plan.actuation_performed);
     Ok(())
 }
 
