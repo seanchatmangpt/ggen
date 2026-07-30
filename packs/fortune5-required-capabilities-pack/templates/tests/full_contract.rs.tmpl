@@ -1,0 +1,35 @@
+use fortune5_required_foundation::{verify, GENERATED_CAPABILITIES};
+use ggen_marketplace::{Fortune5Standing, REQUIRED_PROOF_SURFACES};
+
+#[test]
+fn generated_inventory_and_executed_crown_close() {
+    let assessment = verify().expect("generated Fortune-5 verifier");
+    assert_eq!(GENERATED_CAPABILITIES.len(), 19);
+    assert_eq!(
+        GENERATED_CAPABILITIES.len() * REQUIRED_PROOF_SURFACES.len(),
+        57
+    );
+    assert_eq!(assessment.standing, Fortune5Standing::Alive);
+    assert_eq!(assessment.capabilities.len(), 19);
+    assert_eq!(assessment.satisfied_surface_count(), 57);
+    assert!(assessment.open_obligations().is_empty());
+}
+
+#[test]
+fn generated_inventory_has_unique_order_slug_and_variant() {
+    let orders = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.order)
+        .collect::<std::collections::BTreeSet<_>>();
+    let slugs = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.slug)
+        .collect::<std::collections::BTreeSet<_>>();
+    let variants = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.rust_variant)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(orders.len(), 19);
+    assert_eq!(slugs.len(), 19);
+    assert_eq!(variants.len(), 19);
+}
