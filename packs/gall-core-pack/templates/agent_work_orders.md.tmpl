@@ -103,7 +103,10 @@ An external command agent may be invoked only when the automation profile admits
 
 ```bash
 bash scripts/gall/gall work dispatch {{ item.workItemId }} --apply
+bash scripts/gall/gall work inspect {{ item.workItemId }}
 ```
+
+Command-agent apply runs in the declared isolated branch worktree. It refuses changed paths outside the authorized surface and never merges or pushes automatically.
 
 ### Objective
 
@@ -159,7 +162,7 @@ bash scripts/gall/gall work dispatch {{ item.workItemId }} --apply
 
 ### Agent stop conditions
 
-Stop and classify the work item `BLOCKED` rather than improvising when a dependency is not `ALIVE`, an authorized path is insufficient, a required command is unavailable, a declared gate cannot be exercised, or the requested behavior conflicts with the checkpoint law.
+Stop and classify the work item `BLOCKED` rather than improvising when a dependency is not `ALIVE`, an authorized path is insufficient, a required command is unavailable, a declared gate cannot be exercised, the isolated executor reports a path violation, or the requested behavior conflicts with checkpoint law.
 
 ---
 
