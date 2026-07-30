@@ -2,9 +2,11 @@
 
 ggen frontmatter is a closed ontology-to-infrastructure projection program. Its Hygen lineage remains visible in `to`, injection, preservation, and shell lifecycle semantics. ggen extends that local generator grammar with admitted RDF, SPARQL extraction, semantic derivation, deterministic rendering, freeze ownership, and chained receipts.
 
+The canonical field-by-field contract, lifecycle, use-case catalog, internal/external pack policy, and implementation review is [ggen frontmatter lifecycle reference](template-directives.md). This document states the architectural thesis; the lifecycle reference states the executable consequences and current gaps.
+
 ## Standing
 
-This checkpoint makes output-phase frontmatter projection **ALIVE** through real filesystem and subprocess E2E tests. It does not claim shell sandboxing, transactional rollback, hook cardinality controls, or itemized receipts for arbitrary hook side effects. Those remain explicit extension boundaries rather than inferred guarantees.
+This checkpoint makes output-phase frontmatter projection **ALIVE** through real filesystem and subprocess E2E tests. It does not claim shell sandboxing, transactional rollback, hook cardinality controls, itemized receipts for arbitrary hook side effects, SHACL conformance, or complete dry-run/write-plan equivalence. Those remain explicit extension boundaries rather than inferred guarantees.
 
 ## Phase law
 
