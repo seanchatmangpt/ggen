@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   crown:
@@ -35,29 +35,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
 
       - name: Provision siblings + pinned nightly + cache
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: automatic-autonomic-v26-7-31
 
-      - name: Apply exact rustfmt oracle to PR head
-        if: github.event_name == 'pull_request'
-        run: |
-          set -euo pipefail
-          cargo fmt --all
-          if ! git diff --quiet -- '*.rs'; then
-            git config user.name "ggen automatic autonomic formatter"
-            git config user.email "actions@users.noreply.github.com"
-            git add -- '*.rs'
-            git commit -m "style: apply exact rustfmt oracle"
-            git push origin "HEAD:${GITHUB_HEAD_REF}"
-          fi
-          cargo fmt --all -- --check
-
-      - name: Formatting gate on main
-        if: github.event_name == 'push'
+      - name: Formatting gate
         run: cargo fmt --all -- --check
 
       - name: Execute direct automatic/autonomic crown
