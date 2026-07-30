@@ -64,6 +64,7 @@ case "$noun:$verb" in
     test -s automation/schemas/gall-automation-receipt.schema.json
     test -s jira/GALL_JIRA_WORK_ITEMS.csv
     test -s docs/GALL_AGENT_WORK_ORDERS.md
+    test -s docs/GALL_AUTOMATION_RUNBOOK.md
     test -s .github/workflows/gall-control-plane.yml
     "${CONTROL[@]}" plan
     "${TRACKER[@]}" plan
@@ -141,7 +142,7 @@ case "$noun:$verb" in
     ;;
   crown:)
     "${CONTROL[@]}" crown
-    "${RECEIPTS[@]}"
+    "${RECEIPTS[@]}" --crown
     ;;
   *)
     usage >&2
