@@ -15,7 +15,7 @@ def run(script: str) -> None:
 
 
 def main() -> int:
-    run("observe_exact_tree.py")
+    run("observe_self_host.py")
     run("verify_observation.py")
     return 0
 
