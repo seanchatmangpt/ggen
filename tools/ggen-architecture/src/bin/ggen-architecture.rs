@@ -10,7 +10,8 @@ use std::{
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
     ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus,
-    Fortune5Assessment, Fortune5Catalog, Fortune5Program, Severity, Stimulus,
+    Fortune5Assessment, Fortune5AutonomicPlan, Fortune5Catalog, Fortune5Program, Severity,
+    Stimulus,
 };
 use serde::de::DeserializeOwned;
 
@@ -81,7 +82,7 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
-    /// Inspect or assess the Fortune 5 Level-5 capability contract.
+    /// Inspect, assess, or plan against the Fortune 5 Level-5 contract.
     Fortune5 {
         /// Fortune 5 operation.
         #[command(subcommand)]
@@ -99,6 +100,15 @@ enum Fortune5Command {
     },
     /// Assess an evidence program against the conjunctive Level-5 profile.
     Assess {
+        /// Fortune 5 evidence program JSON.
+        #[arg(long)]
+        program: PathBuf,
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Emit bounded autonomic intents from a Fortune 5 assessment.
+    Plan {
         /// Fortune 5 evidence program JSON.
         #[arg(long)]
         program: PathBuf,
@@ -240,6 +250,20 @@ fn run() -> Result<u8, Box<dyn Error>> {
                     print!("{}", assessment.render_text());
                 }
                 Ok(if assessment.level_five_ready { 0 } else { 2 })
+            }
+            Fortune5Command::Plan { program, json } => {
+                let program: Fortune5Program = read_json(&program)?;
+                let assessment = Fortune5Assessment::assess(&program)?;
+                let plan = Fortune5AutonomicPlan::plan(&assessment)?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&plan)?);
+                } else {
+                    println!("assessment: {}", plan.assessment_receipt);
+                    println!("intents: {}", plan.intents.len());
+                    println!("actuation_performed: {}", plan.actuation_performed);
+                    println!("receipt: {}", plan.receipt_hash);
+                }
+                Ok(0)
             }
         },
     }
