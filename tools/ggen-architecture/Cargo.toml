@@ -1,0 +1,44 @@
+[package]
+name = "ggen-architecture"
+version = "26.7.30"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Executable enterprise architecture machinery, automation, and autonomic intent generation for ggen"
+publish = false
+
+[dependencies]
+blake3 = "1.5"
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+[workspace]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+too_many_arguments = "allow"
+too_many_lines = "allow"
+cast_precision_loss = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+struct_field_names = "allow"
+similar_names = "allow"
+doc_markdown = "allow"
+unreadable_literal = "allow"
