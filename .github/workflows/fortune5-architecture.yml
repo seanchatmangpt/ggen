@@ -99,35 +99,35 @@ jobs:
           direct = Graph()
           for triple in graph:
               direct.add(triple)
-          direct.add((ex.autonomics, f5.directActuation, Literal(True)))
+          direct.add((ex['autonomics'], f5.directActuation, Literal(True)))
           direct_rows = list(direct.query((root / 'gates/050_broker_only_autonomics.rq').read_text()))
           assert direct_rows, 'direct actuation sabotage was not refused'
 
           missing_kms = Graph()
           for triple in graph:
               missing_kms.add(triple)
-          missing_kms.remove((ex.orders, f5.hasKmsPolicy, None))
+          missing_kms.remove((ex['orders'], f5.hasKmsPolicy, None))
           kms_rows = list(missing_kms.query((root / 'gates/020_tier01_control_closure.rq').read_text()))
           assert any('hasKmsPolicy' in str(row) for row in kms_rows), kms_rows
 
           missing_supervision = Graph()
           for triple in graph:
               missing_supervision.add(triple)
-          missing_supervision.remove((ex.orders, f5.hasSupervisionPolicy, None))
+          missing_supervision.remove((ex['orders'], f5.hasSupervisionPolicy, None))
           supervision_rows = list(missing_supervision.query((root / 'gates/020_tier01_control_closure.rq').read_text()))
           assert any('hasSupervisionPolicy' in str(row) for row in supervision_rows), supervision_rows
 
           missing_pattern_receipt = Graph()
           for triple in graph:
               missing_pattern_receipt.add(triple)
-          missing_pattern_receipt.remove((ex.wcp43_evidence, f5.receiptVerifier, None))
+          missing_pattern_receipt.remove((ex['wcp43-evidence'], f5.receiptVerifier, None))
           pattern_rows = list(missing_pattern_receipt.query((root / 'gates/060_workflow_pattern_evidence.rq').read_text()))
           assert any('WCP43' in str(row) and 'receiptVerifier' in str(row) for row in pattern_rows), pattern_rows
 
           incomplete_dflss = Graph()
           for triple in graph:
               incomplete_dflss.add(triple)
-          incomplete_dflss.remove((ex.orders_dflss, f5.verifyEvidence, None))
+          incomplete_dflss.remove((ex['orders-dflss'], f5.verifyEvidence, None))
           dflss_rows = list(incomplete_dflss.query((root / 'gates/070_supervision_dflss_knhk_contract.rq').read_text()))
           assert any('verifyEvidence' in str(row) for row in dflss_rows), dflss_rows
 
