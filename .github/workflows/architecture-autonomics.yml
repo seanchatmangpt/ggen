@@ -21,7 +21,7 @@ on:
     - cron: "17 6 * * 1"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: architecture-autonomics-${{ github.ref }}
@@ -38,10 +38,8 @@ jobs:
       GGEN_ARCHITECTURE_OBSERVED_AT: synthetic-proof-v1
 
     steps:
-      - name: Checkout branch
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -53,102 +51,8 @@ jobs:
         with:
           workspaces: tools/ggen-architecture
 
-      - name: Refactor Fortune 5 policy states
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path("tools/ggen-architecture/src/fortune5.rs")
-          source = path.read_text(encoding="utf-8")
-          old = '''/// Policy governing evidence admission for a Fortune 5 assessment.
-          #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-          pub struct Fortune5Policy {
-              /// Require a verifier distinct from the evidence producer.
-              pub require_independent_verifier: bool,
-              /// Require the operator and approver to be different principals.
-              pub require_segregation_of_duties: bool,
-              /// Require one or more attached artifacts for every proof record.
-              pub require_artifacts: bool,
-              /// Require all twenty-one dimensions for Level 5 standing.
-              pub conjunctive_level_five: bool,
-          }
-
-          impl Default for Fortune5Policy {
-              fn default() -> Self {
-                  Self {
-                      require_independent_verifier: true,
-                      require_segregation_of_duties: true,
-                      require_artifacts: true,
-                      conjunctive_level_five: true,
-                  }
-              }
-          }
-          '''
-          new = '''/// Rule governing how Level 5 standing is calculated.
-          #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-          pub struct LevelFivePolicy {
-              /// Require all twenty-one dimensions for Level 5 standing.
-              pub conjunctive_level_five: bool,
-          }
-
-          impl Default for LevelFivePolicy {
-              fn default() -> Self {
-                  Self {
-                      conjunctive_level_five: true,
-                  }
-              }
-          }
-
-          /// Policy governing evidence admission for a Fortune 5 assessment.
-          #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-          pub struct Fortune5Policy {
-              /// Require a verifier distinct from the evidence producer.
-              pub require_independent_verifier: bool,
-              /// Require the operator and approver to be different principals.
-              pub require_segregation_of_duties: bool,
-              /// Require one or more attached artifacts for every proof record.
-              pub require_artifacts: bool,
-              /// Level 5 calculation rule, flattened to preserve the JSON contract.
-              #[serde(flatten)]
-              pub level_five: LevelFivePolicy,
-          }
-
-          impl Default for Fortune5Policy {
-              fn default() -> Self {
-                  Self {
-                      require_independent_verifier: true,
-                      require_segregation_of_duties: true,
-                      require_artifacts: true,
-                      level_five: LevelFivePolicy::default(),
-                  }
-              }
-          }
-          '''
-          if old not in source:
-              raise SystemExit("Fortune5Policy source boundary not found")
-          source = source.replace(old, new, 1)
-          source = source.replace(
-              "program.policy.conjunctive_level_five",
-              "program.policy.level_five.conjunctive_level_five",
-              1,
-          )
-          path.write_text(source, encoding="utf-8")
-          PY
-
-      - name: Format source
-        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
-
-      - name: Commit exact policy repair
-        if: github.event_name == 'pull_request'
-        run: |
-          if git diff --quiet -- tools/ggen-architecture; then
-            exit 0
-          fi
-          git config user.name "ggen Fortune 5 receipt bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add tools/ggen-architecture
-          git commit -m "refactor(architecture): type Fortune 5 policy states"
-          git push origin "HEAD:${{ github.head_ref }}"
+      - name: Format
+        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all -- --check
 
       - name: Check
         run: cargo check --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
