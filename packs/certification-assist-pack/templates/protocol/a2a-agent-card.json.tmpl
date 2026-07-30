@@ -1,0 +1,23 @@
+{
+  "protocolVersion": "1.0.0",
+  "name": "CertificationAssist",
+  "description": "Evidence-backed credential decomposition, capability standing, self-play, whiteboard projection, and bounded speedrun planning.",
+  "url": "https://chatmangpt.com/a2a/certification-assist",
+  "preferredTransport": "JSONRPC",
+  "version": "26.7.30",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json", "text/markdown"],
+  "skills": [
+{% for row in results %}    {
+      "id": "{{ row["skillId"] }}",
+      "name": "{{ row["name"] }}",
+      "description": "{{ row["description"] }}",
+      "tags": ["{{ row["tags"] | replace(from=",", to="\", \"") }}"]
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
