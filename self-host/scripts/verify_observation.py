@@ -26,17 +26,34 @@ def git(root: Path, *args: str) -> bytes:
     ).stdout
 
 
+def index_modes(root: Path) -> dict[str, str]:
+    raw = git(root, "ls-files", "-s", "-z")
+    modes: dict[str, str] = {}
+    for record in raw.split(b"\0"):
+        if not record:
+            continue
+        metadata, path_raw = record.split(b"\t", 1)
+        mode, _blob, _stage = metadata.decode("ascii").split()
+        modes[path_raw.decode("utf-8")] = mode
+    return modes
+
+
 def head_snapshot(root: Path) -> dict[str, bytes]:
+    """Return tracked blob semantics without following host symlink targets."""
     archive = git(root, "archive", "--format=tar", "HEAD")
     snapshot: dict[str, bytes] = {}
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as stream:
         for member in stream.getmembers():
-            if not member.isfile():
-                continue
-            handle = stream.extractfile(member)
-            if handle is None:
-                raise ValueError(f"archive member unreadable: {member.name}")
-            snapshot[member.name] = handle.read()
+            if member.isfile():
+                handle = stream.extractfile(member)
+                if handle is None:
+                    raise ValueError(f"archive member unreadable: {member.name}")
+                snapshot[member.name] = handle.read()
+            elif member.issym():
+                snapshot[member.name] = member.linkname.encode("utf-8")
+    for path, mode in index_modes(root).items():
+        if mode == "160000":
+            snapshot[path] = b""
     return snapshot
 
 
