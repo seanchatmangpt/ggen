@@ -1,0 +1,31 @@
+# MESSAGE: Gall work item scalar cardinality is invalid -- identity, ownership, ordering, lifecycle, and governance fields must each have exactly one value
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItem ?workItemId ?property ?count WHERE {
+  {
+    SELECT ?workItem ?property (COUNT(?value) AS ?count) WHERE {
+      ?workItem a gall:WorkItem ;
+                ?property ?value .
+      VALUES ?property {
+        gall:workItemId
+        gall:issueType
+        gall:summary
+        gall:objective
+        gall:rationale
+        gall:belongsToProgram
+        gall:belongsToCheckpoint
+        gall:implementationOrder
+        gall:priority
+        gall:component
+        gall:assigneeRole
+        gall:reviewerRole
+        gall:approvalGate
+        gall:protocolState
+      }
+    }
+    GROUP BY ?workItem ?property
+    HAVING(COUNT(?value) != 1)
+  }
+  OPTIONAL { ?workItem gall:workItemId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?workItem)) AS ?workItemId)
+}
+ORDER BY ?workItemId ?property
