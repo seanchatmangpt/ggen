@@ -1,0 +1,23 @@
+[book]
+title = "Enterprise Architecture as Strategy with ggen"
+authors = ["Sean Chatman"]
+description = "From enterprise architecture description to lawful enterprise manufacture"
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/seanchatmangpt/ggen"
+site-url = "/enterprise-architecture-as-strategy/"
+fold.enable = true
+fold.level = 1
+
+[output.html.search]
+enable = true
+limit-results = 30
