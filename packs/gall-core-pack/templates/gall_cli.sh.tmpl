@@ -11,6 +11,7 @@ CONTROL=(python3 scripts/gall/control_plane.py)
 TRACKER=(python3 scripts/gall/tracker_sync.py)
 RECEIPTS=(python3 scripts/gall/verify_automation_receipts.py)
 SNAPSHOT=(python3 scripts/gall/snapshot_work_evidence.py)
+AGENT=(python3 scripts/gall/agent_executor.py)
 
 usage() {
   cat <<'EOF'
@@ -21,6 +22,8 @@ Usage:
   scripts/gall/gall work next
   scripts/gall/gall work dispatch WORK_ITEM [--apply]
   scripts/gall/gall work dispatch-ready [--apply]
+  scripts/gall/gall work inspect WORK_ITEM
+  scripts/gall/gall work remove-worktree WORK_ITEM
   scripts/gall/gall work verify WORK_ITEM
   scripts/gall/gall work complete WORK_ITEM
   scripts/gall/gall work advance
@@ -64,6 +67,15 @@ verify_and_snapshot() {
   "${SNAPSHOT[@]}" "$work_item"
 }
 
+dispatch_one() {
+  local work_item="$1"
+  local apply="${2:-}"
+  "${CONTROL[@]}" dispatch "$work_item"
+  if [ "$apply" = "--apply" ]; then
+    "${AGENT[@]}" execute "$work_item"
+  fi
+}
+
 noun="${1:-}"
 verb="${2:-}"
 case "$noun:$verb" in
@@ -78,7 +90,8 @@ case "$noun:$verb" in
       scripts/gall/control_plane.py \
       scripts/gall/tracker_sync.py \
       scripts/gall/verify_automation_receipts.py \
-      scripts/gall/snapshot_work_evidence.py
+      scripts/gall/snapshot_work_evidence.py \
+      scripts/gall/agent_executor.py
     bash -n scripts/gall/run-checkpoints.sh scripts/gall/gall
     test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv
     test -s automation/schemas/gall-automation-receipt.schema.json
@@ -99,7 +112,7 @@ case "$noun:$verb" in
     ;;
   work:dispatch)
     shift 2
-    "${CONTROL[@]}" dispatch "$@"
+    dispatch_one "$1" "${2:-}"
     ;;
   work:dispatch-ready)
     shift 2
@@ -109,12 +122,16 @@ case "$noun:$verb" in
     ready_file "$file"
     while IFS= read -r work_item; do
       [ -n "$work_item" ] || continue
-      if [ "$apply" = "--apply" ]; then
-        "${CONTROL[@]}" dispatch "$work_item" --apply
-      else
-        "${CONTROL[@]}" dispatch "$work_item"
-      fi
+      dispatch_one "$work_item" "$apply"
     done <"$file"
+    ;;
+  work:inspect)
+    shift 2
+    "${AGENT[@]}" inspect "$1"
+    ;;
+  work:remove-worktree)
+    shift 2
+    "${AGENT[@]}" remove "$1"
     ;;
   work:verify)
     shift 2
