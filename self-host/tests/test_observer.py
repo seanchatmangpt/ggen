@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "observe_repository.py"
-SPEC = importlib.util.spec_from_file_location("ggen_self_observer", SCRIPT)
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "observe_exact_tree.py"
+SPEC = importlib.util.spec_from_file_location("ggen_self_exact_observer", SCRIPT)
 assert SPEC and SPEC.loader
 OBSERVER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(OBSERVER)
@@ -67,6 +68,23 @@ class ObserverFalsifiers(unittest.TestCase):
         findings = [item for item in observation["findings"] if item["category"] == "generated-ownership"]
         self.assertTrue(findings)
         self.assertTrue(all(item["severity"] == "Blocking" for item in findings))
+
+    def test_symlink_is_hashed_as_tracked_link_not_ambient_target(self) -> None:
+        root = self.make_repo()
+        outside = Path(tempfile.mkdtemp(prefix="ggen-self-outside-")) / "secret.txt"
+        outside.write_text("ambient secret bytes\n", encoding="utf-8")
+        link = root / "tracked-link"
+        os.symlink(str(outside), link)
+        git(root, "add", "tracked-link")
+        git(root, "commit", "-m", "track symlink")
+        observation = OBSERVER.observe(root)
+        record = next(item for item in observation["files"] if item["path"] == "tracked-link")
+        self.assertEqual(record["size_bytes"], len(str(outside).encode("utf-8")))
+        self.assertEqual(
+            record["digest"],
+            OBSERVER.MODEL.sha256(str(outside).encode("utf-8")),
+        )
+        self.assertNotEqual(record["digest"], OBSERVER.MODEL.sha256(outside.read_bytes()))
 
     def test_second_observation_is_byte_identical_at_one_revision(self) -> None:
         root = self.make_repo()
