@@ -1,0 +1,33 @@
+# MESSAGE: every pipeline field is single-valued and exactly one pipeline owns the generated product; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a lr:Pipeline .
+    ?other a lr:Pipeline .
+    FILTER (?subject != ?other)
+    BIND("multiple-pipelines" AS ?violation)
+    BIND(STR(?other) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline .
+    VALUES (?property ?name) {
+      (dcterms:title "title")
+      (lr:crateName "crateName")
+      (lr:rustFunctionName "rustFunctionName")
+      (lr:leanToolchain "leanToolchain")
+      (lr:bound "bound")
+      (lr:witnessInput "witnessInput")
+      (lr:witnessOutput "witnessOutput")
+      (lr:proofTheorem "proofTheorem")
+      (lr:witnessTheorem "witnessTheorem")
+      (lr:fixedPointTheorem "fixedPointTheorem")
+      (lr:receiptAlgorithm "receiptAlgorithm")
+    }
+    ?subject ?property ?left .
+    ?subject ?property ?right .
+    FILTER (?left != ?right)
+    BIND("field-not-single-valued" AS ?violation)
+    BIND(CONCAT(?name, ": ", STR(?left), " != ", STR(?right)) AS ?detail)
+  }
+}
+ORDER BY ?subject ?detail
