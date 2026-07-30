@@ -1,0 +1,102 @@
+---
+to: scripts/gall/verify_automation_receipts.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED independent verifier for the Gall automation receipt chain."""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[2]
+MANIFEST = ROOT / "automation/GALL_AUTOMATION_WORK_ITEMS.csv"
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def manifest_receipt_dir() -> Path:
+    with MANIFEST.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        raise SystemExit("automation manifest contains zero rows")
+    raw = rows[0]["Receipt Directory"]
+    path = (ROOT / raw).resolve()
+    try:
+        path.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise SystemExit(f"unsafe receipt directory: {raw}") from exc
+    return path
+
+
+def sha256_path(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def verify(check_current_manifest: bool) -> tuple[bool, list[str]]:
+    errors: list[str] = []
+    receipt_dir = manifest_receipt_dir()
+    chain_path = receipt_dir / "automation-receipt-chain.jsonl"
+    if not chain_path.is_file():
+        return False, [f"missing receipt chain: {chain_path.relative_to(ROOT)}"]
+    previous = "GENESIS"
+    digests: set[str] = set()
+    lines = [line for line in chain_path.read_text(encoding="utf-8").splitlines() if line]
+    if not lines:
+        return False, ["receipt chain contains zero records"]
+    for index, line in enumerate(lines, start=1):
+        try:
+            envelope = json.loads(line)
+        except json.JSONDecodeError as exc:
+            errors.append(f"line {index}: invalid JSON: {exc}")
+            continue
+        recorded_digest = envelope.pop("digest", None)
+        if envelope.get("digest_algorithm") != "sha256":
+            errors.append(f"line {index}: unsupported digest algorithm")
+        if envelope.get("previous_digest") != previous:
+            errors.append(f"line {index}: previous digest mismatch")
+        computed = hashlib.sha256(previous.encode("ascii") + canonical_bytes(envelope)).hexdigest()
+        if recorded_digest != computed:
+            errors.append(f"line {index}: digest mismatch")
+        if recorded_digest:
+            digests.add(recorded_digest)
+            previous = recorded_digest
+    for path in receipt_dir.rglob("*.json"):
+        if path.name.endswith("schema.json"):
+            continue
+        try:
+            receipt = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path.relative_to(ROOT)}: invalid JSON: {exc}")
+            continue
+        digest = receipt.get("digest")
+        if digest and digest not in digests:
+            errors.append(f"{path.relative_to(ROOT)}: receipt is not present in chain")
+    if check_current_manifest:
+        latest = json.loads(lines[-1])
+        current = sha256_path(MANIFEST)
+        if latest.get("manifest_sha256") != current:
+            errors.append("latest receipt is stale against the generated automation manifest")
+    return not errors, errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Verify Gall automation receipts")
+    parser.add_argument("--allow-stale-manifest", action="store_true")
+    args = parser.parse_args()
+    passed, errors = verify(not args.allow_stale_manifest)
+    for error in errors:
+        print(f"GALL_RECEIPT_ERROR {error}", file=sys.stderr)
+    print(f"GALL_RECEIPT_VERIFY passed={str(passed).lower()} errors={len(errors)}")
+    return 0 if passed else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
