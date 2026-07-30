@@ -26,16 +26,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Compile observer and independent verifier
-        run: python3 -m py_compile self-host/scripts/observe_repository.py self-host/scripts/verify_observation.py
+      - name: Compile observer model, exact-tree executor, and verifier
+        run: python3 -m py_compile self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/verify_observation.py
 
       - name: Execute positive and negative observer tests
         run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
 
-      - name: Observe exact Git tree
-        run: python3 self-host/scripts/observe_repository.py
+      - name: Observe exact Git tree without following host symlinks
+        run: python3 self-host/scripts/observe_exact_tree.py
 
-      - name: Independently verify exact revision and every tracked byte
+      - name: Independently verify exact revision and every tracked Git object
         run: python3 self-host/scripts/verify_observation.py
 
       - name: Refuse a tampered observation digest
@@ -59,7 +59,7 @@ jobs:
 
       - name: Refuse observer actuation dependencies
         run: |
-          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py
+          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py
 
       - name: Upload exact observation
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
