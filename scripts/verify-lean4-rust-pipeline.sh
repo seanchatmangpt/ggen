@@ -128,7 +128,7 @@ jq -e '
   .fortune5.security.network_policy_required == true and
   .fortune5.security.firewall_policy_required == true and
   .fortune5.observability.otel_required == true and
-  (.fortune5.theorems | length) == 12
+  (.fortune5.theorems | length) == 17
 ' "$PROOF_RECEIPT"
 
 test -f "$RUST/Cargo.toml"
@@ -159,6 +159,11 @@ fi
   cargo run --quiet --bin lean-proof-cell -- security-expired 9 > "$EVIDENCE/execution-security-expired.json"
   cargo run --quiet --bin lean-proof-cell -- receipt-mismatch 9 > "$EVIDENCE/execution-receipt-mismatch.json"
   cargo run --quiet --bin lean-proof-cell -- failover-unready 9 > "$EVIDENCE/execution-failover-unready.json"
+  cargo run --quiet --bin lean-proof-cell -- identity-mismatch 9 > "$EVIDENCE/execution-identity-mismatch.json"
+  cargo run --quiet --bin lean-proof-cell -- kms-unready 9 > "$EVIDENCE/execution-kms-unready.json"
+  cargo run --quiet --bin lean-proof-cell -- replication-unready 9 > "$EVIDENCE/execution-replication-unready.json"
+  cargo run --quiet --bin lean-proof-cell -- promotion-receipt-missing 9 > "$EVIDENCE/execution-promotion-receipt-missing.json"
+  cargo run --quiet --bin lean-proof-cell -- alerts-unready 9 > "$EVIDENCE/execution-alerts-unready.json"
   cargo run --release --quiet --bin slo_probe > "$EVIDENCE/slo-probe-r1.json"
 )
 
@@ -173,11 +178,12 @@ jq -e '
   .input == 9 and .output == 10 and
   .slo_class == "C1" and .slo_target_ns == 500000000 and
   .observed_p99_ns == 400000000 and .observed_p99_ticks == 0 and .r1_tick_budget == 8 and .slo_compliant == true and
-  .region_count == 3 and .region_quorum == 2 and .quorum_acks == 3 and
-  .receipt_synchronized == true and .failover_ready == true and .legal_hold_ready == true and
-  .spiffe_authenticated == true and .certificate_age_seconds <= .certificate_refresh_seconds and
+  .region_count == 3 and .region_quorum == 2 and .promotion_receipt_ready == true and .quorum_acks == 3 and
+  .cross_region_replication_ready == true and .receipt_synchronized == true and .failover_ready == true and .legal_hold_ready == true and
+  .observed_spiffe_id == .spiffe_id and .spiffe_authenticated == true and .certificate_age_seconds <= .certificate_refresh_seconds and
   .key_age_seconds <= .key_rotation_seconds and .mtls_established == true and
-  .network_policy_enforced == true and .firewall_policy_enforced == true and .otel_correlated == true and
+  .aws_kms_ready == true and .azure_key_vault_ready == true and .hashicorp_vault_ready == true and
+  .network_policy_enforced == true and .firewall_policy_enforced == true and .otel_correlated == true and .alerts_ready == true and
   .kms == ["aws-kms", "azure-key-vault", "hashicorp-vault"] and
   (.lean_proof_blake3 | length) == 64 and (.region_receipt_blake3 | length) == 64
 ' "$EVIDENCE/execution-canonical.json"
@@ -189,6 +195,11 @@ jq -e '.scenario == "quorum-loss" and .quorum_acks == 1 and .decision == "REFUSE
 jq -e '.scenario == "security-expired" and .certificate_age_seconds > .certificate_refresh_seconds and .key_age_seconds > .key_rotation_seconds and .decision == "REFUSE"' "$EVIDENCE/execution-security-expired.json"
 jq -e '.scenario == "receipt-mismatch" and .receipt_synchronized == false and .decision == "REFUSE"' "$EVIDENCE/execution-receipt-mismatch.json"
 jq -e '.scenario == "failover-unready" and .failover_ready == false and .decision == "REFUSE"' "$EVIDENCE/execution-failover-unready.json"
+jq -e '.scenario == "identity-mismatch" and .observed_spiffe_id != .spiffe_id and .decision == "REFUSE"' "$EVIDENCE/execution-identity-mismatch.json"
+jq -e '.scenario == "kms-unready" and .azure_key_vault_ready == false and .decision == "REFUSE"' "$EVIDENCE/execution-kms-unready.json"
+jq -e '.scenario == "replication-unready" and .cross_region_replication_ready == false and .decision == "REFUSE"' "$EVIDENCE/execution-replication-unready.json"
+jq -e '.scenario == "promotion-receipt-missing" and .promotion_receipt_ready == false and .decision == "REFUSE"' "$EVIDENCE/execution-promotion-receipt-missing.json"
+jq -e '.scenario == "alerts-unready" and .alerts_ready == false and .decision == "REFUSE"' "$EVIDENCE/execution-alerts-unready.json"
 
 (
   cd "$RUST"
