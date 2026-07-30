@@ -12,6 +12,9 @@ concurrency:
   group: agent-ontology-import-startup-repair
   cancel-in-progress: true
 
+env:
+  RUSTC_WRAPPER: ""
+
 jobs:
   implement-verify-publish:
     if: github.actor != 'github-actions[bot]'
