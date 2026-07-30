@@ -2,11 +2,12 @@
 //!
 //! Real boundaries throughout: real filesystem, real pack loading, real
 //! Oxigraph/SPARQL gates, real Tera generation, real git commits/worktrees,
-//! real bash commands, real ggen receipt verification, admitted evidence,
-//! APS-grade Jira and coding-agent projections, and named sabotage refusals.
+//! real bash and Python commands, real ggen receipt verification, admitted
+//! evidence, APS-grade Jira and coding-agent projections, generated automation,
+//! tracker actuation, chained receipts, and named sabotage refusals.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Output};
 
 use ggen_engine::sync::{sync, SyncOptions};
 use tempfile::TempDir;
@@ -42,6 +43,25 @@ fn git(project: &Path, args: &[&str]) {
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
     );
+}
+
+fn run(project: &Path, program: &str, args: &[&str]) -> Output {
+    Command::new(program)
+        .current_dir(project)
+        .args(args)
+        .output()
+        .unwrap_or_else(|error| panic!("spawn {program} {args:?}: {error}"))
+}
+
+fn run_ok(project: &Path, program: &str, args: &[&str]) -> Output {
+    let output = run(project, program, args);
+    assert!(
+        output.status.success(),
+        "{program} {args:?} failed\nstdout={}\nstderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output
 }
 
 fn commit_all(project: &Path, message: &str) {
@@ -90,7 +110,18 @@ ex:program a gall:GallProgram ;
     gall:releaseIdentity "v26.7.30-test" ;
     gall:jiraProjectKey "GALL" ;
     gall:hasCheckpoint ex:checkpoint-000 ;
-    gall:hasWorkItem ex:work-item-001, ex:work-item-002 .
+    gall:hasWorkItem ex:work-item-001, ex:work-item-002 ;
+    gall:hasAutomationProfile ex:automation-profile .
+
+ex:automation-profile a gall:AutomationProfile ;
+    gall:automationProfileId "GALL-AUTOMATION-E2E" ;
+    gall:trackerProvider gall:FileTracker ;
+    gall:executionMode gall:ApplyAllowed ;
+    gall:agentMode gall:HandoffOnly ;
+    gall:maxParallelism 2 ;
+    gall:branchPattern "agent/{workItemId}" ;
+    gall:runtimeDirectory ".gall" ;
+    gall:receiptDirectory "receipts/gall" .
 
 ex:capability a gall:Capability ;
     gall:capabilityId "real-useful-file" ;
@@ -159,8 +190,8 @@ ex:work-item-002 a gall:WorkItem ;
     gall:workItemId "GALL-CORE-002" ;
     gall:issueType gall:Task ;
     gall:summary "Verify the generated Gall work package" ;
-    gall:objective "Prove that Jira tickets agent work orders and dependency graphs are generated from the admitted work graph" ;
-    gall:rationale "A coding agent requires one consistent machine-derived instruction surface rather than manually synchronized ticket prose" ;
+    gall:objective "Prove that Jira tickets agent work orders dependency graphs and automation are generated from the admitted work graph" ;
+    gall:rationale "A coding agent requires one consistent machine-derived instruction and execution surface rather than manually synchronized ticket prose" ;
     gall:belongsToProgram ex:program ;
     gall:belongsToCheckpoint ex:checkpoint-000 ;
     gall:dependsOnWorkItem ex:work-item-001 ;
@@ -171,18 +202,19 @@ ex:work-item-002 a gall:WorkItem ;
     gall:label "coding-agent" ;
     gall:assigneeRole "Verification agent" ;
     gall:reviewerRole "Adversarial agile reviewer" ;
-    gall:approvalGate "Generated ticket surfaces are complete and mutually consistent" ;
+    gall:approvalGate "Generated ticket and automation surfaces are complete and mutually consistent" ;
     gall:protocolState gall:Draft ;
     gall:requiredContext "docs/GALL_AGENT_WORK_ORDERS.md" ;
     gall:allowedPath "docs/" ;
     gall:allowedPath "jira/" ;
+    gall:allowedPath "automation/" ;
     gall:forbiddenPath "src/" ;
-    gall:mustDo "Inspect every generated ticket surface and preserve the declared proof order" ;
-    gall:mustNotDo "Do not rewrite generated ticket artifacts by hand or omit prohibited scope" ;
-    gall:outOfScope "Creating live Jira issues through network side effects" ;
-    gall:acceptanceCriterion "The Jira CSV contains both work item IDs and the agent work order names every required and prohibited behavior" ;
-    gall:definitionOfDone "The work-item dependency graph contains the edge from GALL-CORE-001 to GALL-CORE-002 and sabotage gates refuse malformed contracts" ;
-    gall:verificationCommand "test -s jira/GALL_JIRA_WORK_ITEMS.csv" ;
+    gall:mustDo "Inspect every generated ticket and automation surface and preserve the declared proof order" ;
+    gall:mustNotDo "Do not rewrite generated work artifacts by hand or omit prohibited scope" ;
+    gall:outOfScope "Using live network side effects in the local lifecycle test" ;
+    gall:acceptanceCriterion "The Jira CSV automation manifest and agent work orders contain both work item identities" ;
+    gall:definitionOfDone "The work-item dependency graph and automation receipts prove the order from GALL-CORE-001 to GALL-CORE-002" ;
+    gall:verificationCommand "test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv" ;
     gall:evidenceArtifact "docs/GALL_AGENT_WORK_ORDERS.md" ;
     gall:adversarialQuestion "Can an agent complete this ticket while violating a declared MUST NOT rule" .
 "#
@@ -190,8 +222,8 @@ ex:work-item-002 a gall:WorkItem ;
 }
 
 fn activate_crown(project: &Path) {
-    let mut ontology = std::fs::read_to_string(project.join("ontology.ttl"))
-        .expect("read planning ontology");
+    let mut ontology =
+        std::fs::read_to_string(project.join("ontology.ttl")).expect("read planning ontology");
     ontology.push_str(
         r#"
 ex:program gall:hasCrown ex:crown .
@@ -206,12 +238,10 @@ ex:crown a gall:Crown ;
 
 fn run_generated_evidence(project: &Path) {
     let ggen_bin = assert_cmd::cargo::cargo_bin("ggen");
-    let mut paths = vec![
-        ggen_bin
-            .parent()
-            .expect("ggen binary parent")
-            .to_path_buf(),
-    ];
+    let mut paths = vec![ggen_bin
+        .parent()
+        .expect("ggen binary parent")
+        .to_path_buf()];
     if let Some(existing) = std::env::var_os("PATH") {
         paths.extend(std::env::split_paths(&existing));
     }
@@ -253,8 +283,9 @@ fn scaffold() -> (TempDir, PathBuf) {
 
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), planning_ontology())
-        .expect("write ontology");
+    std::fs::write(project.join("ontology.ttl"), planning_ontology()).expect("write ontology");
+    std::fs::write(project.join(".gitignore"), ".gall/\nreceipts/gall/\n")
+        .expect("write gitignore");
     write_manifest(&project, false);
 
     git(&project, &["init"]);
@@ -269,7 +300,7 @@ fn scaffold() -> (TempDir, PathBuf) {
 }
 
 #[test]
-fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
+fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     let (_dir, project) = scaffold();
 
     sync_project(&project).expect("planning sync");
@@ -282,7 +313,14 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
         "docs/GALL_JIRA_TICKET_CATALOG.md",
         "docs/GALL_WORK_ITEM_DAG.dot",
         "jira/GALL_JIRA_WORK_ITEMS.csv",
+        "automation/GALL_AUTOMATION_WORK_ITEMS.csv",
+        "automation/schemas/gall-automation-receipt.schema.json",
+        "scripts/gall/control_plane.py",
+        "scripts/gall/tracker_sync.py",
+        "scripts/gall/verify_automation_receipts.py",
+        "scripts/gall/gall",
         "scripts/gall/run-checkpoints.sh",
+        ".github/workflows/gall-control-plane.yml",
     ] {
         assert!(project.join(path).is_file(), "missing generated {path}");
     }
@@ -297,13 +335,23 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
     assert!(work_orders.contains("GALL-CORE-001"), "{work_orders}");
     assert!(work_orders.contains("GALL-CORE-002"), "{work_orders}");
     assert!(work_orders.contains("### MUST NOT"), "{work_orders}");
-    assert!(work_orders.contains("### Agent stop conditions"), "{work_orders}");
+    assert!(
+        work_orders.contains("### Agent stop conditions"),
+        "{work_orders}"
+    );
 
     let jira = std::fs::read_to_string(project.join("jira/GALL_JIRA_WORK_ITEMS.csv"))
         .expect("Jira CSV");
     assert!(jira.contains("Project Key,Issue Type,Summary"), "{jira}");
     assert!(jira.contains("GALL-CORE-001"), "{jira}");
     assert!(jira.contains("GALL-CORE-002"), "{jira}");
+
+    let automation =
+        std::fs::read_to_string(project.join("automation/GALL_AUTOMATION_WORK_ITEMS.csv"))
+            .expect("automation CSV");
+    assert!(automation.contains("Automation Profile"), "{automation}");
+    assert!(automation.contains("file-only"), "{automation}");
+    assert!(automation.contains("GALL-CORE-002"), "{automation}");
 
     let work_item_dag = std::fs::read_to_string(project.join("docs/GALL_WORK_ITEM_DAG.dot"))
         .expect("work item DAG");
@@ -313,7 +361,102 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
     );
 
     commit_all(&project, "seal generated Gall planning artifacts");
+
+    run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "automation", "validate"],
+    );
+    let next = run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "work", "next"],
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&next.stdout).trim(),
+        "GALL-CORE-001"
+    );
+    run_ok(
+        &project,
+        "bash",
+        &[
+            "scripts/gall/gall",
+            "work",
+            "dispatch",
+            "GALL-CORE-001",
+        ],
+    );
+    assert!(
+        project
+            .join(".gall/dispatch/GALL-CORE-001/WORK_ORDER.md")
+            .is_file()
+    );
+    run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "tracker", "apply"],
+    );
+    assert!(
+        project
+            .join(".gall/file-tracker/GALL-CORE-001.md")
+            .is_file()
+    );
+    run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "receipt", "verify"],
+    );
+
     run_generated_evidence(&project);
+    run_ok(
+        &project,
+        "bash",
+        &[
+            "scripts/gall/gall",
+            "work",
+            "verify",
+            "GALL-CORE-001",
+        ],
+    );
+    run_ok(
+        &project,
+        "bash",
+        &[
+            "scripts/gall/gall",
+            "work",
+            "complete",
+            "GALL-CORE-001",
+        ],
+    );
+    let next = run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "work", "next"],
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&next.stdout).trim(),
+        "GALL-CORE-002"
+    );
+    run_ok(
+        &project,
+        "bash",
+        &[
+            "scripts/gall/gall",
+            "work",
+            "verify",
+            "GALL-CORE-002",
+        ],
+    );
+    run_ok(
+        &project,
+        "bash",
+        &[
+            "scripts/gall/gall",
+            "work",
+            "complete",
+            "GALL-CORE-002",
+        ],
+    );
 
     write_manifest(&project, true);
     activate_crown(&project);
@@ -331,6 +474,12 @@ fn gall_core_planning_evidence_crown_and_sabotage_are_real() {
         .expect("crown report");
     assert!(crown_report.contains("GALL-CORE-CROWN"), "{crown_report}");
     assert!(crown_report.contains("**ALIVE**"), "{crown_report}");
+
+    run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "crown"],
+    );
 
     let evidence_path = project.join("evidence/gall/ontology.ttl");
     let evidence = std::fs::read_to_string(&evidence_path).expect("read evidence");
@@ -381,5 +530,54 @@ fn cyclic_ticket_execution_order_is_refused() {
     assert!(
         error.contains("175_work_item_dependency_cycle"),
         "refusal must name the cycle gate: {error}"
+    );
+}
+
+#[test]
+fn missing_automation_profile_is_refused() {
+    let (_dir, project) = scaffold();
+    let ontology_path = project.join("ontology.ttl");
+    let ontology = std::fs::read_to_string(&ontology_path).expect("read ontology");
+    let malformed = ontology.replace(
+        "    gall:hasWorkItem ex:work-item-001, ex:work-item-002 ;\n    gall:hasAutomationProfile ex:automation-profile .\n",
+        "    gall:hasWorkItem ex:work-item-001, ex:work-item-002 .\n",
+    );
+    assert_ne!(malformed, ontology, "profile removal must alter ontology");
+    std::fs::write(&ontology_path, malformed).expect("write malformed ontology");
+
+    let error = sync_project(&project).expect_err("missing automation profile must refuse");
+    assert!(
+        error.contains("190_automation_profile_complete"),
+        "refusal must name automation profile gate: {error}"
+    );
+}
+
+#[test]
+fn automation_receipt_tampering_is_refused() {
+    let (_dir, project) = scaffold();
+    sync_project(&project).expect("planning sync");
+    commit_all(&project, "seal automation planning artifacts");
+    run_ok(
+        &project,
+        "bash",
+        &["scripts/gall/gall", "automation", "validate"],
+    );
+
+    let chain_path = project.join("receipts/gall/automation-receipt-chain.jsonl");
+    let chain = std::fs::read_to_string(&chain_path).expect("read receipt chain");
+    let sabotaged = chain.replacen("\"digest\": \"", "\"digest\": \"0", 1);
+    assert_ne!(sabotaged, chain, "receipt sabotage must alter bytes");
+    std::fs::write(&chain_path, sabotaged).expect("write sabotaged receipt chain");
+
+    let output = run(
+        &project,
+        "python3",
+        &["scripts/gall/verify_automation_receipts.py"],
+    );
+    assert!(!output.status.success(), "tampered chain must be refused");
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("GALL_RECEIPT_ERROR"),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
     );
 }
