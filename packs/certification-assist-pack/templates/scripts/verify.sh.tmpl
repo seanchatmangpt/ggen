@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 CONSUMER="$ROOT/consumer/certification-assist"
 REPORT="$ROOT/VERIFIER_REPORT.json"
+MCP_SMOKE="$ROOT/MCP_SMOKE.jsonl"
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/../../target}"
 
@@ -15,13 +16,21 @@ cargo test --manifest-path "$CONSUMER/Cargo.toml"
   cargo run --manifest-path "$CONSUMER/Cargo.toml" --bin verify
 )
 
-python3 - "$CONSUMER" "$REPORT" <<'PY'
+cargo run --quiet --manifest-path "$CONSUMER/Cargo.toml" --bin mcp_server >"$MCP_SMOKE" <<'JSON'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"crown","version":"26.7.30"}}}
+{"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}
+{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"propose-promotion","arguments":{}}}
+JSON
+
+python3 - "$CONSUMER" "$REPORT" "$MCP_SMOKE" <<'PY'
 import json
 import pathlib
 import sys
 
 consumer = pathlib.Path(sys.argv[1])
 report_path = pathlib.Path(sys.argv[2])
+mcp_smoke_path = pathlib.Path(sys.argv[3])
 
 mcp = json.loads((consumer / "protocol/mcp-server.json").read_text())
 assert mcp["protocolVersion"] == "2025-11-25"
@@ -30,6 +39,14 @@ assert len(mcp["resources"]) == 3
 assert len(mcp["tools"]) == 5
 assert sum(1 for tool in mcp["tools"] if tool["requiresApproval"]) == 1
 assert not any("task" in tool["name"] for tool in mcp["tools"])
+
+mcp_responses = [json.loads(line) for line in mcp_smoke_path.read_text().splitlines() if line]
+assert len(mcp_responses) == 4
+assert mcp_responses[0]["result"]["protocolVersion"] == "2025-11-25"
+assert len(mcp_responses[1]["result"]["resources"]) == 3
+assert len(mcp_responses[2]["result"]["tools"]) == 5
+assert mcp_responses[3]["result"]["isError"] is True
+assert "REFUSED" in mcp_responses[3]["result"]["content"][0]["text"]
 
 a2a = json.loads((consumer / "protocol/a2a-agent-card.json").read_text())
 assert a2a["protocolVersion"] == "1.0.0"
@@ -41,6 +58,11 @@ assert speedrun["policy"]["dependencyClosureRequired"] is True
 assert speedrun["policy"]["directActuation"] is False
 assert len(speedrun["objectives"]) == 8
 assert all(item["priority"] > 0 for item in speedrun["objectives"])
+
+release = json.loads((consumer / "RELEASE_STANDING.json").read_text())
+assert release["standing"] == "UNKNOWN"
+assert release["externalCredentialsObserved"] is False
+assert release["learningEfficacyObserved"] is False
 
 report = json.loads(report_path.read_text())
 assert report["standing"] == "ALIVE"
