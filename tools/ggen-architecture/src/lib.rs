@@ -34,7 +34,7 @@ pub use ggen_architecture_kernel::{
     profiles, ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
     BuildingBlockRegistry, BuildingBlockViolation, CompositionReceipt, EvidenceKind,
     EvidenceObligation, EvidenceReceipt, ObligationId, Port, PortDirection, PortId, PortKind,
-    ProfileId, RealizationBinding, RealizationId, ResourceClaim, ResourceCeiling,
+    ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
     Standing as BuildingBlockStanding, SubstitutionAssessment,
 };
 pub use level5_crown::{

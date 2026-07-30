@@ -17,9 +17,7 @@ pub const BUILDING_BLOCK_RECEIPT_SCHEMA: &str = "ggen.building-block.receipt.v1"
 macro_rules! string_id {
     ($name:ident, $doc:literal) => {
         #[doc = $doc]
-        #[derive(
-            Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-        )]
+        #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[serde(transparent)]
         pub struct $name(pub String);
 
@@ -45,10 +43,19 @@ macro_rules! string_id {
     };
 }
 
-string_id!(BuildingBlockId, "Stable public identity of a building block.");
-string_id!(RealizationId, "Stable identity of one concrete realization.");
+string_id!(
+    BuildingBlockId,
+    "Stable public identity of a building block."
+);
+string_id!(
+    RealizationId,
+    "Stable identity of one concrete realization."
+);
 string_id!(PortId, "Stable identity of a typed building-block port.");
-string_id!(ProfileId, "Stable identity of an applied architecture profile.");
+string_id!(
+    ProfileId,
+    "Stable identity of an applied architecture profile."
+);
 string_id!(ObligationId, "Stable identity of an evidence obligation.");
 string_id!(Authority, "A bounded authority or capability token.");
 
@@ -87,7 +94,10 @@ impl LifecycleState {
             (Self::Discovered, Self::Identified | Self::Retired)
                 | (Self::Identified, Self::Qualified | Self::Retired)
                 | (Self::Qualified, Self::Admitted | Self::Retired)
-                | (Self::Admitted, Self::Active | Self::Deprecated | Self::Retired)
+                | (
+                    Self::Admitted,
+                    Self::Active | Self::Deprecated | Self::Retired
+                )
                 | (Self::Active, Self::Deprecated)
                 | (Self::Deprecated, Self::Active | Self::Retired)
                 | (Self::Retired, Self::Archived)
@@ -577,9 +587,7 @@ impl BuildingBlock {
 
     /// Assess whether one registered realization may lawfully replace another.
     pub fn assess_substitution(
-        &self,
-        from: &RealizationId,
-        to: &RealizationId,
+        &self, from: &RealizationId, to: &RealizationId,
     ) -> Result<SubstitutionAssessment, BuildingBlockRefusal> {
         let source = self
             .realizations
@@ -599,7 +607,8 @@ impl BuildingBlock {
             .promised_outputs
             .is_subset(&target.provided_ports)
         {
-            reasons.push("target realization does not preserve all promised output ports".to_string());
+            reasons
+                .push("target realization does not preserve all promised output ports".to_string());
         }
         if !target.authorities.is_subset(&source.authorities)
             || !target
@@ -615,7 +624,8 @@ impl BuildingBlock {
             reasons.push("target realization exceeds the resource ceiling".to_string());
         }
         if target.passport_id.trim().is_empty() || target.passport_digest.trim().is_empty() {
-            reasons.push("target realization is not bound to an admitted Part Passport".to_string());
+            reasons
+                .push("target realization is not bound to an admitted Part Passport".to_string());
         }
 
         Ok(SubstitutionAssessment {
@@ -702,10 +712,8 @@ impl BuildingBlockRegistry {
         }
 
         fn visit(
-            id: &BuildingBlockId,
-            registry: &BuildingBlockRegistry,
-            marks: &mut BTreeMap<BuildingBlockId, Visit>,
-            stack: &mut Vec<BuildingBlockId>,
+            id: &BuildingBlockId, registry: &BuildingBlockRegistry,
+            marks: &mut BTreeMap<BuildingBlockId, Visit>, stack: &mut Vec<BuildingBlockId>,
             order: &mut Vec<BuildingBlockId>,
         ) -> Result<(), BuildingBlockRefusal> {
             match marks.get(id) {
@@ -751,8 +759,7 @@ impl BuildingBlockRegistry {
 
     /// Compose the dependency closure of selected roots and issue a deterministic receipt.
     pub fn compose(
-        &self,
-        roots: &BTreeSet<BuildingBlockId>,
+        &self, roots: &BTreeSet<BuildingBlockId>,
     ) -> Result<CompositionReceipt, BuildingBlockRefusal> {
         let violations = self.validate();
         if !violations.is_empty() {
@@ -1075,10 +1082,8 @@ mod tests {
             .realizations
             .insert(replacement_id.clone(), replacement);
 
-        let assessment = block.assess_substitution(
-            &RealizationId::from("realization-v1"),
-            &replacement_id,
-        );
+        let assessment =
+            block.assess_substitution(&RealizationId::from("realization-v1"), &replacement_id);
         assert!(matches!(assessment, Ok(value) if !value.allowed));
     }
 

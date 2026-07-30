@@ -7,7 +7,7 @@ use ggen_architecture::{
     ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
     BuildingBlockRegistry, BuildingBlockStanding, EvidenceKind, EvidenceObligation,
     EvidenceReceipt, ObligationId, Port, PortDirection, PortId, PortKind, ProfileId,
-    RealizationBinding, RealizationId, ResourceClaim, ResourceCeiling,
+    RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
 };
 
 fn admitted_block() -> BuildingBlock {

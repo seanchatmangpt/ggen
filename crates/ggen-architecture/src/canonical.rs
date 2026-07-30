@@ -19,9 +19,9 @@ pub mod profiles {
 pub use building_block::{
     ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
     BuildingBlockRegistry, BuildingBlockViolation, CompositionReceipt, EvidenceKind,
-    EvidenceObligation, EvidenceReceipt, LifecycleState, ObligationId, Port, PortDirection,
-    PortId, PortKind, ProfileId, RealizationBinding, RealizationId, ResourceClaim,
-    ResourceCeiling, Standing, SubstitutionAssessment,
+    EvidenceObligation, EvidenceReceipt, LifecycleState, ObligationId, Port, PortDirection, PortId,
+    PortKind, ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
+    Standing, SubstitutionAssessment,
 };
 
 /// Receipt schema retained by the Fortune 5 profile.
