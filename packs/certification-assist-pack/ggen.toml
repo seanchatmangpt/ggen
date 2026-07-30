@@ -49,6 +49,14 @@ skip_empty = false
 mode = "Overwrite"
 
 [[generation.rules]]
+name = "mcp-server-binary"
+query = { file = "queries/mcp.rq" }
+template = { file = "templates/src/bin/mcp_server.rs.tmpl" }
+output_file = "consumer/certification-assist/src/bin/mcp_server.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
 name = "full-contract-tests"
 query = { file = "queries/capabilities.rq" }
 template = { file = "templates/tests/full_contract.rs.tmpl" }
@@ -93,6 +101,14 @@ name = "speedrun-plan"
 query = { file = "queries/objectives.rq" }
 template = { file = "templates/automation/SPEEDRUN_PLAN.json.tmpl" }
 output_file = "consumer/certification-assist/automation/SPEEDRUN_PLAN.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/certification-assist/RELEASE_STANDING.json"
 skip_empty = false
 mode = "Overwrite"
 
