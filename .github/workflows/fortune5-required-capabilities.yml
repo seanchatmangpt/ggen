@@ -26,7 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   crown:
@@ -37,29 +37,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
 
       - name: Provision siblings + pinned nightly + cache
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: fortune5-required
 
-      - name: Apply exact rustfmt oracle to PR head
-        if: github.event_name == 'pull_request'
-        run: |
-          set -euo pipefail
-          cargo fmt --all
-          if ! git diff --quiet -- '*.rs'; then
-            git config user.name "ggen Fortune-5 formatter"
-            git config user.email "actions@users.noreply.github.com"
-            git add -- '*.rs'
-            git commit -m "style: apply exact rustfmt oracle"
-            git push origin "HEAD:${GITHUB_HEAD_REF}"
-          fi
-          cargo fmt --all -- --check
-
-      - name: Formatting gate on main
-        if: github.event_name == 'push'
+      - name: Formatting gate
         run: cargo fmt --all -- --check
 
       - name: Execute direct Fortune-5 crown verifier
@@ -85,6 +69,7 @@ jobs:
         working-directory: packs/fortune5-required-capabilities-pack
         run: |
           set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           cargo test --manifest-path consumer/fortune5-required-foundation/Cargo.toml
           ../../target/debug/ggen receipt verify
           bash consumer/fortune5-required-foundation/scripts/verify.sh
