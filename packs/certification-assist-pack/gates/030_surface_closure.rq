@@ -1,0 +1,21 @@
+# Any row refuses sync: each capability requires exactly the three admitted surfaces and no others.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?capability ?problem ?surface
+WHERE {
+  {
+    ?capability a ca:Capability .
+    VALUES (?surface ?problem) {
+      (ca:PositiveExecution "missing-positive")
+      (ca:NegativeRefusal "missing-negative")
+      (ca:ReceiptReplay "missing-replay")
+    }
+    FILTER NOT EXISTS { ?capability ca:requiresSurface ?surface }
+  }
+  UNION
+  {
+    ?capability a ca:Capability ; ca:requiresSurface ?surface .
+    FILTER(?surface NOT IN (ca:PositiveExecution, ca:NegativeRefusal, ca:ReceiptReplay))
+    BIND("unsupported-surface" AS ?problem)
+  }
+}
