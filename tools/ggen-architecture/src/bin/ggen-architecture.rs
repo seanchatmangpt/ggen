@@ -9,7 +9,8 @@ use std::{
 
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
-    AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus, Severity, Stimulus,
+    ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus, Severity,
+    Stimulus,
 };
 use serde::de::DeserializeOwned;
 
@@ -96,7 +97,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
     let cli = Cli::parse();
     match cli.command {
         Command::Doctor { state, json } => {
-            let state = read_json(&state)?;
+            let state: ArchitectureState = read_json(&state)?;
             let report = DoctorReport::analyze(&state)?;
             if json {
                 println!("{}", serde_json::to_string_pretty(&report)?);
@@ -110,7 +111,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
             })
         }
         Command::Impact { state, asset, json } => {
-            let state = read_json(&state)?;
+            let state: ArchitectureState = read_json(&state)?;
             let report = state.registry.impact_report(&asset)?;
             if json {
                 println!("{}", serde_json::to_string_pretty(&report)?);
@@ -130,7 +131,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
             observed_at,
             json,
         } => {
-            let state = read_json(&state)?;
+            let state: ArchitectureState = read_json(&state)?;
             let stimuli: Vec<Stimulus> = read_json(&stimuli)?;
             let cycle = AutonomicController::new(&state).run_cycle(observed_at, stimuli)?;
             if json {
@@ -144,7 +145,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
             Ok(0)
         }
         Command::Validate { state, json } => {
-            let state = read_json(&state)?;
+            let state: ArchitectureState = read_json(&state)?;
             let violations = state.registry.validate();
             if json {
                 println!("{}", serde_json::to_string_pretty(&violations)?);
@@ -170,7 +171,7 @@ fn run() -> Result<u8, Box<dyn Error>> {
             )
         }
         Command::Capacity { state, json } => {
-            let state = read_json(&state)?;
+            let state: ArchitectureState = read_json(&state)?;
             let envelope =
                 CapacityEnvelope::analyze(&state.capacity_samples, &state.capacity_policy);
             if json {
