@@ -1,129 +1,303 @@
 name: Docs
 
+# Advisory repository-link diagnostics plus blocking self-hosted book and claim
+# gates. The gates regenerate the committed book from pack law, independently
+# cross-check TTL/Tera/output closure, exercise named capability falsifiers and
+# pack consumers, render mdBook, repeat sync, and refuse tracked drift.
+
 on:
   pull_request:
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - 'book/**'
+      - 'packs/**'
+      - 'examples/**'
+      - 'marketplace/**'
+      - 'crates/ggen-engine/**'
+      - 'crates/ggen-graph/**'
+      - 'crates/ggen-marketplace/**'
+      - 'crates/ggen-cheat-scanner/**'
+      - 'ggen.toml'
+      - 'justfile'
+      - '.github/workflows/docs.yml'
+  push:
     branches: [main]
-
-permissions:
-  contents: write
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - 'book/**'
+      - 'packs/**'
+      - 'examples/**'
+      - 'marketplace/**'
+      - 'crates/ggen-engine/**'
+      - 'crates/ggen-graph/**'
+      - 'crates/ggen-marketplace/**'
+      - 'crates/ggen-cheat-scanner/**'
+      - 'ggen.toml'
+      - 'justfile'
+      - '.github/workflows/docs.yml'
 
 concurrency:
-  group: frontmatter-cardinality-reference-correction-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  correct-cardinality-reference:
-    if: github.head_ref == 'agent/frontmatter-maximalism'
+  links:
+    name: Relative markdown links (advisory)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Checkout exact candidate
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.11'
 
-      - name: Correct and verify canonical reference
-        shell: bash
+      - name: Check relative links (warn only)
         run: |
-          set -euo pipefail
-          python3 <<'PY'
+          python3 - <<'PY'
+          import re, sys
           from pathlib import Path
-          import re
 
-          path = Path('docs/reference/template-directives.md')
-          text = path.read_text()
+          root = Path('.').resolve()
+          skip_dirs = {'.git', 'node_modules', 'target', '__pycache__', '.venv'}
+          link = re.compile(r'\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
+          fence = re.compile(r'^\s*(```|~~~)')
 
-          def replace_once(old: str, new: str, label: str) -> None:
-              global text
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{label}: expected one match, found {count}')
-              text = text.replace(old, new, 1)
+          def external(dest: str) -> bool:
+              return (
+                  dest.startswith(('http://', 'https://', 'mailto:', 'tel:', '//', '#', '{'))
+                  or '://' in dest
+              )
 
-          replace_once(
-              '`sh` key is accepted only as a compatibility alias for `sh_before`; it is not a\n25th property.',
-              '`sh` key is accepted only as a compatibility alias for `sh_before`; it is not a\n26th property.',
-              'alias count',
+          markdown = [
+              path for path in root.rglob('*.md')
+              if not any(part in skip_dirs for part in path.relative_to(root).parts)
+          ]
+          broken = []
+          checked = 0
+          for source in markdown:
+              in_fence = False
+              for number, line_text in enumerate(
+                  source.read_text(encoding='utf-8', errors='replace').splitlines(), 1
+              ):
+                  if fence.match(line_text):
+                      in_fence = not in_fence
+                      continue
+                  if in_fence:
+                      continue
+                  for match in link.finditer(line_text):
+                      dest = match.group(1).strip()
+                      if not dest or external(dest):
+                          continue
+                      relative = dest.split('#', 1)[0].split('?', 1)[0]
+                      if not relative:
+                          continue
+                      checked += 1
+                      if not (source.parent / relative).resolve().exists():
+                          broken.append((source.relative_to(root), number, dest))
+
+          print(f'Scanned {len(markdown)} markdown files; checked {checked} relative links.')
+          for source, number, dest in broken:
+              print(f'::warning file={source},line={number}::broken relative link -> {dest}')
+          print(
+              f'ADVISORY: {len(broken)} broken relative link(s) found.'
+              if broken else 'OK: all relative markdown links resolve.'
           )
-          replace_once('## 4.2 `to`', '## 4.1 `to`', 'to heading')
-          replace_once('## 4.3 `sparql`', '## 4.2 `sparql`', 'sparql heading')
-          replace_once(
-              '''`to` is required. Static paths are retained literally. A value containing `{{` is
-          classified as a per-row projection. The engine iterates the driving `results` array,
-          renders one path per row, renders one body per row, and refuses duplicate rendered
-          targets before writes begin.
-
-          The driving array is the first array-valued named SPARQL result in `BTreeMap` key
-          order. It is not selected by an explicit `for_each` property.
-
-          A dynamic `to` with zero driving rows emits zero outputs. A path containing only
-          Tera control tags such as `{% if %}` but no `{{` is not classified as dynamic.''',
-              '''`to` is required. With `for_each`, a value containing `{{` fans out one complete
-          output per selected row, while a static path aggregates one body rendering per selected
-          row into a single artifact. Without `for_each`, the historical behavior is preserved:
-          only a `to` containing `{{` fans out, using the first array-valued named SPARQL result
-          in `BTreeMap` key order.
-
-          Duplicate rendered targets are refused before writes begin. Zero selected rows emit zero
-          outputs. A path containing only Tera control tags such as `{% if %}` but no `{{` remains
-          static and therefore aggregates when `for_each` is declared.''',
-              'to lifecycle',
-          )
-          replace_once(
-              '''Use an explicitly named, alphabetically first driver query such as `00_driver` and
-          include a complete `ORDER BY` with a stable tie-break.''',
-              '''Declare `for_each` explicitly and include a complete `ORDER BY` with a stable
-          tie-break in the named driver query. The alphabetic first-array convention is retained
-          only for backward compatibility.''',
-              'internal driver guidance',
-          )
-          replace_once(
-              '''Every named result is inserted into the context. `results` is the first array-valued
-          result in sorted key order.''',
-              '''Every named result is inserted into the context. When `for_each` is declared,
-          `results` is that named array-valued result. Otherwise `results` preserves the historical
-          first-array-valued-result behavior in sorted key order.''',
-              'sparql results law',
-          )
-          replace_once(
-              '''- An alphabetically earlier array-valued auxiliary query can accidentally become
-            the driver. Name the intended driver explicitly.''',
-              '''- Declare `for_each` whenever more than one array-valued result exists. Without it,
-            an alphabetically earlier auxiliary result remains the legacy implicit driver.''',
-              'sparql driver constraint',
-          )
-          replace_once(
-              '| `to` | required string | cardinality/render/write | selects output path and optional row fan-out | ALIVE, bounded |',
-              '| `to` | required string | cardinality/render/write | selects output path and fan-out/aggregate topology | ALIVE, bounded |',
-              'to inventory',
-          )
-
-          path.write_text(text)
-
-          headings = [int(n) for n in re.findall(r'^## 4\.(\d+) ', text, flags=re.MULTILINE)]
-          expected = list(range(1, 27))
-          if headings != expected:
-              raise SystemExit(f'property subsection sequence mismatch: {headings!r}')
-          if text.count('## 4.3 `for_each`') != 1:
-              raise SystemExit('for_each heading must occur exactly once')
-          if 'It is not selected by an explicit `for_each` property.' in text:
-              raise SystemExit('stale implicit-driver claim remains')
+          sys.exit(0)
           PY
 
-          grep -q '26th property' docs/reference/template-directives.md
-          grep -q '^## 4.1 `to`' docs/reference/template-directives.md
-          grep -q '^## 4.2 `sparql`' docs/reference/template-directives.md
-          grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
-          git diff --check
+  book-self-hosted:
+    name: ggen self-hosted mdBook and claim graph
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
 
-      - name: Publish correction and restore Docs workflow
-        shell: bash
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: phase2
+
+      - name: Build the real ggen CLI
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture from committed pack law and verify receipt
         run: |
           set -euo pipefail
-          git checkout origin/main -- .github/workflows/docs.yml
-          git config user.name "ggen frontmatter docs"
-          git config user.email "actions@github.com"
-          git add docs/reference/template-directives.md .github/workflows/docs.yml
-          git commit -m "docs(engine): correct cardinality lifecycle reference"
-          git push origin HEAD:agent/frontmatter-maximalism
+          cd book
+          ../target/debug/ggen sync run
+          ../target/debug/ggen receipt verify
+
+      - name: Validate TTL, Tera, and generated bytes independently
+        run: |
+          set -euo pipefail
+          python3 book/scripts/validate_transcription_360.py
+          python3 book/scripts/validate_transcription_360.py --sabotage
+
+      - name: Audit capability claims and declared gaps
+        run: |
+          set -euo pipefail
+          python3 book/scripts/audit_claim_coverage.py
+
+      - name: Execute named capability falsifiers
+        run: |
+          set -euo pipefail
+          cargo test -p ggen-engine --test reasoner_independence_e2e
+          cargo test -p ggen-graph
+          cargo test -p ggen-marketplace
+          cargo test -p ggen-cheat-scanner
+
+      - name: Parse pack and marketplace manifests
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+
+          roots = [Path('packs'), Path('marketplace/packs')]
+          files = []
+          for root in roots:
+              if root.exists():
+                  files.extend(root.rglob('*.toml'))
+          failures = []
+          for path in sorted(files):
+              try:
+                  with path.open('rb') as stream:
+                      tomllib.load(stream)
+              except Exception as error:
+                  failures.append(f'{path}: {error}')
+          print(f'TOML_CENSUS files={len(files)} failures={len(failures)}')
+          if failures:
+              raise SystemExit('\n'.join(failures))
+          PY
+
+      - name: Parse pack and consumer ontologies
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
+          python3 - <<'PY'
+          from pathlib import Path
+          from rdflib import Graph
+
+          # examples/archive/ is explicitly out of the build boundary (same doctrine as root
+          # Cargo.toml's `exclude` for retired members): historical/dead example content,
+          # never validated live. Filtering it here, not deleting it -- non-deletion doctrine.
+          files = sorted(
+              (set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
+              - set(Path('examples/archive').rglob('*.ttl'))
+          )
+          failures = []
+          triples = 0
+          for path in files:
+              graph = Graph()
+              try:
+                  graph.parse(path, format='turtle')
+                  triples += len(graph)
+              except Exception as error:
+                  failures.append(f'{path}: {error}')
+          print(f'TTL_CENSUS files={len(files)} triples={triples} failures={len(failures)}')
+          if failures:
+              raise SystemExit('\n'.join(failures[:50]))
+          PY
+
+      - name: Syntax-check generated shell laboratories
+        run: |
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' script; do
+            bash -n "$script"
+            count=$((count + 1))
+          done < <(find book/src/listings -type f -name '*.sh' -print0)
+          echo "SHELL_LAB_CENSUS scripts=$count syntax_failures=0"
+
+      - name: Replay discoverable pack consumers twice
+        run: |
+          set -euo pipefail
+          validate_consumer() {
+            local consumer="$1"
+            local pack="$2"
+            if [ ! -f "$consumer/ggen.toml" ]; then
+              echo "::error::$consumer has no ggen.toml"
+              return 1
+            fi
+            (
+              cd "$consumer"
+              ../../target/debug/ggen sync run
+              ../../target/debug/ggen receipt verify
+              ../../target/debug/ggen sync run
+              ../../target/debug/ggen receipt verify
+            )
+            local drift
+            drift=$(git status --porcelain=v1 --untracked-files=all -- \
+              "$consumer" "packs/$pack" \
+              ":(exclude)$consumer/.ggen-v2/**")
+            if [ -n "$drift" ]; then
+              printf '%s\n' "$drift"
+              echo "::error::$consumer / $pack is not byte-idempotent or leaves unowned output"
+              return 1
+            fi
+            echo "CONSUMER_WITNESS consumer=$consumer pack=packs/$pack syncs=2 receipts=2 drift=0"
+          }
+
+          validate_consumer examples/star-toml-verify star-toml-pack
+          validate_consumer examples/lsp-max-verify lsp-max-pack
+          validate_consumer examples/affidavit-verify affidavit-pack
+
+      - name: Validate every chapter and Level Five artifact
+        run: |
+          set -euo pipefail
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+
+      - name: Render the complete mdBook
+        run: |
+          set -euo pipefail
+          cargo install mdbook --locked --version 0.4.52 --quiet
+          mdbook build book
+
+      - name: Refuse first-sync tracked drift
+        run: |
+          set -euo pipefail
+          drift=$(git status --porcelain=v1 --untracked-files=all -- \
+            book \
+            packs/level-five-book-pack \
+            ':(exclude)book/.ggen-v2/**' \
+            ':(exclude)book/book/**')
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo '::error::ggen did not reproduce the committed book and pack law byte-for-byte.'
+            exit 1
+          fi
+
+      - name: Second manufacture proves content idempotency
+        run: |
+          set -euo pipefail
+          cd book
+          ../target/debug/ggen sync run
+          ../target/debug/ggen receipt verify
+          cd ..
+          drift=$(git status --porcelain=v1 --untracked-files=all -- \
+            book \
+            packs/level-five-book-pack \
+            ':(exclude)book/.ggen-v2/**' \
+            ':(exclude)book/book/**')
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo '::error::second ggen sync changed tracked book or pack-law content.'
+            exit 1
+          fi
+          echo 'ggen self-hosted mdBook: manufacture, claim audit, consumer replay, 360 validation, receipt, render, and idempotency are green.'

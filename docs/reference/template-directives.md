@@ -13,7 +13,7 @@ The executable source of truth is:
 
 The parser accepts exactly 25 properties. Unknown keys fail closed. The historical
 `sh` key is accepted only as a compatibility alias for `sh_before`; it is not a
-25th property.
+26th property.
 
 ## 1. Complete template form
 
@@ -249,7 +249,7 @@ receipt.
 
 | Property | Type and default | Primary phase | Consequence | Standing |
 |---|---|---|---|---|
-| `to` | required string | cardinality/render/write | selects output path and optional row fan-out | ALIVE, bounded |
+| `to` | required string | cardinality/render/write | selects output path and fan-out/aggregate topology | ALIVE, bounded |
 | `sparql` | string, sequence, or map; default empty | extract | produces named semantic views | ALIVE |
 | `for_each` | optional named result; default absent | cardinality | explicitly selects rows for fan-out or aggregation | ALIVE |
 | `construct` | optional string | shared enrich or overlay enrich | inserts derived triples | ALIVE, single-pass |
@@ -280,7 +280,7 @@ the stated boundary. It does not erase the explicit limitations recorded below.
 
 ## 4. Property reference and use cases
 
-## 4.2 `to`
+## 4.1 `to`
 
 ### Syntax
 
@@ -294,16 +294,15 @@ to: "src/{{ row.module | snake_case }}.rs"
 
 ### Lifecycle
 
-`to` is required. Static paths are retained literally. A value containing `{{` is
-classified as a per-row projection. The engine iterates the driving `results` array,
-renders one path per row, renders one body per row, and refuses duplicate rendered
-targets before writes begin.
+`to` is required. With `for_each`, a value containing `{{` fans out one complete
+output per selected row, while a static path aggregates one body rendering per selected
+row into a single artifact. Without `for_each`, the historical behavior is preserved:
+only a `to` containing `{{` fans out, using the first array-valued named SPARQL result
+in `BTreeMap` key order.
 
-The driving array is the first array-valued named SPARQL result in `BTreeMap` key
-order. It is not selected by an explicit `for_each` property.
-
-A dynamic `to` with zero driving rows emits zero outputs. A path containing only
-Tera control tags such as `{% if %}` but no `{{` is not classified as dynamic.
+Duplicate rendered targets are refused before writes begin. Zero selected rows emit zero
+outputs. A path containing only Tera control tags such as `{% if %}` but no `{{` remains
+static and therefore aggregates when `for_each` is declared.
 
 Every eventual target is subject to the project-root path boundary during apply,
 except for the skip-path gaps recorded in section 8.
@@ -320,15 +319,16 @@ except for the skip-path gaps recorded in section 8.
 
 ### Internal-pack guidance
 
-Use an explicitly named, alphabetically first driver query such as `00_driver` and
-include a complete `ORDER BY` with a stable tie-break.
+Declare `for_each` explicitly and include a complete `ORDER BY` with a stable
+tie-break in the named driver query. The alphabetic first-array convention is retained
+only for backward compatibility.
 
 ### External-pack guidance
 
 Keep output paths inside a clearly namespaced consumer directory. Do not claim
 canonical host paths unless the pack contract explicitly grants that authority.
 
-## 4.3 `sparql`
+## 4.2 `sparql`
 
 ### Syntax forms
 
@@ -363,8 +363,9 @@ for Tera:
 - SELECT becomes an array of row objects with bare variable names;
 - CONSTRUCT/DESCRIBE becomes an array of triple objects.
 
-Every named result is inserted into the context. `results` is the first array-valued
-result in sorted key order.
+Every named result is inserted into the context. When `for_each` is declared,
+`results` is that named array-valued result. Otherwise `results` preserves the historical
+first-array-valued-result behavior in sorted key order.
 
 `determinism: true` executes every declared query a second independent time.
 
@@ -380,8 +381,8 @@ result in sorted key order.
 ### Constraints
 
 - Use `ORDER BY` for any query whose rows influence bytes or path ordering.
-- An alphabetically earlier array-valued auxiliary query can accidentally become
-  the driver. Name the intended driver explicitly.
+- Declare `for_each` whenever more than one array-valued result exists. Without it,
+  an alphabetically earlier auxiliary result remains the legacy implicit driver.
 - Row-level conditional generation belongs in the query `WHERE` clause; `when`
   guards the whole template.
 
