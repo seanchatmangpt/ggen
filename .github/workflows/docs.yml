@@ -191,6 +191,16 @@ jobs:
               'order by isolated lint test',
           )
           lint_path.write_text(lint)
+
+          fortune_path = Path('crates/ggen-engine/tests/frontmatter_fortune5_hardening_e2e.rs')
+          fortune = fortune_path.read_text()
+          fortune = replace_once(
+              fortune,
+              '    assert!(error.to_string().contains("FM-WRITE-010"), "{error}");\n',
+              '    assert!(error.to_string().contains("FM-TPL-023"), "{error}");\n',
+              'placement refusal phase migration',
+          )
+          fortune_path.write_text(fortune)
           PY
           cargo fmt --all
           git diff --check
@@ -228,6 +238,7 @@ jobs:
                   crates/ggen-engine/schema/frontmatter-schema.ttl \
                   crates/ggen-engine/tests/frontmatter_best_practices_e2e.rs \
                   crates/ggen-engine/tests/frontmatter_lint_best_practices.rs \
+                  crates/ggen-engine/tests/frontmatter_fortune5_hardening_e2e.rs \
                   docs/reference/frontmatter-maximalism.md \
                   docs/reference/template-directives.md \
                   docs/.frontmatter-best-practices-trigger \
