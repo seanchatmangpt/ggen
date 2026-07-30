@@ -75,6 +75,7 @@ def main() -> int:
         "def emitRust (receipt : ProofReceipt)",
         "def main : IO Unit := emitRust proofReceipt",
         "IO.FS.writeFile \"../rust/src/lib.rs\" rustLib",
+        "to_hex().to_string()",
         "let mut receipt = String::from",
         "println!(\\\"{receipt}\\\")",
         "lean_proof_blake3",
