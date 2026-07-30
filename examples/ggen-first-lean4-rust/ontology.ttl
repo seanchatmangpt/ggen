@@ -1,0 +1,15 @@
+@prefix lr:      <https://chatmangpt.com/ontology/lean4-rust#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<urn:ggen:lean4-rust:bounded-successor> a lr:Pipeline ;
+    dcterms:title "ggen-first Lean 4 to Rust bounded successor" ;
+    lr:crateName "lean-proof-cell" ;
+    lr:rustFunctionName "bounded_step" ;
+    lr:leanToolchain "leanprover/lean4:v4.30.0" ;
+    lr:bound 10 ;
+    lr:witnessInput 9 ;
+    lr:witnessOutput 10 ;
+    lr:proofTheorem "step_le" ;
+    lr:witnessTheorem "step_witness" ;
+    lr:fixedPointTheorem "step_fixed_point" ;
+    lr:receiptAlgorithm "blake3" .
