@@ -1,0 +1,241 @@
+{
+  "schema": "ggen.bblock.catalog.v1",
+  "version": "26.7.30",
+  "providers": [
+    {
+      "id": "aws",
+      "title": "Amazon Web Services",
+      "aliases": ["amazon", "amazon-web-services"]
+    },
+    {
+      "id": "azure",
+      "title": "Microsoft Azure",
+      "aliases": ["microsoft-azure"]
+    },
+    {
+      "id": "gcp",
+      "title": "Google Cloud Platform",
+      "aliases": ["gpc", "google-cloud", "google-cloud-platform"]
+    }
+  ],
+  "groups": [
+    {
+      "id": "global-network",
+      "title": "Global network and DNS",
+      "description": "Globally routed private networking, DNS, load balancing, egress control, and edge ingress.",
+      "directory": "infrastructure/network",
+      "dependencies": [],
+      "common_packs": ["fortune5-network-law-pack"],
+      "provider_packs": {
+        "aws": ["aws-vpc-pack", "aws-route53-pack", "aws-global-accelerator-pack"],
+        "azure": ["azure-vnet-pack", "azure-dns-pack", "azure-front-door-pack"],
+        "gcp": ["gcp-vpc-pack", "gcp-cloud-dns-pack", "gcp-global-load-balancing-pack"]
+      }
+    },
+    {
+      "id": "workload-identity",
+      "title": "Workload identity",
+      "description": "SPIFFE/SPIRE-compatible workload identity, federation, mTLS, and least-privilege service authorization.",
+      "directory": "infrastructure/identity",
+      "dependencies": ["global-network"],
+      "common_packs": ["fortune5-spiffe-spire-pack", "fortune5-zero-trust-policy-pack"],
+      "provider_packs": {
+        "aws": ["aws-iam-pack", "aws-eks-pod-identity-pack"],
+        "azure": ["azure-managed-identity-pack", "azure-workload-identity-pack"],
+        "gcp": ["gcp-iam-pack", "gcp-workload-identity-federation-pack"]
+      }
+    },
+    {
+      "id": "encryption-kms",
+      "title": "Encryption and KMS",
+      "description": "Envelope encryption, HSM-backed keys, rotation, decrypt audit, and dual-control break glass.",
+      "directory": "infrastructure/security/kms",
+      "dependencies": ["workload-identity"],
+      "common_packs": ["fortune5-kms-law-pack", "fortune5-secret-classification-pack"],
+      "provider_packs": {
+        "aws": ["aws-kms-pack", "aws-cloudhsm-pack", "aws-secrets-manager-pack"],
+        "azure": ["azure-key-vault-pack", "azure-managed-hsm-pack", "azure-app-configuration-secrets-pack"],
+        "gcp": ["gcp-cloud-kms-pack", "gcp-cloud-hsm-pack", "gcp-secret-manager-pack"]
+      }
+    },
+    {
+      "id": "observability",
+      "title": "Comprehensive observability",
+      "description": "OTLP logs, metrics, traces, profiles, correlation, redaction, retention, SLOs, and error budgets.",
+      "directory": "infrastructure/observability",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms"],
+      "common_packs": ["fortune5-otel-pack", "fortune5-slo-governor-pack", "fortune5-incident-evidence-pack"],
+      "provider_packs": {
+        "aws": ["aws-cloudwatch-pack", "aws-xray-pack", "aws-managed-prometheus-pack"],
+        "azure": ["azure-monitor-pack", "azure-application-insights-pack", "azure-managed-prometheus-pack"],
+        "gcp": ["gcp-cloud-operations-pack", "gcp-cloud-trace-pack", "gcp-managed-prometheus-pack"]
+      }
+    },
+    {
+      "id": "container-runtime",
+      "title": "Supervised container runtime",
+      "description": "Regional managed Kubernetes, supervised workloads, autoscaling, policy, and evidence-producing deployment.",
+      "directory": "infrastructure/runtime/containers",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-kubernetes-law-pack", "fortune5-supervision-pack", "fortune5-admission-policy-pack"],
+      "provider_packs": {
+        "aws": ["aws-eks-pack", "aws-eks-autoscaling-pack"],
+        "azure": ["azure-aks-pack", "azure-aks-autoscaling-pack"],
+        "gcp": ["gcp-gke-pack", "gcp-gke-autoscaling-pack"]
+      }
+    },
+    {
+      "id": "serverless-compute",
+      "title": "Serverless compute",
+      "description": "Globally deployable event and request compute with workload identity, concurrency, budget, and receipt controls.",
+      "directory": "infrastructure/runtime/serverless",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-serverless-law-pack", "fortune5-budget-governor-pack"],
+      "provider_packs": {
+        "aws": ["aws-lambda-pack", "aws-api-gateway-pack"],
+        "azure": ["azure-functions-pack", "azure-api-management-pack"],
+        "gcp": ["gcp-cloud-run-pack", "gcp-api-gateway-pack"]
+      }
+    },
+    {
+      "id": "transaction-data",
+      "title": "Transactional data",
+      "description": "Multi-zone transactional databases with encryption, backups, point-in-time recovery, and replication policy.",
+      "directory": "infrastructure/data/transactional",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-transaction-data-law-pack", "fortune5-data-residency-pack"],
+      "provider_packs": {
+        "aws": ["aws-aurora-pack", "aws-dynamodb-global-tables-pack"],
+        "azure": ["azure-sql-pack", "azure-cosmos-db-pack"],
+        "gcp": ["gcp-cloud-sql-pack", "gcp-spanner-pack"]
+      }
+    },
+    {
+      "id": "object-storage",
+      "title": "Object and evidence storage",
+      "description": "Versioned, encrypted, immutable-capable object storage with lifecycle, retention, and evidence policies.",
+      "directory": "infrastructure/data/object-storage",
+      "dependencies": ["workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-object-storage-law-pack", "fortune5-retention-pack"],
+      "provider_packs": {
+        "aws": ["aws-s3-pack", "aws-s3-object-lock-pack"],
+        "azure": ["azure-blob-storage-pack", "azure-immutable-blob-pack"],
+        "gcp": ["gcp-cloud-storage-pack", "gcp-bucket-lock-pack"]
+      }
+    },
+    {
+      "id": "event-fabric",
+      "title": "Event and message fabric",
+      "description": "Ordered and unordered messaging, event routing, dead-lettering, replay, schema governance, and receipts.",
+      "directory": "infrastructure/integration/events",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-event-fabric-law-pack", "fortune5-schema-governance-pack", "fortune5-replay-pack"],
+      "provider_packs": {
+        "aws": ["aws-eventbridge-pack", "aws-msk-pack", "aws-sqs-sns-pack"],
+        "azure": ["azure-event-grid-pack", "azure-event-hubs-pack", "azure-service-bus-pack"],
+        "gcp": ["gcp-eventarc-pack", "gcp-pubsub-pack"]
+      }
+    },
+    {
+      "id": "artifact-registry",
+      "title": "Artifact and supply-chain registry",
+      "description": "OCI and package registry, signing, provenance, SBOM, vulnerability scanning, and promotion evidence.",
+      "directory": "infrastructure/delivery/artifacts",
+      "dependencies": ["workload-identity", "encryption-kms", "observability"],
+      "common_packs": ["fortune5-slsa-pack", "fortune5-sbom-pack", "fortune5-signing-pack"],
+      "provider_packs": {
+        "aws": ["aws-ecr-pack", "aws-signer-pack"],
+        "azure": ["azure-container-registry-pack", "azure-artifact-signing-pack"],
+        "gcp": ["gcp-artifact-registry-pack", "gcp-binary-authorization-pack"]
+      }
+    },
+    {
+      "id": "policy-governance",
+      "title": "Policy and governance",
+      "description": "Organization policy, resource hierarchy, budgets, audit, compliance, and promotion controls.",
+      "directory": "infrastructure/governance",
+      "dependencies": ["workload-identity", "observability"],
+      "common_packs": ["fortune5-policy-as-code-pack", "fortune5-promotion-gate-pack", "fortune5-cost-governance-pack"],
+      "provider_packs": {
+        "aws": ["aws-organizations-pack", "aws-config-pack", "aws-control-tower-pack", "aws-budgets-pack"],
+        "azure": ["azure-management-groups-pack", "azure-policy-pack", "azure-defender-cloud-pack", "azure-cost-management-pack"],
+        "gcp": ["gcp-resource-manager-pack", "gcp-organization-policy-pack", "gcp-security-command-center-pack", "gcp-billing-budgets-pack"]
+      }
+    },
+    {
+      "id": "resilience-dr",
+      "title": "Resilience and disaster recovery",
+      "description": "Multi-region failover, backup, restoration, chaos evidence, RPO/RTO, and recovery promotion gates.",
+      "directory": "infrastructure/resilience",
+      "dependencies": ["global-network", "transaction-data", "object-storage", "event-fabric", "observability", "policy-governance"],
+      "common_packs": ["fortune5-rpo-rto-pack", "fortune5-chaos-evidence-pack", "fortune5-failover-runbook-pack"],
+      "provider_packs": {
+        "aws": ["aws-backup-pack", "aws-elastic-disaster-recovery-pack"],
+        "azure": ["azure-backup-pack", "azure-site-recovery-pack"],
+        "gcp": ["gcp-backup-dr-pack", "gcp-multiregion-failover-pack"]
+      }
+    },
+    {
+      "id": "edge-delivery",
+      "title": "Global edge delivery",
+      "description": "CDN, WAF, DDoS protection, global TLS, edge policy, and customer-facing SLO evidence.",
+      "directory": "infrastructure/edge",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability", "policy-governance"],
+      "common_packs": ["fortune5-edge-law-pack", "fortune5-waf-policy-pack", "fortune5-customer-slo-pack"],
+      "provider_packs": {
+        "aws": ["aws-cloudfront-pack", "aws-waf-shield-pack", "aws-acm-pack"],
+        "azure": ["azure-front-door-cdn-pack", "azure-waf-ddos-pack", "azure-certificate-pack"],
+        "gcp": ["gcp-cloud-cdn-pack", "gcp-cloud-armor-pack", "gcp-certificate-manager-pack"]
+      }
+    },
+    {
+      "id": "evidence-ledger",
+      "title": "Evidence and receipt ledger",
+      "description": "Immutable evidence, audit streams, receipt replay, chronology, conservation, and legal-exclusion records.",
+      "directory": "infrastructure/evidence",
+      "dependencies": ["object-storage", "event-fabric", "observability", "policy-governance"],
+      "common_packs": ["fortune5-receipt-ledger-pack", "fortune5-chronology-pack", "fortune5-conservation-pack", "fortune5-legality-pack"],
+      "provider_packs": {
+        "aws": ["aws-cloudtrail-lake-pack", "aws-qldb-evidence-pack"],
+        "azure": ["azure-monitor-immutable-ledger-pack", "azure-confidential-ledger-pack"],
+        "gcp": ["gcp-cloud-audit-logs-pack", "gcp-immutable-evidence-pack"]
+      }
+    },
+    {
+      "id": "fortune5-foundation",
+      "title": "Fortune 5 foundation bundle",
+      "description": "Global network, identity, KMS, observability, and governance foundation.",
+      "directory": "infrastructure/foundation",
+      "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability", "policy-governance"],
+      "common_packs": ["fortune5-foundation-crown-pack"],
+      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+    },
+    {
+      "id": "fortune5-platform",
+      "title": "Fortune 5 platform bundle",
+      "description": "Foundation plus runtime, data, events, artifacts, edge, resilience, and evidence services.",
+      "directory": "infrastructure/platform",
+      "dependencies": ["fortune5-foundation", "container-runtime", "serverless-compute", "transaction-data", "object-storage", "event-fabric", "artifact-registry", "edge-delivery", "resilience-dr", "evidence-ledger"],
+      "common_packs": ["fortune5-platform-crown-pack"],
+      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+    },
+    {
+      "id": "fortune5-control-plane",
+      "title": "Fortune 5 control-plane bundle",
+      "description": "Architecture assessor, Gall automation, BRCE boundary, SLO governors, DFLSS, WCP evidence, and receipts.",
+      "directory": "infrastructure/control-plane",
+      "dependencies": ["fortune5-foundation", "evidence-ledger"],
+      "common_packs": ["fortune5-architecture-pack", "gall-core-pack", "fortune5-brce-contract-pack", "fortune5-level5-crown-pack", "fortune5-dflss-pack", "fortune5-workflow-patterns-pack"],
+      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+    },
+    {
+      "id": "fortune5-complete",
+      "title": "Complete Fortune 5 deployment bundle",
+      "description": "Complete globally available platform and control plane for one selected provider.",
+      "directory": "infrastructure/fortune5",
+      "dependencies": ["fortune5-platform", "fortune5-control-plane"],
+      "common_packs": ["fortune5-complete-crown-pack"],
+      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+    }
+  ]
+}
