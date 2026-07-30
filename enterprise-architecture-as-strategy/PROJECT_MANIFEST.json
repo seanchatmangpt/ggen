@@ -1,0 +1,18 @@
+{
+  "title": "Enterprise Architecture as Strategy with ggen",
+  "version": "26.7.30",
+  "numbered_chapters": 41,
+  "front_matter": 5,
+  "appendices": 3,
+  "summary_links": 50,
+  "source_markdown_files": 51,
+  "repository_markdown_files": 54,
+  "total_source_files": 60,
+  "generated_at": "2026-07-30",
+  "source_validation": "ALIVE",
+  "pandoc_pdf_status": "ALIVE",
+  "pdf_pages": 86,
+  "pdf_sha256": "8d3dab67a4338d5d24ec08278185db989aa1b1065bab3dac27e35b5827e22824",
+  "mdbook_html_status": "UNKNOWN_TOOL_UNAVAILABLE_LOCALLY",
+  "claim_ceiling": "STATIC_MANUSCRIPT_AND_RENDERED_PDF_ALIVE; MDBOOK_HTML_CI_PENDING"
+}
