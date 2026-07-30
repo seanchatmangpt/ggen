@@ -1,0 +1,30 @@
+# MESSAGE: Gall automation profile is incomplete -- every program with work items must declare one profile covering tracker, execution, agent, concurrency, branch, runtime, and receipt policy
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?program ?programId ?profile ?missing WHERE {
+  ?program a gall:GallProgram ; gall:hasWorkItem ?workItem .
+  OPTIONAL { ?program gall:programId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?program)) AS ?programId)
+  {
+    FILTER NOT EXISTS { ?program gall:hasAutomationProfile ?anyProfile }
+    BIND(?program AS ?profile)
+    BIND("gall:hasAutomationProfile" AS ?missing)
+  }
+  UNION
+  {
+    ?program gall:hasAutomationProfile ?profile .
+    VALUES ?requiredProperty {
+      rdf:type
+      gall:automationProfileId
+      gall:trackerProvider
+      gall:executionMode
+      gall:agentMode
+      gall:maxParallelism
+      gall:branchPattern
+      gall:runtimeDirectory
+      gall:receiptDirectory
+    }
+    FILTER NOT EXISTS { ?profile ?requiredProperty ?value }
+    BIND(STR(?requiredProperty) AS ?missing)
+  }
+}
+ORDER BY ?programId ?missing
