@@ -1,0 +1,999 @@
+{
+  "name": "ggen-fortune5-synthetic-proof",
+  "policy": {
+    "require_independent_verifier": true,
+    "require_segregation_of_duties": true,
+    "require_artifacts": true,
+    "conjunctive_level_five": true
+  },
+  "evidence": [
+    {
+      "obligation_id": "operating_model.standardization.design",
+      "evidence_id": "synthetic:operating_model.standardization.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:2eb0b3e38ba92df9f824c33eec750e296340895cc796911f9747fc962da39828",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.standardization.operation",
+      "evidence_id": "synthetic:operating_model.standardization.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:d8625786f78579392a7a807fdddac9a33e618276d4c29313499f889557f39842",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.standardization.falsifier",
+      "evidence_id": "synthetic:operating_model.standardization.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:a69118ee0ceca8ae6e0a07ee0964d9e7d912bb0cc464fd9d86cc3973253b4f15",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.integration.design",
+      "evidence_id": "synthetic:operating_model.integration.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:7e35967dc17485a7a5be4085e1580ed4d93c4ff404d15a2fc246489cd28842ad",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.integration.operation",
+      "evidence_id": "synthetic:operating_model.integration.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:887f5e677f554057f5d4eabf5b1a5966831bf0b393b49c5d9f101fb4c9f34e11",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.integration.falsifier",
+      "evidence_id": "synthetic:operating_model.integration.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:75db6680acc19caa2ffbfb4c95b8c2754cc91c95f9d89ab3e828b746e9d31a1d",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.accountability.design",
+      "evidence_id": "synthetic:operating_model.accountability.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:085580225be784b638c4d2c235d0b8c1d2fb4a3703cb9326b1db006fc5233224",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.accountability.operation",
+      "evidence_id": "synthetic:operating_model.accountability.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:b7e5f740a595b3d73c83ae460d753d326a839ad9c53c7d21c5bf3c0320033c9c",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "operating_model.accountability.falsifier",
+      "evidence_id": "synthetic:operating_model.accountability.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:667cb85b3def177249c2b725270f325fe13f9a4335de8b050ae4ee6628bb320e",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.capability_value_stream.design",
+      "evidence_id": "synthetic:core_diagram.capability_value_stream.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:3ba631ea071822fc73d34e75370bb693666f8cadc1c0942212c60a76bc82c42d",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.capability_value_stream.operation",
+      "evidence_id": "synthetic:core_diagram.capability_value_stream.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:7cae74e914182cd5541b978f85949debd60720c04ba1e74090d12170223fcb42",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.capability_value_stream.falsifier",
+      "evidence_id": "synthetic:core_diagram.capability_value_stream.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:ce05ef08cfc8e62477fe25478852e3e1bf34ffc2ee662ec81e102cb505180b62",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.shared_data.design",
+      "evidence_id": "synthetic:core_diagram.shared_data.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:b7651bfcc6ac363f46f72e664caa4bc5e592ad19ddde6c1a065dcf362f8213e1",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.shared_data.operation",
+      "evidence_id": "synthetic:core_diagram.shared_data.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:6f23966b4b9f4429871e9229eeeaacfe6403f3eb1535da30ed64fa7dc54092ba",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.shared_data.falsifier",
+      "evidence_id": "synthetic:core_diagram.shared_data.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:9101d979da817900709c374b65373822a664b0ca1db609485f4d4143b6a3e3ef",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.integration_fabric.design",
+      "evidence_id": "synthetic:core_diagram.integration_fabric.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:81654b77e8a3b16855cf2ca9ff4a959714291193546dd23b71146b4170c5dcb1",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.integration_fabric.operation",
+      "evidence_id": "synthetic:core_diagram.integration_fabric.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:2afe6e27904e5421713451f93326c2b1ad1473784b5b802f0ed79fbaf22f6387",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.integration_fabric.falsifier",
+      "evidence_id": "synthetic:core_diagram.integration_fabric.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:e110a676647ad2878ad3f4ef108588512f80866031cad4c1be4be50b966c7361",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.external_channels.design",
+      "evidence_id": "synthetic:core_diagram.external_channels.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:4ea4da5719f865f123855552efc85f5d8caf80f4d1cd4204fa31d6bc0df73c44",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.external_channels.operation",
+      "evidence_id": "synthetic:core_diagram.external_channels.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:727b55e504acda77196b6cfedec8db29b363a51639d35cec031064075b0bd2e6",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "core_diagram.external_channels.falsifier",
+      "evidence_id": "synthetic:core_diagram.external_channels.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:03f53c23531b651a2b7f674dbbf39fa0b7809205c8afaa7899cc572680da353a",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "platform.shared_infrastructure.design",
+      "evidence_id": "synthetic:platform.shared_infrastructure.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:39d6bf12563386e4fc7529d824e4e3e345a9b0dccfd2ea138f16140a59445a76",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "platform.shared_infrastructure.operation",
+      "evidence_id": "synthetic:platform.shared_infrastructure.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:8ae7b49b55fc3d9daead3b02a7dac06a71c1288a0c11189723a43e2dd6d3a356",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "platform.shared_infrastructure.falsifier",
+      "evidence_id": "synthetic:platform.shared_infrastructure.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:58ff3a02cab27f6ac5e59222e92225e9759fb06476f711e9031005c8bbce95ce",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "platform.transaction_processing.design",
+      "evidence_id": "synthetic:platform.transaction_processing.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:4ad1101e96a23a6cb69c42fe90192682d2cbdc31568443189e2162516c82280b",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "platform.transaction_processing.operation",
+      "evidence_id": "synthetic:platform.transaction_processing.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:732201c973c5a48e56f20ef5fc52abde01c7a9d7fe2a5b67304b9759728033f8",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "platform.transaction_processing.falsifier",
+      "evidence_id": "synthetic:platform.transaction_processing.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:dd892e45a6c897105d816965552167416b0c049a7588118711ac6d126736e1df",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "platform.authoritative_data.design",
+      "evidence_id": "synthetic:platform.authoritative_data.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:2f183f03f507772f51ef613b98ce459a1c8d3b1f6edca0f658c93e4f2b98f677",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "platform.authoritative_data.operation",
+      "evidence_id": "synthetic:platform.authoritative_data.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:7830c35154334e712a4a71bfc5a8d7da37924f885b3f6a7b2a824a099387b06a",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "platform.authoritative_data.falsifier",
+      "evidence_id": "synthetic:platform.authoritative_data.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:c04c5e683d16f2454349011108085a68194380f4beb1ebf7862bea2787421295",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "platform.reusable_components.design",
+      "evidence_id": "synthetic:platform.reusable_components.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:a223a36670e060ba49f688c721d8007d982a0e1ab7996ffcaa7040559fb5e8c8",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "platform.reusable_components.operation",
+      "evidence_id": "synthetic:platform.reusable_components.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:ab0ae7d78d0ab15eda9759be1c1d4f74780c7b4571d32d1a52e94352a8b3e2db",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "platform.reusable_components.falsifier",
+      "evidence_id": "synthetic:platform.reusable_components.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:7c012873a252b669a13f43917521777648bf84927032f2781992084fbd3d9402",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "engagement.enterprise_priorities.design",
+      "evidence_id": "synthetic:engagement.enterprise_priorities.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:e598c51a126f2bef9e91a089f9f297a49d70f50d1652f5898d4e5d6d582744dc",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "engagement.enterprise_priorities.operation",
+      "evidence_id": "synthetic:engagement.enterprise_priorities.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:fdfdbe79d567c4ad7e71dcb6bc7b7904fc28e243e58a2b5ab4248cda4dc4fb90",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "engagement.enterprise_priorities.falsifier",
+      "evidence_id": "synthetic:engagement.enterprise_priorities.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:3e8958026167ae3b7a60d083088424aaf3ccab56452d7fd29d2f5584acc271df",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "engagement.portfolio_governance.design",
+      "evidence_id": "synthetic:engagement.portfolio_governance.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:f413bc474213f71e0086b2118159121b65c4bbd7216143c2f849ef149ea902ea",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "engagement.portfolio_governance.operation",
+      "evidence_id": "synthetic:engagement.portfolio_governance.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:d76f55042f72e6a50c05a9497bff36cabeb3c82c24c46bab01ae249f42fafbf5",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "engagement.portfolio_governance.falsifier",
+      "evidence_id": "synthetic:engagement.portfolio_governance.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:7b93bd6ac07aa6238f170345d25ec5d5fa6a794898f247a6c02cf6f06914bcf1",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "engagement.linking_mechanisms.design",
+      "evidence_id": "synthetic:engagement.linking_mechanisms.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:8258186b4c9a12b8d0fbd95ea71c1c6d6552faf5b23fcefd14d3ad279e1cc72a",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "engagement.linking_mechanisms.operation",
+      "evidence_id": "synthetic:engagement.linking_mechanisms.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:24fab21f8e8673c78d96590b2ee5c29b0232ba0286c00f75d417d9cac53f0e53",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "engagement.linking_mechanisms.falsifier",
+      "evidence_id": "synthetic:engagement.linking_mechanisms.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:25ed18292cb9031aec66ad16050aad2fc8a4f7a75fd8103f2fde1a4b15aa3a7d",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "value.operational_excellence.design",
+      "evidence_id": "synthetic:value.operational_excellence.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:e90273550622a7cb5e312dd5e82d331bdf66215d9c62a30d25810b2be1099119",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "value.operational_excellence.operation",
+      "evidence_id": "synthetic:value.operational_excellence.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:314fb14aa91740cb7aa3e5578fa3b4c45ae6465b2997eddfc31ac88ebc597b15",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "value.operational_excellence.falsifier",
+      "evidence_id": "synthetic:value.operational_excellence.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:f33a2f9d961885cc7a41f619fdf1bc715f8b79a3d8eaab30cfe56c7be78eb28c",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "value.customer_intimacy.design",
+      "evidence_id": "synthetic:value.customer_intimacy.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:0ffbd9932238922b8fb022204dc31766251720621ce2ef70759c2793eb0162ed",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "value.customer_intimacy.operation",
+      "evidence_id": "synthetic:value.customer_intimacy.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:1ebf05ad60aec92f4e1f85a09a0050bb2525f4abfe2f81a9af756ead49e21e4e",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "value.customer_intimacy.falsifier",
+      "evidence_id": "synthetic:value.customer_intimacy.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:03027342e23fb3ef9eb5df2213ca54dd254f23e60c4d510496a6021d693322c5",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "value.strategic_agility.design",
+      "evidence_id": "synthetic:value.strategic_agility.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:785f63ee7ea53465c77be7fded963c63f1b41a1123f33530565279b43fa865a4",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "value.strategic_agility.operation",
+      "evidence_id": "synthetic:value.strategic_agility.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:9b085d7572060a26faafae51c96670601771900e5a95d312c9930c47b96380c6",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "value.strategic_agility.falsifier",
+      "evidence_id": "synthetic:value.strategic_agility.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:488a7a3903d09ff4e0900ddf6108115aeaf1664e946ac5bf07a761c79079a566",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "machinery.deterministic_manufacture.design",
+      "evidence_id": "synthetic:machinery.deterministic_manufacture.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:fb45649498da8a1364b8cb48787cf82c168a894254c59996e8a948baea7c8116",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "machinery.deterministic_manufacture.operation",
+      "evidence_id": "synthetic:machinery.deterministic_manufacture.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:d078790ef5c8df79dd65cf8a3931a2f68ab630811d6d987a14000612e03160b6",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "machinery.deterministic_manufacture.falsifier",
+      "evidence_id": "synthetic:machinery.deterministic_manufacture.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:d946fb104352fc99e1189856e72d5a70cdf368dc3384c4ae264a91cebece1d38",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "automation.policy_bounded.design",
+      "evidence_id": "synthetic:automation.policy_bounded.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:d651b42921941a0dc5ee22376852eaee54a2b909d948ba5966821ef0ea91c0f4",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "automation.policy_bounded.operation",
+      "evidence_id": "synthetic:automation.policy_bounded.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:a7544140641896aa45392d797114ed4c2f417cd54be7959cb9dcc9f49f9bd4f9",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "automation.policy_bounded.falsifier",
+      "evidence_id": "synthetic:automation.policy_bounded.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:a524ea1848c114c750ac56d0d20f632e89713dec823b5bf9ecc5cce1c55335ed",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "autonomics.convergent.design",
+      "evidence_id": "synthetic:autonomics.convergent.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:c3e961cc3913bcb3d621a6b9ea725328bfdd2534f658467e82c57c81f876cd45",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "autonomics.convergent.operation",
+      "evidence_id": "synthetic:autonomics.convergent.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:c711e53870926d19563dbd1de7e43c69f96afb0965d0d4250485640884887ffc",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "autonomics.convergent.falsifier",
+      "evidence_id": "synthetic:autonomics.convergent.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:fbc7445992e04ac16ac4374f0cff993268e4fd704d8816c9d3f27475e968a8fb",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    },
+    {
+      "obligation_id": "evidence.receipt_replay.design",
+      "evidence_id": "synthetic:evidence.receipt_replay.design:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:2b1c38b71d38c0cbcd1dd1cc2261678fc317eb5c8a0cb983968888a1f1282d39",
+      "artifacts": [
+        "architecture_descriptor",
+        "owner_attestation",
+        "policy_decision",
+        "design_verification"
+      ]
+    },
+    {
+      "obligation_id": "evidence.receipt_replay.operation",
+      "evidence_id": "synthetic:evidence.receipt_replay.operation:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:4475671538900bdfcc753c4f9637114920346efb5ad5ecdc9720f59025989b9b",
+      "artifacts": [
+        "operating_receipt",
+        "slo_evidence",
+        "control_effectiveness",
+        "recovery_evidence"
+      ]
+    },
+    {
+      "obligation_id": "evidence.receipt_replay.falsifier",
+      "evidence_id": "synthetic:evidence.receipt_replay.falsifier:v1",
+      "standing": "ALIVE",
+      "producer": "synthetic-evidence-manufacturer",
+      "approver": "synthetic-architecture-board",
+      "verifier": "synthetic-independent-verifier",
+      "observed_at": "synthetic-fortune5-proof-v1",
+      "digest": "blake3:f708a1869e51d1c395fc7ed43d3d3911f2f23ef7668ccb1ba062113dd4425b13",
+      "artifacts": [
+        "negative_fixture",
+        "refusal_receipt",
+        "independent_replay"
+      ]
+    }
+  ],
+  "synthetic": true
+}
