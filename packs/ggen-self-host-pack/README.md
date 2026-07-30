@@ -4,8 +4,10 @@ This pack makes the `ggen` repository a first-class consumer of its own manufact
 
 ```text
 exact Git tree
-→ deterministic read-only observation
-→ independent Git-object verification
+→ raw over-observation
+→ Git-object byte semantics
+→ live authority/load-path normalization
+→ independent verification
 → admitted RDF
 → ggen pack resolution + gates
 → repository census and authority ledgers
@@ -19,7 +21,11 @@ exact Git tree
 
 The observer is a deliberately small bootstrap kernel. It may read Git and tracked file bytes and may write only under `self-host/`. It cannot call cloud APIs, mutate Git, update trackers, or decide promotion standing.
 
-`observe_repository.py` contains the repository model. `observe_exact_tree.py` is the only supported executor: it binds symlinks and gitlinks to Git semantics and refuses ambient host-file traversal. `verify_observation.py` independently reconstructs the exact Git object set and verifies every observed byte and receipt binding.
+- `observe_repository.py` deliberately over-observes every tracked file, manifest, marker, and potential output.
+- `observe_exact_tree.py` binds symlinks and gitlinks to Git semantics and refuses ambient host-file traversal.
+- `normalize_observation.py` applies Chesterton's fence: archives, templates, fixtures, evidence, and dormant nested consumers remain visible but do not become live obligations merely because they contain generated text.
+- `observe_self_host.py` is the only supported executor and composes the three stages.
+- `verify_observation.py` independently reconstructs the exact Git object set and verifies every observed byte and receipt binding.
 
 All human-facing repository reports are self-host-pack projections. All implementation planning and automation are `gall-core-pack` projections. The observer emits facts once; there is no second handwritten backlog or Jira authority.
 
@@ -28,7 +34,7 @@ All human-facing repository reports are self-host-pack projections. All implemen
 ```bash
 cargo build -p ggen-cli-lib --bin ggen
 python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
-python3 self-host/scripts/observe_exact_tree.py
+python3 self-host/scripts/observe_self_host.py
 python3 self-host/scripts/verify_observation.py
 cd self-host
 ../target/debug/ggen sync run
@@ -44,7 +50,7 @@ bash scripts/gall/gall receipt verify
 
 Before observation, the seed ontology must be refused by `010_observation_complete.rq`. Planning mode may contain blocking findings and generates the complete Gall retrofit program. The automation profile is deliberately `PlanOnly` plus `HandoffOnly`; no coding agent, tracker, Git, or cloud mutation is authorized by this checkpoint.
 
-A crown is separately asserted only after the generated work items close, blocking findings reach zero, every generated output has one owner, and clean replay is independently recorded.
+A crown is separately asserted only after the generated work items close, blocking findings reach zero, every live generated output has one owner, and clean replay is independently recorded.
 
 ## What this first checkpoint changes
 
