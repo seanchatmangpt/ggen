@@ -69,6 +69,12 @@ def main() -> int:
     cargo_template = (PACK / "templates/Cargo.toml.tmpl").read_text(encoding="utf-8")
     refuse("\n[workspace]\n" not in cargo_template, "GENERATED_WORKSPACE_ISOLATION_MISSING")
 
+    main_template = (PACK / "templates/main.rs.tmpl").read_text(encoding="utf-8")
+    refuse(
+        "::{Broker, CmdError, validate_design};" not in main_template,
+        "RUSTFMT_STABLE_IMPORT_ORDER_MISSING",
+    )
+
     ontology = (PACK / "ontology.ttl").read_text(encoding="utf-8")
     for term in ("cmd:DesignSpace", "cmd:Candidate", "cmd:Broker", "cmd:ActuationContract", "cmd:Receipt"):
         refuse(term not in ontology, f"CONSTITUTIONAL_TERM_MISSING:{term}")
