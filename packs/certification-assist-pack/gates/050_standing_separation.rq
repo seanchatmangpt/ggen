@@ -1,0 +1,25 @@
+# Any row refuses sync: external certification cannot imply internal standing and promotion remains evidence-gated.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?subject ?problem
+WHERE {
+  {
+    ?subject a ca:CredentialProfile .
+    FILTER NOT EXISTS { ?subject ca:externalStanding ?standing }
+    BIND("missing-external-standing" AS ?problem)
+  }
+  UNION
+  {
+    ?profile a ca:AutonomicProfile ; ca:promotionRequiresEvidence ?required .
+    FILTER(?required != true)
+    BIND(?profile AS ?subject)
+    BIND("promotion-not-evidence-gated" AS ?problem)
+  }
+  UNION
+  {
+    ?tool a ca:ProtocolSurface ; ca:protocolName "propose-promotion" ; ca:requiresApproval ?approval .
+    FILTER(?approval != true)
+    BIND(?tool AS ?subject)
+    BIND("promotion-tool-not-human-approved" AS ?problem)
+  }
+}
