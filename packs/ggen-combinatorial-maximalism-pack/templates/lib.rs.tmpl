@@ -187,8 +187,7 @@ const PROOFS: &[ProofSpec] = &[
     root_path: {{ b.root_path | json_encode | safe }},
     receipt_algorithm: {{ b.receipt_algorithm | json_encode | safe }},
     replay_mode: {{ b.replay_mode | json_encode | safe }},
-};
-{% endfor %}
+};{% endfor %}
 
 {% for d in design %}const DESIGN: DesignSpec = DesignSpec {
     title: {{ d.title | json_encode | safe }},
@@ -201,8 +200,7 @@ const PROOFS: &[ProofSpec] = &[
     selections: SELECTIONS,
     proofs: PROOFS,
     broker: BROKER,
-};
-{% endfor %}
+};{% endfor %}
 
 #[derive(Debug)]
 pub struct CmdError {
@@ -266,15 +264,25 @@ fn selections(candidate: &str) -> Result<BTreeMap<&'static str, &'static str>> {
 
 pub fn validate_design() -> Result<()> {
     if DESIGN.dimensions.len() < 2 {
-        return refuse("INSUFFICIENT_DIMENSIONS", DESIGN.dimensions.len().to_string());
+        return refuse(
+            "INSUFFICIENT_DIMENSIONS",
+            DESIGN.dimensions.len().to_string(),
+        );
     }
     if DESIGN.candidates.is_empty() || DESIGN.candidates.len() > DESIGN.max_candidates {
-        return refuse("CANDIDATE_BOUND_VIOLATION", DESIGN.candidates.len().to_string());
+        return refuse(
+            "CANDIDATE_BOUND_VIOLATION",
+            DESIGN.candidates.len().to_string(),
+        );
     }
     if DESIGN.candidates.len() != DESIGN.expected_candidates {
         return refuse(
             "EXPECTED_CANDIDATE_COUNT_MISMATCH",
-            format!("{} != {}", DESIGN.candidates.len(), DESIGN.expected_candidates),
+            format!(
+                "{} != {}",
+                DESIGN.candidates.len(),
+                DESIGN.expected_candidates
+            ),
         );
     }
     if DESIGN.broker.receipt_algorithm != "blake3" {
@@ -372,11 +380,13 @@ pub fn validate_design() -> Result<()> {
 
     match DESIGN.coverage {
         CoverageMode::Exhaustive => {
-            let expected = options_by_dimension.values().try_fold(1usize, |total, options| {
-                total
-                    .checked_mul(options.len())
-                    .ok_or_else(|| CmdError::new("COMBINATION_COUNT_OVERFLOW", DESIGN.title))
-            })?;
+            let expected = options_by_dimension
+                .values()
+                .try_fold(1usize, |total, options| {
+                    total
+                        .checked_mul(options.len())
+                        .ok_or_else(|| CmdError::new("COMBINATION_COUNT_OVERFLOW", DESIGN.title))
+                })?;
             if expected != DESIGN.expected_candidates || signatures.len() != expected {
                 return refuse(
                     "EXHAUSTIVE_COVERAGE_REFUSED",
@@ -580,14 +590,15 @@ impl Broker {
             || envelope.receipt.design != DESIGN.title
             || envelope.receipt.broker != DESIGN.broker.name
         {
-            return refuse("RECEIPT_SUBJECT_MISMATCH", receipt_path.display().to_string());
+            return refuse(
+                "RECEIPT_SUBJECT_MISMATCH",
+                receipt_path.display().to_string(),
+            );
         }
         let transaction = receipt_path.parent().ok_or_else(|| {
             CmdError::new("RECEIPT_PARENT_MISSING", receipt_path.display().to_string())
         })?;
-        let output = transaction.join(safe_relative(
-            &envelope.receipt.output_relative_path,
-        )?);
+        let output = transaction.join(safe_relative(&envelope.receipt.output_relative_path)?);
         let output_bytes = fs::read(&output)
             .map_err(|error| CmdError::new("OUTPUT_READ_REFUSED", error.to_string()))?;
         let observed_output = blake3::hash(&output_bytes).to_hex().to_string();
