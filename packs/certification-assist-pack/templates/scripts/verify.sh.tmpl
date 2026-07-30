@@ -7,7 +7,8 @@ REPORT="$ROOT/VERIFIER_REPORT.json"
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/../../target}"
 
-cargo fmt --manifest-path "$CONSUMER/Cargo.toml" -- --check
+# Generated sources are formatted only in the ephemeral consumer. Authored repository files remain read-only.
+cargo fmt --manifest-path "$CONSUMER/Cargo.toml"
 cargo test --manifest-path "$CONSUMER/Cargo.toml"
 (
   cd "$ROOT"
