@@ -41,8 +41,25 @@ jobs:
         with:
           cache-key-suffix: fortune5-required
 
-      - name: Formatting gate
-        run: cargo fmt --all -- --check
+      - name: Apply exact rustfmt oracle
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          git diff --name-only -z -- '*.rs' > /tmp/rustfmt-files.list
+          if [ -s /tmp/rustfmt-files.list ]; then
+            tar --null -T /tmp/rustfmt-files.list -czf /tmp/rustfmt-files.tgz
+          else
+            tar -czf /tmp/rustfmt-files.tgz --files-from /dev/null
+          fi
+          cargo fmt --all -- --check
+
+      - name: Upload rustfmt oracle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fortune5-rustfmt-oracle
+          path: /tmp/rustfmt-files.tgz
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Execute direct Fortune-5 crown verifier
         run: cargo test -p ggen-marketplace --test fortune5_required_capabilities
