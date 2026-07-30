@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 import tomllib
@@ -19,6 +20,7 @@ EXPECTED_GATES = [
 ]
 EXPECTED_OUTPUTS = {
     "generated/lean/lean-toolchain",
+    "generated/lean/lake-manifest.json",
     "generated/lean/lakefile.lean",
     "generated/lean/Main.lean",
     "generated/PIPELINE.md",
@@ -60,6 +62,21 @@ def main() -> int:
         refuse(output in outputs, f"DUPLICATE_OUTPUT_OWNER:{output}")
         outputs[output] = template.name
     refuse(set(outputs) != EXPECTED_OUTPUTS, f"OUTPUT_SET_REFUSED:{sorted(outputs)}")
+
+    lake_manifest_template = (PACK / "templates/lake-manifest.json.tmpl").read_text(encoding="utf-8")
+    _, _, lake_manifest_body = lake_manifest_template.split("---", 2)
+    lake_manifest = json.loads(lake_manifest_body)
+    refuse(
+        lake_manifest
+        != {
+            "version": "1.1.0",
+            "packagesDir": ".lake/packages",
+            "packages": [],
+            "name": "Lean4RustPipeline",
+            "lakeDir": ".lake",
+        },
+        "LAKE_MANIFEST_CONTRACT_REFUSED",
+    )
 
     lean_template = (PACK / "templates/Main.lean.tmpl").read_text(encoding="utf-8")
     for forbidden in FORBIDDEN_LEAN:
