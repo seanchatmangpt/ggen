@@ -44,9 +44,6 @@ jobs:
               for line in embedded.splitlines()
           )
 
-          # One launcher fragment encoded Rust indentation through a Python
-          # triple-quoted string. Remove only that labeled transformation and
-          # apply its law below using syntax-oriented matching.
           fragment = re.compile(
               r"\nsync = replace_once\(\n    sync,\n    '''        else \{.*?"
               r"    'when-false target admission',\n\)\n",
@@ -89,20 +86,26 @@ jobs:
               raise SystemExit(f'when-false syntax patch count={changed}')
           sync_path.write_text(sync)
 
-          # Repair the generated test's expected-hash lifetime before rustc.
           test_path = Path('crates/ggen-engine/tests/frontmatter_fortune5_hardening_e2e.rs')
           test = test_path.read_text()
-          old_assert = '''    assert_eq!(
-              report.closure.get("shapes/policy.ttl").map(String::as_str),
-              Some(blake3::hash(shape).to_hex().to_string().as_str())
-          );
-          '''
-          new_assert = '''    let expected = blake3::hash(shape).to_hex().to_string();
-              assert_eq!(report.closure.get("shapes/policy.ttl"), Some(&expected));
-          '''
-          if test.count(old_assert) != 1:
-              raise SystemExit(f'shape hash assertion patch count={test.count(old_assert)}')
-          test_path.write_text(test.replace(old_assert, new_assert, 1))
+          shape_assert = re.compile(
+              r'(?ms)^(?P<i>[ \t]*)assert_eq!\(\s*'
+              r'report\.closure\.get\("shapes/policy\.ttl"\)\.map\(String::as_str\),\s*'
+              r'Some\(blake3::hash\(shape\)\.to_hex\(\)\.to_string\(\)\.as_str\(\)\)\s*'
+              r'\);'
+          )
+
+          def replace_shape_assert(match: re.Match[str]) -> str:
+              i = match.group('i')
+              return (
+                  f'{i}let expected = blake3::hash(shape).to_hex().to_string();\n'
+                  f'{i}assert_eq!(report.closure.get("shapes/policy.ttl"), Some(&expected));'
+              )
+
+          test, changed = shape_assert.subn(replace_shape_assert, test, count=1)
+          if changed != 1:
+              raise SystemExit(f'shape hash assertion syntax patch count={changed}')
+          test_path.write_text(test)
           PY
 
           cargo fmt --all
