@@ -18,7 +18,7 @@ env:
 jobs:
   replay-verified-repair:
     if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - name: Checkout exact head branch
