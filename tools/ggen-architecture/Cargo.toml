@@ -1,21 +1,25 @@
 [package]
-name = "ggen-architecture"
+name = "ggen-architecture-cli"
 version = "26.7.30"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
-description = "Executable enterprise architecture machinery, automation, and autonomic intent generation for ggen"
+description = "CLI and compatibility facade for the canonical ggen architecture kernel"
 publish = false
+workspace = "../../crates/ggen-architecture"
+
+[lib]
+name = "ggen_architecture"
+path = "src/lib.rs"
 
 [dependencies]
 blake3 = "1.5"
 clap = { version = "4.5", features = ["derive"] }
+ggen-architecture-kernel = { package = "ggen-architecture", path = "../../crates/ggen-architecture" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
-
-[workspace]
 
 [lints.rust]
 unsafe_code = "forbid"

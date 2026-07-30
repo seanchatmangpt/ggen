@@ -3,9 +3,12 @@ name: Fortune 5 Crown Normalize
 on:
   pull_request:
     paths:
+      - 'crates/ggen-architecture/src/building_block.rs'
+      - 'crates/ggen-architecture/src/canonical.rs'
       - 'tools/ggen-architecture/src/level5_crown.rs'
       - 'tools/ggen-architecture/src/lib.rs'
       - 'tools/ggen-architecture/src/bin/ggen-architecture.rs'
+      - 'tools/ggen-architecture/tests/building_block.rs'
       - '.github/workflows/fortune5-crown-normalize.yml'
 
 permissions:
@@ -33,24 +36,27 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Normalize exact crown source
+      - name: Normalize exact architecture workspace
         run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
 
       - name: Commit bounded normalized bytes
         run: |
           changed="$(git diff --name-only | sort)"
           if [ -z "$changed" ]; then
-            echo 'crown source already normalized'
+            echo 'architecture source already normalized'
             exit 0
           fi
           printf '%s\n' "$changed"
-          unexpected="$(printf '%s\n' "$changed" | grep -vE '^tools/ggen-architecture/src/(level5_crown\.rs|lib\.rs|bin/ggen-architecture\.rs)$' || true)"
+          unexpected="$(printf '%s\n' "$changed" | grep -vE '^(crates/ggen-architecture/src/(building_block|canonical)\.rs|tools/ggen-architecture/(src/(level5_crown\.rs|lib\.rs|bin/ggen-architecture\.rs)|tests/building_block\.rs))$' || true)"
           test -z "$unexpected"
-          git config user.name 'ggen crown formatter'
-          git config user.email 'ggen-crown@users.noreply.github.com'
+          git config user.name 'ggen architecture formatter'
+          git config user.email 'ggen-architecture@users.noreply.github.com'
           git add \
+            crates/ggen-architecture/src/building_block.rs \
+            crates/ggen-architecture/src/canonical.rs \
             tools/ggen-architecture/src/level5_crown.rs \
             tools/ggen-architecture/src/lib.rs \
-            tools/ggen-architecture/src/bin/ggen-architecture.rs
-          git commit -m 'style(architecture): apply pinned crown rustfmt'
+            tools/ggen-architecture/src/bin/ggen-architecture.rs \
+            tools/ggen-architecture/tests/building_block.rs
+          git commit -m 'style(architecture): apply pinned workspace rustfmt'
           git push origin "HEAD:${TARGET_BRANCH}"

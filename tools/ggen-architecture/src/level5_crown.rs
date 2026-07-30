@@ -268,7 +268,7 @@ impl TaxonomyProfileClosure {
             .map(|obligation| obligation.id.as_str())
             .collect();
         Self {
-            profile: catalog.profile,
+            profile: catalog.profile.clone(),
             dimensions: catalog.dimensions.len(),
             controls: control_ids.len(),
             obligations: obligations.len(),
@@ -527,6 +527,7 @@ mod tests {
                 .obligations()
                 .map(|obligation| ControlEvidence {
                     obligation_id: obligation.id.clone(),
+                    evidence_id: format!("evidence-{}", obligation.id),
                     standing: Standing::Alive,
                     producer: format!("producer-{}", obligation.id),
                     approver: format!("approver-{}", obligation.id),
