@@ -1,0 +1,32 @@
+# MESSAGE: Gall automation profile has ambiguous scalar authority -- each program must own exactly one profile and each profile scalar must have exactly one value
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?field ?count WHERE {
+  {
+    SELECT ?owner ("gall:hasAutomationProfile" AS ?field) (COUNT(?value) AS ?count) WHERE {
+      ?owner a gall:GallProgram ; gall:hasWorkItem ?workItem ; gall:hasAutomationProfile ?value .
+    }
+    GROUP BY ?owner
+    HAVING(COUNT(?value) != 1)
+  }
+  UNION
+  {
+    SELECT ?owner ?field (COUNT(?value) AS ?count) WHERE {
+      ?owner a gall:AutomationProfile .
+      VALUES ?property {
+        gall:automationProfileId
+        gall:trackerProvider
+        gall:executionMode
+        gall:agentMode
+        gall:maxParallelism
+        gall:branchPattern
+        gall:runtimeDirectory
+        gall:receiptDirectory
+      }
+      ?owner ?property ?value .
+      BIND(STR(?property) AS ?field)
+    }
+    GROUP BY ?owner ?field
+    HAVING(COUNT(?value) != 1)
+  }
+}
+ORDER BY ?owner ?field
