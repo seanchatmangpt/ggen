@@ -1,0 +1,8 @@
+# MESSAGE: Gall checkpointId is not projection-safe -- use an ASCII slug beginning with a letter and containing only letters, digits, underscore, or hyphen
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpoint ?checkpointId WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId .
+  FILTER(!REGEX(STR(?checkpointId), "^[A-Za-z][A-Za-z0-9_-]*$"))
+}
+ORDER BY ?checkpointId
