@@ -1,0 +1,23 @@
+# MESSAGE: every authorized candidate has exactly one actuation contract and every contract generates a receipt class witness; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:Candidate ; cmd:standing "VERIFIED" ; cmd:authorizedBy ?authority .
+    FILTER NOT EXISTS { ?actuation a cmd:ActuationContract ; cmd:fromCandidate ?subject }
+    BIND("authorized-candidate-without-actuation-contract" AS ?violation)
+    BIND(STR(?authority) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate .
+    ?left a cmd:ActuationContract ; cmd:fromCandidate ?subject .
+    ?right a cmd:ActuationContract ; cmd:fromCandidate ?subject .
+    FILTER(?left != ?right)
+    BIND("candidate-has-multiple-actuation-contracts" AS ?violation)
+    BIND(CONCAT(STR(?left), " | ", STR(?right)) AS ?detail)
+  } UNION {
+    ?subject a cmd:ActuationContract .
+    FILTER NOT EXISTS { ?subject cmd:producesReceipt ?receipt . ?receipt a cmd:Receipt }
+    BIND("actuation-receipt-witness-missing" AS ?violation)
+    BIND("contract must declare the receipt entity class it produces" AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

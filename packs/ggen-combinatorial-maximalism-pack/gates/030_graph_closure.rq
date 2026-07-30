@@ -1,0 +1,48 @@
+# MESSAGE: ownership and inverse links must close inside one admitted design space; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?design a cmd:DesignSpace ; cmd:hasDimension ?subject .
+    FILTER NOT EXISTS { ?subject a cmd:Dimension }
+    BIND("design-links-non-dimension" AS ?violation)
+    BIND(STR(?design) AS ?detail)
+  } UNION {
+    ?dimension a cmd:Dimension ; cmd:hasOption ?subject .
+    FILTER NOT EXISTS { ?subject a cmd:Option ; cmd:belongsToDimension ?dimension }
+    BIND("dimension-option-inverse-missing" AS ?violation)
+    BIND(STR(?dimension) AS ?detail)
+  } UNION {
+    ?subject a cmd:Option ; cmd:belongsToDimension ?dimension .
+    FILTER NOT EXISTS { ?dimension a cmd:Dimension ; cmd:hasOption ?subject }
+    BIND("option-dimension-inverse-missing" AS ?violation)
+    BIND(STR(?dimension) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?subject .
+    FILTER NOT EXISTS { ?subject a cmd:Candidate }
+    BIND("design-links-non-candidate" AS ?violation)
+    BIND(STR(?design) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?subject ; cmd:hasDimension ?dimension .
+    ?subject cmd:selectsOption ?option .
+    FILTER NOT EXISTS { ?dimension cmd:hasOption ?option }
+    FILTER NOT EXISTS {
+      ?design cmd:hasDimension ?other_dimension .
+      ?other_dimension cmd:hasOption ?option .
+    }
+    BIND("candidate-selects-option-outside-design" AS ?violation)
+    BIND(STR(?option) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasBroker ?subject .
+    FILTER NOT EXISTS { ?subject a cmd:Broker }
+    BIND("design-links-non-broker" AS ?violation)
+    BIND(STR(?design) AS ?detail)
+  } UNION {
+    ?subject a cmd:ActuationContract ; cmd:fromCandidate ?candidate ; cmd:throughBroker ?broker .
+    FILTER NOT EXISTS {
+      ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate ; cmd:hasBroker ?broker .
+    }
+    BIND("actuation-crosses-design-boundary" AS ?violation)
+    BIND(CONCAT(STR(?candidate), " via ", STR(?broker)) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

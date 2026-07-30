@@ -1,0 +1,17 @@
+# MESSAGE: CMD identity, bounds, standing, authority, broker, and actuation fields are single-valued; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation ?property ?left ?right WHERE {
+  VALUES ?property {
+    dcterms:title cmd:crateName cmd:binaryName cmd:version cmd:coverageMode
+    cmd:expectedCandidateCount cmd:maxCandidates cmd:name cmd:order
+    cmd:belongsToDimension cmd:reversible cmd:resourceCost cmd:standing
+    cmd:authorizedBy cmd:outputRelativePath cmd:proofId cmd:proofStatus
+    cmd:rootPath cmd:receiptAlgorithm cmd:replayMode cmd:fromCandidate
+    cmd:throughBroker cmd:receiptRequired
+  }
+  ?subject ?property ?left, ?right .
+  FILTER(?left != ?right)
+  BIND("single-valued-property-collision" AS ?violation)
+}
+ORDER BY ?subject ?property ?left ?right

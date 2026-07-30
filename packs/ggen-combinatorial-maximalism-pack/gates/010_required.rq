@@ -1,0 +1,77 @@
+# MESSAGE: every CMD object must carry the minimum fields required for deterministic manufacture; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a cmd:DesignSpace .
+    VALUES (?property ?violation) {
+      (dcterms:title "design-title-missing")
+      (cmd:crateName "crate-name-missing")
+      (cmd:binaryName "binary-name-missing")
+      (cmd:version "version-missing")
+      (cmd:coverageMode "coverage-mode-missing")
+      (cmd:expectedCandidateCount "expected-candidate-count-missing")
+      (cmd:maxCandidates "max-candidates-missing")
+      (cmd:hasDimension "design-dimension-missing")
+      (cmd:hasCandidate "design-candidate-missing")
+      (cmd:hasBroker "design-broker-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:Dimension .
+    VALUES (?property ?violation) {
+      (cmd:name "dimension-name-missing")
+      (cmd:order "dimension-order-missing")
+      (cmd:hasOption "dimension-option-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:Option .
+    VALUES (?property ?violation) {
+      (cmd:name "option-name-missing")
+      (cmd:belongsToDimension "option-dimension-missing")
+      (cmd:reversible "option-reversibility-missing")
+      (cmd:resourceCost "option-resource-cost-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:Candidate .
+    VALUES (?property ?violation) {
+      (cmd:name "candidate-name-missing")
+      (cmd:standing "candidate-standing-missing")
+      (cmd:selectsOption "candidate-selection-missing")
+      (cmd:outputRelativePath "candidate-output-path-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:ProofObligation .
+    VALUES (?property ?violation) {
+      (cmd:proofId "proof-id-missing")
+      (cmd:proofStatus "proof-status-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:Broker .
+    VALUES (?property ?violation) {
+      (cmd:name "broker-name-missing")
+      (cmd:rootPath "broker-root-missing")
+      (cmd:receiptAlgorithm "receipt-algorithm-missing")
+      (cmd:replayMode "replay-mode-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:ActuationContract .
+    VALUES (?property ?violation) {
+      (cmd:name "actuation-name-missing")
+      (cmd:fromCandidate "actuation-candidate-missing")
+      (cmd:throughBroker "actuation-broker-missing")
+      (cmd:receiptRequired "actuation-receipt-policy-missing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  } UNION {
+    ?subject a cmd:IntentHook .
+    FILTER NOT EXISTS { ?subject cmd:emitsIntent ?intent }
+    BIND("intent-hook-output-missing" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

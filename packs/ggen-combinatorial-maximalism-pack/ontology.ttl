@@ -1,0 +1,112 @@
+# Design for Combinatorial Maximalism (CMD) constitutional vocabulary.
+#
+# This graph defines law only. It contains no consumer DesignSpace, Candidate,
+# Broker, ActuationContract, ProofObligation, or IntentHook individuals.
+# Consumer graphs provide those admitted observations; pack gates refuse any
+# graph that collapses reversible construction into irreversible actuation.
+
+@prefix cmd:     <https://chatmangpt.com/ontology/cmd#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Core constitutional objects ──────────────────────────────────────────────
+
+cmd:DesignSpace a rdfs:Class ;
+    rdfs:subClassOf dcat:Dataset ;
+    rdfs:label "CMD design space" ;
+    rdfs:comment "A bounded graph-domain space of reversible options and admitted candidates." .
+
+cmd:Dimension a rdfs:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "construction dimension" .
+
+cmd:Option a rdfs:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "reversible construction option" .
+
+cmd:Candidate a rdfs:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "candidate construction" ;
+    rdfs:comment "A reversible graph-domain construction. Candidate is not verified, authorized, or actuated." .
+
+cmd:ProofObligation a rdfs:Class ;
+    rdfs:subClassOf odrl:Duty ;
+    rdfs:label "proof obligation" .
+
+cmd:Broker a rdfs:Class ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:label "receipted actuation broker" .
+
+cmd:ActuationContract a rdfs:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "bounded actuation contract" .
+
+cmd:Intent a rdfs:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "manufactured intent" .
+
+cmd:IntentHook a rdfs:Class ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:label "intent-only hook" .
+
+cmd:Receipt a rdfs:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "actuation receipt" .
+
+# ── Design-space properties ──────────────────────────────────────────────────
+
+cmd:crateName a rdf:Property ; rdfs:subPropertyOf dcterms:identifier ; rdfs:range xsd:string .
+cmd:binaryName a rdf:Property ; rdfs:subPropertyOf dcterms:identifier ; rdfs:range xsd:string .
+cmd:version a rdf:Property ; rdfs:subPropertyOf dcterms:hasVersion ; rdfs:range xsd:string .
+cmd:coverageMode a rdf:Property ; rdfs:subPropertyOf dcterms:type ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: exhaustive, pairwise." .
+cmd:expectedCandidateCount a rdf:Property ; rdfs:subPropertyOf dcterms:extent ; rdfs:range xsd:integer .
+cmd:maxCandidates a rdf:Property ; rdfs:subPropertyOf dcterms:extent ; rdfs:range xsd:integer .
+cmd:hasDimension a rdf:Property ; rdfs:subPropertyOf dcterms:hasPart ; rdfs:range cmd:Dimension .
+cmd:hasCandidate a rdf:Property ; rdfs:subPropertyOf dcterms:hasPart ; rdfs:range cmd:Candidate .
+cmd:hasBroker a rdf:Property ; rdfs:subPropertyOf prov:wasAttributedTo ; rdfs:range cmd:Broker .
+
+# ── Dimension and option properties ──────────────────────────────────────────
+
+cmd:name a rdf:Property ; rdfs:subPropertyOf skos:prefLabel ; rdfs:range xsd:string .
+cmd:order a rdf:Property ; rdfs:subPropertyOf skos:notation ; rdfs:range xsd:integer .
+cmd:hasOption a rdf:Property ; rdfs:subPropertyOf skos:narrower ; rdfs:range cmd:Option .
+cmd:belongsToDimension a rdf:Property ; rdfs:subPropertyOf skos:broader ; rdfs:range cmd:Dimension .
+cmd:reversible a rdf:Property ; rdfs:subPropertyOf dcterms:type ; rdfs:range xsd:boolean .
+cmd:resourceCost a rdf:Property ; rdfs:subPropertyOf dcterms:extent ; rdfs:range xsd:decimal .
+
+# ── Candidate and proof properties ───────────────────────────────────────────
+
+cmd:selectsOption a rdf:Property ; rdfs:subPropertyOf dcterms:hasPart ; rdfs:range cmd:Option .
+cmd:standing a rdf:Property ; rdfs:subPropertyOf dcterms:type ; rdfs:range xsd:string ;
+    rdfs:comment "Closed construction set: CANDIDATE, VERIFIED. ACTUATED is runtime receipt standing only." .
+cmd:authorizedBy a rdf:Property ; rdfs:subPropertyOf prov:wasAttributedTo ; rdfs:range xsd:string .
+cmd:outputRelativePath a rdf:Property ; rdfs:subPropertyOf dcterms:identifier ; rdfs:range xsd:string .
+cmd:requiresProof a rdf:Property ; rdfs:subPropertyOf odrl:obligation ; rdfs:range cmd:ProofObligation .
+cmd:proofId a rdf:Property ; rdfs:subPropertyOf dcterms:identifier ; rdfs:range xsd:string .
+cmd:proofStatus a rdf:Property ; rdfs:subPropertyOf dcterms:type ; rdfs:range xsd:string ;
+    rdfs:comment "Closed set: SATISFIED, UNSATISFIED, UNKNOWN." .
+
+# ── Broker and actuation properties ──────────────────────────────────────────
+
+cmd:rootPath a rdf:Property ; rdfs:subPropertyOf dcterms:spatial ; rdfs:range xsd:string .
+cmd:receiptAlgorithm a rdf:Property ; rdfs:subPropertyOf dcterms:conformsTo ; rdfs:range xsd:string ;
+    rdfs:comment "Current executable profile requires blake3." .
+cmd:replayMode a rdf:Property ; rdfs:subPropertyOf dcterms:type ; rdfs:range xsd:string ;
+    rdfs:comment "Current executable profile requires exact-output." .
+cmd:fromCandidate a rdf:Property ; rdfs:subPropertyOf prov:used ; rdfs:range cmd:Candidate .
+cmd:throughBroker a rdf:Property ; rdfs:subPropertyOf prov:wasAssociatedWith ; rdfs:range cmd:Broker .
+cmd:receiptRequired a rdf:Property ; rdfs:subPropertyOf odrl:constraint ; rdfs:range xsd:boolean .
+cmd:producesReceipt a rdf:Property ; rdfs:subPropertyOf prov:generated ; rdfs:range cmd:Receipt .
+
+# ── Hook boundary ─────────────────────────────────────────────────────────────
+
+cmd:emitsIntent a rdf:Property ; rdfs:subPropertyOf prov:generated ; rdfs:range cmd:Intent .
+cmd:directlyActuates a rdf:Property ; rdfs:subPropertyOf prov:wasAssociatedWith ; rdfs:range cmd:ActuationContract ;
+    rdfs:comment "Forbidden for every IntentHook. Present only so the gate can name and refuse the collapse." .

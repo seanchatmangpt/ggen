@@ -1,0 +1,27 @@
+# MESSAGE: proof obligations are closed, typed, and cannot silently collapse UNKNOWN or UNSATISFIED into verification; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:ProofObligation ; cmd:proofStatus ?status .
+    FILTER(STR(?status) NOT IN ("SATISFIED", "UNSATISFIED", "UNKNOWN"))
+    BIND("unsupported-proof-status" AS ?violation)
+    BIND(STR(?status) AS ?detail)
+  } UNION {
+    ?candidate a cmd:Candidate ; cmd:requiresProof ?subject .
+    FILTER NOT EXISTS { ?subject a cmd:ProofObligation }
+    BIND("candidate-links-non-proof" AS ?violation)
+    BIND(STR(?candidate) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:standing "VERIFIED" ; cmd:requiresProof ?proof .
+    ?proof cmd:proofStatus ?status .
+    FILTER(STR(?status) != "SATISFIED")
+    BIND("verified-candidate-retains-non-satisfied-proof" AS ?violation)
+    BIND(CONCAT(STR(?proof), " = ", STR(?status)) AS ?detail)
+  } UNION {
+    ?subject a cmd:ProofObligation .
+    FILTER NOT EXISTS { ?candidate a cmd:Candidate ; cmd:requiresProof ?subject }
+    BIND("orphan-proof-obligation" AS ?violation)
+    BIND("proof must belong to an admitted candidate" AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation
