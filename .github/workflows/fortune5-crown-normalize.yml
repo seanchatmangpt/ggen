@@ -36,19 +36,6 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Repair exact GBB falsifier fixture
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path('crates/ggen-architecture/src/building_block.rs')
-          source = path.read_text()
-          old = 'None => return,'
-          new = 'None => unreachable!("sample block must contain its source realization"),'
-          assert source.count(old) == 1, 'unexpected silent-return cardinality'
-          path.write_text(source.replace(old, new))
-          PY
-
       - name: Normalize exact architecture workspace
         run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
 
@@ -71,5 +58,5 @@ jobs:
             tools/ggen-architecture/src/lib.rs \
             tools/ggen-architecture/src/bin/ggen-architecture.rs \
             tools/ggen-architecture/tests/building_block.rs
-          git commit -m 'test(architecture): make substitution falsifier fail loud'
+          git commit -m 'style(architecture): apply pinned workspace rustfmt'
           git push origin "HEAD:${TARGET_BRANCH}"
