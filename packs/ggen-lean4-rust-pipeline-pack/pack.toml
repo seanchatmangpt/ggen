@@ -1,4 +1,4 @@
 [pack]
 name = "ggen-lean4-rust-pipeline-pack"
-version = "0.1.0"
-description = "Manufactures a Lean 4 proof-and-emitter program from RDF. The Lean kernel admits a bounded-successor theorem bundle before the executable may emit a Rust crate. The Rust product compiles, executes, and binds its runtime receipt to the Lean proof receipt with BLAKE3."
+version = "0.2.0"
+description = "Manufactures an independently checkable Lean 4 proof library and emitter from RDF. Lean admits a bounded-successor cell plus a Fortune 5 deployment policy covering R1/W1/C1 SLOs, promotion rollback, multi-region quorum and receipt synchronization, SPIFFE/mTLS/KMS controls, and OTEL alerts before emitting a Rust evaluator, SLO probe, and cryptographic receipt verifier."
