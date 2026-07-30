@@ -10,6 +10,7 @@ cd "$(dirname "$0")/../.."
 CONTROL=(python3 scripts/gall/control_plane.py)
 TRACKER=(python3 scripts/gall/tracker_sync.py)
 RECEIPTS=(python3 scripts/gall/verify_automation_receipts.py)
+SNAPSHOT=(python3 scripts/gall/snapshot_work_evidence.py)
 
 usage() {
   cat <<'EOF'
@@ -57,6 +58,12 @@ Path(sys.argv[1]).write_text("".join(f"{row['Work Item ID']}\n" for row in rows)
 PY
 }
 
+verify_and_snapshot() {
+  local work_item="$1"
+  "${CONTROL[@]}" verify "$work_item"
+  "${SNAPSHOT[@]}" "$work_item"
+}
+
 noun="${1:-}"
 verb="${2:-}"
 case "$noun:$verb" in
@@ -70,7 +77,8 @@ case "$noun:$verb" in
     python3 -m py_compile \
       scripts/gall/control_plane.py \
       scripts/gall/tracker_sync.py \
-      scripts/gall/verify_automation_receipts.py
+      scripts/gall/verify_automation_receipts.py \
+      scripts/gall/snapshot_work_evidence.py
     bash -n scripts/gall/run-checkpoints.sh scripts/gall/gall
     test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv
     test -s automation/schemas/gall-automation-receipt.schema.json
@@ -110,7 +118,7 @@ case "$noun:$verb" in
     ;;
   work:verify)
     shift 2
-    "${CONTROL[@]}" verify "$@"
+    verify_and_snapshot "$1"
     ;;
   work:complete)
     shift 2
@@ -123,7 +131,7 @@ case "$noun:$verb" in
     failures=0
     while IFS= read -r work_item; do
       [ -n "$work_item" ] || continue
-      if "${CONTROL[@]}" verify "$work_item"; then
+      if verify_and_snapshot "$work_item"; then
         "${CONTROL[@]}" complete "$work_item"
       else
         failures=$((failures + 1))
@@ -158,7 +166,7 @@ case "$noun:$verb" in
     all_work_file "$file"
     while IFS= read -r work_item; do
       [ -n "$work_item" ] || continue
-      "${CONTROL[@]}" verify "$work_item"
+      verify_and_snapshot "$work_item"
       "${CONTROL[@]}" complete "$work_item"
     done <"$file"
     "${CONTROL[@]}" crown
