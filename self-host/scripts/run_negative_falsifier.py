@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass only when a tampered observation is independently refused."""
+"""Pass only when a tampered normalized observation is independently refused."""
 from __future__ import annotations
 
 import json
@@ -14,7 +14,7 @@ OBSERVATION = ROOT / "self-host" / "observed" / "repository.json"
 
 def main() -> int:
     subprocess.run(
-        [sys.executable, str(SCRIPTS / "observe_exact_tree.py"), "--root", str(ROOT)],
+        [sys.executable, str(SCRIPTS / "observe_self_host.py"), "--root", str(ROOT)],
         cwd=ROOT,
         check=True,
     )
