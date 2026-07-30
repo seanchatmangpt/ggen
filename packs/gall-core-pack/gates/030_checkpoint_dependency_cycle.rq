@@ -1,0 +1,8 @@
+# MESSAGE: Gall checkpoint dependency graph contains a cycle -- checkpoints must form a directed acyclic proof-dependency graph
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpoint ?checkpointId WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId ;
+              gall:requiresCheckpoint+ ?checkpoint .
+}
+ORDER BY ?checkpointId
