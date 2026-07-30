@@ -1,11 +1,22 @@
-# MESSAGE: Fortune 5 architecture contract is incomplete -- every program, asset, capability, and region must carry accountable identity, ownership, lifecycle, and deployment facts
+# MESSAGE: Fortune 5 architecture contract is incomplete -- every program, asset, capability, and region must carry accountable identity, ownership, lifecycle, improvement, interoperability, and deployment facts
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX f5:  <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
 SELECT ?subject ?kind ?missing WHERE {
   {
     ?subject a f5:EnterpriseArchitectureProgram .
     BIND("program" AS ?kind)
-    VALUES ?property { f5:programId f5:releaseIdentity f5:hasAsset f5:hasCapability f5:hasRegion f5:hasPromotionGate f5:hasAutonomicPolicy }
+    VALUES ?property {
+      f5:programId
+      f5:releaseIdentity
+      f5:hasAsset
+      f5:hasCapability
+      f5:hasRegion
+      f5:hasPromotionGate
+      f5:hasAutonomicPolicy
+      f5:hasDflssProgram
+      f5:hasWorkflowEngineAdapter
+      f5:hasWorkflowPatternEvidence
+    }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(STR(?property) AS ?missing)
   }
