@@ -1,0 +1,62 @@
+name: Agent Frontmatter Maximalism PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  implement-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Execute the bound patch program
+        shell: bash
+        run: |
+          sed -n "/python3 <<'PY'/,/^          PY$/p" \
+            .github/workflows/agent-frontmatter-maximalism.yml \
+            | sed '1d;$d;s/^          //' > /tmp/apply-frontmatter-maximalism.py
+          python3 /tmp/apply-frontmatter-maximalism.py
+
+      - name: Format and statically verify the diff
+        shell: bash
+        run: |
+          rustup component add rustfmt
+          cargo fmt --all
+          cargo fmt --all -- --check
+          git diff --check
+          if git diff -- '*.rs' '*.md' '*.ttl' | grep -E '^\+.*\b(TODO|FIXME)\b'; then
+            echo 'Forbidden placeholder introduced'
+            exit 1
+          fi
+
+      - name: Run narrow real-boundary verifier
+        shell: bash
+        run: |
+          cargo test -p ggen-engine \
+            --test frontmatter_maximalism_e2e \
+            --test frontmatter_schema_match \
+            --test frontmatter_fields_e2e
+
+      - name: Commit verified implementation
+        shell: bash
+        run: |
+          rm .github/workflows/agent-frontmatter-maximalism.yml
+          rm .github/workflows/agent-frontmatter-maximalism-pr.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crates/ggen-engine/src/sync.rs \
+                  crates/ggen-engine/schema/frontmatter-schema.ttl \
+                  crates/ggen-engine/tests/frontmatter_maximalism_e2e.rs \
+                  docs/reference/frontmatter-maximalism.md \
+                  .github/workflows/agent-frontmatter-maximalism.yml \
+                  .github/workflows/agent-frontmatter-maximalism-pr.yml
+          git commit -m "feat(engine): maximize frontmatter projections"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
