@@ -8,13 +8,14 @@ use std::process::ExitCode;
 use ggen_architecture::{verify_suite, SelfPlayManifest, SelfPlayReport};
 
 fn main() -> ExitCode {
-    let manifest: SelfPlayManifest = match serde_json::from_str(include_str!("../../scenarios.json")) {
-        Ok(value) => value,
-        Err(error) => {
-            eprintln!("MANIFEST_PARSE_REFUSED:{error}");
-            return ExitCode::from(2);
-        }
-    };
+    let manifest: SelfPlayManifest =
+        match serde_json::from_str(include_str!("../../scenarios.json")) {
+            Ok(value) => value,
+            Err(error) => {
+                eprintln!("MANIFEST_PARSE_REFUSED:{error}");
+                return ExitCode::from(2);
+            }
+        };
     let scenarios = match manifest.compile() {
         Ok(value) => value,
         Err(error) => {
@@ -39,7 +40,10 @@ fn main() -> ExitCode {
             println!(
                 "SELF_PLAY_VERIFIED scenarios={} receipts={} actuation_performed=false",
                 reports.len(),
-                reports.iter().map(|report| report.receipts.len()).sum::<usize>()
+                reports
+                    .iter()
+                    .map(|report| report.receipts.len())
+                    .sum::<usize>()
             );
             ExitCode::SUCCESS
         }
