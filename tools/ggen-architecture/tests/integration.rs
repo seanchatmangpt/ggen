@@ -1,3 +1,5 @@
+//! Integration proofs for lifecycle, impact, capacity, receipts, and zero actuation.
+
 use std::{collections::BTreeMap, error::Error};
 
 use ggen_architecture::{
