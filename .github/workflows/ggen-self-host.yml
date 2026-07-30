@@ -1,0 +1,101 @@
+name: ggen Self-Host Retrofit
+
+on:
+  pull_request:
+    paths:
+      - "self-host/**"
+      - "packs/ggen-self-host-pack/**"
+      - ".github/workflows/ggen-self-host.yml"
+      - "Cargo.toml"
+      - "ggen.toml"
+      - "crates/**"
+      - "packs/**"
+      - ".specify/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ggen-self-host-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  observe-manufacture-falsify-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision pinned ggen build
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Prove seed fails closed before observation
+        run: |
+          cargo build -p ggen-cli-lib --bin ggen
+          set +e
+          (cd self-host && ../target/debug/ggen sync run) >/tmp/pre-observation.out 2>/tmp/pre-observation.err
+          code=$?
+          set -e
+          test "$code" -ne 0
+          grep -q "GGEN_SELF_HOST_OBSERVATION_INCOMPLETE" /tmp/pre-observation.err
+
+      - name: Execute observer unit witnesses and falsifiers
+        run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
+
+      - name: Observe the exact Git tree
+        run: python3 self-host/scripts/observe_repository.py
+
+      - name: Manufacture self-hosting consequences
+        run: |
+          cd self-host
+          ../target/debug/ggen sync run
+          ../target/debug/ggen receipt verify
+          test -s generated/REPOSITORY_CENSUS.md
+          test -s generated/AUTHORITY_MAP.md
+          test -s generated/LOAD_PATHS.md
+          test -s generated/OUTPUT_OWNERSHIP.md
+          test -s generated/RETROFIT_BACKLOG.md
+          test -s generated/GGEN_SELF_HOST_JIRA.csv
+          test -s generated/SELF_HOST_CROWN.md
+          grep -q "$(git -C .. rev-parse HEAD)" generated/REPOSITORY_CENSUS.md
+          grep -q "PARTIAL_ALIVE" generated/SELF_HOST_CROWN.md
+
+      - name: Prove second manufacture is byte-identical
+        run: |
+          find self-host/generated self-host/observed self-host/ontology.ttl -type f -print0 \
+            | sort -z | xargs -0 sha256sum > /tmp/self-host-first.sha256
+          (cd self-host && ../target/debug/ggen sync run && ../target/debug/ggen receipt verify)
+          find self-host/generated self-host/observed self-host/ontology.ttl -type f -print0 \
+            | sort -z | xargs -0 sha256sum > /tmp/self-host-second.sha256
+          diff -u /tmp/self-host-first.sha256 /tmp/self-host-second.sha256
+
+      - name: Refuse incomplete observed RDF
+        run: |
+          cp self-host/ontology.ttl /tmp/self-host-ontology.ttl
+          sed -i '/gsh:observationDigest/d' self-host/ontology.ttl
+          set +e
+          (cd self-host && ../target/debug/ggen sync run) >/tmp/sabotage.out 2>/tmp/sabotage.err
+          code=$?
+          set -e
+          mv /tmp/self-host-ontology.ttl self-host/ontology.ttl
+          test "$code" -ne 0
+          grep -q "GGEN_SELF_HOST_OBSERVATION_INCOMPLETE" /tmp/sabotage.err
+
+      - name: Prove observer is read-only outside self-host
+        run: |
+          git diff --exit-code -- . ':(exclude)self-host/ontology.ttl' ':(exclude)self-host/observed/**' ':(exclude)self-host/generated/**' ':(exclude)self-host/.ggen-v2/**'
+          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py
+
+      - name: Upload observation and generated work package
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-self-host-${{ github.sha }}
+          path: |
+            self-host/observed
+            self-host/generated
+            self-host/.ggen-v2
+          if-no-files-found: error
