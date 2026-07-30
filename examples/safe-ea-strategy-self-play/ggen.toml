@@ -1,0 +1,14 @@
+[project]
+name = "safe-ea-strategy-self-play"
+
+[ontology]
+source = "ontology.ttl"
+
+[packs]
+safe-ea-strategy-self-play-pack = { path = "../../packs/safe-ea-strategy-self-play-pack" }
+
+[templates]
+dir = "templates"
+
+[law]
+reflexive = true

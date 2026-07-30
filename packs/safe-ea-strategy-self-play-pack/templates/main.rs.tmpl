@@ -1,0 +1,52 @@
+---
+to: generated/src/main.rs
+force: true
+---
+use std::process::ExitCode;
+
+use ggen_architecture::{run_suite, verify_suite, SelfPlayManifest, SelfPlayStanding};
+
+fn main() -> ExitCode {
+    let manifest: SelfPlayManifest = match serde_json::from_str(include_str!("../scenarios.json")) {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("MANIFEST_PARSE_REFUSED:{error}");
+            return ExitCode::from(2);
+        }
+    };
+    let scenarios = match manifest.compile() {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("MANIFEST_ADMISSION_REFUSED:{error}");
+            return ExitCode::from(3);
+        }
+    };
+    let reports = match run_suite(&scenarios) {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("SELF_PLAY_EXECUTION_REFUSED:{error}");
+            return ExitCode::from(4);
+        }
+    };
+    if let Err(error) = verify_suite(&scenarios, &reports) {
+        eprintln!("SELF_PLAY_REPLAY_REFUSED:{error}");
+        return ExitCode::from(5);
+    }
+    if reports
+        .iter()
+        .any(|report| report.standing != SelfPlayStanding::Alive)
+    {
+        eprintln!("SELF_PLAY_GOAL_CLOSURE_REFUSED");
+        return ExitCode::from(6);
+    }
+    match serde_json::to_string_pretty(&reports) {
+        Ok(json) => {
+            println!("{json}");
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            eprintln!("REPORT_SERIALIZATION_REFUSED:{error}");
+            ExitCode::from(7)
+        }
+    }
+}

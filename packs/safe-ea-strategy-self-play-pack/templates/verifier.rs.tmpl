@@ -1,0 +1,51 @@
+---
+to: generated/src/bin/verifier.rs
+force: true
+---
+use std::io::{self, Read};
+use std::process::ExitCode;
+
+use ggen_architecture::{verify_suite, SelfPlayManifest, SelfPlayReport};
+
+fn main() -> ExitCode {
+    let manifest: SelfPlayManifest = match serde_json::from_str(include_str!("../../scenarios.json")) {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("MANIFEST_PARSE_REFUSED:{error}");
+            return ExitCode::from(2);
+        }
+    };
+    let scenarios = match manifest.compile() {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("MANIFEST_ADMISSION_REFUSED:{error}");
+            return ExitCode::from(3);
+        }
+    };
+    let mut input = String::new();
+    if let Err(error) = io::stdin().read_to_string(&mut input) {
+        eprintln!("REPORT_READ_REFUSED:{error}");
+        return ExitCode::from(4);
+    }
+    let reports: Vec<SelfPlayReport> = match serde_json::from_str(&input) {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("REPORT_PARSE_REFUSED:{error}");
+            return ExitCode::from(5);
+        }
+    };
+    match verify_suite(&scenarios, &reports) {
+        Ok(()) => {
+            println!(
+                "SELF_PLAY_VERIFIED scenarios={} receipts={} actuation_performed=false",
+                reports.len(),
+                reports.iter().map(|report| report.receipts.len()).sum::<usize>()
+            );
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            eprintln!("SELF_PLAY_VERIFICATION_REFUSED:{error}");
+            ExitCode::from(6)
+        }
+    }
+}

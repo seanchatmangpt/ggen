@@ -1,0 +1,23 @@
+---
+to: generated/Cargo.toml
+force: true
+---
+[package]
+name = "ea-strategy-self-play"
+version = "26.7.30"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "ea-self-play"
+path = "src/main.rs"
+
+[[bin]]
+name = "ea-self-play-verifier"
+path = "src/bin/verifier.rs"
+
+[workspace]
+
+[dependencies]
+ggen-architecture = { path = "../../../crates/ggen-architecture" }
+serde_json = "1.0"

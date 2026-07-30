@@ -1,0 +1,148 @@
+---
+to: generated/scenarios.json
+force: true
+sparql:
+  program: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?programId WHERE {
+      ?program a sp:SelfPlayProgram ; sp:programId ?programId .
+    } ORDER BY ?programId
+  scenarios: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?maxRounds WHERE {
+      ?program a sp:SelfPlayProgram ; sp:hasScenario ?scenario .
+      ?scenario sp:scenarioId ?scenarioId ; sp:maxRounds ?maxRounds .
+    } ORDER BY ?scenarioId
+  scenario_use_cases: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?useCase WHERE {
+      ?program a sp:SelfPlayProgram ; sp:hasScenario ?scenario .
+      ?scenario sp:scenarioId ?scenarioId ; sp:coversUseCase ?useCaseNode .
+      ?useCaseNode sp:code ?useCase .
+    } ORDER BY ?scenarioId ?useCase
+  initial_metrics: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?metric ?value WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasInitialMetric ?row .
+      ?row sp:metric ?metricNode ; sp:value ?value .
+      ?metricNode sp:code ?metric .
+    } ORDER BY ?scenarioId ?metric
+  policies: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actor ?minimumUtility WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasPolicy ?policy .
+      ?policy sp:actorRole ?actorNode ; sp:minimumUtility ?minimumUtility .
+      ?actorNode sp:code ?actor .
+    } ORDER BY ?scenarioId ?actor
+  policy_weights: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actor ?metric ?weight WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasPolicy ?policy .
+      ?policy sp:actorRole ?actorNode ; sp:hasWeight ?row .
+      ?actorNode sp:code ?actor .
+      ?row sp:metric ?metricNode ; sp:weight ?weight .
+      ?metricNode sp:code ?metric .
+    } ORDER BY ?scenarioId ?actor ?metric
+  policy_authorities: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actor ?authority WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasPolicy ?policy .
+      ?policy sp:actorRole ?actorNode ; sp:authorityToken ?authority .
+      ?actorNode sp:code ?actor .
+    } ORDER BY ?scenarioId ?actor ?authority
+  actions: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actionId ?actor ?choiceGroup ?brokerIntent WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasAction ?action .
+      ?action sp:actionId ?actionId ; sp:actorRole ?actorNode ;
+              sp:choiceGroup ?choiceGroup ; sp:brokerIntent ?brokerIntent .
+      ?actorNode sp:code ?actor .
+    } ORDER BY ?scenarioId ?actionId
+  guards: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actionId ?metric ?comparison ?threshold WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasAction ?action .
+      ?action sp:actionId ?actionId ; sp:hasGuard ?guard .
+      ?guard sp:metric ?metricNode ; sp:comparison ?comparisonNode ; sp:threshold ?threshold .
+      ?metricNode sp:code ?metric .
+      ?comparisonNode sp:code ?comparison .
+    } ORDER BY ?scenarioId ?actionId ?metric
+  effects: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actionId ?metric ?delta WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasAction ?action .
+      ?action sp:actionId ?actionId ; sp:hasEffect ?effect .
+      ?effect sp:metric ?metricNode ; sp:delta ?delta .
+      ?metricNode sp:code ?metric .
+    } ORDER BY ?scenarioId ?actionId ?metric
+  action_authorities: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actionId ?authority WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasAction ?action .
+      ?action sp:actionId ?actionId ; sp:requiresAuthority ?authority .
+    } ORDER BY ?scenarioId ?actionId ?authority
+  action_evidence: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?actionId ?evidence WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasAction ?action .
+      ?action sp:actionId ?actionId ; sp:hasEvidence ?evidence .
+    } ORDER BY ?scenarioId ?actionId ?evidence
+  invariants: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?metric ?comparison ?threshold WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasInvariant ?constraint .
+      ?constraint sp:metric ?metricNode ; sp:comparison ?comparisonNode ; sp:threshold ?threshold .
+      ?metricNode sp:code ?metric .
+      ?comparisonNode sp:code ?comparison .
+    } ORDER BY ?scenarioId ?metric ?comparison ?threshold
+  goals: |
+    PREFIX sp: <https://ggen.dev/ontology/self-play#>
+    SELECT ?scenarioId ?metric ?comparison ?threshold WHERE {
+      ?scenario a sp:Scenario ; sp:scenarioId ?scenarioId ; sp:hasGoal ?constraint .
+      ?constraint sp:metric ?metricNode ; sp:comparison ?comparisonNode ; sp:threshold ?threshold .
+      ?metricNode sp:code ?metric .
+      ?comparisonNode sp:code ?comparison .
+    } ORDER BY ?scenarioId ?metric
+---
+{
+  "program_id": "{% for row in program %}{{ row.programId }}{% endfor %}",
+  "scenarios": [
+{% for row in scenarios %}    {"id":"{{ row.scenarioId }}","max_rounds":{{ row.maxRounds }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "scenario_use_cases": [
+{% for row in scenario_use_cases %}    {"scenario_id":"{{ row.scenarioId }}","use_case":"{{ row.useCase }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "initial_metrics": [
+{% for row in initial_metrics %}    {"scenario_id":"{{ row.scenarioId }}","metric":"{{ row.metric }}","value":{{ row.value }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "policies": [
+{% for row in policies %}    {"scenario_id":"{{ row.scenarioId }}","actor":"{{ row.actor }}","minimum_utility":{{ row.minimumUtility }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "policy_weights": [
+{% for row in policy_weights %}    {"scenario_id":"{{ row.scenarioId }}","actor":"{{ row.actor }}","metric":"{{ row.metric }}","weight":{{ row.weight }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "policy_authorities": [
+{% for row in policy_authorities %}    {"scenario_id":"{{ row.scenarioId }}","actor":"{{ row.actor }}","authority":"{{ row.authority }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "actions": [
+{% for row in actions %}    {"scenario_id":"{{ row.scenarioId }}","id":"{{ row.actionId }}","actor":"{{ row.actor }}","choice_group":"{{ row.choiceGroup }}","broker_intent":{{ row.brokerIntent }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "guards": [
+{% for row in guards %}    {"scenario_id":"{{ row.scenarioId }}","action_id":"{{ row.actionId }}","metric":"{{ row.metric }}","comparison":"{{ row.comparison }}","threshold":{{ row.threshold }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "effects": [
+{% for row in effects %}    {"scenario_id":"{{ row.scenarioId }}","action_id":"{{ row.actionId }}","metric":"{{ row.metric }}","delta":{{ row.delta }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "action_authorities": [
+{% for row in action_authorities %}    {"scenario_id":"{{ row.scenarioId }}","action_id":"{{ row.actionId }}","authority":"{{ row.authority }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "action_evidence": [
+{% for row in action_evidence %}    {"scenario_id":"{{ row.scenarioId }}","action_id":"{{ row.actionId }}","evidence":"{{ row.evidence }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "invariants": [
+{% for row in invariants %}    {"scenario_id":"{{ row.scenarioId }}","metric":"{{ row.metric }}","comparison":"{{ row.comparison }}","threshold":{{ row.threshold }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "goals": [
+{% for row in goals %}    {"scenario_id":"{{ row.scenarioId }}","metric":"{{ row.metric }}","comparison":"{{ row.comparison }}","threshold":{{ row.threshold }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

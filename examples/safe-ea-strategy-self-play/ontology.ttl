@@ -1,0 +1,1203 @@
+@prefix sp: <https://ggen.dev/ontology/self-play#> .
+@prefix ex: <https://example.org/ea-self-play/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:program a sp:SelfPlayProgram ;
+  sp:programId "safe-ea-strategy-self-play-v26.7.30" ;
+  dcterms:title "Non-LLM SAFe and Enterprise Architecture as Strategy self-play" ;
+  sp:executionMode sp:DeterministicRuleSelfPlay ;
+  sp:llmCalls 0 ;
+  sp:directActuation false ;
+  sp:requiredBroker "BRCE" ;
+  sp:witness "cargo test --manifest-path generated/Cargo.toml --all-targets" ;
+  sp:falsifier "tamper one real move receipt and require independent refusal" ;
+  sp:independentVerifier "ea-self-play-verifier" ;
+  sp:receiptVerifier "ggen receipt verify" ;
+  sp:replayCommand "run ea-self-play twice and compare exact stdout bytes" ;
+  sp:hasScenario ex:scenario-portfolio-to-pi ;
+  sp:hasScenario ex:scenario-runway-to-release ;
+  sp:hasScenario ex:scenario-operating-model-core ;
+  sp:hasScenario ex:scenario-platform-engagement-transition .
+
+ex:scenario-portfolio-to-pi a sp:Scenario ;
+  sp:scenarioId "portfolio-to-pi" ;
+  sp:maxRounds 4 ;
+  sp:coversUseCase sp:SafePortfolioEpicFunnel ;
+  sp:coversUseCase sp:SafePiPlanning ;
+  sp:coversUseCase sp:SafeDependencyResolution ;
+  sp:hasPolicy ex:policy-portfolio-to-pi-BusinessOwner ;
+  sp:hasPolicy ex:policy-portfolio-to-pi-ProductManagement ;
+  sp:hasPolicy ex:policy-portfolio-to-pi-ReleaseTrainEngineer ;
+  sp:hasPolicy ex:policy-portfolio-to-pi-SystemArchitect ;
+  sp:hasPolicy ex:policy-portfolio-to-pi-EvidenceVerifier ;
+  sp:hasAction ex:action-portfolio-to-pi-adopt-coordination-model ;
+  sp:hasAction ex:action-portfolio-to-pi-preserve-local-autonomy ;
+  sp:hasAction ex:action-portfolio-to-pi-sequence-epics ;
+  sp:hasAction ex:action-portfolio-to-pi-accelerate-intake ;
+  sp:hasAction ex:action-portfolio-to-pi-rebalance-art-capacity ;
+  sp:hasAction ex:action-portfolio-to-pi-fund-architecture-runway ;
+  sp:hasAction ex:action-portfolio-to-pi-consume-runway-for-features ;
+  sp:hasAction ex:action-portfolio-to-pi-admit-pi-plan ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-BusinessValue ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-BusinessValue ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-BusinessValue ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-FlowEfficiency ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-Integration ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-Integration ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-Integration ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-Standardization ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-Standardization ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-Standardization ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-PlatformReuse ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-PlatformReuse ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-PlatformReuse ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-ArchitectureRunway ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-EvidenceCoverage ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-Risk ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-Risk ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-Risk ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-Cost ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-Cost ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-Cost ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-Wip ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-Wip ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-Wip ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-DependencyLoad ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-DependencyLoad ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-DependencyLoad ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-ReleaseReadiness ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-DecisionRights ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-DecisionRights ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-DecisionRights ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-DataConsistency ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-DataConsistency ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-DataConsistency ;
+  sp:hasInitialMetric ex:initial-portfolio-to-pi-CustomerFit ;
+  sp:hasInvariant ex:invariant-min-portfolio-to-pi-CustomerFit ;
+  sp:hasInvariant ex:invariant-max-portfolio-to-pi-CustomerFit ;
+  sp:hasGoal ex:goal-portfolio-to-pi-BusinessValue ;
+  sp:hasGoal ex:goal-portfolio-to-pi-FlowEfficiency ;
+  sp:hasGoal ex:goal-portfolio-to-pi-Integration ;
+  sp:hasGoal ex:goal-portfolio-to-pi-ArchitectureRunway ;
+  sp:hasGoal ex:goal-portfolio-to-pi-EvidenceCoverage ;
+  sp:hasGoal ex:goal-portfolio-to-pi-Risk ;
+  sp:hasGoal ex:goal-portfolio-to-pi-Wip ;
+  sp:hasGoal ex:goal-portfolio-to-pi-DependencyLoad ;
+  sp:hasGoal ex:goal-portfolio-to-pi-ReleaseReadiness ;
+  sp:hasGoal ex:goal-portfolio-to-pi-DecisionRights  .
+
+ex:initial-portfolio-to-pi-BusinessValue a sp:MetricValue ; sp:metric sp:BusinessValue ; sp:value 25 .
+ex:initial-portfolio-to-pi-FlowEfficiency a sp:MetricValue ; sp:metric sp:FlowEfficiency ; sp:value 25 .
+ex:initial-portfolio-to-pi-Integration a sp:MetricValue ; sp:metric sp:Integration ; sp:value 20 .
+ex:initial-portfolio-to-pi-Standardization a sp:MetricValue ; sp:metric sp:Standardization ; sp:value 20 .
+ex:initial-portfolio-to-pi-PlatformReuse a sp:MetricValue ; sp:metric sp:PlatformReuse ; sp:value 15 .
+ex:initial-portfolio-to-pi-ArchitectureRunway a sp:MetricValue ; sp:metric sp:ArchitectureRunway ; sp:value 15 .
+ex:initial-portfolio-to-pi-EvidenceCoverage a sp:MetricValue ; sp:metric sp:EvidenceCoverage ; sp:value 10 .
+ex:initial-portfolio-to-pi-Risk a sp:MetricValue ; sp:metric sp:Risk ; sp:value 55 .
+ex:initial-portfolio-to-pi-Cost a sp:MetricValue ; sp:metric sp:Cost ; sp:value 20 .
+ex:initial-portfolio-to-pi-Wip a sp:MetricValue ; sp:metric sp:Wip ; sp:value 55 .
+ex:initial-portfolio-to-pi-DependencyLoad a sp:MetricValue ; sp:metric sp:DependencyLoad ; sp:value 50 .
+ex:initial-portfolio-to-pi-ReleaseReadiness a sp:MetricValue ; sp:metric sp:ReleaseReadiness ; sp:value 10 .
+ex:initial-portfolio-to-pi-DecisionRights a sp:MetricValue ; sp:metric sp:DecisionRights ; sp:value 15 .
+ex:initial-portfolio-to-pi-DataConsistency a sp:MetricValue ; sp:metric sp:DataConsistency ; sp:value 20 .
+ex:initial-portfolio-to-pi-CustomerFit a sp:MetricValue ; sp:metric sp:CustomerFit ; sp:value 25 .
+
+ex:invariant-min-portfolio-to-pi-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-portfolio-to-pi-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-portfolio-to-pi-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtMost ; sp:threshold 100 .
+
+ex:goal-portfolio-to-pi-BusinessValue a sp:Goal ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-portfolio-to-pi-FlowEfficiency a sp:Goal ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-portfolio-to-pi-Integration a sp:Goal ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 35 .
+ex:goal-portfolio-to-pi-ArchitectureRunway a sp:Goal ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 35 .
+ex:goal-portfolio-to-pi-EvidenceCoverage a sp:Goal ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-portfolio-to-pi-Risk a sp:Goal ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 40 .
+ex:goal-portfolio-to-pi-Wip a sp:Goal ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 45 .
+ex:goal-portfolio-to-pi-DependencyLoad a sp:Goal ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 30 .
+ex:goal-portfolio-to-pi-ReleaseReadiness a sp:Goal ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 30 .
+ex:goal-portfolio-to-pi-DecisionRights a sp:Goal ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 30 .
+
+ex:policy-portfolio-to-pi-BusinessOwner a sp:ActorPolicy ;
+  sp:actorRole sp:BusinessOwner ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-portfolio-to-pi-BusinessOwner-BusinessValue ;
+  sp:hasWeight ex:weight-portfolio-to-pi-BusinessOwner-DecisionRights ;
+  sp:hasWeight ex:weight-portfolio-to-pi-BusinessOwner-Cost ;
+  sp:hasWeight ex:weight-portfolio-to-pi-BusinessOwner-Risk ;
+  sp:authorityToken "strategy_decision"  .
+ex:weight-portfolio-to-pi-BusinessOwner-BusinessValue a sp:PolicyWeight ; sp:metric sp:BusinessValue ; sp:weight 5 .
+ex:weight-portfolio-to-pi-BusinessOwner-DecisionRights a sp:PolicyWeight ; sp:metric sp:DecisionRights ; sp:weight 4 .
+ex:weight-portfolio-to-pi-BusinessOwner-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+ex:weight-portfolio-to-pi-BusinessOwner-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -3 .
+
+ex:policy-portfolio-to-pi-ProductManagement a sp:ActorPolicy ;
+  sp:actorRole sp:ProductManagement ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ProductManagement-BusinessValue ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ProductManagement-CustomerFit ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ProductManagement-Wip ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ProductManagement-Risk ;
+  sp:authorityToken "portfolio_sequence"  .
+ex:weight-portfolio-to-pi-ProductManagement-BusinessValue a sp:PolicyWeight ; sp:metric sp:BusinessValue ; sp:weight 5 .
+ex:weight-portfolio-to-pi-ProductManagement-CustomerFit a sp:PolicyWeight ; sp:metric sp:CustomerFit ; sp:weight 4 .
+ex:weight-portfolio-to-pi-ProductManagement-Wip a sp:PolicyWeight ; sp:metric sp:Wip ; sp:weight -2 .
+ex:weight-portfolio-to-pi-ProductManagement-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -2 .
+
+ex:policy-portfolio-to-pi-ReleaseTrainEngineer a sp:ActorPolicy ;
+  sp:actorRole sp:ReleaseTrainEngineer ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ReleaseTrainEngineer-FlowEfficiency ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ReleaseTrainEngineer-DependencyLoad ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ReleaseTrainEngineer-Wip ;
+  sp:hasWeight ex:weight-portfolio-to-pi-ReleaseTrainEngineer-Integration ;
+  sp:authorityToken "pi_coordination"  .
+ex:weight-portfolio-to-pi-ReleaseTrainEngineer-FlowEfficiency a sp:PolicyWeight ; sp:metric sp:FlowEfficiency ; sp:weight 5 .
+ex:weight-portfolio-to-pi-ReleaseTrainEngineer-DependencyLoad a sp:PolicyWeight ; sp:metric sp:DependencyLoad ; sp:weight -5 .
+ex:weight-portfolio-to-pi-ReleaseTrainEngineer-Wip a sp:PolicyWeight ; sp:metric sp:Wip ; sp:weight -3 .
+ex:weight-portfolio-to-pi-ReleaseTrainEngineer-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 3 .
+
+ex:policy-portfolio-to-pi-SystemArchitect a sp:ActorPolicy ;
+  sp:actorRole sp:SystemArchitect ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-portfolio-to-pi-SystemArchitect-ArchitectureRunway ;
+  sp:hasWeight ex:weight-portfolio-to-pi-SystemArchitect-Risk ;
+  sp:hasWeight ex:weight-portfolio-to-pi-SystemArchitect-Cost ;
+  sp:hasWeight ex:weight-portfolio-to-pi-SystemArchitect-Integration ;
+  sp:authorityToken "architecture_runway"  .
+ex:weight-portfolio-to-pi-SystemArchitect-ArchitectureRunway a sp:PolicyWeight ; sp:metric sp:ArchitectureRunway ; sp:weight 5 .
+ex:weight-portfolio-to-pi-SystemArchitect-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -4 .
+ex:weight-portfolio-to-pi-SystemArchitect-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+ex:weight-portfolio-to-pi-SystemArchitect-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 2 .
+
+ex:policy-portfolio-to-pi-EvidenceVerifier a sp:ActorPolicy ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-portfolio-to-pi-EvidenceVerifier-EvidenceCoverage ;
+  sp:hasWeight ex:weight-portfolio-to-pi-EvidenceVerifier-ReleaseReadiness ;
+  sp:hasWeight ex:weight-portfolio-to-pi-EvidenceVerifier-Risk ;
+  sp:authorityToken "evidence_admission"  .
+ex:weight-portfolio-to-pi-EvidenceVerifier-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 6 .
+ex:weight-portfolio-to-pi-EvidenceVerifier-ReleaseReadiness a sp:PolicyWeight ; sp:metric sp:ReleaseReadiness ; sp:weight 5 .
+ex:weight-portfolio-to-pi-EvidenceVerifier-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -5 .
+
+ex:action-portfolio-to-pi-adopt-coordination-model a sp:Action ;
+  sp:actionId "adopt-coordination-model" ;
+  sp:actorRole sp:BusinessOwner ;
+  sp:choiceGroup "operating-model" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-adopt-coordination-model-Integration ;
+  sp:hasEffect ex:effect-portfolio-to-pi-adopt-coordination-model-Standardization ;
+  sp:hasEffect ex:effect-portfolio-to-pi-adopt-coordination-model-DecisionRights ;
+  sp:hasEffect ex:effect-portfolio-to-pi-adopt-coordination-model-Cost ;
+  sp:requiresAuthority "strategy_decision" ;
+  sp:hasEvidence "operating-model-decision"  .
+ex:effect-portfolio-to-pi-adopt-coordination-model-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 20 .
+ex:effect-portfolio-to-pi-adopt-coordination-model-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta 15 .
+ex:effect-portfolio-to-pi-adopt-coordination-model-DecisionRights a sp:Effect ; sp:metric sp:DecisionRights ; sp:delta 20 .
+ex:effect-portfolio-to-pi-adopt-coordination-model-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 5 .
+
+ex:action-portfolio-to-pi-preserve-local-autonomy a sp:Action ;
+  sp:actionId "preserve-local-autonomy" ;
+  sp:actorRole sp:BusinessOwner ;
+  sp:choiceGroup "operating-model" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-preserve-local-autonomy-BusinessValue ;
+  sp:hasEffect ex:effect-portfolio-to-pi-preserve-local-autonomy-CustomerFit ;
+  sp:hasEffect ex:effect-portfolio-to-pi-preserve-local-autonomy-Integration ;
+  sp:hasEffect ex:effect-portfolio-to-pi-preserve-local-autonomy-Standardization ;
+  sp:hasEffect ex:effect-portfolio-to-pi-preserve-local-autonomy-Risk ;
+  sp:requiresAuthority "strategy_decision" ;
+  sp:hasEvidence "local-autonomy-decision"  .
+ex:effect-portfolio-to-pi-preserve-local-autonomy-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 10 .
+ex:effect-portfolio-to-pi-preserve-local-autonomy-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 10 .
+ex:effect-portfolio-to-pi-preserve-local-autonomy-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta -5 .
+ex:effect-portfolio-to-pi-preserve-local-autonomy-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta -5 .
+ex:effect-portfolio-to-pi-preserve-local-autonomy-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta 5 .
+
+ex:action-portfolio-to-pi-sequence-epics a sp:Action ;
+  sp:actionId "sequence-epics" ;
+  sp:actorRole sp:ProductManagement ;
+  sp:choiceGroup "portfolio-intake" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-sequence-epics-BusinessValue ;
+  sp:hasEffect ex:effect-portfolio-to-pi-sequence-epics-Wip ;
+  sp:hasEffect ex:effect-portfolio-to-pi-sequence-epics-Risk ;
+  sp:hasEffect ex:effect-portfolio-to-pi-sequence-epics-CustomerFit ;
+  sp:requiresAuthority "portfolio_sequence" ;
+  sp:hasEvidence "portfolio-sequencing-receipt"  .
+ex:effect-portfolio-to-pi-sequence-epics-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 20 .
+ex:effect-portfolio-to-pi-sequence-epics-Wip a sp:Effect ; sp:metric sp:Wip ; sp:delta -15 .
+ex:effect-portfolio-to-pi-sequence-epics-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -5 .
+ex:effect-portfolio-to-pi-sequence-epics-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 10 .
+
+ex:action-portfolio-to-pi-accelerate-intake a sp:Action ;
+  sp:actionId "accelerate-intake" ;
+  sp:actorRole sp:ProductManagement ;
+  sp:choiceGroup "portfolio-intake" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-accelerate-intake-BusinessValue ;
+  sp:hasEffect ex:effect-portfolio-to-pi-accelerate-intake-Wip ;
+  sp:hasEffect ex:effect-portfolio-to-pi-accelerate-intake-Risk ;
+  sp:hasEffect ex:effect-portfolio-to-pi-accelerate-intake-CustomerFit ;
+  sp:requiresAuthority "portfolio_sequence" ;
+  sp:hasEvidence "intake-acceleration-receipt"  .
+ex:effect-portfolio-to-pi-accelerate-intake-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 30 .
+ex:effect-portfolio-to-pi-accelerate-intake-Wip a sp:Effect ; sp:metric sp:Wip ; sp:delta 20 .
+ex:effect-portfolio-to-pi-accelerate-intake-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta 10 .
+ex:effect-portfolio-to-pi-accelerate-intake-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 15 .
+
+ex:action-portfolio-to-pi-rebalance-art-capacity a sp:Action ;
+  sp:actionId "rebalance-art-capacity" ;
+  sp:actorRole sp:ReleaseTrainEngineer ;
+  sp:choiceGroup "dependency-resolution" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-rebalance-art-capacity-FlowEfficiency ;
+  sp:hasEffect ex:effect-portfolio-to-pi-rebalance-art-capacity-DependencyLoad ;
+  sp:hasEffect ex:effect-portfolio-to-pi-rebalance-art-capacity-Wip ;
+  sp:hasEffect ex:effect-portfolio-to-pi-rebalance-art-capacity-Integration ;
+  sp:requiresAuthority "pi_coordination" ;
+  sp:hasEvidence "dependency-resolution-receipt"  .
+ex:effect-portfolio-to-pi-rebalance-art-capacity-FlowEfficiency a sp:Effect ; sp:metric sp:FlowEfficiency ; sp:delta 20 .
+ex:effect-portfolio-to-pi-rebalance-art-capacity-DependencyLoad a sp:Effect ; sp:metric sp:DependencyLoad ; sp:delta -25 .
+ex:effect-portfolio-to-pi-rebalance-art-capacity-Wip a sp:Effect ; sp:metric sp:Wip ; sp:delta -10 .
+ex:effect-portfolio-to-pi-rebalance-art-capacity-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 10 .
+
+ex:action-portfolio-to-pi-fund-architecture-runway a sp:Action ;
+  sp:actionId "fund-architecture-runway" ;
+  sp:actorRole sp:SystemArchitect ;
+  sp:choiceGroup "runway-investment" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-fund-architecture-runway-ArchitectureRunway ;
+  sp:hasEffect ex:effect-portfolio-to-pi-fund-architecture-runway-Risk ;
+  sp:hasEffect ex:effect-portfolio-to-pi-fund-architecture-runway-Cost ;
+  sp:hasEffect ex:effect-portfolio-to-pi-fund-architecture-runway-Integration ;
+  sp:requiresAuthority "architecture_runway" ;
+  sp:hasEvidence "runway-investment-receipt"  .
+ex:effect-portfolio-to-pi-fund-architecture-runway-ArchitectureRunway a sp:Effect ; sp:metric sp:ArchitectureRunway ; sp:delta 25 .
+ex:effect-portfolio-to-pi-fund-architecture-runway-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -15 .
+ex:effect-portfolio-to-pi-fund-architecture-runway-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 10 .
+ex:effect-portfolio-to-pi-fund-architecture-runway-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 5 .
+
+ex:action-portfolio-to-pi-consume-runway-for-features a sp:Action ;
+  sp:actionId "consume-runway-for-features" ;
+  sp:actorRole sp:SystemArchitect ;
+  sp:choiceGroup "runway-investment" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-portfolio-to-pi-consume-runway-for-features-BusinessValue ;
+  sp:hasEffect ex:effect-portfolio-to-pi-consume-runway-for-features-ArchitectureRunway ;
+  sp:hasEffect ex:effect-portfolio-to-pi-consume-runway-for-features-Risk ;
+  sp:requiresAuthority "architecture_runway" ;
+  sp:hasEvidence "runway-consumption-receipt"  .
+ex:effect-portfolio-to-pi-consume-runway-for-features-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 15 .
+ex:effect-portfolio-to-pi-consume-runway-for-features-ArchitectureRunway a sp:Effect ; sp:metric sp:ArchitectureRunway ; sp:delta -15 .
+ex:effect-portfolio-to-pi-consume-runway-for-features-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta 10 .
+
+ex:action-portfolio-to-pi-admit-pi-plan a sp:Action ;
+  sp:actionId "admit-pi-plan" ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:choiceGroup "pi-admission" ;
+  sp:brokerIntent false ;
+  sp:hasGuard ex:guard-portfolio-to-pi-admit-pi-plan-0 ;
+  sp:hasGuard ex:guard-portfolio-to-pi-admit-pi-plan-1 ;
+  sp:hasGuard ex:guard-portfolio-to-pi-admit-pi-plan-2 ;
+  sp:hasGuard ex:guard-portfolio-to-pi-admit-pi-plan-3 ;
+  sp:hasGuard ex:guard-portfolio-to-pi-admit-pi-plan-4 ;
+  sp:hasEffect ex:effect-portfolio-to-pi-admit-pi-plan-EvidenceCoverage ;
+  sp:hasEffect ex:effect-portfolio-to-pi-admit-pi-plan-ReleaseReadiness ;
+  sp:requiresAuthority "evidence_admission" ;
+  sp:hasEvidence "pi-plan-verification" ;
+  sp:hasEvidence "receipt-chain-verification"  .
+ex:guard-portfolio-to-pi-admit-pi-plan-0 a sp:Guard ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 35 .
+ex:guard-portfolio-to-pi-admit-pi-plan-1 a sp:Guard ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 30 .
+ex:guard-portfolio-to-pi-admit-pi-plan-2 a sp:Guard ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 30 .
+ex:guard-portfolio-to-pi-admit-pi-plan-3 a sp:Guard ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 45 .
+ex:guard-portfolio-to-pi-admit-pi-plan-4 a sp:Guard ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 40 .
+ex:effect-portfolio-to-pi-admit-pi-plan-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 30 .
+ex:effect-portfolio-to-pi-admit-pi-plan-ReleaseReadiness a sp:Effect ; sp:metric sp:ReleaseReadiness ; sp:delta 20 .
+
+ex:scenario-runway-to-release a sp:Scenario ;
+  sp:scenarioId "runway-to-release" ;
+  sp:maxRounds 4 ;
+  sp:coversUseCase sp:SafeArchitectureRunway ;
+  sp:coversUseCase sp:SafeSystemDemoReleaseGate ;
+  sp:coversUseCase sp:SafeInspectAndAdapt ;
+  sp:hasPolicy ex:policy-runway-to-release-ReleaseTrainEngineer ;
+  sp:hasPolicy ex:policy-runway-to-release-SystemArchitect ;
+  sp:hasPolicy ex:policy-runway-to-release-PlatformOwner ;
+  sp:hasPolicy ex:policy-runway-to-release-RiskOfficer ;
+  sp:hasPolicy ex:policy-runway-to-release-EvidenceVerifier ;
+  sp:hasAction ex:action-runway-to-release-invest-enablers ;
+  sp:hasAction ex:action-runway-to-release-standardize-platform ;
+  sp:hasAction ex:action-runway-to-release-integrate-system-increment ;
+  sp:hasAction ex:action-runway-to-release-remediate-controls ;
+  sp:hasAction ex:action-runway-to-release-hold-without-remediation ;
+  sp:hasAction ex:action-runway-to-release-admit-system-demo ;
+  sp:hasInitialMetric ex:initial-runway-to-release-BusinessValue ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-BusinessValue ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-BusinessValue ;
+  sp:hasInitialMetric ex:initial-runway-to-release-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-FlowEfficiency ;
+  sp:hasInitialMetric ex:initial-runway-to-release-Integration ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-Integration ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-Integration ;
+  sp:hasInitialMetric ex:initial-runway-to-release-Standardization ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-Standardization ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-Standardization ;
+  sp:hasInitialMetric ex:initial-runway-to-release-PlatformReuse ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-PlatformReuse ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-PlatformReuse ;
+  sp:hasInitialMetric ex:initial-runway-to-release-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-ArchitectureRunway ;
+  sp:hasInitialMetric ex:initial-runway-to-release-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-EvidenceCoverage ;
+  sp:hasInitialMetric ex:initial-runway-to-release-Risk ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-Risk ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-Risk ;
+  sp:hasInitialMetric ex:initial-runway-to-release-Cost ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-Cost ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-Cost ;
+  sp:hasInitialMetric ex:initial-runway-to-release-Wip ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-Wip ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-Wip ;
+  sp:hasInitialMetric ex:initial-runway-to-release-DependencyLoad ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-DependencyLoad ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-DependencyLoad ;
+  sp:hasInitialMetric ex:initial-runway-to-release-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-ReleaseReadiness ;
+  sp:hasInitialMetric ex:initial-runway-to-release-DecisionRights ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-DecisionRights ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-DecisionRights ;
+  sp:hasInitialMetric ex:initial-runway-to-release-DataConsistency ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-DataConsistency ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-DataConsistency ;
+  sp:hasInitialMetric ex:initial-runway-to-release-CustomerFit ;
+  sp:hasInvariant ex:invariant-min-runway-to-release-CustomerFit ;
+  sp:hasInvariant ex:invariant-max-runway-to-release-CustomerFit ;
+  sp:hasGoal ex:goal-runway-to-release-ArchitectureRunway ;
+  sp:hasGoal ex:goal-runway-to-release-PlatformReuse ;
+  sp:hasGoal ex:goal-runway-to-release-Integration ;
+  sp:hasGoal ex:goal-runway-to-release-EvidenceCoverage ;
+  sp:hasGoal ex:goal-runway-to-release-Risk ;
+  sp:hasGoal ex:goal-runway-to-release-ReleaseReadiness ;
+  sp:hasGoal ex:goal-runway-to-release-DependencyLoad  .
+
+ex:initial-runway-to-release-BusinessValue a sp:MetricValue ; sp:metric sp:BusinessValue ; sp:value 30 .
+ex:initial-runway-to-release-FlowEfficiency a sp:MetricValue ; sp:metric sp:FlowEfficiency ; sp:value 25 .
+ex:initial-runway-to-release-Integration a sp:MetricValue ; sp:metric sp:Integration ; sp:value 20 .
+ex:initial-runway-to-release-Standardization a sp:MetricValue ; sp:metric sp:Standardization ; sp:value 25 .
+ex:initial-runway-to-release-PlatformReuse a sp:MetricValue ; sp:metric sp:PlatformReuse ; sp:value 20 .
+ex:initial-runway-to-release-ArchitectureRunway a sp:MetricValue ; sp:metric sp:ArchitectureRunway ; sp:value 20 .
+ex:initial-runway-to-release-EvidenceCoverage a sp:MetricValue ; sp:metric sp:EvidenceCoverage ; sp:value 10 .
+ex:initial-runway-to-release-Risk a sp:MetricValue ; sp:metric sp:Risk ; sp:value 65 .
+ex:initial-runway-to-release-Cost a sp:MetricValue ; sp:metric sp:Cost ; sp:value 20 .
+ex:initial-runway-to-release-Wip a sp:MetricValue ; sp:metric sp:Wip ; sp:value 45 .
+ex:initial-runway-to-release-DependencyLoad a sp:MetricValue ; sp:metric sp:DependencyLoad ; sp:value 40 .
+ex:initial-runway-to-release-ReleaseReadiness a sp:MetricValue ; sp:metric sp:ReleaseReadiness ; sp:value 10 .
+ex:initial-runway-to-release-DecisionRights a sp:MetricValue ; sp:metric sp:DecisionRights ; sp:value 25 .
+ex:initial-runway-to-release-DataConsistency a sp:MetricValue ; sp:metric sp:DataConsistency ; sp:value 25 .
+ex:initial-runway-to-release-CustomerFit a sp:MetricValue ; sp:metric sp:CustomerFit ; sp:value 30 .
+
+ex:invariant-min-runway-to-release-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-runway-to-release-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-runway-to-release-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtMost ; sp:threshold 100 .
+
+ex:goal-runway-to-release-ArchitectureRunway a sp:Goal ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-runway-to-release-PlatformReuse a sp:Goal ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-runway-to-release-Integration a sp:Goal ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-runway-to-release-EvidenceCoverage a sp:Goal ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-runway-to-release-Risk a sp:Goal ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 30 .
+ex:goal-runway-to-release-ReleaseReadiness a sp:Goal ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 50 .
+ex:goal-runway-to-release-DependencyLoad a sp:Goal ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 25 .
+
+ex:policy-runway-to-release-ReleaseTrainEngineer a sp:ActorPolicy ;
+  sp:actorRole sp:ReleaseTrainEngineer ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-runway-to-release-ReleaseTrainEngineer-FlowEfficiency ;
+  sp:hasWeight ex:weight-runway-to-release-ReleaseTrainEngineer-DependencyLoad ;
+  sp:hasWeight ex:weight-runway-to-release-ReleaseTrainEngineer-Integration ;
+  sp:hasWeight ex:weight-runway-to-release-ReleaseTrainEngineer-ReleaseReadiness ;
+  sp:authorityToken "system_integration"  .
+ex:weight-runway-to-release-ReleaseTrainEngineer-FlowEfficiency a sp:PolicyWeight ; sp:metric sp:FlowEfficiency ; sp:weight 5 .
+ex:weight-runway-to-release-ReleaseTrainEngineer-DependencyLoad a sp:PolicyWeight ; sp:metric sp:DependencyLoad ; sp:weight -4 .
+ex:weight-runway-to-release-ReleaseTrainEngineer-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 4 .
+ex:weight-runway-to-release-ReleaseTrainEngineer-ReleaseReadiness a sp:PolicyWeight ; sp:metric sp:ReleaseReadiness ; sp:weight 4 .
+
+ex:policy-runway-to-release-SystemArchitect a sp:ActorPolicy ;
+  sp:actorRole sp:SystemArchitect ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-runway-to-release-SystemArchitect-ArchitectureRunway ;
+  sp:hasWeight ex:weight-runway-to-release-SystemArchitect-Risk ;
+  sp:hasWeight ex:weight-runway-to-release-SystemArchitect-Cost ;
+  sp:authorityToken "architecture_runway"  .
+ex:weight-runway-to-release-SystemArchitect-ArchitectureRunway a sp:PolicyWeight ; sp:metric sp:ArchitectureRunway ; sp:weight 6 .
+ex:weight-runway-to-release-SystemArchitect-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -5 .
+ex:weight-runway-to-release-SystemArchitect-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+
+ex:policy-runway-to-release-PlatformOwner a sp:ActorPolicy ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-runway-to-release-PlatformOwner-PlatformReuse ;
+  sp:hasWeight ex:weight-runway-to-release-PlatformOwner-Standardization ;
+  sp:hasWeight ex:weight-runway-to-release-PlatformOwner-DataConsistency ;
+  sp:hasWeight ex:weight-runway-to-release-PlatformOwner-Cost ;
+  sp:hasWeight ex:weight-runway-to-release-PlatformOwner-Risk ;
+  sp:authorityToken "platform_standardization"  .
+ex:weight-runway-to-release-PlatformOwner-PlatformReuse a sp:PolicyWeight ; sp:metric sp:PlatformReuse ; sp:weight 5 .
+ex:weight-runway-to-release-PlatformOwner-Standardization a sp:PolicyWeight ; sp:metric sp:Standardization ; sp:weight 4 .
+ex:weight-runway-to-release-PlatformOwner-DataConsistency a sp:PolicyWeight ; sp:metric sp:DataConsistency ; sp:weight 4 .
+ex:weight-runway-to-release-PlatformOwner-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+ex:weight-runway-to-release-PlatformOwner-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -3 .
+
+ex:policy-runway-to-release-RiskOfficer a sp:ActorPolicy ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-runway-to-release-RiskOfficer-Risk ;
+  sp:hasWeight ex:weight-runway-to-release-RiskOfficer-EvidenceCoverage ;
+  sp:hasWeight ex:weight-runway-to-release-RiskOfficer-Cost ;
+  sp:hasWeight ex:weight-runway-to-release-RiskOfficer-ReleaseReadiness ;
+  sp:authorityToken "control_remediation"  .
+ex:weight-runway-to-release-RiskOfficer-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -7 .
+ex:weight-runway-to-release-RiskOfficer-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 4 .
+ex:weight-runway-to-release-RiskOfficer-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+ex:weight-runway-to-release-RiskOfficer-ReleaseReadiness a sp:PolicyWeight ; sp:metric sp:ReleaseReadiness ; sp:weight -1 .
+
+ex:policy-runway-to-release-EvidenceVerifier a sp:ActorPolicy ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-runway-to-release-EvidenceVerifier-EvidenceCoverage ;
+  sp:hasWeight ex:weight-runway-to-release-EvidenceVerifier-ReleaseReadiness ;
+  sp:hasWeight ex:weight-runway-to-release-EvidenceVerifier-Risk ;
+  sp:authorityToken "evidence_admission"  .
+ex:weight-runway-to-release-EvidenceVerifier-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 7 .
+ex:weight-runway-to-release-EvidenceVerifier-ReleaseReadiness a sp:PolicyWeight ; sp:metric sp:ReleaseReadiness ; sp:weight 6 .
+ex:weight-runway-to-release-EvidenceVerifier-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -6 .
+
+ex:action-runway-to-release-invest-enablers a sp:Action ;
+  sp:actionId "invest-enablers" ;
+  sp:actorRole sp:SystemArchitect ;
+  sp:choiceGroup "runway-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-runway-to-release-invest-enablers-ArchitectureRunway ;
+  sp:hasEffect ex:effect-runway-to-release-invest-enablers-Risk ;
+  sp:hasEffect ex:effect-runway-to-release-invest-enablers-Cost ;
+  sp:requiresAuthority "architecture_runway" ;
+  sp:hasEvidence "enabler-investment-receipt"  .
+ex:effect-runway-to-release-invest-enablers-ArchitectureRunway a sp:Effect ; sp:metric sp:ArchitectureRunway ; sp:delta 30 .
+ex:effect-runway-to-release-invest-enablers-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -15 .
+ex:effect-runway-to-release-invest-enablers-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 10 .
+
+ex:action-runway-to-release-standardize-platform a sp:Action ;
+  sp:actionId "standardize-platform" ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:choiceGroup "platform-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-runway-to-release-standardize-platform-PlatformReuse ;
+  sp:hasEffect ex:effect-runway-to-release-standardize-platform-Standardization ;
+  sp:hasEffect ex:effect-runway-to-release-standardize-platform-DataConsistency ;
+  sp:hasEffect ex:effect-runway-to-release-standardize-platform-Cost ;
+  sp:hasEffect ex:effect-runway-to-release-standardize-platform-Risk ;
+  sp:requiresAuthority "platform_standardization" ;
+  sp:hasEvidence "platform-standardization-receipt"  .
+ex:effect-runway-to-release-standardize-platform-PlatformReuse a sp:Effect ; sp:metric sp:PlatformReuse ; sp:delta 30 .
+ex:effect-runway-to-release-standardize-platform-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta 20 .
+ex:effect-runway-to-release-standardize-platform-DataConsistency a sp:Effect ; sp:metric sp:DataConsistency ; sp:delta 20 .
+ex:effect-runway-to-release-standardize-platform-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 10 .
+ex:effect-runway-to-release-standardize-platform-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -10 .
+
+ex:action-runway-to-release-integrate-system-increment a sp:Action ;
+  sp:actionId "integrate-system-increment" ;
+  sp:actorRole sp:ReleaseTrainEngineer ;
+  sp:choiceGroup "integration-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-runway-to-release-integrate-system-increment-FlowEfficiency ;
+  sp:hasEffect ex:effect-runway-to-release-integrate-system-increment-Integration ;
+  sp:hasEffect ex:effect-runway-to-release-integrate-system-increment-DependencyLoad ;
+  sp:hasEffect ex:effect-runway-to-release-integrate-system-increment-ReleaseReadiness ;
+  sp:requiresAuthority "system_integration" ;
+  sp:hasEvidence "system-integration-receipt"  .
+ex:effect-runway-to-release-integrate-system-increment-FlowEfficiency a sp:Effect ; sp:metric sp:FlowEfficiency ; sp:delta 20 .
+ex:effect-runway-to-release-integrate-system-increment-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 25 .
+ex:effect-runway-to-release-integrate-system-increment-DependencyLoad a sp:Effect ; sp:metric sp:DependencyLoad ; sp:delta -20 .
+ex:effect-runway-to-release-integrate-system-increment-ReleaseReadiness a sp:Effect ; sp:metric sp:ReleaseReadiness ; sp:delta 15 .
+
+ex:action-runway-to-release-remediate-controls a sp:Action ;
+  sp:actionId "remediate-controls" ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:choiceGroup "risk-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-runway-to-release-remediate-controls-Risk ;
+  sp:hasEffect ex:effect-runway-to-release-remediate-controls-EvidenceCoverage ;
+  sp:hasEffect ex:effect-runway-to-release-remediate-controls-Cost ;
+  sp:requiresAuthority "control_remediation" ;
+  sp:hasEvidence "control-remediation-receipt"  .
+ex:effect-runway-to-release-remediate-controls-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -25 .
+ex:effect-runway-to-release-remediate-controls-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 10 .
+ex:effect-runway-to-release-remediate-controls-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 5 .
+
+ex:action-runway-to-release-hold-without-remediation a sp:Action ;
+  sp:actionId "hold-without-remediation" ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:choiceGroup "risk-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-runway-to-release-hold-without-remediation-ReleaseReadiness ;
+  sp:hasEffect ex:effect-runway-to-release-hold-without-remediation-Risk ;
+  sp:requiresAuthority "control_remediation" ;
+  sp:hasEvidence "release-hold-receipt"  .
+ex:effect-runway-to-release-hold-without-remediation-ReleaseReadiness a sp:Effect ; sp:metric sp:ReleaseReadiness ; sp:delta -10 .
+ex:effect-runway-to-release-hold-without-remediation-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -5 .
+
+ex:action-runway-to-release-admit-system-demo a sp:Action ;
+  sp:actionId "admit-system-demo" ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:choiceGroup "system-demo-admission" ;
+  sp:brokerIntent false ;
+  sp:hasGuard ex:guard-runway-to-release-admit-system-demo-0 ;
+  sp:hasGuard ex:guard-runway-to-release-admit-system-demo-1 ;
+  sp:hasGuard ex:guard-runway-to-release-admit-system-demo-2 ;
+  sp:hasGuard ex:guard-runway-to-release-admit-system-demo-3 ;
+  sp:hasEffect ex:effect-runway-to-release-admit-system-demo-EvidenceCoverage ;
+  sp:hasEffect ex:effect-runway-to-release-admit-system-demo-ReleaseReadiness ;
+  sp:requiresAuthority "evidence_admission" ;
+  sp:hasEvidence "system-demo-verification" ;
+  sp:hasEvidence "inspect-adapt-receipt"  .
+ex:guard-runway-to-release-admit-system-demo-0 a sp:Guard ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-runway-to-release-admit-system-demo-1 a sp:Guard ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 30 .
+ex:guard-runway-to-release-admit-system-demo-2 a sp:Guard ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-runway-to-release-admit-system-demo-3 a sp:Guard ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 20 .
+ex:effect-runway-to-release-admit-system-demo-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 25 .
+ex:effect-runway-to-release-admit-system-demo-ReleaseReadiness a sp:Effect ; sp:metric sp:ReleaseReadiness ; sp:delta 25 .
+
+ex:scenario-operating-model-core a sp:Scenario ;
+  sp:scenarioId "operating-model-core" ;
+  sp:maxRounds 4 ;
+  sp:coversUseCase sp:EaOperatingModel ;
+  sp:coversUseCase sp:EaCoreDiagram ;
+  sp:hasPolicy ex:policy-operating-model-core-BusinessOwner ;
+  sp:hasPolicy ex:policy-operating-model-core-EnterpriseArchitect ;
+  sp:hasPolicy ex:policy-operating-model-core-PlatformOwner ;
+  sp:hasPolicy ex:policy-operating-model-core-RiskOfficer ;
+  sp:hasPolicy ex:policy-operating-model-core-EvidenceVerifier ;
+  sp:hasAction ex:action-operating-model-core-select-unification-model ;
+  sp:hasAction ex:action-operating-model-core-select-diversification-model ;
+  sp:hasAction ex:action-operating-model-core-align-capability-outcomes ;
+  sp:hasAction ex:action-operating-model-core-bind-shared-data-core ;
+  sp:hasAction ex:action-operating-model-core-establish-decision-guardrails ;
+  sp:hasAction ex:action-operating-model-core-verify-core-diagram ;
+  sp:hasInitialMetric ex:initial-operating-model-core-BusinessValue ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-BusinessValue ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-BusinessValue ;
+  sp:hasInitialMetric ex:initial-operating-model-core-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-FlowEfficiency ;
+  sp:hasInitialMetric ex:initial-operating-model-core-Integration ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-Integration ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-Integration ;
+  sp:hasInitialMetric ex:initial-operating-model-core-Standardization ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-Standardization ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-Standardization ;
+  sp:hasInitialMetric ex:initial-operating-model-core-PlatformReuse ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-PlatformReuse ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-PlatformReuse ;
+  sp:hasInitialMetric ex:initial-operating-model-core-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-ArchitectureRunway ;
+  sp:hasInitialMetric ex:initial-operating-model-core-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-EvidenceCoverage ;
+  sp:hasInitialMetric ex:initial-operating-model-core-Risk ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-Risk ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-Risk ;
+  sp:hasInitialMetric ex:initial-operating-model-core-Cost ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-Cost ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-Cost ;
+  sp:hasInitialMetric ex:initial-operating-model-core-Wip ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-Wip ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-Wip ;
+  sp:hasInitialMetric ex:initial-operating-model-core-DependencyLoad ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-DependencyLoad ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-DependencyLoad ;
+  sp:hasInitialMetric ex:initial-operating-model-core-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-ReleaseReadiness ;
+  sp:hasInitialMetric ex:initial-operating-model-core-DecisionRights ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-DecisionRights ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-DecisionRights ;
+  sp:hasInitialMetric ex:initial-operating-model-core-DataConsistency ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-DataConsistency ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-DataConsistency ;
+  sp:hasInitialMetric ex:initial-operating-model-core-CustomerFit ;
+  sp:hasInvariant ex:invariant-min-operating-model-core-CustomerFit ;
+  sp:hasInvariant ex:invariant-max-operating-model-core-CustomerFit ;
+  sp:hasGoal ex:goal-operating-model-core-BusinessValue ;
+  sp:hasGoal ex:goal-operating-model-core-Integration ;
+  sp:hasGoal ex:goal-operating-model-core-Standardization ;
+  sp:hasGoal ex:goal-operating-model-core-DecisionRights ;
+  sp:hasGoal ex:goal-operating-model-core-DataConsistency ;
+  sp:hasGoal ex:goal-operating-model-core-PlatformReuse ;
+  sp:hasGoal ex:goal-operating-model-core-EvidenceCoverage ;
+  sp:hasGoal ex:goal-operating-model-core-Risk  .
+
+ex:initial-operating-model-core-BusinessValue a sp:MetricValue ; sp:metric sp:BusinessValue ; sp:value 20 .
+ex:initial-operating-model-core-FlowEfficiency a sp:MetricValue ; sp:metric sp:FlowEfficiency ; sp:value 20 .
+ex:initial-operating-model-core-Integration a sp:MetricValue ; sp:metric sp:Integration ; sp:value 20 .
+ex:initial-operating-model-core-Standardization a sp:MetricValue ; sp:metric sp:Standardization ; sp:value 20 .
+ex:initial-operating-model-core-PlatformReuse a sp:MetricValue ; sp:metric sp:PlatformReuse ; sp:value 15 .
+ex:initial-operating-model-core-ArchitectureRunway a sp:MetricValue ; sp:metric sp:ArchitectureRunway ; sp:value 20 .
+ex:initial-operating-model-core-EvidenceCoverage a sp:MetricValue ; sp:metric sp:EvidenceCoverage ; sp:value 10 .
+ex:initial-operating-model-core-Risk a sp:MetricValue ; sp:metric sp:Risk ; sp:value 55 .
+ex:initial-operating-model-core-Cost a sp:MetricValue ; sp:metric sp:Cost ; sp:value 20 .
+ex:initial-operating-model-core-Wip a sp:MetricValue ; sp:metric sp:Wip ; sp:value 40 .
+ex:initial-operating-model-core-DependencyLoad a sp:MetricValue ; sp:metric sp:DependencyLoad ; sp:value 40 .
+ex:initial-operating-model-core-ReleaseReadiness a sp:MetricValue ; sp:metric sp:ReleaseReadiness ; sp:value 10 .
+ex:initial-operating-model-core-DecisionRights a sp:MetricValue ; sp:metric sp:DecisionRights ; sp:value 15 .
+ex:initial-operating-model-core-DataConsistency a sp:MetricValue ; sp:metric sp:DataConsistency ; sp:value 15 .
+ex:initial-operating-model-core-CustomerFit a sp:MetricValue ; sp:metric sp:CustomerFit ; sp:value 25 .
+
+ex:invariant-min-operating-model-core-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-operating-model-core-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-operating-model-core-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtMost ; sp:threshold 100 .
+
+ex:goal-operating-model-core-BusinessValue a sp:Goal ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-operating-model-core-Integration a sp:Goal ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 50 .
+ex:goal-operating-model-core-Standardization a sp:Goal ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-operating-model-core-DecisionRights a sp:Goal ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-operating-model-core-DataConsistency a sp:Goal ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-operating-model-core-PlatformReuse a sp:Goal ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 30 .
+ex:goal-operating-model-core-EvidenceCoverage a sp:Goal ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-operating-model-core-Risk a sp:Goal ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 40 .
+
+ex:policy-operating-model-core-BusinessOwner a sp:ActorPolicy ;
+  sp:actorRole sp:BusinessOwner ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-operating-model-core-BusinessOwner-BusinessValue ;
+  sp:hasWeight ex:weight-operating-model-core-BusinessOwner-CustomerFit ;
+  sp:hasWeight ex:weight-operating-model-core-BusinessOwner-DecisionRights ;
+  sp:hasWeight ex:weight-operating-model-core-BusinessOwner-Risk ;
+  sp:authorityToken "capability_alignment"  .
+ex:weight-operating-model-core-BusinessOwner-BusinessValue a sp:PolicyWeight ; sp:metric sp:BusinessValue ; sp:weight 5 .
+ex:weight-operating-model-core-BusinessOwner-CustomerFit a sp:PolicyWeight ; sp:metric sp:CustomerFit ; sp:weight 4 .
+ex:weight-operating-model-core-BusinessOwner-DecisionRights a sp:PolicyWeight ; sp:metric sp:DecisionRights ; sp:weight 3 .
+ex:weight-operating-model-core-BusinessOwner-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -2 .
+
+ex:policy-operating-model-core-EnterpriseArchitect a sp:ActorPolicy ;
+  sp:actorRole sp:EnterpriseArchitect ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-operating-model-core-EnterpriseArchitect-Integration ;
+  sp:hasWeight ex:weight-operating-model-core-EnterpriseArchitect-Standardization ;
+  sp:hasWeight ex:weight-operating-model-core-EnterpriseArchitect-DecisionRights ;
+  sp:hasWeight ex:weight-operating-model-core-EnterpriseArchitect-Risk ;
+  sp:authorityToken "operating_model_design"  .
+ex:weight-operating-model-core-EnterpriseArchitect-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 5 .
+ex:weight-operating-model-core-EnterpriseArchitect-Standardization a sp:PolicyWeight ; sp:metric sp:Standardization ; sp:weight 5 .
+ex:weight-operating-model-core-EnterpriseArchitect-DecisionRights a sp:PolicyWeight ; sp:metric sp:DecisionRights ; sp:weight 4 .
+ex:weight-operating-model-core-EnterpriseArchitect-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -3 .
+
+ex:policy-operating-model-core-PlatformOwner a sp:ActorPolicy ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-operating-model-core-PlatformOwner-DataConsistency ;
+  sp:hasWeight ex:weight-operating-model-core-PlatformOwner-PlatformReuse ;
+  sp:hasWeight ex:weight-operating-model-core-PlatformOwner-Integration ;
+  sp:hasWeight ex:weight-operating-model-core-PlatformOwner-Cost ;
+  sp:authorityToken "core_diagram_design"  .
+ex:weight-operating-model-core-PlatformOwner-DataConsistency a sp:PolicyWeight ; sp:metric sp:DataConsistency ; sp:weight 5 .
+ex:weight-operating-model-core-PlatformOwner-PlatformReuse a sp:PolicyWeight ; sp:metric sp:PlatformReuse ; sp:weight 4 .
+ex:weight-operating-model-core-PlatformOwner-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 3 .
+ex:weight-operating-model-core-PlatformOwner-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+
+ex:policy-operating-model-core-RiskOfficer a sp:ActorPolicy ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-operating-model-core-RiskOfficer-Risk ;
+  sp:hasWeight ex:weight-operating-model-core-RiskOfficer-DecisionRights ;
+  sp:hasWeight ex:weight-operating-model-core-RiskOfficer-EvidenceCoverage ;
+  sp:authorityToken "decision_guardrails"  .
+ex:weight-operating-model-core-RiskOfficer-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -6 .
+ex:weight-operating-model-core-RiskOfficer-DecisionRights a sp:PolicyWeight ; sp:metric sp:DecisionRights ; sp:weight 4 .
+ex:weight-operating-model-core-RiskOfficer-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 3 .
+
+ex:policy-operating-model-core-EvidenceVerifier a sp:ActorPolicy ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-operating-model-core-EvidenceVerifier-EvidenceCoverage ;
+  sp:hasWeight ex:weight-operating-model-core-EvidenceVerifier-Integration ;
+  sp:hasWeight ex:weight-operating-model-core-EvidenceVerifier-DataConsistency ;
+  sp:hasWeight ex:weight-operating-model-core-EvidenceVerifier-Risk ;
+  sp:authorityToken "evidence_admission"  .
+ex:weight-operating-model-core-EvidenceVerifier-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 7 .
+ex:weight-operating-model-core-EvidenceVerifier-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 3 .
+ex:weight-operating-model-core-EvidenceVerifier-DataConsistency a sp:PolicyWeight ; sp:metric sp:DataConsistency ; sp:weight 3 .
+ex:weight-operating-model-core-EvidenceVerifier-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -5 .
+
+ex:action-operating-model-core-select-unification-model a sp:Action ;
+  sp:actionId "select-unification-model" ;
+  sp:actorRole sp:EnterpriseArchitect ;
+  sp:choiceGroup "operating-model-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-operating-model-core-select-unification-model-Integration ;
+  sp:hasEffect ex:effect-operating-model-core-select-unification-model-Standardization ;
+  sp:hasEffect ex:effect-operating-model-core-select-unification-model-DecisionRights ;
+  sp:hasEffect ex:effect-operating-model-core-select-unification-model-Risk ;
+  sp:requiresAuthority "operating_model_design" ;
+  sp:hasEvidence "operating-model-receipt"  .
+ex:effect-operating-model-core-select-unification-model-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 30 .
+ex:effect-operating-model-core-select-unification-model-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta 30 .
+ex:effect-operating-model-core-select-unification-model-DecisionRights a sp:Effect ; sp:metric sp:DecisionRights ; sp:delta 20 .
+ex:effect-operating-model-core-select-unification-model-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta 5 .
+
+ex:action-operating-model-core-select-diversification-model a sp:Action ;
+  sp:actionId "select-diversification-model" ;
+  sp:actorRole sp:EnterpriseArchitect ;
+  sp:choiceGroup "operating-model-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-operating-model-core-select-diversification-model-CustomerFit ;
+  sp:hasEffect ex:effect-operating-model-core-select-diversification-model-BusinessValue ;
+  sp:hasEffect ex:effect-operating-model-core-select-diversification-model-Integration ;
+  sp:hasEffect ex:effect-operating-model-core-select-diversification-model-Standardization ;
+  sp:requiresAuthority "operating_model_design" ;
+  sp:hasEvidence "diversification-model-receipt"  .
+ex:effect-operating-model-core-select-diversification-model-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 25 .
+ex:effect-operating-model-core-select-diversification-model-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 15 .
+ex:effect-operating-model-core-select-diversification-model-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta -10 .
+ex:effect-operating-model-core-select-diversification-model-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta -10 .
+
+ex:action-operating-model-core-align-capability-outcomes a sp:Action ;
+  sp:actionId "align-capability-outcomes" ;
+  sp:actorRole sp:BusinessOwner ;
+  sp:choiceGroup "capability-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-operating-model-core-align-capability-outcomes-BusinessValue ;
+  sp:hasEffect ex:effect-operating-model-core-align-capability-outcomes-CustomerFit ;
+  sp:hasEffect ex:effect-operating-model-core-align-capability-outcomes-DecisionRights ;
+  sp:requiresAuthority "capability_alignment" ;
+  sp:hasEvidence "capability-alignment-receipt"  .
+ex:effect-operating-model-core-align-capability-outcomes-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 25 .
+ex:effect-operating-model-core-align-capability-outcomes-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 15 .
+ex:effect-operating-model-core-align-capability-outcomes-DecisionRights a sp:Effect ; sp:metric sp:DecisionRights ; sp:delta 10 .
+
+ex:action-operating-model-core-bind-shared-data-core a sp:Action ;
+  sp:actionId "bind-shared-data-core" ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:choiceGroup "core-diagram-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-operating-model-core-bind-shared-data-core-DataConsistency ;
+  sp:hasEffect ex:effect-operating-model-core-bind-shared-data-core-PlatformReuse ;
+  sp:hasEffect ex:effect-operating-model-core-bind-shared-data-core-Integration ;
+  sp:hasEffect ex:effect-operating-model-core-bind-shared-data-core-Cost ;
+  sp:requiresAuthority "core_diagram_design" ;
+  sp:hasEvidence "core-diagram-receipt"  .
+ex:effect-operating-model-core-bind-shared-data-core-DataConsistency a sp:Effect ; sp:metric sp:DataConsistency ; sp:delta 30 .
+ex:effect-operating-model-core-bind-shared-data-core-PlatformReuse a sp:Effect ; sp:metric sp:PlatformReuse ; sp:delta 20 .
+ex:effect-operating-model-core-bind-shared-data-core-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 15 .
+ex:effect-operating-model-core-bind-shared-data-core-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 10 .
+
+ex:action-operating-model-core-establish-decision-guardrails a sp:Action ;
+  sp:actionId "establish-decision-guardrails" ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:choiceGroup "guardrail-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-operating-model-core-establish-decision-guardrails-Risk ;
+  sp:hasEffect ex:effect-operating-model-core-establish-decision-guardrails-DecisionRights ;
+  sp:hasEffect ex:effect-operating-model-core-establish-decision-guardrails-EvidenceCoverage ;
+  sp:requiresAuthority "decision_guardrails" ;
+  sp:hasEvidence "decision-rights-receipt"  .
+ex:effect-operating-model-core-establish-decision-guardrails-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -20 .
+ex:effect-operating-model-core-establish-decision-guardrails-DecisionRights a sp:Effect ; sp:metric sp:DecisionRights ; sp:delta 15 .
+ex:effect-operating-model-core-establish-decision-guardrails-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 10 .
+
+ex:action-operating-model-core-verify-core-diagram a sp:Action ;
+  sp:actionId "verify-core-diagram" ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:choiceGroup "core-admission" ;
+  sp:brokerIntent false ;
+  sp:hasGuard ex:guard-operating-model-core-verify-core-diagram-0 ;
+  sp:hasGuard ex:guard-operating-model-core-verify-core-diagram-1 ;
+  sp:hasGuard ex:guard-operating-model-core-verify-core-diagram-2 ;
+  sp:hasGuard ex:guard-operating-model-core-verify-core-diagram-3 ;
+  sp:hasGuard ex:guard-operating-model-core-verify-core-diagram-4 ;
+  sp:hasEffect ex:effect-operating-model-core-verify-core-diagram-EvidenceCoverage ;
+  sp:requiresAuthority "evidence_admission" ;
+  sp:hasEvidence "core-diagram-verification" ;
+  sp:hasEvidence "operating-model-replay"  .
+ex:guard-operating-model-core-verify-core-diagram-0 a sp:Guard ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 50 .
+ex:guard-operating-model-core-verify-core-diagram-1 a sp:Guard ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-operating-model-core-verify-core-diagram-2 a sp:Guard ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-operating-model-core-verify-core-diagram-3 a sp:Guard ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-operating-model-core-verify-core-diagram-4 a sp:Guard ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 40 .
+ex:effect-operating-model-core-verify-core-diagram-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 30 .
+
+ex:scenario-platform-engagement-transition a sp:Scenario ;
+  sp:scenarioId "platform-engagement-transition" ;
+  sp:maxRounds 4 ;
+  sp:coversUseCase sp:EaDigitizedPlatform ;
+  sp:coversUseCase sp:EaEngagementModel ;
+  sp:coversUseCase sp:EaValueRealization ;
+  sp:coversUseCase sp:EaTransitionArchitecture ;
+  sp:hasPolicy ex:policy-platform-engagement-transition-ProductManagement ;
+  sp:hasPolicy ex:policy-platform-engagement-transition-EnterpriseArchitect ;
+  sp:hasPolicy ex:policy-platform-engagement-transition-PlatformOwner ;
+  sp:hasPolicy ex:policy-platform-engagement-transition-RiskOfficer ;
+  sp:hasPolicy ex:policy-platform-engagement-transition-EvidenceVerifier ;
+  sp:hasAction ex:action-platform-engagement-transition-build-reusable-platform ;
+  sp:hasAction ex:action-platform-engagement-transition-establish-engagement-model ;
+  sp:hasAction ex:action-platform-engagement-transition-activate-customer-channel ;
+  sp:hasAction ex:action-platform-engagement-transition-sequence-transition-work ;
+  sp:hasAction ex:action-platform-engagement-transition-verify-value-realization ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-BusinessValue ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-BusinessValue ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-BusinessValue ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-FlowEfficiency ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-FlowEfficiency ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-Integration ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-Integration ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-Integration ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-Standardization ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-Standardization ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-Standardization ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-PlatformReuse ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-PlatformReuse ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-PlatformReuse ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-ArchitectureRunway ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-ArchitectureRunway ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-EvidenceCoverage ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-EvidenceCoverage ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-Risk ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-Risk ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-Risk ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-Cost ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-Cost ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-Cost ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-Wip ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-Wip ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-Wip ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-DependencyLoad ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-DependencyLoad ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-DependencyLoad ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-ReleaseReadiness ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-ReleaseReadiness ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-DecisionRights ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-DecisionRights ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-DecisionRights ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-DataConsistency ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-DataConsistency ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-DataConsistency ;
+  sp:hasInitialMetric ex:initial-platform-engagement-transition-CustomerFit ;
+  sp:hasInvariant ex:invariant-min-platform-engagement-transition-CustomerFit ;
+  sp:hasInvariant ex:invariant-max-platform-engagement-transition-CustomerFit ;
+  sp:hasGoal ex:goal-platform-engagement-transition-BusinessValue ;
+  sp:hasGoal ex:goal-platform-engagement-transition-FlowEfficiency ;
+  sp:hasGoal ex:goal-platform-engagement-transition-Integration ;
+  sp:hasGoal ex:goal-platform-engagement-transition-PlatformReuse ;
+  sp:hasGoal ex:goal-platform-engagement-transition-EvidenceCoverage ;
+  sp:hasGoal ex:goal-platform-engagement-transition-Risk ;
+  sp:hasGoal ex:goal-platform-engagement-transition-ReleaseReadiness ;
+  sp:hasGoal ex:goal-platform-engagement-transition-DecisionRights ;
+  sp:hasGoal ex:goal-platform-engagement-transition-CustomerFit  .
+
+ex:initial-platform-engagement-transition-BusinessValue a sp:MetricValue ; sp:metric sp:BusinessValue ; sp:value 25 .
+ex:initial-platform-engagement-transition-FlowEfficiency a sp:MetricValue ; sp:metric sp:FlowEfficiency ; sp:value 20 .
+ex:initial-platform-engagement-transition-Integration a sp:MetricValue ; sp:metric sp:Integration ; sp:value 25 .
+ex:initial-platform-engagement-transition-Standardization a sp:MetricValue ; sp:metric sp:Standardization ; sp:value 25 .
+ex:initial-platform-engagement-transition-PlatformReuse a sp:MetricValue ; sp:metric sp:PlatformReuse ; sp:value 20 .
+ex:initial-platform-engagement-transition-ArchitectureRunway a sp:MetricValue ; sp:metric sp:ArchitectureRunway ; sp:value 25 .
+ex:initial-platform-engagement-transition-EvidenceCoverage a sp:MetricValue ; sp:metric sp:EvidenceCoverage ; sp:value 10 .
+ex:initial-platform-engagement-transition-Risk a sp:MetricValue ; sp:metric sp:Risk ; sp:value 55 .
+ex:initial-platform-engagement-transition-Cost a sp:MetricValue ; sp:metric sp:Cost ; sp:value 20 .
+ex:initial-platform-engagement-transition-Wip a sp:MetricValue ; sp:metric sp:Wip ; sp:value 35 .
+ex:initial-platform-engagement-transition-DependencyLoad a sp:MetricValue ; sp:metric sp:DependencyLoad ; sp:value 35 .
+ex:initial-platform-engagement-transition-ReleaseReadiness a sp:MetricValue ; sp:metric sp:ReleaseReadiness ; sp:value 15 .
+ex:initial-platform-engagement-transition-DecisionRights a sp:MetricValue ; sp:metric sp:DecisionRights ; sp:value 20 .
+ex:initial-platform-engagement-transition-DataConsistency a sp:MetricValue ; sp:metric sp:DataConsistency ; sp:value 25 .
+ex:initial-platform-engagement-transition-CustomerFit a sp:MetricValue ; sp:metric sp:CustomerFit ; sp:value 20 .
+
+ex:invariant-min-platform-engagement-transition-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-BusinessValue a sp:Invariant ; sp:metric sp:BusinessValue ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-FlowEfficiency a sp:Invariant ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-Integration a sp:Invariant ; sp:metric sp:Integration ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-Standardization a sp:Invariant ; sp:metric sp:Standardization ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-PlatformReuse a sp:Invariant ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-ArchitectureRunway a sp:Invariant ; sp:metric sp:ArchitectureRunway ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-EvidenceCoverage a sp:Invariant ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-Risk a sp:Invariant ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-Cost a sp:Invariant ; sp:metric sp:Cost ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-Wip a sp:Invariant ; sp:metric sp:Wip ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-DependencyLoad a sp:Invariant ; sp:metric sp:DependencyLoad ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-ReleaseReadiness a sp:Invariant ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-DecisionRights a sp:Invariant ; sp:metric sp:DecisionRights ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-DataConsistency a sp:Invariant ; sp:metric sp:DataConsistency ; sp:comparison sp:AtMost ; sp:threshold 100 .
+ex:invariant-min-platform-engagement-transition-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 0 .
+ex:invariant-max-platform-engagement-transition-CustomerFit a sp:Invariant ; sp:metric sp:CustomerFit ; sp:comparison sp:AtMost ; sp:threshold 100 .
+
+ex:goal-platform-engagement-transition-BusinessValue a sp:Goal ; sp:metric sp:BusinessValue ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-platform-engagement-transition-FlowEfficiency a sp:Goal ; sp:metric sp:FlowEfficiency ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-platform-engagement-transition-Integration a sp:Goal ; sp:metric sp:Integration ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-platform-engagement-transition-PlatformReuse a sp:Goal ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 50 .
+ex:goal-platform-engagement-transition-EvidenceCoverage a sp:Goal ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:goal-platform-engagement-transition-Risk a sp:Goal ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 35 .
+ex:goal-platform-engagement-transition-ReleaseReadiness a sp:Goal ; sp:metric sp:ReleaseReadiness ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-platform-engagement-transition-DecisionRights a sp:Goal ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:goal-platform-engagement-transition-CustomerFit a sp:Goal ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+
+ex:policy-platform-engagement-transition-ProductManagement a sp:ActorPolicy ;
+  sp:actorRole sp:ProductManagement ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-platform-engagement-transition-ProductManagement-BusinessValue ;
+  sp:hasWeight ex:weight-platform-engagement-transition-ProductManagement-CustomerFit ;
+  sp:hasWeight ex:weight-platform-engagement-transition-ProductManagement-Wip ;
+  sp:hasWeight ex:weight-platform-engagement-transition-ProductManagement-Risk ;
+  sp:authorityToken "channel_activation"  .
+ex:weight-platform-engagement-transition-ProductManagement-BusinessValue a sp:PolicyWeight ; sp:metric sp:BusinessValue ; sp:weight 5 .
+ex:weight-platform-engagement-transition-ProductManagement-CustomerFit a sp:PolicyWeight ; sp:metric sp:CustomerFit ; sp:weight 5 .
+ex:weight-platform-engagement-transition-ProductManagement-Wip a sp:PolicyWeight ; sp:metric sp:Wip ; sp:weight -2 .
+ex:weight-platform-engagement-transition-ProductManagement-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -2 .
+
+ex:policy-platform-engagement-transition-EnterpriseArchitect a sp:ActorPolicy ;
+  sp:actorRole sp:EnterpriseArchitect ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EnterpriseArchitect-DecisionRights ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EnterpriseArchitect-Integration ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EnterpriseArchitect-Risk ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EnterpriseArchitect-FlowEfficiency ;
+  sp:authorityToken "engagement_model_design"  .
+ex:weight-platform-engagement-transition-EnterpriseArchitect-DecisionRights a sp:PolicyWeight ; sp:metric sp:DecisionRights ; sp:weight 5 .
+ex:weight-platform-engagement-transition-EnterpriseArchitect-Integration a sp:PolicyWeight ; sp:metric sp:Integration ; sp:weight 4 .
+ex:weight-platform-engagement-transition-EnterpriseArchitect-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -4 .
+ex:weight-platform-engagement-transition-EnterpriseArchitect-FlowEfficiency a sp:PolicyWeight ; sp:metric sp:FlowEfficiency ; sp:weight 2 .
+
+ex:policy-platform-engagement-transition-PlatformOwner a sp:ActorPolicy ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-platform-engagement-transition-PlatformOwner-PlatformReuse ;
+  sp:hasWeight ex:weight-platform-engagement-transition-PlatformOwner-Standardization ;
+  sp:hasWeight ex:weight-platform-engagement-transition-PlatformOwner-DataConsistency ;
+  sp:hasWeight ex:weight-platform-engagement-transition-PlatformOwner-Cost ;
+  sp:authorityToken "platform_investment"  .
+ex:weight-platform-engagement-transition-PlatformOwner-PlatformReuse a sp:PolicyWeight ; sp:metric sp:PlatformReuse ; sp:weight 6 .
+ex:weight-platform-engagement-transition-PlatformOwner-Standardization a sp:PolicyWeight ; sp:metric sp:Standardization ; sp:weight 4 .
+ex:weight-platform-engagement-transition-PlatformOwner-DataConsistency a sp:PolicyWeight ; sp:metric sp:DataConsistency ; sp:weight 4 .
+ex:weight-platform-engagement-transition-PlatformOwner-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+
+ex:policy-platform-engagement-transition-RiskOfficer a sp:ActorPolicy ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-platform-engagement-transition-RiskOfficer-Risk ;
+  sp:hasWeight ex:weight-platform-engagement-transition-RiskOfficer-FlowEfficiency ;
+  sp:hasWeight ex:weight-platform-engagement-transition-RiskOfficer-EvidenceCoverage ;
+  sp:hasWeight ex:weight-platform-engagement-transition-RiskOfficer-Cost ;
+  sp:authorityToken "transition_governance"  .
+ex:weight-platform-engagement-transition-RiskOfficer-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -6 .
+ex:weight-platform-engagement-transition-RiskOfficer-FlowEfficiency a sp:PolicyWeight ; sp:metric sp:FlowEfficiency ; sp:weight 3 .
+ex:weight-platform-engagement-transition-RiskOfficer-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 4 .
+ex:weight-platform-engagement-transition-RiskOfficer-Cost a sp:PolicyWeight ; sp:metric sp:Cost ; sp:weight -2 .
+
+ex:policy-platform-engagement-transition-EvidenceVerifier a sp:ActorPolicy ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:minimumUtility 1 ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EvidenceVerifier-EvidenceCoverage ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EvidenceVerifier-ReleaseReadiness ;
+  sp:hasWeight ex:weight-platform-engagement-transition-EvidenceVerifier-Risk ;
+  sp:authorityToken "evidence_admission"  .
+ex:weight-platform-engagement-transition-EvidenceVerifier-EvidenceCoverage a sp:PolicyWeight ; sp:metric sp:EvidenceCoverage ; sp:weight 7 .
+ex:weight-platform-engagement-transition-EvidenceVerifier-ReleaseReadiness a sp:PolicyWeight ; sp:metric sp:ReleaseReadiness ; sp:weight 6 .
+ex:weight-platform-engagement-transition-EvidenceVerifier-Risk a sp:PolicyWeight ; sp:metric sp:Risk ; sp:weight -5 .
+
+ex:action-platform-engagement-transition-build-reusable-platform a sp:Action ;
+  sp:actionId "build-reusable-platform" ;
+  sp:actorRole sp:PlatformOwner ;
+  sp:choiceGroup "platform-investment-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-platform-engagement-transition-build-reusable-platform-PlatformReuse ;
+  sp:hasEffect ex:effect-platform-engagement-transition-build-reusable-platform-Standardization ;
+  sp:hasEffect ex:effect-platform-engagement-transition-build-reusable-platform-DataConsistency ;
+  sp:hasEffect ex:effect-platform-engagement-transition-build-reusable-platform-Cost ;
+  sp:requiresAuthority "platform_investment" ;
+  sp:hasEvidence "digitized-platform-receipt"  .
+ex:effect-platform-engagement-transition-build-reusable-platform-PlatformReuse a sp:Effect ; sp:metric sp:PlatformReuse ; sp:delta 35 .
+ex:effect-platform-engagement-transition-build-reusable-platform-Standardization a sp:Effect ; sp:metric sp:Standardization ; sp:delta 15 .
+ex:effect-platform-engagement-transition-build-reusable-platform-DataConsistency a sp:Effect ; sp:metric sp:DataConsistency ; sp:delta 20 .
+ex:effect-platform-engagement-transition-build-reusable-platform-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 15 .
+
+ex:action-platform-engagement-transition-establish-engagement-model a sp:Action ;
+  sp:actionId "establish-engagement-model" ;
+  sp:actorRole sp:EnterpriseArchitect ;
+  sp:choiceGroup "engagement-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-platform-engagement-transition-establish-engagement-model-DecisionRights ;
+  sp:hasEffect ex:effect-platform-engagement-transition-establish-engagement-model-Integration ;
+  sp:hasEffect ex:effect-platform-engagement-transition-establish-engagement-model-Risk ;
+  sp:hasEffect ex:effect-platform-engagement-transition-establish-engagement-model-FlowEfficiency ;
+  sp:requiresAuthority "engagement_model_design" ;
+  sp:hasEvidence "engagement-model-receipt"  .
+ex:effect-platform-engagement-transition-establish-engagement-model-DecisionRights a sp:Effect ; sp:metric sp:DecisionRights ; sp:delta 25 .
+ex:effect-platform-engagement-transition-establish-engagement-model-Integration a sp:Effect ; sp:metric sp:Integration ; sp:delta 20 .
+ex:effect-platform-engagement-transition-establish-engagement-model-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -5 .
+ex:effect-platform-engagement-transition-establish-engagement-model-FlowEfficiency a sp:Effect ; sp:metric sp:FlowEfficiency ; sp:delta 10 .
+
+ex:action-platform-engagement-transition-activate-customer-channel a sp:Action ;
+  sp:actionId "activate-customer-channel" ;
+  sp:actorRole sp:ProductManagement ;
+  sp:choiceGroup "channel-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-platform-engagement-transition-activate-customer-channel-CustomerFit ;
+  sp:hasEffect ex:effect-platform-engagement-transition-activate-customer-channel-BusinessValue ;
+  sp:hasEffect ex:effect-platform-engagement-transition-activate-customer-channel-Wip ;
+  sp:hasEffect ex:effect-platform-engagement-transition-activate-customer-channel-Risk ;
+  sp:requiresAuthority "channel_activation" ;
+  sp:hasEvidence "channel-value-receipt"  .
+ex:effect-platform-engagement-transition-activate-customer-channel-CustomerFit a sp:Effect ; sp:metric sp:CustomerFit ; sp:delta 30 .
+ex:effect-platform-engagement-transition-activate-customer-channel-BusinessValue a sp:Effect ; sp:metric sp:BusinessValue ; sp:delta 25 .
+ex:effect-platform-engagement-transition-activate-customer-channel-Wip a sp:Effect ; sp:metric sp:Wip ; sp:delta 10 .
+ex:effect-platform-engagement-transition-activate-customer-channel-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta 5 .
+
+ex:action-platform-engagement-transition-sequence-transition-work a sp:Action ;
+  sp:actionId "sequence-transition-work" ;
+  sp:actorRole sp:RiskOfficer ;
+  sp:choiceGroup "transition-choice" ;
+  sp:brokerIntent true ;
+  sp:hasEffect ex:effect-platform-engagement-transition-sequence-transition-work-Risk ;
+  sp:hasEffect ex:effect-platform-engagement-transition-sequence-transition-work-Cost ;
+  sp:hasEffect ex:effect-platform-engagement-transition-sequence-transition-work-FlowEfficiency ;
+  sp:hasEffect ex:effect-platform-engagement-transition-sequence-transition-work-EvidenceCoverage ;
+  sp:hasEffect ex:effect-platform-engagement-transition-sequence-transition-work-Wip ;
+  sp:requiresAuthority "transition_governance" ;
+  sp:hasEvidence "transition-architecture-receipt"  .
+ex:effect-platform-engagement-transition-sequence-transition-work-Risk a sp:Effect ; sp:metric sp:Risk ; sp:delta -25 .
+ex:effect-platform-engagement-transition-sequence-transition-work-Cost a sp:Effect ; sp:metric sp:Cost ; sp:delta 5 .
+ex:effect-platform-engagement-transition-sequence-transition-work-FlowEfficiency a sp:Effect ; sp:metric sp:FlowEfficiency ; sp:delta 15 .
+ex:effect-platform-engagement-transition-sequence-transition-work-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 10 .
+ex:effect-platform-engagement-transition-sequence-transition-work-Wip a sp:Effect ; sp:metric sp:Wip ; sp:delta -10 .
+
+ex:action-platform-engagement-transition-verify-value-realization a sp:Action ;
+  sp:actionId "verify-value-realization" ;
+  sp:actorRole sp:EvidenceVerifier ;
+  sp:choiceGroup "value-admission" ;
+  sp:brokerIntent false ;
+  sp:hasGuard ex:guard-platform-engagement-transition-verify-value-realization-0 ;
+  sp:hasGuard ex:guard-platform-engagement-transition-verify-value-realization-1 ;
+  sp:hasGuard ex:guard-platform-engagement-transition-verify-value-realization-2 ;
+  sp:hasGuard ex:guard-platform-engagement-transition-verify-value-realization-3 ;
+  sp:hasGuard ex:guard-platform-engagement-transition-verify-value-realization-4 ;
+  sp:hasEffect ex:effect-platform-engagement-transition-verify-value-realization-EvidenceCoverage ;
+  sp:hasEffect ex:effect-platform-engagement-transition-verify-value-realization-ReleaseReadiness ;
+  sp:requiresAuthority "evidence_admission" ;
+  sp:hasEvidence "value-realization-verification" ;
+  sp:hasEvidence "transition-replay"  .
+ex:guard-platform-engagement-transition-verify-value-realization-0 a sp:Guard ; sp:metric sp:PlatformReuse ; sp:comparison sp:AtLeast ; sp:threshold 50 .
+ex:guard-platform-engagement-transition-verify-value-realization-1 a sp:Guard ; sp:metric sp:DecisionRights ; sp:comparison sp:AtLeast ; sp:threshold 40 .
+ex:guard-platform-engagement-transition-verify-value-realization-2 a sp:Guard ; sp:metric sp:CustomerFit ; sp:comparison sp:AtLeast ; sp:threshold 45 .
+ex:guard-platform-engagement-transition-verify-value-realization-3 a sp:Guard ; sp:metric sp:Risk ; sp:comparison sp:AtMost ; sp:threshold 35 .
+ex:guard-platform-engagement-transition-verify-value-realization-4 a sp:Guard ; sp:metric sp:EvidenceCoverage ; sp:comparison sp:AtLeast ; sp:threshold 20 .
+ex:effect-platform-engagement-transition-verify-value-realization-EvidenceCoverage a sp:Effect ; sp:metric sp:EvidenceCoverage ; sp:delta 30 .
+ex:effect-platform-engagement-transition-verify-value-realization-ReleaseReadiness a sp:Effect ; sp:metric sp:ReleaseReadiness ; sp:delta 25 .

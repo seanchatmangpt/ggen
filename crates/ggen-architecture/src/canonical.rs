@@ -6,6 +6,7 @@
 //! may manufacture bounded intents, but it cannot actuate external systems.
 
 pub mod building_block;
+pub mod self_play;
 
 #[path = "lib.rs"]
 pub mod fortune5_kernel;
@@ -22,6 +23,15 @@ pub use building_block::{
     EvidenceObligation, EvidenceReceipt, LifecycleState, ObligationId, Port, PortDirection, PortId,
     PortKind, ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
     Standing, SubstitutionAssessment,
+};
+pub use self_play::{
+    run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy, ActorRole,
+    Comparison, GameState, ManifestAction, ManifestActionAuthority, ManifestActionEvidence,
+    ManifestEffect, ManifestGuard, ManifestMetricValue, ManifestPolicy, ManifestPolicyAuthority,
+    ManifestPolicyWeight, ManifestScenario, ManifestScenarioConstraint, ManifestScenarioUseCase,
+    Metric, MetricConstraint, MetricEffect, MoveReceipt, SelfPlayManifest, SelfPlayReport,
+    SelfPlayScenario, SelfPlayStanding, SelfPlayViolation, UseCaseKind, SELF_PLAY_RECEIPT_SCHEMA,
+    SELF_PLAY_REPORT_SCHEMA, SELF_PLAY_REQUIRED_BROKER,
 };
 
 /// Receipt schema retained by the Fortune 5 profile.
