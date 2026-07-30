@@ -24,8 +24,11 @@ WHERE {
       ca:darknessRisk ?darknessRisk ; ca:learningCost ?learningCost ;
       ca:existingCoverage ?existingCoverage ; ca:drawNext ?drawNext ; ca:sayNext ?sayNext ;
       ca:why ?why ; ca:tradeoff ?tradeoff ; ca:watchFor ?watchFor .
-    OPTIONAL { ?s ca:requiresObjective ?requires . }
-    BIND(IF(BOUND(?requires), REPLACE(STR(?requires), "^.*#", ""), "") AS ?requiresSlug)
+    OPTIONAL {
+      ?s ca:requiresObjective ?requires .
+      ?requires ca:slug ?requiredSlugValue .
+    }
+    BIND(COALESCE(?requiredSlugValue, "") AS ?requiresSlug)
     BIND("objective" AS ?recordKind)
   }
   UNION
