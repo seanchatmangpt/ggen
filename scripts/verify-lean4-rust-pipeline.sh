@@ -29,6 +29,7 @@ mkdir -p "$EXAMPLE/generated"
 test -f "$EXAMPLE/generated/lean/lean-toolchain"
 test -f "$EXAMPLE/generated/lean/lake-manifest.json"
 test -f "$EXAMPLE/generated/lean/lakefile.lean"
+test -f "$EXAMPLE/generated/lean/Lean4RustPipeline.lean"
 test -f "$EXAMPLE/generated/lean/Main.lean"
 test -f "$EXAMPLE/generated/PIPELINE.md"
 test ! -e "$EXAMPLE/generated/rust"
@@ -45,11 +46,14 @@ sha256sum \
   "$EXAMPLE/generated/lean/lean-toolchain" \
   "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
+  "$EXAMPLE/generated/lean/Lean4RustPipeline.lean" \
   "$EXAMPLE/generated/lean/Main.lean" \
   "$EXAMPLE/generated/PIPELINE.md" \
   > /tmp/lean4-rust-ggen-first.sha256
 
-if rg -n '\b(sorry|axiom|admit|unsafe|partial_fixpoint)\b' "$EXAMPLE/generated/lean/Main.lean"; then
+if rg -n '\b(sorry|axiom|admit|unsafe|partial_fixpoint)\b' \
+  "$EXAMPLE/generated/lean/Lean4RustPipeline.lean" \
+  "$EXAMPLE/generated/lean/Main.lean"; then
   echo '::error::generated Lean source expands trust or contains an incomplete proof'
   exit 1
 fi
@@ -140,6 +144,7 @@ sha256sum \
   "$EXAMPLE/generated/lean/lean-toolchain" \
   "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
+  "$EXAMPLE/generated/lean/Lean4RustPipeline.lean" \
   "$EXAMPLE/generated/lean/Main.lean" \
   "$EXAMPLE/generated/PIPELINE.md" \
   > /tmp/lean4-rust-ggen-second.sha256
