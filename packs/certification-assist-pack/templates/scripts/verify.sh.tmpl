@@ -18,6 +18,7 @@ cargo test --manifest-path "$CONSUMER/Cargo.toml"
 
 cargo run --quiet --manifest-path "$CONSUMER/Cargo.toml" --bin mcp_server >"$MCP_SMOKE" <<'JSON'
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"crown","version":"26.7.30"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}
 {"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}
 {"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}
 {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"propose-promotion","arguments":{}}}
@@ -37,14 +38,18 @@ assert mcp["protocolVersion"] == "2025-11-25"
 assert mcp["taskAugmentation"] is False
 assert len(mcp["resources"]) == 3
 assert len(mcp["tools"]) == 5
-assert sum(1 for tool in mcp["tools"] if tool["requiresApproval"]) == 1
+assert all(tool["execution"]["taskSupport"] == "forbidden" for tool in mcp["tools"])
+assert all(tool["annotations"]["readOnlyHint"] is True for tool in mcp["tools"])
+assert all(tool["annotations"]["destructiveHint"] is False for tool in mcp["tools"])
 assert not any("task" in tool["name"] for tool in mcp["tools"])
 
 mcp_responses = [json.loads(line) for line in mcp_smoke_path.read_text().splitlines() if line]
 assert len(mcp_responses) == 4
+assert [response["id"] for response in mcp_responses] == [1, 2, 3, 4]
 assert mcp_responses[0]["result"]["protocolVersion"] == "2025-11-25"
 assert len(mcp_responses[1]["result"]["resources"]) == 3
 assert len(mcp_responses[2]["result"]["tools"]) == 5
+assert all(tool["execution"]["taskSupport"] == "forbidden" for tool in mcp_responses[2]["result"]["tools"])
 assert mcp_responses[3]["result"]["isError"] is True
 assert "REFUSED" in mcp_responses[3]["result"]["content"][0]["text"]
 
