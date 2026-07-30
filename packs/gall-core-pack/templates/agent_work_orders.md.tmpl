@@ -7,7 +7,7 @@ sparql:
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     SELECT ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
            ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
-           ?reviewerRole ?approvalGate
+           ?reviewerRole ?approvalGate ?branchPattern ?agentMode
            (GROUP_CONCAT(DISTINCT ?dependencyId; separator="`, `") AS ?dependencies)
            (GROUP_CONCAT(DISTINCT ?context; separator="`\n- `") AS ?contexts)
            (GROUP_CONCAT(DISTINCT ?allowed; separator="`\n- `") AS ?allowedPaths)
@@ -23,7 +23,10 @@ sparql:
     WHERE {
       ?program a gall:GallProgram ;
                gall:releaseIdentity ?releaseIdentity ;
+               gall:hasAutomationProfile ?profile ;
                gall:hasWorkItem ?workItem .
+      ?profile gall:branchPattern ?branchPattern ; gall:agentMode ?agentModeNode .
+      ?agentModeNode gall:agentModeName ?agentMode .
       ?workItem a gall:WorkItem ;
                 gall:workItemId ?workItemId ;
                 gall:issueType ?issueTypeNode ;
@@ -57,7 +60,7 @@ sparql:
     }
     GROUP BY ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
              ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
-             ?reviewerRole ?approvalGate
+             ?reviewerRole ?approvalGate ?branchPattern ?agentMode
     ORDER BY xsd:integer(?order) ?workItemId
 ---
 # Gall Coding-Agent Work Orders
@@ -77,10 +80,29 @@ These work orders are normative execution contracts. An agent must not infer omi
 | Priority | {{ item.priority }} |
 | Component | `{{ item.component }}` |
 | APS lifecycle state | {{ item.state }} |
+| Branch | `{{ item.branchPattern | replace(from="{workItemId}", to=item.workItemId) }}` |
+| Agent mode | `{{ item.agentMode }}` |
 | Assignee role | {{ item.assigneeRole }} |
 | Reviewer role | {{ item.reviewerRole }} |
 | Approval gate | {{ item.approvalGate }} |
 | Depends on | {% if item.dependencies %}`{{ item.dependencies }}`{% else %}None{% endif %} |
+
+### Control-plane lifecycle
+
+```bash
+bash scripts/gall/gall work dispatch {{ item.workItemId }}
+# Implement only the admitted scope.
+bash scripts/gall/gall work verify {{ item.workItemId }}
+bash scripts/gall/gall work complete {{ item.workItemId }}
+bash scripts/gall/gall tracker plan
+bash scripts/gall/gall receipt verify
+```
+
+An external command agent may be invoked only when the automation profile admits it:
+
+```bash
+bash scripts/gall/gall work dispatch {{ item.workItemId }} --apply
+```
 
 ### Objective
 
