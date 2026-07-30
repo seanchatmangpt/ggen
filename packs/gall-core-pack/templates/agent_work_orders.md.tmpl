@@ -7,7 +7,7 @@ sparql:
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
     SELECT ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
            ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
-           ?reviewerRole ?approvalGate ?branchPattern ?agentMode
+           ?reviewerRole ?approvalGate ?branch ?agentMode
            (GROUP_CONCAT(DISTINCT ?dependencyId; separator="`, `") AS ?dependencies)
            (GROUP_CONCAT(DISTINCT ?context; separator="`\n- `") AS ?contexts)
            (GROUP_CONCAT(DISTINCT ?allowed; separator="`\n- `") AS ?allowedPaths)
@@ -52,6 +52,7 @@ sparql:
                 gall:verificationCommand ?verify ;
                 gall:evidenceArtifact ?evidence ;
                 gall:adversarialQuestion ?question .
+      BIND(REPLACE(STR(?branchPattern), "\\{workItemId\\}", STR(?workItemId)) AS ?branch)
       ?issueTypeNode gall:jiraName ?issueType .
       ?priorityNode gall:priorityName ?priority .
       ?stateNode gall:stateName ?state .
@@ -60,7 +61,7 @@ sparql:
     }
     GROUP BY ?releaseIdentity ?workItemId ?issueType ?summary ?objective ?rationale
              ?checkpointId ?checkpointTitle ?order ?priority ?component ?state ?assigneeRole
-             ?reviewerRole ?approvalGate ?branchPattern ?agentMode
+             ?reviewerRole ?approvalGate ?branch ?agentMode
     ORDER BY xsd:integer(?order) ?workItemId
 ---
 # Gall Coding-Agent Work Orders
@@ -80,7 +81,7 @@ These work orders are normative execution contracts. An agent must not infer omi
 | Priority | {{ item.priority }} |
 | Component | `{{ item.component }}` |
 | APS lifecycle state | {{ item.state }} |
-| Branch | `{{ item.branchPattern | replace(from="{workItemId}", to=item.workItemId) }}` |
+| Branch | `{{ item.branch }}` |
 | Agent mode | `{{ item.agentMode }}` |
 | Assignee role | {{ item.assigneeRole }} |
 | Reviewer role | {{ item.reviewerRole }} |
