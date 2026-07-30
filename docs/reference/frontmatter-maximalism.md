@@ -15,11 +15,37 @@ Properties are evaluated in the phase where their information is available:
 | Phase | Properties | Law |
 |---|---|---|
 | Resolve | `from`, `rdf`, `rdf_inline`, `prefixes`, `base` | Establish the template body and semantic overlay before query extraction. |
-| Derive and extract | `construct`, `when`, `sparql` | Manufacture and select the admitted knowledge view. |
+| Derive, extract, and cardinality | `construct`, `when`, `sparql`, `for_each` | Manufacture and select the admitted view and explicitly name the row set governing multiplicity. |
 | Output projection | `to`, body, `before`, `after`, `skip_if`, `sh_before`, `sh_after`, `shape`, `freeze_slots_dir` | Tera-render from the same bounded query context for each materialized output. |
 | Write law | `inject`, `at_line`, `unless_exists`, `force`, `skip_empty`, `backup`, `freeze_policy` | Decide ownership, composition, preservation, and mutation. |
 
 A dynamic `to:` creates one output context per driving SPARQL row. All output-projection properties receive that same `row` plus its top-level bindings. This permits one ontology fact to specialize the path, structural slot, duplicate-prevention needle, native lifecycle command, governing shape, and checksum namespace together.
+
+## Explicit projection cardinality
+
+`for_each` is the highest-leverage combinatorial multiplier in the frontmatter
+calculus. It names one array-valued `sparql` result as the projection row set:
+
+```yaml
+sparql:
+  services: |
+    SELECT ?service ?module WHERE { ... } ORDER BY ?service
+for_each: services
+```
+
+A dynamic `to` manufactures one complete output per row. A static `to` concatenates
+one body rendering per row into a single registry, manifest, policy bundle, report,
+or injection payload. Static aggregation requires every output-phase authority field
+to remain invariant across rows; content may multiply, but one output receives one
+composition and actuation law.
+
+This creates the bounded 80/20 relation:
+
+```text
+named ontology view x artifact family x topology(fan-out | aggregate)
+```
+
+Omitting `for_each` preserves the historical implicit driver contract.
 
 ## Structural ports
 

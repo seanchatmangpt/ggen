@@ -11,7 +11,7 @@ The executable source of truth is:
 - `crates/ggen-engine/schema/frontmatter-schema.ttl` — machine-readable vocabulary;
 - `crates/ggen-engine/tests/frontmatter_*.rs` — real-boundary evidence.
 
-The parser accepts exactly 24 properties. Unknown keys fail closed. The historical
+The parser accepts exactly 25 properties. Unknown keys fail closed. The historical
 `sh` key is accepted only as a compatibility alias for `sh_before`; it is not a
 25th property.
 
@@ -28,6 +28,7 @@ sparql:
                 ex:capability ?capability .
     }
     ORDER BY ?module ?capability
+for_each: 00_driver
 
 construct: |
   CONSTRUCT {
@@ -96,7 +97,8 @@ parse
   -> build optional template-private RDF overlay
   -> run optional overlay construct
   -> evaluate when and named sparql queries
-  -> establish output cardinality and Tera context
+  -> select explicit for_each cardinality or preserve legacy implicit rows
+  -> establish fan-out, aggregate, or whole-output Tera context
   -> render body and output-phase properties
   -> validate shapes, determinism, duplicate targets, paths, and matchers
   -> run sh_before
@@ -248,7 +250,8 @@ receipt.
 | Property | Type and default | Primary phase | Consequence | Standing |
 |---|---|---|---|---|
 | `to` | required string | cardinality/render/write | selects output path and optional row fan-out | ALIVE, bounded |
-| `sparql` | string, sequence, or map; default empty | extract | produces named semantic views and driving rows | ALIVE |
+| `sparql` | string, sequence, or map; default empty | extract | produces named semantic views | ALIVE |
+| `for_each` | optional named result; default absent | cardinality | explicitly selects rows for fan-out or aggregation | ALIVE |
 | `construct` | optional string | shared enrich or overlay enrich | inserts derived triples | ALIVE, single-pass |
 | `inject` | boolean; default `false` | write | composes body into an existing file | ALIVE |
 | `before` | optional match declaration | render/preflight/write | inserts before selected host span | ALIVE |
@@ -277,7 +280,7 @@ the stated boundary. It does not erase the explicit limitations recorded below.
 
 ## 4. Property reference and use cases
 
-## 4.1 `to`
+## 4.2 `to`
 
 ### Syntax
 
@@ -325,7 +328,7 @@ include a complete `ORDER BY` with a stable tie-break.
 Keep output paths inside a clearly namespaced consumer directory. Do not claim
 canonical host paths unless the pack contract explicitly grants that authority.
 
-## 4.2 `sparql`
+## 4.3 `sparql`
 
 ### Syntax forms
 
@@ -382,7 +385,73 @@ result in sorted key order.
 - Row-level conditional generation belongs in the query `WHERE` clause; `when`
   guards the whole template.
 
-## 4.3 `construct`
+## 4.3 `for_each`
+
+### Syntax
+
+```yaml
+sparql:
+  entities: |
+    SELECT ?name WHERE { ?s ex:name ?name }
+    ORDER BY ?name
+for_each: entities
+```
+
+### Lifecycle
+
+`for_each` explicitly names the `sparql` result governing projection cardinality. The
+named result must exist and be array-valued. Missing names and scalar ASK results
+refuse before output rendering, hooks, or writes.
+
+The output path determines how the selected rows materialize:
+
+```text
+dynamic `to` containing `{{`
+  -> render one complete output projection per selected row
+
+static `to`
+  -> render the body once per selected row
+  -> concatenate those bodies in query-result order
+  -> apply one invariant lifecycle law to the aggregate output
+```
+
+A static aggregate refuses if output-phase frontmatter differs across rows. One file
+cannot honestly have row-dependent injection markers, hooks, shapes, freeze slots, or
+other ownership semantics. Include a row binding in `to` when those properties must
+vary per row.
+
+When `for_each` is absent, ggen preserves the historical behavior: the first
+array-valued named query in sorted key order supplies `results`, and fan-out occurs
+only when `to` contains `{{`.
+
+Zero explicitly selected rows produce zero outputs for both fan-out and aggregate
+modes.
+
+### Use cases
+
+- manufacture one module, test, schema, policy, workflow, or document per ontology row;
+- manufacture one registry, manifest, dispatch table, policy bundle, report, or index
+  from all selected rows;
+- aggregate row-rendered injection payloads into one host structural port;
+- make auxiliary array-valued queries incapable of silently changing cardinality;
+- give external packs a reviewable declaration of exactly which semantic view
+  multiplies their infrastructure consequences.
+
+### Combinatorial-maximalist law
+
+`for_each` separates knowledge selection from representation topology:
+
+```text
+one admitted named view
+  x many artifact families
+  x fan-out or aggregate topology
+  x all Tera-representable infrastructure surfaces
+```
+
+The property increases lawful projection combinations without increasing ambient
+write or shell authority.
+
+## 4.4 `construct`
 
 ### Syntax
 
@@ -428,7 +497,7 @@ multi-pass dependencies.
 Prefer overlay constructs. A shared construct changes the semantic state consumed
 by every pack and therefore requires a stronger admission contract.
 
-## 4.4 `inject`
+## 4.5 `inject`
 
 ### Syntax
 
@@ -462,7 +531,7 @@ External packs should inject only into host-declared slots. Use a structured
 `unique` matcher plus `skip_if` so the host structure and idempotence condition are
 both explicit.
 
-## 4.5 `before`
+## 4.6 `before`
 
 ### Compatibility form
 
@@ -502,7 +571,7 @@ before the selected span's starting line.
 - `unique` refuses multiple matches.
 - Empty compatibility strings match every line and should not be used.
 
-## 4.6 `after`
+## 4.7 `after`
 
 `after` has the same declaration, rendering, matching, and receipt semantics as
 `before`. Injection occurs after the selected span's ending line.
@@ -514,7 +583,7 @@ before the selected span's starting line.
 - place generated configuration immediately after a named section;
 - insert after a multi-line file-scoped block.
 
-## 4.7 Matcher declaration shared by `before`, `after`, and `skip_if`
+## 4.8 Matcher declaration shared by `before`, `after`, and `skip_if`
 
 ```yaml
 pattern: "required"
@@ -544,7 +613,7 @@ non-overlapping spans. File-scoped zero-width matches are refused.
 Patterns over 64 KiB, malformed regex, structured empty patterns, and `index: 0`
 are refused before shell execution.
 
-## 4.8 `at_line`
+## 4.9 `at_line`
 
 ### Syntax
 
@@ -569,7 +638,7 @@ past the append position are refused. `before` and `after` take precedence.
 Avoid `at_line` for human-edited or formatter-controlled host files. Structural
 markers are more stable and more reviewable.
 
-## 4.9 `skip_if`
+## 4.10 `skip_if`
 
 ### Compatibility form
 
@@ -603,7 +672,7 @@ string is a historical no-op.
 - detect a semantic generated marker rather than compare the whole file;
 - protect a host region already populated by another admitted pack.
 
-## 4.10 `unless_exists`
+## 4.11 `unless_exists`
 
 ### Syntax
 
@@ -625,7 +694,7 @@ writer's decision table. `skip_empty` short-circuits before the hook.
 - one-time migration or bootstrap artifacts;
 - files whose existence itself transfers ownership to the consumer.
 
-## 4.11 `force`
+## 4.12 `force`
 
 ### Syntax
 
@@ -656,7 +725,7 @@ Do not use `force` against consumer-owned canonical files unless the installatio
 contract grants explicit ownership. Prefer namespaced outputs or structural
 injection.
 
-## 4.12 `when`
+## 4.13 `when`
 
 ### Syntax
 
@@ -689,7 +758,7 @@ conditions.
 For a dynamic `to`, a false guard records the unrendered path expression as the skip
 decision because no row context exists. See the implementation findings.
 
-## 4.13 `skip_empty`
+## 4.14 `skip_empty`
 
 ### Syntax
 
@@ -714,7 +783,7 @@ path preflight, hooks, or write decisions.
 Because this is the earliest apply-stage short circuit, its decision path currently
 bypasses the normal safe-target preflight. See FM-LC-001.
 
-## 4.14 `from`
+## 4.15 `from`
 
 ### Syntax
 
@@ -737,7 +806,7 @@ into the receipt closure.
 - reuse a stable body with different queries, paths, ownership, or hooks;
 - package bodies cleanly inside external packs.
 
-## 4.15 `sh_before`
+## 4.16 `sh_before`
 
 ### Syntax
 
@@ -773,7 +842,7 @@ The denylist is not a sandbox. External packs with hooks are executable supply-c
 inputs and require explicit admission. Hook side effects are not itemized in the
 sync receipt.
 
-## 4.16 `sh_after`
+## 4.17 `sh_after`
 
 ### Syntax
 
@@ -799,7 +868,7 @@ dry-run.
 A failed `sh_after` occurs after the target has changed. There is no rollback and no
 final receipt for the failed sync.
 
-## 4.17 `backup`
+## 4.18 `backup`
 
 ### Syntax
 
@@ -826,7 +895,7 @@ proved by `inject_into`. A missing bare-string marker can therefore leave a `.ba
 side effect even though the sync refuses. Structured matcher preflight closes this
 for structured selectors, but not for the compatibility form. See FM-LC-003.
 
-## 4.18 `shape`
+## 4.19 `shape`
 
 ### Syntax
 
@@ -857,7 +926,7 @@ behavior proves only that each joined path exists.
 
 Therefore `shape` is a declaration plus existence gate, not proof of conformance.
 
-## 4.19 `determinism`
+## 4.20 `determinism`
 
 ### Syntax
 
@@ -895,7 +964,7 @@ It refuses differences in:
 This proves query and projection determinism. It does not re-run shell hooks, write
 outcomes, host filesystem races, or external tools.
 
-## 4.20 `freeze_policy`
+## 4.21 `freeze_policy`
 
 ### Values
 
@@ -941,7 +1010,7 @@ A checksum-slot read error other than missing-file is currently treated as “no
 checksum,” allowing normal write law to continue. This is fail-open for an unreadable
 governing slot. See FM-LC-004.
 
-## 4.21 `freeze_slots_dir`
+## 4.22 `freeze_slots_dir`
 
 ### Syntax
 
@@ -966,7 +1035,7 @@ The property is required only for `freeze_policy: checksum` and ignored otherwis
 - retain target-relative checksum hierarchy;
 - inspect and version a deterministic machine-ownership map.
 
-## 4.22 `rdf`
+## 4.23 `rdf`
 
 ### Syntax
 
@@ -1000,7 +1069,7 @@ The overlay uses the deterministic SPARQL graph implementation rather than the f
 GraphLaw store. It receives the already-materialized shared facts, but template-local
 facts are not independently subjected to the earlier law stage.
 
-## 4.23 `rdf_inline`
+## 4.24 `rdf_inline`
 
 ### Syntax
 
@@ -1025,7 +1094,7 @@ through the template file hash rather than a separate closure entry.
 - construct focused test or demonstration fixtures;
 - parameterize a reusable body with admitted semantic constants.
 
-## 4.24 `prefixes`
+## 4.25 `prefixes`
 
 ### Syntax
 
@@ -1049,7 +1118,7 @@ ignored when no overlay RDF is declared.
 
 Malformed names or IRIs fail when the composed Turtle is parsed.
 
-## 4.25 `base`
+## 4.26 `base`
 
 ### Syntax
 
@@ -1379,15 +1448,19 @@ there.
 **Required checkpoint:** either refuse placement properties unless `inject: true`, or
 consistently ignore them before matcher observation. Refusal is the clearer contract.
 
-### FM-LC-007 — row driver is implicit
+### FM-LC-007 — projection cardinality is explicit
 
-**Standing: ALIVE but design-bounded**
+**Standing: ALIVE**
 
-Dynamic output cardinality depends on the first array-valued named query in sorted
-key order. This is deterministic but semantically indirect.
+`for_each` now names the exact array-valued `sparql` result that governs multiplicity.
+Dynamic targets fan out per row. Static targets aggregate row-rendered bodies into one
+artifact while refusing row-varying lifecycle law. Missing or scalar drivers refuse
+before hooks and writes. Omitting the property preserves the historical implicit
+behavior for existing templates.
 
-**Required extension:** an explicit `for_each`/driver declaration or an ontology-level
-projection rule that names the row source and cardinality contract.
+**Remaining extension boundary:** cross-products, joins between multiple named row
+sets, grouping, and reduction operators are intentionally excluded until a bounded
+use case demonstrates that they cannot be expressed more clearly in SPARQL.
 
 ### FM-LC-008 — hooks and writes are nontransactional
 
@@ -1432,8 +1505,8 @@ implicit.
    evaluation.
 4. **Hook Broker** — declared authority, sandbox/broker boundary, itemized effects,
    rollback or compensating receipt.
-5. **Explicit Cardinality** — replace implicit first-array driving with a named
-   driver contract.
+5. **Cardinality Algebra** — `for_each` closes the named-driver 80/20; add grouping,
+   cross-products, or reductions only when concrete packs prove the need.
 6. **Overlay Admission** — optional local law/gate pass for `rdf` overlays.
 7. **Ownership Receipts** — distinguish generated ownership, human handoff,
    checksum-protected human edit, and frozen drift as explicit states.
@@ -1449,6 +1522,7 @@ implicit.
 | `rdf`, `rdf_inline`, `prefixes`, `base`, overlay isolation | `frontmatter_rdf_e2e.rs` |
 | output-phase Tera rendering and hook asymmetry | `frontmatter_maximalism_e2e.rs` |
 | typed matcher defaults, regex, cardinality, pre-actuation refusal | `frontmatter_matchers_e2e.rs` |
+| explicit named driver, fan-out, static aggregation, invariant lifecycle law | `frontmatter_cardinality_e2e.rs` |
 | schema/struct field equality | `frontmatter_schema_match.rs` |
 | receipt payload and chained standing | sync and receipt E2E tests |
 
