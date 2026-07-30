@@ -85,6 +85,10 @@ def main() -> int:
         "candidate.standing | pascal_case" in lib_template,
         "IMPLICIT_STANDING_CASE_CONVERSION_REFUSED",
     )
+    refuse(
+        "#[allow(dead_code)]\nenum CoverageMode" not in lib_template,
+        "ONE_ACTIVE_COVERAGE_SPECIALIZATION_FENCE_MISSING",
+    )
     for required_layout in (
         "};{% endfor %}\n\n{% for d in design %}const DESIGN",
         "};{% endfor %}\n\n#[derive(Debug)]",
