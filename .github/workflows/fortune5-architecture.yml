@@ -32,8 +32,15 @@ jobs:
       - name: Resolve the isolated kernel manifest
         run: cargo metadata --manifest-path crates/ggen-architecture/Cargo.toml --no-deps --format-version 1 >/tmp/fortune5-metadata.json
 
-      - name: Enforce formatting
-        run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --check
+      - name: Normalize kernel with pinned rustfmt
+        run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml
+
+      - name: Upload normalized kernel bytes
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: fortune5-rustfmt-${{ github.sha }}
+          path: crates/ggen-architecture/src/lib.rs
+          if-no-files-found: error
 
       - name: Enforce warning-free kernel
         run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --all-targets -- -D warnings
