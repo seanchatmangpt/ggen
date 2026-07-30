@@ -36,7 +36,7 @@ jobs:
       - name: Run narrow real-boundary verifier
         shell: bash
         run: |
-          cargo test -p ggen-engine \
+          RUSTC_WRAPPER= cargo test -p ggen-engine \
             --test frontmatter_maximalism_e2e \
             --test frontmatter_schema_match \
             --test frontmatter_fields_e2e
