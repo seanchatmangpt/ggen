@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 pub const CERTIFICATION_ASSIST_VERSION: &str = "26.7.30";
 pub const REQUIRED_PROOF_SURFACES: usize = 3;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct GeneratedCapability {
     pub order: u8,
     pub slug: &'static str,
@@ -75,19 +75,20 @@ impl StandingLevel {
     }
 
     pub fn next(self) -> Option<Self> {
-        Self::from_u8(self as u8 + 1).ok()
+        let next = self as u8 + 1;
+        Self::from_u8(next).ok()
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct Objective {
     pub order: u8,
     pub slug: &'static str,
     pub name: &'static str,
     pub exam_domain: &'static str,
     pub concept: &'static str,
-    pub current: StandingLevel,
-    pub target: StandingLevel,
+    pub current: u8,
+    pub target: u8,
     pub interview_frequency: u64,
     pub ecosystem_dependency: u64,
     pub transfer_breadth: u64,
@@ -103,6 +104,16 @@ pub struct Objective {
     pub watch_for: &'static str,
 }
 
+impl Objective {
+    pub fn current_level(self) -> Result<StandingLevel, AssistError> {
+        StandingLevel::from_u8(self.current)
+    }
+
+    pub fn target_level(self) -> Result<StandingLevel, AssistError> {
+        StandingLevel::from_u8(self.target)
+    }
+}
+
 pub const OBJECTIVES: &[Objective] = &[
 {% for row in results %}{% if row["recordKind"] == "objective" %}    Objective {
         order: {{ row["order"] }},
@@ -110,8 +121,8 @@ pub const OBJECTIVES: &[Objective] = &[
         name: "{{ row["name"] }}",
         exam_domain: "{{ row["examDomain"] }}",
         concept: "{{ row["concept"] }}",
-        current: StandingLevel::from_u8({{ row["currentStanding"] }}).expect("ontology gate bounds current standing"),
-        target: StandingLevel::from_u8({{ row["targetStanding"] }}).expect("ontology gate bounds target standing"),
+        current: {{ row["currentStanding"] }},
+        target: {{ row["targetStanding"] }},
         interview_frequency: {{ row["interviewFrequency"] }},
         ecosystem_dependency: {{ row["ecosystemDependency"] }},
         transfer_breadth: {{ row["transferBreadth"] }},
@@ -128,7 +139,7 @@ pub const OBJECTIVES: &[Objective] = &[
     },
 {% endif %}{% endfor %}];
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct HorizonGap {
     pub order: u8,
     pub slug: &'static str,
@@ -153,7 +164,7 @@ pub const HORIZON_GAPS: &[HorizonGap] = &[
     },
 {% endif %}{% endfor %}];
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct SelfPlayRole {
     pub order: u8,
     pub slug: &'static str,
@@ -168,7 +179,7 @@ pub const SELF_PLAY_ROLES: &[SelfPlayRole] = &[
     },
 {% endif %}{% endfor %}];
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct AutonomicConfig {
     pub max_cycles: usize,
     pub direct_actuation: bool,
@@ -215,25 +226,47 @@ pub fn objective(slug: &str) -> Result<Objective, AssistError> {
     OBJECTIVES
         .iter()
         .copied()
-        .find(|objective| objective.slug == slug)
+        .find(|item| item.slug == slug)
         .ok_or_else(|| AssistError::UnknownObjective(slug.to_string()))
 }
 
-pub fn priority_score(objective: Objective) -> Result<u64, AssistError> {
-    let denominator = objective
-        .learning_cost
-        .checked_mul(objective.existing_coverage + 1)
-        .ok_or_else(|| AssistError::InvalidPriority(objective.slug.to_string()))?;
-    if denominator == 0 {
-        return Err(AssistError::InvalidPriority(objective.slug.to_string()));
+pub fn validate_objectives() -> Result<(), AssistError> {
+    let mut slugs = BTreeSet::new();
+    for item in OBJECTIVES {
+        if !slugs.insert(item.slug) {
+            return Err(AssistError::DuplicateObjective(item.slug.to_string()));
+        }
+        let current = item.current_level()?;
+        let target = item.target_level()?;
+        if target <= current || item.learning_cost == 0 {
+            return Err(AssistError::InvalidPriority(item.slug.to_string()));
+        }
     }
-    let numerator = objective
+    for item in OBJECTIVES {
+        if let Some(required) = item.requires_slug {
+            if !slugs.contains(required) {
+                return Err(AssistError::MissingPrerequisite(required.to_string()));
+            }
+        }
+    }
+    Ok(())
+}
+
+pub fn priority_score(item: Objective) -> Result<u64, AssistError> {
+    let denominator = item
+        .learning_cost
+        .checked_mul(item.existing_coverage + 1)
+        .ok_or_else(|| AssistError::InvalidPriority(item.slug.to_string()))?;
+    if denominator == 0 {
+        return Err(AssistError::InvalidPriority(item.slug.to_string()));
+    }
+    let numerator = item
         .interview_frequency
-        .checked_mul(objective.ecosystem_dependency)
-        .and_then(|value| value.checked_mul(objective.transfer_breadth))
-        .and_then(|value| value.checked_mul(objective.gatekeeping_value))
-        .and_then(|value| value.checked_mul(objective.darkness_risk))
-        .ok_or_else(|| AssistError::InvalidPriority(objective.slug.to_string()))?;
+        .checked_mul(item.ecosystem_dependency)
+        .and_then(|value| value.checked_mul(item.transfer_breadth))
+        .and_then(|value| value.checked_mul(item.gatekeeping_value))
+        .and_then(|value| value.checked_mul(item.darkness_risk))
+        .ok_or_else(|| AssistError::InvalidPriority(item.slug.to_string()))?;
     Ok(numerator / denominator)
 }
 
@@ -246,13 +279,10 @@ pub struct SpeedrunItem {
 }
 
 pub fn speedrun_plan() -> Result<Vec<SpeedrunItem>, AssistError> {
-    let mut remaining = BTreeMap::new();
-    for item in OBJECTIVES {
-        if remaining.insert(item.slug, *item).is_some() {
-            return Err(AssistError::DuplicateObjective(item.slug.to_string()));
-        }
-    }
-    let mut selected = BTreeSet::new();
+    validate_objectives()?;
+    let mut remaining: BTreeMap<&str, Objective> =
+        OBJECTIVES.iter().map(|item| (item.slug, *item)).collect();
+    let mut selected: BTreeSet<&str> = BTreeSet::new();
     let mut plan = Vec::with_capacity(remaining.len());
     while !remaining.is_empty() {
         let mut candidates = remaining
@@ -288,12 +318,11 @@ pub fn speedrun_digest(plan: &[SpeedrunItem]) -> [u8; 32] {
     put(&mut hasher, b"certification-assist-speedrun/v1");
     for item in plan {
         put(&mut hasher, item.objective_slug.as_bytes());
-        hasher.update(&(item.priority).to_le_bytes());
-        if let Some(required) = &item.prerequisite {
-            put(&mut hasher, required.as_bytes());
-        } else {
-            put(&mut hasher, b"");
-        }
+        hasher.update(&item.priority.to_le_bytes());
+        put(
+            &mut hasher,
+            item.prerequisite.as_deref().unwrap_or_default().as_bytes(),
+        );
     }
     hasher.finalize().into()
 }
@@ -349,7 +378,7 @@ pub struct PracticeProbe {
 pub fn manufacture_probe(slug: &str, kind: ProbeKind) -> Result<PracticeProbe, AssistError> {
     let item = objective(slug)?;
     let prompt = match kind {
-        ProbeKind::Recall => format!("Define {} without using vendor product names.", item.concept),
+        ProbeKind::Recall => format!("Define {} without vendor product names.", item.concept),
         ProbeKind::Explanation => format!("Explain why {} exists and name its tradeoff.", item.name),
         ProbeKind::Whiteboard => item.draw_next.to_string(),
         ProbeKind::Lab => format!("Build the smallest executable fixture for {}.", item.name),
@@ -407,19 +436,21 @@ pub fn run_self_play(slug: &str) -> Result<A2aTask, AssistError> {
         return Err(AssistError::InvalidSelfPlayRoles);
     }
     let item = objective(slug)?;
+    let current = item.current_level()?;
+    let target = item.target_level()?;
     let projection = whiteboard_projection(slug)?;
     let messages = vec![
         A2aMessage {
             role: "candidate-twin".to_string(),
-            parts: vec![format!("current-standing={:?}", item.current), projection.say_next.clone()],
+            parts: vec![format!("current-standing={current:?}"), projection.say_next.clone()],
         },
         A2aMessage {
             role: "examiner-twin".to_string(),
-            parts: vec![format!("target-standing={:?}", item.target), projection.watch_for.clone()],
+            parts: vec![format!("target-standing={target:?}"), projection.watch_for.clone()],
         },
         A2aMessage {
             role: "domain-adjudicator".to_string(),
-            parts: vec![format!("gap={}", item.target as u8 - item.current as u8), projection.why.clone()],
+            parts: vec![format!("gap={}", item.target - item.current), projection.why.clone()],
         },
     ];
     let artifact = A2aArtifact {
@@ -430,8 +461,10 @@ pub fn run_self_play(slug: &str) -> Result<A2aTask, AssistError> {
     let mut hasher = blake3::Hasher::new();
     put(&mut hasher, b"certification-assist-a2a-task/v1");
     put(&mut hasher, slug.as_bytes());
-    put(&mut hasher, serde_json::to_string(&messages).map_err(|_| AssistError::ReceiptMismatch)?.as_bytes());
-    put(&mut hasher, serde_json::to_string(&artifact).map_err(|_| AssistError::ReceiptMismatch)?.as_bytes());
+    let messages_json = serde_json::to_vec(&messages).map_err(|_| AssistError::ReceiptMismatch)?;
+    let artifact_json = serde_json::to_vec(&artifact).map_err(|_| AssistError::ReceiptMismatch)?;
+    put(&mut hasher, &messages_json);
+    put(&mut hasher, &artifact_json);
     let digest = hasher.finalize().into();
     Ok(A2aTask {
         task_id: format!("self-play-{slug}"),
@@ -521,14 +554,13 @@ impl EvidenceArtifact {
     }
 
     pub fn verify(&self) -> Result<(), AssistError> {
-        if self.evidence_digest
-            != evidence_digest(
-                &self.evidence_id,
-                &self.objective_slug,
-                &self.dimension,
-                &self.payload_digest,
-            )
-        {
+        let expected = evidence_digest(
+            &self.evidence_id,
+            &self.objective_slug,
+            &self.dimension,
+            &self.payload_digest,
+        );
+        if self.evidence_digest != expected {
             return Err(AssistError::EvidenceMismatch);
         }
         Ok(())
@@ -571,15 +603,14 @@ impl StandingReceipt {
     }
 
     pub fn verify(&self) -> Result<(), AssistError> {
-        if self.receipt_digest
-            != standing_receipt_digest(
-                &self.objective_slug,
-                self.from,
-                self.to,
-                &self.evidence_digest,
-                self.predecessor.as_ref(),
-            )
-        {
+        let expected = standing_receipt_digest(
+            &self.objective_slug,
+            self.from,
+            self.to,
+            &self.evidence_digest,
+            self.predecessor.as_ref(),
+        );
+        if self.receipt_digest != expected {
             return Err(AssistError::ReceiptMismatch);
         }
         Ok(())
@@ -592,11 +623,16 @@ pub struct StandingLedger {
 }
 
 impl StandingLedger {
-    pub fn new() -> Self {
-        Self {
-            current: OBJECTIVES.iter().map(|item| (item.slug, item.current)).collect(),
+    pub fn new() -> Result<Self, AssistError> {
+        validate_objectives()?;
+        let current = OBJECTIVES
+            .iter()
+            .map(|item| Ok((item.slug, item.current_level()?)))
+            .collect::<Result<BTreeMap<_, _>, AssistError>>()?;
+        Ok(Self {
+            current,
             receipts: Vec::new(),
-        }
+        })
     }
 
     pub fn standing(&self, slug: &str) -> Result<StandingLevel, AssistError> {
@@ -627,12 +663,6 @@ impl StandingLedger {
         self.current.insert(slug, to);
         self.receipts.push(receipt.clone());
         Ok(receipt)
-    }
-}
-
-impl Default for StandingLedger {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -688,7 +718,9 @@ fn standing_receipt_digest(
             hasher.update(&[1]);
             hasher.update(value);
         }
-        None => hasher.update(&[0]),
+        None => {
+            hasher.update(&[0]);
+        }
     }
     hasher.finalize().into()
 }
@@ -813,9 +845,11 @@ pub fn verify() -> Result<VerifierReport, Box<dyn Error>> {
         return Err(Box::new(AssistError::DirectActuationRefused));
     }
 
-    let mut ledger = StandingLedger::new();
+    let mut ledger = StandingLedger::new()?;
     let current = ledger.standing("network-flow")?;
-    let next = current.next().ok_or(AssistError::InvalidTransition { from: current, to: current })?;
+    let next = current
+        .next()
+        .ok_or(AssistError::InvalidTransition { from: current, to: current })?;
     if !matches!(
         ledger.promote("network-flow", next, None),
         Err(AssistError::MissingEvidence(_))
