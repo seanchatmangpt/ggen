@@ -115,14 +115,14 @@ def rustLib : String :=
   "        PromotionDecision::Refuse => \"REFUSE\",\n" ++
   "    }\n" ++
   "}\n\n" ++
-  "pub const fn slo_compliant(observation: &DeploymentObservation) -> bool {\n" ++
+  "pub fn slo_compliant(observation: &DeploymentObservation) -> bool {\n" ++
   "    match observation.slo_class {\n" ++
   "        SloClass::R1 => observation.observed_p99_ns <= R1_P99_NS && observation.observed_p99_ticks <= R1_TICK_BUDGET,\n" ++
   "        SloClass::W1 => observation.observed_p99_ns <= W1_P99_NS,\n" ++
   "        SloClass::C1 => observation.observed_p99_ns <= C1_P99_NS,\n" ++
   "    }\n" ++
   "}\n\n" ++
-  "pub const fn all_promotion_gates(observation: &DeploymentObservation) -> bool {\n" ++
+  "pub fn all_promotion_gates(observation: &DeploymentObservation) -> bool {\n" ++
   "    CANARY_REQUIRED && observation.canary_validated\n" ++
   "        && STAGING_VALIDATION_REQUIRED && observation.staging_validated\n" ++
   "        && PROMOTION_RECEIPT_REQUIRED && observation.promotion_receipt_ready\n" ++
@@ -144,7 +144,7 @@ def rustLib : String :=
   "        && SLO_ALERT_REQUIRED && GUARD_ALERT_REQUIRED\n" ++
   "        && RECEIPT_MISMATCH_ALERT_REQUIRED && PERFORMANCE_DEGRADATION_ALERT_REQUIRED && observation.alerts_ready\n" ++
   "}\n\n" ++
-  "pub const fn evaluate_promotion(observation: &DeploymentObservation) -> PromotionDecision {\n" ++
+  "pub fn evaluate_promotion(observation: &DeploymentObservation) -> PromotionDecision {\n" ++
   "    if !slo_compliant(observation) {\n" ++
   "        PromotionDecision::Rollback\n" ++
   "    } else if !all_promotion_gates(observation) {\n" ++
