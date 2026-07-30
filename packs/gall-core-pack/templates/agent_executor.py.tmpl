@@ -1,0 +1,265 @@
+---
+to: scripts/gall/agent_executor.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED isolated executor for one Gall command-agent work item."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+from control_plane import ControlPlane, WorkItem, ROOT
+
+
+def command(
+    argv: list[str], cwd: Path = ROOT, capture: bool = True
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        argv,
+        cwd=cwd,
+        text=True,
+        capture_output=capture,
+        check=False,
+    )
+
+
+def git(args: list[str], cwd: Path = ROOT) -> subprocess.CompletedProcess[str]:
+    return command(["git", *args], cwd=cwd)
+
+
+def clean_tracked_root() -> None:
+    result = git(["status", "--porcelain", "--untracked-files=no"])
+    if result.returncode != 0:
+        raise SystemExit(f"git status failed: {result.stderr}")
+    if result.stdout.strip():
+        raise SystemExit("agent actuation requires a clean tracked operator worktree")
+
+
+def branch_exists(branch: str) -> bool:
+    return git(["show-ref", "--verify", "--quiet", f"refs/heads/{branch}"]).returncode == 0
+
+
+def normalized_prefix(raw: str) -> str:
+    value = raw.strip().replace("\\", "/")
+    while value.startswith("./"):
+        value = value[2:]
+    return value
+
+
+def path_matches(path: str, boundary: str) -> bool:
+    boundary = normalized_prefix(boundary)
+    if boundary.endswith("/"):
+        return path.startswith(boundary)
+    return path == boundary or path.startswith(boundary + "/")
+
+
+def changed_paths(worktree: Path) -> list[str]:
+    paths: set[str] = set()
+    for args in [
+        ["diff", "--name-only", "-z"],
+        ["diff", "--cached", "--name-only", "-z"],
+        ["ls-files", "--others", "--exclude-standard", "-z"],
+    ]:
+        result = git(args, cwd=worktree)
+        if result.returncode != 0:
+            raise SystemExit(f"git {' '.join(args)} failed: {result.stderr}")
+        paths.update(path for path in result.stdout.split("\0") if path)
+    return sorted(paths)
+
+
+def classify_paths(item: WorkItem, paths: list[str]) -> tuple[list[str], list[str]]:
+    allowed = item.values("Allowed Paths")
+    forbidden = item.values("Forbidden Paths")
+    authorized: list[str] = []
+    violations: list[str] = []
+    for path in paths:
+        if any(path_matches(path, boundary) for boundary in forbidden):
+            violations.append(f"forbidden:{path}")
+        elif not any(path_matches(path, boundary) for boundary in allowed):
+            violations.append(f"unauthorized:{path}")
+        else:
+            authorized.append(path)
+    return authorized, violations
+
+
+def run_verification(item: WorkItem, worktree: Path) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for shell_command in item.values("Verification Commands"):
+        completed = command(["bash", "-lc", shell_command], cwd=worktree)
+        results.append(
+            {
+                "command": shell_command,
+                "exit_code": completed.returncode,
+                "stdout": completed.stdout[-4096:],
+                "stderr": completed.stderr[-4096:],
+            }
+        )
+    return results
+
+
+def execute(work_item_id: str) -> int:
+    control = ControlPlane()
+    item = control.require_item(work_item_id)
+    control.assert_ready(item)
+    if control.config["Execution Mode"] != "apply-allowed":
+        raise SystemExit("automation profile forbids command-agent apply")
+    if control.config["Agent Mode"] != "command-agent":
+        raise SystemExit("automation profile permits handoff only")
+    agent_command = os.environ.get("GALL_AGENT_COMMAND", "").strip()
+    if not agent_command:
+        raise SystemExit("GALL_AGENT_COMMAND is required for command-agent apply")
+    clean_tracked_root()
+
+    bundle = control.runtime_dir / "dispatch" / item.id
+    source_work_order = bundle / "WORK_ORDER.md"
+    if not source_work_order.is_file():
+        raise SystemExit("dispatch bundle is missing; create the handoff before apply")
+    branch = control.config["Branch Pattern"].replace("{workItemId}", item.id)
+    worktree = control.runtime_dir / "worktrees" / item.id
+    if worktree.exists():
+        raise SystemExit(f"isolated worktree already exists: {worktree.relative_to(ROOT)}")
+    worktree.parent.mkdir(parents=True, exist_ok=True)
+
+    intent = control.write_receipt(
+        "agent-execution-intent",
+        {
+            "branch": branch,
+            "worktree": str(worktree.relative_to(ROOT)),
+            "allowed_paths": item.values("Allowed Paths"),
+            "forbidden_paths": item.values("Forbidden Paths"),
+        },
+        item.id,
+    )
+
+    add_args = ["worktree", "add"]
+    if not branch_exists(branch):
+        add_args.extend(["-b", branch])
+    add_args.extend([str(worktree), branch if branch_exists(branch) else "HEAD"])
+    added = git(add_args)
+    if added.returncode != 0:
+        control.write_receipt(
+            "agent-execution-result",
+            {
+                "passed": False,
+                "stage": "worktree-add",
+                "exit_code": added.returncode,
+                "stderr": added.stderr[-4096:],
+                "intent_receipt": str(intent.relative_to(ROOT)),
+            },
+            item.id,
+        )
+        raise SystemExit(f"git worktree add failed: {added.stderr}")
+
+    local_bundle = worktree / ".gall"
+    local_bundle.mkdir(parents=True, exist_ok=True)
+    local_work_order = local_bundle / "WORK_ORDER.md"
+    shutil.copy2(source_work_order, local_work_order)
+    argv = shlex.split(agent_command) + [str(local_work_order)]
+    completed = command(argv, cwd=worktree)
+    (bundle / "agent.stdout.log").write_text(completed.stdout, encoding="utf-8")
+    (bundle / "agent.stderr.log").write_text(completed.stderr, encoding="utf-8")
+
+    paths = changed_paths(worktree)
+    authorized, violations = classify_paths(item, paths)
+    verification = run_verification(item, worktree)
+    verification_green = all(result["exit_code"] == 0 for result in verification)
+    passed = completed.returncode == 0 and not violations and verification_green
+    result = control.write_receipt(
+        "agent-execution-result",
+        {
+            "passed": passed,
+            "branch": branch,
+            "worktree": str(worktree.relative_to(ROOT)),
+            "argv": argv,
+            "agent_exit_code": completed.returncode,
+            "changed_paths": paths,
+            "authorized_paths": authorized,
+            "path_violations": violations,
+            "verification": verification,
+            "intent_receipt": str(intent.relative_to(ROOT)),
+        },
+        item.id,
+    )
+    print(
+        json.dumps(
+            {
+                "passed": passed,
+                "work_item_id": item.id,
+                "branch": branch,
+                "worktree": str(worktree.relative_to(ROOT)),
+                "receipt": str(result.relative_to(ROOT)),
+            },
+            sort_keys=True,
+        )
+    )
+    return 0 if passed else 1
+
+
+def inspect(work_item_id: str) -> int:
+    control = ControlPlane()
+    item = control.require_item(work_item_id)
+    worktree = control.runtime_dir / "worktrees" / item.id
+    if not worktree.is_dir():
+        raise SystemExit(f"no isolated worktree for {item.id}")
+    paths = changed_paths(worktree)
+    authorized, violations = classify_paths(item, paths)
+    print(
+        json.dumps(
+            {
+                "work_item_id": item.id,
+                "worktree": str(worktree.relative_to(ROOT)),
+                "changed_paths": paths,
+                "authorized_paths": authorized,
+                "path_violations": violations,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0 if not violations else 1
+
+
+def remove(work_item_id: str) -> int:
+    control = ControlPlane()
+    item = control.require_item(work_item_id)
+    worktree = control.runtime_dir / "worktrees" / item.id
+    if not worktree.exists():
+        return 0
+    paths = changed_paths(worktree)
+    if paths:
+        raise SystemExit("refusing to remove an agent worktree with uncommitted changes")
+    result = git(["worktree", "remove", str(worktree)])
+    if result.returncode != 0:
+        raise SystemExit(f"git worktree remove failed: {result.stderr}")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Gall isolated command-agent executor")
+    sub = parser.add_subparsers(dest="command", required=True)
+    execute_parser = sub.add_parser("execute")
+    execute_parser.add_argument("work_item_id")
+    inspect_parser = sub.add_parser("inspect")
+    inspect_parser.add_argument("work_item_id")
+    remove_parser = sub.add_parser("remove")
+    remove_parser.add_argument("work_item_id")
+    args = parser.parse_args()
+    if args.command == "execute":
+        return execute(args.work_item_id)
+    if args.command == "inspect":
+        return inspect(args.work_item_id)
+    if args.command == "remove":
+        return remove(args.work_item_id)
+    raise SystemExit(f"unsupported command: {args.command}")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
