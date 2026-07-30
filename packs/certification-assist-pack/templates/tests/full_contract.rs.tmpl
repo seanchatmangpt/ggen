@@ -128,6 +128,38 @@ fn evidence_bound_promotion_receipts_verify_and_duplicate_replay_refuses() {
 }
 
 #[test]
+fn out_of_order_replay_refusal_does_not_poison_verifier_state() {
+    let mut ledger = StandingLedger::new().expect("ledger");
+    let first_evidence = EvidenceArtifact::issue(
+        "network-flow-explanation",
+        "network-flow",
+        "understanding",
+        b"causal packet flow explanation",
+    );
+    let first = ledger
+        .promote(
+            "network-flow",
+            StandingLevel::Explainable,
+            Some(&first_evidence),
+        )
+        .expect("first promotion");
+    let second_evidence = EvidenceArtifact::issue(
+        "network-flow-decision",
+        "network-flow",
+        "decision",
+        b"select the route and trust boundary under explicit constraints",
+    );
+    let second = ledger
+        .promote("network-flow", StandingLevel::Decidable, Some(&second_evidence))
+        .expect("second promotion");
+
+    let mut replay = StandingReplayVerifier::default();
+    assert_eq!(replay.replay(&second), Err(AssistError::ReceiptMismatch));
+    replay.replay(&first).expect("predecessor replay");
+    replay.replay(&second).expect("successor replay after predecessor");
+}
+
+#[test]
 fn complete_crown_executes_existing_automatic_autonomic_rail() {
     let report = certification_assist_consumer::verify().expect("crown");
     assert_eq!(report.standing, "ALIVE");
