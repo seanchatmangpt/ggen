@@ -26,14 +26,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Compile observer model, exact-tree executor, and verifier
-        run: python3 -m py_compile self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/verify_observation.py
+      - name: Compile raw model, Git semantics, normalizer, executor, and verifier
+        run: python3 -m py_compile self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py self-host/scripts/verify_observation.py
 
-      - name: Execute positive and negative observer tests
+      - name: Execute positive, negative, and Chesterton-fence tests
         run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v
 
-      - name: Observe exact Git tree without following host symlinks
-        run: python3 self-host/scripts/observe_exact_tree.py
+      - name: Observe exact Git tree and normalize live authority
+        run: python3 self-host/scripts/observe_self_host.py
 
       - name: Independently verify exact revision and every tracked Git object
         run: python3 self-host/scripts/verify_observation.py
@@ -59,9 +59,9 @@ jobs:
 
       - name: Refuse observer actuation dependencies
         run: |
-          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py
+          ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py
 
-      - name: Upload exact observation
+      - name: Upload exact normalized observation
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: ggen-observation-${{ github.sha }}
