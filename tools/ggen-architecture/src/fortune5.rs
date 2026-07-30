@@ -463,6 +463,21 @@ impl Fortune5Catalog {
     }
 }
 
+/// Rule governing how Level 5 standing is calculated.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LevelFivePolicy {
+    /// Require all twenty-one dimensions for Level 5 standing.
+    pub conjunctive_level_five: bool,
+}
+
+impl Default for LevelFivePolicy {
+    fn default() -> Self {
+        Self {
+            conjunctive_level_five: true,
+        }
+    }
+}
+
 /// Policy governing evidence admission for a Fortune 5 assessment.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Fortune5Policy {
@@ -472,8 +487,9 @@ pub struct Fortune5Policy {
     pub require_segregation_of_duties: bool,
     /// Require one or more attached artifacts for every proof record.
     pub require_artifacts: bool,
-    /// Require all twenty-one dimensions for Level 5 standing.
-    pub conjunctive_level_five: bool,
+    /// Level 5 calculation rule, flattened to preserve the JSON contract.
+    #[serde(flatten)]
+    pub level_five: LevelFivePolicy,
 }
 
 impl Default for Fortune5Policy {
@@ -482,7 +498,7 @@ impl Default for Fortune5Policy {
             require_independent_verifier: true,
             require_segregation_of_duties: true,
             require_artifacts: true,
-            conjunctive_level_five: true,
+            level_five: LevelFivePolicy::default(),
         }
     }
 }
@@ -698,7 +714,7 @@ impl Fortune5Assessment {
             .filter(|dimension| dimension.standing == Standing::Alive)
             .count();
         let maturity_level = maturity_level(alive_dimensions);
-        let level_five_ready = if program.policy.conjunctive_level_five {
+        let level_five_ready = if program.policy.level_five.conjunctive_level_five {
             alive_dimensions == catalog.dimensions.len()
         } else {
             maturity_level == 5
