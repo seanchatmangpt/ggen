@@ -1,0 +1,95 @@
+name: Automatic Autonomic v26.7.31
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-graph/src/rwr/automatic.rs"
+      - "crates/ggen-graph/src/rwr/mod.rs"
+      - "crates/ggen-graph/tests/automatic_autonomic_v26_7_31.rs"
+      - "packs/automatic-autonomic-operations-pack/**"
+      - "docs/architecture/AUTOMATIC_AUTONOMIC_V26_7_31.md"
+      - ".github/workflows/automatic-autonomic-v26-7-31.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/ggen-graph/src/rwr/automatic.rs"
+      - "crates/ggen-graph/src/rwr/mod.rs"
+      - "crates/ggen-graph/tests/automatic_autonomic_v26_7_31.rs"
+      - "packs/automatic-autonomic-operations-pack/**"
+      - "docs/architecture/AUTOMATIC_AUTONOMIC_V26_7_31.md"
+      - ".github/workflows/automatic-autonomic-v26-7-31.yml"
+
+concurrency:
+  group: automatic-autonomic-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  crown:
+    name: 15 capabilities / 45 surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: automatic-autonomic-v26-7-31
+
+      - name: Apply exact rustfmt oracle to PR head
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          if ! git diff --quiet -- '*.rs'; then
+            git config user.name "ggen automatic autonomic formatter"
+            git config user.email "actions@users.noreply.github.com"
+            git add -- '*.rs'
+            git commit -m "style: apply exact rustfmt oracle"
+            git push origin "HEAD:${GITHUB_HEAD_REF}"
+          fi
+          cargo fmt --all -- --check
+
+      - name: Formatting gate on main
+        if: github.event_name == 'push'
+        run: cargo fmt --all -- --check
+
+      - name: Execute direct automatic/autonomic crown
+        run: cargo test -p ggen-graph --test automatic_autonomic_v26_7_31
+
+      - name: Preserve the RWR Level-5 foundation
+        run: cargo test -p ggen-graph --test rwr_level5_e2e
+
+      - name: Preserve the Fortune-5 foundation
+        run: cargo test -p ggen-marketplace --test fortune5_required_capabilities
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Generate the ontology-first consumer twice
+        working-directory: packs/automatic-autonomic-operations-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/automatic-autonomic-operations -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/automatic-autonomic-operations -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute generated automatic/autonomic crown
+        working-directory: packs/automatic-autonomic-operations-pack
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          cargo test --manifest-path consumer/automatic-autonomic-operations/Cargo.toml
+          ../../target/debug/ggen receipt verify
+          bash consumer/automatic-autonomic-operations/scripts/verify.sh
+          grep -q '"standing": "ALIVE"' VERIFIER_REPORT.json
+          grep -q '"capabilities": 15' VERIFIER_REPORT.json
+          grep -q '"proof_surfaces": 45' VERIFIER_REPORT.json
