@@ -1,8 +1,9 @@
 //! Executable enterprise architecture machinery for the ggen ecosystem.
 //!
-//! The crate deliberately stops at bounded intent generation. It can observe,
-//! diagnose, plan, and receipt architecture changes, but it cannot actuate a
-//! filesystem, process, network, deployment, or external system directly.
+//! This package is now a CLI and compatibility facade. Generic ggen Building
+//! Block law and the Fortune 5 runtime kernel are owned by the canonical
+//! `ggen-architecture` dependency. The facade deliberately stops at bounded
+//! intent generation and performs no direct actuation.
 
 pub mod autonomic;
 pub mod capacity;
@@ -28,6 +29,13 @@ pub use fortune5::{
     ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5AutonomicPlan,
     Fortune5Catalog, Fortune5Dimension, Fortune5Domain, Fortune5Finding, Fortune5Intent,
     Fortune5IntentKind, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
+};
+pub use ggen_architecture_kernel::{
+    profiles, ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
+    BuildingBlockRegistry, BuildingBlockViolation, CompositionReceipt, EvidenceKind,
+    EvidenceObligation, EvidenceReceipt, ObligationId, Port, PortDirection, PortId, PortKind,
+    ProfileId, RealizationBinding, RealizationId, ResourceClaim, ResourceCeiling,
+    Standing as BuildingBlockStanding, SubstitutionAssessment,
 };
 pub use level5_crown::{
     CrownEvidence, CrownFinding, LevelFiveCrownAssessment, LevelFiveCrownProgram,

@@ -1,13 +1,16 @@
 [package]
-name = "ggen-fortune5-kernel"
+name = "ggen-architecture"
 version = "26.7.30"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
-description = "Pure deterministic Fortune 5 enterprise-architecture kernel: lifecycle, dependency closure, SLOs, capacity, multi-region, identity, KMS, observability, autonomic intents, and receipts."
-keywords = ["enterprise-architecture", "slo", "spiffe", "kms", "autonomic"]
+description = "Pure deterministic ggen Building Block kernel with Fortune 5 architecture profiles and broker-only intents."
+keywords = ["enterprise-architecture", "building-blocks", "receipts", "autonomic"]
 categories = ["development-tools"]
 publish = false
+
+[lib]
+path = "src/canonical.rs"
 
 [dependencies]
 blake3 = "1.5"
@@ -16,3 +19,6 @@ serde_json = "1.0"
 thiserror = "2.0"
 
 [workspace]
+members = [".", "../../tools/ggen-architecture"]
+default-members = ["."]
+resolver = "2"
