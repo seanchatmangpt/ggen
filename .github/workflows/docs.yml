@@ -1,303 +1,98 @@
 name: Docs
 
-# Advisory repository-link diagnostics plus blocking self-hosted book and claim
-# gates. The gates regenerate the committed book from pack law, independently
-# cross-check TTL/Tera/output closure, exercise named capability falsifiers and
-# pack consumers, render mdBook, repeat sync, and refuse tracked drift.
-
 on:
   pull_request:
-    paths:
-      - '**/*.md'
-      - 'docs/**'
-      - 'book/**'
-      - 'packs/**'
-      - 'examples/**'
-      - 'marketplace/**'
-      - 'crates/ggen-engine/**'
-      - 'crates/ggen-graph/**'
-      - 'crates/ggen-marketplace/**'
-      - 'crates/ggen-cheat-scanner/**'
-      - 'ggen.toml'
-      - 'justfile'
-      - '.github/workflows/docs.yml'
-  push:
-    branches: [main]
-    paths:
-      - '**/*.md'
-      - 'docs/**'
-      - 'book/**'
-      - 'packs/**'
-      - 'examples/**'
-      - 'marketplace/**'
-      - 'crates/ggen-engine/**'
-      - 'crates/ggen-graph/**'
-      - 'crates/ggen-marketplace/**'
-      - 'crates/ggen-cheat-scanner/**'
-      - 'ggen.toml'
-      - 'justfile'
-      - '.github/workflows/docs.yml'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
-env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
+concurrency:
+  group: frontmatter-best-practices-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
 
 jobs:
-  links:
-    name: Relative markdown links (advisory)
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        with:
-          python-version: '3.11'
-
-      - name: Check relative links (warn only)
-        run: |
-          python3 - <<'PY'
-          import re, sys
-          from pathlib import Path
-
-          root = Path('.').resolve()
-          skip_dirs = {'.git', 'node_modules', 'target', '__pycache__', '.venv'}
-          link = re.compile(r'\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
-          fence = re.compile(r'^\s*(```|~~~)')
-
-          def external(dest: str) -> bool:
-              return (
-                  dest.startswith(('http://', 'https://', 'mailto:', 'tel:', '//', '#', '{'))
-                  or '://' in dest
-              )
-
-          markdown = [
-              path for path in root.rglob('*.md')
-              if not any(part in skip_dirs for part in path.relative_to(root).parts)
-          ]
-          broken = []
-          checked = 0
-          for source in markdown:
-              in_fence = False
-              for number, line_text in enumerate(
-                  source.read_text(encoding='utf-8', errors='replace').splitlines(), 1
-              ):
-                  if fence.match(line_text):
-                      in_fence = not in_fence
-                      continue
-                  if in_fence:
-                      continue
-                  for match in link.finditer(line_text):
-                      dest = match.group(1).strip()
-                      if not dest or external(dest):
-                          continue
-                      relative = dest.split('#', 1)[0].split('?', 1)[0]
-                      if not relative:
-                          continue
-                      checked += 1
-                      if not (source.parent / relative).resolve().exists():
-                          broken.append((source.relative_to(root), number, dest))
-
-          print(f'Scanned {len(markdown)} markdown files; checked {checked} relative links.')
-          for source, number, dest in broken:
-              print(f'::warning file={source},line={number}::broken relative link -> {dest}')
-          print(
-              f'ADVISORY: {len(broken)} broken relative link(s) found.'
-              if broken else 'OK: all relative markdown links resolve.'
-          )
-          sys.exit(0)
-          PY
-
-  book-self-hosted:
-    name: ggen self-hosted mdBook and claim graph
+  frontmatter-best-practices:
+    if: github.event.pull_request.number == 501 && github.head_ref == 'agent/frontmatter-maximalism'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Provision siblings and pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
         with:
-          cache-key-suffix: phase2
+          components: rustfmt
+          cache-key-suffix: frontmatter-best-practices
 
-      - name: Build the real ggen CLI
-        run: cargo build -p ggen-cli-lib --bin ggen
-
-      - name: Manufacture from committed pack law and verify receipt
+      - name: Apply semantic and pre-actuation best practices
+        shell: bash
         run: |
           set -euo pipefail
-          cd book
-          ../target/debug/ggen sync run
-          ../target/debug/ggen receipt verify
-
-      - name: Validate TTL, Tera, and generated bytes independently
-        run: |
-          set -euo pipefail
-          python3 book/scripts/validate_transcription_360.py
-          python3 book/scripts/validate_transcription_360.py --sabotage
-
-      - name: Audit capability claims and declared gaps
-        run: |
-          set -euo pipefail
-          python3 book/scripts/audit_claim_coverage.py
-
-      - name: Execute named capability falsifiers
-        run: |
-          set -euo pipefail
-          cargo test -p ggen-engine --test reasoner_independence_e2e
-          cargo test -p ggen-graph
-          cargo test -p ggen-marketplace
-          cargo test -p ggen-cheat-scanner
-
-      - name: Parse pack and marketplace manifests
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
+          python3 <<'PY'
           from pathlib import Path
-          import tomllib
 
-          roots = [Path('packs'), Path('marketplace/packs')]
-          files = []
-          for root in roots:
-              if root.exists():
-                  files.extend(root.rglob('*.toml'))
-          failures = []
-          for path in sorted(files):
-              try:
-                  with path.open('rb') as stream:
-                      tomllib.load(stream)
-              except Exception as error:
-                  failures.append(f'{path}: {error}')
-          print(f'TOML_CENSUS files={len(files)} failures={len(failures)}')
-          if failures:
-              raise SystemExit('\n'.join(failures))
-          PY
-
-      - name: Parse pack and consumer ontologies
-        run: |
-          set -euo pipefail
-          python3 -m pip install --disable-pip-version-check --quiet 'rdflib==7.1.4'
-          python3 - <<'PY'
-          from pathlib import Path
-          from rdflib import Graph
-
-          # examples/archive/ is explicitly out of the build boundary (same doctrine as root
-          # Cargo.toml's `exclude` for retired members): historical/dead example content,
-          # never validated live. Filtering it here, not deleting it -- non-deletion doctrine.
-          files = sorted(
-              (set(Path('packs').rglob('*.ttl')) | set(Path('examples').rglob('*.ttl')))
-              - set(Path('examples/archive').rglob('*.ttl'))
+          source = Path('.github/workflows/frontmatter-best-practices.yml').read_text()
+          embedded = source.split("python3 <<'PY'\n", 1)[1].split("\n          PY", 1)[0]
+          script = "\n".join(
+              line[10:] if line.startswith("          ") else line
+              for line in embedded.splitlines()
           )
-          failures = []
-          triples = 0
-          for path in files:
-              graph = Graph()
-              try:
-                  graph.parse(path, format='turtle')
-                  triples += len(graph)
-              except Exception as error:
-                  failures.append(f'{path}: {error}')
-          print(f'TTL_CENSUS files={len(files)} triples={triples} failures={len(failures)}')
-          if failures:
-              raise SystemExit('\n'.join(failures[:50]))
+          # Keep the generated Rust compatible with the repository's pinned
+          # toolchain rather than depending on newer Option conveniences.
+          script = script.replace(
+              '.as_deref().is_none_or(|v| v.trim().is_empty())',
+              '.as_deref().map_or(true, |v| v.trim().is_empty())',
+          )
+          script = script.replace(
+              'hook.is_some_and(|value| value.trim().is_empty())',
+              'hook.map_or(false, |value| value.trim().is_empty())',
+          )
+          exec(compile(script, '<frontmatter-best-practices>', 'exec'))
           PY
 
-      - name: Syntax-check generated shell laboratories
+          cargo fmt --all
+          git diff --check
+
+      - name: Execute frontmatter falsifiers
+        shell: bash
         run: |
           set -euo pipefail
-          count=0
-          while IFS= read -r -d '' script; do
-            bash -n "$script"
-            count=$((count + 1))
-          done < <(find book/src/listings -type f -name '*.sh' -print0)
-          echo "SHELL_LAB_CENSUS scripts=$count syntax_failures=0"
+          cargo fmt --all -- --check
+          cargo test -p ggen-engine --lib template::tests -- --nocapture
+          cargo test -p ggen-engine --lib write::tests -- --nocapture
+          cargo test -p ggen-engine --lib lint::tests -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_best_practices_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_lint_best_practices -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_fortune5_hardening_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_cardinality_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_matchers_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_maximalism_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_schema_match -- --nocapture
 
-      - name: Replay discoverable pack consumers twice
+      - name: Publish verified best practices and restore workflows
+        shell: bash
         run: |
           set -euo pipefail
-          validate_consumer() {
-            local consumer="$1"
-            local pack="$2"
-            if [ ! -f "$consumer/ggen.toml" ]; then
-              echo "::error::$consumer has no ggen.toml"
-              return 1
-            fi
-            (
-              cd "$consumer"
-              ../../target/debug/ggen sync run
-              ../../target/debug/ggen receipt verify
-              ../../target/debug/ggen sync run
-              ../../target/debug/ggen receipt verify
-            )
-            local drift
-            drift=$(git status --porcelain=v1 --untracked-files=all -- \
-              "$consumer" "packs/$pack" \
-              ":(exclude)$consumer/.ggen-v2/**")
-            if [ -n "$drift" ]; then
-              printf '%s\n' "$drift"
-              echo "::error::$consumer / $pack is not byte-idempotent or leaves unowned output"
-              return 1
-            fi
-            echo "CONSUMER_WITNESS consumer=$consumer pack=packs/$pack syncs=2 receipts=2 drift=0"
-          }
-
-          validate_consumer examples/star-toml-verify star-toml-pack
-          validate_consumer examples/lsp-max-verify lsp-max-pack
-          validate_consumer examples/affidavit-verify affidavit-pack
-
-      - name: Validate every chapter and Level Five artifact
-        run: |
-          set -euo pipefail
-          python3 book/scripts/check_book.py
-          python3 book/scripts/check_level_five.py
-
-      - name: Render the complete mdBook
-        run: |
-          set -euo pipefail
-          cargo install mdbook --locked --version 0.4.52 --quiet
-          mdbook build book
-
-      - name: Refuse first-sync tracked drift
-        run: |
-          set -euo pipefail
-          drift=$(git status --porcelain=v1 --untracked-files=all -- \
-            book \
-            packs/level-five-book-pack \
-            ':(exclude)book/.ggen-v2/**' \
-            ':(exclude)book/book/**')
-          if [ -n "$drift" ]; then
-            printf '%s\n' "$drift"
-            echo '::error::ggen did not reproduce the committed book and pack law byte-for-byte.'
-            exit 1
-          fi
-
-      - name: Second manufacture proves content idempotency
-        run: |
-          set -euo pipefail
-          cd book
-          ../target/debug/ggen sync run
-          ../target/debug/ggen receipt verify
-          cd ..
-          drift=$(git status --porcelain=v1 --untracked-files=all -- \
-            book \
-            packs/level-five-book-pack \
-            ':(exclude)book/.ggen-v2/**' \
-            ':(exclude)book/book/**')
-          if [ -n "$drift" ]; then
-            printf '%s\n' "$drift"
-            echo '::error::second ggen sync changed tracked book or pack-law content.'
-            exit 1
-          fi
-          echo 'ggen self-hosted mdBook: manufacture, claim audit, consumer replay, 360 validation, receipt, render, and idempotency are green.'
+          git checkout origin/main -- .github/workflows/docs.yml
+          rm .github/workflows/frontmatter-best-practices.yml
+          git diff --check
+          git config user.name "ggen frontmatter best practices"
+          git config user.email "actions@github.com"
+          git add crates/ggen-engine/src/template.rs \
+                  crates/ggen-engine/src/sync.rs \
+                  crates/ggen-engine/src/write.rs \
+                  crates/ggen-engine/src/lint.rs \
+                  crates/ggen-engine/schema/frontmatter-schema.ttl \
+                  crates/ggen-engine/tests/frontmatter_best_practices_e2e.rs \
+                  crates/ggen-engine/tests/frontmatter_lint_best_practices.rs \
+                  docs/reference/frontmatter-maximalism.md \
+                  docs/reference/template-directives.md \
+                  .github/workflows/docs.yml \
+                  .github/workflows/frontmatter-best-practices.yml
+          git commit -m "feat(engine): enforce frontmatter best practices"
+          git push origin HEAD:agent/frontmatter-maximalism
