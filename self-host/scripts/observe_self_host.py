@@ -6,6 +6,7 @@ Pipeline:
   -> Git-object byte semantics
   -> file-header generation authority
   -> live authority and load-path normalization
+  -> experimental/research namespace fences
   -> independently verified standalone products
   -> active root-output authority
   -> Gall program/checkpoint/work-item projection
@@ -100,6 +101,45 @@ def canonical_load_bearing(path: str, authority: str) -> bool:
     return path.startswith(("crates/", "packs/", "scripts/", ".github/actions/", ".github/workflows/"))
 
 
+def preserve_research_fences(root: Path, observation: dict[str, Any]) -> dict[str, Any]:
+    """Do not manufacture fake pack contracts for explicitly dormant research artifacts."""
+    retained: list[dict[str, Any]] = []
+    replacements: list[dict[str, Any]] = []
+    for finding in observation["findings"]:
+        if finding["category"] != "pack-contract":
+            retained.append(finding)
+            continue
+        directory = str(finding["evidence_path"]).rstrip("/")
+        readme = root / directory / "README.md"
+        text = readme.read_text(encoding="utf-8", errors="replace") if readme.is_file() else ""
+        lowered = text.lower()
+        if not ("experimental" in lowered and "not wired" in lowered and "research artifact" in lowered):
+            retained.append(finding)
+            continue
+        replacements.append(
+            MODEL.finding(
+                "pack-namespace",
+                "Medium",
+                f"Research artifact `{directory}` occupies the production pack namespace without production standing.",
+                directory,
+                "Move the artifact under a governed research namespace, or admit it as a real pack only after an automatic Rust-to-RDF extractor, consumer evidence, and CI exist.",
+                "The artifact deliberately has no pack.toml or production load path; adding those files now would convert an honest boundary into a false capability claim.",
+                "Do not add a placeholder pack.toml, synthetic extractor receipt, or green CI that validates only hand-transcribed fixtures.",
+                "The artifact is either isolated under a research boundary with its limitations preserved, or promoted through a real extractor, pack contract, consumer, falsifier, and replay receipt.",
+                "python3 self-host/scripts/observe_self_host.py --check",
+            )
+        )
+    observation["findings"] = sorted(
+        {item["finding_id"]: item for item in retained + replacements}.values(),
+        key=lambda item: (item["severity_order"], item["category"], item["finding_id"]),
+    )
+    observation["counts"]["findings"] = len(observation["findings"])
+    observation["counts"]["blocking_findings"] = sum(
+        item["severity"] == "Blocking" for item in observation["findings"]
+    )
+    return observation
+
+
 def admit_standalone_products(root: Path, observation: dict[str, Any]) -> dict[str, Any]:
     """Convert independently verified non-workspace crates into explicit load paths."""
     workflow_paths = [
@@ -182,7 +222,9 @@ def observe(root: Path) -> dict[str, object]:
     NORMALIZER.authority_for = canonical_authority
     NORMALIZER.load_bearing = canonical_load_bearing
     normalized = NORMALIZER.normalize(observation, MODEL)
-    return finalize_active_outputs(admit_standalone_products(root, normalized))
+    normalized = preserve_research_fences(root, normalized)
+    normalized = admit_standalone_products(root, normalized)
+    return finalize_active_outputs(normalized)
 
 
 def main() -> int:
