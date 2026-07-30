@@ -1,0 +1,84 @@
+[project]
+name = "automatic-autonomic-operations-consumer"
+version = "26.7.31"
+description = "Generate and execute the fully automatic and autonomic ggen operating contract"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/ontology/automatic-autonomic#"
+imports = []
+
+[ontology.prefixes]
+aa = "https://ggen.dev/ontology/automatic-autonomic#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-binary"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/src/bin/verify.rs.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/src/bin/verify.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "full-contract-proof"
+query = { file = "queries/requirements.rq" }
+template = { file = "templates/tests/full_contract.rs.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/tests/full_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "capability-document"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/AUTOMATIC_AUTONOMIC_CAPABILITIES.md.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/AUTOMATIC_AUTONOMIC_CAPABILITIES.md"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/scripts/verify.sh.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/scripts/verify.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "consumer-ci"
+query = { file = "queries/capabilities.rq" }
+template = { file = "templates/ci.yml.tmpl" }
+output_file = "consumer/automatic-autonomic-operations/.github/workflows/ci.yml"
+skip_empty = false
+mode = "Overwrite"

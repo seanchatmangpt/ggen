@@ -4,12 +4,23 @@
 //! architecture core diagram, digitized platform, engagement model, value
 //! realization, machinery, automation, autonomics, receipt, and replay.
 
+pub mod automatic;
 pub mod autonomic;
 pub mod evidence;
 pub mod execution;
 pub mod matrix;
 pub mod reference;
 
+pub use automatic::{
+    read_committed_payload, AdmittedTrigger, AndonLevel, AndonSignal, AutomaticOperationReceipt,
+    AutomaticReplayVerifier, AutomaticRuntime, AutonomicOperationsController,
+    AutonomicOperationsReceipt, AutonomicResource, CircuitBreaker, ConsequenceObserver,
+    ErrorBudget, FilesystemConsequenceObserver, KnowledgeHook, ManufacturedIntent,
+    ObservationError, OperationsCapability, OperationsError, OperationsGovernor,
+    OperationsProofSurface, PostconditionFailure, RetryPolicy, Route, Trigger,
+    TriggerAdmissionPolicy, TriggerRouter, ALL_OPERATIONS_CAPABILITIES, OPERATIONS_VERSION,
+    REQUIRED_OPERATIONS_PROOF_SURFACES,
+};
 pub use autonomic::{AutonomicController, AutonomicCycleReceipt, AutonomicError, ManagedCell};
 pub use evidence::{
     AssessmentReceipt, DimensionAssessment, EvidenceError, EvidenceLedger, EvidenceOutcome,
