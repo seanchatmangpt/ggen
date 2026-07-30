@@ -66,6 +66,7 @@ jobs:
           set -euo pipefail
           git checkout origin/main -- .github/workflows/docs.yml
           rm .github/workflows/fortune5-frontmatter-hardening.yml
+          rm -f docs/.fortune5-trigger
           git diff --check
           git config user.name "ggen Fortune 5 hardening"
           git config user.email "actions@github.com"
@@ -74,6 +75,7 @@ jobs:
                   crates/ggen-engine/tests/frontmatter_fortune5_hardening_e2e.rs \
                   docs/reference/frontmatter-maximalism.md \
                   docs/reference/template-directives.md \
+                  docs/.fortune5-trigger \
                   .github/workflows/docs.yml \
                   .github/workflows/fortune5-frontmatter-hardening.yml
           git commit -m "feat(engine): add Fortune 5 frontmatter hardening"
