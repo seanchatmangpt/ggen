@@ -1,0 +1,9 @@
+# MESSAGE: Gall work item identity collision -- each gall:workItemId must identify exactly one work item
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItemId (COUNT(?workItem) AS ?count) WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId .
+}
+GROUP BY ?workItemId
+HAVING(COUNT(?workItem) != 1)
+ORDER BY ?workItemId
