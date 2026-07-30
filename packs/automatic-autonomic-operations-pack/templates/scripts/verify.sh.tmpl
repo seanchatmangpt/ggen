@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$(pwd)/../../target}"
+cargo run --quiet --manifest-path consumer/automatic-autonomic-operations/Cargo.toml --bin verify
+grep -q '"standing": "ALIVE"' VERIFIER_REPORT.json
+grep -q '"capabilities": 15' VERIFIER_REPORT.json
+grep -q '"proof_surfaces": 45' VERIFIER_REPORT.json
