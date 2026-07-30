@@ -187,12 +187,10 @@ def rustLib : String :=
   "    }\n" ++
   "    Some(observation)\n" ++
   "}\n\n" ++
-  "pub fn regional_receipt_digest(proof_bytes: &[u8], scenario: &str, quorum_acks: u64) -> String {\n" ++
+  "pub fn regional_receipt_digest(proof_bytes: &[u8], receipt_body: &[u8]) -> String {\n" ++
   "    let mut hasher = blake3::Hasher::new();\n" ++
   "    hasher.update(proof_bytes);\n" ++
-  "    hasher.update(scenario.as_bytes());\n" ++
-  "    hasher.update(&REGION_COUNT.to_le_bytes());\n" ++
-  "    hasher.update(&quorum_acks.to_le_bytes());\n" ++
+  "    hasher.update(receipt_body);\n" ++
   "    hasher.finalize().to_hex().to_string()\n" ++
   "}\n\n" ++
   "#[cfg(test)]\n" ++
@@ -235,7 +233,7 @@ def rustLib : String :=
   "    #[test]\n" ++
   "    fn all_kms_and_network_controls_are_required() { assert_eq!(SUPPORTED_KMS_PROVIDERS, [\"aws-kms\", \"azure-key-vault\", \"hashicorp-vault\"]); assert!(MTLS_REQUIRED && NETWORK_POLICY_REQUIRED && FIREWALL_POLICY_REQUIRED); }\n\n" ++
   "    #[test]\n" ++
-  "    fn regional_receipt_digest_changes_with_quorum() { let proof = b\"proof\"; assert_ne!(regional_receipt_digest(proof, \"canonical\", 3), regional_receipt_digest(proof, \"canonical\", 2)); }\n" ++
+  "    fn regional_receipt_digest_binds_complete_body() { let proof = b\"proof\"; assert_ne!(regional_receipt_digest(proof, b\"{\\\"identity\\\":true}\"), regional_receipt_digest(proof, b\"{\\\"identity\\\":false}\")); }\n" ++
   "}\n"
 
 end Lean4Rust
