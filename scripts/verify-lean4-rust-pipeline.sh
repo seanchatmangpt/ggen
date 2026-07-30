@@ -248,6 +248,25 @@ if (
 fi
 grep -q 'REGION_RECEIPT_DIGEST_MISMATCH' "$EVIDENCE/tampered-region-receipt-refusal.log"
 
+python3 - "$EVIDENCE/execution-canonical.json" "$EVIDENCE/execution-canonical-evidence-tampered.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+data = json.loads(open(source, encoding="utf-8").read())
+data["spiffe_authenticated"] = False
+open(target, "w", encoding="utf-8").write(json.dumps(data, separators=(",", ":")) + "\n")
+PY
+if (
+  cd "$RUST"
+  cargo run --quiet --bin verify_receipt -- \
+    "$EVIDENCE/execution-canonical-evidence-tampered.json" "$PROOF_RECEIPT"
+) > "$EVIDENCE/tampered-evidence-refusal.log" 2>&1; then
+  echo '::error::tampered execution evidence unexpectedly verified'
+  exit 1
+fi
+grep -q 'REGION_RECEIPT_DIGEST_MISMATCH' "$EVIDENCE/tampered-evidence-refusal.log"
+
 python3 - "$EVIDENCE/slo-probe-r1.json" <<'PY'
 import json
 import sys
