@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST="$ROOT/tools/ggen-architecture/Cargo.toml"
 STATE="$ROOT/architecture/ggen-enterprise.json"
 STIMULI="$ROOT/architecture/stimuli/sample-cycle.json"
+FORTUNE5="$ROOT/architecture/fortune5/synthetic-level5.json"
 OUT="${GGEN_ARCHITECTURE_RECEIPTS_DIR:-$ROOT/target/architecture-receipts}"
 OBSERVED_AT="${GGEN_ARCHITECTURE_OBSERVED_AT:-synthetic-proof-v1}"
 
@@ -26,6 +27,15 @@ cargo run --quiet --manifest-path "$MANIFEST" -- \
 cargo run --quiet --manifest-path "$MANIFEST" -- \
   cycle --state "$STATE" --stimuli "$STIMULI" \
   --observed-at "$OBSERVED_AT" --json > "$OUT/autonomic-cycle.json"
+
+cargo run --quiet --manifest-path "$MANIFEST" -- \
+  fortune5 catalog --json > "$OUT/fortune5-catalog.json"
+
+cargo run --quiet --manifest-path "$MANIFEST" -- \
+  fortune5 assess --program "$FORTUNE5" --json > "$OUT/fortune5-assessment.json"
+
+cargo run --quiet --manifest-path "$MANIFEST" -- \
+  fortune5 plan --program "$FORTUNE5" --json > "$OUT/fortune5-autonomic-plan.json"
 
 if command -v sha256sum >/dev/null 2>&1; then
   (cd "$OUT" && sha256sum *.json > SHA256SUMS)
