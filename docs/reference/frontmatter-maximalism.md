@@ -47,6 +47,26 @@ named ontology view x artifact family x topology(fan-out | aggregate)
 
 Omitting `for_each` preserves the historical implicit driver contract.
 
+## Fortune 5 hardening boundary
+
+The projection calculus is now bounded before actuation:
+
+```text
+named query result <= 4,096 rows
+materialized outputs <= 8,192 per sync
+one rendered artifact <= 10 MiB
+all rendered bodies <= 64 MiB per sync
+```
+
+Every prospective target is safely resolved before any shell hook. Canonical path
+aliases are duplicate targets. Rendered `shape` documents must be safe, regular,
+readable files and their bytes enter the receipt closure. Placement selectors require
+`inject: true` and exactly one placement authority. Checksum ownership state fails
+closed on every error except `NotFound`. Injection bytes are validated before backup.
+
+These controls bound combinatorial multiplication without reducing the lawful ontology
+views or artifact families available to internal and external packs.
+
 ## Structural ports
 
 `before` and `after` are Tera-renderable structural ports. They let a host artifact export stable composition slots while a pack projects row-specific content into the appropriate slot. `skip_if` is rendered from the same context, so idempotence can name the exact consequence being injected.

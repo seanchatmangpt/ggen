@@ -1295,13 +1295,25 @@ its properties, especially shared construct, force, injection targets, and hooks
 ### 7.1 Output cardinality
 
 ```text
-static to
-  -> one pending output per template
+static to without for_each
+  -> one whole-template output
+
+static to with for_each
+  -> one aggregate output containing one body render per selected row
 
 dynamic to containing {{
-  -> one pending output per driving row
-  -> zero rows means zero outputs
+  -> one output per selected row
+
+all named query results <= 4,096 rows
+all pending outputs <= 8,192
+each artifact <= 10 MiB
+all rendered bodies <= 64 MiB per sync
+zero selected rows -> zero outputs
 ```
+
+The complete prospective write set is admitted before hooks: target paths are safely
+resolved, canonical aliases are duplicate targets, and count/byte budgets fail closed.
+The active limit policy is recorded in the receipt input closure.
 
 ### 7.2 Placement precedence
 
@@ -1360,61 +1372,37 @@ rdf overlay:
 These findings describe the exact reviewed implementation. They are not claimed as
 features.
 
-### FM-LC-001 — decision paths can bypass target admission
+### FM-LC-001 — targets are admitted before actuation
 
-**Standing: PARTIAL_ALIVE**
+**Standing: ALIVE, bounded**
 
-`skip_empty` returns before normal path preflight. A false `when` guard also records
-a decision directly, before output rendering or target resolution. Receipt output
-binding later joins decision keys to the project root without using the safe target
-resolver.
+Every materialized target is safely resolved before hooks, including `skip_empty`
+outputs. Canonical aliases are compared as one target. A false `when` on a static path
+admits that path; a false `when` on an unrendered dynamic path records a non-path
+`@template/...` evidence identifier instead of pretending a target existed.
 
-Consequences:
+### FM-LC-002 — `shape` is an admitted governing input
 
-- an unsafe static `to` can avoid the normal path refusal when skipped early;
-- a false dynamic `when` records the literal unrendered `to` expression;
-- receipt target lookup assumes a safety proof that these branches did not perform.
+**Standing: ALIVE for path/type/provenance; SHACL evaluation UNSUPPORTED**
 
-**Required checkpoint:** establish one admitted target type before any skip decision,
-and use non-path evidence identifiers for templates that never materialize outputs.
+Every rendered shape path is safely resolved inside the project, must be a readable
+regular file, and contributes its BLAKE3 bytes to the receipt closure before hooks.
+This checkpoint deliberately does not claim that rendered artifacts are evaluated
+against those shapes.
 
-### FM-LC-002 — `shape` is not yet an admitted governing input
+### FM-LC-003 — injection is validated before backup
 
-**Standing: PARTIAL_ALIVE**
+**Standing: ALIVE**
 
-The current check uses project-root joining plus `exists`:
+The complete prospective injected bytes, including marker/cardinality and the final
+10 MiB artifact cap, are validated before `<target>.bak` or the target is written.
 
-- no traversal/symlink containment proof;
-- directories pass;
-- shape bytes are absent from the input closure;
-- no SHACL conformance evaluation occurs.
+### FM-LC-004 — checksum ownership state fails closed
 
-**Required checkpoint:** resolve safely, require a regular readable file, closure-bind
-its bytes, then separately add actual shape evaluation.
+**Standing: ALIVE**
 
-### FM-LC-003 — injection backup precedes compatibility-marker proof
-
-**Standing: PARTIAL_ALIVE**
-
-The inject path writes `<target>.bak` before `inject_into` proves a bare-string marker
-exists. A failed injection can therefore actuate a backup without producing a final
-receipt.
-
-Structured selectors are preflighted earlier and avoid this specific path, but the
-compatibility form remains exposed.
-
-**Required checkpoint:** compute and validate the complete prospective bytes before
-any backup or target mutation.
-
-### FM-LC-004 — unreadable checksum slots fail open
-
-**Standing: PARTIAL_ALIVE**
-
-Any checksum-slot read error is currently treated as if no checksum exists. Only
-`NotFound` should have that meaning.
-
-**Required checkpoint:** continue on `NotFound`; refuse permission, encoding, I/O,
-and directory errors.
+Only `NotFound` means no prior checksum. Permission, encoding, I/O, and directory
+errors refuse before shell hooks and are rechecked during the write decision.
 
 ### FM-LC-005 — dry-run is not the complete write planner
 
@@ -1437,17 +1425,13 @@ than compatibility strings.
 **Required checkpoint:** separate a pure `plan_write` decision object from an
 `execute_write` actuator and use the same plan in dry-run and execution.
 
-### FM-LC-006 — selectors without `inject` have inconsistent consequences
+### FM-LC-006 — placement authority is coherent
 
-**Standing: PARTIAL_ALIVE**
+**Standing: ALIVE**
 
-Placement selectors are meaningful only for injection. The writer ignores them when
-`inject` is false, but structured selectors are still preflighted by the sync layer
-and can refuse against an existing target. Compatibility strings are not preflighted
-there.
-
-**Required checkpoint:** either refuse placement properties unless `inject: true`, or
-consistently ignore them before matcher observation. Refusal is the clearer contract.
+`before`, `after`, and `at_line` require `inject: true`. Exactly one placement
+authority may be configured. Invalid combinations refuse before shell hooks rather
+than relying on implicit precedence or matcher-form differences.
 
 ### FM-LC-007 — projection cardinality is explicit
 

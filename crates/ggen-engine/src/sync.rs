@@ -44,7 +44,10 @@ use crate::{
     error::{AppError, Result},
     graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
     template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
-    write::{plan_write, preflight_structured_matchers, validate_match_specs, WriteOutcome},
+    write::{
+        plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
+        WriteOutcome, MAX_OUTPUT_BYTES,
+    },
 };
 
 /// Which [`GraphEngine`] a sync runs on.
@@ -92,6 +95,17 @@ pub struct SyncReport {
 
 /// Relative path of the sync receipt under the project root.
 pub const RECEIPT_REL_PATH: &str = ".ggen-v2/receipt.json";
+
+/// Maximum rows admitted from any one named SPARQL result. This bounds
+/// semantic fan-out before Tera rendering or shell/filesystem actuation.
+pub const MAX_QUERY_RESULT_ROWS: usize = 4_096;
+
+/// Maximum materialized outputs admitted in one sync, including the
+/// engine-owned module aggregator.
+pub const MAX_PENDING_OUTPUTS: usize = 8_192;
+
+/// Maximum combined rendered body bytes admitted across one sync.
+pub const MAX_TOTAL_RENDERED_BYTES: usize = 64 * 1024 * 1024;
 
 /// One fully-rendered template awaiting `apply` — the boundary between the
 /// "may fail" render pass and the write pass, which by construction only
@@ -256,6 +270,12 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     closure.insert(
         "actuator".to_string(),
         concat!("ggen@", env!("CARGO_PKG_VERSION")).to_string(),
+    );
+    closure.insert(
+        "policy:frontmatter-projection-limits".to_string(),
+        format!(
+            "max_query_rows={MAX_QUERY_RESULT_ROWS};max_outputs={MAX_PENDING_OUTPUTS};             max_total_rendered_bytes={MAX_TOTAL_RENDERED_BYTES};             max_output_bytes={MAX_OUTPUT_BYTES}"
+        ),
     );
     // Project identity: binds `[project].name` into the receipt so a receipt
     // cannot be silently relabeled as belonging to a different project.
@@ -714,8 +734,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?
         else {
             let reason = format!("when guard false ({})", tpl_path.display());
-            decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
-            skipped.push((PathBuf::from(&tpl.frontmatter.to), reason));
+            let evidence_key =
+                if tpl.frontmatter.to.contains("{{") || tpl.frontmatter.to.contains("{%") {
+                    format!("@template/{}", rel_display(root, tpl_path))
+                } else {
+                    crate::write::resolve_target(root, &tpl.frontmatter.to)?;
+                    tpl.frontmatter.to.clone()
+                };
+            decisions.insert(evidence_key.clone(), format!("skipped: {reason}"));
+            skipped.push((PathBuf::from(evidence_key), reason));
             continue;
         };
 
@@ -752,7 +779,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             else {
                 continue;
             };
-            check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
             check_determinism(
                 active_tera,
                 &tpl.body,
@@ -775,7 +802,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
                 let frontmatter =
                     render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
-                check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+                admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
                 check_determinism(
                     active_tera,
                     &tpl.body,
@@ -798,7 +825,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
             let frontmatter =
                 render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
-            check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
             check_determinism(
                 active_tera,
                 &tpl.body,
@@ -900,21 +927,42 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
 
-    // Two rendered templates (or two rows of one template) resolving to the
-    // same target would silently last-row-win on disk and in the decisions
-    // map — refuse instead.
+    // Admit the complete prospective write set before any hook or write.
+    // This is the Fortune 5 boundary: bounded count/bytes, safe canonical
+    // targets, and no aliasing of one filesystem object through two spellings.
+    if pending.len() > MAX_PENDING_OUTPUTS {
+        return Err(AppError::fm_tpl(
+            22,
+            format!(
+                "sync materialized {} outputs, over the Fortune 5 limit of                  {MAX_PENDING_OUTPUTS}. Remediation: partition the ontology view or                  aggregate rows into bounded artifacts.",
+                pending.len()
+            ),
+        ));
+    }
+    let total_rendered_bytes = pending
+        .iter()
+        .fold(0usize, |total, pw| total.saturating_add(pw.body.len()));
+    if total_rendered_bytes > MAX_TOTAL_RENDERED_BYTES {
+        return Err(AppError::fm_tpl(
+            22,
+            format!(
+                "sync rendered {total_rendered_bytes} body bytes, over the Fortune 5                  limit of {MAX_TOTAL_RENDERED_BYTES}. Remediation: reduce selected                  knowledge, split the run, or aggregate more compactly."
+            ),
+        ));
+    }
     {
-        let mut seen: BTreeMap<&str, usize> = BTreeMap::new();
+        let mut seen: BTreeMap<PathBuf, (String, usize)> = BTreeMap::new();
         for pw in &pending {
-            *seen.entry(pw.to.as_str()).or_default() += 1;
+            let admitted = crate::write::resolve_target(root, &pw.to)?;
+            let entry = seen.entry(admitted).or_insert_with(|| (pw.to.clone(), 0));
+            entry.1 += 1;
         }
-        if let Some((to, n)) = seen.into_iter().find(|(_, n)| *n > 1) {
+        if let Some((target, (declared, n))) = seen.into_iter().find(|(_, (_, n))| *n > 1) {
             return Err(AppError::fm_write(
                 8,
                 format!(
-                    "{n} rendered templates target the same output `{to}`. \
-                     Remediation: make the `to:` pattern unique per row/template \
-                     (e.g. include a distinguishing SPARQL variable in the path)."
+                    "{n} rendered templates resolve to the same admitted output `{}`                      (one declaration was `{declared}`). Remediation: make `to:` unique                      after path normalization; aliases such as `x` and `./x` are the                      same target.",
+                    target.display()
                 ),
             ));
         }
@@ -1220,7 +1268,20 @@ fn extract_query_results(
             sparql_key = %key,
             "executing named sparql query"
         );
-        named.insert(key.clone(), sparql_to_value(active_graph, query)?);
+        let value = sparql_to_value(active_graph, query)?;
+        if let Some(rows) = value.as_array() {
+            if rows.len() > MAX_QUERY_RESULT_ROWS {
+                return Err(AppError::fm_tpl(
+                    21,
+                    format!(
+                        "{}: named `sparql:` result `{key}` produced {} row(s), over the                          Fortune 5 limit of {MAX_QUERY_RESULT_ROWS}. Remediation: constrain                          the query with a selective WHERE clause, grouping, or an explicit LIMIT.",
+                        tpl_path.display(),
+                        rows.len()
+                    ),
+                ));
+            }
+        }
+        named.insert(key.clone(), value);
     }
     let results: Vec<Value> = if let Some(driver) = frontmatter.for_each.as_deref() {
         let value = named.get(driver).ok_or_else(|| {
@@ -1419,6 +1480,7 @@ fn apply(
     written: &mut Vec<PathBuf>, skipped: &mut Vec<(PathBuf, String)>,
     decisions: &mut BTreeMap<String, String>,
 ) -> Result<()> {
+    let target = crate::write::resolve_target(root, rel_to)?;
     if frontmatter.skip_empty && body.trim().is_empty() {
         let reason = "skip_empty: rendered body empty".to_string();
         decisions.insert(rel_to.to_string(), format!("skipped: {reason}"));
@@ -1429,6 +1491,7 @@ fn apply(
     // filesystem actuation. Structured cardinality is then observed against
     // the actual host file.
     validate_match_specs(frontmatter)?;
+    preflight_checksum_slot(root, rel_to, frontmatter)?;
     let mut match_evidence = preflight_structured_matchers(root, rel_to, frontmatter)?;
 
     if opts.dry_run {
@@ -1436,7 +1499,6 @@ fn apply(
         // sh_before/sh_after (a dry run must have zero side effects).
         // Identical existing content reports Skipped(unchanged); everything
         // else is reported as a planned write.
-        let target = root.join(rel_to);
         match std::fs::read_to_string(&target) {
             Ok(existing) if existing == body => {
                 let reason = "unchanged: content identical".to_string();
@@ -1615,29 +1677,56 @@ fn parse_template_file(path: &Path) -> Result<Template> {
     Ok(tpl)
 }
 
-/// Refuse if any `shape:` file listed in `frontmatter` does not exist.
-/// **Existence-checked only** — no SHACL engine runs in this crate yet, so
-/// this does not evaluate the shapes against rendered output; see
-/// `docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md`.
-///
-/// # Errors
-/// `[FM-TPL-014]` — distinct from `[FM-TPL-008]` (`from:` path traversal in
-/// [`parse_template_file`]): a missing `shape:` file is an unrelated failure
-/// cause that used to share `FM-TPL-008`'s numeric code.
-fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> Result<()> {
+/// Admit every rendered `shape:` path as a safe, regular, readable,
+/// receipt-bound governing input. This still does not claim SHACL evaluation;
+/// it closes path, type, readability, and provenance gaps first.
+fn admit_shape_files(
+    root: &Path, tpl_path: &Path, shapes: &[String], closure: &mut BTreeMap<String, String>,
+) -> Result<()> {
     for shape in shapes {
-        let shape_path = root.join(shape);
-        if !shape_path.exists() {
+        let shape_path = crate::write::resolve_target(root, shape).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` is not an admitted project path:                      {error}. Remediation: use a safe relative path inside the project.",
+                    tpl_path.display()
+                ),
+            )
+        })?;
+        let metadata = std::fs::metadata(&shape_path).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` is unreadable at `{}`: {error}.                      Remediation: provide a readable regular file.",
+                    tpl_path.display(),
+                    shape_path.display()
+                ),
+            )
+        })?;
+        if !metadata.is_file() {
             return Err(AppError::fm_tpl(
                 14,
                 format!(
-                    "{}: `shape:` entry `{shape}` does not exist at `{}`. \
-                     Remediation: fix the path or remove the entry.",
+                    "{}: `shape:` entry `{shape}` resolves to `{}`, which is not a                      regular file. Remediation: point to a readable shape document.",
                     tpl_path.display(),
                     shape_path.display()
                 ),
             ));
         }
+        let bytes = std::fs::read(&shape_path).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` could not be read at `{}`: {error}",
+                    tpl_path.display(),
+                    shape_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &shape_path),
+            blake3::hash(&bytes).to_hex().to_string(),
+        );
     }
     Ok(())
 }

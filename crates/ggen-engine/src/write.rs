@@ -145,8 +145,17 @@ pub fn plan_write(
                 ),
             )
         })?;
-        maybe_backup(&target, &content, frontmatter)?;
         let injected = inject_into(&content, rendered_body, frontmatter)?;
+        if injected.len() > MAX_OUTPUT_BYTES {
+            return Err(AppError::fm_write(
+                7,
+                format!(
+                    "injected output for `{rel_to}` is {} bytes, over the                      {MAX_OUTPUT_BYTES}-byte cap. Remediation: split the host artifact                      or reduce the injected projection.",
+                    injected.len()
+                ),
+            ));
+        }
+        maybe_backup(&target, &content, frontmatter)?;
         std::fs::write(&target, &injected)?;
         record_freeze_checksum(root, rel_to, &injected, frontmatter)?;
         return Ok(WriteOutcome::Injected);
@@ -231,7 +240,14 @@ fn check_freeze(
                         ))
                     }
                 }
-                Err(_) => Ok(None), // no prior checksum recorded yet; proceed normally
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(AppError::fm_write(
+            11,
+            format!(
+                "checksum ownership slot `{}` is unreadable: {error}. Refusing to                  treat an unknown ownership state as unfrozen. Remediation: repair or                  remove the slot after reviewing the target.",
+                checksum_path.display()
+            ),
+        )),
             }
         }
     }
@@ -272,6 +288,33 @@ fn freeze_slots_dir(frontmatter: &Frontmatter) -> Result<&str> {
 /// `..`-containing slots dir must not place checksum files outside the root.
 fn freeze_checksum_path(root: &Path, slots_dir: &str, rel_to: &str) -> Result<PathBuf> {
     resolve_target(root, &format!("{slots_dir}/{rel_to}.blake3"))
+}
+
+/// Admit checksum ownership state before shell hooks. `NotFound` means no prior
+/// slot; every other read error is an unknown authority state and fails closed.
+pub(crate) fn preflight_checksum_slot(
+    root: &Path, rel_to: &str, frontmatter: &Frontmatter,
+) -> Result<()> {
+    if frontmatter.freeze_policy != Some(FreezePolicy::Checksum) {
+        return Ok(());
+    }
+    let target = resolve_target(root, rel_to)?;
+    if !target.exists() {
+        return Ok(());
+    }
+    let slots_dir = freeze_slots_dir(frontmatter)?;
+    let checksum_path = freeze_checksum_path(root, slots_dir, rel_to)?;
+    match std::fs::read_to_string(&checksum_path) {
+        Ok(_) => Ok(()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(AppError::fm_write(
+            11,
+            format!(
+                "checksum ownership slot `{}` is unreadable before actuation: {error}.                  Remediation: repair or remove the slot after reviewing ownership.",
+                checksum_path.display()
+            ),
+        )),
+    }
 }
 
 /// If `frontmatter.backup` is set, copy `existing_content` to `<target>.bak`
@@ -689,6 +732,21 @@ fn observe_match(content: &str, spec: &MatchSpec, use_: MatchUse) -> Result<Matc
 /// Validate matcher syntax/configuration without reading or changing the host
 /// file. Called before shell hooks so invalid regex never receives actuation.
 pub(crate) fn validate_match_specs(frontmatter: &Frontmatter) -> Result<()> {
+    let placement_count = usize::from(frontmatter.before.is_some())
+        + usize::from(frontmatter.after.is_some())
+        + usize::from(frontmatter.at_line.is_some());
+    if placement_count > 0 && !frontmatter.inject {
+        return Err(AppError::fm_write(
+            10,
+            "`before`, `after`, and `at_line` require `inject: true`; placement              authority without injection is incoherent. Remediation: enable injection              or remove the placement fields.",
+        ));
+    }
+    if placement_count > 1 {
+        return Err(AppError::fm_write(
+            10,
+            "configure exactly one of `before`, `after`, or `at_line`; implicit              precedence between multiple placement authorities is refused.              Remediation: retain the single intended structural port.",
+        ));
+    }
     for (spec, use_) in [
         (frontmatter.before.as_ref(), MatchUse::Before),
         (frontmatter.after.as_ref(), MatchUse::After),
