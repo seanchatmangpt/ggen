@@ -1,0 +1,47 @@
+# MESSAGE: Gall checkpoint contract is incomplete -- every gall:Checkpoint must have checkpointId, title, producesCapability, runnerCommand, positiveWitness, negativeFalsifier, receiptObligation, and replayObligation
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpoint ?checkpointId ?missing WHERE {
+  ?checkpoint a gall:Checkpoint .
+  OPTIONAL { ?checkpoint gall:checkpointId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?checkpoint)) AS ?checkpointId)
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:checkpointId ?value }
+    BIND("gall:checkpointId" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:title ?value }
+    BIND("gall:title" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:producesCapability ?value }
+    BIND("gall:producesCapability" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:runnerCommand ?value }
+    BIND("gall:runnerCommand" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:positiveWitness ?value }
+    BIND("gall:positiveWitness" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:negativeFalsifier ?value }
+    BIND("gall:negativeFalsifier" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:receiptObligation ?value }
+    BIND("gall:receiptObligation" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?checkpoint gall:replayObligation ?value }
+    BIND("gall:replayObligation" AS ?missing)
+  }
+}
+ORDER BY ?checkpointId ?missing
