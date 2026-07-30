@@ -170,7 +170,7 @@ ex:evidence-ledger a bb:BlockGroup ;
     bb:outputDirectory "infrastructure/evidence" ;
     bb:dependsOn ex:object-storage, ex:event-fabric, ex:observability, ex:policy-governance ;
     bb:commonPack "fortune5-receipt-ledger-pack", "fortune5-chronology-pack", "fortune5-conservation-pack", "fortune5-legality-pack" ;
-    bb:awsPack "aws-cloudtrail-lake-pack", "aws-qldb-evidence-pack" ;
+    bb:awsPack "aws-cloudtrail-log-integrity-pack", "aws-config-aggregator-pack" ;
     bb:azurePack "azure-monitor-immutable-ledger-pack", "azure-confidential-ledger-pack" ;
     bb:gcpPack "gcp-cloud-audit-logs-pack", "gcp-immutable-evidence-pack" .
 

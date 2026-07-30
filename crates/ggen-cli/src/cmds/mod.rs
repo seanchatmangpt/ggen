@@ -4,8 +4,8 @@
 //! explicitly because runtime source scraping is not reliable when `ggen` is
 //! invoked outside this repository checkout.
 
-pub mod helpers;
 pub mod git_hooks;
+pub mod helpers;
 pub mod init;
 
 #[cfg(feature = "experimental")]

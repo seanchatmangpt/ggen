@@ -101,10 +101,7 @@ struct Receipt {
 
 impl Receipt {
     fn issue(
-        operation: &str,
-        plan: &BlockPlan,
-        previous_digest: &str,
-        artifacts: Vec<String>,
+        operation: &str, plan: &BlockPlan, previous_digest: &str, artifacts: Vec<String>,
     ) -> Result<Self> {
         let body = ReceiptBody {
             schema: RECEIPT_SCHEMA,
@@ -151,7 +148,11 @@ fn validate_catalog(catalog: &Catalog) -> Result<()> {
         ));
     }
 
-    let provider_ids: BTreeSet<_> = catalog.providers.iter().map(|item| item.id.as_str()).collect();
+    let provider_ids: BTreeSet<_> = catalog
+        .providers
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect();
     let expected = BTreeSet::from(["aws", "azure", "gcp"]);
     if provider_ids != expected || provider_ids.len() != catalog.providers.len() {
         return Err(NounVerbError::execution_error(
@@ -230,7 +231,13 @@ fn validate_catalog(catalog: &Catalog) -> Result<()> {
     for group in &catalog.groups {
         let mut visiting = BTreeSet::new();
         let mut visited = BTreeSet::new();
-        visit_group(catalog, &group.id, &mut visiting, &mut visited, &mut Vec::new())?;
+        visit_group(
+            catalog,
+            &group.id,
+            &mut visiting,
+            &mut visited,
+            &mut Vec::new(),
+        )?;
     }
     Ok(())
 }
@@ -272,7 +279,7 @@ fn normalize_provider<'a>(catalog: &'a Catalog, raw: &str) -> Result<&'a Provide
         })
 }
 
-fn group<'a>(catalog: &'a Catalog, id: &str) -> Result<&'a BlockGroup> {
+fn find_group<'a>(catalog: &'a Catalog, id: &str) -> Result<&'a BlockGroup> {
     catalog
         .groups
         .iter()
@@ -281,10 +288,7 @@ fn group<'a>(catalog: &'a Catalog, id: &str) -> Result<&'a BlockGroup> {
 }
 
 fn visit_group(
-    catalog: &Catalog,
-    id: &str,
-    visiting: &mut BTreeSet<String>,
-    visited: &mut BTreeSet<String>,
+    catalog: &Catalog, id: &str, visiting: &mut BTreeSet<String>, visited: &mut BTreeSet<String>,
     ordered: &mut Vec<String>,
 ) -> Result<()> {
     if visited.contains(id) {
@@ -295,7 +299,7 @@ fn visit_group(
             "bblock dependency cycle detected at {id}"
         )));
     }
-    let current = group(catalog, id)?;
+    let current = find_group(catalog, id)?;
     for dependency in &current.dependencies {
         visit_group(catalog, dependency, visiting, visited, ordered)?;
     }
@@ -319,7 +323,7 @@ fn resolve(catalog: &Catalog, group_id: &str, provider_raw: &str) -> Result<Bloc
     let mut packs = BTreeSet::new();
     let mut directories = BTreeSet::new();
     for id in &ordered {
-        let group = group(catalog, id)?;
+        let group = find_group(catalog, id)?;
         directories.insert(group.directory.clone());
         packs.extend(group.common_packs.iter().cloned());
         packs.extend(
@@ -428,14 +432,8 @@ fn plan_paths(root: &Path, plan: &BlockPlan, operation: &str) -> (PathBuf, PathB
         .join(&plan.provider)
         .join(format!("{}.json", plan.requested_group));
     let receipt_dir = runtime.join("receipts").join(&plan.provider);
-    let intent_path = receipt_dir.join(format!(
-        "{}-{operation}-intent.json",
-        plan.requested_group
-    ));
-    let result_path = receipt_dir.join(format!(
-        "{}-{operation}-result.json",
-        plan.requested_group
-    ));
+    let intent_path = receipt_dir.join(format!("{}-{operation}-intent.json", plan.requested_group));
+    let result_path = receipt_dir.join(format!("{}-{operation}-result.json", plan.requested_group));
     (plan_path, intent_path, result_path)
 }
 
@@ -656,7 +654,10 @@ mod tests {
         assert_eq!(catalog.providers.len(), 3);
         assert!(catalog.groups.len() >= 18);
         assert!(catalog.groups.iter().all(|group| {
-            group.provider_packs.get("aws").is_some_and(|packs| !packs.is_empty())
+            group
+                .provider_packs
+                .get("aws")
+                .is_some_and(|packs| !packs.is_empty())
                 && group
                     .provider_packs
                     .get("azure")
@@ -684,7 +685,10 @@ mod tests {
         assert_eq!(first, second);
         let unique: BTreeSet<_> = first.packs.iter().collect();
         assert_eq!(unique.len(), first.packs.len());
-        assert_eq!(first.resolved_groups.last(), Some(&"fortune5-complete".to_string()));
+        assert_eq!(
+            first.resolved_groups.last(),
+            Some(&"fortune5-complete".to_string())
+        );
     }
 
     #[test]

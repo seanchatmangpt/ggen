@@ -184,7 +184,7 @@
       "dependencies": ["object-storage", "event-fabric", "observability", "policy-governance"],
       "common_packs": ["fortune5-receipt-ledger-pack", "fortune5-chronology-pack", "fortune5-conservation-pack", "fortune5-legality-pack"],
       "provider_packs": {
-        "aws": ["aws-cloudtrail-lake-pack", "aws-qldb-evidence-pack"],
+        "aws": ["aws-cloudtrail-log-integrity-pack", "aws-config-aggregator-pack"],
         "azure": ["azure-monitor-immutable-ledger-pack", "azure-confidential-ledger-pack"],
         "gcp": ["gcp-cloud-audit-logs-pack", "gcp-immutable-evidence-pack"]
       }
