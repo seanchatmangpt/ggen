@@ -8,6 +8,7 @@ pub mod autonomic;
 pub mod capacity;
 pub mod doctor;
 pub mod error;
+pub mod fortune5;
 pub mod model;
 pub mod receipt;
 pub mod registry;
@@ -22,6 +23,10 @@ pub use capacity::{
 };
 pub use doctor::{DoctorFinding, DoctorReport, DoctorStatus};
 pub use error::{ArchitectureError, Result};
+pub use fortune5::{
+    ControlEvidence, DimensionAssessment, Fortune5Assessment, Fortune5Catalog, Fortune5Dimension,
+    Fortune5Domain, Fortune5Finding, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
+};
 pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
 pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
 pub use state::{ArchitectureState, AutonomicPolicy};
