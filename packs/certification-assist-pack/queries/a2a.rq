@@ -1,0 +1,13 @@
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?order ?skillId ?name ?description ?tags
+WHERE {
+  ?skill a ca:A2ASkill ;
+    ca:order ?order ;
+    ca:skillId ?skillId ;
+    rdfs:label ?name ;
+    ca:description ?description ;
+    ca:tags ?tags .
+}
+ORDER BY ?order
