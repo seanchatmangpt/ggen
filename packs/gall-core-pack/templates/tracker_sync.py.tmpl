@@ -1,0 +1,333 @@
+---
+to: scripts/gall/tracker_sync.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED idempotent Gall tracker synchronizer.
+
+Supports Jira Cloud, GitHub Issues, and a local file tracker. Plan mode is the
+default. Network mutation requires ``apply``, an ``apply-allowed`` automation
+profile, explicit credentials, and a pre-actuation intent receipt.
+"""
+from __future__ import annotations
+
+import argparse
+import base64
+import json
+import os
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+from control_plane import ControlPlane, WorkItem, ROOT
+
+
+def request_json(
+    url: str,
+    method: str = "GET",
+    payload: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
+) -> tuple[int, Any]:
+    body = None if payload is None else json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(url, data=body, method=method)
+    request.add_header("Accept", "application/json")
+    if payload is not None:
+        request.add_header("Content-Type", "application/json")
+    for key, value in (headers or {}).items():
+        request.add_header(key, value)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            raw = response.read().decode("utf-8")
+            return response.status, json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as error:
+        raw = error.read().decode("utf-8", errors="replace")
+        try:
+            parsed: Any = json.loads(raw)
+        except json.JSONDecodeError:
+            parsed = {"body": raw}
+        return error.code, parsed
+
+
+def status_for(control: ControlPlane, item: WorkItem) -> str:
+    if control.is_complete(item.id):
+        return "complete"
+    if all(control.is_complete(dependency) for dependency in item.dependencies):
+        return "ready"
+    return "blocked"
+
+
+def work_order_body(control: ControlPlane, item: WorkItem) -> str:
+    return control.render_work_order(item) + f"\nTracker state: {status_for(control, item)}\n"
+
+
+def label_id(item: WorkItem) -> str:
+    return f"gall-id-{item.id.lower()}"
+
+
+def status_label(control: ControlPlane, item: WorkItem) -> str:
+    return f"gall-{status_for(control, item)}"
+
+
+def operation_plan(control: ControlPlane) -> dict[str, Any]:
+    return {
+        "provider": control.config["Tracker Provider"],
+        "project_key": control.config["Project Key"],
+        "release": control.config["Release"],
+        "operations": [
+            {
+                "operation": "upsert",
+                "external_id": item.id,
+                "summary": item.row["Summary"],
+                "issue_type": item.row["Issue Type"],
+                "priority": item.row["Priority"],
+                "status": status_for(control, item),
+                "dependencies": item.dependencies,
+            }
+            for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id))
+        ],
+    }
+
+
+def write_plan(control: ControlPlane) -> Path:
+    path = control.runtime_dir / "tracker-sync-plan.json"
+    path.write_text(json.dumps(operation_plan(control), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
+def jira_headers() -> dict[str, str]:
+    email = os.environ.get("JIRA_EMAIL", "").strip()
+    token = os.environ.get("JIRA_API_TOKEN", "").strip()
+    if not email or not token:
+        raise SystemExit("JIRA_EMAIL and JIRA_API_TOKEN are required for Jira apply")
+    authorization = base64.b64encode(f"{email}:{token}".encode("utf-8")).decode("ascii")
+    return {"Authorization": f"Basic {authorization}"}
+
+
+def jira_adf(text: str) -> dict[str, Any]:
+    paragraphs = []
+    for line in text.splitlines():
+        if not line:
+            continue
+        paragraphs.append(
+            {
+                "type": "paragraph",
+                "content": [{"type": "text", "text": line[:32000]}],
+            }
+        )
+    return {"type": "doc", "version": 1, "content": paragraphs}
+
+
+def jira_apply(control: ControlPlane) -> list[dict[str, Any]]:
+    base = os.environ.get("JIRA_BASE_URL", "").strip().rstrip("/")
+    if not base.startswith("https://"):
+        raise SystemExit("JIRA_BASE_URL must be an https URL")
+    headers = jira_headers()
+    issue_keys: dict[str, str] = {}
+    results: list[dict[str, Any]] = []
+    for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
+        marker = label_id(item)
+        jql = f'project = "{control.config["Project Key"]}" AND labels = "{marker}"'
+        search_url = f"{base}/rest/api/3/search/jql?jql={urllib.parse.quote(jql)}&maxResults=2&fields=key"
+        search_status, search = request_json(search_url, headers=headers)
+        if search_status >= 300:
+            results.append({"work_item_id": item.id, "stage": "search", "status": search_status, "response": search})
+            continue
+        issues = search.get("issues", [])
+        fields: dict[str, Any] = {
+            "project": {"key": control.config["Project Key"]},
+            "summary": item.row["Summary"],
+            "issuetype": {"name": item.row["Issue Type"]},
+            "priority": {"name": item.row["Priority"]},
+            "description": jira_adf(work_order_body(control, item)),
+            "labels": sorted(set(item.values("Labels") + ["gall", marker, status_label(control, item)])),
+        }
+        if os.environ.get("GALL_JIRA_USE_COMPONENTS") == "1":
+            fields["components"] = [{"name": item.row["Component"]}]
+        if issues:
+            key = issues[0]["key"]
+            status, response = request_json(
+                f"{base}/rest/api/3/issue/{urllib.parse.quote(key)}",
+                method="PUT",
+                payload={"fields": fields},
+                headers=headers,
+            )
+            operation = "update"
+        else:
+            status, response = request_json(
+                f"{base}/rest/api/3/issue", method="POST", payload={"fields": fields}, headers=headers
+            )
+            key = response.get("key", "") if status < 300 else ""
+            operation = "create"
+        if key:
+            issue_keys[item.id] = key
+        results.append(
+            {
+                "work_item_id": item.id,
+                "operation": operation,
+                "status": status,
+                "issue_key": key,
+                "response": response,
+            }
+        )
+
+    link_type = os.environ.get("JIRA_DEPENDENCY_LINK_TYPE", "Blocks")
+    existing_links: set[tuple[str, str]] = set()
+    for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
+        inward = issue_keys.get(item.id)
+        if not inward:
+            continue
+        for dependency in item.dependencies:
+            outward = issue_keys.get(dependency)
+            if not outward or (outward, inward) in existing_links:
+                continue
+            status, response = request_json(
+                f"{base}/rest/api/3/issueLink",
+                method="POST",
+                payload={
+                    "type": {"name": link_type},
+                    "outwardIssue": {"key": outward},
+                    "inwardIssue": {"key": inward},
+                },
+                headers=headers,
+            )
+            existing_links.add((outward, inward))
+            results.append(
+                {
+                    "operation": "link",
+                    "dependency": dependency,
+                    "work_item_id": item.id,
+                    "status": status,
+                    "response": response,
+                }
+            )
+    return results
+
+
+def github_headers() -> dict[str, str]:
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    if not token:
+        raise SystemExit("GITHUB_TOKEN is required for GitHub Issues apply")
+    return {
+        "Authorization": f"Bearer {token}",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+
+def github_apply(control: ControlPlane) -> list[dict[str, Any]]:
+    repository = os.environ.get("GITHUB_REPOSITORY", "").strip()
+    if repository.count("/") != 1:
+        raise SystemExit("GITHUB_REPOSITORY must be owner/repository")
+    base = f"https://api.github.com/repos/{repository}"
+    headers = github_headers()
+    results: list[dict[str, Any]] = []
+    for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
+        marker = label_id(item)
+        query = urllib.parse.urlencode({"state": "all", "labels": marker, "per_page": 2})
+        search_status, issues = request_json(f"{base}/issues?{query}", headers=headers)
+        if search_status >= 300:
+            results.append({"work_item_id": item.id, "stage": "search", "status": search_status, "response": issues})
+            continue
+        labels = sorted(set(item.values("Labels") + ["gall", marker, status_label(control, item)]))
+        payload = {
+            "title": f"[{item.id}] {item.row['Summary']}",
+            "body": work_order_body(control, item),
+            "labels": labels,
+        }
+        if issues:
+            number = issues[0]["number"]
+            status, response = request_json(
+                f"{base}/issues/{number}", method="PATCH", payload=payload, headers=headers
+            )
+            operation = "update"
+        else:
+            status, response = request_json(f"{base}/issues", method="POST", payload=payload, headers=headers)
+            number = response.get("number", "") if status < 300 else ""
+            operation = "create"
+        results.append(
+            {
+                "work_item_id": item.id,
+                "operation": operation,
+                "status": status,
+                "issue_number": number,
+                "response": response,
+            }
+        )
+    return results
+
+
+def file_apply(control: ControlPlane) -> list[dict[str, Any]]:
+    directory = control.runtime_dir / "file-tracker"
+    directory.mkdir(parents=True, exist_ok=True)
+    results: list[dict[str, Any]] = []
+    for item in sorted(control.items, key=lambda candidate: (candidate.order, candidate.id)):
+        path = directory / f"{item.id}.md"
+        path.write_text(work_order_body(control, item), encoding="utf-8")
+        results.append(
+            {
+                "work_item_id": item.id,
+                "operation": "upsert",
+                "status": 200,
+                "path": str(path.relative_to(ROOT)),
+            }
+        )
+    return results
+
+
+def apply(control: ControlPlane) -> int:
+    if control.config["Execution Mode"] != "apply-allowed":
+        raise SystemExit("automation profile forbids tracker apply")
+    plan_path = write_plan(control)
+    intent = control.write_receipt(
+        "tracker-apply-intent",
+        {
+            "provider": control.config["Tracker Provider"],
+            "plan": str(plan_path.relative_to(ROOT)),
+            "plan_sha256": __import__("hashlib").sha256(plan_path.read_bytes()).hexdigest(),
+        },
+    )
+    provider = control.config["Tracker Provider"]
+    if provider == "jira-cloud":
+        results = jira_apply(control)
+    elif provider == "github-issues":
+        results = github_apply(control)
+    elif provider == "file-only":
+        results = file_apply(control)
+    else:
+        raise SystemExit(f"unsupported tracker provider: {provider}")
+    passed = all(int(result.get("status", 500)) < 300 for result in results)
+    result_path = control.runtime_dir / "tracker-sync-result.json"
+    result_path.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    receipt = control.write_receipt(
+        "tracker-apply-result",
+        {
+            "passed": passed,
+            "provider": provider,
+            "intent_receipt": str(intent.relative_to(ROOT)),
+            "result": str(result_path.relative_to(ROOT)),
+            "operations": len(results),
+        },
+    )
+    print(f"passed={str(passed).lower()} receipt={receipt.relative_to(ROOT)}")
+    return 0 if passed else 1
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Gall generated tracker synchronizer")
+    parser.add_argument("command", choices=["plan", "apply"])
+    args = parser.parse_args()
+    control = ControlPlane()
+    plan_path = write_plan(control)
+    if args.command == "plan":
+        receipt = control.write_receipt(
+            "tracker-sync-plan", {"plan": str(plan_path.relative_to(ROOT)), "provider": control.config["Tracker Provider"]}
+        )
+        print(f"plan={plan_path.relative_to(ROOT)} receipt={receipt.relative_to(ROOT)}")
+        return 0
+    return apply(control)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
