@@ -1,0 +1,75 @@
+name: CMD one-shot SPARQL alias repair
+
+on:
+  push:
+    branches:
+      - agent/combinatorial-maximalism-pack
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: agent/combinatorial-maximalism-pack
+          fetch-depth: 0
+      - name: Remove non-portable SELECT aliases
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('packs/ggen-combinatorial-maximalism-pack/templates/lib.rs.tmpl'): [
+                  ('''SELECT ?candidate_name ?standing
+                         (COALESCE(STR(?authority), "") AS ?authorized_by)
+                         ?output_path WHERE {''',
+                   '''SELECT ?candidate_name ?standing ?authority ?output_path WHERE {'''),
+                  ('''OPTIONAL { ?candidate cmd:authorizedBy ?authority }''',
+                   '''OPTIONAL { ?candidate cmd:authorizedBy ?authority . }'''),
+                  ('''candidate.authorized_by''', '''candidate.authority'''),
+              ],
+              Path('packs/ggen-combinatorial-maximalism-pack/templates/cmd_plan.json.tmpl'): [
+                  ('''SELECT ?candidate_name ?standing
+                         (COALESCE(STR(?authority), "") AS ?authorized_by)
+                         ?output_path WHERE {''',
+                   '''SELECT ?candidate_name ?standing ?authority ?output_path WHERE {'''),
+                  ('''OPTIONAL { ?candidate cmd:authorizedBy ?authority }''',
+                   '''OPTIONAL { ?candidate cmd:authorizedBy ?authority . }'''),
+                  ('''candidate.authorized_by''', '''candidate.authority'''),
+              ],
+              Path('packs/ggen-combinatorial-maximalism-pack/templates/CMD_REPORT.md.tmpl'): [
+                  ('''SELECT ?name ?standing (COALESCE(STR(?authority), "none") AS ?authority) ?path WHERE {''',
+                   '''SELECT ?name ?standing ?authority ?path WHERE {'''),
+                  ('''OPTIONAL { ?candidate cmd:authorizedBy ?authority }''',
+                   '''OPTIONAL { ?candidate cmd:authorizedBy ?authority . }'''),
+                  ('''| `{{ candidate.name }}` | `{{ candidate.standing }}` | `{{ candidate.authority }}` | `{{ candidate.path }}` |''',
+                   '''| `{{ candidate.name }}` | `{{ candidate.standing }}` | `{% if candidate.authority %}{{ candidate.authority }}{% else %}none{% endif %}` | `{{ candidate.path }}` |'''),
+              ],
+          }
+
+          for path, edits in replacements.items():
+              text = path.read_text()
+              for old, new in edits:
+                  if old not in text:
+                      raise SystemExit(f'ALIAS_REPAIR_SOURCE_MISMATCH:{path}:{old[:80]!r}')
+                  text = text.replace(old, new)
+              if 'COALESCE(' in text:
+                  raise SystemExit(f'ALIAS_REPAIR_INCOMPLETE:{path}')
+              path.write_text(text)
+
+          Path('.github/workflows/cmd-one-shot-alias-repair.yml').unlink()
+          PY
+      - name: Commit the repaired branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add packs/ggen-combinatorial-maximalism-pack/templates/lib.rs.tmpl \
+                  packs/ggen-combinatorial-maximalism-pack/templates/cmd_plan.json.tmpl \
+                  packs/ggen-combinatorial-maximalism-pack/templates/CMD_REPORT.md.tmpl \
+                  .github/workflows/cmd-one-shot-alias-repair.yml
+          git commit -m 'fix(cmd): remove non-portable SPARQL aliases'
+          git push origin HEAD:agent/combinatorial-maximalism-pack
