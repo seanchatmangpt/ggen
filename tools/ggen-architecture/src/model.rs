@@ -106,10 +106,13 @@ impl fmt::Display for LifecycleState {
 }
 
 /// Evidence standing used across the Chatman Ecosystem.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Standing {
     /// No sufficient observation exists.
+    #[default]
     Unknown,
     /// A bounded subset is alive; wider closure remains incomplete.
     PartialAlive,
@@ -125,11 +128,6 @@ pub enum Standing {
     Retired,
 }
 
-impl Default for Standing {
-    fn default() -> Self {
-        Self::Unknown
-    }
-}
 
 /// Severity shared by diagnostics, doctor findings, and autonomic diagnoses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
