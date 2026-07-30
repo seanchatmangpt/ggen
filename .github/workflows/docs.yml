@@ -34,6 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 <<'PY'
+          import re
           from pathlib import Path
 
           source = Path('.github/workflows/fortune5-frontmatter-hardening.yml').read_text()
@@ -42,7 +43,48 @@ jobs:
               line[10:] if line.startswith("          ") else line
               for line in embedded.splitlines()
           )
+
+          # One launcher fragment encoded Rust indentation through a Python
+          # triple-quoted string and drifted. Remove only that labeled call;
+          # apply the same law below against the exact source block.
+          pattern = re.compile(
+              r"\nsync = replace_once\(\n    sync,\n    '''        else \{.*?"
+              r"    'when-false target admission',\n\)\n",
+              re.DOTALL,
+          )
+          script, removed = pattern.subn("\n", script, count=1)
+          if removed != 1:
+              raise SystemExit(f'when-false launcher fragment removal count={removed}')
+
           exec(compile(script, '<fortune5-frontmatter-hardening>', 'exec'))
+
+          sync_path = Path('crates/ggen-engine/src/sync.rs')
+          sync = sync_path.read_text()
+          old = '''        else {
+              let reason = format!("when guard false ({})", tpl_path.display());
+              decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
+              skipped.push((PathBuf::from(&tpl.frontmatter.to), reason));
+              continue;
+          };
+          '''
+          new = '''        else {
+              let reason = format!("when guard false ({})", tpl_path.display());
+              let evidence_key = if tpl.frontmatter.to.contains("{{")
+                  || tpl.frontmatter.to.contains("{%")
+              {
+                  format!("@template/{}", rel_display(root, tpl_path))
+              } else {
+                  crate::write::resolve_target(root, &tpl.frontmatter.to)?;
+                  tpl.frontmatter.to.clone()
+              };
+              decisions.insert(evidence_key.clone(), format!("skipped: {reason}"));
+              skipped.push((PathBuf::from(evidence_key), reason));
+              continue;
+          };
+          '''
+          if sync.count(old) != 1:
+              raise SystemExit(f'when-false source block count={sync.count(old)}')
+          sync_path.write_text(sync.replace(old, new, 1))
           PY
 
           cargo fmt --all
