@@ -21,6 +21,9 @@ use oxigraph::{
 
 use crate::error::{AppError, Result};
 
+mod ontology_batch;
+pub use ontology_batch::{OntologyBatchReceipt, TurtleDocument};
+
 /// Number of color-refinement iterations for blank-node canonicalization.
 /// Five rounds are sufficient for the small ontology graphs ggen operates on.
 const REFINEMENT_ITERATIONS: usize = 5;
@@ -443,6 +446,20 @@ pub trait GraphEngine: Send + Sync {
     /// Fails closed on syntax or storage errors.
     fn insert_turtle(&self, ttl: &str) -> Result<usize>;
 
+    /// Parse multiple Turtle documents independently, then atomically insert
+    /// their union through one store mutation.
+    ///
+    /// Document-local parser state (prefixes, bases, blank-node labels) is
+    /// never shared. Implementations may optimize transaction fan-in while
+    /// preserving exact document attribution on refusal.
+    ///
+    /// # Errors
+    /// Fails closed before store mutation on any document parse error, or if
+    /// the atomic store commit fails.
+    fn insert_turtle_documents(
+        &self, documents: &[TurtleDocument<'_>],
+    ) -> Result<OntologyBatchReceipt>;
+
     /// Execute a SPARQL query, returning engine-neutral results.
     ///
     /// # Errors
@@ -660,6 +677,12 @@ impl GraphEngine for DeterministicGraph {
         DeterministicGraph::insert_turtle(self, ttl)
     }
 
+    fn insert_turtle_documents(
+        &self, documents: &[TurtleDocument<'_>],
+    ) -> Result<OntologyBatchReceipt> {
+        ontology_batch::insert_documents(self, documents)
+    }
+
     fn query(&self, sparql: &str) -> Result<EngineQueryResults> {
         match DeterministicGraph::query(self, sparql)? {
             QueryResults::Boolean(b) => Ok(EngineQueryResults::Boolean(b)),
@@ -850,6 +873,12 @@ impl GraphLawStore {
 impl GraphEngine for GraphLawStore {
     fn insert_turtle(&self, ttl: &str) -> Result<usize> {
         self.mirror.insert_turtle(ttl)
+    }
+
+    fn insert_turtle_documents(
+        &self, documents: &[TurtleDocument<'_>],
+    ) -> Result<OntologyBatchReceipt> {
+        ontology_batch::insert_documents(&self.mirror, documents)
     }
 
     fn query(&self, sparql: &str) -> Result<EngineQueryResults> {
