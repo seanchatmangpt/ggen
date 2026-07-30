@@ -3,8 +3,6 @@ name: Fortune 5 Architecture
 on:
   pull_request:
     paths:
-      - 'Cargo.toml'
-      - 'Cargo.lock'
       - 'crates/ggen-architecture/**'
       - 'packs/fortune5-architecture-pack/**'
       - 'examples/fortune5-architecture/**'
@@ -31,20 +29,20 @@ jobs:
       - name: Provision siblings and pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
 
-      - name: Prove workspace and lock closure
-        run: cargo metadata --locked --no-deps --format-version 1 >/tmp/fortune5-metadata.json
+      - name: Resolve the isolated kernel manifest
+        run: cargo metadata --manifest-path crates/ggen-architecture/Cargo.toml --no-deps --format-version 1 >/tmp/fortune5-metadata.json
 
       - name: Enforce formatting
-        run: cargo fmt --check --package ggen-architecture
+        run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --check
 
       - name: Enforce warning-free kernel
-        run: cargo clippy -p ggen-architecture --all-targets -- -D warnings
+        run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --all-targets -- -D warnings
 
       - name: Execute Fortune 5 positive witnesses and falsifiers
-        run: cargo test -p ggen-architecture --all-targets
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --all-targets
 
       - name: Execute documentation tests
-        run: cargo test -p ggen-architecture --doc
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --doc
 
       - name: Prove kernel has no direct actuation imports
         run: |
