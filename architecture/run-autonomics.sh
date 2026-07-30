@@ -6,6 +6,7 @@ MANIFEST="$ROOT/tools/ggen-architecture/Cargo.toml"
 STATE="$ROOT/architecture/ggen-enterprise.json"
 STIMULI="$ROOT/architecture/stimuli/sample-cycle.json"
 FORTUNE5="$ROOT/architecture/fortune5/synthetic-level5.json"
+CROWN="$ROOT/architecture/fortune5-crown-synthetic.json"
 OUT="${GGEN_ARCHITECTURE_RECEIPTS_DIR:-$ROOT/target/architecture-receipts}"
 OBSERVED_AT="${GGEN_ARCHITECTURE_OBSERVED_AT:-synthetic-proof-v1}"
 
@@ -36,6 +37,10 @@ cargo run --quiet --manifest-path "$MANIFEST" -- \
 
 cargo run --quiet --manifest-path "$MANIFEST" -- \
   fortune5 plan --program "$FORTUNE5" --json > "$OUT/fortune5-autonomic-plan.json"
+
+cargo run --quiet --manifest-path "$MANIFEST" -- \
+  fortune5 crown --program "$FORTUNE5" --crown "$CROWN" --json \
+  > "$OUT/fortune5-level5-crown.json"
 
 if command -v sha256sum >/dev/null 2>&1; then
   (cd "$OUT" && sha256sum *.json > SHA256SUMS)
