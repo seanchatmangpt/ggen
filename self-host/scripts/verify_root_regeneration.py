@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Verify that running root `ggen sync` changes only declared root outputs.
+"""Verify that running root `ggen sync` changes only declared outputs or receipts.
 
 This verifier is intentionally independent of ggen's renderer. It reads the authored
 root manifest, observes Git worktree changes, and refuses any unowned consequence.
+Execution receipts are admitted as evidence, never mislabeled as generation outputs.
 """
 from __future__ import annotations
 
@@ -13,6 +14,8 @@ import sys
 import tomllib
 from pathlib import Path, PurePosixPath
 from typing import Any
+
+EVIDENCE_PREFIXES = (".ggen-v2/",)
 
 
 def git(root: Path, *args: str) -> bytes:
@@ -57,17 +60,25 @@ def changed_paths(root: Path) -> list[str]:
     return sorted(paths)
 
 
+def is_evidence_path(path: str) -> bool:
+    return path.startswith(EVIDENCE_PREFIXES)
+
+
 def verify(root: Path) -> dict[str, Any]:
     outputs = declared_outputs(root)
     changed = changed_paths(root)
-    unauthorized = [path for path in changed if path not in outputs]
+    generated = [path for path in changed if path in outputs]
+    evidence = [path for path in changed if is_evidence_path(path)]
+    unauthorized = [path for path in changed if path not in outputs and not is_evidence_path(path)]
     missing = [path for path in outputs if not (root / path).is_file()]
     return {
         "schema": "ggen.root-regeneration.verification.v1",
         "revision": git(root, "rev-parse", "HEAD").decode("ascii").strip(),
         "declared_output_count": len(outputs),
         "changed_paths": changed,
-        "changed_owners": {path: outputs[path] for path in changed if path in outputs},
+        "generated_output_paths": generated,
+        "generated_output_owners": {path: outputs[path] for path in generated},
+        "receipt_evidence_paths": evidence,
         "unauthorized_paths": unauthorized,
         "missing_outputs": sorted(missing),
         "passed": not unauthorized and not missing,
