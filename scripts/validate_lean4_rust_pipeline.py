@@ -26,6 +26,8 @@ EXPECTED_OUTPUTS = {
     "generated/lean/Main.lean",
     "generated/PIPELINE.md",
 }
+AUTHORED_CONSUMER_FILES = {"ggen.toml", "ontology.ttl"}
+GGEN_ROOT_STATE_FILES = {"ggen.lock"}
 FORBIDDEN_LEAN = ("sorry", "axiom", "admit", "unsafe", "partial_fixpoint")
 
 
@@ -116,11 +118,18 @@ def main() -> int:
     refuse("import Lean4RustPipeline" not in runner_template, "LEAN_RUNNER_IMPORT_MISSING")
     refuse("Lean4Rust.main" not in runner_template, "LEAN_RUNNER_ROUTE_MISSING")
 
-    consumer_files = sorted(path.name for path in CONSUMER.iterdir() if path.is_file())
+    root_files = {path.name for path in CONSUMER.iterdir() if path.is_file()}
+    unexpected_root_files = root_files - AUTHORED_CONSUMER_FILES - GGEN_ROOT_STATE_FILES
     refuse(
-        consumer_files != ["ggen.toml", "ontology.ttl"],
-        f"CONSUMER_AUTHORED_SURFACE_REFUSED:{consumer_files}",
+        bool(unexpected_root_files),
+        f"CONSUMER_ROOT_SURFACE_REFUSED:{sorted(unexpected_root_files)}",
     )
+    authored_files = root_files & AUTHORED_CONSUMER_FILES
+    refuse(
+        authored_files != AUTHORED_CONSUMER_FILES,
+        f"CONSUMER_AUTHORED_SURFACE_REFUSED:{sorted(authored_files)}",
+    )
+
     manifest = tomllib.loads((CONSUMER / "ggen.toml").read_text(encoding="utf-8"))
     refuse(
         "ggen-lean4-rust-pipeline-pack" not in manifest["packs"],
