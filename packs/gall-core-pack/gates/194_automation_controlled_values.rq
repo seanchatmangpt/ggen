@@ -1,0 +1,38 @@
+# MESSAGE: Gall automation profile uses an unsupported provider or mode, invalid parallelism, or a branch pattern without the work-item token
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?profile ?field ?value WHERE {
+  ?profile a gall:AutomationProfile .
+  {
+    ?profile gall:trackerProvider ?value .
+    BIND("gall:trackerProvider" AS ?field)
+    FILTER(?value NOT IN (gall:JiraCloud, gall:GitHubIssues, gall:FileTracker))
+  }
+  UNION
+  {
+    ?profile gall:executionMode ?value .
+    BIND("gall:executionMode" AS ?field)
+    FILTER(?value NOT IN (gall:PlanOnly, gall:ApplyAllowed))
+  }
+  UNION
+  {
+    ?profile gall:agentMode ?value .
+    BIND("gall:agentMode" AS ?field)
+    FILTER(?value NOT IN (gall:HandoffOnly, gall:CommandAgent))
+  }
+  UNION
+  {
+    ?profile gall:maxParallelism ?raw .
+    BIND("gall:maxParallelism" AS ?field)
+    BIND(STR(?raw) AS ?value)
+    FILTER(xsd:integer(?raw) < 1 || xsd:integer(?raw) > 64)
+  }
+  UNION
+  {
+    ?profile gall:branchPattern ?raw .
+    BIND("gall:branchPattern" AS ?field)
+    BIND(STR(?raw) AS ?value)
+    FILTER(!CONTAINS(STR(?raw), "{workItemId}"))
+  }
+}
+ORDER BY ?profile ?field
