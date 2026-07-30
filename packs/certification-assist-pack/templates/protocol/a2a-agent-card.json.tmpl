@@ -17,7 +17,7 @@
       "id": "{{ row["skillId"] }}",
       "name": "{{ row["name"] }}",
       "description": "{{ row["description"] }}",
-      "tags": ["{{ row["tags"] | replace(from=",", to="\", \"") }}"]
+      "tags": ["{{ row["tags"] }}"]
     }{% if not loop.last %},{% endif %}
 {% endfor %}  ]
 }
