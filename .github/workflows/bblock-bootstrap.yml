@@ -1,0 +1,59 @@
+name: BBlock Bootstrap
+
+on:
+  pull_request:
+    types: [ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bblock-bootstrap-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  manufacture:
+    name: Manufacture and verify cloud building blocks
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTC_WRAPPER: ""
+      GGEN_ARCHITECTURE_OBSERVED_AT: synthetic-cloud-bblock-v1
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 1
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            tools/ggen-architecture
+            .
+
+      - name: Expand admitted payload
+        run: |
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+
+          text = ''.join(path.read_text(encoding='utf-8') for path in sorted(Path('.github/bblock-bootstrap').glob('payload.*')))
+          text = ''.join(text.split())
+          text += '=' * (-len(text) % 4)
+          Path('.bblock-payload.tar.gz').write_bytes(base64.b64decode(text))
+          PY
+          tar -xzf .bblock-payload.tar.gz -C .
+          cat .github/bblock-bootstrap/script.* > .bblock-bootstrap.sh
+          chmod +x .bblock-bootstrap.sh
+
+      - name: Implement, verify, and publish exact source
+        run: ./.bblock-bootstrap.sh

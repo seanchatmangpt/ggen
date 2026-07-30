@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 - <<'PY'
+from pathlib import Path
+
+def replace_once(path: str, old: str, new: str) -> None:
+    target = Path(path)
+    source = target.read_text(encoding="utf-8")
+    if new in source:
+        return
+    if old not in source:
+        raise SystemExit(f"marker not found in {path}: {old!r}")
+    target.write_text(source.replace(old, new, 1), encoding="utf-8")
+
+error_path = Path("tools/ggen-architecture/src/error.rs")
+error = error_path.read_text(encoding="utf-8")
+if "InvalidBBlock" not in error:
+    marker = "    /// A deterministic receipt could not be serialized.\n"
+    insertion = '''    /// A repository or building-block file could not be read.\n    #[error("architecture I/O failed: {0}")]\n    Io(#[from] std::io::Error),\n\n    /// A building-block manifest, pack, or deployment contract was invalid.\n    #[error("invalid building block: {0}")]\n    InvalidBBlock(String),\n\n'''
+    if marker not in error:
+        raise SystemExit("error.rs insertion marker missing")
+    error_path.write_text(error.replace(marker, insertion + marker, 1), encoding="utf-8")
+
+lib_path = Path("tools/ggen-architecture/src/lib.rs")
+lib = lib_path.read_text(encoding="utf-8")
+if "pub mod bblock;" not in lib:
+    lib = lib.replace("pub mod autonomic;\n", "pub mod autonomic;\npub mod bblock;\n", 1)
+if "pub use bblock::" not in lib:
+    marker = '''pub use autonomic::{\n    ArchitectureIntent, AutonomicController, AutonomicCycle, Diagnosis, IntentKind, Stimulus,\n};\n'''
+    exports = '''pub use bblock::{\n    AvailabilityClass, BBlockCatalog, BBlockCatalogEntry, BBlockDeploymentPlan, BBlockFinding,\n    BBlockKind, BBlockManifest, BBlockPackRef, BBlockPolicy, BBlockStatus,\n    BBlockValidationReport, CloudDeploymentContract, CloudProvider, DataGovernance,\n    DeploymentEnvironment, DeploymentRegion, DeploymentValidation, DeploymentWave,\n    RecoveryObjectives, SupplyChainControls, ValidationGate,\n};\n'''
+    if marker not in lib:
+        raise SystemExit("lib.rs export marker missing")
+    lib = lib.replace(marker, marker + exports, 1)
+lib_path.write_text(lib, encoding="utf-8")
+
+architecture_cargo = Path("tools/ggen-architecture/Cargo.toml")
+cargo = architecture_cargo.read_text(encoding="utf-8")
+if 'oxrdfio = ' not in cargo:
+    cargo = cargo.replace('clap = { version = "4.5", features = ["derive"] }\n', 'clap = { version = "4.5", features = ["derive"] }\noxrdfio = { version = "0.2.5", features = ["rdf-12"] }\n', 1)
+if '\ntoml = "0.8"\n' not in cargo:
+    cargo = cargo.replace('thiserror = "2.0"\n', 'thiserror = "2.0"\ntoml = "0.8"\n', 1)
+architecture_cargo.write_text(cargo, encoding="utf-8")
+
+bblock_path = Path("tools/ggen-architecture/src/bblock.rs")
+bblock = bblock_path.read_text(encoding="utf-8")
+if "use oxrdfio::{RdfFormat, RdfParser};" not in bblock:
+    bblock = bblock.replace(
+        "use serde::{Deserialize, Serialize};\n",
+        "use oxrdfio::{RdfFormat, RdfParser};\nuse serde::{Deserialize, Serialize};\n",
+        1,
+    )
+old = '''    for required_file in ["pack.toml", "ontology.ttl"] {\n        if !pack_root.join(required_file).is_file() {\n            findings.push(finding(\n                "BBLOCK-111",\n                Severity::Error,\n                &pack.id,\n                &format!("required pack file `{required_file}` is missing"),\n            ));\n        }\n    }\n'''
+new = old + '''\n    let manifest_path = pack_root.join("pack.toml");\n    if manifest_path.is_file() {\n        match fs::read_to_string(&manifest_path)\n            .map_err(|error| error.to_string())\n            .and_then(|content| toml::from_str::<toml::Value>(&content).map_err(|error| error.to_string()))\n        {\n            Ok(value) => {\n                let declared_id = value\n                    .get("pack")\n                    .and_then(|pack_value| pack_value.get("id"))\n                    .and_then(toml::Value::as_str);\n                if declared_id != Some(pack.id.as_str()) {\n                    findings.push(finding(\n                        "BBLOCK-113",\n                        Severity::Error,\n                        &pack.id,\n                        "pack.toml [pack].id does not match the bblock pack reference",\n                    ));\n                }\n                if let Some(templates) = value\n                    .get("pack")\n                    .and_then(|pack_value| pack_value.get("templates"))\n                    .and_then(toml::Value::as_array)\n                {\n                    for template in templates {\n                        if let Some(path) = template.get("path").and_then(toml::Value::as_str) {\n                            if !pack_root.join(path).is_file() {\n                                findings.push(finding(\n                                    "BBLOCK-114",\n                                    Severity::Error,\n                                    &pack.id,\n                                    &format!("declared pack template `{path}` is missing"),\n                                ));\n                            }\n                        }\n                    }\n                }\n            }\n            Err(error) => findings.push(finding(\n                "BBLOCK-115",\n                Severity::Error,\n                &pack.id,\n                &format!("pack.toml could not be parsed: {error}"),\n            )),\n        }\n    }\n\n    let ontology_path = pack_root.join("ontology.ttl");\n    if ontology_path.is_file() {\n        if let Err(error) = validate_turtle(&ontology_path) {\n            findings.push(finding(\n                "BBLOCK-116",\n                Severity::Error,\n                &pack.id,\n                &format!("ontology.ttl could not be parsed: {error}"),\n            ));\n        }\n    }\n'''
+if "BBLOCK-116" not in bblock:
+    if old not in bblock:
+        raise SystemExit("bblock pack validation marker missing")
+    bblock = bblock.replace(old, new, 1)
+if "fn validate_turtle(path: &Path)" not in bblock:
+    marker = "/// One provider region used by a deployment contract.\n"
+    helper = '''fn validate_turtle(path: &Path) -> std::result::Result<(), String> {\n    let bytes = fs::read(path).map_err(|error| error.to_string())?;\n    RdfParser::from_format(RdfFormat::Turtle)\n        .for_reader(bytes.as_slice())\n        .collect::<std::result::Result<Vec<_>, _>>()\n        .map_err(|error| error.to_string())?;\n    Ok(())\n}\n\n'''
+    if marker not in bblock:
+        raise SystemExit("bblock turtle helper marker missing")
+    bblock = bblock.replace(marker, helper + marker, 1)
+# Remove a strict-clippy duplicate match: all three providers require the same normalized service roles.
+bblock = bblock_path.read_text(encoding="utf-8")
+old_services = """fn required_service_keys(provider: CloudProvider) -> &'static [&'static str] {
+    match provider {
+        CloudProvider::Aws => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+        CloudProvider::Azure => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+        CloudProvider::Gcp => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+    }
+}
+"""
+new_services = """fn required_service_keys(_provider: CloudProvider) -> &'static [&'static str] {
+    &[
+        "organization",
+        "landing_zone",
+        "identity",
+        "policy",
+        "audit",
+        "security_posture",
+        "secrets",
+        "global_edge",
+        "dns",
+        "global_network",
+        "observability",
+        "backup",
+    ]
+}
+"""
+if old_services in bblock:
+    bblock = bblock.replace(old_services, new_services, 1)
+bblock_path.write_text(bblock, encoding="utf-8")
+

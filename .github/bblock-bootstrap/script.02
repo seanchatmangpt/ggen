@@ -1,0 +1,53 @@
+runner_path = Path("architecture/run-autonomics.sh")
+runner = runner_path.read_text(encoding="utf-8")
+if "bblock-catalog.json" not in runner:
+    marker = "if command -v sha256sum >/dev/null 2>&1; then\n"
+    commands = '''cargo run --quiet --manifest-path "$MANIFEST" --bin ggen-bblock -- \\\n  list --root "$ROOT" > "$OUT/bblock-catalog.json"\n\ncargo run --quiet --manifest-path "$MANIFEST" --bin ggen-bblock -- \\\n  validate fortune5-global-cloud --root "$ROOT" > "$OUT/bblock-validation.json"\n\ncargo run --quiet --manifest-path "$MANIFEST" --bin ggen-bblock -- \\\n  plan fortune5-global-cloud --environment production --root "$ROOT" \\\n  > "$OUT/bblock-production-plan.json"\n\n'''
+    if marker not in runner:
+        raise SystemExit("run-autonomics marker missing")
+    runner = runner.replace(marker, commands + marker, 1)
+runner_path.write_text(runner, encoding="utf-8")
+
+workflow_path = Path(".github/workflows/architecture-autonomics.yml")
+workflow = workflow_path.read_text(encoding="utf-8")
+extra_paths = '''      - "bblocks/**"\n      - "packs/fortune5-*-global-pack/**"\n      - "crates/ggen-cli/src/cmds/bblock.rs"\n      - "crates/ggen-cli/src/cmds/mod.rs"\n      - "crates/ggen-cli/Cargo.toml"\n      - "Cargo.lock"\n'''
+if '      - "bblocks/**"' not in workflow:
+    workflow = workflow.replace('      - "architecture/**"\n', '      - "architecture/**"\n' + extra_paths, 2)
+if "Check ggen bblock CLI" not in workflow:
+    marker = '''      - name: Clippy\n        run: cargo clippy --manifest-path tools/ggen-architecture/Cargo.toml --all-targets -- -D warnings\n'''
+    steps = '''\n      - name: Check ggen bblock CLI\n        run: |\n          rustfmt --check --edition 2021 crates/ggen-cli/src/cmds/bblock.rs crates/ggen-cli/src/cmds/mod.rs\n          cargo check --manifest-path crates/ggen-cli/Cargo.toml --lib\n'''
+    if marker not in workflow:
+        raise SystemExit("architecture workflow clippy marker missing")
+    workflow = workflow.replace(marker, marker + steps, 1)
+if "Prove global cloud building block" not in workflow:
+    marker = "      - name: Upload receipts\n"
+    proof = '''      - name: Prove global cloud building block\n        run: |\n          test "$(jq '.entries | length' target/architecture-receipts/bblock-catalog.json)" -ge 1\n          test "$(jq -r '.status' target/architecture-receipts/bblock-validation.json)" = "warning"\n          test "$(jq -r '.structural_ready' target/architecture-receipts/bblock-validation.json)" = "true"\n          test "$(jq -r '.production_ready' target/architecture-receipts/bblock-validation.json)" = "false"\n          test "$(jq '.providers | length' target/architecture-receipts/bblock-validation.json)" = "3"\n          test "$(jq '.packs_validated' target/architecture-receipts/bblock-validation.json)" = "3"\n          test "$(jq '.waves | length' target/architecture-receipts/bblock-production-plan.json)" = "9"\n          test "$(jq -r '.production_probe_required' target/architecture-receipts/bblock-production-plan.json)" = "true"\n          test "$(jq -r '.actuation_performed' target/architecture-receipts/bblock-production-plan.json)" = "false"\n\n'''
+    if marker not in workflow:
+        raise SystemExit("architecture workflow upload marker missing")
+    workflow = workflow.replace(marker, proof + marker, 1)
+workflow_path.write_text(workflow, encoding="utf-8")
+PY
+
+cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
+rustfmt --edition 2021 crates/ggen-cli/src/cmds/bblock.rs crates/ggen-cli/src/cmds/mod.rs
+
+cargo check --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
+cargo check --manifest-path crates/ggen-cli/Cargo.toml --lib
+cargo clippy --manifest-path tools/ggen-architecture/Cargo.toml --all-targets -- -D warnings
+cargo test --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
+
+bash architecture/run-autonomics.sh
+test "$(jq -r '.status' target/architecture-receipts/bblock-validation.json)" = "warning"
+test "$(jq -r '.structural_ready' target/architecture-receipts/bblock-validation.json)" = "true"
+test "$(jq -r '.production_ready' target/architecture-receipts/bblock-validation.json)" = "false"
+test "$(jq '.providers | length' target/architecture-receipts/bblock-validation.json)" = "3"
+test "$(jq '.packs_validated' target/architecture-receipts/bblock-validation.json)" = "3"
+test "$(jq '.waves | length' target/architecture-receipts/bblock-production-plan.json)" = "9"
+test "$(jq -r '.actuation_performed' target/architecture-receipts/bblock-production-plan.json)" = "false"
+
+rm -rf .github/bblock-bootstrap .github/workflows/bblock-bootstrap.yml
+git config user.name "ggen bblock receipt bot"
+git config user.email "actions@users.noreply.github.com"
+git add -A
+git commit -m "feat(bblock): add Fortune 5 global cloud deployment blocks"
+git push origin "HEAD:${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"

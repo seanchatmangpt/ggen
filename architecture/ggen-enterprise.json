@@ -1,0 +1,230 @@
+{
+  "autonomic_policy": {
+    "direct_actuation_allowed": false,
+    "enabled": true,
+    "max_intents_per_cycle": 64
+  },
+  "capacity_policy": {
+    "knee_slope_ratio": 2.0,
+    "max_documents": null,
+    "max_quads": null,
+    "refuse_elapsed_ms": 5000,
+    "refuse_memory_bytes": 2147483648,
+    "warn_elapsed_ms": 1000,
+    "warn_memory_bytes": 536870912
+  },
+  "capacity_samples": [],
+  "name": "Chatman Ecosystem",
+  "registry": {
+    "assets": {
+      "architecture-registry": {
+        "attributes": {},
+        "dependencies": [
+          "enterprise-architecture-ontology"
+        ],
+        "id": "architecture-registry",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "Federated Architecture Registry",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "brce-actuation": {
+        "attributes": {},
+        "dependencies": [
+          "gall-standing"
+        ],
+        "id": "brce-actuation",
+        "kind": "capability",
+        "lifecycle": "active",
+        "name": "BRCE Bounded Actuation",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": null
+      },
+      "cargo-cicd": {
+        "attributes": {},
+        "dependencies": [
+          "gall-standing"
+        ],
+        "id": "cargo-cicd",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "cargo-cicd Release Governance",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "enterprise-architecture-ontology": {
+        "attributes": {
+          "authority": "ggen",
+          "profile": "enterprise"
+        },
+        "dependencies": [],
+        "id": "enterprise-architecture-ontology",
+        "kind": "ontology",
+        "lifecycle": "active",
+        "name": "Enterprise Architecture Ontology",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "gall-standing": {
+        "attributes": {},
+        "dependencies": [
+          "architecture-registry"
+        ],
+        "id": "gall-standing",
+        "kind": "capability",
+        "lifecycle": "active",
+        "name": "Gall Evidence Standing",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": null
+      },
+      "ggen-architecture-kernel": {
+        "attributes": {},
+        "dependencies": [
+          "architecture-registry",
+          "enterprise-architecture-ontology"
+        ],
+        "id": "ggen-architecture-kernel",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "ggen Architecture Kernel",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "ggen-engine": {
+        "attributes": {},
+        "dependencies": [
+          "graphlaw",
+          "star-toml"
+        ],
+        "id": "ggen-engine",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "ggen Manufacturing Engine",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "ggen-platform": {
+        "attributes": {
+          "target": "executable-enterprise-architecture"
+        },
+        "dependencies": [
+          "brce-actuation",
+          "cargo-cicd",
+          "ggen-architecture-kernel",
+          "ggen-engine",
+          "lawful-manufacturing",
+          "mfact-procint",
+          "mfw-powl-planning",
+          "wasm4pm-evidence"
+        ],
+        "id": "ggen-platform",
+        "kind": "product",
+        "lifecycle": "active",
+        "name": "ggen Executable Enterprise Architecture Platform",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "PARTIAL_ALIVE",
+        "version": "26.7.30"
+      },
+      "graphlaw": {
+        "attributes": {},
+        "dependencies": [
+          "enterprise-architecture-ontology"
+        ],
+        "id": "graphlaw",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "Graphlaw Semantic Law Engine",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "lawful-manufacturing": {
+        "attributes": {
+          "value_stream": "observe-admit-model-plan-manufacture-verify-authorize-receipt"
+        },
+        "dependencies": [],
+        "id": "lawful-manufacturing",
+        "kind": "capability",
+        "lifecycle": "active",
+        "name": "Lawful Manufacturing",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": null
+      },
+      "mfact-procint": {
+        "attributes": {},
+        "dependencies": [
+          "gall-standing"
+        ],
+        "id": "mfact-procint",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "mfact/procint Formal Assurance",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "mfw-powl-planning": {
+        "attributes": {},
+        "dependencies": [
+          "architecture-registry"
+        ],
+        "id": "mfw-powl-planning",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "MFW and POWL Transition Planning",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "star-toml": {
+        "attributes": {},
+        "dependencies": [],
+        "id": "star-toml",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "star-toml Admitted Configuration",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      },
+      "wasm4pm-evidence": {
+        "attributes": {},
+        "dependencies": [
+          "gall-standing"
+        ],
+        "id": "wasm4pm-evidence",
+        "kind": "component",
+        "lifecycle": "active",
+        "name": "wasm4pm Process Evidence",
+        "owner": "Chatman Architecture Board",
+        "replaces": [],
+        "standing": "ALIVE",
+        "version": "26.7.30"
+      }
+    },
+    "schema_version": 1
+  },
+  "schema_version": 1
+}

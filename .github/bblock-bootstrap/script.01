@@ -1,0 +1,53 @@
+root_bblock_path = Path("crates/ggen-cli/src/cmds/bblock.rs")
+root_bblock = root_bblock_path.read_text(encoding="utf-8")
+root_bblock = root_bblock.replace("catalog_root: Option<String>", "catalog: Option<String>")
+root_bblock = root_bblock.replace("catalog_root(catalog_root)?", "catalog_root(catalog)?")
+root_bblock_path.write_text(root_bblock, encoding="utf-8")
+
+architecture_cargo = Path("tools/ggen-architecture/Cargo.toml")
+architecture_manifest = architecture_cargo.read_text(encoding="utf-8")
+architecture_manifest = architecture_manifest.replace("\n[workspace]\n", "\n")
+architecture_cargo.write_text(architecture_manifest, encoding="utf-8")
+Path("tools/ggen-architecture/Cargo.lock").unlink(missing_ok=True)
+
+root_workspace_path = Path("Cargo.toml")
+root_workspace = root_workspace_path.read_text(encoding="utf-8")
+if '  "tools/ggen-architecture",\n' not in root_workspace:
+    root_workspace = root_workspace.replace(
+        '  "crates/ggen-cli",\n',
+        '  "crates/ggen-cli",\n  "tools/ggen-architecture",\n',
+        1,
+    )
+root_workspace_path.write_text(root_workspace, encoding="utf-8")
+
+cli_cargo_path = Path("crates/ggen-cli/Cargo.toml")
+cli_cargo = cli_cargo_path.read_text(encoding="utf-8")
+if "ggen-architecture" not in cli_cargo:
+    cli_cargo = cli_cargo.replace(
+        "blake3.workspace = true\n",
+        'blake3.workspace = true\nggen-architecture = { path = "../../tools/ggen-architecture" }\n',
+        1,
+    )
+cli_cargo_path.write_text(cli_cargo, encoding="utf-8")
+
+cmds_path = Path("crates/ggen-cli/src/cmds/mod.rs")
+cmds = cmds_path.read_text(encoding="utf-8")
+if "pub mod bblock;" not in cmds:
+    cmds = cmds.replace(
+        "pub mod agent; // AGI-facing lifecycle surface",
+        "pub mod agent; // AGI-facing lifecycle surface",
+        1,
+    )
+    cmds = cmds.replace(
+        "pub mod capability; // capability surfaces",
+        "pub mod bblock; // versioned groups of packs (`ggen bblock <verb>`)\npub mod capability; // capability surfaces",
+        1,
+    )
+if "REGISTER_BBLOCK_NOUN" not in cmds:
+    marker = "#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]\nstatic REGISTER_CAPABILITY_NOUN"
+    registration = '''#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]\nstatic REGISTER_BBLOCK_NOUN: fn() = register_bblock_noun;\nfn register_bblock_noun() {\n    ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(\n        "bblock",\n        "Building-block commands — compose, inspect, validate, plan, and add versioned groups of packs.",\n    );\n}\n\n'''
+    if marker not in cmds:
+        raise SystemExit("cmds/mod.rs noun marker missing")
+    cmds = cmds.replace(marker, registration + marker, 1)
+cmds_path.write_text(cmds, encoding="utf-8")
+
