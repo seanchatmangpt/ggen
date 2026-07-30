@@ -1,0 +1,34 @@
+# MESSAGE: GGEN_SELF_HOST_CROWN_REFUSED -- an asserted self-host crown requires zero blocking findings, zero unknown authority, owned generated outputs, and clean replay
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?program ?crown ?reason ?observed WHERE {
+  ?program a gsh:SelfHostProgram ; gsh:hasCrown ?crown .
+  ?crown a gsh:Crown .
+  {
+    ?program gsh:blockingFindingCount ?value .
+    FILTER(xsd:integer(?value) != 0)
+    BIND("blocking-findings" AS ?reason)
+    BIND(STR(?value) AS ?observed)
+  }
+  UNION
+  {
+    ?program gsh:unknownAuthorityCount ?value .
+    FILTER(xsd:integer(?value) != 0)
+    BIND("unknown-authority" AS ?reason)
+    BIND(STR(?value) AS ?observed)
+  }
+  UNION
+  {
+    ?crown gsh:requiresCleanReplay true .
+    FILTER NOT EXISTS { ?crown gsh:cleanReplayVerified true }
+    BIND("clean-replay-not-verified" AS ?reason)
+    BIND("false" AS ?observed)
+  }
+  UNION
+  {
+    ?finding a gsh:Finding ; gsh:category "generated-ownership" ; gsh:severity gsh:Blocking ; gsh:findingId ?id .
+    BIND("unowned-generated-output" AS ?reason)
+    BIND(STR(?id) AS ?observed)
+  }
+}
+ORDER BY ?reason ?observed
