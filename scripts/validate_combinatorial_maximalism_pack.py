@@ -69,6 +69,23 @@ def main() -> int:
     cargo_template = (PACK / "templates/Cargo.toml.tmpl").read_text(encoding="utf-8")
     refuse("\n[workspace]\n" not in cargo_template, "GENERATED_WORKSPACE_ISOLATION_MISSING")
 
+    lib_template = (PACK / "templates/lib.rs.tmpl").read_text(encoding="utf-8")
+    refuse("sh_after: rustfmt" in lib_template, "UNPINNED_LIBRARY_FORMATTER_REFUSED")
+    refuse(
+        "resource_cost: {{ option.resource_cost }}f64," not in lib_template,
+        "RDF_NUMERIC_LITERAL_TYPING_MISSING",
+    )
+    refuse(
+        'candidate.standing == "VERIFIED"' not in lib_template
+        or "Standing::Verified" not in lib_template
+        or "Standing::Candidate" not in lib_template,
+        "RDF_STANDING_MAPPING_MISSING",
+    )
+    refuse(
+        "candidate.standing | pascal_case" in lib_template,
+        "IMPLICIT_STANDING_CASE_CONVERSION_REFUSED",
+    )
+
     main_template = (PACK / "templates/main.rs.tmpl").read_text(encoding="utf-8")
     refuse(
         "::{Broker, CmdError, validate_design};" not in main_template,
