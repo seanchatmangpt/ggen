@@ -27,6 +27,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
+      - name: Capture baseline Clippy diagnostics
+        run: cargo clippy -p ggen-engine --lib --no-deps --message-format=json > /tmp/clippy-base.json
+
       - name: Apply bounded source repair
         run: bash .github/agent/apply-ontology-import-fix.sh
 
@@ -45,8 +48,67 @@ jobs:
       - name: Run startup benchmark receipt
         run: cargo test -p ggen-engine --lib ontology_batch_startup_benchmark_receipt -- --ignored --nocapture
 
-      - name: Lint changed engine surfaces
-        run: cargo clippy -p ggen-engine --lib --tests --no-deps -- -D warnings
+      - name: Capture patched Clippy diagnostics
+        run: cargo clippy -p ggen-engine --lib --no-deps --message-format=json > /tmp/clippy-patched.json
+
+      - name: Refuse new Clippy diagnostics
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          def diagnostics(path: str):
+              found = set()
+              for line in Path(path).read_text(encoding="utf-8").splitlines():
+                  try:
+                      event = json.loads(line)
+                  except json.JSONDecodeError:
+                      continue
+                  if event.get("reason") != "compiler-message":
+                      continue
+                  message = event.get("message") or {}
+                  if message.get("level") != "warning":
+                      continue
+                  primary = next(
+                      (span for span in message.get("spans", []) if span.get("is_primary")),
+                      {},
+                  )
+                  code = (message.get("code") or {}).get("code", "")
+                  source = "\n".join(
+                      fragment.get("text", "").strip()
+                      for fragment in primary.get("text", [])
+                  )
+                  found.add(
+                      (
+                          code,
+                          message.get("message", ""),
+                          primary.get("file_name", ""),
+                          source,
+                      )
+                  )
+              return found
+
+          baseline = diagnostics("/tmp/clippy-base.json")
+          patched = diagnostics("/tmp/clippy-patched.json")
+          introduced = sorted(patched - baseline)
+          if introduced:
+              print("new Clippy diagnostics introduced by ontology import repair:")
+              for code, message, file_name, source in introduced:
+                  print(f"- {file_name}: {code}: {message}")
+                  if source:
+                      print(f"  {source}")
+              raise SystemExit(1)
+          print(
+              json.dumps(
+                  {
+                      "baseline_diagnostics": len(baseline),
+                      "patched_diagnostics": len(patched),
+                      "introduced_diagnostics": 0,
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
 
       - name: Remove branch-only actuator
         run: |
