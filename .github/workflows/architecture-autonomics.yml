@@ -21,7 +21,7 @@ on:
     - cron: "17 6 * * 1"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: architecture-autonomics-${{ github.ref }}
@@ -38,8 +38,10 @@ jobs:
       GGEN_ARCHITECTURE_OBSERVED_AT: synthetic-proof-v1
 
     steps:
-      - name: Checkout
+      - name: Checkout branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -51,8 +53,20 @@ jobs:
         with:
           workspaces: tools/ggen-architecture
 
-      - name: Format
-        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all -- --check
+      - name: Format source
+        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
+
+      - name: Commit exact formatter output
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet -- tools/ggen-architecture; then
+            exit 0
+          fi
+          git config user.name "ggen architecture receipt bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tools/ggen-architecture
+          git commit -m "style(architecture): apply repository rustfmt"
+          git push origin "HEAD:${{ github.head_ref }}"
 
       - name: Check
         run: cargo check --manifest-path tools/ggen-architecture/Cargo.toml --all-targets
