@@ -3,7 +3,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?order ?slug ?name ?examDomain ?concept ?currentStanding ?targetStanding
        ?interviewFrequency ?ecosystemDependency ?transferBreadth ?gatekeepingValue
-       ?darknessRisk ?learningCost ?existingCoverage ?requiresSlug
+       ?darknessRisk ?learningCost ?existingCoverage ?priority ?requiresSlug
        ?drawNext ?sayNext ?why ?tradeoff ?watchFor
 WHERE {
   ?objective a ca:CredentialObjective ;
@@ -31,5 +31,9 @@ WHERE {
     ?requires ca:slug ?requiredSlugValue .
   }
   BIND(COALESCE(?requiredSlugValue, "") AS ?requiresSlug)
+  BIND(FLOOR(
+    (?interviewFrequency * ?ecosystemDependency * ?transferBreadth * ?gatekeepingValue * ?darknessRisk)
+    / (?learningCost * (?existingCoverage + 1))
+  ) AS ?priority)
 }
 ORDER BY ?order
