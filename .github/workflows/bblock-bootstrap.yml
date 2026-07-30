@@ -46,21 +46,21 @@ jobs:
 
       - name: Expand admitted payload
         run: |
-          cat .github/bblock-bootstrap/payload.* > /tmp/bblock-payload.b64
+          cat .github/bblock-bootstrap/payload.* > .bblock-payload.b64
           python3 - <<'PY'
           import base64
           from pathlib import Path
-          Path('/tmp/bblock-payload.tar.gz').write_bytes(base64.b64decode(Path('/tmp/bblock-payload.b64').read_bytes()))
+          Path('.bblock-payload.tar.gz').write_bytes(base64.b64decode(Path('.bblock-payload.b64').read_bytes()))
           PY
-          tar -xzf /tmp/bblock-payload.tar.gz -C .
-          cat .github/bblock-bootstrap/script.* > /tmp/bblock-bootstrap.sh.gz.b64
+          tar -xzf .bblock-payload.tar.gz -C .
+          cat .github/bblock-bootstrap/script.* > .bblock-bootstrap.sh.gz.b64
           python3 - <<'PY'
           import base64, gzip
           from pathlib import Path
-          compressed = base64.b64decode(Path('/tmp/bblock-bootstrap.sh.gz.b64').read_bytes())
-          Path('/tmp/bblock-bootstrap.sh').write_bytes(gzip.decompress(compressed))
+          compressed = base64.b64decode(Path('.bblock-bootstrap.sh.gz.b64').read_bytes())
+          Path('.bblock-bootstrap.sh').write_bytes(gzip.decompress(compressed))
           PY
-          chmod +x /tmp/bblock-bootstrap.sh
+          chmod +x .bblock-bootstrap.sh
 
       - name: Implement, verify, and publish exact source
-        run: /tmp/bblock-bootstrap.sh
+        run: ./.bblock-bootstrap.sh
