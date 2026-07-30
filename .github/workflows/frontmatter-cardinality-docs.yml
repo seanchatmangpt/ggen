@@ -1,0 +1,237 @@
+name: Frontmatter cardinality documentation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  document:
+    if: github.head_ref == 'agent/frontmatter-maximalism'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update canonical lifecycle references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected one replacement, found {count}")
+              return text.replace(old, new, 1)
+
+          path = Path('docs/reference/template-directives.md')
+          text = path.read_text()
+          text = replace_once(
+              text,
+              'The parser accepts exactly 24 properties.',
+              'The parser accepts exactly 25 properties.',
+              'property count',
+          )
+          text = replace_once(
+              text,
+              '''    ORDER BY ?module ?capability
+
+          construct: |''',
+              '''    ORDER BY ?module ?capability
+          for_each: 00_driver
+
+          construct: |''',
+              'complete example for_each',
+          )
+          text = replace_once(
+              text,
+              '| Derive and extract | `construct`, `when`, `sparql` | Manufacture and select the admitted knowledge view. |',
+              '| Derive, extract, and cardinality | `construct`, `when`, `sparql`, `for_each` | Manufacture and select the admitted knowledge view, then explicitly name the row set governing projection multiplicity. |',
+              'phase table',
+          )
+          text = replace_once(
+              text,
+              '| `sparql` | string, sequence, or map; default empty | extract | produces named semantic views and driving rows | ALIVE |\n',
+              '| `sparql` | string, sequence, or map; default empty | extract | produces named semantic views | ALIVE |\n| `for_each` | optional named result; default absent | cardinality | explicitly selects rows for fan-out or aggregation | ALIVE |\n',
+              'property inventory',
+          )
+
+          # Make space for the new property while preserving exact section order.
+          def bump_heading(match: re.Match[str]) -> str:
+              number = int(match.group(1))
+              return f"## 4.{number + 1} {match.group(2)}"
+
+          text = re.sub(r'^## 4\.(\d+) (`?[^\n]+)$', bump_heading, text, flags=re.MULTILINE)
+          construct_heading = '## 4.4 `construct`\n'
+          if text.count(construct_heading) != 1:
+              raise SystemExit('renumbered construct heading not found exactly once')
+          for_each_section = '''## 4.3 `for_each`
+
+### Syntax
+
+```yaml
+sparql:
+  entities: |
+    SELECT ?name WHERE { ?s ex:name ?name }
+    ORDER BY ?name
+for_each: entities
+```
+
+### Lifecycle
+
+`for_each` explicitly names the `sparql` result governing projection cardinality. The
+named result must exist and be array-valued. Missing names and scalar ASK results
+refuse before output rendering, hooks, or writes.
+
+The output path determines how the selected rows materialize:
+
+```text
+dynamic `to` containing `{{`
+  -> render one complete output projection per selected row
+
+static `to`
+  -> render the body once per selected row
+  -> concatenate those bodies in query-result order
+  -> apply one invariant lifecycle law to the aggregate output
+```
+
+A static aggregate refuses if output-phase frontmatter differs across rows. One file
+cannot honestly have row-dependent injection markers, hooks, shapes, freeze slots, or
+other ownership semantics. Include a row binding in `to` when those properties must
+vary per row.
+
+When `for_each` is absent, ggen preserves the historical behavior: the first
+array-valued named query in sorted key order supplies `results`, and fan-out occurs
+only when `to` contains `{{`.
+
+Zero explicitly selected rows produce zero outputs for both fan-out and aggregate
+modes.
+
+### Use cases
+
+- manufacture one module, test, schema, policy, workflow, or document per ontology row;
+- manufacture one registry, manifest, dispatch table, policy bundle, report, or index
+  from all selected rows;
+- aggregate row-rendered injection payloads into one host structural port;
+- make auxiliary array-valued queries incapable of silently changing cardinality;
+- give external packs a reviewable declaration of exactly which semantic view
+  multiplies their infrastructure consequences.
+
+### Combinatorial-maximalist law
+
+`for_each` separates knowledge selection from representation topology:
+
+```text
+one admitted named view
+  x many artifact families
+  x fan-out or aggregate topology
+  x all Tera-representable infrastructure surfaces
+```
+
+The property increases lawful projection combinations without increasing ambient
+write or shell authority.
+
+'''
+          text = text.replace(construct_heading, for_each_section + construct_heading, 1)
+
+          # Replace the now-closed audit finding.
+          start = text.index('### FM-LC-007')
+          end = text.index('### FM-LC-008', start)
+          closed = '''### FM-LC-007 — projection cardinality is explicit
+
+**Standing: ALIVE**
+
+`for_each` now names the exact array-valued `sparql` result that governs multiplicity.
+Dynamic targets fan out per row. Static targets aggregate row-rendered bodies into one
+artifact while refusing row-varying lifecycle law. Missing or scalar drivers refuse
+before hooks and writes. Omitting the property preserves the historical implicit
+behavior for existing templates.
+
+**Remaining extension boundary:** cross-products, joins between multiple named row
+sets, grouping, and reduction operators are intentionally excluded until a bounded
+use case demonstrates that they cannot be expressed more clearly in SPARQL.
+
+'''
+          text = text[:start] + closed + text[end:]
+          text = replace_once(
+              text,
+              '5. **Explicit Cardinality** — replace implicit first-array driving with a named\n   driver contract.',
+              '5. **Cardinality Algebra** — `for_each` closes the named-driver 80/20; add grouping,\n   cross-products, or reductions only when concrete packs prove the need.',
+              'Gall checkpoint',
+          )
+          text = replace_once(
+              text,
+              '| typed matcher defaults, regex, cardinality, pre-actuation refusal | `frontmatter_matchers_e2e.rs` |',
+              '| typed matcher defaults, regex, cardinality, pre-actuation refusal | `frontmatter_matchers_e2e.rs` |\n| explicit named driver, fan-out, static aggregation, invariant lifecycle law | `frontmatter_cardinality_e2e.rs` |',
+              'verification map',
+          )
+          path.write_text(text)
+
+          expl_path = Path('docs/explanation/frontmatter-maximalism.md')
+          expl = expl_path.read_text()
+          expl = replace_once(
+              expl,
+              '| Derive and extract | `construct`, `when`, `sparql` | Manufacture and select the admitted knowledge view. |',
+              '| Derive, extract, and cardinality | `construct`, `when`, `sparql`, `for_each` | Manufacture and select the admitted view and explicitly name the row set governing multiplicity. |',
+              'explanation phase table',
+          )
+          anchor = '## Structural ports\n'
+          if expl.count(anchor) != 1:
+              raise SystemExit('structural ports anchor drifted')
+          addition = '''## Explicit projection cardinality
+
+`for_each` is the highest-leverage combinatorial multiplier in the frontmatter
+calculus. It names one array-valued `sparql` result as the projection row set:
+
+```yaml
+sparql:
+  services: |
+    SELECT ?service ?module WHERE { ... } ORDER BY ?service
+for_each: services
+```
+
+A dynamic `to` manufactures one complete output per row. A static `to` concatenates
+one body rendering per row into a single registry, manifest, policy bundle, report,
+or injection payload. Static aggregation requires every output-phase authority field
+to remain invariant across rows; content may multiply, but one output receives one
+composition and actuation law.
+
+This creates the bounded 80/20 relation:
+
+```text
+named ontology view x artifact family x topology(fan-out | aggregate)
+```
+
+Omitting `for_each` preserves the historical implicit driver contract.
+
+'''
+          expl_path.write_text(expl.replace(anchor, addition + anchor, 1))
+          PY
+
+          grep -q 'exactly 25 properties' docs/reference/template-directives.md
+          grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
+          grep -q 'frontmatter_cardinality_e2e.rs' docs/reference/template-directives.md
+          grep -q '^## Explicit projection cardinality' docs/explanation/frontmatter-maximalism.md
+          git diff --check
+
+      - name: Publish documentation and remove workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/frontmatter-cardinality-docs.yml
+          git config user.name "ggen frontmatter docs"
+          git config user.email "actions@github.com"
+          git add docs/reference/template-directives.md \
+                  docs/explanation/frontmatter-maximalism.md \
+                  .github/workflows/frontmatter-cardinality-docs.yml
+          git commit -m "docs(engine): document explicit projection cardinality"
+          git push origin HEAD:agent/frontmatter-maximalism
