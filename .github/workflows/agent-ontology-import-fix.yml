@@ -1,0 +1,65 @@
+name: Agent ontology import startup repair
+
+on:
+  push:
+    branches:
+      - agent/fix-ontology-import-startup
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-ontology-import-startup-repair
+  cancel-in-progress: false
+
+jobs:
+  implement-verify-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply bounded source repair
+        run: bash .github/agent/apply-ontology-import-fix.sh
+
+      - name: Format
+        run: cargo fmt --all
+
+      - name: Verify formatting
+        run: cargo fmt --all -- --check
+
+      - name: Compile ggen-engine
+        run: cargo check -p ggen-engine --lib
+
+      - name: Run ontology batch boundary tests
+        run: cargo test -p ggen-engine --lib ontology_batch -- --nocapture
+
+      - name: Run startup benchmark receipt
+        run: cargo test -p ggen-engine --lib ontology_batch_startup_benchmark_receipt -- --ignored --nocapture
+
+      - name: Lint changed engine surfaces
+        run: cargo clippy -p ggen-engine --lib --tests --no-deps -- -D warnings
+
+      - name: Remove branch-only actuator
+        run: |
+          rm -f .github/agent/apply-ontology-import-fix.sh
+          rmdir .github/agent 2>/dev/null || true
+          rm -f .github/workflows/agent-ontology-import-fix.yml
+
+      - name: Review bounded diff
+        run: |
+          git status --short
+          git diff --check
+          git diff --stat
+
+      - name: Commit verified repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(engine): batch ontology imports atomically"
+          git push origin HEAD:${GITHUB_REF_NAME}
