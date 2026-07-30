@@ -6,11 +6,11 @@ force: true
 """GENERATED Gall work-package control plane.
 
 The admitted ontology remains authoritative. This program consumes the generated
-CSV projection, selects dependency-ready work, creates coding-agent handoff
-bundles, executes declared verification, records completion, plans tracker
-changes, and optionally invokes an external coding agent. Every mutation emits a
-tamper-evident SHA-256 receipt chain. External actuation requires explicit
-``--apply`` and policy permission.
+manifest, validates the work graph, selects dependency-ready work, creates agent
+handoff bundles, executes declared verification, records completion, plans
+tracker convergence, replays deterministic plans, and evaluates automation
+closure. External coding-agent execution is deliberately delegated to the
+isolated ``agent_executor.py`` boundary.
 """
 from __future__ import annotations
 
@@ -18,8 +18,6 @@ import argparse
 import csv
 import hashlib
 import json
-import os
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -164,15 +162,22 @@ class ControlPlane:
     def receipt_path(self, work_item_id: str, kind: str) -> Path:
         return self.receipt_dir / "work-items" / work_item_id / f"{kind}.json"
 
-    def is_complete(self, work_item_id: str) -> bool:
-        path = self.receipt_path(work_item_id, "completion")
+    def load_receipt(self, work_item_id: str, kind: str) -> dict[str, Any] | None:
+        path = self.receipt_path(work_item_id, kind)
         if not path.is_file():
-            return False
+            return None
         try:
-            receipt = json.loads(path.read_text(encoding="utf-8"))
+            return json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
-            return False
-        return receipt.get("payload", {}).get("completed") is True
+            return None
+
+    def is_complete(self, work_item_id: str) -> bool:
+        receipt = self.load_receipt(work_item_id, "completion")
+        return bool(
+            receipt
+            and receipt.get("manifest_sha256") == self.manifest_digest
+            and receipt.get("payload", {}).get("completed") is True
+        )
 
     def ready_items(self) -> list[WorkItem]:
         ready = [
@@ -201,18 +206,19 @@ class ControlPlane:
             "manifest_sha256": self.manifest_digest,
             "previous_digest": previous_digest,
             "payload": payload,
+            "digest_algorithm": "sha256",
         }
-        envelope["digest_algorithm"] = "sha256"
         envelope["digest"] = hashlib.sha256(
             previous_digest.encode("ascii") + canonical_bytes(envelope)
         ).hexdigest()
         self.chain_path.parent.mkdir(parents=True, exist_ok=True)
         with self.chain_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(envelope, sort_keys=True, ensure_ascii=False) + "\n")
-        if work_item_id:
-            target = self.receipt_path(work_item_id, operation)
-        else:
-            target = self.receipt_dir / f"{operation}.json"
+        target = (
+            self.receipt_path(work_item_id, operation)
+            if work_item_id
+            else self.receipt_dir / f"{operation}.json"
+        )
         target.parent.mkdir(parents=True, exist_ok=True)
         temporary = target.with_suffix(target.suffix + ".tmp")
         temporary.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -244,7 +250,9 @@ class ControlPlane:
         payload = self.plan_payload()
         plan_path = self.runtime_dir / "execution-plan.json"
         plan_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        receipt = self.write_receipt("plan", {"plan": str(plan_path.relative_to(ROOT)), "items": len(self.items)})
+        receipt = self.write_receipt(
+            "plan", {"plan": str(plan_path.relative_to(ROOT)), "items": len(self.items)}
+        )
         print(f"plan={plan_path.relative_to(ROOT)} receipt={receipt.relative_to(ROOT)}")
         return 0
 
@@ -327,6 +335,16 @@ class ControlPlane:
     def command_dispatch(self, work_item_id: str, apply: bool) -> int:
         item = self.require_item(work_item_id)
         self.assert_ready(item)
+        if apply:
+            receipt = self.write_receipt(
+                "dispatch-refusal",
+                {
+                    "reason": "direct command-agent apply is forbidden; use the isolated agent executor",
+                    "required_command": f"bash scripts/gall/gall work dispatch {item.id} --apply",
+                },
+                item.id,
+            )
+            raise SystemExit(f"direct apply refused; receipt={receipt.relative_to(ROOT)}")
         missing_context = [path for path in item.values("Required Context") if not safe_path(path).exists()]
         if missing_context:
             raise SystemExit(f"required context is missing: {', '.join(missing_context)}")
@@ -345,52 +363,37 @@ class ControlPlane:
         )
         intent = self.write_receipt(
             "dispatch-intent",
-            {"apply": apply, "bundle": str(bundle.relative_to(ROOT))},
+            {"apply": False, "bundle": str(bundle.relative_to(ROOT))},
             item.id,
         )
-        if not apply:
-            result = self.write_receipt(
-                "dispatch-result",
-                {"mode": "handoff", "exit_code": 0, "intent_receipt": str(intent.relative_to(ROOT))},
-                item.id,
-            )
-            print(f"bundle={bundle.relative_to(ROOT)} receipt={result.relative_to(ROOT)}")
-            return 0
-        if self.config["Execution Mode"] != "apply-allowed":
-            raise SystemExit("automation profile forbids apply mode")
-        if self.config["Agent Mode"] != "command-agent":
-            raise SystemExit("automation profile permits handoff only")
-        command = os.environ.get("GALL_AGENT_COMMAND", "").strip()
-        if not command:
-            raise SystemExit("GALL_AGENT_COMMAND is required for agent apply")
-        argv = shlex.split(command) + [str(work_order)]
-        completed = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, check=False)
-        (bundle / "agent.stdout.log").write_text(completed.stdout, encoding="utf-8")
-        (bundle / "agent.stderr.log").write_text(completed.stderr, encoding="utf-8")
         result = self.write_receipt(
             "dispatch-result",
             {
-                "mode": "command-agent",
-                "argv": argv,
-                "exit_code": completed.returncode,
+                "mode": "handoff",
+                "exit_code": 0,
                 "intent_receipt": str(intent.relative_to(ROOT)),
+                "work_order_sha256": sha256_path(work_order),
             },
             item.id,
         )
-        print(f"agent_exit={completed.returncode} receipt={result.relative_to(ROOT)}")
-        return completed.returncode
+        print(f"bundle={bundle.relative_to(ROOT)} receipt={result.relative_to(ROOT)}")
+        return 0
 
     def command_verify(self, work_item_id: str) -> int:
         item = self.require_item(work_item_id)
         self.assert_ready(item)
         results: list[dict[str, Any]] = []
-        for command in item.values("Verification Commands"):
+        for shell_command in item.values("Verification Commands"):
             completed = subprocess.run(
-                ["bash", "-lc", command], cwd=ROOT, text=True, capture_output=True, check=False
+                ["bash", "-lc", shell_command],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
             )
             results.append(
                 {
-                    "command": command,
+                    "command": shell_command,
                     "exit_code": completed.returncode,
                     "stdout": completed.stdout[-4096:],
                     "stderr": completed.stderr[-4096:],
@@ -414,15 +417,28 @@ class ControlPlane:
     def command_complete(self, work_item_id: str) -> int:
         item = self.require_item(work_item_id)
         self.assert_ready(item)
-        verification = self.receipt_path(item.id, "verification")
-        if not verification.is_file():
-            raise SystemExit(f"verification receipt is missing for {item.id}")
-        payload = json.loads(verification.read_text(encoding="utf-8")).get("payload", {})
-        if payload.get("passed") is not True:
-            raise SystemExit(f"verification is not green for {item.id}")
+        verification_path = self.receipt_path(item.id, "verification")
+        snapshot_path = self.receipt_path(item.id, "evidence-snapshot")
+        verification = self.load_receipt(item.id, "verification")
+        snapshot = self.load_receipt(item.id, "evidence-snapshot")
+        for kind, receipt in [("verification", verification), ("evidence snapshot", snapshot)]:
+            if receipt is None:
+                raise SystemExit(f"{kind} receipt is missing for {item.id}")
+            if receipt.get("manifest_sha256") != self.manifest_digest:
+                raise SystemExit(f"{kind} receipt is stale for {item.id}")
+            if receipt.get("revision") != git_revision():
+                raise SystemExit(f"{kind} receipt is not from the current revision for {item.id}")
+            if receipt.get("payload", {}).get("passed") is not True:
+                raise SystemExit(f"{kind} receipt is not green for {item.id}")
         receipt = self.write_receipt(
             "completion",
-            {"completed": True, "verification_receipt": str(verification.relative_to(ROOT))},
+            {
+                "completed": True,
+                "verification_receipt": str(verification_path.relative_to(ROOT)),
+                "verification_digest": verification["digest"],
+                "evidence_snapshot_receipt": str(snapshot_path.relative_to(ROOT)),
+                "evidence_snapshot_digest": snapshot["digest"],
+            },
             item.id,
         )
         print(f"completed={item.id} receipt={receipt.relative_to(ROOT)}")
