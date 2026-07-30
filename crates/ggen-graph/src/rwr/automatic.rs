@@ -155,7 +155,9 @@ impl Trigger {
         }
         let observed: [u8; 32] = blake3::hash(&self.payload).into();
         if observed != self.expected_payload_digest {
-            return Err(OperationsError::TriggerPayloadDigestMismatch(self.id.clone()));
+            return Err(OperationsError::TriggerPayloadDigestMismatch(
+                self.id.clone(),
+            ));
         }
         let mut hasher = blake3::Hasher::new();
         put_len_prefixed(&mut hasher, b"automatic-trigger/v1");
@@ -178,9 +180,7 @@ pub struct TriggerAdmissionPolicy {
 impl TriggerAdmissionPolicy {
     /// Construct a bounded trigger-admission policy.
     #[must_use]
-    pub fn new<I, S>(
-        allowed_kinds: I, max_payload_bytes: usize, max_sequence: u64,
-    ) -> Self
+    pub fn new<I, S>(allowed_kinds: I, max_payload_bytes: usize, max_sequence: u64) -> Self
     where
         I: IntoIterator<Item = S>,
         S: Into<String>,
@@ -689,8 +689,8 @@ pub struct AutomaticOperationReceipt {
 impl AutomaticOperationReceipt {
     fn issue(
         admitted: &AdmittedTrigger, route: &Route, intent: &ManufacturedIntent,
-        grant_digest: [u8; 32], actuation_receipt: ActuationReceipt,
-        consequence_digest: [u8; 32], observation_attempts: u8, logical_backoff_ticks: u64,
+        grant_digest: [u8; 32], actuation_receipt: ActuationReceipt, consequence_digest: [u8; 32],
+        observation_attempts: u8, logical_backoff_ticks: u64,
         predecessor_receipt_digest: Option<[u8; 32]>,
     ) -> Result<Self, OperationsError> {
         let knowledge_hook = KnowledgeHook::issue(
@@ -736,8 +736,7 @@ impl AutomaticOperationReceipt {
             || self.operations_version != OPERATIONS_VERSION
             || self.grant_digest != self.actuation_receipt.grant_digest
             || self.consequence_digest != self.actuation_receipt.payload_digest
-            || self.knowledge_hook.cause_receipt_digest
-                != self.actuation_receipt.receipt_digest
+            || self.knowledge_hook.cause_receipt_digest != self.actuation_receipt.receipt_digest
             || self.knowledge_hook.consequence_digest != self.consequence_digest
         {
             return Err(OperationsError::AutomaticReceiptMismatch);
@@ -764,8 +763,8 @@ impl AutomaticOperationReceipt {
 #[allow(clippy::too_many_arguments)]
 fn automatic_receipt_digest(
     trigger_digest: &[u8; 32], route_digest: &[u8; 32], intent_digest: &[u8; 32],
-    grant_digest: &[u8; 32], actuation_receipt_digest: &[u8; 32],
-    consequence_digest: &[u8; 32], observation_attempts: u8, logical_backoff_ticks: u64,
+    grant_digest: &[u8; 32], actuation_receipt_digest: &[u8; 32], consequence_digest: &[u8; 32],
+    observation_attempts: u8, logical_backoff_ticks: u64,
     predecessor_receipt_digest: Option<&[u8; 32]>, hook_digest: &[u8; 32],
 ) -> [u8; 32] {
     let mut hasher = blake3::Hasher::new();
@@ -849,8 +848,8 @@ impl AutomaticRuntime {
 
     /// Execute one admitted trigger with an optional lawful inverse.
     pub fn execute_with_inverse<O: ConsequenceObserver>(
-        &mut self, trigger: Trigger, inverse_state: Option<Vec<u8>>,
-        machine: &FoundationMachine, actuator: &FilesystemActuator, observer: &mut O,
+        &mut self, trigger: Trigger, inverse_state: Option<Vec<u8>>, machine: &FoundationMachine,
+        actuator: &FilesystemActuator, observer: &mut O,
     ) -> Result<AutomaticOperationReceipt, OperationsError> {
         self.governor.admit_execution()?;
         let admitted = self.admission.admit(trigger)?;
@@ -1199,7 +1198,9 @@ pub fn read_committed_payload(
     actuator: &FilesystemActuator, action_id: &str,
 ) -> Result<Vec<u8>, OperationsError> {
     if !safe_action_id(action_id) {
-        return Err(OperationsError::InvalidCommittedActionId(action_id.to_string()));
+        return Err(OperationsError::InvalidCommittedActionId(
+            action_id.to_string(),
+        ));
     }
     let path = actuator
         .root()

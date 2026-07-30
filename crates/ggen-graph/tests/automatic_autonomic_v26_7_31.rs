@@ -47,9 +47,7 @@ struct FlakyObserver {
 
 impl ConsequenceObserver for FlakyObserver {
     fn observe(
-        &mut self,
-        actuator: &FilesystemActuator,
-        receipt: &ggen_graph::rwr::ActuationReceipt,
+        &mut self, actuator: &FilesystemActuator, receipt: &ggen_graph::rwr::ActuationReceipt,
     ) -> Result<Vec<u8>, ObservationError> {
         if self.failures_remaining > 0 {
             self.failures_remaining -= 1;
@@ -65,9 +63,7 @@ struct MismatchObserver;
 
 impl ConsequenceObserver for MismatchObserver {
     fn observe(
-        &mut self,
-        _actuator: &FilesystemActuator,
-        _receipt: &ggen_graph::rwr::ActuationReceipt,
+        &mut self, _actuator: &FilesystemActuator, _receipt: &ggen_graph::rwr::ActuationReceipt,
     ) -> Result<Vec<u8>, ObservationError> {
         Ok(b"unexpected-state".to_vec())
     }

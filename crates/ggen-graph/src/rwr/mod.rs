@@ -12,11 +12,11 @@ pub mod matrix;
 pub mod reference;
 
 pub use automatic::{
-    read_committed_payload, AdmittedTrigger, AndonLevel, AndonSignal,
-    AutomaticOperationReceipt, AutomaticReplayVerifier, AutomaticRuntime,
-    AutonomicOperationsController, AutonomicOperationsReceipt, AutonomicResource, CircuitBreaker,
-    ConsequenceObserver, ErrorBudget, FilesystemConsequenceObserver, KnowledgeHook,
-    ManufacturedIntent, ObservationError, OperationsCapability, OperationsError, OperationsGovernor,
+    read_committed_payload, AdmittedTrigger, AndonLevel, AndonSignal, AutomaticOperationReceipt,
+    AutomaticReplayVerifier, AutomaticRuntime, AutonomicOperationsController,
+    AutonomicOperationsReceipt, AutonomicResource, CircuitBreaker, ConsequenceObserver,
+    ErrorBudget, FilesystemConsequenceObserver, KnowledgeHook, ManufacturedIntent,
+    ObservationError, OperationsCapability, OperationsError, OperationsGovernor,
     OperationsProofSurface, PostconditionFailure, RetryPolicy, Route, Trigger,
     TriggerAdmissionPolicy, TriggerRouter, ALL_OPERATIONS_CAPABILITIES, OPERATIONS_VERSION,
     REQUIRED_OPERATIONS_PROOF_SURFACES,
