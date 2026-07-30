@@ -1,0 +1,17 @@
+# MESSAGE: v1 compiles one bounded-successor theorem whose concrete witness reaches the bound without overflow; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+SELECT ?subject ?violation ?detail WHERE {
+  ?subject a lr:Pipeline ;
+           lr:bound ?bound ;
+           lr:witnessInput ?input ;
+           lr:witnessOutput ?output .
+  FILTER (
+    ?bound < 1 ||
+    ?bound > 1000000 ||
+    (?input + 1) != ?output ||
+    ?output != ?bound
+  )
+  BIND("bounded-successor-contract-refused" AS ?violation)
+  BIND(CONCAT("bound=", STR(?bound), ", input=", STR(?input), ", output=", STR(?output)) AS ?detail)
+}
+ORDER BY ?subject
