@@ -9,6 +9,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 CONTROL=(python3 scripts/gall/control_plane.py)
 TRACKER=(python3 scripts/gall/tracker_sync.py)
+RECEIPTS=(python3 scripts/gall/verify_automation_receipts.py)
 
 usage() {
   cat <<'EOF'
@@ -25,6 +26,7 @@ Usage:
   scripts/gall/gall tracker plan
   scripts/gall/gall tracker apply
   scripts/gall/gall checkpoint run
+  scripts/gall/gall receipt verify
   scripts/gall/gall replay
   scripts/gall/gall crown
 EOF
@@ -50,16 +52,23 @@ case "$noun:$verb" in
     "${CONTROL[@]}" plan
     "${TRACKER[@]}" plan
     "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
     ;;
   automation:validate)
-    python3 -m py_compile scripts/gall/control_plane.py scripts/gall/tracker_sync.py
-    bash -n scripts/gall/run-checkpoints.sh
+    python3 -m py_compile \
+      scripts/gall/control_plane.py \
+      scripts/gall/tracker_sync.py \
+      scripts/gall/verify_automation_receipts.py
+    bash -n scripts/gall/run-checkpoints.sh scripts/gall/gall
     test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv
+    test -s automation/schemas/gall-automation-receipt.schema.json
     test -s jira/GALL_JIRA_WORK_ITEMS.csv
     test -s docs/GALL_AGENT_WORK_ORDERS.md
+    test -s .github/workflows/gall-control-plane.yml
     "${CONTROL[@]}" plan
     "${TRACKER[@]}" plan
     "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
     ;;
   work:status)
     "${CONTROL[@]}" status
@@ -111,21 +120,28 @@ case "$noun:$verb" in
       echo "$failures ready work item(s) failed verification" >&2
       exit 1
     fi
+    "${RECEIPTS[@]}"
     ;;
   tracker:plan)
     "${TRACKER[@]}" plan
     ;;
   tracker:apply)
     "${TRACKER[@]}" apply
+    "${RECEIPTS[@]}"
     ;;
   checkpoint:run)
     bash scripts/gall/run-checkpoints.sh
     ;;
+  receipt:verify)
+    "${RECEIPTS[@]}"
+    ;;
   replay:)
     "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
     ;;
   crown:)
     "${CONTROL[@]}" crown
+    "${RECEIPTS[@]}"
     ;;
   *)
     usage >&2
