@@ -2,6 +2,7 @@ name: Architecture Autonomics
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "architecture/**"
       - "tools/ggen-architecture/**"
