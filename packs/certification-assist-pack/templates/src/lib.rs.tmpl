@@ -675,12 +675,13 @@ pub struct StandingReplayVerifier {
 impl StandingReplayVerifier {
     pub fn replay(&mut self, receipt: &StandingReceipt) -> Result<(), AssistError> {
         receipt.verify()?;
+        if self.seen.contains(&receipt.receipt_digest) {
+            return Err(AssistError::DuplicateReplay);
+        }
         if receipt.predecessor != self.predecessor {
             return Err(AssistError::ReceiptMismatch);
         }
-        if !self.seen.insert(receipt.receipt_digest) {
-            return Err(AssistError::DuplicateReplay);
-        }
+        self.seen.insert(receipt.receipt_digest);
         self.predecessor = Some(receipt.receipt_digest);
         Ok(())
     }
