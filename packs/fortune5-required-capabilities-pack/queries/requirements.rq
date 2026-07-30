@@ -1,0 +1,11 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+SELECT ?order ?slug ?surface ?surfaceSlug
+WHERE {
+  ?capability a f5:RequiredCapability ;
+    f5:order ?order ;
+    f5:slug ?slug ;
+    f5:requiresSurface ?surface .
+  ?surface a f5:ProofSurface ;
+    f5:slug ?surfaceSlug .
+}
+ORDER BY ?order ?surfaceSlug

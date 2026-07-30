@@ -1,0 +1,16 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?order ?slug ?rustVariant ?label ?category ?outcome ?artifact ?verifier ?falsifier
+WHERE {
+  ?capability a f5:RequiredCapability ;
+    f5:order ?order ;
+    f5:slug ?slug ;
+    f5:rustVariant ?rustVariant ;
+    rdfs:label ?label ;
+    f5:category ?category ;
+    f5:outcome ?outcome ;
+    f5:implementationArtifact ?artifact ;
+    f5:verifierCommand ?verifier ;
+    f5:falsifier ?falsifier .
+}
+ORDER BY ?order

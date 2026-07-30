@@ -1,0 +1,331 @@
+@prefix rwr: <https://ggen.dev/ontology/rwr-level5#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+rwr:Foundation a rdfs:Class .
+rwr:Dimension a rdfs:Class .
+rwr:Stage a rdfs:Class .
+rwr:Domain a rdfs:Class .
+rwr:EvidenceSurface a rdfs:Class .
+
+rwr:hasDimension a rdf:Property .
+rwr:order a rdf:Property .
+rwr:dimensionName a rdf:Property .
+rwr:domain a rdf:Property .
+rwr:level5Outcome a rdf:Property .
+rwr:requiresSurface a rdf:Property .
+rwr:targetStage a rdf:Property .
+rwr:operatingModel a rdf:Property .
+rwr:dimensionCount a rdf:Property .
+rwr:implementationArtifact a rdf:Property .
+rwr:verifierCommand a rdf:Property .
+rwr:falsifier a rdf:Property .
+
+rwr:BusinessSilos a rwr:Stage ; rwr:order 1 ; rdfs:label "Business Silos" .
+rwr:StandardizedTechnology a rwr:Stage ; rwr:order 2 ; rdfs:label "Standardized Technology" .
+rwr:OptimizedCore a rwr:Stage ; rwr:order 3 ; rdfs:label "Optimized Core" .
+rwr:BusinessModularity a rwr:Stage ; rwr:order 4 ; rdfs:label "Business Modularity" .
+rwr:DigitalEcosystem a rwr:Stage ; rwr:order 5 ; rdfs:label "Digital Ecosystem" .
+
+rwr:OperatingModel a rwr:Domain ; rdfs:label "Operating Model" .
+rwr:CoreDiagram a rwr:Domain ; rdfs:label "Enterprise Architecture Core Diagram" .
+rwr:DigitizedPlatform a rwr:Domain ; rdfs:label "Digitized Platform" .
+rwr:EngagementModel a rwr:Domain ; rdfs:label "Engagement Model" .
+rwr:ValueRealization a rwr:Domain ; rdfs:label "Value Realization" .
+rwr:ExecutionControl a rwr:Domain ; rdfs:label "Machinery, Automation, Autonomics, Receipt, Replay" .
+
+rwr:Execution a rwr:EvidenceSurface ; rdfs:label "Execution" .
+rwr:State a rwr:EvidenceSurface ; rdfs:label "State" .
+rwr:Process a rwr:EvidenceSurface ; rdfs:label "Process" .
+rwr:Causality a rwr:EvidenceSurface ; rdfs:label "Causality" .
+rwr:Telemetry a rwr:EvidenceSurface ; rdfs:label "Telemetry" .
+rwr:Governance a rwr:EvidenceSurface ; rdfs:label "Governance" .
+rwr:External a rwr:EvidenceSurface ; rdfs:label "External Boundary" .
+rwr:Economics a rwr:EvidenceSurface ; rdfs:label "Economics" .
+
+rwr:ggenRwrFoundation a rwr:Foundation ;
+    dcterms:title "ggen Ross-Weill-Robertson Level-5 Foundation for Execution" ;
+    dcterms:source <https://cisr.mit.edu/publication/enterprise-architecture-as-strategy> ;
+    dcterms:source <https://cisr.mit.edu/content/mit-cisr-50-for-50> ;
+    rwr:operatingModel "Unification kernel + replication factories + modular domain autonomy" ;
+    rwr:targetStage rwr:DigitalEcosystem ;
+    rwr:dimensionCount 21 ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:hasDimension rwr:processIntegration ;
+    rwr:hasDimension rwr:processStandardization ;
+    rwr:hasDimension rwr:operatingModelDecisionRights ;
+    rwr:hasDimension rwr:coreProcesses ;
+    rwr:hasDimension rwr:sharedData ;
+    rwr:hasDimension rwr:linkingAutomation ;
+    rwr:hasDimension rwr:customerPartnerChannels ;
+    rwr:hasDimension rwr:technologyStandardization ;
+    rwr:hasDimension rwr:operationalBackbone ;
+    rwr:hasDimension rwr:reusableBusinessComponents ;
+    rwr:hasDimension rwr:ecosystemInterfaces ;
+    rwr:hasDimension rwr:enterpriseGovernance ;
+    rwr:hasDimension rwr:projectManagement ;
+    rwr:hasDimension rwr:architectureLinkingMechanisms ;
+    rwr:hasDimension rwr:reliabilityTransparency ;
+    rwr:hasDimension rwr:strategicAgility ;
+    rwr:hasDimension rwr:economicValue ;
+    rwr:hasDimension rwr:machineryClosure ;
+    rwr:hasDimension rwr:automationClosure ;
+    rwr:hasDimension rwr:autonomicClosure ;
+    rwr:hasDimension rwr:receiptReplay .
+
+rwr:processIntegration a rwr:Dimension ;
+    rwr:order 1 ;
+    rwr:dimensionName "Process integration" ;
+    rwr:domain rwr:OperatingModel ;
+    rwr:level5Outcome "Core transactions share state and consequences across enterprise boundaries." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Break the shared transaction identity between source and downstream processes; the integration proof must fail." .
+
+rwr:processStandardization a rwr:Dimension ;
+    rwr:order 2 ;
+    rwr:dimensionName "Process standardization" ;
+    rwr:domain rwr:OperatingModel ;
+    rwr:level5Outcome "Equivalent operating units execute one governed process contract." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:State ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Give unit B a divergent process payload; the standardization proof must fail." .
+
+rwr:operatingModelDecisionRights a rwr:Dimension ;
+    rwr:order 3 ;
+    rwr:dimensionName "Operating-model decision rights" ;
+    rwr:domain rwr:OperatingModel ;
+    rwr:level5Outcome "Enterprise and local discretion are explicit, executable, and refusal-bearing." ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Permit a local override outside its allowed dimension; the governance proof must fail." .
+
+rwr:coreProcesses a rwr:Dimension ;
+    rwr:order 4 ;
+    rwr:dimensionName "Core processes" ;
+    rwr:domain rwr:CoreDiagram ;
+    rwr:level5Outcome "The core process graph is executable, observable, and complete for the bounded scope." ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Remove monitor, analyze, plan, or execute from the ordered chain; the process proof must fail." .
+
+rwr:sharedData a rwr:Dimension ;
+    rwr:order 5 ;
+    rwr:dimensionName "Shared data" ;
+    rwr:domain rwr:CoreDiagram ;
+    rwr:level5Outcome "Canonical data identities and semantics are shared by every participating component." ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Return different bytes to two consumers of the same canonical entity; the shared-data proof must fail." .
+
+rwr:linkingAutomation a rwr:Dimension ;
+    rwr:order 6 ;
+    rwr:dimensionName "Linking and automation" ;
+    rwr:domain rwr:CoreDiagram ;
+    rwr:level5Outcome "Events, policies, and components are linked by executable automation rather than manual handoffs." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Remove the trigger receipt from the consequence; the causal automation proof must fail." .
+
+rwr:customerPartnerChannels a rwr:Dimension ;
+    rwr:order 7 ;
+    rwr:dimensionName "Customer and partner channels" ;
+    rwr:domain rwr:CoreDiagram ;
+    rwr:level5Outcome "Channels and partners enter through versioned contracts and normalize into the shared core." ;
+    rwr:requiresSurface rwr:External ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Make API and partner requests normalize differently; the channel proof must fail." .
+
+rwr:technologyStandardization a rwr:Dimension ;
+    rwr:order 8 ;
+    rwr:dimensionName "Technology standardization" ;
+    rwr:domain rwr:DigitizedPlatform ;
+    rwr:level5Outcome "Technology standards are reusable platform contracts with machine-enforced exceptions." ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Execute components under different matrix versions; the technology proof must fail." .
+
+rwr:operationalBackbone a rwr:Dimension ;
+    rwr:order 9 ;
+    rwr:dimensionName "Operational backbone" ;
+    rwr:domain rwr:DigitizedPlatform ;
+    rwr:level5Outcome "Integrated core processes and shared data execute reliably as an operational backbone." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Telemetry ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Break the input-process-state receipt chain; the backbone proof must fail." .
+
+rwr:reusableBusinessComponents a rwr:Dimension ;
+    rwr:order 10 ;
+    rwr:dimensionName "Reusable business components" ;
+    rwr:domain rwr:DigitizedPlatform ;
+    rwr:level5Outcome "New offerings compose reusable business components without modifying the optimized core." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Economics ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Require a second component implementation for domain B; the reuse proof must fail." .
+
+rwr:ecosystemInterfaces a rwr:Dimension ;
+    rwr:order 11 ;
+    rwr:dimensionName "Ecosystem interfaces" ;
+    rwr:domain rwr:DigitizedPlatform ;
+    rwr:level5Outcome "External participants consume bounded interfaces while governance and evidence remain internal." ;
+    rwr:requiresSurface rwr:External ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Admit an unknown partner contract version; the ecosystem proof must fail." .
+
+rwr:enterpriseGovernance a rwr:Dimension ;
+    rwr:order 12 ;
+    rwr:dimensionName "Enterprise governance" ;
+    rwr:domain rwr:EngagementModel ;
+    rwr:level5Outcome "Enterprise priorities, standards, exceptions, and refusals are encoded as executable policy." ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Allow an action above the policy payload bound; the governance proof must fail." .
+
+rwr:projectManagement a rwr:Dimension ;
+    rwr:order 13 ;
+    rwr:dimensionName "Project management" ;
+    rwr:domain rwr:EngagementModel ;
+    rwr:level5Outcome "Projects carry deterministic outcomes, owners, acceptance commands, evidence, and receipts." ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Admit a project without an architecture link; the project proof must fail." .
+
+rwr:architectureLinkingMechanisms a rwr:Dimension ;
+    rwr:order 14 ;
+    rwr:dimensionName "Architecture linking mechanisms" ;
+    rwr:domain rwr:EngagementModel ;
+    rwr:level5Outcome "Every project consumes, preserves, or lawfully extends the enterprise architecture." ;
+    rwr:requiresSurface rwr:Governance ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Remove the project-to-architecture edge; the linking proof must fail." .
+
+rwr:reliabilityTransparency a rwr:Dimension ;
+    rwr:order 15 ;
+    rwr:dimensionName "Reliability and transparency" ;
+    rwr:domain rwr:ValueRealization ;
+    rwr:level5Outcome "Operational outcomes and failures are predictable, observable, and externally auditable." ;
+    rwr:requiresSurface rwr:Telemetry ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Permit a tampered payload digest to receive a grant; the reliability proof must fail." .
+
+rwr:strategicAgility a rwr:Dimension ;
+    rwr:order 16 ;
+    rwr:dimensionName "Strategic agility" ;
+    rwr:domain rwr:ValueRealization ;
+    rwr:level5Outcome "A new bounded offering is assembled from existing capabilities without core redesign." ;
+    rwr:requiresSurface rwr:Economics ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Require a core code path change for the second offering; the agility proof must fail." .
+
+rwr:economicValue a rwr:Dimension ;
+    rwr:order 17 ;
+    rwr:dimensionName "Economic value" ;
+    rwr:domain rwr:ValueRealization ;
+    rwr:level5Outcome "Reuse, automation, throughput, and marginal-cost consequences are measured from execution." ;
+    rwr:requiresSurface rwr:Economics ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Reduce the observed reuse count below three or introduce a manual step; the value proof must fail." .
+
+rwr:machineryClosure a rwr:Dimension ;
+    rwr:order 18 ;
+    rwr:dimensionName "Machinery closure" ;
+    rwr:domain rwr:ExecutionControl ;
+    rwr:level5Outcome "Admitted state deterministically produces bounded executable actions." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Change action bytes after grant derivation; machinery must refuse actuation." .
+
+rwr:automationClosure a rwr:Dimension ;
+    rwr:order 19 ;
+    rwr:dimensionName "Automation closure" ;
+    rwr:domain rwr:ExecutionControl ;
+    rwr:level5Outcome "A trigger proceeds through policy, execution, and receipt without a manual step." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Process ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Insert an unreceipted manual handoff between trigger and consequence; automation proof must fail." .
+
+rwr:autonomicClosure a rwr:Dimension ;
+    rwr:order 20 ;
+    rwr:dimensionName "Autonomic closure" ;
+    rwr:domain rwr:ExecutionControl ;
+    rwr:level5Outcome "Monitor, analyze, plan, execute, and knowledge update converge or type-refuse." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:Telemetry ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Set the cycle bound to zero or prevent desired-state convergence; autonomic proof must refuse." .
+
+rwr:receiptReplay a rwr:Dimension ;
+    rwr:order 21 ;
+    rwr:dimensionName "Receipt and replay" ;
+    rwr:domain rwr:ExecutionControl ;
+    rwr:level5Outcome "Every consequence carries a cryptographic receipt and duplicate replay is refused." ;
+    rwr:requiresSurface rwr:Execution ;
+    rwr:requiresSurface rwr:State ;
+    rwr:requiresSurface rwr:Causality ;
+    rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" ;
+    rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" ;
+    rwr:falsifier "Replay the same receipt twice; the second verification must refuse." .
+

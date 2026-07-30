@@ -1,0 +1,10 @@
+# Fortune-5 Required Capabilities
+
+Generated from `ontology.ttl`. The contract is conjunctive: every capability requires positive execution, a named negative refusal, and receipt/replay evidence.
+
+| # | Capability | Category | Required outcome | Falsifier |
+|---:|---|---|---|---|
+{% for row in results %}| {{ row["order"] }} | `{{ row["slug"] }}` | {{ row["category"] }} | {{ row["outcome"] }} | {{ row["falsifier"] }} |
+{% endfor %}
+
+**Crown:** 19 capabilities × 3 proof surfaces = 57 obligations.

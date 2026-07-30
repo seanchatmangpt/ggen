@@ -1,0 +1,31 @@
+use ggen_graph::rwr::{GallState, ReferenceFoundation};
+
+fn standing_name(standing: GallState) -> &'static str {
+    match standing {
+        GallState::PartialAlive => "PARTIAL_ALIVE",
+        GallState::Alive => "ALIVE",
+        GallState::Blocked => "BLOCKED",
+        GallState::BuildBroken => "BUILD_BROKEN",
+        GallState::Unknown => "UNKNOWN",
+        GallState::Unsupported => "UNSUPPORTED",
+    }
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let root = tempfile::tempdir()?;
+    let proof = ReferenceFoundation::new(root.path()).prove_all()?;
+    proof.verify()?;
+
+    let assessment = &proof.assessment_receipt.assessment;
+    let report = serde_json::json!({
+        "schema": "rwr-level5-verifier-report/v1",
+        "standing": standing_name(assessment.standing),
+        "dimensions": assessment.dimensions.len(),
+        "proof_surfaces": proof.ledger.records().len(),
+        "evidence_root": hex::encode(assessment.evidence_root),
+        "assessment_receipt": hex::encode(proof.assessment_receipt.receipt_digest),
+        "matrix_version": assessment.matrix_version,
+    });
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    Ok(())
+}
