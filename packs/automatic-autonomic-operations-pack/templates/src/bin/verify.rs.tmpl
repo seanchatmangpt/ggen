@@ -1,0 +1,8 @@
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let report = automatic_autonomic_operations::verify()?;
+    std::fs::write(
+        "VERIFIER_REPORT.json",
+        serde_json::to_vec_pretty(&report)?,
+    )?;
+    Ok(())
+}
