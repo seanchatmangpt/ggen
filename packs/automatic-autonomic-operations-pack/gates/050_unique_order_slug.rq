@@ -1,0 +1,8 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+SELECT ?left ?right
+WHERE {
+  ?left a aa:Capability ; aa:order ?leftOrder ; aa:slug ?leftSlug ; aa:rustVariant ?leftVariant .
+  ?right a aa:Capability ; aa:order ?rightOrder ; aa:slug ?rightSlug ; aa:rustVariant ?rightVariant .
+  FILTER (STR(?left) < STR(?right))
+  FILTER (?leftOrder = ?rightOrder || ?leftSlug = ?rightSlug || ?leftVariant = ?rightVariant)
+}
