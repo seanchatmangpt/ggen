@@ -765,6 +765,222 @@ impl Fortune5Assessment {
     }
 }
 
+/// Bounded Fortune 5 autonomic intent kind.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Fortune5IntentKind {
+    /// Prevent promotion until the Level 5 contract is satisfied.
+    BlockPromotion,
+    /// Manufacture missing design, operation, or falsifier evidence.
+    ManufactureEvidence,
+    /// Repair a segregation-of-duties violation.
+    RepairSegregation,
+    /// Re-run independent verification over a complete evidence program.
+    Reverify,
+    /// Submit a production evidence package to an admitted execution broker.
+    SubmitPromotion,
+}
+
+/// Capability-bounded intent emitted from a Fortune 5 assessment.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Fortune5Intent {
+    /// Deterministic intent identity.
+    pub intent_id: String,
+    /// Requested bounded consequence.
+    pub kind: Fortune5IntentKind,
+    /// Primary assessment or control subject.
+    pub subject: String,
+    /// Preconditions required before downstream execution.
+    pub preconditions: BTreeSet<String>,
+    /// Capabilities required from an admitted actuator.
+    pub required_capabilities: BTreeSet<String>,
+    /// Evidence expected after lawful execution.
+    pub expected_evidence: BTreeSet<String>,
+    /// Stable parameters for the downstream broker.
+    pub payload: BTreeMap<String, String>,
+}
+
+#[derive(Serialize)]
+struct Fortune5IntentBody<'a> {
+    kind: Fortune5IntentKind,
+    subject: &'a str,
+    preconditions: &'a BTreeSet<String>,
+    required_capabilities: &'a BTreeSet<String>,
+    expected_evidence: &'a BTreeSet<String>,
+    payload: &'a BTreeMap<String, String>,
+}
+
+/// Receipted Fortune 5 autonomic plan that performs no direct actuation.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Fortune5AutonomicPlan {
+    /// Assessment receipt used as admitted observation.
+    pub assessment_receipt: String,
+    /// Capability-bounded intents.
+    pub intents: Vec<Fortune5Intent>,
+    /// Constitutional proof that planning performed no actuation.
+    pub actuation_performed: bool,
+    /// BLAKE3 receipt over the plan.
+    pub receipt_hash: String,
+}
+
+#[derive(Serialize)]
+struct Fortune5PlanReceiptBody<'a> {
+    assessment_receipt: &'a str,
+    intents: &'a [Fortune5Intent],
+    actuation_performed: bool,
+}
+
+impl Fortune5AutonomicPlan {
+    /// Plan bounded remediation or promotion intents from one assessment.
+    pub fn plan(assessment: &Fortune5Assessment) -> Result<Self> {
+        let mut intents = Vec::new();
+
+        if assessment.level_five_ready && !assessment.synthetic {
+            intents.push(build_intent(
+                Fortune5IntentKind::SubmitPromotion,
+                &assessment.program,
+                &["fortune5 assessment receipt independently verified"],
+                &["brce_admission", "promotion_authority"],
+                &["execution_grant", "promotion_receipt"],
+                &[
+                    ("assessment_receipt", assessment.receipt_hash.as_str()),
+                    ("maturity_level", "5"),
+                ],
+            )?);
+        } else if assessment.level_five_ready {
+            intents.push(build_intent(
+                Fortune5IntentKind::Reverify,
+                &assessment.program,
+                &["synthetic proof is explicitly non-authoritative"],
+                &["production_evidence_collector", "independent_verifier"],
+                &["production_fortune5_assessment"],
+                &[
+                    ("assessment_receipt", assessment.receipt_hash.as_str()),
+                    ("reason", "synthetic evidence cannot authorize promotion"),
+                ],
+            )?);
+        } else {
+            let maturity_level = assessment.maturity_level.to_string();
+            let unresolved_obligations = assessment
+                .total_obligations
+                .saturating_sub(assessment.passed_obligations)
+                .to_string();
+            intents.push(build_intent(
+                Fortune5IntentKind::BlockPromotion,
+                &assessment.program,
+                &["Fortune 5 assessment admitted"],
+                &["promotion_gate"],
+                &["promotion_refusal_receipt"],
+                &[
+                    ("assessment_receipt", assessment.receipt_hash.as_str()),
+                    ("maturity_level", maturity_level.as_str()),
+                ],
+            )?);
+            intents.push(build_intent(
+                Fortune5IntentKind::ManufactureEvidence,
+                &assessment.program,
+                &["unresolved obligations enumerated"],
+                &["gall_checkpoint_planner", "evidence_manufacturer"],
+                &[
+                    "design_evidence",
+                    "operating_receipt",
+                    "negative_fixture",
+                    "independent_replay",
+                ],
+                &[
+                    ("assessment_receipt", assessment.receipt_hash.as_str()),
+                    ("unresolved_obligations", unresolved_obligations.as_str()),
+                ],
+            )?);
+        }
+
+        if assessment
+            .findings
+            .iter()
+            .any(|finding| finding.code == "F5-SOD-001")
+        {
+            intents.push(build_intent(
+                Fortune5IntentKind::RepairSegregation,
+                &assessment.program,
+                &["segregation-of-duties violation receipted"],
+                &["identity_governance", "decision_rights_authority"],
+                &["updated_role_binding", "segregation_verification"],
+                &[("assessment_receipt", assessment.receipt_hash.as_str())],
+            )?);
+        }
+
+        intents.sort_by(|left, right| {
+            left.kind
+                .cmp(&right.kind)
+                .then(left.subject.cmp(&right.subject))
+                .then(left.intent_id.cmp(&right.intent_id))
+        });
+
+        let receipt_hash = deterministic_hash(
+            "fortune5_autonomic_plan",
+            &Fortune5PlanReceiptBody {
+                assessment_receipt: &assessment.receipt_hash,
+                intents: &intents,
+                actuation_performed: false,
+            },
+        )?;
+
+        Ok(Self {
+            assessment_receipt: assessment.receipt_hash.clone(),
+            intents,
+            actuation_performed: false,
+            receipt_hash,
+        })
+    }
+}
+
+fn build_intent(
+    kind: Fortune5IntentKind,
+    subject: &str,
+    preconditions: &[&str],
+    required_capabilities: &[&str],
+    expected_evidence: &[&str],
+    payload: &[(&str, &str)],
+) -> Result<Fortune5Intent> {
+    let preconditions = preconditions
+        .iter()
+        .map(|item| (*item).to_string())
+        .collect::<BTreeSet<_>>();
+    let required_capabilities = required_capabilities
+        .iter()
+        .map(|item| (*item).to_string())
+        .collect::<BTreeSet<_>>();
+    let expected_evidence = expected_evidence
+        .iter()
+        .map(|item| (*item).to_string())
+        .collect::<BTreeSet<_>>();
+    let payload = payload
+        .iter()
+        .map(|(key, value)| ((*key).to_string(), (*value).to_string()))
+        .collect::<BTreeMap<_, _>>();
+    let intent_id = deterministic_hash(
+        "fortune5_intent",
+        &Fortune5IntentBody {
+            kind,
+            subject,
+            preconditions: &preconditions,
+            required_capabilities: &required_capabilities,
+            expected_evidence: &expected_evidence,
+            payload: &payload,
+        },
+    )?;
+
+    Ok(Fortune5Intent {
+        intent_id,
+        kind,
+        subject: subject.to_string(),
+        preconditions,
+        required_capabilities,
+        expected_evidence,
+        payload,
+    })
+}
+
 fn dimension(
     id: &str,
     domain: Fortune5Domain,
