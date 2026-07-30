@@ -5,6 +5,8 @@ on:
     paths:
       - 'crates/ggen-cli/src/cmds/bblock.rs'
       - 'crates/ggen-cli/src/cmds/mod.rs'
+      - 'packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json'
+      - 'packs/fortune5-deployment-blocks-pack/ontology.ttl'
       - '.github/workflows/fortune5-bblock-normalize.yml'
 
 permissions:
@@ -30,16 +32,27 @@ jobs:
       - name: Provision repository toolchain
         uses: ./.github/actions/setup-ggen-build
 
-      - name: Apply the named helper repair
+      - name: Apply named source and current-service repairs
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          path = Path('crates/ggen-cli/src/cmds/bblock.rs')
-          text = path.read_text()
+
+          source = Path('crates/ggen-cli/src/cmds/bblock.rs')
+          text = source.read_text()
           text = text.replace("fn group<'a>(catalog: &'a Catalog, id: &str)", "fn find_group<'a>(catalog: &'a Catalog, id: &str)")
           text = text.replace('let current = group(catalog, id)?;', 'let current = find_group(catalog, id)?;')
           text = text.replace('let group = group(catalog, id)?;', 'let group = find_group(catalog, id)?;')
-          path.write_text(text)
+          source.write_text(text)
+
+          for raw in [
+              'packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json',
+              'packs/fortune5-deployment-blocks-pack/ontology.ttl',
+          ]:
+              path = Path(raw)
+              text = path.read_text()
+              text = text.replace('aws-cloudtrail-lake-pack', 'aws-cloudtrail-log-integrity-pack')
+              text = text.replace('aws-qldb-evidence-pack', 'aws-config-aggregator-pack')
+              path.write_text(text)
           PY
 
       - name: Normalize only the bblock command surface
@@ -49,14 +62,18 @@ jobs:
         run: |
           changed="$(git diff --name-only | sort)"
           if [ -z "$changed" ]; then
-            echo 'bblock source already normalized'
+            echo 'bblock source and catalog already normalized'
             exit 0
           fi
           printf '%s\n' "$changed"
-          unexpected="$(printf '%s\n' "$changed" | grep -vE '^crates/ggen-cli/src/cmds/(bblock|mod)\.rs$' || true)"
+          unexpected="$(printf '%s\n' "$changed" | grep -vE '^(crates/ggen-cli/src/cmds/(bblock|mod)\.rs|packs/fortune5-deployment-blocks-pack/(catalog/fortune5-bblocks\.json|ontology\.ttl))$' || true)"
           test -z "$unexpected"
           git config user.name 'ggen bblock formatter'
           git config user.email 'ggen-bblock@users.noreply.github.com'
-          git add crates/ggen-cli/src/cmds/bblock.rs crates/ggen-cli/src/cmds/mod.rs
-          git commit -m 'style(bblock): apply pinned rustfmt and helper repair'
+          git add \
+            crates/ggen-cli/src/cmds/bblock.rs \
+            crates/ggen-cli/src/cmds/mod.rs \
+            packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json \
+            packs/fortune5-deployment-blocks-pack/ontology.ttl
+          git commit -m 'style(bblock): normalize compiler and current service catalog'
           git push origin "HEAD:${TARGET_BRANCH}"
