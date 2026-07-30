@@ -1,0 +1,56 @@
+name: Fortune 5 Crown Normalize
+
+on:
+  pull_request:
+    paths:
+      - 'tools/ggen-architecture/src/level5_crown.rs'
+      - 'tools/ggen-architecture/src/lib.rs'
+      - 'tools/ggen-architecture/src/bin/ggen-architecture.rs'
+      - '.github/workflows/fortune5-crown-normalize.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fortune5-crown-normalize-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  normalize:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    env:
+      TARGET_BRANCH: ${{ github.head_ref }}
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          ref: ${{ env.TARGET_BRANCH }}
+
+      - name: Install rustfmt only
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Normalize exact crown source
+        run: cargo fmt --manifest-path tools/ggen-architecture/Cargo.toml --all
+
+      - name: Commit bounded normalized bytes
+        run: |
+          changed="$(git diff --name-only | sort)"
+          if [ -z "$changed" ]; then
+            echo 'crown source already normalized'
+            exit 0
+          fi
+          printf '%s\n' "$changed"
+          unexpected="$(printf '%s\n' "$changed" | grep -vE '^tools/ggen-architecture/src/(level5_crown\.rs|lib\.rs|bin/ggen-architecture\.rs)$' || true)"
+          test -z "$unexpected"
+          git config user.name 'ggen crown formatter'
+          git config user.email 'ggen-crown@users.noreply.github.com'
+          git add \
+            tools/ggen-architecture/src/level5_crown.rs \
+            tools/ggen-architecture/src/lib.rs \
+            tools/ggen-architecture/src/bin/ggen-architecture.rs
+          git commit -m 'style(architecture): apply pinned crown rustfmt'
+          git push origin "HEAD:${TARGET_BRANCH}"
