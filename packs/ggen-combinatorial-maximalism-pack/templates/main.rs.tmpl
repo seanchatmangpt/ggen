@@ -14,7 +14,7 @@ use serde_json::json;
 use std::env;
 use std::path::{Path, PathBuf};
 
-{% for d in design %}use {{ d.crate_name | snake_case }}::{validate_design, Broker, CmdError};
+{% for d in design %}use {{ d.crate_name | snake_case }}::{Broker, CmdError, validate_design};
 {% endfor %}
 
 fn workspace() -> Result<PathBuf, CmdError> {
