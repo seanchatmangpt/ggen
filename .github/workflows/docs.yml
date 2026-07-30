@@ -96,6 +96,101 @@ jobs:
               'hook.map_or(false, |value| value.trim().is_empty())',
           )
           exec(compile(script, '<frontmatter-best-practices>', 'exec'))
+
+          lint_path = Path('crates/ggen-engine/src/lint.rs')
+          lint = lint_path.read_text()
+          lint = replace_once(
+              lint,
+              '''    #[test]
+              fn projected_vars_includes_names_columns_and_implicits() {
+                  let t = parse(
+                      "---\\nto: out.rs\\nsparql:\\n  people: SELECT ?name ?age WHERE { ?s ?p ?o } ORDER BY ?name\\n---\\nbody",
+                  );
+                  let Projection::Vars(vars) = projected_vars(&t.frontmatter) else {
+                      panic!("expected Vars");
+                  };
+                  for expected in ["results", "row", "people", "name", "age"] {
+                      assert!(vars.contains(expected), "missing {expected}: {vars:?}");
+                  }
+              }
+          ''',
+              '''    #[test]
+              fn whole_projection_exposes_named_arrays_not_row_columns() {
+                  let t = parse(
+                      "---\\nto: out.rs\\nsparql:\\n  people: SELECT ?name ?age WHERE { ?s ?p ?o } ORDER BY ?name\\n---\\nbody",
+                  );
+                  let Projection::Vars(vars) = projected_vars(&t.frontmatter) else {
+                      panic!("expected Vars");
+                  };
+                  assert_eq!(
+                      vars,
+                      ["results".to_string(), "people".to_string()]
+                          .into_iter()
+                          .collect()
+                  );
+              }
+          ''',
+              'whole projection lint unit test',
+          )
+          lint = replace_once(
+              lint,
+              '''    #[test]
+              fn select_star_yields_wildcard() {
+                  let t = parse("---\\nto: out.rs\\nsparql:\\n  all: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s\\n---\\n{{ anything_goes }}");
+                  assert_eq!(projected_vars(&t.frontmatter), Projection::Wildcard);
+                  assert!(
+                      lint_template(Path::new("t.tmpl"), &t).is_empty(),
+                      "wildcard disables check"
+                  );
+              }
+          ''',
+              '''    #[test]
+              fn select_star_is_not_a_whole_projection_wildcard() {
+                  let t = parse("---\\nto: out.rs\\nsparql:\\n  all: SELECT * WHERE { ?s ?p ?o } ORDER BY ?s\\n---\\n{{ anything_goes }}");
+                  assert_eq!(
+                      projected_vars(&t.frontmatter),
+                      Projection::Vars(
+                          ["all".to_string(), "results".to_string()]
+                              .into_iter()
+                              .collect()
+                      )
+                  );
+                  let errors = lint_template(Path::new("t.tmpl"), &t);
+                  assert_eq!(errors.len(), 1);
+                  assert!(errors[0].to_string().contains("FM-TPL-003"));
+              }
+          ''',
+              'select star phase test',
+          )
+          lint = replace_once(
+              lint,
+              '''    #[test]
+              fn select_without_order_by_is_fm_tpl_010() {
+                  let t = parse(
+                      "---\\nto: out.rs\\nsparql:\\n  people: SELECT ?name WHERE { ?s ?p ?o }\\n---\\n{{ name }}",
+                  );
+                  let errs = lint_template(Path::new("t.tmpl"), &t);
+                  assert_eq!(errs.len(), 1);
+                  let msg = errs[0].to_string();
+                  assert!(msg.contains("FM-TPL-010"), "{msg}");
+                  assert!(msg.contains("ORDER BY"), "{msg}");
+              }
+          ''',
+              '''    #[test]
+              fn select_without_order_by_is_fm_tpl_010() {
+                  let t = parse(
+                      "---\\nto: out.rs\\nsparql:\\n  people: SELECT ?name WHERE { ?s ?p ?o }\\n---\\nstatic",
+                  );
+                  let errs = lint_template(Path::new("t.tmpl"), &t);
+                  assert_eq!(errs.len(), 1);
+                  let msg = errs[0].to_string();
+                  assert!(msg.contains("FM-TPL-010"), "{msg}");
+                  assert!(msg.contains("ORDER BY"), "{msg}");
+              }
+          ''',
+              'order by isolated lint test',
+          )
+          lint_path.write_text(lint)
           PY
           cargo fmt --all
           git diff --check
