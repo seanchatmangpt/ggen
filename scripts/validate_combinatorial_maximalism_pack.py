@@ -63,6 +63,7 @@ def main() -> int:
         outputs[output] = template.name
         for forbidden in FORBIDDEN:
             refuse(forbidden in text, f"FORBIDDEN_TEMPLATE_SURFACE:{template.name}:{forbidden}")
+        refuse("COALESCE(" in text, f"NON_PORTABLE_SPARQL_EXPRESSION_REFUSED:{template.name}")
     refuse(set(outputs) != EXPECTED_OUTPUTS, f"OUTPUT_SET_REFUSED:{sorted(outputs)}")
 
     ontology = (PACK / "ontology.ttl").read_text(encoding="utf-8")
