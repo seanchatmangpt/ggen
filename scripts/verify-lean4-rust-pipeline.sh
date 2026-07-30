@@ -27,6 +27,7 @@ mkdir -p "$EXAMPLE/generated"
 )
 
 test -f "$EXAMPLE/generated/lean/lean-toolchain"
+test -f "$EXAMPLE/generated/lean/lake-manifest.json"
 test -f "$EXAMPLE/generated/lean/lakefile.lean"
 test -f "$EXAMPLE/generated/lean/Main.lean"
 test -f "$EXAMPLE/generated/PIPELINE.md"
@@ -42,6 +43,7 @@ jq -e '.valid == true and .signed == true and .signature_valid == true' \
 
 sha256sum \
   "$EXAMPLE/generated/lean/lean-toolchain" \
+  "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
   "$EXAMPLE/generated/lean/Main.lean" \
   "$EXAMPLE/generated/PIPELINE.md" \
@@ -136,6 +138,7 @@ rm -f "$original_ontology"
 )
 sha256sum \
   "$EXAMPLE/generated/lean/lean-toolchain" \
+  "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
   "$EXAMPLE/generated/lean/Main.lean" \
   "$EXAMPLE/generated/PIPELINE.md" \
