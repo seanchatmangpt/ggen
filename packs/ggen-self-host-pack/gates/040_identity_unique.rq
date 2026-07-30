@@ -1,0 +1,22 @@
+# MESSAGE: GGEN_SELF_HOST_IDENTITY_COLLISION -- file paths, finding IDs, and output-owner identities must be unique inside one observation
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+SELECT ?kind ?identity (COUNT(DISTINCT ?subject) AS ?owners) WHERE {
+  {
+    ?subject a gsh:RepositoryFile ; gsh:path ?identity .
+    BIND("file-path" AS ?kind)
+  }
+  UNION
+  {
+    ?subject a gsh:Finding ; gsh:findingId ?identity .
+    BIND("finding-id" AS ?kind)
+  }
+  UNION
+  {
+    ?subject a gsh:OutputClaim ; gsh:consumer ?consumer ; gsh:outputPath ?path ; gsh:owner ?owner .
+    BIND(CONCAT(STR(?consumer), "::", STR(?path), "::", STR(?owner)) AS ?identity)
+    BIND("output-claim" AS ?kind)
+  }
+}
+GROUP BY ?kind ?identity
+HAVING(COUNT(DISTINCT ?subject) > 1)
+ORDER BY ?kind ?identity
