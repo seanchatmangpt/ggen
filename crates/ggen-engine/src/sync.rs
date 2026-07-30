@@ -43,8 +43,11 @@ use crate::{
     config::GgenConfig,
     error::{AppError, Result},
     graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
-    template::{build_tera, sparql_to_value, Frontmatter, Template},
-    write::{plan_write, WriteOutcome},
+    template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
+    write::{
+        plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
+        WriteOutcome, MAX_OUTPUT_BYTES,
+    },
 };
 
 /// Which [`GraphEngine`] a sync runs on.
@@ -93,13 +96,31 @@ pub struct SyncReport {
 /// Relative path of the sync receipt under the project root.
 pub const RECEIPT_REL_PATH: &str = ".ggen-v2/receipt.json";
 
+/// Maximum rows admitted from any one named SPARQL result. This bounds
+/// semantic fan-out before Tera rendering or shell/filesystem actuation.
+pub const MAX_QUERY_RESULT_ROWS: usize = 4_096;
+
+/// Maximum materialized outputs admitted in one sync, including the
+/// engine-owned module aggregator.
+pub const MAX_PENDING_OUTPUTS: usize = 8_192;
+
+/// Maximum combined rendered body bytes admitted across one sync.
+pub const MAX_TOTAL_RENDERED_BYTES: usize = 64 * 1024 * 1024;
+
 /// One fully-rendered template awaiting `apply` — the boundary between the
 /// "may fail" render pass and the write pass, which by construction only
 /// begins once every template in the run has rendered successfully.
-struct PendingWrite<'a> {
+struct PendingWrite {
     to: String,
     body: String,
-    tpl: &'a Template,
+    frontmatter: Frontmatter,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum ProjectionMode {
+    Whole,
+    Row(usize),
+    Aggregate,
 }
 
 /// Relative path of the append-only receipt history log (one JSON line per
@@ -249,6 +270,12 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     closure.insert(
         "actuator".to_string(),
         concat!("ggen@", env!("CARGO_PKG_VERSION")).to_string(),
+    );
+    closure.insert(
+        "policy:frontmatter-projection-limits".to_string(),
+        format!(
+            "max_query_rows={MAX_QUERY_RESULT_ROWS};max_outputs={MAX_PENDING_OUTPUTS};             max_total_rendered_bytes={MAX_TOTAL_RENDERED_BYTES};             max_output_bytes={MAX_OUTPUT_BYTES}"
+        ),
     );
     // Project identity: binds `[project].name` into the receipt so a receipt
     // cannot be silently relabeled as belonging to a different project.
@@ -675,16 +702,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let mut tera = build_tera(Arc::clone(&graph))?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
-    // Storage slot for the synthetic module-aggregator template (declared
-    // before `pending` so its borrow can live as long as `pending`'s
-    // entries do; only populated when `[templates] aggregate_modules` is
-    // set — see below, after the render loop).
-    let mut aggregator_slot: Option<Template> = None;
-    let mut pending: Vec<PendingWrite<'_>> = Vec::new();
+    // Every pending write owns the output-phase frontmatter rendered from
+    // the same semantic context as its path and body.
+    let mut pending: Vec<PendingWrite> = Vec::new();
 
     for (tpl_path, tpl) in &templates {
-        check_shape_files_exist(root, tpl_path, &tpl.frontmatter.shape)?;
-
         // Gap 1: per-template RDF overlay (`rdf:`/`rdf_inline:`) — a brand
         // new store layered over the base graph's current triples, built
         // fresh for every template that declares either field so it is
@@ -712,8 +734,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?
         else {
             let reason = format!("when guard false ({})", tpl_path.display());
-            decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
-            skipped.push((PathBuf::from(&tpl.frontmatter.to), reason));
+            let evidence_key =
+                if tpl.frontmatter.to.contains("{{") || tpl.frontmatter.to.contains("{%") {
+                    format!("@template/{}", rel_display(root, tpl_path))
+                } else {
+                    crate::write::resolve_target(root, &tpl.frontmatter.to)?;
+                    tpl.frontmatter.to.clone()
+                };
+            decisions.insert(evidence_key.clone(), format!("skipped: {reason}"));
+            skipped.push((PathBuf::from(evidence_key), reason));
             continue;
         };
 
@@ -736,47 +765,81 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 None
             };
 
-        let per_row = tpl.frontmatter.to.contains("{{");
-        if per_row {
-            for (row_index, row) in results.iter().enumerate() {
-                let mut ctx = base_context(&named, &results);
-                ctx.insert("row", row);
-                if let Value::Object(map) = row {
-                    for (k, v) in map {
-                        ctx.insert(k, v);
-                    }
-                }
-                let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
-                let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
-                check_determinism(
-                    active_tera,
-                    &tpl.body,
-                    tpl_path,
-                    &tpl.frontmatter,
-                    determinism_recheck.as_ref(),
-                    Some(row_index),
-                    &body,
-                    &to,
-                )?;
-                pending.push(PendingWrite { to, body, tpl });
-            }
-        } else {
-            let ctx = base_context(&named, &results);
-            let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+        let fan_out = tpl.frontmatter.to.contains("{{");
+        let explicit_driver = tpl.frontmatter.for_each.is_some();
+        if explicit_driver && !fan_out {
+            let Some((body, frontmatter)) = render_aggregate_projection(
+                active_tera,
+                &tpl.body,
+                tpl_path,
+                &tpl.frontmatter,
+                &named,
+                &results,
+            )?
+            else {
+                continue;
+            };
+            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
             check_determinism(
                 active_tera,
                 &tpl.body,
                 tpl_path,
                 &tpl.frontmatter,
                 determinism_recheck.as_ref(),
-                None,
+                ProjectionMode::Aggregate,
                 &body,
-                &tpl.frontmatter.to,
+                &frontmatter,
             )?;
             pending.push(PendingWrite {
                 to: tpl.frontmatter.to.clone(),
                 body,
-                tpl,
+                frontmatter,
+            });
+        } else if fan_out {
+            for (row_index, row) in results.iter().enumerate() {
+                let ctx = row_context(&named, &results, row);
+                let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
+                let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+                let frontmatter =
+                    render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
+                admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
+                check_determinism(
+                    active_tera,
+                    &tpl.body,
+                    tpl_path,
+                    &tpl.frontmatter,
+                    determinism_recheck.as_ref(),
+                    ProjectionMode::Row(row_index),
+                    &body,
+                    &frontmatter,
+                )?;
+                pending.push(PendingWrite {
+                    to,
+                    body,
+                    frontmatter,
+                });
+            }
+        } else {
+            let ctx = base_context(&named, &results);
+            let to = tpl.frontmatter.to.clone();
+            let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+            let frontmatter =
+                render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
+            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
+            check_determinism(
+                active_tera,
+                &tpl.body,
+                tpl_path,
+                &tpl.frontmatter,
+                determinism_recheck.as_ref(),
+                ProjectionMode::Whole,
+                &body,
+                &frontmatter,
+            )?;
+            pending.push(PendingWrite {
+                to,
+                body,
+                frontmatter,
             });
         }
     }
@@ -829,61 +892,77 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     "#[path = \"{rel_to_src}\"]\npub mod {mod_name};\n"
                 ));
             }
-            aggregator_slot = Some(Template {
-                frontmatter: Frontmatter {
-                    to: AGGREGATOR_REL_PATH.to_string(),
-                    sparql: BTreeMap::new(),
-                    construct: None,
-                    inject: false,
-                    before: None,
-                    after: None,
-                    at_line: None,
-                    skip_if: None,
-                    unless_exists: false,
-                    force: true,
-                    when: None,
-                    skip_empty: false,
-                    from: None,
-                    sh_before: None,
-                    sh_after: None,
-                    backup: false,
-                    shape: Vec::new(),
-                    determinism: None,
-                    freeze_policy: None,
-                    freeze_slots_dir: None,
-                    rdf: Vec::new(),
-                    rdf_inline: Vec::new(),
-                    prefixes: BTreeMap::new(),
-                    base: None,
-                },
-                body: String::new(),
-            });
-            let tpl_ref: &Template = aggregator_slot
-                .as_ref()
-                .expect("aggregator_slot was assigned Some on the previous statement");
+            let frontmatter = Frontmatter {
+                to: AGGREGATOR_REL_PATH.to_string(),
+                sparql: BTreeMap::new(),
+                for_each: None,
+                construct: None,
+                inject: false,
+                before: None,
+                after: None,
+                at_line: None,
+                skip_if: None,
+                unless_exists: false,
+                force: true,
+                when: None,
+                skip_empty: false,
+                from: None,
+                sh_before: None,
+                sh_after: None,
+                backup: false,
+                shape: Vec::new(),
+                determinism: None,
+                freeze_policy: None,
+                freeze_slots_dir: None,
+                rdf: Vec::new(),
+                rdf_inline: Vec::new(),
+                prefixes: BTreeMap::new(),
+                base: None,
+            };
             pending.push(PendingWrite {
                 to: AGGREGATOR_REL_PATH.to_string(),
                 body,
-                tpl: tpl_ref,
+                frontmatter,
             });
         }
     }
 
-    // Two rendered templates (or two rows of one template) resolving to the
-    // same target would silently last-row-win on disk and in the decisions
-    // map — refuse instead.
+    // Admit the complete prospective write set before any hook or write.
+    // This is the Fortune 5 boundary: bounded count/bytes, safe canonical
+    // targets, and no aliasing of one filesystem object through two spellings.
+    if pending.len() > MAX_PENDING_OUTPUTS {
+        return Err(AppError::fm_tpl(
+            22,
+            format!(
+                "sync materialized {} outputs, over the Fortune 5 limit of                  {MAX_PENDING_OUTPUTS}. Remediation: partition the ontology view or                  aggregate rows into bounded artifacts.",
+                pending.len()
+            ),
+        ));
+    }
+    let total_rendered_bytes = pending
+        .iter()
+        .fold(0usize, |total, pw| total.saturating_add(pw.body.len()));
+    if total_rendered_bytes > MAX_TOTAL_RENDERED_BYTES {
+        return Err(AppError::fm_tpl(
+            22,
+            format!(
+                "sync rendered {total_rendered_bytes} body bytes, over the Fortune 5                  limit of {MAX_TOTAL_RENDERED_BYTES}. Remediation: reduce selected                  knowledge, split the run, or aggregate more compactly."
+            ),
+        ));
+    }
     {
-        let mut seen: BTreeMap<&str, usize> = BTreeMap::new();
+        let mut seen: BTreeMap<PathBuf, (String, usize)> = BTreeMap::new();
         for pw in &pending {
-            *seen.entry(pw.to.as_str()).or_default() += 1;
+            let admitted = crate::write::resolve_target(root, &pw.to)?;
+            let entry = seen.entry(admitted).or_insert_with(|| (pw.to.clone(), 0));
+            entry.1 += 1;
         }
-        if let Some((to, n)) = seen.into_iter().find(|(_, n)| *n > 1) {
+        if let Some((target, (declared, n))) = seen.into_iter().find(|(_, (_, n))| *n > 1) {
             return Err(AppError::fm_write(
                 8,
                 format!(
-                    "{n} rendered templates target the same output `{to}`. \
-                     Remediation: make the `to:` pattern unique per row/template \
-                     (e.g. include a distinguishing SPARQL variable in the path)."
+                    "{n} rendered templates resolve to the same admitted output `{}`                      (one declaration was `{declared}`). Remediation: make `to:` unique                      after path normalization; aliases such as `x` and `./x` are the                      same target.",
+                    target.display()
                 ),
             ));
         }
@@ -913,7 +992,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             root,
             &pw.to,
             &pw.body,
-            pw.tpl,
+            &pw.frontmatter,
             opts,
             &mut written,
             &mut skipped,
@@ -1189,14 +1268,52 @@ fn extract_query_results(
             sparql_key = %key,
             "executing named sparql query"
         );
-        named.insert(key.clone(), sparql_to_value(active_graph, query)?);
+        let value = sparql_to_value(active_graph, query)?;
+        if let Some(rows) = value.as_array() {
+            if rows.len() > MAX_QUERY_RESULT_ROWS {
+                return Err(AppError::fm_tpl(
+                    21,
+                    format!(
+                        "{}: named `sparql:` result `{key}` produced {} row(s), over the                          Fortune 5 limit of {MAX_QUERY_RESULT_ROWS}. Remediation: constrain                          the query with a selective WHERE clause, grouping, or an explicit LIMIT.",
+                        tpl_path.display(),
+                        rows.len()
+                    ),
+                ));
+            }
+        }
+        named.insert(key.clone(), value);
     }
-    // Driving rows: the first named query (BTreeMap key order) with an
-    // array result; empty when no SELECT produced rows.
-    let results: Vec<Value> = named
-        .values()
-        .find_map(|v| v.as_array().cloned())
-        .unwrap_or_default();
+    let results: Vec<Value> = if let Some(driver) = frontmatter.for_each.as_deref() {
+        let value = named.get(driver).ok_or_else(|| {
+            AppError::fm_tpl(
+                19,
+                format!(
+                    "{}: `for_each: {driver}` does not name a declared `sparql:` result. \
+                     Remediation: add that named query or correct `for_each`.",
+                    tpl_path.display()
+                ),
+            )
+        })?;
+        value.as_array().cloned().ok_or_else(|| {
+            AppError::fm_tpl(
+                19,
+                format!(
+                    "{}: `for_each: {driver}` must name an array-valued SELECT/graph result, \
+                     but that query returned {}. Remediation: point `for_each` at a SELECT \
+                     result that yields the intended projection rows.",
+                    tpl_path.display(),
+                    value_type_name(value)
+                ),
+            )
+        })?
+    } else {
+        // Historical compatibility: the first named query in BTreeMap key
+        // order with an array result remains the implicit driving row set.
+        named
+            .values()
+            .find_map(|v| v.as_array().cloned())
+            .unwrap_or_default()
+    };
     Ok(Some((named, results)))
 }
 
@@ -1206,6 +1323,17 @@ fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Con
     ctx.insert("results", results);
     for (k, v) in named {
         ctx.insert(k, v);
+    }
+    ctx
+}
+
+fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) -> tera::Context {
+    let mut ctx = base_context(named, results);
+    ctx.insert("row", row);
+    if let Value::Object(map) = row {
+        for (k, v) in map {
+            ctx.insert(k, v);
+        }
     }
     ctx
 }
@@ -1224,6 +1352,93 @@ fn render_str(
             ),
         )
     })
+}
+
+/// Render one optional output-phase string through the same Tera context
+/// as the output path and body.
+fn render_optional_output_field(
+    tera: &mut tera::Tera, value: Option<&str>, ctx: &tera::Context, tpl_path: &Path,
+) -> Result<Option<String>> {
+    value
+        .map(|template| render_str(tera, template, ctx, tpl_path))
+        .transpose()
+}
+
+/// Render only the pattern inside a literal or structured match declaration,
+/// preserving its matcher/scope/occurrence defaults and explicit overrides.
+fn render_optional_match_field(
+    tera: &mut tera::Tera, value: Option<&MatchSpec>, ctx: &tera::Context, tpl_path: &Path,
+) -> Result<Option<MatchSpec>> {
+    value
+        .map(|spec| {
+            render_str(tera, spec.pattern(), ctx, tpl_path)
+                .map(|pattern| spec.with_pattern(pattern))
+        })
+        .transpose()
+}
+
+/// Compile the output-phase frontmatter for one materialized projection.
+///
+/// Resolve/enrich/extract fields remain static because they determine the
+/// semantic context itself. Structural markers, idempotence needles,
+/// hooks, shape paths, and checksum-slot paths are rendered after query
+/// extraction so one ontology row can lawfully specialize the complete
+/// write lifecycle rather than only `to:` and the body.
+fn render_output_frontmatter(
+    tera: &mut tera::Tera, source: &Frontmatter, ctx: &tera::Context, tpl_path: &Path,
+    rendered_to: &str,
+) -> Result<Frontmatter> {
+    let mut rendered = source.clone();
+    rendered.to = rendered_to.to_string();
+    rendered.before = render_optional_match_field(tera, source.before.as_ref(), ctx, tpl_path)?;
+    rendered.after = render_optional_match_field(tera, source.after.as_ref(), ctx, tpl_path)?;
+    rendered.skip_if = render_optional_match_field(tera, source.skip_if.as_ref(), ctx, tpl_path)?;
+    rendered.sh_before =
+        render_optional_output_field(tera, source.sh_before.as_deref(), ctx, tpl_path)?;
+    rendered.sh_after =
+        render_optional_output_field(tera, source.sh_after.as_deref(), ctx, tpl_path)?;
+    rendered.freeze_slots_dir =
+        render_optional_output_field(tera, source.freeze_slots_dir.as_deref(), ctx, tpl_path)?;
+    rendered.shape = source
+        .shape
+        .iter()
+        .map(|shape| render_str(tera, shape, ctx, tpl_path))
+        .collect::<Result<Vec<_>>>()?;
+    Ok(rendered)
+}
+
+fn render_aggregate_projection(
+    tera: &mut tera::Tera, body_template: &str, tpl_path: &Path, frontmatter: &Frontmatter,
+    named: &BTreeMap<String, Value>, results: &[Value],
+) -> Result<Option<(String, Frontmatter)>> {
+    if results.is_empty() {
+        return Ok(None);
+    }
+    let mut body = String::new();
+    let mut canonical_frontmatter: Option<Frontmatter> = None;
+    for (row_index, row) in results.iter().enumerate() {
+        let ctx = row_context(named, results, row);
+        body.push_str(&render_str(tera, body_template, &ctx, tpl_path)?);
+        let candidate =
+            render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &frontmatter.to)?;
+        if let Some(expected) = &canonical_frontmatter {
+            if expected != &candidate {
+                return Err(AppError::fm_tpl(
+                    20,
+                    format!(
+                        "{}: static `to:` with `for_each` produced row-varying output-phase \
+                         frontmatter at row {row_index}. One target must have one composition, \
+                         hook, shape, and ownership law. Remediation: make those properties \
+                         invariant across rows or include a row binding in `to:` to fan out.",
+                        tpl_path.display()
+                    ),
+                ));
+            }
+        } else {
+            canonical_frontmatter = Some(candidate);
+        }
+    }
+    Ok(canonical_frontmatter.map(|frontmatter| (body, frontmatter)))
 }
 
 /// Summarize a Tera context's top-level keys (and, for arrays, their
@@ -1261,22 +1476,29 @@ fn value_type_name(v: &Value) -> &'static str {
 /// Apply (or dry-run) one write and record the outcome and its decision.
 #[allow(clippy::too_many_arguments)]
 fn apply(
-    root: &Path, rel_to: &str, body: &str, tpl: &Template, opts: SyncOptions,
+    root: &Path, rel_to: &str, body: &str, frontmatter: &Frontmatter, opts: SyncOptions,
     written: &mut Vec<PathBuf>, skipped: &mut Vec<(PathBuf, String)>,
     decisions: &mut BTreeMap<String, String>,
 ) -> Result<()> {
-    if tpl.frontmatter.skip_empty && body.trim().is_empty() {
+    let target = crate::write::resolve_target(root, rel_to)?;
+    if frontmatter.skip_empty && body.trim().is_empty() {
         let reason = "skip_empty: rendered body empty".to_string();
         decisions.insert(rel_to.to_string(), format!("skipped: {reason}"));
         skipped.push((PathBuf::from(rel_to), reason));
         return Ok(());
     }
+    // Matcher syntax/configuration is admitted before any shell hook or
+    // filesystem actuation. Structured cardinality is then observed against
+    // the actual host file.
+    validate_match_specs(frontmatter)?;
+    preflight_checksum_slot(root, rel_to, frontmatter)?;
+    let mut match_evidence = preflight_structured_matchers(root, rel_to, frontmatter)?;
+
     if opts.dry_run {
         // Dry run: classify without touching the filesystem or running
         // sh_before/sh_after (a dry run must have zero side effects).
         // Identical existing content reports Skipped(unchanged); everything
         // else is reported as a planned write.
-        let target = root.join(rel_to);
         match std::fs::read_to_string(&target) {
             Ok(existing) if existing == body => {
                 let reason = "unchanged: content identical".to_string();
@@ -1284,11 +1506,19 @@ fn apply(
                 skipped.push((PathBuf::from(rel_to), reason));
             }
             Ok(_) => {
-                decisions.insert(rel_to.to_string(), "planned: write (dry-run)".to_string());
+                let suffix = match_evidence_suffix(&match_evidence);
+                decisions.insert(
+                    rel_to.to_string(),
+                    format!("planned: write (dry-run){suffix}"),
+                );
                 written.push(PathBuf::from(rel_to));
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                decisions.insert(rel_to.to_string(), "planned: write (dry-run)".to_string());
+                let suffix = match_evidence_suffix(&match_evidence);
+                decisions.insert(
+                    rel_to.to_string(),
+                    format!("planned: write (dry-run){suffix}"),
+                );
                 written.push(PathBuf::from(rel_to));
             }
             Err(e) => {
@@ -1310,31 +1540,47 @@ fn apply(
         return Ok(());
     }
 
-    if let Some(cmd) = tpl.frontmatter.sh_before.as_deref() {
+    if let Some(cmd) = frontmatter.sh_before.as_deref() {
         run_shell_hook(root, cmd, "sh_before")?;
+        // Bind the post-hook host state used by the write decision. A hook
+        // that changes selector cardinality cannot silently reuse stale
+        // preflight evidence.
+        match_evidence = preflight_structured_matchers(root, rel_to, frontmatter)?;
     }
 
-    match plan_write(root, rel_to, body, &tpl.frontmatter)? {
+    let evidence_suffix = match_evidence_suffix(&match_evidence);
+    match plan_write(root, rel_to, body, frontmatter)? {
         WriteOutcome::Written => {
-            decisions.insert(rel_to.to_string(), "written".to_string());
+            decisions.insert(rel_to.to_string(), format!("written{evidence_suffix}"));
             written.push(PathBuf::from(rel_to));
-            if let Some(cmd) = tpl.frontmatter.sh_after.as_deref() {
+            if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
         WriteOutcome::Injected => {
-            decisions.insert(rel_to.to_string(), "injected".to_string());
+            decisions.insert(rel_to.to_string(), format!("injected{evidence_suffix}"));
             written.push(PathBuf::from(rel_to));
-            if let Some(cmd) = tpl.frontmatter.sh_after.as_deref() {
+            if let Some(cmd) = frontmatter.sh_after.as_deref() {
                 run_shell_hook(root, cmd, "sh_after")?;
             }
         }
         WriteOutcome::Skipped(reason) => {
-            decisions.insert(rel_to.to_string(), format!("skipped: {reason}"));
+            decisions.insert(
+                rel_to.to_string(),
+                format!("skipped: {reason}{evidence_suffix}"),
+            );
             skipped.push((PathBuf::from(rel_to), reason));
         }
     }
     Ok(())
+}
+
+fn match_evidence_suffix(evidence: &[String]) -> String {
+    if evidence.is_empty() {
+        String::new()
+    } else {
+        format!("; match={}", evidence.join(" | "))
+    }
 }
 
 /// Refuse `cmd` against the shell-command denylist, then run it with `root`
@@ -1431,59 +1677,69 @@ fn parse_template_file(path: &Path) -> Result<Template> {
     Ok(tpl)
 }
 
-/// Refuse if any `shape:` file listed in `frontmatter` does not exist.
-/// **Existence-checked only** — no SHACL engine runs in this crate yet, so
-/// this does not evaluate the shapes against rendered output; see
-/// `docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md`.
-///
-/// # Errors
-/// `[FM-TPL-014]` — distinct from `[FM-TPL-008]` (`from:` path traversal in
-/// [`parse_template_file`]): a missing `shape:` file is an unrelated failure
-/// cause that used to share `FM-TPL-008`'s numeric code.
-fn check_shape_files_exist(root: &Path, tpl_path: &Path, shapes: &[String]) -> Result<()> {
+/// Admit every rendered `shape:` path as a safe, regular, readable,
+/// receipt-bound governing input. This still does not claim SHACL evaluation;
+/// it closes path, type, readability, and provenance gaps first.
+fn admit_shape_files(
+    root: &Path, tpl_path: &Path, shapes: &[String], closure: &mut BTreeMap<String, String>,
+) -> Result<()> {
     for shape in shapes {
-        let shape_path = root.join(shape);
-        if !shape_path.exists() {
+        let shape_path = crate::write::resolve_target(root, shape).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` is not an admitted project path:                      {error}. Remediation: use a safe relative path inside the project.",
+                    tpl_path.display()
+                ),
+            )
+        })?;
+        let metadata = std::fs::metadata(&shape_path).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` is unreadable at `{}`: {error}.                      Remediation: provide a readable regular file.",
+                    tpl_path.display(),
+                    shape_path.display()
+                ),
+            )
+        })?;
+        if !metadata.is_file() {
             return Err(AppError::fm_tpl(
                 14,
                 format!(
-                    "{}: `shape:` entry `{shape}` does not exist at `{}`. \
-                     Remediation: fix the path or remove the entry.",
+                    "{}: `shape:` entry `{shape}` resolves to `{}`, which is not a                      regular file. Remediation: point to a readable shape document.",
                     tpl_path.display(),
                     shape_path.display()
                 ),
             ));
         }
+        let bytes = std::fs::read(&shape_path).map_err(|error| {
+            AppError::fm_tpl(
+                14,
+                format!(
+                    "{}: `shape:` entry `{shape}` could not be read at `{}`: {error}",
+                    tpl_path.display(),
+                    shape_path.display()
+                ),
+            )
+        })?;
+        closure.insert(
+            rel_display(root, &shape_path),
+            blake3::hash(&bytes).to_hex().to_string(),
+        );
     }
     Ok(())
 }
 
-/// When `frontmatter.determinism == Some(true)`, re-render the template's
-/// `to:` path and body against `determinism_recheck` — the result of a
-/// genuinely SECOND, independent execution of this template's declared
-/// queries (`when:`, `sparql:`; see [`extract_query_results`]), built by the
-/// caller once per template — and refuse if either differs from the first
-/// render. This is a real, enforced assertion of query-*and*-render
-/// determinism, not merely a second render against the first run's
-/// already-fixed context (which would only catch Tera-level nondeterminism,
-/// e.g. a `now()` call, never a query that returns different bindings or
-/// row order on a second, independent execution against identical graph
-/// state).
-///
-/// `row_index` selects which row of the second extraction's `results`
-/// corresponds to the row being checked (`None` for a non-per-row
-/// template). A row-count mismatch between the first and second extraction
-/// (the second run producing fewer rows than `row_index` needs) is itself a
-/// determinism violation, refused with the same `[FM-TPL-009]` code.
-///
-/// `determinism_recheck` is `None` when `frontmatter.determinism` is not
-/// `Some(true)` — in that case this function is a no-op, at zero cost
-/// (`extract_query_results` was never called a second time by the caller).
+/// When `frontmatter.determinism == Some(true)`, independently re-run
+/// extraction and reproduce the same whole, row-fanout, or static aggregate
+/// projection. Query order, output bytes, paths, and lifecycle law are all
+/// part of the assertion.
 #[allow(clippy::too_many_arguments)]
 fn check_determinism(
     tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
     frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
-    row_index: Option<usize>, first_render: &str, first_to: &str,
+    mode: ProjectionMode, first_render: &str, first_frontmatter: &Frontmatter,
 ) -> Result<()> {
     let Some(recheck) = determinism_recheck else {
         return Ok(());
@@ -1500,58 +1756,72 @@ fn check_determinism(
         ));
     };
 
-    let ctx2 = match row_index {
-        Some(idx) => {
+    let (second_render, second_frontmatter) = match mode {
+        ProjectionMode::Whole => {
+            let ctx = base_context(named2, results2);
+            let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+            let second_frontmatter =
+                render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+            let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+            (second_render, second_frontmatter)
+        }
+        ProjectionMode::Row(idx) => {
             let row2 = results2.get(idx).ok_or_else(|| {
                 AppError::fm_tpl(
                     9,
                     format!(
-                        "{}: `determinism: true` violated — re-running the named `sparql:` \
-                         queries a second, independent time produced {} row(s), which does \
-                         not cover row index {idx} the first run produced. \
-                         Remediation: add an ORDER BY (and, if paginating, a stable tie-break) \
-                         to every `sparql:` query so row count and order are stable across runs.",
+                        "{}: `determinism: true` violated — the second independent query \
+                         execution produced {} row(s), which does not cover row index {idx}. \
+                         Remediation: add a complete ORDER BY with a stable tie-break.",
                         tpl_path.display(),
                         results2.len()
                     ),
                 )
             })?;
-            let mut ctx = base_context(named2, results2);
-            ctx.insert("row", row2);
-            if let Value::Object(map) = row2 {
-                for (k, v) in map {
-                    ctx.insert(k, v);
-                }
-            }
-            ctx
+            let ctx = row_context(named2, results2, row2);
+            let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+            let second_frontmatter =
+                render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+            let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+            (second_render, second_frontmatter)
         }
-        None => base_context(named2, results2),
+        ProjectionMode::Aggregate => render_aggregate_projection(
+            tera,
+            body_template,
+            tpl_path,
+            frontmatter,
+            named2,
+            results2,
+        )?
+        .ok_or_else(|| {
+            AppError::fm_tpl(
+                9,
+                format!(
+                    "{}: `determinism: true` violated — the second independent `for_each` \
+                     execution produced zero rows after the first produced an aggregate output.",
+                    tpl_path.display()
+                ),
+            )
+        })?,
     };
 
-    // The templated `to:` path is part of the output — a non-deterministic
-    // path escapes a body-only check.
-    let second_to = render_str(tera, &frontmatter.to, &ctx2, tpl_path)?;
-    if second_to != first_to {
+    if &second_frontmatter != first_frontmatter {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the `to:` path from a \
-                 second, independent query execution produced `{second_to}` after \
-                 `{first_to}`. \
-                 Remediation: remove non-deterministic terms from the query or from `to:`.",
+                "{}: `determinism: true` violated — the second independent execution \
+                 produced different path, cardinality, composition, hook, shape, or \
+                 ownership semantics.",
                 tpl_path.display()
             ),
         ));
     }
-    let second_render = render_str(tera, body_template, &ctx2, tpl_path)?;
     if second_render != first_render {
         return Err(AppError::fm_tpl(
             9,
             format!(
-                "{}: `determinism: true` violated — re-rendering the template body from a \
-                 second, independent query execution produced different output. \
-                 Remediation: remove non-deterministic terms from the query or from this \
-                 template.",
+                "{}: `determinism: true` violated — the second independent execution \
+                 produced different output bytes.",
                 tpl_path.display()
             ),
         ));
