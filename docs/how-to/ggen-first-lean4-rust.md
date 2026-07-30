@@ -1,6 +1,6 @@
 # ggen-first Lean 4 to Rust
 
-`ggen-lean4-rust-pipeline-pack` manufactures a Lean 4 program from an admitted RDF graph. Lean checks the proof bundle before that program may emit a Rust crate. The resulting Rust binary produces a BLAKE3-bound execution receipt referencing the Lean proof receipt.
+`ggen-lean4-rust-pipeline-pack` manufactures a Lean 4 proof library and emitter executable from an admitted RDF graph. Lean checks the proof bundle before that executable may emit a Rust crate. The resulting Rust binary produces a BLAKE3-bound execution receipt referencing the Lean proof receipt.
 
 ## Source boundary
 
@@ -18,8 +18,9 @@ There is no handwritten Lean file, Rust file, Cargo manifest, test, receipt sche
 ```text
 parse RDF
 → run fail-closed graph gates
-→ ggen emits a complete Lean project and a signed sync receipt
+→ ggen emits a complete Lean library-plus-executable project and a signed sync receipt
 → Lean kernel checks the theorem bundle
+→ leanchecker independently checks the proof library environment
 → the admitted Lean executable emits Cargo.toml and Rust source
 → rustfmt canonicalizes the emitted Rust
 → Clippy and tests admit the crate
@@ -36,9 +37,12 @@ The pack contains no Rust template. ggen owns these outputs:
 generated/lean/lean-toolchain
 generated/lean/lake-manifest.json
 generated/lean/lakefile.lean
+generated/lean/Lean4RustPipeline.lean
 generated/lean/Main.lean
 generated/PIPELINE.md
 ```
+
+`Lean4RustPipeline.lean` owns the definitions, theorems, proof-carrying receipt, and Rust emitter. `Main.lean` is a minimal executable route into the admitted library. This separation produces a package-level `.olean` that can be independently replayed by `leanchecker` without collapsing the executable into the proof surface.
 
 The manufactured `lake-manifest.json` declares an empty dependency set. It is part of the deterministic Lean project rather than an unreceipted setup mutation performed by CI.
 
@@ -77,7 +81,7 @@ Run from the repository root after Lean is installed:
 bash scripts/verify-lean4-rust-pipeline.sh
 ```
 
-The repository workflow bootstraps the generated Lean project first, installs the exact toolchain declared by the ontology, then executes the complete verifier.
+The repository workflow bootstraps the generated Lean project first, installs the exact toolchain declared by the ontology, independently checks the proof environment, then executes the complete verifier.
 
 ## Exclusions
 
