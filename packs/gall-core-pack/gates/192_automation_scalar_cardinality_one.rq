@@ -2,15 +2,15 @@
 PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
 SELECT ?owner ?field ?count WHERE {
   {
-    SELECT ?owner ("gall:hasAutomationProfile" AS ?field) (COUNT(?value) AS ?count) WHERE {
+    SELECT ?owner ("gall:hasAutomationProfile" AS ?field) (COUNT(DISTINCT ?value) AS ?count) WHERE {
       ?owner a gall:GallProgram ; gall:hasWorkItem ?workItem ; gall:hasAutomationProfile ?value .
     }
     GROUP BY ?owner
-    HAVING(COUNT(?value) != 1)
+    HAVING(COUNT(DISTINCT ?value) != 1)
   }
   UNION
   {
-    SELECT ?owner ?field (COUNT(?value) AS ?count) WHERE {
+    SELECT ?owner ?field (COUNT(DISTINCT ?value) AS ?count) WHERE {
       ?owner a gall:AutomationProfile .
       VALUES ?property {
         gall:automationProfileId
@@ -26,7 +26,7 @@ SELECT ?owner ?field ?count WHERE {
       BIND(STR(?property) AS ?field)
     }
     GROUP BY ?owner ?field
-    HAVING(COUNT(?value) != 1)
+    HAVING(COUNT(DISTINCT ?value) != 1)
   }
 }
 ORDER BY ?owner ?field
