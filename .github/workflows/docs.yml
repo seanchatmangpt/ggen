@@ -34,7 +34,24 @@ jobs:
         run: |
           set -euo pipefail
           python3 <<'PY'
+          import re
           from pathlib import Path
+
+          sync_path = Path('crates/ggen-engine/src/sync.rs')
+          sync = sync_path.read_text()
+          old_import = '''    write::{
+              plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
+              WriteOutcome, MAX_OUTPUT_BYTES,
+          },
+          '''
+          new_import = '''    write::{
+              plan_write, preflight_checksum_slot, preflight_host_contract, validate_match_specs,
+              WriteOutcome, MAX_OUTPUT_BYTES,
+          },
+          '''
+          if sync.count(old_import) != 1:
+              raise SystemExit(f'sync source import count={sync.count(old_import)}')
+          sync_path.write_text(sync.replace(old_import, new_import, 1))
 
           source = Path('.github/workflows/frontmatter-best-practices.yml').read_text()
           embedded = source.split("python3 <<'PY'\n", 1)[1].split("\n          PY", 1)[0]
@@ -42,6 +59,13 @@ jobs:
               line[10:] if line.startswith("          ") else line
               for line in embedded.splitlines()
           )
+
+          import_edit_start = script.index(
+              "text = replace_once(\n    text,\n    '''        plan_write, preflight_checksum_slot"
+          )
+          import_edit_marker = "    'sync write imports',\n)\n"
+          import_edit_end = script.index(import_edit_marker, import_edit_start) + len(import_edit_marker)
+          script = script[:import_edit_start] + script[import_edit_end:]
 
           exact_helper = '''def replace_once(text: str, old: str, new: str, label: str) -> str:
               count = text.count(old)
