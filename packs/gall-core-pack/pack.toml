@@ -7,12 +7,14 @@ programs, capabilities, dependency-closed checkpoints, APS-grade work items,
 automation profiles, evidence obligations, exclusions, clean-revision replay,
 and release crowns as graph objects. Generates checkpoint and work-item DAGs,
 Jira and GitHub tracker projections, coding-agent work orders, an automation
-manifest, noun-verb operator CLI, dependency-ready scheduler, agent handoff and
-command invocation, tracker convergence, verification and completion state,
+manifest, noun-verb operator CLI, dependency-ready scheduler, isolated Git
+worktree agent execution with write-path enforcement, tracker convergence,
+verification and completion state, content-addressed evidence snapshots,
 intent/result receipt chains, an independent receipt verifier, GitHub Actions
 orchestration, status ledger, crown report, and real checkpoint runner. Pack
 gates refuse incomplete or ambiguous checkpoint, ticket, or automation
 contracts; cycles; unsafe paths; unauthorized modes; invalid concurrency;
-manual standing; incomplete crowns; missing or red evidence; non-independent
-replay; stale receipts; and ticket order that violates proof order.
+duplicate or shared automation authority; manual standing; incomplete crowns;
+missing or red evidence; non-independent replay; stale receipts; evidence drift;
+and ticket order that violates proof order.
 """
