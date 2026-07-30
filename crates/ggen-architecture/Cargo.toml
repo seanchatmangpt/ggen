@@ -1,19 +1,18 @@
 [package]
 name = "ggen-architecture"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "26.7.30"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 description = "Pure deterministic Fortune 5 enterprise-architecture kernel: lifecycle, dependency closure, SLOs, capacity, multi-region, identity, KMS, observability, autonomic intents, and receipts."
 keywords = ["enterprise-architecture", "slo", "spiffe", "kms", "autonomic"]
 categories = ["development-tools"]
 publish = false
 
 [dependencies]
-blake3 = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
+blake3 = "1.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
 
-[lints]
-workspace = true
+[workspace]
