@@ -1,0 +1,53 @@
+# MESSAGE: names, orders, output paths, and proof identifiers must be unique within their ownership boundary; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?design a cmd:DesignSpace ; cmd:hasDimension ?subject, ?other .
+    ?subject cmd:name ?name .
+    ?other cmd:name ?name .
+    FILTER(?subject != ?other)
+    BIND("duplicate-dimension-name" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasDimension ?subject, ?other .
+    ?subject cmd:order ?order .
+    ?other cmd:order ?order .
+    FILTER(?subject != ?other)
+    BIND("duplicate-dimension-order" AS ?violation)
+    BIND(STR(?order) AS ?detail)
+  } UNION {
+    ?dimension a cmd:Dimension ; cmd:hasOption ?subject, ?other .
+    ?subject cmd:name ?name .
+    ?other cmd:name ?name .
+    FILTER(?subject != ?other)
+    BIND("duplicate-option-name-in-dimension" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?subject, ?other .
+    ?subject cmd:name ?name .
+    ?other cmd:name ?name .
+    FILTER(?subject != ?other)
+    BIND("duplicate-candidate-name" AS ?violation)
+    BIND(STR(?name) AS ?detail)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?subject, ?other .
+    ?subject cmd:outputRelativePath ?path .
+    ?other cmd:outputRelativePath ?path .
+    FILTER(?subject != ?other)
+    BIND("duplicate-candidate-output-path" AS ?violation)
+    BIND(STR(?path) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:outputRelativePath ?path .
+    FILTER(STRSTARTS(STR(?path), "/") || CONTAINS(STR(?path), "..") || CONTAINS(STR(?path), "\\"))
+    BIND("candidate-output-must-be-safe-relative-path" AS ?violation)
+    BIND(STR(?path) AS ?detail)
+  } UNION {
+    ?left a cmd:ProofObligation ; cmd:proofId ?id .
+    ?right a cmd:ProofObligation ; cmd:proofId ?id .
+    FILTER(?left != ?right)
+    BIND(?left AS ?subject)
+    BIND("duplicate-proof-id" AS ?violation)
+    BIND(STR(?id) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

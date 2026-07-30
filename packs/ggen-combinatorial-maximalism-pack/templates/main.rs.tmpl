@@ -1,0 +1,80 @@
+---
+to: generated/cmd-cell/src/main.rs
+force: true
+sh_after: rustfmt generated/cmd-cell/src/main.rs
+sparql:
+  design: |
+    PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+    SELECT ?crate_name ?binary_name WHERE {
+      ?design a cmd:DesignSpace ; cmd:crateName ?crate_name ; cmd:binaryName ?binary_name .
+    }
+    LIMIT 1
+---
+use serde_json::json;
+use std::env;
+use std::path::{Path, PathBuf};
+
+{% for d in design %}use {{ d.crate_name | snake_case }}::{validate_design, Broker, CmdError};
+{% endfor %}
+
+fn workspace() -> Result<PathBuf, CmdError> {
+    match env::var_os("CMD_WORKSPACE") {
+        Some(value) => Ok(PathBuf::from(value)),
+        None => env::current_dir().map_err(|error| CmdError {
+            code: "WORKSPACE_RESOLUTION_REFUSED",
+            detail: error.to_string(),
+        }),
+    }
+}
+
+fn execute(arguments: &[String]) -> Result<serde_json::Value, CmdError> {
+    match arguments {
+        [command] if command == "verify" => {
+            validate_design()?;
+            Ok(json!({
+                "status": "ALIVE",
+                "boundary": "construction-verifier",
+            }))
+        }
+        [command, candidate, payload] if command == "actuate" => {
+            let broker = Broker::new(workspace()?);
+            let receipt = broker.actuate(candidate, payload.as_bytes())?;
+            Ok(json!({
+                "status": "ACTUATED",
+                "candidate": candidate,
+                "receipt": receipt,
+            }))
+        }
+        [command, receipt] if command == "replay" => {
+            let broker = Broker::new(workspace()?);
+            broker.replay(Path::new(receipt))?;
+            Ok(json!({
+                "status": "REPLAY_VERIFIED",
+                "receipt": receipt,
+            }))
+        }
+        _ => Err(CmdError {
+            code: "USAGE_REFUSED",
+            detail: "usage: verify | actuate <candidate> <payload> | replay <receipt-path>"
+                .to_owned(),
+        }),
+    }
+}
+
+fn main() {
+    let arguments: Vec<String> = env::args().skip(1).collect();
+    match execute(&arguments) {
+        Ok(value) => println!("{value}"),
+        Err(error) => {
+            eprintln!(
+                "{}",
+                json!({
+                    "status": "REFUSED",
+                    "code": error.code,
+                    "detail": error.detail,
+                })
+            );
+            std::process::exit(2);
+        }
+    }
+}

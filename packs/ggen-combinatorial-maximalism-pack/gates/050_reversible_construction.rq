@@ -1,0 +1,15 @@
+# MESSAGE: the graph-domain construction space may contain only explicitly reversible options; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation WHERE {
+  ?design a cmd:DesignSpace ; cmd:hasDimension ?dimension .
+  ?dimension cmd:hasOption ?subject .
+  {
+    FILTER NOT EXISTS { ?subject cmd:reversible true }
+    BIND("irreversible-option-in-construction-domain" AS ?violation)
+  } UNION {
+    ?subject cmd:resourceCost ?cost .
+    FILTER(?cost < 0)
+    BIND("negative-resource-cost" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

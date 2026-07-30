@@ -1,0 +1,63 @@
+name: Combinatorial Maximalism pack
+
+on:
+  pull_request:
+    paths:
+      - 'packs/ggen-combinatorial-maximalism-pack/**'
+      - 'examples/combinatorial-maximalism/**'
+      - 'scripts/validate_combinatorial_maximalism_pack.py'
+      - 'scripts/verify-combinatorial-maximalism-pack.sh'
+      - 'docs/how-to/combinatorial-maximalism-pack.md'
+      - '.github/workflows/combinatorial-maximalism-pack.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packs/ggen-combinatorial-maximalism-pack/**'
+      - 'examples/combinatorial-maximalism/**'
+      - 'scripts/validate_combinatorial_maximalism_pack.py'
+      - 'scripts/verify-combinatorial-maximalism-pack.sh'
+      - 'docs/how-to/combinatorial-maximalism-pack.md'
+      - '.github/workflows/combinatorial-maximalism-pack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  manufacture-verify-replay:
+    name: Manufacture, actuate, receipt, replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision sibling crates and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: combinatorial-maximalism-pack
+
+      - name: Execute the full CMD verifier ladder
+        run: bash scripts/verify-combinatorial-maximalism-pack.sh
+
+      - name: Publish generated plan and execution receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: combinatorial-maximalism-receipts
+          path: |
+            examples/combinatorial-maximalism/generated/cmd-plan.json
+            examples/combinatorial-maximalism/generated/CMD_REPORT.md
+            examples/combinatorial-maximalism/generated/evidence
+            examples/combinatorial-maximalism/.ggen-v2/receipt.json
+            examples/combinatorial-maximalism/.ggen-v2/receipt-log.jsonl

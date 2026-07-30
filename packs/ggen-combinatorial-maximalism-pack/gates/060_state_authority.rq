@@ -1,0 +1,32 @@
+# MESSAGE: candidate, verified, authorized, and actuated states must remain distinct; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:Candidate ; cmd:standing ?standing .
+    FILTER(STR(?standing) NOT IN ("CANDIDATE", "VERIFIED"))
+    BIND("unsupported-construction-standing" AS ?violation)
+    BIND(STR(?standing) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:standing "CANDIDATE" ; cmd:authorizedBy ?authority .
+    BIND("candidate-prematurely-authorized" AS ?violation)
+    BIND(STR(?authority) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:authorizedBy ?authority .
+    FILTER NOT EXISTS { ?subject cmd:standing "VERIFIED" }
+    BIND("authorization-without-verification" AS ?violation)
+    BIND(STR(?authority) AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:standing "VERIFIED" .
+    FILTER NOT EXISTS {
+      ?subject cmd:requiresProof ?proof .
+      ?proof a cmd:ProofObligation ; cmd:proofStatus "SATISFIED" .
+    }
+    BIND("verified-candidate-without-satisfied-proof" AS ?violation)
+    BIND("VERIFIED requires at least one SATISFIED proof obligation" AS ?detail)
+  } UNION {
+    ?subject a cmd:Candidate ; cmd:standing "ACTUATED" .
+    BIND("actuated-standing-forbidden-in-construction-graph" AS ?violation)
+    BIND("ACTUATED standing belongs only to a runtime receipt" AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

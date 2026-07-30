@@ -1,0 +1,10 @@
+[pack]
+name = "ggen-combinatorial-maximalism-pack"
+version = "26.7.29"
+description = """
+Constitutional manufacturing pack for Design for Combinatorial Maximalism (CMD).
+It admits bounded reversible design spaces, refuses premature or unreceipted
+actuation, manufactures an executable Rust broker and verifier, and proves
+coverage, authority separation, filesystem actuation, BLAKE3 receipts, replay,
+and byte-identical regeneration through a real consumer.
+"""

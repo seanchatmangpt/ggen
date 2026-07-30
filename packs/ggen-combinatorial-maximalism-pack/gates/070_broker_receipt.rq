@@ -1,0 +1,31 @@
+# MESSAGE: every irreversible mutation must route through one BLAKE3 exact-output broker with receiptRequired=true; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:Broker ; cmd:receiptAlgorithm ?algorithm .
+    FILTER(LCASE(STR(?algorithm)) != "blake3")
+    BIND("unsupported-receipt-algorithm" AS ?violation)
+    BIND(STR(?algorithm) AS ?detail)
+  } UNION {
+    ?subject a cmd:Broker ; cmd:replayMode ?mode .
+    FILTER(STR(?mode) != "exact-output")
+    BIND("broker-replay-must-be-exact-output" AS ?violation)
+    BIND(STR(?mode) AS ?detail)
+  } UNION {
+    ?subject a cmd:Broker ; cmd:rootPath ?root .
+    FILTER(STRSTARTS(STR(?root), "/") || CONTAINS(STR(?root), "..") || CONTAINS(STR(?root), "\\"))
+    BIND("broker-root-must-be-safe-relative-path" AS ?violation)
+    BIND(STR(?root) AS ?detail)
+  } UNION {
+    ?subject a cmd:ActuationContract ; cmd:receiptRequired ?required .
+    FILTER(?required != true)
+    BIND("actuation-must-require-receipt" AS ?violation)
+    BIND(STR(?required) AS ?detail)
+  } UNION {
+    ?subject a cmd:ActuationContract ; cmd:fromCandidate ?candidate .
+    FILTER NOT EXISTS { ?candidate cmd:standing "VERIFIED" ; cmd:authorizedBy ?authority }
+    BIND("actuation-candidate-not-verified-and-authorized" AS ?violation)
+    BIND(STR(?candidate) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Static ownership and constitutional checks for the CMD pack source surface."""
+
+from __future__ import annotations
+
+import re
+import sys
+import tomllib
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PACK = ROOT / "packs/ggen-combinatorial-maximalism-pack"
+CONSUMER = ROOT / "examples/combinatorial-maximalism"
+EXPECTED_GATES = [
+    "010_required.rq",
+    "020_single_valued.rq",
+    "030_graph_closure.rq",
+    "040_candidate_totality.rq",
+    "050_reversible_construction.rq",
+    "060_state_authority.rq",
+    "070_broker_receipt.rq",
+    "080_hook_intent_only.rq",
+    "090_coverage_bounds.rq",
+    "100_unique_identity.rq",
+    "110_proof_closure.rq",
+    "120_actuation_closure.rq",
+]
+EXPECTED_OUTPUTS = {
+    "generated/cmd-cell/Cargo.toml",
+    "generated/cmd-cell/src/lib.rs",
+    "generated/cmd-cell/src/main.rs",
+    "generated/cmd-cell/tests/cmd_e2e.rs",
+    "generated/cmd-plan.json",
+    "generated/CMD_REPORT.md",
+}
+FORBIDDEN = ("TODO", "FIXME", "todo!", "unimplemented!", "mockall", "#[automock]")
+
+
+def refuse(condition: bool, code: str) -> None:
+    if condition:
+        print(code, file=sys.stderr)
+        raise SystemExit(1)
+
+
+def main() -> int:
+    pack = tomllib.loads((PACK / "pack.toml").read_text(encoding="utf-8"))
+    refuse(pack["pack"]["name"] != "ggen-combinatorial-maximalism-pack", "PACK_IDENTITY_REFUSED")
+
+    gates = sorted(path.name for path in (PACK / "gates").glob("*.rq"))
+    refuse(gates != EXPECTED_GATES, f"GATE_SET_REFUSED:{gates}")
+    for gate_name in gates:
+        text = (PACK / "gates" / gate_name).read_text(encoding="utf-8")
+        refuse(not text.startswith("# MESSAGE:"), f"GATE_MESSAGE_MISSING:{gate_name}")
+        refuse("SELECT" not in text or "?violation" not in text, f"GATE_RESULT_CONTRACT_REFUSED:{gate_name}")
+
+    outputs: dict[str, str] = {}
+    for template in sorted((PACK / "templates").glob("*.tmpl")):
+        text = template.read_text(encoding="utf-8")
+        match = re.search(r"(?m)^to:\s*([^\n]+)$", text)
+        refuse(match is None, f"TEMPLATE_OUTPUT_MISSING:{template.name}")
+        output = match.group(1).strip().strip('"')
+        refuse(output in outputs, f"DUPLICATE_OUTPUT_OWNER:{output}:{outputs.get(output)}:{template.name}")
+        outputs[output] = template.name
+        for forbidden in FORBIDDEN:
+            refuse(forbidden in text, f"FORBIDDEN_TEMPLATE_SURFACE:{template.name}:{forbidden}")
+    refuse(set(outputs) != EXPECTED_OUTPUTS, f"OUTPUT_SET_REFUSED:{sorted(outputs)}")
+
+    ontology = (PACK / "ontology.ttl").read_text(encoding="utf-8")
+    for term in ("cmd:DesignSpace", "cmd:Candidate", "cmd:Broker", "cmd:ActuationContract", "cmd:Receipt"):
+        refuse(term not in ontology, f"CONSTITUTIONAL_TERM_MISSING:{term}")
+    for public_mapping in ("rdfs:subClassOf", "rdfs:subPropertyOf", "prov:", "odrl:", "dcat:", "skos:"):
+        refuse(public_mapping not in ontology, f"PUBLIC_MAPPING_MISSING:{public_mapping}")
+
+    consumer_files = sorted(path.name for path in CONSUMER.iterdir() if path.is_file())
+    refuse(consumer_files != ["ggen.toml", "ontology.ttl"], f"CONSUMER_AUTHORED_SURFACE_REFUSED:{consumer_files}")
+    consumer = (CONSUMER / "ontology.ttl").read_text(encoding="utf-8")
+    refuse(consumer.count("a cmd:Dimension") != 2, "SPECIMEN_DIMENSION_COUNT_REFUSED")
+    refuse(consumer.count("a cmd:Candidate") != 4, "SPECIMEN_CANDIDATE_COUNT_REFUSED")
+    refuse('cmd:coverageMode "exhaustive"' not in consumer, "SPECIMEN_COVERAGE_REFUSED")
+    refuse('cmd:receiptAlgorithm "blake3"' not in consumer, "SPECIMEN_RECEIPT_REFUSED")
+    refuse('cmd:replayMode "exact-output"' not in consumer, "SPECIMEN_REPLAY_REFUSED")
+    refuse('cmd:directlyActuates' in consumer, "HOOK_ACTUATION_COLLAPSE_REFUSED")
+
+    print("combinatorial-maximalism-pack-static-contract: GREEN")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
