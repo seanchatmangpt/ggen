@@ -1,0 +1,17 @@
+# MESSAGE: Gall capability contract is incomplete -- every gall:Capability must have capabilityId and title
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?capability ?capabilityId ?missing WHERE {
+  ?capability a gall:Capability .
+  OPTIONAL { ?capability gall:capabilityId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?capability)) AS ?capabilityId)
+  {
+    FILTER NOT EXISTS { ?capability gall:capabilityId ?value }
+    BIND("gall:capabilityId" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?capability gall:title ?value }
+    BIND("gall:title" AS ?missing)
+  }
+}
+ORDER BY ?capabilityId ?missing
