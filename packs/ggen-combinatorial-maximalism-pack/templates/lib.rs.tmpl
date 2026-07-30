@@ -1,7 +1,6 @@
 ---
 to: generated/cmd-cell/src/lib.rs
 force: true
-sh_after: rustfmt generated/cmd-cell/src/lib.rs
 sparql:
   design: |
     PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
@@ -154,14 +153,14 @@ const OPTIONS: &[OptionSpec] = &[
         dimension: {{ option.dimension_name | json_encode | safe }},
         name: {{ option.option_name | json_encode | safe }},
         reversible: {{ option.reversible }},
-        resource_cost: {{ option.resource_cost }},
+        resource_cost: {{ option.resource_cost }}f64,
     },
 {% endfor %}];
 
 const CANDIDATES: &[CandidateSpec] = &[
 {% for candidate in candidates %}    CandidateSpec {
         name: {{ candidate.candidate_name | json_encode | safe }},
-        standing: Standing::{{ candidate.standing | pascal_case }},
+        standing: {% if candidate.standing == "VERIFIED" %}Standing::Verified{% else %}Standing::Candidate{% endif %},
         authority: {% if candidate.authority %}Some({{ candidate.authority | json_encode | safe }}){% else %}None{% endif %},
         output_path: {{ candidate.output_path | json_encode | safe }},
     },
