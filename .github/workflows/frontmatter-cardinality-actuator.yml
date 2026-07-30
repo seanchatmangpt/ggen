@@ -1,0 +1,624 @@
+name: Frontmatter cardinality actuator
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: frontmatter-cardinality-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  implement-and-verify:
+    if: github.head_ref == 'agent/frontmatter-maximalism'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Provision siblings and pinned toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt
+          cache-key-suffix: frontmatter-cardinality
+
+      - name: Apply explicit cardinality checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: expected exactly one replacement, found {count}")
+              p.write_text(text.replace(old, new, 1))
+
+          # Closed schema: add one explicit cardinality property.
+          replace_once(
+              "crates/ggen-engine/src/template.rs",
+              '''    #[serde(default, deserialize_with = "sparql_map")]
+              pub sparql: BTreeMap<String, String>,
+              /// Optional CONSTRUCT query whose result feeds the template.
+          ''',
+              '''    #[serde(default, deserialize_with = "sparql_map")]
+              pub sparql: BTreeMap<String, String>,
+              /// Explicit named `sparql:` result that governs projection cardinality.
+              /// When set, dynamic `to:` paths fan out once per row; static paths
+              /// aggregate one body rendering per row into a single output. When
+              /// absent, the historical first-array/`to`-contains-`{{` behavior is
+              /// preserved exactly.
+              #[serde(default)]
+              pub for_each: Option<String>,
+              /// Optional CONSTRUCT query whose result feeds the template.
+          ''')
+          replace_once(
+              "crates/ggen-engine/src/template.rs",
+              '''Remediation: use only the closed key set (to, sparql, construct, \\
+                               inject, before, after, at_line, skip_if, unless_exists, force, \\
+          ''',
+              '''Remediation: use only the closed key set (to, sparql, for_each, construct, \\
+                               inject, before, after, at_line, skip_if, unless_exists, force, \\
+          ''')
+
+          # Machine-readable schema stays exact with the Rust struct.
+          replace_once(
+              "crates/ggen-engine/schema/frontmatter-schema.ttl",
+              '''        ggenspec:Frontmatter-sparql ,
+                      ggenspec:Frontmatter-construct ,
+          ''',
+              '''        ggenspec:Frontmatter-sparql ,
+                      ggenspec:Frontmatter-for_each ,
+                      ggenspec:Frontmatter-construct ,
+          ''')
+          replace_once(
+              "crates/ggen-engine/schema/frontmatter-schema.ttl",
+              '''ggenspec:Frontmatter-construct
+              ''',
+              '''ggenspec:Frontmatter-for_each
+                  a ggenspec:Field ; ggenspec:name "for_each" ; ggenspec:type xsd:string ;
+                  ggenspec:required false ;
+                  rdfs:comment "Explicit named sparql result governing projection cardinality. Dynamic to paths fan out per row; static paths aggregate row-rendered bodies. Defaults to absent, preserving historical implicit driver behavior." .
+
+              ggenspec:Frontmatter-construct
+              ''')
+
+          sync_path = Path("crates/ggen-engine/src/sync.rs")
+          sync = sync_path.read_text()
+
+          # Projection modes make determinism aware of aggregate rendering.
+          marker = '''struct PendingWrite {
+              to: String,
+              body: String,
+              frontmatter: Frontmatter,
+          }
+          '''
+          if sync.count(marker) != 1:
+              raise SystemExit("sync.rs: PendingWrite marker drifted")
+          sync = sync.replace(marker, marker + '''
+          #[derive(Debug, Clone, Copy)]
+          enum ProjectionMode {
+              Whole,
+              Row(usize),
+              Aggregate,
+          }
+          ''', 1)
+
+          # Explicit driver selection; absent preserves first-array behavior.
+          old = '''    // Driving rows: the first named query (BTreeMap key order) with an
+              // array result; empty when no SELECT produced rows.
+              let results: Vec<Value> = named
+                  .values()
+                  .find_map(|v| v.as_array().cloned())
+                  .unwrap_or_default();
+              Ok(Some((named, results)))
+          '''
+          new = '''    let results: Vec<Value> = if let Some(driver) = frontmatter.for_each.as_deref() {
+                  let value = named.get(driver).ok_or_else(|| {
+                      AppError::fm_tpl(
+                          19,
+                          format!(
+                              "{}: `for_each: {driver}` does not name a declared `sparql:` result. \\
+                               Remediation: add that named query or correct `for_each`.",
+                              tpl_path.display()
+                          ),
+                      )
+                  })?;
+                  value.as_array().cloned().ok_or_else(|| {
+                      AppError::fm_tpl(
+                          19,
+                          format!(
+                              "{}: `for_each: {driver}` must name an array-valued SELECT/graph result, \\
+                               but that query returned {}. Remediation: point `for_each` at a SELECT \\
+                               result that yields the intended projection rows.",
+                              tpl_path.display(),
+                              value_type_name(value)
+                          ),
+                      )
+                  })?
+              } else {
+                  // Historical compatibility: the first named query in BTreeMap key
+                  // order with an array result remains the implicit driving row set.
+                  named
+                      .values()
+                      .find_map(|v| v.as_array().cloned())
+                      .unwrap_or_default()
+              };
+              Ok(Some((named, results)))
+          '''
+          if sync.count(old) != 1:
+              raise SystemExit("sync.rs: driver selection block drifted")
+          sync = sync.replace(old, new, 1)
+
+          # Shared row context helper.
+          old = '''fn base_context(named: &BTreeMap<String, Value>, results: &[Value]) -> tera::Context {
+              let mut ctx = tera::Context::new();
+              ctx.insert("results", results);
+              for (k, v) in named {
+                  ctx.insert(k, v);
+              }
+              ctx
+          }
+          '''
+          new = old + '''
+          fn row_context(
+              named: &BTreeMap<String, Value>, results: &[Value], row: &Value,
+          ) -> tera::Context {
+              let mut ctx = base_context(named, results);
+              ctx.insert("row", row);
+              if let Value::Object(map) = row {
+                  for (k, v) in map {
+                      ctx.insert(k, v);
+                  }
+              }
+              ctx
+          }
+          '''
+          if sync.count(old) != 1:
+              raise SystemExit("sync.rs: base_context block drifted")
+          sync = sync.replace(old, new, 1)
+
+          # Aggregate row bodies for static targets, while refusing row-varying
+          # lifecycle law that cannot honestly govern one output.
+          marker = '''    Ok(rendered)
+          }
+
+          /// Summarize a Tera context's top-level keys'''
+          aggregate_helper = '''    Ok(rendered)
+          }
+
+          fn render_aggregate_projection(
+              tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
+              frontmatter: &Frontmatter, named: &BTreeMap<String, Value>, results: &[Value],
+          ) -> Result<Option<(String, Frontmatter)>> {
+              if results.is_empty() {
+                  return Ok(None);
+              }
+              let mut body = String::new();
+              let mut canonical_frontmatter: Option<Frontmatter> = None;
+              for (row_index, row) in results.iter().enumerate() {
+                  let ctx = row_context(named, results, row);
+                  body.push_str(&render_str(tera, body_template, &ctx, tpl_path)?);
+                  let candidate = render_output_frontmatter(
+                      tera,
+                      frontmatter,
+                      &ctx,
+                      tpl_path,
+                      &frontmatter.to,
+                  )?;
+                  if let Some(expected) = &canonical_frontmatter {
+                      if expected != &candidate {
+                          return Err(AppError::fm_tpl(
+                              20,
+                              format!(
+                                  "{}: static `to:` with `for_each` produced row-varying output-phase \\
+                                   frontmatter at row {row_index}. One target must have one composition, \\
+                                   hook, shape, and ownership law. Remediation: make those properties \\
+                                   invariant across rows or include a row binding in `to:` to fan out.",
+                                  tpl_path.display()
+                              ),
+                          ));
+                      }
+                  } else {
+                      canonical_frontmatter = Some(candidate);
+                  }
+              }
+              Ok(canonical_frontmatter.map(|frontmatter| (body, frontmatter)))
+          }
+
+          /// Summarize a Tera context's top-level keys'''
+          if sync.count(marker) != 1:
+              raise SystemExit("sync.rs: aggregate helper insertion marker drifted")
+          sync = sync.replace(marker, aggregate_helper, 1)
+
+          # Replace render/cardinality branch.
+          start = sync.index('        let per_row = tpl.frontmatter.to.contains("{{");')
+          end = sync.index('    // `[templates] aggregate_modules = true`', start)
+          old_block = sync[start:end]
+          new_block = '''        let fan_out = tpl.frontmatter.to.contains("{{");
+                  let explicit_driver = tpl.frontmatter.for_each.is_some();
+                  if explicit_driver && !fan_out {
+                      let Some((body, frontmatter)) = render_aggregate_projection(
+                          active_tera,
+                          &tpl.body,
+                          tpl_path,
+                          &tpl.frontmatter,
+                          &named,
+                          &results,
+                      )? else {
+                          continue;
+                      };
+                      check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+                      check_determinism(
+                          active_tera,
+                          &tpl.body,
+                          tpl_path,
+                          &tpl.frontmatter,
+                          determinism_recheck.as_ref(),
+                          ProjectionMode::Aggregate,
+                          &body,
+                          &frontmatter,
+                      )?;
+                      pending.push(PendingWrite {
+                          to: tpl.frontmatter.to.clone(),
+                          body,
+                          frontmatter,
+                      });
+                  } else if fan_out {
+                      for (row_index, row) in results.iter().enumerate() {
+                          let ctx = row_context(&named, &results, row);
+                          let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
+                          let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+                          let frontmatter = render_output_frontmatter(
+                              active_tera,
+                              &tpl.frontmatter,
+                              &ctx,
+                              tpl_path,
+                              &to,
+                          )?;
+                          check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+                          check_determinism(
+                              active_tera,
+                              &tpl.body,
+                              tpl_path,
+                              &tpl.frontmatter,
+                              determinism_recheck.as_ref(),
+                              ProjectionMode::Row(row_index),
+                              &body,
+                              &frontmatter,
+                          )?;
+                          pending.push(PendingWrite {
+                              to,
+                              body,
+                              frontmatter,
+                          });
+                      }
+                  } else {
+                      let ctx = base_context(&named, &results);
+                      let to = tpl.frontmatter.to.clone();
+                      let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
+                      let frontmatter =
+                          render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
+                      check_shape_files_exist(root, tpl_path, &frontmatter.shape)?;
+                      check_determinism(
+                          active_tera,
+                          &tpl.body,
+                          tpl_path,
+                          &tpl.frontmatter,
+                          determinism_recheck.as_ref(),
+                          ProjectionMode::Whole,
+                          &body,
+                          &frontmatter,
+                      )?;
+                      pending.push(PendingWrite {
+                          to,
+                          body,
+                          frontmatter,
+                      });
+                  }
+              }
+
+          '''
+          sync = sync[:start] + new_block + sync[end:]
+
+          # Aggregator literal must initialize the new closed field.
+          needle = '''                sparql: BTreeMap::new(),
+                          construct: None,
+          '''
+          if sync.count(needle) != 1:
+              raise SystemExit("sync.rs: aggregator initializer drifted")
+          sync = sync.replace(
+              needle,
+              '''                sparql: BTreeMap::new(),
+                          for_each: None,
+                          construct: None,
+          ''',
+              1,
+          )
+
+          # Determinism replays the same whole/row/aggregate projection mode.
+          start = sync.index('/// When `frontmatter.determinism == Some(true)`')
+          end = sync.index('/// Recursively collect `*.tmpl` files.', start)
+          new_determinism = r'''/// When `frontmatter.determinism == Some(true)`, independently re-run
+          /// extraction and reproduce the same whole, row-fanout, or static aggregate
+          /// projection. Query order, output bytes, paths, and lifecycle law are all
+          /// part of the assertion.
+          #[allow(clippy::too_many_arguments)]
+          fn check_determinism(
+              tera: &mut tera::Tera, body_template: &str, tpl_path: &Path,
+              frontmatter: &crate::template::Frontmatter, determinism_recheck: Option<&ExtractedRows>,
+              mode: ProjectionMode, first_render: &str, first_frontmatter: &Frontmatter,
+          ) -> Result<()> {
+              let Some(recheck) = determinism_recheck else {
+                  return Ok(());
+              };
+              let Some((named2, results2)) = recheck else {
+                  return Err(AppError::fm_tpl(
+                      9,
+                      format!(
+                          "{}: `determinism: true` violated — re-running the `when:` guard a second, \
+                           independent time evaluated false after the first run evaluated true. \
+                           Remediation: remove non-deterministic terms from `when:`.",
+                          tpl_path.display()
+                      ),
+                  ));
+              };
+
+              let (second_render, second_frontmatter) = match mode {
+                  ProjectionMode::Whole => {
+                      let ctx = base_context(named2, results2);
+                      let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+                      let second_frontmatter =
+                          render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+                      let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+                      (second_render, second_frontmatter)
+                  }
+                  ProjectionMode::Row(idx) => {
+                      let row2 = results2.get(idx).ok_or_else(|| {
+                          AppError::fm_tpl(
+                              9,
+                              format!(
+                                  "{}: `determinism: true` violated — the second independent query \
+                                   execution produced {} row(s), which does not cover row index {idx}. \
+                                   Remediation: add a complete ORDER BY with a stable tie-break.",
+                                  tpl_path.display(),
+                                  results2.len()
+                              ),
+                          )
+                      })?;
+                      let ctx = row_context(named2, results2, row2);
+                      let second_to = render_str(tera, &frontmatter.to, &ctx, tpl_path)?;
+                      let second_frontmatter =
+                          render_output_frontmatter(tera, frontmatter, &ctx, tpl_path, &second_to)?;
+                      let second_render = render_str(tera, body_template, &ctx, tpl_path)?;
+                      (second_render, second_frontmatter)
+                  }
+                  ProjectionMode::Aggregate => render_aggregate_projection(
+                      tera,
+                      body_template,
+                      tpl_path,
+                      frontmatter,
+                      named2,
+                      results2,
+                  )?
+                  .ok_or_else(|| {
+                      AppError::fm_tpl(
+                          9,
+                          format!(
+                              "{}: `determinism: true` violated — the second independent `for_each` \
+                               execution produced zero rows after the first produced an aggregate output.",
+                              tpl_path.display()
+                          ),
+                      )
+                  })?,
+              };
+
+              if &second_frontmatter != first_frontmatter {
+                  return Err(AppError::fm_tpl(
+                      9,
+                      format!(
+                          "{}: `determinism: true` violated — the second independent execution \
+                           produced different path, cardinality, composition, hook, shape, or \
+                           ownership semantics.",
+                          tpl_path.display()
+                      ),
+                  ));
+              }
+              if second_render != first_render {
+                  return Err(AppError::fm_tpl(
+                      9,
+                      format!(
+                          "{}: `determinism: true` violated — the second independent execution \
+                           produced different output bytes.",
+                          tpl_path.display()
+                      ),
+                  ));
+              }
+              Ok(())
+          }
+
+          '''
+          sync = sync[:start] + new_determinism + sync[end:]
+          sync_path.write_text(sync)
+
+          # Real-boundary cardinality tests.
+          Path("crates/ggen-engine/tests/frontmatter_cardinality_e2e.rs").write_text(r'''//! Explicit frontmatter projection cardinality — real graph, Tera, filesystem,
+          //! determinism recheck, and refusal boundaries.
+
+          use std::path::Path;
+
+          use ggen_engine::sync::{sync, SyncOptions};
+          use tempfile::TempDir;
+
+          const GGEN_TOML: &str = r#"
+          [project]
+          name = "cardinality"
+
+          [ontology]
+          source = "ontology.ttl"
+
+          [templates]
+          dir = "templates"
+          "#;
+
+          const ONTOLOGY: &str = r#"
+          @prefix ex: <http://example.org/> .
+          ex:a ex:name "alpha" .
+          ex:z ex:name "zeta" .
+          ex:aux ex:aux "not-the-driver" .
+          "#;
+
+          fn scaffold(root: &Path) {
+              std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("manifest");
+              std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("ontology");
+              std::fs::create_dir_all(root.join("templates")).expect("templates");
+          }
+
+          fn template(root: &Path, source: &str) {
+              std::fs::write(root.join("templates/cardinality.tmpl"), source).expect("template");
+          }
+
+          fn run(root: &Path) -> ggen_engine::sync::SyncReport {
+              sync(root, SyncOptions::default()).expect("sync")
+          }
+
+          const QUERIES: &str = r#"
+          sparql:
+            00_aux: |
+              PREFIX ex: <http://example.org/>
+              SELECT ?aux WHERE { ?s ex:aux ?aux } ORDER BY ?aux
+            entities: |
+              PREFIX ex: <http://example.org/>
+              SELECT ?name WHERE { ?s ex:name ?name } ORDER BY ?name
+          for_each: entities
+          "#;
+
+          #[test]
+          fn explicit_driver_aggregates_static_target_in_row_order() {
+              let dir = TempDir::new().expect("tempdir");
+              scaffold(dir.path());
+              template(
+                  dir.path(),
+                  &format!(
+                      "---\nto: registry.txt\n{QUERIES}force: true\ndeterminism: true\n---\n{{{{ row.name }}}}\n"
+                  ),
+              );
+
+              let report = run(dir.path());
+              assert_eq!(
+                  std::fs::read_to_string(dir.path().join("registry.txt")).expect("output"),
+                  "alpha\nzeta\n"
+              );
+              assert_eq!(report.written, vec![std::path::PathBuf::from("registry.txt")]);
+          }
+
+          #[test]
+          fn explicit_driver_fans_out_dynamic_targets() {
+              let dir = TempDir::new().expect("tempdir");
+              scaffold(dir.path());
+              template(
+                  dir.path(),
+                  &format!(
+                      "---\nto: \"out/{{{{ row.name }}}}.txt\"\n{QUERIES}determinism: true\n---\n{{{{ row.name }}}}\n"
+                  ),
+              );
+
+              run(dir.path());
+              assert_eq!(
+                  std::fs::read_to_string(dir.path().join("out/alpha.txt")).expect("alpha"),
+                  "alpha\n"
+              );
+              assert_eq!(
+                  std::fs::read_to_string(dir.path().join("out/zeta.txt")).expect("zeta"),
+                  "zeta\n"
+              );
+          }
+
+          #[test]
+          fn missing_driver_refuses_before_hook_or_write() {
+              let dir = TempDir::new().expect("tempdir");
+              scaffold(dir.path());
+              template(
+                  dir.path(),
+                  "---\nto: out.txt\nsparql:\n  entities: SELECT ?name WHERE { ?s <http://example.org/name> ?name }\nfor_each: missing\nsh_before: \"echo ran > hook.log\"\n---\nbody\n",
+              );
+
+              let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse");
+              assert!(err.to_string().contains("FM-TPL-019"), "{err}");
+              assert!(!dir.path().join("hook.log").exists());
+              assert!(!dir.path().join("out.txt").exists());
+          }
+
+          #[test]
+          fn scalar_driver_refuses() {
+              let dir = TempDir::new().expect("tempdir");
+              scaffold(dir.path());
+              template(
+                  dir.path(),
+                  "---\nto: out.txt\nsparql:\n  enabled: ASK { ?s <http://example.org/name> ?name }\nfor_each: enabled\n---\nbody\n",
+              );
+
+              let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse");
+              assert!(err.to_string().contains("FM-TPL-019"), "{err}");
+          }
+
+          #[test]
+          fn static_aggregate_refuses_row_varying_lifecycle_law() {
+              let dir = TempDir::new().expect("tempdir");
+              scaffold(dir.path());
+              template(
+                  dir.path(),
+                  &format!(
+                      "---\nto: registry.txt\n{QUERIES}sh_after: \"echo {{{{ row.name }}}} >> hook.log\"\n---\n{{{{ row.name }}}}\n"
+                  ),
+              );
+
+              let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse");
+              assert!(err.to_string().contains("FM-TPL-020"), "{err}");
+              assert!(!dir.path().join("registry.txt").exists());
+              assert!(!dir.path().join("hook.log").exists());
+          }
+          ''')
+          PY
+
+      - name: Format and statically inspect
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          cargo fmt --all -- --check
+          git diff --check
+
+      - name: Execute explicit cardinality falsifiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p ggen-engine --test frontmatter_cardinality_e2e -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_schema_match -- --nocapture
+          cargo test -p ggen-engine --test frontmatter_maximalism_e2e -- --nocapture
+          cargo test -p ggen-engine --lib template::tests -- --nocapture
+
+      - name: Publish verified source and remove actuator
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/frontmatter-cardinality-actuator.yml
+          git config user.name "ggen frontmatter actuator"
+          git config user.email "actions@github.com"
+          git add crates/ggen-engine/src/template.rs \
+                  crates/ggen-engine/src/sync.rs \
+                  crates/ggen-engine/schema/frontmatter-schema.ttl \
+                  crates/ggen-engine/tests/frontmatter_cardinality_e2e.rs \
+                  .github/workflows/frontmatter-cardinality-actuator.yml
+          git commit -m "feat(engine): add explicit projection cardinality"
+          git push origin HEAD:agent/frontmatter-maximalism
