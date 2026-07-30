@@ -1,0 +1,8 @@
+# ggen v26.7.31 Automatic + Autonomic Capability Matrix
+
+| # | Capability | Category | Level-5 outcome | Named falsifier |
+|---:|---|---|---|---|
+{% for row in results %}| {{ row["order"] }} | `{{ row["slug"] }}` | {{ row["category"] }} | {{ row["outcome"] }} | {{ row["falsifier"] }} |
+{% endfor %}
+
+Crown: **15 capabilities × 3 proof surfaces = 45 obligations**.
