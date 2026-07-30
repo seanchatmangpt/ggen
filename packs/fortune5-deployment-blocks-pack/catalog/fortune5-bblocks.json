@@ -2,21 +2,9 @@
   "schema": "ggen.bblock.catalog.v1",
   "version": "26.7.30",
   "providers": [
-    {
-      "id": "aws",
-      "title": "Amazon Web Services",
-      "aliases": ["amazon", "amazon-web-services"]
-    },
-    {
-      "id": "azure",
-      "title": "Microsoft Azure",
-      "aliases": ["microsoft-azure"]
-    },
-    {
-      "id": "gcp",
-      "title": "Google Cloud Platform",
-      "aliases": ["gpc", "google-cloud", "google-cloud-platform"]
-    }
+    {"id": "aws", "title": "Amazon Web Services", "aliases": ["amazon", "amazon-web-services"]},
+    {"id": "azure", "title": "Microsoft Azure", "aliases": ["microsoft-azure"]},
+    {"id": "gcp", "title": "Google Cloud Platform", "aliases": ["gpc", "google-cloud", "google-cloud-platform"]}
   ],
   "groups": [
     {
@@ -208,7 +196,11 @@
       "directory": "infrastructure/foundation",
       "dependencies": ["global-network", "workload-identity", "encryption-kms", "observability", "policy-governance"],
       "common_packs": ["fortune5-foundation-crown-pack"],
-      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+      "provider_packs": {
+        "aws": ["aws-fortune5-foundation-pack"],
+        "azure": ["azure-fortune5-foundation-pack"],
+        "gcp": ["gcp-fortune5-foundation-pack"]
+      }
     },
     {
       "id": "fortune5-platform",
@@ -217,7 +209,11 @@
       "directory": "infrastructure/platform",
       "dependencies": ["fortune5-foundation", "container-runtime", "serverless-compute", "transaction-data", "object-storage", "event-fabric", "artifact-registry", "edge-delivery", "resilience-dr", "evidence-ledger"],
       "common_packs": ["fortune5-platform-crown-pack"],
-      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+      "provider_packs": {
+        "aws": ["aws-fortune5-platform-pack"],
+        "azure": ["azure-fortune5-platform-pack"],
+        "gcp": ["gcp-fortune5-platform-pack"]
+      }
     },
     {
       "id": "fortune5-control-plane",
@@ -226,7 +222,11 @@
       "directory": "infrastructure/control-plane",
       "dependencies": ["fortune5-foundation", "evidence-ledger"],
       "common_packs": ["fortune5-architecture-pack", "gall-core-pack", "fortune5-brce-contract-pack", "fortune5-level5-crown-pack", "fortune5-dflss-pack", "fortune5-workflow-patterns-pack"],
-      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+      "provider_packs": {
+        "aws": ["aws-fortune5-control-plane-pack"],
+        "azure": ["azure-fortune5-control-plane-pack"],
+        "gcp": ["gcp-fortune5-control-plane-pack"]
+      }
     },
     {
       "id": "fortune5-complete",
@@ -235,7 +235,11 @@
       "directory": "infrastructure/fortune5",
       "dependencies": ["fortune5-platform", "fortune5-control-plane"],
       "common_packs": ["fortune5-complete-crown-pack"],
-      "provider_packs": {"aws": [], "azure": [], "gcp": []}
+      "provider_packs": {
+        "aws": ["aws-fortune5-complete-pack"],
+        "azure": ["azure-fortune5-complete-pack"],
+        "gcp": ["gcp-fortune5-complete-pack"]
+      }
     }
   ]
 }
