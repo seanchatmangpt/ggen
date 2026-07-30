@@ -46,20 +46,20 @@ jobs:
 
       - name: Expand admitted payload
         run: |
-          cat .github/bblock-bootstrap/payload.* > .bblock-payload.b64
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
-          Path('.bblock-payload.tar.gz').write_bytes(base64.b64decode(Path('.bblock-payload.b64').read_bytes()))
-          PY
-          tar -xzf .bblock-payload.tar.gz -C .
-          cat .github/bblock-bootstrap/script.* > .bblock-bootstrap.sh.gz.b64
           python3 - <<'PY'
           import base64, gzip
           from pathlib import Path
-          compressed = base64.b64decode(Path('.bblock-bootstrap.sh.gz.b64').read_bytes())
-          Path('.bblock-bootstrap.sh').write_bytes(gzip.decompress(compressed))
+
+          def decode_chunks(pattern: str) -> bytes:
+              text = ''.join(path.read_text(encoding='utf-8') for path in sorted(Path('.github/bblock-bootstrap').glob(pattern)))
+              text = ''.join(text.split())
+              text += '=' * (-len(text) % 4)
+              return base64.b64decode(text)
+
+          Path('.bblock-payload.tar.gz').write_bytes(decode_chunks('payload.*'))
+          Path('.bblock-bootstrap.sh').write_bytes(gzip.decompress(decode_chunks('script.*')))
           PY
+          tar -xzf .bblock-payload.tar.gz -C .
           chmod +x .bblock-bootstrap.sh
 
       - name: Implement, verify, and publish exact source
