@@ -17,12 +17,6 @@ def rustReceiptVerifier : String :=
   "    let end = tail.find('\\\"').ok_or_else(|| format!(\"unterminated string field: {key}\"))?;\n" ++
   "    Ok(tail[..end].to_owned())\n" ++
   "}\n\n" ++
-  "fn extract_u64(document: &str, key: &str) -> Result<u64, String> {\n" ++
-  "    let marker = format!(\"\\\"{key}\\\":\");\n" ++
-  "    let start = document.find(&marker).ok_or_else(|| format!(\"missing numeric field: {key}\"))? + marker.len();\n" ++
-  "    let digits: String = document[start..].chars().take_while(|character| character.is_ascii_digit()).collect();\n" ++
-  "    digits.parse::<u64>().map_err(|error| format!(\"invalid numeric field {key}: {error}\"))\n" ++
-  "}\n\n" ++
   "fn main() -> Result<(), String> {\n" ++
   "    let mut args = env::args().skip(1);\n" ++
   "    let execution_path = args.next().ok_or_else(|| \"execution receipt path required\".to_owned())?;\n" ++
@@ -32,9 +26,9 @@ def rustReceiptVerifier : String :=
   "    let expected_proof = blake3::hash(&proof).to_hex().to_string();\n" ++
   "    let observed_proof = extract_string(&execution, \"lean_proof_blake3\")?;\n" ++
   "    if observed_proof != expected_proof { return Err(\"LEAN_PROOF_DIGEST_MISMATCH\".to_owned()); }\n" ++
-  "    let scenario = extract_string(&execution, \"scenario\")?;\n" ++
-  "    let quorum_acks = extract_u64(&execution, \"quorum_acks\")?;\n" ++
-  "    let expected_region = regional_receipt_digest(&proof, &scenario, quorum_acks);\n" ++
+  "    let body_marker = \",\\\"lean_proof_blake3\\\":\\\"\";\n" ++
+  "    let body_end = execution.find(body_marker).ok_or_else(|| \"execution receipt body boundary missing\".to_owned())?;\n" ++
+  "    let expected_region = regional_receipt_digest(&proof, execution[..body_end].as_bytes());\n" ++
   "    let observed_region = extract_string(&execution, \"region_receipt_blake3\")?;\n" ++
   "    if observed_region != expected_region { return Err(\"REGION_RECEIPT_DIGEST_MISMATCH\".to_owned()); }\n" ++
   "    let mut receipt = String::from(\"{\\\"valid\\\":true,\\\"lean_proof_blake3\\\":\\\"\");\n" ++
