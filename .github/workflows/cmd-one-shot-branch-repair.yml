@@ -1,0 +1,82 @@
+name: CMD one-shot branch repair
+
+on:
+  push:
+    branches:
+      - agent/combinatorial-maximalism-pack
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: agent/combinatorial-maximalism-pack
+          fetch-depth: 0
+      - name: Apply exact production-parser and repository-fact repairs
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          template = Path('packs/ggen-combinatorial-maximalism-pack/templates/lib.rs.tmpl')
+          text = template.read_text()
+          replacements = {
+              '''SELECT ?title ?coverage_variant ?expected ?maximum WHERE {
+                ?design a cmd:DesignSpace ; dcterms:title ?title ; cmd:coverageMode ?coverage ;
+                        cmd:expectedCandidateCount ?expected ; cmd:maxCandidates ?maximum .
+                VALUES (?coverage ?coverage_variant) {
+                  ("exhaustive" "Exhaustive")
+                  ("pairwise" "Pairwise")
+                }
+              }''': '''SELECT ?title ?coverage ?expected ?maximum WHERE {
+                ?design a cmd:DesignSpace ; dcterms:title ?title ; cmd:coverageMode ?coverage ;
+                        cmd:expectedCandidateCount ?expected ; cmd:maxCandidates ?maximum .
+              }''',
+              '''SELECT ?candidate_name ?standing_variant
+                     (COALESCE(STR(?authority), "") AS ?authorized_by)
+                     ?output_path WHERE {
+                ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate .
+                ?candidate cmd:name ?candidate_name ; cmd:standing ?standing ; cmd:outputRelativePath ?output_path .
+                VALUES (?standing ?standing_variant) {
+                  ("CANDIDATE" "Candidate")
+                  ("VERIFIED" "Verified")
+                }
+                OPTIONAL { ?candidate cmd:authorizedBy ?authority }
+              }''': '''SELECT ?candidate_name ?standing
+                     (COALESCE(STR(?authority), "") AS ?authorized_by)
+                     ?output_path WHERE {
+                ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate .
+                ?candidate cmd:name ?candidate_name ; cmd:standing ?standing ; cmd:outputRelativePath ?output_path .
+                OPTIONAL { ?candidate cmd:authorizedBy ?authority }
+              }''',
+              'Standing::{{ candidate.standing_variant }}': 'Standing::{{ candidate.standing | pascal_case }}',
+              'CoverageMode::{{ d.coverage_variant }}': 'CoverageMode::{{ d.coverage | pascal_case }}',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'BRANCH_REPAIR_SOURCE_MISMATCH: {old[:80]!r}')
+              text = text.replace(old, new, 1)
+          template.write_text(text)
+
+          facts = Path('.specify/repo-facts.ttl')
+          facts_text = facts.read_text()
+          old_fact = 'rf:packCount "43"'
+          new_fact = 'rf:packCount "44"'
+          if facts_text.count(old_fact) != 1:
+              raise SystemExit('PACK_COUNT_SOURCE_MISMATCH')
+          facts.write_text(facts_text.replace(old_fact, new_fact, 1))
+
+          workflow = Path('.github/workflows/cmd-one-shot-branch-repair.yml')
+          workflow.unlink()
+          PY
+      - name: Commit the repaired branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add packs/ggen-combinatorial-maximalism-pack/templates/lib.rs.tmpl .specify/repo-facts.ttl .github/workflows/cmd-one-shot-branch-repair.yml
+          git commit -m 'fix(cmd): admit production SPARQL and pack inventory'
+          git push origin HEAD:agent/combinatorial-maximalism-pack
