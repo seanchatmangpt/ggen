@@ -1,0 +1,40 @@
+@prefix lr:      <https://chatmangpt.com/ontology/lean4-rust#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+lr:Pipeline a rdfs:Class ;
+    rdfs:label "ggen-first Lean 4 to Rust pipeline" ;
+    rdfs:subClassOf prov:Activity .
+
+lr:LeanProofProgram a rdfs:Class ;
+    rdfs:label "Lean proof and Rust emitter" ;
+    rdfs:subClassOf prov:Entity .
+
+lr:RustArtifact a rdfs:Class ;
+    rdfs:label "Rust artifact emitted by an admitted Lean program" ;
+    rdfs:subClassOf prov:Entity .
+
+lr:ProofReceipt a rdfs:Class ;
+    rdfs:label "Lean proof admission receipt" ;
+    rdfs:subClassOf prov:Entity .
+
+lr:ExecutionReceipt a rdfs:Class ;
+    rdfs:label "Rust execution receipt bound to a Lean proof receipt" ;
+    rdfs:subClassOf prov:Entity .
+
+lr:crateName a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:identifier .
+lr:rustFunctionName a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:identifier .
+lr:leanToolchain a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:requires .
+lr:bound a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:witnessInput a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:witnessOutput a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:nonNegativeInteger .
+lr:proofTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:references .
+lr:witnessTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:references .
+lr:fixedPointTheorem a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:references .
+lr:receiptAlgorithm a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range xsd:string ; rdfs:subPropertyOf dcterms:format .
+lr:manufactures a rdf:Property ; rdfs:domain lr:Pipeline ; rdfs:range prov:Entity ; rdfs:subPropertyOf prov:generated .
+lr:admittedBy a rdf:Property ; rdfs:domain lr:RustArtifact ; rdfs:range lr:ProofReceipt ; rdfs:subPropertyOf prov:wasDerivedFrom .
+lr:bindsProofReceipt a rdf:Property ; rdfs:domain lr:ExecutionReceipt ; rdfs:range lr:ProofReceipt ; rdfs:subPropertyOf prov:wasDerivedFrom .
