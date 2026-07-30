@@ -194,6 +194,7 @@ def main() -> int:
         "observed_spiffe_id",
         "azure_key_vault_ready",
         "alerts_ready",
+        "receipt.as_bytes()",
         "promotion_decision_name",
     ):
         refuse(required not in rust_main_template, f"RUST_EXECUTION_SURFACE_MISSING:{required}")
@@ -205,6 +206,7 @@ def main() -> int:
         "rdtsc+steady-clock-batched",
         "R1_TICK_BUDGET",
         "observed_p99_ticks",
+        "execution[..body_end].as_bytes()",
     ):
         refuse(required not in rust_evidence_template, f"RUST_EVIDENCE_SURFACE_MISSING:{required}")
     refuse(rust_evidence_template.count("unsafe {") != 2, "RUST_RDTSC_UNSAFE_SURFACE_REFUSED")
