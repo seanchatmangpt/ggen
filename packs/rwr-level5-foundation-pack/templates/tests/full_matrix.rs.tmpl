@@ -1,0 +1,35 @@
+use ggen_graph::rwr::{GallState, ReferenceFoundation, ALL_DIMENSIONS};
+use rwr_level5_foundation::REQUIREMENTS;
+use std::collections::{BTreeMap, BTreeSet};
+
+#[test]
+fn generated_rwr_level5_consumer_executes_the_complete_matrix(
+) -> Result<(), Box<dyn std::error::Error>> {
+    assert_eq!(REQUIREMENTS.len(), 63);
+
+    let dimensions = REQUIREMENTS
+        .iter()
+        .map(|requirement| requirement.dimension)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(dimensions.len(), ALL_DIMENSIONS.len());
+
+    let mut counts = BTreeMap::new();
+    for requirement in REQUIREMENTS {
+        *counts.entry(requirement.dimension).or_insert(0_usize) += 1;
+        assert_eq!(requirement.artifact, "crates/ggen-graph/src/rwr/reference.rs");
+        assert_eq!(
+            requirement.verifier,
+            "cargo test -p ggen-graph --test rwr_level5_e2e"
+        );
+        assert!(!requirement.falsifier.trim().is_empty());
+    }
+    assert!(counts.values().all(|count| *count == 3));
+
+    let temp = tempfile::tempdir()?;
+    let proof = ReferenceFoundation::new(temp.path().join("proof")).prove_all()?;
+    proof.verify()?;
+    assert_eq!(proof.assessment_receipt.assessment.standing, GallState::Alive);
+    assert_eq!(proof.ledger.records().len(), 63);
+
+    Ok(())
+}

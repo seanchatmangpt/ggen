@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+cargo test --manifest-path Cargo.toml
+cargo run --quiet --manifest-path Cargo.toml --bin verify > VERIFIER_REPORT.json
+grep -q '"standing": "ALIVE"' VERIFIER_REPORT.json
+grep -q '"dimensions": 21' VERIFIER_REPORT.json
+grep -q '"proof_surfaces": 63' VERIFIER_REPORT.json
