@@ -10,8 +10,8 @@ use std::{
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
     ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus,
-    Fortune5Assessment, Fortune5AutonomicPlan, Fortune5Catalog, Fortune5Program, Severity,
-    Stimulus,
+    Fortune5Assessment, Fortune5AutonomicPlan, Fortune5Catalog, Fortune5Program,
+    LevelFiveCrownAssessment, LevelFiveCrownProgram, Severity, Stimulus,
 };
 use serde::de::DeserializeOwned;
 
@@ -82,7 +82,7 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
-    /// Inspect, assess, or plan against the Fortune 5 Level-5 contract.
+    /// Inspect, assess, plan, or crown against the Fortune 5 Level-5 contract.
     Fortune5 {
         /// Fortune 5 operation.
         #[command(subcommand)]
@@ -92,7 +92,7 @@ enum Command {
 
 #[derive(Debug, Subcommand)]
 enum Fortune5Command {
-    /// Emit the canonical twenty-one-dimension and sixty-three-obligation catalog.
+    /// Emit the canonical twenty-one-dimension, ninety-nine-control, sixty-three-obligation catalog.
     Catalog {
         /// Emit JSON.
         #[arg(long)]
@@ -112,6 +112,18 @@ enum Fortune5Command {
         /// Fortune 5 evidence program JSON.
         #[arg(long)]
         program: PathBuf,
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Assess the exact crown: 21/99/63 plus release truths, SLA governors, guards, replay, and zero actuation.
+    Crown {
+        /// Fortune 5 evidence program JSON.
+        #[arg(long)]
+        program: PathBuf,
+        /// Crown evidence and operational policy JSON.
+        #[arg(long)]
+        crown: PathBuf,
         /// Emit JSON.
         #[arg(long)]
         json: bool,
@@ -235,8 +247,14 @@ fn run() -> Result<u8, Box<dyn Error>> {
                 if json {
                     println!("{}", serde_json::to_string_pretty(&catalog)?);
                 } else {
+                    let control_count: usize = catalog
+                        .dimensions
+                        .iter()
+                        .map(|dimension| dimension.required_controls.len())
+                        .sum();
                     println!("profile: {}", catalog.profile);
                     println!("dimensions: {}", catalog.dimensions.len());
+                    println!("controls: {control_count}");
                     println!("proof obligations: {}", catalog.obligations().count());
                 }
                 Ok(if catalog.validate().is_empty() { 0 } else { 2 })
@@ -264,6 +282,48 @@ fn run() -> Result<u8, Box<dyn Error>> {
                     println!("receipt: {}", plan.receipt_hash);
                 }
                 Ok(0)
+            }
+            Fortune5Command::Crown {
+                program,
+                crown,
+                json,
+            } => {
+                let program: Fortune5Program = read_json(&program)?;
+                let crown: LevelFiveCrownProgram = read_json(&crown)?;
+                let assessment = Fortune5Assessment::assess(&program)?;
+                let crown_assessment = LevelFiveCrownAssessment::assess(&assessment, &crown)?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&crown_assessment)?);
+                } else {
+                    println!("program: {}", crown_assessment.program);
+                    println!(
+                        "taxonomy: {}/{}/{}",
+                        crown_assessment.taxonomy.dimensions,
+                        crown_assessment.taxonomy.controls,
+                        crown_assessment.taxonomy.obligations
+                    );
+                    println!(
+                        "release truths: {}/6",
+                        crown_assessment.release_truths_alive
+                    );
+                    println!(
+                        "SLA governors: {}/5",
+                        crown_assessment.sla_governors_alive
+                    );
+                    println!(
+                        "operational controls: {}/6",
+                        crown_assessment.operational_controls_alive
+                    );
+                    println!("structurally_ready: {}", crown_assessment.structurally_ready);
+                    println!("promotion_ready: {}", crown_assessment.promotion_ready);
+                    println!("synthetic: {}", crown_assessment.synthetic);
+                    println!("receipt: {}", crown_assessment.receipt_hash);
+                }
+                Ok(if crown_assessment.structurally_ready {
+                    0
+                } else {
+                    2
+                })
             }
         },
     }
