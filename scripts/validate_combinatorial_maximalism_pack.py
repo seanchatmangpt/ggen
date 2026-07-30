@@ -75,6 +75,10 @@ def main() -> int:
         "RUSTFMT_STABLE_IMPORT_ORDER_MISSING",
     )
     refuse("sh_after: rustfmt" in main_template, "UNPINNED_MAIN_FORMATTER_REFUSED")
+    refuse(
+        "::{Broker, CmdError, validate_design};{% endfor %}\n\nfn workspace" not in main_template,
+        "RUSTFMT_STABLE_IMPORT_SPACING_MISSING",
+    )
 
     ontology = (PACK / "ontology.ttl").read_text(encoding="utf-8")
     for term in ("cmd:DesignSpace", "cmd:Candidate", "cmd:Broker", "cmd:ActuationContract", "cmd:Receipt"):
