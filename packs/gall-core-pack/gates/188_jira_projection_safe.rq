@@ -1,0 +1,43 @@
+# MESSAGE: Gall Jira projection is unsafe -- project keys and work-item IDs must be stable tokens, and projected text must not contain quotes, tabs, or line breaks
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?field ?value WHERE {
+  {
+    ?owner a gall:GallProgram ; gall:jiraProjectKey ?value .
+    BIND("gall:jiraProjectKey" AS ?field)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9]{1,9}$"))
+  }
+  UNION
+  {
+    ?owner a gall:WorkItem ; gall:workItemId ?value .
+    BIND("gall:workItemId" AS ?field)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Z0-9-]{2,63}$"))
+  }
+  UNION
+  {
+    VALUES ?textProperty {
+      gall:summary
+      gall:objective
+      gall:rationale
+      gall:component
+      gall:label
+      gall:assigneeRole
+      gall:reviewerRole
+      gall:approvalGate
+      gall:requiredContext
+      gall:allowedPath
+      gall:forbiddenPath
+      gall:mustDo
+      gall:mustNotDo
+      gall:outOfScope
+      gall:acceptanceCriterion
+      gall:definitionOfDone
+      gall:verificationCommand
+      gall:evidenceArtifact
+      gall:adversarialQuestion
+    }
+    ?owner a gall:WorkItem ; ?textProperty ?value .
+    BIND(STR(?textProperty) AS ?field)
+    FILTER(CONTAINS(STR(?value), "\"") || CONTAINS(STR(?value), "\t") || CONTAINS(STR(?value), "\n") || CONTAINS(STR(?value), "\r"))
+  }
+}
+ORDER BY ?owner ?field
