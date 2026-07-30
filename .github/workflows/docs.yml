@@ -42,7 +42,7 @@ jobs:
           grep -q 'exactly 25 properties' docs/reference/template-directives.md
           grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
           grep -q 'frontmatter_cardinality_e2e.rs' docs/reference/template-directives.md
-          grep -q '^## Explicit projection cardinality' docs/explanation/frontmatter-maximalism.md
+          grep -q '^## Explicit projection cardinality' docs/reference/frontmatter-maximalism.md
           git diff --check
 
       - name: Publish docs and restore repository workflow
@@ -55,7 +55,7 @@ jobs:
           git config user.name "ggen frontmatter docs"
           git config user.email "actions@github.com"
           git add docs/reference/template-directives.md \
-                  docs/explanation/frontmatter-maximalism.md \
+                  docs/reference/frontmatter-maximalism.md \
                   .github/workflows/docs.yml \
                   .github/workflows/frontmatter-cardinality-docs.yml \
                   .github/workflows/frontmatter-cardinality-docs-push.yml
