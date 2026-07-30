@@ -1,4 +1,4 @@
-# MESSAGE: Gall automation profile uses an unsupported provider or mode, invalid parallelism, or a branch pattern without the work-item token
+# MESSAGE: Gall automation profile uses an unsupported provider or mode, invalid parallelism, or an unsafe branch pattern
 PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 SELECT ?profile ?field ?value WHERE {
@@ -25,14 +25,25 @@ SELECT ?profile ?field ?value WHERE {
     ?profile gall:maxParallelism ?raw .
     BIND("gall:maxParallelism" AS ?field)
     BIND(STR(?raw) AS ?value)
-    FILTER(xsd:integer(?raw) < 1 || xsd:integer(?raw) > 64)
+    FILTER(!REGEX(STR(?raw), "^[0-9]+$"))
+  }
+  UNION
+  {
+    ?profile gall:maxParallelism ?raw .
+    BIND("gall:maxParallelism" AS ?field)
+    BIND(STR(?raw) AS ?value)
+    FILTER(REGEX(STR(?raw), "^[0-9]+$") && (xsd:integer(?raw) < 1 || xsd:integer(?raw) > 64))
   }
   UNION
   {
     ?profile gall:branchPattern ?raw .
     BIND("gall:branchPattern" AS ?field)
     BIND(STR(?raw) AS ?value)
-    FILTER(!CONTAINS(STR(?raw), "{workItemId}"))
+    FILTER(
+      !REGEX(STR(?raw), "^[A-Za-z0-9._/-]*\\{workItemId\\}[A-Za-z0-9._/-]*$") ||
+      REGEX(STR(?raw), "^/") ||
+      REGEX(STR(?raw), "(^|/)\\.\\.(/|$)")
+    )
   }
 }
 ORDER BY ?profile ?field
