@@ -6,6 +6,7 @@ Pipeline:
   -> Git-object byte semantics
   -> file-header generation authority
   -> live authority and load-path normalization
+  -> active root-output authority
   -> Gall program/checkpoint/work-item projection
   -> deterministic RDF/JSON/receipt outputs
 """
@@ -13,7 +14,9 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import re
+from collections import Counter
 from pathlib import Path, PurePosixPath
 from types import ModuleType
 from typing import Any
@@ -96,13 +99,34 @@ def canonical_load_bearing(path: str, authority: str) -> bool:
     return path.startswith(("crates/", "packs/", "scripts/", ".github/actions/", ".github/workflows/"))
 
 
+def finalize_active_outputs(observation: dict[str, Any]) -> dict[str, Any]:
+    """Treat every root manifest output as a generated consequence by contract."""
+    owned = {
+        claim["output_path"]
+        for claim in observation["output_claims"]
+        if claim["claim_kind"] == "active-manifest-rule" and claim["consumer"] == "."
+    }
+    for file in observation["files"]:
+        if file["path"] in owned:
+            file["authority_class"] = "GeneratedConsequence"
+            file["load_bearing"] = True
+    counts = Counter(file["authority_class"] for file in observation["files"])
+    observation["authority_counts"] = dict(sorted(counts.items()))
+    observation["counts"]["generated"] = counts.get("GeneratedConsequence", 0)
+    observation["counts"]["unknown_authority"] = counts.get("UnknownAuthority", 0)
+    observation.pop("observation_digest", None)
+    canonical = json.dumps(observation, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    observation["observation_digest"] = MODEL.sha256(canonical)
+    return observation
+
+
 def observe(root: Path) -> dict[str, object]:
     observation = EXACT.observe(root)
     for file in observation["files"]:
         file["generated_marker"] = has_generated_header(root, str(file["path"]))
     NORMALIZER.authority_for = canonical_authority
     NORMALIZER.load_bearing = canonical_load_bearing
-    return NORMALIZER.normalize(observation, MODEL)
+    return finalize_active_outputs(NORMALIZER.normalize(observation, MODEL))
 
 
 def main() -> int:
