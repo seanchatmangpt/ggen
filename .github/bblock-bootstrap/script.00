@@ -1,1 +1,112 @@
-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
+#!/usr/bin/env bash
+set -euo pipefail
+
+python3 - <<'PY'
+from pathlib import Path
+
+def replace_once(path: str, old: str, new: str) -> None:
+    target = Path(path)
+    source = target.read_text(encoding="utf-8")
+    if new in source:
+        return
+    if old not in source:
+        raise SystemExit(f"marker not found in {path}: {old!r}")
+    target.write_text(source.replace(old, new, 1), encoding="utf-8")
+
+error_path = Path("tools/ggen-architecture/src/error.rs")
+error = error_path.read_text(encoding="utf-8")
+if "InvalidBBlock" not in error:
+    marker = "    /// A deterministic receipt could not be serialized.\n"
+    insertion = '''    /// A repository or building-block file could not be read.\n    #[error("architecture I/O failed: {0}")]\n    Io(#[from] std::io::Error),\n\n    /// A building-block manifest, pack, or deployment contract was invalid.\n    #[error("invalid building block: {0}")]\n    InvalidBBlock(String),\n\n'''
+    if marker not in error:
+        raise SystemExit("error.rs insertion marker missing")
+    error_path.write_text(error.replace(marker, insertion + marker, 1), encoding="utf-8")
+
+lib_path = Path("tools/ggen-architecture/src/lib.rs")
+lib = lib_path.read_text(encoding="utf-8")
+if "pub mod bblock;" not in lib:
+    lib = lib.replace("pub mod autonomic;\n", "pub mod autonomic;\npub mod bblock;\n", 1)
+if "pub use bblock::" not in lib:
+    marker = '''pub use autonomic::{\n    ArchitectureIntent, AutonomicController, AutonomicCycle, Diagnosis, IntentKind, Stimulus,\n};\n'''
+    exports = '''pub use bblock::{\n    AvailabilityClass, BBlockCatalog, BBlockCatalogEntry, BBlockDeploymentPlan, BBlockFinding,\n    BBlockKind, BBlockManifest, BBlockPackRef, BBlockPolicy, BBlockStatus,\n    BBlockValidationReport, CloudDeploymentContract, CloudProvider, DataGovernance,\n    DeploymentEnvironment, DeploymentRegion, DeploymentValidation, DeploymentWave,\n    RecoveryObjectives, SupplyChainControls, ValidationGate,\n};\n'''
+    if marker not in lib:
+        raise SystemExit("lib.rs export marker missing")
+    lib = lib.replace(marker, marker + exports, 1)
+lib_path.write_text(lib, encoding="utf-8")
+
+architecture_cargo = Path("tools/ggen-architecture/Cargo.toml")
+cargo = architecture_cargo.read_text(encoding="utf-8")
+if 'oxigraph = ' not in cargo:
+    cargo = cargo.replace('clap = { version = "4.5", features = ["derive"] }\n', 'clap = { version = "4.5", features = ["derive"] }\noxigraph = { version = "0.5.6", features = ["rdf-12"] }\n', 1)
+if '\ntoml = "0.8"\n' not in cargo:
+    cargo = cargo.replace('thiserror = "2.0"\n', 'thiserror = "2.0"\ntoml = "0.8"\n', 1)
+architecture_cargo.write_text(cargo, encoding="utf-8")
+
+bblock_path = Path("tools/ggen-architecture/src/bblock.rs")
+bblock = bblock_path.read_text(encoding="utf-8")
+if "use oxigraph::io::{RdfFormat, RdfParser};" not in bblock:
+    bblock = bblock.replace(
+        "use serde::{Deserialize, Serialize};\n",
+        "use oxigraph::io::{RdfFormat, RdfParser};\nuse oxigraph::store::Store;\nuse serde::{Deserialize, Serialize};\n",
+        1,
+    )
+old = '''    for required_file in ["pack.toml", "ontology.ttl"] {\n        if !pack_root.join(required_file).is_file() {\n            findings.push(finding(\n                "BBLOCK-111",\n                Severity::Error,\n                &pack.id,\n                &format!("required pack file `{required_file}` is missing"),\n            ));\n        }\n    }\n'''
+new = old + '''\n    let manifest_path = pack_root.join("pack.toml");\n    if manifest_path.is_file() {\n        match fs::read_to_string(&manifest_path)\n            .map_err(|error| error.to_string())\n            .and_then(|content| toml::from_str::<toml::Value>(&content).map_err(|error| error.to_string()))\n        {\n            Ok(value) => {\n                let declared_id = value\n                    .get("pack")\n                    .and_then(|pack_value| pack_value.get("id"))\n                    .and_then(toml::Value::as_str);\n                if declared_id != Some(pack.id.as_str()) {\n                    findings.push(finding(\n                        "BBLOCK-113",\n                        Severity::Error,\n                        &pack.id,\n                        "pack.toml [pack].id does not match the bblock pack reference",\n                    ));\n                }\n                if let Some(templates) = value\n                    .get("pack")\n                    .and_then(|pack_value| pack_value.get("templates"))\n                    .and_then(toml::Value::as_array)\n                {\n                    for template in templates {\n                        if let Some(path) = template.get("path").and_then(toml::Value::as_str) {\n                            if !pack_root.join(path).is_file() {\n                                findings.push(finding(\n                                    "BBLOCK-114",\n                                    Severity::Error,\n                                    &pack.id,\n                                    &format!("declared pack template `{path}` is missing"),\n                                ));\n                            }\n                        }\n                    }\n                }\n            }\n            Err(error) => findings.push(finding(\n                "BBLOCK-115",\n                Severity::Error,\n                &pack.id,\n                &format!("pack.toml could not be parsed: {error}"),\n            )),\n        }\n    }\n\n    let ontology_path = pack_root.join("ontology.ttl");\n    if ontology_path.is_file() {\n        if let Err(error) = validate_turtle(&ontology_path) {\n            findings.push(finding(\n                "BBLOCK-116",\n                Severity::Error,\n                &pack.id,\n                &format!("ontology.ttl could not be parsed: {error}"),\n            ));\n        }\n    }\n'''
+if "BBLOCK-116" not in bblock:
+    if old not in bblock:
+        raise SystemExit("bblock pack validation marker missing")
+    bblock = bblock.replace(old, new, 1)
+if "fn validate_turtle(path: &Path)" not in bblock:
+    marker = "/// One provider region used by a deployment contract.\n"
+    helper = '''fn validate_turtle(path: &Path) -> std::result::Result<(), String> {\n    let bytes = fs::read(path).map_err(|error| error.to_string())?;\n    let store = Store::new().map_err(|error| error.to_string())?;\n    store\n        .load_from_reader(RdfParser::from_format(RdfFormat::Turtle), bytes.as_slice())\n        .map_err(|error| error.to_string())?;\n    Ok(())\n}\n\n'''
+    if marker not in bblock:
+        raise SystemExit("bblock turtle helper marker missing")
+    bblock = bblock.replace(marker, helper + marker, 1)
+# Remove a strict-clippy duplicate match: all three providers require the same normalized service roles.
+bblock = bblock_path.read_text(encoding="utf-8")
+old_services = """fn required_service_keys(provider: CloudProvider) -> &'static [&'static str] {
+    match provider {
+        CloudProvider::Aws => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+        CloudProvider::Azure => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+        CloudProvider::Gcp => &[
+            "organization",
+            "landing_zone",
+            "identity",
+            "policy",
+            "audit",
+            "security_posture",
+            "secrets",
+            "global_edge",
+            "dns",
+            "global_network",
+            "observability",
+            "backup",
+        ],
+    }
+}
