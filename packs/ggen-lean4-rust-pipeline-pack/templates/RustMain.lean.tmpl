@@ -15,7 +15,7 @@ def rustMain : String :=
   "    let mut args = std::env::args().skip(1);\n" ++
   "    let scenario = args.next().unwrap_or_else(|| \"canonical\".to_owned());\n" ++
   "    let input = args.next().map(|value| value.parse::<u64>().expect(\"input must be a u64\")).unwrap_or(WITNESS_INPUT);\n" ++
-  "    let observation = scenario_observation(&scenario).expect(\"supported scenarios: canonical, canary, production, slo-violation, quorum-loss, security-expired, receipt-mismatch, failover-unready\");\n" ++
+  "    let observation = scenario_observation(&scenario).expect(\"supported scenarios: canonical, canary, production, slo-violation, quorum-loss, security-expired, receipt-mismatch, failover-unready, identity-mismatch, kms-unready, replication-unready, promotion-receipt-missing, alerts-unready\");\n" ++
   "    let output = bounded_step(input);\n" ++
   "    let decision = evaluate_promotion(&observation);\n" ++
   "    let proof_path = PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join(\"../lean/proof-receipt.json\");\n" ++
@@ -36,20 +36,27 @@ def rustMain : String :=
   "    receipt.push_str(\",\\\"slo_compliant\\\":\"); receipt.push_str(json_bool(slo_compliant(&observation)));\n" ++
   "    receipt.push_str(\",\\\"region_count\\\":\"); receipt.push_str(&REGION_COUNT.to_string());\n" ++
   "    receipt.push_str(\",\\\"region_quorum\\\":\"); receipt.push_str(&REGION_QUORUM.to_string());\n" ++
+  "    receipt.push_str(\",\\\"promotion_receipt_ready\\\":\"); receipt.push_str(json_bool(observation.promotion_receipt_ready));\n" ++
   "    receipt.push_str(\",\\\"quorum_acks\\\":\"); receipt.push_str(&observation.quorum_acks.to_string());\n" ++
+  "    receipt.push_str(\",\\\"cross_region_replication_ready\\\":\"); receipt.push_str(json_bool(observation.cross_region_replication_ready));\n" ++
   "    receipt.push_str(\",\\\"receipt_synchronized\\\":\"); receipt.push_str(json_bool(observation.receipt_synchronized));\n" ++
   "    receipt.push_str(\",\\\"failover_ready\\\":\"); receipt.push_str(json_bool(observation.failover_ready));\n" ++
   "    receipt.push_str(\",\\\"legal_hold_ready\\\":\"); receipt.push_str(json_bool(observation.legal_hold_ready));\n" ++
   "    receipt.push_str(\",\\\"spiffe_id\\\":\\\"\"); receipt.push_str(SPIFFE_ID);\n" ++
+  "    receipt.push_str(\"\\\",\\\"observed_spiffe_id\\\":\\\"\"); receipt.push_str(observation.observed_spiffe_id);\n" ++
   "    receipt.push_str(\"\\\",\\\"spiffe_authenticated\\\":\"); receipt.push_str(json_bool(observation.spiffe_authenticated));\n" ++
   "    receipt.push_str(\",\\\"certificate_refresh_seconds\\\":\"); receipt.push_str(&CERTIFICATE_REFRESH_SECONDS.to_string());\n" ++
   "    receipt.push_str(\",\\\"certificate_age_seconds\\\":\"); receipt.push_str(&observation.certificate_age_seconds.to_string());\n" ++
   "    receipt.push_str(\",\\\"key_rotation_seconds\\\":\"); receipt.push_str(&KEY_ROTATION_SECONDS.to_string());\n" ++
   "    receipt.push_str(\",\\\"key_age_seconds\\\":\"); receipt.push_str(&observation.key_age_seconds.to_string());\n" ++
   "    receipt.push_str(\",\\\"mtls_established\\\":\"); receipt.push_str(json_bool(observation.mtls_established));\n" ++
+  "    receipt.push_str(\",\\\"aws_kms_ready\\\":\"); receipt.push_str(json_bool(observation.aws_kms_ready));\n" ++
+  "    receipt.push_str(\",\\\"azure_key_vault_ready\\\":\"); receipt.push_str(json_bool(observation.azure_key_vault_ready));\n" ++
+  "    receipt.push_str(\",\\\"hashicorp_vault_ready\\\":\"); receipt.push_str(json_bool(observation.hashicorp_vault_ready));\n" ++
   "    receipt.push_str(\",\\\"network_policy_enforced\\\":\"); receipt.push_str(json_bool(observation.network_policy_enforced));\n" ++
   "    receipt.push_str(\",\\\"firewall_policy_enforced\\\":\"); receipt.push_str(json_bool(observation.firewall_policy_enforced));\n" ++
   "    receipt.push_str(\",\\\"otel_correlated\\\":\"); receipt.push_str(json_bool(observation.otel_correlated));\n" ++
+  "    receipt.push_str(\",\\\"alerts_ready\\\":\"); receipt.push_str(json_bool(observation.alerts_ready));\n" ++
   "    receipt.push_str(\",\\\"kms\\\":[\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[0]); receipt.push_str(\"\\\",\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[1]); receipt.push_str(\"\\\",\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[2]);\n" ++
   "    receipt.push_str(\"\\\"],\\\"alerts\\\":[\\\"slo-violation\\\",\\\"guard-failure\\\",\\\"receipt-mismatch\\\",\\\"performance-degradation\\\"],\\\"lean_proof_blake3\\\":\\\"\");\n" ++
   "    receipt.push_str(&proof_digest);\n" ++
