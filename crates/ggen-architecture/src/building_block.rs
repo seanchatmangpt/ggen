@@ -1072,7 +1072,7 @@ mod tests {
         let replacement_id = RealizationId::from("replacement");
         let mut replacement = match block.realizations.values().next() {
             Some(value) => value.clone(),
-            None => return,
+            None => unreachable!("sample block must contain its source realization"),
         };
         replacement.id = replacement_id.clone();
         replacement
