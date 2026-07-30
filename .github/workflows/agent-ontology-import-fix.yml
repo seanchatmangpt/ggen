@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/fix-ontology-import-startup
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -18,10 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout exact branch
+      - name: Checkout exact head branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Apply bounded source repair
         run: bash .github/agent/apply-ontology-import-fix.sh
@@ -62,4 +66,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "fix(engine): batch ontology imports atomically"
-          git push origin HEAD:${GITHUB_REF_NAME}
+          target_branch="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          git push origin "HEAD:${target_branch}"
