@@ -2,7 +2,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
 <urn:ggen:lean4-rust:bounded-successor> a lr:Pipeline ;
-    dcterms:title "ggen-first Lean 4 to Rust bounded successor" ;
+    dcterms:title "ggen-first Lean 4 to Rust Fortune 5 deployment cell" ;
     lr:crateName "lean-proof-cell" ;
     lr:rustFunctionName "bounded_step" ;
     lr:leanToolchain "leanprover/lean4:v4.30.0" ;
@@ -12,4 +12,35 @@
     lr:proofTheorem "step_le" ;
     lr:witnessTheorem "step_witness" ;
     lr:fixedPointTheorem "step_fixed_point" ;
-    lr:receiptAlgorithm "blake3" .
+    lr:receiptAlgorithm "blake3" ;
+    lr:r1P99Nanos 2 ;
+    lr:r1TickBudget 8 ;
+    lr:w1P99Nanos 1000000 ;
+    lr:c1P99Nanos 500000000 ;
+    lr:r1Measurement "rdtsc" ;
+    lr:w1Measurement "otel-span" ;
+    lr:c1Measurement "otel-span" ;
+    lr:canaryRequired true ;
+    lr:stagingValidationRequired true ;
+    lr:autoRollbackRequired true ;
+    lr:promotionReceiptRequired true ;
+    lr:regionCount 3 ;
+    lr:regionQuorum 2 ;
+    lr:crossRegionReplicationRequired true ;
+    lr:receiptSynchronizationRequired true ;
+    lr:failoverRequired true ;
+    lr:legalHoldRequired true ;
+    lr:spiffeId "spiffe://ggen.chatmangpt.com/ns/ggen/sa/lean4-rust" ;
+    lr:certificateRefreshSeconds 3600 ;
+    lr:keyRotationSeconds 86400 ;
+    lr:mtlsRequired true ;
+    lr:awsKmsRequired true ;
+    lr:azureKeyVaultRequired true ;
+    lr:hashicorpVaultRequired true ;
+    lr:networkPolicyRequired true ;
+    lr:firewallPolicyRequired true ;
+    lr:otelRequired true ;
+    lr:sloAlertRequired true ;
+    lr:guardAlertRequired true ;
+    lr:receiptMismatchAlertRequired true ;
+    lr:performanceDegradationAlertRequired true .
