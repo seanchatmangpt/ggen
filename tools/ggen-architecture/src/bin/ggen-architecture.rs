@@ -9,8 +9,8 @@ use std::{
 
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
-    ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus, Severity,
-    Stimulus,
+    ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus,
+    Fortune5Assessment, Fortune5Catalog, Fortune5Program, Severity, Stimulus,
 };
 use serde::de::DeserializeOwned;
 
@@ -77,6 +77,31 @@ enum Command {
         /// Architecture state JSON.
         #[arg(long)]
         state: PathBuf,
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Inspect or assess the Fortune 5 Level-5 capability contract.
+    Fortune5 {
+        /// Fortune 5 operation.
+        #[command(subcommand)]
+        command: Fortune5Command,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+enum Fortune5Command {
+    /// Emit the canonical twenty-one-dimension and sixty-three-obligation catalog.
+    Catalog {
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Assess an evidence program against the conjunctive Level-5 profile.
+    Assess {
+        /// Fortune 5 evidence program JSON.
+        #[arg(long)]
+        program: PathBuf,
         /// Emit JSON.
         #[arg(long)]
         json: bool,
@@ -194,6 +219,29 @@ fn run() -> Result<u8, Box<dyn Error>> {
             }
             Ok(0)
         }
+        Command::Fortune5 { command } => match command {
+            Fortune5Command::Catalog { json } => {
+                let catalog = Fortune5Catalog::canonical();
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&catalog)?);
+                } else {
+                    println!("profile: {}", catalog.profile);
+                    println!("dimensions: {}", catalog.dimensions.len());
+                    println!("proof obligations: {}", catalog.obligations().count());
+                }
+                Ok(if catalog.validate().is_empty() { 0 } else { 2 })
+            }
+            Fortune5Command::Assess { program, json } => {
+                let program: Fortune5Program = read_json(&program)?;
+                let assessment = Fortune5Assessment::assess(&program)?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&assessment)?);
+                } else {
+                    print!("{}", assessment.render_text());
+                }
+                Ok(if assessment.level_five_ready { 0 } else { 2 })
+            }
+        },
     }
 }
 
