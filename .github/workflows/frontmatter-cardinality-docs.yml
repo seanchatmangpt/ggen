@@ -65,7 +65,6 @@ jobs:
               'property inventory',
           )
 
-          # Make space for the new property while preserving exact section order.
           def bump_heading(match: re.Match[str]) -> str:
               number = int(match.group(1))
               return f"## 4.{number + 1} {match.group(2)}"
@@ -143,7 +142,6 @@ write or shell authority.
 '''
           text = text.replace(construct_heading, for_each_section + construct_heading, 1)
 
-          # Replace the now-closed audit finding.
           start = text.index('### FM-LC-007')
           end = text.index('### FM-LC-008', start)
           closed = '''### FM-LC-007 — projection cardinality is explicit
@@ -176,7 +174,7 @@ use case demonstrates that they cannot be expressed more clearly in SPARQL.
           )
           path.write_text(text)
 
-          expl_path = Path('docs/explanation/frontmatter-maximalism.md')
+          expl_path = Path('docs/reference/frontmatter-maximalism.md')
           expl = expl_path.read_text()
           expl = replace_once(
               expl,
@@ -220,7 +218,7 @@ Omitting `for_each` preserves the historical implicit driver contract.
           grep -q 'exactly 25 properties' docs/reference/template-directives.md
           grep -q '^## 4.3 `for_each`' docs/reference/template-directives.md
           grep -q 'frontmatter_cardinality_e2e.rs' docs/reference/template-directives.md
-          grep -q '^## Explicit projection cardinality' docs/explanation/frontmatter-maximalism.md
+          grep -q '^## Explicit projection cardinality' docs/reference/frontmatter-maximalism.md
           git diff --check
 
       - name: Publish documentation and remove workflow
@@ -231,7 +229,7 @@ Omitting `for_each` preserves the historical implicit driver contract.
           git config user.name "ggen frontmatter docs"
           git config user.email "actions@github.com"
           git add docs/reference/template-directives.md \
-                  docs/explanation/frontmatter-maximalism.md \
+                  docs/reference/frontmatter-maximalism.md \
                   .github/workflows/frontmatter-cardinality-docs.yml
           git commit -m "docs(engine): document explicit projection cardinality"
           git push origin HEAD:agent/frontmatter-maximalism
