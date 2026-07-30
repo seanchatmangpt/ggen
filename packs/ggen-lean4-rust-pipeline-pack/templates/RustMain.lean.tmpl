@@ -21,7 +21,6 @@ def rustMain : String :=
   "    let proof_path = PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join(\"../lean/proof-receipt.json\");\n" ++
   "    let proof_bytes = fs::read(proof_path).expect(\"Lean proof receipt must exist\");\n" ++
   "    let proof_digest = blake3::hash(&proof_bytes).to_hex().to_string();\n" ++
-  "    let regional_digest = regional_receipt_digest(&proof_bytes, &scenario, observation.quorum_acks);\n" ++
   "    let mut receipt = String::from(\"{\\\"schema\\\":\\\"ggen.lean4-rust/execution/v2\\\",\\\"standing\\\":\\\"EXECUTED\\\",\\\"scenario\\\":\\\"\");\n" ++
   "    receipt.push_str(&scenario);\n" ++
   "    receipt.push_str(\"\\\",\\\"decision\\\":\\\"\"); receipt.push_str(promotion_decision_name(decision));\n" ++
@@ -58,7 +57,9 @@ def rustMain : String :=
   "    receipt.push_str(\",\\\"otel_correlated\\\":\"); receipt.push_str(json_bool(observation.otel_correlated));\n" ++
   "    receipt.push_str(\",\\\"alerts_ready\\\":\"); receipt.push_str(json_bool(observation.alerts_ready));\n" ++
   "    receipt.push_str(\",\\\"kms\\\":[\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[0]); receipt.push_str(\"\\\",\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[1]); receipt.push_str(\"\\\",\\\"\"); receipt.push_str(SUPPORTED_KMS_PROVIDERS[2]);\n" ++
-  "    receipt.push_str(\"\\\"],\\\"alerts\\\":[\\\"slo-violation\\\",\\\"guard-failure\\\",\\\"receipt-mismatch\\\",\\\"performance-degradation\\\"],\\\"lean_proof_blake3\\\":\\\"\");\n" ++
+  "    receipt.push_str(\"\\\"],\\\"alerts\\\":[\\\"slo-violation\\\",\\\"guard-failure\\\",\\\"receipt-mismatch\\\",\\\"performance-degradation\\\"]\");\n" ++
+  "    let regional_digest = regional_receipt_digest(&proof_bytes, receipt.as_bytes());\n" ++
+  "    receipt.push_str(\",\\\"lean_proof_blake3\\\":\\\"\");\n" ++
   "    receipt.push_str(&proof_digest);\n" ++
   "    receipt.push_str(\"\\\",\\\"region_receipt_blake3\\\":\\\"\"); receipt.push_str(&regional_digest);\n" ++
   "    receipt.push_str(\"\\\"}\");\n" ++
