@@ -53,6 +53,21 @@ jobs:
         with:
           workspaces: tools/ggen-architecture
 
+      - name: Refactor stateless capacity intent constructor
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("tools/ggen-architecture/src/autonomic.rs")
+          source = path.read_text(encoding="utf-8")
+          source = source.replace("self.capacity_intent(", "Self::capacity_intent(")
+          source = source.replace(
+              "    fn capacity_intent(\n        &self, kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,\n",
+              "    fn capacity_intent(\n        kind: IntentKind, sample: &CapacitySample, level: CapacityLevel,\n",
+          )
+          path.write_text(source, encoding="utf-8")
+          PY
+
       - name: Apply machine-applicable Clippy repairs
         run: |
           cargo clippy --fix \
