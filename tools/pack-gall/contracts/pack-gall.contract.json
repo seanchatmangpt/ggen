@@ -1,0 +1,28 @@
+{
+  "schema": "ggen.pack-gall.contract.v1",
+  "required_surfaces": [
+    {"path": "AGENTS.md", "owner": "repository-constitution", "class": "policy"},
+    {"path": "justfile", "owner": "repository-entrypoint", "class": "entrypoint"},
+    {"path": "crates/ggen-cli/src/cmds/bblock.rs", "owner": "ggen-cli-bblock", "class": "command"},
+    {"path": "crates/ggen-cli/src/cmds/pack.rs", "owner": "ggen-cli-pack", "class": "command"},
+    {"path": "crates/ggen-cli/src/cmds/packs.rs", "owner": "ggen-cli-packs", "class": "command"},
+    {"path": "crates/ggen-marketplace/src/packs/lockfile.rs", "owner": "ggen-marketplace-lockfile", "class": "state"},
+    {"path": "packs/fortune5-deployment-blocks-pack/ontology.ttl", "owner": "fortune5-bblock-ontology", "class": "authority"},
+    {"path": "packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json", "owner": "fortune5-bblock-catalog", "class": "projection"},
+    {"path": "docs/marketplace/ATOMIC_PACKS.md", "owner": "marketplace-pack-doctrine", "class": "documentation"},
+    {"path": "docs/architecture/BBLOCKS-PACKS-ARD-PRD-v26.7.31.md", "owner": "bblocks-packs-architecture", "class": "architecture"}
+  ],
+  "command_surfaces": [
+    {"noun": "bblock", "path": "crates/ggen-cli/src/cmds/bblock.rs", "required_verbs": ["providers", "list", "inspect", "group", "plan", "enable", "validate"]},
+    {"noun": "pack", "path": "crates/ggen-cli/src/cmds/pack.rs", "required_verbs": ["add", "remove", "list", "show", "search", "doctor"]},
+    {"noun": "packs", "path": "crates/ggen-cli/src/cmds/packs.rs", "required_verbs": ["install", "list", "validate", "show"]}
+  ],
+  "schema_tokens": [
+    {"path": "crates/ggen-cli/src/cmds/bblock.rs", "tokens": ["ggen.bblock.catalog.v1", "ggen.bblock.plan.v1", "ggen.bblock.receipt.v1", "blake3"]},
+    {"path": "crates/ggen-marketplace/src/packs/lockfile.rs", "tokens": ["PackLockfile", "integrity"]},
+    {"path": "docs/marketplace/ATOMIC_PACKS.md", "tokens": ["Atomic packs are the canonical semantic unit", "Bundles are aliases. Atomic packs are truth."]}
+  ],
+  "catalog_path": "packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json",
+  "canonical_schema_path": "tools/pack-gall/contracts/pack-kernel.schema.json",
+  "verifier_schema_path": "tools/pack-gall/contracts/verifier-report.schema.json"
+}
