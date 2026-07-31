@@ -1,0 +1,22 @@
+[inventory]
+schema_version = 1
+repository = "fixture/duplicate-owner"
+implementation_base_sha = "duplicate-owner"
+historical_inventory_sha = "duplicate-owner"
+expected_workflow_count = 2
+
+[[workflow]]
+path = ".github/workflows/a.yml"
+owner = "fixture/a"
+purpose = "Execute the first fixture workflow."
+evidence_output = "workflow log a"
+production_outputs = ["shared-production-output"]
+retirement_condition = "Retain until an admitted replacement proves equivalent evidence."
+
+[[workflow]]
+path = ".github/workflows/b.yml"
+owner = "fixture/b"
+purpose = "Execute the second fixture workflow."
+evidence_output = "workflow log b"
+production_outputs = ["shared-production-output"]
+retirement_condition = "Retain until an admitted replacement proves equivalent evidence."
