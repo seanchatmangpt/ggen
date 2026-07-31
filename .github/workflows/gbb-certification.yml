@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   certification-law:
-    name: 5 credentials / 12 requirements / 60 proof surfaces
+    name: TAI case study / 5 credentials / 60 proof surfaces
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -48,7 +48,7 @@ jobs:
       - name: Enforce warning-free architecture workspace
         run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
 
-      - name: Execute certification witnesses and falsifiers
+      - name: Execute TAI certification witnesses and falsifiers
         run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification::tests
 
       - name: Execute architecture documentation tests
@@ -57,9 +57,16 @@ jobs:
       - name: Preserve the canonical Building Block crown
         run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets building_block
 
+      - name: Prove the TAI case-study boundary
+        run: |
+          grep -RIn 'tai-enterprise-reconstruction-v26.7.30' crates/ggen-architecture/src/certification
+          grep -RIn 'Automated Technical Capability Company' crates/ggen-architecture/src/certification
+          grep -RIn 'BRCE' crates/ggen-architecture/src/certification/case_study.rs
+          grep -n 'historical TAI = O' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
+          grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
+
       - name: Prove the certification kernel cannot actuate directly
         run: |
           ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src/certification
           grep -RIn 'RoadmapIncomplete' crates/ggen-architecture/src/certification
           grep -RIn 'TargetContainsRetiredBlock' crates/ggen-architecture/src/certification
-          grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
