@@ -1,0 +1,47 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/enterprise.json
+sparql:
+  program: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?identifier ?version ?title ?broker ?direct ?llm WHERE {
+      ?p a tai:EnterpriseRebuildProgram ; tai:identifier ?identifier ; tai:version ?version ; dcterms:title ?title ;
+         tai:requiredBroker ?broker ; tai:directActuation ?direct ; tai:llmCalls ?llm .
+    }
+  families: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?outcome WHERE {
+      ?family a tai:BuildingBlockFamily ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ; tai:outcome ?outcome .
+    } ORDER BY ?order
+  dependencies: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?blockId ?dependencyId WHERE {
+      ?block a tai:BuildingBlockFamily ; tai:identifier ?blockId ; tai:dependsOn ?dependency .
+      ?dependency a tai:BuildingBlockFamily ; tai:identifier ?dependencyId .
+    } ORDER BY ?blockId ?dependencyId
+---
+{% set p = program | first %}
+{
+  "schema": "ggen.tai.enterprise.v1",
+  "identifier": "{{ p.identifier }}",
+  "version": "{{ p.version }}",
+  "title": "{{ p.title }}",
+  "requiredBroker": "{{ p.broker }}",
+  "directActuation": {{ p.direct }},
+  "llmCalls": {{ p.llm }},
+  "families": [
+{% for row in families %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "label": "{{ row["label"] }}",
+      "outcome": "{{ row["outcome"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "dependencies": [
+{% for row in dependencies %}    {
+      "block": "{{ row["blockId"] }}",
+      "dependsOn": "{{ row["dependencyId"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
