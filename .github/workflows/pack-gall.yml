@@ -37,6 +37,8 @@ jobs:
     name: pack-gall/standing
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      RUSTC_WRAPPER: ''
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install pinned Rust and just
@@ -99,7 +101,7 @@ jobs:
           rust-version = "1.82"
 
           [dependencies]
-          blake3 = "1.8"
+          blake3 = "=1.8.2"
           serde = { version = "1.0", features = ["derive"] }
           serde_json = "1.0"
           thiserror = "2.0"
