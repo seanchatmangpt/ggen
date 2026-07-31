@@ -276,7 +276,16 @@ jobs:
           fi
           cargo fmt --all -- --check
           cargo build -p ggen-cli-lib --bin ggen
-          cargo test -p ggen-engine
+          set +e
+          cargo test -p ggen-engine > /tmp/ggen-engine-test.log 2>&1
+          test_status=$?
+          set -e
+          if [[ $test_status -ne 0 ]]; then
+            echo '=== terminal ggen-engine failure receipt ==='
+            tail -n 300 /tmp/ggen-engine-test.log
+            exit "$test_status"
+          fi
+          tail -n 100 /tmp/ggen-engine-test.log
 
       - name: Remove one-use finalizer and push receipt
         shell: bash
