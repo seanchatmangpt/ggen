@@ -42,7 +42,10 @@ use tera::Value;
 use crate::{
     config::GgenConfig,
     error::{AppError, Result},
-    graph::{DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore},
+    graph::{
+        DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
+        TurtleDocument,
+    },
     template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
     write::{
         plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
@@ -221,14 +224,19 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         EngineKind::GraphLaw => Arc::new(GraphLawStore::new()?),
         EngineKind::Oxigraph => Arc::new(DeterministicGraph::new()?),
     };
-    graph.insert_turtle(&ttl)?;
-
-    // Resolve packs: union their ontologies into the same graph and append
-    // their templates (packs sorted by name, then template path). Pack
-    // content hashes are checked against ggen.lock before anything renders.
+    // Resolve every ontology document before mutating the graph. Each Turtle
+    // parser retains document-local prefix/base/blank-node scope; the admitted
+    // union is committed through one bounded store mutation.
     let packs = crate::pack::resolve(&config, root)?;
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
+    let mut ontology_sources = Vec::with_capacity(
+        1 + packs
+            .iter()
+            .map(|pack| 1 + pack.extra_ontology_paths.len())
+            .sum::<usize>(),
+    );
+    ontology_sources.push((rel_display(root, &ontology_path), ttl));
     for pack in &packs {
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(
@@ -240,11 +248,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 ),
             )
         })?;
-        graph.insert_turtle(&pack_ttl)?;
-        // Union each declared extra ontology (ggen.toml `extra_ontologies`)
-        // after the pack's own ontology.ttl, in declaration order — the
-        // in-manifest replacement for per-pack make-ontology.sh committed
-        // unions.
+        ontology_sources.push((rel_display(root, &pack.ontology_path), pack_ttl));
         for (declared, extra_path) in &pack.extra_ontology_paths {
             let extra_ttl = std::fs::read_to_string(extra_path).map_err(|e| {
                 AppError::fm_pack(
@@ -256,9 +260,20 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     ),
                 )
             })?;
-            graph.insert_turtle(&extra_ttl)?;
+            ontology_sources.push((declared.clone(), extra_ttl));
         }
     }
+    let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
+    let ontology_receipt = graph.insert_turtle_documents(&ontology_documents)?;
+    tracing::debug!(
+        ontology.documents = ontology_receipt.documents,
+        ontology.parsed_quads = ontology_receipt.parsed_quads,
+        ontology.inserted_quads = ontology_receipt.inserted_quads,
+        "ontology batch admitted"
+    );
 
     let templates = discover_templates(root, &config, &packs)?;
 
