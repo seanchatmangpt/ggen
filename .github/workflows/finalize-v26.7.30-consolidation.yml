@@ -150,6 +150,58 @@ jobs:
             git commit -m 'chore(consolidation): reconcile Cargo lock state'
           fi
 
+      - name: Adapt praxis OCEL bridge to bcinr-powl temporal API
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('crates/praxis-graphlaw/src/chatman/engine.rs')
+          text = path.read_text()
+
+          anchors = {
+              'mask': '        let mut fired_mask = 0u64;\n',
+              'fire': '''            fired_mask |= bit;
+                      plog.record_op_fired(doc.run_id, ev.op_index, 0)''',
+              'seal': '            plog.record_run_sealed(doc.run_id, fired_mask)',
+          }
+          for name, anchor in anchors.items():
+              if text.count(anchor) != 1:
+                  raise SystemExit(
+                      f'OCEL compatibility repair refused: {name} anchor count '
+                      f'{text.count(anchor)} != 1'
+                  )
+
+          text = text.replace(
+              anchors['mask'],
+              '        let mut fired_mask = 0u64;\n        let mut run_time = 0u32;\n',
+              1,
+          )
+          text = text.replace(
+              anchors['fire'],
+              '''            fired_mask |= bit;
+                      let logical_time = u32::try_from(ev.at_ns).map_err(|_| {
+                          Refusal::TraceUnlawful(format!(
+                              "event {}: at_ns {} exceeds the u32 logical-time boundary",
+                              ev.id, ev.at_ns
+                          ))
+                      })?;
+                      run_time = run_time.max(logical_time);
+                      plog.record_op_fired(doc.run_id, ev.op_index, logical_time, 0)''',
+              1,
+          )
+          text = text.replace(
+              anchors['seal'],
+              '            plog.record_run_sealed(doc.run_id, fired_mask, run_time)',
+              1,
+          )
+          path.write_text(text)
+          PY
+
+          git add crates/praxis-graphlaw/src/chatman/engine.rs
+          git commit -m 'fix(graphlaw): carry logical time into POWL OCEL records'
+
       - name: Normalize and verify engine admission boundary
         shell: bash
         run: |
