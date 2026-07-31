@@ -158,12 +158,7 @@ fn certification_refuses_missing_replay() {
     let mut receipts = program
         .requirements_through(CertificationLevel::Gbb100Foundation)
         .into_iter()
-        .map(|requirement| {
-            (
-                requirement.id.clone(),
-                requirement_receipt(&requirement.id),
-            )
-        })
+        .map(|requirement| (requirement.id.clone(), requirement_receipt(&requirement.id)))
         .collect::<BTreeMap<_, _>>();
     receipts
         .get_mut("GBB-100-FENCE")
@@ -189,7 +184,9 @@ fn bblocks_generate_dependency_ordered_roadmap() {
     application.selected_realization = None;
     let mut registry = BuildingBlockRegistry::new();
     registry.register(application.clone()).expect("valid root");
-    registry.register(foundation.clone()).expect("valid dependency");
+    registry
+        .register(foundation.clone())
+        .expect("valid dependency");
     let ledger = BTreeMap::from([(foundation.id.clone(), evidence(&foundation))]);
     let target = TargetArchitectureInstance {
         id: "tai-1".to_string(),
@@ -225,7 +222,9 @@ fn complete_tai_rebuild_is_replay_stable_and_alive() {
     let application = block("application", Some("foundation"));
     let mut registry = BuildingBlockRegistry::new();
     registry.register(application.clone()).expect("valid root");
-    registry.register(foundation.clone()).expect("valid dependency");
+    registry
+        .register(foundation.clone())
+        .expect("valid dependency");
     let ledger = BTreeMap::from([
         (foundation.id.clone(), evidence(&foundation)),
         (application.id.clone(), evidence(&application)),
@@ -236,10 +235,10 @@ fn complete_tai_rebuild_is_replay_stable_and_alive() {
         required_profiles: BTreeSet::from([ProfileId::new("core")]),
         expected_composition_digest: None,
     };
-    let first = simulate_tai_rebuild(&registry, &target, "candidate-1", &ledger)
-        .expect("complete rebuild");
-    let second = simulate_tai_rebuild(&registry, &target, "candidate-1", &ledger)
-        .expect("stable replay");
+    let first =
+        simulate_tai_rebuild(&registry, &target, "candidate-1", &ledger).expect("complete rebuild");
+    let second =
+        simulate_tai_rebuild(&registry, &target, "candidate-1", &ledger).expect("stable replay");
     assert_eq!(first, second);
     assert_eq!(first.standing, Standing::Alive);
     assert_eq!(first.order, vec![foundation.id, application.id]);
