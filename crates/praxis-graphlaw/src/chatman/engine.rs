@@ -1574,6 +1574,7 @@ impl ChatmanEngine {
         // Feed the fixed-capacity POWL OCEL log and seal the fired mask.
         let mut plog = PowlOcelLog::new();
         let mut fired_mask = 0u64;
+        let mut run_time = 0u32;
         // O(e): one op_fired record per event.
         for ev in &doc.events {
             let bit = 1u64.checked_shl(ev.op_index).ok_or_else(|| {
@@ -1583,7 +1584,14 @@ impl ChatmanEngine {
                 ))
             })?;
             fired_mask |= bit;
-            plog.record_op_fired(doc.run_id, ev.op_index, 0)
+            let logical_time = u32::try_from(ev.at_ns).map_err(|_| {
+                Refusal::TraceUnlawful(format!(
+                    "event {}: at_ns {} exceeds the u32 logical-time boundary",
+                    ev.id, ev.at_ns
+                ))
+            })?;
+            run_time = run_time.max(logical_time);
+            plog.record_op_fired(doc.run_id, ev.op_index, logical_time, 0)
                 .map_err(|e| {
                     Refusal::TraceUnlawful(format!(
                         "event {}: POWL OCEL log refused the record: {e:?}",
@@ -1592,7 +1600,7 @@ impl ChatmanEngine {
                 })?;
         }
         if doc.sealed {
-            plog.record_run_sealed(doc.run_id, fired_mask)
+plog.record_run_sealed(doc.run_id, fired_mask, run_time)
                 .map_err(|e| {
                     Refusal::TraceUnlawful(format!(
                         "run {}: POWL OCEL log refused the seal: {e:?}",
