@@ -21,8 +21,11 @@ The authored object is not a roadmap document. It is an admitted enterprise grap
 ```text
 TAI brochure and historical mission observation
 → admitted enterprise ontology
+→ bounded internal and external candidate lattices
 → Building Block dependency closure
 → certification knowledge decomposition
+→ deterministic pure plan
+→ explicit authority boundary
 → generated roadmap
 → deterministic non-LLM scenario execution
 → filesystem consequence
@@ -31,6 +34,27 @@ TAI brochure and historical mission observation
 ```
 
 The generated system may manufacture a bounded roadmap and simulation. It may not claim that the historical company, a current company, a contract, a credential, or an operating capability exists.
+
+## Combinatorial maximalism programme
+
+The roadmap factory is governed by ten dependency-closed Gall checkpoints:
+
+| Checkpoint | Bounded object | Required evidence |
+|---|---|---|
+| `G0` | Exact-tree observation | `.ggen/cmd/observation/repository.json` |
+| `G1` | Chesterton fences and ownership | `.ggen/cmd/authority/ownership.json` |
+| `G2` | Canonical semantic authority | `.ggen/cmd/authority/fences.json` |
+| `G3` | Internal candidate lattice | `.ggen/cmd/candidates/internal-candidates.json` |
+| `G4` | External candidate lattice | `.ggen/cmd/candidates/external-candidates.json` |
+| `G5` | Atomic packs and Building Blocks | `.ggen/cmd/plans/closure.json` |
+| `G6` | Pure deterministic kernel | `.ggen/cmd/plans/plan.json` |
+| `G7` | Transactional local materialization | `.ggen/cmd/receipts/results/local-materialization.json` |
+| `G8` | Brokered external actuation | `.ggen/cmd/receipts/intents/external-intent.json` |
+| `G9` | Crown verifier and self-host replay | `.ggen/cmd/verifier/report.json` |
+
+The ontology declares twelve internal dimensions—runtime, storage, invocation, serialization, consistency, scheduling, error, deployment, generation cardinality, ownership, recovery, and verification—and thirteen external dimensions—provider, protocol, identity, authentication, authority scope, consent, data classification, jurisdiction, runtime target, availability, consequence, evidence source, and compensation.
+
+The generated `combinatorial-maximalism-program.json` carries checkpoint order, required artifacts, typed refusal codes, selection cardinalities, coverage modes, authority ceilings, the `PARTIAL_ALIVE` checkpoint ceiling, and the mandatory `BRCE` broker boundary. A checkpoint is a roadmap generator and verifier contract; it is not an authority grant.
 
 ## Building Block families
 
@@ -104,18 +128,19 @@ The generated simulator executes historical, rebuilt-today, post-AGI, contract-d
 
 ## Verification ladder
 
-1. Parse the pack and consumer ontologies.
-2. Execute all fail-closed SPARQL gates.
+1. Parse the pack, enterprise, and CMD ontologies.
+2. Execute all fail-closed SPARQL gates, including exact G0–G9 and lattice cardinality.
 3. Build the real ggen actuator.
 4. Generate the consumer twice and require byte identity.
 5. Verify the ggen manufacturing receipt.
-6. Build, format, lint, and test the generated Rust consumer.
-7. Cross the real subprocess and filesystem boundary for all seven scenarios.
-8. Verify BLAKE3 artifact receipts.
-9. Refuse an unknown scenario.
-10. Refuse artifact tampering.
-11. Require exact replay.
-12. Confirm every one of the eighteen recent capability source paths exists.
+6. Verify the generated ten-checkpoint CMD programme, twelve internal dimensions, and thirteen external dimensions.
+7. Build, format, lint, and test the generated Rust consumer.
+8. Cross the real subprocess and filesystem boundary for all seven scenarios.
+9. Verify scenario-specific transition law and BLAKE3 artifact receipts.
+10. Refuse an unknown scenario.
+11. Refuse artifact tampering.
+12. Require exact replay.
+13. Confirm every one of the eighteen recent capability source paths exists.
 
 ## Standing
 
@@ -131,7 +156,7 @@ The following may become `ALIVE` after observed execution:
 - exact replay;
 - recent-capability path composition.
 
-The following remain `UNKNOWN` without external evidence:
+The G0–G9 programme itself remains capped at `PARTIAL_ALIVE` until its declared repository evidence surfaces, exact-head verifier, and clean-tree replay exist. The following remain `UNKNOWN` without external evidence:
 
 - historical fidelity beyond the admitted source material;
 - the existence of a rebuilt operating company;
