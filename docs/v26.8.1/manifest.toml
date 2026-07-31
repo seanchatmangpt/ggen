@@ -1,5 +1,5 @@
 version = "26.8.1"
-baseline = "main@8387ed060c05096d67895c38144ac7d7499a9a52"
+baseline_ref = "main@8387ed060c05096d67895c38144ac7d7499a9a52"
 required_document_count = 100
 sunset_blocked_by_unknown = true
 
