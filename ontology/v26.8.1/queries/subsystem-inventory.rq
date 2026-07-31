@@ -1,0 +1,9 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+SELECT ?subsystem ?sourcePath ?capability
+WHERE {
+  ?subsystem a ggen:Subsystem ;
+             ggen:sourcePath ?sourcePath .
+  OPTIONAL { ?subsystem ggen:implementsCapability ?capability }
+}
+ORDER BY ?subsystem ?capability
