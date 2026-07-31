@@ -178,7 +178,10 @@ pub enum CertificationRefusal {
     #[error("receipt requirement mismatch: expected `{expected}`, observed `{observed}`")]
     ReceiptRequirementMismatch { expected: String, observed: String },
     #[error("requirement `{requirement}` is missing `{surface}` evidence")]
-    ReceiptSurfaceMissing { requirement: String, surface: String },
+    ReceiptSurfaceMissing {
+        requirement: String,
+        surface: String,
+    },
     #[error("target architecture instance identity is required")]
     TargetIdentityMissing,
     #[error("target architecture instance requires at least one root block")]
