@@ -13,6 +13,7 @@ on:
       - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md"
       - "docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md"
       - "docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md"
+      - "docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md"
       - ".github/workflows/gbb-certification.yml"
   push:
     branches: [main]
@@ -22,6 +23,7 @@ on:
       - "crates/ggen-architecture/tests/testing_bblock.rs"
       - "packs/tai-enterprise-rebuild-pack/**"
       - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md"
       - ".github/workflows/gbb-certification.yml"
   workflow_dispatch:
 
@@ -137,7 +139,7 @@ jobs:
           grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md
           grep -n 'eighteen recent ggen capability rails' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md
           grep -n '18 named checkpoints' docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md
-          grep -n '10 distinct executable suites' docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md
+          grep -n '10 distinct executable suites' docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md
 
       - name: Prove no direct actuation entered the certification kernel
         run: |
