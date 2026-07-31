@@ -1,7 +1,5 @@
 //! End-to-end OntoStar -> POWL v2 -> MuStar candidate manufacturing.
 
-use std::collections::BTreeSet;
-
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -51,11 +49,7 @@ pub fn manufacture_agent_bundle(
     let plan = admit_powl_plan(candidate_plan)?;
     let sol = verification_intent(&plan.plan_digest)?;
     let model_intents = vec![luna, terra, sol];
-    let model_intent_ids = model_intents
-        .iter()
-        .map(|intent| intent.intent_id.clone())
-        .collect::<BTreeSet<_>>();
-    let compilation = compile_plan(&plan, model_intent_ids)?;
+    let compilation = compile_plan(&plan, &model_intents)?;
     let bundle_digest = digest_value(&(
         AGENT_BUNDLE_SCHEMA,
         &model_intents,
