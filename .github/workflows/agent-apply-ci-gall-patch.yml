@@ -11,13 +11,13 @@ permissions:
 
 concurrency:
   group: agent-apply-ci-gall-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   apply:
     name: apply-exact-g1-g4-tree
     if: github.event.pull_request.head.ref == 'agent/ci-cd-g0-inventory-fence'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout exact staged transport head
