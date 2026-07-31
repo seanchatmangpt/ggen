@@ -163,10 +163,13 @@ fn run() -> Result<()> {
         .iter()
         .filter(|row| row.legacy_disposition.trim() == "UNKNOWN")
         .count();
-    let hard_failures = findings.iter().filter(|finding| finding.severity == "ERROR").count();
+    let hard_failures = findings
+        .iter()
+        .filter(|finding| finding.severity == "ERROR")
+        .count();
     let release_admitted = hard_failures == 0 && unknown_standing_count == 0;
-    let zero_unknown_required = manifest.sunset_blocked_by_unknown
-        || manifest.validation.require_zero_unknown_for_sunset;
+    let zero_unknown_required =
+        manifest.sunset_blocked_by_unknown || manifest.validation.require_zero_unknown_for_sunset;
     let sunset_admitted = release_admitted
         && unknown_disposition_count == 0
         && (!zero_unknown_required
@@ -179,12 +182,8 @@ fn run() -> Result<()> {
         "BUILD_BROKEN"
     };
 
-    let observation_bytes = serde_json::to_vec_pretty(&(
-        documents.clone(),
-        &coverage,
-        &workspace,
-        &files,
-    ))?;
+    let observation_bytes =
+        serde_json::to_vec_pretty(&(documents.clone(), &coverage, &workspace, &files))?;
     let observation_digest = blake3::hash(&observation_bytes).to_hex().to_string();
 
     let report = CrownReport {
@@ -333,11 +332,7 @@ fn observe_workspace(root: &Path) -> Result<WorkspaceObservation> {
         &["crates/ggen-cli/src/cmds", "crates/ggen-engine/src/verbs"],
         "rs",
     )?;
-    let diagnostic_codes = scan_tokens(
-        root,
-        "crates/ggen-lsp/src",
-        &["GGEN-", "LAW-", "PACK-"],
-    )?;
+    let diagnostic_codes = scan_tokens(root, "crates/ggen-lsp/src", &["GGEN-", "LAW-", "PACK-"])?;
     let generated_surfaces =
         scan_paths_containing(root, &["GENERATED", "DO NOT EDIT", "@generated"])?;
     let legacy_references =
@@ -429,7 +424,8 @@ fn validate_documents(
             Some(DOC_ROOT),
             format!(
                 "found {}, require {}",
-                documents.len(), manifest.required_document_count
+                documents.len(),
+                manifest.required_document_count
             ),
         );
     }
@@ -504,7 +500,8 @@ fn validate_coverage(
         if row.subsystem.trim().is_empty() {
             invalid += 1;
         }
-        if manifest.validation.require_authority_mapping && row.authority_sources.trim().is_empty() {
+        if manifest.validation.require_authority_mapping && row.authority_sources.trim().is_empty()
+        {
             unmapped += 1;
         }
         if manifest.validation.require_implementation_mapping
@@ -515,9 +512,7 @@ fn validate_coverage(
         if manifest.validation.require_verifier_assignment && row.verifier.trim().is_empty() {
             unmapped += 1;
         }
-        if manifest.validation.require_standing
-            && !allowed_standing.contains(row.standing.trim())
-        {
+        if manifest.validation.require_standing && !allowed_standing.contains(row.standing.trim()) {
             invalid += 1;
         }
         if manifest.validation.require_legacy_disposition
@@ -715,12 +710,7 @@ fn relative(root: &Path, path: &Path) -> String {
         .replace('\\', "/")
 }
 
-fn error(
-    findings: &mut Vec<Finding>,
-    code: &str,
-    path: Option<&str>,
-    message: impl Into<String>,
-) {
+fn error(findings: &mut Vec<Finding>, code: &str, path: Option<&str>, message: impl Into<String>) {
     findings.push(Finding {
         code: code.into(),
         severity: "ERROR".into(),
@@ -730,10 +720,7 @@ fn error(
 }
 
 fn warning(
-    findings: &mut Vec<Finding>,
-    code: &str,
-    path: Option<&str>,
-    message: impl Into<String>,
+    findings: &mut Vec<Finding>, code: &str, path: Option<&str>, message: impl Into<String>,
 ) {
     findings.push(Finding {
         code: code.into(),
