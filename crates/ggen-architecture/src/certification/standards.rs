@@ -3,13 +3,15 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use super::digest;
+use super::{
+    digest, testing_bblock_protocol, TestingBblockProtocol, TestingBblockRefusal,
+};
 
 /// Stable identity of the standards admitted from the seven-day ggen programme.
 pub const GGEN_SEVEN_DAY_STANDARDS_ID: &str = "GGEN-STANDARDS-7D-2026-07-30";
 /// Semantic version of the admitted standards profile.
 pub const GGEN_SEVEN_DAY_STANDARDS_VERSION: &str = "26.7.31";
-const EXPECTED_CHECKPOINTS: usize = 18;
+const EXPECTED_CHECKPOINTS: usize = 19;
 
 /// Authority layer responsible for one standard.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -57,6 +59,7 @@ pub struct StandardsProfile {
     pub governing_equation: String,
     pub root_broker: String,
     pub standing_lattice: Vec<String>,
+    pub testing_bblock: TestingBblockProtocol,
     pub checkpoints: Vec<StandardCheckpoint>,
     pub exclusions: Vec<String>,
 }
@@ -78,6 +81,7 @@ impl StandardsProfile {
                 self.root_broker.clone(),
             ));
         }
+        self.testing_bblock.validate()?;
         if self.checkpoints.len() != EXPECTED_CHECKPOINTS {
             return Err(StandardsProfileRefusal::CardinalityMismatch {
                 expected: EXPECTED_CHECKPOINTS,
@@ -262,6 +266,13 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
             "CI G0 inventories every workflow, names one semantic owner per production output, measures trigger fan-out, and preserves retirement fences before consolidation.",
             "Delete or consolidate workflows before exact inventory, ownership, and missing-owner/duplicate-authority falsifiers execute.",
         ),
+        (
+            "STD-19-TESTING-BBLOCK",
+            StandardAuthority::Verification,
+            StandardStatus::PendingCheckpoint,
+            "Testing is a canonical Building Block with ten distinct executable suites: protocol/unit, property/fuzz, stdio plus HTTP integration, black-box CLI E2E, security, chaos, stress, benchmark, replay, and machine-readable verifier report.",
+            "Collapse the suites into one undifferentiated command or claim ALIVE while any declared suite remains a pending checkpoint.",
+        ),
     ];
     StandardsProfile {
         id: GGEN_SEVEN_DAY_STANDARDS_ID.to_string(),
@@ -280,6 +291,7 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
         .into_iter()
         .map(str::to_string)
         .collect(),
+        testing_bblock: testing_bblock_protocol(),
         checkpoints: rows
             .into_iter()
             .map(|(id, authority, status, law, falsifier)| StandardCheckpoint {
@@ -296,6 +308,7 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
             "no synthetic evidence promoted as production standing",
             "no pending checkpoint contributing to ALIVE",
             "no weighted average hiding a missing conjunctive capability",
+            "no collapsed testing suite hiding an unexecuted boundary",
         ]
         .into_iter()
         .map(str::to_string)
@@ -319,6 +332,8 @@ pub enum StandardsProfileRefusal {
     DuplicateCheckpoint(String),
     #[error("seven-day standards standing lattice is not canonical")]
     StandingLatticeMismatch,
+    #[error(transparent)]
+    TestingBblock(#[from] TestingBblockRefusal),
     #[error("seven-day standards serialization failed: {0}")]
     Serialization(String),
 }
