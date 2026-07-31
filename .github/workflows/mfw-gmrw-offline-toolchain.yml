@@ -62,13 +62,13 @@ jobs:
           rust-version = "1.82"
 
           [dependencies]
-          blake3 = "1.8"
+          blake3 = "=1.8.2"
           serde = { version = "1.0", features = ["derive"] }
           serde_json = "1.0"
           thiserror = "2.0"
           TOML
           printf 'fn main() {}\n' > /tmp/mfw-deps/src/main.rs
-          rustup run 1.82.0 cargo fetch --locked --manifest-path /tmp/mfw-deps/Cargo.toml || rustup run 1.82.0 cargo generate-lockfile --manifest-path /tmp/mfw-deps/Cargo.toml
+          rustup run 1.82.0 cargo generate-lockfile --manifest-path /tmp/mfw-deps/Cargo.toml
           rustup run 1.82.0 cargo fetch --locked --manifest-path /tmp/mfw-deps/Cargo.toml
           rustup run 1.82.0 cargo check --locked --manifest-path /tmp/mfw-deps/Cargo.toml
 
