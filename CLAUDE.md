@@ -45,7 +45,7 @@ The split calculus: after a feature is extracted into its own project, the origi
 ## Architecture Reference
 
 <<<<<<< GENERATED
-### Crate Map (17 workspace crates, generated from `.specify/repo-facts.ttl`)
+### Crate Map (18 workspace crates, generated from `.specify/repo-facts.ttl`)
 
 Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries) plus the root `ggen` package = 17 total (`grep -c '^  "crates/' Cargo.toml` → 16). Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). PR #257 (2026-07-17) added a 17th member, `ggen-cheat-scanner` (see Testing table below). For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.
 
@@ -70,6 +70,7 @@ Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries)
 | `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths |
 | `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts |
 | `ggen` | Workspace root package |
+| `openapi-cnv-reflect` | Lever 1 (docs/how-to/clap-noun-verb/zero-code-cli.md phase-change analysis): reflects an OpenAPI 3.x document into a cnv:Cli ontology.ttl consumable unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one reflection pass instead of N hand-authored RDF fact blocks. Added to `[workspace] members` in Cargo.toml but was missing from this facts file until 2026-07-31 (G4 governance/system evidence pass) — a real crate-map/repo-facts divergence, caught by `crates/ggen-config/tests/system_crate_map_parity_test.rs`, not merely asserted here. |
 
 ### Commands (generated)
 
