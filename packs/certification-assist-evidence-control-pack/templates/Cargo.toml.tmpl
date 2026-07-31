@@ -1,0 +1,17 @@
+[package]
+name = "certification-assist-evidence-control-consumer"
+version = "26.7.31"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+ggen-graph = { path = "../../../../crates/ggen-graph" }
+
+[lints.rust]
+unsafe_code = "forbid"

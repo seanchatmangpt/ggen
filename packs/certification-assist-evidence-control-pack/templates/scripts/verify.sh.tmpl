@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+CONSUMER="$ROOT/consumer/evidence-control"
+REPORT="$ROOT/CONTROL_REPORT.json"
+
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/../../target}"
+
+cargo test --manifest-path "$CONSUMER/Cargo.toml"
+cargo run --quiet --manifest-path "$CONSUMER/Cargo.toml" --bin verify > "$REPORT"
+
+python3 - "$CONSUMER" "$REPORT" <<'PY'
+import json
+import pathlib
+import sys
+
+consumer = pathlib.Path(sys.argv[1])
+report_path = pathlib.Path(sys.argv[2])
+mcp = json.loads((consumer / "protocol" / "mcp-server.json").read_text())
+a2a = json.loads((consumer / "protocol" / "a2a-agent-card.json").read_text())
+release = json.loads((consumer / "RELEASE_STANDING.json").read_text())
+report = json.loads(report_path.read_text())
+policy = json.loads((consumer / "automation" / "CONTROL_POLICY.json").read_text())
+
+assert len(mcp["resources"]) == 3
+assert len(mcp["tools"]) == 6
+assert all(tool["annotations"]["readOnlyHint"] for tool in mcp["tools"])
+assert all(tool["execution"]["taskSupport"] == "forbidden" for tool in mcp["tools"])
+assert len(a2a["skills"]) == 6
+assert a2a["supportedInterfaces"][0]["protocolVersion"] == "1.0"
+assert release["realLearnerEfficacy"] == "UNKNOWN"
+assert release["psychometricValidity"] == "UNKNOWN"
+assert release["externalIssuerStanding"] == "UNKNOWN"
+assert report["standing"] == "ALIVE"
+assert report["capabilities"] == 9
+assert report["proof_surfaces"] == 27
+assert report["learner_efficacy"] == "Supported"
+assert report["psychometric_validity"] == "Supported"
+assert report["external_issuer_standing"] == "Active"
+assert policy["learnerEfficacy"]["directActuation"] is False
+assert policy["psychometricValidity"]["directActuation"] is False
+assert policy["externalIssuerStanding"]["directActuation"] is False
+PY
+
+printf 'CertificationAssist evidence control: ALIVE / 9 capabilities / 27 proof surfaces\n'

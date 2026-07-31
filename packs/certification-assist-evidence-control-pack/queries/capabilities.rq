@@ -1,0 +1,14 @@
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?order ?slug ?rustVariant ?name ?category ?outcome
+WHERE {
+  ?s a caec:Capability ;
+    caec:order ?order ;
+    caec:slug ?slug ;
+    caec:rustVariant ?rustVariant ;
+    rdfs:label ?name ;
+    caec:category ?category ;
+    caec:outcome ?outcome .
+}
+ORDER BY ?order

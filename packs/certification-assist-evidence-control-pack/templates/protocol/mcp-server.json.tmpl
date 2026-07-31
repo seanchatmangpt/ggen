@@ -1,0 +1,23 @@
+{
+  "name": "certification-assist-evidence-control",
+  "version": "26.7.31",
+  "protocolVersion": "2025-11-25",
+  "resources": [
+    {"uri": "certification://learner-efficacy", "name": "Learner efficacy evidence"},
+    {"uri": "certification://psychometric-validity", "name": "Psychometric calibration evidence"},
+    {"uri": "certification://issuer-standing", "name": "External issuer standing evidence"}
+  ],
+  "tools": [
+{% for row in results %}    {
+      "name": "{{ row["toolName"] }}",
+      "description": "{{ row["description"] }}",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "execution": {"taskSupport": "forbidden"}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

@@ -1,0 +1,16 @@
+# Any row refuses sync: exactly 9 capabilities and 27 proof edges.
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+
+SELECT ?kind ?observed ?expected
+WHERE {
+  {
+    SELECT ("capabilities" AS ?kind) (COUNT(DISTINCT ?capability) AS ?observed) (9 AS ?expected)
+    WHERE { ?capability a caec:Capability . }
+  }
+  UNION
+  {
+    SELECT ("proof-surfaces" AS ?kind) (COUNT(*) AS ?observed) (27 AS ?expected)
+    WHERE { ?capability a caec:Capability ; caec:requiresSurface ?surface . }
+  }
+  FILTER(?observed != ?expected)
+}

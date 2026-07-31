@@ -1,0 +1,20 @@
+# Any row refuses sync.
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?capability ?missing
+WHERE {
+  ?capability a caec:Capability .
+  VALUES (?property ?missing) {
+    (caec:order "order")
+    (caec:slug "slug")
+    (caec:rustVariant "rustVariant")
+    (rdfs:label "label")
+    (caec:category "category")
+    (caec:outcome "outcome")
+    (caec:implementation "implementation")
+    (caec:verifier "verifier")
+    (caec:falsifier "falsifier")
+  }
+  FILTER NOT EXISTS { ?capability ?property ?value . }
+}
