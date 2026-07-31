@@ -166,7 +166,7 @@ Generated from imported `rf:Pack` facts (name/version/description transcribed fr
 | `wasm4pm-compat-pack` | 0.1.0 | OCEL event-type emission enum and emit helper fns targeting wasm4pm-compat (emission surface only; all analysis stays in wasm4pm-compat), with an ontology-declared per-event attribute schema (w4pm:hasAttribute) and IRI-t… |
 | `wasm4pm-facts-pack` | 0.2.1 | Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl (drift-checked against upstream, see DRIFT_LOG… |
 | `wasm4pm-pack` | 0.1.0 | Typed Rust catalog + dependency graph + reference doc, generated from crate-map vocabulary for the ~/wasm4pm workspace itself (distinct from packs/wasm4pm-{algorithms,cognition,compat,facts}-pack, which model wasm4pm's A… |
-| `wasm4pm-interview-assist-pack` | 0.1.0 | InterviewAssist PRD/ARD represented as admitted public-ontology RDF using schema.org, DCTERMS, PROV-O, SKOS, ODRL, DCAT, SPDX, Hydra, DOAP, and FOAF with no project-local classes or predicates. Nine ontology graphs plus o… |
+| `wasm4pm-interview-assist-pack` | 0.1.0 | InterviewAssist PRD/ARD represented as admitted public-ontology RDF using schema.org, DCTERMS, PROV-O, SKOS, ODRL, DCAT, SPDX, Hydra, DOAP, and FOAF with no project-local classes or predicates. Nine ontology graphs plus … |
 
 ## Cross-Cutting Patterns
 

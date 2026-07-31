@@ -159,12 +159,12 @@ skip_empty  = false
 mode        = "Merge"
 
 [[generation.rules]]
-name        = "docs-generations"
+name        = "docs-generations-ledger"
 query       = { inline = """
 PREFIX gen: <http://ggen.org/generations#>
-SELECT ?t WHERE { ?x a gen:DocSection ; gen:sid "intro" ; gen:text ?t . } ORDER BY ?t
+SELECT ?commit WHERE { gen:G0 a gen:Generation ; gen:commit ?commit . } ORDER BY ?commit
 """ }
-template    = { file = ".specify/templates/docs/generations.md.tera" }
+template    = { file = ".specify/templates/docs/generations_ledger.md.tera" }
 output_file = "docs/GENERATIONS.md"
 skip_empty  = false
 mode        = "Overwrite"
