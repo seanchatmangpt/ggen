@@ -1,0 +1,10 @@
+name: Fixture A
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python3 --version
