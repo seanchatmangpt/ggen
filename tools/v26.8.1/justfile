@@ -8,6 +8,9 @@ observe:
 verify:
     cargo run --manifest-path Cargo.toml -- --root {{root}}
 
+step-two:
+    python3 step_two.py --root {{root}}
+
 fmt:
     cargo fmt --manifest-path Cargo.toml -- --check
 
