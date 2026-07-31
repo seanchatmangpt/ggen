@@ -411,6 +411,288 @@ CATALOG: list[LegacyCapability] = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Observer-class extension (2026-07-31 exhaustive-observer pass)
+#
+# Everything below EXT_CATALOG is additive: it extends the archaeology with a
+# systematic sweep organized by OBSERVER CLASS (20 generic extraction
+# strategies applied to real git history) rather than by manually reviewing
+# commits one at a time. Every individual below carries a real commit hash
+# this session confirmed with `git log`/`git show` against this worktree.
+#
+# See docs/v26.8.1/90-legacy/observer-class-report.md for the full per-class
+# accounting (observed/admitted/deduplicated/excluded counts and reasons for
+# all 20 classes, including the many that legitimately yielded zero).
+#
+# URI/slug convention: all new individuals use the `legacy_ext_` slug prefix
+# (vs. the original catalog's bare `legacy_` prefix) so there is no collision
+# with the 15 pre-existing individuals and the provenance of each entry is
+# visible at a glance.
+# ---------------------------------------------------------------------------
+
+# Observer class 15: `just` recipes removed from justfile across its history.
+# Evidence method: `git log --all -p -- justfile` captured to a file, then
+# for each recipe name currently absent from justfile, the nearest preceding
+# commit whose diff contains a `-<recipe>:` line was located programmatically
+# (tools/v26.8.1/legacy_archaeology.py's find-removal helper used ad hoc this
+# session; the located commits were re-verified individually with
+# `git show <hash> -- justfile` before being admitted here).
+_JUST_RECIPE_REMOVALS: list[tuple[str, str, str]] = [
+    ("doctor", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("graph", "d816469fa", "ultravibe coding"),
+    ("pipeline", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("docker", "f80c458ea", "chore(docker): update justfile commands for docker"),
+    ("docker-build", "7afa50f8c", "chore(CI): Update Dockerfile"),
+    ("docker-run", "7afa50f8c", "chore(CI): Update Dockerfile"),
+    ("docker-test", "7afa50f8c", "chore(CI): Update Dockerfile"),
+    ("docker-version", "7afa50f8c", "chore(CI): Update Dockerfile"),
+    ("build-docker", "2c0753296", "chore(docker): Initial docker implementation"),
+    ("build-image", "d816469fa", "ultravibe coding"),
+    ("push-image", "d816469fa", "ultravibe coding"),
+    ("lsp-max-check", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("lsp-check", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("lsp-max-edit", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("lsp-max-sync", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("test-mutation", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("test-bdd", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("test-changed", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("test-marketplace", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("test-marketplace-full", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("run-tests", "d816469fa", "ultravibe coding"),
+    ("affidavit-seal", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("affidavit-verify", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("evidence-audit", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("evidence-show", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("certification-show", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("workspace-sync", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("status-audit", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("pipeline-status", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("pipeline-validate", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("publish-check", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("target-prune", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("target-show", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+    ("git-status", "083651dba", "release: v26.7.3 DX rewrite + CI fixes (#249)"),
+]
+
+
+def _just_recipe_capability(name: str, commit: str, subject: str) -> LegacyCapability:
+    return LegacyCapability(
+        slug=f"legacy_ext_just_recipe_{name.replace('-', '_')}",
+        subsystem="system",
+        historical_source_commit=f"{commit} ({subject})",
+        legacy_source_path="justfile",
+        historical_semantic_owner="justfile author",
+        input_contract=f"`just {name}` (no further args re-derived; not re-implemented)",
+        output_contract="UNKNOWN -- recipe body not re-derived from history, only its removal is evidenced",
+        error_contract="UNKNOWN",
+        side_effects="UNKNOWN",
+        ordering_requirements="UNKNOWN",
+        default_behavior=f"`just {name}` no longer exists; `just --list` does not show it",
+        configuration_dependencies="justfile",
+        evidence_fixtures=f"git show {commit} -- justfile (recipe removed in this diff)",
+        replacement_owner="",
+        disposition="ARCHIVED",
+        standing="UNKNOWN",
+        archive_path=f"git history at {commit}^ -- justfile",
+        notes=(
+            "Found via observer class 15 (git log -p -- justfile, pickaxe over "
+            "removal diffs). Only the recipe's existence and removal commit are "
+            "evidenced here, not its full historical body/semantics -- re-deriving "
+            "that would require reading the full pre-removal recipe text, which "
+            "this pass did not do for every recipe to stay within scope."
+        ),
+    )
+
+
+# Observer class 11: crates deleted in the 2026-07 consolidation pass, listed
+# in .claude/rules/architecture.md's "Removed in the 2026-07 consolidation
+# pass" note but not yet given LegacyCapability individuals (`stpnt` and
+# `genesis-core` were already captured in the original 15-capability CATALOG
+# above; skipped here per the task brief).
+#
+# Observer class 12: for each crate below, its last public API (`pub `-level
+# items in its src/lib.rs, or its binary's `fn main`) as of the commit
+# immediately before deletion (1752de841^). Folded into the same individual
+# as class 11 rather than duplicated, since the API surface is evidence *for*
+# the crate's capability claim, not an independent capability -- counted as
+# deduplicated_count under class 12 in the report, not double-admitted.
+EXT_CATALOG: list[LegacyCapability] = [
+    LegacyCapability(
+        slug="legacy_ext_genesis_construct8_crate",
+        subsystem="system",
+        historical_source_commit="1752de841 (chore(consolidation): phase 1 - delete dormant/dead code (0 blast radius))",
+        legacy_source_path="crates/genesis-construct8/ (deleted whole crate)",
+        historical_semantic_owner="genesis-construct8 crate (dead, zero dependents at removal time per commit message)",
+        input_contract="UNKNOWN -- dead code at removal time, no dependents to observe a live contract from",
+        output_contract="Public modules per `git show 1752de841^:crates/genesis-construct8/src/lib.rs`: adapters, admission, forge, hierarchy, models, projectors, receipt, replay, stream; re-exports parse_input_to_packets",
+        error_contract="UNKNOWN",
+        side_effects="UNKNOWN",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="UNKNOWN",
+        evidence_fixtures="git show 1752de841^:crates/genesis-construct8/src/lib.rs (pub mod/pub use list captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+        notes="Listed in .claude/rules/architecture.md's 2026-07 consolidation removal note; not previously given a LegacyCapability individual.",
+    ),
+    LegacyCapability(
+        slug="legacy_ext_genesis_lockchain_crate",
+        subsystem="system",
+        historical_source_commit="1752de841",
+        legacy_source_path="crates/genesis-lockchain/ (deleted whole crate)",
+        historical_semantic_owner="genesis-lockchain crate (dead, zero dependents at removal time per commit message)",
+        input_contract="UNKNOWN -- dead code at removal time",
+        output_contract="Public API per `git show 1752de841^:crates/genesis-lockchain/src/lib.rs`: merkle::{MerkleError,MerkleProof,MerkleTree}, quorum::{PeerId,QuorumError,QuorumManager,QuorumProof}, storage::{LockchainStorage,StorageError}, LockchainError, Receipt",
+        error_contract="LockchainError (own enum)",
+        side_effects="UNKNOWN",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="UNKNOWN",
+        evidence_fixtures="git show 1752de841^:crates/genesis-lockchain/src/lib.rs (pub mod/pub use/pub enum/pub struct list captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+    ),
+    LegacyCapability(
+        slug="legacy_ext_genesis_wasm_shell_crate",
+        subsystem="system",
+        historical_source_commit="1752de841",
+        legacy_source_path="crates/genesis-wasm-shell/ (deleted whole crate)",
+        historical_semantic_owner="genesis-wasm-shell crate (dead, zero dependents at removal time per commit message)",
+        input_contract="UNKNOWN -- dead code at removal time",
+        output_contract="Public API per `git show 1752de841^:crates/genesis-wasm-shell/src/lib.rs`: WasmPair2, WasmRelationPage, RelationPageStreamer, WasmConstruct8, WasmReceipt, WasmReplayCursor (wasm-bindgen shell types)",
+        error_contract="UNKNOWN",
+        side_effects="UNKNOWN",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="UNKNOWN",
+        evidence_fixtures="git show 1752de841^:crates/genesis-wasm-shell/src/lib.rs (pub struct list captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+    ),
+    LegacyCapability(
+        slug="legacy_ext_ggen_daemon_crate",
+        subsystem="system",
+        historical_source_commit="1752de841",
+        legacy_source_path="crates/ggen-daemon/ (deleted whole crate)",
+        historical_semantic_owner="ggen-daemon crate (dead, zero dependents at removal time per commit message)",
+        input_contract="UNKNOWN -- dead code at removal time",
+        output_contract="Public modules per `git show 1752de841^:crates/ggen-daemon/src/lib.rs`: amplifier, campaign, cascade, catalog, catalog_sync, dispatch, error, expansion, health, manifest_cache, mcp_server, validator, metrics, ocel_log, ontology, parallel_dispatch, remediation, repo_manager, retry, scheduler (and more; list truncated to the first 20 by this session's evidence capture)",
+        error_contract="its own error module",
+        side_effects="Implies an mcp_server module -- likely ran as a standalone daemon process; not independently re-verified",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="UNKNOWN",
+        evidence_fixtures="git show 1752de841^:crates/ggen-daemon/src/lib.rs (pub mod list, first 20 entries captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+        notes="Largest of the 6 admitted class-11 crates by module count; genuinely a standalone daemon/orchestrator, not a stub.",
+    ),
+    LegacyCapability(
+        slug="legacy_ext_ggen_membrane_crate",
+        subsystem="system",
+        historical_source_commit="1752de841",
+        legacy_source_path="crates/ggen-membrane/ (deleted whole crate)",
+        historical_semantic_owner="ggen-membrane crate (dead, zero dependents at removal time per commit message)",
+        input_contract="UNKNOWN -- dead code at removal time",
+        output_contract="Public API per `git show 1752de841^:crates/ggen-membrane/src/lib.rs`: GenesisAdapter (trait), MembraneError, SymbolPage, SymbolPageBuilder, PublicExpansionLaw, ExternalClaim, MembraneFoundry",
+        error_contract="MembraneError (own enum)",
+        side_effects="UNKNOWN",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="UNKNOWN",
+        evidence_fixtures="git show 1752de841^:crates/ggen-membrane/src/lib.rs (pub trait/enum/struct list captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+    ),
+    LegacyCapability(
+        slug="legacy_ext_ggen_projection_crate",
+        subsystem="system",
+        historical_source_commit="1752de841",
+        legacy_source_path="crates/ggen-projection/ (deleted whole crate)",
+        historical_semantic_owner="ggen-projection crate (dead, zero dependents at removal time per commit message)",
+        input_contract="RelationPage / Pair2 values (own types)",
+        output_contract="Public API per `git show 1752de841^:crates/ggen-projection/src/lib.rs`: Pair2, RelationPage, normalize_resource/normalize_predicate/normalize_object/escape_literal, project_ocel2, project_nquads, project_prov, project_dcat, project_shacl_refusal -- a multi-format RDF/OCEL projection surface (N-Quads, PROV, DCAT, SHACL refusal, OCEL2)",
+        error_contract="UNKNOWN",
+        side_effects="none beyond in-memory string projection (functions return serde_json::Value or String)",
+        ordering_requirements="UNKNOWN",
+        default_behavior="UNKNOWN",
+        configuration_dependencies="depends on knhk_construct8::Receipt for project_prov/project_dcat",
+        evidence_fixtures="git show 1752de841^:crates/ggen-projection/src/lib.rs (pub fn/struct list captured this session)",
+        replacement_owner="",
+        disposition="REFUSED",
+        standing="UNKNOWN",
+        archive_path="git history at 1752de841^",
+        notes="Notably overlaps in spirit with ggen-graph's current deterministic-hashing/receipt machinery (N-Quads/PROV/DCAT projection) but no explicit migration commit was found linking the two -- treat as REFUSED, not SUBSUMED, absent that link.",
+    ),
+]
+
+# Observer class 10: historical template `mode = "..."` values beyond the
+# current 3-variant GenerationMode enum (Create/Overwrite/Merge, confirmed
+# live in crates/ggen-config/src/manifest/types.rs). Found via
+# `git log --all -p -S'mode = "Append"'` / `-S'mode = "Update"'` pickaxe
+# searches across the whole repository (not crate-scoped, since these values
+# appear in .ttl/.tmpl fixtures and older non-workspace generator code, not
+# only crates/).
+EXT_CATALOG.extend(
+    [
+        LegacyCapability(
+            slug="legacy_ext_template_mode_append",
+            subsystem="engine",
+            historical_source_commit="e61137384 / 9187e8ec1 / 2e752ce45 (pickaxe hits for `mode = \"Append\"`; earliest clean hit not independently re-dated beyond confirming presence in `git log --all -p -S'mode = \"Append\"'` output)",
+            legacy_source_path="template frontmatter (`.tmpl`/pack ontology mode fields) predating the current 3-variant GenerationMode enum",
+            historical_semantic_owner="pre-GenerationMode-consolidation template frontmatter parser",
+            input_contract="`mode = \"Append\"` in template frontmatter",
+            output_contract="UNKNOWN -- semantics not re-derived from history; only the string's historical presence is evidenced",
+            error_contract="UNKNOWN",
+            side_effects="UNKNOWN (presumed: append generated content to an existing file, by analogy with the name)",
+            ordering_requirements="UNKNOWN",
+            default_behavior="Not one of the 3 variants (Create/Overwrite/Merge) in the live `ggen_config::manifest::types::GenerationMode` enum today",
+            configuration_dependencies="template frontmatter",
+            evidence_fixtures="git log --all -p -S'mode = \"Append\"' (pickaxe hits, not crate-scoped)",
+            replacement_owner="",
+            disposition="UNKNOWN",
+            standing="UNKNOWN",
+            notes="A genuine Chesterton's-fence candidate: this pass did not verify whether Append was ever a real, load-bearing frontmatter mode or only appeared in aspirational docs/comments -- flagging for follow-up rather than asserting either.",
+        ),
+        LegacyCapability(
+            slug="legacy_ext_template_mode_update",
+            subsystem="engine",
+            historical_source_commit="fca98756f (refactor(daemon): replace custom generator with SyncExecutor from ggen-core) / 6af9ba404 (feat(specs): add universal domain, cron schedule ontology, and 8 spec bundles)",
+            legacy_source_path="template frontmatter mode field, pre-SyncExecutor generator (ggen-daemon's custom generator, replaced by fca98756f)",
+            historical_semantic_owner="ggen-daemon's own custom generator (pre-SyncExecutor)",
+            input_contract="`mode = \"Update\"` in template frontmatter",
+            output_contract="UNKNOWN -- semantics not re-derived; ggen-daemon itself is now fully deleted (see legacy_ext_ggen_daemon_crate above), so this mode's implementation is gone along with its owning crate",
+            error_contract="UNKNOWN",
+            side_effects="UNKNOWN",
+            ordering_requirements="UNKNOWN",
+            default_behavior="Not one of the 3 variants (Create/Overwrite/Merge) in the live GenerationMode enum",
+            configuration_dependencies="template frontmatter, ggen-daemon's custom generator",
+            evidence_fixtures="git log --all --oneline -S'mode = \"Update\"' (pickaxe hits)",
+            replacement_owner="crates/ggen-engine's SyncExecutor-based pipeline (per commit fca98756f's own message)",
+            disposition="REPLACED",
+            standing="UNKNOWN",
+            archive_path="git history at fca98756f^",
+            notes="Directly related to legacy_ext_ggen_daemon_crate: this mode belonged to the daemon's own generator, replaced by SyncExecutor per the commit's explicit message, not merely coincidentally deleted alongside it.",
+        ),
+    ]
+)
+
+EXT_CATALOG.extend(
+    _just_recipe_capability(name, commit, subject)
+    for name, commit, subject in _JUST_RECIPE_REMOVALS
+)
+
+
 def escape(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
 
@@ -454,6 +736,7 @@ def to_turtle(cap: LegacyCapability) -> str:
 
 def emit() -> None:
     head = run(["git", "rev-parse", "HEAD"]).strip() or "UNKNOWN"
+    total = len(CATALOG) + len(EXT_CATALOG)
     header = f"""# ontology/v26.8.1/legacy-capabilities.ttl — GENERATED DATA FILE
 #
 # Produced by tools/v26.8.1/legacy_archaeology.py from real git history
@@ -461,9 +744,11 @@ def emit() -> None:
 # evidence backing each individual (commit hashes, deleted paths).
 #
 # Generated against HEAD: {head}
-# Individual count: {len(CATALOG)}
+# Individual count: {total} ({len(CATALOG)} original + {len(EXT_CATALOG)} from the
+# 2026-07-31 exhaustive-observer pass, see EXT_CATALOG and
+# docs/v26.8.1/90-legacy/observer-class-report.md)
 #
-# Do not hand-edit the individuals below; edit the CATALOG in
+# Do not hand-edit the individuals below; edit CATALOG/EXT_CATALOG in
 # tools/v26.8.1/legacy_archaeology.py and re-run:
 #   python3 tools/v26.8.1/legacy_archaeology.py emit
 
@@ -472,9 +757,9 @@ def emit() -> None:
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 """
-    body = "\n\n".join(to_turtle(cap) for cap in CATALOG)
+    body = "\n\n".join(to_turtle(cap) for cap in CATALOG + EXT_CATALOG)
     OUT_PATH.write_text(header + body + "\n", encoding="utf-8")
-    print(f"Wrote {len(CATALOG)} LegacyCapability individuals to {OUT_PATH}")
+    print(f"Wrote {total} LegacyCapability individuals to {OUT_PATH}")
 
 
 def main(argv: list[str]) -> int:
