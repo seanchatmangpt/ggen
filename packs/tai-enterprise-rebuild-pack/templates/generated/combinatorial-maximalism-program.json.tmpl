@@ -23,18 +23,23 @@ sparql:
   options: |
     PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?order ?identifier ?scope ?dimension ?label ?authorityCeiling ?reversibility
-           (GROUP_CONCAT(DISTINCT ?requiredIdentifier; separator="|") AS ?requires)
-           (GROUP_CONCAT(DISTINCT ?incompatibleIdentifier; separator="|") AS ?incompatibleWith)
-    WHERE {
+    SELECT ?order ?identifier ?scope ?dimension ?label ?authorityCeiling ?reversibility WHERE {
       ?option a tai:CandidateOption ; tai:order ?order ; tai:identifier ?identifier ; tai:scope ?scope ;
               tai:dimensionIdentifier ?dimension ; skos:prefLabel ?label ; tai:authorityCeiling ?authorityCeiling ;
               tai:reversibility ?reversibility .
-      OPTIONAL { ?option tai:requiresOption ?required . ?required tai:identifier ?requiredIdentifier . }
-      OPTIONAL { ?option tai:incompatibleWith ?incompatible . ?incompatible tai:identifier ?incompatibleIdentifier . }
-    }
-    GROUP BY ?order ?identifier ?scope ?dimension ?label ?authorityCeiling ?reversibility
-    ORDER BY ?scope ?order
+    } ORDER BY ?scope ?order ?identifier
+  requirements: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?optionIdentifier ?requiredIdentifier WHERE {
+      ?option a tai:CandidateOption ; tai:identifier ?optionIdentifier ; tai:requiresOption ?required .
+      ?required a tai:CandidateOption ; tai:identifier ?requiredIdentifier .
+    } ORDER BY ?optionIdentifier ?requiredIdentifier
+  incompatibilities: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?optionIdentifier ?incompatibleIdentifier WHERE {
+      ?option a tai:CandidateOption ; tai:identifier ?optionIdentifier ; tai:incompatibleWith ?incompatible .
+      ?incompatible a tai:CandidateOption ; tai:identifier ?incompatibleIdentifier .
+    } ORDER BY ?optionIdentifier ?incompatibleIdentifier
 ---
 {
   "schema": "ggen.tai.combinatorial-maximalism-program.v1",
@@ -76,9 +81,19 @@ sparql:
       "dimension": "{{ row["dimension"] }}",
       "label": "{{ row["label"] }}",
       "authorityCeiling": "{{ row["authorityCeiling"] }}",
-      "reversibility": "{{ row["reversibility"] }}",
-      "requires": [{% if row["requires"] != "" %}{% for required in row["requires"] | split(pat="|") %}"{{ required }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}],
-      "incompatibleWith": [{% if row["incompatibleWith"] != "" %}{% for blocked in row["incompatibleWith"] | split(pat="|") %}"{{ blocked }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}]
+      "reversibility": "{{ row["reversibility"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "requirements": [
+{% for row in requirements %}    {
+      "option": "{{ row["optionIdentifier"] }}",
+      "required": "{{ row["requiredIdentifier"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "incompatibilities": [
+{% for row in incompatibilities %}    {
+      "option": "{{ row["optionIdentifier"] }}",
+      "incompatible": "{{ row["incompatibleIdentifier"] }}"
     }{% if not loop.last %},{% endif %}
 {% endfor %}  ]
 }
