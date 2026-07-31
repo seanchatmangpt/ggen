@@ -270,13 +270,16 @@ def load_manifest(path: Path) -> dict[str, Any]:
         expanded: list[dict[str, Any]] = []
         for filename, facts in compact.items():
             fence_class = facts.get("fence", "")
+            outputs = facts.get("outputs")
+            if not isinstance(outputs, list):
+                outputs = [facts.get("output", "")]
             expanded.append(
                 {
                     "path": f".github/workflows/{filename}",
                     "owner": facts.get("owner", ""),
                     "purpose": facts.get("purpose", ""),
                     "evidence_output": facts.get("evidence", ""),
-                    "production_outputs": [facts.get("output", "")],
+                    "production_outputs": outputs,
                     "retirement_condition": fence_classes.get(fence_class, ""),
                     "retirement_class": fence_class,
                 }
@@ -332,12 +335,17 @@ def validate_manifest(manifest: dict[str, Any], actual_paths: list[str]) -> list
 def build_report(manifest: dict[str, Any], observed: list[dict[str, Any]]) -> dict[str, Any]:
     semantic_by_path = {entry["path"]: entry for entry in manifest["workflow"]}
     command_users: dict[str, list[str]] = defaultdict(list)
+    output_users: dict[str, list[dict[str, str]]] = defaultdict(list)
     rows: list[dict[str, Any]] = []
 
     for workflow in observed:
         for family in workflow["command_families"]:
             command_users[family].append(workflow["path"])
         semantic = semantic_by_path[workflow["path"]]
+        for output in semantic["production_outputs"]:
+            output_users[output].append(
+                {"owner": semantic["owner"], "workflow": workflow["path"]}
+            )
         rows.append({**workflow, **semantic})
 
     duplicates = {
@@ -360,6 +368,11 @@ def build_report(manifest: dict[str, Any], observed: list[dict[str, Any]]) -> di
         "branch_protection": manifest.get("branch_protection", {}),
         "queue_runtime_baseline": manifest.get("queue_runtime_baseline", {}),
         "duplicate_command_families": duplicates,
+        "shared_production_outputs": {
+            output: users
+            for output, users in sorted(output_users.items())
+            if len(users) > 1
+        },
         "workflows": sorted(rows, key=lambda row: row["path"]),
         "exclusions": [
             "No workflow was added, deleted, disabled, or behaviorally changed by G0.",
@@ -395,6 +408,15 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"| `{row['path']}` | `{row['owner']}` | {triggers} | {permissions} | "
             f"{evidence} | {retirement} |"
         )
+    lines.extend(["", "## Shared production outputs", ""])
+    if report["shared_production_outputs"]:
+        for output, users in report["shared_production_outputs"].items():
+            bindings = ", ".join(
+                f"`{item['workflow']}` → `{item['owner']}`" for item in users
+            )
+            lines.append(f"- `{output}` — {bindings}")
+    else:
+        lines.append("- None observed.")
     lines.extend(["", "## Duplicate command map", ""])
     if report["duplicate_command_families"]:
         for family, paths in report["duplicate_command_families"].items():
@@ -456,6 +478,7 @@ def main() -> int:
         "standing": report["standing"],
         "workflows": report["observed_workflow_count"],
         "duplicate_command_families": len(report["duplicate_command_families"]),
+        "shared_production_outputs": len(report["shared_production_outputs"]),
         "refusals": [],
     }
     print(json.dumps(summary, sort_keys=True))
