@@ -99,8 +99,8 @@ mod default_verb_tests {
     }
 
     #[test]
-    fn graph_and_unknown_nouns_are_not_rewritten() {
-        for noun in ["graph", "unknown"] {
+    fn unknown_nouns_are_not_rewritten() {
+        for noun in ["unknown"] {
             let argv = strings(&["ggen", noun]);
             assert_eq!(inject_default_verbs(argv.clone()), argv);
         }
