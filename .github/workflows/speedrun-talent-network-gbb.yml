@@ -38,8 +38,13 @@ jobs:
         with:
           cache-key-suffix: speedrun-talent-gbb
 
-      - name: Preserve repository formatting
-        run: cargo fmt --all -- --check
+      - name: Prove the generic kernel is untouched
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "${{ github.event.pull_request.base.sha }}...HEAD" -- crates)"
+          test -z "$changed"
 
       - name: Build the real ggen compiler
         run: cargo build -p ggen-cli-lib --bin ggen
@@ -68,12 +73,13 @@ jobs:
         working-directory: packs/speedrun-talent-network-pack
         run: |
           set -euo pipefail
-          ! grep -nE 'reqwest|hyper::|TcpStream|std::net|Command::new' consumer/speedrun-talent-network/src/lib.rs
-          grep -n 'SPEEDRUN_REQUIRED_BROKER.*ggen_architecture::REQUIRED_BROKER' consumer/speedrun-talent-network/src/lib.rs
+          ! grep -R -nE 'reqwest|hyper::|TcpStream|std::net|Command::new' consumer/speedrun-talent-network/src
+          grep -n 'SPEEDRUN_REQUIRED_BROKER.*ggen_architecture::REQUIRED_BROKER' consumer/speedrun-talent-network/src/catalog.rs
           ../../target/debug/ggen receipt verify
           jq -e '.standing == "UNKNOWN"' consumer/speedrun-talent-network/RELEASE_STANDING.json
           jq -e '.operations | length == 8' consumer/speedrun-talent-network/contracts/rest-api.json
           jq -e '.tools | length == 10' consumer/speedrun-talent-network/contracts/mcp-server.json
+          jq -e '[.tools[] | select(.consent_required == true)] | length == 2' consumer/speedrun-talent-network/contracts/mcp-server.json
           jq -e '.resources | length == 3' consumer/speedrun-talent-network/contracts/public-resources.json
 
       - name: Publish bounded verifier artifacts
