@@ -1,0 +1,384 @@
+# ontology/v26.8.1/legacy-capabilities.ttl — GENERATED DATA FILE
+#
+# Produced by tools/v26.8.1/legacy_archaeology.py from real git history
+# mined against this worktree. See that script's CATALOG for the
+# evidence backing each individual (commit hashes, deleted paths).
+#
+# Generated against HEAD: f54286c55a6ef734176aee2b4a016c39e5757950
+# Individual count: 15
+#
+# Do not hand-edit the individuals below; edit the CATALOG in
+# tools/v26.8.1/legacy_archaeology.py and re-run:
+#   python3 tools/v26.8.1/legacy_archaeology.py emit
+
+@prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
+@prefix legacy: <https://ggen.chatmangpt.com/ontology/v26.8.1/legacy#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+legacy:legacy_ggen_core_pipeline a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ggen_core_pipeline" ;
+  ggen:historicalSourceCommit "9cef6e40f (delete) / cbf173f82 (disconnect, PR #255) / d0b9ff1c6.. (original crate history)" ;
+  ggen:legacySourcePath "crates/ggen-core/ (deleted; git history preserved via `git log --all -- crates/ggen-core`)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "ggen-core crate (pre-2026-ggen-core-replacement)" ;
+  ggen:inputContract "ggen.toml + .specify/*.ttl, same broad shape as today's ggen-engine sync" ;
+  ggen:outputContract "Generated files under project root via templated writes" ;
+  ggen:errorContract "ggen-core-specific error enum (thiserror), not the current ggen-engine one" ;
+  ggen:sideEffects "Filesystem writes; no BLAKE3 chained receipt (receipt chaining is a ggen-engine-era addition)" ;
+  ggen:orderingRequirements "Single-pass render, not the current 5-stage Resolve/Enrich/Extract/Render/Write pipeline" ;
+  ggen:defaultBehavior "mode=Overwrite semantics differed from the current mode=Create skip-existing default (see CLAUDE.md mode=Create note)" ;
+  ggen:configurationDependencies "ggen.toml (pre-two-schema-split shape)" ;
+  ggen:evidenceFixtures "commit 9cef6e40f's diff (12 whole test files + 4 partial removals, see commit body)" ;
+  ggen:replacementOwner "crates/ggen-engine (src/sync.rs 5-stage pipeline)" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md (marked superseded/executed)" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^ (crate deleted, not moved)" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "PR #255 first moved ggen-core to workspace exclude (disconnected but on disk); PR #259 (9cef6e40f) deleted it outright, closing the gap the original ticket scoped." .
+
+legacy:legacy_wizard_command a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_wizard_command" ;
+  ggen:historicalSourceCommit "d0b9ff1c6 (added) / 9cef6e40f (removed)" ;
+  ggen:legacySourcePath "crates/ggen-cli/src/cmds/wizard.rs (deleted)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-cli (imported ggen_core:: symbols)" ;
+  ggen:inputContract "`ggen wizard <verb>` CLI arguments; DSPy I/O shaping per commit 858d74684" ;
+  ggen:outputContract "Interactive bootstrap-factory scaffolding output" ;
+  ggen:errorContract "ggen_core-specific errors, no longer compilable after ggen-core deletion" ;
+  ggen:sideEffects "Filesystem scaffold writes" ;
+  ggen:orderingRequirements "UNKNOWN (not re-derived; command deleted, not migrated)" ;
+  ggen:defaultBehavior "Experimental, default-off per CLAUDE.md" ;
+  ggen:configurationDependencies "ggen_core:: types" ;
+  ggen:evidenceFixtures "none preserved; whole file deleted per 9cef6e40f commit body" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:REFUSED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Deleted in the same pass as ggen-core rather than re-pointed at ggen-engine -- explicit decision per crates/ggen-cli/src/cmds/mod.rs REMOVED comments and the ggen-core removal proposal doc." .
+
+legacy:legacy_sigma_command a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_sigma_command" ;
+  ggen:historicalSourceCommit "9cef6e40f (removed, same commit as wizard/inverse_sync)" ;
+  ggen:legacySourcePath "crates/ggen-cli/src/cmds/sigma.rs (deleted)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-cli (imported ggen_core:: symbols)" ;
+  ggen:inputContract "`ggen sigma` CLI arguments" ;
+  ggen:outputContract "UNKNOWN (not re-derived; command deleted)" ;
+  ggen:errorContract "ggen_core-specific errors" ;
+  ggen:sideEffects "UNKNOWN" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Experimental, default-off per CLAUDE.md" ;
+  ggen:configurationDependencies "ggen_core:: types" ;
+  ggen:evidenceFixtures "none preserved" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:REFUSED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_inverse_sync_command a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_inverse_sync_command" ;
+  ggen:historicalSourceCommit "9cef6e40f (removed, same commit as wizard/sigma)" ;
+  ggen:legacySourcePath "crates/ggen-cli/src/cmds/inverse_sync.rs (deleted)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-cli (imported ggen_core:: symbols)" ;
+  ggen:inputContract "`ggen inverse_sync` CLI arguments" ;
+  ggen:outputContract "UNKNOWN (not re-derived; command deleted)" ;
+  ggen:errorContract "ggen_core-specific errors" ;
+  ggen:sideEffects "UNKNOWN" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Experimental, default-off per CLAUDE.md" ;
+  ggen:configurationDependencies "ggen_core:: types" ;
+  ggen:evidenceFixtures "none preserved" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:REFUSED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_ggen_a2a_mcp_server a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ggen_a2a_mcp_server" ;
+  ggen:historicalSourceCommit "bde78f7d5 (chore(consolidation): phase 4 - fold lsp trio into ggen-lsp behind features)" ;
+  ggen:legacySourcePath "crates/ggen-a2a-mcp/ (deleted whole crate: a2a/, a2a_generated/, a2a_registry/, mcp_server.rs, mcp_packs.rs)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-a2a-mcp crate (standalone A2A protocol + MCP server)" ;
+  ggen:inputContract "A2A protocol messages over its own transport (crates/ggen-a2a-mcp/src/a2a/transport.rs)" ;
+  ggen:outputContract "A2A task/agent/message responses (a2a_generated/)" ;
+  ggen:errorContract "ggen-a2a-mcp's own error module (a2a_generated/error.rs)" ;
+  ggen:sideEffects "Registry store writes (a2a_registry/store.rs)" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Standalone server process (own Cargo.toml, own binary surface)" ;
+  ggen:configurationDependencies "its own Cargo.toml deps, pre-rmcp custom protocol code" ;
+  ggen:evidenceFixtures "tests/pack_tools_test.rs (deleted with the crate)" ;
+  ggen:replacementOwner "crates/ggen-lsp (a2a_mcp module, feature-gated `mcp`/`a2a`)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "ggen-lsp README / Cargo.toml feature flags `mcp`, `a2a`" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at bde78f7d5^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Two related commits (e6a616ffc, 065e11d94/58741e7e5) show the custom MCP protocol code being replaced by the rmcp 1.3.0 crate before the final fold-in." .
+
+legacy:legacy_ggen_lsp_mcp_server a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ggen_lsp_mcp_server" ;
+  ggen:historicalSourceCommit "bde78f7d5" ;
+  ggen:legacySourcePath "crates/ggen-lsp-mcp/ (deleted whole crate)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-lsp-mcp crate (standalone MCP server exposing repair routes)" ;
+  ggen:inputContract "MCP protocol tool calls (crates/ggen-lsp-mcp/src/main.rs binary)" ;
+  ggen:outputContract "MCP tool responses" ;
+  ggen:errorContract "its own error handling in src/lib.rs" ;
+  ggen:sideEffects "none beyond MCP protocol responses" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Standalone binary, not a library feature" ;
+  ggen:configurationDependencies "tests/fixtures/{minimal.toml,minimal.ttl}" ;
+  ggen:evidenceFixtures "tests/{field_gauge_test.rs,harden_test.rs,mcp_protocol_test.rs,parity_test.rs,replay_metrics_test.rs} (all deleted with the crate)" ;
+  ggen:replacementOwner "crates/ggen-lsp (feature `mcp`)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at bde78f7d5^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_ggen_lsp_a2a_bridge a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ggen_lsp_a2a_bridge" ;
+  ggen:historicalSourceCommit "bde78f7d5" ;
+  ggen:legacySourcePath "crates/ggen-lsp-a2a/ (deleted whole crate)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-lsp-a2a crate (A2A bridge over MCP tools)" ;
+  ggen:inputContract "A2A protocol calls bridged to MCP tool invocations" ;
+  ggen:outputContract "Bridged A2A responses" ;
+  ggen:errorContract "its own lib.rs error handling" ;
+  ggen:sideEffects "none beyond bridged responses" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Standalone bridge crate" ;
+  ggen:configurationDependencies "tests/fixtures/{minimal.toml,minimal.ttl}" ;
+  ggen:evidenceFixtures "tests/{bridge_test.rs,gall_foundation_lsp_mcp_a2a.rs,triad_stress_test.rs} (deleted with the crate)" ;
+  ggen:replacementOwner "crates/ggen-lsp (feature `a2a`)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at bde78f7d5^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_genesis_schema_v2_crate a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_genesis_schema_v2_crate" ;
+  ggen:historicalSourceCommit "(deletion commit for crates/genesis-schema-v2/{Cargo.toml,src/lib.rs}, found via `git log --diff-filter=D --summary` for that path in the 2026-07 consolidation range)" ;
+  ggen:legacySourcePath "crates/genesis-schema-v2/ (deleted whole crate: OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation)" ;
+  ggen:owningSubsystem "system" ;
+  ggen:historicalSemanticOwner "genesis-schema-v2 crate (standalone)" ;
+  ggen:inputContract "YAWL pattern definitions, OpenAPI spec files" ;
+  ggen:outputContract "Validated workflow schema types" ;
+  ggen:errorContract "its own lib.rs" ;
+  ggen:sideEffects "none beyond in-memory schema validation" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "Standalone crate, not a submodule" ;
+  ggen:configurationDependencies "none beyond its own Cargo.toml" ;
+  ggen:evidenceFixtures "none preserved standalone; behavior now exercised via genesis-types-v2::schema's own tests" ;
+  ggen:replacementOwner "crates/genesis-types-v2 (schema module)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history prior to the deletion commit" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_star_toml_workspace_member a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_star_toml_workspace_member" ;
+  ggen:historicalSourceCommit "73d726ab4 (chore(consolidation): phase 3a - remove star-toml from workspace, depend on published crate)" ;
+  ggen:legacySourcePath "crates/star-toml/ (deleted as a workspace member: error.rs, expand.rs, loader.rs, merge.rs, schema.rs, validation.rs, examples/validate.rs, tests/adversarial.rs)" ;
+  ggen:owningSubsystem "system" ;
+  ggen:historicalSemanticOwner "star-toml as an in-workspace path dependency" ;
+  ggen:inputContract "ggen.toml Pydantic-grade validation input (per commit 9fe8d8439's message: 'Pydantic-grade validation engine + remove rejected ggen-toml')" ;
+  ggen:outputContract "Validated/expanded TOML config structures" ;
+  ggen:errorContract "star-toml's own error.rs" ;
+  ggen:sideEffects "none beyond in-memory validation" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "in-workspace path dependency, tight coupling to workspace version" ;
+  ggen:configurationDependencies "ggen-config depends on it" ;
+  ggen:evidenceFixtures "tests/adversarial.rs (deleted from the workspace member; crate itself continues to exist as an external published dependency)" ;
+  ggen:replacementOwner "published `star-toml` crate (external dependency, same crate, now out-of-workspace)" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "ggen-config's Cargo.toml now depends on the published star-toml release instead of a workspace path member" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 73d726ab4^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Not a behavior change -- the crate's code is identical in spirit, only its workspace membership moved. Recorded as REPLACED (not PRESERVED) because the dependency boundary itself is an observable contract change (in-workspace edits vs. external version pin)." .
+
+legacy:legacy_stpnt_crate a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_stpnt_crate" ;
+  ggen:historicalSourceCommit "dfa3664a5 (chore(consolidation): phase 2 - remove stpnt and genesis-core (dead crates))" ;
+  ggen:legacySourcePath "crates/stpnt/ (deleted whole crate)" ;
+  ggen:owningSubsystem "system" ;
+  ggen:historicalSemanticOwner "stpnt crate (dead, zero dependents at time of removal per commit message)" ;
+  ggen:inputContract "UNKNOWN -- dead code at removal time; no dependents to observe a live contract from" ;
+  ggen:outputContract "UNKNOWN" ;
+  ggen:errorContract "UNKNOWN" ;
+  ggen:sideEffects "UNKNOWN" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "UNKNOWN" ;
+  ggen:configurationDependencies "UNKNOWN" ;
+  ggen:evidenceFixtures "none; commit message asserts zero dependents but this script did not independently re-verify that claim against pre-dfa3664a5 history" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:REFUSED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at dfa3664a5^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_genesis_core_crate_original a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_genesis_core_crate_original" ;
+  ggen:historicalSourceCommit "dfa3664a5" ;
+  ggen:legacySourcePath "crates/genesis-core/ (deleted whole crate -- distinct from the still-live crates/genesis-core-v2)" ;
+  ggen:owningSubsystem "system" ;
+  ggen:historicalSemanticOwner "genesis-core crate (dead, zero dependents at removal time per commit message)" ;
+  ggen:inputContract "UNKNOWN -- dead code at removal time" ;
+  ggen:outputContract "UNKNOWN" ;
+  ggen:errorContract "UNKNOWN" ;
+  ggen:sideEffects "UNKNOWN" ;
+  ggen:orderingRequirements "UNKNOWN" ;
+  ggen:defaultBehavior "UNKNOWN" ;
+  ggen:configurationDependencies "UNKNOWN" ;
+  ggen:evidenceFixtures "none" ;
+  ggen:replacementOwner "crates/genesis-core-v2 (successor by name/domain only -- this script found no explicit migration commit linking the two; treat the link as a naming inference, not confirmed lineage)" ;
+  ggen:hasDisposition ggen:ARCHIVED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at dfa3664a5^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Disposition is ARCHIVED rather than REFUSED because genesis-core-v2 plausibly continues the domain, but no commit in this session's evidence confirms a direct migration -- do not upgrade this to SUBSUMED without checking for an explicit link." .
+
+legacy:legacy_sync_audit_flag a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_sync_audit_flag" ;
+  ggen:historicalSourceCommit "UNKNOWN -- the justfile's `sync:` recipe calls `ggen sync --audit true`, but this script found no commit where the live ggen-engine sync verb ever implemented `--audit`; confirmed broken by direct invocation, not by history mining" ;
+  ggen:legacySourcePath "justfile (`sync:` recipe) vs. crates/ggen-engine/src/verbs/sync.rs (accepts only --dry-run/--watch)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "justfile author's assumption about the sync verb's flag surface" ;
+  ggen:inputContract "`ggen sync --audit true` (as written in justfile)" ;
+  ggen:outputContract "error: unexpected argument '--audit' found, exit 1 (confirmed by running the recipe per CLAUDE.md)" ;
+  ggen:errorContract "clap arg-parsing error, non-zero exit" ;
+  ggen:sideEffects "none (fails before any generation)" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Recipe currently fails every invocation" ;
+  ggen:configurationDependencies "justfile" ;
+  ggen:evidenceFixtures "CLAUDE.md's documented `just sync` failure transcript" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "This is a genuine Chesterton's-fence candidate: it is not clear whether --audit was ever implemented and later dropped, or was aspirational and never built. No commit found either way in this session." .
+
+legacy:legacy_sync_dry_run_value_flag a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_sync_dry_run_value_flag" ;
+  ggen:historicalSourceCommit "UNKNOWN -- same status as legacy_sync_audit_flag; the justfile's `sync-dry:` recipe calls `ggen sync --dry_run true`" ;
+  ggen:legacySourcePath "justfile (`sync-dry:` recipe) vs. crates/ggen-engine/src/verbs/sync.rs (--dry-run is a bare switch, not value-taking)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "justfile author's assumption about the sync verb's flag surface" ;
+  ggen:inputContract "`ggen sync --dry_run true` (as written in justfile)" ;
+  ggen:outputContract "error: unexpected argument 'true' found, exit 1 (confirmed by running the recipe per CLAUDE.md)" ;
+  ggen:errorContract "clap arg-parsing error, non-zero exit" ;
+  ggen:sideEffects "none (fails before any generation)" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Recipe currently fails every invocation; correct form is `ggen sync run --dry-run`" ;
+  ggen:configurationDependencies "justfile" ;
+  ggen:evidenceFixtures "CLAUDE.md's documented `just sync-dry` failure transcript" ;
+  ggen:replacementOwner "`ggen sync run --dry-run` (direct invocation)" ;
+  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "" ;
+  ggen:exactHeadReceipt "UNASSIGNED" .
+
+legacy:legacy_ggen_toml_dual_schema a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ggen_toml_dual_schema" ;
+  ggen:historicalSourceCommit "UNKNOWN -- divergence documented in .claude/rules/architecture.md ('ggen.toml has two schemas'); this script found no single commit that introduced the split as a deliberate decision" ;
+  ggen:legacySourcePath "crates/ggen-config/src/manifest/types.rs (GgenManifest, declarative-rules schema) vs. crates/ggen-engine/src/config.rs (GgenConfig, frontmatter schema)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "Two independently-defined struct hierarchies, dispatched by a raw-text pre-parse in crates/ggen-engine/src/generation_rules.rs:108 (has_generation_rules) and crates/ggen-engine/src/sync.rs:155" ;
+  ggen:inputContract "ggen.toml text; same table names ([project],[ontology],[packs],[templates],[law]) but genuinely divergent shapes ([[packs]] array-of-tables of flat PackRef vs. [packs] table-of-tables of an untagged enum PackRef)" ;
+  ggen:outputContract "Either a GgenManifest or a GgenConfig struct depending on the pre-parse's has_generation_rules() check" ;
+  ggen:errorContract "Two independent parse-error paths, not unified" ;
+  ggen:sideEffects "none beyond parse dispatch" ;
+  ggen:orderingRequirements "has_generation_rules() must run before typed parsing to choose the schema" ;
+  ggen:defaultBehavior "Falls through to the frontmatter schema (GgenConfig) when [[generation.rules]] is absent or empty" ;
+  ggen:configurationDependencies "ggen.toml itself" ;
+  ggen:evidenceFixtures "none automated; no cross-drift guard exists between the two schemas per architecture.md" ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "A real Chesterton's-fence candidate: architecture.md documents this as a known, unreconciled divergence rather than a decided legacy/current split -- it may be intentional (two real use cases) or accidental drift. No commit found in this session that explains why both schemas were kept." .
+
+legacy:legacy_process_intelligence_local_analysis a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_process_intelligence_local_analysis" ;
+  ggen:historicalSourceCommit "3176f9a18 (refactor(ggen-graph): remove process intelligence — ggen emits, wasm4pm analyses)" ;
+  ggen:legacySourcePath "crates/ggen-graph/ (local discovery/conformance/fitness/precision/variant code, removed)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "ggen-graph (pre-refactor)" ;
+  ggen:inputContract "OCEL event streams generated during sync" ;
+  ggen:outputContract "DFG discovery results, conformance/fitness/precision scores, process variants -- computed in-process" ;
+  ggen:errorContract "ggen-graph's own error types" ;
+  ggen:sideEffects "none beyond in-memory analysis output" ;
+  ggen:orderingRequirements "analysis ran after OCEL emission, in the same process" ;
+  ggen:defaultBehavior "Local analysis ran unconditionally as part of ggen-graph's responsibilities" ;
+  ggen:configurationDependencies "none beyond OCEL event availability" ;
+  ggen:evidenceFixtures "none preserved standalone; current boundary enforced by scripts/ci/guard-process-intelligence-boundary.sh" ;
+  ggen:replacementOwner "wasm4pm-compat::dfg::{discover_ocel_dfg,dfg_fitness,dfg_precision,extract_ocel_variants} (external, per CLAUDE.md's Process Intelligence Boundary table)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "CLAUDE.md's 'Process Intelligence Boundary' table: ggen emits (ggen-graph/ocel/{pack_events,lifecycle}.rs), wasm4pm-compat analyses" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 3176f9a18^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Enforced going forward by scripts/ci/guard-process-intelligence-boundary.sh, wired into `just pre-commit` -- a real, currently-active guard against regression back to this legacy behavior." .
