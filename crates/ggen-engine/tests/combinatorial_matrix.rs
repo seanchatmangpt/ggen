@@ -13,7 +13,7 @@ use std::{collections::BTreeMap, path::Path};
 use ggen_engine::{
     graph::{Delta, DeterministicGraph},
     sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH},
-    template::{Frontmatter, Template},
+    template::{Frontmatter, MatchSpec, Template},
     write::{plan_write, WriteOutcome},
 };
 use proptest::prelude::*;
@@ -141,10 +141,13 @@ fn frontmatter_for(
     Frontmatter {
         to: "out.txt".to_string(),
         sparql: BTreeMap::new(),
+        for_each: None,
         construct: None,
         inject,
-        before: (inject && anchor == Anchor::Before).then(|| "// ANCHOR".to_string()),
-        after: (inject && anchor == Anchor::After).then(|| "// ANCHOR".to_string()),
+        before: (inject && anchor == Anchor::Before)
+            .then(|| MatchSpec::Literal("// ANCHOR".to_string())),
+        after: (inject && anchor == Anchor::After)
+            .then(|| MatchSpec::Literal("// ANCHOR".to_string())),
         at_line: if inject && anchor == Anchor::AtLine {
             Some(1)
         } else if inject && anchor == Anchor::AtLineOutOfRange {
@@ -154,8 +157,10 @@ fn frontmatter_for(
         },
         skip_if: match skip_if {
             SkipIf::None => None,
-            SkipIf::Matching => Some(MATCHING_NEEDLE.to_string()),
-            SkipIf::NonMatching => Some(NON_MATCHING_NEEDLE.to_string()),
+            SkipIf::Matching => Some(MatchSpec::Literal(MATCHING_NEEDLE.to_string())),
+            SkipIf::NonMatching => {
+                Some(MatchSpec::Literal(NON_MATCHING_NEEDLE.to_string()))
+            }
         },
         unless_exists,
         force,
