@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/schemas/v26.8.1/step-two-report.schema.json",
+  "title": "ggen v26.8.1 Step Two Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release",
+    "source_head",
+    "standing",
+    "step_two_admitted",
+    "ggen_release_admitted",
+    "semantic_contract",
+    "gates",
+    "commands"
+  ],
+  "properties": {
+    "schema_version": {"const": "ggen.v26.8.1.step-two-report/1"},
+    "release": {"const": "26.8.1"},
+    "source_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "standing": {"enum": ["ALIVE", "BUILD_BROKEN"]},
+    "step_two_admitted": {"type": "boolean"},
+    "ggen_release_admitted": {"type": "boolean"},
+    "semantic_contract": {"type": "string", "minLength": 1},
+    "gates": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "passed", "evidence"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "passed": {"type": "boolean"},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "argv",
+          "expected_exit",
+          "actual_exit",
+          "passed",
+          "stdout_sha256",
+          "stderr_sha256",
+          "stdout_tail",
+          "stderr_tail",
+          "elapsed_ms"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "argv": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "expected_exit": {"type": "integer"},
+          "actual_exit": {"type": "integer"},
+          "passed": {"type": "boolean"},
+          "stdout_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "stderr_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "stdout_tail": {"type": "string"},
+          "stderr_tail": {"type": "string"},
+          "elapsed_ms": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}
