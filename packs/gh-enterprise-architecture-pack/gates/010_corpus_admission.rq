@@ -1,0 +1,26 @@
+# MESSAGE: corpus observations must be complete for their declared state; admitted sources require immutable repository/commit/path/blob provenance and a license boundary, excluded sources require a reason, UNKNOWN sources require a falsifier, and every admitted factory decision must name its source observation.
+PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a ghea:TerraformCorpusObservation ; ghea:admissionState "ADMITTED" .
+    VALUES ?missing { ghea:sourceRepository ghea:sourceCommit ghea:sourcePath ghea:sourceBlob ghea:licenseBoundary }
+    FILTER NOT EXISTS { ?s ?missing ?value }
+  } UNION {
+    ?s a ghea:TerraformCorpusObservation ; ghea:admissionState "EXCLUDED" .
+    BIND(ghea:exclusionReason AS ?missing)
+    FILTER NOT EXISTS { ?s ghea:exclusionReason ?reason }
+  } UNION {
+    ?s a ghea:TerraformCorpusObservation ; ghea:admissionState "UNKNOWN" .
+    BIND(ghea:falsifier AS ?missing)
+    FILTER NOT EXISTS { ?s ghea:falsifier ?falsifier }
+  } UNION {
+    ?s a ghea:AdmissionDecision ; ghea:decision "ADMIT" .
+    BIND(ghea:sourceObservation AS ?missing)
+    FILTER NOT EXISTS { ?s ghea:sourceObservation ?source }
+  } UNION {
+    ?s a ghea:GeneratedArtifact .
+    VALUES ?missing { ghea:artifactPath ghea:artifactKind ghea:artifactBody ghea:profile }
+    FILTER NOT EXISTS { ?s ?missing ?value }
+  }
+}
+ORDER BY ?s ?missing

@@ -1,0 +1,4 @@
+[pack]
+name = "gh-enterprise-architecture-pack"
+version = "0.1.0"
+description = "Admitted GitHub Terraform corpus, reusable enterprise repository factory, read-only account census, authority-boundary gates, and replayable receipts. Composes above gh-terraform-pack without changing its institutional desired-state authority."

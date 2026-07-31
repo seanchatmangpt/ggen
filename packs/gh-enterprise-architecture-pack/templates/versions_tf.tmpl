@@ -1,0 +1,8 @@
+---
+to: infra/terraform/github-enterprise/versions.tf
+sparql:
+  rows: |
+    PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+    SELECT ?body WHERE { ghea:VersionsTf ghea:artifactBody ?body . }
+---
+{{ rows[0].body }}

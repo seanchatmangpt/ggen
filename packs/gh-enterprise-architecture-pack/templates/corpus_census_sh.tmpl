@@ -1,0 +1,8 @@
+---
+to: scripts/gh/terraform-corpus-census.sh
+sparql:
+  rows: |
+    PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+    SELECT ?body WHERE { ghea:CorpusCensusScript ghea:artifactBody ?body . }
+---
+{{ rows[0].body }}
