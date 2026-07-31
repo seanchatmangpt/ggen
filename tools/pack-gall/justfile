@@ -1,0 +1,27 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+root := "../.."
+manifest := "Cargo.toml"
+evidence := ".ggen/pack-gall"
+
+pack-fence-inventory:
+    cargo run --quiet --manifest-path {{manifest}} --bin pack-gall-observe -- --root {{root}} --out {{root}}/{{evidence}}/equivalence.report.json
+
+pack-equivalence-report: pack-fence-inventory
+    cargo run --quiet --manifest-path {{manifest}} --bin pack-gall-verify -- --root {{root}} --observation {{root}}/{{evidence}}/equivalence.report.json --report {{root}}/{{evidence}}/verifier.report.json --receipt {{root}}/{{evidence}}/verification.receipt.json
+
+pack-protocol-unit:
+    cargo test --manifest-path {{manifest}} --test e2e real_filesystem_observation_and_external_verification_are_deterministic
+
+pack-property-fuzz:
+    cargo test --manifest-path {{manifest}} --test e2e resolver_is_deterministic_across_aliases_and_repeated_runs
+
+pack-cli-e2e:
+    cargo test --manifest-path {{manifest}} --test e2e observer_and_verifier_binaries_cross_process_and_filesystem_boundaries
+    cargo test --manifest-path {{manifest}} --test e2e tampered_command_surface_is_refused
+
+pack-verifier-report: pack-equivalence-report
+    test -s {{root}}/{{evidence}}/verifier.report.json
+    test -s {{root}}/{{evidence}}/verification.receipt.json
+
+verify: pack-protocol-unit pack-property-fuzz pack-cli-e2e pack-verifier-report
