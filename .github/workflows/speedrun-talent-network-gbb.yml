@@ -27,11 +27,19 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
-      - name: Checkout exact candidate
+      - name: Checkout event-native merge candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+
+      - name: Prove exact head admission
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          test "$(git rev-parse HEAD^2)" = "$head_sha"
+          test "$(git rev-parse HEAD^{tree})" = "$(git rev-parse "$head_sha^{tree}")" || git merge-base --is-ancestor "$head_sha" HEAD
 
       - name: Provision pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
@@ -43,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          changed="$(git diff --name-only "${{ github.event.pull_request.base.sha }}...HEAD" -- crates)"
+          changed="$(git diff --name-only "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" -- crates)"
           test -z "$changed"
 
       - name: Build the real ggen compiler
