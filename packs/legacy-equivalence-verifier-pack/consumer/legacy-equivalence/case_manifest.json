@@ -1,0 +1,52 @@
+{
+  "schema": "ggen.legacy-equivalence.case-manifest.v1",
+  "note": "G7 SCAFFOLDING: cases below are SYNTHETIC examples proving the generation pipeline is data-driven. Real legacy-capability cases are supplied later by a concurrent ontology-extraction agent.",
+  "cases": [
+    {
+      "case_id": "cli-stdout-echo",
+      "title": "SYNTHETIC: CLI stdout equivalence, timestamp-normalized",
+      "order": 1,
+      "legacy_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "current_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "strip_timestamps",
+      "expected_disposition": "PRESERVED",
+      "observable_surfaces": ["stdout", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "generated-file-bytes",
+      "title": "SYNTHETIC: generated file byte-identity",
+      "order": 2,
+      "legacy_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"",
+      "current_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["generated_bytes", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "refused-removed-command",
+      "title": "SYNTHETIC: REFUSED disposition, typed diagnostic on stderr",
+      "order": 3,
+      "legacy_adapter": "printf 'legacy-op executed\\n'; exit 0",
+      "current_adapter": "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "decommissioned"
+
+    }
+  ]
+}

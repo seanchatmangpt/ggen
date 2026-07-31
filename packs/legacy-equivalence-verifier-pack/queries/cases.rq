@@ -1,0 +1,26 @@
+PREFIX eqv: <https://ggen.io/ontology/legacy-equivalence#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT
+  ?caseId ?title ?order ?legacyAdapter ?currentAdapter
+  ?successInput ?failureInput ?normalizationPolicy ?expectedDisposition
+  ?timeoutSeconds ?recoveryAction ?expectedDiagnosticSubstring
+  (GROUP_CONCAT(DISTINCT ?observableSurface; separator="|") AS ?observableSurfaces)
+WHERE {
+  ?case a eqv:EquivalenceCase ;
+    eqv:caseId ?caseId ;
+    dcterms:title ?title ;
+    eqv:order ?order ;
+    eqv:legacyAdapter ?legacyAdapter ;
+    eqv:currentAdapter ?currentAdapter ;
+    eqv:successInput ?successInput ;
+    eqv:failureInput ?failureInput ;
+    eqv:normalizationPolicy ?normalizationPolicy ;
+    eqv:expectedDisposition ?expectedDisposition ;
+    eqv:observableSurface ?observableSurface ;
+    eqv:timeoutSeconds ?timeoutSeconds ;
+    eqv:recoveryAction ?recoveryAction .
+  OPTIONAL { ?case eqv:expectedDiagnosticSubstring ?expectedDiagnosticSubstring . }
+}
+GROUP BY ?caseId ?title ?order ?legacyAdapter ?currentAdapter ?successInput ?failureInput
+  ?normalizationPolicy ?expectedDisposition ?timeoutSeconds ?recoveryAction ?expectedDiagnosticSubstring
+ORDER BY ?order
