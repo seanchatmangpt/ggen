@@ -1,0 +1,8 @@
+---
+to: docs/gh-enterprise/ARCHITECTURE.md
+sparql:
+  rows: |
+    PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+    SELECT ?body WHERE { ghea:ArchitectureDoc ghea:artifactBody ?body . }
+---
+{{ rows[0].body }}

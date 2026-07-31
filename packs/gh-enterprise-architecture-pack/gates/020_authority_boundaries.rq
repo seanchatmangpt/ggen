@@ -1,0 +1,18 @@
+# MESSAGE: enterprise Terraform artifacts must not create GitHub issues or manage repository files, and corpus scanners must not contain mutating gh method overrides.
+PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+SELECT ?artifact ?violation WHERE {
+  {
+    ?artifact a ghea:GeneratedArtifact ; ghea:artifactKind "terraform" ; ghea:artifactBody ?body .
+    FILTER(CONTAINS(?body, 'resource "github_issue"'))
+    BIND("github_issue authority belongs to gh CLI line-event standard work" AS ?violation)
+  } UNION {
+    ?artifact a ghea:GeneratedArtifact ; ghea:artifactKind "terraform" ; ghea:artifactBody ?body .
+    FILTER(CONTAINS(?body, 'resource "github_repository_file"'))
+    BIND("github_repository_file would compete with ggen file authority" AS ?violation)
+  } UNION {
+    ?artifact a ghea:GeneratedArtifact ; ghea:artifactKind "scanner" ; ghea:artifactBody ?body .
+    FILTER(REGEX(?body, "gh api[\\s\\S]*(-X|--method)[\\s]+(POST|PUT|PATCH|DELETE)", "i"))
+    BIND("corpus scanner contains a mutating GitHub method" AS ?violation)
+  }
+}
+ORDER BY ?artifact ?violation

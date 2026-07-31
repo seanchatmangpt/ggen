@@ -1,0 +1,671 @@
+@prefix ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#> .
+@prefix ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Enterprise corpus, admission, profile, and artifact vocabulary
+#################################################################
+
+ghea:TerraformCorpusObservation a rdfs:Class ;
+    rdfs:label "An immutable observation of Terraform-related repository code; observation alone grants no generation authority" .
+
+ghea:AdmissionDecision a rdfs:Class ;
+    rdfs:label "An explicit decision that admits, excludes, or fences an observed source pattern" .
+
+ghea:RepositoryFactoryProfile a rdfs:Class ;
+    rdfs:label "A canonical multi-repository manufacturing profile derived only from admitted decisions" .
+
+ghea:GeneratedArtifact a rdfs:Class ;
+    rdfs:label "A whole-blob artifact projected from the admitted enterprise profile" .
+
+#################################################################
+# Immutable corpus observations
+#################################################################
+
+ghea:KanbanProjectManagementSource a ghea:TerraformCorpusObservation ;
+    rdfs:label "Direct GitHub repository-management Terraform in seanchatmangpt/kanban" ;
+    ghea:admissionState "ADMITTED" ;
+    ghea:sourceRepository "seanchatmangpt/kanban" ;
+    ghea:sourceCommit "e8ce923e8e16996204fb9ff0e6052c71494e26a8" ;
+    ghea:sourcePath "modules/integrations/github/project_management/main.tf" ;
+    ghea:sourceBlob "2db347a0ff75422fc3a8172fc09e91993a772936" ;
+    ghea:licenseBoundary "repository-owned source; reuse restricted to structural pattern and authored configuration" ;
+    ghea:observedResource "github_repository", "github_repository_milestone", "github_issue_label", "github_issue" ;
+    ghea:providerVersion "5.41.0" .
+
+ghea:GgenTerraformPackSource a ghea:TerraformCorpusObservation ;
+    rdfs:label "Canonical ggen GitHub Terraform desired-state pack" ;
+    ghea:admissionState "ADMITTED" ;
+    ghea:sourceRepository "seanchatmangpt/ggen" ;
+    ghea:sourceCommit "8387ed060c05096d67895c38144ac7d7499a9a52" ;
+    ghea:sourcePath "packs/gh-terraform-pack/ontology.ttl" ;
+    ghea:sourceBlob "c1d36d1d582fd11921077c52b9387871a9c781bd" ;
+    ghea:licenseBoundary "same-repository canonical source" ;
+    ghea:observedResource "github_repository", "github_branch_protection", "github_issue_label", "github_repository_milestone" ;
+    ghea:providerVersion "5.41.0" .
+
+ghea:AwsTerraformProjectSource a ghea:TerraformCorpusObservation ;
+    rdfs:label "Terraform repository with no GitHub repository-management surface" ;
+    ghea:admissionState "EXCLUDED" ;
+    ghea:sourceRepository "seanchatmangpt/my-terraform-project" ;
+    ghea:sourceCommit "685b81d08a48575d32c5da4ac084586fc55dbd4b" ;
+    ghea:sourcePath "main.tf" ;
+    ghea:sourceBlob "a14f230744dec05a11ba73c9d4bb707846aa2ed0" ;
+    ghea:licenseBoundary "repository-owned source" ;
+    ghea:exclusionReason "The file provisions AWS, TLS, and local resources; it does not create or manage GitHub repositories" .
+
+ghea:RanchrHistoricalClaim a ghea:TerraformCorpusObservation ;
+    rdfs:label "Historical local-path claim retained without promotion" ;
+    ghea:admissionState "UNKNOWN" ;
+    ghea:sourceRepository "seanchatmangpt/ranchr" ;
+    ghea:historicalClaim "~/dev/ranchr/bend/modules/integrations/github" ;
+    ghea:falsifier "Resolve a current GitHub commit, path, and blob containing the claimed module; otherwise it remains outside O*" .
+
+#################################################################
+# Explicit admission and exclusion decisions
+#################################################################
+
+ghea:AdmitRepositoryShape a ghea:AdmissionDecision ;
+    ghea:decision "ADMIT" ;
+    ghea:sourceObservation ghea:KanbanProjectManagementSource, ghea:GgenTerraformPackSource ;
+    ghea:pattern "typed multi-repository github_repository factory" ;
+    ghea:rationale "Kanban proves direct repository creation; ggen supplies the current merge, security, and receipt constraints" .
+
+ghea:AdmitLabelShape a ghea:AdmissionDecision ;
+    ghea:decision "ADMIT" ;
+    ghea:sourceObservation ghea:KanbanProjectManagementSource, ghea:GgenTerraformPackSource ;
+    ghea:pattern "flattened per-repository github_issue_label desired state" ;
+    ghea:rationale "Labels are durable repository configuration and already part of the ggen desired-state boundary" .
+
+ghea:AdmitMilestoneShape a ghea:AdmissionDecision ;
+    ghea:decision "ADMIT" ;
+    ghea:sourceObservation ghea:KanbanProjectManagementSource, ghea:GgenTerraformPackSource ;
+    ghea:pattern "flattened per-repository github_repository_milestone desired state" ;
+    ghea:rationale "Milestones are admitted durable coordination state in both source architectures" .
+
+ghea:ExcludeIssueShape a ghea:AdmissionDecision ;
+    ghea:decision "EXCLUDE" ;
+    ghea:sourceObservation ghea:KanbanProjectManagementSource ;
+    ghea:pattern "github_issue" ;
+    ghea:rationale "Issues are line events in ggen and remain under generated gh CLI standard work rather than Terraform desired state" .
+
+ghea:EnterpriseRepositoryFactoryV1 a ghea:RepositoryFactoryProfile ;
+    ghea:profileName "enterprise-repository-factory-v1" ;
+    ghea:derivedFrom ghea:AdmitRepositoryShape, ghea:AdmitLabelShape, ghea:AdmitMilestoneShape ;
+    ghea:preservesExclusion ghea:ExcludeIssueShape ;
+    ghea:providerVersion "5.41.0" ;
+    ghea:authority "repository settings, main-branch protection, labels, milestones" ;
+    ghea:actuationBoundary "generation and plan are non-actuating; apply requires explicit external authorization and receipt" .
+
+#################################################################
+# Generated artifacts
+#################################################################
+ghea:VersionsTf a ghea:GeneratedArtifact ;
+    ghea:artifactPath "infra/terraform/github-enterprise/versions.tf" ;
+    ghea:artifactKind "terraform" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# GENERATED by `ggen sync` from packs/gh-enterprise-architecture-pack/ontology.ttl.
+# Enterprise GitHub repository factory — provider contract.
+terraform {
+  required_version = ">= 1.3.0"
+
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = "5.41.0"
+    }
+  }
+}
+
+provider "github" {
+  owner = var.github_owner
+}
+""" .
+
+ghea:VariablesTf a ghea:GeneratedArtifact ;
+    ghea:artifactPath "infra/terraform/github-enterprise/variables.tf" ;
+    ghea:artifactKind "terraform" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# GENERATED by `ggen sync` from packs/gh-enterprise-architecture-pack/ontology.ttl.
+# Enterprise GitHub repository factory — admitted inputs.
+variable "github_owner" {
+  description = "GitHub user or organization that owns the manufactured repositories."
+  type        = string
+
+  validation {
+    condition     = length(trimspace(var.github_owner)) > 0
+    error_message = "github_owner must be non-empty."
+  }
+}
+
+variable "repositories" {
+  description = "Admitted repository desired state keyed by repository name."
+  type = map(object({
+    description                     = string
+    visibility                      = optional(string, "private")
+    has_issues                      = optional(bool, true)
+    has_wiki                        = optional(bool, false)
+    has_projects                    = optional(bool, false)
+    auto_init                       = optional(bool, true)
+    gitignore_template              = optional(string, "Terraform")
+    delete_branch_on_merge          = optional(bool, true)
+    allow_squash_merge              = optional(bool, true)
+    allow_merge_commit              = optional(bool, false)
+    allow_rebase_merge              = optional(bool, false)
+    vulnerability_alerts            = optional(bool, true)
+    protect_main                    = optional(bool, true)
+    enforce_admins                  = optional(bool, true)
+    require_code_owner_reviews      = optional(bool, false)
+    required_approving_review_count = optional(number, 1)
+    required_status_checks          = optional(set(string), [])
+    labels = optional(map(object({
+      color       = string
+      description = optional(string, "")
+    })), {})
+    milestones = optional(map(object({
+      description = optional(string, "")
+      due_date     = optional(string)
+    })), {})
+  }))
+
+  validation {
+    condition = alltrue([
+      for repository in values(var.repositories) :
+      contains(["public", "private", "internal"], repository.visibility)
+    ])
+    error_message = "repository visibility must be public, private, or internal."
+  }
+
+  validation {
+    condition = alltrue([
+      for repository in values(var.repositories) :
+      repository.required_approving_review_count >= 0 && repository.required_approving_review_count <= 6
+    ])
+    error_message = "required_approving_review_count must be between 0 and 6."
+  }
+}
+""" .
+
+ghea:RepositoriesTf a ghea:GeneratedArtifact ;
+    ghea:artifactPath "infra/terraform/github-enterprise/repositories.tf" ;
+    ghea:artifactKind "terraform" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# GENERATED by `ggen sync` from packs/gh-enterprise-architecture-pack/ontology.ttl.
+# Canonical enterprise repository manufacturing profile.
+# Source corpus facts are observations. Only admitted decisions reach this file.
+locals {
+  protected_repositories = {
+    for repository_name, repository in var.repositories :
+    repository_name => repository
+    if repository.protect_main
+  }
+
+  label_bindings = {
+    for binding in flatten([
+      for repository_name, repository in var.repositories : [
+        for label_name, label in repository.labels : {
+          key         = "${repository_name}:${label_name}"
+          repository  = repository_name
+          name        = label_name
+          color       = label.color
+          description = label.description
+        }
+      ]
+    ]) : binding.key => binding
+  }
+
+  milestone_bindings = {
+    for binding in flatten([
+      for repository_name, repository in var.repositories : [
+        for milestone_title, milestone in repository.milestones : {
+          key         = "${repository_name}:${milestone_title}"
+          repository  = repository_name
+          title       = milestone_title
+          description = milestone.description
+          due_date     = milestone.due_date
+        }
+      ]
+    ]) : binding.key => binding
+  }
+}
+
+resource "github_repository" "managed" {
+  for_each = var.repositories
+
+  name                   = each.key
+  description            = each.value.description
+  visibility             = each.value.visibility
+  has_issues             = each.value.has_issues
+  has_wiki               = each.value.has_wiki
+  has_projects           = each.value.has_projects
+  auto_init              = each.value.auto_init
+  gitignore_template     = each.value.auto_init ? each.value.gitignore_template : null
+  delete_branch_on_merge = each.value.delete_branch_on_merge
+  allow_squash_merge     = each.value.allow_squash_merge
+  allow_merge_commit     = each.value.allow_merge_commit
+  allow_rebase_merge     = each.value.allow_rebase_merge
+  vulnerability_alerts   = each.value.vulnerability_alerts
+}
+
+resource "github_branch_protection" "main" {
+  for_each = local.protected_repositories
+
+  repository_id  = github_repository.managed[each.key].node_id
+  pattern        = "main"
+  enforce_admins = each.value.enforce_admins
+
+  dynamic "required_status_checks" {
+    for_each = length(each.value.required_status_checks) == 0 ? [] : [each.value.required_status_checks]
+    content {
+      strict   = true
+      contexts = sort(tolist(required_status_checks.value))
+    }
+  }
+
+  required_pull_request_reviews {
+    require_code_owner_reviews      = each.value.require_code_owner_reviews
+    required_approving_review_count = each.value.required_approving_review_count
+  }
+}
+
+resource "github_issue_label" "managed" {
+  for_each = local.label_bindings
+
+  repository  = github_repository.managed[each.value.repository].name
+  name        = each.value.name
+  color       = each.value.color
+  description = each.value.description
+}
+
+resource "github_repository_milestone" "managed" {
+  for_each = local.milestone_bindings
+
+  owner       = var.github_owner
+  repository  = github_repository.managed[each.value.repository].name
+  title       = each.value.title
+  description = each.value.description
+  due_date    = each.value.due_date
+}
+""" .
+
+ghea:OutputsTf a ghea:GeneratedArtifact ;
+    ghea:artifactPath "infra/terraform/github-enterprise/outputs.tf" ;
+    ghea:artifactKind "terraform" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# GENERATED by `ggen sync` from packs/gh-enterprise-architecture-pack/ontology.ttl.
+output "repository_names" {
+  description = "Names of repositories admitted to this factory application."
+  value       = sort(keys(github_repository.managed))
+}
+
+output "repository_identity" {
+  description = "Stable provider identities for downstream composition."
+  value = {
+    for name, repository in github_repository.managed : name => {
+      id      = repository.id
+      node_id = repository.node_id
+      name    = repository.name
+    }
+  }
+}
+""" .
+
+ghea:CorpusCensusScript a ghea:GeneratedArtifact ;
+    ghea:artifactPath "scripts/gh/terraform-corpus-census.sh" ;
+    ghea:artifactKind "scanner" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """#!/usr/bin/env bash
+set -euo pipefail
+# GENERATED by `ggen sync` from packs/gh-enterprise-architecture-pack/ontology.ttl.
+# Read-only GitHub Terraform corpus census. GitHub is observed with GET requests only.
+# Usage: terraform-corpus-census.sh --ttl-out <file> --md-out <file> --receipt-out <file>
+
+ttl_out=""
+md_out=""
+receipt_out=""
+search_delay_seconds="${GITHUB_CODE_SEARCH_DELAY_SECONDS:-7}"
+max_search_retries="${GITHUB_CODE_SEARCH_MAX_RETRIES:-3}"
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --ttl-out) ttl_out="$2"; shift 2 ;;
+    --md-out) md_out="$2"; shift 2 ;;
+    --receipt-out) receipt_out="$2"; shift 2 ;;
+    --search-delay-seconds) search_delay_seconds="$2"; shift 2 ;;
+    --max-search-retries) max_search_retries="$2"; shift 2 ;;
+    *) echo "unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+if [ -z "$ttl_out" ] || [ -z "$md_out" ] || [ -z "$receipt_out" ]; then
+  echo "usage: terraform-corpus-census.sh --ttl-out <file> --md-out <file> --receipt-out <file>" >&2
+  exit 2
+fi
+command -v gh >/dev/null 2>&1 || { echo "gh is required" >&2; exit 2; }
+command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 2; }
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+mkdir -p "$(dirname "$ttl_out")" "$(dirname "$md_out")" "$(dirname "$receipt_out")"
+
+now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+gh api --paginate 'user/repos?per_page=100&affiliation=owner,collaborator,organization_member' \\
+  --jq '.[] | [.full_name, (.default_branch // ""), (.visibility // "unknown"), (.archived | tostring)] | @tsv' \\
+  > "$tmp/repos.tsv"
+
+cat > "$ttl_out" <<EOF
+# GENERATED OBSERVATION — terraform-corpus-census.sh — $now
+# Observation is not admission and never becomes desired state mechanically.
+@prefix obs: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#obs-> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+EOF
+
+cat > "$md_out" <<EOF
+# GitHub Terraform Corpus Census
+
+Generated at $now. This is observation, not admission. A successful code-search
+request with zero matches is `NO_MATCH`; a failed or inaccessible request is
+`UNKNOWN`, never an inferred absence.
+
+| repository | ref | commit | path | blob | surface | declaration | search state |
+|---|---|---|---|---|---|---|---|
+EOF
+
+total_repositories=0
+matched_repositories=0
+matched_files=0
+unknown_repositories=0
+no_match_repositories=0
+declaration_files=0
+
+slugify() {
+  printf '%s' "$1" | tr -c 'A-Za-z0-9' '-' | sed 's/^-*//; s/-*$//'
+}
+
+ttl_escape() {
+  printf '%s' "$1" | sed 's/\\\\/\\\\\\\\/g; s/"/\\\\"/g'
+}
+
+decode_base64() {
+  if base64 --decode </dev/null >/dev/null 2>&1; then
+    base64 --decode
+  else
+    base64 -D
+  fi
+}
+
+surface_for_path() {
+  case "$1" in
+    *.tf|*.tf.json) echo "direct-hcl" ;;
+    *.tftpl|*.tmpl|*.tera|*.ttl) echo "generator-source" ;;
+    *test*|*.rs) echo "verification" ;;
+    *.md|*.adoc|*.rst) echo "documentation" ;;
+    *) echo "reference" ;;
+  esac
+}
+
+run_code_search() {
+  local endpoint="$1"
+  local output="$2"
+  local error_output="$3"
+  local attempt=1
+  while [ "$attempt" -le "$max_search_retries" ]; do
+    : > "$error_output"
+    if gh api --paginate "$endpoint" --jq '.items[] | [.path, .sha] | @tsv' > "$output" 2> "$error_output"; then
+      return 0
+    fi
+    if [ "$attempt" -lt "$max_search_retries" ] && grep -Eqi 'rate limit|HTTP 403|HTTP 429|secondary rate' "$error_output"; then
+      sleep $((attempt * 30))
+      attempt=$((attempt + 1))
+      continue
+    fi
+    return 1
+  done
+  return 1
+}
+
+while IFS=$'\\t' read -r full_name default_branch visibility archived; do
+  [ -n "$full_name" ] || continue
+  total_repositories=$((total_repositories + 1))
+  repository_slug="$(slugify "$full_name")"
+  commit="UNKNOWN"
+  if [ -n "$default_branch" ]; then
+    commit="$(gh api "repos/${full_name}/commits/${default_branch}" --jq '.sha' 2>/dev/null || printf 'UNKNOWN')"
+  fi
+
+  query="github_repository repo:${full_name}"
+  encoded_query="$(jq -rn --arg q "$query" '$q | @uri')"
+  search_error="$tmp/search-error"
+  : > "$search_error"
+  if run_code_search "search/code?q=${encoded_query}&per_page=100" "$tmp/matches.tsv" "$search_error"; then
+    if [ -s "$tmp/matches.tsv" ]; then
+      matched_repositories=$((matched_repositories + 1))
+      while IFS=$'\\t' read -r path blob; do
+        [ -n "$path" ] || continue
+        matched_files=$((matched_files + 1))
+        surface="$(surface_for_path "$path")"
+        declaration_state="UNKNOWN"
+        if gh api "repos/${full_name}/git/blobs/${blob}" --jq '.content' 2>/dev/null \\
+            | tr -d '\\n' | decode_base64 > "$tmp/blob-content" 2>/dev/null; then
+          if grep -Eq 'resource[[:space:]]+"github_repository"[[:space:]]+"' "$tmp/blob-content"; then
+            declaration_state="DECLARATION"
+            declaration_files=$((declaration_files + 1))
+          else
+            declaration_state="REFERENCE"
+          fi
+        fi
+        match_slug="$(slugify "${full_name}-${path}-${blob}")"
+        {
+          echo "obs:match-${match_slug} a obs:TerraformCodeObservation ;"
+          echo "    obs:repository \\"$(ttl_escape "$full_name")\\" ;"
+          echo "    obs:ref \\"$(ttl_escape "$default_branch")\\" ;"
+          echo "    obs:commit \\"$(ttl_escape "$commit")\\" ;"
+          echo "    obs:path \\"$(ttl_escape "$path")\\" ;"
+          echo "    obs:blob \\"$(ttl_escape "$blob")\\" ;"
+          echo "    obs:surface \\"$surface\\" ;"
+          echo "    obs:declarationState \\"$declaration_state\\" ;"
+          echo "    obs:searchState \\"MATCH\\" ."
+          echo
+        } >> "$ttl_out"
+        echo "| $full_name | $default_branch | $commit | $path | $blob | $surface | $declaration_state | MATCH |" >> "$md_out"
+      done < "$tmp/matches.tsv"
+    else
+      no_match_repositories=$((no_match_repositories + 1))
+      {
+        echo "obs:repo-${repository_slug} a obs:TerraformSearchObservation ;"
+        echo "    obs:repository \\"$(ttl_escape "$full_name")\\" ;"
+        echo "    obs:ref \\"$(ttl_escape "$default_branch")\\" ;"
+        echo "    obs:commit \\"$(ttl_escape "$commit")\\" ;"
+        echo "    obs:visibility \\"$(ttl_escape "$visibility")\\" ;"
+        echo "    obs:archived \\"$archived\\"^^xsd:boolean ;"
+        echo "    obs:searchState \\"NO_MATCH\\" ."
+        echo
+      } >> "$ttl_out"
+      echo "| $full_name | $default_branch | $commit | — | — | — | — | NO_MATCH |" >> "$md_out"
+    fi
+  else
+    unknown_repositories=$((unknown_repositories + 1))
+    error_digest="$(tr '\\n' ' ' < "$search_error" | cut -c1-240)"
+    {
+      echo "obs:repo-${repository_slug} a obs:TerraformSearchObservation ;"
+      echo "    obs:repository \\"$(ttl_escape "$full_name")\\" ;"
+      echo "    obs:ref \\"$(ttl_escape "$default_branch")\\" ;"
+      echo "    obs:commit \\"$(ttl_escape "$commit")\\" ;"
+      echo "    obs:searchState \\"UNKNOWN\\" ;"
+      echo "    obs:error \\"$(ttl_escape "$error_digest")\\" ."
+      echo
+    } >> "$ttl_out"
+    echo "| $full_name | $default_branch | $commit | — | — | — | — | UNKNOWN |" >> "$md_out"
+  fi
+  if [ "$search_delay_seconds" -gt 0 ]; then
+    sleep "$search_delay_seconds"
+  fi
+done < "$tmp/repos.tsv"
+
+cat >> "$ttl_out" <<EOF
+obs:CensusSummary a obs:TerraformCorpusCensus ;
+    obs:generatedAt "$now" ;
+    obs:repositoryCount "$total_repositories"^^xsd:integer ;
+    obs:matchedRepositoryCount "$matched_repositories"^^xsd:integer ;
+    obs:matchedFileCount "$matched_files"^^xsd:integer ;
+    obs:declarationFileCount "$declaration_files"^^xsd:integer ;
+    obs:noMatchRepositoryCount "$no_match_repositories"^^xsd:integer ;
+    obs:unknownRepositoryCount "$unknown_repositories"^^xsd:integer .
+EOF
+
+cat >> "$md_out" <<EOF
+
+## Counts
+
+| state | count |
+|---|---:|
+| repositories observed | $total_repositories |
+| repositories with matches | $matched_repositories |
+| matched files | $matched_files |
+| files containing github_repository declarations | $declaration_files |
+| repositories with no match | $no_match_repositories |
+| repositories unknown | $unknown_repositories |
+EOF
+
+sha256_file() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
+
+ttl_digest="$(sha256_file "$ttl_out")"
+md_digest="$(sha256_file "$md_out")"
+jq -n \\
+  --arg generated_at "$now" \\
+  --arg ttl_sha256 "$ttl_digest" \\
+  --arg markdown_sha256 "$md_digest" \\
+  --argjson repository_count "$total_repositories" \\
+  --argjson matched_repository_count "$matched_repositories" \\
+  --argjson matched_file_count "$matched_files" \\
+  --argjson declaration_file_count "$declaration_files" \\
+  --argjson no_match_repository_count "$no_match_repositories" \\
+  --argjson unknown_repository_count "$unknown_repositories" \\
+  '{schema:"ggen.github-terraform-corpus-receipt/v1",generated_at:$generated_at,github_actuation:"none",repository_count:$repository_count,matched_repository_count:$matched_repository_count,matched_file_count:$matched_file_count,declaration_file_count:$declaration_file_count,no_match_repository_count:$no_match_repository_count,unknown_repository_count:$unknown_repository_count,ttl_sha256:$ttl_sha256,markdown_sha256:$markdown_sha256}' \\
+  > "$receipt_out"
+
+echo "terraform-corpus-census: repositories=$total_repositories matched_repositories=$matched_repositories matched_files=$matched_files declarations=$declaration_files no_match=$no_match_repositories unknown=$unknown_repositories"
+echo "terraform-corpus-census: ttl=$ttl_out md=$md_out receipt=$receipt_out"
+""" .
+
+ghea:CorpusDoc a ghea:GeneratedArtifact ;
+    ghea:artifactPath "docs/gh-enterprise/TERRAFORM-CORPUS.md" ;
+    ghea:artifactKind "documentation" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# GitHub Repository Terraform Corpus — Admitted Seed
+
+GENERATED by `ggen sync` from `packs/gh-enterprise-architecture-pack/ontology.ttl`.
+
+This document is the admitted seed corpus, not a claim that every accessible
+repository has been exhaustively searched. The generated read-only census script
+closes that observation edge and records failures as `UNKNOWN`.
+
+| state | repository | immutable source | role |
+|---|---|---|---|
+| ADMITTED | seanchatmangpt/kanban | `e8ce923e8e16996204fb9ff0e6052c71494e26a8:modules/integrations/github/project_management/main.tf@2db347a0ff75422fc3a8172fc09e91993a772936` | direct repository, milestone, label, and issue HCL evidence |
+| ADMITTED | seanchatmangpt/ggen | `8387ed060c05096d67895c38144ac7d7499a9a52:packs/gh-terraform-pack/ontology.ttl@c1d36d1d582fd11921077c52b9387871a9c781bd` | canonical institutional constraints and current generated architecture |
+| EXCLUDED | seanchatmangpt/my-terraform-project | `685b81d08a48575d32c5da4ac084586fc55dbd4b:main.tf@a14f230744dec05a11ba73c9d4bb707846aa2ed0` | Terraform exists, but it provisions AWS/TLS/local resources rather than GitHub repositories |
+| UNKNOWN | historical `~/dev/ranchr/bend` claim | no immutable GitHub source resolved | retained as a fenced historical claim; not admitted into generation |
+
+## Admission consequences
+
+The enterprise factory admits the reusable repository, milestone, and label
+shapes demonstrated by `kanban`. It preserves `ggen` as the canonical authority
+for merge policy, protection, receipts, and observation/admission separation.
+
+`github_issue` is deliberately excluded from the desired-state baseline. Issues
+are line events and remain under the generated `gh` command standard work. A
+source pattern can be real and still be excluded from a particular authority
+boundary.
+
+## Complete observation command
+
+```bash
+scripts/gh/terraform-corpus-census.sh   --ttl-out evidence/github-terraform-corpus.ttl   --md-out evidence/github-terraform-corpus.md   --receipt-out evidence/github-terraform-corpus.receipt.json
+```
+
+The script performs GitHub GET operations only. It records repository, ref,
+commit, path, blob, surface classification, search state, and output digests.
+""" .
+
+ghea:ArchitectureDoc a ghea:GeneratedArtifact ;
+    ghea:artifactPath "docs/gh-enterprise/ARCHITECTURE.md" ;
+    ghea:artifactKind "documentation" ;
+    ghea:profile ghea:EnterpriseRepositoryFactoryV1 ;
+    ghea:artifactBody """# ggen Enterprise GitHub Repository Architecture
+
+GENERATED by `ggen sync` from `packs/gh-enterprise-architecture-pack/ontology.ttl`.
+
+## Law-state pipeline
+
+```text
+GitHub corpus O
+  -> immutable source observations
+  -> admission / exclusion / UNKNOWN
+  -> canonical enterprise profile O*
+  -> generated Terraform A = μ(O*)
+  -> plan and explicit approval
+  -> apply through an authorized actuation path
+  -> GitHub re-observation
+  -> receipt and replay hook
+```
+
+The source corpus is evidence, not authority. An observed block cannot enter the
+factory until its repository, commit, path, blob, license boundary, and admission
+decision are present. `UNKNOWN` never upgrades to admitted state.
+
+## Composition
+
+`gh-terraform-pack` remains the institutional desired-state layer for one
+repository. `gh-enterprise-architecture-pack` adds the reusable multi-repository
+factory and the corpus-admission control plane. The committed example composes
+both packs without overlapping generated paths.
+
+The enterprise module manufactures:
+
+- `github_repository` instances from a typed repository map;
+- optional main-branch protection with admitted required checks;
+- flattened per-repository labels;
+- flattened per-repository milestones;
+- stable repository identity outputs.
+
+## Preserved exclusions
+
+- No GitHub mutation occurs during corpus discovery.
+- No observed HCL is promoted mechanically.
+- `github_issue` remains a line-event command, not desired state.
+- `github_repository_file` is excluded because ggen owns generated file content.
+- Provider upgrade is outside this change; the admitted source and existing pack
+  remain pinned to `integrations/github` `5.41.0`.
+- Secret values never enter ontology or committed Terraform input.
+
+## Falsifier
+
+Delete `ghea:sourceBlob` from either admitted corpus observation and run sync.
+The corpus gate must refuse generation. Change a source commit or blob without a
+new admission decision and the generated architecture has no standing.
+
+## Ten Gall checkpoints
+
+1. **Corpus transport** — enumerate every accessible repository or classify the edge `UNKNOWN`.
+2. **Immutable provenance** — bind each admitted source to repository, commit, path, and blob.
+3. **Admission** — refuse incomplete admitted observations through SPARQL.
+4. **Authority fencing** — exclude issues and repository files from Terraform ownership.
+5. **Ontology unit** — parse the graph and require zero gate rows.
+6. **Generation integration** — sync a clean consumer through the real engine.
+7. **Artifact inspection** — assert repository, protection, label, milestone, and output surfaces.
+8. **Boundary sabotage** — remove an admitted blob and require refusal.
+9. **Replay** — run a second sync and require byte identity.
+10. **Acceptance** — run Terraform validation and repository-level CI in an authorized environment.
+
+A checkpoint is not promoted to `ALIVE` without observed execution evidence.
+""" .
+

@@ -1,0 +1,8 @@
+---
+to: docs/gh-enterprise/TERRAFORM-CORPUS.md
+sparql:
+  rows: |
+    PREFIX ghea: <http://seanchatmangpt.github.io/packs/gh-enterprise-architecture#>
+    SELECT ?body WHERE { ghea:CorpusDoc ghea:artifactBody ?body . }
+---
+{{ rows[0].body }}
