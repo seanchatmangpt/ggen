@@ -8,7 +8,7 @@ license = "MIT"
 [ontology]
 source = "ontology.ttl"
 base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"
-imports = ["cmd.ttl"]
+imports = ["cmd.ttl", "options.ttl"]
 
 [ontology.prefixes]
 tai = "https://chatmangpt.com/ontology/tai-rebuild#"
