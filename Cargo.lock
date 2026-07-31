@@ -6188,9 +6188,9 @@ checksum = "4debfffbf1669869b4bea1bab297f8e9ec11900a9ff2dcf659c2a1c4918c811a"
 
 [[package]]
 name = "qlue-ls"
-version = "2.8.2"
+version = "3.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cf3b8b06b4fef0a9e80a96af12a22a413de6d19c5f47941b6e3f628e3a7418f"
+checksum = "056b3ed9745859b26f431115c6c8e0b5370a0eb040b5761b79e3c6c723fbc78a"
 dependencies = [
  "camino",
  "clap",
