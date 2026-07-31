@@ -34,6 +34,19 @@ jobs:
       - name: Resolve Rust toolchain
         run: rustup show
 
+      # Required by .cargo/config.toml's unconditional `[build] rustc-wrapper
+      # = "sccache"`. Without it every cargo invocation in this job fails
+      # immediately: `error: could not execute process 'sccache ... rustc -vV'
+      # (never executed) ... No such file or directory` -- this workflow never
+      # had this step, unlike .github/actions/setup-ggen-build/action.yml
+      # which documents the exact same failure mode from PR #255. Confirmed
+      # live: every `cargo run`/`cargo test` invocation inside step_two.py
+      # failed with this error on this workflow before this fix.
+      - name: Install sccache
+        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+        with:
+          tool: sccache
+
       - name: Install schema validator
         run: pip install --quiet jsonschema
 
