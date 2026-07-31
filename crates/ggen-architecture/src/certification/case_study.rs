@@ -41,8 +41,7 @@ impl TaiCaseStudy {
         if self.version != TAI_CASE_STUDY_VERSION {
             return Err(TaiCaseStudyRefusal::VersionMismatch(self.version.clone()));
         }
-        if self.source_pack != TAI_CASE_STUDY_PACK
-            || self.source_example != TAI_CASE_STUDY_EXAMPLE
+        if self.source_pack != TAI_CASE_STUDY_PACK || self.source_example != TAI_CASE_STUDY_EXAMPLE
         {
             return Err(TaiCaseStudyRefusal::SourceBoundaryMismatch);
         }
@@ -52,10 +51,22 @@ impl TaiCaseStudy {
             ));
         }
         for (surface, observed, expected) in [
-            ("building-block families", self.building_block_families.len(), 9),
+            (
+                "building-block families",
+                self.building_block_families.len(),
+                9,
+            ),
             ("reconstruction phases", self.reconstruction_phases.len(), 7),
-            ("certification horizons", self.certification_horizons.len(), 10),
-            ("counterfactual scenarios", self.counterfactual_scenarios.len(), 7),
+            (
+                "certification horizons",
+                self.certification_horizons.len(),
+                10,
+            ),
+            (
+                "counterfactual scenarios",
+                self.counterfactual_scenarios.len(),
+                7,
+            ),
             (
                 "recent capability rails",
                 usize::from(self.recent_capability_rails),
@@ -80,7 +91,8 @@ pub fn tai_case_study() -> TaiCaseStudy {
     TaiCaseStudy {
         id: TAI_CASE_STUDY_ID.to_string(),
         version: TAI_CASE_STUDY_VERSION.to_string(),
-        observed_enterprise: "Technology Applications, Inc. historical systems-of-systems enterprise".to_string(),
+        observed_enterprise:
+            "Technology Applications, Inc. historical systems-of-systems enterprise".to_string(),
         target_enterprise: "Automated Technical Capability Company".to_string(),
         source_pack: TAI_CASE_STUDY_PACK.to_string(),
         source_example: TAI_CASE_STUDY_EXAMPLE.to_string(),
@@ -165,7 +177,9 @@ pub enum TaiCaseStudyRefusal {
     SourceBoundaryMismatch,
     #[error("TAI case-study broker mismatch: `{0}`")]
     BrokerMismatch(String),
-    #[error("TAI case-study {surface} cardinality mismatch: expected {expected}, observed {observed}")]
+    #[error(
+        "TAI case-study {surface} cardinality mismatch: expected {expected}, observed {observed}"
+    )]
     CardinalityMismatch {
         surface: String,
         expected: usize,

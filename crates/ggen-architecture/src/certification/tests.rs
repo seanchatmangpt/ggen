@@ -90,10 +90,7 @@ fn block(id: &str, dependency: Option<&str>) -> BuildingBlock {
             .unwrap_or_default(),
         realizations: BTreeMap::from([(realization_id.clone(), realization)]),
         selected_realization: Some(realization_id),
-        profiles: BTreeSet::from([
-            ProfileId::new("core"),
-            ProfileId::new("tai-case-study"),
-        ]),
+        profiles: BTreeSet::from([ProfileId::new("core"), ProfileId::new("tai-case-study")]),
         incompatible_profiles: BTreeSet::new(),
         obligations: BTreeMap::from([(obligation_id, obligation)]),
         exclusions: BTreeSet::from(["direct actuation".to_string()]),
@@ -329,11 +326,7 @@ fn detached_target_and_terminal_lifecycle_are_refused() {
         .register(retired.clone())
         .expect("valid terminal block declaration");
     assert!(matches!(
-        generate_rebuild_roadmap(
-            &retired_registry,
-            &target(&retired),
-            &BTreeMap::new()
-        ),
+        generate_rebuild_roadmap(&retired_registry, &target(&retired), &BTreeMap::new()),
         Err(CertificationRefusal::TargetContainsRetiredBlock { .. })
     ));
 }
