@@ -17,7 +17,7 @@ jobs:
   apply:
     name: apply-exact-g1-g4-tree
     if: github.event.pull_request.head.ref == 'agent/ci-cd-g0-inventory-fence'
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 20
     steps:
       - name: Checkout exact staged transport head
@@ -40,10 +40,27 @@ jobs:
           CURRENT_HEAD="$(git rev-parse HEAD)"
           test "$CURRENT_HEAD" = "$EVENT_HEAD"
 
-          cat .agent/transport/gall.patch.gz.b64.part-* > /tmp/gall.patch.gz.b64
-          echo "$EXPECTED_B64_SHA  /tmp/gall.patch.gz.b64" | sha256sum -c -
-          base64 --decode /tmp/gall.patch.gz.b64 | gzip --decompress > /tmp/gall.patch
-          echo "$EXPECTED_PATCH_SHA  /tmp/gall.patch" | sha256sum -c -
+          python3 - "$EXPECTED_B64_SHA" "$EXPECTED_PATCH_SHA" <<'PY'
+          import base64
+          import gzip
+          import hashlib
+          import sys
+          from pathlib import Path
+
+          expected_b64, expected_patch = sys.argv[1:]
+          parts = sorted(Path('.agent/transport').glob('gall.patch.gz.b64.part-*'))
+          if len(parts) != 8:
+              raise SystemExit(f'expected 8 transport parts, observed {len(parts)}')
+          encoded = b''.join(part.read_bytes() for part in parts)
+          actual_b64 = hashlib.sha256(encoded).hexdigest()
+          if actual_b64 != expected_b64:
+              raise SystemExit(f'compressed payload digest mismatch: {actual_b64}')
+          patch = gzip.decompress(base64.b64decode(encoded, validate=True))
+          actual_patch = hashlib.sha256(patch).hexdigest()
+          if actual_patch != expected_patch:
+              raise SystemExit(f'patch digest mismatch: {actual_patch}')
+          Path('/tmp/gall.patch').write_bytes(patch)
+          PY
           git cat-file -e "$EXPECTED_PARENT^{commit}"
 
           git reset --hard "$EXPECTED_PARENT"
