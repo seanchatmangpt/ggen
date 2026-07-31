@@ -1,0 +1,22 @@
+[inventory]
+schema_version = 1
+repository = "fixture/accepted"
+implementation_base_sha = "accepted"
+historical_inventory_sha = "accepted"
+expected_workflow_count = 2
+
+[[workflow]]
+path = ".github/workflows/a.yml"
+owner = "fixture/a"
+purpose = "Execute the first bounded fixture workflow."
+evidence_output = "workflow log a"
+production_outputs = ["fixture-output-a"]
+retirement_condition = "Retain until an admitted replacement proves equivalent evidence."
+
+[[workflow]]
+path = ".github/workflows/b.yml"
+owner = "fixture/b"
+purpose = "Execute the second bounded fixture workflow."
+evidence_output = "workflow log b"
+production_outputs = ["fixture-output-b"]
+retirement_condition = "Retain until an admitted replacement proves equivalent evidence."
