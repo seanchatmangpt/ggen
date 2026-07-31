@@ -1,0 +1,109 @@
+name: OntoStar MuStar POWL v2 GPT-5.6 Agents
+
+on:
+  pull_request:
+    paths:
+      - 'packs/ontostar-mustar-powlv2-agent-pack/**'
+      - 'docs/architecture/ONTOSTAR_MUSTAR_POWLV2_AGENTS.md'
+      - '.github/workflows/ontostar-mustar-powlv2-agents.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packs/ontostar-mustar-powlv2-agent-pack/**'
+      - 'docs/architecture/ONTOSTAR_MUSTAR_POWLV2_AGENTS.md'
+      - '.github/workflows/ontostar-mustar-powlv2-agents.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ontostar-mustar-powlv2-agents-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gbb-002:
+    name: OntoStar 1 / POWL v2 1 / MuStar 1 / GPT-5.6 3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout event-native merge candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Prove exact head admission
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          test "$(git rev-parse HEAD^2)" = "$head_sha"
+          test "$(git rev-parse HEAD^{tree})" = "$(git rev-parse "$head_sha^{tree}")" || git merge-base --is-ancestor "$head_sha" HEAD
+
+      - name: Provision pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: ontostar-mustar-powlv2-agents
+
+      - name: Prove parent substrate and generic kernel are untouched
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" -- crates packs/speedrun-talent-network-pack)"
+          test -z "$changed"
+
+      - name: Build the real ggen compiler
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture and verify the Speedrun parent substrate
+        working-directory: packs/speedrun-talent-network-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+
+      - name: Manufacture agents twice and prove byte identity
+        working-directory: packs/ontostar-mustar-powlv2-agent-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/ontostar-mustar-powlv2-agents -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/ontostar-mustar-powlv2-agents -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute generated witnesses and falsifiers
+        working-directory: packs/ontostar-mustar-powlv2-agent-pack
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path consumer/ontostar-mustar-powlv2-agents/Cargo.toml
+          cargo clippy --manifest-path consumer/ontostar-mustar-powlv2-agents/Cargo.toml --all-targets -- -D warnings
+
+      - name: Prove authority, model, and release boundaries
+        working-directory: packs/ontostar-mustar-powlv2-agent-pack
+        run: |
+          set -euo pipefail
+          ! grep -R -nE 'reqwest|hyper::|TcpStream|std::net|Command::new|async_openai|openai::' consumer/ontostar-mustar-powlv2-agents/src
+          grep -n 'AGENT_REQUIRED_BROKER.*ggen_architecture::REQUIRED_BROKER' consumer/ontostar-mustar-powlv2-agents/src/catalog.rs
+          ../../target/debug/ggen receipt verify
+          jq -e '.standing == "UNKNOWN"' consumer/ontostar-mustar-powlv2-agents/RELEASE_STANDING.json
+          jq -e '[.records[] | select(.kind == "framework")] | length == 3' consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json
+          jq -e '[.records[] | select(.kind == "model")] | length == 3' consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json
+          jq -e '[.records[] | select(.kind == "framework" and (.candidate_only != true or .direct_actuation != false or .required_broker != "BRCE"))] | length == 0' consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json
+          jq -e '[.records[] | select(.kind == "model" and (.generation != "5.6" or .candidate_only != true or .execution_authority != false or .required_broker != "BRCE"))] | length == 0' consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json
+          jq -e '[.records[] | select(.kind == "model") | .tier] | sort == ["luna", "sol", "terra"]' consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json
+
+      - name: Publish bounded agent-framework artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ontostar-mustar-powlv2-gpt56-agents
+          path: |
+            packs/ontostar-mustar-powlv2-agent-pack/.ggen-v2/receipt.json
+            packs/ontostar-mustar-powlv2-agent-pack/consumer/ontostar-mustar-powlv2-agents/contracts/*.json
+            packs/ontostar-mustar-powlv2-agent-pack/consumer/ontostar-mustar-powlv2-agents/RELEASE_STANDING.json
+            packs/speedrun-talent-network-pack/.ggen-v2/receipt.json
+          if-no-files-found: error

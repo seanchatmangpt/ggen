@@ -1,0 +1,70 @@
+//! End-to-end OntoStar -> POWL v2 -> MuStar candidate manufacturing.
+
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+use crate::model::{digest_value, ModelInferenceIntent};
+use crate::mustar::{compile_plan, verification_intent, MuStarCompilation, MuStarRefusal};
+use crate::ontostar::{
+    admit_claims, extraction_intent, AdmittedOntology, ObservedClaim, OntoStarRefusal,
+};
+use crate::powl_v2::{
+    admit_powl_plan, planning_intent, AdmittedPowlPlan, PowlNode, PowlRefusal,
+};
+
+pub const AGENT_BUNDLE_SCHEMA: &str = "ggen.agent.framework-bundle.v1";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AgentFrameworkBundle {
+    pub schema: String,
+    pub bundle_digest: String,
+    pub model_intents: Vec<ModelInferenceIntent>,
+    pub ontology: AdmittedOntology,
+    pub plan: AdmittedPowlPlan,
+    pub compilation: MuStarCompilation,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+}
+
+#[derive(Debug, Error)]
+pub enum AgentFrameworkRefusal {
+    #[error(transparent)]
+    OntoStar(#[from] OntoStarRefusal),
+    #[error(transparent)]
+    Powl(#[from] PowlRefusal),
+    #[error(transparent)]
+    MuStar(#[from] MuStarRefusal),
+    #[error("agent bundle serialization failed: {0}")]
+    Serialization(#[from] serde_json::Error),
+}
+
+pub fn manufacture_agent_bundle(
+    source_digest: &str,
+    claims: Vec<ObservedClaim>,
+    candidate_plan: PowlNode,
+) -> Result<AgentFrameworkBundle, AgentFrameworkRefusal> {
+    let luna = extraction_intent(source_digest)?;
+    let ontology = admit_claims(claims)?;
+    let terra = planning_intent(&ontology.receipt_digest)?;
+    let plan = admit_powl_plan(candidate_plan)?;
+    let sol = verification_intent(&plan.plan_digest)?;
+    let model_intents = vec![luna, terra, sol];
+    let compilation = compile_plan(&plan, &model_intents)?;
+    let bundle_digest = digest_value(&(
+        AGENT_BUNDLE_SCHEMA,
+        &model_intents,
+        &ontology,
+        &plan,
+        &compilation,
+    ))?;
+    Ok(AgentFrameworkBundle {
+        schema: AGENT_BUNDLE_SCHEMA.to_string(),
+        bundle_digest,
+        model_intents,
+        ontology,
+        plan,
+        compilation,
+        candidate_only: true,
+        execution_authority: false,
+    })
+}

@@ -1,0 +1,171 @@
+//! MuStar semantic-to-kinetic compilation. Motion packets remain BRCE candidates.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use thiserror::Error;
+
+use crate::catalog::{ModelTier, AGENT_REQUIRED_BROKER, MODEL_GENERATION, MODEL_PROVIDER};
+use crate::model::{
+    digest_value, is_blake3_urn, model_intent, routed_tier, ModelInferenceIntent, ModelRefusal,
+    ModelTask,
+};
+use crate::powl_v2::AdmittedPowlPlan;
+
+pub const MOTION_PACKET_SCHEMA: &str = "ggen.agent.mustar-motion-packet.v1";
+pub const EXECUTION_EVIDENCE_DIMENSIONS: &[&str] =
+    &["substrate", "state", "process_log", "telemetry", "causality"];
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MotionPacket {
+    pub schema: String,
+    pub packet_id: String,
+    pub plan_digest: String,
+    pub step_id: String,
+    pub operation: String,
+    #[serde(default)]
+    pub arguments: Value,
+    #[serde(default)]
+    pub predecessors: BTreeSet<String>,
+    pub broker: String,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+    pub model_intent_ids: BTreeSet<String>,
+    pub required_execution_evidence: BTreeSet<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MuStarCompilation {
+    pub compilation_digest: String,
+    pub plan_digest: String,
+    pub packets: Vec<MotionPacket>,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+}
+
+#[derive(Debug, Error)]
+pub enum MuStarRefusal {
+    #[error("MuStar requires exactly one admitted Luna, Terra, and Sol model intent")]
+    ModelTriadRequired,
+    #[error("MuStar received a model intent that violates identity, routing, or authority law")]
+    InvalidModelIntent,
+    #[error("MuStar serialization failed: {0}")]
+    Serialization(#[from] serde_json::Error),
+    #[error(transparent)]
+    Model(#[from] ModelRefusal),
+}
+
+pub fn verification_intent(
+    plan_digest: &str,
+) -> Result<ModelInferenceIntent, MuStarRefusal> {
+    let constraints = BTreeMap::from([
+        ("authority".to_string(), "candidate_only".to_string()),
+        ("compiler".to_string(), "mustar".to_string()),
+        (
+            "required_evidence".to_string(),
+            EXECUTION_EVIDENCE_DIMENSIONS.join(","),
+        ),
+        ("actuation".to_string(), "brce_only".to_string()),
+    ]);
+    Ok(model_intent(
+        ModelTask::AdversarialVerification,
+        plan_digest,
+        constraints,
+    )?)
+}
+
+pub fn compile_plan(
+    plan: &AdmittedPowlPlan,
+    model_intents: &[ModelInferenceIntent],
+) -> Result<MuStarCompilation, MuStarRefusal> {
+    let model_intent_ids = admit_model_triad(model_intents)?;
+    let mut predecessors = plan
+        .activities
+        .keys()
+        .map(|id| (id.clone(), BTreeSet::new()))
+        .collect::<BTreeMap<_, _>>();
+    for edge in &plan.precedence {
+        predecessors
+            .get_mut(&edge.after)
+            .expect("POWL target admitted")
+            .insert(edge.before.clone());
+    }
+    let required_execution_evidence = EXECUTION_EVIDENCE_DIMENSIONS
+        .iter()
+        .map(|dimension| (*dimension).to_string())
+        .collect::<BTreeSet<_>>();
+    let mut packets = Vec::with_capacity(plan.activities.len());
+    for (step_id, activity) in &plan.activities {
+        let step_predecessors = predecessors
+            .get(step_id)
+            .expect("POWL activity admitted")
+            .clone();
+        let packet_id = digest_value(&(
+            MOTION_PACKET_SCHEMA,
+            &plan.plan_digest,
+            step_id,
+            &activity.operation,
+            &activity.arguments,
+            &step_predecessors,
+            &model_intent_ids,
+        ))?;
+        packets.push(MotionPacket {
+            schema: MOTION_PACKET_SCHEMA.to_string(),
+            packet_id,
+            plan_digest: plan.plan_digest.clone(),
+            step_id: step_id.clone(),
+            operation: activity.operation.clone(),
+            arguments: activity.arguments.clone(),
+            predecessors: step_predecessors,
+            broker: AGENT_REQUIRED_BROKER.to_string(),
+            candidate_only: true,
+            execution_authority: false,
+            model_intent_ids: model_intent_ids.clone(),
+            required_execution_evidence: required_execution_evidence.clone(),
+        });
+    }
+    let compilation_digest = digest_value(&(
+        MOTION_PACKET_SCHEMA,
+        &plan.plan_digest,
+        &packets,
+        &model_intent_ids,
+    ))?;
+    Ok(MuStarCompilation {
+        compilation_digest,
+        plan_digest: plan.plan_digest.clone(),
+        packets,
+        candidate_only: true,
+        execution_authority: false,
+    })
+}
+
+fn admit_model_triad(
+    model_intents: &[ModelInferenceIntent],
+) -> Result<BTreeSet<String>, MuStarRefusal> {
+    if model_intents.len() != 3 {
+        return Err(MuStarRefusal::ModelTriadRequired);
+    }
+    let tiers = model_intents
+        .iter()
+        .map(|intent| intent.tier)
+        .collect::<BTreeSet<_>>();
+    if tiers != BTreeSet::from([ModelTier::Luna, ModelTier::Terra, ModelTier::Sol]) {
+        return Err(MuStarRefusal::ModelTriadRequired);
+    }
+    if model_intents.iter().any(|intent| {
+        !is_blake3_urn(&intent.intent_id)
+            || intent.broker != AGENT_REQUIRED_BROKER
+            || intent.provider != MODEL_PROVIDER
+            || intent.generation != MODEL_GENERATION
+            || !intent.candidate_only
+            || intent.execution_authority
+            || routed_tier(intent.task) != intent.tier
+    }) {
+        return Err(MuStarRefusal::InvalidModelIntent);
+    }
+    Ok(model_intents
+        .iter()
+        .map(|intent| intent.intent_id.clone())
+        .collect())
+}

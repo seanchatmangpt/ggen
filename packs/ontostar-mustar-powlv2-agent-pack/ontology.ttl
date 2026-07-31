@@ -1,0 +1,137 @@
+@prefix af: <https://chatmangpt.com/ontology/agent-frameworks#> .
+@prefix stn: <https://chatmangpt.com/ontology/speedrun-talent-network#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <https://schema.org/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+af:AgentFrameworkPack a schema:SoftwareApplication, prov:Entity ;
+  rdfs:label "OntoStar MuStar POWL v2 Agent Frameworks" ;
+  dcterms:identifier "ggen.agent-frameworks.ontostar-mustar-powlv2" ;
+  dcterms:hasVersion "26.7.30" ;
+  af:requiredBroker "BRCE" ;
+  af:directNetworkActuation false ;
+  af:modelExecutionAuthority false ;
+  af:agentIntentIsAuthority false ;
+  af:receiptRequired true ;
+  af:replayRequired true ;
+  af:externalModelExecutionRequired false ;
+  af:speedrunProjection stn:SpeedrunTalentNetwork ;
+  prov:wasDerivedFrom <https://openai.com/index/gpt-5-6/> .
+
+af:OntoStar a af:AgentFramework, prov:SoftwareAgent ;
+  dcterms:identifier "ontostar" ;
+  rdfs:label "OntoStar" ;
+  af:order 1 ;
+  af:phase "admit" ;
+  af:modelTier "luna" ;
+  af:role "ontology_observation_and_admission" ;
+  af:candidateOnly true ;
+  af:directActuation false ;
+  af:requiredBroker "BRCE" ;
+  af:localProcessMiningMath false ;
+  af:evidenceRequired true ;
+  skos:definition "Admits evidence-backed ontology observations and manufactures bounded model inference intents without granting execution authority." .
+
+af:PowlV2 a af:AgentFramework, prov:SoftwareAgent ;
+  dcterms:identifier "powl_v2" ;
+  rdfs:label "POWL v2" ;
+  af:order 2 ;
+  af:phase "plan" ;
+  af:modelTier "terra" ;
+  af:role "partial_order_workflow_candidate_planning" ;
+  af:candidateOnly true ;
+  af:directActuation false ;
+  af:requiredBroker "BRCE" ;
+  af:validatorRequired true ;
+  af:supportsActivity true ;
+  af:supportsSequence true ;
+  af:supportsChoice true ;
+  af:supportsParallel true ;
+  af:supportsPartialOrder true ;
+  skos:definition "Owns the deterministic workflow grammar, structural admission, precedence closure, and cycle refusal for candidate plans." .
+
+af:MuStar a af:AgentFramework, prov:SoftwareAgent ;
+  dcterms:identifier "mustar" ;
+  rdfs:label "MuStar" ;
+  af:order 3 ;
+  af:phase "compile_verify" ;
+  af:modelTier "sol" ;
+  af:role "semantic_to_kinetic_compilation_and_adversarial_verification" ;
+  af:candidateOnly true ;
+  af:directActuation false ;
+  af:requiredBroker "BRCE" ;
+  af:motionPacketRequired true ;
+  af:executionEvidenceDimensions "substrate,state,process_log,telemetry,causality" ;
+  skos:definition "Compiles admitted POWL plans into deterministic motion packets addressed to BRCE; model outputs remain candidates rather than authority." .
+
+af:Gpt56Luna a af:ModelProfile, schema:Product ;
+  dcterms:identifier "openai:gpt-5.6:luna" ;
+  rdfs:label "GPT-5.6 Luna" ;
+  af:order 1 ;
+  af:provider "openai" ;
+  af:generation "5.6" ;
+  af:tier "luna" ;
+  af:role "bounded_extraction_and_routing" ;
+  af:programmaticToolCalling true ;
+  af:multiAgentBeta true ;
+  af:candidateOnly true ;
+  af:executionAuthority false ;
+  af:requiredBroker "BRCE" .
+
+af:Gpt56Terra a af:ModelProfile, schema:Product ;
+  dcterms:identifier "openai:gpt-5.6:terra" ;
+  rdfs:label "GPT-5.6 Terra" ;
+  af:order 2 ;
+  af:provider "openai" ;
+  af:generation "5.6" ;
+  af:tier "terra" ;
+  af:role "balanced_workflow_candidate_planning" ;
+  af:programmaticToolCalling true ;
+  af:multiAgentBeta true ;
+  af:candidateOnly true ;
+  af:executionAuthority false ;
+  af:requiredBroker "BRCE" .
+
+af:Gpt56Sol a af:ModelProfile, schema:Product ;
+  dcterms:identifier "openai:gpt-5.6:sol" ;
+  rdfs:label "GPT-5.6 Sol" ;
+  af:order 3 ;
+  af:provider "openai" ;
+  af:generation "5.6" ;
+  af:tier "sol" ;
+  af:role "frontier_adversarial_verification_and_synthesis" ;
+  af:programmaticToolCalling true ;
+  af:multiAgentBeta true ;
+  af:candidateOnly true ;
+  af:executionAuthority false ;
+  af:requiredBroker "BRCE" .
+
+af:CandidateOnlyPolicy a odrl:Policy ;
+  odrl:permission [
+    odrl:action odrl:use ;
+    odrl:target af:AgentFrameworkPack
+  ] ;
+  odrl:prohibition [
+    odrl:action odrl:execute ;
+    odrl:target af:OntoStar
+  ], [
+    odrl:action odrl:execute ;
+    odrl:target af:PowlV2
+  ], [
+    odrl:action odrl:execute ;
+    odrl:target af:MuStar
+  ] .
+
+af:SpeedrunDiscoveryWorkflow a prov:Plan ;
+  dcterms:identifier "speedrun.discovery-and-interest.v1" ;
+  af:usesFramework af:OntoStar, af:PowlV2, af:MuStar ;
+  af:usesModel af:Gpt56Luna, af:Gpt56Terra, af:Gpt56Sol ;
+  af:projectsTo stn:SearchJobs, stn:GetJob, stn:McpExpressInterest ;
+  af:explicitConsentRequiredFor stn:McpExpressInterest ;
+  af:applicationSubmission false ;
+  af:stealthUnmasking false .
