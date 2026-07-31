@@ -1,0 +1,152 @@
+---
+to: consumer/tai-enterprise-rebuild/src/receipt.rs
+---
+use std::{collections::BTreeMap, fs, path::Path};
+
+use serde::Serialize;
+use serde_json::json;
+
+use crate::{
+    model::{
+        digest_bytes, digest_json, parse, BundleReceipt, BundleSummary, EnterpriseCatalog,
+        ReceiptBody, RebuildError, RoadmapCatalog, ENTERPRISE_BYTES, PLAN_SCHEMA, RECEIPT_SCHEMA,
+        ROADMAP_BYTES,
+    },
+    simulation::simulate,
+};
+
+fn io_error(path: &Path, source: std::io::Error) -> RebuildError {
+    RebuildError::Io {
+        path: path.to_path_buf(),
+        source,
+    }
+}
+
+fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), RebuildError> {
+    let parent = path.parent().ok_or_else(|| {
+        RebuildError::Contract(format!("output path has no parent: {}", path.display()))
+    })?;
+    fs::create_dir_all(parent).map_err(|source| io_error(parent, source))?;
+    let temporary = path.with_extension("tmp");
+    fs::write(&temporary, bytes).map_err(|source| io_error(&temporary, source))?;
+    fs::rename(&temporary, path).map_err(|source| io_error(path, source))?;
+    Ok(())
+}
+
+fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<Vec<u8>, RebuildError> {
+    let bytes = serde_json::to_vec_pretty(value).map_err(RebuildError::ReceiptParse)?;
+    atomic_write(path, &bytes)?;
+    Ok(bytes)
+}
+
+pub fn write_bundle(
+    output_directory: &Path,
+    scenario_id: &str,
+    operation: &str,
+) -> Result<BundleSummary, RebuildError> {
+    if !matches!(operation, "roadmap" | "simulate") {
+        return Err(RebuildError::Contract(format!(
+            "unsupported bundle operation: {operation}"
+        )));
+    }
+    let enterprise: EnterpriseCatalog = parse("enterprise", ENTERPRISE_BYTES)?;
+    let roadmap: RoadmapCatalog = parse("roadmap", ROADMAP_BYTES)?;
+    let simulation = simulate(scenario_id)?;
+    let plan = json!({
+        "schema": PLAN_SCHEMA,
+        "operation": operation,
+        "scenario": &simulation.scenario,
+        "requiredBroker": &enterprise.required_broker,
+        "directActuation": false,
+        "phases": roadmap.phases,
+        "enterpriseStanding": "UNKNOWN",
+    });
+
+    fs::create_dir_all(output_directory).map_err(|source| io_error(output_directory, source))?;
+    let plan_path = output_directory.join("roadmap.json");
+    let simulation_path = output_directory.join("simulation.json");
+    let plan_bytes = write_json(&plan_path, &plan)?;
+    let simulation_bytes = write_json(&simulation_path, &simulation)?;
+
+    let artifacts = BTreeMap::from([
+        ("roadmap.json".to_string(), digest_bytes(&plan_bytes)),
+        ("simulation.json".to_string(), digest_bytes(&simulation_bytes)),
+    ]);
+    let receipt_digest = {
+        let body = ReceiptBody {
+            schema: RECEIPT_SCHEMA,
+            operation,
+            scenario: scenario_id,
+            required_broker: &enterprise.required_broker,
+            direct_actuation: false,
+            previous_digest: "GENESIS",
+            artifacts: &artifacts,
+        };
+        digest_json(&body)?
+    };
+    let receipt = BundleReceipt {
+        schema: RECEIPT_SCHEMA.to_string(),
+        operation: operation.to_string(),
+        scenario: scenario_id.to_string(),
+        required_broker: enterprise.required_broker,
+        direct_actuation: false,
+        previous_digest: "GENESIS".to_string(),
+        artifacts,
+        digest_algorithm: "blake3".to_string(),
+        digest: receipt_digest,
+    };
+    let receipt_path = output_directory.join("receipt.json");
+    write_json(&receipt_path, &receipt)?;
+    verify_receipt(&receipt_path)?;
+
+    Ok(BundleSummary {
+        operation: operation.to_string(),
+        scenario: scenario_id.to_string(),
+        output_directory: output_directory.display().to_string(),
+        receipt: receipt_path.display().to_string(),
+        receipt_digest: receipt.digest,
+        enterprise_standing: "UNKNOWN".to_string(),
+    })
+}
+
+pub fn verify_receipt(receipt_path: &Path) -> Result<BundleReceipt, RebuildError> {
+    let bytes = fs::read(receipt_path).map_err(|source| io_error(receipt_path, source))?;
+    let receipt: BundleReceipt = serde_json::from_slice(&bytes).map_err(RebuildError::ReceiptParse)?;
+    if receipt.schema != RECEIPT_SCHEMA
+        || receipt.digest_algorithm != "blake3"
+        || receipt.required_broker != ggen_architecture::REQUIRED_BROKER
+        || receipt.direct_actuation
+    {
+        return Err(RebuildError::Receipt(
+            "receipt schema, algorithm, broker, or actuation law is invalid".to_string(),
+        ));
+    }
+    let body = ReceiptBody {
+        schema: &receipt.schema,
+        operation: &receipt.operation,
+        scenario: &receipt.scenario,
+        required_broker: &receipt.required_broker,
+        direct_actuation: receipt.direct_actuation,
+        previous_digest: &receipt.previous_digest,
+        artifacts: &receipt.artifacts,
+    };
+    let expected = digest_json(&body)?;
+    if expected != receipt.digest {
+        return Err(RebuildError::Receipt(
+            "receipt body digest does not match".to_string(),
+        ));
+    }
+    let root = receipt_path.parent().ok_or_else(|| {
+        RebuildError::Receipt("receipt path has no parent directory".to_string())
+    })?;
+    for (relative, expected_digest) in &receipt.artifacts {
+        let path = root.join(relative);
+        let artifact = fs::read(&path).map_err(|source| io_error(&path, source))?;
+        if digest_bytes(&artifact) != *expected_digest {
+            return Err(RebuildError::Receipt(format!(
+                "artifact digest mismatch: {relative}"
+            )));
+        }
+    }
+    Ok(receipt)
+}
