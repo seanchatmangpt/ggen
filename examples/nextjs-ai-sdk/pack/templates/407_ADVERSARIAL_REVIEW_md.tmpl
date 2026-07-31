@@ -31,3 +31,15 @@ No package-manager lockfile is claimed because this environment could not resolv
 ## Falsifier
 
 The example is not `ALIVE` unless `pnpm verify` crosses a real Neon database and Vercel AI Gateway, the mutation approval is exercised, a persisted note is observed, the receipt digest recomputes, the second `ggen sync run` is byte-identical, and the UI registry receipt names non-empty materialized files.
+
+`ggen sync run --dry-run` was re-verified against a locally built `ggen` (26.7.59) after removing
+this pack's own `pack.toml` `[law]`/`[verification]` tables (the real `PackToml` schema is
+`deny_unknown_fields` and only accepts `[pack]`; gates are auto-discovered from `pack/gates/*.rq`
+regardless of any config list) and after creating the previously-missing, empty `templates/`
+directory `ggen.toml`'s `[templates].dir` pointed at. With those two config bugs fixed: a real
+(non-dry-run) `ggen sync run` reported every file `unchanged: content identical` against the
+checked-in tree, and an immediately following second `ggen sync run --dry-run` reported zero
+pending writes — the sync-twice/byte-identical half of this Falsifier is now concretely
+demonstrated, not just claimed. The remaining conjuncts (real Neon/Vercel AI Gateway boundary
+crossing, `pnpm verify`) are still open and require live infrastructure this environment doesn't
+have.

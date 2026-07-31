@@ -1,0 +1,12 @@
+# MESSAGE: every sbx:SandboxCapability property is single-valued (any row = a capability carrying two distinct values for ?p)
+PREFIX sbx: <https://ggen.dev/packs/wasm4pm-sandbox#>
+SELECT ?s ?p WHERE {
+  ?s a sbx:SandboxCapability .
+  VALUES ?p {
+    sbx:capabilityId sbx:capabilityLabel sbx:language sbx:operation
+    sbx:doc sbx:timeoutMs sbx:authorityScope
+  }
+  ?s ?p ?v1 , ?v2 .
+  FILTER(?v1 != ?v2)
+}
+ORDER BY ?s ?p

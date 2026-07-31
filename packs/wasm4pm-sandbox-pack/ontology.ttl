@@ -1,0 +1,88 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sbx:  <https://ggen.dev/packs/wasm4pm-sandbox#> .
+
+# InterviewAssist Phase 0 capability registry. Catalog surface only: this
+# ontology describes WHAT sandbox operations exist and their typed
+# preconditions/timeout/authority scope. It does not implement them --
+# execution (real subprocess isolation, stdout/exit-code capture, BLAKE3
+# receipting) belongs to wasm4pm's own wasm4pm-sandbox crate, mirroring the
+# "ggen EMITS process evidence, does NOT analyse it" boundary already
+# enforced for wasm4pm-cognition-pack/wasm4pm-compat-pack.
+
+sbx:SandboxCapability a rdfs:Class ;
+  rdfs:comment "A typed sandbox operation (compile/execute/test) available to the InterviewAssist authority broker." .
+
+sbx:capabilityId    a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+sbx:capabilityLabel a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+sbx:language         a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+sbx:operation         a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+sbx:doc               a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+sbx:timeoutMs         a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:integer .
+sbx:authorityScope    a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range xsd:string .
+# requiresCapability models a real precondition edge (e.g. execute_python
+# requires compile_python to have already produced a Pass outcome) as a
+# queryable graph fact rather than a comment-only convention.
+sbx:requiresCapability a rdf:Property ; rdfs:domain sbx:SandboxCapability ; rdfs:range sbx:SandboxCapability .
+
+# ---- Python ----
+
+sbx:Cap_compile_python a sbx:SandboxCapability ;
+  sbx:capabilityId    "compile_python" ;
+  sbx:capabilityLabel "CompilePython" ;
+  sbx:language        "python" ;
+  sbx:operation        "compile" ;
+  sbx:doc              "Syntax-checks a candidate Python source file via `python -m py_compile` -- Python has no separate build artifact, so this is the compile-equivalent admission gate." ;
+  sbx:timeoutMs        5000 ;
+  sbx:authorityScope   "sandbox.compile" .
+
+sbx:Cap_execute_python a sbx:SandboxCapability ;
+  sbx:capabilityId    "execute_python" ;
+  sbx:capabilityLabel "ExecutePython" ;
+  sbx:language        "python" ;
+  sbx:operation        "execute" ;
+  sbx:doc              "Runs a compiled-clean Python source file in an isolated subprocess and captures stdout/stderr/exit status." ;
+  sbx:timeoutMs        10000 ;
+  sbx:authorityScope   "sandbox.execute" ;
+  sbx:requiresCapability sbx:Cap_compile_python .
+
+sbx:Cap_run_pytest a sbx:SandboxCapability ;
+  sbx:capabilityId    "run_pytest" ;
+  sbx:capabilityLabel "RunPytest" ;
+  sbx:language        "python" ;
+  sbx:operation        "test" ;
+  sbx:doc              "Runs `pytest` against a candidate solution plus its test file in an isolated subprocess." ;
+  sbx:timeoutMs        20000 ;
+  sbx:authorityScope   "sandbox.execute" ;
+  sbx:requiresCapability sbx:Cap_compile_python .
+
+# ---- Rust ----
+
+sbx:Cap_compile_rust a sbx:SandboxCapability ;
+  sbx:capabilityId    "compile_rust" ;
+  sbx:capabilityLabel "CompileRust" ;
+  sbx:language        "rust" ;
+  sbx:operation        "compile" ;
+  sbx:doc              "Builds a candidate Rust crate via `cargo build` in an isolated subprocess." ;
+  sbx:timeoutMs        60000 ;
+  sbx:authorityScope   "sandbox.compile" .
+
+sbx:Cap_execute_rust a sbx:SandboxCapability ;
+  sbx:capabilityId    "execute_rust" ;
+  sbx:capabilityLabel "ExecuteRust" ;
+  sbx:language        "rust" ;
+  sbx:operation        "execute" ;
+  sbx:doc              "Runs the binary produced by compile_rust in an isolated subprocess and captures stdout/stderr/exit status." ;
+  sbx:timeoutMs        10000 ;
+  sbx:authorityScope   "sandbox.execute" ;
+  sbx:requiresCapability sbx:Cap_compile_rust .
+
+sbx:Cap_run_cargo_test a sbx:SandboxCapability ;
+  sbx:capabilityId    "run_cargo_test" ;
+  sbx:capabilityLabel "RunCargoTest" ;
+  sbx:language        "rust" ;
+  sbx:operation        "test" ;
+  sbx:doc              "Runs `cargo test` against a candidate crate in an isolated subprocess (compiles internally, so it has no separate compile precondition)." ;
+  sbx:timeoutMs        60000 ;
+  sbx:authorityScope   "sandbox.execute" .

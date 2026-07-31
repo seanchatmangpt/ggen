@@ -4,15 +4,19 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { getDatabase } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
-let instance: ReturnType<typeof betterAuth> | undefined;
-export function getAuth(): ReturnType<typeof betterAuth> {
-  const secret = process.env.BETTER_AUTH_SECRET;
-  if (!secret) throw new Error("BETTER_AUTH_SECRET is required at the authentication boundary");
-  instance ??= betterAuth({
+function createAuth(secret: string) {
+  return betterAuth({
     database: drizzleAdapter(getDatabase(), { provider: "pg", schema }),
     emailAndPassword: { enabled: true },
     secret,
     baseURL: process.env.BETTER_AUTH_URL,
   });
+}
+
+let instance: ReturnType<typeof createAuth> | undefined;
+export function getAuth(): ReturnType<typeof createAuth> {
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (!secret) throw new Error("BETTER_AUTH_SECRET is required at the authentication boundary");
+  instance ??= createAuth(secret);
   return instance;
 }

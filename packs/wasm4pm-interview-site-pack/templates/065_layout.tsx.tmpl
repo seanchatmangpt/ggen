@@ -1,0 +1,23 @@
+---
+to: "app/layout.tsx"
+sparql:
+  apps: |
+    PREFIX site: <https://ggen.dev/packs/wasm4pm-interview-site#>
+    SELECT ?displayName ?description WHERE {
+      ?app a site:Application ; site:displayName ?displayName ; site:description ?description .
+    } LIMIT 1
+---
+import type { Metadata } from "next";
+
+{% for app in apps %}export const metadata: Metadata = {
+  title: "{{ app.displayName }}",
+  description: "{{ app.description | addslashes }}",
+};
+{% endfor %}
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

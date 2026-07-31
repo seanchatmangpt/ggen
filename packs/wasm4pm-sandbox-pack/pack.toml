@@ -1,0 +1,4 @@
+[pack]
+name = "wasm4pm-sandbox-pack"
+version = "0.1.0"
+description = "SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private sbx: vocabulary and Rust catalog/actuator experiment. It is not a canonical InterviewAssist specification source and must not drive TICKET-001 through TICKET-057. The admitted replacement is packs/wasm4pm-interview-assist-pack/, which uses public ontologies and keeps product domain meaning in RDF rather than private pack vocabulary. See SUPERSEDED.md."

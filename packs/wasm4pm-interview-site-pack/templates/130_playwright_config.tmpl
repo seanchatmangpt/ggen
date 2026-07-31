@@ -1,0 +1,17 @@
+---
+to: "playwright.config.ts"
+---
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  fullyParallel: true,
+  // Next.js 16 dev mode blocks cross-origin asset/HMR requests by default
+  // (allowedDevOrigins) -- 127.0.0.1 and localhost count as different
+  // origins for that check, so both must point at the same host the dev
+  // server actually binds to, or chunk loading (and Monaco's dynamic
+  // import) silently breaks.
+  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  webServer: { command: "pnpm dev", url: "http://localhost:3000", reuseExistingServer: !process.env.CI },
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+});

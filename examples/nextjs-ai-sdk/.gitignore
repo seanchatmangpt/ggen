@@ -6,3 +6,5 @@ test-results/
 .env.local
 .ggen/cache/
 .ggen/tmp/
+next-env.d.ts
+tsconfig.tsbuildinfo

@@ -1,0 +1,55 @@
+@prefix xrp: <https://ggen.dev/ontology/cross-repo-pins#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Manual snapshot pin of sibling repos consumed by ggen (mfw, bcinr, mfact) as of the
+# recorded timestamp. This is a MANUAL, POINT-IN-TIME SNAPSHOT ONLY -- nothing in this repo
+# reads, verifies, or enforces these values yet. It is a minimal first "trim tab" recorded
+# during a 2026-07-21 investigation that found no cross-repo commit-pinning or drift-detection
+# mechanism anywhere in ggen (no .gitmodules, no live Cargo path dependency, no script consuming
+# the one prior single-file precedent -- packs/mfw-pack/ontology.ttl's mfw:SourceSnapshot for
+# AGENTS.md, already 20 commits stale at time of writing). Do not trust these hashes as current;
+# re-run `git -C <repo> rev-parse HEAD` before relying on them. See
+# /Users/sac/.claude/plans/autosel-innovations-and-roadblocks.md ("Anticipated Roadblocks" #3,
+# "Follow-on Recommendations" #4) for the recommended fuller mechanism (a checked-in per-file
+# manifest plus an automated `git log <pin>..HEAD` staleness guard) that this file deliberately
+# does not attempt to build.
+
+xrp:PinnedRepo a rdfs:Class ; rdfs:label "a sibling repo's HEAD commit at snapshot time" .
+xrp:repoPath a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:string .
+xrp:commitHash a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:string .
+xrp:branchName a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:string .
+xrp:commitDate a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:string .
+xrp:workingTreeDirty a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:boolean .
+xrp:changedPathCount a rdf:Property ; rdfs:domain xrp:PinnedRepo ; rdfs:range xsd:integer .
+
+xrp:snapshotTimestamp a xsd:dateTime .
+
+xrp:Mfw a xrp:PinnedRepo ;
+    xrp:repoPath "/Users/sac/mfw" ;
+    xrp:commitHash "2f37849b3d1133a48982baec74d64a5f0ada3c77" ;
+    xrp:branchName "reset/mfw-kernel" ;
+    xrp:commitDate "2026-07-21T12:44:12-07:00" ;
+    xrp:workingTreeDirty true ;
+    xrp:changedPathCount 72 .
+
+xrp:Bcinr a xrp:PinnedRepo ;
+    xrp:repoPath "/Users/sac/bcinr" ;
+    xrp:commitHash "81819edad69095eabb9bea70250e18326700f45f" ;
+    xrp:branchName "recovery/cmca-v26.7.17-c2" ;
+    xrp:commitDate "2026-07-18T23:23:25-07:00" ;
+    xrp:workingTreeDirty true ;
+    xrp:changedPathCount 1623 .
+
+xrp:Mfact a xrp:PinnedRepo ;
+    xrp:repoPath "/Users/sac/mfact" ;
+    xrp:commitHash "801abf7933dabf5c95f9fb18ff21a7a8a1f6a564" ;
+    xrp:branchName "main" ;
+    xrp:commitDate "2026-07-16T17:02:41-07:00" ;
+    xrp:workingTreeDirty true ;
+    xrp:changedPathCount 134 .
+
+# Snapshot taken 2026-07-21T22:05:48Z (git rev-parse HEAD run directly in each repo).
+# workingTreeDirty=true / changedPathCount on all three: each repo had substantial uncommitted
+# local state at snapshot time, so the pinned commit hash reflects the last COMMITTED point,
+# not necessarily what a reader would see on disk right now.

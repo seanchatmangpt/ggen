@@ -19,7 +19,7 @@ async function transactWithReceipt<T>(handlerKey: string, input: unknown, contex
     const receiptSubject = { algorithm: "blake3" as const, status: "ALIVE" as const, requestId: context.requestId, userId: context.userId, handlerKey, input, output, occurredAt };
     const digest = blake3Hex(receiptSubject);
     const receipt = { algorithm: receiptSubject.algorithm, digest, requestId: context.requestId, userId: context.userId, handlerKey, status: "ALIVE" as const, occurredAt };
-    await tx.insert(toolReceipts).values({ requestId: context.requestId, userId: context.userId, toolName: handlerKey.replace(".", "_"), handlerKey, input, output, status: receipt.status, algorithm: receipt.algorithm, digest });
+    await tx.insert(toolReceipts).values({ requestId: context.requestId, userId: context.userId, toolName: handlerKey.replace(".", "_"), handlerKey, input, output, status: receipt.status, algorithm: receipt.algorithm, digest, createdAt: new Date(occurredAt) });
     return { output, receipt };
   });
 }

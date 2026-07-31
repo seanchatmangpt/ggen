@@ -1,0 +1,14 @@
+# MESSAGE: sbx:requiresCapability must reference an admitted sbx:SandboxCapability and must never form a cycle (direct self-reference or transitive, e.g. A requires B requires A) -- any row = a dangling reference or a precondition cycle that would make check_preconditions() unsatisfiable from a cold start
+PREFIX sbx: <https://ggen.dev/packs/wasm4pm-sandbox#>
+SELECT ?s ?target WHERE {
+  ?s a sbx:SandboxCapability ; sbx:requiresCapability ?target .
+  {
+    FILTER NOT EXISTS { ?target a sbx:SandboxCapability }
+  } UNION {
+    # Transitive cycle check via a one-or-more property path: catches
+    # direct self-reference (?s requiresCapability ?s) AND any longer
+    # cycle (A requires B requires A, or deeper), not just the 1-hop case.
+    ?s sbx:requiresCapability+ ?s .
+  }
+}
+ORDER BY ?s ?target

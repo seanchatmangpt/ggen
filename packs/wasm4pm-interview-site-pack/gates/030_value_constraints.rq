@@ -1,0 +1,21 @@
+# MESSAGE: site:capabilityId must be snake_case, site:capabilityLabel a PascalCase Rust/TS identifier (consumed verbatim as CapabilityId enum members), site:httpMethod one of {GET,POST}, site:category one of {session,problem,editor,runtime,verification}, and site:route must start with /api/sandbox/
+PREFIX site: <https://ggen.dev/packs/wasm4pm-interview-site#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a site:InterviewCapability ; site:capabilityId ?value . BIND(site:capabilityId AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a site:InterviewCapability ; site:capabilityLabel ?value . BIND(site:capabilityLabel AS ?p)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Za-z0-9]*$"))
+  } UNION {
+    ?s a site:InterviewCapability ; site:httpMethod ?value . BIND(site:httpMethod AS ?p)
+    FILTER(STR(?value) NOT IN ("GET", "POST"))
+  } UNION {
+    ?s a site:InterviewCapability ; site:category ?value . BIND(site:category AS ?p)
+    FILTER(STR(?value) NOT IN ("session", "problem", "editor", "runtime", "verification"))
+  } UNION {
+    ?s a site:InterviewCapability ; site:route ?value . BIND(site:route AS ?p)
+    FILTER(!STRSTARTS(STR(?value), "/api/sandbox/"))
+  }
+}
+ORDER BY ?s ?p

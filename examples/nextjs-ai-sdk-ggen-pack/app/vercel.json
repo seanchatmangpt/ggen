@@ -1,8 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "regions": ["iad1"],
-  "functions": {
-    "app/api/chat/route.ts": { "maxDuration": 300 }
-  }
-}

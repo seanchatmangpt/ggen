@@ -1,0 +1,18 @@
+# MESSAGE: sbx:capabilityId must be snake_case (^[a-z][a-z0-9_]*$), sbx:capabilityLabel a PascalCase Rust enum-variant identifier (consumed verbatim by sandbox_catalog.rs.tmpl's `CapabilityId::{{ row.capability_label }}` interpolation), sbx:language one of {python,rust}, and sbx:operation one of {compile,execute,test}
+PREFIX sbx: <https://ggen.dev/packs/wasm4pm-sandbox#>
+SELECT ?s ?p ?value WHERE {
+  {
+    ?s a sbx:SandboxCapability ; sbx:capabilityId ?value . BIND(sbx:capabilityId AS ?p)
+    FILTER(!REGEX(STR(?value), "^[a-z][a-z0-9_]*$"))
+  } UNION {
+    ?s a sbx:SandboxCapability ; sbx:capabilityLabel ?value . BIND(sbx:capabilityLabel AS ?p)
+    FILTER(!REGEX(STR(?value), "^[A-Z][A-Za-z0-9]*$"))
+  } UNION {
+    ?s a sbx:SandboxCapability ; sbx:language ?value . BIND(sbx:language AS ?p)
+    FILTER(STR(?value) NOT IN ("python", "rust"))
+  } UNION {
+    ?s a sbx:SandboxCapability ; sbx:operation ?value . BIND(sbx:operation AS ?p)
+    FILTER(STR(?value) NOT IN ("compile", "execute", "test"))
+  }
+}
+ORDER BY ?s ?p

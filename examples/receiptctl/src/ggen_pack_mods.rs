@@ -6,6 +6,10 @@
 
 #[path = "clap_noun_verb_routes.rs"]
 pub mod clap_noun_verb_routes;
+#[path = "sandbox_actuator_trait.rs"]
+pub mod sandbox_actuator_trait;
+#[path = "sandbox_catalog.rs"]
+pub mod sandbox_catalog;
 #[path = "w4pm_algorithms_catalog.rs"]
 pub mod w4pm_algorithms_catalog;
 #[path = "w4pm_algorithms_invocation_dispatch.rs"]
