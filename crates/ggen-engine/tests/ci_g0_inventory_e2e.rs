@@ -1,8 +1,8 @@
 //! G0 CI/CD inventory boundary proof.
 //!
-//! These tests execute the repository verifier as a real subprocess and inspect
-//! its filesystem evidence. No workflow, parser, process, or receipt boundary is
-//! mocked.
+//! These tests execute the repository verifiers as real subprocesses and inspect
+//! their filesystem evidence. No workflow, parser, process, or receipt boundary
+//! is mocked.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -26,21 +26,39 @@ fn execute(script: &str) -> Output {
 
 #[test]
 fn exact_repository_inventory_manufactures_partial_alive_evidence() {
-    let output = execute("scripts/ci/verify-g0-workflow-inventory.py");
+    let inventory_output = execute("scripts/ci/verify-g0-workflow-inventory.py");
     assert!(
-        output.status.success(),
+        inventory_output.status.success(),
         "G0 inventory refused the exact repository:\nstdout={}\nstderr={}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
+        String::from_utf8_lossy(&inventory_output.stdout),
+        String::from_utf8_lossy(&inventory_output.stderr)
     );
 
-    let report_path = repository_root().join("target/ci-g0/workflow-inventory.json");
-    let report = fs::read_to_string(&report_path)
-        .unwrap_or_else(|error| panic!("missing {}: {error}", report_path.display()));
-    assert!(report.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(report.contains("\"observed_workflow_count\": 48"));
-    assert!(report.contains("\"state\": \"UNKNOWN\""));
-    assert!(!report.contains("\"standing\": \"ALIVE\""));
+    let inventory_path = repository_root().join("target/ci-g0/workflow-inventory.json");
+    let inventory = fs::read_to_string(&inventory_path)
+        .unwrap_or_else(|error| panic!("missing {}: {error}", inventory_path.display()));
+    assert!(inventory.contains("\"standing\": \"PARTIAL_ALIVE\""));
+    assert!(inventory.contains("\"observed_workflow_count\": 48"));
+    assert!(inventory.contains("\"state\": \"UNKNOWN\""));
+    assert!(!inventory.contains("\"standing\": \"ALIVE\""));
+
+    let topology_output = execute("scripts/ci/analyze-g0-workflow-topology.py");
+    assert!(
+        topology_output.status.success(),
+        "G0 topology analysis refused the exact repository:\nstdout={}\nstderr={}",
+        String::from_utf8_lossy(&topology_output.stdout),
+        String::from_utf8_lossy(&topology_output.stderr)
+    );
+
+    let topology_path = repository_root().join("target/ci-g0/workflow-topology.json");
+    let topology = fs::read_to_string(&topology_path)
+        .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
+    assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
+    assert!(topology.contains("\"workflow_count\": 48"));
+    assert!(topology.contains("\"trigger_fanout\""));
+    assert!(topology.contains("\"permission_ceiling\""));
+    assert!(topology.contains("\"mutable_action_references\""));
+    assert!(!topology.contains("\"standing\": \"ALIVE\""));
 }
 
 #[test]
