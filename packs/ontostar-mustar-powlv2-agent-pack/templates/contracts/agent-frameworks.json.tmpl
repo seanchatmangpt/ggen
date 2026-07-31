@@ -1,0 +1,16 @@
+{
+  "schema": "ggen.agent-frameworks.contract.v1",
+  "required_broker": "BRCE",
+  "speedrun_projection": "ggen.integration.speedrun-talent-network",
+  "records": [
+{% for row in results %}{% if row["recordKind"] == "framework" %}    {"kind":"framework","identifier":"{{ row["identifier"] }}","label":"{{ row["label"] }}","phase":"{{ row["phase"] }}","model_tier":"{{ row["tier"] }}","role":"{{ row["role"] }}","candidate_only":{{ row["candidateOnly"] }},"direct_actuation":{{ row["directActuation"] }},"required_broker":"{{ row["requiredBroker"] }}"}{% else %}    {"kind":"model","identifier":"{{ row["identifier"] }}","label":"{{ row["label"] }}","provider":"{{ row["provider"] }}","generation":"{{ row["generation"] }}","tier":"{{ row["tier"] }}","role":"{{ row["role"] }}","programmatic_tool_calling":{{ row["programmaticToolCalling"] }},"multi_agent_beta":{{ row["multiAgentBeta"] }},"candidate_only":{{ row["candidateOnly"] }},"execution_authority":{{ row["executionAuthority"] }},"required_broker":"{{ row["requiredBroker"] }}"}{% endif %}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "invariants": [
+    "agent_intent_is_not_authority",
+    "model_output_is_candidate_only",
+    "powl_v2_requires_structural_admission",
+    "mustar_emits_motion_packets_only",
+    "brce_owns_external_actuation",
+    "candidate_actions_require_explicit_consent"
+  ]
+}
