@@ -1,3 +1,4 @@
+; ggen v26.8.1 planning projection covering numbered research documents 1-10
 (define (problem ggen-v2681-governance)
  (:domain ggen-v2681-core)
  (:objects v2681 - release
