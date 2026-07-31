@@ -1,0 +1,29 @@
+---
+to: consumer/tai-enterprise-rebuild/Cargo.toml
+---
+[package]
+name = "tai-enterprise-rebuild"
+version = "26.7.31"
+edition = "2021"
+license = "MIT"
+publish = false
+description = "ggen-manufactured deterministic roadmap and simulation engine for rebuilding Technology Applications, Inc."
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "tai-rebuild"
+path = "src/bin/tai_rebuild.rs"
+
+[dependencies]
+blake3 = "1.5"
+ggen-architecture = { path = "../../../../crates/ggen-architecture" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+[dev-dependencies]
+tempfile = "3.12"
+
+[workspace]
