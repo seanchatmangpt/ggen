@@ -1,0 +1,8 @@
+{
+  "schema": "ggen.speedrun.public-resources.v1",
+  "base": "https://speedrun-talent-network.com",
+  "required_broker": "BRCE",
+  "resources": [
+{% for row in results %}    {"path":"{{ row["path"] }}","media_type":"{{ row["mediaType"] }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

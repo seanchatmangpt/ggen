@@ -1,0 +1,9 @@
+PREFIX stn: <https://chatmangpt.com/ontology/speedrun-talent-network#>
+SELECT ?order ?path ?mediaType
+WHERE {
+  ?resource a stn:MachineReadableResource ;
+    stn:order ?order ;
+    stn:path ?path ;
+    stn:mediaType ?mediaType .
+}
+ORDER BY ?order

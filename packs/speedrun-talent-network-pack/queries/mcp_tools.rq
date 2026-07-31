@@ -1,0 +1,10 @@
+PREFIX stn: <https://chatmangpt.com/ontology/speedrun-talent-network#>
+SELECT ?order ?toolName ?mode ?consentRequired
+WHERE {
+  ?tool a stn:McpTool ;
+    stn:order ?order ;
+    stn:toolName ?toolName ;
+    stn:mode ?mode ;
+    stn:consentRequired ?consentRequired .
+}
+ORDER BY ?order

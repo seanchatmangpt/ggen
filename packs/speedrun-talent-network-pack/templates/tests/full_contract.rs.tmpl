@@ -1,0 +1,171 @@
+use std::collections::BTreeSet;
+
+use serde_json::json;
+use speedrun_talent_network_consumer::{
+    admitted_block, mcp_tool_intent, public_resource_intent, rest_read_intent,
+    search_jobs_intent, CandidateAction, CandidateConsent, JobSearch, McpTool, PublicResource,
+    RestOperation, SpeedrunRefusal, MCP_TOOLS, PUBLIC_RESOURCES, REST_OPERATIONS,
+};
+
+#[test]
+fn generated_contract_is_closed() {
+    assert_eq!(REST_OPERATIONS.len(), 8);
+    assert_eq!(MCP_TOOLS.len(), 10);
+    assert_eq!(PUBLIC_RESOURCES.len(), 3);
+    assert_eq!(
+        MCP_TOOLS
+            .iter()
+            .filter(|tool| tool.consent_required)
+            .count(),
+        2
+    );
+    assert!(admitted_block().validate().is_empty());
+}
+
+#[test]
+fn search_intent_is_exact_and_deterministic() {
+    let search = JobSearch {
+        query: Some("ml systems".to_string()),
+        functions: BTreeSet::from(["engineering".to_string(), "research".to_string()]),
+        seniority: BTreeSet::from(["senior".to_string(), "staff".to_string()]),
+        employment: BTreeSet::from(["FullTime".to_string()]),
+        locations: BTreeSet::from(["remote".to_string()]),
+        remote_only: true,
+        minimum_annual_comp_usd: Some(250_000),
+        portfolio: BTreeSet::from(["a16z".to_string()]),
+        scope: Some("portfolio".to_string()),
+        sort: Some("comp".to_string()),
+        source: Some("ggen-agent".to_string()),
+        ..JobSearch::default()
+    };
+    let first = search_jobs_intent(&search).expect("search admitted");
+    let replay = search_jobs_intent(&search).expect("search replay admitted");
+    assert_eq!(first, replay);
+    assert_eq!(first.query.get("comp"), Some(&"250000".to_string()));
+    assert_eq!(first.query.get("remote"), Some(&"1".to_string()));
+    assert_eq!(first.broker, "BRCE");
+    assert!(first.digest().is_ok());
+}
+
+#[test]
+fn public_resources_are_broker_only() {
+    for resource in [
+        PublicResource::LlmsText,
+        PublicResource::JobsMarkdown,
+        PublicResource::JobsRss,
+    ] {
+        let intent = public_resource_intent(resource).expect("resource admitted");
+        assert_eq!(intent.broker, "BRCE");
+        assert!(intent.endpoint.starts_with("https://speedrun-talent-network.com/"));
+    }
+}
+
+#[test]
+fn invalid_queries_are_refused() {
+    let invalid_filter = JobSearch {
+        functions: BTreeSet::from(["wizardry".to_string()]),
+        ..JobSearch::default()
+    };
+    assert!(matches!(
+        search_jobs_intent(&invalid_filter),
+        Err(SpeedrunRefusal::InvalidFilter { .. })
+    ));
+
+    let invalid_source = JobSearch {
+        source: Some("not allowed!".to_string()),
+        ..JobSearch::default()
+    };
+    assert!(matches!(
+        search_jobs_intent(&invalid_source),
+        Err(SpeedrunRefusal::InvalidSource)
+    ));
+
+    assert!(matches!(
+        rest_read_intent(RestOperation::GetJob, Some("../masked"), None, None),
+        Err(SpeedrunRefusal::InvalidIdentifier("getJob"))
+    ));
+    assert!(matches!(
+        rest_read_intent(RestOperation::ListCompanies, None, Some(201), None),
+        Err(SpeedrunRefusal::InvalidQuery("page exceeds 200"))
+    ));
+}
+
+#[test]
+fn candidate_actions_require_consent() {
+    assert!(matches!(
+        mcp_tool_intent(McpTool::JoinNetwork, json!({}), None),
+        Err(SpeedrunRefusal::MissingConsent("join_network"))
+    ));
+
+    let non_explicit = CandidateConsent {
+        subject_id: "candidate:test".to_string(),
+        action: CandidateAction::JoinNetwork,
+        scope: "talent-network".to_string(),
+        granted_at: "2026-07-30T16:55:00-07:00".to_string(),
+        explicit: false,
+        evidence_digest: "urn:blake3:test-consent".to_string(),
+    };
+    assert!(matches!(
+        mcp_tool_intent(McpTool::JoinNetwork, json!({}), Some(&non_explicit)),
+        Err(SpeedrunRefusal::ConsentNotExplicit)
+    ));
+
+    let wrong_scope = CandidateConsent {
+        subject_id: "candidate:test".to_string(),
+        action: CandidateAction::ExpressInterest,
+        scope: "role:different".to_string(),
+        granted_at: "2026-07-30T16:55:00-07:00".to_string(),
+        explicit: true,
+        evidence_digest: "urn:blake3:test-consent".to_string(),
+    };
+    assert!(matches!(
+        mcp_tool_intent(
+            McpTool::ExpressInterest,
+            json!({"role_id": "role:abc"}),
+            Some(&wrong_scope),
+        ),
+        Err(SpeedrunRefusal::ConsentScopeMismatch)
+    ));
+}
+
+#[test]
+fn matching_consent_is_admitted() {
+    let join = CandidateConsent {
+        subject_id: "candidate:test".to_string(),
+        action: CandidateAction::JoinNetwork,
+        scope: "talent-network".to_string(),
+        granted_at: "2026-07-30T16:55:00-07:00".to_string(),
+        explicit: true,
+        evidence_digest: "urn:blake3:join-consent".to_string(),
+    };
+    let join_intent = mcp_tool_intent(McpTool::JoinNetwork, json!({}), Some(&join))
+        .expect("join consent admitted");
+    assert_eq!(join_intent.consent_digest, Some(join.evidence_digest));
+
+    let interest = CandidateConsent {
+        subject_id: "candidate:test".to_string(),
+        action: CandidateAction::ExpressInterest,
+        scope: "role:abc".to_string(),
+        granted_at: "2026-07-30T16:55:00-07:00".to_string(),
+        explicit: true,
+        evidence_digest: "urn:blake3:interest-consent".to_string(),
+    };
+    let interest_intent = mcp_tool_intent(
+        McpTool::ExpressInterest,
+        json!({"role_id": "role:abc"}),
+        Some(&interest),
+    )
+    .expect("role-scoped consent admitted");
+    assert_eq!(interest_intent.consent_digest, Some(interest.evidence_digest));
+}
+
+#[test]
+fn building_block_preserves_boundaries() {
+    let block = admitted_block();
+    assert_eq!(block.realizations.len(), 2);
+    assert!(block.exclusions.contains("stealth-company unmasking"));
+    assert!(block.exclusions.contains("job-application submission"));
+    assert!(block
+        .exclusions
+        .contains("candidate action without explicit consent"));
+}

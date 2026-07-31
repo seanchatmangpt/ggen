@@ -1,0 +1,87 @@
+name: Speedrun Talent Network GBB
+
+on:
+  pull_request:
+    paths:
+      - 'packs/speedrun-talent-network-pack/**'
+      - 'docs/architecture/SPEEDRUN_TALENT_NETWORK_GBB.md'
+      - '.github/workflows/speedrun-talent-network-gbb.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packs/speedrun-talent-network-pack/**'
+      - 'docs/architecture/SPEEDRUN_TALENT_NETWORK_GBB.md'
+      - '.github/workflows/speedrun-talent-network-gbb.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: speedrun-talent-gbb-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gbb-001:
+    name: REST 8 / MCP 10 / resources 3 / consent 2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: speedrun-talent-gbb
+
+      - name: Preserve repository formatting
+        run: cargo fmt --all -- --check
+
+      - name: Build the real ggen compiler
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture twice and prove byte identity
+        working-directory: packs/speedrun-talent-network-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/speedrun-talent-network -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/speedrun-talent-network -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute generated witnesses and falsifiers
+        working-directory: packs/speedrun-talent-network-pack
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target
+        run: |
+          set -euo pipefail
+          cargo fmt --manifest-path consumer/speedrun-talent-network/Cargo.toml -- --check
+          cargo test --manifest-path consumer/speedrun-talent-network/Cargo.toml
+          cargo clippy --manifest-path consumer/speedrun-talent-network/Cargo.toml --all-targets -- -D warnings
+
+      - name: Prove constitutional boundary and release standing
+        working-directory: packs/speedrun-talent-network-pack
+        run: |
+          set -euo pipefail
+          ! grep -nE 'reqwest|hyper::|TcpStream|std::net|Command::new' consumer/speedrun-talent-network/src/lib.rs
+          grep -n 'SPEEDRUN_REQUIRED_BROKER.*ggen_architecture::REQUIRED_BROKER' consumer/speedrun-talent-network/src/lib.rs
+          ../../target/debug/ggen receipt verify
+          jq -e '.standing == "UNKNOWN"' consumer/speedrun-talent-network/RELEASE_STANDING.json
+          jq -e '.operations | length == 8' consumer/speedrun-talent-network/contracts/rest-api.json
+          jq -e '.tools | length == 10' consumer/speedrun-talent-network/contracts/mcp-server.json
+          jq -e '.resources | length == 3' consumer/speedrun-talent-network/contracts/public-resources.json
+
+      - name: Publish bounded verifier artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: speedrun-talent-network-gbb-001
+          path: |
+            packs/speedrun-talent-network-pack/.ggen-v2/receipt.json
+            packs/speedrun-talent-network-pack/consumer/speedrun-talent-network/contracts/*.json
+            packs/speedrun-talent-network-pack/consumer/speedrun-talent-network/RELEASE_STANDING.json
+          if-no-files-found: error

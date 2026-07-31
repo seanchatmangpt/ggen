@@ -1,0 +1,50 @@
+PREFIX stn: <https://chatmangpt.com/ontology/speedrun-talent-network#>
+SELECT ?violation ?subject
+WHERE {
+  {
+    BIND("REST_OPERATION_COUNT" AS ?violation)
+    BIND(stn:SpeedrunTalentNetwork AS ?subject)
+    {
+      SELECT (COUNT(?operation) AS ?count)
+      WHERE { ?operation a stn:RestOperation . }
+    }
+    FILTER(?count != 8)
+  }
+  UNION
+  {
+    BIND("MCP_TOOL_COUNT" AS ?violation)
+    BIND(stn:SpeedrunTalentNetwork AS ?subject)
+    {
+      SELECT (COUNT(?tool) AS ?count)
+      WHERE { ?tool a stn:McpTool . }
+    }
+    FILTER(?count != 10)
+  }
+  UNION
+  {
+    BIND("MACHINE_RESOURCE_COUNT" AS ?violation)
+    BIND(stn:SpeedrunTalentNetwork AS ?subject)
+    {
+      SELECT (COUNT(?resource) AS ?count)
+      WHERE { ?resource a stn:MachineReadableResource . }
+    }
+    FILTER(?count != 3)
+  }
+  UNION
+  {
+    ?tool a stn:McpTool ; stn:mode "candidate_action" .
+    FILTER NOT EXISTS { ?tool stn:consentRequired true ; stn:submitsApplication false . }
+    BIND("CANDIDATE_ACTION_BOUNDARY" AS ?violation)
+    BIND(?tool AS ?subject)
+  }
+  UNION
+  {
+    stn:SpeedrunTalentNetwork stn:directNetworkActuation ?direct ;
+      stn:stealthUnmasking ?unmask ;
+      stn:applicationSubmission ?apply ;
+      stn:requiredBroker ?broker .
+    FILTER(?direct != false || ?unmask != false || ?apply != false || ?broker != "BRCE")
+    BIND("CONSTITUTIONAL_BOUNDARY" AS ?violation)
+    BIND(stn:SpeedrunTalentNetwork AS ?subject)
+  }
+}
