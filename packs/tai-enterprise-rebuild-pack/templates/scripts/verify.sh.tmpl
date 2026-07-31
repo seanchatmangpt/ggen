@@ -1,0 +1,129 @@
+---
+to: consumer/tai-enterprise-rebuild/scripts/verify.sh
+---
+#!/usr/bin/env bash
+set -euo pipefail
+
+CRATE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+EXAMPLE_ROOT="$(cd "$CRATE_ROOT/../.." && pwd)"
+REPO_ROOT="$(cd "$EXAMPLE_ROOT/../.." && pwd)"
+MANIFEST="$CRATE_ROOT/Cargo.toml"
+TARGET_ROOT="$EXAMPLE_ROOT/generated/verification"
+CMD_ROOT="$EXAMPLE_ROOT/.ggen/cmd"
+CMD_REPLAY_ROOT="$EXAMPLE_ROOT/.ggen/cmd-replay"
+
+rm -rf "$TARGET_ROOT" "$CMD_ROOT" "$CMD_REPLAY_ROOT"
+mkdir -p "$TARGET_ROOT"
+
+cargo fmt --manifest-path "$MANIFEST" --all
+cargo fmt --manifest-path "$MANIFEST" --all -- --check
+cargo check --manifest-path "$MANIFEST" --all-targets
+cargo clippy --manifest-path "$MANIFEST" --all-targets -- -D warnings
+cargo test --manifest-path "$MANIFEST" --all-targets
+cargo build --quiet --manifest-path "$MANIFEST" --bin tai-rebuild
+
+for scenario in historical rebuilt-today post-agi first-contract-delayed certification-unavailable failed-inspection founder-unavailable; do
+  cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate "$scenario" "$TARGET_ROOT/$scenario" > "$TARGET_ROOT/$scenario.stdout.json"
+  cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- verify "$TARGET_ROOT/$scenario/receipt.json" > "$TARGET_ROOT/$scenario.verify.json"
+done
+
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and (.steps | length) == 7 and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/historical/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/rebuilt-today/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/post-agi/simulation.json" >/dev/null
+jq -e '.standing == "PARTIAL_ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[0].status == "DEFERRED_BY_RUNWAY" and .steps[1].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/first-contract-delayed/simulation.json" >/dev/null
+jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status == "REFUSED_MISSING_CERTIFICATION" and .steps[3].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/certification-unavailable/simulation.json" >/dev/null
+jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status == "ANDON_RED_REINSPECTION_REQUIRED" and .steps[3].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/failed-inspection/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[0].status == "SUCCESSION_ACTIVATED" and .steps[1].status == "SIMULATED_WITH_DELEGATED_AUTHORITY"' "$TARGET_ROOT/founder-unavailable/simulation.json" >/dev/null
+
+CMD_PROGRAM="$CRATE_ROOT/generated/combinatorial-maximalism-program.json"
+jq -e '.schema == "ggen.tai.combinatorial-maximalism-program.v1"' "$CMD_PROGRAM" >/dev/null
+jq -e '.requiredBroker == "BRCE" and .directActuation == false' "$CMD_PROGRAM" >/dev/null
+jq -e '(.checkpoints | length) == 10 and ([.checkpoints[].id] == ["G0","G1","G2","G3","G4","G5","G6","G7","G8","G9"])' "$CMD_PROGRAM" >/dev/null
+jq -e '(.internalDimensions | length) == 12 and (.externalDimensions | length) == 13' "$CMD_PROGRAM" >/dev/null
+jq -e '([.checkpoints[].maximumStanding] | all(. == "PARTIAL_ALIVE"))' "$CMD_PROGRAM" >/dev/null
+jq -e '([.options[] | select(.scope == "internal")] | length) == 24' "$CMD_PROGRAM" >/dev/null
+jq -e '([.options[] | select(.scope == "external")] | length) == 26' "$CMD_PROGRAM" >/dev/null
+
+python3 "$CRATE_ROOT/scripts/verify_cmd.py" \
+  --repo "$REPO_ROOT" \
+  --crate "$CRATE_ROOT" \
+  --output "$CMD_ROOT" \
+  --replay-output "$CMD_REPLAY_ROOT" \
+  > "$TARGET_ROOT/cmd-verifier.stdout.json"
+CMD_REPORT="$CMD_ROOT/verifier/report.json"
+jq -e '.schema == "ggen.verifier.report.v1" and .aggregateStanding == "PARTIAL_ALIVE" and .wipRemaining == 0' "$CMD_REPORT" >/dev/null
+jq -e '.requiredBroker == "BRCE" and .directActuation == false and .replayResult == "IDENTICAL"' "$CMD_REPORT" >/dev/null
+jq -e '([.passedChecks[]] == ["G0","G1","G2","G3","G4","G5","G6","G7","G8","G9"])' "$CMD_REPORT" >/dev/null
+jq -e '(.refusalCodes | length) == 10' "$CMD_REPORT" >/dev/null
+for checkpoint in G0 G1 G2 G3 G4 G5 G6 G7 G8 G9; do
+  jq -e --arg checkpoint "$checkpoint" '.checkpointStanding[$checkpoint] == "PARTIAL_ALIVE"' "$CMD_REPORT" >/dev/null
+done
+
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-a" >/dev/null
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-b" >/dev/null
+first="$(cd "$TARGET_ROOT/replay-a" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+second="$(cd "$TARGET_ROOT/replay-b" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+test "$first" = "$second"
+
+set +e
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate not-admitted "$TARGET_ROOT/refused" >"$TARGET_ROOT/refused.stdout" 2>"$TARGET_ROOT/refused.stderr"
+unknown_code=$?
+set -e
+test "$unknown_code" -ne 0
+grep -q "unknown simulation scenario" "$TARGET_ROOT/refused.stderr"
+
+cp "$TARGET_ROOT/historical/roadmap.json" "$TARGET_ROOT/historical/roadmap.original.json"
+printf 'tampered\n' > "$TARGET_ROOT/historical/roadmap.json"
+set +e
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- verify "$TARGET_ROOT/historical/receipt.json" >"$TARGET_ROOT/tamper.stdout" 2>"$TARGET_ROOT/tamper.stderr"
+tamper_code=$?
+set -e
+test "$tamper_code" -ne 0
+grep -q "artifact digest mismatch" "$TARGET_ROOT/tamper.stderr"
+mv "$TARGET_ROOT/historical/roadmap.original.json" "$TARGET_ROOT/historical/roadmap.json"
+
+python3 - "$REPO_ROOT" "$CRATE_ROOT/generated/recent-capabilities.json" "$EXAMPLE_ROOT/VERIFIER_REPORT.json" "$CMD_REPORT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+repo = Path(sys.argv[1])
+catalog = json.loads(Path(sys.argv[2]).read_text())
+cmd = json.loads(Path(sys.argv[4]).read_text())
+missing = [item["sourcePath"] for item in catalog["capabilities"] if not (repo / item["sourcePath"]).exists()]
+if len(catalog["capabilities"]) != 18:
+    raise SystemExit("recent capability cardinality is not 18")
+if missing:
+    raise SystemExit("missing recent capability paths: " + ", ".join(missing))
+if cmd["wipRemaining"] != 0 or cmd["aggregateStanding"] != "PARTIAL_ALIVE":
+    raise SystemExit("CMD source closure is incomplete")
+report = {
+    "schema": "ggen.tai.verifier-report.v1",
+    "standing": "ALIVE",
+    "boundedObject": "roadmap generation, complete G0-G9 source implementation, seven-scenario subprocess simulation, scenario-specific transition law, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
+    "enterpriseStanding": "UNKNOWN",
+    "externalCertificationStanding": "UNKNOWN",
+    "phases": 7,
+    "buildingBlockFamilies": 9,
+    "certificationHorizons": 10,
+    "scenariosExecuted": 7,
+    "recentCapabilitiesComposed": 18,
+    "cmdCheckpoints": 10,
+    "internalDimensions": 12,
+    "externalDimensions": 13,
+    "internalOptions": 24,
+    "externalOptions": 26,
+    "cmdAggregateStanding": cmd["aggregateStanding"],
+    "cmdWipRemaining": cmd["wipRemaining"],
+    "cmdPlanDigest": cmd["planDigest"],
+    "directActuation": False,
+    "requiredBroker": "BRCE",
+    "canonicalGbbComposition": True,
+    "deterministicSelfPlay": True,
+    "counterfactualTransitionsVerified": True,
+    "combinatorialMaximalismProgramVerified": True,
+    "receiptReplay": True,
+    "tamperRefused": True,
+}
+Path(sys.argv[3]).write_text(json.dumps(report, indent=2) + "\n")
+PY

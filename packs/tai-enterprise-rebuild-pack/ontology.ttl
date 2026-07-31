@@ -1,0 +1,178 @@
+@prefix tai: <https://chatmangpt.com/ontology/tai-rebuild#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Reusable vocabulary.
+tai:EnterpriseRebuildProgram a rdfs:Class .
+tai:BuildingBlockFamily a rdfs:Class .
+tai:EnterprisePhase a rdfs:Class .
+tai:CertificationHorizon a rdfs:Class .
+tai:SimulationScenario a rdfs:Class .
+tai:RecentGgenCapability a rdfs:Class .
+tai:EvidenceObligation a rdfs:Class .
+tai:RoadmapGenerator a rdfs:Class .
+
+tai:version a rdf:Property .
+tai:order a rdf:Property .
+tai:identifier a rdf:Property .
+tai:outcome a rdf:Property .
+tai:dependsOn a rdf:Property .
+tai:requiresFamily a rdf:Property .
+tai:requiresCertification a rdf:Property .
+tai:requiredBroker a rdf:Property .
+tai:directActuation a rdf:Property .
+tai:llmCalls a rdf:Property .
+tai:sourcePr a rdf:Property .
+tai:sourcePath a rdf:Property .
+tai:integrationRole a rdf:Property .
+tai:integrationMode a rdf:Property .
+tai:humanBoundary a rdf:Property .
+tai:automatableWork a rdf:Property .
+tai:knowledgeBody a rdf:Property .
+tai:failurePrevention a rdf:Property .
+tai:trigger a rdf:Property .
+tai:mutation a rdf:Property .
+tai:expectedStanding a rdf:Property .
+tai:evidenceKind a rdf:Property .
+tai:falsifier a rdf:Property .
+tai:generator a rdf:Property .
+tai:phase a rdf:Property .
+tai:family a rdf:Property .
+tai:certification a rdf:Property .
+tai:scenario a rdf:Property .
+tai:recentCapability a rdf:Property .
+tai:evidenceObligation a rdf:Property .
+
+# Combinatorial maximalism repository-refactor vocabulary.
+tai:CombinatorialMaximalismProgram a rdfs:Class .
+tai:GallCheckpoint a rdfs:Class .
+tai:CandidateDimension a rdfs:Class .
+tai:TrustTier a rdfs:Class .
+tai:RollbackClass a rdfs:Class .
+
+tai:checkpoint a rdf:Property .
+tai:internalDimension a rdf:Property .
+tai:externalDimension a rdf:Property .
+tai:maximumStanding a rdf:Property .
+tai:requiredArtifact a rdf:Property .
+tai:refusalCode a rdf:Property .
+tai:coverageMode a rdf:Property .
+tai:selectionCardinality a rdf:Property .
+tai:authorityCeiling a rdf:Property .
+tai:trustFloor a rdf:Property .
+tai:consequenceObserver a rdf:Property .
+tai:rollbackClass a rdf:Property .
+tai:outputPath a rdf:Property .
+
+# Exact recent ggen capability rails admitted for the TAI composition.
+tai:cap-book-self-host a tai:RecentGgenCapability ;
+  tai:order 1 ; skos:prefLabel "Level-Five book self-host and 360-degree validation" ;
+  tai:sourcePr 493 ; tai:sourcePath "packs/level-five-book-pack" ;
+  tai:integrationMode "projection" ;
+  tai:integrationRole "Makes enterprise doctrine an ontology-owned, reproducible projection rather than manually maintained prose." .
+
+tai:cap-zero-code-cnv a tai:RecentGgenCapability ;
+  tai:order 2 ; skos:prefLabel "Universal zero-code clap-noun-verb CLI manufacture" ;
+  tai:sourcePr 496 ; tai:sourcePath "packs/clap-noun-verb-pack" ;
+  tai:integrationMode "projection" ;
+  tai:integrationRole "Manufactures operator command surfaces from admitted RDF without consumer-authored handlers." .
+
+tai:cap-namespace a tai:RecentGgenCapability ;
+  tai:order 3 ; skos:prefLabel "chatmangpt.com namespace binding" ;
+  tai:sourcePr 499 ; tai:sourcePath ".chatmangpt/namespace.toml" ;
+  tai:integrationMode "identity" ;
+  tai:integrationRole "Gives the reconstructed enterprise and every generated block stable public identity without implying standing." .
+
+tai:cap-combinatorial-maximalism a tai:RecentGgenCapability ;
+  tai:order 4 ; skos:prefLabel "Design for Combinatorial Maximalism" ;
+  tai:sourcePr 500 ; tai:sourcePath "packs/ggen-combinatorial-maximalism-pack" ;
+  tai:integrationMode "planning" ;
+  tai:integrationRole "Explores reversible enterprise designs before authority, verification, and actuation are admitted." .
+
+tai:cap-frontmatter-maximalism a tai:RecentGgenCapability ;
+  tai:order 5 ; skos:prefLabel "Fortune-5 frontmatter and bounded projection law" ;
+  tai:sourcePr 501 ; tai:sourcePath "crates/ggen-engine/src/template.rs" ;
+  tai:integrationMode "generation" ;
+  tai:integrationRole "Bounds roadmap cardinality, output ownership, structural placement, and pre-actuation feasibility." .
+
+tai:cap-batch-admission a tai:RecentGgenCapability ;
+  tai:order 6 ; skos:prefLabel "Atomic ontology-import batch admission" ;
+  tai:sourcePr 502 ; tai:sourcePath "crates/ggen-engine/src/graph/ontology_batch.rs" ;
+  tai:integrationMode "admission" ;
+  tai:integrationRole "Admits the multi-domain TAI ontology corpus atomically while preserving document attribution and blank-node isolation." .
+
+tai:cap-gall a tai:RecentGgenCapability ;
+  tai:order 7 ; skos:prefLabel "Gall APS-grade agent and tracker control plane" ;
+  tai:sourcePr 503 ; tai:sourcePath "packs/gall-core-pack" ;
+  tai:integrationMode "control-plane" ;
+  tai:integrationRole "Turns every roadmap phase and open obligation into dependency-closed work, evidence, falsifiers, receipts, replay, and crown gates." .
+
+tai:cap-ea-strategy a tai:RecentGgenCapability ;
+  tai:order 8 ; skos:prefLabel "Enterprise Architecture as Strategy manufacturing doctrine" ;
+  tai:sourcePr 504 ; tai:sourcePath "enterprise-architecture-as-strategy" ;
+  tai:integrationMode "doctrine" ;
+  tai:integrationRole "Projects operating model, core diagram, digitized platform, engagement model, and value realization from one graph." .
+
+tai:cap-enterprise-autonomics a tai:RecentGgenCapability ;
+  tai:order 9 ; skos:prefLabel "Enterprise and Fortune-5 architecture autonomics" ;
+  tai:sourcePr 505 ; tai:sourcePath "architecture" ;
+  tai:integrationMode "verification" ;
+  tai:integrationRole "Assesses evidence, diagnoses gaps, and manufactures bounded non-actuating repair and promotion intents." .
+
+tai:cap-lean-rust a tai:RecentGgenCapability ;
+  tai:order 10 ; skos:prefLabel "ggen-first Lean 4 to Rust admission" ;
+  tai:sourcePr 506 ; tai:sourcePath "packs/ggen-lean4-rust-pipeline-pack" ;
+  tai:integrationMode "proof-policy" ;
+  tai:integrationRole "Compiles high-consequence policy into kernel-checked proofs and emitted Rust evaluators rather than duplicated handwritten policy." .
+
+tai:cap-rwr-fortune5 a tai:RecentGgenCapability ;
+  tai:order 11 ; skos:prefLabel "RWR Level 5 and Fortune-5 capability foundations" ;
+  tai:sourcePr 507 ; tai:sourcePath "packs/rwr-level5-foundation-pack" ;
+  tai:integrationMode "verification" ;
+  tai:integrationRole "Provides conjunctive enterprise maturity and required-capability crowns with witness, falsifier, and replay surfaces." .
+
+tai:cap-fortune5-kernel a tai:RecentGgenCapability ;
+  tai:order 12 ; skos:prefLabel "Fortune-5 capability kernel" ;
+  tai:sourcePr 508 ; tai:sourcePath "packs/fortune5-architecture-pack" ;
+  tai:integrationMode "profile" ;
+  tai:integrationRole "Supplies SLO, capacity, regional, identity, cryptographic, observability, supervision, and lifecycle architecture contracts." .
+
+tai:cap-gbb-kernel a tai:RecentGgenCapability ;
+  tai:order 13 ; skos:prefLabel "Canonical ggen Building Block kernel" ;
+  tai:sourcePr 510 ; tai:sourcePath "crates/ggen-architecture" ;
+  tai:integrationMode "runtime" ;
+  tai:integrationRole "Provides typed identities, ports, realization bindings, dependency closure, substitution, standing, and composition receipts." .
+
+tai:cap-automatic-autonomic a tai:RecentGgenCapability ;
+  tai:order 14 ; skos:prefLabel "Automatic trigger-to-consequence and bounded autonomic execution" ;
+  tai:sourcePr 511 ; tai:sourcePath "packs/automatic-autonomic-operations-pack" ;
+  tai:integrationMode "verification" ;
+  tai:integrationRole "Runs admitted repairs through one grant, actuation, consequence-observation, receipt, replay, retry, circuit, Andon, and rollback rail." .
+
+tai:cap-self-host a tai:RecentGgenCapability ;
+  tai:order 15 ; skos:prefLabel "ggen self-host observation and regeneration" ;
+  tai:sourcePr 512 ; tai:sourcePath "self-host" ;
+  tai:integrationMode "governance" ;
+  tai:integrationRole "Makes the TAI rebuilding factory observe, govern, and regenerate its own authority and output surfaces." .
+
+tai:cap-non-llm-self-play a tai:RecentGgenCapability ;
+  tai:order 16 ; skos:prefLabel "Deterministic non-LLM SAFe and enterprise self-play" ;
+  tai:sourcePr 513 ; tai:sourcePath "packs/safe-ea-strategy-self-play-pack" ;
+  tai:integrationMode "runtime" ;
+  tai:integrationRole "Executes bounded enterprise counterfactuals to fixed points with predecessor-linked receipts and exact replay." .
+
+tai:cap-certification-assist a tai:RecentGgenCapability ;
+  tai:order 17 ; skos:prefLabel "CertificationAssist capability standing" ;
+  tai:sourcePr 514 ; tai:sourcePath "packs/certification-assist-pack" ;
+  tai:integrationMode "projection" ;
+  tai:integrationRole "Compiles certification bodies of knowledge into capability graphs, practice, self-play, evidence, and non-self-promoting standing." .
+
+tai:cap-global-cloud-bblocks a tai:RecentGgenCapability ;
+  tai:order 18 ; skos:prefLabel "Fortune-5 global cloud deployment Building Blocks" ;
+  tai:sourcePr 521 ; tai:sourcePath "packs/fortune5-deployment-blocks-pack" ;
+  tai:integrationMode "integration" ;
+  tai:integrationRole "Projects provider-normalized AWS, Azure, and GCP deployment groups through the broker-only bblock catalogue." .

@@ -1,0 +1,14 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?capability ?reason WHERE {
+  ?capability a tai:RecentGgenCapability .
+  VALUES ?reason { "missing-order" "missing-label" "missing-pr" "missing-path" "missing-mode" "missing-role" }
+  FILTER(
+    (?reason = "missing-order" && NOT EXISTS { ?capability tai:order ?v }) ||
+    (?reason = "missing-label" && NOT EXISTS { ?capability skos:prefLabel ?v }) ||
+    (?reason = "missing-pr" && NOT EXISTS { ?capability tai:sourcePr ?v }) ||
+    (?reason = "missing-path" && NOT EXISTS { ?capability tai:sourcePath ?v }) ||
+    (?reason = "missing-mode" && NOT EXISTS { ?capability tai:integrationMode ?v }) ||
+    (?reason = "missing-role" && NOT EXISTS { ?capability tai:integrationRole ?v })
+  )
+}

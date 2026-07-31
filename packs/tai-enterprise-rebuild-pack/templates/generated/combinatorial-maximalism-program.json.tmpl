@@ -1,0 +1,84 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/combinatorial-maximalism-program.json
+sparql:
+  checkpoints: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?maximumStanding ?requiredArtifact ?refusalCode WHERE {
+      ?checkpoint a tai:GallCheckpoint ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ;
+                  tai:maximumStanding ?maximumStanding ; tai:requiredArtifact ?requiredArtifact ; tai:refusalCode ?refusalCode .
+    } ORDER BY ?order
+  internal_dimensions: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?order ?identifier ?selectionCardinality ?coverageMode WHERE {
+      tai:tai-rebuild-v26-7-31 tai:internalDimension ?dimension .
+      ?dimension tai:order ?order ; tai:identifier ?identifier ; tai:selectionCardinality ?selectionCardinality ; tai:coverageMode ?coverageMode .
+    } ORDER BY ?order
+  external_dimensions: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?order ?identifier ?authorityCeiling WHERE {
+      tai:tai-rebuild-v26-7-31 tai:externalDimension ?dimension .
+      ?dimension tai:order ?order ; tai:identifier ?identifier ; tai:authorityCeiling ?authorityCeiling .
+    } ORDER BY ?order
+  options: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?scope ?dimension ?label ?authorityCeiling ?reversibility
+           (GROUP_CONCAT(DISTINCT ?requiredIdentifier; separator="|") AS ?requires)
+           (GROUP_CONCAT(DISTINCT ?incompatibleIdentifier; separator="|") AS ?incompatibleWith)
+    WHERE {
+      ?option a tai:CandidateOption ; tai:order ?order ; tai:identifier ?identifier ; tai:scope ?scope ;
+              tai:dimensionIdentifier ?dimension ; skos:prefLabel ?label ; tai:authorityCeiling ?authorityCeiling ;
+              tai:reversibility ?reversibility .
+      OPTIONAL { ?option tai:requiresOption ?required . ?required tai:identifier ?requiredIdentifier . }
+      OPTIONAL { ?option tai:incompatibleWith ?incompatible . ?incompatible tai:identifier ?incompatibleIdentifier . }
+    }
+    GROUP BY ?order ?identifier ?scope ?dimension ?label ?authorityCeiling ?reversibility
+    ORDER BY ?scope ?order
+---
+{
+  "schema": "ggen.tai.combinatorial-maximalism-program.v1",
+  "program": "TAI-CMD-G0-G9",
+  "law": "O -> O* -> I -> G -> A -> R -> O-prime",
+  "requiredBroker": "BRCE",
+  "directActuation": false,
+  "aggregateStandingCeiling": "PARTIAL_ALIVE",
+  "checkpoints": [
+{% for row in checkpoints %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "title": "{{ row["label"] }}",
+      "maximumStanding": "{{ row["maximumStanding"] }}",
+      "requiredArtifact": "{{ row["requiredArtifact"] }}",
+      "refusalCode": "{{ row["refusalCode"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "internalDimensions": [
+{% for row in internal_dimensions %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "selectionCardinality": "{{ row["selectionCardinality"] }}",
+      "coverageMode": "{{ row["coverageMode"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "externalDimensions": [
+{% for row in external_dimensions %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "authorityCeiling": "{{ row["authorityCeiling"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "options": [
+{% for row in options %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "scope": "{{ row["scope"] }}",
+      "dimension": "{{ row["dimension"] }}",
+      "label": "{{ row["label"] }}",
+      "authorityCeiling": "{{ row["authorityCeiling"] }}",
+      "reversibility": "{{ row["reversibility"] }}",
+      "requires": [{% if row["requires"] != "" %}{% for required in row["requires"] | split(pat="|") %}"{{ required }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}],
+      "incompatibleWith": [{% if row["incompatibleWith"] != "" %}{% for blocked in row["incompatibleWith"] | split(pat="|") %}"{{ blocked }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}]
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

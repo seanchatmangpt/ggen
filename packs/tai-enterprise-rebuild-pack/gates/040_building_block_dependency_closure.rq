@@ -1,0 +1,11 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?block ?reason WHERE {
+  ?block a tai:BuildingBlockFamily ; tai:order ?order ; tai:identifier ?id ; tai:outcome ?outcome .
+  OPTIONAL { ?block tai:dependsOn ?dependency }
+  VALUES ?reason { "bad-order" "unknown-dependency" "self-dependency" }
+  FILTER(
+    (?reason = "bad-order" && (?order < 1 || ?order > 9)) ||
+    (?reason = "unknown-dependency" && BOUND(?dependency) && NOT EXISTS { ?dependency a tai:BuildingBlockFamily }) ||
+    (?reason = "self-dependency" && BOUND(?dependency) && ?dependency = ?block)
+  )
+}

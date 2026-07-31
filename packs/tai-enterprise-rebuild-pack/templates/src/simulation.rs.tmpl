@@ -1,0 +1,310 @@
+---
+to: consumer/tai-enterprise-rebuild/src/simulation.rs
+---
+use std::collections::BTreeSet;
+
+use serde_json::{json, Value};
+
+use crate::{
+    blocks::{architecture_self_play, building_block_composition},
+    model::{
+        digest_bytes, digest_json, parse, EnterpriseCatalog, RebuildError, RoadmapCatalog,
+        ScenarioCatalog, SimulationReport, SimulationStep, CERTIFICATION_BYTES, ENTERPRISE_BYTES,
+        GALL_PROGRAM_BYTES, RECENT_CAPABILITY_BYTES, ROADMAP_BYTES, SCENARIO_BYTES,
+        SIMULATION_SCHEMA,
+    },
+};
+
+fn phase_status(scenario_id: &str, phase_order: u32) -> &'static str {
+    match scenario_id {
+        "first-contract-delayed" if phase_order == 0 => "DEFERRED_BY_RUNWAY",
+        "first-contract-delayed" => "BLOCKED_BY_PREDECESSOR",
+        "certification-unavailable" if phase_order < 2 => "SIMULATED",
+        "certification-unavailable" if phase_order == 2 => "REFUSED_MISSING_CERTIFICATION",
+        "certification-unavailable" => "BLOCKED_BY_PREDECESSOR",
+        "failed-inspection" if phase_order < 2 => "SIMULATED",
+        "failed-inspection" if phase_order == 2 => "ANDON_RED_REINSPECTION_REQUIRED",
+        "failed-inspection" => "BLOCKED_BY_PREDECESSOR",
+        "founder-unavailable" if phase_order == 0 => "SUCCESSION_ACTIVATED",
+        "founder-unavailable" => "SIMULATED_WITH_DELEGATED_AUTHORITY",
+        _ => "SIMULATED",
+    }
+}
+
+fn simulation_standing(scenario_id: &str) -> &'static str {
+    match scenario_id {
+        "first-contract-delayed" => "PARTIAL_ALIVE_SIMULATION_ENTERPRISE_UNKNOWN",
+        "certification-unavailable" | "failed-inspection" => {
+            "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN"
+        }
+        _ => "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN",
+    }
+}
+
+pub fn validate_catalogs() -> Result<(), RebuildError> {
+    let enterprise: EnterpriseCatalog = parse("enterprise", ENTERPRISE_BYTES)?;
+    let roadmap: RoadmapCatalog = parse("roadmap", ROADMAP_BYTES)?;
+    let scenarios: ScenarioCatalog = parse("scenarios", SCENARIO_BYTES)?;
+    let recent: Value = parse("recent-capabilities", RECENT_CAPABILITY_BYTES)?;
+    let certifications: Value = parse("certifications", CERTIFICATION_BYTES)?;
+    let gall: Value = parse("gall-program", GALL_PROGRAM_BYTES)?;
+
+    if enterprise.schema != "ggen.tai.enterprise.v1"
+        || enterprise.identifier != "tai-enterprise-rebuild"
+        || enterprise.version.trim().is_empty()
+        || enterprise.title.trim().is_empty()
+    {
+        return Err(RebuildError::Contract(
+            "TAI enterprise identity or schema contract changed".to_string(),
+        ));
+    }
+    if roadmap.schema != "ggen.tai.roadmap.v1" || roadmap.standing != "UNKNOWN" {
+        return Err(RebuildError::Contract(
+            "generated roadmap schema or non-promoting standing changed".to_string(),
+        ));
+    }
+    if scenarios.schema != "ggen.tai.scenarios.v1" {
+        return Err(RebuildError::Contract(
+            "TAI scenario catalogue schema changed".to_string(),
+        ));
+    }
+    if enterprise.required_broker != ggen_architecture::REQUIRED_BROKER
+        || enterprise.required_broker != ggen_architecture::SELF_PLAY_REQUIRED_BROKER
+    {
+        return Err(RebuildError::Contract(
+            "TAI, canonical GBB, self-play, and Fortune-5 broker law diverged".to_string(),
+        ));
+    }
+    if enterprise.direct_actuation || enterprise.llm_calls {
+        return Err(RebuildError::Contract(
+            "TAI simulation must remain non-LLM and non-actuating".to_string(),
+        ));
+    }
+    if enterprise.families.len() != 9 || roadmap.phases.len() != 7 || scenarios.scenarios.len() != 7 {
+        return Err(RebuildError::Contract(
+            "TAI family, phase, or scenario crown cardinality changed".to_string(),
+        ));
+    }
+    if recent["requiredCount"].as_u64() != Some(18)
+        || recent["capabilities"].as_array().map_or(0, Vec::len) != 18
+    {
+        return Err(RebuildError::Contract(
+            "all eighteen recent ggen capability rails are required".to_string(),
+        ));
+    }
+    if certifications["certifications"].as_array().map_or(0, Vec::len) != 10 {
+        return Err(RebuildError::Contract(
+            "TAI certification horizon must contain ten disciplines".to_string(),
+        ));
+    }
+    if gall["directActuation"].as_bool() != Some(false)
+        || gall["checkpoints"].as_array().map_or(0, Vec::len) != 7
+    {
+        return Err(RebuildError::Contract(
+            "Gall projection must remain plan-only across seven checkpoints".to_string(),
+        ));
+    }
+
+    let family_ids: BTreeSet<_> = enterprise.families.iter().map(|item| item.id.as_str()).collect();
+    if family_ids.len() != enterprise.families.len()
+        || enterprise.families.iter().any(|family| {
+            family.order == 0
+                || family.label.trim().is_empty()
+                || family.outcome.trim().is_empty()
+        })
+    {
+        return Err(RebuildError::Contract(
+            "building block family identity, order, label, or outcome is invalid".to_string(),
+        ));
+    }
+    for dependency in &enterprise.dependencies {
+        if dependency.block == dependency.depends_on
+            || !family_ids.contains(dependency.block.as_str())
+            || !family_ids.contains(dependency.depends_on.as_str())
+        {
+            return Err(RebuildError::Contract(format!(
+                "invalid building block dependency {} -> {}",
+                dependency.block, dependency.depends_on
+            )));
+        }
+    }
+
+    for (index, scenario) in scenarios.scenarios.iter().enumerate() {
+        if scenario.order as usize != index + 1
+            || scenario.label.trim().is_empty()
+            || scenario.trigger.trim().is_empty()
+            || scenario.mutation.trim().is_empty()
+            || scenario.expected_standing != "SIMULATED"
+        {
+            return Err(RebuildError::Contract(format!(
+                "scenario contract is not closed at {}",
+                scenario.id
+            )));
+        }
+    }
+
+    let phase_ids: BTreeSet<_> = roadmap.phases.iter().map(|item| item.id.as_str()).collect();
+    if phase_ids.len() != roadmap.phases.len() || roadmap.dependencies.len() != 6 {
+        return Err(RebuildError::Contract(
+            "roadmap phase identity or predecessor cardinality changed".to_string(),
+        ));
+    }
+    let certification_ids: BTreeSet<_> = certifications["certifications"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|item| item["id"].as_str())
+        .collect();
+    for (index, phase) in roadmap.phases.iter().enumerate() {
+        if phase.order as usize != index
+            || phase.label.trim().is_empty()
+            || phase.outcome.trim().is_empty()
+        {
+            return Err(RebuildError::Contract(format!(
+                "roadmap phase order or content is not closed at {}",
+                phase.id
+            )));
+        }
+        let predecessors: Vec<_> = roadmap
+            .dependencies
+            .iter()
+            .filter(|edge| edge.phase == phase.id)
+            .collect();
+        if index == 0 && !predecessors.is_empty() {
+            return Err(RebuildError::Contract(
+                "TAI-0 cannot have a predecessor".to_string(),
+            ));
+        }
+        if index > 0 {
+            let expected = &roadmap.phases[index - 1].id;
+            if predecessors.len() != 1 || predecessors[0].depends_on.as_str() != expected.as_str() {
+                return Err(RebuildError::Contract(format!(
+                    "roadmap phase {} does not depend on immediate predecessor {}",
+                    phase.id, expected
+                )));
+            }
+        }
+        let family_bindings: Vec<_> = roadmap
+            .family_bindings
+            .iter()
+            .filter(|binding| binding.phase == phase.id)
+            .collect();
+        if family_bindings.is_empty()
+            || family_bindings
+                .iter()
+                .any(|binding| !family_ids.contains(binding.family.as_str()))
+        {
+            return Err(RebuildError::Contract(format!(
+                "roadmap phase {} has invalid family bindings",
+                phase.id
+            )));
+        }
+        let certification_bindings: Vec<_> = roadmap
+            .certification_bindings
+            .iter()
+            .filter(|binding| binding.phase == phase.id)
+            .collect();
+        if certification_bindings.is_empty()
+            || certification_bindings
+                .iter()
+                .any(|binding| !certification_ids.contains(binding.certification.as_str()))
+        {
+            return Err(RebuildError::Contract(format!(
+                "roadmap phase {} has invalid certification bindings",
+                phase.id
+            )));
+        }
+    }
+    let composition = building_block_composition()?;
+    if composition.blocks.len() != 9 || composition.order.len() != 9 {
+        return Err(RebuildError::Contract(
+            "canonical GBB composition did not close all nine families".to_string(),
+        ));
+    }
+    Ok(())
+}
+
+pub fn simulate(scenario_id: &str) -> Result<SimulationReport, RebuildError> {
+    validate_catalogs()?;
+    let enterprise: EnterpriseCatalog = parse("enterprise", ENTERPRISE_BYTES)?;
+    let roadmap: RoadmapCatalog = parse("roadmap", ROADMAP_BYTES)?;
+    let scenarios: ScenarioCatalog = parse("scenarios", SCENARIO_BYTES)?;
+    let scenario = scenarios
+        .scenarios
+        .into_iter()
+        .find(|candidate| candidate.id == scenario_id)
+        .ok_or_else(|| RebuildError::UnknownScenario(scenario_id.to_string()))?;
+    let building_block_receipt = building_block_composition()?;
+    let self_play = architecture_self_play(scenario_id)?;
+    let recent_capability_digest = digest_bytes(RECENT_CAPABILITY_BYTES.as_bytes());
+    let certification_catalog_digest = digest_bytes(CERTIFICATION_BYTES.as_bytes());
+    let gall_program_digest = digest_bytes(GALL_PROGRAM_BYTES.as_bytes());
+
+    let mut prior_digest = "GENESIS".to_string();
+    let mut steps = Vec::with_capacity(roadmap.phases.len());
+    for phase in &roadmap.phases {
+        let predecessors: Vec<_> = roadmap
+            .dependencies
+            .iter()
+            .filter(|edge| edge.phase == phase.id)
+            .map(|edge| edge.depends_on.as_str())
+            .collect();
+        let families: Vec<_> = roadmap
+            .family_bindings
+            .iter()
+            .filter(|binding| binding.phase == phase.id)
+            .map(|binding| binding.family.as_str())
+            .collect();
+        let certifications: Vec<_> = roadmap
+            .certification_bindings
+            .iter()
+            .filter(|binding| binding.phase == phase.id)
+            .map(|binding| binding.certification.as_str())
+            .collect();
+        let status = phase_status(&scenario.id, phase.order);
+        let state = json!({
+            "scenario": &scenario.id,
+            "trigger": &scenario.trigger,
+            "mutation": &scenario.mutation,
+            "phase": phase,
+            "status": status,
+            "predecessors": predecessors,
+            "families": families,
+            "certifications": certifications,
+            "priorDigest": &prior_digest,
+            "requiredBroker": &enterprise.required_broker,
+            "buildingBlockReceipt": &building_block_receipt.digest,
+            "selfPlayChainHead": &self_play.chain_head,
+            "recentCapabilityDigest": &recent_capability_digest,
+            "certificationCatalogDigest": &certification_catalog_digest,
+            "gallProgramDigest": &gall_program_digest,
+            "fortune5ReceiptSchema": ggen_architecture::RECEIPT_SCHEMA,
+            "selfPlayReceiptSchema": ggen_architecture::SELF_PLAY_RECEIPT_SCHEMA,
+            "directActuation": false,
+        });
+        let state_digest = digest_json(&state)?;
+        steps.push(SimulationStep {
+            order: phase.order,
+            phase: phase.id.clone(),
+            label: phase.label.clone(),
+            prior_digest: prior_digest.clone(),
+            state_digest: state_digest.clone(),
+            status: status.to_string(),
+        });
+        prior_digest = state_digest;
+    }
+
+    Ok(SimulationReport {
+        schema: SIMULATION_SCHEMA.to_string(),
+        standing: simulation_standing(&scenario.id).to_string(),
+        scenario,
+        required_broker: enterprise.required_broker,
+        direct_actuation: false,
+        llm_calls: false,
+        building_block_receipt,
+        self_play_chain_head: self_play.chain_head,
+        self_play_receipts: self_play.receipts.len(),
+        steps,
+        final_digest: prior_digest,
+    })
+}

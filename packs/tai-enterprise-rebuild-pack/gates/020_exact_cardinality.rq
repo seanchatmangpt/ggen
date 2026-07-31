@@ -1,0 +1,33 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?kind ?actual ?expected WHERE {
+  {
+    SELECT ("families" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (9 AS ?expected)
+    WHERE { ?x a tai:BuildingBlockFamily }
+  }
+  UNION
+  {
+    SELECT ("phases" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (7 AS ?expected)
+    WHERE { ?x a tai:EnterprisePhase }
+  }
+  UNION
+  {
+    SELECT ("certifications" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (10 AS ?expected)
+    WHERE { ?x a tai:CertificationHorizon }
+  }
+  UNION
+  {
+    SELECT ("scenarios" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (7 AS ?expected)
+    WHERE { ?x a tai:SimulationScenario }
+  }
+  UNION
+  {
+    SELECT ("recent-capabilities" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (18 AS ?expected)
+    WHERE { ?x a tai:RecentGgenCapability }
+  }
+  UNION
+  {
+    SELECT ("evidence-obligations" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (6 AS ?expected)
+    WHERE { ?x a tai:EvidenceObligation }
+  }
+  FILTER(?actual != ?expected)
+}

@@ -1,0 +1,131 @@
+name: TAI Enterprise Rebuild Building Block
+
+on:
+  pull_request:
+    paths:
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/TAI_ENTERPRISE_REBUILD_BBLOCK.md"
+      - ".github/workflows/tai-enterprise-rebuild.yml"
+      - "crates/ggen-architecture/**"
+      - "crates/ggen-graph/src/rwr/**"
+      - "crates/ggen-engine/src/graph/**"
+  push:
+    branches: [main]
+    paths:
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/TAI_ENTERPRISE_REBUILD_BBLOCK.md"
+      - ".github/workflows/tai-enterprise-rebuild.yml"
+      - "crates/ggen-architecture/**"
+      - "crates/ggen-graph/src/rwr/**"
+      - "crates/ggen-engine/src/graph/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tai-enterprise-rebuild-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  manufacture-simulate-verify:
+    name: Generate roadmap, close G0-G9, execute scenarios, and replay receipts
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: tai-enterprise-rebuild
+
+      - name: Repository formatting gate
+        run: cargo fmt --all -- --check
+
+      - name: Preserve ontology batch admission
+        run: cargo test -p ggen-engine --lib ontology_batch -- --nocapture
+
+      - name: Preserve canonical GBB and deterministic self-play
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --all-targets
+
+      - name: Preserve RWR and automatic-autonomic operating rails
+        run: |
+          cargo test -p ggen-graph --test rwr_level5_e2e
+          cargo test -p ggen-graph --test automatic_autonomic_v26_7_31
+
+      - name: Preserve Fortune-5 required-capability crown
+        run: cargo test -p ggen-marketplace --test fortune5_required_capabilities
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Exercise the retained global bblock catalogue
+        run: |
+          mkdir -p examples/tai-enterprise-rebuild/generated
+          ./target/debug/ggen bblock list > examples/tai-enterprise-rebuild/generated/global-bblocks.json
+
+      - name: Manufacture the TAI consumer twice
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find consumer/tai-enterprise-rebuild -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > generated/consumer-first.sha256
+          rm -rf generated/consumer-first-tree
+          cp -a consumer/tai-enterprise-rebuild generated/consumer-first-tree
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          find consumer/tai-enterprise-rebuild -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > generated/consumer-second.sha256
+          diff -u generated/consumer-first.sha256 generated/consumer-second.sha256
+          diff -ru generated/consumer-first-tree consumer/tai-enterprise-rebuild
+
+      - name: Execute generated verifier ladder
+        working-directory: examples/tai-enterprise-rebuild
+        run: bash consumer/tai-enterprise-rebuild/scripts/verify.sh
+
+      - name: Prove bounded standing and non-promotion
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          jq -e '.standing == "ALIVE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.recentCapabilitiesComposed == 18' VERIFIER_REPORT.json >/dev/null
+          jq -e '.cmdCheckpoints == 10 and .internalDimensions == 12 and .externalDimensions == 13' VERIFIER_REPORT.json >/dev/null
+          jq -e '.internalOptions == 24 and .externalOptions == 26' VERIFIER_REPORT.json >/dev/null
+          jq -e '.cmdAggregateStanding == "PARTIAL_ALIVE" and .cmdWipRemaining == 0' VERIFIER_REPORT.json >/dev/null
+          jq -e '.combinatorialMaximalismProgramVerified == true' VERIFIER_REPORT.json >/dev/null
+          jq -e '.scenariosExecuted == 7' VERIFIER_REPORT.json >/dev/null
+          jq -e '.directActuation == false and .requiredBroker == "BRCE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.standing == "UNKNOWN" and .directActuation == false' consumer/tai-enterprise-rebuild/RELEASE_STANDING.json >/dev/null
+          jq -e '.wipRemaining == 0 and .replayResult == "IDENTICAL"' .ggen/cmd/verifier/report.json >/dev/null
+
+      - name: Refuse generated-source drift
+        run: git diff --exit-code -- examples/tai-enterprise-rebuild packs/tai-enterprise-rebuild-pack
+
+      - name: Publish bounded evidence
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: tai-enterprise-rebuild-evidence
+          path: |
+            examples/tai-enterprise-rebuild/.ggen-v2/receipt.json
+            examples/tai-enterprise-rebuild/.ggen/cmd/**
+            examples/tai-enterprise-rebuild/VERIFIER_REPORT.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/RELEASE_STANDING.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/generated/*.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/docs/*.md
+            examples/tai-enterprise-rebuild/generated/verification/**
+            examples/tai-enterprise-rebuild/generated/global-bblocks.json
+            examples/tai-enterprise-rebuild/generated/consumer-*.sha256
+          if-no-files-found: error

@@ -1,0 +1,167 @@
+name: GBB Certification Program
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-architecture/src/building_block.rs"
+      - "crates/ggen-architecture/src/certification/**"
+      - "crates/ggen-architecture/examples/seven_day_standards_report.rs"
+      - "crates/ggen-architecture/tests/testing_bblock.rs"
+      - "crates/ggen-architecture/src/canonical.rs"
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md"
+      - "docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md"
+      - "docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md"
+      - "docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md"
+      - ".github/workflows/gbb-certification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/ggen-architecture/src/certification/**"
+      - "crates/ggen-architecture/examples/seven_day_standards_report.rs"
+      - "crates/ggen-architecture/tests/testing_bblock.rs"
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md"
+      - ".github/workflows/gbb-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbb-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certification-law:
+    name: TAI / 18 standards / 10 testing suites / 60 proof surfaces
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Refuse a certification head detached from its live TAI parent
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          test -n "$BASE_REF"
+          git fetch origin "$BASE_REF"
+          git merge-base --is-ancestor "origin/$BASE_REF" HEAD
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: gbb-certification-tai-v26-7-31
+
+      - name: Enforce repository formatting
+        run: cargo fmt --all -- --check
+
+      - name: Enforce warning-free certification kernel
+        run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
+
+      - name: Execute TAI-bound certification witnesses and falsifiers
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification::tests
+
+      - name: Execute canonical Testing Building Block protocol tests
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --test testing_bblock
+
+      - name: Preserve canonical Building Block and self-play law
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets
+
+      - name: Manufacture seven-day standards verifier report
+        run: |
+          mkdir -p target/certification
+          cargo run --quiet --manifest-path crates/ggen-architecture/Cargo.toml --example seven_day_standards_report > target/certification/seven-day-standards.json
+          jq -e '.schema == "ggen.seven-day-standards.verifier-report.v1"' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.profile_id == "GGEN-STANDARDS-7D-2026-07-30"' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.checkpoints == 18 and .admitted == 13 and .inherited == 4 and .pending == 1' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.bounded_certification_ready == true and .standards_crown_ready == false' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_protocol_id == "GBB-TESTING-PROTOCOL-001"' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_suites == 10 and .testing_suites_alive == 6 and .testing_suites_pending == 4' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_bblock_standing == "PARTIAL_ALIVE"' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.required_broker == "BRCE" and .direct_actuation == false' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.profile_digest | startswith("urn:blake3:")' target/certification/seven-day-standards.json >/dev/null
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Exercise the retained global Building Block catalogue
+        run: |
+          mkdir -p examples/tai-enterprise-rebuild/generated
+          ./target/debug/ggen bblock list > examples/tai-enterprise-rebuild/generated/global-bblocks.json
+
+      - name: Manufacture TAI-REBUILD-001 twice
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          first="$(find consumer/tai-enterprise-rebuild -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          second="$(find consumer/tai-enterprise-rebuild -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute seven scenarios, falsifiers, receipts, and replay
+        working-directory: examples/tai-enterprise-rebuild
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target/tai-enterprise-rebuild
+        run: bash consumer/tai-enterprise-rebuild/scripts/verify.sh
+
+      - name: Prove bounded TAI standing and non-promotion
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          jq -e '.standing == "ALIVE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.recentCapabilitiesComposed == 18' VERIFIER_REPORT.json >/dev/null
+          jq -e '.scenariosExecuted == 7' VERIFIER_REPORT.json >/dev/null
+          jq -e '.directActuation == false and .requiredBroker == "BRCE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.standing == "UNKNOWN" and .directActuation == false' consumer/tai-enterprise-rebuild/RELEASE_STANDING.json >/dev/null
+
+      - name: Prove exact TAI, standards, and testing admission
+        run: |
+          grep -RIn 'TAI-REBUILD-001' crates/ggen-architecture/src/certification
+          grep -RIn 'GGEN-STANDARDS-7D-2026-07-30' crates/ggen-architecture/src/certification
+          grep -RIn 'GBB-TESTING-PROTOCOL-001' crates/ggen-architecture/src/certification
+          grep -RIn 'packs/tai-enterprise-rebuild-pack' crates/ggen-architecture/src/certification
+          grep -RIn 'Automated Technical Capability Company' crates/ggen-architecture/src/certification
+          grep -RIn 'STD-18-CI-CONTROL-PLANE-G0' crates/ggen-architecture/src/certification
+          grep -RIn 'PropertyFuzz' crates/ggen-architecture/src/certification/testing.rs
+          grep -RIn 'StdioHttpIntegration' crates/ggen-architecture/src/certification/testing.rs
+          grep -RIn 'Benchmark' crates/ggen-architecture/src/certification/testing.rs
+          grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md
+          grep -n 'eighteen recent ggen capability rails' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md
+          grep -n '18 named checkpoints' docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md
+          grep -n '10 distinct executable suites' docs/architecture/GGEN_TESTING_BBLOCK_PROTOCOL_V26_7_31.md
+
+      - name: Prove no direct actuation entered the certification kernel
+        run: |
+          ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src/certification
+          grep -RIn 'RoadmapIncomplete' crates/ggen-architecture/src/certification
+          grep -RIn 'TargetContainsRetiredBlock' crates/ggen-architecture/src/certification
+          grep -RIn 'StandardsProfileDigestMismatch' crates/ggen-architecture/src/certification
+
+      - name: Refuse generated-source drift
+        run: git diff --exit-code -- examples/tai-enterprise-rebuild packs/tai-enterprise-rebuild-pack
+
+      - name: Publish TAI certification evidence
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gbb-certification-tai-evidence
+          path: |
+            target/certification/seven-day-standards.json
+            examples/tai-enterprise-rebuild/.ggen-v2/receipt.json
+            examples/tai-enterprise-rebuild/VERIFIER_REPORT.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/RELEASE_STANDING.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/generated/*.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/docs/*.md
+            examples/tai-enterprise-rebuild/generated/verification/**
+            examples/tai-enterprise-rebuild/generated/global-bblocks.json
+          if-no-files-found: error

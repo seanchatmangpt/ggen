@@ -1,0 +1,25 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/recent-capabilities.json
+sparql:
+  capabilities: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?label ?pr ?path ?mode ?role WHERE {
+      ?capability a tai:RecentGgenCapability ; tai:order ?order ; skos:prefLabel ?label ;
+                  tai:sourcePr ?pr ; tai:sourcePath ?path ; tai:integrationMode ?mode ; tai:integrationRole ?role .
+    } ORDER BY ?order
+---
+{
+  "schema": "ggen.tai.recent-capabilities.v1",
+  "requiredCount": 18,
+  "capabilities": [
+{% for row in capabilities %}    {
+      "order": {{ row["order"] }},
+      "label": "{{ row["label"] }}",
+      "sourcePr": {{ row["pr"] }},
+      "sourcePath": "{{ row["path"] }}",
+      "integrationMode": "{{ row["mode"] }}",
+      "integrationRole": "{{ row["role"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

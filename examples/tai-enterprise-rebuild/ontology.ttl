@@ -1,0 +1,195 @@
+@prefix tai: <https://chatmangpt.com/ontology/tai-rebuild#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Crown programme. This is a simulation contract, not a claim that TAI has been rebuilt.
+tai:tai-rebuild-v26-7-31 a tai:EnterpriseRebuildProgram ;
+  dcterms:title "Technology Applications, Inc. Enterprise Rebuild" ;
+  tai:identifier "tai-enterprise-rebuild" ;
+  tai:version "26.7.31" ;
+  tai:requiredBroker "BRCE" ;
+  tai:directActuation false ;
+  tai:llmCalls false ;
+  tai:generator tai:roadmap-generator ;
+  tai:phase tai:phase-0, tai:phase-1, tai:phase-2, tai:phase-3, tai:phase-4, tai:phase-5, tai:phase-6 ;
+  tai:family tai:mission-block, tai:contract-block, tai:capability-block, tai:certification-block,
+             tai:organization-block, tai:technology-block, tai:quality-block, tai:evidence-block, tai:economics-block ;
+  tai:certification tai:cert-systems-engineering, tai:cert-quality, tai:cert-government-contracting,
+                    tai:cert-structural-nde, tai:cert-environmental-risk, tai:cert-software-engineering,
+                    tai:cert-cybersecurity, tai:cert-cloud-platform, tai:cert-program-portfolio,
+                    tai:cert-data-ai ;
+  tai:scenario tai:scenario-historical, tai:scenario-rebuilt-today, tai:scenario-post-agi,
+               tai:scenario-contract-delay, tai:scenario-certification-unavailable,
+               tai:scenario-failed-inspection, tai:scenario-founder-unavailable ;
+  tai:recentCapability tai:cap-book-self-host, tai:cap-zero-code-cnv, tai:cap-namespace,
+                       tai:cap-combinatorial-maximalism, tai:cap-frontmatter-maximalism,
+                       tai:cap-batch-admission, tai:cap-gall, tai:cap-ea-strategy,
+                       tai:cap-enterprise-autonomics, tai:cap-lean-rust, tai:cap-rwr-fortune5,
+                       tai:cap-fortune5-kernel, tai:cap-gbb-kernel, tai:cap-automatic-autonomic,
+                       tai:cap-self-host, tai:cap-non-llm-self-play, tai:cap-certification-assist,
+                       tai:cap-global-cloud-bblocks ;
+  tai:evidenceObligation tai:obligation-roadmap, tai:obligation-simulation, tai:obligation-refusal,
+                         tai:obligation-receipt, tai:obligation-replay, tai:obligation-integration .
+
+# Canonical Building Block families.
+tai:mission-block a tai:BuildingBlockFamily ; tai:order 1 ; tai:identifier "mission" ;
+  skos:prefLabel "Mission Building Block" ;
+  tai:outcome "Admit mission outcomes, stakeholders, criticality, operating environment, unacceptable failures, and acceptance evidence." .
+
+tai:contract-block a tai:BuildingBlockFamily ; tai:order 2 ; tai:identifier "contract" ;
+  skos:prefLabel "Contract Building Block" ; tai:dependsOn tai:mission-block ;
+  tai:outcome "Compile mission demand into scope, deliverables, acceptance, staffing, standards, reporting, economics, and risk boundaries." .
+
+tai:capability-block a tai:BuildingBlockFamily ; tai:order 3 ; tai:identifier "capability" ;
+  skos:prefLabel "Capability Building Block" ; tai:dependsOn tai:mission-block, tai:contract-block ;
+  tai:outcome "Decompose repeatable enterprise abilities into knowledge, people, process, technology, evidence, and dependency closure." .
+
+tai:certification-block a tai:BuildingBlockFamily ; tai:order 4 ; tai:identifier "certification" ;
+  skos:prefLabel "Certification Building Block" ; tai:dependsOn tai:capability-block ;
+  tai:outcome "Compile bodies of knowledge into operating laws, scenarios, laboratories, controls, refusals, evidence, and drift rules." .
+
+tai:organization-block a tai:BuildingBlockFamily ; tai:order 5 ; tai:identifier "organization" ;
+  skos:prefLabel "Organization Building Block" ; tai:dependsOn tai:capability-block, tai:certification-block ;
+  tai:outcome "Generate roles, authority, reporting, team topology, separation of duties, hiring, training, succession, and Conway constraints." .
+
+tai:technology-block a tai:BuildingBlockFamily ; tai:order 6 ; tai:identifier "technology" ;
+  skos:prefLabel "Technology Building Block" ; tai:dependsOn tai:mission-block, tai:capability-block ;
+  tai:outcome "Generate make-buy-reuse decisions, reference architectures, interoperability, migration, obsolescence, and support boundaries." .
+
+tai:quality-block a tai:BuildingBlockFamily ; tai:order 7 ; tai:identifier "quality" ;
+  skos:prefLabel "Total Quality Leadership Building Block" ; tai:dependsOn tai:mission-block, tai:contract-block ;
+  tai:outcome "Constitutionally bind customer mission fulfillment, continuous improvement, quality gates, corrective action, and verified performance." .
+
+tai:evidence-block a tai:BuildingBlockFamily ; tai:order 8 ; tai:identifier "evidence" ;
+  skos:prefLabel "Evidence Building Block" ; tai:dependsOn tai:quality-block, tai:capability-block ;
+  tai:outcome "Generate provenance, tests, inspections, baselines, acceptance evidence, telemetry, contract performance, receipts, and replay." .
+
+tai:economics-block a tai:BuildingBlockFamily ; tai:order 9 ; tai:identifier "economics" ;
+  skos:prefLabel "Economics Building Block" ; tai:dependsOn tai:contract-block, tai:organization-block, tai:technology-block ;
+  tai:outcome "Constrain cash, margin, utilization, hiring, equipment, certification, overhead, geography, and capability reuse." .
+
+# Dependency-ordered enterprise phases.
+tai:phase-0 a tai:EnterprisePhase ; tai:order 0 ; tai:identifier "TAI-0" ;
+  skos:prefLabel "Founder and first mission" ;
+  tai:outcome "Admit the first Navy mission, refuse unsupported scope, and establish the minimum contract, quality, evidence, and economic boundary." ;
+  tai:requiresFamily tai:mission-block, tai:contract-block, tai:quality-block, tai:economics-block ;
+  tai:requiresCertification tai:cert-government-contracting, tai:cert-quality, tai:cert-systems-engineering .
+
+tai:phase-1 a tai:EnterprisePhase ; tai:order 1 ; tai:identifier "TAI-1" ; tai:dependsOn tai:phase-0 ;
+  skos:prefLabel "Repeatable engineering services" ;
+  tai:outcome "Replace founder-dependent execution with configuration management, engineering process, technical documentation, hiring, and evidence retention." ;
+  tai:requiresFamily tai:capability-block, tai:organization-block, tai:evidence-block ;
+  tai:requiresCertification tai:cert-systems-engineering, tai:cert-quality, tai:cert-program-portfolio .
+
+tai:phase-2 a tai:EnterprisePhase ; tai:order 2 ; tai:identifier "TAI-2" ; tai:dependsOn tai:phase-1 ;
+  skos:prefLabel "Adjacent engineering expansion" ;
+  tai:outcome "Add structural engineering, nondestructive examination, logistics, lifecycle support, and test-facility preservation through build-buy-partner-refuse decisions." ;
+  tai:requiresFamily tai:capability-block, tai:certification-block, tai:technology-block ;
+  tai:requiresCertification tai:cert-structural-nde, tai:cert-systems-engineering, tai:cert-quality .
+
+tai:phase-3 a tai:EnterprisePhase ; tai:order 3 ; tai:identifier "TAI-3" ; tai:dependsOn tai:phase-2 ;
+  skos:prefLabel "Environmental science and technology" ;
+  tai:outcome "Form laboratory, field, GIS, modeling, risk-assessment, chain-of-custody, and analytical-method capability without borrowing engineering standing." ;
+  tai:requiresFamily tai:capability-block, tai:certification-block, tai:quality-block, tai:evidence-block ;
+  tai:requiresCertification tai:cert-environmental-risk, tai:cert-quality, tai:cert-data-ai .
+
+tai:phase-4 a tai:EnterprisePhase ; tai:order 4 ; tai:identifier "TAI-4" ; tai:dependsOn tai:phase-3 ;
+  skos:prefLabel "Information technology" ;
+  tai:outcome "Add software engineering, real-time systems, lifecycle support, process improvement, operations centers, training systems, and auditable maintainability." ;
+  tai:requiresFamily tai:capability-block, tai:technology-block, tai:organization-block, tai:evidence-block ;
+  tai:requiresCertification tai:cert-software-engineering, tai:cert-cybersecurity, tai:cert-cloud-platform .
+
+tai:phase-5 a tai:EnterprisePhase ; tai:order 5 ; tai:identifier "TAI-5" ; tai:dependsOn tai:phase-4 ;
+  skos:prefLabel "Systems integration and communications" ;
+  tai:outcome "Integrate hardware, software, networks, telecommunications, scientific computing, installation, certification, training, and lifecycle support." ;
+  tai:requiresFamily tai:capability-block, tai:technology-block, tai:quality-block, tai:evidence-block ;
+  tai:requiresCertification tai:cert-systems-engineering, tai:cert-cybersecurity, tai:cert-program-portfolio .
+
+tai:phase-6 a tai:EnterprisePhase ; tai:order 6 ; tai:identifier "TAI-6" ; tai:dependsOn tai:phase-5 ;
+  skos:prefLabel "Institutional enterprise" ;
+  tai:outcome "Operate multiple offices and capability units with shared quality, evidence, contract acquisition, succession, autonomics, and founder-independent continuity." ;
+  tai:requiresFamily tai:organization-block, tai:quality-block, tai:evidence-block, tai:economics-block ;
+  tai:requiresCertification tai:cert-program-portfolio, tai:cert-government-contracting, tai:cert-cybersecurity .
+
+# Certification horizons: learn the discipline, compile it, mechanize it, verify it.
+tai:cert-systems-engineering a tai:CertificationHorizon ; tai:order 1 ; tai:identifier "systems-engineering" ;
+  skos:prefLabel "Systems Engineering" ;
+  tai:knowledgeBody "requirements, architecture, interfaces, verification, validation, configuration, risk, lifecycle" ;
+  tai:automatableWork "requirements traceability, interface consistency, architecture checks, verification planning, evidence assembly" ;
+  tai:humanBoundary "mission tradeoffs, novel hazard judgment, accountable approval" ;
+  tai:failurePrevention "unverified interfaces, lifecycle omissions, mission drift" .
+
+tai:cert-quality a tai:CertificationHorizon ; tai:order 2 ; tai:identifier "quality-management" ;
+  skos:prefLabel "Quality Management" ; tai:knowledgeBody "customer mission, process capability, audit, corrective action, continuous improvement" ;
+  tai:automatableWork "control mapping, audit preparation, nonconformance routing, evidence retention, trend detection" ;
+  tai:humanBoundary "quality policy authority and acceptance of residual risk" ; tai:failurePrevention "compliance theater and repeated defects" .
+
+tai:cert-government-contracting a tai:CertificationHorizon ; tai:order 3 ; tai:identifier "government-contracting" ;
+  skos:prefLabel "Government Contracting" ; tai:knowledgeBody "acquisition, scope, clauses, deliverables, cost, schedule, reporting, acceptance" ;
+  tai:automatableWork "clause extraction, deliverable matrices, compliance calendars, acceptance evidence, change-impact analysis" ;
+  tai:humanBoundary "authorized commitments, negotiation, legal interpretation" ; tai:failurePrevention "unfunded scope and noncompliant delivery" .
+
+tai:cert-structural-nde a tai:CertificationHorizon ; tai:order 4 ; tai:identifier "structural-nde" ;
+  skos:prefLabel "Structural Engineering and Nondestructive Examination" ; tai:knowledgeBody "codes, loads, fatigue, fracture, inspection methods, qualification" ;
+  tai:automatableWork "code-rule checks, inspection planning, indication classification support, traceability" ;
+  tai:humanBoundary "licensed judgment, field interpretation, safety disposition" ; tai:failurePrevention "missed defects and unsafe continued service" .
+
+tai:cert-environmental-risk a tai:CertificationHorizon ; tai:order 5 ; tai:identifier "environmental-risk" ;
+  skos:prefLabel "Environmental Science and Risk Assessment" ; tai:knowledgeBody "sampling, chain of custody, analytical methods, exposure, fate, GIS, ecological and human-health risk" ;
+  tai:automatableWork "sampling design checks, model execution, uncertainty accounting, evidence lineage, report assembly" ;
+  tai:humanBoundary "method approval, field anomalies, regulatory interpretation" ; tai:failurePrevention "invalid samples, hidden uncertainty, unsupported risk claims" .
+
+tai:cert-software-engineering a tai:CertificationHorizon ; tai:order 6 ; tai:identifier "software-engineering" ;
+  skos:prefLabel "Software Engineering" ; tai:knowledgeBody "requirements, architecture, implementation, test, process assessment, maintenance" ;
+  tai:automatableWork "code manufacture, static analysis, testing, documentation, release evidence, replay" ;
+  tai:humanBoundary "constitutional architecture and irreversible product decisions" ; tai:failurePrevention "undocumented, unauditable, unmaintainable systems" .
+
+tai:cert-cybersecurity a tai:CertificationHorizon ; tai:order 7 ; tai:identifier "cybersecurity" ;
+  skos:prefLabel "Cybersecurity and Assurance" ; tai:knowledgeBody "identity, authorization, cryptography, network controls, incident response, supply chain" ;
+  tai:automatableWork "policy checks, configuration admission, evidence collection, attack-surface analysis, continuous control monitoring" ;
+  tai:humanBoundary "risk acceptance, incident command, adversarial judgment" ; tai:failurePrevention "silent privilege, unaudited access, unverifiable trust" .
+
+tai:cert-cloud-platform a tai:CertificationHorizon ; tai:order 8 ; tai:identifier "cloud-platform" ;
+  skos:prefLabel "Cloud and Platform Architecture" ; tai:knowledgeBody "availability, regions, capacity, recovery, observability, deployment, cost" ;
+  tai:automatableWork "provider-normalized topology generation, policy validation, deployment planning, drift detection, rollback intent" ;
+  tai:humanBoundary "production grants, provider contracts, residency and business risk" ; tai:failurePrevention "fragile single-region and unbounded infrastructure" .
+
+tai:cert-program-portfolio a tai:CertificationHorizon ; tai:order 9 ; tai:identifier "program-portfolio" ;
+  skos:prefLabel "Program and Portfolio Management" ; tai:knowledgeBody "dependency, schedule, cost, risk, governance, value, transition architecture" ;
+  tai:automatableWork "dependency-closed roadmaps, scenario analysis, evidence status, work generation, variance diagnosis" ;
+  tai:humanBoundary "priority, funding, accountability, stakeholder commitments" ; tai:failurePrevention "paper roadmaps detached from executable capability" .
+
+tai:cert-data-ai a tai:CertificationHorizon ; tai:order 10 ; tai:identifier "data-ai" ;
+  skos:prefLabel "Data, Modeling, and AI Assurance" ; tai:knowledgeBody "data provenance, modeling, uncertainty, validation, bias, monitoring, bounded autonomy" ;
+  tai:automatableWork "model pipelines, data checks, reproducibility, evidence graphs, bounded self-play, verifier generation" ;
+  tai:humanBoundary "problem framing, ethical authority, high-consequence release" ; tai:failurePrevention "plausible but unsupported analysis" .
+
+# Counterfactuals regenerate the roadmap; they never directly actuate.
+tai:scenario-historical a tai:SimulationScenario ; tai:order 1 ; tai:identifier "historical" ; skos:prefLabel "TAI Historical" ;
+  tai:trigger "1977 Navy engineering-services contract" ; tai:mutation "Use period-appropriate organizational and technical choices." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-rebuilt-today a tai:SimulationScenario ; tai:order 2 ; tai:identifier "rebuilt-today" ; skos:prefLabel "TAI Rebuilt Today" ;
+  tai:trigger "Current federal and commercial mission demand" ; tai:mutation "Use present-day standards, cloud, software, certification, and evidence infrastructure." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-post-agi a tai:SimulationScenario ; tai:order 3 ; tai:identifier "post-agi" ; skos:prefLabel "TAI Post-AGI" ;
+  tai:trigger "Certified knowledge compiled into generators and verifiers" ; tai:mutation "Minimize manual execution while preserving human constitutional authority and zero unreceipted actuation." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-contract-delay a tai:SimulationScenario ; tai:order 4 ; tai:identifier "first-contract-delayed" ; skos:prefLabel "First contract delayed" ;
+  tai:trigger "Award date slips beyond available founder runway" ; tai:mutation "Freeze hiring and equipment, preserve certification learning, generate alternate bounded work, and re-evaluate cash runway." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-certification-unavailable a tai:SimulationScenario ; tai:order 5 ; tai:identifier "certification-unavailable" ; skos:prefLabel "Required certification unavailable" ;
+  tai:trigger "A required qualified person or credential cannot be admitted" ; tai:mutation "Partner, subcontract, defer, or refuse the dependent capability; never self-award external standing." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-failed-inspection a tai:SimulationScenario ; tai:order 6 ; tai:identifier "failed-inspection" ; skos:prefLabel "Critical inspection fails" ;
+  tai:trigger "Independent verification rejects a safety-critical result" ; tai:mutation "Andon RED, stop new promotion, preserve evidence, perform causal diagnosis, manufacture bounded repair, and require reinspection." ; tai:expectedStanding "SIMULATED" .
+tai:scenario-founder-unavailable a tai:SimulationScenario ; tai:order 7 ; tai:identifier "founder-unavailable" ; skos:prefLabel "Founder unavailable" ;
+  tai:trigger "Founder cannot participate in operations" ; tai:mutation "Exercise succession, decision rights, process authority, evidence custody, and autonomous-but-bounded continuity." ; tai:expectedStanding "SIMULATED" .
+
+# Roadmap manufacture law.
+tai:roadmap-generator a tai:RoadmapGenerator ;
+  tai:identifier "tai-roadmap-generator-v1" ; tai:requiredBroker "BRCE" ; tai:directActuation false ; tai:llmCalls false ;
+  tai:outcome "Generate dependency-closed capability, certification, organization, technology, automation, evidence, contract, and economics roadmaps from current state and scenario." .
+
+# Crown obligations.
+tai:obligation-roadmap a tai:EvidenceObligation ; tai:order 1 ; tai:identifier "roadmap" ; tai:evidenceKind "generated dependency-closed roadmap" ; tai:falsifier "remove a predecessor phase and require graph-gate refusal" .
+tai:obligation-simulation a tai:EvidenceObligation ; tai:order 2 ; tai:identifier "simulation" ; tai:evidenceKind "real subprocess and filesystem simulation execution" ; tai:falsifier "request an unknown scenario and require typed process refusal" .
+tai:obligation-refusal a tai:EvidenceObligation ; tai:order 3 ; tai:identifier "refusal" ; tai:evidenceKind "named negative scenario and nonzero process status" ; tai:falsifier "attempt direct actuation or unsupported standing" .
+tai:obligation-receipt a tai:EvidenceObligation ; tai:order 4 ; tai:identifier "receipt" ; tai:evidenceKind "BLAKE3 receipt binding scenario, roadmap, simulation, predecessor, and artifacts" ; tai:falsifier "mutate receipt content and require verification failure" .
+tai:obligation-replay a tai:EvidenceObligation ; tai:order 5 ; tai:identifier "replay" ; tai:evidenceKind "byte-identical repeated manufacture and execution" ; tai:falsifier "change scenario input and require a different receipt" .
+tai:obligation-integration a tai:EvidenceObligation ; tai:order 6 ; tai:identifier "recent-capability-integration" ; tai:evidenceKind "all eighteen recent ggen capability rails appear in the generated integration matrix and their repository paths exist" ; tai:falsifier "remove one required source path and require verifier failure" .

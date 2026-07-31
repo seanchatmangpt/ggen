@@ -1,0 +1,40 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/gall-program.json
+sparql:
+  obligations: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    SELECT ?order ?identifier ?evidence ?falsifier WHERE {
+      ?obligation a tai:EvidenceObligation ; tai:order ?order ; tai:identifier ?identifier ;
+                  tai:evidenceKind ?evidence ; tai:falsifier ?falsifier .
+    } ORDER BY ?order
+  phases: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label WHERE {
+      ?phase a tai:EnterprisePhase ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label .
+    } ORDER BY ?order
+---
+{
+  "schema": "ggen.gall.program.v1",
+  "program": "TAI-REBUILD",
+  "mode": "PlanOnly",
+  "agentMode": "HandoffOnly",
+  "directActuation": false,
+  "checkpoints": [
+{% for row in phases %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "title": "{{ row["label"] }}",
+      "standing": "UNKNOWN",
+      "crownRequiresAllObligations": true
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "obligations": [
+{% for row in obligations %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "evidence": "{{ row["evidence"] }}",
+      "falsifier": "{{ row["falsifier"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

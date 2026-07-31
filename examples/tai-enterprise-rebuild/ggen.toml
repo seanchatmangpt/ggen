@@ -1,0 +1,27 @@
+[project]
+name = "tai-enterprise-rebuild"
+version = "26.7.31"
+description = "Generate and simulate the roadmap for rebuilding Technology Applications, Inc."
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"
+imports = ["cmd.ttl", "options.ttl"]
+
+[ontology.prefixes]
+tai = "https://chatmangpt.com/ontology/tai-rebuild#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+skos = "http://www.w3.org/2004/02/skos/core#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+
+[packs]
+tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }
+
+[templates]
+dir = "."
+aggregate_modules = false
