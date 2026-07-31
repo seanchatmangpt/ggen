@@ -24,6 +24,14 @@ for scenario in historical rebuilt-today post-agi first-contract-delayed certifi
   cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- verify "$TARGET_ROOT/$scenario/receipt.json" > "$TARGET_ROOT/$scenario.verify.json"
 done
 
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and (.steps | length) == 7 and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/historical/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/rebuilt-today/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and ([.steps[].status] | all(. == "SIMULATED"))' "$TARGET_ROOT/post-agi/simulation.json" >/dev/null
+jq -e '.standing == "PARTIAL_ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[0].status == "DEFERRED_BY_RUNWAY" and .steps[1].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/first-contract-delayed/simulation.json" >/dev/null
+jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status == "REFUSED_MISSING_CERTIFICATION" and .steps[3].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/certification-unavailable/simulation.json" >/dev/null
+jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status == "ANDON_RED_REINSPECTION_REQUIRED" and .steps[3].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/failed-inspection/simulation.json" >/dev/null
+jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[0].status == "SUCCESSION_ACTIVATED" and .steps[1].status == "SIMULATED_WITH_DELEGATED_AUTHORITY"' "$TARGET_ROOT/founder-unavailable/simulation.json" >/dev/null
+
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-a" >/dev/null
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-b" >/dev/null
 first="$(cd "$TARGET_ROOT/replay-a" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
@@ -62,7 +70,7 @@ if missing:
 report = {
     "schema": "ggen.tai.verifier-report.v1",
     "standing": "ALIVE",
-    "boundedObject": "roadmap generation, seven-scenario subprocess simulation, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
+    "boundedObject": "roadmap generation, seven-scenario subprocess simulation, scenario-specific transition law, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
     "enterpriseStanding": "UNKNOWN",
     "externalCertificationStanding": "UNKNOWN",
     "phases": 7,
@@ -74,6 +82,7 @@ report = {
     "requiredBroker": "BRCE",
     "canonicalGbbComposition": True,
     "deterministicSelfPlay": True,
+    "counterfactualTransitionsVerified": True,
     "receiptReplay": True,
     "tamperRefused": True,
 }
