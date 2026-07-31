@@ -1,0 +1,254 @@
+//! Canonical GBB-001 declaration over the generic ggen Building Block kernel.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use ggen_architecture::{
+    ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
+    EvidenceObligation, LifecycleState, ObligationId, Port, PortDirection, PortId, PortKind,
+    ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim, Standing,
+};
+
+use crate::catalog::{SPEEDRUN_BLOCK_ID, SPEEDRUN_OPENAPI_VERSION};
+
+#[must_use]
+pub fn admitted_block() -> BuildingBlock {
+    speedrun_talent_network_block()
+}
+
+#[must_use]
+pub fn speedrun_talent_network_block() -> BuildingBlock {
+    let block_id = BuildingBlockId::from(SPEEDRUN_BLOCK_ID);
+    let request = PortId::from("speedrun.request");
+    let consent = PortId::from("speedrun.candidate-consent");
+    let transport_intent = PortId::from("speedrun.transport-intent");
+    let canonical_url = PortId::from("speedrun.canonical-url");
+    let receipt = PortId::from("speedrun.execution-receipt");
+    let read = Authority::from("network:read:speedrun-talent-network");
+    let candidate_action = Authority::from("candidate:consent-action");
+    let broker = Authority::from("intent:BRCE");
+    let authorities = BTreeSet::from([read.clone(), candidate_action.clone(), broker.clone()]);
+    let outputs = BTreeSet::from([
+        transport_intent.clone(),
+        canonical_url.clone(),
+        receipt.clone(),
+    ]);
+
+    BuildingBlock {
+        id: block_id.clone(),
+        version: "26.7.30".to_string(),
+        owner: "ggen-core-team".to_string(),
+        lifecycle: LifecycleState::Admitted,
+        standing: Standing::Unknown,
+        architecture: ArchitectureFacet {
+            capability: "live role discovery and consent-bounded candidate actions".to_string(),
+            requirements: BTreeSet::from([
+                "REST and MCP preserve one live hiring dataset".to_string(),
+                "eight REST reads, ten MCP tools, and three public resources are closed"
+                    .to_string(),
+                "candidate actions require explicit consent evidence".to_string(),
+                "canonical listing URLs are preserved".to_string(),
+                "stealth masking remains immutable".to_string(),
+            ]),
+            constraints: BTreeSet::from([
+                "read surfaces require no authentication, key, or paid access".to_string(),
+                "REST preserves open CORS and one-to-five-minute edge caching".to_string(),
+                "page is zero-based and bounded to 200".to_string(),
+                "source is optional, echoed, bounded, and attribution-safe".to_string(),
+                "scope=everywhere remains server feature gated".to_string(),
+                "closed roles remain addressable with status=closed".to_string(),
+                "errors preserve error.code and error.message with HTTP status".to_string(),
+                "no operation submits a job application".to_string(),
+            ]),
+            quality_attributes: BTreeSet::from([
+                "deterministic intent manufacture".to_string(),
+                "idempotent candidate-action planning".to_string(),
+                "continuous upstream refresh with bounded cache staleness".to_string(),
+                "receipt and replay closure".to_string(),
+                "bounded fair-use access".to_string(),
+            ]),
+            permitted_authorities: authorities.clone(),
+        },
+        contract: BuildingBlockContract {
+            behavior: BTreeSet::from([
+                "manufacture every documented REST read".to_string(),
+                "manufacture every documented MCP read".to_string(),
+                "manufacture llms.txt, jobs.md, and jobs.rss reads".to_string(),
+                "refuse join_network without matching consent".to_string(),
+                "refuse express_interest without role-scoped consent".to_string(),
+                "never manufacture stealth-unmask or submit-application operations".to_string(),
+            ]),
+            required_inputs: BTreeSet::from([request.clone()]),
+            promised_outputs: outputs.clone(),
+            resource_ceiling: ResourceCeiling {
+                memory_bytes: 67_108_864,
+                cpu_millis: 5_000,
+                output_bytes: 16_777_216,
+                broker_intents: 1,
+            },
+            authority_ceiling: authorities,
+        },
+        ports: BTreeMap::from([
+            (
+                request.clone(),
+                port(
+                    request,
+                    PortDirection::Input,
+                    PortKind::Data,
+                    "ggen.speedrun.request.v1",
+                    true,
+                ),
+            ),
+            (
+                consent.clone(),
+                port(
+                    consent,
+                    PortDirection::Input,
+                    PortKind::Control,
+                    "ggen.candidate-consent.v1",
+                    false,
+                ),
+            ),
+            (
+                transport_intent.clone(),
+                port(
+                    transport_intent,
+                    PortDirection::Output,
+                    PortKind::ActuationIntent,
+                    "ggen.speedrun.transport-intent.v1",
+                    true,
+                ),
+            ),
+            (
+                canonical_url.clone(),
+                port(
+                    canonical_url,
+                    PortDirection::Output,
+                    PortKind::Data,
+                    "https://speedrun-talent-network.com/jobs/{id}",
+                    true,
+                ),
+            ),
+            (
+                receipt.clone(),
+                port(
+                    receipt,
+                    PortDirection::Output,
+                    PortKind::Evidence,
+                    "ggen.operation-receipt.v1",
+                    true,
+                ),
+            ),
+        ]),
+        dependencies: BTreeSet::new(),
+        realizations: BTreeMap::from([
+            realization(
+                "speedrun-rest-api-v1",
+                &block_id,
+                "urn:ggen:passport:speedrun-rest-api:1.0.0",
+                BTreeSet::from([read.clone(), broker.clone()]),
+                outputs.clone(),
+            ),
+            realization(
+                "speedrun-mcp-streamable-http",
+                &block_id,
+                "urn:ggen:passport:speedrun-mcp:2026-07-30",
+                BTreeSet::from([read, candidate_action, broker]),
+                outputs,
+            ),
+        ]),
+        selected_realization: None,
+        profiles: BTreeSet::from([ProfileId::from("public-agent-integration")]),
+        incompatible_profiles: BTreeSet::new(),
+        obligations: evidence_obligations(),
+        exclusions: BTreeSet::from([
+            "direct network IO from generated architecture logic".to_string(),
+            "stealth-company unmasking".to_string(),
+            "job-application submission".to_string(),
+            "candidate action without explicit consent".to_string(),
+            "anonymous high-volume scraping".to_string(),
+            "re-hosting stale job descriptions".to_string(),
+        ]),
+        provenance: format!(
+            "https://speedrun-talent-network.com/api/v1/openapi.json#{SPEEDRUN_OPENAPI_VERSION}"
+        ),
+    }
+}
+
+fn port(
+    id: PortId,
+    direction: PortDirection,
+    kind: PortKind,
+    schema: &str,
+    required: bool,
+) -> Port {
+    Port {
+        id,
+        direction,
+        kind,
+        schema: schema.to_string(),
+        required,
+    }
+}
+
+fn realization(
+    name: &str,
+    block_id: &BuildingBlockId,
+    passport_id: &str,
+    authorities: BTreeSet<Authority>,
+    outputs: BTreeSet<PortId>,
+) -> (RealizationId, RealizationBinding) {
+    let realization_id = RealizationId::from(name);
+    (
+        realization_id.clone(),
+        RealizationBinding {
+            id: realization_id,
+            realizes: block_id.clone(),
+            passport_id: passport_id.to_string(),
+            passport_digest: format!("urn:blake3:{name}"),
+            provided_ports: outputs,
+            authorities,
+            resources: ResourceClaim {
+                memory_bytes: 16_777_216,
+                cpu_millis: 1_000,
+                output_bytes: 16_777_216,
+                broker_intents: 1,
+            },
+        },
+    )
+}
+
+fn evidence_obligations() -> BTreeMap<ObligationId, EvidenceObligation> {
+    [
+        (
+            "surface-closure",
+            "cargo test --test full_contract generated_contract_is_closed",
+            "cargo test --test full_contract invalid_queries_are_refused",
+        ),
+        (
+            "consent-law",
+            "cargo test --test full_contract matching_consent_is_admitted",
+            "cargo test --test full_contract candidate_actions_require_consent",
+        ),
+        (
+            "boundary-law",
+            "cargo test --test full_contract building_block_preserves_boundaries",
+            "grep generated source for forbidden direct network actuators",
+        ),
+    ]
+    .into_iter()
+    .map(|(name, witness, falsifier)| {
+        let id = ObligationId::from(name);
+        (
+            id.clone(),
+            EvidenceObligation {
+                id,
+                positive_witness: witness.to_string(),
+                negative_falsifier: falsifier.to_string(),
+                independent_verifier: "cargo clippy --all-targets -- -D warnings".to_string(),
+                receipt_verifier: "ggen receipt verify".to_string(),
+                replay: "ggen sync run twice and compare generated bytes".to_string(),
+            },
+        )
+    })
+    .collect()
+}

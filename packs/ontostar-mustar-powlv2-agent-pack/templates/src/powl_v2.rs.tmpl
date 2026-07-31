@@ -1,0 +1,290 @@
+//! POWL v2 candidate grammar, normalization, and structural admission.
+
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use thiserror::Error;
+
+use crate::model::{
+    digest_value, model_intent, ModelInferenceIntent, ModelRefusal, ModelTask,
+};
+
+pub const POWL_PLAN_SCHEMA: &str = "ggen.agent.powl-v2-plan.v1";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PowlActivity {
+    pub id: String,
+    pub operation: String,
+    #[serde(default)]
+    pub arguments: Value,
+    pub candidate_action: bool,
+}
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+pub struct Precedence {
+    pub before: String,
+    pub after: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PowlNode {
+    Activity(PowlActivity),
+    Sequence(Vec<PowlNode>),
+    Choice(Vec<PowlNode>),
+    Parallel(Vec<PowlNode>),
+    PartialOrder {
+        activities: Vec<PowlActivity>,
+        precedence: BTreeSet<Precedence>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AdmittedPowlPlan {
+    pub schema: String,
+    pub plan_digest: String,
+    pub root: PowlNode,
+    pub activities: BTreeMap<String, PowlActivity>,
+    pub precedence: BTreeSet<Precedence>,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+}
+
+#[derive(Debug, Error)]
+pub enum PowlRefusal {
+    #[error("POWL activity `{0}` is duplicated")]
+    DuplicateActivity(String),
+    #[error("POWL activity field `{0}` is empty")]
+    EmptyActivityField(&'static str),
+    #[error("POWL composite `{0}` must contain at least one child")]
+    EmptyComposite(&'static str),
+    #[error("POWL precedence references unknown activity `{0}`")]
+    UnknownActivity(String),
+    #[error("POWL activity `{0}` cannot precede itself")]
+    SelfDependency(String),
+    #[error("POWL precedence graph contains a cycle")]
+    Cycle,
+    #[error("POWL serialization failed: {0}")]
+    Serialization(#[from] serde_json::Error),
+    #[error(transparent)]
+    Model(#[from] ModelRefusal),
+}
+
+#[derive(Debug)]
+struct Fragment {
+    entries: BTreeSet<String>,
+    exits: BTreeSet<String>,
+}
+
+pub fn planning_intent(
+    ontology_receipt_digest: &str,
+) -> Result<ModelInferenceIntent, PowlRefusal> {
+    let constraints = BTreeMap::from([
+        ("grammar".to_string(), "powl_v2".to_string()),
+        ("authority".to_string(), "candidate_only".to_string()),
+        ("cycle_policy".to_string(), "refuse".to_string()),
+        (
+            "constructors".to_string(),
+            "activity,sequence,choice,parallel,partial_order".to_string(),
+        ),
+    ]);
+    Ok(model_intent(
+        ModelTask::PowlCandidatePlanning,
+        ontology_receipt_digest,
+        constraints,
+    )?)
+}
+
+pub fn admit_powl_plan(root: PowlNode) -> Result<AdmittedPowlPlan, PowlRefusal> {
+    let mut activities = BTreeMap::new();
+    let mut precedence = BTreeSet::new();
+    normalize(&root, &mut activities, &mut precedence)?;
+    validate_acyclic(&activities, &precedence)?;
+    let plan_digest = digest_value(&(POWL_PLAN_SCHEMA, &root, &activities, &precedence))?;
+    Ok(AdmittedPowlPlan {
+        schema: POWL_PLAN_SCHEMA.to_string(),
+        plan_digest,
+        root,
+        activities,
+        precedence,
+        candidate_only: true,
+        execution_authority: false,
+    })
+}
+
+fn normalize(
+    node: &PowlNode,
+    activities: &mut BTreeMap<String, PowlActivity>,
+    precedence: &mut BTreeSet<Precedence>,
+) -> Result<Fragment, PowlRefusal> {
+    match node {
+        PowlNode::Activity(activity) => insert_activity(activity, activities),
+        PowlNode::Sequence(children) => {
+            if children.is_empty() {
+                return Err(PowlRefusal::EmptyComposite("sequence"));
+            }
+            let mut children = children.iter();
+            let first = normalize(
+                children.next().expect("non-empty sequence"),
+                activities,
+                precedence,
+            )?;
+            let entries = first.entries;
+            let mut exits = first.exits;
+            for child in children {
+                let next = normalize(child, activities, precedence)?;
+                connect(&exits, &next.entries, precedence);
+                exits = next.exits;
+            }
+            Ok(Fragment { entries, exits })
+        }
+        PowlNode::Choice(children) => {
+            normalize_branches("choice", children, activities, precedence)
+        }
+        PowlNode::Parallel(children) => {
+            normalize_branches("parallel", children, activities, precedence)
+        }
+        PowlNode::PartialOrder {
+            activities: local_activities,
+            precedence: local_precedence,
+        } => {
+            if local_activities.is_empty() {
+                return Err(PowlRefusal::EmptyComposite("partial_order"));
+            }
+            let mut local_ids = BTreeSet::new();
+            for activity in local_activities {
+                let fragment = insert_activity(activity, activities)?;
+                local_ids.extend(fragment.entries);
+            }
+            for edge in local_precedence {
+                validate_edge(edge, &local_ids)?;
+                precedence.insert(edge.clone());
+            }
+            let mut entries = local_ids.clone();
+            let mut exits = local_ids;
+            for edge in local_precedence {
+                entries.remove(&edge.after);
+                exits.remove(&edge.before);
+            }
+            Ok(Fragment { entries, exits })
+        }
+    }
+}
+
+fn normalize_branches(
+    kind: &'static str,
+    children: &[PowlNode],
+    activities: &mut BTreeMap<String, PowlActivity>,
+    precedence: &mut BTreeSet<Precedence>,
+) -> Result<Fragment, PowlRefusal> {
+    if children.is_empty() {
+        return Err(PowlRefusal::EmptyComposite(kind));
+    }
+    let mut entries = BTreeSet::new();
+    let mut exits = BTreeSet::new();
+    for child in children {
+        let fragment = normalize(child, activities, precedence)?;
+        entries.extend(fragment.entries);
+        exits.extend(fragment.exits);
+    }
+    Ok(Fragment { entries, exits })
+}
+
+fn insert_activity(
+    activity: &PowlActivity,
+    activities: &mut BTreeMap<String, PowlActivity>,
+) -> Result<Fragment, PowlRefusal> {
+    if activity.id.trim().is_empty() {
+        return Err(PowlRefusal::EmptyActivityField("id"));
+    }
+    if activity.operation.trim().is_empty() {
+        return Err(PowlRefusal::EmptyActivityField("operation"));
+    }
+    if activities
+        .insert(activity.id.clone(), activity.clone())
+        .is_some()
+    {
+        return Err(PowlRefusal::DuplicateActivity(activity.id.clone()));
+    }
+    Ok(Fragment {
+        entries: BTreeSet::from([activity.id.clone()]),
+        exits: BTreeSet::from([activity.id.clone()]),
+    })
+}
+
+fn connect(
+    before: &BTreeSet<String>,
+    after: &BTreeSet<String>,
+    precedence: &mut BTreeSet<Precedence>,
+) {
+    for source in before {
+        for target in after {
+            precedence.insert(Precedence {
+                before: source.clone(),
+                after: target.clone(),
+            });
+        }
+    }
+}
+
+fn validate_edge(edge: &Precedence, local_ids: &BTreeSet<String>) -> Result<(), PowlRefusal> {
+    if edge.before == edge.after {
+        return Err(PowlRefusal::SelfDependency(edge.before.clone()));
+    }
+    for id in [&edge.before, &edge.after] {
+        if !local_ids.contains(id) {
+            return Err(PowlRefusal::UnknownActivity(id.to_string()));
+        }
+    }
+    Ok(())
+}
+
+fn validate_acyclic(
+    activities: &BTreeMap<String, PowlActivity>,
+    precedence: &BTreeSet<Precedence>,
+) -> Result<(), PowlRefusal> {
+    let ids = activities.keys().cloned().collect::<BTreeSet<_>>();
+    for edge in precedence {
+        validate_edge(edge, &ids)?;
+    }
+    let mut indegree = activities
+        .keys()
+        .map(|id| (id.clone(), 0_usize))
+        .collect::<BTreeMap<_, _>>();
+    let mut outgoing = activities
+        .keys()
+        .map(|id| (id.clone(), BTreeSet::new()))
+        .collect::<BTreeMap<_, _>>();
+    for edge in precedence {
+        *indegree
+            .get_mut(&edge.after)
+            .expect("precedence target admitted") += 1;
+        outgoing
+            .get_mut(&edge.before)
+            .expect("precedence source admitted")
+            .insert(edge.after.clone());
+    }
+    let mut ready = indegree
+        .iter()
+        .filter_map(|(id, degree)| (*degree == 0).then_some(id.clone()))
+        .collect::<VecDeque<_>>();
+    let mut visited = 0_usize;
+    while let Some(id) = ready.pop_front() {
+        visited += 1;
+        for target in outgoing.get(&id).expect("activity admitted") {
+            let degree = indegree.get_mut(target).expect("target admitted");
+            *degree -= 1;
+            if *degree == 0 {
+                ready.push_back(target.clone());
+            }
+        }
+    }
+    if visited == activities.len() {
+        Ok(())
+    } else {
+        Err(PowlRefusal::Cycle)
+    }
+}

@@ -1,0 +1,103 @@
+//! Ontology-generated framework and GPT-5.6 capability catalog.
+
+use serde::{Deserialize, Serialize};
+
+pub const AGENT_PACK_ID: &str = "ggen.agent-frameworks.ontostar-mustar-powlv2";
+pub const AGENT_REQUIRED_BROKER: &str = ggen_architecture::REQUIRED_BROKER;
+pub const MODEL_PROVIDER: &str = "openai";
+pub const MODEL_GENERATION: &str = "5.6";
+pub const SPEEDRUN_PROJECTION_ID: &str = "ggen.integration.speedrun-talent-network";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FrameworkKind {
+    OntoStar,
+    PowlV2,
+    MuStar,
+}
+
+impl FrameworkKind {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::OntoStar => "ontostar",
+            Self::PowlV2 => "powl_v2",
+            Self::MuStar => "mustar",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ModelTier {
+    Luna,
+    Terra,
+    Sol,
+}
+
+impl ModelTier {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Luna => "luna",
+            Self::Terra => "terra",
+            Self::Sol => "sol",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct FrameworkSpec {
+    pub identifier: &'static str,
+    pub label: &'static str,
+    pub phase: &'static str,
+    pub model_tier: &'static str,
+    pub role: &'static str,
+    pub candidate_only: bool,
+    pub direct_actuation: bool,
+    pub required_broker: &'static str,
+}
+
+pub const AGENT_FRAMEWORKS: &[FrameworkSpec] = &[
+{% for row in results %}{% if row["recordKind"] == "framework" %}    FrameworkSpec {
+        identifier: "{{ row["identifier"] }}",
+        label: "{{ row["label"] }}",
+        phase: "{{ row["phase"] }}",
+        model_tier: "{{ row["tier"] }}",
+        role: "{{ row["role"] }}",
+        candidate_only: {{ row["candidateOnly"] }},
+        direct_actuation: {{ row["directActuation"] }},
+        required_broker: "{{ row["requiredBroker"] }}",
+    },
+{% endif %}{% endfor %}];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct ModelProfileSpec {
+    pub identifier: &'static str,
+    pub label: &'static str,
+    pub provider: &'static str,
+    pub generation: &'static str,
+    pub tier: &'static str,
+    pub role: &'static str,
+    pub programmatic_tool_calling: bool,
+    pub multi_agent_beta: bool,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+    pub required_broker: &'static str,
+}
+
+pub const MODEL_PROFILES: &[ModelProfileSpec] = &[
+{% for row in results %}{% if row["recordKind"] == "model" %}    ModelProfileSpec {
+        identifier: "{{ row["identifier"] }}",
+        label: "{{ row["label"] }}",
+        provider: "{{ row["provider"] }}",
+        generation: "{{ row["generation"] }}",
+        tier: "{{ row["tier"] }}",
+        role: "{{ row["role"] }}",
+        programmatic_tool_calling: {{ row["programmaticToolCalling"] }},
+        multi_agent_beta: {{ row["multiAgentBeta"] }},
+        candidate_only: {{ row["candidateOnly"] }},
+        execution_authority: {{ row["executionAuthority"] }},
+        required_broker: "{{ row["requiredBroker"] }}",
+    },
+{% endif %}{% endfor %}];

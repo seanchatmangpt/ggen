@@ -1,0 +1,90 @@
+//! OntoStar evidence admission. No local process-mining math and no actuation.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+use crate::model::{
+    digest_value, is_blake3_urn, model_intent, ModelInferenceIntent, ModelRefusal, ModelTask,
+};
+
+pub const ONTOSTAR_RECEIPT_SCHEMA: &str = "ggen.agent.ontostar-admission.v1";
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+pub struct ObservedClaim {
+    pub subject: String,
+    pub predicate: String,
+    pub object: String,
+    pub evidence_digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AdmittedOntology {
+    pub schema: String,
+    pub receipt_digest: String,
+    pub claims: BTreeSet<ObservedClaim>,
+    pub candidate_only: bool,
+    pub execution_authority: bool,
+}
+
+#[derive(Debug, Error)]
+pub enum OntoStarRefusal {
+    #[error("OntoStar requires at least one observed claim")]
+    EmptyObservation,
+    #[error("observed claim field `{0}` is empty")]
+    EmptyClaimField(&'static str),
+    #[error("observed claim does not carry an admitted BLAKE3 evidence digest")]
+    InvalidEvidenceDigest,
+    #[error("OntoStar serialization failed: {0}")]
+    Serialization(#[from] serde_json::Error),
+    #[error(transparent)]
+    Model(#[from] ModelRefusal),
+}
+
+pub fn extraction_intent(
+    source_digest: &str,
+) -> Result<ModelInferenceIntent, OntoStarRefusal> {
+    let constraints = BTreeMap::from([
+        ("authority".to_string(), "candidate_only".to_string()),
+        ("output".to_string(), "evidence_backed_claims".to_string()),
+        ("local_process_mining_math".to_string(), "false".to_string()),
+    ]);
+    Ok(model_intent(
+        ModelTask::OntologyExtraction,
+        source_digest,
+        constraints,
+    )?)
+}
+
+pub fn admit_claims(claims: Vec<ObservedClaim>) -> Result<AdmittedOntology, OntoStarRefusal> {
+    if claims.is_empty() {
+        return Err(OntoStarRefusal::EmptyObservation);
+    }
+    let mut admitted = BTreeSet::new();
+    for claim in claims {
+        if claim.subject.trim().is_empty() {
+            return Err(OntoStarRefusal::EmptyClaimField("subject"));
+        }
+        if claim.predicate.trim().is_empty() {
+            return Err(OntoStarRefusal::EmptyClaimField("predicate"));
+        }
+        if claim.object.trim().is_empty() {
+            return Err(OntoStarRefusal::EmptyClaimField("object"));
+        }
+        if !is_blake3_urn(&claim.evidence_digest) {
+            return Err(OntoStarRefusal::InvalidEvidenceDigest);
+        }
+        admitted.insert(claim);
+    }
+    let receipt_digest = digest_value(&(ONTOSTAR_RECEIPT_SCHEMA, &admitted))?;
+    Ok(AdmittedOntology {
+        schema: ONTOSTAR_RECEIPT_SCHEMA.to_string(),
+        receipt_digest,
+        claims: admitted,
+        candidate_only: true,
+        execution_authority: false,
+    })
+}

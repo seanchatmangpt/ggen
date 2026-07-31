@@ -1,0 +1,10 @@
+PREFIX stn: <https://chatmangpt.com/ontology/speedrun-talent-network#>
+SELECT ?order ?operationId ?method ?path
+WHERE {
+  ?operation a stn:RestOperation ;
+    stn:order ?order ;
+    stn:operationId ?operationId ;
+    stn:method ?method ;
+    stn:path ?path .
+}
+ORDER BY ?order

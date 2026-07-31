@@ -1,0 +1,10 @@
+{
+  "schema": "ggen.speedrun.rest-contract.v1",
+  "source": "https://speedrun-talent-network.com/api/v1/openapi.json",
+  "openapi_version": "1.0.0",
+  "read_only": true,
+  "required_broker": "BRCE",
+  "operations": [
+{% for row in results %}    {"operation_id":"{{ row["operationId"] }}","method":"{{ row["method"] }}","path":"{{ row["path"] }}"}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

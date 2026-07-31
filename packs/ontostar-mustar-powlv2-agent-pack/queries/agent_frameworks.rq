@@ -1,0 +1,40 @@
+PREFIX af: <https://chatmangpt.com/ontology/agent-frameworks#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?recordKind ?order ?identifier ?label ?phase ?tier ?role ?candidateOnly
+       ?directActuation ?requiredBroker ?provider ?generation
+       ?programmaticToolCalling ?multiAgentBeta ?executionAuthority
+WHERE {
+  {
+    ?record a af:AgentFramework ;
+      af:order ?order ;
+      dcterms:identifier ?identifier ;
+      rdfs:label ?label ;
+      af:phase ?phase ;
+      af:modelTier ?tier ;
+      af:role ?role ;
+      af:candidateOnly ?candidateOnly ;
+      af:directActuation ?directActuation ;
+      af:requiredBroker ?requiredBroker .
+    BIND("framework" AS ?recordKind)
+  }
+  UNION
+  {
+    ?record a af:ModelProfile ;
+      af:order ?order ;
+      dcterms:identifier ?identifier ;
+      rdfs:label ?label ;
+      af:tier ?tier ;
+      af:role ?role ;
+      af:provider ?provider ;
+      af:generation ?generation ;
+      af:programmaticToolCalling ?programmaticToolCalling ;
+      af:multiAgentBeta ?multiAgentBeta ;
+      af:candidateOnly ?candidateOnly ;
+      af:executionAuthority ?executionAuthority ;
+      af:requiredBroker ?requiredBroker .
+    BIND("model" AS ?recordKind)
+  }
+}
+ORDER BY ?recordKind ?order

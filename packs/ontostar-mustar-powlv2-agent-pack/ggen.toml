@@ -1,0 +1,122 @@
+[project]
+name = "ontostar-mustar-powlv2-agents"
+version = "26.7.30"
+description = "Manufacture OntoStar, POWL v2, MuStar, and GPT-5.6 agent-framework consumers"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://chatmangpt.com/ontology/agent-frameworks#"
+imports = []
+
+[ontology.prefixes]
+af = "https://chatmangpt.com/ontology/agent-frameworks#"
+stn = "https://chatmangpt.com/ontology/speedrun-talent-network#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+schema = "https://schema.org/"
+odrl = "http://www.w3.org/ns/odrl/2/"
+skos = "http://www.w3.org/2004/02/skos/core#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "catalog"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/catalog.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/catalog.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "model"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/model.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/model.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "ontostar"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/ontostar.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/ontostar.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "powl-v2"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/powl_v2.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/powl_v2.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "mustar"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/mustar.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/mustar.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "framework"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/framework.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/framework.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "speedrun-projection"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/src/speedrun.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/src/speedrun.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "framework-tests"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/tests/framework_contract.rs.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/tests/framework_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "framework-contract"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/contracts/agent-frameworks.json.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/contracts/agent-frameworks.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/agent_frameworks.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/ontostar-mustar-powlv2-agents/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"

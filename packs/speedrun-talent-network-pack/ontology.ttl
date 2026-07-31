@@ -1,0 +1,73 @@
+@prefix stn: <https://chatmangpt.com/ontology/speedrun-talent-network#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+stn:SpeedrunTalentNetwork a stn:BuildingBlock ;
+  rdfs:label "Speedrun Talent Network" ;
+  dcterms:identifier "ggen.integration.speedrun-talent-network" ;
+  dcterms:hasVersion "26.7.30" ;
+  stn:openApiVersion "1.0.0" ;
+  stn:restBase "https://speedrun-talent-network.com/api/v1" ;
+  stn:mcpEndpoint "https://mcp.speedrun-talent-network.com/mcp" ;
+  stn:requiredBroker "BRCE" ;
+  stn:directNetworkActuation false ;
+  stn:applicationSubmission false ;
+  stn:stealthUnmasking false ;
+  stn:canonicalUrlRequired true ;
+  stn:receiptRequired true ;
+  stn:replayRequired true ;
+  stn:openCors true ;
+  stn:authenticationRequired false ;
+  stn:costRequired false ;
+  stn:cacheMinSeconds 60 ;
+  stn:cacheMaxSeconds 300 ;
+  stn:continuousRefresh true ;
+  stn:errorEnvelope "error.code,error.message" ;
+  stn:closedJobStatus "closed" ;
+  stn:paginationEnvelope "page,page_size,total_pages" ;
+  stn:jobSearchEnvelope "jobs,facets,total,page,page_size,total_pages,source" ;
+  prov:wasDerivedFrom <https://speedrun-talent-network.com/api/v1/openapi.json> ,
+    <https://speedrun-talent-network.com/developers> .
+
+stn:SearchJobs a stn:RestOperation ; stn:order 1 ; stn:operationId "searchJobs" ; stn:method "GET" ; stn:path "/api/v1/jobs" .
+stn:GetJob a stn:RestOperation ; stn:order 2 ; stn:operationId "getJob" ; stn:method "GET" ; stn:path "/api/v1/jobs/{id}" .
+stn:ListCompanies a stn:RestOperation ; stn:order 3 ; stn:operationId "listCompanies" ; stn:method "GET" ; stn:path "/api/v1/companies" .
+stn:GetCompany a stn:RestOperation ; stn:order 4 ; stn:operationId "getCompany" ; stn:method "GET" ; stn:path "/api/v1/companies/{slug}" .
+stn:ListCollections a stn:RestOperation ; stn:order 5 ; stn:operationId "listCollections" ; stn:method "GET" ; stn:path "/api/v1/collections" .
+stn:GetCollection a stn:RestOperation ; stn:order 6 ; stn:operationId "getCollection" ; stn:method "GET" ; stn:path "/api/v1/collections/{slug}" .
+stn:GetHiringStats a stn:RestOperation ; stn:order 7 ; stn:operationId "getHiringStats" ; stn:method "GET" ; stn:path "/api/v1/stats/hiring" .
+stn:GetOpenApiSpec a stn:RestOperation ; stn:order 8 ; stn:operationId "getOpenApiSpec" ; stn:method "GET" ; stn:path "/api/v1/openapi.json" .
+
+stn:LlmsText a stn:MachineReadableResource ; stn:order 1 ; stn:path "/llms.txt" ; stn:mediaType "text/markdown" .
+stn:JobsMarkdown a stn:MachineReadableResource ; stn:order 2 ; stn:path "/jobs.md" ; stn:mediaType "text/markdown" .
+stn:JobsRss a stn:MachineReadableResource ; stn:order 3 ; stn:path "/jobs.rss" ; stn:mediaType "application/rss+xml" .
+
+stn:McpSearchJobs a stn:McpTool ; stn:order 1 ; stn:toolName "search_jobs" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpGetJob a stn:McpTool ; stn:order 2 ; stn:toolName "get_job" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpGetCompany a stn:McpTool ; stn:order 3 ; stn:toolName "get_company" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpListCollections a stn:McpTool ; stn:order 4 ; stn:toolName "list_collections" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpGetCollection a stn:McpTool ; stn:order 5 ; stn:toolName "get_collection" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpGetHiringStats a stn:McpTool ; stn:order 6 ; stn:toolName "get_hiring_stats" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpListCompanies a stn:McpTool ; stn:order 7 ; stn:toolName "list_companies" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpGetNetworkInfo a stn:McpTool ; stn:order 8 ; stn:toolName "get_network_info" ; stn:mode "read" ; stn:consentRequired false .
+stn:McpJoinNetwork a stn:McpTool ; stn:order 9 ; stn:toolName "join_network" ; stn:mode "candidate_action" ; stn:consentRequired true ; stn:idempotent true ; stn:submitsApplication false .
+stn:McpExpressInterest a stn:McpTool ; stn:order 10 ; stn:toolName "express_interest" ; stn:mode "candidate_action" ; stn:consentRequired true ; stn:idempotent true ; stn:submitsApplication false .
+
+stn:Query a stn:Filter ; stn:parameter "q" ; stn:maxLength 120 .
+stn:Function a stn:Filter ; stn:parameter "fn" ; stn:vocabulary "engineering,research,product,design,sales,marketing,operations,other" .
+stn:Seniority a stn:Filter ; stn:parameter "sen" ; stn:vocabulary "founding,exec,staff,senior,junior,intern" .
+stn:Employment a stn:Filter ; stn:parameter "emp" ; stn:vocabulary "FullTime,PartTime,Intern,Contract,Temporary" .
+stn:Location a stn:Filter ; stn:parameter "loc" ; stn:liveFacetVocabulary true ; stn:specialValue "remote" .
+stn:Remote a stn:Filter ; stn:parameter "remote" ; stn:vocabulary "1" .
+stn:Compensation a stn:Filter ; stn:parameter "comp" ; stn:annualOnly true ; stn:minimum 0 .
+stn:Portfolio a stn:Filter ; stn:parameter "portfolio" ; stn:vocabulary "speedrun,a16z,market" .
+stn:Cohort a stn:Filter ; stn:parameter "cohort" .
+stn:Company a stn:Filter ; stn:parameter "company" .
+stn:Stealth a stn:Filter ; stn:parameter "stealth" ; stn:vocabulary "only,hide" ; stn:unmaskSupported false .
+stn:Scope a stn:Filter ; stn:parameter "scope" ; stn:vocabulary "portfolio,everywhere" ; stn:serverFeatureGated true .
+stn:Sort a stn:Filter ; stn:parameter "sort" ; stn:vocabulary "rel,new,comp" .
+stn:Page a stn:Filter ; stn:parameter "page" ; stn:minimum 0 ; stn:maximum 200 .
+stn:Source a stn:Filter ; stn:parameter "source" ; stn:maxLength 64 ; stn:pattern "^[a-zA-Z0-9._:-]+$" .

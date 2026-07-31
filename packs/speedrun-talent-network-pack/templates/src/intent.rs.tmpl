@@ -1,0 +1,324 @@
+//! Typed BRCE transport intents and consent admission.
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use thiserror::Error;
+
+use crate::catalog::{
+    HttpMethod, McpTool, PublicResource, RestOperation, PUBLIC_RESOURCES, REST_OPERATIONS,
+    SPEEDRUN_API_BASE, SPEEDRUN_MCP_ENDPOINT, SPEEDRUN_REQUIRED_BROKER, SPEEDRUN_SITE_BASE,
+    SPEEDRUN_MAX_PAGE,
+};
+use crate::search::{validate_source, JobSearch};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateAction {
+    JoinNetwork,
+    ExpressInterest,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CandidateConsent {
+    pub subject_id: String,
+    pub action: CandidateAction,
+    pub scope: String,
+    pub granted_at: String,
+    pub explicit: bool,
+    pub evidence_digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SpeedrunTransportIntent {
+    pub broker: String,
+    pub method: HttpMethod,
+    pub endpoint: String,
+    #[serde(default)]
+    pub query: BTreeMap<String, String>,
+    pub operation: String,
+    pub body: Option<Value>,
+    pub consent_digest: Option<String>,
+    pub idempotency_key: String,
+}
+
+impl SpeedrunTransportIntent {
+    pub fn digest(&self) -> Result<String, SpeedrunRefusal> {
+        let bytes = serde_json::to_vec(self)?;
+        Ok(format!("urn:blake3:{}", blake3::hash(&bytes).to_hex()))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApiError {
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApiErrorEnvelope {
+    pub error: ApiError,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Paginated<T> {
+    pub items: Vec<T>,
+    pub page: u16,
+    pub page_size: u32,
+    pub total_pages: u16,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct JobSearchPage<J, F> {
+    pub jobs: Vec<J>,
+    pub facets: F,
+    pub total: u64,
+    pub page: u16,
+    pub page_size: u32,
+    pub total_pages: u16,
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum JobStatus {
+    Open,
+    Closed,
+}
+
+#[derive(Debug, Error)]
+pub enum SpeedrunRefusal {
+    #[error("invalid Speedrun query: {0}")]
+    InvalidQuery(&'static str),
+    #[error("invalid value `{value}` for `{parameter}`")]
+    InvalidFilter { parameter: String, value: String },
+    #[error("invalid source attribution tag")]
+    InvalidSource,
+    #[error("unsafe or missing path identifier for {0}")]
+    InvalidIdentifier(&'static str),
+    #[error("unknown REST operation declared by generated contract")]
+    UnknownRestOperation,
+    #[error("unknown public machine-readable resource")]
+    UnknownPublicResource,
+    #[error("candidate consent is required for {0}")]
+    MissingConsent(&'static str),
+    #[error("candidate consent was not explicit")]
+    ConsentNotExplicit,
+    #[error("candidate consent action does not match the requested tool")]
+    ConsentActionMismatch,
+    #[error("candidate consent scope does not match the requested target")]
+    ConsentScopeMismatch,
+    #[error("candidate consent evidence is incomplete")]
+    ConsentEvidenceIncomplete,
+    #[error("intent serialization failed: {0}")]
+    Serialization(#[from] serde_json::Error),
+}
+
+pub fn search_jobs_intent(search: &JobSearch) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    rest_intent(
+        RestOperation::SearchJobs,
+        None,
+        search.query_parameters()?,
+    )
+}
+
+pub fn rest_read_intent(
+    operation: RestOperation,
+    identifier: Option<&str>,
+    page: Option<u16>,
+    source: Option<&str>,
+) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    let mut query = BTreeMap::new();
+    if let Some(page) = page {
+        if page > SPEEDRUN_MAX_PAGE {
+            return Err(SpeedrunRefusal::InvalidQuery("page exceeds 200"));
+        }
+        if page > 0 {
+            query.insert("page".to_string(), page.to_string());
+        }
+    }
+    if let Some(source) = source {
+        validate_source(source)?;
+        query.insert("source".to_string(), source.to_string());
+    }
+    rest_intent(operation, identifier, query)
+}
+
+pub fn public_resource_intent(
+    resource: PublicResource,
+) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    let path = resource.path();
+    if !PUBLIC_RESOURCES.iter().any(|item| item.path == path) {
+        return Err(SpeedrunRefusal::UnknownPublicResource);
+    }
+    let endpoint = format!("{SPEEDRUN_SITE_BASE}{path}");
+    intent(
+        HttpMethod::Get,
+        endpoint,
+        path.trim_start_matches('/'),
+        BTreeMap::new(),
+        None,
+        None,
+    )
+}
+
+pub fn mcp_tool_intent(
+    tool: McpTool,
+    arguments: Value,
+    consent: Option<&CandidateConsent>,
+) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    let consent_digest = if tool.requires_consent() {
+        let consent = consent.ok_or(SpeedrunRefusal::MissingConsent(tool.as_str()))?;
+        validate_consent(tool, &arguments, consent)?;
+        Some(consent.evidence_digest.clone())
+    } else {
+        None
+    };
+    let body = serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": deterministic_key(tool.as_str(), &arguments)?,
+        "method": "tools/call",
+        "params": {
+            "name": tool.as_str(),
+            "arguments": arguments,
+        },
+    });
+    intent(
+        HttpMethod::Post,
+        SPEEDRUN_MCP_ENDPOINT.to_string(),
+        tool.as_str(),
+        BTreeMap::new(),
+        Some(body),
+        consent_digest,
+    )
+}
+
+fn rest_intent(
+    operation: RestOperation,
+    identifier: Option<&str>,
+    query: BTreeMap<String, String>,
+) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    if !REST_OPERATIONS
+        .iter()
+        .any(|spec| spec.operation_id == operation.operation_id())
+    {
+        return Err(SpeedrunRefusal::UnknownRestOperation);
+    }
+    let endpoint = match operation {
+        RestOperation::SearchJobs => format!("{SPEEDRUN_API_BASE}/jobs"),
+        RestOperation::GetJob => format!(
+            "{SPEEDRUN_API_BASE}/jobs/{}",
+            path_identifier(identifier, "getJob")?
+        ),
+        RestOperation::ListCompanies => format!("{SPEEDRUN_API_BASE}/companies"),
+        RestOperation::GetCompany => format!(
+            "{SPEEDRUN_API_BASE}/companies/{}",
+            path_identifier(identifier, "getCompany")?
+        ),
+        RestOperation::ListCollections => format!("{SPEEDRUN_API_BASE}/collections"),
+        RestOperation::GetCollection => format!(
+            "{SPEEDRUN_API_BASE}/collections/{}",
+            path_identifier(identifier, "getCollection")?
+        ),
+        RestOperation::GetHiringStats => format!("{SPEEDRUN_API_BASE}/stats/hiring"),
+        RestOperation::GetOpenApiSpec => format!("{SPEEDRUN_API_BASE}/openapi.json"),
+    };
+    intent(
+        HttpMethod::Get,
+        endpoint,
+        operation.operation_id(),
+        query,
+        None,
+        None,
+    )
+}
+
+fn intent(
+    method: HttpMethod,
+    endpoint: String,
+    operation: &str,
+    query: BTreeMap<String, String>,
+    body: Option<Value>,
+    consent_digest: Option<String>,
+) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
+    let idempotency_key = deterministic_key(
+        operation,
+        &(&method, &endpoint, operation, &query, &body, &consent_digest),
+    )?;
+    Ok(SpeedrunTransportIntent {
+        broker: SPEEDRUN_REQUIRED_BROKER.to_string(),
+        method,
+        endpoint,
+        query,
+        operation: operation.to_string(),
+        body,
+        consent_digest,
+        idempotency_key,
+    })
+}
+
+fn validate_consent(
+    tool: McpTool,
+    arguments: &Value,
+    consent: &CandidateConsent,
+) -> Result<(), SpeedrunRefusal> {
+    if !consent.explicit {
+        return Err(SpeedrunRefusal::ConsentNotExplicit);
+    }
+    if [
+        consent.subject_id.as_str(),
+        consent.granted_at.as_str(),
+        consent.evidence_digest.as_str(),
+    ]
+    .iter()
+    .any(|value| value.trim().is_empty())
+    {
+        return Err(SpeedrunRefusal::ConsentEvidenceIncomplete);
+    }
+    let (expected_action, expected_scope) = match tool {
+        McpTool::JoinNetwork => (CandidateAction::JoinNetwork, "talent-network"),
+        McpTool::ExpressInterest => (
+            CandidateAction::ExpressInterest,
+            arguments
+                .get("role_id")
+                .and_then(Value::as_str)
+                .filter(|value| !value.trim().is_empty())
+                .ok_or(SpeedrunRefusal::InvalidIdentifier(
+                    "express_interest.role_id",
+                ))?,
+        ),
+        _ => return Ok(()),
+    };
+    if consent.action != expected_action {
+        return Err(SpeedrunRefusal::ConsentActionMismatch);
+    }
+    if consent.scope != expected_scope {
+        return Err(SpeedrunRefusal::ConsentScopeMismatch);
+    }
+    Ok(())
+}
+
+fn path_identifier<'a>(
+    value: Option<&'a str>,
+    operation: &'static str,
+) -> Result<&'a str, SpeedrunRefusal> {
+    value
+        .filter(|value| {
+            !value.is_empty()
+                && value.chars().count() <= 160
+                && value.chars().all(|character| {
+                    character.is_ascii_alphanumeric()
+                        || matches!(character, '.' | '_' | ':' | '-')
+                })
+        })
+        .ok_or(SpeedrunRefusal::InvalidIdentifier(operation))
+}
+
+fn deterministic_key<T: Serialize>(
+    label: &str,
+    value: &T,
+) -> Result<String, SpeedrunRefusal> {
+    let bytes = serde_json::to_vec(&(label, value))?;
+    Ok(format!("urn:blake3:{}", blake3::hash(&bytes).to_hex()))
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "ggen.speedrun.mcp-contract.v1",
+  "endpoint": "https://mcp.speedrun-talent-network.com/mcp",
+  "transport": "streamable-http",
+  "authentication": "none",
+  "required_broker": "BRCE",
+  "tools": [
+{% for row in results %}    {"name":"{{ row["toolName"] }}","mode":"{{ row["mode"] }}","consent_required":{{ row["consentRequired"] }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "exclusions": ["stealth_unmasking", "job_application_submission"]
+}

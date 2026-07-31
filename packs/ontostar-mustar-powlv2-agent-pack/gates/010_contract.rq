@@ -1,0 +1,57 @@
+PREFIX af: <https://chatmangpt.com/ontology/agent-frameworks#>
+SELECT ?violation ?subject
+WHERE {
+  {
+    BIND("FRAMEWORK_COUNT" AS ?violation)
+    BIND(af:AgentFrameworkPack AS ?subject)
+    { SELECT (COUNT(?framework) AS ?count) WHERE { ?framework a af:AgentFramework . } }
+    FILTER(?count != 3)
+  }
+  UNION
+  {
+    BIND("MODEL_PROFILE_COUNT" AS ?violation)
+    BIND(af:AgentFrameworkPack AS ?subject)
+    { SELECT (COUNT(?model) AS ?count) WHERE { ?model a af:ModelProfile . } }
+    FILTER(?count != 3)
+  }
+  UNION
+  {
+    ?framework a af:AgentFramework .
+    FILTER NOT EXISTS {
+      ?framework af:candidateOnly true ;
+        af:directActuation false ;
+        af:requiredBroker "BRCE" .
+    }
+    BIND("FRAMEWORK_AUTHORITY_BOUNDARY" AS ?violation)
+    BIND(?framework AS ?subject)
+  }
+  UNION
+  {
+    ?model a af:ModelProfile .
+    FILTER NOT EXISTS {
+      ?model af:candidateOnly true ;
+        af:executionAuthority false ;
+        af:requiredBroker "BRCE" ;
+        af:generation "5.6" .
+    }
+    BIND("MODEL_AUTHORITY_BOUNDARY" AS ?violation)
+    BIND(?model AS ?subject)
+  }
+  UNION
+  {
+    af:AgentFrameworkPack af:directNetworkActuation ?network ;
+      af:modelExecutionAuthority ?modelAuthority ;
+      af:agentIntentIsAuthority ?intentAuthority ;
+      af:requiredBroker ?broker .
+    FILTER(?network != false || ?modelAuthority != false || ?intentAuthority != false || ?broker != "BRCE")
+    BIND("PACK_CONSTITUTIONAL_BOUNDARY" AS ?violation)
+    BIND(af:AgentFrameworkPack AS ?subject)
+  }
+  UNION
+  {
+    af:PowlV2 af:validatorRequired ?required .
+    FILTER(?required != true)
+    BIND("POWL_VALIDATOR_REQUIRED" AS ?violation)
+    BIND(af:PowlV2 AS ?subject)
+  }
+}
