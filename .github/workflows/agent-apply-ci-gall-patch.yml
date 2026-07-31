@@ -1,0 +1,127 @@
+name: Agent Apply CI Gall Patch
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/agent-apply-ci-gall-patch.yml
+      - .agent/transport/**
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-apply-ci-gall-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    name: apply-exact-g1-g4-tree
+    if: github.event.pull_request.head.ref == 'agent/ci-cd-g0-inventory-fence'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact staged transport head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Verify, apply, validate, and publish exact tree
+        shell: bash
+        env:
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          EXPECTED_PARENT=ef812318ad96b4a0b588d3bbb12e2c74a38009d5
+          EXPECTED_B64_SHA=413303cc536a7803762a263d1748a818ae6a4b608d7ffcb562945a47a132d689
+          EXPECTED_PATCH_SHA=79bc51a9e12a03fc98aa739ef69f8dfb296fe5478a3edaf70e9d17fe51be7cec
+          EXPECTED_TREE=e8abfc8dc25d4f394023393adfc416f1129ccd51
+          CURRENT_HEAD="$(git rev-parse HEAD)"
+          test "$CURRENT_HEAD" = "$EVENT_HEAD"
+
+          python3 - "$EXPECTED_B64_SHA" "$EXPECTED_PATCH_SHA" <<'PY'
+          import base64
+          import gzip
+          import hashlib
+          import sys
+          from pathlib import Path
+
+          expected_b64, expected_patch = sys.argv[1:]
+          parts = sorted(Path('.agent/transport').glob('gall.patch.gz.b64.part-*'))
+          if len(parts) != 8:
+              raise SystemExit(f'expected 8 transport parts, observed {len(parts)}')
+          encoded = b''.join(part.read_bytes() for part in parts)
+          actual_b64 = hashlib.sha256(encoded).hexdigest()
+          if actual_b64 != expected_b64:
+              raise SystemExit(f'compressed payload digest mismatch: {actual_b64}')
+          patch = gzip.decompress(base64.b64decode(encoded, validate=True))
+          actual_patch = hashlib.sha256(patch).hexdigest()
+          if actual_patch != expected_patch:
+              raise SystemExit(f'patch digest mismatch: {actual_patch}')
+          Path('/tmp/gall.patch').write_bytes(patch)
+          PY
+          git cat-file -e "$EXPECTED_PARENT^{commit}"
+
+          git reset --hard "$EXPECTED_PARENT"
+          git apply --check /tmp/gall.patch
+          git apply /tmp/gall.patch
+          git diff --check
+
+          mkdir -p target/ci-transport/prepublish
+          python3 scripts/ci/verify_g0_historical.py
+          python3 scripts/ci/ci_control_plane.py validate-policy \
+            --output target/ci-transport/prepublish/policy.json
+          python3 scripts/ci/ci_control_plane.py inspection-contract \
+            --output target/ci-transport/prepublish/inspection-contract.json
+          python3 scripts/ci/test_ci_control_plane.py
+          python3 scripts/ci/validate-workflows.py
+
+          git add -A
+          ACTUAL_TREE="$(git write-tree)"
+          test "$ACTUAL_TREE" = "$EXPECTED_TREE"
+          git config user.name "ggen CI Gall Applicator"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "feat(ci): implement G1-G4 shadow control plane"
+          FINAL_COMMIT="$(git rev-parse HEAD)"
+          FINAL_TREE="$(git rev-parse HEAD^{tree})"
+          test "$FINAL_TREE" = "$EXPECTED_TREE"
+
+          python3 - "$CURRENT_HEAD" "$EXPECTED_PARENT" "$EXPECTED_PATCH_SHA" "$FINAL_COMMIT" "$FINAL_TREE" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          staged_head, parent, patch_sha, final_commit, final_tree = sys.argv[1:]
+          receipt = {
+              "schema_version": 1,
+              "state": "PARTIAL_ALIVE",
+              "transport": "exact-head-digest-checked-patch",
+              "staged_head": staged_head,
+              "parent": parent,
+              "patch_sha256": patch_sha,
+              "final_commit": final_commit,
+              "final_tree": final_tree,
+              "strongest_claim": "The staged payload manufactured the exact locally verified G1-G4 tree and passed repository-local structural verification.",
+              "exclusions": [
+                  "This receipt is not aggregate CI standing.",
+                  "Hosted Rust and capability execution are evaluated by the published exact-head workflows."
+              ]
+          }
+          Path("target/ci-transport/receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+          git push origin "HEAD:refs/heads/$HEAD_BRANCH" \
+            --force-with-lease="refs/heads/$HEAD_BRANCH:$CURRENT_HEAD"
+
+      - name: Upload transport receipt
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ci-gall-patch-transport-receipt
+          path: target/ci-transport
+          if-no-files-found: error
+          retention-days: 7
