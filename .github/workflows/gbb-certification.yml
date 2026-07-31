@@ -1,0 +1,125 @@
+name: GBB Certification Program
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-architecture/src/building_block.rs"
+      - "crates/ggen-architecture/src/certification/**"
+      - "crates/ggen-architecture/src/canonical.rs"
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md"
+      - "docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md"
+      - ".github/workflows/gbb-certification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/ggen-architecture/src/certification/**"
+      - "packs/tai-enterprise-rebuild-pack/**"
+      - "examples/tai-enterprise-rebuild/**"
+      - ".github/workflows/gbb-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbb-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certification-law:
+    name: TAI-REBUILD-001 / 5 credentials / 60 proof surfaces
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: gbb-certification-tai-v26-7-31
+
+      - name: Enforce repository formatting
+        run: cargo fmt --all -- --check
+
+      - name: Enforce warning-free certification kernel
+        run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
+
+      - name: Execute TAI-bound certification witnesses and falsifiers
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification::tests
+
+      - name: Preserve canonical Building Block and self-play law
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Exercise the retained global Building Block catalogue
+        run: |
+          mkdir -p examples/tai-enterprise-rebuild/generated
+          ./target/debug/ggen bblock list > examples/tai-enterprise-rebuild/generated/global-bblocks.json
+
+      - name: Manufacture TAI-REBUILD-001 twice
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          first="$(find consumer/tai-enterprise-rebuild -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          ../../target/debug/ggen receipt verify
+          second="$(find consumer/tai-enterprise-rebuild -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Execute seven scenarios, falsifiers, receipts, and replay
+        working-directory: examples/tai-enterprise-rebuild
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target/tai-enterprise-rebuild
+        run: bash consumer/tai-enterprise-rebuild/scripts/verify.sh
+
+      - name: Prove bounded TAI standing and non-promotion
+        working-directory: examples/tai-enterprise-rebuild
+        run: |
+          jq -e '.standing == "ALIVE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.recentCapabilitiesComposed == 18' VERIFIER_REPORT.json >/dev/null
+          jq -e '.scenariosExecuted == 7' VERIFIER_REPORT.json >/dev/null
+          jq -e '.directActuation == false and .requiredBroker == "BRCE"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
+          jq -e '.standing == "UNKNOWN" and .directActuation == false' consumer/tai-enterprise-rebuild/RELEASE_STANDING.json >/dev/null
+
+      - name: Prove exact TAI case-study admission
+        run: |
+          grep -RIn 'TAI-REBUILD-001' crates/ggen-architecture/src/certification
+          grep -RIn 'packs/tai-enterprise-rebuild-pack' crates/ggen-architecture/src/certification
+          grep -RIn 'Automated Technical Capability Company' crates/ggen-architecture/src/certification
+          grep -RIn 'BRCE' crates/ggen-architecture/src/certification
+          grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md
+          grep -n 'eighteen recent ggen capability rails' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md
+
+      - name: Prove no direct actuation entered the certification kernel
+        run: |
+          ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src/certification
+          grep -RIn 'RoadmapIncomplete' crates/ggen-architecture/src/certification
+          grep -RIn 'TargetContainsRetiredBlock' crates/ggen-architecture/src/certification
+
+      - name: Refuse generated-source drift
+        run: git diff --exit-code -- examples/tai-enterprise-rebuild packs/tai-enterprise-rebuild-pack
+
+      - name: Publish TAI certification evidence
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: gbb-certification-tai-evidence
+          path: |
+            examples/tai-enterprise-rebuild/.ggen-v2/receipt.json
+            examples/tai-enterprise-rebuild/VERIFIER_REPORT.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/RELEASE_STANDING.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/generated/*.json
+            examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/docs/*.md
+            examples/tai-enterprise-rebuild/generated/verification/**
+            examples/tai-enterprise-rebuild/generated/global-bblocks.json
+          if-no-files-found: error
