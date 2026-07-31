@@ -6,6 +6,7 @@
 //! may manufacture bounded intents, but it cannot actuate external systems.
 
 pub mod building_block;
+pub mod certification;
 pub mod self_play;
 
 #[path = "lib.rs"]
@@ -23,6 +24,15 @@ pub use building_block::{
     EvidenceObligation, EvidenceReceipt, LifecycleState, ObligationId, Port, PortDirection, PortId,
     PortKind, ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
     Standing, SubstitutionAssessment,
+};
+pub use certification::{
+    generate_rebuild_roadmap, simulate_tai_rebuild, tai_case_study, CertificationAward,
+    CertificationLevel, CertificationProgram, CertificationRefusal, CertificationRequirement,
+    CertificationRequirementKind, EvidenceLedger, RebuildRoadmap, RequirementReceipt,
+    RoadmapAction, RoadmapStep, TaiCaseStudy, TaiCaseStudyRefusal, TaiRebuildReceipt,
+    TargetArchitectureInstance, CERTIFICATION_AWARD_SCHEMA, GBB_CERTIFICATION_PROGRAM_ID,
+    REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_BROKER, TAI_CASE_STUDY_EXAMPLE, TAI_CASE_STUDY_ID,
+    TAI_CASE_STUDY_PACK, TAI_CASE_STUDY_VERSION, TAI_REBUILD_RECEIPT_SCHEMA,
 };
 pub use self_play::{
     run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy, ActorRole,
