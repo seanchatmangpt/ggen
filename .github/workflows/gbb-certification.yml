@@ -7,6 +7,7 @@ on:
       - "crates/ggen-architecture/src/certification/**"
       - "crates/ggen-architecture/src/canonical.rs"
       - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md"
+      - "docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_30.md"
       - ".github/workflows/gbb-certification.yml"
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - "crates/ggen-architecture/src/certification/**"
       - "crates/ggen-architecture/src/canonical.rs"
       - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md"
+      - "docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_30.md"
       - ".github/workflows/gbb-certification.yml"
   workflow_dispatch:
 
@@ -64,6 +66,8 @@ jobs:
           grep -RIn 'BRCE' crates/ggen-architecture/src/certification/case_study.rs
           grep -n 'historical TAI = O' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
           grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
+          grep -n 'ggen is the compiler between admitted enterprise knowledge' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_30.md
+          grep -n 'BRCE owns the only `DO` path' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_30.md
 
       - name: Prove the certification kernel cannot actuate directly
         run: |
