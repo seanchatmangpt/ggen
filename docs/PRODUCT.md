@@ -34,7 +34,7 @@ re-scans the cited source at test time to assert two-way equality.
 | `pipeline.validate` | `crates/ggen-engine/src/sync.rs:404` |
 
 
-## FM-* diagnostic codes (107)
+## FM-* diagnostic codes (113)
 
 | Family | Number | Citation |
 |---|---|---|
@@ -134,6 +134,10 @@ re-scans the cited source at test time to assert two-way equality.
 | `TPL` | 16 | `crates/ggen-engine/src/sync.rs:1167` |
 | `TPL` | 17 | `crates/ggen-engine/src/sync.rs:1213` |
 | `TPL` | 18 | `crates/ggen-engine/src/sync.rs:1652` |
+| `TPL` | 19 | `crates/ggen-engine/src/sync.rs:1287` |
+| `TPL` | 20 | `crates/ggen-engine/src/sync.rs:1426` |
+| `TPL` | 21 | `crates/ggen-engine/src/sync.rs:1273` |
+| `TPL` | 22 | `crates/ggen-engine/src/sync.rs:934` |
 | `WATCH` | 1 | `crates/ggen-engine/src/watch.rs:65` |
 | `WATCH` | 2 | `crates/ggen-engine/src/watch.rs:75` |
 | `WRITE` | 1 | `crates/ggen-engine/src/write.rs:255` |
@@ -145,4 +149,6 @@ re-scans the cited source at test time to assert two-way equality.
 | `WRITE` | 7 | `crates/ggen-engine/src/write.rs:73` |
 | `WRITE` | 8 | `crates/ggen-engine/src/sync.rs:876` |
 | `WRITE` | 9 | `crates/ggen-engine/src/sync.rs:1294` |
+| `WRITE` | 10 | `crates/ggen-engine/src/write.rs:739` |
+| `WRITE` | 11 | `crates/ggen-engine/src/write.rs:244` |
 
