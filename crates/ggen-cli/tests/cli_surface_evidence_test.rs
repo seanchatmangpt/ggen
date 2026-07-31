@@ -97,22 +97,24 @@ fn sync_run_fails_closed_on_corrupt_manifest() {
 /// `crates/ggen-cli/src/lib.rs`'s live `inject_default_verbs` mapping
 /// (`"doctor" => Some("run")`, line ~238).
 ///
-/// **Real finding, reported not fixed (source is out of scope for this
-/// agent):** `crates/ggen-cli/src/generated_commands.rs` also defines its
-/// own `DEFAULT_VERBS` table and `inject_default_verbs` function with
-/// `("doctor", "check")` — there is no `check` verb anywhere in
-/// `ggen-engine`'s doctor noun, only `run`. That table/function is dead
-/// code: `main`'s dispatch (`lib.rs:202`) calls `lib.rs`'s own
-/// `inject_default_verbs`, never `generated_commands`'s copy — confirmed
-/// by grep, only one call site (`lib.rs:202`) exists in the whole crate.
-/// `ggen doctor check` genuinely fails at the real binary
-/// (`error: unrecognized subcommand 'check'`), which is exactly what a
-/// user following `generated_commands.rs`'s own `DEFAULT_VERBS` constant
-/// would hit if that table were ever wired up or read directly. This is a
-/// Legacy Path Contamination finding (`.claude/rules/coding-agent-mistakes.md`
-/// mistake class 4): two independent `inject_default_verbs`
-/// implementations exist in `ggen-cli`, one dead with a wrong mapping,
-/// the other live and correct.
+/// **Fixed:** `crates/ggen-cli/src/generated_commands.rs` also defines its
+/// own `DEFAULT_VERBS` table and `inject_default_verbs` function, generated
+/// from `.specify/cli-proof-tests.ttl`'s `cdf:DefaultVerbBinding`
+/// individuals. That table used to declare `("doctor", "check")` — no
+/// `check` verb exists anywhere in `ggen-engine`'s doctor noun, only `run`
+/// — a Legacy Path Contamination finding
+/// (`.claude/rules/coding-agent-mistakes.md` mistake class 4): two
+/// independent `inject_default_verbs` implementations existed in
+/// `ggen-cli`, one (dead, never called from `main`'s dispatch at
+/// `lib.rs:202`) with a wrong mapping, the other live and correct. The RDF
+/// source fact (`.specify/cli-proof-tests.ttl`'s `cdf:doctor` individual)
+/// was corrected from `cdf:verb "check"` to `cdf:verb "run"` and
+/// `generated_commands.rs` regenerated via `ggen sync run`, so the dead
+/// table now agrees with `lib.rs`'s live mapping too — see
+/// `default_verb_law_test.rs` in this same directory for direct evidence
+/// against `generated_commands::DEFAULT_VERBS`. `ggen doctor check` still
+/// genuinely fails at the real binary (`error: unrecognized subcommand
+/// 'check'`), which the negative assertion below still confirms.
 #[test]
 fn doctor_default_verb_matches_the_live_run_verb_not_the_dead_check_mapping() {
     let temp = TempDir::new().unwrap();

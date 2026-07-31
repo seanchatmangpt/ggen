@@ -76,9 +76,11 @@ pub(crate) enum ParsedGgenToml {
 ///   module doc comment).
 /// - `[FM-CONFIG-002]`/`[FM-CONFIG-003]` if the document classifies as
 ///   `Frontmatter` but fails that schema's own syntax/semantic parse.
-/// - A `declarative ggen.toml … failed to parse` message if the document
-///   classifies as `DeclarativeRules` but fails
-///   [`ggen_config::manifest::ManifestParser::parse_str`].
+/// - A `declarative ggen.toml … failed to parse or validate` message if the
+///   document classifies as `DeclarativeRules` but fails
+///   [`ggen_config::manifest::ManifestParser::parse_and_validate`] (TOML
+///   syntax, or semantic validation including strict-mode E0011/E0013
+///   ORDER BY checks).
 /// - A message embedding [`ggen_config::CONFIG_SCHEMA_AMBIGUOUS`] /
 ///   [`ggen_config::CONFIG_SCHEMA_UNSUPPORTED`] / [`ggen_config::CONFIG_PARSE_FAILED`]
 ///   for the classifier's own `Ambiguous`/`Unsupported`/`Malformed` outcomes.
@@ -94,11 +96,20 @@ pub(crate) fn load(root: &Path) -> Result<ParsedGgenToml> {
 
     match ggen_config::classify_ggen_toml(&raw) {
         ConfigSchemaClassification::DeclarativeRules => {
-            let manifest = ggen_config::manifest::ManifestParser::parse_str(&raw).map_err(|e| {
+            // `parse_and_validate` (not `parse_str`) so `ManifestValidator::validate`
+            // actually runs on the real sync path: it is the only call site in the
+            // workspace that invokes `ManifestValidator::validate`, and E0011/E0013
+            // (strict-mode ORDER BY enforcement) only fire through it. Using bare
+            // `parse_str` here made `[validation] strict_mode = true` a no-op on
+            // `ggen sync run` — see crates/ggen-engine/tests/manifest_diagnostic_codes_evidence_test.rs.
+            let manifest = ggen_config::manifest::ManifestParser::parse_and_validate(
+                &ggen_toml_path,
+            )
+            .map_err(|e| {
                 AppError::fm_config(
                     3,
                     format!(
-                        "declarative ggen.toml at `{}` failed to parse: {e}. \
+                        "declarative ggen.toml at `{}` failed to parse or validate: {e}. \
                          Remediation: fix the reported field(s) under [generation]/[[generation.rules]].",
                         ggen_toml_path.display()
                     ),
@@ -171,6 +182,11 @@ template = { inline = "hi" }
 output_file = "out.txt"
 "#,
         );
+        // `load` now runs `ManifestParser::parse_and_validate`, which checks
+        // that `[ontology].source` exists on disk -- create it so this test
+        // exercises the classify+parse path, not the (separately covered)
+        // validation-failure path.
+        std::fs::write(dir.path().join("o.ttl"), "").expect("write o.ttl");
         match load(dir.path()).expect("must classify+parse") {
             ParsedGgenToml::DeclarativeRules(_) => {}
             ParsedGgenToml::Frontmatter(_) => panic!("expected DeclarativeRules"),

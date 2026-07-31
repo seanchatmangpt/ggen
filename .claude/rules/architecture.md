@@ -52,6 +52,7 @@ is the sole live half of this split.
 | `ggen-config` | Defines and validates ONE of `ggen.toml`'s two schemas — the "declarative-rules" `GgenManifest` (depends on the published `star-toml` crate, not an embedded copy). Not sole authority over `ggen.toml` parsing; see "ggen.toml has two schemas" below |
 | `ggen-marketplace` | Marketplace / package management system for ggen |
 | `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, state-change deltas, validation hooks, and cryptographic transition receipts |
+| `openapi-cnv-reflect` | Reflects an OpenAPI 3.x document into a cnv:Cli RDF ontology consumable by the zero-code clap-noun-verb compiler. `publish = false` (dev/codegen-tooling crate, not shipped standalone). |
 
 ### ggen.toml has two schemas
 

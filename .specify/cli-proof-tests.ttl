@@ -20,7 +20,7 @@ cdf:verb a owl:DatatypeProperty ; rdfs:domain cdf:DefaultVerbBinding ; rdfs:rang
 cdf:order a owl:DatatypeProperty ; rdfs:domain cdf:DefaultVerbBinding ; rdfs:range xsd:integer .
 
 cdf:sync a cdf:DefaultVerbBinding ; cdf:noun "sync" ; cdf:verb "run" ; cdf:order 1 .
-cdf:doctor a cdf:DefaultVerbBinding ; cdf:noun "doctor" ; cdf:verb "check" ; cdf:order 2 .
+cdf:doctor a cdf:DefaultVerbBinding ; cdf:noun "doctor" ; cdf:verb "run" ; cdf:order 2 .
 cdf:graph a cdf:DefaultVerbBinding ; cdf:noun "graph" ; cdf:verb "query" ; cdf:order 3 .
 cdf:receipt a cdf:DefaultVerbBinding ; cdf:noun "receipt" ; cdf:verb "verify" ; cdf:order 4 .
 
