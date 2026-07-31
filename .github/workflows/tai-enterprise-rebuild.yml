@@ -81,6 +81,8 @@ jobs:
             | sort -z \
             | xargs -0 sha256sum \
             > generated/consumer-first.sha256
+          rm -rf generated/consumer-first-tree
+          cp -a consumer/tai-enterprise-rebuild generated/consumer-first-tree
           ../../target/debug/ggen sync run
           ../../target/debug/ggen receipt verify
           find consumer/tai-enterprise-rebuild -type f -print0 \
@@ -88,6 +90,7 @@ jobs:
             | xargs -0 sha256sum \
             > generated/consumer-second.sha256
           diff -u generated/consumer-first.sha256 generated/consumer-second.sha256
+          diff -ru generated/consumer-first-tree consumer/tai-enterprise-rebuild
 
       - name: Execute generated verifier ladder
         working-directory: examples/tai-enterprise-rebuild
