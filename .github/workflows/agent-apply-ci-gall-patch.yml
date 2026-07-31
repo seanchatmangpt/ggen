@@ -68,9 +68,12 @@ jobs:
           git apply /tmp/gall.patch
           git diff --check
 
+          mkdir -p target/ci-transport/prepublish
           python3 scripts/ci/verify_g0_historical.py
-          python3 scripts/ci/ci_control_plane.py validate-policy --config cicd.toml
-          python3 scripts/ci/ci_control_plane.py inspection-contract --config cicd.toml
+          python3 scripts/ci/ci_control_plane.py validate-policy \
+            --output target/ci-transport/prepublish/policy.json
+          python3 scripts/ci/ci_control_plane.py inspection-contract \
+            --output target/ci-transport/prepublish/inspection-contract.json
           python3 scripts/ci/test_ci_control_plane.py
           python3 scripts/ci/validate-workflows.py
 
@@ -84,7 +87,6 @@ jobs:
           FINAL_TREE="$(git rev-parse HEAD^{tree})"
           test "$FINAL_TREE" = "$EXPECTED_TREE"
 
-          mkdir -p target/ci-transport
           python3 - "$CURRENT_HEAD" "$EXPECTED_PARENT" "$EXPECTED_PATCH_SHA" "$FINAL_COMMIT" "$FINAL_TREE" <<'PY'
           import json
           import sys
@@ -120,6 +122,6 @@ jobs:
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: ci-gall-patch-transport-receipt
-          path: target/ci-transport/receipt.json
+          path: target/ci-transport
           if-no-files-found: error
           retention-days: 7
