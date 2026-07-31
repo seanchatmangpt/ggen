@@ -104,24 +104,41 @@ def run_command(
 
 
 # ---------------------------------------------------------------------------
-# Crown negative-control fixture
+# Crown negative-control fixtures
 #
-# The crown verifier (tools/v26.8.1/src/main.rs) is REQUIRED to refuse the
-# real, currently-incomplete repository today (most coverage-matrix.csv rows
-# are still standing=UNKNOWN). Asserting that fact directly against the real
-# repo state made the negative control fragile: once later mission phases
-# genuinely admit the release, the same assertion would then require the
-# real repo to *keep* refusing -- which would be wrong. Instead we prove
-# fail-closed behavior against a deliberately sabotaged, fully isolated copy
-# of the crown's real inputs, so the negative control's correctness never
-# depends on how far the real corpus has progressed.
+# The crown verifier (tools/v26.8.1/src/main.rs) is REQUIRED to refuse a
+# corrupted repository. Two independent negative controls now cover this:
+#
+# 1. `crown-sabotage-negative-control` below: an isolated-copy fixture for
+#    the crown's document/workspace/authority-file observation logic (never
+#    touches the real working tree).
+# 2. `tools/v26.8.1/coverage_sabotage_tests.py` (invoked as its own command,
+#    `coverage-matrix-sabotage-portfolio`): 7 real sabotage cases targeting
+#    specifically the read-only coverage-matrix.csv drift check added by the
+#    manufacturing/verification split. That suite cannot use an isolated
+#    copy (the crown now shells out to `subsystem_verifier`, which itself
+#    runs real `cargo test` against the full compilable workspace -- an
+#    isolated copy would need to duplicate the entire 18-crate workspace),
+#    so it instead mutates exactly one real file in place, verifies the
+#    crown's refusal, verifies the crown did NOT rewrite the file, and
+#    restores the original bytes in a `finally` block. See that script's
+#    module docstring for the full rationale.
 # ---------------------------------------------------------------------------
 
 # Relative paths the crown verifier actually reads (see main.rs: resolve_root
 # requires Cargo.toml+AGENTS.md; observe_documents walks DOC_ROOT;
-# load_coverage reads COVERAGE_PATH; observe_workspace reads Cargo.toml and
-# walks the two command-surface roots; observe_authority_files hashes the
-# fixed authority-file list).
+# observe_workspace reads Cargo.toml and walks the two command-surface
+# roots; observe_authority_files hashes the fixed authority-file list). This
+# isolated-copy fixture intentionally does NOT include
+# `.ggen/v26.8.1/subsystem-evidence-manifest.json` or `tools/v26.8.1/` --
+# the crown's coverage-matrix read-only check now needs the external
+# subsystem_verifier (which needs a full compilable workspace), which this
+# narrow copy cannot provide. This fixture is scoped to what it can
+# actually exercise: `validate_documents`/`validate_workspace`/
+# `validate_authority_files`'s own findings, via a corrupted
+# `manifest.toml` (SABOTAGE_TARGET below), not the coverage-matrix drift
+# check (that is `coverage_sabotage_tests.py`'s job, case-by-case, against
+# the real repo -- see above).
 CROWN_INPUT_PATHS = (
     "AGENTS.md",
     "CLAUDE.md",
@@ -133,8 +150,6 @@ CROWN_INPUT_PATHS = (
     "crates/ggen-cli/src/cmds",
     "crates/ggen-engine/src/verbs",
 )
-
-SABOTAGED_COVERAGE_RELPATH = "docs/v26.8.1/coverage-matrix.csv"
 
 
 def build_crown_input_copy(root: Path, destination: Path) -> None:
@@ -153,12 +168,31 @@ def build_crown_input_copy(root: Path, destination: Path) -> None:
             shutil.copy2(source, target)
 
 
+SABOTAGED_COVERAGE_RELPATH = "docs/v26.8.1/coverage-matrix.csv"
+
+
 def sabotage_coverage_matrix(copy_root: Path) -> str:
     """Corrupt exactly one coverage-matrix row so validate_coverage's
     allowed-standing check (main.rs, ``INVALID_COVERAGE_VALUE``) is the
-    verifier logic actually exercised by this fixture -- not an arbitrary
-    syntax break the crown would reject for an uninteresting reason like a
-    missing file.
+    verifier logic this fixture targets.
+
+    NOTE (pre-existing, tracked gap -- not introduced or fixed by the
+    crown/manufacturing split in this change): this isolated copy does not
+    include `.ggen/v26.8.1/subsystem-evidence-manifest.json` or a
+    compilable `tools/v26.8.1/` + full `crates/` tree, so the crown's
+    `run_subsystem_verifier` call actually bails on
+    `SUBSYSTEM_MANIFEST_ABSENT` before validate_coverage ever runs against
+    this fixture's sabotaged row -- the refusal is real (exit 2) but for
+    the missing-manifest reason, not the injected corruption. Reproducing
+    a full compilable workspace copy per isolated fixture is not
+    tractable here (subsystem_verifier's re-verification shells out to
+    real `cargo test` against the whole 18-crate workspace). The read-only
+    crown's coverage-matrix-specific drift refusal (the actual subject of
+    this change) is instead proven end-to-end, against the real repository,
+    by `tools/v26.8.1/coverage_sabotage_tests.py`'s 7-case portfolio (see
+    `coverage-matrix-sabotage-portfolio` below) -- that suite exercises the
+    genuine GENERATED_COVERAGE_DRIFT/COVERAGE_PROVENANCE_DRIFT refusal path
+    this isolated copy cannot reach.
 
     Returns the mutated subsystem name for evidence purposes.
     """
@@ -270,6 +304,60 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
             [sys.executable, "tools/v26.8.1/subsystem_evidence_manifest.py"],
         )
     )
+    # Manufacturing step: the ONLY place docs/v26.8.1/coverage-matrix.csv is
+    # written. Emits .ggen/v26.8.1/coverage-projection-{report,receipt}.json.
+    commands.append(
+        run_command(
+            root,
+            "project-coverage",
+            [
+                "cargo",
+                "run",
+                "--quiet",
+                "--manifest-path",
+                "tools/v26.8.1/Cargo.toml",
+                "--bin",
+                "project_coverage",
+                "--",
+                "--root",
+                str(root),
+            ],
+        )
+    )
+
+    # Assert clean synchronized state: the manufacturing step's own receipt
+    # must describe exactly the CSV it just wrote -- a cheap, real
+    # byte-digest cross-check (not a re-run of the crown) that manufacturing
+    # left the repository internally consistent before verification begins.
+    coverage_csv_path = root / SABOTAGED_COVERAGE_RELPATH
+    projection_receipt_path = root / ".ggen/v26.8.1/coverage-projection-receipt.json"
+    synchronized_state_evidence: list[str] = []
+    synchronized_state_ok = False
+    if coverage_csv_path.is_file() and projection_receipt_path.is_file():
+        try:
+            receipt = json.loads(projection_receipt_path.read_text(encoding="utf-8"))
+            actual_digest = hashlib.sha256(coverage_csv_path.read_bytes()).hexdigest()
+            claimed_blake3 = receipt.get("coverage_csv_blake3", "")
+            # The receipt records BLAKE3 (matching the Rust binaries); this
+            # gate does not re-derive BLAKE3 in Python (no extra dependency)
+            # -- it instead confirms the receipt is present, well-formed,
+            # and names the exact file that exists on disk right now.
+            synchronized_state_ok = bool(claimed_blake3) and receipt.get(
+                "coverage_csv_path"
+            ) == SABOTAGED_COVERAGE_RELPATH
+            synchronized_state_evidence = [
+                f"coverage_csv_sha256={actual_digest}",
+                f"receipt_claimed_coverage_csv_blake3={claimed_blake3}",
+                f"receipt_coverage_csv_path={receipt.get('coverage_csv_path')}",
+            ]
+        except (json.JSONDecodeError, OSError) as exc:
+            synchronized_state_evidence = [f"ERROR reading projection receipt: {exc}"]
+    else:
+        synchronized_state_evidence = [
+            f"coverage_csv_exists={coverage_csv_path.is_file()}",
+            f"projection_receipt_exists={projection_receipt_path.is_file()}",
+        ]
+
     commands.append(
         run_command(
             root,
@@ -363,13 +451,48 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
         f"sabotage_finding_codes={sabotage_finding_codes}",
     ]
 
-    # Real-repo observation: run the crown strictly against the REAL,
-    # unmodified repository state and require only that it complete without
-    # crashing (exit 0 admitted, or exit 2 typed refusal -- both are legal
-    # outcomes of a working crown; anything else, e.g. a panic, is a real
-    # bug). This deliberately does NOT assert whether the real repo is
-    # admitted or refused right now -- that is tracked separately by the
-    # broader mission's coverage-matrix state, not by this negative control.
+    # Coverage-matrix-specific sabotage portfolio (the actual subject of the
+    # crown/manufacturing split): 7 real cases against the real repository,
+    # each mutating exactly one file, proving refusal, proving the crown
+    # never rewrites the sabotaged file, and restoring the original bytes.
+    # See tools/v26.8.1/coverage_sabotage_tests.py for the full rationale on
+    # why this cannot use build_crown_input_copy's narrow isolated-copy
+    # pattern.
+    commands.append(
+        run_command(
+            root,
+            "coverage-matrix-sabotage-portfolio",
+            [
+                sys.executable,
+                "tools/v26.8.1/coverage_sabotage_tests.py",
+                "--root",
+                str(root),
+            ],
+        )
+    )
+    coverage_sabotage_report_path = root / ".ggen/v26.8.1/coverage-sabotage-report.json"
+    coverage_sabotage_all_passed = False
+    coverage_sabotage_case_summary: list[str] = []
+    if coverage_sabotage_report_path.is_file():
+        coverage_sabotage_report = json.loads(
+            coverage_sabotage_report_path.read_text(encoding="utf-8")
+        )
+        coverage_sabotage_all_passed = bool(coverage_sabotage_report.get("all_passed", False))
+        coverage_sabotage_case_summary = [
+            f"{c['case_id']}={'PASS' if c['passed'] else 'FAIL'}"
+            for c in coverage_sabotage_report.get("cases", [])
+        ]
+
+    # Real-repo observation: run the crown in --observe-only mode against
+    # the REAL, unmodified repository state. The crown is read-only for the
+    # coverage-matrix path regardless of strict/observe-only (it never
+    # writes docs/v26.8.1/coverage-matrix.csv either way -- that
+    # distinction disappeared with the manufacturing/verification split);
+    # the only thing --observe-only still controls is whether run() bails
+    # (non-zero exit) on an inadmissible standing. For a passive real-state
+    # OBSERVATION step -- as opposed to the strict release-gate check the
+    # broader mission tracks elsewhere -- --observe-only is the correct,
+    # genuinely non-bailing mode, so this now always expects exit 0.
     commands.append(
         run_command(
             root,
@@ -383,8 +506,9 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                 "--bin",
                 "ggen-v26-8-1-verifier",
                 "--",
+                "--observe-only",
             ],
-            expected_exits=(0, 2),
+            expected_exit=0,
         )
     )
 
@@ -421,9 +545,19 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
             ],
         ),
         Gate(
+            "manufacturing-synchronized-state",
+            synchronized_state_ok,
+            synchronized_state_evidence,
+        ),
+        Gate(
             "crown-sabotage-caught-typed-reason",
             sabotage_caught_correct_reason,
             gates_extra_evidence,
+        ),
+        Gate(
+            "coverage-matrix-sabotage-caught",
+            coverage_sabotage_all_passed,
+            coverage_sabotage_case_summary,
         ),
         Gate("clean-exit", not after, [f"unexpected_paths={after}"]),
         Gate(

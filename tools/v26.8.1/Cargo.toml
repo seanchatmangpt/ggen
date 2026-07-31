@@ -8,6 +8,22 @@ publish = false
 license = "MIT"
 description = "Exact-head repository observer and crown verifier for ggen v26.8.1 and ggen-legacy sunset"
 
+[lib]
+name = "v26_8_1_tools"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ggen-v26-8-1-verifier"
+path = "src/main.rs"
+
+[[bin]]
+name = "subsystem_verifier"
+path = "src/bin/subsystem_verifier.rs"
+
+[[bin]]
+name = "project_coverage"
+path = "src/bin/project_coverage.rs"
+
 [dependencies]
 anyhow = "1.0"
 blake3 = "1.5"
