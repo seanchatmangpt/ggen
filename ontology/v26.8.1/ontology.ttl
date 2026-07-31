@@ -253,3 +253,44 @@ ggen:exactHeadReceipt a owl:DatatypeProperty ;
 # ggen:hasDisposition (declared above, range ggen:LegacyDisposition) are
 # reused directly on LegacyCapability individuals — both are UNKNOWN by
 # default per-individual until dispositioned.
+
+# Document evidence index (real per-document evidence binding, replacing the
+# substring-presence DOCUMENT_SECTION_LOSS check). See
+# ontology/v26.8.1/document-evidence.ttl for the generated individuals and
+# tools/v26.8.1/document_evidence_index.py for the generator.
+
+ggen:DocumentEvidenceRecord a owl:Class ; rdfs:label "Document evidence record" .
+
+ggen:documentPath a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "Real repo-relative path of the corpus document under docs/v26.8.1/." .
+ggen:documentDigest a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "sha256 hex digest of the document's current bytes, re-derived by the verifier, never trusted blindly." .
+ggen:subsystem a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "One of: governance, system, engine, graph, projection, evidence, products, verification, economics, legacy." .
+ggen:documentRole a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "One of: GOVERNANCE, ARCHITECTURE, IMPLEMENTATION, VERIFICATION, LEGACY, ECONOMICS, MIGRATION, RELEASE." .
+ggen:authorityReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to authority sources this document's claims derive from (e.g. .specify/, CLAUDE.md). May be empty for a given document -- coverage is proven at the subsystem aggregate level." .
+ggen:implementationReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to the crate/module/script this document describes. May be empty per-document." .
+ggen:verifierReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to the test/tool verifying this document's claims. May be empty per-document." .
+ggen:legacyCapabilityReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ ggen:capabilityId values of LegacyCapability individuals (from legacy-capabilities.ttl) this document covers." .
+ggen:evidenceReportReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to generated evidence reports (e.g. .ggen/v26.8.1/subsystem-evidence-manifest.json, verifier-report.json)." .
+ggen:sourceHead a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "git rev-parse HEAD this record was generated against." .
+ggen:describesDocument a owl:ObjectProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range ggen:Artifact ;
+  rdfs:comment "Links a DocumentEvidenceRecord to the ggen:Artifact (document) it describes, when the document is also separately modeled as an Artifact individual." .

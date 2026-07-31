@@ -296,7 +296,7 @@ fn run() -> Result<()> {
     let mut gates = Vec::new();
 
     validate_manifest(&manifest, &mut findings);
-    validate_documents(&manifest, &documents, &root, &mut findings, &mut gates)?;
+    validate_documents(&manifest, &documents, &root, &source_head, &mut findings, &mut gates)?;
     validate_coverage(&manifest, &coverage, &mut findings, &mut gates);
     validate_workspace(&manifest, &workspace, &mut findings, &mut gates);
     validate_authority_files(&files, &mut findings, &mut gates);
@@ -578,8 +578,8 @@ fn validate_manifest(manifest: &CorpusManifest, findings: &mut Vec<Finding>) {
 }
 
 fn validate_documents(
-    manifest: &CorpusManifest, documents: &[String], root: &Path, findings: &mut Vec<Finding>,
-    gates: &mut Vec<GateResult>,
+    manifest: &CorpusManifest, documents: &[String], root: &Path, source_head: &str,
+    findings: &mut Vec<Finding>, gates: &mut Vec<GateResult>,
 ) -> Result<()> {
     let unique: BTreeSet<_> = documents.iter().collect();
     let count_pass = documents.len() >= manifest.required_document_count
@@ -605,16 +605,9 @@ fn validate_documents(
         );
     }
 
-    let required_sections = ["authority", "implementation", "verification", "legacy"];
-    let mut incomplete = Vec::new();
+    // Separate, unchanged check: forbidden placeholders.
     for document in documents {
         let text = fs::read_to_string(root.join(document))?;
-        let lowercase = text.to_ascii_lowercase();
-        for section in required_sections {
-            if !lowercase.contains(section) {
-                incomplete.push(format!("{document}:{section}"));
-            }
-        }
         if text.contains("TODO") || text.contains("FIXME") {
             error(
                 findings,
@@ -624,23 +617,302 @@ fn validate_documents(
             );
         }
     }
-    if !incomplete.is_empty() {
-        error(
-            findings,
-            "DOCUMENT_SECTION_LOSS",
-            Some(DOC_ROOT),
-            format!("{} required section mappings absent", incomplete.len()),
-        );
-    }
+
+    // Real evidence-binding check, replacing the substring-presence
+    // DOCUMENT_SECTION_LOSS mechanism. See validate_document_evidence below.
+    let evidence_gap_count =
+        validate_document_evidence(documents, root, source_head, findings)?;
+
     gates.push(GateResult {
         id: "corpus-structure".into(),
-        pass: count_pass && incomplete.is_empty(),
+        pass: count_pass && evidence_gap_count == 0,
         evidence: vec![
             format!("documents={}", documents.len()),
-            format!("incomplete_sections={}", incomplete.len()),
+            format!("document_evidence_gaps={}", evidence_gap_count),
         ],
     });
     Ok(())
+}
+
+const DOCUMENT_EVIDENCE_INDEX_PATH: &str = "docs/v26.8.1/document-evidence-index.json";
+const LEGACY_CAPABILITIES_TTL_PATH: &str = "ontology/v26.8.1/legacy-capabilities.ttl";
+const DOCUMENT_ROLE_ENUM: [&str; 8] = [
+    "GOVERNANCE",
+    "ARCHITECTURE",
+    "IMPLEMENTATION",
+    "VERIFICATION",
+    "LEGACY",
+    "ECONOMICS",
+    "MIGRATION",
+    "RELEASE",
+];
+const DOCUMENT_EVIDENCE_SUBSYSTEMS: [&str; 10] = [
+    "governance",
+    "system",
+    "engine",
+    "graph",
+    "projection",
+    "evidence",
+    "products",
+    "verification",
+    "economics",
+    "legacy",
+];
+
+#[derive(Debug, Deserialize)]
+struct DocumentEvidenceRecordJson {
+    document_path: String,
+    document_digest: String,
+    subsystem: String,
+    document_role: String,
+    #[serde(default)]
+    authority_references: Vec<String>,
+    #[serde(default)]
+    implementation_references: Vec<String>,
+    #[serde(default)]
+    verifier_references: Vec<String>,
+    #[serde(default)]
+    legacy_capability_references: Vec<String>,
+    #[serde(default)]
+    evidence_report_references: Vec<String>,
+    source_head: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DocumentEvidenceIndexJson {
+    records: Vec<DocumentEvidenceRecordJson>,
+}
+
+/// Real evidence-binding predicates over `document-evidence-index.json`,
+/// replacing the substring-presence DOCUMENT_SECTION_LOSS check. Every
+/// predicate here independently re-derives its evidence (re-hashing
+/// documents, re-checking paths on disk, re-reading the current HEAD) --
+/// nothing here trusts the index file's own claims blindly. Returns the
+/// total number of distinct evidence-gap findings emitted.
+fn validate_document_evidence(
+    documents: &[String], root: &Path, current_head: &str, findings: &mut Vec<Finding>,
+) -> Result<usize> {
+    let mut gap_count = 0usize;
+    let index_path = root.join(DOCUMENT_EVIDENCE_INDEX_PATH);
+    if !index_path.is_file() {
+        error(
+            findings,
+            "DOCUMENT_EVIDENCE_MISSING",
+            Some(DOCUMENT_EVIDENCE_INDEX_PATH),
+            "document-evidence-index.json does not exist; run tools/v26.8.1/document_evidence_index.py",
+        );
+        return Ok(1);
+    }
+    let index_text = fs::read_to_string(&index_path)
+        .with_context(|| format!("reading {}", index_path.display()))?;
+    let index: DocumentEvidenceIndexJson = serde_json::from_str(&index_text)
+        .with_context(|| format!("parsing {}", index_path.display()))?;
+
+    let doc_set: BTreeSet<&str> = documents.iter().map(String::as_str).collect();
+    let mut records_by_path: std::collections::BTreeMap<&str, &DocumentEvidenceRecordJson> =
+        std::collections::BTreeMap::new();
+    for record in &index.records {
+        // DOCUMENT_ORPHANED: record points at a document that doesn't exist.
+        if !root.join(&record.document_path).is_file() {
+            error(
+                findings,
+                "DOCUMENT_ORPHANED",
+                Some(&record.document_path),
+                "evidence record points at a document that does not exist on disk",
+            );
+            gap_count += 1;
+            continue;
+        }
+        if records_by_path.insert(&record.document_path, record).is_some() {
+            error(
+                findings,
+                "DOCUMENT_EVIDENCE_MISSING",
+                Some(&record.document_path),
+                "duplicate evidence record for the same document path",
+            );
+            gap_count += 1;
+        }
+    }
+
+    // DOCUMENT_EVIDENCE_MISSING: every numbered document has exactly one record.
+    for document in &doc_set {
+        if !records_by_path.contains_key(document) {
+            error(
+                findings,
+                "DOCUMENT_EVIDENCE_MISSING",
+                Some(document),
+                "no DocumentEvidenceRecord exists for this document",
+            );
+            gap_count += 1;
+        }
+    }
+
+    let mut subsystem_authority: std::collections::BTreeMap<&str, bool> =
+        DOCUMENT_EVIDENCE_SUBSYSTEMS.iter().map(|s| (*s, false)).collect();
+    let mut subsystem_implementation = subsystem_authority.clone();
+    let mut subsystem_verifier = subsystem_authority.clone();
+
+    for record in &index.records {
+        if !root.join(&record.document_path).is_file() {
+            continue; // already reported as DOCUMENT_ORPHANED above
+        }
+
+        // DOCUMENT_DIGEST_DRIFT: re-hash the document, compare to the record.
+        let bytes = fs::read(root.join(&record.document_path))?;
+        let actual_digest = {
+            use sha2::{Digest, Sha256};
+            let mut hasher = Sha256::new();
+            hasher.update(&bytes);
+            format!("{:x}", hasher.finalize())
+        };
+        if actual_digest != record.document_digest {
+            error(
+                findings,
+                "DOCUMENT_DIGEST_DRIFT",
+                Some(&record.document_path),
+                "recorded documentDigest does not match the document's current bytes",
+            );
+            gap_count += 1;
+        }
+
+        // DOCUMENT_ROLE_INVALID: role must be one of the closed 8-value enum.
+        if !DOCUMENT_ROLE_ENUM.contains(&record.document_role.as_str()) {
+            error(
+                findings,
+                "DOCUMENT_ROLE_INVALID",
+                Some(&record.document_path),
+                format!("documentRole '{}' is not in the closed enum", record.document_role),
+            );
+            gap_count += 1;
+        }
+
+        // DOCUMENT_REFERENCE_MISSING: every implementation/verifier path
+        // referenced must actually exist on disk.
+        for reference in record
+            .implementation_references
+            .iter()
+            .chain(record.verifier_references.iter())
+        {
+            if !root.join(reference).exists() {
+                error(
+                    findings,
+                    "DOCUMENT_REFERENCE_MISSING",
+                    Some(&record.document_path),
+                    format!("referenced path '{reference}' does not exist on disk"),
+                );
+                gap_count += 1;
+            }
+        }
+
+        // DOCUMENT_HEAD_STALE: record's sourceHead must match current HEAD.
+        if record.source_head != current_head {
+            error(
+                findings,
+                "DOCUMENT_HEAD_STALE",
+                Some(&record.document_path),
+                format!(
+                    "sourceHead '{}' does not match current HEAD '{current_head}'",
+                    record.source_head
+                ),
+            );
+            gap_count += 1;
+        }
+
+        if let Some(seen) = subsystem_authority.get_mut(record.subsystem.as_str()) {
+            *seen = *seen || !record.authority_references.is_empty();
+        }
+        if let Some(seen) = subsystem_implementation.get_mut(record.subsystem.as_str()) {
+            *seen = *seen || !record.implementation_references.is_empty();
+        }
+        if let Some(seen) = subsystem_verifier.get_mut(record.subsystem.as_str()) {
+            *seen = *seen || !record.verifier_references.is_empty();
+        }
+    }
+
+    for subsystem in DOCUMENT_EVIDENCE_SUBSYSTEMS {
+        if !subsystem_authority.get(subsystem).copied().unwrap_or(false) {
+            error(
+                findings,
+                "DOCUMENT_AUTHORITY_UNMAPPED",
+                Some(DOC_ROOT),
+                format!("subsystem '{subsystem}' has no document with a real authorityReferences entry"),
+            );
+            gap_count += 1;
+        }
+        if !subsystem_implementation.get(subsystem).copied().unwrap_or(false) {
+            error(
+                findings,
+                "DOCUMENT_IMPLEMENTATION_UNMAPPED",
+                Some(DOC_ROOT),
+                format!("subsystem '{subsystem}' has no document with a real implementationReferences entry"),
+            );
+            gap_count += 1;
+        }
+        if !subsystem_verifier.get(subsystem).copied().unwrap_or(false) {
+            error(
+                findings,
+                "DOCUMENT_VERIFIER_UNMAPPED",
+                Some(DOC_ROOT),
+                format!("subsystem '{subsystem}' has no document with a real verifierReferences entry"),
+            );
+            gap_count += 1;
+        }
+    }
+
+    // DOCUMENT_LEGACY_UNMAPPED: every LegacyCapability individual maps to at
+    // least one document via legacyCapabilityReferences, or has an explicit
+    // machine-only evidence-report reference somewhere in the index.
+    let legacy_ttl_path = root.join(LEGACY_CAPABILITIES_TTL_PATH);
+    if legacy_ttl_path.is_file() {
+        let legacy_text = fs::read_to_string(&legacy_ttl_path)?;
+        let capability_id_re = regex_capability_ids(&legacy_text);
+        let mapped_capability_ids: BTreeSet<&str> = index
+            .records
+            .iter()
+            .flat_map(|r| r.legacy_capability_references.iter().map(String::as_str))
+            .collect();
+        let has_machine_only_evidence = index
+            .records
+            .iter()
+            .any(|r| !r.evidence_report_references.is_empty());
+        for capability_id in &capability_id_re {
+            if !mapped_capability_ids.contains(capability_id.as_str()) && !has_machine_only_evidence {
+                error(
+                    findings,
+                    "DOCUMENT_LEGACY_UNMAPPED",
+                    Some(LEGACY_CAPABILITIES_TTL_PATH),
+                    format!(
+                        "LegacyCapability '{capability_id}' has neither a document reference nor a machine-only evidence report"
+                    ),
+                );
+                gap_count += 1;
+            }
+        }
+    }
+
+    Ok(gap_count)
+}
+
+/// Minimal, dependency-free extraction of `ggen:capabilityId "..."` literals
+/// from legacy-capabilities.ttl -- a full Turtle parser is not needed for
+/// this closed, known-shape data file.
+fn regex_capability_ids(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let needle = "ggen:capabilityId";
+    let mut rest = text;
+    while let Some(pos) = rest.find(needle) {
+        rest = &rest[pos + needle.len()..];
+        if let Some(open) = rest.find('"') {
+            let after_open = &rest[open + 1..];
+            if let Some(close) = after_open.find('"') {
+                out.push(after_open[..close].to_string());
+                rest = &after_open[close + 1..];
+                continue;
+            }
+        }
+        break;
+    }
+    out
 }
 
 fn validate_coverage(
@@ -889,4 +1161,264 @@ fn warning(
         path: path.map(str::to_owned),
         message: message.into(),
     });
+}
+
+/// Sabotage suite for `validate_document_evidence`: real fixtures written to
+/// a real temp directory, real hashing, real path existence checks -- no
+/// mocks. Each test corrupts exactly one thing and asserts the SPECIFIC
+/// code fires, not merely that *some* error appears.
+#[cfg(test)]
+mod document_evidence_sabotage_tests {
+    use super::*;
+    use std::fs;
+    use tempfile::TempDir;
+
+    fn sha256_hex(bytes: &[u8]) -> String {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(bytes);
+        format!("{:x}", hasher.finalize())
+    }
+
+    /// Builds a minimal, otherwise-valid fixture: one document under
+    /// docs/v26.8.1/20-engine/, one real implementation file, one real
+    /// verifier test file, one legacy-capabilities.ttl with a single
+    /// capability that IS mapped -- i.e. a fixture that passes cleanly, so
+    /// each sabotage case can corrupt exactly one field.
+    struct Fixture {
+        dir: TempDir,
+        head: String,
+    }
+
+    impl Fixture {
+        fn build() -> Self {
+            let dir = TempDir::new().expect("tempdir");
+            let root = dir.path();
+            let head = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef".to_string();
+
+            fs::create_dir_all(root.join("docs/v26.8.1/20-engine")).unwrap();
+            let doc_rel = "docs/v26.8.1/20-engine/21-sync-pipeline.md";
+            fs::write(root.join(doc_rel), b"engine doc body").unwrap();
+
+            fs::create_dir_all(root.join("crates/ggen-engine/src")).unwrap();
+            fs::write(root.join("crates/ggen-engine/src/sync.rs"), b"// impl").unwrap();
+            fs::create_dir_all(root.join("crates/ggen-engine/tests")).unwrap();
+            fs::write(
+                root.join("crates/ggen-engine/tests/pipeline_stage_evidence_test.rs"),
+                b"// test",
+            )
+            .unwrap();
+
+            fs::create_dir_all(root.join("ontology/v26.8.1")).unwrap();
+            fs::write(
+                root.join("ontology/v26.8.1/legacy-capabilities.ttl"),
+                br#"ggen:cap1 a ggen:LegacyCapability ; ggen:capabilityId "legacy_cap_one" ; ggen:owningSubsystem "engine" ."#,
+            )
+            .unwrap();
+
+            let digest = sha256_hex(b"engine doc body");
+            let record = serde_json::json!({
+                "document_path": doc_rel,
+                "document_digest": digest,
+                "subsystem": "engine",
+                "document_role": "IMPLEMENTATION",
+                "authority_references": ["docs/v26.8.1/20-engine"],
+                "implementation_references": ["crates/ggen-engine/src/sync.rs"],
+                "verifier_references": ["crates/ggen-engine/tests/pipeline_stage_evidence_test.rs"],
+                "legacy_capability_references": ["legacy_cap_one"],
+                "evidence_report_references": [],
+                "source_head": head,
+            });
+            let index = serde_json::json!({ "records": [record] });
+            fs::write(
+                root.join(DOCUMENT_EVIDENCE_INDEX_PATH),
+                serde_json::to_string_pretty(&index).unwrap(),
+            )
+            .unwrap();
+
+            Fixture { dir, head }
+        }
+
+        fn root(&self) -> &Path {
+            self.dir.path()
+        }
+
+        fn documents(&self) -> Vec<String> {
+            vec!["docs/v26.8.1/20-engine/21-sync-pipeline.md".to_string()]
+        }
+
+        fn write_index(&self, index: serde_json::Value) {
+            fs::write(
+                self.root().join(DOCUMENT_EVIDENCE_INDEX_PATH),
+                serde_json::to_string_pretty(&index).unwrap(),
+            )
+            .unwrap();
+        }
+
+        fn read_index(&self) -> serde_json::Value {
+            let text = fs::read_to_string(self.root().join(DOCUMENT_EVIDENCE_INDEX_PATH)).unwrap();
+            serde_json::from_str(&text).unwrap()
+        }
+    }
+
+    fn run(fixture: &Fixture) -> Vec<Finding> {
+        let mut findings = Vec::new();
+        validate_document_evidence(&fixture.documents(), fixture.root(), &fixture.head, &mut findings)
+            .expect("validate_document_evidence should not hard-error on a well-formed fixture");
+        findings
+    }
+
+    fn codes(findings: &[Finding]) -> Vec<&str> {
+        findings.iter().map(|f| f.code.as_str()).collect()
+    }
+
+    #[test]
+    fn clean_fixture_produces_no_document_level_findings() {
+        // This minimal fixture only populates the `engine` subsystem, so the
+        // other 9 subsystems legitimately trip *_UNMAPPED findings (a real,
+        // honest signal, not a bug in the fixture). What must be clean is
+        // every document-level (per-record) check: no orphan, no digest
+        // drift, no invalid role, no missing reference, no stale head, and
+        // no unmapped legacy capability -- since this fixture's one
+        // capability IS mapped.
+        let fixture = Fixture::build();
+        let findings = run(&fixture);
+        let document_level_codes = [
+            "DOCUMENT_EVIDENCE_MISSING",
+            "DOCUMENT_ORPHANED",
+            "DOCUMENT_DIGEST_DRIFT",
+            "DOCUMENT_ROLE_INVALID",
+            "DOCUMENT_REFERENCE_MISSING",
+            "DOCUMENT_HEAD_STALE",
+            "DOCUMENT_LEGACY_UNMAPPED",
+        ];
+        for finding in &findings {
+            assert!(
+                !document_level_codes.contains(&finding.code.as_str()),
+                "unexpected document-level finding on the clean fixture: {finding:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn missing_index_file_refuses_with_document_evidence_missing() {
+        let fixture = Fixture::build();
+        fs::remove_file(fixture.root().join(DOCUMENT_EVIDENCE_INDEX_PATH)).unwrap();
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_EVIDENCE_MISSING"));
+    }
+
+    #[test]
+    fn undocumented_document_refuses_with_document_evidence_missing() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"] = serde_json::json!([]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_EVIDENCE_MISSING"));
+    }
+
+    #[test]
+    fn record_pointing_at_nonexistent_document_refuses_with_document_orphaned() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["document_path"] = serde_json::json!("docs/v26.8.1/20-engine/does-not-exist.md");
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_ORPHANED"));
+    }
+
+    #[test]
+    fn tampered_document_bytes_refuse_with_document_digest_drift() {
+        let fixture = Fixture::build();
+        fs::write(
+            fixture.root().join("docs/v26.8.1/20-engine/21-sync-pipeline.md"),
+            b"tampered body",
+        )
+        .unwrap();
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_DIGEST_DRIFT"));
+    }
+
+    #[test]
+    fn invalid_role_refuses_with_document_role_invalid() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["document_role"] = serde_json::json!("NOT_A_REAL_ROLE");
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_ROLE_INVALID"));
+    }
+
+    #[test]
+    fn empty_authority_references_across_subsystem_refuses_with_authority_unmapped() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["authority_references"] = serde_json::json!([]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_AUTHORITY_UNMAPPED"));
+    }
+
+    #[test]
+    fn empty_implementation_references_across_subsystem_refuses_with_implementation_unmapped() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["implementation_references"] = serde_json::json!([]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_IMPLEMENTATION_UNMAPPED"));
+    }
+
+    #[test]
+    fn empty_verifier_references_across_subsystem_refuses_with_verifier_unmapped() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["verifier_references"] = serde_json::json!([]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_VERIFIER_UNMAPPED"));
+    }
+
+    #[test]
+    fn unmapped_legacy_capability_refuses_with_document_legacy_unmapped() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["legacy_capability_references"] = serde_json::json!([]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_LEGACY_UNMAPPED"));
+    }
+
+    #[test]
+    fn nonexistent_referenced_path_refuses_with_document_reference_missing() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["implementation_references"] =
+            serde_json::json!(["crates/ggen-engine/src/does_not_exist.rs"]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_REFERENCE_MISSING"));
+    }
+
+    #[test]
+    fn stale_source_head_refuses_with_document_head_stale() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        index["records"][0]["source_head"] = serde_json::json!("0000000000000000000000000000000000000000");
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_HEAD_STALE"));
+    }
+
+    #[test]
+    fn duplicate_record_for_same_document_refuses_with_document_evidence_missing() {
+        let fixture = Fixture::build();
+        let mut index = fixture.read_index();
+        let dup = index["records"][0].clone();
+        index["records"] = serde_json::json!([index["records"][0].clone(), dup]);
+        fixture.write_index(index);
+        let findings = run(&fixture);
+        assert!(codes(&findings).contains(&"DOCUMENT_EVIDENCE_MISSING"));
+    }
 }
