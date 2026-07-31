@@ -23,7 +23,7 @@ Every workflow entry names:
 - its production output;
 - its Chesterton-fence retirement condition.
 
-Triggers, permission ceilings, jobs, action invocations, run commands, and detectable evidence mechanisms are derived from the exact checked-in YAML by the verifier. They are not copied into a second hand-maintained YAML model.
+Triggers, workflow-level and job-level permission ceilings, jobs, action invocations, run commands, mutable action references, and detectable evidence mechanisms are derived from the exact checked-in YAML. They are not copied into a second hand-maintained YAML model.
 
 ## Calculus
 
@@ -32,11 +32,11 @@ checked-in .github/workflows/*.{yml,yaml}
         + admitted semantic inventory
         + exact-set closure
         + production-output ownership closure
-        + derived trigger / permission / job / command facts
+        + derived trigger / permission / job / action / command facts
         = G0 as-built evidence
 ```
 
-The verifier is:
+The inventory verifier is:
 
 `scripts/ci/verify-g0-workflow-inventory.py`
 
@@ -45,7 +45,16 @@ It writes deterministic evidence to:
 - `target/ci-g0/workflow-inventory.json`;
 - `target/ci-g0/workflow-inventory.md`.
 
-The strongest lawful claim is `PARTIAL_ALIVE`: the inventory is complete, owner and fence fields are present, and no production output has two semantic owners. G0 does not prove runtime equivalence, impact planning, external standing, generated YAML authority, or BRCE release admission.
+The topology analyzer is:
+
+`scripts/ci/analyze-g0-workflow-topology.py`
+
+It writes deterministic evidence to:
+
+- `target/ci-g0/workflow-topology.json`;
+- `target/ci-g0/workflow-topology.md`.
+
+The strongest lawful claim is `PARTIAL_ALIVE`: the inventory is complete, owner and fence fields are present, no production output has two semantic owners, and the exact YAML topology is inspectable. G0 does not prove runtime equivalence, impact planning, external standing, generated YAML authority, or BRCE release admission.
 
 ## Refusals
 
@@ -62,7 +71,7 @@ The repository integration boundary is:
 
 `crates/ggen-engine/tests/ci_g0_inventory_e2e.rs`
 
-That test executes the verifier against the real repository tree, verifies the generated filesystem evidence, then executes both refusal cases. It is automatically included in the existing required full-workspace integration job. No new workflow or Rust crate is introduced.
+That test executes both analyzers against the real repository tree, verifies their generated filesystem evidence, then executes both refusal cases. It is automatically included in the existing required full-workspace integration job. No new workflow or Rust crate is introduced.
 
 ## Observed queue and duplication baseline
 
@@ -76,7 +85,17 @@ PR #524's documentation-only head `53f751b097993bca6bcd9e1f9d86b764620e0a4b` pro
 
 The observed runs were still executing when G0 evidence was captured. Wall-clock duration is therefore `UNKNOWN`, not estimated.
 
-The verifier derives a duplicate command/action map across all 48 workflow files. It also exposes three shared production surfaces under singular semantic owners: GitHub Pages across five workflows, Docker Hub across two workflows, and GitHub Releases across four workflows. This makes overlap measurable without changing any caller during G0.
+The inventory verifier derives a duplicate command/action map across all 48 workflow files. It also exposes three shared production surfaces under singular semantic owners: GitHub Pages across five workflows, Docker Hub across two workflows, and GitHub Releases across four workflows.
+
+The topology analyzer separately derives:
+
+- event-to-workflow fan-out;
+- duplicate trigger signatures;
+- complete top-level and job-level permission observations;
+- every `uses:` reference;
+- mutable third-party action references that are not pinned to a full 40-hex commit SHA.
+
+These measurements expose current overlap and permission/action debt without changing any caller during G0.
 
 ## Branch-protection boundary
 
@@ -93,6 +112,7 @@ The connected repository surface exposes workflow runs and check conclusions but
 
 - `.github/workflows/reusable-rust-inspection.yml` is absent at the implementation base. The PRD/ARD names it as an architectural seed, but G0 does not fabricate or activate it. G1 must resolve the source/projection discrepancy before shadow execution.
 - `fortune5-bblock-normalize.yml` directly commits and pushes bounded normalization changes to a pull-request branch. G0 records its write ceiling, production output, and retirement fence; it does not alter that behavior.
+- Mutable action references are inventoried and surfaced, not repaired during G0.
 - Other mutation and release workflows remain fenced until an exact-head shadow replacement proves equivalent or stronger behavior and the relevant actuation is admitted through BRCE.
 - A cache hit, workflow status label, or generated report does not establish release standing.
 
@@ -100,11 +120,12 @@ The connected repository surface exposes workflow runs and check conclusions but
 
 ```bash
 python3 scripts/ci/verify-g0-workflow-inventory.py
+python3 scripts/ci/analyze-g0-workflow-topology.py
 python3 scripts/ci/test-g0-workflow-inventory.py
 cargo test -p ggen-engine --test ci_g0_inventory_e2e
 ```
 
-The first command verifies the exact real repository. The second proves both refusal laws. The third proves that the existing Rust integration boundary can execute the complete G0 verifier and inspect its emitted evidence.
+The first command verifies exact workflow-set and ownership closure. The second derives event, permission, and action-reference topology. The third proves both refusal laws. The fourth proves that the existing Rust integration boundary can execute the complete G0 evidence system and inspect its emitted consequences.
 
 ## G0 checkpoint report
 
@@ -113,6 +134,8 @@ The first command verifies the exact real repository. The second proves both ref
 | Parse current workflow files | `PARTIAL_ALIVE` |
 | Route to one semantic inventory | `PARTIAL_ALIVE` |
 | Admit exact 48-file closure | executable verifier |
+| Derive trigger and permission topology | executable analyzer |
+| Inventory mutable action references | diagnostic evidence |
 | Refuse omitted workflow | `CI-G0-INVENTORY-001` |
 | Refuse dual output ownership | `CI-G0-OWNERSHIP-001` |
 | Actuate workflow changes | excluded |
