@@ -1,18 +1,25 @@
 # TAI Enterprise Rebuild
 
-This consumer authors only the admitted TAI enterprise graph and the pack mount. The pack manufactures the roadmap, simulation engine, certification horizon, capability integration matrix, Gall programme, documentation, tests, receipts, and release standing.
+This consumer demonstrates an ontology-authored ggen Building Block that generates and simulates the roadmap for rebuilding Technology Applications, Inc.
 
-```bash
-ggen sync run
-bash consumer/tai-enterprise-rebuild/scripts/verify.sh
-ggen receipt verify
+The authored authority is split across:
+
+- `ontology.ttl` — enterprise, Building Block, phase, certification, scenario, and evidence facts;
+- `cmd.ttl` — the G0–G9 combinatorial-maximalism programme, internal candidate dimensions, external authority dimensions, trust tiers, rollback classes, evidence paths, and typed refusal codes;
+- `ggen.toml` — the admitted ontology import and pack mount.
+
+The generated consumer contains the roadmap, scenario catalogue, certification compilation, Gall programme, recent-capability integration ledger, and `combinatorial-maximalism-program.json`.
+
+```text
+ontology.ttl + cmd.ttl
+→ atomic ontology admission
+→ fail-closed SPARQL gates
+→ deterministic templates
+→ generated Rust simulator
+→ real subprocess and filesystem consequence
+→ BLAKE3 receipt
+→ tamper refusal
+→ exact replay
 ```
 
-The generated CLI supports:
-
-```bash
-tai-rebuild roadmap historical <output-dir>
-tai-rebuild simulate rebuilt-today <output-dir>
-tai-rebuild simulate post-agi <output-dir>
-tai-rebuild verify <receipt-file>
-```
+The G0–G9 programme is capped at `PARTIAL_ALIVE` until its exact repository evidence surfaces and crown verifier execute. The bounded roadmap and simulator may become `ALIVE` after observed execution. The rebuilt enterprise, contract standing, and issuer-recognized certifications remain `UNKNOWN`. Direct external actuation is excluded and any future external intent must be addressed to BRCE.
