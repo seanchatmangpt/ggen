@@ -49,7 +49,7 @@ jobs:
         run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
 
       - name: Execute certification witnesses and falsifiers
-        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification::tests
 
       - name: Execute architecture documentation tests
         run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --doc
