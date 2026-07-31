@@ -768,6 +768,18 @@ pub(crate) fn preflight_structured_matchers(
     root: &Path, rel_to: &str, frontmatter: &Frontmatter,
 ) -> Result<Vec<String>> {
     validate_match_specs(frontmatter)?;
+    let has_structured_selector = [
+        frontmatter.before.as_ref(),
+        frontmatter.after.as_ref(),
+        frontmatter.skip_if.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|spec| matches!(spec, MatchSpec::Structured(_)));
+    if !has_structured_selector {
+        return Ok(Vec::new());
+    }
+
     let target = resolve_target(root, rel_to)?;
     let content = match std::fs::read_to_string(&target) {
         Ok(content) => content,
