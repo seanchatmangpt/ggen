@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/gbb-speedrun-talent-network
+  pull_request:
+    branches:
+      - agent/ggen-v26.7.30-consolidated
 
 permissions:
   contents: write
@@ -14,7 +17,7 @@ concurrency:
 
 jobs:
   materialize:
-    if: github.event.head_commit.message != 'feat(architecture): add Speedrun Talent Network building block'
+    if: github.event_name == 'pull_request' || github.event.head_commit.message != 'feat(architecture): add Speedrun Talent Network building block'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
