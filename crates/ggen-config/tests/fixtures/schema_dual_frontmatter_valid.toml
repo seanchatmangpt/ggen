@@ -1,0 +1,13 @@
+# A minimal, valid frontmatter ggen.toml (ggen_engine::config::GgenConfig schema):
+# identified by the absence of `[project].version` plus a `[templates].dir`
+# per-template-file convention. See crates/ggen-config/src/config_schema.rs's
+# classify_ggen_toml for the marker set this fixture is built to fire.
+
+[project]
+name = "schema-dual-frontmatter-fixture"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"

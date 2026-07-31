@@ -1,0 +1,22 @@
+# A deliberately-ambiguous ggen.toml: fires BOTH the declarative-rules marker
+# (`[project].version` present) and the frontmatter marker (`[packs]` as a
+# table-of-tables, TOML object rather than array-of-tables). This is not a
+# synthetic worst case -- it is the exact real-world shape found in
+# examples/tai-enterprise-rebuild/ggen.toml (confirmed by running
+# `ggen doctor run` against that example's real ggen.toml, which fails with
+# `[FM-CONFIG-101] ... conflicting structural markers
+# ["declarative:project_version_present", "frontmatter:packref_entry_missing_name",
+# "frontmatter:packs_table_shaped"]`). Per crates/ggen-config/src/config_schema.rs's
+# `classify_ggen_toml`, this must classify as `Ambiguous`, and
+# crates/ggen-engine/src/schema_dispatch.rs's `load` must refuse loudly with
+# `[FM-CONFIG-101]` rather than silently picking one schema.
+
+[project]
+name = "schema-dual-ambiguous-fixture"
+version = "1.0.0"
+
+[ontology]
+source = "ontology.ttl"
+
+[packs]
+some-pack = { path = "../../packs/some-pack" }
