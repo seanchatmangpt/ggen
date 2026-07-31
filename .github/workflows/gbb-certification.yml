@@ -42,11 +42,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
-      - name: Refuse a certification head detached from its current TAI parent
+      - name: Refuse a certification head detached from its live TAI parent
         if: github.event_name == 'pull_request'
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: git merge-base --is-ancestor "$BASE_SHA" HEAD
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          test -n "$BASE_REF"
+          git fetch origin "$BASE_REF"
+          git merge-base --is-ancestor "origin/$BASE_REF" HEAD
 
       - name: Provision repository toolchain
         uses: ./.github/actions/setup-ggen-build
