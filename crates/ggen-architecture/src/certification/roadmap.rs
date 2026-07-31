@@ -8,24 +8,16 @@ use crate::building_block::{
 };
 
 use super::{
-    digest, CertificationRefusal, EvidenceLedger, RebuildRoadmap, RoadmapAction, RoadmapStep,
-    TaiRebuildReceipt, TargetArchitectureInstance, REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_ID,
-    TAI_REBUILD_RECEIPT_SCHEMA,
+    digest, seven_day_standards_profile, CertificationRefusal, EvidenceLedger, RebuildRoadmap,
+    RoadmapAction, RoadmapStep, TaiRebuildReceipt, TargetArchitectureInstance,
+    REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_ID, TAI_REBUILD_RECEIPT_SCHEMA,
 };
 
 pub fn generate_rebuild_roadmap(
     registry: &BuildingBlockRegistry, target: &TargetArchitectureInstance,
     evidence: &EvidenceLedger,
 ) -> Result<RebuildRoadmap, CertificationRefusal> {
-    if target.id.trim().is_empty() {
-        return Err(CertificationRefusal::TargetIdentityMissing);
-    }
-    if target.case_study_id != TAI_CASE_STUDY_ID {
-        return Err(CertificationRefusal::CaseStudyMismatch {
-            expected: TAI_CASE_STUDY_ID.to_string(),
-            observed: target.case_study_id.clone(),
-        });
-    }
+    let standards_profile_digest = validate_target_context(target)?;
     if target.roots.is_empty() {
         return Err(CertificationRefusal::TargetRootsMissing);
     }
@@ -111,6 +103,8 @@ pub fn generate_rebuild_roadmap(
         schema: &'static str,
         target_id: &'a str,
         case_study_id: &'a str,
+        standards_profile_id: &'a str,
+        standards_profile_digest: &'a str,
         composition: &'a CompositionReceipt,
         steps: &'a [RoadmapStep],
     }
@@ -118,6 +112,8 @@ pub fn generate_rebuild_roadmap(
         schema: REBUILD_ROADMAP_SCHEMA,
         target_id: &target.id,
         case_study_id: &target.case_study_id,
+        standards_profile_id: &target.standards_profile_id,
+        standards_profile_digest: &standards_profile_digest,
         composition: &composition,
         steps: &steps,
     })?;
@@ -125,10 +121,42 @@ pub fn generate_rebuild_roadmap(
         schema: REBUILD_ROADMAP_SCHEMA.to_string(),
         target_id: target.id.clone(),
         case_study_id: target.case_study_id.clone(),
+        standards_profile_id: target.standards_profile_id.clone(),
+        standards_profile_digest,
         composition,
         steps,
         digest: roadmap_digest,
     })
+}
+
+fn validate_target_context(
+    target: &TargetArchitectureInstance,
+) -> Result<String, CertificationRefusal> {
+    if target.id.trim().is_empty() {
+        return Err(CertificationRefusal::TargetIdentityMissing);
+    }
+    if target.case_study_id != TAI_CASE_STUDY_ID {
+        return Err(CertificationRefusal::CaseStudyMismatch {
+            expected: TAI_CASE_STUDY_ID.to_string(),
+            observed: target.case_study_id.clone(),
+        });
+    }
+    let standards = seven_day_standards_profile();
+    standards.validate()?;
+    if target.standards_profile_id != standards.id {
+        return Err(CertificationRefusal::StandardsProfileMismatch {
+            expected: standards.id,
+            observed: target.standards_profile_id.clone(),
+        });
+    }
+    let expected_digest = standards.digest()?;
+    if target.standards_profile_digest != expected_digest {
+        return Err(CertificationRefusal::StandardsProfileDigestMismatch {
+            expected: expected_digest,
+            observed: target.standards_profile_digest.clone(),
+        });
+    }
+    Ok(target.standards_profile_digest.clone())
 }
 
 fn push_step(
@@ -162,6 +190,8 @@ pub fn simulate_tai_rebuild(
         candidate_id: &'a str,
         target_id: &'a str,
         case_study_id: &'a str,
+        standards_profile_id: &'a str,
+        standards_profile_digest: &'a str,
         composition_digest: &'a str,
         order: &'a [BuildingBlockId],
         profiles: &'a BTreeSet<ProfileId>,
@@ -173,6 +203,8 @@ pub fn simulate_tai_rebuild(
         candidate_id,
         target_id: &target.id,
         case_study_id: &target.case_study_id,
+        standards_profile_id: &roadmap.standards_profile_id,
+        standards_profile_digest: &roadmap.standards_profile_digest,
         composition_digest: &roadmap.composition.digest,
         order: &roadmap.composition.order,
         profiles: &roadmap.composition.profiles,
@@ -184,6 +216,8 @@ pub fn simulate_tai_rebuild(
         candidate_id: candidate_id.to_string(),
         target_id: target.id.clone(),
         case_study_id: target.case_study_id.clone(),
+        standards_profile_id: roadmap.standards_profile_id,
+        standards_profile_digest: roadmap.standards_profile_digest,
         composition_digest: roadmap.composition.digest,
         order: roadmap.composition.order,
         profiles: roadmap.composition.profiles,
