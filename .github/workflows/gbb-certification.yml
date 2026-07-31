@@ -1,0 +1,65 @@
+name: GBB Certification Program
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-architecture/src/building_block.rs"
+      - "crates/ggen-architecture/src/certification/**"
+      - "crates/ggen-architecture/src/canonical.rs"
+      - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md"
+      - ".github/workflows/gbb-certification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/ggen-architecture/src/building_block.rs"
+      - "crates/ggen-architecture/src/certification/**"
+      - "crates/ggen-architecture/src/canonical.rs"
+      - "docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md"
+      - ".github/workflows/gbb-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbb-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certification-law:
+    name: 5 credentials / 12 requirements / 60 proof surfaces
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: gbb-certification-v26-7-30
+
+      - name: Enforce pinned formatting
+        run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --all --check
+
+      - name: Enforce warning-free architecture workspace
+        run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
+
+      - name: Execute certification witnesses and falsifiers
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification
+
+      - name: Execute architecture documentation tests
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --doc
+
+      - name: Preserve the canonical Building Block crown
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets building_block
+
+      - name: Prove the certification kernel cannot actuate directly
+        run: |
+          ! grep -RInE 'std::process|std::fs|std::net|reqwest|kube::|aws_sdk|azure_|google_cloud|Command::new|TcpStream|UdpSocket' crates/ggen-architecture/src/certification
+          grep -RIn 'RoadmapIncomplete' crates/ggen-architecture/src/certification
+          grep -RIn 'TargetContainsRetiredBlock' crates/ggen-architecture/src/certification
+          grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_30.md
