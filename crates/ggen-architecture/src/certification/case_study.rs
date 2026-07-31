@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::building_block::{
     ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
-    BuildingBlockRefusal, BuildingBlockRegistry, EvidenceKind, EvidenceObligation,
-    EvidenceReceipt, LifecycleState, ObligationId, Port, PortDirection, PortId, PortKind,
-    ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim, Standing,
+    BuildingBlockRefusal, BuildingBlockRegistry, EvidenceKind, EvidenceObligation, EvidenceReceipt,
+    LifecycleState, ObligationId, Port, PortDirection, PortId, PortKind, ProfileId,
+    RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim, Standing,
 };
 
 use super::{EvidenceLedger, TargetArchitectureInstance};
@@ -60,8 +60,7 @@ pub struct TaiCaseStudy {
 impl TaiCaseStudy {
     /// Bind the case study to the exact composition digest of one admitted registry.
     pub fn target(
-        &self,
-        registry: &BuildingBlockRegistry,
+        &self, registry: &BuildingBlockRegistry,
     ) -> Result<TargetArchitectureInstance, BuildingBlockRefusal> {
         let roots = BTreeSet::from([self.root_block.clone()]);
         let composition = registry.compose(&roots)?;
@@ -231,8 +230,7 @@ pub fn tai_case_study_registry(
 /// Manufacture evidence appropriate to the requested case-study state.
 #[must_use]
 pub fn tai_case_study_evidence(
-    registry: &BuildingBlockRegistry,
-    state: TaiCaseStudyState,
+    registry: &BuildingBlockRegistry, state: TaiCaseStudyState,
 ) -> EvidenceLedger {
     registry
         .blocks
@@ -317,7 +315,11 @@ fn make_block(spec: BlockSpec<'_>) -> BuildingBlock {
             permitted_authorities: BTreeSet::from([authority.clone()]),
         },
         contract: BuildingBlockContract {
-            behavior: spec.behaviors.iter().map(|value| (*value).to_string()).collect(),
+            behavior: spec
+                .behaviors
+                .iter()
+                .map(|value| (*value).to_string())
+                .collect(),
             required_inputs: BTreeSet::from([input.clone()]),
             promised_outputs: BTreeSet::from([output.clone()]),
             resource_ceiling: ResourceCeiling {
@@ -393,10 +395,9 @@ fn examination_evidence(block: &BuildingBlock) -> BTreeSet<EvidenceReceipt> {
         "tai-mission" | "tai-quality" | "tai-economics" | "tai-evidence" => {
             complete_evidence(block)
         }
-        "tai-organization" | "tai-certification" => evidence_for(
-            block,
-            &[EvidenceKind::PositiveWitness],
-        ),
+        "tai-organization" | "tai-certification" => {
+            evidence_for(block, &[EvidenceKind::PositiveWitness])
+        }
         _ => BTreeSet::new(),
     }
 }
@@ -414,10 +415,7 @@ fn complete_evidence(block: &BuildingBlock) -> BTreeSet<EvidenceReceipt> {
     )
 }
 
-fn evidence_for(
-    block: &BuildingBlock,
-    kinds: &[EvidenceKind],
-) -> BTreeSet<EvidenceReceipt> {
+fn evidence_for(block: &BuildingBlock, kinds: &[EvidenceKind]) -> BTreeSet<EvidenceReceipt> {
     block
         .obligations
         .keys()
@@ -432,10 +430,7 @@ fn evidence_for(
 }
 
 fn profiles_for(id: &str) -> BTreeSet<ProfileId> {
-    let mut profiles = BTreeSet::from([
-        ProfileId::new("core"),
-        ProfileId::new("tai-case-study"),
-    ]);
+    let mut profiles = BTreeSet::from([ProfileId::new("core"), ProfileId::new("tai-case-study")]);
     if id == TAI_ENTERPRISE_ROOT_ID {
         profiles.extend(required_profiles());
     }
