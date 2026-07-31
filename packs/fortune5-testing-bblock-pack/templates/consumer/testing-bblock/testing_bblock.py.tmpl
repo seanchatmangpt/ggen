@@ -1,0 +1,601 @@
+#!/usr/bin/env python3
+"""Executable testing bblock with BLAKE3-chained evidence and replay."""
+from __future__ import annotations
+
+import argparse
+import concurrent.futures
+import contextlib
+import http.server
+import json
+import os
+import random
+import shutil
+import statistics
+import struct
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable
+
+SCHEMA = "ggen.testing.verifier-report.v1"
+RECEIPT_SCHEMA = "ggen.testing.suite-receipt.v1"
+SUITES = [
+    "protocol-unit",
+    "property-fuzz",
+    "stdio-http-integration",
+    "cli-e2e",
+    "security",
+    "chaos",
+    "stress",
+    "benchmark",
+    "replay",
+]
+
+# BLAKE3, unkeyed one-shot mode. The implementation self-checks against canonical vectors.
+_IV = [0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19]
+_MSG_PERMUTATION = [2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8]
+_CHUNK_START, _CHUNK_END, _PARENT, _ROOT = 1, 2, 4, 8
+
+
+def _rotr32(value: int, shift: int) -> int:
+    return ((value >> shift) | ((value << (32 - shift)) & 0xFFFFFFFF)) & 0xFFFFFFFF
+
+
+def _g(state: list[int], a: int, b: int, c: int, d: int, mx: int, my: int) -> None:
+    state[a] = (state[a] + state[b] + mx) & 0xFFFFFFFF
+    state[d] = _rotr32(state[d] ^ state[a], 16)
+    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
+    state[b] = _rotr32(state[b] ^ state[c], 12)
+    state[a] = (state[a] + state[b] + my) & 0xFFFFFFFF
+    state[d] = _rotr32(state[d] ^ state[a], 8)
+    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
+    state[b] = _rotr32(state[b] ^ state[c], 7)
+
+
+def _round(state: list[int], message: list[int]) -> None:
+    _g(state, 0, 4, 8, 12, message[0], message[1])
+    _g(state, 1, 5, 9, 13, message[2], message[3])
+    _g(state, 2, 6, 10, 14, message[4], message[5])
+    _g(state, 3, 7, 11, 15, message[6], message[7])
+    _g(state, 0, 5, 10, 15, message[8], message[9])
+    _g(state, 1, 6, 11, 12, message[10], message[11])
+    _g(state, 2, 7, 8, 13, message[12], message[13])
+    _g(state, 3, 4, 9, 14, message[14], message[15])
+
+
+def _compress(cv: list[int], block_words: list[int], counter: int, block_len: int, flags: int) -> list[int]:
+    state = cv[:] + _IV[:4] + [counter & 0xFFFFFFFF, (counter >> 32) & 0xFFFFFFFF, block_len, flags]
+    message = block_words[:]
+    for _ in range(7):
+        _round(state, message)
+        message = [message[index] for index in _MSG_PERMUTATION]
+    return [state[index] ^ state[index + 8] for index in range(8)] + [state[index + 8] ^ cv[index] for index in range(8)]
+
+
+def _block_words(block: bytes) -> list[int]:
+    padded = block + b"\0" * (64 - len(block))
+    return list(struct.unpack("<16I", padded))
+
+
+@dataclass(frozen=True)
+class _Output:
+    input_cv: list[int]
+    block_words: list[int]
+    counter: int
+    block_len: int
+    flags: int
+
+    def chaining_value(self) -> list[int]:
+        return _compress(self.input_cv, self.block_words, self.counter, self.block_len, self.flags)[:8]
+
+    def root_bytes(self, length: int) -> bytes:
+        output = bytearray()
+        counter = 0
+        while len(output) < length:
+            words = _compress(self.input_cv, self.block_words, counter, self.block_len, self.flags | _ROOT)
+            output.extend(struct.pack("<16I", *words))
+            counter += 1
+        return bytes(output[:length])
+
+
+def _chunk_output(chunk: bytes, chunk_counter: int) -> _Output:
+    cv = _IV[:]
+    blocks = [chunk[offset : offset + 64] for offset in range(0, len(chunk), 64)] or [b""]
+    for index, block in enumerate(blocks):
+        flags = (_CHUNK_START if index == 0 else 0) | (_CHUNK_END if index == len(blocks) - 1 else 0)
+        output = _Output(cv, _block_words(block), chunk_counter, len(block), flags)
+        if index != len(blocks) - 1:
+            cv = output.chaining_value()
+    return output
+
+
+def _parent_output(left: list[int], right: list[int]) -> _Output:
+    return _Output(_IV[:], left + right, 0, 64, _PARENT)
+
+
+def blake3_bytes(data: bytes) -> bytes:
+    chunks = [data[offset : offset + 1024] for offset in range(0, len(data), 1024)] or [b""]
+    cv_stack: list[list[int]] = []
+    for chunk_index, chunk in enumerate(chunks[:-1]):
+        new_cv = _chunk_output(chunk, chunk_index).chaining_value()
+        total_chunks = chunk_index + 1
+        while total_chunks & 1 == 0:
+            new_cv = _parent_output(cv_stack.pop(), new_cv).chaining_value()
+            total_chunks >>= 1
+        cv_stack.append(new_cv)
+    output = _chunk_output(chunks[-1], len(chunks) - 1)
+    while cv_stack:
+        output = _parent_output(cv_stack.pop(), output.chaining_value())
+    return output.root_bytes(32)
+
+
+def blake3_hex(data: bytes) -> str:
+    return blake3_bytes(data).hex()
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+class SuiteBlocked(RuntimeError):
+    pass
+
+
+class SuiteFailure(RuntimeError):
+    pass
+
+
+def require_program(name: str) -> str:
+    path = shutil.which(name)
+    if path is None:
+        raise SuiteBlocked(f"required executable is unavailable: {name}")
+    return path
+
+
+def discover_repo_root() -> Path:
+    configured = os.environ.get("TESTING_BBLOCK_REPO_ROOT")
+    if configured:
+        root = Path(configured).resolve()
+        if not (root / "Cargo.toml").is_file():
+            raise SuiteBlocked(f"configured repository root has no Cargo.toml: {root}")
+        return root
+    for candidate in [Path.cwd().resolve(), *Path(__file__).resolve().parents]:
+        if (candidate / "Cargo.toml").is_file() and (candidate / "crates/ggen-cli").is_dir():
+            return candidate
+    raise SuiteBlocked("cannot discover the ggen repository root")
+
+
+def resolve_ggen(root: Path) -> Path:
+    configured = os.environ.get("GGEN_BIN")
+    binary = Path(configured).resolve() if configured else root / "target/debug/ggen"
+    if not binary.is_file():
+        raise SuiteBlocked(f"real ggen binary is unavailable: {binary}")
+    return binary
+
+
+def run_process(argv: list[str], cwd: Path, timeout: float = 300.0, expected: set[int] | None = None, stdin: bytes | None = None) -> dict[str, Any]:
+    expected = expected or {0}
+    started = time.perf_counter_ns()
+    try:
+        process = subprocess.run(argv, cwd=cwd, input=stdin, capture_output=True, timeout=timeout, check=False)
+    except subprocess.TimeoutExpired as error:
+        raise SuiteFailure(f"command timed out after {timeout}s: {argv}") from error
+    duration_ms = (time.perf_counter_ns() - started) / 1_000_000
+    result = {
+        "argv": argv,
+        "cwd": str(cwd),
+        "exit_code": process.returncode,
+        "duration_ms": round(duration_ms, 3),
+        "stdout": process.stdout.decode("utf-8", errors="replace"),
+        "stderr": process.stderr.decode("utf-8", errors="replace"),
+        "stdout_blake3": blake3_hex(process.stdout),
+        "stderr_blake3": blake3_hex(process.stderr),
+    }
+    if process.returncode not in expected:
+        raise SuiteFailure(f"command exited {process.returncode}, expected {sorted(expected)}: {argv}\n{result['stderr'][-2000:]}")
+    return result
+
+
+def parse_json_output(result: dict[str, Any]) -> Any:
+    try:
+        return json.loads(result["stdout"])
+    except json.JSONDecodeError as error:
+        raise SuiteFailure(f"command did not emit JSON: {result['argv']}") from error
+
+
+def protocol_unit(root: Path, ggen: Path) -> dict[str, Any]:
+    cargo = require_program("cargo")
+    command = run_process([cargo, "test", "-p", "ggen-cli-lib", "bblock", "--lib"], root, timeout=900)
+    return {"commands": [command], "boundary": ["compiler", "filesystem", "process"]}
+
+
+def property_fuzz(root: Path, ggen: Path) -> dict[str, Any]:
+    rng = random.Random(0xB10C)
+    commands: list[dict[str, Any]] = []
+    for alias, expected in [("aws", "aws"), ("amazon", "aws"), ("azure", "azure"), ("gpc", "gcp")]:
+        result = run_process([str(ggen), "bblock", "inspect", "testing", alias], root, timeout=30)
+        payload = parse_json_output(result)
+        if payload.get("provider") != expected or payload.get("requested_group") != "testing":
+            raise SuiteFailure(f"provider normalization property failed for {alias}")
+        commands.append(result)
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789_./:-"
+    for _ in range(32):
+        invalid = "x-" + "".join(rng.choice(alphabet) for _ in range(rng.randint(1, 24)))
+        result = run_process([str(ggen), "bblock", "inspect", "testing", invalid], root, timeout=30, expected=set(range(1, 256)))
+        lowered = (result["stdout"] + result["stderr"]).lower()
+        if "panicked" in lowered or "stack backtrace" in lowered:
+            raise SuiteFailure(f"fuzz input caused a panic: {invalid}")
+        commands.append(result)
+    return {"commands": commands, "cases": len(commands), "seed": 0xB10C, "boundary": ["cli-parser", "catalog-admission", "typed-refusal"]}
+
+
+def stdio_http_integration(root: Path, ggen: Path) -> dict[str, Any]:
+    source = run_process([str(ggen), "bblock", "providers"], root, timeout=30)
+    body = source["stdout"].encode("utf-8")
+    received: list[bytes] = []
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            length = int(self.headers.get("Content-Length", "0"))
+            received.append(self.rfile.read(length))
+            self.send_response(202)
+            self.end_headers()
+            self.wfile.write(b"admitted")
+        def log_message(self, format: str, *args: Any) -> None:
+            return
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        request = urllib.request.Request(f"http://127.0.0.1:{server.server_port}/evidence", data=body, method="POST", headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(request, timeout=10) as response:
+            response_body = response.read()
+            status = response.status
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=10)
+    if status != 202 or response_body != b"admitted" or received != [body]:
+        raise SuiteFailure("stdio-to-HTTP byte identity was not preserved")
+    return {"commands": [source], "http_status": status, "payload_blake3": blake3_hex(body), "boundary": ["subprocess-stdio", "loopback-http", "byte-identity"]}
+
+
+def cli_e2e(root: Path, ggen: Path) -> dict[str, Any]:
+    commands: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="ggen-testing-e2e-") as temporary:
+        cwd = Path(temporary)
+        commands.append(run_process([str(ggen), "bblock", "validate"], cwd, timeout=30))
+        inspect = run_process([str(ggen), "bblock", "inspect", "testing", "gpc"], cwd, timeout=30)
+        payload = parse_json_output(inspect)
+        if "fortune5-testing-bblock-pack" not in payload.get("packs", []):
+            raise SuiteFailure("testing common pack is absent from inspect output")
+        commands.append(inspect)
+        commands.append(run_process([str(ggen), "bblock", "plan", "testing", "aws"], cwd, timeout=30))
+        commands.append(run_process([str(ggen), "bblock", "enable", "testing", "aws"], cwd, timeout=30))
+        required = [
+            cwd / "infrastructure/testing",
+            cwd / ".ggen/packs.lock",
+            cwd / ".ggen/bblocks/groups/testing.json",
+            cwd / ".ggen/bblocks/receipts/aws/testing-enable-result.json",
+        ]
+        missing = [str(path) for path in required if not path.exists()]
+        if missing:
+            raise SuiteFailure(f"black-box E2E artifacts missing: {missing}")
+        if "fortune5-testing-bblock-pack" not in (cwd / ".ggen/packs.lock").read_text():
+            raise SuiteFailure("testing pack was not written to packs.lock")
+    return {"commands": commands, "boundary": ["public-cli", "filesystem", "lockfile", "receipt-chain"]}
+
+
+def security(root: Path, ggen: Path) -> dict[str, Any]:
+    source = (root / "crates/ggen-cli/src/cmds/bblock.rs").read_text()
+    forbidden = ["reqwest", "std::net", "Command::new", "terraform", "pulumi", "kubectl", "aws_sdk", "azure_", "google_cloud"]
+    found = [token for token in forbidden if token in source]
+    if found:
+        raise SuiteFailure(f"direct actuation surface entered bblock compiler: {found}")
+    commands: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="ggen-testing-security-") as temporary:
+        cwd = Path(temporary)
+        for argv in [
+            [str(ggen), "bblock", "inspect", "testing", "../../aws"],
+            [str(ggen), "bblock", "inspect", "../testing", "aws"],
+            [str(ggen), "bblock", "inspect", "testing", "oracle"],
+        ]:
+            commands.append(run_process(argv, cwd, timeout=30, expected=set(range(1, 256))))
+        if any(cwd.iterdir()):
+            raise SuiteFailure("refused security probes changed project state")
+    return {"commands": commands, "forbidden_tokens_checked": forbidden, "boundary": ["path-admission", "provider-admission", "no-direct-actuation"]}
+
+
+def chaos(root: Path, ggen: Path) -> dict[str, Any]:
+    commands: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="ggen-testing-chaos-") as temporary:
+        cwd = Path(temporary)
+        receipt = cwd / ".ggen/bblocks/receipts/aws/testing-plan-result.json"
+        receipt.parent.mkdir(parents=True)
+        poison = b'{"schema":"corrupted"'
+        receipt.write_bytes(poison)
+        commands.append(run_process([str(ggen), "bblock", "plan", "testing", "aws"], cwd, timeout=30, expected=set(range(1, 256))))
+        if receipt.read_bytes() != poison:
+            raise SuiteFailure("corrupted predecessor receipt was overwritten")
+        if list(cwd.rglob("*.tmp")):
+            raise SuiteFailure("fault injection left temporary files behind")
+        receipt.unlink()
+        commands.append(run_process([str(ggen), "bblock", "plan", "testing", "aws"], cwd, timeout=30))
+        if not receipt.is_file():
+            raise SuiteFailure("system did not recover after the injected receipt fault")
+    return {"commands": commands, "fault": "malformed predecessor receipt", "boundary": ["state-fault", "atomic-write", "recovery"]}
+
+
+def stress(root: Path, ggen: Path) -> dict[str, Any]:
+    providers = ["aws", "azure", "gpc"] * 12
+    def invoke(provider: str) -> tuple[str, dict[str, Any], str]:
+        result = run_process([str(ggen), "bblock", "inspect", "testing", provider], root, timeout=30)
+        payload = parse_json_output(result)
+        return provider, result, payload["plan_digest"]
+    records: list[tuple[str, dict[str, Any], str]] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+        for record in executor.map(invoke, providers):
+            records.append(record)
+    digests: dict[str, set[str]] = {}
+    for provider, _, digest in records:
+        normalized = "gcp" if provider == "gpc" else provider
+        digests.setdefault(normalized, set()).add(digest)
+    if any(len(values) != 1 for values in digests.values()):
+        raise SuiteFailure(f"concurrent resolution was nondeterministic: {digests}")
+    return {"commands": [record[1] for record in records], "operations": len(records), "workers": 12, "plan_digests": {key: next(iter(values)) for key, values in digests.items()}, "boundary": ["concurrency", "determinism", "process-isolation"]}
+
+
+def benchmark(root: Path, ggen: Path) -> dict[str, Any]:
+    for _ in range(3):
+        run_process([str(ggen), "bblock", "inspect", "testing", "aws"], root, timeout=30)
+    samples: list[float] = []
+    commands: list[dict[str, Any]] = []
+    for _ in range(20):
+        result = run_process([str(ggen), "bblock", "inspect", "testing", "aws"], root, timeout=30)
+        samples.append(float(result["duration_ms"]))
+        commands.append(result)
+    ordered = sorted(samples)
+    p50 = statistics.median(ordered)
+    p95 = ordered[max(0, int(len(ordered) * 0.95) - 1)]
+    threshold = float(os.environ.get("TESTING_BBLOCK_P95_MS", "750"))
+    if p95 > threshold:
+        raise SuiteFailure(f"p95 {p95:.3f}ms exceeds threshold {threshold:.3f}ms")
+    return {"commands": commands, "samples": len(samples), "p50_ms": round(p50, 3), "p95_ms": round(p95, 3), "threshold_ms": threshold, "boundary": ["wall-clock", "public-cli", "performance-budget"]}
+
+
+def receipt_digest(receipt: dict[str, Any]) -> str:
+    body = {
+        "schema": receipt["schema"],
+        "operation": receipt["operation"],
+        "provider": receipt["provider"],
+        "group": receipt["group"],
+        "catalog_digest": receipt["catalog_digest"],
+        "plan_digest": receipt["plan_digest"],
+        "previous_digest": receipt["previous_digest"],
+        "artifacts": receipt["artifacts"],
+    }
+    return blake3_hex(canonical_bytes(body))
+
+
+def verify_bblock_receipt(receipt: dict[str, Any]) -> None:
+    if receipt.get("digest_algorithm") != "blake3" or receipt_digest(receipt) != receipt.get("digest"):
+        raise SuiteFailure("bblock receipt digest verification failed")
+
+
+def replay(root: Path, ggen: Path) -> dict[str, Any]:
+    commands: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="ggen-testing-replay-") as temporary:
+        cwd = Path(temporary)
+        commands.append(run_process([str(ggen), "bblock", "plan", "testing", "aws"], cwd, timeout=30))
+        plan_path = cwd / ".ggen/bblocks/plans/aws/testing.json"
+        intent_path = cwd / ".ggen/bblocks/receipts/aws/testing-plan-intent.json"
+        result_path = cwd / ".ggen/bblocks/receipts/aws/testing-plan-result.json"
+        first_plan = plan_path.read_bytes()
+        first_intent = json.loads(intent_path.read_text())
+        first_result = json.loads(result_path.read_text())
+        verify_bblock_receipt(first_intent)
+        verify_bblock_receipt(first_result)
+        if first_result["previous_digest"] != first_intent["digest"]:
+            raise SuiteFailure("first result does not chain to first intent")
+        commands.append(run_process([str(ggen), "bblock", "plan", "testing", "aws"], cwd, timeout=30))
+        second_plan = plan_path.read_bytes()
+        second_intent = json.loads(intent_path.read_text())
+        second_result = json.loads(result_path.read_text())
+        verify_bblock_receipt(second_intent)
+        verify_bblock_receipt(second_result)
+        if first_plan != second_plan:
+            raise SuiteFailure("deterministic plan bytes diverged on replay")
+        if second_intent["previous_digest"] != first_result["digest"] or second_result["previous_digest"] != second_intent["digest"]:
+            raise SuiteFailure("replayed receipt chain is discontinuous")
+        tampered = dict(second_result)
+        tampered["operation"] = "tampered"
+        if receipt_digest(tampered) == tampered["digest"]:
+            raise SuiteFailure("tampered receipt remained valid")
+    return {"commands": commands, "plan_blake3": blake3_hex(first_plan), "first_chain_head": first_result["digest"], "second_chain_head": second_result["digest"], "tamper_refused": True, "boundary": ["receipt", "replay", "tamper-falsifier"]}
+
+
+SUITE_FUNCTIONS: dict[str, Callable[[Path, Path], dict[str, Any]]] = {
+    "protocol-unit": protocol_unit,
+    "property-fuzz": property_fuzz,
+    "stdio-http-integration": stdio_http_integration,
+    "cli-e2e": cli_e2e,
+    "security": security,
+    "chaos": chaos,
+    "stress": stress,
+    "benchmark": benchmark,
+    "replay": replay,
+}
+
+
+def execute_suite(suite: str, previous_digest: str, evidence_root: Path) -> dict[str, Any]:
+    started_at = utc_now()
+    started_ns = time.perf_counter_ns()
+    status = "ALIVE"
+    error: str | None = None
+    details: dict[str, Any] = {}
+    try:
+        root = discover_repo_root()
+        ggen = resolve_ggen(root)
+        details = SUITE_FUNCTIONS[suite](root, ggen)
+    except SuiteBlocked as exc:
+        status, error = "BLOCKED", str(exc)
+    except Exception as exc:
+        status, error = "BUILD_BROKEN", f"{type(exc).__name__}: {exc}"
+    finished_at = utc_now()
+    duration_ms = round((time.perf_counter_ns() - started_ns) / 1_000_000, 3)
+    evidence_root.mkdir(parents=True, exist_ok=True)
+    evidence_path = evidence_root / f"{suite}.json"
+    evidence = {"schema": "ggen.testing.suite-evidence.v1", "suite": suite, "status": status, "started_at": started_at, "finished_at": finished_at, "duration_ms": duration_ms, "error": error, "details": details}
+    evidence_bytes = json.dumps(evidence, indent=2, ensure_ascii=False).encode("utf-8") + b"\n"
+    evidence_path.write_bytes(evidence_bytes)
+    body = {
+        "schema": RECEIPT_SCHEMA,
+        "suite": suite,
+        "status": status,
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "duration_ms": duration_ms,
+        "previous_digest": previous_digest,
+        "evidence_path": str(evidence_path),
+        "evidence_blake3": blake3_hex(evidence_bytes),
+        "error": error,
+    }
+    return {**body, "digest_algorithm": "blake3", "digest": blake3_hex(canonical_bytes(body))}
+
+
+def overall_standing(receipts: list[dict[str, Any]]) -> str:
+    statuses = {receipt["status"] for receipt in receipts}
+    if statuses == {"ALIVE"}:
+        return "ALIVE"
+    if "BUILD_BROKEN" in statuses:
+        return "BUILD_BROKEN"
+    return "BLOCKED"
+
+
+def write_report(receipts: list[dict[str, Any]], output: Path) -> dict[str, Any]:
+    report = {
+        "schema": SCHEMA,
+        "generated_at": utc_now(),
+        "standing": overall_standing(receipts),
+        "suite_order": [receipt["suite"] for receipt in receipts],
+        "suite_count": len(receipts),
+        "alive_count": sum(receipt["status"] == "ALIVE" for receipt in receipts),
+        "blocked_count": sum(receipt["status"] == "BLOCKED" for receipt in receipts),
+        "build_broken_count": sum(receipt["status"] == "BUILD_BROKEN" for receipt in receipts),
+        "chain_head": receipts[-1]["digest"] if receipts else "GENESIS",
+        "receipts": receipts,
+    }
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    return report
+
+
+def verify_report(path: Path) -> dict[str, Any]:
+    report = json.loads(path.read_text())
+    receipts = report.get("receipts")
+    if report.get("schema") != SCHEMA or not isinstance(receipts, list) or not receipts:
+        raise SuiteFailure("verifier report schema or receipt set is invalid")
+    receipt_suites = [receipt.get("suite") for receipt in receipts]
+    if any(suite not in SUITES for suite in receipt_suites) or len(receipt_suites) != len(set(receipt_suites)):
+        raise SuiteFailure("verifier report contains unknown or duplicate suites")
+    expected_order = sorted(receipt_suites, key=SUITES.index)
+    if receipt_suites != expected_order or report.get("suite_order") != receipt_suites:
+        raise SuiteFailure("verifier report suite order is invalid")
+    expected_counts = {
+        "suite_count": len(receipts),
+        "alive_count": sum(receipt.get("status") == "ALIVE" for receipt in receipts),
+        "blocked_count": sum(receipt.get("status") == "BLOCKED" for receipt in receipts),
+        "build_broken_count": sum(receipt.get("status") == "BUILD_BROKEN" for receipt in receipts),
+    }
+    if any(report.get(key) != value for key, value in expected_counts.items()):
+        raise SuiteFailure("verifier report aggregate counts are invalid")
+    previous = "GENESIS"
+    for receipt in receipts:
+        body = {key: receipt[key] for key in ["schema", "suite", "status", "started_at", "finished_at", "duration_ms", "previous_digest", "evidence_path", "evidence_blake3", "error"]}
+        if receipt.get("schema") != RECEIPT_SCHEMA or receipt.get("status") not in {"ALIVE", "BLOCKED", "BUILD_BROKEN"}:
+            raise SuiteFailure(f"receipt schema or status is invalid for {receipt.get('suite')}")
+        if receipt["previous_digest"] != previous or receipt.get("digest_algorithm") != "blake3" or receipt.get("digest") != blake3_hex(canonical_bytes(body)):
+            raise SuiteFailure(f"receipt replay failed for {receipt.get('suite')}")
+        evidence = Path(receipt["evidence_path"]).read_bytes()
+        if blake3_hex(evidence) != receipt["evidence_blake3"]:
+            raise SuiteFailure(f"evidence bytes diverged for {receipt['suite']}")
+        previous = receipt["digest"]
+    if report.get("chain_head") != previous or report.get("standing") != overall_standing(receipts):
+        raise SuiteFailure("verifier report head or standing is invalid")
+    return report
+
+
+def self_test() -> None:
+    vectors = {
+        b"": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+        b"abc": "6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85",
+        bytes(index % 251 for index in range(1024)): "42214739f095a406f3fc83deb889744ac00df831c10daa55189b5d121c855af7",
+        bytes(index % 251 for index in range(102400)): "bc3e3d41a1146b069abffad3c0d44860cf664390afce4d9661f7902e7943e085",
+    }
+    for data, expected in vectors.items():
+        actual = blake3_hex(data)
+        if actual != expected:
+            raise SuiteFailure(f"BLAKE3 self-test failed for {len(data)} bytes: {actual} != {expected}")
+    with tempfile.TemporaryDirectory(prefix="testing-bblock-selftest-") as temporary:
+        cwd = Path(temporary)
+        success = run_process([sys.executable, "-c", "print('boundary-crossed')"], cwd)
+        if success["stdout"].strip() != "boundary-crossed":
+            raise SuiteFailure("subprocess boundary self-test failed")
+        failure = run_process([sys.executable, "-c", "raise SystemExit(7)"], cwd, expected={7})
+        if failure["exit_code"] != 7:
+            raise SuiteFailure("negative subprocess self-test failed")
+    print("TESTING_BBLOCK_SELF_TEST standing=PARTIAL_ALIVE blake3=4 subprocess=2")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subcommands = parser.add_subparsers(dest="command", required=True)
+    run_parser = subcommands.add_parser("run")
+    run_parser.add_argument("suite", choices=SUITES)
+    run_parser.add_argument("--report", type=Path)
+    verify_parser = subcommands.add_parser("verify")
+    verify_parser.add_argument("--report", type=Path, default=Path("VERIFIER_REPORT.json"))
+    replay_parser = subcommands.add_parser("replay-report")
+    replay_parser.add_argument("report", type=Path)
+    subcommands.add_parser("self-test")
+    args = parser.parse_args()
+
+    if args.command == "self-test":
+        self_test()
+        return 0
+    if args.command == "replay-report":
+        report = verify_report(args.report.resolve())
+        print(json.dumps({"schema": "ggen.testing.replay-result.v1", "standing": "ALIVE", "chain_head": report["chain_head"], "suite_count": report["suite_count"]}, separators=(",", ":")))
+        return 0
+
+    evidence_root = Path(os.environ.get("TESTING_BBLOCK_EVIDENCE_DIR", ".ggen/testing-bblock/evidence")).resolve()
+    if args.command == "run":
+        receipt = execute_suite(args.suite, "GENESIS", evidence_root)
+        report_path = args.report or Path(f"VERIFIER_REPORT.{args.suite}.json")
+        report = write_report([receipt], report_path.resolve())
+    else:
+        receipts: list[dict[str, Any]] = []
+        previous = "GENESIS"
+        for suite in SUITES:
+            receipt = execute_suite(suite, previous, evidence_root)
+            receipts.append(receipt)
+            previous = receipt["digest"]
+        report = write_report(receipts, args.report.resolve())
+        verify_report(args.report.resolve())
+    print(json.dumps({"schema": SCHEMA, "standing": report["standing"], "suite_count": report["suite_count"], "chain_head": report["chain_head"]}, separators=(",", ":")))
+    return 0 if report["standing"] == "ALIVE" else 2 if report["standing"] == "BLOCKED" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

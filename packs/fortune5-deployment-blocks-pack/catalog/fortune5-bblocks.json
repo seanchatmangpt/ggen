@@ -1,6 +1,6 @@
 {
   "schema": "ggen.bblock.catalog.v1",
-  "version": "26.7.30",
+  "version": "26.7.31",
   "providers": [
     {"id": "aws", "title": "Amazon Web Services", "aliases": ["amazon", "amazon-web-services"]},
     {"id": "azure", "title": "Microsoft Azure", "aliases": ["microsoft-azure"]},
@@ -190,6 +190,19 @@
       }
     },
     {
+      "id": "testing",
+      "title": "Executable verification suites",
+      "description": "Protocol/unit, property/fuzz, stdio plus HTTP integration, black-box CLI E2E, security, chaos, stress, benchmark, and replay suites with a machine-readable verifier report.",
+      "directory": "infrastructure/testing",
+      "dependencies": ["artifact-registry", "evidence-ledger"],
+      "common_packs": ["fortune5-testing-bblock-pack"],
+      "provider_packs": {
+        "aws": ["aws-testing-boundary-pack"],
+        "azure": ["azure-testing-boundary-pack"],
+        "gcp": ["gcp-testing-boundary-pack"]
+      }
+    },
+    {
       "id": "fortune5-foundation",
       "title": "Fortune 5 foundation bundle",
       "description": "Global network, identity, KMS, observability, and governance foundation.",
@@ -205,9 +218,9 @@
     {
       "id": "fortune5-platform",
       "title": "Fortune 5 platform bundle",
-      "description": "Foundation plus runtime, data, events, artifacts, edge, resilience, and evidence services.",
+      "description": "Foundation plus runtime, data, events, artifacts, edge, resilience, evidence, and executable verification services.",
       "directory": "infrastructure/platform",
-      "dependencies": ["fortune5-foundation", "container-runtime", "serverless-compute", "transaction-data", "object-storage", "event-fabric", "artifact-registry", "edge-delivery", "resilience-dr", "evidence-ledger"],
+      "dependencies": ["fortune5-foundation", "container-runtime", "serverless-compute", "transaction-data", "object-storage", "event-fabric", "artifact-registry", "edge-delivery", "resilience-dr", "evidence-ledger", "testing"],
       "common_packs": ["fortune5-platform-crown-pack"],
       "provider_packs": {
         "aws": ["aws-fortune5-platform-pack"],
@@ -218,9 +231,9 @@
     {
       "id": "fortune5-control-plane",
       "title": "Fortune 5 control-plane bundle",
-      "description": "Architecture assessor, Gall automation, BRCE boundary, SLO governors, DFLSS, WCP evidence, and receipts.",
+      "description": "Architecture assessor, Gall automation, BRCE boundary, SLO governors, DFLSS, WCP evidence, executable verification, and receipts.",
       "directory": "infrastructure/control-plane",
-      "dependencies": ["fortune5-foundation", "evidence-ledger"],
+      "dependencies": ["fortune5-foundation", "evidence-ledger", "testing"],
       "common_packs": ["fortune5-architecture-pack", "gall-core-pack", "fortune5-brce-contract-pack", "fortune5-level5-crown-pack", "fortune5-dflss-pack", "fortune5-workflow-patterns-pack"],
       "provider_packs": {
         "aws": ["aws-fortune5-control-plane-pack"],

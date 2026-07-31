@@ -1,11 +1,12 @@
 [pack]
 name = "fortune5-deployment-blocks-pack"
-version = "26.7.30"
+version = "26.7.31"
 description = """
 Ontology-authoritative globally available Fortune 5 deployment building blocks.
 Declares AWS, Azure, and GCP providers, aliases, atomic block groups, composite
 pack groups, transitive dependencies, deterministic directory placement, common
-constitutional packs, provider projections, and the complete deployment bundle.
-The retained catalog consumed by `ggen bblock <verb>` is independently verified
-against this ontology. No block performs direct cloud actuation.
+constitutional packs, provider projections, executable testing suites, and the
+complete deployment bundle. The retained catalog consumed by `ggen bblock <verb>`
+is independently verified against this ontology. No block performs direct cloud
+actuation.
 """

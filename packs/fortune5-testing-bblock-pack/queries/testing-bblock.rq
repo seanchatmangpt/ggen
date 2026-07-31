@@ -1,0 +1,6 @@
+PREFIX tb: <https://ggen.io/ontology/testing-bblock#>
+SELECT ?version
+WHERE {
+  tb:TestingBBlock tb:version ?version .
+}
+LIMIT 1

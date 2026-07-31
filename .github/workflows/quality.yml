@@ -177,3 +177,10 @@ jobs:
           cache-key-suffix: publish-target
       - name: just guard-publish-target (advisory)
         run: just guard-publish-target || echo "::warning::guard-publish-target did not pass (advisory; not blocking — see log)"
+
+  # Deliverable-scoped executable testing bblock. The implementation lives in a
+  # reusable workflow so its own trigger surface remains workflow_call/manual,
+  # preserving the repository rule that only core workflows gate pull requests.
+  executable-testing-bblock:
+    name: executable-testing-bblock
+    uses: ./.github/workflows/testing-bblock.yml

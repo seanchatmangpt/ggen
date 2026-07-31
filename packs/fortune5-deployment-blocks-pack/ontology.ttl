@@ -23,18 +23,15 @@ bb:gcpPack a rdf:Property .
 bb:directActuation a rdf:Property .
 
 ex:catalog a bb:Catalog ;
-    bb:catalogVersion "26.7.30" ;
+    bb:catalogVersion "26.7.31" ;
     bb:hasProvider ex:aws, ex:azure, ex:gcp ;
-    bb:hasGroup ex:global-network, ex:workload-identity, ex:encryption-kms,
-        ex:observability, ex:container-runtime, ex:serverless-compute,
-        ex:transaction-data, ex:object-storage, ex:event-fabric,
-        ex:artifact-registry, ex:policy-governance, ex:resilience-dr,
-        ex:edge-delivery, ex:evidence-ledger, ex:fortune5-foundation,
-        ex:fortune5-platform, ex:fortune5-control-plane, ex:fortune5-complete ;
+    bb:hasGroup ex:global-network, ex:workload-identity, ex:encryption-kms, ex:observability, ex:container-runtime, ex:serverless-compute, ex:transaction-data, ex:object-storage, ex:event-fabric, ex:artifact-registry, ex:policy-governance, ex:resilience-dr, ex:edge-delivery, ex:evidence-ledger, ex:testing, ex:fortune5-foundation, ex:fortune5-platform, ex:fortune5-control-plane, ex:fortune5-complete ;
     bb:directActuation false .
 
 ex:aws a bb:Provider ; bb:providerId "aws" ; bb:title "Amazon Web Services" ; bb:alias "amazon", "amazon-web-services" .
+
 ex:azure a bb:Provider ; bb:providerId "azure" ; bb:title "Microsoft Azure" ; bb:alias "microsoft-azure" .
+
 ex:gcp a bb:Provider ; bb:providerId "gcp" ; bb:title "Google Cloud Platform" ; bb:alias "gpc", "google-cloud", "google-cloud-platform" .
 
 ex:global-network a bb:BlockGroup ;
@@ -49,7 +46,8 @@ ex:global-network a bb:BlockGroup ;
 ex:workload-identity a bb:BlockGroup ;
     bb:groupId "workload-identity" ; bb:title "Workload identity" ;
     bb:description "SPIFFE/SPIRE-compatible workload identity, federation, mTLS, and least-privilege service authorization." ;
-    bb:outputDirectory "infrastructure/identity" ; bb:dependsOn ex:global-network ;
+    bb:outputDirectory "infrastructure/identity" ;
+    bb:dependsOn ex:global-network ;
     bb:commonPack "fortune5-spiffe-spire-pack", "fortune5-zero-trust-policy-pack" ;
     bb:awsPack "aws-iam-pack", "aws-eks-pod-identity-pack" ;
     bb:azurePack "azure-managed-identity-pack", "azure-workload-identity-pack" ;
@@ -58,7 +56,8 @@ ex:workload-identity a bb:BlockGroup ;
 ex:encryption-kms a bb:BlockGroup ;
     bb:groupId "encryption-kms" ; bb:title "Encryption and KMS" ;
     bb:description "Envelope encryption, HSM-backed keys, rotation, decrypt audit, and dual-control break glass." ;
-    bb:outputDirectory "infrastructure/security/kms" ; bb:dependsOn ex:workload-identity ;
+    bb:outputDirectory "infrastructure/security/kms" ;
+    bb:dependsOn ex:workload-identity ;
     bb:commonPack "fortune5-kms-law-pack", "fortune5-secret-classification-pack" ;
     bb:awsPack "aws-kms-pack", "aws-cloudhsm-pack", "aws-secrets-manager-pack" ;
     bb:azurePack "azure-key-vault-pack", "azure-managed-hsm-pack", "azure-app-configuration-secrets-pack" ;
@@ -174,32 +173,45 @@ ex:evidence-ledger a bb:BlockGroup ;
     bb:azurePack "azure-monitor-immutable-ledger-pack", "azure-confidential-ledger-pack" ;
     bb:gcpPack "gcp-cloud-audit-logs-pack", "gcp-immutable-evidence-pack" .
 
+ex:testing a bb:BlockGroup ;
+    bb:groupId "testing" ; bb:title "Executable verification suites" ;
+    bb:description "Protocol/unit, property/fuzz, stdio plus HTTP integration, black-box CLI E2E, security, chaos, stress, benchmark, and replay suites with a machine-readable verifier report." ;
+    bb:outputDirectory "infrastructure/testing" ;
+    bb:dependsOn ex:artifact-registry, ex:evidence-ledger ;
+    bb:commonPack "fortune5-testing-bblock-pack" ;
+    bb:awsPack "aws-testing-boundary-pack" ;
+    bb:azurePack "azure-testing-boundary-pack" ;
+    bb:gcpPack "gcp-testing-boundary-pack" .
+
 ex:fortune5-foundation a bb:BlockGroup ;
     bb:groupId "fortune5-foundation" ; bb:title "Fortune 5 foundation bundle" ;
     bb:description "Global network, identity, KMS, observability, and governance foundation." ;
     bb:outputDirectory "infrastructure/foundation" ;
     bb:dependsOn ex:global-network, ex:workload-identity, ex:encryption-kms, ex:observability, ex:policy-governance ;
     bb:commonPack "fortune5-foundation-crown-pack" ;
-    bb:awsPack "aws-fortune5-foundation-pack" ; bb:azurePack "azure-fortune5-foundation-pack" ; bb:gcpPack "gcp-fortune5-foundation-pack" .
+    bb:awsPack "aws-fortune5-foundation-pack" ;
+    bb:azurePack "azure-fortune5-foundation-pack" ;
+    bb:gcpPack "gcp-fortune5-foundation-pack" .
 
 ex:fortune5-platform a bb:BlockGroup ;
     bb:groupId "fortune5-platform" ; bb:title "Fortune 5 platform bundle" ;
-    bb:description "Foundation plus runtime, data, events, artifacts, edge, resilience, and evidence services." ;
+    bb:description "Foundation plus runtime, data, events, artifacts, edge, resilience, evidence, and executable verification services." ;
     bb:outputDirectory "infrastructure/platform" ;
-    bb:dependsOn ex:fortune5-foundation, ex:container-runtime, ex:serverless-compute,
-        ex:transaction-data, ex:object-storage, ex:event-fabric, ex:artifact-registry,
-        ex:edge-delivery, ex:resilience-dr, ex:evidence-ledger ;
+    bb:dependsOn ex:fortune5-foundation, ex:container-runtime, ex:serverless-compute, ex:transaction-data, ex:object-storage, ex:event-fabric, ex:artifact-registry, ex:edge-delivery, ex:resilience-dr, ex:evidence-ledger, ex:testing ;
     bb:commonPack "fortune5-platform-crown-pack" ;
-    bb:awsPack "aws-fortune5-platform-pack" ; bb:azurePack "azure-fortune5-platform-pack" ; bb:gcpPack "gcp-fortune5-platform-pack" .
+    bb:awsPack "aws-fortune5-platform-pack" ;
+    bb:azurePack "azure-fortune5-platform-pack" ;
+    bb:gcpPack "gcp-fortune5-platform-pack" .
 
 ex:fortune5-control-plane a bb:BlockGroup ;
     bb:groupId "fortune5-control-plane" ; bb:title "Fortune 5 control-plane bundle" ;
-    bb:description "Architecture assessor, Gall automation, BRCE boundary, SLO governors, DFLSS, WCP evidence, and receipts." ;
+    bb:description "Architecture assessor, Gall automation, BRCE boundary, SLO governors, DFLSS, WCP evidence, executable verification, and receipts." ;
     bb:outputDirectory "infrastructure/control-plane" ;
-    bb:dependsOn ex:fortune5-foundation, ex:evidence-ledger ;
-    bb:commonPack "fortune5-architecture-pack", "gall-core-pack", "fortune5-brce-contract-pack",
-        "fortune5-level5-crown-pack", "fortune5-dflss-pack", "fortune5-workflow-patterns-pack" ;
-    bb:awsPack "aws-fortune5-control-plane-pack" ; bb:azurePack "azure-fortune5-control-plane-pack" ; bb:gcpPack "gcp-fortune5-control-plane-pack" .
+    bb:dependsOn ex:fortune5-foundation, ex:evidence-ledger, ex:testing ;
+    bb:commonPack "fortune5-architecture-pack", "gall-core-pack", "fortune5-brce-contract-pack", "fortune5-level5-crown-pack", "fortune5-dflss-pack", "fortune5-workflow-patterns-pack" ;
+    bb:awsPack "aws-fortune5-control-plane-pack" ;
+    bb:azurePack "azure-fortune5-control-plane-pack" ;
+    bb:gcpPack "gcp-fortune5-control-plane-pack" .
 
 ex:fortune5-complete a bb:BlockGroup ;
     bb:groupId "fortune5-complete" ; bb:title "Complete Fortune 5 deployment bundle" ;
@@ -207,4 +219,6 @@ ex:fortune5-complete a bb:BlockGroup ;
     bb:outputDirectory "infrastructure/fortune5" ;
     bb:dependsOn ex:fortune5-platform, ex:fortune5-control-plane ;
     bb:commonPack "fortune5-complete-crown-pack" ;
-    bb:awsPack "aws-fortune5-complete-pack" ; bb:azurePack "azure-fortune5-complete-pack" ; bb:gcpPack "gcp-fortune5-complete-pack" .
+    bb:awsPack "aws-fortune5-complete-pack" ;
+    bb:azurePack "azure-fortune5-complete-pack" ;
+    bb:gcpPack "gcp-fortune5-complete-pack" .

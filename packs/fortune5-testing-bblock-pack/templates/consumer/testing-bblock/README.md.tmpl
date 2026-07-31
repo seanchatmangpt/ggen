@@ -1,0 +1,17 @@
+# Executable Testing BBlock
+
+This generated surface provides nine independent executable suites:
+
+1. `protocol-unit.sh`
+2. `property-fuzz.sh`
+3. `stdio-http-integration.sh`
+4. `cli-e2e.sh`
+5. `security.sh`
+6. `chaos.sh`
+7. `stress.sh`
+8. `benchmark.sh`
+9. `replay.sh`
+
+Run one suite directly or execute `suites/verify-all.sh`. Every run crosses real subprocess, filesystem, protocol, state, or timing boundaries. The aggregate verifier emits `ggen.testing.verifier-report.v1` JSON with BLAKE3-linked suite receipts, evidence paths relative to the report, and deterministic replay with `testing_bblock.py replay-report` from the report directory.
+
+The verifier fails closed. Missing `cargo`, a missing real `ggen` binary, malformed predecessor evidence, command failures, nondeterministic results, broken HTTP byte identity, security boundary violations, performance regression, or receipt tampering cannot produce `ALIVE`.

@@ -6,7 +6,9 @@ on:
       - 'crates/ggen-cli/src/cmds/bblock.rs'
       - 'crates/ggen-cli/src/cmds/mod.rs'
       - 'packs/fortune5-deployment-blocks-pack/**'
+      - 'packs/fortune5-testing-bblock-pack/**'
       - '.github/workflows/fortune5-bblock.yml'
+      - '.github/workflows/testing-bblock.yml'
   workflow_dispatch:
 
 permissions:
@@ -56,11 +58,8 @@ jobs:
                   'title': str(graph.value(subject, BB.title)),
                   'aliases': sorted(str(value) for value in graph.objects(subject, BB.alias)),
               }
-          expected_providers = {
-              item['id']: {**item, 'aliases': sorted(item['aliases'])}
-              for item in catalog['providers']
-          }
-          assert providers == expected_providers, (providers, expected_providers)
+          expected_providers = {item['id']: {**item, 'aliases': sorted(item['aliases'])} for item in catalog['providers']}
+          assert providers == expected_providers
           assert set(providers) == {'aws', 'azure', 'gcp'}
 
           groups = {}
@@ -71,10 +70,7 @@ jobs:
                   'title': str(graph.value(subject, BB.title)),
                   'description': str(graph.value(subject, BB.description)),
                   'directory': str(graph.value(subject, BB.outputDirectory)),
-                  'dependencies': sorted(
-                      str(graph.value(dep, BB.groupId))
-                      for dep in graph.objects(subject, BB.dependsOn)
-                  ),
+                  'dependencies': sorted(str(graph.value(dep, BB.groupId)) for dep in graph.objects(subject, BB.dependsOn)),
                   'common_packs': sorted(str(value) for value in graph.objects(subject, BB.commonPack)),
                   'provider_packs': {
                       'aws': sorted(str(value) for value in graph.objects(subject, BB.awsPack)),
@@ -87,23 +83,22 @@ jobs:
                   **item,
                   'dependencies': sorted(item['dependencies']),
                   'common_packs': sorted(item['common_packs']),
-                  'provider_packs': {
-                      provider: sorted(packs)
-                      for provider, packs in item['provider_packs'].items()
-                  },
+                  'provider_packs': {provider: sorted(packs) for provider, packs in item['provider_packs'].items()},
               }
               for item in catalog['groups']
           }
           assert groups == expected_groups
-          assert len(groups) == 18
+          assert len(groups) == 19
+          assert groups['testing']['common_packs'] == ['fortune5-testing-bblock-pack']
+          assert 'testing' in groups['fortune5-platform']['dependencies']
+          assert 'testing' in groups['fortune5-control-plane']['dependencies']
           assert all(all(item['provider_packs'][p] for p in ('aws', 'azure', 'gcp')) for item in groups.values())
 
           gates = sorted((root / 'gates').glob('*.rq'))
           assert len(gates) >= 2
           for path in gates:
-              query = path.read_text()
-              prepareQuery(query)
-              rows = list(graph.query(query))
+              prepareQuery(path.read_text())
+              rows = list(graph.query(path.read_text()))
               assert not rows, (path.name, rows)
 
           direct = Graph()
@@ -136,12 +131,16 @@ jobs:
           "$GGEN" bblock validate > /tmp/bblock-validate.json
           "$GGEN" bblock providers > /tmp/bblock-providers.json
           "$GGEN" bblock list > /tmp/bblock-list.json
+          "$GGEN" bblock inspect testing gpc > /tmp/bblock-testing-gpc.json
           "$GGEN" bblock inspect fortune5-complete gpc > /tmp/bblock-inspect-gpc.json
           test "$(jq -r '.status' /tmp/bblock-validate.json)" = "ALIVE"
           test "$(jq '.providers' /tmp/bblock-validate.json)" = "3"
-          test "$(jq '.groups' /tmp/bblock-validate.json)" = "18"
+          test "$(jq '.groups' /tmp/bblock-validate.json)" = "19"
+          test "$(jq -r '.provider' /tmp/bblock-testing-gpc.json)" = "gcp"
+          test "$(jq -r '.requested_group' /tmp/bblock-testing-gpc.json)" = "testing"
+          test "$(jq '[.packs[] | select(. == "fortune5-testing-bblock-pack")] | length' /tmp/bblock-testing-gpc.json)" = "1"
           test "$(jq -r '.provider' /tmp/bblock-inspect-gpc.json)" = "gcp"
-          test "$(jq '.resolved_groups | length > 14' /tmp/bblock-inspect-gpc.json)" = "true"
+          test "$(jq '.resolved_groups | index("testing") != null' /tmp/bblock-inspect-gpc.json)" = "true"
           test "$(jq '[.packs[] | select(startswith("gcp-"))] | length > 0' /tmp/bblock-inspect-gpc.json)" = "true"
 
       - name: Manufacture plan, directories, lockfile, and receipt chain
@@ -163,6 +162,7 @@ jobs:
           test -s .ggen/bblocks/receipts/aws/fortune5-complete-enable-result.json
           test -d infrastructure/network
           test -d infrastructure/security/kms
+          test -d infrastructure/testing
           test -d infrastructure/control-plane
           test -d infrastructure/fortune5
           test "$(jq '.packs | length > 70' /tmp/bblock-enable.json)" = "true"
@@ -170,7 +170,7 @@ jobs:
       - name: Refuse unknown providers and direct cloud actuation imports
         run: |
           set +e
-          target/debug/ggen bblock inspect fortune5-complete oracle >/tmp/bblock-oracle.out 2>/tmp/bblock-oracle.err
+          target/debug/ggen bblock inspect testing oracle >/tmp/bblock-oracle.out 2>/tmp/bblock-oracle.err
           code=$?
           set -e
           test "$code" -ne 0
