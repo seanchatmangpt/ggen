@@ -19,6 +19,7 @@ mod case_study;
 mod program;
 mod roadmap;
 mod standards;
+mod testing;
 
 pub use case_study::{
     tai_case_study, TaiCaseStudy, TaiCaseStudyRefusal, TAI_CASE_STUDY_BROKER,
@@ -30,6 +31,11 @@ pub use standards::{
     seven_day_standards_profile, StandardAuthority, StandardCheckpoint, StandardStatus,
     StandardsProfile, StandardsProfileRefusal, GGEN_SEVEN_DAY_STANDARDS_ID,
     GGEN_SEVEN_DAY_STANDARDS_VERSION,
+};
+pub use testing::{
+    testing_bblock_protocol, TestingBblockProtocol, TestingBblockRefusal, TestingBblockStanding,
+    TestingSuite, TestingSuiteKind, TestingSuiteStatus, TESTING_BBLOCK_PROTOCOL_ID,
+    TESTING_BBLOCK_PROTOCOL_VERSION,
 };
 
 pub const CERTIFICATION_AWARD_SCHEMA: &str = "ggen.building-block.certification-award.v2";
