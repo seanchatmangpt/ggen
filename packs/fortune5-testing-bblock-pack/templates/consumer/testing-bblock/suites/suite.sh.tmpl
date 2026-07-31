@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+SUITE="$(basename "${BASH_SOURCE[0]}" .sh)"
+REPORT="${1:-$ROOT/VERIFIER_REPORT.${SUITE}.json}"
+exec python3 "$ROOT/consumer/testing-bblock/testing_bblock.py" run "$SUITE" --report "$REPORT"

@@ -7,10 +7,11 @@ This pack is the ontology authority for `ggen bblock <verb>`. It declares the gl
 ```bash
 ggen bblock providers
 ggen bblock list
-ggen bblock inspect fortune5-complete aws
+ggen bblock inspect testing aws
+ggen bblock inspect fortune5-complete gpc
 ggen bblock group fortune5-platform azure
-ggen bblock plan fortune5-complete gpc
-ggen bblock enable fortune5-complete aws
+ggen bblock plan testing aws
+ggen bblock enable testing aws
 ggen bblock validate
 ```
 
@@ -45,7 +46,10 @@ Atomic groups cover:
 - policy and governance;
 - resilience and disaster recovery;
 - global edge delivery;
-- evidence and receipt ledger.
+- evidence and receipt ledger;
+- executable testing.
+
+The `testing` group admits `fortune5-testing-bblock-pack` plus one provider boundary pack. It generates distinct protocol/unit, property/fuzz, stdio plus HTTP integration, black-box CLI E2E, security, chaos, stress, benchmark, and replay entrypoints. The aggregate verifier emits `ggen.testing.verifier-report.v1` with BLAKE3-chained suite evidence.
 
 Composite groups provide:
 
@@ -53,6 +57,8 @@ Composite groups provide:
 - `fortune5-platform`;
 - `fortune5-control-plane`;
 - `fortune5-complete`.
+
+Testing is included in both platform and control-plane closure, so the complete bundle cannot claim standing without executable verification.
 
 ## Directory law
 
@@ -84,4 +90,4 @@ ontology-derived catalog
 → result receipt
 ```
 
-It never invokes a cloud API, Terraform, Pulumi, Kubernetes, a shell deployment command, or a network client. Actual infrastructure actuation remains downstream of admitted packs and BRCE.
+It never invokes a cloud API, Terraform, Pulumi, Kubernetes, a shell deployment command, or a network client. The generated testing verifier may cross explicitly declared local process, filesystem, stdio, loopback HTTP, timing, and replay boundaries. Actual infrastructure actuation remains downstream of admitted packs and BRCE.

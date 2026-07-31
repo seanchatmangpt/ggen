@@ -1,0 +1,98 @@
+@prefix tb: <https://ggen.io/ontology/testing-bblock#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Law surfaces
+tb:TestingBBlockClass a rdfs:Class .
+tb:ExecutableSuite a rdfs:Class ; rdfs:subClassOf prov:Activity .
+tb:EvidenceArtifact a rdfs:Class ; rdfs:subClassOf prov:Entity .
+tb:VerifierReport a rdfs:Class ; rdfs:subClassOf prov:Entity .
+tb:version a rdf:Property .
+tb:order a rdf:Property .
+tb:suiteId a rdf:Property .
+tb:entrypoint a rdf:Property .
+tb:boundary a rdf:Property .
+tb:falsifier a rdf:Property .
+tb:produces a rdf:Property ; rdfs:subPropertyOf prov:generated .
+tb:reportSchema a rdf:Property .
+tb:directActuation a rdf:Property .
+tb:hasSuite a rdf:Property .
+
+tb:TestingBBlock a tb:TestingBBlockClass ;
+    dcterms:title "Executable Testing BBlock" ;
+    dcterms:description "Nine distinct real-boundary suites with BLAKE3-chained receipts and machine-readable verifier replay." ;
+    tb:version "26.7.31" ;
+    tb:directActuation false ;
+    tb:reportSchema "ggen.testing.verifier-report.v1" ;
+    tb:hasSuite tb:ProtocolUnit, tb:PropertyFuzz, tb:StdioHttpIntegration,
+        tb:CliE2E, tb:Security, tb:Chaos, tb:Stress, tb:Benchmark, tb:Replay .
+
+tb:ProtocolUnit a tb:ExecutableSuite ;
+    tb:order 1 ; tb:suiteId "protocol-unit" ;
+    dcterms:title "Protocol and unit" ;
+    tb:entrypoint "consumer/testing-bblock/suites/protocol-unit.sh" ;
+    tb:boundary "compiler", "filesystem", "process" ;
+    tb:falsifier "Compilation or bblock protocol tests fail." .
+
+tb:PropertyFuzz a tb:ExecutableSuite ;
+    tb:order 2 ; tb:suiteId "property-fuzz" ;
+    dcterms:title "Property and fuzz" ;
+    tb:entrypoint "consumer/testing-bblock/suites/property-fuzz.sh" ;
+    tb:boundary "cli-parser", "catalog-admission", "typed-refusal" ;
+    tb:falsifier "Generated invalid inputs panic, actuate, or become admitted." .
+
+tb:StdioHttpIntegration a tb:ExecutableSuite ;
+    tb:order 3 ; tb:suiteId "stdio-http-integration" ;
+    dcterms:title "stdio and HTTP integration" ;
+    tb:entrypoint "consumer/testing-bblock/suites/stdio-http-integration.sh" ;
+    tb:boundary "subprocess-stdio", "loopback-http", "byte-identity" ;
+    tb:falsifier "Bytes diverge between process stdout and the HTTP receiver." .
+
+tb:CliE2E a tb:ExecutableSuite ;
+    tb:order 4 ; tb:suiteId "cli-e2e" ;
+    dcterms:title "Black-box CLI end to end" ;
+    tb:entrypoint "consumer/testing-bblock/suites/cli-e2e.sh" ;
+    tb:boundary "public-cli", "filesystem", "lockfile", "receipt-chain" ;
+    tb:falsifier "Public commands do not manufacture the declared plan, lockfile, directory, and receipts." .
+
+tb:Security a tb:ExecutableSuite ;
+    tb:order 5 ; tb:suiteId "security" ;
+    dcterms:title "Security" ;
+    tb:entrypoint "consumer/testing-bblock/suites/security.sh" ;
+    tb:boundary "path-admission", "provider-admission", "no-direct-actuation" ;
+    tb:falsifier "Unsafe identities mutate state or direct cloud actuation enters the compiler." .
+
+tb:Chaos a tb:ExecutableSuite ;
+    tb:order 6 ; tb:suiteId "chaos" ;
+    dcterms:title "Chaos" ;
+    tb:entrypoint "consumer/testing-bblock/suites/chaos.sh" ;
+    tb:boundary "state-fault", "atomic-write", "recovery" ;
+    tb:falsifier "Malformed predecessor evidence is overwritten, leaves temporary state, or prevents recovery." .
+
+tb:Stress a tb:ExecutableSuite ;
+    tb:order 7 ; tb:suiteId "stress" ;
+    dcterms:title "Stress" ;
+    tb:entrypoint "consumer/testing-bblock/suites/stress.sh" ;
+    tb:boundary "concurrency", "determinism", "process-isolation" ;
+    tb:falsifier "Concurrent catalog resolution emits divergent plan digests." .
+
+tb:Benchmark a tb:ExecutableSuite ;
+    tb:order 8 ; tb:suiteId "benchmark" ;
+    dcterms:title "Benchmark" ;
+    tb:entrypoint "consumer/testing-bblock/suites/benchmark.sh" ;
+    tb:boundary "wall-clock", "public-cli", "performance-budget" ;
+    tb:falsifier "Observed p95 exceeds the admitted performance threshold." .
+
+tb:Replay a tb:ExecutableSuite ;
+    tb:order 9 ; tb:suiteId "replay" ;
+    dcterms:title "Replay" ;
+    tb:entrypoint "consumer/testing-bblock/suites/replay.sh" ;
+    tb:boundary "receipt", "replay", "tamper-falsifier" ;
+    tb:falsifier "Plan bytes diverge, chain continuity breaks, or tampering remains valid." .
+
+tb:MachineVerifierReport a tb:VerifierReport ;
+    dcterms:title "Testing BBlock Verifier Report" ;
+    tb:reportSchema "ggen.testing.verifier-report.v1" ;
+    tb:entrypoint "consumer/testing-bblock/suites/verify-all.sh" .

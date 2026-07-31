@@ -1,0 +1,118 @@
+name: Executable Testing BBlock
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testing-bblock-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  executable-verifier-ladder:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: testing-bblock-v26-7-31
+
+      - name: Prove testing ontology and template closure
+        run: |
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          python3 - <<'PY'
+          import ast
+          import json
+          import tomllib
+          from pathlib import Path
+          from rdflib import Graph, Namespace, RDF, Literal
+
+          root = Path('packs/fortune5-testing-bblock-pack')
+          config = tomllib.loads((root / 'ggen.toml').read_text())
+          graph = Graph().parse(root / 'ontology.ttl', format='turtle')
+          TB = Namespace('https://ggen.io/ontology/testing-bblock#')
+          suites = []
+          for subject in graph.subjects(RDF.type, TB.ExecutableSuite):
+              suites.append((int(graph.value(subject, TB.order)), str(graph.value(subject, TB.suiteId)), str(graph.value(subject, TB.entrypoint))))
+          suites.sort()
+          expected = ['protocol-unit', 'property-fuzz', 'stdio-http-integration', 'cli-e2e', 'security', 'chaos', 'stress', 'benchmark', 'replay']
+          assert [suite[1] for suite in suites] == expected
+          assert graph.value(TB.TestingBBlock, TB.directActuation) == Literal(False)
+          assert str(graph.value(TB.TestingBBlock, TB.reportSchema)) == 'ggen.testing.verifier-report.v1'
+          outputs = {rule['output_file'] for rule in config['generation']['rules']}
+          assert all(entrypoint in outputs for _, _, entrypoint in suites)
+          assert 'consumer/testing-bblock/suites/verify-all.sh' in outputs
+          ast.parse((root / 'templates/consumer/testing-bblock/testing_bblock.py.tmpl').read_text())
+          schema = json.loads((root / 'templates/consumer/testing-bblock/verifier-report.schema.json.tmpl').read_text())
+          assert schema['properties']['schema']['const'] == 'ggen.testing.verifier-report.v1'
+          print(f"TESTING_BBLOCK_LAW suites={len(suites)} rules={len(outputs)} triples={len(graph)}")
+          PY
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Admit and enable the testing bblock through the public CLI
+        run: |
+          set -euo pipefail
+          ROOT="$(mktemp -d)"
+          GGEN="$PWD/target/debug/ggen"
+          cd "$ROOT"
+          "$GGEN" bblock inspect testing gpc > inspect.json
+          "$GGEN" bblock plan testing aws > plan.json
+          "$GGEN" bblock enable testing aws > enable.json
+          test "$(jq -r '.provider' inspect.json)" = "gcp"
+          test "$(jq -r '.requested_group' inspect.json)" = "testing"
+          test "$(jq '[.packs[] | select(. == "fortune5-testing-bblock-pack")] | length' inspect.json)" = "1"
+          test -d infrastructure/testing
+          test -s .ggen/bblocks/receipts/aws/testing-enable-result.json
+          grep -q 'fortune5-testing-bblock-pack' .ggen/packs.lock
+
+      - name: Generate the testing verifier twice and prove byte identity
+        working-directory: packs/fortune5-testing-bblock-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/testing-bblock -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/testing-bblock -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+          ../../target/debug/ggen receipt verify
+          python3 consumer/testing-bblock/testing_bblock.py self-test
+          for suite in consumer/testing-bblock/suites/*.sh; do bash -n "$suite"; done
+
+      - name: Execute protocol to replay verifier ladder
+        working-directory: packs/fortune5-testing-bblock-pack
+        env:
+          TESTING_BBLOCK_REPO_ROOT: ${{ github.workspace }}
+          GGEN_BIN: ${{ github.workspace }}/target/debug/ggen
+          TESTING_BBLOCK_EVIDENCE_DIR: ${{ github.workspace }}/packs/fortune5-testing-bblock-pack/.ggen/testing-bblock/evidence
+          TESTING_BBLOCK_P95_MS: '1000'
+        run: |
+          set -euo pipefail
+          bash consumer/testing-bblock/suites/verify-all.sh "$PWD/VERIFIER_REPORT.json"
+          test "$(jq -r '.standing' VERIFIER_REPORT.json)" = "ALIVE"
+          test "$(jq '.suite_count' VERIFIER_REPORT.json)" = "9"
+          test "$(jq '.alive_count' VERIFIER_REPORT.json)" = "9"
+          test "$(jq -c '[.receipts[].digest_algorithm] | unique' VERIFIER_REPORT.json)" = '["blake3"]'
+          test "$(jq -r '.suite_order | join(",")' VERIFIER_REPORT.json)" = 'protocol-unit,property-fuzz,stdio-http-integration,cli-e2e,security,chaos,stress,benchmark,replay'
+
+      - name: Publish verifier evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: testing-bblock-verifier-report
+          path: |
+            packs/fortune5-testing-bblock-pack/VERIFIER_REPORT.json
+            packs/fortune5-testing-bblock-pack/.ggen-v2/receipt.json
+            packs/fortune5-testing-bblock-pack/.ggen/testing-bblock/evidence/*.json
+            packs/fortune5-testing-bblock-pack/consumer/testing-bblock/verifier-report.schema.json
+          if-no-files-found: error

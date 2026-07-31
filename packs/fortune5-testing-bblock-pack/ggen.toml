@@ -1,0 +1,125 @@
+[project]
+name = "fortune5-testing-bblock-consumer"
+version = "26.7.31"
+description = "Manufacture distinct executable verification suites and replayable evidence"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.io/ontology/testing-bblock#"
+imports = []
+
+[ontology.prefixes]
+tb = "https://ggen.io/ontology/testing-bblock#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+prov = "http://www.w3.org/ns/prov#"
+dcterms = "http://purl.org/dc/terms/"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "testing-verifier"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/testing_bblock.py.tmpl" }
+output_file = "consumer/testing-bblock/testing_bblock.py"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "protocol-unit-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/protocol-unit.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "property-fuzz-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/property-fuzz.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "stdio-http-integration-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/stdio-http-integration.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "cli-e2e-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/cli-e2e.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "security-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/security.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "chaos-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/chaos.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "stress-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/stress.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "benchmark-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/benchmark.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "replay-suite"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/replay.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "aggregate-verifier"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/suites/verify-all.sh.tmpl" }
+output_file = "consumer/testing-bblock/suites/verify-all.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-report-schema"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/verifier-report.schema.json.tmpl" }
+output_file = "consumer/testing-bblock/verifier-report.schema.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "testing-bblock-readme"
+query = { file = "queries/testing-bblock.rq" }
+template = { file = "templates/consumer/testing-bblock/README.md.tmpl" }
+output_file = "consumer/testing-bblock/README.md"
+skip_empty = false
+mode = "Overwrite"

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPORT="${1:-$HERE/VERIFIER_REPORT.json}"
+REPORT="$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$REPORT")"
+
+set +e
+python3 "$HERE/testing_bblock.py" verify --report "$REPORT"
+status=$?
+set -e
+
+# Normalize evidence paths relative to the report before publication, then
+# rebuild the BLAKE3 chain. The report and uploaded evidence can be moved and
+# replayed together without retaining a runner-specific absolute path.
+python3 - "$HERE" "$REPORT" <<'PY'
+import json
+import os
+import sys
+from pathlib import Path
+
+here = Path(sys.argv[1]).resolve()
+report_path = Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(here))
+import testing_bblock as tb
+
+report = json.loads(report_path.read_text())
+previous = "GENESIS"
+for receipt in report["receipts"]:
+    evidence = Path(receipt["evidence_path"])
+    if not evidence.is_absolute():
+        evidence = (Path.cwd() / evidence).resolve()
+    receipt["evidence_path"] = os.path.relpath(evidence, report_path.parent)
+    receipt["previous_digest"] = previous
+    body = {
+        key: receipt[key]
+        for key in [
+            "schema", "suite", "status", "started_at", "finished_at",
+            "duration_ms", "previous_digest", "evidence_path",
+            "evidence_blake3", "error",
+        ]
+    }
+    receipt["digest"] = tb.blake3_hex(tb.canonical_bytes(body))
+    previous = receipt["digest"]
+report["chain_head"] = previous
+report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+PY
+
+(
+  cd "$(dirname "$REPORT")"
+  python3 "$HERE/testing_bblock.py" replay-report "$(basename "$REPORT")"
+)
+exit "$status"
