@@ -1,0 +1,204 @@
+---
+to: consumer/tai-enterprise-rebuild/src/model.rs
+---
+use std::{collections::BTreeMap, path::PathBuf};
+
+use ggen_architecture::CompositionReceipt;
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+pub(crate) const ENTERPRISE_BYTES: &str = include_str!("../generated/enterprise.json");
+pub(crate) const ROADMAP_BYTES: &str = include_str!("../generated/roadmap.json");
+pub(crate) const SCENARIO_BYTES: &str = include_str!("../generated/scenarios.json");
+pub(crate) const CERTIFICATION_BYTES: &str = include_str!("../generated/certifications.json");
+pub(crate) const RECENT_CAPABILITY_BYTES: &str = include_str!("../generated/recent-capabilities.json");
+pub(crate) const GALL_PROGRAM_BYTES: &str = include_str!("../generated/gall-program.json");
+
+pub(crate) const RECEIPT_SCHEMA: &str = "ggen.tai.bundle-receipt.v1";
+pub(crate) const SIMULATION_SCHEMA: &str = "ggen.tai.simulation.v1";
+pub(crate) const PLAN_SCHEMA: &str = "ggen.tai.generated-roadmap.v1";
+
+#[derive(Debug, Error)]
+pub enum RebuildError {
+    #[error("catalog parse refused for {name}: {source}")]
+    Catalog {
+        name: &'static str,
+        source: serde_json::Error,
+    },
+    #[error("catalog contract refused: {0}")]
+    Contract(String),
+    #[error("unknown simulation scenario: {0}")]
+    UnknownScenario(String),
+    #[error("filesystem operation refused at {path}: {source}")]
+    Io { path: PathBuf, source: std::io::Error },
+    #[error("receipt parse refused: {0}")]
+    ReceiptParse(serde_json::Error),
+    #[error("receipt verification refused: {0}")]
+    Receipt(String),
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnterpriseCatalog {
+    pub schema: String,
+    pub identifier: String,
+    pub version: String,
+    pub title: String,
+    pub required_broker: String,
+    pub direct_actuation: bool,
+    pub llm_calls: bool,
+    pub families: Vec<Family>,
+    pub dependencies: Vec<BlockDependency>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Family {
+    pub order: u32,
+    pub id: String,
+    pub label: String,
+    pub outcome: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BlockDependency {
+    pub block: String,
+    pub depends_on: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RoadmapCatalog {
+    pub schema: String,
+    pub standing: String,
+    pub phases: Vec<Phase>,
+    pub dependencies: Vec<PhaseDependency>,
+    pub family_bindings: Vec<FamilyBinding>,
+    pub certification_bindings: Vec<CertificationBinding>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Phase {
+    pub order: u32,
+    pub id: String,
+    pub label: String,
+    pub outcome: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PhaseDependency {
+    pub phase: String,
+    pub depends_on: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FamilyBinding {
+    pub phase: String,
+    pub family: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CertificationBinding {
+    pub phase: String,
+    pub certification: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ScenarioCatalog {
+    pub schema: String,
+    pub scenarios: Vec<Scenario>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Scenario {
+    pub order: u32,
+    pub id: String,
+    pub label: String,
+    pub trigger: String,
+    pub mutation: String,
+    pub expected_standing: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SimulationStep {
+    pub order: u32,
+    pub phase: String,
+    pub label: String,
+    pub prior_digest: String,
+    pub state_digest: String,
+    pub status: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SimulationReport {
+    pub schema: String,
+    pub scenario: Scenario,
+    pub required_broker: String,
+    pub direct_actuation: bool,
+    pub llm_calls: bool,
+    pub building_block_receipt: CompositionReceipt,
+    pub self_play_chain_head: String,
+    pub self_play_receipts: usize,
+    pub steps: Vec<SimulationStep>,
+    pub final_digest: String,
+    pub standing: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BundleReceipt {
+    pub schema: String,
+    pub operation: String,
+    pub scenario: String,
+    pub required_broker: String,
+    pub direct_actuation: bool,
+    pub previous_digest: String,
+    pub artifacts: BTreeMap<String, String>,
+    pub digest_algorithm: String,
+    pub digest: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ReceiptBody<'a> {
+    pub(crate) schema: &'a str,
+    pub(crate) operation: &'a str,
+    pub(crate) scenario: &'a str,
+    pub(crate) required_broker: &'a str,
+    pub(crate) direct_actuation: bool,
+    pub(crate) previous_digest: &'a str,
+    pub(crate) artifacts: &'a BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BundleSummary {
+    pub operation: String,
+    pub scenario: String,
+    pub output_directory: String,
+    pub receipt: String,
+    pub receipt_digest: String,
+    pub enterprise_standing: String,
+}
+
+pub(crate) fn parse<T: for<'de> Deserialize<'de>>(
+    name: &'static str,
+    bytes: &'static str,
+) -> Result<T, RebuildError> {
+    serde_json::from_str(bytes).map_err(|source| RebuildError::Catalog { name, source })
+}
+
+pub(crate) fn digest_bytes(bytes: &[u8]) -> String {
+    blake3::hash(bytes).to_hex().to_string()
+}
+
+pub(crate) fn digest_json<T: Serialize>(value: &T) -> Result<String, RebuildError> {
+    let bytes = serde_json::to_vec(value).map_err(RebuildError::ReceiptParse)?;
+    Ok(digest_bytes(&bytes))
+}
