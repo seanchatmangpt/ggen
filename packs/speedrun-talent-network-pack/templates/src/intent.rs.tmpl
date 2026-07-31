@@ -244,7 +244,7 @@ fn intent(
 ) -> Result<SpeedrunTransportIntent, SpeedrunRefusal> {
     let idempotency_key = deterministic_key(
         operation,
-        (&method, &endpoint, operation, &query, &body, &consent_digest),
+        &(&method, &endpoint, operation, &query, &body, &consent_digest),
     )?;
     Ok(SpeedrunTransportIntent {
         broker: SPEEDRUN_REQUIRED_BROKER.to_string(),
