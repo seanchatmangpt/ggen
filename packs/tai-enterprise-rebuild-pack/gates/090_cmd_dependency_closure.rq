@@ -1,0 +1,5 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?checkpoint ?missing WHERE {
+  ?checkpoint a tai:GallCheckpoint ; tai:dependsOn ?missing .
+  FILTER NOT EXISTS { ?missing a tai:GallCheckpoint }
+}
