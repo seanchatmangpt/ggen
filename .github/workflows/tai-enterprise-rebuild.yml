@@ -103,6 +103,8 @@ jobs:
         run: |
           jq -e '.standing == "ALIVE"' VERIFIER_REPORT.json >/dev/null
           jq -e '.recentCapabilitiesComposed == 18' VERIFIER_REPORT.json >/dev/null
+          jq -e '.cmdCheckpoints == 10 and .internalDimensions == 12 and .externalDimensions == 13' VERIFIER_REPORT.json >/dev/null
+          jq -e '.combinatorialMaximalismProgramVerified == true' VERIFIER_REPORT.json >/dev/null
           jq -e '.scenariosExecuted == 7' VERIFIER_REPORT.json >/dev/null
           jq -e '.directActuation == false and .requiredBroker == "BRCE"' VERIFIER_REPORT.json >/dev/null
           jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
