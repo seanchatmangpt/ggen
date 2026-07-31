@@ -1,0 +1,150 @@
+//! Bounded job-search admission and canonical query manufacture.
+
+use std::collections::{BTreeMap, BTreeSet};
+
+use serde::{Deserialize, Serialize};
+
+use crate::catalog::{
+    EMPLOYMENT_TYPES, FUNCTIONS, PORTFOLIO_TIERS, SEARCH_SCOPES, SENIORITIES, SORT_ORDERS,
+    SPEEDRUN_MAX_PAGE, STEALTH_FILTERS,
+};
+use crate::intent::SpeedrunRefusal;
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct JobSearch {
+    pub query: Option<String>,
+    #[serde(default)]
+    pub functions: BTreeSet<String>,
+    #[serde(default)]
+    pub seniority: BTreeSet<String>,
+    #[serde(default)]
+    pub employment: BTreeSet<String>,
+    #[serde(default)]
+    pub locations: BTreeSet<String>,
+    pub remote_only: bool,
+    pub minimum_annual_comp_usd: Option<u64>,
+    #[serde(default)]
+    pub portfolio: BTreeSet<String>,
+    #[serde(default)]
+    pub cohorts: BTreeSet<String>,
+    pub company: Option<String>,
+    pub stealth: Option<String>,
+    pub scope: Option<String>,
+    pub sort: Option<String>,
+    pub page: u16,
+    pub source: Option<String>,
+}
+
+impl JobSearch {
+    pub fn query_parameters(&self) -> Result<BTreeMap<String, String>, SpeedrunRefusal> {
+        if self
+            .query
+            .as_ref()
+            .is_some_and(|value| value.chars().count() > 120)
+        {
+            return Err(SpeedrunRefusal::InvalidQuery("q exceeds 120 characters"));
+        }
+        if self.page > SPEEDRUN_MAX_PAGE {
+            return Err(SpeedrunRefusal::InvalidQuery("page exceeds 200"));
+        }
+        validate_values("fn", &self.functions, FUNCTIONS)?;
+        validate_values("sen", &self.seniority, SENIORITIES)?;
+        validate_values("emp", &self.employment, EMPLOYMENT_TYPES)?;
+        validate_values("portfolio", &self.portfolio, PORTFOLIO_TIERS)?;
+        validate_optional("stealth", self.stealth.as_deref(), STEALTH_FILTERS)?;
+        validate_optional("scope", self.scope.as_deref(), SEARCH_SCOPES)?;
+        validate_optional("sort", self.sort.as_deref(), SORT_ORDERS)?;
+        if let Some(source) = &self.source {
+            validate_source(source)?;
+        }
+        if self.locations.iter().any(|value| value.trim().is_empty())
+            || self.cohorts.iter().any(|value| value.trim().is_empty())
+        {
+            return Err(SpeedrunRefusal::InvalidQuery("empty filter value"));
+        }
+
+        let mut query = BTreeMap::new();
+        insert_option(&mut query, "q", self.query.as_deref());
+        insert_set(&mut query, "fn", &self.functions);
+        insert_set(&mut query, "sen", &self.seniority);
+        insert_set(&mut query, "emp", &self.employment);
+        insert_set(&mut query, "loc", &self.locations);
+        if self.remote_only {
+            query.insert("remote".to_string(), "1".to_string());
+        }
+        if let Some(compensation) = self.minimum_annual_comp_usd {
+            query.insert("comp".to_string(), compensation.to_string());
+        }
+        insert_set(&mut query, "portfolio", &self.portfolio);
+        insert_set(&mut query, "cohort", &self.cohorts);
+        insert_option(&mut query, "company", self.company.as_deref());
+        insert_option(&mut query, "stealth", self.stealth.as_deref());
+        insert_option(&mut query, "scope", self.scope.as_deref());
+        insert_option(&mut query, "sort", self.sort.as_deref());
+        if self.page > 0 {
+            query.insert("page".to_string(), self.page.to_string());
+        }
+        insert_option(&mut query, "source", self.source.as_deref());
+        Ok(query)
+    }
+}
+
+fn validate_values(
+    parameter: &str,
+    values: &BTreeSet<String>,
+    allowed: &[&str],
+) -> Result<(), SpeedrunRefusal> {
+    for value in values {
+        if !allowed.contains(&value.as_str()) {
+            return Err(SpeedrunRefusal::InvalidFilter {
+                parameter: parameter.to_string(),
+                value: value.clone(),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn validate_optional(
+    parameter: &str,
+    value: Option<&str>,
+    allowed: &[&str],
+) -> Result<(), SpeedrunRefusal> {
+    if let Some(value) = value {
+        if !allowed.contains(&value) {
+            return Err(SpeedrunRefusal::InvalidFilter {
+                parameter: parameter.to_string(),
+                value: value.to_string(),
+            });
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_source(source: &str) -> Result<(), SpeedrunRefusal> {
+    let valid = !source.is_empty()
+        && source.chars().count() <= 64
+        && source
+            .chars()
+            .all(|value| value.is_ascii_alphanumeric() || matches!(value, '.' | '_' | ':' | '-'));
+    if valid {
+        Ok(())
+    } else {
+        Err(SpeedrunRefusal::InvalidSource)
+    }
+}
+
+fn insert_option(query: &mut BTreeMap<String, String>, key: &str, value: Option<&str>) {
+    if let Some(value) = value.filter(|value| !value.is_empty()) {
+        query.insert(key.to_string(), value.to_string());
+    }
+}
+
+fn insert_set(query: &mut BTreeMap<String, String>, key: &str, values: &BTreeSet<String>) {
+    if !values.is_empty() {
+        query.insert(
+            key.to_string(),
+            values.iter().cloned().collect::<Vec<_>>().join(","),
+        );
+    }
+}

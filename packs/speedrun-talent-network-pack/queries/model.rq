@@ -1,0 +1,30 @@
+PREFIX stn: <https://chatmangpt.com/ontology/speedrun-talent-network#>
+SELECT ?recordKind ?order ?name ?method ?path ?mode ?consentRequired ?mediaType
+WHERE {
+  {
+    ?record a stn:RestOperation ;
+      stn:order ?order ;
+      stn:operationId ?name ;
+      stn:method ?method ;
+      stn:path ?path .
+    BIND("rest" AS ?recordKind)
+  }
+  UNION
+  {
+    ?record a stn:McpTool ;
+      stn:order ?order ;
+      stn:toolName ?name ;
+      stn:mode ?mode ;
+      stn:consentRequired ?consentRequired .
+    BIND("mcp" AS ?recordKind)
+  }
+  UNION
+  {
+    ?record a stn:MachineReadableResource ;
+      stn:order ?order ;
+      stn:path ?path ;
+      stn:mediaType ?mediaType .
+    BIND("resource" AS ?recordKind)
+  }
+}
+ORDER BY ?recordKind ?order

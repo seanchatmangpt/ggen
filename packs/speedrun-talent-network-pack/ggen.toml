@@ -1,0 +1,110 @@
+[project]
+name = "speedrun-talent-network-consumer"
+version = "26.7.30"
+description = "Manufacture the Speedrun Talent Network REST and MCP Building Block consumer"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://chatmangpt.com/ontology/speedrun-talent-network#"
+imports = []
+
+[ontology.prefixes]
+stn = "https://chatmangpt.com/ontology/speedrun-talent-network#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cargo-manifest"
+query = { file = "queries/rest_operations.rq" }
+template = { file = "templates/Cargo.toml.tmpl" }
+output_file = "consumer/speedrun-talent-network/Cargo.toml"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "library"
+query = { file = "queries/model.rq" }
+template = { file = "templates/src/lib.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/src/lib.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "catalog-module"
+query = { file = "queries/model.rq" }
+template = { file = "templates/src/catalog.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/src/catalog.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "search-module"
+query = { file = "queries/rest_operations.rq" }
+template = { file = "templates/src/search.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/src/search.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "intent-module"
+query = { file = "queries/mcp_tools.rq" }
+template = { file = "templates/src/intent.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/src/intent.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "building-block-module"
+query = { file = "queries/rest_operations.rq" }
+template = { file = "templates/src/block.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/src/block.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "full-contract-tests"
+query = { file = "queries/mcp_tools.rq" }
+template = { file = "templates/tests/full_contract.rs.tmpl" }
+output_file = "consumer/speedrun-talent-network/tests/full_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rest-contract"
+query = { file = "queries/rest_operations.rq" }
+template = { file = "templates/contracts/rest-api.json.tmpl" }
+output_file = "consumer/speedrun-talent-network/contracts/rest-api.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "public-resources-contract"
+query = { file = "queries/public_resources.rq" }
+template = { file = "templates/contracts/public-resources.json.tmpl" }
+output_file = "consumer/speedrun-talent-network/contracts/public-resources.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "mcp-contract"
+query = { file = "queries/mcp_tools.rq" }
+template = { file = "templates/contracts/mcp-server.json.tmpl" }
+output_file = "consumer/speedrun-talent-network/contracts/mcp-server.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "release-standing"
+query = { file = "queries/rest_operations.rq" }
+template = { file = "templates/RELEASE_STANDING.json.tmpl" }
+output_file = "consumer/speedrun-talent-network/RELEASE_STANDING.json"
+skip_empty = false
+mode = "Overwrite"
