@@ -6,8 +6,8 @@ use super::{
     digest, seven_day_standards_profile, CertificationAward, CertificationLevel,
     CertificationRefusal, CertificationRequirement, CertificationRequirementKind,
     RequirementReceipt, CERTIFICATION_AWARD_SCHEMA, GBB_CERTIFICATION_PROGRAM_ID,
-    GGEN_SEVEN_DAY_STANDARDS_ID, REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_ID,
-    TAI_CASE_STUDY_VERSION, TAI_REBUILD_RECEIPT_SCHEMA,
+    GGEN_SEVEN_DAY_STANDARDS_ID, REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_ID, TAI_CASE_STUDY_VERSION,
+    TAI_REBUILD_RECEIPT_SCHEMA,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

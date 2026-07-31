@@ -58,9 +58,7 @@ impl TestingBblockProtocol {
             return Err(TestingBblockRefusal::IdentityMismatch(self.id.clone()));
         }
         if self.version != TESTING_BBLOCK_PROTOCOL_VERSION {
-            return Err(TestingBblockRefusal::VersionMismatch(
-                self.version.clone(),
-            ));
+            return Err(TestingBblockRefusal::VersionMismatch(self.version.clone()));
         }
         if self.suites.len() != EXPECTED_SUITES {
             return Err(TestingBblockRefusal::CardinalityMismatch {

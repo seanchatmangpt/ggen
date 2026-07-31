@@ -198,7 +198,9 @@ fn seven_day_standards_are_exact_and_pending_work_cannot_promote() {
         checkpoint.id == "STD-18-CI-CONTROL-PLANE-G0"
             && checkpoint.status == StandardStatus::PendingCheckpoint
     }));
-    assert!(profile.digest().is_ok_and(|value| value.starts_with("urn:blake3:")));
+    assert!(profile
+        .digest()
+        .is_ok_and(|value| value.starts_with("urn:blake3:")));
 }
 
 #[test]

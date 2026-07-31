@@ -1,6 +1,4 @@
-use ggen_architecture::{
-    seven_day_standards_profile, StandardStatus, TestingBblockStanding,
-};
+use ggen_architecture::{seven_day_standards_profile, StandardStatus, TestingBblockStanding};
 use serde::Serialize;
 
 #[derive(Serialize)]

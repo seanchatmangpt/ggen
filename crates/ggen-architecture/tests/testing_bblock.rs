@@ -1,6 +1,6 @@
 use ggen_architecture::{
-    seven_day_standards_profile, testing_bblock_protocol, TestingBblockStanding,
-    TestingSuiteKind, TestingSuiteStatus, TESTING_BBLOCK_PROTOCOL_ID,
+    seven_day_standards_profile, testing_bblock_protocol, TestingBblockStanding, TestingSuiteKind,
+    TestingSuiteStatus, TESTING_BBLOCK_PROTOCOL_ID,
 };
 
 #[test]

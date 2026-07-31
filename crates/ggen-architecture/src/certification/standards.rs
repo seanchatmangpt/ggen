@@ -3,9 +3,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use super::{
-    digest, testing_bblock_protocol, TestingBblockProtocol, TestingBblockRefusal,
-};
+use super::{digest, testing_bblock_protocol, TestingBblockProtocol, TestingBblockRefusal};
 
 /// Stable identity of the standards admitted from the seven-day ggen programme.
 pub const GGEN_SEVEN_DAY_STANDARDS_ID: &str = "GGEN-STANDARDS-7D-2026-07-30";
@@ -287,13 +285,15 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
         testing_bblock: testing_bblock_protocol(),
         checkpoints: rows
             .into_iter()
-            .map(|(id, authority, status, law, falsifier)| StandardCheckpoint {
-                id: id.to_string(),
-                authority,
-                status,
-                law: law.to_string(),
-                falsifier: falsifier.to_string(),
-            })
+            .map(
+                |(id, authority, status, law, falsifier)| StandardCheckpoint {
+                    id: id.to_string(),
+                    authority,
+                    status,
+                    law: law.to_string(),
+                    falsifier: falsifier.to_string(),
+                },
+            )
             .collect(),
         exclusions: [
             "no direct actuation outside BRCE",
