@@ -5,13 +5,18 @@
 # evidence backing each individual (commit hashes, deleted paths).
 #
 # Generated against HEAD: 4bbdea5ffad230cdc6061987d8072af7529bb9b6
-# Individual count: 57 (15 original + 42 from the
-# 2026-07-31 exhaustive-observer pass, see EXT_CATALOG and
+# Individual count: 65 (15 original + 42 from the
+# 2026-07-31 exhaustive-observer pass [EXT_CATALOG] + 8 from the
+# 2026-07-31 remaining-5-classes pass [EXT_CATALOG2], see
 # docs/v26.8.1/90-legacy/observer-class-report.md)
 #
-# Do not hand-edit the individuals below; edit CATALOG/EXT_CATALOG in
+# Do not hand-edit individuals from CATALOG/EXT_CATALOG; edit those lists in
 # tools/v26.8.1/legacy_archaeology.py and re-run:
 #   python3 tools/v26.8.1/legacy_archaeology.py emit
+# The EXT_CATALOG2 individuals appended at the end of this file were added
+# by hand (not via emit()) to preserve prior hand-verified disposition-repair
+# fixups elsewhere in this file that emit()'s CATALOG dataclass does not
+# model -- see the "Remaining-5-classes pass" comment block below for detail.
 
 @prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
 @prefix legacy: <https://ggen.chatmangpt.com/ontology/v26.8.1/legacy#> .
@@ -1453,3 +1458,222 @@ legacy:legacy_ext_just_recipe_git_status a ggen:LegacyCapability ;
   ggen:archivePath "git history at 083651dba^ -- justfile" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
   rdfs:comment "Found via observer class 15 (git log -p -- justfile, pickaxe over removal diffs). Only the recipe's existence and removal commit are evidenced here, not its full historical body/semantics -- re-deriving that would require reading the full pre-removal recipe text, which this pass did not do for every recipe to stay within scope." .
+
+
+# ---------------------------------------------------------------------------
+# Remaining-5-classes pass (2026-07-31, branch agent/v26.8.1-remaining-observers)
+#
+# Appended by hand (not via legacy_archaeology.py's emit()) to preserve the
+# hand-verified disposition-repair fixups already present above in this file
+# (see e.g. legacy_sync_audit_flag's refusalRationale) that the script's
+# CATALOG dataclass does not model. The underlying evidence and dataclass
+# entries live in tools/v26.8.1/legacy_archaeology.py's EXT_CATALOG2 (see
+# that list's own header comment for the full rationale). Attempts the 5
+# observer classes the exhaustive-observer pass explicitly left
+# NOT ATTEMPTED: class 4 (aliases, zero found -- no individuals below),
+# class 9 (receipt schemas, 2), class 13 (output-tree layouts, 2), class 14
+# (exit-code contracts, 2), class 18 (pack.toml schema versions, 2).
+# See docs/v26.8.1/90-legacy/observer-class-report.md's "Remaining 5
+# Classes" section for the full per-class accounting.
+# ---------------------------------------------------------------------------
+
+legacy:legacy_ext2_receipt_v6_ttl_schema a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_receipt_v6_ttl_schema" ;
+  ggen:historicalSourceCommit "04fa6074b (Implement ontology-first compilation for ggen v6 (#98)) -- introduces crates/ggen-core/src/v6/receipt.rs; deleted with the rest of ggen-core by 9cef6e40f" ;
+  ggen:legacySourcePath "crates/ggen-core/src/v6/receipt.rs, crates/ggen-core/src/v6/passes/receipt_gen.rs, v6/templates/receipt.ttl.tera (all deleted; git history via `git log --all --diff-filter=A -- crates/praxis-core/src/receipt_record.rs` shows ReceiptRecord itself was only introduced later, by cbf173f82)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "ggen-core's v6 pipeline (pre-ggen-engine, pre-ReceiptRecord)" ;
+  ggen:inputContract "ReceiptBuilder::new(toolchain_version) chained with with_epoch/with_policies/pass-execution records" ;
+  ggen:outputContract "RDF/Turtle receipt rendered via v6/templates/receipt.ttl.tera (ReceiptGenerationPass writes to receipt_path), not the current JSON .ggen-v2/receipt.json + BLAKE3 chain_hash_hex format" ;
+  ggen:errorContract "ggen-core's own v6 pass error types" ;
+  ggen:sideEffects "Filesystem write to a caller-supplied receipt_path (no fixed .ggen/.ggen-v2 convention observed at this layer)" ;
+  ggen:orderingRequirements "ReceiptGenerationPass ran as one of several v6 compilation passes (`passes/receipt_gen.rs`), not the current sync.rs Stage 5 (emit) BLAKE3-chained write" ;
+  ggen:defaultBehavior "No default receipt path baked into ReceiptGenerationPass itself (caller must call with_receipt_path); contrast with the live RECEIPT_REL_PATH const (.ggen-v2/receipt.json) in crates/ggen-engine/src/sync.rs" ;
+  ggen:configurationDependencies "ReceiptPolicies (own struct), Epoch (own struct) -- neither survived into praxis-core::ReceiptRecord by the same name" ;
+  ggen:evidenceFixtures "git show 04fa6074b -- crates/ggen-core/src/v6/receipt.rs (ReceiptBuilder/Epoch/PassExecution/OutputFile/ReceiptPolicies struct definitions captured this session)" ;
+  ggen:replacementOwner "crates/praxis-core/src/receipt_record.rs (ReceiptRecord, introduced by cbf173f82 -- a from-scratch JSON+BLAKE3 design, not an evolution of the v6 TTL receipt's field names)" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^ (crates/ggen-core/src/v6/receipt.rs)" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "No commit found renaming/migrating v6's TTL receipt fields into ReceiptRecord's JSON fields -- the replacement is a full redesign (different serialization format entirely: RDF/Turtle vs. JSON), not a schema migration in the field-rename sense. Confirmed via `git log --all --oneline --diff-filter=A -- crates/praxis-core/src/receipt_record.rs` returning only cbf173f82 as ReceiptRecord's origin commit." .
+
+legacy:legacy_ext2_receipt_record_schema_v1 a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_receipt_record_schema_v1" ;
+  ggen:historicalSourceCommit "cbf173f82 (ReceiptRecord introduced, implicit schema v1, no `schema`/`v2` fields exist yet) / 3b294a8ce and ba2f6a1ae (feat(heal-thyself-r1): constitution pack, receipt v2 epoch, release-pack scaffold (v26.7.20) (#281) -- adds schema/v2 fields)" ;
+  ggen:legacySourcePath "crates/praxis-core/src/receipt_record.rs (ReceiptRecord struct)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "praxis-core::ReceiptRecord, pre-receipt_epoch.rs" ;
+  ggen:inputContract "Same chain_hash_hex/prev_chain_hash_hex/signature_hex/object_ids fields as today, but with no `schema` field at all (field did not exist -- not merely defaulted)" ;
+  ggen:outputContract "A receipt JSON that, per commit 3b294a8ce's own doc comment on the new `schema` field, \"deserializes as v1\" when the field is absent -- i.e. every pre-3b294a8ce receipt on disk is implicitly schema v1 with no itemized admission ledger, no standing_ceiling lattice, no closed 8-class equivalence map, no post-admission obligation_count -- all of which schema v2's ReceiptEpochV2 payload (crates/praxis-core/src/receipt_epoch.rs) adds" ;
+  ggen:errorContract "Same ReceiptRecord error handling as today (schema is descriptive only, per the field's own doc comment: \"Not part of the chain-hash computation\")" ;
+  ggen:sideEffects "Prior to 3b294a8ce, every hardcoded `Green` andon-status write site wrote directly; commit 3b294a8ce's message describes v2 as replacing every hardcoded Green write site with a derived andon computed from the v2 ledger -- a real behavior change, not just an added optional field" ;
+  ggen:orderingRequirements "v1 receipts remain readable (\"dual-read/single-write compatibility\" per the commit message) -- v2 is additive, not a breaking cutover" ;
+  ggen:defaultBehavior "`#[serde(default = \"crate::receipt_epoch::default_schema\")]` on the `schema` field means old receipts silently deserialize with schema=SCHEMA_V1 and v2=None rather than failing to parse" ;
+  ggen:configurationDependencies "crates/praxis-core/src/receipt_epoch.rs (SCHEMA_V1/SCHEMA_V2 consts, ReceiptEpochV2 struct, default_schema fn) -- did not exist before 3b294a8ce" ;
+  ggen:evidenceFixtures "git show 3b294a8ce -- crates/praxis-core/src/receipt_record.rs (diff adding `schema: String` and `v2: Option<ReceiptEpochV2>` fields, +15 lines, captured this session); crates/ggen-engine/tests/receipt_epoch_e2e.rs (519 new lines, 12/12 tests per the commit message, asserting the v1-Green-cannot-leak-into-derived-Green invariant)" ;
+  ggen:replacementOwner "crates/praxis-core/src/receipt_epoch.rs (schema v2, live)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "commit 3b294a8ce's message: \"dual-read/single-write compatibility with a v1->v2 migration receipt\"" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 3b294a8ce^ (crates/praxis-core/src/receipt_record.rs without the schema/v2 fields)" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Distinct from legacy_ext2_receipt_v6_ttl_schema above: this is an in-place schema evolution *within* the current ReceiptRecord type (v1 implicit -> v2 explicit), not a full-format replacement. Both are real, independently evidenced legacy receipt schemas." .
+
+legacy:legacy_ext2_output_tree_dotggen_receipt_path a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_output_tree_dotggen_receipt_path" ;
+  ggen:historicalSourceCommit "04fa6074b (ggen-core v6, default receipt_path = PathBuf::from(\".ggen/receipt.json\")) / cbf173f82 (ggen-engine's RECEIPT_REL_PATH introduced as \".ggen-v2/receipt.json\" from its first commit, no in-file rename found)" ;
+  ggen:legacySourcePath "crates/ggen-core/src/v6/receipt.rs (PipelineConfig::default(), deleted) vs. crates/ggen-engine/src/sync.rs (RECEIPT_REL_PATH const, live)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "ggen-core v6 pipeline config default" ;
+  ggen:inputContract "n/a -- this is an output path convention, not an input" ;
+  ggen:outputContract "Receipt written to `.ggen/receipt.json` under the project root (ggen-core v6 default) vs. the live `.ggen-v2/receipt.json` + `.ggen-v2/receipt-log.jsonl` convention (crates/ggen-engine/src/sync.rs's RECEIPT_REL_PATH/RECEIPT_LOG_REL_PATH consts, per CLAUDE.md's Cryptographic Receipts section)" ;
+  ggen:errorContract "n/a" ;
+  ggen:sideEffects "Filesystem write location differs: `.ggen/` (legacy) vs `.ggen-v2/` (live) -- CLAUDE.md's own `.ggen/keys/{signing,verifying}.key` note confirms `.ggen/` is still live for signing keys today, so this is not a fully retired directory, only its receipt-specific sub-path moved" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "ggen-core v6's PipelineConfig::default() hardcoded `.ggen/receipt.json`; the live RECEIPT_REL_PATH const was introduced already set to `.ggen-v2/receipt.json` in cbf173f82 with no observed prior `.ggen/receipt.json` value in that same file's own history (`git log --all --oneline -p -S'RECEIPT_REL_PATH' -- crates/ggen-engine/src/sync.rs` shows only the one addition)" ;
+  ggen:configurationDependencies "n/a" ;
+  ggen:evidenceFixtures "git show 04fa6074b -- crates/ggen-core/src/v6/receipt.rs (`receipt_path: Some(PathBuf::from(\".ggen/receipt.json\"))` in PipelineConfig::default(), captured this session)" ;
+  ggen:replacementOwner "crates/ggen-engine/src/sync.rs RECEIPT_REL_PATH const (.ggen-v2/receipt.json)" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^ (crates/ggen-core/src/v6/receipt.rs)" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "The `.ggen` vs `.ggen-v2` split is real but this script did not find a single commit that explicitly renames one to the other -- ggen-engine's receipt path was vendored in already as `.ggen-v2` (cbf173f82, the same commit that vendored ggen-engine wholesale from ~/praxis), so the `-v2` suffix likely predates this repository's own history rather than being coined here. Treat the lineage as inferred from the two constants' literal values, not from a single rename diff." .
+
+legacy:legacy_ext2_output_tree_src_generated_default a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_output_tree_src_generated_default" ;
+  ggen:historicalSourceCommit "04fa6074b (ggen-core v6 PipelineConfig::default(), output_dir = PathBuf::from(\"src/generated\"))" ;
+  ggen:legacySourcePath "crates/ggen-core/src/v6/receipt.rs or its PipelineConfig owner (deleted with ggen-core, 9cef6e40f)" ;
+  ggen:owningSubsystem "engine" ;
+  ggen:historicalSemanticOwner "ggen-core v6 pipeline config default" ;
+  ggen:inputContract "n/a -- output path convention" ;
+  ggen:outputContract "Generated files defaulted to a fixed `src/generated/` subtree under the project root, unless overridden" ;
+  ggen:errorContract "n/a" ;
+  ggen:sideEffects "Filesystem writes concentrated under one fixed directory by default" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Fixed `src/generated` default output_dir -- contrasts with the live pipeline's template-frontmatter-driven `output_file` pattern (crates/ggen-config's GenerationMode/output_file, enforced not to escape the project root by GGEN-YIELD-001 but otherwise caller-controlled per-template, not a single fixed directory)" ;
+  ggen:configurationDependencies "PipelineConfig (ggen-core v6, deleted)" ;
+  ggen:evidenceFixtures "git show 04fa6074b -- crates/ggen-core/src/v6/receipt.rs (`output_dir: PathBuf::from(\"src/generated\")` in PipelineConfig::default(), captured this session)" ;
+  ggen:replacementOwner "Per-template `output_file` pattern (crates/ggen-config/src/manifest/types.rs), validated by GGEN-YIELD-001 (crates/ggen-lsp/src/analyzers/tera_analyzer.rs) rather than defaulted to one fixed directory" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 9cef6e40f^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "A genuine layout-contract change: a fixed-default-directory model gave way to a fully template-driven per-output-file model. No single commit found that describes this as a deliberate migration decision (ggen-engine was vendored wholesale, not evolved in-repo from ggen-core's v6 code) -- disposition REPLACED reflects the functional lineage (same job: decide where generated files land), not a confirmed migration commit." .
+
+legacy:legacy_ext2_exit_code_mutation_budget_threshold a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_exit_code_mutation_budget_threshold" ;
+  ggen:historicalSourceCommit "9c76a75ac / 1af960911 (feat(cli): ggen v5 - unified sync command (#91)) -- removes two `std::process::exit(2)` sites; introduced earlier by Quicksave commits (24e7c1cd9/591b4aefc/fdb7bb477/d8445fd53)" ;
+  ggen:legacySourcePath "crates/ggen-cli (mutation-testing `--fail-on-threshold` and budget-enforcement `--fail-on-violation` CLI paths, removed by the v5 unified-sync refactor; exact file path not re-derived beyond the diff hunks captured this session)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "Pre-v5 ggen-cli mutation-testing and budget-enforcement subcommands" ;
+  ggen:inputContract "`--fail-on-threshold` (mutation kill-rate check) / `--fail-on-violation` (budget check) CLI flags" ;
+  ggen:outputContract "stderr message (\"FAIL: Mutation kill rate {:.1}% below threshold 80%\" / \"FAIL: {e}\") then `std::process::exit(2)` -- a distinct exit code from the generic error path's exit(1)" ;
+  ggen:errorContract "Exit code 2 specifically for these two threshold-violation cases, distinguishable by callers from a generic exit(1) failure" ;
+  ggen:sideEffects "Process termination with a specific, callable-distinguishable exit code" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Exit 2 only fired when `args.fail_on_threshold`/`args.fail_on_violation` was set and the check failed; otherwise the command completed normally even on a low kill-rate/budget violation" ;
+  ggen:configurationDependencies "CLI flags `--fail-on-threshold`, `--fail-on-violation`" ;
+  ggen:evidenceFixtures "git show 9c76a75ac -U5 (diff removing both `std::process::exit(2)` call sites, captured this session, part of the v5 unified-sync command consolidation)" ;
+  ggen:replacementOwner "UNKNOWN -- this pass did not confirm whether the v5 unified `ggen sync` command still exposes an equivalent mutation-kill-rate/budget-threshold check under any exit code, or whether the capability was dropped entirely along with the exit(2) contract" ;
+  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "A real Chesterton's-fence candidate: exit code 2 as a distinct-from-exit(1) signal for threshold violations may have been a deliberate CI-integration contract (letting a caller distinguish \"tool crashed\" from \"quality gate failed\") that was lost, not merely refactored, in the v5 consolidation. No commit found confirming either reading." .
+
+legacy:legacy_ext2_exit_code_cli_main_result_wrapper a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_exit_code_cli_main_result_wrapper" ;
+  ggen:historicalSourceCommit "c30e4c244 / 594f48669 (Audit CLI functionality and capabilities (#54))" ;
+  ggen:legacySourcePath "crates/ggen-cli/src/main.rs (or ggen-cli-lib's equivalent binary entrypoint at the time)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-cli's top-level `#[tokio::main] async fn main()`" ;
+  ggen:inputContract "n/a -- process-level error handling contract, not a CLI argument" ;
+  ggen:outputContract "BEFORE (per the commit's own before/after doc comment captured in this session): `async fn main() -> anyhow::Result<()> { ggen_cli_lib::cli_match().await? }` -- relies on Rust's `Termination` impl for `Result<(), E>`, which the commit's own comment characterizes as \"Returns 0 on error (anyhow::Result doesn't distinguish properly)\". AFTER: explicit `match { Ok(()) => exit(0), Err(e) => { eprintln!(...); exit(1) } }`" ;
+  ggen:errorContract "Legacy: exit-code correctness depended on `std::process::Termination`'s blanket impl for `Result<(), E: Debug>`, which the commit author asserts (in-commit doc comment, not independently re-verified against the Rust std docs by this pass) did not reliably distinguish success/failure exit codes for this codebase's error type. Live: explicit exit(0)/exit(1) with a printed error message on failure." ;
+  ggen:sideEffects "Process exit code and stderr output on failure differ between the two eras" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Legacy path printed no explicit \"ERROR:\" prefix (relied on anyhow's own Debug/Display formatting via the `?` operator's implicit termination handling); live path always prints `ERROR: {e}` to stderr before exiting 1" ;
+  ggen:configurationDependencies "n/a" ;
+  ggen:evidenceFixtures "git show c30e4c244 -U5 (before/after doc comment plus the actual main() diff, captured this session)" ;
+  ggen:replacementOwner "crates/ggen-cli/src/main.rs's current explicit match/exit(0)/exit(1) pattern (not independently re-verified against the present-day file in this pass -- confirm current main.rs still matches this shape before treating it as final)" ;
+  ggen:hasDisposition ggen:REPLACED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at c30e4c244^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "The commit's own claim that the legacy `anyhow::Result` return type 'Returns 0 on error' is the author's characterization, captured verbatim from the commit's doc comment -- this pass did not independently reproduce the alleged bug (e.g. by checking out c30e4c244^ and testing exit codes), so the claim is evidenced as 'what the commit asserts', not as independently re-verified fact." .
+
+legacy:legacy_ext2_pack_toml_schema_v1_no_outputs a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_pack_toml_schema_v1_no_outputs" ;
+  ggen:historicalSourceCommit "3a6eb6a8c / ea6b227c9 (feat: marketplace v6.1 expansion, receipt signing, CLI ontology templates, pack integration) -- introduces crates/ggen-marketplace/src/metadata.rs's PackageToml/PackageSection/SecuritySection" ;
+  ggen:legacySourcePath "crates/ggen-marketplace/src/metadata.rs (original location; live struct now at crates/ggen-marketplace/src/marketplace/metadata.rs after the marketplace module reorg)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-marketplace's pack.toml deserializer, v6.1 era" ;
+  ggen:inputContract "pack.toml with only `[package] name, version` and `[security] signature/trust_tier/checksum` -- no `[pack]` table, no `[pack.outputs]` sub-table at all (PackSection did not exist as a struct)" ;
+  ggen:outputContract "PackageToml{package: PackageSection{name,version}, security: Option<SecuritySection>} -- no `pack: Option<PackSection>` field" ;
+  ggen:errorContract "serde deserialization error if a pack.toml supplied a `[pack]` table (unrecognized field, depending on serde's deny_unknown_fields setting at the time -- not independently re-verified)" ;
+  ggen:sideEffects "none beyond in-memory struct population" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "A pack with no `[security]` table deserialized security as None; there was no equivalent default/optionality question for `[pack.outputs]` since the field did not exist to default" ;
+  ggen:configurationDependencies "pack.toml itself" ;
+  ggen:evidenceFixtures "git show 3a6eb6a8c:crates/ggen-marketplace/src/metadata.rs (struct definitions at introduction, captured this session, confirmed to lack `pack: Option<PackSection>`)" ;
+  ggen:replacementOwner "crates/ggen-marketplace/src/marketplace/metadata.rs's live PackageToml, which adds `pack: Option<PackSection>` carrying `[pack.outputs]` (named-output key -> relative-path mapping, `#[serde(default)]` so old pack.toml files without a `[pack]` table still parse)" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "Additive, backward-compatible: `#[serde(default)]` on the new `pack` field means pre-existing pack.toml files (lacking `[pack.outputs]`) still deserialize correctly under the live schema -- not a breaking cutover" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at the metadata.rs file's introduction, 3a6eb6a8c" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "This pass did not pinpoint the exact single commit that added `PackSection`/`outputs` (only confirmed it is absent at 3a6eb6a8c and present today); `git log --all --oneline -S'struct PackSection'` returned no output in this session's search, suggesting the struct may have been renamed/moved during the marketplace module reorg (4b11843a5, 'refactor(marketplace): extract ggen-marketplace from ggen-core') rather than newly authored in a single traceable commit -- flagging this gap rather than guessing a commit hash." .
+
+legacy:legacy_ext2_pack_toml_schema_no_registry_provenance a ggen:LegacyCapability ;
+  ggen:capabilityId "legacy_ext2_pack_toml_schema_no_registry_provenance" ;
+  ggen:historicalSourceCommit "55268c2e0 / b4eaa96e7 (feat(cli, marketplace, sos): finish 1000x consequence substrate) -- adds registry_type/origin_url fields, commit message states \"receipts now include full provenance (registry_type, origin_url)\"" ;
+  ggen:legacySourcePath "crates/ggen-marketplace/src/**/metadata.rs (PackMetadata struct)" ;
+  ggen:owningSubsystem "products" ;
+  ggen:historicalSemanticOwner "ggen-marketplace's PackMetadata, pre-1000x-consequence-substrate" ;
+  ggen:inputContract "PackMetadata carrying only signature/trust_tier/checksum -- no registry_type, no origin_url" ;
+  ggen:outputContract "A pack's provenance receipt with no record of which registry type it came from or its origin URL" ;
+  ggen:errorContract "n/a" ;
+  ggen:sideEffects "none beyond in-memory/serialized struct population" ;
+  ggen:orderingRequirements "n/a" ;
+  ggen:defaultBehavior "Prior to 55268c2e0, PackMetadata::default() had no registry_type/origin_url fields to default at all (not merely None-by-default -- the fields did not exist)" ;
+  ggen:configurationDependencies "pack.toml `[security]` table plus whatever registry-resolution context supplied the (then-nonexistent) provenance fields" ;
+  ggen:evidenceFixtures "git show 55268c2e0 -- 'crates/**/metadata.rs' (diff adding `registry_type: Option<RegistryType>` and `origin_url: Option<String>` fields plus their `None` defaults, captured this session; commit message itself: \"μ5 Receipts now include full provenance (registry_type, origin_url)\")" ;
+  ggen:replacementOwner "Live PackMetadata (crates/ggen-marketplace/src/marketplace/metadata.rs) with registry_type/origin_url populated" ;
+  ggen:hasDisposition ggen:SUBSUMED ;
+  ggen:hasStanding ggen:UNKNOWN ;
+  ggen:equivalenceVerifier "UNASSIGNED" ;
+  ggen:negativeFalsifier "UNASSIGNED" ;
+  ggen:migrationPath "Additive: both new fields are Option<T> defaulting to None, so old pack metadata without provenance still deserializes" ;
+  ggen:rollbackPath "" ;
+  ggen:archivePath "git history at 55268c2e0^" ;
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  rdfs:comment "Distinct from legacy_ext2_pack_toml_schema_v1_no_outputs above: that individual covers the pack.toml file's own `[pack.outputs]` table; this one covers PackMetadata's registry-provenance fields, a different struct in the same subsystem with an independently evidenced commit." .
+

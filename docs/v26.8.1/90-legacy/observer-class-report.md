@@ -75,3 +75,53 @@ the comparison) between the pre-extension file
 (`git show origin/agent/ggen-legacy-rebuild-v26.8.1:ontology/v26.8.1/legacy-capabilities.ttl`) and
 the post-extension file's first 378 body lines: `diff` reported only header-line differences, zero
 differences in the 15 individuals themselves.
+
+## Remaining 5 Classes (2026-07-31, branch `agent/v26.8.1-remaining-observers`)
+
+The prior pass above explicitly left 5 of the 20 observer classes **NOT ATTEMPTED** (distinct
+from "attempted, zero found"): class 4 (aliases), class 9 (historical receipt schemas), class 13
+(output-tree layouts), class 14 (exit-code contracts), class 18 (pack.toml schema versions). This
+follow-on pass attempts all 5, following the same evidence discipline — real `git log --all -p
+-S<pickaxe>` / `git show <commit>` mining against this worktree, honest zero-found reporting where
+that is genuinely the outcome.
+
+New individuals use the `legacy_ext2_` slug prefix (vs. `legacy_` for the original 15 and
+`legacy_ext_` for the first 42-individual extension). They were appended to
+`ontology/v26.8.1/legacy-capabilities.ttl` **by hand**, not via `legacy_archaeology.py`'s
+`emit()` — the live file already carries hand-verified `refusalCode`/`refusalRationale`
+disposition-repair fixups (e.g. `legacy_sync_audit_flag`) from a prior branch that predate this
+pass and that `emit()`'s `CATALOG`/`EXT_CATALOG` dataclasses do not model; calling `emit()` would
+silently discard them. The underlying evidence for the 8 new individuals is captured in the
+script's `EXT_CATALOG2` list (`tools/v26.8.1/legacy_archaeology.py`), which is deliberately *not*
+wired into `emit()`'s output for the same reason — `len(CATALOG) + len(EXT_CATALOG)` still equals
+57, confirmed by direct interpreter inspection this session, so accidentally calling `emit()`
+again cannot silently drop the hand-appended individuals below (it would simply fail to add them,
+which is safe, rather than deleting them, which would not be).
+
+| # | Observer class | Observed candidates | Admitted | Deduplicated | Excluded | Exclusion reasons |
+|---|---|---:|---:|---:|---:|---|
+| 4 | Clap `alias`/`visible_alias` declarations | `git log --all --oneline -S"visible_alias"` (1 hit, this pass's own prior doc commit, not real code); `git log --all -p -S'alias = "'` (~30 commits) narrowed to genuine `#[command(alias = ...)]`/`#[verb(alias = ...)]` hits in `GGEN_CLI_ARCHITECTURE_UPGRADE.md`, `docs/research/clap-ecosystem-analysis.md`, `docs/research/rust-config-patterns-survey.md` | 0 | 0 | 0 (all candidates excluded, not merely unadmitted) | Every `alias =`/`#[command(alias`/`#[verb(alias` hit this pass located traces to a **markdown design/research document**, never a real `.rs` source file — confirmed by `git grep -n 'command(alias\|verb(alias\|arg(alias' -- '*.rs'` (0 hits in the current tree) and `git log --all --oneline -S'command(alias' -- '*.rs'` / `-S'verb(alias' -- '*.rs'` (0 hits across all history). `visible_alias` never appears in this repository's code at all, only in this pass's own report text. Genuine, verified zero: clap aliases were proposed in aspirational docs but never implemented in shipped code, at any point in this repository's history. |
+| 9 | Historical receipt schemas before `ReceiptRecord` | `git log --all --oneline --diff-filter=A -- crates/praxis-core/src/receipt_record.rs` (origin: `cbf173f82`); `git show 04fa6074b -- crates/ggen-core/src/v6/receipt.rs`; `git show 3b294a8ce -- crates/praxis-core/src/receipt_record.rs` | 2 | 0 | 0 | Both admitted with real commit evidence: (1) `legacy_ext2_receipt_v6_ttl_schema` — ggen-core's pre-`ReceiptRecord` v6 pipeline used an entirely different RDF/Turtle receipt format (`ReceiptBuilder`/`Epoch`/`PassExecution`/`ReceiptPolicies`, rendered via `v6/templates/receipt.ttl.tera`), introduced by `04fa6074b`, deleted with the rest of `ggen-core` by `9cef6e40f`. (2) `legacy_ext2_receipt_record_schema_v1` — `ReceiptRecord` itself gained an in-place schema v1→v2 evolution via commit `3b294a8ce`/`ba2f6a1ae` (adds `schema`/`v2` fields, `#[serde(default)]`-backward-compatible; v1 = implicit, no itemized admission ledger). |
+| 13 | Historical filesystem output-tree layouts | `git show 04fa6074b -- crates/ggen-core/src/v6/receipt.rs` (`PipelineConfig::default()`); `git log --all --oneline -p -S'RECEIPT_REL_PATH' -- crates/ggen-engine/src/sync.rs` | 2 | 0 | 0 | (1) `legacy_ext2_output_tree_dotggen_receipt_path` — ggen-core v6's `PipelineConfig::default()` hardcoded `.ggen/receipt.json`; the live `RECEIPT_REL_PATH` const (`.ggen-v2/receipt.json`) was vendored in already at that value by `cbf173f82` with no in-repo rename commit found (ggen-engine was vendored wholesale from `~/praxis`, not evolved in place — the `.ggen`→`.ggen-v2` split likely predates this repository's own history, noted honestly as inferred lineage rather than a confirmed single-commit rename). (2) `legacy_ext2_output_tree_src_generated_default` — the same `PipelineConfig::default()` also hardcoded a fixed `output_dir: "src/generated"`, contrasting with the live template-frontmatter-driven per-file `output_file` pattern (no single fixed output directory today). |
+| 14 | Historical exit-code contracts | `git log --all -p -S'process::exit' --oneline -- crates/ggen-cli crates/ggen-engine` (~10 commits) | 2 | 0 | 0 | (1) `legacy_ext2_exit_code_mutation_budget_threshold` — commit `9c76a75ac`/`1af960911` ("ggen v5 - unified sync command (#91)") removed two `std::process::exit(2)` call sites (mutation kill-rate `--fail-on-threshold` and budget-enforcement `--fail-on-violation` checks), a distinct exit code from the generic exit(1) error path; `disposition="UNKNOWN"` because this pass could not confirm whether v5's unified sync command still exposes an equivalent check under any exit code, or dropped it — a genuine Chesterton's-fence, reported honestly rather than guessed. (2) `legacy_ext2_exit_code_cli_main_result_wrapper` — commit `c30e4c244`/`594f48669` ("Audit CLI functionality and capabilities (#54)") replaced a bare `async fn main() -> anyhow::Result<()>` (whose `?`-based termination the commit's own doc comment characterizes as unreliably returning exit 0 on error) with an explicit `match { Ok(()) => exit(0), Err(e) => { eprintln!(...); exit(1) } }` — evidenced as "what the commit asserts," not independently re-verified against Rust's `Termination` trait semantics by this pass. |
+| 18 | Historical `pack.toml` schema versions | `git show 3a6eb6a8c:crates/ggen-marketplace/src/metadata.rs` (struct definitions at introduction); `git show 55268c2e0 -- 'crates/**/metadata.rs'` | 2 | 0 | 0 | (1) `legacy_ext2_pack_toml_schema_v1_no_outputs` — the pack.toml deserializer's original shape (`3a6eb6a8c`, marketplace v6.1) had only `[package] name, version` + `[security]`, no `[pack]`/`[pack.outputs]` table at all (`PackSection` did not exist as a struct); the live schema adds `pack: Option<PackSection>` with `#[serde(default)]`, backward-compatible. Exact single commit that added `PackSection` not pinpointed (`git log --all --oneline -S'struct PackSection'` returned no hits, suggesting a rename during the `4b11843a5` marketplace-extraction refactor rather than fresh authorship) — flagged honestly as a gap rather than guessed. (2) `legacy_ext2_pack_toml_schema_no_registry_provenance` — `PackMetadata` gained `registry_type`/`origin_url` fields via commit `55268c2e0` ("finish 1000x consequence substrate"), whose own message states "receipts now include full provenance (registry_type, origin_url)" — both fields absent entirely (not merely `None`) before that commit. |
+
+**Column totals (this pass):** Admitted 8, Deduplicated 0, Excluded ~30 (dominated by class 4's
+doc-only alias mentions).
+
+**`unattempted_observer_classes = 0`** — all 20 of the 20 total observer classes across both
+passes have now been attempted (15 in the original pass, 5 more here), with either real admitted
+individuals or an honestly-reported, evidenced zero.
+
+New total: **65** `ggen:LegacyCapability` individuals (57 prior + 8 new).
+
+### Verification (remaining-5-classes pass)
+
+`ontology/v26.8.1/legacy-capabilities.ttl` was re-validated with `pyshacl` directly against
+`ontology/v26.8.1/ontology.ttl` + `ontology/v26.8.1/shapes.ttl` (`rdfs` inference,
+`pyshacl.validate(...)`) — preferred over `ggen graph validate` per this pass's own task brief,
+matching the pattern already established by the prior pass in this session. Result: **Conforms:
+True**. The pre-existing 57 individuals were confirmed unchanged by diffing this branch's file
+against `agent/ggen-legacy-rebuild-v26.8.1`'s version: the only removed/changed lines are in the
+file's own header comment (HEAD hash, individual count); zero individual-body lines were removed
+or altered, only appended after.
