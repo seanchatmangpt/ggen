@@ -15,6 +15,32 @@ use crate::{
     },
 };
 
+fn phase_status(scenario_id: &str, phase_order: u32) -> &'static str {
+    match scenario_id {
+        "first-contract-delayed" if phase_order == 0 => "DEFERRED_BY_RUNWAY",
+        "first-contract-delayed" => "BLOCKED_BY_PREDECESSOR",
+        "certification-unavailable" if phase_order < 2 => "SIMULATED",
+        "certification-unavailable" if phase_order == 2 => "REFUSED_MISSING_CERTIFICATION",
+        "certification-unavailable" => "BLOCKED_BY_PREDECESSOR",
+        "failed-inspection" if phase_order < 2 => "SIMULATED",
+        "failed-inspection" if phase_order == 2 => "ANDON_RED_REINSPECTION_REQUIRED",
+        "failed-inspection" => "BLOCKED_BY_PREDECESSOR",
+        "founder-unavailable" if phase_order == 0 => "SUCCESSION_ACTIVATED",
+        "founder-unavailable" => "SIMULATED_WITH_DELEGATED_AUTHORITY",
+        _ => "SIMULATED",
+    }
+}
+
+fn simulation_standing(scenario_id: &str) -> &'static str {
+    match scenario_id {
+        "first-contract-delayed" => "PARTIAL_ALIVE_SIMULATION_ENTERPRISE_UNKNOWN",
+        "certification-unavailable" | "failed-inspection" => {
+            "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN"
+        }
+        _ => "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN",
+    }
+}
+
 pub fn validate_catalogs() -> Result<(), RebuildError> {
     let enterprise: EnterpriseCatalog = parse("enterprise", ENTERPRISE_BYTES)?;
     let roadmap: RoadmapCatalog = parse("roadmap", ROADMAP_BYTES)?;
@@ -23,6 +49,25 @@ pub fn validate_catalogs() -> Result<(), RebuildError> {
     let certifications: Value = parse("certifications", CERTIFICATION_BYTES)?;
     let gall: Value = parse("gall-program", GALL_PROGRAM_BYTES)?;
 
+    if enterprise.schema != "ggen.tai.enterprise.v1"
+        || enterprise.identifier != "tai-enterprise-rebuild"
+        || enterprise.version.trim().is_empty()
+        || enterprise.title.trim().is_empty()
+    {
+        return Err(RebuildError::Contract(
+            "TAI enterprise identity or schema contract changed".to_string(),
+        ));
+    }
+    if roadmap.schema != "ggen.tai.roadmap.v1" || roadmap.standing != "UNKNOWN" {
+        return Err(RebuildError::Contract(
+            "generated roadmap schema or non-promoting standing changed".to_string(),
+        ));
+    }
+    if scenarios.schema != "ggen.tai.scenarios.v1" {
+        return Err(RebuildError::Contract(
+            "TAI scenario catalogue schema changed".to_string(),
+        ));
+    }
     if enterprise.required_broker != ggen_architecture::REQUIRED_BROKER
         || enterprise.required_broker != ggen_architecture::SELF_PLAY_REQUIRED_BROKER
     {
@@ -59,10 +104,17 @@ pub fn validate_catalogs() -> Result<(), RebuildError> {
             "Gall projection must remain plan-only across seven checkpoints".to_string(),
         ));
     }
+
     let family_ids: BTreeSet<_> = enterprise.families.iter().map(|item| item.id.as_str()).collect();
-    if family_ids.len() != enterprise.families.len() {
+    if family_ids.len() != enterprise.families.len()
+        || enterprise.families.iter().any(|family| {
+            family.order == 0
+                || family.label.trim().is_empty()
+                || family.outcome.trim().is_empty()
+        })
+    {
         return Err(RebuildError::Contract(
-            "building block family identifiers are duplicated".to_string(),
+            "building block family identity, order, label, or outcome is invalid".to_string(),
         ));
     }
     for dependency in &enterprise.dependencies {
@@ -73,6 +125,20 @@ pub fn validate_catalogs() -> Result<(), RebuildError> {
             return Err(RebuildError::Contract(format!(
                 "invalid building block dependency {} -> {}",
                 dependency.block, dependency.depends_on
+            )));
+        }
+    }
+
+    for (index, scenario) in scenarios.scenarios.iter().enumerate() {
+        if scenario.order as usize != index + 1
+            || scenario.label.trim().is_empty()
+            || scenario.trigger.trim().is_empty()
+            || scenario.mutation.trim().is_empty()
+            || scenario.expected_standing != "SIMULATED"
+        {
+            return Err(RebuildError::Contract(format!(
+                "scenario contract is not closed at {}",
+                scenario.id
             )));
         }
     }
@@ -90,9 +156,12 @@ pub fn validate_catalogs() -> Result<(), RebuildError> {
         .filter_map(|item| item["id"].as_str())
         .collect();
     for (index, phase) in roadmap.phases.iter().enumerate() {
-        if phase.order as usize != index {
+        if phase.order as usize != index
+            || phase.label.trim().is_empty()
+            || phase.outcome.trim().is_empty()
+        {
             return Err(RebuildError::Contract(format!(
-                "roadmap phase order is not closed at {}",
+                "roadmap phase order or content is not closed at {}",
                 phase.id
             )));
         }
@@ -192,11 +261,13 @@ pub fn simulate(scenario_id: &str) -> Result<SimulationReport, RebuildError> {
             .filter(|binding| binding.phase == phase.id)
             .map(|binding| binding.certification.as_str())
             .collect();
+        let status = phase_status(&scenario.id, phase.order);
         let state = json!({
             "scenario": &scenario.id,
             "trigger": &scenario.trigger,
             "mutation": &scenario.mutation,
             "phase": phase,
+            "status": status,
             "predecessors": predecessors,
             "families": families,
             "certifications": certifications,
@@ -218,13 +289,14 @@ pub fn simulate(scenario_id: &str) -> Result<SimulationReport, RebuildError> {
             label: phase.label.clone(),
             prior_digest: prior_digest.clone(),
             state_digest: state_digest.clone(),
-            status: "SIMULATED".to_string(),
+            status: status.to_string(),
         });
         prior_digest = state_digest;
     }
 
     Ok(SimulationReport {
         schema: SIMULATION_SCHEMA.to_string(),
+        standing: simulation_standing(&scenario.id).to_string(),
         scenario,
         required_broker: enterprise.required_broker,
         direct_actuation: false,
@@ -234,6 +306,5 @@ pub fn simulate(scenario_id: &str) -> Result<SimulationReport, RebuildError> {
         self_play_receipts: self_play.receipts.len(),
         steps,
         final_digest: prior_digest,
-        standing: "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN".to_string(),
     })
 }
