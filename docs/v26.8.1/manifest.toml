@@ -21,8 +21,8 @@ allowed = ["PRESERVED", "SUBSUMED", "REPLACED", "ARCHIVED", "REFUSED", "UNKNOWN"
 
 [baseline]
 repository = "seanchatmangpt/ggen"
-workspace_version = "26.7.62"
-workspace_packages = 17
+workspace_version = "26.7.63"
+workspace_packages = 18
 pipeline = ["Resolve", "Enrich", "Extract", "Render", "Write", "Receipt"]
 
 [release]

@@ -266,6 +266,13 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
     commands.append(
         run_command(
             root,
+            "subsystem-evidence-manifest",
+            [sys.executable, "tools/v26.8.1/subsystem_evidence_manifest.py"],
+        )
+    )
+    commands.append(
+        run_command(
+            root,
             "crown-observe-first",
             [
                 "cargo",
@@ -273,6 +280,8 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                 "--quiet",
                 "--manifest-path",
                 "tools/v26.8.1/Cargo.toml",
+                "--bin",
+                "ggen-v26-8-1-verifier",
                 "--",
                 "--observe-only",
             ],
@@ -296,6 +305,8 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                 "--quiet",
                 "--manifest-path",
                 "tools/v26.8.1/Cargo.toml",
+                "--bin",
+                "ggen-v26-8-1-verifier",
                 "--",
                 "--observe-only",
             ],
@@ -327,6 +338,8 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                     "--quiet",
                     "--manifest-path",
                     "tools/v26.8.1/Cargo.toml",
+                    "--bin",
+                    "ggen-v26-8-1-verifier",
                     "--",
                     "--root",
                     str(sabotage_copy_root),
@@ -367,6 +380,8 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                 "--quiet",
                 "--manifest-path",
                 "tools/v26.8.1/Cargo.toml",
+                "--bin",
+                "ggen-v26-8-1-verifier",
                 "--",
             ],
             expected_exits=(0, 2),

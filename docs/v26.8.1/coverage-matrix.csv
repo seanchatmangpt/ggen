@@ -1,6 +1,6 @@
 document,subsystem,authority_sources,implementation_sources,verifier,legacy_disposition,standing
 00-governance/01-canon-and-authority.md,governance,AGENTS.md|README.md|CLAUDE.md,docs|.claude|.specify,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
-10-system/12-workspace-crate-map.md,system,Cargo.toml,crates/*|src/*,tools/v26.8.1/src/bin/subsystem_verifier.rs,PRESERVED,PARTIAL_ALIVE
+10-system/12-workspace-crate-map.md,system,Cargo.toml,crates/*|src/*,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
 20-engine/21-sync-pipeline.md,engine,README.md|CLAUDE.md,crates/ggen-engine/src/sync.rs,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
 30-graph/32-oxigraph-integration.md,graph,Cargo.toml,crates/ggen-graph|crates/ggen-engine|crates/praxis-graphlaw,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE
 40-projection/41-tera-integration.md,projection,Cargo.toml|README.md,crates/ggen-engine|templates,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
