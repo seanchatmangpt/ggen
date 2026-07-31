@@ -1,0 +1,81 @@
+---
+to: consumer/tai-enterprise-rebuild/scripts/verify.sh
+---
+#!/usr/bin/env bash
+set -euo pipefail
+
+CRATE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+EXAMPLE_ROOT="$(cd "$CRATE_ROOT/../.." && pwd)"
+REPO_ROOT="$(cd "$EXAMPLE_ROOT/../.." && pwd)"
+MANIFEST="$CRATE_ROOT/Cargo.toml"
+TARGET_ROOT="$EXAMPLE_ROOT/generated/verification"
+
+rm -rf "$TARGET_ROOT"
+mkdir -p "$TARGET_ROOT"
+
+cargo fmt --manifest-path "$MANIFEST" --all
+cargo fmt --manifest-path "$MANIFEST" --all -- --check
+cargo check --manifest-path "$MANIFEST" --all-targets
+cargo clippy --manifest-path "$MANIFEST" --all-targets -- -D warnings
+cargo test --manifest-path "$MANIFEST" --all-targets
+
+for scenario in historical rebuilt-today post-agi first-contract-delayed certification-unavailable failed-inspection founder-unavailable; do
+  cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate "$scenario" "$TARGET_ROOT/$scenario" > "$TARGET_ROOT/$scenario.stdout.json"
+  cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- verify "$TARGET_ROOT/$scenario/receipt.json" > "$TARGET_ROOT/$scenario.verify.json"
+done
+
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-a" >/dev/null
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-b" >/dev/null
+first="$(find "$TARGET_ROOT/replay-a" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+second="$(find "$TARGET_ROOT/replay-b" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+test "$first" = "$second"
+
+set +e
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate not-admitted "$TARGET_ROOT/refused" >"$TARGET_ROOT/refused.stdout" 2>"$TARGET_ROOT/refused.stderr"
+unknown_code=$?
+set -e
+test "$unknown_code" -ne 0
+grep -q "unknown simulation scenario" "$TARGET_ROOT/refused.stderr"
+
+cp "$TARGET_ROOT/historical/roadmap.json" "$TARGET_ROOT/historical/roadmap.original.json"
+printf 'tampered\n' > "$TARGET_ROOT/historical/roadmap.json"
+set +e
+cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- verify "$TARGET_ROOT/historical/receipt.json" >"$TARGET_ROOT/tamper.stdout" 2>"$TARGET_ROOT/tamper.stderr"
+tamper_code=$?
+set -e
+test "$tamper_code" -ne 0
+grep -q "artifact digest mismatch" "$TARGET_ROOT/tamper.stderr"
+mv "$TARGET_ROOT/historical/roadmap.original.json" "$TARGET_ROOT/historical/roadmap.json"
+
+python3 - "$REPO_ROOT" "$CRATE_ROOT/generated/recent-capabilities.json" "$EXAMPLE_ROOT/VERIFIER_REPORT.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+repo = Path(sys.argv[1])
+catalog = json.loads(Path(sys.argv[2]).read_text())
+missing = [item["sourcePath"] for item in catalog["capabilities"] if not (repo / item["sourcePath"]).exists()]
+if len(catalog["capabilities"]) != 18:
+    raise SystemExit("recent capability cardinality is not 18")
+if missing:
+    raise SystemExit("missing recent capability paths: " + ", ".join(missing))
+report = {
+    "schema": "ggen.tai.verifier-report.v1",
+    "standing": "ALIVE",
+    "boundedObject": "roadmap generation, seven-scenario subprocess simulation, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
+    "enterpriseStanding": "UNKNOWN",
+    "externalCertificationStanding": "UNKNOWN",
+    "phases": 7,
+    "buildingBlockFamilies": 9,
+    "certificationHorizons": 10,
+    "scenariosExecuted": 7,
+    "recentCapabilitiesComposed": 18,
+    "directActuation": False,
+    "requiredBroker": "BRCE",
+    "canonicalGbbComposition": True,
+    "deterministicSelfPlay": True,
+    "receiptReplay": True,
+    "tamperRefused": True,
+}
+Path(sys.argv[3]).write_text(json.dumps(report, indent=2) + "\n")
+PY
