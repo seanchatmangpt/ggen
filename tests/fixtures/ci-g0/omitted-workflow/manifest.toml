@@ -1,0 +1,14 @@
+[inventory]
+schema_version = 1
+repository = "fixture/omitted"
+implementation_base_sha = "omitted"
+historical_inventory_sha = "omitted"
+expected_workflow_count = 2
+
+[[workflow]]
+path = ".github/workflows/a.yml"
+owner = "fixture/a"
+purpose = "Execute the admitted fixture workflow."
+evidence_output = "workflow log a"
+production_outputs = ["fixture-output-a"]
+retirement_condition = "Retain until an admitted replacement proves equivalent evidence."
