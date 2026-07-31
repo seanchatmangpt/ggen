@@ -15,8 +15,7 @@ use super::{
 
 /// Generate the exact unresolved rebuild work from current GBB state.
 pub fn generate_rebuild_roadmap(
-    registry: &BuildingBlockRegistry,
-    target: &TargetArchitectureInstance,
+    registry: &BuildingBlockRegistry, target: &TargetArchitectureInstance,
     evidence: &EvidenceLedger,
 ) -> Result<RebuildRoadmap, CertificationRefusal> {
     if target.id.trim().is_empty() {
@@ -125,9 +124,7 @@ pub fn generate_rebuild_roadmap(
 }
 
 fn push_step(
-    steps: &mut Vec<RoadmapStep>,
-    block_id: &BuildingBlockId,
-    action: RoadmapAction,
+    steps: &mut Vec<RoadmapStep>, block_id: &BuildingBlockId, action: RoadmapAction,
     rationale: String,
 ) {
     steps.push(RoadmapStep {
@@ -140,9 +137,7 @@ fn push_step(
 
 /// Simulate rebuilding a complete TAI and issue a replay-stable receipt.
 pub fn simulate_tai_rebuild(
-    registry: &BuildingBlockRegistry,
-    target: &TargetArchitectureInstance,
-    candidate_id: &str,
+    registry: &BuildingBlockRegistry, target: &TargetArchitectureInstance, candidate_id: &str,
     evidence: &EvidenceLedger,
 ) -> Result<TaiRebuildReceipt, CertificationRefusal> {
     if candidate_id.trim().is_empty() {
@@ -189,8 +184,7 @@ pub fn simulate_tai_rebuild(
 }
 
 fn collect_evidence_digests(
-    order: &[BuildingBlockId],
-    evidence: &BTreeMap<BuildingBlockId, BTreeSet<EvidenceReceipt>>,
+    order: &[BuildingBlockId], evidence: &BTreeMap<BuildingBlockId, BTreeSet<EvidenceReceipt>>,
 ) -> BTreeMap<BuildingBlockId, BTreeSet<String>> {
     order
         .iter()
