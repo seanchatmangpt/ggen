@@ -1,0 +1,20 @@
+{
+  "acceptance": [
+    "HEAD revision equals the externally supplied expected revision",
+    "every recursive Git tree object is present with exact mode, type, and object identity",
+    "every tracked leaf is present in the stage-zero index with the same mode and object identity",
+    "regular files and executable files are verified from Git blob bytes",
+    "symlinks are verified from tracked link-target bytes without following host targets",
+    "gitlinks are verified as commit identities rather than directory contents",
+    "every tracked leaf is classified or explicitly unknown",
+    "untracked and working-tree state remain outside admitted HEAD authority",
+    "intent and result receipts bind the exact subject and every evidence output",
+    "a second observation at the same revision is byte-identical",
+    "removing one tracked leaf from copied evidence is refused as CMD-G0-EXACT-SET",
+    "the executor leaves standing UNKNOWN until the independent verifier reports PARTIAL_ALIVE"
+  ],
+  "checkpoint": "CMD-G0-EXACT-TREE",
+  "production_behavior_change": false,
+  "schema": "ggen.gall.acceptance.v1",
+  "standing_ceiling": "PARTIAL_ALIVE"
+}
