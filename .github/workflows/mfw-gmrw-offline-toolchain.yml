@@ -1,6 +1,9 @@
 name: MFW GMRW Offline Verifier Toolchain
 
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/mfw-gmrw-offline-toolchain.yml'
   push:
     branches:
       - agent/mfw-gmrw-offline-verifier-toolchain
