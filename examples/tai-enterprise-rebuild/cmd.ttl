@@ -1,0 +1,88 @@
+@prefix tai: <https://chatmangpt.com/ontology/tai-rebuild#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Extend the crown programme without duplicating its authoritative enterprise facts.
+tai:tai-rebuild-v26-7-31
+  tai:checkpoint tai:g0-observation, tai:g1-fences, tai:g2-semantic-authority, tai:g3-internal-lattice, tai:g4-external-lattice,
+                 tai:g5-packs-bblocks, tai:g6-pure-kernel, tai:g7-transactional-materialization, tai:g8-brokered-actuation, tai:g9-crown ;
+  tai:internalDimension tai:dim-runtime, tai:dim-storage, tai:dim-invocation, tai:dim-serialization, tai:dim-consistency,
+                        tai:dim-scheduling, tai:dim-error, tai:dim-deployment, tai:dim-cardinality, tai:dim-ownership, tai:dim-recovery, tai:dim-verification ;
+  tai:externalDimension tai:dim-provider, tai:dim-protocol, tai:dim-identity, tai:dim-authentication, tai:dim-authority-scope,
+                        tai:dim-consent, tai:dim-data-classification, tai:dim-jurisdiction, tai:dim-runtime-target, tai:dim-availability,
+                        tai:dim-consequence, tai:dim-evidence-source, tai:dim-compensation .
+
+# Repository-refactor programme: the factory that generates and verifies the TAI roadmap.
+tai:cmd-program a tai:CombinatorialMaximalismProgram ;
+  tai:identifier "TAI-CMD-G0-G9" ;
+  tai:requiredBroker "BRCE" ;
+  tai:directActuation false ;
+  tai:coverageMode "risk-weighted-t-wise" ;
+  tai:maximumStanding "PARTIAL_ALIVE" ;
+  tai:outcome "Observe, admit, compose, materialize, receipt, and replay the TAI enterprise roadmap factory without collapsing authority boundaries." .
+
+# Ten dependency-closed Gall checkpoints.
+tai:g0-observation a tai:GallCheckpoint ; tai:order 0 ; tai:identifier "G0" ; skos:prefLabel "Exact-tree observation" ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/observation/repository.json" ; tai:refusalCode "CMD-G0-EXACT-SET" .
+tai:g1-fences a tai:GallCheckpoint ; tai:order 1 ; tai:identifier "G1" ; skos:prefLabel "Chesterton fences and ownership" ; tai:dependsOn tai:g0-observation ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/authority/ownership.json" ; tai:refusalCode "CMD-G1-OWNER-MISSING" .
+tai:g2-semantic-authority a tai:GallCheckpoint ; tai:order 2 ; tai:identifier "G2" ; skos:prefLabel "Canonical semantic authority" ; tai:dependsOn tai:g1-fences ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/authority/fences.json" ; tai:refusalCode "CMD-G2-PROJECTION-DRIFT" .
+tai:g3-internal-lattice a tai:GallCheckpoint ; tai:order 3 ; tai:identifier "G3" ; skos:prefLabel "Internal candidate lattice" ; tai:dependsOn tai:g2-semantic-authority ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/candidates/internal-candidates.json" ; tai:refusalCode "CMD-G3-CANDIDATE-INVALID" .
+tai:g4-external-lattice a tai:GallCheckpoint ; tai:order 4 ; tai:identifier "G4" ; skos:prefLabel "External candidate lattice" ; tai:dependsOn tai:g2-semantic-authority ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/candidates/external-candidates.json" ; tai:refusalCode "CMD-G4-AUTHORITY-INCOMPLETE" .
+tai:g5-packs-bblocks a tai:GallCheckpoint ; tai:order 5 ; tai:identifier "G5" ; skos:prefLabel "Atomic packs and Building Blocks" ; tai:dependsOn tai:g3-internal-lattice, tai:g4-external-lattice ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/plans/closure.json" ; tai:refusalCode "CMD-G5-SEMANTIC-DIVERGENCE" .
+tai:g6-pure-kernel a tai:GallCheckpoint ; tai:order 6 ; tai:identifier "G6" ; skos:prefLabel "Pure deterministic kernel" ; tai:dependsOn tai:g5-packs-bblocks ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/plans/plan.json" ; tai:refusalCode "CMD-G6-ACTUATOR-IMPORT" .
+tai:g7-transactional-materialization a tai:GallCheckpoint ; tai:order 7 ; tai:identifier "G7" ; skos:prefLabel "Transactional local materialization" ; tai:dependsOn tai:g6-pure-kernel ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/receipts/results/local-materialization.json" ; tai:refusalCode "CMD-G7-PARTIAL-STATE" .
+tai:g8-brokered-actuation a tai:GallCheckpoint ; tai:order 8 ; tai:identifier "G8" ; skos:prefLabel "Brokered external actuation" ; tai:dependsOn tai:g6-pure-kernel ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/receipts/intents/external-intent.json" ; tai:refusalCode "CMD-G8-UNRECEIPTED-ACTUATION" .
+tai:g9-crown a tai:GallCheckpoint ; tai:order 9 ; tai:identifier "G9" ; skos:prefLabel "Crown verifier and self-host replay" ; tai:dependsOn tai:g7-transactional-materialization, tai:g8-brokered-actuation ;
+  tai:maximumStanding "PARTIAL_ALIVE" ; tai:requiredArtifact ".ggen/cmd/verifier/report.json" ; tai:refusalCode "CMD-G9-CROWN-INCOMPLETE" .
+
+# Internal combinatorial dimensions. Options remain inert until selected by the pure kernel.
+tai:dim-runtime a tai:CandidateDimension ; tai:order 1 ; tai:identifier "runtime" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "pairwise" .
+tai:dim-storage a tai:CandidateDimension ; tai:order 2 ; tai:identifier "storage" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "pairwise" .
+tai:dim-invocation a tai:CandidateDimension ; tai:order 3 ; tai:identifier "invocation-protocol" ; tai:selectionCardinality "one-or-more" ; tai:coverageMode "t-wise" .
+tai:dim-serialization a tai:CandidateDimension ; tai:order 4 ; tai:identifier "serialization" ; tai:selectionCardinality "one-or-more" ; tai:coverageMode "pairwise" .
+tai:dim-consistency a tai:CandidateDimension ; tai:order 5 ; tai:identifier "consistency-model" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "risk-weighted" .
+tai:dim-scheduling a tai:CandidateDimension ; tai:order 6 ; tai:identifier "scheduling-model" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "pairwise" .
+tai:dim-error a tai:CandidateDimension ; tai:order 7 ; tai:identifier "error-model" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "risk-weighted" .
+tai:dim-deployment a tai:CandidateDimension ; tai:order 8 ; tai:identifier "deployment-projection" ; tai:selectionCardinality "zero-or-more" ; tai:coverageMode "t-wise" .
+tai:dim-cardinality a tai:CandidateDimension ; tai:order 9 ; tai:identifier "generation-cardinality" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "exhaustive" .
+tai:dim-ownership a tai:CandidateDimension ; tai:order 10 ; tai:identifier "ownership-mode" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "risk-weighted-exhaustive" .
+tai:dim-recovery a tai:CandidateDimension ; tai:order 11 ; tai:identifier "recovery-mode" ; tai:selectionCardinality "exactly-one" ; tai:coverageMode "risk-weighted-exhaustive" .
+tai:dim-verification a tai:CandidateDimension ; tai:order 12 ; tai:identifier "verification-mode" ; tai:selectionCardinality "one-or-more" ; tai:coverageMode "t-wise" .
+
+# External dimensions are conjunctive authority constraints, not provider feature flags.
+tai:dim-provider a tai:CandidateDimension ; tai:order 1 ; tai:identifier "provider" ; tai:authorityCeiling "intent-only" .
+tai:dim-protocol a tai:CandidateDimension ; tai:order 2 ; tai:identifier "protocol" ; tai:authorityCeiling "adapter-only" .
+tai:dim-identity a tai:CandidateDimension ; tai:order 3 ; tai:identifier "identity" ; tai:authorityCeiling "grant-required" .
+tai:dim-authentication a tai:CandidateDimension ; tai:order 4 ; tai:identifier "authentication" ; tai:authorityCeiling "grant-required" .
+tai:dim-authority-scope a tai:CandidateDimension ; tai:order 5 ; tai:identifier "authority-scope" ; tai:authorityCeiling "exact-grant" .
+tai:dim-consent a tai:CandidateDimension ; tai:order 6 ; tai:identifier "consent" ; tai:authorityCeiling "evidence-object" .
+tai:dim-data-classification a tai:CandidateDimension ; tai:order 7 ; tai:identifier "data-classification" ; tai:authorityCeiling "policy-constrained" .
+tai:dim-jurisdiction a tai:CandidateDimension ; tai:order 8 ; tai:identifier "jurisdiction" ; tai:authorityCeiling "policy-constrained" .
+tai:dim-runtime-target a tai:CandidateDimension ; tai:order 9 ; tai:identifier "runtime-target" ; tai:authorityCeiling "broker-only" .
+tai:dim-availability a tai:CandidateDimension ; tai:order 10 ; tai:identifier "availability-model" ; tai:authorityCeiling "bounded-retry" .
+tai:dim-consequence a tai:CandidateDimension ; tai:order 11 ; tai:identifier "consequence-class" ; tai:authorityCeiling "observer-required" .
+tai:dim-evidence-source a tai:CandidateDimension ; tai:order 12 ; tai:identifier "evidence-source" ; tai:authorityCeiling "independent-verifier" .
+tai:dim-compensation a tai:CandidateDimension ; tai:order 13 ; tai:identifier "rollback-or-compensation" ; tai:authorityCeiling "classified-before-grant" .
+
+# Trust and rollback controlled vocabularies.
+tai:trust-untrusted a tai:TrustTier ; tai:order 0 ; tai:identifier "UNTRUSTED" .
+tai:trust-locally-admitted a tai:TrustTier ; tai:order 1 ; tai:identifier "LOCALLY_ADMITTED" .
+tai:trust-signed a tai:TrustTier ; tai:order 2 ; tai:identifier "SIGNED" .
+tai:trust-verified-publisher a tai:TrustTier ; tai:order 3 ; tai:identifier "VERIFIED_PUBLISHER" .
+tai:trust-independently-verified a tai:TrustTier ; tai:order 4 ; tai:identifier "INDEPENDENTLY_VERIFIED" .
+tai:trust-production-approved a tai:TrustTier ; tai:order 5 ; tai:identifier "PRODUCTION_APPROVED" .
+tai:trust-revoked a tai:TrustTier ; tai:order 6 ; tai:identifier "REVOKED" .
+
+tai:rollback-reversible a tai:RollbackClass ; tai:order 1 ; tai:identifier "REVERSIBLE" .
+tai:rollback-snapshot a tai:RollbackClass ; tai:order 2 ; tai:identifier "REVERSIBLE_WITH_SNAPSHOT" .
+tai:rollback-compensatable a tai:RollbackClass ; tai:order 3 ; tai:identifier "COMPENSATABLE" .
+tai:rollback-irreversible a tai:RollbackClass ; tai:order 4 ; tai:identifier "IRREVERSIBLE" .
+tai:rollback-unsupported a tai:RollbackClass ; tai:order 5 ; tai:identifier "UNSUPPORTED" .
+tai:rollback-unknown a tai:RollbackClass ; tai:order 6 ; tai:identifier "UNKNOWN" .
