@@ -566,12 +566,27 @@ v26-8-1-ontology:
 v26-8-1-plan:
     python3 planning/v26.8.1/verify_planning.py
 
+# Manufacturing step (writes docs/v26.8.1/coverage-matrix.csv): the ONLY v26.8.1
+# recipe permitted to write that file. Regenerates the subsystem evidence manifest,
+# runs the external subsystem verifier, projects the coverage-matrix CSV from its
+# real output in memory (tools/v26.8.1/src/coverage_projection.rs, shared with the
+# now-read-only crown so the two paths cannot drift), writes the CSV, and emits a
+# projection report + BLAKE3 receipt at .ggen/v26.8.1/coverage-projection-{report,receipt}.json.
+v26-8-1-project-coverage:
+    python3 tools/v26.8.1/subsystem_evidence_manifest.py
+    cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin project_coverage -- --root .
+
 # Crown verifier in observe-only mode (non-strict: does not require release-admission
-# preconditions). Real CLI: `cargo run --manifest-path tools/v26.8.1/Cargo.toml -- --root . --observe-only`
+# preconditions). Real CLI: `cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin ggen-v26-8-1-verifier -- --root . --observe-only`
 # (confirmed against tools/v26.8.1/src/main.rs's `resolve_root`/`run` and the existing
 # tools/v26.8.1/justfile's own `observe` recipe). Writes .ggen/v26.8.1/{verifier-report,receipt}.json.
+# READ-ONLY as of the crown/manufacturing split: this never writes
+# docs/v26.8.1/coverage-matrix.csv -- it recomputes the same projection
+# `v26-8-1-project-coverage` writes and byte-compares against disk, refusing
+# with GENERATED_COVERAGE_DRIFT on any mismatch. Run `v26-8-1-project-coverage`
+# first if the CSV does not exist yet or is legitimately stale.
 v26-8-1-crown-check:
-    cargo run --manifest-path tools/v26.8.1/Cargo.toml -- --root . --observe-only
+    cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin ggen-v26-8-1-verifier -- --root . --observe-only
 
 # Step-two admission pass over the corpus (real CLI: `--root <path>`, confirmed via
 # `step_two.py --help`).
@@ -615,7 +630,7 @@ v26-8-1-equivalence:
 v26-8-1-sunset:
     #!/usr/bin/env bash
     set -euo pipefail
-    cargo run --manifest-path tools/v26.8.1/Cargo.toml -- --root . || true
+    cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin ggen-v26-8-1-verifier -- --root . || true
     echo "--- .ggen/v26.8.1/verifier-report.json sunset_admitted (real value) ---"
     python3 -c "import json; d=json.load(open('.ggen/v26.8.1/verifier-report.json')); print('sunset_admitted=', d.get('sunset_admitted'))"
 

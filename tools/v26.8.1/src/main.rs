@@ -3,17 +3,20 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::env;
 use std::fs;
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::path::Path;
 use walkdir::WalkDir;
+
+use v26_8_1_tools::coverage_projection::{
+    self, check_provenance_receipt, exact_head, project_coverage_rows, relative, resolve_root,
+    run_subsystem_verifier, serialize_coverage_csv, subsystem_verifier_report_digest,
+    CoverageRow,
+};
 
 const VERSION: &str = "26.8.1";
 const DOC_ROOT: &str = "docs/v26.8.1";
 const MANIFEST_PATH: &str = "docs/v26.8.1/manifest.toml";
-const COVERAGE_PATH: &str = "docs/v26.8.1/coverage-matrix.csv";
+const COVERAGE_PATH: &str = coverage_projection::COVERAGE_PATH;
 const EVIDENCE_ROOT: &str = ".ggen/v26.8.1";
-const SUBSYSTEM_MANIFEST_REL: &str = ".ggen/v26.8.1/subsystem-evidence-manifest.json";
-const SUBSYSTEM_VERIFIER_REPORT_REL: &str = ".ggen/v26.8.1/subsystem-verifier-report.json";
 
 #[derive(Debug, Deserialize)]
 struct CorpusManifest {
@@ -50,17 +53,6 @@ struct BaselineFacts {
     workspace_version: String,
     workspace_packages: usize,
     pipeline: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-struct CoverageRow {
-    document: String,
-    subsystem: String,
-    authority_sources: String,
-    implementation_sources: String,
-    verifier: String,
-    legacy_disposition: String,
-    standing: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -118,141 +110,13 @@ struct CrownReport {
     files: Vec<FileObservation>,
 }
 
-/// Deserialized shape of `tools/v26.8.1/src/bin/subsystem_verifier.rs`'s own
-/// report -- the ONLY source of subsystem standing the crown trusts. The
-/// crown never reads `coverage-matrix.csv`'s `standing` column as input;
-/// that CSV is a generated projection of this struct (see
-/// `project_coverage_matrix` below), never the other way around.
-#[derive(Debug, Deserialize, Clone)]
-struct SubsystemVerifierStanding {
-    subsystem: String,
-    standing: String,
-    legacy_total: usize,
-    legacy_unknown: usize,
-    legacy_fully_closed: bool,
-    reasons: Vec<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct SubsystemVerifierReport {
-    schema_version: String,
-    subsystems: Vec<SubsystemVerifierStanding>,
-}
-
-/// Runs (building first if needed) `tools/v26.8.1/src/bin/subsystem_verifier.rs`
-/// against `root` and returns its independently-derived per-subsystem
-/// standings. This is the ONLY path by which subsystem standing enters the
-/// crown -- inverted from the prior architecture where the crown read
-/// `coverage-matrix.csv`'s `standing` column directly.
-fn run_subsystem_verifier(root: &Path) -> Result<Vec<SubsystemVerifierStanding>> {
-    let manifest_path = root.join(SUBSYSTEM_MANIFEST_REL);
-    if !manifest_path.is_file() {
-        bail!(
-            "SUBSYSTEM_MANIFEST_ABSENT: {} not found; run `python3 tools/v26.8.1/subsystem_evidence_manifest.py` first",
-            relative(root, &manifest_path)
-        );
-    }
-    let tool_root = root.join("tools/v26.8.1");
-    let build = Command::new("cargo")
-        .args(["build", "--manifest-path", "tools/v26.8.1/Cargo.toml", "--bin", "subsystem_verifier"])
-        .current_dir(root)
-        .status()
-        .context("spawn cargo build for subsystem_verifier")?;
-    if !build.success() {
-        bail!("SUBSYSTEM_VERIFIER_BUILD_FAILED: cargo build for subsystem_verifier did not exit 0");
-    }
-    let binary = tool_root.join("target/debug/subsystem_verifier");
-    if !binary.is_file() {
-        bail!(
-            "SUBSYSTEM_VERIFIER_BINARY_ABSENT: expected {} after build",
-            binary.display()
-        );
-    }
-    let output = Command::new(&binary)
-        .args(["--root", &root.to_string_lossy()])
-        .output()
-        .context("spawn subsystem_verifier")?;
-    // The subsystem_verifier binary itself writes its report even when it
-    // ultimately refuses (non-strict observe-only mode is what the crown
-    // uses here, matching its own --observe-only convention); read the
-    // report regardless of exit code, but surface non-zero loudly.
-    if !output.status.success() {
-        eprintln!(
-            "subsystem_verifier exited non-zero: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
-    let report_path = root.join(SUBSYSTEM_VERIFIER_REPORT_REL);
-    let report_bytes = fs::read(&report_path).with_context(|| {
-        format!(
-            "subsystem_verifier report missing at {}",
-            relative(root, &report_path)
-        )
-    })?;
-    let report: SubsystemVerifierReport =
-        serde_json::from_slice(&report_bytes).context("parse subsystem-verifier-report.json")?;
-    if report.schema_version != "ggen.v26.8.1.subsystem-verifier-report/1" {
-        bail!(
-            "SUBSYSTEM_VERIFIER_SCHEMA_MISMATCH: {}",
-            report.schema_version
-        );
-    }
-    Ok(report.subsystems)
-}
-
-/// Aggregate legacy-disposition marker for the coverage-matrix projection.
-/// This is deliberately NOT a literal per-capability disposition (the
-/// matrix has one row per subsystem, not per capability) -- it is a
-/// coarse rollup: "UNKNOWN" whenever any mapped legacy capability has an
-/// unresolved (DISPOSITION_UNKNOWN) disposition, or whenever no legacy
-/// capability is mapped to the subsystem at all (nothing to report);
-/// "PRESERVED" only when every mapped legacy capability's disposition is
-/// resolved (used here as a generic "fully accounted for" marker within
-/// `manifest.toml`'s allowed disposition vocabulary, not a claim that
-/// every capability's individual disposition was literally PRESERVED).
-fn aggregate_legacy_disposition(standing: &SubsystemVerifierStanding) -> &'static str {
-    if standing.legacy_total > 0 && standing.legacy_fully_closed {
-        "PRESERVED"
-    } else {
-        "UNKNOWN"
-    }
-}
-
-/// Regenerates `docs/v26.8.1/coverage-matrix.csv` as a GENERATED PROJECTION
-/// of the subsystem verifier's real per-subsystem decisions. This file is
-/// never hand-edited and never again read for its `standing`/
-/// `legacy_disposition` columns as input truth -- `validate_coverage`
-/// below still schema-checks it (allowed-value sets, required mappings),
-/// but the crown's own admission decision is computed from
-/// `standings`, not from this projected CSV.
-fn project_coverage_matrix(
-    root: &Path, existing: &[CoverageRow], standings: &[SubsystemVerifierStanding],
-) -> Result<Vec<CoverageRow>> {
-    let by_subsystem: std::collections::BTreeMap<&str, &SubsystemVerifierStanding> = standings
-        .iter()
-        .map(|s| (s.subsystem.as_str(), s))
-        .collect();
-    let mut projected = Vec::with_capacity(existing.len());
-    for row in existing {
-        let mut new_row = row.clone();
-        if let Some(standing) = by_subsystem.get(row.subsystem.as_str()) {
-            new_row.standing = standing.standing.clone();
-            new_row.legacy_disposition = aggregate_legacy_disposition(standing).to_owned();
-            new_row.verifier = "tools/v26.8.1/src/bin/subsystem_verifier.rs".to_owned();
-        } else {
-            new_row.standing = "UNKNOWN".to_owned();
-            new_row.legacy_disposition = "UNKNOWN".to_owned();
-            new_row.verifier = "UNASSIGNED".to_owned();
-        }
-        projected.push(new_row);
-    }
-    let mut writer = csv::Writer::from_path(root.join(COVERAGE_PATH))?;
-    for row in &projected {
-        writer.serialize(row)?;
-    }
-    writer.flush()?;
-    Ok(projected)
-}
+// SubsystemVerifierStanding / SubsystemVerifierReport / run_subsystem_verifier /
+// aggregate_legacy_disposition / project_coverage_matrix used to live here.
+// They are now `v26_8_1_tools::coverage_projection`'s single shared
+// implementation (imported above), consumed identically by this crown AND
+// by `tools/v26.8.1/src/bin/project_coverage.rs` (the manufacturing
+// binary). See `verify_coverage_matrix_is_read_only` below for how the
+// crown now uses that shared logic WITHOUT ever writing the CSV.
 
 #[derive(Debug, Serialize)]
 struct CrownReceipt {
@@ -281,19 +145,48 @@ fn run() -> Result<()> {
     let manifest = load_manifest(&root)?;
     let source_head = exact_head(&root);
     let documents = observe_documents(&root)?;
-    let coverage_before_projection = load_coverage(&root)?;
     let workspace = observe_workspace(&root)?;
     let files = observe_authority_files(&root)?;
 
-    // --- Inverted authority: subsystem standing comes from the external
-    // subsystem_verifier binary, never from reading coverage-matrix.csv's
-    // `standing` column. The CSV is regenerated (below) as a projection of
-    // this call's output; it is never itself consulted for standing.
-    let subsystem_standings = run_subsystem_verifier(&root)?;
-    let coverage = project_coverage_matrix(&root, &coverage_before_projection, &subsystem_standings)?;
-
     let mut findings = Vec::new();
     let mut gates = Vec::new();
+
+    // --- Inverted authority: subsystem standing comes from the external
+    // subsystem_verifier binary, never from reading coverage-matrix.csv's
+    // `standing` column.
+    //
+    // --- READ-ONLY crown (observer/verifier boundary): the crown NEVER
+    // writes `docs/v26.8.1/coverage-matrix.csv`. It recomputes the exact
+    // same projection the manufacturing binary
+    // (`tools/v26.8.1/src/bin/project_coverage.rs`) would compute -- via
+    // the identical shared `project_coverage_rows`/`serialize_coverage_csv`
+    // functions, so there is no second implementation to drift -- and
+    // byte-compares that expectation against whatever is currently on
+    // disk. A mismatch is refused as GENERATED_COVERAGE_DRIFT; the crown
+    // never "fixes" the file, it only refuses.
+    let subsystem_standings = run_subsystem_verifier(&root)?;
+    let coverage = verify_coverage_matrix_is_read_only(&root, &subsystem_standings, &mut findings)?;
+
+    // Provenance cross-check: the manufacturing step's own receipt
+    // (.ggen/v26.8.1/coverage-projection-receipt.json) must still describe
+    // the report/CSV actually on disk right now. A stale or mismatched
+    // receipt (e.g. a subsystem-verifier report was regenerated after the
+    // receipt was written, or the receipt was hand-edited) is refused as
+    // COVERAGE_PROVENANCE_DRIFT -- the crown never trusts the receipt as
+    // ground truth, it only checks that the receipt agrees with reality.
+    if let Ok(fresh_report_digest) = subsystem_verifier_report_digest(&root) {
+        let current_csv_bytes = fs::read(root.join(COVERAGE_PATH)).unwrap_or_default();
+        if let Some(reason) =
+            check_provenance_receipt(&root, &fresh_report_digest, &current_csv_bytes)?
+        {
+            error(
+                &mut findings,
+                "COVERAGE_PROVENANCE_DRIFT",
+                Some(coverage_projection::COVERAGE_PROJECTION_RECEIPT_REL),
+                reason,
+            );
+        }
+    }
 
     validate_manifest(&manifest, &mut findings);
     validate_documents(&manifest, &documents, &root, &mut findings, &mut gates)?;
@@ -413,38 +306,12 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn resolve_root(args: &[String]) -> Result<PathBuf> {
-    let explicit = args
-        .windows(2)
-        .find(|pair| pair[0] == "--root")
-        .map(|pair| PathBuf::from(&pair[1]));
-    let mut current = explicit.unwrap_or(env::current_dir()?);
-    loop {
-        if current.join("Cargo.toml").is_file() && current.join("AGENTS.md").is_file() {
-            return current
-                .canonicalize()
-                .context("canonicalize repository root");
-        }
-        if !current.pop() {
-            bail!("repository root not found; pass --root <path>");
-        }
-    }
-}
+// resolve_root / exact_head now live in `v26_8_1_tools::coverage_projection`
+// (imported above) and are shared with `project_coverage`/`subsystem_verifier`.
 
 fn load_manifest(root: &Path) -> Result<CorpusManifest> {
     let text = fs::read_to_string(root.join(MANIFEST_PATH))?;
     toml::from_str(&text).context("parse v26.8.1 manifest")
-}
-
-fn exact_head(root: &Path) -> String {
-    Command::new("git")
-        .args(["rev-parse", "HEAD"])
-        .current_dir(root)
-        .output()
-        .ok()
-        .filter(|output| output.status.success())
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_owned())
-        .unwrap_or_else(|| "UNKNOWN".into())
 }
 
 fn observe_documents(root: &Path) -> Result<Vec<String>> {
@@ -467,12 +334,63 @@ fn observe_documents(root: &Path) -> Result<Vec<String>> {
     Ok(documents)
 }
 
-fn load_coverage(root: &Path) -> Result<Vec<CoverageRow>> {
-    let mut reader = csv::Reader::from_path(root.join(COVERAGE_PATH))?;
-    reader
-        .deserialize()
-        .collect::<std::result::Result<Vec<_>, _>>()
-        .context("parse coverage matrix")
+/// Read-only replacement for the old `project_coverage_matrix` write path.
+/// Recomputes the EXPECTED coverage projection in memory (shared logic,
+/// `v26_8_1_tools::coverage_projection::project_coverage_rows`), reads the
+/// EXISTING `docs/v26.8.1/coverage-matrix.csv` bytes from disk, and
+/// byte-compares them. On mismatch: pushes a `GENERATED_COVERAGE_DRIFT`
+/// ERROR finding and returns the recomputed EXPECTED rows (so the rest of
+/// `run()` still has well-formed rows to reason about) -- it does NOT
+/// write anything to disk, ever, under any circumstance, including when
+/// the file is entirely missing.
+fn verify_coverage_matrix_is_read_only(
+    root: &Path, standings: &[coverage_projection::SubsystemVerifierStanding],
+    findings: &mut Vec<Finding>,
+) -> Result<Vec<CoverageRow>> {
+    let expected_rows = project_coverage_rows(standings);
+    let expected_bytes = serialize_coverage_csv(&expected_rows)?;
+
+    let coverage_path = root.join(COVERAGE_PATH);
+    if !coverage_path.is_file() {
+        error(
+            findings,
+            "GENERATED_COVERAGE_DRIFT",
+            Some(COVERAGE_PATH),
+            "coverage-matrix.csv is absent; the crown never writes it -- run \
+             `just v26-8-1-project-coverage` (the manufacturing step) first",
+        );
+        return Ok(expected_rows);
+    }
+
+    let actual_bytes = fs::read(&coverage_path).with_context(|| format!("read {COVERAGE_PATH}"))?;
+    if actual_bytes != expected_bytes {
+        error(
+            findings,
+            "GENERATED_COVERAGE_DRIFT",
+            Some(COVERAGE_PATH),
+            format!(
+                "on-disk coverage-matrix.csv ({} bytes, blake3={}) does not byte-match the \
+                 expected projection recomputed from the subsystem verifier's current report \
+                 ({} bytes, blake3={}). The crown is read-only and refuses rather than \
+                 rewriting the file -- re-run `just v26-8-1-project-coverage` if this is a \
+                 legitimate update, or investigate who/what modified the file otherwise.",
+                actual_bytes.len(),
+                blake3::hash(&actual_bytes).to_hex(),
+                expected_bytes.len(),
+                blake3::hash(&expected_bytes).to_hex(),
+            ),
+        );
+        // Still parse the actual on-disk rows for downstream schema
+        // validation (`validate_coverage`) so findings there are additive,
+        // not masked by the drift refusal above.
+        let mut reader = csv::Reader::from_reader(actual_bytes.as_slice());
+        return reader
+            .deserialize()
+            .collect::<std::result::Result<Vec<CoverageRow>, _>>()
+            .context("parse on-disk (drifted) coverage matrix for schema validation");
+    }
+
+    Ok(expected_rows)
 }
 
 fn observe_workspace(root: &Path) -> Result<WorkspaceObservation> {
@@ -864,12 +782,7 @@ fn ignored(path: &Path) -> bool {
     })
 }
 
-fn relative(root: &Path, path: &Path) -> String {
-    path.strip_prefix(root)
-        .unwrap_or(path)
-        .to_string_lossy()
-        .replace('\\', "/")
-}
+// relative() now lives in `v26_8_1_tools::coverage_projection` (imported above).
 
 fn error(findings: &mut Vec<Finding>, code: &str, path: Option<&str>, message: impl Into<String>) {
     findings.push(Finding {
