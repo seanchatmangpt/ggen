@@ -1,0 +1,14 @@
+---
+to: consumer/tai-enterprise-rebuild/src/lib.rs
+---
+#![forbid(unsafe_code)]
+
+mod blocks;
+mod model;
+mod receipt;
+mod simulation;
+
+pub use blocks::building_block_composition;
+pub use model::{BundleReceipt, BundleSummary, RebuildError, SimulationReport};
+pub use receipt::{verify_receipt, write_bundle};
+pub use simulation::{simulate, validate_catalogs};
