@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/schema/verifier-report.v1.json",
+  "title": "ggen Pack Gall Verifier Report",
+  "type": "object",
+  "required": ["schema", "source_digest", "observation_digest", "checkpoints", "standing"],
+  "properties": {
+    "schema": {"const": "ggen.verifier.report.v1"},
+    "source_digest": {"type": "string", "minLength": 64, "maxLength": 64},
+    "observation_digest": {"type": "string", "minLength": 64, "maxLength": 64},
+    "checkpoints": {"type": "array", "minItems": 10, "maxItems": 10},
+    "standing": {"enum": ["PARTIAL_ALIVE", "BLOCKED", "BUILD_BROKEN"]}
+  },
+  "additionalProperties": false
+}
