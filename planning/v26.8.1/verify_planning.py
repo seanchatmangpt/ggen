@@ -98,7 +98,25 @@ def main() -> int:
     if len(problem_files) != 10:
         findings.append(Finding("PDDL-COVERAGE", "problems", f"expected 10 deterministic families, observed {len(problem_files)}"))
 
-    docs = sorted((ROOT / "docs" / "v26.8.1").glob("**/*.md"))
+    # The 100-document numbered research corpus lives exclusively in the ten
+    # canonical subsystem directories (00-governance .. 90-legacy), one
+    # directory per PDDL problem family's doc_range in manifest.toml.
+    # docs/v26.8.1/diagrams/ is a separate, legitimate supplementary corpus
+    # (Mermaid diagram companions) that happens to reuse the same NN-topic.md
+    # numbering convention (01-06) as the governance docs it illustrates; a
+    # recursive **/*.md glob swept those 6 files in too, inflating the count
+    # to 106 against the manifest's declared 100. Scope the glob to the
+    # numbered corpus directories only, matching manifest.toml's own
+    # [[problems]] doc_range coverage.
+    corpus_dirs = [
+        "00-governance", "10-system", "20-engine", "30-graph", "40-projection",
+        "50-evidence", "60-products", "70-verification", "80-economics", "90-legacy",
+    ]
+    docs = sorted(
+        p
+        for d in corpus_dirs
+        for p in (ROOT / "docs" / "v26.8.1" / d).glob("*.md")
+    )
     numbered = [p for p in docs if re.match(r"\d+-", p.name)]
     if len(numbered) != 100:
         findings.append(Finding("PDDL-DOC-PARITY", "docs/v26.8.1", f"expected 100 numbered documents, observed {len(numbered)}"))

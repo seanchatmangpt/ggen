@@ -323,7 +323,7 @@ fn observe_workspace(root: &Path) -> Result<WorkspaceObservation> {
                 .iter()
                 .filter_map(toml::Value::as_str)
                 .map(str::to_owned)
-                .collect()
+                .collect::<Vec<String>>()
         })
         .unwrap_or_default();
 
@@ -408,10 +408,7 @@ fn validate_manifest(manifest: &CorpusManifest, findings: &mut Vec<Finding>) {
 }
 
 fn validate_documents(
-    manifest: &CorpusManifest,
-    documents: &[String],
-    root: &Path,
-    findings: &mut Vec<Finding>,
+    manifest: &CorpusManifest, documents: &[String], root: &Path, findings: &mut Vec<Finding>,
     gates: &mut Vec<GateResult>,
 ) -> Result<()> {
     let unique: BTreeSet<_> = documents.iter().collect();
@@ -477,9 +474,7 @@ fn validate_documents(
 }
 
 fn validate_coverage(
-    manifest: &CorpusManifest,
-    coverage: &[CoverageRow],
-    findings: &mut Vec<Finding>,
+    manifest: &CorpusManifest, coverage: &[CoverageRow], findings: &mut Vec<Finding>,
     gates: &mut Vec<GateResult>,
 ) {
     let allowed_standing: BTreeSet<_> = manifest
@@ -549,9 +544,7 @@ fn validate_coverage(
 }
 
 fn validate_workspace(
-    manifest: &CorpusManifest,
-    workspace: &WorkspaceObservation,
-    findings: &mut Vec<Finding>,
+    manifest: &CorpusManifest, workspace: &WorkspaceObservation, findings: &mut Vec<Finding>,
     gates: &mut Vec<GateResult>,
 ) {
     if workspace.workspace_version != manifest.baseline.workspace_version {
@@ -597,9 +590,7 @@ fn validate_workspace(
 }
 
 fn validate_authority_files(
-    files: &[FileObservation],
-    findings: &mut Vec<Finding>,
-    gates: &mut Vec<GateResult>,
+    files: &[FileObservation], findings: &mut Vec<Finding>, gates: &mut Vec<GateResult>,
 ) {
     let required = [
         "AGENTS.md",

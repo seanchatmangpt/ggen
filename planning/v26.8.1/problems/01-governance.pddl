@@ -1,5 +1,5 @@
 ; ggen v26.8.1 planning projection covering numbered research documents 1-10
-(define (problem ggen-v2681-governance)
+(define (problem ggen-v2681-governance-1-10)
  (:domain ggen-v2681-core)
  (:objects v2681 - release
   governance authority scope standing claims loss-law precedence generated-authority change-control release-decision risk-register documents-1-10 - subsystem
