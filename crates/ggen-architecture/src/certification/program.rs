@@ -3,10 +3,9 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::{
-    digest, CertificationAward, CertificationLevel, CertificationRefusal,
-    CertificationRequirement, CertificationRequirementKind, RequirementReceipt,
-    CERTIFICATION_AWARD_SCHEMA, GBB_CERTIFICATION_PROGRAM_ID, REBUILD_ROADMAP_SCHEMA,
-    TAI_REBUILD_RECEIPT_SCHEMA,
+    digest, CertificationAward, CertificationLevel, CertificationRefusal, CertificationRequirement,
+    CertificationRequirementKind, RequirementReceipt, CERTIFICATION_AWARD_SCHEMA,
+    GBB_CERTIFICATION_PROGRAM_ID, REBUILD_ROADMAP_SCHEMA, TAI_REBUILD_RECEIPT_SCHEMA,
 };
 
 /// Cumulative evidence-backed certification program.
@@ -143,8 +142,7 @@ impl CertificationProgram {
     /// Requirements accumulated through the requested credential.
     #[must_use]
     pub fn requirements_through(
-        &self,
-        level: CertificationLevel,
+        &self, level: CertificationLevel,
     ) -> Vec<&CertificationRequirement> {
         self.requirements
             .values()
@@ -154,9 +152,7 @@ impl CertificationProgram {
 
     /// Assess a cumulative portfolio and issue a deterministic award receipt.
     pub fn assess(
-        &self,
-        candidate_id: &str,
-        level: CertificationLevel,
+        &self, candidate_id: &str, level: CertificationLevel,
         receipts: &BTreeMap<String, RequirementReceipt>,
     ) -> Result<CertificationAward, CertificationRefusal> {
         if candidate_id.trim().is_empty() {
@@ -207,9 +203,7 @@ impl CertificationProgram {
 
 impl RequirementReceipt {
     fn validate(
-        &self,
-        candidate_id: &str,
-        requirement_id: &str,
+        &self, candidate_id: &str, requirement_id: &str,
     ) -> Result<(), CertificationRefusal> {
         if self.candidate_id != candidate_id {
             return Err(CertificationRefusal::ReceiptCandidateMismatch {
