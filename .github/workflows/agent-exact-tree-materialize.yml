@@ -1,0 +1,44 @@
+name: Agent Exact Tree Materialization
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/agent-exact-tree-materialize.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-exact-tree-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    name: exact-tree-bundle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact pull-request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Manufacture exact Git bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle create ggen-exact-tree.bundle HEAD refs/remotes/origin/main
+          git bundle verify ggen-exact-tree.bundle
+          printf '%s\n' "$(git rev-parse HEAD)" > ggen-exact-tree.sha
+
+      - name: Upload exact tree transport
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-exact-tree-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ggen-exact-tree.bundle
+            ggen-exact-tree.sha
+          if-no-files-found: error
+          retention-days: 1
