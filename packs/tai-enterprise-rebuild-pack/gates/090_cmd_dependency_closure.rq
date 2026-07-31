@@ -1,5 +1,33 @@
 PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
-SELECT ?checkpoint ?missing WHERE {
-  ?checkpoint a tai:GallCheckpoint ; tai:dependsOn ?missing .
-  FILTER NOT EXISTS { ?missing a tai:GallCheckpoint }
+SELECT ?subject ?missing ?reason WHERE {
+  {
+    ?subject a tai:GallCheckpoint ; tai:dependsOn ?missing .
+    FILTER NOT EXISTS { ?missing a tai:GallCheckpoint }
+    BIND("checkpoint-dependency-missing" AS ?reason)
+  }
+  UNION
+  {
+    ?subject a tai:CandidateOption ; tai:requiresOption ?missing .
+    FILTER NOT EXISTS { ?missing a tai:CandidateOption }
+    BIND("option-requirement-missing" AS ?reason)
+  }
+  UNION
+  {
+    ?subject a tai:CandidateOption ; tai:dimensionIdentifier ?missing .
+    FILTER NOT EXISTS {
+      { tai:tai-rebuild-v26-7-31 tai:internalDimension ?dimension }
+      UNION { tai:tai-rebuild-v26-7-31 tai:externalDimension ?dimension }
+      ?dimension tai:identifier ?missing .
+    }
+    BIND("option-dimension-missing" AS ?reason)
+  }
+  UNION
+  {
+    SELECT (?dimension AS ?subject) (STR(?count) AS ?missing) ("dimension-option-cardinality" AS ?reason) WHERE {
+      { SELECT ?dimension (COUNT(DISTINCT ?option) AS ?count) WHERE {
+          ?option a tai:CandidateOption ; tai:dimensionIdentifier ?dimension .
+        } GROUP BY ?dimension HAVING(?count != 2)
+      }
+    }
+  }
 }
