@@ -1,0 +1,58 @@
+name: v26.8.1 Step Two
+
+on:
+  pull_request:
+    paths:
+      - "tools/v26.8.1/**"
+      - "planning/v26.8.1/**"
+      - "ontology/v26.8.1/**"
+      - "docs/v26.8.1/**"
+      - "crates/ggen-cli/**"
+      - "crates/bcinr/**"
+      - ".github/workflows/v26.8.1-step-two.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v26-8-1-step-two-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  admit-step-two:
+    name: Step Two / autonomous admission
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact aggregate head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Rust toolchain
+        run: rustup show
+
+      - name: Execute one-shot controller
+        run: python3 tools/v26.8.1/step_two.py --root .
+
+      - name: Assert admitted receipt
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('.ggen/v26.8.1/step-two/report.json').read_text())
+          receipt = json.loads(Path('.ggen/v26.8.1/step-two/receipt.json').read_text())
+          assert report['standing'] == 'ALIVE', report
+          assert report['step_two_admitted'] is True, report
+          assert receipt['step_two_admitted'] is True, receipt
+          assert report['source_head'] == receipt['source_head']
+          PY
+
+      - name: Publish Step Two evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ggen-v26.8.1-step-two-${{ github.sha }}
+          path: .ggen/v26.8.1/step-two/
+          if-no-files-found: error
