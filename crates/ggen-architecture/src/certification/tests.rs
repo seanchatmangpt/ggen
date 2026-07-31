@@ -9,6 +9,12 @@ use crate::building_block::{
 
 use super::*;
 
+fn standards_digest() -> String {
+    seven_day_standards_profile()
+        .digest()
+        .expect("canonical seven-day standards profile")
+}
+
 fn block(id: &str, dependency: Option<&str>) -> BuildingBlock {
     let block_id = BuildingBlockId::new(id);
     let input = PortId::new(format!("{id}-input"));
@@ -125,6 +131,8 @@ fn requirement_receipt(id: &str) -> RequirementReceipt {
         requirement_id: id.to_string(),
         candidate_id: "candidate-1".to_string(),
         case_study_id: TAI_CASE_STUDY_ID.to_string(),
+        standards_profile_id: GGEN_SEVEN_DAY_STANDARDS_ID.to_string(),
+        standards_profile_digest: standards_digest(),
         positive_witness_digest: format!("urn:blake3:{id}-positive"),
         negative_falsifier_digest: format!("urn:blake3:{id}-negative"),
         independent_verifier_digest: format!("urn:blake3:{id}-independent"),
@@ -151,6 +159,8 @@ fn target(root: &BuildingBlock) -> TargetArchitectureInstance {
     TargetArchitectureInstance {
         id: "tai-automated-technical-capability-company".to_string(),
         case_study_id: TAI_CASE_STUDY_ID.to_string(),
+        standards_profile_id: GGEN_SEVEN_DAY_STANDARDS_ID.to_string(),
+        standards_profile_digest: standards_digest(),
         roots: BTreeSet::from([root.id.clone()]),
         required_profiles: BTreeSet::from([
             ProfileId::new("core"),
@@ -177,9 +187,36 @@ fn tai_case_study_preserves_source_and_exact_cardinality() {
 }
 
 #[test]
+fn seven_day_standards_are_exact_and_pending_work_cannot_promote() {
+    let profile = seven_day_standards_profile();
+    assert!(profile.validate().is_ok());
+    assert_eq!(profile.id, GGEN_SEVEN_DAY_STANDARDS_ID);
+    assert_eq!(profile.version, GGEN_SEVEN_DAY_STANDARDS_VERSION);
+    assert_eq!(profile.checkpoints.len(), 18);
+    assert_eq!(profile.promoting_checkpoints().len(), 17);
+    assert!(profile.checkpoints.iter().any(|checkpoint| {
+        checkpoint.id == "STD-18-CI-CONTROL-PLANE-G0"
+            && checkpoint.status == StandardStatus::PendingCheckpoint
+    }));
+    assert!(profile.digest().is_ok_and(|value| value.starts_with("urn:blake3:")));
+}
+
+#[test]
+fn standards_digest_changes_when_law_changes() {
+    let original = seven_day_standards_profile();
+    let mut changed = original.clone();
+    changed.checkpoints[0].law.push_str(" changed");
+    assert_ne!(
+        original.digest().expect("original standards digest"),
+        changed.digest().expect("changed standards digest")
+    );
+}
+
+#[test]
 fn programme_has_five_levels_twelve_requirements_and_sixty_surfaces() {
     let program = CertificationProgram::ggen_bblocks_v1();
     assert_eq!(program.case_study_id, TAI_CASE_STUDY_ID);
+    assert_eq!(program.standards_profile_id, GGEN_SEVEN_DAY_STANDARDS_ID);
     assert_eq!(program.requirements.len(), 12);
     assert_eq!(
         program
@@ -197,7 +234,7 @@ fn programme_has_five_levels_twelve_requirements_and_sixty_surfaces() {
 }
 
 #[test]
-fn award_binds_candidate_requirement_and_tai_case_study() {
+fn award_binds_candidate_case_and_exact_standards_profile() {
     let program = CertificationProgram::ggen_bblocks_v1();
     let receipts = program
         .requirements_through(CertificationLevel::Gbb100Foundation)
@@ -212,11 +249,13 @@ fn award_binds_candidate_requirement_and_tai_case_study() {
         )
         .expect("complete TAI portfolio");
     assert_eq!(award.case_study_id, TAI_CASE_STUDY_ID);
+    assert_eq!(award.standards_profile_id, GGEN_SEVEN_DAY_STANDARDS_ID);
+    assert_eq!(award.standards_profile_digest, standards_digest());
     assert!(award.digest.starts_with("urn:blake3:"));
 }
 
 #[test]
-fn award_refuses_missing_replay_and_detached_case_study() {
+fn award_refuses_missing_replay_detached_case_and_stale_standards() {
     let program = CertificationProgram::ggen_bblocks_v1();
     let mut receipts = program
         .requirements_through(CertificationLevel::Gbb100Foundation)
@@ -249,6 +288,18 @@ fn award_refuses_missing_replay_and_detached_case_study() {
         ),
         Err(CertificationRefusal::CaseStudyMismatch { .. })
     ));
+
+    let mut receipt = requirement_receipt("GBB-100-FENCE");
+    receipt.standards_profile_digest = "urn:blake3:stale".to_string();
+    receipts.insert("GBB-100-FENCE".to_string(), receipt);
+    assert!(matches!(
+        program.assess(
+            "candidate-1",
+            CertificationLevel::Gbb100Foundation,
+            &receipts
+        ),
+        Err(CertificationRefusal::StandardsProfileDigestMismatch { .. })
+    ));
 }
 
 #[test]
@@ -272,6 +323,8 @@ fn gbb_state_generates_dependency_ordered_tai_roadmap() {
         vec![foundation.id.clone(), application.id.clone()]
     );
     assert_eq!(roadmap.case_study_id, TAI_CASE_STUDY_ID);
+    assert_eq!(roadmap.standards_profile_id, GGEN_SEVEN_DAY_STANDARDS_ID);
+    assert_eq!(roadmap.standards_profile_digest, standards_digest());
     assert_eq!(
         roadmap
             .steps
@@ -301,12 +354,14 @@ fn complete_tai_rebuild_is_alive_and_replay_stable() {
         .expect("stable TAI replay");
     assert_eq!(first, second);
     assert_eq!(first.case_study_id, TAI_CASE_STUDY_ID);
+    assert_eq!(first.standards_profile_id, GGEN_SEVEN_DAY_STANDARDS_ID);
+    assert_eq!(first.standards_profile_digest, standards_digest());
     assert_eq!(first.standing, Standing::Alive);
     assert_eq!(first.order, vec![foundation.id, application.id]);
 }
 
 #[test]
-fn detached_target_and_terminal_lifecycle_are_refused() {
+fn detached_target_stale_standards_and_terminal_lifecycle_are_refused() {
     let (registry, foundation, application) = complete_registry();
     let ledger = BTreeMap::from([
         (foundation.id.clone(), evidence(&foundation)),
@@ -317,6 +372,13 @@ fn detached_target_and_terminal_lifecycle_are_refused() {
     assert!(matches!(
         generate_rebuild_roadmap(&registry, &detached, &ledger),
         Err(CertificationRefusal::CaseStudyMismatch { .. })
+    ));
+
+    let mut stale = target(&application);
+    stale.standards_profile_digest = "urn:blake3:stale".to_string();
+    assert!(matches!(
+        generate_rebuild_roadmap(&registry, &stale, &ledger),
+        Err(CertificationRefusal::StandardsProfileDigestMismatch { .. })
     ));
 
     let mut retired = block("retired", None);
