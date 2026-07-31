@@ -287,14 +287,20 @@ fn retired_blocks_are_refused() {
 fn tai_case_study_preserves_the_complete_enterprise_fence() {
     let case_study = tai_case_study();
     assert_eq!(case_study.id, TAI_CASE_STUDY_ID);
-    assert_eq!(case_study.target_enterprise, "Automated Technical Capability Company");
+    assert_eq!(
+        case_study.target_enterprise,
+        "Automated Technical Capability Company"
+    );
     assert_eq!(case_study.governing_equation, "O → O* → μ → A → R");
     assert_eq!(case_study.root_broker, "BRCE");
     assert_eq!(case_study.enterprise_facets.len(), 9);
     assert_eq!(case_study.capability_domains.len(), 9);
     assert_eq!(case_study.enterprise_lifecycle.len(), 12);
     assert_eq!(case_study.manufacturing_line.len(), 16);
-    assert_eq!(case_study.root_block, BuildingBlockId::new(TAI_ENTERPRISE_ROOT_ID));
+    assert_eq!(
+        case_study.root_block,
+        BuildingBlockId::new(TAI_ENTERPRISE_ROOT_ID)
+    );
 }
 
 #[test]
@@ -306,7 +312,10 @@ fn tai_examination_generates_the_enterprise_reconstruction_roadmap() {
     let evidence = tai_case_study_evidence(&registry, TaiCaseStudyState::Examination);
     let roadmap = generate_rebuild_roadmap(&registry, &target, &evidence).expect("TAI roadmap");
     assert_eq!(roadmap.composition.blocks.len(), 10);
-    assert_eq!(roadmap.composition.digest, target.expected_composition_digest.unwrap());
+    assert_eq!(
+        roadmap.composition.digest,
+        target.expected_composition_digest.unwrap()
+    );
     assert!(roadmap.steps.iter().any(|step| {
         step.block_id == BuildingBlockId::new("tai-capability")
             && step.action == RoadmapAction::Identify
