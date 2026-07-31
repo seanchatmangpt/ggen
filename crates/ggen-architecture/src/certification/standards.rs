@@ -11,7 +11,7 @@ use super::{
 pub const GGEN_SEVEN_DAY_STANDARDS_ID: &str = "GGEN-STANDARDS-7D-2026-07-30";
 /// Semantic version of the admitted standards profile.
 pub const GGEN_SEVEN_DAY_STANDARDS_VERSION: &str = "26.7.31";
-const EXPECTED_CHECKPOINTS: usize = 19;
+const EXPECTED_CHECKPOINTS: usize = 18;
 
 /// Authority layer responsible for one standard.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -65,8 +65,8 @@ pub struct StandardsProfile {
 }
 
 impl StandardsProfile {
-    /// Validate identity, cardinality, unique checkpoint ownership, and the
-    /// non-promoting boundary for pending work.
+    /// Validate identity, cardinality, unique checkpoint ownership, the canonical
+    /// Testing Building Block, and the non-promoting boundary for pending work.
     pub fn validate(&self) -> Result<(), StandardsProfileRefusal> {
         if self.id != GGEN_SEVEN_DAY_STANDARDS_ID {
             return Err(StandardsProfileRefusal::IdentityMismatch(self.id.clone()));
@@ -221,8 +221,8 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
             "STD-12-REAL-BOUNDARY-TESTING",
             StandardAuthority::Verification,
             StandardStatus::Admitted,
-            "Chicago-style tests cross real process, filesystem, state, protocol, or telemetry boundaries and externalize causal evidence.",
-            "Use mocks, stubs, fabricated telemetry, synthetic receipts, or hard-coded success as primary evidence.",
+            "Chicago-style tests cross real process, filesystem, state, protocol, or telemetry boundaries and externalize causal evidence through the canonical Testing Building Block protocol.",
+            "Use mocks, stubs, fabricated telemetry, synthetic receipts, hard-coded success, or one collapsed suite as primary evidence.",
         ),
         (
             "STD-13-EXACT-HEAD-EXECUTION",
@@ -265,13 +265,6 @@ pub fn seven_day_standards_profile() -> StandardsProfile {
             StandardStatus::PendingCheckpoint,
             "CI G0 inventories every workflow, names one semantic owner per production output, measures trigger fan-out, and preserves retirement fences before consolidation.",
             "Delete or consolidate workflows before exact inventory, ownership, and missing-owner/duplicate-authority falsifiers execute.",
-        ),
-        (
-            "STD-19-TESTING-BBLOCK",
-            StandardAuthority::Verification,
-            StandardStatus::PendingCheckpoint,
-            "Testing is a canonical Building Block with ten distinct executable suites: protocol/unit, property/fuzz, stdio plus HTTP integration, black-box CLI E2E, security, chaos, stress, benchmark, replay, and machine-readable verifier report.",
-            "Collapse the suites into one undifferentiated command or claim ALIVE while any declared suite remains a pending checkpoint.",
         ),
     ];
     StandardsProfile {
