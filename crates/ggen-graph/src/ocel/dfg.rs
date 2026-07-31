@@ -1,22 +1,29 @@
-//! Directly-Follows Graph (DFG) discovery via SPARQL over the OCEL-RDF event log.
+//! Directly-Follows Graph (DFG) retrieval — thin call-through to `wasm4pm-compat`.
 //!
-//! The whole process-mining hot loop for ggen lives in the triplestore: a DFG is
-//! a SPARQL query that pairs each event with its immediate successor *within the
-//! same case object* and counts the activity transitions. No external
-//! process-mining engine is required.
-//!
-//! Timestamps are projected as RFC-3339 string literals (see
-//! [`crate::ocel::projection`]); RFC-3339 is lexicographically ordered for a
-//! fixed offset, so `?t1 < ?t2` string comparison is chronological for the
-//! UTC-stamped events ggen emits.
+//! Per `CLAUDE.md`'s Process Intelligence Boundary: ggen EMITS process evidence, it does
+//! NOT analyse it. All DFG *discovery* (pairing events, counting directly-follows
+//! transitions, frequency aggregation) is owned by
+//! `wasm4pm_compat::dfg::discover_ocel_dfg` — the authorized native miner. This module's
+//! only job is retrieval: pull the raw event tuples (activity, timestamp, case) out of the
+//! OCEL-RDF triplestore via a flat SPARQL `SELECT` (no `COUNT`, no `GROUP BY`, no
+//! `FILTER NOT EXISTS` adjacency logic), assemble them into a `wasm4pm_compat::ocel::OCEL`
+//! value, and hand that off. The discovery algorithm itself never runs inside `ggen-graph`.
 
+use std::collections::BTreeSet;
+
+use chrono::{DateTime, FixedOffset};
 use oxigraph::model::Term;
 use oxigraph::sparql::QueryResults;
+use wasm4pm_compat::dfg::discover_ocel_dfg;
+use wasm4pm_compat::ocel::{OCELEvent, OCELRelationship, OCELType, OCEL};
 
 use crate::graph::DeterministicGraph;
 use crate::GraphError;
 
 /// A single directly-follows edge between two activities, with observed count.
+///
+/// Mirrors `wasm4pm_compat::models::DFGEdge` field-for-field; kept as a local type so
+/// existing callers are unaffected by the retrieval-vs-discovery split above.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DfgEdge {
     /// Source activity (the predecessor).
@@ -27,71 +34,89 @@ pub struct DfgEdge {
     pub frequency: u64,
 }
 
-/// Discover the directly-follows graph over events correlated by a shared case
-/// object, identified by the e2o qualifier predicate `qualifier`.
+/// Retrieve the raw (event, activity, timestamp, case) tuples for the given case
+/// qualifier IRI and discover the directly-follows graph over them.
 ///
-/// "Directly follows" = `?e1` and `?e2` are related to the same case object,
-/// `t1 < t2`, and no third event of that case falls strictly between them.
+/// Retrieval (this function, SPARQL `SELECT`) and discovery
+/// (`wasm4pm_compat::dfg::discover_ocel_dfg`) are deliberately separate: this function
+/// performs no pairing, counting, or adjacency computation — see the module doc.
 ///
 /// # Errors
-/// Returns a [`GraphError`] if the SPARQL query fails to parse or evaluate.
+/// Returns a [`GraphError`] if the SPARQL query fails to parse, evaluate, or if an event's
+/// timestamp is not valid RFC-3339.
 pub fn discover_dfg(
     graph: &DeterministicGraph, case_qualifier_iri: &str,
 ) -> Result<Vec<DfgEdge>, GraphError> {
     let q = format!(
         r"
         PREFIX ocel: <http://www.ocel-standard.org/ns#>
-        SELECT ?a1 ?a2 (COUNT(*) AS ?freq) WHERE {{
-            ?e1 ocel:activity ?a1 ;
-                ocel:timestamp ?t1 ;
-                <{q}> ?case .
-            ?e2 ocel:activity ?a2 ;
-                ocel:timestamp ?t2 ;
-                <{q}> ?case .
-            FILTER(?t1 < ?t2)
-            FILTER NOT EXISTS {{
-                ?e3 ocel:timestamp ?t3 ; <{q}> ?case .
-                FILTER(?t1 < ?t3 && ?t3 < ?t2)
-            }}
+        SELECT ?e ?a ?t ?case WHERE {{
+            ?e ocel:activity ?a ;
+               ocel:timestamp ?t ;
+               <{q}> ?case .
         }}
-        GROUP BY ?a1 ?a2
-        ORDER BY DESC(?freq)
         ",
         q = case_qualifier_iri
     );
 
     let results = graph.query(&q)?;
 
-    let mut edges = Vec::new();
+    let mut events = Vec::new();
+    let mut activities = BTreeSet::new();
     if let QueryResults::Solutions(solutions) = results {
         for sol in solutions {
             let sol = sol.map_err(|e| GraphError::Serialization(e.to_string()))?;
-            let source = literal_value(sol.get("a1"));
-            let target = literal_value(sol.get("a2"));
-            let frequency = sol.get("freq").and_then(term_to_u64).unwrap_or(0);
-            if let (Some(source), Some(target)) = (source, target) {
-                edges.push(DfgEdge {
-                    source,
-                    target,
-                    frequency,
+            let id = format!("e{}", events.len());
+            let activity = literal_value(sol.get("a"));
+            let timestamp = literal_value(sol.get("t"));
+            let case = literal_value(sol.get("case"));
+            if let (Some(activity), Some(timestamp), Some(case)) = (activity, timestamp, case) {
+                let time: DateTime<FixedOffset> = DateTime::parse_from_rfc3339(&timestamp)
+                    .map_err(|e| GraphError::Serialization(e.to_string()))?;
+                activities.insert(activity.clone());
+                events.push(OCELEvent {
+                    id,
+                    event_type: activity,
+                    time,
+                    attributes: Vec::new(),
+                    relationships: vec![OCELRelationship {
+                        object_id: case,
+                        qualifier: "case".to_string(),
+                    }],
                 });
             }
         }
     }
-    Ok(edges)
+
+    let ocel = OCEL {
+        event_types: activities
+            .into_iter()
+            .map(|name| OCELType {
+                name,
+                attributes: Vec::new(),
+            })
+            .collect(),
+        object_types: Vec::new(),
+        events,
+        objects: Vec::new(),
+    };
+
+    let dfg = discover_ocel_dfg(&ocel);
+    Ok(dfg
+        .edges
+        .into_iter()
+        .map(|e| DfgEdge {
+            source: e.source,
+            target: e.target,
+            frequency: e.frequency as u64,
+        })
+        .collect())
 }
 
 fn literal_value(term: Option<&Term>) -> Option<String> {
     match term {
         Some(Term::Literal(l)) => Some(l.value().to_string()),
         Some(Term::NamedNode(n)) => Some(n.as_str().to_string()),
-        _ => None,
-    }
-}
-
-fn term_to_u64(term: &Term) -> Option<u64> {
-    match term {
-        Term::Literal(l) => l.value().parse::<u64>().ok(),
         _ => None,
     }
 }
