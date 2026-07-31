@@ -1,0 +1,60 @@
+# Policies are singleton, bounded, non-actuating, and internally coherent.
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+
+SELECT ?kind ?reason
+WHERE {
+  {
+    SELECT ("learner-policy" AS ?kind) ("cardinality" AS ?reason)
+    WHERE { ?p a caec:LearnerPolicy . }
+    HAVING(COUNT(?p) != 1)
+  }
+  UNION
+  {
+    ?p a caec:LearnerPolicy ;
+      caec:maxCycles ?cycles ; caec:directActuation ?direct ;
+      caec:minObservationsPerPhase ?n ; caec:minGainBps ?gain ;
+      caec:minRetentionBps ?retention ; caec:minTransferBps ?transfer .
+    FILTER(?cycles < 1 || ?cycles > 8 || ?direct = true || ?n < 1 ||
+           ?gain < 0 || ?gain > 10000 || ?retention < 0 || ?retention > 10000 ||
+           ?transfer < 0 || ?transfer > 10000)
+    BIND("learner-policy" AS ?kind)
+    BIND("invalid-bounds" AS ?reason)
+  }
+  UNION
+  {
+    SELECT ("psychometric-policy" AS ?kind) ("cardinality" AS ?reason)
+    WHERE { ?p a caec:PsychometricPolicy . }
+    HAVING(COUNT(?p) != 1)
+  }
+  UNION
+  {
+    ?p a caec:PsychometricPolicy ;
+      caec:maxCycles ?cycles ; caec:directActuation ?direct ;
+      caec:minLearners ?learners ; caec:minItems ?items ; caec:minExposure ?exposure ;
+      caec:minDifficultyBps ?minDifficulty ; caec:maxDifficultyBps ?maxDifficulty ;
+      caec:minDiscriminationBps ?discrimination .
+    FILTER(?cycles < 1 || ?cycles > 8 || ?direct = true || ?learners < 2 ||
+           ?items < 2 || ?exposure < 1 || ?minDifficulty < 0 ||
+           ?maxDifficulty > 10000 || ?minDifficulty >= ?maxDifficulty ||
+           ?discrimination < 0 || ?discrimination > 10000)
+    BIND("psychometric-policy" AS ?kind)
+    BIND("invalid-bounds" AS ?reason)
+  }
+  UNION
+  {
+    SELECT ("issuer-policy" AS ?kind) ("cardinality" AS ?reason)
+    WHERE { ?p a caec:IssuerPolicy . }
+    HAVING(COUNT(?p) != 1)
+  }
+  UNION
+  {
+    ?p a caec:IssuerPolicy ;
+      caec:maxCycles ?cycles ; caec:directActuation ?direct ;
+      caec:maxStatusAgeTicks ?age ; caec:renewalWindowTicks ?renewal ;
+      caec:issuerEvidenceRequired ?required .
+    FILTER(?cycles < 1 || ?cycles > 8 || ?direct = true || ?age < 1 ||
+           ?renewal < 1 || ?required = false)
+    BIND("issuer-policy" AS ?kind)
+    BIND("invalid-bounds" AS ?reason)
+  }
+}

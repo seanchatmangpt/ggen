@@ -1,0 +1,25 @@
+{
+  "name": "CertificationAssist Evidence Control",
+  "description": "Automatic and autonomic learner-efficacy, psychometric, and issuer-standing control.",
+  "version": "26.7.31",
+  "supportedInterfaces": [
+    {
+      "url": "https://chatmangpt.com/a2a/certification-assist-evidence-control",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+  "skills": [
+{% for row in results %}    {
+      "id": "{{ row["skillId"] }}",
+      "name": "{{ row["name"] }}",
+      "description": "{{ row["description"] }}",
+      "tags": ["certification-assist", "evidence-control", "{{ row["slug"] }}"]
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

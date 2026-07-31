@@ -1,0 +1,109 @@
+name: CertificationAssist Evidence Control v26.7.31
+
+on:
+  pull_request:
+    paths:
+      - "packs/certification-assist-evidence-control-pack/**"
+      - "packs/certification-assist-pack/**"
+      - "docs/architecture/CERTIFICATION_ASSIST_EVIDENCE_CONTROL_V26_7_31.md"
+      - ".github/workflows/certification-assist-evidence-control-v26-7-31.yml"
+      - "crates/ggen-graph/src/rwr/**"
+  push:
+    branches: [main]
+    paths:
+      - "packs/certification-assist-evidence-control-pack/**"
+      - "packs/certification-assist-pack/**"
+      - "docs/architecture/CERTIFICATION_ASSIST_EVIDENCE_CONTROL_V26_7_31.md"
+      - ".github/workflows/certification-assist-evidence-control-v26-7-31.yml"
+      - "crates/ggen-graph/src/rwr/**"
+  workflow_dispatch:
+
+concurrency:
+  group: certification-assist-evidence-control-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  crown:
+    name: 9 capabilities / 27 proof surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Provision siblings, pinned nightly and cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: certification-assist-evidence-control-v26-7-31
+
+      - name: Read-only changed-source hygiene gate
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          base="${PR_BASE_SHA:-}"
+          head="${PR_HEAD_SHA:-}"
+          if [[ -z "$base" || -z "$head" ]]; then
+            base="HEAD^"
+            head="HEAD"
+          fi
+          git diff --check "$base" "$head"
+
+      - name: Preserve automatic and autonomic operating law
+        run: cargo test -p ggen-graph --test automatic_autonomic_v26_7_31
+
+      - name: Preserve RWR Level-5 foundation
+        run: cargo test -p ggen-graph --test rwr_level5_e2e
+
+      - name: Build the real ggen actuator
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Preserve CertificationAssist capability standing
+        working-directory: packs/certification-assist-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          bash consumer/certification-assist/scripts/verify.sh
+          ../../target/debug/ggen receipt verify
+
+      - name: Generate evidence control twice
+        working-directory: packs/certification-assist-evidence-control-pack
+        run: |
+          set -euo pipefail
+          ../../target/debug/ggen sync run
+          first="$(find consumer/evidence-control -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          ../../target/debug/ggen sync run
+          second="$(find consumer/evidence-control -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          test "$first" = "$second"
+
+      - name: Read-only generated Rust formatting gate
+        working-directory: packs/certification-assist-evidence-control-pack
+        run: cargo fmt --manifest-path consumer/evidence-control/Cargo.toml -- --check
+
+      - name: Execute evidence-control crown
+        working-directory: packs/certification-assist-evidence-control-pack
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target
+        run: |
+          set -euo pipefail
+          bash consumer/evidence-control/scripts/verify.sh
+          ../../target/debug/ggen receipt verify
+
+      - name: Publish bounded control evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: certification-assist-evidence-control-v26-7-31
+          path: |
+            packs/certification-assist-evidence-control-pack/CONTROL_REPORT.json
+            packs/certification-assist-evidence-control-pack/.ggen-v2/receipt.json
+            packs/certification-assist-evidence-control-pack/consumer/evidence-control/automation/CONTROL_POLICY.json
+            packs/certification-assist-evidence-control-pack/consumer/evidence-control/protocol/*.json
+            packs/certification-assist-evidence-control-pack/consumer/evidence-control/docs/*.md
+          if-no-files-found: error

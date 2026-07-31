@@ -1,0 +1,14 @@
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?order ?slug ?toolName ?skillId ?name ?description
+WHERE {
+  ?s a caec:ControlSkill ;
+    caec:order ?order ;
+    caec:slug ?slug ;
+    caec:toolName ?toolName ;
+    caec:skillId ?skillId ;
+    rdfs:label ?name ;
+    caec:description ?description .
+}
+ORDER BY ?order

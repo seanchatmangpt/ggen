@@ -1,0 +1,38 @@
+# CertificationAssist Evidence Control v26.7.31
+
+## Crown
+
+{% for row in results %}{{ row["order"] }}. **{{ row["name"] }}** — {{ row["outcome"] }}
+{% endfor %}
+
+```text
+9 capabilities × 3 proof surfaces = 27 obligations
+```
+
+## Control law
+
+```text
+observation
+→ admission
+→ deterministic evaluation
+→ evidence standing
+→ receipt
+→ bounded autonomic intent
+→ re-observation
+```
+
+### Learner efficacy
+
+Standing requires repeated baseline, post, delayed-retention, and transfer observations. The controller computes integer-basis-point gain, retention, and transfer. Sparse evidence remains `COLLECTING`. Failed thresholds manufacture remediation, spacing, or transfer-practice intents.
+
+### Psychometric validity
+
+Standing requires bounded sample size, item exposure, item difficulty, and discrimination evidence. Weak items are quarantined through intents and must be recalibrated. The controller cannot silently rewrite an item or label a small sample valid.
+
+### External issuer standing
+
+External standing requires authenticated issuer evidence. Status sequence is monotonic. Expiration, suspension, and revocation automatically downgrade standing. Autonomics manufacture renewal, review, or reacquisition intents but cannot buy, schedule, renew, or award a credential.
+
+## Authority boundary
+
+The reference issuer fixture uses a keyed BLAKE3 authenticator to prove the trust-boundary mechanics. Production adapters MUST verify the issuer's native signed credential and status mechanism, such as an issuer API, Open Badges proof, or Verifiable Credential proof. A local hash is never substituted for issuer authority.

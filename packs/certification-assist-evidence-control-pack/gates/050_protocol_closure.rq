@@ -1,0 +1,15 @@
+# Exactly six distinct cross-protocol control skills.
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+
+SELECT ?kind ?observed ?expected
+WHERE {
+  {
+    SELECT ("skills" AS ?kind) (COUNT(DISTINCT ?skill) AS ?observed) (6 AS ?expected)
+    WHERE {
+      ?skill a caec:ControlSkill ;
+        caec:order ?order ; caec:slug ?slug ;
+        caec:toolName ?tool ; caec:skillId ?skillId .
+    }
+  }
+  FILTER(?observed != ?expected)
+}

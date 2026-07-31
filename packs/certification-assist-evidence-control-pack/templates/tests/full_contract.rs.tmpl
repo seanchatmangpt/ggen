@@ -1,0 +1,225 @@
+use certification_assist_evidence_control_consumer::{
+    active_issuer_fixture, execute_operating_rail, issuer_autonomic_plan, learner_autonomic_plan,
+    psychometric_autonomic_plan, supported_learner_fixture, supported_psychometric_fixture,
+    AssessmentPhase, CAPABILITIES, ControlError, ControlLedger, ControlReplayVerifier,
+    EvidenceStanding, IssuerCredentialEvidence, IssuerCredentialStatus, IssuerStanding,
+    IssuerStandingSynchronizer, IssuerTrustAnchor, ItemResponse, LearnerEfficacyController,
+    LearnerObservation, PsychometricController, PsychometricReport, REQUIRED_PROOF_SURFACES,
+};
+
+#[test]
+fn exact_nine_capability_twenty_seven_surface_crown_is_present() {
+    assert_eq!(CAPABILITIES.len(), 9);
+    assert_eq!(CAPABILITIES.len() * REQUIRED_PROOF_SURFACES, 27);
+}
+
+#[test]
+fn learner_efficacy_is_automatic_and_sparse_evidence_stays_collecting() {
+    let report = supported_learner_fixture().expect("supported learner fixture");
+    assert_eq!(report.standing, EvidenceStanding::Supported);
+    assert!(report.gain_bps >= 1_500);
+    assert!(report.retention_bps >= 7_000);
+    assert!(report.transfer_bps >= 7_000);
+
+    let mut sparse = LearnerEfficacyController::default();
+    sparse
+        .admit(LearnerObservation::issue(
+            "learner",
+            "network-flow",
+            AssessmentPhase::Baseline,
+            4_000,
+            1,
+        ))
+        .expect("baseline");
+    let sparse_report = sparse
+        .evaluate("learner", "network-flow")
+        .expect("sparse report");
+    assert_eq!(sparse_report.standing, EvidenceStanding::Collecting);
+    let intents = learner_autonomic_plan(&sparse_report).expect("learner intents");
+    assert!(!intents.is_empty());
+    assert!(intents
+        .iter()
+        .all(|intent| !intent.direct_actuation && !intent.standing_promoted));
+}
+
+#[test]
+fn learner_evidence_tamper_and_duplicate_are_refused() {
+    let mut controller = LearnerEfficacyController::default();
+    let observation = LearnerObservation::issue(
+        "learner",
+        "network-flow",
+        AssessmentPhase::Baseline,
+        4_000,
+        1,
+    );
+    controller
+        .admit(observation.clone())
+        .expect("first admission");
+    assert_eq!(
+        controller.admit(observation.clone()),
+        Err(ControlError::DuplicateObservation)
+    );
+    let mut tampered = observation;
+    tampered.score_bps = 9_999;
+    assert_eq!(
+        controller.admit(tampered),
+        Err(ControlError::EvidenceMismatch)
+    );
+}
+
+#[test]
+fn psychometric_validity_is_automatic_and_weak_items_trigger_repair() {
+    let report = supported_psychometric_fixture().expect("supported psychometric fixture");
+    assert_eq!(report.standing, EvidenceStanding::Supported);
+    assert!(report.item_statistics.iter().all(|item| item.supported));
+
+    let weak = PsychometricReport {
+        standing: EvidenceStanding::Refuted,
+        learner_count: 8,
+        item_count: 1,
+        item_statistics: vec![
+            certification_assist_evidence_control_consumer::ItemStatistic {
+                item_id: "weak-item".to_string(),
+                exposure: 8,
+                difficulty_bps: 5_000,
+                discrimination_bps: 0,
+                supported: false,
+            },
+        ],
+    };
+    let intents = psychometric_autonomic_plan(&weak).expect("psychometric intents");
+    assert!(!intents.is_empty());
+    assert!(intents
+        .iter()
+        .all(|intent| !intent.direct_actuation && !intent.standing_promoted));
+}
+
+#[test]
+fn insufficient_psychometric_sample_cannot_self_validate() {
+    let mut controller = PsychometricController::default();
+    controller
+        .admit(ItemResponse::issue(
+            "learner",
+            "item-1",
+            "form-a",
+            true,
+            8_000,
+            1,
+        ))
+        .expect("response");
+    let report = controller.calibrate().expect("calibration");
+    assert_eq!(report.standing, EvidenceStanding::Collecting);
+}
+
+#[test]
+fn issuer_standing_requires_authenticated_monotonic_evidence() {
+    let anchor = IssuerTrustAnchor {
+        issuer_id: "issuer.example".to_string(),
+        reference_verification_key: [7; 32],
+    };
+    let evidence = IssuerCredentialEvidence::attest(
+        &anchor,
+        "credential",
+        "learner",
+        "AWS SAA",
+        100,
+        120,
+        200,
+        1,
+        IssuerCredentialStatus::Active,
+    );
+    let mut synchronizer = IssuerStandingSynchronizer::new([anchor.clone()]);
+    let report = synchronizer.sync(&evidence, 120).expect("active standing");
+    assert_eq!(report.standing, IssuerStanding::Active);
+    assert_eq!(synchronizer.standing("credential"), IssuerStanding::Active);
+    assert_eq!(
+        synchronizer.sync(&evidence, 120),
+        Err(ControlError::DuplicateReplay)
+    );
+
+    let mut forged = IssuerCredentialEvidence::attest(
+        &anchor,
+        "forged",
+        "learner",
+        "AWS SAA",
+        100,
+        120,
+        200,
+        1,
+        IssuerCredentialStatus::Active,
+    );
+    forged.proof_digest[0] ^= 0xff;
+    assert_eq!(
+        synchronizer.sync(&forged, 120),
+        Err(ControlError::IssuerProofMismatch)
+    );
+}
+
+#[test]
+fn issuer_revocation_and_renewal_are_automatic_but_not_self_awarded() {
+    let (active, renewal) = active_issuer_fixture(120).expect("issuer fixture");
+    assert_eq!(active.standing, IssuerStanding::Active);
+    assert!(!renewal.is_empty());
+    assert!(renewal
+        .iter()
+        .all(|intent| !intent.direct_actuation && !intent.external_standing_awarded));
+
+    let revoked = certification_assist_evidence_control_consumer::IssuerStandingReport {
+        standing: IssuerStanding::Revoked,
+        ..active
+    };
+    let intents = issuer_autonomic_plan(&revoked, 130).expect("revocation intents");
+    assert!(!intents.is_empty());
+    assert!(intents
+        .iter()
+        .all(|intent| !intent.direct_actuation && !intent.external_standing_awarded));
+}
+
+#[test]
+fn control_receipts_verify_and_duplicate_replay_refuses() {
+    let mut ledger = ControlLedger::default();
+    let first = ledger
+        .issue("learner-efficacy", "learner", [1; 32])
+        .expect("first receipt");
+    let second = ledger
+        .issue("psychometric-validity", "form", [2; 32])
+        .expect("second receipt");
+    first.verify().expect("first verifies");
+    second.verify().expect("second verifies");
+    let mut replay = ControlReplayVerifier::default();
+    replay.replay(&first).expect("first replay");
+    replay.replay(&second).expect("second replay");
+    assert_eq!(
+        replay.replay(&second),
+        Err(ControlError::DuplicateReplay)
+    );
+}
+
+#[test]
+fn all_three_control_domains_execute_through_automatic_and_autonomic_rails() {
+    let receipts = execute_operating_rail().expect("operating rail");
+    assert_eq!(receipts.automatic_receipts.len(), 3);
+    assert_eq!(receipts.autonomic_receipts.len(), 3);
+    assert!(receipts
+        .automatic_receipts
+        .iter()
+        .all(|digest| *digest != [0; 32]));
+    assert!(receipts
+        .autonomic_receipts
+        .iter()
+        .all(|digest| *digest != [0; 32]));
+}
+
+#[test]
+fn complete_evidence_control_crown_is_alive() {
+    let report = certification_assist_evidence_control_consumer::verify().expect("crown");
+    assert_eq!(report.standing, "ALIVE");
+    assert_eq!(report.capabilities, 9);
+    assert_eq!(report.proof_surfaces, 27);
+    assert_eq!(report.learner_efficacy, EvidenceStanding::Supported);
+    assert_eq!(report.psychometric_validity, EvidenceStanding::Supported);
+    assert_eq!(report.external_issuer_standing, IssuerStanding::Active);
+    assert_eq!(report.control_receipts.len(), 3);
+    assert_eq!(report.automatic_receipts.len(), 3);
+    assert_eq!(report.autonomic_receipts.len(), 3);
+}

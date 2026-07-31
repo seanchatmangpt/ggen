@@ -1,0 +1,20 @@
+{
+  "version": "26.7.31",
+{% for row in results %}  "{{ row["jsonKey"] }}": {
+    "maxCycles": {{ row["maxCycles"] }},
+    "directActuation": {{ row["directActuation"] }}{% if row["jsonKey"] == "learnerEfficacy" %},
+    "minObservationsPerPhase": {{ row["minObservationsPerPhase"] }},
+    "minGainBps": {{ row["minGainBps"] }},
+    "minRetentionBps": {{ row["minRetentionBps"] }},
+    "minTransferBps": {{ row["minTransferBps"] }}{% endif %}{% if row["jsonKey"] == "psychometricValidity" %},
+    "minLearners": {{ row["minLearners"] }},
+    "minItems": {{ row["minItems"] }},
+    "minExposure": {{ row["minExposure"] }},
+    "minDifficultyBps": {{ row["minDifficultyBps"] }},
+    "maxDifficultyBps": {{ row["maxDifficultyBps"] }},
+    "minDiscriminationBps": {{ row["minDiscriminationBps"] }}{% endif %}{% if row["jsonKey"] == "externalIssuerStanding" %},
+    "maxStatusAgeTicks": {{ row["maxStatusAgeTicks"] }},
+    "renewalWindowTicks": {{ row["renewalWindowTicks"] }},
+    "issuerEvidenceRequired": {{ row["issuerEvidenceRequired"] }}{% endif %}
+  }{% if not loop.last %},{% endif %}
+{% endfor %}}

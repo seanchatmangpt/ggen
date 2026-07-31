@@ -1,0 +1,40 @@
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+
+SELECT ?order ?jsonKey ?maxCycles ?directActuation
+       ?minObservationsPerPhase ?minGainBps ?minRetentionBps ?minTransferBps
+       ?minLearners ?minItems ?minExposure ?minDifficultyBps ?maxDifficultyBps
+       ?minDiscriminationBps ?maxStatusAgeTicks ?renewalWindowTicks
+       ?issuerEvidenceRequired
+WHERE {
+  {
+    ?s a caec:LearnerPolicy ;
+      caec:maxCycles ?maxCycles ; caec:directActuation ?directActuation ;
+      caec:minObservationsPerPhase ?minObservationsPerPhase ;
+      caec:minGainBps ?minGainBps ; caec:minRetentionBps ?minRetentionBps ;
+      caec:minTransferBps ?minTransferBps .
+    BIND(1 AS ?order)
+    BIND("learnerEfficacy" AS ?jsonKey)
+  }
+  UNION
+  {
+    ?s a caec:PsychometricPolicy ;
+      caec:maxCycles ?maxCycles ; caec:directActuation ?directActuation ;
+      caec:minLearners ?minLearners ; caec:minItems ?minItems ;
+      caec:minExposure ?minExposure ; caec:minDifficultyBps ?minDifficultyBps ;
+      caec:maxDifficultyBps ?maxDifficultyBps ;
+      caec:minDiscriminationBps ?minDiscriminationBps .
+    BIND(2 AS ?order)
+    BIND("psychometricValidity" AS ?jsonKey)
+  }
+  UNION
+  {
+    ?s a caec:IssuerPolicy ;
+      caec:maxCycles ?maxCycles ; caec:directActuation ?directActuation ;
+      caec:maxStatusAgeTicks ?maxStatusAgeTicks ;
+      caec:renewalWindowTicks ?renewalWindowTicks ;
+      caec:issuerEvidenceRequired ?issuerEvidenceRequired .
+    BIND(3 AS ?order)
+    BIND("externalIssuerStanding" AS ?jsonKey)
+  }
+}
+ORDER BY ?order

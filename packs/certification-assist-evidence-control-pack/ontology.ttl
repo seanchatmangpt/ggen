@@ -1,0 +1,227 @@
+@prefix caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ceterms: <https://purl.org/ctdl/terms/> .
+@prefix ceasn: <https://purl.org/ctdlasn/terms/> .
+
+caec:Capability a rdfs:Class ; rdfs:subClassOf ceasn:Competency .
+caec:ProofSurface a rdfs:Class .
+caec:LearnerPolicy a rdfs:Class .
+caec:PsychometricPolicy a rdfs:Class .
+caec:IssuerPolicy a rdfs:Class .
+caec:ControlSkill a rdfs:Class .
+caec:Observation a rdfs:Class ; rdfs:subClassOf prov:Entity .
+caec:ControlReceipt a rdfs:Class ; rdfs:subClassOf prov:Entity .
+caec:IssuerEvidence a rdfs:Class ; rdfs:subClassOf ceterms:Credential .
+
+caec:requiresSurface a rdf:Property .
+caec:order a rdf:Property .
+caec:slug a rdf:Property .
+caec:rustVariant a rdf:Property .
+caec:category a rdf:Property .
+caec:outcome a rdf:Property .
+caec:implementation a rdf:Property .
+caec:verifier a rdf:Property .
+caec:falsifier a rdf:Property .
+caec:description a rdf:Property ; rdfs:subPropertyOf dcterms:description .
+caec:maxCycles a rdf:Property .
+caec:directActuation a rdf:Property .
+caec:minObservationsPerPhase a rdf:Property .
+caec:minGainBps a rdf:Property .
+caec:minRetentionBps a rdf:Property .
+caec:minTransferBps a rdf:Property .
+caec:minLearners a rdf:Property .
+caec:minItems a rdf:Property .
+caec:minExposure a rdf:Property .
+caec:minDifficultyBps a rdf:Property .
+caec:maxDifficultyBps a rdf:Property .
+caec:minDiscriminationBps a rdf:Property .
+caec:maxStatusAgeTicks a rdf:Property .
+caec:renewalWindowTicks a rdf:Property .
+caec:issuerEvidenceRequired a rdf:Property .
+caec:toolName a rdf:Property .
+caec:skillId a rdf:Property .
+
+caec:PositiveExecution a caec:ProofSurface ;
+  caec:slug "positive-execution" ;
+  caec:outcome "A real bounded observation-to-standing path executes." .
+
+caec:NegativeRefusal a caec:ProofSurface ;
+  caec:slug "negative-refusal" ;
+  caec:outcome "Malformed, insufficient, stale, forged, or unauthorized evidence is refused." .
+
+caec:ReceiptReplay a caec:ProofSurface ;
+  caec:slug "receipt-replay" ;
+  caec:outcome "Control decisions are receipted, independently verified, and replay-protected." .
+
+caec:LearnerEvidenceAdmission a caec:Capability ;
+  caec:order 1 ; caec:slug "learner-evidence-admission" ;
+  caec:rustVariant "LearnerEvidenceAdmission" ;
+  rdfs:label "Learner Evidence Admission" ;
+  caec:category "Admission" ;
+  caec:outcome "Baseline, post, retention, and transfer observations are verified and deduplicated." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Invalid scores, zero sequences, altered digests, and duplicate observations are refused." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:LearnerEfficacyEstimation a caec:Capability ;
+  caec:order 2 ; caec:slug "learner-efficacy-estimation" ;
+  caec:rustVariant "LearnerEfficacyEstimation" ;
+  rdfs:label "Learner Efficacy Estimation" ;
+  caec:category "Measurement" ;
+  caec:outcome "Learning gain, delayed retention, and transfer are computed in integer basis points." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Sparse evidence cannot be promoted to supported efficacy." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:LearnerEfficacyAutonomics a caec:Capability ;
+  caec:order 3 ; caec:slug "learner-efficacy-autonomics" ;
+  caec:rustVariant "LearnerEfficacyAutonomics" ;
+  rdfs:label "Learner Efficacy Autonomics" ;
+  caec:category "Autonomics" ;
+  caec:outcome "MAPE-K manufactures bounded collection, remediation, spacing, and transfer intents." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "The controller cannot rewrite evidence, inflate scores, or directly promote standing." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:ItemResponseAdmission a caec:Capability ;
+  caec:order 4 ; caec:slug "item-response-admission" ;
+  caec:rustVariant "ItemResponseAdmission" ;
+  rdfs:label "Item Response Admission" ;
+  caec:category "Admission" ;
+  caec:outcome "Item responses bind learner, item, form, total score, sequence, and digest." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Altered, duplicated, or unbounded item responses are refused." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:PsychometricCalibration a caec:Capability ;
+  caec:order 5 ; caec:slug "psychometric-calibration" ;
+  caec:rustVariant "PsychometricCalibration" ;
+  rdfs:label "Psychometric Calibration" ;
+  caec:category "Measurement" ;
+  caec:outcome "Sample size, exposure, difficulty, and discrimination are evaluated deterministically." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Insufficient samples and weak items cannot be mislabeled psychometrically supported." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:PsychometricAutonomics a caec:Capability ;
+  caec:order 6 ; caec:slug "psychometric-autonomics" ;
+  caec:rustVariant "PsychometricAutonomics" ;
+  rdfs:label "Psychometric Autonomics" ;
+  caec:category "Autonomics" ;
+  caec:outcome "The controller collects more responses or quarantines weak items through bounded intents." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "No item is silently rewritten, deleted, or promoted without recalibration evidence." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:IssuerEvidenceAdmission a caec:Capability ;
+  caec:order 7 ; caec:slug "issuer-evidence-admission" ;
+  caec:rustVariant "IssuerEvidenceAdmission" ;
+  rdfs:label "Issuer Evidence Admission" ;
+  caec:category "Authority" ;
+  caec:outcome "External standing requires authenticated issuer evidence and a configured trust anchor." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Unknown issuers, forged proofs, and local self-awards are refused." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:IssuerStatusSynchronization a caec:Capability ;
+  caec:order 8 ; caec:slug "issuer-status-synchronization" ;
+  caec:rustVariant "IssuerStatusSynchronization" ;
+  rdfs:label "Issuer Status Synchronization" ;
+  caec:category "Automation" ;
+  caec:outcome "Active, suspended, revoked, and expired standing follows monotonic issuer status evidence." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "Stale status sequences, duplicate replay, and expired credentials are refused or downgraded." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:IssuerStandingAutonomics a caec:Capability ;
+  caec:order 9 ; caec:slug "issuer-standing-autonomics" ;
+  caec:rustVariant "IssuerStandingAutonomics" ;
+  rdfs:label "Issuer Standing Autonomics" ;
+  caec:category "Autonomics" ;
+  caec:outcome "The controller manufactures refresh, renewal, suspension-review, and reacquisition intents." ;
+  caec:implementation "consumer/evidence-control/src/lib.rs" ;
+  caec:verifier "cargo test --manifest-path consumer/evidence-control/Cargo.toml" ;
+  caec:falsifier "The controller cannot purchase, register, schedule, renew, or award a credential directly." ;
+  caec:requiresSurface caec:PositiveExecution, caec:NegativeRefusal, caec:ReceiptReplay .
+
+caec:DefaultLearnerPolicy a caec:LearnerPolicy ;
+  caec:maxCycles 8 ;
+  caec:directActuation false ;
+  caec:minObservationsPerPhase 2 ;
+  caec:minGainBps 1500 ;
+  caec:minRetentionBps 7000 ;
+  caec:minTransferBps 7000 ;
+  caec:description "Require repeated baseline, post, delayed-retention, and transfer evidence." .
+
+caec:DefaultPsychometricPolicy a caec:PsychometricPolicy ;
+  caec:maxCycles 8 ;
+  caec:directActuation false ;
+  caec:minLearners 8 ;
+  caec:minItems 4 ;
+  caec:minExposure 4 ;
+  caec:minDifficultyBps 2000 ;
+  caec:maxDifficultyBps 9000 ;
+  caec:minDiscriminationBps 1000 ;
+  caec:description "Use bounded classical item evidence before psychometric standing advances." .
+
+caec:DefaultIssuerPolicy a caec:IssuerPolicy ;
+  caec:maxCycles 4 ;
+  caec:directActuation false ;
+  caec:maxStatusAgeTicks 10 ;
+  caec:renewalWindowTicks 30 ;
+  caec:issuerEvidenceRequired true ;
+  caec:description "External standing follows authenticated issuer status and never local assertion." .
+
+caec:EvaluateLearnerEfficacy a caec:ControlSkill ;
+  caec:order 1 ; caec:slug "evaluate-learner-efficacy" ;
+  caec:toolName "evaluate_learner_efficacy" ;
+  caec:skillId "certification-assist.evaluate-learner-efficacy" ;
+  rdfs:label "Evaluate Learner Efficacy" ;
+  caec:description "Compute gain, retention, transfer, and bounded efficacy standing." .
+
+caec:PlanLearnerRemediation a caec:ControlSkill ;
+  caec:order 2 ; caec:slug "plan-learner-remediation" ;
+  caec:toolName "plan_learner_remediation" ;
+  caec:skillId "certification-assist.plan-learner-remediation" ;
+  rdfs:label "Plan Learner Remediation" ;
+  caec:description "Manufacture non-actuating collection, spacing, remediation, and transfer intents." .
+
+caec:CalibratePsychometrics a caec:ControlSkill ;
+  caec:order 3 ; caec:slug "calibrate-psychometrics" ;
+  caec:toolName "calibrate_psychometrics" ;
+  caec:skillId "certification-assist.calibrate-psychometrics" ;
+  rdfs:label "Calibrate Psychometrics" ;
+  caec:description "Evaluate sample, exposure, difficulty, and discrimination evidence." .
+
+caec:PlanItemRepair a caec:ControlSkill ;
+  caec:order 4 ; caec:slug "plan-item-repair" ;
+  caec:toolName "plan_item_repair" ;
+  caec:skillId "certification-assist.plan-item-repair" ;
+  rdfs:label "Plan Item Repair" ;
+  caec:description "Manufacture response-collection, quarantine, and form-rebalance intents." .
+
+caec:VerifyIssuerStanding a caec:ControlSkill ;
+  caec:order 5 ; caec:slug "verify-issuer-standing" ;
+  caec:toolName "verify_issuer_standing" ;
+  caec:skillId "certification-assist.verify-issuer-standing" ;
+  rdfs:label "Verify Issuer Standing" ;
+  caec:description "Verify trusted issuer evidence and synchronize external standing." .
+
+caec:PlanIssuerMaintenance a caec:ControlSkill ;
+  caec:order 6 ; caec:slug "plan-issuer-maintenance" ;
+  caec:toolName "plan_issuer_maintenance" ;
+  caec:skillId "certification-assist.plan-issuer-maintenance" ;
+  rdfs:label "Plan Issuer Maintenance" ;
+  caec:description "Manufacture refresh, renewal, suspension-review, and reacquisition intents." .

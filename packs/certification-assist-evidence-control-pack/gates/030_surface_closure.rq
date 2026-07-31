@@ -1,0 +1,15 @@
+# Every capability requires the exact three proof surfaces.
+PREFIX caec: <https://chatmangpt.com/ontology/certification-assist-evidence-control#>
+
+SELECT ?capability ?observed
+WHERE {
+  {
+    SELECT ?capability (COUNT(DISTINCT ?surface) AS ?observed)
+    WHERE {
+      ?capability a caec:Capability .
+      OPTIONAL { ?capability caec:requiresSurface ?surface . }
+    }
+    GROUP BY ?capability
+  }
+  FILTER(?observed != 3)
+}
