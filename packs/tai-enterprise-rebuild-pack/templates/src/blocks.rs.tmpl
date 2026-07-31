@@ -1,0 +1,257 @@
+---
+to: consumer/tai-enterprise-rebuild/src/blocks.rs
+---
+use std::collections::{BTreeMap, BTreeSet};
+
+use ggen_architecture::{
+    run_scenario, verify_report, ActionSpec, ActorPolicy, ActorRole, ArchitectureFacet, Authority,
+    BuildingBlock, BuildingBlockContract, BuildingBlockId, BuildingBlockRegistry, Comparison,
+    CompositionReceipt, EvidenceObligation, LifecycleState, Metric, MetricConstraint, MetricEffect,
+    ObligationId, Port, PortDirection, PortId, PortKind, ProfileId, ResourceCeiling,
+    SelfPlayScenario, SelfPlayStanding, Standing, UseCaseKind,
+};
+
+use crate::model::{digest_bytes, parse, EnterpriseCatalog, RebuildError, ENTERPRISE_BYTES};
+
+pub fn building_block_composition() -> Result<CompositionReceipt, RebuildError> {
+    let enterprise: EnterpriseCatalog = parse("enterprise", ENTERPRISE_BYTES)?;
+    let source_digest = digest_bytes(ENTERPRISE_BYTES.as_bytes());
+    let observation_port = PortId::from("enterprise-observation");
+    let evidence_port = PortId::from("roadmap-evidence");
+    let intent_port = PortId::from("brce-intent");
+    let broker_authority = Authority::from("intent:BRCE");
+    let mut registry = BuildingBlockRegistry::new();
+
+    for family in &enterprise.families {
+        let block_id = BuildingBlockId::new(family.id.clone());
+        let dependencies = enterprise
+            .dependencies
+            .iter()
+            .filter(|edge| edge.block == family.id)
+            .map(|edge| BuildingBlockId::new(edge.depends_on.clone()))
+            .collect();
+        let ports = BTreeMap::from([
+            (
+                observation_port.clone(),
+                Port {
+                    id: observation_port.clone(),
+                    direction: PortDirection::Input,
+                    kind: PortKind::Data,
+                    schema: "https://chatmangpt.com/ontology/tai-rebuild#EnterpriseRebuildProgram"
+                        .to_string(),
+                    required: true,
+                },
+            ),
+            (
+                evidence_port.clone(),
+                Port {
+                    id: evidence_port.clone(),
+                    direction: PortDirection::Output,
+                    kind: PortKind::Evidence,
+                    schema: "ggen.tai.generated-roadmap.v1".to_string(),
+                    required: true,
+                },
+            ),
+            (
+                intent_port.clone(),
+                Port {
+                    id: intent_port.clone(),
+                    direction: PortDirection::Output,
+                    kind: PortKind::ActuationIntent,
+                    schema: ggen_architecture::INTENT_SCHEMA.to_string(),
+                    required: true,
+                },
+            ),
+        ]);
+        let obligation_id = ObligationId::new(format!("{}-crown", family.id));
+        let obligation = EvidenceObligation {
+            id: obligation_id.clone(),
+            positive_witness: "tai-rebuild simulate historical".to_string(),
+            negative_falsifier: "tai-rebuild simulate not-admitted".to_string(),
+            independent_verifier: "cargo test --test process_receipt".to_string(),
+            receipt_verifier: "tai-rebuild verify receipt.json".to_string(),
+            replay: "compare two complete simulation bundles".to_string(),
+        };
+        let block = BuildingBlock {
+            id: block_id,
+            version: enterprise.version.clone(),
+            owner: "TAI enterprise architecture authority".to_string(),
+            lifecycle: LifecycleState::Admitted,
+            standing: Standing::Unknown,
+            architecture: ArchitectureFacet {
+                capability: family.outcome.clone(),
+                requirements: BTreeSet::from([format!("TAI-FAMILY-{:02}", family.order)]),
+                constraints: BTreeSet::from([
+                    "zero-unreceipted-actuation".to_string(),
+                    "external-standing-cannot-self-promote".to_string(),
+                ]),
+                quality_attributes: BTreeSet::from([
+                    "deterministic".to_string(),
+                    "replayable".to_string(),
+                    "fail-closed".to_string(),
+                ]),
+                permitted_authorities: BTreeSet::from([broker_authority.clone()]),
+            },
+            contract: BuildingBlockContract {
+                behavior: BTreeSet::from([
+                    "project admitted enterprise state into a dependency-closed roadmap"
+                        .to_string(),
+                    "emit evidence or a BRCE-addressed intent without direct actuation"
+                        .to_string(),
+                ]),
+                required_inputs: BTreeSet::from([observation_port.clone()]),
+                promised_outputs: BTreeSet::from([
+                    evidence_port.clone(),
+                    intent_port.clone(),
+                ]),
+                resource_ceiling: ResourceCeiling {
+                    memory_bytes: 64 * 1024 * 1024,
+                    cpu_millis: 5_000,
+                    output_bytes: 8 * 1024 * 1024,
+                    broker_intents: 1,
+                },
+                authority_ceiling: BTreeSet::from([broker_authority.clone()]),
+            },
+            ports,
+            dependencies,
+            realizations: BTreeMap::new(),
+            selected_realization: None,
+            profiles: BTreeSet::from([ProfileId::from("tai-enterprise-rebuild")]),
+            incompatible_profiles: BTreeSet::new(),
+            obligations: BTreeMap::from([(obligation_id, obligation)]),
+            exclusions: BTreeSet::from([
+                "direct actuation".to_string(),
+                "self-awarded certification".to_string(),
+                "claim that TAI is already rebuilt".to_string(),
+            ]),
+            provenance: format!("urn:blake3:{source_digest}"),
+        };
+        registry
+            .register(block)
+            .map_err(|error| RebuildError::Contract(format!("GBB registration refused: {error}")))?;
+    }
+
+    let roots = registry.blocks.keys().cloned().collect();
+    registry
+        .compose(&roots)
+        .map_err(|error| RebuildError::Contract(format!("GBB composition refused: {error}")))
+}
+
+pub(crate) fn architecture_self_play(
+    scenario_id: &str,
+) -> Result<ggen_architecture::SelfPlayReport, RebuildError> {
+    let authority = "tai:roadmap:advance".to_string();
+    let scenario = SelfPlayScenario {
+        id: format!("tai-{scenario_id}"),
+        use_cases: BTreeSet::from([
+            UseCaseKind::EaOperatingModel,
+            UseCaseKind::EaTransitionArchitecture,
+            UseCaseKind::EaValueRealization,
+        ]),
+        max_rounds: 2,
+        initial_metrics: BTreeMap::from([
+            (Metric::ReleaseReadiness, 0),
+            (Metric::EvidenceCoverage, 0),
+            (Metric::Risk, 100),
+        ]),
+        policies: vec![ActorPolicy {
+            actor: ActorRole::EvidenceVerifier,
+            weights: BTreeMap::from([
+                (Metric::ReleaseReadiness, 1),
+                (Metric::EvidenceCoverage, 1),
+                (Metric::Risk, -1),
+            ]),
+            authorities: BTreeSet::from([authority.clone()]),
+            minimum_utility: 1,
+        }],
+        actions: vec![ActionSpec {
+            id: "admit-roadmap-evidence".to_string(),
+            actor: ActorRole::EvidenceVerifier,
+            choice_group: Some("roadmap-admission".to_string()),
+            guards: vec![MetricConstraint {
+                metric: Metric::EvidenceCoverage,
+                comparison: Comparison::Equal,
+                threshold: 0,
+            }],
+            effects: vec![
+                MetricEffect {
+                    metric: Metric::ReleaseReadiness,
+                    delta: 100,
+                },
+                MetricEffect {
+                    metric: Metric::EvidenceCoverage,
+                    delta: 100,
+                },
+                MetricEffect {
+                    metric: Metric::Risk,
+                    delta: -100,
+                },
+            ],
+            required_authorities: BTreeSet::from([authority]),
+            evidence: BTreeSet::from([
+                "dependency-closed-roadmap".to_string(),
+                "BLAKE3-receipt-and-replay".to_string(),
+            ]),
+            broker_intent: true,
+        }],
+        invariants: vec![
+            MetricConstraint {
+                metric: Metric::ReleaseReadiness,
+                comparison: Comparison::AtLeast,
+                threshold: 0,
+            },
+            MetricConstraint {
+                metric: Metric::ReleaseReadiness,
+                comparison: Comparison::AtMost,
+                threshold: 100,
+            },
+            MetricConstraint {
+                metric: Metric::EvidenceCoverage,
+                comparison: Comparison::AtLeast,
+                threshold: 0,
+            },
+            MetricConstraint {
+                metric: Metric::EvidenceCoverage,
+                comparison: Comparison::AtMost,
+                threshold: 100,
+            },
+            MetricConstraint {
+                metric: Metric::Risk,
+                comparison: Comparison::AtLeast,
+                threshold: 0,
+            },
+            MetricConstraint {
+                metric: Metric::Risk,
+                comparison: Comparison::AtMost,
+                threshold: 100,
+            },
+        ],
+        goals: vec![
+            MetricConstraint {
+                metric: Metric::ReleaseReadiness,
+                comparison: Comparison::AtLeast,
+                threshold: 100,
+            },
+            MetricConstraint {
+                metric: Metric::EvidenceCoverage,
+                comparison: Comparison::AtLeast,
+                threshold: 100,
+            },
+            MetricConstraint {
+                metric: Metric::Risk,
+                comparison: Comparison::AtMost,
+                threshold: 0,
+            },
+        ],
+    };
+    let report = run_scenario(&scenario)
+        .map_err(|error| RebuildError::Contract(format!("self-play refused: {error}")))?;
+    verify_report(&scenario, &report)
+        .map_err(|error| RebuildError::Contract(format!("self-play replay refused: {error}")))?;
+    if report.standing != SelfPlayStanding::Alive || report.actuation_performed {
+        return Err(RebuildError::Contract(
+            "self-play did not close ALIVE or attempted actuation".to_string(),
+        ));
+    }
+    Ok(report)
+}
