@@ -114,7 +114,7 @@ fn mustar_requires_all_three_model_intents() {
     ))
     .expect("plan admitted");
     assert!(matches!(
-        compile_plan(&plan, BTreeSet::new()),
+        compile_plan(&plan, &[]),
         Err(MuStarRefusal::ModelTriadRequired)
     ));
 }
