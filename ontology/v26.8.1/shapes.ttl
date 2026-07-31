@@ -51,3 +51,78 @@ ggen:SunsetDecisionShape a sh:NodeShape ;
   sh:property [ sh:path ggen:requiresZeroUnknownDisposition ; sh:hasValue true ] ;
   sh:property [ sh:path ggen:requiresReplayCompatibility ; sh:hasValue true ] ;
   sh:property [ sh:path ggen:hasStanding ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+# --- G3 ontology-closure shapes (LegacyCapability disposition/subsystem constraints) ---
+#
+# The properties referenced below (ggen:equivalenceVerifier, ggen:migrationPath,
+# ggen:rollbackPath, ggen:archivePath, ggen:owningSubsystem, ggen:refusalRationale) are
+# consumed here against the fixed G3 schema; they are declared in ontology.ttl by a
+# concurrent agent extending that file with the LegacyCapability class. sh:path does not
+# require the predicate to carry an owl:*Property declaration to be validated, so these
+# shapes are load-bearing independent of ontology.ttl's edit order. ggen:refusalCode
+# already exists as an owl:DatatypeProperty in ontology.ttl (confirmed by reading the file
+# before writing this shape); ggen:refusalRationale is assumed to be its companion
+# free-text property, following the same "typed refusal" pairing as ggen:Refusal ---
+# `ggen:refusalCode` for the stable code, `ggen:refusalRationale` for the rationale — and is
+# flagged here as an assumption, not a verified fact, per the G3 task brief.
+
+# Disposition is a closed enum: exactly one value from the six admitted dispositions.
+ggen:LegacyDispositionEnumShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:property [
+    sh:path ggen:hasDisposition ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( ggen:PRESERVED ggen:SUBSUMED ggen:REPLACED ggen:ARCHIVED ggen:REFUSED ggen:DISPOSITION_UNKNOWN )
+  ] .
+
+# PRESERVED/SUBSUMED capabilities must carry an equivalence verifier once dispositioned.
+# DISPOSITION_UNKNOWN is exempt (interim state); this shape only fires once the concurrent
+# agent's extraction has actually assigned PRESERVED or SUBSUMED.
+ggen:LegacyEquivalenceVerifierShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:or (
+    [ sh:not [ sh:property [ sh:path ggen:hasDisposition ; sh:in ( ggen:PRESERVED ggen:SUBSUMED ) ] ] ]
+    [ sh:property [ sh:path ggen:equivalenceVerifier ; sh:minCount 1 ] ]
+  ) .
+
+# REPLACED capabilities must carry both a migration path and a rollback path once
+# dispositioned (not required while disposition is DISPOSITION_UNKNOWN or any other value).
+ggen:LegacyReplacedPathsShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:or (
+    [ sh:not [ sh:property [ sh:path ggen:hasDisposition ; sh:hasValue ggen:REPLACED ] ] ]
+    [
+      sh:property [ sh:path ggen:migrationPath ; sh:minCount 1 ] ;
+      sh:property [ sh:path ggen:rollbackPath ; sh:minCount 1 ]
+    ]
+  ) .
+
+# ARCHIVED capabilities must carry an archive path once dispositioned.
+ggen:LegacyArchivedPathShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:or (
+    [ sh:not [ sh:property [ sh:path ggen:hasDisposition ; sh:hasValue ggen:ARCHIVED ] ] ]
+    [ sh:property [ sh:path ggen:archivePath ; sh:minCount 1 ] ]
+  ) .
+
+# REFUSED capabilities must carry a stable typed refusal code and a rationale.
+ggen:LegacyRefusedShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:or (
+    [ sh:not [ sh:property [ sh:path ggen:hasDisposition ; sh:hasValue ggen:REFUSED ] ] ]
+    [
+      sh:property [ sh:path ggen:refusalCode ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] ;
+      sh:property [ sh:path ggen:refusalRationale ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ]
+    ]
+  ) .
+
+# owningSubsystem is a unique value from the closed 10-subsystem vocabulary that
+# docs/v26.8.1/coverage-matrix.csv's subsystem rows also use.
+ggen:LegacyOwningSubsystemShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:property [
+    sh:path ggen:owningSubsystem ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "governance" "system" "engine" "graph" "projection" "evidence" "products" "verification" "economics" "legacy" )
+  ] .

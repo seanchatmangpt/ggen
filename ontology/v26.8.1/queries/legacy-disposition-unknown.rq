@@ -1,0 +1,10 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+# G8 checkpoint input: every LegacyCapability not yet dispositioned.
+SELECT ?legacy ?owningSubsystem
+WHERE {
+  ?legacy a ggen:LegacyCapability ;
+          ggen:hasDisposition ggen:DISPOSITION_UNKNOWN .
+  OPTIONAL { ?legacy ggen:owningSubsystem ?owningSubsystem }
+}
+ORDER BY ?legacy

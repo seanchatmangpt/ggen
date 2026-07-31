@@ -1,0 +1,12 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+# Projection source for docs/v26.8.1/coverage-matrix.csv: count of LegacyCapability
+# individuals per owningSubsystem. A later phase's Tera template renders this result set
+# directly into the CSV's per-subsystem rows.
+SELECT ?owningSubsystem (COUNT(?legacy) AS ?legacyCapabilityCount)
+WHERE {
+  ?legacy a ggen:LegacyCapability ;
+          ggen:owningSubsystem ?owningSubsystem .
+}
+GROUP BY ?owningSubsystem
+ORDER BY ?owningSubsystem
