@@ -1,0 +1,77 @@
+---
+to: consumer/tai-enterprise-rebuild/docs/TAI_REBUILD_ROADMAP.md
+sparql:
+  program: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?title ?version ?broker WHERE {
+      ?program a tai:EnterpriseRebuildProgram ; dcterms:title ?title ; tai:version ?version ; tai:requiredBroker ?broker .
+    }
+  phases: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?outcome WHERE {
+      ?phase a tai:EnterprisePhase ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ; tai:outcome ?outcome .
+    } ORDER BY ?order
+  families: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?outcome WHERE {
+      ?family a tai:BuildingBlockFamily ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ; tai:outcome ?outcome .
+    } ORDER BY ?order
+  scenarios: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?trigger WHERE {
+      ?scenario a tai:SimulationScenario ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ; tai:trigger ?trigger .
+    } ORDER BY ?order
+---
+{% set p = program | first %}
+# {{ p.title }}
+
+Version: `{{ p.version }}`  
+Required downstream broker: `{{ p.broker }}`  
+Direct actuation: **false**  
+LLM calls: **false**
+
+## Generated enterprise law
+
+```text
+mission
+→ contract
+→ capability
+→ certification
+→ organization + technology
+→ quality + evidence
+→ economics
+→ roadmap regeneration
+→ non-LLM simulation
+→ receipt/replay
+```
+
+The roadmap is a projection of the admitted enterprise graph. It is not an authored schedule and does not claim that TAI has been recreated.
+
+## Canonical Building Block families
+
+| Order | Block | Outcome |
+|---:|---|---|
+{% for row in families %}| {{ row.order }} | `{{ row.identifier }}` — {{ row.label }} | {{ row.outcome }} |
+{% endfor %}
+
+## Dependency-ordered reconstruction
+
+{% for row in phases %}### {{ row.identifier }} — {{ row.label }}
+
+{{ row.outcome }}
+
+{% endfor %}
+## Counterfactual simulation suite
+
+| Order | Scenario | Trigger |
+|---:|---|---|
+{% for row in scenarios %}| {{ row.order }} | `{{ row.identifier }}` — {{ row.label }} | {{ row.trigger }} |
+{% endfor %}
+
+## Standing boundary
+
+The generator, subprocess simulation, filesystem bundle, BLAKE3 receipt, tamper refusal, and replay may achieve bounded `ALIVE` standing after execution. Historical reconstruction, real contracts, real credentials, real organizational capability, and real external actuation remain `UNKNOWN` until independently admitted evidence exists.
