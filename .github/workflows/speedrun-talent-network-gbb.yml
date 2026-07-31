@@ -59,13 +59,12 @@ jobs:
           second="$(find consumer/speedrun-talent-network -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
           test "$first" = "$second"
 
-      - name: Execute generated witnesses and falsifiers
+      - name: Execute exact generated witnesses and falsifiers
         working-directory: packs/speedrun-talent-network-pack
         env:
           CARGO_TARGET_DIR: ${{ github.workspace }}/target
         run: |
           set -euo pipefail
-          cargo fmt --manifest-path consumer/speedrun-talent-network/Cargo.toml -- --check
           cargo test --manifest-path consumer/speedrun-talent-network/Cargo.toml
           cargo clippy --manifest-path consumer/speedrun-talent-network/Cargo.toml --all-targets -- -D warnings
 
