@@ -1,0 +1,11 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?phase ?reason WHERE {
+  ?phase a tai:EnterprisePhase ; tai:order ?order ; tai:identifier ?id ; tai:outcome ?outcome ; tai:requiresFamily ?family ; tai:requiresCertification ?cert .
+  VALUES ?reason { "bad-order" "unknown-family" "unknown-certification" "missing-predecessor" }
+  FILTER(
+    (?reason = "bad-order" && (?order < 0 || ?order > 6)) ||
+    (?reason = "unknown-family" && NOT EXISTS { ?family a tai:BuildingBlockFamily }) ||
+    (?reason = "unknown-certification" && NOT EXISTS { ?cert a tai:CertificationHorizon }) ||
+    (?reason = "missing-predecessor" && ?order > 0 && NOT EXISTS { ?phase tai:dependsOn ?predecessor . ?predecessor a tai:EnterprisePhase ; tai:order ?prior . FILTER(?prior = ?order - 1) })
+  )
+}
