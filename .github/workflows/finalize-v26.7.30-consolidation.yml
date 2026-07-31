@@ -275,6 +275,7 @@ jobs:
             git commit -m 'style(consolidation): normalize merged Rust sources'
           fi
           cargo fmt --all -- --check
+          cargo build -p ggen-cli-lib --bin ggen
           cargo test -p ggen-engine
 
       - name: Remove one-use finalizer and push receipt
