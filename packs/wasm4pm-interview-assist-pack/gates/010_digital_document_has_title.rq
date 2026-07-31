@@ -1,0 +1,8 @@
+# MESSAGE: every schema:DigitalDocument must carry dcterms:title (any row = a document missing it) — translates DigitalDocumentShape from shapes/interview-assist.shacl.ttl (TICKET-009)
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?s WHERE {
+  ?s a schema:DigitalDocument .
+  FILTER NOT EXISTS { ?s dcterms:title ?t }
+}
+ORDER BY ?s

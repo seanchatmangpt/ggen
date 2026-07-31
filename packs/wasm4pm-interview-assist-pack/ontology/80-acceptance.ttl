@@ -1,0 +1,80 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Acceptance graph: ARD §13 phases 0-5, §14 Decisive Acceptance Test (10
+# individually identified steps), and the Decisive Product Choice's
+# concrete vertical-scope targets.
+# ---------------------------------------------------------------------------
+
+<phase-implementation-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist phased implementation (ARD Section 13)" ;
+    dcterms:isPartOf <doc/ard#phases> ;
+    skos:hasTopConcept <impl-phase/0>, <impl-phase/1>, <impl-phase/2>, <impl-phase/3>, <impl-phase/4>, <impl-phase/5> .
+
+<impl-phase/0> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 0 -- Capability probe" ;
+    dcterms:isPartOf <doc/ard#phase-0> ; skos:narrower <impl-phase/1> ;
+    dcterms:hasPart <doc/prd#capability-ontology>, <event-family-scheme>, <doc/ard#refusal-taxonomy>, <acceptance-artifact/one-python-task>, <acceptance-artifact/one-rust-task> .
+<impl-phase/1> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 1 -- Deterministic mock interview" ;
+    dcterms:isPartOf <doc/ard#phase-1> ; skos:broader <impl-phase/0> ; skos:narrower <impl-phase/2> ;
+    dcterms:hasPart <acceptance-artifact/text-problem>, <capability/editor/open-file>, <capability/runtime/compile>, <capability/verification/run-complete-test-suite>, <phase-scheme>, <acceptance-artifact/static-assistance-pack>, <receipt/entry-2-final> ;
+    rdfs:comment "No speech and no model." .
+<impl-phase/2> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 2 -- Zero-input cognition" ;
+    dcterms:isPartOf <doc/ard#phase-2> ; skos:broader <impl-phase/1> ; skos:narrower <impl-phase/3> ;
+    dcterms:hasPart <event-family/speech>, <capability/cognition/classify-question-family>, <capability/cognition/maintain-parallel-hypotheses>, <capability/cognition/mark-concept-covered> .
+<impl-phase/3> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 3 -- Self-play manufacturing" ;
+    dcterms:isPartOf <doc/ard#phase-3> ; skos:broader <impl-phase/2> ; skos:narrower <impl-phase/4> ;
+    dcterms:hasPart <service/self-play-factory>, <doc/prd#self-play>, <doc/prd#benchmarks> .
+<impl-phase/4> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 4 -- Accessibility crown" ;
+    dcterms:isPartOf <doc/ard#phase-4> ; skos:broader <impl-phase/3> ; skos:narrower <impl-phase/5> ;
+    dcterms:hasPart <capability/accessibility/screen-reader-semantic-regions>, <capability/accessibility/braille-display-output>, <capability/accessibility/text-to-speech-projection>, <capability/accessibility/stable-layout-mode>, <capability/accessibility/zero-motor-input-operation> .
+<impl-phase/5> a skos:Concept ; skos:inScheme <phase-implementation-scheme> ; skos:prefLabel "Phase 5 -- Repository interviews" ;
+    dcterms:isPartOf <doc/ard#phase-5> ; skos:broader <impl-phase/4> ;
+    dcterms:hasPart <doc/prd#task-feature>, <doc/prd#task-debugging>, <doc/prd#task-review>, <capability/editor/display-diff> .
+
+<acceptance-artifact/one-python-task> a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/0> ; dcterms:title "one Python task" .
+<acceptance-artifact/one-rust-task>   a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/0> ; dcterms:title "one Rust task" .
+<acceptance-artifact/text-problem>    a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/1> ; dcterms:title "text problem" .
+<acceptance-artifact/static-assistance-pack> a schema:DigitalDocument ; dcterms:isPartOf <impl-phase/1> ; dcterms:title "static assistance pack" ; dcterms:relation <pack/interview-pack> .
+
+# ---------------------------------------------------------------------------
+# Decisive Acceptance Test (ARD §14) -- 10 individually identified steps.
+# ---------------------------------------------------------------------------
+
+<acceptance-test-scheme> a skos:ConceptScheme ; skos:prefLabel "InterviewAssist Decisive Acceptance Test (ARD Section 14)" ;
+    dcterms:isPartOf <doc/ard#decisive-acceptance-test> ;
+    skos:hasTopConcept
+        <acceptance-step/1>, <acceptance-step/2>, <acceptance-step/3>, <acceptance-step/4>, <acceptance-step/5>,
+        <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8>, <acceptance-step/9>, <acceptance-step/10> .
+
+<acceptance-step/1>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "build the system" .
+<acceptance-step/2>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "create the sandbox" ; dcterms:requires <acceptance-step/1> .
+<acceptance-step/3>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "replay the interview" ; dcterms:requires <acceptance-step/2> ; dcterms:relation <capability/session/replay-session> .
+<acceptance-step/4>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all admitted state transitions" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <phase-scheme> .
+<acceptance-step/5>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all code executions" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <capability/runtime/execute> .
+<acceptance-step/6>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all visible and hidden test outcomes" ; dcterms:requires <acceptance-step/5> ; dcterms:relation <capability/verification/run-complete-test-suite> .
+<acceptance-step/7>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce all accessibility projections" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <manufacturing-chain/accessibility-projection> .
+<acceptance-step/8>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "verify that no prohibited capability was invoked" ; dcterms:requires <acceptance-step/3> ; dcterms:relation <policy/prohibited-mode> .
+<acceptance-step/9>  a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "reproduce the final session state" ; dcterms:requires <acceptance-step/4>, <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8> .
+<acceptance-step/10> a skos:Concept, schema:Action ; skos:inScheme <acceptance-test-scheme> ; schema:name "match the final receipt hash" ; dcterms:requires <acceptance-step/9> ; dcterms:relation <receipt/entry-2-final> .
+
+<doc/ard#decisive-acceptance-test> dcterms:hasPart <acceptance-step/1>, <acceptance-step/2>, <acceptance-step/3>, <acceptance-step/4>, <acceptance-step/5>, <acceptance-step/6>, <acceptance-step/7>, <acceptance-step/8>, <acceptance-step/9>, <acceptance-step/10> .
+
+# ---------------------------------------------------------------------------
+# Decisive Product Choice -- vertical scope (Python + Rust, algorithm and
+# debugging tasks, visible/hidden tests, caption events, zero-input
+# cognition, receipt/replay). Full normative text already captured verbatim
+# in <doc/ard#decisive-product-choice> (00-document.ttl); this section
+# connects it to the concrete resources it names.
+# ---------------------------------------------------------------------------
+
+<doc/ard#decisive-product-choice>
+    dcterms:hasPart
+        <doc/prd#task-algorithm>, <doc/prd#task-debugging>,
+        <capability/verification/run-visible-test>, <capability/verification/run-hidden-test>,
+        <event-family/speech>, <event-family/session>,
+        <capability/session/replay-session>, <capability/governance/produce-session-receipt> .

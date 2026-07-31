@@ -1,0 +1,57 @@
+---
+to: "app/api/sandbox/[capability]/route.ts"
+sparql:
+  operations: |
+    PREFIX schema: <https://schema.org/>
+    PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
+    SELECT ?operation ?name ?method WHERE {
+      ?operation a hydra:Operation ;
+                 schema:name ?name ;
+                 hydra:method ?method .
+    }
+    ORDER BY ?operation
+---
+// Generated dispatch route for sandbox capability operations (TICKET-013).
+// Single dynamic route chosen over one-file-per-operation: all {{ operations | length }}
+// hydra:Operation resources share the same request/response shape (capability id + method),
+// so a table-driven dispatcher avoids near-duplicate route files. See TICKET-013 notes for
+// the operation-count discrepancy against the ticket's original "7" estimate.
+import { NextRequest, NextResponse } from "next/server";
+
+interface SandboxOperation {
+  id: string;
+  name: string;
+  method: string;
+}
+
+const OPERATIONS: SandboxOperation[] = [
+{% for op in operations %}  { id: "{{ op.operation }}", name: "{{ op.name }}", method: "{{ op.method }}" },
+{% endfor %}];
+
+function findOperation(capability: string): SandboxOperation | undefined {
+  return OPERATIONS.find((op) => op.id.endsWith(`/${capability}`) || op.id === capability);
+}
+
+async function dispatch(request: NextRequest, capability: string) {
+  const op = findOperation(capability);
+  if (!op) {
+    return NextResponse.json({ error: "unknown capability", capability }, { status: 404 });
+  }
+  if (op.method !== request.method) {
+    return NextResponse.json(
+      { error: "method not allowed", expected: op.method, got: request.method },
+      { status: 405 },
+    );
+  }
+  return NextResponse.json({ capability: op.id, name: op.name, status: "accepted" });
+}
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ capability: string }> }) {
+  const { capability } = await params;
+  return dispatch(request, capability);
+}
+
+export async function POST(request: NextRequest, { params }: { params: Promise<{ capability: string }> }) {
+  const { capability } = await params;
+  return dispatch(request, capability);
+}

@@ -1,0 +1,32 @@
+{
+  "name": "interviewassist",
+  "version": "0.1.0",
+  "description": "A local-first, accessible technical interview environment that observes interview events and automatically presents verified assistance.",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "postinstall": "node scripts/materialize-wasm-cognition.mjs"
+  },
+  "dependencies": {
+    "blake3": "^2.1.7",
+    "next": "16.2.11",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.9",
+    "typescript": "^5.6.3",
+    "@playwright/test": "^1.48.2",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7"
+  }
+}
+

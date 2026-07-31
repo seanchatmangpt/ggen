@@ -2,23 +2,30 @@
 
 ## Quick Start
 
-1. **Ensure ggen is installed**:
+1. **Build ggen-lsp from source** (requires nightly Rust):
    ```bash
-   cargo install --path crates/ggen-cli
+   git clone https://github.com/seanchatmangpt/ggen
+   cd ggen
+   cargo build --release -p ggen-lsp --features mcp
    ```
 
-2. **One-command setup** (writes editor configs + Agent Admissibility Pack):
+2. **Start the MCP server**:
    ```bash
-   ggen lsp init
+   ./target/release/ggen-lsp
+   ```
+   
+   Or as an LSP stdio server:
+   ```bash
+   ./target/release/ggen-lsp lsp start
    ```
 
-3. **Enable in Claude Code**:
-   ggen-lsp is auto-registered when you open any `.ttl`, `.tera`, or `ggen.toml` file.
+3. **Configure Claude Code** — see Configuration section below for MCP server details.
 
-3. **Verify it's running**:
+4. **Verify it's running**:
    - Open a ggen project with `.ttl` or `ggen.toml` files
    - Look for syntax highlighting (colors) in the editor
    - Hover over a class name — should show documentation
+   - MCP tools `ggen.construct`, `ggen.check`, etc. should appear in Claude Code
 
 ## Configuration
 
@@ -44,21 +51,31 @@ Edit `~/.claude/settings.json`:
 
 ## Troubleshooting
 
+### Build fails or missing Rust
+
+ggen-lsp requires **nightly Rust** (pinned to a specific date in `rust-toolchain.toml`). Ensure you have
+`rustup` installed:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup update nightly
+```
+
 ### LSP not starting
 
-1. Verify `ggen` binary is in PATH:
+1. Verify the binary built successfully:
    ```bash
-   which ggen
+   ./target/release/ggen-lsp --version
    ```
 
 2. Test LSP directly (stdio only):
    ```bash
-   ggen lsp start
+   ./target/release/ggen-lsp lsp start
    ```
 
-   Or run the MCP protocol server for non-LSP agents:
+   Or run the MCP protocol server for Claude Code:
    ```bash
-   ggen lsp serve --protocol mcp
+   ./target/release/ggen-lsp lsp serve --protocol mcp
    ```
 
 3. Check Claude Code logs (View > Toggle Developer Tools)

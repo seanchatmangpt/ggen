@@ -1,0 +1,214 @@
+# ---------------------------------------------------------------------------
+# Cognition bridge: the real wasm4pm-cognition ABI contract InterviewAssist
+# calls into (breed "eliza"), plus InterviewAssist's own Two-Sum pattern-rule
+# catalog fed into it at runtime. Two honestly distinguished parts -- see the
+# section markers below. No project-local classes or predicates (pack.toml's
+# stated constraint): everything below reuses schema.org/dcterms/prov/rdfs,
+# the same predicates already established elsewhere in this pack (schema:
+# Action + schema:additionalProperty/PropertyValue for structured field
+# lists is schema.org's own documented reuse-fallback when no more specific
+# property exists -- the same "defensible, disclosed stretch" style already
+# used for dcterms:requires on capability preconditions and spdx:algorithm
+# carrying "BLAKE3" as a plain literal in 60-provenance-receipts.ttl).
+#
+# Styled after packs/mfact-pack/ontology.ttl and packs/mfw-pack/ontology.ttl
+# (both newer than wasm4pm-cognition-pack's own ontology.ttl, which models
+# only breed metadata -- id/label/doc/citation -- never the real I/O
+# contract): real struct fields transcribed VERBATIM with dcterms:source
+# citations, not paraphrased, and empirically-verified behavioral facts
+# recorded as first-class resources, not buried in code comments only.
+# ---------------------------------------------------------------------------
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ===========================================================================
+# Part A: real wasm4pm-cognition ABI contract, transcribed verbatim.
+#
+# Source: ~/wasm4pm (a separate repository this workspace does not own or
+# control -- same disclosed-boundary reasoning as mfw-pack's own note about
+# ~/mfw). Verified against commit 30ed40f33a8ef8fcb1f868f2d3bea81f25be64db
+# (2026-06-21T23:20:34-07:00), the last commit touching wasm.rs/breeds/
+# mod.rs/breeds/frame.rs as of this transcription (2026-07-23). Built and
+# empirically exercised this same pass: `wasm-pack build --target nodejs`
+# from crates/wasm4pm-cognition produced a real, working Node package;
+# `cognition_run` was called for real against breed "eliza" and produced a
+# real Ed25519-signed, BLAKE3-hashed, OCEL-logged output (not simulated).
+# ===========================================================================
+
+<cognition-bridge/abi-verb-cognition-run>
+    a schema:Action ; schema:name "cognition_run" ;
+    dcterms:source "crates/wasm4pm-cognition/src/wasm.rs (commit 30ed40f3, 2026-06-21)" ;
+    rdfs:comment "Real exported wasm-bindgen fn. Input: ValidatedRunInput{breed:String,contract:BreedInput,options:ValidatedRunOptions}, serialized as input_json. On success returns a signed envelope (status,run_id,input_hash,output_hash,ocel_hash,wasm_hash,model_hash,replay_pointer,output:BreedOutput,conformance,signature,public_key_id,signature_algorithm). On failure the wasm-bindgen Result::Err surfaces as a THROWN JS exception (not a returned value) whose message is a JSON string '{\"error\":\"...\"}' -- callers must wrap every call in try/catch, never rely on a returned error field." .
+
+<cognition-bridge/breed-input-contract>
+    a schema:Action ; schema:name "BreedInput (breed run() input contract)" ;
+    dcterms:source "crates/wasm4pm-cognition/src/breeds/mod.rs:262-278 (commit 30ed40f3)" ;
+    rdfs:comment "Input to a breed's run() method: all available knowledge." ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "intent" ; schema:value "String" ; schema:description "User intent or problem statement -- the observed interview utterance text." ] ,
+        [ a schema:PropertyValue ; schema:name "candidates" ; schema:value "Vec<Candidate>" ; schema:description "Current set of architecture/track candidates (id, score, eliminated, elimination_reason). Unused by Eliza's own keyword-match path; left empty for this bridge." ] ,
+        [ a schema:PropertyValue ; schema:name "facts" ; schema:value "Vec<Fact>" ; schema:description "Key/value facts. Unused by Eliza's own keyword-match path; left empty for this bridge." ] ,
+        [ a schema:PropertyValue ; schema:name "cases" ; schema:value "Vec<Case>" ; schema:description "Past cases with outcome scores. Unused by Eliza; left empty for this bridge." ] ,
+        [ a schema:PropertyValue ; schema:name "rules" ; schema:value "Vec<Rule>" ; schema:description "Horn-clause rules. EMPIRICALLY VERIFIED (2026-07-23, real cognition_run call): when non-empty, Eliza's real run() switches from its default 1966 Rogerian-therapist wildcard fallback to real per-rule keyword-matched dispatch -- see cognition-bridge/rule-contract and cognition-bridge/empty-rules-fallback below." ] ,
+        [ a schema:PropertyValue ; schema:name "goals" ; schema:value "Vec<Goal>" ; schema:description "Goals to satisfy. Unused by Eliza; left empty for this bridge." ] ,
+        [ a schema:PropertyValue ; schema:name "state" ; schema:value "Vec<StateAtom>" ; schema:description "Planning-problem state atoms. Unused by Eliza; left empty for this bridge." ] .
+
+<cognition-bridge/breed-output-contract>
+    a schema:Action ; schema:name "BreedOutput (breed run() output contract)" ;
+    dcterms:source "crates/wasm4pm-cognition/src/breeds/mod.rs:301-321 (commit 30ed40f3)" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "selected" ; schema:value "Option<String>" ; schema:description "For Eliza: the matched keyword (uppercased), e.g. \"ARRAY\", or \"*\" for the generic wildcard fallback. NOT a confidence score -- Eliza produces one selected match, not a ranked candidate list." ] ,
+        [ a schema:PropertyValue ; schema:name "explanation" ; schema:value "String" ; schema:description "For Eliza: the response/question text tied to the matched rule's conclusion. This is the real value to render as the clarifying question, e.g. in a CognitionPanel." ] ,
+        [ a schema:PropertyValue ; schema:name "inference_trace" ; schema:value "Vec<TraceStep>" ; schema:description "Real step-by-step keyword/pattern trace (try-pattern, match-pattern, bind-slot) -- suitable for a developer-diagnostics drawer, not the primary candidate-facing UI." ] .
+
+<cognition-bridge/rule-contract>
+    a schema:Action ; schema:name "Rule (Horn-clause rule fed to a breed)" ;
+    dcterms:source "crates/wasm4pm-cognition/src/breeds/mod.rs:228-239 (commit 30ed40f3)" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "id" ; schema:value "String" ; schema:description "Rule identifier." ] ,
+        [ a schema:PropertyValue ; schema:name "premise" ; schema:value "Vec<String>" ; schema:description "EMPIRICALLY VERIFIED (crates/wasm4pm-cognition/src/breeds/frame.rs:336-373, run_keyword_engine): premise[0] is the KEYWORD, matched (uppercased, trailing punctuation stripped) against whitespace-split tokens of BreedInput.intent -- first matching token in the intent wins. premise[1] is an optional ELIZA-style decomposition pattern string, default \"(0)\"." ] ,
+        [ a schema:PropertyValue ; schema:name "conclusion" ; schema:value "String" ; schema:description "The response/reassembly text returned as BreedOutput.explanation when this rule's keyword matches." ] ,
+        [ a schema:PropertyValue ; schema:name "certainty" ; schema:value "f32 (-1.0 to 1.0)" ; schema:description "Certainty factor. Not consulted by keyword-selection order in the verified code path (first-token-match wins); carried through for future rule-priority use." ] .
+
+<cognition-bridge/empty-rules-fallback>
+    a prov:Entity ;
+    rdfs:label "Eliza's behavior when BreedInput.rules is empty" ;
+    rdfs:comment "EMPIRICALLY VERIFIED 2026-07-23 via a real cognition_run(breed=eliza) call with rules=[]: Eliza falls back to a generic wildcard pattern producing explanation \"Please go on.\" -- the classic 1966 Rogerian-therapist script, not interview-domain-aware. InterviewAssist's cognition-adapter MUST always supply a non-empty rules array (cognition-bridge/two-sum-* below), never rely on this fallback for a real interview turn." .
+
+<cognition-bridge/no-keyword-match-fails-closed>
+    a prov:Entity ;
+    rdfs:label "Eliza's behavior when rules is non-empty but none match the intent"  ;
+    rdfs:comment "EMPIRICALLY VERIFIED 2026-07-23: with a non-empty rules array and an intent containing none of the registered keywords, the real cognition_run call THROWS a JS exception (wasm-bindgen Result::Err) with body {\"error\":\"eliza: postcondition failed: empty inference trace (fraud signal)\"} -- a real fail-closed anti-fraud postcondition, not a soft fallback. The cognition-adapter MUST catch this specific error and map it to a disclosed, honest \"no track matched\" outcome -- never let it surface as an unhandled 500, and never silently substitute a guessed track." .
+
+# ===========================================================================
+# Part B: InterviewAssist's OWN pattern-rule catalog -- NEW content authored
+# for this vertical slice, NOT transcribed from wasm4pm-cognition (which
+# defines the Rule STRUCT shape above but ships no interview-domain rule
+# content of its own). Originally scoped to exactly one target track (Two
+# Sum) per the 80/20 vertical-slice plan; a second, independently real track
+# (Valid Parentheses) was added below it in a later pass to demonstrate the
+# pattern generalizes past a single hardcoded track, not just a mechanism
+# claim. Reuses schema:Action + schema:additionalProperty, matching Part A's
+# own pattern and the existing 98-capability convention already used
+# throughout this pack.
+#
+# Deliberately NOT linked via dcterms:isPartOf <capability-category/
+# interview-cognition>: that predicate/object pair is exactly what
+# queries/cognition-capabilities.rq (TICKET-018/024) uses to select the 13
+# real interview-cognition capabilities feeding track-candidate.ts and
+# selectors.ts -- linking these resources the same way caused a real,
+# caught-live regression (13 -> 17 fields) the first time this file was
+# written. queries/cognition-pattern-rules.rq discriminates these resources
+# by IRI prefix + the presence of a "ruleKeyword" additionalProperty instead,
+# with no shared category link to collide on.
+#
+# Keyword-collision discipline: every keyword below (PARENTHESES, BRACKETS,
+# STACK, BALANCED) is disjoint from the Two Sum track's keywords (ARRAY,
+# TARGET, INDICES, SUM) -- required for deterministic keyword matching, since
+# crates/wasm4pm-cognition/src/breeds/frame.rs's run_keyword_engine matches
+# the first token in the intent against ALL supplied rules' premises
+# regardless of track; an intent containing keywords from two different
+# tracks would still resolve deterministically by token order, but reusing
+# the exact same keyword for two different tracks would make the match
+# track-ambiguous, which never happens here.
+# ===========================================================================
+
+<cognition-bridge/two-sum-array>
+    a schema:Action ; schema:name "two-sum array keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "ARRAY" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Is this a Two Sum-style problem -- finding two values in an array whose sum equals a target?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "two-sum" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.8"^^xsd:decimal ] .
+
+<cognition-bridge/two-sum-target>
+    a schema:Action ; schema:name "two-sum target keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "TARGET" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Are you looking for two numbers that add up to a target value?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "two-sum" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.8"^^xsd:decimal ] .
+
+<cognition-bridge/two-sum-indices>
+    a schema:Action ; schema:name "two-sum indices keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "INDICES" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Do you need to return the positions (indices) of the two matching numbers?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "two-sum" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.7"^^xsd:decimal ] .
+
+<cognition-bridge/two-sum-sum>
+    a schema:Action ; schema:name "two-sum sum keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "SUM" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Is this about finding pairs of numbers whose sum matches a given value?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "two-sum" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.7"^^xsd:decimal ] .
+
+# ---------------------------------------------------------------------------
+# Second track: Valid Parentheses. A genuinely distinct pattern from Two
+# Sum -- a stack-based string-validity check rather than an array/target
+# search -- not a copy-paste of the two-sum-* resources above with renamed
+# strings.
+# ---------------------------------------------------------------------------
+
+<cognition-bridge/valid-parentheses-parentheses>
+    a schema:Action ; schema:name "valid-parentheses parentheses keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "PARENTHESES" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Is this about checking whether a string of parentheses is validly matched and nested?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "valid-parentheses" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.8"^^xsd:decimal ] .
+
+<cognition-bridge/valid-parentheses-brackets>
+    a schema:Action ; schema:name "valid-parentheses brackets keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "BRACKETS" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Are you working with matching opening and closing brackets, like (), [], and {}?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "valid-parentheses" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.8"^^xsd:decimal ] .
+
+<cognition-bridge/valid-parentheses-stack>
+    a schema:Action ; schema:name "valid-parentheses stack keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "STACK" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Would a stack -- pushing on an open bracket, popping on a matching close -- fit how you'd solve this?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "valid-parentheses" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.7"^^xsd:decimal ] .
+
+<cognition-bridge/valid-parentheses-balanced>
+    a schema:Action ; schema:name "valid-parentheses balanced keyword rule" ;
+    schema:additionalProperty
+        [ a schema:PropertyValue ; schema:name "ruleKeyword" ; schema:value "BALANCED" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleConclusion" ; schema:value "Is the goal to determine whether the sequence of brackets is balanced?" ] ,
+        [ a schema:PropertyValue ; schema:name "targetTrackId" ; schema:value "valid-parentheses" ] ,
+        [ a schema:PropertyValue ; schema:name "ruleCertainty" ; schema:value "0.7"^^xsd:decimal ] .
+
+# ===========================================================================
+# Part C: extend the existing manufacturing/receipt chain (60-provenance-
+# receipts.ttl) with a real cognition-run step between admission and
+# generated-application-state -- the reset's whole point is that track
+# confirmation happens via real cognition, not a manual button, so it must
+# appear in the receipted chain, not bolt on afterward.
+# ===========================================================================
+
+<manufacturing-chain/cognition-activity>
+    a prov:Activity ;
+    rdfs:label "cognition run (real wasm4pm-cognition eliza breed)" ;
+    prov:used <manufacturing-chain/admitted-observation>, <cognition-bridge/abi-verb-cognition-run> ;
+    prov:wasAssociatedWith <component/cognition-bridge> .
+
+<manufacturing-chain/track-confirmed>
+    a prov:Entity ;
+    rdfs:label "candidate-confirmed track" ;
+    prov:wasGeneratedBy <manufacturing-chain/cognition-activity> ;
+    prov:wasDerivedFrom <manufacturing-chain/admitted-observation> ;
+    dcterms:type <event-family/hypothesis> .
+
+<component/cognition-bridge> a prov:Agent ; rdfs:label "Cognition Bridge (wasm4pm-cognition eliza breed, ARD-adjacent -- new this pass)" .

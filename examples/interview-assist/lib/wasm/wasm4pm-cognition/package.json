@@ -1,0 +1,20 @@
+{
+  "name": "wasm4pm-cognition",
+  "collaborators": [
+    "Sean Chatman"
+  ],
+  "description": "AutoSystems old-AI cognition kernel for wasm4pm: frames, production rules, Prolog, STRIPS, Hearsay-II blackboard, BLAKE3 receipt chain, adversarial gates",
+  "version": "26.7.23",
+  "license": "BUSL-1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanchatmangpt/wasm4pm"
+  },
+  "files": [
+    "wasm4pm_cognition_bg.wasm",
+    "wasm4pm_cognition.js",
+    "wasm4pm_cognition.d.ts"
+  ],
+  "main": "wasm4pm_cognition.js",
+  "types": "wasm4pm_cognition.d.ts"
+}

@@ -43,6 +43,26 @@ just 1.56.0
 `nightly-2026-06-22-aarch64-apple-darwin` as active, "**overridden by
 `/Users/sac/ggen/rust-toolchain.toml`**".
 
+## Installation
+
+### Binary (no Rust/nightly required)
+
+**macOS (Homebrew):**
+```bash
+brew install seanchatmangpt/tap/ggen
+ggen --version  # v26.15.2
+ggen sync run --help
+```
+
+**Linux & macOS (direct download):**
+Download prebuilt binaries from
+[seanchatmangpt/ggen/releases/tag/v26.15.2](https://github.com/seanchatmangpt/ggen/releases/tag/v26.15.2).
+Supports: x86_64-apple-darwin, aarch64-apple-darwin, x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu.
+
+### From source (requires nightly Rust)
+
+If you want to build from the latest source or contribute, continue below.
+
 ## Clone and build
 
 ```bash

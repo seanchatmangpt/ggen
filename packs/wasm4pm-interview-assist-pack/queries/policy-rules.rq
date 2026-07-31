@@ -1,0 +1,15 @@
+# Expected: 17 rows -- the odrl:Permission/odrl:Prohibition blank nodes hung off
+# the 6 odrl:Set policies: authority-broker-default (4 permission + 3
+# prohibition), practice-mode (1 permission), mock-interview-mode (1
+# permission), live-assistance-mode (1 permission), assessment-mode (1
+# permission), prohibited-mode (6 prohibition) -- ARD Section 3.15 + PRD
+# Section 4 (TICKET-003). ?kind is "permission" or "prohibition". Verified
+# against the real corpus 2026-07-23 (rdflib), not estimated.
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+SELECT ?policy ?kind ?rule ?action WHERE {
+  { ?policy odrl:permission ?rule . BIND("permission" AS ?kind) }
+  UNION
+  { ?policy odrl:prohibition ?rule . BIND("prohibition" AS ?kind) }
+  ?rule odrl:action ?action .
+}
+ORDER BY ?policy ?kind ?rule

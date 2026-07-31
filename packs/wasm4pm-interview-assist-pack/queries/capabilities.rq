@@ -1,0 +1,8 @@
+# Expected: 98 rows, one per capability/* schema:Action resource (TICKET-003/TICKET-026).
+PREFIX schema: <https://schema.org/>
+SELECT ?capability ?name WHERE {
+  ?capability a schema:Action ;
+              schema:name ?name .
+  FILTER(CONTAINS(STR(?capability), "/capability/"))
+}
+ORDER BY ?capability

@@ -1,0 +1,16 @@
+# MESSAGE: two wf:Action individuals must never share the same wf:actionName or the same wf:variant -- a duplicate action name would silently overwrite one match arm in the generated ActionBinding::bind, and a duplicate variant name would fail to compile only after generation, not at gate time. Any row returned here names the colliding literal and both offending subjects.
+PREFIX wf: <http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#>
+SELECT ?field ?value ?a ?b WHERE {
+  {
+    ?a a wf:Action ; wf:actionName ?value .
+    ?b a wf:Action ; wf:actionName ?value .
+    FILTER(?a != ?b && STR(?a) < STR(?b))
+    BIND("actionName" AS ?field)
+  } UNION {
+    ?a a wf:Action ; wf:variant ?value .
+    ?b a wf:Action ; wf:variant ?value .
+    FILTER(?a != ?b && STR(?a) < STR(?b))
+    BIND("variant" AS ?field)
+  }
+}
+ORDER BY ?field ?value

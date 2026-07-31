@@ -1,0 +1,8 @@
+# Expected: 13 rows, capability/verification/* (TICKET-019).
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?c ?name WHERE {
+  ?c a schema:Action ; schema:name ?name ;
+     dcterms:isPartOf <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/capability-category/verification> .
+}
+ORDER BY ?c

@@ -1,0 +1,8 @@
+# MESSAGE: every odrl:Set must carry dcterms:isPartOf tracing it back to the PRD/ARD section that mandates it (any row = an untraced policy) — translates PolicySetShape (TICKET-009)
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?s WHERE {
+  ?s a odrl:Set .
+  FILTER NOT EXISTS { ?s dcterms:isPartOf ?section }
+}
+ORDER BY ?s

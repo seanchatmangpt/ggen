@@ -1,0 +1,7 @@
+# MESSAGE: every dcat:DataService must carry dcat:servesDataset (any row = a service not declaring which pack it serves) — translates DataServiceShape (TICKET-009)
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT ?s WHERE {
+  ?s a dcat:DataService .
+  FILTER NOT EXISTS { ?s dcat:servesDataset ?d }
+}
+ORDER BY ?s

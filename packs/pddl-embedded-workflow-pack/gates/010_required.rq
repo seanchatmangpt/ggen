@@ -1,0 +1,15 @@
+# MESSAGE: every wf:Action must carry wf:actionName/wf:variant/wf:arity/wf:executionKind, and every wf:Domain must carry wf:domainName/wf:bindingName/wf:commandEnum/wf:hasAction (any row = a subject missing the bound ?missing property). Mirrors BindingRegistry::new's own EmptyName/EmptyAction refusals -- catching a missing field here is a generation-time refusal instead of a runtime one. Scoped to this pack's own wf: namespace via FILTER(STRSTARTS(...)) since sync gates run against the UNION graph of every composed pack.
+PREFIX wf:   <http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a wf:Action .
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#"))
+    VALUES ?missing { wf:actionName wf:variant wf:arity wf:executionKind }
+  } UNION {
+    ?s a wf:Domain .
+    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/pddl-embedded-workflow#"))
+    VALUES ?missing { wf:domainName wf:bindingName wf:commandEnum wf:hasAction }
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

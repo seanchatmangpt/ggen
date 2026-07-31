@@ -1,0 +1,12 @@
+# Expected: 16 rows, one per req/ard-refusal-* schema:DigitalDocument resource
+# (ARD Section 11 refusal taxonomy; excludes req/ard-refusal-no-inferred-truth,
+# which is the 17th resource in this family but is the governing rule, not a
+# refusal code -- it carries no rdf:value code literal) (TICKET-003).
+PREFIX schema: <https://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?refusal ?code WHERE {
+  ?refusal a schema:DigitalDocument ;
+           rdf:value ?code .
+  FILTER(CONTAINS(STR(?refusal), "/req/ard-refusal-") && !CONTAINS(STR(?refusal), "no-inferred-truth"))
+}
+ORDER BY ?refusal

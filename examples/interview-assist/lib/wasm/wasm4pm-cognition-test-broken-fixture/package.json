@@ -1,0 +1,7 @@
+{
+  "name": "wasm4pm-cognition-deliberately-missing-for-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A real, deliberately-broken package. See index.js and lib/adapters/cognition-adapter.ts's loadCognitionModule doc -- exists only so the graceful WASM-load-failure path has a real require() target that genuinely throws.",
+  "main": "index.js"
+}

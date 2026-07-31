@@ -5,6 +5,20 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.15.2] — Binary Distribution & Crates.io Launch (2026-07-24)
+
+### Added
+- **Binary distribution via Homebrew and GitHub Releases** — `ggen v26.15.2` is now available as a prebuilt binary for macOS (Intel + Apple Silicon) and Linux (x86_64 + aarch64). Install via `brew install seanchatmangpt/tap/ggen` or download from [GitHub Releases](https://github.com/seanchatmangpt/ggen/releases/tag/v26.15.2).
+- **Crates.io library publication** — four workspace crates are now published and installable via `cargo add`: `ggen-config` (26.15.2), `ggen-graph` (26.15.2), `ggen-marketplace` (26.15.2), `ggen` (26.15.2, library only; CLI binary remains git-only). The root `ggen` crate re-exports core types; consumers can depend on the specific sub-crates for granular control.
+
+### Changed
+- **Updated README.md** — expanded installation instructions to document Homebrew, GitHub Releases, and crates.io paths alongside the existing source-build option. Documented `ggen-lsp` (MCP server) with instructions for building from source and deploying via `Dockerfile.gvisor`.
+- **Pre-commit gate count: 9 → 10** — `just pre-commit` now chains 10 gates including the new `guard-generation-hash-pin` validation (generation ledger hash integrity check).
+
+### Docs
+- Added `ggen-lsp` installation and MCP server integration section to root README.md.
+- Updated `GETTING_STARTED.md` with binary distribution instructions.
+
 ## [26.7.18] — Release Hardening (2026-07-19)
 
 Version-numbering note: this release's version is a **deliberate downgrade** from the

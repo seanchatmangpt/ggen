@@ -1,0 +1,142 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix hydra:   <http://www.w3.org/ns/hydra/core#> .
+@base <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/> .
+
+# ---------------------------------------------------------------------------
+# Capability graph: the full PRD §8.1-8.8 capability ontology (98 items
+# across 8 categories), each a schema:Action. The 7 capabilities that
+# correspond directly to the ARD §6 InterviewSandbox trait's HTTP-shaped
+# methods (create_session, apply_file_delta [-> create/open/modify file],
+# compile, execute, run_tests) are additionally typed hydra:Operation.
+# Preconditions between capabilities use dcterms:requires -- a defensible
+# but non-canonical stretch of a document/dataset-level DCMI property to
+# link two schema:Action instances; flagged in the final report, not
+# silently presented as an exact-fit public predicate.
+# ---------------------------------------------------------------------------
+
+<capability-category/session> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.1 Session capabilities" .
+<capability-category/problem> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.2 Problem capabilities" .
+<capability-category/editor> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.3 Editor capabilities" .
+<capability-category/runtime> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.4 Runtime capabilities" .
+<capability-category/verification> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.5 Verification capabilities" .
+<capability-category/interview-cognition> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.6 Interview cognition capabilities" .
+<capability-category/accessibility> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.7 Accessibility capabilities" .
+<capability-category/governance> a schema:DigitalDocument ; dcterms:isPartOf <doc/prd#capability-ontology> ; dcterms:title "8.8 Governance capabilities" .
+
+# ---- 8.1 Session (9) ----
+<capability/session/create-session> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "create session" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/join-session> a schema:Action ; schema:name "join session" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/create-session> .
+<capability/session/identify-participant-roles> a schema:Action ; schema:name "identify participant roles" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/start-interview> a schema:Action ; schema:name "start interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/create-session> .
+<capability/session/pause-interview> a schema:Action ; schema:name "pause interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/start-interview> .
+<capability/session/end-interview> a schema:Action ; schema:name "end interview" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/start-interview> .
+<capability/session/manage-interview-phases> a schema:Action ; schema:name "manage interview phases" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/record-event-provenance> a schema:Action ; schema:name "record event provenance" ; dcterms:isPartOf <capability-category/session> .
+<capability/session/replay-session> a schema:Action ; schema:name "replay session" ; dcterms:isPartOf <capability-category/session> ; dcterms:requires <capability/session/record-event-provenance> .
+
+# ---- 8.2 Problem (11) ----
+<capability/problem/load-problem-statement> a schema:Action ; schema:name "load problem statement" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/parse-examples> a schema:Action ; schema:name "parse examples" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/identify-input-format> a schema:Action ; schema:name "identify input format" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-output-format> a schema:Action ; schema:name "identify output format" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/extract-constraints> a schema:Action ; schema:name "extract constraints" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/identify-required-function-signature> a schema:Action ; schema:name "identify required function signature" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-prohibited-operations> a schema:Action ; schema:name "identify prohibited operations" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/identify-performance-target> a schema:Action ; schema:name "identify performance target" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/apply-requirement-delta> a schema:Action ; schema:name "apply requirement delta" ; dcterms:isPartOf <capability-category/problem> ; dcterms:requires <capability/problem/load-problem-statement> .
+<capability/problem/reveal-clarification> a schema:Action ; schema:name "reveal clarification" ; dcterms:isPartOf <capability-category/problem> .
+<capability/problem/reveal-hidden-condition> a schema:Action ; schema:name "reveal hidden condition" ; dcterms:isPartOf <capability-category/problem> .
+
+# ---- 8.3 Editor (12) ----
+<capability/editor/create-file> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "create file" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/open-file> a schema:Action, hydra:Operation ; hydra:method "GET" ; schema:name "open file" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/modify-file> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "modify file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/rename-file> a schema:Action ; schema:name "rename file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/delete-file> a schema:Action ; schema:name "delete file" ; dcterms:isPartOf <capability-category/editor> ; dcterms:requires <capability/editor/create-file> .
+<capability/editor/navigate-symbol> a schema:Action ; schema:name "navigate symbol" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/inspect-definition> a schema:Action ; schema:name "inspect definition" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/inspect-references> a schema:Action ; schema:name "inspect references" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/format-source> a schema:Action ; schema:name "format source" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/apply-deterministic-refactor> a schema:Action ; schema:name "apply deterministic refactor" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/display-diagnostics> a schema:Action ; schema:name "display diagnostics" ; dcterms:isPartOf <capability-category/editor> .
+<capability/editor/display-diff> a schema:Action ; schema:name "display diff" ; dcterms:isPartOf <capability-category/editor> .
+
+# ---- 8.4 Runtime (14) ----
+<capability/runtime/select-language> a schema:Action ; schema:name "select language" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/select-language-version> a schema:Action ; schema:name "select language version" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/select-language> .
+<capability/runtime/compile> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "compile" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/select-language> .
+<capability/runtime/execute> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "execute" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/compile> .
+<capability/runtime/provide-standard-input> a schema:Action ; schema:name "provide standard input" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/terminate-process> a schema:Action ; schema:name "terminate process" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/enforce-timeout> a schema:Action ; schema:name "enforce timeout" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/enforce-memory-limit> a schema:Action ; schema:name "enforce memory limit" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-standard-output> a schema:Action ; schema:name "capture standard output" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-standard-error> a schema:Action ; schema:name "capture standard error" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/capture-exit-status> a schema:Action ; schema:name "capture exit status" ; dcterms:isPartOf <capability-category/runtime> ; dcterms:requires <capability/runtime/execute> .
+<capability/runtime/isolate-filesystem> a schema:Action ; schema:name "isolate filesystem" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/isolate-network> a schema:Action ; schema:name "isolate network" ; dcterms:isPartOf <capability-category/runtime> .
+<capability/runtime/reset-environment> a schema:Action ; schema:name "reset environment" ; dcterms:isPartOf <capability-category/runtime> .
+
+# ---- 8.5 Verification (13) ----
+<capability/verification/run-example> a schema:Action ; schema:name "run example" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-visible-test> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run visible test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-hidden-test> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run hidden test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-focused-test> a schema:Action ; schema:name "run focused test" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/runtime/execute> .
+<capability/verification/run-complete-test-suite> a schema:Action, hydra:Operation ; hydra:method "POST" ; schema:name "run complete test suite" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/verification/run-visible-test>, <capability/verification/run-hidden-test> .
+<capability/verification/generate-candidate-test> a schema:Action ; schema:name "generate candidate test" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/generate-property> a schema:Action ; schema:name "generate property" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/mutate-implementation> a schema:Action ; schema:name "mutate implementation" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/calculate-coverage> a schema:Action ; schema:name "calculate coverage" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/verification/run-complete-test-suite> .
+<capability/verification/calculate-complexity-evidence> a schema:Action ; schema:name "calculate complexity evidence" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/compare-implementations> a schema:Action ; schema:name "compare implementations" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/detect-nondeterminism> a schema:Action ; schema:name "detect nondeterminism" ; dcterms:isPartOf <capability-category/verification> .
+<capability/verification/replay-execution> a schema:Action ; schema:name "replay execution" ; dcterms:isPartOf <capability-category/verification> ; dcterms:requires <capability/session/replay-session> .
+
+# ---- 8.6 Interview cognition (13) ----
+<capability/cognition/detect-speech-act> a schema:Action ; schema:name "detect speech act" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/classify-question-family> a schema:Action ; schema:name "classify question family" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/detect-speech-act> .
+<capability/cognition/maintain-parallel-hypotheses> a schema:Action ; schema:name "maintain parallel hypotheses" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/classify-question-family> .
+<capability/cognition/rank-solution-families> a schema:Action ; schema:name "rank solution families" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/maintain-parallel-hypotheses> .
+<capability/cognition/construct-answer-scaffold> a schema:Action ; schema:name "construct answer scaffold" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/rank-solution-families> .
+<capability/cognition/retrieve-candidate-evidence> a schema:Action ; schema:name "retrieve candidate evidence" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/mark-concept-covered> a schema:Action ; schema:name "mark concept covered" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/detect-missing-explanation> a schema:Action ; schema:name "detect missing explanation" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/mark-concept-covered> .
+<capability/cognition/infer-current-debugging-state> a schema:Action ; schema:name "infer current debugging state" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/predict-likely-follow-up> a schema:Action ; schema:name "predict likely follow-up" ; dcterms:isPartOf <capability-category/interview-cognition> ; dcterms:requires <capability/cognition/maintain-parallel-hypotheses> .
+<capability/cognition/detect-topic-transition> a schema:Action ; schema:name "detect topic transition" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/preserve-unresolved-residue> a schema:Action ; schema:name "preserve unresolved residue" ; dcterms:isPartOf <capability-category/interview-cognition> .
+<capability/cognition/abstain-under-insufficient-evidence> a schema:Action ; schema:name "abstain under insufficient evidence" ; dcterms:isPartOf <capability-category/interview-cognition> .
+
+# ---- 8.7 Accessibility (16) ----
+<capability/accessibility/zero-motor-input-operation> a schema:Action ; schema:name "zero-motor-input operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/keyboard-only-operation> a schema:Action ; schema:name "keyboard-only operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/screen-reader-semantic-regions> a schema:Action ; schema:name "screen-reader semantic regions" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/braille-display-output> a schema:Action ; schema:name "Braille-display output" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/caption-driven-operation> a schema:Action ; schema:name "caption-driven operation" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/text-to-speech-projection> a schema:Action ; schema:name "text-to-speech projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/high-contrast-projection> a schema:Action ; schema:name "high-contrast projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/magnified-single-cue-projection> a schema:Action ; schema:name "magnified single-cue projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/reduced-motion-mode> a schema:Action ; schema:name "reduced-motion mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/stable-layout-mode> a schema:Action ; schema:name "stable-layout mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/configurable-information-density> a schema:Action ; schema:name "configurable information density" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/extended-processing-time-mode> a schema:Action ; schema:name "extended processing-time mode" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/augmentative-communication-projection> a schema:Action ; schema:name "augmentative communication projection" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/non-color-dependent-status> a schema:Action ; schema:name "non-color-dependent status" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/controllable-audio-retention> a schema:Action ; schema:name "controllable audio retention" ; dcterms:isPartOf <capability-category/accessibility> .
+<capability/accessibility/controllable-transcript-retention> a schema:Action ; schema:name "controllable transcript retention" ; dcterms:isPartOf <capability-category/accessibility> .
+
+# ---- 8.8 Governance (10) ----
+<capability/governance/declare-assistance-policy> a schema:Action ; schema:name "declare assistance policy" ; dcterms:isPartOf <capability-category/governance> .
+<capability/governance/declare-allowed-sensors> a schema:Action ; schema:name "declare allowed sensors" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-allowed-knowledge-sources> a schema:Action ; schema:name "declare allowed knowledge sources" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-permitted-projections> a schema:Action ; schema:name "declare permitted projections" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/declare-prohibited-actions> a schema:Action ; schema:name "declare prohibited actions" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/authorize-recording> a schema:Action ; schema:name "authorize recording" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/authorize-retention> a schema:Action ; schema:name "authorize retention" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/revoke-authority> a schema:Action ; schema:name "revoke authority" ; dcterms:isPartOf <capability-category/governance> .
+<capability/governance/produce-policy-receipt> a schema:Action ; schema:name "produce policy receipt" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/governance/declare-assistance-policy> .
+<capability/governance/produce-session-receipt> a schema:Action ; schema:name "produce session receipt" ; dcterms:isPartOf <capability-category/governance> ; dcterms:requires <capability/session/end-interview> .

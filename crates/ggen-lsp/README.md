@@ -25,12 +25,24 @@ A **pure code intelligence** language server for ggen RDF, Tera, and TOML files.
 
 ## Installation
 
-Via Claude Code Marketplace (auto-registered when opening ggen files):
+### From Source (Recommended)
+
+ggen-lsp cannot be published to crates.io (vendored dependencies) but builds easily from source:
 
 ```bash
-# Or manually: ensure ggen is in PATH
-cargo install --path crates/ggen-cli
+git clone https://github.com/seanchatmangpt/ggen
+cd ggen
+cargo build --release -p ggen-lsp --features mcp
+./target/release/ggen-lsp  # Start the MCP server
 ```
+
+### Via Claude Code
+
+The LSP server integrates with Claude Code via MCP (Model Context Protocol):
+
+1. Build ggen-lsp with the `mcp` feature (see above)
+2. Configure Claude Code to connect to the MCP server (see [ggen-lsp MCP Setup](marketplace/INSTALL.md))
+3. Start working — real-time diagnostics, repair suggestions, and MCP tools appear in your editor
 
 ## Configuration
 
