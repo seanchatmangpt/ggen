@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatmangpt.com/ggen/v26.8.1/subsystem-evidence.schema.json",
+  "title": "ggen v26.8.1 Subsystem Evidence Manifest",
+  "description": "Schema for tools/v26.8.1/subsystem_evidence_manifest.py's output. This manifest is a claim, not an authority -- the external subsystem_verifier binary independently re-derives every field before trusting it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "release",
+    "exact_source_head",
+    "generated_at_unix",
+    "verifier_identity",
+    "subsystems",
+    "legacy_disposition_summary",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema": {"const": "ggen.v26.8.1.subsystem-evidence-manifest/1"},
+    "release": {"const": "26.8.1"},
+    "exact_source_head": {"type": "string", "minLength": 7},
+    "generated_at_unix": {"type": "integer", "minimum": 0},
+    "verifier_identity": {
+      "type": "object",
+      "required": ["path", "content_sha256", "role"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "role": {"const": "manifest-generator"}
+      }
+    },
+    "subsystems": {
+      "type": "array",
+      "minItems": 10,
+      "items": {"$ref": "#/$defs/subsystem_record"}
+    },
+    "legacy_disposition_summary": {"type": "object"},
+    "receipt_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "test_run": {
+      "type": "object",
+      "required": [
+        "crate", "test_target", "test_fn", "argv", "exit_code", "passed",
+        "elapsed_ms", "stdout_tail", "stderr_tail", "is_true_negative_control"
+      ],
+      "properties": {
+        "crate": {"type": "string", "minLength": 1},
+        "test_target": {"type": "string", "minLength": 1},
+        "test_fn": {"type": ["string", "null"]},
+        "argv": {"type": "array", "items": {"type": "string"}},
+        "exit_code": {"type": "integer"},
+        "passed": {"type": "boolean"},
+        "elapsed_ms": {"type": "integer", "minimum": 0},
+        "stdout_tail": {"type": "string"},
+        "stderr_tail": {"type": "string"},
+        "is_true_negative_control": {"type": "boolean"}
+      }
+    },
+    "subsystem_record": {
+      "type": "object",
+      "required": [
+        "subsystem", "authority_sources", "authority_digest",
+        "implementation_sources", "implementation_digest",
+        "positive_witness_reports", "negative_falsifier_reports",
+        "replay_report", "legacy_disposition_report",
+        "insufficient_evidence", "insufficient_evidence_reason"
+      ],
+      "properties": {
+        "subsystem": {
+          "enum": [
+            "governance", "system", "engine", "graph", "projection",
+            "evidence", "products", "verification", "economics", "legacy"
+          ]
+        },
+        "authority_sources": {"type": "array", "items": {"type": "string"}},
+        "authority_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "implementation_sources": {"type": "array", "items": {"type": "string"}},
+        "implementation_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "positive_witness_reports": {"type": "array", "items": {"$ref": "#/$defs/test_run"}},
+        "negative_falsifier_reports": {"type": "array", "items": {"$ref": "#/$defs/test_run"}},
+        "replay_report": {"type": "object"},
+        "legacy_disposition_report": {"type": "object"},
+        "insufficient_evidence": {"type": "boolean"},
+        "insufficient_evidence_reason": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
