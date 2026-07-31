@@ -47,6 +47,27 @@ tai:scenario a rdf:Property .
 tai:recentCapability a rdf:Property .
 tai:evidenceObligation a rdf:Property .
 
+# Combinatorial maximalism repository-refactor vocabulary.
+tai:CombinatorialMaximalismProgram a rdfs:Class .
+tai:GallCheckpoint a rdfs:Class .
+tai:CandidateDimension a rdfs:Class .
+tai:TrustTier a rdfs:Class .
+tai:RollbackClass a rdfs:Class .
+
+tai:checkpoint a rdf:Property .
+tai:internalDimension a rdf:Property .
+tai:externalDimension a rdf:Property .
+tai:maximumStanding a rdf:Property .
+tai:requiredArtifact a rdf:Property .
+tai:refusalCode a rdf:Property .
+tai:coverageMode a rdf:Property .
+tai:selectionCardinality a rdf:Property .
+tai:authorityCeiling a rdf:Property .
+tai:trustFloor a rdf:Property .
+tai:consequenceObserver a rdf:Property .
+tai:rollbackClass a rdf:Property .
+tai:outputPath a rdf:Property .
+
 # Exact recent ggen capability rails admitted for the TAI composition.
 tai:cap-book-self-host a tai:RecentGgenCapability ;
   tai:order 1 ; skos:prefLabel "Level-Five book self-host and 360-degree validation" ;
