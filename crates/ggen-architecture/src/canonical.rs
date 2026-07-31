@@ -26,12 +26,13 @@ pub use building_block::{
     Standing, SubstitutionAssessment,
 };
 pub use certification::{
-    generate_rebuild_roadmap, simulate_tai_rebuild, CertificationAward, CertificationLevel,
-    CertificationProgram, CertificationRefusal, CertificationRequirement,
-    CertificationRequirementKind, EvidenceLedger, RebuildRoadmap, RequirementReceipt,
-    RoadmapAction, RoadmapStep, TaiRebuildReceipt, TargetArchitectureInstance,
-    CERTIFICATION_AWARD_SCHEMA, GBB_CERTIFICATION_PROGRAM_ID, REBUILD_ROADMAP_SCHEMA,
-    TAI_REBUILD_RECEIPT_SCHEMA,
+    generate_rebuild_roadmap, simulate_tai_rebuild, tai_case_study, tai_case_study_evidence,
+    tai_case_study_registry, CertificationAward, CertificationLevel, CertificationProgram,
+    CertificationRefusal, CertificationRequirement, CertificationRequirementKind, EvidenceLedger,
+    RebuildRoadmap, RequirementReceipt, RoadmapAction, RoadmapStep, TaiCaseStudy,
+    TaiCaseStudyState, TaiRebuildReceipt, TargetArchitectureInstance, CERTIFICATION_AWARD_SCHEMA,
+    GBB_CERTIFICATION_PROGRAM_ID, REBUILD_ROADMAP_SCHEMA, TAI_CASE_STUDY_ID,
+    TAI_ENTERPRISE_ROOT_ID, TAI_REBUILD_RECEIPT_SCHEMA, TAI_TARGET_ID,
 };
 pub use self_play::{
     run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy, ActorRole,
