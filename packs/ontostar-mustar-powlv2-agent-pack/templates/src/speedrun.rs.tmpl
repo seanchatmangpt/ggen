@@ -1,0 +1,135 @@
+//! Concrete Speedrun projection for admitted MuStar motion packets.
+
+use serde_json::Value;
+use speedrun_talent_network_consumer::{
+    mcp_tool_intent, public_resource_intent, rest_read_intent, search_jobs_intent,
+    CandidateConsent, JobSearch, McpTool, PublicResource, RestOperation, SpeedrunRefusal,
+    SpeedrunTransportIntent,
+};
+use thiserror::Error;
+
+use crate::mustar::MotionPacket;
+
+#[derive(Debug, Error)]
+pub enum SpeedrunProjectionRefusal {
+    #[error("MuStar operation `{0}` is not in the Speedrun projection")]
+    UnknownOperation(String),
+    #[error("Speedrun projection argument `{0}` is missing or invalid")]
+    InvalidArgument(&'static str),
+    #[error("Speedrun argument decoding failed: {0}")]
+    Json(#[from] serde_json::Error),
+    #[error(transparent)]
+    Speedrun(#[from] SpeedrunRefusal),
+}
+
+pub fn speedrun_transport_intent(
+    packet: &MotionPacket,
+    consent: Option<&CandidateConsent>,
+) -> Result<SpeedrunTransportIntent, SpeedrunProjectionRefusal> {
+    let arguments = &packet.arguments;
+    match packet.operation.as_str() {
+        "search_jobs" => {
+            let search = serde_json::from_value::<JobSearch>(arguments.clone())?;
+            Ok(search_jobs_intent(&search)?)
+        }
+        "get_job" => Ok(rest_read_intent(
+            RestOperation::GetJob,
+            Some(required_string(arguments, "role_id")?),
+            None,
+            optional_string(arguments, "source")?,
+        )?),
+        "list_companies" => Ok(rest_read_intent(
+            RestOperation::ListCompanies,
+            None,
+            optional_page(arguments)?,
+            optional_string(arguments, "source")?,
+        )?),
+        "get_company" => Ok(rest_read_intent(
+            RestOperation::GetCompany,
+            Some(required_string(arguments, "slug")?),
+            None,
+            optional_string(arguments, "source")?,
+        )?),
+        "list_collections" => Ok(rest_read_intent(
+            RestOperation::ListCollections,
+            None,
+            optional_page(arguments)?,
+            optional_string(arguments, "source")?,
+        )?),
+        "get_collection" => Ok(rest_read_intent(
+            RestOperation::GetCollection,
+            Some(required_string(arguments, "slug")?),
+            None,
+            optional_string(arguments, "source")?,
+        )?),
+        "get_hiring_stats" => Ok(rest_read_intent(
+            RestOperation::GetHiringStats,
+            None,
+            None,
+            optional_string(arguments, "source")?,
+        )?),
+        "get_open_api_spec" => Ok(rest_read_intent(
+            RestOperation::GetOpenApiSpec,
+            None,
+            None,
+            optional_string(arguments, "source")?,
+        )?),
+        "get_network_info" => Ok(mcp_tool_intent(
+            McpTool::GetNetworkInfo,
+            arguments.clone(),
+            None,
+        )?),
+        "join_network" => Ok(mcp_tool_intent(
+            McpTool::JoinNetwork,
+            arguments.clone(),
+            consent,
+        )?),
+        "express_interest" => Ok(mcp_tool_intent(
+            McpTool::ExpressInterest,
+            arguments.clone(),
+            consent,
+        )?),
+        "llms_text" => Ok(public_resource_intent(PublicResource::LlmsText)?),
+        "jobs_markdown" => Ok(public_resource_intent(PublicResource::JobsMarkdown)?),
+        "jobs_rss" => Ok(public_resource_intent(PublicResource::JobsRss)?),
+        operation => Err(SpeedrunProjectionRefusal::UnknownOperation(
+            operation.to_string(),
+        )),
+    }
+}
+
+fn required_string<'a>(
+    arguments: &'a Value,
+    key: &'static str,
+) -> Result<&'a str, SpeedrunProjectionRefusal> {
+    arguments
+        .get(key)
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .ok_or(SpeedrunProjectionRefusal::InvalidArgument(key))
+}
+
+fn optional_string<'a>(
+    arguments: &'a Value,
+    key: &'static str,
+) -> Result<Option<&'a str>, SpeedrunProjectionRefusal> {
+    match arguments.get(key) {
+        None | Some(Value::Null) => Ok(None),
+        Some(value) => value
+            .as_str()
+            .filter(|text| !text.trim().is_empty())
+            .map(Some)
+            .ok_or(SpeedrunProjectionRefusal::InvalidArgument(key)),
+    }
+}
+
+fn optional_page(arguments: &Value) -> Result<Option<u16>, SpeedrunProjectionRefusal> {
+    match arguments.get("page") {
+        None | Some(Value::Null) => Ok(None),
+        Some(value) => value
+            .as_u64()
+            .and_then(|page| u16::try_from(page).ok())
+            .map(Some)
+            .ok_or(SpeedrunProjectionRefusal::InvalidArgument("page")),
+    }
+}
