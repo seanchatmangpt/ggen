@@ -1,0 +1,69 @@
+---
+to: consumer/tai-enterprise-rebuild/tests/process_receipt.rs
+---
+#![forbid(unsafe_code)]
+
+use std::{fs, process::Command};
+
+#[test]
+fn process_filesystem_receipt_replay_and_tamper_refusal() {
+    let root = tempfile::tempdir().expect("temporary directory");
+    let first = root.path().join("first");
+    let second = root.path().join("second");
+    let binary = env!("CARGO_BIN_EXE_tai-rebuild");
+
+    let first_run = Command::new(binary)
+        .args(["simulate", "historical", first.to_str().expect("utf8 path")])
+        .output()
+        .expect("execute first simulation");
+    assert!(first_run.status.success(), "{}", String::from_utf8_lossy(&first_run.stderr));
+
+    let second_run = Command::new(binary)
+        .args(["simulate", "historical", second.to_str().expect("utf8 path")])
+        .output()
+        .expect("execute replay simulation");
+    assert!(second_run.status.success(), "{}", String::from_utf8_lossy(&second_run.stderr));
+
+    for artifact in ["roadmap.json", "simulation.json", "receipt.json"] {
+        assert_eq!(
+            fs::read(first.join(artifact)).expect("first artifact"),
+            fs::read(second.join(artifact)).expect("second artifact"),
+            "replay changed {artifact}"
+        );
+    }
+
+    let simulation: serde_json::Value = serde_json::from_slice(
+        &fs::read(first.join("simulation.json")).expect("simulation artifact"),
+    )
+    .expect("parse simulation artifact");
+    assert_eq!(simulation["buildingBlockReceipt"]["blocks"]
+            .as_array()
+            .map(|items| items.len()), Some(9));
+    assert_eq!(simulation["selfPlayReceipts"].as_u64(), Some(1));
+    assert_eq!(
+        simulation["standing"].as_str(),
+        Some("ALIVE_SIMULATION_ENTERPRISE_UNKNOWN")
+    );
+    assert_eq!(simulation["directActuation"].as_bool(), Some(false));
+
+    let verify = Command::new(binary)
+        .args(["verify", first.join("receipt.json").to_str().expect("utf8 path")])
+        .output()
+        .expect("verify receipt");
+    assert!(verify.status.success(), "{}", String::from_utf8_lossy(&verify.stderr));
+
+    fs::write(first.join("roadmap.json"), b"tampered").expect("tamper roadmap");
+    let refused = Command::new(binary)
+        .args(["verify", first.join("receipt.json").to_str().expect("utf8 path")])
+        .output()
+        .expect("execute tamper verifier");
+    assert!(!refused.status.success());
+    assert!(String::from_utf8_lossy(&refused.stderr).contains("artifact digest mismatch"));
+
+    let unknown = Command::new(binary)
+        .args(["simulate", "not-admitted", root.path().join("unknown").to_str().expect("utf8 path")])
+        .output()
+        .expect("execute unknown scenario");
+    assert!(!unknown.status.success());
+    assert!(String::from_utf8_lossy(&unknown.stderr).contains("unknown simulation scenario"));
+}
