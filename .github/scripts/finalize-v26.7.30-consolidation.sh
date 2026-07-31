@@ -224,6 +224,49 @@ if ! git diff --cached --quiet; then
   git commit -m 'fix(engine): adapt combinatorial matrix to typed matchers'
 fi
 
+python3 - <<'PY'
+from pathlib import Path
+
+path = Path('.specify/ggen-product.ttl')
+text = path.read_text()
+diagnostics = [
+    ('TPL', 19, 'crates/ggen-engine/src/sync.rs:1287'),
+    ('TPL', 20, 'crates/ggen-engine/src/sync.rs:1426'),
+    ('TPL', 21, 'crates/ggen-engine/src/sync.rs:1273'),
+    ('TPL', 22, 'crates/ggen-engine/src/sync.rs:934'),
+    ('WRITE', 10, 'crates/ggen-engine/src/write.rs:739'),
+    ('WRITE', 11, 'crates/ggen-engine/src/write.rs:244'),
+]
+markers = [f'prod:fm_{family}_{number} a prod:DiagnosticCode' for family, number, _ in diagnostics]
+present = [marker in text for marker in markers]
+if all(present):
+    print('product diagnostic mirror already contains aggregate codes; replay is a no-op')
+elif any(present):
+    raise SystemExit(
+        'product diagnostic mirror refused: partial aggregate state: '
+        + ', '.join(f'{marker}={state}' for marker, state in zip(markers, present))
+    )
+else:
+    blocks = []
+    for family, number, citation in diagnostics:
+        blocks.append(
+            f'''prod:fm_{family}_{number} a prod:DiagnosticCode ;
+    prod:family "{family}" ;
+    prod:number "{number}"^^xsd:integer ;
+    prod:citation "{citation}" .'''
+        )
+    addition = (
+        '# Aggregate v26.7.30 frontmatter and write-admission diagnostics.\n'
+        + '\n\n'.join(blocks)
+    )
+    path.write_text(text.rstrip() + '\n\n' + addition + '\n')
+PY
+
+git add .specify/ggen-product.ttl
+if ! git diff --cached --quiet; then
+  git commit -m 'fix(product): mirror frontmatter admission diagnostics'
+fi
+
 cargo fmt --all
 git add -A
 if ! git diff --cached --quiet; then
@@ -232,6 +275,7 @@ fi
 
 cargo fmt --all -- --check
 cargo build -p ggen-cli-lib --bin ggen
+cargo test -p ggen-engine --test product_mirror_conformance
 
 set +e
 cargo test -p ggen-engine > /tmp/ggen-engine-test.log 2>&1
