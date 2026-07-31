@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: finalize-v26.7.30-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   merge-and-verify:
@@ -38,7 +38,9 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git fetch --no-tags origin '+refs/heads/agent/fix-ontology-import-startup:refs/remotes/origin/agent/fix-ontology-import-startup'
 
-          if git merge --no-ff --no-edit origin/agent/fix-ontology-import-startup; then
+          if git merge-base --is-ancestor origin/agent/fix-ontology-import-startup HEAD; then
+            echo '#502 is already present in the consolidation ancestry'
+          elif git merge --no-ff --no-edit origin/agent/fix-ontology-import-startup; then
             echo '#502 merged without conflict'
           else
             mapfile -t conflicts < <(git diff --name-only --diff-filter=U)
@@ -160,27 +162,23 @@ jobs:
           path = Path('crates/praxis-graphlaw/src/chatman/engine.rs')
           text = path.read_text()
 
-          anchors = {
+          old = {
               'mask': '        let mut fired_mask = 0u64;\n',
               'fire': '''            fired_mask |= bit;
                       plog.record_op_fired(doc.run_id, ev.op_index, 0)''',
               'seal': '            plog.record_run_sealed(doc.run_id, fired_mask)',
           }
-          for name, anchor in anchors.items():
-              if text.count(anchor) != 1:
-                  raise SystemExit(
-                      f'OCEL compatibility repair refused: {name} anchor count '
-                      f'{text.count(anchor)} != 1'
-                  )
+          new = {
+              'mask': '        let mut fired_mask = 0u64;\n        let mut run_time = 0u32;\n',
+              'fire': 'plog.record_op_fired(doc.run_id, ev.op_index, logical_time, 0)',
+              'seal': 'plog.record_run_sealed(doc.run_id, fired_mask, run_time)',
+          }
 
-          text = text.replace(
-              anchors['mask'],
-              '        let mut fired_mask = 0u64;\n        let mut run_time = 0u32;\n',
-              1,
-          )
-          text = text.replace(
-              anchors['fire'],
-              '''            fired_mask |= bit;
+          if all(text.count(anchor) == 1 for anchor in old.values()):
+              text = text.replace(old['mask'], new['mask'], 1)
+              text = text.replace(
+                  old['fire'],
+                  '''            fired_mask |= bit;
                       let logical_time = u32::try_from(ev.at_ns).map_err(|_| {
                           Refusal::TraceUnlawful(format!(
                               "event {}: at_ns {} exceeds the u32 logical-time boundary",
@@ -189,18 +187,26 @@ jobs:
                       })?;
                       run_time = run_time.max(logical_time);
                       plog.record_op_fired(doc.run_id, ev.op_index, logical_time, 0)''',
-              1,
-          )
-          text = text.replace(
-              anchors['seal'],
-              '            plog.record_run_sealed(doc.run_id, fired_mask, run_time)',
-              1,
-          )
-          path.write_text(text)
+                  1,
+              )
+              text = text.replace(old['seal'], new['seal'], 1)
+              path.write_text(text)
+          elif all(text.count(anchor) == 1 for anchor in new.values()):
+              print('POWL OCEL temporal adapter already present; replay is a no-op')
+          else:
+              counts = {
+                  **{f'old_{name}': text.count(anchor) for name, anchor in old.items()},
+                  **{f'new_{name}': text.count(anchor) for name, anchor in new.items()},
+              }
+              raise SystemExit(
+                  f'OCEL compatibility repair refused: anchors are neither old nor admitted: {counts}'
+              )
           PY
 
           git add crates/praxis-graphlaw/src/chatman/engine.rs
-          git commit -m 'fix(graphlaw): carry logical time into POWL OCEL records'
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(graphlaw): carry logical time into POWL OCEL records'
+          fi
 
       - name: Normalize and verify engine admission boundary
         shell: bash
@@ -218,6 +224,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git rm .github/workflows/finalize-v26.7.30-consolidation.yml
-          git commit -m 'chore(consolidation): remove one-use #502 finalizer'
+          if [[ -f .github/workflows/finalize-v26.7.30-consolidation.yml ]]; then
+            git rm .github/workflows/finalize-v26.7.30-consolidation.yml
+            git commit -m 'chore(consolidation): remove one-use #502 finalizer'
+          fi
           git push origin HEAD:agent/ggen-v26.7.30-consolidated
