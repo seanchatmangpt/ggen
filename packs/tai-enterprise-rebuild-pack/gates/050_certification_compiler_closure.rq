@@ -1,0 +1,15 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?cert ?reason WHERE {
+  ?cert a tai:CertificationHorizon .
+  VALUES ?reason { "missing-order" "missing-identifier" "missing-label" "missing-knowledge" "missing-automation" "missing-human-boundary" "missing-failure-prevention" }
+  FILTER(
+    (?reason = "missing-order" && NOT EXISTS { ?cert tai:order ?v }) ||
+    (?reason = "missing-identifier" && NOT EXISTS { ?cert tai:identifier ?v }) ||
+    (?reason = "missing-label" && NOT EXISTS { ?cert skos:prefLabel ?v }) ||
+    (?reason = "missing-knowledge" && NOT EXISTS { ?cert tai:knowledgeBody ?v }) ||
+    (?reason = "missing-automation" && NOT EXISTS { ?cert tai:automatableWork ?v }) ||
+    (?reason = "missing-human-boundary" && NOT EXISTS { ?cert tai:humanBoundary ?v }) ||
+    (?reason = "missing-failure-prevention" && NOT EXISTS { ?cert tai:failurePrevention ?v })
+  )
+}
