@@ -1,0 +1,55 @@
+{
+  "allowed_paths": [
+    "self-host/contracts/**",
+    "self-host/scripts/**",
+    "self-host/tests/**",
+    ".github/workflows/ggen-self-host.yml"
+  ],
+  "base_sha": "8387ed060c05096d67895c38144ac7d7499a9a52",
+  "checkpoint": "CMD-G0-EXACT-TREE",
+  "dependency_checkpoints": [],
+  "forbidden_paths": [
+    "generated/**",
+    "production/**",
+    "Cargo.toml",
+    "Cargo.lock",
+    "ggen.toml",
+    "crates/**",
+    "packs/**"
+  ],
+  "production_behavior_change": false,
+  "repository": "seanchatmangpt/ggen",
+  "required_changes": [
+    "extend the existing self-host observer with exact Git object metadata",
+    "separate untracked and working-tree state from admitted HEAD authority",
+    "bind observation to exact revision, tree, work order, receipts, and replay",
+    "add independent exact-set verification",
+    "add omission sabotage with CMD-G0-EXACT-SET refusal"
+  ],
+  "required_commands": [
+    "python3 self-host/scripts/run_checkpoint.py --root . --expected-revision $(git rev-parse HEAD)",
+    "python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v"
+  ],
+  "required_evidence_outputs": [
+    "self-host/observed/cmd-g0/<revision>/repository.json",
+    "self-host/observed/cmd-g0/<revision>/surfaces.json",
+    "self-host/observed/cmd-g0/<revision>/load-paths.json",
+    "self-host/observed/cmd-g0/<revision>/unknowns.json",
+    "self-host/observed/cmd-g0/<revision>/untracked.json",
+    "self-host/observed/cmd-g0/<revision>/intent-receipt.json",
+    "self-host/observed/cmd-g0/<revision>/result-receipt.json",
+    "self-host/evidence/cmd-g0/<revision>/falsifier.json",
+    "self-host/evidence/cmd-g0/<revision>/verifier-report.json"
+  ],
+  "required_falsifiers": [
+    "remove one tracked leaf from a copied observation and require REFUSED: CMD-G0-EXACT-SET"
+  ],
+  "required_observations": [
+    "git ls-files -s -z",
+    "git ls-tree -r -t -z --full-tree HEAD",
+    "git cat-file blob for tracked blobs",
+    "git ls-files --others --exclude-standard -z"
+  ],
+  "schema": "ggen.gall.work-order.v1",
+  "standing_ceiling": "PARTIAL_ALIVE"
+}
