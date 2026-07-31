@@ -32,6 +32,13 @@ jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status
 jq -e '.standing == "BLOCKED_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[2].status == "ANDON_RED_REINSPECTION_REQUIRED" and .steps[3].status == "BLOCKED_BY_PREDECESSOR"' "$TARGET_ROOT/failed-inspection/simulation.json" >/dev/null
 jq -e '.standing == "ALIVE_SIMULATION_ENTERPRISE_UNKNOWN" and .steps[0].status == "SUCCESSION_ACTIVATED" and .steps[1].status == "SIMULATED_WITH_DELEGATED_AUTHORITY"' "$TARGET_ROOT/founder-unavailable/simulation.json" >/dev/null
 
+CMD_PROGRAM="$CRATE_ROOT/generated/combinatorial-maximalism-program.json"
+jq -e '.schema == "ggen.tai.combinatorial-maximalism-program.v1"' "$CMD_PROGRAM" >/dev/null
+jq -e '.requiredBroker == "BRCE" and .directActuation == false' "$CMD_PROGRAM" >/dev/null
+jq -e '(.checkpoints | length) == 10 and ([.checkpoints[].id] == ["G0","G1","G2","G3","G4","G5","G6","G7","G8","G9"])' "$CMD_PROGRAM" >/dev/null
+jq -e '(.internalDimensions | length) == 12 and (.externalDimensions | length) == 13' "$CMD_PROGRAM" >/dev/null
+jq -e '([.checkpoints[].maximumStanding] | all(. == "PARTIAL_ALIVE"))' "$CMD_PROGRAM" >/dev/null
+
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-a" >/dev/null
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-b" >/dev/null
 first="$(cd "$TARGET_ROOT/replay-a" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
@@ -70,7 +77,7 @@ if missing:
 report = {
     "schema": "ggen.tai.verifier-report.v1",
     "standing": "ALIVE",
-    "boundedObject": "roadmap generation, seven-scenario subprocess simulation, scenario-specific transition law, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
+    "boundedObject": "roadmap generation, G0-G9 combinatorial-maximalism programme, seven-scenario subprocess simulation, scenario-specific transition law, filesystem consequence, BLAKE3 receipt, tamper refusal, and exact replay",
     "enterpriseStanding": "UNKNOWN",
     "externalCertificationStanding": "UNKNOWN",
     "phases": 7,
@@ -78,11 +85,15 @@ report = {
     "certificationHorizons": 10,
     "scenariosExecuted": 7,
     "recentCapabilitiesComposed": 18,
+    "cmdCheckpoints": 10,
+    "internalDimensions": 12,
+    "externalDimensions": 13,
     "directActuation": False,
     "requiredBroker": "BRCE",
     "canonicalGbbComposition": True,
     "deterministicSelfPlay": True,
     "counterfactualTransitionsVerified": True,
+    "combinatorialMaximalismProgramVerified": True,
     "receiptReplay": True,
     "tamperRefused": True,
 }
