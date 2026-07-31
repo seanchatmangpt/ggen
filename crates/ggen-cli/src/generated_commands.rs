@@ -20,7 +20,6 @@ pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
 pub const DEFAULT_VERBS: &[(&str, &str)] = &[
     ("sync", "run"),
     ("doctor", "check"),
-    ("graph", "query"),
     ("receipt", "verify"),
 ];
 

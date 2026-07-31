@@ -1,0 +1,10 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+SELECT ?legacy ?standing ?disposition
+WHERE {
+  ?legacy a ggen:LegacyCapability ;
+          ggen:hasStanding ?standing ;
+          ggen:hasDisposition ?disposition .
+  FILTER (?standing = ggen:UNKNOWN || ?disposition = ggen:DISPOSITION_UNKNOWN)
+}
+ORDER BY ?legacy

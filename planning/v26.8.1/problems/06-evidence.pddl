@@ -1,0 +1,10 @@
+(define (problem ggen-v2681-evidence)
+ (:domain ggen-v2681-core)
+ (:objects receipt-schema blake3 signatures replay ocel otel causality corroboration external-witness promotion - subsystem
+  v-evidence - verifier r-evidence - receipt)
+ (:init (declared receipt-schema) (declared blake3) (declared signatures) (declared replay)
+  (declared ocel) (declared otel) (declared causality) (declared corroboration)
+  (declared external-witness) (declared promotion) (= (total-cost) 0))
+ (:goal (forall (?s - subsystem) (and (admitted ?s) (replayable ?s)
+  (positive-witness ?s) (negative-falsifier ?s))))
+ (:metric minimize (total-cost)))

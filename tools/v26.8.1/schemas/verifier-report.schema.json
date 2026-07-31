@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatmangpt.com/ggen/v26.8.1/verifier-report.schema.json",
+  "title": "ggen v26.8.1 Crown Verifier Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release",
+    "source_head",
+    "baseline_ref",
+    "repository",
+    "standing",
+    "release_admitted",
+    "sunset_admitted",
+    "corpus_document_count",
+    "coverage_row_count",
+    "unknown_standing_count",
+    "unknown_disposition_count",
+    "observation_digest",
+    "gates",
+    "findings",
+    "workspace",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": "ggen.v26.8.1.verifier-report/1"},
+    "release": {"const": "26.8.1"},
+    "source_head": {"type": "string", "minLength": 7},
+    "baseline_ref": {"type": "string", "minLength": 1},
+    "repository": {"const": "seanchatmangpt/ggen"},
+    "standing": {"enum": ["UNKNOWN", "PARTIAL_ALIVE", "ALIVE", "BLOCKED", "BUILD_BROKEN", "UNSUPPORTED"]},
+    "release_admitted": {"type": "boolean"},
+    "sunset_admitted": {"type": "boolean"},
+    "corpus_document_count": {"type": "integer", "minimum": 80},
+    "coverage_row_count": {"type": "integer", "minimum": 1},
+    "unknown_standing_count": {"type": "integer", "minimum": 0},
+    "unknown_disposition_count": {"type": "integer", "minimum": 0},
+    "observation_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gates": {"type": "array", "items": {"$ref": "#/$defs/gate"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "workspace": {"type": "object"},
+    "files": {"type": "array", "items": {"$ref": "#/$defs/file"}}
+  },
+  "$defs": {
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "pass", "evidence"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "pass": {"type": "boolean"},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "path", "message"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["ERROR", "WARNING", "INFO"]},
+        "path": {"type": ["string", "null"]},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "blake3", "classification"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "blake3": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "classification": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

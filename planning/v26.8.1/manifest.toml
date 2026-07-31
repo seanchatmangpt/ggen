@@ -1,0 +1,78 @@
+version = "26.8.1"
+authority = "ontology/v26.8.1/ontology.ttl"
+standing = "PARTIAL_ALIVE"
+
+[portfolio]
+classical_domain = "domains/ggen-v2681-core.pddl"
+temporal_domain = "domains/ggen-v2681-temporal.pddl"
+probabilistic_domain = "domains/ggen-v2681-probabilistic.ppddl"
+hierarchical_domain = "domains/ggen-v2681-hierarchical.hddl"
+
+[coverage]
+numbered_research_documents = 100
+problem_families = 10
+require_pddl = true
+require_ppddl = true
+require_hddl = true
+require_zero_unmapped_subsystems = true
+
+[verification]
+structural = "python3 planning/v26.8.1/verify_planning.py"
+parser_boundary = "cargo test -p bcinr-pddl"
+receipt_path = ".ggen/v26.8.1/planning-report.json"
+
+[admission]
+release_requires_validated_plans = true
+sunset_requires_legacy_plan = true
+planner_success_is_not_self_promoting = true
+external_witness_required = true
+
+[[problems]]
+name = "governance"
+path = "problems/01-governance.pddl"
+doc_range = "1-10"
+
+[[problems]]
+name = "system"
+path = "problems/02-system.pddl"
+doc_range = "11-20"
+
+[[problems]]
+name = "engine"
+path = "problems/03-engine.pddl"
+doc_range = "21-30"
+
+[[problems]]
+name = "graph"
+path = "problems/04-graph.pddl"
+doc_range = "31-40"
+
+[[problems]]
+name = "projection"
+path = "problems/05-projection.pddl"
+doc_range = "41-50"
+
+[[problems]]
+name = "evidence"
+path = "problems/06-evidence.pddl"
+doc_range = "51-60"
+
+[[problems]]
+name = "products"
+path = "problems/07-products.pddl"
+doc_range = "61-70"
+
+[[problems]]
+name = "verification"
+path = "problems/08-verification.pddl"
+doc_range = "71-80"
+
+[[problems]]
+name = "economics"
+path = "problems/09-economics.pddl"
+doc_range = "81-90"
+
+[[problems]]
+name = "legacy"
+path = "problems/10-legacy-sunset.pddl"
+doc_range = "91-100"

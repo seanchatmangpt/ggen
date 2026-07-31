@@ -1,0 +1,23 @@
+(define (problem ggen-v2681-legacy-sunset)
+ (:domain ggen-v2681-core)
+ (:objects v2681 - release
+  legacy-definition chesterton equivalence command-parity data-compat migration archive sunset-gates sunset-runbook final-decision - capability
+  preserved subsumed replaced archived refused unknown-disposition - disposition
+  v-legacy - verifier r-legacy - receipt)
+ (:init (release-candidate v2681) (release-admitted v2681)
+  (legacy-capability legacy-definition) (legacy-capability chesterton)
+  (legacy-capability equivalence) (legacy-capability command-parity)
+  (legacy-capability data-compat) (legacy-capability migration)
+  (legacy-capability archive) (legacy-capability sunset-gates)
+  (legacy-capability sunset-runbook) (legacy-capability final-decision)
+  (information-loss legacy-definition) (information-loss chesterton)
+  (information-loss equivalence) (information-loss command-parity)
+  (information-loss data-compat) (information-loss migration)
+  (information-loss archive) (information-loss sunset-gates)
+  (information-loss sunset-runbook) (information-loss final-decision)
+  (= (total-cost) 0))
+ (:goal (and (sunset-admitted v2681)
+  (forall (?c - capability) (and (not (information-loss ?c))
+    (exists (?d - disposition) (and (legacy-disposition ?c ?d)
+      (not (= ?d unknown-disposition))))))))
+ (:metric minimize (total-cost)))

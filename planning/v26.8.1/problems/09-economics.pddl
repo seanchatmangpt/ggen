@@ -1,0 +1,10 @@
+(define (problem ggen-v2681-economics)
+ (:domain ggen-v2681-core)
+ (:objects tera-bench oxigraph-bench integrated-model little amdahl brooks conway human-comparison cost-capacity validity - subsystem
+  v-economics - verifier r-economics - receipt)
+ (:init (declared tera-bench) (declared oxigraph-bench) (declared integrated-model)
+  (declared little) (declared amdahl) (declared brooks) (declared conway)
+  (declared human-comparison) (declared cost-capacity) (declared validity)
+  (= (total-cost) 0))
+ (:goal (forall (?s - subsystem) (and (admitted ?s) (replayable ?s))))
+ (:metric minimize (total-cost)))

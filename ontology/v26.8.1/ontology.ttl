@@ -1,0 +1,167 @@
+@prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
+@prefix core: <https://ggen.chatmangpt.com/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://ggen.chatmangpt.com/ontology/v26.8.1> a owl:Ontology ;
+  dcterms:title "ggen v26.8.1 Unified Manufacturing Ontology" ;
+  dcterms:description "Single semantic authority for governance, observation, admission, graph evaluation, projection, evidence, verification, release standing, and ggen-legacy disposition." ;
+  dcterms:version "26.8.1" ;
+  owl:versionInfo "26.8.1" ;
+  prov:wasDerivedFrom <https://github.com/seanchatmangpt/ggen> .
+
+# Core manufacturing calculus
+
+ggen:Observation a owl:Class ; rdfs:label "Observation" .
+ggen:AdmittedObservation a owl:Class ; rdfs:subClassOf ggen:Observation ; rdfs:label "Admitted observation" .
+ggen:ManufacturingOperation a owl:Class ; rdfs:label "Manufacturing operation" .
+ggen:Artifact a owl:Class ; rdfs:label "Artifact" .
+ggen:AuthoritySurface a owl:Class ; rdfs:subClassOf ggen:Artifact ; rdfs:label "Authority surface" .
+ggen:Projection a owl:Class ; rdfs:subClassOf ggen:Artifact ; rdfs:label "Projection" .
+ggen:Evidence a owl:Class ; rdfs:subClassOf ggen:Artifact ; rdfs:label "Evidence" .
+ggen:Receipt a owl:Class ; rdfs:subClassOf ggen:Evidence ; rdfs:label "Receipt" .
+ggen:VerifierReport a owl:Class ; rdfs:subClassOf ggen:Evidence ; rdfs:label "Verifier report" .
+ggen:Refusal a owl:Class ; rdfs:subClassOf ggen:Evidence ; rdfs:label "Typed refusal" .
+ggen:ActuationIntent a owl:Class ; rdfs:subClassOf ggen:Artifact ; rdfs:label "Actuation intent" .
+
+ggen:admits a owl:ObjectProperty ; rdfs:domain ggen:ManufacturingOperation ; rdfs:range ggen:AdmittedObservation .
+ggen:manufactures a owl:ObjectProperty ; rdfs:domain ggen:ManufacturingOperation ; rdfs:range ggen:Artifact .
+ggen:derivedFrom a owl:ObjectProperty ; rdfs:domain ggen:Artifact ; rdfs:range ggen:Observation .
+ggen:hasReceipt a owl:ObjectProperty ; rdfs:domain ggen:ManufacturingOperation ; rdfs:range ggen:Receipt .
+ggen:verifiedBy a owl:ObjectProperty ; rdfs:domain ggen:Artifact ; rdfs:range ggen:Verifier .
+ggen:hasStanding a owl:ObjectProperty ; rdfs:range ggen:Standing .
+ggen:hasDisposition a owl:ObjectProperty ; rdfs:range ggen:LegacyDisposition .
+ggen:ownsSurface a owl:ObjectProperty ; rdfs:domain ggen:Subsystem ; rdfs:range ggen:Artifact .
+ggen:dependsOn a owl:ObjectProperty ; rdfs:domain ggen:Subsystem ; rdfs:range ggen:Subsystem .
+ggen:implementsCapability a owl:ObjectProperty ; rdfs:domain ggen:Subsystem ; rdfs:range ggen:Capability .
+ggen:requiresGate a owl:ObjectProperty ; rdfs:range ggen:Gate .
+ggen:sourcePath a owl:DatatypeProperty ; rdfs:range xsd:string .
+ggen:verifierCommand a owl:DatatypeProperty ; rdfs:range xsd:string .
+ggen:refusalCode a owl:DatatypeProperty ; rdfs:range xsd:string .
+ggen:digest a owl:DatatypeProperty ; rdfs:range xsd:string .
+ggen:version a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# System model
+
+ggen:Release a owl:Class .
+ggen:Subsystem a owl:Class .
+ggen:Capability a owl:Class .
+ggen:Stage a owl:Class ; rdfs:subClassOf ggen:Subsystem .
+ggen:Boundary a owl:Class .
+ggen:Gate a owl:Class .
+ggen:Verifier a owl:Class .
+ggen:LegacyCapability a owl:Class ; rdfs:subClassOf ggen:Capability .
+ggen:Standing a owl:Class .
+ggen:LegacyDisposition a owl:Class .
+
+ggen:UNKNOWN a ggen:Standing ; skos:prefLabel "UNKNOWN" .
+ggen:PARTIAL_ALIVE a ggen:Standing ; skos:prefLabel "PARTIAL_ALIVE" .
+ggen:ALIVE a ggen:Standing ; skos:prefLabel "ALIVE" .
+ggen:BLOCKED a ggen:Standing ; skos:prefLabel "BLOCKED" .
+ggen:BUILD_BROKEN a ggen:Standing ; skos:prefLabel "BUILD_BROKEN" .
+ggen:UNSUPPORTED a ggen:Standing ; skos:prefLabel "UNSUPPORTED" .
+
+ggen:PRESERVED a ggen:LegacyDisposition ; skos:prefLabel "PRESERVED" .
+ggen:SUBSUMED a ggen:LegacyDisposition ; skos:prefLabel "SUBSUMED" .
+ggen:REPLACED a ggen:LegacyDisposition ; skos:prefLabel "REPLACED" .
+ggen:ARCHIVED a ggen:LegacyDisposition ; skos:prefLabel "ARCHIVED" .
+ggen:REFUSED a ggen:LegacyDisposition ; skos:prefLabel "REFUSED" .
+ggen:DISPOSITION_UNKNOWN a ggen:LegacyDisposition ; skos:prefLabel "UNKNOWN" .
+
+# Canonical v26.8.1 release
+
+ggen:v26_8_1 a ggen:Release ;
+  ggen:version "26.8.1" ;
+  ggen:hasStanding ggen:PARTIAL_ALIVE ;
+  ggen:requiresGate ggen:OntologyGate, ggen:CorpusGate, ggen:CoverageGate, ggen:PipelineGate, ggen:ReplayGate, ggen:LegacySunsetGate .
+
+# Canonical subsystems
+
+ggen:Governance a ggen:Subsystem ; ggen:sourcePath "AGENTS.md" .
+ggen:Configuration a ggen:Subsystem ; ggen:sourcePath "crates/ggen-config" .
+ggen:CLI a ggen:Subsystem ; ggen:sourcePath "crates/ggen-cli" .
+ggen:Engine a ggen:Subsystem ; ggen:sourcePath "crates/ggen-engine" .
+ggen:Graph a ggen:Subsystem ; ggen:sourcePath "crates/ggen-graph" .
+ggen:Graphlaw a ggen:Subsystem ; ggen:sourcePath "crates/praxis-graphlaw" .
+ggen:Marketplace a ggen:Subsystem ; ggen:sourcePath "crates/ggen-marketplace" .
+ggen:LSP a ggen:Subsystem ; ggen:sourcePath "crates/ggen-lsp" .
+ggen:GenesisTypes a ggen:Subsystem ; ggen:sourcePath "crates/genesis-types-v2" .
+ggen:GenesisCore a ggen:Subsystem ; ggen:sourcePath "crates/genesis-core-v2" .
+ggen:CPMP a ggen:Subsystem ; ggen:sourcePath "crates/cpmp" .
+ggen:Packs a ggen:Subsystem ; ggen:sourcePath "packs" .
+ggen:Bblocks a ggen:Subsystem ; ggen:sourcePath "crates/ggen-cli/src/cmds/bblock.rs" .
+ggen:SelfHost a ggen:Subsystem ; ggen:sourcePath "self-host" .
+ggen:Gall a ggen:Subsystem ; ggen:sourcePath "tools/pack-gall" .
+ggen:Verification a ggen:Subsystem ; ggen:sourcePath "tools/v26.8.1" .
+ggen:Legacy a ggen:Subsystem ; ggen:sourcePath "docs/v26.8.1/90-legacy" .
+
+# Pipeline stages
+
+ggen:Resolve a ggen:Stage ; ggen:dependsOn ggen:Configuration, ggen:Graph .
+ggen:Enrich a ggen:Stage ; ggen:dependsOn ggen:Resolve, ggen:Graphlaw .
+ggen:Extract a ggen:Stage ; ggen:dependsOn ggen:Enrich .
+ggen:Render a ggen:Stage ; ggen:dependsOn ggen:Extract .
+ggen:Write a ggen:Stage ; ggen:dependsOn ggen:Render .
+ggen:ReceiptStage a ggen:Stage ; ggen:dependsOn ggen:Write .
+
+ggen:Engine ggen:ownsSurface ggen:Resolve, ggen:Enrich, ggen:Extract, ggen:Render, ggen:Write, ggen:ReceiptStage .
+
+# Architectural boundaries
+
+ggen:ProcessIntelligenceBoundary a ggen:Boundary ;
+  rdfs:comment "ggen emits process evidence; wasm4pm-compatible systems own discovery, conformance, fitness, precision, and variant analysis." .
+ggen:ExternalActuationBoundary a ggen:Boundary ;
+  rdfs:comment "ggen manufactures bounded intents; BRCE is the only DO boundary for external state change." .
+ggen:GeneratedAuthorityBoundary a ggen:Boundary ;
+  rdfs:comment "Ontology and admitted manifests are authority; generated files are projections and cannot silently become authority." .
+
+# Product capabilities
+
+ggen:DeterministicGeneration a ggen:Capability .
+ggen:GraphAdmission a ggen:Capability .
+ggen:TemplateProjection a ggen:Capability .
+ggen:FilesystemConstruction a ggen:Capability .
+ggen:ReceiptReplay a ggen:Capability .
+ggen:PackResolution a ggen:Capability .
+ggen:BblockComposition a ggen:Capability .
+ggen:EditorDiagnostics a ggen:Capability .
+ggen:SelfRegeneration a ggen:Capability .
+ggen:MachineReadableStanding a ggen:Capability .
+ggen:LegacyEquivalence a ggen:Capability .
+
+ggen:Engine ggen:implementsCapability ggen:DeterministicGeneration, ggen:TemplateProjection, ggen:FilesystemConstruction, ggen:ReceiptReplay .
+ggen:Graph ggen:implementsCapability ggen:GraphAdmission .
+ggen:Marketplace ggen:implementsCapability ggen:PackResolution .
+ggen:Bblocks ggen:implementsCapability ggen:BblockComposition .
+ggen:LSP ggen:implementsCapability ggen:EditorDiagnostics .
+ggen:SelfHost ggen:implementsCapability ggen:SelfRegeneration .
+ggen:Verification ggen:implementsCapability ggen:MachineReadableStanding .
+ggen:Legacy ggen:implementsCapability ggen:LegacyEquivalence .
+
+# Crown gates
+
+ggen:OntologyGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile ontology" .
+ggen:CorpusGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile corpus" .
+ggen:CoverageGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile coverage" .
+ggen:PipelineGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile pipeline" .
+ggen:ReplayGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile replay" .
+ggen:LegacySunsetGate a ggen:Gate ; ggen:verifierCommand "just --justfile tools/v26.8.1/justfile sunset" .
+
+# Legacy sunset law
+
+ggen:SunsetDecision a owl:Class .
+ggen:requiresZeroUnknownStanding a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+ggen:requiresZeroUnknownDisposition a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+ggen:requiresReplayCompatibility a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+
+ggen:GgenLegacySunset a ggen:SunsetDecision ;
+  ggen:requiresZeroUnknownStanding true ;
+  ggen:requiresZeroUnknownDisposition true ;
+  ggen:requiresReplayCompatibility true ;
+  ggen:hasStanding ggen:UNKNOWN .

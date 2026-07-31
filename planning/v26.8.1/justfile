@@ -1,0 +1,14 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+verify:
+    python3 verify_planning.py
+    cargo test --manifest-path ../../Cargo.toml -p bcinr-pddl
+
+structural:
+    python3 verify_planning.py
+
+parser-boundary:
+    cargo test --manifest-path ../../Cargo.toml -p bcinr-pddl
+
+report:
+    cat ../../.ggen/v26.8.1/planning-report.json

@@ -1,0 +1,12 @@
+(define (problem ggen-v2681-engine)
+ (:domain ggen-v2681-core)
+ (:objects resolve enrich extract render write receipt dry-run watch refusal-order - stage
+  engine - subsystem v-engine - verifier r-engine - receipt)
+ (:init (declared engine)
+  (stage-precedes resolve enrich) (stage-precedes enrich extract)
+  (stage-precedes extract render) (stage-precedes render write) (stage-precedes write receipt)
+  (= (total-cost) 0))
+ (:goal (and (admitted engine) (stage-complete resolve) (stage-complete enrich)
+  (stage-complete extract) (stage-complete render) (stage-complete write)
+  (stage-complete receipt)))
+ (:metric minimize (total-cost)))

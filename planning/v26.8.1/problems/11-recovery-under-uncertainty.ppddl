@@ -1,0 +1,15 @@
+(define (problem ggen-v2681-recovery-under-uncertainty)
+  (:domain ggen-v2681-probabilistic)
+  (:objects engine graph projection evidence products verification legacy - subsystem
+    planner-a planner-b - verifier
+    r-engine r-graph r-projection r-evidence r-products r-verification r-legacy - receipt
+    transient-failure permanent-failure - failure-mode)
+  (:init
+    (observed engine) (observed graph) (observed projection) (observed evidence)
+    (observed products) (observed verification) (observed legacy)
+    (planner-available planner-a) (planner-available planner-b)
+    (= (risk engine) 2) (= (risk graph) 3) (= (risk projection) 2)
+    (= (risk evidence) 4) (= (risk products) 2) (= (risk verification) 3)
+    (= (risk legacy) 5) (= (reward) 0))
+  (:goal (release-safe))
+  (:metric maximize (reward)))

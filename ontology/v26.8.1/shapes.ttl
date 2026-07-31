@@ -1,0 +1,53 @@
+@prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Every subsystem is bound to at least one live source path.
+ggen:SubsystemShape a sh:NodeShape ;
+  sh:targetClass ggen:Subsystem ;
+  sh:property [ sh:path ggen:sourcePath ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] .
+
+# Every declared capability owner must point to a canonical capability.
+ggen:CapabilityOwnerShape a sh:NodeShape ;
+  sh:targetSubjectsOf ggen:implementsCapability ;
+  sh:property [ sh:path ggen:implementsCapability ; sh:minCount 1 ; sh:class ggen:Capability ] .
+
+# Pipeline stages are explicit graph nodes with at least one dependency.
+ggen:StageShape a sh:NodeShape ;
+  sh:targetClass ggen:Stage ;
+  sh:property [ sh:path ggen:dependsOn ; sh:minCount 1 ] .
+
+# Gates are not prose: every gate names an executable command.
+ggen:GateShape a sh:NodeShape ;
+  sh:targetClass ggen:Gate ;
+  sh:property [ sh:path ggen:verifierCommand ; sh:minCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] .
+
+# Releases have one version and one standing, plus one or more gates.
+ggen:ReleaseShape a sh:NodeShape ;
+  sh:targetClass ggen:Release ;
+  sh:property [ sh:path ggen:version ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+  sh:property [ sh:path ggen:hasStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ggen:Standing ] ;
+  sh:property [ sh:path ggen:requiresGate ; sh:minCount 1 ; sh:class ggen:Gate ] .
+
+# Standing is closed over the repository vocabulary.
+ggen:StandingShape a sh:NodeShape ;
+  sh:targetSubjectsOf ggen:hasStanding ;
+  sh:property [
+    sh:path ggen:hasStanding ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ( ggen:UNKNOWN ggen:PARTIAL_ALIVE ggen:ALIVE ggen:BLOCKED ggen:BUILD_BROKEN ggen:UNSUPPORTED )
+  ] .
+
+# Legacy capability removal requires both disposition and evidence standing.
+ggen:LegacyCapabilityShape a sh:NodeShape ;
+  sh:targetClass ggen:LegacyCapability ;
+  sh:property [ sh:path ggen:hasDisposition ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ggen:LegacyDisposition ] ;
+  sh:property [ sh:path ggen:hasStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ggen:Standing ] .
+
+# Sunset law is conjunctive and fail-closed.
+ggen:SunsetDecisionShape a sh:NodeShape ;
+  sh:targetClass ggen:SunsetDecision ;
+  sh:property [ sh:path ggen:requiresZeroUnknownStanding ; sh:hasValue true ] ;
+  sh:property [ sh:path ggen:requiresZeroUnknownDisposition ; sh:hasValue true ] ;
+  sh:property [ sh:path ggen:requiresReplayCompatibility ; sh:hasValue true ] ;
+  sh:property [ sh:path ggen:hasStanding ; sh:minCount 1 ; sh:maxCount 1 ] .

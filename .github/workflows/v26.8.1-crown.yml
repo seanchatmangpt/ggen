@@ -1,0 +1,83 @@
+name: v26.8.1 Crown
+
+on:
+  pull_request:
+    paths:
+      - 'docs/v26.8.1/**'
+      - 'tools/v26.8.1/**'
+      - '.github/workflows/v26.8.1-crown.yml'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'justfile'
+      - 'rust-toolchain.toml'
+      - 'crates/**'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/v26.8.1/**'
+      - 'tools/v26.8.1/**'
+      - '.github/workflows/v26.8.1-crown.yml'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'justfile'
+      - 'rust-toolchain.toml'
+      - 'crates/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v26-8-1-crown-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  crown:
+    name: v26.8.1/crown-observer
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Install pinned Rust
+        run: rustup show
+      - name: Install pinned just
+        run: cargo install just --locked --version 1.40.0
+      - name: Compile and execute crown observer
+        run: just --justfile tools/v26.8.1/justfile crown
+      - name: Validate report shape
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('.ggen/v26.8.1/verifier-report.json').read_text())
+          required = {
+              'schema_version', 'release', 'source_head', 'standing',
+              'release_admitted', 'sunset_admitted', 'gates', 'findings',
+              'workspace', 'files', 'observation_digest'
+          }
+          missing = sorted(required - report.keys())
+          if missing:
+              raise SystemExit(f'missing report keys: {missing}')
+          if report['release'] != '26.8.1':
+              raise SystemExit('wrong release')
+          print(json.dumps({
+              'standing': report['standing'],
+              'release_admitted': report['release_admitted'],
+              'sunset_admitted': report['sunset_admitted'],
+              'documents': report['corpus_document_count'],
+              'coverage_rows': report['coverage_row_count'],
+          }, sort_keys=True))
+          PY
+      - name: Upload exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-v26.8.1-crown-${{ github.sha }}
+          path: .ggen/v26.8.1/
+          if-no-files-found: error
