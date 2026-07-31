@@ -12,11 +12,18 @@ only job is to point the verifier at real evidence and take a first-pass
 recording of it; it is not, and must never become, the standing authority.
 
 Critical constraint honoured here: every positive-witness and
-negative-falsifier `cargo test` target is actually RUN as a subprocess.
-Pass/fail is read from the real process exit code, never assumed. Where a
-subsystem (`verification`, `economics`) has no dedicated evidence yet, this
-generator emits an honestly empty/insufficient record -- it does not
-fabricate coverage.
+negative-falsifier target -- `cargo test` (`run_cargo_test`) or a real
+Python `unittest` invocation (`run_python_unittest`, used by `legacy`,
+whose real evidence -- `equivalence_runner.py`, `legacy_archaeology.py` --
+is Python, not Rust) -- is actually RUN as a subprocess. Pass/fail is read
+from the real process exit code, never assumed. `verification`,
+`economics`, and `legacy` gained dedicated test targets in the v26.8.1
+G-close-unknowns pass (`crates/ggen-cheat-scanner/tests/
+verification_subsystem_evidence_test.rs`, `crates/ggen-engine/tests/
+economics_measured_evidence_test.rs`, `tools/v26.8.1/
+legacy_subsystem_verification_test.py`); where a subsystem still has no
+dedicated evidence, this generator emits an honestly empty/insufficient
+record -- it does not fabricate coverage.
 
 Usage:
     python3 tools/v26.8.1/subsystem_evidence_manifest.py [--root PATH] [--skip-tests]
@@ -149,6 +156,51 @@ def run_cargo_test(
     )
 
 
+def run_python_unittest(
+    root: Path, script_rel: str, test_id: str | None, skip: bool
+) -> TestRun:
+    """Run a single unittest test id (e.g. `SomeTestCase.test_fn`) from a
+    real python script via `python3 <script> <test_id> -v` -- the script's
+    own `unittest.main()` under `if __name__ == '__main__'` parses argv test
+    names directly, no separate test runner shim. `crate`/`test_target`
+    fields are repurposed (no real cargo crate here) to keep the same
+    TestRun shape the rest of this generator (and the report schema)
+    already expects."""
+    argv = ["python3", script_rel]
+    if test_id:
+        argv += [test_id, "-v"]
+    if skip:
+        return TestRun(
+            crate="(python)",
+            test_target=script_rel,
+            test_fn=test_id,
+            argv=argv,
+            exit_code=-1,
+            passed=False,
+            elapsed_ms=0,
+            stdout_tail="SKIPPED (--skip-tests)",
+            stderr_tail="",
+        )
+    started = time.monotonic()
+    completed = subprocess.run(
+        argv, cwd=root, capture_output=True, text=True, timeout=600
+    )
+    elapsed_ms = int((time.monotonic() - started) * 1000)
+    passed = completed.returncode == 0
+    return TestRun(
+        crate="(python)",
+        test_target=script_rel,
+        test_fn=test_id,
+        argv=argv,
+        exit_code=completed.returncode,
+        passed=passed,
+        elapsed_ms=elapsed_ms,
+        stdout_tail=completed.stdout[-2000:],
+        stderr_tail=completed.stderr[-2000:],
+        is_true_negative_control=is_true_negative_control(test_id),
+    )
+
+
 @dataclass
 class SubsystemRecord:
     subsystem: str
@@ -275,21 +327,50 @@ SUBSYSTEMS: dict[str, dict] = {
     },
     "verification": {
         "authority": ["docs/v26.8.1/70-verification/*.md"],
-        "implementation": ["tools/v26.8.1/src/main.rs"],
-        "tests": [],
+        "implementation": [
+            "tools/v26.8.1/src/main.rs",
+            "crates/ggen-cheat-scanner/src/lib.rs",
+        ],
+        "tests": [
+            (
+                "ggen-cheat-scanner",
+                "verification_subsystem_evidence_test.rs",
+                "verification_scanner_detects_a_freshly_planted_cheat_pattern",
+                "verification_scanner_rejects_a_false_positive_on_clean_code",
+            ),
+        ],
     },
     "economics": {
         "authority": ["docs/v26.8.1/80-economics/*.md"],
-        "implementation": [],
-        "tests": [],
+        "implementation": ["justfile", "crates/ggen-engine/tests/receipt_chain_e2e.rs"],
+        "tests": [
+            (
+                "ggen-engine",
+                "economics_measured_evidence_test.rs",
+                "economics_receipt_chain_wall_clock_measured_under_slo_threshold",
+                "economics_measurement_rejects_a_fabricated_zero_duration_reading",
+            ),
+        ],
     },
     "legacy": {
         "authority": ["docs/v26.8.1/90-legacy/*.md"],
         "implementation": [
             "ontology/v26.8.1/legacy-capabilities.ttl",
             "tools/v26.8.1/equivalence_runner.py",
+            "tools/v26.8.1/legacy_archaeology.py",
         ],
         "tests": [],
+        # legacy's real evidence is Python (equivalence_runner.py,
+        # legacy_archaeology.py are both Python), so this uses the same
+        # (positive_fn, negative_fn) shape as "tests" but run via
+        # run_python_unittest instead of run_cargo_test.
+        "python_tests": [
+            (
+                "tools/v26.8.1/legacy_subsystem_verification_test.py",
+                "LegacyCapabilitiesTtlIsRealTest.test_legacy_capabilities_ttl_is_real_reparseable_and_shacl_conformant",
+                "EquivalenceRunnerCatchesFabricatedMismatchTest.test_equivalence_runner_detects_a_fabricated_stdout_mismatch",
+            ),
+        ],
     },
 }
 
@@ -360,6 +441,11 @@ def build_manifest(root: Path, skip_tests: bool) -> dict:
             neg_run = run_cargo_test(root, crate, target, neg_fn, skip_tests)
             positive.append(asdict(pos_run))
             negative.append(asdict(neg_run))
+        for script_rel, pos_test_id, neg_test_id in decl.get("python_tests", []):
+            pos_run = run_python_unittest(root, script_rel, pos_test_id, skip_tests)
+            neg_run = run_python_unittest(root, script_rel, neg_test_id, skip_tests)
+            positive.append(asdict(pos_run))
+            negative.append(asdict(neg_run))
 
         replay = {}
         if subsystem in ("projection", "graph", "evidence"):
@@ -382,7 +468,7 @@ def build_manifest(root: Path, skip_tests: bool) -> dict:
             subsystem, {"total": 0, "closed": 0, "unknown": 0, "capability_ids": []}
         )
 
-        insufficient = len(decl["tests"]) == 0
+        insufficient = len(decl["tests"]) == 0 and len(decl.get("python_tests", [])) == 0
         reason = None
         if insufficient:
             reason = (
