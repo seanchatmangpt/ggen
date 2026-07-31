@@ -1,8 +1,9 @@
 //! Evidence-backed certification law for canonical ggen Building Blocks.
 //!
-//! Every award is bound to the executable `TAI-REBUILD-001` case study. The
-//! pure kernel assesses evidence and deterministic reconstruction receipts; the
-//! GitHub verifier executes the ontology-authored TAI manufacturing pack.
+//! Every award is bound to the executable `TAI-REBUILD-001` case study and to
+//! the admitted seven-day ggen standards profile. The pure kernel assesses
+//! evidence and deterministic reconstruction receipts; the GitHub verifier
+//! executes the ontology-authored TAI manufacturing pack.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -17,6 +18,7 @@ use crate::building_block::{
 mod case_study;
 mod program;
 mod roadmap;
+mod standards;
 
 pub use case_study::{
     tai_case_study, TaiCaseStudy, TaiCaseStudyRefusal, TAI_CASE_STUDY_BROKER,
@@ -24,10 +26,15 @@ pub use case_study::{
 };
 pub use program::CertificationProgram;
 pub use roadmap::{generate_rebuild_roadmap, simulate_tai_rebuild};
+pub use standards::{
+    seven_day_standards_profile, StandardAuthority, StandardCheckpoint, StandardStatus,
+    StandardsProfile, StandardsProfileRefusal, GGEN_SEVEN_DAY_STANDARDS_ID,
+    GGEN_SEVEN_DAY_STANDARDS_VERSION,
+};
 
-pub const CERTIFICATION_AWARD_SCHEMA: &str = "ggen.building-block.certification-award.v1";
-pub const REBUILD_ROADMAP_SCHEMA: &str = "ggen.building-block.rebuild-roadmap.v1";
-pub const TAI_REBUILD_RECEIPT_SCHEMA: &str = "ggen.building-block.tai-rebuild-receipt.v1";
+pub const CERTIFICATION_AWARD_SCHEMA: &str = "ggen.building-block.certification-award.v2";
+pub const REBUILD_ROADMAP_SCHEMA: &str = "ggen.building-block.rebuild-roadmap.v2";
+pub const TAI_REBUILD_RECEIPT_SCHEMA: &str = "ggen.building-block.tai-rebuild-receipt.v2";
 pub const GBB_CERTIFICATION_PROGRAM_ID: &str = "ggen-bblocks-certification-tai-v26.7.31";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -85,6 +92,8 @@ pub struct RequirementReceipt {
     pub requirement_id: String,
     pub candidate_id: String,
     pub case_study_id: String,
+    pub standards_profile_id: String,
+    pub standards_profile_digest: String,
     pub positive_witness_digest: String,
     pub negative_falsifier_digest: String,
     pub independent_verifier_digest: String,
@@ -99,6 +108,8 @@ pub struct CertificationAward {
     pub program_id: String,
     pub program_version: String,
     pub case_study_id: String,
+    pub standards_profile_id: String,
+    pub standards_profile_digest: String,
     pub candidate_id: String,
     pub level: CertificationLevel,
     pub requirement_ids: Vec<String>,
@@ -110,6 +121,8 @@ pub struct CertificationAward {
 pub struct TargetArchitectureInstance {
     pub id: String,
     pub case_study_id: String,
+    pub standards_profile_id: String,
+    pub standards_profile_digest: String,
     pub roots: BTreeSet<BuildingBlockId>,
     #[serde(default)]
     pub required_profiles: BTreeSet<ProfileId>,
@@ -142,6 +155,8 @@ pub struct RebuildRoadmap {
     pub schema: String,
     pub target_id: String,
     pub case_study_id: String,
+    pub standards_profile_id: String,
+    pub standards_profile_digest: String,
     pub composition: CompositionReceipt,
     pub steps: Vec<RoadmapStep>,
     pub digest: String,
@@ -153,6 +168,8 @@ pub struct TaiRebuildReceipt {
     pub candidate_id: String,
     pub target_id: String,
     pub case_study_id: String,
+    pub standards_profile_id: String,
+    pub standards_profile_digest: String,
     pub composition_digest: String,
     pub order: Vec<BuildingBlockId>,
     pub profiles: BTreeSet<ProfileId>,
@@ -167,6 +184,10 @@ pub enum CertificationRefusal {
     CandidateMissing,
     #[error("TAI case-study mismatch: expected `{expected}`, observed `{observed}`")]
     CaseStudyMismatch { expected: String, observed: String },
+    #[error("standards profile mismatch: expected `{expected}`, observed `{observed}`")]
+    StandardsProfileMismatch { expected: String, observed: String },
+    #[error("standards profile digest mismatch: expected `{expected}`, observed `{observed}`")]
+    StandardsProfileDigestMismatch { expected: String, observed: String },
     #[error("certification requirement `{0}` has no receipt")]
     RequirementReceiptMissing(String),
     #[error("receipt candidate mismatch: expected `{expected}`, observed `{observed}`")]
@@ -195,6 +216,8 @@ pub enum CertificationRefusal {
     },
     #[error("target rebuild roadmap has {0} unresolved step(s)")]
     RoadmapIncomplete(usize),
+    #[error(transparent)]
+    StandardsProfile(#[from] StandardsProfileRefusal),
     #[error(transparent)]
     BuildingBlock(#[from] BuildingBlockRefusal),
     #[error("certification receipt serialization failed: {0}")]
