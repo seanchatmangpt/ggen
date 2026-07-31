@@ -299,7 +299,7 @@ legacy:legacy_sync_audit_flag a ggen:LegacyCapability ;
   ggen:configurationDependencies "justfile" ;
   ggen:evidenceFixtures "CLAUDE.md's documented `just sync` failure transcript" ;
   ggen:replacementOwner "" ;
-  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasDisposition ggen:REFUSED ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -307,7 +307,9 @@ legacy:legacy_sync_audit_flag a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
-  rdfs:comment "This is a genuine Chesterton's-fence candidate: it is not clear whether --audit was ever implemented and later dropped, or was aspirational and never built. No commit found either way in this session." .
+  ggen:refusalCode "LEGACY-FLAG-NEVER-IMPLEMENTED" ;
+  ggen:refusalRationale "Resolved (agent/v26.8.1-disposition-repair, 2026-07-31): `git log --all -S\"audit\" -- crates/ggen-engine/src/verbs/sync.rs` returns zero commits -- the live sync verb's flag surface (`sync_run(dry_run: bool, watch: bool)`) never had an --audit parameter added and later removed. `git log -p --follow -- justfile` shows `sync: ggen sync --audit true` present verbatim in the commit that first introduced the `sync:`/`sync-dry:` recipes (043a6599c, 2026-06-10) -- --audit was aspirational from the recipe's very first commit, not a regression. This is not a genuine Chesterton's fence: there is no removed capability to preserve, migrate, or roll back to. The justfile's `sync:` recipe is fixed in this branch to run the real `ggen sync run` (no audit-equivalent flag exists on the live verb), confirmed working by a real invocation (`just sync` exit 0, `.ggen-v2/receipt.json` written)." ;
+  rdfs:comment "Superseded (agent/v26.8.1-disposition-repair, 2026-07-31): the prior Chesterton's-fence framing is resolved -- git history confirms --audit was never implemented, only ever aspirational justfile text. See ggen:refusalRationale for full evidence." .
 
 legacy:legacy_sync_dry_run_value_flag a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_sync_dry_run_value_flag" ;
@@ -324,12 +326,12 @@ legacy:legacy_sync_dry_run_value_flag a ggen:LegacyCapability ;
   ggen:configurationDependencies "justfile" ;
   ggen:evidenceFixtures "CLAUDE.md's documented `just sync-dry` failure transcript" ;
   ggen:replacementOwner "`ggen sync run --dry-run` (direct invocation)" ;
-  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasDisposition ggen:REPLACED ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
-  ggen:migrationPath "" ;
-  ggen:rollbackPath "" ;
+  ggen:migrationPath "justfile's `sync-dry:` recipe (agent/v26.8.1-disposition-repair, 2026-07-31): changed from `ggen sync --dry_run true` (clap arg-parse failure, exit non-zero, every invocation) to `ggen sync run --dry-run` (the bare boolean switch the live sync_run(dry_run, watch) verb actually accepts). Verified by a real subprocess run: `just sync-dry` exits 0 and produces a real JSON preview report. Regression-proofed by crates/ggen-engine/tests/sync_dry_run_no_mutation_e2e.rs's `dry_run_subprocess_does_not_mutate_any_file`, which runs the exact corrected invocation as a real CARGO_BIN_EXE_ggen subprocess and asserts a byte-for-byte + mtime-for-mtime unchanged filesystem snapshot before vs. after." ;
+  ggen:rollbackPath "git history of justfile at any commit before agent/v26.8.1-disposition-repair (the broken `ggen sync --dry_run true` form)" ;
   ggen:archivePath "" ;
   ggen:exactHeadReceipt "UNASSIGNED" .
 
@@ -347,16 +349,16 @@ legacy:legacy_ggen_toml_dual_schema a ggen:LegacyCapability ;
   ggen:defaultBehavior "Falls through to the frontmatter schema (GgenConfig) when [[generation.rules]] is absent or empty" ;
   ggen:configurationDependencies "ggen.toml itself" ;
   ggen:evidenceFixtures "none automated; no cross-drift guard exists between the two schemas per architecture.md" ;
-  ggen:replacementOwner "" ;
-  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:replacementOwner "crates/ggen-config/src/config_schema.rs (classify_ggen_toml) + crates/ggen-engine/src/schema_dispatch.rs (load)" ;
+  ggen:hasDisposition ggen:REPLACED ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
-  ggen:migrationPath "" ;
-  ggen:rollbackPath "" ;
+  ggen:migrationPath "Resolved (agent/v26.8.1-disposition-repair, 2026-07-31): commit 627f84c59 (2026-07-17, predates this ontology's generation) already added the requested early/loud discriminator -- crates/ggen-config/src/config_schema.rs's classify_ggen_toml is a pure structural classifier producing a five-way ConfigSchemaClassification (DeclarativeRules/Frontmatter/Ambiguous{matched}/Unsupported/Malformed), and crates/ggen-engine/src/schema_dispatch.rs's load() is the single dispatch point every call site (sync, doctor, graph validate, all `ggen law *` verbs) now goes through -- confirmed via `grep -n schema_dispatch::load crates/ggen-engine/src/verbs/handlers.rs` (4 call sites). An Ambiguous classification fails closed with a typed [FM-CONFIG-101] error naming the exact conflicting markers, never a silent raw-text-sniff pick. Real-repo census (this session, 137 ggen.toml files under this worktree): 90 declarative-rules, 25 frontmatter, 0 ambiguous among files with an unambiguous schema shape -- BUT `ggen doctor run` against examples/tai-enterprise-rebuild/ggen.toml (the file this task named to test) DOES reproduce FM-CONFIG-101 today: that file has [project].version (a declarative-only marker) together with a [packs] table-of-tables (a frontmatter-only marker), so it is a genuine real ambiguous document, not a synthetic edge case -- confirmed by running the real binary: `error: ... config error: [FM-CONFIG-101] ggen.toml at .../examples/tai-enterprise-rebuild/ggen.toml is ambiguous ... conflicting structural markers [\"declarative:project_version_present\", \"frontmatter:packref_entry_missing_name\", \"frontmatter:packs_table_shaped\"]`. This is the classifier working as designed (loud refusal, not silent misparse); examples/tai-enterprise-rebuild/ggen.toml itself has a real authoring defect (a stray [project].version field that ggen_engine::config::GgenConfig's Project{name} struct, deny_unknown_fields, would also reject on its own) that is out of this task's scope (only ontology/v26.8.1/legacy-capabilities.ttl's 3 named individuals were in scope, not example fixture repair). Added crates/ggen-config/tests/fixtures/schema_dual_{declarative_valid,frontmatter_valid,ambiguous_collision}.toml + crates/ggen-config/tests/schema_dual_fixtures_test.rs (3/3 passing) as physical-file proof of all three outcomes, complementing the pre-existing crates/ggen-engine/tests/config_schema_dispatch_e2e.rs (8/8 passing, including ambiguous_schema_sync_is_typed_refusal and doctor_succeeds_with_correct_diagnostic_on_each_supported_schema at the real ggen-binary process boundary)." ;
+  ggen:rollbackPath "git history of crates/ggen-config/src/config_schema.rs and crates/ggen-engine/src/schema_dispatch.rs before commit 627f84c59 (2026-07-17), when six call sites each used ad-hoc per-site dispatch logic instead of the one shared classifier" ;
   ggen:archivePath "" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
-  rdfs:comment "A real Chesterton's-fence candidate: architecture.md documents this as a known, unreconciled divergence rather than a decided legacy/current split -- it may be intentional (two real use cases) or accidental drift. No commit found in this session that explains why both schemas were kept." .
+  rdfs:comment "Superseded (agent/v26.8.1-disposition-repair, 2026-07-31): resolved, not a live Chesterton's fence -- commit 627f84c59 already replaced the raw-text has_generation_rules pre-parse with a shared, typed, ambiguity-detecting classifier before this ontology individual was generated. See ggen:migrationPath for full evidence including a real reproduction of FM-CONFIG-101 against examples/tai-enterprise-rebuild/ggen.toml." .
 
 legacy:legacy_process_intelligence_local_analysis a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_process_intelligence_local_analysis" ;

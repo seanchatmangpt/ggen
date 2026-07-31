@@ -444,11 +444,20 @@ bench:
 
 # ── ggen pipeline ─────────────────────────────────────────────────────────────
 
-# Full μ₁-μ₅ sync with cryptographic receipt
+# Full μ₁-μ₅ sync with cryptographic receipt. Historically called
+# `ggen sync --audit true` -- git history (`git log --all -S"audit" --
+# crates/ggen-engine/src/verbs/sync.rs`) shows zero commits ever adding an
+# `--audit` flag to the live sync verb (`sync_run(dry_run, watch)` in
+# crates/ggen-engine/src/verbs/sync.rs takes only those two args); `--audit`
+# was aspirational from this recipe's very first commit, never implemented
+# and later removed. There is no audit-specific behavior to translate to --
+# this just runs the real `ggen sync run`.
 sync:
     {{GGEN}} sync run
 
-# Preview sync without writing any files
+# Preview sync without writing any files. Historically called
+# `ggen sync --dry_run true` -- `--dry-run` is a bare boolean switch on the
+# live sync verb, not a value-taking flag.
 sync-dry:
     {{GGEN}} sync run --dry-run
 
