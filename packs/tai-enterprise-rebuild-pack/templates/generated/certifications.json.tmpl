@@ -1,0 +1,27 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/certifications.json
+sparql:
+  certifications: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?knowledge ?automation ?human ?failure WHERE {
+      ?cert a tai:CertificationHorizon ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ;
+            tai:knowledgeBody ?knowledge ; tai:automatableWork ?automation ; tai:humanBoundary ?human ; tai:failurePrevention ?failure .
+    } ORDER BY ?order
+---
+{
+  "schema": "ggen.tai.certification-horizon.v1",
+  "law": "learn -> formalize -> mechanize -> verify -> receipt -> bounded autonomics",
+  "externalStandingPromotion": "issuer-evidence-and-authorized-approval-only",
+  "certifications": [
+{% for row in certifications %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "label": "{{ row["label"] }}",
+      "knowledgeBody": "{{ row["knowledge"] }}",
+      "automatableWork": "{{ row["automation"] }}",
+      "humanBoundary": "{{ row["human"] }}",
+      "failurePrevention": "{{ row["failure"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
