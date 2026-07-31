@@ -227,6 +227,78 @@ fi
 python3 - <<'PY'
 from pathlib import Path
 
+write_path = Path('crates/ggen-engine/src/write.rs')
+write_text = write_path.read_text()
+old_write = '''    validate_match_specs(frontmatter)?;
+    let target = resolve_target(root, rel_to)?;
+    let content = match std::fs::read_to_string(&target) {
+        Ok(content) => content,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => return Err(error.into()),
+    };
+'''
+new_write = '''    validate_match_specs(frontmatter)?;
+    let has_structured_selector = [
+        frontmatter.before.as_ref(),
+        frontmatter.after.as_ref(),
+        frontmatter.skip_if.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|spec| matches!(spec, MatchSpec::Structured(_)));
+    if !has_structured_selector {
+        return Ok(Vec::new());
+    }
+
+    let target = resolve_target(root, rel_to)?;
+    let content = match std::fs::read_to_string(&target) {
+        Ok(content) => content,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => return Err(error.into()),
+    };
+'''
+if write_text.count(old_write) == 1:
+    write_path.write_text(write_text.replace(old_write, new_write, 1))
+elif write_text.count(new_write) == 1:
+    print('structured-selector preflight guard already present; replay is a no-op')
+else:
+    raise SystemExit('structured-selector preflight repair refused: anchor mismatch')
+
+test_path = Path('crates/ggen-engine/tests/sync_e2e.rs')
+test_text = test_path.read_text()
+assertion_replacements = [
+    (
+        '    assert!(msg.contains("same output"), "{msg}");',
+        '    assert!(msg.contains("same admitted output"), "{msg}");',
+    ),
+    (
+        '    assert!(msg.contains("to:"), "{msg}");',
+        '    assert!(msg.contains("different path"), "{msg}");',
+    ),
+]
+old_counts = [test_text.count(old) for old, _ in assertion_replacements]
+new_counts = [test_text.count(new) for _, new in assertion_replacements]
+if all(count == 1 for count in old_counts):
+    for old, new in assertion_replacements:
+        test_text = test_text.replace(old, new, 1)
+    test_path.write_text(test_text)
+elif all(count == 1 for count in new_counts):
+    print('sync diagnostic assertions already reflect admitted messages; replay is a no-op')
+else:
+    raise SystemExit(
+        'sync diagnostic assertion repair refused: '
+        f'old_counts={old_counts}, new_counts={new_counts}'
+    )
+PY
+
+git add crates/ggen-engine/src/write.rs crates/ggen-engine/tests/sync_e2e.rs
+if ! git diff --cached --quiet; then
+  git commit -m 'fix(engine): preserve typed dry-run refusal ordering'
+fi
+
+python3 - <<'PY'
+from pathlib import Path
+
 path = Path('.specify/ggen-product.ttl')
 text = path.read_text()
 diagnostics = [
@@ -276,6 +348,7 @@ fi
 cargo fmt --all -- --check
 cargo build -p ggen-cli-lib --bin ggen
 cargo test -p ggen-engine --test product_mirror_conformance
+cargo test -p ggen-engine --test sync_e2e
 
 set +e
 cargo test -p ggen-engine > /tmp/ggen-engine-test.log 2>&1
