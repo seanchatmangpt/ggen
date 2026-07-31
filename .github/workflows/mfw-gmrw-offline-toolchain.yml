@@ -51,9 +51,11 @@ jobs:
 
       - name: Materialize the MFW dependency closure
         shell: bash
+        env:
+          CARGO_HOME: ${{ runner.temp }}/mfw-cargo-home
         run: |
           set -euo pipefail
-          mkdir -p /tmp/mfw-deps/src
+          mkdir -p /tmp/mfw-deps/src "$CARGO_HOME"
           cat > /tmp/mfw-deps/Cargo.toml <<'TOML'
           [package]
           name = "mfw-gmrw-offline-deps"
@@ -81,8 +83,7 @@ jobs:
           toolchain="$(rustup toolchain list -v | awk '$1 ~ /^1\.82\.0/ {print $NF; exit}')"
           test -n "$toolchain"
           cp -a "$toolchain"/. "$bundle/toolchain/"
-          cp -a "$HOME/.cargo/registry" "$bundle/cargo-home/"
-          if test -d "$HOME/.cargo/git"; then cp -a "$HOME/.cargo/git" "$bundle/cargo-home/"; fi
+          cp -a "$RUNNER_TEMP/mfw-cargo-home"/. "$bundle/cargo-home/"
           cp target/release/ggen "$bundle/bin/ggen"
           cp /tmp/mfw-deps/Cargo.toml /tmp/mfw-deps/Cargo.lock "$bundle/closure/"
           cat > "$bundle/activate.sh" <<'SH'
