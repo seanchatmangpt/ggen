@@ -134,10 +134,7 @@ fn scaffold(ontology: &str) -> (TempDir, PathBuf) {
 fn assert_refused(ontology: String, gate: &str) {
     let (_dir, project) = scaffold(&ontology);
     let error = sync_project(&project).expect_err("mutated automation law must refuse");
-    assert!(
-        error.contains(gate),
-        "expected gate {gate}, got: {error}"
-    );
+    assert!(error.contains(gate), "expected gate {gate}, got: {error}");
 }
 
 #[test]
@@ -180,12 +177,10 @@ ex:automation-profile-two a gall:AutomationProfile ;
     gall:runtimeDirectory ".gall-two" ;
     gall:receiptDirectory "receipts/gall-two" .
 "#;
-    let malformed = valid_ontology()
-        .replace(
-            "    gall:hasAutomationProfile ex:automation-profile .",
-            "    gall:hasAutomationProfile ex:automation-profile, ex:automation-profile-two .",
-        )
-        + addition;
+    let malformed = valid_ontology().replace(
+        "    gall:hasAutomationProfile ex:automation-profile .",
+        "    gall:hasAutomationProfile ex:automation-profile, ex:automation-profile-two .",
+    ) + addition;
     assert_refused(malformed, "192_automation_scalar_cardinality_one");
 }
 

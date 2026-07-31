@@ -136,8 +136,11 @@ fn scaffold(agent_script: &str, verification: &str, evidence: &str) -> (TempDir,
     );
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), ontology(verification, evidence))
-        .expect("write ontology");
+    std::fs::write(
+        project.join("ontology.ttl"),
+        ontology(verification, evidence),
+    )
+    .expect("write ontology");
     std::fs::write(project.join("fake-agent.sh"), agent_script).expect("write fake agent");
     std::fs::write(project.join(".gitignore"), ".gall/\nreceipts/gall/\n")
         .expect("write gitignore");

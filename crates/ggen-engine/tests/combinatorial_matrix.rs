@@ -158,9 +158,7 @@ fn frontmatter_for(
         skip_if: match skip_if {
             SkipIf::None => None,
             SkipIf::Matching => Some(MatchSpec::Literal(MATCHING_NEEDLE.to_string())),
-            SkipIf::NonMatching => {
-                Some(MatchSpec::Literal(NON_MATCHING_NEEDLE.to_string()))
-            }
+            SkipIf::NonMatching => Some(MatchSpec::Literal(NON_MATCHING_NEEDLE.to_string())),
         },
         unless_exists,
         force,

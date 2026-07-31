@@ -238,10 +238,7 @@ ex:crown a gall:Crown ;
 
 fn run_generated_evidence(project: &Path) {
     let ggen_bin = assert_cmd::cargo::cargo_bin("ggen");
-    let mut paths = vec![ggen_bin
-        .parent()
-        .expect("ggen binary parent")
-        .to_path_buf()];
+    let mut paths = vec![ggen_bin.parent().expect("ggen binary parent").to_path_buf()];
     if let Some(existing) = std::env::var_os("PATH") {
         paths.extend(std::env::split_paths(&existing));
     }
@@ -328,9 +325,8 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
         assert!(project.join(path).is_file(), "missing generated {path}");
     }
 
-    let planning_ledger =
-        std::fs::read_to_string(project.join("docs/GALL_STATUS_LEDGER.md"))
-            .expect("planning ledger");
+    let planning_ledger = std::fs::read_to_string(project.join("docs/GALL_STATUS_LEDGER.md"))
+        .expect("planning ledger");
     assert!(planning_ledger.contains("UNKNOWN"), "{planning_ledger}");
 
     let work_orders = std::fs::read_to_string(project.join("docs/GALL_AGENT_WORK_ORDERS.md"))
@@ -370,11 +366,7 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
         "bash",
         &["scripts/gall/gall", "automation", "validate"],
     );
-    let next = run_ok(
-        &project,
-        "bash",
-        &["scripts/gall/gall", "work", "next"],
-    );
+    let next = run_ok(&project, "bash", &["scripts/gall/gall", "work", "next"]);
     assert_eq!(
         String::from_utf8_lossy(&next.stdout).trim(),
         "GALL-CORE-001"
@@ -382,28 +374,15 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     run_ok(
         &project,
         "bash",
-        &[
-            "scripts/gall/gall",
-            "work",
-            "dispatch",
-            "GALL-CORE-001",
-        ],
+        &["scripts/gall/gall", "work", "dispatch", "GALL-CORE-001"],
     );
-    assert!(
-        project
-            .join(".gall/dispatch/GALL-CORE-001/WORK_ORDER.md")
-            .is_file()
-    );
-    run_ok(
-        &project,
-        "bash",
-        &["scripts/gall/gall", "tracker", "apply"],
-    );
-    assert!(
-        project
-            .join(".gall/file-tracker/GALL-CORE-001.md")
-            .is_file()
-    );
+    assert!(project
+        .join(".gall/dispatch/GALL-CORE-001/WORK_ORDER.md")
+        .is_file());
+    run_ok(&project, "bash", &["scripts/gall/gall", "tracker", "apply"]);
+    assert!(project
+        .join(".gall/file-tracker/GALL-CORE-001.md")
+        .is_file());
     run_ok(
         &project,
         "bash",
@@ -414,28 +393,14 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     run_ok(
         &project,
         "bash",
-        &[
-            "scripts/gall/gall",
-            "work",
-            "verify",
-            "GALL-CORE-001",
-        ],
+        &["scripts/gall/gall", "work", "verify", "GALL-CORE-001"],
     );
     run_ok(
         &project,
         "bash",
-        &[
-            "scripts/gall/gall",
-            "work",
-            "complete",
-            "GALL-CORE-001",
-        ],
+        &["scripts/gall/gall", "work", "complete", "GALL-CORE-001"],
     );
-    let next = run_ok(
-        &project,
-        "bash",
-        &["scripts/gall/gall", "work", "next"],
-    );
+    let next = run_ok(&project, "bash", &["scripts/gall/gall", "work", "next"]);
     assert_eq!(
         String::from_utf8_lossy(&next.stdout).trim(),
         "GALL-CORE-002"
@@ -443,22 +408,12 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     run_ok(
         &project,
         "bash",
-        &[
-            "scripts/gall/gall",
-            "work",
-            "verify",
-            "GALL-CORE-002",
-        ],
+        &["scripts/gall/gall", "work", "verify", "GALL-CORE-002"],
     );
     run_ok(
         &project,
         "bash",
-        &[
-            "scripts/gall/gall",
-            "work",
-            "complete",
-            "GALL-CORE-002",
-        ],
+        &["scripts/gall/gall", "work", "complete", "GALL-CORE-002"],
     );
 
     write_manifest(&project, true);
@@ -470,11 +425,11 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     run_generated_evidence(&project);
     sync_project(&project).expect("final crown sync");
 
-    let crown_ledger = std::fs::read_to_string(project.join("docs/GALL_STATUS_LEDGER.md"))
-        .expect("crown ledger");
+    let crown_ledger =
+        std::fs::read_to_string(project.join("docs/GALL_STATUS_LEDGER.md")).expect("crown ledger");
     assert!(crown_ledger.contains("**ALIVE**"), "{crown_ledger}");
-    let crown_report = std::fs::read_to_string(project.join("docs/GALL_CROWN_REPORT.md"))
-        .expect("crown report");
+    let crown_report =
+        std::fs::read_to_string(project.join("docs/GALL_CROWN_REPORT.md")).expect("crown report");
     assert!(crown_report.contains("GALL-CORE-CROWN"), "{crown_report}");
     assert!(crown_report.contains("**ALIVE**"), "{crown_report}");
 
@@ -484,7 +439,10 @@ fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
         project.join("receipts/gall/work-items/GALL-CORE-001/completion.json"),
     )
     .expect("current completion receipt");
-    assert!(completion.contains("evidence_snapshot_digest"), "{completion}");
+    assert!(
+        completion.contains("evidence_snapshot_digest"),
+        "{completion}"
+    );
 
     let evidence_path = project.join("evidence/gall/ontology.ttl");
     let evidence = std::fs::read_to_string(&evidence_path).expect("read evidence");

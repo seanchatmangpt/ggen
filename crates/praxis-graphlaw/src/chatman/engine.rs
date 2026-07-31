@@ -1600,7 +1600,7 @@ impl ChatmanEngine {
                 })?;
         }
         if doc.sealed {
-plog.record_run_sealed(doc.run_id, fired_mask, run_time)
+            plog.record_run_sealed(doc.run_id, fired_mask, run_time)
                 .map_err(|e| {
                     Refusal::TraceUnlawful(format!(
                         "run {}: POWL OCEL log refused the seal: {e:?}",
