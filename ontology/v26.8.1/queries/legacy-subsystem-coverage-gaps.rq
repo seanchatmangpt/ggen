@@ -1,0 +1,18 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+# Gap-detection: any subsystem in the closed 10-value vocabulary (matching
+# docs/v26.8.1/coverage-matrix.csv's subsystem rows) with zero LegacyCapability individuals
+# mapped to it. Zero is ambiguous by construction -- either genuinely nothing legacy in that
+# subsystem, or extraction missed something -- so this is a flag to triage, not an error.
+SELECT ?owningSubsystem
+WHERE {
+  VALUES ?owningSubsystem {
+    "governance" "system" "engine" "graph" "projection"
+    "evidence" "products" "verification" "economics" "legacy"
+  }
+  FILTER NOT EXISTS {
+    ?legacy a ggen:LegacyCapability ;
+            ggen:owningSubsystem ?owningSubsystem .
+  }
+}
+ORDER BY ?owningSubsystem
