@@ -1,0 +1,21 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?program ?reason WHERE {
+  ?program a tai:EnterpriseRebuildProgram .
+  VALUES ?reason {
+    "missing-title"
+    "missing-identifier"
+    "missing-version"
+    "broker-not-brce"
+    "direct-actuation-enabled"
+    "llm-call-enabled"
+  }
+  FILTER(
+    (?reason = "missing-title" && NOT EXISTS { ?program dcterms:title ?v }) ||
+    (?reason = "missing-identifier" && NOT EXISTS { ?program tai:identifier ?v }) ||
+    (?reason = "missing-version" && NOT EXISTS { ?program tai:version ?v }) ||
+    (?reason = "broker-not-brce" && NOT EXISTS { ?program tai:requiredBroker "BRCE" }) ||
+    (?reason = "direct-actuation-enabled" && NOT EXISTS { ?program tai:directActuation false }) ||
+    (?reason = "llm-call-enabled" && NOT EXISTS { ?program tai:llmCalls false })
+  )
+}
