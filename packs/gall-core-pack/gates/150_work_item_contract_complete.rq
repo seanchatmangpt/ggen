@@ -1,0 +1,37 @@
+# MESSAGE: Gall work item contract is incomplete -- every gall:WorkItem must carry enough APS metadata, scope, verification, and governance for a coding agent to execute without inventing requirements
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItem ?workItemId ?missing WHERE {
+  ?workItem a gall:WorkItem .
+  OPTIONAL { ?workItem gall:workItemId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?workItem)) AS ?workItemId)
+  VALUES ?requiredProperty {
+    gall:workItemId
+    gall:issueType
+    gall:summary
+    gall:objective
+    gall:rationale
+    gall:belongsToProgram
+    gall:belongsToCheckpoint
+    gall:implementationOrder
+    gall:priority
+    gall:component
+    gall:assigneeRole
+    gall:reviewerRole
+    gall:approvalGate
+    gall:protocolState
+    gall:requiredContext
+    gall:allowedPath
+    gall:forbiddenPath
+    gall:mustDo
+    gall:mustNotDo
+    gall:outOfScope
+    gall:acceptanceCriterion
+    gall:definitionOfDone
+    gall:verificationCommand
+    gall:evidenceArtifact
+    gall:adversarialQuestion
+  }
+  FILTER NOT EXISTS { ?workItem ?requiredProperty ?value }
+  BIND(STR(?requiredProperty) AS ?missing)
+}
+ORDER BY ?workItemId ?missing

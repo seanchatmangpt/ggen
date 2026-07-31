@@ -1,0 +1,27 @@
+---
+to: docs/FORTUNE5_ARCHITECTURE_DAG.dot
+force: true
+sparql:
+  assets: |
+    PREFIX f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+    SELECT ?assetId ?title ?criticality WHERE {
+      ?asset a f5:ArchitectureAsset ;
+             f5:assetId ?assetId ;
+             f5:title ?title ;
+             f5:criticality ?criticalityNode .
+      BIND(REPLACE(STR(?criticalityNode), "^.*#", "") AS ?criticality)
+    } ORDER BY ?assetId
+  dependencies: |
+    PREFIX f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+    SELECT ?assetId ?dependencyId WHERE {
+      ?asset a f5:ArchitectureAsset ; f5:assetId ?assetId ; f5:dependsOn ?dependency .
+      ?dependency f5:assetId ?dependencyId .
+    } ORDER BY ?assetId ?dependencyId
+---
+digraph Fortune5Architecture {
+  rankdir=LR;
+  graph [label="Fortune 5 Enterprise Architecture", labelloc=t, fontsize=20];
+  node [shape=box];
+{% for asset in assets %}  "{{ asset.assetId }}" [label="{{ asset.assetId }}\n{{ asset.title }}\n{{ asset.criticality }}"];
+{% endfor %}{% for dependency in dependencies %}  "{{ dependency.dependencyId }}" -> "{{ dependency.assetId }}";
+{% endfor %}}

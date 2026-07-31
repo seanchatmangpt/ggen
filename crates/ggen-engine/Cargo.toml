@@ -76,6 +76,7 @@ tera = "1.20.0"
 notify = "7.0"
 notify-debouncer-full = "0.4"
 serde_yaml = "0.9"
+regex = "1"
 star-toml = "26.7.3"
 # Direct dep purely for structural (AST-level) pre-flight query inspection
 # in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,

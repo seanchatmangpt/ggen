@@ -1,0 +1,20 @@
+# MESSAGE: Gall implementation coverage is incomplete -- every checkpoint and program must expose at least one work item for Jira and coding-agent projection
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?owner ?ownerId ?missing WHERE {
+  {
+    ?owner a gall:Checkpoint .
+    OPTIONAL { ?owner gall:checkpointId ?id }
+    BIND(IF(BOUND(?id), STR(?id), STR(?owner)) AS ?ownerId)
+    FILTER NOT EXISTS { ?owner gall:hasWorkItem ?workItem }
+    BIND("checkpoint gall:hasWorkItem" AS ?missing)
+  }
+  UNION
+  {
+    ?owner a gall:GallProgram .
+    OPTIONAL { ?owner gall:programId ?id }
+    BIND(IF(BOUND(?id), STR(?id), STR(?owner)) AS ?ownerId)
+    FILTER NOT EXISTS { ?owner gall:hasWorkItem ?workItem }
+    BIND("program gall:hasWorkItem" AS ?missing)
+  }
+}
+ORDER BY ?ownerId

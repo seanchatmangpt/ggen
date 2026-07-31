@@ -1,0 +1,118 @@
+{
+  "name": "fortune5-synthetic-crown",
+  "release_truths": {
+    "deterministic_execution": {
+      "evidence_id": "truth-deterministic-execution",
+      "producer": "execution-producer",
+      "approver": "execution-approver",
+      "verifier": "execution-verifier",
+      "digest": "blake3:truth-deterministic-execution",
+      "artifacts": ["evidence/release/deterministic-execution.json"],
+      "standing": "ALIVE"
+    },
+    "performance_guarantees": {
+      "evidence_id": "truth-performance-guarantees",
+      "producer": "performance-producer",
+      "approver": "performance-approver",
+      "verifier": "performance-verifier",
+      "digest": "blake3:truth-performance-guarantees",
+      "artifacts": ["evidence/release/performance-guarantees.json"],
+      "standing": "ALIVE"
+    },
+    "cryptographic_receipts": {
+      "evidence_id": "truth-cryptographic-receipts",
+      "producer": "receipt-producer",
+      "approver": "receipt-approver",
+      "verifier": "receipt-verifier",
+      "digest": "blake3:truth-cryptographic-receipts",
+      "artifacts": ["evidence/release/cryptographic-receipts.json"],
+      "standing": "ALIVE"
+    },
+    "infinity_generation": {
+      "evidence_id": "truth-infinity-generation",
+      "producer": "generation-producer",
+      "approver": "generation-approver",
+      "verifier": "generation-verifier",
+      "digest": "blake3:truth-infinity-generation",
+      "artifacts": ["evidence/release/infinity-generation.json"],
+      "standing": "ALIVE"
+    },
+    "fortune5_integration": {
+      "evidence_id": "truth-fortune5-integration",
+      "producer": "integration-producer",
+      "approver": "integration-approver",
+      "verifier": "integration-verifier",
+      "digest": "blake3:truth-fortune5-integration",
+      "artifacts": ["evidence/release/fortune5-integration.json"],
+      "standing": "ALIVE"
+    },
+    "dark_matter_energy_elimination": {
+      "evidence_id": "truth-dark-matter-energy-elimination",
+      "producer": "dark-matter-producer",
+      "approver": "dark-matter-approver",
+      "verifier": "dark-matter-verifier",
+      "digest": "blake3:truth-dark-matter-energy-elimination",
+      "artifacts": ["evidence/release/dark-matter-energy-elimination.json"],
+      "standing": "ALIVE"
+    }
+  },
+  "sla_governors": {
+    "slo_tracking": {
+      "evidence_id": "sla-slo-tracking",
+      "producer": "slo-producer",
+      "approver": "slo-approver",
+      "verifier": "slo-verifier",
+      "digest": "blake3:sla-slo-tracking",
+      "artifacts": ["evidence/sla/r1-w1-c1.json"],
+      "standing": "ALIVE"
+    },
+    "promotion_gates": {
+      "evidence_id": "sla-promotion-gates",
+      "producer": "promotion-producer",
+      "approver": "promotion-approver",
+      "verifier": "promotion-verifier",
+      "digest": "blake3:sla-promotion-gates",
+      "artifacts": ["evidence/sla/promotion-gates.json"],
+      "standing": "ALIVE"
+    },
+    "multi_region": {
+      "evidence_id": "sla-multi-region",
+      "producer": "region-producer",
+      "approver": "region-approver",
+      "verifier": "region-verifier",
+      "digest": "blake3:sla-multi-region",
+      "artifacts": ["evidence/sla/multi-region.json"],
+      "standing": "ALIVE"
+    },
+    "spiffe_spire": {
+      "evidence_id": "sla-spiffe-spire",
+      "producer": "identity-producer",
+      "approver": "identity-approver",
+      "verifier": "identity-verifier",
+      "digest": "blake3:sla-spiffe-spire",
+      "artifacts": ["evidence/sla/spiffe-spire.json"],
+      "standing": "ALIVE"
+    },
+    "kms_integration": {
+      "evidence_id": "sla-kms-integration",
+      "producer": "kms-producer",
+      "approver": "kms-approver",
+      "verifier": "kms-verifier",
+      "digest": "blake3:sla-kms-integration",
+      "artifacts": ["evidence/sla/kms-integration.json"],
+      "standing": "ALIVE"
+    }
+  },
+  "operational_guards": {
+    "max_run_len": 8,
+    "budget_cap": 2000000000,
+    "rate_limit_ppm": 50000,
+    "chronology": true,
+    "conservation": true,
+    "conservation_tolerance_ppm": 1000,
+    "legality": true,
+    "exclusion_regions": []
+  },
+  "receipt_replay_verified": true,
+  "direct_actuation_performed": false
+}

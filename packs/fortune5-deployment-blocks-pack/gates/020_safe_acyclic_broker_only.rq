@@ -1,0 +1,38 @@
+# MESSAGE: Fortune 5 deployment building-block law contains an unsafe path, package identity, dependency cycle, provider drift, or direct actuation
+PREFIX bb: <http://seanchatmangpt.github.io/packs/fortune5-bblock#>
+SELECT ?subject ?field ?value WHERE {
+  {
+    ?subject a bb:Catalog ; bb:directActuation ?value .
+    FILTER(?value != false)
+    BIND("bb:directActuation" AS ?field)
+  }
+  UNION
+  {
+    ?subject a bb:BlockGroup ; bb:dependsOn+ ?subject .
+    BIND("bb:dependsOn" AS ?field)
+    BIND("cycle" AS ?value)
+  }
+  UNION
+  {
+    ?subject a bb:BlockGroup ; bb:outputDirectory ?raw .
+    FILTER(STRSTARTS(STR(?raw), "/") || CONTAINS(STR(?raw), "..") || STRLEN(STR(?raw)) = 0)
+    BIND("bb:outputDirectory" AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+  UNION
+  {
+    ?subject ?property ?raw .
+    VALUES ?property { bb:commonPack bb:awsPack bb:azurePack bb:gcpPack }
+    FILTER(!REGEX(STR(?raw), "^[a-z0-9][a-z0-9_-]*[a-z0-9]$"))
+    BIND(STR(?property) AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+  UNION
+  {
+    ?subject a bb:Provider ; bb:providerId ?raw .
+    FILTER(STR(?raw) NOT IN ("aws", "azure", "gcp"))
+    BIND("bb:providerId" AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+}
+ORDER BY ?subject ?field

@@ -1,0 +1,13 @@
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let assessment = fortune5_required_foundation::verify()?;
+    let report = serde_json::json!({
+        "schema": "ggen-fortune5-required-verifier/v1",
+        "standing": assessment.standing,
+        "capabilities": assessment.capabilities.len(),
+        "proof_surfaces": assessment.satisfied_surface_count(),
+        "open_obligations": assessment.open_obligations().len(),
+        "evidence_root": assessment.evidence_root,
+    });
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    Ok(())
+}

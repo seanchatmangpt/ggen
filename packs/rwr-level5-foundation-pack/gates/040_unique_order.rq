@@ -1,0 +1,7 @@
+PREFIX rwr: <https://ggen.dev/ontology/rwr-level5#>
+
+SELECT ?left ?right ?order WHERE {
+  ?left a rwr:Dimension ; rwr:order ?order .
+  ?right a rwr:Dimension ; rwr:order ?order .
+  FILTER(STR(?left) < STR(?right))
+}

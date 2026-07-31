@@ -1,0 +1,141 @@
+---
+to: generated/cmd-cell/tests/cmd_e2e.rs
+force: true
+sh_after: rustfmt generated/cmd-cell/tests/cmd_e2e.rs
+sparql:
+  design: |
+    PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+    SELECT ?binary_name WHERE {
+      ?design a cmd:DesignSpace ; cmd:binaryName ?binary_name .
+    }
+    LIMIT 1
+  authorized: |
+    PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+    SELECT ?candidate_name WHERE {
+      ?candidate a cmd:Candidate ; cmd:name ?candidate_name ;
+                 cmd:standing "VERIFIED" ; cmd:authorizedBy ?authority .
+    }
+    ORDER BY ?candidate_name
+    LIMIT 1
+  unauthorized: |
+    PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+    SELECT ?candidate_name WHERE {
+      ?candidate a cmd:Candidate ; cmd:name ?candidate_name ; cmd:standing "CANDIDATE" .
+    }
+    ORDER BY ?candidate_name
+    LIMIT 1
+---
+use serde_json::Value;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+{% for d in design %}const BINARY: &str = env!("CARGO_BIN_EXE_{{ d.binary_name }}");
+{% endfor %}{% for candidate in authorized %}const AUTHORIZED: &str = {{ candidate.candidate_name | json_encode | safe }};
+{% endfor %}{% for candidate in unauthorized %}const UNAUTHORIZED: &str = {{ candidate.candidate_name | json_encode | safe }};
+{% endfor %}
+fn unique_workspace() -> PathBuf {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system clock must be after Unix epoch")
+        .as_nanos();
+    std::env::temp_dir().join(format!(
+        "ggen-cmd-e2e-{}-{timestamp}",
+        std::process::id()
+    ))
+}
+
+fn run(workspace: &Path, arguments: &[&str]) -> Output {
+    Command::new(BINARY)
+        .env("CMD_WORKSPACE", workspace)
+        .args(arguments)
+        .output()
+        .expect("manufactured CLI must cross the process boundary")
+}
+
+fn transaction_count(workspace: &Path) -> usize {
+    let transactions = workspace.join(".cmd/runtime/transactions");
+    fs::read_dir(transactions)
+        .map(|entries| entries.filter_map(Result::ok).count())
+        .unwrap_or(0)
+}
+
+#[test]
+fn broker_actuation_is_receipted_replayable_and_fail_closed() {
+    let workspace = unique_workspace();
+    fs::create_dir_all(&workspace).expect("workspace must be created on the real filesystem");
+
+    let verify = run(&workspace, &["verify"]);
+    assert!(
+        verify.status.success(),
+        "verify failed: {}",
+        String::from_utf8_lossy(&verify.stderr)
+    );
+    let verify_json: Value = serde_json::from_slice(&verify.stdout).expect("verify output is JSON");
+    assert_eq!(verify_json["status"], "ALIVE");
+
+    let payload = r#"{"artifact":"lawful-construction","value":42}"#;
+    let actuation = run(&workspace, &["actuate", AUTHORIZED, payload]);
+    assert!(
+        actuation.status.success(),
+        "actuation failed: {}",
+        String::from_utf8_lossy(&actuation.stderr)
+    );
+    let actuation_json: Value =
+        serde_json::from_slice(&actuation.stdout).expect("actuation output is JSON");
+    assert_eq!(actuation_json["status"], "ACTUATED");
+    let receipt = PathBuf::from(
+        actuation_json["receipt"]
+            .as_str()
+            .expect("receipt path must be returned"),
+    );
+    assert!(receipt.is_file());
+
+    let envelope: Value =
+        serde_json::from_slice(&fs::read(&receipt).expect("receipt must be readable"))
+            .expect("receipt must be JSON");
+    assert_eq!(envelope["receipt"]["standing"], "ACTUATED");
+    assert_eq!(
+        envelope["receipt_blake3"]
+            .as_str()
+            .expect("receipt digest must exist")
+            .len(),
+        64
+    );
+    let output_relative = envelope["receipt"]["output_relative_path"]
+        .as_str()
+        .expect("output path must exist");
+    let output = receipt
+        .parent()
+        .expect("receipt transaction parent must exist")
+        .join(output_relative);
+    assert_eq!(fs::read_to_string(&output).expect("output must exist"), payload);
+
+    let replay = run(
+        &workspace,
+        &["replay", receipt.to_str().expect("receipt path is UTF-8")],
+    );
+    assert!(
+        replay.status.success(),
+        "replay failed: {}",
+        String::from_utf8_lossy(&replay.stderr)
+    );
+
+    let admitted_transactions = transaction_count(&workspace);
+    let refused = run(&workspace, &["actuate", UNAUTHORIZED, payload]);
+    assert!(!refused.status.success());
+    assert!(String::from_utf8_lossy(&refused.stderr).contains("CANDIDATE_NOT_VERIFIED"));
+    assert_eq!(transaction_count(&workspace), admitted_transactions);
+
+    fs::write(&output, b"tampered").expect("tamper must cross the filesystem boundary");
+    let tampered_replay = run(
+        &workspace,
+        &["replay", receipt.to_str().expect("receipt path is UTF-8")],
+    );
+    assert!(!tampered_replay.status.success());
+    assert!(String::from_utf8_lossy(&tampered_replay.stderr)
+        .contains("OUTPUT_DIGEST_MISMATCH"));
+
+    fs::remove_dir_all(workspace).expect("workspace must be removed");
+}

@@ -1,0 +1,19 @@
+# MESSAGE: GGEN_SELF_HOST_FILE_UNCLASSIFIED -- every tracked repository file must have one exact authority class and content digest
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+SELECT ?file ?path ?missing WHERE {
+  ?file a gsh:RepositoryFile .
+  OPTIONAL { ?file gsh:path ?pathValue }
+  BIND(IF(BOUND(?pathValue), STR(?pathValue), STR(?file)) AS ?path)
+  {
+    VALUES ?required { gsh:path gsh:digest gsh:sizeBytes gsh:authorityClass gsh:loadBearing }
+    FILTER NOT EXISTS { ?file ?required ?value }
+    BIND(STR(?required) AS ?missing)
+  }
+  UNION
+  {
+    ?file gsh:authorityClass ?authority .
+    FILTER NOT EXISTS { ?authority a gsh:AuthorityClass }
+    BIND("authorityClass-not-declared" AS ?missing)
+  }
+}
+ORDER BY ?path ?missing

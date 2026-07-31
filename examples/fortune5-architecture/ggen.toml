@@ -1,0 +1,14 @@
+[project]
+name = "fortune5-architecture-consumer"
+
+[ontology]
+source = "ontology.ttl"
+
+[packs]
+fortune5-architecture-pack = { path = "../../packs/fortune5-architecture-pack" }
+
+[templates]
+dir = "templates"
+
+[law]
+reflexive = true

@@ -1,0 +1,9 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+SELECT ?actual
+WHERE {
+  {
+    SELECT (COUNT(?capability) AS ?actual)
+    WHERE { ?capability a f5:RequiredCapability }
+  }
+  FILTER (?actual != 19)
+}

@@ -637,3 +637,34 @@ prod:fm_WRITE_9 a prod:DiagnosticCode ;
     prod:family "WRITE" ;
     prod:number "9"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/sync.rs:1294" .
+
+# Aggregate v26.7.30 frontmatter and write-admission diagnostics.
+prod:fm_TPL_19 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "19"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1287" .
+
+prod:fm_TPL_20 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "20"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1426" .
+
+prod:fm_TPL_21 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "21"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1273" .
+
+prod:fm_TPL_22 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "22"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:934" .
+
+prod:fm_WRITE_10 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:739" .
+
+prod:fm_WRITE_11 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/write.rs:244" .

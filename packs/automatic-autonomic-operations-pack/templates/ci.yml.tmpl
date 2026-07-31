@@ -1,0 +1,12 @@
+name: Generated Automatic Autonomic Consumer
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+      - run: bash scripts/verify.sh

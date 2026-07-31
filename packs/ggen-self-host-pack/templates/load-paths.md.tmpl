@@ -1,0 +1,20 @@
+---
+to: generated/LOAD_PATHS.md
+sparql:
+  paths: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    SELECT ?id ?source ?actuator ?receipt ?standing WHERE {
+      ?path a gsh:LoadPath ; gsh:loadPathId ?id ; gsh:sourceSurface ?source ;
+            gsh:actuatorSurface ?actuator ; gsh:receiptSurface ?receipt ; gsh:standing ?standing .
+    } ORDER BY ?id
+---
+# ggen Load-Path Ledger
+
+GENERATED from the exact repository observation. A path is not alive because its files exist; it must connect admitted source to one actuator and one replayable receipt.
+
+| Load path | Admitted source | Actuator | Receipt/evidence | Bounded standing |
+|---|---|---|---|---|
+{% for row in paths %}| `{{ row.id }}` | {{ row.source }} | {{ row.actuator }} | {{ row.receipt }} | `{{ row.standing }}` |
+{% endfor %}
+
+`UNKNOWN`, `PARTIAL_ALIVE`, and `BLOCKED` are findings, not synonyms for success.

@@ -1,0 +1,96 @@
+# MESSAGE: Fortune 5 reliability, SLO, capacity, replication, or promotion contract is incomplete or unsafe
+PREFIX f5:  <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?kind ?field ?value WHERE {
+  {
+    ?subject a f5:SloDefinition .
+    BIND("slo" AS ?kind)
+    {
+      VALUES ?property { f5:sloId f5:sliKind f5:direction f5:target f5:windowSeconds f5:minimumSamples f5:fastBurnThreshold }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:windowSeconds ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:windowSeconds" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:minimumSamples ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:minimumSamples" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?subject a f5:CapacityEnvelope .
+    BIND("capacity" AS ?kind)
+    {
+      VALUES ?property { f5:minReplicas f5:maxReplicas f5:unitCapacity f5:reserveRatio }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:minReplicas ?min ; f5:maxReplicas ?max .
+      FILTER(xsd:integer(?min) < 1 || xsd:integer(?max) < xsd:integer(?min))
+      BIND("replica-bounds" AS ?field)
+      BIND(CONCAT(STR(?min), "/", STR(?max)) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:reserveRatio ?raw .
+      FILTER(xsd:decimal(?raw) < 0 || xsd:decimal(?raw) >= 1)
+      BIND("f5:reserveRatio" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?subject a f5:ReplicationPolicy .
+    BIND("replication" AS ?kind)
+    {
+      VALUES ?property { f5:replicationMode f5:replicatesTo f5:writeQuorum f5:readQuorum f5:rpoSeconds f5:rtoSeconds f5:allowedJurisdiction }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      SELECT ?subject (COUNT(DISTINCT ?region) AS ?regionCount) WHERE {
+        ?subject a f5:ReplicationPolicy ; f5:replicatesTo ?region .
+      } GROUP BY ?subject HAVING(COUNT(DISTINCT ?region) < 2)
+      BIND("f5:replicatesTo" AS ?field)
+      BIND(STR(?regionCount) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:rtoSeconds ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:rtoSeconds" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?subject a f5:PromotionGate .
+    BIND("promotion" AS ?kind)
+    {
+      VALUES ?property { f5:gateId f5:fromState f5:toState f5:requiredEvidence f5:minimumApprovals f5:requireSloGreen f5:requireReceiptReplay f5:requireSecurityControls }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:minimumApprovals ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:minimumApprovals" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      VALUES ?property { f5:requireSloGreen f5:requireReceiptReplay f5:requireSecurityControls }
+      ?subject ?property ?raw . FILTER(?raw != true)
+      BIND(STR(?property) AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+}
+ORDER BY ?kind ?subject ?field

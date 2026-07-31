@@ -1,0 +1,28 @@
+PREFIX sp: <https://ggen.dev/ontology/self-play#>
+SELECT ?scenario ?violation WHERE {
+  ?scenario a sp:Scenario .
+  {
+    FILTER NOT EXISTS {
+      ?scenario sp:hasAction ?action .
+      ?action sp:actorRole sp:EvidenceVerifier ; sp:hasEvidence ?evidence .
+    }
+    BIND("scenario lacks evidence-verifier action" AS ?violation)
+  } UNION {
+    FILTER EXISTS {
+      ?scenario sp:hasAction ?action .
+      ?action sp:brokerIntent true .
+      FILTER NOT EXISTS { ?action sp:requiresAuthority ?authority ; sp:hasEvidence ?evidence }
+    }
+    BIND("broker intent lacks authority/evidence closure" AS ?violation)
+  } UNION {
+    FILTER EXISTS {
+      ?scenario sp:hasAction ?action .
+      ?action sp:actorRole ?actor .
+      FILTER NOT EXISTS {
+        ?scenario sp:hasPolicy ?policy .
+        ?policy sp:actorRole ?actor .
+      }
+    }
+    BIND("action actor has no scenario policy" AS ?violation)
+  }
+}

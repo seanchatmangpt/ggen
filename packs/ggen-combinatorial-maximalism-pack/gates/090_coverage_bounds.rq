@@ -1,0 +1,70 @@
+# MESSAGE: CMD exploration must be combinatorial but bounded by explicit coverage and resource ceilings; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a cmd:DesignSpace ; cmd:coverageMode ?mode .
+    FILTER(STR(?mode) NOT IN ("exhaustive", "pairwise"))
+    BIND("unsupported-coverage-mode" AS ?violation)
+    BIND(STR(?mode) AS ?detail)
+  } UNION {
+    ?subject a cmd:DesignSpace ; cmd:expectedCandidateCount ?count .
+    FILTER(?count < 1)
+    BIND("expected-candidate-count-must-be-positive" AS ?violation)
+    BIND(STR(?count) AS ?detail)
+  } UNION {
+    ?subject a cmd:DesignSpace ; cmd:maxCandidates ?count .
+    FILTER(?count < 1)
+    BIND("max-candidates-must-be-positive" AS ?violation)
+    BIND(STR(?count) AS ?detail)
+  } UNION {
+    ?subject a cmd:DesignSpace ; cmd:expectedCandidateCount ?expected ; cmd:maxCandidates ?maximum .
+    FILTER(?expected > ?maximum)
+    BIND("expected-candidates-exceed-resource-bound" AS ?violation)
+    BIND(CONCAT(STR(?expected), " > ", STR(?maximum)) AS ?detail)
+  } UNION {
+    {
+      SELECT ?subject (COUNT(DISTINCT ?candidate) AS ?actual) WHERE {
+        ?subject a cmd:DesignSpace .
+        OPTIONAL { ?subject cmd:hasCandidate ?candidate }
+      }
+      GROUP BY ?subject
+      HAVING(COUNT(DISTINCT ?candidate) = 0)
+    }
+    BIND("design-has-no-candidates" AS ?violation)
+    BIND(STR(?actual) AS ?detail)
+  } UNION {
+    {
+      SELECT ?subject ?expected (COUNT(DISTINCT ?candidate) AS ?actual) WHERE {
+        ?subject a cmd:DesignSpace ; cmd:expectedCandidateCount ?expected .
+        OPTIONAL { ?subject cmd:hasCandidate ?candidate }
+      }
+      GROUP BY ?subject ?expected
+      HAVING(COUNT(DISTINCT ?candidate) != ?expected)
+    }
+    BIND("candidate-count-does-not-match-admitted-expectation" AS ?violation)
+    BIND(CONCAT(STR(?actual), " != ", STR(?expected)) AS ?detail)
+  } UNION {
+    {
+      SELECT ?subject (COUNT(DISTINCT ?dimension) AS ?actual) WHERE {
+        ?subject a cmd:DesignSpace .
+        OPTIONAL { ?subject cmd:hasDimension ?dimension }
+      }
+      GROUP BY ?subject
+      HAVING(COUNT(DISTINCT ?dimension) < 2)
+    }
+    BIND("combinatorial-space-requires-at-least-two-dimensions" AS ?violation)
+    BIND(STR(?actual) AS ?detail)
+  } UNION {
+    {
+      SELECT ?subject (COUNT(DISTINCT ?option) AS ?actual) WHERE {
+        ?subject a cmd:Dimension .
+        OPTIONAL { ?subject cmd:hasOption ?option }
+      }
+      GROUP BY ?subject
+      HAVING(COUNT(DISTINCT ?option) < 2)
+    }
+    BIND("dimension-requires-at-least-two-options" AS ?violation)
+    BIND(STR(?actual) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

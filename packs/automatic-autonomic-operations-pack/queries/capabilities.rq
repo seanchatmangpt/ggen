@@ -1,0 +1,10 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?order ?slug ?rustVariant ?name ?category ?outcome ?implementation ?verifier ?falsifier
+WHERE {
+  ?capability a aa:Capability ;
+    aa:order ?order ; aa:slug ?slug ; aa:rustVariant ?rustVariant ;
+    rdfs:label ?name ; aa:category ?category ; aa:outcome ?outcome ;
+    aa:implementation ?implementation ; aa:verifier ?verifier ; aa:falsifier ?falsifier .
+}
+ORDER BY ?order

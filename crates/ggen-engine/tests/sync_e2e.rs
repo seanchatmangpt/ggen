@@ -332,7 +332,7 @@ fn duplicate_render_targets_are_refused() {
     .expect_err("must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-WRITE-008"), "{msg}");
-    assert!(msg.contains("same output"), "{msg}");
+    assert!(msg.contains("same admitted output"), "{msg}");
     assert!(
         !dir.path().join("out").exists(),
         "refusal must happen before any write"
@@ -358,7 +358,7 @@ fn nondeterministic_to_path_violates_determinism_check() {
     .expect_err("must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-TPL-009"), "{msg}");
-    assert!(msg.contains("to:"), "{msg}");
+    assert!(msg.contains("different path"), "{msg}");
 }
 
 /// Dry-run classifies an existing non-UTF-8 target as a typed refusal, not

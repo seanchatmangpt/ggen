@@ -1,0 +1,265 @@
+@prefix f5: <https://ggen.dev/ontology/fortune5-required#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+f5:RequiredCapability a rdfs:Class .
+f5:ProofSurface a rdfs:Class .
+f5:Fortune5Contract a rdfs:Class .
+
+f5:order a rdf:Property .
+f5:slug a rdf:Property .
+f5:rustVariant a rdf:Property .
+f5:category a rdf:Property .
+f5:outcome a rdf:Property .
+f5:requiresSurface a rdf:Property .
+f5:implementationArtifact a rdf:Property .
+f5:verifierCommand a rdf:Property .
+f5:falsifier a rdf:Property .
+
+f5:PositiveExecution a f5:ProofSurface ;
+  rdfs:label "Positive execution" ;
+  f5:slug "positive-execution" .
+
+f5:NegativeRefusal a f5:ProofSurface ;
+  rdfs:label "Negative refusal" ;
+  f5:slug "negative-refusal" .
+
+f5:ReceiptReplay a f5:ProofSurface ;
+  rdfs:label "Receipt and replay" ;
+  f5:slug "receipt-replay" .
+
+f5:contract-v1 a f5:Fortune5Contract ;
+  dcterms:identifier "ggen-fortune5-required/v1" ;
+  rdfs:label "ggen Fortune-5 required capability contract" ;
+  dcterms:description "Bounded repository-defined contract: six release truths, two supporting systems, five SLA governors, and six operational controls." .
+
+f5:install-truth a f5:RequiredCapability ;
+  f5:order 1 ;
+  f5:slug "install-truth" ;
+  f5:rustVariant "InstallTruth" ;
+  rdfs:label "Install Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "Only signed, digest-matching, policy-admitted packs cross the install boundary." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Tampered pack bytes must fail Ed25519 verification." .
+
+f5:compiler-truth a f5:RequiredCapability ;
+  f5:order 2 ;
+  f5:slug "compiler-truth" ;
+  f5:rustVariant "CompilerTruth" ;
+  rdfs:label "Compiler Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "Ontology, query, and template inputs produce one deterministic projection." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A pack without a SELECT query must refuse." .
+
+f5:conflict-truth a f5:RequiredCapability ;
+  f5:order 3 ;
+  f5:slug "conflict-truth" ;
+  f5:rustVariant "ConflictTruth" ;
+  rdfs:label "Conflict Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "All ten compatibility dimensions detect incompatible claims before composition." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "One incompatible claim pair in each of ten dimensions must produce ten refusals." .
+
+f5:rendering-truth a f5:RequiredCapability ;
+  f5:order 4 ;
+  f5:slug "rendering-truth" ;
+  f5:rustVariant "RenderingTruth" ;
+  rdfs:label "Rendering Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "Tera rendering is deterministic and malformed templates fail before output." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Malformed Tera input must refuse before emission." .
+
+f5:trust-truth a f5:RequiredCapability ;
+  f5:order 5 ;
+  f5:slug "trust-truth" ;
+  f5:rustVariant "TrustTruth" ;
+  rdfs:label "Trust Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "Trust tier, registry class, signature, and runtime policy are enforced." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Unsigned public experimental packs on a disallowed runtime must refuse." .
+
+f5:proof-truth a f5:RequiredCapability ;
+  f5:order 6 ;
+  f5:slug "proof-truth" ;
+  f5:rustVariant "ProofTruth" ;
+  rdfs:label "Proof Truth" ;
+  f5:category "release_gate" ;
+  f5:outcome "Every consequence is hash-chained, tamper-detectable, and replay-protected." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Tampered chains and duplicate replay must refuse." .
+
+f5:atomic-pack-taxonomy a f5:RequiredCapability ;
+  f5:order 7 ;
+  f5:slug "atomic-pack-taxonomy" ;
+  f5:rustVariant "AtomicPackTaxonomy" ;
+  rdfs:label "Atomic Pack Taxonomy" ;
+  f5:category "supporting_system" ;
+  f5:outcome "The complete nine-category atomic pack taxonomy is unique and closed." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Removing any canonical category must refuse." .
+
+f5:bundle-profile-system a f5:RequiredCapability ;
+  f5:order 8 ;
+  f5:slug "bundle-profile-system" ;
+  f5:rustVariant "BundleProfileSystem" ;
+  rdfs:label "Bundle/Profile System" ;
+  f5:category "supporting_system" ;
+  f5:outcome "Bundle expansion is deterministic, cycle-free, and constrained by profile." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A cyclic bundle graph must refuse." .
+
+f5:cli-startup-slo a f5:RequiredCapability ;
+  f5:order 9 ;
+  f5:slug "cli-startup-slo" ;
+  f5:rustVariant "CliStartupSlo" ;
+  rdfs:label "CLI Startup SLO" ;
+  f5:category "performance" ;
+  f5:outcome "CLI startup p90 is evaluated against a declared threshold." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "An observation above 100ms must fail the bounded governor." .
+
+f5:template-rendering-slo a f5:RequiredCapability ;
+  f5:order 10 ;
+  f5:slug "template-rendering-slo" ;
+  f5:rustVariant "TemplateRenderingSlo" ;
+  rdfs:label "Template Rendering SLO" ;
+  f5:category "performance" ;
+  f5:outcome "Typical and large rendering latency are evaluated against declared thresholds." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A large render above 5000ms must fail the bounded governor." .
+
+f5:rdf-query-slo a f5:RequiredCapability ;
+  f5:order 11 ;
+  f5:slug "rdf-query-slo" ;
+  f5:rustVariant "RdfQuerySlo" ;
+  rdfs:label "RDF Query SLO" ;
+  f5:category "performance" ;
+  f5:outcome "RDF query p90 is evaluated against a declared threshold." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "An RDF query observation above 100ms must fail the bounded governor." .
+
+f5:memory-slo a f5:RequiredCapability ;
+  f5:order 12 ;
+  f5:slug "memory-slo" ;
+  f5:rustVariant "MemorySlo" ;
+  rdfs:label "Memory SLO" ;
+  f5:category "performance" ;
+  f5:outcome "Baseline and peak memory are evaluated against declared limits." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A baseline above 50MB or peak above 500MB must refuse." .
+
+f5:concurrency-slo a f5:RequiredCapability ;
+  f5:order 13 ;
+  f5:slug "concurrency-slo" ;
+  f5:rustVariant "ConcurrencySlo" ;
+  rdfs:label "Concurrency SLO" ;
+  f5:category "performance" ;
+  f5:outcome "Eight-worker throughput is evaluated against a declared linear-efficiency floor." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Eight-worker scaling below 90 percent efficiency must refuse." .
+
+f5:andon-signals a f5:RequiredCapability ;
+  f5:order 14 ;
+  f5:slug "andon-signals" ;
+  f5:rustVariant "AndonSignals" ;
+  rdfs:label "Andon Signals" ;
+  f5:category "operational_control" ;
+  f5:outcome "Quality state escalates monotonically and red prevents further execution." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A red Andon signal must stop the line." .
+
+f5:poka-yoke a f5:RequiredCapability ;
+  f5:order 15 ;
+  f5:slug "poka-yoke" ;
+  f5:rustVariant "PokaYoke" ;
+  rdfs:label "Poka-Yoke" ;
+  f5:category "operational_control" ;
+  f5:outcome "Out-of-range values and invalid lifecycle transitions are refused." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Out-of-range metrics and completed-to-started transitions must refuse." .
+
+f5:distributed-tracing a f5:RequiredCapability ;
+  f5:order 16 ;
+  f5:slug "distributed-tracing" ;
+  f5:rustVariant "DistributedTracing" ;
+  rdfs:label "Distributed Tracing" ;
+  f5:category "operational_control" ;
+  f5:outcome "Valid W3C trace context propagates while malformed context is refused." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "All-zero W3C trace and span identifiers must refuse." .
+
+f5:chaos-resilience a f5:RequiredCapability ;
+  f5:order 17 ;
+  f5:slug "chaos-resilience" ;
+  f5:rustVariant "ChaosResilience" ;
+  rdfs:label "Chaos Resilience" ;
+  f5:category "operational_control" ;
+  f5:outcome "Transient failures retry within bounds and repeated failures open the circuit." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "An open circuit must refuse further execution." .
+
+f5:golden-signals a f5:RequiredCapability ;
+  f5:order 18 ;
+  f5:slug "golden-signals" ;
+  f5:rustVariant "GoldenSignals" ;
+  rdfs:label "Golden Signals" ;
+  f5:category "operational_control" ;
+  f5:outcome "Latency, traffic, errors, and saturation yield an actionable health verdict." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "Critical latency, error, or saturation observations must yield unhealthy standing." .
+
+f5:error-budgets a f5:RequiredCapability ;
+  f5:order 19 ;
+  f5:slug "error-budgets" ;
+  f5:rustVariant "ErrorBudgets" ;
+  rdfs:label "Error Budgets" ;
+  f5:category "operational_control" ;
+  f5:outcome "Measured failure consumes a deterministic SLO budget that gates risky change." ;
+  f5:requiresSurface f5:PositiveExecution, f5:NegativeRefusal, f5:ReceiptReplay ;
+  f5:implementationArtifact "crates/ggen-marketplace/src/marketplace/fortune5.rs" ;
+  f5:verifierCommand "cargo test -p ggen-marketplace --test fortune5_required_capabilities" ;
+  f5:falsifier "A breached budget must refuse risky change." .

@@ -1,0 +1,101 @@
+@prefix f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#> .
+@prefix ex: <https://example.org/fortune5/> .
+
+ex:program a f5:EnterpriseArchitectureProgram ;
+    f5:programId "FORTUNE5-E2E" ;
+    f5:releaseIdentity "v26.7.30" ;
+    f5:hasAsset ex:orders ;
+    f5:hasCapability ex:execute-orders ;
+    f5:hasRegion ex:us-west, ex:us-east, ex:us-central ;
+    f5:hasPromotionGate ex:orders-production ;
+    f5:hasAutonomicPolicy ex:autonomics ;
+    f5:hasDflssProgram ex:orders-dflss ;
+    f5:hasWorkflowEngineAdapter ex:knhk-adapter ;
+    f5:hasWorkflowPatternEvidence ex:wcp01-evidence, ex:wcp02-evidence, ex:wcp03-evidence, ex:wcp04-evidence, ex:wcp05-evidence, ex:wcp06-evidence, ex:wcp07-evidence, ex:wcp08-evidence, ex:wcp09-evidence, ex:wcp10-evidence, ex:wcp11-evidence, ex:wcp12-evidence, ex:wcp13-evidence, ex:wcp14-evidence, ex:wcp15-evidence, ex:wcp16-evidence, ex:wcp17-evidence, ex:wcp18-evidence, ex:wcp19-evidence, ex:wcp20-evidence, ex:wcp21-evidence, ex:wcp22-evidence, ex:wcp23-evidence, ex:wcp24-evidence, ex:wcp25-evidence, ex:wcp26-evidence, ex:wcp27-evidence, ex:wcp28-evidence, ex:wcp29-evidence, ex:wcp30-evidence, ex:wcp31-evidence, ex:wcp32-evidence, ex:wcp33-evidence, ex:wcp34-evidence, ex:wcp35-evidence, ex:wcp36-evidence, ex:wcp37-evidence, ex:wcp38-evidence, ex:wcp39-evidence, ex:wcp40-evidence, ex:wcp41-evidence, ex:wcp42-evidence, ex:wcp43-evidence .
+
+ex:execute-orders a f5:EnterpriseCapability ;
+    f5:capabilityId "execute-orders" ;
+    f5:title "Execute orders" ;
+    f5:owner "commerce" ;
+    f5:lifecycleState f5:Active ;
+    f5:realizedBy ex:orders .
+
+ex:us-west a f5:Region ; f5:regionId "us-west-2" ; f5:provider "aws" ; f5:jurisdiction "US" ; f5:faultDomain "aws-us-west" ; f5:active true .
+ex:us-east a f5:Region ; f5:regionId "us-east-1" ; f5:provider "aws" ; f5:jurisdiction "US" ; f5:faultDomain "aws-us-east" ; f5:active true .
+ex:us-central a f5:Region ; f5:regionId "us-central1" ; f5:provider "gcp" ; f5:jurisdiction "US" ; f5:faultDomain "gcp-us-central" ; f5:active true .
+
+ex:orders a f5:ArchitectureAsset ;
+    f5:assetId "orders" ;
+    f5:title "Order execution service" ;
+    f5:owner "commerce" ;
+    f5:criticality f5:Tier0 ;
+    f5:lifecycleState f5:Admitted ;
+    f5:realizesCapability ex:execute-orders ;
+    f5:deployedIn ex:us-west, ex:us-east, ex:us-central ;
+    f5:hasSlo ex:orders-availability ;
+    f5:hasCapacityEnvelope ex:orders-capacity ;
+    f5:hasReplicationPolicy ex:orders-replication ;
+    f5:hasIdentityPolicy ex:orders-identity ;
+    f5:hasKmsPolicy ex:orders-kms ;
+    f5:hasObservabilityPolicy ex:orders-observability ;
+    f5:hasSupervisionPolicy ex:orders-supervision .
+
+ex:orders-availability a f5:SloDefinition ; f5:sloId "orders-availability" ; f5:sliKind "availability" ; f5:direction "at-least" ; f5:target 99.99 ; f5:windowSeconds 2592000 ; f5:minimumSamples 1000 ; f5:fastBurnThreshold 14.4 .
+ex:orders-capacity a f5:CapacityEnvelope ; f5:minReplicas 3 ; f5:maxReplicas 12 ; f5:unitCapacity 1000.0 ; f5:reserveRatio 0.20 .
+ex:orders-replication a f5:ReplicationPolicy ; f5:replicationMode f5:Strong ; f5:replicatesTo ex:us-west, ex:us-east, ex:us-central ; f5:writeQuorum 2 ; f5:readQuorum 2 ; f5:rpoSeconds 0 ; f5:rtoSeconds 60 ; f5:allowedJurisdiction "US" .
+ex:orders-identity a f5:IdentityPolicy ; f5:trustDomain "corp.example" ; f5:allowedSpiffeId "spiffe://corp.example/ns/commerce/sa/orders" ; f5:mtlsRequired true ; f5:maxSvidTtlSeconds 3600 ; f5:workloadAttestationRequired true .
+ex:orders-kms a f5:KmsPolicy ; f5:kmsProvider "aws-kms" ; f5:keyAlias "alias/orders-prod" ; f5:rotationDays 30 ; f5:hsmBacked true ; f5:envelopeEncryption true ; f5:decryptAuditRequired true ; f5:breakGlassDualControl true .
+ex:orders-observability a f5:ObservabilityPolicy ; f5:logsRequired true ; f5:metricsRequired true ; f5:tracesRequired true ; f5:profilesRequired true ; f5:correlationIdsRequired true ; f5:redactionRequired true ; f5:retentionDays 400 ; f5:otlpEndpointClass "regional-collector" .
+ex:orders-supervision a f5:SupervisionPolicy ; f5:restartStrategy "one-for-one" ; f5:maxRestarts 5 ; f5:restartWindowSeconds 60 ; f5:distributionEnabled true ; f5:telemetryEnabled true ; f5:childSpecificationCount 4 .
+
+ex:orders-production a f5:PromotionGate ; f5:gateId "orders-production" ; f5:fromState f5:Admitted ; f5:toState f5:Active ; f5:requiredEvidence "threat-model", "load-test", "replay-receipt" ; f5:minimumApprovals 2 ; f5:requireSloGreen true ; f5:requireReceiptReplay true ; f5:requireSecurityControls true .
+ex:autonomics a f5:AutonomicPolicy ; f5:autonomicPolicyId "fortune5-autonomics" ; f5:broker "BRCE" ; f5:directActuation false ; f5:maxParallelism 16 ; f5:receiptAlgorithm "blake3" .
+ex:orders-dflss a f5:DflssProgram ; f5:dflssId "orders-dflss" ; f5:defineEvidence "evidence/dflss/define.json" ; f5:measureEvidence "evidence/dflss/measure.json" ; f5:analyzeEvidence "evidence/dflss/analyze.json" ; f5:designEvidence "evidence/dflss/design.json" ; f5:verifyEvidence "evidence/dflss/verify.json" .
+ex:knhk-adapter a f5:WorkflowEngineAdapter ; f5:adapterId "knhk-rdf-v1" ; f5:engineName "KNHK" ; f5:adapterProtocol "rdf-workflow-v1" ; f5:inputGraphClass "f5:EnterpriseArchitectureProgram" ; f5:outputReceiptClass "ggen.architecture.receipt.v1" ; f5:receiptRequired true .
+
+ex:hot-path a f5:ExecutionPath ; f5:executionPath f5:Hot ; f5:maxTriples 8 ; f5:maxJoins 0 ; f5:simplePredicatesRequired true .
+ex:warm-path a f5:ExecutionPath ; f5:executionPath f5:Warm ; f5:maxTriples 1000 ; f5:maxJoins 4 ; f5:simplePredicatesRequired true .
+
+ex:wcp01-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP01 ; f5:implementationEvidence "wasm4pm:wcp01" ; f5:positiveWitness "fixtures/wcp01/positive" ; f5:negativeFalsifier "fixtures/wcp01/negative" ; f5:receiptVerifier "receipts/wcp01.json" .
+ex:wcp02-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP02 ; f5:implementationEvidence "wasm4pm:wcp02" ; f5:positiveWitness "fixtures/wcp02/positive" ; f5:negativeFalsifier "fixtures/wcp02/negative" ; f5:receiptVerifier "receipts/wcp02.json" .
+ex:wcp03-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP03 ; f5:implementationEvidence "wasm4pm:wcp03" ; f5:positiveWitness "fixtures/wcp03/positive" ; f5:negativeFalsifier "fixtures/wcp03/negative" ; f5:receiptVerifier "receipts/wcp03.json" .
+ex:wcp04-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP04 ; f5:implementationEvidence "wasm4pm:wcp04" ; f5:positiveWitness "fixtures/wcp04/positive" ; f5:negativeFalsifier "fixtures/wcp04/negative" ; f5:receiptVerifier "receipts/wcp04.json" .
+ex:wcp05-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP05 ; f5:implementationEvidence "wasm4pm:wcp05" ; f5:positiveWitness "fixtures/wcp05/positive" ; f5:negativeFalsifier "fixtures/wcp05/negative" ; f5:receiptVerifier "receipts/wcp05.json" .
+ex:wcp06-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP06 ; f5:implementationEvidence "wasm4pm:wcp06" ; f5:positiveWitness "fixtures/wcp06/positive" ; f5:negativeFalsifier "fixtures/wcp06/negative" ; f5:receiptVerifier "receipts/wcp06.json" .
+ex:wcp07-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP07 ; f5:implementationEvidence "wasm4pm:wcp07" ; f5:positiveWitness "fixtures/wcp07/positive" ; f5:negativeFalsifier "fixtures/wcp07/negative" ; f5:receiptVerifier "receipts/wcp07.json" .
+ex:wcp08-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP08 ; f5:implementationEvidence "wasm4pm:wcp08" ; f5:positiveWitness "fixtures/wcp08/positive" ; f5:negativeFalsifier "fixtures/wcp08/negative" ; f5:receiptVerifier "receipts/wcp08.json" .
+ex:wcp09-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP09 ; f5:implementationEvidence "wasm4pm:wcp09" ; f5:positiveWitness "fixtures/wcp09/positive" ; f5:negativeFalsifier "fixtures/wcp09/negative" ; f5:receiptVerifier "receipts/wcp09.json" .
+ex:wcp10-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP10 ; f5:implementationEvidence "wasm4pm:wcp10" ; f5:positiveWitness "fixtures/wcp10/positive" ; f5:negativeFalsifier "fixtures/wcp10/negative" ; f5:receiptVerifier "receipts/wcp10.json" .
+ex:wcp11-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP11 ; f5:implementationEvidence "wasm4pm:wcp11" ; f5:positiveWitness "fixtures/wcp11/positive" ; f5:negativeFalsifier "fixtures/wcp11/negative" ; f5:receiptVerifier "receipts/wcp11.json" .
+ex:wcp12-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP12 ; f5:implementationEvidence "wasm4pm:wcp12" ; f5:positiveWitness "fixtures/wcp12/positive" ; f5:negativeFalsifier "fixtures/wcp12/negative" ; f5:receiptVerifier "receipts/wcp12.json" .
+ex:wcp13-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP13 ; f5:implementationEvidence "wasm4pm:wcp13" ; f5:positiveWitness "fixtures/wcp13/positive" ; f5:negativeFalsifier "fixtures/wcp13/negative" ; f5:receiptVerifier "receipts/wcp13.json" .
+ex:wcp14-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP14 ; f5:implementationEvidence "wasm4pm:wcp14" ; f5:positiveWitness "fixtures/wcp14/positive" ; f5:negativeFalsifier "fixtures/wcp14/negative" ; f5:receiptVerifier "receipts/wcp14.json" .
+ex:wcp15-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP15 ; f5:implementationEvidence "wasm4pm:wcp15" ; f5:positiveWitness "fixtures/wcp15/positive" ; f5:negativeFalsifier "fixtures/wcp15/negative" ; f5:receiptVerifier "receipts/wcp15.json" .
+ex:wcp16-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP16 ; f5:implementationEvidence "wasm4pm:wcp16" ; f5:positiveWitness "fixtures/wcp16/positive" ; f5:negativeFalsifier "fixtures/wcp16/negative" ; f5:receiptVerifier "receipts/wcp16.json" .
+ex:wcp17-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP17 ; f5:implementationEvidence "wasm4pm:wcp17" ; f5:positiveWitness "fixtures/wcp17/positive" ; f5:negativeFalsifier "fixtures/wcp17/negative" ; f5:receiptVerifier "receipts/wcp17.json" .
+ex:wcp18-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP18 ; f5:implementationEvidence "wasm4pm:wcp18" ; f5:positiveWitness "fixtures/wcp18/positive" ; f5:negativeFalsifier "fixtures/wcp18/negative" ; f5:receiptVerifier "receipts/wcp18.json" .
+ex:wcp19-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP19 ; f5:implementationEvidence "wasm4pm:wcp19" ; f5:positiveWitness "fixtures/wcp19/positive" ; f5:negativeFalsifier "fixtures/wcp19/negative" ; f5:receiptVerifier "receipts/wcp19.json" .
+ex:wcp20-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP20 ; f5:implementationEvidence "wasm4pm:wcp20" ; f5:positiveWitness "fixtures/wcp20/positive" ; f5:negativeFalsifier "fixtures/wcp20/negative" ; f5:receiptVerifier "receipts/wcp20.json" .
+ex:wcp21-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP21 ; f5:implementationEvidence "wasm4pm:wcp21" ; f5:positiveWitness "fixtures/wcp21/positive" ; f5:negativeFalsifier "fixtures/wcp21/negative" ; f5:receiptVerifier "receipts/wcp21.json" .
+ex:wcp22-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP22 ; f5:implementationEvidence "wasm4pm:wcp22" ; f5:positiveWitness "fixtures/wcp22/positive" ; f5:negativeFalsifier "fixtures/wcp22/negative" ; f5:receiptVerifier "receipts/wcp22.json" .
+ex:wcp23-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP23 ; f5:implementationEvidence "wasm4pm:wcp23" ; f5:positiveWitness "fixtures/wcp23/positive" ; f5:negativeFalsifier "fixtures/wcp23/negative" ; f5:receiptVerifier "receipts/wcp23.json" .
+ex:wcp24-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP24 ; f5:implementationEvidence "wasm4pm:wcp24" ; f5:positiveWitness "fixtures/wcp24/positive" ; f5:negativeFalsifier "fixtures/wcp24/negative" ; f5:receiptVerifier "receipts/wcp24.json" .
+ex:wcp25-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP25 ; f5:implementationEvidence "wasm4pm:wcp25" ; f5:positiveWitness "fixtures/wcp25/positive" ; f5:negativeFalsifier "fixtures/wcp25/negative" ; f5:receiptVerifier "receipts/wcp25.json" .
+ex:wcp26-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP26 ; f5:implementationEvidence "wasm4pm:wcp26" ; f5:positiveWitness "fixtures/wcp26/positive" ; f5:negativeFalsifier "fixtures/wcp26/negative" ; f5:receiptVerifier "receipts/wcp26.json" .
+ex:wcp27-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP27 ; f5:implementationEvidence "wasm4pm:wcp27" ; f5:positiveWitness "fixtures/wcp27/positive" ; f5:negativeFalsifier "fixtures/wcp27/negative" ; f5:receiptVerifier "receipts/wcp27.json" .
+ex:wcp28-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP28 ; f5:implementationEvidence "wasm4pm:wcp28" ; f5:positiveWitness "fixtures/wcp28/positive" ; f5:negativeFalsifier "fixtures/wcp28/negative" ; f5:receiptVerifier "receipts/wcp28.json" .
+ex:wcp29-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP29 ; f5:implementationEvidence "wasm4pm:wcp29" ; f5:positiveWitness "fixtures/wcp29/positive" ; f5:negativeFalsifier "fixtures/wcp29/negative" ; f5:receiptVerifier "receipts/wcp29.json" .
+ex:wcp30-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP30 ; f5:implementationEvidence "wasm4pm:wcp30" ; f5:positiveWitness "fixtures/wcp30/positive" ; f5:negativeFalsifier "fixtures/wcp30/negative" ; f5:receiptVerifier "receipts/wcp30.json" .
+ex:wcp31-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP31 ; f5:implementationEvidence "wasm4pm:wcp31" ; f5:positiveWitness "fixtures/wcp31/positive" ; f5:negativeFalsifier "fixtures/wcp31/negative" ; f5:receiptVerifier "receipts/wcp31.json" .
+ex:wcp32-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP32 ; f5:implementationEvidence "wasm4pm:wcp32" ; f5:positiveWitness "fixtures/wcp32/positive" ; f5:negativeFalsifier "fixtures/wcp32/negative" ; f5:receiptVerifier "receipts/wcp32.json" .
+ex:wcp33-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP33 ; f5:implementationEvidence "wasm4pm:wcp33" ; f5:positiveWitness "fixtures/wcp33/positive" ; f5:negativeFalsifier "fixtures/wcp33/negative" ; f5:receiptVerifier "receipts/wcp33.json" .
+ex:wcp34-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP34 ; f5:implementationEvidence "wasm4pm:wcp34" ; f5:positiveWitness "fixtures/wcp34/positive" ; f5:negativeFalsifier "fixtures/wcp34/negative" ; f5:receiptVerifier "receipts/wcp34.json" .
+ex:wcp35-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP35 ; f5:implementationEvidence "wasm4pm:wcp35" ; f5:positiveWitness "fixtures/wcp35/positive" ; f5:negativeFalsifier "fixtures/wcp35/negative" ; f5:receiptVerifier "receipts/wcp35.json" .
+ex:wcp36-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP36 ; f5:implementationEvidence "wasm4pm:wcp36" ; f5:positiveWitness "fixtures/wcp36/positive" ; f5:negativeFalsifier "fixtures/wcp36/negative" ; f5:receiptVerifier "receipts/wcp36.json" .
+ex:wcp37-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP37 ; f5:implementationEvidence "wasm4pm:wcp37" ; f5:positiveWitness "fixtures/wcp37/positive" ; f5:negativeFalsifier "fixtures/wcp37/negative" ; f5:receiptVerifier "receipts/wcp37.json" .
+ex:wcp38-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP38 ; f5:implementationEvidence "wasm4pm:wcp38" ; f5:positiveWitness "fixtures/wcp38/positive" ; f5:negativeFalsifier "fixtures/wcp38/negative" ; f5:receiptVerifier "receipts/wcp38.json" .
+ex:wcp39-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP39 ; f5:implementationEvidence "wasm4pm:wcp39" ; f5:positiveWitness "fixtures/wcp39/positive" ; f5:negativeFalsifier "fixtures/wcp39/negative" ; f5:receiptVerifier "receipts/wcp39.json" .
+ex:wcp40-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP40 ; f5:implementationEvidence "wasm4pm:wcp40" ; f5:positiveWitness "fixtures/wcp40/positive" ; f5:negativeFalsifier "fixtures/wcp40/negative" ; f5:receiptVerifier "receipts/wcp40.json" .
+ex:wcp41-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP41 ; f5:implementationEvidence "wasm4pm:wcp41" ; f5:positiveWitness "fixtures/wcp41/positive" ; f5:negativeFalsifier "fixtures/wcp41/negative" ; f5:receiptVerifier "receipts/wcp41.json" .
+ex:wcp42-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP42 ; f5:implementationEvidence "wasm4pm:wcp42" ; f5:positiveWitness "fixtures/wcp42/positive" ; f5:negativeFalsifier "fixtures/wcp42/negative" ; f5:receiptVerifier "receipts/wcp42.json" .
+ex:wcp43-evidence a f5:WorkflowPatternEvidence ; f5:workflowPattern f5:WCP43 ; f5:implementationEvidence "wasm4pm:wcp43" ; f5:positiveWitness "fixtures/wcp43/positive" ; f5:negativeFalsifier "fixtures/wcp43/negative" ; f5:receiptVerifier "receipts/wcp43.json" .

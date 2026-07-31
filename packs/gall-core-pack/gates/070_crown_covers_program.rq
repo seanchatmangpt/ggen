@@ -1,0 +1,13 @@
+# MESSAGE: Gall crown does not cover the program -- every program checkpoint must be included by its declared crown
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?programId ?crownId ?checkpointId WHERE {
+  ?program a gall:GallProgram ;
+           gall:programId ?programId ;
+           gall:hasCheckpoint ?checkpoint ;
+           gall:hasCrown ?crown .
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  FILTER NOT EXISTS { ?crown gall:includesCheckpoint ?checkpoint }
+}
+ORDER BY ?programId ?checkpointId

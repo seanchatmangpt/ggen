@@ -1,0 +1,109 @@
+@prefix gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Constitutional vocabulary. Repository-specific facts are observations emitted by
+# self-host/scripts/observe_repository.py into self-host/ontology.ttl. This pack
+# defines their meaning and the promotion law; it does not hand-copy the repository.
+
+gsh:SelfHostProgram a rdfs:Class .
+gsh:RepositoryObservation a rdfs:Class .
+gsh:RepositoryFile a rdfs:Class .
+gsh:AuthorityClass a rdfs:Class .
+gsh:Finding a rdfs:Class .
+gsh:OutputClaim a rdfs:Class .
+gsh:LoadPath a rdfs:Class .
+gsh:WorkItem a rdfs:Class .
+gsh:Crown a rdfs:Class .
+gsh:Severity a rdfs:Class .
+
+gsh:AuthoredConstitution a gsh:AuthorityClass ; skos:prefLabel "authored constitutional input" .
+gsh:BootstrapKernel a gsh:AuthorityClass ; skos:prefLabel "minimal bootstrap kernel" .
+gsh:GeneratedConsequence a gsh:AuthorityClass ; skos:prefLabel "generated consequence" .
+gsh:ExecutableSource a gsh:AuthorityClass ; skos:prefLabel "executable source" .
+gsh:VerificationEvidence a gsh:AuthorityClass ; skos:prefLabel "verification evidence" .
+gsh:TestFixture a gsh:AuthorityClass ; skos:prefLabel "test or falsifier fixture" .
+gsh:Workflow a gsh:AuthorityClass ; skos:prefLabel "workflow projection" .
+gsh:Template a gsh:AuthorityClass ; skos:prefLabel "projection template" .
+gsh:Documentation a gsh:AuthorityClass ; skos:prefLabel "documentation" .
+gsh:Archive a gsh:AuthorityClass ; skos:prefLabel "archive" .
+gsh:Configuration a gsh:AuthorityClass ; skos:prefLabel "configuration" .
+gsh:Asset a gsh:AuthorityClass ; skos:prefLabel "other admitted asset" .
+gsh:UnknownAuthority a gsh:AuthorityClass ; skos:prefLabel "unknown authority" .
+
+gsh:Blocking a gsh:Severity ; skos:prefLabel "blocking" ; gsh:severityOrder 0 .
+gsh:High a gsh:Severity ; skos:prefLabel "high" ; gsh:severityOrder 1 .
+gsh:Medium a gsh:Severity ; skos:prefLabel "medium" ; gsh:severityOrder 2 .
+gsh:Low a gsh:Severity ; skos:prefLabel "low" ; gsh:severityOrder 3 .
+gsh:Information a gsh:Severity ; skos:prefLabel "information" ; gsh:severityOrder 4 .
+
+# Scalar program/observation properties.
+gsh:programId a rdf:Property .
+gsh:repository a rdf:Property .
+gsh:revision a rdf:Property .
+gsh:observationDigest a rdf:Property .
+gsh:observerVersion a rdf:Property .
+gsh:fileCount a rdf:Property .
+gsh:crateCount a rdf:Property .
+gsh:workspaceMemberCount a rdf:Property .
+gsh:packCount a rdf:Property .
+gsh:workflowCount a rdf:Property .
+gsh:templateCount a rdf:Property .
+gsh:scriptCount a rdf:Property .
+gsh:rootMarkdownCount a rdf:Property .
+gsh:generatedCount a rdf:Property .
+gsh:findingCount a rdf:Property .
+gsh:blockingFindingCount a rdf:Property .
+gsh:unknownAuthorityCount a rdf:Property .
+
+# File facts.
+gsh:path a rdf:Property .
+gsh:digest a rdf:Property .
+gsh:sizeBytes a rdf:Property .
+gsh:authorityClass a rdf:Property .
+gsh:loadBearing a rdf:Property .
+gsh:generatedMarker a rdf:Property .
+gsh:owner a rdf:Property .
+gsh:consumer a rdf:Property .
+gsh:outputPath a rdf:Property .
+gsh:claimKind a rdf:Property .
+
+# Findings become graph-native implementation work. No second backlog authority.
+gsh:findingId a rdf:Property .
+gsh:category a rdf:Property .
+gsh:severity a rdf:Property .
+gsh:severityOrder a rdf:Property .
+gsh:summary a rdf:Property .
+gsh:rationale a rdf:Property .
+gsh:remediation a rdf:Property .
+gsh:evidencePath a rdf:Property .
+gsh:mustDo a rdf:Property .
+gsh:mustNotDo a rdf:Property .
+gsh:acceptanceCriterion a rdf:Property .
+gsh:verificationCommand a rdf:Property .
+gsh:status a rdf:Property .
+gsh:dependsOnFinding a rdf:Property .
+
+# Load paths and crown law.
+gsh:loadPathId a rdf:Property .
+gsh:sourceSurface a rdf:Property .
+gsh:actuatorSurface a rdf:Property .
+gsh:receiptSurface a rdf:Property .
+gsh:standing a rdf:Property .
+gsh:hasObservation a rdf:Property .
+gsh:hasCrown a rdf:Property .
+gsh:crownId a rdf:Property .
+gsh:requiresZeroBlocking a rdf:Property .
+gsh:requiresZeroUnknownAuthority a rdf:Property .
+gsh:requiresOwnedGeneratedOutputs a rdf:Property .
+gsh:requiresCleanReplay a rdf:Property .
+gsh:cleanReplayVerified a rdf:Property .
+
+# Standing values are derived by templates/gates; they are not writable status knobs.
+gsh:UNKNOWN a skos:Concept .
+gsh:PARTIAL_ALIVE a skos:Concept .
+gsh:ALIVE a skos:Concept .
+gsh:REFUSED a skos:Concept .

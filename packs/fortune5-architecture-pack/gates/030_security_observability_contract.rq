@@ -1,0 +1,96 @@
+# MESSAGE: Fortune 5 security or observability policy is incomplete or unsafe
+PREFIX f5:  <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?policy ?kind ?field ?value WHERE {
+  {
+    ?policy a f5:IdentityPolicy .
+    BIND("identity" AS ?kind)
+    {
+      VALUES ?property { f5:trustDomain f5:allowedSpiffeId f5:mtlsRequired f5:maxSvidTtlSeconds f5:workloadAttestationRequired }
+      FILTER NOT EXISTS { ?policy ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:mtlsRequired ?raw .
+      FILTER(?raw != true)
+      BIND("f5:mtlsRequired" AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:workloadAttestationRequired ?raw .
+      FILTER(?raw != true)
+      BIND("f5:workloadAttestationRequired" AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:maxSvidTtlSeconds ?raw .
+      FILTER(xsd:integer(?raw) < 1 || xsd:integer(?raw) > 86400)
+      BIND("f5:maxSvidTtlSeconds" AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:trustDomain ?domain ; f5:allowedSpiffeId ?spiffe .
+      FILTER(!STRSTARTS(STR(?spiffe), CONCAT("spiffe://", STR(?domain), "/")))
+      BIND("f5:allowedSpiffeId" AS ?field)
+      BIND(STR(?spiffe) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?policy a f5:KmsPolicy .
+    BIND("kms" AS ?kind)
+    {
+      VALUES ?property { f5:kmsProvider f5:keyAlias f5:rotationDays f5:hsmBacked f5:envelopeEncryption f5:decryptAuditRequired f5:breakGlassDualControl }
+      FILTER NOT EXISTS { ?policy ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:rotationDays ?raw .
+      FILTER(xsd:integer(?raw) < 1 || xsd:integer(?raw) > 365)
+      BIND("f5:rotationDays" AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      VALUES ?property { f5:envelopeEncryption f5:decryptAuditRequired }
+      ?policy ?property ?raw .
+      FILTER(?raw != true)
+      BIND(STR(?property) AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?policy a f5:ObservabilityPolicy .
+    BIND("observability" AS ?kind)
+    {
+      VALUES ?property { f5:logsRequired f5:metricsRequired f5:tracesRequired f5:correlationIdsRequired f5:redactionRequired f5:retentionDays f5:otlpEndpointClass }
+      FILTER NOT EXISTS { ?policy ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      VALUES ?property { f5:logsRequired f5:metricsRequired f5:tracesRequired f5:correlationIdsRequired f5:redactionRequired }
+      ?policy ?property ?raw .
+      FILTER(?raw != true)
+      BIND(STR(?property) AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?policy f5:retentionDays ?raw .
+      FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:retentionDays" AS ?field)
+      BIND(STR(?raw) AS ?value)
+    }
+  }
+}
+ORDER BY ?kind ?policy ?field

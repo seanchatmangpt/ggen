@@ -1,0 +1,197 @@
+---
+to: scripts/gall/gall
+force: true
+---
+{% raw %}#!/usr/bin/env bash
+# GENERATED Gall operator CLI. Do not hand-edit.
+set -euo pipefail
+
+cd "$(dirname "$0")/../.."
+CONTROL=(python3 scripts/gall/control_plane.py)
+TRACKER=(python3 scripts/gall/tracker_sync.py)
+RECEIPTS=(python3 scripts/gall/verify_automation_receipts.py)
+SNAPSHOT=(python3 scripts/gall/snapshot_work_evidence.py)
+AGENT=(python3 scripts/gall/agent_executor.py)
+
+usage() {
+  cat <<'EOF'
+Usage:
+  scripts/gall/gall automation plan
+  scripts/gall/gall automation validate
+  scripts/gall/gall work status
+  scripts/gall/gall work next
+  scripts/gall/gall work dispatch WORK_ITEM [--apply]
+  scripts/gall/gall work dispatch-ready [--apply]
+  scripts/gall/gall work inspect WORK_ITEM
+  scripts/gall/gall work remove-worktree WORK_ITEM
+  scripts/gall/gall work verify WORK_ITEM
+  scripts/gall/gall work complete WORK_ITEM
+  scripts/gall/gall work advance
+  scripts/gall/gall tracker plan
+  scripts/gall/gall tracker apply
+  scripts/gall/gall checkpoint run
+  scripts/gall/gall receipt verify
+  scripts/gall/gall replay
+  scripts/gall/gall crown
+EOF
+}
+
+ready_file() {
+  local target="$1"
+  set +e
+  "${CONTROL[@]}" next >"$target"
+  local code=$?
+  set -e
+  if [ "$code" -eq 3 ]; then
+    : >"$target"
+    return 0
+  fi
+  return "$code"
+}
+
+all_work_file() {
+  local target="$1"
+  python3 - "$target" <<'PY'
+import csv
+import sys
+from pathlib import Path
+rows = list(csv.DictReader(Path("automation/GALL_AUTOMATION_WORK_ITEMS.csv").open(newline="", encoding="utf-8")))
+rows.sort(key=lambda row: (int(row["Implementation Order"]), row["Work Item ID"]))
+Path(sys.argv[1]).write_text("".join(f"{row['Work Item ID']}\n" for row in rows), encoding="utf-8")
+PY
+}
+
+verify_and_snapshot() {
+  local work_item="$1"
+  "${CONTROL[@]}" verify "$work_item"
+  "${SNAPSHOT[@]}" "$work_item"
+}
+
+dispatch_one() {
+  local work_item="$1"
+  local apply="${2:-}"
+  "${CONTROL[@]}" dispatch "$work_item"
+  if [ "$apply" = "--apply" ]; then
+    "${AGENT[@]}" execute "$work_item"
+  fi
+}
+
+noun="${1:-}"
+verb="${2:-}"
+case "$noun:$verb" in
+  automation:plan)
+    "${CONTROL[@]}" plan
+    "${TRACKER[@]}" plan
+    "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
+    ;;
+  automation:validate)
+    python3 -m py_compile \
+      scripts/gall/control_plane.py \
+      scripts/gall/tracker_sync.py \
+      scripts/gall/verify_automation_receipts.py \
+      scripts/gall/snapshot_work_evidence.py \
+      scripts/gall/agent_executor.py
+    bash -n scripts/gall/run-checkpoints.sh scripts/gall/gall
+    test -s automation/GALL_AUTOMATION_WORK_ITEMS.csv
+    test -s automation/schemas/gall-automation-receipt.schema.json
+    test -s jira/GALL_JIRA_WORK_ITEMS.csv
+    test -s docs/GALL_AGENT_WORK_ORDERS.md
+    test -s docs/GALL_AUTOMATION_RUNBOOK.md
+    test -s .github/workflows/gall-control-plane.yml
+    "${CONTROL[@]}" plan
+    "${TRACKER[@]}" plan
+    "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
+    ;;
+  work:status)
+    "${CONTROL[@]}" status
+    ;;
+  work:next)
+    "${CONTROL[@]}" next
+    ;;
+  work:dispatch)
+    shift 2
+    dispatch_one "$1" "${2:-}"
+    ;;
+  work:dispatch-ready)
+    shift 2
+    apply="${1:-}"
+    file="$(mktemp)"
+    trap 'rm -f "$file"' EXIT
+    ready_file "$file"
+    while IFS= read -r work_item; do
+      [ -n "$work_item" ] || continue
+      dispatch_one "$work_item" "$apply"
+    done <"$file"
+    ;;
+  work:inspect)
+    shift 2
+    "${AGENT[@]}" inspect "$1"
+    ;;
+  work:remove-worktree)
+    shift 2
+    "${AGENT[@]}" remove "$1"
+    ;;
+  work:verify)
+    shift 2
+    verify_and_snapshot "$1"
+    ;;
+  work:complete)
+    shift 2
+    "${CONTROL[@]}" complete "$@"
+    ;;
+  work:advance)
+    file="$(mktemp)"
+    trap 'rm -f "$file"' EXIT
+    ready_file "$file"
+    failures=0
+    while IFS= read -r work_item; do
+      [ -n "$work_item" ] || continue
+      if verify_and_snapshot "$work_item"; then
+        "${CONTROL[@]}" complete "$work_item"
+      else
+        failures=$((failures + 1))
+      fi
+    done <"$file"
+    if [ "$failures" -ne 0 ]; then
+      echo "$failures ready work item(s) failed verification" >&2
+      exit 1
+    fi
+    "${RECEIPTS[@]}"
+    ;;
+  tracker:plan)
+    "${TRACKER[@]}" plan
+    ;;
+  tracker:apply)
+    "${TRACKER[@]}" apply
+    "${RECEIPTS[@]}"
+    ;;
+  checkpoint:run)
+    bash scripts/gall/run-checkpoints.sh
+    ;;
+  receipt:verify)
+    "${RECEIPTS[@]}"
+    ;;
+  replay:)
+    "${CONTROL[@]}" replay
+    "${RECEIPTS[@]}"
+    ;;
+  crown:)
+    file="$(mktemp)"
+    trap 'rm -f "$file"' EXIT
+    all_work_file "$file"
+    while IFS= read -r work_item; do
+      [ -n "$work_item" ] || continue
+      verify_and_snapshot "$work_item"
+      "${CONTROL[@]}" complete "$work_item"
+    done <"$file"
+    "${CONTROL[@]}" crown
+    "${RECEIPTS[@]}" --crown
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+{% endraw %}

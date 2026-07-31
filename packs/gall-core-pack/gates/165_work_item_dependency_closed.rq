@@ -1,0 +1,14 @@
+# MESSAGE: Gall work item dependency is outside the admitted work graph -- every gall:dependsOnWorkItem target must be a declared work item in the same program
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?workItemId ?dependency WHERE {
+  ?workItem a gall:WorkItem ;
+            gall:workItemId ?workItemId ;
+            gall:belongsToProgram ?program ;
+            gall:dependsOnWorkItem ?dependency .
+  FILTER(
+    NOT EXISTS { ?dependency a gall:WorkItem }
+    || NOT EXISTS { ?program gall:hasWorkItem ?dependency }
+    || NOT EXISTS { ?dependency gall:belongsToProgram ?program }
+  )
+}
+ORDER BY ?workItemId ?dependency

@@ -1,0 +1,14 @@
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?order ?kind ?name ?uri ?description ?taskSupport ?requiresApproval
+WHERE {
+  ?surface a ca:ProtocolSurface ;
+    ca:order ?order ;
+    ca:protocolKind ?kind ;
+    ca:protocolName ?name ;
+    ca:protocolUri ?uri ;
+    ca:description ?description ;
+    ca:taskSupport ?taskSupport ;
+    ca:requiresApproval ?requiresApproval .
+}
+ORDER BY ?order

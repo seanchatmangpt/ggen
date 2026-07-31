@@ -1,0 +1,20 @@
+PREFIX rwr: <https://ggen.dev/ontology/rwr-level5#>
+
+SELECT ?foundation WHERE {
+  ?foundation a rwr:Foundation .
+  {
+    FILTER NOT EXISTS { ?foundation rwr:targetStage rwr:DigitalEcosystem }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?foundation rwr:dimensionCount 21 }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?foundation rwr:implementationArtifact "crates/ggen-graph/src/rwr/reference.rs" }
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?foundation rwr:verifierCommand "cargo test -p ggen-graph --test rwr_level5_e2e" }
+  }
+}

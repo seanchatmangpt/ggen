@@ -1,0 +1,7 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+SELECT ?order ?slug ?rustVariant ?surfaceSlug ?surfaceVariant ?surfaceOutcome
+WHERE {
+  ?capability a aa:Capability ; aa:order ?order ; aa:slug ?slug ; aa:rustVariant ?rustVariant ; aa:requiresSurface ?surface .
+  ?surface a aa:ProofSurface ; aa:slug ?surfaceSlug ; aa:rustVariant ?surfaceVariant ; aa:outcome ?surfaceOutcome .
+}
+ORDER BY ?order ?surfaceSlug

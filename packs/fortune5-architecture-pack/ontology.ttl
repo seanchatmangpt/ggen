@@ -1,0 +1,226 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix f5:   <http://seanchatmangpt.github.io/packs/fortune5-architecture#> .
+
+f5:EnterpriseArchitectureProgram a rdfs:Class .
+f5:ArchitectureAsset a rdfs:Class .
+f5:EnterpriseCapability a rdfs:Class .
+f5:Region a rdfs:Class .
+f5:SloDefinition a rdfs:Class .
+f5:CapacityEnvelope a rdfs:Class .
+f5:ReplicationPolicy a rdfs:Class .
+f5:IdentityPolicy a rdfs:Class .
+f5:KmsPolicy a rdfs:Class .
+f5:ObservabilityPolicy a rdfs:Class .
+f5:PromotionGate a rdfs:Class .
+f5:AutonomicPolicy a rdfs:Class .
+f5:SupervisionPolicy a rdfs:Class .
+f5:DflssProgram a rdfs:Class .
+f5:WorkflowEngineAdapter a rdfs:Class .
+f5:WorkflowPattern a rdfs:Class .
+f5:WorkflowPatternEvidence a rdfs:Class .
+f5:LifecycleState a rdfs:Class .
+f5:Criticality a rdfs:Class .
+f5:ReplicationMode a rdfs:Class .
+f5:ExecutionPath a rdfs:Class .
+
+f5:Proposed a f5:LifecycleState .
+f5:Admitted a f5:LifecycleState .
+f5:Active a f5:LifecycleState .
+f5:Deprecated a f5:LifecycleState .
+f5:Retired a f5:LifecycleState .
+
+f5:Tier0 a f5:Criticality .
+f5:Tier1 a f5:Criticality .
+f5:Tier2 a f5:Criticality .
+f5:Tier3 a f5:Criticality .
+
+f5:Strong a f5:ReplicationMode .
+f5:Eventual a f5:ReplicationMode .
+f5:ActivePassive a f5:ReplicationMode .
+
+f5:Hot a f5:ExecutionPath .
+f5:Warm a f5:ExecutionPath .
+f5:Cold a f5:ExecutionPath .
+
+f5:programId a rdf:Property .
+f5:releaseIdentity a rdf:Property .
+f5:hasAsset a rdf:Property .
+f5:hasCapability a rdf:Property .
+f5:hasRegion a rdf:Property .
+f5:hasPromotionGate a rdf:Property .
+f5:hasAutonomicPolicy a rdf:Property .
+f5:hasDflssProgram a rdf:Property .
+f5:hasWorkflowEngineAdapter a rdf:Property .
+f5:hasWorkflowPatternEvidence a rdf:Property .
+
+f5:assetId a rdf:Property .
+f5:title a rdf:Property .
+f5:owner a rdf:Property .
+f5:criticality a rdf:Property .
+f5:lifecycleState a rdf:Property .
+f5:dependsOn a rdf:Property .
+f5:realizesCapability a rdf:Property .
+f5:deployedIn a rdf:Property .
+f5:hasSlo a rdf:Property .
+f5:hasCapacityEnvelope a rdf:Property .
+f5:hasReplicationPolicy a rdf:Property .
+f5:hasIdentityPolicy a rdf:Property .
+f5:hasKmsPolicy a rdf:Property .
+f5:hasObservabilityPolicy a rdf:Property .
+f5:hasSupervisionPolicy a rdf:Property .
+
+f5:capabilityId a rdf:Property .
+f5:realizedBy a rdf:Property .
+
+f5:regionId a rdf:Property .
+f5:provider a rdf:Property .
+f5:jurisdiction a rdf:Property .
+f5:faultDomain a rdf:Property .
+f5:active a rdf:Property .
+
+f5:sloId a rdf:Property .
+f5:sliKind a rdf:Property .
+f5:direction a rdf:Property .
+f5:target a rdf:Property .
+f5:windowSeconds a rdf:Property .
+f5:minimumSamples a rdf:Property .
+f5:fastBurnThreshold a rdf:Property .
+
+f5:minReplicas a rdf:Property .
+f5:maxReplicas a rdf:Property .
+f5:unitCapacity a rdf:Property .
+f5:reserveRatio a rdf:Property .
+
+f5:replicationMode a rdf:Property .
+f5:replicatesTo a rdf:Property .
+f5:writeQuorum a rdf:Property .
+f5:readQuorum a rdf:Property .
+f5:rpoSeconds a rdf:Property .
+f5:rtoSeconds a rdf:Property .
+f5:allowedJurisdiction a rdf:Property .
+
+f5:trustDomain a rdf:Property .
+f5:allowedSpiffeId a rdf:Property .
+f5:mtlsRequired a rdf:Property .
+f5:maxSvidTtlSeconds a rdf:Property .
+f5:workloadAttestationRequired a rdf:Property .
+
+f5:kmsProvider a rdf:Property .
+f5:keyAlias a rdf:Property .
+f5:rotationDays a rdf:Property .
+f5:hsmBacked a rdf:Property .
+f5:envelopeEncryption a rdf:Property .
+f5:decryptAuditRequired a rdf:Property .
+f5:breakGlassDualControl a rdf:Property .
+
+f5:logsRequired a rdf:Property .
+f5:metricsRequired a rdf:Property .
+f5:tracesRequired a rdf:Property .
+f5:profilesRequired a rdf:Property .
+f5:correlationIdsRequired a rdf:Property .
+f5:redactionRequired a rdf:Property .
+f5:retentionDays a rdf:Property .
+f5:otlpEndpointClass a rdf:Property .
+
+f5:restartStrategy a rdf:Property .
+f5:maxRestarts a rdf:Property .
+f5:restartWindowSeconds a rdf:Property .
+f5:distributionEnabled a rdf:Property .
+f5:telemetryEnabled a rdf:Property .
+f5:childSpecificationCount a rdf:Property .
+
+f5:gateId a rdf:Property .
+f5:fromState a rdf:Property .
+f5:toState a rdf:Property .
+f5:requiredEvidence a rdf:Property .
+f5:minimumApprovals a rdf:Property .
+f5:requireSloGreen a rdf:Property .
+f5:requireReceiptReplay a rdf:Property .
+f5:requireSecurityControls a rdf:Property .
+
+f5:autonomicPolicyId a rdf:Property .
+f5:broker a rdf:Property .
+f5:directActuation a rdf:Property .
+f5:maxParallelism a rdf:Property .
+f5:receiptAlgorithm a rdf:Property .
+
+f5:dflssId a rdf:Property .
+f5:defineEvidence a rdf:Property .
+f5:measureEvidence a rdf:Property .
+f5:analyzeEvidence a rdf:Property .
+f5:designEvidence a rdf:Property .
+f5:verifyEvidence a rdf:Property .
+
+f5:adapterId a rdf:Property .
+f5:engineName a rdf:Property .
+f5:adapterProtocol a rdf:Property .
+f5:inputGraphClass a rdf:Property .
+f5:outputReceiptClass a rdf:Property .
+f5:receiptRequired a rdf:Property .
+
+f5:workflowPattern a rdf:Property .
+f5:patternNumber a rdf:Property .
+f5:patternName a rdf:Property .
+f5:implementationEvidence a rdf:Property .
+f5:positiveWitness a rdf:Property .
+f5:negativeFalsifier a rdf:Property .
+f5:receiptVerifier a rdf:Property .
+
+f5:executionPath a rdf:Property .
+f5:maxTriples a rdf:Property .
+f5:maxJoins a rdf:Property .
+f5:simplePredicatesRequired a rdf:Property .
+
+# Revised Workflow Patterns Initiative control-flow catalogue: WCP01-WCP43.
+f5:WCP01 a f5:WorkflowPattern ; f5:patternNumber 1 ; f5:patternName "Sequence" .
+f5:WCP02 a f5:WorkflowPattern ; f5:patternNumber 2 ; f5:patternName "Parallel Split" .
+f5:WCP03 a f5:WorkflowPattern ; f5:patternNumber 3 ; f5:patternName "Synchronization" .
+f5:WCP04 a f5:WorkflowPattern ; f5:patternNumber 4 ; f5:patternName "Exclusive Choice" .
+f5:WCP05 a f5:WorkflowPattern ; f5:patternNumber 5 ; f5:patternName "Simple Merge" .
+f5:WCP06 a f5:WorkflowPattern ; f5:patternNumber 6 ; f5:patternName "Multi-Choice" .
+f5:WCP07 a f5:WorkflowPattern ; f5:patternNumber 7 ; f5:patternName "Structured Synchronizing Merge" .
+f5:WCP08 a f5:WorkflowPattern ; f5:patternNumber 8 ; f5:patternName "Multi-Merge" .
+f5:WCP09 a f5:WorkflowPattern ; f5:patternNumber 9 ; f5:patternName "Structured Discriminator" .
+f5:WCP10 a f5:WorkflowPattern ; f5:patternNumber 10 ; f5:patternName "Arbitrary Cycles" .
+f5:WCP11 a f5:WorkflowPattern ; f5:patternNumber 11 ; f5:patternName "Implicit Termination" .
+f5:WCP12 a f5:WorkflowPattern ; f5:patternNumber 12 ; f5:patternName "Multiple Instances without Synchronization" .
+f5:WCP13 a f5:WorkflowPattern ; f5:patternNumber 13 ; f5:patternName "Multiple Instances with a Priori Design-Time Knowledge" .
+f5:WCP14 a f5:WorkflowPattern ; f5:patternNumber 14 ; f5:patternName "Multiple Instances with a Priori Run-Time Knowledge" .
+f5:WCP15 a f5:WorkflowPattern ; f5:patternNumber 15 ; f5:patternName "Multiple Instances without a Priori Run-Time Knowledge" .
+f5:WCP16 a f5:WorkflowPattern ; f5:patternNumber 16 ; f5:patternName "Deferred Choice" .
+f5:WCP17 a f5:WorkflowPattern ; f5:patternNumber 17 ; f5:patternName "Interleaved Parallel Routing" .
+f5:WCP18 a f5:WorkflowPattern ; f5:patternNumber 18 ; f5:patternName "Milestone" .
+f5:WCP19 a f5:WorkflowPattern ; f5:patternNumber 19 ; f5:patternName "Cancel Task" .
+f5:WCP20 a f5:WorkflowPattern ; f5:patternNumber 20 ; f5:patternName "Cancel Case" .
+f5:WCP21 a f5:WorkflowPattern ; f5:patternNumber 21 ; f5:patternName "Structured Loop" .
+f5:WCP22 a f5:WorkflowPattern ; f5:patternNumber 22 ; f5:patternName "Recursion" .
+f5:WCP23 a f5:WorkflowPattern ; f5:patternNumber 23 ; f5:patternName "Transient Trigger" .
+f5:WCP24 a f5:WorkflowPattern ; f5:patternNumber 24 ; f5:patternName "Persistent Trigger" .
+f5:WCP25 a f5:WorkflowPattern ; f5:patternNumber 25 ; f5:patternName "Cancel Region" .
+f5:WCP26 a f5:WorkflowPattern ; f5:patternNumber 26 ; f5:patternName "Cancel Multiple Instance Activity" .
+f5:WCP27 a f5:WorkflowPattern ; f5:patternNumber 27 ; f5:patternName "Complete Multiple Instance Activity" .
+f5:WCP28 a f5:WorkflowPattern ; f5:patternNumber 28 ; f5:patternName "Blocking Discriminator" .
+f5:WCP29 a f5:WorkflowPattern ; f5:patternNumber 29 ; f5:patternName "Cancelling Discriminator" .
+f5:WCP30 a f5:WorkflowPattern ; f5:patternNumber 30 ; f5:patternName "Structured Partial Join" .
+f5:WCP31 a f5:WorkflowPattern ; f5:patternNumber 31 ; f5:patternName "Blocking Partial Join" .
+f5:WCP32 a f5:WorkflowPattern ; f5:patternNumber 32 ; f5:patternName "Cancelling Partial Join" .
+f5:WCP33 a f5:WorkflowPattern ; f5:patternNumber 33 ; f5:patternName "Generalised AND-Join" .
+f5:WCP34 a f5:WorkflowPattern ; f5:patternNumber 34 ; f5:patternName "Static Partial Join for Multiple Instances" .
+f5:WCP35 a f5:WorkflowPattern ; f5:patternNumber 35 ; f5:patternName "Cancelling Static Partial Join for Multiple Instances" .
+f5:WCP36 a f5:WorkflowPattern ; f5:patternNumber 36 ; f5:patternName "Dynamic Partial Join for Multiple Instances" .
+f5:WCP37 a f5:WorkflowPattern ; f5:patternNumber 37 ; f5:patternName "Local Synchronizing Merge" .
+f5:WCP38 a f5:WorkflowPattern ; f5:patternNumber 38 ; f5:patternName "General Synchronizing Merge" .
+f5:WCP39 a f5:WorkflowPattern ; f5:patternNumber 39 ; f5:patternName "Critical Section" .
+f5:WCP40 a f5:WorkflowPattern ; f5:patternNumber 40 ; f5:patternName "Interleaved Routing" .
+f5:WCP41 a f5:WorkflowPattern ; f5:patternNumber 41 ; f5:patternName "Thread Merge" .
+f5:WCP42 a f5:WorkflowPattern ; f5:patternNumber 42 ; f5:patternName "Thread Split" .
+f5:WCP43 a f5:WorkflowPattern ; f5:patternNumber 43 ; f5:patternName "Explicit Termination" .
+
+# These properties are intentionally forbidden on admitted architecture objects.
+# They provide named sabotage targets for the no-direct-actuation gate.
+f5:shellCommand a rdf:Property .
+f5:httpEndpoint a rdf:Property .
+f5:kubernetesMutation a rdf:Property .
+f5:cloudApiCall a rdf:Property .

@@ -1,0 +1,228 @@
+# gall-core-pack ontology
+#
+# Generic constitutional vocabulary for ggen-first Gall checkpoint programs.
+# Program-specific capabilities, checkpoints, work items, automation profiles,
+# commands, exclusions, evidence, and crowns are declared by consumers. Standing
+# is never authored: templates derive it from admitted gall:CheckpointEvidence
+# and the pack gates enforce crown closure over that evidence.
+
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix gall: <http://seanchatmangpt.github.io/packs/gall-core#> .
+
+# --- Core objects -----------------------------------------------------------
+
+gall:GallProgram a rdfs:Class ;
+    rdfs:comment "One complete checkpoint program for a repository, release, or bounded system. A program owns the declared capability, checkpoint, work-item, and automation universe from which ggen manufactures roadmaps, Jira tickets, agent work orders, control-plane commands, runners, evidence ledgers, and crown reports." .
+
+gall:Capability a rdfs:Class ;
+    rdfs:comment "A useful system consequence claimed by the program. Every checkpoint must produce at least one capability." .
+
+gall:Checkpoint a rdfs:Class ;
+    rdfs:comment "A dependency-closed proof cut that produces a useful capability and carries runner, positive-witness, negative-falsifier, receipt, clean-replay, and implementation-work obligations." .
+
+gall:RequiredCheckpoint a rdfs:Class ;
+    rdfs:subClassOf gall:Checkpoint ;
+    rdfs:comment "A checkpoint that must be included by any crown for its owning program." .
+
+gall:Crown a rdfs:Class ;
+    rdfs:comment "Release closure over a program's checkpoint universe. Declaring a crown activates hard evidence gates: every included checkpoint must have green, exact-revision, clean-worktree evidence and every required checkpoint must be included." .
+
+gall:Exclusion a rdfs:Class ;
+    rdfs:comment "A first-class boundary for an object intentionally outside the admitted release domain. Exclusions require an object and a reason; they cannot silently remove a crowned checkpoint." .
+
+# --- APS-grade implementation work -----------------------------------------
+
+gall:WorkItem a rdfs:Class ;
+    rdfs:comment "One machine-actionable implementation unit projected into Jira and an LLM coding-agent work order. It is owned by exactly one Gall checkpoint and must state what to do, what not to do, where changes are allowed, how success is verified, and what evidence must remain." .
+
+gall:IssueType a rdfs:Class .
+gall:Epic a gall:IssueType ; gall:jiraName "Epic" .
+gall:Story a gall:IssueType ; gall:jiraName "Story" .
+gall:Task a gall:IssueType ; gall:jiraName "Task" .
+gall:Bug a gall:IssueType ; gall:jiraName "Bug" .
+gall:Spike a gall:IssueType ; gall:jiraName "Spike" .
+
+gall:ProtocolState a rdfs:Class .
+gall:Draft a gall:ProtocolState ; gall:stateName "Draft" .
+gall:Provisional a gall:ProtocolState ; gall:stateName "Provisional" .
+gall:InReview a gall:ProtocolState ; gall:stateName "In Review" .
+gall:Accepted a gall:ProtocolState ; gall:stateName "Accepted" .
+gall:Final a gall:ProtocolState ; gall:stateName "Final" .
+
+gall:Priority a rdfs:Class .
+gall:Highest a gall:Priority ; gall:priorityName "Highest" .
+gall:High a gall:Priority ; gall:priorityName "High" .
+gall:Medium a gall:Priority ; gall:priorityName "Medium" .
+gall:Low a gall:Priority ; gall:priorityName "Low" .
+gall:Lowest a gall:Priority ; gall:priorityName "Lowest" .
+
+# --- Automation control plane ----------------------------------------------
+
+gall:AutomationProfile a rdfs:Class ;
+    rdfs:comment "Program-owned policy for deterministic work selection, agent handoff, external tracker synchronization, runtime state, receipts, and bounded parallelism. Plan mode is always available; apply mode requires explicit operator intent and environment credentials." .
+
+gall:TrackerProvider a rdfs:Class .
+gall:JiraCloud a gall:TrackerProvider ; gall:providerName "jira-cloud" .
+gall:GitHubIssues a gall:TrackerProvider ; gall:providerName "github-issues" .
+gall:FileTracker a gall:TrackerProvider ; gall:providerName "file-only" .
+
+gall:ExecutionMode a rdfs:Class .
+gall:PlanOnly a gall:ExecutionMode ; gall:modeName "plan-only" .
+gall:ApplyAllowed a gall:ExecutionMode ; gall:modeName "apply-allowed" .
+
+gall:AgentMode a rdfs:Class .
+gall:HandoffOnly a gall:AgentMode ; gall:agentModeName "handoff-only" .
+gall:CommandAgent a gall:AgentMode ; gall:agentModeName "command-agent" .
+
+# --- Obligations ------------------------------------------------------------
+
+gall:Obligation a rdfs:Class ;
+    rdfs:comment "An executable evidence obligation carrying a stable name and command." .
+
+gall:PositiveWitness a rdfs:Class ;
+    rdfs:subClassOf gall:Obligation ;
+    rdfs:comment "Executable proof that the checkpoint's useful consequence works on admitted input." .
+
+gall:NegativeFalsifier a rdfs:Class ;
+    rdfs:subClassOf gall:Obligation ;
+    rdfs:comment "Executable sabotage or invalid-input check that exits zero only when the claimed law correctly detects or refuses the defect." .
+
+gall:ReceiptObligation a rdfs:Class ;
+    rdfs:subClassOf gall:Obligation ;
+    rdfs:comment "Executable verification of the deterministic receipt produced by the checkpoint." .
+
+gall:ReplayObligation a rdfs:Class ;
+    rdfs:subClassOf gall:Obligation ;
+    rdfs:comment "Executable replay command run in a detached clean git worktree at the exact recorded revision." .
+
+# --- Evidence ---------------------------------------------------------------
+
+gall:CheckpointEvidence a rdfs:Class ;
+    rdfs:comment "Observed evidence emitted by the generated scripts/gall/run-checkpoints.sh runner. It records real exit codes, exact git revision, tracked-source dirtiness, graph-hash binding, and whether replay occurred in a detached clean worktree." .
+
+gall:Standing a rdfs:Class ;
+    rdfs:comment "Derived checkpoint standing. These individuals are vocabulary values only; consumers must never attach gall:declaredStanding to a checkpoint." .
+
+gall:UNKNOWN a gall:Standing .
+gall:UNSUPPORTED a gall:Standing .
+gall:BUILD_BROKEN a gall:Standing .
+gall:BLOCKED a gall:Standing .
+gall:PARTIAL_ALIVE a gall:Standing .
+gall:ALIVE a gall:Standing .
+
+# --- Checkpoint archetypes --------------------------------------------------
+
+gall:CheckpointArchetype a rdfs:Class .
+gall:CensusCheckpoint a gall:CheckpointArchetype .
+gall:ExecutableFloorCheckpoint a gall:CheckpointArchetype .
+gall:SemanticCheckpoint a gall:CheckpointArchetype .
+gall:ProjectionCheckpoint a gall:CheckpointArchetype .
+gall:CorrespondenceCheckpoint a gall:CheckpointArchetype .
+gall:IntegrationCheckpoint a gall:CheckpointArchetype .
+gall:BoundaryCheckpoint a gall:CheckpointArchetype .
+gall:StressCheckpoint a gall:CheckpointArchetype .
+gall:ReplayCheckpoint a gall:CheckpointArchetype .
+gall:CrownCheckpoint a gall:CheckpointArchetype .
+
+# --- Identity and ownership -------------------------------------------------
+
+gall:programId a rdf:Property .
+gall:releaseIdentity a rdf:Property .
+gall:jiraProjectKey a rdf:Property .
+gall:hasCheckpoint a rdf:Property .
+gall:hasWorkItem a rdf:Property .
+gall:hasAutomationProfile a rdf:Property .
+gall:hasCrown a rdf:Property .
+gall:capabilityId a rdf:Property .
+gall:checkpointId a rdf:Property .
+gall:workItemId a rdf:Property .
+gall:automationProfileId a rdf:Property .
+gall:crownId a rdf:Property .
+gall:title a rdf:Property .
+gall:summary a rdf:Property .
+gall:description a rdf:Property .
+gall:objective a rdf:Property .
+gall:rationale a rdf:Property .
+gall:archetype a rdf:Property .
+gall:producesCapability a rdf:Property .
+gall:requiresCheckpoint a rdf:Property .
+gall:belongsToProgram a rdf:Property .
+gall:belongsToCheckpoint a rdf:Property .
+gall:dependsOnWorkItem a rdf:Property .
+gall:ownsArtifact a rdf:Property .
+gall:artifactPath a rdf:Property .
+gall:includesCheckpoint a rdf:Property .
+
+# --- APS ticket and agent-work-order contract -------------------------------
+
+gall:issueType a rdf:Property .
+gall:jiraName a rdf:Property .
+gall:protocolState a rdf:Property .
+gall:stateName a rdf:Property .
+gall:priority a rdf:Property .
+gall:priorityName a rdf:Property .
+gall:implementationOrder a rdf:Property .
+gall:component a rdf:Property .
+gall:label a rdf:Property .
+gall:assigneeRole a rdf:Property .
+gall:reviewerRole a rdf:Property .
+gall:approvalGate a rdf:Property .
+gall:requiredContext a rdf:Property .
+gall:allowedPath a rdf:Property .
+gall:forbiddenPath a rdf:Property .
+gall:mustDo a rdf:Property .
+gall:mustNotDo a rdf:Property .
+gall:outOfScope a rdf:Property .
+gall:acceptanceCriterion a rdf:Property .
+gall:definitionOfDone a rdf:Property .
+gall:verificationCommand a rdf:Property .
+gall:evidenceArtifact a rdf:Property .
+gall:adversarialQuestion a rdf:Property .
+
+# --- Automation policy fields ----------------------------------------------
+
+gall:trackerProvider a rdf:Property .
+gall:providerName a rdf:Property .
+gall:executionMode a rdf:Property .
+gall:modeName a rdf:Property .
+gall:agentMode a rdf:Property .
+gall:agentModeName a rdf:Property .
+gall:maxParallelism a rdf:Property .
+gall:branchPattern a rdf:Property .
+gall:runtimeDirectory a rdf:Property .
+gall:receiptDirectory a rdf:Property .
+
+# --- Executable contract ----------------------------------------------------
+
+gall:runnerCommand a rdf:Property ;
+    rdfs:comment "Command that actuates the checkpoint's useful system in the mutable consumer worktree." .
+
+gall:positiveWitness a rdf:Property .
+gall:negativeFalsifier a rdf:Property .
+gall:receiptObligation a rdf:Property .
+gall:replayObligation a rdf:Property .
+gall:name a rdf:Property .
+gall:command a rdf:Property .
+
+# --- Evidence fields --------------------------------------------------------
+
+gall:forCheckpoint a rdf:Property .
+gall:runnerExitCode a rdf:Property .
+gall:witnessExitCode a rdf:Property .
+gall:falsifierExitCode a rdf:Property .
+gall:receiptExitCode a rdf:Property .
+gall:replayExitCode a rdf:Property .
+gall:exactRevision a rdf:Property .
+gall:sourceDirty a rdf:Property .
+gall:independentReplay a rdf:Property .
+gall:verifiedGraphHash a rdf:Property .
+gall:recordedAt a rdf:Property .
+
+# --- Boundaries and anti-assertion law -------------------------------------
+
+gall:excludedObject a rdf:Property .
+gall:reason a rdf:Property .
+gall:declaredStanding a rdf:Property ;
+    rdfs:comment "Forbidden consumer property. Standing is derived from observed evidence; any authored use is refused by 050_manual_standing_forbidden.rq." .

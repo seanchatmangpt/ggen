@@ -1,0 +1,17 @@
+PREFIX f5: <https://ggen.dev/ontology/fortune5-required#>
+SELECT ?left ?right ?value
+WHERE {
+  ?left a f5:RequiredCapability .
+  ?right a f5:RequiredCapability .
+  FILTER (STR(?left) < STR(?right))
+  {
+    ?left f5:order ?value .
+    ?right f5:order ?value .
+  } UNION {
+    ?left f5:slug ?value .
+    ?right f5:slug ?value .
+  } UNION {
+    ?left f5:rustVariant ?value .
+    ?right f5:rustVariant ?value .
+  }
+}

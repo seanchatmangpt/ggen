@@ -1,0 +1,19 @@
+# MESSAGE: every candidate must select exactly one option from every dimension; any row is a refusal.
+PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+SELECT ?candidate ?violation ?dimension WHERE {
+  {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate ; cmd:hasDimension ?dimension .
+    FILTER NOT EXISTS {
+      ?candidate cmd:selectsOption ?option .
+      ?dimension cmd:hasOption ?option .
+    }
+    BIND("candidate-missing-dimension-selection" AS ?violation)
+  } UNION {
+    ?design a cmd:DesignSpace ; cmd:hasCandidate ?candidate ; cmd:hasDimension ?dimension .
+    ?candidate cmd:selectsOption ?left, ?right .
+    ?dimension cmd:hasOption ?left, ?right .
+    FILTER(?left != ?right)
+    BIND("candidate-selects-multiple-options-from-dimension" AS ?violation)
+  }
+}
+ORDER BY ?candidate ?dimension ?violation

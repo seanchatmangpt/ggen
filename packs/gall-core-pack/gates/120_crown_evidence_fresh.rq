@@ -1,0 +1,21 @@
+# MESSAGE: Crowned Gall evidence is stale -- its verified graph hash does not match the latest reflexive ggen sync receipt; rerun scripts/gall/run-checkpoints.sh immediately before syncing
+PREFIX gall:  <http://seanchatmangpt.github.io/packs/gall-core#>
+PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
+SELECT ?checkpointId ?staleHash ?latestHash WHERE {
+  ?crown a gall:Crown ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  ?evidence a gall:CheckpointEvidence ;
+            gall:forCheckpoint ?checkpoint ;
+            gall:verifiedGraphHash ?staleHash .
+  ?latest a ggenr:Sync ;
+          ggenr:index ?i ;
+          ggenr:graphHash ?latestHash .
+  FILTER NOT EXISTS {
+    ?other a ggenr:Sync ;
+           ggenr:index ?j .
+    FILTER(?j > ?i)
+  }
+  FILTER(STR(?staleHash) != STR(?latestHash))
+}
+ORDER BY ?checkpointId

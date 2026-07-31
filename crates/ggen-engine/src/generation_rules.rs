@@ -94,7 +94,7 @@ use tera::Value;
 
 use crate::{
     error::{AppError, Result, TemplateFailureCause},
-    graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore},
+    graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore, TurtleDocument},
     sync::{
         hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions,
         SyncReport,
@@ -146,11 +146,10 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             ),
         )
     })?;
-    graph.insert_turtle(&ttl)?;
-    closure.insert(
-        rel_display(root, &ontology_path),
-        hash_file_or_missing(&ontology_path),
-    );
+    let ontology_label = rel_display(root, &ontology_path);
+    closure.insert(ontology_label.clone(), hash_file_or_missing(&ontology_path));
+    let mut ontology_sources = Vec::with_capacity(1 + manifest.ontology.imports.len());
+    ontology_sources.push((ontology_label, ttl));
 
     for import in &manifest.ontology.imports {
         let import_path = root.join(import);
@@ -163,12 +162,21 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 ),
             )
         })?;
-        graph.insert_turtle(&import_ttl)?;
-        closure.insert(
-            rel_display(root, &import_path),
-            hash_file_or_missing(&import_path),
-        );
+        let import_label = rel_display(root, &import_path);
+        closure.insert(import_label.clone(), hash_file_or_missing(&import_path));
+        ontology_sources.push((import_label, import_ttl));
     }
+    let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
+    let ontology_receipt = graph.insert_turtle_documents(&ontology_documents)?;
+    tracing::debug!(
+        ontology.documents = ontology_receipt.documents,
+        ontology.parsed_quads = ontology_receipt.parsed_quads,
+        ontology.inserted_quads = ontology_receipt.inserted_quads,
+        "ontology batch admitted"
+    );
 
     drop(load_guard);
     load_span.record(

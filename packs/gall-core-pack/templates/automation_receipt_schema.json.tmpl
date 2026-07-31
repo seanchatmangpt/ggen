@@ -1,0 +1,37 @@
+---
+to: automation/schemas/gall-automation-receipt.schema.json
+force: true
+---
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seanchatmangpt.github.io/schemas/gall-automation-receipt-v1.json",
+  "title": "Gall Automation Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "operation",
+    "work_item_id",
+    "recorded_at",
+    "revision",
+    "manifest",
+    "manifest_sha256",
+    "previous_digest",
+    "payload",
+    "digest_algorithm",
+    "digest"
+  ],
+  "properties": {
+    "schema": { "const": "gall.automation.receipt.v1" },
+    "operation": { "type": "string", "minLength": 1 },
+    "work_item_id": { "type": ["string", "null"] },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "revision": { "type": "string", "minLength": 1 },
+    "manifest": { "type": "string", "minLength": 1 },
+    "manifest_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "previous_digest": { "type": "string", "minLength": 1 },
+    "payload": { "type": "object" },
+    "digest_algorithm": { "const": "sha256" },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

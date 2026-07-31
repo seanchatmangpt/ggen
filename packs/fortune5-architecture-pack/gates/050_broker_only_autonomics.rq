@@ -1,0 +1,40 @@
+# MESSAGE: Fortune 5 autonomics may manufacture bounded intents only -- direct actuation, non-BRCE routing, or unreceipted policy is forbidden
+PREFIX f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+SELECT ?policy ?field ?value WHERE {
+  ?policy a f5:AutonomicPolicy .
+  {
+    VALUES ?property { f5:autonomicPolicyId f5:broker f5:directActuation f5:maxParallelism f5:receiptAlgorithm }
+    FILTER NOT EXISTS { ?policy ?property ?any }
+    BIND(STR(?property) AS ?field)
+    BIND("missing" AS ?value)
+  }
+  UNION
+  {
+    ?policy f5:broker ?raw .
+    FILTER(STR(?raw) != "BRCE")
+    BIND("f5:broker" AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+  UNION
+  {
+    ?policy f5:directActuation ?raw .
+    FILTER(?raw != false)
+    BIND("f5:directActuation" AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+  UNION
+  {
+    ?policy f5:receiptAlgorithm ?raw .
+    FILTER(LCASE(STR(?raw)) NOT IN ("blake3", "sha-256"))
+    BIND("f5:receiptAlgorithm" AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+  UNION
+  {
+    ?subject ?property ?raw .
+    VALUES ?property { f5:shellCommand f5:httpEndpoint f5:kubernetesMutation f5:cloudApiCall }
+    BIND(STR(?property) AS ?field)
+    BIND(STR(?raw) AS ?value)
+  }
+}
+ORDER BY ?policy ?field

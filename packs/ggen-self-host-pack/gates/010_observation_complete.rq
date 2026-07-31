@@ -1,0 +1,14 @@
+# MESSAGE: GGEN_SELF_HOST_OBSERVATION_INCOMPLETE -- the self-host program must be bound to one deterministic exact-revision observation
+PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+SELECT ?program ?missing WHERE {
+  ?program a gsh:SelfHostProgram .
+  VALUES ?required {
+    gsh:programId gsh:repository gsh:revision gsh:observationDigest gsh:observerVersion
+    gsh:fileCount gsh:crateCount gsh:workspaceMemberCount gsh:packCount
+    gsh:workflowCount gsh:templateCount gsh:scriptCount gsh:generatedCount
+    gsh:findingCount gsh:blockingFindingCount gsh:unknownAuthorityCount
+  }
+  FILTER NOT EXISTS { ?program ?required ?value }
+  BIND(STR(?required) AS ?missing)
+}
+ORDER BY ?program ?missing

@@ -1,0 +1,37 @@
+use automatic_autonomic_operations::{verify, GENERATED_CAPABILITIES};
+use ggen_graph::rwr::{ALL_OPERATIONS_CAPABILITIES, REQUIRED_OPERATIONS_PROOF_SURFACES};
+
+#[test]
+fn generated_inventory_and_executed_crown_close() {
+    let report = verify().expect("generated automatic/autonomic verifier");
+    assert_eq!(GENERATED_CAPABILITIES.len(), 15);
+    assert_eq!(
+        GENERATED_CAPABILITIES.len(),
+        ALL_OPERATIONS_CAPABILITIES.len()
+    );
+    assert_eq!(report.standing, "ALIVE");
+    assert_eq!(report.capabilities, 15);
+    assert_eq!(
+        report.proof_surfaces,
+        15 * REQUIRED_OPERATIONS_PROOF_SURFACES.len()
+    );
+}
+
+#[test]
+fn generated_inventory_has_unique_order_slug_and_variant() {
+    let orders = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.order)
+        .collect::<std::collections::BTreeSet<_>>();
+    let slugs = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.slug)
+        .collect::<std::collections::BTreeSet<_>>();
+    let variants = GENERATED_CAPABILITIES
+        .iter()
+        .map(|capability| capability.rust_variant)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(orders.len(), 15);
+    assert_eq!(slugs.len(), 15);
+    assert_eq!(variants.len(), 15);
+}

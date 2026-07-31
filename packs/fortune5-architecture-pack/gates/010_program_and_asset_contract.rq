@@ -1,0 +1,48 @@
+# MESSAGE: Fortune 5 architecture contract is incomplete -- every program, asset, capability, and region must carry accountable identity, ownership, lifecycle, improvement, interoperability, and deployment facts
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX f5:  <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+SELECT ?subject ?kind ?missing WHERE {
+  {
+    ?subject a f5:EnterpriseArchitectureProgram .
+    BIND("program" AS ?kind)
+    VALUES ?property {
+      f5:programId
+      f5:releaseIdentity
+      f5:hasAsset
+      f5:hasCapability
+      f5:hasRegion
+      f5:hasPromotionGate
+      f5:hasAutonomicPolicy
+      f5:hasDflssProgram
+      f5:hasWorkflowEngineAdapter
+      f5:hasWorkflowPatternEvidence
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+  UNION
+  {
+    ?subject a f5:ArchitectureAsset .
+    BIND("asset" AS ?kind)
+    VALUES ?property { f5:assetId f5:title f5:owner f5:criticality f5:lifecycleState f5:deployedIn }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+  UNION
+  {
+    ?subject a f5:EnterpriseCapability .
+    BIND("capability" AS ?kind)
+    VALUES ?property { f5:capabilityId f5:title f5:owner f5:lifecycleState f5:realizedBy }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+  UNION
+  {
+    ?subject a f5:Region .
+    BIND("region" AS ?kind)
+    VALUES ?property { f5:regionId f5:provider f5:jurisdiction f5:faultDomain f5:active }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+}
+ORDER BY ?kind ?subject ?missing

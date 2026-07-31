@@ -1,0 +1,35 @@
+---
+to: generated/SELF_HOST_CROWN.md
+sparql:
+  program: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    SELECT ?revision ?digest ?blocking ?unknown ?findings WHERE {
+      ?p a gsh:SelfHostProgram ; gsh:revision ?revision ; gsh:observationDigest ?digest ;
+         gsh:blockingFindingCount ?blocking ; gsh:unknownAuthorityCount ?unknown ; gsh:findingCount ?findings .
+    }
+  crown: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    SELECT ?id ?replay WHERE { ?p a gsh:SelfHostProgram ; gsh:hasCrown ?c . ?c a gsh:Crown ; gsh:crownId ?id . OPTIONAL { ?c gsh:cleanReplayVerified ?replay } }
+---
+# ggen Self-Hosting Crown
+
+{% set p = program | first %}
+- Exact revision: `{{ p.revision }}`
+- Observation digest: `{{ p.digest }}`
+- Findings: **{{ p.findings }}**
+- Blocking findings: **{{ p.blocking }}**
+- Unknown-authority files: **{{ p.unknown }}**
+
+{% if crown | length == 0 %}
+## Standing: `PARTIAL_ALIVE`
+
+The repository is completely observed and its retrofit work is manufactured, but no crown is asserted. Planning mode is intentional while blocking findings remain open.
+{% else %}
+{% set c = crown | first %}
+## Crown `{{ c.id }}`
+
+- Clean replay verified: `{{ c.replay | default(value=false) }}`
+- Derived standing: {% if p.blocking == 0 and p.unknown == 0 and c.replay == true %}`ALIVE`{% else %}`REFUSED`{% endif %}
+{% endif %}
+
+A generated report cannot promote itself. Promotion is admitted only by the crown gate plus independent clean replay and receipt verification.

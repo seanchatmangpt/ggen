@@ -1,0 +1,28 @@
+# MESSAGE: Gall evidence obligation is incomplete or mistyped -- each linked witness, falsifier, receipt, and replay obligation must have the expected class, a stable gall:name, and an executable gall:command
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?checkpointId ?kind ?obligation ?missing WHERE {
+  ?checkpoint a gall:Checkpoint ;
+              gall:checkpointId ?checkpointId .
+  VALUES (?link ?expectedClass ?kind) {
+    (gall:positiveWitness gall:PositiveWitness "positive-witness")
+    (gall:negativeFalsifier gall:NegativeFalsifier "negative-falsifier")
+    (gall:receiptObligation gall:ReceiptObligation "receipt")
+    (gall:replayObligation gall:ReplayObligation "replay")
+  }
+  ?checkpoint ?link ?obligation .
+  {
+    FILTER NOT EXISTS { ?obligation a ?expectedClass }
+    BIND("rdf:type" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?obligation gall:name ?value }
+    BIND("gall:name" AS ?missing)
+  }
+  UNION
+  {
+    FILTER NOT EXISTS { ?obligation gall:command ?value }
+    BIND("gall:command" AS ?missing)
+  }
+}
+ORDER BY ?checkpointId ?kind ?missing

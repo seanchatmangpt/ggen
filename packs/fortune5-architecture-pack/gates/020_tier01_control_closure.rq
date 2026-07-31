@@ -1,0 +1,20 @@
+# MESSAGE: Tier 0/1 Fortune 5 asset is missing a required production control -- capacity, multi-region replication, SPIFFE identity, KMS, observability, supervision, and SLOs are mandatory
+PREFIX f5: <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+SELECT ?asset ?assetId ?missing WHERE {
+  ?asset a f5:ArchitectureAsset ; f5:criticality ?criticality .
+  FILTER(?criticality IN (f5:Tier0, f5:Tier1))
+  OPTIONAL { ?asset f5:assetId ?id }
+  BIND(IF(BOUND(?id), STR(?id), STR(?asset)) AS ?assetId)
+  VALUES ?property {
+    f5:hasSlo
+    f5:hasCapacityEnvelope
+    f5:hasReplicationPolicy
+    f5:hasIdentityPolicy
+    f5:hasKmsPolicy
+    f5:hasObservabilityPolicy
+    f5:hasSupervisionPolicy
+  }
+  FILTER NOT EXISTS { ?asset ?property ?value }
+  BIND(STR(?property) AS ?missing)
+}
+ORDER BY ?assetId ?missing

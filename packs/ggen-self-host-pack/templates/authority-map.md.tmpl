@@ -1,0 +1,28 @@
+---
+to: generated/AUTHORITY_MAP.md
+sparql:
+  files: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?path ?label ?load ?generated WHERE {
+      ?file a gsh:RepositoryFile ; gsh:path ?path ; gsh:authorityClass ?class ;
+            gsh:loadBearing ?load ; gsh:generatedMarker ?generated .
+      ?class skos:prefLabel ?label .
+    } ORDER BY ?label ?path
+---
+# ggen Repository Authority Map
+
+GENERATED from the observed Git tree. This is the live answer to “what may be edited, what must be regenerated, and what is only evidence?”
+
+| Path | Authority class | Load-bearing | Generated marker |
+|---|---|---:|---:|
+{% for row in files %}| `{{ row.path }}` | {{ row.label }} | {{ row.load }} | {{ row.generated }} |
+{% endfor %}
+
+## Editing law
+
+- **Authored constitutional input:** edit intentionally; all consequences must be regenerated.
+- **Minimal bootstrap kernel:** edit only to expand the manufacturing boundary; require direct tests and a migration receipt.
+- **Generated consequence:** never hand-edit; change its ontology, query, template, or admitted observation.
+- **Verification evidence:** replace only through the producer that observed the result.
+- **Archive:** cannot establish current standing.

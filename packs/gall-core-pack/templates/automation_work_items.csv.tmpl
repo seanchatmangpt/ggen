@@ -1,0 +1,84 @@
+---
+to: automation/GALL_AUTOMATION_WORK_ITEMS.csv
+force: true
+sparql:
+  items: |
+    PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+    SELECT ?programId ?releaseIdentity ?projectKey ?profileId ?trackerProvider ?executionMode
+           ?agentMode ?maxParallelism ?branchPattern ?runtimeDirectory ?receiptDirectory
+           ?workItemId ?issueType ?summary ?objective ?rationale ?checkpointId ?order
+           ?priority ?component ?state ?assigneeRole ?reviewerRole ?approvalGate
+           (GROUP_CONCAT(DISTINCT ?dependencyId; separator=" ; ") AS ?dependencies)
+           (GROUP_CONCAT(DISTINCT ?context; separator=" ; ") AS ?contexts)
+           (GROUP_CONCAT(DISTINCT ?allowed; separator=" ; ") AS ?allowedPaths)
+           (GROUP_CONCAT(DISTINCT ?forbidden; separator=" ; ") AS ?forbiddenPaths)
+           (GROUP_CONCAT(DISTINCT ?must; separator=" ; ") AS ?mustDo)
+           (GROUP_CONCAT(DISTINCT ?mustNot; separator=" ; ") AS ?mustNotDo)
+           (GROUP_CONCAT(DISTINCT ?outside; separator=" ; ") AS ?outOfScope)
+           (GROUP_CONCAT(DISTINCT ?acceptance; separator=" ; ") AS ?acceptanceCriteria)
+           (GROUP_CONCAT(DISTINCT ?done; separator=" ; ") AS ?definitionOfDone)
+           (GROUP_CONCAT(DISTINCT ?verify; separator=" ; ") AS ?verificationCommands)
+           (GROUP_CONCAT(DISTINCT ?evidence; separator=" ; ") AS ?evidenceArtifacts)
+           (GROUP_CONCAT(DISTINCT ?question; separator=" ; ") AS ?adversarialQuestions)
+           (GROUP_CONCAT(DISTINCT ?label; separator=" ; ") AS ?labels)
+    WHERE {
+      ?program a gall:GallProgram ;
+               gall:programId ?programId ;
+               gall:releaseIdentity ?releaseIdentity ;
+               gall:jiraProjectKey ?projectKey ;
+               gall:hasAutomationProfile ?profile ;
+               gall:hasWorkItem ?workItem .
+      ?profile a gall:AutomationProfile ;
+               gall:automationProfileId ?profileId ;
+               gall:trackerProvider ?trackerProviderNode ;
+               gall:executionMode ?executionModeNode ;
+               gall:agentMode ?agentModeNode ;
+               gall:maxParallelism ?maxParallelism ;
+               gall:branchPattern ?branchPattern ;
+               gall:runtimeDirectory ?runtimeDirectory ;
+               gall:receiptDirectory ?receiptDirectory .
+      ?trackerProviderNode gall:providerName ?trackerProvider .
+      ?executionModeNode gall:modeName ?executionMode .
+      ?agentModeNode gall:agentModeName ?agentMode .
+      ?workItem a gall:WorkItem ;
+                gall:workItemId ?workItemId ;
+                gall:issueType ?issueTypeNode ;
+                gall:summary ?summary ;
+                gall:objective ?objective ;
+                gall:rationale ?rationale ;
+                gall:belongsToCheckpoint ?checkpoint ;
+                gall:implementationOrder ?order ;
+                gall:priority ?priorityNode ;
+                gall:component ?component ;
+                gall:protocolState ?stateNode ;
+                gall:assigneeRole ?assigneeRole ;
+                gall:reviewerRole ?reviewerRole ;
+                gall:approvalGate ?approvalGate ;
+                gall:requiredContext ?context ;
+                gall:allowedPath ?allowed ;
+                gall:forbiddenPath ?forbidden ;
+                gall:mustDo ?must ;
+                gall:mustNotDo ?mustNot ;
+                gall:outOfScope ?outside ;
+                gall:acceptanceCriterion ?acceptance ;
+                gall:definitionOfDone ?done ;
+                gall:verificationCommand ?verify ;
+                gall:evidenceArtifact ?evidence ;
+                gall:adversarialQuestion ?question .
+      ?issueTypeNode gall:jiraName ?issueType .
+      ?priorityNode gall:priorityName ?priority .
+      ?stateNode gall:stateName ?state .
+      ?checkpoint gall:checkpointId ?checkpointId .
+      OPTIONAL { ?workItem gall:dependsOnWorkItem ?dependency . ?dependency gall:workItemId ?dependencyId }
+      OPTIONAL { ?workItem gall:label ?label }
+    }
+    GROUP BY ?programId ?releaseIdentity ?projectKey ?profileId ?trackerProvider ?executionMode
+             ?agentMode ?maxParallelism ?branchPattern ?runtimeDirectory ?receiptDirectory
+             ?workItemId ?issueType ?summary ?objective ?rationale ?checkpointId ?order
+             ?priority ?component ?state ?assigneeRole ?reviewerRole ?approvalGate
+    ORDER BY xsd:integer(?order) ?workItemId
+---
+Program ID,Release,Project Key,Automation Profile,Tracker Provider,Execution Mode,Agent Mode,Max Parallelism,Branch Pattern,Runtime Directory,Receipt Directory,Work Item ID,Issue Type,Summary,Objective,Rationale,Checkpoint ID,Implementation Order,Priority,Component,APS State,Assignee Role,Reviewer Role,Approval Gate,Dependencies,Required Context,Allowed Paths,Forbidden Paths,MUST,MUST NOT,Out Of Scope,Acceptance Criteria,Definition Of Done,Verification Commands,Evidence Artifacts,Adversarial Questions,Labels
+{% for item in items %}"{{ item.programId }}","{{ item.releaseIdentity }}","{{ item.projectKey }}","{{ item.profileId }}","{{ item.trackerProvider }}","{{ item.executionMode }}","{{ item.agentMode }}","{{ item.maxParallelism }}","{{ item.branchPattern }}","{{ item.runtimeDirectory }}","{{ item.receiptDirectory }}","{{ item.workItemId }}","{{ item.issueType }}","{{ item.summary }}","{{ item.objective }}","{{ item.rationale }}","{{ item.checkpointId }}","{{ item.order }}","{{ item.priority }}","{{ item.component }}","{{ item.state }}","{{ item.assigneeRole }}","{{ item.reviewerRole }}","{{ item.approvalGate }}","{{ item.dependencies | default(value="") }}","{{ item.contexts }}","{{ item.allowedPaths }}","{{ item.forbiddenPaths }}","{{ item.mustDo }}","{{ item.mustNotDo }}","{{ item.outOfScope }}","{{ item.acceptanceCriteria }}","{{ item.definitionOfDone }}","{{ item.verificationCommands }}","{{ item.evidenceArtifacts }}","{{ item.adversarialQuestions }}","{{ item.labels }}"
+{% endfor %}

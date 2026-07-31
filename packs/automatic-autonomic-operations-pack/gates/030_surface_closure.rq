@@ -1,0 +1,10 @@
+PREFIX aa: <https://ggen.dev/ontology/automatic-autonomic#>
+SELECT ?capability ?actual
+WHERE {
+  {
+    SELECT ?capability (COUNT(DISTINCT ?surface) AS ?actual)
+    WHERE { ?capability a aa:Capability ; aa:requiresSurface ?surface . }
+    GROUP BY ?capability
+  }
+  FILTER (?actual != 3)
+}

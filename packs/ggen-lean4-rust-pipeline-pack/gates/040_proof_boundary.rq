@@ -1,0 +1,41 @@
+# MESSAGE: v1 accepts only the explicit proof names, codegen surface, exact Lean toolchain, and BLAKE3 receipt boundary implemented by the generated emitter; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a lr:Pipeline ; lr:crateName ?value .
+    FILTER (STR(?value) != "lean-proof-cell")
+    BIND("unsupported-crate-name" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:rustFunctionName ?value .
+    FILTER (STR(?value) != "bounded_step")
+    BIND("unsupported-rust-function" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:leanToolchain ?value .
+    FILTER (STR(?value) != "leanprover/lean4:v4.30.0")
+    BIND("lean-toolchain-unpinned" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:receiptAlgorithm ?value .
+    FILTER (STR(?value) != "blake3")
+    BIND("receipt-algorithm-refused" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:proofTheorem ?value .
+    FILTER (STR(?value) != "step_le")
+    BIND("proof-theorem-refused" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:witnessTheorem ?value .
+    FILTER (STR(?value) != "step_witness")
+    BIND("witness-theorem-refused" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ; lr:fixedPointTheorem ?value .
+    FILTER (STR(?value) != "step_fixed_point")
+    BIND("fixed-point-theorem-refused" AS ?violation)
+    BIND(STR(?value) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

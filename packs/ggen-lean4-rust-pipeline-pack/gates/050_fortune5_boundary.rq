@@ -1,0 +1,85 @@
+# MESSAGE: Fortune 5 deployment policy is fail-closed for SLOs, promotion, multi-region, identity, key management, network security, observability, and alerts; any row is a refusal.
+PREFIX lr: <https://chatmangpt.com/ontology/lean4-rust#>
+SELECT ?subject ?violation ?detail WHERE {
+  {
+    ?subject a lr:Pipeline ;
+      lr:r1P99Nanos ?r1 ;
+      lr:r1TickBudget ?r1Ticks ;
+      lr:w1P99Nanos ?w1 ;
+      lr:c1P99Nanos ?c1 .
+    FILTER (?r1 != 2 || ?r1Ticks != 8 || ?w1 != 1000000 || ?c1 != 500000000 || ?r1 >= ?w1 || ?w1 >= ?c1)
+    BIND("fortune5-slo-target-refused" AS ?violation)
+    BIND(CONCAT("r1=", STR(?r1), "ns/", STR(?r1Ticks), "ticks, w1=", STR(?w1), ", c1=", STR(?c1)) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ;
+      lr:r1Measurement ?r1 ;
+      lr:w1Measurement ?w1 ;
+      lr:c1Measurement ?c1 .
+    FILTER (STR(?r1) != "rdtsc" || STR(?w1) != "otel-span" || STR(?c1) != "otel-span")
+    BIND("fortune5-slo-measurement-refused" AS ?violation)
+    BIND(CONCAT("r1=", STR(?r1), ", w1=", STR(?w1), ", c1=", STR(?c1)) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ;
+      lr:canaryRequired ?canary ;
+      lr:stagingValidationRequired ?staging ;
+      lr:autoRollbackRequired ?rollback ;
+      lr:promotionReceiptRequired ?receipt .
+    FILTER (?canary != true || ?staging != true || ?rollback != true || ?receipt != true)
+    BIND("fortune5-promotion-policy-refused" AS ?violation)
+    BIND(CONCAT("canary=", STR(?canary), ", staging=", STR(?staging), ", rollback=", STR(?rollback), ", receipt=", STR(?receipt)) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ;
+      lr:regionCount ?regions ;
+      lr:regionQuorum ?quorum ;
+      lr:crossRegionReplicationRequired ?replication ;
+      lr:receiptSynchronizationRequired ?sync ;
+      lr:failoverRequired ?failover ;
+      lr:legalHoldRequired ?legalHold .
+    FILTER (
+      ?regions < 3 ||
+      ?quorum > ?regions ||
+      (2 * ?quorum) <= ?regions ||
+      ?replication != true ||
+      ?sync != true ||
+      ?failover != true ||
+      ?legalHold != true
+    )
+    BIND("fortune5-region-policy-refused" AS ?violation)
+    BIND(CONCAT("regions=", STR(?regions), ", quorum=", STR(?quorum)) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ;
+      lr:spiffeId ?spiffe ;
+      lr:certificateRefreshSeconds ?certificateRefresh ;
+      lr:keyRotationSeconds ?keyRotation ;
+      lr:mtlsRequired ?mtls ;
+      lr:awsKmsRequired ?aws ;
+      lr:azureKeyVaultRequired ?azure ;
+      lr:hashicorpVaultRequired ?vault ;
+      lr:networkPolicyRequired ?network ;
+      lr:firewallPolicyRequired ?firewall .
+    FILTER (
+      !STRSTARTS(STR(?spiffe), "spiffe://") ||
+      ?certificateRefresh > 3600 ||
+      ?keyRotation > 86400 ||
+      ?mtls != true ||
+      ?aws != true ||
+      ?azure != true ||
+      ?vault != true ||
+      ?network != true ||
+      ?firewall != true
+    )
+    BIND("fortune5-security-policy-refused" AS ?violation)
+    BIND(CONCAT("spiffe=", STR(?spiffe), ", cert=", STR(?certificateRefresh), ", key=", STR(?keyRotation)) AS ?detail)
+  } UNION {
+    ?subject a lr:Pipeline ;
+      lr:otelRequired ?otel ;
+      lr:sloAlertRequired ?slo ;
+      lr:guardAlertRequired ?guard ;
+      lr:receiptMismatchAlertRequired ?receiptMismatch ;
+      lr:performanceDegradationAlertRequired ?degradation .
+    FILTER (?otel != true || ?slo != true || ?guard != true || ?receiptMismatch != true || ?degradation != true)
+    BIND("fortune5-observability-policy-refused" AS ?violation)
+    BIND(CONCAT("otel=", STR(?otel), ", alerts=", STR(?slo), "/", STR(?guard), "/", STR(?receiptMismatch), "/", STR(?degradation)) AS ?detail)
+  }
+}
+ORDER BY ?subject ?violation

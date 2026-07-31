@@ -1,0 +1,4 @@
+[pack]
+name = "fortune5-required-capabilities-pack"
+version = "26.7.30"
+description = "Ontology-first manufacturer for the bounded 19-capability, 57-surface Fortune-5 control plane"

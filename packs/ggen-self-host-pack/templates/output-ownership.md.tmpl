@@ -1,0 +1,36 @@
+---
+to: generated/OUTPUT_OWNERSHIP.md
+sparql:
+  claims: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    SELECT ?consumer ?path ?owner ?kind WHERE {
+      ?claim a gsh:OutputClaim ; gsh:consumer ?consumer ; gsh:outputPath ?path ;
+             gsh:owner ?owner ; gsh:claimKind ?kind .
+    } ORDER BY ?consumer ?path ?owner
+  collisions: |
+    PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
+    SELECT ?consumer ?path (COUNT(?claim) AS ?writers) WHERE {
+      ?claim a gsh:OutputClaim ; gsh:claimKind "active-manifest-rule" ;
+             gsh:consumer ?consumer ; gsh:outputPath ?path .
+    } GROUP BY ?consumer ?path HAVING(COUNT(?claim) > 1) ORDER BY ?consumer ?path
+---
+# ggen Output Ownership Ledger
+
+GENERATED from every observed `ggen.toml` rule and pack template front matter.
+
+## Active collisions
+
+{% if collisions | length == 0 %}No active manifest has multiple writers for one consumer-relative path.
+{% else %}| Consumer | Output | Writers |
+|---|---|---:|
+{% for row in collisions %}| `{{ row.consumer }}` | `{{ row.path }}` | {{ row.writers }} |
+{% endfor %}{% endif %}
+
+## Claims
+
+| Consumer scope | Output | Owner | Claim kind |
+|---|---|---|---|
+{% for row in claims %}| `{{ row.consumer }}` | `{{ row.path }}` | `{{ row.owner }}` | {{ row.kind }} |
+{% endfor %}
+
+Pack-template claims are potential until a consumer mounts that pack. Active-manifest claims are executable authority.

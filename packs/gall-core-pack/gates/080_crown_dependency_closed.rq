@@ -1,0 +1,12 @@
+# MESSAGE: Gall crown is not dependency-closed -- every dependency of an included checkpoint must also be included in the same crown
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?crownId ?checkpointId ?missingDependencyId WHERE {
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId ;
+              gall:requiresCheckpoint ?dependency .
+  ?dependency gall:checkpointId ?missingDependencyId .
+  FILTER NOT EXISTS { ?crown gall:includesCheckpoint ?dependency }
+}
+ORDER BY ?crownId ?checkpointId ?missingDependencyId

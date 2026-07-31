@@ -1,0 +1,31 @@
+{
+  "version": "26.7.30",
+  "policy": {
+    "formula": "interviewFrequency * ecosystemDependency * transferBreadth * gatekeepingValue * darknessRisk / (learningCost * (existingCoverage + 1))",
+    "dependencyClosureRequired": true,
+    "autonomicMaxCycles": 8,
+    "directActuation": false,
+    "standingPromotion": "evidence-and-human-approval-only"
+  },
+  "objectives": [
+{% for row in results %}    {
+      "sourceOrder": {{ row["order"] }},
+      "slug": "{{ row["slug"] }}",
+      "name": "{{ row["name"] }}",
+      "examDomain": "{{ row["examDomain"] }}",
+      "priority": {{ row["priority"] }},
+      "currentStanding": {{ row["currentStanding"] }},
+      "targetStanding": {{ row["targetStanding"] }},
+      "prerequisite": {% if row["requiresSlug"] == "" %}null{% else %}"{{ row["requiresSlug"] }}"{% endif %},
+      "factors": {
+        "interviewFrequency": {{ row["interviewFrequency"] }},
+        "ecosystemDependency": {{ row["ecosystemDependency"] }},
+        "transferBreadth": {{ row["transferBreadth"] }},
+        "gatekeepingValue": {{ row["gatekeepingValue"] }},
+        "darknessRisk": {{ row["darknessRisk"] }},
+        "learningCost": {{ row["learningCost"] }},
+        "existingCoverage": {{ row["existingCoverage"] }}
+      }
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

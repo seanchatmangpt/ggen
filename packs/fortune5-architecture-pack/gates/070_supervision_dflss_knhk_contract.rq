@@ -1,0 +1,67 @@
+# MESSAGE: Fortune 5 supervision, DFLSS, or KNHK interoperability contract is incomplete or unsafe
+PREFIX f5:  <http://seanchatmangpt.github.io/packs/fortune5-architecture#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?kind ?field ?value WHERE {
+  {
+    ?subject a f5:SupervisionPolicy .
+    BIND("supervision" AS ?kind)
+    {
+      VALUES ?property { f5:restartStrategy f5:maxRestarts f5:restartWindowSeconds f5:distributionEnabled f5:telemetryEnabled f5:childSpecificationCount }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      VALUES ?property { f5:distributionEnabled f5:telemetryEnabled }
+      ?subject ?property ?raw . FILTER(?raw != true)
+      BIND(STR(?property) AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:maxRestarts ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:maxRestarts" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:restartWindowSeconds ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:restartWindowSeconds" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:childSpecificationCount ?raw . FILTER(xsd:integer(?raw) < 1)
+      BIND("f5:childSpecificationCount" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+  UNION
+  {
+    ?subject a f5:DflssProgram .
+    BIND("dflss" AS ?kind)
+    VALUES ?property { f5:dflssId f5:defineEvidence f5:measureEvidence f5:analyzeEvidence f5:designEvidence f5:verifyEvidence }
+    FILTER NOT EXISTS { ?subject ?property ?any }
+    BIND(STR(?property) AS ?field)
+    BIND("missing" AS ?value)
+  }
+  UNION
+  {
+    ?subject a f5:WorkflowEngineAdapter .
+    BIND("workflow-adapter" AS ?kind)
+    {
+      VALUES ?property { f5:adapterId f5:engineName f5:adapterProtocol f5:inputGraphClass f5:outputReceiptClass f5:receiptRequired }
+      FILTER NOT EXISTS { ?subject ?property ?any }
+      BIND(STR(?property) AS ?field)
+      BIND("missing" AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:engineName ?raw . FILTER(UCASE(STR(?raw)) != "KNHK")
+      BIND("f5:engineName" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+    UNION
+    {
+      ?subject f5:receiptRequired ?raw . FILTER(?raw != true)
+      BIND("f5:receiptRequired" AS ?field) BIND(STR(?raw) AS ?value)
+    }
+  }
+}
+ORDER BY ?kind ?subject ?field

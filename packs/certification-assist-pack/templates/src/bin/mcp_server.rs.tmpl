@@ -1,0 +1,169 @@
+//! GENERATED read-only MCP server for CertificationAssist.
+
+use std::io::{self, BufRead};
+
+use serde_json::{json, Value};
+
+#[derive(Debug, Clone, Copy)]
+struct Surface {
+    kind: &'static str,
+    name: &'static str,
+    uri: &'static str,
+    description: &'static str,
+    requires_approval: bool,
+}
+
+const SURFACES: &[Surface] = &[
+{% for row in results %}    Surface {
+        kind: "{{ row["kind"] }}",
+        name: "{{ row["name"] }}",
+        uri: "{{ row["uri"] }}",
+        description: "{{ row["description"] }}",
+        requires_approval: {{ row["requiresApproval"] }},
+    },
+{% endfor %}];
+
+fn response(id: Value, result: Value) -> Value {
+    json!({"jsonrpc": "2.0", "id": id, "result": result})
+}
+
+fn error(id: Value, code: i64, message: &str) -> Value {
+    json!({"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}})
+}
+
+fn handle(request: Value) -> Option<Value> {
+    let id = request.get("id").cloned();
+    let method = request
+        .get("method")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if method.starts_with("notifications/") {
+        return None;
+    }
+    let id = id.unwrap_or(Value::Null);
+    Some(match method {
+        "initialize" => response(
+            id,
+            json!({
+                "protocolVersion": "2025-11-25",
+                "capabilities": {"resources": {}, "tools": {}},
+                "serverInfo": {
+                    "name": "certification-assist",
+                    "version": "26.7.30",
+                    "description": "Read-only capability standing and bounded practice manufacturer"
+                },
+                "instructions": "Read capability standing and manufacture bounded probes. Standing promotion always requires admitted evidence and human approval."
+            }),
+        ),
+        "ping" => response(id, json!({})),
+        "resources/list" => {
+            let resources = SURFACES
+                .iter()
+                .filter(|surface| surface.kind == "resource")
+                .map(|surface| {
+                    json!({
+                        "name": surface.name,
+                        "uri": surface.uri,
+                        "description": surface.description,
+                        "mimeType": "application/json"
+                    })
+                })
+                .collect::<Vec<_>>();
+            response(id, json!({"resources": resources}))
+        }
+        "resources/read" => {
+            let uri = request
+                .pointer("/params/uri")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            match SURFACES
+                .iter()
+                .find(|surface| surface.kind == "resource" && surface.uri == uri)
+            {
+                Some(surface) => response(
+                    id,
+                    json!({
+                        "contents": [{
+                            "uri": surface.uri,
+                            "mimeType": "application/json",
+                            "text": json!({
+                                "name": surface.name,
+                                "description": surface.description,
+                                "standingMutation": false
+                            }).to_string()
+                        }]
+                    }),
+                ),
+                None => error(id, -32002, "resource not found"),
+            }
+        }
+        "tools/list" => {
+            let tools = SURFACES
+                .iter()
+                .filter(|surface| surface.kind == "tool")
+                .map(|surface| {
+                    json!({
+                        "name": surface.name,
+                        "description": surface.description,
+                        "inputSchema": {"type": "object", "additionalProperties": false},
+                        "annotations": {
+                            "readOnlyHint": true,
+                            "destructiveHint": false,
+                            "idempotentHint": true,
+                            "openWorldHint": false
+                        },
+                        "execution": {"taskSupport": "forbidden"}
+                    })
+                })
+                .collect::<Vec<_>>();
+            response(id, json!({"tools": tools}))
+        }
+        "tools/call" => {
+            let name = request
+                .pointer("/params/name")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            match SURFACES
+                .iter()
+                .find(|surface| surface.kind == "tool" && surface.name == name)
+            {
+                Some(surface) if surface.requires_approval => response(
+                    id,
+                    json!({
+                        "isError": true,
+                        "content": [{
+                            "type": "text",
+                            "text": "REFUSED: standing promotion requires admitted evidence and explicit human approval"
+                        }]
+                    }),
+                ),
+                Some(surface) => response(
+                    id,
+                    json!({
+                        "isError": false,
+                        "content": [{
+                            "type": "text",
+                            "text": format!("{}: bounded read-only result; no standing mutation performed", surface.name)
+                        }]
+                    }),
+                ),
+                None => error(id, -32602, "unknown tool"),
+            }
+        }
+        _ => error(id, -32601, "method not found"),
+    })
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    for line in io::stdin().lock().lines() {
+        let line = line?;
+        if line.trim().is_empty() {
+            continue;
+        }
+        let request: Value = serde_json::from_str(&line)?;
+        if let Some(result) = handle(request) {
+            println!("{}", serde_json::to_string(&result)?);
+        }
+    }
+    Ok(())
+}

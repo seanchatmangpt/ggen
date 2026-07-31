@@ -1,0 +1,232 @@
+---
+to: scripts/gall/verify_automation_receipts.py
+force: true
+---
+#!/usr/bin/env python3
+"""GENERATED independent verifier for Gall automation and work evidence."""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[2]
+MANIFEST = ROOT / "automation/GALL_AUTOMATION_WORK_ITEMS.csv"
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def split_values(value: str) -> list[str]:
+    return [part.strip() for part in value.split(" ; ") if part.strip()]
+
+
+def safe_path(raw: str) -> Path:
+    path = (ROOT / raw).resolve()
+    try:
+        path.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise SystemExit(f"unsafe manifest path: {raw}") from exc
+    return path
+
+
+def manifest_rows() -> list[dict[str, str]]:
+    with MANIFEST.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        raise SystemExit("automation manifest contains zero rows")
+    return rows
+
+
+def manifest_receipt_dir(rows: list[dict[str, str]]) -> Path:
+    return safe_path(rows[0]["Receipt Directory"])
+
+
+def sha256_path(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def digest_directory(path: Path) -> tuple[str, list[dict[str, Any]]]:
+    entries: list[dict[str, Any]] = []
+    digest = hashlib.sha256()
+    for child in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        relative = child.relative_to(path).as_posix()
+        child_digest = sha256_path(child)
+        size = child.stat().st_size
+        entry = {"path": relative, "sha256": child_digest, "size": size}
+        entries.append(entry)
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(child_digest.encode("ascii"))
+        digest.update(b"\0")
+        digest.update(str(size).encode("ascii"))
+        digest.update(b"\n")
+    return digest.hexdigest(), entries
+
+
+def artifact_snapshot(path_text: str) -> dict[str, Any]:
+    path = safe_path(path_text)
+    if not path.exists():
+        return {"path": path_text, "exists": False}
+    if path.is_file():
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "file",
+            "sha256": sha256_path(path),
+            "size": path.stat().st_size,
+        }
+    if path.is_dir():
+        digest, entries = digest_directory(path)
+        return {
+            "path": path_text,
+            "exists": True,
+            "kind": "directory",
+            "sha256": digest,
+            "entries": entries,
+        }
+    return {"path": path_text, "exists": True, "kind": "unsupported"}
+
+
+def git_revision() -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, capture_output=True, check=False
+    )
+    return result.stdout.strip() if result.returncode == 0 else "UNVERSIONED"
+
+
+def load_receipt(path: Path, errors: list[str]) -> dict[str, Any] | None:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"{path.relative_to(ROOT)}: unreadable receipt: {exc}")
+        return None
+
+
+def require_current_receipt(
+    work_item_id: str,
+    kind: str,
+    receipt: dict[str, Any] | None,
+    manifest_digest: str,
+    revision: str,
+    errors: list[str],
+) -> None:
+    if receipt is None:
+        return
+    if receipt.get("manifest_sha256") != manifest_digest:
+        errors.append(f"{work_item_id}: {kind} receipt is stale against the manifest")
+    if receipt.get("revision") != revision:
+        errors.append(f"{work_item_id}: {kind} receipt does not name exact crown revision")
+
+
+def verify_crown_receipts(
+    rows: list[dict[str, str]], receipt_dir: Path, manifest_digest: str, errors: list[str]
+) -> None:
+    revision = git_revision()
+    for row in rows:
+        work_item_id = row["Work Item ID"]
+        work_dir = receipt_dir / "work-items" / work_item_id
+        verification_path = work_dir / "verification.json"
+        snapshot_path = work_dir / "evidence-snapshot.json"
+        completion_path = work_dir / "completion.json"
+        verification = load_receipt(verification_path, errors)
+        evidence_snapshot = load_receipt(snapshot_path, errors)
+        completion = load_receipt(completion_path, errors)
+        for kind, receipt in [
+            ("verification", verification),
+            ("evidence-snapshot", evidence_snapshot),
+            ("completion", completion),
+        ]:
+            require_current_receipt(
+                work_item_id, kind, receipt, manifest_digest, revision, errors
+            )
+        if verification is not None and verification.get("payload", {}).get("passed") is not True:
+            errors.append(f"{work_item_id}: verification receipt is not green")
+        if evidence_snapshot is not None:
+            payload = evidence_snapshot.get("payload", {})
+            if payload.get("passed") is not True:
+                errors.append(f"{work_item_id}: evidence snapshot is not green")
+            recorded = payload.get("artifacts")
+            expected = [artifact_snapshot(path) for path in split_values(row["Evidence Artifacts"])]
+            if recorded != expected:
+                errors.append(f"{work_item_id}: evidence content has drifted since snapshot")
+        if completion is not None and completion.get("payload", {}).get("completed") is not True:
+            errors.append(f"{work_item_id}: completion receipt is not green")
+        if verification is not None and completion is not None:
+            expected_path = str(verification_path.relative_to(ROOT))
+            if completion.get("payload", {}).get("verification_receipt") != expected_path:
+                errors.append(f"{work_item_id}: completion does not bind the current verification receipt")
+
+
+def verify(check_current_manifest: bool, crown: bool) -> tuple[bool, list[str]]:
+    errors: list[str] = []
+    rows = manifest_rows()
+    receipt_dir = manifest_receipt_dir(rows)
+    chain_path = receipt_dir / "automation-receipt-chain.jsonl"
+    if not chain_path.is_file():
+        return False, [f"missing receipt chain: {chain_path.relative_to(ROOT)}"]
+    previous = "GENESIS"
+    digests: set[str] = set()
+    lines = [line for line in chain_path.read_text(encoding="utf-8").splitlines() if line]
+    if not lines:
+        return False, ["receipt chain contains zero records"]
+    for index, line in enumerate(lines, start=1):
+        try:
+            envelope = json.loads(line)
+        except json.JSONDecodeError as exc:
+            errors.append(f"line {index}: invalid JSON: {exc}")
+            continue
+        recorded_digest = envelope.pop("digest", None)
+        if envelope.get("digest_algorithm") != "sha256":
+            errors.append(f"line {index}: unsupported digest algorithm")
+        if envelope.get("previous_digest") != previous:
+            errors.append(f"line {index}: previous digest mismatch")
+        computed = hashlib.sha256(previous.encode("ascii") + canonical_bytes(envelope)).hexdigest()
+        if recorded_digest != computed:
+            errors.append(f"line {index}: digest mismatch")
+        if recorded_digest:
+            digests.add(recorded_digest)
+            previous = recorded_digest
+    for path in receipt_dir.rglob("*.json"):
+        if path.name.endswith("schema.json"):
+            continue
+        receipt = load_receipt(path, errors)
+        if receipt is None:
+            continue
+        digest = receipt.get("digest")
+        if digest and digest not in digests:
+            errors.append(f"{path.relative_to(ROOT)}: receipt is not present in chain")
+    manifest_digest = sha256_path(MANIFEST)
+    if check_current_manifest:
+        latest = json.loads(lines[-1])
+        if latest.get("manifest_sha256") != manifest_digest:
+            errors.append("latest receipt is stale against the generated automation manifest")
+    if crown:
+        verify_crown_receipts(rows, receipt_dir, manifest_digest, errors)
+    return not errors, errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Verify Gall automation receipts")
+    parser.add_argument("--allow-stale-manifest", action="store_true")
+    parser.add_argument("--crown", action="store_true")
+    args = parser.parse_args()
+    passed, errors = verify(not args.allow_stale_manifest, args.crown)
+    for error in errors:
+        print(f"GALL_RECEIPT_ERROR {error}", file=sys.stderr)
+    print(f"GALL_RECEIPT_VERIFY passed={str(passed).lower()} errors={len(errors)}")
+    return 0 if passed else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

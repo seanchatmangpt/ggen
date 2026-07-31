@@ -1,0 +1,31 @@
+# MESSAGE: Fortune 5 deployment building-block catalog is incomplete -- every provider and group requires identity, placement, and AWS/Azure/GCP pack projections
+PREFIX bb: <http://seanchatmangpt.github.io/packs/fortune5-bblock#>
+SELECT ?subject ?kind ?missing WHERE {
+  {
+    ?subject a bb:Catalog .
+    BIND("catalog" AS ?kind)
+    VALUES ?property { bb:catalogVersion bb:hasProvider bb:hasGroup bb:directActuation }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+  UNION
+  {
+    ?subject a bb:Provider .
+    BIND("provider" AS ?kind)
+    VALUES ?property { bb:providerId bb:title }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+  UNION
+  {
+    ?subject a bb:BlockGroup .
+    BIND("group" AS ?kind)
+    VALUES ?property {
+      bb:groupId bb:title bb:description bb:outputDirectory bb:commonPack
+      bb:awsPack bb:azurePack bb:gcpPack
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(STR(?property) AS ?missing)
+  }
+}
+ORDER BY ?kind ?subject ?missing

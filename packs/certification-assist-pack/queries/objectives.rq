@@ -1,0 +1,39 @@
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?order ?slug ?name ?examDomain ?concept ?currentStanding ?targetStanding
+       ?interviewFrequency ?ecosystemDependency ?transferBreadth ?gatekeepingValue
+       ?darknessRisk ?learningCost ?existingCoverage ?priority ?requiresSlug
+       ?drawNext ?sayNext ?why ?tradeoff ?watchFor
+WHERE {
+  ?objective a ca:CredentialObjective ;
+    ca:order ?order ;
+    ca:slug ?slug ;
+    rdfs:label ?name ;
+    ca:examDomain ?examDomain ;
+    ca:concept ?concept ;
+    ca:currentStanding ?currentStanding ;
+    ca:targetStanding ?targetStanding ;
+    ca:interviewFrequency ?interviewFrequency ;
+    ca:ecosystemDependency ?ecosystemDependency ;
+    ca:transferBreadth ?transferBreadth ;
+    ca:gatekeepingValue ?gatekeepingValue ;
+    ca:darknessRisk ?darknessRisk ;
+    ca:learningCost ?learningCost ;
+    ca:existingCoverage ?existingCoverage ;
+    ca:drawNext ?drawNext ;
+    ca:sayNext ?sayNext ;
+    ca:why ?why ;
+    ca:tradeoff ?tradeoff ;
+    ca:watchFor ?watchFor .
+  OPTIONAL {
+    ?objective ca:requiresObjective ?requires .
+    ?requires ca:slug ?requiredSlugValue .
+  }
+  BIND(COALESCE(?requiredSlugValue, "") AS ?requiresSlug)
+  BIND(FLOOR(
+    (?interviewFrequency * ?ecosystemDependency * ?transferBreadth * ?gatekeepingValue * ?darknessRisk)
+    / (?learningCost * (?existingCoverage + 1))
+  ) AS ?priority)
+}
+ORDER BY ?order

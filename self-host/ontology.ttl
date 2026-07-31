@@ -1,0 +1,8 @@
+@prefix gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#> .
+
+# Fail-closed bootstrap seed. This file is overwritten only by the deterministic
+# read-only observer before `ggen sync run`. It intentionally omits the exact
+# revision, digest, counts, and findings required by gate 010.
+gsh:ggen a gsh:SelfHostProgram ;
+    gsh:programId "GGEN-SELF-HOST" ;
+    gsh:repository "seanchatmangpt/ggen" .

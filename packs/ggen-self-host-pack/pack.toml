@@ -1,0 +1,4 @@
+[pack]
+name = "ggen-self-host-pack"
+version = "26.7.30"
+description = "Constitutional self-hosting pack: admit a deterministic observation of the ggen repository, manufacture authority/load-path/output-ownership ledgers and agent work packages, and refuse false crown claims. License: AGPL-3.0-or-later."

@@ -1,0 +1,15 @@
+---
+to: generated/lean/lakefile.lean
+force: true
+---
+import Lake
+open Lake DSL
+
+package Lean4RustPipeline where
+  version := v!"0.1.0"
+
+lean_lib Lean4RustPipeline
+
+@[default_target]
+lean_exe emitRust where
+  root := `Main

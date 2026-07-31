@@ -1,0 +1,13 @@
+# MESSAGE: Crowned Gall checkpoint has no admitted evidence -- run scripts/gall/run-checkpoints.sh, wire evidence/gall as an unlocked local pack, then sync again
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?crownId ?checkpointId WHERE {
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  FILTER NOT EXISTS {
+    ?evidence a gall:CheckpointEvidence ;
+              gall:forCheckpoint ?checkpoint .
+  }
+}
+ORDER BY ?crownId ?checkpointId

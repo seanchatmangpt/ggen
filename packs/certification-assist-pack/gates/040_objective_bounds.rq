@@ -1,0 +1,36 @@
+# Any row refuses sync: scores are bounded, target exceeds current, cost is nonzero, and prerequisites resolve.
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+
+SELECT ?objective ?problem ?value
+WHERE {
+  {
+    ?objective a ca:CredentialObjective ; ca:currentStanding ?current ; ca:targetStanding ?target .
+    FILTER(?current < 0 || ?current > 12 || ?target < 1 || ?target > 12 || ?target <= ?current)
+    BIND("invalid-standing-bound" AS ?problem)
+    BIND(CONCAT(STR(?current), "->", STR(?target)) AS ?value)
+  }
+  UNION
+  {
+    ?objective a ca:CredentialObjective .
+    VALUES ?property {
+      ca:interviewFrequency ca:ecosystemDependency ca:transferBreadth
+      ca:gatekeepingValue ca:darknessRisk ca:learningCost ca:existingCoverage
+    }
+    ?objective ?property ?value .
+    FILTER(?value < 1 || ?value > 10)
+    BIND("invalid-priority-factor" AS ?problem)
+  }
+  UNION
+  {
+    ?objective a ca:CredentialObjective ; ca:requiresObjective ?required .
+    FILTER NOT EXISTS { ?required a ca:CredentialObjective }
+    BIND("dangling-prerequisite" AS ?problem)
+    BIND(STR(?required) AS ?value)
+  }
+  UNION
+  {
+    ?objective a ca:CredentialObjective ; ca:requiresObjective+ ?objective .
+    BIND("objective-cycle" AS ?problem)
+    BIND(STR(?objective) AS ?value)
+  }
+}

@@ -1,0 +1,55 @@
+PREFIX ca: <https://chatmangpt.com/ontology/certification-assist#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?recordKind ?order ?slug ?rustVariant ?name ?category ?outcome
+       ?examDomain ?concept ?currentStanding ?targetStanding
+       ?interviewFrequency ?ecosystemDependency ?transferBreadth ?gatekeepingValue
+       ?darknessRisk ?learningCost ?existingCoverage ?requiresSlug
+       ?drawNext ?sayNext ?why ?tradeoff ?watchFor
+       ?knowledgePresent ?gapAwareness ?dependencyKnown ?requiredForSlug ?description
+       ?maxCycles ?directActuation ?promotionRequiresEvidence
+WHERE {
+  {
+    ?s a ca:Capability ; ca:order ?order ; ca:slug ?slug ; ca:rustVariant ?rustVariant ;
+      rdfs:label ?name ; ca:category ?category ; ca:outcome ?outcome .
+    BIND("capability" AS ?recordKind)
+  }
+  UNION
+  {
+    ?s a ca:CredentialObjective ; ca:order ?order ; ca:slug ?slug ; rdfs:label ?name ;
+      ca:examDomain ?examDomain ; ca:concept ?concept ;
+      ca:currentStanding ?currentStanding ; ca:targetStanding ?targetStanding ;
+      ca:interviewFrequency ?interviewFrequency ; ca:ecosystemDependency ?ecosystemDependency ;
+      ca:transferBreadth ?transferBreadth ; ca:gatekeepingValue ?gatekeepingValue ;
+      ca:darknessRisk ?darknessRisk ; ca:learningCost ?learningCost ;
+      ca:existingCoverage ?existingCoverage ; ca:drawNext ?drawNext ; ca:sayNext ?sayNext ;
+      ca:why ?why ; ca:tradeoff ?tradeoff ; ca:watchFor ?watchFor .
+    OPTIONAL {
+      ?s ca:requiresObjective ?requires .
+      ?requires ca:slug ?requiredSlugValue .
+    }
+    BIND(COALESCE(?requiredSlugValue, "") AS ?requiresSlug)
+    BIND("objective" AS ?recordKind)
+  }
+  UNION
+  {
+    ?s a ca:HorizonGap ; ca:order ?order ; ca:slug ?slug ; ca:concept ?concept ;
+      ca:requiredForSlug ?requiredForSlug ; ca:knowledgePresent ?knowledgePresent ;
+      ca:gapAwareness ?gapAwareness ; ca:dependencyKnown ?dependencyKnown ;
+      ca:description ?description .
+    BIND("gap" AS ?recordKind)
+  }
+  UNION
+  {
+    ?s a ca:SelfPlayRole ; ca:order ?order ; ca:slug ?slug ; rdfs:label ?name .
+    BIND("role" AS ?recordKind)
+  }
+  UNION
+  {
+    ?s a ca:AutonomicProfile ; ca:maxCycles ?maxCycles ; ca:directActuation ?directActuation ;
+      ca:promotionRequiresEvidence ?promotionRequiresEvidence ; ca:description ?description .
+    BIND(1 AS ?order)
+    BIND("autonomic" AS ?recordKind)
+  }
+}
+ORDER BY ?recordKind ?order

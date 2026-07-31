@@ -1,0 +1,19 @@
+# MESSAGE: Crowned Gall checkpoint lacks exact clean-revision replay -- evidence must name a real git revision, report tracked source clean, and prove replay in a detached clean worktree
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?crownId ?checkpointId ?revision ?sourceDirty ?independentReplay WHERE {
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  ?evidence a gall:CheckpointEvidence ;
+            gall:forCheckpoint ?checkpoint .
+  OPTIONAL { ?evidence gall:exactRevision ?revision }
+  OPTIONAL { ?evidence gall:sourceDirty ?sourceDirty }
+  OPTIONAL { ?evidence gall:independentReplay ?independentReplay }
+  FILTER(
+    !BOUND(?revision) || STR(?revision) = "UNVERSIONED" || STRLEN(STR(?revision)) < 7 ||
+    !BOUND(?sourceDirty) || ?sourceDirty != false ||
+    !BOUND(?independentReplay) || ?independentReplay != true
+  )
+}
+ORDER BY ?crownId ?checkpointId

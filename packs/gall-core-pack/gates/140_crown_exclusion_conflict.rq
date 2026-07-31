@@ -1,0 +1,11 @@
+# MESSAGE: Gall crown includes an explicitly excluded checkpoint -- an object cannot be simultaneously inside and outside the admitted release domain
+PREFIX gall: <http://seanchatmangpt.github.io/packs/gall-core#>
+SELECT ?crownId ?checkpointId ?exclusion WHERE {
+  ?crown a gall:Crown ;
+         gall:crownId ?crownId ;
+         gall:includesCheckpoint ?checkpoint .
+  ?checkpoint gall:checkpointId ?checkpointId .
+  ?exclusion a gall:Exclusion ;
+             gall:excludedObject ?checkpoint .
+}
+ORDER BY ?crownId ?checkpointId

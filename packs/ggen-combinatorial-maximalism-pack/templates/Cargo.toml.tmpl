@@ -1,0 +1,33 @@
+---
+to: generated/cmd-cell/Cargo.toml
+force: true
+sparql:
+  design: |
+    PREFIX cmd: <https://chatmangpt.com/ontology/cmd#>
+    SELECT ?crate_name ?binary_name ?version WHERE {
+      ?design a cmd:DesignSpace ; cmd:crateName ?crate_name ; cmd:binaryName ?binary_name ; cmd:version ?version .
+    }
+    ORDER BY ?crate_name
+    LIMIT 1
+---
+{% for d in design %}[package]
+name = {{ d.crate_name | json_encode | safe }}
+version = {{ d.version | json_encode | safe }}
+edition = "2024"
+rust-version = "1.85"
+publish = false
+
+[workspace]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = {{ d.binary_name | json_encode | safe }}
+path = "src/main.rs"
+
+[dependencies]
+blake3 = "1.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+{% endfor %}

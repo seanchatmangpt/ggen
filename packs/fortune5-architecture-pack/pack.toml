@@ -1,0 +1,12 @@
+[pack]
+name = "fortune5-architecture-pack"
+version = "26.7.30"
+description = """
+Fortune 5 enterprise-architecture law for ggen. Declares accountable architecture
+assets, capabilities, dependencies, lifecycle, SLOs, capacity envelopes,
+multi-region replication, SPIFFE/SPIRE identity, KMS controls, comprehensive
+observability, promotion gates, and broker-only autonomic intent policy. Generates
+an architecture catalog, dependency DAG, and control matrix. SPARQL gates refuse
+missing Tier 0/1 controls, incomplete security or reliability policy, invalid
+promotion law, and any ontology-declared direct actuation surface.
+"""

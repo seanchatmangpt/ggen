@@ -1,0 +1,106 @@
+---
+to: generated/tests/process_boundary.rs
+force: true
+---
+use std::io::Write;
+use std::process::{Command, Stdio};
+
+use ggen_architecture::{SelfPlayReport, SelfPlayStanding, UseCaseKind};
+
+fn run_engine() -> Vec<u8> {
+    let output = Command::new(env!("CARGO_BIN_EXE_ea-self-play"))
+        .output()
+        .expect("execute real self-play process");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+fn verify_bytes(bytes: &[u8]) -> std::process::Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_ea-self-play-verifier"))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("execute independent verifier process");
+    child
+        .stdin
+        .as_mut()
+        .expect("verifier stdin")
+        .write_all(bytes)
+        .expect("write real report bytes");
+    child.wait_with_output().expect("collect verifier receipt")
+}
+
+#[test]
+fn complete_safe_and_ea_suite_crosses_process_receipt_and_replay_boundaries() {
+    let first = run_engine();
+    let second = run_engine();
+    assert_eq!(first, second, "same-coordinate process replay drifted");
+
+    let reports: Vec<SelfPlayReport> = serde_json::from_slice(&first).expect("parse real reports");
+    assert_eq!(reports.len(), 4);
+    assert!(reports
+        .iter()
+        .all(|report| report.standing == SelfPlayStanding::Alive));
+    assert!(reports.iter().all(|report| !report.actuation_performed));
+    assert!(reports.iter().all(|report| !report.receipts.is_empty()));
+    assert!(reports
+        .iter()
+        .flat_map(|report| report.receipts.iter())
+        .all(|receipt| !receipt.actuation_performed));
+
+    let covered: std::collections::BTreeSet<_> = reports
+        .iter()
+        .flat_map(|report| report.use_cases.iter().copied())
+        .collect();
+    let required = [
+        UseCaseKind::SafePortfolioEpicFunnel,
+        UseCaseKind::SafePiPlanning,
+        UseCaseKind::SafeDependencyResolution,
+        UseCaseKind::SafeArchitectureRunway,
+        UseCaseKind::SafeSystemDemoReleaseGate,
+        UseCaseKind::SafeInspectAndAdapt,
+        UseCaseKind::EaOperatingModel,
+        UseCaseKind::EaCoreDiagram,
+        UseCaseKind::EaDigitizedPlatform,
+        UseCaseKind::EaEngagementModel,
+        UseCaseKind::EaValueRealization,
+        UseCaseKind::EaTransitionArchitecture,
+    ];
+    assert_eq!(covered, required.into_iter().collect());
+
+    let verification = verify_bytes(&first);
+    assert!(
+        verification.status.success(),
+        "{}",
+        String::from_utf8_lossy(&verification.stderr)
+    );
+    assert!(String::from_utf8_lossy(&verification.stdout).contains("SELF_PLAY_VERIFIED"));
+}
+
+#[test]
+fn tampered_real_receipt_is_refused_by_independent_process() {
+    let real = run_engine();
+    let mut reports: Vec<SelfPlayReport> =
+        serde_json::from_slice(&real).expect("parse real reports");
+    let receipt = reports
+        .first_mut()
+        .and_then(|report| report.receipts.first_mut())
+        .expect("real move receipt");
+    let replacement = if receipt.receipt_hash.starts_with('f') {
+        "e"
+    } else {
+        "f"
+    };
+    receipt.receipt_hash.replace_range(0..1, replacement);
+    let sabotaged = serde_json::to_vec_pretty(&reports).expect("serialize tampered real receipt");
+
+    let verification = verify_bytes(&sabotaged);
+    assert!(!verification.status.success());
+    assert!(String::from_utf8_lossy(&verification.stderr)
+        .contains("SELF_PLAY_VERIFICATION_REFUSED:receipt chain mismatch"));
+}

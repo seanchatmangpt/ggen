@@ -1,0 +1,100 @@
+@prefix sp: <https://ggen.dev/ontology/self-play#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sp:SelfPlayProgram a skos:Concept ;
+  skos:prefLabel "Deterministic self-play program" .
+sp:Scenario a skos:Concept ; skos:prefLabel "Self-play scenario" .
+sp:ActorPolicy a skos:Concept ; skos:prefLabel "Actor policy" .
+sp:Action a skos:Concept ; skos:prefLabel "Candidate architecture move" .
+sp:PolicyWeight a skos:Concept ; skos:prefLabel "Policy utility weight" .
+sp:MetricValue a skos:Concept ; skos:prefLabel "Metric value" .
+sp:Guard a skos:Concept ; skos:prefLabel "Action guard" .
+sp:Effect a skos:Concept ; skos:prefLabel "Action effect" .
+sp:Invariant a skos:Concept ; skos:prefLabel "Scenario invariant" .
+sp:Goal a skos:Concept ; skos:prefLabel "Scenario goal" .
+sp:EvidenceObligation a skos:Concept ; skos:prefLabel "Evidence obligation" .
+
+sp:programId a skos:Concept ; skos:prefLabel "program identity" .
+sp:scenarioId a skos:Concept ; skos:prefLabel "scenario identity" .
+sp:actionId a skos:Concept ; skos:prefLabel "action identity" .
+sp:code a skos:Concept ; skos:prefLabel "stable machine code" .
+sp:hasScenario a skos:Concept ; skos:prefLabel "has scenario" .
+sp:coversUseCase a skos:Concept ; skos:prefLabel "covers use case" .
+sp:hasPolicy a skos:Concept ; skos:prefLabel "has policy" .
+sp:hasAction a skos:Concept ; skos:prefLabel "has action" .
+sp:hasInitialMetric a skos:Concept ; skos:prefLabel "has initial metric" .
+sp:hasInvariant a skos:Concept ; skos:prefLabel "has invariant" .
+sp:hasGoal a skos:Concept ; skos:prefLabel "has goal" .
+sp:hasWeight a skos:Concept ; skos:prefLabel "has policy weight" .
+sp:hasGuard a skos:Concept ; skos:prefLabel "has guard" .
+sp:hasEffect a skos:Concept ; skos:prefLabel "has effect" .
+sp:hasEvidence a skos:Concept ; skos:prefLabel "has evidence" .
+sp:actorRole a skos:Concept ; skos:prefLabel "actor role" .
+sp:metric a skos:Concept ; skos:prefLabel "metric" .
+sp:comparison a skos:Concept ; skos:prefLabel "comparison" .
+sp:threshold a skos:Concept ; skos:prefLabel "threshold" .
+sp:value a skos:Concept ; skos:prefLabel "value" .
+sp:delta a skos:Concept ; skos:prefLabel "delta" .
+sp:weight a skos:Concept ; skos:prefLabel "utility weight" .
+sp:minimumUtility a skos:Concept ; skos:prefLabel "minimum utility" .
+sp:maxRounds a skos:Concept ; skos:prefLabel "round ceiling" .
+sp:choiceGroup a skos:Concept ; skos:prefLabel "exclusive decision group" .
+sp:requiresAuthority a odrl:permission ; skos:prefLabel "requires authority" .
+sp:authorityToken a skos:Concept ; skos:prefLabel "authority token" .
+sp:brokerIntent a skos:Concept ; skos:prefLabel "manufactures broker intent" .
+sp:requiredBroker a skos:Concept ; skos:prefLabel "required broker" .
+sp:executionMode a skos:Concept ; skos:prefLabel "execution mode" .
+sp:llmCalls a skos:Concept ; skos:prefLabel "LLM call count" .
+sp:directActuation a skos:Concept ; skos:prefLabel "direct actuation" .
+sp:witness a prov:Entity ; skos:prefLabel "positive witness" .
+sp:falsifier a prov:Entity ; skos:prefLabel "negative falsifier" .
+sp:independentVerifier a prov:Entity ; skos:prefLabel "independent verifier" .
+sp:receiptVerifier a prov:Entity ; skos:prefLabel "receipt verifier" .
+sp:replayCommand a prov:Entity ; skos:prefLabel "replay command" .
+
+sp:DeterministicRuleSelfPlay a skos:Concept ; sp:code "deterministic_rule_self_play" .
+sp:AtLeast a skos:Concept ; sp:code "at_least" .
+sp:AtMost a skos:Concept ; sp:code "at_most" .
+sp:Equal a skos:Concept ; sp:code "equal" .
+
+sp:SafePortfolioEpicFunnel a skos:Concept ; sp:code "safe_portfolio_epic_funnel" .
+sp:SafePiPlanning a skos:Concept ; sp:code "safe_pi_planning" .
+sp:SafeDependencyResolution a skos:Concept ; sp:code "safe_dependency_resolution" .
+sp:SafeArchitectureRunway a skos:Concept ; sp:code "safe_architecture_runway" .
+sp:SafeSystemDemoReleaseGate a skos:Concept ; sp:code "safe_system_demo_release_gate" .
+sp:SafeInspectAndAdapt a skos:Concept ; sp:code "safe_inspect_and_adapt" .
+sp:EaOperatingModel a skos:Concept ; sp:code "ea_operating_model" .
+sp:EaCoreDiagram a skos:Concept ; sp:code "ea_core_diagram" .
+sp:EaDigitizedPlatform a skos:Concept ; sp:code "ea_digitized_platform" .
+sp:EaEngagementModel a skos:Concept ; sp:code "ea_engagement_model" .
+sp:EaValueRealization a skos:Concept ; sp:code "ea_value_realization" .
+sp:EaTransitionArchitecture a skos:Concept ; sp:code "ea_transition_architecture" .
+
+sp:BusinessOwner a skos:Concept ; sp:code "business_owner" .
+sp:ProductManagement a skos:Concept ; sp:code "product_management" .
+sp:ReleaseTrainEngineer a skos:Concept ; sp:code "release_train_engineer" .
+sp:SystemArchitect a skos:Concept ; sp:code "system_architect" .
+sp:EnterpriseArchitect a skos:Concept ; sp:code "enterprise_architect" .
+sp:PlatformOwner a skos:Concept ; sp:code "platform_owner" .
+sp:RiskOfficer a skos:Concept ; sp:code "risk_officer" .
+sp:EvidenceVerifier a skos:Concept ; sp:code "evidence_verifier" .
+
+sp:BusinessValue a skos:Concept ; sp:code "business_value" .
+sp:FlowEfficiency a skos:Concept ; sp:code "flow_efficiency" .
+sp:Integration a skos:Concept ; sp:code "integration" .
+sp:Standardization a skos:Concept ; sp:code "standardization" .
+sp:PlatformReuse a skos:Concept ; sp:code "platform_reuse" .
+sp:ArchitectureRunway a skos:Concept ; sp:code "architecture_runway" .
+sp:EvidenceCoverage a skos:Concept ; sp:code "evidence_coverage" .
+sp:Risk a skos:Concept ; sp:code "risk" .
+sp:Cost a skos:Concept ; sp:code "cost" .
+sp:Wip a skos:Concept ; sp:code "wip" .
+sp:DependencyLoad a skos:Concept ; sp:code "dependency_load" .
+sp:ReleaseReadiness a skos:Concept ; sp:code "release_readiness" .
+sp:DecisionRights a skos:Concept ; sp:code "decision_rights" .
+sp:DataConsistency a skos:Concept ; sp:code "data_consistency" .
+sp:CustomerFit a skos:Concept ; sp:code "customer_fit" .

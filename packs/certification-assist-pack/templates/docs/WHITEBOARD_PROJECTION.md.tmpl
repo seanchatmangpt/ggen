@@ -1,0 +1,37 @@
+# CertificationAssist Systems Whiteboard Projection
+
+Version: **26.7.30**
+
+Every box, line, boundary, and explanation is a projection of an admitted capability objective.
+
+{% for row in results %}## {{ row["order"] }}. {{ row["name"] }}
+
+**Domain:** {{ row["examDomain"] }}  
+**Concepts:** {{ row["concept"] }}  
+**Internal standing:** {{ row["currentStanding"] }} → target {{ row["targetStanding"] }}  
+**80/20 priority:** {{ row["priority"] }}  
+**Prerequisite:** {% if row["requiresSlug"] == "" %}none{% else %}`{{ row["requiresSlug"] }}`{% endif %}
+
+### DRAW NEXT
+
+{{ row["drawNext"] }}
+
+### SAY NEXT
+
+{{ row["sayNext"] }}
+
+### WHY
+
+{{ row["why"] }}
+
+### TRADEOFF
+
+{{ row["tradeoff"] }}
+
+### WATCH FOR
+
+{{ row["watchFor"] }}
+
+---
+
+{% endfor %}
