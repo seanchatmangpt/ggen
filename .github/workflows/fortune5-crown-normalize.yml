@@ -5,6 +5,7 @@ on:
     paths:
       - 'crates/ggen-architecture/src/building_block.rs'
       - 'crates/ggen-architecture/src/certification/**'
+      - 'crates/ggen-architecture/examples/seven_day_standards_report.rs'
       - 'crates/ggen-architecture/src/canonical.rs'
       - 'tools/ggen-architecture/src/level5_crown.rs'
       - 'tools/ggen-architecture/src/lib.rs'
@@ -48,7 +49,7 @@ jobs:
             exit 0
           fi
           printf '%s\n' "$changed"
-          unexpected="$(printf '%s\n' "$changed" | grep -vE '^(crates/ggen-architecture/src/(building_block|canonical)\.rs|crates/ggen-architecture/src/certification/.*\.rs|tools/ggen-architecture/(src/(level5_crown\.rs|lib\.rs|bin/ggen-architecture\.rs)|tests/building_block\.rs))$' || true)"
+          unexpected="$(printf '%s\n' "$changed" | grep -vE '^(crates/ggen-architecture/src/(building_block|canonical)\.rs|crates/ggen-architecture/src/certification/.*\.rs|crates/ggen-architecture/examples/seven_day_standards_report\.rs|tools/ggen-architecture/(src/(level5_crown\.rs|lib\.rs|bin/ggen-architecture\.rs)|tests/building_block\.rs))$' || true)"
           test -z "$unexpected"
           git config user.name 'ggen architecture formatter'
           git config user.email 'ggen-architecture@users.noreply.github.com'
@@ -56,6 +57,7 @@ jobs:
             crates/ggen-architecture/src/building_block.rs \
             crates/ggen-architecture/src/canonical.rs \
             crates/ggen-architecture/src/certification \
+            crates/ggen-architecture/examples/seven_day_standards_report.rs \
             tools/ggen-architecture/src/level5_crown.rs \
             tools/ggen-architecture/src/lib.rs \
             tools/ggen-architecture/src/bin/ggen-architecture.rs \
