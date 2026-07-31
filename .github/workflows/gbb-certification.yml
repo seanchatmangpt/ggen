@@ -6,6 +6,7 @@ on:
       - "crates/ggen-architecture/src/building_block.rs"
       - "crates/ggen-architecture/src/certification/**"
       - "crates/ggen-architecture/examples/seven_day_standards_report.rs"
+      - "crates/ggen-architecture/tests/testing_bblock.rs"
       - "crates/ggen-architecture/src/canonical.rs"
       - "packs/tai-enterprise-rebuild-pack/**"
       - "examples/tai-enterprise-rebuild/**"
@@ -18,6 +19,7 @@ on:
     paths:
       - "crates/ggen-architecture/src/certification/**"
       - "crates/ggen-architecture/examples/seven_day_standards_report.rs"
+      - "crates/ggen-architecture/tests/testing_bblock.rs"
       - "packs/tai-enterprise-rebuild-pack/**"
       - "examples/tai-enterprise-rebuild/**"
       - ".github/workflows/gbb-certification.yml"
@@ -32,7 +34,7 @@ concurrency:
 
 jobs:
   certification-law:
-    name: TAI-REBUILD-001 / 18 standards / 60 proof surfaces
+    name: TAI / 18 standards / 10 testing suites / 60 proof surfaces
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -65,6 +67,9 @@ jobs:
       - name: Execute TAI-bound certification witnesses and falsifiers
         run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets certification::tests
 
+      - name: Execute canonical Testing Building Block protocol tests
+        run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --test testing_bblock
+
       - name: Preserve canonical Building Block and self-play law
         run: cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets
 
@@ -76,6 +81,9 @@ jobs:
           jq -e '.profile_id == "GGEN-STANDARDS-7D-2026-07-30"' target/certification/seven-day-standards.json >/dev/null
           jq -e '.checkpoints == 18 and .admitted == 13 and .inherited == 4 and .pending == 1' target/certification/seven-day-standards.json >/dev/null
           jq -e '.bounded_certification_ready == true and .standards_crown_ready == false' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_protocol_id == "GBB-TESTING-PROTOCOL-001"' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_suites == 10 and .testing_suites_alive == 6 and .testing_suites_pending == 4' target/certification/seven-day-standards.json >/dev/null
+          jq -e '.testing_bblock_standing == "PARTIAL_ALIVE"' target/certification/seven-day-standards.json >/dev/null
           jq -e '.required_broker == "BRCE" and .direct_actuation == false' target/certification/seven-day-standards.json >/dev/null
           jq -e '.profile_digest | startswith("urn:blake3:")' target/certification/seven-day-standards.json >/dev/null
 
@@ -115,17 +123,21 @@ jobs:
           jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
           jq -e '.standing == "UNKNOWN" and .directActuation == false' consumer/tai-enterprise-rebuild/RELEASE_STANDING.json >/dev/null
 
-      - name: Prove exact TAI and standards admission
+      - name: Prove exact TAI, standards, and testing admission
         run: |
           grep -RIn 'TAI-REBUILD-001' crates/ggen-architecture/src/certification
           grep -RIn 'GGEN-STANDARDS-7D-2026-07-30' crates/ggen-architecture/src/certification
+          grep -RIn 'GBB-TESTING-PROTOCOL-001' crates/ggen-architecture/src/certification
           grep -RIn 'packs/tai-enterprise-rebuild-pack' crates/ggen-architecture/src/certification
           grep -RIn 'Automated Technical Capability Company' crates/ggen-architecture/src/certification
           grep -RIn 'STD-18-CI-CONTROL-PLANE-G0' crates/ggen-architecture/src/certification
-          grep -RIn 'PendingCheckpoint' crates/ggen-architecture/src/certification
+          grep -RIn 'PropertyFuzz' crates/ggen-architecture/src/certification/testing.rs
+          grep -RIn 'StdioHttpIntegration' crates/ggen-architecture/src/certification/testing.rs
+          grep -RIn 'Benchmark' crates/ggen-architecture/src/certification/testing.rs
           grep -n '12 requirements × 5 proof surfaces = 60 certification proof surfaces' docs/architecture/GGEN_BBLOCKS_CERTIFICATION_PROGRAM_V26_7_31.md
           grep -n 'eighteen recent ggen capability rails' docs/architecture/TAI_CERTIFICATION_CASE_STUDY_V26_7_31.md
           grep -n '18 named checkpoints' docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md
+          grep -n '10 distinct executable suites' docs/architecture/GGEN_SEVEN_DAY_STANDARDS_V26_7_31.md
 
       - name: Prove no direct actuation entered the certification kernel
         run: |
