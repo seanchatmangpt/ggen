@@ -1,0 +1,233 @@
+use std::collections::BTreeSet;
+
+use ontostar_mustar_powlv2_agents::{
+    admit_claims, admit_powl_plan, compile_plan, digest_value, manufacture_agent_bundle,
+    routed_tier, speedrun_transport_intent, AgentFrameworkRefusal, FrameworkKind, ModelTask,
+    ModelTier, MuStarRefusal, ObservedClaim, PowlActivity, PowlNode, PowlRefusal, Precedence,
+    SpeedrunProjectionRefusal, AGENT_FRAMEWORKS, AGENT_REQUIRED_BROKER, MODEL_PROFILES,
+};
+use serde_json::json;
+use speedrun_talent_network_consumer::{
+    CandidateAction, CandidateConsent, JobSearch, SpeedrunRefusal,
+};
+
+fn evidence(label: &str) -> String {
+    digest_value(&label).expect("digest")
+}
+
+fn activity(id: &str, operation: &str, arguments: serde_json::Value, action: bool) -> PowlNode {
+    PowlNode::Activity(PowlActivity {
+        id: id.to_string(),
+        operation: operation.to_string(),
+        arguments,
+        candidate_action: action,
+    })
+}
+
+#[test]
+fn ontology_catalog_is_closed_and_non_actuating() {
+    assert_eq!(AGENT_FRAMEWORKS.len(), 3);
+    assert_eq!(MODEL_PROFILES.len(), 3);
+    assert_eq!(FrameworkKind::OntoStar.as_str(), "ontostar");
+    assert_eq!(FrameworkKind::PowlV2.as_str(), "powl_v2");
+    assert_eq!(FrameworkKind::MuStar.as_str(), "mustar");
+    assert!(AGENT_FRAMEWORKS.iter().all(|framework| {
+        framework.candidate_only
+            && !framework.direct_actuation
+            && framework.required_broker == AGENT_REQUIRED_BROKER
+    }));
+    assert!(MODEL_PROFILES.iter().all(|profile| {
+        profile.provider == "openai"
+            && profile.generation == "5.6"
+            && profile.candidate_only
+            && !profile.execution_authority
+            && profile.required_broker == AGENT_REQUIRED_BROKER
+    }));
+    let tiers = MODEL_PROFILES
+        .iter()
+        .map(|profile| profile.tier)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(tiers, BTreeSet::from(["luna", "terra", "sol"]));
+}
+
+#[test]
+fn model_routing_uses_the_full_gpt_56_triad() {
+    assert_eq!(routed_tier(ModelTask::OntologyExtraction), ModelTier::Luna);
+    assert_eq!(
+        routed_tier(ModelTask::PowlCandidatePlanning),
+        ModelTier::Terra
+    );
+    assert_eq!(
+        routed_tier(ModelTask::AdversarialVerification),
+        ModelTier::Sol
+    );
+}
+
+#[test]
+fn ontostar_refuses_unreceipted_observation() {
+    let result = admit_claims(vec![ObservedClaim {
+        subject: "role:abc".to_string(),
+        predicate: "hasSkill".to_string(),
+        object: "rust".to_string(),
+        evidence_digest: "not-a-receipt".to_string(),
+    }]);
+    assert!(result.is_err());
+}
+
+#[test]
+fn powl_v2_refuses_cycles() {
+    let a = PowlActivity {
+        id: "a".to_string(),
+        operation: "search_jobs".to_string(),
+        arguments: json!({}),
+        candidate_action: false,
+    };
+    let b = PowlActivity {
+        id: "b".to_string(),
+        operation: "get_job".to_string(),
+        arguments: json!({"role_id": "role:abc"}),
+        candidate_action: false,
+    };
+    let result = admit_powl_plan(PowlNode::PartialOrder {
+        activities: vec![a, b],
+        precedence: BTreeSet::from([
+            Precedence {
+                before: "a".to_string(),
+                after: "b".to_string(),
+            },
+            Precedence {
+                before: "b".to_string(),
+                after: "a".to_string(),
+            },
+        ]),
+    });
+    assert!(matches!(result, Err(PowlRefusal::Cycle)));
+}
+
+#[test]
+fn mustar_requires_all_three_model_intents() {
+    let plan = admit_powl_plan(activity(
+        "01-search",
+        "search_jobs",
+        serde_json::to_value(JobSearch::default()).expect("serialize search"),
+        false,
+    ))
+    .expect("plan admitted");
+    assert!(matches!(
+        compile_plan(&plan, BTreeSet::new()),
+        Err(MuStarRefusal::ModelTriadRequired)
+    ));
+}
+
+#[test]
+fn end_to_end_framework_is_deterministic_and_brce_only() {
+    let source_digest = evidence("candidate-profile-observation");
+    let claims = vec![
+        ObservedClaim {
+            subject: "candidate:test".to_string(),
+            predicate: "seeksFunction".to_string(),
+            object: "engineering".to_string(),
+            evidence_digest: evidence("function-evidence"),
+        },
+        ObservedClaim {
+            subject: "candidate:test".to_string(),
+            predicate: "requiresLocation".to_string(),
+            object: "remote".to_string(),
+            evidence_digest: evidence("location-evidence"),
+        },
+    ];
+    let search = JobSearch {
+        query: Some("rust systems".to_string()),
+        remote_only: true,
+        source: Some("ggen-agent-framework".to_string()),
+        ..JobSearch::default()
+    };
+    let candidate_plan = PowlNode::Sequence(vec![
+        activity(
+            "01-search",
+            "search_jobs",
+            serde_json::to_value(search).expect("serialize search"),
+            false,
+        ),
+        activity(
+            "02-detail",
+            "get_job",
+            json!({"role_id": "role:abc", "source": "ggen-agent-framework"}),
+            false,
+        ),
+        activity(
+            "03-interest",
+            "express_interest",
+            json!({"role_id": "role:abc", "message": "Request an introduction"}),
+            true,
+        ),
+    ]);
+    let first = manufacture_agent_bundle(&source_digest, claims.clone(), candidate_plan.clone())
+        .expect("framework admitted");
+    let replay = manufacture_agent_bundle(&source_digest, claims, candidate_plan)
+        .expect("framework replay admitted");
+    assert_eq!(first, replay);
+    assert_eq!(
+        first
+            .model_intents
+            .iter()
+            .map(|intent| intent.tier)
+            .collect::<Vec<_>>(),
+        vec![ModelTier::Luna, ModelTier::Terra, ModelTier::Sol]
+    );
+    assert!(first
+        .model_intents
+        .iter()
+        .all(|intent| intent.candidate_only && !intent.execution_authority));
+    assert!(first.compilation.packets.iter().all(|packet| {
+        packet.broker == "BRCE" && packet.candidate_only && !packet.execution_authority
+    }));
+    assert_eq!(
+        first.compilation.packets[1].predecessors,
+        BTreeSet::from(["01-search".to_string()])
+    );
+    assert_eq!(
+        first.compilation.packets[2].predecessors,
+        BTreeSet::from(["02-detail".to_string()])
+    );
+
+    let search_intent = speedrun_transport_intent(&first.compilation.packets[0], None)
+        .expect("read intent admitted");
+    assert_eq!(search_intent.broker, "BRCE");
+
+    let missing_consent = speedrun_transport_intent(&first.compilation.packets[2], None);
+    assert!(matches!(
+        missing_consent,
+        Err(SpeedrunProjectionRefusal::Speedrun(
+            SpeedrunRefusal::MissingConsent("express_interest")
+        ))
+    ));
+
+    let consent = CandidateConsent {
+        subject_id: "candidate:test".to_string(),
+        action: CandidateAction::ExpressInterest,
+        scope: "role:abc".to_string(),
+        granted_at: "2026-07-30T20:46:00-07:00".to_string(),
+        explicit: true,
+        evidence_digest: evidence("express-interest-consent"),
+    };
+    let interest = speedrun_transport_intent(&first.compilation.packets[2], Some(&consent))
+        .expect("consented interest admitted");
+    assert_eq!(interest.broker, "BRCE");
+    assert_eq!(interest.consent_digest, Some(consent.evidence_digest));
+}
+
+#[test]
+fn bundle_failure_preserves_typed_refusal_chain() {
+    let result = manufacture_agent_bundle(
+        "invalid-source",
+        vec![ObservedClaim {
+            subject: "candidate:test".to_string(),
+            predicate: "seeks".to_string(),
+            object: "role".to_string(),
+            evidence_digest: evidence("claim"),
+        }],
+        activity("search", "search_jobs", json!({}), false),
+    );
+    assert!(matches!(result, Err(AgentFrameworkRefusal::OntoStar(_))));
+}
