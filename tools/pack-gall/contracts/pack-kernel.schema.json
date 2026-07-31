@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/schema/pack-kernel.v1.json",
+  "title": "ggen Pack Kernel Canonical Models",
+  "type": "object",
+  "required": ["pack_identity", "bblock_group", "resolution_plan"],
+  "properties": {
+    "pack_identity": {
+      "type": "object",
+      "required": ["namespace", "name", "version", "content_digest"]
+    },
+    "bblock_group": {
+      "type": "object",
+      "required": ["id", "dependencies", "common_packs", "provider_packs"]
+    },
+    "resolution_plan": {
+      "type": "object",
+      "required": ["provider", "requested_group", "resolved_groups", "packs", "plan_digest"]
+    }
+  },
+  "additionalProperties": false
+}
