@@ -57,11 +57,11 @@ oxigraph = { workspace = true }
 # Real opinionated SPARQL formatter (Qlue-ls, MIT) — a published crate, so the
 # build is fresh-clone-safe. Vendored at vendors/qlue-ls for reference only; the
 # build uses the crates.io release. default-features off to skip the wasm panic hook.
-qlue-ls = { version = "2.7.1", default-features = false }
+qlue-ls = { version = "3.4.1", default-features = false }
 # Qlue-ls's own SPARQL parser (same version it depends on), used as a syntax
 # GATE: format_raw is error-tolerant and will reformat a broken tree, so we parse
 # first and refuse to rewrite anything with parse errors.
-ll-sparql-parser = "3.1.0"
+ll-sparql-parser = "3.3.1"
 
 # Utilities
 url = "2"
