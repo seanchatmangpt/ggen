@@ -106,8 +106,10 @@ jobs:
 
       - name: Refuse crown sabotage
         run: |
-          BIN=target/debug/ggen-architecture
           cargo build --manifest-path tools/ggen-architecture/Cargo.toml --bin ggen-architecture
+          TARGET_DIR="$(cargo metadata --manifest-path tools/ggen-architecture/Cargo.toml --format-version 1 --no-deps | jq -r '.target_directory')"
+          BIN="$TARGET_DIR/debug/ggen-architecture"
+          test -x "$BIN"
           PROGRAM=architecture/fortune5/synthetic-level5.json
 
           jq '.operational_guards.max_run_len = 9' architecture/fortune5-crown-synthetic.json > /tmp/crown-max-run.json
