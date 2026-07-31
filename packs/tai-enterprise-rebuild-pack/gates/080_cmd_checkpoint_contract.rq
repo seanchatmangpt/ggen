@@ -1,0 +1,38 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?kind ?actual ?expected WHERE {
+  {
+    SELECT ("checkpoints" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (10 AS ?expected)
+    WHERE { ?x a tai:GallCheckpoint }
+  }
+  UNION
+  {
+    SELECT ("internal-dimensions" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (12 AS ?expected)
+    WHERE { tai:tai-rebuild-v26-7-31 tai:internalDimension ?x }
+  }
+  UNION
+  {
+    SELECT ("external-dimensions" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (13 AS ?expected)
+    WHERE { tai:tai-rebuild-v26-7-31 tai:externalDimension ?x }
+  }
+  UNION
+  {
+    SELECT ("broker" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (1 AS ?expected)
+    WHERE { tai:cmd-program tai:requiredBroker "BRCE" . BIND(tai:cmd-program AS ?x) }
+  }
+  UNION
+  {
+    SELECT ("direct-actuation-disabled" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (1 AS ?expected)
+    WHERE { tai:cmd-program tai:directActuation false . BIND(tai:cmd-program AS ?x) }
+  }
+  UNION
+  {
+    SELECT ("checkpoint-refusals" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (10 AS ?expected)
+    WHERE { ?x a tai:GallCheckpoint ; tai:refusalCode ?r }
+  }
+  UNION
+  {
+    SELECT ("checkpoint-artifacts" AS ?kind) (COUNT(DISTINCT ?x) AS ?actual) (10 AS ?expected)
+    WHERE { ?x a tai:GallCheckpoint ; tai:requiredArtifact ?a }
+  }
+  FILTER(?actual != ?expected)
+}
