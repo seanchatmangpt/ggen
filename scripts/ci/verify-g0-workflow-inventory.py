@@ -262,7 +262,27 @@ def discover_workflows(repo_root: Path) -> list[Path]:
 
 def load_manifest(path: Path) -> dict[str, Any]:
     with path.open("rb") as handle:
-        return tomllib.load(handle)
+        manifest = tomllib.load(handle)
+
+    compact = manifest.get("workflows")
+    if isinstance(compact, dict):
+        fence_classes = manifest.get("fence_classes", {})
+        expanded: list[dict[str, Any]] = []
+        for filename, facts in compact.items():
+            fence_class = facts.get("fence", "")
+            expanded.append(
+                {
+                    "path": f".github/workflows/{filename}",
+                    "owner": facts.get("owner", ""),
+                    "purpose": facts.get("purpose", ""),
+                    "evidence_output": facts.get("evidence", ""),
+                    "production_outputs": [facts.get("output", "")],
+                    "retirement_condition": fence_classes.get(fence_class, ""),
+                    "retirement_class": fence_class,
+                }
+            )
+        manifest["workflow"] = expanded
+    return manifest
 
 
 def validate_manifest(manifest: dict[str, Any], actual_paths: list[str]) -> list[str]:
