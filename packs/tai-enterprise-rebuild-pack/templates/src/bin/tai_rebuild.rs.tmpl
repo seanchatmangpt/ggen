@@ -3,12 +3,12 @@ to: consumer/tai-enterprise-rebuild/src/bin/tai_rebuild.rs
 ---
 #![forbid(unsafe_code)]
 
-use std::{env, path::Path};
+use std::{env, fs, path::Path};
 
 use tai_enterprise_rebuild::{verify_receipt, write_bundle};
 
 fn usage() -> &'static str {
-    "usage: tai-rebuild roadmap <scenario> <output-dir> | simulate <scenario> <output-dir> | verify <receipt-file>"
+    "usage: tai-rebuild roadmap <scenario> <output-dir> | simulate <scenario> <output-dir> | verify <receipt-file> | digest <file>"
 }
 
 fn run() -> Result<serde_json::Value, String> {
@@ -30,13 +30,26 @@ fn run() -> Result<serde_json::Value, String> {
             if args.next().is_some() {
                 return Err(usage().to_string());
             }
-            let verified = verify_receipt(Path::new(&receipt)).map_err(|error| error.to_string())?;
+            let verified =
+                verify_receipt(Path::new(&receipt)).map_err(|error| error.to_string())?;
             Ok(serde_json::json!({
                 "status": "VERIFIED",
                 "scenario": verified.scenario,
                 "operation": verified.operation,
                 "digest": verified.digest,
                 "directActuation": verified.direct_actuation,
+            }))
+        }
+        "digest" => {
+            let path = args.next().ok_or_else(|| usage().to_string())?;
+            if args.next().is_some() {
+                return Err(usage().to_string());
+            }
+            let bytes = fs::read(&path).map_err(|error| format!("cannot read {path}: {error}"))?;
+            Ok(serde_json::json!({
+                "algorithm": "blake3",
+                "path": path,
+                "digest": blake3::hash(&bytes).to_hex().to_string(),
             }))
         }
         _ => Err(format!("unknown verb {verb}; {}", usage())),
@@ -46,7 +59,10 @@ fn run() -> Result<serde_json::Value, String> {
 fn main() {
     match run() {
         Ok(value) => {
-            println!("{}", serde_json::to_string_pretty(&value).expect("JSON serialization must succeed"));
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&value).expect("JSON serialization must succeed")
+            );
         }
         Err(error) => {
             eprintln!("{error}");
