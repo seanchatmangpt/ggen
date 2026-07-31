@@ -103,12 +103,12 @@ ggen:Legacy a ggen:Subsystem ; ggen:sourcePath "docs/v26.8.1/90-legacy" .
 
 # Pipeline stages
 
-ggen:Resolve a ggen:Stage ; ggen:dependsOn ggen:Configuration, ggen:Graph .
-ggen:Enrich a ggen:Stage ; ggen:dependsOn ggen:Resolve, ggen:Graphlaw .
-ggen:Extract a ggen:Stage ; ggen:dependsOn ggen:Enrich .
-ggen:Render a ggen:Stage ; ggen:dependsOn ggen:Extract .
-ggen:Write a ggen:Stage ; ggen:dependsOn ggen:Render .
-ggen:ReceiptStage a ggen:Stage ; ggen:dependsOn ggen:Write .
+ggen:Resolve a ggen:Stage ; ggen:dependsOn ggen:Configuration, ggen:Graph ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Enrich a ggen:Stage ; ggen:dependsOn ggen:Resolve, ggen:Graphlaw ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Extract a ggen:Stage ; ggen:dependsOn ggen:Enrich ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Render a ggen:Stage ; ggen:dependsOn ggen:Extract ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Write a ggen:Stage ; ggen:dependsOn ggen:Render ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:ReceiptStage a ggen:Stage ; ggen:dependsOn ggen:Write ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
 
 ggen:Engine ggen:ownsSurface ggen:Resolve, ggen:Enrich, ggen:Extract, ggen:Render, ggen:Write, ggen:ReceiptStage .
 

@@ -38,11 +38,18 @@ ggen:StandingShape a sh:NodeShape ;
     sh:in ( ggen:UNKNOWN ggen:PARTIAL_ALIVE ggen:ALIVE ggen:BLOCKED ggen:BUILD_BROKEN ggen:UNSUPPORTED )
   ] .
 
-# Legacy capability removal requires both disposition and evidence standing.
+# Legacy capability removal requires a disposition. hasStanding is deliberately NOT
+# required here: standing is a DERIVED fact, computed later by the external subsystem
+# verifier (tools/v26.8.1/subsystem_evidence_manifest.py + src/bin/subsystem_verifier.rs)
+# from real evidence, never authored directly onto a LegacyCapability individual at
+# extraction time. Requiring it here would force fabricating a value at data-authoring
+# time, defeating the point of an external, independently-recomputed standing decision.
+# When the verifier does assign a standing (as a generated projection, not hand-authored
+# ontology data), it must still come from the closed Standing vocabulary if present.
 ggen:LegacyCapabilityShape a sh:NodeShape ;
   sh:targetClass ggen:LegacyCapability ;
   sh:property [ sh:path ggen:hasDisposition ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ggen:LegacyDisposition ] ;
-  sh:property [ sh:path ggen:hasStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ggen:Standing ] .
+  sh:property [ sh:path ggen:hasStanding ; sh:maxCount 1 ; sh:class ggen:Standing ] .
 
 # Sunset law is conjunctive and fail-closed.
 ggen:SunsetDecisionShape a sh:NodeShape ;
