@@ -1,0 +1,32 @@
+(define (domain ggen-v2681-probabilistic)
+  (:requirements :strips :typing :negative-preconditions :fluents :probabilistic-effects :rewards)
+  (:types subsystem verifier receipt failure-mode)
+  (:predicates
+    (observed ?s - subsystem)
+    (verified ?s - subsystem)
+    (receipted ?s - subsystem ?r - receipt)
+    (planner-available ?v - verifier)
+    (failure ?s - subsystem ?f - failure-mode)
+    (recovered ?s - subsystem)
+    (release-safe))
+  (:functions (risk ?s - subsystem) (reward))
+  (:action attempt-verification
+    :parameters (?s - subsystem ?v - verifier ?r - receipt)
+    :precondition (and (observed ?s) (planner-available ?v))
+    :effect (probabilistic
+      0.86 (and (verified ?s) (receipted ?s ?r) (decrease (risk ?s) 4) (increase (reward) 20))
+      0.10 (and (decrease (risk ?s) 1) (increase (reward) 2))
+      0.04 (and (failure ?s transient-failure) (increase (risk ?s) 3) (decrease (reward) 8))))
+  (:action recover-transient-failure
+    :parameters (?s - subsystem)
+    :precondition (failure ?s transient-failure)
+    :effect (probabilistic
+      0.95 (and (not (failure ?s transient-failure)) (recovered ?s) (decrease (risk ?s) 2))
+      0.05 (and (increase (risk ?s) 1) (decrease (reward) 2))))
+  (:action admit-probabilistic-release
+    :parameters ()
+    :precondition (and
+      (forall (?s - subsystem) (verified ?s))
+      (forall (?s - subsystem) (not (exists (?f - failure-mode) (failure ?s ?f)))))
+    :effect (and (release-safe) (increase (reward) 1000)))
+)

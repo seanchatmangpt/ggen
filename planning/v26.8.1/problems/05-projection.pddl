@@ -1,0 +1,10 @@
+(define (problem ggen-v2681-projection)
+ (:domain ggen-v2681-core)
+ (:objects tera frontmatter context combinatorial-maximalism path-safety write-modes generated-merge output-ownership render-determinism performance - subsystem
+  v-projection - verifier r-projection - receipt)
+ (:init (declared tera) (declared frontmatter) (declared context) (declared combinatorial-maximalism)
+  (declared path-safety) (declared write-modes) (declared generated-merge)
+  (declared output-ownership) (declared render-determinism) (declared performance)
+  (= (total-cost) 0))
+ (:goal (forall (?s - subsystem) (admitted ?s)))
+ (:metric minimize (total-cost)))

@@ -1,0 +1,51 @@
+@prefix ggen: <https://ggen.dev/ontology/v26.8.1#> .
+@prefix plan: <https://ggen.dev/planning/v26.8.1#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+plan:PlanningPortfolio a ggen:ProjectionSystem ;
+  dcterms:title "ggen v26.8.1 multi-dialect planning portfolio" ;
+  ggen:projectsFrom ggen:UnifiedOntology ;
+  ggen:standing ggen:PARTIAL_ALIVE ;
+  ggen:requiresExternalWitness true ;
+  ggen:hasProjection plan:ClassicalDomain,
+    plan:TemporalDomain,
+    plan:ProbabilisticDomain,
+    plan:HierarchicalDomain .
+
+plan:ClassicalDomain a plan:PDDLDomain ;
+  ggen:path "planning/v26.8.1/domains/ggen-v2681-core.pddl" ;
+  plan:dialect "PDDL-3.1" ;
+  plan:models ggen:Admission, ggen:Evidence, ggen:Release, ggen:LegacySunset .
+
+plan:TemporalDomain a plan:PDDLDomain ;
+  ggen:path "planning/v26.8.1/domains/ggen-v2681-temporal.pddl" ;
+  plan:dialect "PDDL-2.1-temporal-numeric" ;
+  plan:models ggen:Verification, ggen:Resource, ggen:Replay .
+
+plan:ProbabilisticDomain a plan:PPDDLDomain ;
+  ggen:path "planning/v26.8.1/domains/ggen-v2681-probabilistic.ppddl" ;
+  plan:dialect "PPDDL" ;
+  plan:models ggen:Risk, ggen:Failure, ggen:Recovery .
+
+plan:HierarchicalDomain a plan:HDDLDomain ;
+  ggen:path "planning/v26.8.1/domains/ggen-v2681-hierarchical.hddl" ;
+  plan:dialect "HDDL" ;
+  plan:models ggen:GallCheckpoint, ggen:SubsystemClosure, ggen:CrownVerification .
+
+plan:GovernanceProblem a plan:PDDLProblem ; plan:coversDocumentRange "1-10" ; plan:projectsSubsystem ggen:GovernanceSubsystem .
+plan:SystemProblem a plan:PDDLProblem ; plan:coversDocumentRange "11-20" ; plan:projectsSubsystem ggen:SystemArchitectureSubsystem .
+plan:EngineProblem a plan:PDDLProblem ; plan:coversDocumentRange "21-30" ; plan:projectsSubsystem ggen:EngineSubsystem .
+plan:GraphProblem a plan:PDDLProblem ; plan:coversDocumentRange "31-40" ; plan:projectsSubsystem ggen:GraphSubsystem .
+plan:ProjectionProblem a plan:PDDLProblem ; plan:coversDocumentRange "41-50" ; plan:projectsSubsystem ggen:ProjectionSubsystem .
+plan:EvidenceProblem a plan:PDDLProblem ; plan:coversDocumentRange "51-60" ; plan:projectsSubsystem ggen:EvidenceSubsystem .
+plan:ProductsProblem a plan:PDDLProblem ; plan:coversDocumentRange "61-70" ; plan:projectsSubsystem ggen:ProductSubsystem .
+plan:VerificationProblem a plan:PDDLProblem ; plan:coversDocumentRange "71-80" ; plan:projectsSubsystem ggen:VerificationSubsystem .
+plan:EconomicsProblem a plan:PDDLProblem ; plan:coversDocumentRange "81-90" ; plan:projectsSubsystem ggen:EconomicsSubsystem .
+plan:LegacyProblem a plan:PDDLProblem ; plan:coversDocumentRange "91-100" ; plan:projectsSubsystem ggen:LegacySunsetSubsystem .
+
+plan:PlanningReceipt a ggen:ReceiptSchema ;
+  ggen:binds plan:PlanningPortfolio ;
+  ggen:hashAlgorithm "SHA-256" ;
+  ggen:outputPath ".ggen/v26.8.1/planning-report.json" .

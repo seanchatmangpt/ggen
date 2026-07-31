@@ -1,0 +1,44 @@
+name: v26.8.1 Planning Portfolio
+
+on:
+  pull_request:
+    paths:
+      - 'planning/v26.8.1/**'
+      - 'ontology/v26.8.1/**'
+      - 'docs/v26.8.1/**'
+      - 'crates/bcinr-pddl/**'
+      - '.github/workflows/v26.8.1-planning.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'planning/v26.8.1/**'
+      - 'ontology/v26.8.1/**'
+      - 'docs/v26.8.1/**'
+      - 'crates/bcinr-pddl/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2681-planning-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned Rust
+        run: rustup toolchain install nightly-2026-06-22 --profile minimal
+      - name: Install just
+        run: cargo install just --locked --version 1.40.0
+      - name: Verify planning portfolio
+        run: just --justfile planning/v26.8.1/justfile verify
+      - name: Upload planning evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2681-planning-${{ github.sha }}
+          path: .ggen/v26.8.1/planning-report.json
+          if-no-files-found: error

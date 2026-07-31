@@ -1,0 +1,10 @@
+(define (problem ggen-v2681-system)
+ (:domain ggen-v2681-core)
+ (:objects repository-topology workspace-map dependencies runtime process-boundary self-host gall bblock-kernel fortune5 actuation-boundary - subsystem
+  v-system - verifier r-system - receipt)
+ (:init (declared repository-topology) (declared workspace-map) (declared dependencies)
+  (declared runtime) (declared process-boundary) (declared self-host) (declared gall)
+  (declared bblock-kernel) (declared fortune5) (declared actuation-boundary)
+  (= (total-cost) 0))
+ (:goal (forall (?s - subsystem) (admitted ?s)))
+ (:metric minimize (total-cost)))

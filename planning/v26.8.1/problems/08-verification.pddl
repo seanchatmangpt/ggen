@@ -1,0 +1,10 @@
+(define (problem ggen-v2681-verification)
+ (:domain ggen-v2681-core)
+ (:objects constitution unit-boundary property-fuzz stdio-http cli-e2e security chaos-stress replay-suite report negative-fixtures - subsystem
+  v-verification - verifier r-verification - receipt)
+ (:init (declared constitution) (declared unit-boundary) (declared property-fuzz)
+  (declared stdio-http) (declared cli-e2e) (declared security)
+  (declared chaos-stress) (declared replay-suite) (declared report)
+  (declared negative-fixtures) (= (total-cost) 0))
+ (:goal (forall (?s - subsystem) (and (admitted ?s) (negative-falsifier ?s))))
+ (:metric minimize (total-cost)))
