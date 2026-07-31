@@ -208,6 +208,63 @@ jobs:
             git commit -m 'fix(graphlaw): carry logical time into POWL OCEL records'
           fi
 
+      - name: Adapt combinatorial matrix to maximal frontmatter API
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('crates/ggen-engine/tests/combinatorial_matrix.rs')
+          text = path.read_text()
+
+          replacements = [
+              (
+                  '    template::{Frontmatter, Template},',
+                  '    template::{Frontmatter, MatchSpec, Template},',
+              ),
+              (
+                  '        sparql: BTreeMap::new(),\n        construct: None,',
+                  '        sparql: BTreeMap::new(),\n        for_each: None,\n        construct: None,',
+              ),
+              (
+                  '        before: (inject && anchor == Anchor::Before).then(|| "// ANCHOR".to_string()),',
+                  '        before: (inject && anchor == Anchor::Before)\n            .then(|| MatchSpec::Literal("// ANCHOR".to_string())),',
+              ),
+              (
+                  '        after: (inject && anchor == Anchor::After).then(|| "// ANCHOR".to_string()),',
+                  '        after: (inject && anchor == Anchor::After)\n            .then(|| MatchSpec::Literal("// ANCHOR".to_string())),',
+              ),
+              (
+                  '            SkipIf::Matching => Some(MATCHING_NEEDLE.to_string()),',
+                  '            SkipIf::Matching => Some(MatchSpec::Literal(MATCHING_NEEDLE.to_string())),',
+              ),
+              (
+                  '            SkipIf::NonMatching => Some(NON_MATCHING_NEEDLE.to_string()),',
+                  '            SkipIf::NonMatching => {\n                Some(MatchSpec::Literal(NON_MATCHING_NEEDLE.to_string()))\n            }',
+              ),
+          ]
+
+          old_counts = [text.count(old) for old, _ in replacements]
+          new_counts = [text.count(new) for _, new in replacements]
+          if all(count == 1 for count in old_counts):
+              for old, new in replacements:
+                  text = text.replace(old, new, 1)
+              path.write_text(text)
+          elif all(count == 1 for count in new_counts):
+              print('combinatorial matrix frontmatter adapter already present; replay is a no-op')
+          else:
+              raise SystemExit(
+                  'combinatorial matrix compatibility repair refused: '
+                  f'old_counts={old_counts}, new_counts={new_counts}'
+              )
+          PY
+
+          git add crates/ggen-engine/tests/combinatorial_matrix.rs
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(engine): adapt combinatorial matrix to typed matchers'
+          fi
+
       - name: Normalize and verify engine admission boundary
         shell: bash
         run: |
