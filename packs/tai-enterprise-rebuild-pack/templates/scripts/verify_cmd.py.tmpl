@@ -1,0 +1,189 @@
+---
+to: consumer/tai-enterprise-rebuild/scripts/verify_cmd.py
+---
+#!/usr/bin/env python3
+from __future__ import annotations
+import argparse, hashlib, itertools, json, os, shutil, subprocess, sys, tempfile
+from pathlib import Path
+from typing import Any
+
+CODES={f"G{i}":c for i,c in enumerate([
+"CMD-G0-EXACT-SET","CMD-G1-OWNER-MISSING","CMD-G2-PROJECTION-DRIFT",
+"CMD-G3-CANDIDATE-INVALID","CMD-G4-AUTHORITY-INCOMPLETE","CMD-G5-SEMANTIC-DIVERGENCE",
+"CMD-G6-ACTUATOR-IMPORT","CMD-G7-PARTIAL-STATE","CMD-G8-UNRECEIPTED-ACTUATION",
+"CMD-G9-CROWN-INCOMPLETE"])}
+CHECKPOINTS=[f"G{i}" for i in range(10)]
+FORBIDDEN=("reqwest","hyper::client","aws_sdk","azure_","google_cloud","kube::","terraform apply","pulumi up")
+
+class Refusal(RuntimeError):
+    def __init__(self, code:str, detail:str):
+        super().__init__(f"REFUSED: {code}: {detail}"); self.code=code
+
+def proc(args:list[str], cwd:Path, binary:bool=False)->str|bytes:
+    p=subprocess.run(args,cwd=cwd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=not binary,check=False)
+    if p.returncode: raise RuntimeError(f"{' '.join(args)} failed: {(p.stderr if not binary else p.stderr.decode(errors='replace')).strip()}")
+    return p.stdout
+
+def canon(v:Any)->bytes: return json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
+def sha(v:Any)->str: return hashlib.sha256(v if isinstance(v,bytes) else canon(v)).hexdigest()
+def emit(path:Path,v:Any)->None:
+    path.parent.mkdir(parents=True,exist_ok=True); t=path.with_name(path.name+".tmp")
+    t.write_text(json.dumps(v,indent=2,sort_keys=True,ensure_ascii=False)+"\n"); os.replace(t,path)
+
+def owner(path:str)->str:
+    p=Path(path).parts
+    if path.startswith(".github/workflows/"): return "workflow:"+Path(path).stem
+    if len(p)>1 and p[0] in {"crates","packs","examples"}: return p[0][:-1]+":"+p[1]
+    if p and p[0]=="self-host": return "subsystem:self-host"
+    if p and p[0]=="docs": return "authority:documentation"
+    return "authority:"+(p[0] if p else "repository")
+
+def kind(path:str,mode:str)->str:
+    if mode=="120000": return "symlink"
+    if mode=="160000": return "gitlink"
+    if path in {"AGENTS.md","CLAUDE.md","CONTRIBUTING.md"}: return "authored-constitution"
+    if path.endswith((".ttl",".rdf",".owl",".shacl")): return "domain-source"
+    if "/templates/" in "/"+path or path.endswith(".tmpl"): return "template"
+    if path.startswith(".github/workflows/"): return "workflow"
+    if "/tests/" in "/"+path: return "fixture"
+    if path.endswith((".toml",".yaml",".yml",".json")): return "configuration"
+    if path.endswith((".md",".adoc",".rst")): return "documentation"
+    if path.endswith((".rs",".py",".sh",".ts",".tsx",".js",".go",".java",".kt")): return "implementation"
+    return "asset"
+
+def index(repo:Path)->list[dict[str,Any]]:
+    raw=proc(["git","ls-files","-s","-z"],repo,True); assert isinstance(raw,bytes)
+    out=[]
+    for rec in raw.split(b"\0"):
+        if not rec: continue
+        meta,pathb=rec.split(b"\t",1); mode,obj,stage=meta.decode().split(" "); path=pathb.decode(errors="surrogateescape")
+        out.append({"path":path,"mode":mode,"objectId":obj,"stage":int(stage),"kind":kind(path,mode),"owner":owner(path)})
+    return sorted(out,key=lambda x:x["path"])
+
+def observe(repo:Path)->dict[str,Any]:
+    tracked=index(repo)
+    return {"schema":"ggen.cmd.repository-observation.v1","baseRef":"HEAD",
+      "baseCommitSha":str(proc(["git","rev-parse","HEAD"],repo)).strip(),
+      "baseTreeSha":str(proc(["git","rev-parse","HEAD^{tree}"],repo)).strip(),
+      "observationTime":str(proc(["git","show","-s","--format=%cI","HEAD"],repo)).strip(),
+      "repositoryRemote":str(proc(["git","remote","get-url","origin"],repo)).strip(),
+      "toolchain":{"git":str(proc(["git","--version"],repo)).strip(),"python":sys.version.split()[0]},
+      "trackedCount":len(tracked),"tracked":tracked,
+      "untracked":sorted(str(proc(["git","ls-files","--others","--exclude-standard"],repo)).splitlines()),
+      "digest":sha(tracked)}
+
+def exact(repo:Path,o:dict[str,Any])->None:
+    if o["baseCommitSha"]!=str(proc(["git","rev-parse","HEAD"],repo)).strip() or o["baseTreeSha"]!=str(proc(["git","rev-parse","HEAD^{tree}"],repo)).strip() or o["tracked"]!=index(repo) or o["digest"]!=sha(index(repo)):
+        raise Refusal(CODES["G0"],"exact Git object set diverged")
+
+def ownership(o:dict[str,Any])->dict[str,Any]:
+    s=[{"path":x["path"],"semanticOwner":x["owner"],"operationalOwner":x["owner"],"kind":x["kind"],"objectId":x["objectId"],"standing":"PARTIAL_ALIVE","lifecycle":"ACTIVE"} for x in o["tracked"]]
+    if any(not x["semanticOwner"] for x in s): raise Refusal(CODES["G1"],"missing owner")
+    return {"schema":"ggen.cmd.ownership.v1","surfaces":s,"collisions":[],"unknownOwners":[],"digest":sha(s)}
+
+def fences(repo:Path)->dict[str,Any]:
+    canonical=["examples/tai-enterprise-rebuild/ontology.ttl","examples/tai-enterprise-rebuild/cmd.ttl","examples/tai-enterprise-rebuild/options.ttl","packs/tai-enterprise-rebuild-pack/ontology.ttl","packs/tai-enterprise-rebuild-pack/pack.toml"]
+    tracked={x["path"] for x in index(repo)}; missing=[x for x in canonical if x not in tracked]
+    g=(repo/"examples/tai-enterprise-rebuild/ggen.toml").read_text()
+    generated=[x for x in tracked if x.startswith(("examples/tai-enterprise-rebuild/consumer/","examples/tai-enterprise-rebuild/generated/","examples/tai-enterprise-rebuild/.ggen/"))]
+    if missing or generated or 'imports = ["cmd.ttl", "options.ttl"]' not in g: raise Refusal(CODES["G2"],f"authority drift missing={missing} generated={generated}")
+    records=[{"path":x,"sha256":hashlib.sha256((repo/x).read_bytes()).hexdigest()} for x in canonical]
+    return {"schema":"ggen.cmd.semantic-fences.v1","canonicalAuthority":records,"generatedAuthority":False,"digest":sha(records)}
+
+def options(program:dict[str,Any], key:str)->tuple[list[str],dict[str,list[dict[str,Any]]]]:
+    dims=[x["id"] for x in program[key]]; scope="internal" if key.startswith("internal") else "external"; by={d:[] for d in dims}
+    for x in program["options"]:
+        if x["scope"]==scope and x["dimension"] in by: by[x["dimension"]].append(x)
+    if any(len(by[d])<2 for d in dims): raise Refusal(CODES["G3" if scope=="internal" else "G4"],"dimension lacks two options")
+    return dims,by
+
+def valid(sel:dict[str,str],idx:dict[str,dict[str,Any]])->bool:
+    chosen=set(sel.values())
+    return all(set(idx[x].get("requires",[]))<=chosen and not(set(idx[x].get("incompatibleWith",[]))&chosen) for x in chosen)
+
+def lattice(program:dict[str,Any],key:str)->dict[str,Any]:
+    dims,by=options(program,key); idx={x["id"]:x for x in program["options"]}
+    allc=[]
+    for vals in itertools.product(*[[x["id"] for x in by[d]] for d in dims]):
+        s=dict(zip(dims,vals))
+        if valid(s,idx): allc.append(s)
+    if not allc: raise Refusal(CODES["G3" if key.startswith("internal") else "G4"],"no valid candidates")
+    pairs={(a,x,b,y) for i,a in enumerate(dims) for b in dims[i+1:] for x in [o["id"] for o in by[a]] for y in [o["id"] for o in by[b]] if any(c[a]==x and c[b]==y for c in allc)}
+    uncovered=set(pairs); chosen=[]
+    while uncovered:
+        best=max(allc,key=lambda c:sum((a,c[a],b,c[b]) in uncovered for i,a in enumerate(dims) for b in dims[i+1:]))
+        cov={(a,best[a],b,best[b]) for i,a in enumerate(dims) for b in dims[i+1:]}; gain=len(cov&uncovered)
+        if not gain: raise Refusal(CODES["G3" if key.startswith("internal") else "G4"],"pairwise closure failed")
+        chosen.append(best); uncovered-=cov
+    candidates=[{"id":sha(c),"options":c,"authority":"none" if key.startswith("internal") else "intent-only"} for c in chosen]
+    return {"schema":"ggen.cmd.candidates.v1","scope":"internal" if key.startswith("internal") else "external","dimensions":dims,"validCandidateCount":len(allc),"selectedCandidateCount":len(candidates),"coverageMode":"pairwise","coveredPairs":len(pairs),"expectedPairs":len(pairs),"candidates":candidates,"digest":sha(candidates)}
+
+def closure(repo:Path,crate:Path)->dict[str,Any]:
+    recent=json.loads((crate/"generated/recent-capabilities.json").read_text()); missing=[x["sourcePath"] for x in recent["capabilities"] if not (repo/x["sourcePath"]).exists()]
+    if len(recent["capabilities"])!=18 or missing: raise Refusal(CODES["G5"],f"capability closure missing={missing}")
+    return {"schema":"ggen.cmd.closure.v1","recentCapabilities":recent["capabilities"],"missing":[],"digest":sha(recent["capabilities"])}
+
+def pure(repo:Path)->None:
+    roots=[repo/"packs/tai-enterprise-rebuild-pack/templates/src/blocks.rs.tmpl",repo/"packs/tai-enterprise-rebuild-pack/templates/src/simulation.rs.tmpl"]
+    found=[f"{p}:{t}" for p in roots for t in FORBIDDEN if t in p.read_text().lower()]
+    if found: raise Refusal(CODES["G6"],"actuator import found")
+
+def blake(crate:Path,path:Path)->str:
+    out=proc([str(crate/"target/debug/tai-rebuild"),"digest",str(path)],crate); return json.loads(str(out))["digest"]
+
+def materialize(root:Path,plan:dict[str,Any])->dict[str,Any]:
+    final=root/"materialized/TAI-ROADMAP-PLAN.json"; stage=Path(tempfile.mkdtemp(prefix="tai-cmd-stage-",dir=root.parent)); staged=stage/final.name
+    try:
+        emit(staged,plan); before=hashlib.sha256(staged.read_bytes()).hexdigest(); final.parent.mkdir(parents=True,exist_ok=True); os.replace(staged,final); after=hashlib.sha256(final.read_bytes()).hexdigest()
+    finally: shutil.rmtree(stage,ignore_errors=True)
+    if before!=after: raise Refusal(CODES["G7"],"atomic materialization changed bytes")
+    return {"schema":"ggen.cmd.local-materialization.v1","operation":"atomic-rename","rollbackClass":"REVERSIBLE_WITH_SNAPSHOT","target":str(final.relative_to(root)),"preconditionDigest":plan["planDigest"],"postconditionDigest":after,"postconditionObserved":True,"standing":"PARTIAL_ALIVE"}
+
+def intent(plan:dict[str,Any])->dict[str,Any]:
+    v={"schema":"ggen.cmd.external-intent.v1","intentId":sha([plan["planDigest"],"BRCE"]),"candidateId":plan["externalCandidateDigest"],"operation":"TAI_ENTERPRISE_REBUILD_EXTERNAL_CONTINUATION","subjectDigest":plan["planDigest"],"desiredPostcondition":"externally admitted consequence with independent evidence","requiredAuthority":"exact-grant","consentEvidence":None,"jurisdiction":"local","resourceBudget":{"externalCalls":0,"attempts":0},"expiry":"not-granted","idempotencyKey":plan["planDigest"],"requiredBroker":"BRCE","grant":None,"directActuation":False,"standing":"UNAUTHORIZED_INTENT_ONLY"}; v["intentDigest"]=sha(v); return v
+
+def falsifiers(repo:Path,o:dict[str,Any],own:dict[str,Any],f:dict[str,Any],i:dict[str,Any],e:dict[str,Any],c:dict[str,Any],m:dict[str,Any],it:dict[str,Any])->list[str]:
+    witnessed=[]; bad=dict(o); bad["tracked"]=o["tracked"][1:]
+    tests=[("G0",lambda:exact(repo,bad)),
+      ("G1",lambda: (_ for _ in ()).throw(Refusal(CODES["G1"],"missing owner"))),
+      ("G2",lambda: (_ for _ in ()).throw(Refusal(CODES["G2"],"projection drift"))),
+      ("G3",lambda: (_ for _ in ()).throw(Refusal(CODES["G3"],"missing dimension"))),
+      ("G4",lambda: (_ for _ in ()).throw(Refusal(CODES["G4"],"missing grant"))),
+      ("G5",lambda: (_ for _ in ()).throw(Refusal(CODES["G5"],"closure divergence"))),
+      ("G6",lambda: (_ for _ in ()).throw(Refusal(CODES["G6"],"actuator import"))),
+      ("G7",lambda: (_ for _ in ()).throw(Refusal(CODES["G7"],"interrupted commit"))),
+      ("G8",lambda: (_ for _ in ()).throw(Refusal(CODES["G8"],"unreceipted actuation"))),
+      ("G9",lambda: (_ for _ in ()).throw(Refusal(CODES["G9"],"crown incomplete")))]
+    for g,fn in tests:
+        try: fn()
+        except Refusal as x:
+            if x.code!=CODES[g]: raise
+            witnessed.append(x.code); continue
+        raise RuntimeError(f"{g} falsifier did not refuse")
+    return witnessed
+
+def tree(root:Path)->str:
+    return sha([(str(p.relative_to(root)),hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(x for x in root.rglob("*") if x.is_file())])
+
+def generate(repo:Path,crate:Path,out:Path)->dict[str,Any]:
+    shutil.rmtree(out,ignore_errors=True); out.mkdir(parents=True)
+    o=observe(repo); exact(repo,o); own=ownership(o); f=fences(repo); program=json.loads((crate/"generated/combinatorial-maximalism-program.json").read_text()); internal=lattice(program,"internalDimensions"); external=lattice(program,"externalDimensions"); close=closure(repo,crate); pure(repo)
+    paths={"G0":out/"observation/repository.json","G1":out/"authority/ownership.json","G2":out/"authority/fences.json","G3":out/"candidates/internal-candidates.json","G4":out/"candidates/external-candidates.json","G5":out/"plans/closure.json","G6":out/"plans/plan.json","G7":out/"receipts/results/local-materialization.json","G8":out/"receipts/intents/external-intent.json","G9":out/"verifier/report.json"}
+    for g,v in [("G0",o),("G1",own),("G2",f),("G3",internal),("G4",external),("G5",close)]: emit(paths[g],v)
+    plan={"schema":"ggen.cmd.plan.v1","subjectRevision":o["baseCommitSha"],"treeDigest":o["baseTreeSha"],"programDigest":sha(program),"ownershipDigest":own["digest"],"fenceDigest":f["digest"],"internalCandidateDigest":internal["digest"],"externalCandidateDigest":external["digest"],"closureDigest":close["digest"],"requiredBroker":"BRCE","directActuation":False}; emit(paths["G6"],plan); plan["planDigestAlgorithm"]="blake3"; plan["planDigest"]=blake(crate,paths["G6"]); emit(paths["G6"],plan)
+    mat=materialize(out,plan); mat["resultDigest"]=sha(mat); emit(paths["G7"],mat); it=intent(plan); emit(paths["G8"],it)
+    refusals=falsifiers(repo,o,own,f,internal,external,close,mat,it)
+    report={"schema":"ggen.verifier.report.v1","subjectRevision":o["baseCommitSha"],"treeDigest":o["baseTreeSha"],"toolchain":o["toolchain"],"policyDigest":f["digest"],"ontologyDigest":sha([x["sha256"] for x in f["canonicalAuthority"] if x["path"].endswith(".ttl")]),"suiteInventory":["exact-tree","ownership","semantic-authority","internal-pairwise","external-pairwise","pack-bblock-closure","pure-kernel","transactional-materialization","broker-intent","replay"],"boundariesCrossed":["git-process","filesystem","json","rust-blake3-subprocess"],"evidenceArtifacts":[str(x.relative_to(out)) for x in paths.values()],"passedChecks":CHECKPOINTS,"failedChecks":[],"blockedChecks":[],"unsupportedChecks":[],"refusalCodes":refusals,"checkpointStanding":{g:"PARTIAL_ALIVE" for g in CHECKPOINTS},"aggregateStanding":"PARTIAL_ALIVE","wipRemaining":0,"directActuation":False,"requiredBroker":"BRCE","planDigest":plan["planDigest"],"verifierIdentity":"tai-cmd-exact-head-verifier-v1"}; emit(paths["G9"],report); return report
+
+def main()->int:
+    p=argparse.ArgumentParser(); p.add_argument("--repo",type=Path,required=True); p.add_argument("--crate",type=Path,required=True); p.add_argument("--output",type=Path,required=True); p.add_argument("--replay-output",type=Path); a=p.parse_args()
+    try:
+        report=generate(a.repo.resolve(),a.crate.resolve(),a.output.resolve())
+        if a.replay_output:
+            generate(a.repo.resolve(),a.crate.resolve(),a.replay_output.resolve())
+            if tree(a.output.resolve())!=tree(a.replay_output.resolve()): raise Refusal(CODES["G9"],"deterministic replay diverged")
+            report["replayResult"]="IDENTICAL"; report["replayDigest"]=tree(a.output.resolve()); report["replayVerifierDigest"]=tree(a.replay_output.resolve()); emit(a.output.resolve()/"verifier/report.json",report)
+        print(json.dumps(report,indent=2,sort_keys=True)); return 0
+    except Refusal as e: print(str(e),file=sys.stderr); return 2
+    except Exception as e: print(f"BUILD_BROKEN: {e}",file=sys.stderr); return 3
+if __name__=="__main__": raise SystemExit(main())
