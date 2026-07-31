@@ -28,18 +28,25 @@ jobs:
       - name: Checkout exact aggregate head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Resolve Rust toolchain
         run: rustup show
 
+      - name: Install schema validator
+        run: pip install --quiet jsonschema
+
       - name: Execute one-shot controller
         run: python3 tools/v26.8.1/step_two.py --root .
 
       - name: Assert admitted receipt
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
           report = json.loads(Path('.ggen/v26.8.1/step-two/report.json').read_text())
           receipt = json.loads(Path('.ggen/v26.8.1/step-two/receipt.json').read_text())
@@ -47,6 +54,31 @@ jobs:
           assert report['step_two_admitted'] is True, report
           assert receipt['step_two_admitted'] is True, receipt
           assert report['source_head'] == receipt['source_head']
+          expected_head = os.environ['EXPECTED_HEAD']
+          assert report['source_head'] == expected_head, (report['source_head'], expected_head)
+          PY
+
+      - name: Validate report/receipt against JSON schemas
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import jsonschema
+
+          def validate(instance_path, schema_path):
+              instance = json.loads(Path(instance_path).read_text())
+              schema = json.loads(Path(schema_path).read_text())
+              jsonschema.Draft202012Validator(schema).validate(instance)
+
+          validate(
+              ".ggen/v26.8.1/step-two/report.json",
+              "tools/v26.8.1/schemas/step-two-report.schema.json",
+          )
+          validate(
+              ".ggen/v26.8.1/verifier-report.json",
+              "tools/v26.8.1/schemas/verifier-report.schema.json",
+          )
+          print("schema validation passed")
           PY
 
       - name: Publish Step Two evidence

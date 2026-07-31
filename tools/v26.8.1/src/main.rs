@@ -323,7 +323,7 @@ fn observe_workspace(root: &Path) -> Result<WorkspaceObservation> {
                 .iter()
                 .filter_map(toml::Value::as_str)
                 .map(str::to_owned)
-                .collect()
+                .collect::<Vec<String>>()
         })
         .unwrap_or_default();
 

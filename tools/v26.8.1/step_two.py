@@ -101,6 +101,22 @@ def file_digest(path: Path) -> str:
     return digest(path.read_bytes())
 
 
+AUTHORITY_GLOBS = (
+    ".specify/**/*.ttl",
+    "docs/v26.8.1/manifest.toml",
+    "docs/v26.8.1/coverage-matrix.csv",
+)
+
+
+def authority_digests(root: Path) -> dict[str, str]:
+    digests: dict[str, str] = {}
+    for pattern in AUTHORITY_GLOBS:
+        for path in sorted(root.glob(pattern)):
+            if path.is_file():
+                digests[str(path.relative_to(root))] = file_digest(path)
+    return digests
+
+
 def clean_paths(root: Path) -> list[str]:
     result = git(root, "status", "--porcelain=v1", "--untracked-files=all")
     if result.returncode != 0:
@@ -132,6 +148,7 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
     evidence_root.mkdir(parents=True, exist_ok=True)
     head = exact_head(root)
     before = clean_paths(root)
+    authority_before = authority_digests(root)
 
     commands: list[CommandEvidence] = []
     commands.append(
@@ -156,7 +173,7 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
                 "cargo",
                 "test",
                 "-p",
-                "ggen-cli",
+                "ggen-cli-lib",
                 "--lib",
                 "generated_commands::default_verb_tests",
             ],
@@ -224,6 +241,12 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
     )
 
     after = clean_paths(root)
+    authority_after = authority_digests(root)
+    authority_changed = sorted(
+        path
+        for path in set(authority_before) | set(authority_after)
+        if authority_before.get(path) != authority_after.get(path)
+    )
     replay_matches = (
         first_report_digest != "MISSING"
         and first_report_digest == second_report_digest
@@ -252,8 +275,12 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
         Gate("clean-exit", not after, [f"unexpected_paths={after}"]),
         Gate(
             "zero-unreceipted-actuation",
-            True,
-            ["controller executes repository-local observation and verification only"],
+            not authority_changed,
+            [
+                f"authority_changed={authority_changed}",
+                f"authority_before={authority_before}",
+                f"authority_after={authority_after}",
+            ],
         ),
     ]
 
