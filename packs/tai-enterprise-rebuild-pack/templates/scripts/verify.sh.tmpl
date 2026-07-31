@@ -26,8 +26,8 @@ done
 
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-a" >/dev/null
 cargo run --quiet --manifest-path "$MANIFEST" --bin tai-rebuild -- simulate historical "$TARGET_ROOT/replay-b" >/dev/null
-first="$(find "$TARGET_ROOT/replay-a" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
-second="$(find "$TARGET_ROOT/replay-b" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+first="$(cd "$TARGET_ROOT/replay-a" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+second="$(cd "$TARGET_ROOT/replay-b" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
 test "$first" = "$second"
 
 set +e
