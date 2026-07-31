@@ -1,0 +1,5 @@
+[pack]
+name = "tai-enterprise-rebuild-pack"
+version = "26.7.31"
+description = "Ontology-authored ggen Building Block that generates and simulates the evidence-gated roadmap for rebuilding Technology Applications, Inc."
+license = "MIT"
