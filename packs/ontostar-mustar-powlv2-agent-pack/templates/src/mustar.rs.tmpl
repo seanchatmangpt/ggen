@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 
-use crate::catalog::AGENT_REQUIRED_BROKER;
+use crate::catalog::{ModelTier, AGENT_REQUIRED_BROKER, MODEL_GENERATION, MODEL_PROVIDER};
 use crate::model::{
-    digest_value, is_blake3_urn, model_intent, ModelInferenceIntent, ModelRefusal, ModelTask,
+    digest_value, is_blake3_urn, model_intent, routed_tier, ModelInferenceIntent, ModelRefusal,
+    ModelTask,
 };
 use crate::powl_v2::AdmittedPowlPlan;
 
@@ -45,9 +46,9 @@ pub struct MuStarCompilation {
 
 #[derive(Debug, Error)]
 pub enum MuStarRefusal {
-    #[error("MuStar requires the Luna, Terra, and Sol model-intent triad")]
+    #[error("MuStar requires exactly one admitted Luna, Terra, and Sol model intent")]
     ModelTriadRequired,
-    #[error("MuStar received a model intent without an admitted BLAKE3 identity")]
+    #[error("MuStar received a model intent that violates identity, routing, or authority law")]
     InvalidModelIntent,
     #[error("MuStar serialization failed: {0}")]
     Serialization(#[from] serde_json::Error),
@@ -76,14 +77,9 @@ pub fn verification_intent(
 
 pub fn compile_plan(
     plan: &AdmittedPowlPlan,
-    model_intent_ids: BTreeSet<String>,
+    model_intents: &[ModelInferenceIntent],
 ) -> Result<MuStarCompilation, MuStarRefusal> {
-    if model_intent_ids.len() != 3 {
-        return Err(MuStarRefusal::ModelTriadRequired);
-    }
-    if model_intent_ids.iter().any(|id| !is_blake3_urn(id)) {
-        return Err(MuStarRefusal::InvalidModelIntent);
-    }
+    let model_intent_ids = admit_model_triad(model_intents)?;
     let mut predecessors = plan
         .activities
         .keys()
@@ -142,4 +138,34 @@ pub fn compile_plan(
         candidate_only: true,
         execution_authority: false,
     })
+}
+
+fn admit_model_triad(
+    model_intents: &[ModelInferenceIntent],
+) -> Result<BTreeSet<String>, MuStarRefusal> {
+    if model_intents.len() != 3 {
+        return Err(MuStarRefusal::ModelTriadRequired);
+    }
+    let tiers = model_intents
+        .iter()
+        .map(|intent| intent.tier)
+        .collect::<BTreeSet<_>>();
+    if tiers != BTreeSet::from([ModelTier::Luna, ModelTier::Terra, ModelTier::Sol]) {
+        return Err(MuStarRefusal::ModelTriadRequired);
+    }
+    if model_intents.iter().any(|intent| {
+        !is_blake3_urn(&intent.intent_id)
+            || intent.broker != AGENT_REQUIRED_BROKER
+            || intent.provider != MODEL_PROVIDER
+            || intent.generation != MODEL_GENERATION
+            || !intent.candidate_only
+            || intent.execution_authority
+            || routed_tier(intent.task) != intent.tier
+    }) {
+        return Err(MuStarRefusal::InvalidModelIntent);
+    }
+    Ok(model_intents
+        .iter()
+        .map(|intent| intent.intent_id.clone())
+        .collect())
 }
