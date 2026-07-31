@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   manufacture-simulate-verify:
-    name: Generate roadmap, execute seven scenarios, and replay receipts
+    name: Generate roadmap, close G0-G9, execute scenarios, and replay receipts
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -94,8 +94,6 @@ jobs:
 
       - name: Execute generated verifier ladder
         working-directory: examples/tai-enterprise-rebuild
-        env:
-          CARGO_TARGET_DIR: ${{ github.workspace }}/target/tai-enterprise-rebuild
         run: bash consumer/tai-enterprise-rebuild/scripts/verify.sh
 
       - name: Prove bounded standing and non-promotion
@@ -104,11 +102,14 @@ jobs:
           jq -e '.standing == "ALIVE"' VERIFIER_REPORT.json >/dev/null
           jq -e '.recentCapabilitiesComposed == 18' VERIFIER_REPORT.json >/dev/null
           jq -e '.cmdCheckpoints == 10 and .internalDimensions == 12 and .externalDimensions == 13' VERIFIER_REPORT.json >/dev/null
+          jq -e '.internalOptions == 24 and .externalOptions == 26' VERIFIER_REPORT.json >/dev/null
+          jq -e '.cmdAggregateStanding == "PARTIAL_ALIVE" and .cmdWipRemaining == 0' VERIFIER_REPORT.json >/dev/null
           jq -e '.combinatorialMaximalismProgramVerified == true' VERIFIER_REPORT.json >/dev/null
           jq -e '.scenariosExecuted == 7' VERIFIER_REPORT.json >/dev/null
           jq -e '.directActuation == false and .requiredBroker == "BRCE"' VERIFIER_REPORT.json >/dev/null
           jq -e '.enterpriseStanding == "UNKNOWN" and .externalCertificationStanding == "UNKNOWN"' VERIFIER_REPORT.json >/dev/null
           jq -e '.standing == "UNKNOWN" and .directActuation == false' consumer/tai-enterprise-rebuild/RELEASE_STANDING.json >/dev/null
+          jq -e '.wipRemaining == 0 and .replayResult == "IDENTICAL"' .ggen/cmd/verifier/report.json >/dev/null
 
       - name: Refuse generated-source drift
         run: git diff --exit-code -- examples/tai-enterprise-rebuild packs/tai-enterprise-rebuild-pack
@@ -119,6 +120,7 @@ jobs:
           name: tai-enterprise-rebuild-evidence
           path: |
             examples/tai-enterprise-rebuild/.ggen-v2/receipt.json
+            examples/tai-enterprise-rebuild/.ggen/cmd/**
             examples/tai-enterprise-rebuild/VERIFIER_REPORT.json
             examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/RELEASE_STANDING.json
             examples/tai-enterprise-rebuild/consumer/tai-enterprise-rebuild/generated/*.json
