@@ -1,9 +1,8 @@
-name: Finalize v26.7.30 Consolidation
+name: Execute v26.7.30 Consolidation Finalizer
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    branches: [main]
+  push:
+    branches: [agent/ggen-v26.7.30-finalizer-run]
     paths:
       - '.github/workflows/finalize-v26.7.30-consolidation.yml'
 
@@ -11,12 +10,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: finalize-v26.7.30-${{ github.event.pull_request.number }}
+  group: execute-v26.7.30-consolidation-finalizer
   cancel-in-progress: true
 
 jobs:
   merge-and-verify:
-    if: github.event.pull_request.head.ref == 'agent/ggen-v26.7.30-consolidated'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
