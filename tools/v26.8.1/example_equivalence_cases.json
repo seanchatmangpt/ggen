@@ -1,0 +1,63 @@
+{
+  "schema": "ggen.legacy-equivalence.case-manifest.v1",
+  "note": "G7 SCAFFOLDING: hand-crafted example cases proving equivalence_runner.py is generic and data-driven (dispatch purely off observable_surfaces, no per-case branches). Not real legacy-capability data.",
+  "cases": [
+    {
+      "case_id": "cli-stdout-echo",
+      "title": "CLI stdout equivalence, timestamp-normalized",
+      "order": 1,
+      "legacy_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "current_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "strip_timestamps",
+      "expected_disposition": "PRESERVED",
+      "observable_surfaces": ["exit_code", "stdout"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+    },
+    {
+      "case_id": "generated-file-bytes",
+      "title": "Generated file byte-identity",
+      "order": 2,
+      "legacy_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"",
+      "current_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code", "generated_bytes"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+    },
+    {
+      "case_id": "refused-removed-command",
+      "title": "REFUSED disposition, typed diagnostic on stderr",
+      "order": 3,
+      "legacy_adapter": "printf 'legacy-op executed\\n'; exit 0",
+      "current_adapter": "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["exit_code", "diagnostics"],
+      "timeout_seconds": 5,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "decommissioned"
+    },
+    {
+      "case_id": "NEGATIVE-CONTROL-mismatched-bytes",
+      "title": "DELIBERATE mismatch: current writes different payload bytes than legacy",
+      "order": 4,
+      "legacy_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"",
+      "current_adapter": "printf 'payload-v2-DIFFERENT\\n' > \"$EQV_OUT/current.bin\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code", "generated_bytes"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+@prefix eqv: <https://ggen.io/ontology/legacy-equivalence#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# G7 SCAFFOLDING NOTICE
+#
+# This ontology.ttl is REUSABLE INFRASTRUCTURE, not a real capability
+# inventory. The three eqv:EquivalenceCase individuals below
+# (eqv:CaseCliStdoutEcho, eqv:CaseGeneratedFileBytes,
+# eqv:CaseRefusedRemovedCommand) are SYNTHETIC / HAND-CRAFTED examples
+# built only to prove the generation pipeline and the generic runner
+# are data-driven and domain-correct. They do NOT describe any real
+# ggen-legacy capability. Real EquivalenceCase individuals -- one per
+# actual legacy capability, sourced from actual legacy/current adapter
+# commands -- are expected to be produced later by a concurrent
+# ontology-extraction agent and merged into a project-level ggen.toml
+# that imports this pack alongside that real data. Do not cite the
+# synthetic cases here as evidence that any real ggen-legacy capability
+# has been verified equivalent.
+# =====================================================================
+
+# Law surfaces (classes / properties)
+
+eqv:LegacyEquivalenceBBlockClass a rdfs:Class .
+eqv:LegacyCapability a rdfs:Class ; rdfs:subClassOf prov:Entity .
+eqv:EquivalenceCase a rdfs:Class ; rdfs:subClassOf prov:Activity .
+eqv:VerifierReport a rdfs:Class ; rdfs:subClassOf prov:Entity .
+
+eqv:version a rdf:Property .
+eqv:caseId a rdf:Property .
+eqv:order a rdf:Property .
+eqv:forCapability a rdf:Property .
+eqv:legacyAdapter a rdf:Property .
+eqv:currentAdapter a rdf:Property .
+eqv:successInput a rdf:Property .
+eqv:failureInput a rdf:Property .
+eqv:normalizationPolicy a rdf:Property .
+eqv:expectedDisposition a rdf:Property .
+eqv:observableSurface a rdf:Property .
+eqv:timeoutSeconds a rdf:Property .
+eqv:recoveryAction a rdf:Property .
+eqv:expectedDiagnosticSubstring a rdf:Property .
+eqv:reportSchema a rdf:Property .
+eqv:entrypoint a rdf:Property .
+eqv:hasCase a rdf:Property .
+
+# Controlled vocabulary: expectedDisposition
+#   PRESERVED  -- current adapter reproduces legacy behavior byte-for-byte (mod normalization)
+#   SUBSUMED   -- current adapter's broader capability strictly contains legacy behavior
+#   REPLACED   -- current adapter intentionally differs; equivalence checked on a narrower contract
+#   ARCHIVED   -- no live current adapter; equivalence checked via a restore-and-verify contract
+#   REFUSED    -- current surface intentionally refuses the legacy input with a typed diagnostic
+
+# Controlled vocabulary: observableSurface (one or more per case)
+#   exit_code | stdout | stderr | filesystem_delta | generated_bytes | diagnostics
+#   receipt_fields | event_order | side_effects | recovery_result
+
+# Controlled vocabulary: normalizationPolicy
+#   none | strip_timestamps | sort_json_keys
+
+eqv:LegacyEquivalenceBBlock a eqv:LegacyEquivalenceBBlockClass ;
+    dcterms:title "Legacy Capability Equivalence Verifier" ;
+    dcterms:description "Data-driven equivalence cases comparing a legacy adapter to a current adapter (or a restore/refusal contract), dispatched purely on declared observable surfaces." ;
+    eqv:version "26.8.1" ;
+    eqv:reportSchema "ggen.legacy-equivalence.verifier-report.v1" ;
+    eqv:hasCase eqv:CaseCliStdoutEcho, eqv:CaseGeneratedFileBytes, eqv:CaseRefusedRemovedCommand .
+
+# --- SYNTHETIC EXAMPLE 1: stdout equivalence with normalization ---------
+eqv:LegacyCapabilityEcho a eqv:LegacyCapability ;
+    eqv:caseId "example-echo-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: normalized text echo" .
+
+eqv:CaseCliStdoutEcho a eqv:EquivalenceCase ;
+    eqv:order 1 ;
+    eqv:caseId "cli-stdout-echo" ;
+    dcterms:title "SYNTHETIC: CLI stdout equivalence, timestamp-normalized" ;
+    eqv:forCapability eqv:LegacyCapabilityEcho ;
+    eqv:legacyAdapter "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" ;
+    eqv:currentAdapter "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "strip_timestamps" ;
+    eqv:expectedDisposition "PRESERVED" ;
+    eqv:observableSurface "exit_code", "stdout" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:recoveryAction "none" .
+
+# --- SYNTHETIC EXAMPLE 2: generated-file byte equivalence ----------------
+eqv:LegacyCapabilityWriter a eqv:LegacyCapability ;
+    eqv:caseId "example-writer-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: fixed-content file writer" .
+
+eqv:CaseGeneratedFileBytes a eqv:EquivalenceCase ;
+    eqv:order 2 ;
+    eqv:caseId "generated-file-bytes" ;
+    dcterms:title "SYNTHETIC: generated file byte-identity" ;
+    eqv:forCapability eqv:LegacyCapabilityWriter ;
+    eqv:legacyAdapter "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"" ;
+    eqv:currentAdapter "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code", "generated_bytes" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:recoveryAction "none" .
+
+# --- SYNTHETIC EXAMPLE 3: ARCHIVED capability via refusal contract -------
+eqv:LegacyCapabilityRemovedCommand a eqv:LegacyCapability ;
+    eqv:caseId "example-removed-command-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: a command intentionally removed from the current surface" .
+
+eqv:CaseRefusedRemovedCommand a eqv:EquivalenceCase ;
+    eqv:order 3 ;
+    eqv:caseId "refused-removed-command" ;
+    dcterms:title "SYNTHETIC: REFUSED disposition, typed diagnostic on stderr" ;
+    eqv:forCapability eqv:LegacyCapabilityRemovedCommand ;
+    eqv:legacyAdapter "printf 'legacy-op executed\\n'; exit 0" ;
+    eqv:currentAdapter "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:expectedDiagnosticSubstring "decommissioned" ;
+    eqv:recoveryAction "none" .
+
+eqv:MachineVerifierReport a eqv:VerifierReport ;
+    dcterms:title "Legacy Equivalence Verifier Report" ;
+    eqv:reportSchema "ggen.legacy-equivalence.verifier-report.v1" ;
+    eqv:entrypoint "consumer/legacy-equivalence/suites/verify-all.sh" .

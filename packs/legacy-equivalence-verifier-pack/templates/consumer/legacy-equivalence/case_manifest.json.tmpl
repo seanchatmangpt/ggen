@@ -1,0 +1,22 @@
+{
+  "schema": "ggen.legacy-equivalence.case-manifest.v1",
+  "note": "G7 SCAFFOLDING: cases below are SYNTHETIC examples proving the generation pipeline is data-driven. Real legacy-capability cases are supplied later by a concurrent ontology-extraction agent.",
+  "cases": [
+{% for row in results %}    {
+      "case_id": {{ row["caseId"] | json_encode | safe }},
+      "title": {{ row["title"] | json_encode | safe }},
+      "order": {{ row["order"] }},
+      "legacy_adapter": {{ row["legacyAdapter"] | json_encode | safe }},
+      "current_adapter": {{ row["currentAdapter"] | json_encode | safe }},
+      "success_inputs": [{{ row["successInput"] | json_encode | safe }}],
+      "failure_inputs": [{{ row["failureInput"] | json_encode | safe }}],
+      "normalization_policy": {{ row["normalizationPolicy"] | json_encode | safe }},
+      "expected_disposition": {{ row["expectedDisposition"] | json_encode | safe }},
+      "observable_surfaces": [{% for surface in row["observableSurfaces"] | split(pat="|") %}{{ surface | json_encode | safe }}{% if not loop.last %}, {% endif %}{% endfor %}],
+      "timeout_seconds": {{ row["timeoutSeconds"] }},
+      "recovery_action": {{ row["recoveryAction"] | json_encode | safe }}{% if row["expectedDiagnosticSubstring"] %},
+      "expected_diagnostic_substring": {{ row["expectedDiagnosticSubstring"] | json_encode | safe }}{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
