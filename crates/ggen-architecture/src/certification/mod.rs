@@ -14,9 +14,14 @@ use crate::building_block::{
     ProfileId, Standing,
 };
 
+mod case_study;
 mod program;
 mod roadmap;
 
+pub use case_study::{
+    tai_case_study, tai_case_study_evidence, tai_case_study_registry, TaiCaseStudy,
+    TaiCaseStudyState, TAI_CASE_STUDY_ID, TAI_ENTERPRISE_ROOT_ID, TAI_TARGET_ID,
+};
 pub use program::CertificationProgram;
 pub use roadmap::{generate_rebuild_roadmap, simulate_tai_rebuild};
 
@@ -102,6 +107,7 @@ pub struct CertificationAward {
     pub schema: String,
     pub program_id: String,
     pub program_version: String,
+    pub case_study_id: String,
     pub candidate_id: String,
     pub level: CertificationLevel,
     pub requirement_ids: Vec<String>,
