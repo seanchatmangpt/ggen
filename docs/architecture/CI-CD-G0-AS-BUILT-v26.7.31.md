@@ -15,7 +15,15 @@ The admitted inventory is:
 
 `packs/github-actions-pack/observations/g0-workflow-inventory-v26.7.31.toml`
 
-Every workflow entry names one semantic owner, its current purpose, its evidence output, its production output, and a Chesterton-fence retirement class. Triggers, permission ceilings, jobs, action invocations, run commands, and detectable evidence mechanisms are derived from the exact checked-in YAML by the verifier. They are not copied into a second hand-maintained YAML model.
+Every workflow entry names:
+
+- one semantic owner;
+- its current purpose;
+- its evidence output;
+- its production output;
+- its Chesterton-fence retirement condition.
+
+Triggers, permission ceilings, jobs, action invocations, run commands, and detectable evidence mechanisms are derived from the exact checked-in YAML by the verifier. They are not copied into a second hand-maintained YAML model.
 
 ## Calculus
 
@@ -28,7 +36,11 @@ checked-in .github/workflows/*.{yml,yaml}
         = G0 as-built evidence
 ```
 
-The verifier is `scripts/ci/verify-g0-workflow-inventory.py`. It writes deterministic evidence to:
+The verifier is:
+
+`scripts/ci/verify-g0-workflow-inventory.py`
+
+It writes deterministic evidence to:
 
 - `target/ci-g0/workflow-inventory.json`;
 - `target/ci-g0/workflow-inventory.md`.
@@ -42,7 +54,13 @@ Two checked-in negative fixtures execute through real Python subprocesses:
 1. an inventory that omits a checked-in workflow is refused as `CI-G0-INVENTORY-001`;
 2. two distinct owners assigned to one production output are refused as `CI-G0-OWNERSHIP-001`.
 
-The fixture executor is `scripts/ci/test-g0-workflow-inventory.py`. The repository integration boundary is `crates/ggen-engine/tests/ci_g0_inventory_e2e.rs`.
+The fixture executor is:
+
+`scripts/ci/test-g0-workflow-inventory.py`
+
+The repository integration boundary is:
+
+`crates/ggen-engine/tests/ci_g0_inventory_e2e.rs`
 
 That test executes the verifier against the real repository tree, verifies the generated filesystem evidence, then executes both refusal cases. It is automatically included in the existing required full-workspace integration job. No new workflow or Rust crate is introduced.
 
@@ -58,7 +76,7 @@ PR #524's documentation-only head `53f751b097993bca6bcd9e1f9d86b764620e0a4b` pro
 
 The observed runs were still executing when G0 evidence was captured. Wall-clock duration is therefore `UNKNOWN`, not estimated.
 
-The verifier derives a duplicate command/action map across all 48 workflow files. This exposes repeated checkout, setup, Cargo, test, upload, and deployment mechanics without changing any caller during G0.
+The verifier derives a duplicate command/action map across all 48 workflow files. It also exposes three shared production surfaces under singular semantic owners: GitHub Pages across five workflows, Docker Hub across two workflows, and GitHub Releases across four workflows. This makes overlap measurable without changing any caller during G0.
 
 ## Branch-protection boundary
 
@@ -88,7 +106,7 @@ cargo test -p ggen-engine --test ci_g0_inventory_e2e
 
 The first command verifies the exact real repository. The second proves both refusal laws. The third proves that the existing Rust integration boundary can execute the complete G0 verifier and inspect its emitted evidence.
 
-## G0 receipt
+## G0 checkpoint report
 
 | Law state | Result |
 |---|---|
