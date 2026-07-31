@@ -1,0 +1,24 @@
+PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+SELECT ?subject ?reason WHERE {
+  {
+    ?subject a tai:RoadmapGenerator .
+    VALUES ?reason { "generator-broker" "generator-actuation" "generator-llm" "generator-outcome" }
+    FILTER(
+      (?reason = "generator-broker" && NOT EXISTS { ?subject tai:requiredBroker "BRCE" }) ||
+      (?reason = "generator-actuation" && NOT EXISTS { ?subject tai:directActuation false }) ||
+      (?reason = "generator-llm" && NOT EXISTS { ?subject tai:llmCalls false }) ||
+      (?reason = "generator-outcome" && NOT EXISTS { ?subject tai:outcome ?v })
+    )
+  }
+  UNION
+  {
+    ?subject a tai:EvidenceObligation .
+    VALUES ?reason { "missing-order" "missing-identifier" "missing-evidence" "missing-falsifier" }
+    FILTER(
+      (?reason = "missing-order" && NOT EXISTS { ?subject tai:order ?v }) ||
+      (?reason = "missing-identifier" && NOT EXISTS { ?subject tai:identifier ?v }) ||
+      (?reason = "missing-evidence" && NOT EXISTS { ?subject tai:evidenceKind ?v }) ||
+      (?reason = "missing-falsifier" && NOT EXISTS { ?subject tai:falsifier ?v })
+    )
+  }
+}
