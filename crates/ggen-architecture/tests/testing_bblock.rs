@@ -56,3 +56,16 @@ fn seven_day_profile_binds_the_same_testing_protocol() {
             && suite.status == TestingSuiteStatus::PendingCheckpoint
     }));
 }
+
+#[test]
+fn testing_protocol_changes_the_standards_profile_digest() {
+    let original = seven_day_standards_profile();
+    let mut changed = original.clone();
+    changed.testing_bblock.suites[0]
+        .acceptance
+        .push_str(" changed");
+    assert_ne!(
+        original.digest().expect("original standards digest"),
+        changed.digest().expect("changed testing protocol digest")
+    );
+}
