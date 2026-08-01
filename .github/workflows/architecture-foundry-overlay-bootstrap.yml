@@ -1,0 +1,67 @@
+name: Architecture Foundry Overlay Bootstrap
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: architecture-foundry-overlay-bootstrap-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: false
+
+jobs:
+  manufacture-overlay-support:
+    if: github.event.pull_request.head.ref == 'agent/architecture-foundry-runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RUSTUP_TOOLCHAIN: stable
+      RUSTC_WRAPPER: ""
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Apply deterministic owner-sentinel patch
+        run: |
+          python3 tools/architecture-foundry/scripts/apply_replacement_owner_sentinel_patch.py
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
+
+      - name: Manufacture clean exact commit
+        id: canonical
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- tools/architecture-foundry/src/bin/admit_capabilities.rs; then
+            echo "manufactured=false" >> "$GITHUB_OUTPUT"
+            echo "Owner-sentinel support already canonical."
+            exit 0
+          fi
+          git config user.name "ggen-foundry-manufacturer"
+          git config user.email "ggen-foundry-manufacturer@users.noreply.github.com"
+          git add tools/architecture-foundry/src/bin/admit_capabilities.rs
+          git commit -m "fix(foundry): distinguish unresolved replacement owners"
+          echo "manufactured=true" >> "$GITHUB_OUTPUT"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Compile and test exact manufactured commit
+        run: |
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
+          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+          cargo run --manifest-path tools/architecture-foundry/Cargo.toml -- \
+            validate-program \
+            --program docs/architecture-foundry/work-program.yaml
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Push exact tested commit
+        if: steps.canonical.outputs.manufactured == 'true'
+        run: git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
