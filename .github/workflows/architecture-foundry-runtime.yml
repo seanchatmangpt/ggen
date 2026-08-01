@@ -8,7 +8,7 @@ on:
       - ".github/workflows/architecture-foundry-runtime.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: architecture-foundry-runtime-${{ github.ref }}
@@ -17,15 +17,14 @@ concurrency:
 jobs:
   rust-runtime:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       RUSTUP_TOOLCHAIN: stable
       RUSTC_WRAPPER: ""
     steps:
-      - name: Checkout exact PR head
+      - name: Checkout exact head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - name: Install Rust
@@ -33,30 +32,13 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Normalize Workstream C verifier
-        run: python3 tools/architecture-foundry/normalize_capabilities.py
-
-      - name: Manufacture canonical Rust formatting
-        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
-
-      - name: Persist exact normalized Rust source
-        shell: bash
-        run: |
-          if ! git diff --quiet -- tools/architecture-foundry; then
-            git config user.name "ggen-foundry-verifier"
-            git config user.email "ggen-foundry-verifier@users.noreply.github.com"
-            git add tools/architecture-foundry
-            git commit -m "fix(foundry): canonicalize capability admission verifier"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
-
       - name: Verify clean exact-head checkout
         run: test -z "$(git status --porcelain=v1 --untracked-files=all)"
 
       - name: Verify canonical Rust formatting
         run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
 
-      - name: Test real Git boundaries
+      - name: Test all Rust targets and real Git boundaries
         run: cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
 
       - name: Validate repository work program
