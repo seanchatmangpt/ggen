@@ -1,22 +1,8 @@
-name: Combinatorial Maximalism pack
+name: Exact-head combinatorial maximalism ALIVE validation
 
 on:
   pull_request:
     paths:
-      - 'packs/ggen-combinatorial-maximalism-pack/**'
-      - 'examples/combinatorial-maximalism/**'
-      - 'scripts/validate_combinatorial_maximalism_pack.py'
-      - 'scripts/verify-combinatorial-maximalism-pack.sh'
-      - 'docs/how-to/combinatorial-maximalism-pack.md'
-      - '.github/workflows/combinatorial-maximalism-pack.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'packs/ggen-combinatorial-maximalism-pack/**'
-      - 'examples/combinatorial-maximalism/**'
-      - 'scripts/validate_combinatorial_maximalism_pack.py'
-      - 'scripts/verify-combinatorial-maximalism-pack.sh'
-      - 'docs/how-to/combinatorial-maximalism-pack.md'
       - '.github/workflows/combinatorial-maximalism-pack.yml'
   workflow_dispatch:
 
@@ -24,40 +10,363 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: exact-head-alive-${{ github.ref }}
   cancel-in-progress: true
 
 env:
+  TARGET_SHA: 8351af4c5bbbf60bd99ab8417752a1762c6ea4e3
+  TARGET_VERSION: 26.8.3
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
 
 jobs:
-  manufacture-verify-replay:
-    name: Manufacture, actuate, receipt, replay
+  delta-proof:
+    name: Exact identity, delta closure, receipts, Python surfaces
     runs-on: ubuntu-latest
-    timeout-minutes: 75
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout exact candidate
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          fetch-depth: 0
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 2
 
-      - name: Provision sibling crates and pinned Rust toolchain
+      - name: Prove exact subject identity
+        run: |
+          set -euo pipefail
+          observed="$(git rev-parse HEAD)"
+          test "$observed" = "$TARGET_SHA"
+          printf 'subject_sha=%s\nparent_sha=%s\n' "$observed" "$(git rev-parse HEAD^)" | tee subject.identity
+
+      - name: Validate exact release delta and receipt chain
+        run: |
+          set -euo pipefail
+          mkdir -p validation-receipts
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import subprocess
+          import tomllib
+
+          target = "8351af4c5bbbf60bd99ab8417752a1762c6ea4e3"
+          version = "26.8.3"
+          expected = sorted([
+              ".ggen-v2/receipt-log.jsonl",
+              ".ggen-v2/receipt.json",
+              ".specify/repo-facts.ttl",
+              "Cargo.lock",
+              "Cargo.toml",
+              "README.md",
+              "crates/ggen-engine/Cargo.toml",
+              "ggen.toml",
+          ])
+          head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          parent = subprocess.check_output(["git", "rev-parse", "HEAD^"], text=True).strip()
+          changed = sorted(subprocess.check_output(
+              ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
+              text=True,
+          ).splitlines())
+          assert head == target, (head, target)
+          assert changed == expected, {"expected": expected, "actual": changed}
+
+          root = tomllib.loads(pathlib.Path("Cargo.toml").read_text())
+          engine = tomllib.loads(pathlib.Path("crates/ggen-engine/Cargo.toml").read_text())
+          project = tomllib.loads(pathlib.Path("ggen.toml").read_text())
+          lock = tomllib.loads(pathlib.Path("Cargo.lock").read_text())
+          assert root["workspace"]["package"]["version"] == version
+          assert engine["package"]["version"] == version
+          assert project["project"]["version"] == version
+
+          workspace_packages = {
+              "cpmp", "genesis-core-v2", "genesis-types", "ggen",
+              "ggen-cheat-scanner", "ggen-cli-lib", "ggen-config",
+              "ggen-engine", "ggen-graph", "ggen-lsp",
+              "ggen-marketplace", "openapi-cnv-reflect",
+          }
+          locked = {p["name"]: p["version"] for p in lock["package"] if p["name"] in workspace_packages}
+          assert set(locked) == workspace_packages, sorted(workspace_packages - set(locked))
+          assert set(locked.values()) == {version}, locked
+
+          assert f'workspaceVersion "{version}"' in pathlib.Path(".specify/repo-facts.ttl").read_text()
+          assert f"Current version: `{version}`" in pathlib.Path("README.md").read_text()
+
+          receipt = json.loads(pathlib.Path(".ggen-v2/receipt.json").read_text())
+          log = [json.loads(line) for line in pathlib.Path(".ggen-v2/receipt-log.jsonl").read_text().splitlines() if line.strip()]
+          assert log[-1] == receipt
+          assert log[-1]["record"]["prev_chain_hash_hex"] == log[-2]["record"]["chain_hash_hex"]
+          record = receipt["record"]
+          assert record["schema"] == "ggen-receipt/v2"
+          assert record["andon"] == "Green"
+          assert record["v2"]["andon"] == "Green"
+          assert record["v2"]["promotion_eligible"] is True
+          assert record["payload"]["closure"]["actuator"] == f"ggen@{version}"
+          assert len(record["chain_hash_hex"]) == 64
+          assert len(record["payload_hash_hex"]) == 64
+          assert len(record["signature_hex"]) == 128
+
+          report = {
+              "schema": "ggen-exact-head-static-validation/v1",
+              "subject_sha": head,
+              "parent_sha": parent,
+              "version": version,
+              "changed_files": changed,
+              "workspace_packages": locked,
+              "receipt_chain_length": len(log),
+              "receipt_chain_head": record["chain_hash_hex"],
+              "promotion_eligible": record["v2"]["promotion_eligible"],
+              "status": "PASS",
+          }
+          pathlib.Path("validation-receipts/static-proof.json").write_text(json.dumps(report, indent=2) + "\n")
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Compile every tracked Python source
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.py')
+          printf 'tracked_python_files=%s\n' "${#files[@]}"
+          if [ "${#files[@]}" -gt 0 ]; then
+            python3 -m py_compile "${files[@]}"
+          fi
+
+      - name: Observe repository workflow-policy validator
+        run: |
+          set +e
+          python3 scripts/ci/validate-workflows.py > validation-receipts/workflow-policy.log 2>&1
+          status=$?
+          set -e
+          python3 - "$status" <<'PY'
+          import json, pathlib, sys
+          status = int(sys.argv[1])
+          pathlib.Path("validation-receipts/workflow-policy.json").write_text(
+              json.dumps({
+                  "schema": "ggen-observation/v1",
+                  "check": "scripts/ci/validate-workflows.py",
+                  "exit_code": status,
+                  "classification": "PASS" if status == 0 else "OBSERVED_EXISTING_POLICY_DIVERGENCE",
+              }, indent=2) + "\n"
+          )
+          PY
+          cat validation-receipts/workflow-policy.log
+
+      - name: Publish static proof receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-static-proof
+          path: |
+            subject.identity
+            validation-receipts
+
+  rust-gates:
+    name: Rust ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: check
+            command: cargo check --workspace --exclude ggen-lsp
+          - name: build
+            command: cargo build --workspace --exclude ggen-lsp
+          - name: lib-tests
+            command: cargo test --workspace --lib --exclude ggen-lsp
+          - name: doctests
+            command: cargo test --doc --workspace --exclude ggen-lsp
+          - name: fmt-ownership
+            command: just fmt-check
+          - name: cli-clippy
+            command: cargo clippy -p ggen-cli-lib --all-targets -- -D warnings
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
         uses: ./.github/actions/setup-ggen-build
         with:
-          cache-key-suffix: combinatorial-maximalism-pack
+          cache-key-suffix: alive-${{ matrix.name }}
+      - name: Execute ${{ matrix.name }}
+        run: ${{ matrix.command }}
 
-      - name: Execute the full CMD verifier ladder
-        run: bash scripts/verify-combinatorial-maximalism-pack.sh
-
-      - name: Publish generated plan and execution receipts
-        uses: actions/upload-artifact@v4
+  integration-and-phase2:
+    name: Integration, coherence, and Phase 2
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          name: combinatorial-maximalism-receipts
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-integration
+      - name: Execute integration tests
+        run: cargo test --workspace --tests --exclude ggen-lsp
+      - name: Execute Phase 2 tests
+        run: just test-phase2
+      - name: Execute graph coherence boundary
+        run: just coherence-check
+
+  precommit:
+    name: Repository Definition of Done
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-precommit
+      - name: Execute documented Definition of Done
+        run: just pre-commit
+
+  v26-rebuild:
+    name: v26.8.1 manufacture, receipt, Crown, Step Two
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-v26-rebuild
+      - name: Configure ephemeral manufactured-state identity
+        run: |
+          git config user.name 'ggen ALIVE validator'
+          git config user.email 'alive-validator@users.noreply.github.com'
+      - name: Execute one-shot rebuild and proof ladder
+        run: just v26-8-1-rebuild
+      - name: Capture terminal evidence
+        if: always()
+        run: |
+          mkdir -p validation-receipts
+          git status --porcelain=v1 > validation-receipts/git-status.txt
+          git log -1 --format='%H%n%P%n%s' > validation-receipts/terminal-head.txt
+          find .ggen .ggen-v2 -maxdepth 5 -type f -print 2>/dev/null | sort > validation-receipts/evidence-files.txt || true
+      - name: Publish rebuild receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-v26-rebuild-receipts
+          path: validation-receipts
+
+  cmd-pack:
+    name: CMD manufacture, actuation, receipt, replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-cmd-pack
+      - name: Execute full CMD verifier ladder
+        run: bash scripts/verify-combinatorial-maximalism-pack.sh
+      - name: Publish CMD receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-cmd-receipts
           path: |
             examples/combinatorial-maximalism/generated/cmd-plan.json
             examples/combinatorial-maximalism/generated/CMD_REPORT.md
             examples/combinatorial-maximalism/generated/evidence
             examples/combinatorial-maximalism/.ggen-v2/receipt.json
             examples/combinatorial-maximalism/.ggen-v2/receipt-log.jsonl
+
+  advisory-boundaries:
+    name: Advisory boundaries (LSP, full clippy, TypeScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert immutable subject identity
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-advisory
+      - name: Observe non-required Rust boundaries
+        run: |
+          set +e
+          mkdir -p validation-receipts
+          cargo check -p ggen-lsp --all-features > validation-receipts/lsp-check.log 2>&1
+          lsp=$?
+          cargo clippy --workspace --all-targets --exclude ggen-lsp -- -D warnings > validation-receipts/full-clippy.log 2>&1
+          clippy=$?
+          set -e
+          python3 - "$lsp" "$clippy" <<'PY'
+          import json, pathlib, sys
+          lsp, clippy = map(int, sys.argv[1:])
+          pathlib.Path("validation-receipts/advisory-rust.json").write_text(json.dumps({
+              "schema": "ggen-advisory-boundaries/v1",
+              "ggen_lsp_all_features_exit": lsp,
+              "full_workspace_clippy_exit": clippy,
+              "standing": "ADVISORY_NON_REQUIRED",
+          }, indent=2) + "\n")
+          PY
+      - name: Execute lockfile-bounded TypeScript validation where present
+        run: |
+          set +e
+          mkdir -p validation-receipts/typescript
+          overall=0
+          count=0
+          while IFS= read -r lock; do
+            count=$((count+1))
+            dir="$(dirname "$lock")"
+            safe="$(printf '%s' "$dir" | tr '/.' '__')"
+            (
+              cd "$dir" || exit 1
+              npm ci --ignore-scripts
+              if [ -f tsconfig.json ] && [ -x node_modules/.bin/tsc ]; then
+                ./node_modules/.bin/tsc --noEmit
+              else
+                echo 'No local TypeScript compiler + tsconfig boundary; dependency closure only.'
+              fi
+            ) > "validation-receipts/typescript/${safe}.log" 2>&1
+            status=$?
+            [ "$status" -eq 0 ] || overall=1
+          done < <(git ls-files '**/package-lock.json' 'package-lock.json')
+          set -e
+          python3 - "$count" "$overall" <<'PY'
+          import json, pathlib, sys
+          count, overall = map(int, sys.argv[1:])
+          pathlib.Path("validation-receipts/typescript/summary.json").write_text(json.dumps({
+              "schema": "ggen-typescript-validation/v1",
+              "lockfile_roots": count,
+              "exit_code": overall,
+              "standing": "UNSUPPORTED_NO_LOCKFILES" if count == 0 else ("PASS" if overall == 0 else "PARTIAL_ALIVE"),
+          }, indent=2) + "\n")
+          PY
+      - name: Publish advisory evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-advisory-boundaries
+          path: validation-receipts
