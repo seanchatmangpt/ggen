@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/schemas/eod-repo-observation.v1.json",
+  "additionalProperties": false,
+  "properties": {
+    "day": {"pattern": "^\\d{4}-\\d{2}-\\d{2}$", "type": "string"},
+    "repositories": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "accepts": {"items": {"type": "string"}, "minItems": 1, "type": "array", "uniqueItems": true},
+          "base_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"},
+          "constraints": {"items": {"type": "string"}, "type": "array"},
+          "head_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"},
+          "repository": {"pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "type": "string"},
+          "verification": {"items": {"type": "string"}, "type": "array"},
+          "work": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "artifacts": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "blob_sha": {"pattern": "^[0-9a-f]{40}$", "type": "string"},
+                      "exports": {"items": {"type": "string"}, "minItems": 1, "type": "array", "uniqueItems": true},
+                      "path": {"minLength": 1, "type": "string"}
+                    },
+                    "required": ["blob_sha", "exports", "path"],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "id": {"minLength": 1, "type": "string"},
+                "observed_from": {"format": "uri", "type": "string"},
+                "summary": {"minLength": 1, "type": "string"}
+              },
+              "required": ["artifacts", "id", "observed_from", "summary"],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": ["accepts", "base_sha", "constraints", "head_sha", "repository", "verification", "work"],
+        "type": "object"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "schema": {"const": "ggen.eod-repo-observation.v1"},
+    "timezone": {"minLength": 1, "type": "string"}
+  },
+  "required": ["day", "repositories", "schema", "timezone"],
+  "type": "object"
+}
