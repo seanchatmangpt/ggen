@@ -32,26 +32,84 @@ def main() -> None:
     )
     text = replace_once(
         text,
-        """    let disposition_decision_count = apply_disposition_decisions(\n        &mut capabilities,\n        &decision_bytes,\n        &source.head,\n    )?;""",
-        """    let disposition_decision_count = apply_disposition_decisions(\n        &mut capabilities,\n        &decision_bytes,\n        &source.head,\n        &cli.source,\n    )?;""",
+        """    let disposition_decision_count =
+        apply_disposition_decisions(&mut capabilities, &decision_bytes, &source.head)?;""",
+        """    let disposition_decision_count = apply_disposition_decisions(
+        &mut capabilities,
+        &decision_bytes,
+        &source.head,
+        &cli.source,
+    )?;""",
         "source-repo-call",
     )
     text = replace_once(
         text,
-        """fn apply_disposition_decisions(\n    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,\n) -> Result<usize> {""",
-        """fn apply_disposition_decisions(\n    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,\n    source_repo: &Path,\n) -> Result<usize> {""",
+        """fn apply_disposition_decisions(
+    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,
+) -> Result<usize> {""",
+        """fn apply_disposition_decisions(
+    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,
+    source_repo: &Path,
+) -> Result<usize> {""",
         "source-repo-signature",
     )
     text = replace_once(
         text,
-        """        if decision.rationale.trim().is_empty() || decision.evidence_refs.is_empty() {\n            bail!(\n                \"DISPOSITION_DECISION_EVIDENCE_MISSING: {}\",\n                decision.capability_id\n            );\n        }\n        if decision\n            .evidence_refs\n            .iter()\n            .any(|reference| reference.trim().is_empty())\n        {\n            bail!(\n                \"DISPOSITION_DECISION_EVIDENCE_EMPTY: {}\",\n                decision.capability_id\n            );\n        }""",
-        """        if decision.rationale.trim().is_empty()\n            || decision.evidence_refs.is_empty()\n            || decision.recovery_refs.is_empty()\n        {\n            bail!(\n                \"DISPOSITION_DECISION_EVIDENCE_MISSING: {}\",\n                decision.capability_id\n            );\n        }\n        if decision\n            .evidence_refs\n            .iter()\n            .chain(decision.recovery_refs.iter())\n            .any(|reference| reference.trim().is_empty())\n        {\n            bail!(\n                \"DISPOSITION_DECISION_EVIDENCE_EMPTY: {}\",\n                decision.capability_id\n            );\n        }""",
+        """        if decision.rationale.trim().is_empty() || decision.evidence_refs.is_empty() {
+            bail!(
+                \"DISPOSITION_DECISION_EVIDENCE_MISSING: {}\",
+                decision.capability_id
+            );
+        }
+        if decision
+            .evidence_refs
+            .iter()
+            .any(|reference| reference.trim().is_empty())
+        {
+            bail!(
+                \"DISPOSITION_DECISION_EVIDENCE_EMPTY: {}\",
+                decision.capability_id
+            );
+        }""",
+        """        if decision.rationale.trim().is_empty()
+            || decision.evidence_refs.is_empty()
+            || decision.recovery_refs.is_empty()
+        {
+            bail!(
+                \"DISPOSITION_DECISION_EVIDENCE_MISSING: {}\",
+                decision.capability_id
+            );
+        }
+        if decision
+            .evidence_refs
+            .iter()
+            .chain(decision.recovery_refs.iter())
+            .any(|reference| reference.trim().is_empty())
+        {
+            bail!(
+                \"DISPOSITION_DECISION_EVIDENCE_EMPTY: {}\",
+                decision.capability_id
+            );
+        }""",
         "recovery-validation",
     )
     text = replace_once(
         text,
-        """        if capability.archive_path.trim().is_empty()\n            || capability.historical_source_commit.trim().is_empty()\n        {\n            bail!(\n                \"ARCHIVE_POLICY_RECOVERY_EVIDENCE_MISSING: {}\",\n                decision.capability_id\n            );\n        }""",
-        """        if capability.historical_source_commit.trim().is_empty() {\n            bail!(\n                \"ARCHIVE_POLICY_HISTORICAL_SOURCE_MISSING: {}\",\n                decision.capability_id\n            );\n        }\n        verify_recovery_refs(source_repo, decision)?;""",
+        """        if capability.archive_path.trim().is_empty()
+            || capability.historical_source_commit.trim().is_empty()
+        {
+            bail!(
+                \"ARCHIVE_POLICY_RECOVERY_EVIDENCE_MISSING: {}\",
+                decision.capability_id
+            );
+        }""",
+        """        if capability.historical_source_commit.trim().is_empty() {
+            bail!(
+                \"ARCHIVE_POLICY_HISTORICAL_SOURCE_MISSING: {}\",
+                decision.capability_id
+            );
+        }
+        verify_recovery_refs(source_repo, decision)?;""",
         "archive-recovery-policy",
     )
 
