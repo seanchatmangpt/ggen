@@ -1,0 +1,160 @@
+name: Foundry Historical Lineage Clean Room v5
+
+on:
+  pull_request:
+    paths:
+      - "tools/architecture-foundry/src/lib.rs"
+      - "tools/architecture-foundry/src/bin/admit_clean_room.rs"
+      - ".github/scripts/patch_foundry_historical_lineage_v3.py"
+      - ".github/scripts/patch_foundry_historical_lineage_v4.py"
+      - ".github/workflows/foundry-historical-lineage-clean-room-v2.yml"
+      - ".github/workflows/foundry-historical-lineage-clean-room-v5.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: foundry-historical-lineage-v5-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair-and-prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      RUSTC_WRAPPER: ""
+      CORPUS_SHA: 86c3ff13f0373cdb0000586a387cdd8554a6c58a
+    steps:
+      - name: Checkout exact runtime candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+          path: ggen
+
+      - name: Checkout exact A-I admitted corpus
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: seanchatmangpt/ggen-legacy
+          ref: ${{ env.CORPUS_SHA }}
+          fetch-depth: 0
+          path: corpus
+
+      - name: Compile and execute corrected patch controller
+        working-directory: ggen
+        run: |
+          python3 -m py_compile \
+            .github/scripts/patch_foundry_historical_lineage_v3.py \
+            .github/scripts/patch_foundry_historical_lineage_v4.py
+          python3 .github/scripts/patch_foundry_historical_lineage_v4.py
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
+          git config user.name "ggen-foundry-controller"
+          git config user.email "ggen-foundry-controller@users.noreply.github.com"
+          git add tools/architecture-foundry/src/lib.rs tools/architecture-foundry/src/bin/admit_clean_room.rs
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(foundry): verify multi-commit historical lineage"
+          fi
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Prove complete runtime suite
+        working-directory: ggen
+        run: |
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
+          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+          cargo build --manifest-path tools/architecture-foundry/Cargo.toml --bins
+
+      - name: Prove all 65 historical lineage records
+        run: |
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry verify \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus corpus \
+            > "$RUNNER_TEMP/historical-lineage-report.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/historical-lineage-report.json").read_text())
+          assert report["lineage_records_checked"] == 65, report
+          assert report["invalid_lineage_records"] == [], report
+          assert report["invalid_receipts"] == [], report
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Execute component commit-set sabotage
+        run: |
+          root="$(mktemp -d)"
+          git clone --quiet --local corpus "$root/corpus"
+          lineage="$(find "$root/corpus/foundry/lineage/components" -type f -name '*.json' | sort | head -1)"
+          python3 - "$lineage" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path(sys.argv[1])
+          value = json.loads(path.read_text())
+          value["historical_commit"] = "0" * 40
+          path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+          PY
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry verify \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus "$root/corpus" \
+            > "$RUNNER_TEMP/historical-lineage-sabotage.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/historical-lineage-sabotage.json").read_text())
+          assert len(report["invalid_lineage_records"]) == 1, report
+          assert "HISTORICAL_LINEAGE_COMMIT" in report["invalid_lineage_records"][0], report
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Execute J against exact A-I corpus
+        run: |
+          test "$(git -C corpus rev-parse HEAD)" = "$CORPUS_SHA"
+          test -z "$(git -C corpus status --porcelain=v1 --untracked-files=all)"
+          ggen/tools/architecture-foundry/target/debug/admit_clean_room \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus corpus \
+            > "$RUNNER_TEMP/j-stdout.log"
+          cp corpus/foundry/workstreams/J/admission-report.json "$RUNNER_TEMP/j-report.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/j-report.json").read_text())
+          assert report["clean_room_build_success"] is True, report
+          assert report["clean_room_verification_success"] is True, report
+          assert report["replay_differences"] == 0, report
+          assert report["generated_drift"] == 0, report
+          assert report["second_run_semantic_result"] == "NO_SEMANTIC_CHANGE", report
+          state = json.loads(Path("corpus/foundry/workstreams/state.json").read_text())
+          assert state["workstreams"]["J"]["status"] == "ADMITTED"
+          assert state["workstreams"]["K"]["status"] == "READY"
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Replay J receipt on exact consequence
+        run: |
+          git -C corpus config user.name foundry-verifier
+          git -C corpus config user.email foundry-verifier@example.invalid
+          git -C corpus add foundry
+          git -C corpus commit --quiet -m "proof: admit workstream J"
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry replay \
+            --source ggen --corpus corpus
+
+      - name: Publish verified runtime theorem
+        working-directory: ggen
+        run: git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"
+
+      - name: Publish v5 lineage and J evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: foundry-historical-lineage-v5-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/historical-lineage-report.json
+            ${{ runner.temp }}/historical-lineage-sabotage.json
+            ${{ runner.temp }}/j-stdout.log
+            ${{ runner.temp }}/j-report.json
+            corpus/foundry/workstreams/J/admission-report.json
+            corpus/foundry/receipts/workstream-J.json
+            corpus/foundry/workstreams/state.json
+          if-no-files-found: warn
