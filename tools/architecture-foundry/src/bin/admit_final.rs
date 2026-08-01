@@ -187,10 +187,10 @@ fn main() -> Result<()> {
 
     let theorem = json!({
         "schema_version": "ggen.enterprise-architecture-foundry.terminal-theorem/1",
-        "program_id": program.program_id,
-        "program_digest": validation.program_digest,
-        "source_head": source.head,
-        "corpus_parent_head": corpus.head,
+        "program_id": program.program_id.clone(),
+        "program_digest": validation.program_digest.clone(),
+        "source_head": source.head.clone(),
+        "corpus_parent_head": corpus.head.clone(),
         "workstreams_admitted": 11,
         "capabilities": expected_capabilities,
         "unknown_capabilities": 0,
@@ -225,19 +225,34 @@ fn main() -> Result<()> {
         digest_bytes(&theorem_bytes),
     );
     let mut inputs = BTreeMap::new();
-    inputs.insert("work-program".to_string(), validation.program_digest);
-    inputs.insert("source-tree".to_string(), source.tracked_tree_digest);
-    inputs.insert("corpus-tree".to_string(), corpus.tracked_tree_digest);
-    inputs.insert("subsystem-matrix".to_string(), digest_bytes(&serde_json::to_vec(&subsystem_matrix)?));
-    inputs.insert("reference-report".to_string(), digest_bytes(&serde_json::to_vec(&reference_report)?));
+    inputs.insert(
+        "work-program".to_string(),
+        validation.program_digest.clone(),
+    );
+    inputs.insert(
+        "source-tree".to_string(),
+        source.tracked_tree_digest.clone(),
+    );
+    inputs.insert(
+        "corpus-tree".to_string(),
+        corpus.tracked_tree_digest.clone(),
+    );
+    inputs.insert(
+        "subsystem-matrix".to_string(),
+        digest_bytes(&serde_json::to_vec(&subsystem_matrix)?),
+    );
+    inputs.insert(
+        "reference-report".to_string(),
+        digest_bytes(&serde_json::to_vec(&reference_report)?),
+    );
     let subject_digest = digest_named_outputs(&outputs);
     let receipt = Receipt {
         schema_version: RECEIPT_SCHEMA.to_string(),
         receipt_type: "SOLUTION_ADMISSION".to_string(),
-        subject: program.program_name,
+        subject: program.program_name.clone(),
         subject_digest: subject_digest.clone(),
-        source_head: source.head,
-        corpus_head: corpus.head,
+        source_head: source.head.clone(),
+        corpus_head: corpus.head.clone(),
         input_digests: inputs,
         output_digests: outputs,
         run_id: subject_digest.chars().take(20).collect(),
@@ -262,8 +277,7 @@ fn read_json<T: for<'de> Deserialize<'de>>(path: &Path, code: &str) -> Result<T>
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

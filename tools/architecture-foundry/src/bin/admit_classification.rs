@@ -161,8 +161,7 @@ fn main() -> Result<()> {
             classification_conflicts += 1;
             continue;
         }
-        let (classification, kernel_owner, corpus_destination, basis) =
-            classify(capability)?;
+        let (classification, kernel_owner, corpus_destination, basis) = classify(capability)?;
         if classification.is_empty() || corpus_destination.is_empty() {
             unclassified_components += 1;
         }
@@ -400,8 +399,7 @@ fn sanitize_segment(value: &str) -> String {
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

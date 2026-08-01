@@ -206,8 +206,8 @@ fn main() -> Result<()> {
     })?;
     let capability_catalog: CapabilityCatalog =
         serde_json::from_slice(&capability_bytes).context("CAPABILITY_CATALOG_INVALID")?;
-    let classification_catalog: ClassificationCatalog = serde_json::from_slice(&classification_bytes)
-        .context("CLASSIFICATION_CATALOG_INVALID")?;
+    let classification_catalog: ClassificationCatalog =
+        serde_json::from_slice(&classification_bytes).context("CLASSIFICATION_CATALOG_INVALID")?;
     if capability_catalog.entries.len() != 65 || classification_catalog.entries.len() != 65 {
         bail!("EXTRACTION_INPUT_COUNT_MISMATCH");
     }
@@ -445,7 +445,10 @@ fn main() -> Result<()> {
     input_digests.insert("work-program".to_string(), validation.program_digest);
     input_digests.insert("source-tree".to_string(), source.tracked_tree_digest);
     input_digests.insert("corpus-tree".to_string(), corpus.tracked_tree_digest);
-    input_digests.insert("capability-catalog".to_string(), digest_bytes(&capability_bytes));
+    input_digests.insert(
+        "capability-catalog".to_string(),
+        digest_bytes(&capability_bytes),
+    );
     input_digests.insert(
         "classification-catalog".to_string(),
         digest_bytes(&classification_bytes),
@@ -593,7 +596,9 @@ fn glob_matches(pattern: &str, value: &str) -> bool {
     fn inner(pattern: &[u8], value: &[u8]) -> bool {
         match pattern.split_first() {
             None => value.is_empty(),
-            Some((&b'*', rest)) => inner(rest, value) || (!value.is_empty() && inner(pattern, &value[1..])),
+            Some((&b'*', rest)) => {
+                inner(rest, value) || (!value.is_empty() && inner(pattern, &value[1..]))
+            }
             Some((&b'?', rest)) => !value.is_empty() && inner(rest, &value[1..]),
             Some((&expected, rest)) => {
                 !value.is_empty() && expected == value[0] && inner(rest, &value[1..])
@@ -656,8 +661,7 @@ fn verify_existing(path: &Path, expected_digest: &str) -> Result<()> {
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

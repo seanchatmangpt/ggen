@@ -12,8 +12,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const VERIFICATION_SCHEMA: &str =
-    "ggen.enterprise-architecture-foundry.external-verification/1";
+const VERIFICATION_SCHEMA: &str = "ggen.enterprise-architecture-foundry.external-verification/1";
 const VERIFIER_ID: &str = "ggen-foundry-external-verifier/v1";
 const SUBSYSTEMS: [&str; 10] = [
     "governance",
@@ -199,9 +198,7 @@ fn main() -> Result<()> {
     }
 
     let receipt_paths: Vec<PathBuf> = (b'A'..=b'H')
-        .map(|letter| {
-            foundry_root.join(format!("receipts/workstream-{}.json", letter as char))
-        })
+        .map(|letter| foundry_root.join(format!("receipts/workstream-{}.json", letter as char)))
         .collect();
     let sabotage_cases = run_sabotage(&cli, &receipt_paths)?;
     let sabotage_cases_all_refused = sabotage_cases.iter().all(|case| case.refused);
@@ -248,7 +245,10 @@ fn main() -> Result<()> {
         external_verifier_passes,
         predicates: workstream.predicates.clone(),
         metrics: BTreeMap::from([
-            ("capability_count".to_string(), json!(capabilities.entries.len())),
+            (
+                "capability_count".to_string(),
+                json!(capabilities.entries.len()),
+            ),
             ("receipt_count".to_string(), json!(receipts_replayed)),
         ]),
     };
@@ -349,9 +349,7 @@ fn verify_receipt(source: &Path, corpus: &Path, receipt: &Receipt) -> Result<()>
         bail!("RECEIPT_SCHEMA_INVALID");
     }
     for (key, expected) in &receipt.output_digests {
-        let (repository, relative) = key
-            .split_once(':')
-            .context("RECEIPT_OUTPUT_KEY_INVALID")?;
+        let (repository, relative) = key.split_once(':').context("RECEIPT_OUTPUT_KEY_INVALID")?;
         if matches!(repository, "external" | "projection") {
             continue;
         }
@@ -380,8 +378,7 @@ fn read_json<T: for<'de> Deserialize<'de>>(path: &Path, code: &str) -> Result<T>
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

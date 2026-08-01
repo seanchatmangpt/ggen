@@ -2,8 +2,8 @@ use anyhow::{bail, Context, Result};
 use blake3::Hasher;
 use clap::Parser;
 use ggen_architecture_foundry::{
-    load_program, replay_all_receipts, snapshot_repository, validate_program, verify_corpus, Receipt,
-    WorkstreamStateFile, RECEIPT_SCHEMA,
+    load_program, replay_all_receipts, snapshot_repository, validate_program, verify_corpus,
+    Receipt, WorkstreamStateFile, RECEIPT_SCHEMA,
 };
 use serde::Serialize;
 use serde_json::{json, Value as JsonValue};
@@ -194,12 +194,8 @@ fn main() -> Result<()> {
 }
 
 fn execute_clean_run(
-    run: u8,
-    root: &Path,
-    cli: &Cli,
-    program: &ggen_architecture_foundry::WorkProgram,
-    expected_source_head: &str,
-    expected_corpus_head: &str,
+    run: u8, root: &Path, cli: &Cli, program: &ggen_architecture_foundry::WorkProgram,
+    expected_source_head: &str, expected_corpus_head: &str,
 ) -> Result<CleanRoomRun> {
     fs::create_dir_all(root).with_context(|| format!("create {}", root.display()))?;
     let source_clone = root.join("ggen");
@@ -211,7 +207,8 @@ fn execute_clean_run(
 
     let source_snapshot = snapshot_repository(&source_clone)?;
     let corpus_snapshot = snapshot_repository(&corpus_clone)?;
-    if source_snapshot.head != expected_source_head || corpus_snapshot.head != expected_corpus_head {
+    if source_snapshot.head != expected_source_head || corpus_snapshot.head != expected_corpus_head
+    {
         bail!("CLEAN_ROOM_HEAD_MISMATCH");
     }
     require_clean(&source_snapshot, "CLEAN_SOURCE_DIRTY")?;
@@ -319,8 +316,7 @@ fn read_json<T: for<'de> serde::Deserialize<'de>>(path: &Path, code: &str) -> Re
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

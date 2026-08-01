@@ -142,7 +142,10 @@ fn main() -> Result<()> {
 
     let reference_root = foundry_root.join("reference").join(REFERENCE_ID);
     if reference_root.exists() {
-        bail!("REFERENCE_OUTPUT_ALREADY_EXISTS: {}", reference_root.display());
+        bail!(
+            "REFERENCE_OUTPUT_ALREADY_EXISTS: {}",
+            reference_root.display()
+        );
     }
     manufacture_reference(&reference_root, &pack, &source.head, &corpus.head)?;
 
@@ -254,10 +257,7 @@ fn main() -> Result<()> {
 }
 
 fn manufacture_reference(
-    root: &Path,
-    pack: &PackRecord,
-    source_head: &str,
-    corpus_head: &str,
+    root: &Path, pack: &PackRecord, source_head: &str, corpus_head: &str,
 ) -> Result<()> {
     fs::create_dir_all(root.join("src")).context("create reference source directory")?;
     let cargo = format!(
@@ -304,7 +304,10 @@ fn manufacture_reference(
     write_new(&root.join("Cargo.toml"), cargo.as_bytes())?;
     write_new(&root.join("src/lib.rs"), library.as_bytes())?;
     write_new(&root.join("src/main.rs"), main.as_bytes())?;
-    write_new(&root.join("architecture.json"), &canonical_json(&architecture)?)?;
+    write_new(
+        &root.join("architecture.json"),
+        &canonical_json(&architecture)?,
+    )?;
     write_new(&root.join("controls.json"), &canonical_json(&controls)?)?;
     write_new(&root.join("replay.json"), &canonical_json(&replay)?)?;
     write_new(
@@ -391,8 +394,7 @@ fn read_json<T: for<'de> Deserialize<'de>>(path: &Path, code: &str) -> Result<T>
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);

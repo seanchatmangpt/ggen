@@ -2,8 +2,8 @@ use anyhow::{bail, Context, Result};
 use blake3::Hasher;
 use clap::{Parser, Subcommand};
 use ggen_architecture_foundry::{
-    load_program, replay_all_receipts, snapshot_repository, validate_program, Receipt,
-    WorkProgram, WorkstreamStateFile, RECEIPT_SCHEMA,
+    load_program, replay_all_receipts, snapshot_repository, validate_program, Receipt, WorkProgram,
+    WorkstreamStateFile, RECEIPT_SCHEMA,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
@@ -225,9 +225,7 @@ fn admit_primitives(cli: &Cli, context: &mut ContextState) -> Result<()> {
         for capability in &members {
             let classification = classification_by_id
                 .get(&capability.capability_id)
-                .with_context(|| {
-                    format!("CLASSIFICATION_MISSING: {}", capability.capability_id)
-                })?;
+                .with_context(|| format!("CLASSIFICATION_MISSING: {}", capability.capability_id))?;
             let manifest_path = cli
                 .corpus
                 .join(&classification.corpus_destination)
@@ -299,7 +297,9 @@ fn admit_primitives(cli: &Cli, context: &mut ContextState) -> Result<()> {
         "entries": witnesses,
     }))?;
     let primitive_path = context.foundry_root.join("catalogs/primitives.json");
-    let witness_path = context.foundry_root.join("evidence/F/primitive-witnesses.json");
+    let witness_path = context
+        .foundry_root
+        .join("evidence/F/primitive-witnesses.json");
     write_replace(&primitive_path, &primitive_bytes)?;
     write_new(&witness_path, &witness_bytes)?;
 
@@ -311,7 +311,10 @@ fn admit_primitives(cli: &Cli, context: &mut ContextState) -> Result<()> {
         failures,
         primitives.len(),
         BTreeMap::from([
-            ("capability_count".to_string(), json!(capabilities.entries.len())),
+            (
+                "capability_count".to_string(),
+                json!(capabilities.entries.len()),
+            ),
             ("primitive_count".to_string(), json!(primitives.len())),
             ("unverifiable_primitives".to_string(), json!(0)),
         ]),
@@ -385,9 +388,7 @@ fn admit_packs(cli: &Cli, context: &mut ContextState) -> Result<()> {
             authority_reference: "docs/architecture-foundry/work-program.yaml".to_string(),
             primitive_ids: selected.clone(),
             parameter_schema_path: parameter_schema_path.clone(),
-            verifier_entrypoint: format!(
-                "ggen-foundry verify-pack --corpus . --pack {pack_id}"
-            ),
+            verifier_entrypoint: format!("ggen-foundry verify-pack --corpus . --pack {pack_id}"),
             replay_command: format!("ggen-foundry replay-pack --corpus . --pack {pack_id}"),
             operating_model: json!({
                 "deployment_units": selected.len(),
@@ -494,16 +495,15 @@ fn admit_equivalence(cli: &Cli, context: &mut ContextState) -> Result<()> {
             .corpus
             .join(&classification.corpus_destination)
             .join("component-manifest.json");
-        let manifest_bytes = fs::read(&manifest_path).with_context(|| {
-            format!("COMPONENT_MANIFEST_MISSING: {}", manifest_path.display())
-        })?;
+        let manifest_bytes = fs::read(&manifest_path)
+            .with_context(|| format!("COMPONENT_MANIFEST_MISSING: {}", manifest_path.display()))?;
         let manifest: ComponentManifest =
             serde_json::from_slice(&manifest_bytes).context("COMPONENT_MANIFEST_INVALID")?;
         let mut evidence_digests = vec![digest_bytes(&manifest_bytes)];
         let (case_type, positive, negative, difference) = match capability.disposition.as_str() {
             "REFUSED" => {
-                let positive = !capability.refusal_code.is_empty()
-                    && !capability.refusal_rationale.is_empty();
+                let positive =
+                    !capability.refusal_code.is_empty() && !capability.refusal_rationale.is_empty();
                 let negative = capability.refusal_code.is_empty() != positive;
                 (
                     "TYPED_REFUSAL",
@@ -513,8 +513,8 @@ fn admit_equivalence(cli: &Cli, context: &mut ContextState) -> Result<()> {
                 )
             }
             "ARCHIVED" => {
-                let positive = !manifest.semantic_evidence_digest.is_empty()
-                    && !manifest.source_removed;
+                let positive =
+                    !manifest.semantic_evidence_digest.is_empty() && !manifest.source_removed;
                 let negative = corrupt_digest(&manifest.semantic_evidence_digest)
                     != manifest.semantic_evidence_digest;
                 (
@@ -527,9 +527,8 @@ fn admit_equivalence(cli: &Cli, context: &mut ContextState) -> Result<()> {
             "PRESERVED" | "REPLACED" | "SUBSUMED" => {
                 let mut positive = !manifest.source_files.is_empty();
                 for file in &manifest.source_files {
-                    let blob = fs::read(cli.corpus.join(&file.blob_path)).with_context(|| {
-                        format!("EQUIVALENCE_BLOB_MISSING: {}", file.blob_path)
-                    })?;
+                    let blob = fs::read(cli.corpus.join(&file.blob_path))
+                        .with_context(|| format!("EQUIVALENCE_BLOB_MISSING: {}", file.blob_path))?;
                     let digest = digest_bytes(&blob);
                     evidence_digests.push(digest.clone());
                     positive &= digest == file.blake3;
@@ -601,11 +600,7 @@ fn admit_equivalence(cli: &Cli, context: &mut ContextState) -> Result<()> {
 }
 
 fn finish_stage(
-    cli: &Cli,
-    context: &mut ContextState,
-    stage: &str,
-    next: &str,
-    report: StageReport,
+    cli: &Cli, context: &mut ContextState, stage: &str, next: &str, report: StageReport,
     outputs: Vec<(&str, Vec<u8>)>,
 ) -> Result<()> {
     let report_relative = format!("foundry/workstreams/{stage}/admission-report.json");
@@ -633,10 +628,7 @@ fn finish_stage(
     for (relative, bytes) in outputs {
         output_digests.insert(format!("corpus:{relative}"), digest_bytes(&bytes));
     }
-    output_digests.insert(
-        format!("corpus:{report_relative}"),
-        report_digest,
-    );
+    output_digests.insert(format!("corpus:{report_relative}"), report_digest);
     output_digests.insert(
         "projection:foundry/workstreams/state.json".to_string(),
         digest_bytes(&state_bytes),
@@ -673,13 +665,8 @@ fn finish_stage(
 }
 
 fn stage_report(
-    context: &ContextState,
-    stage: &str,
-    verifier: &str,
-    item_count: usize,
-    failure_count: usize,
-    negative_falsifiers_passed: usize,
-    metrics: BTreeMap<String, JsonValue>,
+    context: &ContextState, stage: &str, verifier: &str, item_count: usize, failure_count: usize,
+    negative_falsifiers_passed: usize, metrics: BTreeMap<String, JsonValue>,
 ) -> Result<StageReport> {
     let workstream = context
         .program
@@ -810,8 +797,7 @@ fn safe_name(value: &str) -> String {
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);
