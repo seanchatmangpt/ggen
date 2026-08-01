@@ -16,8 +16,7 @@ pub const MIGRATION_SCHEMA: &str = "ggen.enterprise-architecture-foundry.migrati
 pub const LINEAGE_SCHEMA: &str = "ggen.enterprise-architecture-foundry.lineage/1";
 pub const WORKSTREAM_REPORT_SCHEMA: &str =
     "ggen.enterprise-architecture-foundry.workstream-report/1";
-pub const FINAL_EVIDENCE_SCHEMA: &str =
-    "ggen.enterprise-architecture-foundry.final-evidence/1";
+pub const FINAL_EVIDENCE_SCHEMA: &str = "ggen.enterprise-architecture-foundry.final-evidence/1";
 
 const REQUIRED_WORKSTREAM_IDS: [&str; 11] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"];
 const REQUIRED_INVARIANTS: [&str; 9] = [
@@ -342,11 +341,7 @@ pub fn validate_program(program: &WorkProgram) -> Result<ProgramValidationReport
         }
     }
 
-    require_repository_role(
-        program,
-        "ggen",
-        "REPOSITORY_MANUFACTURING_KERNEL",
-    )?;
+    require_repository_role(program, "ggen", "REPOSITORY_MANUFACTURING_KERNEL")?;
     require_repository_role(
         program,
         "ggen_legacy",
@@ -433,20 +428,32 @@ pub fn snapshot_repository(path: &Path) -> Result<RepositorySnapshot> {
     let branch = git_optional(&canonical, &["symbolic-ref", "--short", "HEAD"])
         .unwrap_or_else(|| "DETACHED".to_string());
     let origin = git_optional(&canonical, &["config", "--get", "remote.origin.url"]);
-    let status = git(&canonical, &["status", "--porcelain=v1", "--untracked-files=all"])?;
+    let status = git(
+        &canonical,
+        &["status", "--porcelain=v1", "--untracked-files=all"],
+    )?;
     let dirty_entries: Vec<String> = status
         .lines()
         .filter(|line| !line.trim().is_empty())
         .map(str::to_string)
         .collect();
-    let tracked_raw = git_bytes(&canonical, &["ls-files", "-z"])?;
-    let mut tracked_files: Vec<PathBuf> = tracked_raw
+    // Hash Git index records rather than dereferencing the working tree. The staged
+    // record binds mode, object ID, stage, and raw path bytes, so tracked symlinks,
+    // gitlinks, and intentionally absent worktree targets remain observable.
+    let tracked_index = git_bytes(&canonical, &["ls-files", "--stage", "-z"])?;
+    let tracked_file_count = tracked_index
         .split(|byte| *byte == 0)
-        .filter(|bytes| !bytes.is_empty())
-        .map(|bytes| PathBuf::from(String::from_utf8_lossy(bytes).to_string()))
-        .collect();
-    tracked_files.sort();
-    let tracked_tree_digest = digest_relative_files(&canonical, &tracked_files)?;
+        .filter(|record| !record.is_empty())
+        .count();
+    let object_format = git(&canonical, &["rev-parse", "--show-object-format"])?;
+    let mut tree_hasher = Hasher::new();
+    hash_named_bytes(
+        &mut tree_hasher,
+        "git-object-format",
+        object_format.as_bytes(),
+    );
+    hash_named_bytes(&mut tree_hasher, "git-index-stage-records", &tracked_index);
+    let tracked_tree_digest = tree_hasher.finalize().to_hex().to_string();
 
     Ok(RepositorySnapshot {
         path: canonical.display().to_string(),
@@ -455,16 +462,13 @@ pub fn snapshot_repository(path: &Path) -> Result<RepositorySnapshot> {
         origin,
         clean: dirty_entries.is_empty(),
         dirty_entries,
-        tracked_file_count: tracked_files.len(),
+        tracked_file_count,
         tracked_tree_digest,
     })
 }
 
 pub fn create_baseline(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
-    output_dir: &Path,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path, output_dir: &Path,
 ) -> Result<BaselineManifest> {
     let validation = validate_program(program)?;
     let source = snapshot_repository(source_path)?;
@@ -511,9 +515,7 @@ pub fn create_baseline(
 }
 
 pub fn initialize_corpus(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path,
 ) -> Result<InitializationReport> {
     let validation = validate_program(program)?;
     let source = snapshot_repository(source_path)?;
@@ -526,7 +528,10 @@ pub fn initialize_corpus(
     if manifest_path.exists() {
         return refusal(
             "CORPUS_ALREADY_INITIALIZED",
-            format!("{} already exists; use verify or replay", manifest_path.display()),
+            format!(
+                "{} already exists; use verify or replay",
+                manifest_path.display()
+            ),
         );
     }
 
@@ -631,7 +636,7 @@ pub fn initialize_corpus(
         workstreams: states,
     };
     generated.insert(
-        "corpus:foundry/workstreams/state.json".to_string(),
+        "projection:foundry/workstreams/state.json".to_string(),
         write_json(&foundry_root.join("workstreams/state.json"), &state_file)?,
     );
 
@@ -648,7 +653,7 @@ pub fn initialize_corpus(
         corpus_head: corpus.head.clone(),
     };
     generated.insert(
-        "corpus:foundry/standing.json".to_string(),
+        "projection:foundry/standing.json".to_string(),
         write_json(&foundry_root.join("standing.json"), &standing)?,
     );
 
@@ -695,10 +700,7 @@ pub fn load_migration_manifest(path: &Path) -> Result<MigrationManifest> {
 }
 
 pub fn extract_components(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
-    migration: &MigrationManifest,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path, migration: &MigrationManifest,
 ) -> Result<ExtractionReport> {
     validate_program(program)?;
     validate_migration_manifest(migration)?;
@@ -789,8 +791,8 @@ pub fn extract_components(
         inputs,
         output_digests,
     );
-    let receipt_relative = PathBuf::from("foundry/receipts")
-        .join(format!("extraction-{}.json", migration.batch_id));
+    let receipt_relative =
+        PathBuf::from("foundry/receipts").join(format!("extraction-{}.json", migration.batch_id));
     write_json(&corpus_path.join(&receipt_relative), &receipt)?;
 
     Ok(ExtractionReport {
@@ -819,10 +821,7 @@ pub fn load_workstream_report(path: &Path) -> Result<WorkstreamReport> {
 }
 
 pub fn admit_workstream(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
-    report: &WorkstreamReport,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path, report: &WorkstreamReport,
 ) -> Result<WorkstreamAdmission> {
     validate_program(program)?;
     let source = snapshot_repository(source_path)?;
@@ -874,12 +873,14 @@ pub fn admit_workstream(
     let state_path = corpus_path.join("foundry/workstreams/state.json");
     let mut state: WorkstreamStateFile = serde_json::from_slice(&read(&state_path)?)?;
     for dependency in &workstream.dependencies {
-        let dependency_state = state.workstreams.get(dependency).ok_or_else(|| {
-            FoundryError::Refusal {
-                code: "WORKSTREAM_DEPENDENCY_STATE_MISSING".to_string(),
-                message: dependency.clone(),
-            }
-        })?;
+        let dependency_state =
+            state
+                .workstreams
+                .get(dependency)
+                .ok_or_else(|| FoundryError::Refusal {
+                    code: "WORKSTREAM_DEPENDENCY_STATE_MISSING".to_string(),
+                    message: dependency.clone(),
+                })?;
         if dependency_state.status != "ADMITTED" {
             return refusal(
                 "WORKSTREAM_DEPENDENCY_NOT_ADMITTED",
@@ -927,17 +928,18 @@ pub fn admit_workstream(
         inputs,
         output_digests,
     );
-    let receipt_relative = PathBuf::from("foundry/receipts")
-        .join(format!("workstream-{}.json", workstream.id));
+    let receipt_relative =
+        PathBuf::from("foundry/receipts").join(format!("workstream-{}.json", workstream.id));
     write_json(&corpus_path.join(&receipt_relative), &receipt)?;
 
-    let current = state
-        .workstreams
-        .get_mut(&workstream.id)
-        .ok_or_else(|| FoundryError::Refusal {
-            code: "WORKSTREAM_STATE_MISSING".to_string(),
-            message: workstream.id.clone(),
-        })?;
+    let current =
+        state
+            .workstreams
+            .get_mut(&workstream.id)
+            .ok_or_else(|| FoundryError::Refusal {
+                code: "WORKSTREAM_STATE_MISSING".to_string(),
+                message: workstream.id.clone(),
+            })?;
     current.status = "ADMITTED".to_string();
     current.report_digest = Some(report_digest.clone());
     current.receipt_path = Some(receipt_relative.display().to_string());
@@ -961,7 +963,7 @@ pub fn admit_workstream(
             }
         }
     }
-    write_json(&state_path, &state)?;
+    write_json_replace(&state_path, &state)?;
 
     Ok(WorkstreamAdmission {
         workstream_id: workstream.id.clone(),
@@ -987,9 +989,7 @@ pub fn load_final_evidence(path: &Path) -> Result<FinalEvidenceReport> {
 }
 
 pub fn admit_solution(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path,
     final_evidence: &FinalEvidenceReport,
 ) -> Result<StandingRecord> {
     validate_program(program)?;
@@ -1058,13 +1058,10 @@ pub fn admit_solution(
         corpus_head: corpus.head.clone(),
     };
     let standing_path = corpus_path.join("foundry/standing.json");
-    let standing_digest = write_json(&standing_path, &standing)?;
+    let standing_digest = write_json_replace(&standing_path, &standing)?;
     let mut inputs = BTreeMap::new();
     inputs.insert("work-program".to_string(), digest_json(program)?);
-    inputs.insert(
-        "final-evidence".to_string(),
-        digest_json(final_evidence)?,
-    );
+    inputs.insert("final-evidence".to_string(), digest_json(final_evidence)?);
     for evidence in &final_evidence.evidence {
         inputs.insert(
             format!("{}:{}", evidence.repository, evidence.path),
@@ -1072,7 +1069,10 @@ pub fn admit_solution(
         );
     }
     let mut outputs = BTreeMap::new();
-    outputs.insert("corpus:foundry/standing.json".to_string(), standing_digest.clone());
+    outputs.insert(
+        "corpus:foundry/standing.json".to_string(),
+        standing_digest.clone(),
+    );
     let receipt = make_receipt(
         "SOLUTION_ADMISSION",
         &program.program_id,
@@ -1090,9 +1090,7 @@ pub fn admit_solution(
 }
 
 pub fn verify_corpus(
-    program: &WorkProgram,
-    source_path: &Path,
-    corpus_path: &Path,
+    program: &WorkProgram, source_path: &Path, corpus_path: &Path,
 ) -> Result<VerificationReport> {
     validate_program(program)?;
     let source = snapshot_repository(source_path)?;
@@ -1287,13 +1285,11 @@ fn replay_receipt(source_path: &Path, corpus_path: &Path, path: &Path) -> Result
         );
     }
     for (key, expected) in &receipt.output_digests {
-        let (repository, relative) = key.split_once(':').ok_or_else(|| {
-            FoundryError::Refusal {
-                code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
-                message: key.clone(),
-            }
+        let (repository, relative) = key.split_once(':').ok_or_else(|| FoundryError::Refusal {
+            code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
+            message: key.clone(),
         })?;
-        if repository == "external" {
+        if matches!(repository, "external" | "projection") {
             continue;
         }
         let relative = safe_relative(relative)?;
@@ -1321,7 +1317,9 @@ fn replay_receipt(source_path: &Path, corpus_path: &Path, path: &Path) -> Result
             "RECEIPT_SUBJECT_DIGEST_INVALID",
             format!(
                 "receipt {} expected {}, recomputed {}",
-                path.display(), receipt.subject_digest, observed_subject
+                path.display(),
+                receipt.subject_digest,
+                observed_subject
             ),
         );
     }
@@ -1329,9 +1327,7 @@ fn replay_receipt(source_path: &Path, corpus_path: &Path, path: &Path) -> Result
 }
 
 fn verify_evidence_file(
-    source_path: &Path,
-    corpus_path: &Path,
-    evidence: &EvidenceFile,
+    source_path: &Path, corpus_path: &Path, evidence: &EvidenceFile,
 ) -> Result<()> {
     let relative = safe_relative(&evidence.path)?;
     let root = match evidence.repository.as_str() {
@@ -1373,11 +1369,8 @@ fn require_repository_role(program: &WorkProgram, key: &str, expected: &str) -> 
 
 fn topological_order(by_id: &BTreeMap<String, &Workstream>) -> Result<Vec<String>> {
     fn visit(
-        id: &str,
-        by_id: &BTreeMap<String, &Workstream>,
-        temporary: &mut BTreeSet<String>,
-        permanent: &mut BTreeSet<String>,
-        order: &mut Vec<String>,
+        id: &str, by_id: &BTreeMap<String, &Workstream>, temporary: &mut BTreeSet<String>,
+        permanent: &mut BTreeSet<String>, order: &mut Vec<String>,
     ) -> Result<()> {
         if permanent.contains(id) {
             return Ok(());
@@ -1422,23 +1415,17 @@ fn require_clean(snapshot: &RepositorySnapshot, code: &str) -> Result<()> {
     } else {
         refusal(
             code,
-            format!(
-                "{} contains {:?}",
-                snapshot.path, snapshot.dirty_entries
-            ),
+            format!("{} contains {:?}", snapshot.path, snapshot.dirty_entries),
         )
     }
 }
 
 fn make_receipt(
-    receipt_type: &str,
-    subject: &str,
-    subject_digest: String,
-    source_head: &str,
-    corpus_head: &str,
-    input_digests: BTreeMap<String, String>,
+    receipt_type: &str, subject: &str, _subject_digest: String, source_head: &str,
+    corpus_head: &str, input_digests: BTreeMap<String, String>,
     output_digests: BTreeMap<String, String>,
 ) -> Receipt {
+    let subject_digest = digest_named_outputs(&output_digests);
     let run_id = subject_digest.chars().take(20).collect();
     Receipt {
         schema_version: RECEIPT_SCHEMA.to_string(),
@@ -1490,15 +1477,6 @@ fn sorted_files(root: &Path) -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn digest_relative_files(root: &Path, files: &[PathBuf]) -> Result<String> {
-    let mut hasher = Hasher::new();
-    for relative in files {
-        let bytes = read(&root.join(relative))?;
-        hash_named_bytes(&mut hasher, &relative.to_string_lossy(), &bytes);
-    }
-    Ok(hasher.finalize().to_hex().to_string())
-}
-
 fn digest_named_outputs(outputs: &BTreeMap<String, String>) -> String {
     let mut hasher = Hasher::new();
     for (name, digest) in outputs {
@@ -1537,6 +1515,22 @@ fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<String> {
     let mut bytes = serde_json::to_vec_pretty(value)?;
     bytes.push(b'\n');
     write_bytes_exact(path, &bytes)?;
+    Ok(digest_bytes(&bytes))
+}
+
+fn write_json_replace<T: Serialize>(path: &Path, value: &T) -> Result<String> {
+    let mut bytes = serde_json::to_vec_pretty(value)?;
+    bytes.push(b'\n');
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|source| FoundryError::Io {
+            path: parent.display().to_string(),
+            source,
+        })?;
+    }
+    fs::write(path, &bytes).map_err(|source| FoundryError::Io {
+        path: path.display().to_string(),
+        source,
+    })?;
     Ok(digest_bytes(&bytes))
 }
 

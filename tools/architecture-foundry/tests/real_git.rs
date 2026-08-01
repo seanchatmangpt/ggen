@@ -59,8 +59,14 @@ fn validates_the_repository_work_program() {
     let report = validate_program(&program).expect("valid program");
     assert!(report.valid);
     assert_eq!(report.workstream_order.len(), 11);
-    assert_eq!(report.workstream_order.first().map(String::as_str), Some("A"));
-    assert_eq!(report.workstream_order.last().map(String::as_str), Some("K"));
+    assert_eq!(
+        report.workstream_order.first().map(String::as_str),
+        Some("A")
+    );
+    assert_eq!(
+        report.workstream_order.last().map(String::as_str),
+        Some("K")
+    );
 }
 
 #[test]
@@ -76,11 +82,17 @@ fn initializes_a_real_git_corpus_and_replays_its_receipt() {
     assert_eq!(report.generated_file_count, 10);
     assert!(corpus.path().join(&report.manifest_path).is_file());
     assert!(corpus.path().join(&report.receipt_path).is_file());
-    assert_eq!(replay_all_receipts(&source, corpus.path()).expect("replay"), 1);
+    assert_eq!(
+        replay_all_receipts(&source, corpus.path()).expect("replay"),
+        1
+    );
 
     commit_all(corpus.path(), "initialize foundry");
     assert!(snapshot_repository(corpus.path()).expect("snapshot").clean);
-    assert_eq!(replay_all_receipts(&source, corpus.path()).expect("replay"), 1);
+    assert_eq!(
+        replay_all_receipts(&source, corpus.path()).expect("replay"),
+        1
+    );
 }
 
 #[test]
@@ -102,8 +114,7 @@ fn extracts_a_real_file_with_cross_repository_lineage() {
             id: "architecture-foundry-readme".to_string(),
             source_path: "docs/architecture-foundry/README.md".to_string(),
             destination_path:
-                "foundry/corpus/repositories/ggen/docs/architecture-foundry/README.md"
-                    .to_string(),
+                "foundry/corpus/repositories/ggen/docs/architecture-foundry/README.md".to_string(),
             disposition: "PRESERVED".to_string(),
             capability_ids: vec!["enterprise-architecture-foundry-doctrine".to_string()],
             replacement_owner: "ggen-legacy/foundry/corpus".to_string(),
@@ -120,7 +131,10 @@ fn extracts_a_real_file_with_cross_repository_lineage() {
         .path()
         .join("foundry/lineage/architecture-foundry-doctrine/architecture-foundry-readme.json")
         .is_file());
-    assert_eq!(replay_all_receipts(&source, corpus.path()).expect("replay"), 2);
+    assert_eq!(
+        replay_all_receipts(&source, corpus.path()).expect("replay"),
+        2
+    );
 }
 
 #[test]
@@ -162,8 +176,8 @@ fn admits_workstream_a_only_with_exact_head_evidence() {
         predicates: workstream.predicates.clone(),
     };
 
-    let admission = admit_workstream(&program, &source, corpus.path(), &report)
-        .expect("workstream admission");
+    let admission =
+        admit_workstream(&program, &source, corpus.path(), &report).expect("workstream admission");
     assert_eq!(admission.status, "ADMITTED");
     assert!(corpus.path().join(&admission.receipt_path).is_file());
 }
