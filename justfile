@@ -554,12 +554,13 @@ tf-acceptance:
 v26-8-1-observe:
     python3 tools/v26.8.1/legacy_archaeology.py both
 
-# Validate the v26.8.1 ontology (SPARQL/SHACL-checked RDF, real `ggen graph validate` flags
-# are `--files`/`--shapes`, confirmed via `ggen graph validate --help`).
+# Validate the v26.8.1 ontology via pyshacl directly (tools/v26.8.1/validate_shacl.py).
+# `ggen graph validate`'s own SHACL reporting was found this session to be noisy/redundant
+# (over-counting violations against blank-node shapes -- ~124 reported where pyshacl found
+# only 16 real ones), which could fail v26-8-1-rebuild on a false positive against a
+# genuinely SHACL-conformant graph.
 v26-8-1-ontology:
-    {{GGEN}} graph validate \
-        --files ontology/v26.8.1/ontology.ttl,ontology/v26.8.1/legacy-capabilities.ttl \
-        --shapes ontology/v26.8.1/shapes.ttl
+    python3 tools/v26.8.1/validate_shacl.py --root .
 
 # Re-verify the PDDL planning corpus (10 deterministic problem families, 100 numbered
 # research documents) via the real, already-existing verify_planning.py.

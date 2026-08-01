@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/schemas/eod-repo-synthesis-verifier-report.v1.json",
+  "additionalProperties": false,
+  "properties": {
+    "checks": {"items": {"type": "object"}, "minItems": 6, "type": "array"},
+    "claim_boundary": {"type": "object"},
+    "failures": {"const": 0},
+    "schema": {"const": "ggen.eod-repo-synthesis-verifier-report.v1"},
+    "standing": {"const": "PARTIAL_ALIVE"},
+    "subject": {"type": "object"},
+    "surfaces": {"type": "object"}
+  },
+  "required": ["checks", "claim_boundary", "failures", "schema", "standing", "subject", "surfaces"],
+  "type": "object"
+}

@@ -1,0 +1,206 @@
+{
+  "day": "2026-07-31",
+  "repositories": [
+    {
+      "accepts": [
+        "deterministic-replay",
+        "exact-head-workflow",
+        "ontology-generation",
+        "path-portability",
+        "planner-policy",
+        "typed-refusal",
+        "wip-closure"
+      ],
+      "base_sha": "73760735fc401f0e632952a402be2e91ca89dc7c",
+      "constraints": [
+        "Read AGENTS.md before implementation.",
+        "Do not hand-edit generated projections.",
+        "Route consequential actuation through BRCE with a receipt."
+      ],
+      "head_sha": "73760735fc401f0e632952a402be2e91ca89dc7c",
+      "repository": "seanchatmangpt/ggen",
+      "verification": [
+        "just fmt-check",
+        "just check",
+        "just lint",
+        "just test-lib"
+      ],
+      "work": [
+        {
+          "artifacts": [
+            {
+              "blob_sha": "9cd09115563fac1b6979f6e0298e06955d632f07",
+              "exports": [
+                "deterministic-replay",
+                "exact-head-workflow",
+                "typed-refusal"
+              ],
+              "path": ".github/workflows/v26.8.1-step-two.yml"
+            }
+          ],
+          "id": "ggen-main-73760735",
+          "observed_from": "https://github.com/seanchatmangpt/ggen/commit/73760735fc401f0e632952a402be2e91ca89dc7c",
+          "summary": "Exact-head Step Two admission and repository-native verifier workflow."
+        }
+      ]
+    },
+    {
+      "accepts": [
+        "exact-head-workflow",
+        "ontology-generation",
+        "path-portability",
+        "wip-closure"
+      ],
+      "base_sha": "bb048cd3e77ff69d0fc7d6014f35486bbcb3cfe9",
+      "constraints": [
+        "Keep FOND policy candidates distinct from classical traces and final policy admission.",
+        "Bind exact upstream source identity.",
+        "Do not route branching policies through linear VAL or POWL projection."
+      ],
+      "head_sha": "4fce4e10c83a31202725c17073f74f691a6c2e62",
+      "repository": "seanchatmangpt/mfw",
+      "verification": [
+        "cargo fmt --manifest-path mfw-planner/Cargo.toml --all -- --check",
+        "cargo test --manifest-path mfw-planner/Cargo.toml --all-targets",
+        "cargo clippy --manifest-path mfw-planner/Cargo.toml --all-targets -- -D warnings"
+      ],
+      "work": [
+        {
+          "artifacts": [
+            {
+              "blob_sha": "9fb868fd4f388aaddbdc9974b1f5a3a795a033ab",
+              "exports": [
+                "deterministic-replay",
+                "planner-policy",
+                "typed-refusal"
+              ],
+              "path": "mfw-planner/engines.toml"
+            }
+          ],
+          "id": "mfw-pr-48",
+          "observed_from": "https://github.com/seanchatmangpt/mfw/pull/48",
+          "summary": "Exact-source Safe-Planner FOND policy-candidate adapter with typed verdict boundaries."
+        }
+      ]
+    },
+    {
+      "accepts": [
+        "deterministic-replay",
+        "exact-head-workflow",
+        "path-portability",
+        "wip-closure"
+      ],
+      "base_sha": "f1a0baea417206a371354a0e77986077d4379b17",
+      "constraints": [
+        "Keep deterministic PDDL and probabilistic PPDDL as separate rails.",
+        "Generated contracts must remain projections of admitted ontology.",
+        "Planning and verification do not receive actuation authority."
+      ],
+      "head_sha": "f30269305505ef75bce67b72939b979f351033f3",
+      "repository": "seanchatmangpt/ferroplan",
+      "verification": [
+        "cargo fmt --check",
+        "cargo test --workspace --exclude ferroplan-bevy",
+        "ggen sync run"
+      ],
+      "work": [
+        {
+          "artifacts": [
+            {
+              "blob_sha": "535aa128c20a985c64c59d86e328a4adcaef8f00",
+              "exports": [
+                "ontology-generation",
+                "planner-policy",
+                "typed-refusal"
+              ],
+              "path": "ggen.toml"
+            }
+          ],
+          "id": "ferroplan-pr-25",
+          "observed_from": "https://github.com/seanchatmangpt/ferroplan/pull/25",
+          "summary": "Ontology-owned full-planning contracts, policy sessions, verification, and receipt boundaries."
+        }
+      ]
+    },
+    {
+      "accepts": [
+        "ontology-generation",
+        "path-portability",
+        "planner-policy",
+        "typed-refusal"
+      ],
+      "base_sha": "54f842c43b335db50d808c39495f2fca0e6427c9",
+      "constraints": [
+        "Keep the published v26.7.30 projection immutable.",
+        "Verification workflows are read-only.",
+        "Stage 5 is a ggen extension rather than an original RWR stage."
+      ],
+      "head_sha": "ec29a8cb809af305e3b91bb8096fb7932df3ab18",
+      "repository": "seanchatmangpt/agile-protocol-specification",
+      "verification": [
+        "python3 specification-guide/scripts/verify_ggen_v26_7_31.py",
+        "python3 specification-guide/scripts/verify_ea_strategy_v26_7_31.py",
+        "python3 specification-guide/scripts/verify_wip_closure_v26_7_31.py"
+      ],
+      "work": [
+        {
+          "artifacts": [
+            {
+              "blob_sha": "bb24ca2f5176237e7ceb706861a2fd3e967f159a",
+              "exports": [
+                "deterministic-replay",
+                "exact-head-workflow",
+                "wip-closure"
+              ],
+              "path": "specification-guide/scripts/verify_wip_closure_v26_7_31.py"
+            }
+          ],
+          "id": "aps-pr-3",
+          "observed_from": "https://github.com/seanchatmangpt/agile-protocol-specification/pull/3",
+          "summary": "Repository-wide WIP closure with immutable publication artifacts and exact source-set verification."
+        }
+      ]
+    },
+    {
+      "accepts": [
+        "deterministic-replay",
+        "ontology-generation",
+        "planner-policy",
+        "wip-closure"
+      ],
+      "base_sha": "546d0c14b58b99dbb0cddaa14394ac67266bf699",
+      "constraints": [
+        "Tracked paths must be representable on Windows.",
+        "Dependency-head evidence is read-only.",
+        "Do not advance the open-ontologies pin before the portability gate passes."
+      ],
+      "head_sha": "6053cc144d5784e1b3cf7963a4afeae9af360bca",
+      "repository": "seanchatmangpt/wasm4pm",
+      "verification": [
+        "python3 tools/windows_path_gate.py",
+        "cargo check --workspace",
+        "cargo test --workspace"
+      ],
+      "work": [
+        {
+          "artifacts": [
+            {
+              "blob_sha": "ef6a5eac556fe3b314173b7ee6b83d1e87066f53",
+              "exports": [
+                "exact-head-workflow",
+                "path-portability",
+                "typed-refusal"
+              ],
+              "path": "tools/windows_path_gate.py"
+            }
+          ],
+          "id": "wasm4pm-pr-524",
+          "observed_from": "https://github.com/seanchatmangpt/wasm4pm/pull/524",
+          "summary": "Tracked-path portability refusal gate plus exact Windows checkout evidence."
+        }
+      ]
+    }
+  ],
+  "schema": "ggen.eod-repo-observation.v1",
+  "timezone": "America/Los_Angeles"
+}
