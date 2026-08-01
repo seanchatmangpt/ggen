@@ -1,0 +1,104 @@
+name: Ecosystem ALIVE Generated Command Format
+
+on:
+  pull_request:
+    paths:
+      - ".specify/templates/cli/commands-reference.rs.tera"
+      - "crates/ggen-cli/src/generated_commands.rs"
+      - ".github/workflows/ecosystem-alive-generated-command-format.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecosystem-alive-generated-format-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+env:
+  RUSTC_WRAPPER: ""
+
+jobs:
+  repair-and-prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact repair branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Install exact toolchain
+        run: rustup toolchain install nightly-2026-06-22 --profile minimal --component rustfmt
+
+      - name: Repair Tera formatting law
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.specify/templates/cli/commands-reference.rs.tera')
+          text = path.read_text()
+          old = '''pub const DEFAULT_VERBS: &[(&str, &str)] = &[
+          {%- for row in defaults %}
+              ("{{ row["noun"] }}", "{{ row["verb"] }}"),
+          {%- endfor %}
+          ];'''
+          new = '''pub const DEFAULT_VERBS: &[(&str, &str)] =
+              &[{%- for row in defaults %}("{{ row["noun"] }}", "{{ row["verb"] }}"){% if not loop.last %}, {% endif %}{%- endfor %}];'''
+          if old in text:
+              path.write_text(text.replace(old, new, 1))
+          elif new not in text:
+              raise SystemExit('TEMPLATE_FORMAT_LAW_NOT_FOUND')
+          PY
+          git config user.name "ggen-alive-controller"
+          git config user.email "ggen-alive-controller@users.noreply.github.com"
+          git add .specify/templates/cli/commands-reference.rs.tera
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(cli): make generated defaults rustfmt-stable"
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Build exact ggen kernel
+        run: cargo +nightly-2026-06-22 build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture and verify generated consequence
+        run: |
+          GGEN="$PWD/target/debug/ggen"
+          "$GGEN" graph validate
+          "$GGEN" sync run
+          "$GGEN" receipt verify
+          python3 - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all'], text=True).splitlines())
+          paths = set()
+          for line in changed:
+              path = line[3:]
+              if ' -> ' in path:
+                  path = path.split(' -> ', 1)[1]
+              paths.add(path)
+          allowed = {
+              'crates/ggen-cli/src/generated_commands.rs',
+              'ggen.lock',
+          }
+          unexpected = sorted(path for path in paths if path not in allowed and not path.startswith('.ggen-v2/receipts/'))
+          if unexpected:
+              raise SystemExit(f'GENERATED_PATH_ESCAPE_REFUSED: {unexpected}')
+          if 'crates/ggen-cli/src/generated_commands.rs' not in paths:
+              raise SystemExit('GENERATED_COMMAND_CONSEQUENCE_MISSING')
+          print({'generated_paths': sorted(paths)})
+          PY
+          cargo +nightly-2026-06-22 fmt --all -- --check
+          cargo +nightly-2026-06-22 test -p ggen-cli-lib --test generated_commands_reference
+
+      - name: Commit ggen-owned projections and replay
+        run: |
+          git add crates/ggen-cli/src/generated_commands.rs ggen.lock .ggen-v2/receipts || true
+          git commit -m "chore(cli): regenerate command reference" || true
+          GGEN="$PWD/target/debug/ggen"
+          "$GGEN" sync run
+          "$GGEN" receipt verify
+          cargo +nightly-2026-06-22 fmt --all -- --check
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Publish verified repair
+        run: git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"
