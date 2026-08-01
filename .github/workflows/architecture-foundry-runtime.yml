@@ -8,7 +8,7 @@ on:
       - ".github/workflows/architecture-foundry-runtime.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: architecture-foundry-runtime-${{ github.ref }}
@@ -22,10 +22,9 @@ jobs:
       RUSTUP_TOOLCHAIN: stable
       RUSTC_WRAPPER: ""
     steps:
-      - name: Checkout exact PR head
+      - name: Checkout exact head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - name: Install Rust
@@ -33,134 +32,13 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Normalize receipt, projection, and Git-object semantics
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
+      - name: Normalize runtime in runner checkout
+        run: python3 tools/architecture-foundry/normalize_runtime.py
 
-          path = Path("tools/architecture-foundry/src/lib.rs")
-          text = path.read_text()
+      - name: Format
+        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
 
-          def normalize(old: str, new: str) -> None:
-              global text
-              if old in text:
-                  text = text.replace(old, new, 1)
-              elif new not in text:
-                  raise SystemExit(f"normalization anchor missing: {old!r}")
-
-          normalize(
-              '"corpus:foundry/workstreams/state.json".to_string(),',
-              '"projection:foundry/workstreams/state.json".to_string(),',
-          )
-          normalize(
-              '"corpus:foundry/standing.json".to_string(),',
-              '"projection:foundry/standing.json".to_string(),',
-          )
-          normalize(
-              '        if repository == "external" {\n            continue;\n        }',
-              '        if matches!(repository, "external" | "projection") {\n            continue;\n        }',
-          )
-          normalize(
-              '    let run_id = subject_digest.chars().take(20).collect();',
-              '    let subject_digest = digest_named_outputs(&output_digests);\n    let run_id = subject_digest.chars().take(20).collect();',
-          )
-          normalize(
-              '    write_json(&state_path, &state)?;',
-              '    write_json_replace(&state_path, &state)?;',
-          )
-          normalize(
-              '    let standing_digest = write_json(&standing_path, &standing)?;',
-              '    let standing_digest = write_json_replace(&standing_path, &standing)?;',
-          )
-          normalize(
-              'fn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {',
-              "fn write_json_replace<T: Serialize>(path: &Path, value: &T) -> Result<String> {\n    let mut bytes = serde_json::to_vec_pretty(value)?;\n    bytes.push(b'\\n');\n    if let Some(parent) = path.parent() {\n        fs::create_dir_all(parent).map_err(|source| FoundryError::Io {\n            path: parent.display().to_string(),\n            source,\n        })?;\n    }\n    fs::write(path, &bytes).map_err(|source| FoundryError::Io {\n        path: path.display().to_string(),\n        source,\n    })?;\n    Ok(digest_bytes(&bytes))\n}\n\nfn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {",
-          )
-          normalize(
-              '''    let tracked_raw = git_bytes(&canonical, &["ls-files", "-z"])?;
-    let mut tracked_files: Vec<PathBuf> = tracked_raw
-        .split(|byte| *byte == 0)
-        .filter(|bytes| !bytes.is_empty())
-        .map(|bytes| PathBuf::from(String::from_utf8_lossy(bytes).to_string()))
-        .collect();
-    tracked_files.sort();
-    let tracked_tree_digest = digest_relative_files(&canonical, &tracked_files)?;
-
-    Ok(RepositorySnapshot {
-        path: canonical.display().to_string(),
-        head,
-        branch,
-        origin,
-        clean: dirty_entries.is_empty(),
-        dirty_entries,
-        tracked_file_count: tracked_files.len(),
-        tracked_tree_digest,
-    })''',
-              '''    // Hash Git index records rather than dereferencing the working tree. The staged
-    // record binds mode, object ID, stage, and raw path bytes, so tracked symlinks,
-    // gitlinks, and intentionally absent worktree targets remain observable.
-    let tracked_index = git_bytes(&canonical, &["ls-files", "--stage", "-z"])?;
-    let tracked_file_count = tracked_index
-        .split(|byte| *byte == 0)
-        .filter(|record| !record.is_empty())
-        .count();
-    let object_format = git(&canonical, &["rev-parse", "--show-object-format"])?;
-    let mut tree_hasher = Hasher::new();
-    hash_named_bytes(
-        &mut tree_hasher,
-        "git-object-format",
-        object_format.as_bytes(),
-    );
-    hash_named_bytes(&mut tree_hasher, "git-index-stage-records", &tracked_index);
-    let tracked_tree_digest = tree_hasher.finalize().to_hex().to_string();
-
-    Ok(RepositorySnapshot {
-        path: canonical.display().to_string(),
-        head,
-        branch,
-        origin,
-        clean: dirty_entries.is_empty(),
-        dirty_entries,
-        tracked_file_count,
-        tracked_tree_digest,
-    })''',
-          )
-          normalize(
-              '''fn digest_relative_files(root: &Path, files: &[PathBuf]) -> Result<String> {
-    let mut hasher = Hasher::new();
-    for relative in files {
-        let bytes = read(&root.join(relative))?;
-        hash_named_bytes(&mut hasher, &relative.to_string_lossy(), &bytes);
-    }
-    Ok(hasher.finalize().to_hex().to_string())
-}
-
-''',
-              '',
-          )
-          normalize(
-              'receipt_type: &str, subject: &str, subject_digest: String, source_head: &str,',
-              'receipt_type: &str, subject: &str, _subject_digest: String, source_head: &str,',
-          )
-
-          path.write_text(text)
-          PY
-
-          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
-
-      - name: Persist exact normalized source
-        shell: bash
-        run: |
-          if ! git diff --quiet -- tools/architecture-foundry; then
-            git config user.name "ggen-foundry-verifier"
-            git config user.email "ggen-foundry-verifier@users.noreply.github.com"
-            git add tools/architecture-foundry
-            git commit -m "fix(foundry): canonicalize runtime evidence semantics"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
-
-      - name: Upload normalized Rust sources
+      - name: Upload exact tested Rust sources
         uses: actions/upload-artifact@v4
         with:
           name: architecture-foundry-normalized-source
@@ -171,10 +49,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      - name: Format
-        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
-
-      - name: Test real git boundaries
+      - name: Test real Git boundaries
         run: cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
 
       - name: Validate repository work program
