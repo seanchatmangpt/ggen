@@ -79,6 +79,8 @@ jobs:
           allowed = {
               'crates/ggen-cli/src/generated_commands.rs',
               'ggen.lock',
+              '.ggen-v2/receipt.json',
+              '.ggen-v2/receipt-log.jsonl',
           }
           unexpected = sorted(path for path in paths if path not in allowed and not path.startswith('.ggen-v2/receipts/'))
           if unexpected:
@@ -92,7 +94,7 @@ jobs:
 
       - name: Commit ggen-owned projections and replay
         run: |
-          git add crates/ggen-cli/src/generated_commands.rs ggen.lock .ggen-v2/receipts || true
+          git add crates/ggen-cli/src/generated_commands.rs ggen.lock .ggen-v2/receipt.json .ggen-v2/receipt-log.jsonl .ggen-v2/receipts || true
           git commit -m "chore(cli): regenerate command reference" || true
           GGEN="$PWD/target/debug/ggen"
           "$GGEN" sync run
