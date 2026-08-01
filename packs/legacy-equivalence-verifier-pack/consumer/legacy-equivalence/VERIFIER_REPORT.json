@@ -1,0 +1,258 @@
+{
+  "schema": "ggen.legacy-equivalence.verifier-report.v1",
+  "generated_at": "2026-08-01T22:21:03.273640+00:00",
+  "results": [
+    {
+      "case_id": "cli-stdout-echo",
+      "expected_disposition": "PRESERVED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "stdout",
+          "status": "PASS",
+          "reason": "stdout matches after normalization"
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 19.259
+    },
+    {
+      "case_id": "generated-file-bytes",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "generated_bytes",
+          "status": "PASS",
+          "reason": "generated_bytes match (11 bytes)"
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 12.302
+    },
+    {
+      "case_id": "refused-removed-command",
+      "expected_disposition": "REFUSED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "diagnostics",
+          "status": "PASS",
+          "reason": "found expected diagnostic substring 'decommissioned'"
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "current adapter refused with exit code 3"
+        }
+      ],
+      "duration_ms": 11.925999999999998
+    },
+    {
+      "case_id": "legacy-ggen-core-pipeline",
+      "expected_disposition": "REPLACED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 276.345
+    },
+    {
+      "case_id": "legacy-wizard-command",
+      "expected_disposition": "REFUSED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "diagnostics",
+          "status": "PASS",
+          "reason": "found expected diagnostic substring \"unrecognized subcommand 'wizard'\""
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "current adapter refused with exit code 1"
+        }
+      ],
+      "duration_ms": 36.184
+    },
+    {
+      "case_id": "legacy-sigma-command",
+      "expected_disposition": "REFUSED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "diagnostics",
+          "status": "PASS",
+          "reason": "found expected diagnostic substring \"unrecognized subcommand 'sigma'\""
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "current adapter refused with exit code 1"
+        }
+      ],
+      "duration_ms": 30.727
+    },
+    {
+      "case_id": "legacy-inverse-sync-command",
+      "expected_disposition": "REFUSED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "diagnostics",
+          "status": "PASS",
+          "reason": "found expected diagnostic substring \"unrecognized subcommand 'inverse_sync'\""
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "current adapter refused with exit code 1"
+        }
+      ],
+      "duration_ms": 29.573
+    },
+    {
+      "case_id": "legacy-ggen-a2a-mcp-server",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 26.378999999999998
+    },
+    {
+      "case_id": "legacy-ggen-lsp-mcp-server",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 21.871000000000002
+    },
+    {
+      "case_id": "legacy-ggen-lsp-a2a-bridge",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 22.145
+    },
+    {
+      "case_id": "legacy-genesis-schema-v2-crate",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 19.252
+    },
+    {
+      "case_id": "legacy-star-toml-workspace-member",
+      "expected_disposition": "REPLACED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 23.549
+    },
+    {
+      "case_id": "legacy-stpnt-crate",
+      "expected_disposition": "REFUSED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "diagnostics",
+          "status": "PASS",
+          "reason": "found expected diagnostic substring 'not present in workspace'"
+        },
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "current adapter refused with exit code 3"
+        }
+      ],
+      "duration_ms": 20.158
+    },
+    {
+      "case_id": "legacy-genesis-core-crate-original",
+      "expected_disposition": "ARCHIVED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "recovery_result",
+          "status": "PASS",
+          "reason": "recovery_action exited 0"
+        }
+      ],
+      "duration_ms": 30.293
+    },
+    {
+      "case_id": "legacy-process-intelligence-local-analysis",
+      "expected_disposition": "SUBSUMED",
+      "status": "PASS",
+      "reason": "all declared observable surfaces matched",
+      "surfaces": [
+        {
+          "surface": "exit_code",
+          "status": "PASS",
+          "reason": "exit_code matches (0)"
+        }
+      ],
+      "duration_ms": 422.54600000000005
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "blocked": 0
+  },
+  "manifest_path": "packs/legacy-equivalence-verifier-pack/consumer/legacy-equivalence/case_manifest.json"
+}

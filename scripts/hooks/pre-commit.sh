@@ -6,8 +6,12 @@
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
-# Only run validation when on the default branch (main)
-CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+# Only run validation when on the default branch (main). `git symbolic-ref`
+# fails fatally on detached HEAD (e.g. a clean-room isolation worktree,
+# tools/v26.8.1/clean_room.py) -- that is a legitimate git state, not an
+# error, and must be treated the same as "not main" (skip validation), not
+# abort the commit.
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 if [ "$CURRENT_BRANCH" != "main" ]; then
     exit 0
 fi

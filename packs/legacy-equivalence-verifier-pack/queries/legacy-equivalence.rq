@@ -1,0 +1,6 @@
+PREFIX eqv: <https://ggen.io/ontology/legacy-equivalence#>
+SELECT ?version
+WHERE {
+  eqv:LegacyEquivalenceBBlock eqv:version ?version .
+}
+LIMIT 1

@@ -9,9 +9,11 @@ use std::{
 
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
-    ArchitectureState, AutonomicController, CapacityEnvelope, DoctorReport, DoctorStatus,
-    Fortune5Assessment, Fortune5AutonomicPlan, Fortune5Catalog, Fortune5Program,
-    LevelFiveCrownAssessment, LevelFiveCrownProgram, Severity, Stimulus,
+    demo_scenario, run_scenario, verify_report, ArchitectureState, AutonomicController,
+    CapacityEnvelope, DoctorReport, DoctorStatus, Fortune5Assessment, Fortune5AutonomicPlan,
+    Fortune5Catalog, Fortune5Program, LevelFiveCrownAssessment, LevelFiveCrownProgram,
+    SelfPlayDoctorReport, SelfPlayDoctorStatus, SelfPlayReport, SelfPlayScenario, Severity,
+    Stimulus,
 };
 use serde::de::DeserializeOwned;
 
@@ -87,6 +89,51 @@ enum Command {
         /// Fortune 5 operation.
         #[command(subcommand)]
         command: Fortune5Command,
+    },
+    /// Deterministic, non-LLM bounded-role self-play (see `self_play` module).
+    SelfPlay {
+        #[command(subcommand)]
+        command: SelfPlayCommand,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+enum SelfPlayCommand {
+    /// Run the built-in demo scenario (SystemArchitect extends runway,
+    /// EvidenceVerifier corroborates before goals are met).
+    Demo {
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Run a scenario from a JSON file.
+    Run {
+        /// `SelfPlayScenario` JSON.
+        #[arg(long)]
+        scenario: PathBuf,
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
+    },
+    /// Independently re-verify a report against its scenario (real replay).
+    Verify {
+        /// `SelfPlayScenario` JSON.
+        #[arg(long)]
+        scenario: PathBuf,
+        /// `SelfPlayReport` JSON to verify.
+        #[arg(long)]
+        report: PathBuf,
+    },
+    /// Run + independently re-verify a scenario, reporting findings in the
+    /// same doctor-report shape as `ggen-architecture doctor`. Defaults to
+    /// the built-in demo scenario when `--scenario` is omitted.
+    Doctor {
+        /// `SelfPlayScenario` JSON. Defaults to the built-in demo scenario.
+        #[arg(long)]
+        scenario: Option<PathBuf>,
+        /// Emit JSON.
+        #[arg(long)]
+        json: bool,
     },
 }
 
@@ -326,6 +373,74 @@ fn run() -> Result<u8, Box<dyn Error>> {
                 })
             }
         },
+        Command::SelfPlay { command } => match command {
+            SelfPlayCommand::Demo { json } => {
+                let scenario = demo_scenario();
+                let report = run_scenario(&scenario)
+                    .map_err(|violation| format!("self-play refused: {violation}"))?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    print_self_play_report(&report);
+                }
+                Ok(0)
+            }
+            SelfPlayCommand::Run { scenario, json } => {
+                let scenario: SelfPlayScenario = read_json(&scenario)?;
+                let report = run_scenario(&scenario)
+                    .map_err(|violation| format!("self-play refused: {violation}"))?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    print_self_play_report(&report);
+                }
+                Ok(0)
+            }
+            SelfPlayCommand::Verify { scenario, report } => {
+                let scenario: SelfPlayScenario = read_json(&scenario)?;
+                let report: SelfPlayReport = read_json(&report)?;
+                match verify_report(&scenario, &report) {
+                    Ok(()) => {
+                        println!("replay verified: chain_head={}", report.chain_head);
+                        Ok(0)
+                    }
+                    Err(violation) => {
+                        eprintln!("replay verification failed: {violation}");
+                        Ok(2)
+                    }
+                }
+            }
+            SelfPlayCommand::Doctor { scenario, json } => {
+                let scenario: SelfPlayScenario = match scenario {
+                    Some(path) => read_json(&path)?,
+                    None => demo_scenario(),
+                };
+                let report = SelfPlayDoctorReport::analyze(&scenario)?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    print!("{}", report.render_text());
+                }
+                Ok(if report.status == SelfPlayDoctorStatus::Refused {
+                    2
+                } else {
+                    0
+                })
+            }
+        },
+    }
+}
+
+fn print_self_play_report(report: &SelfPlayReport) {
+    println!("scenario: {}", report.scenario_id);
+    println!("standing: {:?}", report.standing);
+    println!("fixed_point: {}", report.fixed_point);
+    println!("rounds: {}", report.rounds);
+    println!("receipts: {}", report.receipts.len());
+    println!("chain_head: {}", report.chain_head);
+    println!("actuation_performed: {}", report.actuation_performed);
+    if !report.unmet_goals.is_empty() {
+        println!("unmet_goals: {}", report.unmet_goals.join(", "));
     }
 }
 

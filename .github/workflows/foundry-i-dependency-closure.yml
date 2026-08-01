@@ -1,0 +1,114 @@
+name: Foundry I Dependency Closure
+
+on:
+  pull_request:
+    paths:
+      - "tools/architecture-foundry/src/bin/admit_verification.rs"
+      - "docs/architecture-foundry/work-program.yaml"
+      - ".github/workflows/foundry-i-dependency-closure.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: foundry-i-dependency-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair-and-prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      RUSTC_WRAPPER: ""
+    steps:
+      - name: Checkout exact candidate branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Repair, format, and commit local candidate
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          path = Path("tools/architecture-foundry/src/bin/admit_verification.rs")
+          text = path.read_text()
+          pattern = re.compile(
+              r'(?m)^\s*if workstream\.dependencies\.len\(\) != 1 \|\| workstream\.dependencies\[0\] != "H" \{\n'
+              r'\s*bail!\("WORKSTREAM_I_DEPENDENCY_INVALID"\);\n'
+              r'\s*\}\n'
+          )
+          replacement = '''    let observed_dependencies: BTreeSet<&str> = workstream
+              .dependencies
+              .iter()
+              .map(String::as_str)
+              .collect();
+          let expected_dependencies = BTreeSet::from(["G", "H"]);
+          if observed_dependencies != expected_dependencies {
+              bail!(
+                  "WORKSTREAM_I_DEPENDENCY_INVALID: expected={expected_dependencies:?}, observed={observed_dependencies:?}"
+              );
+          }
+          '''
+          repaired, count = pattern.subn(replacement, text, count=1)
+          if count == 1:
+              path.write_text(repaired)
+          elif 'let expected_dependencies = BTreeSet::from(["G", "H"]);' not in text:
+              raise SystemExit("typed dependency invariant was neither old nor repaired")
+          PY
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
+          git config user.name "ggen-foundry-controller"
+          git config user.email "ggen-foundry-controller@users.noreply.github.com"
+          git add tools/architecture-foundry/src/bin/admit_verification.rs
+          if git diff --cached --quiet; then
+            echo "Runtime dependency law already repaired."
+          else
+            git commit -m "fix(foundry): require complete G and H verification closure"
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Build and test exact committed runtime
+        run: |
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
+          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+          cargo build --manifest-path tools/architecture-foundry/Cargo.toml --bin admit_verification
+
+      - name: Cross real Git and subprocess boundary
+        run: |
+          root="$(mktemp -d)"
+          git clone --quiet --local . "$root/source"
+          mkdir -p "$root/corpus/foundry/workstreams"
+          git -C "$root/corpus" init --quiet
+          git -C "$root/corpus" config user.name foundry-verifier
+          git -C "$root/corpus" config user.email foundry-verifier@example.invalid
+          cat > "$root/corpus/foundry/workstreams/state.json" <<'JSON'
+          {
+            "schema_version": "ggen.enterprise-architecture-foundry.corpus/1",
+            "program_id": "ggen-legacy-to-foundry",
+            "workstreams": {
+              "H": {"status": "ADMITTED", "dependencies": ["E", "F"], "report_digest": "evidence", "receipt_path": "foundry/receipts/workstream-H.json"},
+              "I": {"status": "READY", "dependencies": ["G", "H"], "report_digest": null, "receipt_path": null}
+            }
+          }
+          JSON
+          git -C "$root/corpus" add .
+          git -C "$root/corpus" commit --quiet -m corpus
+
+          set +e
+          tools/architecture-foundry/target/debug/admit_verification \
+            --program docs/architecture-foundry/work-program.yaml \
+            --source "$root/source" \
+            --corpus "$root/corpus" \
+            > "$root/stdout" 2> "$root/stderr"
+          status=$?
+          set -e
+          test "$status" -ne 0
+          ! grep -q 'WORKSTREAM_I_DEPENDENCY_INVALID' "$root/stderr"
+          grep -Eq 'RECEIPT_(DIRECTORY_MISSING|PORTFOLIO_INCOMPLETE)' "$root/stderr"
+          cat "$root/stderr"
+
+      - name: Publish verified runtime repair
+        run: |
+          git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"

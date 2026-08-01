@@ -1,0 +1,1683 @@
+{
+  "document_count": 109,
+  "generated_at_unix": 1785623222,
+  "generator": {
+    "content_sha256": "1725c43bb887ef9a0be8615ee167571c02ac57250a2fb4016ab3c693290718fb",
+    "path": "tools/v26.8.1/document_evidence_index.py"
+  },
+  "records": [
+    {
+      "authority_references": [
+        ".specify/repo-facts.ttl",
+        "docs/jira/v26.7.16/11-DELETION-AND-DEFINITION-OF-DONE.md",
+        "docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md",
+        "docs/v26.8.1",
+        "docs/v26.8.1/00-governance/01-canon-and-authority.md",
+        "docs/v26.8.1/00-governance/02-scope-and-non-goals.md",
+        "docs/v26.8.1/00-governance/03-standing-vocabulary.md",
+        "docs/v26.8.1/00-governance/04-claim-classification.md",
+        "docs/v26.8.1/00-governance/05-zero-information-loss-law.md",
+        "docs/v26.8.1/00-governance/06-source-precedence.md",
+        "docs/v26.8.1/00-governance/07-generated-surface-authority.md",
+        "docs/v26.8.1/00-governance/08-change-control.md",
+        "docs/v26.8.1/00-governance/09-release-decision-record.md",
+        "docs/v26.8.1/00-governance/10-risk-register.md",
+        "docs/v26.8.1/10-system/11-repository-topology.md",
+        "docs/v26.8.1/10-system/12-workspace-crate-map.md",
+        "docs/v26.8.1/10-system/13-dependency-boundaries.md",
+        "docs/v26.8.1/10-system/14-runtime-boundaries.md",
+        "docs/v26.8.1/10-system/15-process-intelligence-boundary.md",
+        "docs/v26.8.1/10-system/16-self-hosting-architecture.md",
+        "docs/v26.8.1/10-system/17-gall-control-plane.md",
+        "docs/v26.8.1/10-system/18-building-block-kernel.md",
+        "docs/v26.8.1/10-system/19-fortune5-capability-model.md",
+        "docs/v26.8.1/10-system/20-external-actuation-boundary.md",
+        "docs/v26.8.1/20-engine/21-sync-pipeline.md",
+        "docs/v26.8.1/20-engine/22-resolve-stage.md",
+        "docs/v26.8.1/20-engine/23-enrich-stage.md",
+        "docs/v26.8.1/20-engine/24-extract-stage.md",
+        "docs/v26.8.1/20-engine/25-render-stage.md",
+        "docs/v26.8.1/20-engine/26-write-stage.md",
+        "docs/v26.8.1/20-engine/27-receipt-stage.md",
+        "docs/v26.8.1/20-engine/28-dry-run-semantics.md",
+        "docs/v26.8.1/20-engine/29-watch-and-incremental-semantics.md",
+        "docs/v26.8.1/20-engine/30-failure-and-refusal-ordering.md",
+        "docs/v26.8.1/30-graph/31-rdf-authority-model.md",
+        "docs/v26.8.1/30-graph/32-oxigraph-integration.md",
+        "docs/v26.8.1/30-graph/33-praxis-graphlaw-integration.md",
+        "docs/v26.8.1/30-graph/34-sparql-contracts.md",
+        "docs/v26.8.1/30-graph/35-n3-and-datalog-boundary.md",
+        "docs/v26.8.1/30-graph/36-shacl-validation.md",
+        "docs/v26.8.1/30-graph/37-shex-validation.md",
+        "docs/v26.8.1/30-graph/38-ontology-imports.md",
+        "docs/v26.8.1/30-graph/39-deterministic-graph-hashing.md",
+        "docs/v26.8.1/30-graph/40-graph-delta-and-transition-receipts.md",
+        "docs/v26.8.1/40-projection/41-tera-integration.md",
+        "docs/v26.8.1/40-projection/42-template-frontmatter.md",
+        "docs/v26.8.1/40-projection/43-context-construction.md",
+        "docs/v26.8.1/40-projection/44-combinatorial-maximalism.md",
+        "docs/v26.8.1/40-projection/45-output-path-safety.md",
+        "docs/v26.8.1/40-projection/46-write-modes.md",
+        "docs/v26.8.1/40-projection/47-generated-manual-merge.md",
+        "docs/v26.8.1/40-projection/48-output-ownership.md",
+        "docs/v26.8.1/40-projection/49-render-determinism.md",
+        "docs/v26.8.1/40-projection/50-projection-performance.md",
+        "docs/v26.8.1/50-evidence/51-receipt-schema.md",
+        "docs/v26.8.1/50-evidence/52-blake3-chain.md",
+        "docs/v26.8.1/50-evidence/53-signature-and-key-management.md",
+        "docs/v26.8.1/50-evidence/54-replay-protocol.md",
+        "docs/v26.8.1/50-evidence/55-ocel-emission.md",
+        "docs/v26.8.1/50-evidence/56-opentelemetry.md",
+        "docs/v26.8.1/50-evidence/57-causality-chain.md",
+        "docs/v26.8.1/50-evidence/58-multi-surface-corroboration.md",
+        "docs/v26.8.1/50-evidence/59-external-witness.md",
+        "docs/v26.8.1/50-evidence/60-standing-promotion.md",
+        "docs/v26.8.1/60-products/61-cli-surface.md",
+        "docs/v26.8.1/60-products/62-default-verb-routing.md",
+        "docs/v26.8.1/60-products/63-configuration-schemas.md",
+        "docs/v26.8.1/60-products/64-lsp-surface.md",
+        "docs/v26.8.1/60-products/65-lsp-diagnostics.md",
+        "docs/v26.8.1/60-products/66-marketplace.md",
+        "docs/v26.8.1/60-products/67-pack-kernel.md",
+        "docs/v26.8.1/60-products/68-bblock-composition.md",
+        "docs/v26.8.1/60-products/69-lockfile-and-resolution.md",
+        "docs/v26.8.1/60-products/70-a2a-mcp-and-protocol-surfaces.md",
+        "docs/v26.8.1/70-verification",
+        "docs/v26.8.1/70-verification/71-verification-constitution.md",
+        "docs/v26.8.1/70-verification/72-unit-boundary-suite.md",
+        "docs/v26.8.1/70-verification/73-property-and-fuzz-suite.md",
+        "docs/v26.8.1/70-verification/74-stdio-http-integration-suite.md",
+        "docs/v26.8.1/70-verification/75-black-box-cli-e2e.md",
+        "docs/v26.8.1/70-verification/76-security-suite.md",
+        "docs/v26.8.1/70-verification/77-chaos-stress-and-benchmark.md",
+        "docs/v26.8.1/70-verification/78-replay-suite.md",
+        "docs/v26.8.1/70-verification/79-machine-readable-verifier-report.md",
+        "docs/v26.8.1/70-verification/80-negative-fixtures-and-falsifiers.md",
+        "docs/v26.8.1/80-economics/81-tera-benchmark-research.md",
+        "docs/v26.8.1/80-economics/82-oxigraph-benchmark-research.md",
+        "docs/v26.8.1/80-economics/83-integrated-pipeline-model.md",
+        "docs/v26.8.1/80-economics/84-littles-law.md",
+        "docs/v26.8.1/80-economics/85-amdahls-law.md",
+        "docs/v26.8.1/80-economics/86-brooks-and-coordination.md",
+        "docs/v26.8.1/80-economics/87-conways-law.md",
+        "docs/v26.8.1/80-economics/88-human-comparison.md",
+        "docs/v26.8.1/80-economics/89-cost-and-capacity-model.md",
+        "docs/v26.8.1/80-economics/90-threats-to-validity.md",
+        "docs/v26.8.1/90-legacy/100-final-decision-and-refusal.md",
+        "docs/v26.8.1/90-legacy/91-ggen-legacy-definition.md",
+        "docs/v26.8.1/90-legacy/92-chestertons-fence-inventory.md",
+        "docs/v26.8.1/90-legacy/93-capability-equivalence-matrix.md",
+        "docs/v26.8.1/90-legacy/94-command-and-diagnostic-parity.md",
+        "docs/v26.8.1/90-legacy/95-data-and-receipt-compatibility.md",
+        "docs/v26.8.1/90-legacy/96-migration-plan.md",
+        "docs/v26.8.1/90-legacy/97-archive-and-recovery.md",
+        "docs/v26.8.1/90-legacy/98-sunset-gates.md",
+        "docs/v26.8.1/90-legacy/99-sunset-runbook.md",
+        "docs/v26.8.1/90-legacy/observer-class-report.md",
+        "docs/v26.8.1/coverage-matrix.csv",
+        "docs/v26.8.1/diagrams/01-enterprise-manufacturing-system.md",
+        "docs/v26.8.1/diagrams/02-agent-fleet-and-gall.md",
+        "docs/v26.8.1/diagrams/03-unified-semantic-control-plane.md",
+        "docs/v26.8.1/diagrams/04-v2681-self-manufacture.md",
+        "docs/v26.8.1/diagrams/05-legacy-v2781-transformation.md",
+        "docs/v26.8.1/diagrams/06-crown-receipt-and-replay.md",
+        "docs/v26.8.1/diagrams/README.md",
+        "docs/v26.8.1/document-evidence-index.json",
+        "docs/v26.8.1/document-evidence-index.md"
+      ],
+      "document_digest": "4f0d5e009d766bf7cf3f5b7e790c332fd10bf908bc781b528ffb7a859dcd33e8",
+      "document_path": "docs/v26.8.1/document-evidence-index.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-cli/src/generated_commands.rs",
+        "crates/ggen-cli/tests/cli_surface_evidence_test.rs",
+        "crates/ggen-cli/tests/default_verb_law_test.rs",
+        "crates/ggen-config/src/manifest/types.rs",
+        "crates/ggen-config/tests/governance_precommit_gate_count_test.rs",
+        "crates/ggen-config/tests/schema_parity_test.rs",
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs",
+        "crates/ggen-engine/src/config.rs",
+        "crates/ggen-engine/src/generation_rules.rs",
+        "crates/ggen-engine/src/keys.rs",
+        "crates/ggen-engine/src/sync.rs",
+        "crates/ggen-engine/src/verbs/sync.rs",
+        "crates/ggen-engine/tests/economics_measured_evidence_test.rs",
+        "crates/ggen-engine/tests/manifest_diagnostic_codes_evidence_test.rs",
+        "crates/ggen-engine/tests/pipeline_stage_evidence_test.rs",
+        "crates/ggen-engine/tests/projection_determinism_test.rs",
+        "crates/ggen-engine/tests/receipt_chain_e2e.rs",
+        "crates/ggen-engine/tests/receipt_signing_evidence_test.rs",
+        "crates/ggen-graph/tests/graph_hashing_evidence_test.rs",
+        "crates/praxis-core/src/receipt_record.rs",
+        "crates/praxis-core/src/refusal.rs",
+        "ontology/v26.8.1/legacy-capabilities.ttl",
+        "ontology/v26.8.1/ontology.ttl",
+        "ontology/v26.8.1/shapes.ttl",
+        "tools/v26.8.1/equivalence_runner.py",
+        "tools/v26.8.1/legacy_archaeology.py",
+        "tools/v26.8.1/src/main.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": [
+        "crates/ggen-cli/tests/cli_surface_evidence_test.rs",
+        "crates/ggen-cli/tests/default_verb_law_test.rs",
+        "crates/ggen-config/tests/governance_precommit_gate_count_test.rs",
+        "crates/ggen-config/tests/schema_parity_test.rs",
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs",
+        "crates/ggen-engine/tests/economics_measured_evidence_test.rs",
+        "crates/ggen-engine/tests/manifest_diagnostic_codes_evidence_test.rs",
+        "crates/ggen-engine/tests/pipeline_stage_evidence_test.rs",
+        "crates/ggen-engine/tests/projection_determinism_test.rs",
+        "crates/ggen-engine/tests/receipt_chain_e2e.rs",
+        "crates/ggen-engine/tests/receipt_signing_evidence_test.rs",
+        "crates/ggen-graph/tests/graph_hashing_evidence_test.rs",
+        "tools/v26.8.1/src/main.rs"
+      ]
+    },
+    {
+      "authority_references": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "justfile"
+      ],
+      "document_digest": "b3d48391e2fb59f726734389e871337bdde8aedacd7110f3b0cb3fa1fc3902e1",
+      "document_path": "docs/v26.8.1/00-governance/01-canon-and-authority.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "justfile"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": [
+        "crates/ggen-config/tests/governance_precommit_gate_count_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "c1bbddac7782316c6d6a03baa8d6500d5eeb79cbd5eaaa86e6b0b95a4121aaf8",
+      "document_path": "docs/v26.8.1/00-governance/02-scope-and-non-goals.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "d76f00aee1eed31eb91c275472b78446370782ab3cd2871c35ddb1348f4a8ae6",
+      "document_path": "docs/v26.8.1/00-governance/03-standing-vocabulary.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "7de5d19be232728274a7e26ee1e51fda05d810255c8ed1e353f66812b262f404",
+      "document_path": "docs/v26.8.1/00-governance/04-claim-classification.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "2f7d9a39eb59f894751b8cee6217e4b217f66907ed050f6e21680c04efca94f2",
+      "document_path": "docs/v26.8.1/00-governance/05-zero-information-loss-law.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "121a8c276b11fa9246618f2f42d4bf3285d2975ae8d4719d0e52e8b4449ef9d5",
+      "document_path": "docs/v26.8.1/00-governance/06-source-precedence.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "crates/ggen-config/tests/schema_parity_test.rs",
+        "crates/ggen-engine/src/generation_rules.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": [
+        "crates/ggen-config/tests/schema_parity_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "0ddf31efa1e0e58ee0b9ff1b192c1bd826b2375745d4e4644b01f0a96ea6df49",
+      "document_path": "docs/v26.8.1/00-governance/07-generated-surface-authority.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "69b28794dd69483baa69f3b8a7a33d1cad27b295ec94ceb958039cb511d6b944",
+      "document_path": "docs/v26.8.1/00-governance/08-change-control.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "crates/ggen-config/tests/governance_precommit_gate_count_test.rs",
+        "crates/ggen-config/tests/schema_parity_test.rs",
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs",
+        "crates/ggen-engine/src/keys.rs",
+        "crates/praxis-core/src/refusal.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": [
+        "crates/ggen-config/tests/governance_precommit_gate_count_test.rs",
+        "crates/ggen-config/tests/schema_parity_test.rs",
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f79e99d8ffa8fc29a0cc4b0932fdfb6ce73d580855d93c3fd3714c1926ee6c22",
+      "document_path": "docs/v26.8.1/00-governance/09-release-decision-record.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "8b5c86b362f11714c8706f42c8544c57a0db29228580cf09fd5e56ad167a9811",
+      "document_path": "docs/v26.8.1/00-governance/10-risk-register.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        ".specify/repo-facts.ttl"
+      ],
+      "document_digest": "bbffc3ed4e6dc0f98933623575ba662ce06d273cbd35ac7cb163daf77748b075",
+      "document_path": "docs/v26.8.1/10-system/11-repository-topology.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        ".specify/repo-facts.ttl",
+        "Cargo.toml"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": [
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs"
+      ]
+    },
+    {
+      "authority_references": [
+        ".specify/repo-facts.ttl"
+      ],
+      "document_digest": "4782403bf1c7ddb0c3d4d0fa1704798c3dabf12ed2ee488a4e25a041aa993672",
+      "document_path": "docs/v26.8.1/10-system/12-workspace-crate-map.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": [
+        "crates/ggen-config/tests/system_crate_map_parity_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "ee033bc7dee8855a4853850c7a6ec85c9514fe2ea641f1438f938b2c65e44211",
+      "document_path": "docs/v26.8.1/10-system/13-dependency-boundaries.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "aa636fac4ff5ade17ea4cd895441f915b3cf5efad6c9f578334d93f6cd7c6ebc",
+      "document_path": "docs/v26.8.1/10-system/14-runtime-boundaries.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "70351c833e0717cca73d84f0e37f74836c05711d07807d63e410197342fd044c",
+      "document_path": "docs/v26.8.1/10-system/15-process-intelligence-boundary.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/10-system/16-self-hosting-architecture.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/10-system/17-gall-control-plane.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/10-system/18-building-block-kernel.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/10-system/19-fortune5-capability-model.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/10-system/20-external-actuation-boundary.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "system",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/20-engine"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/21-sync-pipeline.md",
+      "document_role": "IMPLEMENTATION",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-engine/src/sync.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": [
+        "crates/ggen-engine/tests/manifest_diagnostic_codes_evidence_test.rs",
+        "crates/ggen-engine/tests/pipeline_stage_evidence_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/22-resolve-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/23-enrich-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/24-extract-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/25-render-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/26-write-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/27-receipt-stage.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/28-dry-run-semantics.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/29-watch-and-incremental-semantics.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/20-engine/30-failure-and-refusal-ordering.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "engine",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/30-graph"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/31-rdf-authority-model.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-graph/src",
+        "crates/praxis-graphlaw/src"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": [
+        "crates/ggen-graph/tests/graph_hashing_evidence_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/32-oxigraph-integration.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/33-praxis-graphlaw-integration.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/34-sparql-contracts.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/35-n3-and-datalog-boundary.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/36-shacl-validation.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/37-shex-validation.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/38-ontology-imports.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/39-deterministic-graph-hashing.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/30-graph/40-graph-delta-and-transition-receipts.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "graph",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/40-projection"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/41-tera-integration.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-engine/src/sync.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": [
+        "crates/ggen-engine/tests/projection_determinism_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/42-template-frontmatter.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/43-context-construction.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/44-combinatorial-maximalism.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/45-output-path-safety.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/46-write-modes.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/47-generated-manual-merge.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/48-output-ownership.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/49-render-determinism.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/40-projection/50-projection-performance.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "projection",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/50-evidence"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/51-receipt-schema.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-engine/src/sync.rs",
+        "crates/praxis-core/src/receipt_record.rs"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": [
+        "crates/ggen-engine/tests/receipt_signing_evidence_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/52-blake3-chain.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/53-signature-and-key-management.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/54-replay-protocol.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/55-ocel-emission.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/56-opentelemetry.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/57-causality-chain.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/58-multi-surface-corroboration.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/59-external-witness.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/50-evidence/60-standing-promotion.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "evidence",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/60-products"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/61-cli-surface.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-cli/src"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": [
+        "crates/ggen-cli/tests/cli_surface_evidence_test.rs",
+        "crates/ggen-cli/tests/default_verb_law_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/62-default-verb-routing.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/63-configuration-schemas.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/64-lsp-surface.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/65-lsp-diagnostics.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/66-marketplace.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/67-pack-kernel.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/68-bblock-composition.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/69-lockfile-and-resolution.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/60-products/70-a2a-mcp-and-protocol-surfaces.md",
+      "document_role": "ARCHITECTURE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "products",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/71-verification-constitution.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/72-unit-boundary-suite.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/73-property-and-fuzz-suite.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/74-stdio-http-integration-suite.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/75-black-box-cli-e2e.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/76-security-suite.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/77-chaos-stress-and-benchmark.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/78-replay-suite.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/79-machine-readable-verifier-report.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/70-verification/80-negative-fixtures-and-falsifiers.md",
+      "document_role": "VERIFICATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "verification",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/80-economics"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/81-tera-benchmark-research.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "crates/ggen-engine/tests/receipt_chain_e2e.rs",
+        "justfile"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": [
+        "crates/ggen-engine/tests/economics_measured_evidence_test.rs"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/82-oxigraph-benchmark-research.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/83-integrated-pipeline-model.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/84-littles-law.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/85-amdahls-law.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/86-brooks-and-coordination.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/87-conways-law.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/88-human-comparison.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/89-cost-and-capacity-model.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/80-economics/90-threats-to-validity.md",
+      "document_role": "ECONOMICS",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "economics",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/90-legacy"
+      ],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/100-final-decision-and-refusal.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [
+        ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+        ".ggen/v26.8.1/subsystem-verifier-report.json"
+      ],
+      "implementation_references": [
+        "ontology/v26.8.1/legacy-capabilities.ttl",
+        "tools/v26.8.1/equivalence_runner.py"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": [
+        "tools/v26.8.1/equivalence_runner.py"
+      ]
+    },
+    {
+      "authority_references": [],
+      "document_digest": "2f06735e07b07d70d1b11236ed4cfdabe0352cac30dcfa36eb5f6b399135ac78",
+      "document_path": "docs/v26.8.1/90-legacy/91-ggen-legacy-definition.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "ontology/v26.8.1/legacy-capabilities.ttl",
+        "ontology/v26.8.1/ontology.ttl",
+        "tools/v26.8.1/legacy_archaeology.py"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/jira/v26.7.16/11-DELETION-AND-DEFINITION-OF-DONE.md",
+        "docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md"
+      ],
+      "document_digest": "6d1e48e28e70a6e68afdbdd192bafb743dca8f9edb499d043a88d53d7a16c05d",
+      "document_path": "docs/v26.8.1/90-legacy/92-chestertons-fence-inventory.md",
+      "document_role": "LEGACY",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "crates/ggen-config/src/manifest/types.rs",
+        "crates/ggen-engine/src/config.rs",
+        "crates/ggen-engine/src/verbs/sync.rs",
+        "ontology/v26.8.1/legacy-capabilities.ttl"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [
+        "docs/v26.8.1/coverage-matrix.csv"
+      ],
+      "document_digest": "fd3e471336b1c286dc15df7269cbaef34d4329d9ad3a7d58830a11eed54683c6",
+      "document_path": "docs/v26.8.1/90-legacy/93-capability-equivalence-matrix.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "ontology/v26.8.1/legacy-capabilities.ttl",
+        "ontology/v26.8.1/ontology.ttl",
+        "tools/v26.8.1/legacy_archaeology.py"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/94-command-and-diagnostic-parity.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/95-data-and-receipt-compatibility.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/96-migration-plan.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/97-archive-and-recovery.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/98-sunset-gates.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "f6948344d6102486c25096b1c5b13bd6c308d7146f3525c2456a7074411d50f3",
+      "document_path": "docs/v26.8.1/90-legacy/99-sunset-runbook.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "00f181e0df32abaabbba8664031d59d67319a3e6b01dacaf14bf1076e9e7a4e8",
+      "document_path": "docs/v26.8.1/90-legacy/observer-class-report.md",
+      "document_role": "MIGRATION",
+      "evidence_report_references": [],
+      "implementation_references": [
+        "crates/ggen-cli/src/generated_commands.rs",
+        "crates/ggen-config/src/manifest/types.rs",
+        "crates/ggen-engine/src/sync.rs",
+        "crates/praxis-core/src/receipt_record.rs",
+        "ontology/v26.8.1/legacy-capabilities.ttl",
+        "ontology/v26.8.1/ontology.ttl",
+        "ontology/v26.8.1/shapes.ttl",
+        "tools/v26.8.1/legacy_archaeology.py"
+      ],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "legacy",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "ced84f088b38b4f1c64080f09980e5cba85c309587c9320656c5839af9d07e02",
+      "document_path": "docs/v26.8.1/diagrams/01-enterprise-manufacturing-system.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "3b1239241256e77e6d0a8fa5d46a7487a1a3fa9e6e43bd81f934f06305bb83d9",
+      "document_path": "docs/v26.8.1/diagrams/02-agent-fleet-and-gall.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "dde2b7a23d35bf0b5e1234b847e6b8a79be666cc35e92010ee57066890a62bdb",
+      "document_path": "docs/v26.8.1/diagrams/03-unified-semantic-control-plane.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "95aa55d82b0344f0c2d3fc477f78e9058c9aa58701fb8fdf59a7fefd0ecff473",
+      "document_path": "docs/v26.8.1/diagrams/04-v2681-self-manufacture.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "c7c98281a181728cfb1a49f7c4a9519d46960f516a6713f7dcc9d20b57c6cf0f",
+      "document_path": "docs/v26.8.1/diagrams/05-legacy-v2781-transformation.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "77cd0c3312beebe9f38c50c3aaa0897e1c4447ba11fac7444a816cbd29ba6120",
+      "document_path": "docs/v26.8.1/diagrams/06-crown-receipt-and-replay.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    },
+    {
+      "authority_references": [],
+      "document_digest": "5edea8bafa8308228baeb5490812fcdeda7656a48a187af0f8eb955b47c0ed54",
+      "document_path": "docs/v26.8.1/diagrams/README.md",
+      "document_role": "GOVERNANCE",
+      "evidence_report_references": [],
+      "implementation_references": [],
+      "legacy_capability_references": [],
+      "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+      "subsystem": "governance",
+      "verifier_references": []
+    }
+  ],
+  "release": "26.8.1",
+  "schema": "ggen.v26.8.1.document-evidence-index/1",
+  "source_head": "6b1ae24686bf31a9cbfa24dc0fa16c62bc47c5c6",
+  "subsystem_coverage": {
+    "economics": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "engine": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "evidence": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "governance": {
+      "document_count": 17,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "graph": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "legacy": {
+      "document_count": 11,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "products": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "projection": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "system": {
+      "document_count": 10,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    },
+    "verification": {
+      "document_count": 11,
+      "has_authority_reference": true,
+      "has_implementation_reference": true,
+      "has_verifier_reference": true
+    }
+  }
+}

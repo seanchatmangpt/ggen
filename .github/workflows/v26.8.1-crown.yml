@@ -58,6 +58,14 @@ jobs:
           tool: sccache
       - name: Install pinned just
         run: cargo install just --locked --version 1.40.0
+      # .ggen/v26.8.1/ is gitignored (it's regenerated evidence, not committed
+      # state), so a fresh checkout never has subsystem-evidence-manifest.json
+      # on disk. Without this step, "Compile and execute crown observer"
+      # refuses immediately with SUBSYSTEM_MANIFEST_ABSENT on every run --
+      # confirmed by running this workflow locally via `act` (2026-08-01),
+      # which is exactly the failure mode a real CI run would also hit.
+      - name: Generate subsystem evidence manifest
+        run: just v26-8-1-project-coverage
       - name: Compile and execute crown observer
         run: just --justfile tools/v26.8.1/justfile crown
       - name: Validate report shape

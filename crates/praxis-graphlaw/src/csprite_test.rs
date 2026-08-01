@@ -110,91 +110,45 @@ fn test_rewrite_hierarchy_csprite() {
 
 #[test]
 fn test_csprite_cycles_terminate() {
-    // TICKET-003: Csprite Cycle Guards
-    // This test skeleton defines the DoD for cycle-safety in CSprite.
-    // It exercises the helper functions with a cyclic class hierarchy.
-
+    // TICKET-003: Csprite Cycle Guards. Exercises both helpers directly on a
+    // cyclic class hierarchy (ClassA->ClassB->ClassC->ClassA) with NO
+    // wall-clock timing involved: a real cycle-guard regression means these
+    // calls simply never return, and that is caught by the pre-existing
+    // outer `timeout 30s`/`600s cargo test` wrapper in `just test`/
+    // `test-lib` (justfile), not by a per-test race against the clock. A
+    // prior version of this test used a background thread + recv_timeout as
+    // its own liveness proxy; that made the test's pass/fail depend on
+    // ambient system load rather than on CSprite's actual behavior (it
+    // false-failed under heavy parallel `cargo test --workspace`
+    // contention even though the helpers always terminated correctly), and
+    // widening the timeout only made a genuine hang more expensive without
+    // fixing the flakiness. Calling directly removes both problems: no
+    // timing dependency, no thread/channel overhead, deterministic result.
     let data = "{?s a <http://example/ClassA>.}=>{?s a <http://example/ClassB>.}\n\
 {?s a <http://example/ClassB>.}=>{?s a <http://example/ClassC>.}\n\
 {?s a <http://example/ClassC>.}=>{?s a <http://example/ClassA>.}";
 
-    // Placeholder that fails the test until TICKET-003 is implemented.
-    // Once implemented, set is_implemented to true to run the actual test.
-    let is_implemented = true;
-    if !is_implemented {
-        panic!("TICKET-003: Csprite Cycle Guards are not yet implemented. Set is_implemented to true once implemented.");
-    }
+    let query = Triple {
+        s: VarOrTerm::new_var("?s".to_string()),
+        p: VarOrTerm::new_term("a".to_string()),
+        o: VarOrTerm::new_term("<http://example/ClassA>".to_string()),
+        g: None,
+    };
 
-    // Test eval_backward_csprite (recursive helper, lines 119 and 127)
-    let (tx1, rx1) = std::sync::mpsc::channel();
-    let data_str1 = data.to_string();
-    let handle1 = std::thread::Builder::new()
-        .name("csprite_recursive_cycle_test".to_string())
-        .spawn(move || {
-            let store = CSprite::from(&data_str1);
-            let query = Triple {
-                s: VarOrTerm::new_var("?s".to_string()),
-                p: VarOrTerm::new_term("a".to_string()),
-                o: VarOrTerm::new_term("<http://example/ClassA>".to_string()),
-                g: None,
-            };
-            let (matched_rules, hierarchies) = store.eval_backward_csprite(&query);
-            tx1.send((matched_rules.len(), hierarchies.len())).unwrap();
-        })
-        .expect("failed to spawn recursive helper thread");
+    let store = CSprite::from(data);
+    let (matched_rules, hierarchies) = store.eval_backward_csprite(&query);
+    assert!(
+        !matched_rules.is_empty(),
+        "recursive helper found no matching rules for a cyclic hierarchy"
+    );
+    let _ = hierarchies;
 
-    match rx1.recv_timeout(std::time::Duration::from_millis(500)) {
-        Ok((matched_len, hierarchy_len)) => {
-            let _ = matched_len;
-            let _ = hierarchy_len;
-        }
-        Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-            panic!("Test failed: CSprite recursive helper did not terminate within timeout.");
-        }
-        Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-            let join_res = handle1.join();
-            panic!(
-                "Test failed: CSprite recursive helper thread crashed: {:?}",
-                join_res
-            );
-        }
-    }
-
-    // Test eval_backward_csprite_helper_with_stack (stack-based helper, lines 153 and 154)
-    let (tx2, rx2) = std::sync::mpsc::channel();
-    let data_str2 = data.to_string();
-    let handle2 = std::thread::Builder::new()
-        .name("csprite_stack_cycle_test".to_string())
-        .spawn(move || {
-            let store = CSprite::from(&data_str2);
-            let query = Triple {
-                s: VarOrTerm::new_var("?s".to_string()),
-                p: VarOrTerm::new_term("a".to_string()),
-                o: VarOrTerm::new_term("<http://example/ClassA>".to_string()),
-                g: None,
-            };
-            let (matched_rules, hierarchies) =
-                store.eval_backward_csprite_helper_with_stack(&query);
-            tx2.send((matched_rules.len(), hierarchies.len())).unwrap();
-        })
-        .expect("failed to spawn stack-based helper thread");
-
-    match rx2.recv_timeout(std::time::Duration::from_millis(500)) {
-        Ok((matched_len, hierarchy_len)) => {
-            let _ = matched_len;
-            let _ = hierarchy_len;
-        }
-        Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-            panic!("Test failed: CSprite stack helper did not terminate within timeout.");
-        }
-        Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-            let join_res = handle2.join();
-            panic!(
-                "Test failed: CSprite stack helper thread crashed: {:?}",
-                join_res
-            );
-        }
-    }
+    let (matched_rules, hierarchies) = store.eval_backward_csprite_helper_with_stack(&query);
+    assert!(
+        !matched_rules.is_empty(),
+        "stack-based helper found no matching rules for a cyclic hierarchy"
+    );
+    let _ = hierarchies;
 }
 
 #[test]

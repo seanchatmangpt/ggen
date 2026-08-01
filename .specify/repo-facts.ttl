@@ -18,8 +18,8 @@ rf:doc a rf:Doc ;
     rf:workspaceVersion "26.8.2" ;
     rf:projectManifestVersion "26.7.1" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
-    rf:memberCount "16" ;
-    rf:crateCount "17" ;
+    rf:memberCount "17" ;
+    rf:crateCount "18" ;
     rf:packCount "44" ;
     rf:gateCount "9" ;
     rf:crateMapIntro "Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries) plus the root `ggen` package = 17 total (`grep -c '^  \"crates/' Cargo.toml` → 16). Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). PR #257 (2026-07-17) added a 17th member, `ggen-cheat-scanner` (see Testing table below). For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.\n\n`ggen-core` is **fully deleted, not merely disconnected** (PR #255 retired it from the default path; PR #259 deleted the crate outright, 2026-07-17). `crates/ggen-core/` does not exist on disk. No workspace member depends on it; `ggen sync`/`doctor`/`graph`/`receipt` route to `ggen-engine` instead (`crates/ggen-cli/src/lib.rs`'s `inject_default_verbs`). The experimental, default-off `ggen wizard`/`sigma`/`inverse_sync` commands, which used to import `ggen_core::` symbols, were deleted in the same pass rather than re-pointed — see `crates/ggen-cli/src/cmds/mod.rs`'s \"REMOVED\" comments and `docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md` (marked superseded/executed)." ;
@@ -114,6 +114,16 @@ rf:crate_ggen_cheat_scanner a rf:Crate ;
     rf:cargoDescription "AST-based scanner for test-quality cheat patterns (vacuous asserts, tautological checks, assertion-free tests, mock-collaborator substitutes)" ;
     rf:summaryPurpose "`syn`-based AST scanner (PR #257) detecting test-quality anti-patterns (vacuous asserts, tautological checks, no-assertion tests, mock imports) across the workspace; wired into `just pre-commit` via `guard-cheat-scan`" ;
     rf:archPurpose "`syn`-based AST scanner (PR #257, modeled on `~/bcinr/tools/bcinr-cheat-scanner`) detecting test-quality anti-patterns across the workspace: CHEAT-T01 (vacuous-assert), CHEAT-T02 (tautological-result-check), CHEAT-T03 (no-assertion-test), CHEAT-T04 (mock-import). Wired into `just pre-commit` via the `guard-cheat-scan` recipe; currently fails on ~464 pre-existing findings (tracked, not blocking new work — see `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`'s TECH-DEBT-001). `publish = false`" .
+
+rf:crate_openapi_cnv_reflect a rf:Crate ;
+    rf:order "017" ;
+    rf:dir "openapi-cnv-reflect" ;
+    rf:package "openapi-cnv-reflect" ;
+    rf:version "workspace" ;
+    rf:group "codegen-core" ;
+    rf:cargoDescription "Reflects an OpenAPI 3.x document into a cnv:Cli RDF ontology consumable by the zero-code clap-noun-verb compiler (packs/clap-noun-verb-*-pack), instead of hand-authoring one RDF fact block per command." ;
+    rf:summaryPurpose "Lever 1 (docs/how-to/clap-noun-verb/zero-code-cli.md phase-change analysis): reflects an OpenAPI 3.x document into a cnv:Cli ontology.ttl consumable unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one reflection pass instead of N hand-authored RDF fact blocks. Added to `[workspace] members` in Cargo.toml but was missing from this facts file until 2026-07-31 (G4 governance/system evidence pass) — a real crate-map/repo-facts divergence, caught by `crates/ggen-config/tests/system_crate_map_parity_test.rs`, not merely asserted here." ;
+    rf:archPurpose "Reflects an OpenAPI 3.x document into a cnv:Cli RDF ontology consumable by the zero-code clap-noun-verb compiler. `publish = false` (dev/codegen-tooling crate, not shipped standalone)." .
 
 rf:crate_powl2_decompose a rf:Crate ;
     rf:order "010" ;
@@ -428,7 +438,7 @@ rf:recipe_04 a rf:Recipe ;
 rf:recipe_05 a rf:Recipe ;
     rf:order "005" ;
     rf:command "`just pre-commit`" ;
-    rf:purpose "`fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` → `guard-generation-hash-pin` (10 gates; confirmed 2026-07-20 against the justfile's own `pre-commit:` dependency line — `guard-generation-hash-pin` validates the generation ledger's hash pins, appended 2026-07-20; do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression" ;
+    rf:purpose "`fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-short-test-timeout` → `guard-claims-schema` → `guard-pack-proofs` → `guard-generation-hash-pin` → `guard-pack-count`, in sequence, fail fast (the justfile `pre-commit:` dependency line itself is the canonical gate list and count — deliberately not restated as a number here; `crates/ggen-config/tests/governance_precommit_gate_count_test.rs` parses that live line and refuses if any governance doc restates a hardcoded count again; `guard-short-test-timeout` refuses load-sensitive sub-second test timeouts; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression" ;
     rf:timeout "<2min" .
 
 rf:recipe_06 a rf:Recipe ;

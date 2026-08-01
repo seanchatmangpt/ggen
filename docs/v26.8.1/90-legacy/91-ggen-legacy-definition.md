@@ -1,65 +1,57 @@
-# v26.8.1 subsystem research packet
+# ggen-legacy: definition and criteria
 
-**Status:** RESEARCH BASELINE — no capability is promoted by this packet.
+**Status:** Phase G2 working definition, grounded in real repository history (verified 2026-07-31 against `git log --all` in this worktree). Not a promotion of any capability's standing — standing stays `UNKNOWN` per capability until an equivalence verifier and negative falsifier are wired in a later phase.
 
-This packet supplies the required research structure for one bounded subsystem. The title and repository path identify the subsystem under review.
+## Definition
 
-## Required implementation inventory
+A **ggen-legacy capability** is any externally or operationally observable contract that existed in this repository's history before the current architecture superseded, absorbed, or deleted it, and that a caller (human or program) outside the crate could depend on. Concretely, an observable contract is one or more of:
 
-The final revision must enumerate every owning crate, module, generated surface, ontology, schema, manifest, command, diagnostic, file, environment variable, boundary crossing, dependency, side effect, receipt field, telemetry record, refusal, recovery path, and historical legacy behavior associated with the subsystem.
+- a CLI command, noun/verb, argument, flag, alias, or default;
+- an environment variable or config field (including which of `ggen.toml`'s two schemas is selected — see `legacy_ggen_toml_dual_schema` below);
+- a generated file, directory layout, or file format;
+- an exit code, stdout/stderr shape, or error type;
+- a diagnostic code (`GGEN-*`, `E00NN`);
+- an ordering guarantee (pipeline stage order, SPARQL `ORDER BY` requirements);
+- template (Tera) rendering behavior;
+- graph/SPARQL/SHACL/ShEx semantics;
+- a receipt, hash, or signature (BLAKE3 chain, `.ggen-v2/receipt.json`);
+- cache or pack-resolution behavior;
+- marketplace or LSP protocol behavior;
+- telemetry or OCEL event emission;
+- recovery, failure, or migration semantics;
+- a documented performance assumption (SLO).
 
-## Required authority analysis
+This definition deliberately excludes internal refactors that never crossed an observable boundary (e.g. a private function rename with no caller-visible effect) — those are not legacy capabilities, they are implementation detail. It also excludes anything found only by filename pattern-matching (a file merely named `*legacy*` or `*ggen_core*` is not itself evidence; the commit that removed, replaced, or absorbed it is the evidence).
 
-For each discovered element, record:
+## Criteria for inclusion in the inventory
 
-1. canonical authority source;
-2. active production load path;
-3. generated or manually authored status;
-4. semantic owner under Conway's Law;
-5. inputs admitted into `O*`;
-6. manufacturing operation `μ`;
-7. produced artifact or evidence;
-8. mutation and external-actuation boundary.
+A candidate is admitted to `ontology/v26.8.1/legacy-capabilities.ttl` only if this session (or a documented prior phase) found a **real commit** — via `git log --all`, `git log --diff-filter=D --summary`, or a currently-reproducible command failure — that either:
 
-## Required execution research
+1. deleted the capability's implementation (e.g. `9cef6e40f` deleting `crates/ggen-core/`), or
+2. absorbed/renamed it into a current crate (e.g. `bde78f7d5` folding `ggen-a2a-mcp`/`ggen-lsp-mcp`/`ggen-lsp-a2a` into `ggen-lsp`'s `mcp`/`a2a` features), or
+3. left it in a currently-broken, currently-reproducible state that a caller could observe today (e.g. `just sync` failing with `error: unexpected argument '--audit' found`, confirmed by running the recipe).
 
-Source inspection must be followed by real execution. The final document must contain or reference:
+Every catalog individual carries its `ggen:historicalSourceCommit` as a string; where no single commit could be found (three of the fifteen individuals mined this session), the field says `UNKNOWN` explicitly rather than guessing, and the individual's `ggen:hasDisposition` is `ggen:DISPOSITION_UNKNOWN`.
 
-- exact source and dependency head;
-- reproducible setup and command;
-- real input fixture crossing the declared boundary;
-- observed stdout, stderr, filesystem, state, telemetry, OCEL, or protocol consequence;
-- BLAKE3 or stronger content binding where applicable;
-- positive witness;
-- negative fixture proving the verifier fails when the capability is broken or faked;
-- replay result;
-- machine-readable verifier report.
+## How the inventory was built
 
-Mocks, synthetic telemetry, fabricated receipts, hardcoded success, and documentation-only contracts are forbidden.
+`tools/v26.8.1/legacy_archaeology.py` runs the real `git log`/`git tag` commands specified for phase G2 against this worktree (see its `MINE_COMMANDS` list and `mine()` function) and prints raw evidence — commit counts, tag lists, deletion summaries. A hand-curated, evidence-checked `CATALOG` (15 individuals as of this run) turns a subset of that raw evidence into `ggen:LegacyCapability` Turtle individuals via `emit()`. The catalog is not an exhaustive automated NLP sweep of all ~6,090 commits in this repository's `--all` history; blind regex extraction over that volume risks fabricating contracts nobody actually observed, which the repository's Evidence-First Principle (`CLAUDE.md`) forbids. Extending the catalog is expected and is the intended next step for later phases: run `mine()`, inspect a candidate's real commit, verify it, then add a `CATALOG` entry.
 
-## Zero-information-loss mapping
+## What this phase does not do
 
-Every discovered legacy element receives one disposition:
+- It does not assign a non-`UNKNOWN` `ggen:hasStanding` to any capability — standing requires an external verifier per the Zero-information-loss mapping rules below, which is out of scope for G2.
+- It does not fill `ggen:equivalenceVerifier` or `ggen:negativeFalsifier` — both are left `"UNASSIGNED"` per the phase brief, for a later phase to wire.
+- It does not compute an `ggen:exactHeadReceipt` — no BLAKE3 binding exists yet for this disposition set.
 
-- `PRESERVED` — same observable behavior and recovery contract;
-- `SUBSUMED` — behavior is provided by a new shared owner with executable equivalence evidence;
-- `REPLACED` — behavior changes through an explicit migration with compatibility and recovery evidence;
-- `ARCHIVED` — no longer active, but a tested restoration path exists;
-- `REFUSED` — intentionally unsupported with approved rationale and impact;
-- `UNKNOWN` — incomplete mapping; blocks the sunset.
+## Zero-information-loss mapping (inherited from the ontology's `ggen:LegacyDisposition` enumeration)
 
-The mapping must include successful behavior, error behavior, exit codes, ordering, defaults, aliases, file formats, signatures, hashes, timing assumptions, and operational recovery.
+Every discovered legacy capability receives one of six dispositions, matching `ontology/v26.8.1/ontology.ttl`'s existing `ggen:PRESERVED` / `ggen:SUBSUMED` / `ggen:REPLACED` / `ggen:ARCHIVED` / `ggen:REFUSED` / `ggen:DISPOSITION_UNKNOWN` individuals:
 
-## Acceptance gates
+- `PRESERVED` — same observable behavior and recovery contract today as historically (no individual in this catalog currently qualifies — the phase found nothing simply carried over unchanged).
+- `SUBSUMED` — behavior is now provided by a new shared owner (5 of 15 individuals: the three MCP/A2A crates folded into `ggen-lsp`, `genesis-schema-v2` absorbed into `genesis-types-v2`, and local process-intelligence analysis moved to `wasm4pm-compat`).
+- `REPLACED` — behavior changed via an explicit migration (2 of 15: the `ggen-core` → `ggen-engine` pipeline swap, and `star-toml`'s move from workspace member to external published dependency).
+- `ARCHIVED` — no longer active, restoration path exists but unconfirmed lineage (1 of 15: the original `genesis-core` crate, whose link to `genesis-core-v2` is a naming inference this session did not confirm with a commit).
+- `REFUSED` — intentionally unsupported (4 of 15: `wizard`/`sigma`/`inverse_sync` CLI commands, and the dead `stpnt` crate).
+- `UNKNOWN` (`ggen:DISPOSITION_UNKNOWN`) — incomplete mapping, blocks sunset (3 of 15: the broken `--audit`/`--dry_run true` justfile flags, and the `ggen.toml` dual-schema divergence — see `92-chestertons-fence-inventory.md` for why each remains open).
 
-This subsystem is admitted for v26.8.1 only when:
-
-- repository observation and the coverage matrix agree;
-- semantic ownership is unique or an explicit interoperability contract exists;
-- the positive witness and negative falsifier both execute;
-- replay is deterministic or divergence is typed and explained;
-- evidence is externally inspectable;
-- all legacy capabilities are dispositioned;
-- an external verifier, not the subsystem itself, assigns standing.
-
-Until then the standing is `UNKNOWN` or `PARTIAL_ALIVE`, and the ggen-legacy sunset remains blocked.
+See `93-capability-equivalence-matrix.md` for the real per-subsystem counts projected from `ontology/v26.8.1/legacy-capabilities.ttl`.

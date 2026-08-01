@@ -1,0 +1,236 @@
+{
+  "schema": "ggen.legacy-equivalence.case-manifest.v1",
+  "note": "G7 SCAFFOLDING: cases below are SYNTHETIC examples proving the generation pipeline is data-driven. Real legacy-capability cases are supplied later by a concurrent ontology-extraction agent.",
+  "cases": [
+    {
+      "case_id": "cli-stdout-echo",
+      "title": "SYNTHETIC: CLI stdout equivalence, timestamp-normalized",
+      "order": 1,
+      "legacy_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "current_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "strip_timestamps",
+      "expected_disposition": "PRESERVED",
+      "observable_surfaces": ["stdout", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "generated-file-bytes",
+      "title": "SYNTHETIC: generated file byte-identity",
+      "order": 2,
+      "legacy_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"",
+      "current_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["generated_bytes", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "refused-removed-command",
+      "title": "SYNTHETIC: REFUSED disposition, typed diagnostic on stderr",
+      "order": 3,
+      "legacy_adapter": "printf 'legacy-op executed\\n'; exit 0",
+      "current_adapter": "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 5,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "decommissioned"
+
+    },
+    {
+      "case_id": "legacy-ggen-core-pipeline",
+      "title": "REAL: ggen-core existed historically; ggen-engine sync is its live replacement",
+      "order": 10,
+      "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-core/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "ggen sync run --dry-run >/dev/null 2>&1 && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REPLACED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 30,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-wizard-command",
+      "title": "REAL: `ggen wizard` used to exist; current ggen refuses it with clap's unrecognized-subcommand error",
+      "order": 11,
+      "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/wizard.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "ggen wizard",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "unrecognized subcommand 'wizard'"
+
+    },
+    {
+      "case_id": "legacy-sigma-command",
+      "title": "REAL: `ggen sigma` used to exist; current ggen refuses it",
+      "order": 12,
+      "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/sigma.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "ggen sigma",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "unrecognized subcommand 'sigma'"
+
+    },
+    {
+      "case_id": "legacy-inverse-sync-command",
+      "title": "REAL: `ggen inverse_sync` used to exist; current ggen refuses it",
+      "order": 13,
+      "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/inverse_sync.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "ggen inverse_sync",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "unrecognized subcommand 'inverse_sync'"
+
+    },
+    {
+      "case_id": "legacy-ggen-a2a-mcp-server",
+      "title": "REAL: ggen-a2a-mcp existed as its own crate; ggen-lsp's `a2a` feature is the live replacement",
+      "order": 14,
+      "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-a2a-mcp/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-ggen-lsp-mcp-server",
+      "title": "REAL: ggen-lsp-mcp existed as its own crate; ggen-lsp's `mcp` feature is the live replacement",
+      "order": 15,
+      "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-mcp/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "grep -q '^mcp = ' crates/ggen-lsp/Cargo.toml && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-ggen-lsp-a2a-bridge",
+      "title": "REAL: ggen-lsp-a2a existed as its own crate; ggen-lsp's `a2a` feature is the live replacement",
+      "order": 16,
+      "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-a2a/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-genesis-schema-v2-crate",
+      "title": "REAL: genesis-schema-v2 existed as its own crate; genesis-types-v2::schema is the live replacement",
+      "order": 17,
+      "legacy_adapter": "git show 5b8dd6407b6dd1f11d572e9768499c534c59aec9^:crates/genesis-schema-v2/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -f crates/genesis-types-v2/src/schema.rs && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-star-toml-workspace-member",
+      "title": "REAL: star-toml used to be an in-workspace path member; ggen-config now depends on the published crate",
+      "order": 18,
+      "legacy_adapter": "git show 73d726ab44675bb1b5bdf1374858808429bdf7ae^:crates/star-toml/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "grep -q '^star-toml = ' crates/ggen-config/Cargo.toml && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REPLACED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none"
+
+    },
+    {
+      "case_id": "legacy-stpnt-crate",
+      "title": "REAL: stpnt existed historically; current workspace has no stpnt member and refuses to build it",
+      "order": 19,
+      "legacy_adapter": "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/stpnt/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/stpnt && echo exists || { echo 'refused: stpnt package not present in workspace (dead code removed 2026-07-02, dfa3664a5)' 1>&2; exit 3; }",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "REFUSED",
+      "observable_surfaces": ["diagnostics", "exit_code"],
+      "timeout_seconds": 15,
+      "recovery_action": "none",
+      "expected_diagnostic_substring": "not present in workspace"
+
+    },
+    {
+      "case_id": "legacy-genesis-core-crate-original",
+      "title": "REAL: genesis-core (original) is ARCHIVED -- proves restoration from git history is possible, not equivalence",
+      "order": 20,
+      "legacy_adapter": "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "N/A",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "ARCHIVED",
+      "observable_surfaces": ["recovery_result"],
+      "timeout_seconds": 15,
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml > \"$EQV_OUT/restored/Cargo.toml\" && test -s \"$EQV_OUT/restored/Cargo.toml\""
+
+    },
+    {
+      "case_id": "legacy-process-intelligence-local-analysis",
+      "title": "REAL: ggen-graph used to run local OCEL discovery/conformance; the boundary guard now actively enforces its removal",
+      "order": 21,
+      "legacy_adapter": "git show 3176f9a18be342f0c08554f5aef66208c741e169^:crates/ggen-graph/src/ocel/discovery.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "bash scripts/ci/guard-process-intelligence-boundary.sh >/dev/null 2>&1 && echo ok",
+      "success_inputs": [""],
+      "failure_inputs": [""],
+      "normalization_policy": "none",
+      "expected_disposition": "SUBSUMED",
+      "observable_surfaces": ["exit_code"],
+      "timeout_seconds": 30,
+      "recovery_action": "none"
+
+    }
+  ]
+}

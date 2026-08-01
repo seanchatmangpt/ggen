@@ -1,0 +1,31 @@
+[package]
+name = "ggen-architecture-foundry"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+default-run = "ggen-foundry"
+description = "Executable control plane for ggen Enterprise Architecture Reconstitution and Manufacture"
+
+[workspace]
+
+[lib]
+name = "ggen_architecture_foundry"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ggen-foundry"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+blake3 = "1.5"
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+thiserror = "2.0"
+walkdir = "2.5"
+
+[dev-dependencies]
+tempfile = "3.23"

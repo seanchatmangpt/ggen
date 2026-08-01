@@ -45,7 +45,7 @@ The split calculus: after a feature is extracted into its own project, the origi
 ## Architecture Reference
 
 <<<<<<< GENERATED
-### Crate Map (17 workspace crates, generated from `.specify/repo-facts.ttl`)
+### Crate Map (18 workspace crates, generated from `.specify/repo-facts.ttl`)
 
 Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries) plus the root `ggen` package = 17 total (`grep -c '^  "crates/' Cargo.toml` → 16). Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). PR #257 (2026-07-17) added a 17th member, `ggen-cheat-scanner` (see Testing table below). For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.
 
@@ -70,6 +70,7 @@ Verified against `Cargo.toml`'s `[workspace] members = [...]` array (16 entries)
 | `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths |
 | `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts |
 | `ggen` | Workspace root package |
+| `openapi-cnv-reflect` | Lever 1 (docs/how-to/clap-noun-verb/zero-code-cli.md phase-change analysis): reflects an OpenAPI 3.x document into a cnv:Cli ontology.ttl consumable unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one reflection pass instead of N hand-authored RDF fact blocks. Added to `[workspace] members` in Cargo.toml but was missing from this facts file until 2026-07-31 (G4 governance/system evidence pass) — a real crate-map/repo-facts divergence, caught by `crates/ggen-config/tests/system_crate_map_parity_test.rs`, not merely asserted here. |
 
 ### Commands (generated)
 
@@ -81,7 +82,7 @@ Use `just` as the entry point for all tasks (native cargo recipes; Makefile.toml
 | `just test` | Full test suite (unit + integration + property); escalates from a 30s hot-cache attempt to a 600s cold-compile retry | 30s→600s |
 | `just test-lib` | `timeout 30s cargo test --lib --workspace` (fast dev loop) | 30s |
 | `just lint` | `cargo clippy --all-targets -- -D warnings` — **root `ggen` package only**, not `--workspace`; confirmed 2026-07-17 (`Checking` output names exactly one package). Real, untriaged debt exists in other crates once `--workspace` is added — see the `lint:` recipe's own comment in `justfile` | 180s |
-| `just pre-commit` | `fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-claims-schema` → `guard-pack-proofs` → `guard-generation-hash-pin` (10 gates; confirmed 2026-07-20 against the justfile's own `pre-commit:` dependency line — `guard-generation-hash-pin` validates the generation ledger's hash pins, appended 2026-07-20; do not trust a shorter step count from an older doc; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression | <2min |
+| `just pre-commit` | `fmt-check` → `check` → `lint` → `test-lib` → `coherence-check` → `guard-process-intelligence-boundary` → `guard-cheat-scan` → `guard-short-test-timeout` → `guard-claims-schema` → `guard-pack-proofs` → `guard-generation-hash-pin` → `guard-pack-count`, in sequence, fail fast (the justfile `pre-commit:` dependency line itself is the canonical gate list and count — deliberately not restated as a number here; `crates/ggen-config/tests/governance_precommit_gate_count_test.rs` parses that live line and refuses if any governance doc restates a hardcoded count again; `guard-short-test-timeout` refuses load-sensitive sub-second test timeouts; `guard-pack-proofs` re-syncs + re-tests `examples/receiptctl`, making the generated pack proofs a repo-state-checkable gate). `guard-cheat-scan` currently fails on ~464 pre-existing test-quality findings (tracked as TECH-DEBT-001 in `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) — a real, tracked-not-fixed failure, not a regression | <2min |
 | `just slo-check` | Performance SLOs — real wall-clock `date +%s` deltas around `cargo test -p ggen-engine --test receipt_chain_e2e` (180s threshold) plus a `cargo bench` startup check; see the `slo-check` recipe in `justfile` | - |
 | `just audit` | Security vulnerabilities scan | - |
 | `just doc` | Build HTML docs into `target/doc/` | - |
@@ -187,7 +188,7 @@ the live pipeline, does not currently implement any of these codes itself.
 | **Batch Operations** | 1 message = ALL related operations. TodoWrite 10+ todos minimum. |
 | **Agent Execution** | Use Claude Code Task tool. MCP only coordinates topology. |
 | **Type-First** | Encode invariants in types. Compiler as design tool. |
-| **Definition of Done** | `just pre-commit` (10 gates — see `.claude/rules/andon/signals.md`) all green, plus OTEL traces for any LLM/external-service feature. No signals. |
+| **Definition of Done** | `just pre-commit` (see `.claude/rules/andon/signals.md`; the exact, current gate count lives only in `justfile`'s `pre-commit:` recipe line — deliberately not restated as a number here, it drifts) all green, plus OTEL traces for any LLM/external-service feature. No signals. |
 | **OTEL Validation** | Verify spans/traces for LLM calls, external services, pipeline stages. |
 | **Correctness > Speed** | NEVER sacrifice accuracy for speed. Real evidence > fast output. |
 | **Evidence-First** | ALL docs/examples MUST reference actual code, real OTEL output, actual errors. No fabrication. |
