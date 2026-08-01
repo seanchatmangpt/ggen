@@ -5,7 +5,7 @@ use ggen_architecture_foundry::{
     load_program, replay_all_receipts, snapshot_repository, validate_program, Receipt,
     WorkstreamStateFile, RECEIPT_SCHEMA,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_yaml::Value as YamlValue;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
@@ -14,6 +14,26 @@ use std::path::{Path, PathBuf};
 const CAPABILITY_ADMISSION_SCHEMA: &str =
     "ggen.enterprise-architecture-foundry.capability-admission/1";
 const VERIFIER_ID: &str = "ggen-foundry-admit-capabilities/v1";
+const DISPOSITION_DECISION_SCHEMA: &str =
+    "ggen.enterprise-architecture-foundry.disposition-decisions/1";
+const ARCHIVE_POLICY_ID: &str = "REMOVED_WITHOUT_REPLACEMENT_ARCHIVE";
+
+#[derive(Debug, Deserialize)]
+struct DispositionDecisionFile {
+    schema_version: String,
+    source_authority_sha: String,
+    decisions: Vec<DispositionDecision>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DispositionDecision {
+    capability_id: String,
+    expected_disposition: String,
+    resolved_disposition: String,
+    policy_id: String,
+    rationale: String,
+    evidence_refs: Vec<String>,
+}
 
 #[derive(Debug, Parser)]
 #[command(
@@ -28,6 +48,8 @@ struct Cli {
     source: PathBuf,
     #[arg(long)]
     corpus: PathBuf,
+    #[arg(long, default_value = "foundry/evidence/C/disposition-decisions.json")]
+    disposition_decisions: PathBuf,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -110,6 +132,8 @@ struct CapabilityAdmissionReport {
     subsystem_counts: BTreeMap<String, usize>,
     predicates: BTreeMap<String, YamlValue>,
     evidence_digest: String,
+    disposition_decision_count: usize,
+    disposition_decision_digest: String,
 }
 
 fn main() -> Result<()> {
@@ -145,7 +169,13 @@ fn main() -> Result<()> {
     let evidence_bytes = fs::read(&evidence_path)
         .with_context(|| format!("CAPABILITY_EVIDENCE_MISSING: {}", evidence_path.display()))?;
     let evidence_digest = digest_bytes(&evidence_bytes);
-    let capabilities = parse_capabilities(&evidence_bytes)?;
+    let mut capabilities = parse_capabilities(&evidence_bytes)?;
+    let decision_path = cli.corpus.join(&cli.disposition_decisions);
+    let decision_bytes = fs::read(&decision_path)
+        .with_context(|| format!("DISPOSITION_DECISIONS_MISSING: {}", decision_path.display()))?;
+    let disposition_decision_digest = digest_bytes(&decision_bytes);
+    let disposition_decision_count =
+        apply_disposition_decisions(&mut capabilities, &decision_bytes, &source.head)?;
     if capabilities.len() != 65 {
         bail!(
             "CAPABILITY_COUNT_MISMATCH: expected 65, observed {}",
@@ -272,6 +302,8 @@ fn main() -> Result<()> {
         subsystem_counts,
         predicates: workstream.predicates.clone(),
         evidence_digest: evidence_digest.clone(),
+        disposition_decision_count,
+        disposition_decision_digest: disposition_decision_digest.clone(),
     };
     let report_path = foundry_root.join("workstreams/C/admission-report.json");
     let report_bytes = canonical_json(&report)?;
@@ -298,6 +330,10 @@ fn main() -> Result<()> {
     inputs.insert("source-tree".to_string(), source.tracked_tree_digest);
     inputs.insert("corpus-tree".to_string(), corpus.tracked_tree_digest);
     inputs.insert("capability-evidence".to_string(), evidence_digest);
+    inputs.insert(
+        "disposition-decisions".to_string(),
+        disposition_decision_digest,
+    );
 
     let mut outputs = BTreeMap::new();
     for (relative, bytes) in [
@@ -399,6 +435,114 @@ fn parse_capabilities(bytes: &[u8]) -> Result<Vec<CapabilityRecord>> {
     Ok(records)
 }
 
+fn apply_disposition_decisions(
+    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,
+) -> Result<usize> {
+    let decision_file: DispositionDecisionFile =
+        serde_json::from_slice(bytes).context("DISPOSITION_DECISIONS_SCHEMA_INVALID")?;
+    if decision_file.schema_version != DISPOSITION_DECISION_SCHEMA {
+        bail!(
+            "DISPOSITION_DECISIONS_SCHEMA_UNSUPPORTED: {}",
+            decision_file.schema_version
+        );
+    }
+    if decision_file.source_authority_sha != source_head {
+        bail!(
+            "DISPOSITION_DECISIONS_HEAD_STALE: expected {source_head}, observed {}",
+            decision_file.source_authority_sha
+        );
+    }
+
+    let mut capability_indexes = BTreeMap::new();
+    for (index, capability) in capabilities.iter().enumerate() {
+        capability_indexes.insert(capability.capability_id.clone(), index);
+    }
+
+    let mut seen = BTreeSet::new();
+    for decision in &decision_file.decisions {
+        if !seen.insert(decision.capability_id.clone()) {
+            bail!("DISPOSITION_DECISION_DUPLICATE: {}", decision.capability_id);
+        }
+        if decision.expected_disposition != "DISPOSITION_UNKNOWN"
+            || decision.resolved_disposition != "ARCHIVED"
+            || decision.policy_id != ARCHIVE_POLICY_ID
+        {
+            bail!(
+                "DISPOSITION_DECISION_POLICY_INVALID: {}",
+                decision.capability_id
+            );
+        }
+        if decision.rationale.trim().is_empty() || decision.evidence_refs.is_empty() {
+            bail!(
+                "DISPOSITION_DECISION_EVIDENCE_MISSING: {}",
+                decision.capability_id
+            );
+        }
+        if decision
+            .evidence_refs
+            .iter()
+            .any(|reference| reference.trim().is_empty())
+        {
+            bail!(
+                "DISPOSITION_DECISION_EVIDENCE_EMPTY: {}",
+                decision.capability_id
+            );
+        }
+
+        let index = capability_indexes
+            .get(&decision.capability_id)
+            .copied()
+            .with_context(|| {
+                format!(
+                    "DISPOSITION_DECISION_CAPABILITY_MISSING: {}",
+                    decision.capability_id
+                )
+            })?;
+        let capability = &mut capabilities[index];
+        if capability.disposition != decision.expected_disposition {
+            bail!(
+                "DISPOSITION_DECISION_PRECONDITION_DRIFT: {} expected {}, observed {}",
+                decision.capability_id,
+                decision.expected_disposition,
+                capability.disposition
+            );
+        }
+        if !capability.replacement_owner.trim().is_empty() {
+            bail!(
+                "ARCHIVE_POLICY_REPLACEMENT_OWNER_PRESENT: {}",
+                decision.capability_id
+            );
+        }
+        if capability.archive_path.trim().is_empty()
+            || capability.historical_source_commit.trim().is_empty()
+        {
+            bail!(
+                "ARCHIVE_POLICY_RECOVERY_EVIDENCE_MISSING: {}",
+                decision.capability_id
+            );
+        }
+
+        capability.disposition = decision.resolved_disposition.clone();
+        capability.admitted_owner = derive_owner(
+            &capability.disposition,
+            &capability.replacement_owner,
+            &capability.historical_semantic_owner,
+            &capability.owning_subsystem,
+        )?;
+    }
+
+    let unresolved: Vec<_> = capabilities
+        .iter()
+        .filter(|capability| capability.disposition == "DISPOSITION_UNKNOWN")
+        .map(|capability| capability.capability_id.as_str())
+        .collect();
+    if !unresolved.is_empty() {
+        bail!("UNKNOWN_DISPOSITION_UNRESOLVED: {}", unresolved.join(","));
+    }
+
+    Ok(decision_file.decisions.len())
+}
+
 fn parse_turtle_string(object: &str) -> Result<String> {
     let mut value = String::new();
     let mut escaped = false;
@@ -435,12 +579,16 @@ fn build_record(subject: &str, properties: &BTreeMap<String, String>) -> Result<
     let historical_semantic_owner = required(properties, "historicalSemanticOwner")?;
     let disposition = required(properties, "hasDisposition")?;
     let replacement_owner = optional(properties, "replacementOwner");
-    let admitted_owner = derive_owner(
-        &disposition,
-        &replacement_owner,
-        &historical_semantic_owner,
-        &owning_subsystem,
-    )?;
+    let admitted_owner = if disposition == "DISPOSITION_UNKNOWN" {
+        String::new()
+    } else {
+        derive_owner(
+            &disposition,
+            &replacement_owner,
+            &historical_semantic_owner,
+            &owning_subsystem,
+        )?
+    };
 
     Ok(CapabilityRecord {
         capability_id,
