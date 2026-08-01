@@ -2,8 +2,8 @@ use anyhow::{bail, Context, Result};
 use blake3::Hasher;
 use clap::Parser;
 use ggen_architecture_foundry::{
-    digest_file, digest_json, load_program, replay_all_receipts, snapshot_repository,
-    validate_program, FoundryManifest, Receipt, WorkstreamStateFile, CORPUS_SCHEMA, RECEIPT_SCHEMA,
+    digest_file, load_program, replay_all_receipts, snapshot_repository, validate_program,
+    FoundryManifest, Receipt, WorkstreamStateFile, CORPUS_SCHEMA, RECEIPT_SCHEMA,
 };
 use serde::Serialize;
 use serde_yaml::Value as YamlValue;
@@ -12,8 +12,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const BASELINE_ADMISSION_SCHEMA: &str =
-    "ggen.enterprise-architecture-foundry.baseline-admission/1";
+const BASELINE_ADMISSION_SCHEMA: &str = "ggen.enterprise-architecture-foundry.baseline-admission/1";
 const VERIFIER_ID: &str = "ggen-foundry-admit-baseline/v1";
 
 #[derive(Debug, Parser)]
@@ -78,10 +77,13 @@ fn main() -> Result<()> {
 
     let manifest_bytes = fs::read(&manifest_path)
         .with_context(|| format!("DOCUMENT_EVIDENCE_MISSING: {}", manifest_path.display()))?;
-    let manifest: FoundryManifest = serde_json::from_slice(&manifest_bytes)
-        .context("FOUNDRY_MANIFEST_SCHEMA_INVALID")?;
+    let manifest: FoundryManifest =
+        serde_json::from_slice(&manifest_bytes).context("FOUNDRY_MANIFEST_SCHEMA_INVALID")?;
     if manifest.schema_version != CORPUS_SCHEMA {
-        bail!("FOUNDRY_MANIFEST_SCHEMA_INVALID: {}", manifest.schema_version);
+        bail!(
+            "FOUNDRY_MANIFEST_SCHEMA_INVALID: {}",
+            manifest.schema_version
+        );
     }
     if manifest.program_id != program.program_id
         || manifest.program_digest != validation.program_digest
@@ -98,11 +100,8 @@ fn main() -> Result<()> {
         );
     }
 
-    let initialization_parent_is_ancestor = git_is_ancestor(
-        &cli.corpus,
-        &manifest.corpus_parent_head,
-        &corpus.head,
-    )?;
+    let initialization_parent_is_ancestor =
+        git_is_ancestor(&cli.corpus, &manifest.corpus_parent_head, &corpus.head)?;
     if !initialization_parent_is_ancestor {
         bail!(
             "CORPUS_LINEAGE_BROKEN: parent {} is not an ancestor of {}",
@@ -111,12 +110,13 @@ fn main() -> Result<()> {
         );
     }
 
-    let initialization_receipt_bytes = fs::read(&initialization_receipt_path).with_context(|| {
-        format!(
-            "INITIALIZATION_RECEIPT_MISSING: {}",
-            initialization_receipt_path.display()
-        )
-    })?;
+    let initialization_receipt_bytes =
+        fs::read(&initialization_receipt_path).with_context(|| {
+            format!(
+                "INITIALIZATION_RECEIPT_MISSING: {}",
+                initialization_receipt_path.display()
+            )
+        })?;
     let initialization_receipt: Receipt = serde_json::from_slice(&initialization_receipt_bytes)
         .context("INITIALIZATION_RECEIPT_SCHEMA_INVALID")?;
     if initialization_receipt.schema_version != RECEIPT_SCHEMA
@@ -188,10 +188,7 @@ fn main() -> Result<()> {
 
     let mut input_digests = BTreeMap::new();
     input_digests.insert("work-program".to_string(), validation.program_digest);
-    input_digests.insert(
-        "foundry-manifest".to_string(),
-        digest_file(&manifest_path)?,
-    );
+    input_digests.insert("foundry-manifest".to_string(), digest_file(&manifest_path)?);
     input_digests.insert(
         "initialization-receipt".to_string(),
         digest_file(&initialization_receipt_path)?,
