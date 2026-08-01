@@ -51,4 +51,8 @@ pub enum ArchitectureError {
     /// A deterministic receipt could not be serialized.
     #[error("receipt serialization failed: {0}")]
     Serialization(#[from] serde_json::Error),
+
+    /// A self-play scenario was refused or failed replay verification.
+    #[error("self-play violation: {0}")]
+    Violation(String),
 }

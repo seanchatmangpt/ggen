@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ggen.legacy-equivalence.verifier-report.v1",
+  "title": "Legacy Equivalence Verifier Report",
+  "type": "object",
+  "required": ["schema", "generated_at", "results", "summary"],
+  "properties": {
+    "schema": { "const": "ggen.legacy-equivalence.verifier-report.v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "manifest_path": { "type": "string" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "status", "reason", "surfaces"],
+        "properties": {
+          "case_id": { "type": "string" },
+          "expected_disposition": { "type": "string", "enum": ["PRESERVED", "SUBSUMED", "REPLACED", "ARCHIVED", "REFUSED"] },
+          "status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED"] },
+          "reason": { "type": "string" },
+          "surfaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["surface", "status"],
+              "properties": {
+                "surface": { "type": "string" },
+                "status": { "type": "string", "enum": ["PASS", "FAIL"] },
+                "reason": { "type": "string" }
+              }
+            }
+          },
+          "duration_ms": { "type": "number" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "passed", "failed", "blocked"],
+      "properties": {
+        "total": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "blocked": { "type": "integer" }
+      }
+    }
+  }
+}

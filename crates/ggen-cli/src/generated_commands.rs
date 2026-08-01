@@ -19,7 +19,7 @@ pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
 /// Ontology-ordered `(noun, default verb)` compatibility bindings.
 pub const DEFAULT_VERBS: &[(&str, &str)] = &[
     ("sync", "run"),
-    ("doctor", "check"),
+    ("doctor", "run"),
     ("receipt", "verify"),
 ];
 

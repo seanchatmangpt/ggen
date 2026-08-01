@@ -1,0 +1,53 @@
+[project]
+name = "legacy-equivalence-verifier-consumer"
+version = "26.8.1"
+description = "Manufacture a data-driven legacy-capability equivalence case manifest and generic verifier invocation surface"
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.io/ontology/legacy-equivalence#"
+imports = []
+
+[ontology.prefixes]
+eqv = "https://ggen.io/ontology/legacy-equivalence#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+prov = "http://www.w3.org/ns/prov#"
+dcterms = "http://purl.org/dc/terms/"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "case-manifest"
+query = { file = "queries/cases.rq" }
+template = { file = "templates/consumer/legacy-equivalence/case_manifest.json.tmpl" }
+output_file = "consumer/legacy-equivalence/case_manifest.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-all-suite"
+query = { file = "queries/legacy-equivalence.rq" }
+template = { file = "templates/consumer/legacy-equivalence/suites/verify-all.sh.tmpl" }
+output_file = "consumer/legacy-equivalence/suites/verify-all.sh"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verifier-report-schema"
+query = { file = "queries/legacy-equivalence.rq" }
+template = { file = "templates/consumer/legacy-equivalence/verifier-report.schema.json.tmpl" }
+output_file = "consumer/legacy-equivalence/verifier-report.schema.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "legacy-equivalence-readme"
+query = { file = "queries/legacy-equivalence.rq" }
+template = { file = "templates/consumer/legacy-equivalence/README.md.tmpl" }
+output_file = "consumer/legacy-equivalence/README.md"
+skip_empty = false
+mode = "Overwrite"

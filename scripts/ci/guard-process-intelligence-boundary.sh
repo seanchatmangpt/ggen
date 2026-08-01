@@ -42,4 +42,39 @@ if grep -rEn "${EXCLUDE_DIRS[@]}" --include="*.rs" '\buse[[:space:]]+bcinr_powl(
   echo "FAIL: direct bcinr_powl(_receipt):: reference found -- conformance/fitness analysis belongs in wasm4pm, never inline in ggen." >&2
   exit 1
 fi
-echo "OK: no praxis_graphlaw::chatman or bcinr_powl(_receipt) references in the ggen workspace (outside praxis-core/praxis-graphlaw's own internals)."
+
+# Local DFG/conformance/fitness/precision/variant *discovery* logic is the same violation
+# class as praxis_graphlaw::chatman/bcinr_powl(_receipt):: above, just implemented as inline
+# SPARQL aggregation instead of a crate dependency -- see crates/ggen-graph/src/ocel/dfg.rs
+# git history: `discover_dfg` used to compute directly-follows edges itself via a SPARQL
+# `GROUP BY`/`COUNT(*)` aggregate query (a real, local process-mining discovery
+# implementation, forbidden by CLAUDE.md's Process Intelligence Boundary table: "DFG
+# discovery | wasm4pm-compat::dfg::discover_ocel_dfg | Any local discovery impl"). It was
+# rewritten to a thin SPARQL `SELECT` (retrieval only, no aggregation) that hands the raw
+# events to `wasm4pm_compat::dfg::discover_ocel_dfg`, the authorized native miner.
+#
+# The mechanical signal for "this SPARQL query IS a local discovery/conformance algorithm,
+# not mere retrieval": a `GROUP BY` combined with a `COUNT(*)`/`COUNT (` aggregate in the
+# same query. Flat `SELECT`s (even multi-variable, multi-triple-pattern ones) never need
+# either -- aggregation only enters once you're counting transitions, occurrences, or
+# variants, which is discovery, not retrieval. Scoped to ggen-graph/ggen-lsp/ggen-engine,
+# the crates that talk to the OCEL-RDF triplestore; praxis-core/praxis-graphlaw are excluded
+# for the same reason as above (their own internals, not ggen's boundary).
+PI_SCAN_DIRS=(crates/ggen-graph/src crates/ggen-lsp/src crates/ggen-engine/src)
+for dir in "${PI_SCAN_DIRS[@]}"; do
+  [ -d "$dir" ] || continue
+  hits=""
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    if grep -qE 'COUNT[[:space:]]*\(' "$f" 2>/dev/null; then
+      hits="${hits}${f}"$'\n'
+    fi
+  done < <(grep -rlE --include="*.rs" 'GROUP[[:space:]]+BY' "$dir" 2>/dev/null || true)
+  if [ -n "$hits" ]; then
+    echo "FAIL: SPARQL GROUP BY + COUNT(*) aggregation found in $dir -- this is local DFG/conformance/fitness/precision/variant discovery, forbidden by CLAUDE.md's Process Intelligence Boundary. Retrieve raw events with a flat SELECT and delegate discovery to wasm4pm_compat::dfg (or the equivalent wasm4pm-compat entry point)." >&2
+    echo "$hits" >&2
+    exit 1
+  fi
+done
+
+echo "OK: no praxis_graphlaw::chatman, bcinr_powl(_receipt), or local SPARQL-aggregate DFG/conformance discovery references in the ggen workspace (outside praxis-core/praxis-graphlaw's own internals)."

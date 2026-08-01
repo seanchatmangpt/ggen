@@ -1,0 +1,4 @@
+[pack]
+name = "legacy-equivalence-verifier-pack"
+version = "26.8.1"
+description = "Ontology-authoritative legacy-capability equivalence verifier: generates a data-driven case manifest, a generic Python comparison runner invocation wrapper, and a machine-readable verifier report schema from EquivalenceCase RDF individuals. G7 scaffolding phase -- ships with synthetic example cases only; real legacy-capability facts are supplied later by a concurrent ontology-extraction agent."

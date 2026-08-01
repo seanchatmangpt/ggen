@@ -1,6 +1,25 @@
 # Workspace crate map
 
-The baseline workspace exposes 17 packages including the root. The research program must treat each package as a distinct semantic owner and reject undocumented overlap.
+Real count as of 2026-07-31 (G4 governance/system evidence pass): `Cargo.toml`'s
+`[workspace] members = [...]` array holds **17** `crates/*` entries (`grep -c '^  "crates/'
+Cargo.toml`) plus the root `ggen` package = **18** total, not 17. `crates/ggen-cheat-scanner`
+was already counted in an earlier pass; the 18th is `crates/openapi-cnv-reflect`
+(`packs/clap-noun-verb-*-pack`'s OpenAPI-to-`cnv:Cli` reflector, described in that crate's own
+`Cargo.toml`).
+
+**Real, confirmed divergence found and fixed this pass:** `crates/openapi-cnv-reflect` was
+present in `Cargo.toml` workspace members but had **no** corresponding `rf:Crate` individual in
+`.specify/repo-facts.ttl` — meaning the CLAUDE.md/`.claude/rules/architecture.md` crate-map
+tables generated from that TTL silently omitted a real, building workspace member. Fixed by
+adding `rf:crate_openapi_cnv_reflect` to `.specify/repo-facts.ttl` and correcting
+`rf:memberCount`/`rf:crateCount` from `"16"`/`"17"` to `"17"`/`"18"`. This is now a checked fact,
+not just a claim: `crates/ggen-config/tests/system_crate_map_parity_test.rs` parses both
+`Cargo.toml` and `.specify/repo-facts.ttl` directly off disk on every test run and fails loudly
+if they diverge again (verified by a local sabotage-and-revert: renaming the `rf:dir` fact away
+from `"openapi-cnv-reflect"` makes the test fail with the exact missing-crate name; reverting
+makes it pass again).
+
+The research program must treat each package as a distinct semantic owner and reject undocumented overlap.
 
 ## Active ownership map
 

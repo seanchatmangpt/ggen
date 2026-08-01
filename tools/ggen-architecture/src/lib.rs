@@ -19,6 +19,7 @@ pub mod level5_crown;
 pub mod model;
 pub mod receipt;
 pub mod registry;
+pub mod self_play;
 pub mod state;
 
 pub use autonomic::{
@@ -48,4 +49,10 @@ pub use level5_crown::{
 };
 pub use model::{ArchitectureAsset, AssetKind, LifecycleState, Severity, Standing, TransitionStep};
 pub use registry::{ArchitectureRegistry, ImpactReport, RegistryViolation};
+pub use self_play::{
+    demo_scenario, run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy,
+    ActorRole, Comparison, GameState, Metric, MetricConstraint, MetricEffect, MoveReceipt,
+    SelfPlayDoctorFinding, SelfPlayDoctorReport, SelfPlayDoctorStatus, SelfPlayReport,
+    SelfPlayScenario, SelfPlayStanding, SelfPlayViolation, UseCaseKind,
+};
 pub use state::{ArchitectureState, AutonomicPolicy};

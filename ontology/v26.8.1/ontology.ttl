@@ -103,12 +103,12 @@ ggen:Legacy a ggen:Subsystem ; ggen:sourcePath "docs/v26.8.1/90-legacy" .
 
 # Pipeline stages
 
-ggen:Resolve a ggen:Stage ; ggen:dependsOn ggen:Configuration, ggen:Graph .
-ggen:Enrich a ggen:Stage ; ggen:dependsOn ggen:Resolve, ggen:Graphlaw .
-ggen:Extract a ggen:Stage ; ggen:dependsOn ggen:Enrich .
-ggen:Render a ggen:Stage ; ggen:dependsOn ggen:Extract .
-ggen:Write a ggen:Stage ; ggen:dependsOn ggen:Render .
-ggen:ReceiptStage a ggen:Stage ; ggen:dependsOn ggen:Write .
+ggen:Resolve a ggen:Stage ; ggen:dependsOn ggen:Configuration, ggen:Graph ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Enrich a ggen:Stage ; ggen:dependsOn ggen:Resolve, ggen:Graphlaw ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Extract a ggen:Stage ; ggen:dependsOn ggen:Enrich ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Render a ggen:Stage ; ggen:dependsOn ggen:Extract ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:Write a ggen:Stage ; ggen:dependsOn ggen:Render ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
+ggen:ReceiptStage a ggen:Stage ; ggen:dependsOn ggen:Write ; ggen:sourcePath "crates/ggen-engine/src/sync.rs" .
 
 ggen:Engine ggen:ownsSurface ggen:Resolve, ggen:Enrich, ggen:Extract, ggen:Render, ggen:Write, ggen:ReceiptStage .
 
@@ -165,3 +165,132 @@ ggen:GgenLegacySunset a ggen:SunsetDecision ;
   ggen:requiresZeroUnknownDisposition true ;
   ggen:requiresReplayCompatibility true ;
   ggen:hasStanding ggen:UNKNOWN .
+
+# ============================================================
+# Legacy capability archaeology (v26.8.1 phase G2)
+#
+# LegacyCapability instances live in ontology/v26.8.1/legacy-capabilities.ttl
+# (a separate data file, mined by tools/v26.8.1/legacy_archaeology.py from
+# real git history). This block only declares the schema: the properties
+# every LegacyCapability individual carries plus the three implementation/
+# contract classes that connect a legacy capability to its old and new
+# owners. Do not add LegacyCapability *individuals* here — only the class
+# and property declarations, matching this file's existing style (no
+# individuals mixed with schema below "System model").
+# ============================================================
+
+ggen:HistoricalImplementation a owl:Class ; rdfs:label "Historical implementation" .
+ggen:CurrentImplementation a owl:Class ; rdfs:label "Current implementation" .
+ggen:ObservableContract a owl:Class ; rdfs:label "Observable contract" .
+
+ggen:hasHistoricalImplementation a owl:ObjectProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range ggen:HistoricalImplementation ;
+  rdfs:label "has historical implementation" .
+ggen:hasCurrentImplementation a owl:ObjectProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range ggen:CurrentImplementation ;
+  rdfs:label "has current implementation" .
+ggen:observableContract a owl:ObjectProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range ggen:ObservableContract ;
+  rdfs:label "observable contract" .
+
+# LegacyCapability datatype properties (all xsd:string unless noted;
+# equivalence verifier / negative falsifier / exact-head receipt /
+# standing are left unassigned per-individual until a later phase fills
+# them in — the property is declared here so the shape is stable).
+
+ggen:capabilityId a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:label "capability identifier" ;
+  rdfs:comment "Stable slug/URI fragment for this legacy capability, e.g. legacy_ggen_core_pipeline." .
+ggen:historicalSourceCommit a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "Git commit hash (short or full) where the capability's historical behavior is evidenced." .
+ggen:legacySourcePath a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "Repository path(s) (as they existed historically) implementing the capability." .
+ggen:owningSubsystem a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "One of: governance, system, engine, graph, projection, evidence, products, verification, economics, legacy (matches docs/v26.8.1/coverage-matrix.csv subsystem column)." .
+ggen:historicalSemanticOwner a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "Crate/module/team that owned this capability's semantics under Conway's Law, historically." .
+ggen:inputContract a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:outputContract a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:errorContract a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:sideEffects a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:orderingRequirements a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:defaultBehavior a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:configurationDependencies a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:evidenceFixtures a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:replacementOwner a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "Current crate/module now owning this behavior, if any; empty string if none exists." .
+ggen:equivalenceVerifier a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "UNASSIGNED until a later phase wires an executable equivalence verifier command." .
+ggen:negativeFalsifier a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "UNASSIGNED until a later phase supplies a negative fixture proving the verifier fails on broken/faked behavior." .
+ggen:migrationPath a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:rollbackPath a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:archivePath a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string .
+ggen:exactHeadReceipt a owl:DatatypeProperty ;
+  rdfs:domain ggen:LegacyCapability ; rdfs:range xsd:string ;
+  rdfs:comment "UNASSIGNED until a later phase records a BLAKE3 (or stronger) receipt binding this disposition to an exact repo HEAD." .
+
+# ggen:hasStanding (declared above, range ggen:Standing) and
+# ggen:hasDisposition (declared above, range ggen:LegacyDisposition) are
+# reused directly on LegacyCapability individuals — both are UNKNOWN by
+# default per-individual until dispositioned.
+
+# Document evidence index (real per-document evidence binding, replacing the
+# substring-presence DOCUMENT_SECTION_LOSS check). See
+# ontology/v26.8.1/document-evidence.ttl for the generated individuals and
+# tools/v26.8.1/document_evidence_index.py for the generator.
+
+ggen:DocumentEvidenceRecord a owl:Class ; rdfs:label "Document evidence record" .
+
+ggen:documentPath a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "Real repo-relative path of the corpus document under docs/v26.8.1/." .
+ggen:documentDigest a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "sha256 hex digest of the document's current bytes, re-derived by the verifier, never trusted blindly." .
+ggen:subsystem a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "One of: governance, system, engine, graph, projection, evidence, products, verification, economics, legacy." .
+ggen:documentRole a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "One of: GOVERNANCE, ARCHITECTURE, IMPLEMENTATION, VERIFICATION, LEGACY, ECONOMICS, MIGRATION, RELEASE." .
+ggen:authorityReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to authority sources this document's claims derive from (e.g. .specify/, CLAUDE.md). May be empty for a given document -- coverage is proven at the subsystem aggregate level." .
+ggen:implementationReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to the crate/module/script this document describes. May be empty per-document." .
+ggen:verifierReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to the test/tool verifying this document's claims. May be empty per-document." .
+ggen:legacyCapabilityReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ ggen:capabilityId values of LegacyCapability individuals (from legacy-capabilities.ttl) this document covers." .
+ggen:evidenceReportReferences a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "0+ real repo-relative paths to generated evidence reports (e.g. .ggen/v26.8.1/subsystem-evidence-manifest.json, verifier-report.json)." .
+ggen:sourceHead a owl:DatatypeProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range xsd:string ;
+  rdfs:comment "git rev-parse HEAD this record was generated against." .
+ggen:describesDocument a owl:ObjectProperty ;
+  rdfs:domain ggen:DocumentEvidenceRecord ; rdfs:range ggen:Artifact ;
+  rdfs:comment "Links a DocumentEvidenceRecord to the ggen:Artifact (document) it describes, when the document is also separately modeled as an Artifact individual." .

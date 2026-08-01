@@ -1,0 +1,17 @@
+# A minimal, valid declarative-rules ggen.toml (GgenManifest schema): identified by
+# `[project].version` (required, non-Option on GgenManifest's ProjectConfig) plus a
+# `[[generation.rules]]` array-of-tables. See crates/ggen-config/src/config_schema.rs's
+# classify_ggen_toml for the marker set this fixture is built to fire.
+
+[project]
+name = "schema-dual-declarative-fixture"
+version = "1.0.0"
+
+[ontology]
+source = "ontology.ttl"
+
+[[generation.rules]]
+name = "emit_readme"
+query = { inline = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" }
+template = { inline = "generated" }
+output_file = "OUTPUT.md"

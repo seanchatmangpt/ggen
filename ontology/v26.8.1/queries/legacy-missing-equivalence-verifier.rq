@@ -1,0 +1,13 @@
+PREFIX ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#>
+
+# Data-integrity check (defense in depth alongside ggen:LegacyEquivalenceVerifierShape in
+# shapes.ttl): any LegacyCapability dispositioned PRESERVED or SUBSUMED that has no
+# equivalenceVerifier is a SHACL-shape violation surfaced directly via query.
+SELECT ?legacy ?disposition
+WHERE {
+  ?legacy a ggen:LegacyCapability ;
+          ggen:hasDisposition ?disposition .
+  FILTER (?disposition = ggen:PRESERVED || ?disposition = ggen:SUBSUMED)
+  FILTER NOT EXISTS { ?legacy ggen:equivalenceVerifier ?verifier }
+}
+ORDER BY ?legacy

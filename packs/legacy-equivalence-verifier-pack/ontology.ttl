@@ -1,0 +1,404 @@
+@prefix eqv: <https://ggen.io/ontology/legacy-equivalence#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# G7 SCAFFOLDING NOTICE
+#
+# This ontology.ttl is REUSABLE INFRASTRUCTURE, not a real capability
+# inventory. The three eqv:EquivalenceCase individuals below
+# (eqv:CaseCliStdoutEcho, eqv:CaseGeneratedFileBytes,
+# eqv:CaseRefusedRemovedCommand) are SYNTHETIC / HAND-CRAFTED examples
+# built only to prove the generation pipeline and the generic runner
+# are data-driven and domain-correct. They do NOT describe any real
+# ggen-legacy capability. Do not cite the synthetic cases here as
+# evidence that any real ggen-legacy capability has been verified
+# equivalent; they exist only as a pipeline regression fixture (order 1-3).
+#
+# G8 UPDATE: 12 REAL EquivalenceCase individuals (order 10-21, prefixed
+# "REAL" in their titles below) have been added, one per real
+# ggen:LegacyCapability individual in ontology/v26.8.1/legacy-capabilities.ttl
+# whose ggen:hasDisposition is NOT DISPOSITION_UNKNOWN (12 of 15; the
+# remaining 3 -- legacy_sync_audit_flag, legacy_sync_dry_run_value_flag,
+# legacy_ggen_toml_dual_schema -- are genuine Chesterton's-fence cases with
+# no resolvable pass/fail verdict yet and are intentionally NOT represented
+# as cases here; see the G8 session report for why).
+# =====================================================================
+
+# Law surfaces (classes / properties)
+
+eqv:LegacyEquivalenceBBlockClass a rdfs:Class .
+eqv:LegacyCapability a rdfs:Class ; rdfs:subClassOf prov:Entity .
+eqv:EquivalenceCase a rdfs:Class ; rdfs:subClassOf prov:Activity .
+eqv:VerifierReport a rdfs:Class ; rdfs:subClassOf prov:Entity .
+
+eqv:version a rdf:Property .
+eqv:caseId a rdf:Property .
+eqv:order a rdf:Property .
+eqv:forCapability a rdf:Property .
+eqv:legacyAdapter a rdf:Property .
+eqv:currentAdapter a rdf:Property .
+eqv:successInput a rdf:Property .
+eqv:failureInput a rdf:Property .
+eqv:normalizationPolicy a rdf:Property .
+eqv:expectedDisposition a rdf:Property .
+eqv:observableSurface a rdf:Property .
+eqv:timeoutSeconds a rdf:Property .
+eqv:recoveryAction a rdf:Property .
+eqv:expectedDiagnosticSubstring a rdf:Property .
+eqv:reportSchema a rdf:Property .
+eqv:entrypoint a rdf:Property .
+eqv:hasCase a rdf:Property .
+
+# Controlled vocabulary: expectedDisposition
+#   PRESERVED  -- current adapter reproduces legacy behavior byte-for-byte (mod normalization)
+#   SUBSUMED   -- current adapter's broader capability strictly contains legacy behavior
+#   REPLACED   -- current adapter intentionally differs; equivalence checked on a narrower contract
+#   ARCHIVED   -- no live current adapter; equivalence checked via a restore-and-verify contract
+#   REFUSED    -- current surface intentionally refuses the legacy input with a typed diagnostic
+
+# Controlled vocabulary: observableSurface (one or more per case)
+#   exit_code | stdout | stderr | filesystem_delta | generated_bytes | diagnostics
+#   receipt_fields | event_order | side_effects | recovery_result
+
+# Controlled vocabulary: normalizationPolicy
+#   none | strip_timestamps | sort_json_keys
+
+eqv:LegacyEquivalenceBBlock a eqv:LegacyEquivalenceBBlockClass ;
+    dcterms:title "Legacy Capability Equivalence Verifier" ;
+    dcterms:description "Data-driven equivalence cases comparing a legacy adapter to a current adapter (or a restore/refusal contract), dispatched purely on declared observable surfaces." ;
+    eqv:version "26.8.1" ;
+    eqv:reportSchema "ggen.legacy-equivalence.verifier-report.v1" ;
+    eqv:hasCase eqv:CaseCliStdoutEcho, eqv:CaseGeneratedFileBytes, eqv:CaseRefusedRemovedCommand,
+      eqv:CaseGgenCorePipeline, eqv:CaseWizardCommand, eqv:CaseSigmaCommand, eqv:CaseInverseSyncCommand,
+      eqv:CaseGgenA2aMcpServer, eqv:CaseGgenLspMcpServer, eqv:CaseGgenLspA2aBridge,
+      eqv:CaseGenesisSchemaV2Crate, eqv:CaseStarTomlWorkspaceMember, eqv:CaseStpntCrate,
+      eqv:CaseGenesisCoreOriginal, eqv:CaseProcessIntelligenceLocalAnalysis .
+
+# --- SYNTHETIC EXAMPLE 1: stdout equivalence with normalization ---------
+eqv:LegacyCapabilityEcho a eqv:LegacyCapability ;
+    eqv:caseId "example-echo-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: normalized text echo" .
+
+eqv:CaseCliStdoutEcho a eqv:EquivalenceCase ;
+    eqv:order 1 ;
+    eqv:caseId "cli-stdout-echo" ;
+    dcterms:title "SYNTHETIC: CLI stdout equivalence, timestamp-normalized" ;
+    eqv:forCapability eqv:LegacyCapabilityEcho ;
+    eqv:legacyAdapter "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" ;
+    eqv:currentAdapter "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "strip_timestamps" ;
+    eqv:expectedDisposition "PRESERVED" ;
+    eqv:observableSurface "exit_code", "stdout" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:recoveryAction "none" .
+
+# --- SYNTHETIC EXAMPLE 2: generated-file byte equivalence ----------------
+eqv:LegacyCapabilityWriter a eqv:LegacyCapability ;
+    eqv:caseId "example-writer-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: fixed-content file writer" .
+
+eqv:CaseGeneratedFileBytes a eqv:EquivalenceCase ;
+    eqv:order 2 ;
+    eqv:caseId "generated-file-bytes" ;
+    dcterms:title "SYNTHETIC: generated file byte-identity" ;
+    eqv:forCapability eqv:LegacyCapabilityWriter ;
+    eqv:legacyAdapter "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"" ;
+    eqv:currentAdapter "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code", "generated_bytes" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:recoveryAction "none" .
+
+# --- SYNTHETIC EXAMPLE 3: ARCHIVED capability via refusal contract -------
+eqv:LegacyCapabilityRemovedCommand a eqv:LegacyCapability ;
+    eqv:caseId "example-removed-command-capability" ;
+    dcterms:title "SYNTHETIC example legacy capability: a command intentionally removed from the current surface" .
+
+eqv:CaseRefusedRemovedCommand a eqv:EquivalenceCase ;
+    eqv:order 3 ;
+    eqv:caseId "refused-removed-command" ;
+    dcterms:title "SYNTHETIC: REFUSED disposition, typed diagnostic on stderr" ;
+    eqv:forCapability eqv:LegacyCapabilityRemovedCommand ;
+    eqv:legacyAdapter "printf 'legacy-op executed\\n'; exit 0" ;
+    eqv:currentAdapter "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 5 ;
+    eqv:expectedDiagnosticSubstring "decommissioned" ;
+    eqv:recoveryAction "none" .
+
+# =====================================================================
+# REAL CASES (G8) -- one per real LegacyCapability individual in
+# ontology/v26.8.1/legacy-capabilities.ttl, excluding the 3 individuals
+# whose ggen:hasDisposition is DISPOSITION_UNKNOWN (legacy_sync_audit_flag,
+# legacy_sync_dry_run_value_flag, legacy_ggen_toml_dual_schema) -- those
+# genuinely cannot get an executable equivalence case yet; see G8 report.
+#
+# Every legacyAdapter/currentAdapter/recoveryAction command below is a real,
+# runnable shell command over THIS repository's actual git history and
+# actual current-tree files -- verified by direct invocation before being
+# transcribed here (see docs/jira/v26.8.1/ G8 session notes). Adapters run
+# with cwd = the repo root (the pack's ggen.toml `output_dir = "."`, and
+# verify-all.sh / equivalence_runner.py are invoked from repo root).
+# =====================================================================
+
+# --- REAL 1: legacy_ggen_core_pipeline (REPLACED) ------------------------
+eqv:LegacyCapabilityGgenCorePipeline a eqv:LegacyCapability ;
+    eqv:caseId "legacy_ggen_core_pipeline" ;
+    dcterms:title "ggen-core single-pass render pipeline (deleted, PR #259 / 9cef6e40f)" .
+
+eqv:CaseGgenCorePipeline a eqv:EquivalenceCase ;
+    eqv:order 10 ;
+    eqv:caseId "legacy-ggen-core-pipeline" ;
+    dcterms:title "REAL: ggen-core existed historically; ggen-engine sync is its live replacement" ;
+    eqv:forCapability eqv:LegacyCapabilityGgenCorePipeline ;
+    eqv:legacyAdapter "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-core/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "ggen sync run --dry-run >/dev/null 2>&1 && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REPLACED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 30 ;
+    eqv:recoveryAction "none" ;
+    rdfs:comment "Narrow contract by design: internals genuinely differ (single-pass vs 5-stage Resolve/Enrich/Extract/Render/Write), so only 'both existed and both succeed' is asserted, not byte-identity." .
+
+# --- REAL 2-4: deleted, default-off experimental commands (REFUSED) ------
+eqv:LegacyCapabilityWizardCommand a eqv:LegacyCapability ;
+    eqv:caseId "legacy_wizard_command" ;
+    dcterms:title "`ggen wizard` command (deleted, 9cef6e40f)" .
+
+eqv:CaseWizardCommand a eqv:EquivalenceCase ;
+    eqv:order 11 ;
+    eqv:caseId "legacy-wizard-command" ;
+    dcterms:title "REAL: `ggen wizard` used to exist; current ggen refuses it with clap's unrecognized-subcommand error" ;
+    eqv:forCapability eqv:LegacyCapabilityWizardCommand ;
+    eqv:legacyAdapter "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/wizard.rs >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "ggen wizard" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:expectedDiagnosticSubstring "unrecognized subcommand 'wizard'" ;
+    eqv:recoveryAction "none" .
+
+eqv:LegacyCapabilitySigmaCommand a eqv:LegacyCapability ;
+    eqv:caseId "legacy_sigma_command" ;
+    dcterms:title "`ggen sigma` command (deleted, 9cef6e40f)" .
+
+eqv:CaseSigmaCommand a eqv:EquivalenceCase ;
+    eqv:order 12 ;
+    eqv:caseId "legacy-sigma-command" ;
+    dcterms:title "REAL: `ggen sigma` used to exist; current ggen refuses it" ;
+    eqv:forCapability eqv:LegacyCapabilitySigmaCommand ;
+    eqv:legacyAdapter "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/sigma.rs >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "ggen sigma" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:expectedDiagnosticSubstring "unrecognized subcommand 'sigma'" ;
+    eqv:recoveryAction "none" .
+
+eqv:LegacyCapabilityInverseSyncCommand a eqv:LegacyCapability ;
+    eqv:caseId "legacy_inverse_sync_command" ;
+    dcterms:title "`ggen inverse_sync` command (deleted, 9cef6e40f)" .
+
+eqv:CaseInverseSyncCommand a eqv:EquivalenceCase ;
+    eqv:order 13 ;
+    eqv:caseId "legacy-inverse-sync-command" ;
+    dcterms:title "REAL: `ggen inverse_sync` used to exist; current ggen refuses it" ;
+    eqv:forCapability eqv:LegacyCapabilityInverseSyncCommand ;
+    eqv:legacyAdapter "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/inverse_sync.rs >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "ggen inverse_sync" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:expectedDiagnosticSubstring "unrecognized subcommand 'inverse_sync'" ;
+    eqv:recoveryAction "none" .
+
+# --- REAL 5-7: MCP/A2A trio folded into ggen-lsp features (SUBSUMED) -----
+eqv:LegacyCapabilityGgenA2aMcpServer a eqv:LegacyCapability ;
+    eqv:caseId "legacy_ggen_a2a_mcp_server" ;
+    dcterms:title "ggen-a2a-mcp standalone crate (deleted whole crate, bde78f7d5)" .
+
+eqv:CaseGgenA2aMcpServer a eqv:EquivalenceCase ;
+    eqv:order 14 ;
+    eqv:caseId "legacy-ggen-a2a-mcp-server" ;
+    dcterms:title "REAL: ggen-a2a-mcp existed as its own crate; ggen-lsp's `a2a` feature is the live replacement" ;
+    eqv:forCapability eqv:LegacyCapabilityGgenA2aMcpServer ;
+    eqv:legacyAdapter "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-a2a-mcp/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "none" .
+
+eqv:LegacyCapabilityGgenLspMcpServer a eqv:LegacyCapability ;
+    eqv:caseId "legacy_ggen_lsp_mcp_server" ;
+    dcterms:title "ggen-lsp-mcp standalone crate (deleted whole crate, bde78f7d5)" .
+
+eqv:CaseGgenLspMcpServer a eqv:EquivalenceCase ;
+    eqv:order 15 ;
+    eqv:caseId "legacy-ggen-lsp-mcp-server" ;
+    dcterms:title "REAL: ggen-lsp-mcp existed as its own crate; ggen-lsp's `mcp` feature is the live replacement" ;
+    eqv:forCapability eqv:LegacyCapabilityGgenLspMcpServer ;
+    eqv:legacyAdapter "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-mcp/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "grep -q '^mcp = ' crates/ggen-lsp/Cargo.toml && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "none" .
+
+eqv:LegacyCapabilityGgenLspA2aBridge a eqv:LegacyCapability ;
+    eqv:caseId "legacy_ggen_lsp_a2a_bridge" ;
+    dcterms:title "ggen-lsp-a2a standalone bridge crate (deleted whole crate, bde78f7d5)" .
+
+eqv:CaseGgenLspA2aBridge a eqv:EquivalenceCase ;
+    eqv:order 16 ;
+    eqv:caseId "legacy-ggen-lsp-a2a-bridge" ;
+    dcterms:title "REAL: ggen-lsp-a2a existed as its own crate; ggen-lsp's `a2a` feature is the live replacement" ;
+    eqv:forCapability eqv:LegacyCapabilityGgenLspA2aBridge ;
+    eqv:legacyAdapter "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-a2a/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "none" .
+
+# --- REAL 8: genesis-schema-v2 folded into genesis-types-v2 (SUBSUMED) ---
+eqv:LegacyCapabilityGenesisSchemaV2Crate a eqv:LegacyCapability ;
+    eqv:caseId "legacy_genesis_schema_v2_crate" ;
+    dcterms:title "genesis-schema-v2 standalone crate (deleted whole crate, 5b8dd6407)" .
+
+eqv:CaseGenesisSchemaV2Crate a eqv:EquivalenceCase ;
+    eqv:order 17 ;
+    eqv:caseId "legacy-genesis-schema-v2-crate" ;
+    dcterms:title "REAL: genesis-schema-v2 existed as its own crate; genesis-types-v2::schema is the live replacement" ;
+    eqv:forCapability eqv:LegacyCapabilityGenesisSchemaV2Crate ;
+    eqv:legacyAdapter "git show 5b8dd6407b6dd1f11d572e9768499c534c59aec9^:crates/genesis-schema-v2/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "test -f crates/genesis-types-v2/src/schema.rs && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "none" .
+
+# --- REAL 9: star-toml moved from workspace member to external dep (REPLACED)
+eqv:LegacyCapabilityStarTomlWorkspaceMember a eqv:LegacyCapability ;
+    eqv:caseId "legacy_star_toml_workspace_member" ;
+    dcterms:title "star-toml as an in-workspace path dependency (removed as a member, 73d726ab4)" .
+
+eqv:CaseStarTomlWorkspaceMember a eqv:EquivalenceCase ;
+    eqv:order 18 ;
+    eqv:caseId "legacy-star-toml-workspace-member" ;
+    dcterms:title "REAL: star-toml used to be an in-workspace path member; ggen-config now depends on the published crate" ;
+    eqv:forCapability eqv:LegacyCapabilityStarTomlWorkspaceMember ;
+    eqv:legacyAdapter "git show 73d726ab44675bb1b5bdf1374858808429bdf7ae^:crates/star-toml/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "grep -q '^star-toml = ' crates/ggen-config/Cargo.toml && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REPLACED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "none" ;
+    rdfs:comment "REPLACED (not PRESERVED) because the dependency boundary itself changed observably, per legacy-capabilities.ttl's own rdfs:comment for this individual." .
+
+# --- REAL 10: stpnt dead crate removed (REFUSED) --------------------------
+eqv:LegacyCapabilityStpntCrate a eqv:LegacyCapability ;
+    eqv:caseId "legacy_stpnt_crate" ;
+    dcterms:title "stpnt dead crate (deleted whole crate, dfa3664a5)" .
+
+eqv:CaseStpntCrate a eqv:EquivalenceCase ;
+    eqv:order 19 ;
+    eqv:caseId "legacy-stpnt-crate" ;
+    dcterms:title "REAL: stpnt existed historically; current workspace has no stpnt member and refuses to build it" ;
+    eqv:forCapability eqv:LegacyCapabilityStpntCrate ;
+    eqv:legacyAdapter "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/stpnt/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "test -d crates/stpnt && echo exists || { echo 'refused: stpnt package not present in workspace (dead code removed 2026-07-02, dfa3664a5)' 1>&2; exit 3; }" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "REFUSED" ;
+    eqv:observableSurface "exit_code", "diagnostics" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:expectedDiagnosticSubstring "not present in workspace" ;
+    eqv:recoveryAction "none" .
+
+# --- REAL 11: genesis-core (original) -- ARCHIVED, restoration proof -----
+eqv:LegacyCapabilityGenesisCoreOriginal a eqv:LegacyCapability ;
+    eqv:caseId "legacy_genesis_core_crate_original" ;
+    dcterms:title "genesis-core (original, distinct from genesis-core-v2) -- deleted whole crate, dfa3664a5" .
+
+eqv:CaseGenesisCoreOriginal a eqv:EquivalenceCase ;
+    eqv:order 20 ;
+    eqv:caseId "legacy-genesis-core-crate-original" ;
+    dcterms:title "REAL: genesis-core (original) is ARCHIVED -- proves restoration from git history is possible, not equivalence" ;
+    eqv:forCapability eqv:LegacyCapabilityGenesisCoreOriginal ;
+    eqv:legacyAdapter "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "N/A" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "ARCHIVED" ;
+    eqv:observableSurface "recovery_result" ;
+    eqv:timeoutSeconds 15 ;
+    eqv:recoveryAction "mkdir -p \"$EQV_OUT/restored\" && git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml > \"$EQV_OUT/restored/Cargo.toml\" && test -s \"$EQV_OUT/restored/Cargo.toml\"" ;
+    rdfs:comment "No live current_adapter is asserted; genesis-core-v2's link to this crate is an unconfirmed naming inference per legacy-capabilities.ttl's own rdfs:comment, so this case proves restorability only, not lineage." .
+
+# --- REAL 12: process-intelligence local analysis removed (SUBSUMED) -----
+eqv:LegacyCapabilityProcessIntelligenceLocalAnalysis a eqv:LegacyCapability ;
+    eqv:caseId "legacy_process_intelligence_local_analysis" ;
+    dcterms:title "ggen-graph local OCEL discovery/conformance analysis (removed, 3176f9a18)" .
+
+eqv:CaseProcessIntelligenceLocalAnalysis a eqv:EquivalenceCase ;
+    eqv:order 21 ;
+    eqv:caseId "legacy-process-intelligence-local-analysis" ;
+    dcterms:title "REAL: ggen-graph used to run local OCEL discovery/conformance; the boundary guard now actively enforces its removal" ;
+    eqv:forCapability eqv:LegacyCapabilityProcessIntelligenceLocalAnalysis ;
+    eqv:legacyAdapter "git show 3176f9a18be342f0c08554f5aef66208c741e169^:crates/ggen-graph/src/ocel/discovery.rs >/dev/null 2>&1 && echo ok" ;
+    eqv:currentAdapter "bash scripts/ci/guard-process-intelligence-boundary.sh >/dev/null 2>&1 && echo ok" ;
+    eqv:successInput "" ;
+    eqv:failureInput "" ;
+    eqv:normalizationPolicy "none" ;
+    eqv:expectedDisposition "SUBSUMED" ;
+    eqv:observableSurface "exit_code" ;
+    eqv:timeoutSeconds 30 ;
+    eqv:recoveryAction "none" ;
+    rdfs:comment "current_adapter running the guard script (wired into just pre-commit) IS the live proof the boundary is enforced going forward, per CLAUDE.md's Process Intelligence Boundary table and this individual's own rdfs:comment." .
+
+eqv:MachineVerifierReport a eqv:VerifierReport ;
+    dcterms:title "Legacy Equivalence Verifier Report" ;
+    eqv:reportSchema "ggen.legacy-equivalence.verifier-report.v1" ;
+    eqv:entrypoint "consumer/legacy-equivalence/suites/verify-all.sh" .
