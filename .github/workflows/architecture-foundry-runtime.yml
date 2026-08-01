@@ -35,7 +35,10 @@ jobs:
       - name: Normalize runtime in runner checkout
         run: python3 tools/architecture-foundry/normalize_runtime.py
 
-      - name: Format
+      - name: Manufacture canonical Rust formatting
+        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
+
+      - name: Verify canonical Rust formatting
         run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
 
       - name: Upload exact tested Rust sources
