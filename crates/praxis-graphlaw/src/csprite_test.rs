@@ -143,7 +143,14 @@ fn test_csprite_cycles_terminate() {
         })
         .expect("failed to spawn recursive helper thread");
 
-    match rx1.recv_timeout(std::time::Duration::from_millis(500)) {
+    // 5s, not 500ms: this guards against genuine non-termination (an infinite
+    // cycle in the 3-rule ClassA->ClassB->ClassC->ClassA hierarchy), which
+    // takes ~10ms to resolve correctly. 500ms was observed to false-positive
+    // under heavy parallel `cargo test --workspace` CPU contention even
+    // though the helper terminated correctly every time in isolation; 5s
+    // preserves >100x headroom over the real cost while still catching an
+    // actual regression to unbounded recursion.
+    match rx1.recv_timeout(std::time::Duration::from_secs(5)) {
         Ok((matched_len, hierarchy_len)) => {
             let _ = matched_len;
             let _ = hierarchy_len;
@@ -179,7 +186,8 @@ fn test_csprite_cycles_terminate() {
         })
         .expect("failed to spawn stack-based helper thread");
 
-    match rx2.recv_timeout(std::time::Duration::from_millis(500)) {
+    // See the recv_timeout above: 5s not 500ms, for the same load-sensitivity reason.
+    match rx2.recv_timeout(std::time::Duration::from_secs(5)) {
         Ok((matched_len, hierarchy_len)) => {
             let _ = matched_len;
             let _ = hierarchy_len;
