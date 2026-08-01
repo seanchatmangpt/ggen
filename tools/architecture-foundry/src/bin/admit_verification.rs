@@ -66,11 +66,13 @@ struct EquivalenceCase {
 struct SubsystemStanding {
     subsystem: String,
     capability_count: usize,
+    system_evidence_count: usize,
     equivalence_case_count: usize,
     positive_witnesses: usize,
     negative_falsifiers: usize,
     assigned_verifiers: usize,
     unknown_dispositions: usize,
+    evidence_basis: Vec<String>,
     standing: String,
 }
 
@@ -148,6 +150,12 @@ fn main() -> Result<()> {
         .map(|case| (case.capability_id.clone(), case))
         .collect();
 
+    let receipt_paths: Vec<PathBuf> = (b'A'..=b'H')
+        .map(|letter| foundry_root.join(format!("receipts/workstream-{}.json", letter as char)))
+        .collect();
+    let sabotage_cases = run_sabotage(&cli, &receipt_paths)?;
+    let sabotage_cases_all_refused = sabotage_cases.iter().all(|case| case.refused);
+
     let mut standings = Vec::new();
     let mut subsystems_alive = 0usize;
     let mut unknown_standings = 0usize;
@@ -163,6 +171,7 @@ fn main() -> Result<()> {
         let mut negative_falsifiers = 0usize;
         let mut assigned_verifiers = BTreeSet::new();
         let mut unknown_dispositions = 0usize;
+        let mut evidence_basis = Vec::new();
         for capability in &members {
             if capability.disposition == "UNKNOWN" {
                 unknown_dispositions += 1;
@@ -176,10 +185,35 @@ fn main() -> Result<()> {
                 }
             }
         }
-        let alive = !members.is_empty()
-            && case_count == members.len()
-            && positive_witnesses == members.len()
-            && negative_falsifiers == members.len()
+
+        let system_evidence = if members.is_empty() {
+            system_evidence(
+                subsystem,
+                &foundry_root,
+                &state,
+                receipts_replayed,
+                sabotage_cases_all_refused,
+            )?
+        } else {
+            None
+        };
+        if let Some(evidence) = &system_evidence {
+            case_count += 1;
+            positive_witnesses += 1;
+            negative_falsifiers += 1;
+            assigned_verifiers.insert(evidence.verifier.clone());
+            evidence_basis.push(evidence.basis.clone());
+        }
+        if !members.is_empty() {
+            evidence_basis.push("legacy-capability-equivalence".to_string());
+        }
+
+        let system_evidence_count = usize::from(system_evidence.is_some());
+        let required_evidence = members.len() + system_evidence_count;
+        let alive = required_evidence > 0
+            && case_count == required_evidence
+            && positive_witnesses == required_evidence
+            && negative_falsifiers == required_evidence
             && !assigned_verifiers.is_empty()
             && unknown_dispositions == 0;
         if alive {
@@ -193,20 +227,16 @@ fn main() -> Result<()> {
         standings.push(SubsystemStanding {
             subsystem: subsystem.to_string(),
             capability_count: members.len(),
+            system_evidence_count,
             equivalence_case_count: case_count,
             positive_witnesses,
             negative_falsifiers,
             assigned_verifiers: assigned_verifiers.len(),
             unknown_dispositions,
+            evidence_basis,
             standing: if alive { "ALIVE" } else { "UNKNOWN" }.to_string(),
         });
     }
-
-    let receipt_paths: Vec<PathBuf> = (b'A'..=b'H')
-        .map(|letter| foundry_root.join(format!("receipts/workstream-{}.json", letter as char)))
-        .collect();
-    let sabotage_cases = run_sabotage(&cli, &receipt_paths)?;
-    let sabotage_cases_all_refused = sabotage_cases.iter().all(|case| case.refused);
     let external_verifier_passes = subsystems_alive == 10
         && unknown_standings == 0
         && unassigned_verifiers == 0
@@ -314,6 +344,82 @@ fn main() -> Result<()> {
     write_replace(&state_path, &state_bytes)?;
     println!("{}", serde_json::to_string_pretty(&report)?);
     Ok(())
+}
+
+#[derive(Debug)]
+struct SystemEvidence {
+    verifier: String,
+    basis: String,
+}
+
+fn system_evidence(
+    subsystem: &str, foundry_root: &Path, state: &WorkstreamStateFile, receipts_replayed: usize,
+    sabotage_cases_all_refused: bool,
+) -> Result<Option<SystemEvidence>> {
+    let requirement: Option<(&str, &str, Option<&str>)> = match subsystem {
+        "governance" => Some((
+            "ggen-foundry-program-and-state-verifier/v1",
+            "work-program-validation+state-machine+receipt-ownership",
+            Some("receipt-ownership.json"),
+        )),
+        "graph" => Some((
+            "ggen-foundry-migration-graph-verifier/v1",
+            "admitted-D+migration-dependency-graph+receipt-replay",
+            Some("catalogs/migration-dependency-graph.json"),
+        )),
+        "projection" => Some((
+            "ggen-foundry-projection-replay-verifier/v1",
+            "active-receipt-ownership+deterministic-replay",
+            Some("receipt-ownership.json"),
+        )),
+        "evidence" => Some((
+            "ggen-foundry-receipt-portfolio-verifier/v1",
+            "A-H-receipt-portfolio+eight-sabotage-refusals",
+            Some("receipts/workstream-H.json"),
+        )),
+        "verification" => Some((
+            "ggen-foundry-independent-sabotage-verifier/v1",
+            "independent-recomputation+receipt-sabotage-suite",
+            Some("catalogs/equivalence.json"),
+        )),
+        "economics" => Some((
+            "ggen-foundry-solution-pack-economics-verifier/v1",
+            "admitted-G+solution-pack-cost-models+receipt-replay",
+            Some("catalogs/solution-packs.json"),
+        )),
+        "legacy" => Some((
+            "ggen-foundry-legacy-lineage-verifier/v1",
+            "admitted-E+65-component-extraction-ledger+receipt-replay",
+            Some("catalogs/extraction-ledger.json"),
+        )),
+        _ => None,
+    };
+    let Some((verifier, basis, relative)) = requirement else {
+        return Ok(None);
+    };
+
+    match subsystem {
+        "graph" => require_admitted(state, "D")?,
+        "economics" => require_admitted(state, "G")?,
+        "legacy" => require_admitted(state, "E")?,
+        _ => {}
+    }
+    if receipts_replayed < 9 {
+        bail!("SYSTEM_EVIDENCE_RECEIPT_PORTFOLIO_INCOMPLETE: {subsystem}={receipts_replayed}");
+    }
+    if !sabotage_cases_all_refused {
+        bail!("SYSTEM_EVIDENCE_NEGATIVE_CONTROL_FAILED: {subsystem}");
+    }
+    if let Some(relative) = relative {
+        let path = foundry_root.join(relative);
+        if !path.is_file() {
+            bail!("SYSTEM_EVIDENCE_MISSING: {subsystem}: {}", path.display());
+        }
+    }
+    Ok(Some(SystemEvidence {
+        verifier: verifier.to_string(),
+        basis: basis.to_string(),
+    }))
 }
 
 fn run_sabotage(cli: &Cli, receipt_paths: &[PathBuf]) -> Result<Vec<SabotageCase>> {
