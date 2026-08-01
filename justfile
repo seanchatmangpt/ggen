@@ -339,7 +339,7 @@ slo-check:
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
 # Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs → generation hash-pin (10 gates, in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
@@ -418,6 +418,12 @@ guard-process-boundary: guard-process-intelligence-boundary
 # ggen-core/src/*, retired along with the crate in PR #259, not fixed by triage.)
 guard-cheat-scan:
     cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner
+
+# Refuses hardcoded sub-second recv_timeout/join_timeout/wait_timeout used as a
+# termination/liveness proxy in test code -- the exact load-sensitive-flake
+# class fixed in csprite_test.rs/backwardchaining_test.rs (2026-08-01).
+guard-short-test-timeout:
+    python3 tools/v26.8.1/guard_short_test_timeout.py
 
 # APS claims-ledger schema validation (docs/aps/claims.toml) — structure only;
 # runs in pre-commit. Commits are not publishes, so publish-gate enforcement

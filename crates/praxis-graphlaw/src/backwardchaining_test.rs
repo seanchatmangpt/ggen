@@ -101,7 +101,11 @@ fn test_cyclic_rules_terminate() {
         })
         .expect("failed to spawn evaluation thread");
 
-    match rx.recv_timeout(std::time::Duration::from_millis(500)) {
+    // 5s, not 500ms: guards genuine non-termination, which takes ~20ms to
+    // resolve correctly. 500ms false-positives under heavy parallel
+    // `cargo test --workspace` CPU contention (see the identical fix in
+    // csprite_test.rs, 2026-08-01).
+    match rx.recv_timeout(std::time::Duration::from_secs(5)) {
         Ok(len) => {
             let _ = len;
         }
