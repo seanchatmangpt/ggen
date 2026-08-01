@@ -577,6 +577,16 @@ v26-8-1-project-coverage:
     python3 tools/v26.8.1/subsystem_evidence_manifest.py
     cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin project_coverage -- --root .
 
+# Regenerates docs/v26.8.1/document-evidence-index.{json,csv,md} + ontology/v26.8.1/
+# document-evidence.ttl. Run twice: the index is one of its own indexed documents
+# (docs/v26.8.1/document-evidence-index.md), so a single run's record reflects the
+# PREVIOUS run's bytes -- two runs at a fixed head converge to a stable fixed point
+# (see commit e045b6e0c, which removed a non-deterministic timestamp that made this
+# fixed point unreachable).
+v26-8-1-document-evidence:
+    python3 tools/v26.8.1/document_evidence_index.py --root .
+    python3 tools/v26.8.1/document_evidence_index.py --root .
+
 # Crown verifier in observe-only mode (non-strict: does not require release-admission
 # preconditions). Real CLI: `cargo run --manifest-path tools/v26.8.1/Cargo.toml --bin ggen-v26-8-1-verifier -- --root . --observe-only`
 # (confirmed against tools/v26.8.1/src/main.rs's `resolve_root`/`run` and the existing
@@ -644,7 +654,7 @@ v26-8-1-sunset:
 v26-8-1-rebuild:
     #!/usr/bin/env bash
     set -euo pipefail
-    declare -a STAGES=(v26-8-1-observe v26-8-1-ontology v26-8-1-plan check test-lib v26-8-1-equivalence)
+    declare -a STAGES=(v26-8-1-observe v26-8-1-ontology v26-8-1-plan check test-lib v26-8-1-equivalence v26-8-1-project-coverage v26-8-1-document-evidence)
     declare -A RESULT
     FAILED=""
     for s in "${STAGES[@]}"; do
