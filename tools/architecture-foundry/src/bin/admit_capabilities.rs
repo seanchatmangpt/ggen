@@ -164,7 +164,8 @@ fn main() -> Result<()> {
     let mut contradictory_owners = 0usize;
 
     for capability in &capabilities {
-        if capability.capability_id.is_empty() || !seen_ids.insert(capability.capability_id.clone()) {
+        if capability.capability_id.is_empty() || !seen_ids.insert(capability.capability_id.clone())
+        {
             unknown_capabilities += 1;
         }
         if capability.historical_source_commit.trim().is_empty()
@@ -300,8 +301,14 @@ fn main() -> Result<()> {
 
     let mut outputs = BTreeMap::new();
     for (relative, bytes) in [
-        ("foundry/catalogs/capabilities.json", capability_bytes.as_slice()),
-        ("foundry/catalogs/provenance.json", provenance_bytes.as_slice()),
+        (
+            "foundry/catalogs/capabilities.json",
+            capability_bytes.as_slice(),
+        ),
+        (
+            "foundry/catalogs/provenance.json",
+            provenance_bytes.as_slice(),
+        ),
         (
             "foundry/catalogs/subsystem-ownership.json",
             ownership_bytes.as_slice(),
@@ -462,10 +469,7 @@ fn build_record(subject: &str, properties: &BTreeMap<String, String>) -> Result<
 }
 
 fn derive_owner(
-    disposition: &str,
-    replacement_owner: &str,
-    historical_owner: &str,
-    subsystem: &str,
+    disposition: &str, replacement_owner: &str, historical_owner: &str, subsystem: &str,
 ) -> Result<String> {
     match disposition {
         "REFUSED" | "ARCHIVED" => Ok(format!("ggen-legacy/archive/{subsystem}")),
@@ -474,9 +478,9 @@ fn derive_owner(
         }
         "PRESERVED" if !replacement_owner.trim().is_empty() => Ok(replacement_owner.to_string()),
         "PRESERVED" if !historical_owner.trim().is_empty() => Ok(historical_owner.to_string()),
-        "REPLACED" | "SUBSUMED" => bail!(
-            "REPLACEMENT_OWNER_MISSING: disposition={disposition}, subsystem={subsystem}"
-        ),
+        "REPLACED" | "SUBSUMED" => {
+            bail!("REPLACEMENT_OWNER_MISSING: disposition={disposition}, subsystem={subsystem}")
+        }
         other => bail!("UNKNOWN_DISPOSITION: {other}"),
     }
 }
@@ -510,8 +514,7 @@ fn optional(properties: &BTreeMap<String, String>, key: &str) -> String {
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);
