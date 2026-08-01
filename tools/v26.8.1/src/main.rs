@@ -205,9 +205,18 @@ fn run() -> Result<()> {
         .iter()
         .filter(|s| s.standing.trim() == "UNKNOWN")
         .count();
+    // A subsystem with zero legacy capabilities mapped to it (legacy_total == 0)
+    // has nothing to disposition and is vacuously closed -- this must match
+    // subsystem_verifier.rs's own ALIVE gate (`legacy_total == 0 || legacy_fully_closed`,
+    // src/bin/subsystem_verifier.rs's standing computation), not a stricter
+    // predicate re-derived here. The two were previously inconsistent: this
+    // line required legacy_total > 0 even to count as "known", which meant
+    // every subsystem with zero mapped legacy capabilities was counted as
+    // unknown-disposition regardless of the subsystem verifier's own ALIVE
+    // determination -- a real internal contradiction, not a stricter check.
     let unknown_disposition_count = subsystem_standings
         .iter()
-        .filter(|s| !(s.legacy_total > 0 && s.legacy_fully_closed))
+        .filter(|s| !(s.legacy_total == 0 || s.legacy_fully_closed))
         .count();
     for standing in &subsystem_standings {
         gates.push(GateResult {

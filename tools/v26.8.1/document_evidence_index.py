@@ -64,6 +64,13 @@ DIR_TO_SUBSYSTEM = {
     "70-verification": "verification",
     "80-economics": "economics",
     "90-legacy": "legacy",
+    # Cross-cutting architecture diagrams span multiple subsystems; mapped to
+    # "governance" (the closest semantic home for corpus-wide overview
+    # material) rather than left unmapped -- the crown's own document walk
+    # (observe_documents in tools/v26.8.1/src/main.rs, a recursive WalkDir
+    # over all docs/v26.8.1/**/*.md) includes this directory, so a real
+    # evidence record is required, not optional.
+    "diagrams": "governance",
 }
 
 ROLE_ENUM = (
@@ -137,13 +144,17 @@ SUBSYSTEM_SEED_REFERENCES: dict[str, dict[str, list[str]]] = {
         "verifier": ["tools/v26.8.1/src/main.rs"],
     },
     "economics": {
-        # Honestly empty: no dedicated implementation or verifier target
-        # exists yet for this subsystem (matches
-        # subsystem_evidence_manifest.py's own "insufficient_evidence" flag
-        # for economics). Not fabricated.
-        "authority": [],
-        "implementation": [],
-        "verifier": [],
+        # Real, on-disk targets confirmed via
+        # .ggen/v26.8.1/subsystem-evidence-manifest.json's "economics" record
+        # (implementation_sources) and its negative_falsifier_reports entry
+        # (economics_measured_evidence_test). No longer empty: that gap was
+        # closed by an earlier pass that built a real measured-evidence test
+        # and receipt-chain e2e coverage for this subsystem; this dict had
+        # not been updated to reflect it. Not fabricated -- both paths exist
+        # and are independently re-verified by subsystem_verifier.rs.
+        "authority": ["docs/v26.8.1/80-economics"],
+        "implementation": ["crates/ggen-engine/tests/receipt_chain_e2e.rs", "justfile"],
+        "verifier": ["crates/ggen-engine/tests/economics_measured_evidence_test.rs"],
     },
     "legacy": {
         "authority": ["docs/v26.8.1/90-legacy"],
@@ -179,9 +190,29 @@ def git_head(root: Path) -> str:
     return completed.stdout.strip()
 
 
+# Root-level docs directly under docs/v26.8.1/ (not inside a numbered
+# subsystem subdir) that the crown's own document walk
+# (observe_documents in tools/v26.8.1/src/main.rs) still requires a real
+# evidence record for. Mapped to "verification": this file is itself part
+# of the crown's evidence surface, not architecture/implementation prose.
+ROOT_DOC_SUBSYSTEM: dict[str, str] = {
+    "document-evidence-index.md": "verification",
+}
+
+
+def subsystem_for(p: Path, doc_root: Path) -> str:
+    if p.parent == doc_root:
+        return ROOT_DOC_SUBSYSTEM[p.name]
+    return DIR_TO_SUBSYSTEM[p.parent.name]
+
+
 def discover_documents(root: Path) -> list[Path]:
     doc_root = root / DOC_ROOT_REL
     docs: list[Path] = []
+    for name in ROOT_DOC_SUBSYSTEM:
+        candidate = doc_root / name
+        if candidate.is_file():
+            docs.append(candidate)
     for subdir in sorted(doc_root.iterdir()):
         if not subdir.is_dir():
             continue
@@ -274,7 +305,7 @@ def build_index(root: Path) -> dict:
     subsystem_index_doc: dict[str, str] = {}
     for p in doc_paths:
         rel = str(p.relative_to(root))
-        subsystem = DIR_TO_SUBSYSTEM[p.parent.name]
+        subsystem = subsystem_for(p, root / DOC_ROOT_REL)
         if subsystem not in subsystem_index_doc:
             subsystem_index_doc[subsystem] = rel
 
@@ -292,7 +323,7 @@ def build_index(root: Path) -> dict:
 
     for p in doc_paths:
         rel = str(p.relative_to(root))
-        subsystem = DIR_TO_SUBSYSTEM[p.parent.name]
+        subsystem = subsystem_for(p, root / DOC_ROOT_REL)
         text = p.read_text(errors="replace")
         digest = sha256_bytes(p.read_bytes())
         role = infer_role(rel, subsystem, text)
