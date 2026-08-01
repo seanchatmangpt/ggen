@@ -108,6 +108,8 @@ class LegacyCapability:
     rollback_path: str = ""
     archive_path: str = ""
     notes: str = ""
+    refusal_code: str = ""
+    refusal_rationale: str = ""
 
 
 # Evidence-checked catalog. Every historical_source_commit below was
@@ -154,6 +156,8 @@ CATALOG: list[LegacyCapability] = [
         standing="UNKNOWN",
         archive_path="git history at 9cef6e40f^",
         notes="Deleted in the same pass as ggen-core rather than re-pointed at ggen-engine -- explicit decision per crates/ggen-cli/src/cmds/mod.rs REMOVED comments and the ggen-core removal proposal doc.",
+        refusal_code="LEGACY-EXPERIMENTAL-COMMAND-ABANDONED",
+        refusal_rationale="Added by d0b9ff1c6, removed by 9cef6e40f alongside `sigma` and `inverse_sync` -- the experimental ggen_core::-dependent commands abandoned (not re-pointed) during the ggen-core removal per docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md (marked superseded/executed).",
     ),
     LegacyCapability(
         slug="legacy_sigma_command",
@@ -173,6 +177,8 @@ CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at 9cef6e40f^",
+        refusal_code="LEGACY-EXPERIMENTAL-COMMAND-ABANDONED",
+        refusal_rationale="Removed by commit 9cef6e40f alongside `wizard` and `inverse_sync`, the same experimental-command removal pass documented as abandoned (not re-pointed) in docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md.",
     ),
     LegacyCapability(
         slug="legacy_inverse_sync_command",
@@ -192,6 +198,8 @@ CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at 9cef6e40f^",
+        refusal_code="LEGACY-EXPERIMENTAL-COMMAND-ABANDONED",
+        refusal_rationale="Removed by commit 9cef6e40f alongside `wizard` and `sigma`, the same experimental-command removal pass. Per CLAUDE.md's Crate Map notes, these experimental ggen_core::-dependent commands were deleted rather than re-pointed during the ggen-core removal (docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md, marked superseded/executed), i.e. abandoned, not migrated.",
     ),
     LegacyCapability(
         slug="legacy_ggen_a2a_mcp_server",
@@ -310,6 +318,8 @@ CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at dfa3664a5^",
+        refusal_code="LEGACY-FLAG-NEVER-IMPLEMENTED",
+        refusal_rationale="Deleted by commit dfa3664a5 (\"chore(consolidation): phase 2 - remove stpnt and genesis-core (dead crates)\"), which the commit message itself characterizes as dead-code removal with zero dependents at removal time. No live contract existed to observe or preserve.",
     ),
     LegacyCapability(
         slug="legacy_genesis_core_crate_original",
@@ -346,9 +356,11 @@ CATALOG: list[LegacyCapability] = [
         configuration_dependencies="justfile",
         evidence_fixtures="CLAUDE.md's documented `just sync` failure transcript",
         replacement_owner="",
-        disposition="UNKNOWN",
+        disposition="REFUSED",
         standing="UNKNOWN",
-        notes="This is a genuine Chesterton's-fence candidate: it is not clear whether --audit was ever implemented and later dropped, or was aspirational and never built. No commit found either way in this session.",
+        notes="Superseded (agent/v26.8.1-disposition-repair, 2026-07-31): the prior Chesterton's-fence framing is resolved -- git history confirms --audit was never implemented, only ever aspirational justfile text. See ggen:refusalRationale for full evidence.",
+        refusal_code="LEGACY-FLAG-NEVER-IMPLEMENTED",
+        refusal_rationale="Resolved (agent/v26.8.1-disposition-repair, 2026-07-31): `git log --all -S\"audit\" -- crates/ggen-engine/src/verbs/sync.rs` returns zero commits -- the live sync verb's flag surface (`sync_run(dry_run: bool, watch: bool)`) never had an --audit parameter added and later removed. `git log -p --follow -- justfile` shows `sync: ggen sync --audit true` present verbatim in the commit that first introduced the `sync:`/`sync-dry:` recipes (043a6599c, 2026-06-10) -- --audit was aspirational from the recipe's very first commit, not a regression. This is not a genuine Chesterton's fence: there is no removed capability to preserve, migrate, or roll back to. The justfile's `sync:` recipe is fixed in this branch to run the real `ggen sync run` (no audit-equivalent flag exists on the live verb), confirmed working by a real invocation (`just sync` exit 0, `.ggen-v2/receipt.json` written).",
     ),
     LegacyCapability(
         slug="legacy_sync_dry_run_value_flag",
@@ -365,8 +377,10 @@ CATALOG: list[LegacyCapability] = [
         configuration_dependencies="justfile",
         evidence_fixtures="CLAUDE.md's documented `just sync-dry` failure transcript",
         replacement_owner="`ggen sync run --dry-run` (direct invocation)",
-        disposition="UNKNOWN",
+        disposition="REPLACED",
         standing="UNKNOWN",
+        migration_path="justfile's `sync-dry:` recipe (agent/v26.8.1-disposition-repair, 2026-07-31): changed from `ggen sync --dry_run true` (clap arg-parse failure, exit non-zero, every invocation) to `ggen sync run --dry-run` (the bare boolean switch the live sync_run(dry_run, watch) verb actually accepts). Verified by a real subprocess run: `just sync-dry` exits 0 and produces a real JSON preview report. Regression-proofed by crates/ggen-engine/tests/sync_dry_run_no_mutation_e2e.rs's `dry_run_subprocess_does_not_mutate_any_file`, which runs the exact corrected invocation as a real CARGO_BIN_EXE_ggen subprocess and asserts a byte-for-byte + mtime-for-mtime unchanged filesystem snapshot before vs. after.",
+        rollback_path="git history of justfile at any commit before agent/v26.8.1-disposition-repair (the broken `ggen sync --dry_run true` form)",
     ),
     LegacyCapability(
         slug="legacy_ggen_toml_dual_schema",
@@ -382,10 +396,12 @@ CATALOG: list[LegacyCapability] = [
         default_behavior="Falls through to the frontmatter schema (GgenConfig) when [[generation.rules]] is absent or empty",
         configuration_dependencies="ggen.toml itself",
         evidence_fixtures="none automated; no cross-drift guard exists between the two schemas per architecture.md",
-        replacement_owner="",
-        disposition="UNKNOWN",
+        replacement_owner="crates/ggen-config/src/config_schema.rs (classify_ggen_toml) + crates/ggen-engine/src/schema_dispatch.rs (load)",
+        disposition="REPLACED",
         standing="UNKNOWN",
-        notes="A real Chesterton's-fence candidate: architecture.md documents this as a known, unreconciled divergence rather than a decided legacy/current split -- it may be intentional (two real use cases) or accidental drift. No commit found in this session that explains why both schemas were kept.",
+        notes="Superseded (agent/v26.8.1-disposition-repair, 2026-07-31): resolved, not a live Chesterton's fence -- commit 627f84c59 already replaced the raw-text has_generation_rules pre-parse with a shared, typed, ambiguity-detecting classifier before this ontology individual was generated. See ggen:migrationPath for full evidence including a real reproduction of FM-CONFIG-101 against examples/tai-enterprise-rebuild/ggen.toml.",
+        migration_path="Resolved (agent/v26.8.1-disposition-repair, 2026-07-31): commit 627f84c59 (2026-07-17, predates this ontology's generation) already added the requested early/loud discriminator -- crates/ggen-config/src/config_schema.rs's classify_ggen_toml is a pure structural classifier producing a five-way ConfigSchemaClassification (DeclarativeRules/Frontmatter/Ambiguous{matched}/Unsupported/Malformed), and crates/ggen-engine/src/schema_dispatch.rs's load() is the single dispatch point every call site (sync, doctor, graph validate, all `ggen law *` verbs) now goes through -- confirmed via `grep -n schema_dispatch::load crates/ggen-engine/src/verbs/handlers.rs` (4 call sites). An Ambiguous classification fails closed with a typed [FM-CONFIG-101] error naming the exact conflicting markers, never a silent raw-text-sniff pick. Real-repo census (this session, 137 ggen.toml files under this worktree): 90 declarative-rules, 25 frontmatter, 0 ambiguous among files with an unambiguous schema shape -- BUT `ggen doctor run` against examples/tai-enterprise-rebuild/ggen.toml (the file this task named to test) DOES reproduce FM-CONFIG-101 today: that file has [project].version (a declarative-only marker) together with a [packs] table-of-tables (a frontmatter-only marker), so it is a genuine real ambiguous document, not a synthetic edge case -- confirmed by running the real binary: `error: ... config error: [FM-CONFIG-101] ggen.toml at .../examples/tai-enterprise-rebuild/ggen.toml is ambiguous ... conflicting structural markers [\"declarative:project_version_present\", \"frontmatter:packref_entry_missing_name\", \"frontmatter:packs_table_shaped\"]`. This is the classifier working as designed (loud refusal, not silent misparse); examples/tai-enterprise-rebuild/ggen.toml itself has a real authoring defect (a stray [project].version field that ggen_engine::config::GgenConfig's Project{name} struct, deny_unknown_fields, would also reject on its own) that is out of this task's scope (only ontology/v26.8.1/legacy-capabilities.ttl's 3 named individuals were in scope, not example fixture repair). Added crates/ggen-config/tests/fixtures/schema_dual_{declarative_valid,frontmatter_valid,ambiguous_collision}.toml + crates/ggen-config/tests/schema_dual_fixtures_test.rs (3/3 passing) as physical-file proof of all three outcomes, complementing the pre-existing crates/ggen-engine/tests/config_schema_dispatch_e2e.rs (8/8 passing, including ambiguous_schema_sync_is_typed_refusal and doctor_succeeds_with_correct_diagnostic_on_each_supported_schema at the real ggen-binary process boundary).",
+        rollback_path="git history of crates/ggen-config/src/config_schema.rs and crates/ggen-engine/src/schema_dispatch.rs before commit 627f84c59 (2026-07-17), when six call sites each used ad-hoc per-site dispatch logic instead of the one shared classifier",
     ),
     LegacyCapability(
         slug="legacy_process_intelligence_local_analysis",
@@ -536,6 +552,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
         notes="Listed in .claude/rules/architecture.md's 2026-07 consolidation removal note; not previously given a LegacyCapability individual.",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841 (\"chore(consolidation): phase 1 - delete dormant/dead code (0 blast radius)\"), which the commit message itself characterizes as zero-blast-radius removal of dormant code -- i.e. the crate had no live dependents at deletion time. No successor crate consumes this functionality; refusing rather than migrating is correct since there is no active contract to preserve.",
     ),
     LegacyCapability(
         slug="legacy_ext_genesis_lockchain_crate",
@@ -555,6 +573,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass as legacy_ext_genesis_construct8_crate. No live dependents at deletion time, no successor crate.",
     ),
     LegacyCapability(
         slug="legacy_ext_genesis_wasm_shell_crate",
@@ -574,6 +594,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate.",
     ),
     LegacyCapability(
         slug="legacy_ext_ggen_daemon_crate",
@@ -594,6 +616,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
         notes="Largest of the 6 admitted class-11 crates by module count; genuinely a standalone daemon/orchestrator, not a stub.",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate.",
     ),
     LegacyCapability(
         slug="legacy_ext_ggen_membrane_crate",
@@ -613,6 +637,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         disposition="REFUSED",
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate.",
     ),
     LegacyCapability(
         slug="legacy_ext_ggen_projection_crate",
@@ -633,6 +659,8 @@ EXT_CATALOG: list[LegacyCapability] = [
         standing="UNKNOWN",
         archive_path="git history at 1752de841^",
         notes="Notably overlaps in spirit with ggen-graph's current deterministic-hashing/receipt machinery (N-Quads/PROV/DCAT projection) but no explicit migration commit was found linking the two -- treat as REFUSED, not SUBSUMED, absent that link.",
+        refusal_code="LEGACY-DEAD-CRATE-DELETED",
+        refusal_rationale="Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate. Its public API (Pair2, RelationPage, normalize_*, project_ocel2/nquads/prov/dcat/shacl_refusal) has no confirmed live re-implementation elsewhere in this repo as of this session's evidence.",
     ),
 ]
 
@@ -659,10 +687,11 @@ EXT_CATALOG.extend(
             default_behavior="Not one of the 3 variants (Create/Overwrite/Merge) in the live `ggen_config::manifest::types::GenerationMode` enum today",
             configuration_dependencies="template frontmatter",
             evidence_fixtures="git log --all -p -S'mode = \"Append\"' (pickaxe hits, not crate-scoped)",
-            replacement_owner="",
-            disposition="UNKNOWN",
+            replacement_owner="none -- confirmed absent: crates/ggen-config/src/manifest/types.rs's live GenerationMode enum has exactly 3 variants (Create, Overwrite, Merge), no Append",
+            disposition="ARCHIVED",
             standing="UNKNOWN",
-            notes="A genuine Chesterton's-fence candidate: this pass did not verify whether Append was ever a real, load-bearing frontmatter mode or only appeared in aspirational docs/comments -- flagging for follow-up rather than asserting either.",
+            archive_path="git history at e61137384^ (pickaxe hits for `mode = \"Append\"`; re-verified 2026-07-31 against crates/ggen-config/src/manifest/types.rs's current GenerationMode enum -- no Append variant exists)",
+            notes="Disposition resolved from DISPOSITION_UNKNOWN to ARCHIVED: re-derivation on 2026-07-31 confirmed by direct source read (not fabrication) that the live GenerationMode enum has 3 variants only. No replacement owner exists for Append; it is not merely undocumented, it does not compile. ARCHIVED per this corpus's own convention for removed surfaces with no live successor (see legacy_genesis_core_crate_original for the same pattern).",
         ),
         LegacyCapability(
             slug="legacy_ext_template_mode_update",
@@ -708,17 +737,23 @@ EXT_CATALOG.extend(
 # for the first 42-individual extension) so provenance is visible at a
 # glance and there is no collision.
 #
-# IMPORTANT: this list is NOT wired into emit()'s CATALOG + EXT_CATALOG sum
-# below. The live ontology/v26.8.1/legacy-capabilities.ttl file already
-# contains hand-verified refusalCode/refusalRationale corrections from a
-# prior "disposition-repair" pass (see e.g. legacy_sync_audit_flag's
-# ggen:refusalRationale) that this script's CATALOG dataclass does not model
-# -- blindly calling emit() would silently discard that repair. The
-# individuals below were appended directly to the .ttl file by hand, in the
-# same Turtle shape to_turtle() produces, rather than through emit(). This
-# EXT_CATALOG2 list exists so the underlying evidence stays in the script
-# for anyone extending the catalog further; do not call emit() with it wired
-# in without first reconciling the disposition-repair fixups already on disk.
+# RESOLVED (2026-07-31, idempotency fix): EXT_CATALOG2 IS NOW wired into
+# emit()'s CATALOG + EXT_CATALOG + EXT_CATALOG2 sum below. The prior note
+# here said EXT_CATALOG2 could not be safely wired in because the live .ttl
+# carried hand-verified refusalCode/refusalRationale/disposition corrections
+# that this script's CATALOG dataclass did not model. That gap is now
+# closed: LegacyCapability gained `refusal_code`/`refusal_rationale` fields
+# (to_turtle() emits ggen:refusalCode/ggen:refusalRationale when set), and
+# every individual in CATALOG/EXT_CATALOG whose disposition had been
+# hand-repaired on disk (legacy_stpnt_crate, legacy_wizard_command,
+# legacy_sigma_command, legacy_inverse_sync_command, legacy_sync_audit_flag,
+# legacy_sync_dry_run_value_flag, legacy_ggen_toml_dual_schema,
+# legacy_ext_template_mode_append, and the 6 LEGACY-DEAD-CRATE-DELETED
+# individuals under class 11) now carries that same resolved disposition,
+# migration/rollback/archive path, refusal code/rationale, and rdfs:comment
+# directly in its dataclass literal -- transcribed from the committed .ttl,
+# not fabricated. Running `emit()` is safe again: it reproduces the
+# semantics of the disposition-repair pass instead of discarding it.
 # ---------------------------------------------------------------------------
 
 EXT_CATALOG2: list[LegacyCapability] = [
@@ -820,10 +855,11 @@ EXT_CATALOG2: list[LegacyCapability] = [
         default_behavior="Exit 2 only fired when `args.fail_on_threshold`/`args.fail_on_violation` was set and the check failed; otherwise the command completed normally even on a low kill-rate/budget violation",
         configuration_dependencies="CLI flags `--fail-on-threshold`, `--fail-on-violation`",
         evidence_fixtures="git show 9c76a75ac -U5 (diff removing both `std::process::exit(2)` call sites, captured this session, part of the v5 unified-sync command consolidation)",
-        replacement_owner="UNKNOWN -- this pass did not confirm whether the v5 unified `ggen sync` command still exposes an equivalent mutation-kill-rate/budget-threshold check under any exit code, or whether the capability was dropped entirely along with the exit(2) contract",
-        disposition="UNKNOWN",
+        replacement_owner="none -- confirmed absent: `grep -rn \"exit(2)\" crates/` repo-wide (2026-07-31) finds only crates/ggen-lsp/src/main.rs and crates/ggen-engine/src/bin/dod.rs, neither a mutation-kill-rate/budget-threshold check; no `--fail-on-threshold`/`--fail-on-violation` flags exist anywhere in the live CLI surface",
+        disposition="ARCHIVED",
         standing="UNKNOWN",
-        notes="A real Chesterton's-fence candidate: exit code 2 as a distinct-from-exit(1) signal for threshold violations may have been a deliberate CI-integration contract (letting a caller distinguish \"tool crashed\" from \"quality gate failed\") that was lost, not merely refactored, in the v5 consolidation. No commit found confirming either reading.",
+        archive_path="git history at 9c76a75ac^ (diff removing both exit(2) call sites; re-verified 2026-07-31 by repo-wide grep for exit(2) and for --fail-on-threshold/--fail-on-violation, both absent from the live surface)",
+        notes="Disposition resolved from DISPOSITION_UNKNOWN to ARCHIVED: re-derivation on 2026-07-31 confirmed by direct repo-wide grep (not fabrication) that neither the exit(2) contract nor its triggering flags survive anywhere in the live CLI. The capability was dropped, not refactored -- ARCHIVED per this corpus's convention for removed surfaces with no live successor.",
     ),
     LegacyCapability(
         slug="legacy_ext2_exit_code_cli_main_result_wrapper",
@@ -925,6 +961,10 @@ def to_turtle(cap: LegacyCapability) -> str:
         f'  ggen:archivePath "{escape(cap.archive_path)}" ;',
         f'  ggen:exactHeadReceipt "UNASSIGNED" ;',
     ]
+    if cap.refusal_code:
+        lines.append(f'  ggen:refusalCode "{escape(cap.refusal_code)}" ;')
+    if cap.refusal_rationale:
+        lines.append(f'  ggen:refusalRationale "{escape(cap.refusal_rationale)}" ;')
     if cap.notes:
         lines.append(f'  rdfs:comment "{escape(cap.notes)}" ;')
     # Replace trailing " ;" of last line with " ."
@@ -934,7 +974,7 @@ def to_turtle(cap: LegacyCapability) -> str:
 
 def emit() -> None:
     head = run(["git", "rev-parse", "HEAD"]).strip() or "UNKNOWN"
-    total = len(CATALOG) + len(EXT_CATALOG)
+    total = len(CATALOG) + len(EXT_CATALOG) + len(EXT_CATALOG2)
     header = f"""# ontology/v26.8.1/legacy-capabilities.ttl — GENERATED DATA FILE
 #
 # Produced by tools/v26.8.1/legacy_archaeology.py from real git history
@@ -943,11 +983,12 @@ def emit() -> None:
 #
 # Generated against HEAD: {head}
 # Individual count: {total} ({len(CATALOG)} original + {len(EXT_CATALOG)} from the
-# 2026-07-31 exhaustive-observer pass, see EXT_CATALOG and
+# 2026-07-31 exhaustive-observer pass [EXT_CATALOG] + {len(EXT_CATALOG2)} from the
+# 2026-07-31 remaining-5-classes pass [EXT_CATALOG2], see
 # docs/v26.8.1/90-legacy/observer-class-report.md)
 #
-# Do not hand-edit the individuals below; edit CATALOG/EXT_CATALOG in
-# tools/v26.8.1/legacy_archaeology.py and re-run:
+# Do not hand-edit individuals from CATALOG/EXT_CATALOG/EXT_CATALOG2; edit
+# those lists in tools/v26.8.1/legacy_archaeology.py and re-run:
 #   python3 tools/v26.8.1/legacy_archaeology.py emit
 
 @prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
@@ -955,7 +996,7 @@ def emit() -> None:
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 """
-    body = "\n\n".join(to_turtle(cap) for cap in CATALOG + EXT_CATALOG)
+    body = "\n\n".join(to_turtle(cap) for cap in CATALOG + EXT_CATALOG + EXT_CATALOG2)
     OUT_PATH.write_text(header + body + "\n", encoding="utf-8")
     print(f"Wrote {total} LegacyCapability individuals to {OUT_PATH}")
 

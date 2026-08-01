@@ -4,19 +4,15 @@
 # mined against this worktree. See that script's CATALOG for the
 # evidence backing each individual (commit hashes, deleted paths).
 #
-# Generated against HEAD: 4bbdea5ffad230cdc6061987d8072af7529bb9b6
+# Generated against HEAD: 4776dba01cd4b73349c2f4bb6c888aa24f3020cf
 # Individual count: 65 (15 original + 42 from the
 # 2026-07-31 exhaustive-observer pass [EXT_CATALOG] + 8 from the
 # 2026-07-31 remaining-5-classes pass [EXT_CATALOG2], see
 # docs/v26.8.1/90-legacy/observer-class-report.md)
 #
-# Do not hand-edit individuals from CATALOG/EXT_CATALOG; edit those lists in
-# tools/v26.8.1/legacy_archaeology.py and re-run:
+# Do not hand-edit individuals from CATALOG/EXT_CATALOG/EXT_CATALOG2; edit
+# those lists in tools/v26.8.1/legacy_archaeology.py and re-run:
 #   python3 tools/v26.8.1/legacy_archaeology.py emit
-# The EXT_CATALOG2 individuals appended at the end of this file were added
-# by hand (not via emit()) to preserve prior hand-verified disposition-repair
-# fixups elsewhere in this file that emit()'s CATALOG dataclass does not
-# model -- see the "Remaining-5-classes pass" comment block below for detail.
 
 @prefix ggen: <https://ggen.chatmangpt.com/ontology/v26.8.1#> .
 @prefix legacy: <https://ggen.chatmangpt.com/ontology/v26.8.1/legacy#> .
@@ -63,8 +59,6 @@ legacy:legacy_wizard_command a ggen:LegacyCapability ;
   ggen:evidenceFixtures "none preserved; whole file deleted per 9cef6e40f commit body" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
-  ggen:refusalRationale "Added by d0b9ff1c6, removed by 9cef6e40f alongside `sigma` and `inverse_sync` -- the experimental ggen_core::-dependent commands abandoned (not re-pointed) during the ggen-core removal per docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md (marked superseded/executed)." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -72,6 +66,8 @@ legacy:legacy_wizard_command a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 9cef6e40f^" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
+  ggen:refusalRationale "Added by d0b9ff1c6, removed by 9cef6e40f alongside `sigma` and `inverse_sync` -- the experimental ggen_core::-dependent commands abandoned (not re-pointed) during the ggen-core removal per docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md (marked superseded/executed)." ;
   rdfs:comment "Deleted in the same pass as ggen-core rather than re-pointed at ggen-engine -- explicit decision per crates/ggen-cli/src/cmds/mod.rs REMOVED comments and the ggen-core removal proposal doc." .
 
 legacy:legacy_sigma_command a ggen:LegacyCapability ;
@@ -90,15 +86,15 @@ legacy:legacy_sigma_command a ggen:LegacyCapability ;
   ggen:evidenceFixtures "none preserved" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
-  ggen:refusalRationale "Removed by commit 9cef6e40f alongside `wizard` and `inverse_sync`, the same experimental-command removal pass documented as abandoned (not re-pointed) in docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 9cef6e40f^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
+  ggen:refusalRationale "Removed by commit 9cef6e40f alongside `wizard` and `inverse_sync`, the same experimental-command removal pass documented as abandoned (not re-pointed) in docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md." .
 
 legacy:legacy_inverse_sync_command a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_inverse_sync_command" ;
@@ -116,15 +112,15 @@ legacy:legacy_inverse_sync_command a ggen:LegacyCapability ;
   ggen:evidenceFixtures "none preserved" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
-  ggen:refusalRationale "Removed by commit 9cef6e40f alongside `wizard` and `sigma`, the same experimental-command removal pass. Per CLAUDE.md's Crate Map notes, these experimental ggen_core::-dependent commands were deleted rather than re-pointed during the ggen-core removal (docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md, marked superseded/executed), i.e. abandoned, not migrated." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 9cef6e40f^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-EXPERIMENTAL-COMMAND-ABANDONED" ;
+  ggen:refusalRationale "Removed by commit 9cef6e40f alongside `wizard` and `sigma`, the same experimental-command removal pass. Per CLAUDE.md's Crate Map notes, these experimental ggen_core::-dependent commands were deleted rather than re-pointed during the ggen-core removal (docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md, marked superseded/executed), i.e. abandoned, not migrated." .
 
 legacy:legacy_ggen_a2a_mcp_server a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ggen_a2a_mcp_server" ;
@@ -264,15 +260,15 @@ legacy:legacy_stpnt_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "none; commit message asserts zero dependents but this script did not independently re-verify that claim against pre-dfa3664a5 history" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-FLAG-NEVER-IMPLEMENTED" ;
-  ggen:refusalRationale "Deleted by commit dfa3664a5 (\"chore(consolidation): phase 2 - remove stpnt and genesis-core (dead crates)\"), which the commit message itself characterizes as dead-code removal with zero dependents at removal time. No live contract existed to observe or preserve." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at dfa3664a5^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-FLAG-NEVER-IMPLEMENTED" ;
+  ggen:refusalRationale "Deleted by commit dfa3664a5 (\"chore(consolidation): phase 2 - remove stpnt and genesis-core (dead crates)\"), which the commit message itself characterizes as dead-code removal with zero dependents at removal time. No live contract existed to observe or preserve." .
 
 legacy:legacy_genesis_core_crate_original a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_genesis_core_crate_original" ;
@@ -416,8 +412,6 @@ legacy:legacy_ext_genesis_construct8_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/genesis-construct8/src/lib.rs (pub mod/pub use list captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841 (\"chore(consolidation): phase 1 - delete dormant/dead code (0 blast radius)\"), which the commit message itself characterizes as zero-blast-radius removal of dormant code -- i.e. the crate had no live dependents at deletion time. No successor crate consumes this functionality; refusing rather than migrating is correct since there is no active contract to preserve." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -425,6 +419,8 @@ legacy:legacy_ext_genesis_construct8_crate a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841 (\"chore(consolidation): phase 1 - delete dormant/dead code (0 blast radius)\"), which the commit message itself characterizes as zero-blast-radius removal of dormant code -- i.e. the crate had no live dependents at deletion time. No successor crate consumes this functionality; refusing rather than migrating is correct since there is no active contract to preserve." ;
   rdfs:comment "Listed in .claude/rules/architecture.md's 2026-07 consolidation removal note; not previously given a LegacyCapability individual." .
 
 legacy:legacy_ext_genesis_lockchain_crate a ggen:LegacyCapability ;
@@ -443,15 +439,15 @@ legacy:legacy_ext_genesis_lockchain_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/genesis-lockchain/src/lib.rs (pub mod/pub use/pub enum/pub struct list captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass as legacy_ext_genesis_construct8_crate. No live dependents at deletion time, no successor crate." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass as legacy_ext_genesis_construct8_crate. No live dependents at deletion time, no successor crate." .
 
 legacy:legacy_ext_genesis_wasm_shell_crate a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext_genesis_wasm_shell_crate" ;
@@ -469,15 +465,15 @@ legacy:legacy_ext_genesis_wasm_shell_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/genesis-wasm-shell/src/lib.rs (pub struct list captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." .
 
 legacy:legacy_ext_ggen_daemon_crate a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext_ggen_daemon_crate" ;
@@ -495,8 +491,6 @@ legacy:legacy_ext_ggen_daemon_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/ggen-daemon/src/lib.rs (pub mod list, first 20 entries captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -504,6 +498,8 @@ legacy:legacy_ext_ggen_daemon_crate a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." ;
   rdfs:comment "Largest of the 6 admitted class-11 crates by module count; genuinely a standalone daemon/orchestrator, not a stub." .
 
 legacy:legacy_ext_ggen_membrane_crate a ggen:LegacyCapability ;
@@ -522,15 +518,15 @@ legacy:legacy_ext_ggen_membrane_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/ggen-membrane/src/lib.rs (pub trait/enum/struct list captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
   ggen:migrationPath "" ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
-  ggen:exactHeadReceipt "UNASSIGNED" .
+  ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate." .
 
 legacy:legacy_ext_ggen_projection_crate a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext_ggen_projection_crate" ;
@@ -548,8 +544,6 @@ legacy:legacy_ext_ggen_projection_crate a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 1752de841^:crates/ggen-projection/src/lib.rs (pub fn/struct list captured this session)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
-  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
-  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate. Its public API (Pair2, RelationPage, normalize_*, project_ocel2/nquads/prov/dcat/shacl_refusal) has no confirmed live re-implementation elsewhere in this repo as of this session's evidence." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -557,6 +551,8 @@ legacy:legacy_ext_ggen_projection_crate a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "git history at 1752de841^" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
+  ggen:refusalCode "LEGACY-DEAD-CRATE-DELETED" ;
+  ggen:refusalRationale "Deleted by commit 1752de841, the same zero-blast-radius dormant-code removal pass. No live dependents at deletion time, no successor crate. Its public API (Pair2, RelationPage, normalize_*, project_ocel2/nquads/prov/dcat/shacl_refusal) has no confirmed live re-implementation elsewhere in this repo as of this session's evidence." ;
   rdfs:comment "Notably overlaps in spirit with ggen-graph's current deterministic-hashing/receipt machinery (N-Quads/PROV/DCAT projection) but no explicit migration commit was found linking the two -- treat as REFUSED, not SUBSUMED, absent that link." .
 
 legacy:legacy_ext_template_mode_append a ggen:LegacyCapability ;
@@ -1459,24 +1455,6 @@ legacy:legacy_ext_just_recipe_git_status a ggen:LegacyCapability ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
   rdfs:comment "Found via observer class 15 (git log -p -- justfile, pickaxe over removal diffs). Only the recipe's existence and removal commit are evidenced here, not its full historical body/semantics -- re-deriving that would require reading the full pre-removal recipe text, which this pass did not do for every recipe to stay within scope." .
 
-
-# ---------------------------------------------------------------------------
-# Remaining-5-classes pass (2026-07-31, branch agent/v26.8.1-remaining-observers)
-#
-# Appended by hand (not via legacy_archaeology.py's emit()) to preserve the
-# hand-verified disposition-repair fixups already present above in this file
-# (see e.g. legacy_sync_audit_flag's refusalRationale) that the script's
-# CATALOG dataclass does not model. The underlying evidence and dataclass
-# entries live in tools/v26.8.1/legacy_archaeology.py's EXT_CATALOG2 (see
-# that list's own header comment for the full rationale). Attempts the 5
-# observer classes the exhaustive-observer pass explicitly left
-# NOT ATTEMPTED: class 4 (aliases, zero found -- no individuals below),
-# class 9 (receipt schemas, 2), class 13 (output-tree layouts, 2), class 14
-# (exit-code contracts, 2), class 18 (pack.toml schema versions, 2).
-# See docs/v26.8.1/90-legacy/observer-class-report.md's "Remaining 5
-# Classes" section for the full per-class accounting.
-# ---------------------------------------------------------------------------
-
 legacy:legacy_ext2_receipt_v6_ttl_schema a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext2_receipt_v6_ttl_schema" ;
   ggen:historicalSourceCommit "04fa6074b (Implement ontology-first compilation for ggen v6 (#98)) -- introduces crates/ggen-core/src/v6/receipt.rs; deleted with the rest of ggen-core by 9cef6e40f" ;
@@ -1676,4 +1654,3 @@ legacy:legacy_ext2_pack_toml_schema_no_registry_provenance a ggen:LegacyCapabili
   ggen:archivePath "git history at 55268c2e0^" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
   rdfs:comment "Distinct from legacy_ext2_pack_toml_schema_v1_no_outputs above: that individual covers the pack.toml file's own `[pack.outputs]` table; this one covers PackMetadata's registry-provenance fields, a different struct in the same subsystem with an independently evidenced commit." .
-
