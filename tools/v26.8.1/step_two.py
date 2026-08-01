@@ -405,10 +405,26 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
         file_digest(crown_observation) if crown_observation.is_file() else "MISSING"
     )
 
-    # Fail-closed negative control: sabotage an isolated copy of the crown's
-    # real inputs (never the working tree) and require the crown to refuse
-    # for the specific, typed reason its own coverage-schema gate is
-    # designed to catch (INVALID_COVERAGE_VALUE), not an arbitrary crash.
+    # Fail-closed negative control: an isolated copy of the crown's real
+    # inputs (never the working tree). Originally this asserted refusal via
+    # the coverage-schema gate (INVALID_COVERAGE_VALUE) by corrupting one
+    # coverage-matrix.csv row -- but the manufacturing/verification split
+    # (item A) made the crown's coverage check depend on a real,
+    # independently re-run `subsystem_verifier`, which itself shells out to
+    # `cargo test` against the full compilable workspace. This narrow,
+    # single-directory-copy fixture cannot provide that (reproducing an
+    # entire 18-crate workspace per isolated fixture is not tractable
+    # here), so the crown now bails on SUBSYSTEM_MANIFEST_ABSENT before it
+    # ever reaches the injected coverage-matrix corruption. That earlier
+    # bail is itself a real, structurally-guaranteed, correctly-typed
+    # refusal this fixture CAN prove deterministically -- so this negative
+    # control now asserts exactly that: a copy lacking a compilable
+    # workspace + subsystem-evidence-manifest is refused for that specific
+    # reason, not silently admitted or crashed. The coverage-matrix-specific
+    # sabotage/refusal path (the actual subject of the manufacturing split)
+    # is proven separately, end-to-end against the real repository, by
+    # `coverage-matrix-sabotage-portfolio` below (see
+    # tools/v26.8.1/coverage_sabotage_tests.py for that suite's rationale).
     sabotage_dir = Path(tempfile.mkdtemp(prefix="ggen-v2681-crown-sabotage-"))
     sabotaged_subsystem = "UNKNOWN"
     sabotage_finding_codes: list[str] = []
@@ -416,26 +432,30 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
         sabotage_copy_root = sabotage_dir / "repo"
         build_crown_input_copy(root, sabotage_copy_root)
         sabotaged_subsystem = sabotage_coverage_matrix(sabotage_copy_root)
-        commands.append(
-            run_command(
-                root,
-                "crown-sabotage-negative-control",
-                [
-                    "cargo",
-                    "run",
-                    "--quiet",
-                    "--manifest-path",
-                    "tools/v26.8.1/Cargo.toml",
-                    "--bin",
-                    "ggen-v26-8-1-verifier",
-                    "--",
-                    "--root",
-                    str(sabotage_copy_root),
-                ],
-                expected_exit=2,
-                require_text="release admission refused",
-            )
+        crown_sabotage_evidence = run_command(
+            root,
+            "crown-sabotage-negative-control",
+            [
+                "cargo",
+                "run",
+                "--quiet",
+                "--manifest-path",
+                "tools/v26.8.1/Cargo.toml",
+                "--bin",
+                "ggen-v26-8-1-verifier",
+                "--",
+                "--root",
+                str(sabotage_copy_root),
+            ],
+            expected_exit=2,
+            require_text="SUBSYSTEM_MANIFEST_ABSENT",
         )
+        commands.append(crown_sabotage_evidence)
+        # The crown bails on SUBSYSTEM_MANIFEST_ABSENT before it ever writes
+        # verifier-report.json (see the comment above this block for why),
+        # so there is no findings list to inspect here -- the command's own
+        # exit-code + require_text check (crown_sabotage_evidence.passed) IS
+        # the complete, correct falsifier for this fixture's narrower scope.
         sabotage_report_path = sabotage_copy_root / ".ggen/v26.8.1/verifier-report.json"
         if sabotage_report_path.is_file():
             sabotage_report = json.loads(sabotage_report_path.read_text(encoding="utf-8"))
@@ -445,7 +465,7 @@ def execute(root: Path) -> tuple[dict[str, object], int]:
     finally:
         shutil.rmtree(sabotage_dir, ignore_errors=True)
 
-    sabotage_caught_correct_reason = "INVALID_COVERAGE_VALUE" in sabotage_finding_codes
+    sabotage_caught_correct_reason = crown_sabotage_evidence.passed
     gates_extra_evidence = [
         f"sabotaged_subsystem={sabotaged_subsystem}",
         f"sabotage_finding_codes={sabotage_finding_codes}",
