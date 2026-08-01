@@ -1186,7 +1186,18 @@ fn ignored(path: &Path) -> bool {
     path.components().any(|component| {
         matches!(
             component.as_os_str().to_str(),
-            Some(".git" | "target" | "node_modules" | ".ggen")
+            // "worktrees" excludes .claude/worktrees/* -- each entry there is a full,
+            // separate git worktree checkout of this same repository (Claude Code agent
+            // sessions), not repository content. Before this exclusion, every repo-wide
+            // WalkDir scan in this file walked N duplicate copies of the repo's own
+            // source/docs tree (N = however many worktrees happen to exist at scan time),
+            // multiplying scan cost by N+1 and polluting counts like
+            // live-repository-observation's legacy_references with matches found inside
+            // other sessions' checkouts rather than this repository's own content.
+            // `.git/worktrees` (git's own metadata for the same directories) was already
+            // excluded via the `.git` arm above; this closes the equivalent gap for the
+            // actual checkout content Claude Code places under `.claude/worktrees`.
+            Some(".git" | "target" | "node_modules" | ".ggen" | "worktrees")
         )
     })
 }
