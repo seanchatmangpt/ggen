@@ -1,11 +1,11 @@
 document,subsystem,authority_sources,implementation_sources,verifier,legacy_disposition,standing
 00-governance/01-canon-and-authority.md,governance,AGENTS.md|README.md|CLAUDE.md,docs|.claude|.specify,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
-10-system/12-workspace-crate-map.md,system,Cargo.toml,crates/*|src/*,tools/v26.8.1/src/bin/subsystem_verifier.rs,PRESERVED,PARTIAL_ALIVE
-20-engine/21-sync-pipeline.md,engine,README.md|CLAUDE.md,crates/ggen-engine/src/sync.rs,tools/v26.8.1/src/bin/subsystem_verifier.rs,PRESERVED,ALIVE
+10-system/12-workspace-crate-map.md,system,Cargo.toml,crates/*|src/*,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
+20-engine/21-sync-pipeline.md,engine,README.md|CLAUDE.md,crates/ggen-engine/src/sync.rs,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
 30-graph/32-oxigraph-integration.md,graph,Cargo.toml,crates/ggen-graph|crates/ggen-engine|crates/praxis-graphlaw,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE
 40-projection/41-tera-integration.md,projection,Cargo.toml|README.md,crates/ggen-engine|templates,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
 50-evidence/51-receipt-schema.md,evidence,AGENTS.md|README.md,crates/ggen-engine|crates/ggen-graph|crates/praxis-core,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE
-60-products/61-cli-surface.md,products,CLAUDE.md|specs/014-ggen-core-replacement/contracts/cli-command-surface.md,crates/ggen-cli|crates/ggen-engine/src/verbs,tools/v26.8.1/src/bin/subsystem_verifier.rs,PRESERVED,ALIVE
+60-products/61-cli-surface.md,products,CLAUDE.md|specs/014-ggen-core-replacement/contracts/cli-command-surface.md,crates/ggen-cli|crates/ggen-engine/src/verbs,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,PARTIAL_ALIVE
 70-verification/71-verification-constitution.md,verification,AGENTS.md|justfile,tests|crates/ggen-cheat-scanner|scripts/ci,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE
 80-economics/83-integrated-pipeline-model.md,economics,docs/v26.8.1/80-economics,benches|crates/ggen-engine,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE
 90-legacy/93-capability-equivalence-matrix.md,legacy,specs/014-ggen-core-replacement|git-history,all-subsystems,tools/v26.8.1/src/bin/subsystem_verifier.rs,UNKNOWN,ALIVE

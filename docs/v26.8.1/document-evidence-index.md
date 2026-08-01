@@ -1,6 +1,6 @@
 # Document Evidence Index (v26.8.1, GENERATED)
 
-Generated against source_head=9df3d3f8d7368f27d444f67fb1102ee0d78228ca.
+Generated against source_head=3a2f9fda71598aeb8d7490147da78fcaf2a3b026.
 Real authority: `docs/v26.8.1/document-evidence-index.json`. This file is a projection.
 
 ## Subsystem coverage
