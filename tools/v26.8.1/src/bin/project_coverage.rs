@@ -20,8 +20,8 @@ use std::fs;
 
 use v26_8_1_tools::coverage_projection::{
     exact_head, project_coverage_rows, relative, resolve_root, run_subsystem_verifier,
-    subsystem_manifest_digest, subsystem_verifier_report_digest, write_coverage_csv,
-    COVERAGE_PATH, SUBSYSTEM_MANIFEST_REL, SUBSYSTEM_VERIFIER_REPORT_REL,
+    subsystem_manifest_digest, subsystem_verifier_report_digest, write_coverage_csv, COVERAGE_PATH,
+    SUBSYSTEM_MANIFEST_REL, SUBSYSTEM_VERIFIER_REPORT_REL,
 };
 
 #[derive(Debug, Serialize)]
@@ -76,8 +76,8 @@ fn run() -> Result<()> {
     let source_head = exact_head(&root);
     let subsystem_report_digest = subsystem_verifier_report_digest(&root)
         .context("digest subsystem-verifier-report.json after fresh run")?;
-    let manifest_digest = subsystem_manifest_digest(&root)
-        .context("digest subsystem-evidence-manifest.json")?;
+    let manifest_digest =
+        subsystem_manifest_digest(&root).context("digest subsystem-evidence-manifest.json")?;
 
     // Step 4: projection report + BLAKE3 receipt.
     let report = ProjectionReport {
