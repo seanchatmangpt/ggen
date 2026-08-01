@@ -1,0 +1,284 @@
+schema_version: ggen.enterprise-architecture-foundry.work-program/1
+program_id: ggen-legacy-to-foundry
+program_name: Enterprise Architecture Reconstitution and Manufacture
+source_repository: seanchatmangpt/ggen
+corpus_repository: seanchatmangpt/ggen-legacy
+manufacturing_kernel: seanchatmangpt/ggen
+status: PLANNED
+
+constitutional_inputs:
+  - AGENTS.md
+  - CLAUDE.md
+  - docs/architecture-foundry/README.md
+  - docs/architecture-foundry/REPOSITORY_ROLES.md
+  - docs/architecture-foundry/GGEN_LEGACY_MIGRATION_PLAN.md
+  - docs/architecture-foundry/AGENT_EXECUTION_CONTRACT.md
+
+invariants:
+  - ZERO_UNRECEIPTED_ACTUATION
+  - NO_SELF_CERTIFICATION
+  - EXACT_HEAD_EVIDENCE
+  - GENERATED_PROJECTIONS_ARE_NOT_AUTHORITY
+  - NO_UNKNOWN_CAPABILITY_AT_FINAL_ADMISSION
+  - NO_UNKNOWN_DISPOSITION_AT_FINAL_ADMISSION
+  - NO_SOURCE_REMOVAL_BEFORE_DESTINATION_ADMISSION
+  - CLEAN_ROOM_REPLAY_REQUIRED
+  - AGENT_COMPLETION_DOES_NOT_PROMOTE_STANDING
+
+repositories:
+  ggen:
+    role: REPOSITORY_MANUFACTURING_KERNEL
+    owns:
+      - observation_admission
+      - ontology_validation
+      - planning
+      - bblock_and_pack_resolution
+      - projection
+      - controlled_actuation
+      - receipt_issuance
+      - replay
+      - generic_equivalence_adapters
+      - independent_verification
+      - standing_computation
+  ggen_legacy:
+    role: ENTERPRISE_ARCHITECTURE_FOUNDRY_CORPUS
+    owns:
+      - historical_implementations
+      - capability_records
+      - architecture_decisions
+      - generalized_primitives
+      - bblocks
+      - solution_packs
+      - reference_witnesses
+      - migration_evidence
+      - negative_controls
+      - lineage_receipts
+      - fortune_scale_reference_architectures
+  manufactured_repositories:
+    role: ADMITTED_SOLUTION_INSTANCES
+    owns:
+      - customer_authority
+      - selected_primitive_projection
+      - generated_implementation
+      - customer_verifiers
+      - manufacturing_manifest
+      - solution_receipts
+
+workstreams:
+  - id: A
+    name: Exact-head baseline
+    role: integration_agent
+    dependencies: []
+    outputs:
+      - source_baseline_manifest
+      - corpus_baseline_manifest
+      - exact_head_report
+      - clean_tree_report
+      - baseline_receipt
+    predicates:
+      source_heads_resolved: true
+      working_trees_clean: true
+      baseline_manifests_valid: true
+      external_head_agreement: true
+
+  - id: B
+    name: Exhaustive observation
+    role: observer_agent
+    dependencies: [A]
+    partition_key: observer_class
+    outputs:
+      - observer_reports
+      - capability_candidates
+      - exclusion_records
+      - observer_receipts
+    predicates:
+      observer_classes_unattempted: 0
+      orphan_candidates: 0
+      inventory_complete: true
+
+  - id: C
+    name: Capability admission
+    role: disposition_agent
+    dependencies: [B]
+    partition_key: capability_family
+    outputs:
+      - admitted_capability_graph
+      - provenance_records
+      - subsystem_ownership
+      - disposition_obligations
+    predicates:
+      unknown_capabilities: 0
+      capabilities_without_provenance: 0
+      contradictory_owners: 0
+
+  - id: D
+    name: Kernel-corpus classification
+    role: disposition_agent
+    dependencies: [C]
+    partition_key: subsystem
+    outputs:
+      - component_classification_ledger
+      - migration_dependency_graph
+      - recovery_plans
+    predicates:
+      unclassified_components: 0
+      classification_conflicts: 0
+      migration_dependencies_closed: true
+
+  - id: E
+    name: Cross-repository extraction
+    role: extraction_agent
+    dependencies: [D]
+    partition_key: migration_batch
+    outputs:
+      - corpus_destination_records
+      - cross_repository_lineage_records
+      - replacement_owner_records
+      - compatibility_adapters
+      - extraction_receipts
+    predicates:
+      moved_components_without_lineage: 0
+      moved_components_without_destination: 0
+      moved_components_without_recovery: 0
+      source_removed_before_destination_admission: 0
+
+  - id: F
+    name: Primitive generalization
+    role: primitive_generalization_agent
+    dependencies: [E]
+    partition_key: architecture_domain
+    outputs:
+      - primitive_contracts
+      - positive_witnesses
+      - negative_falsifiers
+      - primitive_verifiers
+      - primitive_receipts
+    predicates:
+      primitives_without_contract: 0
+      primitives_without_witness: 0
+      primitives_without_falsifier: 0
+      primitives_without_verifier: 0
+
+  - id: G
+    name: bblock and solution-pack composition
+    role: pack_composition_agent
+    dependencies: [F]
+    partition_key: solution_pack
+    outputs:
+      - bblock_authority
+      - solution_pack_authority
+      - operating_models
+      - capacity_and_cost_models
+      - pack_verifiers
+      - pack_replay_entrypoints
+    predicates:
+      packs_without_admitted_primitives: 0
+      packs_without_verifiers: 0
+      packs_without_replay: 0
+      packs_without_operating_model: 0
+
+  - id: H
+    name: Full equivalence closure
+    role: equivalence_agent
+    dependencies: [E, F]
+    partition_key: adapter_family
+    outputs:
+      - equivalence_cases
+      - expected_difference_ledger
+      - equivalence_reports
+      - equivalence_receipts
+    predicates:
+      missing_equivalence_cases: 0
+      equivalence_failures: 0
+      unexplained_differences: 0
+      unknown_dispositions: 0
+      case_count_equals_capability_count: true
+
+  - id: I
+    name: Independent verification
+    role: independent_verifier_agent
+    dependencies: [G, H]
+    partition_key: subsystem
+    outputs:
+      - subsystem_verifier_reports
+      - lineage_verifier_report
+      - receipt_verifier_report
+      - standing_projection
+    predicates:
+      unassigned_verifiers: 0
+      unknown_standings: 0
+      invalid_receipts: 0
+      stale_heads: 0
+      self_certification_paths: 0
+
+  - id: J
+    name: Clean-room manufacture and replay
+    role: integration_agent
+    dependencies: [I]
+    outputs:
+      - clean_room_build_report
+      - generated_tree_manifest
+      - replay_report
+      - cross_repository_replay_report
+      - admission_receipts
+    predicates:
+      no_semantic_change: true
+      no_generated_drift: true
+      replay_match: true
+      cross_repository_lineage_match: true
+
+  - id: K
+    name: Fortune-scale reference reconstitution
+    role: pack_composition_agent
+    dependencies: [J]
+    outputs:
+      - fortune_scale_reference_authority
+      - manufactured_reference_repositories
+      - reference_verifier_reports
+      - reference_replay_report
+      - reference_solution_standing
+    predicates:
+      fortune_scale_reference_manufactured: true
+      reference_verifiers_pass: true
+      reference_replay_match: true
+      reference_solution_admitted: true
+
+initial_solution_packs:
+  - repository_manufacturing_platform
+  - enterprise_developer_platform
+  - governed_data_lakehouse_platform
+  - event_and_integration_platform
+  - identity_and_policy_enforcement_platform
+  - ai_and_agent_execution_platform
+  - process_evidence_and_observability_platform
+  - regulated_release_and_supply_chain_platform
+
+final_predicates:
+  ggen_kernel_admitted: true
+  ggen_legacy_corpus_admitted: true
+  unknown_capabilities: 0
+  unknown_dispositions: 0
+  unknown_standings: 0
+  unassigned_verifiers: 0
+  missing_equivalence_cases: 0
+  equivalence_failures: 0
+  replay_differences: 0
+  cross_repository_receipts_valid: true
+  fortune_scale_reference_manufactured: true
+  solution_admission: true
+  standing: ALIVE
+
+hard_block_classes:
+  - inaccessible_required_source
+  - unavailable_required_credential
+  - irrecoverable_historical_evidence
+  - legally_prohibited_transfer
+  - non_derivable_business_decision
+
+non_blocking_conditions:
+  - queued_runner
+  - elapsed_time
+  - high_task_count
+  - large_context
+  - successful_agent_return
+  - intermediate_refusal
