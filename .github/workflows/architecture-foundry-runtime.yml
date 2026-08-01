@@ -1,0 +1,49 @@
+name: Architecture Foundry Runtime
+
+on:
+  pull_request:
+    paths:
+      - "tools/architecture-foundry/**"
+      - "docs/architecture-foundry/**"
+      - ".github/workflows/architecture-foundry-runtime.yml"
+  push:
+    branches:
+      - "agent/architecture-foundry-runtime"
+    paths:
+      - "tools/architecture-foundry/**"
+      - "docs/architecture-foundry/**"
+      - ".github/workflows/architecture-foundry-runtime.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: architecture-foundry-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Format
+        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
+
+      - name: Test real git boundaries
+        run: cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+
+      - name: Validate repository work program
+        run: |
+          cargo run --manifest-path tools/architecture-foundry/Cargo.toml -- \
+            validate-program \
+            --program docs/architecture-foundry/work-program.yaml
