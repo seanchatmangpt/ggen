@@ -116,8 +116,13 @@ fn main() -> Result<()> {
         .iter()
         .find(|candidate| candidate.id == "I")
         .context("WORKSTREAM_I_MISSING")?;
-    if workstream.dependencies.len() != 1 || workstream.dependencies[0] != "H" {
-        bail!("WORKSTREAM_I_DEPENDENCY_INVALID");
+    let observed_dependencies: BTreeSet<&str> =
+        workstream.dependencies.iter().map(String::as_str).collect();
+    let expected_dependencies = BTreeSet::from(["G", "H"]);
+    if observed_dependencies != expected_dependencies {
+        bail!(
+        "WORKSTREAM_I_DEPENDENCY_INVALID: expected={expected_dependencies:?}, observed={observed_dependencies:?}"
+    );
     }
     let foundry_root = cli.corpus.join("foundry");
     let state_path = foundry_root.join("workstreams/state.json");
