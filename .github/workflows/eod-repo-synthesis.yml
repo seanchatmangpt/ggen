@@ -1,0 +1,62 @@
+name: End-of-Day Repository Synthesis
+
+on:
+  pull_request:
+    paths:
+      - "tools/eod-repo-synthesis/**"
+      - "docs/architecture/EOD_REPO_SYNTHESIS.md"
+      - ".github/workflows/eod-repo-synthesis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eod-repo-synthesis-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: EOD synthesis / exact-head verifier
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Compile Python sources
+        run: python3 -m compileall -q tools/eod-repo-synthesis
+
+      - name: Execute real-boundary verifier
+        run: |
+          python3 tools/eod-repo-synthesis/verify.py \
+            --root . \
+            --evidence-dir .ggen/eod-repo-synthesis
+
+      - name: Verify machine report contract
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('.ggen/eod-repo-synthesis/verifier-report.json').read_text())
+          assert report['schema'] == 'ggen.eod-repo-synthesis-verifier-report.v1'
+          assert report['standing'] == 'PARTIAL_ALIVE'
+          assert report['failures'] == 0
+          assert report['claim_boundary']['github_writes'] == 'NOT_EXECUTED'
+          assert report['claim_boundary']['blake3_receipt'] == 'REQUIRED_BEFORE_ACTUATION'
+          PY
+
+      - name: Confirm verifier did not mutate tracked state
+        run: git diff --exit-code
+
+      - name: Publish bounded verifier evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: eod-repo-synthesis-${{ github.sha }}
+          path: .ggen/eod-repo-synthesis/
+          if-no-files-found: error
