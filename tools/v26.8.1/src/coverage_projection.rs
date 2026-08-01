@@ -301,9 +301,20 @@ pub fn run_subsystem_verifier(root: &Path) -> Result<Vec<SubsystemVerifierStandi
         .output()
         .context("spawn subsystem_verifier")?;
     if !output.status.success() {
-        eprintln!(
-            "subsystem_verifier exited non-zero: {}",
-            String::from_utf8_lossy(&output.stderr)
+        // FAIL-CLOSED, not fail-open: a non-zero exit from subsystem_verifier
+        // (e.g. WRONG_SOURCE_HEAD, SELF_CERTIFICATION_REFUSED,
+        // SUBSYSTEM_MANIFEST_ABSENT) is a real refusal from the external
+        // verifier, not an ignorable warning. Previously this branch only
+        // printed to stderr and fell through to reading
+        // subsystem-verifier-report.json from disk anyway -- which, on a
+        // refusal, is a STALE report left over from the last successful run
+        // (subsystem_verifier bails before writing a fresh one), so the
+        // crown would silently admit against outdated evidence. This is
+        // exactly the self-certification bypass the external-verifier
+        // architecture exists to prevent.
+        bail!(
+            "SUBSYSTEM_VERIFIER_REFUSED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
         );
     }
     let report_path = root.join(SUBSYSTEM_VERIFIER_REPORT_REL);
