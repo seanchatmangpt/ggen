@@ -1,6 +1,6 @@
 {
   "document_count": 109,
-  "generated_at_unix": 1785557143,
+  "generated_at_unix": 1785557349,
   "generator": {
     "content_sha256": "1725c43bb887ef9a0be8615ee167571c02ac57250a2fb4016ab3c693290718fb",
     "path": "tools/v26.8.1/document_evidence_index.py"
@@ -125,7 +125,7 @@
         "docs/v26.8.1/document-evidence-index.json",
         "docs/v26.8.1/document-evidence-index.md"
       ],
-      "document_digest": "81fdb2c78f7ba1b6001f7a6ddd980a22688c599443b98662d08e4be831e209a2",
+      "document_digest": "a404c2d78de77ed9b197df857657e6b82b08547ec5a3f49325ed006b3f042067",
       "document_path": "docs/v26.8.1/document-evidence-index.md",
       "document_role": "VERIFICATION",
       "evidence_report_references": [
@@ -162,7 +162,7 @@
         "tools/v26.8.1/src/main.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": [
         "crates/ggen-cli/tests/cli_surface_evidence_test.rs",
@@ -197,7 +197,7 @@
         "justfile"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": [
         "crates/ggen-config/tests/governance_precommit_gate_count_test.rs"
@@ -211,7 +211,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -223,7 +223,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -235,7 +235,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -247,7 +247,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -262,7 +262,7 @@
         "crates/ggen-engine/src/generation_rules.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": [
         "crates/ggen-config/tests/schema_parity_test.rs"
@@ -276,7 +276,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -294,7 +294,7 @@
         "crates/praxis-core/src/refusal.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": [
         "crates/ggen-config/tests/governance_precommit_gate_count_test.rs",
@@ -310,7 +310,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -322,7 +322,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -342,7 +342,7 @@
         "Cargo.toml"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": [
         "crates/ggen-config/tests/system_crate_map_parity_test.rs"
@@ -360,7 +360,7 @@
         "crates/ggen-config/tests/system_crate_map_parity_test.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": [
         "crates/ggen-config/tests/system_crate_map_parity_test.rs"
@@ -374,7 +374,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -386,7 +386,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -398,7 +398,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -410,7 +410,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -422,7 +422,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -434,7 +434,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -446,7 +446,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -458,7 +458,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "system",
       "verifier_references": []
     },
@@ -477,7 +477,7 @@
         "crates/ggen-engine/src/sync.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": [
         "crates/ggen-engine/tests/manifest_diagnostic_codes_evidence_test.rs",
@@ -492,7 +492,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -504,7 +504,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -516,7 +516,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -528,7 +528,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -540,7 +540,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -552,7 +552,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -564,7 +564,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -576,7 +576,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -588,7 +588,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "engine",
       "verifier_references": []
     },
@@ -608,7 +608,7 @@
         "crates/praxis-graphlaw/src"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": [
         "crates/ggen-graph/tests/graph_hashing_evidence_test.rs"
@@ -622,7 +622,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -634,7 +634,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -646,7 +646,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -658,7 +658,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -670,7 +670,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -682,7 +682,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -694,7 +694,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -706,7 +706,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -718,7 +718,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "graph",
       "verifier_references": []
     },
@@ -737,7 +737,7 @@
         "crates/ggen-engine/src/sync.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": [
         "crates/ggen-engine/tests/projection_determinism_test.rs"
@@ -751,7 +751,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -763,7 +763,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -775,7 +775,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -787,7 +787,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -799,7 +799,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -811,7 +811,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -823,7 +823,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -835,7 +835,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -847,7 +847,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "projection",
       "verifier_references": []
     },
@@ -867,7 +867,7 @@
         "crates/praxis-core/src/receipt_record.rs"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": [
         "crates/ggen-engine/tests/receipt_signing_evidence_test.rs"
@@ -881,7 +881,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -893,7 +893,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -905,7 +905,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -917,7 +917,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -929,7 +929,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -941,7 +941,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -953,7 +953,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -965,7 +965,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -977,7 +977,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "evidence",
       "verifier_references": []
     },
@@ -996,7 +996,7 @@
         "crates/ggen-cli/src"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": [
         "crates/ggen-cli/tests/cli_surface_evidence_test.rs",
@@ -1011,7 +1011,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1023,7 +1023,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1035,7 +1035,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1047,7 +1047,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1059,7 +1059,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1071,7 +1071,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1083,7 +1083,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1095,7 +1095,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1107,7 +1107,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "products",
       "verifier_references": []
     },
@@ -1119,7 +1119,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1131,7 +1131,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1143,7 +1143,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1155,7 +1155,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1167,7 +1167,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1179,7 +1179,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1191,7 +1191,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1203,7 +1203,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1215,7 +1215,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1227,7 +1227,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "verification",
       "verifier_references": []
     },
@@ -1247,7 +1247,7 @@
         "justfile"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": [
         "crates/ggen-engine/tests/economics_measured_evidence_test.rs"
@@ -1261,7 +1261,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1273,7 +1273,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1285,7 +1285,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1297,7 +1297,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1309,7 +1309,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1321,7 +1321,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1333,7 +1333,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1345,7 +1345,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1357,7 +1357,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "economics",
       "verifier_references": []
     },
@@ -1377,7 +1377,7 @@
         "tools/v26.8.1/equivalence_runner.py"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": [
         "tools/v26.8.1/equivalence_runner.py"
@@ -1395,7 +1395,7 @@
         "tools/v26.8.1/legacy_archaeology.py"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1415,7 +1415,7 @@
         "ontology/v26.8.1/legacy-capabilities.ttl"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1433,7 +1433,7 @@
         "tools/v26.8.1/legacy_archaeology.py"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1445,7 +1445,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1457,7 +1457,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1469,7 +1469,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1481,7 +1481,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1493,7 +1493,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1505,7 +1505,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1526,7 +1526,7 @@
         "tools/v26.8.1/legacy_archaeology.py"
       ],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "legacy",
       "verifier_references": []
     },
@@ -1538,7 +1538,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1550,7 +1550,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1562,7 +1562,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1574,7 +1574,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1586,7 +1586,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1598,7 +1598,7 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     },
@@ -1610,14 +1610,14 @@
       "evidence_report_references": [],
       "implementation_references": [],
       "legacy_capability_references": [],
-      "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+      "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
       "subsystem": "governance",
       "verifier_references": []
     }
   ],
   "release": "26.8.1",
   "schema": "ggen.v26.8.1.document-evidence-index/1",
-  "source_head": "55b9761b700ae3f5a476838c49bb54c96b649999",
+  "source_head": "e045b6e0c407a66560f45b50a75a4518e7414297",
   "subsystem_coverage": {
     "economics": {
       "document_count": 10,
