@@ -62,7 +62,10 @@ fn enterprise_repository_factory_is_generated_and_idempotent() {
         },
     )
     .expect("first sync");
-    assert!(!first.written.is_empty(), "first sync must manufacture artifacts");
+    assert!(
+        !first.written.is_empty(),
+        "first sync must manufacture artifacts"
+    );
 
     for relative in [
         "infra/terraform/github/repository.tf",
@@ -90,7 +93,10 @@ fn enterprise_repository_factory_is_generated_and_idempotent() {
         "gitignore_template",
         "delete_branch_on_merge",
     ] {
-        assert!(repositories.contains(required), "missing {required}: {repositories}");
+        assert!(
+            repositories.contains(required),
+            "missing {required}: {repositories}"
+        );
     }
     assert!(
         !repositories.contains("resource \"github_issue\""),
@@ -110,12 +116,21 @@ fn enterprise_repository_factory_is_generated_and_idempotent() {
         "EXCLUDED",
         "UNKNOWN",
     ] {
-        assert!(corpus.contains(required), "corpus missing {required}: {corpus}");
+        assert!(
+            corpus.contains(required),
+            "corpus missing {required}: {corpus}"
+        );
     }
 
     let scanner_path = project.join("scripts/gh/terraform-corpus-census.sh");
     let scanner = read(&project, "scripts/gh/terraform-corpus-census.sh");
-    for mutating in ["-X POST", "-X PUT", "-X PATCH", "-X DELETE", "--method POST"] {
+    for mutating in [
+        "-X POST",
+        "-X PUT",
+        "-X PATCH",
+        "-X DELETE",
+        "--method POST",
+    ] {
         assert!(
             !scanner.contains(mutating),
             "read-only scanner contains mutating method {mutating}"
@@ -159,7 +174,10 @@ fn admitted_corpus_without_blob_is_refused() {
         "    ghea:sourceBlob \"2db347a0ff75422fc3a8172fc09e91993a772936\" ;\n",
         "",
     );
-    assert_ne!(damaged, original, "negative control must remove the source blob");
+    assert_ne!(
+        damaged, original,
+        "negative control must remove the source blob"
+    );
     std::fs::write(&ontology, damaged).expect("write damaged ontology");
 
     let error = sync(

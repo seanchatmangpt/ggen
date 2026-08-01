@@ -135,8 +135,8 @@ fn no_governance_doc_hardcodes_a_pre_commit_gate_count() {
     let mut violations = Vec::new();
     for doc in GOVERNANCE_DOCS_MUST_NOT_HARDCODE_COUNT {
         let path = repo_root.join(doc);
-        let text = std::fs::read_to_string(&path)
-            .unwrap_or_else(|e| panic!("failed to read {doc}: {e}"));
+        let text =
+            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("failed to read {doc}: {e}"));
         for hit in find_hardcoded_count_claims(&text) {
             violations.push(format!("{doc}: {hit:?}"));
         }

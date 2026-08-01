@@ -86,7 +86,10 @@ fn identical_fixtures_replay_to_byte_identical_output_trees() {
     )
     .expect("sync 1 again");
     let body1_again = std::fs::read(d1.path().join("out/seq.txt")).expect("read output 1 again");
-    assert_eq!(body1_again, body1, "re-sync must not alter unchanged output");
+    assert_eq!(
+        body1_again, body1,
+        "re-sync must not alter unchanged output"
+    );
     assert_eq!(
         r1_again.graph_hash_hex, r1.graph_hash_hex,
         "re-sync of an unchanged project must reproduce the same graph hash"
@@ -126,7 +129,8 @@ fn unless_exists_frontmatter_preserves_hand_edited_scaffold_file() {
     )
     .expect("sync must succeed even though the scaffold target pre-exists");
 
-    let on_disk = std::fs::read_to_string(dir.path().join("src/scaffold.rs")).expect("read scaffold");
+    let on_disk =
+        std::fs::read_to_string(dir.path().join("src/scaffold.rs")).expect("read scaffold");
     assert_eq!(
         on_disk, hand_written,
         "mode=Create (unless_exists) must never overwrite an existing target"

@@ -68,10 +68,7 @@ fn successful_sync_populates_stage_specific_report_fields() {
         report.graph_hash_hex
     );
     assert!(
-        report
-            .graph_hash_hex
-            .chars()
-            .all(|c| c.is_ascii_hexdigit()),
+        report.graph_hash_hex.chars().all(|c| c.is_ascii_hexdigit()),
         "graph_hash_hex must be pure hex: {:?}",
         report.graph_hash_hex
     );
@@ -112,13 +109,19 @@ fn successful_sync_populates_stage_specific_report_fields() {
         "decisions map: {:?}",
         report.decisions
     );
-    assert_eq!(report.written, vec![std::path::PathBuf::from("out/labels.txt")]);
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/labels.txt")]
+    );
     assert!(
         dir.path().join("out/labels.txt").exists(),
         "the file the report claims was written must actually exist on disk"
     );
     let body = std::fs::read_to_string(dir.path().join("out/labels.txt")).expect("read output");
-    assert_eq!(body, "Gadget\nWidget\n", "SPARQL ORDER BY must drive real render output");
+    assert_eq!(
+        body, "Gadget\nWidget\n",
+        "SPARQL ORDER BY must drive real render output"
+    );
 }
 
 /// Negative falsifier: Stage 1 (Resolve) must fail closed, with a typed
@@ -185,7 +188,11 @@ fn output_path_escaping_root_refuses_closed_at_write_stage() {
         "error must name a root-escape refusal, got: {msg}"
     );
     assert!(
-        !dir.path().parent().expect("has parent").join("outside.txt").exists(),
+        !dir.path()
+            .parent()
+            .expect("has parent")
+            .join("outside.txt")
+            .exists(),
         "no file must ever be written outside the project root"
     );
 }
@@ -228,7 +235,10 @@ fn dry_run_projection_is_deterministic_across_independent_runs() {
         "the Extract/Render/Write-decision projection must be deterministic"
     );
     // Dry-run must never touch the filesystem for outputs or receipts.
-    assert!(!d1.path().join("out").exists(), "dry-run must not write outputs");
+    assert!(
+        !d1.path().join("out").exists(),
+        "dry-run must not write outputs"
+    );
     assert!(
         !d1.path().join(".ggen-v2/receipt.json").exists(),
         "dry-run must not write a receipt"
