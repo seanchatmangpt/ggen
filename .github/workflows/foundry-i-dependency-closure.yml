@@ -28,7 +28,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 0
 
-      - name: Repair exact dependency-set invariant
+      - name: Repair, format, and commit local candidate
         run: |
           python3 - <<'PY'
           import re
@@ -58,10 +58,19 @@ jobs:
           elif 'let expected_dependencies = BTreeSet::from(["G", "H"]);' not in text:
               raise SystemExit("typed dependency invariant was neither old nor repaired")
           PY
-
-      - name: Format and build exact runtime
-        run: |
           cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
+          git config user.name "ggen-foundry-controller"
+          git config user.email "ggen-foundry-controller@users.noreply.github.com"
+          git add tools/architecture-foundry/src/bin/admit_verification.rs
+          if git diff --cached --quiet; then
+            echo "Runtime dependency law already repaired."
+          else
+            git commit -m "fix(foundry): require complete G and H verification closure"
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Build and test exact committed runtime
+        run: |
           cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
           cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
           cargo build --manifest-path tools/architecture-foundry/Cargo.toml --bin admit_verification
@@ -100,14 +109,6 @@ jobs:
           grep -Eq 'RECEIPT_(DIRECTORY_MISSING|PORTFOLIO_INCOMPLETE)' "$root/stderr"
           cat "$root/stderr"
 
-      - name: Commit verified runtime repair
+      - name: Publish verified runtime repair
         run: |
-          git config user.name "ggen-foundry-controller"
-          git config user.email "ggen-foundry-controller@users.noreply.github.com"
-          git add tools/architecture-foundry/src/bin/admit_verification.rs
-          if git diff --cached --quiet; then
-            echo "Runtime dependency law already repaired."
-          else
-            git commit -m "fix(foundry): require complete G and H verification closure"
-            git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"
-          fi
+          git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"
