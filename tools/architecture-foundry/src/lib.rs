@@ -251,6 +251,63 @@ pub struct LineageRecord {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+struct HistoricalExtractionLineageRecord {
+    schema_version: String,
+    capability_id: String,
+    source_repository: String,
+    corpus_repository: String,
+    source_head: String,
+    corpus_parent_head: String,
+    historical_commit: String,
+    #[serde(default)]
+    historical_commits: Vec<String>,
+    source_path: String,
+    destination_path: String,
+    manifest_digest: String,
+    blob_digests: Vec<String>,
+    disposition: String,
+    classification: String,
+    source_removed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct HistoricalComponentManifest {
+    schema_version: String,
+    capability_id: String,
+    source_repository: String,
+    corpus_repository: String,
+    source_head: String,
+    corpus_parent_head: String,
+    historical_commit: String,
+    #[serde(default)]
+    historical_commits: Vec<String>,
+    requested_source_path: String,
+    normalized_source_path: String,
+    disposition: String,
+    classification: String,
+    kernel_owner: String,
+    corpus_destination: String,
+    resolution: String,
+    source_files: Vec<HistoricalComponentSourceFile>,
+    semantic_evidence_path: String,
+    semantic_evidence_digest: String,
+    source_removed: bool,
+    recovery_command: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct HistoricalComponentSourceFile {
+    git_path: String,
+    #[serde(default)]
+    historical_commit: String,
+    git_object_id: String,
+    git_mode: String,
+    byte_length: usize,
+    blake3: String,
+    blob_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtractionReport {
     pub batch_id: String,
     pub component_count: usize,
@@ -1256,7 +1313,34 @@ fn validate_migration_manifest(manifest: &MigrationManifest) -> Result<()> {
 }
 
 fn verify_lineage_record(source_path: &Path, corpus_path: &Path, path: &Path) -> Result<()> {
-    let record: LineageRecord = serde_json::from_slice(&read(path)?)?;
+    let bytes = read(path)?;
+    let value: serde_json::Value = serde_json::from_slice(&bytes)?;
+    match value
+        .get("schema_version")
+        .and_then(serde_json::Value::as_str)
+    {
+        Some(LINEAGE_SCHEMA) => {
+            let record: LineageRecord = serde_json::from_value(value)?;
+            verify_current_lineage_record(source_path, corpus_path, path, &record)
+        }
+        Some(
+            "ggen.enterprise-architecture-foundry.extraction-admission/1"
+            | "ggen.enterprise-architecture-foundry.extraction-admission/2",
+        ) => {
+            let record: HistoricalExtractionLineageRecord = serde_json::from_value(value)?;
+            verify_historical_extraction_lineage(source_path, corpus_path, path, &record)
+        }
+        Some(observed) => refusal(
+            "LINEAGE_SCHEMA_INVALID",
+            format!("{} has schema {observed}", path.display()),
+        ),
+        None => refusal("LINEAGE_SCHEMA_MISSING", path.display().to_string()),
+    }
+}
+
+fn verify_current_lineage_record(
+    source_path: &Path, corpus_path: &Path, path: &Path, record: &LineageRecord,
+) -> Result<()> {
     if record.schema_version != LINEAGE_SCHEMA {
         return refusal(
             "LINEAGE_SCHEMA_INVALID",
@@ -1274,6 +1358,229 @@ fn verify_lineage_record(source_path: &Path, corpus_path: &Path, path: &Path) ->
         );
     }
     Ok(())
+}
+
+fn verify_historical_extraction_lineage(
+    source_path: &Path, corpus_path: &Path, path: &Path, record: &HistoricalExtractionLineageRecord,
+) -> Result<()> {
+    if record.source_removed {
+        return refusal(
+            "HISTORICAL_LINEAGE_SOURCE_REMOVED",
+            record.capability_id.clone(),
+        );
+    }
+    let record_commits = historical_commit_set(
+        &record.capability_id,
+        &record.historical_commit,
+        &record.historical_commits,
+    )?;
+    for commit in &record_commits {
+        let commit_type = git(source_path, &["cat-file", "-t", commit])?;
+        if commit_type != "commit" {
+            return refusal(
+                "HISTORICAL_LINEAGE_COMMIT_NOT_COMMIT",
+                format!("{}: {}={}", record.capability_id, commit, commit_type),
+            );
+        }
+    }
+
+    let destination = safe_relative(&record.destination_path)?;
+    let manifest_path = corpus_path
+        .join(destination)
+        .join("component-manifest.json");
+    let manifest_bytes = read(&manifest_path)?;
+    let observed_manifest_digest = digest_bytes(&manifest_bytes);
+    if observed_manifest_digest != record.manifest_digest {
+        return refusal(
+            "HISTORICAL_LINEAGE_MANIFEST_DRIFT",
+            format!(
+                "{} expected {}, observed {}",
+                record.capability_id, record.manifest_digest, observed_manifest_digest
+            ),
+        );
+    }
+    let manifest: HistoricalComponentManifest = serde_json::from_slice(&manifest_bytes)?;
+    let manifest_commits = historical_commit_set(
+        &manifest.capability_id,
+        &manifest.historical_commit,
+        &manifest.historical_commits,
+    )?;
+    if manifest.capability_id != record.capability_id
+        || manifest_commits != record_commits
+        || manifest.corpus_destination != record.destination_path
+        || manifest.source_removed
+    {
+        return refusal(
+            "HISTORICAL_LINEAGE_MANIFEST_IDENTITY_MISMATCH",
+            record.capability_id.clone(),
+        );
+    }
+
+    let mut expected_blob_digests = record.blob_digests.clone();
+    let mut observed_blob_digests: Vec<String> = manifest
+        .source_files
+        .iter()
+        .map(|entry| entry.blake3.clone())
+        .collect();
+    expected_blob_digests.sort();
+    observed_blob_digests.sort();
+    if expected_blob_digests != observed_blob_digests {
+        return refusal(
+            "HISTORICAL_LINEAGE_BLOB_SET_MISMATCH",
+            record.capability_id.clone(),
+        );
+    }
+
+    let semantic_evidence = safe_relative(&manifest.semantic_evidence_path)?;
+    let semantic_digest = digest_file(&corpus_path.join(semantic_evidence))?;
+    if semantic_digest != manifest.semantic_evidence_digest {
+        return refusal(
+            "HISTORICAL_LINEAGE_SEMANTIC_EVIDENCE_DRIFT",
+            record.capability_id.clone(),
+        );
+    }
+
+    if manifest.source_files.is_empty() {
+        if manifest.resolution != "SEMANTIC_EVIDENCE_ONLY" {
+            return refusal(
+                "HISTORICAL_LINEAGE_EMPTY_SOURCE_INVALID",
+                record.capability_id.clone(),
+            );
+        }
+    } else if manifest.resolution != "GIT_OBJECTS_RECOVERED" {
+        return refusal(
+            "HISTORICAL_LINEAGE_RESOLUTION_INVALID",
+            record.capability_id.clone(),
+        );
+    }
+
+    for source_file in &manifest.source_files {
+        let git_path = safe_relative(&source_file.git_path)?;
+        if !is_full_git_sha(&source_file.git_object_id) {
+            return refusal(
+                "HISTORICAL_LINEAGE_OBJECT_ID_INVALID",
+                format!("{}: {}", record.capability_id, source_file.git_object_id),
+            );
+        }
+        let object_commit = if source_file.historical_commit.is_empty() {
+            if record_commits.len() != 1 {
+                return refusal(
+                    "HISTORICAL_LINEAGE_FILE_COMMIT_MISSING",
+                    format!(
+                        "{}: {} admitted commits",
+                        record.capability_id,
+                        record_commits.len()
+                    ),
+                );
+            }
+            record_commits.iter().next().expect("single commit")
+        } else {
+            &source_file.historical_commit
+        };
+        if !is_full_git_sha(object_commit) {
+            return refusal(
+                "HISTORICAL_LINEAGE_FILE_COMMIT_INVALID",
+                format!("{}: {}", record.capability_id, object_commit),
+            );
+        }
+        if !record_commits.contains(object_commit) {
+            return refusal(
+                "HISTORICAL_LINEAGE_FILE_COMMIT_OUTSIDE_COMPONENT_SET",
+                format!("{}: {}", record.capability_id, object_commit),
+            );
+        }
+        let object_spec = format!("{}:{}", object_commit, git_path.to_string_lossy());
+        let observed_object_id = git(source_path, &["rev-parse", &object_spec])?;
+        if observed_object_id != source_file.git_object_id {
+            return refusal(
+                "HISTORICAL_LINEAGE_OBJECT_ID_MISMATCH",
+                format!(
+                    "{}:{} expected {}, observed {}",
+                    record.capability_id,
+                    source_file.git_path,
+                    source_file.git_object_id,
+                    observed_object_id
+                ),
+            );
+        }
+        let object_type = git(source_path, &["cat-file", "-t", &source_file.git_object_id])?;
+        if object_type != "blob" {
+            return refusal(
+                "HISTORICAL_LINEAGE_OBJECT_NOT_BLOB",
+                format!("{}: {}", record.capability_id, object_type),
+            );
+        }
+        let object_bytes = git_bytes(
+            source_path,
+            &["cat-file", "blob", &source_file.git_object_id],
+        )?;
+        let object_digest = digest_bytes(&object_bytes);
+        if object_digest != source_file.blake3 || object_bytes.len() != source_file.byte_length {
+            return refusal(
+                "HISTORICAL_LINEAGE_OBJECT_DIGEST_MISMATCH",
+                format!("{}: {}", record.capability_id, source_file.git_path),
+            );
+        }
+        let blob_relative = safe_relative(&source_file.blob_path)?;
+        let blob_digest = digest_file(&corpus_path.join(blob_relative))?;
+        if blob_digest != source_file.blake3 {
+            return refusal(
+                "HISTORICAL_LINEAGE_CORPUS_BLOB_DRIFT",
+                format!("{}: {}", record.capability_id, source_file.blob_path),
+            );
+        }
+    }
+    Ok(())
+}
+
+fn historical_commit_set(
+    capability_id: &str, summary: &str, explicit: &[String],
+) -> Result<BTreeSet<String>> {
+    let summary_set: BTreeSet<String> = summary
+        .split('|')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_string)
+        .collect();
+    let explicit_set: BTreeSet<String> = explicit
+        .iter()
+        .map(|value| value.trim())
+        .filter(|value| !value.is_empty())
+        .map(str::to_string)
+        .collect();
+    let commits = if explicit_set.is_empty() {
+        summary_set.clone()
+    } else {
+        if summary_set != explicit_set {
+            return refusal(
+                "HISTORICAL_LINEAGE_COMMIT_SET_MISMATCH",
+                format!(
+                    "{}: summary={:?}, explicit={:?}",
+                    capability_id, summary_set, explicit_set
+                ),
+            );
+        }
+        explicit_set
+    };
+    if commits.is_empty() {
+        return refusal(
+            "HISTORICAL_LINEAGE_COMMIT_SET_EMPTY",
+            capability_id.to_string(),
+        );
+    }
+    for commit in &commits {
+        if !is_full_git_sha(commit) {
+            return refusal(
+                "HISTORICAL_LINEAGE_COMMIT_INVALID",
+                format!("{}: {}", capability_id, commit),
+            );
+        }
+    }
+    Ok(commits)
+}
+
+fn is_full_git_sha(value: &str) -> bool {
+    value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn replay_receipt(source_path: &Path, corpus_path: &Path, path: &Path) -> Result<()> {

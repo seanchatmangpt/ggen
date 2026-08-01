@@ -3,7 +3,7 @@ use blake3::Hasher;
 use clap::Parser;
 use ggen_architecture_foundry::{
     load_program, replay_all_receipts, snapshot_repository, validate_program, verify_corpus,
-    Receipt, WorkstreamStateFile, RECEIPT_SCHEMA,
+    Receipt, VerificationReport, WorkstreamStateFile, RECEIPT_SCHEMA,
 };
 use serde::Serialize;
 use serde_json::{json, Value as JsonValue};
@@ -40,6 +40,7 @@ struct CleanRoomRun {
     corpus_head: String,
     runtime_tests_passed: bool,
     receipts_replayed: usize,
+    verification_valid: bool,
     verification_digest: String,
     foundry_tree_digest: String,
     clean_after_run: bool,
@@ -54,6 +55,7 @@ struct CleanRoomAdmissionReport {
     corpus_head: String,
     runs: Vec<CleanRoomRun>,
     clean_room_build_success: bool,
+    clean_room_verification_success: bool,
     replay_differences: usize,
     generated_drift: usize,
     second_run_semantic_result: String,
@@ -112,6 +114,7 @@ fn main() -> Result<()> {
         &corpus.head,
     )?;
     let clean_room_build_success = first.runtime_tests_passed && second.runtime_tests_passed;
+    let clean_room_verification_success = first.verification_valid && second.verification_valid;
     let replay_differences = usize::from(first.verification_digest != second.verification_digest);
     let generated_drift = usize::from(first.foundry_tree_digest != second.foundry_tree_digest);
     let second_run_semantic_result = if replay_differences == 0 && generated_drift == 0 {
@@ -119,10 +122,14 @@ fn main() -> Result<()> {
     } else {
         "SEMANTIC_DRIFT"
     };
-    if !clean_room_build_success || replay_differences != 0 || generated_drift != 0 {
+    if !clean_room_build_success
+        || !clean_room_verification_success
+        || replay_differences != 0
+        || generated_drift != 0
+    {
         bail!(
-            "CLEAN_ROOM_REFUSED: build={clean_room_build_success}, replay={replay_differences}, drift={generated_drift}"
-        );
+        "CLEAN_ROOM_REFUSED: build={clean_room_build_success}, verification={clean_room_verification_success}, replay={replay_differences}, drift={generated_drift}"
+    );
     }
 
     let report = CleanRoomAdmissionReport {
@@ -133,6 +140,7 @@ fn main() -> Result<()> {
         corpus_head: corpus.head.clone(),
         runs: vec![first, second],
         clean_room_build_success,
+        clean_room_verification_success,
         replay_differences,
         generated_drift,
         second_run_semantic_result: second_run_semantic_result.to_string(),
@@ -233,12 +241,19 @@ fn execute_clean_run(
     let runtime_tests_passed = test_status.success();
     let receipts_replayed = replay_all_receipts(&source_clone, &corpus_clone)?;
     let verification = verify_corpus(program, &source_clone, &corpus_clone)?;
-    let verification_digest = digest_bytes(&serde_json::to_vec(&verification)?);
+    let verification_valid = verification.program_valid
+        && verification.manifest_valid
+        && verification.invalid_lineage_records.is_empty()
+        && verification.invalid_receipts.is_empty();
+    let verification_digest =
+        semantic_verification_digest(&verification, &source_clone, &corpus_clone)?;
     let foundry_tree_digest = digest_tree(&corpus_clone.join("foundry"))?;
     let clean_after_run = snapshot_repository(&corpus_clone)?.clean;
-    if !runtime_tests_passed || !clean_after_run {
+    if !runtime_tests_passed || !verification_valid || !clean_after_run {
         bail!(
-            "CLEAN_ROOM_RUN_FAILED: run={run}, tests={runtime_tests_passed}, clean={clean_after_run}"
+            "CLEAN_ROOM_RUN_FAILED: run={run}, tests={runtime_tests_passed}, verification={verification_valid}, invalid_lineage={}, invalid_receipts={}, clean={clean_after_run}",
+            verification.invalid_lineage_records.len(),
+            verification.invalid_receipts.len(),
         );
     }
     Ok(CleanRoomRun {
@@ -247,10 +262,41 @@ fn execute_clean_run(
         corpus_head: corpus_snapshot.head,
         runtime_tests_passed,
         receipts_replayed,
+        verification_valid,
         verification_digest,
         foundry_tree_digest,
         clean_after_run,
     })
+}
+
+fn semantic_verification_digest(
+    report: &VerificationReport, source_root: &Path, corpus_root: &Path,
+) -> Result<String> {
+    let mut value = serde_json::to_value(report)?;
+    normalize_verification_paths(&mut value, source_root, corpus_root);
+    Ok(digest_bytes(&serde_json::to_vec(&value)?))
+}
+
+fn normalize_verification_paths(value: &mut JsonValue, source_root: &Path, corpus_root: &Path) {
+    match value {
+        JsonValue::String(text) => {
+            let source = source_root.to_string_lossy();
+            let corpus = corpus_root.to_string_lossy();
+            *text = text.replace(source.as_ref(), "$SOURCE");
+            *text = text.replace(corpus.as_ref(), "$CORPUS");
+        }
+        JsonValue::Array(values) => {
+            for value in values {
+                normalize_verification_paths(value, source_root, corpus_root);
+            }
+        }
+        JsonValue::Object(values) => {
+            for value in values.values_mut() {
+                normalize_verification_paths(value, source_root, corpus_root);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn git_clone(source: &Path, destination: &Path) -> Result<()> {
