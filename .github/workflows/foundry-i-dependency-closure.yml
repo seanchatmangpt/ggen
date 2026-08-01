@@ -29,14 +29,16 @@ jobs:
       - name: Repair exact dependency-set invariant
         run: |
           python3 - <<'PY'
+          import re
           from pathlib import Path
           path = Path("tools/architecture-foundry/src/bin/admit_verification.rs")
           text = path.read_text()
-          old = '''    if workstream.dependencies.len() != 1 || workstream.dependencies[0] != "H" {
-              bail!("WORKSTREAM_I_DEPENDENCY_INVALID");
-          }
-          '''
-          new = '''    let observed_dependencies: BTreeSet<&str> = workstream
+          pattern = re.compile(
+              r'(?m)^\s*if workstream\.dependencies\.len\(\) != 1 \|\| workstream\.dependencies\[0\] != "H" \{\n'
+              r'\s*bail!\("WORKSTREAM_I_DEPENDENCY_INVALID"\);\n'
+              r'\s*\}\n'
+          )
+          replacement = '''    let observed_dependencies: BTreeSet<&str> = workstream
               .dependencies
               .iter()
               .map(String::as_str)
@@ -48,18 +50,17 @@ jobs:
               );
           }
           '''
-          if old in text:
-              path.write_text(text.replace(old, new, 1))
-          elif new not in text:
+          repaired, count = pattern.subn(replacement, text, count=1)
+          if count == 1:
+              path.write_text(repaired)
+          elif 'let expected_dependencies = BTreeSet::from(["G", "H"]);' not in text:
               raise SystemExit("typed dependency invariant was neither old nor repaired")
           PY
 
       - name: Format and build exact runtime
         run: |
-          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check || {
-            cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
-            cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
-          }
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
           cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
           cargo build --manifest-path tools/architecture-foundry/Cargo.toml --bin admit_verification
 
