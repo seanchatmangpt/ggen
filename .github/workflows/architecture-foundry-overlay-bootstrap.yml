@@ -30,9 +30,8 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Apply deterministic overlay patches
+      - name: Apply deterministic recovery patch
         run: |
-          python3 tools/architecture-foundry/scripts/apply_disposition_overlay_patch.py
           python3 tools/architecture-foundry/scripts/apply_recovery_refs_patch.py
           cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
 
@@ -43,7 +42,7 @@ jobs:
           set -euo pipefail
           if git diff --quiet -- tools/architecture-foundry/src/bin/admit_capabilities.rs; then
             echo "manufactured=false" >> "$GITHUB_OUTPUT"
-            echo "Overlay support already canonical."
+            echo "Recovery support already canonical."
             exit 0
           fi
           git config user.name "ggen-foundry-manufacturer"
