@@ -461,7 +461,15 @@ def write_md(root: Path, index: dict) -> None:
     lines = [
         "# Document Evidence Index (v26.8.1, GENERATED)",
         "",
-        f"Generated at unix={index['generated_at_unix']} against source_head={index['source_head']}.",
+        # No wall-clock timestamp here: this document is itself one of the
+        # documents indexed (see ROOT_DOC_SUBSYSTEM), so its own bytes feed
+        # back into its own DocumentEvidenceRecord.documentDigest. A live
+        # timestamp made that digest un-reproducible on every run, which
+        # meant document-evidence-index.md could never converge with its
+        # own recorded digest -- a permanent, unfixable-by-rerunning
+        # DOCUMENT_DIGEST_DRIFT. source_head is deterministic for a fixed
+        # commit and is sufficient provenance.
+        f"Generated against source_head={index['source_head']}.",
         "Real authority: `docs/v26.8.1/document-evidence-index.json`. This file is a projection.",
         "",
         "## Subsystem coverage",

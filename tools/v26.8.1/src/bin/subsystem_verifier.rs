@@ -84,6 +84,17 @@ struct TestRun {
     #[serde(default)]
     passed: bool,
     is_true_negative_control: bool,
+    // The manifest generator's own recorded invocation. Not blindly trusted
+    // for its `passed` field (that's still independently re-derived below),
+    // but its `argv` is the only reliable way to know WHAT to re-run: krate
+    // is a real cargo package name for Rust-based evidence, but a "(python)"
+    // placeholder for non-cargo evidence sources (e.g. legacy subsystem's
+    // Python unittest-based positive/negative witnesses). Reconstructing a
+    // `cargo test -p (python) --test ...` from krate/test_target/test_fn for
+    // those entries is nonsense and fails immediately, misreporting a real
+    // pass as a reverification failure -- this was exactly that bug.
+    #[serde(default)]
+    argv: Vec<String>,
 }
 
 // ---------- verifier's own output shapes ----------
@@ -217,17 +228,30 @@ fn fresh_git_head(root: &Path) -> String {
         .unwrap_or_else(|| "UNKNOWN".into())
 }
 
-/// Independent re-run: this binary calls `cargo test` itself, ignoring
+/// Independent re-run: this binary spawns the real command itself, ignoring
 /// whatever `passed` the manifest claimed.
-fn rerun_test(root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>) -> (bool, i32) {
-    let target = test_target.trim_end_matches(".rs");
-    let mut argv = vec!["test".to_string(), "-p".to_string(), krate.to_string(), "--test".to_string(), target.to_string()];
-    if let Some(f) = test_fn {
-        argv.push("--".to_string());
-        argv.push(f.clone());
-        argv.push("--exact".to_string());
-    }
-    let output = Command::new("cargo").args(&argv).current_dir(root).output();
+///
+/// If the manifest recorded a real `argv` (any evidence source: cargo test,
+/// a Python script, a shell invocation), that exact command is re-executed
+/// verbatim -- this is not "trusting" the manifest any more than trusting
+/// `test_target`/`test_fn` already were; only the recorded `passed` claim is
+/// distrusted, never the shape of what to run. Only when `argv` is absent
+/// (older manifests, or entries that never carried one) does this fall back
+/// to reconstructing a `cargo test -p <krate> --test <target>` invocation,
+/// which is correct only for genuine cargo-package evidence.
+fn rerun_test(root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>, argv: &[String]) -> (bool, i32) {
+    let output = if !argv.is_empty() {
+        Command::new(&argv[0]).args(&argv[1..]).current_dir(root).output()
+    } else {
+        let target = test_target.trim_end_matches(".rs");
+        let mut cargo_argv = vec!["test".to_string(), "-p".to_string(), krate.to_string(), "--test".to_string(), target.to_string()];
+        if let Some(f) = test_fn {
+            cargo_argv.push("--".to_string());
+            cargo_argv.push(f.clone());
+            cargo_argv.push("--exact".to_string());
+        }
+        Command::new("cargo").args(&cargo_argv).current_dir(root).output()
+    };
     match output {
         Ok(o) => {
             let stdout = String::from_utf8_lossy(&o.stdout);
@@ -431,7 +455,7 @@ fn run() -> Result<()> {
         let mut reverified_tests = Vec::new();
         let mut all_positive_pass = has_positive_witness;
         for t in &record.positive_witness_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn);
+            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_positive_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
@@ -446,7 +470,7 @@ fn run() -> Result<()> {
         }
         let mut all_negative_pass = !record.negative_falsifier_reports.is_empty();
         for t in &record.negative_falsifier_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn);
+            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_negative_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
