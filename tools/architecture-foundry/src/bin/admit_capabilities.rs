@@ -517,10 +517,11 @@ fn apply_disposition_decisions(
                 capability.disposition
             );
         }
-        if !capability.replacement_owner.trim().is_empty() {
+        if is_confirmed_replacement_owner(&capability.replacement_owner) {
             bail!(
-                "ARCHIVE_POLICY_REPLACEMENT_OWNER_PRESENT: {}",
-                decision.capability_id
+                "ARCHIVE_POLICY_REPLACEMENT_OWNER_PRESENT: {}:{}",
+                decision.capability_id,
+                capability.replacement_owner
             );
         }
         if capability.historical_source_commit.trim().is_empty() {
@@ -550,6 +551,18 @@ fn apply_disposition_decisions(
     }
 
     Ok(decision_file.decisions.len())
+}
+
+fn is_confirmed_replacement_owner(value: &str) -> bool {
+    let normalized = value.trim();
+    if normalized.is_empty() {
+        return false;
+    }
+    let upper = normalized.to_ascii_uppercase();
+    !(upper == "UNKNOWN"
+        || upper.starts_with("UNKNOWN ")
+        || upper.starts_with("UNKNOWN-")
+        || upper == "UNASSIGNED")
 }
 
 fn verify_recovery_refs(source_repo: &Path, decision: &DispositionDecision) -> Result<()> {
