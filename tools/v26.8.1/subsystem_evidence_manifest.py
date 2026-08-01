@@ -231,7 +231,7 @@ SUBSYSTEMS: dict[str, dict] = {
                 "ggen-config",
                 "governance_precommit_gate_count_test.rs",
                 "pre_commit_recipe_exists_and_is_non_empty",
-                "pre_commit_gate_count_is_eleven_not_ten",
+                "no_governance_doc_hardcodes_a_pre_commit_gate_count",
             ),
         ],
     },

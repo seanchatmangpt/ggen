@@ -338,7 +338,9 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs → generation hash-pin (10 gates, in sequence, fail fast)
+# Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
+# IS the canonical gate list and count -- do not restate a number in a comment here or in any
+# doc; every prior count has gone stale within days of a gate being added or removed.
 pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
     #!/usr/bin/env bash
     set -euo pipefail
