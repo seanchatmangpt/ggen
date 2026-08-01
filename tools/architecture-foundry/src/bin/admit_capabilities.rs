@@ -10,6 +10,7 @@ use serde_yaml::Value as YamlValue;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 const CAPABILITY_ADMISSION_SCHEMA: &str =
     "ggen.enterprise-architecture-foundry.capability-admission/1";
@@ -33,6 +34,7 @@ struct DispositionDecision {
     policy_id: String,
     rationale: String,
     evidence_refs: Vec<String>,
+    recovery_refs: Vec<String>,
 }
 
 #[derive(Debug, Parser)]
@@ -174,8 +176,12 @@ fn main() -> Result<()> {
     let decision_bytes = fs::read(&decision_path)
         .with_context(|| format!("DISPOSITION_DECISIONS_MISSING: {}", decision_path.display()))?;
     let disposition_decision_digest = digest_bytes(&decision_bytes);
-    let disposition_decision_count =
-        apply_disposition_decisions(&mut capabilities, &decision_bytes, &source.head)?;
+    let disposition_decision_count = apply_disposition_decisions(
+        &mut capabilities,
+        &decision_bytes,
+        &source.head,
+        &cli.source,
+    )?;
     if capabilities.len() != 65 {
         bail!(
             "CAPABILITY_COUNT_MISMATCH: expected 65, observed {}",
@@ -436,7 +442,7 @@ fn parse_capabilities(bytes: &[u8]) -> Result<Vec<CapabilityRecord>> {
 }
 
 fn apply_disposition_decisions(
-    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str,
+    capabilities: &mut [CapabilityRecord], bytes: &[u8], source_head: &str, source_repo: &Path,
 ) -> Result<usize> {
     let decision_file: DispositionDecisionFile =
         serde_json::from_slice(bytes).context("DISPOSITION_DECISIONS_SCHEMA_INVALID")?;
@@ -472,7 +478,10 @@ fn apply_disposition_decisions(
                 decision.capability_id
             );
         }
-        if decision.rationale.trim().is_empty() || decision.evidence_refs.is_empty() {
+        if decision.rationale.trim().is_empty()
+            || decision.evidence_refs.is_empty()
+            || decision.recovery_refs.is_empty()
+        {
             bail!(
                 "DISPOSITION_DECISION_EVIDENCE_MISSING: {}",
                 decision.capability_id
@@ -481,6 +490,7 @@ fn apply_disposition_decisions(
         if decision
             .evidence_refs
             .iter()
+            .chain(decision.recovery_refs.iter())
             .any(|reference| reference.trim().is_empty())
         {
             bail!(
@@ -513,14 +523,13 @@ fn apply_disposition_decisions(
                 decision.capability_id
             );
         }
-        if capability.archive_path.trim().is_empty()
-            || capability.historical_source_commit.trim().is_empty()
-        {
+        if capability.historical_source_commit.trim().is_empty() {
             bail!(
-                "ARCHIVE_POLICY_RECOVERY_EVIDENCE_MISSING: {}",
+                "ARCHIVE_POLICY_HISTORICAL_SOURCE_MISSING: {}",
                 decision.capability_id
             );
         }
+        verify_recovery_refs(source_repo, decision)?;
 
         capability.disposition = decision.resolved_disposition.clone();
         capability.admitted_owner = derive_owner(
@@ -541,6 +550,55 @@ fn apply_disposition_decisions(
     }
 
     Ok(decision_file.decisions.len())
+}
+
+fn verify_recovery_refs(source_repo: &Path, decision: &DispositionDecision) -> Result<()> {
+    for reference in &decision.recovery_refs {
+        let revision = reference
+            .strip_prefix("ggen@")
+            .with_context(|| {
+                format!(
+                    "ARCHIVE_RECOVERY_REFERENCE_INVALID: {}:{}",
+                    decision.capability_id, reference
+                )
+            })?
+            .split(':')
+            .next()
+            .unwrap_or_default();
+        if revision.len() < 7
+            || !revision
+                .chars()
+                .all(|character| character.is_ascii_hexdigit())
+        {
+            bail!(
+                "ARCHIVE_RECOVERY_REVISION_INVALID: {}:{}",
+                decision.capability_id,
+                reference
+            );
+        }
+        let object = format!("{revision}^{{commit}}");
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(source_repo)
+            .arg("cat-file")
+            .arg("-e")
+            .arg(&object)
+            .status()
+            .with_context(|| {
+                format!(
+                    "ARCHIVE_RECOVERY_GIT_FAILED: {}:{}",
+                    decision.capability_id, reference
+                )
+            })?;
+        if !status.success() {
+            bail!(
+                "ARCHIVE_RECOVERY_COMMIT_MISSING: {}:{}",
+                decision.capability_id,
+                reference
+            );
+        }
+    }
+    Ok(())
 }
 
 fn parse_turtle_string(object: &str) -> Result<String> {
