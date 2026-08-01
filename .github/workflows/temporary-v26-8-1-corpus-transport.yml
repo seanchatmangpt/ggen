@@ -1,0 +1,125 @@
+name: Temporary v26.8.1 corpus transport
+
+on:
+  push:
+    branches:
+      - agent/migrate-v26-8-1-corpus-to-ggen-legacy
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Package admitted corpus and dependency context
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_head="$(git rev-parse HEAD)"
+          test "$source_head" = "${GITHUB_SHA}"
+
+          root="$RUNNER_TEMP/ggen-v26.8.1-corpus-transport"
+          payload="$root/payload"
+          context="$root/context"
+          mkdir -p "$payload" "$context"
+
+          for path in \
+            docs/v26.8.1 \
+            ontology/v26.8.1 \
+            planning/v26.8.1 \
+            tools/v26.8.1 \
+            packs/legacy-equivalence-verifier-pack
+          do
+            test -e "$path"
+            mkdir -p "$payload/$(dirname "$path")"
+            cp -a "$path" "$payload/$path"
+          done
+
+          for path in \
+            .github/workflows \
+            docs/architecture-foundry \
+            docs/architecture/PROOF_CARRYING_MANUFACTURING_PRD_TRACEABILITY.md \
+            .specify/repo-facts.ttl \
+            CLAUDE.md \
+            Cargo.toml \
+            ggen.toml \
+            justfile \
+            scripts/hooks/pre-commit.sh
+          do
+            test -e "$path"
+            mkdir -p "$context/$(dirname "$path")"
+            cp -a "$path" "$context/$path"
+          done
+
+          SOURCE_HEAD="$source_head" ROOT="$root" python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["ROOT"])
+          records = []
+          for surface in ("payload", "context"):
+              surface_root = root / surface
+              for path in sorted(p for p in surface_root.rglob("*") if p.is_file()):
+                  data = path.read_bytes()
+                  records.append(
+                      {
+                          "surface": surface,
+                          "path": path.relative_to(surface_root).as_posix(),
+                          "size": len(data),
+                          "sha256": hashlib.sha256(data).hexdigest(),
+                      }
+                  )
+
+          manifest = {
+              "schema": "ggen.v26.8.1.corpus-transport.v1",
+              "source_repository": "seanchatmangpt/ggen",
+              "source_commit": os.environ["SOURCE_HEAD"],
+              "payload_roots": [
+                  "docs/v26.8.1",
+                  "ontology/v26.8.1",
+                  "planning/v26.8.1",
+                  "tools/v26.8.1",
+                  "packs/legacy-equivalence-verifier-pack",
+              ],
+              "context_only": True,
+              "files": records,
+          }
+          encoded = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()
+          (root / "transport-manifest.json").write_bytes(encoded)
+          (root / "transport-manifest.sha256").write_text(
+              hashlib.sha256(encoded).hexdigest() + "  transport-manifest.json\n"
+          )
+          PY
+
+          tar \
+            --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            -C "$RUNNER_TEMP" \
+            -czf "$RUNNER_TEMP/ggen-v26.8.1-corpus-transport.tar.gz" \
+            ggen-v26.8.1-corpus-transport
+
+          sha256sum "$RUNNER_TEMP/ggen-v26.8.1-corpus-transport.tar.gz" \
+            > "$RUNNER_TEMP/ggen-v26.8.1-corpus-transport.tar.gz.sha256"
+
+      - name: Upload exact corpus transport
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-v26.8.1-corpus-transport-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-v26.8.1-corpus-transport.tar.gz
+            ${{ runner.temp }}/ggen-v26.8.1-corpus-transport.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
