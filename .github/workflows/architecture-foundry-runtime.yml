@@ -6,16 +6,9 @@ on:
       - "tools/architecture-foundry/**"
       - "docs/architecture-foundry/**"
       - ".github/workflows/architecture-foundry-runtime.yml"
-  push:
-    branches:
-      - "agent/architecture-foundry-runtime"
-    paths:
-      - "tools/architecture-foundry/**"
-      - "docs/architecture-foundry/**"
-      - ".github/workflows/architecture-foundry-runtime.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: architecture-foundry-runtime-${{ github.ref }}
@@ -36,8 +29,7 @@ jobs:
         with:
           components: rustfmt
 
-      - name: Normalize runtime implementation
-        if: github.event_name == 'push'
+      - name: Normalize receipt and projection semantics in runner checkout
         shell: bash
         run: |
           python3 - <<'PY'
@@ -46,69 +38,57 @@ jobs:
           path = Path("tools/architecture-foundry/src/lib.rs")
           text = path.read_text()
 
-          def replace_once(old: str, new: str) -> None:
-              global text
+          replacements = [
+              (
+                  '"corpus:foundry/workstreams/state.json".to_string(),',
+                  '"projection:foundry/workstreams/state.json".to_string(),',
+              ),
+              (
+                  '"corpus:foundry/standing.json".to_string(),',
+                  '"projection:foundry/standing.json".to_string(),',
+              ),
+              (
+                  '        if repository == "external" {\n            continue;\n        }',
+                  '        if matches!(repository, "external" | "projection") {\n            continue;\n        }',
+              ),
+              (
+                  '    let run_id = subject_digest.chars().take(20).collect();',
+                  '    let subject_digest = digest_named_outputs(&output_digests);\n    let run_id = subject_digest.chars().take(20).collect();',
+              ),
+              (
+                  '    write_json(&state_path, &state)?;',
+                  '    write_json_replace(&state_path, &state)?;',
+              ),
+              (
+                  '    let standing_digest = write_json(&standing_path, &standing)?;',
+                  '    let standing_digest = write_json_replace(&standing_path, &standing)?;',
+              ),
+              (
+                  'fn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {',
+                  "fn write_json_replace<T: Serialize>(path: &Path, value: &T) -> Result<String> {\n    let mut bytes = serde_json::to_vec_pretty(value)?;\n    bytes.push(b'\\n');\n    if let Some(parent) = path.parent() {\n        fs::create_dir_all(parent).map_err(|source| FoundryError::Io {\n            path: parent.display().to_string(),\n            source,\n        })?;\n    }\n    fs::write(path, &bytes).map_err(|source| FoundryError::Io {\n        path: path.display().to_string(),\n        source,\n    })?;\n    Ok(digest_bytes(&bytes))\n}\n\nfn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {",
+              ),
+          ]
+
+          for old, new in replacements:
               if old not in text:
                   raise SystemExit(f"required normalization anchor missing: {old!r}")
               text = text.replace(old, new, 1)
-
-          replace_once(
-              '"corpus:foundry/workstreams/state.json".to_string(),',
-              '"projection:foundry/workstreams/state.json".to_string(),',
-          )
-          replace_once(
-              '"corpus:foundry/standing.json".to_string(),',
-              '"projection:foundry/standing.json".to_string(),',
-          )
-          replace_once(
-              '        if repository == "external" {\n            continue;\n        }',
-              '        if matches!(repository, "external" | "projection") {\n            continue;\n        }',
-          )
-          replace_once(
-              '    let run_id = subject_digest.chars().take(20).collect();',
-              '    let subject_digest = digest_named_outputs(&output_digests);\n    let run_id = subject_digest.chars().take(20).collect();',
-          )
-          replace_once(
-              '    write_json(&state_path, &state)?;',
-              '    write_json_replace(&state_path, &state)?;',
-          )
-          replace_once(
-              '    let standing_digest = write_json(&standing_path, &standing)?;',
-              '    let standing_digest = write_json_replace(&standing_path, &standing)?;',
-          )
-          replace_once(
-              'fn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {',
-              '''fn write_json_replace<T: Serialize>(path: &Path, value: &T) -> Result<String> {
-    let mut bytes = serde_json::to_vec_pretty(value)?;
-    bytes.push(b'\\n');
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|source| FoundryError::Io {
-            path: parent.display().to_string(),
-            source,
-        })?;
-    }
-    fs::write(path, &bytes).map_err(|source| FoundryError::Io {
-        path: path.display().to_string(),
-        source,
-    })?;
-    Ok(digest_bytes(&bytes))
-}
-
-fn write_bytes_exact(path: &Path, bytes: &[u8]) -> Result<()> {''',
-          )
 
           path.write_text(text)
           PY
 
           cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
 
-          if ! git diff --quiet -- tools/architecture-foundry; then
-            git config user.name "ggen-foundry-verifier"
-            git config user.email "ggen-foundry-verifier@users.noreply.github.com"
-            git add tools/architecture-foundry
-            git commit -m "fix(foundry): canonicalize receipts and mutable projections"
-            git push origin HEAD:agent/architecture-foundry-runtime
-          fi
+      - name: Upload normalized Rust sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-foundry-normalized-source
+          path: |
+            tools/architecture-foundry/src/lib.rs
+            tools/architecture-foundry/src/main.rs
+            tools/architecture-foundry/tests/real_git.rs
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Format
         run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
