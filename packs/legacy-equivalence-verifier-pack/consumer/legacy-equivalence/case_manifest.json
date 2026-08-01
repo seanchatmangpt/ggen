@@ -8,14 +8,20 @@
       "order": 1,
       "legacy_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
       "current_adapter": "printf 'run-at %s status=ok\\n' \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "strip_timestamps",
       "expected_disposition": "PRESERVED",
-      "observable_surfaces": ["stdout", "exit_code"],
+      "observable_surfaces": [
+        "stdout",
+        "exit_code"
+      ],
       "timeout_seconds": 5,
       "recovery_action": "none"
-
     },
     {
       "case_id": "generated-file-bytes",
@@ -23,14 +29,20 @@
       "order": 2,
       "legacy_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/legacy.bin\"",
       "current_adapter": "printf 'payload-v1\\n' > \"$EQV_OUT/current.bin\"",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["generated_bytes", "exit_code"],
+      "observable_surfaces": [
+        "generated_bytes",
+        "exit_code"
+      ],
       "timeout_seconds": 5,
       "recovery_action": "none"
-
     },
     {
       "case_id": "refused-removed-command",
@@ -38,15 +50,21 @@
       "order": 3,
       "legacy_adapter": "printf 'legacy-op executed\\n'; exit 0",
       "current_adapter": "printf 'refused: legacy-op is decommissioned (see ADR-legacy-042)\\n' 1>&2; exit 3",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REFUSED",
-      "observable_surfaces": ["diagnostics", "exit_code"],
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
       "timeout_seconds": 5,
       "recovery_action": "none",
       "expected_diagnostic_substring": "decommissioned"
-
     },
     {
       "case_id": "legacy-ggen-core-pipeline",
@@ -54,14 +72,19 @@
       "order": 10,
       "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-core/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "ggen sync run --dry-run >/dev/null 2>&1 && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REPLACED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 30,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-wizard-command",
@@ -69,15 +92,21 @@
       "order": 11,
       "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/wizard.rs >/dev/null 2>&1 && echo ok",
       "current_adapter": "ggen wizard",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REFUSED",
-      "observable_surfaces": ["diagnostics", "exit_code"],
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none",
       "expected_diagnostic_substring": "unrecognized subcommand 'wizard'"
-
     },
     {
       "case_id": "legacy-sigma-command",
@@ -85,15 +114,21 @@
       "order": 12,
       "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/sigma.rs >/dev/null 2>&1 && echo ok",
       "current_adapter": "ggen sigma",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REFUSED",
-      "observable_surfaces": ["diagnostics", "exit_code"],
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none",
       "expected_diagnostic_substring": "unrecognized subcommand 'sigma'"
-
     },
     {
       "case_id": "legacy-inverse-sync-command",
@@ -101,15 +136,21 @@
       "order": 13,
       "legacy_adapter": "git show 9cef6e40f6ea059a3d3db91f5677aac53c7c3f8c^:crates/ggen-cli/src/cmds/inverse_sync.rs >/dev/null 2>&1 && echo ok",
       "current_adapter": "ggen inverse_sync",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REFUSED",
-      "observable_surfaces": ["diagnostics", "exit_code"],
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none",
       "expected_diagnostic_substring": "unrecognized subcommand 'inverse_sync'"
-
     },
     {
       "case_id": "legacy-ggen-a2a-mcp-server",
@@ -117,14 +158,19 @@
       "order": 14,
       "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-a2a-mcp/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-ggen-lsp-mcp-server",
@@ -132,14 +178,19 @@
       "order": 15,
       "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-mcp/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "grep -q '^mcp = ' crates/ggen-lsp/Cargo.toml && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-ggen-lsp-a2a-bridge",
@@ -147,14 +198,19 @@
       "order": 16,
       "legacy_adapter": "git show bde78f7d5fda11cffd7316e0d6e8dcb7a7703004^:crates/ggen-lsp-a2a/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "grep -q '^a2a = ' crates/ggen-lsp/Cargo.toml && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-genesis-schema-v2-crate",
@@ -162,14 +218,19 @@
       "order": 17,
       "legacy_adapter": "git show 5b8dd6407b6dd1f11d572e9768499c534c59aec9^:crates/genesis-schema-v2/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "test -f crates/genesis-types-v2/src/schema.rs && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-star-toml-workspace-member",
@@ -177,14 +238,19 @@
       "order": 18,
       "legacy_adapter": "git show 73d726ab44675bb1b5bdf1374858808429bdf7ae^:crates/star-toml/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "grep -q '^star-toml = ' crates/ggen-config/Cargo.toml && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REPLACED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none"
-
     },
     {
       "case_id": "legacy-stpnt-crate",
@@ -192,15 +258,21 @@
       "order": 19,
       "legacy_adapter": "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/stpnt/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "test -d crates/stpnt && echo exists || { echo 'refused: stpnt package not present in workspace (dead code removed 2026-07-02, dfa3664a5)' 1>&2; exit 3; }",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "REFUSED",
-      "observable_surfaces": ["diagnostics", "exit_code"],
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "none",
       "expected_diagnostic_substring": "not present in workspace"
-
     },
     {
       "case_id": "legacy-genesis-core-crate-original",
@@ -208,14 +280,19 @@
       "order": 20,
       "legacy_adapter": "git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml >/dev/null 2>&1 && echo ok",
       "current_adapter": "N/A",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "ARCHIVED",
-      "observable_surfaces": ["recovery_result"],
+      "observable_surfaces": [
+        "recovery_result"
+      ],
       "timeout_seconds": 15,
       "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show dfa3664a56c68478fcaf25706febad42bff496bc^:crates/genesis-core/Cargo.toml > \"$EQV_OUT/restored/Cargo.toml\" && test -s \"$EQV_OUT/restored/Cargo.toml\""
-
     },
     {
       "case_id": "legacy-process-intelligence-local-analysis",
@@ -223,14 +300,1057 @@
       "order": 21,
       "legacy_adapter": "git show 3176f9a18be342f0c08554f5aef66208c741e169^:crates/ggen-graph/src/ocel/discovery.rs >/dev/null 2>&1 && echo ok",
       "current_adapter": "bash scripts/ci/guard-process-intelligence-boundary.sh >/dev/null 2>&1 && echo ok",
-      "success_inputs": [""],
-      "failure_inputs": [""],
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
       "normalization_policy": "none",
       "expected_disposition": "SUBSUMED",
-      "observable_surfaces": ["exit_code"],
+      "observable_surfaces": [
+        "exit_code"
+      ],
       "timeout_seconds": 30,
       "recovery_action": "none"
-
+    },
+    {
+      "case_id": "legacy-sync-audit-flag",
+      "title": "REAL: `ggen sync --audit true` was aspirational justfile text from its first commit (043a6599c); the live sync verb never implemented --audit and refuses it",
+      "order": 101,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "echo 'legacy: --audit was aspirational justfile text, never implemented on the sync verb (git log --all -S\"audit\" -- crates/ggen-engine/src/verbs/sync.rs returns zero commits)'; exit 0",
+      "current_adapter": "ggen sync --audit true",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "--audit"
+    },
+    {
+      "case_id": "legacy-sync-dry-run-value-flag",
+      "title": "REAL: `ggen sync --dry_run true` (value-taking form) never worked; `ggen sync run --dry-run` (bare switch) is the live replacement",
+      "order": 102,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 60,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 57b4929aa:justfile | grep -q 'dry_run true' && echo ok",
+      "current_adapter": "ggen sync run --dry-run >/dev/null 2>&1 && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ggen-toml-dual-schema",
+      "title": "REAL: pre-classifier raw-text has_generation_rules pre-parse existed historically; a shared typed classify_ggen_toml + schema_dispatch::load now gate every call site",
+      "order": 103,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git log --all --oneline -S'has_generation_rules' -- crates/ggen-engine/src/generation_rules.rs | grep -q . && echo ok",
+      "current_adapter": "grep -q 'schema_dispatch::load' crates/ggen-engine/src/verbs/handlers.rs && test -f crates/ggen-config/src/config_schema.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-genesis-construct8-crate",
+      "title": "REAL: crates/genesis-construct8 existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no genesis-construct8 member and refuses to build it",
+      "order": 104,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/genesis-construct8/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/genesis-construct8 && echo exists || { echo 'refused: genesis-construct8 package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-genesis-lockchain-crate",
+      "title": "REAL: crates/genesis-lockchain existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no genesis-lockchain member and refuses to build it",
+      "order": 105,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/genesis-lockchain/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/genesis-lockchain && echo exists || { echo 'refused: genesis-lockchain package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-genesis-wasm-shell-crate",
+      "title": "REAL: crates/genesis-wasm-shell existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no genesis-wasm-shell member and refuses to build it",
+      "order": 106,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/genesis-wasm-shell/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/genesis-wasm-shell && echo exists || { echo 'refused: genesis-wasm-shell package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-ggen-daemon-crate",
+      "title": "REAL: crates/ggen-daemon existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no ggen-daemon member and refuses to build it",
+      "order": 107,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/ggen-daemon/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/ggen-daemon && echo exists || { echo 'refused: ggen-daemon package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-ggen-membrane-crate",
+      "title": "REAL: crates/ggen-membrane existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no ggen-membrane member and refuses to build it",
+      "order": 108,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/ggen-membrane/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/ggen-membrane && echo exists || { echo 'refused: ggen-membrane package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-ggen-projection-crate",
+      "title": "REAL: crates/ggen-projection existed (deleted by 1752de841, zero-blast-radius dormant-code removal); current workspace has no ggen-projection member and refuses to build it",
+      "order": 109,
+      "expected_disposition": "REFUSED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 1752de841^:crates/ggen-projection/Cargo.toml >/dev/null 2>&1 && echo ok",
+      "current_adapter": "test -d crates/ggen-projection && echo exists || { echo 'refused: ggen-projection package not present in workspace (dead code removed 2026-07, 1752de841)' 1>&2; exit 3; }",
+      "observable_surfaces": [
+        "diagnostics",
+        "exit_code"
+      ],
+      "expected_diagnostic_substring": "not present in workspace"
+    },
+    {
+      "case_id": "legacy-ext-template-mode-append",
+      "title": "REAL: `mode = \"Append\"` appeared historically in template frontmatter pickaxe hits; the live GenerationMode enum has exactly 3 variants (Create/Overwrite/Merge), no Append",
+      "order": 110,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 30,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git log --all --oneline -S'mode = \"Append\"' > \"$EQV_OUT/restored/pickaxe.txt\" && test -s \"$EQV_OUT/restored/pickaxe.txt\" && ! grep -q 'Append' crates/ggen-config/src/manifest/types.rs",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-template-mode-update",
+      "title": "REAL: `mode = \"Update\"` belonged to ggen-daemon's own custom generator (pre-SyncExecutor); ggen-engine's SyncExecutor-based sync.rs is the live replacement",
+      "order": 111,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git log --all --oneline -S'mode = \"Update\"' | grep -q . && echo ok",
+      "current_adapter": "test -f crates/ggen-engine/src/sync.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-doctor",
+      "title": "REAL: `just doctor` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 112,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^doctor:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^doctor:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-graph",
+      "title": "REAL: `just graph` existed in justfile before commit d816469fa removed it; `just --list` no longer shows it",
+      "order": 113,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show d816469fa^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^graph:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^graph:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-pipeline",
+      "title": "REAL: `just pipeline` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 114,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^pipeline:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^pipeline:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-docker",
+      "title": "REAL: `just docker` existed in justfile before commit f80c458ea removed it; `just --list` no longer shows it",
+      "order": 115,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show f80c458ea^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^docker:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^docker:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-docker-build",
+      "title": "REAL: `just docker-build` existed in justfile before commit 7afa50f8c removed it; `just --list` no longer shows it",
+      "order": 116,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 7afa50f8c^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^docker-build:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^docker-build:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-docker-run",
+      "title": "REAL: `just docker-run` existed in justfile before commit 7afa50f8c removed it; `just --list` no longer shows it",
+      "order": 117,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 7afa50f8c^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^docker-run:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^docker-run:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-docker-test",
+      "title": "REAL: `just docker-test` existed in justfile before commit 7afa50f8c removed it; `just --list` no longer shows it",
+      "order": 118,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 7afa50f8c^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^docker-test:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^docker-test:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-docker-version",
+      "title": "REAL: `just docker-version` existed in justfile before commit 7afa50f8c removed it; `just --list` no longer shows it",
+      "order": 119,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 7afa50f8c^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^docker-version:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^docker-version:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-build-docker",
+      "title": "REAL: `just build-docker` existed in justfile before commit 2c0753296 removed it; `just --list` no longer shows it",
+      "order": 120,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 2c0753296^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^build-docker:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^build-docker:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-build-image",
+      "title": "REAL: `just build-image` existed in justfile before commit d816469fa removed it; `just --list` no longer shows it",
+      "order": 121,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show d816469fa^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^build-image:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^build-image:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-push-image",
+      "title": "REAL: `just push-image` existed in justfile before commit d816469fa removed it; `just --list` no longer shows it",
+      "order": 122,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show d816469fa^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^push-image:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^push-image:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-lsp-max-check",
+      "title": "REAL: `just lsp-max-check` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 123,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^lsp-max-check:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^lsp-max-check:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-lsp-check",
+      "title": "REAL: `just lsp-check` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 124,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^lsp-check:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^lsp-check:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-lsp-max-edit",
+      "title": "REAL: `just lsp-max-edit` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 125,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^lsp-max-edit:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^lsp-max-edit:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-lsp-max-sync",
+      "title": "REAL: `just lsp-max-sync` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 126,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^lsp-max-sync:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^lsp-max-sync:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-test-mutation",
+      "title": "REAL: `just test-mutation` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 127,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^test-mutation:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^test-mutation:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-test-bdd",
+      "title": "REAL: `just test-bdd` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 128,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^test-bdd:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^test-bdd:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-test-changed",
+      "title": "REAL: `just test-changed` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 129,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^test-changed:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^test-changed:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-test-marketplace",
+      "title": "REAL: `just test-marketplace` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 130,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^test-marketplace:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^test-marketplace:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-test-marketplace-full",
+      "title": "REAL: `just test-marketplace-full` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 131,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^test-marketplace-full:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^test-marketplace-full:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-run-tests",
+      "title": "REAL: `just run-tests` existed in justfile before commit d816469fa removed it; `just --list` no longer shows it",
+      "order": 132,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show d816469fa^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^run-tests:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^run-tests:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-affidavit-seal",
+      "title": "REAL: `just affidavit-seal` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 133,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^affidavit-seal:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^affidavit-seal:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-affidavit-verify",
+      "title": "REAL: `just affidavit-verify` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 134,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^affidavit-verify:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^affidavit-verify:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-evidence-audit",
+      "title": "REAL: `just evidence-audit` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 135,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^evidence-audit:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^evidence-audit:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-evidence-show",
+      "title": "REAL: `just evidence-show` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 136,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^evidence-show:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^evidence-show:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-certification-show",
+      "title": "REAL: `just certification-show` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 137,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^certification-show:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^certification-show:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-workspace-sync",
+      "title": "REAL: `just workspace-sync` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 138,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^workspace-sync:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^workspace-sync:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-status-audit",
+      "title": "REAL: `just status-audit` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 139,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^status-audit:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^status-audit:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-pipeline-status",
+      "title": "REAL: `just pipeline-status` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 140,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^pipeline-status:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^pipeline-status:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-pipeline-validate",
+      "title": "REAL: `just pipeline-validate` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 141,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^pipeline-validate:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^pipeline-validate:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-publish-check",
+      "title": "REAL: `just publish-check` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 142,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^publish-check:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^publish-check:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-target-prune",
+      "title": "REAL: `just target-prune` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 143,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^target-prune:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^target-prune:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-target-show",
+      "title": "REAL: `just target-show` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 144,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^target-show:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^target-show:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext-just-recipe-git-status",
+      "title": "REAL: `just git-status` existed in justfile before commit 083651dba removed it; `just --list` no longer shows it",
+      "order": 145,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 15,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 083651dba^:justfile > \"$EQV_OUT/restored/justfile.before\" && grep -q '^git-status:' \"$EQV_OUT/restored/justfile.before\" && ! grep -q '^git-status:' justfile",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-receipt-v6-ttl-schema",
+      "title": "REAL: ggen-core v6's RDF/Turtle ReceiptBuilder existed (04fa6074b); praxis-core::ReceiptRecord (JSON+BLAKE3, from cbf173f82) is the live from-scratch replacement",
+      "order": 146,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 04fa6074b:crates/ggen-core/src/v6/receipt.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "git show cbf173f82:crates/praxis-core/src/receipt_record.rs >/dev/null 2>&1 && test -f crates/praxis-core/src/receipt_record.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-receipt-record-schema-v1",
+      "title": "REAL: ReceiptRecord had no `schema` field at all before commit 3b294a8ce; the live struct carries schema/v2 fields with v1-compatible defaulting",
+      "order": 147,
+      "expected_disposition": "SUBSUMED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "test \"$(git show 3b294a8ce^:crates/praxis-core/src/receipt_record.rs | grep -c 'pub schema')\" = \"0\" && echo ok",
+      "current_adapter": "grep -q 'pub schema' crates/praxis-core/src/receipt_record.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-output-tree-dotggen-receipt-path",
+      "title": "REAL: ggen-core v6's PipelineConfig::default() hardcoded `.ggen/receipt.json`; the live RECEIPT_REL_PATH const is `.ggen-v2/receipt.json`",
+      "order": 148,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 04fa6074b:crates/ggen-core/src/v6/pipeline.rs | grep -q '\".ggen/receipt.json\"' && echo ok",
+      "current_adapter": "grep -q 'RECEIPT_REL_PATH: &str = \".ggen-v2/receipt.json\"' crates/ggen-engine/src/sync.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-output-tree-src-generated-default",
+      "title": "REAL: ggen-core v6's PipelineConfig::default() hardcoded output_dir = \"src/generated\"; the live pipeline uses a per-template output_file pattern, no single fixed directory",
+      "order": 149,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show 04fa6074b:crates/ggen-core/src/v6/pipeline.rs | grep -q '\"src/generated\"' && echo ok",
+      "current_adapter": "test -f crates/ggen-config/src/manifest/types.rs && ! grep -rq 'output_dir.*src/generated' crates/ggen-config/src/manifest/types.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-exit-code-mutation-budget-threshold",
+      "title": "REAL: pre-v5 ggen-cli had two `std::process::exit(2)` sites for --fail-on-threshold/--fail-on-violation; removed by 9c76a75ac, no successor exit(2) contract exists in ggen-cli today",
+      "order": 150,
+      "expected_disposition": "ARCHIVED",
+      "timeout_seconds": 30,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "mkdir -p \"$EQV_OUT/restored\" && git show 9c76a75ac^ -- crates/ > \"$EQV_OUT/restored/pre-v5.diff\" 2>/dev/null; git log --all --oneline -S'process::exit(2)' -- crates/ggen-cli > \"$EQV_OUT/restored/pickaxe.txt\" && test -s \"$EQV_OUT/restored/pickaxe.txt\" && ! grep -rq \"exit(2)\" crates/ggen-cli/src/",
+      "legacy_adapter": "echo 'archived: historical existence proven by recovery_action, not a separate legacy run'; exit 0",
+      "observable_surfaces": [
+        "recovery_result"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-exit-code-cli-main-result-wrapper",
+      "title": "REAL: pre-c30e4c244 ggen-cli main() relied on anyhow::Result's Termination impl; the live main() uses an explicit match/exit(0)/exit(1) with a printed ERROR: prefix",
+      "order": 151,
+      "expected_disposition": "REPLACED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "git show c30e4c244^:crates/ggen-cli/src/main.rs >/dev/null 2>&1 && echo ok",
+      "current_adapter": "grep -q 'exit(0)' crates/ggen-cli/src/main.rs && grep -q 'exit(1)' crates/ggen-cli/src/main.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-pack-toml-schema-v1-no-outputs",
+      "title": "REAL: PackageToml at introduction (3a6eb6a8c) had no `pack: Option<PackSection>` / [pack.outputs] field; the live struct adds it, additive and backward-compatible",
+      "order": 152,
+      "expected_disposition": "SUBSUMED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "test \"$(git show 3a6eb6a8c:crates/ggen-marketplace/src/metadata.rs | grep -c 'PackSection')\" = \"0\" && echo ok",
+      "current_adapter": "grep -q 'struct PackSection' crates/ggen-marketplace/src/marketplace/metadata.rs && grep -q 'pack: Option<PackSection>' crates/ggen-marketplace/src/marketplace/metadata.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
+    },
+    {
+      "case_id": "legacy-ext2-pack-toml-schema-no-registry-provenance",
+      "title": "REAL: PackMetadata before 55268c2e0 had no registry_type/origin_url fields; the live struct populates both, additive Option<T> defaulting to None",
+      "order": 153,
+      "expected_disposition": "SUBSUMED",
+      "timeout_seconds": 20,
+      "success_inputs": [
+        ""
+      ],
+      "failure_inputs": [
+        ""
+      ],
+      "normalization_policy": "none",
+      "recovery_action": "none",
+      "legacy_adapter": "test \"$(git show 55268c2e0^:crates/ggen-marketplace/src/metadata.rs 2>/dev/null | grep -c 'registry_type')\" = \"0\" && echo ok",
+      "current_adapter": "grep -q 'registry_type' crates/ggen-marketplace/src/marketplace/metadata.rs && grep -q 'origin_url' crates/ggen-marketplace/src/marketplace/metadata.rs && echo ok",
+      "observable_surfaces": [
+        "exit_code"
+      ]
     }
   ]
 }
