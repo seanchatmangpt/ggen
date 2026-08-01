@@ -786,6 +786,29 @@ v26-8-1-rebuild:
     fi
     echo "v26-8-1-rebuild: all stages passed"
 
+# Fast dev-loop feedback: check + test-lib (compile/unit correctness) plus a --skip-tests
+# manifest regeneration (structural/wiring sanity of subsystem_evidence_manifest.py's
+# authority/implementation source globs and file existence -- catches a broken glob or a
+# missing file immediately, without paying the ~100s of real cargo-test subprocess cost).
+# Deliberately does NOT call v26-8-1-project-coverage/-crown-check/-step-two: those always
+# independently re-run every test regardless of --skip-tests (subsystem_verifier.rs never
+# trusts the manifest's `passed` field, by design -- see its module doc), so calling them
+# here would either still cost the full ~100s per call (no speed win) or, worse, report a
+# confusing manifest/reverify mismatch instead of a clean skip signal. This recipe answers
+# "does my change compile and pass unit tests, and is the manifest wiring intact" quickly;
+# it NEVER answers "is standing=ALIVE" -- only `just v26-8-1-rebuild` can claim that.
+v26-8-1-rebuild-fast:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== v26-8-1-rebuild-fast: compile + unit-test correctness, NOT an ALIVE check ==="
+    just check
+    just test-lib
+    python3 tools/v26.8.1/subsystem_evidence_manifest.py --skip-tests
+    echo ""
+    echo "v26-8-1-rebuild-fast: check + test-lib passed; manifest structurally regenerated"
+    echo "with --skip-tests (UNVERIFIED -- no test evidence collected). This is NOT an ALIVE"
+    echo "result. Run 'just v26-8-1-rebuild' for the real, authoritative check."
+
 # Re-runs v26-8-1-rebuild a second time and diffs: generated file trees (byte-identical?),
 # receipt chain state (prev_chain_hash_hex links correctly?), and crown/step-two report
 # `standing` (same both times?). Reports NO_SEMANTIC_CHANGE/NO_GENERATED_DRIFT/REPLAY_MATCH

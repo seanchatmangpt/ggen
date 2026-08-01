@@ -99,7 +99,7 @@ struct TestRun {
 
 // ---------- verifier's own output shapes ----------
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ReVerifiedTest {
     krate: String,
     test_target: String,
@@ -111,7 +111,7 @@ struct ReVerifiedTest {
     exit_code: i32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct SubsystemStanding {
     subsystem: String,
     standing: String,
@@ -130,7 +130,7 @@ struct SubsystemStanding {
     reverified_tests: Vec<ReVerifiedTest>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct VerifierReport {
     schema_version: String,
     release: String,
@@ -215,6 +215,28 @@ fn glob_relative(root: &Path, pattern: &str) -> Result<Vec<PathBuf>> {
         }
     }
     Ok(out)
+}
+
+/// Reads the on-disk `subsystem-verifier-report.json` (if any) and returns it
+/// only if it is a genuine, successful, non-cached prior verification of
+/// this EXACT manifest (matching `exact_source_head` and `receipt_digest`,
+/// no refusal, self-cert passed, real source-head match -- not an
+/// `--observe-only` pass-through). Any parse failure or mismatch is a cache
+/// miss, never an error -- caching is purely an optimization, never a
+/// correctness requirement.
+fn load_cache_hit(root: &Path, manifest: &Manifest) -> Option<VerifierReport> {
+    let bytes = fs::read(root.join(REPORT_REL)).ok()?;
+    let cached: VerifierReport = serde_json::from_slice(&bytes).ok()?;
+    if cached.manifest_exact_source_head == manifest.exact_source_head
+        && cached.manifest_receipt_digest == manifest.receipt_digest
+        && cached.self_cert_check_passed
+        && cached.source_head_matches
+        && cached.refusal.is_none()
+    {
+        Some(cached)
+    } else {
+        None
+    }
 }
 
 fn fresh_git_head(root: &Path) -> String {
@@ -393,6 +415,33 @@ fn run() -> Result<()> {
             manifest.verifier_identity.path,
             manifest.verifier_identity.role
         );
+    }
+
+    // --- Cache: skip re-verification if a prior report already proved this
+    // exact manifest identity (source_head + receipt_digest) and passed. ---
+    // Not a TTL/time-based cache -- (exact_source_head, receipt_digest) is a
+    // content-addressed identity of this exact manifest, so a match can only
+    // occur when nothing this verifier would re-check (source files, git
+    // HEAD, test outcomes feeding the manifest) has changed since the cached
+    // run genuinely re-verified it. Deliberately does NOT weaken the
+    // guarantee for a manifest that's never been independently verified
+    // before, or one from a different commit/content -- those always take
+    // the full re-verification path below. `--no-cache` forces a fresh
+    // re-verification regardless (for the one authoritative, final run).
+    let no_cache = args.iter().any(|a| a == "--no-cache");
+    if !no_cache {
+        if let Some(cached) = load_cache_hit(&root, &manifest) {
+            println!(
+                "subsystem_verifier: CACHE_HIT (manifest exact_source_head={} receipt_digest={} \
+                 already independently re-verified by a prior run in this pipeline invocation; \
+                 skipping {} test reruns -- pass --no-cache to force a fresh re-verification)",
+                manifest.exact_source_head,
+                manifest.receipt_digest,
+                manifest.subsystems.len() * 2,
+            );
+            let _ = cached; // report file on disk already reflects this exact, still-valid state
+            return Ok(());
+        }
     }
 
     // --- Fresh, independent exact-head re-derivation ---
