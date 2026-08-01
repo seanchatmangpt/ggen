@@ -700,6 +700,58 @@ v26-8-1-rebuild:
         RESULT["$RECEIPT_STAGE"]="SKIPPED"
     fi
 
+    # step_two.py's own "clean-entry" gate requires a genuinely committed tree
+    # (raw `git status --porcelain`, not merely "matches expected generated
+    # bytes") -- but v26-8-1-observe/-equivalence/-project-coverage/
+    # -document-evidence above are real manufacturing steps that legitimately
+    # leave uncommitted, regenerated-and-verified changes. Commit them here,
+    # once, before crown-check/step-two run -- this is the same
+    # regenerate-then-commit sequence used manually throughout this branch's
+    # history, made part of the one-shot entry point. Skipped entirely if
+    # there is nothing to commit (a truly clean tree already).
+    COMMIT_STAGE="v26-8-1-rebuild-commit-manufactured-state"
+    if [ -z "$FAILED" ]; then
+        if [ -n "$(git status --porcelain=v1)" ]; then
+            echo "=== v26-8-1-rebuild: committing manufactured state before crown-check/step-two ==="
+            git add -A
+            if git commit -m "chore(v26.8.1): commit manufactured state from just v26-8-1-rebuild"; then
+                # The commit above advances git HEAD past the head the
+                # (gitignored, uncommitted) subsystem-evidence manifest was
+                # generated against -- regenerate it once more at the new
+                # HEAD so crown-check/step-two see a manifest that matches
+                # current HEAD (WRONG_SOURCE_HEAD otherwise; this is a
+                # strict equality check in subsystem_verifier.rs, unlike
+                # document-evidence's DOCUMENT_HEAD_STALE, which already
+                # tolerates exactly this one-commit lag -- so
+                # document-evidence is deliberately NOT regenerated again
+                # here, to avoid an infinite regenerate-commit loop from its
+                # own embedded source_head text).
+                # v26-8-1-project-coverage regenerates both the manifest and
+                # the (also gitignored) coverage-projection receipt; coverage-
+                # matrix.csv's own content has no embedded head value, so
+                # this does not dirty the tree.
+                if just v26-8-1-project-coverage; then
+                    if [ -n "$(git status --porcelain=v1)" ]; then
+                        RESULT["$COMMIT_STAGE"]="FAIL"
+                        FAILED="$COMMIT_STAGE"
+                    else
+                        RESULT["$COMMIT_STAGE"]="PASS"
+                    fi
+                else
+                    RESULT["$COMMIT_STAGE"]="FAIL"
+                    FAILED="$COMMIT_STAGE"
+                fi
+            else
+                RESULT["$COMMIT_STAGE"]="FAIL"
+                FAILED="$COMMIT_STAGE"
+            fi
+        else
+            RESULT["$COMMIT_STAGE"]="SKIPPED (tree already clean)"
+        fi
+    else
+        RESULT["$COMMIT_STAGE"]="SKIPPED"
+    fi
+
     for s in v26-8-1-crown-check v26-8-1-step-two; do
         if [ -n "$FAILED" ]; then
             RESULT["$s"]="SKIPPED"
