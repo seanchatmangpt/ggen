@@ -35,19 +35,13 @@ jobs:
           python3 tools/architecture-foundry/scripts/apply_disposition_overlay_patch.py
           cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
 
-      - name: Compile and test exact manufactured source
-        run: |
-          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
-          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
-          cargo run --manifest-path tools/architecture-foundry/Cargo.toml -- \
-            validate-program \
-            --program docs/architecture-foundry/work-program.yaml
-
-      - name: Commit canonical runtime bytes when changed
+      - name: Manufacture clean exact commit
+        id: canonical
         shell: bash
         run: |
           set -euo pipefail
           if git diff --quiet -- tools/architecture-foundry/src/bin/admit_capabilities.rs; then
+            echo "manufactured=false" >> "$GITHUB_OUTPUT"
             echo "Overlay support already canonical."
             exit 0
           fi
@@ -55,4 +49,19 @@ jobs:
           git config user.email "ggen-foundry-manufacturer@users.noreply.github.com"
           git add tools/architecture-foundry/src/bin/admit_capabilities.rs
           git commit -m "feat(foundry): admit receipted disposition decisions"
-          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+          echo "manufactured=true" >> "$GITHUB_OUTPUT"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Compile and test exact manufactured commit
+        run: |
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml -- --check
+          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+          cargo run --manifest-path tools/architecture-foundry/Cargo.toml -- \
+            validate-program \
+            --program docs/architecture-foundry/work-program.yaml
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Push exact tested commit
+        if: steps.canonical.outputs.manufactured == 'true'
+        run: git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
