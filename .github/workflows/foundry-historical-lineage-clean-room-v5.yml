@@ -114,7 +114,8 @@ jobs:
           ggen/tools/architecture-foundry/target/debug/admit_clean_room \
             --program ggen/docs/architecture-foundry/work-program.yaml \
             --source ggen --corpus corpus \
-            > "$RUNNER_TEMP/j-report.json"
+            > "$RUNNER_TEMP/j-stdout.log"
+          cp corpus/foundry/workstreams/J/admission-report.json "$RUNNER_TEMP/j-report.json"
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -151,6 +152,7 @@ jobs:
           path: |
             ${{ runner.temp }}/historical-lineage-report.json
             ${{ runner.temp }}/historical-lineage-sabotage.json
+            ${{ runner.temp }}/j-stdout.log
             ${{ runner.temp }}/j-report.json
             corpus/foundry/workstreams/J/admission-report.json
             corpus/foundry/receipts/workstream-J.json
