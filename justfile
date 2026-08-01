@@ -338,8 +338,10 @@ slo-check:
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
-# Full pre-commit gate: fmt → check → lint → test-lib → coherence-check → boundary guard → cheat scan → claims schema → pack proofs → generation hash-pin (10 gates, in sequence, fail fast)
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
+# Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
+# IS the canonical gate list and count -- do not restate a number in a comment here or in any
+# doc; every prior count has gone stale within days of a gate being added or removed.
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
@@ -418,6 +420,12 @@ guard-process-boundary: guard-process-intelligence-boundary
 # ggen-core/src/*, retired along with the crate in PR #259, not fixed by triage.)
 guard-cheat-scan:
     cargo run --quiet -p ggen-cheat-scanner --bin ggen-cheat-scanner
+
+# Refuses hardcoded sub-second recv_timeout/join_timeout/wait_timeout used as a
+# termination/liveness proxy in test code -- the exact load-sensitive-flake
+# class fixed in csprite_test.rs/backwardchaining_test.rs (2026-08-01).
+guard-short-test-timeout:
+    python3 tools/v26.8.1/guard_short_test_timeout.py
 
 # APS claims-ledger schema validation (docs/aps/claims.toml) — structure only;
 # runs in pre-commit. Commits are not publishes, so publish-gate enforcement
@@ -777,6 +785,29 @@ v26-8-1-rebuild:
         exit 1
     fi
     echo "v26-8-1-rebuild: all stages passed"
+
+# Fast dev-loop feedback: check + test-lib (compile/unit correctness) plus a --skip-tests
+# manifest regeneration (structural/wiring sanity of subsystem_evidence_manifest.py's
+# authority/implementation source globs and file existence -- catches a broken glob or a
+# missing file immediately, without paying the ~100s of real cargo-test subprocess cost).
+# Deliberately does NOT call v26-8-1-project-coverage/-crown-check/-step-two: those always
+# independently re-run every test regardless of --skip-tests (subsystem_verifier.rs never
+# trusts the manifest's `passed` field, by design -- see its module doc), so calling them
+# here would either still cost the full ~100s per call (no speed win) or, worse, report a
+# confusing manifest/reverify mismatch instead of a clean skip signal. This recipe answers
+# "does my change compile and pass unit tests, and is the manifest wiring intact" quickly;
+# it NEVER answers "is standing=ALIVE" -- only `just v26-8-1-rebuild` can claim that.
+v26-8-1-rebuild-fast:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== v26-8-1-rebuild-fast: compile + unit-test correctness, NOT an ALIVE check ==="
+    just check
+    just test-lib
+    python3 tools/v26.8.1/subsystem_evidence_manifest.py --skip-tests
+    echo ""
+    echo "v26-8-1-rebuild-fast: check + test-lib passed; manifest structurally regenerated"
+    echo "with --skip-tests (UNVERIFIED -- no test evidence collected). This is NOT an ALIVE"
+    echo "result. Run 'just v26-8-1-rebuild' for the real, authoritative check."
 
 # Re-runs v26-8-1-rebuild a second time and diffs: generated file trees (byte-identical?),
 # receipt chain state (prev_chain_hash_hex links correctly?), and crown/step-two report

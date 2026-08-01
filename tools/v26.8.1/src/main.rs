@@ -8,8 +8,7 @@ use walkdir::WalkDir;
 
 use v26_8_1_tools::coverage_projection::{
     self, check_provenance_receipt, exact_head, project_coverage_rows, relative, resolve_root,
-    run_subsystem_verifier, serialize_coverage_csv, subsystem_verifier_report_digest,
-    CoverageRow,
+    run_subsystem_verifier, serialize_coverage_csv, subsystem_verifier_report_digest, CoverageRow,
 };
 
 const VERSION: &str = "26.8.1";
@@ -189,7 +188,14 @@ fn run() -> Result<()> {
     }
 
     validate_manifest(&manifest, &mut findings);
-    validate_documents(&manifest, &documents, &root, &source_head, &mut findings, &mut gates)?;
+    validate_documents(
+        &manifest,
+        &documents,
+        &root,
+        &source_head,
+        &mut findings,
+        &mut gates,
+    )?;
     validate_coverage(&manifest, &coverage, &mut findings, &mut gates);
     validate_workspace(&manifest, &workspace, &mut findings, &mut gates);
     validate_authority_files(&files, &mut findings, &mut gates);
@@ -227,7 +233,9 @@ fn run() -> Result<()> {
                     format!("standing={}", standing.standing),
                     format!(
                         "legacy_total={} legacy_unknown={} legacy_fully_closed={}",
-                        standing.legacy_total, standing.legacy_unknown, standing.legacy_fully_closed
+                        standing.legacy_total,
+                        standing.legacy_unknown,
+                        standing.legacy_fully_closed
                     ),
                 ];
                 ev.extend(standing.reasons.iter().cloned());
@@ -547,8 +555,7 @@ fn validate_documents(
 
     // Real evidence-binding check, replacing the substring-presence
     // DOCUMENT_SECTION_LOSS mechanism. See validate_document_evidence below.
-    let evidence_gap_count =
-        validate_document_evidence(documents, root, source_head, findings)?;
+    let evidence_gap_count = validate_document_evidence(documents, root, source_head, findings)?;
 
     gates.push(GateResult {
         id: "corpus-structure".into(),
@@ -673,7 +680,9 @@ mod git_provenance {
 /// Decides whether `record.source_head` (for `document_path`) still legitimately attests
 /// to the document's current state as of `current_head`. See `GENERATED_EVIDENCE_ARTIFACT_PATHS`
 /// for the rationale behind the one-commit-lag exemption this performs.
-fn document_head_is_fresh(root: &Path, document_path: &str, source_head: &str, current_head: &str) -> bool {
+fn document_head_is_fresh(
+    root: &Path, document_path: &str, source_head: &str, current_head: &str,
+) -> bool {
     if !git_provenance::is_git_repo(root) {
         // No real git history to reason about (e.g. an isolated test fixture) -- fall
         // back to the original literal-equality check.
@@ -686,7 +695,9 @@ fn document_head_is_fresh(root: &Path, document_path: &str, source_head: &str, c
         // A source_head that doesn't even resolve to a real commit can never be trusted.
         return false;
     }
-    let Some(content_head) = git_provenance::last_commit_touching(root, current_head, document_path) else {
+    let Some(content_head) =
+        git_provenance::last_commit_touching(root, current_head, document_path)
+    else {
         // No history for this path reachable from HEAD -- cannot attest freshness.
         return false;
     };
@@ -774,7 +785,10 @@ fn validate_document_evidence(
             gap_count += 1;
             continue;
         }
-        if records_by_path.insert(&record.document_path, record).is_some() {
+        if records_by_path
+            .insert(&record.document_path, record)
+            .is_some()
+        {
             error(
                 findings,
                 "DOCUMENT_EVIDENCE_MISSING",
@@ -799,7 +813,10 @@ fn validate_document_evidence(
     }
 
     let mut subsystem_authority: std::collections::BTreeMap<&str, bool> =
-        DOCUMENT_EVIDENCE_SUBSYSTEMS.iter().map(|s| (*s, false)).collect();
+        DOCUMENT_EVIDENCE_SUBSYSTEMS
+            .iter()
+            .map(|s| (*s, false))
+            .collect();
     let mut subsystem_implementation = subsystem_authority.clone();
     let mut subsystem_verifier = subsystem_authority.clone();
 
@@ -832,7 +849,10 @@ fn validate_document_evidence(
                 findings,
                 "DOCUMENT_ROLE_INVALID",
                 Some(&record.document_path),
-                format!("documentRole '{}' is not in the closed enum", record.document_role),
+                format!(
+                    "documentRole '{}' is not in the closed enum",
+                    record.document_role
+                ),
             );
             gap_count += 1;
         }
@@ -860,7 +880,12 @@ fn validate_document_evidence(
         // and-exemption reasoning that replaces plain `record.source_head != current_head`
         // equality (which is structurally unsatisfiable for self-referencing documents --
         // see `GENERATED_EVIDENCE_ARTIFACT_PATHS`'s doc comment).
-        if !document_head_is_fresh(root, &record.document_path, &record.source_head, current_head) {
+        if !document_head_is_fresh(
+            root,
+            &record.document_path,
+            &record.source_head,
+            current_head,
+        ) {
             error(
                 findings,
                 "DOCUMENT_HEAD_STALE",
@@ -890,11 +915,17 @@ fn validate_document_evidence(
                 findings,
                 "DOCUMENT_AUTHORITY_UNMAPPED",
                 Some(DOC_ROOT),
-                format!("subsystem '{subsystem}' has no document with a real authorityReferences entry"),
+                format!(
+                    "subsystem '{subsystem}' has no document with a real authorityReferences entry"
+                ),
             );
             gap_count += 1;
         }
-        if !subsystem_implementation.get(subsystem).copied().unwrap_or(false) {
+        if !subsystem_implementation
+            .get(subsystem)
+            .copied()
+            .unwrap_or(false)
+        {
             error(
                 findings,
                 "DOCUMENT_IMPLEMENTATION_UNMAPPED",
@@ -908,7 +939,9 @@ fn validate_document_evidence(
                 findings,
                 "DOCUMENT_VERIFIER_UNMAPPED",
                 Some(DOC_ROOT),
-                format!("subsystem '{subsystem}' has no document with a real verifierReferences entry"),
+                format!(
+                    "subsystem '{subsystem}' has no document with a real verifierReferences entry"
+                ),
             );
             gap_count += 1;
         }
@@ -931,7 +964,8 @@ fn validate_document_evidence(
             .iter()
             .any(|r| !r.evidence_report_references.is_empty());
         for capability_id in &capability_id_re {
-            if !mapped_capability_ids.contains(capability_id.as_str()) && !has_machine_only_evidence {
+            if !mapped_capability_ids.contains(capability_id.as_str()) && !has_machine_only_evidence
+            {
                 error(
                     findings,
                     "DOCUMENT_LEGACY_UNMAPPED",
@@ -1186,7 +1220,18 @@ fn ignored(path: &Path) -> bool {
     path.components().any(|component| {
         matches!(
             component.as_os_str().to_str(),
-            Some(".git" | "target" | "node_modules" | ".ggen")
+            // "worktrees" excludes .claude/worktrees/* -- each entry there is a full,
+            // separate git worktree checkout of this same repository (Claude Code agent
+            // sessions), not repository content. Before this exclusion, every repo-wide
+            // WalkDir scan in this file walked N duplicate copies of the repo's own
+            // source/docs tree (N = however many worktrees happen to exist at scan time),
+            // multiplying scan cost by N+1 and polluting counts like
+            // live-repository-observation's legacy_references with matches found inside
+            // other sessions' checkouts rather than this repository's own content.
+            // `.git/worktrees` (git's own metadata for the same directories) was already
+            // excluded via the `.git` arm above; this closes the equivalent gap for the
+            // actual checkout content Claude Code places under `.claude/worktrees`.
+            Some(".git" | "target" | "node_modules" | ".ggen" | "worktrees")
         )
     })
 }
@@ -1313,8 +1358,13 @@ mod document_evidence_sabotage_tests {
 
     fn run(fixture: &Fixture) -> Vec<Finding> {
         let mut findings = Vec::new();
-        validate_document_evidence(&fixture.documents(), fixture.root(), &fixture.head, &mut findings)
-            .expect("validate_document_evidence should not hard-error on a well-formed fixture");
+        validate_document_evidence(
+            &fixture.documents(),
+            fixture.root(),
+            &fixture.head,
+            &mut findings,
+        )
+        .expect("validate_document_evidence should not hard-error on a well-formed fixture");
         findings
     }
 
@@ -1372,7 +1422,8 @@ mod document_evidence_sabotage_tests {
     fn record_pointing_at_nonexistent_document_refuses_with_document_orphaned() {
         let fixture = Fixture::build();
         let mut index = fixture.read_index();
-        index["records"][0]["document_path"] = serde_json::json!("docs/v26.8.1/20-engine/does-not-exist.md");
+        index["records"][0]["document_path"] =
+            serde_json::json!("docs/v26.8.1/20-engine/does-not-exist.md");
         fixture.write_index(index);
         let findings = run(&fixture);
         assert!(codes(&findings).contains(&"DOCUMENT_ORPHANED"));
@@ -1382,7 +1433,9 @@ mod document_evidence_sabotage_tests {
     fn tampered_document_bytes_refuse_with_document_digest_drift() {
         let fixture = Fixture::build();
         fs::write(
-            fixture.root().join("docs/v26.8.1/20-engine/21-sync-pipeline.md"),
+            fixture
+                .root()
+                .join("docs/v26.8.1/20-engine/21-sync-pipeline.md"),
             b"tampered body",
         )
         .unwrap();
@@ -1455,7 +1508,8 @@ mod document_evidence_sabotage_tests {
     fn stale_source_head_refuses_with_document_head_stale() {
         let fixture = Fixture::build();
         let mut index = fixture.read_index();
-        index["records"][0]["source_head"] = serde_json::json!("0000000000000000000000000000000000000000");
+        index["records"][0]["source_head"] =
+            serde_json::json!("0000000000000000000000000000000000000000");
         fixture.write_index(index);
         let findings = run(&fixture);
         assert!(codes(&findings).contains(&"DOCUMENT_HEAD_STALE"));

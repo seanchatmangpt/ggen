@@ -3,10 +3,10 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 root := "../.."
 
 observe:
-    cargo run --manifest-path Cargo.toml -- --root {{root}} --observe-only
+    cargo run --manifest-path Cargo.toml --bin ggen-v26-8-1-verifier -- --root {{root}} --observe-only
 
 verify:
-    cargo run --manifest-path Cargo.toml -- --root {{root}}
+    cargo run --manifest-path Cargo.toml --bin ggen-v26-8-1-verifier -- --root {{root}}
 
 step-two:
     python3 step_two.py --root {{root}}
@@ -25,7 +25,7 @@ crown: fmt check clippy observe
     test -s {{root}}/.ggen/v26.8.1/receipt.json
 
 release:
-    cargo run --manifest-path Cargo.toml -- --root {{root}}
+    cargo run --manifest-path Cargo.toml --bin ggen-v26-8-1-verifier -- --root {{root}}
 
 clean:
     rm -rf {{root}}/.ggen/v26.8.1 target

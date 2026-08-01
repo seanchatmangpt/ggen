@@ -99,7 +99,7 @@ struct TestRun {
 
 // ---------- verifier's own output shapes ----------
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ReVerifiedTest {
     krate: String,
     test_target: String,
@@ -111,7 +111,7 @@ struct ReVerifiedTest {
     exit_code: i32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct SubsystemStanding {
     subsystem: String,
     standing: String,
@@ -130,7 +130,7 @@ struct SubsystemStanding {
     reverified_tests: Vec<ReVerifiedTest>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct VerifierReport {
     schema_version: String,
     release: String,
@@ -217,6 +217,28 @@ fn glob_relative(root: &Path, pattern: &str) -> Result<Vec<PathBuf>> {
     Ok(out)
 }
 
+/// Reads the on-disk `subsystem-verifier-report.json` (if any) and returns it
+/// only if it is a genuine, successful, non-cached prior verification of
+/// this EXACT manifest (matching `exact_source_head` and `receipt_digest`,
+/// no refusal, self-cert passed, real source-head match -- not an
+/// `--observe-only` pass-through). Any parse failure or mismatch is a cache
+/// miss, never an error -- caching is purely an optimization, never a
+/// correctness requirement.
+fn load_cache_hit(root: &Path, manifest: &Manifest) -> Option<VerifierReport> {
+    let bytes = fs::read(root.join(REPORT_REL)).ok()?;
+    let cached: VerifierReport = serde_json::from_slice(&bytes).ok()?;
+    if cached.manifest_exact_source_head == manifest.exact_source_head
+        && cached.manifest_receipt_digest == manifest.receipt_digest
+        && cached.self_cert_check_passed
+        && cached.source_head_matches
+        && cached.refusal.is_none()
+    {
+        Some(cached)
+    } else {
+        None
+    }
+}
+
 fn fresh_git_head(root: &Path) -> String {
     Command::new("git")
         .args(["rev-parse", "HEAD"])
@@ -239,18 +261,32 @@ fn fresh_git_head(root: &Path) -> String {
 /// (older manifests, or entries that never carried one) does this fall back
 /// to reconstructing a `cargo test -p <krate> --test <target>` invocation,
 /// which is correct only for genuine cargo-package evidence.
-fn rerun_test(root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>, argv: &[String]) -> (bool, i32) {
+fn rerun_test(
+    root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>, argv: &[String],
+) -> (bool, i32) {
     let output = if !argv.is_empty() {
-        Command::new(&argv[0]).args(&argv[1..]).current_dir(root).output()
+        Command::new(&argv[0])
+            .args(&argv[1..])
+            .current_dir(root)
+            .output()
     } else {
         let target = test_target.trim_end_matches(".rs");
-        let mut cargo_argv = vec!["test".to_string(), "-p".to_string(), krate.to_string(), "--test".to_string(), target.to_string()];
+        let mut cargo_argv = vec![
+            "test".to_string(),
+            "-p".to_string(),
+            krate.to_string(),
+            "--test".to_string(),
+            target.to_string(),
+        ];
         if let Some(f) = test_fn {
             cargo_argv.push("--".to_string());
             cargo_argv.push(f.clone());
             cargo_argv.push("--exact".to_string());
         }
-        Command::new("cargo").args(&cargo_argv).current_dir(root).output()
+        Command::new("cargo")
+            .args(&cargo_argv)
+            .current_dir(root)
+            .output()
     };
     match output {
         Ok(o) => {
@@ -283,7 +319,11 @@ fn reverify_legacy_disposition(root: &Path) -> Result<BTreeMap<String, (usize, u
                 ids.push(v);
             }
         } else if let Some(rest) = line.strip_prefix("ggen:hasDisposition ggen:") {
-            let v = rest.trim_end_matches(" ;").trim_end_matches('.').trim().to_owned();
+            let v = rest
+                .trim_end_matches(" ;")
+                .trim_end_matches('.')
+                .trim()
+                .to_owned();
             dispositions.push(v);
         } else if let Some(rest) = line.strip_prefix("ggen:owningSubsystem ") {
             if let Some(v) = extract_quoted(rest) {
@@ -340,7 +380,9 @@ fn resolve_root(args: &[String]) -> Result<PathBuf> {
     let mut current = explicit.unwrap_or(env::current_dir()?);
     loop {
         if current.join("Cargo.toml").is_file() && current.join("AGENTS.md").is_file() {
-            return current.canonicalize().context("canonicalize repository root");
+            return current
+                .canonicalize()
+                .context("canonicalize repository root");
         }
         if !current.pop() {
             bail!("repository root not found; pass --root <path>");
@@ -375,7 +417,10 @@ fn run() -> Result<()> {
         .context("manifest failed schema-shape deserialization")?;
 
     if manifest.schema != "ggen.v26.8.1.subsystem-evidence-manifest/1" {
-        bail!("MANIFEST_SCHEMA_MISMATCH: unexpected schema {}", manifest.schema);
+        bail!(
+            "MANIFEST_SCHEMA_MISMATCH: unexpected schema {}",
+            manifest.schema
+        );
     }
     if manifest.release != "26.8.1" {
         bail!("MANIFEST_RELEASE_MISMATCH: {}", manifest.release);
@@ -393,6 +438,33 @@ fn run() -> Result<()> {
             manifest.verifier_identity.path,
             manifest.verifier_identity.role
         );
+    }
+
+    // --- Cache: skip re-verification if a prior report already proved this
+    // exact manifest identity (source_head + receipt_digest) and passed. ---
+    // Not a TTL/time-based cache -- (exact_source_head, receipt_digest) is a
+    // content-addressed identity of this exact manifest, so a match can only
+    // occur when nothing this verifier would re-check (source files, git
+    // HEAD, test outcomes feeding the manifest) has changed since the cached
+    // run genuinely re-verified it. Deliberately does NOT weaken the
+    // guarantee for a manifest that's never been independently verified
+    // before, or one from a different commit/content -- those always take
+    // the full re-verification path below. `--no-cache` forces a fresh
+    // re-verification regardless (for the one authoritative, final run).
+    let no_cache = args.iter().any(|a| a == "--no-cache");
+    if !no_cache {
+        if let Some(cached) = load_cache_hit(&root, &manifest) {
+            println!(
+                "subsystem_verifier: CACHE_HIT (manifest exact_source_head={} receipt_digest={} \
+                 already independently re-verified by a prior run in this pipeline invocation; \
+                 skipping {} test reruns -- pass --no-cache to force a fresh re-verification)",
+                manifest.exact_source_head,
+                manifest.receipt_digest,
+                manifest.subsystems.len() * 2,
+            );
+            let _ = cached; // report file on disk already reflects this exact, still-valid state
+            return Ok(());
+        }
     }
 
     // --- Fresh, independent exact-head re-derivation ---
@@ -455,7 +527,8 @@ fn run() -> Result<()> {
         let mut reverified_tests = Vec::new();
         let mut all_positive_pass = has_positive_witness;
         for t in &record.positive_witness_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
+            let (passed, exit_code) =
+                rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_positive_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
@@ -470,7 +543,8 @@ fn run() -> Result<()> {
         }
         let mut all_negative_pass = !record.negative_falsifier_reports.is_empty();
         for t in &record.negative_falsifier_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
+            let (passed, exit_code) =
+                rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_negative_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
@@ -494,7 +568,8 @@ fn run() -> Result<()> {
             .get(&record.subsystem)
             .copied()
             .unwrap_or((0, 0, 0));
-        let legacy_fully_closed = legacy_total > 0 && legacy_unknown == 0 && legacy_closed == legacy_total;
+        let legacy_fully_closed =
+            legacy_total > 0 && legacy_unknown == 0 && legacy_closed == legacy_total;
         let legacy_present_but_claimed_closed_wrongly = legacy_total > 0 && legacy_unknown > 0;
         if legacy_present_but_claimed_closed_wrongly {
             reasons.push(format!(

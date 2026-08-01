@@ -1,6 +1,6 @@
 {
   "schema": "ggen.legacy-equivalence.verifier-report.v1",
-  "generated_at": "2026-08-01T03:25:09.632105+00:00",
+  "generated_at": "2026-08-01T20:48:34.864080+00:00",
   "results": [
     {
       "case_id": "cli-stdout-echo",
@@ -19,7 +19,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 14.628
+      "duration_ms": 22.034
     },
     {
       "case_id": "generated-file-bytes",
@@ -38,7 +38,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 8.274
+      "duration_ms": 10.341000000000001
     },
     {
       "case_id": "refused-removed-command",
@@ -57,7 +57,7 @@
           "reason": "current adapter refused with exit code 3"
         }
       ],
-      "duration_ms": 7.991
+      "duration_ms": 9.906000000000002
     },
     {
       "case_id": "legacy-ggen-core-pipeline",
@@ -71,7 +71,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 233.688
+      "duration_ms": 274.22
     },
     {
       "case_id": "legacy-wizard-command",
@@ -90,7 +90,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 26.796999999999997
+      "duration_ms": 41.57
     },
     {
       "case_id": "legacy-sigma-command",
@@ -109,7 +109,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 25.194
+      "duration_ms": 29.82
     },
     {
       "case_id": "legacy-inverse-sync-command",
@@ -128,7 +128,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 24.554000000000002
+      "duration_ms": 30.365000000000002
     },
     {
       "case_id": "legacy-ggen-a2a-mcp-server",
@@ -142,7 +142,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 18.073999999999998
+      "duration_ms": 25.683000000000003
     },
     {
       "case_id": "legacy-ggen-lsp-mcp-server",
@@ -156,7 +156,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 17.497999999999998
+      "duration_ms": 23.938000000000002
     },
     {
       "case_id": "legacy-ggen-lsp-a2a-bridge",
@@ -170,7 +170,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 18.16
+      "duration_ms": 18.438
     },
     {
       "case_id": "legacy-genesis-schema-v2-crate",
@@ -184,7 +184,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 15.242
+      "duration_ms": 15.864999999999998
     },
     {
       "case_id": "legacy-star-toml-workspace-member",
@@ -198,7 +198,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 17.855
+      "duration_ms": 20.137
     },
     {
       "case_id": "legacy-stpnt-crate",
@@ -217,7 +217,7 @@
           "reason": "current adapter refused with exit code 3"
         }
       ],
-      "duration_ms": 15.607
+      "duration_ms": 16.366
     },
     {
       "case_id": "legacy-genesis-core-crate-original",
@@ -231,7 +231,7 @@
           "reason": "recovery_action exited 0"
         }
       ],
-      "duration_ms": 24.886
+      "duration_ms": 25.366
     },
     {
       "case_id": "legacy-process-intelligence-local-analysis",
@@ -245,789 +245,12 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 339.612
-    },
-    {
-      "case_id": "legacy-sync-audit-flag",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring '--audit'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 1"
-        }
-      ],
-      "duration_ms": 17.253
-    },
-    {
-      "case_id": "legacy-sync-dry-run-value-flag",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 166.29899999999998
-    },
-    {
-      "case_id": "legacy-ggen-toml-dual-schema",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 192.038
-    },
-    {
-      "case_id": "legacy-ext-genesis-construct8-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 16.896
-    },
-    {
-      "case_id": "legacy-ext-genesis-lockchain-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 16.276
-    },
-    {
-      "case_id": "legacy-ext-genesis-wasm-shell-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 16.013
-    },
-    {
-      "case_id": "legacy-ext-ggen-daemon-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 15.948999999999998
-    },
-    {
-      "case_id": "legacy-ext-ggen-membrane-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 15.931999999999999
-    },
-    {
-      "case_id": "legacy-ext-ggen-projection-crate",
-      "expected_disposition": "REFUSED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "diagnostics",
-          "status": "PASS",
-          "reason": "found expected diagnostic substring 'not present in workspace'"
-        },
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "current adapter refused with exit code 3"
-        }
-      ],
-      "duration_ms": 15.852
-    },
-    {
-      "case_id": "legacy-ext-template-mode-append",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 7442.364
-    },
-    {
-      "case_id": "legacy-ext-template-mode-update",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 1314.9959999999999
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-doctor",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 24.617
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-graph",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.151000000000003
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-pipeline",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.189
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-docker",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 54.916
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-docker-build",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.410999999999998
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-docker-run",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.604
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-docker-test",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.824
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-docker-version",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.617000000000004
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-build-docker",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.873
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-build-image",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.595999999999997
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-push-image",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.096999999999998
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-lsp-max-check",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.01
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-lsp-check",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 24.144000000000002
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-lsp-max-edit",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.555
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-lsp-max-sync",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.228
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-test-mutation",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.433999999999997
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-test-bdd",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.299000000000003
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-test-changed",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.176
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-test-marketplace",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.193
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-test-marketplace-full",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.186
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-run-tests",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.774
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-affidavit-seal",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.333000000000002
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-affidavit-verify",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.511000000000003
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-evidence-audit",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.38
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-evidence-show",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.367
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-certification-show",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.587
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-workspace-sync",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.187
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-status-audit",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 23.471
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-pipeline-status",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.528
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-pipeline-validate",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.183
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-publish-check",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 21.445
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-target-prune",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 21.653000000000002
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-target-show",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.256000000000004
-    },
-    {
-      "case_id": "legacy-ext-just-recipe-git-status",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 22.904
-    },
-    {
-      "case_id": "legacy-ext2-receipt-v6-ttl-schema",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 24.509
-    },
-    {
-      "case_id": "legacy-ext2-receipt-record-schema-v1",
-      "expected_disposition": "SUBSUMED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 19.981
-    },
-    {
-      "case_id": "legacy-ext2-output-tree-dotggen-receipt-path",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 18.651
-    },
-    {
-      "case_id": "legacy-ext2-output-tree-src-generated-default",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 19.148
-    },
-    {
-      "case_id": "legacy-ext2-exit-code-mutation-budget-threshold",
-      "expected_disposition": "ARCHIVED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "recovery_result",
-          "status": "PASS",
-          "reason": "recovery_action exited 0"
-        }
-      ],
-      "duration_ms": 246.78500000000003
-    },
-    {
-      "case_id": "legacy-ext2-exit-code-cli-main-result-wrapper",
-      "expected_disposition": "REPLACED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 22.374
-    },
-    {
-      "case_id": "legacy-ext2-pack-toml-schema-v1-no-outputs",
-      "expected_disposition": "SUBSUMED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 22.009999999999998
-    },
-    {
-      "case_id": "legacy-ext2-pack-toml-schema-no-registry-provenance",
-      "expected_disposition": "SUBSUMED",
-      "status": "PASS",
-      "reason": "all declared observable surfaces matched",
-      "surfaces": [
-        {
-          "surface": "exit_code",
-          "status": "PASS",
-          "reason": "exit_code matches (0)"
-        }
-      ],
-      "duration_ms": 21.602999999999998
+      "duration_ms": 485.285
     }
   ],
   "summary": {
-    "total": 68,
-    "passed": 68,
+    "total": 15,
+    "passed": 15,
     "failed": 0,
     "blocked": 0
   },

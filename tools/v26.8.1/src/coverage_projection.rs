@@ -360,8 +360,7 @@ pub struct CoverageProjectionReceipt {
     pub coverage_csv_blake3: String,
 }
 
-pub const COVERAGE_PROJECTION_RECEIPT_REL: &str =
-    ".ggen/v26.8.1/coverage-projection-receipt.json";
+pub const COVERAGE_PROJECTION_RECEIPT_REL: &str = ".ggen/v26.8.1/coverage-projection-receipt.json";
 
 /// Cross-checks the manufacturing step's own receipt
 /// (`.ggen/v26.8.1/coverage-projection-receipt.json`) against the CURRENT,
@@ -383,12 +382,13 @@ pub fn check_provenance_receipt(
     if !receipt_path.is_file() {
         return Ok(None);
     }
-    let bytes = fs::read(&receipt_path).with_context(|| {
-        format!("read {}", COVERAGE_PROJECTION_RECEIPT_REL)
-    })?;
+    let bytes = fs::read(&receipt_path)
+        .with_context(|| format!("read {}", COVERAGE_PROJECTION_RECEIPT_REL))?;
     let receipt: CoverageProjectionReceipt =
         serde_json::from_slice(&bytes).context("parse coverage-projection-receipt.json")?;
-    let current_csv_digest = blake3::hash(current_coverage_csv_bytes).to_hex().to_string();
+    let current_csv_digest = blake3::hash(current_coverage_csv_bytes)
+        .to_hex()
+        .to_string();
 
     if receipt.subsystem_verifier_report_digest != current_subsystem_report_digest {
         return Ok(Some(format!(

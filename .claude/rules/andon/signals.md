@@ -33,19 +33,20 @@ This is not a suggestion. This is the production discipline.
 
 ## Definition of Done
 
-The authoritative gate is `just pre-commit`, which chains 10 real checks (see `justfile`'s
-`pre-commit:` recipe — verify this list against it before trusting this doc, since it has drifted
-before): `fmt-check`, `check`, `lint`, `test-lib`, `coherence-check`,
-`guard-process-intelligence-boundary`, `guard-cheat-scan`, `guard-claims-schema`,
-`guard-pack-proofs`, `guard-generation-hash-pin`. All 10 must be
-green; a partial pass is a failure. `just timeout-check` is a separate pre-flight sanity check
-(confirms the `timeout` binary exists on PATH) — useful before running anything with a timeout,
-but it is not a build/test/quality gate and is not part of `pre-commit`. `just slo-check` and
-full-workspace `cargo test` are additional checks worth running for performance-sensitive or
-release work, but are not part of the standard `pre-commit` gate.
+The authoritative gate is `just pre-commit` — its `pre-commit:` recipe line in `justfile` is the
+single source of truth for both the gate list and count; deliberately not restated as a number
+here, since every prior hardcoded count in this doc has gone stale the moment a gate was added
+(most recently: 10 → 11 → 12, three separate corrections). Read `justfile` directly, or run
+`crates/ggen-config/tests/governance_precommit_gate_count_test.rs` (parses the live recipe line
+and, as a regression guard, refuses if this doc or any other governance doc restates a hardcoded
+count again). All listed gates must be green; a partial pass is a failure. `just timeout-check` is
+a separate pre-flight sanity check (confirms the `timeout` binary exists on PATH) — useful before
+running anything with a timeout, but it is not a build/test/quality gate and is not part of
+`pre-commit`. `just slo-check` and full-workspace `cargo test` are additional checks worth running
+for performance-sensitive or release work, but are not part of the standard `pre-commit` gate.
 
 ```bash
-just pre-commit   # the real Definition of Done — 10 gates, see above
+just pre-commit   # the real Definition of Done — see justfile's pre-commit: recipe for the list
 ```
 
 ## The Trap

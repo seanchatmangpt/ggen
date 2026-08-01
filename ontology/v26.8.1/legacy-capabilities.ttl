@@ -4,7 +4,7 @@
 # mined against this worktree. See that script's CATALOG for the
 # evidence backing each individual (commit hashes, deleted paths).
 #
-# Generated against HEAD: 4776dba01cd4b73349c2f4bb6c888aa24f3020cf
+# Generated against HEAD: d405ebeedfc59ad744a9064cc58e6b7425bc5a1c
 # Individual count: 65 (15 original + 42 from the
 # 2026-07-31 exhaustive-observer pass [EXT_CATALOG] + 8 from the
 # 2026-07-31 remaining-5-classes pass [EXT_CATALOG2], see
