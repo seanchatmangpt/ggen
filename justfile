@@ -696,9 +696,25 @@ v26-8-1-rebuild:
     fi
 
     # Receipt verification: only if a real receipt already exists at .ggen-v2/receipt.json.
+    #
+    # .ggen-v2/receipt.json IS git-committed, but the signing/verifying keypair
+    # under .ggen/keys/ is NOT (gitignored, local-only per crates/ggen-engine/
+    # src/keys.rs -- verification must never silently generate a key, only
+    # signing may). On a genuinely fresh checkout (no prior local sync ever
+    # run there), the committed receipt was signed by a DIFFERENT machine's
+    # key, so `ggen receipt verify` against it always fails with
+    # FM-KEY-004 (verifying key unreadable) until a real sync runs once to
+    # generate a local keypair and re-sign .ggen-v2/receipt.json to match --
+    # confirmed live in a genuinely fresh git worktree (2026-08-01): this
+    # stage always worked before only because prior sessions' checkouts
+    # already had leftover .ggen/keys/ from earlier manual `ggen sync run`
+    # calls, never because the pipeline itself was self-sufficient. Running a
+    # real sync here (idempotent, safe to rerun) closes that gap.
     RECEIPT_STAGE="receipt-verify"
     if [ -z "$FAILED" ]; then
         if [ -s .ggen-v2/receipt.json ]; then
+            echo "=== v26-8-1-rebuild: running 'ggen sync run' (ensures local signing keys + a matching receipt exist before verify) ==="
+            {{GGEN}} sync run >/dev/null
             echo "=== v26-8-1-rebuild: running 'ggen receipt verify' ==="
             if {{GGEN}} receipt verify; then RESULT["$RECEIPT_STAGE"]="PASS"; else RESULT["$RECEIPT_STAGE"]="FAIL"; FAILED="$RECEIPT_STAGE"; fi
         else

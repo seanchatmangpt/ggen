@@ -1,6 +1,6 @@
 {
   "schema": "ggen.legacy-equivalence.verifier-report.v1",
-  "generated_at": "2026-08-01T20:48:34.864080+00:00",
+  "generated_at": "2026-08-01T22:04:25.843502+00:00",
   "results": [
     {
       "case_id": "cli-stdout-echo",
@@ -19,7 +19,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 22.034
+      "duration_ms": 18.544
     },
     {
       "case_id": "generated-file-bytes",
@@ -38,7 +38,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 10.341000000000001
+      "duration_ms": 11.116
     },
     {
       "case_id": "refused-removed-command",
@@ -57,7 +57,7 @@
           "reason": "current adapter refused with exit code 3"
         }
       ],
-      "duration_ms": 9.906000000000002
+      "duration_ms": 8.698
     },
     {
       "case_id": "legacy-ggen-core-pipeline",
@@ -71,7 +71,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 274.22
+      "duration_ms": 258.169
     },
     {
       "case_id": "legacy-wizard-command",
@@ -90,7 +90,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 41.57
+      "duration_ms": 31.69
     },
     {
       "case_id": "legacy-sigma-command",
@@ -109,7 +109,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 29.82
+      "duration_ms": 29.93
     },
     {
       "case_id": "legacy-inverse-sync-command",
@@ -128,7 +128,7 @@
           "reason": "current adapter refused with exit code 1"
         }
       ],
-      "duration_ms": 30.365000000000002
+      "duration_ms": 34.455
     },
     {
       "case_id": "legacy-ggen-a2a-mcp-server",
@@ -142,7 +142,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 25.683000000000003
+      "duration_ms": 21.980999999999998
     },
     {
       "case_id": "legacy-ggen-lsp-mcp-server",
@@ -156,7 +156,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 23.938000000000002
+      "duration_ms": 21.795
     },
     {
       "case_id": "legacy-ggen-lsp-a2a-bridge",
@@ -170,7 +170,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 18.438
+      "duration_ms": 20.617
     },
     {
       "case_id": "legacy-genesis-schema-v2-crate",
@@ -184,7 +184,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 15.864999999999998
+      "duration_ms": 21.099
     },
     {
       "case_id": "legacy-star-toml-workspace-member",
@@ -198,7 +198,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 20.137
+      "duration_ms": 23.839000000000002
     },
     {
       "case_id": "legacy-stpnt-crate",
@@ -217,7 +217,7 @@
           "reason": "current adapter refused with exit code 3"
         }
       ],
-      "duration_ms": 16.366
+      "duration_ms": 18.396
     },
     {
       "case_id": "legacy-genesis-core-crate-original",
@@ -231,7 +231,7 @@
           "reason": "recovery_action exited 0"
         }
       ],
-      "duration_ms": 25.366
+      "duration_ms": 35.823
     },
     {
       "case_id": "legacy-process-intelligence-local-analysis",
@@ -245,7 +245,7 @@
           "reason": "exit_code matches (0)"
         }
       ],
-      "duration_ms": 485.285
+      "duration_ms": 411.534
     }
   ],
   "summary": {
