@@ -261,18 +261,32 @@ fn fresh_git_head(root: &Path) -> String {
 /// (older manifests, or entries that never carried one) does this fall back
 /// to reconstructing a `cargo test -p <krate> --test <target>` invocation,
 /// which is correct only for genuine cargo-package evidence.
-fn rerun_test(root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>, argv: &[String]) -> (bool, i32) {
+fn rerun_test(
+    root: &Path, krate: &str, test_target: &str, test_fn: &Option<String>, argv: &[String],
+) -> (bool, i32) {
     let output = if !argv.is_empty() {
-        Command::new(&argv[0]).args(&argv[1..]).current_dir(root).output()
+        Command::new(&argv[0])
+            .args(&argv[1..])
+            .current_dir(root)
+            .output()
     } else {
         let target = test_target.trim_end_matches(".rs");
-        let mut cargo_argv = vec!["test".to_string(), "-p".to_string(), krate.to_string(), "--test".to_string(), target.to_string()];
+        let mut cargo_argv = vec![
+            "test".to_string(),
+            "-p".to_string(),
+            krate.to_string(),
+            "--test".to_string(),
+            target.to_string(),
+        ];
         if let Some(f) = test_fn {
             cargo_argv.push("--".to_string());
             cargo_argv.push(f.clone());
             cargo_argv.push("--exact".to_string());
         }
-        Command::new("cargo").args(&cargo_argv).current_dir(root).output()
+        Command::new("cargo")
+            .args(&cargo_argv)
+            .current_dir(root)
+            .output()
     };
     match output {
         Ok(o) => {
@@ -305,7 +319,11 @@ fn reverify_legacy_disposition(root: &Path) -> Result<BTreeMap<String, (usize, u
                 ids.push(v);
             }
         } else if let Some(rest) = line.strip_prefix("ggen:hasDisposition ggen:") {
-            let v = rest.trim_end_matches(" ;").trim_end_matches('.').trim().to_owned();
+            let v = rest
+                .trim_end_matches(" ;")
+                .trim_end_matches('.')
+                .trim()
+                .to_owned();
             dispositions.push(v);
         } else if let Some(rest) = line.strip_prefix("ggen:owningSubsystem ") {
             if let Some(v) = extract_quoted(rest) {
@@ -362,7 +380,9 @@ fn resolve_root(args: &[String]) -> Result<PathBuf> {
     let mut current = explicit.unwrap_or(env::current_dir()?);
     loop {
         if current.join("Cargo.toml").is_file() && current.join("AGENTS.md").is_file() {
-            return current.canonicalize().context("canonicalize repository root");
+            return current
+                .canonicalize()
+                .context("canonicalize repository root");
         }
         if !current.pop() {
             bail!("repository root not found; pass --root <path>");
@@ -397,7 +417,10 @@ fn run() -> Result<()> {
         .context("manifest failed schema-shape deserialization")?;
 
     if manifest.schema != "ggen.v26.8.1.subsystem-evidence-manifest/1" {
-        bail!("MANIFEST_SCHEMA_MISMATCH: unexpected schema {}", manifest.schema);
+        bail!(
+            "MANIFEST_SCHEMA_MISMATCH: unexpected schema {}",
+            manifest.schema
+        );
     }
     if manifest.release != "26.8.1" {
         bail!("MANIFEST_RELEASE_MISMATCH: {}", manifest.release);
@@ -504,7 +527,8 @@ fn run() -> Result<()> {
         let mut reverified_tests = Vec::new();
         let mut all_positive_pass = has_positive_witness;
         for t in &record.positive_witness_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
+            let (passed, exit_code) =
+                rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_positive_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
@@ -519,7 +543,8 @@ fn run() -> Result<()> {
         }
         let mut all_negative_pass = !record.negative_falsifier_reports.is_empty();
         for t in &record.negative_falsifier_reports {
-            let (passed, exit_code) = rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
+            let (passed, exit_code) =
+                rerun_test(&root, &t.krate, &t.test_target, &t.test_fn, &t.argv);
             all_negative_pass &= passed;
             reverified_tests.push(ReVerifiedTest {
                 krate: t.krate.clone(),
@@ -543,7 +568,8 @@ fn run() -> Result<()> {
             .get(&record.subsystem)
             .copied()
             .unwrap_or((0, 0, 0));
-        let legacy_fully_closed = legacy_total > 0 && legacy_unknown == 0 && legacy_closed == legacy_total;
+        let legacy_fully_closed =
+            legacy_total > 0 && legacy_unknown == 0 && legacy_closed == legacy_total;
         let legacy_present_but_claimed_closed_wrongly = legacy_total > 0 && legacy_unknown > 0;
         if legacy_present_but_claimed_closed_wrongly {
             reasons.push(format!(
