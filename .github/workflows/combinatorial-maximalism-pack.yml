@@ -99,7 +99,7 @@ jobs:
           assert record["andon"] == "Green"
           assert record["v2"]["andon"] == "Green"
           assert record["v2"]["promotion_eligible"] is True
-          assert record["payload"]["closure"]["actuator"] == f"ggen@{version}"
+          assert receipt["payload"]["closure"]["actuator"] == f"ggen@{version}"
           assert len(record["chain_hash_hex"]) == 64
           assert len(record["payload_hash_hex"]) == 64
           assert len(record["signature_hex"]) == 128
