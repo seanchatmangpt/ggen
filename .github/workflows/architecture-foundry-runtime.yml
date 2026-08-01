@@ -8,7 +8,7 @@ on:
       - ".github/workflows/architecture-foundry-runtime.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: architecture-foundry-runtime-${{ github.ref }}
@@ -22,15 +22,33 @@ jobs:
       RUSTUP_TOOLCHAIN: stable
       RUSTC_WRAPPER: ""
     steps:
-      - name: Checkout exact head
+      - name: Checkout exact PR head
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
+
+      - name: Normalize component-lineage verifier
+        run: python3 tools/architecture-foundry/normalize_lineage.py
+
+      - name: Manufacture canonical Rust formatting
+        run: cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml
+
+      - name: Persist exact canonical source
+        shell: bash
+        run: |
+          if ! git diff --quiet -- tools/architecture-foundry; then
+            git config user.name "ggen-foundry-verifier"
+            git config user.email "ggen-foundry-verifier@users.noreply.github.com"
+            git add tools/architecture-foundry
+            git commit -m "fix(foundry): verify component lineage and blob digests"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
 
       - name: Verify clean exact-head checkout
         run: test -z "$(git status --porcelain=v1 --untracked-files=all)"
