@@ -102,7 +102,7 @@ fn main() -> Result<()> {
         .iter()
         .find(|workstream| workstream.id == "B")
         .context("WORKSTREAM_B_MISSING")?;
-    if workstream.dependencies != ["A"] {
+    if workstream.dependencies.len() != 1 || workstream.dependencies[0] != "A" {
         bail!("WORKSTREAM_B_DEPENDENCY_INVALID");
     }
 
@@ -119,7 +119,7 @@ fn main() -> Result<()> {
 
     let evidence_commit = git_text(&cli.source, &["rev-parse", &cli.evidence_ref])?;
     let capability_bytes = git_show(&cli.source, &evidence_commit, CAPABILITY_PATH)?;
-    let report_bytes = git_show(&cli.source, &evidence_commit, REPORT_PATH)?;
+    let observer_report_bytes = git_show(&cli.source, &evidence_commit, REPORT_PATH)?;
 
     let capability_ids = parse_capability_ids(&capability_bytes)?;
     if capability_ids.len() != 65 {
@@ -128,7 +128,7 @@ fn main() -> Result<()> {
             capability_ids.len()
         );
     }
-    let observer_classes = parse_observer_classes(&report_bytes)?;
+    let observer_classes = parse_observer_classes(&observer_report_bytes)?;
     let unattempted = observer_classes
         .iter()
         .filter(|record| !record.attempted)
@@ -154,7 +154,7 @@ fn main() -> Result<()> {
     let raw_capability_path = evidence_root.join("legacy-capabilities.ttl");
     let raw_report_path = evidence_root.join("observer-class-report.md");
     write_new(&raw_capability_path, &capability_bytes)?;
-    write_new(&raw_report_path, &report_bytes)?;
+    write_new(&raw_report_path, &observer_report_bytes)?;
 
     let observer_catalog = ObserverClassCatalog {
         schema_version: OBSERVATION_SCHEMA.to_string(),
@@ -190,7 +190,7 @@ fn main() -> Result<()> {
     );
     evidence_digests.insert(
         "observer-class-report.md".to_string(),
-        digest_bytes(&report_bytes),
+        digest_bytes(&observer_report_bytes),
     );
     evidence_digests.insert(
         "observer-reports.json".to_string(),
@@ -222,9 +222,9 @@ fn main() -> Result<()> {
         evidence_digests,
     };
     let report_path = foundry_root.join("workstreams/B/admission-report.json");
-    let report_bytes = canonical_json(&report)?;
-    let report_digest = digest_bytes(&report_bytes);
-    write_new(&report_path, &report_bytes)?;
+    let admission_report_bytes = canonical_json(&report)?;
+    let report_digest = digest_bytes(&admission_report_bytes);
+    write_new(&report_path, &admission_report_bytes)?;
 
     let receipt_relative = "foundry/receipts/workstream-B.json";
     {
@@ -251,7 +251,7 @@ fn main() -> Result<()> {
     );
     inputs.insert(
         "evidence-observer-report".to_string(),
-        digest_bytes(&report_bytes),
+        digest_bytes(&observer_report_bytes),
     );
 
     let mut outputs = BTreeMap::new();
@@ -262,7 +262,7 @@ fn main() -> Result<()> {
         ),
         (
             "foundry/evidence/B/observer-class-report.md",
-            report_bytes.as_slice(),
+            observer_report_bytes.as_slice(),
         ),
         (
             "foundry/evidence/B/observer-reports.json",
@@ -278,7 +278,7 @@ fn main() -> Result<()> {
         ),
         (
             "foundry/workstreams/B/admission-report.json",
-            report_bytes.as_slice(),
+            admission_report_bytes.as_slice(),
         ),
     ] {
         outputs.insert(format!("corpus:{relative}"), digest_bytes(bytes));
@@ -361,7 +361,10 @@ fn parse_observer_classes(bytes: &[u8]) -> Result<Vec<ObserverClassRecord>> {
         );
     }
     let records: Vec<ObserverClassRecord> = latest.into_values().collect();
-    if records.iter().map(|record| record.class_id).collect::<Vec<_>>()
+    if records
+        .iter()
+        .map(|record| record.class_id)
+        .collect::<Vec<_>>()
         != (1u8..=20).collect::<Vec<_>>()
     {
         bail!("OBSERVER_CLASS_SET_INCOMPLETE");
@@ -405,8 +408,7 @@ fn git_text(repo: &Path, args: &[&str]) -> Result<String> {
 }
 
 fn require_clean(
-    snapshot: &ggen_architecture_foundry::RepositorySnapshot,
-    code: &str,
+    snapshot: &ggen_architecture_foundry::RepositorySnapshot, code: &str,
 ) -> Result<()> {
     if !snapshot.clean {
         bail!("{code}: {:?}", snapshot.dirty_entries);
