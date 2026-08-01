@@ -586,6 +586,130 @@ const DOCUMENT_EVIDENCE_SUBSYSTEMS: [&str; 10] = [
     "legacy",
 ];
 
+/// Paths that the v26.8.1 evidence-regeneration pipeline (`document_evidence_index.py`,
+/// `subsystem_evidence_manifest.py`, `project_coverage`, `subsystem_verifier`) is the sole
+/// writer of. Used only by `document_head_is_fresh`'s one-commit-lag exemption below: a
+/// regenerate -> commit cycle necessarily advances git HEAD past the `source_head` every
+/// record was stamped with (writing the files happens before the commit that contains
+/// them exists), and `docs/v26.8.1/document-evidence-index.md` is itself one of the
+/// indexed documents, so its own record's `sourceHead` is *structurally* one commit behind
+/// current HEAD the instant the regeneration is committed -- no amount of "regenerate and
+/// recommit" converges, because committing the regeneration is exactly the act that
+/// invalidates it under a literal HEAD-equality check. The exemption below only fires when
+/// EVERY file touched between a record's `source_head` and current HEAD is in this list,
+/// i.e. it proves the only reason `source_head` fell behind is the mechanical act of
+/// committing the regeneration itself, never a substantive, un-regenerated content change.
+const GENERATED_EVIDENCE_ARTIFACT_PATHS: [&str; 8] = [
+    "docs/v26.8.1/document-evidence-index.json",
+    "docs/v26.8.1/document-evidence-index.csv",
+    "docs/v26.8.1/document-evidence-index.md",
+    "ontology/v26.8.1/document-evidence.ttl",
+    ".ggen/v26.8.1/subsystem-evidence-manifest.json",
+    ".ggen/v26.8.1/coverage-projection-report.json",
+    ".ggen/v26.8.1/coverage-projection-receipt.json",
+    "docs/v26.8.1/coverage-matrix.csv",
+];
+
+/// Real `git` invocations (no mocks; Chicago TDD) backing `document_head_is_fresh`.
+mod git_provenance {
+    use std::path::Path;
+    use std::process::Command;
+
+    fn run(root: &Path, args: &[&str]) -> Option<String> {
+        Command::new("git")
+            .args(args)
+            .current_dir(root)
+            .output()
+            .ok()
+            .filter(|out| out.status.success())
+            .map(|out| String::from_utf8_lossy(&out.stdout).trim().to_owned())
+    }
+
+    /// True only when `root` is inside a real git working tree. Isolated test fixtures
+    /// (plain `TempDir`s with no `.git`) are NOT git repos, so callers fall back to the
+    /// pre-existing strict-equality staleness check for them -- this keeps every existing
+    /// sabotage test's fixture behavior byte-for-byte unchanged.
+    pub fn is_git_repo(root: &Path) -> bool {
+        run(root, &["rev-parse", "--is-inside-work-tree"]).as_deref() == Some("true")
+    }
+
+    /// True when `commit` resolves to a real, existing commit object in `root`'s repo.
+    pub fn commit_exists(root: &Path, commit: &str) -> bool {
+        Command::new("git")
+            .args(["cat-file", "-e", &format!("{commit}^{{commit}}")])
+            .current_dir(root)
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false)
+    }
+
+    /// The most recent commit (reachable from `at`) that touched `path`'s content, or
+    /// `None` if `path` has no history reachable from `at` (e.g. untracked).
+    pub fn last_commit_touching(root: &Path, at: &str, path: &str) -> Option<String> {
+        run(root, &["log", "-1", "--format=%H", at, "--", path]).filter(|s| !s.is_empty())
+    }
+
+    /// True when `ancestor` is `descendant` itself or a real ancestor of it.
+    pub fn is_ancestor_or_equal(root: &Path, ancestor: &str, descendant: &str) -> bool {
+        if ancestor == descendant {
+            return true;
+        }
+        Command::new("git")
+            .args(["merge-base", "--is-ancestor", ancestor, descendant])
+            .current_dir(root)
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false)
+    }
+
+    /// Every path that differs between `from` and `to` (git's `diff --name-only`), or
+    /// `None` if the diff itself could not be computed.
+    pub fn changed_paths_between(root: &Path, from: &str, to: &str) -> Option<Vec<String>> {
+        run(root, &["diff", "--name-only", &format!("{from}..{to}")])
+            .map(|s| s.lines().map(str::to_owned).collect())
+    }
+}
+
+/// Decides whether `record.source_head` (for `document_path`) still legitimately attests
+/// to the document's current state as of `current_head`. See `GENERATED_EVIDENCE_ARTIFACT_PATHS`
+/// for the rationale behind the one-commit-lag exemption this performs.
+fn document_head_is_fresh(root: &Path, document_path: &str, source_head: &str, current_head: &str) -> bool {
+    if !git_provenance::is_git_repo(root) {
+        // No real git history to reason about (e.g. an isolated test fixture) -- fall
+        // back to the original literal-equality check.
+        return source_head == current_head;
+    }
+    if source_head == current_head {
+        return true;
+    }
+    if !git_provenance::commit_exists(root, source_head) {
+        // A source_head that doesn't even resolve to a real commit can never be trusted.
+        return false;
+    }
+    let Some(content_head) = git_provenance::last_commit_touching(root, current_head, document_path) else {
+        // No history for this path reachable from HEAD -- cannot attest freshness.
+        return false;
+    };
+    if git_provenance::is_ancestor_or_equal(root, &content_head, source_head) {
+        // The document's content hasn't changed since the record was generated: whatever
+        // else has landed on HEAD since, this record's claims about THIS document remain
+        // accurate.
+        return true;
+    }
+    // The document's content-defining commit is not an ancestor of source_head (it is a
+    // sibling or descendant of it -- most commonly the very commit that committed the
+    // regenerated evidence itself, since writing the evidence always happens strictly
+    // before the commit that contains it exists). This is only excusable if EVERY commit
+    // between source_head and current_head touched exclusively generated-evidence
+    // artifacts -- i.e. nothing un-regenerated slipped in under cover of the regen commit.
+    match git_provenance::changed_paths_between(root, source_head, current_head) {
+        Some(changed) if !changed.is_empty() => changed
+            .iter()
+            .all(|p| GENERATED_EVIDENCE_ARTIFACT_PATHS.contains(&p.as_str())),
+        _ => false,
+    }
+}
+
 #[derive(Debug, Deserialize)]
 struct DocumentEvidenceRecordJson {
     document_path: String,
@@ -731,15 +855,19 @@ fn validate_document_evidence(
             }
         }
 
-        // DOCUMENT_HEAD_STALE: record's sourceHead must match current HEAD.
-        if record.source_head != current_head {
+        // DOCUMENT_HEAD_STALE: record's sourceHead must still legitimately attest to this
+        // document's current state. See `document_head_is_fresh` for the full ancestry-
+        // and-exemption reasoning that replaces plain `record.source_head != current_head`
+        // equality (which is structurally unsatisfiable for self-referencing documents --
+        // see `GENERATED_EVIDENCE_ARTIFACT_PATHS`'s doc comment).
+        if !document_head_is_fresh(root, &record.document_path, &record.source_head, current_head) {
             error(
                 findings,
                 "DOCUMENT_HEAD_STALE",
                 Some(&record.document_path),
                 format!(
-                    "sourceHead '{}' does not match current HEAD '{current_head}'",
-                    record.source_head
+                    "sourceHead '{}' no longer attests to '{}' as of current HEAD '{current_head}'",
+                    record.source_head, record.document_path
                 ),
             );
             gap_count += 1;
