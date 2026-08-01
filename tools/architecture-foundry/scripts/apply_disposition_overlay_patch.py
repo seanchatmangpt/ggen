@@ -46,8 +46,8 @@ def main() -> None:
 
     text = replace_once(
         text,
-        '''    evidence_digest: String,\n}''',
-        '''    evidence_digest: String,\n    disposition_decision_count: usize,\n    disposition_decision_digest: String,\n}''',
+        '''    predicates: BTreeMap<String, YamlValue>,\n    evidence_digest: String,\n}''',
+        '''    predicates: BTreeMap<String, YamlValue>,\n    evidence_digest: String,\n    disposition_decision_count: usize,\n    disposition_decision_digest: String,\n}''',
         "report-fields",
     )
 
@@ -60,8 +60,8 @@ def main() -> None:
 
     text = replace_once(
         text,
-        '''        evidence_digest: evidence_digest.clone(),\n    };''',
-        '''        evidence_digest: evidence_digest.clone(),\n        disposition_decision_count,\n        disposition_decision_digest: disposition_decision_digest.clone(),\n    };''',
+        '''        predicates: workstream.predicates.clone(),\n        evidence_digest: evidence_digest.clone(),\n    };''',
+        '''        predicates: workstream.predicates.clone(),\n        evidence_digest: evidence_digest.clone(),\n        disposition_decision_count,\n        disposition_decision_digest: disposition_decision_digest.clone(),\n    };''',
         "report-values",
     )
 
