@@ -19,6 +19,8 @@ jobs:
   repair-and-prove:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      RUSTC_WRAPPER: ""
     steps:
       - name: Checkout exact candidate branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
