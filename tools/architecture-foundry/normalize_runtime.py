@@ -130,8 +130,8 @@ def main() -> None:
             '',
         ),
         (
-            'receipt_type: &str, subject: &str, subject_digest: String, source_head: &str,',
-            'receipt_type: &str, subject: &str, _subject_digest: String, source_head: &str,',
+            '    subject: &str,\n    subject_digest: String,\n    source_head: &str,',
+            '    subject: &str,\n    _subject_digest: String,\n    source_head: &str,',
         ),
     ]
 
