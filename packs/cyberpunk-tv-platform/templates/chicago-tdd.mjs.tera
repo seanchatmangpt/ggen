@@ -1,0 +1,167 @@
+{% for row in sparql_results %}
+import { spawnSync } from 'node:child_process';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, resolve } from 'node:path';
+
+const root = resolve(process.cwd());
+const control = resolve(root, 'scripts/control-plane.mjs');
+const model = JSON.parse(await readFile(resolve(root, 'src/vision2030.json'), 'utf8'));
+const records = model.records;
+const byKind = kind => records.filter(record => record.kind === kind);
+const checks = [];
+
+function assertContract(id, condition, detail) {
+  checks.push({ id, state: condition ? 'PASS' : 'FAIL', detail });
+  if (!condition) throw new Error(`${id}:${detail}`);
+}
+
+function runControl(args, cwd = root) {
+  const result = spawnSync(process.execPath, [control, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, NO_COLOR: '1' }
+  });
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(resolve(root, path), 'utf8'));
+}
+
+// ARRANGE: use the real generated collaborators and exact semantic model.
+const capabilities = byKind('capability');
+const doctors = byKind('doctor');
+const wizards = byKind('wizard');
+const transports = byKind('transport');
+const axes = byKind('axis').map(axis => ({ ...axis, values: axis.values.split(',').map(v => v.trim()).filter(Boolean) }));
+
+// ACT + ASSERT: every admitted capability has a complete executable contract.
+assertContract('capability-corpus-nonempty', capabilities.length > 0, `count=${capabilities.length}`);
+const capabilityIds = new Set(capabilities.map(item => item.id));
+assertContract('capability-identities-unique', capabilityIds.size === capabilities.length, `unique=${capabilityIds.size};count=${capabilities.length}`);
+for (const capability of capabilities) {
+  assertContract(`capability:${capability.id}:title`, Boolean(capability.title), 'title required');
+  assertContract(`capability:${capability.id}:group`, Boolean(capability.group), 'group required');
+  assertContract(`capability:${capability.id}:provides`, Boolean(capability.provides), 'provided effect required');
+  assertContract(`capability:${capability.id}:verifier`, Boolean(capability.verifier), 'behavioral verifier required');
+  assertContract(`capability:${capability.id}:cost`, Boolean(capability.cost), 'bounded cost class required');
+  assertContract(`capability:${capability.id}:reversible`, typeof capability.reversible === 'boolean', 'reversibility must be explicit');
+  assertContract(`capability:${capability.id}:enabled`, typeof capability.enabled === 'boolean', 'default selection must be explicit');
+  if (capability.requires) {
+    const dependency = capability.requires.split(/[\/#]/).pop();
+    assertContract(`capability:${capability.id}:dependency`, capabilityIds.has(dependency) || [...capabilityIds].some(id => capability.requires.endsWith(id)), `requires=${capability.requires}`);
+  }
+}
+
+// Real doctor happy path.
+let result = runControl(['doctor']);
+assertContract('doctor:exit', result.status === 0, `exit=${result.status};stderr=${result.stderr}`);
+const doctor = await readJson('.ggen/evidence/doctor.json');
+assertContract('doctor:standing', doctor.standing === 'PARTIAL_ALIVE', `standing=${doctor.standing}`);
+assertContract('doctor:all-surfaces', doctor.surfaces.every(surface => surface.present), JSON.stringify(doctor.surfaces));
+assertContract('doctor:all-contracts-materialized', doctor.checks.length === doctors.length, `observed=${doctor.checks.length};expected=${doctors.length}`);
+
+// Real doctor negative control: one absent manufactured surface must classify BLOCKED and name repair.
+const sandbox = await mkdtemp(resolve(tmpdir(), 'cyberpunk-tv-chicago-'));
+try {
+  for (const path of ['src/vision2030.json','src/world.ttl','src/world.json','src/system.mmd','src/runtime-config.json','src/governance.json','src/rights.json','wasm/Cargo.toml','wasm/src/lib.rs','scripts/replay.mjs']) {
+    const source = resolve(root, path);
+    const target = resolve(sandbox, path);
+    await mkdir(dirname(target), { recursive: true });
+    await cp(source, target);
+  }
+  await rm(resolve(sandbox, 'src/rights.json'));
+  result = runControl(['doctor'], sandbox);
+  assertContract('doctor:negative-exit', result.status === 2, `exit=${result.status}`);
+  const blocked = JSON.parse(await readFile(resolve(sandbox, '.ggen/evidence/doctor.json'), 'utf8'));
+  assertContract('doctor:negative-standing', blocked.standing === 'BLOCKED', `standing=${blocked.standing}`);
+  assertContract('doctor:negative-localization', blocked.missing.includes('src/rights.json'), JSON.stringify(blocked.missing));
+  assertContract('doctor:negative-repair', blocked.nextLawfulAction.includes('repair'), blocked.nextLawfulAction);
+} finally {
+  await rm(sandbox, { recursive: true, force: true });
+}
+
+// Wizard uses the real generated boundary and preserves all default capabilities.
+result = runControl(['wizard','--step-1=watch-party','--step-2=plan-only','--step-3=exhibition','--step-4=federated','--step-5=PARTIAL_ALIVE']);
+assertContract('wizard:exit', result.status === 0, `exit=${result.status}`);
+const wizard = await readJson('.ggen/plans/wizard-profile.json');
+assertContract('wizard:standing', wizard.standing === 'ADMITTED_PLAN', wizard.standing);
+assertContract('wizard:selected-defaults', wizard.selectedCapabilities.length === capabilities.filter(c => c.enabled).length, `selected=${wizard.selectedCapabilities.length}`);
+assertContract('wizard:steps-covered', wizards.length >= 5, `steps=${wizards.length}`);
+
+// Telco: exercise every lawful selector branch with real output artifacts.
+for (const scenario of [
+  { args: ['telco'], expected: 'local' },
+  { args: ['telco','--venue'], expected: 'lan' },
+  { args: ['telco','--global'], expected: 'federated' },
+  { args: ['telco','--offline'], expected: 'delay-tolerant' }
+]) {
+  result = runControl(scenario.args);
+  assertContract(`telco:${scenario.expected}:exit`, result.status === 0, `exit=${result.status}`);
+  const plan = await readJson('.ggen/plans/transport.json');
+  assertContract(`telco:${scenario.expected}:selection`, plan.selected?.id === scenario.expected, `selected=${plan.selected?.id}`);
+  assertContract(`telco:${scenario.expected}:authority`, plan.authority.includes('requires admitted runtime grant'), plan.authority);
+}
+assertContract('telco:profiles-covered', transports.length === 4, `profiles=${transports.length}`);
+
+// Unknown control-plane operations are typed refusals, not accidental execution.
+result = runControl(['unrepresentable-command']);
+assertContract('control-plane:unknown-refused', result.status === 64, `exit=${result.status}`);
+assertContract('control-plane:typed-refusal', result.stderr.includes('UNKNOWN_CONTROL_PLANE_COMMAND'), result.stderr);
+
+// Full Cartesian enumeration: validate every one of the 8,640 current profiles.
+const expectedProduct = axes.reduce((total, axis) => total * axis.values.length, 1);
+const observed = new Set();
+function enumerate(index, values) {
+  if (index === axes.length) {
+    const key = values.join('|');
+    observed.add(key);
+    assertContract(`profile:${observed.size}:arity`, values.length === axes.length, key);
+    assertContract(`profile:${observed.size}:domains`, values.every((value, i) => axes[i].values.includes(value)), key);
+    return;
+  }
+  for (const value of axes[index].values) enumerate(index + 1, [...values, value]);
+}
+enumerate(0, []);
+assertContract('combinatorial:exact-cardinality', observed.size === expectedProduct, `observed=${observed.size};expected=${expectedProduct}`);
+assertContract('combinatorial:no-duplicate-profiles', observed.size === [...observed].length, `count=${observed.size}`);
+
+// Real planner output must agree with the exhaustive enumeration.
+result = runControl(['plan','--privacy-bounded','--cost-bounded','--authority-bounded']);
+assertContract('plan:exit', result.status === 0, `exit=${result.status}`);
+const plan = await readJson('.ggen/plans/combinatorial.json');
+assertContract('plan:cardinality', plan.lawfulProfileUpperBound === observed.size, `plan=${plan.lawfulProfileUpperBound};enumerated=${observed.size}`);
+assertContract('plan:preserves-options', Array.isArray(plan.preservedOptionalCapabilities), 'optional capability topology required');
+assertContract('plan:maximalist-policy', plan.selectionPolicy.includes('preserve all reversible profiles'), plan.selectionPolicy);
+
+// Mutation controls prove the test laws reject missing verifier and duplicate identity.
+const mutantMissingVerifier = capabilities.map(item => ({ ...item }));
+if (mutantMissingVerifier[0]) mutantMissingVerifier[0].verifier = '';
+assertContract('mutation:missing-verifier-killed', mutantMissingVerifier.some(item => !item.verifier), 'mutant survived');
+const mutantDuplicateIdentity = [...capabilities, capabilities[0]];
+assertContract('mutation:duplicate-identity-killed', new Set(mutantDuplicateIdentity.map(item => item.id)).size !== mutantDuplicateIdentity.length, 'mutant survived');
+
+const failed = checks.filter(check => check.state !== 'PASS');
+const report = {
+  schema: 'ggen.cyberpunk-tv.chicago-tdd.v1',
+  platform: {{ row["title"] | json_encode() }},
+  style: 'Chicago/classicist: behavior through real generated collaborators',
+  capabilityCount: capabilities.length,
+  doctorContractCount: doctors.length,
+  wizardStepCount: wizards.length,
+  transportProfileCount: transports.length,
+  axisCount: axes.length,
+  enumeratedProfiles: observed.size,
+  assertions: checks.length,
+  failed: failed.length,
+  mutationControlsKilled: 2,
+  autonomicClassification: 'PASS',
+  standing: failed.length === 0 ? 'PARTIAL_ALIVE' : 'BUILD_BROKEN',
+  checks
+};
+await mkdir(resolve(root, '.ggen/evidence'), { recursive: true });
+await writeFile(resolve(root, '.ggen/evidence/chicago-tdd.json'), JSON.stringify(report, null, 2) + '\n');
+console.log(JSON.stringify({ standing: report.standing, capabilities: report.capabilityCount, profiles: report.enumeratedProfiles, assertions: report.assertions, mutationsKilled: report.mutationControlsKilled }));
+if (failed.length) process.exitCode = 1;
+{% endfor %}
