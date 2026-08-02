@@ -1,0 +1,137 @@
+{% for row in sparql_results %}
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
+use wasm_bindgen::prelude::*;
+
+const SCHEMA: &str = "ggen.cyberpunk-tv.runtime-receipt.v1";
+const PLATFORM: &str = "{{ row["title"] }}";
+
+#[derive(Debug, Serialize)]
+struct EventSubject<'a> {
+    platform: &'a str,
+    previous_receipt: &'a str,
+    subject: &'a str,
+    operation: &'a str,
+    payload_json: &'a str,
+    sequence: u64,
+}
+
+#[derive(Debug, Serialize)]
+struct RuntimeReceipt<'a> {
+    schema: &'static str,
+    algorithm: &'static str,
+    platform: &'a str,
+    subject: &'a str,
+    operation: &'a str,
+    sequence: u64,
+    previous_receipt: &'a str,
+    payload_digest: String,
+    receipt_digest: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CapabilityEnvelope {
+    capabilities: Vec<String>,
+}
+
+#[wasm_bindgen]
+pub fn platform_identity() -> String {
+    PLATFORM.to_owned()
+}
+
+#[wasm_bindgen]
+pub fn blake3_hex(input: &str) -> String {
+    blake3::hash(input.as_bytes()).to_hex().to_string()
+}
+
+#[wasm_bindgen]
+pub fn chain_event(
+    previous_receipt: &str,
+    subject: &str,
+    operation: &str,
+    payload_json: &str,
+    sequence: u64,
+) -> Result<String, JsValue> {
+    let parsed: serde_json::Value = serde_json::from_str(payload_json)
+        .map_err(|error| JsValue::from_str(&format!("PAYLOAD_JSON_REFUSED: {error}")))?;
+    let canonical_payload = serde_json::to_string(&parsed)
+        .map_err(|error| JsValue::from_str(&format!("PAYLOAD_CANONICALIZATION_REFUSED: {error}")))?;
+    let payload_digest = blake3::hash(canonical_payload.as_bytes()).to_hex().to_string();
+    let subject_value = EventSubject {
+        platform: PLATFORM,
+        previous_receipt,
+        subject,
+        operation,
+        payload_json: &canonical_payload,
+        sequence,
+    };
+    let subject_bytes = serde_json::to_vec(&subject_value)
+        .map_err(|error| JsValue::from_str(&format!("RECEIPT_SUBJECT_REFUSED: {error}")))?;
+    let receipt_digest = blake3::hash(&subject_bytes).to_hex().to_string();
+    let receipt = RuntimeReceipt {
+        schema: SCHEMA,
+        algorithm: "blake3-256",
+        platform: PLATFORM,
+        subject,
+        operation,
+        sequence,
+        previous_receipt,
+        payload_digest,
+        receipt_digest,
+    };
+    serde_json::to_string(&receipt)
+        .map_err(|error| JsValue::from_str(&format!("RECEIPT_SERIALIZATION_REFUSED: {error}")))
+}
+
+#[wasm_bindgen]
+pub fn playback_drift_ms(
+    authoritative_epoch_ms: i64,
+    authoritative_position_ms: i64,
+    observed_now_ms: i64,
+    local_position_ms: i64,
+) -> i64 {
+    let elapsed = observed_now_ms.saturating_sub(authoritative_epoch_ms);
+    let expected = authoritative_position_ms.saturating_add(elapsed);
+    local_position_ms.saturating_sub(expected)
+}
+
+#[wasm_bindgen]
+pub fn projection_admitted(capabilities_json: &str, required: &str) -> Result<bool, JsValue> {
+    let envelope: CapabilityEnvelope = serde_json::from_str(capabilities_json)
+        .map_err(|error| JsValue::from_str(&format!("CAPABILITY_ENVELOPE_REFUSED: {error}")))?;
+    let capabilities: BTreeSet<String> = envelope.capabilities.into_iter().collect();
+    Ok(capabilities.contains(required))
+}
+
+#[wasm_bindgen]
+pub fn construct_admitted(source: &str) -> bool {
+    let normalized = source.trim_start().to_ascii_uppercase();
+    normalized.starts_with("CONSTRUCT") && normalized.contains("WHERE") && normalized.contains('{')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn receipt_is_deterministic() {
+        let first = chain_event("", "session:one", "set-mode", r#"{"mode":"matrix"}"#, 1).unwrap();
+        let second = chain_event("", "session:one", "set-mode", r#"{"mode":"matrix"}"#, 1).unwrap();
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn capability_admission_is_exact() {
+        let admitted = projection_admitted(r#"{"capabilities":["deckgl","mermaid"]}"#, "deckgl").unwrap();
+        let absent = projection_admitted(r#"{"capabilities":["deckgl","mermaid"]}"#, "rust-wasm").unwrap();
+        assert!(admitted);
+        assert!(!absent);
+    }
+
+    #[test]
+    fn construct_requires_declarative_shape() {
+        assert!(construct_admitted("CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"));
+        assert!(!construct_admitted("SELECT * WHERE { ?s ?p ?o }"));
+    }
+}
+{% endfor %}
