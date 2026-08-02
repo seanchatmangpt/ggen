@@ -1,0 +1,32 @@
+{% for row in sparql_results %}
+import { execFileSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const receiptPath = resolve('.ggen/receipts/cyberpunk-tv.json');
+const args = ['run', '--quiet', '--manifest-path', 'wasm/Cargo.toml', '--bin', 'receipt', '--', '.'];
+
+execFileSync('cargo', args, { stdio: 'inherit' });
+const first = await readFile(receiptPath);
+const firstReceipt = JSON.parse(first.toString('utf8'));
+
+execFileSync('cargo', args, { stdio: 'inherit' });
+const second = await readFile(receiptPath);
+const secondReceipt = JSON.parse(second.toString('utf8'));
+
+if (!first.equals(second)) {
+  console.error(JSON.stringify({ standing: 'BUILD_BROKEN', replay: 'REPLAY_DIFFERENCE' }));
+  process.exit(1);
+}
+if (firstReceipt.algorithm !== 'blake3-256' || secondReceipt.root !== firstReceipt.root) {
+  console.error(JSON.stringify({ standing: 'BUILD_BROKEN', replay: 'RECEIPT_INVALID' }));
+  process.exit(1);
+}
+console.log(JSON.stringify({
+  standing: 'PARTIAL_ALIVE',
+  replay: 'REPLAY_MATCH',
+  platform: {{ row["title"] | json_encode() }},
+  root: firstReceipt.root,
+  artifacts: firstReceipt.artifacts.length
+}));
+{% endfor %}
