@@ -50,13 +50,15 @@ fn state_hash_is_stable_under_query_observation_and_sensitive_to_content() {
 
     let h1 = g1.state_hash().expect("hash g1");
     let h2 = g2.state_hash().expect("hash g2");
-    assert_eq!(h1, h2, "identical content must hash identically regardless of insertion order");
+    assert_eq!(
+        h1, h2,
+        "identical content must hash identically regardless of insertion order"
+    );
 
     // Confirm both graphs actually observe the same content via SPARQL
     // (grounds the hash equality in real, queryable state -- not a
     // coincidence of two hash values).
-    let count_query =
-        "SELECT (COUNT(*) AS ?n) WHERE { ?s <http://example.org/status> \"open\" }";
+    let count_query = "SELECT (COUNT(*) AS ?n) WHERE { ?s <http://example.org/status> \"open\" }";
     let open_count = |g: &DeterministicGraph| -> u64 {
         let results = g.query(count_query).expect("query");
         if let oxigraph::sparql::QueryResults::Solutions(mut sols) = results {
@@ -75,15 +77,18 @@ fn state_hash_is_stable_under_query_observation_and_sensitive_to_content() {
     // Negative falsifier: a real, queryable semantic change (adding a
     // fourth order) must change the hash -- proving the hash is not a
     // constant or a function of graph-construction alone.
-    let extra =
-        DeterministicGraph::parse_nquad(
-            "<http://example.org/order/4> <http://example.org/status> \"open\" .",
-        )
-        .expect("parse extra");
+    let extra = DeterministicGraph::parse_nquad(
+        "<http://example.org/order/4> <http://example.org/status> \"open\" .",
+    )
+    .expect("parse extra");
     g1.insert_quad(&extra).expect("insert extra");
     let h1_after = g1.state_hash().expect("hash g1 after change");
     assert_ne!(h1, h1_after, "adding a real triple must change state_hash");
-    assert_eq!(open_count(&g1), 3, "the added triple must be observable via SPARQL");
+    assert_eq!(
+        open_count(&g1),
+        3,
+        "the added triple must be observable via SPARQL"
+    );
 }
 
 fn workspace_root() -> std::path::PathBuf {
@@ -148,7 +153,8 @@ fn process_intelligence_boundary_guard_detects_fabricated_violation() {
     std::fs::create_dir_all(tmp.path().join("crates/fake-crate/src")).expect("mkdir");
     std::fs::create_dir_all(tmp.path().join("scripts/ci")).expect("mkdir");
     std::fs::write(
-        tmp.path().join("scripts/ci/guard-process-intelligence-boundary.sh"),
+        tmp.path()
+            .join("scripts/ci/guard-process-intelligence-boundary.sh"),
         &script_body,
     )
     .expect("copy guard script");
@@ -157,8 +163,7 @@ fn process_intelligence_boundary_guard_detects_fabricated_violation() {
     // -- does not flag this crate's own test suite as the violation it's
     // deliberately fabricating inside an isolated TempDir.
     let forbidden_path = ["praxis_graphlaw", "chatman", "Conformance"].join("::");
-    let fabricated_violation =
-        format!("fn analyze() {{ let _ = {forbidden_path}::check(); }}\n");
+    let fabricated_violation = format!("fn analyze() {{ let _ = {forbidden_path}::check(); }}\n");
     std::fs::write(
         tmp.path().join("crates/fake-crate/src/bad.rs"),
         fabricated_violation,

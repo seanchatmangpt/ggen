@@ -56,7 +56,9 @@ fn ambiguous_collision_fixture_classifies_as_ambiguous_and_refuses_loudly() {
                 "expected the declarative project-version marker in {matched:?}"
             );
             assert!(
-                matched.iter().any(|m| m == "frontmatter:packs_table_shaped"),
+                matched
+                    .iter()
+                    .any(|m| m == "frontmatter:packs_table_shaped"),
                 "expected the frontmatter packs-table marker in {matched:?}"
             );
         }

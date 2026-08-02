@@ -30,8 +30,7 @@ source = "ontology.ttl"
 dir = "templates"
 "#;
 
-const ONTOLOGY: &str =
-    "@prefix ex: <http://example.org/> .\nex:alice ex:name \"alice\" .\n";
+const ONTOLOGY: &str = "@prefix ex: <http://example.org/> .\nex:alice ex:name \"alice\" .\n";
 
 const TEMPLATE: &str = "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}";
 
@@ -47,7 +46,10 @@ fn scaffold(root: &Path) {
 /// unexpected new file anywhere is caught, not just a change to a file we
 /// already knew about.
 fn snapshot(root: &Path) -> std::collections::BTreeMap<String, (Vec<u8>, SystemTime)> {
-    fn walk(dir: &Path, root: &Path, out: &mut std::collections::BTreeMap<String, (Vec<u8>, SystemTime)>) {
+    fn walk(
+        dir: &Path, root: &Path,
+        out: &mut std::collections::BTreeMap<String, (Vec<u8>, SystemTime)>,
+    ) {
         for entry in std::fs::read_dir(dir).expect("read_dir") {
             let entry = entry.expect("dir entry");
             let path = entry.path();
@@ -60,7 +62,11 @@ fn snapshot(root: &Path) -> std::collections::BTreeMap<String, (Vec<u8>, SystemT
                     .to_string_lossy()
                     .to_string();
                 let bytes = std::fs::read(&path).expect("read file");
-                let mtime = entry.metadata().expect("metadata").modified().expect("mtime");
+                let mtime = entry
+                    .metadata()
+                    .expect("metadata")
+                    .modified()
+                    .expect("mtime");
                 out.insert(rel, (bytes, mtime));
             }
         }
@@ -108,7 +114,10 @@ fn dry_run_subprocess_does_not_mutate_any_file() {
     let decisions = report["decisions"]
         .as_object()
         .expect("decisions is an object");
-    assert!(!decisions.is_empty(), "expected at least one decision: {report}");
+    assert!(
+        !decisions.is_empty(),
+        "expected at least one decision: {report}"
+    );
     for (path, decision) in decisions {
         let text = decision.as_str().unwrap_or_default();
         assert!(

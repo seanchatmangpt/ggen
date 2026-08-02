@@ -110,7 +110,10 @@ fn test_forbidden_surfaces_scan() -> Result<(), Box<dyn Error>> {
         // a test harness invoking an external verifier, not the ggen-graph library shelling out
         // to do its own work — the AGENTS.md constitution rule this scanner enforces targets the
         // latter, not test-only subprocess use for exercising an unrelated CI script.
-        if path.file_name().is_some_and(|n| n == "graph_hashing_evidence_test.rs") {
+        if path
+            .file_name()
+            .is_some_and(|n| n == "graph_hashing_evidence_test.rs")
+        {
             continue;
         }
         let content = fs::read_to_string(path)?;
