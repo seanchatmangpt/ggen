@@ -1,0 +1,23 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+SELECT ?policy_id ?title ?effect ?action ?target
+WHERE {
+  ?policy a odrl:Policy ; dct:title ?title .
+  {
+    ?policy odrl:permission ?rule .
+    ?rule odrl:action ?action_iri ; odrl:target ?target_iri .
+    BIND("permission" AS ?effect)
+  }
+  UNION
+  {
+    ?policy odrl:prohibition ?rule .
+    ?rule odrl:action ?action_iri ; odrl:target ?target_iri .
+    BIND("prohibition" AS ?effect)
+  }
+  BIND(STRAFTER(STR(?policy), "#") AS ?policy_id)
+  BIND(STRAFTER(STR(?action_iri), "/") AS ?action)
+  BIND(STRAFTER(STR(?target_iri), "#") AS ?target)
+}
+ORDER BY ?policy_id ?effect ?action ?target
