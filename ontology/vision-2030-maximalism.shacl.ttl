@@ -1,0 +1,66 @@
+@prefix vmax: <https://ggen.io/ontology/vision-2030-maximalism#> .
+@prefix v2030: <https://ggen.io/ontology/vision-2030#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+vmax:ProductionCellShape a sh:NodeShape ;
+  sh:targetClass vmax:ProductionCell ;
+  sh:property [ sh:path vmax:hasPassport ; sh:minCount 1 ; sh:maxCount 1 ; sh:class vmax:CapabilityPassport ] ;
+  sh:property [ sh:path vmax:usesOperationalNoun ; sh:minCount 1 ; sh:class vmax:OperationalNoun ] ;
+  sh:property [ sh:path vmax:hasOutcome ; sh:minCount 1 ; sh:class vmax:Outcome ] .
+
+vmax:CapabilityPassportShape a sh:NodeShape ;
+  sh:targetClass vmax:CapabilityPassport ;
+  sh:property [ sh:path v2030:identifier ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:reportDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[0-9A-Fa-f]{64}$" ] .
+
+vmax:MaximalismEvaluationShape a sh:NodeShape ;
+  sh:targetClass vmax:MaximalismEvaluation ;
+  sh:property [ sh:path vmax:ontologyModules ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 1 ] ;
+  sh:property [ sh:path vmax:textualForms ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 1 ] ;
+  sh:property [ sh:path vmax:semanticCells ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 1 ] ;
+  sh:property [ sh:path vmax:requiredDomainsAlive ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 19 ] ;
+  sh:property [ sh:path vmax:domainCombinationSpace ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 524287 ] ;
+  sh:property [ sh:path vmax:measuredMultiplier ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ; sh:minInclusive 1000 ] ;
+  sh:property [ sh:path vmax:achieved ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "An achieved maximalist program must expose every lawful outcome." ;
+    sh:select """
+      PREFIX vmax: <https://ggen.io/ontology/vision-2030-maximalism#>
+      SELECT $this WHERE {
+        $this vmax:achieved true .
+        VALUES ?outcome {
+          vmax:Yes vmax:No vmax:Await vmax:Ask vmax:Retrieve
+          vmax:Inspect vmax:Escalate vmax:Ignore vmax:Settle
+        }
+        FILTER NOT EXISTS { $this vmax:hasOutcome ?outcome . }
+      }
+    """
+  ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "An achieved maximalist program must expose Doctor, Wizard, Truthforge, and Telco." ;
+    sh:select """
+      PREFIX vmax: <https://ggen.io/ontology/vision-2030-maximalism#>
+      SELECT $this WHERE {
+        $this vmax:achieved true .
+        VALUES ?noun { vmax:Doctor vmax:Wizard vmax:Truthforge vmax:Telco }
+        FILTER NOT EXISTS { $this vmax:usesOperationalNoun ?noun . }
+      }
+    """
+  ] .
+
+vmax:TelcoShape a sh:NodeShape ;
+  sh:targetNode vmax:Telco ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Telco closure requires office, register, line, bridge, and record surfaces." ;
+    sh:select """
+      PREFIX vmax: <https://ggen.io/ontology/vision-2030-maximalism#>
+      SELECT $this WHERE {
+        VALUES ?surface { vmax:Office vmax:Register vmax:Line vmax:Bridge vmax:Record }
+        FILTER NOT EXISTS { $this vmax:hasTelcoSurface ?surface . }
+      }
+    """
+  ] .
