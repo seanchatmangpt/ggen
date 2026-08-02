@@ -16,6 +16,7 @@ v2030:ProgramShape a sh:NodeShape ;
     sh:message "Vision 2030 requires horizon years 2026, 2027, 2028, 2029, and 2030 exactly once." ;
     sh:select """
       PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
       SELECT $this WHERE {
         VALUES ?year { "2026"^^xsd:gYear "2027"^^xsd:gYear "2028"^^xsd:gYear "2029"^^xsd:gYear "2030"^^xsd:gYear }
         FILTER NOT EXISTS { $this v2030:hasHorizon ?h . ?h v2030:year ?year . }
