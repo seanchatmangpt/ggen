@@ -4,12 +4,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: validate-dteam-kernel-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Check out exact dteam head
         uses: actions/checkout@v4
