@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <https://schema.org/> .
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+
+<https://ggen.dev/ontology/cyberpunk-tv>
+    a dcat:Dataset ;
+    dcterms:title "Cyberpunk Television Platform" ;
+    dcterms:description "Canonical semantic world projected through UNRDF, Mermaid, and deck.gl into television runtime bodies." ;
+    dcterms:hasVersion "26.8.3" .
+
+tv:Platform a rdfs:Class .
+tv:View a rdfs:Class .
+tv:WorldNode a rdfs:Class .
+tv:WorldEdge a rdfs:Class .
+tv:RuntimeBody a rdfs:Class .
+tv:Projection a rdfs:Class .
+
+tv:title a rdf:Property .
+tv:subtitle a rdf:Property .
+tv:defaultLongitude a rdf:Property .
+tv:defaultLatitude a rdf:Property .
+tv:defaultZoom a rdf:Property .
+tv:sourceNode a rdf:Property .
+tv:targetNode a rdf:Property .
+tv:longitude a rdf:Property .
+tv:latitude a rdf:Property .
+tv:weight a rdf:Property .
+tv:projectionKind a rdf:Property .
+tv:runtimeKind a rdf:Property .
+
+tv:CyberpunkPlatform
+    a tv:Platform, prov:Entity ;
+    tv:title "The Public Sprawl" ;
+    tv:subtitle "One world. Many televisions. No shared implementation." ;
+    tv:defaultLongitude "139.6917"^^xsd:decimal ;
+    tv:defaultLatitude "35.6895"^^xsd:decimal ;
+    tv:defaultZoom "1.4"^^xsd:decimal .
+
+tv:WorldView a tv:View ; tv:projectionKind "deck.gl" .
+tv:ProcedureView a tv:View ; tv:projectionKind "mermaid" .
+tv:SemanticView a tv:View ; tv:projectionKind "unrdf" .
+
+tv:BrowserBody a tv:RuntimeBody ; tv:runtimeKind "browser-tv" .
+tv:WasmBody a tv:RuntimeBody ; tv:runtimeKind "wasm" .
+
+tv:Pasadena a tv:WorldNode ; schema:name "Pasadena Foundry" ; tv:longitude "-118.1445"^^xsd:decimal ; tv:latitude "34.1478"^^xsd:decimal ; tv:weight 9 .
+tv:Chiba a tv:WorldNode ; schema:name "Chiba Interface" ; tv:longitude "140.1063"^^xsd:decimal ; tv:latitude "35.6074"^^xsd:decimal ; tv:weight 7 .
+tv:London a tv:WorldNode ; schema:name "London Exchange" ; tv:longitude "-0.1276"^^xsd:decimal ; tv:latitude "51.5072"^^xsd:decimal ; tv:weight 6 .
+tv:Nairobi a tv:WorldNode ; schema:name "Nairobi Relay" ; tv:longitude "36.8219"^^xsd:decimal ; tv:latitude "-1.2921"^^xsd:decimal ; tv:weight 5 .
+
+tv:EdgePasadenaChiba a tv:WorldEdge ; tv:sourceNode tv:Pasadena ; tv:targetNode tv:Chiba ; tv:weight 9 .
+tv:EdgeChibaLondon a tv:WorldEdge ; tv:sourceNode tv:Chiba ; tv:targetNode tv:London ; tv:weight 7 .
+tv:EdgeLondonNairobi a tv:WorldEdge ; tv:sourceNode tv:London ; tv:targetNode tv:Nairobi ; tv:weight 6 .
+tv:EdgeNairobiPasadena a tv:WorldEdge ; tv:sourceNode tv:Nairobi ; tv:targetNode tv:Pasadena ; tv:weight 5 .
