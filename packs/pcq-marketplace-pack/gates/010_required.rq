@@ -1,0 +1,13 @@
+# MESSAGE: every marketplace authority object must carry all projection fields; returned rows are refused.
+PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+SELECT ?subject ?missing WHERE {
+ { ?subject a pcq:MarketplaceApplication . VALUES ?missing { pcq:packageName pcq:displayName pcq:description pcq:nextVersion pcq:reactVersion pcq:deckVersion pcq:currency pcq:settlementPolicy pcq:streamPolicy pcq:usesNode pcq:usesAccount pcq:offers } }
+ UNION { ?subject a pcq:Currency . VALUES ?missing { pcq:currencyCode pcq:currencyName pcq:decimals pcq:initialSupplyMicros pcq:treasuryAccount } }
+ UNION { ?subject a pcq:MarketNode . VALUES ?missing { pcq:nodeId pcq:nodeLabel pcq:nodeKind pcq:longitude pcq:latitude pcq:liquidityMicros } }
+ UNION { ?subject a pcq:MarketAccount . VALUES ?missing { pcq:accountId pcq:accountLabel pcq:balanceMicros } }
+ UNION { ?subject a pcq:CapabilityListing . VALUES ?missing { pcq:listingId pcq:listingTitle pcq:category pcq:sellerAccount pcq:marketNode pcq:priceMicros pcq:inventory pcq:proofScore } }
+ UNION { ?subject a pcq:SettlementPolicy . VALUES ?missing { pcq:feeBps pcq:maxOrderQuantity } }
+ UNION { ?subject a pcq:StreamPolicy . VALUES ?missing { pcq:streamIntervalMs pcq:streamWindow } }
+ FILTER NOT EXISTS { ?subject ?missing ?value }
+}
+ORDER BY ?subject ?missing

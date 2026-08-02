@@ -1,0 +1,55 @@
+---
+to: "tests/market.test.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { describe, expect, it } from 'vitest';
+import { createMarketEngine } from '@/lib/market';
+
+const sumBalances = (balances: { balanceMicros: string }[]) => balances.reduce((sum, account) => sum + BigInt(account.balanceMicros), 0n);
+
+describe('PCQ market engine — real state transitions', () => {
+  it('starts with a balanced fixed-supply ledger', () => {
+    const snapshot = createMarketEngine().snapshot();
+    expect(snapshot.currency.code).toBe('PCQ');
+    expect(sumBalances(snapshot.accounts)).toBe(BigInt(snapshot.currency.supplyMicros));
+    expect(snapshot.metrics.invariant).toBe('BALANCED');
+  });
+
+  it('settles a real order and emits a digest-bound receipt', () => {
+    const engine = createMarketEngine();
+    const before = engine.snapshot();
+    const listing = before.listings[0];
+    const result = engine.settle({ listingId: listing.id, buyerAccountId: 'buyer-atlas', quantity: 2 });
+    const afterListing = result.snapshot.listings.find(item => item.id === listing.id);
+    expect(result.receipt.receiptDigest).toMatch(/^[a-f0-9]{64}$/);
+    expect(afterListing?.inventory).toBe(listing.inventory - 2);
+    expect(result.snapshot.metrics.settlements).toBe(1);
+    expect(sumBalances(result.snapshot.accounts)).toBe(BigInt(result.snapshot.currency.supplyMicros));
+  });
+
+  it('refuses overspending atomically without mutating balances or inventory', () => {
+    const engine = createMarketEngine();
+    const before = engine.snapshot();
+    expect(() => engine.settle({ listingId: 'next-deck-pack', buyerAccountId: 'buyer-atlas', quantity: 25 })).toThrow(/INSUFFICIENT_PCQ_REFUSED/);
+    const after = engine.snapshot();
+    expect(after.accounts).toEqual(before.accounts);
+    expect(after.listings).toEqual(before.listings);
+    expect(sumBalances(after.accounts)).toBe(BigInt(after.currency.supplyMicros));
+    expect(after.metrics.settlements).toBe(0);
+  });
+
+  it('streams deterministic quote activity while preserving the ledger', () => {
+    const engine = createMarketEngine();
+    const first = engine.tick();
+    const second = engine.tick();
+    expect(first.id).toBe('quote-1');
+    expect(second.id).toBe('quote-2');
+    const snapshot = engine.snapshot();
+    expect(snapshot.events).toHaveLength(2);
+    expect(sumBalances(snapshot.accounts)).toBe(BigInt(snapshot.currency.supplyMicros));
+  });
+});
+{% endfor -%}

@@ -1,0 +1,21 @@
+@prefix pcq: <https://ggen.dev/packs/pcq-marketplace#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+pcq:MarketplaceApplication a rdfs:Class .
+pcq:Currency a rdfs:Class .
+pcq:MarketNode a rdfs:Class .
+pcq:MarketAccount a rdfs:Class .
+pcq:CapabilityListing a rdfs:Class .
+pcq:SettlementPolicy a rdfs:Class .
+pcq:StreamPolicy a rdfs:Class .
+
+pcq:packageName a rdf:Property . pcq:displayName a rdf:Property . pcq:description a rdf:Property .
+pcq:nextVersion a rdf:Property . pcq:reactVersion a rdf:Property . pcq:deckVersion a rdf:Property .
+pcq:currency a rdf:Property . pcq:settlementPolicy a rdf:Property . pcq:streamPolicy a rdf:Property .
+pcq:usesNode a rdf:Property . pcq:usesAccount a rdf:Property . pcq:offers a rdf:Property .
+pcq:currencyCode a rdf:Property . pcq:currencyName a rdf:Property . pcq:decimals a rdf:Property . pcq:initialSupplyMicros a rdf:Property . pcq:treasuryAccount a rdf:Property .
+pcq:nodeId a rdf:Property . pcq:nodeLabel a rdf:Property . pcq:nodeKind a rdf:Property . pcq:longitude a rdf:Property . pcq:latitude a rdf:Property . pcq:liquidityMicros a rdf:Property .
+pcq:accountId a rdf:Property . pcq:accountLabel a rdf:Property . pcq:balanceMicros a rdf:Property .
+pcq:listingId a rdf:Property . pcq:listingTitle a rdf:Property . pcq:category a rdf:Property . pcq:sellerAccount a rdf:Property . pcq:marketNode a rdf:Property . pcq:priceMicros a rdf:Property . pcq:inventory a rdf:Property . pcq:proofScore a rdf:Property .
+pcq:feeBps a rdf:Property . pcq:maxOrderQuantity a rdf:Property . pcq:streamIntervalMs a rdf:Property . pcq:streamWindow a rdf:Property .

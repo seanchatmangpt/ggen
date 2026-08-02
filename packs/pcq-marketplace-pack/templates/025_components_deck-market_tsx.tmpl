@@ -1,0 +1,112 @@
+---
+to: "components/deck-market.tsx"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+"use client";
+
+import { MapView } from '@deck.gl/core';
+import { TripsLayer } from '@deck.gl/geo-layers';
+import { ArcLayer, ColumnLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
+import { DeckGL } from '@deck.gl/react';
+import { useEffect, useMemo, useState } from 'react';
+import type { Coordinate, MarketEvent, MarketNode, MarketSnapshot } from '@/lib/types';
+
+const VIEW = { longitude: -18, latitude: 30, zoom: 1.35, pitch: 42, bearing: -12 };
+const COLORS = {
+  buyer: [87, 220, 255, 220] as [number, number, number, number],
+  supplier: [148, 255, 153, 220] as [number, number, number, number],
+  treasury: [255, 196, 93, 235] as [number, number, number, number],
+};
+
+export function DeckMarket({ snapshot }: { snapshot: MarketSnapshot }) {
+  const [time, setTime] = useState(0);
+  useEffect(() => {
+    let frame = 0;
+    let previous = performance.now();
+    const animate = (now: number) => {
+      setTime(current => (current + now - previous) % 4_000);
+      previous = now;
+      frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const nodes = useMemo(() => new Map(snapshot.nodes.map(node => [node.id, node])), [snapshot.nodes]);
+  const paths = snapshot.events.slice(-16).flatMap((event, index) => {
+    const from = nodes.get(event.fromNodeId)?.position;
+    const to = nodes.get(event.toNodeId)?.position;
+    return from && to ? [{ ...event, path: [from, to] as Coordinate[], timestamps: [index * 180, index * 180 + 1_800] }] : [];
+  });
+
+  const layers = [
+    new ColumnLayer<MarketNode>({
+      id: 'liquidity-columns',
+      data: snapshot.nodes,
+      diskResolution: 12,
+      radius: 110_000,
+      extruded: true,
+      elevationScale: 1,
+      getPosition: node => node.position,
+      getElevation: node => Math.max(45_000, Math.log10(Number(node.liquidityMicros) + 1) * 18_000),
+      getFillColor: node => COLORS[node.kind],
+      pickable: true,
+    }),
+    new ScatterplotLayer<MarketNode>({
+      id: 'market-nodes',
+      data: snapshot.nodes,
+      getPosition: node => node.position,
+      getRadius: node => node.kind === 'treasury' ? 250_000 : 150_000,
+      getFillColor: node => COLORS[node.kind],
+      getLineColor: [255, 255, 255, 180],
+      lineWidthMinPixels: 1,
+      stroked: true,
+      pickable: true,
+    }),
+    new ArcLayer<MarketEvent>({
+      id: 'market-arcs',
+      data: snapshot.events.slice(-24),
+      getSourcePosition: event => nodes.get(event.fromNodeId)?.position ?? [0, 0],
+      getTargetPosition: event => nodes.get(event.toNodeId)?.position ?? [0, 0],
+      getSourceColor: event => event.type === 'settlement' ? [255, 197, 94] : [78, 207, 255],
+      getTargetColor: [125, 255, 180],
+      getWidth: event => event.type === 'settlement' ? 5 : 2,
+      greatCircle: true,
+    }),
+    new TripsLayer<(typeof paths)[number]>({
+      id: 'settlement-trips',
+      data: paths,
+      getPath: trip => trip.path,
+      getTimestamps: trip => trip.timestamps,
+      getColor: trip => trip.type === 'settlement' ? [255, 203, 111] : [85, 225, 255],
+      currentTime: time,
+      trailLength: 1_200,
+      widthMinPixels: 3,
+      capRounded: true,
+      jointRounded: true,
+    }),
+    new TextLayer<MarketNode>({
+      id: 'node-labels',
+      data: snapshot.nodes,
+      getPosition: node => node.position,
+      getText: node => node.label,
+      getSize: 13,
+      getColor: [225, 239, 255, 235],
+      getPixelOffset: [0, -20],
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+      billboard: true,
+    }),
+  ];
+
+  return <DeckGL
+    views={new MapView({ repeat: true })}
+    initialViewState={VIEW}
+    controller
+    layers={layers}
+    getTooltip={({ object }) => object ? { text: object.title ?? object.label ?? object.listingId ?? '' } : null}
+  />;
+}
+{% endfor -%}

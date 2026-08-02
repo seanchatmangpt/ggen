@@ -1,0 +1,11 @@
+# MESSAGE: coordinates, proof scores, inventory, prices, and stream bounds must be safe; returned rows are refused.
+PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+SELECT ?subject ?reason WHERE {
+ { ?subject a pcq:MarketNode ; pcq:longitude ?v . FILTER(?v < -180 || ?v > 180) BIND("longitude" AS ?reason) }
+ UNION { ?subject a pcq:MarketNode ; pcq:latitude ?v . FILTER(?v < -90 || ?v > 90) BIND("latitude" AS ?reason) }
+ UNION { ?subject a pcq:CapabilityListing ; pcq:proofScore ?v . FILTER(?v < 0 || ?v > 100) BIND("proof-score" AS ?reason) }
+ UNION { ?subject a pcq:CapabilityListing ; pcq:inventory ?v . FILTER(?v < 0) BIND("inventory" AS ?reason) }
+ UNION { ?subject a pcq:CapabilityListing ; pcq:priceMicros ?v . FILTER(?v <= 0) BIND("price" AS ?reason) }
+ UNION { ?subject a pcq:StreamPolicy ; pcq:streamIntervalMs ?v . FILTER(?v < 100 || ?v > 60000) BIND("stream-interval" AS ?reason) }
+ UNION { ?subject a pcq:StreamPolicy ; pcq:streamWindow ?v . FILTER(?v < 1 || ?v > 10000) BIND("stream-window" AS ?reason) }
+}
