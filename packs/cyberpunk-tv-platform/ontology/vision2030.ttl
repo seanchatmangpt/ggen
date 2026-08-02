@@ -1,0 +1,97 @@
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Vision 2030 is an admitted capability graph, not a roadmap document.
+tv:Vision2030 a tv:CapabilityProgram, prov:Entity ;
+  dct:title "Vision 2030 Combinatorial Maximalist Television" ;
+  tv:programVersion "2030.0" ;
+  tv:objective "Manufacture the highest lawful capability density per admitted television body while preserving reversibility, authority, receipts, and replay." ;
+  tv:standing "PARTIAL_ALIVE" .
+
+tv:CapabilityProgram a rdfs:Class .
+tv:PhaseCapability a rdfs:Class .
+tv:DoctorCheck a rdfs:Class .
+tv:WizardStep a rdfs:Class .
+tv:TransportProfile a rdfs:Class .
+tv:QualityPolicy a rdfs:Class .
+tv:CombinationAxis a rdfs:Class .
+
+tv:capabilityId a rdf:Property .
+tv:capabilityGroup a rdf:Property .
+tv:capabilityOrder a rdf:Property .
+tv:requires a rdf:Property .
+tv:provides a rdf:Property .
+tv:verifier a rdf:Property .
+tv:repairAction a rdf:Property .
+tv:costClass a rdf:Property .
+tv:reversible a rdf:Property .
+tv:defaultEnabled a rdf:Property .
+tv:command a rdf:Property .
+tv:question a rdf:Property .
+tv:choice a rdf:Property .
+tv:transportKind a rdf:Property .
+tv:latencyClass a rdf:Property .
+tv:offlineCapable a rdf:Property .
+tv:axisValues a rdf:Property .
+
+# Developer experience phase change.
+tv:CapDoctor a tv:PhaseCapability ; tv:capabilityId "doctor" ; dct:title "Graph-aware doctor" ; tv:capabilityGroup "dx" ; tv:capabilityOrder 1 ; tv:provides "typed diagnosis, repair plan, evidence boundary" ; tv:verifier "doctor-report-schema" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapWizard a tv:PhaseCapability ; tv:capabilityId "wizard" ; dct:title "Intent-to-admitted-profile wizard" ; tv:capabilityGroup "dx" ; tv:capabilityOrder 2 ; tv:requires tv:CapDoctor ; tv:provides "minimal-question profile manufacture" ; tv:verifier "wizard-plan-replay" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapExplain a tv:PhaseCapability ; tv:capabilityId "explain" ; dct:title "Explain every generated decision" ; tv:capabilityGroup "dx" ; tv:capabilityOrder 3 ; tv:provides "source-to-output correspondence" ; tv:verifier "explanation-lineage" ; tv:costClass "zero" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapOneCommand a tv:PhaseCapability ; tv:capabilityId "one-command" ; dct:title "One-command manufacture and replay" ; tv:capabilityGroup "dx" ; tv:capabilityOrder 4 ; tv:requires tv:CapDoctor ; tv:provides "bounded local ALIVE attempt" ; tv:verifier "command-receipt" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapCapabilitySearch a tv:PhaseCapability ; tv:capabilityId "capability-search" ; dct:title "Semantic capability search" ; tv:capabilityGroup "dx" ; tv:capabilityOrder 5 ; tv:provides "query by outcome rather than package" ; tv:verifier "search-result-grounding" ; tv:costClass "zero" ; tv:reversible true ; tv:defaultEnabled true .
+
+# Quality-of-life and accessibility.
+tv:CapAdaptiveUI a tv:PhaseCapability ; tv:capabilityId "adaptive-ui" ; dct:title "Device-adaptive television UI" ; tv:capabilityGroup "qol" ; tv:capabilityOrder 10 ; tv:provides "distance, input, display, and attention adaptation" ; tv:verifier "profile-projection-match" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapAccessibility a tv:PhaseCapability ; tv:capabilityId "accessibility" ; dct:title "Generated accessibility profile" ; tv:capabilityGroup "qol" ; tv:capabilityOrder 11 ; tv:provides "captions, audio description, contrast, reduced motion, focus order" ; tv:verifier "wcag-tv-boundary" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapResume a tv:PhaseCapability ; tv:capabilityId "semantic-resume" ; dct:title "Resume by semantic state" ; tv:capabilityGroup "qol" ; tv:capabilityOrder 12 ; tv:provides "scene, graph altitude, mode, and receipt cursor" ; tv:verifier "resume-replay" ; tv:costClass "zero" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapOffline a tv:PhaseCapability ; tv:capabilityId "offline-first" ; dct:title "Offline-first projection" ; tv:capabilityGroup "qol" ; tv:capabilityOrder 13 ; tv:provides "cached authority and local replay" ; tv:verifier "offline-browser-e2e" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapLocalization a tv:PhaseCapability ; tv:capabilityId "localization" ; dct:title "Ontology-driven localization" ; tv:capabilityGroup "qol" ; tv:capabilityOrder 14 ; tv:provides "language and cultural projection without canon fork" ; tv:verifier "locale-equivalence" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+
+# Telco and distributed presence.
+tv:CapTransportNegotiation a tv:PhaseCapability ; tv:capabilityId "transport-negotiation" ; dct:title "Capability-negotiated transport" ; tv:capabilityGroup "telco" ; tv:capabilityOrder 20 ; tv:provides "local, LAN, federated, broadcast, and delay-tolerant selection" ; tv:verifier "transport-profile-proof" ; tv:costClass "network" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapClockDiscipline a tv:PhaseCapability ; tv:capabilityId "clock-discipline" ; dct:title "Receipted watch-party clock" ; tv:capabilityGroup "telco" ; tv:capabilityOrder 21 ; tv:requires tv:CapTransportNegotiation ; tv:provides "drift observation and bounded correction intents" ; tv:verifier "clock-drift-fixture" ; tv:costClass "network" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapPresence a tv:PhaseCapability ; tv:capabilityId "global-presence" ; dct:title "Global presence graph" ; tv:capabilityGroup "telco" ; tv:capabilityOrder 22 ; tv:requires tv:CapTransportNegotiation ; tv:provides "privacy-bounded participant topology" ; tv:verifier "presence-minimization" ; tv:costClass "network" ; tv:reversible true ; tv:defaultEnabled false .
+tv:CapStoreForward a tv:PhaseCapability ; tv:capabilityId "store-forward" ; dct:title "Delay-tolerant event exchange" ; tv:capabilityGroup "telco" ; tv:capabilityOrder 23 ; tv:provides "offline event queue and later receipt convergence" ; tv:verifier "partition-replay" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapEdgeRelay a tv:PhaseCapability ; tv:capabilityId "edge-relay" ; dct:title "Generated edge relay profile" ; tv:capabilityGroup "telco" ; tv:capabilityOrder 24 ; tv:requires tv:CapTransportNegotiation ; tv:provides "venue and neighborhood fanout" ; tv:verifier "relay-authority-bound" ; tv:costClass "network" ; tv:reversible true ; tv:defaultEnabled false .
+
+# Combinatorial maximalism and economic surfaces.
+tv:CapVariantPlanner a tv:PhaseCapability ; tv:capabilityId "variant-planner" ; dct:title "Maximal reversible variant planner" ; tv:capabilityGroup "cmd" ; tv:capabilityOrder 30 ; tv:provides "enumerate lawful profiles before selection" ; tv:verifier "bounded-cartesian-count" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapPareto a tv:PhaseCapability ; tv:capabilityId "pareto-selection" ; dct:title "Pareto profile selection" ; tv:capabilityGroup "cmd" ; tv:capabilityOrder 31 ; tv:requires tv:CapVariantPlanner ; tv:provides "quality, latency, privacy, cost, accessibility frontier" ; tv:verifier "pareto-nondomination" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapHotSwap a tv:PhaseCapability ; tv:capabilityId "hot-swap" ; dct:title "Receipted runtime body hot swap" ; tv:capabilityGroup "cmd" ; tv:capabilityOrder 32 ; tv:requires tv:CapVariantPlanner ; tv:provides "replace projection body without canon mutation" ; tv:verifier "state-preserving-swap" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled false .
+tv:CapMarketplace a tv:PhaseCapability ; tv:capabilityId "semantic-market" ; dct:title "Generated rights and exchange market" ; tv:capabilityGroup "economics" ; tv:capabilityOrder 40 ; tv:provides "ODRL rights, parliamentary settlement, escrow, receipts" ; tv:verifier "settlement-positive-negative" ; tv:costClass "network" ; tv:reversible true ; tv:defaultEnabled false .
+tv:CapCreatorStudio a tv:PhaseCapability ; tv:capabilityId "creator-studio" ; dct:title "Canon-to-TV creator studio" ; tv:capabilityGroup "economics" ; tv:capabilityOrder 41 ; tv:provides "graph authoring, preview, manufacture, publish" ; tv:verifier "source-projection-replay" ; tv:costClass "local" ; tv:reversible true ; tv:defaultEnabled true .
+tv:CapAudienceFork a tv:PhaseCapability ; tv:capabilityId "audience-projection" ; dct:title "Audience-specific projection without canon fork" ; tv:capabilityGroup "economics" ; tv:capabilityOrder 42 ; tv:requires tv:CapCreatorStudio ; tv:provides "expertise, region, accessibility, and faction views" ; tv:verifier "shared-subject-identity" ; tv:costClass "zero" ; tv:reversible true ; tv:defaultEnabled true .
+
+# Doctor checks are declarative and repair the earliest lawful transition.
+tv:DoctorAuthority a tv:DoctorCheck ; tv:capabilityId "authority" ; tv:capabilityOrder 1 ; tv:command "ggen graph validate" ; tv:repairAction "repair ontology, SHACL, or manifest" ; tv:verifier "exit-zero-and-report" .
+tv:DoctorGeneration a tv:DoctorCheck ; tv:capabilityId "generation" ; tv:capabilityOrder 2 ; tv:command "ggen sync run" ; tv:repairAction "repair query or template; never generated output" ; tv:verifier "receipt-valid" .
+tv:DoctorWasm a tv:DoctorCheck ; tv:capabilityId "wasm" ; tv:capabilityOrder 3 ; tv:command "npm run wasm" ; tv:repairAction "repair generated Rust authority/template" ; tv:verifier "wasm-module-load" .
+tv:DoctorBrowser a tv:DoctorCheck ; tv:capabilityId "browser" ; tv:capabilityOrder 4 ; tv:command "npm run e2e" ; tv:repairAction "repair runtime correspondence" ; tv:verifier "browser-evidence" .
+tv:DoctorReplay a tv:DoctorCheck ; tv:capabilityId "replay" ; tv:capabilityOrder 5 ; tv:command "npm run replay" ; tv:repairAction "locate identity or nondeterminism mismatch" ; tv:verifier "REPLAY_MATCH" .
+
+# Wizard asks only irreversible or authority-bearing choices.
+tv:WizardOutcome a tv:WizardStep ; tv:capabilityOrder 1 ; tv:question "What outcome is being manufactured?" ; tv:choice "watch-party, creator-studio, venue, market, lore-atlas" .
+tv:WizardAuthority a tv:WizardStep ; tv:capabilityOrder 2 ; tv:question "Who may authorize consequences?" ; tv:choice "local-owner, host, parliamentary-group, external-policy" .
+tv:WizardRights a tv:WizardStep ; tv:capabilityOrder 3 ; tv:question "Which rights are admitted?" ; tv:choice "private, exhibition, distribution, derivative, commercial" .
+tv:WizardTransport a tv:WizardStep ; tv:capabilityOrder 4 ; tv:question "Which transport boundary is admitted?" ; tv:choice "local, lan, federated, delay-tolerant" .
+tv:WizardStanding a tv:WizardStep ; tv:capabilityOrder 5 ; tv:question "What execution evidence is required?" ; tv:choice "preview, local-alive, device-alive, federated-alive" .
+
+# Transport profiles are selectable parts, not one universal implementation.
+tv:TransportLocal a tv:TransportProfile ; tv:transportKind "local" ; tv:latencyClass "immediate" ; tv:offlineCapable true ; tv:provides "single-body and BroadcastChannel" .
+tv:TransportLan a tv:TransportProfile ; tv:transportKind "lan" ; tv:latencyClass "interactive" ; tv:offlineCapable false ; tv:provides "venue-local WebSocket relay" .
+tv:TransportFederated a tv:TransportProfile ; tv:transportKind "federated" ; tv:latencyClass "interactive" ; tv:offlineCapable false ; tv:provides "cross-region intent federation" .
+tv:TransportDelayTolerant a tv:TransportProfile ; tv:transportKind "delay-tolerant" ; tv:latencyClass "eventual" ; tv:offlineCapable true ; tv:provides "store-forward receipt convergence" .
+
+# Axes define a bounded product space. Selection never destroys unselected lawful profiles.
+tv:AxisMode a tv:CombinationAxis ; tv:capabilityId "mode" ; tv:axisValues "cinema,matrix,construct,governance,market,receipt" .
+tv:AxisDevice a tv:CombinationAxis ; tv:capabilityId "device" ; tv:axisValues "browser,living-room,venue-wall,apple-tv,android-tv,low-resource" .
+tv:AxisTransport a tv:CombinationAxis ; tv:capabilityId "transport" ; tv:axisValues "local,lan,federated,delay-tolerant" .
+tv:AxisAccessibility a tv:CombinationAxis ; tv:capabilityId "accessibility" ; tv:axisValues "default,high-contrast,reduced-motion,audio-description,captions" .
+tv:AxisLanguage a tv:CombinationAxis ; tv:capabilityId "language" ; tv:axisValues "canonical,localized,bilingual" .
+tv:AxisStanding a tv:CombinationAxis ; tv:capabilityId "standing" ; tv:axisValues "preview,local-alive,device-alive,federated-alive" .
