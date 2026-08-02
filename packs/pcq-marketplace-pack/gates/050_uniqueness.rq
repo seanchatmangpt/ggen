@@ -1,0 +1,8 @@
+# MESSAGE: public identifiers must be unique; returned rows are refused.
+PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+SELECT ?kind ?id (COUNT(?subject) AS ?count) WHERE {
+ { ?subject a pcq:MarketNode ; pcq:nodeId ?id . BIND("node" AS ?kind) }
+ UNION { ?subject a pcq:MarketAccount ; pcq:accountId ?id . BIND("account" AS ?kind) }
+ UNION { ?subject a pcq:CapabilityListing ; pcq:listingId ?id . BIND("listing" AS ?kind) }
+}
+GROUP BY ?kind ?id HAVING(COUNT(?subject) > 1)

@@ -1,0 +1,10 @@
+---
+to: "next-env.d.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+{% endfor -%}

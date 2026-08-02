@@ -1,0 +1,117 @@
+{
+  "corpus_checkpoint": "07928bde9d9eaba2e2e2fd8f78fcdc3f7b0b63ff",
+  "corpus_ref": "70e599a599fedb7c62c965377cc2f80df1fa01ec",
+  "corpus_repository": "seanchatmangpt/ggen-legacy",
+  "destination_receipt_sha256": "206d16479dff08caad0b47dcf9d1e2c168815afbdd5051f26a7bd57d1309bc26",
+  "plan_sha256": "09c521be705481ccaa707e4a42ee8b4f929c5115fae207a839d27b4b11876034",
+  "removal_commit": "862386394fdc1a7476f1c5057fd474af2afb7126",
+  "replay": "REPLAY_MATCH",
+  "replay_digest": "dd082fe673dcf6e44e19f0b10db1cfef454d08af266cad956d2fd04781040877",
+  "schema": "ggen.source-removal-receipt/1",
+  "source_base": "8351af4c5bbbf60bd99ab8417752a1762c6ea4e3",
+  "source_repository": "seanchatmangpt/ggen",
+  "standing": "ALIVE",
+  "verification_report": {
+    "checks": {
+      "corpus_config_ref": true,
+      "corpus_config_repository": true,
+      "guard_byte_identity:scripts/ci/guard_fail_open_subprocess.py": true,
+      "guard_byte_identity:scripts/ci/guard_short_test_timeout.py": true,
+      "guard_relocated:scripts/ci/guard_fail_open_subprocess.py": true,
+      "guard_relocated:scripts/ci/guard_short_test_timeout.py": true,
+      "operational_source_references_absent": true,
+      "plan_present": true,
+      "rustfmt_retained": true,
+      "source_roots_absent": true
+    },
+    "commands": [
+      {
+        "argv": [
+          "/usr/bin/python3",
+          "planning/v26.8.1/verify_planning.py"
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/python3",
+          "tools/v26.8.1/validate_shacl.py",
+          "--root",
+          "."
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "cargo",
+          "test",
+          "--manifest-path",
+          "tools/architecture-foundry/Cargo.toml",
+          "--all-targets"
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "cargo",
+          "test",
+          "--manifest-path",
+          "tools/v26.8.1/Cargo.toml",
+          "--locked",
+          "--all-targets"
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "cargo",
+          "test",
+          "-p",
+          "ggen-config",
+          "--test",
+          "governance_precommit_gate_count_test"
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "just",
+          "--list"
+        ],
+        "exit_status": 0
+      },
+      {
+        "argv": [
+          "rsync",
+          "-a",
+          "--exclude=.git",
+          "--exclude=.baseline-ggen",
+          "--exclude=.corpus",
+          "--exclude=target",
+          "./",
+          "<COMPOSED_SOURCE>/"
+        ],
+        "exit_status": 0
+      }
+    ],
+    "corpus_ref": "70e599a599fedb7c62c965377cc2f80df1fa01ec",
+    "corpus_repository": "seanchatmangpt/ggen-legacy",
+    "plan_sha256": "09c521be705481ccaa707e4a42ee8b4f929c5115fae207a839d27b4b11876034",
+    "relocated_guards": [
+      "scripts/ci/guard_fail_open_subprocess.py",
+      "scripts/ci/guard_short_test_timeout.py"
+    ],
+    "removed_roots": [
+      "docs/v26.8.1",
+      "ontology/v26.8.1",
+      "planning/v26.8.1",
+      "tools/v26.8.1",
+      "packs/legacy-equivalence-verifier-pack"
+    ],
+    "schema": "ggen.source-removal-verifier/1",
+    "source_base": "8351af4c5bbbf60bd99ab8417752a1762c6ea4e3",
+    "source_repository": "seanchatmangpt/ggen",
+    "standing": "ALIVE",
+    "subject_commit": "862386394fdc1a7476f1c5057fd474af2afb7126"
+  }
+}

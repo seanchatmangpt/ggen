@@ -1,0 +1,55 @@
+---
+to: "app/api/stream/route.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { getMarketEngine } from '@/lib/market';
+import { MARKET_CONFIG } from '@/lib/seed';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+const encoder = new TextEncoder();
+const frame = (event: string, data: unknown) => encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const requestedInterval = Number(url.searchParams.get('interval') ?? MARKET_CONFIG.streamIntervalMs);
+  const requestedLimit = Number(url.searchParams.get('limit') ?? 120);
+  const intervalMs = Number.isFinite(requestedInterval) ? Math.max(150, Math.min(5_000, requestedInterval)) : MARKET_CONFIG.streamIntervalMs;
+  const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(240, requestedLimit)) : 120;
+  const engine = getMarketEngine();
+  let emitted = 0;
+  let timer: ReturnType<typeof setInterval> | undefined;
+
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(frame('snapshot', engine.snapshot()));
+      timer = setInterval(() => {
+        if (++emitted > limit) {
+          if (timer) clearInterval(timer);
+          controller.close();
+          return;
+        }
+        controller.enqueue(frame('market', { event: engine.tick(), snapshot: engine.snapshot() }));
+      }, intervalMs);
+      request.signal.addEventListener('abort', () => {
+        if (timer) clearInterval(timer);
+        try { controller.close(); } catch { /* already closed */ }
+      }, { once: true });
+    },
+    cancel() { if (timer) clearInterval(timer); },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'content-type': 'text/event-stream',
+      'cache-control': 'no-cache, no-transform',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no',
+    },
+  });
+}
+{% endfor -%}

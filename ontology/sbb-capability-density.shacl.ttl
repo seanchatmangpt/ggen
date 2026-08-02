@@ -1,0 +1,193 @@
+@prefix sbbd: <https://ggen.io/ontology/sbb-capability-density#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sbbd:SolutionBuildingBlockShape a sh:NodeShape ;
+    sh:targetClass sbbd:SolutionBuildingBlock ;
+    sh:closed false ;
+    sh:property [
+        sh:path sbbd:identifier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path sbbd:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path sbbd:hasRepositoryBinding ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sbbd:RepositoryBinding
+    ] ;
+    sh:property [
+        sh:path sbbd:hasArchitectureContract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sbbd:ArchitectureContract
+    ] ;
+    sh:property [
+        sh:path sbbd:minimumCommitEquivalentUnits ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 1
+    ] ;
+    sh:property [
+        sh:path sbbd:hasCapabilityDelta ;
+        sh:minCount 1 ;
+        sh:class sbbd:CapabilityDelta
+    ] ;
+    sh:property [
+        sh:path sbbd:hasDistributionAxis ;
+        sh:minCount 7 ;
+        sh:class sbbd:DistributionAxis
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Each distribution axis name must be unique within an SBB." ;
+        sh:select """
+            PREFIX sbbd: <https://ggen.io/ontology/sbb-capability-density#>
+            SELECT $this
+            WHERE {
+              $this sbbd:hasDistributionAxis ?a1, ?a2 .
+              ?a1 sbbd:axisName ?name .
+              ?a2 sbbd:axisName ?name .
+              FILTER (?a1 != ?a2)
+            }
+        """
+    ] .
+
+sbbd:CapabilityDeltaShape a sh:NodeShape ;
+    sh:targetClass sbbd:CapabilityDelta ;
+    sh:property [
+        sh:path sbbd:identifier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path sbbd:commitSha ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9A-Fa-f]{7,64}$"
+    ] ;
+    sh:property [
+        sh:path sbbd:capabilityIri ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path sbbd:family ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path sbbd:summary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path sbbd:hasEvidenceBinding ;
+        sh:minCount 14 ;
+        sh:class sbbd:EvidenceBinding
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Each capability delta must bind all ten manufacturing stages and four claim witnesses exactly once." ;
+        sh:select """
+            PREFIX sbbd: <https://ggen.io/ontology/sbb-capability-density#>
+            SELECT $this
+            WHERE {
+              {
+                VALUES ?required {
+                  sbbd:OntologyStage sbbd:ShaclStage sbbd:SparqlStage
+                  sbbd:TypestateStage sbbd:TemplateStage sbbd:ArtifactStage
+                  sbbd:RuntimeSurfaceStage sbbd:WalkthroughStage
+                  sbbd:ReceiptStage sbbd:ReplayStage
+                  sbbd:PositiveWitnessStage sbbd:NegativeFixtureStage
+                  sbbd:AdversarialFalsifierStage sbbd:VerifierStage
+                }
+                FILTER NOT EXISTS {
+                  $this sbbd:hasEvidenceBinding ?binding .
+                  ?binding sbbd:stage ?required .
+                }
+              }
+              UNION
+              {
+                $this sbbd:hasEvidenceBinding ?left, ?right .
+                ?left sbbd:stage ?stage .
+                ?right sbbd:stage ?stage .
+                FILTER (?left != ?right)
+              }
+            }
+        """
+    ] .
+
+sbbd:EvidenceBindingShape a sh:NodeShape ;
+    sh:targetClass sbbd:EvidenceBinding ;
+    sh:property [
+        sh:path sbbd:stage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sbbd:ManufacturingStage
+    ] ;
+    sh:property [
+        sh:path sbbd:locator ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path sbbd:contentDigest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^blake3[:-][0-9A-Fa-f]{64}$"
+    ] .
+
+sbbd:DistributionAxisShape a sh:NodeShape ;
+    sh:targetClass sbbd:DistributionAxis ;
+    sh:property [
+        sh:path sbbd:axisName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+          "ontology_modules" "textual_forms" "audiences" "languages"
+          "jurisdictions" "organization_profiles" "runtimes"
+        )
+    ] ;
+    sh:property [
+        sh:path sbbd:axisMember ;
+        sh:minCount 1 ;
+        sh:minLength 1
+    ] .
+
+sbbd:NoDuplicateCommitClaimShape a sh:NodeShape ;
+    sh:targetClass sbbd:SolutionBuildingBlock ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A Git commit may contribute at most one commit-equivalent density unit within an SBB." ;
+        sh:select """
+            PREFIX sbbd: <https://ggen.io/ontology/sbb-capability-density#>
+            SELECT $this
+            WHERE {
+              $this sbbd:hasCapabilityDelta ?d1, ?d2 .
+              ?d1 sbbd:commitSha ?sha .
+              ?d2 sbbd:commitSha ?sha .
+              FILTER (?d1 != ?d2)
+            }
+        """
+    ] .
+
+sbbd:RepositoryBindingShape a sh:NodeShape ;
+    sh:targetClass sbbd:RepositoryBinding ;
+    sh:property [
+        sh:path sbbd:repositoryRoot ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1
+    ] .

@@ -1,0 +1,15 @@
+---
+to: "vitest.config.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
+  test: { environment: 'node', include: ['tests/**/*.test.ts'] },
+});
+{% endfor -%}

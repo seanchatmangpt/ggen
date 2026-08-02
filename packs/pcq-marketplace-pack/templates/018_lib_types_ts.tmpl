@@ -1,0 +1,77 @@
+---
+to: "lib/types.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+export type Coordinate = readonly [longitude: number, latitude: number];
+
+export type MarketNode = {
+  id: string;
+  label: string;
+  kind: 'buyer' | 'supplier' | 'treasury';
+  position: Coordinate;
+  liquidityMicros: string;
+};
+
+export type Listing = {
+  id: string;
+  title: string;
+  category: string;
+  sellerAccountId: string;
+  nodeId: string;
+  priceMicros: string;
+  inventory: number;
+  proofScore: number;
+};
+
+export type Account = {
+  id: string;
+  label: string;
+  balanceMicros: string;
+};
+
+export type MarketEvent = {
+  id: string;
+  type: 'quote' | 'settlement';
+  occurredAt: string;
+  listingId: string;
+  fromNodeId: string;
+  toNodeId: string;
+  quantity: number;
+  amountMicros: string;
+  priceMicros: string;
+  receiptDigest?: string;
+};
+
+export type MarketSnapshot = {
+  currency: { code: 'PCQ'; name: string; decimals: 6; supplyMicros: string };
+  nodes: MarketNode[];
+  listings: Listing[];
+  accounts: Account[];
+  events: MarketEvent[];
+  metrics: {
+    marketVolumeMicros: string;
+    settlements: number;
+    activeListings: number;
+    averageProofScore: number;
+    invariant: 'BALANCED';
+  };
+  sequence: number;
+};
+
+export type OrderRequest = { listingId: string; buyerAccountId: string; quantity: number };
+export type SettlementReceipt = {
+  receiptType: 'pcq.market.settlement';
+  receiptDigest: string;
+  sequence: number;
+  listingId: string;
+  buyerAccountId: string;
+  sellerAccountId: string;
+  quantity: number;
+  amountMicros: string;
+  feeMicros: string;
+  completedAt: string;
+};
+{% endfor -%}

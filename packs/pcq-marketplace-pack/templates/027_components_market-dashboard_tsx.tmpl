@@ -1,0 +1,107 @@
+---
+to: "components/market-dashboard.tsx"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+"use client";
+
+import dynamic from 'next/dynamic';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { MetricCard } from './metric-card';
+import type { MarketSnapshot, SettlementReceipt } from '@/lib/types';
+
+const DeckMarket = dynamic(() => import('./deck-market').then(module => module.DeckMarket), { ssr: false });
+const PCQ = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+const formatPcq = (micros: string) => `${PCQ.format(Number(micros) / 1_000_000)} PCQ`;
+
+export function MarketDashboard({ initialSnapshot }: { initialSnapshot: MarketSnapshot }) {
+  const [snapshot, setSnapshot] = useState(initialSnapshot);
+  const [receipt, setReceipt] = useState<SettlementReceipt | null>(null);
+  const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting'>('connecting');
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    let source: EventSource | null = null;
+    let closed = false;
+    const connect = () => {
+      if (closed) return;
+      source = new EventSource('/api/stream');
+      source.addEventListener('snapshot', event => {
+        setSnapshot(JSON.parse((event as MessageEvent).data));
+        setStreamState('live');
+      });
+      source.addEventListener('market', event => {
+        setSnapshot(JSON.parse((event as MessageEvent).data).snapshot);
+        setStreamState('live');
+      });
+      source.onerror = () => {
+        source?.close();
+        setStreamState('reconnecting');
+        window.setTimeout(connect, 1_000);
+      };
+    };
+    connect();
+    return () => { closed = true; source?.close(); };
+  }, []);
+
+  const treasury = snapshot.accounts.find(account => account.id === 'treasury');
+  const recent = useMemo(() => [...snapshot.events].reverse().slice(0, 10), [snapshot.events]);
+
+  const acquire = (listingId: string) => startTransition(async () => {
+    setError(null);
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ listingId, buyerAccountId: 'buyer-atlas', quantity: 1 }),
+    });
+    const payload = await response.json();
+    if (!response.ok) { setError(payload.error ?? 'ORDER_REFUSED'); return; }
+    setReceipt(payload.receipt);
+    setSnapshot(payload.snapshot);
+  });
+
+  return <main className="shell">
+    <header className="topbar">
+      <div><p className="eyebrow">GGEN MANUFACTURED · REAL-TIME CAPABILITY ECONOMY</p><h1>PCQ Atlas Marketplace</h1></div>
+      <div className={`live-pill ${streamState}`}><span />{streamState}</div>
+    </header>
+
+    <section className="metrics">
+      <MetricCard label="Treasury" value={formatPcq(treasury?.balanceMicros ?? '0')} detail="proof-carrying liquidity" />
+      <MetricCard label="Market volume" value={formatPcq(snapshot.metrics.marketVolumeMicros)} detail={`${snapshot.metrics.settlements} settled orders`} />
+      <MetricCard label="Proof score" value={`${snapshot.metrics.averageProofScore}%`} detail="weighted listing assurance" />
+      <MetricCard label="Ledger invariant" value={snapshot.metrics.invariant} detail={`sequence ${snapshot.sequence}`} />
+    </section>
+
+    <section className="workspace">
+      <aside className="market-panel panel">
+        <div className="panel-heading"><div><span>Marketplace</span><strong>{snapshot.metrics.activeListings} live capabilities</strong></div><em>PCQ/UNIT</em></div>
+        <div className="listing-stack">
+          {snapshot.listings.map(listing => <article className="listing" key={listing.id}>
+            <div className="listing-top"><span className="category">{listing.category}</span><span className="proof">{listing.proofScore}% proof</span></div>
+            <h2>{listing.title}</h2>
+            <div className="listing-bottom"><div><strong>{formatPcq(listing.priceMicros)}</strong><small>{listing.inventory} units</small></div><button disabled={isPending || listing.inventory === 0} onClick={() => acquire(listing.id)}>Acquire</button></div>
+          </article>)}
+        </div>
+      </aside>
+
+      <section className="map-panel panel" aria-label="Real-time PCQ marketplace map">
+        <div className="map-overlay"><span>GLOBAL CAPABILITY FLOW</span><strong>{snapshot.nodes.length} governed nodes</strong></div>
+        <DeckMarket snapshot={snapshot} />
+      </section>
+
+      <aside className="ledger-panel panel">
+        <div className="panel-heading"><div><span>Live evidence</span><strong>settlement tape</strong></div><em>{streamState}</em></div>
+        {receipt && <article className="receipt" data-testid="settlement-receipt"><span>Latest receipt</span><strong>{receipt.receiptDigest.slice(0, 16)}…</strong><small>{formatPcq(receipt.amountMicros)} · seq {receipt.sequence}</small></article>}
+        {error && <p className="error">{error}</p>}
+        <div className="event-tape">{recent.map(event => <article key={event.id}>
+          <span className={event.type}>{event.type}</span><div><strong>{event.listingId}</strong><small>{event.fromNodeId} → {event.toNodeId}</small></div><em>{event.type === 'settlement' ? formatPcq(event.amountMicros) : formatPcq(event.priceMicros)}</em>
+        </article>)}</div>
+      </aside>
+    </section>
+  </main>;
+}
+{% endfor -%}

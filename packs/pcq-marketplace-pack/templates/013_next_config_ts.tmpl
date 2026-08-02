@@ -1,0 +1,16 @@
+---
+to: "next.config.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  experimental: { optimizePackageImports: ['@deck.gl/layers', '@deck.gl/geo-layers'] },
+};
+
+export default nextConfig;
+{% endfor -%}

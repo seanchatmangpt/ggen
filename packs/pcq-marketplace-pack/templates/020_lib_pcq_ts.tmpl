@@ -1,0 +1,67 @@
+---
+to: "lib/pcq.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { createHash } from 'node:crypto';
+import type { Account } from './types';
+
+export const PCQ_SCALE = 1_000_000n;
+
+export function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  const object = value as Record<string, unknown>;
+  return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${canonicalJson(object[key])}`).join(',')}}`;
+}
+
+export function digest(value: unknown): string {
+  return createHash('sha256').update(canonicalJson(value)).digest('hex');
+}
+
+export class PcqLedger {
+  readonly #balances = new Map<string, bigint>();
+  readonly supplyMicros: bigint;
+
+  constructor(accounts: Account[], supplyMicros: string) {
+    this.supplyMicros = BigInt(supplyMicros);
+    for (const account of accounts) {
+      if (this.#balances.has(account.id)) throw new Error(`DUPLICATE_ACCOUNT_REFUSED:${account.id}`);
+      this.#balances.set(account.id, BigInt(account.balanceMicros));
+    }
+    this.assertBalanced();
+  }
+
+  balance(accountId: string): bigint {
+    const value = this.#balances.get(accountId);
+    if (value === undefined) throw new Error(`UNKNOWN_ACCOUNT_REFUSED:${accountId}`);
+    return value;
+  }
+
+  transfer(from: string, to: string, amountMicros: bigint): void {
+    if (amountMicros <= 0n) throw new Error('NON_POSITIVE_TRANSFER_REFUSED');
+    const fromBalance = this.balance(from);
+    const toBalance = this.balance(to);
+    if (fromBalance < amountMicros) throw new Error(`INSUFFICIENT_PCQ_REFUSED:${from}`);
+    this.#balances.set(from, fromBalance - amountMicros);
+    this.#balances.set(to, toBalance + amountMicros);
+    this.assertBalanced();
+  }
+
+  accounts(labels: Map<string, string>): Account[] {
+    return [...this.#balances.entries()].map(([id, balance]) => ({
+      id,
+      label: labels.get(id) ?? id,
+      balanceMicros: balance.toString(),
+    }));
+  }
+
+  assertBalanced(): void {
+    const total = [...this.#balances.values()].reduce((sum, value) => sum + value, 0n);
+    if (total !== this.supplyMicros) throw new Error(`PCQ_SUPPLY_DRIFT_REFUSED:${total}`);
+    if ([...this.#balances.values()].some(value => value < 0n)) throw new Error('NEGATIVE_PCQ_BALANCE_REFUSED');
+  }
+}
+{% endfor -%}

@@ -1,0 +1,7 @@
+# MESSAGE: all application, listing, and treasury references must close over admitted objects; returned rows are refused.
+PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+SELECT ?subject ?predicate ?target WHERE {
+ { ?subject a pcq:MarketplaceApplication ; ?predicate ?target . VALUES ?predicate { pcq:currency pcq:settlementPolicy pcq:streamPolicy pcq:usesNode pcq:usesAccount pcq:offers } FILTER NOT EXISTS { ?target a ?type } }
+ UNION { ?subject a pcq:CapabilityListing ; ?predicate ?target . VALUES ?predicate { pcq:sellerAccount pcq:marketNode } FILTER NOT EXISTS { ?target a ?type } }
+ UNION { ?subject a pcq:Currency ; pcq:treasuryAccount ?target . BIND(pcq:treasuryAccount AS ?predicate) FILTER NOT EXISTS { ?target a pcq:MarketAccount } }
+}

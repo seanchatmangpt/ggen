@@ -1,0 +1,57 @@
+# SBB Capability Density Report — {{ sbb.id }}
+
+**Version:** {{ sbb.version }}  
+**Architecture contract:** `{{ sbb.architecture_contract }}`  
+**Standing:** `{{ standing }}`  
+**Claim ceiling:** `{{ claim_ceiling }}`  
+**External admission eligible:** `{{ eligible_for_external_admission }}`
+
+## Density
+
+| Measure | Value |
+|---|---:|
+| Declared deltas | {{ declared_deltas }} |
+| Commit-equivalent units | {{ commit_equivalent_units }} |
+| Required units | {{ sbb.minimum_commit_equivalent_units }} |
+| Target met | {{ target_met }} |
+| Duplicate commit collisions | {{ duplicate_commit_collisions }} |
+| Distribution contexts | {{ distribution_contexts }} |
+| Delivered capability instances | {{ delivered_capability_instances }} |
+
+## Distribution axes
+
+{% for name, count in axes %}
+- **{{ name }}:** {{ count }}
+{% endfor %}
+
+## Capability deltas
+
+{% for delta in deltas %}
+### {{ delta.id }}
+
+- Commit: `{{ delta.commit }}`
+- Observed: `{{ delta.observed }}`
+{% if delta.violations | length > 0 %}
+- Violations:
+{% for violation in delta.violations %}
+  - {{ violation }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+## Aggregate violations
+
+{% if violations | length == 0 %}
+None observed by the bounded evaluator.
+{% else %}
+{% for violation in violations %}
+- {{ violation }}
+{% endfor %}
+{% endif %}
+
+## Evidence identity
+
+- Manifest digest: `{{ manifest_digest }}`
+- Report digest: `{{ report_digest }}`
+
+This report is an evidence projection. It cannot promote itself to `ALIVE`; an external verifier must admit the exact aggregate receipt.

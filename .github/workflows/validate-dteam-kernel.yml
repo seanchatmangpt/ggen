@@ -1,0 +1,37 @@
+name: validate-dteam-kernel
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: validate-dteam-kernel-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Check out exact dteam head
+        uses: actions/checkout@v4
+        with:
+          repository: seanchatmangpt/dteam
+          ref: 796537d3cdcee9e341c1b1ca78a1d8a73560cc8b
+          path: dteam
+          persist-credentials: false
+      - name: Compile and test standalone capability kernel
+        run: cargo test --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --all-targets
+      - name: Execute capability demonstration
+        run: |
+          mkdir -p artifacts
+          cargo run --quiet --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --bin dteam-capabilities > artifacts/dteam-capability-demo.json
+          cat artifacts/dteam-capability-demo.json
+      - name: Upload execution evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dteam-capability-kernel-796537d
+          path: artifacts/dteam-capability-demo.json
+          if-no-files-found: error
