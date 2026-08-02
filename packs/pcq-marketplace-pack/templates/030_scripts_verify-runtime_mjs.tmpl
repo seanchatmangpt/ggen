@@ -1,0 +1,52 @@
+---
+to: "scripts/verify-runtime.mjs"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { createHash } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+
+const base = process.env.PCQ_BASE_URL ?? 'http://127.0.0.1:3000';
+const snapshot = await fetch(`${base}/api/snapshot`, { cache: 'no-store' }).then(response => response.json());
+if (snapshot.currency?.code !== 'PCQ' || snapshot.metrics?.invariant !== 'BALANCED') throw new Error('SNAPSHOT_INVARIANT_REFUSED');
+
+const streamResponse = await fetch(`${base}/api/stream?limit=2&interval=150`);
+if (!streamResponse.ok || !streamResponse.body) throw new Error('SSE_BOUNDARY_REFUSED');
+const reader = streamResponse.body.getReader();
+const decoder = new TextDecoder();
+let streamText = '';
+while (!streamText.includes('event: market')) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  streamText += decoder.decode(value, { stream: true });
+}
+await reader.cancel();
+if (!streamText.includes('event: snapshot') || !streamText.includes('event: market')) throw new Error('SSE_EVIDENCE_REFUSED');
+
+const settlementResponse = await fetch(`${base}/api/orders`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ listingId: 'shacl-policy', buyerAccountId: 'buyer-atlas', quantity: 1 }),
+});
+const settlement = await settlementResponse.json();
+if (settlementResponse.status !== 201 || !/^[a-f0-9]{64}$/.test(settlement.receipt?.receiptDigest ?? '')) throw new Error('SETTLEMENT_RECEIPT_REFUSED');
+
+const evidence = {
+  schema: 'urn:ggen:pcq-marketplace-runtime-receipt:v1',
+  base,
+  currency: snapshot.currency,
+  boundaries: ['next-route-handler', 'sse-stream', 'pcq-ledger', 'settlement-receipt'],
+  settlementDigest: settlement.receipt.receiptDigest,
+  observedSequence: settlement.snapshot.sequence,
+  status: 'ALIVE',
+};
+evidence.receiptDigest = createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
+const output = resolve(process.env.PCQ_RUNTIME_RECEIPT ?? '.build/pcq-runtime-receipt.json');
+await mkdir(dirname(output), { recursive: true });
+await writeFile(output, `${JSON.stringify(evidence, null, 2)}
+`);
+console.log(JSON.stringify(evidence));
+{% endfor -%}

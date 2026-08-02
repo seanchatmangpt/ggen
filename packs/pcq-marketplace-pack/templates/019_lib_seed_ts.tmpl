@@ -1,0 +1,47 @@
+---
+to: "lib/seed.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?displayName ?currencyName ?currencyCode ?decimals ?initialSupplyMicros ?treasuryAccountId ?feeBps ?maxOrderQuantity ?streamIntervalMs WHERE {
+      ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName ; pcq:currency ?currency ; pcq:settlementPolicy ?settlement ; pcq:streamPolicy ?stream .
+      ?currency pcq:currencyName ?currencyName ; pcq:currencyCode ?currencyCode ; pcq:decimals ?decimals ; pcq:initialSupplyMicros ?initialSupplyMicros ; pcq:treasuryAccount ?treasury .
+      ?treasury pcq:accountId ?treasuryAccountId .
+      ?settlement pcq:feeBps ?feeBps ; pcq:maxOrderQuantity ?maxOrderQuantity .
+      ?stream pcq:streamIntervalMs ?streamIntervalMs .
+    }
+  accounts: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?id ?label ?balance WHERE { ?account a pcq:MarketAccount ; pcq:accountId ?id ; pcq:accountLabel ?label ; pcq:balanceMicros ?balance . } ORDER BY ?id
+  nodes: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?id ?label ?kind ?longitude ?latitude ?liquidity WHERE { ?node a pcq:MarketNode ; pcq:nodeId ?id ; pcq:nodeLabel ?label ; pcq:nodeKind ?kind ; pcq:longitude ?longitude ; pcq:latitude ?latitude ; pcq:liquidityMicros ?liquidity . } ORDER BY ?id
+  listings: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?id ?title ?category ?sellerId ?nodeId ?price ?inventory ?proofScore WHERE { ?listing a pcq:CapabilityListing ; pcq:listingId ?id ; pcq:listingTitle ?title ; pcq:category ?category ; pcq:sellerAccount ?seller ; pcq:marketNode ?node ; pcq:priceMicros ?price ; pcq:inventory ?inventory ; pcq:proofScore ?proofScore . ?seller pcq:accountId ?sellerId . ?node pcq:nodeId ?nodeId . } ORDER BY ?id
+---
+import type { Account, Listing, MarketNode } from './types';
+
+{% for app in apps %}export const MARKET_CONFIG = Object.freeze({
+  displayName: '{{ app.displayName }}',
+  currencyName: '{{ app.currencyName }}',
+  currencyCode: '{{ app.currencyCode }}' as const,
+  decimals: {{ app.decimals }} as const,
+  initialSupplyMicros: '{{ app.initialSupplyMicros }}',
+  treasuryAccountId: '{{ app.treasuryAccountId }}',
+  feeBps: {{ app.feeBps }},
+  maxOrderQuantity: {{ app.maxOrderQuantity }},
+  streamIntervalMs: {{ app.streamIntervalMs }},
+});{% endfor %}
+
+export const INITIAL_ACCOUNTS: Account[] = [
+{% for account in accounts %}  { id: '{{ account.id }}', label: '{{ account.label }}', balanceMicros: '{{ account.balance }}' },
+{% endfor %}];
+
+export const MARKET_NODES: MarketNode[] = [
+{% for node in nodes %}  { id: '{{ node.id }}', label: '{{ node.label }}', kind: '{{ node.kind }}', position: [{{ node.longitude }}, {{ node.latitude }}], liquidityMicros: '{{ node.liquidity }}' },
+{% endfor %}];
+
+export const INITIAL_LISTINGS: Listing[] = [
+{% for listing in listings %}  { id: '{{ listing.id }}', title: '{{ listing.title }}', category: '{{ listing.category }}', sellerAccountId: '{{ listing.sellerId }}', nodeId: '{{ listing.nodeId }}', priceMicros: '{{ listing.price }}', inventory: {{ listing.inventory }}, proofScore: {{ listing.proofScore }} },
+{% endfor %}];

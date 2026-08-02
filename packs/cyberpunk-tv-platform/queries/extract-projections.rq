@@ -1,0 +1,13 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+
+SELECT ?projection_id ?projection_kind ?layer_kind ?diagram_kind ?required_capability
+WHERE {
+  ?projection a tv:Projection ;
+              tv:projectionId ?projection_id ;
+              tv:projectionKind ?projection_kind ;
+              tv:requiresCapability ?capability .
+  ?capability tv:capabilityId ?required_capability .
+  OPTIONAL { ?projection tv:layerKind ?layer_kind . }
+  OPTIONAL { ?projection tv:diagramKind ?diagram_kind . }
+}
+ORDER BY ?projection_kind ?projection_id

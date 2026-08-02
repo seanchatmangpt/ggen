@@ -1,0 +1,140 @@
+name: Cyberpunk TV Platform
+
+on:
+  pull_request:
+    paths:
+      - 'packs/cyberpunk-tv-platform/**'
+      - '.github/workflows/cyberpunk-tv-platform.yml'
+      - 'crates/ggen-engine/**'
+      - 'crates/ggen-cli/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cyberpunk-tv-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  PACK: packs/cyberpunk-tv-platform
+  GGEN: target/debug/ggen
+
+jobs:
+  manufacture-execute-replay:
+    name: Manufacture, polyglot Chicago TDD, receipt, replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Orient all executable languages and toolchains
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee /tmp/subject-sha.txt
+          bash --version | head -1
+          python3 --version
+          node --version
+          npm --version
+          rustup toolchain install nightly-2026-06-22 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+          rustup override set nightly-2026-06-22
+          rustc --version --verbose
+          cargo --version
+          node - <<'NODE'
+          const [major, minor] = process.versions.node.split('.').map(Number);
+          const admitted = (major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22;
+          if (!admitted) throw new Error(`NODE_VERSION_REFUSED:${process.versions.node}`);
+          NODE
+      - name: Install pinned wasm-pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v wasm-pack >/dev/null 2>&1 || [ "$(wasm-pack --version)" != "wasm-pack 0.13.1" ]; then
+            cargo install wasm-pack --version 0.13.1 --locked
+          fi
+          wasm-pack --version
+      - name: Build exact ggen binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -p ggen-cli-lib --bin ggen
+          "$GGEN" --version
+      - name: Manufacture twice and prove no generated drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PACK"
+          rm -rf generated .ggen
+          "$GITHUB_WORKSPACE/$GGEN" sync
+          find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/manufacture-first.sha256
+          "$GITHUB_WORKSPACE/$GGEN" sync
+          find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/manufacture-second.sha256
+          cmp /tmp/manufacture-first.sha256 /tmp/manufacture-second.sha256
+          cp /tmp/manufacture-first.sha256 generated/manufacture.sha256
+      - name: Install exact JavaScript closure
+        working-directory: packs/cyberpunk-tv-platform/generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Execute Rust, WASM, JavaScript, and browser ladder
+        working-directory: packs/cyberpunk-tv-platform/generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run check
+      - name: Execute Python, Bash, RDF, SHACL, SPARQL, N3, and Datalog crown
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash "$PACK/verify/polyglot_validate.sh" "$PACK/generated"
+      - name: Reissue receipt after all language evidence
+        working-directory: packs/cyberpunk-tv-platform/generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run verify
+          npm run replay
+      - name: Verify exhaustive autonomic evidence
+        working-directory: packs/cyberpunk-tv-platform/generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in \
+            .ggen/receipts/cyberpunk-tv.json \
+            .ggen/evidence/browser-e2e.json \
+            .ggen/evidence/browser-e2e.png \
+            .ggen/evidence/doctor.json \
+            .ggen/evidence/chicago-tdd.json \
+            .ggen/evidence/polyglot-python.json \
+            .ggen/evidence/polyglot-shell.json \
+            .ggen/plans/combinatorial.json \
+            dist/index.html; do test -s "$path"; done
+          grep -q '"algorithm": "blake3-256"' .ggen/receipts/cyberpunk-tv.json
+          grep -q '"failed": 0' .ggen/evidence/chicago-tdd.json
+          grep -q '"enumeratedProfiles": 8640' .ggen/evidence/chicago-tdd.json
+          grep -q '"mutationControlsKilled": 2' .ggen/evidence/chicago-tdd.json
+          grep -q '"failed": 0' .ggen/evidence/polyglot-python.json
+          grep -q '"standing": "PARTIAL_ALIVE"' .ggen/evidence/polyglot-shell.json
+      - name: Publish immutable evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cyberpunk-tv-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            /tmp/subject-sha.txt
+            /tmp/manufacture-first.sha256
+            /tmp/manufacture-second.sha256
+            packs/cyberpunk-tv-platform/generated/.ggen/receipts/
+            packs/cyberpunk-tv-platform/generated/.ggen/evidence/
+            packs/cyberpunk-tv-platform/generated/.ggen/plans/
+            packs/cyberpunk-tv-platform/generated/manufacture.sha256
+            packs/cyberpunk-tv-platform/generated/dist/

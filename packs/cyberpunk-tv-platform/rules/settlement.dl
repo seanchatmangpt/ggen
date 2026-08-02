@@ -1,0 +1,48 @@
+// Declarative settlement closure. No relation in this program performs actuation.
+// Inputs are facts projected from admitted RDF; outputs are candidate facts.
+
+.decl proposal(motion:symbol, proposal:symbol, digest:symbol)
+.decl distinct_proposals(motion:symbol)
+.decl quorum(motion:symbol, required:number, present:number)
+.decl tally(motion:symbol, yes:number, no:number)
+.decl candidate_settlement(motion:symbol, settlement:symbol)
+.decl seconded(motion:symbol)
+.decl quorum_reached(motion:symbol)
+.decl adopted(motion:symbol, settlement:symbol)
+.decl defeated(motion:symbol)
+.decl requires_receipt(settlement:symbol, algorithm:symbol)
+.decl awaits_brce(settlement:symbol)
+
+.output seconded
+.output quorum_reached
+.output adopted
+.output defeated
+.output requires_receipt
+.output awaits_brce
+
+distinct_proposals(M) :-
+    proposal(M, P1, D1),
+    proposal(M, P2, D2),
+    P1 != P2,
+    D1 != D2.
+
+seconded(M) :- distinct_proposals(M).
+
+quorum_reached(M) :-
+    seconded(M),
+    quorum(M, Required, Present),
+    Present >= Required.
+
+adopted(M, S) :-
+    quorum_reached(M),
+    tally(M, Yes, No),
+    Yes > No,
+    candidate_settlement(M, S).
+
+defeated(M) :-
+    quorum_reached(M),
+    tally(M, Yes, No),
+    No >= Yes.
+
+requires_receipt(S, "blake3-256") :- adopted(_, S).
+awaits_brce(S) :- adopted(_, S), requires_receipt(S, "blake3-256").

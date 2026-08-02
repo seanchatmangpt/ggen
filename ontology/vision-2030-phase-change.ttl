@@ -1,0 +1,88 @@
+@prefix v2030: <https://ggen.io/ontology/vision-2030#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+v2030:Ontology a owl:Ontology ;
+  dcterms:title "ggen Vision 2030 Phase Change Ontology" ;
+  dcterms:description "Capability program vocabulary for externally admitted 1,000x semantic manufacturing, Blue Ocean moves, horizon gates, authority bounds, receipts, and replay." ;
+  dcterms:issued "2026-08-02"^^xsd:date ;
+  owl:versionInfo "26.8.3" .
+
+v2030:Program a owl:Class ; rdfs:label "Vision 2030 Program" .
+v2030:Horizon a owl:Class ; rdfs:label "Horizon Gate" .
+v2030:Domain a owl:Class ; rdfs:label "Capability Domain" .
+v2030:Capability a owl:Class ; rdfs:label "Vision Capability" .
+v2030:EvidenceBinding a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Evidence Binding" .
+v2030:ExternalAcceptance a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "External Acceptance" .
+v2030:ProgramEvaluation a owl:Class ; rdfs:label "Program Evaluation" .
+v2030:ProgramReceipt a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Program Receipt" .
+v2030:BlueOceanMove a owl:Class ; rdfs:subClassOf skos:Concept .
+v2030:AuthorityClass a owl:Class ; rdfs:subClassOf skos:Concept .
+v2030:Standing a owl:Class ; rdfs:subClassOf skos:Concept .
+
+v2030:Eliminate a v2030:BlueOceanMove ; skos:prefLabel "eliminate" .
+v2030:Reduce a v2030:BlueOceanMove ; skos:prefLabel "reduce" .
+v2030:Raise a v2030:BlueOceanMove ; skos:prefLabel "raise" .
+v2030:Create a v2030:BlueOceanMove ; skos:prefLabel "create" .
+
+v2030:Observe a v2030:AuthorityClass ; skos:prefLabel "observe" .
+v2030:Recommend a v2030:AuthorityClass ; skos:prefLabel "recommend" .
+v2030:Construct a v2030:AuthorityClass ; skos:prefLabel "construct" .
+v2030:Actuate a v2030:AuthorityClass ; skos:prefLabel "actuate" .
+
+v2030:Designed a v2030:Standing ; skos:prefLabel "DESIGNED" .
+v2030:PartialAlive a v2030:Standing ; skos:prefLabel "PARTIAL_ALIVE" .
+v2030:Alive a v2030:Standing ; skos:prefLabel "ALIVE" .
+v2030:Refused a v2030:Standing ; skos:prefLabel "REFUSED" .
+
+v2030:Dx a v2030:Domain ; skos:prefLabel "dx" .
+v2030:Qol a v2030:Domain ; skos:prefLabel "qol" .
+v2030:Doctor a v2030:Domain ; skos:prefLabel "doctor" .
+v2030:Healthcare a v2030:Domain ; skos:prefLabel "healthcare" .
+v2030:Marketplace a v2030:Domain ; skos:prefLabel "marketplace" .
+v2030:McpPlus a v2030:Domain ; skos:prefLabel "mcp-plus" .
+v2030:Planning a v2030:Domain ; skos:prefLabel "planning" .
+v2030:Runtime a v2030:Domain ; skos:prefLabel "runtime" .
+v2030:Coordination a v2030:Domain ; skos:prefLabel "coordination" .
+v2030:ProcessIntelligence a v2030:Domain ; skos:prefLabel "process-intelligence" .
+v2030:Governance a v2030:Domain ; skos:prefLabel "governance" .
+v2030:Manufacturing a v2030:Domain ; skos:prefLabel "manufacturing" .
+
+v2030:hasHorizon a owl:ObjectProperty ; rdfs:domain v2030:Program ; rdfs:range v2030:Horizon .
+v2030:requiresDomain a owl:ObjectProperty ; rdfs:domain v2030:Program ; rdfs:range v2030:Domain .
+v2030:hasCapability a owl:ObjectProperty ; rdfs:domain v2030:Program ; rdfs:range v2030:Capability .
+v2030:inDomain a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:Domain .
+v2030:atHorizon a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:Horizon .
+v2030:blueOceanMove a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:BlueOceanMove .
+v2030:authorityClass a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:AuthorityClass .
+v2030:dependsOn a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:Capability .
+v2030:hasEvidence a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:EvidenceBinding .
+v2030:hasExternalAcceptance a owl:ObjectProperty ; rdfs:domain v2030:Capability ; rdfs:range v2030:ExternalAcceptance .
+v2030:evaluatesProgram a owl:ObjectProperty ; rdfs:domain v2030:ProgramEvaluation ; rdfs:range v2030:Program .
+v2030:previousReceipt a owl:ObjectProperty ; rdfs:domain v2030:ProgramReceipt ; rdfs:range v2030:ProgramReceipt .
+
+v2030:identifier a owl:DatatypeProperty ; rdfs:range xsd:string .
+v2030:version a owl:DatatypeProperty ; rdfs:range xsd:string .
+v2030:targetYear a owl:DatatypeProperty ; rdfs:domain v2030:Program ; rdfs:range xsd:gYear .
+v2030:phaseChangeTarget a owl:DatatypeProperty ; rdfs:domain v2030:Program ; rdfs:range xsd:decimal .
+v2030:year a owl:DatatypeProperty ; rdfs:domain v2030:Horizon ; rdfs:range xsd:gYear .
+v2030:minimumAliveCapabilities a owl:DatatypeProperty ; rdfs:domain v2030:Horizon ; rdfs:range xsd:nonNegativeInteger .
+v2030:capabilityIri a owl:DatatypeProperty ; rdfs:domain v2030:Capability ; rdfs:range xsd:anyURI .
+v2030:summary a owl:DatatypeProperty ; rdfs:domain v2030:Capability ; rdfs:range xsd:string .
+v2030:evidenceRole a owl:DatatypeProperty ; rdfs:domain v2030:EvidenceBinding ; rdfs:range xsd:string .
+v2030:locator a owl:DatatypeProperty ; rdfs:domain v2030:EvidenceBinding ; rdfs:range xsd:anyURI .
+v2030:contentDigest a owl:DatatypeProperty ; rdfs:domain v2030:EvidenceBinding ; rdfs:range xsd:string .
+v2030:issuer a owl:DatatypeProperty ; rdfs:domain v2030:ExternalAcceptance ; rdfs:range xsd:string .
+v2030:decision a owl:DatatypeProperty ; rdfs:domain v2030:ExternalAcceptance ; rdfs:range xsd:string .
+v2030:subjectIri a owl:DatatypeProperty ; rdfs:domain v2030:ExternalAcceptance ; rdfs:range xsd:anyURI .
+v2030:reportDigest a owl:DatatypeProperty ; rdfs:range xsd:string .
+v2030:canonicalUnits a owl:DatatypeProperty ; rdfs:domain v2030:ProgramEvaluation ; rdfs:range xsd:nonNegativeInteger .
+v2030:deliveredInstances a owl:DatatypeProperty ; rdfs:domain v2030:ProgramEvaluation ; rdfs:range xsd:nonNegativeInteger .
+v2030:phaseChangeMultiplier a owl:DatatypeProperty ; rdfs:domain v2030:ProgramEvaluation ; rdfs:range xsd:decimal .
+v2030:achieved a owl:DatatypeProperty ; rdfs:domain v2030:ProgramEvaluation ; rdfs:range xsd:boolean .
+v2030:standing a owl:ObjectProperty ; rdfs:range v2030:Standing .

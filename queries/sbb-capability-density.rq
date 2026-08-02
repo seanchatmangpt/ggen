@@ -1,0 +1,41 @@
+PREFIX sbbd: <https://ggen.io/ontology/sbb-capability-density#>
+
+# Returns the unique observed commit-equivalent units for each SBB.
+# Distribution products are calculated by the bounded Rust evaluator with
+# checked u128 arithmetic; SPARQL supplies the admitted cardinalities.
+SELECT ?sbb
+       (COUNT(DISTINCT ?commit) AS ?commitEquivalentUnits)
+       (COUNT(DISTINCT ?delta) AS ?observedCapabilityDeltas)
+       (COUNT(DISTINCT ?ontology) AS ?ontologyModules)
+       (COUNT(DISTINCT ?form) AS ?textualForms)
+       (COUNT(DISTINCT ?audience) AS ?audiences)
+       (COUNT(DISTINCT ?language) AS ?languages)
+       (COUNT(DISTINCT ?jurisdiction) AS ?jurisdictions)
+       (COUNT(DISTINCT ?profile) AS ?organizationProfiles)
+       (COUNT(DISTINCT ?runtime) AS ?runtimes)
+WHERE {
+  ?sbb a sbbd:SolutionBuildingBlock ;
+       sbbd:hasCapabilityDelta ?delta ;
+       sbbd:hasDistributionAxis ?ontologyAxis, ?formAxis, ?audienceAxis,
+                                ?languageAxis, ?jurisdictionAxis,
+                                ?profileAxis, ?runtimeAxis .
+
+  ?delta sbbd:commitSha ?commit ;
+         sbbd:hasEvidenceBinding ?binding .
+
+  FILTER NOT EXISTS {
+    ?delta sbbd:hasEvidenceBinding ?unobserved .
+    ?unobserved sbbd:hasEvidenceState ?state .
+    FILTER (?state != sbbd:Observed)
+  }
+
+  ?ontologyAxis sbbd:axisName "ontology_modules" ; sbbd:axisMember ?ontology .
+  ?formAxis sbbd:axisName "textual_forms" ; sbbd:axisMember ?form .
+  ?audienceAxis sbbd:axisName "audiences" ; sbbd:axisMember ?audience .
+  ?languageAxis sbbd:axisName "languages" ; sbbd:axisMember ?language .
+  ?jurisdictionAxis sbbd:axisName "jurisdictions" ; sbbd:axisMember ?jurisdiction .
+  ?profileAxis sbbd:axisName "organization_profiles" ; sbbd:axisMember ?profile .
+  ?runtimeAxis sbbd:axisName "runtimes" ; sbbd:axisMember ?runtime .
+}
+GROUP BY ?sbb
+ORDER BY ?sbb

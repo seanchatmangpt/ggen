@@ -1,0 +1,11 @@
+# MESSAGE: PCQ is fixed-point with six decimals, positive supply, balanced initial accounts, and bounded fees; returned rows are refused.
+PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+SELECT ?subject ?reason WHERE {
+ { ?subject a pcq:Currency ; pcq:currencyCode ?code . FILTER(?code != "PCQ") BIND("currency-code" AS ?reason) }
+ UNION { ?subject a pcq:Currency ; pcq:decimals ?decimals . FILTER(?decimals != 6) BIND("currency-decimals" AS ?reason) }
+ UNION { ?subject a pcq:Currency ; pcq:initialSupplyMicros ?supply . FILTER(?supply <= 0) BIND("non-positive-supply" AS ?reason) }
+ UNION { ?subject a pcq:MarketAccount ; pcq:balanceMicros ?balance . FILTER(?balance < 0) BIND("negative-balance" AS ?reason) }
+ UNION { ?subject a pcq:Currency ; pcq:initialSupplyMicros ?supply . { SELECT (SUM(?balance) AS ?balanceTotal) WHERE { ?account a pcq:MarketAccount ; pcq:balanceMicros ?balance . } } FILTER(?balanceTotal != ?supply) BIND("initial-supply-drift" AS ?reason) }
+ UNION { ?subject a pcq:SettlementPolicy ; pcq:feeBps ?fee . FILTER(?fee < 0 || ?fee > 1000) BIND("fee-out-of-bounds" AS ?reason) }
+ UNION { ?subject a pcq:SettlementPolicy ; pcq:maxOrderQuantity ?quantity . FILTER(?quantity < 1 || ?quantity > 1000) BIND("quantity-out-of-bounds" AS ?reason) }
+}

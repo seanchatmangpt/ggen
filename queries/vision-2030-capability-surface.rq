@@ -1,0 +1,31 @@
+PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+# Projects externally accepted capability coverage by domain, horizon, Blue
+# Ocean move, and authority. Numeric 1000x aggregation remains in Rust so the
+# implementation can use checked u128 arithmetic over admitted SBB reports.
+SELECT ?program ?domainName ?year ?moveName ?authorityName
+       (COUNT(DISTINCT ?capability) AS ?acceptedCapabilities)
+WHERE {
+  ?program a v2030:Program ;
+           v2030:hasCapability ?capability .
+
+  ?capability v2030:inDomain ?domain ;
+              v2030:atHorizon ?horizon ;
+              v2030:blueOceanMove ?move ;
+              v2030:authorityClass ?authority ;
+              v2030:hasExternalAcceptance ?acceptance .
+
+  ?domain skos:prefLabel ?domainName .
+  ?horizon v2030:year ?year .
+  ?move skos:prefLabel ?moveName .
+  ?authority skos:prefLabel ?authorityName .
+  ?acceptance v2030:decision "ACCEPTED" ;
+              v2030:subjectIri ?subject ;
+              v2030:reportDigest ?reportDigest .
+
+  ?capability v2030:capabilityIri ?subject .
+  FILTER (STRLEN(STR(?reportDigest)) = 64)
+}
+GROUP BY ?program ?domainName ?year ?moveName ?authorityName
+ORDER BY ?year ?domainName ?moveName ?authorityName

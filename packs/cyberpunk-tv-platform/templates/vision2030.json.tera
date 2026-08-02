@@ -1,0 +1,34 @@
+{
+  "schema": "ggen.cyberpunk-tv.vision2030.v2",
+  "records": [
+{% for row in sparql_results %}    {
+      "kind": {{ row["kind"] | json_encode() }},
+      "id": {{ row["id"] | default(value="") | json_encode() }},
+      "title": {{ row["title"] | default(value="") | json_encode() }},
+      "group": {{ row["group"] | default(value="") | json_encode() }},
+      "order": {{ row["order"] | default(value=0) }},
+      "requires": {{ row["requires"] | default(value="") | json_encode() }},
+      "provides": {{ row["provides"] | default(value="") | json_encode() }},
+      "verifier": {{ row["verifier"] | default(value="") | json_encode() }},
+      "repair": {{ row["repair"] | default(value="") | json_encode() }},
+      "cost": {{ row["cost"] | default(value="") | json_encode() }},
+      "reversible": {{ row["reversible"] | default(value=true) }},
+      "enabled": {{ row["enabled"] | default(value=false) }},
+      "command": {{ row["command"] | default(value="") | json_encode() }},
+      "question": {{ row["question"] | default(value="") | json_encode() }},
+      "choice": {{ row["choice"] | default(value="") | json_encode() }},
+      "transport": {{ row["transport"] | default(value="") | json_encode() }},
+      "latency": {{ row["latency"] | default(value="") | json_encode() }},
+      "offline": {{ row["offline"] | default(value=false) }},
+      "values": {{ row["values"] | default(value="") | json_encode() }},
+      "surfaces": {{ row["surfaces"] | default(value="") | json_encode() }},
+      "target": {{ row["target"] | default(value="") | json_encode() }},
+      "evidence": {{ row["evidence"] | default(value="") | json_encode() }},
+      "claimCeiling": {{ row["claimCeiling"] | default(value="") | json_encode() }},
+      "latencyScore": {{ row["latencyScore"] | default(value=0) }},
+      "costScore": {{ row["costScore"] | default(value=0) }},
+      "privacyScore": {{ row["privacyScore"] | default(value=0) }},
+      "accessibilityScore": {{ row["accessibilityScore"] | default(value=0) }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

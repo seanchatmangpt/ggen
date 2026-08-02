@@ -1,0 +1,117 @@
+{% for row in sparql_results %}
+use serde::{Deserialize, Serialize};
+use std::env;
+use std::fs;
+use std::io;
+use std::path::{Path, PathBuf};
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+struct Artifact {
+    path: String,
+    bytes: u64,
+    blake3: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+struct Receipt {
+    schema: String,
+    algorithm: String,
+    platform: String,
+    version: String,
+    root: String,
+    artifacts: Vec<Artifact>,
+}
+
+fn excluded(path: &Path) -> bool {
+    let normalized = path.to_string_lossy().replace('\\', "/");
+    normalized == ".ggen/receipts"
+        || normalized.starts_with(".ggen/receipts/")
+        || path.components().any(|component| {
+            matches!(
+                component.as_os_str().to_str(),
+                Some(".git" | "node_modules" | "target")
+            )
+        })
+}
+
+fn collect(root: &Path, directory: &Path, output: &mut Vec<PathBuf>) -> io::Result<()> {
+    let mut entries: Vec<_> = fs::read_dir(directory)?.collect::<Result<_, _>>()?;
+    entries.sort_by_key(|entry| entry.file_name());
+    for entry in entries {
+        let path = entry.path();
+        let relative = path.strip_prefix(root).unwrap_or(&path);
+        if excluded(relative) {
+            continue;
+        }
+        let file_type = entry.file_type()?;
+        if file_type.is_dir() {
+            collect(root, &path, output)?;
+        } else if file_type.is_file() {
+            output.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn manufacture_receipt(root: &Path) -> io::Result<Receipt> {
+    let mut paths = Vec::new();
+    collect(root, root, &mut paths)?;
+    paths.sort();
+
+    let mut artifacts = Vec::with_capacity(paths.len());
+    for path in paths {
+        let bytes = fs::read(&path)?;
+        let relative = path
+            .strip_prefix(root)
+            .unwrap_or(&path)
+            .to_string_lossy()
+            .replace('\\', "/");
+        artifacts.push(Artifact {
+            path: relative,
+            bytes: bytes.len() as u64,
+            blake3: blake3::hash(&bytes).to_hex().to_string(),
+        });
+    }
+    artifacts.sort_by(|left, right| left.path.cmp(&right.path));
+
+    let mut root_hasher = blake3::Hasher::new();
+    for artifact in &artifacts {
+        root_hasher.update(artifact.path.as_bytes());
+        root_hasher.update(&[0]);
+        root_hasher.update(artifact.blake3.as_bytes());
+        root_hasher.update(&artifact.bytes.to_le_bytes());
+    }
+
+    Ok(Receipt {
+        schema: "ggen.cyberpunk-tv.manufacture-receipt.v2".to_owned(),
+        algorithm: "blake3-256".to_owned(),
+        platform: "{{ row["title"] }}".to_owned(),
+        version: "{{ row["version"] }}".to_owned(),
+        root: root_hasher.finalize().to_hex().to_string(),
+        artifacts,
+    })
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let root = env::args().nth(1).unwrap_or_else(|| ".".to_owned());
+    let root = fs::canonicalize(root)?;
+    let receipt = manufacture_receipt(&root)?;
+    let target = root.join(".ggen/receipts/cyberpunk-tv.json");
+    if let Some(parent) = target.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let mut encoded = serde_json::to_string_pretty(&receipt)?;
+    encoded.push('\n');
+    fs::write(&target, encoded)?;
+    println!(
+        "{}",
+        serde_json::json!({
+            "standing": "PARTIAL_ALIVE",
+            "receipt": target,
+            "root": receipt.root,
+            "artifacts": receipt.artifacts.len()
+        })
+    );
+    Ok(())
+}
+{% endfor %}

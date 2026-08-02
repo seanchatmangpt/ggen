@@ -1,0 +1,358 @@
+name: Foundry Historical Lineage Clean Room v3
+
+on:
+  pull_request:
+    paths:
+      - "tools/architecture-foundry/src/lib.rs"
+      - "tools/architecture-foundry/src/bin/admit_clean_room.rs"
+      - ".github/workflows/foundry-historical-lineage-clean-room-v2.yml"
+      - ".github/workflows/foundry-historical-lineage-clean-room-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: foundry-historical-lineage-v3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair-and-prove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      RUSTC_WRAPPER: ""
+      CORPUS_SHA: 86c3ff13f0373cdb0000586a387cdd8554a6c58a
+    steps:
+      - name: Checkout exact runtime candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+          path: ggen
+
+      - name: Checkout exact A-I admitted corpus
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: seanchatmangpt/ggen-legacy
+          ref: ${{ env.CORPUS_SHA }}
+          fetch-depth: 0
+          path: corpus
+
+      - name: Manufacture multi-commit historical lineage theorem
+        working-directory: ggen
+        run: |
+          python3 - <<'PY'
+          import textwrap
+          from pathlib import Path
+
+          workflow = Path(".github/workflows/foundry-historical-lineage-clean-room-v2.yml").read_text()
+          start_marker = "          python3 - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = workflow.index(start_marker) + len(start_marker)
+          end = workflow.index(end_marker, start)
+          generator = textwrap.dedent(workflow[start:end])
+
+          insertion = r'''
+          script = script.replace(
+              '''    historical_commit: String,
+              source_path: String,
+          ''',
+              '''    historical_commit: String,
+              #[serde(default)]
+              historical_commits: Vec<String>,
+              source_path: String,
+          ''',
+              1,
+          )
+          script = script.replace(
+              '''    historical_commit: String,
+              requested_source_path: String,
+          ''',
+              '''    historical_commit: String,
+              #[serde(default)]
+              historical_commits: Vec<String>,
+              requested_source_path: String,
+          ''',
+              1,
+          )
+          old_component_commit = '''    if !is_full_git_sha(&record.historical_commit) {
+                  return refusal(
+                      "HISTORICAL_LINEAGE_COMMIT_INVALID",
+                      format!("{}: {}", record.capability_id, record.historical_commit),
+                  );
+              }
+              let commit_type = git(source_path, &["cat-file", "-t", &record.historical_commit])?;
+              if commit_type != "commit" {
+                  return refusal(
+                      "HISTORICAL_LINEAGE_COMMIT_NOT_COMMIT",
+                      format!("{}: {}", record.capability_id, commit_type),
+                  );
+              }
+          '''
+          new_component_commit = '''    let record_commits = historical_commit_set(
+                  &record.capability_id,
+                  &record.historical_commit,
+                  &record.historical_commits,
+              )?;
+              for commit in &record_commits {
+                  let commit_type = git(source_path, &["cat-file", "-t", commit])?;
+                  if commit_type != "commit" {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_COMMIT_NOT_COMMIT",
+                          format!("{}: {}={}", record.capability_id, commit, commit_type),
+                      );
+                  }
+              }
+          '''
+          if old_component_commit not in script:
+              raise SystemExit("component commit validation marker missing")
+          script = script.replace(old_component_commit, new_component_commit, 1)
+
+          old_manifest_identity = '''        if manifest.capability_id != record.capability_id
+                  || manifest.historical_commit != record.historical_commit
+                  || manifest.corpus_destination != record.destination_path
+                  || manifest.source_removed
+              {
+                  return refusal(
+                      "HISTORICAL_LINEAGE_MANIFEST_IDENTITY_MISMATCH",
+                      record.capability_id.clone(),
+                  );
+              }
+          '''
+          new_manifest_identity = '''        let manifest_commits = historical_commit_set(
+                  &manifest.capability_id,
+                  &manifest.historical_commit,
+                  &manifest.historical_commits,
+              )?;
+              if manifest.capability_id != record.capability_id
+                  || manifest_commits != record_commits
+                  || manifest.corpus_destination != record.destination_path
+                  || manifest.source_removed
+              {
+                  return refusal(
+                      "HISTORICAL_LINEAGE_MANIFEST_IDENTITY_MISMATCH",
+                      record.capability_id.clone(),
+                  );
+              }
+          '''
+          if old_manifest_identity not in script:
+              raise SystemExit("manifest identity marker missing")
+          script = script.replace(old_manifest_identity, new_manifest_identity, 1)
+
+          old_object_commit = '''        let object_commit = if source_file.historical_commit.is_empty() {
+                      &record.historical_commit
+                  } else {
+                      &source_file.historical_commit
+                  };
+                  if !is_full_git_sha(object_commit) {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_FILE_COMMIT_INVALID",
+                          format!("{}: {}", record.capability_id, object_commit),
+                      );
+                  }
+          '''
+          new_object_commit = '''        let object_commit = if source_file.historical_commit.is_empty() {
+                      if record_commits.len() != 1 {
+                          return refusal(
+                              "HISTORICAL_LINEAGE_FILE_COMMIT_MISSING",
+                              format!("{}: {} admitted commits", record.capability_id, record_commits.len()),
+                          );
+                      }
+                      record_commits.iter().next().expect("single commit")
+                  } else {
+                      &source_file.historical_commit
+                  };
+                  if !is_full_git_sha(object_commit) {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_FILE_COMMIT_INVALID",
+                          format!("{}: {}", record.capability_id, object_commit),
+                      );
+                  }
+                  if !record_commits.contains(object_commit) {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_FILE_COMMIT_OUTSIDE_COMPONENT_SET",
+                          format!("{}: {}", record.capability_id, object_commit),
+                      );
+                  }
+          '''
+          if old_object_commit not in script:
+              raise SystemExit("file commit marker missing")
+          script = script.replace(old_object_commit, new_object_commit, 1)
+
+          helper_marker = '''fn is_full_git_sha(value: &str) -> bool {
+              value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+          }
+          '''
+          commit_set_helper = '''fn historical_commit_set(
+              capability_id: &str,
+              summary: &str,
+              explicit: &[String],
+          ) -> Result<BTreeSet<String>> {
+              let summary_set: BTreeSet<String> = summary
+                  .split('|')
+                  .map(str::trim)
+                  .filter(|value| !value.is_empty())
+                  .map(str::to_string)
+                  .collect();
+              let explicit_set: BTreeSet<String> = explicit
+                  .iter()
+                  .map(|value| value.trim())
+                  .filter(|value| !value.is_empty())
+                  .map(str::to_string)
+                  .collect();
+              let commits = if explicit_set.is_empty() {
+                  summary_set.clone()
+              } else {
+                  if summary_set != explicit_set {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_COMMIT_SET_MISMATCH",
+                          format!(
+                              "{}: summary={:?}, explicit={:?}",
+                              capability_id, summary_set, explicit_set
+                          ),
+                      );
+                  }
+                  explicit_set
+              };
+              if commits.is_empty() {
+                  return refusal(
+                      "HISTORICAL_LINEAGE_COMMIT_SET_EMPTY",
+                      capability_id.to_string(),
+                  );
+              }
+              for commit in &commits {
+                  if !is_full_git_sha(commit) {
+                      return refusal(
+                          "HISTORICAL_LINEAGE_COMMIT_INVALID",
+                          format!("{}: {}", capability_id, commit),
+                      );
+                  }
+              }
+              Ok(commits)
+          }
+
+          ''' + helper_marker
+          if helper_marker not in script:
+              raise SystemExit("commit helper marker missing")
+          script = script.replace(helper_marker, commit_set_helper, 1)
+          '''
+
+          marker = "          required = [\n"
+          if marker not in generator:
+              raise SystemExit("v2 required marker missing")
+          generator = generator.replace(marker, textwrap.dedent(insertion) + "\n" + marker, 1)
+          generator = generator.replace(
+              '"historical_commit: String,",',
+              '"historical_commits: Vec<String>,",\n              "fn historical_commit_set(",',
+              1,
+          )
+          exec(compile(generator, "historical-lineage-v3-generator", "exec"), {"__name__": "__main__"})
+          PY
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all
+          git config user.name "ggen-foundry-controller"
+          git config user.email "ggen-foundry-controller@users.noreply.github.com"
+          git add tools/architecture-foundry/src/lib.rs tools/architecture-foundry/src/bin/admit_clean_room.rs
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(foundry): verify multi-commit historical lineage"
+          fi
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+      - name: Prove complete runtime suite
+        working-directory: ggen
+        run: |
+          cargo fmt --manifest-path tools/architecture-foundry/Cargo.toml --all -- --check
+          cargo test --manifest-path tools/architecture-foundry/Cargo.toml --all-targets
+          cargo build --manifest-path tools/architecture-foundry/Cargo.toml --bins
+
+      - name: Prove all 65 historical lineage records
+        run: |
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry verify \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus corpus \
+            > "$RUNNER_TEMP/historical-lineage-report.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/historical-lineage-report.json").read_text())
+          assert report["lineage_records_checked"] == 65, report
+          assert report["invalid_lineage_records"] == [], report
+          assert report["invalid_receipts"] == [], report
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Execute component commit-set sabotage
+        run: |
+          root="$(mktemp -d)"
+          git clone --quiet --local corpus "$root/corpus"
+          lineage="$(find "$root/corpus/foundry/lineage/components" -type f -name '*.json' | sort | head -1)"
+          python3 - "$lineage" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path(sys.argv[1])
+          value = json.loads(path.read_text())
+          value["historical_commit"] = "0" * 40
+          path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+          PY
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry verify \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus "$root/corpus" \
+            > "$RUNNER_TEMP/historical-lineage-sabotage.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/historical-lineage-sabotage.json").read_text())
+          assert len(report["invalid_lineage_records"]) == 1, report
+          assert "HISTORICAL_LINEAGE_COMMIT" in report["invalid_lineage_records"][0], report
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Execute J against exact A-I corpus
+        run: |
+          test "$(git -C corpus rev-parse HEAD)" = "$CORPUS_SHA"
+          test -z "$(git -C corpus status --porcelain=v1 --untracked-files=all)"
+          ggen/tools/architecture-foundry/target/debug/admit_clean_room \
+            --program ggen/docs/architecture-foundry/work-program.yaml \
+            --source ggen --corpus corpus \
+            > "$RUNNER_TEMP/j-report.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("${{ runner.temp }}/j-report.json").read_text())
+          assert report["clean_room_build_success"] is True, report
+          assert report["clean_room_verification_success"] is True, report
+          assert report["replay_differences"] == 0, report
+          assert report["generated_drift"] == 0, report
+          assert report["second_run_semantic_result"] == "NO_SEMANTIC_CHANGE", report
+          state = json.loads(Path("corpus/foundry/workstreams/state.json").read_text())
+          assert state["workstreams"]["J"]["status"] == "ADMITTED"
+          assert state["workstreams"]["K"]["status"] == "READY"
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Replay J receipt on exact consequence
+        run: |
+          git -C corpus config user.name foundry-verifier
+          git -C corpus config user.email foundry-verifier@example.invalid
+          git -C corpus add foundry
+          git -C corpus commit --quiet -m "proof: admit workstream J"
+          ggen/tools/architecture-foundry/target/debug/ggen-foundry replay \
+            --source ggen --corpus corpus
+
+      - name: Publish verified runtime theorem
+        working-directory: ggen
+        run: git push origin "HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}"
+
+      - name: Publish v3 lineage and J evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: foundry-historical-lineage-v3-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/historical-lineage-report.json
+            ${{ runner.temp }}/historical-lineage-sabotage.json
+            ${{ runner.temp }}/j-report.json
+            corpus/foundry/workstreams/J/admission-report.json
+            corpus/foundry/receipts/workstream-J.json
+            corpus/foundry/workstreams/state.json
+          if-no-files-found: warn

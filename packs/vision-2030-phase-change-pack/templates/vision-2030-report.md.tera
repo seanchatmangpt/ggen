@@ -1,0 +1,78 @@
+# Vision 2030 Capability Report — {{ program.id }}
+
+**Version:** {{ program.version }}  
+**Target year:** {{ program.target_year }}  
+**Standing:** `{{ standing }}`  
+**Achieved:** `{{ achieved }}`
+
+## Phase change
+
+| Measure | Value |
+|---|---:|
+| Target multiplier | {{ phase_change_target }}× |
+| Measured multiplier | {{ phase_change_multiplier }}× |
+| Canonical maintenance units | {{ canonical_units }} |
+| Delivered capability instances | {{ delivered_instances }} |
+| Every capability externally accepted | {{ all_capabilities_alive }} |
+
+## Domain closure
+
+| Domain | Declared | ALIVE | Covered |
+|---|---:|---:|---:|
+{% for name, domain in domains %}
+| {{ name }} | {{ domain.declared }} | {{ domain.alive }} | {{ domain.covered }} |
+{% endfor %}
+
+## Horizon closure
+
+| Horizon | Required ALIVE | ALIVE | Met |
+|---|---:|---:|---:|
+{% for year, horizon in horizons %}
+| {{ year }} | {{ horizon.minimum_alive_capabilities }} | {{ horizon.alive }} | {{ horizon.met }} |
+{% endfor %}
+
+## Blue Ocean ERRC
+
+{% for move, count in blue_ocean %}
+- **{{ move }}:** {{ count }} externally accepted capabilities
+{% endfor %}
+
+## Capability realizations
+
+{% for capability in capabilities %}
+### {{ capability.id }}
+
+- IRI: `{{ capability.iri }}`
+- Domain: `{{ capability.domain }}`
+- Horizon: {{ capability.horizon }}
+- Blue Ocean move: `{{ capability.blue_ocean_move }}`
+- Authority: `{{ capability.authority }}`
+- Standing: `{{ capability.standing }}`
+- Canonical units: {{ capability.canonical_units }}
+- Delivered instances: {{ capability.delivered_instances }}
+- Multiplier: {{ capability.multiplier }}×
+- Dependencies satisfied: {{ capability.dependencies_satisfied }}
+{% if capability.violations | length > 0 %}
+- Violations:
+{% for violation in capability.violations %}
+  - {{ violation }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+## Aggregate violations
+
+{% if violations | length == 0 %}
+None observed by the bounded evaluator.
+{% else %}
+{% for violation in violations %}
+- {{ violation }}
+{% endfor %}
+{% endif %}
+
+## Evidence identity
+
+- Manifest digest: `{{ manifest_digest }}`
+- Report digest: `{{ report_digest }}`
+
+Catalog entries never count as achieved capabilities. `ALIVE` means this report observed independent acceptance bound to exact SBB evidence; it does not grant new actuation authority.
