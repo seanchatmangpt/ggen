@@ -1,0 +1,23 @@
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# Negative witness: quorum is absent and the two proposals do not have distinct commitments.
+# The expected result is no adopted settlement and a clean refusal classification.
+
+tv:FixtureMotionRefuse a tv:Motion ;
+    dct:title "Refuse ungrounded exhibition" ;
+    tv:motionState "introduced" ;
+    tv:quorumRequired 3 ;
+    tv:yesVotes 1 ;
+    tv:noVotes 0 ;
+    tv:hasProposal tv:FixtureProposalC, tv:FixtureProposalD .
+
+tv:FixtureProposalC a tv:EscrowProposal ;
+    dct:title "Party C terms" ;
+    tv:constructText "CONSTRUCT { ?s tv:standing 'candidate' . } WHERE { ?s a tv:Settlement . }" ;
+    tv:proposalDigest "blake3:same-commitment" .
+
+tv:FixtureProposalD a tv:EscrowProposal ;
+    dct:title "Party D terms" ;
+    tv:constructText "CONSTRUCT { ?s tv:standing 'candidate' . } WHERE { ?s a tv:Settlement . }" ;
+    tv:proposalDigest "blake3:same-commitment" .
