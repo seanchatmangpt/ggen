@@ -1,0 +1,11 @@
+{
+  "projections": [
+{% for row in sparql_results %}    {
+      "id": {{ row["projection_id"] | json_encode() }},
+      "kind": {{ row["projection_kind"] | json_encode() }},
+      "layer": {{ row["layer_kind"] | default(value="") | json_encode() }},
+      "diagram": {{ row["diagram_kind"] | default(value="") | json_encode() }},
+      "requires": {{ row["required_capability"] | json_encode() }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
