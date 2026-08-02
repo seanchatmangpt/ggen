@@ -1,0 +1,118 @@
+name: Verify ggen v26.8.1 source removal
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/migrate-v26-8-1-corpus-to-ggen-legacy]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-ggen-v26-8-1-source-removal-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_BASE: 8351af4c5bbbf60bd99ab8417752a1762c6ea4e3
+  CORPUS_REF: 70e599a599fedb7c62c965377cc2f80df1fa01ec
+  CORPUS_CHECKPOINT: 07928bde9d9eaba2e2e2fd8f78fcdc3f7b0b63ff
+  RUSTC_WRAPPER: ""
+  SCCACHE_GHA_ENABLED: "false"
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Bind exact candidate head
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED='${{ github.event.pull_request.head.sha || github.sha }}'
+          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          test ! -e .github/workflows/temporary-v26-8-1-source-removal.yml
+
+      - name: Checkout exact source baseline
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: seanchatmangpt/ggen
+          ref: ${{ env.SOURCE_BASE }}
+          path: .baseline-ggen
+          fetch-depth: 0
+
+      - name: Checkout merged destination authority
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: seanchatmangpt/ggen-legacy
+          ref: ${{ env.CORPUS_REF }}
+          path: .corpus
+          fetch-depth: 0
+
+      - name: Fence verifier checkouts from source cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '/.baseline-ggen\n/.corpus\n' >> .git/info/exclude
+          test -z "$(git status --porcelain)"
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
+          components: rustfmt
+
+      - name: Install just
+        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab
+        with:
+          tool: just
+
+      - name: Install verifier dependencies
+        run: python3 -m pip install --disable-pip-version-check blake3==1.0.9 jsonschema==4.26.0 pyshacl==0.40.0
+
+      - name: Admit destination and source-removal receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/ci/v26_8_1_source_removal.py
+          python3 scripts/ci/v26_8_1_source_removal.py admit-destination \
+            --source-baseline .baseline-ggen \
+            --corpus .corpus \
+            --source-base "$SOURCE_BASE" \
+            --corpus-checkpoint "$CORPUS_CHECKPOINT" \
+            --corpus-ref "$CORPUS_REF"
+          python3 scripts/ci/v26_8_1_source_removal.py check-receipt \
+            --corpus .corpus \
+            --source-base "$SOURCE_BASE" \
+            --corpus-ref "$CORPUS_REF" \
+            --plan evidence/ggen-v26.8.1-source-removal-plan.json \
+            --receipt evidence/ggen-v26.8.1-source-removal-receipt.json
+          REMOVAL_COMMIT="$(python3 -c 'import json; print(json.load(open("evidence/ggen-v26.8.1-source-removal-receipt.json"))["removal_commit"])')"
+          echo "REMOVAL_COMMIT=$REMOVAL_COMMIT" >> "$GITHUB_ENV"
+
+      - name: Execute exact read-only replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/v26_8_1_source_removal.py verify \
+            --corpus .corpus \
+            --source-base "$SOURCE_BASE" \
+            --corpus-ref "$CORPUS_REF" \
+            --subject-commit "$REMOVAL_COMMIT" \
+            --plan evidence/ggen-v26.8.1-source-removal-plan.json \
+            --report /tmp/source-removal-a.json
+          python3 scripts/ci/v26_8_1_source_removal.py verify \
+            --corpus .corpus \
+            --source-base "$SOURCE_BASE" \
+            --corpus-ref "$CORPUS_REF" \
+            --subject-commit "$REMOVAL_COMMIT" \
+            --plan evidence/ggen-v26.8.1-source-removal-plan.json \
+            --report /tmp/source-removal-b.json
+          cmp /tmp/source-removal-a.json /tmp/source-removal-b.json

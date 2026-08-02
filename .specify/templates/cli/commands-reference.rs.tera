@@ -11,11 +11,8 @@ pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
 ];
 
 /// Ontology-ordered `(noun, default verb)` compatibility bindings.
-pub const DEFAULT_VERBS: &[(&str, &str)] = &[
-{%- for row in defaults %}
-    ("{{ row["noun"] }}", "{{ row["verb"] }}"),
-{%- endfor %}
-];
+pub const DEFAULT_VERBS: &[(&str, &str)] =
+    &[{%- for row in defaults %}("{{ row["noun"] }}", "{{ row["verb"] }}"){% if not loop.last %}, {% endif %}{%- endfor %}];
 
 /// Look up the ontology-declared description for a CLI command by its label.
 ///

@@ -1,0 +1,34 @@
+{
+  "corpus_ref": "70e599a599fedb7c62c965377cc2f80df1fa01ec",
+  "corpus_repository": "seanchatmangpt/ggen-legacy",
+  "relocated_guards": [
+    {
+      "destination": "scripts/ci/guard_fail_open_subprocess.py",
+      "source": "tools/v26.8.1/guard_fail_open_subprocess.py"
+    },
+    {
+      "destination": "scripts/ci/guard_short_test_timeout.py",
+      "source": "tools/v26.8.1/guard_short_test_timeout.py"
+    }
+  ],
+  "removed_roots": [
+    "docs/v26.8.1",
+    "ontology/v26.8.1",
+    "planning/v26.8.1",
+    "tools/v26.8.1",
+    "packs/legacy-equivalence-verifier-pack"
+  ],
+  "removed_workflows": [
+    ".github/workflows/v26.8.1-crown.yml",
+    ".github/workflows/v26.8.1-planning.yml",
+    ".github/workflows/v26.8.1-step-two.yml"
+  ],
+  "retained_kernel_context": [
+    "rustfmt.toml",
+    "tools/architecture-foundry"
+  ],
+  "schema": "ggen.source-removal-plan/1",
+  "source_base": "8351af4c5bbbf60bd99ab8417752a1762c6ea4e3",
+  "source_repository": "seanchatmangpt/ggen",
+  "standing": "UNKNOWN"
+}
