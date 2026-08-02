@@ -1,0 +1,62 @@
+import { Deck } from '@deck.gl/core';
+import { ArcLayer, ScatterplotLayer } from '@deck.gl/layers';
+import mermaid from 'mermaid';
+import { createStore, add } from '@unrdf/core';
+import world from './world.json' with { type: 'json' };
+
+const store = createStore();
+const quads = world.nodes.map((node, index) => ({
+  subject: `urn:tv:node:${index}`,
+  predicate: 'https://schema.org/name',
+  object: node.name
+}));
+await add(store, quads);
+
+const nodes = world.nodes;
+const arcs = nodes.map((node, index) => ({
+  source: [node.longitude, node.latitude],
+  target: [nodes[(index + 1) % nodes.length].longitude, nodes[(index + 1) % nodes.length].latitude],
+  weight: node.weight
+}));
+
+new Deck({
+  parent: document.getElementById('map'),
+  initialViewState: {
+    longitude: {{ longitude }},
+    latitude: {{ latitude }},
+    zoom: {{ zoom }},
+    pitch: 28,
+    bearing: 0
+  },
+  controller: true,
+  layers: [
+    new ArcLayer({
+      id: 'world-arcs',
+      data: arcs,
+      getSourcePosition: d => d.source,
+      getTargetPosition: d => d.target,
+      getWidth: d => d.weight,
+      getHeight: 0.35,
+      pickable: true
+    }),
+    new ScatterplotLayer({
+      id: 'world-nodes',
+      data: nodes,
+      getPosition: d => [d.longitude, d.latitude],
+      getRadius: d => d.weight * 18000,
+      radiusMinPixels: 7,
+      pickable: true
+    })
+  ]
+});
+
+mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'dark' });
+const graph = `flowchart LR
+  RDF[Public ontologies] --> UNRDF[UNRDF world]
+  UNRDF --> MMD[mmdio / Mermaid]
+  UNRDF --> DECK[deck.gl territory]
+  MMD --> TV[Television body]
+  DECK --> TV
+  TV --> RECEIPT[BLAKE3 receipt]`;
+const { svg } = await mermaid.render('platform-graph', graph);
+document.getElementById('diagram').innerHTML = svg;
