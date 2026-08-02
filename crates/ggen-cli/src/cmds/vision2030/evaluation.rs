@@ -8,10 +8,14 @@ struct Candidate {
     dependencies: Vec<String>,
 }
 
+fn hex64(value: &str) -> bool {
+    value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
 fn expected_digest(raw: &str) -> Option<&str> {
     raw.strip_prefix("blake3:")
         .or_else(|| raw.strip_prefix("blake3-"))
-        .filter(|value| value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit()))
+        .filter(|value| hex64(value))
 }
 
 fn safe_locator(locator: &str) -> bool {
@@ -74,7 +78,7 @@ fn multiplier(delivered: u128, canonical: usize) -> String {
     }
     let canonical = canonical as u128;
     let whole = delivered / canonical;
-    let fractional = delivered.saturating_mul(1000) / canonical % 1000;
+    let fractional = delivered % canonical * 1000 / canonical;
     format!("{whole}.{fractional:03}")
 }
 
@@ -88,15 +92,35 @@ fn load(path: &Path) -> Result<(Manifest, Vec<u8>)> {
     Ok((manifest, bytes))
 }
 
-fn validate_sbb(report: &SbbReport, violations: &mut Vec<String>) -> Option<(usize, u128)> {
+fn validate_sbb(
+    report: &SbbReport,
+    capability: &Capability,
+    violations: &mut Vec<String>,
+) -> Option<(usize, u128)> {
+    let before = violations.len();
     if report.schema != SBB_REPORT_SCHEMA {
         violations.push("sbb_report has unsupported schema".to_string());
+    }
+    if report.sbb.id != capability.id {
+        violations.push("sbb_report SBB id does not equal capability id".to_string());
+    }
+    if report.sbb.version.trim().is_empty() {
+        violations.push("sbb_report SBB version is empty".to_string());
+    }
+    if report.sbb.architecture_contract != capability.iri {
+        violations.push("sbb_report architecture contract does not equal capability IRI".to_string());
+    }
+    if report.sbb.minimum_commit_equivalent_units == 0 {
+        violations.push("sbb_report SBB target is zero".to_string());
     }
     if report.claim_ceiling != "PARTIAL_ALIVE" {
         violations.push("sbb_report claim ceiling must be PARTIAL_ALIVE".to_string());
     }
     if !report.eligible_for_external_admission {
         violations.push("sbb_report is not eligible for external admission".to_string());
+    }
+    if !hex64(&report.report_digest) {
+        violations.push("sbb_report report_digest is malformed".to_string());
     }
     let contexts = report.distribution_contexts.parse::<u128>().ok();
     let delivered = report.delivered_capability_instances.parse::<u128>().ok();
@@ -109,7 +133,7 @@ fn validate_sbb(report: &SbbReport, violations: &mut Vec<String>) -> Option<(usi
     if expected != delivered {
         violations.push("sbb_report delivered instances are inconsistent".to_string());
     }
-    if violations.is_empty() {
+    if violations.len() == before {
         Some((report.commit_equivalent_units, delivered?))
     } else {
         None
@@ -153,7 +177,7 @@ fn evaluate_capability(
         violations.push("blue_ocean_move is not recognized".to_string());
     }
     validate_authority(capability, &mut violations);
-    if !unique_nonempty(&capability.dependencies) && !capability.dependencies.is_empty() {
+    if !capability.dependencies.is_empty() && !unique_nonempty(&capability.dependencies) {
         violations.push("dependencies must be unique and non-empty".to_string());
     }
     for dependency in &capability.dependencies {
@@ -164,7 +188,10 @@ fn evaluate_capability(
         }
     }
     if !exact_evidence_keys(&capability.evidence) {
-        violations.push("evidence must contain exactly the required roles plus optional execution_grant".to_string());
+        violations.push(
+            "evidence must contain the seven required roles plus optional execution_grant"
+                .to_string(),
+        );
     }
 
     let observed_any = capability
@@ -174,7 +201,9 @@ fn evaluate_capability(
     for role in REQUIRED_EVIDENCE {
         match capability.evidence.get(role) {
             Some(binding) if evidence_bytes(manifest_path, binding).is_some() => {}
-            _ => violations.push(format!("{role} evidence is absent, unsafe, or digest-divergent")),
+            _ => violations.push(format!(
+                "{role} evidence is absent, unsafe, or digest-divergent"
+            )),
         }
     }
 
@@ -185,7 +214,9 @@ fn evaluate_capability(
         match parse_evidence::<SbbReport>(manifest_path, binding) {
             Some(report) => {
                 report_digest_value = report.report_digest.clone();
-                if let Some((units, delivered)) = validate_sbb(&report, &mut violations) {
+                if let Some((units, delivered)) =
+                    validate_sbb(&report, capability, &mut violations)
+                {
                     canonical_units = units;
                     delivered_instances = delivered;
                 }
@@ -201,7 +232,7 @@ fn evaluate_capability(
                     && receipt.operation == "density-evaluate-result"
                     && receipt.report_digest == report_digest_value
                     && receipt.digest_algorithm == "blake3"
-                    && receipt.digest.len() == 64 => {}
+                    && hex64(&receipt.digest) => {}
             _ => violations.push("receipt does not bind the admitted SBB report".to_string()),
         }
     }
@@ -226,7 +257,9 @@ fn evaluate_capability(
                     && !acceptance.issuer.trim().is_empty()
                     && acceptance.issuer != program.id
                     && acceptance.report_digest == report_digest_value => {}
-            _ => violations.push("external acceptance is absent, self-issued, or divergent".to_string()),
+            _ => violations.push(
+                "external acceptance is absent, self-issued, or divergent".to_string(),
+            ),
         }
     }
 
@@ -263,6 +296,7 @@ fn evaluate_capability(
             blue_ocean_move: capability.blue_ocean_move.clone(),
             authority: capability.authority.clone(),
             standing: standing.to_string(),
+            sbb_report_digest: report_digest_value,
             canonical_units,
             delivered_instances,
             multiplier: multiplier(delivered_instances, canonical_units),
@@ -315,11 +349,44 @@ fn cycle_nodes(graph: &BTreeMap<String, Vec<String>>) -> BTreeSet<String> {
     cycles
 }
 
+fn refuse_duplicate_reports(candidates: &mut [Candidate]) {
+    let mut counts = BTreeMap::<String, usize>::new();
+    for candidate in candidates.iter() {
+        if !candidate.report.sbb_report_digest.is_empty() {
+            *counts
+                .entry(candidate.report.sbb_report_digest.clone())
+                .or_default() += 1;
+        }
+    }
+    for candidate in candidates {
+        let duplicated = counts
+            .get(&candidate.report.sbb_report_digest)
+            .copied()
+            .unwrap_or_default()
+            > 1;
+        if duplicated {
+            candidate.intrinsically_alive = false;
+            candidate
+                .report
+                .violations
+                .push("SBB report digest is claimed by multiple capabilities".to_string());
+            candidate.report.standing = if candidate.observed_any {
+                "REFUSED".to_string()
+            } else {
+                "DESIGNED".to_string()
+            };
+        }
+    }
+}
+
 pub(super) fn evaluate(path: &Path) -> Result<Report> {
     let (manifest, bytes) = load(path)?;
     let mut violations = Vec::new();
     if manifest.schema != MANIFEST_SCHEMA {
-        violations.push(format!("unsupported schema {}; expected {MANIFEST_SCHEMA}", manifest.schema));
+        violations.push(format!(
+            "unsupported schema {}; expected {MANIFEST_SCHEMA}",
+            manifest.schema
+        ));
     }
     if manifest.program.id.trim().is_empty()
         || manifest.program.version.trim().is_empty()
@@ -332,7 +399,11 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         violations.push("required_domains must be unique and non-empty".to_string());
     }
     for domain in REQUIRED_DOMAINS {
-        if !manifest.required_domains.iter().any(|candidate| candidate == domain) {
+        if !manifest
+            .required_domains
+            .iter()
+            .any(|candidate| candidate == domain)
+        {
             violations.push(format!("required domain {domain} is missing"));
         }
     }
@@ -383,10 +454,14 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         .iter()
         .map(|capability| evaluate_capability(path, &manifest.program, capability, &ids))
         .collect::<Vec<_>>();
+    refuse_duplicate_reports(&mut candidates);
     for candidate in &mut candidates {
         if cycles.contains(&candidate.report.id) {
             candidate.intrinsically_alive = false;
-            candidate.report.violations.push("dependency cycle".to_string());
+            candidate
+                .report
+                .violations
+                .push("dependency cycle".to_string());
             candidate.report.standing = if candidate.observed_any {
                 "REFUSED".to_string()
             } else {
@@ -450,7 +525,9 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
             .count();
         let alive_count = capability_reports
             .iter()
-            .filter(|capability| &capability.domain == domain && capability.standing == "ALIVE")
+            .filter(|capability| {
+                &capability.domain == domain && capability.standing == "ALIVE"
+            })
             .count();
         domains.insert(
             domain.clone(),
@@ -467,7 +544,9 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         let minimum = horizon_targets.get(&year).copied().unwrap_or_default();
         let alive_count = capability_reports
             .iter()
-            .filter(|capability| capability.horizon == year && capability.standing == "ALIVE")
+            .filter(|capability| {
+                capability.horizon == year && capability.standing == "ALIVE"
+            })
             .count();
         horizons.insert(
             year.to_string(),
@@ -527,10 +606,15 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         && blue_ocean_closure
         && target_met
         && violations.is_empty();
+    let any_refused = capability_reports
+        .iter()
+        .any(|capability| capability.standing == "REFUSED");
     let standing = if achieved {
         "ALIVE"
     } else if !alive.is_empty() {
         "PARTIAL_ALIVE"
+    } else if any_refused {
+        "REFUSED"
     } else {
         "DESIGNED"
     };
@@ -565,6 +649,9 @@ pub(super) fn as_value(path: &Path) -> Result<Value> {
 
 pub(super) fn validation(path: &Path) -> Result<Value> {
     let report = evaluate(path)?;
+    let domains_closed = report.domains.values().all(|domain| domain.covered);
+    let horizons_closed = report.horizons.values().all(|horizon| horizon.met);
+    let blue_ocean_closed = report.blue_ocean.values().all(|count| *count > 0);
     Ok(json!({
         "standing": report.standing,
         "achieved": report.achieved,
@@ -573,9 +660,9 @@ pub(super) fn validation(path: &Path) -> Result<Value> {
         "canonical_units": report.canonical_units,
         "delivered_instances": report.delivered_instances,
         "all_capabilities_alive": report.all_capabilities_alive,
-        "domains_closed": report.domains.values().all(|domain| domain.covered),
-        "horizons_closed": report.horizons.values().all(|horizon| horizon.met),
-        "blue_ocean_closed": report.blue_ocean.values().all(|count| *count > 0),
+        "domains_closed": domains_closed,
+        "horizons_closed": horizons_closed,
+        "blue_ocean_closed": blue_ocean_closed,
         "violations": report.violations,
         "manifest_digest": report.manifest_digest,
         "report_digest": report.report_digest
@@ -613,11 +700,12 @@ pub(super) fn blue_ocean(path: &Path) -> Result<Value> {
         .iter()
         .filter_map(|(movement, count)| (*count == 0).then_some(movement.clone()))
         .collect::<Vec<_>>();
+    let closed = uncovered.is_empty();
     Ok(json!({
         "standing": report.standing,
         "accepted_capabilities_by_move": report.blue_ocean,
         "uncovered_moves": uncovered,
-        "closed": uncovered.is_empty(),
+        "closed": closed,
         "report_digest": report.report_digest
     }))
 }
@@ -666,7 +754,11 @@ pub(super) fn lens(path: &Path, domain: &str) -> Result<Value> {
 }
 
 fn remediation(violation: &str) -> &'static str {
-    if violation.contains("digest") || violation.contains("evidence") {
+    if violation.contains("multiple capabilities") {
+        "Manufacture a capability-specific SBB whose id and architecture contract bind only this capability."
+    } else if violation.contains("architecture contract") || violation.contains("SBB id") {
+        "Regenerate the SBB report with its id equal to the capability id and its architecture contract equal to the capability IRI."
+    } else if violation.contains("digest") || violation.contains("evidence") {
         "Recompute the BLAKE3 digest from the exact evidence bytes and bind a safe relative locator."
     } else if violation.contains("dependency") {
         "Admit the named dependency first, remove the cycle, then replay the dependent capability."
@@ -696,10 +788,11 @@ pub(super) fn doctor(path: &Path) -> Result<Value> {
             })
         })
         .collect::<Vec<_>>();
+    let healthy = findings.is_empty();
     Ok(json!({
         "schema": "ggen.vision2030.doctor.v1",
         "standing": report.standing,
-        "healthy": findings.is_empty(),
+        "healthy": healthy,
         "findings": findings,
         "actuated": false,
         "report_digest": report.report_digest
