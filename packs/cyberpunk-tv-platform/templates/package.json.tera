@@ -1,0 +1,20 @@
+{
+  "name": "cyberpunk-tv-platform",
+  "private": true,
+  "version": "26.8.3",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.1.14",
+    "@deck.gl/layers": "^9.1.14",
+    "@unrdf/core": "^5.0.1",
+    "mermaid": "^11.16.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}
