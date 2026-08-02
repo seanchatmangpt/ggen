@@ -1,0 +1,19 @@
+
+# Gate: no-orphan-actions
+# Label: No Orphan Actions
+# Every cmx:Action must be reachable from exactly one cmx:Generator via cmx:hasAction.
+# Surface: causality
+# Invariant: ∀ act ∈ cmx:Action → ∃ gen: cmx:hasAction(gen, act)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?act a cmx:Action .
+      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    }
+    
+}
+

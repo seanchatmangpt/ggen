@@ -1,0 +1,19 @@
+
+# Gate: every-binding-has-output-pattern
+# Label: Every TemplateBinding Has an Output Pattern
+# All cmx:TemplateBinding individuals must declare cmx:outputPattern.
+# Surface: causality
+# Invariant: ∀ b ∈ cmx:TemplateBinding → ∃ cmx:outputPattern(b)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?b a cmx:TemplateBinding .
+      FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
+    }
+    
+}
+

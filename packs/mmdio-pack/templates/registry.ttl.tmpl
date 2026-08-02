@@ -1,0 +1,21 @@
+---
+to: "../../mmdio/src/mmdio/engine/registry.ttl"
+sparql: |
+  PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+  PREFIX dct: <http://purl.org/dc/terms/>
+  PREFIX prov: <http://www.w3.org/ns/prov#>
+  CONSTRUCT {
+    ?s ?p ?o .
+  }
+  WHERE {
+    ?s ?p ?o .
+  }
+force: false
+freeze_policy: checksum
+---
+{% for triple in results %}
+{{ triple.s | safe }} {{ triple.p | safe }} {{ triple.o | safe }} .
+{% endfor %}

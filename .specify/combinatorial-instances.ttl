@@ -1,0 +1,113 @@
+@prefix cmx:  <http://ggen.org/combinatorial#> .
+@prefix cli:  <http://ggen.org/cli#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Proof Gate instances — one per evidence surface required by AGENTS.md
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:gate-every-command-has-handler a cmx:ProofGate ;
+    cmx:gateId   "every-command-has-handler" ;
+    rdfs:label   "Every Command Has Handler" ;
+    rdfs:comment "All declared cli:Command individuals must have a cli:handler value." ;
+    cmx:surface  "state" ;
+    cmx:invariant "∀ cmd ∈ cli:Command → ∃ cli:handler(cmd)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?cmd a cli:Command .
+      FILTER NOT EXISTS { ?cmd cli:handler ?h }
+    }
+    """ .
+
+cmx:gate-every-generator-has-action a cmx:ProofGate ;
+    cmx:gateId   "every-generator-has-action" ;
+    rdfs:label   "Every Generator Has At Least One Action" ;
+    rdfs:comment "All declared cmx:Generator individuals must have at least one cmx:hasAction link." ;
+    cmx:surface  "state" ;
+    cmx:invariant "∀ gen ∈ cmx:Generator → ∃ cmx:hasAction(gen, act)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?gen a cmx:Generator .
+      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    }
+    """ .
+
+cmx:gate-every-action-has-binding a cmx:ProofGate ;
+    cmx:gateId   "every-action-has-binding" ;
+    rdfs:label   "Every Action Has a TemplateBinding" ;
+    rdfs:comment "All cmx:Action individuals must have exactly one cmx:hasBinding link to a cmx:TemplateBinding." ;
+    cmx:surface  "state" ;
+    cmx:invariant "∀ act ∈ cmx:Action → ∃ cmx:hasBinding(act, b)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?act a cmx:Action .
+      FILTER NOT EXISTS { ?act cmx:hasBinding ?b }
+    }
+    """ .
+
+cmx:gate-every-binding-has-template a cmx:ProofGate ;
+    cmx:gateId   "every-binding-has-template" ;
+    rdfs:label   "Every TemplateBinding Has a Template File" ;
+    rdfs:comment "All cmx:TemplateBinding individuals must declare cmx:templateFile." ;
+    cmx:surface  "execution" ;
+    cmx:invariant "∀ b ∈ cmx:TemplateBinding → ∃ cmx:templateFile(b)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?b a cmx:TemplateBinding .
+      FILTER NOT EXISTS { ?b cmx:templateFile ?f }
+    }
+    """ .
+
+cmx:gate-every-binding-has-output-pattern a cmx:ProofGate ;
+    cmx:gateId   "every-binding-has-output-pattern" ;
+    rdfs:label   "Every TemplateBinding Has an Output Pattern" ;
+    rdfs:comment "All cmx:TemplateBinding individuals must declare cmx:outputPattern." ;
+    cmx:surface  "causality" ;
+    cmx:invariant "∀ b ∈ cmx:TemplateBinding → ∃ cmx:outputPattern(b)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?b a cmx:TemplateBinding .
+      FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
+    }
+    """ .
+
+cmx:gate-no-orphan-actions a cmx:ProofGate ;
+    cmx:gateId   "no-orphan-actions" ;
+    rdfs:label   "No Orphan Actions" ;
+    rdfs:comment "Every cmx:Action must be reachable from exactly one cmx:Generator via cmx:hasAction." ;
+    cmx:surface  "causality" ;
+    cmx:invariant "∀ act ∈ cmx:Action → ∃ gen: cmx:hasAction(gen, act)" ;
+    cmx:askBody  """
+    NOT EXISTS {
+      ?act a cmx:Action .
+      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    }
+    """ .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# cmx:Crate instances — materialized from existing crates/ directory
+# These drive the crate-new and crate-lib generation rules.
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:crate-ggen-engine a cmx:Crate ;
+    rdfs:label  "ggen-engine" ;
+    cmx:version "0.1.0" ;
+    rdfs:comment "Core ggen generation engine: SPARQL, Tera, receipts, law gate." .
+
+cmx:crate-ggen-cli a cmx:Crate ;
+    rdfs:label  "ggen-cli" ;
+    cmx:version "0.1.0" ;
+    rdfs:comment "Clap CLI interface for the ggen tool." .
+
+cmx:crate-ggen-config a cmx:Crate ;
+    rdfs:label  "ggen-config" ;
+    cmx:version "0.1.0" ;
+    rdfs:comment "Configuration types shared between ggen-engine and ggen-cli." .
+
+cmx:crate-ggen-graph a cmx:Crate ;
+    rdfs:label  "ggen-graph" ;
+    cmx:version "0.1.0" ;
+    rdfs:comment "Graph engine abstraction over oxigraph for ontology loading and SPARQL." .

@@ -1,0 +1,25 @@
+{#
+  combinatorial/proof-gate.rq.tera
+  Generator : proof-gate / gate-rq
+  Pipeline  : combinatorial.ttl → proof-gate.rq → this file → .specify/gates/{{ gate_id }}.rq
+  Correct by construction — A = μ(O). Do not edit; edit the ontology.
+
+  Each gate is a SPARQL ASK query used by ggen's law gate stage.
+  If ASK returns false, generation is denied ([FM-LAW-*] refusal).
+#}
+# Gate: {{ gate_id }}
+# Label: {{ label | default(value=gate_id) }}
+{% if description %}# {{ description }}{% endif %}
+# Surface: {{ surface | default(value='execution') }}
+# Invariant: {{ invariant | default(value='') }}
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+{% if ask_body %}
+ASK {
+  {{ ask_body }}
+}
+{% else %}
+# No ask_body declared for gate {{ gate_id }} — passes vacuously.
+ASK { }
+{% endif %}

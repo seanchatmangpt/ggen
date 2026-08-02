@@ -1,0 +1,16 @@
+PREFIX cli:  <http://ggen.org/cli#>
+PREFIX cmx:  <http://ggen.org/combinatorial#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?crate_name ?version ?description
+WHERE {
+    ?c a cmx:Crate ;
+       rdfs:label ?crate_name .
+
+    OPTIONAL { ?c cmx:version ?raw_version }
+    OPTIONAL { ?c rdfs:comment ?description }
+
+    BIND(COALESCE(?raw_version, "0.1.0"^^xsd:string) AS ?version)
+}
+ORDER BY ?crate_name

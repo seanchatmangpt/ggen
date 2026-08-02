@@ -1,0 +1,18 @@
+{#
+  combinatorial/crate-cargo-toml.tera
+  Generator : crate / new
+  Pipeline  : combinatorial.ttl → crate-new.rq → this file → crates/{{ crate_name }}/Cargo.toml
+  Correct by construction — A = μ(O). Do not edit; edit the ontology.
+#}
+[package]
+name    = "{{ crate_name | replace(from='_', to='-') }}"
+version = "{{ version | default(value='0.1.0') }}"
+edition = "2021"
+{% if description %}
+description = "{{ description }}"
+{% endif %}
+
+[lib]
+name = "{{ crate_name | replace(from='-', to='_') }}"
+
+[dependencies]

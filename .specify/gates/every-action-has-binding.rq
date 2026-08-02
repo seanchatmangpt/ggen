@@ -1,0 +1,19 @@
+
+# Gate: every-action-has-binding
+# Label: Every Action Has a TemplateBinding
+# All cmx:Action individuals must have exactly one cmx:hasBinding link to a cmx:TemplateBinding.
+# Surface: state
+# Invariant: ∀ act ∈ cmx:Action → ∃ cmx:hasBinding(act, b)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?act a cmx:Action .
+      FILTER NOT EXISTS { ?act cmx:hasBinding ?b }
+    }
+    
+}
+
