@@ -2,11 +2,19 @@
 to: "package.json"
 sparql:
   apps: >
-    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?packageName ?nextVersion ?reactVersion ?deckVersion WHERE {
+      ?app a pcq:MarketplaceApplication ;
+        pcq:packageName ?packageName ;
+        pcq:nextVersion ?nextVersion ;
+        pcq:reactVersion ?reactVersion ;
+        pcq:deckVersion ?deckVersion .
+    }
+    LIMIT 1
 ---
 {% for app in apps -%}
 {
-  "name": "pcq-atlas-marketplace",
+  "name": "{{ app.packageName }}",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -23,13 +31,13 @@ sparql:
     "verify": "pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
-    "@deck.gl/core": "9.3.7",
-    "@deck.gl/geo-layers": "9.3.7",
-    "@deck.gl/layers": "9.3.7",
-    "@deck.gl/react": "9.3.7",
-    "next": "16.2.12",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "@deck.gl/core": "{{ app.deckVersion }}",
+    "@deck.gl/geo-layers": "{{ app.deckVersion }}",
+    "@deck.gl/layers": "{{ app.deckVersion }}",
+    "@deck.gl/react": "{{ app.deckVersion }}",
+    "next": "{{ app.nextVersion }}",
+    "react": "{{ app.reactVersion }}",
+    "react-dom": "{{ app.reactVersion }}",
     "zod": "4.1.12"
   },
   "devDependencies": {

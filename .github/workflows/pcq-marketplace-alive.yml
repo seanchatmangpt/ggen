@@ -27,12 +27,13 @@ jobs:
         run: cargo build --release -p ggen-cli-lib --bin ggen
       - name: Manufacture and prove byte-stable replay
         run: |
+          mkdir -p .ggen/evidence
           ../../target/release/ggen sync run
-          find . -type f ! -path './.ggen/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/projection-first.sha256
+          find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-first.sha256
           ../../target/release/ggen sync run
-          find . -type f ! -path './.ggen/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/projection-second.sha256
-          diff -u .ggen/projection-first.sha256 .ggen/projection-second.sha256
-          ../../target/release/ggen sync run --dry-run | tee .ggen/pcq-dry-run.log
+          find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-second.sha256
+          diff -u .ggen/evidence/projection-first.sha256 .ggen/evidence/projection-second.sha256
+          ../../target/release/ggen sync run --dry-run | tee .ggen/evidence/pcq-dry-run.log
       - uses: pnpm/action-setup@v4
         with: { version: 10.14.0 }
       - uses: actions/setup-node@v4
@@ -62,8 +63,7 @@ jobs:
           retention-days: 30
           if-no-files-found: error
           path: |
-            examples/pcq-marketplace/.ggen/receipts/**
-            examples/pcq-marketplace/.ggen/pcq-dry-run.log
-            examples/pcq-marketplace/.ggen/projection-*.sha256
+            examples/pcq-marketplace/.ggen/**
+            examples/pcq-marketplace/.ggen-v2/**
             examples/pcq-marketplace/.build/**
             examples/pcq-marketplace/test-results/**
