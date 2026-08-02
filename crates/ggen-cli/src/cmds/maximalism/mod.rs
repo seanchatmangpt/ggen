@@ -56,15 +56,7 @@ pub(super) const REQUIRED_DOMAINS: [&str; 19] = [
 ];
 
 pub(super) const OUTCOMES: [&str; 9] = [
-    "YES",
-    "NO",
-    "AWAIT",
-    "ASK",
-    "RETRIEVE",
-    "INSPECT",
-    "ESCALATE",
-    "IGNORE",
-    "SETTLE",
+    "YES", "NO", "AWAIT", "ASK", "RETRIEVE", "INSPECT", "ESCALATE", "IGNORE", "SETTLE",
 ];
 
 const AUTHORITIES: [&str; 4] = ["observe", "recommend", "construct", "actuate"];

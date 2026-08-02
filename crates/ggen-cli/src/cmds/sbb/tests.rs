@@ -8,8 +8,15 @@ fn run(root: &Path, args: &[&str]) -> String {
         .args(args)
         .output()
         .expect("git");
-    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
-    String::from_utf8(output.stdout).expect("utf8").trim().to_string()
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8(output.stdout)
+        .expect("utf8")
+        .trim()
+        .to_string()
 }
 
 fn fixture(root: &Path, duplicate: bool) -> PathBuf {
@@ -67,7 +74,9 @@ fn fixture(root: &Path, duplicate: bool) -> PathBuf {
             architecture_contract: "urn:ggen:contract:test".to_string(),
             minimum_commit_equivalent_units: 1,
         },
-        repository: Repository { root: ".".to_string() },
+        repository: Repository {
+            root: ".".to_string(),
+        },
         distribution,
         deltas,
     };
@@ -127,7 +136,11 @@ fn receipts_replay_and_refuse_tampering() {
     let mut stored: Value =
         serde_json::from_slice(&fs::read(&report_path).expect("report")).expect("json");
     stored["commit_equivalent_units"] = json!(999);
-    fs::write(&report_path, serde_json::to_vec_pretty(&stored).expect("json")).expect("report");
+    fs::write(
+        &report_path,
+        serde_json::to_vec_pretty(&stored).expect("json"),
+    )
+    .expect("report");
     let replayed =
         replay(path.display().to_string(), output.display().to_string()).expect("replay");
     assert_eq!(replayed["status"], "REPLAY_DIVERGED");

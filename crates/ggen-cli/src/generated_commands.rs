@@ -17,11 +17,8 @@ pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
 ];
 
 /// Ontology-ordered `(noun, default verb)` compatibility bindings.
-pub const DEFAULT_VERBS: &[(&str, &str)] = &[
-    ("sync", "run"),
-    ("doctor", "run"),
-    ("receipt", "verify"),
-];
+pub const DEFAULT_VERBS: &[(&str, &str)] =
+    &[("sync", "run"), ("doctor", "run"), ("receipt", "verify")];
 
 /// Look up the ontology-declared description for a CLI command by its label.
 ///

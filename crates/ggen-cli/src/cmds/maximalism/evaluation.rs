@@ -102,7 +102,8 @@ fn validate_authority(capability: &Capability, violations: &mut Vec<String>) {
         violations.push("Doctor capability may not actuate".to_string());
     }
     if capability.domain == "wizard" && capability.authority == "actuate" {
-        violations.push("Wizard capability may construct candidates but may not actuate".to_string());
+        violations
+            .push("Wizard capability may construct candidates but may not actuate".to_string());
     }
     if capability.domain == "truthforge"
         && !matches!(capability.authority.as_str(), "observe" | "recommend")
@@ -132,8 +133,7 @@ fn validate_sbb_receipt(receipt: &SbbReceipt, report_digest: &str) -> bool {
 }
 
 fn validate_sbb(
-    report: &SbbReport,
-    violations: &mut Vec<String>,
+    report: &SbbReport, violations: &mut Vec<String>,
 ) -> Option<(usize, u128, usize, usize, u128)> {
     if report.schema != SBB_REPORT_SCHEMA {
         violations.push("sbb_report has unsupported schema".to_string());
@@ -149,8 +149,16 @@ fn validate_sbb(
     }
     let contexts = report.distribution_contexts.parse::<u128>().ok();
     let delivered = report.delivered_capability_instances.parse::<u128>().ok();
-    let ontology_modules = report.axes.get("ontology_modules").copied().unwrap_or_default();
-    let textual_forms = report.axes.get("textual_forms").copied().unwrap_or_default();
+    let ontology_modules = report
+        .axes
+        .get("ontology_modules")
+        .copied()
+        .unwrap_or_default();
+    let textual_forms = report
+        .axes
+        .get("textual_forms")
+        .copied()
+        .unwrap_or_default();
     if report.commit_equivalent_units == 0
         || contexts == Some(0)
         || delivered == Some(0)
@@ -161,9 +169,8 @@ fn validate_sbb(
             "sbb_report has zero canonical units, semantic axes, or distribution".to_string(),
         );
     }
-    let expected = contexts.and_then(|contexts| {
-        contexts.checked_mul(report.commit_equivalent_units as u128)
-    });
+    let expected =
+        contexts.and_then(|contexts| contexts.checked_mul(report.commit_equivalent_units as u128));
     if expected != delivered {
         violations.push("sbb_report delivered instances are inconsistent".to_string());
     }
@@ -187,11 +194,7 @@ fn validate_sbb(
 }
 
 fn validate_proof(
-    manifest: &Path,
-    capability: &Capability,
-    role: &str,
-    kind: &str,
-    report_digest: &str,
+    manifest: &Path, capability: &Capability, role: &str, kind: &str, report_digest: &str,
     violations: &mut Vec<String>,
 ) {
     let witness = capability
@@ -212,10 +215,7 @@ fn validate_proof(
 }
 
 fn validate_verifier(
-    manifest: &Path,
-    capability: &Capability,
-    report_digest: &str,
-    violations: &mut Vec<String>,
+    manifest: &Path, capability: &Capability, report_digest: &str, violations: &mut Vec<String>,
 ) {
     let verifier = capability
         .evidence
@@ -251,10 +251,7 @@ fn passport_complete(passport: &Passport) -> bool {
 }
 
 fn validate_passport(
-    manifest: &Path,
-    capability: &Capability,
-    report_digest: &str,
-    violations: &mut Vec<String>,
+    manifest: &Path, capability: &Capability, report_digest: &str, violations: &mut Vec<String>,
 ) {
     let passport = capability
         .evidence
@@ -271,10 +268,7 @@ fn validate_passport(
 }
 
 fn validate_external_acceptance(
-    manifest: &Path,
-    program: &Program,
-    capability: &Capability,
-    report_digest: &str,
+    manifest: &Path, program: &Program, capability: &Capability, report_digest: &str,
     violations: &mut Vec<String>,
 ) {
     let acceptance = capability
@@ -289,15 +283,14 @@ fn validate_external_acceptance(
                 && !acceptance.issuer.trim().is_empty()
                 && acceptance.issuer != program.id
                 && acceptance.report_digest == report_digest => {}
-        _ => violations.push("external acceptance is absent, self-issued, or divergent".to_string()),
+        _ => {
+            violations.push("external acceptance is absent, self-issued, or divergent".to_string())
+        }
     }
 }
 
 fn validate_execution_grant(
-    manifest: &Path,
-    capability: &Capability,
-    report_digest: &str,
-    violations: &mut Vec<String>,
+    manifest: &Path, capability: &Capability, report_digest: &str, violations: &mut Vec<String>,
 ) {
     if capability.authority != "actuate" {
         return;
@@ -318,10 +311,7 @@ fn validate_execution_grant(
 }
 
 fn evaluate_capability(
-    manifest: &Path,
-    program: &Program,
-    capability: &Capability,
-    known_ids: &BTreeSet<String>,
+    manifest: &Path, program: &Program, capability: &Capability, known_ids: &BTreeSet<String>,
 ) -> Candidate {
     let mut violations = Vec::new();
     if capability.id.trim().is_empty()
@@ -344,7 +334,8 @@ fn evaluate_capability(
             .iter()
             .any(|outcome| !OUTCOMES.contains(&outcome.as_str()))
     {
-        violations.push("outcomes must be unique members of the lawful outcome lattice".to_string());
+        violations
+            .push("outcomes must be unique members of the lawful outcome lattice".to_string());
     }
     if !capability.dependencies.is_empty() && !unique_nonempty(&capability.dependencies) {
         violations.push("dependencies must be unique and non-empty".to_string());
@@ -369,7 +360,9 @@ fn evaluate_capability(
     for role in REQUIRED_EVIDENCE {
         match capability.evidence.get(role) {
             Some(binding) if evidence_bytes(manifest, binding).is_some() => {}
-            _ => violations.push(format!("{role} evidence is absent, unsafe, or digest-divergent")),
+            _ => violations.push(format!(
+                "{role} evidence is absent, unsafe, or digest-divergent"
+            )),
         }
     }
 
@@ -427,7 +420,8 @@ fn evaluate_capability(
     if let Some(binding) = capability.evidence.get("receipt") {
         match parse_evidence::<SbbReceipt>(manifest, binding) {
             Some(receipt) if validate_sbb_receipt(&receipt, &report_digest_value) => {}
-            _ => violations.push("receipt does not cryptographically bind the SBB report".to_string()),
+            _ => violations
+                .push("receipt does not cryptographically bind the SBB report".to_string()),
         }
     }
 
@@ -449,12 +443,7 @@ fn evaluate_capability(
         &report_digest_value,
         &mut violations,
     );
-    validate_execution_grant(
-        manifest,
-        capability,
-        &report_digest_value,
-        &mut violations,
-    );
+    validate_execution_grant(manifest, capability, &report_digest_value, &mut violations);
 
     let intrinsic_alive = violations.is_empty();
     let standing = if intrinsic_alive {
@@ -491,11 +480,8 @@ fn evaluate_capability(
 
 fn cycle_nodes(graph: &BTreeMap<String, Vec<String>>) -> BTreeSet<String> {
     fn visit(
-        node: &str,
-        graph: &BTreeMap<String, Vec<String>>,
-        state: &mut BTreeMap<String, u8>,
-        stack: &mut Vec<String>,
-        cycles: &mut BTreeSet<String>,
+        node: &str, graph: &BTreeMap<String, Vec<String>>, state: &mut BTreeMap<String, u8>,
+        stack: &mut Vec<String>, cycles: &mut BTreeSet<String>,
     ) {
         match state.get(node).copied().unwrap_or_default() {
             1 => {
@@ -557,7 +543,11 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         violations.push("required_domains must be unique and non-empty".to_string());
     }
     for domain in REQUIRED_DOMAINS {
-        if !manifest.required_domains.iter().any(|candidate| candidate == domain) {
+        if !manifest
+            .required_domains
+            .iter()
+            .any(|candidate| candidate == domain)
+        {
             violations.push(format!("required domain {domain} is missing"));
         }
     }
@@ -565,7 +555,11 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         violations.push("required_outcomes must be unique and non-empty".to_string());
     }
     for outcome in OUTCOMES {
-        if !manifest.required_outcomes.iter().any(|candidate| candidate == outcome) {
+        if !manifest
+            .required_outcomes
+            .iter()
+            .any(|candidate| candidate == outcome)
+        {
             violations.push(format!("lawful outcome {outcome} is missing"));
         }
     }
@@ -619,7 +613,10 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
     for candidate in &mut candidates {
         if cycles.contains(&candidate.report.id) {
             candidate.intrinsic_alive = false;
-            candidate.report.violations.push("dependency cycle".to_string());
+            candidate
+                .report
+                .violations
+                .push("dependency cycle".to_string());
             candidate.report.standing = if candidate.observed_any {
                 "REFUSED".to_string()
             } else {
@@ -758,13 +755,13 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
     let semantic_cells = semantic_cells.unwrap_or_default();
     let alive_domain_count = domains.values().filter(|coverage| coverage.closed).count();
     let domain_combination_space = domain_space(alive_domain_count, &mut violations);
-    let target_product = (canonical_units as u128)
-        .checked_mul(manifest.program.minimum_multiplier as u128);
+    let target_product =
+        (canonical_units as u128).checked_mul(manifest.program.minimum_multiplier as u128);
     if target_product.is_none() {
         violations.push("multiplier target product overflowed u128".to_string());
     }
-    let multiplier_closed = canonical_units > 0
-        && target_product.is_some_and(|target| delivered_instances >= target);
+    let multiplier_closed =
+        canonical_units > 0 && target_product.is_some_and(|target| delivered_instances >= target);
     let all_capabilities_alive = !capability_reports.is_empty()
         && capability_reports
             .iter()
@@ -955,9 +952,7 @@ pub(super) fn doctor(path: &Path) -> Result<Value> {
 
 fn dependency_order(manifest: &Manifest, target: &str) -> Vec<String> {
     fn visit(
-        id: &str,
-        graph: &BTreeMap<String, Vec<String>>,
-        seen: &mut BTreeSet<String>,
+        id: &str, graph: &BTreeMap<String, Vec<String>>, seen: &mut BTreeSet<String>,
         order: &mut Vec<String>,
     ) {
         if !seen.insert(id.to_string()) {

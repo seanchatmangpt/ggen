@@ -93,9 +93,7 @@ fn load(path: &Path) -> Result<(Manifest, Vec<u8>)> {
 }
 
 fn validate_sbb(
-    report: &SbbReport,
-    capability: &Capability,
-    violations: &mut Vec<String>,
+    report: &SbbReport, capability: &Capability, violations: &mut Vec<String>,
 ) -> Option<(usize, u128)> {
     let before = violations.len();
     if report.schema != SBB_REPORT_SCHEMA {
@@ -108,7 +106,8 @@ fn validate_sbb(
         violations.push("sbb_report SBB version is empty".to_string());
     }
     if report.sbb.architecture_contract != capability.iri {
-        violations.push("sbb_report architecture contract does not equal capability IRI".to_string());
+        violations
+            .push("sbb_report architecture contract does not equal capability IRI".to_string());
     }
     if report.sbb.minimum_commit_equivalent_units == 0 {
         violations.push("sbb_report SBB target is zero".to_string());
@@ -127,9 +126,8 @@ fn validate_sbb(
     if report.commit_equivalent_units == 0 || contexts == Some(0) || delivered == Some(0) {
         violations.push("sbb_report has zero canonical units or distribution".to_string());
     }
-    let expected = contexts.and_then(|contexts| {
-        contexts.checked_mul(report.commit_equivalent_units as u128)
-    });
+    let expected =
+        contexts.and_then(|contexts| contexts.checked_mul(report.commit_equivalent_units as u128));
     if expected != delivered {
         violations.push("sbb_report delivered instances are inconsistent".to_string());
     }
@@ -155,10 +153,7 @@ fn validate_authority(capability: &Capability, violations: &mut Vec<String>) {
 }
 
 fn evaluate_capability(
-    manifest_path: &Path,
-    program: &Program,
-    capability: &Capability,
-    known_ids: &BTreeSet<String>,
+    manifest_path: &Path, program: &Program, capability: &Capability, known_ids: &BTreeSet<String>,
 ) -> Candidate {
     let mut violations = Vec::new();
     if capability.id.trim().is_empty()
@@ -168,7 +163,8 @@ fn evaluate_capability(
         violations.push("capability identity, IRI, and summary are required".to_string());
     }
     if !REQUIRED_DOMAINS.contains(&capability.domain.as_str()) {
-        violations.push("capability domain is outside the required Vision 2030 profile".to_string());
+        violations
+            .push("capability domain is outside the required Vision 2030 profile".to_string());
     }
     if !HORIZONS.contains(&capability.horizon) {
         violations.push("capability horizon must be between 2026 and 2030".to_string());
@@ -214,8 +210,7 @@ fn evaluate_capability(
         match parse_evidence::<SbbReport>(manifest_path, binding) {
             Some(report) => {
                 report_digest_value = report.report_digest.clone();
-                if let Some((units, delivered)) =
-                    validate_sbb(&report, capability, &mut violations)
+                if let Some((units, delivered)) = validate_sbb(&report, capability, &mut violations)
                 {
                     canonical_units = units;
                     delivered_instances = delivered;
@@ -244,7 +239,9 @@ fn evaluate_capability(
                     && replay.status == "REPLAY_MATCH"
                     && replay.matches
                     && replay.report_digest == report_digest_value => {}
-            _ => violations.push("replay does not prove REPLAY_MATCH for the SBB report".to_string()),
+            _ => {
+                violations.push("replay does not prove REPLAY_MATCH for the SBB report".to_string())
+            }
         }
     }
 
@@ -257,9 +254,8 @@ fn evaluate_capability(
                     && !acceptance.issuer.trim().is_empty()
                     && acceptance.issuer != program.id
                     && acceptance.report_digest == report_digest_value => {}
-            _ => violations.push(
-                "external acceptance is absent, self-issued, or divergent".to_string(),
-            ),
+            _ => violations
+                .push("external acceptance is absent, self-issued, or divergent".to_string()),
         }
     }
 
@@ -311,11 +307,8 @@ fn evaluate_capability(
 
 fn cycle_nodes(graph: &BTreeMap<String, Vec<String>>) -> BTreeSet<String> {
     fn visit(
-        node: &str,
-        graph: &BTreeMap<String, Vec<String>>,
-        state: &mut BTreeMap<String, u8>,
-        stack: &mut Vec<String>,
-        cycles: &mut BTreeSet<String>,
+        node: &str, graph: &BTreeMap<String, Vec<String>>, state: &mut BTreeMap<String, u8>,
+        stack: &mut Vec<String>, cycles: &mut BTreeSet<String>,
     ) {
         match state.get(node).copied().unwrap_or_default() {
             1 => {
@@ -525,9 +518,7 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
             .count();
         let alive_count = capability_reports
             .iter()
-            .filter(|capability| {
-                &capability.domain == domain && capability.standing == "ALIVE"
-            })
+            .filter(|capability| &capability.domain == domain && capability.standing == "ALIVE")
             .count();
         domains.insert(
             domain.clone(),
@@ -544,9 +535,7 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         let minimum = horizon_targets.get(&year).copied().unwrap_or_default();
         let alive_count = capability_reports
             .iter()
-            .filter(|capability| {
-                capability.horizon == year && capability.standing == "ALIVE"
-            })
+            .filter(|capability| capability.horizon == year && capability.standing == "ALIVE")
             .count();
         horizons.insert(
             year.to_string(),
@@ -593,13 +582,13 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
     let domain_closure = domains.values().all(|domain| domain.covered);
     let horizon_closure = horizons.values().all(|horizon| horizon.met);
     let blue_ocean_closure = blue_ocean.values().all(|count| *count > 0);
-    let target_product = (canonical_units as u128)
-        .checked_mul(manifest.program.phase_change_target as u128);
+    let target_product =
+        (canonical_units as u128).checked_mul(manifest.program.phase_change_target as u128);
     if target_product.is_none() {
         violations.push("phase-change target product overflowed u128".to_string());
     }
-    let target_met = canonical_units > 0
-        && target_product.is_some_and(|target| delivered_instances >= target);
+    let target_met =
+        canonical_units > 0 && target_product.is_some_and(|target| delivered_instances >= target);
     let achieved = all_capabilities_alive
         && domain_closure
         && horizon_closure

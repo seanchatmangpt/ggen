@@ -4,7 +4,11 @@ use super::*;
 fn write(path: &Path, bytes: &[u8]) -> Evidence {
     fs::write(path, bytes).expect("write evidence");
     Evidence {
-        locator: path.file_name().expect("name").to_string_lossy().to_string(),
+        locator: path
+            .file_name()
+            .expect("name")
+            .to_string_lossy()
+            .to_string(),
         digest: format!("blake3:{}", digest_bytes(bytes)),
     }
 }
@@ -53,15 +57,8 @@ fn capability_id(domain: &str) -> String {
 }
 
 fn capability(
-    root: &Path,
-    index: usize,
-    id: String,
-    domain: &str,
-    surface: &str,
-    outcome: &str,
-    report: &SbbReport,
-    report_evidence: &Evidence,
-    receipt_evidence: &Evidence,
+    root: &Path, index: usize, id: String, domain: &str, surface: &str, outcome: &str,
+    report: &SbbReport, report_evidence: &Evidence, receipt_evidence: &Evidence,
     replay_evidence: &Evidence,
 ) -> Capability {
     let iri = format!("urn:ggen:maximalism:test:{id}");
@@ -273,7 +270,11 @@ fn fixture(root: &Path) -> PathBuf {
         capabilities,
     };
     let path = root.join("manifest.json");
-    fs::write(&path, serde_json::to_vec_pretty(&manifest).expect("manifest")).expect("write");
+    fs::write(
+        &path,
+        serde_json::to_vec_pretty(&manifest).expect("manifest"),
+    )
+    .expect("write");
     path
 }
 
@@ -422,14 +423,20 @@ fn receipts_replay_and_refuse_tampering() {
     let path = fixture(directory.path());
     let output = directory.path().join("receipts");
     receipt(path.display().to_string(), output.display().to_string()).expect("receipt");
-    let replayed = replay(path.display().to_string(), output.display().to_string()).expect("replay");
+    let replayed =
+        replay(path.display().to_string(), output.display().to_string()).expect("replay");
     assert_eq!(replayed["status"], "REPLAY_MATCH");
     let report_path = output.join("maximalism-report.json");
     let mut stored: Value =
         serde_json::from_slice(&fs::read(&report_path).expect("report")).expect("json");
     stored["measured_multiplier"] = json!("999999.000");
-    fs::write(&report_path, serde_json::to_vec_pretty(&stored).expect("json")).expect("write");
-    let replayed = replay(path.display().to_string(), output.display().to_string()).expect("replay");
+    fs::write(
+        &report_path,
+        serde_json::to_vec_pretty(&stored).expect("json"),
+    )
+    .expect("write");
+    let replayed =
+        replay(path.display().to_string(), output.display().to_string()).expect("replay");
     assert_eq!(replayed["status"], "REPLAY_DIVERGED");
 }
 

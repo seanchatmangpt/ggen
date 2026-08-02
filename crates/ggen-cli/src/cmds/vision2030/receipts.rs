@@ -2,10 +2,7 @@ use super::*;
 
 impl ProgramReceipt {
     fn issue(
-        operation: &str,
-        report: &Report,
-        previous_digest: &str,
-        artifacts: Vec<String>,
+        operation: &str, report: &Report, previous_digest: &str, artifacts: Vec<String>,
     ) -> Result<Self> {
         let body = ReceiptBody {
             schema: RECEIPT_SCHEMA,

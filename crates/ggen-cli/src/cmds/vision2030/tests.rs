@@ -23,11 +23,7 @@ fn report_digest_value(index: usize) -> String {
 }
 
 fn capability_evidence(
-    root: &Path,
-    index: usize,
-    id: &str,
-    iri: &str,
-    witness: &Evidence,
+    root: &Path, index: usize, id: &str, iri: &str, witness: &Evidence,
 ) -> BTreeMap<String, Evidence> {
     let report_digest = report_digest_value(index);
     let report = json_evidence(
@@ -150,19 +146,11 @@ fn read_manifest(path: &Path) -> Manifest {
 }
 
 fn write_manifest(path: &Path, manifest: &Manifest) {
-    fs::write(
-        path,
-        serde_json::to_vec_pretty(manifest).expect("manifest"),
-    )
-    .expect("write");
+    fs::write(path, serde_json::to_vec_pretty(manifest).expect("manifest")).expect("write");
 }
 
 fn replace_json_evidence(
-    manifest: &mut Manifest,
-    capability_index: usize,
-    role: &str,
-    path: &Path,
-    value: &Value,
+    manifest: &mut Manifest, capability_index: usize, role: &str, path: &Path, value: &Value,
 ) {
     manifest.capabilities[capability_index]
         .evidence
