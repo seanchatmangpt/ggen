@@ -1,18 +1,26 @@
 {
   "schema": "ggen.cyberpunk-tv.vision2030.v1",
-  "capabilities": [
-{% for row in sparql_results %}{% if row["kind"] == "capability" %}    {"id": {{ row["id"] | json_encode() }}, "title": {{ row["title"] | json_encode() }}, "group": {{ row["group"] | json_encode() }}, "order": {{ row["order"] }}, "requires": {{ row["requires"] | default(value="") | json_encode() }}, "provides": {{ row["provides"] | json_encode() }}, "verifier": {{ row["verifier"] | json_encode() }}, "cost": {{ row["cost"] | json_encode() }}, "reversible": {{ row["reversible"] }}, "defaultEnabled": {{ row["enabled"] }}}{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ],
-  "doctor": [
-{% for row in sparql_results %}{% if row["kind"] == "doctor" %}    {"id": {{ row["id"] | json_encode() }}, "order": {{ row["order"] }}, "command": {{ row["command"] | json_encode() }}, "repair": {{ row["repair"] | json_encode() }}, "verifier": {{ row["verifier"] | json_encode() }}}{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ],
-  "wizard": [
-{% for row in sparql_results %}{% if row["kind"] == "wizard" %}    {"id": {{ row["id"] | json_encode() }}, "order": {{ row["order"] }}, "question": {{ row["question"] | json_encode() }}, "choices": {{ row["choice"] | json_encode() }}}{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ],
-  "transports": [
-{% for row in sparql_results %}{% if row["kind"] == "transport" %}    {"id": {{ row["id"] | json_encode() }}, "latency": {{ row["latency"] | json_encode() }}, "offline": {{ row["offline"] }}, "provides": {{ row["provides"] | json_encode() }}}{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ],
-  "axes": [
-{% for row in sparql_results %}{% if row["kind"] == "axis" %}    {"id": {{ row["id"] | json_encode() }}, "values": {{ row["values"] | json_encode() }}}{% if not loop.last %},{% endif %}
-{% endif %}{% endfor %}  ]
+  "records": [
+{% for row in sparql_results %}    {
+      "kind": {{ row["kind"] | json_encode() }},
+      "id": {{ row["id"] | default(value="") | json_encode() }},
+      "title": {{ row["title"] | default(value="") | json_encode() }},
+      "group": {{ row["group"] | default(value="") | json_encode() }},
+      "order": {{ row["order"] | default(value=0) }},
+      "requires": {{ row["requires"] | default(value="") | json_encode() }},
+      "provides": {{ row["provides"] | default(value="") | json_encode() }},
+      "verifier": {{ row["verifier"] | default(value="") | json_encode() }},
+      "repair": {{ row["repair"] | default(value="") | json_encode() }},
+      "cost": {{ row["cost"] | default(value="") | json_encode() }},
+      "reversible": {{ row["reversible"] | default(value=true) }},
+      "enabled": {{ row["enabled"] | default(value=false) }},
+      "command": {{ row["command"] | default(value="") | json_encode() }},
+      "question": {{ row["question"] | default(value="") | json_encode() }},
+      "choice": {{ row["choice"] | default(value="") | json_encode() }},
+      "transport": {{ row["transport"] | default(value="") | json_encode() }},
+      "latency": {{ row["latency"] | default(value="") | json_encode() }},
+      "offline": {{ row["offline"] | default(value=false) }},
+      "values": {{ row["values"] | default(value="") | json_encode() }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
 }
