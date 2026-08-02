@@ -164,6 +164,27 @@ output_file = "src/system.mmd"
 mode = "Overwrite"
 
 [[generation.rules]]
+name = "runtime-settlement-query"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/settlement.rq.tera" }
+output_file = "src/settlement.rq"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-escrow-n3"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "rules/escrow.n3" }
+output_file = "rules/escrow.n3"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-settlement-datalog"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "rules/settlement.dl" }
+output_file = "rules/settlement.dl"
+mode = "Overwrite"
+
+[[generation.rules]]
 name = "web-manifest"
 query = { file = "queries/extract-platform.rq" }
 template = { file = "templates/manifest.webmanifest.tera" }
@@ -175,6 +196,13 @@ name = "service-worker"
 query = { file = "queries/extract-platform.rq" }
 template = { file = "templates/service-worker.js.tera" }
 output_file = "public/sw.js"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rust-toolchain"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/rust-toolchain.toml.tera" }
+output_file = "rust-toolchain.toml"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -196,6 +224,13 @@ name = "rust-receipt-binary"
 query = { file = "queries/extract-platform.rq" }
 template = { file = "templates/receipt.rs.tera" }
 output_file = "wasm/src/bin/receipt.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/verify.mjs.tera" }
+output_file = "scripts/verify.mjs"
 mode = "Overwrite"
 
 [[generation.rules]]
