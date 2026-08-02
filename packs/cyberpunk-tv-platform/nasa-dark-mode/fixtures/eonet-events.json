@@ -1,0 +1,25 @@
+{
+  "title": "EONET fixture for deterministic verification",
+  "description": "Representative local fixture; not current emergency information.",
+  "events": [
+    {
+      "id": "EONET_FIXTURE_WILDFIRE_001",
+      "title": "Fixture wildfire observation",
+      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_FIXTURE_WILDFIRE_001",
+      "closed": null,
+      "categories": [{"id": "wildfires", "title": "Wildfires"}],
+      "geometry": [{"date": "2026-08-01T00:00:00Z", "type": "Point", "coordinates": [-118.15, 34.15]}]
+    },
+    {
+      "id": "EONET_FIXTURE_STORM_002",
+      "title": "Fixture severe storm observation",
+      "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_FIXTURE_STORM_002",
+      "closed": null,
+      "categories": [{"id": "severeStorms", "title": "Severe Storms"}],
+      "geometry": [
+        {"date": "2026-07-31T00:00:00Z", "type": "Point", "coordinates": [-75.0, 25.0]},
+        {"date": "2026-08-01T12:00:00Z", "type": "Point", "coordinates": [-76.5, 26.0]}
+      ]
+    }
+  ]
+}
