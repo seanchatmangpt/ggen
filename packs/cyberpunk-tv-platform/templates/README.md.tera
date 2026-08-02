@@ -1,22 +1,33 @@
-# {{ title }}
+# The Public Sprawl — Manufactured Television Runtime
 
-> {{ subtitle }}
+This directory is generated from the admitted authority under `packs/cyberpunk-tv-platform/`.
+Do not edit this projection directly.
 
-This directory is generated from `packs/cyberpunk-tv-platform/ontology/platform.ttl`.
+## Manufactured capabilities
 
-## Runtime
+{% for row in sparql_results %}- `{{ row["capability_id"] }}` — {{ row["label"] }}
+{% endfor %}
+## Runtime correspondence
 
-- **UNRDF** owns the canonical semantic world.
-- **Mermaid/mmdio** renders structural and procedural views.
-- **deck.gl** renders spatial and temporal views.
-- **ggen** manufactures the runtime from the admitted graph.
+```text
+world.ttl → UNRDF/Oxigraph
+world.json → deck.gl
+system.mmd → Mermaid/mmdio
+runtime-config.json → device + remote + accessibility profile
+governance.json + settlement.rq → Robert's Rules escrow procedure
+rights.json → ODRL policy projection
+wasm/src/lib.rs → deterministic identity, drift, admission, and event receipts
+wasm/src/bin/receipt.rs → exact-tree BLAKE3 manufacture receipt
+```
 
-## Replay
+## Execute
 
 ```bash
 npm install
 npm run build
 npm run verify
+npm run replay
+npm run dev
 ```
 
-The verifier recomputes BLAKE3 digests over the manufactured runtime and emits a deterministic receipt under `.ggen/receipts/`.
+A browser render is not repository-level standing. The exact subject requires independent execution, receipt verification, replay, and device-boundary observation.
