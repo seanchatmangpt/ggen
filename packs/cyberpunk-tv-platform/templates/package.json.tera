@@ -11,6 +11,7 @@
   "dependencies": {
     "@deck.gl/core": "^9.1.14",
     "@deck.gl/layers": "^9.1.14",
+    "@noble/hashes": "^1.8.0",
     "@unrdf/core": "^5.0.1",
     "mermaid": "^11.16.0"
   },
