@@ -1,0 +1,5 @@
+{
+  "nodes": [
+{% for row in rows %}    {"name": {{ row.name | json_encode() }}, "longitude": {{ row.longitude }}, "latitude": {{ row.latitude }}, "weight": {{ row.weight }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
