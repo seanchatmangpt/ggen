@@ -1,0 +1,4 @@
+[pack]
+name = "cyberpunk-tv-platform"
+version = "26.8.3"
+description = "RDF-authored television platform manufactured by ggen with UNRDF world state, Mermaid structural projections, deck.gl spatial projections, and BLAKE3 receipt/replay surfaces."
