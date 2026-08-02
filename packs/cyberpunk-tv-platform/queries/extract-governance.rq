@@ -1,0 +1,23 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT ?motion_id ?title ?state ?quorum ?yes ?no ?proposal_id ?proposal_title ?construct_text ?settlement_id ?settlement_standing
+WHERE {
+  ?motion a tv:Motion ;
+          dct:title ?title ;
+          tv:motionState ?state ;
+          tv:quorumRequired ?quorum ;
+          tv:yesVotes ?yes ;
+          tv:noVotes ?no ;
+          tv:hasProposal ?proposal .
+  ?proposal dct:title ?proposal_title ; tv:constructText ?construct_text .
+  OPTIONAL {
+    ?motion tv:adoptsSettlement ?settlement .
+    ?settlement tv:standing ?settlement_standing .
+  }
+  BIND(STRAFTER(STR(?motion), "#") AS ?motion_id)
+  BIND(STRAFTER(STR(?proposal), "#") AS ?proposal_id)
+  BIND(IF(BOUND(?settlement), STRAFTER(STR(?settlement), "#"), "") AS ?settlement_id)
+  BIND(COALESCE(?settlement_standing, "candidate") AS ?settlement_standing)
+}
+ORDER BY ?motion_id ?proposal_id
