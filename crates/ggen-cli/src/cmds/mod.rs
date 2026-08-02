@@ -24,6 +24,7 @@ pub mod pack;
 pub mod packs;
 pub mod packs_receipt;
 pub mod policy;
+pub mod sbb;
 pub mod utils;
 
 fn register_noun(name: &'static str, about: &'static str) {
@@ -87,6 +88,15 @@ fn register_policy_noun() {
     register_noun(
         "policy",
         "Policy management commands wired to the marketplace layer.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_SBB_NOUN: fn() = register_sbb_noun;
+fn register_sbb_noun() {
+    register_noun(
+        "sbb",
+        "Solution Building Block capability density, distribution, receipts, and replay.",
     );
 }
 
