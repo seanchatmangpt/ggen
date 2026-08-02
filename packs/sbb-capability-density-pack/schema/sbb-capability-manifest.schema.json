@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.io/schema/sbb-capability-manifest.v1.json",
+  "title": "ggen SBB Capability Density Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "sbb",
+    "repository",
+    "distribution",
+    "deltas"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ggen.sbb.capability-manifest.v1"
+    },
+    "sbb": {
+      "$ref": "#/$defs/sbb"
+    },
+    "distribution": {
+      "$ref": "#/$defs/distribution"
+    },
+    "deltas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/delta"
+      }
+    },
+    "repository": {
+      "$ref": "#/$defs/repository"
+    }
+  },
+  "$defs": {
+    "sbb": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "architecture_contract",
+        "minimum_commit_equivalent_units"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture_contract": {
+          "type": "string",
+          "format": "uri"
+        },
+        "minimum_commit_equivalent_units": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ontology_modules",
+        "textual_forms",
+        "audiences",
+        "languages",
+        "jurisdictions",
+        "organization_profiles",
+        "runtimes"
+      ],
+      "properties": {
+        "ontology_modules": {
+          "$ref": "#/$defs/axis"
+        },
+        "textual_forms": {
+          "$ref": "#/$defs/axis"
+        },
+        "audiences": {
+          "$ref": "#/$defs/axis"
+        },
+        "languages": {
+          "$ref": "#/$defs/axis"
+        },
+        "jurisdictions": {
+          "$ref": "#/$defs/axis"
+        },
+        "organization_profiles": {
+          "$ref": "#/$defs/axis"
+        },
+        "runtimes": {
+          "$ref": "#/$defs/axis"
+        }
+      }
+    },
+    "axis": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "commit",
+        "capability_iri",
+        "family",
+        "summary",
+        "ontology_modules",
+        "textual_forms",
+        "chain",
+        "positive_witness",
+        "negative_fixture",
+        "adversarial_falsifier",
+        "verifier"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{7,64}$"
+        },
+        "capability_iri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ontology_modules": {
+          "$ref": "#/$defs/axis"
+        },
+        "textual_forms": {
+          "$ref": "#/$defs/axis"
+        },
+        "chain": {
+          "$ref": "#/$defs/chain"
+        },
+        "positive_witness": {
+          "$ref": "#/$defs/evidence"
+        },
+        "negative_fixture": {
+          "$ref": "#/$defs/evidence"
+        },
+        "adversarial_falsifier": {
+          "$ref": "#/$defs/evidence"
+        },
+        "verifier": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ontology",
+        "shacl",
+        "sparql",
+        "typestate",
+        "template",
+        "artifact",
+        "runtime_surface",
+        "walkthrough",
+        "receipt",
+        "replay"
+      ],
+      "properties": {
+        "ontology": {
+          "$ref": "#/$defs/evidence"
+        },
+        "shacl": {
+          "$ref": "#/$defs/evidence"
+        },
+        "sparql": {
+          "$ref": "#/$defs/evidence"
+        },
+        "typestate": {
+          "$ref": "#/$defs/evidence"
+        },
+        "template": {
+          "$ref": "#/$defs/evidence"
+        },
+        "artifact": {
+          "$ref": "#/$defs/evidence"
+        },
+        "runtime_surface": {
+          "$ref": "#/$defs/evidence"
+        },
+        "walkthrough": {
+          "$ref": "#/$defs/evidence"
+        },
+        "receipt": {
+          "$ref": "#/$defs/evidence"
+        },
+        "replay": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locator",
+        "digest"
+      ],
+      "properties": {
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^blake3[:-][0-9A-Fa-f]{64}$"
+        }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root"
+      ],
+      "properties": {
+        "root": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
