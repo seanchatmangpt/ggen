@@ -3,6 +3,29 @@
 This directory is generated from the admitted authority under `packs/cyberpunk-tv-platform/`.
 Do not edit this projection directly.
 
+## Start with the product loop
+
+```bash
+npm install
+npm run orient
+npm run demo
+npm run release -- --target=preview
+```
+
+`demo` performs orientation, graph-aware diagnosis, strict profile manufacture, combinatorial planning, Pareto frontier selection, evidence indexing, and fail-closed preview admission. It does not silently promote local, device, or federated standing.
+
+## Ask the capability graph
+
+```bash
+npm run search -- "receipt replay"
+npm run explain -- one-command
+npm run frontier -- --offline
+npm run evidence
+npm run release -- --target=local-alive
+```
+
+The generated control plane refuses unknown capability IDs, wizard choices, commands, and release targets. Release requests name every missing proof and preserve the declared claim ceiling.
+
 ## Manufactured capabilities
 
 {% for row in sparql_results %}- `{{ row["capability_id"] }}` — {{ row["label"] }}
@@ -16,18 +39,18 @@ system.mmd → Mermaid/mmdio
 runtime-config.json → device + remote + accessibility profile
 governance.json + settlement.rq → Robert's Rules escrow procedure
 rights.json → ODRL policy projection
+vision2030.json → orientation, doctor, wizard, search, explain, plan, frontier, evidence, release
 wasm/src/lib.rs → deterministic identity, drift, admission, and event receipts
 wasm/src/bin/receipt.rs → exact-tree BLAKE3 manufacture receipt
 ```
 
-## Execute
+## Full verification
 
 ```bash
-npm install
-npm run build
+npm run vision2030
 npm run verify
 npm run replay
-npm run dev
+npm run e2e
 ```
 
 A browser render is not repository-level standing. The exact subject requires independent execution, receipt verification, replay, and device-boundary observation.

@@ -1,75 +1,263 @@
-import { access, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 
 const root = resolve(process.cwd());
 const model = JSON.parse(await readFile(resolve(root, 'src/vision2030.json'), 'utf8'));
 const records = model.records;
-const byKind = kind => records.filter(record => record.kind === kind).sort((a, b) => Number(a.order) - Number(b.order));
+const byKind = kind => records.filter(record => record.kind === kind).sort((a, b) => Number(a.order) - Number(b.order) || String(a.id).localeCompare(String(b.id)));
+const csv = value => String(value ?? '').split(',').map(item => item.trim()).filter(Boolean);
+const canonical = value => JSON.stringify(sortDeep(value));
+const sha256 = value => createHash('sha256').update(value).digest('hex');
 
-async function exists(path) {
-  try { await access(resolve(root, path), constants.R_OK); return true; } catch { return false; }
+function sortDeep(value) {
+  if (Array.isArray(value)) return value.map(sortDeep);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, child]) => [key, sortDeep(child)]));
+  }
+  return value;
 }
 
-async function doctor() {
-  const required = [
-    'src/world.ttl', 'src/world.json', 'src/vision2030.json', 'src/system.mmd',
-    'src/runtime-config.json', 'src/governance.json', 'src/rights.json',
-    'wasm/Cargo.toml', 'wasm/src/lib.rs', 'scripts/replay.mjs'
-  ];
-  const surfaces = await Promise.all(required.map(async path => ({ path, present: await exists(path) })));
-  const checks = byKind('doctor').map(check => ({
-    id: check.id,
-    order: check.order,
-    command: check.command,
-    repair: check.repair,
-    verifier: check.verifier,
-    state: surfaces.every(surface => surface.present) ? 'ADMITTED_FOR_EXECUTION' : 'BLOCKED'
+async function exists(path) {
+  try {
+    await access(resolve(root, path), constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function emit(path, value) {
+  const target = resolve(root, path);
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, JSON.stringify(value, null, 2) + '\n');
+}
+
+function parseArgs(args) {
+  const flags = new Map();
+  const positionals = [];
+  for (const argument of args) {
+    if (!argument.startsWith('--')) {
+      positionals.push(argument);
+      continue;
+    }
+    const [key, ...rest] = argument.slice(2).split('=');
+    flags.set(key, rest.length ? rest.join('=') : true);
+  }
+  return { flags, positionals };
+}
+
+function refusal(code, detail, allowed = undefined) {
+  const value = { standing: 'REFUSED', code, detail };
+  if (allowed) value.allowed = allowed;
+  return { code: 64, report: value };
+}
+
+async function finish(path, report, code = 0, silent = false) {
+  if (path) await emit(path, report);
+  if (!silent) {
+    const stream = code === 0 ? console.log : console.error;
+    stream(JSON.stringify(report, null, 2));
+  }
+  return { code, report };
+}
+
+const CAPABILITY_COMMANDS = Object.freeze({
+  orientation: 'orient',
+  doctor: 'doctor',
+  wizard: 'wizard',
+  explain: 'explain',
+  'one-command': 'demo',
+  'capability-search': 'search',
+  'evidence-index': 'evidence',
+  'release-gate': 'release',
+  'local-demo': 'demo',
+  'transport-negotiation': 'telco',
+  'variant-planner': 'plan',
+  'pareto-selection': 'frontier'
+});
+
+const LEGACY_WIZARD_ALIASES = Object.freeze({
+  'plan-only': 'local-owner',
+  PARTIAL_ALIVE: 'local-alive'
+});
+
+async function orient(args = [], silent = false) {
+  const capabilities = byKind('capability');
+  const grouped = Object.fromEntries([...new Set(capabilities.map(item => item.group))].sort().map(group => {
+    const values = capabilities.filter(item => item.group === group);
+    return [group, {
+      total: values.length,
+      defaultEnabled: values.filter(item => item.enabled).length,
+      optional: values.filter(item => !item.enabled).length,
+      capabilities: values.map(item => item.id)
+    }];
   }));
-  const missing = surfaces.filter(surface => !surface.present).map(surface => surface.path);
+  const declaredButUnwired = capabilities
+    .filter(capability => capability.command)
+    .filter(capability => CAPABILITY_COMMANDS[capability.id] !== capability.command)
+    .map(capability => capability.id);
   const report = {
-    schema: 'ggen.cyberpunk-tv.doctor.v1',
-    standing: missing.length === 0 ? 'PARTIAL_ALIVE' : 'BLOCKED',
+    schema: 'ggen.cyberpunk-tv.orientation.v1',
+    standing: declaredButUnwired.length === 0 ? 'PARTIAL_ALIVE' : 'BLOCKED',
+    modelSchema: model.schema,
+    capabilityCount: capabilities.length,
+    groups: grouped,
+    commandCoverage: Object.fromEntries(Object.entries(CAPABILITY_COMMANDS).sort(([a], [b]) => a.localeCompare(b))),
+    declaredButUnwired,
+    nextLawfulActions: declaredButUnwired.length
+      ? declaredButUnwired.map(id => `wire declared capability ${id} through generated control plane and behavioral verifier`)
+      : ['run npm run demo', 'inspect .ggen/evidence/index.json', 'request the narrowest lawful release target']
+  };
+  return finish('.ggen/evidence/orientation.json', report, declaredButUnwired.length === 0 ? 0 : 2, silent);
+}
+
+async function doctor(args = [], silent = false) {
+  const checks = [];
+  for (const check of byKind('doctor')) {
+    const required = csv(check.surfaces);
+    const surfaces = await Promise.all(required.map(async path => ({ path, present: await exists(path) })));
+    const missing = surfaces.filter(surface => !surface.present).map(surface => surface.path);
+    checks.push({
+      id: check.id,
+      order: check.order,
+      command: check.command,
+      repair: check.repair,
+      verifier: check.verifier,
+      surfaces,
+      missing,
+      state: missing.length === 0 ? 'READY' : 'BLOCKED'
+    });
+  }
+  const blocked = checks.filter(check => check.state === 'BLOCKED');
+  const surfaces = [...new Map(checks.flatMap(check => check.surfaces).map(surface => [surface.path, surface])).values()].sort((a, b) => a.path.localeCompare(b.path));
+  const nextLawfulActions = blocked.length === 0
+    ? ['execute declared verifier ladder', 'index evidence', 'request a release target']
+    : blocked.map(check => `${check.id}: ${check.repair}`);
+  const report = {
+    schema: 'ggen.cyberpunk-tv.doctor.v2',
+    standing: blocked.length === 0 ? 'PARTIAL_ALIVE' : 'BLOCKED',
     runtime: { node: process.version, platform: process.platform, architecture: process.arch },
     surfaces,
     checks,
-    missing,
-    nextLawfulAction: missing.length === 0 ? 'execute declared verifier ladder' : 'repair authority/query/template then regenerate'
+    missing: [...new Set(blocked.flatMap(check => check.missing))].sort(),
+    blockedChecks: blocked.map(check => check.id),
+    nextLawfulAction: nextLawfulActions[0],
+    nextLawfulActions
   };
-  await emit('.ggen/evidence/doctor.json', report);
-  console.log(JSON.stringify(report, null, 2));
-  return missing.length === 0 ? 0 : 2;
+  return finish('.ggen/evidence/doctor.json', report, blocked.length === 0 ? 0 : 2, silent);
 }
 
-function parseAnswers(args) {
-  const answers = new Map();
-  for (const argument of args) {
-    const [key, ...rest] = argument.replace(/^--/, '').split('=');
-    if (key && rest.length) answers.set(key, rest.join('='));
-  }
-  return answers;
+function resolveDependency(capability) {
+  if (!capability?.requires) return null;
+  return byKind('capability').find(candidate => capability.requires.endsWith(`#${candidate.id}`) || capability.requires.endsWith(candidate.id)) ?? null;
 }
 
-async function wizard(args) {
-  const answers = parseAnswers(args);
-  const steps = byKind('wizard').map(step => {
+async function explain(args = [], silent = false) {
+  const { positionals } = parseArgs(args);
+  const id = positionals[0];
+  if (!id) return finish(null, refusal('CAPABILITY_ID_REQUIRED', 'usage: explain <capability-id>').report, 64, silent);
+  const capability = byKind('capability').find(item => item.id === id);
+  if (!capability) return finish(null, refusal('CAPABILITY_NOT_FOUND', id, byKind('capability').map(item => item.id)).report, 64, silent);
+  const dependency = resolveDependency(capability);
+  const report = {
+    schema: 'ggen.cyberpunk-tv.capability-explanation.v1',
+    standing: 'ALIVE',
+    capability,
+    dependency: dependency ? { id: dependency.id, title: dependency.title, verifier: dependency.verifier } : null,
+    implementedCommand: CAPABILITY_COMMANDS[capability.id] ?? null,
+    sourceAuthority: 'ontology/vision2030.ttl',
+    projection: 'src/vision2030.json → scripts/control-plane.mjs',
+    verification: capability.verifier,
+    claimCeiling: 'Explanation proves declared correspondence, not execution of the described capability.'
+  };
+  return finish(`.ggen/evidence/explain-${id}.json`, report, 0, silent);
+}
+
+async function search(args = [], silent = false) {
+  const { positionals } = parseArgs(args);
+  const query = positionals.join(' ').trim().toLowerCase();
+  if (!query) return finish(null, refusal('SEARCH_QUERY_REQUIRED', 'usage: search <outcome or capability words>').report, 64, silent);
+  const tokens = query.split(/\s+/).filter(Boolean);
+  const results = byKind('capability').map(capability => {
+    const fields = {
+      id: capability.id,
+      title: capability.title,
+      group: capability.group,
+      provides: capability.provides,
+      verifier: capability.verifier,
+      cost: capability.cost
+    };
+    const haystack = Object.values(fields).join(' ').toLowerCase();
+    const matched = tokens.filter(token => haystack.includes(token));
+    const exact = capability.id.toLowerCase() === query ? 5 : 0;
+    const prefix = capability.id.toLowerCase().startsWith(query) ? 2 : 0;
+    return { capability, score: exact + prefix + matched.length, matched };
+  }).filter(result => result.score > 0)
+    .sort((a, b) => b.score - a.score || Number(a.capability.order) - Number(b.capability.order) || a.capability.id.localeCompare(b.capability.id));
+  const report = {
+    schema: 'ggen.cyberpunk-tv.capability-search.v1',
+    standing: results.length ? 'ALIVE' : 'REFUSED',
+    query,
+    tokens,
+    resultCount: results.length,
+    results: results.map(({ capability, score, matched }) => ({
+      id: capability.id,
+      title: capability.title,
+      group: capability.group,
+      provides: capability.provides,
+      verifier: capability.verifier,
+      command: CAPABILITY_COMMANDS[capability.id] ?? null,
+      score,
+      matched
+    })),
+    grounding: 'Results are ranked only from admitted Vision 2030 capability records.'
+  };
+  return finish('.ggen/evidence/capability-search.json', report, results.length ? 0 : 2, silent);
+}
+
+async function wizard(args = [], silent = false) {
+  const { flags } = parseArgs(args);
+  const warnings = [];
+  const steps = [];
+  for (const step of byKind('wizard')) {
     const key = `step-${step.order}`;
-    const choices = step.choice.split(',').map(value => value.trim()).filter(Boolean);
-    return { ...step, choices, answer: answers.get(key) ?? choices[0] ?? '' };
-  });
-  const profile = {
-    schema: 'ggen.cyberpunk-tv.wizard-profile.v1',
+    const choices = csv(step.choice);
+    const supplied = flags.get(key);
+    let answer = supplied === undefined ? choices[0] ?? '' : String(supplied);
+    if (!choices.includes(answer) && LEGACY_WIZARD_ALIASES[answer]) {
+      warnings.push({ key, supplied: answer, normalized: LEGACY_WIZARD_ALIASES[answer], code: 'LEGACY_WIZARD_ALIAS' });
+      answer = LEGACY_WIZARD_ALIASES[answer];
+    }
+    if (!choices.includes(answer)) {
+      const report = {
+        standing: 'REFUSED',
+        code: 'WIZARD_CHOICE_UNREPRESENTABLE',
+        step: key,
+        supplied: answer,
+        allowed: choices
+      };
+      return finish('.ggen/evidence/wizard-refusal.json', report, 65, silent);
+    }
+    steps.push({ ...step, choices, answer, source: supplied === undefined ? 'default' : 'explicit' });
+  }
+  const profileSubject = {
+    schema: 'ggen.cyberpunk-tv.wizard-profile.v2',
     outcome: steps[0]?.answer,
     authority: steps[1]?.answer,
     rights: steps[2]?.answer,
     transport: steps[3]?.answer,
     evidence: steps[4]?.answer,
-    selectedCapabilities: byKind('capability').filter(capability => capability.enabled).map(capability => capability.id),
+    selectedCapabilities: byKind('capability').filter(capability => capability.enabled).map(capability => capability.id).sort(),
+    warnings,
     standing: 'ADMITTED_PLAN'
   };
+  const profile = { ...profileSubject, digest: { algorithm: 'sha256', value: sha256(canonical(profileSubject)) } };
   await emit('.ggen/plans/wizard-profile.json', profile);
-  console.log(JSON.stringify({ steps, profile }, null, 2));
-  return 0;
+  const report = { schema: 'ggen.cyberpunk-tv.wizard-run.v2', standing: 'ALIVE', steps, profile };
+  if (!silent) console.log(JSON.stringify(report, null, 2));
+  return { code: 0, report };
 }
 
 function selectTransport(requirements) {
@@ -83,53 +271,224 @@ function selectTransport(requirements) {
   return profiles.find(profile => profile.id === 'local');
 }
 
-async function telco(args) {
-  const requirements = new Set(args.map(value => value.replace(/^--/, '')));
+async function telco(args = [], silent = false) {
+  const requirements = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, '').split('=')[0]));
   const selected = selectTransport(requirements);
   const report = {
-    schema: 'ggen.cyberpunk-tv.transport-selection.v1',
+    schema: 'ggen.cyberpunk-tv.transport-selection.v2',
     requirements: [...requirements].sort(),
     selected,
     alternatives: byKind('transport').filter(profile => profile.id !== selected?.id),
     authority: 'selection only; transport actuation requires admitted runtime grant',
     standing: selected ? 'ADMITTED_PLAN' : 'BLOCKED'
   };
-  await emit('.ggen/plans/transport.json', report);
-  console.log(JSON.stringify(report, null, 2));
-  return selected ? 0 : 2;
+  return finish('.ggen/plans/transport.json', report, selected ? 0 : 2, silent);
 }
 
-async function plan(args) {
-  const axes = byKind('axis').map(axis => ({ ...axis, values: axis.values.split(',').map(value => value.trim()).filter(Boolean) }));
-  const constraints = new Set(args.map(value => value.replace(/^--/, '')));
+async function plan(args = [], silent = false) {
+  const axes = byKind('axis').map(axis => ({ ...axis, values: csv(axis.values) }));
+  const constraints = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, ''));
   const product = axes.reduce((count, axis) => count * axis.values.length, 1);
   const enabled = byKind('capability').filter(capability => capability.enabled);
   const optional = byKind('capability').filter(capability => !capability.enabled);
   const report = {
-    schema: 'ggen.cyberpunk-tv.combinatorial-plan.v1',
+    schema: 'ggen.cyberpunk-tv.combinatorial-plan.v2',
     axes,
     lawfulProfileUpperBound: product,
-    defaultCapabilities: enabled.map(capability => capability.id),
-    preservedOptionalCapabilities: optional.map(capability => capability.id),
+    defaultCapabilities: enabled.map(capability => capability.id).sort(),
+    preservedOptionalCapabilities: optional.map(capability => capability.id).sort(),
     constraints: [...constraints].sort(),
-    selectionPolicy: 'preserve all reversible profiles; select only against admitted device, authority, cost, privacy, and evidence bounds',
+    selectionPolicy: 'preserve all reversible profiles; select only against admitted device, authority, cost, privacy, accessibility, and evidence bounds',
     standing: 'ADMITTED_PLAN'
   };
-  await emit('.ggen/plans/combinatorial.json', report);
-  console.log(JSON.stringify(report, null, 2));
-  return 0;
+  return finish('.ggen/plans/combinatorial.json', report, 0, silent);
 }
 
-async function emit(path, value) {
-  const target = resolve(root, path);
-  await mkdir(dirname(target), { recursive: true });
-  await writeFile(target, JSON.stringify(value, null, 2) + '\n');
+function dominates(left, right) {
+  const noWorse = left.latencyScore <= right.latencyScore
+    && left.costScore <= right.costScore
+    && left.privacyScore >= right.privacyScore
+    && left.accessibilityScore >= right.accessibilityScore
+    && left.preferenceScore >= right.preferenceScore;
+  const strictlyBetter = left.latencyScore < right.latencyScore
+    || left.costScore < right.costScore
+    || left.privacyScore > right.privacyScore
+    || left.accessibilityScore > right.accessibilityScore
+    || left.preferenceScore > right.preferenceScore;
+  return noWorse && strictlyBetter;
 }
 
-const [command = 'doctor', ...args] = process.argv.slice(2);
-const handlers = { doctor, wizard, telco, plan };
+async function frontier(args = [], silent = false) {
+  const requirements = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, '').split('=')[0]));
+  const candidates = byKind('transport').map(profile => ({
+    id: profile.id,
+    latency: profile.latency,
+    offline: profile.offline,
+    provides: profile.provides,
+    latencyScore: Number(profile.latencyScore),
+    costScore: Number(profile.costScore),
+    privacyScore: Number(profile.privacyScore),
+    accessibilityScore: Number(profile.accessibilityScore),
+    preferenceScore: (requirements.has('offline') && profile.offline ? 2 : 0)
+      + (requirements.has('global') && profile.id === 'federated' ? 2 : 0)
+      + (requirements.has('venue') && profile.id === 'lan' ? 2 : 0)
+  }));
+  const nondominated = candidates.filter(candidate => !candidates.some(other => other.id !== candidate.id && dominates(other, candidate)))
+    .sort((a, b) => b.preferenceScore - a.preferenceScore || a.costScore - b.costScore || a.latencyScore - b.latencyScore || b.privacyScore - a.privacyScore || a.id.localeCompare(b.id));
+  const report = {
+    schema: 'ggen.cyberpunk-tv.pareto-frontier.v1',
+    standing: nondominated.length ? 'ADMITTED_PLAN' : 'BLOCKED',
+    requirements: [...requirements].sort(),
+    dimensions: {
+      minimize: ['latencyScore', 'costScore'],
+      maximize: ['privacyScore', 'accessibilityScore', 'preferenceScore']
+    },
+    candidates,
+    frontier: nondominated,
+    selected: nondominated[0] ?? null,
+    proof: nondominated.map(candidate => ({ id: candidate.id, dominatedBy: [] }))
+  };
+  return finish('.ggen/plans/pareto-frontier.json', report, nondominated.length ? 0 : 2, silent);
+}
+
+async function walkJson(directory) {
+  const absolute = resolve(root, directory);
+  if (!(await exists(directory))) return [];
+  const found = [];
+  async function walk(current) {
+    const entries = await readdir(current, { withFileTypes: true });
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const next = resolve(current, entry.name);
+      if (entry.isDirectory()) await walk(next);
+      else if (entry.isFile() && entry.name.endsWith('.json')) found.push(next);
+    }
+  }
+  await walk(absolute);
+  return found;
+}
+
+function classifyEvidence(path, value) {
+  const normalized = path.replaceAll('\\', '/');
+  const standing = String(value.standing ?? value.aggregate ?? '');
+  const refused = ['BLOCKED', 'REFUSED', 'BUILD_BROKEN'].includes(standing) || Number(value.failed ?? 0) > 0;
+  if (refused) return [];
+  if (normalized.endsWith('/doctor.json') && ['ALIVE', 'PARTIAL_ALIVE'].includes(standing)) return ['doctor'];
+  if (normalized.endsWith('/wizard-profile.json') && standing === 'ADMITTED_PLAN') return ['wizard'];
+  if (normalized.endsWith('/combinatorial.json') && standing === 'ADMITTED_PLAN') return ['plan'];
+  if (normalized.endsWith('/transport.json') && standing === 'ADMITTED_PLAN') return ['transport'];
+  if (normalized.includes('/receipts/') && value.algorithm === 'blake3-256' && value.root) return ['verify'];
+  if (normalized.endsWith('/replay.json') && value.replay === 'REPLAY_MATCH') return ['replay'];
+  if (normalized.endsWith('/browser-e2e.json') && (value.browser === 'EXECUTED' || ['ALIVE', 'PARTIAL_ALIVE'].includes(standing) || String(value.schema ?? '').includes('browser-evidence'))) return ['browser'];
+  if ((normalized.endsWith('/device.json') || String(value.schema ?? '').includes('device-evidence')) && standing === 'ALIVE') return ['device'];
+  if ((normalized.endsWith('/federated.json') || String(value.schema ?? '').includes('federated-evidence')) && standing === 'ALIVE') return ['federated'];
+  return [];
+}
+
+async function evidence(args = [], silent = false) {
+  const files = [...await walkJson('.ggen/evidence'), ...await walkJson('.ggen/plans'), ...await walkJson('.ggen/receipts')]
+    .filter(path => !path.endsWith('/index.json'))
+    .sort();
+  const entries = [];
+  for (const path of files) {
+    const bytes = await readFile(path);
+    let value;
+    try {
+      value = JSON.parse(bytes.toString('utf8'));
+    } catch {
+      entries.push({ path: relative(root, path), parse: 'REFUSED', sha256: sha256(bytes), aliases: [] });
+      continue;
+    }
+    entries.push({
+      path: relative(root, path),
+      schema: value.schema ?? '',
+      standing: value.standing ?? value.aggregate ?? '',
+      sha256: sha256(bytes),
+      aliases: classifyEvidence(path, value)
+    });
+  }
+  const aliases = [...new Set(entries.flatMap(entry => entry.aliases))].sort();
+  const claimCeiling = aliases.includes('device') ? 'DEVICE_ALIVE'
+    : aliases.includes('browser') && aliases.includes('verify') && aliases.includes('replay') ? 'LOCAL_ALIVE'
+      : ['doctor', 'wizard', 'plan'].every(alias => aliases.includes(alias)) ? 'PREVIEW'
+        : 'UNKNOWN';
+  const report = {
+    schema: 'ggen.cyberpunk-tv.evidence-index.v1',
+    standing: 'ALIVE',
+    entries,
+    aliases,
+    claimCeiling,
+    source: '.ggen/{evidence,plans,receipts}',
+    generatedOutputIsAuthority: false
+  };
+  return finish('.ggen/evidence/index.json', report, 0, silent);
+}
+
+async function release(args = [], silent = false) {
+  const { flags, positionals } = parseArgs(args);
+  const requested = String(flags.get('target') ?? positionals[0] ?? 'preview');
+  const target = byKind('release').find(item => item.id === requested);
+  if (!target) return finish(null, refusal('RELEASE_TARGET_UNREPRESENTABLE', requested, byKind('release').map(item => item.id)).report, 64, silent);
+  const indexResult = await evidence([], true);
+  const aliases = new Set(indexResult.report.aliases);
+  const required = csv(target.evidence);
+  const missing = required.filter(alias => !aliases.has(alias));
+  const report = {
+    schema: 'ggen.cyberpunk-tv.release-gate.v1',
+    target: requested,
+    claimCeiling: target.claimCeiling,
+    requiredEvidence: required,
+    observedEvidence: [...aliases].sort(),
+    missingEvidence: missing,
+    standing: missing.length === 0 ? 'ADMITTED' : 'BLOCKED',
+    releaseAdmission: missing.length === 0,
+    nextLawfulActions: missing.map(alias => `produce independently verifiable ${alias} evidence before claiming ${target.claimCeiling}`)
+  };
+  return finish(`.ggen/evidence/release-${requested}.json`, report, missing.length === 0 ? 0 : 2, silent);
+}
+
+async function demo(args = [], silent = false) {
+  const steps = [];
+  for (const [name, fn, fnArgs] of [
+    ['orient', orient, []],
+    ['doctor', doctor, []],
+    ['wizard', wizard, args],
+    ['plan', plan, ['--authority-bounded', '--privacy-bounded', '--cost-bounded']],
+    ['frontier', frontier, args],
+    ['evidence', evidence, []],
+    ['release-preview', release, ['--target=preview']]
+  ]) {
+    const result = await fn(fnArgs, true);
+    steps.push({ name, code: result.code, standing: result.report.standing ?? result.report.profile?.standing ?? '' });
+    if (result.code !== 0) {
+      const report = {
+        schema: 'ggen.cyberpunk-tv.demo.v1',
+        standing: 'BLOCKED',
+        failedStep: name,
+        steps,
+        nextLawfulAction: `repair ${name} before continuing the admitted product loop`
+      };
+      return finish('.ggen/evidence/demo.json', report, 2, silent);
+    }
+  }
+  const releasePreview = JSON.parse(await readFile(resolve(root, '.ggen/evidence/release-preview.json'), 'utf8'));
+  const subject = {
+    schema: 'ggen.cyberpunk-tv.demo.v1',
+    standing: 'PARTIAL_ALIVE',
+    steps,
+    admittedTarget: releasePreview.target,
+    claimCeiling: releasePreview.claimCeiling,
+    releaseAdmission: releasePreview.releaseAdmission,
+    nextLawfulActions: ['run npm run release -- --target=local-alive after verify, replay, and browser evidence exist']
+  };
+  const report = { ...subject, receipt: { algorithm: 'sha256', digest: sha256(canonical(subject)) } };
+  return finish('.ggen/evidence/demo.json', report, 0, silent);
+}
+
+const handlers = { orient, doctor, explain, search, wizard, telco, plan, frontier, evidence, release, demo };
+const [command = 'orient', ...args] = process.argv.slice(2);
 if (!handlers[command]) {
-  console.error(JSON.stringify({ standing: 'REFUSED', code: 'UNKNOWN_CONTROL_PLANE_COMMAND', command, allowed: Object.keys(handlers) }));
+  console.error(JSON.stringify({ standing: 'REFUSED', code: 'UNKNOWN_CONTROL_PLANE_COMMAND', command, allowed: Object.keys(handlers).sort() }));
   process.exit(64);
 }
-process.exitCode = await handlers[command](args);
+const result = await handlers[command](args, false);
+process.exitCode = result.code;
