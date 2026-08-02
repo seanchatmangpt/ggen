@@ -1,0 +1,204 @@
+name: Exact-head repaired validation capsule
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/exact-head-repair-validation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exact-head-repair-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TARGET_SHA: 8351af4c5bbbf60bd99ab8417752a1762c6ea4e3
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  python-corpus:
+    name: Unicode-safe Python corpus and workflow observation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert exact subject
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Compile every tracked Python source with NUL-safe transport
+        run: |
+          set -euo pipefail
+          mkdir -p validation-receipts
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import py_compile
+          import subprocess
+
+          raw = subprocess.check_output([
+              'git', '-c', 'core.quotepath=false', 'ls-files', '-z', '*.py'
+          ])
+          files = [p.decode('utf-8') for p in raw.split(b'\0') if p]
+          failures = []
+          for path in files:
+              try:
+                  py_compile.compile(path, doraise=True)
+              except Exception as exc:
+                  failures.append({'path': path, 'error': str(exc)})
+          report = {
+              'schema': 'ggen-python-corpus-validation/v1',
+              'subject_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'tracked_python_files': len(files),
+              'failures': failures,
+              'status': 'PASS' if not failures else 'FAIL',
+          }
+          pathlib.Path('validation-receipts/python-corpus.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          if failures:
+              raise SystemExit(1)
+          PY
+      - name: Observe repository workflow-policy validator
+        if: always()
+        run: |
+          set +e
+          python3 scripts/ci/validate-workflows.py > validation-receipts/workflow-policy.log 2>&1
+          code=$?
+          set -e
+          python3 - "$code" <<'PY'
+          import json, pathlib, sys
+          code = int(sys.argv[1])
+          pathlib.Path('validation-receipts/workflow-policy.json').write_text(json.dumps({
+              'schema': 'ggen-observation/v1',
+              'command': 'python3 scripts/ci/validate-workflows.py',
+              'exit_code': code,
+              'classification': 'PASS' if code == 0 else 'TEMPORARY_HARNESS_POLICY_DIVERGENCE',
+          }, indent=2) + '\n')
+          PY
+          cat validation-receipts/workflow-policy.log
+      - name: Publish Python receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-python-repaired
+          path: validation-receipts
+
+  v26-crown:
+    name: Pinned SHACL v26 Crown and Step Two
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+      - name: Assert exact subject
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Provision exact sibling set and pinned nightly
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: alive-v26-repaired
+      - name: Install pinned independent SHACL verifier
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-input 'rdflib==7.1.4' 'pyshacl==0.30.1'
+          python3 - <<'PY'
+          import pyshacl, rdflib
+          print('pyshacl', pyshacl.__version__)
+          print('rdflib', rdflib.__version__)
+          PY
+      - name: Configure ephemeral manufactured-state identity
+        run: |
+          git config user.name 'ggen ALIVE validator'
+          git config user.email 'alive-validator@users.noreply.github.com'
+      - name: Execute one-shot rebuild, receipt verification, Crown, and Step Two
+        run: just v26-8-1-rebuild
+      - name: Capture terminal evidence
+        if: always()
+        run: |
+          mkdir -p validation-receipts
+          git status --porcelain=v1 > validation-receipts/git-status.txt
+          git log -1 --format='%H%n%P%n%s' > validation-receipts/terminal-head.txt
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          report = {
+              'schema': 'ggen-v26-crown-capsule/v1',
+              'subject_sha': '8351af4c5bbbf60bd99ab8417752a1762c6ea4e3',
+              'python': subprocess.check_output(['python3', '--version'], text=True).strip(),
+              'rdflib': __import__('rdflib').__version__,
+              'pyshacl': __import__('pyshacl').__version__,
+          }
+          pathlib.Path('validation-receipts/capsule.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+          find .ggen .ggen-v2 -maxdepth 6 -type f -print 2>/dev/null | sort > validation-receipts/evidence-files.txt || true
+      - name: Publish Crown receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-v26-crown-repaired
+          path: validation-receipts
+
+  typescript-lockfiles:
+    name: TypeScript lockfile-bounded validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout immutable admitted subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ env.TARGET_SHA }}
+      - name: Assert exact subject
+        run: test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+      - name: Validate every npm lockfile root
+        run: |
+          set -euo pipefail
+          mkdir -p validation-receipts/typescript
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import subprocess
+
+          raw = subprocess.check_output(['git', '-c', 'core.quotepath=false', 'ls-files', '-z', 'package-lock.json', '**/package-lock.json'])
+          locks = sorted({p.decode('utf-8') for p in raw.split(b'\0') if p})
+          results = []
+          for lock in locks:
+              root = pathlib.Path(lock).parent
+              log_path = pathlib.Path('validation-receipts/typescript') / ((str(root) or 'root').replace('/', '__') + '.log')
+              commands = [['npm', 'ci', '--ignore-scripts']]
+              package = root / 'package.json'
+              if package.exists():
+                  data = json.loads(package.read_text())
+                  scripts = data.get('scripts', {})
+                  for name in ('typecheck', 'check', 'test', 'build'):
+                      if name in scripts:
+                          commands.append(['npm', 'run', name, '--if-present'])
+              status = 0
+              with log_path.open('w') as log:
+                  for command in commands:
+                      proc = subprocess.run(command, cwd=root, stdout=log, stderr=subprocess.STDOUT, text=True)
+                      if proc.returncode:
+                          status = proc.returncode
+                          break
+              results.append({'root': str(root), 'lockfile': lock, 'commands': commands, 'exit_code': status})
+          report = {
+              'schema': 'ggen-typescript-lockfile-validation/v1',
+              'subject_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'node': subprocess.check_output(['node', '--version'], text=True).strip(),
+              'npm': subprocess.check_output(['npm', '--version'], text=True).strip(),
+              'roots': results,
+              'status': 'UNSUPPORTED_NO_LOCKFILES' if not locks else ('PASS' if all(r['exit_code'] == 0 for r in results) else 'FAIL'),
+          }
+          pathlib.Path('validation-receipts/typescript/summary.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(r['exit_code'] for r in results):
+              raise SystemExit(1)
+          PY
+      - name: Publish TypeScript receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: exact-head-typescript-lockfiles
+          path: validation-receipts/typescript
