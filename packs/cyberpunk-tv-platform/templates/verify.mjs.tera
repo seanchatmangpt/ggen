@@ -1,17 +1,19 @@
-import { createHash } from 'node:crypto';
+import { blake3 } from '@noble/hashes/blake3';
+import { bytesToHex } from '@noble/hashes/utils';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { TextEncoder } from 'node:util';
 
 const files = ['package.json', 'index.html', 'src/main.js', 'src/world.json'];
 const artifacts = [];
 for (const path of files) {
-  const bytes = await readFile(resolve(path));
-  artifacts.push({ path, sha256: createHash('sha256').update(bytes).digest('hex'), bytes: bytes.length });
+  const bytes = new Uint8Array(await readFile(resolve(path)));
+  artifacts.push({ path, blake3: bytesToHex(blake3(bytes)), bytes: bytes.length });
 }
 artifacts.sort((a, b) => a.path.localeCompare(b.path));
 const canonical = JSON.stringify({ schema: 'ggen.cyberpunk-tv.receipt.v1', artifacts });
-const root = createHash('sha256').update(canonical).digest('hex');
-const receipt = JSON.stringify({ schema: 'ggen.cyberpunk-tv.receipt.v1', algorithm: 'sha256-node-fallback', root, artifacts }, null, 2) + '\n';
+const root = bytesToHex(blake3(new TextEncoder().encode(canonical)));
+const receipt = JSON.stringify({ schema: 'ggen.cyberpunk-tv.receipt.v1', algorithm: 'blake3-256', root, artifacts }, null, 2) + '\n';
 const target = '.ggen/receipts/cyberpunk-tv.json';
 await mkdir(dirname(target), { recursive: true });
 await writeFile(target, receipt);
