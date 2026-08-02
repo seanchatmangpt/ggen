@@ -11,6 +11,7 @@ use std::{
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
+use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -71,6 +72,8 @@ struct Program {
     version: String,
     target_year: u16,
     phase_change_target: u64,
+    trusted_issuers: BTreeMap<String, String>,
+    trusted_brokers: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -107,24 +110,72 @@ struct SbbIdentity {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+struct SbbDeltaReport {
+    id: String,
+    commit: String,
+    observed: bool,
+    violations: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct SbbReport {
     schema: String,
+    manifest_digest: String,
     sbb: SbbIdentity,
+    standing: String,
     claim_ceiling: String,
+    target_met: bool,
     eligible_for_external_admission: bool,
+    declared_deltas: usize,
     commit_equivalent_units: usize,
+    duplicate_commit_collisions: usize,
+    axes: BTreeMap<String, usize>,
     distribution_contexts: String,
     delivered_capability_instances: String,
+    deltas: Vec<SbbDeltaReport>,
+    violations: Vec<String>,
     report_digest: String,
+}
+
+#[derive(Serialize)]
+struct SbbReportBody<'a> {
+    schema: &'static str,
+    manifest_digest: &'a str,
+    sbb: &'a SbbIdentity,
+    standing: &'a str,
+    claim_ceiling: &'a str,
+    target_met: bool,
+    eligible_for_external_admission: bool,
+    declared_deltas: usize,
+    commit_equivalent_units: usize,
+    duplicate_commit_collisions: usize,
+    axes: &'a BTreeMap<String, usize>,
+    distribution_contexts: &'a str,
+    delivered_capability_instances: &'a str,
+    deltas: &'a [SbbDeltaReport],
+    violations: &'a [String],
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct SbbReceipt {
     schema: String,
     operation: String,
+    manifest_digest: String,
     report_digest: String,
+    previous_digest: String,
+    artifacts: Vec<String>,
     digest_algorithm: String,
     digest: String,
+}
+
+#[derive(Serialize)]
+struct SbbReceiptBody<'a> {
+    schema: &'static str,
+    operation: &'a str,
+    manifest_digest: &'a str,
+    report_digest: &'a str,
+    previous_digest: &'a str,
+    artifacts: &'a [String],
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -142,6 +193,17 @@ struct ExternalAcceptance {
     decision: String,
     issuer: String,
     report_digest: String,
+    issuer_public_key: String,
+    signature: String,
+}
+
+#[derive(Serialize)]
+struct ExternalAcceptanceBody<'a> {
+    schema: &'static str,
+    subject: &'a str,
+    decision: &'a str,
+    issuer: &'a str,
+    report_digest: &'a str,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -151,6 +213,17 @@ struct ExecutionGrant {
     broker: String,
     grant: String,
     report_digest: String,
+    broker_public_key: String,
+    signature: String,
+}
+
+#[derive(Serialize)]
+struct ExecutionGrantBody<'a> {
+    schema: &'static str,
+    subject: &'a str,
+    broker: &'a str,
+    grant: &'a str,
+    report_digest: &'a str,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -276,6 +349,27 @@ fn report_digest(report: &Report) -> Result<String> {
     })
 }
 
+fn verify_signature(public_key_hex: &str, signature_hex: &str, message: &[u8]) -> bool {
+    let Ok(public_key): Result<Vec<u8>, _> = hex::decode(public_key_hex) else {
+        return false;
+    };
+    let Ok(signature): Result<Vec<u8>, _> = hex::decode(signature_hex) else {
+        return false;
+    };
+    let Ok(public_key): Result<[u8; 32], _> = public_key.try_into() else {
+        return false;
+    };
+    let Ok(signature): Result<[u8; 64], _> = signature.try_into() else {
+        return false;
+    };
+    let Ok(verifying_key) = VerifyingKey::from_bytes(&public_key) else {
+        return false;
+    };
+    verifying_key
+        .verify(message, &Signature::from_bytes(&signature))
+        .is_ok()
+}
+
 /// Return the executable Vision 2030 contract.
 #[verb]
 pub fn schema() -> Result<Value> {
@@ -292,7 +386,10 @@ pub fn schema() -> Result<Value> {
         "minimum_phase_change_target": 1000,
         "unique_sbb_report_per_capability": true,
         "sbb_architecture_contract_must_equal_capability_iri": true,
-        "external_acceptance_required": true,
+        "embedded_sbb_digests_recomputed": true,
+        "signed_external_acceptance_required": true,
+        "trusted_issuer_registry_required": true,
+        "signed_execution_grant_required_for_actuation": true,
         "zero_unreceipted_actuation": true
     }))
 }
