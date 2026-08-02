@@ -12,6 +12,7 @@ impl Receipt {
             previous_digest: previous,
             artifacts: &artifacts,
         };
+        let digest = digest_json(&body)?;
         Ok(Self {
             schema: RECEIPT_SCHEMA.to_string(),
             operation: operation.to_string(),
@@ -20,7 +21,7 @@ impl Receipt {
             previous_digest: previous.to_string(),
             artifacts,
             digest_algorithm: "blake3".to_string(),
-            digest: digest_json(&body)?,
+            digest,
         })
     }
 

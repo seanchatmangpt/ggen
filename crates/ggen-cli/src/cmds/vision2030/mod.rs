@@ -350,16 +350,16 @@ fn report_digest(report: &Report) -> Result<String> {
 }
 
 fn verify_signature(public_key_hex: &str, signature_hex: &str, message: &[u8]) -> bool {
-    let Ok(public_key): Result<Vec<u8>, _> = hex::decode(public_key_hex) else {
+    let Ok(public_key) = hex::decode(public_key_hex) else {
         return false;
     };
-    let Ok(signature): Result<Vec<u8>, _> = hex::decode(signature_hex) else {
+    let Ok(signature) = hex::decode(signature_hex) else {
         return false;
     };
-    let Ok(public_key): Result<[u8; 32], _> = public_key.try_into() else {
+    let Ok(public_key): std::result::Result<[u8; 32], _> = public_key.try_into() else {
         return false;
     };
-    let Ok(signature): Result<[u8; 64], _> = signature.try_into() else {
+    let Ok(signature): std::result::Result<[u8; 64], _> = signature.try_into() else {
         return false;
     };
     let Ok(verifying_key) = VerifyingKey::from_bytes(&public_key) else {
