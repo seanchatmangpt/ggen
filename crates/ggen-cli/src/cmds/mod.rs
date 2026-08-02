@@ -26,6 +26,7 @@ pub mod packs_receipt;
 pub mod policy;
 pub mod sbb;
 pub mod utils;
+pub mod vision2030;
 
 fn register_noun(name: &'static str, about: &'static str) {
     ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(name, about);
@@ -104,6 +105,15 @@ fn register_sbb_noun() {
 static REGISTER_UTILS_NOUN: fn() = register_utils_noun;
 fn register_utils_noun() {
     register_noun("utils", "Utils Commands - clap-noun-verb migration surface");
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_VISION2030_NOUN: fn() = register_vision2030_noun;
+fn register_vision2030_noun() {
+    register_noun(
+        "vision2030",
+        "Vision 2030 capability admission, 1000x phase-change measurement, Blue Ocean analysis, DX/QoL/Doctor diagnostics, receipts, and replay.",
+    );
 }
 
 use crate::prelude::*;
