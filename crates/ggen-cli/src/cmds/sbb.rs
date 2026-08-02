@@ -1,9 +1,8 @@
 //! Solution Building Block capability-density commands (`ggen sbb <verb>`).
 //!
-//! A density unit is one unique Git commit whose complete manufacturing,
-//! falsification, receipt, and replay evidence is observed from the Git object
-//! database and matches its declared BLAKE3 digest. This command never promotes
-//! its own result beyond `PARTIAL_ALIVE`.
+//! One density unit is one unique Git commit with a complete, digest-bound
+//! manufacturing and falsification evidence chain. This evaluator reports
+//! evidence but never promotes its own output beyond `PARTIAL_ALIVE`.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -20,6 +19,15 @@ use serde_json::{json, Value};
 const MANIFEST_SCHEMA: &str = "ggen.sbb.capability-manifest.v1";
 const REPORT_SCHEMA: &str = "ggen.sbb.capability-density-report.v1";
 const RECEIPT_SCHEMA: &str = "ggen.sbb.capability-density-receipt.v1";
+const AXES: [&str; 7] = [
+    "ontology_modules",
+    "textual_forms",
+    "audiences",
+    "languages",
+    "jurisdictions",
+    "organization_profiles",
+    "runtimes",
+];
 const CHAIN: [&str; 10] = [
     "ontology",
     "shacl",
@@ -38,7 +46,7 @@ struct Manifest {
     schema: String,
     sbb: Sbb,
     repository: Repository,
-    distribution: Axes,
+    distribution: BTreeMap<String, Vec<String>>,
     deltas: Vec<Delta>,
 }
 
@@ -56,31 +64,6 @@ struct Repository {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct Axes {
-    ontology_modules: Vec<String>,
-    textual_forms: Vec<String>,
-    audiences: Vec<String>,
-    languages: Vec<String>,
-    jurisdictions: Vec<String>,
-    organization_profiles: Vec<String>,
-    runtimes: Vec<String>,
-}
-
-impl Axes {
-    fn named(&self) -> [(&'static str, &Vec<String>); 7] {
-        [
-            ("ontology_modules", &self.ontology_modules),
-            ("textual_forms", &self.textual_forms),
-            ("audiences", &self.audiences),
-            ("languages", &self.languages),
-            ("jurisdictions", &self.jurisdictions),
-            ("organization_profiles", &self.organization_profiles),
-            ("runtimes", &self.runtimes),
-        ]
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
 struct Delta {
     id: String,
     commit: String,
@@ -89,42 +72,11 @@ struct Delta {
     summary: String,
     ontology_modules: Vec<String>,
     textual_forms: Vec<String>,
-    chain: Chain,
+    chain: BTreeMap<String, Evidence>,
     positive_witness: Evidence,
     negative_fixture: Evidence,
     adversarial_falsifier: Evidence,
     verifier: Evidence,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-struct Chain {
-    ontology: Evidence,
-    shacl: Evidence,
-    sparql: Evidence,
-    typestate: Evidence,
-    template: Evidence,
-    artifact: Evidence,
-    runtime_surface: Evidence,
-    walkthrough: Evidence,
-    receipt: Evidence,
-    replay: Evidence,
-}
-
-impl Chain {
-    fn named(&self) -> [(&'static str, &Evidence); 10] {
-        [
-            ("ontology", &self.ontology),
-            ("shacl", &self.shacl),
-            ("sparql", &self.sparql),
-            ("typestate", &self.typestate),
-            ("template", &self.template),
-            ("artifact", &self.artifact),
-            ("runtime_surface", &self.runtime_surface),
-            ("walkthrough", &self.walkthrough),
-            ("receipt", &self.receipt),
-            ("replay", &self.replay),
-        ]
-    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -202,21 +154,41 @@ struct ReceiptBody<'a> {
     artifacts: &'a [String],
 }
 
-fn json_digest<T: Serialize>(value: &T) -> Result<String> {
+fn digest_json<T: Serialize>(value: &T) -> Result<String> {
     let bytes = serde_json::to_vec(value).map_err(|error| {
         NounVerbError::execution_error(format!("cannot serialize SBB evidence: {error}"))
     })?;
     Ok(blake3::hash(&bytes).to_hex().to_string())
 }
 
-fn bytes_digest(bytes: &[u8]) -> String {
+fn digest_bytes(bytes: &[u8]) -> String {
     blake3::hash(bytes).to_hex().to_string()
+}
+
+fn report_digest(report: &Report) -> Result<String> {
+    digest_json(&ReportBody {
+        schema: REPORT_SCHEMA,
+        manifest_digest: &report.manifest_digest,
+        sbb: &report.sbb,
+        standing: &report.standing,
+        claim_ceiling: &report.claim_ceiling,
+        target_met: report.target_met,
+        eligible_for_external_admission: report.eligible_for_external_admission,
+        declared_deltas: report.declared_deltas,
+        commit_equivalent_units: report.commit_equivalent_units,
+        duplicate_commit_collisions: report.duplicate_commit_collisions,
+        axes: &report.axes,
+        distribution_contexts: &report.distribution_contexts,
+        delivered_capability_instances: &report.delivered_capability_instances,
+        deltas: &report.deltas,
+        violations: &report.violations,
+    })
 }
 
 fn expected_digest(raw: &str) -> Option<&str> {
     raw.strip_prefix("blake3:")
         .or_else(|| raw.strip_prefix("blake3-"))
-        .filter(|value| value.len() == 64 && value.bytes().all(|b| b.is_ascii_hexdigit()))
+        .filter(|value| value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit()))
 }
 
 fn repository_root(manifest: &Path, raw: &str) -> PathBuf {
@@ -241,7 +213,7 @@ fn git(repository: &Path, args: &[String]) -> Option<Vec<u8>> {
     output.status.success().then_some(output.stdout)
 }
 
-fn observed_repository(repository: &Path) -> bool {
+fn repository_observed(repository: &Path) -> bool {
     git(
         repository,
         &["rev-parse".into(), "--is-inside-work-tree".into()],
@@ -249,7 +221,24 @@ fn observed_repository(repository: &Path) -> bool {
     .is_some_and(|bytes| bytes.starts_with(b"true"))
 }
 
-fn repository_path(locator: &str) -> bool {
+fn resolve_commit(repository: &Path, commit: &str) -> Option<String> {
+    if !(7..=64).contains(&commit.len()) || !commit.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return None;
+    }
+    let bytes = git(
+        repository,
+        &[
+            "rev-parse".into(),
+            "--verify".into(),
+            format!("{commit}^{{commit}}"),
+        ],
+    )?;
+    String::from_utf8(bytes)
+        .ok()
+        .map(|sha| sha.trim().to_ascii_lowercase())
+}
+
+fn safe_locator(locator: &str) -> bool {
     let path = Path::new(locator);
     !locator.trim().is_empty()
         && !locator.contains("://")
@@ -266,7 +255,7 @@ fn evidence_observed(repository: &Path, commit: &str, evidence: &Evidence) -> bo
     let Some(expected) = expected_digest(&evidence.digest) else {
         return false;
     };
-    if !repository_path(&evidence.locator) {
+    if !safe_locator(&evidence.locator) {
         return false;
     }
     let Some(bytes) = git(
@@ -275,7 +264,7 @@ fn evidence_observed(repository: &Path, commit: &str, evidence: &Evidence) -> bo
     ) else {
         return false;
     };
-    expected.eq_ignore_ascii_case(&bytes_digest(&bytes))
+    expected.eq_ignore_ascii_case(&digest_bytes(&bytes))
 }
 
 fn unique_nonempty(values: &[String]) -> bool {
@@ -284,9 +273,16 @@ fn unique_nonempty(values: &[String]) -> bool {
         && values.iter().collect::<BTreeSet<_>>().len() == values.len()
 }
 
+fn exact_keys<T>(map: &BTreeMap<String, T>, required: &[&str]) -> bool {
+    map.keys().map(String::as_str).collect::<BTreeSet<_>>()
+        == required.iter().copied().collect::<BTreeSet<_>>()
+}
+
 fn evaluate_delta(repository: &Path, delta: &Delta) -> DeltaReport {
     let mut violations = Vec::new();
-    if delta.id.trim().is_empty() || delta.family.trim().is_empty() || delta.summary.trim().is_empty()
+    if delta.id.trim().is_empty()
+        || delta.family.trim().is_empty()
+        || delta.summary.trim().is_empty()
     {
         violations.push("id, family, and summary are required".to_string());
     }
@@ -297,35 +293,34 @@ fn evaluate_delta(repository: &Path, delta: &Delta) -> DeltaReport {
         violations
             .push("ontology_modules and textual_forms must be non-empty and unique".to_string());
     }
-    let commit_exists = (7..=64).contains(&delta.commit.len())
-        && delta.commit.bytes().all(|b| b.is_ascii_hexdigit())
-        && git(
-            repository,
-            &[
-                "cat-file".into(),
-                "-e".into(),
-                format!("{}^{{commit}}", delta.commit),
-            ],
-        )
-        .is_some();
-    if !commit_exists {
+    if !exact_keys(&delta.chain, &CHAIN) {
+        violations
+            .push("manufacturing chain must contain exactly the ten required stages".to_string());
+    }
+    let canonical_commit = resolve_commit(repository, &delta.commit);
+    if canonical_commit.is_none() {
         violations.push("commit is not present in the admitted repository".to_string());
     }
-    let mut bindings: Vec<(&str, &Evidence)> = delta.chain.named().into_iter().collect();
-    bindings.extend([
+    let commit = canonical_commit.unwrap_or_else(|| delta.commit.to_ascii_lowercase());
+    let mut evidence: Vec<(&str, &Evidence)> = delta
+        .chain
+        .iter()
+        .map(|(role, binding)| (role.as_str(), binding))
+        .collect();
+    evidence.extend([
         ("positive_witness", &delta.positive_witness),
         ("negative_fixture", &delta.negative_fixture),
         ("adversarial_falsifier", &delta.adversarial_falsifier),
         ("verifier", &delta.verifier),
     ]);
-    for (role, binding) in bindings {
-        if !evidence_observed(repository, &delta.commit, binding) {
+    for (role, binding) in evidence {
+        if !evidence_observed(repository, &commit, binding) {
             violations.push(format!("{role} is absent, unsafe, or digest-divergent"));
         }
     }
     DeltaReport {
         id: delta.id.clone(),
-        commit: delta.commit.to_ascii_lowercase(),
+        commit,
         observed: violations.is_empty(),
         violations,
     }
@@ -353,12 +348,12 @@ fn evaluate(path: &Path) -> Result<Report> {
     }
     if manifest.sbb.id.trim().is_empty()
         || manifest.sbb.version.trim().is_empty()
-        || manifest.sbb.architecture_contract.trim().is_empty()
+        || !manifest.sbb.architecture_contract.contains(':')
         || manifest.sbb.minimum_commit_equivalent_units == 0
     {
-        violations.push("incomplete SBB identity or zero density target".to_string());
+        violations.push("incomplete SBB identity, contract, or density target".to_string());
     }
-    if !observed_repository(&repository) {
+    if !repository_observed(&repository) {
         violations.push(format!(
             "{} is not an observed Git work tree",
             repository.display()
@@ -367,14 +362,22 @@ fn evaluate(path: &Path) -> Result<Report> {
     if manifest.deltas.is_empty() {
         violations.push("at least one capability delta is required".to_string());
     }
+    if !exact_keys(&manifest.distribution, &AXES) {
+        violations.push("distribution must contain exactly the seven required axes".to_string());
+    }
 
     let mut axes = BTreeMap::new();
-    for (name, values) in manifest.distribution.named() {
-        if !unique_nonempty(values) {
-            violations.push(format!("distribution axis {name} is empty or duplicated"));
+    for axis in AXES {
+        let values = manifest
+            .distribution
+            .get(axis)
+            .cloned()
+            .unwrap_or_default();
+        if !unique_nonempty(&values) {
+            violations.push(format!("distribution axis {axis} is empty or duplicated"));
         }
         axes.insert(
-            name.to_string(),
+            axis.to_string(),
             values.iter().collect::<BTreeSet<_>>().len(),
         );
     }
@@ -418,9 +421,9 @@ fn evaluate(path: &Path) -> Result<Report> {
     }));
 
     let units = deltas.iter().filter(|delta| delta.observed).count();
-    let contexts = axes.values().try_fold(1_u128, |product, value| {
-        product.checked_mul(*value as u128)
-    });
+    let contexts = axes
+        .values()
+        .try_fold(1_u128, |product, value| product.checked_mul(*value as u128));
     if contexts.is_none() {
         violations.push("distribution context product overflowed u128".to_string());
     }
@@ -436,10 +439,9 @@ fn evaluate(path: &Path) -> Result<Report> {
     } else {
         "PARTIAL_ALIVE"
     };
-    let manifest_digest = bytes_digest(&bytes);
     let mut report = Report {
         schema: REPORT_SCHEMA.to_string(),
-        manifest_digest,
+        manifest_digest: digest_bytes(&bytes),
         sbb: manifest.sbb,
         standing: standing.to_string(),
         claim_ceiling: "PARTIAL_ALIVE".to_string(),
@@ -455,23 +457,7 @@ fn evaluate(path: &Path) -> Result<Report> {
         violations,
         report_digest: String::new(),
     };
-    report.report_digest = json_digest(&ReportBody {
-        schema: REPORT_SCHEMA,
-        manifest_digest: &report.manifest_digest,
-        sbb: &report.sbb,
-        standing: &report.standing,
-        claim_ceiling: &report.claim_ceiling,
-        target_met: report.target_met,
-        eligible_for_external_admission: report.eligible_for_external_admission,
-        declared_deltas: report.declared_deltas,
-        commit_equivalent_units: report.commit_equivalent_units,
-        duplicate_commit_collisions: report.duplicate_commit_collisions,
-        axes: &report.axes,
-        distribution_contexts: &report.distribution_contexts,
-        delivered_capability_instances: &report.delivered_capability_instances,
-        deltas: &report.deltas,
-        violations: &report.violations,
-    })?;
+    report.report_digest = report_digest(&report)?;
     Ok(report)
 }
 
@@ -498,7 +484,7 @@ impl Receipt {
             previous_digest: previous.to_string(),
             artifacts,
             digest_algorithm: "blake3".to_string(),
-            digest: json_digest(&body)?,
+            digest: digest_json(&body)?,
         })
     }
 
@@ -506,7 +492,7 @@ impl Receipt {
         Ok(self.schema == RECEIPT_SCHEMA
             && self.digest_algorithm == "blake3"
             && self.digest
-                == json_digest(&ReceiptBody {
+                == digest_json(&ReceiptBody {
                     schema: RECEIPT_SCHEMA,
                     operation: &self.operation,
                     manifest_digest: &self.manifest_digest,
@@ -524,13 +510,10 @@ fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
         })?;
     }
     let temporary = path.with_extension("tmp");
-    fs::write(
-        &temporary,
-        serde_json::to_vec_pretty(value).map_err(|error| {
-            NounVerbError::execution_error(format!("cannot serialize {}: {error}", path.display()))
-        })?,
-    )
-    .map_err(|error| {
+    let bytes = serde_json::to_vec_pretty(value).map_err(|error| {
+        NounVerbError::execution_error(format!("cannot serialize {}: {error}", path.display()))
+    })?;
+    fs::write(&temporary, bytes).map_err(|error| {
         NounVerbError::execution_error(format!("cannot write {}: {error}", temporary.display()))
     })?;
     fs::rename(&temporary, path).map_err(|error| {
@@ -538,7 +521,7 @@ fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     })
 }
 
-fn paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
+fn receipt_paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
     (
         output.join("density-report.json"),
         output.join("density-intent.json"),
@@ -546,7 +529,7 @@ fn paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
     )
 }
 
-fn previous(path: &Path) -> Result<String> {
+fn previous_digest(path: &Path) -> Result<String> {
     if !path.is_file() {
         return Ok("GENESIS".to_string());
     }
@@ -565,6 +548,7 @@ fn previous(path: &Path) -> Result<String> {
     Ok(receipt.digest)
 }
 
+/// Return the machine-readable SBB density contract.
 #[verb]
 pub fn schema() -> Result<Value> {
     Ok(json!({
@@ -572,18 +556,17 @@ pub fn schema() -> Result<Value> {
         "report_schema": REPORT_SCHEMA,
         "receipt_schema": RECEIPT_SCHEMA,
         "density_unit": "one unique Git commit with complete observed evidence",
+        "required_axes": AXES,
         "required_chain": CHAIN,
         "required_claim_witnesses": [
-            "positive_witness",
-            "negative_fixture",
-            "adversarial_falsifier",
-            "verifier"
+            "positive_witness", "negative_fixture", "adversarial_falsifier", "verifier"
         ],
         "claim_ceiling": "PARTIAL_ALIVE",
         "external_witness_required_for_alive": true
     }))
 }
 
+/// Inspect the complete density report without mutation.
 #[verb]
 pub fn inspect(manifest: String) -> Result<Value> {
     serde_json::to_value(evaluate(Path::new(&manifest))?).map_err(|error| {
@@ -591,6 +574,7 @@ pub fn inspect(manifest: String) -> Result<Value> {
     })
 }
 
+/// Validate threshold attainment and external-admission eligibility.
 #[verb]
 pub fn validate(manifest: String) -> Result<Value> {
     let report = evaluate(Path::new(&manifest))?;
@@ -607,6 +591,7 @@ pub fn validate(manifest: String) -> Result<Value> {
     }))
 }
 
+/// Calculate the combinatorial distribution surface.
 #[verb]
 pub fn distribution(manifest: String) -> Result<Value> {
     let report = evaluate(Path::new(&manifest))?;
@@ -623,14 +608,15 @@ pub fn distribution(manifest: String) -> Result<Value> {
     }))
 }
 
+/// Emit the deterministic report and chained intent/result receipts.
 #[verb]
 pub fn receipt(manifest: String, output: String) -> Result<Value> {
     let report = evaluate(Path::new(&manifest))?;
-    let (report_path, intent_path, result_path) = paths(Path::new(&output));
+    let (report_path, intent_path, result_path) = receipt_paths(Path::new(&output));
     let intent = Receipt::issue(
         "density-evaluate-intent",
         &report,
-        &previous(&result_path)?,
+        &previous_digest(&result_path)?,
         vec!["density-report.json".to_string()],
     )?;
     write_json(&intent_path, &intent)?;
@@ -655,10 +641,11 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
     }))
 }
 
+/// Replay the report and receipt chain against exact manifest and Git evidence.
 #[verb]
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     let report = evaluate(Path::new(&manifest))?;
-    let (report_path, intent_path, result_path) = paths(Path::new(&output));
+    let (report_path, intent_path, result_path) = receipt_paths(Path::new(&output));
     let read = |path: &Path| -> Result<Vec<u8>> {
         fs::read(path).map_err(|error| {
             NounVerbError::execution_error(format!("cannot read {}: {error}", path.display()))
@@ -673,9 +660,12 @@ pub fn replay(manifest: String, output: String) -> Result<Value> {
     let result: Receipt = serde_json::from_slice(&read(&result_path)?).map_err(|error| {
         NounVerbError::execution_error(format!("cannot parse {}: {error}", result_path.display()))
     })?;
-    let matches = intent.valid()?
+    let matches = report_digest(&stored)? == stored.report_digest
+        && intent.valid()?
         && result.valid()?
         && result.previous_digest == intent.digest
+        && intent.manifest_digest == report.manifest_digest
+        && intent.report_digest == report.report_digest
         && stored.manifest_digest == report.manifest_digest
         && stored.report_digest == report.report_digest
         && result.manifest_digest == report.manifest_digest
@@ -715,27 +705,26 @@ mod tests {
     fn fixture(root: &Path, duplicate: bool) -> PathBuf {
         run(root, &["init", "--quiet"]);
         run(root, &["config", "user.name", "ggen test"]);
-        run(root, &["config", "user.email", "ggen-test@example.invalid"]);
+        run(
+            root,
+            &[
+                "config",
+                "user.email",
+                "ggen-test@example.invalid",
+            ],
+        );
         fs::write(root.join("evidence.txt"), b"standing evidence").expect("fixture");
         run(root, &["add", "evidence.txt"]);
         run(root, &["commit", "--quiet", "-m", "evidence"]);
         let commit = run(root, &["rev-parse", "HEAD"]);
         let evidence = Evidence {
             locator: "evidence.txt".to_string(),
-            digest: format!("blake3:{}", bytes_digest(b"standing evidence")),
+            digest: format!("blake3:{}", digest_bytes(b"standing evidence")),
         };
-        let chain = Chain {
-            ontology: evidence.clone(),
-            shacl: evidence.clone(),
-            sparql: evidence.clone(),
-            typestate: evidence.clone(),
-            template: evidence.clone(),
-            artifact: evidence.clone(),
-            runtime_surface: evidence.clone(),
-            walkthrough: evidence.clone(),
-            receipt: evidence.clone(),
-            replay: evidence.clone(),
-        };
+        let chain = CHAIN
+            .iter()
+            .map(|stage| ((*stage).to_string(), evidence.clone()))
+            .collect();
         let first = Delta {
             id: "capability-1".to_string(),
             commit,
@@ -757,6 +746,18 @@ mod tests {
             second.capability_iri = "urn:ggen:capability:two".to_string();
             deltas.push(second);
         }
+        let distribution = AXES
+            .iter()
+            .map(|axis| {
+                let values = match *axis {
+                    "textual_forms" | "runtimes" => {
+                        vec!["one".to_string(), "two".to_string()]
+                    }
+                    _ => vec!["one".to_string()],
+                };
+                ((*axis).to_string(), values)
+            })
+            .collect();
         let manifest = Manifest {
             schema: MANIFEST_SCHEMA.to_string(),
             sbb: Sbb {
@@ -768,15 +769,7 @@ mod tests {
             repository: Repository {
                 root: ".".to_string(),
             },
-            distribution: Axes {
-                ontology_modules: vec!["urn:ggen:ontology:test".to_string()],
-                textual_forms: vec!["rust".to_string(), "markdown".to_string()],
-                audiences: vec!["operator".to_string()],
-                languages: vec!["en".to_string()],
-                jurisdictions: vec!["global".to_string()],
-                organization_profiles: vec!["default".to_string()],
-                runtimes: vec!["native".to_string(), "wasm".to_string()],
-            },
+            distribution,
             deltas,
         };
         let path = root.join("manifest.json");
@@ -789,7 +782,7 @@ mod tests {
     }
 
     #[test]
-    fn unique_observed_commit_counts_once() {
+    fn unique_commit_counts_once() {
         let directory = tempfile::tempdir().expect("tempdir");
         let report = evaluate(&fixture(directory.path(), false)).expect("report");
         assert_eq!(report.commit_equivalent_units, 1);
@@ -822,13 +815,54 @@ mod tests {
     }
 
     #[test]
-    fn receipts_replay() {
+    fn digest_mismatch_refuses_delta() {
+        let directory = tempfile::tempdir().expect("tempdir");
+        let path = fixture(directory.path(), false);
+        let mut manifest: Value =
+            serde_json::from_slice(&fs::read(&path).expect("manifest")).expect("json");
+        manifest["deltas"][0]["chain"]["ontology"]["digest"] =
+            Value::String(format!("blake3:{}", "0".repeat(64)));
+        fs::write(
+            &path,
+            serde_json::to_vec_pretty(&manifest).expect("json"),
+        )
+        .expect("manifest");
+        assert_eq!(
+            evaluate(&path).expect("report").commit_equivalent_units,
+            0
+        );
+    }
+
+    #[test]
+    fn receipts_replay_and_refuse_tampering() {
         let directory = tempfile::tempdir().expect("tempdir");
         let path = fixture(directory.path(), false);
         let output = directory.path().join("receipts");
-        receipt(path.display().to_string(), output.display().to_string()).expect("receipt");
-        let replay =
-            replay(path.display().to_string(), output.display().to_string()).expect("replay");
-        assert_eq!(replay["status"], "REPLAY_MATCH");
+        receipt(
+            path.display().to_string(),
+            output.display().to_string(),
+        )
+        .expect("receipt");
+        let replayed = replay(
+            path.display().to_string(),
+            output.display().to_string(),
+        )
+        .expect("replay");
+        assert_eq!(replayed["status"], "REPLAY_MATCH");
+        let report_path = output.join("density-report.json");
+        let mut stored: Value =
+            serde_json::from_slice(&fs::read(&report_path).expect("report")).expect("json");
+        stored["commit_equivalent_units"] = json!(999);
+        fs::write(
+            &report_path,
+            serde_json::to_vec_pretty(&stored).expect("json"),
+        )
+        .expect("report");
+        let replayed = replay(
+            path.display().to_string(),
+            output.display().to_string(),
+        )
+        .expect("replay");
+        assert_eq!(replayed["status"], "REPLAY_DIVERGED");
     }
 }
