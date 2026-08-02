@@ -4,12 +4,18 @@ on:
   push:
     branches:
       - agent/vision-2030-phase-change
+  pull_request:
+    branches:
+      - agent/sbb-capability-density
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   format-and-remove:
+    if: github.event_name != 'pull_request' || github.head_ref == 'agent/vision-2030-phase-change'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact feature branch
