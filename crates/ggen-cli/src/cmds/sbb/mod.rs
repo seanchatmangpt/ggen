@@ -191,6 +191,7 @@ fn report_digest(report: &Report) -> Result<String> {
     })
 }
 
+/// Return the machine-readable SBB density contract.
 #[verb]
 pub fn schema() -> Result<Value> {
     Ok(json!({
@@ -253,71 +254,11 @@ pub fn distribution(manifest: String) -> Result<Value> {
 /// Emit the deterministic report and chained intent/result receipts.
 #[verb]
 pub fn receipt(manifest: String, output: String) -> Result<Value> {
-    let report = evaluation::evaluate(Path::new(&manifest))?;
-    let (report_path, intent_path, result_path) = receipts::receipt_paths(Path::new(&output));
-    let intent = Receipt::issue(
-        "density-evaluate-intent",
-        &report,
-        &receipts::previous_digest(&result_path)?,
-        vec!["density-report.json".to_string()],
-    )?;
-    receipts::write_json(&intent_path, &intent)?;
-    receipts::write_json(&report_path, &report)?;
-    let result = Receipt::issue(
-        "density-evaluate-result",
-        &report,
-        &intent.digest,
-        vec![
-            "density-report.json".to_string(),
-            "density-intent.json".to_string(),
-        ],
-    )?;
-    receipts::write_json(&result_path, &result)?;
-    Ok(json!({
-        "standing": report.standing,
-        "claim_ceiling": report.claim_ceiling,
-        "report": report_path,
-        "intent_receipt": intent_path,
-        "result_receipt": result_path,
-        "receipt_digest": result.digest
-    }))
+    receipts::issue(Path::new(&manifest), Path::new(&output))
 }
 
 /// Replay the report and receipt chain against exact manifest and Git evidence.
 #[verb]
 pub fn replay(manifest: String, output: String) -> Result<Value> {
-    let report = evaluation::evaluate(Path::new(&manifest))?;
-    let (report_path, intent_path, result_path) = receipts::receipt_paths(Path::new(&output));
-    let read = |path: &Path| -> Result<Vec<u8>> {
-        fs::read(path).map_err(|error| {
-            NounVerbError::execution_error(format!("cannot read {}: {error}", path.display()))
-        })
-    };
-    let stored: Report = serde_json::from_slice(&read(&report_path)?).map_err(|error| {
-        NounVerbError::execution_error(format!("cannot parse {}: {error}", report_path.display()))
-    })?;
-    let intent: Receipt = serde_json::from_slice(&read(&intent_path)?).map_err(|error| {
-        NounVerbError::execution_error(format!("cannot parse {}: {error}", intent_path.display()))
-    })?;
-    let result: Receipt = serde_json::from_slice(&read(&result_path)?).map_err(|error| {
-        NounVerbError::execution_error(format!("cannot parse {}: {error}", result_path.display()))
-    })?;
-    let matches = report_digest(&stored)? == stored.report_digest
-        && intent.valid()?
-        && result.valid()?
-        && result.previous_digest == intent.digest
-        && intent.manifest_digest == report.manifest_digest
-        && intent.report_digest == report.report_digest
-        && stored.manifest_digest == report.manifest_digest
-        && stored.report_digest == report.report_digest
-        && result.manifest_digest == report.manifest_digest
-        && result.report_digest == report.report_digest;
-    Ok(json!({
-        "schema": "ggen.sbb.capability-density-replay.v1",
-        "status": if matches { "REPLAY_MATCH" } else { "REPLAY_DIVERGED" },
-        "matches": matches,
-        "manifest_digest": report.manifest_digest,
-        "report_digest": report.report_digest,
-        "receipt_digest": result.digest
-    }))
+    receipts::replay(Path::new(&manifest), Path::new(&output))
 }
