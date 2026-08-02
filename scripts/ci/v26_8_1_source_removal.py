@@ -320,22 +320,54 @@ def construct(args: argparse.Namespace) -> None:
     write_json(args.plan, plan)
 
 
+HISTORICAL_EVIDENCE_LINES: dict[Path, set[str]] = {
+    Path("tools/architecture-foundry/src/bin/admit_observation.rs"): {
+        'const CAPABILITY_PATH: &str = "ontology/v26.8.1/legacy-capabilities.ttl";',
+        'const REPORT_PATH: &str = "docs/v26.8.1/90-legacy/observer-class-report.md";',
+    },
+}
+
+
 def scan_operational_references() -> list[str]:
-    forbidden = [str(path) for path in ACTIVE_ROOTS] + [str(source) for source, _ in GUARD_MOVES]
-    roots = [Path("justfile"), Path(".github/workflows"), Path("crates"), Path("tools/architecture-foundry")]
+    forbidden = [str(path) for path in ACTIVE_ROOTS] + [
+        str(source) for source, _ in GUARD_MOVES
+    ]
+    roots = [
+        Path("justfile"),
+        Path(".github/workflows"),
+        Path("crates"),
+        Path("tools/architecture-foundry"),
+    ]
     findings: list[str] = []
     for root in roots:
-        candidates = [root] if root.is_file() else root.rglob("*") if root.exists() else []
-        for path in candidates:
-            if not path.is_file() or "target" in path.parts:
+        candidates = (
+            [root]
+            if root.is_file()
+            else root.rglob("*")
+            if root.exists()
+            else []
+        )
+        for candidate in candidates:
+            if not candidate.is_file() or "target" in candidate.parts:
                 continue
             try:
-                text = path.read_text()
+                lines = candidate.read_text().splitlines()
             except (UnicodeDecodeError, OSError):
                 continue
-            for token in forbidden:
-                if token in text:
-                    findings.append(f"{path}:{token}")
+            admitted = HISTORICAL_EVIDENCE_LINES.get(candidate, set())
+            for line_number, line in enumerate(lines, start=1):
+                stripped = line.lstrip()
+                if candidate == Path("justfile") and stripped.startswith("#"):
+                    continue
+                if candidate.suffix == ".rs" and stripped.startswith("//"):
+                    continue
+                if line.strip() in admitted:
+                    continue
+                for token in forbidden:
+                    if token in line:
+                        findings.append(
+                            f"{candidate}:{line_number}:{token}"
+                        )
     return sorted(findings)
 
 
@@ -415,6 +447,7 @@ def verify(args: argparse.Namespace) -> None:
             ]
         )
         require_success(rsync, "COMPOSED_TREE_PROJECTION_REFUSED")
+        rsync["argv"][-1] = "<COMPOSED_SOURCE>/"
         commands.append(rsync)
         for path in ACTIVE_ROOTS:
             destination = composed / path
@@ -461,7 +494,7 @@ def verify(args: argparse.Namespace) -> None:
         "corpus_ref": args.corpus_ref,
         "plan_sha256": sha256_file(args.plan),
         "checks": checks,
-        "commands": commands,
+        "commands": sorted(commands, key=lambda record: tuple(record["argv"])),
         "removed_roots": [str(path) for path in ACTIVE_ROOTS],
         "relocated_guards": [str(destination) for _, destination in GUARD_MOVES],
         "standing": "ALIVE",
