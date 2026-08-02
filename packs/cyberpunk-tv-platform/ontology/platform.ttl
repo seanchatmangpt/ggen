@@ -1,59 +1,308 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dct: <http://purl.org/dc/terms/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
 @prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
 
 <https://ggen.dev/ontology/cyberpunk-tv>
-    a dcat:Dataset ;
-    dcterms:title "Cyberpunk Television Platform" ;
-    dcterms:description "Canonical semantic world projected through UNRDF, Mermaid, and deck.gl into television runtime bodies." ;
-    dcterms:hasVersion "26.8.3" .
+    a owl:Ontology, dcat:Dataset, prov:Entity ;
+    dct:title "Cyberpunk Television Manufacturing Platform"@en ;
+    dct:description "Public semantic authority for manufacturing television-native cyberpunk worlds, watch parties, governed exchange, projections, runtime bodies, receipts, and replay."@en ;
+    dct:hasVersion "26.8.3" ;
+    dct:license <https://spdx.org/licenses/AGPL-3.0-or-later.html> ;
+    prov:wasAttributedTo tv:ChatmanFoundry .
 
-tv:Platform a rdfs:Class .
-tv:View a rdfs:Class .
-tv:WorldNode a rdfs:Class .
-tv:WorldEdge a rdfs:Class .
-tv:RuntimeBody a rdfs:Class .
-tv:Projection a rdfs:Class .
+# Classes
 
-tv:title a rdf:Property .
-tv:subtitle a rdf:Property .
-tv:defaultLongitude a rdf:Property .
-tv:defaultLatitude a rdf:Property .
-tv:defaultZoom a rdf:Property .
-tv:sourceNode a rdf:Property .
-tv:targetNode a rdf:Property .
-tv:longitude a rdf:Property .
-tv:latitude a rdf:Property .
-tv:weight a rdf:Property .
-tv:projectionKind a rdf:Property .
-tv:runtimeKind a rdf:Property .
+tv:Platform a owl:Class .
+tv:Capability a owl:Class .
+tv:Mode a owl:Class .
+tv:Projection a owl:Class .
+tv:DeviceProfile a owl:Class .
+tv:RuntimeBody a owl:Class .
+tv:WorldNode a owl:Class .
+tv:WorldEdge a owl:Class .
+tv:Scene a owl:Class .
+tv:WatchSession a owl:Class .
+tv:Participant a owl:Class .
+tv:MediaBinding a owl:Class .
+tv:Motion a owl:Class .
+tv:Vote a owl:Class .
+tv:EscrowProposal a owl:Class .
+tv:Settlement a owl:Class .
+tv:ReceiptPolicy a owl:Class .
+tv:RemoteBinding a owl:Class .
+tv:AccessibilityProfile a owl:Class .
+tv:SynchronizationProfile a owl:Class .
+tv:ManufactureProfile a owl:Class .
+
+# Properties
+
+tv:title a owl:DatatypeProperty .
+tv:subtitle a owl:DatatypeProperty .
+tv:capabilityId a owl:DatatypeProperty .
+tv:modeId a owl:DatatypeProperty .
+tv:projectionId a owl:DatatypeProperty .
+tv:projectionKind a owl:DatatypeProperty .
+tv:diagramKind a owl:DatatypeProperty .
+tv:layerKind a owl:DatatypeProperty .
+tv:runtimeKind a owl:DatatypeProperty .
+tv:deviceId a owl:DatatypeProperty .
+tv:inputKind a owl:DatatypeProperty .
+tv:keyCode a owl:DatatypeProperty .
+tv:actionId a owl:DatatypeProperty .
+tv:longitude a owl:DatatypeProperty .
+tv:latitude a owl:DatatypeProperty .
+tv:weight a owl:DatatypeProperty .
+tv:sequence a owl:DatatypeProperty .
+tv:sessionId a owl:DatatypeProperty .
+tv:sessionState a owl:DatatypeProperty .
+tv:epochMillis a owl:DatatypeProperty .
+tv:positionMillis a owl:DatatypeProperty .
+tv:driftToleranceMillis a owl:DatatypeProperty .
+tv:quorumRequired a owl:DatatypeProperty .
+tv:yesVotes a owl:DatatypeProperty .
+tv:noVotes a owl:DatatypeProperty .
+tv:motionState a owl:DatatypeProperty .
+tv:proposalDigest a owl:DatatypeProperty .
+tv:constructText a owl:DatatypeProperty .
+tv:receiptAlgorithm a owl:DatatypeProperty .
+tv:standing a owl:DatatypeProperty .
+tv:locale a owl:DatatypeProperty .
+tv:contrastMode a owl:DatatypeProperty .
+tv:captionMode a owl:DatatypeProperty .
+tv:audioDescriptionMode a owl:DatatypeProperty .
+tv:reducedMotion a owl:DatatypeProperty .
+tv:sourceNode a owl:ObjectProperty .
+tv:targetNode a owl:ObjectProperty .
+tv:hasCapability a owl:ObjectProperty .
+tv:requiresCapability a owl:ObjectProperty .
+tv:supportsProjection a owl:ObjectProperty .
+tv:hasMode a owl:ObjectProperty .
+tv:hasProjection a owl:ObjectProperty .
+tv:hasDeviceProfile a owl:ObjectProperty .
+tv:hasRuntimeBody a owl:ObjectProperty .
+tv:hasParticipant a owl:ObjectProperty .
+tv:hasMediaBinding a owl:ObjectProperty .
+tv:hasMotion a owl:ObjectProperty .
+tv:hasProposal a owl:ObjectProperty .
+tv:hasVote a owl:ObjectProperty .
+tv:adoptsSettlement a owl:ObjectProperty .
+tv:governedBy a owl:ObjectProperty .
+tv:receiptedBy a owl:ObjectProperty .
+tv:generatedFrom a owl:ObjectProperty .
+tv:nextMode a owl:ObjectProperty .
+tv:focusNext a owl:ObjectProperty .
+tv:affiliatedWith a owl:ObjectProperty .
+
+# Foundry and platform
+
+tv:ChatmanFoundry a org:Organization ;
+    skos:prefLabel "Chatman Foundry"@en .
 
 tv:CyberpunkPlatform
     a tv:Platform, prov:Entity ;
     tv:title "The Public Sprawl" ;
-    tv:subtitle "One world. Many televisions. No shared implementation." ;
-    tv:defaultLongitude "139.6917"^^xsd:decimal ;
-    tv:defaultLatitude "35.6895"^^xsd:decimal ;
-    tv:defaultZoom "1.4"^^xsd:decimal .
+    tv:subtitle "One law. Many manufactured television bodies." ;
+    tv:hasMode tv:ModeCinema, tv:ModeMatrix, tv:ModeConstruct, tv:ModeGovernance, tv:ModeMarket, tv:ModeReceipt ;
+    tv:hasProjection tv:ProjectionWorldNodes, tv:ProjectionWorldArcs, tv:ProjectionWorldLabels,
+        tv:ProjectionArchitecture, tv:ProjectionNarrative, tv:ProjectionProcedure,
+        tv:ProjectionTimeline, tv:ProjectionReceipt ;
+    tv:hasDeviceProfile tv:ProfileLivingRoom, tv:ProfileVenueWall, tv:ProfileBrowser,
+        tv:ProfileAppleTV, tv:ProfileAndroidTV, tv:ProfileLowResource ;
+    tv:hasRuntimeBody tv:WasmBody ;
+    tv:governedBy tv:ProcedureRobertRules ;
+    tv:receiptedBy tv:ReceiptPolicyBlake3 ;
+    prov:wasAttributedTo tv:ChatmanFoundry .
 
-tv:WorldView a tv:View ; tv:projectionKind "deck.gl" .
-tv:ProcedureView a tv:View ; tv:projectionKind "mermaid" .
-tv:SemanticView a tv:View ; tv:projectionKind "unrdf" .
+# Capabilities
 
-tv:BrowserBody a tv:RuntimeBody ; tv:runtimeKind "browser-tv" .
-tv:WasmBody a tv:RuntimeBody ; tv:runtimeKind "wasm" .
+tv:CapabilitySemanticStore a tv:Capability ; tv:capabilityId "semantic-store" ; skos:prefLabel "UNRDF semantic store" .
+tv:CapabilitySparql a tv:Capability ; tv:capabilityId "sparql" ; skos:prefLabel "SPARQL query and construct" .
+tv:CapabilityN3 a tv:Capability ; tv:capabilityId "n3" ; skos:prefLabel "N3 rule closure" .
+tv:CapabilityDatalog a tv:Capability ; tv:capabilityId "datalog" ; skos:prefLabel "Datalog closure" .
+tv:CapabilityMermaid a tv:Capability ; tv:capabilityId "mermaid" ; skos:prefLabel "Mermaid/mmdio projection" .
+tv:CapabilityDeck a tv:Capability ; tv:capabilityId "deckgl" ; skos:prefLabel "deck.gl projection" .
+tv:CapabilityWasm a tv:Capability ; tv:capabilityId "rust-wasm" ; skos:prefLabel "Generated Rust/WASM body" .
+tv:CapabilityReceipt a tv:Capability ; tv:capabilityId "blake3-receipt" ; skos:prefLabel "BLAKE3 receipt" .
+tv:CapabilityReplay a tv:Capability ; tv:capabilityId "replay" ; skos:prefLabel "Deterministic replay" .
+tv:CapabilityMedia a tv:Capability ; tv:capabilityId "media-playback" ; skos:prefLabel "User-supplied media playback" .
+tv:CapabilityWatchParty a tv:Capability ; tv:capabilityId "watch-party" ; skos:prefLabel "Synchronized watch party" .
+tv:CapabilityRemote a tv:Capability ; tv:capabilityId "tv-remote" ; skos:prefLabel "Television remote navigation" .
+tv:CapabilityOffline a tv:Capability ; tv:capabilityId "offline-pwa" ; skos:prefLabel "Offline installable projection" .
+tv:CapabilityGovernance a tv:Capability ; tv:capabilityId "roberts-rules" ; skos:prefLabel "Robert's Rules procedure" .
+tv:CapabilityEscrow a tv:Capability ; tv:capabilityId "declarative-escrow" ; skos:prefLabel "Declarative escrow" .
+tv:CapabilityRights a tv:Capability ; tv:capabilityId "odrl-rights" ; skos:prefLabel "ODRL rights" .
+tv:CapabilityCaptions a tv:Capability ; tv:capabilityId "captions" ; skos:prefLabel "Caption tracks" .
+tv:CapabilityAudioDescription a tv:Capability ; tv:capabilityId "audio-description" ; skos:prefLabel "Audio description" .
+tv:CapabilityLocalization a tv:Capability ; tv:capabilityId "localization" ; skos:prefLabel "Localized projection" .
+tv:CapabilityPresence a tv:Capability ; tv:capabilityId "global-presence" ; skos:prefLabel "Global presence layer" .
+tv:CapabilityReceiptedIntent a tv:Capability ; tv:capabilityId "receipted-intent" ; skos:prefLabel "Intent-only interaction" .
+tv:CapabilityNoAmbientActuation a tv:Capability ; tv:capabilityId "no-ambient-actuation" ; skos:prefLabel "No ambient actuation" .
 
-tv:Pasadena a tv:WorldNode ; schema:name "Pasadena Foundry" ; tv:longitude "-118.1445"^^xsd:decimal ; tv:latitude "34.1478"^^xsd:decimal ; tv:weight 9 .
-tv:Chiba a tv:WorldNode ; schema:name "Chiba Interface" ; tv:longitude "140.1063"^^xsd:decimal ; tv:latitude "35.6074"^^xsd:decimal ; tv:weight 7 .
-tv:London a tv:WorldNode ; schema:name "London Exchange" ; tv:longitude "-0.1276"^^xsd:decimal ; tv:latitude "51.5072"^^xsd:decimal ; tv:weight 6 .
-tv:Nairobi a tv:WorldNode ; schema:name "Nairobi Relay" ; tv:longitude "36.8219"^^xsd:decimal ; tv:latitude "-1.2921"^^xsd:decimal ; tv:weight 5 .
+# Modes
 
-tv:EdgePasadenaChiba a tv:WorldEdge ; tv:sourceNode tv:Pasadena ; tv:targetNode tv:Chiba ; tv:weight 9 .
-tv:EdgeChibaLondon a tv:WorldEdge ; tv:sourceNode tv:Chiba ; tv:targetNode tv:London ; tv:weight 7 .
-tv:EdgeLondonNairobi a tv:WorldEdge ; tv:sourceNode tv:London ; tv:targetNode tv:Nairobi ; tv:weight 6 .
-tv:EdgeNairobiPasadena a tv:WorldEdge ; tv:sourceNode tv:Nairobi ; tv:targetNode tv:Pasadena ; tv:weight 5 .
+tv:ModeCinema a tv:Mode ; tv:modeId "cinema" ; skos:prefLabel "Cinema" ; tv:nextMode tv:ModeMatrix ; tv:requiresCapability tv:CapabilityMedia .
+tv:ModeMatrix a tv:Mode ; tv:modeId "matrix" ; skos:prefLabel "Matrix" ; tv:nextMode tv:ModeConstruct ; tv:requiresCapability tv:CapabilityDeck .
+tv:ModeConstruct a tv:Mode ; tv:modeId "construct" ; skos:prefLabel "Construct" ; tv:nextMode tv:ModeGovernance ; tv:requiresCapability tv:CapabilityMermaid .
+tv:ModeGovernance a tv:Mode ; tv:modeId "governance" ; skos:prefLabel "Governance" ; tv:nextMode tv:ModeMarket ; tv:requiresCapability tv:CapabilityGovernance .
+tv:ModeMarket a tv:Mode ; tv:modeId "market" ; skos:prefLabel "Market" ; tv:nextMode tv:ModeReceipt ; tv:requiresCapability tv:CapabilityEscrow .
+tv:ModeReceipt a tv:Mode ; tv:modeId "receipt" ; skos:prefLabel "Receipt" ; tv:nextMode tv:ModeCinema ; tv:requiresCapability tv:CapabilityReplay .
+
+# Projections
+
+tv:ProjectionWorldNodes a tv:Projection ; tv:projectionId "world-nodes" ; tv:projectionKind "deck.gl" ; tv:layerKind "ScatterplotLayer" ; tv:requiresCapability tv:CapabilityDeck .
+tv:ProjectionWorldArcs a tv:Projection ; tv:projectionId "world-arcs" ; tv:projectionKind "deck.gl" ; tv:layerKind "ArcLayer" ; tv:requiresCapability tv:CapabilityDeck .
+tv:ProjectionWorldLabels a tv:Projection ; tv:projectionId "world-labels" ; tv:projectionKind "deck.gl" ; tv:layerKind "TextLayer" ; tv:requiresCapability tv:CapabilityDeck .
+tv:ProjectionArchitecture a tv:Projection ; tv:projectionId "architecture" ; tv:projectionKind "mermaid" ; tv:diagramKind "flowchart" ; tv:requiresCapability tv:CapabilityMermaid .
+tv:ProjectionNarrative a tv:Projection ; tv:projectionId "narrative" ; tv:projectionKind "mermaid" ; tv:diagramKind "sequence" ; tv:requiresCapability tv:CapabilityMermaid .
+tv:ProjectionProcedure a tv:Projection ; tv:projectionId "procedure" ; tv:projectionKind "mermaid" ; tv:diagramKind "state" ; tv:requiresCapability tv:CapabilityGovernance .
+tv:ProjectionTimeline a tv:Projection ; tv:projectionId "timeline" ; tv:projectionKind "mermaid" ; tv:diagramKind "timeline" ; tv:requiresCapability tv:CapabilityMermaid .
+tv:ProjectionReceipt a tv:Projection ; tv:projectionId "receipt" ; tv:projectionKind "mermaid" ; tv:diagramKind "gitGraph" ; tv:requiresCapability tv:CapabilityReceipt .
+
+# Device profiles: ggen manufactures a body from the admitted capability set.
+
+tv:ProfileLivingRoom a tv:DeviceProfile ; tv:deviceId "living-room-tv" ; tv:runtimeKind "browser-wasm" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid, tv:CapabilityDeck,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay, tv:CapabilityMedia,
+        tv:CapabilityWatchParty, tv:CapabilityRemote, tv:CapabilityOffline, tv:CapabilityCaptions .
+
+tv:ProfileVenueWall a tv:DeviceProfile ; tv:deviceId "venue-wall" ; tv:runtimeKind "browser-wasm" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid, tv:CapabilityDeck,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay, tv:CapabilityMedia,
+        tv:CapabilityWatchParty, tv:CapabilityPresence, tv:CapabilityGovernance, tv:CapabilityEscrow .
+
+tv:ProfileBrowser a tv:DeviceProfile ; tv:deviceId "web-browser" ; tv:runtimeKind "browser-wasm" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid, tv:CapabilityDeck,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay, tv:CapabilityOffline .
+
+tv:ProfileAppleTV a tv:DeviceProfile ; tv:deviceId "apple-tv-wrapper" ; tv:runtimeKind "webview-wasm" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid, tv:CapabilityDeck,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay, tv:CapabilityMedia, tv:CapabilityRemote .
+
+tv:ProfileAndroidTV a tv:DeviceProfile ; tv:deviceId "android-tv-wrapper" ; tv:runtimeKind "webview-wasm" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid, tv:CapabilityDeck,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay, tv:CapabilityMedia, tv:CapabilityRemote .
+
+tv:ProfileLowResource a tv:DeviceProfile ; tv:deviceId "low-resource-display" ; tv:runtimeKind "wasm-static" ;
+    tv:hasCapability tv:CapabilitySemanticStore, tv:CapabilitySparql, tv:CapabilityMermaid,
+        tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay .
+
+tv:WasmBody a tv:RuntimeBody ; tv:runtimeKind "nightly-rust-wasm32-unknown-unknown" ;
+    tv:generatedFrom tv:CyberpunkPlatform ;
+    tv:hasCapability tv:CapabilityWasm, tv:CapabilityReceipt, tv:CapabilityReplay,
+        tv:CapabilityReceiptedIntent, tv:CapabilityNoAmbientActuation .
+
+# Remote bindings
+
+tv:RemoteLeft a tv:RemoteBinding ; tv:keyCode "ArrowLeft" ; tv:actionId "previous-mode" ; tv:focusNext tv:RemoteUp .
+tv:RemoteRight a tv:RemoteBinding ; tv:keyCode "ArrowRight" ; tv:actionId "next-mode" ; tv:focusNext tv:RemoteDown .
+tv:RemoteUp a tv:RemoteBinding ; tv:keyCode "ArrowUp" ; tv:actionId "previous-item" ; tv:focusNext tv:RemoteRight .
+tv:RemoteDown a tv:RemoteBinding ; tv:keyCode "ArrowDown" ; tv:actionId "next-item" ; tv:focusNext tv:RemoteLeft .
+tv:RemoteSelect a tv:RemoteBinding ; tv:keyCode "Enter" ; tv:actionId "select" .
+tv:RemoteBack a tv:RemoteBinding ; tv:keyCode "Escape" ; tv:actionId "back" .
+tv:RemotePlayPause a tv:RemoteBinding ; tv:keyCode "MediaPlayPause" ; tv:actionId "toggle-playback" .
+
+# Accessibility
+
+tv:AccessibilityDefault a tv:AccessibilityProfile ; tv:locale "en-US" ; tv:contrastMode "system" ;
+    tv:captionMode "available" ; tv:audioDescriptionMode "available" ; tv:reducedMotion false .
+
+tv:AccessibilityHighContrast a tv:AccessibilityProfile ; tv:locale "en-US" ; tv:contrastMode "high" ;
+    tv:captionMode "always" ; tv:audioDescriptionMode "available" ; tv:reducedMotion true .
+
+# World graph
+
+tv:Pasadena a tv:WorldNode, schema:Place ; schema:name "Pasadena Foundry" ; tv:longitude -118.1445 ; tv:latitude 34.1478 ; tv:weight 10 .
+tv:Chiba a tv:WorldNode, schema:Place ; schema:name "Chiba Interface" ; tv:longitude 140.1063 ; tv:latitude 35.6074 ; tv:weight 8 .
+tv:London a tv:WorldNode, schema:Place ; schema:name "London Exchange" ; tv:longitude -0.1276 ; tv:latitude 51.5072 ; tv:weight 7 .
+tv:Nairobi a tv:WorldNode, schema:Place ; schema:name "Nairobi Relay" ; tv:longitude 36.8219 ; tv:latitude -1.2921 ; tv:weight 6 .
+tv:Kingston a tv:WorldNode, schema:Place ; schema:name "Kingston Memory Port" ; tv:longitude -76.7920 ; tv:latitude 17.9712 ; tv:weight 7 .
+tv:TelAviv a tv:WorldNode, schema:Place ; schema:name "Tel Aviv Logic Market" ; tv:longitude 34.7818 ; tv:latitude 32.0853 ; tv:weight 7 .
+tv:Orbital a tv:WorldNode, schema:Place ; schema:name "Orbital Receipt Archive" ; tv:longitude 0.0 ; tv:latitude 78.0 ; tv:weight 9 .
+
+tv:EdgePasadenaChiba a tv:WorldEdge ; tv:sourceNode tv:Pasadena ; tv:targetNode tv:Chiba ; tv:weight 10 .
+tv:EdgeChibaLondon a tv:WorldEdge ; tv:sourceNode tv:Chiba ; tv:targetNode tv:London ; tv:weight 8 .
+tv:EdgeLondonNairobi a tv:WorldEdge ; tv:sourceNode tv:London ; tv:targetNode tv:Nairobi ; tv:weight 7 .
+tv:EdgeNairobiKingston a tv:WorldEdge ; tv:sourceNode tv:Nairobi ; tv:targetNode tv:Kingston ; tv:weight 6 .
+tv:EdgeKingstonPasadena a tv:WorldEdge ; tv:sourceNode tv:Kingston ; tv:targetNode tv:Pasadena ; tv:weight 7 .
+tv:EdgeTelAvivOrbital a tv:WorldEdge ; tv:sourceNode tv:TelAviv ; tv:targetNode tv:Orbital ; tv:weight 8 .
+tv:EdgeOrbitalPasadena a tv:WorldEdge ; tv:sourceNode tv:Orbital ; tv:targetNode tv:Pasadena ; tv:weight 9 .
+
+# Watch-party session and synchronization
+
+tv:GlobalPremiereSession a tv:WatchSession, prov:Activity ;
+    tv:sessionId "public-sprawl-global-premiere" ;
+    tv:sessionState "scheduled" ;
+    tv:epochMillis 0 ;
+    tv:positionMillis 0 ;
+    tv:driftToleranceMillis 350 ;
+    tv:hasMediaBinding tv:UserSuppliedMedia ;
+    tv:hasParticipant tv:HostParticipant ;
+    tv:governedBy tv:ProcedureRobertRules ;
+    tv:receiptedBy tv:ReceiptPolicyBlake3 .
+
+tv:UserSuppliedMedia a tv:MediaBinding ;
+    dct:title "User-supplied licensed media" ;
+    dct:description "The platform binds playback state but does not distribute the underlying copyrighted media." .
+
+tv:HostParticipant a tv:Participant, foaf:Agent ; foaf:name "Host" ; tv:affiliatedWith tv:ChatmanFoundry .
+
+tv:SyncStrict a tv:SynchronizationProfile ; tv:driftToleranceMillis 350 ; tv:receiptAlgorithm "blake3-256" .
+
+# Robert's Rules procedure represented as graph state, not bespoke transaction code.
+
+tv:ProcedureRobertRules a skos:ConceptScheme ; skos:prefLabel "POWL-equivalent Robert's Rules procedure" .
+
+tv:MotionGlobalExhibition a tv:Motion ;
+    dct:title "Authorize global exhibition session" ;
+    tv:motionState "introduced" ;
+    tv:quorumRequired 2 ;
+    tv:yesVotes 2 ;
+    tv:noVotes 0 ;
+    tv:sequence 1 ;
+    tv:hasProposal tv:ProposalHost, tv:ProposalVenue .
+
+tv:ProposalHost a tv:EscrowProposal ;
+    dct:title "Host contribution" ;
+    tv:constructText "CONSTRUCT { ?settlement a tv:Settlement ; tv:standing 'adopted' . } WHERE { ?session tv:sessionState 'scheduled' . }" ;
+    tv:proposalDigest "manufactured-at-runtime" ;
+    prov:wasAttributedTo tv:HostParticipant .
+
+tv:ProposalVenue a tv:EscrowProposal ;
+    dct:title "Venue contribution" ;
+    tv:constructText "CONSTRUCT { ?settlement tv:hasProjection tv:ProjectionWorldNodes . } WHERE { ?device tv:hasCapability tv:CapabilityDeck . }" ;
+    tv:proposalDigest "manufactured-at-runtime" .
+
+tv:SettlementGlobalExhibition a tv:Settlement ;
+    dct:title "Global exhibition settlement" ;
+    tv:standing "candidate" ;
+    tv:receiptedBy tv:ReceiptPolicyBlake3 .
+
+# Rights are policy projections over the actual world and art, not the asset itself.
+
+tv:ExhibitionPolicy a odrl:Policy ;
+    odrl:permission tv:PermissionDisplay, tv:PermissionStream ;
+    odrl:prohibition tv:ProhibitionRedistribute ;
+    odrl:target tv:CyberpunkPlatform ;
+    dct:title "Global watch-party exhibition policy" .
+
+tv:PermissionDisplay a odrl:Permission ; odrl:action odrl:display ; odrl:target tv:CyberpunkPlatform .
+tv:PermissionStream a odrl:Permission ; odrl:action odrl:stream ; odrl:target tv:UserSuppliedMedia .
+tv:ProhibitionRedistribute a odrl:Prohibition ; odrl:action odrl:distribute ; odrl:target tv:UserSuppliedMedia .
+
+# Receipt law
+
+tv:ReceiptPolicyBlake3 a tv:ReceiptPolicy ;
+    tv:receiptAlgorithm "blake3-256" ;
+    tv:standing "requires-source-authority-toolchain-input-output-consequence-replay" ;
+    dct:description "Every material state transition is content-addressed; the receipt persists after the generated runtime body is replaced." .
