@@ -1,0 +1,48 @@
+name: validate-dteam-x64
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: validate-dteam-x64-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CARGO_INCREMENTAL: "0"
+      RUSTFLAGS: "-C debuginfo=0"
+    steps:
+      - name: Check out exact dteam head
+        uses: actions/checkout@v4
+        with:
+          repository: seanchatmangpt/dteam
+          ref: 4d8091fbda805b346395adf9bb24577269443027
+          path: dteam
+          persist-credentials: false
+      - name: Type-check exact capability kernel
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          cargo check --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --all-targets --message-format=short 2>&1 | tee artifacts/cargo-check.log
+      - name: Execute exact capability tests
+        run: |
+          set -o pipefail
+          cargo test --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --lib -- --test-threads=1 --nocapture 2>&1 | tee artifacts/cargo-test.log
+      - name: Execute exact capability demo
+        run: |
+          set -o pipefail
+          cargo run --quiet --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --bin dteam-capabilities 2>&1 | tee artifacts/dteam-capability-demo.json
+      - name: Upload exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dteam-x64-4d8091f
+          path: artifacts/*
+          if-no-files-found: warn
