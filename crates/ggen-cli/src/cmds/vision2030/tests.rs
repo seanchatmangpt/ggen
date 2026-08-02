@@ -30,17 +30,25 @@ fn capability_evidence(
         &root.join(format!("sbb-report-{index}.json")),
         &json!({
             "schema": SBB_REPORT_SCHEMA,
+            "manifest_digest": "0".repeat(64),
             "sbb": {
                 "id": id,
                 "version": "1.0.0",
                 "architecture_contract": iri,
                 "minimum_commit_equivalent_units": 1
             },
+            "standing": "PARTIAL_ALIVE",
             "claim_ceiling": "PARTIAL_ALIVE",
+            "target_met": true,
             "eligible_for_external_admission": true,
+            "declared_deltas": 1,
             "commit_equivalent_units": 1,
+            "duplicate_commit_collisions": 0,
+            "axes": {},
             "distribution_contexts": "1000",
             "delivered_capability_instances": "1000",
+            "deltas": [],
+            "violations": [],
             "report_digest": report_digest
         }),
     );
@@ -49,7 +57,10 @@ fn capability_evidence(
         &json!({
             "schema": SBB_RECEIPT_SCHEMA,
             "operation": "density-evaluate-result",
+            "manifest_digest": "0".repeat(64),
             "report_digest": report_digest,
+            "previous_digest": "0".repeat(64),
+            "artifacts": [],
             "digest_algorithm": "blake3",
             "digest": "b".repeat(64)
         }),
@@ -70,7 +81,9 @@ fn capability_evidence(
             "subject": iri,
             "decision": "ACCEPTED",
             "issuer": "independent-test-authority",
-            "report_digest": report_digest
+            "report_digest": report_digest,
+            "issuer_public_key": "0".repeat(64),
+            "signature": "0".repeat(128)
         }),
     );
     [
@@ -186,17 +199,25 @@ fn shared_sbb_report_digest_cannot_inflate_capabilities() {
         &directory.path().join("sbb-report-1.json"),
         &json!({
             "schema": SBB_REPORT_SCHEMA,
+            "manifest_digest": "0".repeat(64),
             "sbb": {
                 "id": capability.id,
                 "version": "1.0.0",
                 "architecture_contract": capability.iri,
                 "minimum_commit_equivalent_units": 1
             },
+            "standing": "PARTIAL_ALIVE",
             "claim_ceiling": "PARTIAL_ALIVE",
+            "target_met": true,
             "eligible_for_external_admission": true,
+            "declared_deltas": 1,
             "commit_equivalent_units": 1,
+            "duplicate_commit_collisions": 0,
+            "axes": {},
             "distribution_contexts": "1000",
             "delivered_capability_instances": "1000",
+            "deltas": [],
+            "violations": [],
             "report_digest": shared_digest
         }),
     );
@@ -208,7 +229,10 @@ fn shared_sbb_report_digest_cannot_inflate_capabilities() {
         &json!({
             "schema": SBB_RECEIPT_SCHEMA,
             "operation": "density-evaluate-result",
+            "manifest_digest": "0".repeat(64),
             "report_digest": shared_digest,
+            "previous_digest": "0".repeat(64),
+            "artifacts": [],
             "digest_algorithm": "blake3",
             "digest": "b".repeat(64)
         }),
@@ -235,7 +259,9 @@ fn shared_sbb_report_digest_cannot_inflate_capabilities() {
             "subject": capability.iri,
             "decision": "ACCEPTED",
             "issuer": "independent-test-authority",
-            "report_digest": shared_digest
+            "report_digest": shared_digest,
+            "issuer_public_key": "0".repeat(64),
+            "signature": "0".repeat(128)
         }),
     );
     write_manifest(&path, &manifest);
