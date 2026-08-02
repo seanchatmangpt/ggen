@@ -1,5 +1,5 @@
 {
-  "schema": "ggen.cyberpunk-tv.vision2030.v1",
+  "schema": "ggen.cyberpunk-tv.vision2030.v2",
   "records": [
 {% for row in sparql_results %}    {
       "kind": {{ row["kind"] | json_encode() }},
@@ -20,7 +20,15 @@
       "transport": {{ row["transport"] | default(value="") | json_encode() }},
       "latency": {{ row["latency"] | default(value="") | json_encode() }},
       "offline": {{ row["offline"] | default(value=false) }},
-      "values": {{ row["values"] | default(value="") | json_encode() }}
+      "values": {{ row["values"] | default(value="") | json_encode() }},
+      "surfaces": {{ row["surfaces"] | default(value="") | json_encode() }},
+      "target": {{ row["target"] | default(value="") | json_encode() }},
+      "evidence": {{ row["evidence"] | default(value="") | json_encode() }},
+      "claimCeiling": {{ row["claimCeiling"] | default(value="") | json_encode() }},
+      "latencyScore": {{ row["latencyScore"] | default(value=0) }},
+      "costScore": {{ row["costScore"] | default(value=0) }},
+      "privacyScore": {{ row["privacyScore"] | default(value=0) }},
+      "accessibilityScore": {{ row["accessibilityScore"] | default(value=0) }}
     }{% if not loop.last %},{% endif %}
 {% endfor %}  ]
 }

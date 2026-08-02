@@ -1,9 +1,10 @@
 {% for row in sparql_results %}
 import { execFileSync } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
 
 const receiptPath = resolve('.ggen/receipts/cyberpunk-tv.json');
+const evidencePath = resolve('.ggen/evidence/replay.json');
 const args = ['run', '--quiet', '--manifest-path', 'wasm/Cargo.toml', '--bin', 'receipt', '--', '.'];
 
 execFileSync('cargo', args, { stdio: 'inherit' });
@@ -22,11 +23,16 @@ if (firstReceipt.algorithm !== 'blake3-256' || secondReceipt.root !== firstRecei
   console.error(JSON.stringify({ standing: 'BUILD_BROKEN', replay: 'RECEIPT_INVALID' }));
   process.exit(1);
 }
-console.log(JSON.stringify({
+const report = {
+  schema: 'ggen.cyberpunk-tv.replay-evidence.v1',
   standing: 'PARTIAL_ALIVE',
   replay: 'REPLAY_MATCH',
   platform: {{ row["title"] | json_encode() }},
   root: firstReceipt.root,
-  artifacts: firstReceipt.artifacts.length
-}));
+  artifacts: firstReceipt.artifacts.length,
+  receiptPath: '.ggen/receipts/cyberpunk-tv.json'
+};
+await mkdir(dirname(evidencePath), { recursive: true });
+await writeFile(evidencePath, JSON.stringify(report, null, 2) + '\n');
+console.log(JSON.stringify(report));
 {% endfor %}
