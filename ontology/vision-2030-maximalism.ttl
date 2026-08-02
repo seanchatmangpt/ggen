@@ -17,7 +17,9 @@ vmax:OperationalNoun a owl:Class .
 vmax:Doctor a vmax:OperationalNoun ; skos:prefLabel "Doctor" .
 vmax:Wizard a vmax:OperationalNoun ; skos:prefLabel "Wizard" .
 vmax:Truthforge a vmax:OperationalNoun ; skos:prefLabel "Truthforge" .
-vmax:Telco a vmax:OperationalNoun ; skos:prefLabel "Telco" .
+vmax:Telco a vmax:OperationalNoun ;
+  skos:prefLabel "Telco" ;
+  vmax:hasTelcoSurface vmax:Office, vmax:Register, vmax:Line, vmax:Bridge, vmax:Record .
 
 vmax:TelcoSurface a owl:Class .
 vmax:Office a vmax:TelcoSurface ; skos:prefLabel "office" .
