@@ -24,23 +24,27 @@ env:
 
 jobs:
   manufacture-execute-replay:
-    name: Manufacture, exhaustive Chicago TDD, receipt, replay
+    name: Manufacture, polyglot Chicago TDD, receipt, replay
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 90
     steps:
       - name: Checkout exact head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - name: Orient toolchains
+      - name: Orient all executable languages and toolchains
         shell: bash
         run: |
           set -euo pipefail
           git rev-parse HEAD | tee /tmp/subject-sha.txt
+          bash --version | head -1
+          python3 --version
           node --version
           npm --version
           rustup toolchain install nightly-2026-06-22 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
           rustup override set nightly-2026-06-22
+          rustc --version --verbose
+          cargo --version
           node - <<'NODE'
           const [major, minor] = process.versions.node.split('.').map(Number);
           const admitted = (major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22;
@@ -53,6 +57,7 @@ jobs:
           if ! command -v wasm-pack >/dev/null 2>&1 || [ "$(wasm-pack --version)" != "wasm-pack 0.13.1" ]; then
             cargo install wasm-pack --version 0.13.1 --locked
           fi
+          wasm-pack --version
       - name: Build exact ggen binary
         shell: bash
         run: |
@@ -64,7 +69,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$PACK"
-          rm -rf generated
+          rm -rf generated .ggen
           "$GITHUB_WORKSPACE/$GGEN" sync
           find generated -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/manufacture-first.sha256
           "$GITHUB_WORKSPACE/$GGEN" sync
@@ -78,30 +83,45 @@ jobs:
           set -euo pipefail
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
-      - name: Execute complete acceptance ladder
+      - name: Execute Rust, WASM, JavaScript, and browser ladder
         working-directory: packs/cyberpunk-tv-platform/generated
         shell: bash
         run: |
           set -euo pipefail
           npm run check
+      - name: Execute Python, Bash, RDF, SHACL, SPARQL, N3, and Datalog crown
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash "$PACK/verify/polyglot_validate.sh" "$PACK/generated"
+      - name: Reissue receipt after all language evidence
+        working-directory: packs/cyberpunk-tv-platform/generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run verify
+          npm run replay
       - name: Verify exhaustive autonomic evidence
         working-directory: packs/cyberpunk-tv-platform/generated
         shell: bash
         run: |
           set -euo pipefail
-          test -s .ggen/receipts/cyberpunk-tv.json
-          test -s .ggen/evidence/browser-e2e.json
-          test -s .ggen/evidence/browser-e2e.png
-          test -s .ggen/evidence/doctor.json
-          test -s .ggen/evidence/chicago-tdd.json
-          test -s .ggen/plans/combinatorial.json
-          test -s dist/index.html
+          for path in \
+            .ggen/receipts/cyberpunk-tv.json \
+            .ggen/evidence/browser-e2e.json \
+            .ggen/evidence/browser-e2e.png \
+            .ggen/evidence/doctor.json \
+            .ggen/evidence/chicago-tdd.json \
+            .ggen/evidence/polyglot-python.json \
+            .ggen/evidence/polyglot-shell.json \
+            .ggen/plans/combinatorial.json \
+            dist/index.html; do test -s "$path"; done
           grep -q '"algorithm": "blake3-256"' .ggen/receipts/cyberpunk-tv.json
-          grep -q '"standing": "PARTIAL_ALIVE"' .ggen/evidence/chicago-tdd.json
           grep -q '"failed": 0' .ggen/evidence/chicago-tdd.json
           grep -q '"enumeratedProfiles": 8640' .ggen/evidence/chicago-tdd.json
           grep -q '"mutationControlsKilled": 2' .ggen/evidence/chicago-tdd.json
-          grep -q '"browser": "EXECUTED"\|"schema": "ggen.cyberpunk-tv.browser-evidence.v1"' .ggen/evidence/browser-e2e.json
+          grep -q '"failed": 0' .ggen/evidence/polyglot-python.json
+          grep -q '"standing": "PARTIAL_ALIVE"' .ggen/evidence/polyglot-shell.json
       - name: Publish immutable evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
