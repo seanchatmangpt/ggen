@@ -1,0 +1,24 @@
+PREFIX vmax: <https://ggen.io/ontology/vision-2030-maximalism#>
+PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+
+# Projects admitted maximalist program closure. Arithmetic remains bounded in
+# the Rust evaluator; this query exposes the semantic factors and coverage.
+SELECT ?evaluation
+       (SUM(?cells) AS ?semanticCells)
+       (MAX(?multiplier) AS ?measuredMultiplier)
+       (COUNT(DISTINCT ?domain) AS ?aliveDomains)
+       (COUNT(DISTINCT ?outcome) AS ?lawfulOutcomes)
+       (COUNT(DISTINCT ?noun) AS ?operationalNouns)
+WHERE {
+  ?evaluation a vmax:MaximalismEvaluation ;
+              vmax:semanticCells ?cells ;
+              vmax:measuredMultiplier ?multiplier ;
+              vmax:usesOperationalNoun ?noun ;
+              vmax:hasOutcome ?outcome .
+
+  ?capability a v2030:Capability ;
+              v2030:inDomain ?domain ;
+              v2030:standing v2030:Alive .
+}
+GROUP BY ?evaluation
+ORDER BY ?evaluation

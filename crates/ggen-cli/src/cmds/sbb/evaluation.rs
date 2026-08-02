@@ -48,7 +48,9 @@ fn resolve_commit(repository: &Path, commit: &str) -> Option<String> {
             format!("{commit}^{{commit}}"),
         ],
     )?;
-    String::from_utf8(bytes).ok().map(|sha| sha.trim().to_ascii_lowercase())
+    String::from_utf8(bytes)
+        .ok()
+        .map(|sha| sha.trim().to_ascii_lowercase())
 }
 
 fn safe_locator(locator: &str) -> bool {
@@ -107,7 +109,8 @@ fn evaluate_delta(repository: &Path, delta: &Delta) -> DeltaReport {
             .push("ontology_modules and textual_forms must be non-empty and unique".to_string());
     }
     if !exact_keys(&delta.chain, &CHAIN) {
-        violations.push("manufacturing chain must contain exactly the ten required stages".to_string());
+        violations
+            .push("manufacturing chain must contain exactly the ten required stages".to_string());
     }
     let canonical_commit = resolve_commit(repository, &delta.commit);
     if canonical_commit.is_none() {
@@ -184,7 +187,10 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
         if !unique_nonempty(&values) {
             violations.push(format!("distribution axis {axis} is empty or duplicated"));
         }
-        axes.insert(axis.to_string(), values.iter().collect::<BTreeSet<_>>().len());
+        axes.insert(
+            axis.to_string(),
+            values.iter().collect::<BTreeSet<_>>().len(),
+        );
     }
 
     let mut deltas: Vec<_> = manifest
@@ -200,13 +206,20 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
             report.violations.push("duplicate delta id".to_string());
         }
         if !iris.insert(source.capability_iri.clone()) {
-            report.violations.push("duplicate capability IRI".to_string());
+            report
+                .violations
+                .push("duplicate capability IRI".to_string());
         }
         *commit_counts.entry(report.commit.clone()).or_default() += 1;
     }
     let duplicate_commit_collisions = commit_counts.values().filter(|count| **count > 1).count();
     for report in &mut deltas {
-        if commit_counts.get(&report.commit).copied().unwrap_or_default() > 1 {
+        if commit_counts
+            .get(&report.commit)
+            .copied()
+            .unwrap_or_default()
+            > 1
+        {
             report.violations.push("duplicate commit claim".to_string());
         }
         report.observed = report.violations.is_empty();
@@ -232,7 +245,11 @@ pub(super) fn evaluate(path: &Path) -> Result<Report> {
     }
     let target_met = units as u64 >= manifest.sbb.minimum_commit_equivalent_units;
     let eligible = target_met && violations.is_empty() && units == manifest.deltas.len();
-    let standing = if units == 0 { "UNKNOWN" } else { "PARTIAL_ALIVE" };
+    let standing = if units == 0 {
+        "UNKNOWN"
+    } else {
+        "PARTIAL_ALIVE"
+    };
     let mut report = Report {
         schema: REPORT_SCHEMA.to_string(),
         manifest_digest: digest_bytes(&bytes),

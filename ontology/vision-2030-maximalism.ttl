@@ -1,0 +1,63 @@
+@prefix vmax: <https://ggen.io/ontology/vision-2030-maximalism#> .
+@prefix v2030: <https://ggen.io/ontology/vision-2030#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+vmax:Ontology a owl:Ontology ;
+  dcterms:title "Vision 2030 Combinatorial Maximalism Ontology" ;
+  dcterms:description "Universal Doctor, Wizard, Truthforge, and Telco control patterns; lawful outcomes; production cells; semantic product-space measurements; and admissible-work operating-system closure." ;
+  dcterms:issued "2026-08-02"^^xsd:date ;
+  owl:imports v2030:Ontology ;
+  owl:versionInfo "26.8.3" .
+
+vmax:OperationalNoun a owl:Class .
+vmax:Doctor a vmax:OperationalNoun ; skos:prefLabel "Doctor" .
+vmax:Wizard a vmax:OperationalNoun ; skos:prefLabel "Wizard" .
+vmax:Truthforge a vmax:OperationalNoun ; skos:prefLabel "Truthforge" .
+vmax:Telco a vmax:OperationalNoun ;
+  skos:prefLabel "Telco" ;
+  vmax:hasTelcoSurface vmax:Office, vmax:Register, vmax:Line, vmax:Bridge, vmax:Record .
+
+vmax:TelcoSurface a owl:Class .
+vmax:Office a vmax:TelcoSurface ; skos:prefLabel "office" .
+vmax:Register a vmax:TelcoSurface ; skos:prefLabel "register" .
+vmax:Line a vmax:TelcoSurface ; skos:prefLabel "line" .
+vmax:Bridge a vmax:TelcoSurface ; skos:prefLabel "bridge" .
+vmax:Record a vmax:TelcoSurface ; skos:prefLabel "record" .
+
+vmax:Outcome a owl:Class ; rdfs:subClassOf skos:Concept .
+vmax:Yes a vmax:Outcome ; skos:prefLabel "YES" .
+vmax:No a vmax:Outcome ; skos:prefLabel "NO" .
+vmax:Await a vmax:Outcome ; skos:prefLabel "AWAIT" .
+vmax:Ask a vmax:Outcome ; skos:prefLabel "ASK" .
+vmax:Retrieve a vmax:Outcome ; skos:prefLabel "RETRIEVE" .
+vmax:Inspect a vmax:Outcome ; skos:prefLabel "INSPECT" .
+vmax:Escalate a vmax:Outcome ; skos:prefLabel "ESCALATE" .
+vmax:Ignore a vmax:Outcome ; skos:prefLabel "IGNORE" .
+vmax:Settle a vmax:Outcome ; skos:prefLabel "SETTLE" .
+
+vmax:ProductionCell a owl:Class ;
+  rdfs:comment "Admissible manufacturing unit containing bounded questions, contracts, semantic law, projections, witnesses, verifiers, passports, receipts, replay, and acceptance." .
+vmax:CapabilityPassport a owl:Class .
+vmax:SemanticProductSpace a owl:Class .
+vmax:MaximalismEvaluation a owl:Class .
+
+vmax:usesOperationalNoun a owl:ObjectProperty ; rdfs:range vmax:OperationalNoun .
+vmax:hasOutcome a owl:ObjectProperty ; rdfs:range vmax:Outcome .
+vmax:hasTelcoSurface a owl:ObjectProperty ; rdfs:range vmax:TelcoSurface .
+vmax:manufacturesCell a owl:ObjectProperty ; rdfs:domain vmax:Wizard ; rdfs:range vmax:ProductionCell .
+vmax:diagnosesCell a owl:ObjectProperty ; rdfs:domain vmax:Doctor ; rdfs:range vmax:ProductionCell .
+vmax:admitsCell a owl:ObjectProperty ; rdfs:domain vmax:Truthforge ; rdfs:range vmax:ProductionCell .
+vmax:communicatesCell a owl:ObjectProperty ; rdfs:domain vmax:Telco ; rdfs:range vmax:ProductionCell .
+vmax:hasPassport a owl:ObjectProperty ; rdfs:domain vmax:ProductionCell ; rdfs:range vmax:CapabilityPassport .
+
+vmax:ontologyModules a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+vmax:textualForms a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+vmax:semanticCells a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+vmax:requiredDomainsAlive a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+vmax:domainCombinationSpace a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+vmax:measuredMultiplier a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+vmax:achieved a owl:DatatypeProperty ; rdfs:range xsd:boolean .
