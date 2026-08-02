@@ -1,0 +1,11 @@
+{
+  "entries": [
+{% for row in sparql_results %}    {
+      "kind": {{ row["kind"] | json_encode() }},
+      "id": {{ row["id"] | json_encode() }},
+      "label": {{ row["label"] | json_encode() }},
+      "value": {{ row["value"] | json_encode() }},
+      "related": {{ row["related"] | json_encode() }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
