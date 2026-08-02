@@ -1,0 +1,10 @@
+[pack]
+name = "sbb-capability-density-pack"
+version = "26.8.3"
+description = """
+Ontology-authoritative Solution Building Block capability-density vocabulary,
+admission constraints, manifest carrier schema, report projection, Git-object
+evidence evaluation, receipts, and replay. A density unit is one unique Git
+commit with a complete observed manufacturing and falsification evidence chain.
+The pack never self-promotes an SBB beyond PARTIAL_ALIVE.
+"""
