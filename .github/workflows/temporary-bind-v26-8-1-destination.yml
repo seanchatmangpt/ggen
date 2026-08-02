@@ -1,0 +1,58 @@
+name: Temporary bind v26.8.1 destination coordinates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source-removal branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: agent/migrate-v26-8-1-corpus-to-ggen-legacy
+          fetch-depth: 0
+
+      - name: Bind receipt and checkpoint coordinates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/temporary-v26-8-1-corpus-removal.yml')
+          text = path.read_text(encoding='utf-8')
+          replacements = [
+              (
+                  'on:\n  push:\n    branches: [agent/migrate-v26-8-1-corpus-to-ggen-legacy]\n',
+                  'on:\n  push:\n    branches: [agent/migrate-v26-8-1-corpus-to-ggen-legacy]\n  pull_request:\n    branches: [main]\n    types: [reopened]\n',
+              ),
+              (
+                  'CORPUS_BRANCH: agent/ggen-v26-8-1-corpus-received',
+                  'CORPUS_BRANCH: 6d652abd35b1bd2bb0b84eece5ebfd9636374262',
+              ),
+              (
+                  '46abeeab757341ccf7f21b33582527fd6db514ee',
+                  '07928bde9d9eaba2e2e2fd8f78fcdc3f7b0b63ff',
+              ),
+          ]
+          for old, new in replacements:
+              count = text.count(old)
+              expected = 2 if old.startswith('46abee') else 1
+              if count != expected:
+                  raise SystemExit(
+                      f'COORDINATE_PATCH_PRECONDITION_REFUSED old={old!r} count={count} expected={expected}'
+                  )
+              text = text.replace(old, new)
+          path.write_text(text, encoding='utf-8')
+          PY
+          rm -f .github/workflows/temporary-bind-v26-8-1-destination.yml
+          git config user.name 'ggen migration agent'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/temporary-v26-8-1-corpus-removal.yml .github/workflows/temporary-bind-v26-8-1-destination.yml
+          git commit -m 'fix(migration): bind destination receipt and checkpoint'
+          git push origin HEAD:agent/migrate-v26-8-1-corpus-to-ggen-legacy
