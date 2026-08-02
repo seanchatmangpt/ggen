@@ -1,0 +1,18 @@
+{
+  "schema": "ggen.cyberpunk-tv.vision2030.v1",
+  "capabilities": [
+{% for row in sparql_results %}{% if row["kind"] == "capability" %}    {"id": {{ row["id"] | json_encode() }}, "title": {{ row["title"] | json_encode() }}, "group": {{ row["group"] | json_encode() }}, "order": {{ row["order"] }}, "requires": {{ row["requires"] | default(value="") | json_encode() }}, "provides": {{ row["provides"] | json_encode() }}, "verifier": {{ row["verifier"] | json_encode() }}, "cost": {{ row["cost"] | json_encode() }}, "reversible": {{ row["reversible"] }}, "defaultEnabled": {{ row["enabled"] }}}{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ],
+  "doctor": [
+{% for row in sparql_results %}{% if row["kind"] == "doctor" %}    {"id": {{ row["id"] | json_encode() }}, "order": {{ row["order"] }}, "command": {{ row["command"] | json_encode() }}, "repair": {{ row["repair"] | json_encode() }}, "verifier": {{ row["verifier"] | json_encode() }}}{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ],
+  "wizard": [
+{% for row in sparql_results %}{% if row["kind"] == "wizard" %}    {"id": {{ row["id"] | json_encode() }}, "order": {{ row["order"] }}, "question": {{ row["question"] | json_encode() }}, "choices": {{ row["choice"] | json_encode() }}}{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ],
+  "transports": [
+{% for row in sparql_results %}{% if row["kind"] == "transport" %}    {"id": {{ row["id"] | json_encode() }}, "latency": {{ row["latency"] | json_encode() }}, "offline": {{ row["offline"] }}, "provides": {{ row["provides"] | json_encode() }}}{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ],
+  "axes": [
+{% for row in sparql_results %}{% if row["kind"] == "axis" %}    {"id": {{ row["id"] | json_encode() }}, "values": {{ row["values"] | json_encode() }}}{% if not loop.last %},{% endif %}
+{% endif %}{% endfor %}  ]
+}
