@@ -1,0 +1,81 @@
+[project]
+name = "cyberpunk-tv-platform"
+version = "26.8.3"
+description = "Manufacture a TV-native semantic world from RDF."
+
+[v26.8.3]
+enabled = true
+ontology = "ontology/platform.ttl"
+output_dir = "generated"
+
+[v26.8.3.passes]
+normalization = { order = 1, type = "construct" }
+extraction = { order = 2, type = "select" }
+emission = { order = 3, type = "tera" }
+canonicalization = { order = 4, type = "format" }
+receipt = { order = 5, type = "hash" }
+
+[v26.8.3.invariants]
+idempotence = true
+determinism = true
+provenance = true
+no_edit = true
+substrate_only = true
+
+[[generation]]
+name = "package-json"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+SELECT ?title ?subtitle WHERE {
+  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
+}
+"""
+template = "templates/package.json.tera"
+output = "package.json"
+
+[[generation]]
+name = "index-html"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+SELECT ?title ?subtitle WHERE {
+  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
+}
+"""
+template = "templates/index.html.tera"
+output = "index.html"
+
+[[generation]]
+name = "main-module"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+SELECT ?title ?subtitle ?longitude ?latitude ?zoom WHERE {
+  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle ;
+    tv:defaultLongitude ?longitude ; tv:defaultLatitude ?latitude ; tv:defaultZoom ?zoom .
+}
+"""
+template = "templates/main.js.tera"
+output = "src/main.js"
+
+[[generation]]
+name = "world-data"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX schema: <https://schema.org/>
+SELECT ?name ?longitude ?latitude ?weight WHERE {
+  ?node a tv:WorldNode ; schema:name ?name ; tv:longitude ?longitude ; tv:latitude ?latitude ; tv:weight ?weight .
+}
+ORDER BY ?name
+"""
+template = "templates/world.json.tera"
+output = "src/world.json"
+
+[[generation]]
+name = "platform-readme"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+SELECT ?title ?subtitle WHERE {
+  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
+}
+"""
+template = "templates/README.md.tera"
+output = "README.md"
