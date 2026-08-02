@@ -23,12 +23,15 @@ struct Receipt {
 }
 
 fn excluded(path: &Path) -> bool {
-    path.components().any(|component| {
-        matches!(
-            component.as_os_str().to_str(),
-            Some(".git" | ".ggen" | "node_modules" | "target")
-        )
-    })
+    let normalized = path.to_string_lossy().replace('\\', "/");
+    normalized == ".ggen/receipts"
+        || normalized.starts_with(".ggen/receipts/")
+        || path.components().any(|component| {
+            matches!(
+                component.as_os_str().to_str(),
+                Some(".git" | "node_modules" | "target")
+            )
+        })
 }
 
 fn collect(root: &Path, directory: &Path, output: &mut Vec<PathBuf>) -> io::Result<()> {
@@ -80,7 +83,7 @@ fn manufacture_receipt(root: &Path) -> io::Result<Receipt> {
     }
 
     Ok(Receipt {
-        schema: "ggen.cyberpunk-tv.manufacture-receipt.v1".to_owned(),
+        schema: "ggen.cyberpunk-tv.manufacture-receipt.v2".to_owned(),
         algorithm: "blake3-256".to_owned(),
         platform: "{{ row["title"] }}".to_owned(),
         version: "{{ row["version"] }}".to_owned(),
