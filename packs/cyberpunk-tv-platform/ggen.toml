@@ -9,6 +9,7 @@ license = "AGPL-3.0-or-later"
 source = "ontology/platform.ttl"
 imports = [
   "ontology/platform-shapes.ttl",
+  "ontology/vision2030.ttl",
   "fixtures/valid-session.ttl",
   "fixtures/refused-session.ttl",
 ]
@@ -126,6 +127,20 @@ name = "capability-ledger"
 query = { file = "queries/extract-capabilities.rq" }
 template = { file = "templates/capabilities.json.tera" }
 output_file = "src/capabilities.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "vision2030-control-model"
+query = { file = "queries/extract-vision2030.rq" }
+template = { file = "templates/vision2030.json.tera" }
+output_file = "src/vision2030.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "vision2030-control-plane"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/control-plane.mjs.tera" }
+output_file = "scripts/control-plane.mjs"
 mode = "Overwrite"
 
 [[generation.rules]]
