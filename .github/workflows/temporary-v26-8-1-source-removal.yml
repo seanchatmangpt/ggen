@@ -151,16 +151,11 @@ jobs:
               raise SystemExit('COMMAND_CANONICALIZATION_PATCH_PRECONDITION_REFUSED')
           text = text.replace(old_commands, new_commands)
 
-          old_rsync = '''        require_success(rsync, "COMPOSED_TREE_PROJECTION_REFUSED")
-              commands.append(rsync)
-          '''
-          new_rsync = '''        require_success(rsync, "COMPOSED_TREE_PROJECTION_REFUSED")
-              rsync["argv"][-1] = "<COMPOSED_SOURCE>/"
-              commands.append(rsync)
-          '''
-          if text.count(old_rsync) != 1:
+          old_rsync_sink = '        commands.append(rsync)\n'
+          new_rsync_sink = '        rsync["argv"][-1] = "<COMPOSED_SOURCE>/"\n        commands.append(rsync)\n'
+          if text.count(old_rsync_sink) != 1:
               raise SystemExit('COMPOSED_PATH_NORMALIZATION_PATCH_PRECONDITION_REFUSED')
-          path.write_text(text.replace(old_rsync, new_rsync))
+          path.write_text(text.replace(old_rsync_sink, new_rsync_sink))
           PY
           git rm .github/workflows/temporary-v26-8-1-source-removal.yml
 
