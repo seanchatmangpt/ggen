@@ -1,0 +1,22 @@
+# {{ title }}
+
+> {{ subtitle }}
+
+This directory is generated from `packs/cyberpunk-tv-platform/ontology/platform.ttl`.
+
+## Runtime
+
+- **UNRDF** owns the canonical semantic world.
+- **Mermaid/mmdio** renders structural and procedural views.
+- **deck.gl** renders spatial and temporal views.
+- **ggen** manufactures the runtime from the admitted graph.
+
+## Replay
+
+```bash
+npm install
+npm run build
+npm run verify
+```
+
+The verifier recomputes BLAKE3 digests over the manufactured runtime and emits a deterministic receipt under `.ggen/receipts/`.
