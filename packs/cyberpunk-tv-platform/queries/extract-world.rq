@@ -1,0 +1,32 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX schema: <https://schema.org/>
+
+SELECT ?kind ?id ?label ?longitude ?latitude ?weight ?source ?target
+WHERE {
+  {
+    ?resource a tv:WorldNode ;
+              schema:name ?label ;
+              tv:longitude ?longitude ;
+              tv:latitude ?latitude ;
+              tv:weight ?weight .
+    BIND("node" AS ?kind)
+    BIND(STRAFTER(STR(?resource), "#") AS ?id)
+    BIND("" AS ?source)
+    BIND("" AS ?target)
+  }
+  UNION
+  {
+    ?resource a tv:WorldEdge ;
+              tv:sourceNode ?source_resource ;
+              tv:targetNode ?target_resource ;
+              tv:weight ?weight .
+    BIND("edge" AS ?kind)
+    BIND(STRAFTER(STR(?resource), "#") AS ?id)
+    BIND(?id AS ?label)
+    BIND(0 AS ?longitude)
+    BIND(0 AS ?latitude)
+    BIND(STRAFTER(STR(?source_resource), "#") AS ?source)
+    BIND(STRAFTER(STR(?target_resource), "#") AS ?target)
+  }
+}
+ORDER BY ?kind ?id
