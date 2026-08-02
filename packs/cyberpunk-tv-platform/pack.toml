@@ -1,4 +1,10 @@
 [pack]
 name = "cyberpunk-tv-platform"
 version = "26.8.3"
-description = "RDF-authored television platform manufactured by ggen with UNRDF world state, Mermaid structural projections, deck.gl spatial projections, and BLAKE3 receipt/replay surfaces."
+description = "Capability-dense television manufacturing pack: public RDF canon, UNRDF/Oxigraph semantic state, Mermaid/mmdio structure, deck.gl territory, Robert's Rules escrow, ODRL rights, generated Rust/WASM bodies, BLAKE3 receipts, replay, and ggen-legacy equivalence."
+license = "AGPL-3.0-or-later"
+normative_authority = "rdf"
+generated_outputs_are_authority = false
+receipt_algorithm = "blake3-256"
+runtime_body = "rust-wasm"
+projection_surfaces = ["unrdf", "mermaid", "deck.gl"]
