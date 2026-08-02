@@ -3,6 +3,9 @@ name: Temporary ggen v26.8.1 corpus source removal
 on:
   push:
     branches: [agent/migrate-v26-8-1-corpus-to-ggen-legacy]
+  pull_request:
+    branches: [main]
+    types: [reopened]
 
 permissions:
   contents: write
@@ -13,8 +16,8 @@ concurrency:
 
 env:
   SOURCE_BASE: 8351af4c5bbbf60bd99ab8417752a1762c6ea4e3
-  CORPUS_BRANCH: agent/ggen-v26-8-1-corpus-received
-  CORPUS_COMMIT: 46abeeab757341ccf7f21b33582527fd6db514ee
+  CORPUS_BRANCH: 8e708cdcbd56710455cbddd17f16fbf184f99ba2
+  CORPUS_COMMIT: 07928bde9d9eaba2e2e2fd8f78fcdc3f7b0b63ff
 
 jobs:
   remove:
@@ -69,7 +72,7 @@ jobs:
           import json, subprocess
           from pathlib import Path
           source = '8351af4c5bbbf60bd99ab8417752a1762c6ea4e3'
-          corpus_commit = '46abeeab757341ccf7f21b33582527fd6db514ee'
+          corpus_commit = '07928bde9d9eaba2e2e2fd8f78fcdc3f7b0b63ff'
           root = Path('.corpus')
           required = [
               root/'migrations/ggen-v26.8.1/migration-manifest.json',
