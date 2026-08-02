@@ -61,6 +61,7 @@ fixtures/*.ttl
 ```text
 generated/
 ├── package.json
+├── rust-toolchain.toml
 ├── index.html
 ├── public/
 │   ├── manifest.webmanifest
@@ -72,15 +73,21 @@ generated/
 │   ├── world.ttl
 │   ├── capabilities.json
 │   ├── projections.json
+│   ├── runtime-config.json
 │   ├── governance.json
 │   ├── rights.json
+│   ├── settlement.rq
 │   └── system.mmd
+├── rules/
+│   ├── escrow.n3
+│   └── settlement.dl
 ├── wasm/
 │   ├── Cargo.toml
 │   └── src/
 │       ├── lib.rs
 │       └── bin/receipt.rs
 ├── scripts/
+│   ├── verify.mjs
 │   └── replay.mjs
 └── README.md
 ```
@@ -90,7 +97,6 @@ generated/
 ```bash
 cd packs/cyberpunk-tv-platform
 ggen sync
-cp -R rules generated/rules
 cd generated
 npm install
 npm run build
