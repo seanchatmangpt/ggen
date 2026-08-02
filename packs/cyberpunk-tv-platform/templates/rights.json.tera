@@ -1,0 +1,11 @@
+{
+  "rules": [
+{% for row in sparql_results %}    {
+      "policyId": {{ row["policy_id"] | json_encode() }},
+      "title": {{ row["title"] | json_encode() }},
+      "effect": {{ row["effect"] | json_encode() }},
+      "action": {{ row["action"] | json_encode() }},
+      "target": {{ row["target"] | json_encode() }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
