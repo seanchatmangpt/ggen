@@ -1,20 +1,23 @@
-import { blake3 } from '@noble/hashes/blake3';
-import { bytesToHex } from '@noble/hashes/utils';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { TextEncoder } from 'node:util';
+{% for row in sparql_results %}
+import { execFileSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-const files = ['package.json', 'index.html', 'src/main.js', 'src/world.json'];
-const artifacts = [];
-for (const path of files) {
-  const bytes = new Uint8Array(await readFile(resolve(path)));
-  artifacts.push({ path, blake3: bytesToHex(blake3(bytes)), bytes: bytes.length });
+execFileSync('cargo', [
+  'run', '--quiet', '--manifest-path', 'wasm/Cargo.toml', '--bin', 'receipt', '--', '.'
+], { stdio: 'inherit' });
+
+const receiptPath = resolve('.ggen/receipts/cyberpunk-tv.json');
+const receipt = JSON.parse(await readFile(receiptPath, 'utf8'));
+if (receipt.algorithm !== 'blake3-256' || receipt.platform !== {{ row["title"] | json_encode() }}) {
+  console.error(JSON.stringify({ standing: 'BUILD_BROKEN', reason: 'RECEIPT_IDENTITY_REFUSED' }));
+  process.exit(1);
 }
-artifacts.sort((a, b) => a.path.localeCompare(b.path));
-const canonical = JSON.stringify({ schema: 'ggen.cyberpunk-tv.receipt.v1', artifacts });
-const root = bytesToHex(blake3(new TextEncoder().encode(canonical)));
-const receipt = JSON.stringify({ schema: 'ggen.cyberpunk-tv.receipt.v1', algorithm: 'blake3-256', root, artifacts }, null, 2) + '\n';
-const target = '.ggen/receipts/cyberpunk-tv.json';
-await mkdir(dirname(target), { recursive: true });
-await writeFile(target, receipt);
-console.log(JSON.stringify({ standing: 'PARTIAL_ALIVE', receipt: target, root }));
+console.log(JSON.stringify({
+  standing: 'PARTIAL_ALIVE',
+  platform: receipt.platform,
+  version: receipt.version,
+  root: receipt.root,
+  artifacts: receipt.artifacts.length
+}));
+{% endfor %}
