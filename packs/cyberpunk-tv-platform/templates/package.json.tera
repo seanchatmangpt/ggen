@@ -6,11 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
     "wasm": "wasm-pack build wasm --target web --out-dir ../src/wasm --release",
     "build": "npm run wasm && vite build",
     "verify": "node scripts/verify.mjs",
     "replay": "node scripts/replay.mjs",
-    "check": "cargo check --manifest-path wasm/Cargo.toml --all-targets && npm run build && npm run verify && npm run replay"
+    "e2e": "node scripts/e2e.mjs",
+    "check": "cargo test --manifest-path wasm/Cargo.toml && cargo check --manifest-path wasm/Cargo.toml --all-targets && npm run build && npm run verify && npm run replay && npm run e2e"
   },
   "dependencies": {
     "@deck.gl/core": "9.1.14",
@@ -19,6 +21,7 @@
     "mermaid": "11.16.0"
   },
   "devDependencies": {
+    "playwright": "1.62.0",
     "vite": "7.0.0"
   }
 }
