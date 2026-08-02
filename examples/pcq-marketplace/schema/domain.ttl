@@ -1,0 +1,42 @@
+@prefix pcq: <https://ggen.dev/packs/pcq-marketplace#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pcq:atlas a pcq:MarketplaceApplication ;
+  pcq:packageName "pcq-atlas-marketplace" ; pcq:displayName "PCQ Atlas Marketplace" ;
+  pcq:description "A proof-carrying real-time capability marketplace rendered with deck.gl." ;
+  pcq:nextVersion "16.2.12" ; pcq:reactVersion "19.2.8" ; pcq:deckVersion "9.3.7" ;
+  pcq:currency pcq:PCQ ; pcq:settlementPolicy pcq:settlement-v1 ; pcq:streamPolicy pcq:stream-v1 ;
+  pcq:usesNode pcq:los-angeles, pcq:new-york, pcq:chicago, pcq:san-francisco, pcq:seattle, pcq:berlin, pcq:london, pcq:singapore, pcq:tokyo ;
+  pcq:usesAccount pcq:treasury, pcq:buyer-atlas, pcq:buyer-orbit, pcq:seller-northstar, pcq:seller-harbor, pcq:seller-sierra, pcq:seller-europa, pcq:seller-delta, pcq:seller-pacific ;
+  pcq:offers pcq:next-deck-pack, pcq:legacy-equivalence, pcq:atomvm-swarm, pcq:ocel-mining, pcq:replay-appliance, pcq:shacl-policy .
+
+pcq:PCQ a pcq:Currency ; pcq:currencyCode "PCQ" ; pcq:currencyName "Proof-Carrying Quanta" ; pcq:decimals 6 ; pcq:initialSupplyMicros 5000000000000 ; pcq:treasuryAccount pcq:treasury .
+pcq:settlement-v1 a pcq:SettlementPolicy ; pcq:feeBps 25 ; pcq:maxOrderQuantity 25 .
+pcq:stream-v1 a pcq:StreamPolicy ; pcq:streamIntervalMs 500 ; pcq:streamWindow 240 .
+
+pcq:los-angeles a pcq:MarketNode ; pcq:nodeId "los-angeles" ; pcq:nodeLabel "Los Angeles Treasury" ; pcq:nodeKind "treasury" ; pcq:longitude -118.2437 ; pcq:latitude 34.0522 ; pcq:liquidityMicros 2790000000000 .
+pcq:new-york a pcq:MarketNode ; pcq:nodeId "new-york" ; pcq:nodeLabel "New York Demand" ; pcq:nodeKind "buyer" ; pcq:longitude -74.006 ; pcq:latitude 40.7128 ; pcq:liquidityMicros 10000000000 .
+pcq:chicago a pcq:MarketNode ; pcq:nodeId "chicago" ; pcq:nodeLabel "Chicago Demand" ; pcq:nodeKind "buyer" ; pcq:longitude -87.6298 ; pcq:latitude 41.8781 ; pcq:liquidityMicros 750000000000 .
+pcq:san-francisco a pcq:MarketNode ; pcq:nodeId "san-francisco" ; pcq:nodeLabel "Northstar Foundry" ; pcq:nodeKind "supplier" ; pcq:longitude -122.4194 ; pcq:latitude 37.7749 ; pcq:liquidityMicros 300000000000 .
+pcq:seattle a pcq:MarketNode ; pcq:nodeId "seattle" ; pcq:nodeLabel "Harbor Systems" ; pcq:nodeKind "supplier" ; pcq:longitude -122.3321 ; pcq:latitude 47.6062 ; pcq:liquidityMicros 300000000000 .
+pcq:berlin a pcq:MarketNode ; pcq:nodeId "berlin" ; pcq:nodeLabel "Sierra Evidence" ; pcq:nodeKind "supplier" ; pcq:longitude 13.405 ; pcq:latitude 52.52 ; pcq:liquidityMicros 250000000000 .
+pcq:london a pcq:MarketNode ; pcq:nodeId "london" ; pcq:nodeLabel "Europa Process Labs" ; pcq:nodeKind "supplier" ; pcq:longitude -0.1276 ; pcq:latitude 51.5072 ; pcq:liquidityMicros 250000000000 .
+pcq:singapore a pcq:MarketNode ; pcq:nodeId "singapore" ; pcq:nodeLabel "Delta Runtime Works" ; pcq:nodeKind "supplier" ; pcq:longitude 103.8198 ; pcq:latitude 1.3521 ; pcq:liquidityMicros 200000000000 .
+pcq:tokyo a pcq:MarketNode ; pcq:nodeId "tokyo" ; pcq:nodeLabel "Pacific Policy Mesh" ; pcq:nodeKind "supplier" ; pcq:longitude 139.6917 ; pcq:latitude 35.6895 ; pcq:liquidityMicros 150000000000 .
+
+pcq:treasury a pcq:MarketAccount ; pcq:accountId "treasury" ; pcq:accountLabel "PCQ Treasury" ; pcq:balanceMicros 2790000000000 .
+pcq:buyer-atlas a pcq:MarketAccount ; pcq:accountId "buyer-atlas" ; pcq:accountLabel "Atlas Procurement" ; pcq:balanceMicros 10000000000 .
+pcq:buyer-orbit a pcq:MarketAccount ; pcq:accountId "buyer-orbit" ; pcq:accountLabel "Orbit Operations" ; pcq:balanceMicros 750000000000 .
+pcq:seller-northstar a pcq:MarketAccount ; pcq:accountId "seller-northstar" ; pcq:accountLabel "Northstar Foundry" ; pcq:balanceMicros 300000000000 .
+pcq:seller-harbor a pcq:MarketAccount ; pcq:accountId "seller-harbor" ; pcq:accountLabel "Harbor Systems" ; pcq:balanceMicros 300000000000 .
+pcq:seller-sierra a pcq:MarketAccount ; pcq:accountId "seller-sierra" ; pcq:accountLabel "Sierra Evidence" ; pcq:balanceMicros 250000000000 .
+pcq:seller-europa a pcq:MarketAccount ; pcq:accountId "seller-europa" ; pcq:accountLabel "Europa Process Labs" ; pcq:balanceMicros 250000000000 .
+pcq:seller-delta a pcq:MarketAccount ; pcq:accountId "seller-delta" ; pcq:accountLabel "Delta Runtime Works" ; pcq:balanceMicros 200000000000 .
+pcq:seller-pacific a pcq:MarketAccount ; pcq:accountId "seller-pacific" ; pcq:accountLabel "Pacific Policy Mesh" ; pcq:balanceMicros 150000000000 .
+
+pcq:next-deck-pack a pcq:CapabilityListing ; pcq:listingId "next-deck-pack" ; pcq:listingTitle "Next.js + deck.gl Marketplace Pack" ; pcq:category "projection" ; pcq:sellerAccount pcq:seller-northstar ; pcq:marketNode pcq:san-francisco ; pcq:priceMicros 880000000 ; pcq:inventory 120 ; pcq:proofScore 99 .
+pcq:legacy-equivalence a pcq:CapabilityListing ; pcq:listingId "legacy-equivalence" ; pcq:listingTitle "Legacy Equivalence Verifier" ; pcq:category "validator" ; pcq:sellerAccount pcq:seller-sierra ; pcq:marketNode pcq:berlin ; pcq:priceMicros 640000000 ; pcq:inventory 180 ; pcq:proofScore 98 .
+pcq:atomvm-swarm a pcq:CapabilityListing ; pcq:listingId "atomvm-swarm" ; pcq:listingTitle "AtomVM Swarm Runtime" ; pcq:category "runtime" ; pcq:sellerAccount pcq:seller-delta ; pcq:marketNode pcq:singapore ; pcq:priceMicros 720000000 ; pcq:inventory 96 ; pcq:proofScore 97 .
+pcq:ocel-mining a pcq:CapabilityListing ; pcq:listingId "ocel-mining" ; pcq:listingTitle "OCEL Process Mining Rail" ; pcq:category "evidence" ; pcq:sellerAccount pcq:seller-europa ; pcq:marketNode pcq:london ; pcq:priceMicros 510000000 ; pcq:inventory 220 ; pcq:proofScore 96 .
+pcq:replay-appliance a pcq:CapabilityListing ; pcq:listingId "replay-appliance" ; pcq:listingTitle "Offline Replay Evidence Appliance" ; pcq:category "receipt" ; pcq:sellerAccount pcq:seller-harbor ; pcq:marketNode pcq:seattle ; pcq:priceMicros 760000000 ; pcq:inventory 140 ; pcq:proofScore 99 .
+pcq:shacl-policy a pcq:CapabilityListing ; pcq:listingId "shacl-policy" ; pcq:listingTitle "SHACL Policy Gate Mesh" ; pcq:category "policy" ; pcq:sellerAccount pcq:seller-pacific ; pcq:marketNode pcq:tokyo ; pcq:priceMicros 390000000 ; pcq:inventory 300 ; pcq:proofScore 95 .

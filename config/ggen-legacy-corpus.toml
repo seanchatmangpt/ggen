@@ -1,0 +1,5 @@
+[corpus]
+repository = "seanchatmangpt/ggen-legacy"
+ref = "70e599a599fedb7c62c965377cc2f80df1fa01ec"
+migration = "migrations/ggen-v26.8.1/migration-receipt.json"
+composition = "project versioned corpus roots over this ggen kernel checkout"

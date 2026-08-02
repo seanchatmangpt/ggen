@@ -1,0 +1,80 @@
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# N3 is a derivation surface only. It never actuates payment, media, or external state.
+# The rules manufacture settlement facts that must still pass admission and BRCE.
+
+{
+  ?motion a tv:Motion ;
+          tv:motionState "introduced" ;
+          tv:hasProposal ?proposalA, ?proposalB .
+  ?proposalA a tv:EscrowProposal ; tv:proposalDigest ?digestA .
+  ?proposalB a tv:EscrowProposal ; tv:proposalDigest ?digestB .
+  ?digestA log:notEqualTo ?digestB .
+}
+=>
+{
+  ?motion tv:motionState "seconded" .
+  ?motion tv:standing "two-distinct-committed-proposals" .
+} .
+
+{
+  ?motion a tv:Motion ;
+          tv:motionState "seconded" ;
+          tv:quorumRequired ?required ;
+          tv:yesVotes ?yes ;
+          tv:noVotes ?no .
+  (?yes ?no) math:sum ?present .
+  ?present math:notLessThan ?required .
+}
+=>
+{
+  ?motion tv:motionState "voting" .
+  ?motion tv:standing "quorum-reached" .
+} .
+
+{
+  ?motion a tv:Motion ;
+          tv:motionState "voting" ;
+          tv:yesVotes ?yes ;
+          tv:noVotes ?no ;
+          tv:hasProposal ?proposalA, ?proposalB .
+  ?yes math:greaterThan ?no .
+  ?proposalA tv:proposalDigest ?digestA .
+  ?proposalB tv:proposalDigest ?digestB .
+  ?settlement a tv:Settlement ; tv:standing "candidate" .
+}
+=>
+{
+  ?motion tv:motionState "adopted" ;
+          tv:adoptsSettlement ?settlement .
+  ?settlement tv:standing "adopted" ;
+              prov:wasDerivedFrom ?proposalA, ?proposalB ;
+              tv:receiptedBy tv:ReceiptPolicyBlake3 .
+} .
+
+{
+  ?motion a tv:Motion ;
+          tv:motionState "voting" ;
+          tv:yesVotes ?yes ;
+          tv:noVotes ?no .
+  ?no math:notLessThan ?yes .
+}
+=>
+{
+  ?motion tv:motionState "defeated" ;
+          tv:standing "clean-abort" .
+} .
+
+{
+  ?settlement a tv:Settlement ;
+              tv:standing "adopted" ;
+              tv:receiptedBy tv:ReceiptPolicyBlake3 .
+}
+=>
+{
+  ?settlement tv:standing "adopted-awaiting-brce" .
+} .

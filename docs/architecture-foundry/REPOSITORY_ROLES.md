@@ -175,3 +175,7 @@ Every historical component receives exactly one final disposition:
 - A corpus primitive enters `ggen` only when it is proven to be kernel-generic across multiple independent corpora.
 
 This prevents both repositories from becoming undifferentiated monoliths.
+
+## Migrated v26.8.1 corpus
+
+The versioned reconstruction corpus is owned by `seanchatmangpt/ggen-legacy`; see `config/ggen-legacy-corpus.toml` for the exact admitted coordinate. The generalized manufacturing kernel remains in this repository.

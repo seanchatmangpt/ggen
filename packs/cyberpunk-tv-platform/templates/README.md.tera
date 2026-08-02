@@ -1,0 +1,33 @@
+# The Public Sprawl — Manufactured Television Runtime
+
+This directory is generated from the admitted authority under `packs/cyberpunk-tv-platform/`.
+Do not edit this projection directly.
+
+## Manufactured capabilities
+
+{% for row in sparql_results %}- `{{ row["capability_id"] }}` — {{ row["label"] }}
+{% endfor %}
+## Runtime correspondence
+
+```text
+world.ttl → UNRDF/Oxigraph
+world.json → deck.gl
+system.mmd → Mermaid/mmdio
+runtime-config.json → device + remote + accessibility profile
+governance.json + settlement.rq → Robert's Rules escrow procedure
+rights.json → ODRL policy projection
+wasm/src/lib.rs → deterministic identity, drift, admission, and event receipts
+wasm/src/bin/receipt.rs → exact-tree BLAKE3 manufacture receipt
+```
+
+## Execute
+
+```bash
+npm install
+npm run build
+npm run verify
+npm run replay
+npm run dev
+```
+
+A browser render is not repository-level standing. The exact subject requires independent execution, receipt verification, replay, and device-boundary observation.

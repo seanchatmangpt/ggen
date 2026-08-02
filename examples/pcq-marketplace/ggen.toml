@@ -1,0 +1,16 @@
+[project]
+name = "pcq-marketplace"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+pcq = "https://ggen.dev/packs/pcq-marketplace#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[packs]
+pcq-marketplace-pack = { path = "../../packs/pcq-marketplace-pack" }
+
+[templates]
+dir = "templates"

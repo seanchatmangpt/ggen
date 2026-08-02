@@ -1,0 +1,69 @@
+name: PCQ Marketplace ALIVE
+on:
+  push:
+    branches: [agent/pcq-marketplace-pack]
+    paths: ['packs/pcq-marketplace-pack/**', 'examples/pcq-marketplace/**', '.github/workflows/pcq-marketplace-alive.yml']
+  pull_request:
+    paths: ['packs/pcq-marketplace-pack/**', 'examples/pcq-marketplace/**', '.github/workflows/pcq-marketplace-alive.yml']
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency: { group: pcq-marketplace-${{ github.ref }}, cancel-in-progress: true }
+jobs:
+  manufacture-and-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    defaults: { run: { working-directory: examples/pcq-marketplace } }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-06-22
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Build ggen manufacturing kernel
+        working-directory: .
+        run: cargo build --release -p ggen-cli-lib --bin ggen
+      - name: Manufacture and prove byte-stable replay
+        run: |
+          mkdir -p .ggen/evidence
+          ../../target/release/ggen sync run
+          find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-first.sha256
+          ../../target/release/ggen sync run
+          find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-second.sha256
+          diff -u .ggen/evidence/projection-first.sha256 .ggen/evidence/projection-second.sha256
+          ../../target/release/ggen sync run --dry-run | tee .ggen/evidence/pcq-dry-run.log
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.14.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install and validate application
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm typecheck
+          pnpm test
+          pnpm build
+      - name: Execute HTTP and SSE boundaries
+        run: |
+          mkdir -p .build
+          pnpm start > .build/next.log 2>&1 & echo $! > .build/next.pid
+          trap 'kill $(cat .build/next.pid) 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3000/api/snapshot >/dev/null && break; sleep 1; done
+          PCQ_RUNTIME_RECEIPT=.build/pcq-runtime-receipt.json pnpm verify:runtime
+          kill $(cat .build/next.pid)
+          trap - EXIT
+      - name: Browser-render deck.gl and settle PCQ
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pcq-marketplace-alive-${{ github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            examples/pcq-marketplace/.ggen/**
+            examples/pcq-marketplace/.ggen-v2/**
+            examples/pcq-marketplace/.build/**
+            examples/pcq-marketplace/test-results/**

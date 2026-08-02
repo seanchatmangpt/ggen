@@ -1,0 +1,16 @@
+flowchart LR
+  RDF[Public ontologies and canon]
+  RULES[SPARQL / N3 / Datalog]
+  GGEN[ggen manufacture]
+  WASM[Rust / WASM body]
+  UNRDF[UNRDF / Oxigraph]
+  TV[Television runtime]
+  BRCE[Bounded broker]
+  RECEIPT[BLAKE3 receipt and replay]
+  LEGACY[ggen-legacy equivalence]
+
+  RDF --> RULES --> GGEN --> WASM --> UNRDF --> TV
+  TV --> BRCE --> RECEIPT --> LEGACY
+{% for row in sparql_results %}  UNRDF --> P{{ loop.index }}[{{ row["projection_id"] }} / {{ row["projection_kind"] }}]
+  P{{ loop.index }} --> TV
+{% endfor %}

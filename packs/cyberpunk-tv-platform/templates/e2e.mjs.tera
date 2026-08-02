@@ -1,0 +1,81 @@
+{% for row in sparql_results %}
+import { spawn } from 'node:child_process';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+
+const server = spawn('npm', ['run', 'preview'], { stdio: ['ignore', 'pipe', 'pipe'] });
+const serverOutput = [];
+server.stdout.on('data', chunk => serverOutput.push(chunk.toString()));
+server.stderr.on('data', chunk => serverOutput.push(chunk.toString()));
+
+const waitForServer = async () => {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    try {
+      const response = await fetch('http://127.0.0.1:4173/');
+      if (response.ok) return;
+    } catch {}
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  throw new Error(`PREVIEW_BOUNDARY_BLOCKED:${serverOutput.join('')}`);
+};
+
+let browser;
+try {
+  await waitForServer();
+  browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  const page = await context.newPage();
+  const consoleErrors = [];
+  page.on('console', message => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  page.on('pageerror', error => consoleErrors.push(error.message));
+
+  await page.goto('http://127.0.0.1:4173/?device=living-room-tv', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => document.querySelector('#wasm-state')?.textContent?.includes('WASM READY'));
+  await page.waitForFunction(() => Number.parseInt(document.querySelector('#graph-size')?.textContent ?? '0', 10) > 0);
+
+  const modeButtons = page.locator('#modes button');
+  if (await modeButtons.count() < 6) throw new Error('MODE_PROJECTION_INCOMPLETE');
+
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('#app')?.dataset.mode === 'construct');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('#app')?.dataset.mode === 'governance');
+  await page.getByRole('button', { name: 'Second' }).click();
+  await page.getByRole('button', { name: 'Vote yes' }).click();
+
+  await page.getByRole('button', { name: 'Market' }).click();
+  await page.getByRole('button', { name: 'Commit proposals' }).click();
+  await page.waitForFunction(() => document.querySelector('#market-status')?.textContent?.includes('A '));
+  await page.getByRole('button', { name: 'Evaluate procedure' }).click();
+  await page.waitForFunction(() => document.querySelector('#market-status')?.textContent?.includes('adopted-awaiting-brce'));
+
+  await page.getByRole('button', { name: 'Receipt' }).click();
+  await page.waitForFunction(() => (document.querySelector('#receipt-log')?.textContent?.split('\n').length ?? 0) >= 6);
+
+  const evidence = {
+    schema: 'ggen.cyberpunk-tv.browser-evidence.v1',
+    platform: {{ row["title"] | json_encode() }},
+    title: await page.title(),
+    modeCount: await modeButtons.count(),
+    graphSize: await page.locator('#graph-size').textContent(),
+    wasmState: await page.locator('#wasm-state').textContent(),
+    standing: await page.locator('#standing').textContent(),
+    settlement: await page.locator('#market-status').textContent(),
+    receiptLines: (await page.locator('#receipt-log').textContent()).split('\n').length,
+    consoleErrors
+  };
+  if (evidence.title !== {{ row["title"] | json_encode() }}) throw new Error('PLATFORM_IDENTITY_DIVERGENCE');
+  if (!String(evidence.standing).startsWith('PARTIAL_ALIVE')) throw new Error(`STANDING_NOT_OBSERVED:${evidence.standing}`);
+  if (consoleErrors.length > 0) throw new Error(`BROWSER_ERRORS:${consoleErrors.join('|')}`);
+
+  await mkdir('.ggen/evidence', { recursive: true });
+  await writeFile('.ggen/evidence/browser-e2e.json', `${JSON.stringify(evidence, null, 2)}\n`);
+  await page.screenshot({ path: '.ggen/evidence/browser-e2e.png', fullPage: true });
+  console.log(JSON.stringify({ standing: 'PARTIAL_ALIVE', browser: 'EXECUTED', evidence }));
+} finally {
+  await browser?.close();
+  server.kill('SIGTERM');
+}
+{% endfor %}

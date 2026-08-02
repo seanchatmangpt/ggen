@@ -1,0 +1,23 @@
+{% for row in sparql_results %}
+import { execFileSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+execFileSync('cargo', [
+  'run', '--quiet', '--manifest-path', 'wasm/Cargo.toml', '--bin', 'receipt', '--', '.'
+], { stdio: 'inherit' });
+
+const receiptPath = resolve('.ggen/receipts/cyberpunk-tv.json');
+const receipt = JSON.parse(await readFile(receiptPath, 'utf8'));
+if (receipt.algorithm !== 'blake3-256' || receipt.platform !== {{ row["title"] | json_encode() }}) {
+  console.error(JSON.stringify({ standing: 'BUILD_BROKEN', reason: 'RECEIPT_IDENTITY_REFUSED' }));
+  process.exit(1);
+}
+console.log(JSON.stringify({
+  standing: 'PARTIAL_ALIVE',
+  platform: receipt.platform,
+  version: receipt.version,
+  root: receipt.root,
+  artifacts: receipt.artifacts.length
+}));
+{% endfor %}

@@ -1,0 +1,11 @@
+---
+to: "components/metric-card.tsx"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+export function MetricCard({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return <article className="metric-card"><span>{label}</span><strong>{value}</strong><small>{detail}</small></article>;
+}
+{% endfor -%}

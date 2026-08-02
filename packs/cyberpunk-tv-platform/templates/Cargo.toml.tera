@@ -1,0 +1,30 @@
+{% for row in sparql_results %}
+[package]
+name = "cyberpunk-tv-wasm"
+version = "{{ row["version"] }}"
+edition = "2021"
+license = "AGPL-3.0-or-later"
+description = "Generated deterministic WASM body for {{ row["title"] }}"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "receipt"
+path = "src/bin/receipt.rs"
+
+[dependencies]
+blake3 = "1.5"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+wasm-bindgen = "0.2"
+
+[profile.release]
+lto = true
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
+strip = true
+{% endfor %}

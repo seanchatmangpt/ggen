@@ -1,0 +1,10 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?capability_id ?label
+WHERE {
+  ?capability a tv:Capability ;
+              tv:capabilityId ?capability_id ;
+              skos:prefLabel ?label .
+}
+ORDER BY ?capability_id

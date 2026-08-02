@@ -1,0 +1,135 @@
+---
+to: "lib/market.ts"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { INITIAL_ACCOUNTS, INITIAL_LISTINGS, MARKET_CONFIG, MARKET_NODES } from './seed';
+import { digest, PcqLedger } from './pcq';
+import type { Listing, MarketEvent, MarketSnapshot, OrderRequest, SettlementReceipt } from './types';
+
+export class MarketEngine {
+  readonly #ledger = new PcqLedger(INITIAL_ACCOUNTS, MARKET_CONFIG.initialSupplyMicros);
+  readonly #labels = new Map(INITIAL_ACCOUNTS.map(account => [account.id, account.label]));
+  readonly #nodes = MARKET_NODES.map(node => ({ ...node }));
+  readonly #listings: Listing[] = INITIAL_LISTINGS.map(listing => ({ ...listing }));
+  readonly #events: MarketEvent[] = [];
+  #sequence = 0;
+  #seed = 0x5f3759df;
+  #marketVolumeMicros = 0n;
+  #settlements = 0;
+
+  snapshot(): MarketSnapshot {
+    this.#ledger.assertBalanced();
+    return {
+      currency: {
+        code: MARKET_CONFIG.currencyCode,
+        name: MARKET_CONFIG.currencyName,
+        decimals: MARKET_CONFIG.decimals,
+        supplyMicros: MARKET_CONFIG.initialSupplyMicros,
+      },
+      nodes: this.#nodes.map(node => ({ ...node })),
+      listings: this.#listings.map(listing => ({ ...listing })),
+      accounts: this.#ledger.accounts(this.#labels),
+      events: this.#events.slice(-24).map(event => ({ ...event })),
+      metrics: {
+        marketVolumeMicros: this.#marketVolumeMicros.toString(),
+        settlements: this.#settlements,
+        activeListings: this.#listings.filter(listing => listing.inventory > 0).length,
+        averageProofScore: Math.round(this.#listings.reduce((sum, listing) => sum + listing.proofScore, 0) / this.#listings.length),
+        invariant: 'BALANCED',
+      },
+      sequence: this.#sequence,
+    };
+  }
+
+  tick(): MarketEvent {
+    const listing = this.#listings[this.#sequence % this.#listings.length];
+    const buyerNode = this.#sequence % 2 === 0 ? 'new-york' : 'chicago';
+    const movement = BigInt(Math.floor((this.#random() - 0.5) * 24_000_000));
+    const current = BigInt(listing.priceMicros);
+    listing.priceMicros = (current + movement > 50_000_000n ? current + movement : 50_000_000n).toString();
+    const event: MarketEvent = {
+      id: `quote-${++this.#sequence}`,
+      type: 'quote',
+      occurredAt: new Date().toISOString(),
+      listingId: listing.id,
+      fromNodeId: listing.nodeId,
+      toNodeId: buyerNode,
+      quantity: 0,
+      amountMicros: '0',
+      priceMicros: listing.priceMicros,
+    };
+    this.#append(event);
+    return event;
+  }
+
+  settle(request: OrderRequest): { receipt: SettlementReceipt; snapshot: MarketSnapshot } {
+    if (!Number.isInteger(request.quantity) || request.quantity <= 0 || request.quantity > MARKET_CONFIG.maxOrderQuantity) {
+      throw new Error('ORDER_QUANTITY_REFUSED');
+    }
+    const listing = this.#listings.find(candidate => candidate.id === request.listingId);
+    if (!listing) throw new Error(`UNKNOWN_LISTING_REFUSED:${request.listingId}`);
+    if (listing.inventory < request.quantity) throw new Error('INVENTORY_REFUSED');
+
+    const amountMicros = BigInt(listing.priceMicros) * BigInt(request.quantity);
+    const feeMicros = amountMicros * BigInt(MARKET_CONFIG.feeBps) / 10_000n;
+    const totalDebitMicros = amountMicros + feeMicros;
+    if (this.#ledger.balance(request.buyerAccountId) < totalDebitMicros) {
+      throw new Error(`INSUFFICIENT_PCQ_REFUSED:${request.buyerAccountId}`);
+    }
+    this.#ledger.transfer(request.buyerAccountId, listing.sellerAccountId, amountMicros);
+    if (feeMicros > 0n) this.#ledger.transfer(request.buyerAccountId, MARKET_CONFIG.treasuryAccountId, feeMicros);
+    listing.inventory -= request.quantity;
+    this.#marketVolumeMicros += amountMicros;
+    this.#settlements += 1;
+
+    const completedAt = new Date().toISOString();
+    const body = {
+      receiptType: 'pcq.market.settlement' as const,
+      sequence: ++this.#sequence,
+      listingId: listing.id,
+      buyerAccountId: request.buyerAccountId,
+      sellerAccountId: listing.sellerAccountId,
+      quantity: request.quantity,
+      amountMicros: amountMicros.toString(),
+      feeMicros: feeMicros.toString(),
+      completedAt,
+    };
+    const receipt: SettlementReceipt = { ...body, receiptDigest: digest(body) };
+    const buyerNode = request.buyerAccountId === 'buyer-orbit' ? 'chicago' : 'new-york';
+    this.#append({
+      id: `settlement-${this.#sequence}`,
+      type: 'settlement',
+      occurredAt: completedAt,
+      listingId: listing.id,
+      fromNodeId: listing.nodeId,
+      toNodeId: buyerNode,
+      quantity: request.quantity,
+      amountMicros: amountMicros.toString(),
+      priceMicros: listing.priceMicros,
+      receiptDigest: receipt.receiptDigest,
+    });
+    return { receipt, snapshot: this.snapshot() };
+  }
+
+  #append(event: MarketEvent): void {
+    this.#events.push(event);
+    if (this.#events.length > 240) this.#events.shift();
+  }
+
+  #random(): number {
+    this.#seed = (1664525 * this.#seed + 1013904223) >>> 0;
+    return this.#seed / 0x1_0000_0000;
+  }
+}
+
+declare global { var __pcqMarketEngine: MarketEngine | undefined; }
+
+export function createMarketEngine(): MarketEngine { return new MarketEngine(); }
+export function getMarketEngine(): MarketEngine {
+  globalThis.__pcqMarketEngine ??= createMarketEngine();
+  return globalThis.__pcqMarketEngine;
+}
+{% endfor -%}

@@ -1,0 +1,52 @@
+---
+to: "package.json"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#>
+    SELECT ?packageName ?nextVersion ?reactVersion ?deckVersion WHERE {
+      ?app a pcq:MarketplaceApplication ;
+        pcq:packageName ?packageName ;
+        pcq:nextVersion ?nextVersion ;
+        pcq:reactVersion ?reactVersion ;
+        pcq:deckVersion ?deckVersion .
+    }
+    LIMIT 1
+---
+{% for app in apps -%}
+{
+  "name": "{{ app.packageName }}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.14.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verify:runtime": "node scripts/verify-runtime.mjs",
+    "verify": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "@deck.gl/core": "{{ app.deckVersion }}",
+    "@deck.gl/geo-layers": "{{ app.deckVersion }}",
+    "@deck.gl/layers": "{{ app.deckVersion }}",
+    "@deck.gl/react": "{{ app.deckVersion }}",
+    "next": "{{ app.nextVersion }}",
+    "react": "{{ app.reactVersion }}",
+    "react-dom": "{{ app.reactVersion }}",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/node": "24.1.0",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.2",
+    "vitest": "4.1.10"
+  }
+}
+{% endfor -%}
