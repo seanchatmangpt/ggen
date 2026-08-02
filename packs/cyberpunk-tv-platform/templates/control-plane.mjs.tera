@@ -1,0 +1,135 @@
+import { access, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+
+const root = resolve(process.cwd());
+const model = JSON.parse(await readFile(resolve(root, 'src/vision2030.json'), 'utf8'));
+const records = model.records;
+const byKind = kind => records.filter(record => record.kind === kind).sort((a, b) => Number(a.order) - Number(b.order));
+
+async function exists(path) {
+  try { await access(resolve(root, path), constants.R_OK); return true; } catch { return false; }
+}
+
+async function doctor() {
+  const required = [
+    'src/world.ttl', 'src/world.json', 'src/vision2030.json', 'src/system.mmd',
+    'src/runtime-config.json', 'src/governance.json', 'src/rights.json',
+    'wasm/Cargo.toml', 'wasm/src/lib.rs', 'scripts/replay.mjs'
+  ];
+  const surfaces = await Promise.all(required.map(async path => ({ path, present: await exists(path) })));
+  const checks = byKind('doctor').map(check => ({
+    id: check.id,
+    order: check.order,
+    command: check.command,
+    repair: check.repair,
+    verifier: check.verifier,
+    state: surfaces.every(surface => surface.present) ? 'ADMITTED_FOR_EXECUTION' : 'BLOCKED'
+  }));
+  const missing = surfaces.filter(surface => !surface.present).map(surface => surface.path);
+  const report = {
+    schema: 'ggen.cyberpunk-tv.doctor.v1',
+    standing: missing.length === 0 ? 'PARTIAL_ALIVE' : 'BLOCKED',
+    runtime: { node: process.version, platform: process.platform, architecture: process.arch },
+    surfaces,
+    checks,
+    missing,
+    nextLawfulAction: missing.length === 0 ? 'execute declared verifier ladder' : 'repair authority/query/template then regenerate'
+  };
+  await emit('.ggen/evidence/doctor.json', report);
+  console.log(JSON.stringify(report, null, 2));
+  return missing.length === 0 ? 0 : 2;
+}
+
+function parseAnswers(args) {
+  const answers = new Map();
+  for (const argument of args) {
+    const [key, ...rest] = argument.replace(/^--/, '').split('=');
+    if (key && rest.length) answers.set(key, rest.join('='));
+  }
+  return answers;
+}
+
+async function wizard(args) {
+  const answers = parseAnswers(args);
+  const steps = byKind('wizard').map(step => {
+    const key = `step-${step.order}`;
+    const choices = step.choice.split(',').map(value => value.trim()).filter(Boolean);
+    return { ...step, choices, answer: answers.get(key) ?? choices[0] ?? '' };
+  });
+  const profile = {
+    schema: 'ggen.cyberpunk-tv.wizard-profile.v1',
+    outcome: steps[0]?.answer,
+    authority: steps[1]?.answer,
+    rights: steps[2]?.answer,
+    transport: steps[3]?.answer,
+    evidence: steps[4]?.answer,
+    selectedCapabilities: byKind('capability').filter(capability => capability.enabled).map(capability => capability.id),
+    standing: 'ADMITTED_PLAN'
+  };
+  await emit('.ggen/plans/wizard-profile.json', profile);
+  console.log(JSON.stringify({ steps, profile }, null, 2));
+  return 0;
+}
+
+function selectTransport(requirements) {
+  const profiles = byKind('transport');
+  const offline = requirements.has('offline');
+  const global = requirements.has('global');
+  const venue = requirements.has('venue');
+  if (offline) return profiles.find(profile => profile.offline && profile.id === 'delay-tolerant') ?? profiles.find(profile => profile.offline);
+  if (global) return profiles.find(profile => profile.id === 'federated');
+  if (venue) return profiles.find(profile => profile.id === 'lan');
+  return profiles.find(profile => profile.id === 'local');
+}
+
+async function telco(args) {
+  const requirements = new Set(args.map(value => value.replace(/^--/, '')));
+  const selected = selectTransport(requirements);
+  const report = {
+    schema: 'ggen.cyberpunk-tv.transport-selection.v1',
+    requirements: [...requirements].sort(),
+    selected,
+    alternatives: byKind('transport').filter(profile => profile.id !== selected?.id),
+    authority: 'selection only; transport actuation requires admitted runtime grant',
+    standing: selected ? 'ADMITTED_PLAN' : 'BLOCKED'
+  };
+  await emit('.ggen/plans/transport.json', report);
+  console.log(JSON.stringify(report, null, 2));
+  return selected ? 0 : 2;
+}
+
+async function plan(args) {
+  const axes = byKind('axis').map(axis => ({ ...axis, values: axis.values.split(',').map(value => value.trim()).filter(Boolean) }));
+  const constraints = new Set(args.map(value => value.replace(/^--/, '')));
+  const product = axes.reduce((count, axis) => count * axis.values.length, 1);
+  const enabled = byKind('capability').filter(capability => capability.enabled);
+  const optional = byKind('capability').filter(capability => !capability.enabled);
+  const report = {
+    schema: 'ggen.cyberpunk-tv.combinatorial-plan.v1',
+    axes,
+    lawfulProfileUpperBound: product,
+    defaultCapabilities: enabled.map(capability => capability.id),
+    preservedOptionalCapabilities: optional.map(capability => capability.id),
+    constraints: [...constraints].sort(),
+    selectionPolicy: 'preserve all reversible profiles; select only against admitted device, authority, cost, privacy, and evidence bounds',
+    standing: 'ADMITTED_PLAN'
+  };
+  await emit('.ggen/plans/combinatorial.json', report);
+  console.log(JSON.stringify(report, null, 2));
+  return 0;
+}
+
+async function emit(path, value) {
+  const target = resolve(root, path);
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, JSON.stringify(value, null, 2) + '\n');
+}
+
+const [command = 'doctor', ...args] = process.argv.slice(2);
+const handlers = { doctor, wizard, telco, plan };
+if (!handlers[command]) {
+  console.error(JSON.stringify({ standing: 'REFUSED', code: 'UNKNOWN_CONTROL_PLANE_COMMAND', command, allowed: Object.keys(handlers) }));
+  process.exit(64);
+}
+process.exitCode = await handlers[command](args);
