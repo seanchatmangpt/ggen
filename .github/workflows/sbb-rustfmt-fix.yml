@@ -1,0 +1,37 @@
+name: SBB rustfmt repair
+
+on:
+  push:
+    branches:
+      - agent/sbb-capability-density
+
+permissions:
+  contents: write
+
+jobs:
+  format-and-remove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/sbb-capability-density
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Format SBB implementation only
+        run: rustfmt --edition 2021 crates/ggen-cli/src/cmds/sbb.rs
+
+      - name: Remove one-shot workflow and publish formatting
+        shell: bash
+        run: |
+          rm .github/workflows/sbb-rustfmt-fix.yml
+          git config user.name "ggen architecture formatter"
+          git config user.email "ggen-architecture@users.noreply.github.com"
+          git add crates/ggen-cli/src/cmds/sbb.rs .github/workflows/sbb-rustfmt-fix.yml
+          if ! git diff --cached --quiet; then
+            git commit -m "style(sbb): apply pinned rustfmt"
+            git push origin HEAD:agent/sbb-capability-density
+          fi
