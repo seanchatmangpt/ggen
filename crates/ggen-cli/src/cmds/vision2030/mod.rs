@@ -99,8 +99,17 @@ struct Evidence {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+struct SbbIdentity {
+    id: String,
+    version: String,
+    architecture_contract: String,
+    minimum_commit_equivalent_units: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
 struct SbbReport {
     schema: String,
+    sbb: SbbIdentity,
     claim_ceiling: String,
     eligible_for_external_admission: bool,
     commit_equivalent_units: usize,
@@ -153,6 +162,7 @@ struct CapabilityReport {
     blue_ocean_move: String,
     authority: String,
     standing: String,
+    sbb_report_digest: String,
     canonical_units: usize,
     delivered_instances: u128,
     multiplier: String,
@@ -280,6 +290,8 @@ pub fn schema() -> Result<Value> {
         "horizons": HORIZONS,
         "target_year": 2030,
         "minimum_phase_change_target": 1000,
+        "unique_sbb_report_per_capability": true,
+        "sbb_architecture_contract_must_equal_capability_iri": true,
         "external_acceptance_required": true,
         "zero_unreceipted_actuation": true
     }))
