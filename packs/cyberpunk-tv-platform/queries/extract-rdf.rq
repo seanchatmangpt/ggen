@@ -1,0 +1,12 @@
+SELECT ?subject ?predicate ?object ?object_kind ?datatype ?language
+WHERE {
+  ?s ?p ?o .
+  FILTER(!isBlank(?s))
+  BIND(STR(?s) AS ?subject)
+  BIND(STR(?p) AS ?predicate)
+  BIND(STR(?o) AS ?object)
+  BIND(IF(isIRI(?o), "iri", "literal") AS ?object_kind)
+  BIND(IF(isLiteral(?o), STR(DATATYPE(?o)), "") AS ?datatype)
+  BIND(IF(isLiteral(?o), LANG(?o), "") AS ?language)
+}
+ORDER BY ?subject ?predicate ?object
