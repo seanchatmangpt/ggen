@@ -241,6 +241,13 @@ output_file = "scripts/replay.mjs"
 mode = "Overwrite"
 
 [[generation.rules]]
+name = "browser-e2e"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/e2e.mjs.tera" }
+output_file = "scripts/e2e.mjs"
+mode = "Overwrite"
+
+[[generation.rules]]
 name = "generated-readme"
 query = { file = "queries/extract-capabilities.rq" }
 template = { file = "templates/README.md.tera" }
