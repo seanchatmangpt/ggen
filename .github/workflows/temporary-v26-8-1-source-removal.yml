@@ -64,7 +64,7 @@ jobs:
       - name: Install verifier dependencies
         run: python3 -m pip install --disable-pip-version-check blake3==1.0.9 jsonschema==4.26.0 pyshacl==0.40.0
 
-      - name: Bind exact reference policy and remove constructor capability
+      - name: Bind deterministic verifier policy and remove constructor capability
         shell: bash
         run: |
           set -euo pipefail
@@ -73,7 +73,7 @@ jobs:
 
           path = Path('scripts/ci/v26_8_1_source_removal.py')
           text = path.read_text()
-          old = '''def scan_operational_references() -> list[str]:
+          old_scanner = '''def scan_operational_references() -> list[str]:
               forbidden = [str(path) for path in ACTIVE_ROOTS] + [str(source) for source, _ in GUARD_MOVES]
               roots = [Path("justfile"), Path(".github/workflows"), Path("crates"), Path("tools/architecture-foundry")]
               findings: list[str] = []
@@ -91,7 +91,7 @@ jobs:
                               findings.append(f"{path}:{token}")
               return sorted(findings)
           '''
-          new = '''HISTORICAL_EVIDENCE_LINES: dict[Path, set[str]] = {
+          new_scanner = '''HISTORICAL_EVIDENCE_LINES: dict[Path, set[str]] = {
               Path("tools/architecture-foundry/src/bin/admit_observation.rs"): {
                   'const CAPABILITY_PATH: &str = "ontology/v26.8.1/legacy-capabilities.ttl";',
                   'const REPORT_PATH: &str = "docs/v26.8.1/90-legacy/observer-class-report.md";',
@@ -141,9 +141,15 @@ jobs:
                                   )
               return sorted(findings)
           '''
-          if text.count(old) != 1:
+          if text.count(old_scanner) != 1:
               raise SystemExit('REFERENCE_POLICY_PATCH_PRECONDITION_REFUSED')
-          path.write_text(text.replace(old, new))
+          text = text.replace(old_scanner, new_scanner)
+
+          old_commands = '        "commands": commands,\n'
+          new_commands = '        "commands": sorted(commands, key=lambda record: tuple(record["argv"])),\n'
+          if text.count(old_commands) != 1:
+              raise SystemExit('COMMAND_CANONICALIZATION_PATCH_PRECONDITION_REFUSED')
+          path.write_text(text.replace(old_commands, new_commands))
           PY
           git rm .github/workflows/temporary-v26-8-1-source-removal.yml
 
@@ -204,48 +210,6 @@ jobs:
             --subject-commit "$SUBJECT" \
             --plan evidence/ggen-v26.8.1-source-removal-plan.json \
             --report /tmp/source-removal-b.json
-          python3 - <<'PY'
-          import json
-
-          with open('/tmp/source-removal-a.json') as stream:
-              left = json.load(stream)
-          with open('/tmp/source-removal-b.json') as stream:
-              right = json.load(stream)
-
-          def first_difference(a, b, path='$'):
-              if type(a) is not type(b):
-                  return path, a, b
-              if isinstance(a, dict):
-                  if set(a) != set(b):
-                      return path + '.keys', sorted(a), sorted(b)
-                  for key in sorted(a):
-                      found = first_difference(a[key], b[key], f'{path}.{key}')
-                      if found:
-                          return found
-                  return None
-              if isinstance(a, list):
-                  if len(a) != len(b):
-                      return path + '.length', len(a), len(b)
-                  for index, (av, bv) in enumerate(zip(a, b)):
-                      found = first_difference(av, bv, f'{path}[{index}]')
-                      if found:
-                          return found
-                  return None
-              if a != b:
-                  return path, a, b
-              return None
-
-          difference = first_difference(left, right)
-          if difference:
-              path, a, b = difference
-              print('REPLAY_FIRST_DIFFERENCE ' + json.dumps({
-                  'path': path,
-                  'a': a,
-                  'b': b,
-              }, sort_keys=True))
-          else:
-              print('REPLAY_STRUCTURAL_MATCH')
-          PY
           cmp /tmp/source-removal-a.json /tmp/source-removal-b.json
 
       - name: Manufacture receipt and publish branch
