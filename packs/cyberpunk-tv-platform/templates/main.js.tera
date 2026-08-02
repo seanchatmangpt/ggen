@@ -1,62 +1,454 @@
+{% for row in sparql_results %}
 import { Deck } from '@deck.gl/core';
-import { ArcLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { ArcLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
+import { createStore } from '@unrdf/oxigraph';
 import mermaid from 'mermaid';
-import { createStore, add } from '@unrdf/core';
-import world from './world.json' with { type: 'json' };
+import initWasm, {
+  blake3_hex,
+  chain_event,
+  construct_admitted,
+  playback_drift_ms,
+  platform_identity,
+  projection_admitted
+} from './wasm/cyberpunk_tv_wasm.js';
+
+const PLATFORM = {{ row["title"] | json_encode() }};
+const VERSION = {{ row["version"] | json_encode() }};
+const BASE = 'https://ggen.dev/ontology/cyberpunk-tv#';
+const instanceId = crypto.randomUUID();
+
+const loadJson = async path => {
+  const response = await fetch(new URL(path, import.meta.url));
+  if (!response.ok) throw new Error(`ASSET_LOAD_REFUSED:${path}:${response.status}`);
+  return response.json();
+};
+const loadText = async path => {
+  const response = await fetch(new URL(path, import.meta.url));
+  if (!response.ok) throw new Error(`ASSET_LOAD_REFUSED:${path}:${response.status}`);
+  return response.text();
+};
+
+await initWasm();
+const [world, capabilityLedger, projectionCatalog, runtimeConfig, governanceSource, rights, graphText, diagramSource, settlementQuery] = await Promise.all([
+  loadJson('./world.json'),
+  loadJson('./capabilities.json'),
+  loadJson('./projections.json'),
+  loadJson('./runtime-config.json'),
+  loadJson('./governance.json'),
+  loadJson('./rights.json'),
+  loadText('./world.ttl'),
+  loadText('./system.mmd'),
+  loadText('./settlement.rq')
+]);
+
+document.getElementById('wasm-state').textContent = `${platform_identity()} / WASM READY`;
 
 const store = createStore();
-const quads = world.nodes.map((node, index) => ({
-  subject: `urn:tv:node:${index}`,
-  predicate: 'https://schema.org/name',
-  object: node.name
-}));
-await add(store, quads);
+store.load(graphText, { format: 'turtle', baseIRI: BASE });
 
-const nodes = world.nodes;
-const arcs = nodes.map((node, index) => ({
-  source: [node.longitude, node.latitude],
-  target: [nodes[(index + 1) % nodes.length].longitude, nodes[(index + 1) % nodes.length].latitude],
-  weight: node.weight
-}));
+document.getElementById('graph-size').textContent = `${store.size} QUADS`;
 
-new Deck({
-  parent: document.getElementById('map'),
-  initialViewState: {
-    longitude: {{ longitude }},
-    latitude: {{ latitude }},
-    zoom: {{ zoom }},
-    pitch: 28,
-    bearing: 0
+const termValue = term => {
+  if (term === undefined || term === null) return '';
+  if (typeof term === 'string' || typeof term === 'number' || typeof term === 'boolean') return String(term);
+  if ('value' in term) return String(term.value);
+  return String(term);
+};
+
+const bindingValue = (binding, name) => {
+  if (binding instanceof Map) return termValue(binding.get(name) ?? binding.get(`?${name}`));
+  if (typeof binding.get === 'function') return termValue(binding.get(name) ?? binding.get(`?${name}`));
+  return termValue(binding[name] ?? binding[`?${name}`]);
+};
+
+const bindingsFrom = result => {
+  if (!result) return [];
+  if (Array.isArray(result)) return result;
+  if (Array.isArray(result.bindings)) return result.bindings;
+  return [];
+};
+
+const semanticNodeQuery = `
+PREFIX tv: <${BASE}>
+PREFIX schema: <https://schema.org/>
+SELECT ?id ?label ?longitude ?latitude ?weight WHERE {
+  ?node a tv:WorldNode ; schema:name ?label ; tv:longitude ?longitude ; tv:latitude ?latitude ; tv:weight ?weight .
+  BIND(STRAFTER(STR(?node), "#") AS ?id)
+}
+ORDER BY ?id`;
+
+let semanticNodes = [];
+try {
+  semanticNodes = bindingsFrom(store.query(semanticNodeQuery)).map(binding => ({
+    id: bindingValue(binding, 'id'),
+    label: bindingValue(binding, 'label'),
+    longitude: Number(bindingValue(binding, 'longitude')),
+    latitude: Number(bindingValue(binding, 'latitude')),
+    weight: Number(bindingValue(binding, 'weight'))
+  }));
+} catch (error) {
+  console.error('UNRDF_QUERY_REFUSED', error);
+}
+
+const items = world.items ?? [];
+const projectedNodes = items.filter(item => item.kind === 'node');
+const nodes = semanticNodes.length === projectedNodes.length && semanticNodes.length > 0 ? semanticNodes : projectedNodes;
+const edges = items.filter(item => item.kind === 'edge');
+const nodeById = new Map(nodes.map(node => [node.id, node]));
+
+const deviceEntries = runtimeConfig.entries.filter(entry => entry.kind === 'device-capability');
+const requestedDevice = new URLSearchParams(location.search).get('device') ?? 'living-room-tv';
+const availableDevices = new Set(deviceEntries.map(entry => entry.id));
+const deviceId = availableDevices.has(requestedDevice) ? requestedDevice : (deviceEntries[0]?.id ?? 'living-room-tv');
+const deviceCapabilities = deviceEntries.filter(entry => entry.id === deviceId).map(entry => entry.related);
+const capabilityEnvelope = JSON.stringify({ capabilities: deviceCapabilities });
+const admittedProjections = projectionCatalog.projections.filter(projection =>
+  projection_admitted(capabilityEnvelope, projection.requires)
+);
+
+const modeEntries = runtimeConfig.entries.filter(entry => entry.kind === 'mode');
+const modeById = new Map(modeEntries.map(entry => [entry.id, entry]));
+const modeOrder = [];
+let cursor = modeById.has('cinema') ? 'cinema' : modeEntries[0]?.id;
+while (cursor && !modeOrder.includes(cursor) && modeOrder.length <= modeEntries.length) {
+  modeOrder.push(cursor);
+  cursor = modeById.get(cursor)?.related;
+}
+for (const entry of modeEntries) if (!modeOrder.includes(entry.id)) modeOrder.push(entry.id);
+
+const remoteBindings = new Map(
+  runtimeConfig.entries.filter(entry => entry.kind === 'remote').map(entry => [entry.id, entry.value])
+);
+
+const state = {
+  mode: modeOrder.includes('matrix') ? 'matrix' : modeOrder[0],
+  selectedNode: nodes[0]?.id ?? '',
+  proposals: { a: '', b: '', digestA: '', digestB: '' },
+  governance: {
+    motionId: governanceSource.rows[0]?.motionId ?? 'RuntimeMotion',
+    title: governanceSource.rows[0]?.title ?? 'Governed settlement',
+    state: governanceSource.rows[0]?.state ?? 'introduced',
+    quorum: Number(governanceSource.rows[0]?.quorum ?? 2),
+    yes: Number(governanceSource.rows[0]?.yes ?? 0),
+    no: Number(governanceSource.rows[0]?.no ?? 0),
+    decision: 'candidate'
   },
-  controller: true,
-  layers: [
-    new ArcLayer({
-      id: 'world-arcs',
-      data: arcs,
-      getSourcePosition: d => d.source,
-      getTargetPosition: d => d.target,
-      getWidth: d => d.weight,
-      getHeight: 0.35,
-      pickable: true
-    }),
-    new ScatterplotLayer({
-      id: 'world-nodes',
-      data: nodes,
-      getPosition: d => [d.longitude, d.latitude],
-      getRadius: d => d.weight * 18000,
-      radiusMinPixels: 7,
-      pickable: true
-    })
-  ]
+  session: {
+    epochMillis: Date.now(),
+    positionMillis: 0,
+    driftToleranceMillis: 350,
+    status: 'local'
+  }
+};
+
+const receiptChain = {
+  previous: '',
+  sequence: 0,
+  receipts: [],
+  append(subject, operation, payload) {
+    this.sequence += 1;
+    const encoded = chain_event(this.previous, subject, operation, JSON.stringify(payload), this.sequence);
+    const receipt = JSON.parse(encoded);
+    this.previous = receipt.receipt_digest;
+    this.receipts.push(receipt);
+    renderReceipts();
+    return receipt;
+  }
+};
+
+const snapshot = () => ({
+  mode: state.mode,
+  selectedNode: state.selectedNode,
+  media: {
+    sourceBound: Boolean(document.getElementById('media').src),
+    paused: document.getElementById('media').paused,
+    positionMillis: Math.round(document.getElementById('media').currentTime * 1000)
+  },
+  governance: { ...state.governance },
+  proposalDigests: [state.proposals.digestA, state.proposals.digestB]
 });
 
+const channel = 'BroadcastChannel' in globalThis ? new BroadcastChannel('ggen-cyberpunk-tv-v1') : null;
+const syncUrl = new URLSearchParams(location.search).get('sync');
+let socket = null;
+if (syncUrl) {
+  socket = new WebSocket(syncUrl);
+  socket.addEventListener('open', () => {
+    state.session.status = 'federated';
+    document.getElementById('session-state').textContent = 'FEDERATED';
+  });
+  socket.addEventListener('message', event => receiveEnvelope(JSON.parse(event.data)));
+}
+
+const replicable = new Set(['set-mode', 'toggle-playback', 'governance', 'commit-proposals', 'evaluate-settlement', 'select-node']);
+const replicate = envelope => {
+  if (!replicable.has(envelope.operation)) return;
+  channel?.postMessage(envelope);
+  if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(envelope));
+};
+
+const renderReceipts = () => {
+  const log = receiptChain.receipts.slice(-12).map(receipt =>
+    `${receipt.sequence.toString().padStart(4, '0')} ${receipt.operation.padEnd(24)} ${receipt.receipt_digest}`
+  ).join('\n');
+  document.getElementById('receipt-log').textContent = log || 'No runtime receipts yet.';
+};
+
+const renderModes = () => {
+  const nav = document.getElementById('modes');
+  nav.replaceChildren(...modeOrder.map(mode => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = modeById.get(mode)?.label ?? mode;
+    button.dataset.mode = mode;
+    button.setAttribute('aria-current', mode === state.mode ? 'page' : 'false');
+    button.addEventListener('click', () => broker.submit('set-mode', { mode }));
+    return button;
+  }));
+  document.querySelectorAll('[data-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.panel === state.mode));
+  document.getElementById('app').dataset.mode = state.mode;
+};
+
+const renderMotion = () => {
+  const board = document.getElementById('motion-board');
+  const motion = state.governance;
+  board.innerHTML = `
+    <article class="card"><strong>${motion.title}</strong><br />State: ${motion.state}</article>
+    <article class="card">Quorum: ${motion.yes + motion.no}/${motion.quorum} · Yes: ${motion.yes} · No: ${motion.no}</article>
+    <article class="card">Decision: ${motion.decision}</article>`;
+};
+
+const renderRights = () => {
+  const board = document.getElementById('rights-board');
+  board.replaceChildren(...rights.rules.map(rule => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.textContent = `${rule.effect.toUpperCase()} · ${rule.action} · ${rule.target}`;
+    return card;
+  }));
+};
+
+const selectNode = id => {
+  state.selectedNode = id;
+  const node = nodeById.get(id);
+  document.getElementById('selection').textContent = node
+    ? `${node.label} · ${node.latitude.toFixed(4)}, ${node.longitude.toFixed(4)} · weight ${node.weight}`
+    : 'No node selected';
+};
+
+const deck = new Deck({
+  parent: document.getElementById('deck'),
+  initialViewState: { longitude: 0, latitude: 24, zoom: 1.25, pitch: 34, bearing: 0 },
+  controller: true,
+  layers: []
+});
+
+const renderDeck = () => {
+  const arcData = edges.map(edge => ({
+    ...edge,
+    sourcePosition: nodeById.has(edge.source) ? [nodeById.get(edge.source).longitude, nodeById.get(edge.source).latitude] : [0, 0],
+    targetPosition: nodeById.has(edge.target) ? [nodeById.get(edge.target).longitude, nodeById.get(edge.target).latitude] : [0, 0]
+  }));
+  const layers = [];
+  if (admittedProjections.some(item => item.id === 'world-arcs')) {
+    layers.push(new ArcLayer({
+      id: 'world-arcs', data: arcData, getSourcePosition: d => d.sourcePosition,
+      getTargetPosition: d => d.targetPosition, getWidth: d => d.weight, getHeight: 0.35,
+      widthMinPixels: 1, pickable: true
+    }));
+  }
+  if (admittedProjections.some(item => item.id === 'world-nodes')) {
+    layers.push(new ScatterplotLayer({
+      id: 'world-nodes', data: nodes, getPosition: d => [d.longitude, d.latitude],
+      getRadius: d => d.weight * 18000, radiusMinPixels: 8, pickable: true,
+      onClick: info => info.object && broker.submit('select-node', { id: info.object.id })
+    }));
+  }
+  if (admittedProjections.some(item => item.id === 'world-labels')) {
+    layers.push(new TextLayer({
+      id: 'world-labels', data: nodes, getPosition: d => [d.longitude, d.latitude],
+      getText: d => d.label, getSize: 15, getPixelOffset: [0, -18], billboard: true
+    }));
+  }
+  deck.setProps({ layers });
+};
+
+const media = document.getElementById('media');
+const handlers = {
+  async 'set-mode'(payload) {
+    if (!modeOrder.includes(payload.mode)) throw new Error(`MODE_REFUSED:${payload.mode}`);
+    state.mode = payload.mode;
+    renderModes();
+  },
+  async 'select-node'(payload) {
+    if (!nodeById.has(payload.id)) throw new Error(`NODE_REFUSED:${payload.id}`);
+    selectNode(payload.id);
+  },
+  async 'bind-media-file'(payload, transient) {
+    if (!(transient.file instanceof File)) throw new Error('MEDIA_FILE_REFUSED');
+    media.src = URL.createObjectURL(transient.file);
+    document.getElementById('media-status').textContent = `${payload.name} · ${payload.bytes} bytes`;
+  },
+  async 'bind-media-url'(payload) {
+    const url = new URL(payload.url, location.href);
+    if (!['http:', 'https:', 'blob:'].includes(url.protocol)) throw new Error('MEDIA_URL_REFUSED');
+    media.src = url.href;
+    document.getElementById('media-status').textContent = url.href;
+  },
+  async 'toggle-playback'() {
+    if (!media.src) throw new Error('MEDIA_NOT_BOUND');
+    if (media.paused) await media.play(); else media.pause();
+    state.session.epochMillis = Date.now();
+    state.session.positionMillis = Math.round(media.currentTime * 1000);
+  },
+  async 'governance'(payload) {
+    if (payload.action === 'second' && state.governance.state === 'introduced') state.governance.state = 'seconded';
+    else if (payload.action === 'yes') { state.governance.yes += 1; state.governance.state = 'voting'; }
+    else if (payload.action === 'no') { state.governance.no += 1; state.governance.state = 'voting'; }
+    else if (payload.action === 'adjourn') state.governance.state = 'adjourned';
+    else throw new Error(`MOTION_ACTION_REFUSED:${payload.action}`);
+    renderMotion();
+  },
+  async 'commit-proposals'(payload) {
+    if (!construct_admitted(payload.a) || !construct_admitted(payload.b)) throw new Error('CONSTRUCT_ADMISSION_REFUSED');
+    state.proposals.a = payload.a;
+    state.proposals.b = payload.b;
+    state.proposals.digestA = blake3_hex(payload.a);
+    state.proposals.digestB = blake3_hex(payload.b);
+    document.getElementById('market-status').textContent = `A ${state.proposals.digestA} · B ${state.proposals.digestB}`;
+  },
+  async 'evaluate-settlement'() {
+    if (!state.proposals.digestA || !state.proposals.digestB) throw new Error('PROPOSALS_NOT_COMMITTED');
+    const facts = `
+@prefix tv: <${BASE}> .
+tv:RuntimeMotion a tv:Motion ; tv:quorumRequired ${state.governance.quorum} ; tv:yesVotes ${state.governance.yes} ; tv:noVotes ${state.governance.no} ; tv:hasProposal tv:RuntimeProposalA, tv:RuntimeProposalB .
+tv:RuntimeProposalA a tv:EscrowProposal ; tv:proposalDigest "${state.proposals.digestA}" .
+tv:RuntimeProposalB a tv:EscrowProposal ; tv:proposalDigest "${state.proposals.digestB}" .`;
+    const decisionStore = createStore();
+    decisionStore.load(facts, { format: 'turtle', baseIRI: BASE });
+    const decisionRows = bindingsFrom(decisionStore.query(settlementQuery));
+    const decision = bindingValue(decisionRows[0], 'decision') || 'refused-not-admitted';
+    state.governance.decision = decision;
+    state.governance.state = decision.startsWith('adopted') ? 'adopted' : decision.startsWith('defeated') ? 'defeated' : 'introduced';
+    document.getElementById('market-status').textContent = decision;
+    renderMotion();
+  }
+};
+
+const broker = {
+  async submit(operation, payload = {}, transient = {}, shouldReplicate = true) {
+    const subject = `urn:ggen:tv:${instanceId}`;
+    const pre = snapshot();
+    const intentReceipt = receiptChain.append(subject, `intent:${operation}`, { payload, pre });
+    try {
+      const handler = handlers[operation];
+      if (!handler) throw new Error(`OPERATION_UNREPRESENTABLE:${operation}`);
+      await handler(payload, transient);
+      const post = snapshot();
+      const consequenceReceipt = receiptChain.append(subject, `consequence:${operation}`, {
+        intent: intentReceipt.receipt_digest, pre, post
+      });
+      if (shouldReplicate) replicate({
+        schema: 'ggen.cyberpunk-tv.intent.v1', source: instanceId, operation, payload,
+        previousReceipt: consequenceReceipt.receipt_digest
+      });
+      document.getElementById('standing').textContent = 'PARTIAL_ALIVE';
+      return consequenceReceipt;
+    } catch (error) {
+      receiptChain.append(subject, `refusal:${operation}`, {
+        intent: intentReceipt.receipt_digest,
+        reason: error instanceof Error ? error.message : String(error),
+        state: snapshot()
+      });
+      document.getElementById('standing').textContent = 'REFUSED';
+      throw error;
+    }
+  }
+};
+
+function receiveEnvelope(envelope) {
+  if (!envelope || envelope.source === instanceId || envelope.schema !== 'ggen.cyberpunk-tv.intent.v1') return;
+  broker.submit(envelope.operation, envelope.payload ?? {}, {}, false).catch(error => console.error('REMOTE_INTENT_REFUSED', error));
+}
+channel && (channel.onmessage = event => receiveEnvelope(event.data));
+
 mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'dark' });
-const graph = `flowchart LR
-  RDF[Public ontologies] --> UNRDF[UNRDF world]
-  UNRDF --> MMD[mmdio / Mermaid]
-  UNRDF --> DECK[deck.gl territory]
-  MMD --> TV[Television body]
-  DECK --> TV
-  TV --> RECEIPT[BLAKE3 receipt]`;
-const { svg } = await mermaid.render('platform-graph', graph);
+const { svg } = await mermaid.render('ggen-tv-system', diagramSource);
 document.getElementById('diagram').innerHTML = svg;
+document.getElementById('sparql-readout').textContent = semanticNodeQuery.trim();
+
+document.getElementById('proposal-a').value = governanceSource.rows[0]?.construct ?? 'CONSTRUCT { ?settlement a <https://ggen.dev/ontology/cyberpunk-tv#Settlement> . } WHERE { }';
+document.getElementById('proposal-b').value = governanceSource.rows[1]?.construct ?? 'CONSTRUCT { ?settlement <https://ggen.dev/ontology/cyberpunk-tv#standing> "candidate" . } WHERE { }';
+
+document.getElementById('media-file').addEventListener('change', event => {
+  const file = event.target.files?.[0];
+  if (file) broker.submit('bind-media-file', { name: file.name, bytes: file.size, type: file.type }, { file }).catch(console.error);
+});
+document.getElementById('media-url-button').addEventListener('click', () => document.getElementById('url-dialog').showModal());
+document.getElementById('bind-url').addEventListener('click', event => {
+  event.preventDefault();
+  const url = document.getElementById('media-url').value;
+  broker.submit('bind-media-url', { url }).then(() => document.getElementById('url-dialog').close()).catch(console.error);
+});
+document.getElementById('play-toggle').addEventListener('click', () => broker.submit('toggle-playback').catch(console.error));
+document.querySelectorAll('[data-governance]').forEach(button => button.addEventListener('click', () =>
+  broker.submit('governance', { action: button.dataset.governance }).catch(console.error)
+));
+document.getElementById('commit-proposals').addEventListener('click', () => broker.submit('commit-proposals', {
+  a: document.getElementById('proposal-a').value,
+  b: document.getElementById('proposal-b').value
+}).catch(console.error));
+document.getElementById('evaluate-settlement').addEventListener('click', () => broker.submit('evaluate-settlement').catch(console.error));
+
+document.addEventListener('keydown', event => {
+  const action = remoteBindings.get(event.key) ?? remoteBindings.get(event.code);
+  if (!action) return;
+  event.preventDefault();
+  const index = modeOrder.indexOf(state.mode);
+  if (action === 'next-mode') broker.submit('set-mode', { mode: modeOrder[(index + 1) % modeOrder.length] }).catch(console.error);
+  else if (action === 'previous-mode') broker.submit('set-mode', { mode: modeOrder[(index - 1 + modeOrder.length) % modeOrder.length] }).catch(console.error);
+  else if (action === 'toggle-playback') broker.submit('toggle-playback').catch(console.error);
+  else if (action === 'next-item' || action === 'previous-item') {
+    const nodeIndex = Math.max(0, nodes.findIndex(node => node.id === state.selectedNode));
+    const delta = action === 'next-item' ? 1 : -1;
+    const next = nodes[(nodeIndex + delta + nodes.length) % nodes.length];
+    if (next) broker.submit('select-node', { id: next.id }).catch(console.error);
+  }
+});
+
+setInterval(() => {
+  const now = Date.now();
+  document.getElementById('clock').textContent = new Date(now).toISOString().slice(11, 23);
+  if (media.src && !media.paused) {
+    const drift = playback_drift_ms(
+      state.session.epochMillis,
+      state.session.positionMillis,
+      now,
+      Math.round(media.currentTime * 1000)
+    );
+    document.getElementById('session-state').textContent = `${state.session.status.toUpperCase()} / DRIFT ${drift}ms`;
+  }
+}, 250);
+
+renderModes();
+renderDeck();
+renderMotion();
+renderRights();
+renderReceipts();
+selectNode(state.selectedNode);
+
+document.getElementById('standing').textContent = semanticNodes.length === projectedNodes.length ? 'PARTIAL_ALIVE' : 'PARTIAL_ALIVE / RDF PROJECTION DIVERGENCE';
+console.info(JSON.stringify({
+  platform: PLATFORM,
+  version: VERSION,
+  deviceId,
+  capabilities: deviceCapabilities,
+  projections: admittedProjections.map(item => item.id),
+  graphQuads: store.size,
+  semanticNodes: semanticNodes.length,
+  projectedNodes: projectedNodes.length,
+  capabilityLedger: capabilityLedger.capabilities.length
+}));
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(error => console.error('SERVICE_WORKER_REFUSED', error));
+{% endfor %}
