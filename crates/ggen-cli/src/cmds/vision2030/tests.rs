@@ -122,6 +122,8 @@ fn fixture(root: &Path) -> PathBuf {
             version: "1.0.0".to_string(),
             target_year: 2030,
             phase_change_target: 1000,
+            trusted_issuers: BTreeMap::new(),
+            trusted_brokers: BTreeMap::new(),
         },
         required_domains: REQUIRED_DOMAINS
             .iter()
