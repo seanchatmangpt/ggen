@@ -1,0 +1,91 @@
+@prefix v2030: <https://ggen.io/ontology/vision-2030#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+v2030:ProgramShape a sh:NodeShape ;
+  sh:targetClass v2030:Program ;
+  sh:property [ sh:path v2030:identifier ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:version ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:targetYear ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue "2030"^^xsd:gYear ] ;
+  sh:property [ sh:path v2030:phaseChangeTarget ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1000 ] ;
+  sh:property [ sh:path v2030:hasHorizon ; sh:minCount 5 ; sh:maxCount 5 ; sh:class v2030:Horizon ] ;
+  sh:property [ sh:path v2030:requiresDomain ; sh:minCount 12 ; sh:class v2030:Domain ] ;
+  sh:property [ sh:path v2030:hasCapability ; sh:minCount 1 ; sh:class v2030:Capability ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Vision 2030 requires horizon years 2026, 2027, 2028, 2029, and 2030 exactly once." ;
+    sh:select """
+      PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+      SELECT $this WHERE {
+        VALUES ?year { "2026"^^xsd:gYear "2027"^^xsd:gYear "2028"^^xsd:gYear "2029"^^xsd:gYear "2030"^^xsd:gYear }
+        FILTER NOT EXISTS { $this v2030:hasHorizon ?h . ?h v2030:year ?year . }
+      }
+    """
+  ] .
+
+v2030:HorizonShape a sh:NodeShape ;
+  sh:targetClass v2030:Horizon ;
+  sh:property [ sh:path v2030:year ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path v2030:minimumAliveCapabilities ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ; sh:minInclusive 1 ] .
+
+v2030:CapabilityShape a sh:NodeShape ;
+  sh:targetClass v2030:Capability ;
+  sh:property [ sh:path v2030:identifier ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:capabilityIri ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path v2030:summary ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:inDomain ; sh:minCount 1 ; sh:maxCount 1 ; sh:class v2030:Domain ] ;
+  sh:property [ sh:path v2030:atHorizon ; sh:minCount 1 ; sh:maxCount 1 ; sh:class v2030:Horizon ] ;
+  sh:property [ sh:path v2030:blueOceanMove ; sh:minCount 1 ; sh:maxCount 1 ; sh:class v2030:BlueOceanMove ] ;
+  sh:property [ sh:path v2030:authorityClass ; sh:minCount 1 ; sh:maxCount 1 ; sh:class v2030:AuthorityClass ] ;
+  sh:property [ sh:path v2030:hasEvidence ; sh:minCount 7 ; sh:class v2030:EvidenceBinding ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Every capability requires exactly the seven evidence roles." ;
+    sh:select """
+      PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+      SELECT $this WHERE {
+        VALUES ?role { "sbb_report" "positive" "negative" "verifier" "receipt" "replay" "external_acceptance" }
+        FILTER NOT EXISTS {
+          $this v2030:hasEvidence ?binding .
+          ?binding v2030:evidenceRole ?role .
+        }
+      }
+    """
+  ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Healthcare capabilities may observe or recommend only." ;
+    sh:select """
+      PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+      SELECT $this WHERE {
+        $this v2030:inDomain v2030:Healthcare ; v2030:authorityClass ?authority .
+        FILTER (?authority NOT IN (v2030:Observe, v2030:Recommend))
+      }
+    """
+  ] ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Doctor capabilities may not actuate." ;
+    sh:select """
+      PREFIX v2030: <https://ggen.io/ontology/vision-2030#>
+      SELECT $this WHERE {
+        $this v2030:inDomain v2030:Doctor ; v2030:authorityClass v2030:Actuate .
+      }
+    """
+  ] .
+
+v2030:EvidenceBindingShape a sh:NodeShape ;
+  sh:targetClass v2030:EvidenceBinding ;
+  sh:property [
+    sh:path v2030:evidenceRole ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:in ("sbb_report" "positive" "negative" "verifier" "receipt" "replay" "external_acceptance" "execution_grant")
+  ] ;
+  sh:property [ sh:path v2030:locator ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path v2030:contentDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^blake3[:-][0-9A-Fa-f]{64}$" ] .
+
+v2030:ExternalAcceptanceShape a sh:NodeShape ;
+  sh:targetClass v2030:ExternalAcceptance ;
+  sh:property [ sh:path v2030:issuer ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path v2030:decision ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue "ACCEPTED" ] ;
+  sh:property [ sh:path v2030:subjectIri ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path v2030:reportDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[0-9A-Fa-f]{64}$" ] .
