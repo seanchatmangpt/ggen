@@ -1,0 +1,16 @@
+---
+to: "app/page.tsx"
+sparql:
+  apps: >
+    PREFIX pcq: <https://ggen.dev/packs/pcq-marketplace#> SELECT ?displayName WHERE { ?app a pcq:MarketplaceApplication ; pcq:displayName ?displayName . } LIMIT 1
+---
+{% for app in apps -%}
+import { MarketDashboard } from '@/components/market-dashboard';
+import { getMarketEngine } from '@/lib/market';
+
+export const dynamic = 'force-dynamic';
+
+export default function Home() {
+  return <MarketDashboard initialSnapshot={getMarketEngine().snapshot()} />;
+}
+{% endfor -%}
