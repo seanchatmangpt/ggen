@@ -1,0 +1,55 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+@prefix ndm: <https://ggen.dev/ontology/nasa-dark-mode#> .
+
+ndm:NASA_Dark_Mode a tv:Platform, prov:Entity ;
+  tv:title "NASA Dark Mode" ;
+  tv:subtitle "Planetary mission control without ambient authority." ;
+  dct:description "A non-official NASA-context television projection using public NASA data and media under explicit attribution and endorsement fences." ;
+  tv:hasMode ndm:ModeEarthNow, ndm:ModeMissions, ndm:ModeBriefing, ndm:ModeReceipt ;
+  tv:hasProjection ndm:ProjectionGibsTiles, ndm:ProjectionEonetEvents, ndm:ProjectionRokuSceneGraph ;
+  tv:hasDeviceProfile ndm:ProfileBrowserDeck, ndm:ProfileRokuNative ;
+  tv:receiptedBy tv:ReceiptPolicyBlake3 .
+
+ndm:CapabilityNasaPublicMedia a tv:Capability ; tv:capabilityId "nasa-public-media" .
+ndm:CapabilityEonet a tv:Capability ; tv:capabilityId "eonet-v3-events" .
+ndm:CapabilityGibs a tv:Capability ; tv:capabilityId "gibs-wmts-imagery" .
+ndm:CapabilityDeck a tv:Capability ; tv:capabilityId "deckgl-layer-plan" .
+ndm:CapabilityRoku a tv:Capability ; tv:capabilityId "roku-scenegraph" .
+ndm:CapabilityAttribution a tv:Capability ; tv:capabilityId "source-attribution" .
+ndm:CapabilityNoEndorsement a tv:Capability ; tv:capabilityId "no-nasa-endorsement" .
+ndm:CapabilityIntentOnly a tv:Capability ; tv:capabilityId "intent-only-controls" .
+ndm:CapabilityReceiptReplay a tv:Capability ; tv:capabilityId "receipt-replay" .
+
+ndm:ModeEarthNow a tv:Mode ; tv:modeId "earth-now" ; tv:nextMode ndm:ModeMissions ; tv:requiresCapability ndm:CapabilityGibs .
+ndm:ModeMissions a tv:Mode ; tv:modeId "missions" ; tv:nextMode ndm:ModeBriefing ; tv:requiresCapability ndm:CapabilityEonet .
+ndm:ModeBriefing a tv:Mode ; tv:modeId "briefing" ; tv:nextMode ndm:ModeReceipt ; tv:requiresCapability ndm:CapabilityAttribution .
+ndm:ModeReceipt a tv:Mode ; tv:modeId "receipt" ; tv:nextMode ndm:ModeEarthNow ; tv:requiresCapability ndm:CapabilityReceiptReplay .
+
+ndm:ProjectionGibsTiles a tv:Projection ; tv:projectionId "gibs-true-color" ; tv:projectionKind "deck.gl" ; tv:layerKind "TileLayer+BitmapLayer" ; tv:requiresCapability ndm:CapabilityGibs .
+ndm:ProjectionEonetEvents a tv:Projection ; tv:projectionId "eonet-events" ; tv:projectionKind "deck.gl" ; tv:layerKind "GeoJsonLayer" ; tv:requiresCapability ndm:CapabilityEonet .
+ndm:ProjectionRokuSceneGraph a tv:Projection ; tv:projectionId "roku-mission-board" ; tv:projectionKind "roku-scenegraph" ; tv:requiresCapability ndm:CapabilityRoku .
+
+ndm:ProfileBrowserDeck a tv:DeviceProfile ; tv:deviceId "browser-deckgl" ; tv:runtimeKind "browser-webgl" ;
+  tv:hasCapability ndm:CapabilityEonet, ndm:CapabilityGibs, ndm:CapabilityDeck, ndm:CapabilityAttribution,
+    ndm:CapabilityNoEndorsement, ndm:CapabilityIntentOnly, ndm:CapabilityReceiptReplay .
+
+ndm:ProfileRokuNative a tv:DeviceProfile ; tv:deviceId "roku-scenegraph" ; tv:runtimeKind "brightscript-scenegraph" ;
+  tv:hasCapability ndm:CapabilityEonet, ndm:CapabilityRoku, ndm:CapabilityAttribution,
+    ndm:CapabilityNoEndorsement, ndm:CapabilityIntentOnly, ndm:CapabilityReceiptReplay .
+
+ndm:EonetSource a prov:Entity ;
+  dct:identifier "https://eonet.gsfc.nasa.gov/api/v3/events" ;
+  dct:description "Curated near-real-time natural-event metadata for visualization; not authoritative emergency guidance." .
+
+ndm:GibsSource a prov:Entity ;
+  dct:identifier "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/" ;
+  dct:description "NASA Earthdata Global Imagery Browse Services WMTS imagery." .
+
+ndm:MediaPolicy a odrl:Policy ;
+  dct:title "NASA-context media admission policy" ;
+  dct:description "Admit only items whose source and item-level rights are retained; prohibit NASA endorsement claims and bundled NASA identifiers." .

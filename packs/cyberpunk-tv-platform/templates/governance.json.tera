@@ -1,0 +1,17 @@
+{
+  "rows": [
+{% for row in sparql_results %}    {
+      "motionId": {{ row["motion_id"] | json_encode() }},
+      "title": {{ row["title"] | json_encode() }},
+      "state": {{ row["state"] | json_encode() }},
+      "quorum": {{ row["quorum"] }},
+      "yes": {{ row["yes"] }},
+      "no": {{ row["no"] }},
+      "proposalId": {{ row["proposal_id"] | json_encode() }},
+      "proposalTitle": {{ row["proposal_title"] | json_encode() }},
+      "construct": {{ row["construct_text"] | json_encode() }},
+      "settlementId": {{ row["settlement_id"] | default(value="") | json_encode() }},
+      "settlementStanding": {{ row["settlement_standing"] | default(value="candidate") | json_encode() }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

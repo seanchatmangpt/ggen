@@ -1,0 +1,33 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?kind ?id ?label ?value ?related
+WHERE {
+  {
+    ?mode a tv:Mode ; tv:modeId ?id ; skos:prefLabel ?label ; tv:nextMode ?next .
+    ?next tv:modeId ?related .
+    BIND("mode" AS ?kind)
+    BIND("" AS ?value)
+  }
+  UNION
+  {
+    ?profile a tv:DeviceProfile ; tv:deviceId ?id ; tv:runtimeKind ?value ; tv:hasCapability ?capability .
+    ?capability tv:capabilityId ?related .
+    BIND("device-capability" AS ?kind)
+    BIND(?id AS ?label)
+  }
+  UNION
+  {
+    ?binding a tv:RemoteBinding ; tv:keyCode ?id ; tv:actionId ?value .
+    BIND("remote" AS ?kind)
+    BIND(?value AS ?label)
+    BIND("" AS ?related)
+  }
+  UNION
+  {
+    ?profile a tv:AccessibilityProfile ; tv:locale ?id ; tv:contrastMode ?value ; tv:captionMode ?related .
+    BIND("accessibility" AS ?kind)
+    BIND(STRAFTER(STR(?profile), "#") AS ?label)
+  }
+}
+ORDER BY ?kind ?id ?related

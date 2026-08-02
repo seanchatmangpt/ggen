@@ -1,0 +1,26 @@
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# Positive witness: two distinct committed proposals, quorum present, majority yes.
+
+tv:FixtureMotionAdopt a tv:Motion ;
+    dct:title "Adopt governed exhibition" ;
+    tv:motionState "introduced" ;
+    tv:quorumRequired 2 ;
+    tv:yesVotes 2 ;
+    tv:noVotes 0 ;
+    tv:hasProposal tv:FixtureProposalA, tv:FixtureProposalB .
+
+tv:FixtureProposalA a tv:EscrowProposal ;
+    dct:title "Party A terms" ;
+    tv:constructText "CONSTRUCT { ?s tv:standing 'party-a-admitted' . } WHERE { ?s a tv:Settlement . }" ;
+    tv:proposalDigest "blake3:fixture-a" .
+
+tv:FixtureProposalB a tv:EscrowProposal ;
+    dct:title "Party B terms" ;
+    tv:constructText "CONSTRUCT { ?s tv:standing 'party-b-admitted' . } WHERE { ?s a tv:Settlement . }" ;
+    tv:proposalDigest "blake3:fixture-b" .
+
+tv:FixtureSettlement a tv:Settlement ;
+    tv:standing "candidate" ;
+    tv:receiptedBy tv:ReceiptPolicyBlake3 .

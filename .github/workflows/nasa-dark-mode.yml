@@ -1,0 +1,75 @@
+name: NASA Dark Mode
+
+on:
+  pull_request:
+    paths:
+      - 'packs/cyberpunk-tv-platform/nasa-dark-mode/**'
+      - '.github/workflows/nasa-dark-mode.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PACK: packs/cyberpunk-tv-platform/nasa-dark-mode
+
+jobs:
+  source-roku-browser:
+    name: Source, Roku package, deck.gl browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Manufacture twice and execute source capsule
+        working-directory: ${{ env.PACK }}
+        run: |
+          set -euo pipefail
+          node capsule.mjs
+      - name: Package and replay Roku source
+        working-directory: ${{ env.PACK }}
+        run: |
+          set -euo pipefail
+          (cd generated/roku && zip -qr ../.ggen/evidence/nasa-dark-mode-roku.zip manifest source components data)
+          (cd generated && node verify/verify.mjs --verify-package .ggen/evidence/nasa-dark-mode-roku.zip)
+      - name: Install browser closure
+        working-directory: ${{ env.PACK }}/generated/browser
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Build and execute deck.gl boundary
+        working-directory: ${{ env.PACK }}/generated/browser
+        run: |
+          set -euo pipefail
+          npm run build
+          npm run e2e
+      - name: Verify evidence
+        working-directory: ${{ env.PACK }}
+        run: |
+          set -euo pipefail
+          test -s .ggen/evidence/manufacture.json
+          test -s generated/.ggen/evidence/nasa-dark-mode.json
+          test -s generated/.ggen/evidence/nasa-dark-mode-roku.zip
+          test -s generated/.ggen/evidence/browser-e2e.json
+          test -s generated/.ggen/evidence/browser-e2e.png
+          test -s generated/browser/dist/index.html
+          grep -q '"standing": "ALIVE"' .ggen/evidence/manufacture.json
+          grep -q '"sourceCapsule": "ALIVE"' generated/.ggen/evidence/nasa-dark-mode.json
+          grep -q '"rokuPackage": "ALIVE"' generated/.ggen/evidence/nasa-dark-mode.json
+          grep -q '"browser": "EXECUTED"\|"schema": "ggen.nasa-dark-mode.browser-evidence.v1"' generated/.ggen/evidence/browser-e2e.json
+      - name: Publish exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nasa-dark-mode-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            packs/cyberpunk-tv-platform/nasa-dark-mode/.ggen/evidence/
+            packs/cyberpunk-tv-platform/nasa-dark-mode/generated/.ggen/evidence/
+            packs/cyberpunk-tv-platform/nasa-dark-mode/generated/browser/dist/

@@ -1,0 +1,20 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+
+SELECT ?decision
+WHERE {
+  tv:RuntimeMotion tv:quorumRequired ?required ;
+                   tv:yesVotes ?yes ;
+                   tv:noVotes ?no ;
+                   tv:hasProposal tv:RuntimeProposalA, tv:RuntimeProposalB .
+  tv:RuntimeProposalA tv:proposalDigest ?digestA .
+  tv:RuntimeProposalB tv:proposalDigest ?digestB .
+  BIND((?yes + ?no) AS ?present)
+  BIND(
+    IF(
+      ?digestA != ?digestB && ?present >= ?required && ?yes > ?no,
+      "adopted-awaiting-brce",
+      IF(?present >= ?required && ?no >= ?yes, "defeated-clean-abort", "refused-not-admitted")
+    ) AS ?decision
+  )
+}
+ORDER BY ?decision

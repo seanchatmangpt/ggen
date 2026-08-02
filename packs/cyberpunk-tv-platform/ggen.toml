@@ -1,0 +1,294 @@
+[project]
+name = "cyberpunk-tv-platform"
+version = "26.8.3"
+description = "Manufacture capability-dense television runtime bodies from public semantic authority."
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "AGPL-3.0-or-later"
+
+[ontology]
+source = "ontology/platform.ttl"
+imports = [
+  "ontology/platform-shapes.ttl",
+  "ontology/vision2030.ttl",
+  "fixtures/valid-session.ttl",
+  "fixtures/refused-session.ttl",
+]
+base_iri = "https://ggen.dev/ontology/cyberpunk-tv#"
+
+[ontology.prefixes]
+tv = "https://ggen.dev/ontology/cyberpunk-tv#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+owl = "http://www.w3.org/2002/07/owl#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+dct = "http://purl.org/dc/terms/"
+dcat = "http://www.w3.org/ns/dcat#"
+prov = "http://www.w3.org/ns/prov#"
+schema = "https://schema.org/"
+skos = "http://www.w3.org/2004/02/skos/core#"
+foaf = "http://xmlns.com/foaf/0.1/"
+org = "http://www.w3.org/ns/org#"
+odrl = "http://www.w3.org/ns/odrl/2/"
+sh = "http://www.w3.org/ns/shacl#"
+
+[inference]
+rules = [
+  { name = "derive-device-projections", order = 1, construct = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+CONSTRUCT { ?device tv:supportsProjection ?projection . }
+WHERE {
+  ?device a tv:DeviceProfile ; tv:hasCapability ?capability .
+  ?projection a tv:Projection ; tv:requiresCapability ?capability .
+}
+ORDER BY ?device ?projection
+""" },
+  { name = "derive-majority-settlement", order = 2, construct = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+CONSTRUCT {
+  ?motion tv:motionState "adopted" ; tv:adoptsSettlement ?settlement .
+  ?settlement tv:standing "adopted-awaiting-brce" ;
+              tv:receiptedBy tv:ReceiptPolicyBlake3 ;
+              prov:wasDerivedFrom ?proposalA, ?proposalB .
+}
+WHERE {
+  ?motion a tv:Motion ; tv:quorumRequired ?required ; tv:yesVotes ?yes ; tv:noVotes ?no ;
+          tv:hasProposal ?proposalA, ?proposalB .
+  FILTER(?proposalA != ?proposalB)
+  ?proposalA tv:proposalDigest ?digestA .
+  ?proposalB tv:proposalDigest ?digestB .
+  FILTER(?digestA != ?digestB)
+  BIND((?yes + ?no) AS ?present)
+  FILTER(?present >= ?required)
+  FILTER(?yes > ?no)
+  ?settlement a tv:Settlement ; tv:standing "candidate" .
+}
+ORDER BY ?motion ?settlement
+""" },
+  { name = "derive-clean-refusal", order = 3, construct = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+CONSTRUCT { ?motion tv:standing "clean-refusal" . }
+WHERE {
+  ?motion a tv:Motion ; tv:quorumRequired ?required ; tv:yesVotes ?yes ; tv:noVotes ?no .
+  BIND((?yes + ?no) AS ?present)
+  FILTER(?present < ?required || ?no >= ?yes)
+}
+ORDER BY ?motion
+""" },
+]
+
+[generation]
+output_dir = "generated/"
+
+[[generation.rules]]
+name = "package-json"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/package.json.tera" }
+output_file = "package.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "index-html"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/index.html.tera" }
+output_file = "index.html"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "main-module"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/main.js.tera" }
+output_file = "src/main.js"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "styles"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/style.css.tera" }
+output_file = "src/style.css"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "world-json"
+query = { file = "queries/extract-world.rq" }
+template = { file = "templates/world.json.tera" }
+output_file = "src/world.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "world-rdf"
+query = { file = "queries/extract-rdf.rq" }
+template = { file = "templates/world.ttl.tera" }
+output_file = "src/world.ttl"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "capability-ledger"
+query = { file = "queries/extract-capabilities.rq" }
+template = { file = "templates/capabilities.json.tera" }
+output_file = "src/capabilities.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "vision2030-control-model"
+query = { file = "queries/extract-vision2030.rq" }
+template = { file = "templates/vision2030.json.tera" }
+output_file = "src/vision2030.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "vision2030-control-plane"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/control-plane.mjs.tera" }
+output_file = "scripts/control-plane.mjs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "projection-catalog"
+query = { file = "queries/extract-projections.rq" }
+template = { file = "templates/projections.json.tera" }
+output_file = "src/projections.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-config"
+query = { file = "queries/extract-runtime.rq" }
+template = { file = "templates/runtime-config.json.tera" }
+output_file = "src/runtime-config.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "governance-config"
+query = { file = "queries/extract-governance.rq" }
+template = { file = "templates/governance.json.tera" }
+output_file = "src/governance.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rights-config"
+query = { file = "queries/extract-rights.rq" }
+template = { file = "templates/rights.json.tera" }
+output_file = "src/rights.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "mmdio-system-view"
+query = { file = "queries/extract-projections.rq" }
+template = { file = "templates/system.mmd.tera" }
+output_file = "src/system.mmd"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-settlement-query"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/settlement.rq.tera" }
+output_file = "src/settlement.rq"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-escrow-n3"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "rules/escrow.n3" }
+output_file = "rules/escrow.n3"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "runtime-settlement-datalog"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "rules/settlement.dl" }
+output_file = "rules/settlement.dl"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "web-manifest"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/manifest.webmanifest.tera" }
+output_file = "public/manifest.webmanifest"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "service-worker"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/service-worker.js.tera" }
+output_file = "public/sw.js"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rust-toolchain"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/rust-toolchain.toml.tera" }
+output_file = "rust-toolchain.toml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "wasm-cargo"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/Cargo.toml.tera" }
+output_file = "wasm/Cargo.toml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "wasm-library"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/lib.rs.tera" }
+output_file = "wasm/src/lib.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rust-receipt-binary"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/receipt.rs.tera" }
+output_file = "wasm/src/bin/receipt.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "verify-script"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/verify.mjs.tera" }
+output_file = "scripts/verify.mjs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "replay-script"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/replay.mjs.tera" }
+output_file = "scripts/replay.mjs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "browser-e2e"
+query = { file = "queries/extract-platform.rq" }
+template = { file = "templates/e2e.mjs.tera" }
+output_file = "scripts/e2e.mjs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generated-readme"
+query = { file = "queries/extract-capabilities.rq" }
+template = { file = "templates/README.md.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+[validation]
+shacl = ["ontology/platform-shapes.ttl"]
+strict_mode = true
+
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = true
+
+[templates]
+enable_caching = true
+auto_reload = true
+
+[output]
+formatting = "default"
+line_length = 100
+indent = 2

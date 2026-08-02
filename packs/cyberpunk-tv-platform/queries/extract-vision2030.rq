@@ -1,0 +1,29 @@
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+PREFIX dct: <http://purl.org/dc/terms/>
+SELECT ?kind ?id ?title ?group ?order ?requires ?provides ?verifier ?repair ?cost ?reversible ?enabled ?command ?question ?choice ?transport ?latency ?offline ?values
+WHERE {
+  {
+    ?subject a tv:PhaseCapability ; tv:capabilityId ?id ; dct:title ?title ; tv:capabilityGroup ?group ; tv:capabilityOrder ?order ; tv:provides ?provides ; tv:verifier ?verifier ; tv:costClass ?cost ; tv:reversible ?reversible ; tv:defaultEnabled ?enabled .
+    OPTIONAL { ?subject tv:requires ?required . BIND(STR(?required) AS ?requires) }
+    BIND("capability" AS ?kind)
+  }
+  UNION {
+    ?subject a tv:DoctorCheck ; tv:capabilityId ?id ; tv:capabilityOrder ?order ; tv:command ?command ; tv:repairAction ?repair ; tv:verifier ?verifier .
+    BIND("doctor" AS ?kind)
+  }
+  UNION {
+    ?subject a tv:WizardStep ; tv:capabilityOrder ?order ; tv:question ?question ; tv:choice ?choice .
+    BIND(STR(?subject) AS ?id)
+    BIND("wizard" AS ?kind)
+  }
+  UNION {
+    ?subject a tv:TransportProfile ; tv:transportKind ?transport ; tv:latencyClass ?latency ; tv:offlineCapable ?offline ; tv:provides ?provides .
+    BIND(?transport AS ?id)
+    BIND("transport" AS ?kind)
+  }
+  UNION {
+    ?subject a tv:CombinationAxis ; tv:capabilityId ?id ; tv:axisValues ?values .
+    BIND("axis" AS ?kind)
+  }
+}
+ORDER BY ?kind ?order ?id

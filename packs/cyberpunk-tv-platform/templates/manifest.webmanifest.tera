@@ -1,0 +1,13 @@
+{% for row in sparql_results %}
+{
+  "name": {{ row["title"] | json_encode() }},
+  "short_name": "Public Sprawl",
+  "description": {{ row["subtitle"] | json_encode() }},
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#050711",
+  "theme_color": "#050711",
+  "categories": ["entertainment", "education", "utilities"]
+}
+{% endfor %}
