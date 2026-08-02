@@ -8,7 +8,7 @@
     "dev": "vite --host 0.0.0.0",
     "wasm": "wasm-pack build wasm --target web --out-dir ../src/wasm --release",
     "build": "npm run wasm && vite build",
-    "verify": "cargo run --quiet --manifest-path wasm/Cargo.toml --bin receipt -- .",
+    "verify": "node scripts/verify.mjs",
     "replay": "node scripts/replay.mjs",
     "check": "cargo check --manifest-path wasm/Cargo.toml --all-targets && npm run build && npm run verify && npm run replay"
   },
