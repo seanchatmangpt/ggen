@@ -13,10 +13,12 @@ pub mod a2a;
 pub mod agent;
 pub mod bblock;
 pub mod capability;
+pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework;
 #[cfg(feature = "lsp")]
 pub mod lsp;
+pub mod maximalism;
 #[cfg(feature = "experimental")]
 pub mod mcp;
 pub mod ontology;
@@ -25,8 +27,10 @@ pub mod packs;
 pub mod packs_receipt;
 pub mod policy;
 pub mod sbb;
+pub mod telco;
 pub mod utils;
 pub mod vision2030;
+pub mod wizard;
 
 fn register_noun(name: &'static str, about: &'static str) {
     ::clap_noun_verb::cli::registry::CommandRegistry::register_noun(name, about);
@@ -56,6 +60,24 @@ fn register_capability_noun() {
     register_noun(
         "capability",
         "Capability noun — resolve and enable capability surfaces (`ggen capability <verb>`).",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_DOCTOR_NOUN: fn() = register_doctor_noun;
+fn register_doctor_noun() {
+    register_noun(
+        "doctor",
+        "Universal non-actuating diagnostics, root-cause evidence, and deterministic remediation.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_MAXIMALISM_NOUN: fn() = register_maximalism_noun;
+fn register_maximalism_noun() {
+    register_noun(
+        "maximalism",
+        "Vision 2030 combinatorial capability closure, semantic product-space measurement, lawful outcomes, receipts, and replay.",
     );
 }
 
@@ -102,6 +124,15 @@ fn register_sbb_noun() {
 }
 
 #[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_TELCO_NOUN: fn() = register_telco_noun;
+fn register_telco_noun() {
+    register_noun(
+        "telco",
+        "Universal office, register, line, bridge, and record surfaces over CLI, MCP, A2A, local, edge, fog, and cloud.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
 static REGISTER_UTILS_NOUN: fn() = register_utils_noun;
 fn register_utils_noun() {
     register_noun("utils", "Utils Commands - clap-noun-verb migration surface");
@@ -113,6 +144,15 @@ fn register_vision2030_noun() {
     register_noun(
         "vision2030",
         "Vision 2030 capability admission, 1000x phase-change measurement, Blue Ocean analysis, DX/QoL/Doctor diagnostics, receipts, and replay.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_WIZARD_NOUN: fn() = register_wizard_noun;
+fn register_wizard_noun() {
+    register_noun(
+        "wizard",
+        "Bounded-question, dependency-ordered production-cell construction without hot-law actuation.",
     );
 }
 
