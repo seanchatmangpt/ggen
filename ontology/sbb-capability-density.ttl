@@ -1,0 +1,183 @@
+@prefix sbbd: <https://ggen.io/ontology/sbb-capability-density#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+sbbd:Ontology a owl:Ontology ;
+    dcterms:title "ggen SBB Capability Density Ontology" ;
+    dcterms:description "Canonical vocabulary for unique commit-equivalent capability units, complete manufacturing evidence chains, combinatorial distribution axes, reports, receipts, and replay." ;
+    dcterms:issued "2026-08-02"^^xsd:date ;
+    owl:versionInfo "26.8.3" .
+
+sbbd:SolutionBuildingBlock a owl:Class ;
+    rdfs:label "Solution Building Block" ;
+    rdfs:comment "A versioned solution composition whose capability lineage can be distributed across admitted contexts." .
+
+sbbd:RepositoryBinding a owl:Class ;
+    rdfs:label "Repository Binding" ;
+    rdfs:comment "The admitted local Git work tree used to observe commits and historical evidence bytes." .
+
+sbbd:ArchitectureContract a owl:Class ;
+    rdfs:label "Architecture Contract" ;
+    rdfs:comment "Executable obligations binding an architecture capability to a candidate SBB realization." .
+
+sbbd:CapabilityDelta a owl:Class ;
+    rdfs:label "Capability Delta" ;
+    rdfs:comment "One reusable capability increment attributed to one unique Git commit and a complete evidence chain." .
+
+sbbd:EvidenceBinding a owl:Class ;
+    rdfs:label "Evidence Binding" ;
+    rdfs:comment "A locator and content digest for one required manufacturing or falsification witness." .
+
+sbbd:ManufacturingStage a owl:Class ;
+    rdfs:label "Manufacturing Stage" .
+
+sbbd:DistributionAxis a owl:Class ;
+    rdfs:label "Distribution Axis" ;
+    rdfs:comment "One finite admitted dimension in the SBB projection product space." .
+
+sbbd:DensityEvaluation a owl:Class ;
+    rdfs:label "Capability Density Evaluation" .
+
+sbbd:DensityReceipt a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Capability Density Receipt" .
+
+sbbd:EvidenceState a owl:Class ;
+    rdfs:subClassOf skos:Concept .
+
+sbbd:Observed a sbbd:EvidenceState ; skos:prefLabel "OBSERVED" .
+sbbd:Declared a sbbd:EvidenceState ; skos:prefLabel "DECLARED" .
+sbbd:Missing a sbbd:EvidenceState ; skos:prefLabel "MISSING" .
+sbbd:DigestMismatch a sbbd:EvidenceState ; skos:prefLabel "DIGEST_MISMATCH" .
+
+sbbd:OntologyStage a sbbd:ManufacturingStage ; skos:prefLabel "ontology" .
+sbbd:ShaclStage a sbbd:ManufacturingStage ; skos:prefLabel "shacl" .
+sbbd:SparqlStage a sbbd:ManufacturingStage ; skos:prefLabel "sparql" .
+sbbd:TypestateStage a sbbd:ManufacturingStage ; skos:prefLabel "typestate" .
+sbbd:TemplateStage a sbbd:ManufacturingStage ; skos:prefLabel "template" .
+sbbd:ArtifactStage a sbbd:ManufacturingStage ; skos:prefLabel "artifact" .
+sbbd:RuntimeSurfaceStage a sbbd:ManufacturingStage ; skos:prefLabel "runtime_surface" .
+sbbd:WalkthroughStage a sbbd:ManufacturingStage ; skos:prefLabel "walkthrough" .
+sbbd:ReceiptStage a sbbd:ManufacturingStage ; skos:prefLabel "receipt" .
+sbbd:ReplayStage a sbbd:ManufacturingStage ; skos:prefLabel "replay" .
+sbbd:PositiveWitnessStage a sbbd:ManufacturingStage ; skos:prefLabel "positive_witness" .
+sbbd:NegativeFixtureStage a sbbd:ManufacturingStage ; skos:prefLabel "negative_fixture" .
+sbbd:AdversarialFalsifierStage a sbbd:ManufacturingStage ; skos:prefLabel "adversarial_falsifier" .
+sbbd:VerifierStage a sbbd:ManufacturingStage ; skos:prefLabel "verifier" .
+
+sbbd:hasRepositoryBinding a owl:ObjectProperty ;
+    rdfs:domain sbbd:SolutionBuildingBlock ;
+    rdfs:range sbbd:RepositoryBinding .
+
+sbbd:hasArchitectureContract a owl:ObjectProperty ;
+    rdfs:domain sbbd:SolutionBuildingBlock ;
+    rdfs:range sbbd:ArchitectureContract .
+
+sbbd:hasCapabilityDelta a owl:ObjectProperty ;
+    rdfs:domain sbbd:SolutionBuildingBlock ;
+    rdfs:range sbbd:CapabilityDelta .
+
+sbbd:hasEvidenceBinding a owl:ObjectProperty ;
+    rdfs:domain sbbd:CapabilityDelta ;
+    rdfs:range sbbd:EvidenceBinding .
+
+sbbd:hasDistributionAxis a owl:ObjectProperty ;
+    rdfs:domain sbbd:SolutionBuildingBlock ;
+    rdfs:range sbbd:DistributionAxis .
+
+sbbd:evaluatesSbb a owl:ObjectProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range sbbd:SolutionBuildingBlock .
+
+sbbd:reportsDelta a owl:ObjectProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range sbbd:CapabilityDelta .
+
+sbbd:hasEvidenceState a owl:ObjectProperty ;
+    rdfs:domain sbbd:EvidenceBinding ;
+    rdfs:range sbbd:EvidenceState .
+
+sbbd:stage a owl:ObjectProperty ;
+    rdfs:domain sbbd:EvidenceBinding ;
+    rdfs:range sbbd:ManufacturingStage .
+
+sbbd:previousReceipt a owl:ObjectProperty ;
+    rdfs:domain sbbd:DensityReceipt ;
+    rdfs:range sbbd:DensityReceipt .
+
+sbbd:repositoryRoot a owl:DatatypeProperty ;
+    rdfs:domain sbbd:RepositoryBinding ;
+    rdfs:range xsd:string .
+
+sbbd:identifier a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sbbd:version a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sbbd:minimumCommitEquivalentUnits a owl:DatatypeProperty ;
+    rdfs:domain sbbd:SolutionBuildingBlock ;
+    rdfs:range xsd:nonNegativeInteger .
+
+sbbd:commitSha a owl:DatatypeProperty ;
+    rdfs:domain sbbd:CapabilityDelta ;
+    rdfs:range xsd:hexBinary .
+
+sbbd:capabilityIri a owl:DatatypeProperty ;
+    rdfs:domain sbbd:CapabilityDelta ;
+    rdfs:range xsd:anyURI .
+
+sbbd:family a owl:DatatypeProperty ;
+    rdfs:domain sbbd:CapabilityDelta ;
+    rdfs:range xsd:string .
+
+sbbd:summary a owl:DatatypeProperty ;
+    rdfs:domain sbbd:CapabilityDelta ;
+    rdfs:range xsd:string .
+
+sbbd:locator a owl:DatatypeProperty ;
+    rdfs:domain sbbd:EvidenceBinding ;
+    rdfs:range xsd:anyURI .
+
+sbbd:contentDigest a owl:DatatypeProperty ;
+    rdfs:domain sbbd:EvidenceBinding ;
+    rdfs:range xsd:string .
+
+sbbd:axisName a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DistributionAxis ;
+    rdfs:range xsd:string .
+
+sbbd:axisMember a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DistributionAxis ;
+    rdfs:range xsd:string .
+
+sbbd:commitEquivalentUnits a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range xsd:nonNegativeInteger .
+
+sbbd:distributionContexts a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range xsd:nonNegativeInteger .
+
+sbbd:deliveredCapabilityInstances a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range xsd:nonNegativeInteger .
+
+sbbd:eligibleForExternalAdmission a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range xsd:boolean .
+
+sbbd:claimCeiling a owl:DatatypeProperty ;
+    rdfs:domain sbbd:DensityEvaluation ;
+    rdfs:range xsd:string .
+
+sbbd:manifestDigest a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sbbd:reportDigest a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
