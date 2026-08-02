@@ -56,6 +56,13 @@ jobs:
           path: .corpus
           fetch-depth: 0
 
+      - name: Fence verifier checkouts from source cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '/.baseline-ggen\n/.corpus\n' >> .git/info/exclude
+          test -z "$(git status --porcelain)"
+
       - name: Install pinned Rust toolchain
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:
