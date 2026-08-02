@@ -1,7 +1,7 @@
 use super::*;
 
 impl Receipt {
-    pub(super) fn issue(
+    fn issue(
         operation: &str, report: &Report, previous: &str, artifacts: Vec<String>,
     ) -> Result<Self> {
         let body = ReceiptBody {
@@ -24,7 +24,7 @@ impl Receipt {
         })
     }
 
-    pub(super) fn valid(&self) -> Result<bool> {
+    fn valid(&self) -> Result<bool> {
         Ok(self.schema == RECEIPT_SCHEMA
             && self.digest_algorithm == "blake3"
             && self.digest
@@ -39,7 +39,7 @@ impl Receipt {
     }
 }
 
-pub(super) fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|error| {
             NounVerbError::execution_error(format!("cannot create {}: {error}", parent.display()))
@@ -57,7 +57,7 @@ pub(super) fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     })
 }
 
-pub(super) fn receipt_paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
+fn receipt_paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
     (
         output.join("density-report.json"),
         output.join("density-intent.json"),
@@ -65,7 +65,7 @@ pub(super) fn receipt_paths(output: &Path) -> (PathBuf, PathBuf, PathBuf) {
     )
 }
 
-pub(super) fn previous_digest(path: &Path) -> Result<String> {
+fn previous_digest(path: &Path) -> Result<String> {
     if !path.is_file() {
         return Ok("GENESIS".to_string());
     }
@@ -82,4 +82,73 @@ pub(super) fn previous_digest(path: &Path) -> Result<String> {
         )));
     }
     Ok(receipt.digest)
+}
+
+fn read_json<T>(path: &Path) -> Result<T>
+where
+    T: for<'de> Deserialize<'de>,
+{
+    let bytes = fs::read(path).map_err(|error| {
+        NounVerbError::execution_error(format!("cannot read {}: {error}", path.display()))
+    })?;
+    serde_json::from_slice(&bytes).map_err(|error| {
+        NounVerbError::execution_error(format!("cannot parse {}: {error}", path.display()))
+    })
+}
+
+pub(super) fn issue(manifest: &Path, output: &Path) -> Result<Value> {
+    let report = evaluation::evaluate(manifest)?;
+    let (report_path, intent_path, result_path) = receipt_paths(output);
+    let intent = Receipt::issue(
+        "density-evaluate-intent",
+        &report,
+        &previous_digest(&result_path)?,
+        vec!["density-report.json".to_string()],
+    )?;
+    write_json(&intent_path, &intent)?;
+    write_json(&report_path, &report)?;
+    let result = Receipt::issue(
+        "density-evaluate-result",
+        &report,
+        &intent.digest,
+        vec![
+            "density-report.json".to_string(),
+            "density-intent.json".to_string(),
+        ],
+    )?;
+    write_json(&result_path, &result)?;
+    Ok(json!({
+        "standing": report.standing,
+        "claim_ceiling": report.claim_ceiling,
+        "report": report_path,
+        "intent_receipt": intent_path,
+        "result_receipt": result_path,
+        "receipt_digest": result.digest
+    }))
+}
+
+pub(super) fn replay(manifest: &Path, output: &Path) -> Result<Value> {
+    let report = evaluation::evaluate(manifest)?;
+    let (report_path, intent_path, result_path) = receipt_paths(output);
+    let stored: Report = read_json(&report_path)?;
+    let intent: Receipt = read_json(&intent_path)?;
+    let result: Receipt = read_json(&result_path)?;
+    let matches = report_digest(&stored)? == stored.report_digest
+        && intent.valid()?
+        && result.valid()?
+        && result.previous_digest == intent.digest
+        && intent.manifest_digest == report.manifest_digest
+        && intent.report_digest == report.report_digest
+        && stored.manifest_digest == report.manifest_digest
+        && stored.report_digest == report.report_digest
+        && result.manifest_digest == report.manifest_digest
+        && result.report_digest == report.report_digest;
+    Ok(json!({
+        "schema": "ggen.sbb.capability-density-replay.v1",
+        "status": if matches { "REPLAY_MATCH" } else { "REPLAY_DIVERGED" },
+        "matches": matches,
+        "manifest_digest": report.manifest_digest,
+        "report_digest": report.report_digest,
+        "receipt_digest": result.digest
+    }))
 }
