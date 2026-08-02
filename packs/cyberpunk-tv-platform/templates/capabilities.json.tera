@@ -1,0 +1,5 @@
+{
+  "capabilities": [
+{% for row in sparql_results %}    {"id": {{ row["capability_id"] | json_encode() }}, "label": {{ row["label"] | json_encode() }}}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
