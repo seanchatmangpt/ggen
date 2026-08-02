@@ -16,7 +16,8 @@
     "wizard": "node scripts/control-plane.mjs wizard",
     "telco": "node scripts/control-plane.mjs telco",
     "plan": "node scripts/control-plane.mjs plan",
-    "vision2030": "npm run doctor && npm run wizard && npm run telco && npm run plan",
+    "chicago": "node ../verify/chicago-tdd.mjs",
+    "vision2030": "npm run doctor && npm run wizard && npm run telco && npm run plan && npm run chicago",
     "check": "cargo test --manifest-path wasm/Cargo.toml && cargo check --manifest-path wasm/Cargo.toml --all-targets && npm run build && npm run vision2030 && npm run verify && npm run replay && npm run e2e"
   },
   "dependencies": {
