@@ -1,0 +1,76 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix tv: <https://ggen.dev/ontology/cyberpunk-tv#> .
+
+# The shapes reject incomplete authority before manufacture. They do not grant runtime standing.
+
+tv:PlatformShape a sh:NodeShape ;
+    sh:targetClass tv:Platform ;
+    sh:property [ sh:path tv:title ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:subtitle ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:hasMode ; sh:minCount 6 ; sh:class tv:Mode ] ;
+    sh:property [ sh:path tv:hasProjection ; sh:minCount 3 ; sh:class tv:Projection ] ;
+    sh:property [ sh:path tv:hasRuntimeBody ; sh:minCount 1 ; sh:class tv:RuntimeBody ] ;
+    sh:property [ sh:path tv:receiptedBy ; sh:minCount 1 ; sh:class tv:ReceiptPolicy ] .
+
+tv:CapabilityShape a sh:NodeShape ;
+    sh:targetClass tv:Capability ;
+    sh:property [ sh:path tv:capabilityId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 2 ] .
+
+tv:ModeShape a sh:NodeShape ;
+    sh:targetClass tv:Mode ;
+    sh:property [ sh:path tv:modeId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:nextMode ; sh:minCount 1 ; sh:maxCount 1 ; sh:class tv:Mode ] ;
+    sh:property [ sh:path tv:requiresCapability ; sh:minCount 1 ; sh:class tv:Capability ] .
+
+tv:ProjectionShape a sh:NodeShape ;
+    sh:targetClass tv:Projection ;
+    sh:property [ sh:path tv:projectionId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:projectionKind ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ("deck.gl" "mermaid" "unrdf") ] ;
+    sh:property [ sh:path tv:requiresCapability ; sh:minCount 1 ; sh:class tv:Capability ] .
+
+tv:DeviceProfileShape a sh:NodeShape ;
+    sh:targetClass tv:DeviceProfile ;
+    sh:property [ sh:path tv:deviceId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:runtimeKind ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:hasCapability ; sh:minCount 3 ; sh:class tv:Capability ] .
+
+tv:WorldNodeShape a sh:NodeShape ;
+    sh:targetClass tv:WorldNode ;
+    sh:property [ sh:path <https://schema.org/name> ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path tv:longitude ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive -180 ; sh:maxInclusive 180 ] ;
+    sh:property [ sh:path tv:latitude ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive -90 ; sh:maxInclusive 90 ] ;
+    sh:property [ sh:path tv:weight ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1 ] .
+
+tv:WorldEdgeShape a sh:NodeShape ;
+    sh:targetClass tv:WorldEdge ;
+    sh:property [ sh:path tv:sourceNode ; sh:minCount 1 ; sh:maxCount 1 ; sh:class tv:WorldNode ] ;
+    sh:property [ sh:path tv:targetNode ; sh:minCount 1 ; sh:maxCount 1 ; sh:class tv:WorldNode ] ;
+    sh:property [ sh:path tv:weight ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1 ] .
+
+tv:WatchSessionShape a sh:NodeShape ;
+    sh:targetClass tv:WatchSession ;
+    sh:property [ sh:path tv:sessionId ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path tv:sessionState ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ("scheduled" "ready" "playing" "paused" "completed" "refused") ] ;
+    sh:property [ sh:path tv:driftToleranceMillis ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 0 ; sh:maxInclusive 5000 ] ;
+    sh:property [ sh:path tv:hasMediaBinding ; sh:minCount 1 ; sh:class tv:MediaBinding ] ;
+    sh:property [ sh:path tv:receiptedBy ; sh:minCount 1 ; sh:class tv:ReceiptPolicy ] .
+
+tv:MotionShape a sh:NodeShape ;
+    sh:targetClass tv:Motion ;
+    sh:property [ sh:path dct:title ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path tv:motionState ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ("introduced" "seconded" "debating" "amended" "voting" "adopted" "defeated" "adjourned") ] ;
+    sh:property [ sh:path tv:quorumRequired ; sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1 ] ;
+    sh:property [ sh:path tv:hasProposal ; sh:minCount 2 ; sh:class tv:EscrowProposal ] .
+
+tv:EscrowProposalShape a sh:NodeShape ;
+    sh:targetClass tv:EscrowProposal ;
+    sh:property [ sh:path tv:constructText ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:pattern "^CONSTRUCT" ; sh:flags "i" ] ;
+    sh:property [ sh:path tv:proposalDigest ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] .
+
+tv:ReceiptPolicyShape a sh:NodeShape ;
+    sh:targetClass tv:ReceiptPolicy ;
+    sh:property [ sh:path tv:receiptAlgorithm ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue "blake3-256" ] ;
+    sh:property [ sh:path tv:standing ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] .
