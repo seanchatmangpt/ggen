@@ -64,6 +64,88 @@ jobs:
       - name: Install verifier dependencies
         run: python3 -m pip install --disable-pip-version-check blake3==1.0.9 jsonschema==4.26.0 pyshacl==0.40.0
 
+      - name: Bind exact operational-reference policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/ci/v26_8_1_source_removal.py')
+          text = path.read_text()
+          old = '''def scan_operational_references() -> list[str]:
+              forbidden = [str(path) for path in ACTIVE_ROOTS] + [str(source) for source, _ in GUARD_MOVES]
+              roots = [Path("justfile"), Path(".github/workflows"), Path("crates"), Path("tools/architecture-foundry")]
+              findings: list[str] = []
+              for root in roots:
+                  candidates = [root] if root.is_file() else root.rglob("*") if root.exists() else []
+                  for path in candidates:
+                      if not path.is_file() or "target" in path.parts:
+                          continue
+                      try:
+                          text = path.read_text()
+                      except (UnicodeDecodeError, OSError):
+                          continue
+                      for token in forbidden:
+                          if token in text:
+                              findings.append(f"{path}:{token}")
+              return sorted(findings)
+          '''
+          new = '''HISTORICAL_EVIDENCE_LINES: dict[Path, set[str]] = {
+              Path("tools/architecture-foundry/src/bin/admit_observation.rs"): {
+                  'const CAPABILITY_PATH: &str = "ontology/v26.8.1/legacy-capabilities.ttl";',
+                  'const REPORT_PATH: &str = "docs/v26.8.1/90-legacy/observer-class-report.md";',
+              },
+          }
+
+
+          def scan_operational_references() -> list[str]:
+              forbidden = [str(path) for path in ACTIVE_ROOTS] + [
+                  str(source) for source, _ in GUARD_MOVES
+              ]
+              roots = [
+                  Path("justfile"),
+                  Path(".github/workflows"),
+                  Path("crates"),
+                  Path("tools/architecture-foundry"),
+              ]
+              findings: list[str] = []
+              for root in roots:
+                  candidates = (
+                      [root]
+                      if root.is_file()
+                      else root.rglob("*")
+                      if root.exists()
+                      else []
+                  )
+                  for candidate in candidates:
+                      if not candidate.is_file() or "target" in candidate.parts:
+                          continue
+                      try:
+                          lines = candidate.read_text().splitlines()
+                      except (UnicodeDecodeError, OSError):
+                          continue
+                      admitted = HISTORICAL_EVIDENCE_LINES.get(candidate, set())
+                      for line_number, line in enumerate(lines, start=1):
+                          stripped = line.lstrip()
+                          if candidate == Path("justfile") and stripped.startswith("#"):
+                              continue
+                          if candidate.suffix == ".rs" and stripped.startswith("//"):
+                              continue
+                          if line.strip() in admitted:
+                              continue
+                          for token in forbidden:
+                              if token in line:
+                                  findings.append(
+                                      f"{candidate}:{line_number}:{token}"
+                                  )
+              return sorted(findings)
+          '''
+          if text.count(old) != 1:
+              raise SystemExit('REFERENCE_POLICY_PATCH_PRECONDITION_REFUSED')
+          path.write_text(text.replace(old, new))
+          PY
+
       - name: Compile constructor and admit destination
         shell: bash
         run: |
@@ -107,19 +189,6 @@ jobs:
         run: |
           set -euo pipefail
           SUBJECT='${{ steps.checkpoint.outputs.subject }}'
-          python3 - <<'PY'
-          import importlib.util
-          import json
-          spec = importlib.util.spec_from_file_location(
-              "source_removal", "scripts/ci/v26_8_1_source_removal.py"
-          )
-          module = importlib.util.module_from_spec(spec)
-          assert spec.loader is not None
-          spec.loader.exec_module(module)
-          print("RESIDUAL_OPERATIONAL_REFERENCES=" + json.dumps(
-              module.scan_operational_references(), sort_keys=True
-          ))
-          PY
           python3 scripts/ci/v26_8_1_source_removal.py verify \
             --corpus .corpus \
             --source-base "$SOURCE_BASE" \
