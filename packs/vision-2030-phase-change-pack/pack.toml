@@ -1,0 +1,9 @@
+[pack]
+name = "vision-2030-phase-change-pack"
+version = "26.8.3"
+description = """
+Executable Vision 2030 capability-program semantics, Blue Ocean ERRC analysis,
+DX/QoL/Doctor diagnostic lenses, horizon gates, authority boundaries, external
+acceptance, 1000x SBB distribution measurement, receipts, and replay. Catalog
+entries remain DESIGNED until exact evidence and independent acceptance exist.
+"""
