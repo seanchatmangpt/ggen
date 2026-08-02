@@ -26,9 +26,7 @@ substrate_only = true
 name = "package-json"
 query = """
 PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
-SELECT ?title ?subtitle WHERE {
-  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
-}
+SELECT ?title ?subtitle WHERE { tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle . }
 """
 template = "templates/package.json.tera"
 output = "package.json"
@@ -37,9 +35,7 @@ output = "package.json"
 name = "index-html"
 query = """
 PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
-SELECT ?title ?subtitle WHERE {
-  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
-}
+SELECT ?title ?subtitle WHERE { tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle . }
 """
 template = "templates/index.html.tera"
 output = "index.html"
@@ -70,12 +66,19 @@ template = "templates/world.json.tera"
 output = "src/world.json"
 
 [[generation]]
+name = "runtime-verifier"
+query = """
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+SELECT ?title WHERE { tv:CyberpunkPlatform tv:title ?title . }
+"""
+template = "templates/verify.mjs.tera"
+output = "scripts/verify.mjs"
+
+[[generation]]
 name = "platform-readme"
 query = """
 PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
-SELECT ?title ?subtitle WHERE {
-  tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle .
-}
+SELECT ?title ?subtitle WHERE { tv:CyberpunkPlatform tv:title ?title ; tv:subtitle ?subtitle . }
 """
 template = "templates/README.md.tera"
 output = "README.md"
