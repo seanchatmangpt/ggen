@@ -107,6 +107,19 @@ jobs:
         run: |
           set -euo pipefail
           SUBJECT='${{ steps.checkpoint.outputs.subject }}'
+          python3 - <<'PY'
+          import importlib.util
+          import json
+          spec = importlib.util.spec_from_file_location(
+              "source_removal", "scripts/ci/v26_8_1_source_removal.py"
+          )
+          module = importlib.util.module_from_spec(spec)
+          assert spec.loader is not None
+          spec.loader.exec_module(module)
+          print("RESIDUAL_OPERATIONAL_REFERENCES=" + json.dumps(
+              module.scan_operational_references(), sort_keys=True
+          ))
+          PY
           python3 scripts/ci/v26_8_1_source_removal.py verify \
             --corpus .corpus \
             --source-base "$SOURCE_BASE" \
