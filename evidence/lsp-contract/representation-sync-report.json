@@ -17,5 +17,7 @@
   "representation_count": 7,
   "schema": "ggen.lsp.representation-sync-report/1",
   "standing": "ALIVE",
-  "surface_count": 8
+  "surface_count": 8,
+  "verifier_git_blob": "ed669fca1858691417412c4470661597c4f54da0",
+  "verifier_sha256": "4d8ff9bc7abd449edadc063f60ae4bc74acaffe2eb8c9546fb23b12261066569"
 }
