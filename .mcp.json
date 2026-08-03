@@ -44,6 +44,13 @@
       "env": {
         "RUST_LOG": "warn"
       }
+    },
+    "ggen-mcp": {
+      "command": "cargo",
+      "args": ["run", "-q", "--release", "-p", "ggen-mcp"],
+      "env": {
+        "RUST_LOG": "warn"
+      }
     }
   },
   "description": "MCP (Model Context Protocol) servers for enhanced Claude Code capabilities",

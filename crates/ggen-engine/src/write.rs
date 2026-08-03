@@ -334,7 +334,7 @@ fn maybe_backup(target: &Path, existing_content: &str, frontmatter: &Frontmatter
 /// `sync::parse_template_file`'s `from:` resolution — any frontmatter field
 /// that reads or writes a filesystem path relative to some base directory
 /// should route through this same check, not re-implement it.
-pub(crate) fn resolve_target(root: &Path, rel_to: &str) -> Result<PathBuf> {
+pub fn resolve_target(root: &Path, rel_to: &str) -> Result<PathBuf> {
     let root_c = root.canonicalize().map_err(|e| {
         AppError::fm_write(
             1,

@@ -25,6 +25,9 @@ pub mod lint;
 // module directly. See the module's own doc comment for the key policy.
 mod keys;
 pub mod pack;
+// Shared "load the project graph, stop before templates" entry point --
+// consumed by `ggen-mcp`'s ad-hoc query tools. See its own doc comment.
+pub mod project_graph;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by
 // `sync::sync` and `verbs::handlers` only -- every other caller already goes through one of
