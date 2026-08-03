@@ -147,11 +147,23 @@ impl Board {
         // --- template on disk, then dry run and apply ---------------------
         let tpl = root.join("templates/probe.tmpl");
         if std::fs::write(&tpl, case.template_file()).is_ok() {
-            let _ = crate::tools::sync_dry_run::sync_dry_run(
+            // Captured, never dropped: a broken, panicking, or
+            // apply-disagreeing dry-run tool must be a finding, not
+            // invisible. See `Observation::dry_run_ok`/`dry_run_would_write`
+            // and `Invariant::DryRunAgreesWithApply`.
+            let dry_run = crate::tools::sync_dry_run::sync_dry_run(
                 &crate::tools::sync_dry_run::SyncDryRunParams {
                     root: root_str.clone(),
                 },
             );
+            match &dry_run {
+                Ok(r) => {
+                    obs.dry_run_ok = Some(r.ok);
+                    obs.dry_run_would_write =
+                        Some(r.would_write.iter().map(|w| w.path.clone()).collect());
+                }
+                Err(_) => obs.dry_run_ok = Some(false),
+            }
 
             let applied = crate::tools::write_apply::write_apply(
                 &crate::tools::write_apply::WriteApplyParams {
@@ -173,13 +185,18 @@ impl Board {
                             None
                         };
                         // Idempotence: immediate re-apply of unchanged input.
-                        if let Ok(second) = crate::tools::write_apply::write_apply(
+                        match crate::tools::write_apply::write_apply(
                             &crate::tools::write_apply::WriteApplyParams {
                                 root: root_str.clone(),
                                 confirm: true,
                             },
                         ) {
-                            obs.second_apply_written = Some(second.write_count);
+                            Ok(second) => {
+                                obs.second_apply_written = Some(second.write_count);
+                            }
+                            // Captured, never dropped: a re-sync that refuses
+                            // is a finding.
+                            Err(e) => obs.second_apply_error = Some(e.message.clone()),
                         }
                     }
                 }

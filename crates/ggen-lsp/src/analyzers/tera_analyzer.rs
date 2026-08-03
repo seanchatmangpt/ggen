@@ -483,24 +483,39 @@ fn bracket_keys(template: &str) -> BTreeSet<String> {
 }
 
 /// Given the head of a `{{ … }}` expression, return the consumed query var:
-/// `name` → `name`; `row.name` → `name`; `row["name"]` handled separately;
-/// literals / non-identifiers → `None`.
+/// `name` → `name`; `row.name` → `name` (the documented `row.` legacy-alias
+/// convention only — see `hover_at`/`completion_at` above, which special-case
+/// the literal `row.` prefix); any OTHER dotted prefix (`x.y`) is not that
+/// alias, so `x` — the identifier Tera actually resolves first — is reported
+/// as consumed instead of the unchecked suffix `y`; `row["name"]` handled
+/// separately; literals / non-identifiers → `None`.
 fn leading_var(head: &str) -> Option<String> {
     let head = head.trim();
     if head.is_empty() {
         return None;
     }
-    // `row.name` (or deeper) → take the segment after the first dot.
+    // `row.name` (or deeper) → take the segment after the first dot, but
+    // ONLY for the documented `row.` prefix. A dotted access through any
+    // OTHER prefix (e.g. `typo_var.name`) must not silently report `name`
+    // as consumed: Tera resolves `typo_var` first, and if that identifier
+    // is unbound the render fails on `typo_var`, not on `name`. Reporting
+    // the prefix itself here lets `unbound_projection_diagnostics` catch
+    // that case (subject to the usual local-var subtraction in
+    // `consumed_vars` for legitimately loop/set-bound prefixes) instead of
+    // being fooled by a suffix that coincidentally matches an available var.
     if let Some(dot) = head.find('.') {
         let prefix = head[..dot].trim();
         if prefix == "loop" {
             return None;
         }
-        let key = head[dot + 1..]
-            .split(|c: char| !(c.is_alphanumeric() || c == '_'))
-            .next()
-            .unwrap_or("");
-        return is_identifier(key).then(|| key.to_string());
+        if prefix == "row" {
+            let key = head[dot + 1..]
+                .split(|c: char| !(c.is_alphanumeric() || c == '_'))
+                .next()
+                .unwrap_or("");
+            return is_identifier(key).then(|| key.to_string());
+        }
+        return is_identifier(prefix).then(|| prefix.to_string());
     }
     // Bare identifier `name`. Skip bracket/quote/digit-led forms.
     let ident: String = head
@@ -915,6 +930,53 @@ mod tests {
         // `name` IS consumed (rhs of set), `y` is local.
         let diags = unbound_projection_diagnostics(t, &vars(&["name"]));
         assert!(diags.is_empty(), "expected no diagnostic, got {diags:?}");
+    }
+
+    // ───────────── F2 regression: dotted prefix must be checked, not discarded ─────────────
+
+    #[test]
+    fn unbound_dotted_prefix_reports_prefix_not_suffix() {
+        // `typo_var` is not bound by anything (no SELECT var of that name, no
+        // `{% for typo_var in ... %}`, not the documented `row.` alias). Tera
+        // would fail to render this with "variable `typo_var` not found" —
+        // the analyzer must surface exactly that, not silently accept it
+        // because the suffix `name` happens to coincide with an available var.
+        let t = "{{ typo_var.name }}";
+        let diags = unbound_projection_diagnostics(t, &vars(&["name"]));
+        assert_eq!(
+            diags.len(),
+            1,
+            "expected one diagnostic for the unbound prefix `typo_var`, got {diags:?}"
+        );
+        assert!(has_tpl_001(&diags));
+        assert!(
+            diags[0].lsp.message.contains("typo_var"),
+            "diagnostic must name the actually-unbound prefix `typo_var`, got: {}",
+            diags[0].lsp.message
+        );
+    }
+
+    #[test]
+    fn row_dot_alias_still_checks_the_projected_var() {
+        // The documented `row.` legacy alias still works, and still flags a
+        // suffix that is NOT projected by the SELECT (unchanged behavior).
+        let t = "{{ row.missing }}";
+        let diags = unbound_projection_diagnostics(t, &vars(&["name"]));
+        assert_eq!(diags.len(), 1, "expected one diagnostic: {diags:?}");
+        assert!(diags[0].lsp.message.contains("missing"));
+    }
+
+    #[test]
+    fn loop_bound_dotted_prefix_is_not_falsely_flagged() {
+        // `item` is genuinely bound by the `{% for %}` — dotted field access
+        // on a real loop variable must not be reported as an unbound
+        // projection (no regression from the F2 fix).
+        let t = "{% for item in items %}{{ item.name }}{% endfor %}";
+        let diags = unbound_projection_diagnostics(t, &vars(&["items"]));
+        assert!(
+            diags.is_empty(),
+            "loop-bound `item.name` must not be an unbound projection: {diags:?}"
+        );
     }
 
     #[test]

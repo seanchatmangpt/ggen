@@ -3,6 +3,110 @@ use praxis_graphlaw::triples::{Aggregate, BodyLiteral, Rule, Triple};
 use praxis_graphlaw::TripleStore;
 use std::collections::HashMap;
 
+/// Regression test for the "stratification failure silently discarded"
+/// finding: `TripleStore::from` (unlike `add_rules`, which has a `Result`
+/// return and propagates `datalog::validate_rules`'s `Err` via `?` --
+/// see `test_long_unstratifiable_cycle_rejected` above) has no way to
+/// report a validation failure through its own return type. Before the
+/// fix, the `Err` arm of `datalog::validate_rules` was matched by nothing:
+/// `strata` was simply left as an empty `Vec`, with no field recording
+/// that the ruleset had in fact been rejected. Downstream,
+/// `Reasoner::materialize` treats an empty `strata` exactly like "every
+/// rule is stratum 0" (`strata.get(i).copied().unwrap_or(0)`), so a
+/// ruleset that `validate_rules` explicitly rejected as unstratifiable
+/// was silently materialized as a single unstratified fixpoint pass
+/// instead of the construction/materialize step refusing.
+///
+/// This uses the exact same 3-rule negation cycle as
+/// `test_long_unstratifiable_cycle_rejected` above (A, not B => C; C =>
+/// B; B => A -- a cycle where C depends negatively on B, but B depends
+/// positively on C), expressed as N3 rule text so it is parsed and
+/// stratified inside `TripleStore::from` itself, exactly like the real
+/// production call site this bug affects
+/// (`hooks::condition::evaluate_condition`'s `HookCondition::N3 { rules }`
+/// arm builds a fresh `TripleStore::from(rules)` from hook-condition N3
+/// text supplied by a knowledge-hook pack).
+#[test]
+fn test_from_text_records_and_refuses_unstratifiable_ruleset() {
+    let data = "\
+{?x a :A . not {?x a :B}}=>{?x a :C}\n\
+{?x a :C}=>{?x a :B}\n\
+{?x a :B}=>{?x a :A}";
+
+    let mut store = TripleStore::from(data);
+
+    // The rules themselves parse fine (this is not a parse-error case) --
+    // the ruleset was constructed, just rejected by stratification.
+    assert_eq!(
+        store.rules.len(),
+        3,
+        "all three rules must parse even though the ruleset is unstratifiable"
+    );
+
+    // The failure must be recorded on the store, not silently discarded.
+    assert!(
+        store.stratification_error.is_some(),
+        "TripleStore::from must record the datalog::validate_rules Err instead of \
+         silently leaving `strata` empty"
+    );
+    let err = store.stratification_error.as_ref().unwrap();
+    assert!(
+        err.contains("not stratifiable"),
+        "recorded error should be validate_rules' own message, got: {err}"
+    );
+
+    // `strata` staying empty must no longer be silently treated as "every
+    // rule is stratum 0" by materialize(); it must refuse instead.
+    assert!(store.strata.is_empty());
+    let result = store.materialize();
+    assert!(
+        result.is_err(),
+        "materialize() must refuse a ruleset that already failed stratification \
+         validation, not silently run a single unstratified fixpoint pass; got: {result:?}"
+    );
+    assert!(
+        result.unwrap_err().contains("stratification"),
+        "the refusal must explain why materialize was refused"
+    );
+}
+
+/// Sanity companion to the test above: a *stratifiable* ruleset loaded the
+/// same way (as N3 text, through `TripleStore::from`) must NOT set
+/// `stratification_error` and must materialize normally -- the fix must
+/// not turn every text-constructed store into a permanent refusal.
+#[test]
+fn test_from_text_accepts_stratifiable_ruleset() {
+    let data = "\
+:a a :Base.\n\
+:b a :Base.\n\
+:a :hasFoo :x1.\n\
+{?x :hasFoo ?y}=>{?x a :A}\n\
+{?x a :Base . not {?x a :A}}=>{?x a :B}";
+
+    let mut store = TripleStore::from(data);
+
+    assert!(
+        store.stratification_error.is_none(),
+        "a genuinely stratifiable ruleset must not be recorded as failed, got: {:?}",
+        store.stratification_error
+    );
+    assert_eq!(store.rules.len(), 2);
+    assert!(!store.strata.is_empty());
+
+    let derived = store
+        .materialize()
+        .expect("a stratifiable ruleset loaded via TripleStore::from must materialize");
+    let decoded: Vec<String> = derived.iter().map(TripleStore::decode_triple).collect();
+    assert!(
+        decoded.iter().any(|s| s.contains(":a") && s.contains(":A")),
+        "expected :a to be derived as :A via :hasFoo, got: {decoded:?}"
+    );
+    assert!(
+        decoded.iter().any(|s| s.contains(":b") && s.contains(":B")),
+        ":b has :Base but not :A, so it should be derived as :B, got: {decoded:?}"
+    );
+}
+
 /// TICKET-004: Test that evaluation terminates when recursive rulesets are processed.
 ///
 /// Rules under test:

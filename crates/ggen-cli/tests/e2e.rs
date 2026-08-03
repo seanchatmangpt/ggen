@@ -1,655 +1,116 @@
-#![allow(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    clippy::panic,
-    clippy::needless_raw_string_hashes,
-    clippy::duration_suboptimal_units,
-    clippy::branches_sharing_code,
-    clippy::used_underscore_binding,
-    clippy::single_char_pattern,
-    clippy::ignore_without_reason,
-    clippy::cloned_ref_to_slice_refs,
-    clippy::doc_overindented_list_items,
-    clippy::match_wildcard_for_single_variants,
-    clippy::ignored_unit_patterns,
-    clippy::needless_collect,
-    clippy::unnecessary_map_or,
-    clippy::manual_flatten,
-    clippy::manual_strip,
-    clippy::future_not_send,
-    clippy::unnested_or_patterns,
-    clippy::no_effect_underscore_binding,
-    clippy::literal_string_with_formatting_args
-)]
+#![allow(clippy::unwrap_used)]
 //! End-to-End Tests - Complete User Workflows
 //!
-//! Tests full execution paths from CLI invocation to final output:
-//! - Complete template generation workflow
-//! - Full marketplace search and install flow
-//! - Complete project generation workflow
+//! Tests full execution paths from CLI invocation to final output.
 //!
 //! 80/20 Focus: Real-world user scenarios
+//!
+//! ARCHIVED SECTIONS (2026-08-03): 12 of this file's original 17 tests invoked CLI nouns
+//! that no longer exist in the current binary and have been removed below (not rewritten),
+//! because there is no current command doing the same thing to repoint them at. Confirmed
+//! live against the current `ggen --help` noun list (`init`, `receipt`, `bblock`, `ontology`,
+//! `law`, `mod`, `sbb`, `pack`, `sync`, `packs`, `telco`, `agent`, `wizard`, `policy`,
+//! `capability`, `maximalism`, `utils`, `vision2030`, `doctor`, `graph`, `help`): none of
+//! `template`, `market`, `project`, `lifecycle`, `ai` exist, and `graph` now has only a
+//! `validate` subcommand (no `import`/`query`).
+//!
+//! Removed, no current equivalent:
+//! - `e2e_template_generate_complete`, `e2e_template_with_nested_structure`,
+//!   `e2e_scenario_template_development`, `e2e_performance_large_template`: all called
+//!   `ggen template generate_tree` (arbitrary YAML-described directory-tree templating with
+//!   `--var` substitution). Confirmed live: `ggen template --help` -> `error: unrecognized
+//!   subcommand 'template'`. `ggen sync run` is the live code-generation path but is a
+//!   fundamentally different command (SPARQL-over-RDF + Tera templates driven by
+//!   `ggen.toml`/an ontology, not a standalone YAML tree with `{{var}}` substitution and a
+//!   `--var` CLI flag) -- rewriting onto it would assert something these tests were never
+//!   about.
+//! - `e2e_recovery_invalid_template_graceful`: same `template generate_tree` noun. Also,
+//!   even before this archival it was passing for the wrong reason: the command already
+//!   failed at argument-parsing (`unrecognized subcommand 'template'`) before ever reaching
+//!   the malformed YAML it was meant to test, so its `.failure()` assertion was vacuously
+//!   true and was not actually exercising template-parse error recovery.
+//! - `e2e_lifecycle_complete_workflow`, `e2e_lifecycle_list_phases`: called `ggen lifecycle
+//!   run`/`list` against a `make.toml` phase manifest. Confirmed live: `ggen lifecycle
+//!   --help` -> `error: unrecognized subcommand 'lifecycle'`; no current noun manages
+//!   phase-based manifests.
+//! - `e2e_graph_import_and_query`: called `ggen graph import`/`ggen graph query`. Confirmed
+//!   live: `ggen graph --help` now lists only a `validate` subcommand -- `import`/`query`
+//!   are gone with no current replacement (`validate` checks RDF/SHACL constraints; it does
+//!   not load a graph into a queryable store or run SPARQL against one).
+//! - `e2e_project_gen_complete`, `e2e_project_with_git_init`,
+//!   `e2e_scenario_new_microservice_project`: called `ggen project gen --name ... --template
+//!   rust-cli|rust-lib ...`. Confirmed live: `ggen project --help` -> `error: unrecognized
+//!   subcommand 'project'`. `ggen init` is the live project-bootstrap command but scaffolds
+//!   a *ggen* codegen project (`schema/domain.ttl` + Tera `templates/`) -- it takes
+//!   `--path`/`--name`/`--force`/`--skip-hooks`/`--version`/`--description` and has no
+//!   `--template` selector for named archetypes like `rust-cli`/`rust-lib`, so it is not the
+//!   same operation. `e2e_scenario_new_microservice_project`'s `market search` and `doctor`
+//!   steps do have current equivalents (see the rewritten marketplace tests below, and
+//!   `doctor` itself is still a real noun), but its central step -- generate a project from a
+//!   named template -- does not, so the scenario as a whole has no current equivalent.
+//! - `e2e_ai_generate_template` (`#[cfg(feature = "live-llm-tests")]`, not among the 15
+//!   failures under the default `integration` feature since it never compiles without
+//!   `live-llm-tests`): called `ggen ai generate`. Confirmed live: `ggen --help` has no `ai`
+//!   noun at all.
+//!
+//! Rewritten to a real current equivalent (verified live, 2026-08-03):
+//! - `e2e_marketplace_search_complete`, `e2e_marketplace_search_with_filters`,
+//!   `e2e_recovery_network_timeout_graceful`: `ggen market search <query> --limit <n>` ->
+//!   `ggen pack search <query> --limit <n>` (confirmed real local-registry search, JSON
+//!   `{query, results[], total}`; a query with no matches returns an empty `results` array
+//!   with exit 0 -- graceful, same as the old marketplace behavior). `pack search` has no
+//!   `--category` flag (only `<QUERY>` and `--limit`), so the `--category backend` filter
+//!   from the old `market search microservice --category backend` fixture was dropped rather
+//!   than force-fit onto an unsupported flag.
+//! - `e2e_marketplace_package_info`: `ggen market info <id>` -> `ggen pack show <id>`
+//!   (confirmed real JSON pack detail). The old fixture's `rust-cli-template` id does not
+//!   exist in the local registry, and `pack show` on an unknown id is NOT graceful (exit 1,
+//!   `Pack '...' not found at marketplace/packs/...`, confirmed live) -- so the fixture id
+//!   was changed to `mcp-rust`, a real entry confirmed present via `ggen pack list`.
+//! - `e2e_marketplace_list_installed`: `ggen market list` -> `ggen pack list` (confirmed
+//!   real JSON array of the local registry's packs, `total: 11` as of this rewrite).
 
 use assert_cmd::Command;
-use assert_fs::{prelude::*, TempDir};
-use predicates::prelude::*;
-
-#[test]
-fn e2e_template_generate_complete() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let template_file = temp.child("microservice.yaml");
-    let output_dir = temp.child("my-service");
-
-    template_file
-        .write_str(
-            r#"
-name: "rust-microservice"
-description: "Production-ready Rust microservice"
-version: "1.0.0"
-
-variables:
-  - name: service_name
-    required: true
-    description: "Name of the microservice"
-  - name: port
-    default: "8080"
-    description: "HTTP port"
-  - name: database
-    default: "postgres"
-    description: "Database type"
-
-nodes:
-  - name: "{{service_name}}"
-    type: directory
-    children:
-      - name: "src"
-        type: directory
-        children:
-          - name: "main.rs"
-            type: file
-            content: |
-              use axum::{Router, Server};
-              use std::net::SocketAddr;
-
-              #[tokio::main]
-              async fn main() {
-                  let app = Router::new();
-                  let addr = SocketAddr::from(([127, 0, 0, 1], {{port}}));
-
-                  println!("🚀 {{service_name}} listening on {}", addr);
-                  Server::bind(&addr)
-                      .serve(app.into_make_service())
-                      .await
-                      .unwrap();
-              }
-          - name: "lib.rs"
-            type: file
-            content: |
-              pub mod routes;
-              pub mod models;
-      - name: "Cargo.toml"
-        type: file
-        content: |
-          [package]
-          name = "{{service_name}}"
-          version = "0.1.0"
-          edition = "2021"
-
-          [dependencies]
-          axum = "0.7"
-          tokio = { version = "1", features = ["full"] }
-      - name: ".env.example"
-        type: file
-        content: |
-          DATABASE_URL={{database}}://localhost/{{service_name}}
-          PORT={{port}}
-      - name: "README.md"
-        type: file
-        content: |
-          # {{service_name}}
-
-          Production-ready Rust microservice.
-
-          ## Quick Start
-
-          ```bash
-          cargo run
-          ```
-
-          Server runs on port {{port}}.
-"#,
-        )
-        .unwrap();
-
-    // Act
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "template",
-            "generate_tree",
-            "--template",
-            template_file.path().to_str().unwrap(),
-            "--output",
-            output_dir.path().to_str().unwrap(),
-            "--var",
-            "service_name=payment-api",
-            "--var",
-            "port=3000",
-            "--var",
-            "database=postgres",
-        ])
-        .assert()
-        .success();
-
-    // Assert
-    let service_dir = output_dir.child("payment-api");
-    service_dir.assert(predicate::path::exists());
-
-    let main_rs = service_dir.child("src/main.rs");
-    main_rs.assert(predicate::path::exists());
-    main_rs.assert(predicate::str::contains("payment-api"));
-    main_rs.assert(predicate::str::contains("3000"));
-
-    let cargo_toml = service_dir.child("Cargo.toml");
-    cargo_toml.assert(predicate::path::exists());
-    cargo_toml.assert(predicate::str::contains("payment-api"));
-
-    let env_example = service_dir.child(".env.example");
-    env_example.assert(predicate::path::exists());
-    env_example.assert(predicate::str::contains("postgres"));
-    env_example.assert(predicate::str::contains("3000"));
-
-    let readme = service_dir.child("README.md");
-    readme.assert(predicate::path::exists());
-    readme.assert(predicate::str::contains("payment-api"));
-}
-
-#[test]
-fn e2e_template_with_nested_structure() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let template_file = temp.child("webapp.yaml");
-    let output_dir = temp.child("webapp");
-
-    template_file
-        .write_str(
-            r#"
-name: "web-application"
-variables:
-  - name: app_name
-    required: true
-
-nodes:
-  - name: "{{app_name}}"
-    type: directory
-    children:
-      - name: "frontend"
-        type: directory
-        children:
-          - name: "src"
-            type: directory
-            children:
-              - name: "App.tsx"
-                type: file
-                content: "export const App = () => <div>{{app_name}}</div>;"
-          - name: "package.json"
-            type: file
-            content: '{"name": "{{app_name}}-frontend"}'
-      - name: "backend"
-        type: directory
-        children:
-          - name: "src"
-            type: directory
-            children:
-              - name: "main.rs"
-                type: file
-                content: "fn main() { println!(\"{{app_name}}\"); }"
-          - name: "Cargo.toml"
-            type: file
-            content: '[package]\nname = "{{app_name}}-backend"'
-      - name: "docker-compose.yml"
-        type: file
-        content: |
-          version: '3.8'
-          services:
-            frontend:
-              build: ./frontend
-            backend:
-              build: ./backend
-"#,
-        )
-        .unwrap();
-
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "template",
-            "generate_tree",
-            "--template",
-            template_file.path().to_str().unwrap(),
-            "--output",
-            output_dir.path().to_str().unwrap(),
-            "--var",
-            "app_name=my-app",
-        ])
-        .assert()
-        .success();
-
-    // Assert
-    let app_dir = output_dir.child("my-app");
-    app_dir
-        .child("frontend/src/App.tsx")
-        .assert(predicate::path::exists());
-    app_dir
-        .child("backend/src/main.rs")
-        .assert(predicate::path::exists());
-    app_dir
-        .child("docker-compose.yml")
-        .assert(predicate::path::exists());
-}
 
 // ============================================================================
-// E2E: Marketplace Search and Discovery
+// E2E: Marketplace Search and Discovery (noun renamed `market` -> `pack`; see
+// the module-level archival note above for what changed and why)
 // ============================================================================
 
 #[test]
 fn e2e_marketplace_search_complete() {
-    // Arrange & Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.args(["market", "search", "rust", "--limit", "10"])
+    Command::cargo_bin("ggen")
+        .unwrap()
+        .args(["pack", "search", "rust", "--limit", "10"])
         .assert()
         .success();
 }
 
 #[test]
 fn e2e_marketplace_search_with_filters() {
-    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
-        .args([
-            "market",
-            "search",
-            "microservice",
-            "--category",
-            "backend",
-            "--limit",
-            "5",
-        ])
+        .args(["pack", "search", "microservice", "--limit", "5"])
         .assert()
         .success();
 }
 
 #[test]
 fn e2e_marketplace_package_info() {
-    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
-        .args(["market", "info", "rust-cli-template"])
+        .args(["pack", "show", "mcp-rust"])
         .assert()
         .success();
 }
 
 #[test]
 fn e2e_marketplace_list_installed() {
-    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
-        .args(["market", "list"])
+        .args(["pack", "list"])
         .assert()
         .success();
-}
-
-// ============================================================================
-// E2E: Complete Project Generation Workflow
-// ============================================================================
-
-#[test]
-fn e2e_project_gen_complete() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let project_dir = temp.child("my-cli-tool");
-
-    // Act
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "project",
-            "gen",
-            "--name",
-            "my-cli-tool",
-            "--template",
-            "rust-cli",
-            "--output",
-            project_dir.path().to_str().unwrap(),
-            "--description",
-            "A command-line tool",
-        ])
-        .assert()
-        .success();
-
-    // Assert
-    project_dir.assert(predicate::path::exists());
-}
-
-#[test]
-fn e2e_project_with_git_init() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let project_dir = temp.child("git-project");
-
-    // Act
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "project",
-            "gen",
-            "--name",
-            "git-project",
-            "--template",
-            "rust-lib",
-            "--output",
-            project_dir.path().to_str().unwrap(),
-            "--git",
-        ])
-        .assert()
-        .success();
-
-    // Assert: Verify project directory was created with expected structure
-    assert!(
-        project_dir.path().exists(),
-        "Project directory should be created"
-    );
-    assert!(
-        project_dir.path().join("Cargo.toml").exists(),
-        "Cargo.toml should be generated"
-    );
-    assert!(
-        project_dir.path().join("src").exists(),
-        "src directory should be created"
-    );
-}
-
-// ============================================================================
-// E2E: Complete Lifecycle Workflow
-// ============================================================================
-
-#[test]
-fn e2e_lifecycle_complete_workflow() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let make_file = temp.child("make.toml");
-
-    make_file
-        .write_str(
-            r#"
-[project]
-name = "production-service"
-version = "1.0.0"
-
-[[phases]]
-name = "clean"
-description = "Clean build artifacts"
-commands = [
-    "echo 'Cleaning...'",
-    "rm -rf target/"
-]
-
-[[phases]]
-name = "install"
-description = "Install dependencies"
-depends_on = ["clean"]
-commands = [
-    "echo 'Installing dependencies...'"
-]
-
-[[phases]]
-name = "build"
-description = "Build the project"
-depends_on = ["install"]
-commands = [
-    "echo 'Building project...'",
-    "cargo build --release"
-]
-
-[[phases]]
-name = "test"
-description = "Run tests"
-depends_on = ["build"]
-commands = [
-    "echo 'Running tests...'",
-    "cargo test"
-]
-
-[[phases]]
-name = "deploy"
-description = "Deploy to production"
-depends_on = ["test"]
-commands = [
-    "echo 'Deploying to production...'"
-]
-"#,
-        )
-        .unwrap();
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "lifecycle",
-            "run",
-            "deploy",
-            "--manifest",
-            make_file.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success();
-}
-
-#[test]
-fn e2e_lifecycle_list_phases() {
-    let temp = TempDir::new().unwrap();
-    let make_file = temp.child("make.toml");
-
-    make_file
-        .write_str(
-            r#"
-[project]
-name = "test"
-
-[[phases]]
-name = "build"
-commands = ["echo 'build'"]
-
-[[phases]]
-name = "test"
-commands = ["echo 'test'"]
-"#,
-        )
-        .unwrap();
-
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "lifecycle",
-            "list",
-            "--manifest",
-            make_file.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("build").or(predicate::str::contains("Phases")));
-}
-
-// ============================================================================
-// E2E: Graph Operations Workflow
-// ============================================================================
-
-#[test]
-fn e2e_graph_import_and_query() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let graph_file = temp.child("project-graph.ttl");
-
-    graph_file
-        .write_str(
-            r#"
-@prefix ex: <http://example.org/> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-
-ex:project1 a ex:Project ;
-    dc:title "My Project" ;
-    dc:description "A test project" ;
-    ex:version "1.0.0" ;
-    ex:language "Rust" .
-
-ex:project2 a ex:Project ;
-    dc:title "Another Project" ;
-    dc:description "Another test" ;
-    ex:version "2.0.0" ;
-    ex:language "Python" .
-"#,
-        )
-        .unwrap();
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "graph",
-            "import",
-            graph_file.path().to_str().unwrap(),
-            "--format",
-            "turtle",
-        ])
-        .assert()
-        .success();
-
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "graph",
-            "query",
-            "SELECT ?title WHERE { ?s dc:title ?title }",
-            "--format",
-            "sparql",
-        ])
-        .assert()
-        .success();
-}
-
-// ============================================================================
-// E2E: AI Integration Workflow
-// ============================================================================
-
-#[cfg(feature = "live-llm-tests")]
-#[test]
-fn e2e_ai_generate_template() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let output_file = temp.child("ai-template.yaml");
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "ai",
-            "generate",
-            "--prompt",
-            "Create a Rust REST API template",
-            "--output",
-            output_file.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success();
-
-    output_file.assert(predicate::path::exists());
-}
-
-// ============================================================================
-// E2E: Multi-Step Real-World Scenarios
-// ============================================================================
-
-#[test]
-fn e2e_scenario_new_microservice_project() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["market", "search", "microservice", "--limit", "5"])
-        .assert()
-        .success();
-
-    let project_dir = temp.child("payment-service");
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "project",
-            "gen",
-            "--name",
-            "payment-service",
-            "--template",
-            "rust-microservice",
-            "--output",
-            project_dir.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success();
-
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["doctor"])
-        .assert()
-        .success();
-}
-
-#[test]
-fn e2e_scenario_template_development() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let template_file = temp.child("custom-template.yaml");
-    let test_output = temp.child("test-output");
-
-    template_file
-        .write_str(
-            r##"
-name: "custom-template"
-variables:
-  - name: project_name
-    required: true
-nodes:
-  - name: "{{project_name}}"
-    type: directory
-    children:
-      - name: "README.md"
-        type: file
-        content: "# {{project_name}}"
-"##,
-        )
-        .unwrap();
-
-    // Act
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "template",
-            "generate_tree",
-            "--template",
-            template_file.path().to_str().unwrap(),
-            "--output",
-            test_output.path().to_str().unwrap(),
-            "--var",
-            "project_name=test-project",
-        ])
-        .assert()
-        .success();
-
-    // Assert
-    test_output
-        .child("test-project/README.md")
-        .assert(predicate::path::exists());
 }
 
 // ============================================================================
@@ -657,93 +118,16 @@ nodes:
 // ============================================================================
 
 #[test]
-fn e2e_recovery_invalid_template_graceful() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let bad_template = temp.child("bad.yaml");
-    bad_template.write_str("!!!invalid yaml!!!").unwrap();
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "template",
-            "generate_tree",
-            "--template",
-            bad_template.path().to_str().unwrap(),
-            "--output",
-            "/tmp/output",
-        ])
-        .assert()
-        .failure()
-        .stderr(predicate::str::is_empty().not());
-}
-
-#[test]
 fn e2e_recovery_network_timeout_graceful() {
-    // Arrange & Act & Assert
+    // A search query with no matches still succeeds (empty results), it does not error.
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
-            "market",
+            "pack",
             "search",
             "nonexistent-package-xyz-123",
             "--limit",
             "1",
-        ])
-        .assert()
-        .success();
-}
-
-// ============================================================================
-// E2E: Performance Scenarios
-// ============================================================================
-
-#[test]
-fn e2e_performance_large_template() {
-    // Arrange
-    let temp = TempDir::new().unwrap();
-    let template_file = temp.child("large-template.yaml");
-    let output_dir = temp.child("large-output");
-
-    let mut nodes = String::from(
-        r#"
-name: "large-project"
-variables:
-  - name: project_name
-    required: true
-nodes:
-  - name: "{{project_name}}"
-    type: directory
-    children:
-"#,
-    );
-
-    for i in 0..50 {
-        nodes.push_str(&format!(
-            r#"
-      - name: "file_{}.txt"
-        type: file
-        content: "Content for file {}"
-"#,
-            i, i
-        ));
-    }
-
-    template_file.write_str(&nodes).unwrap();
-
-    // Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
-        .args([
-            "template",
-            "generate_tree",
-            "--template",
-            template_file.path().to_str().unwrap(),
-            "--output",
-            output_dir.path().to_str().unwrap(),
-            "--var",
-            "project_name=large-project",
         ])
         .assert()
         .success();

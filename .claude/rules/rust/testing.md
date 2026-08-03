@@ -111,7 +111,8 @@ assert_eq!(content, r#"{"key": "value"}"#);
 
 ## Requirements (Definition of Done)
 - ✅ All public APIs tested
-- ✅ Error paths + edge cases (80%+ coverage)
+- ✅ Error paths + edge cases covered (target: 80%+ line coverage — aspirational; no CI/justfile
+  gate currently computes coverage, so this is not a verified number, see `rust/performance.md`)
 - ✅ Tests verify observable outputs/state changes
 - ✅ NEVER claim completion without running tests
 - ✅ AAA pattern enforced
@@ -123,6 +124,25 @@ just test-lib     # Unit/lib tests, workspace-wide (30s timeout, fast dev loop)
 just test         # Full test suite (30s hot-cache, escalates to 600s on cold compile)
 just slo-check    # Performance validation
 ```
+
+### Coverage: one real measurement (2026-08-02 proof of concept, not a standing gate)
+
+No `just` recipe or CI job computes coverage for this workspace. As a bounded, one-crate
+proof of concept (not a full-workspace run, which was out of scope), `cargo tarpaulin -p
+ggen-cheat-scanner --lib --tests` was actually run against the smallest workspace crate:
+`src/lib.rs` covered 144/198 lines, `src/main.rs` covered 0/61 lines (the binary entrypoint
+has no direct test), for a combined **55.6% line coverage (144/259)** on that one crate's own
+`src/`. This is real tool output, not an estimate -- but it is a single crate out of the
+multi-crate workspace (see the Crate Map in CLAUDE.md/`architecture.md` for the current
+count, which itself has drifted more than once), it is not wired into any gate, and it should
+not be read as evidence about workspace-wide coverage.
+
+Mutation score is not computed anywhere in this repo, including as a one-crate proof of
+concept: `cargo mutants --workspace` is mentioned only as an uncalled command comment in
+`justfile` (line ~181). A full-workspace mutation run is a multi-hour-to-multi-day operation
+at this workspace's size and was out of scope for even a bounded single-crate check in this
+pass -- treat every "mutation score ≥60%" figure in this repo's docs as an aspirational
+target, never a measured number, until someone actually runs it and reports a real score.
 
 Note: there is no `cargo make` in this repo — `just` is the entry point (see
 `.claude/rules/_core/absolute.md` rule 4); `Makefile.toml` is historical reference only.

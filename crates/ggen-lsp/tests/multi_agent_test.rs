@@ -35,13 +35,22 @@ use ggen_lsp::intel::events::{activity, obj_type};
 use ggen_lsp::{check_files_in_root, mine, replay_case, IntelLog};
 use tempfile::TempDir;
 
-const E0011_SRC: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n";
+// F5 fix: E0011 (missing ORDER BY) is now ERROR by default, matching
+// `ggen_config`'s `default_strict_mode() -> true` (see
+// `analyzers/sparql_analyzer.rs`'s module doc). This test needs a route
+// family that genuinely CLOSES (so the "each agent's closed episode is
+// receipted" assertion below holds), so it uses an identity CONSTRUCT
+// *with* ORDER BY: E0015 fires (still WARNING, untouched by the F5 fix)
+// and E0011 does not (ORDER BY present). E0015 maps to the same
+// `RepairFamily::TemplateFailure` as E0011 (see `route/registry.rs`), so
+// route selection/mining/promotion below are unaffected.
+const WARNING_SRC: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } ORDER BY ?s\n";
 
 fn promote_template_route(root: &Path) {
     let mut files = Vec::new();
     for i in 0..3 {
         let p = root.join(format!("seed{i}.rq"));
-        fs::write(&p, E0011_SRC).expect("write");
+        fs::write(&p, WARNING_SRC).expect("write");
         files.push(p);
     }
     check_files_in_root(root, &files, true).capture(root);
@@ -59,8 +68,8 @@ fn two_agents_share_one_route_law_without_drift() {
     // Two distinct agents author the same family against the shared pack.
     let a = root.join("alpha.rq");
     let b = root.join("beta.rq");
-    fs::write(&a, E0011_SRC).expect("write");
-    fs::write(&b, E0011_SRC).expect("write");
+    fs::write(&a, WARNING_SRC).expect("write");
+    fs::write(&b, WARNING_SRC).expect("write");
     check_files_in_root(root, &[a], true).capture_as(root, "alpha");
     check_files_in_root(root, &[b], true).capture_as(root, "beta");
 

@@ -4,9 +4,9 @@
 //!
 //! Shared scaffold: copy one framework pack plus a minimal consumer project
 //! (referencing the pack via a relative `{ path = "../<pack>" }`) into a
-//! fresh TempDir, then drive `ggen sync run` / `ggen graph validate`.
+//! fresh `TempDir`, then drive `ggen sync run` / `ggen graph validate`.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -34,7 +34,7 @@ fn copy_tree(src: &Path, dst: &Path) {
 }
 
 /// Copy `pack_name` from `packs/` plus a minimal consumer project into a
-/// fresh TempDir; return `(tempdir, project_root)`. The project has an empty
+/// fresh `TempDir`; return `(tempdir, project_root)`. The project has an empty
 /// local ontology and an empty local templates dir, so only the pack's
 /// templates run over the pack's ontology.
 fn scaffold_pack_project(pack_name: &str) -> (TempDir, PathBuf) {
@@ -142,7 +142,7 @@ fn wasm4pm_compat_pack_syncs() {
 }
 
 /// lsp-max-pack: `lm:LintRule` individuals in the pack ontology precipitate
-/// one RulePackServer `rules/lsp_max_*.toml` regex rule file per rule plus a
+/// one `RulePackServer` `rules/lsp_max_*.toml` regex rule file per rule plus a
 /// docs index; sync is idempotent and `ggen graph validate` passes.
 #[test]
 fn lsp_max_pack_syncs() {
@@ -224,7 +224,7 @@ fn lsp_max_pack_syncs() {
 }
 
 /// star-toml-pack: `stp:ConfigSection`/`stp:ConfigField` individuals in the
-/// pack ontology precipitate a deny_unknown_fields serde config module
+/// pack ontology precipitate a `deny_unknown_fields` serde config module
 /// (`src/star_toml_config.rs`, loaded via `star_toml::load_file`) plus one
 /// admission doc per section; sync is idempotent and `graph validate` passes.
 #[test]
@@ -467,7 +467,7 @@ fn clap_noun_verb_pack_syncs() {
     // registered via linkme rather than left to the macro's runtime
     // file-scrape fallback (see the template's own comment for why).
     assert!(
-        routes.contains(r#"static REGISTER_SESSION_NOUN: fn() = register_session_noun;"#),
+        routes.contains(r"static REGISTER_SESSION_NOUN: fn() = register_session_noun;"),
         "session noun registration missing: {routes}"
     );
     assert!(
@@ -602,6 +602,11 @@ fn praxis_core_pack_syncs() {
 /// and a per-breed dispatch-surface skeleton over the stable 6-verb ABI
 /// (`src/w4pm_cognition_dispatch.rs`); sync is idempotent and
 /// `ggen graph validate` passes.
+// One Chicago-TDD end-to-end scenario (single scaffold + sync, many real
+// on-disk assertions against the pack's full generated surface); splitting
+// it would either re-run the expensive scaffold+sync setup per assertion
+// group or share state between tests, not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn wasm4pm_cognition_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("wasm4pm-cognition-pack");
@@ -734,8 +739,8 @@ fn wasm4pm_cognition_pack_syncs() {
 
 /// wasm4pm-algorithms-pack: `pi:ProcessIntelligenceAlgorithm` individuals
 /// (carried over from the wasm4pm algorithm ontology) precipitate a typed
-/// `src/w4pm_algorithms_catalog.rs` (AlgorithmId enum + const CATALOG +
-/// by_wasm_export lookup) and a `docs/w4pm_algorithms.md` reference table;
+/// `src/w4pm_algorithms_catalog.rs` (`AlgorithmId` enum + const CATALOG +
+/// `by_wasm_export` lookup) and a `docs/w4pm_algorithms.md` reference table;
 /// sync is idempotent and `ggen graph validate` passes.
 #[test]
 fn wasm4pm_algorithms_pack_syncs() {
@@ -889,13 +894,15 @@ fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, gate_rq: Opt
 fn scaffold_synthetic_consumer(
     dir: &Path, pack_names: &[&str], aggregate_modules: bool,
 ) -> PathBuf {
+    use std::fmt::Write as _;
+
     let project = dir.join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-    let packs_lines: String = pack_names
-        .iter()
-        .map(|n| format!("{n} = {{ path = \"../{n}\" }}\n"))
-        .collect();
+    let packs_lines: String = pack_names.iter().fold(String::new(), |mut lines, n| {
+        let _ = writeln!(lines, "{n} = {{ path = \"../{n}\" }}");
+        lines
+    });
     let aggregate_line = if aggregate_modules {
         "aggregate_modules = true\n"
     } else {
@@ -916,14 +923,14 @@ fn scaffold_synthetic_consumer(
 
 /// SPARQL gate: the maxCount-1 equivalent of the old SHACL shape — any
 /// ex:Thing carrying two distinct ex:val values is a violation row.
-const GATE_MAX_ONE_VAL: &str = r#"# MESSAGE: a Thing must carry exactly one ex:val (mirror-drift guard)
+const GATE_MAX_ONE_VAL: &str = r"# MESSAGE: a Thing must carry exactly one ex:val (mirror-drift guard)
 PREFIX ex: <http://example.org/gap#>
 SELECT ?thing ?v1 ?v2 WHERE {
   ?thing a ex:Thing ; ex:val ?v1 , ?v2 .
   FILTER(STR(?v1) < STR(?v2))
 }
 ORDER BY ?thing
-"#;
+";
 
 #[test]
 fn pack_gate_refuses_a_violating_union_graph() {

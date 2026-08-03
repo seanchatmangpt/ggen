@@ -1,4 +1,4 @@
-//! Hardening proofs for `ggen graph validate` (DoD Blocker C): real
+//! Hardening proofs for `ggen graph validate` (`DoD` Blocker C): real
 //! filesystem (`TempDir`), real `verbs::handlers::handle_graph_validate`
 //! calls, real Turtle/SHACL fixtures — no mocks, matching
 //! `lint_validate_e2e.rs`'s convention (this crate's `ggen-cli` binary is
@@ -6,7 +6,7 @@
 //! behind the `graph validate` route, so calling it directly exercises the
 //! same code the CLI does, without a subprocess).
 //!
-//! Two tests, named to match this ticket's DoD:
+//! Two tests, named to match this ticket's `DoD`:
 //!
 //! - [`validate_reaches_validator`] — proves the wiring is not decorative:
 //!   a real Turtle parse error surfaces from the real validator (not a
@@ -51,7 +51,7 @@
 //! smaller stacks (see that test's doc comment for the concrete regression
 //! this caught).
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use camino::Utf8PathBuf;
 use ggen_engine::verbs::handlers::handle_graph_validate;
@@ -68,6 +68,8 @@ fn utf8(p: std::path::PathBuf) -> Utf8PathBuf {
 /// detection cannot bound this: without a depth guard, recursion depth
 /// grows linearly with `n`.
 fn shacl_node_chain(n: usize) -> String {
+    use std::fmt::Write as _;
+
     let mut doc = String::from(
         "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n",
     );
@@ -77,9 +79,10 @@ fn shacl_node_chain(n: usize) -> String {
         } else {
             "ex:ShapeLeaf".to_string()
         };
-        doc.push_str(&format!(
-            "ex:Shape{i} a sh:NodeShape ; sh:targetNode ex:node{i} ; sh:node {next} .\n"
-        ));
+        let _ = writeln!(
+            doc,
+            "ex:Shape{i} a sh:NodeShape ; sh:targetNode ex:node{i} ; sh:node {next} ."
+        );
     }
     doc.push_str("ex:ShapeLeaf a sh:NodeShape .\n");
     doc
@@ -91,18 +94,17 @@ fn shacl_node_chain(n: usize) -> String {
 /// detection at all (unlike `validate_shape`), so this exercises that
 /// independent recursion vector.
 fn shacl_property_chain(n: usize) -> String {
+    use std::fmt::Write as _;
+
     let mut doc = String::from(
         "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\
          ex:RootShape a sh:NodeShape ; sh:targetNode ex:node0 ; sh:property ex:ps0 .\n",
     );
     for i in 0..n {
         if i + 1 < n {
-            doc.push_str(&format!(
-                "ex:ps{i} sh:path ex:p ; sh:property ex:ps{} .\n",
-                i + 1
-            ));
+            let _ = writeln!(doc, "ex:ps{i} sh:path ex:p ; sh:property ex:ps{} .", i + 1);
         } else {
-            doc.push_str(&format!("ex:ps{i} sh:path ex:p .\n"));
+            let _ = writeln!(doc, "ex:ps{i} sh:path ex:p .");
         }
     }
     doc
@@ -192,6 +194,11 @@ fn validate_reaches_validator() {
 /// `catch_unwind`) before `MAX_SHACL_VALIDATION_DEPTH` existed, so simply
 /// reaching the assertions below for those two cases is itself part of
 /// the proof.
+// One linear sweep of hardening fixtures (deep SHACL chains, oversized
+// documents, adversarial cardinalities) each asserting non-panic; splitting
+// it would scatter one coherent sweep across call boundaries rather than
+// shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn validate_does_not_panic() {
     let dir = TempDir::new().expect("tempdir");
@@ -203,7 +210,7 @@ fn validate_does_not_panic() {
         result.unwrap_or_else(|payload| {
             let msg = payload
                 .downcast_ref::<&str>()
-                .map(|s| s.to_string())
+                .map(std::string::ToString::to_string)
                 .or_else(|| payload.downcast_ref::<String>().cloned())
                 .unwrap_or_else(|| "<non-string panic payload>".to_string());
             panic!("{label}: handle_graph_validate panicked instead of returning Err: {msg}");
@@ -386,6 +393,8 @@ fn validate_does_not_panic() {
 /// worker) `handle_graph_validate` might run under in practice.
 #[test]
 fn validate_shacl_depth_guard_is_safe_on_small_stack_thread() {
+    const SMALL_STACK: usize = 1024 * 1024; // 1 MiB
+
     let dir = TempDir::new().expect("tempdir");
 
     let node_data_path = dir.path().join("chain_data.ttl");
@@ -412,7 +421,6 @@ fn validate_shacl_depth_guard_is_safe_on_small_stack_thread() {
     let prop_files = vec![utf8(prop_data_path)];
     let prop_shapes = vec![utf8(prop_shapes_path)];
 
-    const SMALL_STACK: usize = 1024 * 1024; // 1 MiB
     let handle = std::thread::Builder::new()
         .stack_size(SMALL_STACK)
         .spawn(move || {

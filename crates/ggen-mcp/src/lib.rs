@@ -37,11 +37,17 @@ fn make_tool(
     name: &'static str, description: &'static str, schema: serde_json::Value,
     annotations: ToolAnnotations,
 ) -> Tool {
-    let mut tool = Tool::new(
-        name,
-        description,
-        Arc::new(schema.as_object().cloned().unwrap_or_default()),
-    );
+    // Runs once, at server startup, over a schemars-derived schema for a
+    // concrete Rust params type -- a non-object schema here is a real
+    // regression in that type, not an input-dependent runtime condition.
+    // Fail loudly at startup rather than silently registering a tool with
+    // an empty `{}` input schema (which `unwrap_or_default` would do,
+    // making the tool accept -- or reject -- arguments with no real
+    // validation).
+    let object = schema.as_object().cloned().unwrap_or_else(|| {
+        panic!("tool {name:?}'s schemars-derived schema must be a JSON object, got {schema:?}")
+    });
+    let mut tool = Tool::new(name, description, Arc::new(object));
     tool.annotations = Some(annotations);
     tool
 }
@@ -66,7 +72,16 @@ macro_rules! tool_defs {
                 make_tool(
                     $name,
                     $desc,
-                    serde_json::to_value(schemars::schema_for!($params)).unwrap_or_default(),
+                    // Runs once at server startup over a concrete, unchanging
+                    // Rust type's schemars derive -- a serialization failure
+                    // here is a real regression in that type. Fail loudly
+                    // rather than silently registering a tool with `{}` (no
+                    // real input schema) via `unwrap_or_default`.
+                    serde_json::to_value(schemars::schema_for!($params))
+                        .unwrap_or_else(|e| panic!(
+                            "tool {:?}'s schemars schema for {} must serialize to JSON: {e}",
+                            $name, stringify!($params)
+                        )),
                     $ann,
                 )
             ),*]
@@ -204,9 +219,22 @@ where
         }
     };
     match f(&params) {
-        Ok(result) => CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&result).unwrap_or_default(),
-        )]),
+        Ok(result) => match serde_json::to_string_pretty(&result) {
+            Ok(text) => CallToolResult::success(vec![Content::text(text)]),
+            // Per-request, not startup-time -- unlike the schema-building
+            // sites above, a panic here would kill the whole server on one
+            // bad response instead of surfacing to just this caller. Route
+            // through the same typed-error shape every other failure uses
+            // (`error.rs`'s `From<McpError> for CallToolResult`) rather than
+            // `unwrap_or_default`, which would report `CallToolResult::
+            // success` with an empty body -- indistinguishable from a tool
+            // that genuinely succeeded with nothing to report.
+            Err(e) => crate::error::McpError::new(
+                crate::error::ErrorCategory::Internal,
+                format!("tool result failed to serialize: {e}"),
+            )
+            .into(),
+        },
         Err(e) => e.into(),
     }
 }

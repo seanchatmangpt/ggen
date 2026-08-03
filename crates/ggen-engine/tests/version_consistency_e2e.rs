@@ -11,6 +11,8 @@
 //! files (via `include_str!`), not a hardcoded literal — editing any one of the
 //! three files without the others fails this test.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 const REPO_FACTS_TTL: &str = include_str!("../../../.specify/repo-facts.ttl");
 const ROOT_CARGO_TOML: &str = include_str!("../../../Cargo.toml");
 const GGEN_TOML: &str = include_str!("../../../ggen.toml");

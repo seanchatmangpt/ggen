@@ -50,8 +50,13 @@ mod panic_prevention_tests {
         let cache = TemplateCache::new(10);
         let stats = cache.stats();
 
-        // Should return error on lock poisoning, not panic
-        assert!(stats.is_ok() || stats.is_err());
+        // No poisoning is induced here, so under normal operation this must
+        // succeed and report the capacity requested at construction --
+        // mirrors the same call's real assertion in
+        // `test_safe_lru_cache_creation`/`test_backwards_compatibility`
+        // above, rather than accepting either outcome as "not a panic".
+        assert!(stats.is_ok());
+        assert_eq!(stats.unwrap().capacity, 10);
     }
 }
 
@@ -384,8 +389,11 @@ mod integration_tests {
             .and_then(|cmd| cmd.arg("--version"))
             .and_then(|cmd| cmd.execute());
 
-        // Should either succeed or fail gracefully
-        assert!(result.is_ok() || result.is_err());
+        // git is guaranteed in this repo's dev/CI environments (the test
+        // suite itself lives in a git checkout) -- mirrors
+        // `test_command_executor_git`'s real assertion for the same
+        // command, rather than accepting either outcome as "graceful".
+        assert!(result.is_ok(), "git --version must succeed: {result:?}");
     }
 
     #[test]

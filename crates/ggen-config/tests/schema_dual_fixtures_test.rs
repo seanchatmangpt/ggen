@@ -14,6 +14,8 @@
 //! ["declarative:project_version_present", "frontmatter:packref_entry_missing_name",
 //! "frontmatter:packs_table_shaped"]`.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_config::ConfigSchemaClassification;
 
 fn read_fixture(name: &str) -> String {

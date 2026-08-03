@@ -42,7 +42,7 @@ const SERVICE_NAME: &str = "ggen-marketplace-p2p";
 // TEST SUITE 1: COLLECTOR INFRASTRUCTURE
 // =============================================================================
 
-#[ignore] // Requires Docker infrastructure
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_otel_collector_is_healthy, 30, async {
     // Arrange
     let client = reqwest::Client::new();
@@ -71,7 +71,7 @@ async_test_with_timeout!(test_otel_collector_is_healthy, 30, async {
     );
 });
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_otel_collector_endpoints_available, 30, async {
     // Arrange
     let client = reqwest::Client::builder()
@@ -97,7 +97,7 @@ async_test_with_timeout!(test_otel_collector_endpoints_available, 30, async {
 // TEST SUITE 2: TRACE EMISSION VALIDATION
 // =============================================================================
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_marketplace_search_emits_spans_to_collector, 30, async {
     // Arrange
     let baseline_spans = get_collector_span_count().await;
@@ -137,7 +137,7 @@ async_test_with_timeout!(test_marketplace_search_emits_spans_to_collector, 30, a
     );
 });
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_p2p_operations_emit_trace_context, 30, async {
     // Arrange
     let baseline = get_collector_span_count().await;
@@ -175,7 +175,7 @@ async_test_with_timeout!(test_p2p_operations_emit_trace_context, 30, async {
     println!("✅ P2P operation emitted {} spans", current - baseline);
 });
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_span_attributes_contain_operation_metadata, 30, async {
     // Arrange & Act
     // Run operation
@@ -233,7 +233,7 @@ async_test_with_timeout!(test_span_attributes_contain_operation_metadata, 30, as
 // TEST SUITE 3: PARENT-CHILD SPAN RELATIONSHIPS
 // =============================================================================
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, async {
     // Arrange & Act
     // Run operation that should create nested spans
@@ -279,7 +279,7 @@ async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, asy
     println!("✅ Parent-child span relationships preserved");
 });
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, async {
     // Arrange & Act
     let _output = Command::new("cargo")
@@ -333,7 +333,7 @@ async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, as
 // TEST SUITE 4: SERVICE IDENTIFICATION
 // =============================================================================
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_spans_have_correct_service_name, 30, async {
     // Arrange & Act
     let _output = Command::new("cargo")
@@ -381,7 +381,7 @@ async_test_with_timeout!(test_spans_have_correct_service_name, 30, async {
 // TEST SUITE 5: PERFORMANCE & RELIABILITY
 // =============================================================================
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     // Arrange & Act
     // Run without OTEL
@@ -423,7 +423,7 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     );
 });
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_collector_handles_burst_of_spans, 30, async {
     // Arrange
     let baseline = get_collector_span_count().await;
@@ -535,7 +535,7 @@ async fn query_jaeger_traces(service: &str) -> Vec<Value> {
 // INFRASTRUCTURE VALIDATION
 // =============================================================================
 
-#[ignore]
+#[ignore = "requires a live OTEL collector reachable via docker-compose (OTLP HTTP :4318, health :13133 — see file header 'Prerequisites'); not part of the fast test loop"]
 async_test_with_timeout!(test_docker_compose_otel_stack_running, 30, async {
     // Arrange
     let services = vec![

@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::panic)]
 use ggen_marketplace::marketplace::{
     PartPassport, PassportViolationCode, SubstitutionViolationCode,
 };

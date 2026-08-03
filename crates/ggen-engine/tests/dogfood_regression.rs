@@ -19,6 +19,8 @@
 //! crate's own current binary via `CliHarness::cargo_bin`, matching every
 //! other test in this suite (see `cli_boundary.rs`).
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use chicago_tdd_tools::cli_proof::CliHarness;
 use std::path::{Path, PathBuf};
 

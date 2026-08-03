@@ -44,12 +44,22 @@
 
 # Feature Completeness Matrix - ggen v26.5.19.2.0 Phase 3 MEDIUM
 
+> **Coverage caveat added 2026-08-02 (not part of the original v26.5.19.2.0 record):** every
+> "Test Coverage" percentage in this document (per-feature cells, the "Coverage by Category" /
+> "Test Coverage Growth" sections, and the 78.9%/80% overall figures) is dated to a much older
+> release (v26.5.19.2.0) and was never backed by a coverage-tool run that this repo's current
+> tooling can reproduce -- no CI job or `justfile` recipe computes coverage today, and none is
+> known to have done so at the time this matrix was written either (no coverage-tool output is
+> linked or archived alongside it). Read every number below as an unverified historical
+> assertion tied to a specific, now-superseded version, not a current or reproducible
+> measurement.
+
 ## Executive Summary
 
 This matrix tracks the completeness status of all ggen features across versions, with test coverage, documentation quality, HDOC entropy metrics, and risk assessments. It serves as a quality gate for v26.5.19.2.0 Phase 3 MEDIUM release.
 
 **Status Legend:**
-- ✅ **Complete**: Feature fully implemented, tested (80%+ coverage), documented
+- ✅ **Complete**: Feature fully implemented, tested (target: 80%+ coverage -- see caveat above), documented
 - 🟡 **Partial**: Feature implemented but incomplete tests or docs
 - ❌ **Missing**: Feature not implemented or severely incomplete
 - 🔄 **Deprecated**: Feature marked for removal or replacement

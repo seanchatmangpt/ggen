@@ -88,12 +88,18 @@ fn parse_args() -> Args {
     a
 }
 
-fn repo_root() -> PathBuf {
+fn repo_root() -> anyhow::Result<PathBuf> {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .and_then(Path::parent)
-        .expect("repo root")
-        .to_path_buf()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "CARGO_MANIFEST_DIR ({}) has fewer than two parent directories -- \
+                 this binary assumes it is built from crates/ggen-mcp/",
+                env!("CARGO_MANIFEST_DIR")
+            )
+        })
 }
 
 fn packs_with_ontology(root: &Path) -> Vec<PathBuf> {
@@ -198,7 +204,7 @@ fn slug(s: &str) -> String {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Arc::new(parse_args());
-    let root = repo_root();
+    let root = repo_root()?;
     let corpus_dir = root.join("crates/ggen-mcp/tests/corpus");
     std::fs::create_dir_all(&corpus_dir)?;
 
@@ -222,6 +228,13 @@ async fn main() -> anyhow::Result<()> {
     for pack_dir in packs {
         let (args, client, sem) = (Arc::clone(&args), client.clone(), Arc::clone(&sem));
         handles.push(tokio::spawn(async move {
+            // `acquire_owned` only errs if the semaphore was `.close()`d,
+            // and `sem` (constructed once above, cloned per task) is never
+            // closed anywhere in this file -- a structural invariant, not
+            // an input-dependent one. Even if that changed, this runs
+            // inside a spawned task: a panic here surfaces as a `JoinError`
+            // at the `h.await` call site below, which is already handled
+            // (logged and skipped), not a process crash.
             let _permit = sem.acquire_owned().await.expect("semaphore");
             let name = pack_dir
                 .file_name()

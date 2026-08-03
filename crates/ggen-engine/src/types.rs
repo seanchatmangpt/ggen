@@ -34,6 +34,7 @@ impl Blake3Hash {
     ///
     /// This is the primary constructor for new digests. Use [`from_hex`] only
     /// when deserializing a digest that was previously computed.
+    #[must_use]
     pub fn content_address(bytes: &[u8]) -> Self {
         Blake3Hash(blake3::hash(bytes).to_hex().to_string())
     }
@@ -48,6 +49,7 @@ impl Blake3Hash {
     }
 
     /// Borrow the lowercase hex representation of this hash.
+    #[must_use]
     pub fn as_hex(&self) -> &str {
         &self.0
     }
@@ -150,6 +152,10 @@ impl ObjectRef {
     /// let bare = ObjectRef::parse("suite:test-suite").unwrap();
     /// assert_eq!(bare.qualifier, None);
     /// ```
+    ///
+    /// # Errors
+    /// Returns [`ObjectRefParseError`] if `s` is not `id:type` or `id:type:qualifier`
+    /// with all segments non-empty.
     pub fn parse(s: &str) -> Result<Self, ObjectRefParseError> {
         let parts: Vec<&str> = s.splitn(3, ':').collect();
         match parts.as_slice() {
@@ -184,6 +190,7 @@ impl std::str::FromStr for ObjectRef {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod object_ref_parse_tests {
     use super::*;
 
@@ -370,6 +377,13 @@ impl<T, Witness> Evidence<T, Validated, Witness> {
     }
 
     /// Private constructor — only validators within this crate may call this.
+    ///
+    /// Reserved for a future intermediate-validation call site; no current
+    /// validator in this crate produces a `Validated`-stage `Evidence` (they
+    /// go directly `Raw` -> `Admitted` via [`Admit`]), so this is unused
+    /// today. Kept (rather than deleted) so the three-state lifecycle
+    /// (`Raw` -> `Validated` -> `Admitted`) stays fully constructible.
+    #[allow(dead_code)]
     pub(crate) fn validate_unchecked(inner: T) -> Self {
         Self {
             inner,
@@ -401,10 +415,17 @@ impl<T, Witness> Evidence<T, Admitted, Witness> {
 /// `Evidence<Input, Admitted, Witness>` or return a typed rejection reason.
 /// Only the holder of an `Admit` impl can produce `AdmittedEvidence`.
 pub trait Admit {
+    /// The inner value type carried by the evidence being admitted.
     type Input;
+    /// The witness authority tag associated with this admission door.
     type Witness;
+    /// The typed rejection reason returned when admission is refused.
     type Error;
 
+    /// Attempt to admit `input`, converting it from `Raw` to `Admitted`.
+    ///
+    /// # Errors
+    /// Returns `Self::Error` if `input` fails this admission door's checks.
     fn admit(
         input: Evidence<Self::Input, Raw, Self::Witness>,
     ) -> Result<Evidence<Self::Input, Admitted, Self::Witness>, Self::Error>;
@@ -422,6 +443,14 @@ pub type AdmittedEvidence<T, W> = Evidence<T, Admitted, W>;
 /// A cryptographic receipt verifying admission.
 ///
 /// Constructed only via authorized validators using the Seal Pattern.
+///
+/// Intentionally uses a private `_seal` field rather than `#[non_exhaustive]`:
+/// `#[non_exhaustive]` only blocks struct-literal construction from *other
+/// crates*, while this type must also be unconstructable by struct literal
+/// from other modules within this same crate (see the "Sealed Construction"
+/// pattern note earlier in this file) — a strictly stronger guarantee that
+/// `#[non_exhaustive]` cannot express.
+#[allow(clippy::manual_non_exhaustive)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AdmittedReceipt {
     /// The BLAKE3 hash of the admitted state.
@@ -434,6 +463,12 @@ pub struct AdmittedReceipt {
 
 impl AdmittedReceipt {
     /// Create a new sealed receipt. Restricted to crate/module validator authority.
+    ///
+    /// Reserved for a future receipt-sealing call site; no current validator
+    /// in this crate constructs an `AdmittedReceipt` yet. Kept (rather than
+    /// deleted) so the type stays constructible per its own "Seal Pattern"
+    /// docs above instead of becoming permanently inert.
+    #[allow(dead_code)]
     pub(crate) fn new(chain_hash: [u8; 32], timestamp: u64) -> Self {
         Self {
             chain_hash,
@@ -474,6 +509,7 @@ pub enum ProfileId {
 
 impl ProfileId {
     /// Stable string identifier for serialization and CLI output.
+    #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
             ProfileId::CoreV1 => "core/v1",
@@ -490,8 +526,11 @@ impl ProfileId {
 /// - `Suggest` — informational observation; purely advisory.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PolicyVerdict {
+    /// All checks clear; proceed without hesitation.
     Pass,
+    /// Notable condition; non-blocking but should be logged/tracked.
     Warn,
+    /// Informational observation; purely advisory.
     Suggest,
 }
 
@@ -551,7 +590,7 @@ pub trait CicdPolicy {
 mod layout_assertions {
     use std::mem::{align_of, size_of};
 
-    use super::*;
+    use super::{Admitted, Blake3Hash, Evidence, PolicyVerdict, ProfileId, Raw, Validated};
 
     // Blake3Hash wraps a String; on 64-bit platforms a String is 3 * usize = 24 bytes.
     const _BLAKE3_HASH_SIZE: () = {
@@ -664,6 +703,7 @@ pub struct Verdict {
 
 impl Verdict {
     /// Construct an ACCEPT verdict from a list of all-passing stage outcomes.
+    #[must_use]
     pub fn accept(stages: Vec<StageOutcome>) -> Self {
         Verdict {
             accepted: true,
@@ -672,6 +712,7 @@ impl Verdict {
     }
 
     /// Construct a REJECT verdict. Sets `accepted = false` regardless of individual outcomes.
+    #[must_use]
     pub fn reject(stages: Vec<StageOutcome>) -> Self {
         Verdict {
             accepted: false,
@@ -683,6 +724,7 @@ impl Verdict {
     ///
     /// Returns `None` for ACCEPT verdicts or (degenerate) REJECT verdicts with no
     /// recorded failure reason.
+    #[must_use]
     pub fn first_failure(&self) -> Option<&StageOutcome> {
         self.stage_outcomes.iter().find(|s| !s.passed)
     }
@@ -692,6 +734,7 @@ impl Verdict {
     /// Examples:
     /// - `"ACCEPT (7/7 stages passed)"`
     /// - `"REJECT at stage chain_integrity: chain hash mismatch"`
+    #[must_use]
     pub fn summary(&self) -> String {
         if self.accepted {
             let n = self.stage_outcomes.len();
@@ -708,6 +751,7 @@ impl Verdict {
     }
 
     /// Returns `true` if the verdict is an ACCEPT.
+    #[must_use]
     pub fn is_accepted(&self) -> bool {
         self.accepted
     }
@@ -720,6 +764,7 @@ impl fmt::Display for Verdict {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod verdict_tests {
     use super::*;
 
@@ -788,8 +833,9 @@ impl PolicyVerdict {
     /// Returns the "worse" of two verdicts.
     ///
     /// Severity order: `Pass` < `Suggest` < `Warn`.
+    #[must_use]
     pub fn worse(self, other: PolicyVerdict) -> PolicyVerdict {
-        use PolicyVerdict::*;
+        use PolicyVerdict::{Pass, Suggest, Warn};
         match (self, other) {
             (Warn, _) | (_, Warn) => Warn,
             (Suggest, _) | (_, Suggest) => Suggest,
@@ -798,16 +844,12 @@ impl PolicyVerdict {
     }
 
     /// Returns `true` if this verdict is at least as severe as `threshold`.
+    #[must_use]
     pub fn at_least(&self, threshold: &PolicyVerdict) -> bool {
-        use PolicyVerdict::*;
+        use PolicyVerdict::{Pass, Suggest, Warn};
         matches!(
             (self, threshold),
-            (Warn, Warn)
-                | (Warn, Suggest)
-                | (Warn, Pass)
-                | (Suggest, Suggest)
-                | (Suggest, Pass)
-                | (Pass, Pass)
+            (Warn, Warn | Suggest | Pass) | (Suggest, Suggest | Pass) | (Pass, Pass)
         )
     }
 }
@@ -846,6 +888,7 @@ pub struct PolicyFinding {
 
 impl CicdPolicyRunner {
     /// Construct a runner from a list of boxed policies.
+    #[must_use]
     pub fn new(policies: Vec<Box<dyn CicdPolicy>>) -> Self {
         CicdPolicyRunner { policies }
     }
@@ -853,6 +896,7 @@ impl CicdPolicyRunner {
     /// Run all policies and return `(aggregate_verdict, findings)`.
     ///
     /// The aggregate verdict is the worst verdict across all policies.
+    #[must_use]
     pub fn run(&self, config: &PolicyConfig) -> (PolicyVerdict, Vec<PolicyFinding>) {
         let mut aggregate = PolicyVerdict::Pass;
         let mut findings = Vec::with_capacity(self.policies.len());
@@ -869,6 +913,7 @@ impl CicdPolicyRunner {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod policy_runner_tests {
     use super::*;
 
@@ -916,6 +961,7 @@ mod policy_runner_tests {
 // ─── Tests ──────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
@@ -1038,10 +1084,11 @@ mod tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod canonical_determinism_tests {
     use super::*;
 
-    /// Prove that canonical_bytes produces identical output across 100 calls.
+    /// Prove that `canonical_bytes` produces identical output across 100 calls.
     #[test]
     fn canonical_bytes_is_deterministic_across_100_calls() {
         use serde::Serialize;
@@ -1207,6 +1254,7 @@ impl Admit for HashAdmit {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod hash_admit_tests {
     use super::*;
 

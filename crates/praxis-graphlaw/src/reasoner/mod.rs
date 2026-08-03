@@ -772,20 +772,47 @@ impl Reasoner {
                                         }
                                     }
                                     for projected_adds in projected_adds_list {
-                                        if let Ok(parsed_triples) = Parser::parse_triples(
+                                        // `Parser::parse_triples` genuinely returns `Err` for
+                                        // malformed Turtle (e.g. a `kh:adds_ttl` literal with a
+                                        // syntax typo, or a variable-projection template that
+                                        // produces invalid Turtle for some binding row). Discarding
+                                        // that `Err` here would let the malformed action fall
+                                        // through as if its WHERE clause had simply matched
+                                        // nothing this round -- indistinguishable from a
+                                        // legitimate empty no-op (see the `else` branch below and
+                                        // `test_c3_construct_empty_no_receipt`). A hook whose
+                                        // action cannot even be parsed must not silently masquerade
+                                        // as a hook that fired correctly and produced no delta, so
+                                        // this is surfaced as a hard `materialize()` error --
+                                        // mirroring how `EffectKind::Refuse` already aborts the
+                                        // whole pass above. The caller-level `TripleStore::materialize`
+                                        // wrapper (`lib.rs`) restores `triple_index`/`receipts`/
+                                        // `verdicts` to the pre-call checkpoint on any `Err` here,
+                                        // so no manual rollback is needed at this call site.
+                                        match Parser::parse_triples(
                                             &projected_adds,
                                             crate::parser::Syntax::Turtle,
                                         ) {
-                                            for t in parsed_triples {
-                                                if Self::apply_new_triple(
-                                                    t.clone(),
-                                                    triple_index,
-                                                    &mut inferred,
-                                                ) {
-                                                    hook_changed = true;
-                                                    hook_additions.push(t.clone());
-                                                    current_round_hook_additions.push(t);
+                                            Ok(parsed_triples) => {
+                                                for t in parsed_triples {
+                                                    if Self::apply_new_triple(
+                                                        t.clone(),
+                                                        triple_index,
+                                                        &mut inferred,
+                                                    ) {
+                                                        hook_changed = true;
+                                                        hook_additions.push(t.clone());
+                                                        current_round_hook_additions.push(t);
+                                                    }
                                                 }
+                                            }
+                                            Err(e) => {
+                                                return Err(format!(
+                                                    "hook '{}' action failed to evaluate \
+                                                     (malformed kh:adds_ttl Turtle, not a \
+                                                     zero-match no-op): {}",
+                                                    hook.name, e
+                                                ));
                                             }
                                         }
                                     }
@@ -813,27 +840,57 @@ impl Reasoner {
                                         }
                                     }
                                     if !action_query.is_empty() {
-                                        if let Ok((adds, _dels)) = crate::hooks::evaluate_construct(
+                                        // `evaluate_construct` genuinely returns `Err` for a
+                                        // malformed/non-CONSTRUCT `kh:query` (SPARQL parse error,
+                                        // a query that parses but isn't a CONSTRUCT -- e.g.
+                                        // accidentally a SELECT, which load-time validation in
+                                        // `hooks::parsing::validate_and_extract_hooks` does not
+                                        // catch when the literal text happens not to contain the
+                                        // substring "CONSTRUCT" -- or a plan refused as an
+                                        // unsupported construct). Discarding that `Err` here made
+                                        // this indistinguishable from the action's WHERE clause
+                                        // genuinely matching nothing (the `else` branch below,
+                                        // guarded by `test_c3_construct_empty_no_receipt`'s
+                                        // invariant that a real empty CONSTRUCT must not emit a
+                                        // receipt). A hook action that never even evaluated must
+                                        // not masquerade as one that fired and produced no delta,
+                                        // so this is surfaced as a hard `materialize()` error,
+                                        // mirroring `EffectKind::Refuse` above. `TripleStore::materialize`
+                                        // (`lib.rs`) restores `triple_index`/`receipts`/`verdicts`
+                                        // to the pre-call checkpoint on any `Err` here, so no
+                                        // manual rollback is needed at this call site.
+                                        match crate::hooks::evaluate_construct(
                                             &action_query,
                                             triple_index,
                                         ) {
-                                            for t in adds {
-                                                if Self::apply_new_triple(
-                                                    t.clone(),
-                                                    triple_index,
-                                                    &mut inferred,
-                                                ) {
-                                                    hook_changed = true;
-                                                    hook_additions.push(t.clone());
-                                                    current_round_hook_additions.push(t.clone());
+                                            Ok((adds, _dels)) => {
+                                                for t in adds {
+                                                    if Self::apply_new_triple(
+                                                        t.clone(),
+                                                        triple_index,
+                                                        &mut inferred,
+                                                    ) {
+                                                        hook_changed = true;
+                                                        hook_additions.push(t.clone());
+                                                        current_round_hook_additions
+                                                            .push(t.clone());
+                                                    }
+                                                }
+                                                for t in _dels {
+                                                    if triple_index.contains(&t) {
+                                                        triple_index.remove_ref(&t);
+                                                        hook_changed = true;
+                                                        hook_removals.push(t.clone());
+                                                    }
                                                 }
                                             }
-                                            for t in _dels {
-                                                if triple_index.contains(&t) {
-                                                    triple_index.remove_ref(&t);
-                                                    hook_changed = true;
-                                                    hook_removals.push(t.clone());
-                                                }
+                                            Err(e) => {
+                                                return Err(format!(
+                                                    "hook '{}' action failed to evaluate \
+                                                     (malformed SPARQL CONSTRUCT, not a \
+                                                     zero-match no-op): {}",
+                                                    hook.name, e
+                                                ));
                                             }
                                         }
                                     }

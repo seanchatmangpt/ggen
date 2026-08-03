@@ -33,6 +33,26 @@ fn collect_formula_vars(term: &VarOrTerm, out: &mut HashSet<usize>) {
             }
         }
     }
+    // Same reasoning as the formula case above, for RDF list-term patterns
+    // (e.g. `?x :is (:good ?Y)`): `?Y` only appears nested inside the list
+    // structure, not as a direct subject/predicate/object of a body literal,
+    // but `TripleIndex::query`'s `query_list_pattern` fallback (see
+    // `is_nonground_list_pattern`/`unify_list_pattern` in term.rs) really
+    // does bind it at runtime by unifying the pattern against a ground list
+    // member-by-member -- the real EYE `good-cobbler` corpus case exercises
+    // exactly this. Before this fix, a rule using this idiom (which the
+    // engine has correctly executed since list-pattern unification was
+    // implemented) was rejected as "unsafe" by this static check, which had
+    // no way to see the binding -- a false positive, not a real safety gap.
+    if let Some(members) = VarOrTerm::list_members_typed(term.to_encoded()) {
+        for m in &members {
+            if m.is_var() {
+                out.insert(m.to_encoded());
+            } else {
+                collect_formula_vars(m, out);
+            }
+        }
+    }
 }
 
 /// Identifies the "relation" a triple pattern talks about.

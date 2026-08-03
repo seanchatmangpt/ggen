@@ -4,6 +4,19 @@ Generated from `ctt:CliBoundaryTest` individuals. Each row is one
 Chicago-style `#[test]` in `tests/chicago_tdd_tools_boundary.rs` that
 crosses a real binary boundary via `CliHarness` — no mocks.
 
+## Prerequisites
+
+`CliHarness::cargo_bin` resolves each binary below via `CARGO_BIN_EXE_*`,
+then this workspace's own `target/{debug,release}/`, then a `PATH` search
+(see `chicago_tdd_tools::cli_proof::CliHarness::cargo_bin`). If a binary
+below is not a `[[bin]]` target of *this* consumer crate's own workspace,
+it must be built and placed on `PATH` before `cargo test` will pass —
+derived from `ctt:binary`, not hand-maintained:
+
+- `ggen`
+- `receiptctl`
+
+
 | Test | Binary | Args | Exit | Axiom covered |
 |------|--------|------|------|---------------|
 | `ggen_graph_validate_missing_file_fails_closed` | `ggen` | `graph validate --files /tmp/does-not-exist-xyz.ttl` | 1 | graph validate against a nonexistent file fails closed with a named-file error, not a panic |

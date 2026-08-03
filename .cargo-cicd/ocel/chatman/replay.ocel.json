@@ -1,0 +1,94 @@
+{
+  "ocel:global-log": {
+    "ocel:version": "2.0"
+  },
+  "ocel:events": {
+    "evt_000": {
+      "event_id": "8e3a7f8a-b567-4f92-8f09-7ff45c5b2d12",
+      "case_id": "chatman-replay",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 1,
+      "objects": [
+        [
+          "Falsify_GraphSnapshotMismatch",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Falsify_GraphSnapshotMismatch",
+        "refusal": "GraphSnapshotMismatch",
+        "outcome": "refused"
+      }
+    },
+    "evt_003": {
+      "event_id": "699ad677-42ac-4f3b-b352-906a9e31672c",
+      "case_id": "chatman-replay",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 4,
+      "objects": [
+        [
+          "Falsify_ProfileSymbolTableMismatch",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Falsify_ProfileSymbolTableMismatch",
+        "outcome": "refused",
+        "refusal": "ProfileSymbolTableMismatch"
+      }
+    },
+    "evt_002": {
+      "event_id": "8abf75ba-e820-477a-8a78-ab450c5e42c8",
+      "case_id": "chatman-replay",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 3,
+      "objects": [
+        [
+          "Accept_ProfileSymbolTableAligned",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_ProfileSymbolTableAligned",
+        "outcome": "admitted"
+      }
+    },
+    "evt_001": {
+      "event_id": "8f66c355-2a9a-4762-806f-7fcd04f9a735",
+      "case_id": "chatman-replay",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 2,
+      "objects": [
+        [
+          "Accept_GraphSnapshotReplaysByteIdentical",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_GraphSnapshotReplaysByteIdentical",
+        "outcome": "admitted"
+      }
+    }
+  },
+  "ocel:objects": {}
+}

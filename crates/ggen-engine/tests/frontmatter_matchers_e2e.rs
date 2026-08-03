@@ -1,5 +1,7 @@
 //! Real-boundary coverage for typed, Tera-rendered host-content selectors.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};

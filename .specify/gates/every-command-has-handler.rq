@@ -8,12 +8,13 @@
 # Generated from combinatorial.ttl. Edit the ontology, not this file.
 
 
+PREFIX cli: <http://ggen.org/cli#>
+
+
 ASK {
   
-    NOT EXISTS {
-      ?cmd a cli:Command .
-      FILTER NOT EXISTS { ?cmd cli:handler ?h }
-    }
+    ?cmd a cli:Command .
+    FILTER NOT EXISTS { ?cmd cli:handler ?h }
     
 }
 

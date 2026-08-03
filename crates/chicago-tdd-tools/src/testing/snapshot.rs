@@ -305,6 +305,20 @@ impl SnapshotAssert {
                             Self::set_json_path(&mut arr[index], &path[1..], replacement);
                         }
                     }
+                } else {
+                    // Wildcard: `path[0]` is a field name, not a numeric index
+                    // (e.g. selector "sessions.token" against a `sessions`
+                    // array of `{token: ...}` objects). Apply the *same*
+                    // remaining path to every element instead of silently
+                    // doing nothing -- a prior version of this arm only
+                    // handled numeric indices and fell through here without
+                    // redacting or erroring, which risked leaking secrets
+                    // unredacted into a git-committed snapshot file the
+                    // moment a caller needed to reach into an array by field
+                    // name (see FINDING #9).
+                    for item in arr.iter_mut() {
+                        Self::set_json_path(item, path, replacement.clone());
+                    }
                 }
             }
             _ => {
@@ -850,6 +864,62 @@ mod tests {
         assert!(redactions.contains_key(".token"));
         assert!(redactions.contains_key(".password"));
         assert_eq!(redactions.get(".id"), Some(&"[UUID]".to_string()));
+    }
+
+    #[test]
+    #[cfg(feature = "snapshot-testing")]
+    fn test_redaction_reaches_into_array_elements_by_field_name() {
+        // Arrange: an array of objects that each carry a secret under the
+        // same field name, redacted via a single dot-path selector
+        // ("sessions.token") with no numeric array index. This is exactly
+        // the shape FINDING #9 identified as silently no-op-ing: the Array
+        // arm of set_json_path only handled `path[0].parse::<usize>()`
+        // succeeding, so a field-name segment ("token") fell through the
+        // match without redacting anything and without any error/log.
+        let mut data = serde_json::json!({
+            "sessions": [
+                {"user": "alice", "token": "secret-token-abc"},
+                {"user": "bob", "token": "secret-token-xyz"}
+            ]
+        });
+        let mut redactions = HashMap::new();
+        redactions.insert("sessions.token".to_string(), "[TOKEN]".to_string());
+
+        // Act: apply the redaction directly against the JSON value so we can
+        // assert on the exact resulting structure (not merely "matches a
+        // stored snapshot", which would hide a partial/silent failure).
+        SnapshotAssert::apply_redactions(&mut data, &redactions);
+
+        // Assert: every element's token field was actually replaced...
+        assert_eq!(data["sessions"][0]["token"], serde_json::json!("[TOKEN]"));
+        assert_eq!(data["sessions"][1]["token"], serde_json::json!("[TOKEN]"));
+        // ...the raw secrets never survive into the redacted value, which is
+        // what would otherwise be written verbatim into a git-committed
+        // snapshot file...
+        let serialized = serde_json::to_string(&data).expect("redacted value must serialize");
+        assert!(!serialized.contains("secret-token-abc"));
+        assert!(!serialized.contains("secret-token-xyz"));
+        // ...and fields the selector did not target are left untouched.
+        assert_eq!(data["sessions"][0]["user"], serde_json::json!("alice"));
+        assert_eq!(data["sessions"][1]["user"], serde_json::json!("bob"));
+    }
+
+    #[test]
+    #[cfg(feature = "snapshot-testing")]
+    fn test_redaction_array_numeric_index_still_works() {
+        // Regression guard: the wildcard fallback added for field-name
+        // traversal must not change behavior for the pre-existing, already-
+        // working numeric-index case (e.g. "tags.0").
+        let mut data = serde_json::json!({
+            "tags": ["admin-secret", "public"]
+        });
+        let mut redactions = HashMap::new();
+        redactions.insert("tags.0".to_string(), "[REDACTED]".to_string());
+
+        SnapshotAssert::apply_redactions(&mut data, &redactions);
+
+        assert_eq!(data["tags"][0], serde_json::json!("[REDACTED]"));
+        assert_eq!(data["tags"][1], serde_json::json!("public"));
     }
 
     // ========================================================================

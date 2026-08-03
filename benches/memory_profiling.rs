@@ -82,8 +82,9 @@ mod memory_tests {
         let baseline = get_current_memory_usage();
 
         // Use shared runtime multiple times
+        let mut last_result = String::new();
         for _ in 0..10 {
-            let _result = SHARED_RT.block_on(sample_async_work());
+            last_result = SHARED_RT.block_on(sample_async_work());
         }
 
         let peak = get_current_memory_usage();
@@ -92,6 +93,25 @@ mod memory_tests {
         println!("  Baseline: {} bytes", baseline);
         println!("  Peak (10 executions): {} bytes", peak);
         println!("  Per-execution overhead: {} bytes", (peak - baseline) / 10);
+
+        // The shared runtime must actually execute the async workload on every
+        // iteration, not silently no-op or exit early.
+        assert!(
+            last_result.contains("data_99"),
+            "shared runtime should complete the full 100-line async workload each \
+             iteration, but the final result was: {:?}",
+            last_result
+        );
+        // The custom allocator's tracked peak must never read lower than the
+        // post-reset baseline -- if it did, the overhead computation above would
+        // have already underflowed.
+        assert!(
+            peak >= baseline,
+            "tracked peak memory ({} bytes) must not be lower than the post-reset \
+             baseline ({} bytes)",
+            peak,
+            baseline
+        );
     }
 
     #[test]
@@ -287,6 +307,22 @@ mod integration_tests {
 
     #[test]
     fn run_all_memory_comparisons() {
+        reset_memory_tracking();
+        let allocated_before = ALLOCATED.load(Ordering::SeqCst);
+
         run_memory_comparison();
+
+        let allocated_after = ALLOCATED.load(Ordering::SeqCst);
+        // The tracked-allocation counter is monotonically increasing (it is only
+        // ever zeroed by reset_memory_tracking, never decremented), so a genuine
+        // run of all three runtime strategies -- each doing real string
+        // allocations across 10 iterations -- must move it forward.
+        assert!(
+            allocated_after > allocated_before,
+            "run_memory_comparison should perform real allocations across all \
+             three runtime strategies (allocated_before={} bytes, allocated_after={} bytes)",
+            allocated_before,
+            allocated_after
+        );
     }
 }

@@ -1,6 +1,8 @@
 //! Clean-consumer proof for the enterprise GitHub repository architecture.
 //! Uses the real filesystem, graph engine, SPARQL gates, Tera rendering, and bash parser.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -51,6 +53,12 @@ fn read(project: &Path, relative: &str) -> String {
         .unwrap_or_else(|error| panic!("read {relative}: {error}"))
 }
 
+// One Chicago-TDD end-to-end scenario (single scaffold + sync, many real
+// on-disk assertions against its full generated surface, then a second sync
+// proving idempotency); splitting it would either re-run the expensive
+// scaffold+sync setup per assertion group or share state between tests,
+// not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn enterprise_repository_factory_is_generated_and_idempotent() {
     let (_dir, project) = scaffold();

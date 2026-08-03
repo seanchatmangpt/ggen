@@ -16,7 +16,6 @@ WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$WORKSPACE_ROOT"
 
 MANIFEST_FILE="scripts/gall/external/manifest.sha256"
-OCEL_FILE="crates/ggen-graph/audit/vision2030.self_audit.ocel.json"
 COVERAGE_FILE="crates/ggen-graph/audit/vision2030.coverage.json"
 ADJUDICATION_FILE="crates/ggen-graph/audit/vision2030.external_adjudication.json"
 
@@ -94,14 +93,19 @@ SCRIPTS=(
     "scripts/gall/external/06_scan_forbidden_surfaces.sh"
     "scripts/gall/external/07_check_anti_fake.sh"
     "scripts/gall/external/08_verify_replay_receipts.sh"
-    "scripts/gall/external/09_verify_ocel_self_audit.sh"
+    # NOTE (2026-08-03): "09_verify_ocel_self_audit.sh" was removed from this
+    # ring; it regenerated and structurally re-checked vision2030.self_audit
+    # .ocel.json, whose generator hardcoded a fake exit_code, a sha256("test")
+    # passed off as a real artifact hash, fabricated coverage percentages, and
+    # compile-time-fixed timestamps. See
+    # crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
     "scripts/gall/external/10_verify_coverage_matrix.sh"
     "scripts/gall/external/11_verify_proof_report.sh"
     "scripts/gall/external/12_detect_contradictions.sh"
 )
 
 ADJUDICATION_STATUS="Promoted"
-ADJUDICATION_REASON="All 13 validation scripts passed successfully and zero contradictions were detected."
+ADJUDICATION_REASON="All 12 validation scripts passed successfully and zero contradictions were detected."
 SCRIPTS_JSON="[]"
 
 for script in "${SCRIPTS[@]}"; do
@@ -146,7 +150,6 @@ done
 SRC_FILES=(
     "crates/ggen-graph/src/ocel/self_audit.rs"
     "crates/ggen-graph/src/ocel/coverage.rs"
-    "crates/ggen-graph/src/bin/verify_audit.rs"
 )
 SOURCE_FILES_JSON="[]"
 for src in "${SRC_FILES[@]}"; do
@@ -155,36 +158,24 @@ for src in "${SRC_FILES[@]}"; do
 done
 
 # 4. Generate Contradiction Section Info
-CONTRADICTION_STATUS="PASS"
-VIOLATIONS_COUNT=0
-VIOLATIONS_LIST="[]"
+#
+# NOTE (2026-08-03): this used to gate on `[ -f "$OCEL_FILE" ]`
+# (crates/ggen-graph/audit/vision2030.self_audit.ocel.json) and re-run
+# 12_detect_contradictions.sh against it purely to extract a detailed
+# violations list for this JSON -- 12_detect_contradictions.sh is still
+# executed for real as part of the SCRIPTS ring above (section 2), which
+# already sets ADJUDICATION_STATUS=Refused on failure; this section only
+# duplicated that check against a file whose generator hardcoded a fake
+# exit_code, a sha256("test") passed off as a real artifact hash, fabricated
+# coverage percentages, and compile-time-fixed timestamps. See
+# crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
+CONTRADICTIONS_JSON=$(jq -n '{"status": "see_scripts_verified", "note": "contradiction check runs as part of the SCRIPTS ring above (12_detect_contradictions.sh), not duplicated here"}')
 
-if [ -f "$OCEL_FILE" ]; then
-    set +e
-    CONTRADICTION_OUT=$(./scripts/gall/external/12_detect_contradictions.sh 2>&1)
-    CONTRADICTION_CODE=$?
-    set -e
-    if [ "$CONTRADICTION_CODE" -ne 0 ]; then
-        CONTRADICTION_STATUS="FAIL"
-        ADJUDICATION_STATUS="Refused"
-        # Parse JQ error lines from scanner output
-        VIOLATIONS_COUNT=$(echo "$CONTRADICTION_OUT" | grep -c "FAIL: " || true)
-        VIOLATIONS_LIST=$(echo "$CONTRADICTION_OUT" | grep "FAIL: " | jq -R . | jq -s .)
-        ADJUDICATION_REASON="Adjudication refused due to logical contradictions in self-audit log."
-    fi
-fi
-
-CONTRADICTIONS_JSON=$(jq -n \
-  --arg status "$CONTRADICTION_STATUS" \
-  --argjson count "$VIOLATIONS_COUNT" \
-  --argjson list "$VIOLATIONS_LIST" \
-  '{"status": $status, "violations_count": $count, "violations": $list}')
-
-# 5. Extract self-audit and coverage metadata
-SELF_AUDIT_BLAKE3="null"
-if [ -f "$OCEL_FILE" ]; then
-    SELF_AUDIT_BLAKE3="\"$(compute_blake3 "$OCEL_FILE")\""
-fi
+# 5. Extract coverage metadata
+#
+# NOTE (2026-08-03): this section used to also compute a "self_audit_digest"
+# BLAKE3 hash of the fabricated vision2030.self_audit.ocel.json and report it
+# as adjudication evidence. Removed for the same reason as section 4 above.
 COVERAGE_BLAKE3="null"
 if [ -f "$COVERAGE_FILE" ]; then
     COVERAGE_BLAKE3="\"$(compute_blake3 "$COVERAGE_FILE")\""
@@ -202,10 +193,6 @@ cat <<EOF > "$JSON_TEMP"
   "scripts_verified": $SCRIPTS_JSON,
   "source_files_verified": $SOURCE_FILES_JSON,
   "contradiction_check": $CONTRADICTIONS_JSON,
-  "self_audit_digest": {
-    "path": "$OCEL_FILE",
-    "blake3": $SELF_AUDIT_BLAKE3
-  },
   "coverage_digest": {
     "path": "$COVERAGE_FILE",
     "blake3": $COVERAGE_BLAKE3

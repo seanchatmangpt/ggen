@@ -8,7 +8,7 @@
 //!
 //! Real filesystem (`tempfile::TempDir`), the real `ggen` binary
 //! (`assert_cmd`) for `doctor`, real oxigraph-backed graph loading — no
-//! mocks. These 8 fixtures are the DoD G1 table, one test per row:
+//! mocks. These 8 fixtures are the `DoD` G1 table, one test per row:
 //!
 //! 1. authoritative (declarative-rules) schema, valid           -> Accepted
 //! 2. compatible (frontmatter) schema, valid                    -> Accepted
@@ -18,6 +18,8 @@
 //! 6. missing required field                                    -> field-specific typed error
 //! 7. unknown field (rejected downstream of a clean classification) -> typed error
 //! 8. `ggen doctor` on each supported schema                     -> correct diagnostic
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::Path;
 
@@ -315,7 +317,13 @@ fn doctor_succeeds_with_correct_diagnostic_on_each_supported_schema() {
     write(
         declarative_dir.path(),
         "ggen.toml",
-        "[project]\nname = \"demo\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[[generation.rules]]\nname = \"x\"\nquery = { inline = \"SELECT * WHERE { ?s ?p ?o }\" }\ntemplate = { inline = \"hi\" }\noutput_file = \"out.txt\"\n",
+        // ORDER BY added 2026-08-03 (TECH-DEBT-003 fix): this fixture's SELECT used to
+        // lack ORDER BY, which `strict_mode` (now defaults true) correctly refuses with
+        // E0013 -- collateral damage from that default flip (same root cause as task #30's
+        // schema_dispatch.rs fixture and crates/ggen-cli/tests/performance.rs's fixture),
+        // not a real bug in `doctor run`'s declarative-rules diagnostic path this test
+        // actually verifies.
+        "[project]\nname = \"demo\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[[generation.rules]]\nname = \"x\"\nquery = { inline = \"SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o\" }\ntemplate = { inline = \"hi\" }\noutput_file = \"out.txt\"\n",
     );
     write(
         declarative_dir.path(),

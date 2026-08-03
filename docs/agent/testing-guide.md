@@ -322,10 +322,12 @@ Focus testing on the critical 20% that prevents 80% of bugs:
 
 ## Test Metrics
 
-Target **80%+ coverage on critical paths**:
+Target **80%+ coverage on critical paths** (aspirational -- no CI/justfile gate currently
+computes coverage for this repo, and `cargo make test:coverage` below is not a real command
+in this workspace; `just` is the entry point, see CLAUDE.md):
 
 ```bash
-cargo make test:coverage  # Generate coverage report
+cargo make test:coverage  # Generate coverage report (illustrative only, not wired up)
 ```
 
 View results in `target/coverage/index.html`

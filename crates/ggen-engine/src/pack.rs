@@ -6,8 +6,10 @@
 //! directory, missing manifest, missing ontology, unknown manifest keys,
 //! or an empty template set all refuse by name with an `FM-PACK-*` code.
 //!
-//! [`content_hash`] computes a deterministic BLAKE3 over the pack's
-//! ontology and templates as sorted `(relative_path, bytes)` pairs.
+//! [`content_hash`] computes a deterministic BLAKE3 over every regular file
+//! under the pack root (ontology, templates, `pack.toml`, and, when present,
+//! `gates/*.rq` and `hook.ttl` -- see that function's doc comment) as sorted
+//! `(relative_path, bytes)` pairs.
 //!
 //! `PackRef::Git` packs are cloned with the system `git` binary (no git
 //! library dependency) into `<root>/.ggen-v2/git-packs/<name>/`, pinned by a
@@ -17,6 +19,13 @@
 //! a git pack is just a local directory and goes through the exact same
 //! validation (`pack.toml`, `ontology.ttl`, `templates/*.tmpl`) as a
 //! `PackRef::Path` pack.
+//!
+//! [`resolve`] permits that clone/wipe/pin-write network I/O. [`resolve_read_only`]
+//! does not: a git pack resolves only from an already-correctly-pinned cache,
+//! and any cache miss/mismatch is refused (`[FM-PACK-012]`) instead of
+//! triggering a clone. Use `resolve_read_only` from any caller that must not
+//! perform undisclosed network/filesystem side effects (e.g. a read-only
+//! query tool).
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -77,7 +86,10 @@ struct PackMeta {
 ///
 /// `PackRef::Path` entries resolve relative to `config_root` (the directory
 /// containing `ggen.toml`); `PackRef::Git` entries are cloned/cached under
-/// `config_root` too (see the module docs).
+/// `config_root` too (see the module docs). This entry point permits the
+/// network I/O (`git clone`) and cache writes a git pack may require —
+/// callers that must never perform such side effects (read-only
+/// tools/queries) should use [`resolve_read_only`] instead.
 ///
 /// # Errors
 /// - `[FM-PACK-001]` pack directory missing
@@ -88,11 +100,36 @@ struct PackMeta {
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
 /// - `[FM-PACK-011]` `git checkout <version>` failed
 pub fn resolve(config: &GgenConfig, config_root: &Path) -> Result<Vec<Pack>> {
+    resolve_inner(config, config_root, true)
+}
+
+/// As [`resolve`], but never performs network I/O or writes a git pack's
+/// clone cache. A `PackRef::Git` pack resolves only from an existing,
+/// correctly-pinned `<config_root>/.ggen-v2/git-packs/<name>/` cache; a
+/// cache miss (absent, corrupt, or pinned to a different `version`) is
+/// refused with `[FM-PACK-012]` rather than triggering a clone.
+///
+/// Intended for callers that must uphold a read-only/`readOnlyHint`
+/// contract — e.g. an ad-hoc SPARQL query preview — where a real `git
+/// clone`, a cache wipe, or a pin-file write would be an undisclosed side
+/// effect. `PackRef::Path` packs are unaffected (they are already pure
+/// local filesystem reads).
+///
+/// # Errors
+/// Same as [`resolve`], plus `[FM-PACK-012]` for an uncached/mismatched git
+/// pack.
+pub fn resolve_read_only(config: &GgenConfig, config_root: &Path) -> Result<Vec<Pack>> {
+    resolve_inner(config, config_root, false)
+}
+
+fn resolve_inner(
+    config: &GgenConfig, config_root: &Path, allow_network: bool,
+) -> Result<Vec<Pack>> {
     let mut packs = Vec::with_capacity(config.packs.len());
     for (name, pack_ref) in &config.packs {
         match pack_ref {
             PackRef::Git { git, version } => {
-                let root = resolve_git_pack_dir(name, git, version, config_root)?;
+                let root = resolve_git_pack_dir(name, git, version, config_root, allow_network)?;
                 packs.push(resolve_pack_dir(name, &root)?);
             }
             PackRef::Path {
@@ -143,14 +180,19 @@ const GIT_PIN_FILE: &str = ".ggen-git-pin";
 
 /// Clone (or reuse a pinned cache of) a `PackRef::Git` pack, returning its
 /// local directory. Reuses the cache as-is when `<cache>/.ggen-git-pin`
-/// already records the exact `version` requested (no network call);
-/// otherwise wipes and re-clones + checks out fresh.
+/// already records the exact `version` requested (no network call, no
+/// write, regardless of `allow_network`); otherwise, when `allow_network`
+/// is `true`, wipes and re-clones + checks out fresh. When `allow_network`
+/// is `false` and the cache does not already satisfy `version`, no clone,
+/// wipe, or write is attempted at all — the call fails closed with
+/// `[FM-PACK-012]` instead.
 ///
 /// # Errors
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
 /// - `[FM-PACK-011]` `git checkout <version>` failed
+/// - `[FM-PACK-012]` cache miss/mismatch with `allow_network: false`
 fn resolve_git_pack_dir(
-    name: &str, git: &str, version: &str, config_root: &Path,
+    name: &str, git: &str, version: &str, config_root: &Path, allow_network: bool,
 ) -> Result<PathBuf> {
     let cache_dir = config_root.join(".ggen-v2/git-packs").join(name);
     let pin_path = cache_dir.join(GIT_PIN_FILE);
@@ -160,9 +202,37 @@ fn resolve_git_pack_dir(
         }
     }
 
+    if !allow_network {
+        return Err(AppError::fm_pack(
+            12,
+            format!(
+                "pack `{name}`: git pack is not cached at the pinned `{version}` (cache \
+                 missing, corrupt, or pinned to a different version), and this operation is \
+                 read-only and does not perform network I/O. \
+                 Remediation: run `ggen sync run` once so the pack is cloned and pinned, or \
+                 vendor it locally with {{ path = \"…\" }}."
+            ),
+        ));
+    }
+
+    clone_and_pin_git_pack(name, git, version, &cache_dir, &pin_path)?;
+    Ok(cache_dir)
+}
+
+/// Wipe any stale cache, `git clone` + `git checkout <version>`, and write
+/// the `.ggen-git-pin` marker. Split out of [`resolve_git_pack_dir`] purely
+/// to keep that function under the workspace's line-count lint; behavior is
+/// unchanged from when this was inlined there.
+///
+/// # Errors
+/// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
+/// - `[FM-PACK-011]` `git checkout <version>` failed
+fn clone_and_pin_git_pack(
+    name: &str, git: &str, version: &str, cache_dir: &Path, pin_path: &Path,
+) -> Result<()> {
     // Cache miss (absent, corrupt, or version changed): wipe and re-clone.
     if cache_dir.exists() {
-        std::fs::remove_dir_all(&cache_dir).map_err(|e| {
+        std::fs::remove_dir_all(cache_dir).map_err(|e| {
             AppError::fm_pack(
                 10,
                 format!(
@@ -172,7 +242,16 @@ fn resolve_git_pack_dir(
             )
         })?;
     }
-    std::fs::create_dir_all(cache_dir.parent().expect("cache_dir has a parent")).map_err(|e| {
+    let cache_parent = cache_dir.parent().ok_or_else(|| {
+        AppError::fm_pack(
+            10,
+            format!(
+                "pack `{name}`: git cache directory `{}` has no parent directory",
+                cache_dir.display()
+            ),
+        )
+    })?;
+    std::fs::create_dir_all(cache_parent).map_err(|e| {
         AppError::fm_pack(
             10,
             format!("pack `{name}`: could not create git cache directory: {e}"),
@@ -233,13 +312,13 @@ fn resolve_git_pack_dir(
         ));
     }
 
-    std::fs::write(&pin_path, version).map_err(|e| {
+    std::fs::write(pin_path, version).map_err(|e| {
         AppError::fm_pack(
             10,
             format!("pack `{name}`: could not write git pin marker: {e}"),
         )
     })?;
-    Ok(cache_dir)
+    Ok(())
 }
 
 /// Resolve one already-on-disk pack directory (a `PackRef::Path` target or a
@@ -320,21 +399,29 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     })
 }
 
-/// Deterministic BLAKE3 content hash of a pack: sorted
-/// `(relative_path, bytes)` pairs over `ontology.ttl` plus every template.
-/// For each pair the path string bytes are hashed, then the file bytes,
-/// in sorted relative-path order.
+/// Deterministic BLAKE3 content hash of a pack: sorted `(relative_path,
+/// bytes)` pairs over EVERY regular file under `pack.root` (not just
+/// `ontology.ttl` plus templates -- see [`collect_pack_files_sorted`]) plus
+/// any declared extra ontologies. For each pair the path string bytes are
+/// hashed, then the file bytes, in sorted relative-path order.
+///
+/// Before this covered the full pack root, a pack's `gates/*.rq` SPARQL
+/// gate files and `hook.ttl` Knowledge Hook document -- both real,
+/// sync-time-enforced governing inputs (see `crate::sync`'s pack-gate and
+/// pack-hook loading) -- were silently excluded: editing either after
+/// `ggen.lock` was written did not change `content_hash`, so `check_lock`
+/// could not detect the tamper. Confirmed non-hypothetical: dozens of packs
+/// under `packs/` ship a `gates/` directory and at least one ships
+/// `hook.ttl`. Full-tree hashing closes that gap the same way
+/// `ggen-marketplace`'s `compute_pack_digest`/`hash_installed_content`
+/// closes the analogous one for marketplace-installed packs.
 ///
 /// # Errors
-/// `[FM-PACK-006]` when a pack file becomes unreadable between resolution
-/// and hashing.
+/// `[FM-PACK-006]` when a pack file (or directory) becomes unreadable
+/// between resolution and hashing.
 pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
-    let mut entries: Vec<(String, PathBuf)> =
-        Vec::with_capacity(1 + pack.extra_ontology_paths.len() + pack.template_paths.len());
-    entries.push((
-        rel_string(&pack.ontology_path, &pack.root),
-        pack.ontology_path.clone(),
-    ));
+    let mut entries: Vec<(String, PathBuf)> = Vec::new();
+    collect_pack_files_sorted(&pack.name, &pack.root, &pack.root, &mut entries)?;
     // Extra ontologies live outside the pack root; their declared
     // manifest-relative path string is the hash key, so an edit to a source
     // like crates/cng/ontologies/pddl-strips.ttl invalidates the lock the
@@ -342,9 +429,6 @@ pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
     // committed-union convention could not detect).
     for (declared, path) in &pack.extra_ontology_paths {
         entries.push((declared.clone(), path.clone()));
-    }
-    for tpl in &pack.template_paths {
-        entries.push((rel_string(tpl, &pack.root), tpl.clone()));
     }
     entries.sort_by(|a, b| a.0.cmp(&b.0));
 
@@ -365,6 +449,67 @@ pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
         hasher.update(&bytes);
     }
     Ok(*hasher.finalize().as_bytes())
+}
+
+/// Recursively collect every regular file under `dir` as `(root-relative
+/// path string, absolute path)` pairs into `out`, sorted at each directory
+/// level so the walk order never depends on the filesystem's own
+/// directory-entry order (matches the sort discipline `content_hash` already
+/// applies to its final combined list).
+///
+/// Skips any directory literally named `.git`. This is deliberate, not an
+/// oversight: `resolve_git_pack_dir` populates a `PackRef::Git` pack's root
+/// via a real `git clone`, whose `.git/logs/*` reflogs embed the wall-clock
+/// time of that clone. Two developers (or two syncs after a cache wipe)
+/// resolving the identical pinned `version` would then hash to two different
+/// values despite every tracked file being byte-identical -- breaking the
+/// "same version -> same hash" invariant [`check_lock`] depends on. No other
+/// exclusion exists: `pack.toml`, `gates/*.rq`, `hook.ttl`, and anything else
+/// under the pack root all participate.
+///
+/// # Errors
+/// `[FM-PACK-006]` when a directory cannot be listed.
+fn collect_pack_files_sorted(
+    pack_name: &str, root: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>,
+) -> Result<()> {
+    let read_dir = std::fs::read_dir(dir).map_err(|e| {
+        AppError::fm_pack(
+            6,
+            format!(
+                "pack `{pack_name}`: could not list `{}` while hashing: {e}. \
+                 Remediation: do not mutate a pack during sync.",
+                dir.display()
+            ),
+        )
+    })?;
+    let mut entries: Vec<std::fs::DirEntry> = Vec::new();
+    for entry in read_dir {
+        let entry = entry.map_err(|e| {
+            AppError::fm_pack(
+                6,
+                format!(
+                    "pack `{pack_name}`: could not read a directory entry under `{}` while \
+                     hashing: {e}",
+                    dir.display()
+                ),
+            )
+        })?;
+        entries.push(entry);
+    }
+    entries.sort_by_key(std::fs::DirEntry::file_name);
+
+    for entry in entries {
+        let path = entry.path();
+        if path.is_dir() {
+            if path.file_name().and_then(|n| n.to_str()) == Some(".git") {
+                continue;
+            }
+            collect_pack_files_sorted(pack_name, root, &path, out)?;
+        } else {
+            out.push((rel_string(&path, root), path));
+        }
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -533,6 +678,7 @@ fn rel_string(path: &Path, root: &Path) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use tempfile::TempDir;
 
@@ -627,6 +773,7 @@ mod tests {
             source.to_str().expect("utf8 path"),
             "v1",
             config_root.path(),
+            true,
         )
         .expect("clone succeeds");
 
@@ -648,14 +795,14 @@ mod tests {
         let config_root = TempDir::new().expect("tempdir");
         let url = source.to_str().expect("utf8 path");
 
-        let cache =
-            resolve_git_pack_dir("widget", url, "v1", config_root.path()).expect("first clone");
+        let cache = resolve_git_pack_dir("widget", url, "v1", config_root.path(), true)
+            .expect("first clone");
         // Plant a sentinel: if the second call re-clones (wiping the cache
         // dir), this file disappears. If it reuses the cache, it survives.
         std::fs::write(cache.join("sentinel.txt"), "still here").expect("write sentinel");
 
-        let cache2 =
-            resolve_git_pack_dir("widget", url, "v1", config_root.path()).expect("second call");
+        let cache2 = resolve_git_pack_dir("widget", url, "v1", config_root.path(), true)
+            .expect("second call");
         assert!(
             cache2.join("sentinel.txt").is_file(),
             "unchanged version must reuse the cache, not re-clone"
@@ -670,12 +817,12 @@ mod tests {
         let config_root = TempDir::new().expect("tempdir");
         let url = source.to_str().expect("utf8 path");
 
-        let cache =
-            resolve_git_pack_dir("widget", url, "v1", config_root.path()).expect("first clone");
+        let cache = resolve_git_pack_dir("widget", url, "v1", config_root.path(), true)
+            .expect("first clone");
         std::fs::write(cache.join("sentinel.txt"), "will be wiped").expect("write sentinel");
 
         let cache2 =
-            resolve_git_pack_dir("widget", url, "v2", config_root.path()).expect("re-clone");
+            resolve_git_pack_dir("widget", url, "v2", config_root.path(), true).expect("re-clone");
         assert!(
             !cache2.join("sentinel.txt").exists(),
             "a changed version must wipe and re-clone the cache"
@@ -702,10 +849,137 @@ mod tests {
             source.to_str().expect("utf8 path"),
             "does-not-exist",
             config_root.path(),
+            true,
         )
         .expect_err("bad version must refuse");
         let msg = err.to_string();
         assert!(msg.contains("FM-PACK-011"), "{msg}");
         assert!(msg.contains("checkout"), "{msg}");
+    }
+
+    /// Regression test for the red-team finding (F1, contract-drift,
+    /// `ggen-mcp`'s `sync_dry_run.rs`): a caller that must not mutate a
+    /// project (`allow_network: false`, the mode [`resolve_read_only`] and
+    /// dry-run sync now use) must never clone, wipe a stale cache, or write
+    /// a pin marker for a `PackRef::Git` pack whose cache is not already
+    /// pinned at the requested version -- it must fail closed instead, with
+    /// the filesystem left exactly as it started (no cache directory
+    /// created at all).
+    #[test]
+    fn resolve_git_pack_dir_refuses_to_mutate_when_allow_network_is_false_and_cache_is_missing() {
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_git_source(&source);
+        let config_root = TempDir::new().expect("tempdir");
+        let cache_dir = config_root.path().join(".ggen-v2/git-packs/widget");
+
+        let err = resolve_git_pack_dir(
+            "widget",
+            source.to_str().expect("utf8 path"),
+            "v2",
+            config_root.path(),
+            false,
+        )
+        .expect_err("a dry-run/read-only resolve of an uncached git pack must refuse");
+
+        let msg = err.to_string();
+        assert!(msg.contains("FM-PACK-012"), "{msg}");
+        assert!(
+            !cache_dir.exists(),
+            "refusing must not create the cache directory -- no clone may have been attempted"
+        );
+    }
+
+    /// Companion to the refusal test above: once a real (network-permitted)
+    /// sync has cloned and pinned the exact requested version, a later
+    /// `allow_network: false` call for that same version must succeed by
+    /// reusing the cache -- read-only mode only refuses a *mutation*, not
+    /// every git pack.
+    #[test]
+    fn resolve_git_pack_dir_reuses_an_already_pinned_cache_when_allow_network_is_false() {
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_git_source(&source);
+        let config_root = TempDir::new().expect("tempdir");
+        let url = source.to_str().expect("utf8 path");
+
+        resolve_git_pack_dir("widget", url, "v1", config_root.path(), true)
+            .expect("real sync clones and pins v1");
+
+        let cache = resolve_git_pack_dir("widget", url, "v1", config_root.path(), false)
+            .expect("read-only resolve of an already-pinned version must succeed");
+        assert_eq!(
+            std::fs::read_to_string(cache.join("marker.txt")).expect("marker"),
+            "v1\n"
+        );
+    }
+
+    /// End-to-end regression for F1: `sync(&root, SyncOptions { dry_run:
+    /// true, .. })` against a project whose `ggen.toml` declares a
+    /// `PackRef::Git` pack not yet cached must fail closed (typed
+    /// `FM-PACK-012` error) rather than performing a real `git clone` --
+    /// and, crucially, must leave `.ggen-v2/git-packs/` untouched. Uses a
+    /// real local scratch git repo as the clone source (no network, no
+    /// mocks) so the only thing standing between this test and a real
+    /// clone is the `dry_run` gate itself.
+    #[test]
+    fn sync_dry_run_does_not_clone_an_uncached_git_pack() {
+        use crate::sync::{sync, SyncOptions};
+
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_git_source(&source);
+        let url = source.to_str().expect("utf8 path");
+
+        let project = TempDir::new().expect("tempdir");
+        let root = project.path();
+        std::fs::write(
+            root.join("ggen.toml"),
+            format!(
+                r#"[project]
+name = "dry-run-git-pack-fixture"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
+
+[packs.widget]
+git = "{url}"
+version = "v2"
+"#
+            ),
+        )
+        .expect("write ggen.toml");
+        std::fs::write(root.join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
+
+        let git_pack_cache = root.join(".ggen-v2/git-packs/widget");
+        assert!(
+            !git_pack_cache.exists(),
+            "fixture must start with no git-pack cache"
+        );
+
+        let err = sync(
+            root,
+            SyncOptions {
+                dry_run: true,
+                ..Default::default()
+            },
+        )
+        .expect_err("dry-run sync must refuse to clone an uncached git pack");
+
+        assert!(err.to_string().contains("FM-PACK-012"), "{err}");
+        assert!(
+            !git_pack_cache.exists(),
+            "dry-run sync must not have created the git-pack cache directory \
+             (no clone may have been attempted): {}",
+            git_pack_cache.display()
+        );
+        assert!(
+            !root.join(".ggen-v2/receipt.json").exists(),
+            "dry-run sync must not write a receipt either"
+        );
     }
 }

@@ -34,7 +34,13 @@ use ggen_lsp::{
 };
 use tempfile::TempDir;
 
-const E0011_SRC: &str = "CONSTRUCT { ?s <http://ex.org/p> ?o } WHERE { ?s ?p ?o }\n";
+// F5 fix: E0011/E0013 (missing ORDER BY) are now ERROR by default, matching
+// `ggen_config`'s `default_strict_mode() -> true` (see
+// `analyzers/sparql_analyzer.rs`'s module doc). This fixture needs a
+// genuinely non-blocking WARNING to exercise the "episode closes" path
+// below, so it is an identity CONSTRUCT *with* ORDER BY: E0015 fires (still
+// WARNING, untouched by the F5 fix) and E0011 does not (ORDER BY present).
+const WARNING_SRC: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } ORDER BY ?s\n";
 
 #[test]
 fn empty_project_reports_no_evidence() {
@@ -53,7 +59,7 @@ fn field_status_breaks_down_by_transport_from_real_evidence() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
     let rq = root.join("q.rq");
-    fs::write(&rq, E0011_SRC).expect("write");
+    fs::write(&rq, WARNING_SRC).expect("write");
 
     // Real evidence across three transports (no fabrication).
     check_files_in_root(root, std::slice::from_ref(&rq), true)
@@ -61,24 +67,24 @@ fn field_status_breaks_down_by_transport_from_real_evidence() {
     capture_request(
         root,
         "q.rq",
-        E0011_SRC,
+        WARNING_SRC,
         &Attribution::new("beta", "mcp", "s-mcp"),
     );
     capture_request(
         root,
         "q.rq",
-        E0011_SRC,
+        WARNING_SRC,
         &Attribution::new("gamma", "a2a", "s-a2a"),
     );
 
     let s = field_status(root);
-    assert_eq!(s.episode_count, 3, "one E0011 episode per transport");
+    assert_eq!(s.episode_count, 3, "one E0015 episode per transport");
     assert_eq!(s.by_transport.get("lsp"), Some(&1));
     assert_eq!(s.by_transport.get("mcp"), Some(&1));
     assert_eq!(s.by_transport.get("a2a"), Some(&1));
     assert_eq!(s.distinct_sessions, 3);
     assert_eq!(s.by_agent.len(), 3);
-    // E0011 is a warning → every episode closes (Raised ≺ GatePassed).
+    // E0015 is a warning → every episode closes (Raised ≺ GatePassed).
     assert_eq!(s.conformance_rate, MetricValue::Value(1.0));
     // No mine yet → accumulating, verdict refused.
     assert_eq!(s.readiness, FieldReadiness::Accumulating);
@@ -91,7 +97,7 @@ fn verdict_matches_compute_metrics_one_source_of_truth() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
     let rq = root.join("q.rq");
-    fs::write(&rq, E0011_SRC).expect("write");
+    fs::write(&rq, WARNING_SRC).expect("write");
     check_files_in_root(root, std::slice::from_ref(&rq), true).capture(root);
 
     let s = field_status(root);
@@ -110,7 +116,7 @@ fn distinct_variants_reflect_distinct_chains() {
     // A warning (closes: …→GatePassed→ReceiptEmitted) and an error (fails:
     // …→GateFailed→RefusalEmitted) are genuinely different process variants.
     let rq = root.join("q.rq");
-    fs::write(&rq, E0011_SRC).expect("write");
+    fs::write(&rq, WARNING_SRC).expect("write");
     let bad = root.join("bad.toml");
     fs::write(&bad, "[logging]\nlevel = \"verbose\"\n").expect("write");
 

@@ -19,6 +19,8 @@
 //! (`write_behaviors_cli_e2e.rs`, `pack_behaviors_cli_e2e.rs`,
 //! `sync_e2e.rs`) — not repeated here.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -47,7 +49,6 @@ const TEMPLATE: &str = "---\nto: out/names.txt\nsparql:\n  people: SELECT ?name 
 /// (relative path, mtime, content hash) for every file under `root`,
 /// recursively — a full disk fingerprint, not just a file-count.
 fn snapshot(root: &Path) -> BTreeMap<PathBuf, (SystemTime, String)> {
-    let mut out = BTreeMap::new();
     fn walk(dir: &Path, root: &Path, out: &mut BTreeMap<PathBuf, (SystemTime, String)>) {
         for entry in std::fs::read_dir(dir).expect("read_dir") {
             let entry = entry.expect("dir entry");
@@ -64,6 +65,7 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, (SystemTime, String)> {
             }
         }
     }
+    let mut out = BTreeMap::new();
     walk(root, root, &mut out);
     out
 }

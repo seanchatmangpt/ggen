@@ -19,6 +19,8 @@
 //!    output-path-invalid, filter-unknown, and (Cluster B)
 //!    schema-incompatible all report their own distinct tag.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -275,7 +277,7 @@ fn yaml_file_tree_meta_spec_is_classified_as_schema_incompatible() {
     write_manifest(
         dir.path(),
         "[[generation.rules]]\nname = \"cli-code-gen\"\n\
-         query = { inline = \"SELECT * WHERE { ?s ?p ?o }\" }\n\
+         query = { inline = \"SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o\" }\n\
          template = { inline = \"structure:\\n  - path: 'Cargo.toml'\\n    foreach: 'project.nouns'\\n\" }\n\
          output_file = \"generated/project.rs\"\n",
     );

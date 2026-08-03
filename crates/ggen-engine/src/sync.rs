@@ -42,6 +42,7 @@ use tera::Value;
 use crate::{
     config::GgenConfig,
     error::{AppError, Result},
+    generation_rules::duration_ms,
     graph::{
         DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
         TurtleDocument,
@@ -111,7 +112,7 @@ pub fn read_ontology_file(root: &Path, path: &Path) -> Result<(String, String)> 
 pub struct SyncOptions {
     /// Compute outcomes without writing any file (and without a receipt).
     pub dry_run: bool,
-    /// Which graph engine executes the run (default: GraphLaw).
+    /// Which graph engine executes the run (default: `GraphLaw`).
     pub engine: EngineKind,
 }
 
@@ -214,6 +215,11 @@ pub struct ReceiptPayload {
 /// Fails closed on any resolve/parse/query/render/write failure; see the
 /// FM-* codes on [`crate::config`], [`crate::graph`], [`crate::template`],
 /// and [`crate::write`].
+// One sequential five-stage pipeline orchestrator (load/extract/validate/
+// generate/emit), each stage carrying its own OTEL span open/close pair;
+// splitting it into sub-functions would scatter that span bracketing across
+// call boundaries rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // ── Stage 0: Schema dispatch ─────────────────────────────────────────
     //
@@ -257,7 +263,24 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // Resolve every ontology document before mutating the graph. Each Turtle
     // parser retains document-local prefix/base/blank-node scope; the admitted
     // union is committed through one bounded store mutation.
-    let packs = crate::pack::resolve(&config, root)?;
+    //
+    // `dry_run` gates *which* resolver runs, not merely whether the later
+    // write stage fires: `crate::pack::resolve` permits a `PackRef::Git`
+    // pack's cache to be wiped, re-cloned, and re-pinned as needed, which is
+    // real network I/O and filesystem mutation performed unconditionally --
+    // "unconditionally" being exactly the red-team-confirmed gap (F1,
+    // contract-drift) this dry_run branch closes. `opts.dry_run == true`
+    // (the only way `ggen-mcp`'s `ggen_sync_dry_run`, documented and
+    // annotated `readOnlyHint: true`, ever calls `sync`) instead uses
+    // `crate::pack::resolve_read_only`, which resolves a git pack only from
+    // an already-correctly-pinned cache and fails closed with
+    // `[FM-PACK-012]` on any cache miss/mismatch rather than mutating
+    // anything -- see that function's doc comment.
+    let packs = if opts.dry_run {
+        crate::pack::resolve_read_only(&config, root)?
+    } else {
+        crate::pack::resolve(&config, root)?
+    };
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
     let mut ontology_sources = Vec::with_capacity(
@@ -390,53 +413,47 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 if line.trim().is_empty() {
                     continue;
                 }
-                match serde_json::from_str::<SyncReceipt>(line) {
-                    Ok(receipt) => {
-                        let andon_label = format!("{:?}", receipt.record.andon);
-                        let ttl = format!(
-                            "@prefix ggenr: <http://seanchatmangpt.github.io/ggen/receipt#> .\n\
-                             ggenr:sync-{chain} a ggenr:Sync ;\n\
-                             \x20   ggenr:index {idx} ;\n\
-                             \x20   ggenr:chainHash \"{chain_esc}\" ;\n\
-                             \x20   ggenr:prevChainHash \"{prev_esc}\" ;\n\
-                             \x20   ggenr:graphHash \"{graph_esc}\" ;\n\
-                             \x20   ggenr:andon \"{andon_esc}\" ;\n\
-                             \x20   ggenr:outputCount {outputs} .\n",
-                            chain = receipt.record.chain_hash_hex,
-                            idx = idx,
-                            chain_esc = turtle_escape(&receipt.record.chain_hash_hex),
-                            prev_esc = turtle_escape(&receipt.record.prev_chain_hash_hex),
-                            graph_esc = turtle_escape(&receipt.payload.graph_hash),
-                            andon_esc = turtle_escape(&andon_label),
-                            outputs = receipt.payload.outputs.len(),
-                        );
-                        graph.insert_turtle(&ttl)?;
-                    }
-                    Err(_) => {
-                        // THE ONLY place in this pipeline allowed to
-                        // silently skip bad input: everywhere else fails
-                        // closed on a malformed governing input, but the
-                        // receipt log is history this sync's author does
-                        // not directly control byte-for-byte (an
-                        // older-tool-version or hand-edited line must not
-                        // brick every future sync of the project) — the
-                        // skip is recorded here, never silently hidden.
-                        closure.insert(
-                            format!("receipt-log:MALFORMED-{malformed_count}"),
-                            "MALFORMED".to_string(),
-                        );
-                        malformed_count += 1;
-                    }
+                if let Ok(receipt) = serde_json::from_str::<SyncReceipt>(line) {
+                    let andon_label = format!("{:?}", receipt.record.andon);
+                    let ttl = format!(
+                        "@prefix ggenr: <http://seanchatmangpt.github.io/ggen/receipt#> .\n\
+                         ggenr:sync-{chain} a ggenr:Sync ;\n\
+                         \x20   ggenr:index {idx} ;\n\
+                         \x20   ggenr:chainHash \"{chain_esc}\" ;\n\
+                         \x20   ggenr:prevChainHash \"{prev_esc}\" ;\n\
+                         \x20   ggenr:graphHash \"{graph_esc}\" ;\n\
+                         \x20   ggenr:andon \"{andon_esc}\" ;\n\
+                         \x20   ggenr:outputCount {outputs} .\n",
+                        chain = receipt.record.chain_hash_hex,
+                        idx = idx,
+                        chain_esc = turtle_escape(&receipt.record.chain_hash_hex),
+                        prev_esc = turtle_escape(&receipt.record.prev_chain_hash_hex),
+                        graph_esc = turtle_escape(&receipt.payload.graph_hash),
+                        andon_esc = turtle_escape(&andon_label),
+                        outputs = receipt.payload.outputs.len(),
+                    );
+                    graph.insert_turtle(&ttl)?;
+                } else {
+                    // THE ONLY place in this pipeline allowed to
+                    // silently skip bad input: everywhere else fails
+                    // closed on a malformed governing input, but the
+                    // receipt log is history this sync's author does
+                    // not directly control byte-for-byte (an
+                    // older-tool-version or hand-edited line must not
+                    // brick every future sync of the project) — the
+                    // skip is recorded here, never silently hidden.
+                    closure.insert(
+                        format!("receipt-log:MALFORMED-{malformed_count}"),
+                        "MALFORMED".to_string(),
+                    );
+                    malformed_count += 1;
                 }
             }
         }
     }
 
     drop(load_guard);
-    load_span.record(
-        "pipeline.duration_ms",
-        load_start.elapsed().as_millis() as u64,
-    );
+    load_span.record("pipeline.duration_ms", duration_ms(load_start.elapsed()));
 
     // ── Stage 2: Enrich (single pass; see module docs) ──────────────────
     //
@@ -466,10 +483,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     }
 
     drop(extract_guard);
-    extract_span.record(
-        "pipeline.duration_ms",
-        extract_start.elapsed().as_millis() as u64,
-    );
+    extract_span.record("pipeline.duration_ms", duration_ms(extract_start.elapsed()));
 
     // ── Stage 2b: Law — materialize rules, then gate (denials, SPARQL gates)
     //
@@ -722,7 +736,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     drop(validate_guard);
     validate_span.record(
         "pipeline.duration_ms",
-        validate_start.elapsed().as_millis() as u64,
+        duration_ms(validate_start.elapsed()),
     );
 
     let graph_hash_hex = hex32(&graph.state_hash()?);
@@ -750,6 +764,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // Every pending write owns the output-phase frontmatter rendered from
     // the same semantic context as its path and body.
     let mut pending: Vec<PendingWrite> = Vec::new();
+    // `determinism: true`'s recheck must be a genuinely independent second
+    // load (new `GraphEngine` instance, ontology/pack Turtle re-read and
+    // re-parsed from disk), never a second query against the SAME
+    // already-loaded `graph` — see [`build_independent_recheck_base_graph`].
+    // Built lazily, at most once per sync, the first time any template
+    // declares `determinism: true` (every template in one sync shares the
+    // same base graph state, so one independent build suffices for all of
+    // them).
+    let mut independent_recheck_base: Option<Arc<dyn GraphEngine>> = None;
 
     for (tpl_path, tpl) in &templates {
         // Gap 1: per-template RDF overlay (`rdf:`/`rdf_inline:`) — a brand
@@ -774,10 +797,72 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             None => (&graph, &mut tera),
         };
 
+        // `determinism: true` — run the SAME extraction a SECOND,
+        // independent time, once per template (not once per row), and BEFORE
+        // the primary extraction's own `when:` guard is evaluated below. This
+        // ordering matters: it lets the primary's `when:` guard skip branch
+        // (the very next block) consult the recheck too, instead of the
+        // recheck being computed only when the primary happened to produce
+        // output. `check_determinism` (called after a successful primary
+        // render) and `check_determinism_guard_agrees_false`/
+        // `check_determinism_rows_agree_empty` (called from the three skip
+        // branches below) all reuse this one recheck instead of re-running
+        // the query per row. The common case (`determinism` unset/false)
+        // never calls `extract_query_results` a second time: zero extra
+        // query cost, zero behavior change.
+        //
+        // The recheck runs against a genuinely independent second load of
+        // the ontology (a fresh `GraphEngine` instance, Turtle re-read and
+        // re-parsed from disk — see `build_independent_recheck_base_graph`),
+        // NOT against `active_graph`/`graph`. Reusing the already-loaded
+        // store here would make this recheck structurally incapable of
+        // catching load-time nondeterminism: oxigraph's
+        // `RdfParser::rename_blank_nodes()` (used by
+        // `graph::ontology_batch::insert_documents`) assigns every blank
+        // node a fresh `rand::random()` id per parse, so a query that binds
+        // a blank node genuinely differs across two independent loads of
+        // byte-identical Turtle — but is invisible to a recheck that only
+        // re-queries the one store already sitting in memory (proven by
+        // `tests/determinism_independent_reload_e2e.rs`).
+        let determinism_recheck: Option<ExtractedRows> = if tpl.frontmatter.determinism
+            == Some(true)
+        {
+            let fresh_base = if let Some(existing) = &independent_recheck_base {
+                Arc::clone(existing)
+            } else {
+                let built =
+                    build_independent_recheck_base_graph(root, &config, opts, &packs, &templates)?;
+                independent_recheck_base = Some(Arc::clone(&built));
+                built
+            };
+            let recheck_graph: Arc<dyn GraphEngine> =
+                match build_rdf_overlay(&fresh_base, tpl_path, &tpl.frontmatter)? {
+                    Some(fresh_overlay) => fresh_overlay,
+                    None => fresh_base,
+                };
+            Some(extract_query_results(
+                recheck_graph.as_ref(),
+                tpl_path,
+                &tpl.frontmatter,
+                "determinism_recheck",
+            )?)
+        } else {
+            None
+        };
+
         // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows.
         let Some((named, results)) =
             extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?
         else {
+            // The independent recheck was already computed above (if
+            // `determinism: true`) for exactly this situation. A primary
+            // `when:` guard evaluating false must not silently bypass
+            // verification just because there is nothing to render: if the
+            // independently-reloaded second graph's guard evaluated true
+            // instead, that asymmetry is itself the load-time nondeterminism
+            // `determinism: true` exists to catch (see
+            // [FM-TPL-009] `check_determinism_guard_agrees_false`).
+            check_determinism_guard_agrees_false(tpl_path, determinism_recheck.as_ref())?;
             let reason = format!("when guard false ({})", tpl_path.display());
             let evidence_key =
                 if tpl.frontmatter.to.contains("{{") || tpl.frontmatter.to.contains("{%") {
@@ -791,25 +876,6 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             continue;
         };
 
-        // `determinism: true` — run the SAME extraction a SECOND,
-        // independent time against the same graph, once per template (not
-        // once per row). `check_determinism` reuses this single recheck for
-        // every row/the one non-per-row render below, instead of re-running
-        // the query per row. The common case (`determinism` unset/false)
-        // never calls `extract_query_results` a second time: zero extra
-        // query cost, zero behavior change.
-        let determinism_recheck: Option<ExtractedRows> =
-            if tpl.frontmatter.determinism == Some(true) {
-                Some(extract_query_results(
-                    active_graph.as_ref(),
-                    tpl_path,
-                    &tpl.frontmatter,
-                    "determinism_recheck",
-                )?)
-            } else {
-                None
-            };
-
         let fan_out = tpl.frontmatter.to.contains("{{");
         let explicit_driver = tpl.frontmatter.for_each.is_some();
         if explicit_driver && !fan_out {
@@ -822,9 +888,42 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 &results,
             )?
             else {
+                // The named `for_each:` driver legitimately returned zero
+                // rows -- a lawful answer, not a failure (the same
+                // "honestly reported zero" distinction `ggen-mcp`'s
+                // `honest_zero_rows_is_lawful` referee invariant makes) --
+                // but previously silent: no `decisions`/`skipped` entry
+                // recorded it, so a real empty result was indistinguishable
+                // from a template dropped for any other reason. Recorded
+                // the same observable way as a `when:` guard false, above.
+                //
+                // The independent recheck was already computed above (if
+                // `determinism: true`) for exactly this situation -- a
+                // zero-row primary result must not silently skip
+                // verification just because there is nothing to render.
+                check_determinism_rows_agree_empty(
+                    tpl_path,
+                    determinism_recheck.as_ref(),
+                    "named `for_each:` driver",
+                )?;
+                let driver_name = tpl.frontmatter.for_each.as_deref().unwrap_or("?");
+                let reason = format!(
+                    "for_each `{driver_name}` produced 0 rows ({})",
+                    tpl_path.display()
+                );
+                crate::write::resolve_target(root, &tpl.frontmatter.to)?;
+                let evidence_key = tpl.frontmatter.to.clone();
+                decisions.insert(evidence_key.clone(), format!("skipped: {reason}"));
+                skipped.push((PathBuf::from(evidence_key), reason));
                 continue;
             };
-            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
+            admit_shape_files(
+                root,
+                tpl_path,
+                &frontmatter.shape,
+                active_graph.as_ref(),
+                &mut closure,
+            )?;
             check_determinism(
                 active_tera,
                 &tpl.body,
@@ -841,13 +940,44 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 frontmatter,
             });
         } else if fan_out {
+            if results.is_empty() {
+                // The implicit per-row fan-out driver (the primary
+                // `sparql:` result `to:` interpolates over, with no named
+                // `for_each:` field at all) legitimately returned zero rows.
+                // Previously this loop just ran zero times with no trace
+                // anywhere in the report -- recorded the same observable
+                // way as the named-driver zero-row case just above.
+                //
+                // The independent recheck was already computed above (if
+                // `determinism: true`) for exactly this situation -- a
+                // zero-row primary result must not silently skip
+                // verification just because there is nothing to render.
+                check_determinism_rows_agree_empty(
+                    tpl_path,
+                    determinism_recheck.as_ref(),
+                    "implicit row fan-out",
+                )?;
+                let reason = format!(
+                    "for_each (implicit row fan-out) produced 0 rows ({})",
+                    tpl_path.display()
+                );
+                let evidence_key = format!("@template/{}", rel_display(root, tpl_path));
+                decisions.insert(evidence_key.clone(), format!("skipped: {reason}"));
+                skipped.push((PathBuf::from(evidence_key), reason));
+            }
             for (row_index, row) in results.iter().enumerate() {
                 let ctx = row_context(&named, &results, row);
                 let to = render_str(active_tera, &tpl.frontmatter.to, &ctx, tpl_path)?;
                 let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
                 let frontmatter =
                     render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
-                admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
+                admit_shape_files(
+                    root,
+                    tpl_path,
+                    &frontmatter.shape,
+                    active_graph.as_ref(),
+                    &mut closure,
+                )?;
                 check_determinism(
                     active_tera,
                     &tpl.body,
@@ -870,7 +1000,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             let body = render_str(active_tera, &tpl.body, &ctx, tpl_path)?;
             let frontmatter =
                 render_output_frontmatter(active_tera, &tpl.frontmatter, &ctx, tpl_path, &to)?;
-            admit_shape_files(root, tpl_path, &frontmatter.shape, &mut closure)?;
+            admit_shape_files(
+                root,
+                tpl_path,
+                &frontmatter.shape,
+                active_graph.as_ref(),
+                &mut closure,
+            )?;
             check_determinism(
                 active_tera,
                 &tpl.body,
@@ -905,7 +1041,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         let mut mounts: Vec<(String, String)> = pending
             .iter()
             .filter(|pw| {
-                pw.to.starts_with("src/") && pw.to.ends_with(".rs") && pw.to != AGGREGATOR_REL_PATH
+                pw.to.starts_with("src/")
+                    && Path::new(&pw.to)
+                        .extension()
+                        .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
+                    && pw.to != AGGREGATOR_REL_PATH
             })
             .map(|pw| {
                 let rel_to_src = pw.to.trim_start_matches("src/").to_string();
@@ -933,9 +1073,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                  //     include!(\"ggen_pack_mods.rs\");\n\n",
             );
             for (mod_name, rel_to_src) in &mounts {
-                body.push_str(&format!(
-                    "#[path = \"{rel_to_src}\"]\npub mod {mod_name};\n"
-                ));
+                use std::fmt::Write as _;
+                let _ = writeln!(body, "#[path = \"{rel_to_src}\"]\npub mod {mod_name};");
             }
             let frontmatter = Frontmatter {
                 to: AGGREGATOR_REL_PATH.to_string(),
@@ -1016,7 +1155,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     drop(generate_guard);
     generate_span.record(
         "pipeline.duration_ms",
-        generate_start.elapsed().as_millis() as u64,
+        duration_ms(generate_start.elapsed()),
     );
 
     // ── Stage 5: Write every already-rendered template ───────────────────
@@ -1031,9 +1170,21 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let emit_guard = emit_span.enter();
 
+    // Not transactional: each `apply()` call performs a real filesystem write
+    // immediately. A mid-loop I/O failure (disk full, permission change,
+    // ...) must not leave the files it *did* manage to write unrecorded by
+    // the receipt -- that is a contract-drift hole (red-team finding F1):
+    // `written`/`skipped`/`decisions` are populated incrementally by each
+    // successful `apply()` call before this loop ever reaches a failing one,
+    // so whatever they hold at the moment of failure is already an accurate
+    // description of on-disk reality. Capture the failure instead of
+    // propagating it immediately so a receipt can still be chained over that
+    // accurate partial state below, before the error is surfaced to the
+    // caller.
     let mut written: Vec<PathBuf> = Vec::new();
+    let mut emit_err: Option<AppError> = None;
     for pw in &pending {
-        apply(
+        if let Err(e) = apply(
             root,
             &pw.to,
             &pw.body,
@@ -1042,14 +1193,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             &mut written,
             &mut skipped,
             &mut decisions,
-        )?;
+        ) {
+            emit_err = Some(e);
+            break;
+        }
     }
 
     drop(emit_guard);
-    emit_span.record(
-        "pipeline.duration_ms",
-        emit_start.elapsed().as_millis() as u64,
-    );
+    emit_span.record("pipeline.duration_ms", duration_ms(emit_start.elapsed()));
     emit_span.record("pipeline.files_generated", written.len() as u64);
 
     let pack_hashes: BTreeMap<String, String> = lock_entries
@@ -1072,10 +1223,39 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     };
 
     if !opts.dry_run {
-        write_receipt(root, &report, graph.as_ref())?;
-        if !lock_entries.is_empty() {
+        // Always chain a receipt over whatever was actually written, even
+        // when the loop above stopped early: `write_receipt` re-hashes every
+        // `report.decisions` target straight off disk (see its doc comment),
+        // so a receipt written here after a partial failure still correctly
+        // binds the files that *did* land, closing the drift window instead
+        // of leaving the previous (now-stale) receipt as the last word on
+        // them.
+        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref()) {
+            return Err(match emit_err {
+                // The write-stage failure is the operative incident; a
+                // receipt-write failure on top of it must be surfaced too
+                // (never silently dropped), but must not replace it.
+                Some(e) => AppError::fm_write(
+                    12,
+                    format!(
+                        "write stage failed ({e}); additionally could not persist a \
+                         receipt reflecting the outputs written before that failure \
+                         ({receipt_err}). Remediation: inspect on-disk outputs manually \
+                         (they are not yet bound by any receipt) before re-running sync."
+                    ),
+                ),
+                None => receipt_err,
+            });
+        }
+        // The pack lockfile describes a fully-materialized run; skip it when
+        // the write stage itself did not complete, rather than lock onto a
+        // set of pack versions that only partially produced their outputs.
+        if emit_err.is_none() && !lock_entries.is_empty() {
             crate::pack::write_lock(root, &lock_entries)?;
         }
+    }
+    if let Some(e) = emit_err {
+        return Err(e);
     }
     Ok(report)
 }
@@ -1150,7 +1330,7 @@ pub(crate) enum GateOutcome {
 
 /// Evaluate one gate query against `graph` via [`GraphEngine::query`] —
 /// plain SPARQL, so the identical gate refuses the identical facts under
-/// both the GraphLaw and the Oxigraph engine.
+/// both the `GraphLaw` and the Oxigraph engine.
 ///
 /// # Errors
 /// Propagates query parse/evaluation failures (fail closed).
@@ -1264,12 +1444,17 @@ type ExtractedRows = Option<(BTreeMap<String, Value>, Vec<Value>)>;
 /// evaluates `false` (the template must be skipped this run); otherwise
 /// `Ok(Some((named, results)))`.
 ///
-/// Shared by the per-template loop's primary extraction and
-/// [`check_determinism`]'s second, independent recheck — the exact same
-/// code path runs both times, so `determinism: true` catches
-/// query-execution nondeterminism (different bindings/ordering across two
-/// runs against identical graph state), not merely Tera-render
-/// nondeterminism against a single, already-fixed context.
+/// Shared by the per-template loop's primary extraction (against `graph`)
+/// and [`check_determinism`]'s second, independent recheck (against a
+/// separate, independently-loaded graph built by
+/// [`build_independent_recheck_base_graph`]) — the exact same code path
+/// runs both times, but against two genuinely distinct `GraphEngine`
+/// instances, so `determinism: true` catches both query-execution
+/// nondeterminism (differing bindings/ordering across two calls) AND
+/// load-time nondeterminism (e.g. oxigraph's `rename_blank_nodes()`
+/// assigning a fresh random id per parse — see
+/// `build_independent_recheck_base_graph`'s doc comment), not merely
+/// Tera-render nondeterminism against a single, already-fixed context.
 ///
 /// `phase` (`"primary"` / `"determinism_recheck"`) is a `tracing` tag only —
 /// no behavior depends on it. It lets a test observe, via a
@@ -1723,11 +1908,35 @@ fn parse_template_file(path: &Path) -> Result<Template> {
 }
 
 /// Admit every rendered `shape:` path as a safe, regular, readable,
-/// receipt-bound governing input. This still does not claim SHACL evaluation;
-/// it closes path, type, readability, and provenance gaps first.
+/// receipt-bound governing input, AND validate `active_graph` (the
+/// per-template RDF overlay when `rdf:`/`rdf_inline:` declared one, else the
+/// shared project graph -- exactly the graph this template's own `sparql:`
+/// queries run against) against the union of all declared shape documents,
+/// via the same [`crate::graph::GraphEngine::validate_shacl`] the
+/// `ggen graph validate`/`ggen law validate` CLI verbs already use.
+///
+/// LEAD 1 of the 2026-08-03 unverified-leads audit, confirmed and closed
+/// here: "`shape:` is hashed but never SHACL-validated while a working
+/// engine sits unused." Before this, a `shape:` declaration was
+/// existence-checked only -- its bytes joined the receipt's input closure
+/// (a "governing" input, tracked for drift across syncs) as if it were
+/// enforced, but the real `praxis-graphlaw` SHACL engine was never invoked
+/// against it. Confirmed non-hypothetical: `templates/cli/subcommand/
+/// rust.tmpl` and `templates/api/endpoint/rust.tmpl` both declare real
+/// `shape:` constraints (`graphs/shapes/{cli,api}.shacl.ttl`) that were
+/// admitted but never checked. A `shape:` declaration now fails the sync
+/// closed (typed `FM-TPL-025`) on non-conformance, or `FM-TPL-026` on an
+/// engine with no SHACL support (e.g. `--engine oxigraph`), matching the
+/// combination pattern `verbs::handlers::validate_files` already uses for
+/// `ggen graph validate --shapes`.
 fn admit_shape_files(
-    root: &Path, tpl_path: &Path, shapes: &[String], closure: &mut BTreeMap<String, String>,
+    root: &Path, tpl_path: &Path, shapes: &[String], active_graph: &dyn GraphEngine,
+    closure: &mut BTreeMap<String, String>,
 ) -> Result<()> {
+    if shapes.is_empty() {
+        return Ok(());
+    }
+    let mut combined_shapes_ttl = String::new();
     for shape in shapes {
         let shape_path = crate::write::resolve_target(root, shape).map_err(|error| {
             AppError::fm_tpl(
@@ -1772,6 +1981,42 @@ fn admit_shape_files(
             rel_display(root, &shape_path),
             blake3::hash(&bytes).to_hex().to_string(),
         );
+        let text = String::from_utf8(bytes).map_err(|error| {
+            AppError::fm_tpl(
+                24,
+                format!(
+                    "{}: `shape:` entry `{shape}` at `{}` is not valid UTF-8 Turtle: {error}",
+                    tpl_path.display(),
+                    shape_path.display()
+                ),
+            )
+        })?;
+        combined_shapes_ttl.push_str(&text);
+        combined_shapes_ttl.push('\n');
+    }
+    let outcome = active_graph
+        .validate_shacl(&combined_shapes_ttl)
+        .map_err(|error| {
+            AppError::fm_tpl(
+                26,
+                format!(
+                    "{}: `shape:` validation could not run: {error}. Remediation: use the \
+                 default GraphLaw engine (no `--engine oxigraph`), which is the only \
+                 engine with SHACL support.",
+                    tpl_path.display()
+                ),
+            )
+        })?;
+    if !outcome.conforms {
+        return Err(AppError::fm_tpl(
+            25,
+            format!(
+                "{}: `shape:` validation failed, {} violation(s): {}",
+                tpl_path.display(),
+                outcome.violations.len(),
+                outcome.violations.join("; ")
+            ),
+        ));
     }
     Ok(())
 }
@@ -1874,6 +2119,81 @@ fn check_determinism(
     Ok(())
 }
 
+/// `determinism: true`: verify the independently-reloaded second graph
+/// agrees that the primary's `when:` guard evaluated false. Called from the
+/// primary extraction's own zero-output skip branch (`sync`'s per-template
+/// loop) — the mirror image of `check_determinism`'s own guard check, which
+/// only runs when the PRIMARY guard evaluated true. If the second load's
+/// guard evaluates true instead (`determinism_recheck` is `Some(Some(_))`),
+/// that asymmetry is itself the load-time nondeterminism `determinism:
+/// true` exists to catch (e.g. a `when:` ASK that binds a blank node whose
+/// id oxigraph's `rename_blank_nodes()` reassigns per parse), and must
+/// surface as an error rather than a silent "skipped: when guard false".
+fn check_determinism_guard_agrees_false(
+    tpl_path: &Path, determinism_recheck: Option<&ExtractedRows>,
+) -> Result<()> {
+    let Some(recheck) = determinism_recheck else {
+        return Ok(());
+    };
+    if recheck.is_some() {
+        return Err(AppError::fm_tpl(
+            9,
+            format!(
+                "{}: `determinism: true` violated — the independent second load's \
+                 `when:` guard evaluated true while the first evaluated false. \
+                 Remediation: remove non-deterministic terms from `when:`.",
+                tpl_path.display()
+            ),
+        ));
+    }
+    Ok(())
+}
+
+/// `determinism: true`: verify the independently-reloaded second graph
+/// agrees that the primary's driving row set (a named `for_each:` or the
+/// implicit per-row fan-out) was genuinely empty. Called from `sync`'s
+/// per-template loop's zero-row skip branches — the mirror image of
+/// `check_determinism`'s `ProjectionMode::Aggregate`/`Row` checks, which
+/// only run once the primary has already produced at least one row. A
+/// zero-row primary result is a lawful answer, not a failure, but it must
+/// not silently bypass verification: the (expensive) independent recheck
+/// was already computed for exactly this purpose, and a second load that
+/// disagrees — either its `when:` guard evaluates true where the first was
+/// consumed as false, or it binds `>= 1` row where the first bound none —
+/// is exactly the class of divergence `determinism: true` exists to catch.
+fn check_determinism_rows_agree_empty(
+    tpl_path: &Path, determinism_recheck: Option<&ExtractedRows>, driver_desc: &str,
+) -> Result<()> {
+    let Some(recheck) = determinism_recheck else {
+        return Ok(());
+    };
+    let Some((_, results2)) = recheck else {
+        return Err(AppError::fm_tpl(
+            9,
+            format!(
+                "{}: `determinism: true` violated — re-running the `when:` guard a second, \
+                 independent time evaluated false after the first run evaluated true. \
+                 Remediation: remove non-deterministic terms from `when:`.",
+                tpl_path.display()
+            ),
+        ));
+    };
+    if !results2.is_empty() {
+        return Err(AppError::fm_tpl(
+            9,
+            format!(
+                "{}: `determinism: true` violated — the independent second load's \
+                 {driver_desc} produced {} row(s) after the first produced zero. \
+                 Remediation: add a complete ORDER BY with a stable tie-break, or \
+                 remove non-deterministic terms from the query.",
+                tpl_path.display(),
+                results2.len()
+            ),
+        ));
+    }
+    Ok(())
+}
+
 /// Recursively collect `*.tmpl` files. A missing templates dir fails closed.
 fn collect_tmpl_paths(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
     let entries = std::fs::read_dir(dir).map_err(|e| {
@@ -1895,6 +2215,156 @@ fn collect_tmpl_paths(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// Build a genuinely independent second copy of the fully-prepared base
+/// graph, used ONLY by `determinism: true`'s recheck
+/// (`sync`'s per-template loop, `determinism_recheck`).
+///
+/// A brand-new [`GraphEngine`] instance (`new_graph_engine`, never
+/// `graph`/`active_graph`), with the project ontology and every pack
+/// ontology re-read from disk and re-parsed from scratch — a real second
+/// [`GraphEngine::insert_turtle_documents`] admission, not a re-query of
+/// already-parsed quads — then every non-overlay template's `construct:`
+/// and any `[law].rules`/pack `hook.ttl` materialization replayed against
+/// it, so its derived facts match what the primary `graph` has by the time
+/// templates are extracted.
+///
+/// This closes the gap where the recheck reused the SAME already-loaded
+/// `active_graph` for both the primary extraction and the recheck: reusing
+/// one store can prove query-execution nondeterminism (differing
+/// bindings/order across two calls against one unchanged store) but is
+/// structurally incapable of catching load-time nondeterminism — e.g.
+/// oxigraph's `RdfParser::rename_blank_nodes()` (see
+/// `graph::ontology_batch::insert_documents`) assigns every blank node a
+/// fresh `rand::random()` id per parse, so two independent loads of
+/// byte-identical Turtle containing a blank node produce genuinely
+/// different bindings. See `tests/determinism_independent_reload_e2e.rs`
+/// for a real, non-mocked demonstration.
+///
+/// Read-only law operations (`check_denials`, `[law].gates`,
+/// pack-shipped gates) are deliberately NOT replayed here: they never
+/// mutate graph state, so they cannot change what a `sparql:`/`when:`
+/// query observes, and this sync already ran them once (Stage 2b) before
+/// reaching the per-template loop that calls this function.
+///
+/// # Errors
+/// Propagates the same `[FM-CONFIG-*]`/`[FM-PACK-*]`/`[FM-GRAPH-*]`/
+/// `[FM-LAW-*]` errors the primary Stage 1/2/2b construction already
+/// succeeded at once this sync — a failure here means the filesystem
+/// changed mid-sync (TOCTOU), not a pre-existing project defect.
+fn build_independent_recheck_base_graph(
+    root: &Path, config: &GgenConfig, opts: SyncOptions, packs: &[crate::pack::Pack],
+    templates: &[(PathBuf, Template)],
+) -> Result<Arc<dyn GraphEngine>> {
+    let fresh: Arc<dyn GraphEngine> = new_graph_engine(opts.engine)?;
+
+    // Independent Stage-1 equivalent: re-read every ontology document from
+    // disk into fresh owned strings and re-parse them through a brand-new
+    // `insert_turtle_documents` admission (a second, independent call to
+    // the exact code path that assigns blank-node ids on the primary
+    // graph, at line ~300 above) — never touching `graph`'s already-parsed
+    // quads.
+    let ontology_path = root.join(&config.ontology.source);
+    let (ontology_label, ttl) = read_ontology_file(root, &ontology_path)?;
+    let mut ontology_sources = Vec::with_capacity(
+        1 + packs
+            .iter()
+            .map(|pack| 1 + pack.extra_ontology_paths.len())
+            .sum::<usize>(),
+    );
+    ontology_sources.push((ontology_label, ttl));
+    for pack in packs {
+        let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
+            AppError::fm_pack(
+                4,
+                format!(
+                    "pack `{}`: ontology `{}` unreadable: {e}",
+                    pack.name,
+                    pack.ontology_path.display()
+                ),
+            )
+        })?;
+        ontology_sources.push((rel_display(root, &pack.ontology_path), pack_ttl));
+        for (declared, extra_path) in &pack.extra_ontology_paths {
+            let extra_ttl = std::fs::read_to_string(extra_path).map_err(|e| {
+                AppError::fm_pack(
+                    4,
+                    format!(
+                        "pack `{}`: extra ontology `{declared}` unreadable at `{}`: {e}",
+                        pack.name,
+                        extra_path.display()
+                    ),
+                )
+            })?;
+            ontology_sources.push((declared.clone(), extra_ttl));
+        }
+    }
+    let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
+    let recheck_ontology_receipt = fresh.insert_turtle_documents(&ontology_documents)?;
+    tracing::debug!(
+        ontology.documents = recheck_ontology_receipt.documents,
+        ontology.parsed_quads = recheck_ontology_receipt.parsed_quads,
+        ontology.inserted_quads = recheck_ontology_receipt.inserted_quads,
+        "determinism-recheck ontology batch admitted (independent second load)"
+    );
+
+    // Independent Stage-2 equivalent: replay every non-overlay template's
+    // `construct:` (overlay templates build their own independent overlay
+    // separately — see the `build_rdf_overlay` call at this function's one
+    // call site).
+    for (_, tpl) in templates {
+        if declares_rdf_overlay(&tpl.frontmatter) {
+            continue;
+        }
+        if let Some(construct) = tpl.frontmatter.construct.as_deref() {
+            insert_construct(fresh.as_ref(), construct)?;
+        }
+    }
+
+    // Independent Stage-2b equivalent: `[law].rules` + pack `hook.ttl` +
+    // materialize, so any queried derived facts match the primary graph's.
+    for rel in &config.law.rules {
+        let rule_path = root.join(rel);
+        let src = std::fs::read_to_string(&rule_path).map_err(|e| {
+            AppError::fm_law(
+                10,
+                format!(
+                    "rule file `{}` unreadable: {e}. Remediation: fix [law].rules.",
+                    rule_path.display()
+                ),
+            )
+        })?;
+        fresh.load_rules(&src)?;
+    }
+    let mut any_hook_loaded = false;
+    for pack in packs {
+        let hook_path = pack.root.join("hook.ttl");
+        if !hook_path.is_file() {
+            continue;
+        }
+        let hook_ttl = std::fs::read_to_string(&hook_path).map_err(|e| {
+            AppError::fm_pack(
+                14,
+                format!(
+                    "pack `{}`: hook.ttl at `{}` exists but is unreadable: {e}. \
+                     Remediation: fix the file's permissions/encoding or remove it.",
+                    pack.name,
+                    hook_path.display()
+                ),
+            )
+        })?;
+        fresh.load_hook_pack(&hook_ttl)?;
+        any_hook_loaded = true;
+    }
+    if !config.law.rules.is_empty() || any_hook_loaded {
+        fresh.materialize()?;
+    }
+
+    Ok(fresh)
 }
 
 /// `true` when a template's frontmatter declares `rdf:` and/or
@@ -1950,16 +2420,20 @@ fn build_turtle_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) 
 fn build_rdf_overlay(
     base: &Arc<dyn GraphEngine>, tpl_path: &Path, fm: &Frontmatter,
 ) -> Result<Option<Arc<dyn GraphEngine>>> {
+    use std::fmt::Write as _;
+
     if !declares_rdf_overlay(fm) {
         return Ok(None);
     }
 
     let overlay = DeterministicGraph::new()?;
-    let base_ntriples: String = base
-        .canonical_quads()?
-        .into_iter()
-        .map(|line| format!("{line} .\n"))
-        .collect();
+    let base_ntriples: String =
+        base.canonical_quads()?
+            .into_iter()
+            .fold(String::new(), |mut doc, line| {
+                let _ = writeln!(doc, "{line} .");
+                doc
+            });
     if !base_ntriples.is_empty() {
         overlay.insert_turtle(&base_ntriples)?;
     }
@@ -2224,7 +2698,7 @@ fn compare_verify_class(
         match prev.get(name) {
             None => diffs.push(format!("added `{name}`")),
             Some(prev_outcome) if prev_outcome != outcome => {
-                diffs.push(format!("changed `{name}`"))
+                diffs.push(format!("changed `{name}`"));
             }
             Some(_) => {}
         }
@@ -2303,6 +2777,11 @@ fn compare_producer_class(
 /// queried here for `ccn:Law` individuals (see the admission-items block
 /// below). Passing the live handle rather than re-loading anything keeps
 /// this a read against the exact same state the rest of the pipeline saw.
+// One sequential receipt-assembly function (admission ledger, equivalence
+// classification, chain hashing, signing, then the two on-disk writes);
+// splitting it would scatter the single linear assembly across call
+// boundaries rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
 ) -> Result<()> {
@@ -2439,8 +2918,8 @@ pub(crate) fn write_receipt(
     // constitution pack) simply gets zero rows back -- this SELECT is
     // always safe to run and does not require any `[law]`/`[packs]`
     // configuration.
-    const CONSTITUTION_LAW_QUERY: &str = "PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>\nSELECT ?law ?mech WHERE { ?law a ccn:Law ; ccn:mechanized ?mech . } ORDER BY ?law";
-    if let EngineQueryResults::Solutions(rows) = graph.query(CONSTITUTION_LAW_QUERY)? {
+    let constitution_law_query: &str = "PREFIX ccn: <http://seanchatmangpt.github.io/packs/ggen-constitution#>\nSELECT ?law ?mech WHERE { ?law a ccn:Law ; ccn:mechanized ?mech . } ORDER BY ?law";
+    if let EngineQueryResults::Solutions(rows) = graph.query(constitution_law_query)? {
         for row in rows {
             let Some(EngineValue::String(law_iri)) = row.get("law") else {
                 continue;
@@ -2491,10 +2970,10 @@ pub(crate) fn write_receipt(
     // divergence semantics the pack's own `020_evidence_green.rq` gate
     // enforces. A graph with no `ver:Check` facts gets zero rows back and
     // every axis stays at the uniform floor below.
-    const VERIFY_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name ?exit WHERE { ?c a ver:Check ; ver:name ?name ; ver:exitCode ?exit . } ORDER BY ?name";
-    const KNOWN_DIVERGENCE_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name WHERE { ?kd a ver:KnownDivergence ; ver:name ?name . } ORDER BY ?name";
+    let verify_check_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name ?exit WHERE { ?c a ver:Check ; ver:name ?name ; ver:exitCode ?exit . } ORDER BY ?name";
+    let known_divergence_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?name WHERE { ?kd a ver:KnownDivergence ; ver:name ?name . } ORDER BY ?name";
     let mut allowlisted_divergences: BTreeSet<String> = BTreeSet::new();
-    if let EngineQueryResults::Solutions(rows) = graph.query(KNOWN_DIVERGENCE_QUERY)? {
+    if let EngineQueryResults::Solutions(rows) = graph.query(known_divergence_query)? {
         for row in rows {
             if let Some(EngineValue::String(name)) = row.get("name") {
                 allowlisted_divergences.insert(name.clone());
@@ -2502,7 +2981,7 @@ pub(crate) fn write_receipt(
         }
     }
     let mut ver_checks: BTreeMap<String, i64> = BTreeMap::new();
-    if let EngineQueryResults::Solutions(rows) = graph.query(VERIFY_CHECK_QUERY)? {
+    if let EngineQueryResults::Solutions(rows) = graph.query(verify_check_query)? {
         for row in rows {
             let Some(EngineValue::String(name)) = row.get("name") else {
                 continue;
@@ -2552,18 +3031,18 @@ pub(crate) fn write_receipt(
     // verdict itself. A class with no producer fact stays at the Unknown
     // floor; a producer that ran with `--skip` emits an explicit skipped
     // marker so absence and skip are distinguished honestly.
-    const DOCS_MANIFEST_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?path ?sha WHERE { ?e a ver:DocsManifestEntry ; ver:path ?path ; ver:sha256 ?sha . } ORDER BY ?path";
-    const RECEIPTS_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?head WHERE { ?c a ver:ReceiptsCheck ; ver:exitCode ?exit ; ver:chainHead ?head . } ORDER BY ?head";
-    const EVIDENCE_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?dig WHERE { ?c a ver:EvidenceCheck ; ver:exitCode ?exit ; ver:requiredSetDigest ?dig . } ORDER BY ?dig";
-    const BINARY_CHECK_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?ha WHERE { ?c a ver:BinaryCheck ; ver:exitCode ?exit ; ver:hashA ?ha ; ver:hashB ?hb . } ORDER BY ?ha";
-    const BINARY_SKIP_QUERY: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?s WHERE { ?c a ver:BinaryCheck ; ver:skipped ?s . }";
+    let docs_manifest_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?path ?sha WHERE { ?e a ver:DocsManifestEntry ; ver:path ?path ; ver:sha256 ?sha . } ORDER BY ?path";
+    let receipts_check_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?head WHERE { ?c a ver:ReceiptsCheck ; ver:exitCode ?exit ; ver:chainHead ?head . } ORDER BY ?head";
+    let evidence_check_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?dig WHERE { ?c a ver:EvidenceCheck ; ver:exitCode ?exit ; ver:requiredSetDigest ?dig . } ORDER BY ?dig";
+    let binary_check_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?exit ?ha WHERE { ?c a ver:BinaryCheck ; ver:exitCode ?exit ; ver:hashA ?ha ; ver:hashB ?hb . } ORDER BY ?ha";
+    let binary_skip_query: &str = "PREFIX ver: <http://seanchatmangpt.github.io/packs/ggen-verify#>\nSELECT ?s WHERE { ?c a ver:BinaryCheck ; ver:skipped ?s . }";
 
     // docs: the producer emits one ver:DocsManifestEntry per generated doc
     // (path + sha256); the class identity is a blake3 digest over the
     // path-sorted entry list, so any tampered doc changes the identity.
     let docs_fact: Option<ClassProducerFact> = {
         let mut entries: Vec<(String, String)> = Vec::new();
-        if let EngineQueryResults::Solutions(rows) = graph.query(DOCS_MANIFEST_QUERY)? {
+        if let EngineQueryResults::Solutions(rows) = graph.query(docs_manifest_query)? {
             for row in rows {
                 if let (Some(EngineValue::String(path)), Some(EngineValue::String(sha))) =
                     (row.get("path"), row.get("sha"))
@@ -2605,11 +3084,11 @@ pub(crate) fn write_receipt(
         }
         Ok(None)
     };
-    let receipts_fact = read_exit_ident(RECEIPTS_CHECK_QUERY, "head")?;
-    let evidence_fact = read_exit_ident(EVIDENCE_CHECK_QUERY, "dig")?;
-    let binary_fact = read_exit_ident(BINARY_CHECK_QUERY, "ha")?;
+    let receipts_fact = read_exit_ident(receipts_check_query, "head")?;
+    let evidence_fact = read_exit_ident(evidence_check_query, "dig")?;
+    let binary_fact = read_exit_ident(binary_check_query, "ha")?;
     let mut binary_skipped = false;
-    if let EngineQueryResults::Solutions(rows) = graph.query(BINARY_SKIP_QUERY)? {
+    if let EngineQueryResults::Solutions(rows) = graph.query(binary_skip_query)? {
         for row in rows {
             binary_skipped |= matches!(row.get("s"), Some(EngineValue::Bool(true)))
                 || matches!(row.get("s"), Some(EngineValue::String(s)) if s == "true");
@@ -2622,7 +3101,7 @@ pub(crate) fn write_receipt(
     // back from this receipt. A red producer is recorded `Fail` and lowers
     // the `gate` component axis by the meet law below.
     let mut producer_red = false;
-    let mut push_producer_item =
+    let push_producer_item =
         |items: &mut Vec<AdmissionItem>, class: &str, fact: &ClassProducerFact, what: &str| {
             let pass = fact.exit == 0;
             items.push(AdmissionItem {
@@ -2894,8 +3373,14 @@ pub(crate) fn hex32(bytes: &[u8; 32]) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
-    use super::hash_file_or_missing;
+    use std::{collections::BTreeMap, path::Path};
+
+    use super::{
+        check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
+        hash_file_or_missing, ExtractedRows,
+    };
 
     /// A declared closure input that cannot be read binds as the literal
     /// `MISSING` marker — recorded in the receipt, never dropped.
@@ -2911,5 +3396,105 @@ mod tests {
             hash_file_or_missing(&real),
             blake3::hash(b"body").to_hex().to_string()
         );
+    }
+
+    fn tpl_path() -> &'static Path {
+        Path::new("templates/example.tmpl")
+    }
+
+    // ── F1 regression: `determinism: true`'s independent recheck must not
+    // be silently discarded whenever the PRIMARY extraction produced
+    // nothing to render (`when:` guard false, or a zero-row `for_each`/
+    // implicit fan-out driver). These exercise the real, non-mocked pure
+    // comparison functions the fix added, called from `sync`'s per-template
+    // loop skip branches — the exact call sites F1 named. ──
+
+    #[test]
+    fn guard_agrees_false_is_noop_when_determinism_not_requested() {
+        // determinism_recheck is None whenever `determinism: true` was
+        // never set — must never error regardless of what an (unused)
+        // recheck would have looked like.
+        assert!(check_determinism_guard_agrees_false(tpl_path(), None).is_ok());
+    }
+
+    #[test]
+    fn guard_agrees_false_ok_when_recheck_guard_also_false() {
+        // Both the primary and the independent recheck evaluated the
+        // `when:` guard to false — fully consistent, no divergence.
+        let recheck: ExtractedRows = None;
+        assert!(check_determinism_guard_agrees_false(tpl_path(), Some(&recheck)).is_ok());
+    }
+
+    #[test]
+    fn guard_agrees_false_errors_when_recheck_guard_evaluated_true() {
+        // The exact bug F1 describes: the PRIMARY `when:` guard evaluated
+        // false (nothing to render), but the independently reloaded second
+        // graph's guard evaluated true. That asymmetry must surface as
+        // [FM-TPL-009], not vanish into a silent "skipped: when guard
+        // false" with the already-computed recheck never consulted.
+        let recheck: ExtractedRows = Some((BTreeMap::new(), Vec::new()));
+        let err = check_determinism_guard_agrees_false(tpl_path(), Some(&recheck))
+            .expect_err("must reject a guard-true recheck after a guard-false primary");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-TPL-009"), "{msg}");
+        assert!(
+            msg.contains("evaluated true while the first evaluated false"),
+            "{msg}"
+        );
+    }
+
+    #[test]
+    fn rows_agree_empty_is_noop_when_determinism_not_requested() {
+        assert!(
+            check_determinism_rows_agree_empty(tpl_path(), None, "named `for_each:` driver")
+                .is_ok()
+        );
+    }
+
+    #[test]
+    fn rows_agree_empty_ok_when_recheck_also_zero_rows() {
+        let recheck: ExtractedRows = Some((BTreeMap::new(), Vec::new()));
+        assert!(check_determinism_rows_agree_empty(
+            tpl_path(),
+            Some(&recheck),
+            "named `for_each:` driver"
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn rows_agree_empty_errors_when_recheck_guard_evaluated_false() {
+        // The primary reached the for_each/fan-out row check at all only
+        // because its own `when:` guard (if any) evaluated true; a recheck
+        // whose guard evaluates false is the same class of divergence
+        // `check_determinism`'s success path already rejects.
+        let recheck: ExtractedRows = None;
+        let err = check_determinism_rows_agree_empty(
+            tpl_path(),
+            Some(&recheck),
+            "named `for_each:` driver",
+        )
+        .expect_err("must reject a guard-false recheck after a zero-row primary");
+        assert!(err.to_string().contains("FM-TPL-009"));
+    }
+
+    #[test]
+    fn rows_agree_empty_errors_when_recheck_produced_rows_after_primary_produced_zero() {
+        // The exact bug F1 describes for the for_each/fan-out skip points:
+        // the PRIMARY driving row set was genuinely empty (a lawful zero),
+        // but the independently reloaded second graph bound >= 1 row for
+        // the identical query. Previously this divergence was silently
+        // discarded at the `continue` in sync.rs's per-template loop; the
+        // (expensive) recheck had already been computed but was never
+        // consulted.
+        let recheck: ExtractedRows =
+            Some((BTreeMap::new(), vec![serde_json::json!({"name": "alice"})]));
+        let err =
+            check_determinism_rows_agree_empty(tpl_path(), Some(&recheck), "implicit row fan-out")
+                .expect_err("must reject a non-empty recheck after a zero-row primary");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-TPL-009"), "{msg}");
+        assert!(msg.contains("implicit row fan-out"), "{msg}");
+        assert!(msg.contains("produced 1 row"), "{msg}");
     }
 }

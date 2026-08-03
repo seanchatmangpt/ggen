@@ -377,7 +377,7 @@ mod load_tests {
     use super::*;
 
     #[tokio::test]
-    #[ignore] // Run with --ignored flag
+    #[ignore = "load_tests::test_10000_concurrent_connections spawns 10000 concurrent requests against a local test server; not part of the fast test loop, run via `cargo test -- --ignored`"]
     async fn test_10000_concurrent_connections() {
         // Arrange: Setup server
         let server = setup_test_server().await;
@@ -426,7 +426,7 @@ mod load_tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "load_tests::test_sustained_load_for_1_minute runs a real 60-second sustained-load loop; not part of the fast test loop, run via `cargo test -- --ignored`"]
     async fn test_sustained_load_for_1_minute() {
         // Arrange
         let server = setup_test_server().await;

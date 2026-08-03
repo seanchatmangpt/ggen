@@ -130,9 +130,23 @@ fn test_regenerate_respects_fail_on_conflict() {
     let strategy = MergeStrategy::FailOnConflict;
     let result = regenerate_with_merge(&template_path, &output_path, generated_content, &strategy);
 
-    // REAL assertion - may fail on conflict depending on merger behavior
-    // The merger determines if this is a conflict
-    assert!(result.is_ok() || result.is_err());
+    // REAL assertion - the existing file's content ("existing content") and
+    // the generated content ("completely different content") genuinely
+    // differ, so FailOnConflict must reject the merge rather than silently
+    // overwrite the manual edit. Existing output must also be left
+    // untouched by the rejected merge.
+    let err = result.expect_err(
+        "FailOnConflict strategy must return Err when generated content differs from existing content",
+    );
+    assert!(
+        err.to_string().to_lowercase().contains("conflict"),
+        "expected a conflict-related error message, got: {err}"
+    );
+    assert_eq!(
+        fs::read_to_string(&output_path).unwrap(),
+        "existing content",
+        "rejected merge must not modify the existing file"
+    );
 }
 
 #[test]

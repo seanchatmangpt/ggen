@@ -17,6 +17,10 @@ fn crate_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
+/// `(case name, scanner fn, known-bad source snippet)`, used by
+/// `gates_can_fail` to prove every scanner below can actually fail.
+type ScannerCase = (&'static str, fn(&str, &str) -> Vec<String>, &'static str);
+
 /// Recursively collects every `.rs` file under `dir`, sorted for
 /// deterministic output. O(files) in the scanned tree.
 fn rs_files_under(dir: &Path) -> Vec<PathBuf> {
@@ -228,7 +232,7 @@ fn gate_no_silent_fallback_in_chatman() {
 
 #[test]
 fn gates_can_fail() {
-    let cases: [(&str, fn(&str, &str) -> Vec<String>, &str); 8] = [
+    let cases: [ScannerCase; 8] = [
         (
             "forbidden_tokens/unwrap",
             scan_forbidden_tokens,

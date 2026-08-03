@@ -28,7 +28,7 @@ mod benchmarks {
     /// Benchmark Unit 1: SPARQL query serialization
     /// Measures time to parse and serialize a SPARQL query
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_sparql_query_serialization() {
         let query = r#"
             PREFIX market: <http://example.com/marketplace/>
@@ -62,7 +62,7 @@ mod benchmarks {
     /// Benchmark Unit 4: JSON-RPC request deserialization
     /// Measures time to parse a JSON-RPC request
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_json_rpc_parsing() {
         let json_request =
             r#"{"jsonrpc":"2.0","method":"tools/create_task","params":{"name":"test"},"id":1}"#;
@@ -93,7 +93,7 @@ mod benchmarks {
     /// Benchmark Unit 4: Task state transition
     /// Measures time for a task state update in memory
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_task_state_update() {
         let mut task = serde_json::json!({
             "id": "task-123",
@@ -131,7 +131,7 @@ mod benchmarks {
     /// Benchmark Unit 1: Package list iteration
     /// Measures time to iterate through package list
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_package_list_iteration() {
         let packages = (0..1000)
             .map(|i| {
@@ -173,7 +173,7 @@ mod benchmarks {
     /// Benchmark Unit 2: String matching for verb dispatch
     /// Measures time to match a method name to a verb
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_verb_dispatch_matching() {
         let methods = [
             "autonomics",
@@ -209,7 +209,7 @@ mod benchmarks {
     /// Benchmark Unit 5: Linkme distributed_slice lookup simulation
     /// Measures overhead of vector iteration (simulating distributed_slice)
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_linkme_distributed_slice_simulation() {
         // Simulate a distributed_slice with registered verbs
         let verbs: Vec<&str> = vec![
@@ -249,7 +249,7 @@ mod benchmarks {
     /// Benchmark Unit 4: Error response generation
     /// Measures time to create error JSON response
     #[test]
-    #[ignore] // Run with: cargo test -- --ignored
+    #[ignore = "performance benchmark measuring SLO targets (SPARQL query, CLI verb dispatch, HTTP handler, linkme registration — see file header); run via `cargo test -- --ignored`"]
     fn bench_error_response_generation() {
         let iterations = 10000;
         let start = Instant::now();

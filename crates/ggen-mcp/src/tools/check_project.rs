@@ -1,12 +1,16 @@
 //! `ggen_check_project` — run ggen-lsp's cross-surface diagnostic pass over
 //! a whole project.
 //!
-//! Closes a verified gap: the 13 `GGEN-*` / `E00xx` codes (unbound template
+//! Closes a verified gap: the `GGEN-*` / `E00xx` codes (unbound template
 //! variable, output-path escape, competing authority, `SELECT *` blindspot,
 //! ...) are implemented and tested in `ggen-lsp`, but were reachable from NO
 //! MCP client -- ggen-lsp's own MCP tool calls the single-file
 //! `build_analyzer`, never `check_files_in_root`, so every cross-surface
-//! code was invisible to agents.
+//! code was invisible to agents. (Exact code count deliberately not stated
+//! here -- it depends on which of `build_analyzer`'s single-file dispatch vs.
+//! `check_files_in_root`'s additional cross-surface `fold_*` passes is being
+//! counted, and has drifted before; see `ggen-lsp`'s own analyzer sources for
+//! the current, authoritative set.)
 //!
 //! This is a thin pass-through to `ggen_lsp::check_files_in_root`, which is
 //! already `Serialize`. It computes nothing itself.

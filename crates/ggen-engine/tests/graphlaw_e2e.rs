@@ -1,4 +1,4 @@
-//! End-to-end tests for the GraphLaw law-state engine inside the sync
+//! End-to-end tests for the `GraphLaw` law-state engine inside the sync
 //! pipeline: real filesystem, real praxis-graphlaw reasoner, real Tera
 //! rendering — no mocks.
 //!
@@ -6,8 +6,10 @@
 //! [`when_guard_passes_only_after_n3_materialization`]: a template whose
 //! `when:` ASK is only satisfiable by a rule-derived fact refuses under the
 //! oxigraph engine (typed `[FM-LAW-*]`) and renders under the default
-//! GraphLaw engine — the proof the roxi-fork reasoner is in the loop, not
+//! `GraphLaw` engine — the proof the roxi-fork reasoner is in the loop, not
 //! decoration.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::Path;
 
@@ -51,9 +53,9 @@ fn scaffold(root: &Path, ggen_toml: &str, template: &str) {
     std::fs::write(root.join("rules/animal.n3"), RULE_N3).expect("write rule");
 }
 
-/// THE proof the GraphLaw reasoner is in the loop: the same fixture refuses
+/// THE proof the `GraphLaw` reasoner is in the loop: the same fixture refuses
 /// under oxigraph (no rule support — typed FM-LAW refusal at the law stage)
-/// and renders under GraphLaw (the `when:` ASK passes only because
+/// and renders under `GraphLaw` (the `when:` ASK passes only because
 /// materialization derived `ex:rex a ex:Animal`).
 #[test]
 fn when_guard_passes_only_after_n3_materialization() {
@@ -216,6 +218,8 @@ fn denial_violation_refuses_sync() {
 /// chains onto the first (verified head, linear history).
 #[test]
 fn two_runs_same_fixture_same_graph_hash_and_valid_chain() {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), GGEN_TOML_WITH_RULES, TEMPLATE_WHEN_DERIVED);
 
@@ -248,7 +252,10 @@ fn two_runs_same_fixture_same_graph_hash_and_valid_chain() {
         "second receipt must chain onto the first"
     );
     let recomputed = receipt2.record.recompute_chain_hash().expect("recompute");
-    let hex: String = recomputed.iter().map(|b| format!("{b:02x}")).collect();
+    let hex: String = recomputed.iter().fold(String::new(), |mut hex, b| {
+        let _ = write!(hex, "{b:02x}");
+        hex
+    });
     assert_eq!(
         hex, receipt2.record.chain_hash_hex,
         "chain head must verify"

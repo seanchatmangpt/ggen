@@ -4,7 +4,7 @@
 //! receipts, and real generated Rust crates. No pack loader, renderer, receipt,
 //! or process collaborator is mocked.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -91,6 +91,8 @@ fn assert_cli_success(project: &Path, args: &[&str]) {
 }
 
 fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
+    use std::fmt::Write as _;
+
     let directory = TempDir::new().expect("temporary directory");
     for pack in GAP_PACKS {
         copy_tree(&packs_dir().join(pack), &directory.path().join(pack));
@@ -100,10 +102,10 @@ fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
     std::fs::create_dir_all(project.join("templates")).expect("templates directory");
     std::fs::write(project.join("ontology.ttl"), "").expect("consumer ontology");
 
-    let packs_table: String = GAP_PACKS
-        .iter()
-        .map(|pack| format!("{pack} = {{ path = \"../{pack}\" }}\n"))
-        .collect();
+    let packs_table: String = GAP_PACKS.iter().fold(String::new(), |mut table, pack| {
+        let _ = writeln!(table, "{pack} = {{ path = \"../{pack}\" }}");
+        table
+    });
     std::fs::write(
         project.join("ggen.toml"),
         format!(

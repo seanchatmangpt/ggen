@@ -12,6 +12,8 @@
 //! any new file at all. Byte-for-byte content and mtime are both compared
 //! before and after, not just presence/absence.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::{
     path::Path,
     time::{Duration, SystemTime},

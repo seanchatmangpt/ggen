@@ -1,3 +1,12 @@
+// Chicago TDD: this file asserts on real, observed state via `match ... =>
+// panic!(...)` (fail loudly on an unexpected variant) and `.expect(...)` (fail
+// loudly on an unexpected `None`) — the same pattern already established as
+// file-level allows across this crate's other integration tests (e.g.
+// `tests/adversarial_dfg_test.rs`, `tests/hash_stability.rs`). Scoped to only
+// the two lints this file actually triggers, not a blanket copy of the wider
+// per-file allow lists used elsewhere.
+#![allow(clippy::panic, clippy::expect_used)]
+
 use ggen_graph::rwr::{
     read_committed_payload, Action, AndonLevel, AutomaticReplayVerifier, AutomaticRuntime,
     AutonomicOperationsController, AutonomicResource, CircuitBreaker, ConsequenceObserver,
@@ -197,6 +206,105 @@ fn idempotency_atomicity_and_replay_are_enforced() -> Result<(), Box<dyn std::er
         actuator.actuate(&grant, &action),
         Err(ExecutionError::ReplayRefused(_))
     ));
+    Ok(())
+}
+
+/// FINDING #10 regression: `verify_once` proves each receipt is internally
+/// self-consistent (its own `receipt_digest` covers its own fields, including
+/// whatever it carries in `predecessor_receipt_digest`), but never compares
+/// that value against another receipt's *actual* `receipt_digest`. A
+/// downstream verifier replaying a persisted log must be able to detect a
+/// broken causal chain -- not just individually-valid receipts -- which is
+/// exactly what `AutomaticReplayVerifier::verify_chain` closes.
+#[test]
+fn replay_verifier_detects_broken_causal_chain_linkage() -> Result<(), Box<dyn std::error::Error>> {
+    let temp = tempfile::tempdir()?;
+    let actuator = FilesystemActuator::new(temp.path().join("actuation"));
+    let machine = machine();
+    let mut chain_runtime = runtime(8, 3, 3)?;
+    let mut observer = FilesystemConsequenceObserver;
+
+    let first = chain_runtime.execute(
+        Trigger::new("chain-event-1", "sync", 1, b"chain=one".to_vec()),
+        &machine,
+        &actuator,
+        &mut observer,
+    )?;
+    let second = chain_runtime.execute(
+        Trigger::new("chain-event-2", "sync", 2, b"chain=two".to_vec()),
+        &machine,
+        &actuator,
+        &mut observer,
+    )?;
+    assert_eq!(
+        second.predecessor_receipt_digest,
+        Some(first.receipt_digest)
+    );
+
+    // Positive case: the intact, in-order chain verifies cleanly.
+    let mut intact = AutomaticReplayVerifier::default();
+    intact.verify_chain(&[first.clone(), second.clone()])?;
+
+    // Negative case 1: dropping the first receipt of a two-receipt sequence
+    // before replay. `second` alone still passes `verify_once` (it is
+    // internally self-consistent), but it is no longer the genesis of the
+    // replayed sequence -- its declared predecessor cannot be produced.
+    let mut dropped_genesis = AutomaticReplayVerifier::default();
+    dropped_genesis.verify_once(&second)?;
+    let mut dropped_genesis_chain = AutomaticReplayVerifier::default();
+    match dropped_genesis_chain.verify_chain(std::slice::from_ref(&second)) {
+        Err(OperationsError::ChainLinkageBroken {
+            position,
+            expected_predecessor,
+            observed_predecessor,
+        }) => {
+            assert_eq!(position, 0);
+            assert_eq!(expected_predecessor, None);
+            assert_eq!(observed_predecessor, Some(first.receipt_digest));
+        }
+        other => panic!("expected ChainLinkageBroken, got {other:?}"),
+    }
+
+    // Negative case 2: splicing two independently-issued receipts together.
+    // Build a second, wholly unrelated two-receipt chain in its own
+    // actuation root, then splice its second receipt after `first` from the
+    // original chain. Both receipts still verify individually -- the
+    // splice is only detectable by comparing declared predecessor digests
+    // against real prior receipt digests.
+    let other_temp = tempfile::tempdir()?;
+    let other_actuator = FilesystemActuator::new(other_temp.path().join("actuation"));
+    let mut other_runtime = runtime(8, 3, 3)?;
+    let mut other_observer = FilesystemConsequenceObserver;
+    let other_first = other_runtime.execute(
+        Trigger::new("other-chain-event-1", "sync", 1, b"other=one".to_vec()),
+        &machine,
+        &other_actuator,
+        &mut other_observer,
+    )?;
+    let other_second = other_runtime.execute(
+        Trigger::new("other-chain-event-2", "sync", 2, b"other=two".to_vec()),
+        &machine,
+        &other_actuator,
+        &mut other_observer,
+    )?;
+    assert_eq!(
+        other_second.predecessor_receipt_digest,
+        Some(other_first.receipt_digest)
+    );
+
+    let mut spliced = AutomaticReplayVerifier::default();
+    match spliced.verify_chain(&[first.clone(), other_second.clone()]) {
+        Err(OperationsError::ChainLinkageBroken {
+            position,
+            expected_predecessor,
+            observed_predecessor,
+        }) => {
+            assert_eq!(position, 1);
+            assert_eq!(expected_predecessor, Some(first.receipt_digest));
+            assert_eq!(observed_predecessor, Some(other_first.receipt_digest));
+        }
+        other => panic!("expected ChainLinkageBroken, got {other:?}"),
+    }
     Ok(())
 }
 

@@ -2,10 +2,30 @@
 //!
 //! Surfaces the SPARQL laws ggen enforces at sync time, at author time:
 //! - **E0010**: external `.rq` files must not contain `VALUES` (data must be inline in `ggen.toml`).
-//! - **E0011**: `CONSTRUCT` queries should carry `ORDER BY` (required under `strict_mode`).
+//! - **E0011**/**E0013**: `CONSTRUCT`/`SELECT` queries should carry `ORDER BY`.
 //! - syntax errors from the oxigraph SPARQL parser.
 //!
 //! Plus keyword/variable completion and a variable outline.
+//!
+//! # E0011/E0013 severity mirrors the schema default (`strict_mode = true`)
+//!
+//! This analyzer has no manifest/project context (`new_from_content` takes only
+//! `content: &str`; `crate::analyzers::build_analyzer`'s six call sites never
+//! thread a resolved `ggen.toml` in), so it cannot read a project's actual
+//! `[validation] strict_mode` override. `ggen_config::manifest::types::
+//! default_strict_mode` returns `true` -- a project with no explicit
+//! `[validation]` override (confirmed by `ggen-config`'s own
+//! `missing_order_by_refuses_by_default_when_validation_section_is_absent`
+//! test) gets a hard `ConfigError::Validation` refusal from `ggen sync run`
+//! for a missing `ORDER BY`, via the shared `query_has_order_by` predicate
+//! imported below. E0011/E0013 are therefore emitted at `ERROR` severity here
+//! too, matching that default, so a headless `ggen lsp check` exit code is not
+//! a false "this will sync cleanly" signal for the common (no-override) case.
+//! A project that explicitly opts out with `strict_mode = false` still only
+//! gets a warning from `ggen sync run` for the same file -- this analyzer has
+//! no way to see that override and will still report ERROR there. That
+//! remaining divergence is narrower (fails closed, not open) and documented,
+//! not silently absorbed.
 
 use lsp_max::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionResponse, DiagnosticSeverity, Hover, Location,
@@ -84,24 +104,31 @@ impl SparqlAnalyzer {
             }
         }
 
-        // E0011 — CONSTRUCT should carry ORDER BY (required under strict_mode).
+        // E0011 — CONSTRUCT should carry ORDER BY. ERROR: matches
+        // `default_strict_mode() -> true` (see module doc) -- `ggen sync run`
+        // hard-refuses this under the schema default, so this analyzer must
+        // not report a lower severity than the pipeline it is meant to preview.
         if sparql_kind(&self.source) == SparqlKind::Construct && !query_has_order_by(&self.source) {
             diags.push(diag::max_whole_line(
                 0,
-                DiagnosticSeverity::WARNING,
+                DiagnosticSeverity::ERROR,
                 Some("E0011"),
-                "CONSTRUCT query lacks ORDER BY — required when strict_mode is enabled",
+                "CONSTRUCT query lacks ORDER BY — refused under strict_mode (ggen's schema \
+                 default: strict_mode = true; set `strict_mode = false` under [validation] in \
+                 ggen.toml to downgrade this to a warning at sync time)",
                 lsp_max_protocol::LawAxis::Domain,
             ));
         }
 
-        // E0013 — SELECT should carry ORDER BY (required under strict_mode).
+        // E0013 — SELECT should carry ORDER BY. ERROR: see E0011 above.
         if sparql_kind(&self.source) == SparqlKind::Select && !query_has_order_by(&self.source) {
             diags.push(diag::max_whole_line(
                 0,
-                DiagnosticSeverity::WARNING,
+                DiagnosticSeverity::ERROR,
                 Some("E0013"),
-                "SELECT query lacks ORDER BY — required when strict_mode is enabled",
+                "SELECT query lacks ORDER BY — refused under strict_mode (ggen's schema \
+                 default: strict_mode = true; set `strict_mode = false` under [validation] in \
+                 ggen.toml to downgrade this to a warning at sync time)",
                 lsp_max_protocol::LawAxis::Domain,
             ));
         }

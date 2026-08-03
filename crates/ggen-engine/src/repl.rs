@@ -12,6 +12,7 @@
 /// backslash escapes.
 ///
 /// Returns `None` if the string contains an unmatched quote.
+#[must_use]
 pub fn split_shell_words(s: &str) -> Option<Vec<String>> {
     let mut words = Vec::new();
     let mut cur = String::new();
@@ -265,6 +266,7 @@ pub fn run_repl() -> anyhow::Result<()> {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::split_shell_words;
 

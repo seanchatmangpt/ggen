@@ -106,7 +106,13 @@ SCRIPTS=(
     "scripts/gall/external/06_scan_forbidden_surfaces.sh"
     "scripts/gall/external/07_check_anti_fake.sh"
     "scripts/gall/external/08_verify_replay_receipts.sh"
-    "scripts/gall/external/09_verify_ocel_self_audit.sh"
+    # NOTE (2026-08-03): "09_verify_ocel_self_audit.sh" was removed from this ring.
+    # It regenerated and structurally re-checked crates/ggen-graph/audit/
+    # vision2030.self_audit.ocel.json, whose generator (ggen_graph::ocel::
+    # self_audit::generate_self_audit_log) hardcoded a fake exit_code, a
+    # sha256("test") passed off as a real artifact hash, fabricated coverage
+    # percentages, and compile-time-fixed event timestamps. See
+    # crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
     "scripts/gall/external/10_verify_coverage_matrix.sh"
     "scripts/gall/external/11_verify_proof_report.sh"
     "scripts/gall/external/12_detect_contradictions.sh"

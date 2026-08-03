@@ -196,8 +196,21 @@ async fn test_generate_with_partial_variables() {
     };
 
     let result = generate_from_pack(&gen_input).await;
-    // Should still work (missing variables might use defaults)
-    assert!(result.is_ok() || result.is_err()); // Accept either outcome
+    // generate_from_pack (crates/ggen-marketplace/src/packs_registry/generator.rs)
+    // never reads `input.variables` at all -- it only errors when the pack_id
+    // or template_name doesn't resolve. Both resolve here (pack loaded via
+    // show_pack above, template taken from pack.templates[0]), so a partial
+    // variable set has no way to make this call fail.
+    assert!(
+        result.is_ok(),
+        "generate_from_pack must succeed with a partial variable set for a valid pack/template: {result:?}"
+    );
+    let output = result.unwrap();
+    assert_eq!(
+        output.templates_generated,
+        vec![template.name.clone()],
+        "Should generate exactly the requested template even with partial variables"
+    );
 }
 
 #[tokio::test]

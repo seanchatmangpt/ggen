@@ -39,6 +39,9 @@ pub enum Invariant {
     WriteImpliesReceipt,
     /// Re-running an unchanged sync wrote something new.
     Idempotent,
+    /// The dry run's predicted write set disagreed with what the real apply
+    /// actually wrote, for the same unmodified case.
+    DryRunAgreesWithApply,
 }
 
 impl Invariant {
@@ -61,6 +64,9 @@ impl Invariant {
             Self::NeverSilentlyTruncates => "dropping rows requires truncated=true",
             Self::WriteImpliesReceipt => "a successful apply must leave a receipt that verifies",
             Self::Idempotent => "an unchanged re-sync must write nothing new",
+            Self::DryRunAgreesWithApply => {
+                "the dry run's predicted write set must match what apply actually wrote"
+            }
         }
     }
 }
@@ -132,7 +138,29 @@ pub struct Observation {
     /// A receipt exists at the reported path and verified.
     pub receipt_verified: Option<bool>,
     /// Files written by an immediate second apply of unchanged input.
+    /// `None` means the second apply did not produce a count at all --
+    /// which is a finding, not a reason to skip the idempotence check.
     pub second_apply_written: Option<usize>,
+    /// Why the second apply produced no count, when it produced none. A
+    /// re-sync that *errors* is at least as serious as one that writes
+    /// extra files, and originally this harness dropped that error on the
+    /// floor: `if let Some(n) = second_apply_written` silently skipped the
+    /// check, so a project whose re-sync fails looked identical to one that
+    /// is perfectly idempotent. Found by the vacuity audit.
+    pub second_apply_error: Option<String>,
+    /// `Some(true)` = dry-run tool reported success, `Some(false)` = typed
+    /// error, `None` = no answer at all. Originally this call's whole
+    /// `Result` was discarded (`let _ = sync_dry_run(...)`), so a broken,
+    /// panicking, or wrong dry-run tool played through self-play with zero
+    /// chance of being flagged despite `ggen_sync_dry_run` being one of the
+    /// two tools (with `ggen_query_preview`) this crate exists to make
+    /// trustworthy. Found by the vacuity audit.
+    pub dry_run_ok: Option<bool>,
+    /// Root-relative paths the dry run predicted it would write, when the
+    /// dry run itself succeeded. Compared against `written` below so a dry
+    /// run that disagrees with what apply actually does is a finding, not
+    /// silent.
+    pub dry_run_would_write: Option<BTreeSet<String>>,
 }
 
 /// Rule on one case's observations.
@@ -190,6 +218,19 @@ pub fn referee_verdict(obs: &Observation) -> Verdict {
         }
     }
 
+    // Liveness for the dry-run tool: whenever the harness got far enough to
+    // call apply at all (obs.applied_ok is Some, regardless of its value),
+    // the dry run must have run first and produced an answer. A missing
+    // dry_run_ok here means the dry-run tool's own Result went unobserved
+    // -- exactly what `let _ = sync_dry_run(...)` used to do, silently.
+    if obs.applied_ok.is_some() && obs.dry_run_ok.is_none() {
+        v.fail(
+            Invariant::AlwaysAnswers,
+            "the template write succeeded and apply ran, but the dry-run tool \
+             produced no response before it (panic, hang, or dropped frame)",
+        );
+    }
+
     // Containment: judged on what actually moved on disk, not on what the
     // tool said it wrote.
     if !obs.changed_outside_root.is_empty() {
@@ -222,12 +263,43 @@ pub fn referee_verdict(obs: &Observation) -> Verdict {
                 ),
             ),
         }
-        // Idempotence, only meaningful once a first apply succeeded.
-        if let Some(second) = obs.second_apply_written {
-            if second > 0 {
+        // Idempotence, only meaningful once a first apply succeeded --
+        // but "the second apply never reported" is itself a violation, not
+        // a licence to skip the check.
+        match (obs.second_apply_written, obs.second_apply_error.as_deref()) {
+            (Some(0), _) => {}
+            (Some(n), _) => v.fail(
+                Invariant::Idempotent,
+                format!("re-syncing unchanged input wrote {n} more file(s)"),
+            ),
+            (None, Some(err)) => v.fail(
+                Invariant::Idempotent,
+                format!("re-syncing unchanged input failed: {err}"),
+            ),
+            (None, None) => v.fail(
+                Invariant::Idempotent,
+                "the second apply produced neither a count nor an error".to_string(),
+            ),
+        }
+
+        // The dry run and the real apply ran against the SAME unmodified
+        // template, back to back -- their write sets must agree. A dry run
+        // that predicts a different set of files than apply actually wrote
+        // means the "preview" tool cannot be trusted as a preview.
+        if let Some(predicted) = &obs.dry_run_would_write {
+            let actual: BTreeSet<String> = obs.written.iter().cloned().collect();
+            if *predicted != actual {
+                let apply_only: Vec<&String> = actual.difference(predicted).collect();
+                let dry_run_only: Vec<&String> = predicted.difference(&actual).collect();
                 v.fail(
-                    Invariant::Idempotent,
-                    format!("re-syncing unchanged input wrote {second} more file(s)"),
+                    Invariant::DryRunAgreesWithApply,
+                    format!(
+                        "dry run predicted {} file(s), apply actually wrote {}; \
+                         apply wrote but dry run did not predict: {apply_only:?}; \
+                         dry run predicted but apply did not write: {dry_run_only:?}",
+                        predicted.len(),
+                        actual.len(),
+                    ),
                 );
             }
         }
@@ -361,6 +433,130 @@ mod tests {
             .contains(&Invariant::Idempotent));
     }
 
+    /// The bug the vacuity audit found: a re-sync that ERRORS must be a
+    /// violation. Previously this was silently skipped and reported clean.
+    #[test]
+    fn a_failing_second_apply_is_a_violation_not_a_skip() {
+        let obs = Observation {
+            query_ok: Some(true),
+            syntax_valid: Some(true),
+            applied_ok: Some(true),
+            written: vec!["out/x.txt".into()],
+            receipt_verified: Some(true),
+            second_apply_written: None,
+            second_apply_error: Some("[FM-WRITE-005] differing content".into()),
+            ..Default::default()
+        };
+        let v = referee_verdict(&obs);
+        assert!(v.broken().contains(&Invariant::Idempotent));
+        assert!(
+            v.violations
+                .iter()
+                .any(|x| x.observed.contains("FM-WRITE-005")),
+            "the underlying error must be reported, not swallowed: {:?}",
+            v.violations
+        );
+    }
+
+    /// Neither a count nor an error is the worst case: the harness lost
+    /// track entirely. It must not read as success.
+    #[test]
+    fn a_silent_second_apply_is_a_violation() {
+        let obs = Observation {
+            query_ok: Some(true),
+            syntax_valid: Some(true),
+            applied_ok: Some(true),
+            written: vec!["out/x.txt".into()],
+            receipt_verified: Some(true),
+            second_apply_written: None,
+            second_apply_error: None,
+            ..Default::default()
+        };
+        assert!(referee_verdict(&obs)
+            .broken()
+            .contains(&Invariant::Idempotent));
+    }
+
+    /// The bug this pass found: `let _ = sync_dry_run(...)` discarded the
+    /// dry run's Result entirely, so a dry-run tool that never answered
+    /// (panic, hang, dropped frame) was indistinguishable from one that
+    /// answered cleanly. Reaching apply at all (`applied_ok: Some(_)`)
+    /// proves the harness got past the dry-run call site, so a missing
+    /// `dry_run_ok` there is itself a liveness violation.
+    #[test]
+    fn a_missing_dry_run_answer_is_a_liveness_violation() {
+        let obs = Observation {
+            query_ok: Some(true),
+            syntax_valid: Some(true),
+            applied_ok: Some(true),
+            written: vec!["out/x.txt".into()],
+            receipt_verified: Some(true),
+            second_apply_written: Some(0),
+            dry_run_ok: None,
+            dry_run_would_write: None,
+            ..Default::default()
+        };
+        assert!(referee_verdict(&obs)
+            .broken()
+            .contains(&Invariant::AlwaysAnswers));
+    }
+
+    /// The other half of the same gap: even when the dry run DID answer,
+    /// nothing previously checked whether its prediction agreed with what
+    /// apply actually wrote. A dry run that predicts a different file set
+    /// than the real apply must be a finding.
+    #[test]
+    fn a_dry_run_that_disagrees_with_apply_is_caught() {
+        let obs = Observation {
+            query_ok: Some(true),
+            syntax_valid: Some(true),
+            applied_ok: Some(true),
+            written: vec!["out/x.txt".into()],
+            receipt_verified: Some(true),
+            second_apply_written: Some(0),
+            dry_run_ok: Some(true),
+            dry_run_would_write: Some(["out/wrong.txt".to_string()].into_iter().collect()),
+            ..Default::default()
+        };
+        let v = referee_verdict(&obs);
+        assert!(v.broken().contains(&Invariant::DryRunAgreesWithApply));
+        assert!(
+            v.violations
+                .iter()
+                .any(|x| x.observed.contains("out/x.txt") && x.observed.contains("out/wrong.txt")),
+            "both the actually-written and only-predicted paths must be named: {:?}",
+            v.violations
+        );
+    }
+
+    /// A dry run that agrees exactly with what apply wrote must stay clean
+    /// -- the new invariant must not fire on the lawful case.
+    #[test]
+    fn a_dry_run_that_agrees_with_apply_is_clean() {
+        let obs = Observation {
+            query_ok: Some(true),
+            syntax_valid: Some(true),
+            applied_ok: Some(true),
+            written: vec!["out/x.txt".into()],
+            receipt_verified: Some(true),
+            second_apply_written: Some(0),
+            dry_run_ok: Some(true),
+            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
+            ..Default::default()
+        };
+        let v = referee_verdict(&obs);
+        assert!(
+            !v.broken().contains(&Invariant::DryRunAgreesWithApply),
+            "an agreeing dry run must not be flagged: {:?}",
+            v.violations
+        );
+        assert!(
+            !v.broken().contains(&Invariant::AlwaysAnswers),
+            "a dry run that did answer must not be flagged as missing: {:?}",
+            v.violations
+        );
+    }
+
     #[test]
     fn a_lawful_run_is_clean() {
         let obs = Observation {
@@ -374,7 +570,10 @@ mod tests {
             written: vec!["out/x.txt".into()],
             receipt_verified: Some(true),
             second_apply_written: Some(0),
+            second_apply_error: None,
             changed_outside_root: Vec::new(),
+            dry_run_ok: Some(true),
+            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
         };
         let v = referee_verdict(&obs);
         assert!(v.clean(), "expected no violations, got {:?}", v.violations);

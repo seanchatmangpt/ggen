@@ -22,7 +22,7 @@ const RUST_TAG: &str = "1.83-slim-bookworm";
 const GGEN_REPO: &str = "https://github.com/seanchatmangpt/ggen.git";
 
 #[test]
-#[ignore] // Ignore by default as it requires Docker and takes ~10 minutes
+#[ignore = "requires Docker and takes ~10 minutes: builds ggen from source inside a Rust-toolchain container, then exercises the marketplace+git-hooks workflow (see file header); run via `cargo test --test testcontainer_marketplace_git_hooks -- --ignored`"]
 fn test_marketplace_project_with_git_hooks() {
     println!("🐳 Starting testcontainer integration test...");
 
@@ -265,7 +265,7 @@ fn test_marketplace_project_with_git_hooks() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "test_container_basic_setup requires Docker (GenericImage::start + `docker exec`); same category as this file's other Docker-gated test (see the reason at line 25)"]
 fn test_container_basic_setup() {
     println!("🐳 Testing basic container setup...");
 

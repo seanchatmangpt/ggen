@@ -26,7 +26,7 @@ use std::process::Command;
 use std::str;
 
 #[test]
-#[ignore]
+#[ignore = "requires a pre-built release binary at ./target/release/ggen (Command::new(\"./target/release/ggen\")); run `cargo build --release` first, then `cargo test -- --ignored`"]
 fn test_cli_help() {
     let output = Command::new("./target/release/ggen")
         .arg("--help")

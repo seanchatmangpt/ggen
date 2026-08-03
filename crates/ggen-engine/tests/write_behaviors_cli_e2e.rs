@@ -15,6 +15,8 @@
 //! Plus the two non-table hardening behaviors added this session: the
 //! `MAX_OUTPUT_BYTES` size cap and the atomic render-then-write pass.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use chicago_tdd_tools::cli_proof::CliHarness;

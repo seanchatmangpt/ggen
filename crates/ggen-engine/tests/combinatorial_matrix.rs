@@ -4,15 +4,17 @@
 //!    implementation, first-match-wins per `src/write.rs`).
 //! B. Property tests: sync idempotence, hash insertion-order invariance,
 //!    delta laws (compute→apply, compose(inverse) empty).
-//! C. Frontmatter closed-vocabulary fuzz + when/sparql/skip_empty cross.
+//! C. Frontmatter closed-vocabulary fuzz + `when/sparql/skip_empty` cross.
 //!
 //! All filesystem work happens in `TempDir`s; real oxigraph, zero mocks.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::{collections::BTreeMap, path::Path};
 
 use ggen_engine::{
     graph::{Delta, DeterministicGraph},
-    sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH},
+    sync::{sync, ReceiptPayload, SyncOptions, SyncReceipt, RECEIPT_REL_PATH},
     template::{Frontmatter, MatchSpec, Template},
     write::{plan_write, WriteOutcome},
 };
@@ -47,12 +49,12 @@ enum SkipIf {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Anchor {
-    /// No before/after/at_line: inject appends.
+    /// No `before/after/at_line`: inject appends.
     Append,
     Before,
     After,
     AtLine,
-    /// at_line far beyond EOF: must be FM-WRITE-004.
+    /// `at_line` far beyond EOF: must be FM-WRITE-004.
     AtLineOutOfRange,
 }
 
@@ -69,10 +71,23 @@ enum Expected {
 }
 
 /// Reference model of the documented decision table (first match wins):
-/// 1. path escape (not in matrix)  2. unless_exists && exists → Skip
-/// 3. skip_if substring in existing → Skip  4. inject (absent → 003,
-/// bad anchor/line → 004, else Injected)  5. force → Written
-/// 6. absent → Written; identical → Skip(unchanged); differs → 005.
+/// 1. path escape (not in matrix)
+/// 2. `unless_exists` && exists → Skip
+/// 3. `skip_if` substring in existing → Skip
+/// 4. inject (absent → 003, bad anchor/line → 004, else Injected)
+/// 5. absent → Written; identical → Skip(unchanged); differs && force →
+///    Written; differs && !force → 005.
+///
+/// Note (2026-08-03, TECH-DEBT-003 fix in `write.rs`): content-equality is
+/// now checked BEFORE the `force` arm, not after. The original ordering put
+/// `force` first, so match-arm shadowing meant ANY `force: true` template
+/// always reported `Written` — even when the rendered content was
+/// byte-identical to what was already on disk — defeating idempotent
+/// second-sync detection. `force` only changes the outcome when content
+/// actually differs (permitting the overwrite instead of refusing with
+/// FM-WRITE-005); it was never meant to disable the identical-content skip
+/// path. See `write.rs::plan_write`'s match arms for the authoritative
+/// order and `sync_is_idempotent` below for the decision-level consequence.
 fn reference_model(
     force: bool, unless_exists: bool, inject: bool, skip_if: SkipIf, state: TargetState,
     anchor: Anchor,
@@ -95,12 +110,10 @@ fn reference_model(
             _ => Expected::Injected,
         };
     }
-    if exists && force {
-        return Expected::Written;
-    }
     match state {
         TargetState::Absent => Expected::Written,
         TargetState::PresentIdentical => Expected::SkippedUnchanged,
+        _ if force => Expected::Written,
         _ => Expected::ErrWrite5,
     }
 }
@@ -262,6 +275,8 @@ fn exhaustive_write_decision_matrix() {
 // ─────────────────────────────────────────────────────────────────────────
 
 fn write_project(root: &Path, n_entities: usize, n_templates: usize, paths: &[String]) {
+    use std::fmt::Write as _;
+
     std::fs::write(
         root.join("ggen.toml"),
         "[project]\nname = \"prop\"\n\n[ontology]\nsource = \"onto.ttl\"\n\n[templates]\ndir = \"templates\"\n",
@@ -269,7 +284,7 @@ fn write_project(root: &Path, n_entities: usize, n_templates: usize, paths: &[St
     .expect("write ggen.toml");
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for i in 0..n_entities {
-        ttl.push_str(&format!("ex:e{i} ex:name \"entity_{i}\" .\n"));
+        let _ = writeln!(ttl, "ex:e{i} ex:name \"entity_{i}\" .");
     }
     std::fs::write(root.join("onto.ttl"), ttl).expect("write onto.ttl");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
@@ -282,23 +297,33 @@ fn write_project(root: &Path, n_entities: usize, n_templates: usize, paths: &[St
     }
 }
 
-fn read_receipt_payload_bytes(root: &Path) -> Vec<u8> {
+fn read_receipt_payload(root: &Path) -> ReceiptPayload {
     let raw = std::fs::read_to_string(root.join(RECEIPT_REL_PATH)).expect("read receipt");
     let receipt: SyncReceipt = serde_json::from_str(&raw).expect("parse receipt");
-    serde_json::to_vec(&receipt.payload).expect("serialize payload")
+    receipt.payload
 }
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(16))]
 
-    /// Sync idempotence at the byte level.
+    /// Sync idempotence: content-derived receipt fields and output bytes
+    /// are byte-identical across a no-op re-sync; the `decisions` field is
+    /// NOT, and that difference is itself asserted as the correct behavior.
     ///
-    /// FINDING (documented-table consistent, but worth knowing): with
-    /// `force: true` the write decision hits rule 5 (force → overwrite)
-    /// BEFORE the identical-content Skip of rule 6, so a re-sync of
-    /// force-templates reports "written" again rather than
-    /// "skipped: unchanged". Idempotence therefore holds at the byte /
-    /// receipt-payload level (asserted here), not at the decision level.
+    /// UPDATED (2026-08-03, TECH-DEBT-003 fix in `write.rs`): identical
+    /// content is now checked BEFORE the `force` arm, so a re-sync of
+    /// force-templates whose rendered content is unchanged correctly
+    /// reports "skipped: unchanged" rather than "written" again — see
+    /// `reference_model`'s doc comment above for the full rationale. The
+    /// prior version of this test asserted full receipt-payload byte
+    /// identity across re-syncs, including `decisions`; that no longer
+    /// holds (run 1's decision text is "written...", run 2's is
+    /// "skipped: unchanged...") and asserting it would re-encode the same
+    /// bug the fix corrects: the receipt's `decisions` field exists
+    /// precisely to record what actually happened each run, so a
+    /// legitimate written→skipped transition MUST show up there. Only the
+    /// content-derived fields (`graph_hash`, `outputs`, `packs`,
+    /// `closure`) are asserted invariant below.
     #[test]
     fn sync_is_idempotent(
         n_entities in 1usize..=4,
@@ -313,24 +338,47 @@ proptest! {
 
         let r1 = sync(dir.path(), SyncOptions::default()).expect("sync 1");
         prop_assert_eq!(r1.written.len(), n_templates);
-        let p1 = read_receipt_payload_bytes(dir.path());
+        let p1 = read_receipt_payload(dir.path());
         let bytes1: Vec<Vec<u8>> = paths
             .iter()
             .map(|p| std::fs::read(dir.path().join(p)).expect("read out 1"))
             .collect();
 
         let r2 = sync(dir.path(), SyncOptions::default()).expect("sync 2");
-        // force:true → decision is "written" again (see FINDING above), but
-        // every output byte and the receipt payload must be identical.
-        prop_assert_eq!(r2.written.len(), n_templates);
+        // force:true, content unchanged → identical-content Skip now wins
+        // over force (see TECH-DEBT-003 fix note above): nothing is
+        // (re-)written on the second sync.
+        prop_assert_eq!(r2.written.len(), 0);
         prop_assert_eq!(&r1.graph_hash_hex, &r2.graph_hash_hex);
         let bytes2: Vec<Vec<u8>> = paths
             .iter()
             .map(|p| std::fs::read(dir.path().join(p)).expect("read out 2"))
             .collect();
         prop_assert_eq!(bytes1, bytes2, "re-sync changed output bytes");
-        let p2 = read_receipt_payload_bytes(dir.path());
-        prop_assert_eq!(p1, p2, "receipt payload not byte-identical across re-sync");
+        let p2 = read_receipt_payload(dir.path());
+
+        // Content-derived fields are fully invariant across the re-sync.
+        prop_assert_eq!(&p1.graph_hash, &p2.graph_hash, "graph_hash drifted");
+        prop_assert_eq!(&p1.outputs, &p2.outputs, "output content hashes drifted");
+        prop_assert_eq!(&p1.packs, &p2.packs, "pack content hashes drifted");
+        prop_assert_eq!(&p1.closure, &p2.closure, "input closure drifted");
+
+        // `decisions` legitimately differs: run 1 creates the file
+        // (written), run 2 observes byte-identical content and skips.
+        // Asserting this transition is the point of the TECH-DEBT-003 fix,
+        // not an accident to paper over.
+        for path in &paths {
+            let d1 = p1.decisions.get(path.as_str()).expect("run1 decision present");
+            let d2 = p2.decisions.get(path.as_str()).expect("run2 decision present");
+            prop_assert!(
+                d1.starts_with("written"),
+                "run1 decision for {path}: expected `written*`, got {d1:?}"
+            );
+            prop_assert!(
+                d2.starts_with("skipped: unchanged"),
+                "run2 decision for {path}: expected `skipped: unchanged*`, got {d2:?}"
+            );
+        }
 
         // Sanity: without force, a re-sync IS decision-level unchanged.
         // (covered by the matrix: force=false + identical → Skip(unchanged))
@@ -358,7 +406,9 @@ proptest! {
         // Deterministic Fisher–Yates with a tiny LCG (no rand dep).
         let mut state = seed | 1;
         for i in (1..shuffled.len()).rev() {
-            state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            state = state
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1_442_695_040_888_963_407);
             #[allow(clippy::cast_possible_truncation)]
             let j = (state % (i as u64 + 1)) as usize;
             shuffled.swap(i, j);
@@ -387,11 +437,11 @@ proptest! {
         b_idx in prop::collection::vec((0usize..4, 0usize..2, 0usize..4), 0..8),
     ) {
         let ttl_of = |idx: &[(usize, usize, usize)]| -> String {
-            idx.iter()
-                .map(|(s, p, o)| {
-                    format!("<http://ex.org/s{s}> <http://ex.org/p{p}> \"o{o}\" .\n")
-                })
-                .collect()
+            use std::fmt::Write as _;
+            idx.iter().fold(String::new(), |mut ttl, (s, p, o)| {
+                let _ = writeln!(ttl, "<http://ex.org/s{s}> <http://ex.org/p{p}> \"o{o}\" .");
+                ttl
+            })
         };
         let ga = DeterministicGraph::new().expect("ga");
         ga.insert_turtle(&ttl_of(&a_idx)).expect("load a");
@@ -492,8 +542,8 @@ fn unknown_keys_fail_with_fm_tpl_002_naming_the_key() {
     }
 }
 
-/// Cross: when ASK {true,false} × SELECT {0,N} rows × skip_empty {false,true},
-/// asserted through real sync() runs.
+/// Cross: when ASK {true,false} × SELECT {0,N} rows × `skip_empty` {false,true},
+/// asserted through real `sync()` runs.
 #[test]
 fn when_sparql_skip_empty_cross() {
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]

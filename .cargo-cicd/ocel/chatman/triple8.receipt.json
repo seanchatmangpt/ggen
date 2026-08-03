@@ -1,0 +1,6 @@
+{
+  "suite": "triple8",
+  "digest_blake3": "8f5cc317bc5556ba299ddf6923f196a4f4e5a754c0ced9da09af5d188fae53df",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

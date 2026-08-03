@@ -8,7 +8,8 @@
 //!    regression here is a real regression.
 //! 2. **Whole-corpus sweep** — every pack in `packs/` that ships an
 //!    ontology is driven through the full lifecycle with a generic probe.
-//!    Before this existed, 5 of 78 packs had any lifecycle proof; this
+//!    Before this existed, only 11 of 78 packs had any lifecycle proof
+//!    (wired across the 6 guard-pack-proofs consumer projects); this
 //!    covers all of them.
 //!
 //! No LLM, no network, no GPU. Gemma's role is to *grow* `tests/corpus/`
@@ -17,6 +18,35 @@
 use std::path::{Path, PathBuf};
 
 use ggen_mcp::selfplay::{Board, Case};
+
+/// Formerly: packs whose FIRST triple (by the sweep's `ORDER BY ?s ?p ?o`)
+/// binds a blank node, which made the generic sweep probe non-deterministic
+/// -- blank-node labels were regenerated on every graph load, so a template
+/// projecting a blank-node-valued variable rendered different bytes each
+/// run (direct observation: two syncs of byte-identical input produced
+/// `_:b670add25399392892e43b8765c1c5d4` and then
+/// `_:c9068dcc917fae0051c001244ef0789c`, and the second sync refused with
+/// `[FM-WRITE-005] exists with differing content`).
+///
+/// Fixed: `ggen-engine`'s `DeterministicGraph` now canonicalizes every
+/// blank node to a stable `c14n{i}` label (bounded color refinement,
+/// `graph::blank_node_relabel_map`, already used for `canonical_quads`/
+/// `state_hash`) immediately after every store mutation (`insert_turtle`,
+/// `ontology_batch::insert_documents`, `Delta::apply`) -- not only at
+/// SPARQL projection time, which alone cannot fix a query whose
+/// `ORDER BY`/`GROUP BY`/`DISTINCT` compares a blank-node-valued variable
+/// (SPARQL evaluation runs before projection and would still sort on the
+/// store's raw ids). SELECT/CONSTRUCT projection is independently
+/// canonicalized too (`graph::term_to_engine_value`/`term_value`), as
+/// defense in depth. Re-verified directly: `ontostar-mustar-powlv2-agent-pack`,
+/// `wasm4pm-compat-pack`, and `wasm4pm-interview-assist-pack` each produced
+/// byte-identical `out/sweep.txt` across 5 independent full `ggen sync run`
+/// invocations of byte-identical input (this exact probe query). All three
+/// removed from the list below -- see this constant's own two-sided check:
+/// a listed pack that starts passing fails the test, a removed pack that
+/// still fails would fail the normal (non-`known`) path instead, so a
+/// wrong removal cannot go unnoticed.
+const KNOWN_NONDETERMINISTIC_PACKS: &[&str] = &[];
 
 fn repo_root() -> PathBuf {
     // CARGO_MANIFEST_DIR = <repo>/crates/ggen-mcp
@@ -172,6 +202,30 @@ fn every_pack_survives_the_full_lifecycle() {
         };
         played += 1;
         let (verdict, obs) = board.play(&case);
+        let known = KNOWN_NONDETERMINISTIC_PACKS.contains(&name.as_str());
+
+        if known {
+            // Two-sided: a listed pack MUST still exhibit exactly the
+            // known problem. If ggen's blank-node handling is fixed, this
+            // fires and forces the list to shrink -- the list can never
+            // silently outlive the bug it documents.
+            let only_idempotence = !verdict.clean()
+                && verdict
+                    .broken()
+                    .iter()
+                    .all(|i| *i == ggen_mcp::selfplay::Invariant::Idempotent);
+            if !only_idempotence {
+                failures.push(format!(
+                    "[{name}] is listed in KNOWN_NONDETERMINISTIC_PACKS but did not \
+                     fail exactly as documented (violations: {:?}). If the blank-node \
+                     non-determinism is fixed, remove it from the list; if it now fails \
+                     differently, investigate rather than re-listing it.",
+                    verdict.broken()
+                ));
+            }
+            continue;
+        }
+
         for v in &verdict.violations {
             failures.push(format!(
                 "[{name}] {:?}\n      invariant: {}\n      observed : {}",

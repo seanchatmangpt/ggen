@@ -8,12 +8,13 @@
 # Generated from combinatorial.ttl. Edit the ontology, not this file.
 
 
+PREFIX cmx: <http://ggen.org/combinatorial#>
+
+
 ASK {
   
-    NOT EXISTS {
-      ?b a cmx:TemplateBinding .
-      FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
-    }
+    ?b a cmx:TemplateBinding .
+    FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
     
 }
 

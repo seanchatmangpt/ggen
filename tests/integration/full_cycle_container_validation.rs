@@ -71,7 +71,7 @@ const GGEN_REPO: &str = "https://github.com/seanchatmangpt/ggen.git";
 /// **IMPORTANT**: This test requires Docker and takes ~5-10 minutes.
 /// Run with: `cargo test full_cycle_container_validation -- --ignored --nocapture`
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running container-orchestrated e2e test: builds and runs ggen inside Docker containers (see file header 'Architecture'); requires Docker"]
 fn full_cycle_container_validation() {
     println!("\n🚀 Starting Full-Cycle Container-Based Validation");
     println!("{}", "=".repeat(70));
@@ -217,7 +217,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
 /// **CRITICAL**: Tests complete marketplace package lifecycle in isolated container
 /// Run with: `cargo test marketplace_init_to_publish -- --ignored --nocapture`
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running container-orchestrated e2e test: builds and runs ggen inside Docker containers (see file header 'Architecture'); requires Docker"]
 fn marketplace_init_to_publish() {
     println!("\n🚀 Starting Marketplace Init → Publish Lifecycle Test");
     println!("{}", "=".repeat(70));
@@ -498,7 +498,7 @@ EOF
 /// **IMPORTANT**: This test demonstrates parallel container orchestration
 /// Run with: `cargo test concurrent_full_cycle_validation -- --ignored --nocapture`
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running container-orchestrated e2e test: builds and runs ggen inside Docker containers (see file header 'Architecture'); requires Docker"]
 fn concurrent_full_cycle_validation() {
     println!("\n🚀 Starting Concurrent Full-Cycle Container Validation");
     println!("{}", "=".repeat(70));

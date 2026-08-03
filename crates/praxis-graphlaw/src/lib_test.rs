@@ -277,6 +277,7 @@ fn test_store() {
         reasoner: Reasoner {},
         aggregates: HashMap::new(),
         strata: Vec::new(),
+        stratification_error: None,
         hooks: Vec::new(),
         receipts: Vec::new(),
         additions: Vec::new(),
@@ -1463,5 +1464,5 @@ ex:list1 rdf:value (1 2 3) .
     for triple in store.triple_index.triples.iter().take(5) {
         eprintln!("{:?}", triple);
     }
-    assert!(store.len() > 0, "Should load at least some triples");
+    assert!(!store.is_empty(), "Should load at least some triples");
 }

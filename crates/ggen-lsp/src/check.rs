@@ -331,11 +331,35 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     let mut warning_count = 0usize;
 
     for path in paths {
+        let path_str = path.to_string_lossy().to_string();
         let content = match std::fs::read_to_string(path) {
             Ok(c) => c,
-            Err(_) => continue,
+            Err(e) => {
+                // A law-surface file that can't be read must refuse the gate, not
+                // pass through silently -- an unreadable ggen.toml/.ttl/.rq/.tera
+                // is exactly the kind of file this gate exists to check, and a
+                // permissions hiccup or encoding problem is not evidence the
+                // content is lawful. Non-law-surface paths (e.g. a stray binary
+                // the caller passed in) still skip silently, same as before.
+                if crate::state::FileType::from_path(&path_str) != crate::state::FileType::Unknown {
+                    error_count += 1;
+                    files.push(FileReport {
+                        path: path_str,
+                        diagnostics: vec![crate::analyzers::diag::at(
+                            0,
+                            0,
+                            0,
+                            0,
+                            DiagnosticSeverity::ERROR,
+                            None,
+                            format!("law-surface file could not be read: {e}"),
+                        )],
+                        routes: Vec::new(),
+                    });
+                }
+                continue;
+            }
         };
-        let path_str = path.to_string_lossy().to_string();
         let Some(mut report) = check_content(&path_str, &content) else {
             continue;
         };
@@ -356,6 +380,19 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
         files.push(report);
     }
 
+    // Fail-open guard (red-team finding F6): every fold_* below discards
+    // ProjectIndex::from_root/HarnessIndex::from_root's Err via `let Ok(x) =
+    // .. else { return 0 }` -- correct for "no manifest at this root" (the
+    // ordinary case when checking a lone law-surface file outside a ggen
+    // project), but silently wrong when the manifest file EXISTS and fails to
+    // load (e.g. a `ggen.toml` with a `[[generation.rules]]` entry missing
+    // the required `output_file` field: syntactically valid TOML, so
+    // TomlAnalyzer's raw-syntax check reports nothing, yet ProjectIndex
+    // cannot build a rule index from it at all). Surface that failure as its
+    // own diagnostic BEFORE the folds run, so a manifest ggen sync itself
+    // could not load no longer passes this gate with a clean report.
+    error_count += fold_manifest_load_errors(root, &mut files);
+
     // Cross-surface law: GGEN-TPL-001 (unbound projection). The single-file
     // analyzers above run each law surface in isolation; the headless Tera
     // analyzer is built with empty bindings and therefore emits E0024 (syntax)
@@ -363,9 +400,11 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // does not have. We supply that cross-surface context here by building the
     // project index from `root` and running the same pure detector the
     // interactive server uses. Read-only: the index already did its I/O and we
-    // materialize nothing. Best-effort: a missing/unparseable `ggen.toml` (or a
-    // `root` with no manifest, e.g. the cwd default) simply yields no extra
-    // diagnostics and never disturbs the single-file reports above.
+    // materialize nothing. Best-effort: a `root` with no manifest at all (e.g.
+    // the cwd default) simply yields no extra diagnostics here and never
+    // disturbs the single-file reports above -- a manifest that EXISTS but
+    // fails to load is now caught by `fold_manifest_load_errors` above, not
+    // silently absorbed by this fold.
     error_count += fold_tpl_001(root, &mut files, registry.as_ref());
 
     // Cross-surface law: GGEN-HARNESS-001 (harness mismatch). The single-file
@@ -428,6 +467,77 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
         error_count,
         warning_count,
         route_summary,
+    }
+}
+
+/// Surface a `ggen.toml`/`Cargo.toml` that EXISTS but failed to load as its own
+/// ERROR diagnostic (red-team finding F6, fail-open).
+///
+/// Every `fold_*` cross-surface check below discards `ProjectIndex::from_root`
+/// / `HarnessIndex::from_root`'s `Err` via `let Ok(x) = .. else { return 0 }`.
+/// That is correct for the ordinary "no manifest at this root" case (checking
+/// a lone `.rq`/`.tera` file outside a ggen project) — both constructors
+/// report that as `Ok` with an empty index, never `Err`. But every OTHER
+/// error variant means the manifest file on disk EXISTS and could not be
+/// loaded: `IndexError::ManifestParse` (syntactically valid TOML, real
+/// `[[generation.rules]]` markers, but a rule fails `GgenManifest`
+/// deserialization — e.g. a missing required `output_file` field),
+/// `IndexError::AmbiguousSchema`/`UnsupportedSchema`, or
+/// `HarnessIndexError::ManifestRead`/`ManifestParse`. That is exactly the kind
+/// of law-surface failure this gate exists to catch, and before this function
+/// existed it was silently discarded at every one of the ~11 fold_* call
+/// sites at once (`TomlAnalyzer` only validates raw untyped TOML syntax, so it
+/// never catches a typed-schema deserialization failure either).
+///
+/// `IndexError::ManifestNotFound` is `ProjectIndex`'s sole "no ggen.toml here"
+/// variant and stays silent, unchanged. `HarnessIndex::from_root` has no
+/// analogous "not found" error (a missing `Cargo.toml` is already `Ok` with an
+/// empty index), so any `Err` from it is surfaced.
+fn fold_manifest_load_errors(root: &Path, files: &mut Vec<FileReport>) -> usize {
+    let mut added_errors = 0usize;
+
+    if let Err(err) = crate::project_index::ProjectIndex::from_root(root) {
+        if !matches!(
+            err,
+            crate::project_index::IndexError::ManifestNotFound { .. }
+        ) {
+            let manifest_path = root.join("ggen.toml").to_string_lossy().to_string();
+            push_manifest_load_error(
+                files,
+                &manifest_path,
+                format!("GGEN-MANIFEST-001 MANIFEST_LOAD_FAILURE: {err}"),
+            );
+            added_errors += 1;
+        }
+    }
+
+    if let Err(err) = crate::harness_index::HarnessIndex::from_root(root) {
+        let manifest_path = root.join("Cargo.toml").to_string_lossy().to_string();
+        push_manifest_load_error(
+            files,
+            &manifest_path,
+            format!("GGEN-HARNESS-001 MANIFEST_LOAD_FAILURE: {err}"),
+        );
+        added_errors += 1;
+    }
+
+    added_errors
+}
+
+/// Append a whole-file ERROR diagnostic to the [`FileReport`] matching `path`
+/// (matched the same way [`fold_species`] merges anchors), creating a new
+/// report if none matches yet. Mirrors the unreadable-law-surface-file path in
+/// [`check_files_in_root`] above.
+fn push_manifest_load_error(files: &mut Vec<FileReport>, path: &str, message: String) {
+    let diag = crate::analyzers::diag::whole_line(0, DiagnosticSeverity::ERROR, None, message);
+    if let Some(existing) = files.iter_mut().find(|f| paths_match(&f.path, path)) {
+        existing.diagnostics.push(diag);
+    } else {
+        files.push(FileReport {
+            path: path.to_string(),
+            diagnostics: vec![diag],
+            routes: Vec::new(),
+        });
     }
 }
 
@@ -520,9 +630,10 @@ fn fold_species(
 /// its `RoutePlan` resolved through the SAME route engine as every other channel,
 /// using the manifest's own content as the route's edit-site context.
 ///
-/// Mirrors [`fold_tpl_001`]. Best-effort: a missing/unparseable `Cargo.toml` (or a
-/// `root` with no manifest) yields no extra diagnostics and never disturbs the
-/// single-file reports.
+/// Mirrors [`fold_tpl_001`]. Best-effort: a `root` with no `Cargo.toml` at all
+/// yields no extra diagnostics and never disturbs the single-file reports -- a
+/// `Cargo.toml` that EXISTS but fails to read/parse is caught by
+/// `fold_manifest_load_errors`, not silently absorbed here.
 fn fold_harness_001(
     root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
 ) -> usize {
@@ -550,8 +661,9 @@ fn fold_harness_001(
 ///
 /// `detect_out_001` itself skips rules with empty `selected_vars` (`SELECT *` /
 /// missing query) and static `output_file` paths, so this function never
-/// synthesizes a false positive. Best-effort: a missing/unparseable `ggen.toml`
-/// (or a `root` with no manifest) yields no extra diagnostics.
+/// synthesizes a false positive. Best-effort: a `root` with no manifest at all
+/// yields no extra diagnostics here (an existing-but-unparseable `ggen.toml`
+/// is caught by `fold_manifest_load_errors`, not silently absorbed here).
 fn fold_out_001(
     root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
 ) -> usize {
@@ -574,7 +686,8 @@ fn fold_out_001(
 /// The FOUNDATIONAL binding-integrity check GGEN-TPL-001/GGEN-OUT-001 presuppose:
 /// it surfaces a rule's missing query/template file — the previously-silent
 /// [`crate::rule_index::RuleIndexEntry::issues`] — as a lawful diagnostic.
-/// Best-effort: a missing/unparseable `ggen.toml` yields no extra diagnostics.
+/// Best-effort: a `root` with no manifest at all yields no extra diagnostics
+/// here (see `fold_manifest_load_errors` for the existing-but-broken case).
 fn fold_rule_001(
     root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
 ) -> usize {
@@ -589,7 +702,8 @@ fn fold_rule_001(
 ///
 /// For each `(manifest_path, diags)` the detector returns, the diagnostics are
 /// appended to the matching [`FileReport`] (or a new one is created). Best-effort:
-/// a missing/unparseable `ggen.toml` yields no extra diagnostics.
+/// a `root` with no manifest at all yields no extra diagnostics here (see
+/// `fold_manifest_load_errors` for the existing-but-broken case).
 fn fold_yield_001(
     root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
 ) -> usize {
@@ -1066,5 +1180,125 @@ template = { file = "row.tera" }
             .routes
             .iter()
             .any(|r| !r.ordered_steps.is_empty()));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn unreadable_law_surface_file_refuses_instead_of_passing_silently() {
+        use std::fs;
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let ttl = dir.path().join("locked.ttl");
+        fs::write(&ttl, "@prefix ex: <http://example.org/> .").expect("write");
+        fs::set_permissions(&ttl, fs::Permissions::from_mode(0o000)).expect("chmod 000");
+
+        let report = check_files_in_root(dir.path(), std::slice::from_ref(&ttl), false);
+
+        // Restore permissions so the TempDir can clean itself up on drop.
+        fs::set_permissions(&ttl, fs::Permissions::from_mode(0o644)).expect("restore perms");
+
+        assert_eq!(
+            report.exit_code(),
+            1,
+            "an unreadable .ttl must refuse the gate, not silently pass"
+        );
+        assert!(report.has_errors());
+        assert_eq!(
+            report.files.len(),
+            1,
+            "the unreadable file is still reported"
+        );
+        assert!(report.files[0]
+            .diagnostics
+            .iter()
+            .any(|d| d.severity == Some(DiagnosticSeverity::ERROR)
+                && d.message.contains("could not be read")));
+    }
+
+    #[test]
+    fn unreadable_non_law_surface_path_still_skips_silently() {
+        // A missing/unreadable path with an extension that isn't a law surface
+        // (e.g. a stray .md the caller passed in) must not be treated as a gate
+        // failure -- this preserves the pre-existing "not a law surface" skip.
+        let report = check_files_in_root(
+            std::path::Path::new("."),
+            &[PathBuf::from("/nonexistent/path/notes.md")],
+            false,
+        );
+        assert_eq!(report.exit_code(), 0);
+        assert!(report.files.is_empty());
+    }
+
+    #[test]
+    fn manifest_that_fails_to_deserialize_refuses_the_gate() {
+        // Red-team finding F6 (fail-open): a `ggen.toml` that is syntactically
+        // valid TOML and classifies as the declarative-rules schema (it has a
+        // real `[[generation.rules]]` block) but fails `GgenManifest`
+        // deserialization -- here, a rule missing the required `output_file`
+        // field -- must refuse the headless gate, not pass through with a
+        // clean report. Before the fix, every fold_* cross-surface check
+        // discarded `ProjectIndex::from_root`'s `Err(ManifestParse{..})` via
+        // `let Ok(project) = .. else { return 0 }`, and nothing else in
+        // check.rs ever surfaced that error as a diagnostic.
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        let manifest = r#"
+[project]
+name = "demo"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "broken"
+query = { inline = "SELECT ?name WHERE { ?p :name ?name }" }
+template = { inline = "{{ name }}" }
+"#;
+        fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+
+        let report = check_files_in_root(root, &[root.join("ggen.toml")], false);
+
+        assert!(
+            report.has_errors(),
+            "a ggen.toml that fails to deserialize into GgenManifest must fail the gate, not pass silently (got exit_code={}, error_count={})",
+            report.exit_code(),
+            report.error_count
+        );
+        assert!(
+            report.files.iter().any(|f| f.path.ends_with("ggen.toml")
+                && f.diagnostics
+                    .iter()
+                    .any(|d| d.severity == Some(DiagnosticSeverity::ERROR)
+                        && d.message.contains("output_file"))),
+            "the ggen.toml report must carry an ERROR diagnostic naming the real parse failure"
+        );
+    }
+
+    #[test]
+    fn manifest_not_found_stays_silent() {
+        // The ordinary "no ggen.toml at this root" case (e.g. checking a lone
+        // law-surface file outside any ggen project) must remain a silent
+        // no-op, unchanged by the F6 fix -- only a manifest that EXISTS but
+        // fails to load should refuse the gate. No files are passed in, so
+        // this isolates fold_manifest_load_errors itself from any unrelated
+        // single-file analyzer diagnostic (e.g. E0013 missing-ORDER-BY).
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+
+        let report = check_files_in_root(root, &[], false);
+
+        assert!(
+            !report.has_errors(),
+            "a project root with no ggen.toml/Cargo.toml at all must not fail the gate \
+             (error_count={})",
+            report.error_count
+        );
+        assert!(
+            report.files.is_empty(),
+            "no diagnostics should be synthesized when there is no manifest to fail on"
+        );
     }
 }

@@ -163,6 +163,68 @@ fn traversal_to_is_refused_and_nothing_lands_outside() {
     );
 }
 
+/// A symlinked write TARGET must be REFUSED, not just a textual `..`
+/// traversal. `resolve_target` (`crates/ggen-engine/src/write.rs`, shared
+/// with `ggen-mcp`'s own `resolve_relative` — see `project_root.rs`) used to
+/// canonicalize only the nearest EXISTING ANCESTOR directory of the target,
+/// never the target leaf itself. Planting the symlink exactly at the leaf,
+/// dangling (its destination does not exist yet, only the destination's
+/// parent directory does), reaches the old bug's specific blind spot: with
+/// `target.exists()` false, `plan_write` took the bare `ensure_parent +
+/// fs::write` path with no "differs from existing content" guard at all,
+/// and `fs::write` follows symlinks — it would have silently created a file
+/// outside the consumer root, in the canary tree, reachable exactly the way
+/// `write_apply`'s real `to:` frontmatter is. This is the same escape class
+/// as `containment_detector_catches_an_injected_escape` /
+/// `traversal_to_is_refused_and_nothing_lands_outside` above, but via a
+/// symlinked leaf rather than `..` text — those two tests do not exercise
+/// this path at all.
+#[cfg(unix)]
+#[test]
+fn symlinked_target_is_refused_and_nothing_lands_outside() {
+    use std::os::unix::fs::symlink;
+
+    let board = Board::new(&a_real_pack()).expect("board");
+    let arena = board.consumer().parent().expect("arena").to_path_buf();
+    let canary_before =
+        std::fs::read(arena.join("canary/DO_NOT_TOUCH.txt")).expect("canary readable");
+
+    // The write TARGET itself -- not an ancestor directory -- is a symlink
+    // planted inside the consumer root, dangling at a path under the
+    // canary tree (whose parent directory exists, but the leaf does not).
+    let escape_dest = arena.join("canary/ESCAPED_VIA_SYMLINK.txt");
+    assert!(!escape_dest.exists(), "precondition: destination absent");
+    let link_path = board.consumer().join("escape_link.txt");
+    symlink(&escape_dest, &link_path).expect("create dangling symlink target");
+
+    let mut case = probe("symlinked-target", "mermaid-pack");
+    case.to = "escape_link.txt".to_string();
+    let (verdict, obs) = board.play(&case);
+
+    // Whatever the engine reported, the bytes outside must be untouched and
+    // nothing new must have appeared outside the consumer root.
+    let canary_after =
+        std::fs::read(arena.join("canary/DO_NOT_TOUCH.txt")).expect("canary readable");
+    assert_eq!(
+        canary_before, canary_after,
+        "write through the symlinked target modified an unrelated canary file"
+    );
+    assert!(
+        !escape_dest.exists(),
+        "write through the symlinked target created a file outside the consumer root"
+    );
+    assert!(
+        obs.changed_outside_root.is_empty(),
+        "containment observed changes outside root: {:?}",
+        obs.changed_outside_root
+    );
+    assert!(
+        verdict.clean(),
+        "expected a clean refusal, got {:?}",
+        verdict.violations
+    );
+}
+
 /// Malformed SPARQL must be refused, and the refusal must be visible in the
 /// observation — proving the fail-open check has real input to judge.
 #[test]

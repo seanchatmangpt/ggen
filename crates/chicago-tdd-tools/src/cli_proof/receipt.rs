@@ -124,10 +124,7 @@ impl ReceiptAssertions {
                     serde_json::to_string_pretty(receipt).unwrap_or_default()
                 )
             });
-        let found = hashes
-            .iter()
-            .filter_map(Value::as_str)
-            .any(|s| predicate(s));
+        let found = hashes.iter().filter_map(Value::as_str).any(predicate);
         if !found {
             panic!(
                 "no entry in latest receipt's 'input_hashes' matched the predicate\nhashes: {:?}",

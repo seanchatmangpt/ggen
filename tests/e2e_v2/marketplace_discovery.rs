@@ -51,7 +51,7 @@ fn test_marketplace_list_empty() {
 }
 
 #[test]
-#[ignore] // Requires network access
+#[ignore = "requires network access to the marketplace registry (see sibling test_marketplace_search_local's comment)"]
 fn test_marketplace_search_with_network() {
     if !is_network_available() {
         println!("⚠️  Skipping network test (no connection)");
@@ -75,7 +75,7 @@ fn test_marketplace_search_with_network() {
 }
 
 #[test]
-#[ignore] // Requires network access
+#[ignore = "requires network access to the marketplace registry (see sibling test_marketplace_search_local's comment)"]
 fn test_marketplace_install_flow() {
     if !is_network_available() {
         println!("⚠️  Skipping network test (no connection)");

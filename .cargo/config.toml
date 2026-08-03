@@ -27,4 +27,4 @@ color = "always"
 # absolute path with no shell-style variables, since Cargo passes env values
 # through literally.
 [env]
-SCCACHE_CACHE_SIZE = "10G"
+SCCACHE_CACHE_SIZE = "20G"

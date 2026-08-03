@@ -1,9 +1,27 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # 99_adjudicate_truthfulness.sh
-# Adjudicates agent truthfulness by validating OCEL logs and T0-T9 execution.
+# Adjudicates agent truthfulness by validating the T0-T8/T10-T13/T20 external
+# verifier ring.
 # Path: scripts/gall/external/99_adjudicate_truthfulness.sh
 # Exit code: 0 on Promoted, 1 on Refused/Failure
+#
+# NOTE (2026-08-03): this script used to also parse
+# crates/ggen-graph/audit/vision2030.self_audit.ocel.json (via
+# scripts/gall/external/09_verify_ocel_self_audit.sh and the Rust
+# emit_audit/verify_audit binaries) and run "cardinality"/"causality" checks
+# over it. That file's generator (ggen_graph::ocel::self_audit::
+# generate_self_audit_log) hardcoded literal fields presented as observations
+# -- a fake exit_code, a sha256 that is actually sha256("test"), fabricated
+# coverage percentages, and compile-time-fixed event timestamps -- so those
+# checks were only ever verifying that the same generator produced
+# self-consistent fake data, never that any command actually ran, any test
+# actually passed, or any coverage was actually measured. That whole path
+# (self_audit.rs's OCEL fixture, emit_audit.rs, verify_audit.rs,
+# 09_verify_ocel_self_audit.sh) has been removed from this adjudication ring;
+# self_audit.rs's log generator remains only as fixture input for the
+# ocel_self_audit.rs graph-projection round-trip test, and is documented as
+# such there. See crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 # ==============================================================================
 set -euo pipefail
 
@@ -16,7 +34,6 @@ fi
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$WORKSPACE_ROOT"
 
-OCEL_FILE="crates/ggen-graph/audit/vision2030.self_audit.ocel.json"
 INVENTORY_FILE="crates/ggen-graph/audit/worktree_inventory.json"
 MANIFEST_FILE="scripts/gall/external/manifest.sha256"
 TRUTHFULNESS_FILE="crates/ggen-graph/audit/agent_truthfulness.external_adjudication.json"
@@ -40,17 +57,10 @@ compute_blake3() {
 }
 
 VIOLATIONS=0
-CARDINALITY_STATUS="PASS"
-CAUSAL_STATUS="PASS"
 VERDICT="Promoted"
-REASON="Causal sufficiency and evidence cardinality requirements met. T0-T9 checks pass."
+REASON="T0-T8/T10-T13/T20 verifier ring checks pass."
 
 # 1. Pre-flight checks
-if [ ! -f "$OCEL_FILE" ]; then
-    echo "FAIL: OCEL self-audit log missing at $OCEL_FILE"
-    exit 1
-fi
-
 if [ ! -f "$INVENTORY_FILE" ]; then
     echo "FAIL: Worktree inventory missing at $INVENTORY_FILE"
     exit 1
@@ -93,8 +103,8 @@ while read -r expected_hash filepath || [ -n "$expected_hash" ]; do
     fi
 done < "$MANIFEST_FILE"
 
-# 3. Execute and verify the external script ring (T0-T9 equivalent)
-echo "Executing and verifying external script ring (T0-T9 equivalent)..."
+# 3. Execute and verify the external script ring (T0-T8, T10-T13, T20)
+echo "Executing and verifying external script ring (T0-T8, T10-T13, T20)..."
 SCRIPTS=(
     "scripts/gall/external/00_capture_baseline.sh"
     "scripts/gall/external/01_extract_requirements.sh"
@@ -105,7 +115,6 @@ SCRIPTS=(
     "scripts/gall/external/06_scan_forbidden_surfaces.sh"
     "scripts/gall/external/07_check_anti_fake.sh"
     "scripts/gall/external/08_verify_replay_receipts.sh"
-    "scripts/gall/external/09_verify_ocel_self_audit.sh"
     "scripts/gall/external/10_verify_coverage_matrix.sh"
     "scripts/gall/external/11_verify_proof_report.sh"
     "scripts/gall/external/12_detect_contradictions.sh"
@@ -130,215 +139,7 @@ for script in "${SCRIPTS[@]}"; do
     fi
 done
 
-# 4. OCEL validation checks using Python
-echo "Running OCEL cardinality and causality checks..."
-set +e
-python3 -c "
-import json
-import sys
-from datetime import datetime
-
-ocel_file = sys.argv[1]
-
-try:
-    with open(ocel_file, 'r') as f:
-        log = json.load(f)
-except Exception as e:
-    print(f'FAIL: Failed to parse OCEL: {e}')
-    sys.exit(1)
-
-objects = log.get('objects', [])
-events = log.get('events', [])
-objects_by_id = {obj['id']: obj for obj in objects}
-
-# 1. Cardinality Checks
-crates = [obj for obj in objects if obj.get('type') == 'RustCrate']
-if len(crates) < 1:
-    print('FAIL Cardinality: RustCrate object missing')
-    sys.exit(1)
-
-reqs = [obj for obj in objects if obj.get('type') in ('PRDRequirement', 'ARDRequirement')]
-if len(reqs) < 9:
-    print(f'FAIL Cardinality: Expected >= 9 requirements, got {len(reqs)}')
-    sys.exit(1)
-
-cps = [obj for obj in objects if obj.get('type') == 'GALLCheckpoint']
-if len(cps) < 1:
-    print('FAIL Cardinality: GALLCheckpoint object missing')
-    sys.exit(1)
-
-cmds = [obj for obj in objects if obj.get('type') == 'Command']
-if len(cmds) < 1:
-    print('FAIL Cardinality: Command object missing')
-    sys.exit(1)
-
-cmd_runs = [obj for obj in objects if obj.get('type') == 'CommandRun']
-if len(cmd_runs) < 1:
-    print('FAIL Cardinality: CommandRun object missing')
-    sys.exit(1)
-
-covs = [obj for obj in objects if obj.get('type') == 'CoverageMatrix']
-if len(covs) < 1:
-    print('FAIL Cardinality: CoverageMatrix object missing')
-    sys.exit(1)
-
-receipts = [obj for obj in objects if obj.get('type') == 'GraphReceipt']
-if len(receipts) < 1:
-    print('FAIL Cardinality: GraphReceipt object missing')
-    sys.exit(1)
-
-evs = [obj for obj in objects if obj.get('type') == 'EvidenceArtifact']
-if len(evs) < 1:
-    print('FAIL Cardinality: EvidenceArtifact object missing')
-    sys.exit(1)
-
-if len(events) < 15:
-    print(f'FAIL Cardinality: Expected >= 15 events, got {len(events)}')
-    sys.exit(1)
-
-print('PASS: Cardinality checks passed')
-
-# Helper to parse UTC ISO 8601 strings
-def parse_time(t_str):
-    t_str = t_str.replace('Z', '+00:00')
-    return datetime.fromisoformat(t_str)
-
-# 2. Causality Checks
-# - Decisions preceded by evaluations
-adjs = [ev for ev in events if ev.get('activity') in ('CheckpointPromoted', 'CheckpointRefused')]
-evals = [ev for ev in events if ev.get('activity') == 'CheckpointEvaluated']
-
-for adj in adjs:
-    cp_ids = [obj['id'] for obj in adj.get('objects', []) if obj.get('type') == 'GALLCheckpoint']
-    for cp_id in cp_ids:
-        cp_evals = [ev for ev in evals if any(o['id'] == cp_id and o.get('type') == 'GALLCheckpoint' for o in ev.get('objects', []))]
-        if not cp_evals:
-            print(f'FAIL Causality: Checkpoint {cp_id} has no evaluation')
-            sys.exit(1)
-        adj_time = parse_time(adj['timestamp'])
-        eval_before = [ev for ev in cp_evals if parse_time(ev['timestamp']) <= adj_time]
-        if not eval_before:
-            print(f'FAIL Causality: Checkpoint {cp_id} evaluated after adjudication')
-            sys.exit(1)
-
-# - Evaluations link to tool executions
-for ev in evals:
-    linked_objs = ev.get('objects', [])
-    has_cmd = any(o.get('type') in ('Command', 'CommandRun') for o in linked_objs)
-    if not has_cmd:
-        print(f'FAIL Causality: CheckpointEvaluated event {ev[\"id\"]} lacks Command or CommandRun links')
-        sys.exit(1)
-
-# - Chronological progression of requirement satisfaction
-activity_ranks = {
-    'RequirementDeclared': 0,
-    'ImplementationChanged': 1,
-    'CommandExecuted': 2,
-    'TestPassed': 3,
-    'CheckpointEvaluated': 4,
-    'CheckpointPromoted': 5
-}
-
-# Global earliest occurrence check
-earliest_times = {}
-for ev in events:
-    act = ev.get('activity')
-    if act in activity_ranks:
-        t = parse_time(ev['timestamp'])
-        if act not in earliest_times or t < earliest_times[act]:
-            earliest_times[act] = t
-
-seq_acts = ['RequirementDeclared', 'ImplementationChanged', 'CommandExecuted', 'TestPassed', 'CheckpointEvaluated', 'CheckpointPromoted']
-for idx in range(len(seq_acts) - 1):
-    act_a = seq_acts[idx]
-    act_b = seq_acts[idx+1]
-    if act_a in earliest_times and act_b in earliest_times:
-        if earliest_times[act_a] > earliest_times[act_b]:
-            print(f'FAIL Causality: Global chronological progression violation: {act_a} ({earliest_times[act_a]}) occurs after {act_b} ({earliest_times[act_b]})')
-            sys.exit(1)
-
-# Direct link progression checks
-for req in reqs:
-    req_id = req['id']
-    req_events = []
-    for ev in events:
-        activity = ev.get('activity')
-        if activity in activity_ranks:
-            if any(o['id'] == req_id for o in ev.get('objects', [])):
-                req_events.append(ev)
-                
-    req_events_sorted = sorted(req_events, key=lambda x: parse_time(x['timestamp']))
-    for i in range(len(req_events_sorted) - 1):
-        ev_a = req_events_sorted[i]
-        ev_b = req_events_sorted[i+1]
-        rank_a = activity_ranks[ev_a['activity']]
-        rank_b = activity_ranks[ev_b['activity']]
-        if rank_a > rank_b:
-            print(f'FAIL Causality: Chronological order violation for requirement {req_id}: {ev_a[\"activity\"]} preceded {ev_b[\"activity\"]}')
-            sys.exit(1)
-
-# - Unremediated Failures:
-failed_events = [ev for ev in events if ev.get('activity') == 'TestFailed']
-promoted_events = [ev for ev in events if ev.get('activity') == 'CheckpointPromoted']
-
-for fe in failed_events:
-    t_fail = parse_time(fe['timestamp'])
-    target_ids = {o['id'] for o in fe.get('objects', [])}
-    
-    passed_events = [ev for ev in events if ev.get('activity') == 'TestPassed' and parse_time(ev['timestamp']) > t_fail]
-    remediated = False
-    for pe in passed_events:
-        if target_ids.intersection({o['id'] for o in pe.get('objects', [])}):
-            remediated = True
-            break
-            
-    if not remediated:
-        for pe in promoted_events:
-            if parse_time(pe['timestamp']) > t_fail:
-                print(f'FAIL Causality: Unremediated failure at {t_fail} followed by CheckpointPromoted')
-                sys.exit(1)
-
-# - No checkpoint has both CheckpointPromoted and CheckpointRefused
-promoted_cps = set()
-refused_cps = set()
-for ev in events:
-    activity = ev.get('activity')
-    if activity == 'CheckpointPromoted':
-        for o in ev.get('objects', []):
-            if o.get('type') == 'GALLCheckpoint':
-                promoted_cps.add(o['id'])
-    elif activity == 'CheckpointRefused':
-        for o in ev.get('objects', []):
-            if o.get('type') == 'GALLCheckpoint':
-                refused_cps.add(o['id'])
-                
-conflict_cps = promoted_cps.intersection(refused_cps)
-if conflict_cps:
-    print(f'FAIL Causality: Checkpoints have both Promoted and Refused decisions: {conflict_cps}')
-    sys.exit(1)
-
-# - Every UnsupportedCapabilityDeclared event links UnsupportedCapability back to a requirement
-unsupported_events = [ev for ev in events if ev.get('activity') == 'UnsupportedCapabilityDeclared']
-for ev in unsupported_events:
-    linked_objs = ev.get('objects', [])
-    has_cap = any(o.get('type') == 'UnsupportedCapability' for o in linked_objs)
-    has_req = any(o.get('type') in ('PRDRequirement', 'ARDRequirement') for o in linked_objs)
-    if not (has_cap and has_req):
-        print(f'FAIL Causality: UnsupportedCapabilityDeclared event {ev[\"id\"]} lacks links to both UnsupportedCapability and requirement')
-        sys.exit(1)
-
-print('PASS: Causality checks passed')
-sys.exit(0)
-" "$OCEL_FILE"
-OCEL_CODE=$?
-set -e
-
-if [ $OCEL_CODE -ne 0 ]; then
-    echo "FAIL: OCEL checks failed with code $OCEL_CODE"
-    VIOLATIONS=$((VIOLATIONS + 1))
-fi
-
-# 5. Adjudication Summary & File Output
+# 4. Adjudication Summary & File Output
 if [ "$VIOLATIONS" -gt 0 ]; then
     VERDICT="Refused"
     REASON="Truthfulness adjudication refused. $VIOLATIONS violation(s) detected in execution and causal checks."
@@ -356,12 +157,7 @@ cat <<EOF > "$TEMP_JSON"
   "timestamp": "$TIMESTAMP",
   "verdict": "$VERDICT",
   "reason": "$REASON",
-  "cardinality_checks": {
-    "status": "$CARDINALITY_STATUS"
-  },
-  "causal_completion_checks": {
-    "status": "$CAUSAL_STATUS"
-  }
+  "verifier_ring_violations": $VIOLATIONS
 }
 EOF
 

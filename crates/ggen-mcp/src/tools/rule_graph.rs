@@ -83,6 +83,12 @@ pub fn rule_graph(params: &RuleGraphParams) -> Result<RuleGraphResult, McpError>
         .map_err(|e| McpError::new(ErrorCategory::ConfigError, e.to_string()))?;
 
     let mut entries: Vec<_> = index.rule_entries.iter().collect();
+    // Captured BEFORE `params.rule_name` filtering below, so `total_rules`
+    // always reports the project's real total rule count -- matching the
+    // field's own doc comment ("Total rules in the project, before
+    // paging/filtering.") -- rather than collapsing to `1` whenever a
+    // caller filters to a single rule name.
+    let total_rules = entries.len();
     if let Some(wanted) = params.rule_name.as_deref() {
         entries.retain(|e| e.rule_id == wanted);
         if entries.is_empty() {
@@ -107,8 +113,10 @@ pub fn rule_graph(params: &RuleGraphParams) -> Result<RuleGraphResult, McpError>
         }
     }
 
-    let total_rules = entries.len();
-    let offset = params.offset.unwrap_or(0).min(total_rules);
+    // Paging operates over the (possibly rule_name-filtered) working set,
+    // which is deliberately distinct from `total_rules` above.
+    let filtered_count = entries.len();
+    let offset = params.offset.unwrap_or(0).min(filtered_count);
     let limit = params.limit.unwrap_or(MAX_PAGE_SIZE).min(MAX_PAGE_SIZE);
     let page: Vec<RuleEdge> = entries
         .iter()
@@ -126,7 +134,7 @@ pub fn rule_graph(params: &RuleGraphParams) -> Result<RuleGraphResult, McpError>
         .collect();
 
     let returned = page.len();
-    let has_more = offset + returned < total_rules;
+    let has_more = offset + returned < filtered_count;
     Ok(RuleGraphResult {
         ok: true,
         total_rules,

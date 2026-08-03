@@ -22,7 +22,7 @@
 //! byte-identical outside `.ggen-v2/` receipts, ~3.5s wall clock — hence no
 //! `#[ignore]`.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -88,10 +88,12 @@ fn copy_tree(src: &Path, dst: &Path) {
 }
 
 /// Copy every composed pack plus a minimal consumer project into a fresh
-/// TempDir; the `[packs]` table is generated programmatically over
+/// `TempDir`; the `[packs]` table is generated programmatically over
 /// `COMPOSED_PACKS`. The consumer has an empty local ontology and an empty
 /// local templates dir, so only pack templates run over pack ontologies.
 fn scaffold_composed_project() -> (TempDir, PathBuf) {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     for pack in COMPOSED_PACKS {
         copy_tree(&packs_dir().join(pack), &dir.path().join(pack));
@@ -101,10 +103,10 @@ fn scaffold_composed_project() -> (TempDir, PathBuf) {
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
 
-    let packs_table: String = COMPOSED_PACKS
-        .iter()
-        .map(|p| format!("{p} = {{ path = \"../{p}\" }}\n"))
-        .collect();
+    let packs_table: String = COMPOSED_PACKS.iter().fold(String::new(), |mut table, p| {
+        let _ = writeln!(table, "{p} = {{ path = \"../{p}\" }}");
+        table
+    });
     std::fs::write(
         project.join("ggen.toml"),
         format!(
@@ -119,7 +121,7 @@ fn scaffold_composed_project() -> (TempDir, PathBuf) {
 }
 
 /// Recursively hash every file under `root`, excluding `.ggen-v2/` (receipts
-/// legitimately re-chain on every sync) — returns sorted (rel_path, blake3).
+/// legitimately re-chain on every sync) — returns sorted (`rel_path`, blake3).
 fn tree_digest(root: &Path) -> Vec<(String, String)> {
     fn walk(root: &Path, dir: &Path, out: &mut Vec<(String, String)>) {
         for entry in std::fs::read_dir(dir).expect("read_dir") {
@@ -265,7 +267,7 @@ fn make_executable(path: &Path) {
 
 /// Run a shell script from the consumer root with `stub_bin` prepended to
 /// PATH (real stub `cargo` — the house subprocess pattern); returns
-/// (exit_code, combined output).
+/// (`exit_code`, combined output).
 fn run_script(project: &Path, stub_bin: &Path, script: &Path) -> (i32, String) {
     let path = format!(
         "{}:{}",
@@ -290,6 +292,8 @@ fn run_script(project: &Path, stub_bin: &Path, script: &Path) -> (i32, String) {
 
 #[test]
 fn thirty_one_packs_compose_with_verify_gates_active() {
+    use std::fmt::Write as _;
+
     // ── Scaffold: the 30 proven packs + ggen-verify-pack ─────────────────
     let dir = TempDir::new().expect("tempdir");
     for pack in COMPOSED_PACKS.iter().chain(["ggen-verify-pack"].iter()) {
@@ -301,10 +305,10 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     std::fs::create_dir_all(project.join("scripts/checks")).expect("mkdir checks");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
 
-    let packs_table: String = COMPOSED_PACKS
-        .iter()
-        .map(|p| format!("{p} = {{ path = \"../{p}\" }}\n"))
-        .collect();
+    let packs_table: String = COMPOSED_PACKS.iter().fold(String::new(), |mut table, p| {
+        let _ = writeln!(table, "{p} = {{ path = \"../{p}\" }}");
+        table
+    });
     std::fs::write(
         project.join("ggen.toml"),
         format!(

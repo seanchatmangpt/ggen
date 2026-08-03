@@ -8,23 +8,28 @@
 //! Default values are used if config file is missing or values are invalid.
 
 // Submodules for test utilities
-// ARCHIVED (ggen-core disconnect, 2026-07-16): `fixtures` drives
-// `ggen_core::lifecycle::{Context, Make, Phase, PhaseBuilder, Project}`
-// directly. No ggen-engine/ggen-graph equivalent exists (verified via
-// workspace-wide search, 2026-07-16 investigation). This module is pulled in
-// unconditionally by tests/e2e_production_marketplace.rs's
-// `#[path = "common/mod.rs"] mod test_config;` -- that file only consumes
-// `test_config::integration_timeout` (defined directly in this file, not in
-// `fixtures`), so gating `fixtures` out does not affect it. File retained on
-// disk at tests/common/fixtures.rs, not deleted, per this project's
-// fix-forward doctrine.
-#[cfg(feature = "ggen-core-retired")]
+// PARTIALLY ARCHIVED (ggen-core disconnect, 2026-07-16; un-gated 2026-08-03,
+// TECH-DEBT-003 fix): `fixtures` used to be gated as a whole file because its
+// top-level `use ggen_core::lifecycle::{...}` import failed to resolve once
+// ggen-core was deleted. That was collateral damage: only 5 of its 13 public
+// functions (`sample_phase_init/build/test`, `sample_make`, `sample_context`)
+// actually touch `ggen_core::lifecycle` types; the rest (`create_temp_dir`,
+// `sample_template_vars`, `sample_template_content`, `sample_make_toml`,
+// `sample_gpack_manifest`, `test_cache_path`, `sample_package`) are plain
+// tempdir/string helpers with zero ggen_core coupling. Real consumers of the
+// independent helpers (tests/integration/lifecycle_simple_tests.rs) silently
+// failed to compile under `--features integration` as a result (discovered
+// 2026-08-03 running the real test-integration target list end to end). Fix:
+// the module itself is now unconditional; only the 5 ggen_core-touching
+// functions inside tests/common/fixtures.rs keep their own
+// `#[cfg(feature = "ggen-core-retired")]` (see that file), matching the
+// existing fix-forward doctrine at finer grain instead of at the whole-file
+// grain.
 pub mod fixtures;
 pub mod helpers;
 
 // Re-export commonly used items
 // These re-exports enable the `use common::{...}` pattern in tests
-#[cfg(feature = "ggen-core-retired")]
 #[allow(unused_imports)]
 pub use fixtures::*;
 #[allow(unused_imports)]

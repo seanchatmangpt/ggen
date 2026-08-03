@@ -1,3 +1,18 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16 pass; gap closed 2026-08-03): drives
+// `ggen_core::lifecycle::{load_make, load_state, run_phase, run_pipeline, save_state,
+// Context, LifecycleState, Make, PhaseBuilder, Project}` directly. No ggen-engine/
+// ggen-graph equivalent exists for this exact API (verified via workspace-wide search).
+// This file was missed by the original 2026-07-16 `ggen-core-retired` gating pass, so it
+// silently broke compilation the first time `--features integration` was actually
+// exercised end-to-end (2026-08-03, TECH-DEBT-003 full test-integration run) --
+// `ggen_core` does not exist on disk at all. Gated as a whole file rather than deleted,
+// per this project's fix-forward doctrine, matching the precedent already established for
+// tests/fixture_validation_proof.rs, tests/generator_core_tests.rs,
+// tests/template_systems_tests.rs, and tests/validate_marketplace_rdf.rs. Distinct from
+// tests/integration/lifecycle_simple_tests.rs, which was fixed by un-gating the
+// ggen_core-independent half of tests/common/fixtures.rs instead -- this file's own use of
+// `run_phase`/`run_pipeline`/`LifecycleState` has no such independent subset.
+#![cfg(feature = "ggen-core-retired")]
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 //! Integration Tests for Lifecycle Phase Execution

@@ -1,8 +1,0 @@
-{
-  "id": "type-first",
-  "name": "Type-First Design",
-  "tags": ["rust", "design", "types"],
-  "size": 2048,
-  "requires": [],
-  "autoload": false
-}

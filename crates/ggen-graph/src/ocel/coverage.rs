@@ -139,7 +139,17 @@ pub fn generate_coverage_matrix() -> CoverageMatrix {
                     "crates/ggen-graph/tests/ocel_self_audit.rs".to_string(),
                 ],
                 commands: vec![
-                    "cargo run -p ggen-graph --bin emit_audit".to_string(),
+                    // NOTE (2026-08-03): this used to be
+                    // "cargo run -p ggen-graph --bin emit_audit", which wrote
+                    // generate_self_audit_log()'s fixture data to
+                    // crates/ggen-graph/audit/vision2030.self_audit.ocel.json
+                    // as if it were real evidence (fake exit_code,
+                    // sha256("test"), fabricated coverage percentages,
+                    // compile-time-fixed timestamps). That binary was deleted;
+                    // this requirement's real verification is the graph
+                    // round-trip-projection test below. See
+                    // crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
+                    "cargo test -p ggen-graph --test ocel_self_audit".to_string(),
                 ],
             },
             RequirementEvidence {
@@ -148,13 +158,19 @@ pub fn generate_coverage_matrix() -> CoverageMatrix {
                 description: "Implement coverage mapping in coverage.rs and verify via scripts.".to_string(),
                 source_files: vec![
                     "crates/ggen-graph/src/ocel/coverage.rs".to_string(),
-                    "crates/ggen-graph/src/bin/verify_audit.rs".to_string(),
                 ],
                 test_files: vec![
                     "crates/ggen-graph/tests/vision2030_coverage.rs".to_string(),
                 ],
                 commands: vec![
-                    "cargo run -p ggen-graph --bin verify_audit".to_string(),
+                    // NOTE (2026-08-03): this used to be
+                    // "cargo run -p ggen-graph --bin verify_audit", which only
+                    // checked generate_self_audit_log()'s fabricated OCEL log
+                    // for internal self-consistency, never against any real
+                    // command run, test result, or coverage measurement. That
+                    // binary was deleted. See
+                    // crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
+                    "cargo test -p ggen-graph --test vision2030_coverage".to_string(),
                 ],
             },
             RequirementEvidence {

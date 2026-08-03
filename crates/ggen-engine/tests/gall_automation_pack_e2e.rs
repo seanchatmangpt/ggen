@@ -3,6 +3,8 @@
 //! Every test mutates one admitted automation law and requires the exact named
 //! SPARQL gate to refuse the graph before generation or actuation.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -131,8 +133,8 @@ fn scaffold(ontology: &str) -> (TempDir, PathBuf) {
     (dir, project)
 }
 
-fn assert_refused(ontology: String, gate: &str) {
-    let (_dir, project) = scaffold(&ontology);
+fn assert_refused(ontology: &str, gate: &str) {
+    let (_dir, project) = scaffold(ontology);
     let error = sync_project(&project).expect_err("mutated automation law must refuse");
     assert!(error.contains(gate), "expected gate {gate}, got: {error}");
 }
@@ -161,7 +163,7 @@ fn exact_automation_profile_type_is_required() {
         "ex:automation-profile a gall:AutomationProfile ;",
         "ex:automation-profile a gall:TrackerProvider ;",
     );
-    assert_refused(malformed, "190_automation_profile_complete");
+    assert_refused(&malformed, "190_automation_profile_complete");
 }
 
 #[test]
@@ -181,7 +183,7 @@ ex:automation-profile-two a gall:AutomationProfile ;
         "    gall:hasAutomationProfile ex:automation-profile .",
         "    gall:hasAutomationProfile ex:automation-profile, ex:automation-profile-two .",
     ) + addition;
-    assert_refused(malformed, "192_automation_scalar_cardinality_one");
+    assert_refused(&malformed, "192_automation_scalar_cardinality_one");
 }
 
 #[test]
@@ -190,7 +192,7 @@ fn malformed_parallelism_is_refused() {
         "    gall:maxParallelism 4 ;",
         "    gall:maxParallelism \"many\" ;",
     );
-    assert_refused(malformed, "194_automation_controlled_values");
+    assert_refused(&malformed, "194_automation_controlled_values");
 }
 
 #[test]
@@ -199,7 +201,7 @@ fn unsafe_branch_pattern_is_refused() {
         "    gall:branchPattern \"agent/{workItemId}\" ;",
         "    gall:branchPattern \"../{workItemId}\" ;",
     );
-    assert_refused(malformed, "194_automation_controlled_values");
+    assert_refused(&malformed, "194_automation_controlled_values");
 }
 
 #[test]
@@ -208,7 +210,7 @@ fn escaping_runtime_path_is_refused() {
         "    gall:runtimeDirectory \".gall\" ;",
         "    gall:runtimeDirectory \"../escape\" ;",
     );
-    assert_refused(malformed, "196_automation_paths_safe");
+    assert_refused(&malformed, "196_automation_paths_safe");
 }
 
 #[test]
@@ -225,7 +227,7 @@ ex:duplicate-profile a gall:AutomationProfile ;
     gall:runtimeDirectory ".gall-duplicate" ;
     gall:receiptDirectory "receipts/gall-duplicate" .
 "#;
-    assert_refused(malformed, "198_automation_identity_unique");
+    assert_refused(&malformed, "198_automation_identity_unique");
 }
 
 #[test]
@@ -288,5 +290,5 @@ ex:work-item-two a gall:WorkItem ;
     gall:evidenceArtifact "ontology.ttl" ;
     gall:adversarialQuestion "Can a profile govern two programs" .
 "#;
-    assert_refused(malformed, "199_automation_owner_unique");
+    assert_refused(&malformed, "199_automation_owner_unique");
 }

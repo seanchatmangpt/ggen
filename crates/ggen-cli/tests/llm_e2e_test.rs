@@ -159,7 +159,7 @@ max_tokens = 4096
 }
 
 #[test]
-#[ignore] // Only run with explicit permission (requires API key)
+#[ignore = "only run with explicit permission (requires a real LLM API key, e.g. GROQ_API_KEY) — see this file's opt-in convention"]
 fn test_llm_integration_e2e_with_real_api() {
     // Verify GROQ_API_KEY is set
     let api_key = std::env::var("GROQ_API_KEY");
@@ -261,7 +261,7 @@ fn test_llm_integration_e2e_with_real_api() {
 }
 
 #[test]
-#[ignore] // Only run with explicit permission
+#[ignore = "only run with explicit permission — see this file's opt-in convention"]
 fn test_llm_integration_without_api_key_fails_gracefully() {
     // Create test project
     let project = TestProject::new_with_llm();

@@ -19,6 +19,8 @@
 //! actual git worktree and parses them with the real `syn` parser (same crate/version already
 //! vendored by `ggen-cheat-scanner`, see this crate's `Cargo.toml` dev-dependency comment).
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

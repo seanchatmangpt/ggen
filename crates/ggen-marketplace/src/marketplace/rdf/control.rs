@@ -606,6 +606,38 @@ impl RdfControlPlane {
 
     // ========== Package Operations (All via SPARQL) ==========
 
+    /// Check whether a package with the given ID already exists in the store.
+    ///
+    /// This mirrors the guard used by the production registry
+    /// (`RdfRegistry::package_exists` in `registry_rdf.rs`) so that
+    /// `create_package` cannot silently overwrite/corrupt an existing
+    /// package's triples via a blind `INSERT DATA`.
+    ///
+    /// # Errors
+    ///
+    /// * `Error::SparqlError` - When the ASK query fails
+    /// * `Error::RdfStoreError` - When the query does not return a boolean result
+    fn package_exists(&self, id: &PackageId) -> Result<bool> {
+        #[allow(clippy::uninlined_format_args)]
+        let ask_query = format!(
+            r"
+            PREFIX mp: <{0}>
+            ASK {{
+                <{0}{1}> a mp:Package .
+            }}
+            ",
+            MARKETPLACE_NS, id
+        );
+
+        match self.executor.query(&ask_query)? {
+            oxigraph::sparql::QueryResults::Boolean(exists) => Ok(exists),
+            _ => Err(Error::RdfStoreError {
+                operation: "package_exists".to_string(),
+                reason: "Expected boolean SPARQL ASK result".to_string(),
+            }),
+        }
+    }
+
     /// Create a new draft package with performance optimizations
     ///
     /// This method uses several performance optimizations:
@@ -616,6 +648,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
+    /// * `Error::PackageAlreadyExists` - When a package with the same ID already exists
     /// * `Error::InvalidStateTransition` - When state transition is invalid
     /// * `Error::RdfStoreError` - When SPARQL UPDATE operation fails
     /// * `Error::ValidationError` - When package metadata validation fails
@@ -627,6 +660,19 @@ impl RdfControlPlane {
 
         let name = name.into();
         let description = description.into();
+
+        // Guard against overwriting/corrupting an existing package's triples.
+        // Without this check, a second call with the same PackageId falls
+        // straight through to the unconditional INSERT DATA below and the
+        // store ends up with two `mp:name` (etc.) values on the same
+        // subject -- silent RDF multi-value corruption, not a clean
+        // overwrite. See the analogous guard in
+        // `RdfRegistry::create_package` (registry_rdf.rs).
+        if self.package_exists(id)? {
+            return Err(Error::PackageAlreadyExists {
+                package_id: id.to_string(),
+            });
+        }
 
         // Validate state transition using optimized path
         self.state_machine.validate_transition(
@@ -1250,6 +1296,84 @@ mod tests {
             control.create_package(&id, "Test Package", "A test package", version, license)?;
 
         assert_eq!(package.metadata.name, "Test Package");
+        Ok(())
+    }
+
+    /// Regression test for F1 (red-team finding, control.rs create_package fail-open):
+    /// a second `create_package` call reusing an already-taken `PackageId` must be
+    /// rejected with `Error::PackageAlreadyExists`, and the store must retain exactly
+    /// one `mp:name` value for that subject (no silent multi-value corruption from an
+    /// unconditional `INSERT DATA`).
+    #[test]
+    fn test_create_package_rejects_duplicate_id() -> Result<()> {
+        let control = RdfControlPlane::in_memory()?;
+
+        let id = PackageId::new("victim-package")?;
+        let legit_version = PackageVersion::new("1.0.0")?;
+
+        // Legit owner creates the package first.
+        control.create_package(
+            &id,
+            "Legit Owner Package",
+            "The real package",
+            legit_version,
+            "MIT".to_string(),
+        )?;
+
+        // Attacker attempts to recreate the same PackageId with different metadata.
+        let attacker_version = PackageVersion::new("9.9.9")?;
+        let result = control.create_package(
+            &id,
+            "ATTACKER OWNED NAME",
+            "hostile takeover",
+            attacker_version,
+            "GPL-3.0".to_string(),
+        );
+
+        match result {
+            Err(Error::PackageAlreadyExists { package_id }) => {
+                assert_eq!(package_id, id.to_string());
+            }
+            Err(other) => panic!("expected Error::PackageAlreadyExists, got {other:?}"),
+            Ok(_) => panic!(
+                "create_package silently overwrote an existing package -- fail-open regression"
+            ),
+        }
+
+        // Confirm the store itself was not corrupted: exactly one mp:name value
+        // for this subject, and it must still be the legit owner's name.
+        let select_query = format!(
+            r#"
+            PREFIX mp: <{}>
+            SELECT ?name WHERE {{
+                <{}{}> mp:name ?name .
+            }}
+            "#,
+            MARKETPLACE_NS, MARKETPLACE_NS, id
+        );
+
+        let names: Vec<String> = match control.executor().query(&select_query)? {
+            oxigraph::sparql::QueryResults::Solutions(solutions) => solutions
+                .filter_map(std::result::Result::ok)
+                .filter_map(|solution| {
+                    solution.get("name").and_then(|term| {
+                        if let Term::Literal(lit) = term {
+                            Some(lit.value().to_string())
+                        } else {
+                            None
+                        }
+                    })
+                })
+                .collect(),
+            _ => panic!("expected SELECT solutions"),
+        };
+
+        assert_eq!(
+            names,
+            vec!["Legit Owner Package".to_string()],
+            "store must contain exactly one, unmodified mp:name value for the subject"
+        );
+
         Ok(())
     }
 }

@@ -4,6 +4,8 @@
 //! that Tera specialization applies to structural slots, idempotence,
 //! lifecycle hooks, and shape paths—not only to the output path and body.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};

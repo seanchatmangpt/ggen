@@ -233,8 +233,8 @@ crates/ggen-cli/src/commands/
 ## Metrics & Monitoring
 
 ### Code Quality
-- Mutation score: ≥60% (CLAUDE.md requirement)
-- Coverage: ≥80% (CLAUDE.md requirement)
+- Mutation score: ≥60% (CLAUDE.md aspirational target -- not currently measured by any CI/justfile gate)
+- Coverage: ≥80% (CLAUDE.md aspirational target -- not currently measured by any CI/justfile gate)
 - Clippy: 0 warnings
 - Rustfmt: Clean
 

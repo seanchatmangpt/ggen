@@ -97,7 +97,14 @@ pub fn frontmatter_schema(
     params: &FrontmatterSchemaParams,
 ) -> Result<FrontmatterSchemaResult, McpError> {
     let schema = schemars::schema_for!(ggen_engine::template::Frontmatter);
-    let value = serde_json::to_value(&schema).unwrap_or_default();
+    // A concrete, unchanging Rust type's schemars-derived schema failing to
+    // serialize to JSON is a real regression in the type itself, not an
+    // input-dependent runtime condition -- fail loudly at call time rather
+    // than silently degrading to an empty key list (which `unwrap_or_default`
+    // would do, laundering the failure into a false "zero legal keys"
+    // result for the tool whose entire job is enumerating that key set).
+    let value = serde_json::to_value(&schema)
+        .expect("schemars-derived Frontmatter schema must serialize to JSON");
 
     let required: std::collections::BTreeSet<String> = value
         .get("required")
@@ -128,6 +135,10 @@ pub fn frontmatter_schema(
         })
         .unwrap_or_default();
     keys.sort_by(|a, b| a.name.cmp(&b.name));
+    // Captured BEFORE `params.key` filtering below, so `key_count` always
+    // reports the total legal-key count the doc comment above promises --
+    // not `1` (or `0`) whenever a caller asks for a specific key.
+    let total_key_count = keys.len();
 
     if let Some(wanted) = params.key.as_deref() {
         let available: Vec<String> = keys.iter().map(|k| k.name.clone()).collect();
@@ -145,7 +156,7 @@ pub fn frontmatter_schema(
 
     Ok(FrontmatterSchemaResult {
         ok: true,
-        key_count: keys.len(),
+        key_count: total_key_count,
         keys,
         projection_modes: projection_modes(),
     })

@@ -2,8 +2,10 @@
 //! real Tera, real subprocess (`assert_cmd` spawns the NEW ggen binary).
 //!
 //! Layout: both `examples/demo-pack` and `examples/demo-project` are copied
-//! into one TempDir preserving relative layout, so the project's
+//! into one `TempDir` preserving relative layout, so the project's
 //! `{ path = "../demo-pack" }` reference resolves exactly as shipped.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -29,7 +31,7 @@ fn copy_tree(src: &Path, dst: &Path) {
     }
 }
 
-/// Copy demo-pack and demo-project into a fresh TempDir; return (dir, project_root).
+/// Copy demo-pack and demo-project into a fresh `TempDir`; return (dir, `project_root`).
 fn scaffold() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
     copy_tree(
@@ -44,6 +46,11 @@ fn scaffold() -> (TempDir, PathBuf) {
     (dir, project)
 }
 
+// One Chicago-TDD end-to-end scenario (single scaffold + sync, many real
+// on-disk assertions against the full generated surface); splitting it
+// would either re-run the expensive scaffold+sync setup per assertion
+// group or share state between tests, not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn pack_sync_end_to_end() {
     let (_dir, project) = scaffold();
@@ -651,7 +658,7 @@ fn contamination_gate_source() -> PathBuf {
 /// Write `root/<project_name>/` referencing `pack_a` and `pack_b`, wired
 /// with `[law].gates` pointing at a copy of the real repo-root contamination
 /// gate (copied into the project so the gate's own path resolves relative
-/// to this TempDir project root, exactly as `[law].gates` paths always do).
+/// to this `TempDir` project root, exactly as `[law].gates` paths always do).
 fn write_two_pack_project_with_contamination_gate(
     root: &Path, pack_a: &str, pack_b: &str,
 ) -> PathBuf {
@@ -680,7 +687,7 @@ fn write_two_pack_project_with_contamination_gate(
 /// Real, Chicago-TDD proof of condition 8's new closure (see
 /// `packs/ggen-release-pack/ontology.ttl`'s condition-8 row): two packs
 /// whose `ontology.ttl` files assert CONFLICTING `rdf:type` facts about the
-/// exact same subject IRI (`dom:Widget`, TypeA vs TypeB) — disjoint output
+/// exact same subject IRI (`dom:Widget`, `TypeA` vs `TypeB`) — disjoint output
 /// paths, so the pre-existing output-path-collision gate
 /// (`two_packs_colliding_output_aborts_sync_without_rollback_or_lock` above)
 /// does not fire; only the new cross-pack contamination gate can refuse
@@ -840,8 +847,22 @@ fn git_resolved_pack_syncs_end_to_end_and_caches_across_runs() {
     // (3) Second sync reuses the pinned clone cache — no re-clone, since
     // `version` hasn't changed. Prove it via a sentinel file that a
     // wipe-and-re-clone would remove.
+    //
+    // Written under `.git/` (not the cache dir root) deliberately: LEAD 2 of
+    // the 2026-08-03 unverified-leads audit ("ggen.lock's content_hash
+    // excludes gates/ and hooks") was fixed by making `content_hash` walk
+    // every file under the pack root -- so a sentinel written directly into
+    // the cache dir root would now (correctly) be treated as pack content
+    // and invalidate the very lock this test just wrote, failing the second
+    // `sync()` with a content-hash-mismatch it did not intend to test.
+    // `.git/` is the one path `content_hash` deliberately excludes (see
+    // `collect_pack_files_sorted`'s doc comment: hashing a git clone's own
+    // reflogs would make the hash depend on wall-clock clone time), so it is
+    // simultaneously invisible to the hash and destroyed by any real
+    // wipe-and-reclone -- exactly the two properties this sentinel needs.
     let cache_dir = project.join(".ggen-v2/git-packs/widget");
-    std::fs::write(cache_dir.join("sentinel.txt"), "still here").expect("write sentinel");
+    let sentinel = cache_dir.join(".git/sentinel.txt");
+    std::fs::write(&sentinel, "still here").expect("write sentinel");
     sync(
         &project,
         SyncOptions {
@@ -851,7 +872,7 @@ fn git_resolved_pack_syncs_end_to_end_and_caches_across_runs() {
     )
     .expect("second sync");
     assert!(
-        cache_dir.join("sentinel.txt").is_file(),
+        sentinel.is_file(),
         "unchanged version must reuse the cached clone, not re-clone"
     );
     let widget_after = std::fs::read_to_string(&widget).expect("widget after second sync");
@@ -1155,4 +1176,72 @@ fn default_locked_pack_still_refuses_on_tampering_regression_guard() {
         "typed FM-PACK-008 lock mismatch expected, got: {msg}"
     );
     assert!(msg.contains("FM-PACK-008"), "refusal code: {msg}");
+}
+
+/// LEAD 2 (2026-08-03 unverified-leads audit): "ggen.lock's `content_hash`
+/// excludes gates/ and hooks." Confirmed real: `content_hash` used to hash
+/// only `ontology.ttl`, declared extra ontologies, and `templates/*.tmpl` --
+/// a pack's `gates/*.rq` SPARQL gate files (real, sync-time-enforced
+/// governing inputs, see the pack-gate loop in `crate::sync::sync`) were
+/// silently excluded from the hash `check_lock` verifies. Tampering with a
+/// LOCKED pack's gate file after `ggen.lock` was written went completely
+/// undetected -- the exact tampering-detection gap this session already
+/// closed once for `ggen-marketplace`'s `compute_pack_digest`.
+#[test]
+fn tampering_with_a_locked_packs_gate_file_is_caught() {
+    let dir = TempDir::new().expect("tempdir");
+    write_pack(
+        dir.path(),
+        "gate-pack",
+        "Delta",
+        "src/delta.rs",
+        "pub struct Delta;",
+    );
+    // A pack-shipped SPARQL gate: harmless (ASK false = Pass) so the first
+    // sync succeeds and locks it in.
+    std::fs::create_dir_all(dir.path().join("gate-pack/gates")).expect("mkdir gates");
+    std::fs::write(
+        dir.path().join("gate-pack/gates/no_op.rq"),
+        "ASK { FILTER(false) }\n",
+    )
+    .expect("write gate");
+    let project = write_single_pack_project(dir.path(), "gate-project", "gate-pack");
+
+    sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("first sync locks the pack, gate included");
+    let lock_1 = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
+    assert!(lock_1.contains("[packs.pack-a]"), "lock: {lock_1}");
+
+    // Tamper with ONLY the gate file -- ontology.ttl, pack.toml, and every
+    // template are untouched.
+    std::fs::write(
+        dir.path().join("gate-pack/gates/no_op.rq"),
+        "ASK { FILTER(true) }\n", // now a real violation if it ran, but the
+                                  // point is the CONTENT changed, whether or
+                                  // not sync gets far enough to evaluate it
+    )
+    .expect("tamper gate file");
+
+    let err = sync(
+        &project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect_err(
+        "a locked pack's gate file was tampered with after ggen.lock was written -- \
+         content_hash must now catch this, not silently reuse the stale hash",
+    );
+    let msg = format!("{err}");
+    assert!(
+        msg.contains("FM-PACK-008") && msg.contains("content hash mismatch"),
+        "expected a content-hash mismatch refusal naming the tampered gate file's pack, got: {msg}"
+    );
 }

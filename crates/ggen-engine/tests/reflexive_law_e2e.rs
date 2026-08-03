@@ -14,7 +14,7 @@
 //! `TempDir` + real `ggen` binary via `CliHarness` shape), extended with an
 //! optional `hook.ttl` for a synthetic pack.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -61,14 +61,16 @@ fn write_synthetic_pack(
 fn scaffold_synthetic_consumer(
     dir: &Path, pack_names: &[&str], consumer_ontology_ttl: &str, extra_ggen_toml: &str,
 ) -> PathBuf {
+    use std::fmt::Write as _;
+
     let project = dir.join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), consumer_ontology_ttl)
         .expect("write ontology.ttl");
-    let packs_lines: String = pack_names
-        .iter()
-        .map(|n| format!("{n} = {{ path = \"../{n}\" }}\n"))
-        .collect();
+    let packs_lines: String = pack_names.iter().fold(String::new(), |mut lines, n| {
+        let _ = writeln!(lines, "{n} = {{ path = \"../{n}\" }}");
+        lines
+    });
     std::fs::write(
         project.join("ggen.toml"),
         format!(
@@ -134,10 +136,10 @@ fn write_flag_template(pack_dir: &Path) {
     .expect("write flag template");
 }
 
-const TRIGGER_ONTOLOGY: &str = r#"
+const TRIGGER_ONTOLOGY: &str = r"
 @prefix ex: <http://example.org/gap#> .
 ex:t1 a ex:TriggerClass .
-"#;
+";
 
 #[test]
 fn hooks_live_and_are_queryable_by_templates() {

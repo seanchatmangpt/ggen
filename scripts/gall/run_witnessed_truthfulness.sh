@@ -21,8 +21,16 @@ mkdir -p crates/ggen-graph/audit/transcripts
 # Build all binaries first to ensure we have the latest
 cargo build -p ggen-graph --bins
 
-# Initialize/emit compliant coverage matrix and self-audit files
-./target/debug/emit_audit
+# NOTE (2026-08-03): this step used to run ./target/debug/emit_audit here to
+# "initialize compliant coverage matrix and self-audit files" -- but that
+# binary wrote crates/ggen-graph/audit/vision2030.self_audit.ocel.json with a
+# hardcoded fake exit_code, a sha256("test") passed off as a real artifact
+# hash, fabricated coverage percentages, and compile-time-fixed timestamps.
+# gall_adjudicate_witnessed_truthfulness (invoked at the end of this
+# pipeline) never actually reads vision2030.self_audit.ocel.json or
+# vision2030.coverage.json, so this call was pure dead weight even before
+# being removed. emit_audit/verify_audit were deleted; see
+# crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 
 # Initialize a clean, conforming doctest_results.ttl and doctest_results.json by running doctests observer first
 ./target/debug/gall_observe_doctests

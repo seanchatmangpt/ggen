@@ -155,20 +155,32 @@ impl Validate for GgenManifest {
                         // E0014: a pack referenced via QuerySource::Pack or
                         // TemplateSource::Pack must be declared in [[packs]].
                         // Pure data -- only needs self.packs, no fs access.
-                        let rule_pack_name: Option<&str> = match &rule.query {
-                            QuerySource::Pack { pack, .. } => Some(pack.as_str()),
-                            _ => match &rule.template {
-                                TemplateSource::Pack { pack, .. } => Some(pack.as_str()),
-                                _ => None,
-                            },
-                        };
-                        if let Some(pack_name) = rule_pack_name {
+                        //
+                        // `query` and `template` are checked independently: a
+                        // rule can reference a declared pack in one and an
+                        // undeclared pack in the other, and the original
+                        // else-branch fallthrough (only inspecting `template`
+                        // when `query` was NOT `Pack`-sourced) let a declared
+                        // query pack silently shadow an undeclared template
+                        // pack. See red-team finding F1.
+                        if let QuerySource::Pack { pack, .. } = &rule.query {
                             v.check_predicate(
                                 "query",
-                                self.packs.iter().any(|p| p.name == pack_name),
+                                self.packs.iter().any(|p| p.name == *pack),
                                 "E0014",
                                 format!(
-                                    "error[E0014]: Pack '{pack_name}' used in rule '{}' is not declared in [[packs]]",
+                                    "error[E0014]: Pack '{pack}' used in rule '{}' is not declared in [[packs]]",
+                                    rule.name
+                                ),
+                            );
+                        }
+                        if let TemplateSource::Pack { pack, .. } = &rule.template {
+                            v.check_predicate(
+                                "template",
+                                self.packs.iter().any(|p| p.name == *pack),
+                                "E0014",
+                                format!(
+                                    "error[E0014]: Pack '{pack}' used in rule '{}' is not declared in [[packs]]",
                                     rule.name
                                 ),
                             );
@@ -587,6 +599,74 @@ template = { inline = "x" }
     }
 
     #[test]
+    fn test_e0014_checks_template_pack_even_when_query_pack_is_declared() {
+        // F1 (red-team finding): the query-side pack ("pack-a") IS declared,
+        // but the template-side pack ("pack-b") is NOT. Both QuerySource and
+        // TemplateSource can independently reference a pack, so both must be
+        // checked -- a declared query pack must not shadow an undeclared
+        // template pack.
+        let toml = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[ontology]
+source = "Cargo.toml"
+
+[[packs]]
+name = "pack-a"
+registry = "local"
+path = "./pack-a"
+
+[[generation.rules]]
+name = "bad-rule"
+output_file = "out.rs"
+query = { pack = "pack-a", output = "queries", file = "q.rq" }
+template = { pack = "pack-b", output = "templates", file = "t.tera" }
+"#;
+        let manifest = ManifestParser::parse_str(toml).unwrap();
+        let result = manifest.check();
+        let errs = result.expect_err(
+            "template references undeclared pack 'pack-b' -- E0014 must fire even though \
+             the query's pack ('pack-a') is declared",
+        );
+        assert!(
+            errs.errors().iter().any(|e| e.code() == "E0014"),
+            "expected E0014 for undeclared template pack 'pack-b', got: {:?}",
+            errs.errors()
+        );
+    }
+
+    #[test]
+    fn test_e0014_checks_query_pack_even_when_template_pack_is_declared() {
+        // Symmetric case: template's pack is declared, query's pack is not.
+        let toml = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[ontology]
+source = "Cargo.toml"
+
+[[packs]]
+name = "pack-b"
+registry = "local"
+path = "./pack-b"
+
+[[generation.rules]]
+name = "bad-rule-2"
+output_file = "out2.rs"
+query = { pack = "pack-a", output = "queries", file = "q.rq" }
+template = { pack = "pack-b", output = "templates", file = "t.tera" }
+"#;
+        let manifest = ManifestParser::parse_str(toml).unwrap();
+        let errs = manifest
+            .check()
+            .expect_err("query references undeclared pack 'pack-a' -- E0014 must fire");
+        assert!(errs.errors().iter().any(|e| e.code() == "E0014"));
+    }
+
+    #[test]
     fn test_operational_sections_reuse_config_lib_validation() {
         // [ai] reuses config_lib::AiConfig's own Validate impl verbatim --
         // an invalid provider must surface as an "ai.provider" violation.
@@ -611,5 +691,68 @@ model = "x"
             .errors()
             .iter()
             .any(|e| e.loc.to_string() == "ai.provider"));
+    }
+
+    /// `strict_mode` now defaults to `true` (`ValidationConfig::default`,
+    /// `types.rs`): a manifest that omits `[validation]` entirely and has an
+    /// inline `SELECT` missing `ORDER BY` must now be REFUSED (E0013), not
+    /// merely warned about — ggen's value proposition is deterministic
+    /// output, so non-determinism is opt-out, not opt-in.
+    #[test]
+    fn missing_order_by_refuses_by_default_when_validation_section_is_absent() {
+        let toml = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[ontology]
+source = "Cargo.toml"
+
+[[generation.rules]]
+name = "r"
+output_file = "out.rs"
+query = { inline = "SELECT ?x WHERE { ?s ?p ?x }" }
+template = { inline = "x" }
+"#;
+        let manifest = ManifestParser::parse_str(toml).unwrap();
+        let errs = manifest.check().unwrap_err();
+        assert!(
+            errs.errors().iter().any(|e| e.code() == "E0013"),
+            "expected E0013 (missing ORDER BY) to fire under the new default-strict \
+             behavior; got: {errs:?}"
+        );
+    }
+
+    /// The escape hatch survives the default flip: a manifest that
+    /// explicitly opts out with `strict_mode = false` still only warns
+    /// (`log::warn!`), matching real, deliberate usage in
+    /// `.specify/specs/togaf/ggen.toml` (an identity `CONSTRUCT { ?s ?p ?o }
+    /// WHERE { ?s ?p ?o }` normalization rule where row order is
+    /// irrelevant).
+    #[test]
+    fn missing_order_by_still_only_warns_when_strict_mode_explicitly_disabled() {
+        let toml = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[ontology]
+source = "Cargo.toml"
+
+[validation]
+strict_mode = false
+
+[[generation.rules]]
+name = "r"
+output_file = "out.rs"
+query = { inline = "SELECT ?x WHERE { ?s ?p ?x }" }
+template = { inline = "x" }
+"#;
+        let manifest = ManifestParser::parse_str(toml).unwrap();
+        assert!(
+            manifest.check().is_ok(),
+            "strict_mode = false must still downgrade the missing-ORDER-BY \
+             violation to a warning, not a hard error"
+        );
     }
 }

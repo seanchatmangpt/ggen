@@ -3,7 +3,9 @@
 //! Three templates with disjoint outputs, deliberately created on disk in
 //! non-lexicographic order, must produce a stable written ordering across
 //! runs, byte-identical receipt payloads across two fresh syncs in separate
-//! TempDirs, and a fully-unchanged second sync.
+//! `TempDirs`, and a fully-unchanged second sync.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -92,6 +94,9 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
 
 #[test]
 fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
+    const SHARED_SEED_HEX: &str =
+        "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60";
+
     let d1 = TempDir::new().expect("tempdir");
     let d2 = TempDir::new().expect("tempdir");
     scaffold(d1.path(), &["alpha", "beta", "gamma"]);
@@ -104,8 +109,6 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     // path so the byte-identity assertion exercises everything *except* key
     // provenance. (This assertion predates signing and was only ever
     // satisfiable with a shared key.)
-    const SHARED_SEED_HEX: &str =
-        "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60";
     for d in [d1.path(), d2.path()] {
         let keys_dir = d.join(".ggen/keys");
         std::fs::create_dir_all(&keys_dir).expect("mkdir keys");

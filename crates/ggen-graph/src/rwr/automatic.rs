@@ -687,6 +687,14 @@ pub struct AutomaticOperationReceipt {
 }
 
 impl AutomaticOperationReceipt {
+    /// Every parameter is a distinct, independently-observed proof input
+    /// (admitted trigger, route, intent, grant, actuation receipt, consequence
+    /// digest, attempt/backoff counters, causal predecessor); bundling them
+    /// into a struct would just relocate the same nine fields behind one more
+    /// name with no invariant gained. Matches the existing
+    /// `#[allow(clippy::too_many_arguments)]` precedent on
+    /// `AutomaticRuntime::refuse_postcondition` in this same file.
+    #[allow(clippy::too_many_arguments)]
     fn issue(
         admitted: &AdmittedTrigger, route: &Route, intent: &ManufacturedIntent,
         grant_digest: [u8; 32], actuation_receipt: ActuationReceipt, consequence_digest: [u8; 32],
@@ -951,12 +959,12 @@ impl AutomaticRuntime {
             None
         };
         Err(OperationsError::PostconditionRefused {
-            failure: PostconditionFailure {
+            failure: Box::new(PostconditionFailure {
                 attempts,
                 logical_backoff_ticks,
                 last_observed_digest,
                 rollback_receipt,
-            },
+            }),
             permanent_message,
         })
     }
@@ -976,6 +984,39 @@ impl AutomaticReplayVerifier {
         receipt.verify()?;
         if !self.seen.insert(receipt.receipt_digest) {
             return Err(OperationsError::AutomaticReceiptReplayRefused);
+        }
+        Ok(())
+    }
+
+    /// Verify a persisted/replayed sequence of receipts both individually and
+    /// as a causally-linked chain.
+    ///
+    /// `AutomaticOperationReceipt::verify` (via `verify_once`) only proves a
+    /// receipt is internally self-consistent -- its own `receipt_digest`
+    /// covers its own fields, including whatever value it happens to carry in
+    /// `predecessor_receipt_digest`. That alone cannot detect two
+    /// independently-issued receipts spliced into one sequence, or an earlier
+    /// receipt in a real chain being dropped before replay: both produce a
+    /// slice where every element individually verifies. This method closes
+    /// that gap by additionally asserting, for every position `i` in
+    /// `receipts`, that `receipts[i].predecessor_receipt_digest` equals
+    /// `Some(receipts[i - 1].receipt_digest)` (and equals `None` at `i == 0`),
+    /// refusing with `OperationsError::ChainLinkageBroken` on the first
+    /// mismatch found.
+    pub fn verify_chain(
+        &mut self, receipts: &[AutomaticOperationReceipt],
+    ) -> Result<(), OperationsError> {
+        let mut expected_predecessor: Option<[u8; 32]> = None;
+        for (position, receipt) in receipts.iter().enumerate() {
+            self.verify_once(receipt)?;
+            if receipt.predecessor_receipt_digest != expected_predecessor {
+                return Err(OperationsError::ChainLinkageBroken {
+                    position,
+                    expected_predecessor,
+                    observed_predecessor: receipt.predecessor_receipt_digest,
+                });
+            }
+            expected_predecessor = Some(receipt.receipt_digest);
         }
         Ok(())
     }
@@ -1289,8 +1330,12 @@ pub enum OperationsError {
     /// Postcondition was not established within policy.
     #[error("postcondition refused after bounded observation")]
     PostconditionRefused {
-        /// Bounded failure evidence.
-        failure: PostconditionFailure,
+        /// Bounded failure evidence. Boxed: `PostconditionFailure` carries an
+        /// `Option<ActuationReceipt>` (multiple `String`s and BLAKE3 digests),
+        /// which otherwise makes this variant, and therefore every
+        /// `Result<_, OperationsError>` in this module, oversized
+        /// (clippy::result_large_err).
+        failure: Box<PostconditionFailure>,
         /// Permanent observer message, when present.
         permanent_message: Option<String>,
     },
@@ -1300,6 +1345,25 @@ pub enum OperationsError {
     /// Automatic receipt was replayed.
     #[error("automatic operation receipt replay refused")]
     AutomaticReceiptReplayRefused,
+    /// A replayed/persisted sequence of receipts is not causally linked: some
+    /// receipt's `predecessor_receipt_digest` does not equal the
+    /// `receipt_digest` of the receipt immediately preceding it in the
+    /// sequence (position 0 must carry no predecessor). Individually-valid
+    /// receipts (each passes `AutomaticOperationReceipt::verify`) can still
+    /// fail this check if they were spliced together out of order, drawn
+    /// from unrelated chains, or had an earlier receipt dropped before
+    /// replay.
+    #[error(
+        "receipt chain linkage broken at position {position}: expected predecessor {expected_predecessor:?}, observed {observed_predecessor:?}"
+    )]
+    ChainLinkageBroken {
+        /// Zero-based position in the replayed sequence where linkage broke.
+        position: usize,
+        /// Predecessor digest implied by the sequence itself (`None` at position 0).
+        expected_predecessor: Option<[u8; 32]>,
+        /// Predecessor digest actually carried by the receipt at `position`.
+        observed_predecessor: Option<[u8; 32]>,
+    },
     /// Knowledge hook does not verify.
     #[error("knowledge hook mismatch")]
     KnowledgeHookMismatch,

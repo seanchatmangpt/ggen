@@ -2,7 +2,17 @@ PREFIX cmx:  <http://ggen.org/combinatorial#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?gate_id ?label ?description ?ask_body ?surface ?invariant
+# ?ns_prefix / ?ns_uri: the gate's required PREFIX line, read from its
+# cmx:usesNamespace -> cmx:Namespace link (cmx:nsPrefix / cmx:nsUri) rather
+# than hardcoded in proof-gate.rq.tera -- see cmx:ns-cmx / cmx:ns-cli in
+# .specify/combinatorial-instances.ttl. Deliberately plain BGP/OPTIONAL
+# (no BIND/CONCAT, no GROUP_CONCAT): the default GraphEngine ggen sync run
+# uses for this project (praxis-graphlaw/GraphLaw, see
+# crates/praxis-graphlaw/src/sparql/plan.rs's extract_query_plan /
+# extract_expression) has no FunctionCall or GroupConcat support, so this
+# only carries one namespace per gate today -- true for all six gates this
+# query currently serves (five need cmx: only, one needs cli: only).
+SELECT ?gate_id ?label ?description ?ask_body ?surface ?invariant ?ns_prefix ?ns_uri
 WHERE {
     ?g a cmx:ProofGate ;
        cmx:gateId ?gate_id ;
@@ -12,5 +22,10 @@ WHERE {
     OPTIONAL { ?g cmx:askBody     ?ask_body }
     OPTIONAL { ?g cmx:surface     ?surface }
     OPTIONAL { ?g cmx:invariant   ?invariant }
+    OPTIONAL {
+      ?g cmx:usesNamespace ?ns .
+      ?ns cmx:nsPrefix ?ns_prefix ;
+          cmx:nsUri    ?ns_uri .
+    }
 }
 ORDER BY ?gate_id

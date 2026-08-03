@@ -3,6 +3,8 @@
 //! Real collaborators only: in-memory oxigraph stores and real files in a
 //! `TempDir`. No mocks, no test doubles.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_engine::config::{GgenConfig, PackRef};
 use ggen_engine::graph::{Delta, DeterministicGraph};
 

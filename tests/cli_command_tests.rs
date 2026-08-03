@@ -68,9 +68,12 @@ fn test_init_requires_name() -> TestResult {
 
 #[test]
 fn test_init_with_name() -> TestResult {
+    // `init` takes the project directory via `--path`, not a positional name
+    // (the real CLI has no positional project-name argument -- see `ggen init --help`).
     let temp = tempfile::tempdir()?;
     let _ = Command::cargo_bin("ggen")?
         .arg("init")
+        .arg("--path")
         .arg("test-project")
         .current_dir(temp.path())
         .assert()
@@ -83,6 +86,7 @@ fn test_init_creates_config_file() -> TestResult {
     let temp = tempfile::tempdir()?;
     let _ = Command::cargo_bin("ggen")?
         .arg("init")
+        .arg("--path")
         .arg("test-project")
         .current_dir(temp.path())
         .assert()
@@ -187,11 +191,17 @@ fn test_generate_force_flag() -> TestResult {
 
 #[test]
 fn test_invalid_config_format() -> TestResult {
+    // There is no bare `ggen validate` noun -- config parsing/validation now happens
+    // as part of `sync run` (real for `--dry-run` too). Using bare `validate` here used
+    // to "pass" only because any unrecognized subcommand fails regardless of the TOML
+    // content, which never actually exercised config validation.
     let temp = tempfile::tempdir()?;
     std::fs::write(temp.path().join("ggen.toml"), "invalid toml {")?;
 
     let _ = Command::cargo_bin("ggen")?
-        .arg("validate")
+        .arg("sync")
+        .arg("run")
+        .arg("--dry-run")
         .current_dir(temp.path())
         .assert()
         .failure();
@@ -200,11 +210,19 @@ fn test_invalid_config_format() -> TestResult {
 
 #[test]
 fn test_missing_required_field() -> TestResult {
+    // Same real-validation-path rationale as test_invalid_config_format above:
+    // a `[project]`-only manifest is missing the required `[ontology]` table
+    // (confirmed live: FM-CONFIG-003 "missing field `ontology`").
     let temp = tempfile::tempdir()?;
-    std::fs::write(temp.path().join("ggen.toml"), "[project]")?;
+    std::fs::write(
+        temp.path().join("ggen.toml"),
+        "[project]\nname = \"test\"\n",
+    )?;
 
     let _ = Command::cargo_bin("ggen")?
-        .arg("validate")
+        .arg("sync")
+        .arg("run")
+        .arg("--dry-run")
         .current_dir(temp.path())
         .assert()
         .failure();
@@ -213,43 +231,44 @@ fn test_missing_required_field() -> TestResult {
 
 #[test]
 fn test_valid_config_passes() -> TestResult {
+    // A minimal but genuinely valid frontmatter-schema manifest (real `[ontology]` +
+    // `[templates]`, confirmed live to parse and dry-run cleanly through the real
+    // pipeline) -- not the old `[project]`-only shape, which the current schema
+    // rejects (missing `[ontology]`) regardless of which command checks it.
     let temp = tempfile::tempdir()?;
+    std::fs::create_dir(temp.path().join("templates"))?;
+    std::fs::write(
+        temp.path().join("ontology.ttl"),
+        "@prefix ex: <http://example.org/> .\nex:Alice ex:name \"Alice\" .\n",
+    )?;
     let config = r#"
 [project]
 name = "test"
-version = "1.0.0"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
 "#;
     std::fs::write(temp.path().join("ggen.toml"), config)?;
 
     let _ = Command::cargo_bin("ggen")?
-        .arg("validate")
+        .arg("sync")
+        .arg("run")
+        .arg("--dry-run")
         .current_dir(temp.path())
         .assert()
         .success();
     Ok(())
 }
 
-#[test]
-fn test_config_with_dependencies() -> TestResult {
-    let temp = tempfile::tempdir()?;
-    let config = r#"
-[project]
-name = "test"
-version = "1.0.0"
-
-[[dependencies]]
-name = "dep1"
-version = "1.0"
-"#;
-    std::fs::write(temp.path().join("ggen.toml"), config)?;
-
-    let _ = Command::cargo_bin("ggen")?
-        .arg("validate")
-        .current_dir(temp.path())
-        .assert()
-        .success();
-    Ok(())
-}
+// test_config_with_dependencies (a `[[dependencies]]`-declaring manifest should pass
+// validation) was removed: that field maps to no real schema concept (ggen's real
+// dependency mechanism is `[[packs]]` / `[packs.<name>]`, which requires a fully-formed
+// pack.toml + ontology.ttl + templates/ to mean anything -- constructing one here would
+// only duplicate coverage the real pack-ecosystem e2e tests, including the ggen-mcp
+// self-play sweep across every pack in packs/, already provide end to end.
 
 #[test]
 fn test_workspace_config_validation() -> TestResult {
@@ -302,7 +321,14 @@ fn test_conflicting_flags_fails() -> TestResult {
 
 #[test]
 fn test_missing_required_arg() -> TestResult {
-    let _ = Command::cargo_bin("ggen")?.arg("pack").assert().failure();
+    // Bare `ggen pack` (no verb) now prints help and exits 0 by design -- it no longer
+    // fails, so it stopped testing "missing required arg" (confirmed live). `pack add`
+    // with its required `<PACK_NAME>` positional omitted still genuinely fails.
+    let _ = Command::cargo_bin("ggen")?
+        .arg("pack")
+        .arg("add")
+        .assert()
+        .failure();
     Ok(())
 }
 

@@ -8,7 +8,7 @@ use super::*;
 use std::time::Duration;
 
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see imars_reasoner.rs's file-top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing-dependent (uses thread::sleep/windowed ticks), not part of the fast unit-test loop"]
 fn rsp_integration() {
     let ntriples_file = "<http://example.com/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Person> .
 <http://example.com/foo> <http://schema.org/name> \"Foo\" .
@@ -47,7 +47,7 @@ fn rsp_integration() {
     thread::sleep(Duration::from_secs(2));
 }
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see imars_reasoner.rs's file-top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing-dependent (uses thread::sleep/windowed ticks), not part of the fast unit-test loop"]
 fn test_load_from_file() {
     let ntriples_file = "<http://example.com/foo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Person> .
 <http://example.com/foo> <http://schema.org/name> \"Foo\" .
@@ -102,7 +102,7 @@ fn test_load_from_file() {
     thread::sleep(Duration::from_secs(2));
 }
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see imars_reasoner.rs's file-top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing-dependent (uses thread::sleep/windowed ticks), not part of the fast unit-test loop"]
 fn rsp_transitive_testp() {
     let ntriples_file = "";
     let rules = "@prefix test: <http://test/>.
@@ -141,7 +141,7 @@ fn rsp_transitive_testp() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see imars_reasoner.rs's file-top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing-dependent (uses thread::sleep/windowed ticks), not part of the fast unit-test loop"]
 fn test_static_abox() {
     let ntriples_file = "<http://test/sensor1> <http://test/hasLocation> <http://test/location1>.";
     let rules = "@prefix test: <http://test/>.

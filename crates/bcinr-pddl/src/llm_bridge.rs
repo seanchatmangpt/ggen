@@ -41,7 +41,10 @@ pub struct AdmittedDomain {
     pub domain31: Pddl31Domain,
     /// Compatibility shim — STRIPS-only view of the domain for existing pipeline.
     pub domain8: Pddl8Domain,
-    /// BLAKE3 over (name || requirements || predicate names || action names || durative action names)
+    /// BLAKE3 over (name || requirements || predicate names || per-action
+    /// name+precondition+effect || per-durative-action name+duration+
+    /// conditions+effects). Binds action/durative-action *content*, not
+    /// merely their names — see `compute_domain_witness`.
     pub witness: String,
 }
 
@@ -360,11 +363,46 @@ fn compute_domain_witness(domain: &Pddl31Domain) -> String {
     }
     for action in &domain.actions {
         h.update(action.name.as_bytes());
+        // FINDING #5: two candidate domains can share the same name/
+        // requirements/predicate-names/action-names while an LLM-submitted
+        // (or tampered) action body swaps in a different precondition/
+        // effect for the same action name. Fold the actual precondition
+        // and effect content in — not just the name — so the witness binds
+        // what the action does, not merely what it is called.
+        hash_serializable(&mut h, &action.precondition);
+        hash_serializable(&mut h, &action.effect);
     }
     for da in &domain.durative_actions {
         h.update(da.name.as_bytes());
+        hash_serializable(&mut h, &da.duration);
+        hash_serializable(&mut h, &da.conditions);
+        hash_serializable(&mut h, &da.effects);
     }
     hex(h.finalize().as_bytes())
+}
+
+/// Fold a canonical, length-prefixed JSON serialization of `value` into `h`.
+/// Length-prefixing (rather than raw concatenation) avoids ambiguity
+/// between e.g. a precondition/effect pair and a different pair whose
+/// serialized bytes happen to concatenate to the same string.
+///
+/// Serialization of the PDDL condition/effect ASTs this module constructs
+/// cannot fail in practice (no non-finite floats, no non-string map keys),
+/// but this hashes a length-prefixed sentinel on the error path rather than
+/// silently contributing nothing, so a future change that *does* introduce
+/// a failure mode still changes the witness instead of masking it.
+fn hash_serializable<T: serde::Serialize>(h: &mut Hasher, value: &T) {
+    match serde_json::to_vec(value) {
+        Ok(bytes) => {
+            h.update(&(bytes.len() as u64).to_le_bytes());
+            h.update(&bytes);
+        }
+        Err(_) => {
+            let sentinel = b"__SERIALIZE_ERROR__";
+            h.update(&(sentinel.len() as u64).to_le_bytes());
+            h.update(sentinel);
+        }
+    }
 }
 
 fn compute_problem_witness(problem: &Pddl31Problem) -> String {
@@ -462,5 +500,90 @@ mod ocel_export_tests {
             .as_object()
             .unwrap()
             .is_empty());
+    }
+}
+
+/// Regression tests for FINDING #5 (llm_bridge half): `compute_domain_witness`
+/// previously hashed only domain name/requirements/predicate-names/action-
+/// names/durative-action-names — never any precondition or effect content,
+/// despite `AdmittedDomain::witness`'s doc comment claiming the witness
+/// "cryptographically binds the domain structure." Two LLM-submitted (or
+/// adversarially tampered) domains sharing every one of those name-level
+/// fields but with different preconditions/effects for the same-named
+/// action previously admitted with an identical witness.
+#[cfg(test)]
+mod domain_witness_tests {
+    use super::*;
+
+    /// Same domain name ("d"), same requirements (:strips), same predicate
+    /// name set/order (p, q), same single action name ("a") — but action
+    /// "a"'s precondition/effect reference *different* predicates (p vs q).
+    const DOMAIN_PRECOND_ON_P: &str = r#"(define (domain d)
+  (:requirements :strips)
+  (:predicates (p) (q))
+  (:action a :parameters () :precondition (p) :effect (not (p))))"#;
+
+    const DOMAIN_PRECOND_ON_Q: &str = r#"(define (domain d)
+  (:requirements :strips)
+  (:predicates (p) (q))
+  (:action a :parameters () :precondition (q) :effect (not (q))))"#;
+
+    #[test]
+    fn domain_witness_detects_same_named_action_with_different_precondition_and_effect() {
+        let admitted_p = admit_candidate_domain(DOMAIN_PRECOND_ON_P).expect("domain P admits");
+        let admitted_q = admit_candidate_domain(DOMAIN_PRECOND_ON_Q).expect("domain Q admits");
+
+        // Sanity: every name-level field the old witness hashed really is
+        // identical between the two domains — only precondition/effect
+        // content (predicate p vs q) differs.
+        assert_eq!(admitted_p.domain31.name, admitted_q.domain31.name);
+        assert_eq!(
+            admitted_p.domain31.requirements,
+            admitted_q.domain31.requirements
+        );
+        let pred_names_p: Vec<&String> = admitted_p
+            .domain31
+            .predicates
+            .iter()
+            .map(|(n, _)| n)
+            .collect();
+        let pred_names_q: Vec<&String> = admitted_q
+            .domain31
+            .predicates
+            .iter()
+            .map(|(n, _)| n)
+            .collect();
+        assert_eq!(
+            pred_names_p, pred_names_q,
+            "sanity: identical predicate name set/order"
+        );
+        let action_names_p: Vec<&String> = admitted_p
+            .domain31
+            .actions
+            .iter()
+            .map(|a| &a.name)
+            .collect();
+        let action_names_q: Vec<&String> = admitted_q
+            .domain31
+            .actions
+            .iter()
+            .map(|a| &a.name)
+            .collect();
+        assert_eq!(
+            action_names_p, action_names_q,
+            "sanity: identical action name set"
+        );
+
+        assert_ne!(
+            admitted_p.witness, admitted_q.witness,
+            "domain_witness must differ when a same-named action's precondition/effect differ"
+        );
+    }
+
+    #[test]
+    fn domain_witness_is_deterministic_for_identical_domain_text() {
+        let a = admit_candidate_domain(DOMAIN_PRECOND_ON_P).expect("domain admits");
+        let b = admit_candidate_domain(DOMAIN_PRECOND_ON_P).expect("domain admits");
+        assert_eq!(a.witness, b.witness);
     }
 }

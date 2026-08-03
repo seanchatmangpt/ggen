@@ -99,7 +99,19 @@ members = [
 # fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`
 # below (disconnected but kept on disk); that interim state is now closed out per the
 # migration ticket set's own Phase 6/7. Git history retains the code if it's ever needed.
-exclude = ["examples/7-agent-validation"]
+#
+# `crates/ggen-architecture` (2026-08-03, crate-count reconciliation): excluded, not deleted
+# and not a member. It declares its own `[package.metadata.ggen]`-carrying `[workspace]` table
+# (`members = [".", "../../tools/ggen-architecture"]`) and ships its own `Cargo.lock` --
+# confirmed live by running `cargo metadata --no-deps` from inside the directory, which resolves
+# it as an independent workspace root. Cargo does not allow a crate that declares its own
+# `[workspace]` to also be a member of a different one, so it was never eligible for `members`
+# above; it sat in neither `members` nor `exclude` before this entry (an undocumented, not a
+# broken, state -- this workspace's `members` array has no glob patterns, so nothing was ever
+# going to sweep it in by accident). Listed here for the same reason `examples/7-agent-validation`
+# is: to make the "why isn't this one of the workspace's crates" answer discoverable in the one
+# file a reader would check first, not left to be re-derived from scratch.
+exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency

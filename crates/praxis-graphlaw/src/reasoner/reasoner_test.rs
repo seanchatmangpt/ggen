@@ -5,7 +5,7 @@ use crate::reasoner::Reasoner;
 use crate::{Binding, Parser, Triple, VarOrTerm};
 
 #[test]
-#[ignore]
+#[ignore = "shares the process-wide GLOBAL_ENCODER singleton (crates/praxis-graphlaw/src/encoding.rs:5) with other tests in this binary; term IDs can become non-deterministic when run in parallel (see this test's own comment about avoiding hardcoded IDs due to global Encoder state)"]
 fn test_reconstruct_from_bindings() {
     let data = "{?a in ?c}=>{?a in ?c}";
     let (_content, rules) = Parser::parse(data.to_string());

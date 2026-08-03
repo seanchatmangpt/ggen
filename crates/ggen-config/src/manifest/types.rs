@@ -30,6 +30,19 @@ fn default_output_dir() -> PathBuf {
     PathBuf::from(".")
 }
 
+/// Default for `[validation].strict_mode`: `true`.
+///
+/// ggen's value proposition is deterministic generation, so a missing
+/// `ORDER BY` on a `CONSTRUCT`/`SELECT` query (E0011/E0013,
+/// `manifest::validation`) is refused by default rather than merely logged.
+/// A manifest that legitimately wants the old warn-only behavior (e.g. an
+/// identity `CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }` normalization rule
+/// where row order is irrelevant, as in `.specify/specs/togaf/ggen.toml`)
+/// opts back in explicitly with `strict_mode = false` under `[validation]`.
+fn default_strict_mode() -> bool {
+    true
+}
+
 /// A reference to a ggen pack declared in ggen.toml
 ///
 /// Not the same type as `ggen_engine::config::PackRef` — that one is an
@@ -538,7 +551,7 @@ pub enum GenerationMode {
 }
 
 /// Validation configuration section
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ValidationConfig {
     /// SHACL shape files — **legacy, refused at sync time by ggen-engine's
@@ -567,13 +580,32 @@ pub struct ValidationConfig {
     #[serde(default)]
     pub no_unsafe: bool,
 
-    /// Elevate determinism warnings (e.g. missing ORDER BY) to hard errors
-    #[serde(default)]
+    /// Elevate determinism warnings (e.g. missing ORDER BY) to hard errors.
+    /// Defaults to `true` (see [`default_strict_mode`]) — ggen's value
+    /// proposition is deterministic output, so a `CONSTRUCT`/`SELECT` query
+    /// missing `ORDER BY` is refused by default, not merely warned about.
+    /// Set `strict_mode = false` explicitly under `[validation]` to opt
+    /// back into the old warn-only behavior for a manifest that
+    /// legitimately doesn't need row-order determinism.
+    #[serde(default = "default_strict_mode")]
     pub strict_mode: bool,
 
     /// Custom validation rules (SPARQL ASK)
     #[serde(default)]
     pub rules: Vec<ValidationRule>,
+}
+
+impl Default for ValidationConfig {
+    fn default() -> Self {
+        Self {
+            shacl: Vec::new(),
+            gates: Vec::new(),
+            validate_syntax: false,
+            no_unsafe: false,
+            strict_mode: default_strict_mode(),
+            rules: Vec::new(),
+        }
+    }
 }
 
 /// A custom validation rule

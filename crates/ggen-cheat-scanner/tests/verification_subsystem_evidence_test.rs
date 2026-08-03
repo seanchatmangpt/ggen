@@ -50,7 +50,8 @@ fn compute_something_returns_expected_sum() {
 #[test]
 fn verification_scanner_detects_a_freshly_planted_cheat_pattern() {
     let path = PathBuf::from("verification_subsystem_evidence_test::planted_bad");
-    let findings = scan_source(PLANTED_BAD_TEST, &path);
+    let findings = scan_source(PLANTED_BAD_TEST, &path)
+        .unwrap_or_else(|e| panic!("PLANTED_BAD_TEST must parse as valid Rust: {e}"));
     assert!(
         rule_ids(&findings).contains(&"CHEAT-T01"),
         "expected the real ggen-cheat-scanner AST walk to flag a freshly \
@@ -61,7 +62,8 @@ fn verification_scanner_detects_a_freshly_planted_cheat_pattern() {
 #[test]
 fn verification_scanner_rejects_a_false_positive_on_clean_code() {
     let path = PathBuf::from("verification_subsystem_evidence_test::planted_good");
-    let findings = scan_source(PLANTED_GOOD_TEST, &path);
+    let findings = scan_source(PLANTED_GOOD_TEST, &path)
+        .unwrap_or_else(|e| panic!("PLANTED_GOOD_TEST must parse as valid Rust: {e}"));
     assert!(
         findings.is_empty(),
         "did not expect the scanner to flag a real assert_eq! comparison \
@@ -82,7 +84,8 @@ fn some_feature_probably_works() {
     let _ = compute_something();
 }
 "#;
-    let findings = scan_source(src, &path);
+    let findings =
+        scan_source(src, &path).unwrap_or_else(|e| panic!("src must parse as valid Rust: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T01"),
         "CHEAT-T01 (vacuous-assert) must not fire on a test with no assert \

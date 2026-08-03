@@ -23,6 +23,7 @@ imports = [
   "packs/ggen-constitution-pack/ontology.ttl",
   "packs/ggen-release-pack/ontology.ttl",
   "packs/ggen-verify-pack/ontology.ttl",
+  "packs/claude-code-pack/ontology.ttl",
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
@@ -40,6 +41,20 @@ owl     = "http://www.w3.org/2002/07/owl#"
 xsd     = "http://www.w3.org/2001/XMLSchema#"
 dcterms = "http://purl.org/dc/terms/"
 skos    = "http://www.w3.org/2004/02/skos/core#"
+
+[validation]
+gates = [
+  ".specify/gates/cross-pack-contamination.rq",
+  ".specify/gates/every-action-has-binding.rq",
+  ".specify/gates/every-binding-has-output-pattern.rq",
+  ".specify/gates/every-binding-has-template.rq",
+  ".specify/gates/every-command-has-handler.rq",
+  ".specify/gates/every-generator-has-action.rq",
+  ".specify/gates/l5-cap05-template-derivation-claim.rq",
+  ".specify/gates/l5-level5-requires-sabotage-evidence.rq",
+  ".specify/gates/l5-level5-standing-requires-closed-capabilities.rq",
+  ".specify/gates/no-orphan-actions.rq",
+]
 
 [inference]
 
@@ -173,6 +188,60 @@ output_file = "docs/GENERATIONS.md"
 skip_empty  = false
 mode        = "Overwrite"
 
+# ── claude-code-pack (.claude/ surfaces) ─────────────────────────────────────
+# packs/claude-code-pack's own templates/*.tmpl use the frontmatter convention
+# (proven standalone in examples/claude-code-pack-verify/) which the
+# declarative-rules schema below does not read -- see
+# packs/claude-code-pack/root-templates/*.tmpl's own header comments and
+# packs/ggen-constitution-pack/root-templates/constitution.md.tmpl for the
+# established precedent this mirrors (each root-templates/*.tmpl calls
+# sparql() itself instead of relying on frontmatter). Byte-identical output
+# to the frontmatter path, verified before this wiring landed.
+
+[[generation.rules]]
+name        = "claude-code-agent-independent-verifier"
+query       = { inline = """
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?name WHERE { ccw:agent-independent-verifier ccw:name ?name . } ORDER BY ?name
+""" }
+template    = { file = "packs/claude-code-pack/root-templates/agent_independent_verifier.md.tmpl" }
+output_file = ".claude/agents/independent-verifier.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "claude-code-agent-pack-transcriber"
+query       = { inline = """
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?name WHERE { ccw:agent-pack-transcriber ccw:name ?name . } ORDER BY ?name
+""" }
+template    = { file = "packs/claude-code-pack/root-templates/agent_pack_transcriber.md.tmpl" }
+output_file = ".claude/agents/pack-transcriber.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "claude-code-skill-l5-pack-method"
+query       = { inline = """
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?name WHERE { ccw:skill-l5-pack-method ccw:name ?name . } ORDER BY ?name
+""" }
+template    = { file = "packs/claude-code-pack/root-templates/skill_l5_pack_method.md.tmpl" }
+output_file = ".claude/skills/l5-pack-method/SKILL.md"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "claude-code-workflow-implement-verify"
+query       = { inline = """
+PREFIX ccw: <http://seanchatmangpt.github.io/packs/claude-code#>
+SELECT ?name WHERE { ccw:wf-implement-verify ccw:name ?name . } ORDER BY ?name
+""" }
+template    = { file = "packs/claude-code-pack/root-templates/implement_verify_workflow.js.tmpl" }
+output_file = ".claude/workflows/implement-verify.js"
+skip_empty  = false
+mode        = "Overwrite"
+
 # ── Combinatorial Maximalism ─────────────────────────────────────────────────
 # All rules below derive from .specify/combinatorial.ttl +
 # .specify/combinatorial-instances.ttl.
@@ -204,6 +273,7 @@ WHERE {
   ?gen a cmx:Generator ;
        cmx:hasAction ?act .
 }
+ORDER BY ?gen ?act
 """
 
 [[inference.rules]]
@@ -229,6 +299,7 @@ WHERE {
         cmx:hasAction   ?act .
   ?act  cmx:hasBinding  ?binding .
 }
+ORDER BY ?cmd ?binding
 """
 
 # ── GENERATION RULES ─────────────────────────────────────────────────────────

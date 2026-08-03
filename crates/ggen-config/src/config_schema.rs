@@ -88,8 +88,25 @@
 //! read raw ggen.toml text
 //!   -> not syntactically valid TOML                         => Malformed
 //!   -> detect structural markers for each known schema
-//!      -> exactly one schema's markers fired                => that schema's classification
+//!      -> a *strong*, schema-specific declarative marker fired
+//!         ([generation] table present, or [[packs]] array-of-tables)
+//!         and no frontmatter marker fired                    => DeclarativeRules
+//!         (these two markers are structurally impossible on the
+//!          frontmatter schema at all, so they are decisive alone --
+//!          see `# Marker strength` below)
 //!      -> more than one schema's markers fired               => Ambiguous
+//!      -> only *weak* declarative marker(s) fired (bare [project].version
+//!         presence, or a DECLARATIVE_ONLY_TABLES name that GgenManifest
+//!         happens to also declare) and no frontmatter marker fired
+//!         -> also positively satisfies the frontmatter schema's three
+//!            required fields (project.name, ontology.source,
+//!            templates.dir)                                  => Ambiguous
+//!            (a weak, coincidental declarative signal must not silently
+//!             override a complete, positive frontmatter shape match --
+//!             see `# Marker strength` below, F2)
+//!         -> otherwise                                        => Unsupported
+//!            (weak markers alone are not confident evidence for either
+//!             schema)
 //!      -> a known *older* schema's markers fired              => (reserved: CONFIG_SCHEMA_MIGRATION_REQUIRED;
 //!                                                                  not implemented this pass -- there is no
 //!                                                                  older schema registered yet, see correction 2)
@@ -100,6 +117,33 @@
 //!                                                                      by elimination")
 //!         -> otherwise                                        => Unsupported
 //! ```
+//!
+//! # Marker strength (correction 3, F2)
+//!
+//! Not every declarative marker is equally decisive. `[generation]`'s mere
+//! presence and `[[packs]]`'s array shape are *structurally impossible* on
+//! the frontmatter schema (`ggen_engine::config::GgenConfig` has no
+//! `generation` field at all, `deny_unknown_fields`; its `packs` is a
+//! map-of-tables, never an array-of-tables) -- these are **strong** markers,
+//! decisive on their own.
+//!
+//! `[project].version`'s bare presence and a `DECLARATIVE_ONLY_TABLES` name
+//! are **weak**: real signals, but not schema-specific enough to be trusted
+//! alone. A real, pre-existing repository file
+//! (`specs/012-grand-unified-kgc-thesis/ggen.toml`) proves why: it has
+//! `[project]` with both `name` and `version`, and coincidentally uses
+//! `[sparql]`/`[logging]`/`[security]` (all on `DECLARATIVE_ONLY_TABLES`) for
+//! its own unrelated purposes, but has no `[generation]` table and no
+//! `[ontology]` table at all -- a legacy/frontmatter-shaped project that a
+//! weak-marker-only reading previously misclassified as `DeclarativeRules`,
+//! which then failed the real typed parser with a confusing
+//! `unknown field 'author'` error that never mentioned the actual problem
+//! (missing `[generation]`/`[ontology]`). When only weak markers fire and no
+//! frontmatter marker fires, this classifier now defers to
+//! `satisfies_frontmatter_minimum` before committing to `DeclarativeRules` --
+//! see `weak_declarative_marker_alone_does_not_override_full_frontmatter_match`
+//! and `weak_declarative_markers_alone_without_frontmatter_minimum_are_unsupported`
+//! below.
 //!
 //! This is a pure function of the input text: no filesystem access beyond
 //! what the caller already did to obtain `raw`, no environment inspection, no
@@ -350,8 +394,44 @@ pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
         }
     }
 
+    // A minimal, schema-specific subset of `declarative`'s markers -- see the
+    // module doc comment's `# Marker strength` section (F2). Each is
+    // structurally impossible on the frontmatter schema at all, so any one
+    // alone is decisive regardless of anything else observed. Every other
+    // declarative marker (bare `[project].version` presence, or a
+    // `DECLARATIVE_ONLY_TABLES` name) is comparatively weak: real, but not
+    // schema-specific enough to override a document that otherwise fully
+    // matches the frontmatter schema's required shape.
+    const STRONG_DECLARATIVE_MARKERS: &[&str] = &[
+        "declarative:generation_table_present",
+        "declarative:packs_array_shaped",
+    ];
+    let has_strong_declarative = declarative
+        .iter()
+        .any(|m| STRONG_DECLARATIVE_MARKERS.contains(&m.as_str()));
+
     match (declarative.is_empty(), frontmatter.is_empty()) {
-        (false, true) => ConfigSchemaClassification::DeclarativeRules,
+        (false, true) if has_strong_declarative => ConfigSchemaClassification::DeclarativeRules,
+        (false, true) => {
+            // Only weak declarative marker(s) fired and no frontmatter
+            // marker fired -- not schema-specific enough to force
+            // `DeclarativeRules` on its own (module doc `# Marker strength`,
+            // F2). A document that also positively satisfies the
+            // frontmatter minimum genuinely conflicts (it would fail a real
+            // parse of *both* schemas) rather than being silently forced
+            // one way; a document that satisfies neither is honestly
+            // `Unsupported`, not a confident (and wrong) `DeclarativeRules`.
+            if satisfies_frontmatter_minimum(&table) {
+                let mut matched: Vec<String> = declarative.into_iter().collect();
+                matched.push("frontmatter:satisfies_minimum_shape".to_string());
+                matched.sort();
+                ConfigSchemaClassification::Ambiguous { matched }
+            } else {
+                ConfigSchemaClassification::Unsupported {
+                    observed_markers: observed_top_level_tables(&table),
+                }
+            }
+        }
         (true, false) => ConfigSchemaClassification::Frontmatter,
         (false, false) => {
             let mut matched: Vec<String> = declarative.into_iter().collect();
@@ -363,16 +443,24 @@ pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
             if satisfies_frontmatter_minimum(&table) {
                 ConfigSchemaClassification::Frontmatter
             } else {
-                let observed_markers = table
-                    .keys()
-                    .map(|k| format!("unknown_top_level_table:{k}"))
-                    .collect::<BTreeSet<_>>()
-                    .into_iter()
-                    .collect();
-                ConfigSchemaClassification::Unsupported { observed_markers }
+                ConfigSchemaClassification::Unsupported {
+                    observed_markers: observed_top_level_tables(&table),
+                }
             }
         }
     }
+}
+
+/// Top-level table names of `table`, each prefixed `unknown_top_level_table:`
+/// -- a diagnostic breadcrumb shared by both [`ConfigSchemaClassification::Unsupported`]
+/// call sites in [`classify_ggen_toml`].
+fn observed_top_level_tables(table: &toml::Table) -> Vec<String> {
+    table
+        .keys()
+        .map(|k| format!("unknown_top_level_table:{k}"))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
 }
 
 /// Positive confirmation of the frontmatter schema's three required fields
@@ -409,7 +497,7 @@ fn satisfies_frontmatter_minimum(table: &toml::Table) -> bool {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 mod tests {
     use super::*;
     use crate::manifest::ManifestParser;
@@ -683,6 +771,114 @@ provider = "openai"
         assert_eq!(
             classify_ggen_toml(toml),
             ConfigSchemaClassification::Frontmatter
+        );
+    }
+
+    // -- 8. F2 red-team finding: weak declarative markers must not override
+    //       a positive frontmatter match, or be trusted alone -------------
+
+    #[test]
+    fn weak_declarative_marker_alone_does_not_override_full_frontmatter_match() {
+        // F2 synthetic repro: `[project].version` is present (the
+        // classifier's own weak, non-schema-specific declarative marker),
+        // but every other structural signal -- `project.name`,
+        // `ontology.source`, `templates.dir` -- affirmatively matches the
+        // frontmatter schema's three required fields, and there is no
+        // `[generation]` table at all. `version` really would be fatal to a
+        // real frontmatter parse too (`ggen_engine::config::Project` is
+        // `#[serde(deny_unknown_fields)]` with only `name`), so this
+        // document would fail BOTH real typed parsers -- `Ambiguous` (not a
+        // silent, wrong `DeclarativeRules`) is the honest outcome. Before
+        // the fix, `classify_ggen_toml` returned `DeclarativeRules` here.
+        let toml = "[project]\nname = \"x\"\nversion = \"1.0.0\"\n\n\
+                    [ontology]\nsource = \"o.ttl\"\n\n\
+                    [templates]\ndir = \"templates\"\n";
+        match classify_ggen_toml(toml) {
+            ConfigSchemaClassification::Ambiguous { matched } => {
+                assert!(
+                    matched.contains(&"declarative:project_version_present".to_string()),
+                    "{matched:?}"
+                );
+                assert!(
+                    matched.contains(&"frontmatter:satisfies_minimum_shape".to_string()),
+                    "{matched:?}"
+                );
+            }
+            other => panic!("expected Ambiguous, got {other:?}"),
+        }
+        // Real cross-check: the declarative-rules typed parser really does
+        // reject this document too (no `[generation]` at all) -- proving
+        // `DeclarativeRules` would have been an actively wrong
+        // classification, not merely an unverified one.
+        assert!(ManifestParser::parse_str(toml).is_err());
+    }
+
+    #[test]
+    fn weak_declarative_markers_alone_without_frontmatter_minimum_are_unsupported() {
+        // F2's real, pre-existing repository file
+        // (`specs/012-grand-unified-kgc-thesis/ggen.toml`) structurally
+        // distilled: `[project]` carries both `name` and `version`, and
+        // `[sparql]`/`[logging]`/`[security]` (all on
+        // `DECLARATIVE_ONLY_TABLES`) are present for unrelated reasons --
+        // but there is no `[generation]` table, no `[[packs]]`, and no
+        // `[ontology]`/`templates.dir` pair either. Weak markers alone, with
+        // neither a strong declarative marker nor the frontmatter minimum
+        // satisfied, must not force `DeclarativeRules`.
+        let toml = "[project]\nname = \"x\"\nversion = \"1.0.0\"\n\n\
+                    [sparql]\ntimeout = 30\n\n\
+                    [logging]\nlevel = \"info\"\n\n\
+                    [security]\nvalidate_paths = true\n";
+        assert!(
+            matches!(
+                classify_ggen_toml(toml),
+                ConfigSchemaClassification::Unsupported { .. }
+            ),
+            "{:?}",
+            classify_ggen_toml(toml)
+        );
+    }
+
+    #[test]
+    fn real_repo_file_with_no_generation_table_and_coincidental_declarative_table_names_is_not_declarative_rules(
+    ) {
+        // Grounded directly in the real, pre-existing repository file cited
+        // by the F2 finding (not a synthetic stand-in): `[project]` carries
+        // both `name` and `version`, `[templates]` uses
+        // `source_dir`/`output_dir` (not `dir`), and
+        // `[sparql]`/`[logging]`/`[security]` are present -- all three are
+        // on `DECLARATIVE_ONLY_TABLES` -- but there is no `[generation]`
+        // table and no `[ontology]` table at all. Before this fix, the bare
+        // `project.version` marker plus these coincidental table names alone
+        // forced `DeclarativeRules`, and the real typed parser then failed
+        // with a confusing "unknown field `author`" error that never
+        // mentioned the actual problem (no `[generation]`/`[ontology]`).
+        let raw = include_str!("../../../specs/012-grand-unified-kgc-thesis/ggen.toml");
+        let got = classify_ggen_toml(raw);
+        assert!(
+            matches!(got, ConfigSchemaClassification::Unsupported { .. }),
+            "expected Unsupported, got {got:?}"
+        );
+        // Real cross-check: the declarative-rules typed parser really does
+        // reject this document (proving `DeclarativeRules` would have been
+        // an actively wrong classification).
+        assert!(ManifestParser::parse_str(raw).is_err());
+    }
+
+    #[test]
+    fn generation_table_present_still_wins_even_when_frontmatter_minimum_also_matches() {
+        // Regression guard against overcorrection: a genuinely
+        // declarative-rules project's `[generation]` table is a
+        // schema-specific, decisive (strong) marker -- `[templates].dir`
+        // also happening to be present (`GgenManifest`'s `TemplatesConfig`
+        // tolerates a stray `dir` key, per the module doc) must not
+        // downgrade this to `Ambiguous`.
+        let toml = "[project]\nname = \"x\"\nversion = \"1.0.0\"\n\n\
+                    [ontology]\nsource = \"o.ttl\"\n\n\
+                    [templates]\ndir = \"templates\"\n\n\
+                    [generation]\nrules = []\n";
+        assert_eq!(
+            classify_ggen_toml(toml),
+            ConfigSchemaClassification::DeclarativeRules
         );
     }
 }

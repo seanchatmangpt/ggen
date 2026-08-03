@@ -116,7 +116,12 @@ source = "schema/domain.ttl"
 
 [[inference.rules]]
 name = "inf_rule"
-construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
+# ORDER BY added 2026-08-03 (TECH-DEBT-003 fix): this fixture's CONSTRUCT query used to
+# lack ORDER BY, which `strict_mode` (now defaults true, see
+# crates/ggen-engine/src/schema_dispatch.rs's sibling fixture fix, task #30 in this same
+# repair pass) correctly refuses with E0011 -- collateral damage from that default flip,
+# not a real bug in `sync run`'s cold-start path this test actually measures.
+construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o"
 
 [[generation.rules]]
 name = "api"
@@ -135,7 +140,10 @@ output_file = "src/api.rs"
     std::fs::create_dir_all(queries_dir.path()).unwrap();
     queries_dir
         .child("api.rq")
-        .write_str("SELECT ?s WHERE { ?s ?p ?o }")
+        // ORDER BY added 2026-08-03 (TECH-DEBT-003 fix, same strict_mode-default-flip
+        // collateral damage as the CONSTRUCT query above): strict_mode now correctly
+        // refuses a SELECT with no ORDER BY (E0013).
+        .write_str("SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s")
         .unwrap();
 
     let templates_dir = temp.child("templates");

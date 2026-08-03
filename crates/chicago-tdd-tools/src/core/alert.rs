@@ -542,10 +542,36 @@ mod logging_tests {
 
     #[test]
     fn test_alert_logger_init() {
-        // Test logger can be initialized
-        let result = AlertLogger::init(log::LevelFilter::Info);
-        // May fail if logger already set, that's OK
-        assert!(result.is_ok() || result.is_err());
+        // This is the only call to `log::set_logger` in this crate's `--lib`
+        // test binary, so the first invocation in the process must succeed.
+        let first = AlertLogger::init(log::LevelFilter::Info);
+        assert!(
+            first.is_ok(),
+            "first AlertLogger::init call must succeed when no global logger \
+             has been installed yet, got: {first:?}"
+        );
+        assert_eq!(
+            log::max_level(),
+            log::LevelFilter::Info,
+            "AlertLogger::init must apply the requested max level"
+        );
+
+        // `log::set_logger` can only ever succeed once per process, so a
+        // second call must observably fail with `SetLoggerError` rather than
+        // silently replacing the already-installed logger.
+        let second = AlertLogger::init(log::LevelFilter::Debug);
+        assert!(
+            second.is_err(),
+            "a second AlertLogger::init call must fail because the global \
+             logger is already set, got: {second:?}"
+        );
+        // The failed second call short-circuits before `set_max_level` runs,
+        // so the level from the first, successful call must be unchanged.
+        assert_eq!(
+            log::max_level(),
+            log::LevelFilter::Info,
+            "a failed second init must not alter the previously-set max level"
+        );
     }
 
     #[test]

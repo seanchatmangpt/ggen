@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::fs::File;
 use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 /// Complete proof emitted by the executable reference foundation.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

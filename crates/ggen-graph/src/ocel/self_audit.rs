@@ -2,6 +2,33 @@
 //!
 //! This module provides functions to construct an `OcelLog` with all required
 //! object types, event types, qualifiers, and attributes representing the development process.
+//!
+//! # Fixture data, not real evidence
+//!
+//! [`generate_self_audit_log`] returns a deterministic, hand-authored `OcelLog` shaped like a
+//! real self-audit: it contains OCEL objects and events with fields (a `CommandRun.exit_code`,
+//! an `EvidenceArtifact.sha256`, a `CoverageMatrix`'s `line_coverage`/`branch_coverage`, and
+//! `TestPassed`/`TestFailed`/`CheckpointPromoted`/etc. event timestamps) that *look* like
+//! observations of a real command run, a real artifact hash, real coverage tooling output, and
+//! real event timing. They are not. Every one of those fields is a literal constant chosen at
+//! authoring time; none of them is derived by actually running a command, hashing a real
+//! artifact, invoking a coverage tool, or reading a clock at event time. This module lives under
+//! `ggen-graph`'s `ocel/` tree, which — per this crate's boundary rules and its own
+//! `tests/forbidden_surface.rs` scan — forbids spawning subprocesses (the `Command` type from
+//! Rust's `process` module), filesystem/network access, and LLM calls, so it structurally cannot
+//! produce real observations even in principle; that is the tell that its only legitimate role
+//! is fixture data for exercising OCEL round-trip projection.
+//!
+//! The only legitimate consumers of this function are tests that need a representative,
+//! schema-complete `OcelLog` to project into a [`crate::DeterministicGraph`] and read back (see
+//! this file's own `#[cfg(test)]` module and `crates/ggen-graph/tests/ocel_self_audit.rs`).
+//! **Do not** write this log's output to a file that any truthfulness/compliance adjudication
+//! script reads as evidence, and do not add a new `emit_audit`-style binary that does so — a
+//! prior version of this crate did exactly that (`src/bin/emit_audit.rs`,
+//! `src/bin/verify_audit.rs`, `scripts/gall/external/09_verify_ocel_self_audit.sh`), which let
+//! `scripts/gall/external/99_adjudicate_truthfulness.sh` compute a Promoted/Refused truthfulness
+//! verdict partly from fabricated data. That path was removed 2026-08-03; see
+//! `crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs` for the regression guard.
 
 use crate::ocel::{OcelEvent, OcelLog, OcelObject, OcelObjectRef};
 use chrono::{TimeZone, Utc};

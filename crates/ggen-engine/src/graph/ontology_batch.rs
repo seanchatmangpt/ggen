@@ -90,6 +90,12 @@ pub(super) fn insert_documents(
         )
     })?;
 
+    // Same blank-node canonicalization every other mutation path runs (see
+    // `DeterministicGraph::canonicalize_blank_nodes`'s doc comment) — this
+    // path bypasses `DeterministicGraph::insert_turtle` by writing straight
+    // to `graph.store`, so it must call this itself rather than inherit it.
+    graph.canonicalize_blank_nodes()?;
+
     Ok(OntologyBatchReceipt {
         documents: documents.len(),
         parsed_quads,
@@ -207,8 +213,9 @@ mod tests {
             sequential.insert_turtle(document.content)?;
         }
         let batched = DeterministicGraph::new()?;
-        insert_documents(&batched, &documents)?;
+        let receipt = insert_documents(&batched, &documents)?;
 
+        assert_eq!(receipt.documents, documents.len());
         assert_eq!(batched.state_hash()?, sequential.state_hash()?);
         Ok(())
     }

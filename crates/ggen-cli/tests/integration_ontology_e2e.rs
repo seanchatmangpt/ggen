@@ -69,7 +69,7 @@ ex:name a rdf:Property ;
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_init_creates_project() {
     // Chicago TDD: Verify ontology project initialization
     let temp_dir = TempDir::new().unwrap();
@@ -88,7 +88,7 @@ fn test_ontology_init_creates_project() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_validate_passes() {
     // Chicago TDD: Validate well-formed ontology
     let temp_dir = TempDir::new().unwrap();
@@ -104,7 +104,7 @@ fn test_ontology_validate_passes() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_validate_strict() {
     // Chicago TDD: Verify strict validation mode
     let temp_dir = TempDir::new().unwrap();
@@ -121,7 +121,7 @@ fn test_ontology_validate_strict() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_generate_creates_code() {
     // Chicago TDD: Generate code from ontology
     let temp_dir = TempDir::new().unwrap();
@@ -142,7 +142,7 @@ fn test_ontology_generate_creates_code() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_generate_with_output() {
     // Chicago TDD: Verify custom output directory
     let temp_dir = TempDir::new().unwrap();
@@ -170,7 +170,7 @@ fn test_ontology_generate_with_output() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_generate_with_zod() {
     // Chicago TDD: Verify Zod utilities generation
     let temp_dir = TempDir::new().unwrap();
@@ -189,7 +189,7 @@ fn test_ontology_generate_with_zod() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_generate_with_utilities() {
     // Chicago TDD: Verify utilities generation
     let temp_dir = TempDir::new().unwrap();
@@ -206,7 +206,7 @@ fn test_ontology_generate_with_utilities() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -220,7 +220,7 @@ fn test_ontology_help_shows_verbs() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -232,7 +232,7 @@ fn test_ontology_invalid_verb() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_validate_missing_file() {
     // Chicago TDD: Verify error state for missing file
     let temp_dir = TempDir::new().unwrap();
@@ -248,7 +248,7 @@ fn test_ontology_validate_missing_file() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_ontology_generate_missing_file() {
     // Chicago TDD: Verify error state for missing ontology file
     let temp_dir = TempDir::new().unwrap();

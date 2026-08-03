@@ -53,16 +53,35 @@ mod backward_compat_tests {
     fn test_v1_maturity_command_works() {
         let result = run_marketplace_cmd(&["maturity", "test-package"]);
 
-        // May fail if package doesn't exist, but should run without panic
-        assert!(result.is_ok() || result.is_err());
+        // `marketplace` is not a noun registered in the current ggen-cli binary:
+        // it is absent from crates/ggen-cli/src/cmds/mod.rs's noun registrations,
+        // from generated_commands.rs's COMMANDS_REFERENCE, and from lib.rs's own
+        // KNOWN_NOUNS list (which has "market", not "marketplace"). clap-noun-verb's
+        // registry (`execute_single_step` in the vendored clap-noun-verb crate)
+        // rejects an unrecognized top-level subcommand at argument-parsing time,
+        // before any verb ever runs, so this must fail -- not "maybe ok, maybe err".
+        let err = result.expect_err(
+            "`ggen marketplace maturity` must fail: no `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]
     fn test_v1_validate_command_works() {
         let result = run_marketplace_cmd(&["validate", "test-package"]);
 
-        // Should execute without panic
-        assert!(result.is_ok() || result.is_err());
+        // Same root cause as test_v1_maturity_command_works: `marketplace` is not
+        // a registered noun, so this fails at argument-parsing time, every time.
+        let err = result.expect_err(
+            "`ggen marketplace validate` must fail: no `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]
@@ -115,8 +134,17 @@ mod backward_compat_tests {
     fn test_v1_nonexistent_package_error() {
         let result = run_marketplace_cmd(&["maturity", "nonexistent-package-xyz-123"]);
 
-        // Should handle gracefully
-        assert!(result.is_ok() || result.is_err());
+        // This must fail -- not because the package doesn't exist (that check
+        // never runs), but because `marketplace` itself is not a registered
+        // noun in the current ggen-cli binary (see test_v1_maturity_command_works).
+        let err = result.expect_err(
+            "`ggen marketplace maturity nonexistent-package-xyz-123` must fail: no \
+             `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]
@@ -147,24 +175,46 @@ mod backward_compat_tests {
     fn test_v1_search_with_filters() {
         let result = run_marketplace_cmd(&["search", "database", "--tag", "rust"]);
 
-        // Filtered search should work
-        assert!(result.is_ok() || result.is_err());
+        // Same root cause as test_v1_maturity_command_works: `marketplace` is
+        // not a registered noun, so a filtered search fails identically to an
+        // unfiltered one -- the `--tag` flag is never reached by the parser.
+        let err = result.expect_err(
+            "`ggen marketplace search --tag` must fail: no `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]
     fn test_v1_search_pagination() {
         let result = run_marketplace_cmd(&["search", "test", "--limit", "5", "--offset", "0"]);
 
-        // Pagination should work
-        assert!(result.is_ok() || result.is_err());
+        // Same root cause: `marketplace` is not a registered noun, so
+        // pagination flags are never reached by the parser either.
+        let err = result.expect_err(
+            "`ggen marketplace search --limit --offset` must fail: no `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]
     fn test_v1_list_sorting() {
         let result = run_marketplace_cmd(&["list", "--sort-by", "name"]);
 
-        // Sorting should work
-        assert!(result.is_ok() || result.is_err());
+        // Same root cause: `marketplace` is not a registered noun, so
+        // `--sort-by` is never reached by the parser either.
+        let err = result.expect_err(
+            "`ggen marketplace list --sort-by` must fail: no `marketplace` noun is registered",
+        );
+        assert!(
+            err.contains("marketplace"),
+            "expected the unrecognized-subcommand error to name 'marketplace', got: {err}"
+        );
     }
 
     #[test]

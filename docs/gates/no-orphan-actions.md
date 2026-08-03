@@ -19,10 +19,16 @@
 ## ASK Body
 
 ```sparql
+PREFIX cmx: <http://ggen.org/combinatorial#>
 
-    NOT EXISTS {
-      ?act a cmx:Action .
+
+    ?act a cmx:Action .
+    {
       FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    } UNION {
+      ?gen1 cmx:hasAction ?act .
+      ?gen2 cmx:hasAction ?act .
+      FILTER(?gen1 != ?gen2)
     }
     
 ```

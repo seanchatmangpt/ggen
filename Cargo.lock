@@ -3176,6 +3176,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "serial_test",
+ "sha1 0.10.7",
  "sha2 0.10.9",
  "tar",
  "tempfile",

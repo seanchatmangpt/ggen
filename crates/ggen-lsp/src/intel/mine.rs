@@ -159,6 +159,15 @@ fn family_slug(family: RepairFamily) -> &'static str {
         RepairFamily::LoadFailure => "load-failure",
         RepairFamily::ConfigValue => "config-value",
         RepairFamily::RuleFileMissing => "rule-file-missing",
+        RepairFamily::SourceCastePath => "source-caste-path",
+        RepairFamily::PackIndirection => "pack-indirection",
+        RepairFamily::Blindspot => "blindspot",
+        // Catch-all for families added elsewhere in the workspace whose mining
+        // slug hasn't been assigned yet; kept non-panicking rather than
+        // widening this match's own scope beyond GGEN-SRC-001 (this file's
+        // fix target). Replace with an explicit arm when that family's own
+        // fix lands.
+        _ => "unclassified",
     }
 }
 

@@ -138,6 +138,52 @@ fn validate_sbb(
     }
 }
 
+/// An external acceptance is only trustworthy when its issuer is registered in the
+/// program's trust registry under exactly the public key carried on the acceptance,
+/// AND the acceptance's signature cryptographically verifies against that key over
+/// the canonical (unsigned) acceptance body. Both `program.trusted_issuers` and
+/// `verify_signature` were previously defined but never consulted here -- an acceptance
+/// with a garbage signature and an issuer absent from the registry passed unchecked.
+fn trusted_issuer_signature_valid(program: &Program, acceptance: &ExternalAcceptance) -> bool {
+    let Some(trusted_key) = program.trusted_issuers.get(&acceptance.issuer) else {
+        return false;
+    };
+    if trusted_key != &acceptance.issuer_public_key {
+        return false;
+    }
+    let Ok(body) = serde_json::to_vec(&ExternalAcceptanceBody {
+        schema: EXTERNAL_ACCEPTANCE_SCHEMA,
+        subject: &acceptance.subject,
+        decision: &acceptance.decision,
+        issuer: &acceptance.issuer,
+        report_digest: &acceptance.report_digest,
+    }) else {
+        return false;
+    };
+    verify_signature(&acceptance.issuer_public_key, &acceptance.signature, &body)
+}
+
+/// Symmetric with `trusted_issuer_signature_valid`, for the broker/execution-grant side
+/// of the same previously-unenforced trust check.
+fn trusted_broker_signature_valid(program: &Program, grant: &ExecutionGrant) -> bool {
+    let Some(trusted_key) = program.trusted_brokers.get(&grant.broker) else {
+        return false;
+    };
+    if trusted_key != &grant.broker_public_key {
+        return false;
+    }
+    let Ok(body) = serde_json::to_vec(&ExecutionGrantBody {
+        schema: EXECUTION_GRANT_SCHEMA,
+        subject: &grant.subject,
+        broker: &grant.broker,
+        grant: &grant.grant,
+        report_digest: &grant.report_digest,
+    }) else {
+        return false;
+    };
+    verify_signature(&grant.broker_public_key, &grant.signature, &body)
+}
+
 fn validate_authority(capability: &Capability, violations: &mut Vec<String>) {
     if !AUTHORITIES.contains(&capability.authority.as_str()) {
         violations.push("authority is not recognized".to_string());
@@ -253,9 +299,12 @@ fn evaluate_capability(
                     && acceptance.decision == "ACCEPTED"
                     && !acceptance.issuer.trim().is_empty()
                     && acceptance.issuer != program.id
-                    && acceptance.report_digest == report_digest_value => {}
-            _ => violations
-                .push("external acceptance is absent, self-issued, or divergent".to_string()),
+                    && acceptance.report_digest == report_digest_value
+                    && trusted_issuer_signature_valid(program, &acceptance) => {}
+            _ => violations.push(
+                "external acceptance is absent, self-issued, untrusted, unsigned, or divergent"
+                    .to_string(),
+            ),
         }
     }
 
@@ -270,8 +319,11 @@ fn evaluate_capability(
                     && grant.subject == capability.iri
                     && grant.grant == "GRANTED"
                     && !grant.broker.trim().is_empty()
-                    && grant.report_digest == report_digest_value => {}
-            _ => violations.push("actuating capability lacks a valid execution grant".to_string()),
+                    && grant.report_digest == report_digest_value
+                    && trusted_broker_signature_valid(program, &grant) => {}
+            _ => violations.push(
+                "actuating capability lacks a valid, trusted, signed execution grant".to_string(),
+            ),
         }
     }
 

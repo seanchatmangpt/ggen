@@ -85,7 +85,7 @@ ex:jane a ex:Person ;
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_load_turtle_format() {
     // Chicago TDD: Verify real RDF loading into graph store
     let temp_dir = TempDir::new().unwrap();
@@ -105,7 +105,7 @@ fn test_graph_load_turtle_format() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_load_invalid_format() {
     // Chicago TDD: Verify error state for invalid RDF
     let temp_dir = TempDir::new().unwrap();
@@ -123,7 +123,7 @@ fn test_graph_load_invalid_format() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_query_sparql_select() {
     // Chicago TDD: Verify real SPARQL query execution
     let temp_dir = TempDir::new().unwrap();
@@ -152,7 +152,7 @@ fn test_graph_query_sparql_select() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_query_invalid_sparql() {
     // Chicago TDD: Verify error handling for invalid SPARQL
     let temp_dir = TempDir::new().unwrap();
@@ -168,7 +168,7 @@ fn test_graph_query_invalid_sparql() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_export_turtle() {
     // Chicago TDD: Verify graph export to file
     let temp_dir = TempDir::new().unwrap();
@@ -208,7 +208,7 @@ fn test_graph_export_turtle() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_validate_structure() {
     // Chicago TDD: Verify graph validation
     let temp_dir = TempDir::new().unwrap();
@@ -233,7 +233,7 @@ fn test_graph_validate_structure() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_stats_shows_metrics() {
     // Chicago TDD: Verify graph statistics state
     let temp_dir = TempDir::new().unwrap();
@@ -263,7 +263,7 @@ fn test_graph_stats_shows_metrics() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_snapshot_create() {
     // Chicago TDD: Verify graph snapshot state creation
     let temp_dir = TempDir::new().unwrap();
@@ -290,7 +290,7 @@ fn test_graph_snapshot_create() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_snapshot_list() {
     // Chicago TDD: Verify snapshot listing state
     let temp_dir = TempDir::new().unwrap();
@@ -310,7 +310,7 @@ fn test_graph_snapshot_list() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_diff_snapshots() {
     // Chicago TDD: Verify snapshot diff functionality
     let temp_dir = TempDir::new().unwrap();
@@ -345,7 +345,7 @@ fn test_graph_diff_snapshots() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_help_output() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -360,7 +360,7 @@ fn test_graph_help_output() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_query_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -373,7 +373,7 @@ fn test_graph_query_help() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -385,7 +385,7 @@ fn test_graph_invalid_verb() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_load_missing_file() {
     // Chicago TDD: Verify error state for missing RDF file
     let temp_dir = TempDir::new().unwrap();
@@ -401,7 +401,7 @@ fn test_graph_load_missing_file() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_export_missing_graph() {
     // Chicago TDD: Verify error state when no graph loaded
     let temp_dir = TempDir::new().unwrap();
@@ -420,7 +420,7 @@ fn test_graph_export_missing_graph() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_performance_large_query() {
     // Chicago TDD: Verify performance for complex queries
     let temp_dir = TempDir::new().unwrap();

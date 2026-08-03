@@ -3,6 +3,8 @@
 //! overlay-graph semantics in `ggen_engine::sync`. Real filesystem, real sync
 //! pipeline — no mocks. Mirrors `frontmatter_fields_e2e.rs`'s conventions.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -20,7 +22,7 @@ dir = "templates"
 "#;
 
 /// Base project ontology: present in every template's overlay (overlay =
-/// base graph's triples PLUS the template's own rdf/rdf_inline content).
+/// base graph's triples PLUS the template's own `rdf/rdf_inline` content).
 const ONTOLOGY: &str = r#"
 @prefix ex: <http://example.org/> .
 ex:alice ex:name "alice" .

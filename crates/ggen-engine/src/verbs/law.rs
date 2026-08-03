@@ -21,7 +21,7 @@ fn law_explain() -> Result<serde_json::Value> {
 fn law_export() -> Result<serde_json::Value> {
     crate::verbs::handlers::handle_law_export()
 }
-/// Load every [law].rules file into the GraphLaw engine and report the rule count per file (refuses on the first unparseable rule document).
+/// Load every [law].rules file into the `GraphLaw` engine and report the rule count per file (refuses on the first unparseable rule document).
 #[clap_noun_verb_macros::verb("load")]
 fn law_load() -> Result<serde_json::Value> {
     crate::verbs::handlers::handle_law_load()

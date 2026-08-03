@@ -15,6 +15,9 @@
 #
 # Generated from combinatorial.ttl. Edit the ontology, not this file.
 
+{% if ns_prefix and ns_uri %}
+PREFIX {{ ns_prefix }}: <{{ ns_uri }}>
+{% endif %}
 {% if ask_body %}
 ASK {
   {{ ask_body }}

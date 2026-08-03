@@ -1,14 +1,15 @@
 //! Error types for ggen.
 
-use once_cell::sync::Lazy;
 use thiserror::Error;
 
 /// The top-level error type for this crate.
 #[derive(Debug, Error)]
 pub enum AppError {
+    /// Filesystem or other I/O failure, propagated via `#[from]`.
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// JSON (de)serialization failure, propagated via `#[from]`.
     #[error("serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
@@ -131,6 +132,9 @@ pub trait CliValidator: Send + Sync {
     ///
     /// Failure Mode: `--parallel` flag set but `--jobs` is zero → runtime panic or no-op.
     /// Remediation: set `--jobs` to a positive integer or remove `--parallel` flag.
+    ///
+    /// # Errors
+    /// Returns an error if `parallel` is set and `jobs` is zero.
     fn validate_run_args(&self, parallel: bool, jobs: usize) -> Result<()>;
 }
 
@@ -157,7 +161,8 @@ impl CliValidator for DefaultCliValidator {
 }
 
 /// Process-wide singleton validator. Replace via dependency injection in tests.
-pub static CLI_VALIDATOR: Lazy<DefaultCliValidator> = Lazy::new(DefaultCliValidator::default);
+pub static CLI_VALIDATOR: std::sync::LazyLock<DefaultCliValidator> =
+    std::sync::LazyLock::new(DefaultCliValidator::default);
 
 // ---------------------------------------------------------------------------
 // Typed FM-code constructors
@@ -288,6 +293,7 @@ pub struct ValidationChain {
 
 impl ValidationChain {
     /// Create an empty chain.
+    #[must_use]
     pub fn new() -> Self {
         ValidationChain { errors: Vec::new() }
     }
@@ -301,7 +307,7 @@ impl ValidationChain {
     }
 
     /// Convenience: add a check only when `condition` is false.
-    pub fn require(&mut self, condition: bool, error: AppError) -> &mut Self {
+    pub fn require(&mut self, condition: bool, error: &AppError) -> &mut Self {
         if !condition {
             self.errors.push(error.to_string());
         }
@@ -309,6 +315,10 @@ impl ValidationChain {
     }
 
     /// Return `Ok(())` if no errors were recorded, else `Err` with all messages joined.
+    ///
+    /// # Errors
+    /// Returns [`AppError::Validation`] joining every recorded message with `"; "` if
+    /// at least one check failed.
     pub fn finish(self) -> Result<()> {
         if self.errors.is_empty() {
             Ok(())
@@ -318,11 +328,13 @@ impl ValidationChain {
     }
 
     /// Returns `true` if any errors have been recorded.
+    #[must_use]
     pub fn has_errors(&self) -> bool {
         !self.errors.is_empty()
     }
 
     /// Returns the count of recorded errors.
+    #[must_use]
     pub fn error_count(&self) -> usize {
         self.errors.len()
     }
@@ -335,6 +347,7 @@ impl Default for ValidationChain {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod validation_chain_tests {
     use super::*;
 
@@ -365,7 +378,7 @@ mod validation_chain_tests {
     #[test]
     fn require_records_error_on_false() {
         let mut c = ValidationChain::new();
-        c.require(false, AppError::fm_cli(99, "must be true"));
+        c.require(false, &AppError::fm_cli(99, "must be true"));
         assert!(c.has_errors());
         assert_eq!(c.error_count(), 1);
     }
@@ -373,7 +386,7 @@ mod validation_chain_tests {
     #[test]
     fn require_passes_on_true() {
         let mut c = ValidationChain::new();
-        c.require(true, AppError::fm_cli(99, "should not appear"));
+        c.require(true, &AppError::fm_cli(99, "should not appear"));
         assert!(!c.has_errors());
     }
 

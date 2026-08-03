@@ -11,11 +11,20 @@
 //! and `v2` (an `Option<ReceiptEpochV2>`, `None` on every v1 record). This is
 //! the additive-fields design named in the task over a wholly parallel
 //! struct: it costs each of the eight pre-existing `ReceiptRecord { .. }`
-//! construction sites two extra lines (`schema: SCHEMA_V1.into(), v2: None`)
-//! and changes nothing about chain-hash computation --
+//! construction sites two extra lines (`schema: SCHEMA_V1.into(), v2: None`).
 //! [`crate::law::ReceiptMeta`]/`build_admission_frame` never read either
-//! field, so [`crate::receipt_record::ReceiptRecord::recompute_chain_hash`]
-//! is bit-for-bit unchanged for old and new records alike.
+//! field, so a v1 record (`v2: None`)'s
+//! [`crate::receipt_record::ReceiptRecord::recompute_chain_hash`] is
+//! bit-for-bit unchanged from before this module existed -- full backward
+//! compatibility for every pre-existing receipt. A v2 record (`v2: Some`)
+//! is a different case, corrected by the F1 fix: `recompute_chain_hash`
+//! folds `schema` and the full `v2` payload into the chain hash (see that
+//! function's `fold_in_v2_epoch` step), specifically so `standing_ceiling`/
+//! `admission`/`equivalence`/`promotion_eligible` cannot be forged in place
+//! while `chain_hash_hex`/`signature_hex` are left untouched. An earlier
+//! version of this comment claimed the fold was a no-op "for old and new
+//! records alike" -- that was true only for `v2: None` and was itself the
+//! contract-drift bug (see the receipt-chain-v2-epoch audit finding).
 //!
 //! # Dual-read / single-write
 //!

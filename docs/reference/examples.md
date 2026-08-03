@@ -235,7 +235,7 @@ Explore **20+ production-ready examples** organized by complexity. All examples 
 
 | Metric | Target | Achieved |
 |--------|--------|----------|
-| **Test Coverage** | >80% | ✅ 95%+ |
+| **Test Coverage** | >80% | UNVERIFIED -- no CI/justfile gate computes coverage for these examples; "95%+" was never backed by a coverage-tool run |
 | **Clippy Warnings** | 0 | ✅ 0 |
 | **Test Pass Rate** | 100% | ✅ 100% |
 | **Documentation** | Complete README | ✅ All examples |

@@ -60,7 +60,75 @@ impl DeterministicGraph {
             .store
             .len()
             .map_err(|e| AppError::fm_graph(2, format!("store length unavailable: {e}")))?;
-        Ok(after.saturating_sub(before))
+        let inserted = after.saturating_sub(before);
+        self.canonicalize_blank_nodes()?;
+        Ok(inserted)
+    }
+
+    /// Rewrite every blank node currently in the store to its stable
+    /// `c14n{i}` label (bounded color refinement, see [`blank_node_relabel_map`]
+    /// / the module docs) so the store never exposes a raw, parser-assigned
+    /// blank-node id to anything downstream.
+    ///
+    /// This is the root-cause half of blank-node determinism: relabeling
+    /// only at SPARQL projection time (also done, see
+    /// [`GraphEngine::query`]'s `impl` for [`DeterministicGraph`]) cannot by
+    /// itself fix a query whose `ORDER BY`/`GROUP BY`/`DISTINCT` compares a
+    /// blank-node-valued variable, because SPARQL evaluation runs BEFORE
+    /// projection and would still sort/dedupe on the store's raw ids.
+    /// Canonicalizing the store itself, immediately after every mutation,
+    /// means the SPARQL evaluator itself only ever sees stable ids, so
+    /// `ORDER BY ?s` picks the same row on every independent load of
+    /// byte-identical input. Called from every mutation path
+    /// ([`DeterministicGraph::insert_turtle`],
+    /// `ontology_batch::insert_documents`, [`Delta::apply`]) rather than
+    /// once per query, so the (usually blank-node-free) common case pays
+    /// this cost once per load, not once per template.
+    ///
+    /// A no-op (single `all_quads` scan, no store mutation) when the graph
+    /// has no blank nodes — the overwhelmingly common case.
+    ///
+    /// # Errors
+    /// Propagates [`blank_node_relabel_map`] failures, or store
+    /// iteration/mutation errors (`[FM-GRAPH-004]`/`[FM-GRAPH-002]`).
+    fn canonicalize_blank_nodes(&self) -> Result<()> {
+        let quads = self.all_quads()?;
+        let relabel = blank_node_relabel_map(&quads)?;
+        if relabel.is_empty() {
+            return Ok(());
+        }
+        let mut to_insert: Vec<Quad> = Vec::new();
+        for quad in &quads {
+            let touches_blank = matches!(&quad.subject, NamedOrBlankNode::BlankNode(_))
+                || matches!(&quad.object, Term::BlankNode(_))
+                || matches!(&quad.graph_name, GraphName::BlankNode(_));
+            if !touches_blank {
+                continue;
+            }
+            let relabeled = relabel_quad(quad, &relabel);
+            if &relabeled == quad {
+                // Already canonical (idempotent re-run, e.g. a second
+                // `insert_turtle` call after the first already canonicalized
+                // this node) — nothing to rewrite.
+                continue;
+            }
+            self.store.remove(quad).map_err(|e| {
+                AppError::fm_graph(
+                    2,
+                    format!("blank-node canonicalization: remove of stale quad failed: {e}"),
+                )
+            })?;
+            to_insert.push(relabeled);
+        }
+        if !to_insert.is_empty() {
+            self.store.extend(to_insert).map_err(|e| {
+                AppError::fm_graph(
+                    2,
+                    format!("blank-node canonicalization: insert of relabeled quads failed: {e}"),
+                )
+            })?;
+        }
+        Ok(())
     }
 
     /// Execute a SPARQL query against the graph.
@@ -375,7 +443,7 @@ pub enum EngineValue {
     Float(f64),
     /// Everything else: plain strings, `xsd:string`, language-tagged
     /// literals, `xsd:dateTime`/`xsd:date`/`xsd:anyURI`/etc. (lossy — see
-    /// the scope-boundary note above), NamedNode/IRI, BlankNode — plus the
+    /// the scope-boundary note above), NamedNode/IRI, `BlankNode` — plus the
     /// malformed-lexical-value and non-representable-value fallback paths
     /// for the other three variants.
     String(String),
@@ -514,10 +582,10 @@ pub trait GraphEngine: Send + Sync {
     /// parse errors.
     fn validate_shacl(&self, shapes_turtle: &str) -> Result<ShaclOutcome>;
 
-    /// Validate `(focus node, shape)` pairs against a ShExC schema.
+    /// Validate `(focus node, shape)` pairs against a `ShExC` schema.
     ///
     /// # Errors
-    /// Typed refusal when the engine has no ShEx support, or on schema
+    /// Typed refusal when the engine has no `ShEx` support, or on schema
     /// parse errors.
     fn validate_shex(
         &self, schema_shexc: &str, shape_map: &[(String, String)],
@@ -537,11 +605,44 @@ pub trait GraphEngine: Send + Sync {
 /// rendering.) Used for [`EngineTriple`] (CONSTRUCT/DESCRIBE) — that path
 /// stays plain-string, unaffected by [`term_to_engine_value`]'s SELECT-row
 /// coercion; see the module docs on `EngineTriple::object_value`.
-pub(crate) fn term_value(term: &Term) -> String {
+///
+/// `relabel` is the blank-node canonicalization map from
+/// [`blank_node_relabel_map`] (the same scheme `canonical_quads` uses) —
+/// a `Term::BlankNode` is rewritten through it before rendering, so a
+/// blank-node-valued term is a stable string across independent loads of
+/// byte-identical input instead of the store's raw parser-assigned id.
+pub(crate) fn term_value(term: &Term, relabel: &HashMap<BlankNode, BlankNode>) -> String {
     match term {
         Term::Literal(lit) => lit.value().to_string(),
         Term::NamedNode(n) => n.as_str().to_string(),
+        Term::BlankNode(b) => relabel.get(b).unwrap_or(b).to_string(),
+        Term::Triple(triple) => triple.to_string(),
+    }
+}
+
+/// `term`'s full N-Triples/Turtle/SPARQL rendering (`<iri>`, quoted literal,
+/// or `_:label`), with a `Term::BlankNode` relabelled through `relabel`
+/// exactly as [`term_value`] does. Used for [`EngineTriple::ntriples`], the
+/// re-insertable whole-triple form — unlike [`term_value`], literals and
+/// IRIs keep their full syntactic form here (quotes, datatype, angle
+/// brackets), not the bare lexical/IRI string.
+fn term_ntriples_relabeled(term: &Term, relabel: &HashMap<BlankNode, BlankNode>) -> String {
+    match term {
+        Term::BlankNode(b) => relabel.get(b).unwrap_or(b).to_string(),
         other => other.to_string(),
+    }
+}
+
+/// `node`'s N-Triples/Turtle/SPARQL rendering (`<iri>` or `_:label`), with a
+/// `NamedOrBlankNode::BlankNode` relabelled through `relabel`. Used for
+/// [`EngineTriple::subject`] and the subject half of
+/// [`EngineTriple::ntriples`].
+fn named_or_blank_ntriples(
+    node: &NamedOrBlankNode, relabel: &HashMap<BlankNode, BlankNode>,
+) -> String {
+    match node {
+        NamedOrBlankNode::NamedNode(n) => n.to_string(),
+        NamedOrBlankNode::BlankNode(b) => relabel.get(b).unwrap_or(b).to_string(),
     }
 }
 
@@ -587,7 +688,7 @@ const XSD_FLOAT_DATATYPES: &[&str] = &["decimal", "double", "float"];
 ///   results fall back the same way a parse failure does).
 /// - Everything else (plain strings, `xsd:string`, language-tagged
 ///   literals, `xsd:dateTime`/`xsd:date`/`xsd:anyURI`/etc., NamedNode/IRI,
-///   BlankNode) → [`EngineValue::String`], byte-identical to
+///   `BlankNode`) → [`EngineValue::String`], byte-identical to
 ///   [`term_value`]'s output — backward compatible with every existing
 ///   `{{ row.field }}`-style template access.
 ///
@@ -604,10 +705,16 @@ const XSD_FLOAT_DATATYPES: &[&str] = &["decimal", "double", "float"];
 /// literals and `xsd:dateTime`/`xsd:date`-typed literals remain lossy plain
 /// strings in this pass — the language tag is dropped, no date object is
 /// constructed. See [`EngineValue`]'s own doc comment for the same note.
-pub(crate) fn term_to_engine_value(term: &Term) -> EngineValue {
+///
+/// `relabel` is threaded straight through to [`term_value`] for the
+/// NamedNode/BlankNode fallback branch below — see that function's doc
+/// comment for the blank-node canonicalization it applies.
+pub(crate) fn term_to_engine_value(
+    term: &Term, relabel: &HashMap<BlankNode, BlankNode>,
+) -> EngineValue {
     let Term::Literal(lit) = term else {
         // NamedNode/BlankNode/etc.: identical to `term_value`.
-        return EngineValue::String(term_value(term));
+        return EngineValue::String(term_value(term, relabel));
     };
     let datatype = lit.datatype().as_str();
     let lexical = lit.value();
@@ -687,6 +794,15 @@ impl GraphEngine for DeterministicGraph {
         match DeterministicGraph::query(self, sparql)? {
             QueryResults::Boolean(b) => Ok(EngineQueryResults::Boolean(b)),
             QueryResults::Solutions(solutions) => {
+                // Blank-node projection determinism: relabel any bound blank
+                // node through the SAME canonicalization scheme
+                // `canonical_quads`/`state_hash` already use (bounded color
+                // refinement over the whole graph, see module docs), so a
+                // blank-node-valued SELECT binding a template consumes is a
+                // stable label across independent loads of byte-identical
+                // input, not the store's raw parser-assigned internal id
+                // (which oxigraph regenerates fresh on every Turtle load).
+                let relabel = blank_node_relabel_map(&self.all_quads()?)?;
                 let mut rows = Vec::new();
                 for solution in solutions {
                     let solution = solution.map_err(|e| {
@@ -694,23 +810,36 @@ impl GraphEngine for DeterministicGraph {
                     })?;
                     let mut row = EngineRow::new();
                     for (var, term) in solution.iter() {
-                        row.insert(var.as_str().to_string(), term_to_engine_value(term));
+                        row.insert(
+                            var.as_str().to_string(),
+                            term_to_engine_value(term, &relabel),
+                        );
                     }
                     rows.push(row);
                 }
                 Ok(EngineQueryResults::Solutions(rows))
             }
             QueryResults::Graph(triples) => {
+                // Same canonicalization applied to CONSTRUCT/DESCRIBE
+                // results -- a blank-node-valued triple position is exactly
+                // as template-reachable (`EngineTriple::subject`/
+                // `object_value`/`ntriples`) as a SELECT binding.
+                let relabel = blank_node_relabel_map(&self.all_quads()?)?;
                 let mut out = Vec::new();
                 for triple in triples {
                     let triple = triple.map_err(|e| {
                         AppError::fm_graph(3, format!("CONSTRUCT triple iteration failed: {e}"))
                     })?;
                     out.push(EngineTriple {
-                        subject: triple.subject.to_string(),
+                        subject: named_or_blank_ntriples(&triple.subject, &relabel),
                         predicate: triple.predicate.to_string(),
-                        object_value: term_value(&triple.object),
-                        ntriples: triple.to_string(),
+                        object_value: term_value(&triple.object, &relabel),
+                        ntriples: format!(
+                            "{} {} {}",
+                            named_or_blank_ntriples(&triple.subject, &relabel),
+                            triple.predicate,
+                            term_ntriples_relabeled(&triple.object, &relabel)
+                        ),
                     });
                 }
                 Ok(EngineQueryResults::Graph(out))
@@ -777,7 +906,7 @@ impl GraphEngine for DeterministicGraph {
 // GraphLawStore — praxis-graphlaw as the live law-state engine
 // ---------------------------------------------------------------------------
 
-/// The default [`GraphEngine`]: praxis-graphlaw ("GraphLaw", the roxi fork)
+/// The default [`GraphEngine`]: praxis-graphlaw ("`GraphLaw`", the roxi fork)
 /// as the law-state engine — N3/Datalog rule materialization, SHACL/ShEx
 /// gates, denial checks — layered over a [`DeterministicGraph`] mirror that
 /// answers SPARQL 1.1 and provides the canonical BLAKE3 state hash.
@@ -785,9 +914,9 @@ impl GraphEngine for DeterministicGraph {
 /// Division of labor (and why): praxis-graphlaw is on oxrdf 0.3.x while
 /// this crate's oxigraph is 0.5.9, so model types never cross the seam —
 /// facts flow between the two sides only as N-Triples strings. The mirror
-/// is the *queryable* state; the GraphLaw reasoner is the *law* state.
+/// is the *queryable* state; the `GraphLaw` reasoner is the *law* state.
 /// Every derived fact enters the mirror exclusively through
-/// [`GraphEngine::materialize`], i.e. through the GraphLaw reasoner — a
+/// [`GraphEngine::materialize`], i.e. through the `GraphLaw` reasoner — a
 /// `when:` ASK that only passes after materialization is proof the
 /// reasoner is in the loop (see `tests/graphlaw_e2e.rs`).
 pub struct GraphLawStore {
@@ -817,7 +946,7 @@ struct LawState {
 }
 
 impl GraphLawStore {
-    /// Create an empty GraphLaw engine.
+    /// Create an empty `GraphLaw` engine.
     ///
     /// # Errors
     /// Propagates mirror-store initialization failures (`[FM-GRAPH-001]`).
@@ -841,11 +970,15 @@ impl GraphLawStore {
 
     /// The current fact state as one N-Triples document (canonical order).
     fn mirror_ntriples(&self) -> Result<String> {
+        use std::fmt::Write as _;
         let lines = canonical_nquad_lines(&self.mirror.all_quads()?)?;
-        Ok(lines.iter().map(|l| format!("{l} .\n")).collect())
+        Ok(lines.iter().fold(String::new(), |mut doc, l| {
+            let _ = writeln!(doc, "{l} .");
+            doc
+        }))
     }
 
-    /// Build a fresh GraphLaw `TripleStore` over the mirror's facts, the
+    /// Build a fresh `GraphLaw` `TripleStore` over the mirror's facts, the
     /// loaded rule documents, and the loaded `kh:` hook-pack documents.
     fn build_law_store(
         &self, rules_src: &[String], hooks_src: &[String],
@@ -915,11 +1048,10 @@ impl GraphEngine for GraphLawStore {
                 .diagnostics
                 .as_ref()
                 .and_then(|d| d.details.first())
-                .map(|det| det.message.clone())
-                .unwrap_or_else(|| "refused by hook".to_string());
+                .map_or_else(|| "refused by hook".to_string(), |det| det.message.clone());
             return Err(AppError::fm_law(
                 9,
-                format!("Reasoner materialize failed: {}", reason),
+                format!("Reasoner materialize failed: {reason}"),
             ));
         }
         let derived_doc = praxis_graphlaw::TripleStore::decode_triples(&derived);
@@ -1003,17 +1135,16 @@ impl GraphEngine for GraphLawStore {
 
     fn check_denials(&self) -> Result<Vec<String>> {
         let state = self.law_state()?;
-        match &state.store {
-            Some(ts) => Ok(ts.check_denials()),
-            None => {
-                // Denials are rules; without a materialize pass there is no
-                // reasoner state. Build one so `law validate` can be called
-                // without an explicit prior derive.
-                let (mut ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
-                ts.materialize()
-                    .map_err(|e| crate::AppError::fm_law(9, format!("Materialize failed: {e}")))?;
-                Ok(ts.check_denials())
-            }
+        if let Some(ts) = &state.store {
+            Ok(ts.check_denials())
+        } else {
+            // Denials are rules; without a materialize pass there is no
+            // reasoner state. Build one so `law validate` can be called
+            // without an explicit prior derive.
+            let (mut ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
+            ts.materialize()
+                .map_err(|e| crate::AppError::fm_law(9, format!("Materialize failed: {e}")))?;
+            Ok(ts.check_denials())
         }
     }
 
@@ -1087,7 +1218,11 @@ impl Delta {
         if !self.additions.is_empty() {
             // `Quad`'s Display form omits the terminating ` .` required by
             // the N-Quads grammar; add it per line before parsing.
-            let doc: String = self.additions.iter().map(|a| format!("{a} .\n")).collect();
+            use std::fmt::Write as _;
+            let doc: String = self.additions.iter().fold(String::new(), |mut doc, a| {
+                let _ = writeln!(doc, "{a} .");
+                doc
+            });
             graph
                 .store
                 .load_from_slice(RdfFormat::NQuads, doc.as_str())
@@ -1095,6 +1230,11 @@ impl Delta {
                     AppError::fm_graph(6, format!("failed to insert delta additions: {e}"))
                 })?;
         }
+        // Same blank-node canonicalization every other mutation path runs
+        // (see `DeterministicGraph::canonicalize_blank_nodes`'s doc
+        // comment) — this method writes straight to `graph.store`,
+        // bypassing `insert_turtle`, so it must call this itself.
+        graph.canonicalize_blank_nodes()?;
         Ok(())
     }
 
@@ -1183,13 +1323,7 @@ fn canonical_nquad_lines(quads: &[Quad]) -> Result<Vec<String>> {
 /// Blank nodes are relabelled `c14n{i}` after bounded color refinement so
 /// the canonical strings are stable across blank-node renamings.
 fn canonical_pairs(quads: &[Quad]) -> Result<Vec<(String, Quad)>> {
-    let blank_nodes = collect_blank_nodes(quads);
-
-    let relabel: HashMap<BlankNode, BlankNode> = if blank_nodes.is_empty() {
-        HashMap::new()
-    } else {
-        canonical_blank_node_map(quads, &blank_nodes)?
-    };
+    let relabel = blank_node_relabel_map(quads)?;
 
     let mut pairs: Vec<(String, Quad)> = quads
         .iter()
@@ -1197,6 +1331,30 @@ fn canonical_pairs(quads: &[Quad]) -> Result<Vec<(String, Quad)>> {
         .collect();
     pairs.sort_by(|a, b| a.0.cmp(&b.0));
     Ok(pairs)
+}
+
+/// Compute the blank-node canonicalization map for `quads`: every blank node
+/// appearing anywhere in the slice mapped to its stable `c14n{i}` label via
+/// bounded color refinement (see [`canonical_blank_node_map`]).
+///
+/// This is the single shared entry point for blank-node canonicalization in
+/// this module — [`canonical_pairs`] (receipt/content hashing) and
+/// [`GraphEngine::query`]'s SELECT/CONSTRUCT projection (template-reachable
+/// blank-node values) both call this instead of each maintaining their own
+/// relabeling logic, so a blank node's canonical label is identical whether
+/// it reaches a receipt hash or a template.
+///
+/// # Errors
+/// Propagates [`canonical_blank_node_map`] failures (a `c14n{i}` label
+/// rejected as an invalid blank-node identifier — practically unreachable
+/// for any finite `i`, but not `unwrap`-away-able).
+fn blank_node_relabel_map(quads: &[Quad]) -> Result<HashMap<BlankNode, BlankNode>> {
+    let blank_nodes = collect_blank_nodes(quads);
+    if blank_nodes.is_empty() {
+        Ok(HashMap::new())
+    } else {
+        canonical_blank_node_map(quads, &blank_nodes)
+    }
 }
 
 /// Collect every blank node appearing in subject, object, or graph position.
@@ -1303,7 +1461,7 @@ fn relabel_quad(quad: &Quad, map: &HashMap<BlankNode, BlankNode>) -> Quad {
         NamedOrBlankNode::BlankNode(b) => {
             NamedOrBlankNode::BlankNode(map.get(b).cloned().unwrap_or_else(|| b.clone()))
         }
-        other => other.clone(),
+        named @ NamedOrBlankNode::NamedNode(_) => named.clone(),
     };
     let object = match &quad.object {
         Term::BlankNode(b) => Term::BlankNode(map.get(b).cloned().unwrap_or_else(|| b.clone())),
@@ -1319,6 +1477,7 @@ fn relabel_quad(quad: &Quad, map: &HashMap<BlankNode, BlankNode>) -> Quad {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 
@@ -1369,10 +1528,10 @@ mod tests {
 
     // -- GraphLawStore ------------------------------------------------------
 
-    const DOG_TTL: &str = r#"
+    const DOG_TTL: &str = r"
         @prefix ex: <http://example.org/> .
         ex:rex a ex:Dog .
-    "#;
+    ";
 
     const DOG_RULE: &str = "@prefix ex: <http://example.org/>. {?s a ex:Dog} => {?s a ex:Animal}.";
 
@@ -1442,13 +1601,13 @@ mod tests {
             "@prefix ex: <http://example.org/> . ex:rex a ex:Dog .",
         )
         .expect("ttl");
-        let shapes = r#"
+        let shapes = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org/> .
             ex:DogShape a sh:NodeShape ;
                 sh:targetClass ex:Dog ;
                 sh:property [ sh:path ex:name ; sh:minCount 1 ] .
-        "#;
+        ";
         let outcome = store.validate_shacl(shapes).expect("shacl");
         assert!(!outcome.conforms, "rex has no ex:name");
         assert!(

@@ -3,14 +3,23 @@
 //! Test fixtures for integration tests
 //!
 //! Provides standard test data, templates, and configurations used across the test suite.
+//!
+//! Split 2026-08-03 (TECH-DEBT-003 fix, see tests/common/mod.rs's header comment): the
+//! `ggen_core::lifecycle` import and the 5 functions that actually use it are gated behind
+//! `#[cfg(feature = "ggen-core-retired")]` (permanently off, `ggen_core` does not exist on
+//! disk); every other function below is a plain tempdir/string helper with no ggen_core
+//! coupling and compiles unconditionally.
 
+#[cfg(feature = "ggen-core-retired")]
 use ggen_core::lifecycle::{Context, Make, Phase, PhaseBuilder, Project};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+#[cfg(feature = "ggen-core-retired")]
 use std::sync::Arc;
 use tempfile::TempDir;
 
 /// Creates a sample Phase for lifecycle testing
+#[cfg(feature = "ggen-core-retired")]
 #[allow(dead_code)]
 pub fn sample_phase_init() -> Phase {
     PhaseBuilder::new("init")
@@ -23,6 +32,7 @@ pub fn sample_phase_init() -> Phase {
 }
 
 /// Creates a sample Phase for build testing
+#[cfg(feature = "ggen-core-retired")]
 #[allow(dead_code)]
 pub fn sample_phase_build() -> Phase {
     PhaseBuilder::new("build")
@@ -35,6 +45,7 @@ pub fn sample_phase_build() -> Phase {
 }
 
 /// Creates a sample Phase for test execution
+#[cfg(feature = "ggen-core-retired")]
 #[allow(dead_code)]
 pub fn sample_phase_test() -> Phase {
     PhaseBuilder::new("test")
@@ -47,6 +58,7 @@ pub fn sample_phase_test() -> Phase {
 }
 
 /// Creates a complete Make configuration for testing
+#[cfg(feature = "ggen-core-retired")]
 #[allow(dead_code)]
 pub fn sample_make() -> Make {
     let mut lifecycle = BTreeMap::new();
@@ -68,6 +80,7 @@ pub fn sample_make() -> Make {
 }
 
 /// Creates a Context for lifecycle testing
+#[cfg(feature = "ggen-core-retired")]
 #[allow(dead_code)]
 pub fn sample_context(temp_dir: &TempDir) -> Context {
     let make = Arc::new(sample_make());

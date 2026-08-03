@@ -2,6 +2,8 @@
 //! real syncs, real subprocess (`assert_cmd` spawns the NEW ggen binary).
 //! No mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -28,9 +30,11 @@ fn scaffold(root: &Path, names: &[&str]) {
 }
 
 fn write_ontology(root: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -53,7 +57,7 @@ fn copy_tree(src: &Path, dst: &Path) {
     }
 }
 
-/// Copy demo-pack and demo-project into a fresh TempDir; return (dir, project_root).
+/// Copy demo-pack and demo-project into a fresh `TempDir`; return (dir, `project_root`).
 fn scaffold_with_pack() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
     copy_tree(

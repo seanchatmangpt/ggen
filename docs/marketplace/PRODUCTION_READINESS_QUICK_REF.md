@@ -299,8 +299,11 @@ $ cargo make check
 ### Test Status
 ```bash
 $ cargo make test
-✅ PASSING - All tests passing (87% coverage)
+✅ PASSING - All tests passing
 ```
+Coverage note: the "87% coverage" this section previously claimed was UNVERIFIED -- no
+CI/justfile gate computes coverage in this repo, and `cargo make test` (this repo's real
+entry point is `just`, not `cargo make`) does not report a coverage number at all.
 
 ### Lint Status
 ```bash

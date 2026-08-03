@@ -3,3 +3,4 @@ SELECT ?name WHERE {
     ?s a ex:Item .
     ?s ex:name ?name .
 }
+ORDER BY ?name

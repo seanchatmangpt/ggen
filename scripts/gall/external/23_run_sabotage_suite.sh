@@ -11,7 +11,7 @@ set -euo pipefail
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$WORKSPACE_ROOT"
 
-echo "=== W3: Running Sabotage Negative-Control Suite (12 Cases) ==="
+echo "=== W3: Running Sabotage Negative-Control Suite (9 Cases) ==="
 
 # Define backup paths
 CARGO_TOML="crates/ggen-graph/Cargo.toml"
@@ -100,18 +100,15 @@ with open('$RECEIPT_MOD', 'w') as f:
 assert_refusal "4" "receipt_tampering" "scripts/gall/external/08_verify_replay_receipts.sh"
 cp receipt_mod.rs.bak "$RECEIPT_MOD"
 
-# Case 5: Missing requirement link in OCEL (Target: 09_verify_ocel_self_audit.sh)
-python3 -c "
-with open('$SELF_AUDIT_RS', 'r') as f:
-    text = f.read()
-text = text.replace('req_r1_one_crate', 'req_r1_sabotaged_link')
-with open('$SELF_AUDIT_RS', 'w') as f:
-    f.write(text)
-"
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
-assert_refusal "5" "missing_requirement_link" "scripts/gall/external/09_verify_ocel_self_audit.sh"
-cp self_audit.rs.bak "$SELF_AUDIT_RS"
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
+# Case 5: (removed 2026-08-03) used to break a requirement link in
+# self_audit.rs, regenerate vision2030.self_audit.ocel.json via the
+# `emit_audit` binary, and check that 09_verify_ocel_self_audit.sh refused the
+# corrupted link. Both were deleted: their whole purpose was regenerating and
+# structurally re-checking a self-audit log whose generator hardcoded a fake
+# exit_code, a sha256("test") passed off as a real artifact hash, fabricated
+# coverage percentages, and compile-time-fixed event timestamps -- so this
+# case only tested that a fake-data structural checker caught corruption in
+# fake data. See crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 
 # Case 6: File deletion (Target: 10_verify_coverage_matrix.sh)
 rm "$VOCAB_MOD"
@@ -148,33 +145,17 @@ with open('$OCEL_LOG', 'w') as f:
     cp ocel_log.json.bak "$OCEL_LOG"
 fi
 
-# Case 11: Causal sufficiency violation (Target: 26_verify_ocel_causal_sufficiency.sh)
-python3 -c "
-with open('$SELF_AUDIT_RS', 'r') as f:
-    text = f.read()
-text = text.replace('activity: \"CheckpointEvaluated\"', 'activity: \"CheckpointPromoted\"')
-with open('$SELF_AUDIT_RS', 'w') as f:
-    f.write(text)
-"
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
-assert_refusal "11" "causal_sufficiency_violation" "scripts/gall/external/26_verify_ocel_causal_sufficiency.sh"
-cp self_audit.rs.bak "$SELF_AUDIT_RS"
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
+# Case 11: (removed 2026-08-03) used to mutate self_audit.rs, regenerate
+# vision2030.self_audit.ocel.json via `emit_audit`, and check that
+# 26_verify_ocel_causal_sufficiency.sh refused the corruption -- same
+# fabricated-data dependency as (removed) Case 5. See
+# crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 
-# Case 12: Unresolved contradiction/supersession (Target: 27_verify_contradiction_supersession.sh)
-python3 -c "
-with open('$SELF_AUDIT_RS', 'r') as f:
-    text = f.read()
-# Replace Refused check event with duplicate Promotion/Refused pair without supersession
-text = text.replace('activity: \"CheckpointRefused\"', 'activity: \"CheckpointPromoted\"')
-with open('$SELF_AUDIT_RS', 'w') as f:
-    f.write(text)
-"
-# Add duplicate event manually to inject conflict
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
-assert_refusal "12" "unresolved_contradiction" "scripts/gall/external/27_verify_contradiction_supersession.sh"
-cp self_audit.rs.bak "$SELF_AUDIT_RS"
-cargo run -p ggen-graph --bin emit_audit >/dev/null 2>&1
+# Case 12: (removed 2026-08-03) used to mutate self_audit.rs, regenerate
+# vision2030.self_audit.ocel.json via `emit_audit`, and check that
+# 27_verify_contradiction_supersession.sh refused the corruption -- same
+# fabricated-data dependency as (removed) Case 5. See
+# crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 
 # Write results file
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -188,14 +169,11 @@ cat <<EOF > "$RESULTS_PATH"
     {"id": 2, "name": "todo_in_source", "refused": true},
     {"id": 3, "name": "process_command_usage", "refused": true},
     {"id": 4, "name": "receipt_tampering", "refused": true},
-    {"id": 5, "name": "missing_requirement_link", "refused": true},
     {"id": 6, "name": "file_deletion", "refused": true},
     {"id": 7, "name": "invalid_transcript", "refused": true},
     {"id": 8, "name": "script_adequacy_violation", "refused": true},
     {"id": 9, "name": "clean_room_build_failure", "refused": true},
-    {"id": 10, "name": "cross_artifact_inconsistency", "refused": true},
-    {"id": 11, "name": "causal_sufficiency_violation", "refused": true},
-    {"id": 12, "name": "unresolved_contradiction", "refused": true}
+    {"id": 10, "name": "cross_artifact_inconsistency", "refused": true}
   ]
 }
 EOF

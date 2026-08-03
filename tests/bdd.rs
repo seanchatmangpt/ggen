@@ -17,7 +17,7 @@ use bdd::steps::*;
 /// Use `cargo make test-bdd` to run the full suite.
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_graph_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -26,7 +26,7 @@ async fn test_graph_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_market_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -35,7 +35,7 @@ async fn test_market_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_project_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -44,7 +44,7 @@ async fn test_project_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_template_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -53,7 +53,7 @@ async fn test_template_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_installation_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -62,7 +62,7 @@ async fn test_installation_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_quickstart_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -71,7 +71,7 @@ async fn test_quickstart_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_template_generation_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -80,7 +80,7 @@ async fn test_template_generation_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_marketplace_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -89,7 +89,7 @@ async fn test_marketplace_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_cli_commands_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -98,7 +98,7 @@ async fn test_cli_commands_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_determinism_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -107,7 +107,7 @@ async fn test_determinism_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_multi_language_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -116,7 +116,7 @@ async fn test_multi_language_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_rdf_sparql_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()
@@ -125,7 +125,7 @@ async fn test_rdf_sparql_features() {
 }
 
 #[tokio::test]
-#[ignore]
+#[ignore = "aspirational BDD spec for a planned/not-yet-implemented feature (see this file's own doc comment above); run via `cargo test -- --include-ignored` when implementing"]
 async fn test_all_features() {
     GgenWorld::cucumber()
         .fail_on_skipped()

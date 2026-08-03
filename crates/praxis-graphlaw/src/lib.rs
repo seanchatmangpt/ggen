@@ -260,6 +260,20 @@ pub struct TripleStore {
     pub reasoner: Reasoner,
     pub aggregates: HashMap<Rule, Aggregate>,
     pub strata: Vec<usize>,
+    /// `Some(msg)` when the current `rules`/`strata` pair came from a
+    /// ruleset that `datalog::validate_rules` rejected (an unsafe rule, or
+    /// a cycle through negation/aggregation that cannot be stratified) --
+    /// set only by [`TripleStore::from`], which has no `Result` return type
+    /// to report the failure through directly (unlike [`TripleStore::add_rules`],
+    /// which propagates the same error via `?` and never reaches this
+    /// field). `strata` is left empty in that case, which would otherwise
+    /// silently make every rule look like it belongs to stratum 0 (see
+    /// `Reasoner::materialize`'s `strata.get(i).copied().unwrap_or(0)`
+    /// fallback) instead of refusing to run a ruleset that was already
+    /// rejected. [`TripleStore::materialize`]/[`TripleStore::materialize_owlrl`]
+    /// check this field first and refuse (`Err`) rather than silently
+    /// materializing an unstratified ruleset.
+    pub stratification_error: Option<String>,
     pub hooks: Vec<hooks::CompiledHook>,
     pub receipts: Vec<hooks::HookReceipt>,
     pub verdicts: Vec<hooks::HookVerdictRecord>,
@@ -339,6 +353,7 @@ impl TripleStore {
             reasoner: Reasoner {},
             aggregates: HashMap::new(),
             strata: Vec::new(),
+            stratification_error: None,
             hooks: Vec::new(),
             receipts: Vec::new(),
             verdicts: Vec::new(),
@@ -415,10 +430,21 @@ impl TripleStore {
             rules_index.add_ref(rule);
         }
         let aggregates = HashMap::new();
-        let mut strata = Vec::new();
-        if let Ok(computed_strata) = datalog::validate_rules(&rules, &aggregates) {
-            strata = computed_strata;
-        }
+        // Unlike `add_rules` (which has a `Result` return and propagates a
+        // stratification failure via `?`), `from` has no way to report an
+        // `Err` here through its own return type -- so on `Err` we must
+        // record the failure on the store itself (`stratification_error`)
+        // rather than silently leaving `strata` empty, which would
+        // otherwise be indistinguishable from "zero rules" and would make
+        // every rule look like it belongs to stratum 0 to
+        // `Reasoner::materialize`'s `unwrap_or(0)` fallback. See
+        // `TripleStore::materialize`/`materialize_owlrl`, which check this
+        // field first and refuse instead of materializing a ruleset that
+        // was already rejected as unsafe/unstratifiable.
+        let (strata, stratification_error) = match datalog::validate_rules(&rules, &aggregates) {
+            Ok(computed_strata) => (computed_strata, None),
+            Err(e) => (Vec::new(), Some(e)),
+        };
         let hooks = hooks::validate_and_extract_hooks(&triple_index.triples)
             .and_then(|extracted| hooks::compile_hooks(extracted))
             .unwrap_or_default();
@@ -429,6 +455,7 @@ impl TripleStore {
             reasoner: Reasoner {},
             aggregates,
             strata,
+            stratification_error,
             hooks,
             receipts: Vec::new(),
             verdicts: Vec::new(),
@@ -456,6 +483,10 @@ impl TripleStore {
         all_rules.extend(rules.clone());
         let strata = datalog::validate_rules(&all_rules, &self.aggregates)?;
         self.strata = strata;
+        // A successful validation over the full (existing + new) ruleset
+        // supersedes any earlier failure recorded by `from` -- clear it so
+        // `materialize` no longer refuses on stale state.
+        self.stratification_error = None;
         for rule in rules {
             self.rules.push(rule.clone());
             self.rules_index.add(rule);
@@ -498,6 +529,11 @@ impl TripleStore {
     /// `receipts`, `verdicts`, `additions`, `removals`) -- there is no
     /// window where torn state escapes this function.
     pub fn materialize(&mut self) -> Result<Vec<Triple>, String> {
+        if let Some(err) = &self.stratification_error {
+            return Err(format!(
+                "refusing to materialize: ruleset failed stratification validation: {err}"
+            ));
+        }
         let checkpoint = self.triple_index.clone();
 
         self.receipts.clear();
@@ -647,16 +683,34 @@ impl TripleStore {
     pub fn load_triples(&mut self, data: &str, syntax: Syntax) -> Result<(), String> {
         match Parser::parse_triples(data, syntax) {
             Ok(triples) => {
+                // Only re-run hook validation/compilation when THIS call's own
+                // freshly-parsed triples actually touch the kh:/hook: vocabulary
+                // (declare or reference a hook). Most documents loaded via
+                // load_triples are plain business data with zero hook content;
+                // validate_and_extract_hooks scans every triple it is given
+                // (forbidden-keyword + ALLOWED_KH_PREDICATES checks are not
+                // scoped to hook subjects), so running it unconditionally over
+                // the whole accumulated store on every load would both be
+                // wasteful and false-positive on unrelated data (e.g. a domain
+                // IRI containing "exec" as a substring, as in
+                // ".../Executives/BoardOfDirectors" -- confirmed live via
+                // `ma_case_hook_actuation.rs`).
+                let touches_hooks = hooks::triples_touch_hook_vocabulary(&triples);
                 triples.into_iter().for_each(|t| {
                     if !self.triple_index.contains(&t) {
                         self.triple_index.add(t);
                     }
                 });
-                if let Ok(extracted) = hooks::validate_and_extract_hooks(&self.triple_index.triples)
-                {
-                    if let Ok(compiled) = hooks::compile_hooks(extracted) {
-                        self.hooks = compiled;
-                    }
+                if touches_hooks {
+                    // Both steps must propagate their Err instead of being
+                    // silently discarded: a document whose newly-loaded triples
+                    // declare a hook the SHACL law pack or the compiler rejects
+                    // (e.g. `kh:on` set to anything other than
+                    // assert/retract/any, or more than 12 hooks declared) must
+                    // fail this load, not leave `self.hooks` holding whatever it
+                    // held before this call while still returning `Ok`.
+                    let extracted = hooks::validate_and_extract_hooks(&self.triple_index.triples)?;
+                    self.hooks = hooks::compile_hooks(extracted)?;
                 }
                 Ok(())
             }
@@ -791,6 +845,11 @@ impl TripleStore {
     /// Reasoner::materialize pass as everything else. Never invoked automatically
     /// from new()/load_triples()/materialize() — caller must opt in explicitly.
     pub fn materialize_owlrl(&mut self) -> Result<(Vec<Triple>, owlrl::ScanReport), String> {
+        if let Some(err) = &self.stratification_error {
+            return Err(format!(
+                "refusing to materialize: ruleset failed stratification validation: {err}"
+            ));
+        }
         let engine = owlrl::OwlRlEngine::new();
         let (owlrl_rules, report) = engine.compile(&self.triple_index)?;
 

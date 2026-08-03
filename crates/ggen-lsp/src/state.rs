@@ -547,7 +547,8 @@ impl ServerState {
         };
         match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_tpl_001(&project),
-            Err(_) => Vec::new(),
+            Err(crate::project_index::IndexError::ManifestNotFound { .. }) => Vec::new(),
+            Err(err) => manifest_load_error_group(root.join("ggen.toml"), &err),
         }
     }
 
@@ -559,7 +560,8 @@ impl ServerState {
         };
         match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_out_001(&project),
-            Err(_) => Vec::new(),
+            Err(crate::project_index::IndexError::ManifestNotFound { .. }) => Vec::new(),
+            Err(err) => manifest_load_error_group(root.join("ggen.toml"), &err),
         }
     }
 
@@ -571,7 +573,8 @@ impl ServerState {
         };
         match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_rule_001(&project),
-            Err(_) => Vec::new(),
+            Err(crate::project_index::IndexError::ManifestNotFound { .. }) => Vec::new(),
+            Err(err) => manifest_load_error_group(root.join("ggen.toml"), &err),
         }
     }
 
@@ -601,7 +604,11 @@ impl ServerState {
         };
         match crate::harness_index::HarnessIndex::from_root_with_overlay(&root, overlay) {
             Ok(index) => crate::analyzers::detect_harness_001(&index),
-            Err(_) => Vec::new(),
+            // `HarnessIndex` has no "not found" variant (a missing Cargo.toml
+            // is already `Ok` with an empty index, per its own doc comment),
+            // so every `Err` here means the manifest exists and failed to
+            // load -- surface it, matching `IndexError` handling above.
+            Err(err) => manifest_load_error_group(root.join("Cargo.toml"), &err),
         }
     }
 
@@ -622,6 +629,42 @@ impl ServerState {
             None
         }
     }
+}
+
+/// Diagnostic code for a `ggen.toml`/`Cargo.toml` that EXISTS on disk but
+/// failed to load. Mirrors `check.rs`'s `fold_manifest_load_errors` (added for
+/// red-team finding F6, which closed this exact fail-open hole for the batch
+/// `ggen-lsp check` path). Red-team finding F1: the live editor-facing paths
+/// below (`detect_tpl_001_for`/`detect_out_001_for`/`detect_rule_001_for`/
+/// `detect_harness_001_for`) used to discard `IndexError::ManifestParse`/
+/// `AmbiguousSchema`/`UnsupportedSchema` and every `HarnessIndexError` via a
+/// bare `Err(_) => Vec::new()`, so a syntactically-valid `ggen.toml` that
+/// fails typed `GgenManifest` deserialization (e.g. a `[[generation.rules]]`
+/// entry missing the required `output_file` field) showed a clean editor
+/// while `ggen sync run`/the batch `check` path would refuse to load it.
+const GGEN_MANIFEST_001: &str = "GGEN-MANIFEST-001";
+
+/// Build the single-diagnostic `(anchor_path, diags)` group this module's four
+/// `detect_*_for` methods emit when their project/harness index failed to
+/// build for a reason other than "no manifest here". `IndexError::
+/// ManifestNotFound` is filtered out by callers before reaching this
+/// function -- that variant matches `from_root_with_overlay`'s `Ok(empty
+/// index)` contract for a project with no `ggen.toml` at all, and must stay
+/// silent. Every other error (`IndexError::{ManifestParse,AmbiguousSchema,
+/// UnsupportedSchema}`, every `HarnessIndexError` variant) means the manifest
+/// file exists and could not be loaded, which is exactly the failure class
+/// this diagnostic exists to surface.
+fn manifest_load_error_group(
+    manifest_path: PathBuf, err: &dyn std::fmt::Display,
+) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
+    let diag = crate::analyzers::diag::max_whole_line(
+        0,
+        DiagnosticSeverity::ERROR,
+        Some(GGEN_MANIFEST_001),
+        format!("{GGEN_MANIFEST_001} MANIFEST_LOAD_FAILURE: {err}"),
+        lsp_max_protocol::LawAxis::Domain,
+    );
+    vec![(manifest_path, vec![diag])]
 }
 
 fn url_from_path(path: &Path) -> Option<Url> {

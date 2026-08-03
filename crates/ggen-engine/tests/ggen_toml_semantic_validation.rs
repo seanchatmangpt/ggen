@@ -8,6 +8,8 @@
 //! document loads successfully, so the negative cases aren't vacuous (e.g.
 //! failing for an unrelated syntax reason).
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_engine::config::GgenConfig;
 
 const VALID: &str = r#"

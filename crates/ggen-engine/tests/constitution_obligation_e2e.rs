@@ -12,6 +12,8 @@
 //! whether each law is actually enforced -- an unmechanized law is an honestly-recorded open
 //! obligation, never a claim of a machine-checked judgment.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
@@ -39,24 +41,24 @@ const CCN_PREFIX: &str =
 /// query `write_receipt` runs against a real constitution pack, without
 /// depending on `packs/ggen-constitution-pack/ontology.ttl`'s own evolving
 /// content.
-const CONSTITUTION_3_FALSE_2_TRUE: &str = r#"
+const CONSTITUTION_3_FALSE_2_TRUE: &str = r"
 ccn:LawA a ccn:Law ; ccn:mechanized false .
 ccn:LawB a ccn:Law ; ccn:mechanized false .
 ccn:LawC a ccn:Law ; ccn:mechanized false .
 ccn:LawD a ccn:Law ; ccn:mechanized true .
 ccn:LawE a ccn:Law ; ccn:mechanized true .
-"#;
+";
 
 /// Same 5 laws, but `LawC` flipped from `false` to `true` (2 unmechanized, 3
 /// mechanized) -- the sabotage variant proving the count tracks live graph
 /// state rather than a number computed once and cached.
-const CONSTITUTION_2_FALSE_3_TRUE: &str = r#"
+const CONSTITUTION_2_FALSE_3_TRUE: &str = r"
 ccn:LawA a ccn:Law ; ccn:mechanized false .
 ccn:LawB a ccn:Law ; ccn:mechanized false .
 ccn:LawC a ccn:Law ; ccn:mechanized true .
 ccn:LawD a ccn:Law ; ccn:mechanized true .
 ccn:LawE a ccn:Law ; ccn:mechanized true .
-"#;
+";
 
 fn scaffold(root: &Path, constitution: &str) {
     std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");

@@ -8,6 +8,15 @@
 
 This document tracks the complete implementation of the two-tier ontology distribution architecture for ggen v26.5.28. It serves as the master checklist for all phases (1-6) with detailed completion criteria.
 
+> **Coverage caveat added 2026-08-02 (not part of the original v26.5.28 record):** every
+> specific coverage percentage in this document (e.g. "92% coverage achieved", "94% coverage",
+> "91% coverage", the "49% → 92%, +43pp" progression, and the ≥95%/Mutation Score rows in the
+> table near the end) was never backed by a coverage-tool run this repo's current tooling can
+> reproduce -- no CI job or `justfile` recipe computes coverage today, and none is known to
+> have done so at the time this checklist was written either. Treat every number below as an
+> unverified historical assertion tied to a specific, now-superseded version, not a current or
+> reproducible measurement.
+
 ---
 
 ## Phase 1: Ontology Collection ✅ COMPLETE

@@ -44,6 +44,14 @@
 //!   traversal), is intentionally not re-implemented: [`decide_and_maybe_apply`]'s call to
 //!   [`crate::write::resolve_target`] already refuses any `to` that escapes the project root,
 //!   a strictly stronger guarantee than a substring check.
+//! - [`enforce_validation_policy`] — `[validation].no_unsafe` (refuses rendered output
+//!   containing the `unsafe` keyword) and `[validation].validate_syntax` (refused loudly, by
+//!   design — see the "Deliberately deferred" bullet below for why) are both read here. Neither
+//!   had a reader anywhere in this crate before this fix (red-team finding F2) — a manifest
+//!   setting either flag got silent, unconditional success regardless of the rendered output.
+//!   Load-bearing proof: `tests/generation_rules_e2e.rs`'s
+//!   `no_unsafe_refuses_rendered_output_containing_unsafe_block` and
+//!   `validate_syntax_true_refuses_rs_output_as_not_yet_implemented`.
 //! - `[[inference.rules]]` — sorted by `.order`, each an optional `when:` ASK guard then a
 //!   CONSTRUCT query whose derived triples are folded into the graph *before* any
 //!   `[[generation.rules]]` query runs, exactly matching ggen-core's stage order
@@ -61,6 +69,22 @@
 //!   migration refusal, never silently ignored). Load-bearing proof:
 //!   `tests/generation_rules_e2e.rs`'s `law_gate_denial_violation_refuses_declarative_rules_sync`
 //!   and `law_gate_violation_refuses_declarative_rules_sync_naming_offending_node`.
+//! - `[[validation.rules]]` (inline named ASK-based custom validation rules, distinct from
+//!   the file-based `[validation].gates` above) — each rule's `ask` query is evaluated
+//!   against the same post-inference/post-law graph in the same validate stage, `true`
+//!   meaning the rule holds. An `Error`-severity violation is a loud `[FM-LAW-020]` refusal
+//!   before any file is written (same "gate precedes writes" invariant as `.gates`); a
+//!   `Warning`-severity violation is logged via `tracing::warn!` and the sync continues.
+//!   Previously parsed but never executed — see git history for the pre-fix silent-inert
+//!   state. Load-bearing proof: `tests/generation_rules_e2e.rs`'s
+//!   `validation_rule_error_severity_violation_refuses_declarative_rules_sync` and
+//!   `validation_rule_warning_severity_violation_logs_and_continues`.
+//! - `generation.output_dir` — joined onto every rule's (already-rendered) `output_file`
+//!   before the write-target is resolved, for both the per-row and static branches. Default
+//!   `"."` is a no-op (unchanged behavior for every existing project that never set it).
+//!   Previously parsed but never read — see git history for the pre-fix silent-inert state.
+//!   Load-bearing proof: `tests/generation_rules_e2e.rs`'s
+//!   `output_dir_is_joined_onto_rendered_output_file`.
 //!
 //! Deliberately deferred (a typed, loud [`AppError::fm_gen`] refusal naming the rule and the
 //! unimplemented variant — never a silent skip or a decorative success):
@@ -70,9 +94,13 @@
 //! - `TemplateSource::{Git, Package}` — a future implementation should reuse
 //!   `crate::pack`'s existing git-clone-and-cache convention (`.ggen-v2/git-packs/<name>/` +
 //!   `.ggen-git-pin`), not re-derive ggen-core's original one-shot clone.
-//! - `[validation].no_unsafe` (ggen-core's E0012 `unsafe`-block check) — `manifest.validation`
-//!   is now read for `.shacl` (the law gate above), but `.no_unsafe` has no reader here yet;
-//!   left as a documented gap, not a check this module claims to run.
+//! - `[validation].validate_syntax` (ggen-core's Rust-syntax-check concept) — refused loudly
+//!   (`[FM-GEN-016]`, via [`enforce_validation_policy`]) rather than silently ignored whenever a
+//!   manifest sets it to `true` and a rule targets a `.rs` output: this crate has no
+//!   Rust-parser dependency (e.g. `syn`) wired in to honestly perform the check, and adding one
+//!   is a Cargo.toml/dependency-graph change out of scope for the fix that closed this bullet's
+//!   sibling, `[validation].no_unsafe` (now implemented and tested — see
+//!   [`enforce_validation_policy`] above, no longer in this deferred list).
 //!
 //! No atomic multi-file transaction/rollback type exists in this crate (none did before this
 //! module either): every rule's query+template renders into memory across a first pass
@@ -88,7 +116,7 @@ use std::{
 };
 
 use ggen_config::manifest::{
-    GenerationMode, GenerationRule, GgenManifest, QuerySource, TemplateSource,
+    GenerationMode, GenerationRule, GgenManifest, QuerySource, TemplateSource, ValidationSeverity,
 };
 use tera::Value;
 
@@ -105,6 +133,15 @@ use crate::{
     },
 };
 
+/// `elapsed.as_millis()` as a `u64` for an OTEL span attribute, saturating
+/// instead of silently wrapping on the practically-unreachable case of a
+/// pipeline stage running longer than `u64::MAX` milliseconds (~584 million
+/// years). Shared with [`crate::sync::sync`]'s identical pipeline-stage
+/// timing need.
+pub(crate) fn duration_ms(elapsed: std::time::Duration) -> u64 {
+    u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)
+}
+
 /// Run every `[[generation.rules]]` entry in `manifest` against a fresh
 /// graph loaded from `manifest.ontology`, producing the same
 /// [`SyncReport`]/receipt shape [`crate::sync::sync`]'s frontmatter path
@@ -113,6 +150,11 @@ use crate::{
 /// # Errors
 /// Fails closed on any resolve/query/render/write failure, or on an
 /// unimplemented `QuerySource`/`TemplateSource` variant (`[FM-GEN-*]`).
+// One sequential five-stage pipeline orchestrator (load/extract/validate/
+// generate/emit), each stage carrying its own OTEL span open/close pair;
+// splitting it into sub-functions would scatter that span bracketing across
+// call boundaries rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Result<SyncReport> {
     // ── Resolve: ontology + imports ──────────────────────────────────────
     let load_start = Instant::now();
@@ -158,10 +200,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     );
 
     drop(load_guard);
-    load_span.record(
-        "pipeline.duration_ms",
-        load_start.elapsed().as_millis() as u64,
-    );
+    load_span.record("pipeline.duration_ms", duration_ms(load_start.elapsed()));
 
     // ── Inference — `[[inference.rules]]` CONSTRUCT materialization ───────
     //
@@ -202,34 +241,29 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                     }
                 }
             }
-            let derived = match graph.query(&rule.construct)? {
-                EngineQueryResults::Graph(triples) => triples,
-                _ => {
-                    return Err(AppError::fm_gen(
-                        14,
-                        format!(
-                            "inference rule `{}`: `construct:` must be a CONSTRUCT query. \
-                             Remediation: use CONSTRUCT {{ … }} WHERE {{ … }}.",
-                            rule.name
-                        ),
-                    ));
-                }
+            let EngineQueryResults::Graph(derived) = graph.query(&rule.construct)? else {
+                return Err(AppError::fm_gen(
+                    14,
+                    format!(
+                        "inference rule `{}`: `construct:` must be a CONSTRUCT query. \
+                         Remediation: use CONSTRUCT {{ … }} WHERE {{ … }}.",
+                        rule.name
+                    ),
+                ));
             };
             if !derived.is_empty() {
-                let doc: String = derived
-                    .iter()
-                    .map(|t| format!("{} .\n", t.ntriples))
-                    .collect();
+                use std::fmt::Write as _;
+                let doc: String = derived.iter().fold(String::new(), |mut doc, t| {
+                    let _ = writeln!(doc, "{} .", t.ntriples);
+                    doc
+                });
                 graph.insert_turtle(&doc)?;
             }
         }
     }
 
     drop(extract_guard);
-    extract_span.record(
-        "pipeline.duration_ms",
-        extract_start.elapsed().as_millis() as u64,
-    );
+    extract_span.record("pipeline.duration_ms", duration_ms(extract_start.elapsed()));
 
     // ── Law gate — N3 rule materialization + denial/SPARQL-gate checks ────
     //
@@ -347,10 +381,56 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         }
     }
 
+    // `[[validation.rules]]` — inline named ASK-based custom validation rules,
+    // distinct from the file-based `[validation].gates` above: each `ask`
+    // query is evaluated against the same post-inference/post-law graph,
+    // `true` meaning the rule holds (valid), `false` meaning it is violated.
+    // An `Error`-severity violation refuses the sync before any file is
+    // written, exactly like a `.gates` violation; a `Warning`-severity
+    // violation is logged and the sync continues. Absent/empty
+    // `[[validation.rules]]` runs nothing here, so pre-existing declarative-
+    // rules projects are unaffected.
+    for rule in &manifest.validation.rules {
+        match graph.query(&rule.ask)? {
+            EngineQueryResults::Boolean(true) => {}
+            EngineQueryResults::Boolean(false) => match rule.severity {
+                ValidationSeverity::Error => {
+                    return Err(AppError::fm_law(
+                        20,
+                        format!(
+                            "validation rule `{}` violated: {}. \
+                             Remediation: fix the underlying facts, or set \
+                             `severity = \"Warning\"` on this [[validation.rules]] entry \
+                             if it should log instead of refusing the sync.",
+                            rule.name, rule.description
+                        ),
+                    ));
+                }
+                ValidationSeverity::Warning => {
+                    tracing::warn!(
+                        validation.rule = %rule.name,
+                        validation.description = %rule.description,
+                        "validation rule violated (severity=Warning): sync continues"
+                    );
+                }
+            },
+            _ => {
+                return Err(AppError::fm_law(
+                    19,
+                    format!(
+                        "validation rule `{}`: `ask` must be an ASK query. \
+                         Remediation: use ASK {{ … }}.",
+                        rule.name
+                    ),
+                ));
+            }
+        }
+    }
+
     drop(validate_guard);
     validate_span.record(
         "pipeline.duration_ms",
-        validate_start.elapsed().as_millis() as u64,
+        duration_ms(validate_start.elapsed()),
     );
 
     let graph_hash_hex = hex32(&graph.state_hash()?);
@@ -499,6 +579,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                     &root_display,
                     &template_descriptor,
                 )?;
+                let to = join_output_dir(&manifest.generation.output_dir, &to);
                 let body = render_template(
                     &mut tera,
                     &tpl_name,
@@ -508,6 +589,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                     &template_descriptor,
                 )?;
                 validate_rendered_body(&rule.name, &to, &body)?;
+                enforce_validation_policy(manifest, &rule.name, &to, &body)?;
                 pending.push(PendingGenWrite {
                     to,
                     body,
@@ -538,9 +620,11 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 &root_display,
                 &template_descriptor,
             )?;
-            validate_rendered_body(&rule.name, &rule.output_file, &body)?;
+            let to = join_output_dir(&manifest.generation.output_dir, &rule.output_file);
+            validate_rendered_body(&rule.name, &to, &body)?;
+            enforce_validation_policy(manifest, &rule.name, &to, &body)?;
             pending.push(PendingGenWrite {
-                to: rule.output_file.clone(),
+                to,
                 body,
                 mode: rule.mode.clone(),
             });
@@ -569,7 +653,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     drop(generate_guard);
     generate_span.record(
         "pipeline.duration_ms",
-        generate_start.elapsed().as_millis() as u64,
+        duration_ms(generate_start.elapsed()),
     );
 
     // ── Write every already-rendered rule ─────────────────────────────────
@@ -603,10 +687,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     }
 
     drop(emit_guard);
-    emit_span.record(
-        "pipeline.duration_ms",
-        emit_start.elapsed().as_millis() as u64,
-    );
+    emit_span.record("pipeline.duration_ms", duration_ms(emit_start.elapsed()));
     emit_span.record("pipeline.files_generated", written.len() as u64);
 
     let report = SyncReport {
@@ -631,6 +712,33 @@ struct PendingGenWrite {
     to: String,
     body: String,
     mode: GenerationMode,
+}
+
+/// Join `manifest.generation.output_dir` onto a rule's already-rendered
+/// (per-row or static) relative `output_file`, producing the final path
+/// [`decide_and_maybe_apply`] resolves and writes to.
+///
+/// The default `output_dir` (`"."`) is special-cased to return `rel_to`
+/// unchanged: naively `Path::join`-ing `"."` onto `rel_to` produces a
+/// leading `./` — a genuinely *different* [`PathBuf`] (a leading `.`
+/// normalizes to its own [`std::path::Component::CurDir`], so `"./out/x"`
+/// and `"out/x"` do not compare equal) even though the two paths address the
+/// same file on disk. Every existing declarative-rules project that never
+/// set `output_dir` must keep writing to (and reporting) exactly the same
+/// targets as before this function existed, byte-for-byte in
+/// `SyncReport::written` — this special case is what makes that true rather
+/// than merely "the same file, differently spelled". A non-default
+/// `output_dir` is prepended to every rule's output —
+/// [`crate::write::resolve_target`] (called downstream by
+/// [`decide_and_maybe_apply`]) still refuses the *final* joined path if it
+/// escapes the project root or contains a traversal component, so a
+/// malicious/malformed `output_dir` is caught there, not silently trusted
+/// here.
+fn join_output_dir(output_dir: &Path, rel_to: &str) -> String {
+    if output_dir.as_os_str().is_empty() || output_dir == Path::new(".") {
+        return rel_to.to_string();
+    }
+    output_dir.join(rel_to).to_string_lossy().into_owned()
 }
 
 /// Resolve a [`QuerySource`] to its SPARQL query text, binding any file it
@@ -867,6 +975,100 @@ fn validate_rendered_body(rule_name: &str, to: &str, body: &str) -> Result<()> {
     Ok(())
 }
 
+/// Enforce `[validation].no_unsafe` and `[validation].validate_syntax` against a
+/// freshly-rendered generation-rule body, in addition to
+/// [`validate_rendered_body`]'s content-shape checks above. Closes red-team
+/// finding F2: both flags were declared, parsed, and defaulted
+/// (`ggen_config::manifest::types::ValidationConfig`) but had zero reader
+/// anywhere in this crate before this function existed — a manifest setting
+/// either flag got silent, unconditional success regardless of its rendered
+/// output. Load-bearing proof: `tests/generation_rules_e2e.rs`'s
+/// `no_unsafe_refuses_rendered_output_containing_unsafe_block` and
+/// `validate_syntax_true_refuses_rs_output_as_not_yet_implemented`.
+///
+/// # Errors
+/// `[FM-GEN-015]` if `no_unsafe = true` and `body` contains the `unsafe`
+/// keyword at a word boundary (see [`contains_unsafe_keyword`]'s own doc
+/// comment for the textual-heuristic tradeoff, symmetric with
+/// `ggen_config::manifest::validation::query_has_order_by`'s documented
+/// keyword search). `[FM-GEN-016]` if `validate_syntax = true` and `to` is a
+/// `.rs` target: this crate has no Rust-parser dependency wired in to
+/// honestly perform that check yet, so it refuses loudly instead of
+/// silently reporting success.
+fn enforce_validation_policy(
+    manifest: &GgenManifest, rule_name: &str, to: &str, body: &str,
+) -> Result<()> {
+    if manifest.validation.no_unsafe && contains_unsafe_keyword(body) {
+        return Err(AppError::fm_gen(
+            15,
+            format!(
+                "rule `{rule_name}`: rendered output for `{to}` contains the `unsafe` \
+                 keyword, refused because `[validation].no_unsafe = true`. \
+                 Remediation: remove the unsafe block from the source template, or set \
+                 `no_unsafe = false` in `[validation]` if unsafe code is intentional for \
+                 this project."
+            ),
+        ));
+    }
+    if manifest.validation.validate_syntax
+        && Path::new(to)
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
+    {
+        return Err(AppError::fm_gen(
+            16,
+            format!(
+                "rule `{rule_name}`: `[validation].validate_syntax = true` requests Rust \
+                 syntax validation for `{to}`, but ggen-engine has no Rust-parser \
+                 dependency wired in yet to honestly perform that check. \
+                 Remediation: set `validate_syntax = false` in `[validation]` until real \
+                 syntax validation ships, or validate generated output with an external \
+                 `cargo check`/`rustc` step in your own pipeline."
+            ),
+        ));
+    }
+    Ok(())
+}
+
+/// Returns true if `body` contains the `unsafe` keyword at a word boundary
+/// (not merely as a substring of a longer identifier such as `unsafely` or
+/// `MyUnsafeType`). Detection is a plain byte scan for ASCII `unsafe`, not a
+/// tokenizer/`syn`-based check — `unsafe` appearing inside a string literal
+/// or comment in the rendered output would be a false positive. That
+/// tradeoff is deliberate and mirrors
+/// `ggen_config::manifest::validation::query_has_order_by`'s own documented
+/// heuristic, except the conservative direction runs the other way here:
+/// `no_unsafe` is an opt-in safety gate, so refusing on a possible false
+/// positive is the correct default, unlike a determinism warning where a
+/// false positive would only be noise.
+#[must_use]
+fn contains_unsafe_keyword(body: &str) -> bool {
+    const NEEDLE: &[u8] = b"unsafe";
+    let bytes = body.as_bytes();
+    if bytes.len() < NEEDLE.len() {
+        return false;
+    }
+    for start in 0..=(bytes.len() - NEEDLE.len()) {
+        if &bytes[start..start + NEEDLE.len()] != NEEDLE {
+            continue;
+        }
+        let before_is_ident = start > 0 && is_ident_byte(bytes[start - 1]);
+        let after_idx = start + NEEDLE.len();
+        let after_is_ident = after_idx < bytes.len() && is_ident_byte(bytes[after_idx]);
+        if !before_is_ident && !after_is_ident {
+            return true;
+        }
+    }
+    false
+}
+
+/// ASCII identifier-continuation byte (`[A-Za-z0-9_]`), used by
+/// [`contains_unsafe_keyword`] to check word boundaries around a candidate
+/// `unsafe` match.
+fn is_ident_byte(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_'
+}
+
 /// Outcome of [`decide_and_maybe_apply`].
 enum GenWriteOutcome {
     /// The file was created, overwritten, or merged on disk.
@@ -1010,13 +1212,10 @@ mod merge {
     /// `[FM-GEN-010]` if `existing_content` has malformed/out-of-order
     /// markers (fail closed rather than guess at intent).
     pub(super) fn merge_sections(generated_code: &str, existing_content: &str) -> Result<String> {
-        let markers = match parse_merge_markers(existing_content) {
-            None => {
-                return Ok(format!(
-                    "<<<<<<< GENERATED\n{generated_code}\n=======\n// Add your manual code here\n>>>>>>> MANUAL\n"
-                ));
-            }
-            Some(m) => m,
+        let Some(markers) = parse_merge_markers(existing_content) else {
+            return Ok(format!(
+                "<<<<<<< GENERATED\n{generated_code}\n=======\n// Add your manual code here\n>>>>>>> MANUAL\n"
+            ));
         };
 
         let lines: Vec<&str> = existing_content.lines().collect();
@@ -1065,6 +1264,7 @@ mod merge {
     }
 
     #[cfg(test)]
+    #[allow(clippy::unwrap_used, clippy::expect_used)]
     mod tests {
         use super::*;
 

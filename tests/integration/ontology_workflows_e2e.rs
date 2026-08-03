@@ -216,7 +216,12 @@ pub fn execute_company_formation_workflow(
 fn extract_field(yaml: &str, field: &str) -> Option<String> {
     yaml.lines()
         .find(|line| line.contains(&format!("{}:", field)))
-        .and_then(|line| line.split(':').nth(1).map(|s| s.trim().to_string()))
+        .and_then(|line| line.split(':').nth(1))
+        // YAML string values are frequently quoted (e.g. `name: "TechStartup Inc."`); strip
+        // the surrounding quotes so downstream consumers (equality asserts, JSON embedding,
+        // match arms against unquoted literals like "highly_sensitive") see the real value
+        // instead of a value carrying literal `"` characters.
+        .map(|s| s.trim().trim_matches('"').to_string())
 }
 
 fn extract_field_number(yaml: &str, field: &str) -> Option<usize> {

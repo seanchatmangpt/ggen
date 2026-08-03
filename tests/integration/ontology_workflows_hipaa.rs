@@ -302,7 +302,7 @@ SELECT ?policy ?control WHERE {
         "Proposal must enable audit trail"
     );
     assert!(
-        proposal_content.contains("MFA"),
+        proposal_content.contains("mfa_required"),
         "Proposal must require MFA for access control"
     );
 

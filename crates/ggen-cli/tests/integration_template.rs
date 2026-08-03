@@ -29,7 +29,7 @@
 use assert_cmd::Command;
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_list() {
     Command::cargo_bin("ggen")
         .unwrap()

@@ -28,6 +28,8 @@
 //! `praxis_core`'s own record types and its own `recompute_chain_hash` so
 //! the forged entry is chain-valid, not merely textually similar.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
@@ -93,11 +95,14 @@ const REQUIRED_CHECKS: &[&str] = &[
 ];
 
 fn green_required_checks_ttl() -> String {
+    use std::fmt::Write as _;
+
     let mut ttl = String::new();
     for (i, name) in REQUIRED_CHECKS.iter().enumerate() {
-        ttl.push_str(&format!(
-            "ver:req_check_{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode 0 .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:req_check_{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode 0 ."
+        );
     }
     ttl
 }
@@ -106,10 +111,12 @@ fn green_required_checks_ttl() -> String {
 /// syncs genuinely shrinks the receipt's `outputCount` — no forged facts,
 /// just fewer real individuals producing fewer real output files.
 fn write_ontology(project: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     ttl.push_str("@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     ttl.push_str(&green_required_checks_ttl());
     std::fs::write(project.join("ontology.ttl"), ttl).expect("write ontology.ttl");
@@ -146,15 +153,18 @@ fn write_ontology(project: &Path, names: &[&str]) {
 /// the domain facts and the four green required checks (so gates
 /// `010`/`020` stay satisfied and `030` is the only thing being probed).
 fn write_ontology_with_stale_check(project: &Path, names: &[&str], verified_graph_hash: &str) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     ttl.push_str("@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     ttl.push_str(&green_required_checks_ttl());
-    ttl.push_str(&format!(
-        "ver:freshness_probe a ver:Check ; ver:name \"freshness-probe\" ; ver:exitCode 0 ; ver:verifiedGraphHash \"{verified_graph_hash}\" .\n"
-    ));
+    let _ = writeln!(
+        ttl,
+        "ver:freshness_probe a ver:Check ; ver:name \"freshness-probe\" ; ver:exitCode 0 ; ver:verifiedGraphHash \"{verified_graph_hash}\" ."
+    );
     std::fs::write(project.join("ontology.ttl"), ttl).expect("write ontology.ttl");
 }
 
@@ -377,6 +387,8 @@ fn output_count_regression_gate_refuses_a_real_output_shrink() {
 /// lag as above (see that test's doc comment).
 #[test]
 fn output_count_regression_gate_accepted_shrink_is_hash_specific_not_a_blanket_bypass() {
+    use std::fmt::Write as _;
+
     let (_dir, project) = scaffold(&["alice", "bob"]);
     run_sync(&project).expect("first sync (2 outputs) must be green");
 
@@ -389,10 +401,11 @@ fn output_count_regression_gate_accepted_shrink_is_hash_specific_not_a_blanket_b
 
     // WRONG hash first: still refuses.
     let mut ttl = std::fs::read_to_string(project.join("ontology.ttl")).expect("read ontology");
-    ttl.push_str(&format!(
-        "ver:accepted0 a ver:AcceptedShrink ; ver:chainHash \"{}\" .\n",
+    let _ = writeln!(
+        ttl,
+        "ver:accepted0 a ver:AcceptedShrink ; ver:chainHash \"{}\" .",
         "0".repeat(66)
-    ));
+    );
     std::fs::write(project.join("ontology.ttl"), &ttl).expect("write ontology");
     let err = run_sync(&project)
         .expect_err("an AcceptedShrink naming the WRONG chainHash must still refuse");

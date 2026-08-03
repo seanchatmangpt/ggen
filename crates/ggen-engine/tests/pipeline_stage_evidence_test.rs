@@ -11,6 +11,8 @@
 //! all refuse closed with typed `[FM-*]` errors instead of silently
 //! producing a decorative "success".
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -198,7 +200,7 @@ fn output_path_escaping_root_refuses_closed_at_write_stage() {
 }
 
 /// Positive witness (determinism, dry-run): running the identical fixture
-/// through `sync(..., dry_run: true)` twice, in two independent TempDirs,
+/// through `sync(..., dry_run: true)` twice, in two independent `TempDirs`,
 /// yields byte-identical `graph_hash_hex` and an identical `decisions` map
 /// -- proving the Resolve/Enrich/Extract/Render stages are deterministic
 /// even though dry-run never reaches the Write stage.

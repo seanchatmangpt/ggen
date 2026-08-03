@@ -2,4 +2,4 @@
 
 [packs.praxis-core-pack]
 source = "path:../../packs/praxis-core-pack"
-content_hash = "blake3:32fa10b9a44a77fdd42ab7046e447b24372181afb3038a725187f127dc7dbcbd"
+content_hash = "blake3:b32343fec02f6789db5316f5e1ef2594871998afb0bf422e94902cd97036f4e5"

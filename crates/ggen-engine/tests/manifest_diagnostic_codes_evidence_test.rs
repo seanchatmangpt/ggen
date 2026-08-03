@@ -21,6 +21,8 @@
 //! `strict_mode = true` now blocks sync with an `E0011`/`E0013` error, while
 //! the same rules with `ORDER BY` present still sync cleanly.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};
