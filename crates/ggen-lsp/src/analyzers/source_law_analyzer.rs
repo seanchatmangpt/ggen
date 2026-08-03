@@ -132,11 +132,13 @@ pub fn detect_src_004(
     }
 
     let generated_outputs = generated_rust_outputs(project);
+    let mut ordered_outputs = generated_outputs.iter().cloned().collect::<Vec<_>>();
+    ordered_outputs.sort();
 
     let mut checked = HashSet::new();
     let mut groups = Vec::new();
 
-    for output in &generated_outputs {
+    for output in &ordered_outputs {
         if output.extension().and_then(|value| value.to_str()) != Some("rs")
             || !checked.insert(output.clone())
         {
@@ -228,18 +230,21 @@ fn missing_generated_module_diagnostics(
 
     for (line_index, original) in source.lines().enumerate() {
         let code = lexer.code_on_line(original);
-        let trimmed = code.trim();
-        if trimmed.is_empty() {
+        let mut statement = code.trim();
+        if statement.is_empty() {
             continue;
         }
-        if let Some(path) = parse_path_attribute(trimmed) {
+        if let Some((path, remainder)) = parse_path_attribute(statement) {
             pending_path = Some(path);
+            statement = remainder.trim_start();
+            if statement.is_empty() {
+                continue;
+            }
+        }
+        if statement.starts_with("#") {
             continue;
         }
-        if trimmed.starts_with("#") {
-            continue;
-        }
-        let Some(module) = parse_external_module(trimmed) else {
+        let Some(module) = parse_external_module(statement) else {
             pending_path = None;
             continue;
         };
@@ -276,13 +281,17 @@ fn missing_generated_module_diagnostics(
     diagnostics
 }
 
-fn parse_path_attribute(line: &str) -> Option<String> {
+fn parse_path_attribute(line: &str) -> Option<(String, &str)> {
     if !line.starts_with("#[path") {
         return None;
     }
     let first = line.find('"')?;
-    let last = line.rfind('"')?;
-    (last > first).then(|| line[first + 1..last].to_string())
+    let last = line[first + 1..].find('"')? + first + 1;
+    let close = line[last + 1..].find(']')? + last + 1;
+    Some((
+        line[first + 1..last].to_string(),
+        &line[close + 1..],
+    ))
 }
 
 fn parse_external_module(line: &str) -> Option<String> {
@@ -523,7 +532,7 @@ mod tests {
             PathBuf::from("/tmp/project/src/capabilities.rs"),
             PathBuf::from("/tmp/project/src/custom/bridge.rs"),
         ]);
-        let source = "pub mod capabilities;\n#[path = \"custom/bridge.rs\"]\npub mod bridge;\n";
+        let source = "pub mod capabilities;\n#[path = \"custom/bridge.rs\"] pub mod bridge;\n";
         assert!(missing_generated_module_diagnostics(&source_path, source, &outputs).is_empty());
     }
 
