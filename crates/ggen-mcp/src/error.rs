@@ -68,7 +68,11 @@ pub struct McpError {
 impl McpError {
     #[must_use]
     pub fn new(category: ErrorCategory, message: impl Into<String>) -> Self {
-        Self { category, message: message.into(), offset: None }
+        Self {
+            category,
+            message: message.into(),
+            offset: None,
+        }
     }
 
     #[must_use]
@@ -89,8 +93,12 @@ impl McpError {
 /// `rmcp`'s own distinction between "tool failed" and "protocol failed".
 impl From<McpError> for rmcp::model::CallToolResult {
     fn from(err: McpError) -> Self {
-        let body = serde_json::to_string(&err)
-            .unwrap_or_else(|_| format!("{{\"category\":\"internal\",\"message\":{:?}}}", err.message));
+        let body = serde_json::to_string(&err).unwrap_or_else(|_| {
+            format!(
+                "{{\"category\":\"internal\",\"message\":{:?}}}",
+                err.message
+            )
+        });
         rmcp::model::CallToolResult::error(vec![rmcp::model::Content::text(body)])
     }
 }

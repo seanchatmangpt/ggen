@@ -40,9 +40,7 @@ pub fn load_for_query(root: &Path) -> Result<Arc<dyn GraphEngine>> {
 ///
 /// # Errors
 /// See [`load_for_query`].
-pub fn load_for_query_with_engine(
-    root: &Path, engine: EngineKind,
-) -> Result<Arc<dyn GraphEngine>> {
+pub fn load_for_query_with_engine(root: &Path, engine: EngineKind) -> Result<Arc<dyn GraphEngine>> {
     let graph: Arc<dyn GraphEngine> = new_graph_engine(engine)?;
     let sources = match schema_dispatch::load(root)? {
         ParsedGgenToml::DeclarativeRules(manifest) => {
@@ -59,7 +57,10 @@ pub fn load_for_query_with_engine(
             let packs = crate::pack::resolve(&config, root)?;
             let ontology_path = root.join(&config.ontology.source);
             let mut sources = Vec::with_capacity(
-                1 + packs.iter().map(|p| 1 + p.extra_ontology_paths.len()).sum::<usize>(),
+                1 + packs
+                    .iter()
+                    .map(|p| 1 + p.extra_ontology_paths.len())
+                    .sum::<usize>(),
             );
             sources.push(read_ontology_file(root, &ontology_path)?);
             for pack in &packs {
@@ -72,8 +73,10 @@ pub fn load_for_query_with_engine(
             sources
         }
     };
-    let documents: Vec<TurtleDocument<'_>> =
-        sources.iter().map(|(label, content)| TurtleDocument::new(label, content)).collect();
+    let documents: Vec<TurtleDocument<'_>> = sources
+        .iter()
+        .map(|(label, content)| TurtleDocument::new(label, content))
+        .collect();
     let _receipt = graph.insert_turtle_documents(&documents)?;
     Ok(graph)
 }

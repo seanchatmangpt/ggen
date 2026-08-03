@@ -1,1 +1,9 @@
+pub mod capability_status;
+pub mod check_project;
+pub mod config_classify;
+pub mod frontmatter_lint;
+pub mod frontmatter_schema;
 pub mod query_preview;
+pub mod rule_graph;
+pub mod sync_dry_run;
+pub mod write_apply;

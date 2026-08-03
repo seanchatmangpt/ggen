@@ -174,16 +174,28 @@ pub fn query_preview(params: &QueryPreviewParams) -> Result<QueryPreviewResult, 
                 .unwrap_or(MAX_QUERY_RESULT_ROWS)
                 .min(MAX_QUERY_RESULT_ROWS);
             let truncated = row_count > cap;
-            let touched_predicates: BTreeSet<String> =
-                triples.iter().take(cap).map(|t| t.predicate.clone()).collect();
+            let touched_predicates: BTreeSet<String> = triples
+                .iter()
+                .take(cap)
+                .map(|t| t.predicate.clone())
+                .collect();
             let rows = triples
                 .iter()
                 .take(cap)
                 .map(|t| {
                     let mut obj = serde_json::Map::new();
-                    obj.insert("subject".into(), serde_json::Value::String(t.subject.clone()));
-                    obj.insert("predicate".into(), serde_json::Value::String(t.predicate.clone()));
-                    obj.insert("object".into(), serde_json::Value::String(t.object_value.clone()));
+                    obj.insert(
+                        "subject".into(),
+                        serde_json::Value::String(t.subject.clone()),
+                    );
+                    obj.insert(
+                        "predicate".into(),
+                        serde_json::Value::String(t.predicate.clone()),
+                    );
+                    obj.insert(
+                        "object".into(),
+                        serde_json::Value::String(t.object_value.clone()),
+                    );
                     obj
                 })
                 .collect();

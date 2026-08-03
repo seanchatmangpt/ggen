@@ -3195,6 +3195,7 @@ name = "ggen-mcp"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "assert_cmd",
  "blake3",
  "ggen-config",
  "ggen-engine",
@@ -3207,6 +3208,7 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.19",
  "tokio",
+ "toml 1.1.4+spec-1.1.0",
  "tracing",
  "tracing-subscriber",
 ]

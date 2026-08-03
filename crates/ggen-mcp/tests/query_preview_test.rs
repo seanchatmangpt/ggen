@@ -49,7 +49,10 @@ fn zero_row_query_reports_loudly_not_silently() {
 
     let result = query_preview(&params).expect("query must execute, not error");
     assert!(result.ok, "a zero-row SELECT must be ok:true, not an error");
-    assert_eq!(result.row_count, 0, "the true row count must be reported as zero");
+    assert_eq!(
+        result.row_count, 0,
+        "the true row count must be reported as zero"
+    );
     assert!(!result.truncated, "zero rows is not truncation");
     assert_eq!(result.returned_rows, 0);
     assert!(result.rows.is_empty());
