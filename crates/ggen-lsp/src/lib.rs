@@ -18,6 +18,7 @@ pub mod analyzers;
 pub mod check;
 pub mod error;
 pub mod features;
+pub mod generated_contract;
 pub mod handlers;
 pub mod harness_index;
 pub mod init;
