@@ -1,196 +1,104 @@
-# ggen-lsp — Language Server Protocol for ggen
+# ggen-lsp
 
-A **pure code intelligence** language server for ggen RDF, Tera, and TOML files. No LLM integration — static analysis only.
+`ggen-lsp` is the offline language server and law-diagnostic engine for ggen RDF, SPARQL, Tera, and TOML surfaces. It performs static analysis only. Editor features do not require an LLM, network service, hosted telemetry collector, or external process-mining service.
 
-> **Core value:** the process-intelligence route/OCEL engine — diagnostics become OCEL events, mined into ranked failure edges and POWL repair routes delivered as CodeActions, headless JSON, or MCP tools. The editor features below are the surface; the engine is the point.
+The editor, headless checker, MCP bridge, and A2A bridge share the same analyzer, diagnostic, route, and receipt semantics. Transport framing may differ; meaning must not.
 
-## Features (delivered)
+## Delivered editor contract
 
-✨ **Completion** — Context-aware suggestions for RDF predicates, Tera filters, config keys  
-✨ **Hover Documentation** — Show SHACL shapes, type info, config descriptions  
-✨ **Definition Jumping** — Navigate to class definitions, template includes  
-✨ **References** — Find all usages across files  
-✨ **Rename** — Rename symbols with cross-file validation  
-✨ **Document Symbol** — List all definitions in current file  
-✨ **Code Folding** — Collapse RDF shapes, Tera blocks, TOML sections  
-✨ **Code Actions** — Apply repair routes as `WorkspaceEdit` quickfixes  
-✨ **Diagnostics** — Surface E00XX law violations live as you type  
-✨ **Semantic Tokens** — Full-document tokenization (namespace/class/property/variable/…)  
-✨ **Formatting** — Document and range formatting for TOML/Turtle/SPARQL  
-✨ **Code Lenses** — Inline actionable annotations  
-✨ **Workspace Symbol** — Search definitions across the workspace root  
-✨ **Inlay Hints** — Inline type/value hints  
+The server provides:
 
-> Available via handler but NOT advertised in server capabilities: call hierarchy, type hierarchy — `prepare_call_hierarchy`/`prepare_type_hierarchy` are implemented in `server.rs` (and backed by the analyzers) but `initialize()` declares no `call_hierarchy_provider`/`type_hierarchy_provider`, so editors will not request them.
+- completion, hover, definitions, references, and rename;
+- document and workspace symbols;
+- diagnostics and repair-route code actions;
+- document and range formatting;
+- folding ranges, inlay hints, code lenses, and full semantic tokens;
+- call hierarchy prepare, incoming-call, and outgoing-call requests;
+- type hierarchy prepare, supertype, and subtype requests.
 
-## Installation
+Call and type hierarchy capabilities are negotiated. Call hierarchy is returned statically when the client supports it without dynamic registration. When the client supports dynamic registration, call and type hierarchy are registered with `client/registerCapability` after initialization. A prepared symbol with no known edges returns an empty relation array rather than a JSON-RPC `method_not_found` error.
 
-### From Source (Recommended)
+## Law surfaces
 
-ggen-lsp cannot be published to crates.io (vendored dependencies) but builds easily from source:
+| Extension | Analyzer |
+|---|---|
+| `.ttl` | Turtle/RDF |
+| `.nt` | N-Triples |
+| `.nq` | N-Quads |
+| `.rq`, `.sparql` | SPARQL |
+| `.tera` | Tera |
+| `.toml` | ggen/TOML |
+
+Cross-surface diagnostics use the project and harness indexes. Open buffers override disk for indexed query and template content so diagnostics reflect the current editor state.
+
+## Diagnostic lifecycle
+
+Each refresh produces one coherent publication per URI. Registry replacement is document-scoped: stale entries for the refreshed document are removed without deleting another document's diagnostics. Diagnostic identity includes URI, range, code, and message.
+
+The `.ggen/lambda_cd.gate` file is global to the active workspace:
+
+- `1` means at least one open document has an active `GGEN-*` error;
+- `0` means no open document has an active gating violation.
+
+A clean document cannot open the gate while another document remains violated. Shutdown removes this server session's registry diagnostics and writes an open gate. The gate directory is created before the write.
+
+Workspace identity is selected in this order for registry and gate state:
+
+1. `workspaceFolders[0]`;
+2. deprecated `rootUri`;
+3. process current directory.
+
+## Build and run
+
+From the repository root:
 
 ```bash
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen
-cargo build --release -p ggen-lsp --features mcp
-./target/release/ggen-lsp  # Start the MCP server
+cargo build -p ggen-lsp
+./target/debug/ggen-lsp
 ```
 
-### Via Claude Code
+The language-server transport is stdio. Stdout is reserved for LSP `Content-Length` frames.
 
-The LSP server integrates with Claude Code via MCP (Model Context Protocol):
+The CLI also exposes headless and protocol surfaces:
 
-1. Build ggen-lsp with the `mcp` feature (see above)
-2. Configure Claude Code to connect to the MCP server (see [ggen-lsp MCP Setup](marketplace/INSTALL.md))
-3. Start working — real-time diagnostics, repair suggestions, and MCP tools appear in your editor
-
-## Configuration
-
-The LSP server is stdio-only. Editor-side settings live in `~/.claude/settings.json`:
-
-```json
-{
-  "ggen-lsp": {
-    "enabled": true
-  }
-}
+```bash
+ggen lsp start
+ggen lsp serve --protocol lsp
+ggen lsp serve --protocol mcp
+ggen lsp check .
+ggen lsp replay <case>
+ggen lsp metrics
+ggen lsp mine
+ggen lsp emit_pack
+ggen lsp verify_pack
 ```
 
-> Note: `transport`, `auto_format_on_save`, and `show_hints` are editor-side hints only — they are NOT read or enforced by ggen.
+## Verification
 
-## CLI Verbs
+Use the pinned repository toolchain:
 
-`ggen lsp` exposes 10 verbs:
+```bash
+cargo fmt --check -p ggen-lsp
+cargo check -p ggen-lsp --all-features
+cargo test -p ggen-lsp --lib
+cargo test -p ggen-lsp --test lsp_protocol_test
+cargo test -p ggen-lsp --test lsp_contract_completion_test
+cargo build -p ggen-lsp
+python3 scripts/lsp-smoke.py
+```
 
-| Verb | Purpose |
-|------|---------|
-| `start` | Run the language server (stdio only; editors launch this) |
-| `serve` | Run a protocol server — `--protocol lsp` or `--protocol mcp` |
-| `check` | Headless gate: scan all law surfaces, exit non-zero on ERROR |
-| `init` | One-command setup: write editor configs + Agent Admissibility Pack |
-| `replay` | Replay a recorded OCEL case |
-| `metrics` | Report process-intelligence metrics |
-| `field-status` | Show field/surface status |
-| `mine` | Discover the project's 80/20 failure edges (OCEL → SPARQL DFG) |
-| `emit_pack` | Regenerate the movable stewardship pack |
-| `verify_pack` | Verify a stewardship pack |
-
-## Usage
-
-| Action | Result |
-|--------|--------|
-| Open `.ttl` file | LSP auto-starts, diagnostics enabled |
-| Completion | Suggests `sh:property`, `sh:path`, etc. |
-| Hover | Shows SHACL shape, documentation |
-| Go to definition | Opens definition |
-| Find references | Lists all usages |
-| Rename | Rename across all files |
-| Document symbol | List all definitions |
-| Code action | Apply a repair-route quickfix |
+`lsp_contract_completion_test` spawns the real binary and verifies dynamic hierarchy registration, all four hierarchy follow-up methods, workspace-folder gate placement, gate-directory creation, and shutdown cleanup over actual LSP framing.
 
 ## Architecture
 
-```
-ggen-lsp/
-├── src/
-│   ├── server.rs           # LanguageServer trait (15+ LSP methods)
-│   ├── state.rs            # Document cache, analyzer dispatch
-│   ├── analyzers/          # Per-file-type analyzers
-│   │   ├── rdf_analyzer.rs      # .ttl parsing + RDF logic
-│   │   ├── tera_analyzer.rs     # .tera parsing + template logic
-│   │   └── toml_analyzer.rs     # ggen.toml schema validation
-│   ├── handlers/           # Protocol message handlers (14 handlers)
-│   ├── error.rs            # Error types
-│   └── lib.rs              # Library entry points
-├── marketplace/
-│   ├── ggen-lsp.md         # Marketplace plugin manifest
-│   ├── schema.json         # Configuration schema
-│   ├── INSTALL.md          # Setup guide
-│   └── icon.png            # Plugin icon (128x128)
-└── Cargo.toml              # Package metadata + marketplace registration
+```text
+src/server.rs          LSP capability negotiation and protocol lifecycle
+src/state.rs           open documents, analyzers, cross-surface publication
+src/analyzers/         RDF, SPARQL, Tera, TOML, harness, and source laws
+src/handlers/          feature request handlers
+src/check.rs           headless law gate
+src/route.rs           shared repair-route selection
+src/intel/             OCEL event capture and mining projections
 ```
 
-## LSP Capabilities (lsp-max 26.7.1)
-
-| Feature | Status | Use Case |
-|---------|--------|----------|
-| Completion | 🟢 Delivered | RDF predicates, Tera filters, config keys |
-| Hover | 🟢 Delivered | SHACL shapes, documentation, type info |
-| Definition | 🟢 Delivered | Jump to class/template definition |
-| References | 🟢 Delivered | Find all usages across files |
-| Rename | 🟢 Delivered | Refactor symbol names across files |
-| Document Symbol | 🟢 Delivered | Outline: list all definitions |
-| Folding Range | 🟢 Delivered | Collapse RDF/Tera/TOML blocks |
-| Code Action | 🟢 Delivered | Repair-route quickfixes (`WorkspaceEdit`) |
-| Diagnostics | 🟢 Delivered | Surface E00XX law violations live |
-| Semantic Tokens (full) | 🟢 Delivered | Full-document tokenization (no `range`) |
-| Formatting (document) | 🟢 Delivered | Format whole TOML/Turtle/SPARQL document |
-| Formatting (range) | 🟢 Delivered | Format a selection |
-| Inlay Hint | 🟢 Delivered | Inline type/value hints |
-| Code Lens | 🟢 Delivered | Inline actionable annotations |
-| Workspace Symbol | 🟢 Delivered | Search definitions across workspace root |
-| Call Hierarchy | 🟡 Handler only | `prepare_call_hierarchy` implemented; not advertised in `initialize()` |
-| Type Hierarchy | 🟡 Handler only | `prepare_type_hierarchy` implemented; not advertised in `initialize()` |
-
-> The 🟢 rows above are exactly the capabilities advertised in `server.rs` `initialize()` (`semantic_tokens_provider` advertises `full` only — no `range`). The 🟡 rows have working handlers in `server.rs` but no matching provider in `initialize()`, so they are reachable only if a client requests them directly. Nothing is now wholly absent.
-
-## Performance
-
-| Operation | Target | Status |
-|-----------|--------|--------|
-| Server startup | <200ms | ✅ |
-| Completion | <100ms | ✅ |
-| Hover | <50ms | ✅ |
-| Diagnostics (large files) | <500ms | ✅ |
-| Memory usage | <100MB | ✅ |
-
-## No LLM Integration
-
-This LSP is **pure code intelligence**:
-- ✅ Static analysis (RDF parsing, SPARQL validation, Tera AST)
-- ✅ Local file I/O only
-- ✅ No external API calls
-- ✅ No Claude, Groq, OpenAI, or any LLM support
-
-Perfect for fast, offline IDE support.
-
-## Development
-
-```bash
-# Build
-cargo build -p ggen-lsp
-
-# Test (implemented by other agent)
-cargo test -p ggen-lsp
-
-# Run LSP server (stdio only — editors launch this)
-ggen lsp start
-
-# Run a protocol server (lsp or mcp)
-ggen lsp serve --protocol mcp
-```
-
-## Testing
-
-Chicago TDD style (no mocks):
-- Real file I/O (TempDir)
-- Real analyzer execution
-- Real LSP protocol messages
-- 80%+ code coverage target
-
-See [LSP-ARD-PRD.md](../../docs/architecture/LSP-ARD-PRD.md) for test strategy.
-
-## References
-
-- **Architecture**: [LSP-ARD-PRD.md](../../docs/architecture/LSP-ARD-PRD.md) — full spec
-- **lsp-max**: [https://github.com/seanchatmangpt/lsp-max](https://github.com/seanchatmangpt/lsp-max) — law-state LSP runtime
-- **LSP Spec**: [https://microsoft.github.io/language-server-protocol/](https://microsoft.github.io/language-server-protocol/)
-
-## License
-
-Same as ggen project (see LICENSE file in root)
-
-## Support
-
-- Issues: [GitHub Issues](https://github.com/seanchatmangpt/ggen/issues)
-- Discussions: [GitHub Discussions](https://github.com/seanchatmangpt/ggen/discussions)
+The governing subtree contract is [`AGENTS.md`](AGENTS.md). The architecture specification is [`docs/architecture/LSP-ARD-PRD.md`](../../docs/architecture/LSP-ARD-PRD.md).
