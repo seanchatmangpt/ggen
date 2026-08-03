@@ -3,3 +3,17 @@ repository = "seanchatmangpt/ggen-legacy"
 ref = "70e599a599fedb7c62c965377cc2f80df1fa01ec"
 migration = "migrations/ggen-v26.8.1/migration-receipt.json"
 composition = "project versioned corpus roots over this ggen kernel checkout"
+
+[lsp_contract]
+schema = "ggen.lsp.contract/1"
+version = "26.8.5"
+authority = "self-host/lsp-contract/ontology.ttl"
+generator = "self-host/lsp-contract/ggen.toml"
+receiver_branch = "agent/ggen-legacy-lsp-max"
+receiver_ref = "1ac71cb212b75ca035e53429ba18c604494be002"
+receiver_pr = 16
+json_sha256 = "4f72f65a4831073e80c2d35a8bab457d3f58134f658d1533a9dcd1f27f9d9f09"
+rust_sha256 = "e22648c0b936734055766e1e2b6a5784e357afbe891b547a4b2aff06f76f859e"
+doc_sha256 = "c1761693de2d21942fc157a2f34c1833672c7e02639db3178d8e1fefbda60d70"
+receiver_source_receipt = "evidence/lsp-contract/receiver-report.json"
+receiver_runtime_standing = "BLOCKED_TOOLCHAIN_UNAVAILABLE"
