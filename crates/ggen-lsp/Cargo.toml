@@ -27,13 +27,13 @@ publish = false
 # candidates for a future ggen-core replacement (see
 # docs/jira/v26.7.16/GGEN-CORE-PRAXIS-REPLACEMENT.md) and a version mismatch on
 # this package would otherwise block adding them to this workspace. Verified to
-# still compile clean under nightly-2026-06-22 via `just check`. The exact pin
-# intersects with lsp-max-runtime's ^26.6.9 constraint so Cargo can't silently
-# pull a future broken release within the same date-versioned minor.
+# still compile clean under nightly-2026-06-22 via `just check`.
 wasm4pm-compat = "=26.6.29"
-lsp-max = { workspace = true }
-lsp-max-protocol = { workspace = true }
-lsp-max-macros = { workspace = true }
+# Exact runtime-family pins match the versions already selected in Cargo.lock.
+# This removes manifest/lock drift without manufacturing a dependency update.
+lsp-max = "=26.7.3"
+lsp-max-protocol = "=26.7.3"
+lsp-max-macros = "=26.7.3"
 tokio = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
@@ -112,11 +112,11 @@ lsp-max-client = { workspace = true }
 type = "language-server"
 marketplace_plugin_id = "ggen-lsp"
 marketplace_plugin_name = "ggen Language Server"
-marketplace_display_name = "ggen (RDF/Tera/TOML)"
-marketplace_description = "Syntax highlighting, completion, refactoring for ggen files"
+marketplace_display_name = "ggen (RDF/Tera/TOML/Rust source law)"
+marketplace_description = "Syntax highlighting, completion, refactoring, and generated-source law for ggen files"
 marketplace_categories = ["language-support", "linting", "formatting"]
 marketplace_minimum_claude_code_version = "0.9.0"
-marketplace_supported_languages = ["ttl", "tera", "toml"]
+marketplace_supported_languages = ["ttl", "tera", "toml", "rust"]
 marketplace_binary = "ggen"
 marketplace_binary_args = ["lsp", "start", "--transport", "stdio"]
 marketplace_capabilities = [
@@ -131,7 +131,8 @@ marketplace_capabilities = [
   "semantic-tokens",
   "folding-range",
   "formatting",
-  "inlay-hint"
+  "inlay-hint",
+  "generated-source-law"
 ]
 
 [[bin]]
