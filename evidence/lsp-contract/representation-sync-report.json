@@ -1,0 +1,21 @@
+{
+  "claim_ceiling": "REPRESENTATION_SYNC_ONLY",
+  "contract_schema": "ggen.lsp.contract/1",
+  "contract_version": "26.8.5",
+  "diagnostic_count": 11,
+  "findings": [],
+  "ggen_execution": "BLOCKED_TOOLCHAIN_UNAVAILABLE",
+  "kernel_runtime_checked": false,
+  "legacy_checked": true,
+  "method_count": 29,
+  "ontology_sha256": "80c562e7db55e74fa29d571bf1b3d2fb14579206337ca5df42c018affa7ca345",
+  "projection_sha256": {
+    "crates/ggen-lsp/generated/lsp-contract.json": "adfc4604c1bb54698257e70f7ade3ec8a2a285c2ac7f897a6fa4868f1729d189",
+    "crates/ggen-lsp/src/generated_contract.rs": "e22648c0b936734055766e1e2b6a5784e357afbe891b547a4b2aff06f76f859e",
+    "docs/generated/LSP_CONTRACT.md": "c1761693de2d21942fc157a2f34c1833672c7e02639db3178d8e1fefbda60d70"
+  },
+  "representation_count": 7,
+  "schema": "ggen.lsp.representation-sync-report/1",
+  "standing": "ALIVE",
+  "surface_count": 8
+}
