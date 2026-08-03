@@ -1,0 +1,20 @@
+PREFIX cmx:  <http://ggen.org/combinatorial#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?generator_id ?action_id ?query_file ?template_file ?output_pattern ?inject_mode
+WHERE {
+    ?g a cmx:Generator ;
+       cmx:generatorId ?generator_id ;
+       cmx:hasAction   ?act .
+
+    ?act cmx:actionId   ?action_id ;
+         cmx:hasBinding ?b .
+
+    ?b cmx:queryFile      ?query_file ;
+       cmx:templateFile   ?template_file ;
+       cmx:outputPattern  ?output_pattern .
+
+    OPTIONAL { ?b cmx:injectMode ?inject_mode }
+}
+ORDER BY ?generator_id ?action_id

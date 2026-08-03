@@ -1,0 +1,31 @@
+{#
+  combinatorial/cmd-template-cross.tera
+  Generator : combinatorial-cross / cmd-template
+  Pipeline  : combinatorial.ttl
+               → cmd-template-cross.rq  (JOIN cli:Command × cmx:TemplateBinding)
+               → this file
+               → {{ output_path }}
+  Correct by construction — A = μ(O). Do not edit; edit the ontology.
+
+  This is the cross-product template. Each (cmd_label, generator_id, action_id) row
+  produces one output file. The output_path is the raw_pattern from the TemplateBinding,
+  with Tera interpolating cmd_label at render time.
+
+  Receipt = Blake3Hash::content_address(rendered_bytes) — chained by ggen sync.
+  The receipt IS the proof. No post-hoc tests needed.
+#}
+{#
+  Row variables:
+    cmd_label      — rdfs:label of the cli:Command
+    cmd_iri        — full IRI of the cli:Command
+    generator_id   — cmx:generatorId of the parent Generator
+    action_id      — cmx:actionId of the Action
+    output_path    — cmx:outputPattern (raw, Tera-interpolated here)
+    template_file  — cmx:templateFile path (informational)
+    query_file     — cmx:queryFile path (informational)
+#}
+// Generated: {{ generator_id }}/{{ action_id }} for `{{ cmd_label }}`
+// Source:    {{ cmd_iri | default(value='') }}
+// Template:  {{ template_file | default(value='') }}
+// Query:     {{ query_file | default(value='') }}
+// A = μ(O) — do not edit. Regenerate: ggen sync.

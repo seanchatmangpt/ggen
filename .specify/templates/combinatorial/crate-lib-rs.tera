@@ -1,0 +1,10 @@
+{#
+  combinatorial/crate-lib-rs.tera
+  Generator : crate / lib
+  Pipeline  : combinatorial.ttl → crate-lib.rq → this file → crates/{{ crate_name }}/src/lib.rs
+  Correct by construction — A = μ(O). Do not edit; edit the ontology.
+#}
+//! `{{ crate_name | replace(from='-', to='_') }}`
+//!
+//! Generated from ontology IRI: `{{ crate_iri | default(value='') }}`
+//! Do not edit — regenerate with `ggen sync`.

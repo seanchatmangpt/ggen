@@ -1,0 +1,12 @@
+---
+to: "../../mmdio/tests/oracle/samples/{{ diagram_id }}.mmd"
+sparql: |
+  PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+  SELECT ?diagram_id ?sourceText WHERE {
+    ?diagram a mer:Diagram ;
+             mer:diagramType ?type ;
+             mer:sourceText ?sourceText .
+    ?type mer:diagramId ?diagram_id .
+  } ORDER BY ?diagram_id
+---
+{{ sourceText }}

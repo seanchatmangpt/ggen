@@ -1,0 +1,31 @@
+PREFIX cli:  <http://ggen.org/cli#>
+PREFIX cmx:  <http://ggen.org/combinatorial#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Cross-product query: cli:Command × cmx:TemplateBinding
+# Joins each command to its materialized template bindings via cmx:hasBoundTemplate.
+# Output path pattern is stored on the binding; ggen engine interpolates variables.
+
+SELECT ?cmd_label ?cmd_iri ?generator_id ?action_id ?output_path ?template_file ?query_file
+WHERE {
+    ?cmd a cli:Command ;
+         rdfs:label ?cmd_label ;
+         cmx:hasBoundTemplate ?binding .
+
+    BIND(?cmd AS ?cmd_iri)
+
+    ?binding a cmx:TemplateBinding ;
+             cmx:outputPattern ?raw_pattern ;
+             cmx:templateFile  ?template_file ;
+             cmx:forAction     ?act .
+
+    OPTIONAL { ?binding cmx:queryFile ?query_file }
+
+    ?act cmx:actionId ?action_id .
+
+    ?gen cmx:hasAction   ?act ;
+         cmx:generatorId ?generator_id .
+
+    BIND(?raw_pattern AS ?output_path)
+}
+ORDER BY ?generator_id ?action_id ?cmd_label

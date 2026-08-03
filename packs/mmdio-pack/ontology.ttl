@@ -1,0 +1,147 @@
+@prefix mer:  <https://seanchatmangpt.github.io/ontology/mermaid#> .
+@prefix tcps: <https://seanchatmangpt.github.io/ontology/tcps#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Property declarations (extensions to mermaid-pack)
+mer:pythonSupport a rdf:Property .
+mer:grammarPath a rdf:Property .
+
+# Extend supported DiagramTypes with Python support and grammar paths
+mer:Type_flowchart mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/flowchart.lark" .
+
+mer:Type_sequence mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/sequence.lark" .
+
+mer:Type_classDiagram mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/class_diagram.lark" .
+
+mer:Type_stateDiagram mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/state.lark" .
+
+mer:Type_er mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/er.lark" .
+
+mer:Type_gantt mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/gantt.lark" .
+
+mer:Type_pie mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/pie.lark" .
+
+mer:Type_gitGraph mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/git.lark" .
+
+mer:Type_c4 mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/c4.lark" .
+
+mer:Type_mindmap mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/mindmap.lark" .
+
+mer:Type_sankey mer:pythonSupport true ;
+    mer:grammarPath "src/mmdio/engine/grammars/sankey.lark" .
+
+# Sample Diagram instances for testing
+mer:Diagram_flowchart_sample a mer:Diagram ;
+    mer:diagramType mer:Type_flowchart ;
+    mer:sourceText """flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process]
+    B -->|No| D[End]
+    C --> D""" ;
+    mer:outputPath "samples/flowchart.mmd" .
+
+mer:Diagram_sequence_sample a mer:Diagram ;
+    mer:diagramType mer:Type_sequence ;
+    mer:sourceText """sequenceDiagram
+    participant A as Alice
+    participant B as Bob
+    A->>B: Hello Bob
+    B-->>A: Hi Alice""" ;
+    mer:outputPath "samples/sequence.mmd" .
+
+mer:Diagram_classDiagram_sample a mer:Diagram ;
+    mer:diagramType mer:Type_classDiagram ;
+    mer:sourceText """classDiagram
+    class Person {
+        String name
+        String email
+        greet()
+    }""" ;
+    mer:outputPath "samples/classDiagram.mmd" .
+
+mer:Diagram_stateDiagram_sample a mer:Diagram ;
+    mer:diagramType mer:Type_stateDiagram ;
+    mer:sourceText """stateDiagram-v2
+    [*] --> Still
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]""" ;
+    mer:outputPath "samples/stateDiagram.mmd" .
+
+mer:Diagram_er_sample a mer:Diagram ;
+    mer:diagramType mer:Type_er ;
+    mer:sourceText """erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ LINE-ITEM : contains
+    CUSTOMER }o--|| ADDRESS : uses""" ;
+    mer:outputPath "samples/er.mmd" .
+
+mer:Diagram_gantt_sample a mer:Diagram ;
+    mer:diagramType mer:Type_gantt ;
+    mer:sourceText """gantt
+    title Project Timeline
+    section Dev
+    Task 1: a, 2024-01-01, 7d
+    Task 2: b, after a, 5d""" ;
+    mer:outputPath "samples/gantt.mmd" .
+
+mer:Diagram_pie_sample a mer:Diagram ;
+    mer:diagramType mer:Type_pie ;
+    mer:sourceText """pie title Pie Chart
+    "A": 30
+    "B": 40
+    "C": 30""" ;
+    mer:outputPath "samples/pie.mmd" .
+
+mer:Diagram_gitGraph_sample a mer:Diagram ;
+    mer:diagramType mer:Type_gitGraph ;
+    mer:sourceText """gitGraph
+    commit id: "1"
+    commit id: "2"
+    branch develop
+    commit id: "3"
+    checkout main
+    merge develop""" ;
+    mer:outputPath "samples/gitGraph.mmd" .
+
+mer:Diagram_c4_sample a mer:Diagram ;
+    mer:diagramType mer:Type_c4 ;
+    mer:sourceText """C4Context
+    Person(user, "User", "A person using the system")
+    System(sys, "System", "The main system")
+    Rel(user, sys, "Uses")""" ;
+    mer:outputPath "samples/c4.mmd" .
+
+mer:Diagram_mindmap_sample a mer:Diagram ;
+    mer:diagramType mer:Type_mindmap ;
+    mer:sourceText """mindmap
+    root((Root))
+        Branch 1
+            Child 1
+            Child 2
+        Branch 2""" ;
+    mer:outputPath "samples/mindmap.mmd" .
+
+mer:Diagram_sankey_sample a mer:Diagram ;
+    mer:diagramType mer:Type_sankey ;
+    mer:sourceText """sankey-beta
+    Source,Target,Value
+    A,B,10
+    B,C,5
+    A,C,3""" ;
+    mer:outputPath "samples/sankey.mmd" .

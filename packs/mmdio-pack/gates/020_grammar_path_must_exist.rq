@@ -1,0 +1,7 @@
+# MESSAGE: All grammar paths must correspond to real files under ~/mmdio/src/mmdio/engine/grammars/
+# NOTE: File existence is verified by a companion script (mmdio-pack/gates/verify-grammars.sh)
+# This SPARQL query is informational; the companion script performs the actual file check.
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?type ?grammarPath WHERE {
+  ?type mer:grammarPath ?grammarPath .
+}

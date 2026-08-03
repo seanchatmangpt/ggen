@@ -92,7 +92,13 @@ fn test_cyclic_rules_terminate() {
     );
     let bindings =
         BackwardChainer::eval_backward(&store.triple_index, &store.rules_index, &backward_head);
-    let _ = bindings.len();
+    assert!(
+        bindings.is_empty(),
+        "no ground facts exist for the cyclic rule, so backward chaining over the \
+         fully-unbound goal ?x foo ?y must yield no bindings -- reaching this assertion \
+         at all is also the termination proof: a cycle-guard regression means \
+         eval_backward never returns, which the outer test-runner timeout catches"
+    );
 }
 
 #[test]

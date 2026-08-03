@@ -1,0 +1,31 @@
+{#
+  combinatorial/proof-gate-doc.md.tera
+  Generator : proof-gate / gate-doc
+  Pipeline  : combinatorial.ttl → proof-gate.rq → this file → docs/gates/{{ gate_id }}.md
+  Correct by construction — A = μ(O). Do not edit; edit the ontology.
+#}
+# Gate `{{ gate_id }}`: {{ label | default(value=gate_id) }}
+
+{% if description %}
+> {{ description }}
+{% endif %}
+
+| Field | Value |
+|-------|-------|
+| Gate ID | `{{ gate_id }}` |
+| Surface | `{{ surface | default(value='execution') }}` |
+| Invariant | {{ invariant | default(value='—') }} |
+| ASK body | see [`.specify/gates/{{ gate_id }}.rq`](.specify/gates/{{ gate_id }}.rq) |
+
+## Invariant
+
+{{ invariant | default(value='No invariant declared.') }}
+
+## ASK Body
+
+```sparql
+{{ ask_body | default(value='# none') }}
+```
+
+---
+*Generated from `combinatorial.ttl`. Edit the ontology, not this file. Regenerate: `ggen sync`.*

@@ -1,0 +1,16 @@
+PREFIX cmx:  <http://ggen.org/combinatorial#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?gate_id ?label ?description ?ask_body ?surface ?invariant
+WHERE {
+    ?g a cmx:ProofGate ;
+       cmx:gateId ?gate_id ;
+       rdfs:label ?label .
+
+    OPTIONAL { ?g rdfs:comment    ?description }
+    OPTIONAL { ?g cmx:askBody     ?ask_body }
+    OPTIONAL { ?g cmx:surface     ?surface }
+    OPTIONAL { ?g cmx:invariant   ?invariant }
+}
+ORDER BY ?gate_id

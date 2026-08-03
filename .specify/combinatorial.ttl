@@ -1,0 +1,262 @@
+@prefix cmx:     <http://ggen.org/combinatorial#> .
+@prefix cli:     <http://ggen.org/cli#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ontology declaration
+# ─────────────────────────────────────────────────────────────────────────────
+
+<http://ggen.org/combinatorial>
+    a owl:Ontology ;
+    rdfs:label "Combinatorial Maximalism Vocabulary" ;
+    rdfs:comment "Defines the vocabulary for ggen combinatorial code generation: generators, actions, template bindings, proof gates, and their cross-product dimensions." ;
+    dcterms:title "ggen Combinatorial Maximalism Ontology" ;
+    owl:versionInfo "0.1.0" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Classes
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:Generator a owl:Class ;
+    rdfs:label "Generator" ;
+    rdfs:comment "A named code generator, analogous to a hygen generator (e.g. generator/action top-level namespace)." .
+
+cmx:Action a owl:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "A named action within a generator, analogous to a hygen generator/action pair." .
+
+cmx:TemplateBinding a owl:Class ;
+    rdfs:label "TemplateBinding" ;
+    rdfs:comment "Binds a SPARQL query file, a Tera template file, and an output path pattern into a single generation unit." .
+
+cmx:ProofGate a owl:Class ;
+    rdfs:label "Proof Gate" ;
+    rdfs:comment "A SPARQL ASK-based law gate. If ASK returns false, generation is denied ([FM-LAW-*])." .
+
+cmx:Crate a owl:Class ;
+    rdfs:label "Rust Crate" ;
+    rdfs:comment "A Rust crate declared in the ontology. Each instance generates Cargo.toml + src/lib.rs." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Datatype Properties
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:generatorId a owl:DatatypeProperty ;
+    rdfs:label "generatorId" ;
+    rdfs:comment "Slug identifier for a Generator, e.g. \"crate\"." ;
+    rdfs:domain cmx:Generator ;
+    rdfs:range xsd:string .
+
+cmx:actionId a owl:DatatypeProperty ;
+    rdfs:label "actionId" ;
+    rdfs:comment "Slug identifier for an Action, e.g. \"new\"." ;
+    rdfs:domain cmx:Action ;
+    rdfs:range xsd:string .
+
+cmx:queryFile a owl:DatatypeProperty ;
+    rdfs:label "queryFile" ;
+    rdfs:comment "Relative path to the SPARQL .rq file used to gather template variables." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:string .
+
+cmx:templateFile a owl:DatatypeProperty ;
+    rdfs:label "templateFile" ;
+    rdfs:comment "Relative path to the Tera .tera template file." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:string .
+
+cmx:outputPattern a owl:DatatypeProperty ;
+    rdfs:label "outputPattern" ;
+    rdfs:comment "Tera-interpolated output path pattern, e.g. \"crates/{{ crate_name }}/Cargo.toml\"." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:string .
+
+cmx:injectMode a owl:DatatypeProperty ;
+    rdfs:label "injectMode" ;
+    rdfs:comment "When true, generation operates in Merge/inject mode rather than creating a new file." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:boolean .
+
+cmx:injectAfterMarker a owl:DatatypeProperty ;
+    rdfs:label "injectAfterMarker" ;
+    rdfs:comment "The inject-after marker string used when injectMode is true." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:string .
+
+cmx:inferenceOrder a owl:DatatypeProperty ;
+    rdfs:label "inferenceOrder" ;
+    rdfs:comment "Integer ordering hint for sequencing inference rules during materialisation." ;
+    rdfs:range xsd:integer .
+
+cmx:dimension a owl:DatatypeProperty ;
+    rdfs:label "dimension" ;
+    rdfs:comment "Comma-separated dimension labels annotating the state-space axes of a TemplateBinding, e.g. \"cli:Command × cmx:TemplateBinding\"." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range xsd:string .
+
+cmx:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:comment "Version string for a cmx:Crate." ;
+    rdfs:domain cmx:Crate ;
+    rdfs:range xsd:string .
+
+cmx:gateId a owl:DatatypeProperty ;
+    rdfs:label "gateId" ;
+    rdfs:comment "Unique identifier for a proof gate." ;
+    rdfs:domain cmx:ProofGate ;
+    rdfs:range xsd:string .
+
+cmx:askBody a owl:DatatypeProperty ;
+    rdfs:label "askBody" ;
+    rdfs:comment "The WHERE clause body of the SPARQL ASK query for this gate." ;
+    rdfs:domain cmx:ProofGate ;
+    rdfs:range xsd:string .
+
+cmx:surface a owl:DatatypeProperty ;
+    rdfs:label "surface" ;
+    rdfs:comment "Evidence surface validated by this gate (execution | state | causality | telemetry | process)." ;
+    rdfs:domain cmx:ProofGate ;
+    rdfs:range xsd:string .
+
+cmx:invariant a owl:DatatypeProperty ;
+    rdfs:label "invariant" ;
+    rdfs:comment "Human-readable statement of the invariant enforced by this gate." ;
+    rdfs:domain cmx:ProofGate ;
+    rdfs:range xsd:string .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Object Properties
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:crossProduct a owl:ObjectProperty ;
+    rdfs:label "crossProduct" ;
+    rdfs:comment "Links a TemplateBinding to each of its N dimension axes." ;
+    rdfs:domain cmx:TemplateBinding .
+
+cmx:hasBinding a owl:ObjectProperty ;
+    rdfs:label "hasBinding" ;
+    rdfs:comment "Associates an Action with its TemplateBinding instance." ;
+    rdfs:domain cmx:Action ;
+    rdfs:range cmx:TemplateBinding .
+
+cmx:forAction a owl:ObjectProperty ;
+    rdfs:label "forAction" ;
+    rdfs:comment "Associates a TemplateBinding with the Action it belongs to." ;
+    rdfs:domain cmx:TemplateBinding ;
+    rdfs:range cmx:Action .
+
+cmx:hasAction a owl:ObjectProperty ;
+    rdfs:label "hasAction" ;
+    rdfs:comment "Associates a Generator with one of its Action instances." ;
+    rdfs:domain cmx:Generator ;
+    rdfs:range cmx:Action .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Concrete Generator Vocabulary Structure
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Generator: crate ─────────────────────────────────────────────────────────
+
+cmx:CrateGenerator a cmx:Generator ;
+    cmx:generatorId "crate" ;
+    rdfs:label "Crate Generator" ;
+    rdfs:comment "Generates Rust crate scaffolding (Cargo.toml, src/lib.rs) from combinatorial ontology bindings." ;
+    cmx:hasAction cmx:CrateAction_new ;
+    cmx:hasAction cmx:CrateAction_lib .
+
+cmx:CrateAction_new a cmx:Action ;
+    cmx:actionId "new" ;
+    rdfs:label "crate/new" ;
+    rdfs:comment "Action that scaffolds a new Rust crate with a Cargo.toml file." ;
+    cmx:hasBinding cmx:CrateBinding_new .
+
+cmx:CrateBinding_new a cmx:TemplateBinding ;
+    cmx:queryFile ".specify/queries/combinatorial/crate-new.rq" ;
+    cmx:templateFile ".specify/templates/combinatorial/crate-cargo-toml.tera" ;
+    cmx:outputPattern "crates/{{ crate_name }}/Cargo.toml" ;
+    cmx:injectMode false ;
+    cmx:forAction cmx:CrateAction_new ;
+    rdfs:label "crate/new → Cargo.toml binding" ;
+    rdfs:comment "Binds the crate-new query and Cargo.toml template to produce crates/{{ crate_name }}/Cargo.toml." .
+
+cmx:CrateAction_lib a cmx:Action ;
+    cmx:actionId "lib" ;
+    rdfs:label "crate/lib" ;
+    rdfs:comment "Action that scaffolds the src/lib.rs entry point for a new Rust crate." ;
+    cmx:hasBinding cmx:CrateBinding_lib .
+
+cmx:CrateBinding_lib a cmx:TemplateBinding ;
+    cmx:queryFile ".specify/queries/combinatorial/crate-lib.rq" ;
+    cmx:templateFile ".specify/templates/combinatorial/crate-lib-rs.tera" ;
+    cmx:outputPattern "crates/{{ crate_name }}/src/lib.rs" ;
+    cmx:injectMode false ;
+    cmx:forAction cmx:CrateAction_lib ;
+    rdfs:label "crate/lib → lib.rs binding" ;
+    rdfs:comment "Binds the crate-lib query and lib.rs template to produce crates/{{ crate_name }}/src/lib.rs." .
+
+# ── Generator: proof-gate ────────────────────────────────────────────────────
+
+cmx:ProofGateGenerator a cmx:Generator ;
+    cmx:generatorId "proof-gate" ;
+    rdfs:label "Proof Gate Generator" ;
+    rdfs:comment "Generates SPARQL proof-gate queries and accompanying documentation pages from gate bindings." ;
+    cmx:hasAction cmx:ProofGateAction_gateRq ;
+    cmx:hasAction cmx:ProofGateAction_gateDoc .
+
+cmx:ProofGateAction_gateRq a cmx:Action ;
+    cmx:actionId "gate-rq" ;
+    rdfs:label "proof-gate/gate-rq" ;
+    rdfs:comment "Action that generates a SPARQL .rq proof-gate query file." ;
+    cmx:hasBinding cmx:ProofGateBinding_gateRq .
+
+cmx:ProofGateBinding_gateRq a cmx:TemplateBinding ;
+    cmx:queryFile ".specify/queries/combinatorial/proof-gate.rq" ;
+    cmx:templateFile ".specify/templates/combinatorial/proof-gate.rq.tera" ;
+    cmx:outputPattern ".specify/gates/{{ gate_id }}.rq" ;
+    cmx:injectMode false ;
+    cmx:forAction cmx:ProofGateAction_gateRq ;
+    rdfs:label "proof-gate/gate-rq → .rq binding" ;
+    rdfs:comment "Binds the proof-gate query and .rq template to produce .specify/gates/{{ gate_id }}.rq." .
+
+cmx:ProofGateAction_gateDoc a cmx:Action ;
+    cmx:actionId "gate-doc" ;
+    rdfs:label "proof-gate/gate-doc" ;
+    rdfs:comment "Action that generates a Markdown documentation page for a proof gate." ;
+    cmx:hasBinding cmx:ProofGateBinding_gateDoc .
+
+cmx:ProofGateBinding_gateDoc a cmx:TemplateBinding ;
+    cmx:queryFile ".specify/queries/combinatorial/proof-gate.rq" ;
+    cmx:templateFile ".specify/templates/combinatorial/proof-gate-doc.md.tera" ;
+    cmx:outputPattern "docs/gates/{{ gate_id }}.md" ;
+    cmx:injectMode false ;
+    cmx:forAction cmx:ProofGateAction_gateDoc ;
+    rdfs:label "proof-gate/gate-doc → .md binding" ;
+    rdfs:comment "Binds the proof-gate query and Markdown template to produce docs/gates/{{ gate_id }}.md." .
+
+# ── Generator: combinatorial-cross ───────────────────────────────────────────
+
+cmx:CombinatorialCrossGenerator a cmx:Generator ;
+    cmx:generatorId "combinatorial-cross" ;
+    rdfs:label "Combinatorial Cross-Product Generator" ;
+    rdfs:comment "Generates template output for the full cross-product of CLI commands and TemplateBindings." ;
+    cmx:hasAction cmx:CombinatorialCrossAction_cmdTemplate .
+
+cmx:CombinatorialCrossAction_cmdTemplate a cmx:Action ;
+    cmx:actionId "cmd-template" ;
+    rdfs:label "combinatorial-cross/cmd-template" ;
+    rdfs:comment "Action that expands the cross-product of cli:Command × cmx:TemplateBinding to produce one output file per combination." ;
+    cmx:hasBinding cmx:CombinatorialCrossBinding_cmdTemplate .
+
+cmx:CombinatorialCrossBinding_cmdTemplate a cmx:TemplateBinding ;
+    cmx:queryFile ".specify/queries/combinatorial/cmd-template-cross.rq" ;
+    cmx:templateFile ".specify/templates/combinatorial/cmd-template-cross.tera" ;
+    cmx:outputPattern "crates/ggen-cli/src/cmds/{{ cmd_label }}_cmd-template.rs" ;
+    cmx:injectMode false ;
+    cmx:dimension "cli:Command × cmx:TemplateBinding" ;
+    cmx:forAction cmx:CombinatorialCrossAction_cmdTemplate ;
+    rdfs:label "combinatorial-cross/cmd-template binding" ;
+    rdfs:comment "Binds the cmd-template-cross query and template across the cli:Command × cmx:TemplateBinding state space, writing to crates/ggen-cli/src/cmds/{{ cmd_label }}_cmd-template.rs." .

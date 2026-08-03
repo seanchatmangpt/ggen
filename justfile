@@ -546,16 +546,3 @@ docs-sync:
 # Creates and deletes a throwaway private repo. Ignored in normal test runs.
 tf-acceptance:
     cargo test -p ggen-engine --test gh_terraform_acceptance_e2e -- --ignored --nocapture
-
-# ── v26.8.1 legacy-rebuild G9 harness (observe→plan→manufacture→verify→falsify→replay→admit) ──
-#
-# This section is the one-shot orchestration harness for the v26.8.1 legacy-rebuild
-# mission's final (G9) checkpoint. It CALLS existing v26.8.1 tooling (tools/v26.8.1/*.py,
-# tools/v26.8.1/src/main.rs "crown" verifier, planning/v26.8.1/verify_planning.py,
-# packs/legacy-equivalence-verifier-pack/) — it does not reimplement any of their logic.
-# Each narrow recipe below was individually run and its real invocation confirmed before
-# being wired into v26-8-1-rebuild (see docs/v26.8.1 mission notes / PR description for the
-# individual-recipe verification transcript).
-
-# Mine git history for legacy-capability evidence and emit ontology/v26.8.1/legacy-capabilities.ttl.
-# legacy_archaeology.py's real CLI is `[mine|emit|both]` (default "both"), not flags.

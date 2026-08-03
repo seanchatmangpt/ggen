@@ -1,0 +1,19 @@
+
+# Gate: every-command-has-handler
+# Label: Every Command Has Handler
+# All declared cli:Command individuals must have a cli:handler value.
+# Surface: state
+# Invariant: ∀ cmd ∈ cli:Command → ∃ cli:handler(cmd)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?cmd a cli:Command .
+      FILTER NOT EXISTS { ?cmd cli:handler ?h }
+    }
+    
+}
+

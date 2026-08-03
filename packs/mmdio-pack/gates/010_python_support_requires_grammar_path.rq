@@ -1,0 +1,6 @@
+# MESSAGE: Python-supported diagram types must have a corresponding grammar path defined
+PREFIX mer: <https://seanchatmangpt.github.io/ontology/mermaid#>
+SELECT ?type WHERE {
+  ?type mer:pythonSupport true .
+  FILTER NOT EXISTS { ?type mer:grammarPath ?path }
+}

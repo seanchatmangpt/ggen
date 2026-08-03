@@ -1,0 +1,19 @@
+
+# Gate: every-generator-has-action
+# Label: Every Generator Has At Least One Action
+# All declared cmx:Generator individuals must have at least one cmx:hasAction link.
+# Surface: state
+# Invariant: ∀ gen ∈ cmx:Generator → ∃ cmx:hasAction(gen, act)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?gen a cmx:Generator .
+      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    }
+    
+}
+

@@ -1,0 +1,19 @@
+
+# Gate: every-binding-has-template
+# Label: Every TemplateBinding Has a Template File
+# All cmx:TemplateBinding individuals must declare cmx:templateFile.
+# Surface: execution
+# Invariant: ∀ b ∈ cmx:TemplateBinding → ∃ cmx:templateFile(b)
+#
+# Generated from combinatorial.ttl. Edit the ontology, not this file.
+
+
+ASK {
+  
+    NOT EXISTS {
+      ?b a cmx:TemplateBinding .
+      FILTER NOT EXISTS { ?b cmx:templateFile ?f }
+    }
+    
+}
+

@@ -95,10 +95,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
-name = "bcinr-logic"
-version = "26.6.24"
+name = "bcinr-cmca"
+version = "26.7.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f27f4bba1bbe5c5a5930ed0add9312a7f836eb29a5050e72f7c93184dd83ff59"
+checksum = "c7aa454f03b50b6990c672fd72a4e2bc3ec3af63bed5d4dfae02dee5ca30ba19"
+dependencies = [
+ "bcinr-logic",
+]
+
+[[package]]
+name = "bcinr-logic"
+version = "26.7.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0be283759631eeff5f9be7313a699ae8efde493ab5b2ba2b5308d86030287b79"
 
 [[package]]
 name = "bcinr-mfw-ir"
@@ -108,10 +117,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bcinr-mfw-ir"
+version = "26.7.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6ef0b3fe0c69cfb1bd1081a8a08cd0d625be4ff3bd03f80333c6e7f8c19359c"
+dependencies = [
+ "blake3",
+]
+
+[[package]]
 name = "bcinr-pddl"
 version = "26.6.26"
 dependencies = [
- "bcinr-mfw-ir",
+ "bcinr-mfw-ir 26.6.26",
  "blake3",
  "chrono",
  "pddl",
@@ -123,11 +141,13 @@ dependencies = [
 
 [[package]]
 name = "bcinr-powl"
-version = "26.6.25"
+version = "26.7.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6793aa6aee267c7f8c17e8b39dfd4c8536c08c3adcbcb1c7fe10f1dc73f8afb6"
+checksum = "825ef986f0f2908fedfdf14e59446d90df1f962f5ab86bd13f33de4a5508f508"
 dependencies = [
+ "bcinr-cmca",
  "bcinr-logic",
+ "bcinr-mfw-ir 26.7.28",
  "blake3",
  "wasm4pm-compat",
 ]
