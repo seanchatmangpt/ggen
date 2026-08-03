@@ -94,10 +94,10 @@ use tera::Value;
 
 use crate::{
     error::{AppError, Result, TemplateFailureCause},
-    graph::{DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore, TurtleDocument},
+    graph::{EngineQueryResults, GraphEngine, TurtleDocument},
     sync::{
-        hash_file_or_missing, hex32, rel_display, write_receipt, EngineKind, SyncOptions,
-        SyncReport,
+        hash_file_or_missing, hex32, new_graph_engine, read_ontology_file, rel_display,
+        write_receipt, SyncOptions, SyncReport,
     },
     template::{
         build_tera, classify_tera_render_error, solutions_to_values, tera_error_full_chain,
@@ -125,10 +125,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     );
     let load_guard = load_span.enter();
 
-    let graph: Arc<dyn GraphEngine> = match opts.engine {
-        EngineKind::GraphLaw => Arc::new(GraphLawStore::new()?),
-        EngineKind::Oxigraph => Arc::new(DeterministicGraph::new()?),
-    };
+    let graph: Arc<dyn GraphEngine> = new_graph_engine(opts.engine)?;
 
     let mut closure: BTreeMap<String, String> = BTreeMap::new();
     closure.insert(
@@ -137,32 +134,14 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     );
 
     let ontology_path = root.join(&manifest.ontology.source);
-    let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
-        AppError::fm_config(
-            3,
-            format!(
-                "ontology `{}` unreadable: {e}. Remediation: fix [ontology].source.",
-                ontology_path.display()
-            ),
-        )
-    })?;
-    let ontology_label = rel_display(root, &ontology_path);
+    let (ontology_label, ttl) = read_ontology_file(root, &ontology_path)?;
     closure.insert(ontology_label.clone(), hash_file_or_missing(&ontology_path));
     let mut ontology_sources = Vec::with_capacity(1 + manifest.ontology.imports.len());
     ontology_sources.push((ontology_label, ttl));
 
     for import in &manifest.ontology.imports {
         let import_path = root.join(import);
-        let import_ttl = std::fs::read_to_string(&import_path).map_err(|e| {
-            AppError::fm_config(
-                3,
-                format!(
-                    "ontology import `{}` unreadable: {e}. Remediation: fix [ontology].imports.",
-                    import_path.display()
-                ),
-            )
-        })?;
-        let import_label = rel_display(root, &import_path);
+        let (import_label, import_ttl) = read_ontology_file(root, &import_path)?;
         closure.insert(import_label.clone(), hash_file_or_missing(&import_path));
         ontology_sources.push((import_label, import_ttl));
     }

@@ -65,6 +65,47 @@ pub enum EngineKind {
     Oxigraph,
 }
 
+/// Construct a fresh, empty graph engine for `kind`.
+///
+/// Shared by [`sync`]'s Stage 1 and [`crate::generation_rules::run`]'s
+/// Resolve stage, which previously each matched on [`EngineKind`]
+/// independently (byte-identical duplication) — this is the one
+/// authoritative construction point.
+///
+/// # Errors
+/// Propagates the chosen engine's own construction failure.
+pub fn new_graph_engine(kind: EngineKind) -> Result<Arc<dyn GraphEngine>> {
+    Ok(match kind {
+        EngineKind::GraphLaw => Arc::new(GraphLawStore::new()?),
+        EngineKind::Oxigraph => Arc::new(DeterministicGraph::new()?),
+    })
+}
+
+/// Read one ontology Turtle file relative to `root`, returning
+/// `(label, content)` where `label` is `path`'s root-relative display form
+/// (the same label [`sync`]'s and [`crate::generation_rules::run`]'s input
+/// closures key ontology entries by).
+///
+/// Shared by both `ggen.toml` schemas' ontology-source and
+/// ontology-import reads — each previously duplicated this exact
+/// `read_to_string` + `[FM-CONFIG-003]` error-wrap independently.
+///
+/// # Errors
+/// Fails closed with `[FM-CONFIG-003]` if `path` is unreadable.
+pub fn read_ontology_file(root: &Path, path: &Path) -> Result<(String, String)> {
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        AppError::fm_config(
+            3,
+            format!(
+                "ontology `{}` unreadable: {e}. Remediation: fix [ontology].source or \
+                 [ontology].imports.",
+                path.display()
+            ),
+        )
+    })?;
+    Ok((rel_display(root, path), content))
+}
+
 /// Options controlling a [`sync`] run.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct SyncOptions {
@@ -211,19 +252,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let load_guard = load_span.enter();
 
     let ontology_path = root.join(&config.ontology.source);
-    let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
-        AppError::fm_config(
-            3,
-            format!(
-                "ontology `{}` unreadable: {e}. Remediation: fix [ontology].source.",
-                ontology_path.display()
-            ),
-        )
-    })?;
-    let graph: Arc<dyn GraphEngine> = match opts.engine {
-        EngineKind::GraphLaw => Arc::new(GraphLawStore::new()?),
-        EngineKind::Oxigraph => Arc::new(DeterministicGraph::new()?),
-    };
+    let (ontology_label, ttl) = read_ontology_file(root, &ontology_path)?;
+    let graph: Arc<dyn GraphEngine> = new_graph_engine(opts.engine)?;
     // Resolve every ontology document before mutating the graph. Each Turtle
     // parser retains document-local prefix/base/blank-node scope; the admitted
     // union is committed through one bounded store mutation.
@@ -236,7 +266,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             .map(|pack| 1 + pack.extra_ontology_paths.len())
             .sum::<usize>(),
     );
-    ontology_sources.push((rel_display(root, &ontology_path), ttl));
+    ontology_sources.push((ontology_label, ttl));
     for pack in &packs {
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(
