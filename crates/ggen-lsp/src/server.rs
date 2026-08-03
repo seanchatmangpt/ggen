@@ -1,10 +1,12 @@
 use lsp_max::lsp_types_max::*;
 use lsp_max::{jsonrpc::Result, Client, LanguageServer};
 use std::collections::{HashMap, HashSet};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::handlers;
+use crate::project_index::BufferOverlay;
 use crate::state::ServerState;
 
 #[derive(Default)]
@@ -18,6 +20,7 @@ pub struct GgenLanguageServer {
     pub(crate) client: Client,
     registry_documents: Arc<Mutex<HashMap<Url, RegistryDocumentState>>>,
     hierarchy_registrations: Arc<Mutex<Vec<Registration>>>,
+    source_contract_flagged: Arc<Mutex<HashSet<Url>>>,
 }
 
 impl GgenLanguageServer {
@@ -27,24 +30,102 @@ impl GgenLanguageServer {
             client,
             registry_documents: Arc::new(Mutex::new(HashMap::new())),
             hierarchy_registrations: Arc::new(Mutex::new(Vec::new())),
+            source_contract_flagged: Arc::new(Mutex::new(HashSet::new())),
         }
     }
 
-    /// Build (or rebuild) the analyzer for a document, store it, and publish its
-    /// diagnostics — the live "refusal before execution" signal.
+    /// Build (or rebuild) the analyzers for a document, reconcile cross-surface
+    /// source laws, store state, and publish one coherent diagnostic set per URI.
     async fn refresh_analyzer(&self, uri: &Url, content: &str) {
-        let publications = coalesce_publications(self.state.analyze_and_observe(uri, content).await);
-        for (target_uri, diagnostics) in publications {
+        let mut batches = if is_rust_source(uri) {
+            Vec::new()
+        } else {
+            self.state.analyze_and_observe(uri, content).await
+        };
+        if is_source_contract_trigger(uri) {
+            batches.extend(self.source_contract_publications(uri).await);
+        }
+
+        for (target_uri, diagnostics) in coalesce_publications(batches) {
             self.sync_diagnostics_to_registry(&target_uri, &diagnostics)
                 .await;
             self.client
                 .publish_diagnostics(
                     target_uri,
-                    diagnostics.into_iter().map(|d| d.lsp).collect(),
+                    diagnostics.into_iter().map(|diagnostic| diagnostic.lsp).collect(),
                     None,
                 )
                 .await;
         }
+    }
+
+    /// Recompute generated-source laws from the current project graph and
+    /// open-buffer overlay. The returned publications include explicit clears
+    /// for source URIs that were flagged on the previous pass.
+    async fn source_contract_publications(
+        &self, trigger: &Url,
+    ) -> Vec<(Url, Vec<lsp_max_protocol::MaxDiagnostic>)> {
+        let groups = match self.source_contract_root(trigger) {
+            Some(root) => {
+                let overlay = self.buffer_overlay().await;
+                match crate::project_index::ProjectIndex::from_root_with_overlay(&root, &overlay) {
+                    Ok(project) => crate::source_contract::detect(&project, &overlay),
+                    Err(_) => Vec::new(),
+                }
+            }
+            None => Vec::new(),
+        };
+
+        let mut current = HashSet::new();
+        let mut publications = Vec::new();
+        for (path, diagnostics) in groups {
+            let Some(uri) = url_from_path(&path) else {
+                continue;
+            };
+            current.insert(uri.clone());
+            self.state.observe_diagnostics(&uri, &diagnostics).await;
+            publications.push((uri, diagnostics));
+        }
+
+        let mut flagged = self.source_contract_flagged.lock().await;
+        let stale: Vec<Url> = flagged.difference(&current).cloned().collect();
+        *flagged = current;
+        drop(flagged);
+
+        for uri in stale {
+            self.state.observe_diagnostics(&uri, &[]).await;
+            publications.push((uri, Vec::new()));
+        }
+
+        publications
+    }
+
+    async fn buffer_overlay(&self) -> BufferOverlay {
+        let documents = self.state.documents.lock().await;
+        documents
+            .iter()
+            .filter_map(|(uri, content)| {
+                document_uri_to_path(uri).map(|path| (path, content.clone()))
+            })
+            .collect()
+    }
+
+    fn source_contract_root(&self, uri: &Url) -> Option<PathBuf> {
+        if let Some(path) = document_uri_to_path(uri) {
+            let mut directory = path.parent();
+            while let Some(candidate) = directory {
+                if candidate.join("ggen.toml").is_file() {
+                    return Some(candidate.to_path_buf());
+                }
+                directory = candidate.parent();
+            }
+        }
+
+        let fallback = lsp_max::get_registry()
+            .lock()
+            .ok()
+            .map(|registry| registry.root_path.clone())?;
+        fallback.join("ggen.toml").is_file().then_some(fallback)
     }
 
     /// Replace the registry diagnostics owned by one document and recompute the
@@ -114,6 +195,7 @@ impl GgenLanguageServer {
         }
         documents.clear();
         drop(documents);
+        self.source_contract_flagged.lock().await.clear();
         write_gate(false);
     }
 }
@@ -122,24 +204,14 @@ impl GgenLanguageServer {
 impl LanguageServer for GgenLanguageServer {
     async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         // Prefer the modern workspaceFolders contract, then rootUri for older
-        // clients, then the process cwd. The registry and gate must share this
-        // exact root identity.
+        // clients, then the process cwd. The registry and gate share this root.
         #[allow(deprecated)]
         let root = params
             .workspace_folders
             .as_ref()
             .and_then(|folders| folders.first())
-            .and_then(|folder| {
-                url::Url::parse(folder.uri.as_str())
-                    .ok()?
-                    .to_file_path()
-                    .ok()
-            })
-            .or_else(|| {
-                params.root_uri.as_ref().and_then(|uri| {
-                    url::Url::parse(uri.as_str()).ok()?.to_file_path().ok()
-                })
-            })
+            .and_then(|folder| document_uri_to_path(&folder.uri))
+            .or_else(|| params.root_uri.as_ref().and_then(document_uri_to_path))
             .or_else(|| std::env::current_dir().ok())
             .unwrap_or_default();
 
@@ -151,10 +223,8 @@ impl LanguageServer for GgenLanguageServer {
         lsp_max::MESH
             .get_or_init(|| std::sync::Mutex::new(lsp_max::max_runtime::AutonomicMesh::new()));
 
-        let call_hierarchy_supported = client_supports_capability(
-            &params.capabilities,
-            &["textDocument", "callHierarchy"],
-        );
+        let call_hierarchy_supported =
+            client_supports_capability(&params.capabilities, &["textDocument", "callHierarchy"]);
         let call_hierarchy_dynamic = client_capability_bool(
             &params.capabilities,
             &["textDocument", "callHierarchy", "dynamicRegistration"],
@@ -297,14 +367,21 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         let uri = params.text_document.uri;
-        let publications = coalesce_publications(self.state.close_document(&uri).await);
-        for (target_uri, diagnostics) in publications {
+        let mut batches = self.state.close_document(&uri).await;
+
+        if is_source_contract_trigger(&uri) {
+            // Closing a Rust buffer returns authority to disk. Recompute instead
+            // of blindly clearing so a persisted violation remains visible.
+            batches.extend(self.source_contract_publications(&uri).await);
+        }
+
+        for (target_uri, diagnostics) in coalesce_publications(batches) {
             self.sync_diagnostics_to_registry(&target_uri, &diagnostics)
                 .await;
             self.client
                 .publish_diagnostics(
                     target_uri,
-                    diagnostics.into_iter().map(|d| d.lsp).collect(),
+                    diagnostics.into_iter().map(|diagnostic| diagnostic.lsp).collect(),
                     None,
                 )
                 .await;
@@ -312,8 +389,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn did_save(&self, _params: DidSaveTextDocumentParams) {
-        // No-op: the authoritative document text is tracked via did_open /
-        // did_change. Diagnostics already refresh on change.
+        // The authoritative text is tracked via did_open / did_change.
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
@@ -503,6 +579,26 @@ fn diagnostic_id(
     format!("{}-{:.16}", code, hasher.finalize().to_hex())
 }
 
+fn is_ggen_manifest(uri: &Url) -> bool {
+    uri.path().as_str().ends_with("ggen.toml")
+}
+
+fn is_rust_source(uri: &Url) -> bool {
+    uri.path().as_str().ends_with(".rs")
+}
+
+fn is_source_contract_trigger(uri: &Url) -> bool {
+    is_ggen_manifest(uri) || is_rust_source(uri)
+}
+
+fn document_uri_to_path(uri: &Url) -> Option<PathBuf> {
+    url::Url::parse(uri.as_str()).ok()?.to_file_path().ok()
+}
+
+fn url_from_path(path: &Path) -> Option<Url> {
+    url::Url::from_file_path(path).ok()?.to_string().parse().ok()
+}
+
 fn write_gate(has_gating_violations: bool) {
     let path = gate_file_path();
     if let Some(parent) = path.parent() {
@@ -514,9 +610,8 @@ fn write_gate(has_gating_violations: bool) {
 /// Filesystem path for the Λ_CD gate file.
 ///
 /// Published `lsp-max` tracks gate state in its in-memory registry rather than
-/// exposing a gate-file helper, so ggen-lsp owns this path. It is derived from
-/// the registry root when set; writes are best-effort and non-fatal.
-fn gate_file_path() -> std::path::PathBuf {
+/// exposing a gate-file helper, so ggen-lsp owns this path.
+fn gate_file_path() -> PathBuf {
     lsp_max::get_registry()
         .lock()
         .map(|registry| registry.root_path.clone())
