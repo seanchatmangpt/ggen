@@ -1,188 +1,151 @@
-# AGENTS.md: Verification Constitution (Antigravity CLI Edition)
+# ggen Repository Operating Contract
 
-**Non-negotiable laws for agent-generated code in this repository.**
+This file governs the repository unless a deeper `AGENTS.md` narrows a subtree. A nested contract may add constraints, but it may not silently weaken repository safety, evidence, or publication rules.
 
-All claims of correctness must be **provable, not asserted**.
+## 1. Preserve before changing
 
----
+1. Resolve the requested repository and base to an exact commit SHA.
+2. Read this file, every applicable nested `AGENTS.md`, `CLAUDE.md`, relevant architecture documents, manifests, task runners, and verifier entrypoints.
+3. Preserve public interfaces, generated/manual boundaries, receipts, replay semantics, typed refusals, and compatibility unless the task explicitly requires a change.
+4. Prefer the smallest coherent repair of the existing path over a parallel implementation.
+5. Do not hand-edit generated projections when an authoritative graph, template, schema, or generator owns them.
 
-## Forbidden
+When a rule appears obsolete or contradictory, inspect why it existed before removing it. Replace stale doctrine with a narrower executable rule and record the falsifier.
 
-The following constructs are **defects** and must not appear in the codebase:
+## 2. Evidence vocabulary
 
-### Testing & Verification
-- **Unit tests** without real boundary crossing
-- **Mocks** of primary evidence paths (tracer, meter, OTel client, MCP server) via `mockall` or manual stubs
-- **Stubs** that simulate behavior without execution
-- **Fixtures** that fabricate traces, spans, OCEL events, or receipts
-- **Synthetic telemetry** builders (fake span structs, fabricated events)
-- **Test-only fake clients** for LLM, MCP, observability, or state
+Use these standings precisely:
 
-### Code Quality
-- **TODO, FIXME** placeholders (use real implementation or block work)
-- **Monkeypatching** of code paths (including `mockall::mock!`, `#[automock]`, or manual trait implementation for testing only)
-- **Hardcoded returns** that simulate success
-- **Documentation-only contracts** (code must enforce, not docs)
+- `UNKNOWN`: the relevant subject was not observed, or the evidence is stale or contradictory.
+- `PARTIAL_ALIVE`: a bounded checkpoint executed successfully; the crown claim remains open.
+- `ALIVE`: the exact admitted subject executed and produced the claimed consequence.
+- `BLOCKED`: an admitted dependency or authority boundary prevents execution.
+- `BUILD_BROKEN`: the requested verifier cannot be reached because the build path is broken.
+- `UNSUPPORTED`: the capability is outside the admitted boundary.
+- `REFUSED_<TYPE>`: a typed policy, safety, authority, or admission refusal.
 
-### Evidence Falsification
-- **Fake receipt builders** (receipts must be cryptographically derived)
-- **Fabricated BLAKE3 hashes** (use real computation)
-- **Synthetic MCP/LLM boundaries** (must be real calls or abstain)
-- **Empty or placeholder proofs** (proof gates must validate real evidence)
+Never promote inspection, source presence, a workflow definition, a connector object, or historical output to `ALIVE`. Track observed, admitted, executed, changed, verified, inferred, blocked, unsupported, and refused claims separately.
 
-### Configuration & Policy
-- **Weakening of hooks** or enforcement settings
-- **Bypass clauses** in policy (policy must be hard)
-- **Shadow configuration files** that contradict main policy
-- **Disablement of structural checks** without revision control
+## 3. Manufacture and authority
 
----
+The repository follows:
 
-## Required
-
-All code must satisfy:
-
-### Execution & Boundaries
-- **Real boundary crossing** — code must invoke real LLM, MCP, OTel, subprocess, or state transition
-- **No shortcuts** — if a boundary exists, it must be crossed in tests
-- **Evidence at crossing** — each boundary crossing must produce externalizable evidence
-
-### Observability & Evidence
-- **Real OTel traces** from actual execution (via Tempo/Jaeger)
-- **Real OCEL derivation** from traces (never hand-constructed)
-- **Real BLAKE3 receipts** from cryptographic computation
-- **Externalizable evidence** in files, OTel, DB, logs, or process
-
-### Verification & Proof
-- **Causality chains** — tests must prove X caused Y (not just assert Y exists)
-- **Multi-surface corroboration** — claims must appear in ≥3 of: execution, telemetry, state, process, causality
-- **Falsifiability** — tests must fail if core behavior is broken or faked
-- **Anti-cheating resilience** — faking the test must require more work than real execution
-
----
-
-## Enforcement
-
-These laws are enforced by **Antigravity CLI hooks** (configured in `.gemini/settings.json`) backed by the **`truth-gate` structural analysis** tool:
-
-- `BeforeTool` (`PreToolUse`) on `replace_file_content | write_to_file | multi_replace_file_content` — blocks introduction of forbidden constructs
-- `AfterTool` (`PostToolUse`) on `replace_file_content | write_to_file | multi_replace_file_content` — re-scans written content for violations
-- `ConfigChange` — blocks weakening of hooks or policy settings
-- `FileChanged` on policy/test/config paths — audits and enforces consistency
-
-Violations are **denied**, not warned. There are no bypasses.
-
----
-
-## Rationale
-
-### Why No Mocks?
-
-Mocking the observability layer (tracer, meter, OTel client) creates fake evidence. Fake evidence proves nothing. A test that passes with a mocked tracer proves only that the mock was called, not that the system works.
-
-### Why No Unit Tests Without Boundaries?
-
-A unit test that asserts internal state without crossing a boundary tests nothing real. It tests the test. Real boundaries (LLM, MCP, OTel, state) force the code to do actual work.
-
-### Why No TODOs?
-
-TODO is a **loophole**. It says "I'm not done, but the code is in the repo." This lets agents defer problems instead of solving them. If work is incomplete, block it.
-
-### Why Rust Enforcement?
-
-Structural checks (AST, symbol analysis, type inspection) are hard to game. Prompt or agent hooks reintroduce human judgment and can be reasoned around. Rust checks are compiled rules that don't negotiate.
-
-### Why Multi-Surface Corroboration?
-
-A single surface (e.g., "OTel span exists") can be faked. Multiple surfaces (execution + observability + state + process + causality) require real work. This is Van der Aalst process mining thinking applied to tests.
-
----
-
-## Examples
-
-### ❌ Forbidden: Mock Testing (London TDD)
-
-```rust
-#[test]
-fn test_operator_forbidden() {
-    let mut mock = MockTracer::new();
-    mock.expect_export().times(1).returning(|_| Ok(()));
-    
-    let result = operator.execute(artifact, &mock);
-    assert_eq!(result.state, ArtifactState::Bred);
-}
+```text
+A = μ(O*)
+R = receipt(A)
 ```
 
-**Why:** This test passes whether or not tracing actually happened in a real environment. The mock accepts any call. This is fake evidence.
+`O*` is admitted, aligned, grounded, and bounded observation. `μ` is lawful manufacture. A receipt binds subject identity, authority, consequence, replay, and standing.
 
-### ✅ Required: Real-Boundary Testing (Chicago TDD)
+Separate operations into:
 
-```rust
-#[tokio::test]
-async fn test_operator_real() {
-    let mut pipeline = Pipeline::new(config);
-    let receipt = pipeline.run().await.unwrap();
-    
-    // 1. Evidence: BuildReceipt exists and is cryptographically valid ✓
-    assert!(receipt.verify().is_ok());
-    
-    // 2. Proof Gates: Interrogate the receipt against 8 canonical gates ✓
-    let validator = ProofGateValidator::new();
-    let reports = validator.validate(&receipt);
-    
-    // 3. Multi-surface corroboration ✓
-    // Gate 7: Observability Present
-    assert!(reports.iter().any(|r| r.gate_type == ProofGateType::ObservabilityPresent && r.pass));
-    
-    // Gate 8: Causal Consistency (Receipt chain)
-    assert!(reports.iter().any(|r| r.gate_type == ProofGateType::CausalConsistent && r.pass));
-    
-    // 4. Execution boundary crossed (Physical output verification) ✓
-    assert!(Path::new("generated/output.rs").exists());
-}
+- `SELECT`: choose an admitted subject or route.
+- `CONSTRUCT`: build reversible artifacts, plans, edits, graphs, or intents.
+- `DO`: actuate machine state through the authorized boundary.
+
+BRCE is the exclusive `DO` path where a BRCE boundary exists. Raw input, model output, generated code, proof text, hooks, and semantic derivations have no ambient execution authority. Hooks manufacture intents; they do not directly actuate.
+
+## 4. Repository orientation
+
+Before implementation, establish:
+
+- repository, ref, exact base SHA, tree identity, branch, and PR state;
+- available transports, credentials, mounts, Git implementation, network, archives, runtimes, compilers, package caches, and test tools;
+- root and nested doctrine;
+- workspace members, feature flags, generated surfaces, dependency policy, and release policy;
+- the exact acceptance command or the narrowest documented equivalent.
+
+Use this materialization ladder until one path succeeds or each failure is typed:
+
+1. verified local checkout;
+2. exact-SHA source archive;
+3. clone or fetch;
+4. bundle or workflow artifact supplied by the user;
+5. connector-backed tree/blob reconstruction;
+6. dependency-closed sparse tree;
+7. classified remote execution explicitly permitted by the user.
+
+A connector-visible repository is not a mounted tree. Record transport failures without collapsing the whole task into failure.
+
+## 5. Implementation law
+
+Follow the live path:
+
+```text
+parse → route → admit/refuse → diagnose/repair → construct → actuate → receipt → replay → standing
 ```
 
-This test requires real execution across 4 surfaces. Faking any one fails the entire test.
+Requirements:
 
----
+- Keep diffs bounded and cohesive. Default to no more than 12 files unless closure requires more.
+- Preserve deterministic behavior, portability, failure transparency, receipt/replay identity, and existing authority boundaries.
+- Do not fabricate evidence, weaken tests, replace requested integration proof with unit proof, or make unrelated refactors.
+- Test doubles may isolate deterministic internal logic, but they cannot prove an external process, filesystem, network, compiler, editor, protocol, database, or service boundary.
+- Unit tests are valid for pure functions and local invariants. Integration and end-to-end claims require the real boundary named by the claim.
+- Do not add unresolved placeholders to a changed production path. Existing unrelated debt is not automatically in scope.
+- Prefer typed errors or refusals over silent fallback.
+- Treat one failed edge as topology information, not proof that every route failed.
 
-## For AI Agents
+## 6. Verification ladder
 
-When you write code in this repository using the Antigravity CLI:
+Run the cheapest high-information verifier first, then expand only after success:
 
-### Do
-- Write code that works on the first try (no TODOs)
-- Use real boundaries (real LLM, MCP, OTel, state)
-- Produce externalizable evidence (OTel, files, receipts)
-- Test causality, not assertions
-- Make faking harder than real execution
-- Use the subagent framework (`invoke_subagent`, `define_subagent`) to parallelize or partition complex tasks
+1. format or syntax check;
+2. narrow package check;
+3. focused unit tests;
+4. package test suite;
+5. integration or protocol tests;
+6. end-to-end execution;
+7. workspace or release gates when materially affected.
 
-### Don't
-- Add mocks, stubs, monkeypatching
-- Create synthetic telemetry or fixtures
-- Use TODO as a placeholder for incomplete work
-- Test internal state without evidence
-- Assume causality without proving it
-- Game policy names or labels
+On failure:
 
-If a violation is introduced, the hook will block it. This is not a guideline. It is a law.
+1. preserve the exact command, exit code, and diagnostic;
+2. locate the failed transition;
+3. form a new hypothesis;
+4. repair the narrowest cause;
+5. encode a permanent guard, test, refusal, fixture, schema, or theorem;
+6. rerun the failed boundary before expanding.
 
----
+Do not rerun an unchanged failure without a new hypothesis. Do not use hosted CI as a substitute for available local validation.
 
-## Policy Enforcement
+## 7. Generated artifacts
 
-This constitution is enforced by:
+A generated artifact is a projection, not automatically the editing authority.
 
-1. **Rust policy checker** — inspects for forbidden constructs
-2. **Antigravity CLI hooks** — blocks violations before they land
-3. **Structural analysis** — uses AST, symbols, and semantic rules, not regex
+- Find the owning ontology, query, template, generator, or schema.
+- Regenerate through the documented command when the generator is in scope and executable.
+- Preserve merge markers and generated/manual regions.
+- Report generated artifacts as changed, unchanged, skipped, blocked, or unsupported.
+- Never claim source/generated equivalence without executing the relevant generator or byte-identity verifier.
 
-Enforcement is **structural, not interpretive**. There are no gray areas.
+## 8. GitHub publication
 
-## Active Technologies
-- Rust, nightly toolchain pinned via `rust-toolchain.toml` + `oxigraph` (existing three RDF stacks: `ggen-core::rdf`, (2026-ggen-core-replacement)
-- Local filesystem only — `.ggen/receipts/`, `.ggen/keys/`, `.ggen/packs.lock`; (2026-ggen-core-replacement)
+Unless the user explicitly asks otherwise:
 
-## Recent Changes
-- 2026-ggen-core-replacement: Added Rust, nightly toolchain pinned via `rust-toolchain.toml` + `oxigraph` (existing three RDF stacks: `ggen-core::rdf`,
+- branch from the exact admitted base;
+- use a purpose-specific branch name;
+- create intentional commits without force-pushing;
+- open a draft pull request;
+- do not merge;
+- do not silently move the base;
+- inspect the exact published head and compare it with the admitted base.
+
+GitHub metadata supplements execution evidence. A green status label is not a log, and a workflow definition is not a successful run.
+
+## 9. Final receipt
+
+Every implementation result must expose:
+
+- repository, exact base, branch, commit, and PR identity;
+- admitted scope and exclusions;
+- materialization transports attempted and typed failures;
+- files and behavior changed;
+- generated-artifact status;
+- commands executed with exits;
+- verification ladder reached;
+- standing for each material claim;
+- replay command or next exact verifier;
+- unresolved falsifiers or blockers.
+
+The receipt must make it possible for another operator to reproduce the standing without trusting prose.
