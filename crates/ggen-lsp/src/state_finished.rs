@@ -131,7 +131,9 @@ impl ServerState {
         }
 
         if is_ggen_manifest(edited.path().as_str()) {
-            for path in generated_outputs
+            let mut ordered_outputs = generated_outputs.iter().cloned().collect::<Vec<_>>();
+            ordered_outputs.sort();
+            for path in ordered_outputs
                 .iter()
                 .filter(|path| !published_paths.contains(*path))
             {
@@ -158,11 +160,12 @@ impl ServerState {
 
         let cleared = {
             let mut previous = self.src_004_flagged.lock().await;
-            let cleared = previous
+            let mut cleared = previous
                 .iter()
                 .filter(|uri| !current.contains(*uri))
                 .cloned()
                 .collect::<Vec<_>>();
+            cleared.sort_by(|left, right| left.as_str().cmp(right.as_str()));
             *previous = current;
             cleared
         };
@@ -193,7 +196,7 @@ impl ServerState {
     fn source_context_for(
         &self, uri: &Url, overlay: &BufferOverlay,
     ) -> (HashSet<PathBuf>, Vec<(PathBuf, Vec<MaxDiagnostic>)>) {
-        let Some(root) = self.project_root_for(uri) else {
+        let Some(root) = self.project_root_for(uri, overlay) else {
             return (HashSet::new(), Vec::new());
         };
         match project_index_from_live_manifest(&root, overlay) {
@@ -208,17 +211,24 @@ impl ServerState {
         }
     }
 
-    fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
+    fn project_root_for(&self, uri: &Url, overlay: &BufferOverlay) -> Option<PathBuf> {
         if let Ok(file_path) = uri_to_file_path(uri) {
+            if is_ggen_manifest(uri.path().as_str()) {
+                if let Some(parent) = file_path.parent() {
+                    return Some(parent.to_path_buf());
+                }
+            }
             let mut directory = file_path.parent();
             while let Some(candidate) = directory {
-                if candidate.join("ggen.toml").is_file() {
+                let manifest = candidate.join("ggen.toml");
+                if manifest.is_file() || overlay.contains_key(&manifest) {
                     return Some(candidate.to_path_buf());
                 }
                 directory = candidate.parent();
             }
         }
-        self.root.join("ggen.toml").is_file().then(|| self.root.clone())
+        let fallback = self.root.join("ggen.toml");
+        (fallback.is_file() || overlay.contains_key(&fallback)).then(|| self.root.clone())
     }
 }
 
