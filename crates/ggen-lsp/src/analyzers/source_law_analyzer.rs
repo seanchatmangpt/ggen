@@ -1,28 +1,31 @@
-//! First-class source law analyzers — GGEN-SRC-* family.
+//! First-class Rust source law for `ggen`, reconstructed from `ggen-legacy`
+//! evidence and executed through the `lsp-max` AST/runtime surface.
 //!
-//! RenderedSource is source. ggen-provided Rust files must be indistinguishable
-//! from hand-written source. These detectors enforce that law before and after
-//! `ggen sync` runs.
+//! Repository roles are deliberately non-overlapping:
+//! - `ggen-legacy` supplies the admitted predecessor contract and coordinates;
+//! - `lsp-max` supplies protocol types plus formal Tree-sitter parsing;
+//! - `ggen` supplies project/rule authority and the GGEN-SRC domain law.
 
 use std::collections::HashSet;
 use std::path::{Component, Path, PathBuf};
 
-use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity};
+use lsp_max::ast::AutoLspAdapter;
+use lsp_max::lsp_types::{
+    Diagnostic, DiagnosticSeverity, DidOpenTextDocumentParams, DocumentUri, NumberOrString,
+    Range, TextDocumentItem,
+};
 use lsp_max_protocol::{LawAxis, MaxDiagnostic};
 
 use crate::analyzers::diag;
 use crate::project_index::{BufferOverlay, ProjectIndex};
 
-/// GGEN-SRC-002: source contains a DO NOT EDIT / auto-generated caste banner.
+/// Source contains a DO NOT EDIT / auto-generated caste banner.
 pub const GGEN_SRC_002: &str = "GGEN-SRC-002";
-
-/// GGEN-SRC-003: comments instruct humans/LLMs to treat the file as lesser source.
+/// Comments instruct humans or models to treat the file as lesser source.
 pub const GGEN_SRC_003: &str = "GGEN-SRC-003";
-
-/// GGEN-SRC-004: generated Rust source imports modules that no rule generates.
+/// Generated Rust source declares a module that no generation rule owns.
 pub const GGEN_SRC_004: &str = "GGEN-SRC-004";
 
-/// Phrases that indicate a DO NOT EDIT caste banner (case-insensitive).
 const DO_NOT_EDIT_MARKERS: &[&str] = &[
     "do not edit",
     "do not modify",
@@ -37,7 +40,6 @@ const DO_NOT_EDIT_MARKERS: &[&str] = &[
     "this file is generated",
 ];
 
-/// Phrases that classify a file as lesser/non-inspectable source.
 const CASTE_COMMENT_MARKERS: &[&str] = &[
     "do not reason about",
     "skip llm",
@@ -48,58 +50,55 @@ const CASTE_COMMENT_MARKERS: &[&str] = &[
     "ai: ignore",
 ];
 
-/// GGEN-SRC-002/003: detect source-caste comments in Rust source.
+/// Detect GGEN-SRC-002/003 source-caste comments.
 #[must_use]
 pub fn do_not_edit_diagnostics(source: &str) -> Vec<Diagnostic> {
-    let mut diags = Vec::new();
-    for (idx, text) in source.lines().enumerate() {
-        let line = u32::try_from(idx).unwrap_or(0);
+    let mut diagnostics = Vec::new();
+    for (index, text) in source.lines().enumerate() {
+        let line = u32::try_from(index).unwrap_or(0);
         let trimmed = text.trim();
         if !trimmed.starts_with("//") && !trimmed.starts_with("/*") && !trimmed.starts_with('*') {
             continue;
         }
         let lower = trimmed.to_ascii_lowercase();
-        for &marker in DO_NOT_EDIT_MARKERS {
-            if lower.contains(marker) {
-                diags.push(diag::at(
-                    line,
-                    0,
-                    line,
-                    u32::MAX,
-                    DiagnosticSeverity::ERROR,
-                    Some(GGEN_SRC_002),
-                    format!(
-                        "GGEN-SRC-002 DO_NOT_EDIT_CASTE: comment `{trimmed}` marks this file \
-                         as auto-generated or non-editable. RenderedSource is source — remove \
-                         the caste banner. Provenance belongs in the pack receipt, not source."
-                    ),
-                ));
-                break;
-            }
+        if DO_NOT_EDIT_MARKERS.iter().any(|marker| lower.contains(marker)) {
+            diagnostics.push(diag::at(
+                line,
+                0,
+                line,
+                u32::MAX,
+                DiagnosticSeverity::ERROR,
+                Some(GGEN_SRC_002),
+                format!(
+                    "GGEN-SRC-002 DO_NOT_EDIT_CASTE: comment `{trimmed}` marks this file as \
+                     generated or non-editable. RenderedSource is source; remove the caste \
+                     banner and retain provenance in receipts."
+                ),
+            ));
         }
-        for &marker in CASTE_COMMENT_MARKERS {
-            if lower.contains(marker) {
-                diags.push(diag::at(
-                    line,
-                    0,
-                    line,
-                    u32::MAX,
-                    DiagnosticSeverity::ERROR,
-                    Some(GGEN_SRC_003),
-                    format!(
-                        "GGEN-SRC-003 SOURCE_CASTE_COMMENT: comment `{trimmed}` instructs \
-                         humans or LLMs to treat this file as lesser source. \
-                         RenderedSource is source — inspect, reason, and repair it as source."
-                    ),
-                ));
-                break;
-            }
+        if CASTE_COMMENT_MARKERS
+            .iter()
+            .any(|marker| lower.contains(marker))
+        {
+            diagnostics.push(diag::at(
+                line,
+                0,
+                line,
+                u32::MAX,
+                DiagnosticSeverity::ERROR,
+                Some(GGEN_SRC_003),
+                format!(
+                    "GGEN-SRC-003 SOURCE_CASTE_COMMENT: comment `{trimmed}` instructs humans \
+                     or models to treat this file as lesser source. Inspect and repair it as \
+                     first-class source."
+                ),
+            ));
         }
     }
-    diags
+    diagnostics
 }
 
-/// Convert single-file Rust source diagnostics to the canonical MAX envelope.
+/// Convert single-file Rust diagnostics to the canonical MAX envelope.
 #[must_use]
 pub fn source_law_diagnostics(source: &str) -> Vec<MaxDiagnostic> {
     do_not_edit_diagnostics(source)
@@ -108,25 +107,19 @@ pub fn source_law_diagnostics(source: &str) -> Vec<MaxDiagnostic> {
         .collect()
 }
 
-/// Detect generated Rust files that declare external modules with no generation
-/// authority in the same project graph.
+/// Detect generated Rust module edges that lack generation authority.
 ///
-/// The detector is intentionally project-index based: an existing hand-written
-/// file does not manufacture generation authority. A module edge is admitted only
-/// when one of the project's rules has a statically resolvable `output_file` equal
-/// to a Rust module candidate. Dynamic Tera output paths are skipped because their
-/// concrete identity is not knowable before construction.
+/// Dynamic Rust outputs make concrete authority unknowable before construction;
+/// that state remains UNKNOWN and produces no GGEN-SRC-004 assertion.
 #[must_use]
 pub fn detect_src_004(
-    project: &ProjectIndex, overlay: &BufferOverlay,
+    project: &ProjectIndex,
+    overlay: &BufferOverlay,
 ) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
-    // A dynamic Rust output may own any concrete module path. Until construction
-    // receipts resolve that identity, absence from the static set is UNKNOWN, not
-    // a proven missing-authority violation.
     if project
         .rule_entries
         .iter()
-        .any(|entry| is_dynamic_output(&entry.output_file))
+        .any(|entry| is_dynamic_rust_output(&entry.output_file))
     {
         return Vec::new();
     }
@@ -135,31 +128,28 @@ pub fn detect_src_004(
     let mut ordered_outputs = generated_outputs.iter().cloned().collect::<Vec<_>>();
     ordered_outputs.sort();
 
-    let mut checked = HashSet::new();
     let mut groups = Vec::new();
-
-    for output in &ordered_outputs {
-        if output.extension().and_then(|value| value.to_str()) != Some("rs")
-            || !checked.insert(output.clone())
-        {
-            continue;
-        }
+    for output in ordered_outputs {
         let source = overlay
-            .get(output)
+            .get(&output)
             .cloned()
-            .or_else(|| std::fs::read_to_string(output).ok());
+            .or_else(|| std::fs::read_to_string(&output).ok());
         let Some(source) = source else {
             continue;
         };
-        let diagnostics = missing_generated_module_diagnostics(output, &source, &generated_outputs);
+        let diagnostics = missing_generated_module_diagnostics(
+            &output,
+            &source,
+            &generated_outputs,
+        );
         if !diagnostics.is_empty() {
-            groups.push((output.clone(), diagnostics));
+            groups.push((output, diagnostics));
         }
     }
     groups
 }
 
-/// Statically admitted Rust outputs owned by generation rules.
+/// Return statically admitted Rust outputs owned by generation rules.
 #[must_use]
 pub fn generated_rust_outputs(project: &ProjectIndex) -> HashSet<PathBuf> {
     project
@@ -170,12 +160,257 @@ pub fn generated_rust_outputs(project: &ProjectIndex) -> HashSet<PathBuf> {
         .collect()
 }
 
-fn is_dynamic_output(output: &str) -> bool {
-    output.contains("{{") || output.contains("{%")
+#[derive(Debug, Clone)]
+struct ModuleDeclaration {
+    name: String,
+    inline_scope: Vec<String>,
+    path_attribute: Option<String>,
+    range: Range,
+}
+
+fn missing_generated_module_diagnostics(
+    source_path: &Path,
+    source: &str,
+    generated_outputs: &HashSet<PathBuf>,
+) -> Vec<MaxDiagnostic> {
+    let mut diagnostics = parse_external_modules(source_path, source)
+        .into_iter()
+        .filter_map(|declaration| {
+            let candidates = module_candidates(source_path, &declaration);
+            if candidates
+                .iter()
+                .any(|candidate| generated_outputs.contains(candidate))
+            {
+                return None;
+            }
+            let rendered = candidates
+                .iter()
+                .map(|candidate| candidate.display().to_string())
+                .collect::<Vec<_>>()
+                .join(" or ");
+            let diagnostic = Diagnostic {
+                range: declaration.range,
+                severity: Some(DiagnosticSeverity::ERROR),
+                code: Some(NumberOrString::String(GGEN_SRC_004.to_string())),
+                source: Some("ggen-lsp".to_string()),
+                message: format!(
+                    "GGEN-SRC-004 UNBOUND_GENERATED_MODULE: `{}` declares external module \
+                     `{}`, but no ggen rule owns {rendered}. Add a generation rule, bind \
+                     `#[path]` to an admitted output, or make the module inline.",
+                    source_path.display(),
+                    declaration.name
+                ),
+                ..Diagnostic::default()
+            };
+            Some(to_max_diagnostic(diagnostic, LawAxis::Autopoiesis))
+        })
+        .collect::<Vec<_>>();
+    diagnostics.sort_by_key(|diagnostic| {
+        (
+            diagnostic.lsp.range.start.line,
+            diagnostic.lsp.range.start.character,
+            diagnostic.law_id.clone(),
+        )
+    });
+    diagnostics
+}
+
+/// Parse external Rust modules through `lsp-max`'s incremental AST adapter.
+///
+/// Source-looking text in comments or strings cannot manufacture a module edge,
+/// because only formal `mod_item` nodes are admitted.
+fn parse_external_modules(source_path: &Path, source: &str) -> Vec<ModuleDeclaration> {
+    let adapter = AutoLspAdapter::new_default();
+    let uri = document_uri(source_path);
+    let Some(uri) = uri else {
+        return Vec::new();
+    };
+    adapter.handle_did_open(
+        DidOpenTextDocumentParams {
+            text_document: TextDocumentItem {
+                uri: uri.clone(),
+                language_id: "rust".to_string(),
+                version: 1,
+                text: source.to_string(),
+            },
+        },
+        tree_sitter_rust::LANGUAGE.into(),
+    );
+
+    adapter
+        .get_document(&uri, |document| {
+            let bytes = document.as_bytes();
+            let module_path_attribute = |node| {
+                let mut child_cursor = node.walk();
+                for child in node.named_children(&mut child_cursor) {
+                    if child.kind() == "attribute_item" {
+                        if let Some(value) = child
+                            .utf8_text(bytes)
+                            .ok()
+                            .and_then(path_attribute_value)
+                        {
+                            return Some(value);
+                        }
+                    }
+                }
+
+                let mut sibling = node.prev_named_sibling();
+                while let Some(attribute) = sibling {
+                    if attribute.kind() != "attribute_item" {
+                        break;
+                    }
+                    if let Some(value) = attribute
+                        .utf8_text(bytes)
+                        .ok()
+                        .and_then(path_attribute_value)
+                    {
+                        return Some(value);
+                    }
+                    sibling = attribute.prev_named_sibling();
+                }
+                None
+            };
+            let mut queue = vec![document.tree.root_node()];
+            let mut declarations = Vec::new();
+
+            while let Some(node) = queue.pop() {
+                let mut cursor = node.walk();
+                let mut children = node.children(&mut cursor).collect::<Vec<_>>();
+                children.reverse();
+                queue.extend(children);
+
+                if node.kind() != "mod_item" {
+                    continue;
+                }
+                let text = node.utf8_text(bytes).unwrap_or_default();
+                if !text.trim_end().ends_with(';') {
+                    continue;
+                }
+                let Some(name_node) = node.child_by_field_name("name") else {
+                    continue;
+                };
+                let name = name_node.utf8_text(bytes).unwrap_or_default();
+                let name = name.strip_prefix("r#").unwrap_or(name).to_string();
+                if name.is_empty() {
+                    continue;
+                }
+
+                let path_attribute = module_path_attribute(node);
+
+                let mut inline_scope = Vec::new();
+                let mut parent = node.parent();
+                while let Some(ancestor) = parent {
+                    if ancestor.kind() == "mod_item" {
+                        let ancestor_text = ancestor.utf8_text(bytes).unwrap_or_default();
+                        if !ancestor_text.trim_end().ends_with(';') {
+                            if let Some(name_node) = ancestor.child_by_field_name("name") {
+                                if let Ok(scope_name) = name_node.utf8_text(bytes) {
+                                    let scope_name = scope_name
+                                        .strip_prefix("r#")
+                                        .unwrap_or(scope_name);
+                                    inline_scope.push(
+                                        module_path_attribute(ancestor)
+                                            .unwrap_or_else(|| scope_name.to_string()),
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    parent = ancestor.parent();
+                }
+                inline_scope.reverse();
+
+                declarations.push(ModuleDeclaration {
+                    name,
+                    inline_scope,
+                    path_attribute,
+                    range: document.denormalize_range(&node.range()).unwrap_or_default(),
+                });
+            }
+            declarations.sort_by_key(|declaration| {
+                (
+                    declaration.range.start.line,
+                    declaration.range.start.character,
+                    declaration.name.clone(),
+                )
+            });
+            declarations
+        })
+        .unwrap_or_default()
+}
+
+fn document_uri(path: &Path) -> Option<DocumentUri> {
+    let absolute = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir().ok()?.join(path)
+    };
+    url::Url::from_file_path(absolute)
+        .ok()?
+        .to_string()
+        .parse()
+        .ok()
+}
+
+fn path_attribute_value(attribute: &str) -> Option<String> {
+    let trimmed = attribute.trim();
+    if !trimmed.starts_with("#[") || !trimmed.contains("path") {
+        return None;
+    }
+    let equals = trimmed.find('=')?;
+    let value = trimmed[equals + 1..].trim_start();
+    let first_quote = value.find('"')?;
+    let remainder = &value[first_quote + 1..];
+    let last_quote = remainder.find('"')?;
+    Some(remainder[..last_quote].to_string())
+}
+
+fn module_candidates(source_path: &Path, declaration: &ModuleDeclaration) -> Vec<PathBuf> {
+    let mut base = module_base(source_path);
+    for scope in &declaration.inline_scope {
+        base.push(scope);
+    }
+    if let Some(path) = declaration.path_attribute.as_deref() {
+        // Rust Reference: outside an inline module, #[path] is relative to the
+        // source file's directory. Inside an inline module, its logical module
+        // components participate in the relative base.
+        let attribute_base = if declaration.inline_scope.is_empty() {
+            source_path
+                .parent()
+                .unwrap_or_else(|| Path::new("."))
+                .to_path_buf()
+        } else {
+            base
+        };
+        return vec![normalize_path(attribute_base.join(path))];
+    }
+    vec![
+        normalize_path(base.join(format!("{}.rs", declaration.name))),
+        normalize_path(base.join(&declaration.name).join("mod.rs")),
+    ]
+}
+
+fn module_base(source_path: &Path) -> PathBuf {
+    let parent = source_path.parent().unwrap_or_else(|| Path::new("."));
+    match source_path.file_name().and_then(|value| value.to_str()) {
+        Some("lib.rs" | "main.rs" | "mod.rs") => parent.to_path_buf(),
+        _ => parent.join(
+            source_path
+                .file_stem()
+                .and_then(|value| value.to_str())
+                .unwrap_or_default(),
+        ),
+    }
+}
+
+fn is_dynamic_rust_output(output: &str) -> bool {
+    (output.contains("{{") || output.contains("{%"))
+        && output.trim_end().ends_with(".rs")
 }
 
 fn resolve_static_output(root: &Path, output: &str) -> Option<PathBuf> {
-    if is_dynamic_output(output)
+    if output.contains("{{")
+        || output.contains("{%")
         || output.starts_with("http://")
         || output.starts_with("https://")
     {
@@ -190,16 +425,21 @@ fn resolve_static_output(root: &Path, output: &str) -> Option<PathBuf> {
 }
 
 fn normalize_path(path: PathBuf) -> PathBuf {
-    let mut prefix: Option<std::ffi::OsString> = None;
+    let mut prefix = None;
     let mut rooted = false;
-    let mut parts: Vec<std::ffi::OsString> = Vec::new();
+    let mut parts = Vec::new();
     for component in path.components() {
         match component {
             Component::Prefix(value) => prefix = Some(value.as_os_str().to_os_string()),
             Component::RootDir => rooted = true,
             Component::CurDir => {}
             Component::ParentDir => {
-                if parts.last().is_some_and(|part| part.as_os_str() != std::ffi::OsStr::new("..")) {
+                if parts
+                    .last()
+                    .is_some_and(|part: &std::ffi::OsString| {
+                        part.as_os_str() != std::ffi::OsStr::new("..")
+                    })
+                {
                     parts.pop();
                 } else if !rooted {
                     parts.push("..".into());
@@ -221,266 +461,11 @@ fn normalize_path(path: PathBuf) -> PathBuf {
     normalized
 }
 
-fn missing_generated_module_diagnostics(
-    source_path: &Path, source: &str, generated_outputs: &HashSet<PathBuf>,
-) -> Vec<MaxDiagnostic> {
-    let mut diagnostics = Vec::new();
-    let mut lexer = LexState::default();
-    let mut pending_path: Option<String> = None;
-
-    for (line_index, original) in source.lines().enumerate() {
-        let code = lexer.code_on_line(original);
-        let mut statement = code.trim();
-        if statement.is_empty() {
-            continue;
-        }
-        if let Some((path, remainder)) = parse_path_attribute(statement) {
-            pending_path = Some(path);
-            statement = remainder.trim_start();
-            if statement.is_empty() {
-                continue;
-            }
-        }
-        if statement.starts_with("#") {
-            continue;
-        }
-        let Some(module) = parse_external_module(statement) else {
-            pending_path = None;
-            continue;
-        };
-        let candidates = module_candidates(source_path, &module, pending_path.take().as_deref());
-        if candidates
-            .iter()
-            .any(|candidate| generated_outputs.contains(candidate))
-        {
-            continue;
-        }
-
-        let rendered_candidates = candidates
-            .iter()
-            .map(|candidate| candidate.display().to_string())
-            .collect::<Vec<_>>()
-            .join(" or ");
-        let line = u32::try_from(line_index).unwrap_or(0);
-        let diagnostic = diag::at(
-            line,
-            0,
-            line,
-            u32::MAX,
-            DiagnosticSeverity::ERROR,
-            Some(GGEN_SRC_004),
-            format!(
-                "GGEN-SRC-004 UNBOUND_GENERATED_MODULE: `{}` declares external module `{module}`, \
-                 but no generation rule owns {rendered_candidates}. Add a rule for the module, \
-                 point `#[path]` at a generated output, or make the module inline.",
-                source_path.display()
-            ),
-        );
-        diagnostics.push(to_max_diagnostic(diagnostic, LawAxis::Autopoiesis));
-    }
-    diagnostics
-}
-
-fn parse_path_attribute(line: &str) -> Option<(String, &str)> {
-    if !line.starts_with("#[path") {
-        return None;
-    }
-    let first = line.find('"')?;
-    let last = line[first + 1..].find('"')? + first + 1;
-    let close = line[last + 1..].find(']')? + last + 1;
-    Some((
-        line[first + 1..last].to_string(),
-        &line[close + 1..],
-    ))
-}
-
-fn parse_external_module(line: &str) -> Option<String> {
-    let mut rest = line.trim();
-    if let Some(after_pub) = strip_keyword(rest, "pub", true) {
-        rest = after_pub.trim_start();
-        if rest.starts_with('(') {
-            let close = rest.find(')')?;
-            rest = rest[close + 1..].trim_start();
-        }
-    }
-    if let Some(after_unsafe) = strip_keyword(rest, "unsafe", false) {
-        rest = after_unsafe.trim_start();
-    }
-    rest = strip_keyword(rest, "mod", false)?.trim_start();
-    if rest.starts_with("r#") {
-        rest = &rest[2..];
-    }
-    let name_len = rest
-        .chars()
-        .take_while(|ch| ch.is_ascii_alphanumeric() || *ch == '_')
-        .map(char::len_utf8)
-        .sum::<usize>();
-    if name_len == 0 {
-        return None;
-    }
-    let name = &rest[..name_len];
-    let suffix = rest[name_len..].trim_start();
-    suffix.starts_with(';').then(|| name.to_string())
-}
-
-fn strip_keyword<'a>(input: &'a str, keyword: &str, allow_paren: bool) -> Option<&'a str> {
-    let rest = input.strip_prefix(keyword)?;
-    match rest.chars().next() {
-        None => Some(rest),
-        Some(ch) if ch.is_whitespace() || (allow_paren && ch == '(') => Some(rest),
-        Some(_) => None,
-    }
-}
-
-fn module_candidates(source_path: &Path, module: &str, path_attr: Option<&str>) -> Vec<PathBuf> {
-    let parent = source_path.parent().unwrap_or_else(|| Path::new("."));
-    if let Some(path_attr) = path_attr {
-        return vec![normalize_path(parent.join(path_attr))];
-    }
-
-    let file_name = source_path.file_name().and_then(|value| value.to_str());
-    let base = if matches!(file_name, Some("lib.rs" | "main.rs" | "mod.rs")) {
-        parent.to_path_buf()
-    } else {
-        let stem = source_path
-            .file_stem()
-            .and_then(|value| value.to_str())
-            .unwrap_or_default();
-        parent.join(stem)
-    };
-    vec![
-        normalize_path(base.join(format!("{module}.rs"))),
-        normalize_path(base.join(module).join("mod.rs")),
-    ]
-}
-
-#[derive(Debug, Default)]
-struct LexState {
-    block_comment_depth: usize,
-    string_open: bool,
-    string_escaped: bool,
-    raw_hashes: Option<usize>,
-}
-
-impl LexState {
-    /// Preserve ordinary string text for `#[path = "..."]`, but blank lines that
-    /// are inside a multi-line string so source-looking text cannot manufacture a
-    /// module edge. Rust block comments nest, so the depth is explicit.
-    fn code_on_line(&mut self, line: &str) -> String {
-        let bytes = line.as_bytes();
-        let mut output = String::with_capacity(line.len());
-        let mut index = 0usize;
-        let continued_string = self.string_open;
-
-        while index < bytes.len() {
-            if self.block_comment_depth > 0 {
-                if index + 1 < bytes.len() && bytes[index] == b'/' && bytes[index + 1] == b'*' {
-                    self.block_comment_depth += 1;
-                    index += 2;
-                } else if index + 1 < bytes.len()
-                    && bytes[index] == b'*'
-                    && bytes[index + 1] == b'/'
-                {
-                    self.block_comment_depth -= 1;
-                    index += 2;
-                } else {
-                    index += 1;
-                }
-                continue;
-            }
-
-            if let Some(hashes) = self.raw_hashes {
-                if bytes[index] == b'"'
-                    && raw_string_closes(bytes, index + 1, hashes)
-                {
-                    self.raw_hashes = None;
-                    index += hashes + 1;
-                } else {
-                    index += 1;
-                }
-                continue;
-            }
-
-            if self.string_open {
-                if !continued_string {
-                    output.push(char::from(bytes[index]));
-                }
-                if self.string_escaped {
-                    self.string_escaped = false;
-                } else if bytes[index] == b'\\' {
-                    self.string_escaped = true;
-                } else if bytes[index] == b'"' {
-                    self.string_open = false;
-                }
-                index += 1;
-                continue;
-            }
-
-            if index + 1 < bytes.len() && bytes[index] == b'/' && bytes[index + 1] == b'/' {
-                break;
-            }
-            if index + 1 < bytes.len() && bytes[index] == b'/' && bytes[index + 1] == b'*' {
-                output.push(' ');
-                self.block_comment_depth = 1;
-                index += 2;
-                continue;
-            }
-            if let Some((prefix_len, hashes)) = raw_string_start(bytes, index) {
-                // Keep only the token prefix. Source-looking content inside the raw
-                // string cannot manufacture a module edge. Resume scanning when a
-                // same-line terminator exists; otherwise carry state to the next line.
-                output.push_str(&line[index..index + prefix_len]);
-                let mut cursor = index + prefix_len;
-                let mut closed = false;
-                while cursor < bytes.len() {
-                    if bytes[cursor] == b'"' && raw_string_closes(bytes, cursor + 1, hashes) {
-                        index = cursor + hashes + 1;
-                        closed = true;
-                        break;
-                    }
-                    cursor += 1;
-                }
-                if !closed {
-                    self.raw_hashes = Some(hashes);
-                    index += prefix_len;
-                }
-                continue;
-            }
-            if bytes[index] == b'"' {
-                self.string_open = true;
-                self.string_escaped = false;
-            }
-            output.push(char::from(bytes[index]));
-            index += 1;
-        }
-        output
-    }
-}
-
-fn raw_string_start(bytes: &[u8], index: usize) -> Option<(usize, usize)> {
-    let mut cursor = index;
-    if bytes.get(cursor) == Some(&b'b') || bytes.get(cursor) == Some(&b'c') {
-        cursor += 1;
-    }
-    if bytes.get(cursor) != Some(&b'r') {
-        return None;
-    }
-    cursor += 1;
-    let hash_start = cursor;
-    while bytes.get(cursor) == Some(&b'#') {
-        cursor += 1;
-    }
-    (bytes.get(cursor) == Some(&b'"')).then(|| (cursor - index + 1, cursor - hash_start))
-}
-
-fn raw_string_closes(bytes: &[u8], after_quote: usize, hashes: usize) -> bool {
-    (0..hashes).all(|offset| bytes.get(after_quote + offset) == Some(&b'#'))
-}
-
-fn to_max_diagnostic(diagnostic: Diagnostic, axis: LawAxis) -> MaxDiagnostic {
-    let code = match &diagnostic.code {
-        Some(lsp_max::lsp_types::NumberOrString::String(value)) => value.clone(),
-        Some(lsp_max::lsp_types::NumberOrString::Number(value)) => value.to_string(),
+fn to_max_diagnostic(mut diagnostic: Diagnostic, axis: LawAxis) -> MaxDiagnostic {
+    crate::legacy_contract::attach(&mut diagnostic);
+    let code = match diagnostic.code.as_ref() {
+        Some(NumberOrString::String(value)) => value.clone(),
+        Some(NumberOrString::Number(value)) => value.to_string(),
         None => "GGEN-UNKNOWN".to_string(),
     };
     let mut hasher = blake3::Hasher::new();
@@ -501,75 +486,124 @@ fn to_max_diagnostic(diagnostic: Diagnostic, axis: LawAxis) -> MaxDiagnostic {
 mod tests {
     use super::*;
 
+    fn outputs(paths: &[&str]) -> HashSet<PathBuf> {
+        paths.iter().map(PathBuf::from).collect()
+    }
+
     #[test]
-    fn detects_do_not_edit_banner() {
-        let source =
-            "// Auto-generated by ggen from wasm4pm-compat.ttl --- DO NOT EDIT\npub enum Foo {}";
-        let diagnostics = do_not_edit_diagnostics(source);
+    fn preserves_legacy_banner_contract() {
+        let source = "// Auto-generated by ggen -- DO NOT EDIT\npub struct X;";
+        let diagnostics = source_law_diagnostics(source);
         assert_eq!(diagnostics.len(), 1);
-        assert_eq!(
-            diagnostics[0].code,
-            Some(lsp_max::lsp_types::NumberOrString::String(
-                GGEN_SRC_002.into()
-            ))
-        );
+        assert_eq!(diagnostics[0].law_id, GGEN_SRC_002);
+        assert!(crate::legacy_contract::provenance(&diagnostics[0].lsp).is_some());
     }
 
     #[test]
-    fn clean_source_emits_no_diagnostics() {
-        let source = "//! Witness marker declarations — compiled from `wasm4pm-compat.ttl`.\nuse crate::witness::Witness;\n";
-        assert!(do_not_edit_diagnostics(source).is_empty());
-    }
-
-    #[test]
-    fn detects_auto_generated_variant() {
-        let source = "// automatically generated — regenerate with ggen sync\npub mod foo {}";
-        let diagnostics = do_not_edit_diagnostics(source);
-        assert_eq!(diagnostics.len(), 1);
-        assert_eq!(
-            diagnostics[0].code,
-            Some(lsp_max::lsp_types::NumberOrString::String(
-                GGEN_SRC_002.into()
-            ))
-        );
-    }
-
-    #[test]
-    fn src_004_does_not_confuse_identifiers_with_mod_keyword() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([source_path.clone()]);
-        assert!(
-            missing_generated_module_diagnostics(&source_path, "module;", &outputs).is_empty()
-        );
-    }
-
-    #[test]
-    fn src_004_flags_external_module_without_rule_authority() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([source_path.clone()]);
+    fn ast_rejects_external_module_without_rule_authority() {
+        let path = PathBuf::from("/tmp/project/src/lib.rs");
         let diagnostics = missing_generated_module_diagnostics(
-            &source_path,
+            &path,
             "pub mod capabilities;\nmod inline { pub struct X; }\n",
-            &outputs,
+            &outputs(&["/tmp/project/src/lib.rs"]),
         );
         assert_eq!(diagnostics.len(), 1);
         assert_eq!(diagnostics[0].law_id, GGEN_SRC_004);
     }
 
     #[test]
-    fn src_004_accepts_generated_sibling_and_path_attribute() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([
-            source_path.clone(),
-            PathBuf::from("/tmp/project/src/capabilities.rs"),
-            PathBuf::from("/tmp/project/src/custom/bridge.rs"),
-        ]);
-        let source = "pub mod capabilities;\n#[path = \"custom/bridge.rs\"] pub mod bridge;\n";
-        assert!(missing_generated_module_diagnostics(&source_path, source, &outputs).is_empty());
+    fn ast_does_not_manufacture_edges_from_comments_or_strings() {
+        let path = PathBuf::from("/tmp/project/src/lib.rs");
+        let source = r##"
+// mod comment_only;
+const EXAMPLE: &str = r#"mod raw_string_only;"#;
+const OTHER: &str = "mod string_only;";
+"##;
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            source,
+            &outputs(&["/tmp/project/src/lib.rs"]),
+        )
+        .is_empty());
     }
 
     #[test]
-    fn src_004_does_not_claim_authority_when_rust_output_is_dynamic() {
+    fn ast_accepts_rule_owned_sibling_and_path_attribute() {
+        let path = PathBuf::from("/tmp/project/src/lib.rs");
+        let source = "pub mod capabilities;\n#[path = \"custom/bridge.rs\"] pub mod bridge;\n";
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            source,
+            &outputs(&[
+                "/tmp/project/src/lib.rs",
+                "/tmp/project/src/capabilities.rs",
+                "/tmp/project/src/custom/bridge.rs",
+            ]),
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn ast_resolves_nested_inline_module_scope() {
+        let path = PathBuf::from("/tmp/project/src/lib.rs");
+        let source = "mod api { pub mod model; }";
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            source,
+            &outputs(&[
+                "/tmp/project/src/lib.rs",
+                "/tmp/project/src/api/model.rs",
+            ]),
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn ast_resolves_non_root_module_scope() {
+        let path = PathBuf::from("/tmp/project/src/api.rs");
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            "pub(crate) mod model;",
+            &outputs(&[
+                "/tmp/project/src/api.rs",
+                "/tmp/project/src/api/model.rs",
+            ]),
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn ast_resolves_path_attribute_from_non_root_source_directory() {
+        let path = PathBuf::from("/tmp/project/src/api.rs");
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            "#[path = \"wire.rs\"] mod model;",
+            &outputs(&[
+                "/tmp/project/src/api.rs",
+                "/tmp/project/src/wire.rs",
+            ]),
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn ast_resolves_ancestor_path_attribute_for_nested_inline_module() {
+        let path = PathBuf::from("/tmp/project/src/lib.rs");
+        let source =
+            "#[path = \"thread_files\"] mod thread { #[path = \"tls.rs\"] mod local_data; }";
+        assert!(missing_generated_module_diagnostics(
+            &path,
+            source,
+            &outputs(&[
+                "/tmp/project/src/lib.rs",
+                "/tmp/project/src/thread_files/tls.rs",
+            ]),
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn dynamic_rust_output_remains_unknown() {
         let project = ProjectIndex {
             root: PathBuf::from("/tmp/project"),
             rule_entries: vec![crate::rule_index::RuleIndexEntry {
@@ -585,60 +619,5 @@ mod tests {
             }],
         };
         assert!(detect_src_004(&project, &BufferOverlay::new()).is_empty());
-    }
-
-    #[test]
-    fn src_004_ignores_module_text_inside_multiline_raw_string() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([source_path.clone()]);
-        let source = r##"const EXAMPLE: &str = r#"
-mod ghost;
-"#;
-"##;
-        assert!(missing_generated_module_diagnostics(&source_path, source, &outputs).is_empty());
-    }
-
-    #[test]
-    fn src_004_ignores_module_text_inside_multiline_ordinary_string() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([source_path.clone()]);
-        let source = "const EXAMPLE: &str = \"first\nmod ghost;\nlast\";\n";
-        assert!(missing_generated_module_diagnostics(&source_path, source, &outputs).is_empty());
-    }
-
-    #[test]
-    fn src_004_resumes_after_same_line_raw_string() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([source_path.clone()]);
-        let source = r##"const EXAMPLE: &str = r#"mod ghost;"#; mod real;"##;
-        let diagnostics = missing_generated_module_diagnostics(&source_path, source, &outputs);
-        assert!(diagnostics.is_empty(), "only a declaration at line start is admitted");
-    }
-
-    #[test]
-    fn src_004_accepts_raw_identifier_modules() {
-        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
-        let outputs = HashSet::from([
-            source_path.clone(),
-            PathBuf::from("/tmp/project/src/type.rs"),
-        ]);
-        assert!(
-            missing_generated_module_diagnostics(&source_path, "mod r#type;", &outputs).is_empty()
-        );
-    }
-
-    #[test]
-    fn src_004_resolves_child_modules_from_non_root_file() {
-        let source_path = PathBuf::from("/tmp/project/src/api.rs");
-        let outputs = HashSet::from([
-            source_path.clone(),
-            PathBuf::from("/tmp/project/src/api/model.rs"),
-        ]);
-        assert!(missing_generated_module_diagnostics(
-            &source_path,
-            "pub(crate) mod model;",
-            &outputs,
-        )
-        .is_empty());
     }
 }
