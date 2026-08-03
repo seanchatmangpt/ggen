@@ -32,6 +32,14 @@
 #     stub-handler proof against the actual compiled rmcp crate, and the
 #     cap06 refusal-path/adversarial-input proof
 #     (rmcp_default_handler_proof.rs.tmpl).
+#   - examples/ggen-cli-verify    (wires packs/chicago-tdd-tools-pack against
+#     ggen's OWN real CLI binary, not the receiptctl example -- the closed
+#     dogfood loop: schema/domain.ttl's ctt:CliBoundaryTest facts describe
+#     real `ggen` invocations, verified live 2026-08-03 before being
+#     transcribed. The pack's own ontology.ttl also bundles 9 demo
+#     `receiptctl`-targeted individuals shared by every consumer of this
+#     pack, so `receiptctl` must be on PATH here too even though this
+#     consumer's own facts never mention it -- see the PATH setup below).
 #
 # Uses the release ggen binary if present (fast path), else builds the debug
 # one. Any sync refusal (including the pack-shapes gate FM-PACK-013), any
@@ -48,6 +56,7 @@ CONSUMERS=(
     "examples/star-toml-verify"
     "examples/cargo-cicd-verify"
     "examples/rmcp-verify"
+    "examples/ggen-cli-verify"
 )
 
 GGEN_BIN="target/release/ggen"
@@ -60,6 +69,17 @@ if [[ ! -x "$GGEN_BIN" ]]; then
     GGEN_BIN="target/debug/ggen"
 fi
 GGEN_BIN="$(pwd)/$GGEN_BIN"
+
+# examples/ggen-cli-verify's generated CliHarness tests resolve binaries by
+# name (CARGO_BIN_EXE_* then own-workspace target/, then PATH) -- it has no
+# bin target of its own, so both `ggen` (this repo's real CLI, the subject
+# of that consumer's own facts) and `receiptctl` (needed only because
+# chicago-tdd-tools-pack's ontology.ttl bundles 9 receiptctl-targeted demo
+# individuals shared by every consumer of the pack) must be resolvable via
+# PATH for that one consumer's `cargo test` to pass.
+echo "guard-pack-proofs: building receiptctl example binary (for ggen-cli-verify's shared pack-demo facts)..."
+(cd examples/receiptctl && cargo build -q --bin receiptctl)
+export PATH="$(dirname "$GGEN_BIN"):$(pwd)/examples/receiptctl/target/debug:$PATH"
 
 for CONSUMER in "${CONSUMERS[@]}"; do
     echo "guard-pack-proofs: === ${CONSUMER} ==="

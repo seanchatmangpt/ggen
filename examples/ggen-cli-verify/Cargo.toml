@@ -1,0 +1,18 @@
+[workspace]
+
+[package]
+name = "ggen-cli-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of chicago-tdd-tools-pack that closes the dogfood loop on ggen's OWN CLI binary (not the receiptctl example): ctt:CliBoundaryTest facts in schema/domain.ttl drive `ggen sync run` to generate CliHarness-based tests/chicago_tdd_tools_boundary.rs, which spawns the real `ggen` binary (via PATH, resolved by scripts/ci/guard-pack-proofs.sh) and asserts on its actual exit codes/stdout/stderr. No mocks."
+
+[lib]
+name = "ggen_cli_verify"
+path = "src/lib.rs"
+
+[dev-dependencies]
+# Path dependency, not the published crate: the published chicago-tdd-tools
+# doesn't yet include the `cli_proof` module (`cli-proof` feature isn't
+# published to crates.io yet) -- same gap examples/receiptctl works around.
+chicago-tdd-tools = { path = "../../crates/chicago-tdd-tools", features = ["cli-proof"] }

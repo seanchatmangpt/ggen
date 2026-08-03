@@ -9,6 +9,12 @@ description = "MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspe
 name = "ggen-mcp"
 path = "src/bin/ggen-mcp.rs"
 
+# Corpus growth via a local LLM. Separate binary, never a test: an LLM in
+# the assertion path would make a red suite unreproducible.
+[[bin]]
+name = "ggen-selfplay-explore"
+path = "src/bin/ggen-selfplay-explore.rs"
+
 [dependencies]
 # Path deps only -- ggen-lsp is `publish = false`, so this crate must stay a
 # workspace member, never an external/published consumer.
@@ -33,7 +39,11 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 blake3 = { workspace = true }
 toml = { workspace = true }
+# Real dependency, not dev-only: `selfplay::Board` manufactures arena
+# directories at runtime, so this is part of the library surface.
+tempfile = { workspace = true }
+# Local-only HTTP to the TurboFieldfare OpenAI-compatible server.
+reqwest = { workspace = true }
 
 [dev-dependencies]
-tempfile = { workspace = true }
 assert_cmd = { workspace = true }

@@ -1,0 +1,9 @@
+{
+  "id": "traversal-absolute",
+  "pack": "mermaid-pack",
+  "sparql": "SELECT ?s WHERE { ?s ?p ?o } LIMIT 1",
+  "to": "/tmp/ggen-selfplay-ABSOLUTE-ESCAPE.txt",
+  "body": "escaped\n",
+  "origin": "handwritten",
+  "note": "absolute to: must be refused"
+}

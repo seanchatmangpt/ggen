@@ -1,0 +1,9 @@
+{
+  "id": "zero-hit-mandatory-triple",
+  "pack": "wasm4pm-facts-pack",
+  "sparql": "SELECT ?s ?v WHERE { ?s <http://example.org/predicateUsedZeroTimes> ?v }",
+  "to": "out/zero.txt",
+  "body": "{% for row in probe %}{{ row.v }}\n{% endfor %}",
+  "origin": "handwritten",
+  "note": "the zero-of-113-rows incident: must report row_count 0 honestly, never silently"
+}

@@ -341,7 +341,7 @@ slo-check:
 # Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
 # IS the canonical gate list and count -- do not restate a number in a comment here or in any
 # doc; every prior count has gone stale within days of a gate being added or removed.
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count self-play
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
@@ -352,6 +352,33 @@ pre-commit: fmt-check check lint test-lib coherence-check guard-process-intellig
 # test suite (the generated proofs plus its own). Makes "the generated proof
 # suites pass" a checkable fact from repo state — see
 # scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.
+# Self-play: replay the committed adversarial corpus and drive EVERY pack that
+# ships an ontology through the full ggen lifecycle (classify -> query ->
+# lint -> dry-run -> apply -> receipt verify -> idempotent re-sync).
+#
+# Deterministic and offline: no LLM, no network, no GPU. Before this existed,
+# 5 of 78 packs had any lifecycle proof (the guard-pack-proofs consumers);
+# this covers all of them. The falsifier suite alongside it proves the harness
+# can actually detect a violation rather than silently observing nothing.
+
+# Replay the adversarial corpus + drive every pack through the full lifecycle.
+self-play:
+    cargo test -p ggen-mcp --test self_play_test --test self_play_falsifier_test
+
+# Grow the self-play corpus with the local Gemma (TurboFieldfare's
+# OpenAI-compatible server on 127.0.0.1:8080, Metal/GPU). NOT part of any gate:
+# an LLM in the assertion path would make a red suite unreproducible. Its only
+# output is new files under crates/ggen-mcp/tests/corpus/, which `just
+# self-play` then replays deterministically forever after.
+#
+# The server generates one completion at a time behind a 4-deep queue, so
+# concurrency 4 keeps the GPU saturated without overflowing it.
+
+# Grow the self-play corpus using the local Gemma on the GPU (not a gate).
+self-play-explore packs="73" cases="4" concurrency="4":
+    cargo run --release -p ggen-mcp --bin ggen-selfplay-explore -- \
+        --packs {{packs}} --cases-per-pack {{cases}} --concurrency {{concurrency}}
+
 guard-pack-proofs:
     ./scripts/ci/guard-pack-proofs.sh
 

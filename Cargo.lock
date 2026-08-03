@@ -3201,6 +3201,7 @@ dependencies = [
  "ggen-engine",
  "ggen-graph",
  "ggen-lsp",
+ "reqwest 0.12.28",
  "rmcp 1.8.0",
  "schemars 1.2.2",
  "serde",

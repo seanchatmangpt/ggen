@@ -388,6 +388,21 @@ fn validate_files(files: &[Utf8PathBuf], shapes: &[Utf8PathBuf]) -> Result<serde
 /// the response simply reports `"signed": false`.
 pub fn handle_receipt_verify() -> Result<serde_json::Value> {
     let root = project_root()?;
+    handle_receipt_verify_in(&root)
+}
+
+/// [`handle_receipt_verify`] against an explicit project root.
+///
+/// The verb form resolves its root from the process cwd, which makes it
+/// unusable for any caller that must verify several projects (self-play
+/// arenas, a test harness) without mutating global process state. This is
+/// the same logic with the root passed in; `handle_receipt_verify` is now a
+/// thin cwd-resolving delegate to it, so there is exactly one
+/// receipt-verification implementation rather than two that can drift.
+///
+/// # Errors
+/// See [`handle_receipt_verify`].
+pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Value> {
     let receipt_path = root.join(RECEIPT_REL_PATH);
     let raw = std::fs::read_to_string(&receipt_path).map_err(|e| {
         exec_err(format!(

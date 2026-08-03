@@ -1,0 +1,9 @@
+{
+  "id": "empty-where",
+  "pack": "rmcp-pack",
+  "sparql": "SELECT ?x WHERE { }",
+  "to": "out/empty.txt",
+  "body": "{{ probe }}\n",
+  "origin": "handwritten",
+  "note": "legal but degenerate; row accounting must stay honest"
+}

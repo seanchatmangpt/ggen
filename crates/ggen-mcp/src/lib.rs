@@ -24,6 +24,7 @@
 pub mod error;
 pub mod limits;
 pub mod project_root;
+pub mod selfplay;
 pub mod tools;
 
 use std::sync::Arc;

@@ -1,0 +1,9 @@
+{
+  "id": "baseline-count-all",
+  "pack": "wasm4pm-facts-pack",
+  "sparql": "SELECT ?s ?p ?o WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o LIMIT 5",
+  "to": "out/baseline.txt",
+  "body": "{% for row in probe %}{{ row.s }}\n{% endfor %}",
+  "origin": "handwritten",
+  "note": "lawful baseline; must remain clean"
+}

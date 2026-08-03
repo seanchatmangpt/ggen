@@ -1,0 +1,9 @@
+{
+  "id": "traversal-deep-escape",
+  "pack": "mermaid-pack",
+  "sparql": "SELECT ?s WHERE { ?s ?p ?o } LIMIT 1",
+  "to": "../../ESCAPED.txt",
+  "body": "escaped\n",
+  "origin": "handwritten",
+  "note": "two-level traversal must never land"
+}
