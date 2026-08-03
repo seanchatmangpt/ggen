@@ -2,7 +2,17 @@
 
 `ggen-lsp` is the offline language server and law-diagnostic engine for ggen RDF, SPARQL, Tera, TOML, and generated Rust source surfaces. It performs static analysis only. Editor features do not require an LLM, network service, hosted telemetry collector, or external process-mining service.
 
-The editor, headless checker, MCP bridge, and A2A bridge share the same analyzer, diagnostic, route, and receipt semantics. Transport framing may differ; meaning must not.
+The editor, headless checker, MCP bridge, A2A bridge, generated contract, and independent ggen-legacy receiver share the same analyzer, diagnostic, route, and receipt semantics. Transport framing may differ; meaning must not.
+
+## Self-hosted contract
+
+The authored authority is `self-host/lsp-contract/ontology.ttl`. The nested `self-host/lsp-contract/ggen.toml` project manufactures:
+
+- `generated/lsp-contract.json`;
+- `src/generated_contract.rs`;
+- `../../docs/generated/LSP_CONTRACT.md`.
+
+The JSON, Rust, and Markdown projections are copied byte-for-byte to the independent `seanchatmangpt/ggen-legacy` receiver. `config/ggen-legacy-corpus.toml` pins its exact head and projection digests. The producer and receiver verifiers assign only representation/source-contract standing; neither may self-certify either Rust runtime.
 
 ## Delivered editor contract
 
@@ -88,7 +98,16 @@ ggen lsp verify_pack
 
 ## Verification
 
-Use the pinned repository toolchain:
+First verify and reproduce the generated representations:
+
+```bash
+cd self-host/lsp-contract
+ggen sync run --config ggen.toml
+python3 verify.py --ggen-root ../.. --legacy-root /path/to/ggen-legacy
+cd ../..
+```
+
+Then use the pinned repository toolchain:
 
 ```bash
 cargo fmt --check -p ggen-lsp
@@ -106,15 +125,17 @@ python3 scripts/lsp-smoke.py
 ## Architecture
 
 ```text
-src/server.rs           LSP capability negotiation and protocol lifecycle
-src/state.rs            open documents, analyzers, cross-surface publication
-src/analyzers/          RDF, SPARQL, Tera, TOML, harness, and source laws
-src/source_contract.rs  generated Rust module-ownership law
-src/handlers/           feature request handlers
-src/check_ext.rs        headless cross-surface facade
-src/check.rs            retained core headless gate
-src/route.rs            shared repair-route selection
-src/intel/              OCEL event capture and mining projections
+self-host/lsp-contract/   ontology-owned contract manufacturer
+src/generated_contract.rs generated runtime contract
+src/server.rs             LSP capability negotiation and protocol lifecycle
+src/state.rs              open documents, analyzers, cross-surface publication
+src/analyzers/            RDF, SPARQL, Tera, TOML, harness, and source laws
+src/source_contract.rs    generated Rust module-ownership law
+src/handlers/             feature request handlers
+src/check_ext.rs          headless cross-surface facade
+src/check.rs              retained core headless gate
+src/route.rs              shared repair-route selection
+src/intel/                OCEL event capture and mining projections
 ```
 
-The governing subtree contract is [`AGENTS.md`](AGENTS.md). The architecture specification is [`docs/architecture/LSP-ARD-PRD.md`](../../docs/architecture/LSP-ARD-PRD.md).
+The governing subtree contract is [`AGENTS.md`](AGENTS.md). The generated contract matrix is [`../../docs/generated/LSP_CONTRACT.md`](../../docs/generated/LSP_CONTRACT.md). The architecture specification is [`docs/architecture/LSP-ARD-PRD.md`](../../docs/architecture/LSP-ARD-PRD.md).
