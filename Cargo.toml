@@ -86,6 +86,7 @@ members = [
   # unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one
   # reflection pass instead of N hand-authored RDF fact blocks.
   "crates/openapi-cnv-reflect",
+  "crates/ggen-mcp",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under

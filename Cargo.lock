@@ -3191,6 +3191,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "ggen-mcp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "blake3",
+ "ggen-config",
+ "ggen-engine",
+ "ggen-graph",
+ "ggen-lsp",
+ "rmcp 1.8.0",
+ "schemars 1.2.2",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "gherkin"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
