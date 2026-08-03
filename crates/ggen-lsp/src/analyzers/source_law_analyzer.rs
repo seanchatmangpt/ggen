@@ -296,17 +296,17 @@ fn parse_path_attribute(line: &str) -> Option<(String, &str)> {
 
 fn parse_external_module(line: &str) -> Option<String> {
     let mut rest = line.trim();
-    if let Some(after_pub) = rest.strip_prefix("pub") {
+    if let Some(after_pub) = strip_keyword(rest, "pub", true) {
         rest = after_pub.trim_start();
         if rest.starts_with('(') {
             let close = rest.find(')')?;
             rest = rest[close + 1..].trim_start();
         }
     }
-    if let Some(after_unsafe) = rest.strip_prefix("unsafe") {
+    if let Some(after_unsafe) = strip_keyword(rest, "unsafe", false) {
         rest = after_unsafe.trim_start();
     }
-    rest = rest.strip_prefix("mod")?.trim_start();
+    rest = strip_keyword(rest, "mod", false)?.trim_start();
     if rest.starts_with("r#") {
         rest = &rest[2..];
     }
@@ -321,6 +321,15 @@ fn parse_external_module(line: &str) -> Option<String> {
     let name = &rest[..name_len];
     let suffix = rest[name_len..].trim_start();
     suffix.starts_with(';').then(|| name.to_string())
+}
+
+fn strip_keyword<'a>(input: &'a str, keyword: &str, allow_paren: bool) -> Option<&'a str> {
+    let rest = input.strip_prefix(keyword)?;
+    match rest.chars().next() {
+        None => Some(rest),
+        Some(ch) if ch.is_whitespace() || (allow_paren && ch == '(') => Some(rest),
+        Some(_) => None,
+    }
 }
 
 fn module_candidates(source_path: &Path, module: &str, path_attr: Option<&str>) -> Vec<PathBuf> {
@@ -411,6 +420,7 @@ impl LexState {
                 break;
             }
             if index + 1 < bytes.len() && bytes[index] == b'/' && bytes[index + 1] == b'*' {
+                output.push(' ');
                 self.block_comment_depth = 1;
                 index += 2;
                 continue;
@@ -512,6 +522,28 @@ mod tests {
     }
 
     #[test]
+    fn detects_auto_generated_variant() {
+        let source = "// automatically generated — regenerate with ggen sync\npub mod foo {}";
+        let diagnostics = do_not_edit_diagnostics(source);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(
+            diagnostics[0].code,
+            Some(lsp_max::lsp_types::NumberOrString::String(
+                GGEN_SRC_002.into()
+            ))
+        );
+    }
+
+    #[test]
+    fn src_004_does_not_confuse_identifiers_with_mod_keyword() {
+        let source_path = PathBuf::from("/tmp/project/src/lib.rs");
+        let outputs = HashSet::from([source_path.clone()]);
+        assert!(
+            missing_generated_module_diagnostics(&source_path, "module;", &outputs).is_empty()
+        );
+    }
+
+    #[test]
     fn src_004_flags_external_module_without_rule_authority() {
         let source_path = PathBuf::from("/tmp/project/src/lib.rs");
         let outputs = HashSet::from([source_path.clone()]);
@@ -590,7 +622,9 @@ mod ghost;
             source_path.clone(),
             PathBuf::from("/tmp/project/src/type.rs"),
         ]);
-        assert!(missing_generated_module_diagnostics(&source_path, "mod r#type;", &outputs).is_empty());
+        assert!(
+            missing_generated_module_diagnostics(&source_path, "mod r#type;", &outputs).is_empty()
+        );
     }
 
     #[test]
