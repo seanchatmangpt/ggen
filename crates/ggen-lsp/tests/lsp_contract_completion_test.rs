@@ -4,11 +4,12 @@
     clippy::unwrap_used,
     clippy::needless_raw_string_hashes
 )]
-//! Completion contract for the LSP hierarchy and gate lifecycle.
+//! Completion contract for hierarchy, generated-source laws, and gate lifecycle.
 //!
 //! This test spawns the real `ggen-lsp` binary and drives JSON-RPC over stdio.
 //! It proves negotiated hierarchy capabilities, all four hierarchy follow-up
-//! methods, workspace-folder root selection, and orderly gate cleanup.
+//! methods, GGEN-SRC-004 live-buffer diagnostics, workspace-folder root
+//! selection, and orderly gate cleanup.
 
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -92,10 +93,7 @@ impl LspClient {
             {
                 return frame;
             }
-            if frame.get("method").is_some() && frame.get("id").is_some() {
-                let request_id = frame.get("id").cloned().unwrap_or(Value::Null);
-                self.send(&json!({"jsonrpc": "2.0", "id": request_id, "result": null}));
-            }
+            self.answer_server_request(&frame);
         }
     }
 
@@ -109,10 +107,28 @@ impl LspClient {
             if frame.get("method").and_then(Value::as_str) == Some(method)
                 && frame.get("id").is_some()
             {
-                let id = frame.get("id").cloned().unwrap_or(Value::Null);
-                self.send(&json!({"jsonrpc": "2.0", "id": id, "result": null}));
+                self.answer_server_request(&frame);
                 return frame;
             }
+        }
+    }
+
+    fn notification(&mut self, method: &str) -> Value {
+        loop {
+            let frame = self.receive();
+            if frame.get("method").and_then(Value::as_str) == Some(method)
+                && frame.get("id").is_none()
+            {
+                return frame;
+            }
+            self.answer_server_request(&frame);
+        }
+    }
+
+    fn answer_server_request(&mut self, frame: &Value) {
+        if frame.get("method").is_some() && frame.get("id").is_some() {
+            let request_id = frame.get("id").cloned().unwrap_or(Value::Null);
+            self.send(&json!({"jsonrpc": "2.0", "id": request_id, "result": null}));
         }
     }
 }
@@ -168,8 +184,38 @@ fn hierarchy_item(uri: &str) -> Value {
     })
 }
 
+fn write_source_contract_fixture(workspace: &std::path::Path) -> String {
+    std::fs::create_dir_all(workspace.join("src")).expect("src directory");
+    std::fs::write(
+        workspace.join("ggen.toml"),
+        r#"[project]
+name = "lsp-contract"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "lib"
+query = { inline = "SELECT ?name WHERE { ?name ?p ?o }" }
+template = { inline = "{{ name }}" }
+output_file = "src/lib.rs"
+"#,
+    )
+    .expect("ggen.toml");
+    std::fs::write(
+        workspace.join("model.ttl"),
+        "@prefix ex: <urn:example:> .\nex:subject ex:predicate ex:object .\n",
+    )
+    .expect("model.ttl");
+
+    let source = "pub mod capabilities;\n";
+    std::fs::write(workspace.join("src/lib.rs"), source).expect("lib.rs");
+    source.to_string()
+}
+
 #[test]
-fn negotiated_hierarchy_and_workspace_gate_are_live_over_stdio() {
+fn negotiated_hierarchy_source_contract_and_workspace_gate_are_live_over_stdio() {
     let mut client = LspClient::spawn();
     let workspace = TempDir::new().expect("workspace root");
     let workspace_uri = url::Url::from_directory_path(workspace.path())
@@ -229,15 +275,69 @@ fn negotiated_hierarchy_and_workspace_gate_are_live_over_stdio() {
         );
     }
 
+    let source = write_source_contract_fixture(workspace.path());
+    let source_uri = url::Url::from_file_path(workspace.path().join("src/lib.rs"))
+        .expect("source URI")
+        .to_string();
+    client.notify(
+        "textDocument/didOpen",
+        json!({
+            "textDocument": {
+                "uri": source_uri.clone(),
+                "languageId": "rust",
+                "version": 1,
+                "text": source
+            }
+        }),
+    );
+    let raised = client.notification("textDocument/publishDiagnostics");
+    assert_eq!(raised["params"]["uri"], source_uri);
+    assert!(
+        raised["params"]["diagnostics"]
+            .as_array()
+            .expect("diagnostics")
+            .iter()
+            .any(|diagnostic| diagnostic["code"] == "GGEN-SRC-004"),
+        "unowned generated module must raise GGEN-SRC-004: {raised}"
+    );
+    let gate = workspace.path().join(".ggen/lambda_cd.gate");
+    assert_eq!(
+        std::fs::read_to_string(&gate).expect("raised gate file"),
+        "1",
+        "GGEN-SRC-004 must close the workspace gate"
+    );
+
+    client.notify(
+        "textDocument/didChange",
+        json!({
+            "textDocument": {"uri": source_uri.clone(), "version": 2},
+            "contentChanges": [{"text": "pub struct Clean;\n"}]
+        }),
+    );
+    let cleared = client.notification("textDocument/publishDiagnostics");
+    assert_eq!(cleared["params"]["uri"], source_uri);
+    assert_eq!(
+        cleared["params"]["diagnostics"]
+            .as_array()
+            .expect("cleared diagnostics")
+            .len(),
+        0,
+        "repair must explicitly clear GGEN-SRC-004: {cleared}"
+    );
+    assert_eq!(
+        std::fs::read_to_string(&gate).expect("cleared gate file"),
+        "0",
+        "repair must reopen the workspace gate"
+    );
+
     let shutdown = client.request("shutdown", Value::Null);
     assert!(
         shutdown.get("error").is_none(),
         "shutdown must succeed: {shutdown}"
     );
-    let gate = workspace.path().join(".ggen/lambda_cd.gate");
     assert_eq!(
         std::fs::read_to_string(&gate).expect("shutdown gate file"),
         "0",
-        "shutdown must create and open the gate under workspaceFolders[0]"
+        "shutdown must leave the workspace gate open"
     );
 }
