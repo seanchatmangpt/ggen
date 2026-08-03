@@ -95,6 +95,9 @@ pub fn do_not_edit_diagnostics(source: &str) -> Vec<Diagnostic> {
             ));
         }
     }
+    for diagnostic in &mut diagnostics {
+        crate::legacy_contract::attach(diagnostic);
+    }
     diagnostics
 }
 
@@ -462,7 +465,9 @@ fn normalize_path(path: PathBuf) -> PathBuf {
 }
 
 fn to_max_diagnostic(mut diagnostic: Diagnostic, axis: LawAxis) -> MaxDiagnostic {
-    crate::legacy_contract::attach(&mut diagnostic);
+    if crate::legacy_contract::provenance(&diagnostic).is_none() {
+        crate::legacy_contract::attach(&mut diagnostic);
+    }
     let code = match diagnostic.code.as_ref() {
         Some(NumberOrString::String(value)) => value.clone(),
         Some(NumberOrString::Number(value)) => value.to_string(),
