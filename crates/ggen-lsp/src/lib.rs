@@ -22,6 +22,7 @@ pub mod handlers;
 pub mod harness_index;
 pub mod init;
 pub mod intel;
+pub mod legacy_contract;
 pub mod pack;
 pub mod project_index;
 pub mod route;
