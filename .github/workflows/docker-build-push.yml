@@ -90,7 +90,7 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Controller image
@@ -152,7 +152,18 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
+
+      # Without this, cargo can't even load the workspace: the root Cargo.toml's
+      # [patch.crates-io] table redirects to sibling checkouts one level above the
+      # repo root that a fresh CI checkout doesn't have, and .cargo/config.toml
+      # unconditionally requires sccache. Every other build job in this repo
+      # (release.yml's build-release, release-debian.yml) already calls this;
+      # build-cli here was the one job never brought in line (found 2026-08-03).
+      - name: Setup ggen build environment
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: docker-build-cli
 
       - name: Build Rust CLI binary (ggen)
         run: |
