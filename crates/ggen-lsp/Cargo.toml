@@ -34,6 +34,9 @@ wasm4pm-compat = "=26.6.29"
 lsp-max = "=26.7.3"
 lsp-max-protocol = "=26.7.3"
 lsp-max-macros = "=26.7.3"
+# Rust grammar used through lsp-max::ast::AutoLspAdapter. Exact version is
+# already present in Cargo.lock through lsp-max-lsif, so this adds no lock drift.
+tree-sitter-rust = "=0.23.3"
 tokio = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
