@@ -6,7 +6,19 @@ This contract applies to `crates/ggen-lsp/**` and extends the repository contrac
 
 `ggen-lsp` is an offline, static code-intelligence and law-diagnostic server for ggen surfaces. It does not require an LLM, network service, hosted telemetry collector, or external process-mining service to provide editor features.
 
-The editor, headless checker, MCP bridge, and A2A bridge must project the same analyzer, route, diagnostic, and receipt semantics. A transport may change framing, not meaning.
+The editor, headless checker, MCP bridge, A2A bridge, generated contract, and ggen-legacy receiver must project the same analyzer, route, diagnostic, and receipt semantics. A transport may change framing, not meaning.
+
+## Self-hosted authority
+
+The authoritative cross-repository LSP contract is `self-host/lsp-contract/ontology.ttl`. It is manufactured by the nested `self-host/lsp-contract/ggen.toml` project into:
+
+- `crates/ggen-lsp/generated/lsp-contract.json`;
+- `crates/ggen-lsp/src/generated_contract.rs`;
+- `docs/generated/LSP_CONTRACT.md`.
+
+Those paths are generated projections. Do not hand-edit them. The independent receiver copies in `seanchatmangpt/ggen-legacy` must be byte-identical to the JSON and Rust projections and semantically identical to the Markdown projection. Change the ontology or templates and rerun ggen.
+
+`ggen-legacy` independently implements and verifies the received contract. It cannot certify this runtime, and this runtime cannot certify the receiver.
 
 ## Protocol invariants
 
@@ -23,8 +35,9 @@ The editor, headless checker, MCP bridge, and A2A bridge must project the same a
 
 ## Analyzer invariants
 
-- `.ttl`, `.nt`, `.nq`, `.rq`, `.sparql`, `.tera`, and `.toml` dispatch must remain explicit.
+- `.ttl`, `.nt`, `.nq`, `.rq`, `.sparql`, `.tera`, `.toml`, and generated `.rs` dispatch must remain explicit.
 - Cross-surface diagnostics must use the open-buffer overlay before disk where the live buffer is authoritative.
+- Generated Rust module declarations require generation-rule ownership through `GGEN-SRC-004`.
 - A single URI receives one coherent diagnostic publication per refresh. Do not transiently clear one species by publishing another species separately.
 - Pure analyzer functions may use focused unit tests.
 - Route selection and diagnostic lifecycle claims require integration or protocol evidence.
@@ -34,26 +47,32 @@ The editor, headless checker, MCP bridge, and A2A bridge must project the same a
 
 For a capability to be marked delivered:
 
-1. the initialize response advertises it, or the server lawfully registers it with `client/registerCapability` when the client supports dynamic registration;
-2. the corresponding `LanguageServer` method is implemented;
-3. requests return a valid result rather than `method_not_found`;
-4. at least one spawned-binary protocol test exercises it;
-5. documentation matches the observed boundary.
+1. the generated contract requires it;
+2. the initialize response advertises it, or the server lawfully registers it with `client/registerCapability` when the client supports dynamic registration;
+3. the corresponding `LanguageServer` method is implemented;
+4. requests return a valid result rather than `method_not_found`;
+5. at least one spawned-binary protocol test exercises it;
+6. documentation and the receiver contract match the observed boundary.
 
 An empty relation result is valid for hierarchy follow-up requests when the prepared symbol has no known edges. It is not valid to advertise a prepare method while leaving required follow-up methods unimplemented.
 
 ## Canonical verification
 
-From repository root, use the pinned toolchain:
+From repository root:
 
 ```bash
+cd self-host/lsp-contract
+ggen sync run --config ggen.toml
+python3 verify.py --ggen-root ../.. --legacy-root /path/to/ggen-legacy
+cd ../..
 cargo fmt --check -p ggen-lsp
 cargo check -p ggen-lsp --all-features
 cargo test -p ggen-lsp --lib
+cargo test -p ggen-lsp --test ggen_src_004_living_loop
 cargo test -p ggen-lsp --test lsp_protocol_test
 cargo test -p ggen-lsp --test lsp_contract_completion_test
 cargo build -p ggen-lsp
 python3 scripts/lsp-smoke.py
 ```
 
-Run only the reachable prefix when a toolchain or dependency transport is unavailable. Classify the remainder; do not promote it to success.
+Run only the reachable prefix when a toolchain or dependency transport is unavailable. Classify the remainder; do not promote it to success. The Python projection verifier is not a substitute for executing ggen or either Rust runtime.
