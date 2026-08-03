@@ -14,6 +14,7 @@
 #![deny(clippy::print_stdout)]
 
 pub mod analyzers;
+#[path = "check_ext.rs"]
 pub mod check;
 pub mod error;
 pub mod features;
@@ -26,6 +27,7 @@ pub mod project_index;
 pub mod route;
 pub mod rule_index;
 pub mod server;
+pub mod source_contract;
 pub mod state;
 pub mod utils;
 
