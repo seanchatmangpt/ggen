@@ -3,4 +3,5 @@ SELECT ?version
 WHERE {
   tb:TestingBBlock tb:version ?version .
 }
+ORDER BY ?version
 LIMIT 1

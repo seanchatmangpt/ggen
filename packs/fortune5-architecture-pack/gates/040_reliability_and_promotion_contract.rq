@@ -58,9 +58,11 @@ SELECT ?subject ?kind ?field ?value WHERE {
     }
     UNION
     {
-      SELECT ?subject (COUNT(DISTINCT ?region) AS ?regionCount) WHERE {
-        ?subject a f5:ReplicationPolicy ; f5:replicatesTo ?region .
-      } GROUP BY ?subject HAVING(COUNT(DISTINCT ?region) < 2)
+      {
+        SELECT ?subject (COUNT(DISTINCT ?region) AS ?regionCount) WHERE {
+          ?subject a f5:ReplicationPolicy ; f5:replicatesTo ?region .
+        } GROUP BY ?subject HAVING(COUNT(DISTINCT ?region) < 2)
+      }
       BIND("f5:replicatesTo" AS ?field)
       BIND(STR(?regionCount) AS ?value)
     }

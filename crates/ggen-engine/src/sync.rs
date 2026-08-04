@@ -1569,6 +1569,15 @@ fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) 
 }
 
 /// Render a Tera string, mapping errors to `[FM-TPL-017]`.
+///
+/// Uses `template::tera_error_full_chain`, not bare `{e}` Display: Tera's
+/// top-level `Display` is frequently just "Failed to render
+/// '__tera_one_off'" with the actual cause (unknown filter, missing
+/// variable, wrong argument type) only reachable via `Error::source()`
+/// chaining — the same gap `generation_rules.rs`'s `[FM-GEN-008]` path
+/// already closed with this same helper; this call site had not been
+/// updated to match, so every `[FM-TPL-017]` render failure printed a
+/// content-free message.
 fn render_str(
     tera: &mut tera::Tera, template: &str, ctx: &tera::Context, tpl_path: &Path,
 ) -> Result<String> {
@@ -1576,8 +1585,9 @@ fn render_str(
         AppError::fm_tpl(
             17,
             format!(
-                "render failed for {}: {e}. Available top-level context keys: {}.",
+                "render failed for {}: {}. Available top-level context keys: {}.",
                 tpl_path.display(),
+                crate::template::tera_error_full_chain(&e),
                 context_key_summary(ctx)
             ),
         )

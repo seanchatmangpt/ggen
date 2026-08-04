@@ -77,8 +77,8 @@ sparql:
       "label": "{{ row["label"] }}",
       "authorityCeiling": "{{ row["authorityCeiling"] }}",
       "reversibility": "{{ row["reversibility"] }}",
-      "requires": [{% if row["requires"] != "" %}{% for required in row["requires"] | split(pat="|") %}"{{ required }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}],
-      "incompatibleWith": [{% if row["incompatibleWith"] != "" %}{% for blocked in row["incompatibleWith"] | split(pat="|") %}"{{ blocked }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}]
+      "requires": [{% set requires_raw = row["requires"] | default(value="") %}{% if requires_raw != "" %}{% for required in requires_raw | split(pat="|") %}"{{ required }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}],
+      "incompatibleWith": [{% set incompatible_raw = row["incompatibleWith"] | default(value="") %}{% if incompatible_raw != "" %}{% for blocked in incompatible_raw | split(pat="|") %}"{{ blocked }}"{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}]
     }{% if not loop.last %},{% endif %}
 {% endfor %}  ]
 }
