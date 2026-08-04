@@ -53,8 +53,6 @@ fn test_pattern4_empty_equivalences() {
 
 #[test]
 fn test_pattern4_same_as_equivalence() {
-    use praxis_graphlaw::encoding::Encoder;
-
     let mut data = TripleIndex::new();
     let vocab = praxis_graphlaw::shacl::Vocab::new();
 

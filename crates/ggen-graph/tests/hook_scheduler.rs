@@ -21,7 +21,7 @@
     clippy::no_effect_underscore_binding,
     clippy::literal_string_with_formatting_args
 )]
-use ggen_graph::{DeterministicGraph, KnowledgeHook, RdfDelta};
+use ggen_graph::{DeterministicGraph, GraphError, KnowledgeHook, RdfDelta};
 use std::error::Error;
 
 #[test]
@@ -85,6 +85,57 @@ fn test_hook_scheduler_aborts_on_failure() -> Result<(), Box<dyn Error>> {
     assert!(res.is_err());
 
     // State should be rolled back to pending
+    assert!(graph.contains_quad(&DeterministicGraph::parse_nquad(q1)?)?);
+    assert!(!graph.contains_quad(&DeterministicGraph::parse_nquad(q2)?)?);
+
+    Ok(())
+}
+
+/// Regression test for the `apply_delta` rollback gap: a hook whose SPARQL query
+/// is syntactically valid but raises a runtime evaluation error (as opposed to
+/// cleanly evaluating to `false`) must still trigger the documented rollback of
+/// already-applied deletions/insertions. Before the fix, `hook.execute(self)?`
+/// propagated the error via `?` and unwound past the rollback block entirely,
+/// leaving the store partially mutated.
+///
+/// A `SERVICE <iri> { ... }` clause is syntactically valid SPARQL 1.1 that
+/// reliably raises `QueryEvaluationError::UnsupportedService` at evaluation
+/// time in this workspace (oxigraph's `http-client` feature -- the only thing
+/// that would register a default SERVICE handler -- is not enabled), so no
+/// network access is required to exercise this path deterministically.
+#[test]
+fn test_hook_scheduler_rolls_back_on_hook_evaluation_error() -> Result<(), Box<dyn Error>> {
+    let graph = DeterministicGraph::new()?;
+    let q1 = "<http://example.org/a> <http://example.org/status> \"pending\" .";
+    graph.insert_quad(&DeterministicGraph::parse_nquad(q1)?)?;
+
+    let q2 = "<http://example.org/a> <http://example.org/status> \"approved\" .";
+    let target = DeterministicGraph::new()?;
+    target.insert_quad(&DeterministicGraph::parse_nquad(q2)?)?;
+
+    let delta = RdfDelta::compute(&graph, &target)?;
+
+    // This hook is syntactically valid SPARQL but errors out at evaluation
+    // time (no SERVICE handler is registered for this IRI), rather than
+    // cleanly evaluating to `false`.
+    let erroring_hook = KnowledgeHook::new(
+        "unreachable_service_check".to_string(),
+        "ASK { SERVICE <http://ggen-test.invalid/service> { ?s ?p ?o } }".to_string(),
+    );
+
+    // Sanity check: confirm this query really does return `Err`, not `Ok(false)`,
+    // so the test actually exercises the error path the fix targets.
+    let direct_result = erroring_hook.execute(&graph);
+    assert!(
+        matches!(direct_result, Err(GraphError::Sparql(_))),
+        "expected a GraphError::Sparql evaluation error, got: {direct_result:?}"
+    );
+
+    let res = graph.apply_delta(&delta, &[erroring_hook]);
+    assert!(res.is_err());
+
+    // State must be rolled back to pre-delta contents despite the hook
+    // failing via a hard error rather than a clean `false` evaluation.
     assert!(graph.contains_quad(&DeterministicGraph::parse_nquad(q1)?)?);
     assert!(!graph.contains_quad(&DeterministicGraph::parse_nquad(q2)?)?);
 

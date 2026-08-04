@@ -45,7 +45,7 @@ fn create_test_cache(temp_dir: &TempDir) -> std::path::PathBuf {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_search_basic() {
     // Chicago TDD: Real CLI execution, verify stdout contains expected results
     // v2.0: "marketplace" command replaces "market"
@@ -63,7 +63,7 @@ fn test_marketplace_search_basic() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_search_with_category() {
     // Chicago TDD: Real CLI with filters, verify state of output
     // v2.0: "marketplace" command replaces "market"
@@ -80,7 +80,7 @@ fn test_marketplace_search_with_category() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_search_json_output() {
     // Chicago TDD: Verify JSON output format (state verification)
     // v2.0: "marketplace" command replaces "market"
@@ -101,7 +101,7 @@ fn test_marketplace_search_json_output() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_list_empty() {
     // Chicago TDD: Verify state when no gpacks installed
     let temp_dir = TempDir::new().unwrap();
@@ -116,7 +116,7 @@ fn test_marketplace_list_empty() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_list_json() {
     // Chicago TDD: Verify JSON state representation
     let temp_dir = TempDir::new().unwrap();
@@ -138,7 +138,7 @@ fn test_marketplace_list_json() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_info_missing_package() {
     // Chicago TDD: Verify error handling state
     // Note: Mock registry may return fake data, so just verify command completes
@@ -157,7 +157,7 @@ fn test_marketplace_info_missing_package() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_remove_not_installed() {
     // Chicago TDD: Verify error state for non-installed package
     let temp_dir = TempDir::new().unwrap();
@@ -173,7 +173,7 @@ fn test_marketplace_remove_not_installed() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_categories_list() {
     // Chicago TDD: Verify categories command exists
     let output = ggen()
@@ -191,7 +191,7 @@ fn test_marketplace_categories_list() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_cache_clean() {
     // Chicago TDD: Verify cache command exists
     let temp_dir = TempDir::new().unwrap();
@@ -212,7 +212,7 @@ fn test_marketplace_cache_clean() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_cache_status() {
     // Chicago TDD: Verify cache state reporting (using sync command)
     let temp_dir = TempDir::new().unwrap();
@@ -227,7 +227,7 @@ fn test_marketplace_cache_status() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_lockfile_generate() {
     // Chicago TDD: Verify lockfile command exists
     let temp_dir = TempDir::new().unwrap();
@@ -248,7 +248,7 @@ fn test_marketplace_lockfile_generate() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_registry_info() {
     // Chicago TDD: Verify registry command exists
     let output = ggen()
@@ -266,7 +266,7 @@ fn test_marketplace_registry_info() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_offline_sync() {
     // Chicago TDD: Verify offline command exists
     let temp_dir = TempDir::new().unwrap();
@@ -287,7 +287,7 @@ fn test_marketplace_offline_sync() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_help_output() {
     // Chicago TDD: Verify CLI help state is comprehensive
     ggen()
@@ -303,7 +303,7 @@ fn test_marketplace_help_output() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_search_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -317,7 +317,7 @@ fn test_marketplace_search_help() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid commands
     ggen()
@@ -329,7 +329,7 @@ fn test_marketplace_invalid_verb() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_recommend_basic() {
     // Chicago TDD: Verify recommendation engine works
     ggen()
@@ -343,7 +343,7 @@ fn test_marketplace_recommend_basic() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_recommend_with_category() {
     // Chicago TDD: Verify filtered recommendations
     ggen()
@@ -356,7 +356,7 @@ fn test_marketplace_recommend_with_category() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_update_all() {
     // Chicago TDD: Verify update process
     let temp_dir = TempDir::new().unwrap();
@@ -370,7 +370,7 @@ fn test_marketplace_update_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_marketplace_sync_basic() {
     // Chicago TDD: Verify marketplace sync state
     let temp_dir = TempDir::new().unwrap();

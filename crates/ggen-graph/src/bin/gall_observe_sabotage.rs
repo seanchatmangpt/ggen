@@ -322,32 +322,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         mutations_results.push(m_res);
     }
 
-    // Case 5: missing requirement link
-    {
-        let name = "missing_requirement_link";
-        let desc = "Break a requirement link in self_audit.rs and re-emit audit";
-        let mutator = |p: &Path| -> Result<(), Box<dyn std::error::Error>> {
-            let path = p.join("crates/ggen-graph/src/ocel/self_audit.rs");
-            let mut content = std::fs::read_to_string(&path)?;
-            content = content.replace("req_r1_one_crate", "req_r1_sabotaged_link");
-            std::fs::write(&path, content)?;
-            let _ = Command::new("cargo")
-                .args(["run", "-p", "ggen-graph", "--bin", "emit_audit"])
-                .current_dir(p)
-                .output()?;
-            Ok(())
-        };
-        let m_res = run_sabotage_case(
-            5,
-            name,
-            desc,
-            mutator,
-            "scripts/gall/external/09_verify_ocel_self_audit.sh",
-            &[],
-        )?;
-        all_refused &= m_res.refused;
-        mutations_results.push(m_res);
-    }
+    // Case 5: (removed 2026-08-03) used to break a requirement link in
+    // self_audit.rs, regenerate crates/ggen-graph/audit/
+    // vision2030.self_audit.ocel.json via the `emit_audit` binary, and check
+    // that `09_verify_ocel_self_audit.sh` refused the corrupted link. Both
+    // `emit_audit` and `09_verify_ocel_self_audit.sh` were deleted: their
+    // whole purpose was regenerating and structurally re-checking a self-audit
+    // log whose generator (ggen_graph::ocel::self_audit::
+    // generate_self_audit_log) hardcoded a fake exit_code, a sha256("test")
+    // passed off as a real artifact hash, fabricated coverage percentages, and
+    // compile-time-fixed event timestamps -- so this case was only testing
+    // that a fake-data structural checker caught corruption in fake data, not
+    // that any real evidence was verified. See
+    // crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
 
     // Case 6: file deletion
     {
@@ -624,7 +611,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
         sab_ttl.push_str("    ] .\n");
     } else {
-        sab_ttl.push_str("    dcterms:title \"All 12 sabotage cases successfully failed validation and refused promotion as expected.\" .\n");
+        sab_ttl.push_str("    dcterms:title \"All 11 sabotage cases successfully failed validation and refused promotion as expected.\" .\n");
     }
     std::fs::write(audit_dir.join("sabotage.validation.ttl"), sab_ttl)?;
 

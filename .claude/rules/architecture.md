@@ -13,21 +13,35 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (17 workspace members)
+## Crate Map (18 workspace crates)
 
-Re-verified against `Cargo.toml` `members = [...]` on 2026-07-17 (16 array entries + the root
-`ggen` package = 17 total; `grep -c '^  "crates/' Cargo.toml` → 16 — this exact count was
-previously mis-stated in this file as 15/16 total; the miscount traced to `ggen-cheat-scanner`,
-added by PR #257, never having been added to any table here — it now has its own row in the
-Testing infrastructure section below). The prior 12-member count (2026-07-16) is superseded: PR
-#255 (absolute-local-path Cargo dependency cleanup) added 4 more members — `powl2-decompose`,
-`chicago-tdd-tools` (+ its `chicago-tdd-tools/proc_macros` path-dependency, not itself a
-top-level workspace member), `bcinr-pddl`, `bcinr-mfw-ir` — all `publish = false`, vendored to
-eliminate `path = "/Users/sac/..."` dependencies that only resolved on one machine and broke CI
-(`cargo build --workspace` failing with "No such file or directory" for anyone else). See the
-Praxis kernel and Testing infrastructure sections below. Use `LSP workspaceSymbol` for live
-symbol discovery — this table is orientation only. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`
-for the 2026-07 pass's evidence base and phase-by-phase history.
+Re-verified against `Cargo.toml` `members = [...]` on 2026-08-03 (17 array entries + the root
+`ggen` package = 18 total; `grep -c '^  "crates/' Cargo.toml` → 17). This 18-total count supersedes the
+prior 19-total count (also dated 2026-08-03, earlier that day): `chicago-tdd-tools`, vendored under
+PR #255 (2026-07-17) because its `cli-proof` feature wasn't yet published, was removed the same day
+once chicago-tdd-tools 26.8.3 (including `cli-proof`) was published to crates.io — every consumer
+now points at the registry version. The prior 17-total count (2026-07-17, before that first bump to
+19) is superseded for an unrelated reason: `ggen-mcp`, an MCP server exposing ggen's SPARQL/frontmatter/
+diagnostic introspection surface as tool calls, was already a real `[workspace] members` entry
+but had no `rf:Crate` individual in this file until `crates/ggen-config/tests/
+system_crate_map_parity_test.rs` caught the gap (see Agent & LSP surface section below). The
+prior 12-member count (2026-07-16) is superseded: PR #255 (absolute-local-path Cargo dependency
+cleanup) added 4 more members — `powl2-decompose`, `chicago-tdd-tools` (+ its
+`chicago-tdd-tools/proc_macros` path-dependency, not itself a top-level workspace member),
+`bcinr-pddl`, `bcinr-mfw-ir` — all `publish = false`, vendored to eliminate `path =
+"/Users/sac/..."` dependencies that only resolved on one machine and broke CI (`cargo build
+--workspace` failing with "No such file or directory" for anyone else); `chicago-tdd-tools` was
+later un-vendored (see above), leaving 3 of those 4 as permanent members. See the Praxis kernel and
+Testing infrastructure sections below. Use `LSP workspaceSymbol` for live symbol discovery — this
+table is orientation only. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for the 2026-07
+pass's evidence base and phase-by-phase history.
+
+`crates/ggen-architecture/` is deliberately not one of these 18: it declares its own
+`[workspace]` table (and carries its own `Cargo.lock`), making it an independent nested Cargo
+workspace rather than a member of this one (confirmed 2026-08-03: `cargo metadata` run from
+inside that directory resolves it as its own workspace root, sibling to `tools/ggen-architecture`).
+It is listed in root `Cargo.toml`'s `[workspace] exclude` for that reason, alongside
+`examples/7-agent-validation`.
 
 ### Code generation core
 
@@ -37,8 +51,9 @@ as an interim step; PR #259 (2026-07-17, "remove ggen-core, rewrite README from 
 principles") then deleted `crates/ggen-core/` outright. That interim "excluded but present on
 disk" state — described at length in an earlier version of this note, including a 3-way
 standalone-compile-failure demonstration — no longer exists and cannot be reproduced:
-`crates/ggen-core/` is absent from disk (`find crates -maxdepth 1 -iname 'ggen-core*'` → empty),
-and root `Cargo.toml`'s `exclude` list contains only `examples/7-agent-validation`. The
+`crates/ggen-core/` is absent from disk (`find crates -maxdepth 1 -iname 'ggen-core*'` → empty).
+Root `Cargo.toml`'s `exclude` list now also carries `crates/ggen-architecture` (see above); it
+never carried `ggen-core`, which was deleted outright rather than excluded. The
 experimental, default-off `ggen wizard`/`sigma` commands (and `inverse_sync`), which used to
 import now-nonexistent `ggen_core::` symbols, were deleted in the same pass rather than
 re-pointed — see `crates/ggen-cli/src/cmds/mod.rs`'s "REMOVED" comments and
@@ -102,13 +117,13 @@ reaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*"/User
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
 | `ggen-cheat-scanner` | `syn`-based AST scanner (PR #257, modeled on `~/bcinr/tools/bcinr-cheat-scanner`) detecting test-quality anti-patterns across the workspace: CHEAT-T01 (vacuous-assert), CHEAT-T02 (tautological-result-check), CHEAT-T03 (no-assertion-test), CHEAT-T04 (mock-import). Wired into `just pre-commit` via the `guard-cheat-scan` recipe; currently fails on ~464 pre-existing findings (tracked, not blocking new work — see `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`'s TECH-DEBT-001). `publish = false` |
-| `chicago-tdd-tools` | Dev/test-only Chicago-TDD utilities (property-testing, snapshot-testing, parameterized-testing, mutation-testing, concurrency-testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites — never a runtime dependency of any shipped binary. A trimmed vendor (source only — `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples/`/`benches/`/docs) of the ~106MB `~/chicago-tdd-tools` project, copied 2026-07-17 (PR #255) because its `cli-proof` feature isn't published to crates.io yet. `publish = false`. **License note:** its own optional `wasm4pm-cognition` re-export path is unrelated to `praxis-graphlaw`'s separate `wasm4pm-cognition` dependency, which carries a BUSL-1.1 (non-OSI) license on crates.io — see that dependency's Cargo.toml comment; mitigated only because it's optional and off by default |
 
 ### Agent & LSP surface
 
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
 | `ggen-lsp` | Language server for ggen surfaces — analyzers, `check`, `init`, `intel`/mining, `pack`, `route`/repair, handlers; also a library API. Absorbed `ggen-lsp-mcp` (MCP server exposing repair routes, feature `mcp`), `ggen-a2a-mcp` (A2A protocol + MCP server for agent-to-agent communication, module `a2a_mcp`), and `ggen-lsp-a2a` (A2A bridge over the mcp tools, feature `a2a`) as feature-gated modules |
+| `ggen-mcp` | MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls over stdio (`rmcp` 1.7.0). Tools only — no Resources/Prompts/Sampling/Tasks; read/write split by per-tool annotation (`readOnlyHint`/`destructiveHint`), never by flag. Path deps only on `ggen-engine`/`ggen-graph`/`ggen-config`/`ggen-lsp` (default features, `mcp` feature intentionally left off to keep one `rmcp` version resolved workspace-wide). `publish = false` |
 
 ### Genesis / KNHK V2 kernel
 
@@ -167,6 +182,7 @@ Generated from imported `rf:Pack` facts (name/version/description transcribed fr
 | `wasm4pm-compat-pack` | 0.1.0 | OCEL event-type emission enum and emit helper fns targeting wasm4pm-compat (emission surface only; all analysis stays in wasm4pm-compat), with an ontology-declared per-event attribute schema (w4pm:hasAttribute) and IRI-t… |
 | `wasm4pm-facts-pack` | 0.2.1 | Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:ProcessIntelligenceAlgorithm individuals carried verbatim from wasm4pm/ggen/ontology/{breeds,algorithms}.ttl (drift-checked against upstream, see DRIFT_LOG… |
 | `wasm4pm-pack` | 0.1.0 | Typed Rust catalog + dependency graph + reference doc, generated from crate-map vocabulary for the ~/wasm4pm workspace itself (distinct from packs/wasm4pm-{algorithms,cognition,compat,facts}-pack, which model wasm4pm's A… |
+| `wasm4pm-interview-assist-pack` | 0.1.0 | InterviewAssist PRD/ARD represented as admitted public-ontology RDF (schema.org, dcterms, prov, skos, odrl, dcat, spdx, hydra, doap, foaf -- no project-local classes or predicates anywhere). Nine hand-edited ontology/*.t… |
 | `wasm4pm-interview-assist-pack` | 0.1.0 | InterviewAssist PRD/ARD represented as admitted public-ontology RDF using schema.org, DCTERMS, PROV-O, SKOS, ODRL, DCAT, SPDX, Hydra, DOAP, and FOAF with no project-local classes or predicates. Nine ontology graphs plus … |
 
 ## Cross-Cutting Patterns

@@ -1,5 +1,0 @@
----
-source: src/testing/snapshot.rs
-expression: value
----
-test_with_custom_settings

@@ -13,10 +13,13 @@
 //! - `CHEAT-T04` mock-import
 //!
 //! `scan_source` runs the single-file rules (T01-T03, plus the unconditional
-//! half of T04: `mockall` imports / `#[automock]`). The cross-file half of
-//! T04 (a local `MockXxx`/`FakeXxx` struct standing in for a trait that real
-//! production code also implements) requires aggregating impls across a
-//! whole crate, so that part lives in [`collect_impls`] /
+//! half of T04: `mockall` imports / `#[automock]`) and returns
+//! `Result<Vec<Finding>, syn::Error>` -- a parse failure is a real `Err`,
+//! never a silently-clean empty `Vec`, so a caller cannot mistake "this file
+//! could not be parsed" for "this file has no findings". The cross-file half
+//! of T04 (a local `MockXxx`/`FakeXxx` struct standing in for a trait that
+//! real production code also implements) requires aggregating impls across
+//! a whole crate, so that part lives in [`collect_impls`] /
 //! [`find_mock_substitutes`], run once per crate root by the binary (and
 //! directly by tests).
 
@@ -252,6 +255,37 @@ impl<'ast> Visit<'ast> for TautologyVisitor<'_> {
         }
         visit::visit_expr(self, e);
     }
+
+    /// `assert!(x.is_ok() || x.is_err())` -- by far the most common
+    /// real-world shape of this cheat, dominant over the standalone
+    /// `let always_true = x.is_ok() || x.is_err(); assert!(always_true);`
+    /// shape the plain `visit_expr` walk above already catches -- parses as
+    /// an opaque `Expr::Macro` (or `Stmt::Macro` when used as a bare
+    /// statement; `syn::visit`'s generated code routes both through this
+    /// same `visit_macro` override) whose interior tokens are never
+    /// descended into by a plain AST walk. This is the exact blind spot
+    /// `is_assert_true` (T01, above) already works around by re-parsing
+    /// macro tokens back into real syntax. Apply the same
+    /// re-parse-and-walk technique here: split the macro's token stream on
+    /// top-level commas (covers `assert!(cond)`, `assert!(cond, "msg")`,
+    /// `assert_eq!(a, b)`, `prop_assert!(cond, ...)`, etc.), re-parse each
+    /// piece as an `Expr`, and recurse into it with this same visitor so a
+    /// tautology written directly inside any assertion macro is caught. A
+    /// piece that fails to parse as an `Expr` (e.g. a `matches!`-style
+    /// pattern argument) is silently skipped -- no worse than today's total
+    /// blindness, and no risk of a false positive since a match still
+    /// requires the exact `X.is_ok() || X.is_err()`-shaped binary found by
+    /// `visit_expr` above.
+    fn visit_macro(&mut self, m: &'ast syn::Macro) {
+        use syn::parse::Parser;
+        let parse_args = syn::punctuated::Punctuated::<Expr, syn::Token![,]>::parse_terminated;
+        if let Ok(args) = parse_args.parse2(m.tokens.clone()) {
+            for arg in &args {
+                self.visit_expr(arg);
+            }
+        }
+        visit::visit_macro(self, m);
+    }
 }
 
 fn line_of(e: &Expr) -> usize {
@@ -391,11 +425,17 @@ fn scan_automock(file: &Path, syntax: &syn::File, findings: &mut Vec<Finding>) {
 /// Run the single-file rules (T01, T02, T03, and the unconditional half of
 /// T04) against one already-read source string. `path` is used only for
 /// finding locations, it does not need to exist on disk.
-pub fn scan_source(src: &str, path: &Path) -> Vec<Finding> {
+///
+/// Returns `Err` when `src` fails to parse as a Rust file. A silent
+/// `Vec::new()` here (the prior behavior) would make an unparsed file
+/// indistinguishable from a genuinely clean one -- both report zero
+/// findings -- which lets a scan silently go blind on any file it cannot
+/// parse. Callers must count and surface `Err` results (see `main.rs`'s
+/// `parse_errors` tally, which fails the run rather than reporting
+/// `ALIVE`).
+pub fn scan_source(src: &str, path: &Path) -> Result<Vec<Finding>, syn::Error> {
+    let syntax = syn::parse_file(src)?;
     let mut findings = Vec::new();
-    let Ok(syntax) = syn::parse_file(src) else {
-        return findings;
-    };
     let mut v = ScanVisitor {
         file: path,
         findings: Vec::new(),
@@ -403,7 +443,7 @@ pub fn scan_source(src: &str, path: &Path) -> Vec<Finding> {
     v.visit_file(&syntax);
     findings.extend(v.findings);
     scan_automock(path, &syntax, &mut findings);
-    findings
+    Ok(findings)
 }
 
 /// A `(trait_name, type_name, file, line)` impl record, collected across a

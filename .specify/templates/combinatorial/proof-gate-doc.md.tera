@@ -24,7 +24,9 @@
 ## ASK Body
 
 ```sparql
-{{ ask_body | default(value='# none') }}
+{% if ns_prefix and ns_uri %}PREFIX {{ ns_prefix }}: <{{ ns_uri }}>
+
+{% endif %}{{ ask_body | default(value='# none') }}
 ```
 
 ---

@@ -84,7 +84,7 @@ fn evidence_sufficiency_hook_pack() -> String {
 fn test_evidence_sufficiency_hook_actuates_control_tested() {
     let mut store = TripleStore::new();
     store
-        .load_hook_pack(&evidence_sufficiency_hook_pack())
+        .load_hook_pack(evidence_sufficiency_hook_pack())
         .unwrap();
 
     // ctrl_access_provisioning: evidence collection reached its 10-sample
@@ -147,7 +147,7 @@ fn remediation_gate_hook_pack() -> String {
 #[test]
 fn test_remediation_gate_refuses_when_a_critical_exception_is_unremediated() {
     let mut store = TripleStore::new();
-    store.load_hook_pack(&remediation_gate_hook_pack()).unwrap();
+    store.load_hook_pack(remediation_gate_hook_pack()).unwrap();
 
     // A remediated high-severity exception (verified) plus one still open --
     // the open one must trip the gate.
@@ -203,7 +203,7 @@ fn cuec_gate_hook_pack() -> String {
 #[test]
 fn test_cuec_gate_refuses_when_sequoia_carve_out_evidence_is_missing() {
     let mut store = TripleStore::new();
-    store.load_hook_pack(&cuec_gate_hook_pack()).unwrap();
+    store.load_hook_pack(cuec_gate_hook_pack()).unwrap();
 
     store
         .load_triples(
@@ -235,7 +235,7 @@ fn test_cuec_gate_refuses_when_sequoia_carve_out_evidence_is_missing() {
 #[test]
 fn test_cuec_gate_does_not_refuse_once_evidence_is_collected() {
     let mut store = TripleStore::new();
-    store.load_hook_pack(&cuec_gate_hook_pack()).unwrap();
+    store.load_hook_pack(cuec_gate_hook_pack()).unwrap();
 
     store
         .load_triples(

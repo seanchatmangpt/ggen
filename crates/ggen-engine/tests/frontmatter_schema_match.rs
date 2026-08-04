@@ -8,6 +8,8 @@
 //! If a field is added to the struct without updating the TTL (or vice
 //! versa), this test fails — that is the gate, not the documentation.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeSet;
 
 use ggen_engine::{graph::DeterministicGraph, template::Frontmatter};
@@ -24,13 +26,13 @@ fn frontmatter_fields_match_struct() {
         .insert_turtle(SCHEMA_TTL)
         .expect("schema ttl must parse");
 
-    let query = r#"
+    let query = r"
         PREFIX ggenspec: <https://praxis.dev/ggen/schema#>
         SELECT ?name WHERE {
             ggenspec:Frontmatter ggenspec:hasField ?field .
             ?field ggenspec:name ?name .
         }
-    "#;
+    ";
     let QueryResults::Solutions(solutions) = graph.query(query).expect("sparql eval") else {
         panic!("expected SELECT results");
     };

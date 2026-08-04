@@ -41,6 +41,16 @@
 **Focus:** Test coverage improvement and health score monitoring
 **Status:** ✅ Day 1 Complete - On Track
 
+> **Caveat added 2026-08-02 (not part of the original Week 3 record):** every "Coverage: N%"
+> figure in this document -- including the day-by-day table and Success Criteria below -- comes
+> from `scripts/coverage_tracker.sh`'s `COVERAGE` variable, which that script computes as
+> `(test_lines / source_lines) * 140`, a line-count heuristic, not measured line/branch coverage
+> from a coverage tool (no `cargo tarpaulin`/`cargo llvm-cov` run backs any number here). The
+> script also targets `PACKAGE="ggen-core"`, a crate that no longer exists in this workspace
+> (see CLAUDE.md's Crate Map -- fully deleted 2026-07-17). Read every percentage below as a
+> historical, unverified estimate against a since-deleted crate, not a current or reproducible
+> measurement.
+
 ---
 
 ## Quick Start

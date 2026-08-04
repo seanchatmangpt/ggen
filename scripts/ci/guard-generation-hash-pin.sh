@@ -9,7 +9,29 @@
 #                  non-empty identity fact pinning what it manufactured:
 #                  gen:commit (40-hex), gen:receiptChainHash (64-hex), or
 #                  gen:buildASha256/gen:buildBSha256 (64-hex). Any such fact
-#                  that IS present must be well-formed hex of the right length.
+#                  that IS present must be well-formed hex of the right
+#                  length -- AND, for gen:commit specifically, must resolve
+#                  to a REAL commit object in this repository's own git
+#                  history (`git cat-file -e <hash>^{commit}`). That second
+#                  part is a genuine re-derivation, not a shape check: git
+#                  computed that SHA-1 by hashing real commit content
+#                  (tree/parents/author/message) at commit time, and
+#                  content-addressed storage means an object only exists
+#                  under that name if something with that exact content was
+#                  actually committed. A fabricated hash (e.g. all-zeros,
+#                  right length, valid hex) will not resolve to any object
+#                  and is rejected here.
+#                  KNOWN GAP (documented, not silently claimed solved):
+#                  gen:receiptChainHash/gen:receiptPrevChainHash,
+#                  gen:buildASha256/gen:buildBSha256, and
+#                  gen:finalV1ChainHash/gen:firstV2ChainHash are still
+#                  shape-only-checked below (hex length/charset, no
+#                  recomputation against .ggen-v2/receipt-log.jsonl's BLAKE3
+#                  chain or a real rebuild). gen:producerBinarySha256,
+#                  gen:candidateBinarySha256, gen:candidateReceiptChainHash,
+#                  and gen:generatedOutputSha256 are not checked at all by
+#                  this script (neither shape nor append-only) -- pre-existing
+#                  gaps, not introduced here, left for a future pass.
 #   2. APPEND-ONLY — previously recorded hash facts never change. Every
 #                  hash-bearing line in the baseline copy of the file
 #                  (origin/main, falling back to HEAD when origin/main is
@@ -34,6 +56,19 @@ fi
 
 errors=0
 fail() { echo "BUILD_BROKEN: $1"; errors=1; }
+
+# Real-hash recomputation support for gen:commit (see check 1 above): is a
+# git object database reachable at all from this working directory? Almost
+# always yes for this guard -- it is a repo-local CI script -- but check
+# once and degrade the same way check 2 already does when git plumbing
+# genuinely is not available, rather than hard-failing on an unrelated
+# environment problem.
+GIT_AVAILABLE=0
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  GIT_AVAILABLE=1
+else
+  echo "WARN: not inside a git working tree -- gen:commit real-hash recomputation skipped (shape-only)"
+fi
 
 # Predicates that carry pinned hashes (read from the live file's vocabulary).
 HASH40_PREDS='gen:commit'
@@ -71,7 +106,20 @@ for s in $subjects; do
     case "$pred" in
       gen:commit)
         printf '%s' "$val" | grep -Eq '^[0-9a-f]{40}$' \
-          || fail "$s: $pred value '$val' is not 40-char lowercase hex" ;;
+          || fail "$s: $pred value '$val' is not 40-char lowercase hex"
+        # Real recomputation, not shape-only: ask git -- the tool that
+        # actually computed this SHA-1 from real commit content -- whether
+        # an object with exactly this hash exists and is a commit. `git
+        # cat-file -e <sha>^{commit}` fails for any hash that was never
+        # really produced by `git commit` in this repository's object
+        # store, so a fabricated (e.g. all-zeros) hash of otherwise-valid
+        # shape is caught here even though it already passed the hex-shape
+        # check above.
+        if [ "$GIT_AVAILABLE" = 1 ]; then
+          git cat-file -e "${val}^{commit}" 2>/dev/null \
+            || fail "$s: $pred value '$val' is not a real commit object in this repository's git history (fabricated hash, or a shallow/incomplete clone that never fetched it)"
+        fi
+        ;;
       *)
         printf '%s' "$val" | grep -Eq '^[0-9a-f]{64}$' \
           || fail "$s: $pred value '$val' is not 64-char lowercase hex" ;;
@@ -118,4 +166,4 @@ if [ "$errors" -ne 0 ]; then
 fi
 
 n=$(printf '%s\n' "$subjects" | grep -c . || true)
-echo "ALIVE: $n generation entries hash-pinned ($LEDGER; append-only vs $BASELINE_REF; G-chain monotonic)"
+echo "ALIVE: $n generation entries hash-pinned ($LEDGER; gen:commit re-verified against real git history; append-only vs $BASELINE_REF; G-chain monotonic)"

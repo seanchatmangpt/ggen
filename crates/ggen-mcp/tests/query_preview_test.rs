@@ -127,3 +127,64 @@ fn ask_query_returns_boolean_result() {
     assert_eq!(result.boolean_result, Some(true));
     assert!(result.rows.is_empty());
 }
+
+/// Regression for the F2 finding: `query_preview` is annotated
+/// `readOnlyHint: true` (see `crate::lib`'s tool registration), but before
+/// this fix, loading the graph for a frontmatter-schema project with an
+/// uncached `[packs.*] git = "…"` entry routed through
+/// `ggen_engine::pack::resolve` -- the exact same network-clone /
+/// cache-wipe / pin-write path `sync run`'s Resolve stage uses -- entirely
+/// before any SPARQL was executed. A caller who only wanted to preview a
+/// query could trigger real filesystem writes under
+/// `<root>/.ggen-v2/git-packs/<name>/` merely by pointing the tool at such
+/// a project.
+///
+/// This test uses a syntactically valid but nonexistent local-path "git
+/// URL" (no network access required, matching the existing pattern in
+/// `crates/ggen-engine/tests/pack_e2e.rs`'s
+/// `unreachable_git_pack_url_fails_closed_with_a_typed_error`) and asserts
+/// two things a passing `query_preview` call cannot get right at the same
+/// time if the read-only contract is violated:
+///
+/// 1. The call fails with a typed `FM-PACK-012` error (not `FM-PACK-010`,
+///    which is what a real clone *attempt* would produce) -- proving no
+///    clone was attempted at all.
+/// 2. `<root>/.ggen-v2` is never created on disk -- proving no cache
+///    directory, wipe, or pin-file write occurred as a side effect of a
+///    tool call that must be read-only.
+#[test]
+fn uncached_git_pack_never_triggers_clone_or_cache_write() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let root = dir.path();
+
+    let toml = format!(
+        "{GGEN_TOML}\n[packs.widget]\ngit = \"/nonexistent/path/to/nowhere.git\"\nversion = \"v2\"\n"
+    );
+    std::fs::write(root.join("ggen.toml"), toml).expect("write ggen.toml");
+    std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology.ttl");
+    std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
+
+    let params = QueryPreviewParams {
+        root: root.display().to_string(),
+        sparql: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }".to_string(),
+        max_rows: None,
+    };
+
+    let err = query_preview(&params).expect_err("uncached git pack must not silently resolve");
+    assert_eq!(err.category, ggen_mcp::error::ErrorCategory::GraphLoadError);
+    let msg = err.message.clone();
+    assert!(
+        msg.contains("FM-PACK-012"),
+        "expected the read-only refusal code FM-PACK-012, got: {msg}"
+    );
+    assert!(
+        !msg.contains("FM-PACK-010"),
+        "must fail before any clone is attempted (no FM-PACK-010), got: {msg}"
+    );
+
+    assert!(
+        !root.join(".ggen-v2").exists(),
+        "query_preview must not create any .ggen-v2 cache/state directory as a side effect \
+         of loading the graph for a preview -- readOnlyHint:true must hold"
+    );
+}

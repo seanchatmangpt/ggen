@@ -17,12 +17,10 @@ chrono = "0.4"
 wasm4pm-compat = "=26.6.29"
 
 [dev-dependencies]
-# path, not the published crate: the published chicago-tdd-tools doesn't yet
-# include the `cli_proof` module (`cli-proof` feature isn't published to
-# crates.io yet) -- same real gap ggen's own workspace vendors this crate to
-# work around (see .claude/rules/architecture.md's Testing infrastructure
-# section). Defensible here since this example lives inside the ggen repo.
-chicago-tdd-tools = { path = "../../crates/chicago-tdd-tools", features = ["cli-proof"] }
+# 2026-08-03: chicago-tdd-tools 26.8.3 is published with `cli-proof` included, so this uses
+# the registry version directly rather than the (now-removed) vendored crates/chicago-tdd-tools
+# copy.
+chicago-tdd-tools = { version = "26.8.3", features = ["cli-proof"] }
 
 [[bin]]
 name = "receiptctl"

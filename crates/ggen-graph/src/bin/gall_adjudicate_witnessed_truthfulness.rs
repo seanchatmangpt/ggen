@@ -90,7 +90,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "06_scan_forbidden_surfaces.json",
         "07_check_anti_fake.json",
         "08_verify_replay_receipts.json",
-        "09_verify_ocel_self_audit.json",
+        // "09_verify_ocel_self_audit.json" removed 2026-08-03: the script
+        // that produced this transcript regenerated and structurally
+        // re-checked a self-audit log built entirely from hardcoded fake
+        // values (fake exit_code, sha256("test"), fabricated coverage
+        // percentages, compile-time-fixed timestamps) and has been deleted.
+        // See crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
         "10_verify_coverage_matrix.json",
         "11_verify_proof_report.json",
         "12_detect_contradictions.json",

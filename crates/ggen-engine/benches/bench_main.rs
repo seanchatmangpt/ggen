@@ -5,6 +5,11 @@
 //! 2. **Latency** — measures single-operation round-trip time
 //! 3. **Scaling** — parametric sweep with `BenchmarkId` over input sizes
 
+// `criterion_main!`'s generated `fn main` has no doc comment of its own
+// (same reason `blue_river_dam.rs`, this crate's other bench binary,
+// disables the lint) -- a bench binary is not a public API surface.
+#![allow(missing_docs)]
+
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::hint::black_box;
 
@@ -40,7 +45,9 @@ fn bench_throughput(c: &mut Criterion) {
     let mut group = c.benchmark_group("throughput/hash_bytes");
 
     for size in [64_usize, 256, 1024, 4096, 16_384] {
-        let data: Vec<u8> = (0..size).map(|i| (i & 0xFF) as u8).collect();
+        let data: Vec<u8> = (0..size)
+            .map(|i| u8::try_from(i & 0xFF).unwrap_or(0))
+            .collect();
 
         group.throughput(Throughput::Bytes(size as u64));
         group.bench_with_input(BenchmarkId::from_parameter(size), &data, |b, d| {

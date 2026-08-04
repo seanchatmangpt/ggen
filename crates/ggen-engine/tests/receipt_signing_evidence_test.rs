@@ -16,6 +16,8 @@
 //!    match `RECEIPT_RECORD_VERSION` — the schema-version guard ahead of
 //!    any hash/signature check.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use chicago_tdd_tools::cli_proof::CliHarness;
@@ -43,9 +45,11 @@ fn scaffold(root: &Path, names: &[&str]) {
 }
 
 fn write_ontology(root: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -149,8 +153,8 @@ fn receipt_verify_fails_closed_on_tampered_payload_hash() {
     let raw = std::fs::read_to_string(&receipt_path).expect("read receipt");
     let record: SyncReceipt = serde_json::from_str(&raw).expect("parse");
     let orig = record.record.payload_hash_hex.clone();
-    let flipped = if orig.starts_with('f') {
-        format!("e{}", &orig[1..])
+    let flipped = if let Some(rest) = orig.strip_prefix('f') {
+        format!("e{rest}")
     } else {
         format!("f{}", &orig[1..])
     };

@@ -408,6 +408,7 @@ pub use construct::{evaluate_construct, serialize_delta_quad, HookReceipt};
 pub use datalog::translate_datalog_to_n3;
 pub use delta_query::parse_shape_map;
 pub use evaluate::{evaluate_hooks, ActionOutcome};
+pub(crate) use parsing::triples_touch_hook_vocabulary;
 pub use parsing::{
     clean_term, contains_forbidden_keyword, parse_rdf_integer, validate_and_extract_hooks,
 };

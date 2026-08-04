@@ -156,7 +156,7 @@ fn test_lockfile_created_with_sha256() -> Result<()> {
 }
 
 #[test]
-#[ignore] // Network-dependent: requires internet connection and GitHub Pages
+#[ignore = "network-dependent: requires internet connectivity and reaches the production registry at https://seanchatmangpt.github.io/ggen/ (GitHub Pages) — see file doc comment"]
 fn test_production_registry_index_accessible() -> Result<()> {
     // Test that the production registry index.json is accessible
     // This is a basic connectivity test

@@ -444,7 +444,6 @@ fn state_machine_transition_1k_batch(bencher: &mut Bencher) {
 // Control Flow 4: Idempotency Check (divan-style)
 // =============================================================================
 
-#[macro_use]
 extern crate divan;
 
 /// Idempotency: build 1k prior delta hashes (receipts), then check one incoming

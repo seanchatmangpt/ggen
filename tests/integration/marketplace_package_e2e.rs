@@ -125,7 +125,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
 /// **IMPORTANT**: This test requires Docker and takes ~10-15 minutes.
 /// Run with: `cargo test marketplace_package_e2e -- --ignored --nocapture`
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running container-orchestrated e2e test: builds and runs ggen inside a Node.js+Rust Docker container (see file header 'Test Architecture'); requires Docker"]
 fn marketplace_package_e2e() {
     println!("\n🚀 Starting Marketplace Package End-to-End Validation");
     println!("{}", "=".repeat(80));

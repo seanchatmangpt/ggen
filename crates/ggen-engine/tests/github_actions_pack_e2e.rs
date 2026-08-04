@@ -10,6 +10,8 @@
 //! write-all ceilings, mutable third-party action refs, and workflows
 //! missing required facts (purpose/trigger/permission ceiling).
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};

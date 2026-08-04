@@ -86,3 +86,84 @@ pub fn envelope_for_diagnostic(
     route_plan_for_diagnostic(registry, diag, content)
         .map(|plan| RouteEnvelope::from_plan(&plan, file))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lsp_max::lsp_types::{DiagnosticSeverity, NumberOrString, Position, Range};
+
+    /// Red-team finding F2 (decorative-completion, `route/edit.rs:15`): the only
+    /// non-advisory seeded route (`parse.declare-prefix`) renders
+    /// `EditTemplate::InsertLine`'s `{prefix}`/`{iri}` placeholders via
+    /// `render_tmpl`, but `route_plan_for_diagnostic` (this fn) -- the entry
+    /// point backing the MCP tool `ggen.lsp.repair_route`, `check.rs`'s
+    /// `--with-routes` gate, and `hover.rs` -- only ever sets `RouteBindings.site`,
+    /// never `prefix`/`iri`. Unlike the editor's `handle_code_action`, which
+    /// filters unfillable routes via a `has_real_edit` check before surfacing a
+    /// `CodeAction`, this headless/MCP/hover entry point had no equivalent
+    /// filter: an agent calling `ggen.lsp.repair_route` on a `ParseFailure`
+    /// diagnostic got back a well-typed `TextEdit` whose `new_text` was the
+    /// literal, un-substituted template string `"@prefix {prefix}: <{iri}> .\n"`
+    /// -- not valid Turtle, and not a real repair.
+    #[test]
+    fn parse_failure_route_never_carries_an_unfilled_placeholder_edit() {
+        let registry = RouteRegistry::seeded();
+        // A code-less, located RDF parse diagnostic -- exactly what the real
+        // Turtle/SPARQL analyzer emits for an unknown-prefix parse failure
+        // (see `family_of_diagnostic`'s "RDF syntax error" message match).
+        let diag = Diagnostic {
+            range: Range {
+                start: Position {
+                    line: 3,
+                    character: 0,
+                },
+                end: Position {
+                    line: 3,
+                    character: 5,
+                },
+            },
+            severity: Some(DiagnosticSeverity::ERROR),
+            code: Some(NumberOrString::String("E0001".into())),
+            code_description: None,
+            source: None,
+            message: "RDF syntax error: unknown prefix `sh`".into(),
+            related_information: None,
+            tags: None,
+            data: None,
+        };
+        let content = "ex:a ex:b ex:c .\n";
+
+        // Production call site, byte-for-byte what `mcp::build_repair_routes_in`
+        // (crates/ggen-lsp/src/mcp/mod.rs:318), `check.rs`'s `--with-routes` gate,
+        // and `hover.rs` all invoke.
+        let plan = route_plan_for_diagnostic(&registry, &diag, content)
+            .expect("ParseFailure diagnostic must select the seeded parse.declare-prefix route");
+        assert_eq!(plan.route_id.0, "parse.declare-prefix");
+
+        for step in &plan.ordered_steps {
+            if let Some(edit) = &step.edit {
+                assert!(
+                    !edit.new_text.contains("{prefix}") && !edit.new_text.contains("{iri}"),
+                    "route_plan_for_diagnostic must never surface a TextEdit with an \
+                     unfilled `{{prefix}}`/`{{iri}}` placeholder (F2); got new_text = {:?}",
+                    edit.new_text
+                );
+            }
+        }
+
+        // Same contract through the envelope projection the MCP tool actually
+        // serializes back to the calling agent.
+        let envelope = envelope_for_diagnostic(&registry, &diag, content, "spec.ttl")
+            .expect("envelope must be produced for a routed ParseFailure diagnostic");
+        for step in &envelope.ordered_steps {
+            if let Some(edit) = &step.edit {
+                assert!(
+                    !edit.new_text.contains("{prefix}") && !edit.new_text.contains("{iri}"),
+                    "envelope_for_diagnostic must never surface a TextEdit with an \
+                     unfilled `{{prefix}}`/`{{iri}}` placeholder (F2); got new_text = {:?}",
+                    edit.new_text
+                );
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "suite": "static_gate",
+  "digest_blake3": "e0261a703cebee16635a09e3bce1368a9aa977b5edee5e65663dd270ba145683",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

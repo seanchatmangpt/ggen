@@ -42,12 +42,22 @@ def is_poll_loop(text: str, match_end: int) -> bool:
     """True if the Timeout arm immediately following this call `continue`s
     rather than failing -- i.e. this call is a poll interval inside a loop
     bounded by a real outer deadline, not itself the liveness threshold
-    (e.g. crates/ggen-engine/tests/cli_boundary.rs's watch_for_stderr)."""
+    (e.g. crates/ggen-engine/tests/cli_boundary.rs's watch_for_stderr).
+
+    An empty-block arm (`=> {}`) is treated the same as an explicit
+    `continue`: when the match is the entire loop body (as in
+    watch_for_stderr's `while ... { match ... { ... } }`), falling off an
+    empty arm just finishes the iteration and the loop condition re-checks
+    -- an implicit continue, not a bare single-shot termination check.
+    """
     window = text[match_end : match_end + 400]
-    m = re.search(r"Err\([^)]*Timeout[^)]*\)\s*=>\s*([^,\n}]+)", window)
+    m = re.search(r"Err\([^)]*Timeout[^)]*\)\s*=>\s*(\{[^}]*\}|[^,\n}]+)", window)
     if not m:
         return False
-    return "continue" in m.group(1)
+    arm = m.group(1)
+    if "continue" in arm:
+        return True
+    return re.fullmatch(r"\{\s*\}", arm.strip()) is not None
 
 
 def find_violations(root: Path) -> list[str]:

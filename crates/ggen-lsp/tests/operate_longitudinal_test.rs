@@ -50,14 +50,21 @@ fn operate_one_real_cycle_emits_full_chain_and_refuses_verdict() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
 
-    // Real law surface: a CONSTRUCT without ORDER BY → E0011 WARNING. A warning
-    // passes the gate, so its episode lawfully closes (Raised ≺ GatePassed) and
-    // earns a receipt — exercising the full chain.
-    let rq = write(root, "q.rq", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n");
+    // Real law surface: an identity CONSTRUCT (with ORDER BY, so E0011 does
+    // not also fire -- since the F5 fix E0011/E0013 are ERROR by default,
+    // matching `ggen_config`'s `default_strict_mode() -> true`; see
+    // `analyzers/sparql_analyzer.rs`'s module doc) → E0015 WARNING only. A
+    // warning passes the gate, so its episode lawfully closes (Raised ≺
+    // GatePassed) and earns a receipt — exercising the full chain.
+    let rq = write(
+        root,
+        "q.rq",
+        "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } ORDER BY ?s\n",
+    );
 
     // Real check (with routes) → real capture. No fabricated events.
     let report = check_files_in_root(root, &[rq], true);
-    assert!(!report.has_errors(), "E0011 is a warning; the gate passes");
+    assert!(!report.has_errors(), "E0015 is a warning; the gate passes");
     report.capture(root);
 
     // The OCEL log must contain the full receipted chain, computed by the gate.

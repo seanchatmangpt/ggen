@@ -1,0 +1,9 @@
+{
+  "id": "cartesian-blowup",
+  "pack": "gh-terraform-pack",
+  "sparql": "SELECT ?a ?b WHERE { ?a ?p1 ?o1 . ?b ?p2 ?o2 }",
+  "to": "out/cartesian.txt",
+  "body": "{% for row in probe %}.{% endfor %}",
+  "origin": "handwritten",
+  "note": "self-join across a large graph; truncation must be declared, never silent"
+}

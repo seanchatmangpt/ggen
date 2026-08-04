@@ -178,12 +178,27 @@ pub fn execute_tape(
         }
         ctx.tick_epoch();
 
-        // Receipt chain step
+        // Receipt chain step. Folds the op's grounded add/del effect labels
+        // in (sorted, canonical) alongside label/index/epoch — see
+        // FINDING #5: two ops sharing a label/index but with different
+        // add_effects/del_effects must not chain-hash identically, or a
+        // consumer verifying the receipt cannot detect a mis-grounded or
+        // tampered tape.
+        let (fp_adds, fp_dels) =
+            ground_effects_fingerprint(&op.action.add_effects, &op.action.del_effects);
         let mut h = blake3::Hasher::new();
         h.update(&chain);
         h.update(op.label.as_bytes());
         h.update(&[op.index]);
         h.update(&ctx.epoch.to_le_bytes());
+        for a in &fp_adds {
+            h.update(b"+");
+            h.update(a.as_bytes());
+        }
+        for d in &fp_dels {
+            h.update(b"-");
+            h.update(d.as_bytes());
+        }
         chain = *h.finalize().as_bytes();
         let hash_hex = hex(&chain);
 
@@ -264,8 +279,19 @@ pub fn execute_tape(
     chain = *h.finalize().as_bytes();
     let final_chain = hex(&chain);
 
-    // Build receipt
-    let op_labels: Vec<String> = tape.ops.iter().map(|o| o.label.clone()).collect();
+    // Build receipt. `op_labels` folds each op's grounded add/del effect
+    // labels in (sorted, canonical) alongside the bare label — see
+    // FINDING #5: `plan_root` must be sensitive to what a tape's ops
+    // actually do, not merely their label strings.
+    let op_labels: Vec<String> = tape
+        .ops
+        .iter()
+        .map(|o| {
+            let (adds, dels) =
+                ground_effects_fingerprint(&o.action.add_effects, &o.action.del_effects);
+            format!("{}|+{}|-{}", o.label, adds.join(","), dels.join(","))
+        })
+        .collect();
     let init_labels: Vec<String> = initial_state.iter().map(|a| a.label()).collect();
     let goal_labels: Vec<String> = goal.iter().map(|a| a.label()).collect();
 
@@ -388,6 +414,23 @@ fn hash_strings(items: &[String]) -> String {
     h.finalize().to_hex().to_string()
 }
 
+/// Sorted add/del ground-atom labels for a `Pddl8GroundAction`'s effects —
+/// the canonical, order-independent fingerprint of *what* an op actually
+/// does, as distinct from `op.label`/`op.index`, which only identify
+/// *which* action ran. Folded into both the per-step chain hash and
+/// `plan_root` in `execute_tape` so a tampered/mis-grounded tape (same op
+/// labels, different effects) cannot produce an identical receipt.
+/// See FINDING #5.
+fn ground_effects_fingerprint(
+    add_effects: &[Pddl8GroundAtom], del_effects: &[Pddl8GroundAtom],
+) -> (Vec<String>, Vec<String>) {
+    let mut adds: Vec<String> = add_effects.iter().map(|a| a.label()).collect();
+    adds.sort();
+    let mut dels: Vec<String> = del_effects.iter().map(|a| a.label()).collect();
+    dels.sort();
+    (adds, dels)
+}
+
 fn validate_case_id(case_id: &str) -> Result<(), Pddl8Error> {
     if case_id.is_empty() || case_id.len() > 64 {
         return Err(Pddl8Error::InvalidCaseId(format!(
@@ -457,6 +500,114 @@ fn apply_pddl_effect_propositional(
             }
         }
     }
+}
+
+/// Same recursion as `apply_pddl_effect_propositional`, but collects the
+/// grounded add/del atom labels into separate lists instead of mutating a
+/// state set — used by `grounded_effect_labels` to fold effect *content*
+/// into receipt hashes. See FINDING #5.
+fn collect_pddl_effect_labels(
+    eff: &PddlEffect, subst: &HashMap<&str, &str>, adds: &mut Vec<String>, dels: &mut Vec<String>,
+) {
+    use wasm4pm_compat::pddl::Pddl8Atom;
+    let ground_args = |args: &[String]| -> Vec<String> {
+        args.iter()
+            .map(|a| {
+                if Pddl8Atom::is_variable(a) {
+                    subst
+                        .get(a.as_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| a.clone())
+                } else {
+                    a.clone()
+                }
+            })
+            .collect()
+    };
+    match eff {
+        PddlEffect::Add(a) => adds.push(atom_key(&a.pred, &ground_args(&a.args))),
+        PddlEffect::Del(a) => dels.push(atom_key(&a.pred, &ground_args(&a.args))),
+        PddlEffect::Numeric(_) => {}
+        PddlEffect::Timed(_, inner) => collect_pddl_effect_labels(inner, subst, adds, dels),
+        PddlEffect::Forall { effects, .. } => {
+            for e in effects {
+                collect_pddl_effect_labels(e, subst, adds, dels);
+            }
+        }
+        PddlEffect::When { effects, .. } => {
+            for e in effects {
+                collect_pddl_effect_labels(e, subst, adds, dels);
+            }
+        }
+    }
+}
+
+/// Ground and sort the add/del effect atom labels a `TemporalPlanStep`
+/// actually applies against `domain` — mirrors the state-update grounding
+/// logic duplicated in `execute_temporal_plan`/
+/// `execute_temporal_plan_instrumented`'s per-step effect-apply blocks
+/// below (kept in sync manually; there is no single shared call site).
+/// Used to fold "what the op did" (not merely its name/timing) into both
+/// `plan_root` and the per-step chain hash, so a plan with the same action
+/// names/timings but a domain schema with different effects cannot produce
+/// an identical receipt. See FINDING #5.
+fn grounded_effect_labels(
+    step: &wasm4pm_compat::pddl::TemporalPlanStep, domain: &Pddl8Domain,
+) -> (Vec<String>, Vec<String>) {
+    let (base_name, parsed_args) = parse_action_label(&step.action_name);
+    let mut adds = Vec::new();
+    let mut dels = Vec::new();
+    if let Some(schema) = domain.actions.iter().find(|a| a.name == base_name) {
+        let subst: HashMap<&str, &str> = schema
+            .params
+            .iter()
+            .zip(parsed_args.iter())
+            .map(|(p, a)| (p.as_str(), *a))
+            .collect();
+        for eff in &schema.add_effects {
+            let grounded: Vec<String> = eff
+                .args
+                .iter()
+                .map(|a| {
+                    subst
+                        .get(a.as_str())
+                        .map(|&s| s.to_string())
+                        .unwrap_or_else(|| a.clone())
+                })
+                .collect();
+            adds.push(atom_key(&eff.pred, &grounded));
+        }
+        for eff in &schema.del_effects {
+            let grounded: Vec<String> = eff
+                .args
+                .iter()
+                .map(|a| {
+                    subst
+                        .get(a.as_str())
+                        .map(|&s| s.to_string())
+                        .unwrap_or_else(|| a.clone())
+                })
+                .collect();
+            dels.push(atom_key(&eff.pred, &grounded));
+        }
+    } else if let Some(da) = domain
+        .durative_actions
+        .iter()
+        .find(|d| d.name == step.action_name)
+    {
+        let subst: HashMap<&str, &str> = da
+            .params
+            .iter()
+            .map(|(p, _)| p.as_str())
+            .zip(step.args.iter().map(|s| s.as_str()))
+            .collect();
+        for eff in &da.effects {
+            collect_pddl_effect_labels(eff, &subst, &mut adds, &mut dels);
+        }
+    }
+    adds.sort();
+    dels.sort();
+    (adds, dels)
 }
 
 fn parse_action_label(label: &str) -> (&str, Vec<&str>) {
@@ -567,6 +718,16 @@ pub fn execute_temporal_plan_instrumented(
         for arg in &step.args {
             plan_hasher.update(arg.as_bytes());
         }
+        // Fold grounded add/del effect labels in — see FINDING #5.
+        let (fp_adds, fp_dels) = grounded_effect_labels(step, domain);
+        for a in &fp_adds {
+            plan_hasher.update(b"+");
+            plan_hasher.update(a.as_bytes());
+        }
+        for d in &fp_dels {
+            plan_hasher.update(b"-");
+            plan_hasher.update(d.as_bytes());
+        }
     }
     let plan_root = hex(plan_hasher.finalize().as_bytes());
     let state_root = hash_strings(
@@ -651,11 +812,20 @@ pub fn execute_temporal_plan_instrumented(
         substage.effects_apply_ns += t_effects.elapsed().as_nanos();
 
         let t_chain = Instant::now();
+        let (fp_adds, fp_dels) = grounded_effect_labels(step, domain);
         let mut h = Hasher::new();
         h.update(&chain);
         h.update(step.action_name.as_bytes());
         h.update(&step.start_time.to_bits().to_le_bytes());
         h.update(&step.duration.to_bits().to_le_bytes());
+        for a in &fp_adds {
+            h.update(b"+");
+            h.update(a.as_bytes());
+        }
+        for d in &fp_dels {
+            h.update(b"-");
+            h.update(d.as_bytes());
+        }
         chain = *h.finalize().as_bytes();
         substage.proof_receipt_build_ns += t_chain.elapsed().as_nanos();
 
@@ -857,13 +1027,27 @@ pub fn execute_temporal_plan(
         .map(|a| atom_key(&a.pred, &a.args))
         .collect();
 
-    // Compute plan_root: BLAKE3 over all (start_time, action_name, args)
+    // Compute plan_root: BLAKE3 over all (start_time, action_name, args,
+    // grounded add/del effect labels). Effects are folded in (FINDING #5)
+    // so plan_root is sensitive to what each step's domain schema actually
+    // does, not merely its name/timing/args — a plan replayed against a
+    // domain whose same-named schema has different effects must not root
+    // to the same value.
     let mut plan_hasher = Hasher::new();
     for step in &steps {
         plan_hasher.update(step.start_time.to_bits().to_le_bytes().as_ref());
         plan_hasher.update(step.action_name.as_bytes());
         for arg in &step.args {
             plan_hasher.update(arg.as_bytes());
+        }
+        let (fp_adds, fp_dels) = grounded_effect_labels(step, domain);
+        for a in &fp_adds {
+            plan_hasher.update(b"+");
+            plan_hasher.update(a.as_bytes());
+        }
+        for d in &fp_dels {
+            plan_hasher.update(b"-");
+            plan_hasher.update(d.as_bytes());
         }
     }
     let plan_root = hex(plan_hasher.finalize().as_bytes());
@@ -961,12 +1145,24 @@ pub fn execute_temporal_plan(
             }
         }
 
-        // Extend chain: BLAKE3(chain || step.action_name || start_time_bits || duration_bits)
+        // Extend chain: BLAKE3(chain || step.action_name || start_time_bits ||
+        // duration_bits || grounded add/del effect labels). Effects folded in
+        // (FINDING #5) so the chain is sensitive to what this step's domain
+        // schema actually does, not merely its name/timing.
+        let (fp_adds, fp_dels) = grounded_effect_labels(step, domain);
         let mut h = Hasher::new();
         h.update(&chain);
         h.update(step.action_name.as_bytes());
         h.update(&step.start_time.to_bits().to_le_bytes());
         h.update(&step.duration.to_bits().to_le_bytes());
+        for a in &fp_adds {
+            h.update(b"+");
+            h.update(a.as_bytes());
+        }
+        for d in &fp_dels {
+            h.update(b"-");
+            h.update(d.as_bytes());
+        }
         chain = *h.finalize().as_bytes();
 
         // Emit OCEL event for this step

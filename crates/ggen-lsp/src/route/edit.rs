@@ -26,27 +26,56 @@ fn render_tmpl(tmpl: &str, b: &RouteBindings) -> String {
     out
 }
 
-/// Compute the `TextEdit` for one step, or `None` for `NoOp`/uncomputable steps.
+/// The exact substitutable tokens `render_tmpl` knows how to fill. If any of
+/// these survive substitution, the binding needed to fill it was absent from
+/// `RouteBindings` -- the step is not mechanically applicable (see
+/// `render_edit`'s doc comment for why this must never reach a caller as a
+/// concrete `TextEdit`).
+const PLACEHOLDER_TOKENS: [&str; 3] = ["{prefix}", "{iri}", "{symbol}"];
+
+/// True if `text` still contains a literal, un-substituted placeholder token
+/// after `render_tmpl` ran.
+fn has_unfilled_placeholder(text: &str) -> bool {
+    PLACEHOLDER_TOKENS.iter().any(|tok| text.contains(tok))
+}
+
+/// Compute the `TextEdit` for one step, or `None` for `NoOp`/uncomputable
+/// steps.
+///
+/// A step whose template still carries an unfilled `{prefix}`/`{iri}`/
+/// `{symbol}` placeholder after rendering (i.e. `RouteBindings` never
+/// supplied the value the template needed -- true today for every caller of
+/// `route_plan`/`route_plan_for_diagnostic`, which construct `RouteBindings`
+/// with only `site` set) is likewise `None`, never a `TextEdit` whose
+/// `new_text` is literal template source. This is the single point both the
+/// editor `WorkspaceEdit` and the agent-facing `RoutePlan`/`RouteEnvelope`
+/// (MCP tool, `--with-routes`, hover) render through, so neither channel can
+/// surface a fabricated, un-applicable edit.
 #[must_use]
 pub fn render_edit(tmpl: &EditTemplate, b: &RouteBindings, doc: &str) -> Option<TextEdit> {
     match tmpl {
         EditTemplate::NoOp => None,
         EditTemplate::ReplaceSite { text } => {
             let range = b.site?;
-            Some(TextEdit {
-                range,
-                new_text: render_tmpl(text, b),
-            })
+            let new_text = render_tmpl(text, b);
+            if has_unfilled_placeholder(&new_text) {
+                return None;
+            }
+            Some(TextEdit { range, new_text })
         }
         EditTemplate::InsertLine { anchor, text } => {
             let line = anchor_line(*anchor, doc);
             let pos = Position { line, character: 0 };
+            let new_text = format!("{}\n", render_tmpl(text, b));
+            if has_unfilled_placeholder(&new_text) {
+                return None;
+            }
             Some(TextEdit {
                 range: Range {
                     start: pos,
                     end: pos,
                 },
-                new_text: format!("{}\n", render_tmpl(text, b)),
+                new_text,
             })
         }
     }

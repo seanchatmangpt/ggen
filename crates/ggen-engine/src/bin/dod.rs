@@ -9,8 +9,7 @@ fn run(cmd: &str, args: &[&str]) -> bool {
     Command::new(cmd)
         .args(args)
         .status()
-        .map(|s| s.success())
-        .unwrap_or(false)
+        .is_ok_and(|s| s.success())
 }
 
 fn main() {
@@ -30,9 +29,7 @@ fn main() {
     let hard_ok = fmt_ok && lint_ok && test_ok;
 
     // Soft check: receipts/ directory must exist and be non-empty
-    let receipts_exist = std::fs::read_dir("receipts")
-        .map(|mut d| d.next().is_some())
-        .unwrap_or(false);
+    let receipts_exist = std::fs::read_dir("receipts").is_ok_and(|mut d| d.next().is_some());
 
     if !hard_ok {
         eprintln!("[DOD] HARD FAILURE: fmt={fmt_ok} lint={lint_ok} test={test_ok}");

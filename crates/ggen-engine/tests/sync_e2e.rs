@@ -1,6 +1,8 @@
 //! Chicago-TDD end-to-end tests for the sync pipeline: real filesystem,
 //! real oxigraph store, real Tera rendering — no mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
@@ -115,6 +117,8 @@ fn dry_run_writes_nothing() {
 
 #[test]
 fn non_dry_sync_emits_verifiable_receipt() {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
@@ -144,7 +148,10 @@ fn non_dry_sync_emits_verifiable_receipt() {
 
     // Chain hash recomputes to the stored value via praxis-core.
     let recomputed = receipt.record.recompute_chain_hash().expect("recompute");
-    let recomputed_hex: String = recomputed.iter().map(|b| format!("{b:02x}")).collect();
+    let recomputed_hex: String = recomputed.iter().fold(String::new(), |mut hex, b| {
+        let _ = write!(hex, "{b:02x}");
+        hex
+    });
     assert_eq!(recomputed_hex, receipt.record.chain_hash_hex);
     assert_eq!(receipt.record.ts_ns, 0, "no wall clock: ts_ns pinned to 0");
 }

@@ -19,7 +19,7 @@ use uuid::Uuid;
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default - run with --ignored flag
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_10k_route_resolutions_per_second() {
     // ARRANGE: Set up route resolver with 100 routes
     let ctx = TestContext::new();
@@ -72,7 +72,7 @@ async fn load_test_10k_route_resolutions_per_second() {
 }
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_route_resolution_latency() {
     // ARRANGE: Set up route resolver
     let ctx = TestContext::new();
@@ -112,7 +112,7 @@ async fn load_test_route_resolution_latency() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_1k_concurrent_click_tracking() {
     // ARRANGE: Set up click tracker
     let tracker = Arc::new(RwLock::new(click_tracking::ClickTracker::new()));
@@ -165,7 +165,7 @@ async fn load_test_1k_concurrent_click_tracking() {
 }
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_click_receipt_chain_under_load() {
     // ARRANGE: Set up click tracker
     let tracker = Arc::new(RwLock::new(click_tracking::ClickTracker::new()));
@@ -202,7 +202,7 @@ async fn load_test_click_receipt_chain_under_load() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_batch_content_publishing() {
     // ARRANGE: Create content pipeline with 1,000 draft items
     let pipeline = Arc::new(RwLock::new(content::ContentPipeline::new()));
@@ -267,7 +267,7 @@ async fn load_test_batch_content_publishing() {
 }
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_scheduled_content_processing() {
     // ARRANGE: Create pipeline with scheduled content
     let pipeline = Arc::new(RwLock::new(content::ContentPipeline::new()));
@@ -311,7 +311,7 @@ async fn load_test_scheduled_content_processing() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_revenue_attribution_throughput() {
     // ARRANGE: Create revenue attribution engine
     let attribution = Arc::new(RwLock::new(revenue::RevenueAttribution::new()));
@@ -364,7 +364,7 @@ async fn load_test_revenue_attribution_throughput() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_subscription_operations() {
     // ARRANGE: Create subscription manager
     let manager = Arc::new(RwLock::new(subscription::SubscriptionManager::new()));
@@ -419,7 +419,7 @@ async fn load_test_subscription_operations() {
 }
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_webhook_processing() {
     // ARRANGE: Create subscriptions
     let manager = Arc::new(RwLock::new(subscription::SubscriptionManager::new()));
@@ -483,7 +483,7 @@ async fn load_test_webhook_processing() {
 // ============================================================================
 
 #[tokio::test]
-#[ignore] // Ignore by default
+#[ignore = "performance/load test (10k req/sec route resolution, 1k concurrent click tracking, batch publishing — see file header); not part of the fast test loop, run via `cargo test -- --ignored`"]
 async fn load_test_end_to_end_workflow() {
     // ARRANGE: Set up complete system
     let ctx = TestContext::new();

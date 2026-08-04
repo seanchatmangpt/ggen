@@ -1,10 +1,10 @@
 //! Combinatorial cross-pack proofs over the framework packs under `packs/`:
 //! an all-packs mega-project (real binary), the full pairwise C(n,2) matrix
 //! (direct library `sync()` calls for speed), ontology-union sanity, and a
-//! post-lock corruption sweep. Chicago TDD: real fs (TempDir), real
+//! post-lock corruption sweep. Chicago TDD: real fs (`TempDir`), real
 //! oxigraph, real subprocess via `CliHarness`. No mocks.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -50,10 +50,12 @@ fn copy_tree(src: &Path, dst: &Path) {
 }
 
 /// Copy the named packs plus a minimal consumer project into a fresh
-/// TempDir; return `(tempdir, project_root)`. `pack_order` controls the
+/// `TempDir`; return `(tempdir, project_root)`. `pack_order` controls the
 /// textual order of the `[packs.*]` declarations in `ggen.toml` (config
 /// parsing uses a `BTreeMap`, so semantics must be order-independent).
 fn scaffold_multi_pack_project(pack_order: &[&str]) -> (TempDir, PathBuf) {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     for name in pack_order {
         copy_tree(&packs_dir().join(name), &dir.path().join(name));
@@ -64,7 +66,7 @@ fn scaffold_multi_pack_project(pack_order: &[&str]) -> (TempDir, PathBuf) {
     let mut toml =
         String::from("[project]\nname = \"consumer\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n");
     for name in pack_order {
-        toml.push_str(&format!("[packs.{name}]\npath = \"../{name}\"\n\n"));
+        let _ = writeln!(toml, "[packs.{name}]\npath = \"../{name}\"\n");
     }
     toml.push_str("[templates]\ndir = \"templates\"\n");
     std::fs::write(project.join("ggen.toml"), toml).expect("write ggen.toml");
@@ -94,7 +96,7 @@ fn all_eight_framework_packs_exist_on_disk() {
         );
         let has_tmpl = std::fs::read_dir(root.join("templates"))
             .expect("templates dir")
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .any(|e| e.path().extension().is_some_and(|x| x == "tmpl"));
         assert!(has_tmpl, "{name}: zero templates");
     }
@@ -208,17 +210,15 @@ fn mega_project_all_packs_sync() {
 }
 
 /// (2) PAIRWISE SUBSETS: all C(8,2) = 28 pairs in one test, each in a fresh
-/// TempDir project with exactly those two packs, driven through the library
+/// `TempDir` project with exactly those two packs, driven through the library
 /// `sync()` (fast — no subprocess). Exit Ok, both distinctive outputs
 /// present, lock has exactly those two pack names. Catches pair-specific
 /// ontology prefix or output-path collisions invisible to single-pack tests.
 #[test]
 fn pairwise_pack_matrix_syncs() {
     let mut failures: Vec<String> = Vec::new();
-    for i in 0..PACKS.len() {
-        for j in (i + 1)..PACKS.len() {
-            let (name_a, out_a) = PACKS[i];
-            let (name_b, out_b) = PACKS[j];
+    for (i, &(name_a, out_a)) in PACKS.iter().enumerate() {
+        for &(name_b, out_b) in &PACKS[(i + 1)..] {
             let pair = format!("{name_a}+{name_b}");
             let (_dir, project) = scaffold_multi_pack_project(&[name_a, name_b]);
 
@@ -264,7 +264,7 @@ fn pairwise_pack_matrix_syncs() {
 /// (3) ONTOLOGY UNION SANITY: the mega-project graph hash differs from
 /// every single-pack project's graph hash (the union actually merged all
 /// ontologies), and writing `[packs]` in reversed declaration order yields
-/// a byte-identical receipt payload (BTreeMap canonicalizes).
+/// a byte-identical receipt payload (`BTreeMap` canonicalizes).
 #[test]
 fn ontology_union_and_declaration_order_are_canonical() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
@@ -363,7 +363,7 @@ fn declaration_order_exclusion_does_not_mask_a_genuine_pack_set_difference() {
 /// (4) CORRUPTION SWEEP: corrupt one representative pack's ontology after
 /// the mega-project is locked. The next sync must refuse with FM-PACK-008
 /// naming that pack and only that pack; `doctor run` must also exit nonzero
-/// naming lockfile_drift.
+/// naming `lockfile_drift`.
 #[test]
 fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();

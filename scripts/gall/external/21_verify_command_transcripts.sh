@@ -32,7 +32,8 @@ expected_commands = [
     '06_scan_forbidden_surfaces',
     '07_check_anti_fake',
     '08_verify_replay_receipts',
-    '09_verify_ocel_self_audit',
+    # '09_verify_ocel_self_audit' removed 2026-08-03 (fabricated-evidence
+    # cleanup); see crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
     '10_verify_coverage_matrix',
     '11_verify_proof_report',
     '12_detect_contradictions',

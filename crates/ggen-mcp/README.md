@@ -4,7 +4,10 @@ An MCP server exposing ggen's introspection surface as tool calls.
 
 ## Why this exists
 
-ggen's entire CLI is ten whole-pipeline verbs:
+None of the pipeline-facing nouns expose a way to run an ad-hoc SPARQL
+query. For example (illustrative, not the full CLI surface — `doctor` alone
+also has `inspect`/`domain`, and `law`/`receipt` have further verbs beyond
+what's shown here):
 
 ```
 doctor run | graph validate | law derive|explain|export|load|validate
@@ -65,12 +68,17 @@ with `truncated` explicit — silent truncation would recreate the exact class
 of bug this crate exists to prevent.
 
 **Reuse, never reimplement.** Query execution goes through `GraphEngine`;
-graph loading through `ggen_engine::project_graph::load_for_query` (which is
-also what `sync` uses); path resolution through `write::resolve_target`, the
-same traversal check `to:` already uses; var-diff through
-`ggen_engine::lint`; diagnostics through `ggen_lsp::check_files_in_root`.
-Row and byte caps are re-exported from `ggen-engine`, never re-literaled, so
-they cannot drift.
+graph loading through `ggen_engine::project_graph::load_for_query`, which
+shares `sync`'s own `new_graph_engine`/`read_ontology_file` primitives but
+resolves packs read-only (an uncached git pack is refused, not cloned — see
+`project_graph.rs`'s module doc and `query_preview_test.rs`'s
+`uncached_git_pack_never_triggers_clone_or_cache_write`); path resolution
+through `write::resolve_target`, the same traversal check `to:` already
+uses; var-diff through `ggen_engine::lint`; diagnostics through
+`ggen_lsp::check_files_in_root`. The row cap is re-exported from
+`ggen-engine`, never re-literaled; the two byte caps are ggen-mcp-local
+literals chosen to match `ggen-lsp`'s `MAX_CONTENT_BYTES`/`MAX_PATH_BYTES`
+convention by value, not by import (see `src/limits.rs`).
 
 ## Running it
 
@@ -81,7 +89,7 @@ cargo run --release -p ggen-mcp    # stdio, no arguments needed
 Wired into this repo's `.mcp.json` as `ggen-mcp`.
 
 ```bash
-cargo test -p ggen-mcp             # 34 tests
+cargo test -p ggen-mcp             # 65 tests (verified 2026-08-03; recount if this drifts)
 ```
 
 Tests are Chicago TDD throughout: real `TempDir`, real `ggen.toml`, real
@@ -89,3 +97,25 @@ ontology, real templates, no mocks. `tests/mcp_protocol_test.rs` spawns the
 actual binary and speaks JSON-RPC over its stdio — the only place tool
 annotations are verifiable, since they exist only in the `tools/list`
 payload a client receives.
+
+### Self-play harness
+
+Three `tests/self_play_*_test.rs` files replay every real pack under
+`packs/` that ships an `ontology.ttl` (73 as of writing) through this
+crate's own tools end to end — syntax gate, query, independent row
+recount, write the template, dry run, apply, receipt verify, second apply
+for idempotence — with a referee (`src/selfplay/referee.rs`) checking
+invariants like "a successful write always produces a receipt" and "a
+second sync of the same inputs changes nothing." `self_play_vacuity_test.rs`
+is the meta-check that the sweep actually reaches the write path for most
+of those packs, not just the read-only path. `tests/common/` holds shared
+fixture-writing helpers; `tests/corpus/` holds fixed adversarial case files
+(malformed SPARQL, path traversal, cartesian blowup, ...) replayed
+deterministically, separate from the pack sweep.
+
+`just self-play` (`cargo test -p ggen-mcp --test self_play_test --test
+self_play_falsifier_test --test self_play_vacuity_test`) is a mandatory,
+last-in-chain dependency of `just pre-commit` — not an optional extra
+suite. A separate `just self-play-explore` recipe grows the corpus via a
+local LLM (`ggen-selfplay-explore`, a dev-only binary); it is corpus
+generation, never itself a test, and is not part of any gate.

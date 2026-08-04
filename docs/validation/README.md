@@ -82,7 +82,8 @@ The ggen marketplace v3.2.0 has passed comprehensive validation across all criti
    - 47 failure modes identified, 43 mitigated (91.5%)
    - 78% average RPN reduction
    - Zero critical failures (RPN >400)
-   - Comprehensive test coverage (95%)
+   - Comprehensive test coverage (95% claimed at the time -- UNVERIFIED, no CI/justfile gate
+     computed or now computes this number)
 
 3. **Standards Compliance (RDF/Turtle)**
    - 100% valid Turtle syntax across all files
@@ -263,7 +264,8 @@ All limitations are **non-blocking** for production deployment:
 
 **Total Tests**: 233+
 **Pass Rate**: 100%
-**Coverage**: 92% (weighted average)
+**Coverage**: 92% (weighted average) claimed at the time -- UNVERIFIED, no CI/justfile gate
+computed or now computes a coverage number for this repo
 
 ### Validation Phases
 

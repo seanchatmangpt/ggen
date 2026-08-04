@@ -155,23 +155,28 @@ impl DeterministicGraph {
             self.store.insert(&quad)?;
         }
 
-        // Run validation hooks
+        // Run validation hooks. A hook can fail in two distinct ways: it can
+        // cleanly evaluate to `Ok(false)` (constraint violated), or it can
+        // error out entirely (`Err(...)`, e.g. a SPARQL evaluation error from
+        // a syntactically valid but runtime-invalid query). Both must trigger
+        // the same rollback of the deletions/insertions already applied to
+        // `self.store` above -- the doc comment's "changes are rolled back"
+        // guarantee does not carve out an exception for query-evaluation
+        // errors.
         for hook in hooks {
-            let valid = hook.execute(self)?;
-            if !valid {
-                // If validation failed, roll back additions and deletions
-                for add in &delta.additions {
-                    let quad = Self::parse_nquad(add)?;
-                    self.store.remove(&quad)?;
+            match hook.execute(self) {
+                Ok(true) => {}
+                Ok(false) => {
+                    self.rollback_delta(delta)?;
+                    return Err(GraphError::HookFailed(format!(
+                        "Hook '{}' validation failed. State rolled back.",
+                        hook.name
+                    )));
                 }
-                for del in &delta.deletions {
-                    let quad = Self::parse_nquad(del)?;
-                    self.store.insert(&quad)?;
+                Err(e) => {
+                    self.rollback_delta(delta)?;
+                    return Err(e);
                 }
-                return Err(GraphError::HookFailed(format!(
-                    "Hook '{}' validation failed. State rolled back.",
-                    hook.name
-                )));
             }
         }
 
@@ -183,6 +188,27 @@ impl DeterministicGraph {
             post_state_hash,
             delta_hash,
         ))
+    }
+
+    /// Undo a delta already applied to `self.store` by re-inserting its
+    /// deletions and re-removing its insertions. Used to restore consistency
+    /// when a validation hook rejects a delta, whether by evaluating to
+    /// `false` or by erroring out.
+    ///
+    /// # Errors
+    ///
+    /// Returns `GraphError` if re-parsing or re-applying the inverse quads
+    /// fails.
+    fn rollback_delta(&self, delta: &RdfDelta) -> Result<(), GraphError> {
+        for add in &delta.additions {
+            let quad = Self::parse_nquad(add)?;
+            self.store.remove(&quad)?;
+        }
+        for del in &delta.deletions {
+            let quad = Self::parse_nquad(del)?;
+            self.store.insert(&quad)?;
+        }
+        Ok(())
     }
 }
 

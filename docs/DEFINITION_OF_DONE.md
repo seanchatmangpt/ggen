@@ -460,8 +460,8 @@ grep -E "llm\.complete|llm\.model|llm\.total_tokens" otel.txt
 |--------|-------|
 | Crates | 15 active (ggen-*, genesis-*, cpmp, stpnt) |
 | Testing | Chicago TDD ONLY (no mocks, real collaborators) |
-| Coverage | 80%+ of public APIs |
-| Mutation score | ≥60% |
+| Coverage (target, aspirational -- not measured by any CI/justfile gate) | 80%+ of public APIs |
+| Mutation score (target, aspirational -- not measured by any CI/justfile gate) | ≥60% |
 | Edition | Rust 2021 |
 | Version | 26.5.28 |
 

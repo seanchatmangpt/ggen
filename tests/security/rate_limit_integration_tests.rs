@@ -73,7 +73,7 @@ impl RateLimitFixture {
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_concurrent_requests_hit_rate_limit() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));
@@ -132,7 +132,7 @@ fn test_concurrent_requests_hit_rate_limit() -> Result<(), Box<dyn std::error::E
 }
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_different_ips_independent_limits() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));
@@ -174,7 +174,7 @@ fn test_different_ips_independent_limits() -> Result<(), Box<dyn std::error::Err
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_api_key_rate_limiting() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));
@@ -210,7 +210,7 @@ fn test_api_key_rate_limiting() -> Result<(), Box<dyn std::error::Error>> {
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_burst_requests_handled() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));
@@ -240,7 +240,7 @@ fn test_burst_requests_handled() -> Result<(), Box<dyn std::error::Error>> {
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_rate_limit_recovery_after_window() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));
@@ -277,7 +277,7 @@ fn test_rate_limit_recovery_after_window() -> Result<(), Box<dyn std::error::Err
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_distributed_rate_limiting_shared_redis() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange: Two API instances sharing Redis
     let docker = Box::leak(Box::new(Cli::default()));
@@ -311,7 +311,7 @@ fn test_distributed_rate_limiting_shared_redis() -> Result<(), Box<dyn std::erro
 // ============================================================================
 
 #[test]
-#[ignore] // Requires running API server
+#[ignore = "requires a running ggen API server plus a real Redis instance via testcontainers (see file header); not part of the fast test loop"]
 fn test_rate_limit_headers_present() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let docker = Box::leak(Box::new(Cli::default()));

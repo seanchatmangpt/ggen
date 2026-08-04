@@ -413,6 +413,16 @@ prod:fm_LAW_18 a prod:DiagnosticCode ;
     prod:number "18"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/generation_rules.rs:350" .
 
+prod:fm_LAW_19 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "19"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:406" .
+
+prod:fm_LAW_20 a prod:DiagnosticCode ;
+    prod:family "LAW" ;
+    prod:number "20"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:386" .
+
 prod:fm_PACK_1 a prod:DiagnosticCode ;
     prod:family "PACK" ;
     prod:number "1"^^xsd:integer ;
@@ -668,3 +678,43 @@ prod:fm_WRITE_11 a prod:DiagnosticCode ;
     prod:family "WRITE" ;
     prod:number "11"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/write.rs:244" .
+
+prod:fm_GEN_15 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "15"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:1002" .
+
+prod:fm_GEN_16 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "16"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:1018" .
+
+prod:fm_KEY_10 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:288" .
+
+prod:fm_KEY_11 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "11"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:317" .
+
+prod:fm_TPL_24 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "24"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1950" .
+
+prod:fm_TPL_25 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "25"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1976" .
+
+prod:fm_TPL_26 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "26"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1965" .
+
+prod:fm_WRITE_12 a prod:DiagnosticCode ;
+    prod:family "WRITE" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1203" .

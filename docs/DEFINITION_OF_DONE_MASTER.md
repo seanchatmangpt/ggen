@@ -1,5 +1,16 @@
 # ggen Definition of Done (Master Specification)
 
+> ⚠️ **DEPRECATED / STALE:** This document predates the 2026-07 crate-consolidation
+> pass (its own version stamp below is 2026-06-15). Its crate/MCP-server references
+> (e.g. `ggen-a2a-mcp` under "MCP Servers" below) name crates that no longer exist
+> on disk — `ggen-a2a-mcp` was absorbed into `ggen-lsp`'s `a2a` feature, and this
+> doc predates `ggen-mcp` (the current, actively-tested introspection MCP server)
+> entirely. For the current, actively-generated crate map and MCP-server surface,
+> see `.claude/rules/architecture.md` (generated from `.specify/repo-facts.ttl`)
+> and `crates/ggen-mcp/README.md`. The `just pre-commit` gate list/count below is
+> also stale — see the justfile `pre-commit:` recipe line for the live list, per
+> this repo's own convention of never hand-restating that count in prose.
+
 **Version:** 26.5.29 | **Date:** 2026-06-15 | **Status:** Production-Ready
 
 > **CARDINAL RULE:** All dimensions must be satisfied before any work is considered complete. Partial completion is failure.
@@ -56,15 +67,19 @@ just timeout-check && just check && just lint && just test && just slo-check
 
 ---
 
-## 2️⃣ Testing Completeness (Chicago TDD + 80%+ Coverage)
+## 2️⃣ Testing Completeness (Chicago TDD + Coverage Target)
 
 **Files:** `docs/TESTING_DEFINITION_OF_DONE.json`, `.claude/rules/rust/testing.md`
 
 Mandatory: **Zero mocks, zero test doubles, real collaborators only.**
 
+**Coverage and mutation-score numbers below are aspirational targets, not measured facts.**
+Neither `just pre-commit` nor any other CI/justfile gate currently computes line/branch coverage
+or a mutation score — see `rust/performance.md` for the same caveat applied to SLOs.
+
 ### 8 Testing Dimensions
 
-1. **Coverage Gates** — Line ≥80%, branch ≥75%, mutation ≥60%
+1. **Coverage Gates (target, not currently enforced)** — Line ≥80%, branch ≥75%, mutation ≥60%
 2. **Chicago TDD Enforcement** — Zero mockall, zero Mock* structs, zero behavior verification
 3. **Test Categorization** — Unit, integration, property, snapshot, security, determinism, perf, sabotage
 4. **Error Path Testing** — All Result variants covered, cleanup verified, no panics
@@ -76,10 +91,12 @@ Mandatory: **Zero mocks, zero test doubles, real collaborators only.**
 ### Commands
 
 ```bash
-# Coverage validation
+# Coverage validation (manual, ad hoc -- not wired into just pre-commit or any CI job)
 cargo tarpaulin --workspace --out Html
 
-# Mutation testing
+# Mutation testing (manual, ad hoc -- not wired into just pre-commit or any CI job;
+# full-workspace `cargo mutants` is a multi-hour-to-multi-day operation at this
+# workspace's size, so treat this as an occasional spot-check, not a routine gate)
 cargo mutants --workspace --baseline 60
 
 # Full test suite
@@ -368,7 +385,8 @@ test ✅ && \
 slo-check ✅ && \
 
 # Phase 2: Testing
-test-mutation (score ≥60%) ✅ && \
+test-mutation (target score ≥60%; aspirational -- no `test-mutation` recipe exists in
+  `justfile` and no gate computes this) && \
 RUST_LOG=trace cargo test (OTEL spans verified) ✅ && \
 
 # Phase 3: Performance

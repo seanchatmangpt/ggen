@@ -6,6 +6,8 @@
 //! would return the same (empty) `derived` set either way; this test proves
 //! it does not.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_engine::law_engine::{GraphLawEngine, LawEngine};
 
 /// `ex:rex` is asserted as a `Dog` only — `ex:rex a ex:Animal` can only ever
@@ -57,13 +59,13 @@ fn materialize_with_n3_rule_derives_new_fact() {
 /// a stub that always reports conformance.
 #[test]
 fn validate_shacl_reports_real_violation() {
-    const SHAPES_TTL: &str = r#"
+    const SHAPES_TTL: &str = r"
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <http://example.org/> .
 ex:DogShape a sh:NodeShape ;
     sh:targetClass ex:Dog ;
     sh:property [ sh:path ex:name ; sh:minCount 1 ] .
-"#;
+";
     let engine = GraphLawEngine::new();
     let outcome = engine
         .validate_shacl(FACTS_NTRIPLES, SHAPES_TTL)

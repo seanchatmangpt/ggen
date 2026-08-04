@@ -25,10 +25,18 @@ use rmcp_stub_handler::RmcpStubHandler;
 /// `RmcpStubHandler::tool_router() -> ToolRouter<RmcpStubHandler>`
 /// associated fn -- this is a compile-time proof it exists with the right
 /// signature (would fail to compile if the macro did not generate it, or
-/// generated something un-callable).
+/// generated something un-callable), plus a runtime assertion on the
+/// returned value's real state: `#[tool_router]` expands to
+/// `ToolRouter::<Self>::new()` (confirmed in rmcp-macros-2.2.0's own
+/// `tool_router.rs`), and `ToolRouter::new()` delegates to `Self::default()`,
+/// which sets the real, public `transparent_when_not_found` field to
+/// `false`. Asserting that field's value is evidence the call returned a
+/// genuine, freshly-constructed `rmcp::handler::server::router::tool::
+/// ToolRouter`, not an opaque/unit value the macro merely compiled.
 #[test]
 fn tool_router_associated_fn_exists_and_is_callable() {
-    let _router = RmcpStubHandler::tool_router();
+    let router = RmcpStubHandler::tool_router();
+    assert!(!router.transparent_when_not_found);
 }
 
 /// `list_all()` returns exactly one real `rmcp::model::Tool`, matching the
@@ -65,10 +73,15 @@ fn stub_handler_implements_real_server_handler_get_info() {
     let handler = RmcpStubHandler;
     let info: ServerInfo = handler.get_info();
     // ServerInfo::default()'s protocol_version is the crate's own compiled-in
-    // default -- asserting the field is reachable at all is itself real
-    // evidence get_info() executed against the genuine rmcp::model types,
-    // not a stub returning an opaque/unit value.
-    let _ = info.protocol_version;
+    // rmcp::model::ProtocolVersion::default() (== ProtocolVersion::LATEST,
+    // "2025-11-25" as of rmcp 2.2.0) -- asserting equality against that same
+    // crate constant is real evidence get_info() executed against genuine
+    // rmcp::model types and returned the real default, not an opaque/unit
+    // stub value.
+    assert_eq!(
+        info.protocol_version,
+        rmcp::model::ProtocolVersion::default()
+    );
 }
 
 /// `RmcpStubHandler` is `Default` (derived) and `Debug`/`Clone` (derived) --

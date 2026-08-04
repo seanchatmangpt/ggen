@@ -24,7 +24,7 @@ fn rule_ids(findings: &[ggen_cheat_scanner::Finding]) -> Vec<&'static str> {
 #[test]
 fn cheat_t01_vacuous_assert_flags_positive_fixture() {
     let (src, path) = fixture("t01_vacuous_positive.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         rule_ids(&findings).contains(&"CHEAT-T01"),
         "expected CHEAT-T01 on vacuous assert!(true) test, got: {findings:?}"
@@ -34,7 +34,7 @@ fn cheat_t01_vacuous_assert_flags_positive_fixture() {
 #[test]
 fn cheat_t01_vacuous_assert_does_not_flag_clean_fixture() {
     let (src, path) = fixture("t01_vacuous_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T01"),
         "did not expect CHEAT-T01 on a real assert_eq! check, got: {findings:?}"
@@ -44,7 +44,7 @@ fn cheat_t01_vacuous_assert_does_not_flag_clean_fixture() {
 #[test]
 fn cheat_t02_tautological_result_check_flags_positive_fixture() {
     let (src, path) = fixture("t02_tautology_positive.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         rule_ids(&findings).contains(&"CHEAT-T02"),
         "expected CHEAT-T02 on `result.is_ok() || result.is_err()`, got: {findings:?}"
@@ -52,9 +52,26 @@ fn cheat_t02_tautological_result_check_flags_positive_fixture() {
 }
 
 #[test]
+fn cheat_t02_tautological_result_check_flags_tautology_written_inside_assert_macro() {
+    // Regression test for the scanner's flagship blind spot: `assert!(...)`
+    // parses as an opaque `Expr::Macro`/`Stmt::Macro` whose interior tokens
+    // are not descended into by a plain `syn::visit::Visit` walk, so a
+    // tautology written directly inside `assert!(x.is_ok() || x.is_err())`
+    // -- the dominant real-world shape -- was invisible until the T02
+    // detector was taught to re-parse macro tokens (mirroring T01's
+    // `is_assert_true` technique).
+    let (src, path) = fixture("t02_tautology_in_assert_macro_positive.rs");
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
+    assert!(
+        rule_ids(&findings).contains(&"CHEAT-T02"),
+        "expected CHEAT-T02 on `assert!(result.is_ok() || result.is_err())`, got: {findings:?}"
+    );
+}
+
+#[test]
 fn cheat_t02_tautological_result_check_does_not_flag_clean_fixture() {
     let (src, path) = fixture("t02_tautology_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T02"),
         "did not expect CHEAT-T02 on a single-branch assertion, got: {findings:?}"
@@ -64,7 +81,7 @@ fn cheat_t02_tautological_result_check_does_not_flag_clean_fixture() {
 #[test]
 fn cheat_t03_no_assertion_test_flags_positive_fixture() {
     let (src, path) = fixture("t03_no_assertion_positive.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         rule_ids(&findings).contains(&"CHEAT-T03"),
         "expected CHEAT-T03 on a test with no assert/unwrap/expect/panic, got: {findings:?}"
@@ -74,7 +91,7 @@ fn cheat_t03_no_assertion_test_flags_positive_fixture() {
 #[test]
 fn cheat_t03_no_assertion_test_does_not_flag_clean_fixture() {
     let (src, path) = fixture("t03_no_assertion_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T03"),
         "did not expect CHEAT-T03 on a test with a real assert_eq!, got: {findings:?}"
@@ -84,7 +101,7 @@ fn cheat_t03_no_assertion_test_does_not_flag_clean_fixture() {
 #[test]
 fn cheat_t04_mock_import_flags_positive_fixture() {
     let (src, path) = fixture("t04_mock_import_positive.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         rule_ids(&findings).contains(&"CHEAT-T04"),
         "expected CHEAT-T04 on `use mockall::mock` + #[automock], got: {findings:?}"
@@ -94,7 +111,7 @@ fn cheat_t04_mock_import_flags_positive_fixture() {
 #[test]
 fn cheat_t04_mock_import_does_not_flag_clean_fixture() {
     let (src, path) = fixture("t04_mock_import_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T04"),
         "did not expect CHEAT-T04 on a real testcontainer merely named Mock*, got: {findings:?}"
@@ -132,7 +149,7 @@ fn cheat_t04_mock_substitute_does_not_flag_lone_trait_shape_stub() {
 #[test]
 fn cheat_t03_does_not_flag_should_panic_test() {
     let (src, path) = fixture("t03_should_panic_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T03"),
         "did not expect CHEAT-T03 on a #[should_panic] test (it fails when no panic occurs), got: {findings:?}"
@@ -142,7 +159,7 @@ fn cheat_t03_does_not_flag_should_panic_test() {
 #[test]
 fn cheat_t03_does_not_flag_try_operator_result_test() {
     let (src, path) = fixture("t03_try_operator_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T03"),
         "did not expect CHEAT-T03 on a Result-returning test using `?` (fails on Err), got: {findings:?}"
@@ -152,10 +169,25 @@ fn cheat_t03_does_not_flag_try_operator_result_test() {
 #[test]
 fn cheat_t03_does_not_flag_assert_helper_delegation() {
     let (src, path) = fixture("t03_assert_helper_clean.rs");
-    let findings = scan_source(&src, &path);
+    let findings = scan_source(&src, &path).unwrap_or_else(|e| panic!("fixture must parse: {e}"));
     assert!(
         !rule_ids(&findings).contains(&"CHEAT-T03"),
         "did not expect CHEAT-T03 on a test delegating to an assert_* helper fn, got: {findings:?}"
+    );
+}
+
+#[test]
+fn scan_source_returns_err_on_unparseable_source_instead_of_silently_clean() {
+    // Regression test: a file that fails to parse must surface as `Err`,
+    // never as `Ok(vec![])` -- the latter is indistinguishable from a
+    // genuinely clean file to every caller and is exactly the silent
+    // fail-open behavior `main.rs`'s `parse_errors` tally exists to catch.
+    let src = "fn broken( { this is not valid rust";
+    let path = Path::new("not_real_rust.rs");
+    let result = scan_source(src, path);
+    assert!(
+        result.is_err(),
+        "expected scan_source to return Err on unparseable input, got: {result:?}"
     );
 }
 

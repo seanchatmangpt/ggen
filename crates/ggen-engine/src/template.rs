@@ -31,6 +31,12 @@ use crate::{
 /// `tests/frontmatter_schema_match.rs` compare this struct's *actual* field
 /// set (via `schemars::schema_for!`) against `schema/frontmatter-schema.ttl`,
 /// instead of a hand-maintained mirror list that could itself drift.
+// `struct_excessive_bools`: this is a deserialized YAML frontmatter schema
+// whose field set is pinned 1:1 against `schema/frontmatter-schema.ttl` by
+// `tests/frontmatter_schema_match.rs`'s `JsonSchema` comparison. Collapsing
+// the independent boolean flags into an enum/bitflags would be a real,
+// user-facing frontmatter schema change, not a clippy-scoped cleanup.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Frontmatter {
@@ -105,9 +111,14 @@ pub struct Frontmatter {
     #[serde(default)]
     pub backup: bool,
     /// SHACL shape file paths (relative to the project root) declared as
-    /// governing this output. **Existence-checked only** — no SHACL engine
-    /// runs in this crate yet, so listed shapes are not evaluated against
-    /// the rendered output; see `docs/v26.7.4/GGEN_TOML_SCHEMA_MAPPING.md`.
+    /// governing this output. Enforced (not just existence-checked): after
+    /// admission the union of these shape documents is evaluated via
+    /// `GraphEngine::validate_shacl` against the active graph (the
+    /// per-template `rdf:`/`rdf_inline:` overlay when declared, else the
+    /// shared project graph), and a non-conforming result -- or an engine
+    /// with no SHACL support -- refuses the sync (`crate::sync`'s
+    /// `admit_shape_files`). Fixed 2026-08-03: this used to be
+    /// existence-checked only.
     #[serde(default)]
     pub shape: Vec<String>,
     /// When `true`, the sync pipeline renders this template's body twice
@@ -171,6 +182,7 @@ pub enum MatchSpec {
 
 impl MatchSpec {
     /// Pattern text, before output-phase Tera rendering.
+    #[must_use]
     pub fn pattern(&self) -> &str {
         match self {
             Self::Literal(pattern) => pattern,
@@ -179,6 +191,7 @@ impl MatchSpec {
     }
 
     /// Clone the declaration while replacing only its rendered pattern.
+    #[must_use]
     pub fn with_pattern(&self, pattern: String) -> Self {
         match self {
             Self::Literal(_) => Self::Literal(pattern),
@@ -191,6 +204,7 @@ impl MatchSpec {
     }
 
     /// Whether this declaration opted into the structured matcher algebra.
+    #[must_use]
     pub fn is_structured(&self) -> bool {
         matches!(self, Self::Structured(_))
     }
@@ -670,7 +684,7 @@ fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> std::io::Resul
 /// Walk a `tera::Error`'s `source()` chain and join every level's `Display`
 /// text with a colon separator. Tera's own `Display` impl prints only the
 /// outermost wrapper message (something like "Failed to render 'x'") and
-/// drops the actual cause (something like "Variable sparql_results not
+/// drops the actual cause (something like "Variable `sparql_results` not
 /// found in context") — this crate's own
 /// `sparql_functions_reject_both_rows_and_results` test (below) already had
 /// to reach for `{:?}` instead of `{}` for exactly this reason. Used by
@@ -739,7 +753,6 @@ pub(crate) fn classify_tera_render_error(
                     // unwrap one level and re-classify on the real cause.
                     Some(inner) => {
                         current = inner;
-                        continue;
                     }
                     // No further tera::Error inside: THIS Msg text is the
                     // real leaf cause (e.g. a bare
@@ -869,9 +882,7 @@ fn engine_value_to_tera(value: EngineValue) -> Value {
         // (falls back to `EngineValue::String` with a warning), so
         // `from_f64` here is infallible in practice; the `unwrap_or`
         // fallback exists only as defense-in-depth, never expected to fire.
-        EngineValue::Float(f) => serde_json::Number::from_f64(f)
-            .map(Value::Number)
-            .unwrap_or(Value::Null),
+        EngineValue::Float(f) => serde_json::Number::from_f64(f).map_or(Value::Null, Value::Number),
         EngineValue::String(s) => Value::String(s),
     }
 }
@@ -1180,10 +1191,10 @@ fn singularize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Re
     let lower = s.to_ascii_lowercase();
     let out = if lower.ends_with("ies") && s.len() > 3 {
         format!("{}y", &s[..s.len() - 3])
-    } else if lower.ends_with("ches") || lower.ends_with("shes") {
-        s[..s.len() - 2].to_string()
-    } else if (lower.ends_with("ses") || lower.ends_with("xes") || lower.ends_with("zes"))
-        && s.len() > 3
+    } else if lower.ends_with("ches")
+        || lower.ends_with("shes")
+        || ((lower.ends_with("ses") || lower.ends_with("xes") || lower.ends_with("zes"))
+            && s.len() > 3)
     {
         s[..s.len() - 2].to_string()
     } else if lower.ends_with('s') && !lower.ends_with("ss") {
@@ -1195,6 +1206,7 @@ fn singularize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Re
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
 

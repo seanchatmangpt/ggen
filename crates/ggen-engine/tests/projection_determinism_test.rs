@@ -5,6 +5,8 @@
 //! filesystem, real oxigraph/GraphLaw engine, real Tera rendering, two
 //! independent real syncs compared byte-for-byte.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};

@@ -405,7 +405,9 @@ cargo make build-release  # Build release binary
 # Test commands
 cargo make test-unit      # Unit tests only (<16s)
 cargo make test           # Full test suite (<30s)
-cargo make test-mutation  # Mutation testing (≥60% score)
+cargo make test-mutation  # Mutation testing (target: ≥60% score, aspirational -- not wired
+                          # into `just pre-commit` or any CI job; `cargo make` is also not
+                          # this repo's entry point, see CLAUDE.md -- use `just`)
 
 # Quality gates
 cargo make lint           # Clippy + rustfmt (<60s)

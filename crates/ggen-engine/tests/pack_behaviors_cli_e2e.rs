@@ -7,6 +7,8 @@
 //! BOTH the setup and the tested behavior itself only ever ran through the
 //! library call, never the actual CLI flag-parsing/exit-code/stderr path.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use chicago_tdd_tools::cli_proof::CliHarness;
@@ -31,7 +33,7 @@ fn copy_tree(src: &Path, dst: &Path) {
     }
 }
 
-/// Copy demo-pack and demo-project into a fresh TempDir; return (dir, project_root).
+/// Copy demo-pack and demo-project into a fresh `TempDir`; return (dir, `project_root`).
 fn scaffold() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
     copy_tree(

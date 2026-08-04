@@ -1,0 +1,6 @@
+{
+  "suite": "routing",
+  "digest_blake3": "1f7d198e093b272d525646124bd411b453d0b19097dda2268df37c15a6a0821f",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

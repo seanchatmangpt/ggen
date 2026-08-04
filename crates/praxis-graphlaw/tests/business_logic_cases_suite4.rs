@@ -78,6 +78,10 @@ fn test_suite4_idempotency_no_duplicate_triple() {
     let count_before = store.len();
     store.materialize().unwrap();
     let count_after_first = store.len();
+    assert!(
+        count_after_first > count_before,
+        "materialize() should add the CONSTRUCT-derived delta triple"
+    );
 
     // Reload same event
     store
@@ -113,7 +117,7 @@ fn test_suite4_idempotency_receipt_sharing_key() {
 
     let receipts_first = store.get_hook_receipts();
     assert_eq!(receipts_first.len(), 1);
-    let key_first = receipts_first[0].idempotency_key.clone();
+    let _key_first = receipts_first[0].idempotency_key.clone();
 
     // Fire same operation again
     store

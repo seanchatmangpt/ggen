@@ -26,7 +26,7 @@
 //! committed file IS what this generation rule produces, not just that some
 //! generation is idempotent in the abstract.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 

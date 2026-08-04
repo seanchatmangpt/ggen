@@ -228,7 +228,18 @@ fn run_case(base_dir: &Path, suite_name: &str, case: &TestCase) -> CaseResult {
     }
 
     let mut store = TripleStore::from(&input_content);
-    let inferred = store.materialize().unwrap();
+    let inferred = match store.materialize() {
+        Ok(facts) => facts,
+        Err(e) => {
+            return CaseResult {
+                suite_name: suite_name.to_string(),
+                id: case.id.clone(),
+                name: case.name.clone(),
+                passed: false,
+                detail: format!("materialize() refused: {e}"),
+            };
+        }
+    };
     let derived: HashSet<String> = inferred.iter().map(TripleStore::decode_triple).collect();
 
     let expected = decoded_fact_set(base_dir, &case.expected);

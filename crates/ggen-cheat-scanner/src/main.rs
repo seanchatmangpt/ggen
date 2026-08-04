@@ -1,9 +1,12 @@
 //! ggen-cheat-scanner binary: walks `crates/*/src/**/*.rs`,
-//! `crates/*/tests/**/*.rs`, and `tests/**/*.rs` (excluding `archive/` dirs
-//! and this scanner's own fixture files), reports every finding as
-//! `file:line — CHEAT[RULE-ID]: message`, and exits nonzero if any are
-//! found. Follows the ALIVE/BUILD_BROKEN vocabulary used by the other guard
-//! scripts under `scripts/ci/`.
+//! `crates/*/tests/**/*.rs`, `tests/**/*.rs`, and the workspace-root
+//! `examples/**/*.rs`, `src/**/*.rs`, `tools/**/*.rs`, `benches/**/*.rs`
+//! trees (excluding `archive/` dirs and this scanner's own fixture files),
+//! reports every finding as `file:line — CHEAT[RULE-ID]: message`, and
+//! exits nonzero if any are found -- or if any file failed to parse (a
+//! parse failure is never silently reported as clean; see `parse_errors`
+//! below). Follows the ALIVE/BUILD_BROKEN vocabulary used by the other
+//! guard scripts under `scripts/ci/`.
 
 use ggen_cheat_scanner::{
     collect_impls, find_mock_substitutes, get_rules, scan_source, should_skip, Finding,
@@ -29,6 +32,15 @@ fn scan_roots() -> Vec<PathBuf> {
         }
     }
     roots.push(PathBuf::from("tests"));
+    // Workspace-root trees that `crates/*/{src,tests}` above does not reach:
+    // the root `ggen` package's own `src/`, plus `examples/` (this is where
+    // every generated pack proof lives, e.g. `examples/receiptctl`), `tools/`,
+    // and `benches/`. All were previously unscanned, leaving thousands of
+    // #[test] fns outside this scanner's blast radius entirely.
+    roots.push(PathBuf::from("examples"));
+    roots.push(PathBuf::from("src"));
+    roots.push(PathBuf::from("tools"));
+    roots.push(PathBuf::from("benches"));
     roots
 }
 
@@ -49,6 +61,11 @@ fn main() {
     let _rules = get_rules();
     let mut findings: Vec<Finding> = Vec::new();
     let mut total_files = 0usize;
+    // Files that failed to parse. This is counted, not swallowed: a file
+    // this scanner cannot parse is unscanned, not clean, and reporting
+    // `ALIVE` while any file went unscanned would be exactly the silent
+    // fail-open behavior this run is supposed to catch in others' code.
+    let mut parse_errors = 0usize;
 
     // Per-crate directory (crates/<name>) so T04's cross-file mock/trait
     // aggregation is scoped to "the same crate", as specified, rather than
@@ -68,9 +85,13 @@ fn main() {
         for file in walk_rs_files(&root) {
             total_files += 1;
             match fs::read_to_string(&file) {
-                Ok(src) => {
-                    findings.extend(scan_source(&src, &file));
-                }
+                Ok(src) => match scan_source(&src, &file) {
+                    Ok(file_findings) => findings.extend(file_findings),
+                    Err(e) => {
+                        parse_errors += 1;
+                        eprintln!("ERROR: failed to parse {}: {e}", file.display());
+                    }
+                },
                 Err(e) => {
                     eprintln!("ERROR: failed to read {}: {e}", file.display());
                 }
@@ -104,6 +125,8 @@ fn main() {
     findings.sort_by(|a, b| (&a.file, a.line, a.rule_id).cmp(&(&b.file, b.line, b.rule_id)));
     findings.dedup();
 
+    let mut should_fail = false;
+
     if !findings.is_empty() {
         for f in &findings {
             eprintln!("{f}");
@@ -113,8 +136,23 @@ fn main() {
             findings.len(),
             total_files
         );
+        should_fail = true;
+    }
+
+    if parse_errors > 0 {
+        eprintln!(
+            "\nERROR: {parse_errors} file(s) failed to parse and were NOT scanned for cheat \
+             patterns. A clean result cannot be trusted while any file was skipped -- fix the \
+             parse error(s) above before committing."
+        );
+        should_fail = true;
+    }
+
+    if should_fail {
         process::exit(1);
     }
 
-    println!("ALIVE: no cheat patterns detected across {total_files} scanned file(s).");
+    println!(
+        "ALIVE: no cheat patterns detected across {total_files} scanned file(s), 0 parse errors."
+    );
 }

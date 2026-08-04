@@ -14,6 +14,8 @@
 //! updates would leave stale generated content. Only a correct
 //! decide-then-merge implementation passes.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
@@ -170,14 +172,14 @@ fn when_guard_false_and_skip_empty_produce_documented_skips_not_writes() {
             "[[generation.rules]]\n",
             "name = \"gated\"\n",
             "when = \"ASK { ?s <http://example.org/name> \\\"charlie\\\" }\"\n",
-            "query = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name }\" }\n",
+            "query = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\n",
             "template = { inline = \"unreachable\" }\n",
             "output_file = \"out/gated.txt\"\n",
             "\n",
             "[[generation.rules]]\n",
             "name = \"empty\"\n",
             "skip_empty = true\n",
-            "query = { inline = \"SELECT ?x WHERE { ?x <http://example.org/nope> ?y }\" }\n",
+            "query = { inline = \"SELECT ?x WHERE { ?x <http://example.org/nope> ?y } ORDER BY ?x\" }\n",
             "template = { inline = \"unreachable\" }\n",
             "output_file = \"out/empty.txt\"\n",
         ),
@@ -226,7 +228,7 @@ fn merge_mode_preserves_hand_edits_across_two_syncs_with_changed_query_data() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[generation.rules]]\nname = \"versioned\"\nmode = \"Merge\"\nquery = { inline = \"SELECT ?v WHERE { ?s <http://example.org/version> ?v }\" }\ntemplate = { inline = \"{% for row in results %}fn version() -> &'static str { \\\"{{ row.v }}\\\" }\\n{% endfor %}\" }\noutput_file = \"src/generated.rs\"\n",
+        "[[generation.rules]]\nname = \"versioned\"\nmode = \"Merge\"\nquery = { inline = \"SELECT ?v WHERE { ?s <http://example.org/version> ?v } ORDER BY ?v\" }\ntemplate = { inline = \"{% for row in results %}fn version() -> &'static str { \\\"{{ row.v }}\\\" }\\n{% endfor %}\" }\noutput_file = \"src/generated.rs\"\n",
     );
     write_ontology(
         dir.path(),
@@ -343,7 +345,7 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[generation.rules]]\nname = \"always\"\nmode = \"Overwrite\"\nquery = { inline = \"SELECT ?v WHERE { ?s <http://example.org/version> ?v }\" }\ntemplate = { inline = \"{% for row in results %}{{ row.v }}{% endfor %}\" }\noutput_file = \"out/version.txt\"\n",
+        "[[generation.rules]]\nname = \"always\"\nmode = \"Overwrite\"\nquery = { inline = \"SELECT ?v WHERE { ?s <http://example.org/version> ?v } ORDER BY ?v\" }\ntemplate = { inline = \"{% for row in results %}{{ row.v }}{% endfor %}\" }\noutput_file = \"out/version.txt\"\n",
     );
     write_ontology(
         dir.path(),
@@ -398,7 +400,7 @@ fn unimplemented_query_source_pack_is_a_typed_refusal_not_a_silent_skip() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[generation.rules]]\nname = \"needs_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"x.rq\" }\ntemplate = { inline = \"unreachable\" }\noutput_file = \"out/x.txt\"\n",
+        "[[packs]]\nname = \"some-pack\"\nregistry = \"local\"\npath = \".\"\n\n[[generation.rules]]\nname = \"needs_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"x.rq\" }\ntemplate = { inline = \"unreachable\" }\noutput_file = \"out/x.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
@@ -416,7 +418,7 @@ fn unimplemented_template_source_git_is_a_typed_refusal() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[generation.rules]]\nname = \"needs_git\"\nquery = { inline = \"SELECT ?s WHERE { ?s ?p ?o } LIMIT 1\" }\ntemplate = { git = \"https://example.com/repo.git\", path = \"t.tera\" }\noutput_file = \"out/x.txt\"\n",
+        "[[generation.rules]]\nname = \"needs_git\"\nquery = { inline = \"SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s LIMIT 1\" }\ntemplate = { git = \"https://example.com/repo.git\", path = \"t.tera\" }\noutput_file = \"out/x.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
@@ -468,6 +470,8 @@ fn duplicate_render_targets_from_per_row_rule_are_refused() {
 /// linearly-chained receipt history, not two disconnected genesis records.
 #[test]
 fn two_generation_rules_syncs_chain_receipts() {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
@@ -494,7 +498,10 @@ fn two_generation_rules_syncs_chain_receipts() {
         "second receipt must chain onto the first"
     );
     let recomputed = receipt2.record.recompute_chain_hash().expect("recompute");
-    let hex: String = recomputed.iter().map(|b| format!("{b:02x}")).collect();
+    let hex: String = recomputed.iter().fold(String::new(), |mut hex, b| {
+        let _ = write!(hex, "{b:02x}");
+        hex
+    });
     assert_eq!(
         hex, receipt2.record.chain_hash_hex,
         "chain head must verify"
@@ -514,7 +521,7 @@ fn empty_rendered_body_is_refused_not_silently_written() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[generation.rules]]\nname = \"blank\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } LIMIT 1\" }\ntemplate = { inline = \"\" }\noutput_file = \"out/blank.txt\"\n",
+        "[[generation.rules]]\nname = \"blank\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name LIMIT 1\" }\ntemplate = { inline = \"\" }\noutput_file = \"out/blank.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
@@ -529,10 +536,10 @@ fn empty_rendered_body_is_refused_not_silently_written() {
 //     `[[generation.rules]]`, and the `when:` ASK guard
 // ---------------------------------------------------------------------------
 
-const ONTOLOGY_REX_DOG: &str = r#"
+const ONTOLOGY_REX_DOG: &str = r"
 @prefix ex: <http://example.org/> .
 ex:rex a ex:Dog .
-"#;
+";
 
 /// THE load-bearing proof for inference-rules wiring: `ex:rex a ex:Animal`
 /// exists nowhere in the ontology — it can only appear if the
@@ -545,7 +552,7 @@ fn inference_rule_construct_is_visible_to_generation_rule_query() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[inference.rules]]\nname = \"dogs_are_animals\"\nconstruct = \"CONSTRUCT { ?s a <http://example.org/Animal> } WHERE { ?s a <http://example.org/Dog> }\"\norder = 1\n\n[[generation.rules]]\nname = \"animals\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Animal> }\" }\ntemplate = { inline = \"{% for row in results %}{{ row.s }}\\n{% endfor %}\" }\noutput_file = \"out/animals.txt\"\n",
+        "[[inference.rules]]\nname = \"dogs_are_animals\"\nconstruct = \"CONSTRUCT { ?s a <http://example.org/Animal> } WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\"\norder = 1\n\n[[generation.rules]]\nname = \"animals\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Animal> } ORDER BY ?s\" }\ntemplate = { inline = \"{% for row in results %}{{ row.s }}\\n{% endfor %}\" }\noutput_file = \"out/animals.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
@@ -568,7 +575,7 @@ fn inference_rule_when_guard_false_skips_construct() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[inference.rules]]\nname = \"dogs_are_animals\"\nconstruct = \"CONSTRUCT { ?s a <http://example.org/Animal> } WHERE { ?s a <http://example.org/Dog> }\"\norder = 1\nwhen = \"ASK { ?s a <http://example.org/Cat> }\"\n\n[[generation.rules]]\nname = \"animals\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Animal> }\" }\ntemplate = { inline = \"{% for row in results %}{{ row.s }}\\n{% endfor %}\" }\noutput_file = \"out/animals.txt\"\nskip_empty = true\n",
+        "[[inference.rules]]\nname = \"dogs_are_animals\"\nconstruct = \"CONSTRUCT { ?s a <http://example.org/Animal> } WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\"\norder = 1\nwhen = \"ASK { ?s a <http://example.org/Cat> }\"\n\n[[generation.rules]]\nname = \"animals\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Animal> } ORDER BY ?s\" }\ntemplate = { inline = \"{% for row in results %}{{ row.s }}\\n{% endfor %}\" }\noutput_file = \"out/animals.txt\"\nskip_empty = true\n",
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
@@ -596,7 +603,7 @@ fn law_gate_denial_violation_refuses_declarative_rules_sync() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[law]\nrules = [\"rules/no-dogs.n3\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> }\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+        "[law]\nrules = [\"rules/no-dogs.n3\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
     std::fs::create_dir_all(dir.path().join("rules")).expect("mkdir rules");
@@ -630,7 +637,7 @@ fn law_gate_violation_refuses_declarative_rules_sync_naming_offending_node() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[validation]\ngates = [\"gates/dog.rq\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> }\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+        "[validation]\ngates = [\"gates/dog.rq\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
     std::fs::create_dir_all(dir.path().join("gates")).expect("mkdir gates");
@@ -661,7 +668,7 @@ fn legacy_validation_shacl_is_refused_loudly() {
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[validation]\nshacl = [\"shapes/dog.ttl\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> }\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+        "[validation]\nshacl = [\"shapes/dog.ttl\"]\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
     std::fs::create_dir_all(dir.path().join("shapes")).expect("mkdir shapes");
@@ -676,5 +683,200 @@ fn legacy_validation_shacl_is_refused_loudly() {
     assert!(
         !dir.path().join("out/static.txt").exists(),
         "refused run must write nothing"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 13. `[[validation.rules]]` — inline named ASK-based custom validation rules
+// ---------------------------------------------------------------------------
+
+/// THE load-bearing proof that `[[validation.rules]]` is actually executed,
+/// not silently parsed-and-ignored: `ex:rex` has no `ex:license` triple, so
+/// the rule's `ask` (true = valid) evaluates false — a violation. Default
+/// severity is `Error`, so the sync must refuse before any file is written.
+/// A decorative implementation (the pre-fix state: the field was parsed but
+/// never read anywhere in `ggen-engine`) would sync successfully and write
+/// `out/static.txt` instead.
+#[test]
+fn validation_rule_error_severity_violation_refuses_declarative_rules_sync() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[validation.rules]]\nname = \"dogs-must-be-licensed\"\ndescription = \"every dog must carry a license\"\nask = \"ASK { ?dog a <http://example.org/Dog> . ?dog <http://example.org/license> ?lic }\"\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("an unlicensed dog must violate the default-severity (Error) rule");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-LAW-020"), "{msg}");
+    assert!(
+        msg.contains("dogs-must-be-licensed"),
+        "refusal must name the violated rule: {msg}"
+    );
+    assert!(
+        msg.contains("every dog must carry a license"),
+        "refusal must carry the rule's description: {msg}"
+    );
+    assert!(
+        !dir.path().join("out/static.txt").exists(),
+        "a validation-rule violation must precede writes, exactly like a gates violation"
+    );
+}
+
+/// The same violated rule as above, but with `severity = "Warning"`: the
+/// sync must NOT refuse — it logs and continues, exactly as
+/// `ValidationSeverity::Warning`'s doc comment promises ("Logged but
+/// continues"). Proof the severity is actually read and dispatched on, not
+/// just the presence of a violation.
+#[test]
+fn validation_rule_warning_severity_violation_logs_and_continues() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[validation.rules]]\nname = \"dogs-must-be-licensed\"\ndescription = \"every dog must carry a license\"\nask = \"ASK { ?dog a <http://example.org/Dog> . ?dog <http://example.org/license> ?lic }\"\nseverity = \"Warning\"\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let report = sync(dir.path(), SyncOptions::default())
+        .expect("a Warning-severity violation must not refuse the sync");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/static.txt")],
+        "the sync must have continued past the logged warning and written the file"
+    );
+    assert!(dir.path().join("out/static.txt").exists());
+}
+
+// ---------------------------------------------------------------------------
+// 14. `generation.output_dir` — joined onto every rule's resolved
+//     `output_file`
+// ---------------------------------------------------------------------------
+
+/// THE load-bearing proof that `generation.output_dir` is actually honored,
+/// not silently parsed-and-ignored: with `output_dir = "generated"` set, the
+/// rule's `output_file = "out/static.txt"` must land at
+/// `generated/out/static.txt`, not at `out/static.txt`. A decorative
+/// implementation (the pre-fix state: the field was parsed but never read
+/// anywhere in `ggen-engine`, so `"."` — the coincidentally-correct default
+/// — was the only value that ever appeared to work) would write to the
+/// un-prefixed path instead.
+#[test]
+fn output_dir_is_joined_onto_rendered_output_file() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[generation]\noutput_dir = \"generated\"\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"static\\n\" }\noutput_file = \"out/static.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("generated/out/static.txt")],
+        "output_dir must be joined onto output_file, not ignored"
+    );
+    assert!(
+        dir.path().join("generated/out/static.txt").exists(),
+        "file must actually land under output_dir on disk"
+    );
+    assert!(
+        !dir.path().join("out/static.txt").exists(),
+        "file must NOT land at the un-prefixed output_file path"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 15. `[validation].no_unsafe` / `[validation].validate_syntax` — F2 red-team
+//     finding: both flags were declared, parsed, and defaulted
+//     (`ggen_config::manifest::types::ValidationConfig`) but had zero reader
+//     anywhere in this crate's live pipeline before this fix. A decorative
+//     implementation (the pre-fix state) would sync successfully and write
+//     the file below regardless of either flag's value.
+// ---------------------------------------------------------------------------
+
+/// THE load-bearing proof for `no_unsafe`: a rendered body containing an
+/// `unsafe` block must refuse the sync, not write the file, when
+/// `[validation].no_unsafe = true`.
+#[test]
+fn no_unsafe_refuses_rendered_output_containing_unsafe_block() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[validation]\nno_unsafe = true\n\n[[generation.rules]]\nname = \"risky\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"unsafe { let _p: *const u8 = std::ptr::null(); }\\n\" }\noutput_file = \"out/risky.rs\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("no_unsafe = true must refuse rendered output containing an unsafe block");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-GEN-015"), "{msg}");
+    assert!(
+        !dir.path().join("out/risky.rs").exists(),
+        "a no_unsafe violation must precede the write, exactly like other FM-GEN refusals"
+    );
+}
+
+/// Escape hatch / negative control: `no_unsafe` defaults to `false`
+/// (`ValidationConfig::default`), so the exact same unsafe-containing
+/// rendered body must sync and write normally when the manifest omits
+/// `[validation]` entirely — proof the check is gated on the flag, not an
+/// unconditional ban.
+#[test]
+fn no_unsafe_defaults_to_false_and_allows_unsafe_block() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"risky\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"unsafe { let _p: *const u8 = std::ptr::null(); }\\n\" }\noutput_file = \"out/risky.rs\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let report = sync(dir.path(), SyncOptions::default())
+        .expect("no_unsafe defaults to false; unsafe blocks must be allowed by default");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/risky.rs")]
+    );
+}
+
+/// THE load-bearing proof for `validate_syntax`: this crate has no
+/// Rust-parser dependency to honestly perform syntax validation, so setting
+/// `[validation].validate_syntax = true` must refuse loudly (naming the gap)
+/// for any `.rs`-targeted rule rather than silently reporting success.
+#[test]
+fn validate_syntax_true_refuses_rs_output_as_not_yet_implemented() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[validation]\nvalidate_syntax = true\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"fn f() {}\\n\" }\noutput_file = \"out/static.rs\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let err = sync(dir.path(), SyncOptions::default()).expect_err(
+        "validate_syntax = true must refuse loudly (not implemented) rather than silently no-op",
+    );
+    let msg = err.to_string();
+    assert!(msg.contains("FM-GEN-016"), "{msg}");
+    assert!(!dir.path().join("out/static.rs").exists());
+}
+
+/// Scope control: `validate_syntax` only concerns Rust (`.rs`) output — a
+/// rule targeting a non-`.rs` file must sync normally even with
+/// `validate_syntax = true`, proof the refusal is scoped to Rust output, not
+/// a blanket ban on setting the flag at all.
+#[test]
+fn validate_syntax_true_does_not_refuse_non_rust_output() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[validation]\nvalidate_syntax = true\n\n[[generation.rules]]\nname = \"static\"\nquery = { inline = \"SELECT ?s WHERE { ?s a <http://example.org/Dog> } ORDER BY ?s\" }\ntemplate = { inline = \"hello\\n\" }\noutput_file = \"out/static.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let report = sync(dir.path(), SyncOptions::default())
+        .expect("validate_syntax only concerns .rs output; a .txt target must sync normally");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/static.txt")]
     );
 }

@@ -4,6 +4,8 @@
 //! oxigraph store, real Tera rendering, real `ggen_engine::sync::sync()`
 //! pipeline — no mocks. Mirrors `frontmatter_fields_e2e.rs`'s conventions.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};

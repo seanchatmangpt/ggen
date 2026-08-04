@@ -4,6 +4,18 @@ Generated from `ctt:CliBoundaryTest` individuals. Each row is one
 Chicago-style `#[test]` in `tests/chicago_tdd_tools_boundary.rs` that
 crosses a real binary boundary via `CliHarness` — no mocks.
 
+## Prerequisites
+
+`CliHarness::cargo_bin` resolves each binary below via `CARGO_BIN_EXE_*`,
+then this workspace's own `target/{debug,release}/`, then a `PATH` search
+(see `chicago_tdd_tools::cli_proof::CliHarness::cargo_bin`). If a binary
+below is not a `[[bin]]` target of *this* consumer crate's own workspace,
+it must be built and placed on `PATH` before `cargo test` will pass —
+derived from `ctt:binary`, not hand-maintained:
+
+- `receiptctl`
+
+
 | Test | Binary | Args | Exit | Axiom covered |
 |------|--------|------|------|---------------|
 | `receiptctl_algorithm_list_succeeds` | `receiptctl` | `algorithm list` | 0 | receiptctl algorithm list (argv composed from clap-noun-verb-pack's AlgorithmList command) exits 0 and prints a JSON array |

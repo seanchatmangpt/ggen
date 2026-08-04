@@ -6,6 +6,8 @@
 //! and replays the chain twice, asserting the derived (andon, ceiling)
 //! aggregate is identical both times.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::fs;
 use std::path::Path;
 
@@ -17,8 +19,12 @@ const RECEIPT_LOG_PATH: &str = "../../.ggen-v2/receipt-log.jsonl";
 
 fn load_real_records() -> Vec<ReceiptRecord> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(RECEIPT_LOG_PATH);
-    let text = fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("real receipt-log.jsonl must exist at {path:?}: {e}"));
+    let text = fs::read_to_string(&path).unwrap_or_else(|e| {
+        panic!(
+            "real receipt-log.jsonl must exist at {}: {e}",
+            path.display()
+        )
+    });
     text.lines()
         .filter(|l| !l.trim().is_empty())
         .map(|l| {
@@ -55,7 +61,7 @@ fn replay(
             "chain continuity within this repo's real v2 history"
         );
         last_epoch = read_receipt_epoch(record).expect("real v2 record readable");
-        prev = record.chain_hash_hex.clone();
+        record.chain_hash_hex.clone_into(&mut prev);
     }
     (last_epoch.andon, last_epoch.standing_ceiling)
 }

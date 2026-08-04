@@ -1,7 +1,13 @@
 name: validate-dteam-x64
 
+# Checks out an EXTERNAL repo (seanchatmangpt/dteam) at a pinned commit SHA and
+# tests that frozen snapshot -- it validates nothing in this repo's own tree, so
+# its result is identical regardless of what a ggen PR changes. Previously ran
+# on every single ggen pull_request (no path filter possible, since no path in
+# THIS repo is relevant); narrowed to manual dispatch only (2026-08-03, CI
+# minimalism pass) so it no longer contributes to ggen PR-triggered congestion.
+# Re-run manually when the pinned dteam SHA below is deliberately bumped.
 on:
-  pull_request:
   workflow_dispatch:
 
 concurrency:

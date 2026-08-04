@@ -10,8 +10,13 @@
 //! and asserts the measured value against the same 180s SLO threshold
 //! `slo-check` uses. No mocks -- the timing is of a real nested `cargo test`
 //! process actually compiling and running `receipt_chain_e2e.rs`, which
-//! itself does real sync() calls, real BLAKE3 hashing, and real filesystem
+//! itself does real `sync()` calls, real BLAKE3 hashing, and real filesystem
 //! I/O (see that file).
+//!
+//! The subprocess is spawned with `Command::spawn()` and polled via
+//! `try_wait()` against a hard `HANG_DEADLINE`, not run with the blocking
+//! `Command::output()`/`wait()` -- see `HANG_DEADLINE`'s doc comment for the
+//! real hang this replaces (TECH-DEBT-003).
 //!
 //! Positive witness: `economics_receipt_chain_wall_clock_measured_under_slo_threshold`.
 //! Negative falsifier (name contains "rejects", matching
@@ -20,20 +25,46 @@
 //! proves the recorded duration is a real nonzero measurement, not a
 //! placeholder/fabricated constant a Decorative Completion would emit.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::sync::OnceLock;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 struct Measurement {
     elapsed_ms: u128,
     exit_success: bool,
+    timed_out: bool,
 }
+
+/// Hard wall-clock deadline for the nested `cargo test` subprocess.
+///
+/// A prior full `test-integration` run stalled at 0% CPU for *minutes* on
+/// this test (killed manually after 134/373 targets, see TECH-DEBT-003 in
+/// `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`) because the
+/// old implementation used `Command::output()`, which blocks until the OS
+/// reports the child has exited with no way to bound that wait. This deadline
+/// makes the wait bounded: set well above the 180s SLO threshold
+/// (`.claude/rules/rust/performance.md`, itself 4x the observed 45s
+/// cold-compile baseline) so a legitimately slow-but-passing cold build is
+/// never killed as a false positive, while still comfortably inside the
+/// outer `test-integration` recipe's own 600s timeout (`justfile`) so one
+/// hung target can no longer consume the whole budget.
+const HANG_DEADLINE: Duration = Duration::from_secs(240);
+
+/// Poll interval used while waiting on the child below. Polling (instead of
+/// a single blocking `wait()`/`output()` call) is what makes `HANG_DEADLINE`
+/// enforceable: it lets the loop check elapsed time between polls and
+/// `kill()` the child itself once the deadline is exceeded.
+const POLL_INTERVAL: Duration = Duration::from_millis(200);
 
 /// Runs the real `receipt_chain_e2e` cargo test as a subprocess exactly
 /// once per test binary (cached via `OnceLock` so the two `#[test]` fns
 /// below share one real measurement instead of re-running the expensive
-/// nested build/test twice) and records genuine wall-clock elapsed time.
+/// nested build/test twice), records genuine wall-clock elapsed time, and
+/// enforces `HANG_DEADLINE` so a hung/deadlocked child can never block this
+/// test -- and therefore the whole integration-test suite -- forever.
 fn measure_receipt_chain_e2e() -> &'static Measurement {
     static MEASUREMENT: OnceLock<Measurement> = OnceLock::new();
     MEASUREMENT.get_or_init(|| {
@@ -46,16 +77,47 @@ fn measure_receipt_chain_e2e() -> &'static Measurement {
             .expect("crates/ggen-engine has a workspace root two levels up");
 
         let started = Instant::now();
-        let output = Command::new("cargo")
+        // stdout/stderr are discarded (Stdio::null), not piped: nothing
+        // drains a piped child's output while we poll below, so a pipe
+        // filling up (>64KB) would make the child block on write() -- the
+        // exact hang shape this fix removes. The test only ever checked
+        // `status.success()`, never the captured output, so nothing is lost.
+        let mut child = Command::new("cargo")
             .args(["test", "-p", "ggen-engine", "--test", "receipt_chain_e2e"])
             .current_dir(workspace_root)
-            .output()
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
             .expect("failed to spawn `cargo test -p ggen-engine --test receipt_chain_e2e`");
+
+        let exit_status = loop {
+            match child.try_wait() {
+                Ok(Some(status)) => break Some(status),
+                Ok(None) => {
+                    if started.elapsed() >= HANG_DEADLINE {
+                        break None;
+                    }
+                    std::thread::sleep(POLL_INTERVAL);
+                }
+                Err(e) => panic!("OS error polling nested `cargo test` child process: {e}"),
+            }
+        };
+
+        let timed_out = exit_status.is_none();
+        if timed_out {
+            // Deadline exceeded: kill the child instead of continuing to
+            // wait on it, and reap it so it doesn't linger as a zombie.
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+
         let elapsed_ms = started.elapsed().as_millis();
+        let exit_success = exit_status.is_some_and(|s| s.success());
 
         Measurement {
             elapsed_ms,
-            exit_success: output.status.success(),
+            exit_success,
+            timed_out,
         }
     })
 }
@@ -66,6 +128,14 @@ fn measure_receipt_chain_e2e() -> &'static Measurement {
 #[test]
 fn economics_receipt_chain_wall_clock_measured_under_slo_threshold() {
     let m = measure_receipt_chain_e2e();
+    assert!(
+        !m.timed_out,
+        "receipt_chain_e2e subprocess did not complete within the {}s hard wall-clock \
+         deadline and was killed to avoid hanging the test suite (measured {}ms before the \
+         kill) -- this is a bounded failure, not a hang",
+        HANG_DEADLINE.as_secs(),
+        m.elapsed_ms
+    );
     assert!(
         m.exit_success,
         "receipt_chain_e2e must itself pass for this timing measurement to be economically meaningful"

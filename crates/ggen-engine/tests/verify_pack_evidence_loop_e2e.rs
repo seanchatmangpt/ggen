@@ -12,6 +12,8 @@
 //! pattern) -- the stub genuinely runs and its genuine exit code is what
 //! lands in the evidence graph; nothing fakes evidence inside the test.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -100,7 +102,7 @@ fn write_stub_cargo(stub_bin: &Path, exit_code: i32) {
 }
 
 /// Run a shell script from the consumer root with the stub dir prepended to
-/// PATH; returns (exit_code, combined stdout+stderr).
+/// PATH; returns (`exit_code`, combined stdout+stderr).
 fn run_script(project: &Path, stub_bin: &Path, script: &Path) -> (i32, String) {
     let path = format!(
         "{}:{}",
@@ -136,6 +138,11 @@ fn run_sync(project: &Path) -> Result<ggen_engine::sync::SyncReport, String> {
     .map_err(|e| e.to_string())
 }
 
+// One Chicago-TDD end-to-end scenario (bootstrap loop through green, then a
+// sabotage case proving refusal); splitting it would either re-run the
+// expensive bootstrap setup per assertion group or share state between
+// tests, not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn verify_pack_evidence_bootstrap_loop_green_then_sabotage_refusal() {
     let (dir, project, stub_bin) = scaffold();

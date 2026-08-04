@@ -8,12 +8,13 @@
 # Generated from combinatorial.ttl. Edit the ontology, not this file.
 
 
+PREFIX cmx: <http://ggen.org/combinatorial#>
+
+
 ASK {
   
-    NOT EXISTS {
-      ?gen a cmx:Generator .
-      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
-    }
+    ?gen a cmx:Generator .
+    FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
     
 }
 

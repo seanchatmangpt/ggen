@@ -3,13 +3,22 @@
 or `Command::status()` calls whose non-zero exit is handled by anything other
 than an early-return/bail.
 
-Motivated by a real bug found and fixed this session: `coverage_projection::
-run_subsystem_verifier` (tools/v26.8.1/src/coverage_projection.rs) called
-`Command::output()`, checked `!output.status.success()`, and on that branch
-only `eprintln!`'d a warning before falling through to read a stale cached
-report from disk -- silently admitting against outdated evidence instead of
-propagating the refusal. This script is a mechanical, best-effort guard
-against that specific shape recurring, not a full data-flow analyzer.
+Motivated by a real bug found and fixed in the ggen v26.8.1 corpus:
+`coverage_projection::run_subsystem_verifier` (formerly
+tools/v26.8.1/src/coverage_projection.rs) called `Command::output()`,
+checked `!output.status.success()`, and on that branch only `eprintln!`'d a
+warning before falling through to read a stale cached report from disk --
+silently admitting against outdated evidence instead of propagating the
+refusal. This script is a mechanical, best-effort guard against that
+specific shape recurring, not a full data-flow analyzer.
+
+That v26.8.1 corpus (including coverage_projection.rs) was migrated out of
+this repository to seanchatmangpt/ggen-legacy and deleted here (PR #554,
+scripts/ci/v26_8_1_source_removal.py's GUARD_MOVES); this script itself was
+kept behind as a standing lint (moved tools/v26.8.1/ -> scripts/ci/
+unchanged) because the shape it catches is a general Rust anti-pattern, not
+specific to the migrated corpus. It now scans every tracked `.rs` file in
+this repository (via `git ls-files`), not a fixed subdirectory.
 
 Heuristic (deliberately conservative -- false positives over false
 negatives, since this is a lint a human reviews, not a hard CI gate yet):
@@ -22,7 +31,12 @@ A block containing only `eprintln!`/`println!`/`log::`/`tracing::` (and
 nothing else) is exactly the fail-open shape this guards against.
 
 Usage:
-    python3 tools/v26.8.1/guard_fail_open_subprocess.py [--root PATH]
+    python3 scripts/ci/guard_fail_open_subprocess.py [--root PATH]
+
+Scans every `git ls-files`-tracked `*.rs` file under --root (default: the
+repository root, resolved from this script's own location) -- this
+naturally excludes target/, vendored worktrees, and anything else
+.gitignore'd, without hardcoding a subdirectory that can go stale again.
 
 Exits 1 and prints each flagged call site if any are found; exits 0 (and
 prints "no fail-open subprocess handling found") otherwise.
@@ -31,6 +45,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 from pathlib import Path
 
 CALL_RE = re.compile(r"\.(output|status)\(\)")
@@ -39,6 +54,12 @@ ONLY_LOGGING_RE = re.compile(r"^\s*(eprintln!|println!|log::|tracing::|//)")
 
 
 def find_violations(path: Path) -> list[tuple[int, str]]:
+    if not path.exists():
+        # `git ls-files` lists the index, not the working tree: a file that
+        # was `git rm`'d or plain-deleted but not yet staged still shows up
+        # here. There is no content to scan for a file that isn't on disk --
+        # treat it as zero violations rather than crashing.
+        return []
     text = path.read_text(errors="replace")
     lines = text.splitlines()
     violations: list[tuple[int, str]] = []
@@ -90,14 +111,33 @@ def find_violations(path: Path) -> list[tuple[int, str]]:
     return violations
 
 
+def tracked_rust_files(root: Path) -> list[Path]:
+    """Every `git ls-files`-tracked `*.rs` path under root, resolved to
+    absolute paths. Using `git ls-files` (not `Path.glob`) means target/,
+    vendored worktrees, and anything else .gitignore'd are excluded for
+    free, and there is no subdirectory to go stale if source moves again."""
+    out = subprocess.run(
+        ["git", "ls-files", "*.rs"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return sorted(root / rel for rel in out.stdout.splitlines())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", default=".")
+    parser.add_argument(
+        "--root",
+        default=str(Path(__file__).resolve().parents[2]),
+        help="Repository root to scan (default: this script's repo root).",
+    )
     args = parser.parse_args()
     root = Path(args.root).resolve()
 
     all_violations: list[tuple[Path, int, str]] = []
-    for rs_file in sorted(root.glob("tools/v26.8.1/src/**/*.rs")):
+    for rs_file in tracked_rust_files(root):
         for line_no, line in find_violations(rs_file):
             all_violations.append((rs_file.relative_to(root), line_no, line))
 

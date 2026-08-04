@@ -41,6 +41,31 @@ pub enum RepairFamily {
     /// Unbound rule file — a ggen.toml [[generation.rules]] query/template
     /// `{file=...}` points at a file that does not exist on disk. GGEN-RULE-001.
     RuleFileMissing,
+    /// Source-caste path violation — a rule's `output_file` targets a
+    /// source-caste directory (rendered source masquerading as first-class
+    /// source). GGEN-SRC-001.
+    SourceCastePath,
+    /// Orphaned output — a rule's `output_file` pattern lacks a static
+    /// filename base (e.g. resolves to just `.rs` or empty after stripping
+    /// Tera variables). GGEN-YIELD-003.
+    OrphanedOutput,
+    /// Competing authority — two or more ggen.toml rules target the same
+    /// `output_file`, so it is undecidable which rule's content wins.
+    /// GGEN-YIELD-004.
+    CompetingAuthority,
+    /// Pack-source indirection — a rule's query/template is supplied via
+    /// `{ pack = "...", ... }`, which cannot be resolved at author time and
+    /// so disables the GGEN-TPL-001/GGEN-OUT-001 checks for that rule.
+    /// Advisory only (no destructive edit is possible — the pack content
+    /// isn't known until generation time). GGEN-PACK-001.
+    PackIndirection,
+    /// SELECT * blindspot — a rule's SPARQL query uses `SELECT *` instead of
+    /// explicit projections, which disables the GGEN-TPL-001/GGEN-OUT-001
+    /// unbound-variable checks for that rule (they cannot see what variables
+    /// the query actually provides). Advisory only (no destructive edit is
+    /// possible — the "right" explicit projection list is not knowable from
+    /// the diagnostic alone). GGEN-QUERY-002.
+    Blindspot,
 }
 
 /// Where a route came from. Seeded routes are always available (cold start);

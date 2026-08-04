@@ -907,6 +907,7 @@ cli:ReceiptCommand
   cli:examples """
     ggen receipt verify
     """ ;
+  cli:handler "crates/ggen-engine/src/verbs/receipt.rs" ;
   dcterms:created "2026-07-21T00:00:00Z" ;
   cli:version "26.15.0" ;
   .
@@ -919,6 +920,7 @@ cli:DoctorCommand
   cli:examples """
     ggen doctor run
     """ ;
+  cli:handler "crates/ggen-engine/src/verbs/doctor.rs" ;
   dcterms:created "2026-07-21T00:00:00Z" ;
   cli:version "26.15.0" ;
   .

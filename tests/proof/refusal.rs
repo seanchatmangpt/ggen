@@ -17,7 +17,7 @@ fn ggen() -> Command {
 /// SAB-01: Corrupt packs.lock with garbage JSON → sync --locked fails hard
 /// failure_class: contract_drift (lockfile is invalid)
 #[test]
-#[ignore]
+#[ignore = "e2e CLI sabotage/negative-path test (T3 Layer, see file header): spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; run via `cargo test -- --ignored` after `cargo build`"]
 fn sab_01_corrupt_packs_lock_garbage_json() {
     // Arrange: Create temp dir with corrupt .ggen/packs.lock
     let temp = TempDir::new().expect("create temp dir");
@@ -44,7 +44,7 @@ fn sab_01_corrupt_packs_lock_garbage_json() {
 /// SAB-01b: Truncate packs.lock mid-JSON → sync --locked fails hard
 /// failure_class: contract_drift (lockfile incomplete)
 #[test]
-#[ignore]
+#[ignore = "e2e CLI sabotage/negative-path test (T3 Layer, see file header): spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; run via `cargo test -- --ignored` after `cargo build`"]
 fn sab_01b_truncate_packs_lock_mid_json() {
     // Arrange: Create temp dir with truncated .ggen/packs.lock (mid-JSON)
     let temp = TempDir::new().expect("create temp dir");
@@ -72,7 +72,7 @@ fn sab_01b_truncate_packs_lock_mid_json() {
 /// SAB-02: Empty receipt signature → receipt verification considers it invalid
 /// failure_class: contract_drift (receipt has no proof)
 #[test]
-#[ignore]
+#[ignore = "e2e CLI sabotage/negative-path test (T3 Layer, see file header): spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; run via `cargo test -- --ignored` after `cargo build`"]
 fn sab_02_empty_receipt_signature() {
     // Arrange: Create temp dir with init, then corrupt receipt signature
     let temp = TempDir::new().expect("create temp dir");
@@ -109,7 +109,7 @@ fn sab_02_empty_receipt_signature() {
 /// SAB-03: pack add nonexistent/pack → pack add fails (pack not found)
 /// failure_class: fail_open (system should reject missing pack)
 #[test]
-#[ignore]
+#[ignore = "e2e CLI sabotage/negative-path test (T3 Layer, see file header): spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; run via `cargo test -- --ignored` after `cargo build`"]
 fn sab_03_pack_add_nonexistent() {
     // Arrange: Create temp dir with valid ggen.toml
     let temp = TempDir::new().expect("create temp dir");
@@ -142,7 +142,7 @@ version = "0.1.0"
 /// SAB-04: Delete ggen.toml after init → doctor fails (missing manifest)
 /// failure_class: fail_open (system should reject missing config)
 #[test]
-#[ignore]
+#[ignore = "e2e CLI sabotage/negative-path test (T3 Layer, see file header): spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; run via `cargo test -- --ignored` after `cargo build`"]
 fn sab_04_missing_ggen_toml_doctor_fails() {
     // Arrange: Create temp dir, init, then delete ggen.toml
     let temp = TempDir::new().expect("create temp dir");

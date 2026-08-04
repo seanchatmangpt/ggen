@@ -4,7 +4,7 @@
   },
   "ocel:events": {
     "evt_000": {
-      "event_id": "f96ba217-aabe-4b75-9d42-9bbbb5ab39ac",
+      "event_id": "f20b7880-96d7-407e-8741-f89e6d3d3019",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -20,12 +20,12 @@
         ]
       ],
       "attributes": {
-        "outcome": "admitted",
-        "fixture_id": "Accept_AdmissionTableMatches"
+        "fixture_id": "Accept_AdmissionTableMatches",
+        "outcome": "admitted"
       }
     },
     "evt_002": {
-      "event_id": "8e22f7cb-7704-4fc5-8786-daf5cc2c058a",
+      "event_id": "f9bdff84-a8f3-4c00-a9a4-155c9c8f9690",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -46,7 +46,7 @@
       }
     },
     "evt_001": {
-      "event_id": "e1e691f2-3cbb-40d4-b8a5-b83bb3ad6be2",
+      "event_id": "1eeecf7e-d804-4b5d-990d-c9ef0a527753",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -68,7 +68,7 @@
       }
     },
     "evt_003": {
-      "event_id": "835aaabe-3359-4a8b-a9de-72ed99b3bf49",
+      "event_id": "a69885e8-e070-4c1d-bb26-b5e2f7582ab0",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -84,9 +84,9 @@
         ]
       ],
       "attributes": {
-        "fixture_id": "Falsify_OcelEventNotAdmitted",
+        "refusal": "OcelEventNotAdmitted",
         "outcome": "refused",
-        "refusal": "OcelEventNotAdmitted"
+        "fixture_id": "Falsify_OcelEventNotAdmitted"
       }
     }
   },

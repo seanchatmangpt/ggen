@@ -1,6 +1,8 @@
 //! Fortune 5 frontmatter hardening: bounded multiplication, admitted paths,
 //! receipt-bound governing inputs, coherent authority, and fail-closed ownership.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, MAX_QUERY_RESULT_ROWS};
@@ -29,10 +31,12 @@ fn template(root: &Path, name: &str, source: &str) {
 
 #[test]
 fn excessive_query_rows_refuse_before_hook_or_write() {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     let mut ontology = String::from("@prefix ex: <http://example.org/> .\n");
     for index in 0..=MAX_QUERY_RESULT_ROWS {
-        ontology.push_str(&format!("ex:e{index} ex:name \"n{index}\" .\n"));
+        let _ = writeln!(ontology, "ex:e{index} ex:name \"n{index}\" .");
     }
     scaffold(dir.path(), &ontology);
     template(

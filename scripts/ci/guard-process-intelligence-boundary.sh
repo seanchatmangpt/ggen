@@ -31,14 +31,102 @@
 # feature PR #255 deliberately dropped from `bcinr-pddl/Cargo.toml`'s
 # `[features]` table (see that file's own comment) -- with no such feature
 # declared, this code can never compile into any build, default or otherwise.
+#
+# `examples/praxis-core-verify/` added to the exclusion (2026-08-03,
+# scan-scope hardening pass): investigated before excluding, not assumed.
+# This example crate's entire committed purpose (per its own Cargo.toml
+# `description`) is compiling and running praxis-core's OWN refusal-taxonomy
+# test suite -- a BYTE-IDENTICAL copy, per
+# tests/praxis_core_refusal_verbatim_reference_tests.rs's own doc comment
+# (sha256-verified before/after paste) -- against the real `praxis-core`
+# crate. That is the same relationship praxis-core/praxis-graphlaw's own
+# internals already have to this guard, just one layer out (a real consumer
+# exercising praxis-core's internals against reference data, rather than
+# praxis-core exercising itself). Its `use bcinr_powl_receipt::denial::
+# DenialPolarity;` (test file line 48) is not ggen crossing the boundary:
+# `crates/praxis-core/src/refusal.rs:35` already imports that exact symbol,
+# and this file re-imports it only so the verbatim-copied `mod tests` body
+# (which relies on `use super::*` to see it) resolves in its own separate
+# file -- the import is a mechanical consequence of copying the test body
+# out of `refusal.rs`, not a new dependency ggen's own code introduced.
+# `src/praxis_core_refusal_table.rs:17`'s hit is a bare doc-comment mention
+# (```/// `bcinr_powl_receipt::denial::DenialPolarity` lane constant.```),
+# inert like the chicago-tdd-tools/bcinr-pddl doc-comment hits above.
+#
+# 2026-08-03 scan-scope widening: this guard previously grepped only
+# `crates/ src/`, so it never scanned `examples/`, `docs/`, `tools/`,
+# `benches/`, or the root-level `tests/` -- a real, previously-uncaught gap:
+# the `use bcinr_powl_receipt::...` import above sat unflagged not because it
+# was excluded, but because the scan never reached it at all. Scan roots now
+# mirror `crates/ggen-cheat-scanner/src/main.rs`'s own `scan_roots()`
+# (`crates/*/src`, `crates/*/tests`, root `tests/`, `examples/`, `src/`,
+# `tools/`, `benches/` -- the house style for "which trees does a
+# workspace-wide Rust guard walk" in this repo), plus `docs/` (a handful of
+# doctest-style `.rs` files live there, e.g. `docs/examples/*.rs`).
+#
+# Exclusion matching also changed: entries are now matched against each
+# file's REAL path relative to the repo root (e.g. "crates/praxis-core/x.rs"
+# or "crates/praxis-core"), not the bare basename of a single path component.
+# The old `grep --exclude-dir=praxis-core` matched ANY directory literally
+# named `praxis-core` ANYWHERE in the tree -- confirmed empirically against
+# `/usr/bin/grep` (BSD grep 2.6.0-FreeBSD, what this script's
+# `#!/usr/bin/env bash` shebang actually resolves `grep` to when run
+# non-interactively, not the interactive shell's `grep` wrapper function):
+# a scratch dir `b/nested/praxis-core/` was silently exempted even though its
+# real path has nothing to do with `crates/praxis-core`. A future unrelated
+# directory anywhere in the workspace that happens to share one of these five
+# names would have been silently exempted too. Path-based matching below
+# closes that gap.
 set -euo pipefail
-EXCLUDE_DIRS=(--exclude-dir=praxis-core --exclude-dir=praxis-graphlaw --exclude-dir=bcinr-pddl --exclude-dir=chicago-tdd-tools)
 
-if grep -rn "${EXCLUDE_DIRS[@]}" --include="*.rs" "praxis_graphlaw::chatman" crates/ src/ 2>/dev/null; then
+cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
+
+# Exclusions, matched by REAL path relative to the repo root -- see the
+# rationale for each entry in the header comments above.
+EXCLUDE_PATHS=(
+  "crates/praxis-core"
+  "crates/praxis-graphlaw"
+  "crates/bcinr-pddl"
+  "crates/chicago-tdd-tools"
+  "examples/praxis-core-verify"
+)
+
+# Scan roots -- mirrors crates/ggen-cheat-scanner/src/main.rs's scan_roots(),
+# plus docs/ (see header comment).
+SCAN_ROOTS=(crates src tests examples tools benches docs)
+
+is_excluded() {
+  local rel="$1" ex
+  for ex in "${EXCLUDE_PATHS[@]}"; do
+    case "$rel" in
+      "$ex" | "$ex"/*) return 0 ;;
+    esac
+  done
+  return 1
+}
+
+# Populate SCAN_FILES with every non-excluded *.rs file under the scan roots,
+# as real paths relative to the repo root.
+SCAN_FILES=()
+for root in "${SCAN_ROOTS[@]}"; do
+  [ -d "$root" ] || continue
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    rel="${f#./}"
+    is_excluded "$rel" || SCAN_FILES+=("$rel")
+  done < <(find "$root" -name '*.rs' -print 2>/dev/null)
+done
+
+if [ "${#SCAN_FILES[@]}" -eq 0 ]; then
+  echo "BUILD_BROKEN: no .rs files found under scan roots (${SCAN_ROOTS[*]}) -- guard cannot verify anything" >&2
+  exit 1
+fi
+
+if grep -n "praxis_graphlaw::chatman" "${SCAN_FILES[@]}" 2>/dev/null; then
   echo "FAIL: praxis_graphlaw::chatman referenced above -- ggen must not cross the Process Intelligence Boundary." >&2
   exit 1
 fi
-if grep -rEn "${EXCLUDE_DIRS[@]}" --include="*.rs" '\buse[[:space:]]+bcinr_powl(_receipt)?\b|\bbcinr_powl(_receipt)?::' crates/ src/ 2>/dev/null; then
+if grep -En '\buse[[:space:]]+bcinr_powl(_receipt)?\b|\bbcinr_powl(_receipt)?::' "${SCAN_FILES[@]}" 2>/dev/null; then
   echo "FAIL: direct bcinr_powl(_receipt):: reference found -- conformance/fitness analysis belongs in wasm4pm, never inline in ggen." >&2
   exit 1
 fi
@@ -77,4 +165,4 @@ for dir in "${PI_SCAN_DIRS[@]}"; do
   fi
 done
 
-echo "OK: no praxis_graphlaw::chatman, bcinr_powl(_receipt), or local SPARQL-aggregate DFG/conformance discovery references in the ggen workspace (outside praxis-core/praxis-graphlaw's own internals)."
+echo "OK: no praxis_graphlaw::chatman, bcinr_powl(_receipt), or local SPARQL-aggregate DFG/conformance discovery references in the ggen workspace (outside praxis-core/praxis-graphlaw's own internals; scanned ${#SCAN_FILES[@]} .rs files under ${SCAN_ROOTS[*]})."

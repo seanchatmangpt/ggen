@@ -1,172 +1,25 @@
-#![allow(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    clippy::panic,
-    clippy::needless_raw_string_hashes,
-    clippy::duration_suboptimal_units,
-    clippy::branches_sharing_code,
-    clippy::used_underscore_binding,
-    clippy::single_char_pattern,
-    clippy::ignore_without_reason,
-    clippy::cloned_ref_to_slice_refs,
-    clippy::doc_overindented_list_items,
-    clippy::match_wildcard_for_single_variants,
-    clippy::ignored_unit_patterns,
-    clippy::needless_collect,
-    clippy::unnecessary_map_or,
-    clippy::manual_flatten,
-    clippy::manual_strip,
-    clippy::future_not_send,
-    clippy::unnested_or_patterns,
-    clippy::no_effect_underscore_binding,
-    clippy::literal_string_with_formatting_args
-)]
-//! Adversarial tests for the doctor command
+//! ARCHIVED (2026-08-03): these tests exercised `doctor config`, `doctor ontology`, and
+//! `doctor security` -- three sabotage-detection subcommands (missing-file checks, a
+//! `.specify/ontologies/main.ttl` convention, `.env`-secret scanning, each with specific
+//! `"passed":false"`/remediation-string JSON output) that no longer exist anywhere in the
+//! real `doctor` noun.
 //!
-//! These tests intentionally sabotage the environment and verify that the doctor
-//! catches the issues and provides the correct actionable recovery suggestions.
-
-use assert_cmd::Command;
-use predicates::prelude::*;
-use std::fs;
-use tempfile::TempDir;
-
-#[test]
-fn test_doctor_config_sabotage() {
-    let temp = TempDir::new().unwrap();
-    let ggen_toml = temp.path().join("ggen.toml");
-
-    // 1. Missing ggen.toml
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("config")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains("ggen.toml not found"))
-        .stdout(predicate::str::contains(
-            "Run 'ggen init' to create a ggen.toml",
-        ));
-
-    // 2. Corrupt ggen.toml
-    fs::write(&ggen_toml, "[project\nmissing_bracket = true").unwrap();
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("config")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains("invalid or corrupted"))
-        .stdout(predicate::str::contains("Fix syntax errors in ggen.toml"));
-
-    // 3. Valid ggen.toml
-    fs::write(&ggen_toml, "[project]\nname=\"test\"\nversion=\"1.0\"").unwrap();
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("config")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":true"))
-        .stdout(predicate::str::contains("ggen.toml is valid"));
-}
-
-#[test]
-fn test_doctor_ontology_sabotage() {
-    let temp = TempDir::new().unwrap();
-    let ggen_toml = temp.path().join("ggen.toml");
-    fs::write(&ggen_toml, "[project]\nname=\"test\"").unwrap();
-
-    // 1. Missing ontology
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("ontology")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains(
-            ".specify/ontologies/main.ttl missing",
-        ))
-        .stdout(predicate::str::contains(
-            "Create .specify/ontologies/main.ttl or run 'ggen init'",
-        ));
-
-    // 2. Corrupt ontology
-    let ont_dir = temp.path().join(".specify/ontologies");
-    fs::create_dir_all(&ont_dir).unwrap();
-    let main_ttl = ont_dir.join("main.ttl");
-    fs::write(&main_ttl, "@prefix invalid syntax missing period").unwrap();
-
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("ontology")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains("Ontology syntax error"))
-        .stdout(predicate::str::contains("Fix RDF Turtle syntax errors"));
-
-    // 3. Valid ontology
-    fs::write(&main_ttl, "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n<http://test> rdfs:label \"Test\" .").unwrap();
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("ontology")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":true"))
-        .stdout(predicate::str::contains("valid and parsable"));
-}
-
-#[test]
-fn test_doctor_security_sabotage() {
-    let temp = TempDir::new().unwrap();
-
-    // 1. Secret leaked (.env)
-    let env_file = temp.path().join(".env");
-    fs::write(&env_file, "SECRET=xyz").unwrap();
-
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("security")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains("Found .env file"))
-        .stdout(predicate::str::contains(
-            "Move .env outside of the workspace",
-        ));
-
-    fs::remove_file(&env_file).unwrap();
-
-    // 2. MCP Wildcard Injection
-    let mcp_file = temp.path().join(".mcp.json");
-    fs::write(&mcp_file, r#"{"permissions": ["**/*"]}"#).unwrap();
-
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("security")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains("broad wildcard permissions ('*')"))
-        .stdout(predicate::str::contains("Scope down permissions"));
-
-    fs::remove_file(&mcp_file).unwrap();
-
-    // 3. Clean
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.current_dir(temp.path())
-        .arg("doctor")
-        .arg("security")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"passed\":true"))
-        .stdout(predicate::str::contains("Security posture is acceptable"));
-}
+//! Confirmed live (2026-08-03) against the current binary: `ggen doctor --help` lists only
+//! `inspect`, `run`, `domain` -- `ggen doctor config`/`ontology`/`security` all fail with
+//! `error: unrecognized subcommand`. This is not a rename: `doctor run` (lockfile/pack
+//! drift, orphaned artifacts, receipt-vs-disk staleness) and `doctor inspect` (admissible-
+//! work program diagnosis) check entirely different things than config/ontology-file
+//! existence or secret-scanning -- there is no current equivalent to point these tests at,
+//! so rewriting them to call a current subcommand would assert something these tests were
+//! never about. The real, current doctor surface already has its own passing coverage: see
+//! `crates/ggen-engine/tests/doctor_e2e.rs` (5/5 passing as of this archival, exercising
+//! `doctor run`'s actual lockfile-drift/orphaned-artifact/receipt-staleness checks with real
+//! sabotage fixtures, the same testing style this file used).
+//!
+//! `docs/aps/claims.toml`'s `cli.doctor` claim, which used to cite this file as its
+//! falsifier, was repointed at `doctor_e2e.rs` in the same pass that archived this file.
+//!
+//! If config/ontology/`.env`-secret diagnostics are wanted again, they would need to be
+//! built as real `doctor` subcommands first -- restoring this file's assertions without
+//! that implementation would just recreate the removed-subcommand failures this archival
+//! fixes.

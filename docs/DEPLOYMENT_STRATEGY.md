@@ -48,11 +48,14 @@
 ## Pre-Deployment Checklist
 
 ```bash
-# Run all 10 gates (all must pass)
+# Run all 10 gates (all must pass). NOTE: `cargo make` is not this repo's entry point --
+# `just` is (see CLAUDE.md); this checklist predates that convention and Gate 4 in
+# particular is aspirational: no CI job or justfile recipe currently computes coverage,
+# so "80%+ target" below is an unenforced target, not a verified/gated number.
 cargo make check             # Gate 1: Compile
 cargo make lint              # Gate 2: Lint
 cargo make test              # Gate 3: Tests (expect 212+ passes)
-cargo make test-coverage     # Gate 4: Coverage (80%+ target)
+cargo make test-coverage     # Gate 4: Coverage (target: 80%+, aspirational -- not currently gated)
 cargo audit                  # Gate 5: Security audit
 cargo make slo-check         # Gate 6: SLO validation
 # Gate 7: Verify VISION_2030_COMPLETE.md exists

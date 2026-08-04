@@ -44,7 +44,7 @@ impl WindowConsumer<Triple> for ImarsReasoner {
 }
 
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see this file's top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing/window-driven, not part of the fast unit-test loop"]
 fn test_integration() {
     let window = Rc::new(RefCell::new(ImarsWindow::new(4, 2)));
 
@@ -77,7 +77,7 @@ fn test_integration() {
     assert_eq!(5, window.borrow_mut().len());
 }
 #[test]
-#[ignore]
+#[ignore = "vendored RoXi-lineage stream-reasoning integration test (see this file's top note: 'Vendored research-lineage engine... API reshaping is out of scope'); timing/window-driven, not part of the fast unit-test loop"]
 fn test_transitive() {
     let window = Rc::new(RefCell::new(ImarsWindow::new(4, 2)));
 

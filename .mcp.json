@@ -31,16 +31,9 @@
       "args": ["registry", "mcp", "--registry", "semconv/model"],
       "env": {}
     },
-    "ggen": {
-      "command": "cargo",
-      "args": ["run", "-p", "ggen-cli", "--", "mcp", "start-server", "--transport", "stdio"],
-      "env": {
-        "RUST_LOG": "info"
-      }
-    },
     "ggen-lsp-mcp": {
       "command": "cargo",
-      "args": ["run", "-q", "-p", "ggen-lsp-mcp"],
+      "args": ["run", "-q", "-p", "ggen-lsp", "--bin", "ggen-lsp-mcp", "--features", "mcp"],
       "env": {
         "RUST_LOG": "warn"
       }

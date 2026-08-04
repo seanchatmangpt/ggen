@@ -1,0 +1,6 @@
+{
+  "suite": "receipt",
+  "digest_blake3": "92f680bc418f6fde326e174f2e2b4f854d0d9bcd9a66ff133a6ef044c7f486fe",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

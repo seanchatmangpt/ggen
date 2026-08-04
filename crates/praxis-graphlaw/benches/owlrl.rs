@@ -15,7 +15,7 @@ fn owlrl_subclass_hierarchy(max_depth: usize) -> String {
     }
 
     // Add one individual of the top class
-    ttl.push_str(&format!("ex:individual rdf:type ex:U0 .\n"));
+    ttl.push_str("ex:individual rdf:type ex:U0 .\n");
 
     ttl
 }

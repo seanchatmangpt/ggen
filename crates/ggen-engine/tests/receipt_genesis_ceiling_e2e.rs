@@ -9,6 +9,8 @@
 //! (genesis, or no evidence for the class). Real syncs on a real
 //! filesystem, no mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
@@ -38,9 +40,11 @@ fn scaffold(root: &Path, names: &[&str]) {
 }
 
 fn write_ontology(root: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -53,21 +57,25 @@ fn write_ontology(root: &Path, names: &[&str]) {
 fn write_ontology_with_evidence(
     root: &Path, names: &[&str], checks: &[(&str, i64)], known_divergences: &[&str],
 ) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from(
         "@prefix ex: <http://example.org/> .\n@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
     );
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     for (i, (name, exit)) in checks.iter().enumerate() {
-        ttl.push_str(&format!(
-            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} ."
+        );
     }
     for (i, name) in known_divergences.iter().enumerate() {
-        ttl.push_str(&format!(
-            "ver:kd{i} a ver:KnownDivergence ; ver:name \"{name}\" .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:kd{i} a ver:KnownDivergence ; ver:name \"{name}\" ."
+        );
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -365,38 +373,45 @@ fn write_ontology_with_producers(
     receipts: Option<(i64, &str)>, evidence: Option<(i64, &str)>,
     binary: Option<(i64, &str, &str)>, binary_skipped: bool,
 ) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from(
         "@prefix ex: <http://example.org/> .\n@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
     );
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     for (i, (name, exit)) in checks.iter().enumerate() {
-        ttl.push_str(&format!(
-            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:c{i} a ver:Check ; ver:name \"{name}\" ; ver:exitCode {exit} ."
+        );
     }
     for (i, (path, sha)) in docs.iter().enumerate() {
-        ttl.push_str(&format!(
-            "ver:dm{i} a ver:DocsManifestEntry ; ver:path \"{path}\" ; ver:sha256 \"{sha}\" .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:dm{i} a ver:DocsManifestEntry ; ver:path \"{path}\" ; ver:sha256 \"{sha}\" ."
+        );
     }
     if let Some((exit, head)) = receipts {
-        ttl.push_str(&format!(
-            "ver:rc a ver:ReceiptsCheck ; ver:exitCode {exit} ; ver:chainHead \"{head}\" .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:rc a ver:ReceiptsCheck ; ver:exitCode {exit} ; ver:chainHead \"{head}\" ."
+        );
     }
     if let Some((exit, digest)) = evidence {
-        ttl.push_str(&format!(
-            "ver:ec a ver:EvidenceCheck ; ver:exitCode {exit} ; ver:requiredSetDigest \"{digest}\" .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:ec a ver:EvidenceCheck ; ver:exitCode {exit} ; ver:requiredSetDigest \"{digest}\" ."
+        );
     }
     if binary_skipped {
         ttl.push_str("ver:bc a ver:BinaryCheck ; ver:skipped true .\n");
     } else if let Some((exit, ha, hb)) = binary {
-        ttl.push_str(&format!(
-            "ver:bc a ver:BinaryCheck ; ver:exitCode {exit} ; ver:hashA \"{ha}\" ; ver:hashB \"{hb}\" .\n"
-        ));
+        let _ = writeln!(
+            ttl,
+            "ver:bc a ver:BinaryCheck ; ver:exitCode {exit} ; ver:hashA \"{ha}\" ; ver:hashB \"{hb}\" ."
+        );
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -405,7 +420,7 @@ const DOCS_2: &[(&str, &str)] = &[("docs/a.md", "sha-a"), ("docs/b.md", "sha-b")
 
 /// All four producers present: on the SECOND sync every one of the 8
 /// equivalence classes is genuinely evaluated (non-Unknown). docs /
-/// evidence / compiled_binary compare identities against receipt 1's
+/// evidence / `compiled_binary` compare identities against receipt 1's
 /// recorded ones (`Equivalent`); receipts requires the producer's replayed
 /// chain head to equal the verified previous head (receipt 1's chain hash,
 /// only knowable after sync 1 -- exactly how the real pre-sync producer
@@ -619,7 +634,7 @@ fn red_evidence_check_diverges_evidence_and_lowers_ceiling() {
     assert_eq!(epoch.standing_ceiling, CeilingLevel::Red);
 }
 
-/// Skip honesty: `--skip`'s explicit marker keeps compiled_binary Unknown
+/// Skip honesty: `--skip`'s explicit marker keeps `compiled_binary` Unknown
 /// (never rounded up) while the admission ledger RECORDS the skip -- so
 /// skipped and absent are distinguishable in the receipt itself. A red
 /// (non-reproducible) binary check on a later sync is `Divergent`.

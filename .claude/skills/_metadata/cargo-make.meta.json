@@ -1,8 +1,0 @@
-{
-  "id": "cargo-make",
-  "name": "Cargo Make Protocol",
-  "tags": ["rust", "build", "quality"],
-  "size": 2048,
-  "requires": [],
-  "autoload": false
-}

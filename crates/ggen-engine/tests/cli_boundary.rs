@@ -8,6 +8,8 @@
 //! subcommands/args) proven against the compiled binary, not just the
 //! library functions underneath it.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use chicago_tdd_tools::cli_proof::CliHarness;
 use std::io::Read;
 use std::process::{Command, Stdio};
@@ -68,7 +70,17 @@ fn root_help_gives_each_noun_a_non_blank_description() {
         ("sync", "pipeline"),
         ("graph", "ontology"),
         ("receipt", "receipt"),
-        ("doctor", "health"),
+        // "health" -> "diagnostics" (2026-08-03, TECH-DEBT-003 fix): the real, live
+        // `doctor` noun registration (crates/ggen-cli/src/cmds/mod.rs's
+        // register_doctor_noun) has read "Universal non-actuating diagnostics,
+        // root-cause evidence, and deterministic remediation." since it was first
+        // written (confirmed via `git log -S register_doctor_noun` -- one commit, no
+        // prior wording) -- it never said "health". This test's real intent per its own
+        // name is "non-blank, on-topic description", not this exact word; "diagnostics"
+        // is the genuine, on-topic keyword actually present. Fixing the test's stale
+        // keyword to match the real, deliberately-written CLI text, not rewording real
+        // production help output just to satisfy an assertion.
+        ("doctor", "diagnostics"),
     ] {
         let line = stdout
             .lines()
@@ -311,7 +323,7 @@ fn watch_for_stderr(mut child: std::process::Child, needle: &str, deadline: Dura
                     break;
                 }
             }
-            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {}
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
         }
     }

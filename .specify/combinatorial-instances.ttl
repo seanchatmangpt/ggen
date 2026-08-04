@@ -6,6 +6,25 @@
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Namespace registry — the single source of PREFIX declarations gate .rq
+# generation reads from. proof-gate.rq.tera never hardcodes a namespace URI;
+# it interpolates cmx:nsPrefix/cmx:nsUri fetched via each gate's
+# cmx:usesNamespace link. Keep these two in lockstep with the @prefix header
+# of this file / combinatorial.ttl -- this is the one place to edit if a
+# namespace URI ever changes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+cmx:ns-cmx a cmx:Namespace ;
+    cmx:nsPrefix "cmx" ;
+    cmx:nsUri    "http://ggen.org/combinatorial#" ;
+    rdfs:label   "cmx: namespace" .
+
+cmx:ns-cli a cmx:Namespace ;
+    cmx:nsPrefix "cli" ;
+    cmx:nsUri    "http://ggen.org/cli#" ;
+    rdfs:label   "cli: namespace" .
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Proof Gate instances — one per evidence surface required by AGENTS.md
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -15,11 +34,10 @@ cmx:gate-every-command-has-handler a cmx:ProofGate ;
     rdfs:comment "All declared cli:Command individuals must have a cli:handler value." ;
     cmx:surface  "state" ;
     cmx:invariant "∀ cmd ∈ cli:Command → ∃ cli:handler(cmd)" ;
+    cmx:usesNamespace cmx:ns-cli ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?cmd a cli:Command .
-      FILTER NOT EXISTS { ?cmd cli:handler ?h }
-    }
+    ?cmd a cli:Command .
+    FILTER NOT EXISTS { ?cmd cli:handler ?h }
     """ .
 
 cmx:gate-every-generator-has-action a cmx:ProofGate ;
@@ -28,11 +46,10 @@ cmx:gate-every-generator-has-action a cmx:ProofGate ;
     rdfs:comment "All declared cmx:Generator individuals must have at least one cmx:hasAction link." ;
     cmx:surface  "state" ;
     cmx:invariant "∀ gen ∈ cmx:Generator → ∃ cmx:hasAction(gen, act)" ;
+    cmx:usesNamespace cmx:ns-cmx ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?gen a cmx:Generator .
-      FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
-    }
+    ?gen a cmx:Generator .
+    FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
     """ .
 
 cmx:gate-every-action-has-binding a cmx:ProofGate ;
@@ -41,11 +58,10 @@ cmx:gate-every-action-has-binding a cmx:ProofGate ;
     rdfs:comment "All cmx:Action individuals must have exactly one cmx:hasBinding link to a cmx:TemplateBinding." ;
     cmx:surface  "state" ;
     cmx:invariant "∀ act ∈ cmx:Action → ∃ cmx:hasBinding(act, b)" ;
+    cmx:usesNamespace cmx:ns-cmx ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?act a cmx:Action .
-      FILTER NOT EXISTS { ?act cmx:hasBinding ?b }
-    }
+    ?act a cmx:Action .
+    FILTER NOT EXISTS { ?act cmx:hasBinding ?b }
     """ .
 
 cmx:gate-every-binding-has-template a cmx:ProofGate ;
@@ -54,11 +70,10 @@ cmx:gate-every-binding-has-template a cmx:ProofGate ;
     rdfs:comment "All cmx:TemplateBinding individuals must declare cmx:templateFile." ;
     cmx:surface  "execution" ;
     cmx:invariant "∀ b ∈ cmx:TemplateBinding → ∃ cmx:templateFile(b)" ;
+    cmx:usesNamespace cmx:ns-cmx ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?b a cmx:TemplateBinding .
-      FILTER NOT EXISTS { ?b cmx:templateFile ?f }
-    }
+    ?b a cmx:TemplateBinding .
+    FILTER NOT EXISTS { ?b cmx:templateFile ?f }
     """ .
 
 cmx:gate-every-binding-has-output-pattern a cmx:ProofGate ;
@@ -67,11 +82,10 @@ cmx:gate-every-binding-has-output-pattern a cmx:ProofGate ;
     rdfs:comment "All cmx:TemplateBinding individuals must declare cmx:outputPattern." ;
     cmx:surface  "causality" ;
     cmx:invariant "∀ b ∈ cmx:TemplateBinding → ∃ cmx:outputPattern(b)" ;
+    cmx:usesNamespace cmx:ns-cmx ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?b a cmx:TemplateBinding .
-      FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
-    }
+    ?b a cmx:TemplateBinding .
+    FILTER NOT EXISTS { ?b cmx:outputPattern ?p }
     """ .
 
 cmx:gate-no-orphan-actions a cmx:ProofGate ;
@@ -80,10 +94,15 @@ cmx:gate-no-orphan-actions a cmx:ProofGate ;
     rdfs:comment "Every cmx:Action must be reachable from exactly one cmx:Generator via cmx:hasAction." ;
     cmx:surface  "causality" ;
     cmx:invariant "∀ act ∈ cmx:Action → ∃ gen: cmx:hasAction(gen, act)" ;
+    cmx:usesNamespace cmx:ns-cmx ;
     cmx:askBody  """
-    NOT EXISTS {
-      ?act a cmx:Action .
+    ?act a cmx:Action .
+    {
       FILTER NOT EXISTS { ?gen cmx:hasAction ?act }
+    } UNION {
+      ?gen1 cmx:hasAction ?act .
+      ?gen2 cmx:hasAction ?act .
+      FILTER(?gen1 != ?gen2)
     }
     """ .
 

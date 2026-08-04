@@ -8,6 +8,8 @@
 //! This test never runs `terraform apply` or any mutating `gh` command —
 //! generation and `bash -n` syntax checks only.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -60,7 +62,7 @@ fn read(project: &Path, rel: &str) -> String {
 fn count_md_files(dir: &Path) -> usize {
     std::fs::read_dir(dir)
         .unwrap_or_else(|e| panic!("read_dir {}: {e}", dir.display()))
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.path().extension().is_some_and(|x| x == "md"))
         .count()
 }
@@ -107,6 +109,12 @@ const SCRIPTS: [&str; 20] = [
     "fleet-census.sh",
 ];
 
+// One Chicago-TDD end-to-end scenario (single scaffold + sync, many real
+// on-disk assertions against its full generated surface, then a second sync
+// proving idempotency); splitting it across multiple #[test] fns would
+// either re-run the expensive scaffold+sync setup per assertion group or
+// require sharing state between tests, not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
     let (_dir, project) = scaffold();
@@ -543,15 +551,14 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
 }
 
 /// Hermetic chain proof for the generated accept-receipt.sh: two appends to a
-/// TempDir jsonl with real bash + jq; the second line's prev_hash must equal
+/// `TempDir` jsonl with real bash + jq; the second line's `prev_hash` must equal
 /// sha256 of the first line. Loud skip if jq is absent.
 #[test]
 fn gh_terraform_accept_receipt_chains_hermetically() {
     if Command::new("jq")
         .arg("--version")
         .output()
-        .map(|o| !o.status.success())
-        .unwrap_or(true)
+        .map_or(true, |o| !o.status.success())
     {
         eprintln!(
             "=== SKIP: jq not on PATH — accept-receipt.sh chain proof not run \
@@ -637,7 +644,7 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
 
 /// Fleet section (Phase 2 vocabulary): FLEET-MODEL.md renders with the tiers
 /// table, the ⊕ law, the batch receipt schema, and the ggen EXEMPLAR row —
-/// and the exemplar individual passes gates/020_fleet.rq (the sync succeeding
+/// and the exemplar individual passes `gates/020_fleet.rq` (the sync succeeding
 /// IS the pass, since pack gates run before Extract/Render/Write).
 #[test]
 fn fleet_model_doc_renders_and_exemplar_passes_gates() {
@@ -692,9 +699,9 @@ fn fleet_model_doc_renders_and_exemplar_passes_gates() {
     );
 }
 
-/// Gate sabotage for gates/020_fleet.rq, three refusal shapes on the union
+/// Gate sabotage for `gates/020_fleet.rq`, three refusal shapes on the union
 /// graph (consumer ontology facts + pack facts): an override the tier does
-/// not permit, a ManagedRepo without a tier, and an acceptedDeviation with
+/// not permit, a `ManagedRepo` without a tier, and an acceptedDeviation with
 /// no admission reference. Each must refuse the sync BEFORE any write.
 #[test]
 fn fleet_gate_refuses_unpermitted_override_tierless_repo_and_unadmitted_deviation() {

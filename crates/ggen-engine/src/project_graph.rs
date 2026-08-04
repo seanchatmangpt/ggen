@@ -9,11 +9,15 @@
 //! doesn't need.
 //!
 //! This module is the shared entry point for that narrower need. It
-//! performs the same schema dispatch, ontology+imports+packs resolution,
-//! and graph admission `sync`/`generation_rules` do — reusing
+//! performs the same schema dispatch and ontology+imports+packs resolution
+//! `sync`/`generation_rules` do — reusing
 //! [`crate::sync::new_graph_engine`] and [`crate::sync::read_ontology_file`]
 //! — but stops once the graph is built, before any template/render/write
-//! stage.
+//! stage. Unlike `sync`, pack resolution here is read-only
+//! ([`crate::pack::resolve_read_only`]): it never clones a git pack or
+//! writes a clone-cache/pin file, so a caller relying on this module for a
+//! read-only contract (e.g. a SPARQL query preview) cannot trigger network
+//! I/O or filesystem writes merely by loading the graph.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -27,11 +31,20 @@ use crate::sync::{new_graph_engine, read_ontology_file, EngineKind};
 /// to its `ggen.toml` schema) using the default [`EngineKind`], without
 /// running template discovery, rendering, or writes.
 ///
+/// This is a read-only entry point: unlike `sync run`'s Resolve stage, it
+/// never performs network I/O or writes a git pack's clone cache. For the
+/// frontmatter schema, packs are resolved via
+/// [`crate::pack::resolve_read_only`] — a `PackRef::Git` pack resolves only
+/// from an already-cached, correctly-pinned clone; an uncached/mismatched
+/// git pack is refused (`[FM-PACK-012]`) rather than cloned. Callers that
+/// need sync's full (network-permitting) pack resolution should call
+/// `sync`/`generation_rules::run` instead.
+///
 /// # Errors
 /// Propagates `ggen.toml` classification/parse failures, ontology
 /// read/parse failures, and (for the frontmatter schema) pack resolution
-/// failures — the same failure modes `sync run` surfaces at its own
-/// Resolve stage, just without the template stages after it.
+/// failures — including `[FM-PACK-012]` for an uncached git pack, which
+/// `sync run`'s own Resolve stage would instead clone.
 pub fn load_for_query(root: &Path) -> Result<Arc<dyn GraphEngine>> {
     load_for_query_with_engine(root, EngineKind::default())
 }
@@ -54,7 +67,7 @@ pub fn load_for_query_with_engine(root: &Path, engine: EngineKind) -> Result<Arc
             sources
         }
         ParsedGgenToml::Frontmatter(config) => {
-            let packs = crate::pack::resolve(&config, root)?;
+            let packs = crate::pack::resolve_read_only(&config, root)?;
             let ontology_path = root.join(&config.ontology.source);
             let mut sources = Vec::with_capacity(
                 1 + packs

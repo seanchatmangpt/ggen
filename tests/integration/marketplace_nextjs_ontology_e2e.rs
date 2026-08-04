@@ -55,7 +55,7 @@ const WORKSPACE_DIR: &str = "/workspace";
 /// **Phases**: 1-2 (Setup + Build)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_setup_and_build() {
     println!("\n🔧 Test 1: Setup and Build Verification");
     println!("{}", "=".repeat(70));
@@ -123,7 +123,7 @@ fn run_setup_and_build_test(client: &ContainerClient) -> TestcontainersResult<()
 /// **Phases**: 1-4 (Setup + Build + Install + Validate)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_package_installation() {
     println!("\n📦 Test 2: Package Installation and Structure Validation");
     println!("{}", "=".repeat(70));
@@ -173,7 +173,7 @@ fn run_package_installation_test(client: &ContainerClient) -> TestcontainersResu
 /// **Phases**: 1-7 (Setup through initial generation verification)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_initial_generation() {
     println!("\n🔄 Test 3: Initial Code Generation and Verification");
     println!("{}", "=".repeat(70));
@@ -226,7 +226,7 @@ fn run_initial_generation_test(client: &ContainerClient) -> TestcontainersResult
 /// **Phases**: 1-9 (Setup through build validation)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_type_check_and_build() {
     println!("\n🏗️  Test 4: Type Checking and Build Validation");
     println!("{}", "=".repeat(70));
@@ -281,7 +281,7 @@ fn run_type_check_and_build_test(client: &ContainerClient) -> TestcontainersResu
 /// **Phases**: 1-12 (Setup through modification verification)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_ontology_modification() {
     println!("\n📝 Test 5: Ontology Modification and Regeneration");
     println!("{}", "=".repeat(70));
@@ -337,7 +337,7 @@ fn run_ontology_modification_test(client: &ContainerClient) -> TestcontainersRes
 /// **Phases**: 1-13 (Full lifecycle including idempotency check)
 /// **Can run concurrently**: Yes (independent container)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_regeneration_idempotency() {
     println!("\n🔁 Test 6: Regeneration Idempotency Verification");
     println!("{}", "=".repeat(70));
@@ -1169,7 +1169,7 @@ struct HostSnapshot {
 /// - Package name too long (>100 chars)
 /// - Package not found in registry
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_error_invalid_package_name() {
     println!("\n❌ Test 7: Error Path - Invalid Package Names");
     println!("{}", "=".repeat(70));
@@ -1278,7 +1278,7 @@ fn run_error_path_invalid_package_test(client: &ContainerClient) -> Testcontaine
 /// - Permission errors
 /// - Verify cleanup on failure
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_error_installation_failure_recovery() {
     println!("\n❌ Test 8: Error Path - Installation Failure Recovery");
     println!("{}", "=".repeat(70));
@@ -1388,7 +1388,7 @@ fn run_error_path_installation_recovery_test(client: &ContainerClient) -> Testco
 /// - Ontology with no entities
 /// - Minimal valid ontology
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_boundary_empty_ontology() {
     println!("\n🔍 Test 9: Boundary Condition - Empty Ontology");
     println!("{}", "=".repeat(70));
@@ -1505,7 +1505,7 @@ fn run_boundary_empty_ontology_test(client: &ContainerClient) -> TestcontainersR
 /// - No files leaked to host filesystem
 /// - Multiple containers can run concurrently without interference
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_resource_cleanup_isolation() {
     println!("\n🧹 Test 10: Resource Cleanup - Container Isolation");
     println!("{}", "=".repeat(70));
@@ -1612,7 +1612,7 @@ fn run_resource_cleanup_container2(client: &ContainerClient) -> TestcontainersRe
 /// - Package name with backslash (\)
 /// - Package name with forward slash (/)
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_error_package_name_validation_comprehensive() {
     println!("\n❌ Test 11: Error Path - Comprehensive Package Name Validation");
     println!("{}", "=".repeat(70));
@@ -1726,7 +1726,7 @@ fn run_error_path_comprehensive_validation_test(
 /// - Attempting to install already-installed package without --force
 /// - Verifying error message is clear and actionable
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_error_already_installed() {
     println!("\n❌ Test 12: Error Path - Already Installed Package");
     println!("{}", "=".repeat(70));
@@ -1822,7 +1822,7 @@ fn run_error_path_already_installed_test(client: &ContainerClient) -> Testcontai
 /// - Ontology with many properties
 /// - Verify system handles large files efficiently
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_boundary_large_ontology() {
     println!("\n🔍 Test 13: Boundary Condition - Large Ontology");
     println!("{}", "=".repeat(70));
@@ -1943,7 +1943,7 @@ fn run_boundary_large_ontology_test(client: &ContainerClient) -> TestcontainersR
 /// - Verify no race conditions
 /// - Verify each installation is isolated
 #[test]
-#[ignore] // Long-running integration test
+#[ignore = "long-running Docker-testcontainer e2e test: spins up a Node.js container via chicago-tdd-tools testcontainers (see common::require_docker); requires Docker, not part of the fast test loop"]
 fn test_nextjs_concurrency_multiple_installs() {
     println!("\n🔄 Test 14: Concurrency - Multiple Concurrent Installs");
     println!("{}", "=".repeat(70));

@@ -32,7 +32,8 @@ scripts_to_check = [
     '06_scan_forbidden_surfaces.sh',
     '07_check_anti_fake.sh',
     '08_verify_replay_receipts.sh',
-    '09_verify_ocel_self_audit.sh',
+    # '09_verify_ocel_self_audit.sh' removed 2026-08-03 (fabricated-evidence
+    # cleanup); see crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
     '10_verify_coverage_matrix.sh',
     '11_verify_proof_report.sh',
     '12_detect_contradictions.sh',

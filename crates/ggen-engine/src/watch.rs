@@ -134,6 +134,7 @@ fn should_ignore(root: &Path, paths: &[PathBuf]) -> bool {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use std::{
         sync::mpsc::{RecvTimeoutError, Sender},

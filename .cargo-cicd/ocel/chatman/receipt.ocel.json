@@ -1,0 +1,137 @@
+{
+  "ocel:global-log": {
+    "ocel:version": "2.0"
+  },
+  "ocel:events": {
+    "evt_004": {
+      "event_id": "13f6829b-cf25-49c0-880a-3035e3b3008d",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 5,
+      "objects": [
+        [
+          "Accept_ProjectionHashMatches",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "admitted",
+        "fixture_id": "Accept_ProjectionHashMatches"
+      }
+    },
+    "evt_002": {
+      "event_id": "81bb9178-1035-4c55-9791-9e1b4b0d3358",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 3,
+      "objects": [
+        [
+          "Accept_ProfileHashMatches",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "admitted",
+        "fixture_id": "Accept_ProfileHashMatches"
+      }
+    },
+    "evt_003": {
+      "event_id": "a2a58c01-8f8f-4b9c-92be-dd959c44755d",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 4,
+      "objects": [
+        [
+          "Falsify_ProfileHashMismatch",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "fixture_id": "Falsify_ProfileHashMismatch",
+        "refusal": "ProfileHashMismatch"
+      }
+    },
+    "evt_005": {
+      "event_id": "c8e1b7a8-323d-4d9a-aead-ced9d2b0d615",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 6,
+      "objects": [
+        [
+          "Falsify_ProjectionHashMismatch",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "refusal": "ProjectionHashMismatch",
+        "fixture_id": "Falsify_ProjectionHashMismatch"
+      }
+    },
+    "evt_001": {
+      "event_id": "ab328ba6-0970-4754-851a-35a29fed5466",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 2,
+      "objects": [
+        [
+          "Falsify_BoundaryRequestMissingReceipt",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "fixture_id": "Falsify_BoundaryRequestMissingReceipt",
+        "refusal": "BoundaryRequestMissingReceipt"
+      }
+    },
+    "evt_000": {
+      "event_id": "ed1e63e4-01d3-40ff-8337-4ed31a3894ab",
+      "case_id": "chatman-receipt",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 1,
+      "objects": [
+        [
+          "Accept_BoundaryRequestCarriesReceipt",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_BoundaryRequestCarriesReceipt",
+        "outcome": "admitted"
+      }
+    }
+  },
+  "ocel:objects": {}
+}

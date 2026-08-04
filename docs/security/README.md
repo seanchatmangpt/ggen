@@ -165,7 +165,8 @@ return Err(sanitized.user_message());
 **Metrics**:
 - Vulnerability count (track over time)
 - Time to fix vulnerabilities (P0: 24h, P1: 1 week, P2: 2 weeks)
-- Test coverage for security-critical code (>80%)
+- Test coverage for security-critical code (target: >80%, aspirational -- no CI/justfile gate
+  currently computes coverage)
 - Rate limit violations in production
 
 ---
@@ -292,17 +293,17 @@ return Err(sanitized.user_message());
 
 ## Security Metrics
 
-### Current Status (v26.5.19)
+### Status Snapshot (v26.5.19, dated -- not re-verified against the current workspace)
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Vulnerability Count | 0 | 0 | ✅ |
-| Test Coverage (Security) | >80% | 87% | ✅ |
+| Test Coverage (Security) | >80% | UNVERIFIED -- no CI/justfile gate computes coverage; the "87%" this row previously stated as fact was never backed by a repeatable measurement | ⚠️ |
 | Time to Fix (P0) | <24h | N/A | ✅ |
 | Time to Fix (P1) | <1 week | N/A | ✅ |
 | Dependency Audit | 0 issues | 0 issues | ✅ |
-| SafePath Coverage | 100% | 100% | ✅ |
-| QueryBuilder Coverage | 100% | 100% | ✅ |
+| SafePath Coverage | 100% | UNVERIFIED -- same caveat as Test Coverage above | ⚠️ |
+| QueryBuilder Coverage | 100% | UNVERIFIED -- same caveat as Test Coverage above | ⚠️ |
 
 ### Historical Improvements
 
@@ -311,7 +312,8 @@ return Err(sanitized.user_message());
 - SPARQL injection risks: 5 → 0 (100% reduction)
 - Information disclosure: 7 → 0 (100% reduction)
 - Rate limiting: None → Enforced (∞% improvement)
-- Test coverage: 64% → 87% (36% improvement)
+- Test coverage: 64% → 87% claimed at the time -- UNVERIFIED, no coverage tool output backs
+  either number; treat as an unmeasured historical assertion, not a verified improvement
 
 ---
 

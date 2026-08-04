@@ -1,0 +1,15 @@
+# claude-code-pack-verify project ontology — deliberately empty of individuals.
+#
+# claude-code-pack's own ontology.ttl (packs/claude-code-pack/ontology.ttl) is a
+# complete, closed model of the ccw:Workflow/ccw:Phase/ccw:AgentJob/ccw:Agent/
+# ccw:Skill individuals its four templates query; this consumer adds no
+# project-specific facts on top of it (mirrors examples/rmcp-verify/schema/domain.ttl's
+# and examples/star-toml-verify/schema/domain.ttl's same posture — confirmed by
+# reading packs/claude-code-pack/templates/*.tmpl's sparql: blocks, all of which
+# select only from hardcoded ccw: IRIs owned by the pack's own ontology). This file
+# exists only to satisfy `[ontology] source` in ggen.toml — the real domain facts
+# come entirely from the wired pack.
+
+@prefix ccw:  <http://seanchatmangpt.github.io/packs/claude-code#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

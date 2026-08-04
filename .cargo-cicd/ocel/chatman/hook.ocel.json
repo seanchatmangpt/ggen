@@ -1,0 +1,94 @@
+{
+  "ocel:global-log": {
+    "ocel:version": "2.0"
+  },
+  "ocel:events": {
+    "evt_003": {
+      "event_id": "dc3b1e46-ef0b-4e14-a8b3-3c8c0b9ad916",
+      "case_id": "chatman-hook",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 4,
+      "objects": [
+        [
+          "Falsify_NondeterministicOperatorRequiresReceipt",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "refusal": "NondeterministicOperatorRequiresReceipt",
+        "outcome": "refused",
+        "fixture_id": "Falsify_NondeterministicOperatorRequiresReceipt"
+      }
+    },
+    "evt_000": {
+      "event_id": "f14fdc71-e236-4359-9210-5883acdcf019",
+      "case_id": "chatman-hook",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 1,
+      "objects": [
+        [
+          "Accept_DeterministicOperatorWithoutReceipt",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_DeterministicOperatorWithoutReceipt",
+        "outcome": "admitted"
+      }
+    },
+    "evt_002": {
+      "event_id": "09c179ab-6216-44d8-94c7-a65f8050528a",
+      "case_id": "chatman-hook",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 3,
+      "objects": [
+        [
+          "Falsify_HookPatternNotAdmitted",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "refusal": "HookPatternNotAdmitted",
+        "fixture_id": "Falsify_HookPatternNotAdmitted"
+      }
+    },
+    "evt_001": {
+      "event_id": "449d0c38-c70c-4b45-897f-340dcf4931d6",
+      "case_id": "chatman-hook",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 2,
+      "objects": [
+        [
+          "Accept_HookPatternAdmitted",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "admitted",
+        "fixture_id": "Accept_HookPatternAdmitted"
+      }
+    }
+  },
+  "ocel:objects": {}
+}

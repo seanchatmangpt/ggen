@@ -112,6 +112,59 @@ fn dry_run_skip_reasons_are_typed_and_preserve_raw_text() {
     }
 }
 
+/// The real, motivating case: a `for_each:` driving query that returns
+/// zero rows must classify as `zero_rows`, not fall through to `other`.
+/// `classify()` used to match only "zero row"/"no rows"/"empty result",
+/// none of which appear in the engine's actual wording
+/// (`for_each `{driver}` produced 0 rows (...)`) -- so this exact scenario,
+/// the tool's own stated reason to exist, silently misclassified.
+#[test]
+fn dry_run_classifies_a_real_for_each_zero_row_skip_as_zero_rows() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let toml = r#"
+[project]
+name = "for-each-demo"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
+"#;
+    let ontology = r#"
+@prefix ex: <http://example.org/> .
+ex:alice ex:hasName "alice" .
+"#;
+    // The driving query filters everything out -- a real zero-row for_each.
+    let template = "---\nto: registry.txt\nsparql:\n  entities: |\n    PREFIX ex: <http://example.org/>\n    SELECT ?name WHERE { ?s ex:hasName ?name . FILTER(?name = \"nobody\") }\nfor_each: entities\n---\n{{ row.name }}\n";
+
+    std::fs::write(dir.path().join("ggen.toml"), toml).expect("write ggen.toml");
+    std::fs::write(dir.path().join("ontology.ttl"), ontology).expect("write ontology.ttl");
+    std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+    std::fs::write(dir.path().join("templates/registry.tmpl"), template).expect("write template");
+
+    let got = sync_dry_run(&SyncDryRunParams {
+        root: dir.path().display().to_string(),
+    })
+    .expect("dry run");
+
+    let skip = got
+        .would_skip
+        .iter()
+        .find(|s| s.path == "registry.txt")
+        .unwrap_or_else(|| panic!("expected a skip for registry.txt, got {:?}", got.would_skip));
+    assert_eq!(
+        skip.reason, "zero_rows",
+        "a for_each zero-row skip must classify as zero_rows, not {:?} (raw: {:?})",
+        skip.reason, skip.raw_reason
+    );
+    assert!(
+        skip.raw_reason.contains("produced 0 rows"),
+        "raw reason must be the real engine wording: {:?}",
+        skip.raw_reason
+    );
+}
+
 // ---------------------------------------------------------------------------
 // ggen_write_apply
 // ---------------------------------------------------------------------------

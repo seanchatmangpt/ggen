@@ -518,17 +518,41 @@ fn relevance(name: &str, id: &str, desc: &str, query_lower: &str) -> Option<f64>
     }
 }
 
-/// Validate a pack identifier the same way the CLI does: non-empty, and limited
-/// to alphanumerics, `-`, `_`, `.`, and `:` (the external-registry separator).
+/// Validate a pack identifier: non-empty, no path separators or traversal
+/// sequences, and limited to alphanumerics, `-`, `_`, `.`, and `:` (the
+/// external-registry separator, e.g. `npm:lodash`).
+///
+/// This is the ONLY gate standing in front of two unguarded filesystem joins
+/// reachable from every mutating and read-only operation on this facade (via
+/// MCP/A2A in `ggen-lsp/src/a2a_mcp/mcp_packs.rs`):
+/// `packs_registry::metadata::load_pack_metadata` does
+/// `packs_dir.join(format!("{pack_id}.toml"))`, and [`PackAgent::install`]
+/// does `root.join(".ggen").join("packs").join(pack_id)`. `Path::join` with a
+/// `pack_id` containing `..` walks out of the intended directory, and an
+/// absolute `pack_id` (leading `/`) replaces the base directory entirely
+/// (documented `PathBuf::join` behavior) — so both must be rejected here,
+/// before either join ever runs, not sanitized after the fact. This mirrors
+/// the stricter guard `packs_registry::repository::FileSystemRepository::
+/// validate_pack_id` already applies for its own local-filesystem pack
+/// lookups; no real local pack ID in this codebase's tests or fixtures uses
+/// `/` (e.g. `io.ggen.trust-test`), and external (`prefix:id`) pack IDs in
+/// this codebase are also always slash-free (`npm:lodash`, `cratesio:demo`),
+/// so disallowing `/`/`\`/`..` outright costs no legitimate case.
 fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
     if pack_id.trim().is_empty() {
         return Err(AgentError::InvalidRequest(
             "pack id must not be empty".to_string(),
         ));
     }
+    if pack_id.contains("..") || pack_id.contains('/') || pack_id.contains('\\') {
+        return Err(AgentError::InvalidRequest(format!(
+            "pack id '{}' must not contain path separators or traversal sequences",
+            pack_id
+        )));
+    }
     let valid = pack_id
         .chars()
-        .all(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '.' | ':' | '/'));
+        .all(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '.' | ':'));
     if !valid {
         return Err(AgentError::InvalidRequest(format!(
             "pack id '{}' contains invalid characters",
@@ -536,4 +560,199 @@ fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
         )));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod path_traversal_tests {
+    use super::*;
+    use serial_test::serial;
+    use tempfile::TempDir;
+
+    /// Saves the prior value of an env var on construction and restores it
+    /// (or removes it if previously unset) on Drop, mirroring
+    /// `packs_registry::metadata`'s own test-only `EnvVarGuard` so env
+    /// mutation in one test cannot leak into another.
+    struct EnvVarGuard {
+        key: &'static str,
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl EnvVarGuard {
+        fn set(key: &'static str, value: &str) -> Self {
+            let previous = std::env::var_os(key);
+            std::env::set_var(key, value);
+            Self { key, previous }
+        }
+    }
+
+    impl Drop for EnvVarGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var(self.key),
+                Some(v) => std::env::set_var(self.key, v),
+            }
+        }
+    }
+
+    // ── Unit tests: validate_pack_name itself ──────────────────────────────
+
+    #[test]
+    fn sabotage_validate_pack_name_rejects_relative_traversal() {
+        assert!(validate_pack_name("../x").is_err());
+        assert!(validate_pack_name("../../etc/passwd").is_err());
+        assert!(validate_pack_name("a/../../b").is_err());
+    }
+
+    #[test]
+    fn sabotage_validate_pack_name_rejects_absolute_path() {
+        assert!(validate_pack_name("/etc/passwd").is_err());
+    }
+
+    #[test]
+    fn sabotage_validate_pack_name_rejects_any_path_separator() {
+        // A bare slash with no ".." is still a directory escape hazard once
+        // joined with `packs_dir.join(format!("{pack_id}.toml"))` (it changes
+        // which directory the ".toml" file is read from), so it must be
+        // rejected even without an explicit "..".
+        assert!(validate_pack_name("sub/pack").is_err());
+        assert!(validate_pack_name("sub\\pack").is_err());
+    }
+
+    #[test]
+    fn sabotage_validate_pack_name_accepts_real_local_pack_id_conventions() {
+        // Reverse-domain dotted names (as used by install.rs's own fixtures,
+        // e.g. "io.ggen.trust-test") and external "<prefix>:<id>" references
+        // (e.g. "npm:lodash") must keep working after tightening the guard.
+        assert!(validate_pack_name("io.ggen.trust-test").is_ok());
+        assert!(validate_pack_name("npm:lodash").is_ok());
+        assert!(validate_pack_name("wasm4pm-facts-pack").is_ok());
+    }
+
+    // ── End-to-end: the traversal must be refused before any filesystem I/O ──
+
+    /// Reproduces FINDING #1 end-to-end: a `pack_id` of `"../secret"` against
+    /// a `GGEN_PACKS_DIR` of `<root>/packs` resolves (pre-fix) to
+    /// `<root>/secret.toml` -- a real, parseable `Pack` TOML file that sits
+    /// OUTSIDE the packs directory. Before the fix this file was
+    /// path-traversal-readable via `PackAgent::show`; the assertion checks
+    /// both that the call fails, and that it fails with the validation
+    /// error (not a coincidental "not found"/parse error), proving the guard
+    /// -- not luck -- is what stops the read.
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn sabotage_show_refuses_path_traversal_pack_id_outside_packs_dir() {
+        // Arrange: <root>/packs (the declared packs dir) and a sibling
+        // <root>/secret.toml (the traversal target, OUTSIDE packs dir) that
+        // is a real, validly-parseable pack file -- so a pre-fix run of this
+        // test would actually succeed in reading it, not merely 404.
+        let root = TempDir::new().unwrap();
+        let packs_dir = root.path().join("packs");
+        std::fs::create_dir_all(&packs_dir).unwrap();
+        std::fs::write(
+            root.path().join("secret.toml"),
+            r#"
+[pack]
+id = "secret"
+name = "Secret Outside Packs Dir"
+version = "1.0.0"
+description = "must never be reachable via a packs_dir-relative pack id"
+category = "test"
+license = "MIT"
+packages = []
+"#,
+        )
+        .unwrap();
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", packs_dir.to_str().unwrap());
+
+        let agent = PackAgent::at_root(root.path());
+
+        // Act
+        let result = agent.show("../secret");
+
+        // Assert -- must be Err, and specifically the validation error, not
+        // a coincidental not-found/parse failure.
+        match result {
+            Ok(detail) => panic!(
+                "path traversal pack id must be refused, but got Ok: {:?} -- \
+                 this is exactly FINDING #1 (arbitrary file read via pack_id)",
+                detail
+            ),
+            Err(AgentError::PackNotFound(_)) => {
+                // show() maps validate_pack_name's Err into PackNotFound via
+                // the `?` propagation path is NOT expected here -- Rust's `?`
+                // preserves the original error variant, so a PackNotFound
+                // here would mean the traversal reached load_pack_metadata's
+                // real not-found path instead of being blocked up front.
+                panic!(
+                    "traversal reached load_pack_metadata (PackNotFound) instead of being \
+                     blocked by validate_pack_name -- the guard did not fire"
+                );
+            }
+            Err(AgentError::InvalidRequest(msg)) => {
+                assert!(
+                    msg.contains("path separators") || msg.contains("traversal"),
+                    "expected the path-traversal validation message, got: {msg}"
+                );
+            }
+            Err(other) => panic!("expected AgentError::InvalidRequest, got: {other:?}"),
+        }
+    }
+
+    /// Same reproduction for the WRITE side ([`PackAgent::install`]): a
+    /// crafted `pack_id` must not be able to steer `target_dir` outside
+    /// `<root>/.ggen/packs/`. Asserts both the `Err` and that no directory
+    /// materializes at the escaped location.
+    #[tokio::test]
+    #[serial(GGEN_PACKS_DIR)]
+    async fn sabotage_install_refuses_path_traversal_pack_id() {
+        let root = TempDir::new().unwrap();
+        let packs_dir = root.path().join("packs");
+        std::fs::create_dir_all(&packs_dir).unwrap();
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", packs_dir.to_str().unwrap());
+
+        let agent = PackAgent::at_root(root.path());
+        let escaped_target = root.path().join("evil-escaped-dir");
+
+        let req = InstallRequest {
+            pack_id: "../../evil-escaped-dir".to_string(),
+            force: false,
+            dry_run: false,
+            emit_receipt: false,
+        };
+
+        // Act
+        let result = agent.install(req).await;
+
+        // Assert
+        assert!(
+            result.is_err(),
+            "install with a path-traversal pack id must be refused, got Ok: {:?}",
+            result.ok()
+        );
+        assert!(
+            !escaped_target.exists(),
+            "a refused install must not create any directory outside .ggen/packs/ -- \
+             found one at {}",
+            escaped_target.display()
+        );
+    }
+
+    /// Same reproduction for [`PackAgent::remove`].
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn sabotage_remove_refuses_path_traversal_pack_id() {
+        let root = TempDir::new().unwrap();
+        let packs_dir = root.path().join("packs");
+        std::fs::create_dir_all(&packs_dir).unwrap();
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", packs_dir.to_str().unwrap());
+
+        let agent = PackAgent::at_root(root.path());
+        let result = agent.remove("../secret");
+
+        assert!(
+            result.is_err(),
+            "remove with a path-traversal pack id must be refused, got Ok: {:?}",
+            result.ok()
+        );
+    }
 }

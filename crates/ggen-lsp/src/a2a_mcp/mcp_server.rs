@@ -296,7 +296,7 @@ impl ServerHandler for GgenMcpServer {
     fn get_info(&self) -> InitializeResult {
         let capabilities = ServerCapabilities::builder().enable_tools().build();
         InitializeResult::new(capabilities)
-            .with_server_info(Implementation::new("ggen-mcp", "0.1.0"))
+            .with_server_info(Implementation::new("ggen-a2a-mcp", "0.1.0"))
     }
 }
 

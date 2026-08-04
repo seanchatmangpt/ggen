@@ -1,0 +1,6 @@
+{
+  "suite": "hook",
+  "digest_blake3": "06568363777332ab6a9af71b1a511f937494d9e39b6d86620db0ed086eeca6ed",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

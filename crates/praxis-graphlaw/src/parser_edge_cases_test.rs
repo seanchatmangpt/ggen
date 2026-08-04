@@ -82,7 +82,7 @@ ex:list5 rdf:value (ex:a ex:b ex:c) .
 
         let store = TripleStore::from(ttl);
         assert!(
-            store.len() > 0,
+            !store.is_empty(),
             "collection statements must produce triples, got empty store"
         );
     }
@@ -100,7 +100,7 @@ ex:nested3 ex:value ((("x"))) .
 
         let store = TripleStore::from(ttl);
         assert!(
-            store.len() > 0,
+            !store.is_empty(),
             "nested collection statements must produce triples, got empty store"
         );
     }
@@ -337,7 +337,7 @@ ex:alice foaf:knows ex:bob .
         "#;
 
         let store = TripleStore::from(ttl);
-        assert!(store.len() >= 1, "Should accept SPARQL-style PREFIX");
+        assert!(!store.is_empty(), "Should accept SPARQL-style PREFIX");
     }
 
     /// SPARQL-style BASE
@@ -351,7 +351,7 @@ PREFIX ex: <http://example.org/>
         "#;
 
         let store = TripleStore::from(ttl);
-        assert!(store.len() >= 1, "Should accept SPARQL-style BASE");
+        assert!(!store.is_empty(), "Should accept SPARQL-style BASE");
     }
 
     /// Path expressions (forward)

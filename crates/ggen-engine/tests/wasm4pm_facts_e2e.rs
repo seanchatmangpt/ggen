@@ -4,6 +4,8 @@
 //! (`ontology/rules/breed_standing.n3`), and the real registry-report
 //! template — no fixture forks of the admitted files.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::graph::{GraphEngine as _, GraphLawStore};
@@ -55,8 +57,8 @@ rules = ["rules/breed_standing.n3"]
     .expect("write template");
 }
 
-/// The standing rule derives law:standing "EvidenceBound" for every cited
-/// breed: derived-triple count > 0, and the allen_temporal breed derives the
+/// The standing rule derives law:standing "`EvidenceBound`" for every cited
+/// breed: derived-triple count > 0, and the `allen_temporal` breed derives the
 /// exact expected standing triple.
 #[test]
 fn standing_rule_derives_evidence_bound_for_cited_breeds() {

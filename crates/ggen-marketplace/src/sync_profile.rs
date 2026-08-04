@@ -102,8 +102,13 @@ fn check_integrity_fields(lockfile: &PackLockfile) -> Result<(), String> {
 /// mismatch must hard-fail). A non-empty `integrity` field alone is fail-open:
 /// it proves a digest was once recorded, not that the pack on disk still
 /// matches it. This recomputes the digest with the SAME algorithm used at
-/// install time (`compute_pack_digest`) and compares to the stored
-/// `sha256-<hex>` value.
+/// install time (`compute_pack_digest`) — identity fields from the re-loaded
+/// pack definition PLUS the real content of every file under the recorded
+/// install directory — and compares to the stored `sha256-<hex>` value.
+/// Folding in the installed directory's real content (not just the pack's
+/// declared identity) is what lets this re-verification catch someone
+/// tampering with the files on disk after install without touching the
+/// registry TOML.
 ///
 /// For each locked pack we require:
 ///   1. The recorded `PackSource::Local { path }` install directory still
@@ -113,8 +118,10 @@ fn check_integrity_fields(lockfile: &PackLockfile) -> Result<(), String> {
 ///      pack from when it computed the install-time digest, so the digest is
 ///      deterministically reconstructible. A pack TOML that was deleted or made
 ///      unreadable => "missing pack".
-///   3. The recomputed `sha256-<hex>` digest equals the stored `integrity`
-///      value. Any divergence => "digest mismatch".
+///   3. The recomputed `sha256-<hex>` digest — identity fields plus a
+///      recursive hash of the install directory's real file content — equals
+///      the stored `integrity` value. Any divergence (declared identity OR
+///      installed content) => "digest mismatch".
 ///
 /// Packs whose recorded source is not `Local` (e.g. `Registry`/`GitHub`) are
 /// skipped here: their on-disk closure is not addressable through a local path,
@@ -153,8 +160,21 @@ fn verify_pack_digests(lockfile: &PackLockfile) -> Result<(), String> {
             )
         })?;
 
-        // (3) Recompute the digest and compare to the stored integrity value.
-        let recomputed = format!("sha256-{}", compute_pack_digest(&pack));
+        // (3) Recompute the digest -- identity fields from the re-loaded pack
+        //     definition PLUS the real content of the recorded install
+        //     directory (`install_path`) -- and compare to the stored
+        //     integrity value. Hashing the installed directory's real
+        //     content (not just the registry definition) is what lets this
+        //     re-verification detect tampering with the files on disk after
+        //     install, not merely drift in the pack's declared identity.
+        let recomputed_digest = compute_pack_digest(&pack, install_path).map_err(|e| {
+            format!(
+                "Lockfile digest re-verification failed (--locked): could not recompute digest \
+                 for pack '{}': {}",
+                pack_id, e
+            )
+        })?;
+        let recomputed = format!("sha256-{}", recomputed_digest);
         let stored = locked.integrity.as_deref().unwrap_or("");
         if recomputed != stored {
             return Err(format!(
@@ -610,7 +630,7 @@ packages = ["{id}-core"]
         write_registry_pack(registry.path(), "io.ggen.ok", "1.0.0");
         let digest = format!(
             "sha256-{}",
-            compute_pack_digest(&sample_pack("io.ggen.ok", "1.0.0"))
+            compute_pack_digest(&sample_pack("io.ggen.ok", "1.0.0"), install.path()).unwrap()
         );
         write_local_lockfile(
             project.path(),
@@ -640,7 +660,7 @@ packages = ["{id}-core"]
         write_registry_pack(registry.path(), "io.ggen.drift", "1.0.0");
         let locked_digest = format!(
             "sha256-{}",
-            compute_pack_digest(&sample_pack("io.ggen.drift", "1.0.0"))
+            compute_pack_digest(&sample_pack("io.ggen.drift", "1.0.0"), install.path()).unwrap()
         );
         write_local_lockfile(
             project.path(),
@@ -679,7 +699,7 @@ packages = ["{id}-core"]
         write_registry_pack(registry.path(), "io.ggen.gone", "1.0.0");
         let digest = format!(
             "sha256-{}",
-            compute_pack_digest(&sample_pack("io.ggen.gone", "1.0.0"))
+            compute_pack_digest(&sample_pack("io.ggen.gone", "1.0.0"), install.path()).unwrap()
         );
         write_local_lockfile(
             project.path(),
@@ -718,7 +738,8 @@ packages = ["{id}-core"]
         write_registry_pack(registry.path(), "io.ggen.noinstall", "1.0.0");
         let digest = format!(
             "sha256-{}",
-            compute_pack_digest(&sample_pack("io.ggen.noinstall", "1.0.0"))
+            compute_pack_digest(&sample_pack("io.ggen.noinstall", "1.0.0"), install.path())
+                .unwrap()
         );
         let install_path = install.path().to_path_buf();
         write_local_lockfile(
@@ -744,6 +765,63 @@ packages = ["{id}-core"]
         assert!(
             err.contains("io.ggen.noinstall"),
             "error must name the pack with the missing install path; got: {err}"
+        );
+    }
+
+    /// Proves the actual security property `compute_pack_digest` gaining an
+    /// installed-content component was meant to close: the REGISTRY
+    /// definition is untouched (identity fields unchanged), but the files
+    /// under the recorded install directory are tampered with after locking.
+    /// Before that fix, `verify_pack_digests` re-derived its digest purely
+    /// from the re-loaded registry `Pack` struct, so this exact sabotage
+    /// would have re-hashed identically and silently passed `--locked`.
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn reverify_fails_when_installed_content_tampered_after_locking() {
+        // Arrange: registry pack + a real installed file + correct digest.
+        let registry = TempDir::new().unwrap();
+        let project = TempDir::new().unwrap();
+        let install = TempDir::new().unwrap();
+        let _guard = PacksDirGuard::set(registry.path());
+
+        write_registry_pack(registry.path(), "io.ggen.tampered", "1.0.0");
+        fs::write(
+            install.path().join("pack-artifact.txt"),
+            "original artifact bytes",
+        )
+        .unwrap();
+        let digest = format!(
+            "sha256-{}",
+            compute_pack_digest(&sample_pack("io.ggen.tampered", "1.0.0"), install.path()).unwrap()
+        );
+        write_local_lockfile(
+            project.path(),
+            "io.ggen.tampered",
+            "1.0.0",
+            install.path(),
+            &digest,
+        );
+
+        // Sabotage: overwrite the installed artifact's content in place.
+        // The registry TOML (identity fields) is left completely untouched.
+        fs::write(
+            install.path().join("pack-artifact.txt"),
+            "TAMPERED artifact bytes",
+        )
+        .unwrap();
+
+        // Act
+        let err = validate_sync_preconditions(None, true, project.path()).unwrap_err();
+
+        // Assert: digest mismatch is caught even though pack identity never changed.
+        assert!(
+            err.contains("digest mismatch"),
+            "tampering with installed file content (identity unchanged) must be caught as a \
+             digest mismatch; got: {err}"
+        );
+        assert!(
+            err.contains("io.ggen.tampered"),
+            "error must name the tampered pack; got: {err}"
         );
     }
 }

@@ -92,7 +92,7 @@ fn test_suite6_policy_conflict_state_contradictions() {
     store.materialize().unwrap();
 
     // Conflicting transitions should be detected or deterministically ordered
-    let receipts = store.get_hook_receipts();
+    let _receipts = store.get_hook_receipts();
     // The result should be deterministic regardless of conflict
 }
 

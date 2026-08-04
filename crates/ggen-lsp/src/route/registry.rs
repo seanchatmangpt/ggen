@@ -158,6 +158,75 @@ pub fn family_of_code(code: &str) -> Option<RepairFamily> {
         // with TPL (DanglingReference), OUT (LoadFailure), or HARNESS
         // (AdmissionFailure). Species slug "source_law_repair".
         "GGEN-RULE-001" => Some(RepairFamily::RuleFileMissing),
+        // GGEN-SRC-001 (source-caste path violation): a rule's `output_file`
+        // targets a source-caste directory (rendered source masquerading as
+        // first-class source). Mapped to SourceCastePath (a NEW family it owns
+        // EXCLUSIVELY) so its source-law route is selected without colliding
+        // with TPL (DanglingReference), OUT (LoadFailure), RULE
+        // (RuleFileMissing), or HARNESS (AdmissionFailure). The species table
+        // (route::diagnostic_species) declares this species' route slug as
+        // "source_law_repair" and `detector_active: true` — this arm is what
+        // makes that route slug actually resolvable via `select_for_diagnostic`
+        // instead of silently falling through to `_ => None`.
+        "GGEN-SRC-001" => Some(RepairFamily::SourceCastePath),
+        // GGEN-YIELD-003 (orphaned output): a rule's `output_file` pattern
+        // lacks a static filename base (e.g. resolves to just `.rs` or empty
+        // after stripping Tera variables). Mapped to OrphanedOutput (a NEW
+        // family it owns EXCLUSIVELY) so its source-law route is selected
+        // without colliding with TPL (DanglingReference), OUT (LoadFailure),
+        // RULE (RuleFileMissing), SRC (SourceCastePath), or HARNESS
+        // (AdmissionFailure). The species table (route::diagnostic_species)
+        // declares this species' route slug as "source_law_repair" and
+        // `detector_active: true` — this arm is what makes that route slug
+        // actually resolvable via `select_for_diagnostic` instead of silently
+        // falling through to `_ => None` (F5, decorative-completion).
+        "GGEN-YIELD-003" => Some(RepairFamily::OrphanedOutput),
+        // GGEN-YIELD-004 (competing authority): two or more ggen.toml rules
+        // target the same `output_file`, so it is undecidable which rule's
+        // content wins. Mapped to CompetingAuthority (a NEW family it owns
+        // EXCLUSIVELY) so its source-law route is selected without colliding
+        // with TPL (DanglingReference), OUT (LoadFailure), RULE
+        // (RuleFileMissing), SRC (SourceCastePath), YIELD-003
+        // (OrphanedOutput), or HARNESS (AdmissionFailure). The species table
+        // (route::diagnostic_species) declares this species' route slug as
+        // "source_law_repair" and `detector_active: true` — this arm is what
+        // makes that route slug actually resolvable via `select_for_diagnostic`
+        // instead of silently falling through to `_ => None` (F6,
+        // decorative-completion).
+        "GGEN-YIELD-004" => Some(RepairFamily::CompetingAuthority),
+        // GGEN-PACK-001 (pack-source indirection): a rule's query/template is
+        // supplied via `{ pack = "...", ... }`, which cannot be resolved at
+        // author time, so GGEN-TPL-001/GGEN-OUT-001 checks are vacuous for
+        // that rule. Mapped to PackIndirection (a NEW family it owns
+        // EXCLUSIVELY) so its advisory route is selected without colliding
+        // with TPL (DanglingReference), OUT (LoadFailure), RULE
+        // (RuleFileMissing), SRC (SourceCastePath), YIELD-003
+        // (OrphanedOutput), YIELD-004 (CompetingAuthority), or HARNESS
+        // (AdmissionFailure). The species table (route::diagnostic_species)
+        // declares this species' route slug as "advisory" and
+        // `detector_active: true` — this arm is what makes that route slug
+        // actually resolvable via `select_for_diagnostic` instead of
+        // silently falling through to `_ => None` (F3, decorative-completion).
+        "GGEN-PACK-001" => Some(RepairFamily::PackIndirection),
+        // GGEN-QUERY-002 (SELECT * blindspot): a rule's SPARQL query uses
+        // `SELECT *` instead of explicit projections, which disables the
+        // GGEN-TPL-001/GGEN-OUT-001 unbound-variable checks for that rule
+        // (they cannot see what variables the query actually provides).
+        // Mapped to Blindspot (a NEW family it owns EXCLUSIVELY) so its
+        // advisory route is selected without colliding with TPL
+        // (DanglingReference), OUT (LoadFailure), RULE (RuleFileMissing),
+        // SRC (SourceCastePath), YIELD-003 (OrphanedOutput), YIELD-004
+        // (CompetingAuthority), PACK-001 (PackIndirection), or HARNESS
+        // (AdmissionFailure). The species table (route::diagnostic_species)
+        // declares this species' route slug as "advisory" and
+        // `detector_active: true` — this arm is what makes that route slug
+        // actually resolvable via `select_for_diagnostic` instead of
+        // silently falling through to `_ => None` (F2, decorative-completion:
+        // the analyzer (`analyzers::detect_query_002`) is genuinely wired
+        // live into `check.rs::fold_query_002`, so this arm's absence meant
+        // every real GGEN-QUERY-002 diagnostic hit a route refusal despite
+        // the species table's claim otherwise).
+        "GGEN-QUERY-002" => Some(RepairFamily::Blindspot),
         "E0023" => Some(RepairFamily::ConfigValue),
         "E0001" => Some(RepairFamily::ParseFailure),
         "RDF" => Some(RepairFamily::ParseFailure),
@@ -392,6 +461,154 @@ fn seed_routes() -> Vec<RepairRoute> {
                 .into(),
             provenance: Provenance::Seeded,
             priority: 10,
+        },
+        // GGEN-SRC-001 (source-caste path violation): a rule's `output_file`
+        // targets a source-caste directory (rendered source masquerading as
+        // first-class source). The fix lives ONLY in source law — retarget the
+        // ggen.toml rule's `output_file` at a first-class path. Purely ADVISORY
+        // (NoOp). Owns the SourceCastePath family exclusively.
+        RepairRoute {
+            id: RouteId("source-law.fix-source-caste-path".into()),
+            family: RepairFamily::SourceCastePath,
+            steps: PartialOrder {
+                nodes: vec![RepairStep {
+                    id: StepId("retarget-output-file".into()),
+                    title: "Retarget the ggen.toml rule's output_file away from the \
+                            source-caste directory to a first-class path (source law)"
+                        .into(),
+                    edit: EditTemplate::NoOp,
+                }],
+                edges: vec![],
+            },
+            description: "Source-caste path violation — the rule's output_file targets a \
+                          source-caste directory. Rendered source is source; retarget the \
+                          ggen.toml rule's output_file at a first-class path. Advisory \
+                          only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-YIELD-003 (orphaned output): a rule's `output_file` pattern
+        // lacks a static filename base (e.g. resolves to just `.rs` or empty
+        // after stripping Tera variables). The fix lives ONLY in source law —
+        // give the ggen.toml rule's `output_file` pattern a static filename
+        // base. Purely ADVISORY (NoOp). Owns the OrphanedOutput family
+        // exclusively (F5, decorative-completion: this route is what makes
+        // the diagnostic_species table's `route: "source_law_repair"` /
+        // `detector_active: true` claim for GGEN-YIELD-003 actually true).
+        RepairRoute {
+            id: RouteId("source-law.fix-orphaned-output".into()),
+            family: RepairFamily::OrphanedOutput,
+            steps: PartialOrder {
+                nodes: vec![RepairStep {
+                    id: StepId("add-static-filename-base".into()),
+                    title: "Give the ggen.toml rule's output_file pattern a static \
+                            filename base instead of only Tera variables/extension \
+                            (source law)"
+                        .into(),
+                    edit: EditTemplate::NoOp,
+                }],
+                edges: vec![],
+            },
+            description: "Orphaned output — the rule's output_file pattern lacks a static \
+                          filename base. Give the ggen.toml rule's output_file pattern a \
+                          static filename base. Advisory only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-YIELD-004 (competing authority): two or more ggen.toml rules
+        // target the same `output_file`, so it is undecidable which rule's
+        // content wins. The fix lives ONLY in source law — retarget or merge
+        // the competing ggen.toml rules so at most one owns the output_file.
+        // Purely ADVISORY (NoOp). Owns the CompetingAuthority family
+        // exclusively (F6, decorative-completion: this route is what makes
+        // the diagnostic_species table's `route: "source_law_repair"` /
+        // `detector_active: true` claim for GGEN-YIELD-004 actually true).
+        RepairRoute {
+            id: RouteId("source-law.resolve-competing-authority".into()),
+            family: RepairFamily::CompetingAuthority,
+            steps: PartialOrder {
+                nodes: vec![RepairStep {
+                    id: StepId("resolve-competing-rules".into()),
+                    title: "Retarget or merge the competing ggen.toml rules so only one \
+                            rule owns this output_file (source law)"
+                        .into(),
+                    edit: EditTemplate::NoOp,
+                }],
+                edges: vec![],
+            },
+            description: "Competing authority — multiple ggen.toml rules target the same \
+                          output_file. Retarget or merge the competing rules so at most \
+                          one owns it. Advisory only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-PACK-001 (pack-source indirection): a rule's query/template is
+        // supplied via `{ pack = "...", ... }`, which cannot be resolved at
+        // author time, so GGEN-TPL-001/GGEN-OUT-001 checks are vacuous for
+        // that rule. The fix is informational only — there is no destructive
+        // auto-edit to offer (the pack content is not knowable until
+        // generation time). Purely ADVISORY (NoOp). Owns the PackIndirection
+        // family exclusively (F3, decorative-completion: this route is what
+        // makes the diagnostic_species table's `route: "advisory"` /
+        // `detector_active: true` claim for GGEN-PACK-001 actually true,
+        // instead of every GGEN-PACK-001 diagnostic silently refusing at
+        // `select_for_diagnostic`'s `family_of_code` lookup).
+        RepairRoute {
+            id: RouteId("pack.acknowledge-indirection".into()),
+            family: RepairFamily::PackIndirection,
+            steps: PartialOrder {
+                nodes: vec![RepairStep {
+                    id: StepId("advise".into()),
+                    title: "Use a direct file path instead of a pack source if author-time \
+                            GGEN-TPL-001/GGEN-OUT-001 checks are needed for this rule"
+                        .into(),
+                    edit: EditTemplate::NoOp,
+                }],
+                edges: vec![],
+            },
+            description: "Pack-source indirection — the rule's query/template is resolved \
+                          from a pack at generation time, disabling GGEN-TPL-001/GGEN-OUT-001 \
+                          author-time checks. Advisory only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 5,
+        },
+        // GGEN-QUERY-002 (SELECT * blindspot): a rule's SPARQL query uses
+        // `SELECT *`, which disables the GGEN-TPL-001/GGEN-OUT-001
+        // unbound-variable checks for that rule (they cannot see what
+        // variables the query actually provides). The fix is informational
+        // only — there is no destructive auto-edit to offer (choosing the
+        // "right" explicit projection list is the query author's call, not
+        // knowable from the diagnostic alone). Purely ADVISORY (NoOp). Owns
+        // the Blindspot family exclusively (F2, decorative-completion: this
+        // route is what makes the diagnostic_species table's
+        // `route: "advisory"` / `detector_active: true` claim for
+        // GGEN-QUERY-002 actually true, instead of every GGEN-QUERY-002
+        // diagnostic silently refusing at `select_for_diagnostic`'s
+        // `family_of_code` lookup).
+        RepairRoute {
+            id: RouteId("query.acknowledge-select-star".into()),
+            family: RepairFamily::Blindspot,
+            steps: PartialOrder {
+                nodes: vec![RepairStep {
+                    id: StepId("advise".into()),
+                    title: "Replace SELECT * with explicit projections so \
+                            GGEN-TPL-001/GGEN-OUT-001 can verify this rule's \
+                            variable bindings"
+                        .into(),
+                    edit: EditTemplate::NoOp,
+                }],
+                edges: vec![],
+            },
+            description: "SELECT * blindspot — the rule's SPARQL query uses SELECT *, \
+                          disabling GGEN-TPL-001/GGEN-OUT-001 author-time checks for \
+                          this rule. Advisory only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 5,
         },
     ]
 }
@@ -893,5 +1110,541 @@ mod tests {
                 .0,
             "proof-topology.repair"
         );
+    }
+
+    // ---- GGEN-SRC-001: source-caste-path source-law repair route ----
+    //
+    // Regression guard for the finding: the species table
+    // (route::diagnostic_species) advertises GGEN-SRC-001 as
+    // `route: "source_law_repair"` with `detector_active: true`, and the
+    // detector (analyzers::detect_src_001) IS wired live into check.rs
+    // (fold_src_001). Before this fix, `family_of_code("GGEN-SRC-001")` fell
+    // through to `_ => None`, so `select_for_diagnostic` always returned
+    // `None` for a real GGEN-SRC-001 diagnostic — a decorative-completion gap
+    // between the advertised species metadata and the actual routing table.
+
+    #[test]
+    fn ggen_src_001_maps_to_its_own_family() {
+        // GGEN-SRC-001 must resolve to a concrete (non-None) family that it
+        // owns exclusively — zero cross-contamination with TPL/OUT/RULE/HARNESS.
+        assert_eq!(
+            family_of_code("GGEN-SRC-001"),
+            Some(RepairFamily::SourceCastePath)
+        );
+    }
+
+    #[test]
+    fn ggen_src_001_selects_the_source_law_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-SRC-001", "source-caste path violation"))
+            .expect("GGEN-SRC-001 must resolve to a seeded route, not None");
+        assert_eq!(route.id.0, "source-law.fix-source-caste-path");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_src_001_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER target emitted output.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-SRC-001", "source-caste path violation"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-SRC-001 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-SRC-001 step title {:?} references forbidden emitted-output marker \
+                     {forbidden:?}",
+                    step.title
+                );
+            }
+            assert!(
+                title.contains("ggen.toml") || title.contains("output_file"),
+                "GGEN-SRC-001 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_src_001_does_not_contaminate_other_species() {
+        // Introducing the SRC-001 route must NOT change the route selected for
+        // TPL-001 / OUT-001 / RULE-001 / HARNESS-001 (each owns its own family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-RULE-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-rule-file"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
+    }
+
+    // ---- GGEN-YIELD-003: orphaned-output source-law repair route ----
+    //
+    // Regression guard for finding F5 (decorative-completion,
+    // route/diagnostic_species.rs:159): the species table
+    // (route::diagnostic_species) advertises GGEN-YIELD-003 as
+    // `route: "source_law_repair"` with `detector_active: true`, and the
+    // detector (analyzers::detect_yield_003, wired live via
+    // check.rs::fold_yield_003) IS genuinely raised as an ERROR diagnostic.
+    // Before this fix, `family_of_code("GGEN-YIELD-003")` fell through to
+    // `_ => None`, so `select_for_diagnostic` always returned `None` for a
+    // real GGEN-YIELD-003 diagnostic — a decorative-completion gap between
+    // the advertised species metadata and the actual routing table (the MCP/
+    // headless/hover channels got a `RouteRefusal` instead of a route).
+
+    #[test]
+    fn ggen_yield_003_maps_to_its_own_family() {
+        // GGEN-YIELD-003 must resolve to a concrete (non-None) family that it
+        // owns exclusively — zero cross-contamination with
+        // TPL/OUT/RULE/SRC/HARNESS.
+        assert_eq!(
+            family_of_code("GGEN-YIELD-003"),
+            Some(RepairFamily::OrphanedOutput)
+        );
+    }
+
+    #[test]
+    fn ggen_yield_003_selects_the_source_law_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-YIELD-003", "orphaned output"))
+            .expect("GGEN-YIELD-003 must resolve to a seeded route, not None");
+        assert_eq!(route.id.0, "source-law.fix-orphaned-output");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_yield_003_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER target emitted output.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-YIELD-003", "orphaned output"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-YIELD-003 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-YIELD-003 step title {:?} references forbidden emitted-output \
+                     marker {forbidden:?}",
+                    step.title
+                );
+            }
+            assert!(
+                title.contains("ggen.toml") || title.contains("output_file"),
+                "GGEN-YIELD-003 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_yield_003_does_not_contaminate_other_species() {
+        // Introducing the YIELD-003 route must NOT change the route selected
+        // for TPL-001 / OUT-001 / RULE-001 / HARNESS-001 (each owns its own
+        // family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-RULE-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-rule-file"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
+    }
+
+    // ---- GGEN-YIELD-004: competing-authority source-law repair route ----
+    //
+    // Regression guard for finding F6 (decorative-completion,
+    // route/diagnostic_species.rs:171): the species table
+    // (route::diagnostic_species) advertises GGEN-YIELD-004 as
+    // `route: "source_law_repair"` with `detector_active: true`, and the
+    // detector (analyzers::detect_yield_004, wired live via
+    // check.rs::fold_yield_004) IS genuinely raised as an ERROR diagnostic
+    // when multiple rules target the same output file. Before this fix,
+    // `family_of_code("GGEN-YIELD-004")` fell through to `_ => None`, so
+    // `select_for_diagnostic` always returned `None` for a real
+    // GGEN-YIELD-004 diagnostic — a decorative-completion gap between the
+    // advertised species metadata and the actual routing table (the MCP/
+    // headless/hover channels got a `RouteRefusal` instead of a route).
+
+    #[test]
+    fn ggen_yield_004_maps_to_its_own_family() {
+        // GGEN-YIELD-004 must resolve to a concrete (non-None) family that it
+        // owns exclusively — zero cross-contamination with
+        // TPL/OUT/RULE/SRC/YIELD-003/HARNESS.
+        assert_eq!(
+            family_of_code("GGEN-YIELD-004"),
+            Some(RepairFamily::CompetingAuthority)
+        );
+    }
+
+    #[test]
+    fn ggen_yield_004_selects_the_source_law_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-YIELD-004", "competing authority"))
+            .expect("GGEN-YIELD-004 must resolve to a seeded route, not None");
+        assert_eq!(route.id.0, "source-law.resolve-competing-authority");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_yield_004_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER target emitted output.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-YIELD-004", "competing authority"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-YIELD-004 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-YIELD-004 step title {:?} references forbidden emitted-output \
+                     marker {forbidden:?}",
+                    step.title
+                );
+            }
+            assert!(
+                title.contains("ggen.toml")
+                    || title.contains("output_file")
+                    || title.contains("rule"),
+                "GGEN-YIELD-004 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_yield_004_does_not_contaminate_other_species() {
+        // Introducing the YIELD-004 route must NOT change the route selected
+        // for TPL-001 / OUT-001 / RULE-001 / HARNESS-001 (each owns its own
+        // family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-RULE-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-rule-file"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
+    }
+
+    // ---- GGEN-PACK-001: pack-source-indirection advisory repair route ----
+    //
+    // Regression guard for finding F3 (decorative-completion,
+    // route/diagnostic_species.rs:135): the species table
+    // (route::diagnostic_species) advertises GGEN-PACK-001 as
+    // `route: "advisory"` with `detector_active: true`, and the detector
+    // (analyzers::detect_pack_001, calling pack_001_diagnostics in
+    // tera_analyzer.rs, wired live via check.rs::fold_pack_001) IS genuinely
+    // raised as a WARNING diagnostic for a pack-indirected rule. Before this
+    // fix, `family_of_code("GGEN-PACK-001")` fell through to `_ => None`, so
+    // `select_for_diagnostic` always returned `None` for a real
+    // GGEN-PACK-001 diagnostic — a decorative-completion gap between the
+    // advertised species metadata and the actual routing table (the MCP/
+    // headless/hover channels got a `RouteRefusal` instead of a route).
+
+    #[test]
+    fn ggen_pack_001_maps_to_its_own_family() {
+        // GGEN-PACK-001 must resolve to a concrete (non-None) family that it
+        // owns exclusively — zero cross-contamination with
+        // TPL/OUT/RULE/SRC/YIELD-003/YIELD-004/HARNESS.
+        assert_eq!(
+            family_of_code("GGEN-PACK-001"),
+            Some(RepairFamily::PackIndirection)
+        );
+    }
+
+    #[test]
+    fn ggen_pack_001_selects_the_advisory_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-PACK-001", "pack query (...)"))
+            .expect("GGEN-PACK-001 must resolve to a seeded route, not None");
+        assert_eq!(route.id.0, "pack.acknowledge-indirection");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_pack_001_route_is_advisory_only() {
+        // Load-bearing invariant: the route must NEVER offer a destructive
+        // edit — the pack's real content isn't knowable at author time.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-PACK-001", "pack query (...)"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-PACK-001 step {:?} must be advisory (NoOp), never a destructive edit",
+                step.id
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_pack_001_does_not_contaminate_other_species() {
+        // Introducing the PACK-001 route must NOT change the route selected
+        // for TPL-001 / OUT-001 / RULE-001 / HARNESS-001 (each owns its own
+        // family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-RULE-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-rule-file"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
+    }
+
+    #[test]
+    fn ggen_pack_001_route_plan_is_produced_not_a_refusal() {
+        // End-to-end regression: the production call site
+        // (`route::route_plan_for_diagnostic`, backing the MCP tool
+        // `ggen.lsp.repair_route`, `check.rs`'s `--with-routes` gate, and
+        // `hover.rs`) must yield a `RoutePlan` for a real GGEN-PACK-001
+        // diagnostic instead of `None` (which upstream turns into a
+        // `RouteRefusal` in `mcp::build_repair_routes_in`).
+        let reg = RouteRegistry::seeded();
+        let d = diag(
+            "GGEN-PACK-001",
+            "GGEN-PACK-001: pack source resolved at generation time — \
+             GGEN-TPL-001 and GGEN-OUT-001 are disabled for this rule.",
+        );
+        let plan = crate::route::route_plan_for_diagnostic(&reg, &d, "ggen.toml content\n")
+            .expect("GGEN-PACK-001 must produce a RoutePlan, not a RouteRefusal");
+        assert_eq!(plan.route_id.0, "pack.acknowledge-indirection");
+    }
+
+    // ---- GGEN-QUERY-002: SELECT * blindspot advisory route ----
+
+    #[test]
+    fn ggen_query_002_maps_to_its_own_family() {
+        // GGEN-QUERY-002 must resolve to the Blindspot family, which it owns
+        // exclusively (no other code maps there) — zero cross-contamination.
+        assert_eq!(
+            family_of_code("GGEN-QUERY-002"),
+            Some(RepairFamily::Blindspot)
+        );
+    }
+
+    #[test]
+    fn ggen_query_002_selects_the_advisory_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-QUERY-002", "SELECT * blindspot"))
+            .expect("GGEN-QUERY-002 must resolve to a seeded route");
+        assert_eq!(route.id.0, "query.acknowledge-select-star");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_query_002_route_is_advisory_only() {
+        // Load-bearing invariant: the route must NEVER edit emitted output —
+        // choosing the "right" explicit projection list is not knowable from
+        // the diagnostic alone.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-QUERY-002", "SELECT * blindspot"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "output/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-QUERY-002 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-QUERY-002 step title {:?} references forbidden emitted-output \
+                     marker {forbidden:?}",
+                    step.title
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn ggen_query_002_does_not_contaminate_other_species() {
+        // Introducing the QUERY-002 route must NOT change the route selected
+        // for TPL-001 / OUT-001 / RULE-001 / HARNESS-001 (each owns its own
+        // family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-RULE-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-rule-file"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
+    }
+
+    #[test]
+    fn ggen_query_002_route_plan_is_produced_not_a_refusal() {
+        // End-to-end regression matching finding F2's exact failure scenario:
+        // the production call site (`route::route_plan_for_diagnostic`,
+        // backing the MCP tool `ggen.lsp.repair_route`, `check.rs`'s
+        // `--with-routes` gate via `fold_query_002`/`fold_species`, and
+        // `hover.rs`) must yield a `RoutePlan` for a real GGEN-QUERY-002
+        // diagnostic instead of `None` (which upstream turns into a
+        // `RouteRefusal` in `mcp::build_repair_routes_in`).
+        let reg = RouteRegistry::seeded();
+        let d = diag(
+            "GGEN-QUERY-002",
+            "GGEN-QUERY-002 rule `r1` uses SELECT * — explicit projections required.",
+        );
+        let plan = crate::route::route_plan_for_diagnostic(&reg, &d, "ggen.toml content\n")
+            .expect("GGEN-QUERY-002 must produce a RoutePlan, not a RouteRefusal");
+        assert_eq!(plan.route_id.0, "query.acknowledge-select-star");
     }
 }

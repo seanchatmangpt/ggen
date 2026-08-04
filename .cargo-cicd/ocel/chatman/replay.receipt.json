@@ -1,0 +1,6 @@
+{
+  "suite": "replay",
+  "digest_blake3": "af27308efc2be066c6ed3225a7b7fb09e839bd6f0ada78aa91af900fce13b3cc",
+  "sealed_by": "chatman_engine_acceptance::harness::SealGuard",
+  "clock": "ordinal (no wall clock)"
+}

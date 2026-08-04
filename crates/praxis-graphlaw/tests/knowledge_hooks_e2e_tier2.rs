@@ -323,7 +323,36 @@ fn test_b3_datalog_program_size_limit() {
         huge_program
     );
     let res = store.load_hook_pack(&hook_pack);
-    assert!(res.is_ok() || res.is_err()); // Either parsed or gracefully rejected
+    // `load_hook_pack` extracts `kh:program` as an opaque string (see
+    // `hooks::parsing::validate_and_extract_hooks`); it is never parsed as Datalog syntax
+    // at load time -- `translate_datalog_to_n3` only runs later, inside
+    // `evaluate_condition`, when the hook actually fires. There is no load-time size gate
+    // on the program text, so a 500x-repeated (but otherwise well-formed) rule string is
+    // genuinely accepted, not "either accepted or rejected" as a stand-in for an
+    // untested code path.
+    assert!(
+        res.is_ok(),
+        "a large but syntactically valid Turtle literal for kh:program must load \
+         successfully (no size gating exists at load time): {res:?}"
+    );
+    assert_eq!(
+        store.hooks.len(),
+        1,
+        "the huge_datalog hook must be extracted and stored"
+    );
+    assert_eq!(store.hooks[0].name, "huge_datalog");
+    match &store.hooks[0].condition {
+        praxis_graphlaw::hooks::HookCondition::Datalog { program, goal } => {
+            assert_eq!(
+                program.len(),
+                huge_program.len(),
+                "the full-length Datalog program text must be preserved verbatim, not \
+                 truncated or size-limited"
+            );
+            assert_eq!(goal, "r(?s)");
+        }
+        other => panic!("expected HookCondition::Datalog, got {other:?}"),
+    }
 }
 
 /// Covers F3: Verifies syntax error handling in SPARQL triggers.
@@ -490,6 +519,71 @@ fn test_b4_construct_modify_registry() {
         res.is_err(),
         "Hook attempting to modify system/registry namespace must be blocked"
     );
+}
+
+/// Covers F4: A hook action whose `kh:query` is syntactically valid SPARQL but not a
+/// CONSTRUCT (accidentally a SELECT) must fail `materialize()` loudly instead of being
+/// silently treated as a CONSTRUCT that matched nothing.
+///
+/// `validate_and_extract_hooks` (`hooks/parsing.rs`) only runs its CONSTRUCT-specific
+/// checks when the literal query text contains the substring "CONSTRUCT"
+/// (`cleaned_o.to_uppercase().contains("CONSTRUCT")`); a plain SELECT never contains
+/// that substring, so `load_hook_pack` accepts it. At `materialize()` time,
+/// `Reasoner::materialize`'s `EffectKind::EmitDelta`/`GroundAction` arm then calls
+/// `hooks::evaluate_construct` on this action query, which genuinely returns
+/// `Err("Query is not a CONSTRUCT query")`. Before the fix, that `Err` was discarded by
+/// an `if let Ok(...)` with no `else`, so the hook's `HookVerdictRecord` was still
+/// recorded with `verdict: Fired, diagnostics: None` -- indistinguishable from
+/// `test_b4_construct_empty_result`'s legitimate zero-match no-op -- and `materialize()`
+/// returned `Ok(..)` as if the action had executed correctly.
+#[test]
+fn test_b4_construct_action_query_not_a_construct_fails_materialize() {
+    let mut store = TripleStore::new();
+    let hook_pack = r#"
+        @prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
+        @prefix ex: <http://example.org/> .
+
+        ex:h_bad_action a kh:Hook ;
+            kh:name "bad_action_query" ;
+            kh:kind "delta" ;
+            kh:var "http://example.org/trigger" ;
+            kh:effect "emit-delta" ;
+            kh:action ex:act .
+
+        ex:act a kh:Action ;
+            kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+            kh:query "SELECT ?s WHERE { ?s <http://example.org/trigger> ?o }" .
+    "#;
+    store
+        .load_hook_pack(hook_pack)
+        .expect("load-time validation does not catch a SELECT lacking the substring CONSTRUCT");
+    store
+        .load_triples(
+            "ex:Node <http://example.org/trigger> 'yes' .",
+            Syntax::Turtle,
+        )
+        .unwrap();
+
+    let mat_result = store.materialize();
+    assert!(
+        mat_result.is_err(),
+        "a hook action that never evaluated (not a CONSTRUCT) must not be reported as a \
+         successful zero-match no-op"
+    );
+    let err = mat_result.unwrap_err();
+    assert!(
+        err.contains("bad_action_query") && err.contains("failed to evaluate"),
+        "error must name the offending hook and explain the evaluation failure, got: {}",
+        err
+    );
+
+    // `TripleStore::materialize`'s checkpoint/rollback contract (`lib.rs`) must restore
+    // verdicts/receipts to empty on this Err, exactly as it does for `EffectKind::Refuse`.
+    assert!(
+        store.verdicts.is_empty(),
+        "verdicts must be rolled back, not left recording a phantom `Fired`"
+    );
+    assert!(store.receipts.is_empty(), "receipts must be rolled back");
 }
 
 // --- F5 Boundaries ---

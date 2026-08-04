@@ -20,6 +20,8 @@
 //! `rf:crate_openapi_cnv_reflect` to close that gap; this test is the regression guard
 //! that keeps it closed.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

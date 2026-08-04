@@ -111,6 +111,13 @@ pub fn handle_sync_run(dry_run: bool, watch: bool) -> Result<serde_json::Value> 
 /// `shapes` supplied: an unreadable/unparseable shapes file, or any SHACL
 /// violation (naming focus node, source shape, and message) also exits
 /// non-zero.
+// `files`/`shapes` arrive by value because the GENERATED clap-noun-verb call
+// site (`crate::verbs::graph::graph_validate`, `mode = Overwrite` from the
+// ontology — not hand-editable here) passes the owned `Vec<Utf8PathBuf>`
+// clap produced for a repeatable `pathbufs` arg; accepting `&[Utf8PathBuf]`
+// instead would require changing that shared code-generation template for
+// every `pathbufs`-typed command, not just this one.
+#[allow(clippy::needless_pass_by_value)]
 pub fn handle_graph_validate(
     files: Vec<Utf8PathBuf>, shapes: Vec<Utf8PathBuf>,
 ) -> Result<serde_json::Value> {
@@ -261,7 +268,13 @@ fn graph_validate_declarative_rules(
 /// O(sum over files of parse+hash cost) plus, when `shapes` is non-empty,
 /// O(sum over files of SHACL evaluation cost against the union shapes
 /// graph); one linear pass over `files`, no cross-file work.
+// One linear file-mode validation orchestrator (parse, hash, optional SHACL
+// evaluation, per-file diagnostics); splitting it would scatter one
+// sequential pass across call boundaries rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 fn validate_files(files: &[Utf8PathBuf], shapes: &[Utf8PathBuf]) -> Result<serde_json::Value> {
+    use crate::graph::{GraphEngine as _, GraphLawStore};
+
     let shapes_ttl: Option<String> = if shapes.is_empty() {
         None
     } else {
@@ -310,7 +323,6 @@ fn validate_files(files: &[Utf8PathBuf], shapes: &[Utf8PathBuf]) -> Result<serde
 
         // Shapes path: fresh isolated GraphLaw engine per file (same
         // per-file isolation guarantee as the parse-only path above).
-        use crate::graph::{GraphEngine as _, GraphLawStore};
         let engine = match GraphLawStore::new() {
             Ok(e) => e,
             Err(e) => {
@@ -388,6 +400,21 @@ fn validate_files(files: &[Utf8PathBuf], shapes: &[Utf8PathBuf]) -> Result<serde
 /// the response simply reports `"signed": false`.
 pub fn handle_receipt_verify() -> Result<serde_json::Value> {
     let root = project_root()?;
+    handle_receipt_verify_in(&root)
+}
+
+/// [`handle_receipt_verify`] against an explicit project root.
+///
+/// The verb form resolves its root from the process cwd, which makes it
+/// unusable for any caller that must verify several projects (self-play
+/// arenas, a test harness) without mutating global process state. This is
+/// the same logic with the root passed in; `handle_receipt_verify` is now a
+/// thin cwd-resolving delegate to it, so there is exactly one
+/// receipt-verification implementation rather than two that can drift.
+///
+/// # Errors
+/// See [`handle_receipt_verify`].
+pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Value> {
     let receipt_path = root.join(RECEIPT_REL_PATH);
     let raw = std::fs::read_to_string(&receipt_path).map_err(|e| {
         exec_err(format!(
@@ -448,7 +475,9 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
     let signature_valid = match &receipt.record.signature_hex {
         None => None,
         Some(sig_hex) => {
-            let verifying_key = crate::keys::resolve_verifying_key(&root).map_err(exec_err)?;
+            use ed25519_dalek::Verifier as _;
+
+            let verifying_key = crate::keys::resolve_verifying_key(root).map_err(exec_err)?;
             let sig_bytes = hex::decode(sig_hex).map_err(|e| {
                 exec_err(format!(
                     "receipt invalid: signature_hex is not valid hex: {e}"
@@ -461,7 +490,6 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
                 ))
             })?;
             let signature = ed25519_dalek::Signature::from_bytes(&sig_arr);
-            use ed25519_dalek::Verifier as _;
             match verifying_key.verify(receipt.record.chain_hash_hex.as_bytes(), &signature) {
                 Ok(()) => Some(true),
                 Err(_) => {
@@ -504,6 +532,11 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
 /// A missing or empty log, any malformed line, or the first broken link
 /// (named by zero-based index and failed check) exits non-zero — fail
 /// closed, never a cheerful `valid: false`.
+// One linear chain-verification loop (payload hash, chain-hash recompute,
+// prev-link check per record); splitting it would scatter one sequential
+// per-record check across call boundaries rather than shrink real
+// complexity.
+#[allow(clippy::too_many_lines)]
 pub fn handle_receipt_history() -> Result<serde_json::Value> {
     let root = project_root()?;
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
@@ -754,7 +787,7 @@ fn orphaned_artifacts_check(
 /// (a receipt output with no template that would produce it today), and
 /// receipt-vs-disk staleness (a receipt output missing or hash-mismatched
 /// on disk). All three checks are always computed (never short-circuited)
-/// and ANDed into `healthy`, so a caller can see every drift independently.
+/// and `ANDed` into `healthy`, so a caller can see every drift independently.
 ///
 /// A project that has never been synced (no `.ggen-v2/receipt.json`) is
 /// healthy by definition for the artifact/staleness checks: there is
@@ -765,6 +798,11 @@ fn orphaned_artifacts_check(
 /// a stale/missing receipt output) is a hard error naming every failing
 /// check's detail in one message — fail closed, same convention as every
 /// other integrity check in this crate.
+// Three independently-computed, always-run checks (lockfile drift, orphaned
+// artifacts, receipt-vs-disk staleness) ANDed into one `healthy` verdict;
+// splitting it would scatter that deliberate "always compute all three"
+// invariant across call boundaries rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 pub fn handle_doctor() -> Result<serde_json::Value> {
     let root = project_root()?;
 
@@ -953,7 +991,7 @@ pub fn handle_doctor() -> Result<serde_json::Value> {
 // `ggen law *` — law-state operations on the project graph (GraphLaw engine)
 // ---------------------------------------------------------------------------
 
-/// Build the GraphLaw engine over the project's law inputs: `ggen.toml`,
+/// Build the `GraphLaw` engine over the project's law inputs: `ggen.toml`,
 /// the ontology, every resolved pack ontology, and every law-rules file
 /// (loaded, not yet materialized). Shared by all `ggen law` verbs so each
 /// verb sees the identical fact/rule state a sync's law stage sees (minus
@@ -974,13 +1012,14 @@ pub fn handle_doctor() -> Result<serde_json::Value> {
 /// same documented gap `crate::generation_rules::run` itself has: it does
 /// not resolve `manifest.packs` either), so that branch loads only the
 /// primary ontology plus its declared imports -- no packs are unioned in.
-fn build_law_engine(
-    root: &std::path::Path,
-) -> Result<(
+/// `(law_shapes, engine, loaded_law_rule_files)` — see [`build_law_engine`].
+type LawEngineBuild = (
     Vec<PathBuf>,
     crate::graph::GraphLawStore,
     Vec<(String, usize)>,
-)> {
+);
+
+fn build_law_engine(root: &std::path::Path) -> Result<LawEngineBuild> {
     use crate::graph::GraphEngine as _;
     let engine = crate::graph::GraphLawStore::new().map_err(exec_err)?;
 
@@ -1053,6 +1092,10 @@ fn build_law_engine(
 /// `ggen law load` — load every `[law].rules` file and report the rule
 /// count per file. Refuses (non-zero exit) on the first unparseable rule
 /// document; never materializes.
+///
+/// # Errors
+/// Missing/invalid `ggen.toml`, or any `[law].rules` file that is missing,
+/// unreadable, or fails to parse.
 pub fn handle_law_load() -> Result<serde_json::Value> {
     let root = project_root()?;
     let (_, _, loaded) = build_law_engine(&root)?;
@@ -1069,6 +1112,11 @@ pub fn handle_law_load() -> Result<serde_json::Value> {
 /// `ggen law validate` — materialize, then run every `[law].shapes` SHACL
 /// gate and the denial check; any violation exits non-zero with a typed
 /// FM-LAW message.
+///
+/// # Errors
+/// Missing/invalid `ggen.toml`, an unparseable `[law].rules`/`[law].shapes`
+/// file, a denial-rule violation, or any non-conforming SHACL shapes file
+/// (naming the offending violations).
 pub fn handle_law_validate() -> Result<serde_json::Value> {
     use crate::graph::GraphEngine as _;
     let root = project_root()?;
@@ -1119,6 +1167,10 @@ pub fn handle_law_validate() -> Result<serde_json::Value> {
 
 /// `ggen law derive` — materialize `[law].rules` to fixpoint and report
 /// the derived-triple count plus the post-materialization graph hash.
+///
+/// # Errors
+/// Missing/invalid `ggen.toml`, or any `[law].rules` file that is missing,
+/// unreadable, or fails to parse.
 pub fn handle_law_derive() -> Result<serde_json::Value> {
     use crate::graph::GraphEngine as _;
     let root = project_root()?;
@@ -1134,6 +1186,10 @@ pub fn handle_law_derive() -> Result<serde_json::Value> {
 
 /// `ggen law explain` — materialize and report which facts the rules
 /// derived: rules-loaded count and the full derived-triple diff.
+///
+/// # Errors
+/// Missing/invalid `ggen.toml`, or any `[law].rules` file that is missing,
+/// unreadable, or fails to parse.
 pub fn handle_law_explain() -> Result<serde_json::Value> {
     use crate::graph::GraphEngine as _;
     let root = project_root()?;
@@ -1153,14 +1209,23 @@ pub fn handle_law_explain() -> Result<serde_json::Value> {
 
 /// `ggen law export` — dump the fully materialized graph as canonical
 /// N-Triples with its BLAKE3 state hash.
+///
+/// # Errors
+/// Missing/invalid `ggen.toml`, or any `[law].rules` file that is missing,
+/// unreadable, or fails to parse.
 pub fn handle_law_export() -> Result<serde_json::Value> {
+    use std::fmt::Write as _;
+
     use crate::graph::GraphEngine as _;
     let root = project_root()?;
     let (_, engine, _) = build_law_engine(&root)?;
     engine.materialize().map_err(exec_err)?;
     let lines = engine.canonical_quads().map_err(exec_err)?;
     let hash = engine.state_hash().map_err(exec_err)?;
-    let ntriples: String = lines.iter().map(|l| format!("{l} .\n")).collect();
+    let ntriples: String = lines.iter().fold(String::new(), |mut doc, l| {
+        let _ = writeln!(doc, "{l} .");
+        doc
+    });
     Ok(serde_json::json!({
         "triples": lines.len(),
         "graph_hash": crate::sync::hex32(&hash),

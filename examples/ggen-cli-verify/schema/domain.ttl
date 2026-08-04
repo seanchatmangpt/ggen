@@ -1,0 +1,66 @@
+# ggen-cli-verify domain facts — CLI boundary proofs against ggen's OWN
+# real binary (not the receiptctl example). Every ctt:expectExitCode /
+# ctt:stdoutNeedle / ctt:stderrNeedle below was verified live against
+# target/release/ggen 26.8.2 before being transcribed here (see the
+# 2026-08-03 dogfood-loop session: each invocation was run directly with
+# stdout/stderr captured separately, matching exactly how
+# chicago_tdd_tools::cli_proof::CliHarness::run captures them via
+# std::process::Command::output()).
+
+@prefix ctt:  <http://seanchatmangpt.github.io/packs/chicago-tdd-tools#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ctt:ggen-help
+  a ctt:CliBoundaryTest ;
+  rdfs:label "ggen --help boundary proof" ;
+  ctt:testName "ggen_help_lists_usage" ;
+  ctt:binary "ggen" ;
+  ctt:args "--help" ;
+  ctt:expectExitCode 0 ;
+  ctt:stdoutNeedle "Usage" ;
+  ctt:coversAxiom "ggen --help exits 0 with usage text" .
+
+ctt:ggen-version
+  a ctt:CliBoundaryTest ;
+  rdfs:label "ggen --version boundary proof" ;
+  ctt:testName "ggen_version_emits_name" ;
+  ctt:binary "ggen" ;
+  ctt:args "--version" ;
+  ctt:expectExitCode 0 ;
+  # NOTE (verified live, 2026-08-03): unlike receiptctl's generic clap-noun-verb
+  # "cli <version>" quirk, ggen's own --version prints its real binary name.
+  ctt:stdoutNeedle "ggen " ;
+  ctt:coversAxiom "ggen --version exits 0 and prints its own name and version" .
+
+ctt:ggen-unknown-subcommand
+  a ctt:CliBoundaryTest ;
+  rdfs:label "ggen unknown-subcommand boundary proof" ;
+  ctt:testName "ggen_unknown_subcommand_fails_closed" ;
+  ctt:binary "ggen" ;
+  ctt:args "bogus-noun" ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-08-03): clap's own subcommand-resolution
+  # failure, distinct from ggen's own Command::execute error path below.
+  ctt:stderrNeedle "unrecognized subcommand" ;
+  ctt:coversAxiom "an unknown ggen subcommand exits nonzero with a clap error on stderr" .
+
+ctt:ggen-graph-validate-missing-file
+  a ctt:CliBoundaryTest ;
+  rdfs:label "ggen graph validate on a missing file boundary proof" ;
+  ctt:testName "ggen_graph_validate_missing_file_fails_closed" ;
+  ctt:binary "ggen" ;
+  ctt:args "graph validate --files /tmp/does-not-exist-xyz.ttl" ;
+  ctt:expectExitCode 1 ;
+  # NOTE (verified live, 2026-08-03): ggen's own command-execution error
+  # path (not clap's), distinct wording from the clap-level failures above.
+  ctt:stderrNeedle "file(s) invalid" ;
+  ctt:coversAxiom "graph validate against a nonexistent file fails closed with a named-file error, not a panic" .
+
+# NOTE: a `ggen receipt verify` boundary case was deliberately omitted here.
+# The generated CliHarness runtime (cli_boundary_runtime.rs.tmpl) has no cwd
+# override, so the subprocess inherits this crate's own package root as its
+# cwd -- which, after `ggen sync run` writes THIS project's own
+# .ggen-v2/receipt.json (the very act that generates these tests), would no
+# longer be "missing" by the time the test runs. Asserting "fails without a
+# receipt" here would be a false claim about this project's own state, not
+# a real boundary proof.

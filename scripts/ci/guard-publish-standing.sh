@@ -4,12 +4,19 @@
 # Modes:
 #   --schema-only   validate structure only (used by `just pre-commit`): the file parses,
 #                   every claim has id/standing/falsifier/evidence, standings are from the
-#                   allowed vocabulary. Publish-gate enforcement is skipped — commits are
-#                   not publishes.
+#                   allowed vocabulary. Publish-gate enforcement is skipped, AND no
+#                   claim's `falsifier` command is executed — commits are not publishes,
+#                   and running every falsifier (several are `cargo test` invocations) on
+#                   every commit would defeat the point of a fast pre-commit gate.
 #   (default)       full mode, run before any real `cargo publish`: everything above, PLUS
 #                   fail if any claim whose gates include "publish" has standing=BLOCKED
-#                   without an explicit non-empty exception_admitted_by, and warn (not fail)
-#                   on evidence coordinates that don't match the current HEAD prefix.
+#                   without an explicit non-empty exception_admitted_by, warn (not fail)
+#                   on evidence coordinates that don't match the current HEAD prefix, AND
+#                   actually execute every claim's `falsifier` command as a real subprocess
+#                   — a claim recorded as standing=ALIVE ("falsifier ran and passed", per
+#                   docs/aps/claims.toml's own header) whose falsifier fails when re-run
+#                   right now is a hard error, not a silently-trusted TOML label. Override
+#                   the per-falsifier timeout (seconds) with GUARD_FALSIFIER_TIMEOUT_SECS.
 #
 # Vocabulary (this repo's no-overclaiming floor): ALIVE | PARTIAL | BLOCKED | UNVERIFIED.
 set -euo pipefail
@@ -25,7 +32,7 @@ fi
 HEAD_SHORT="$(git rev-parse --short=9 HEAD 2>/dev/null || echo unknown)"
 
 MODE="$MODE" HEAD_SHORT="$HEAD_SHORT" python3 - "$LEDGER" <<'PY'
-import os, sys, tomllib
+import os, subprocess, sys, tomllib
 
 path = sys.argv[1]
 mode = os.environ.get("MODE", "full")
@@ -80,6 +87,52 @@ if mode != "--schema-only" and mode != "schema-only":
             warnings.append(
                 f"{cid}: evidence coordinate {commit} != HEAD {head} — stale evidence is a "
                 f"warning, not a refutation; re-run the falsifier to refresh"
+            )
+
+    # Real falsifier execution (the actual fix for the "never runs a single
+    # falsifier" gap): every claim's `falsifier` is a real, re-runnable shell
+    # command (docs/aps/claims.toml's own header: "Falsifiers are
+    # re-runnable"). A claim recorded ALIVE means "falsifier ran and passed
+    # at the recorded evidence coordinate" — that definition is only true if
+    # something actually re-runs it. BLOCKED/PARTIAL/UNVERIFIED claims make
+    # no passing assertion, so their falsifier is still executed (for real,
+    # visible signal) but its outcome does not gate the guard.
+    timeout_s = int(os.environ.get("GUARD_FALSIFIER_TIMEOUT_SECS", "900"))
+    for c in claims:
+        cid = c.get("id", "?")
+        falsifier = c.get("falsifier")
+        if not falsifier:
+            continue  # missing-field case already reported as a schema error above
+        st = c.get("standing")
+        rc = None
+        try:
+            proc = subprocess.run(
+                falsifier,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=timeout_s,
+            )
+            rc = proc.returncode
+        except subprocess.TimeoutExpired:
+            rc = None
+        except OSError as exc:
+            print(f"WARN: {cid}: falsifier could not be launched: {exc}")
+
+        if rc is None:
+            msg = f"{cid}: falsifier did not complete (timeout after {timeout_s}s or launch failure) — `{falsifier}`"
+            if st == "ALIVE":
+                errors.append(f"{msg} — cannot certify standing=ALIVE without a completed run")
+            else:
+                print(f"WARN: {msg}")
+            continue
+
+        print(f"RAN: {cid}: falsifier exit={rc} (standing={st})")
+        if st == "ALIVE" and rc != 0:
+            errors.append(
+                f"{cid}: standing=ALIVE but falsifier failed just now (exit {rc}): "
+                f"`{falsifier}` — the ledger's ALIVE claim is stale or wrong; refusing to "
+                f"treat a currently-failing falsifier as a passing one"
             )
 
 for w in warnings:

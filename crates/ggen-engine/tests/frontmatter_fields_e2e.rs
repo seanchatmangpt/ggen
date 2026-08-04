@@ -3,6 +3,8 @@
 //! `shape`, `determinism`, `freeze_policy`/`freeze_slots_dir`, `from`.
 //! Real filesystem, real sync pipeline — no mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, RECEIPT_REL_PATH};
@@ -231,7 +233,7 @@ fn freeze_always_skips_once_target_exists() {
 }
 
 /// The andon/obligation consequence of freeze:always drift (O-5 /
-/// FreezeAlwaysNoDriftDetection, second half): the scenario above
+/// `FreezeAlwaysNoDriftDetection`, second half): the scenario above
 /// (`freeze_always_skips_once_target_exists`) already proves the file is
 /// never overwritten. This proves the receipt now honestly records that
 /// drift was observed -- a `FROZEN-DRIFT:out.txt` obligation, a Quarantined

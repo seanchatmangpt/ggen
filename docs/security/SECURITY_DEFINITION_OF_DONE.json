@@ -747,55 +747,80 @@
     {
       "dimension_id": 7,
       "name": "Key Management",
-      "short_description": "Private keys never in repo, public keys verified, key rotation supported",
-      "what_it_is": "The signing key (private) and verifying key (public) are the cryptographic foundation of the entire security system. The private key must be kept secret and never committed to version control. The public key can be shared and verified. Key rotation must be supported so that compromised keys can be replaced without invalidating old receipts.",
+      "short_description": "Private keys never in repo, public keys verified. Key rotation is NOT implemented -- planned requirement only, see key_rotation_status below.",
+      "what_it_is": "The signing key (private) and verifying key (public) are the cryptographic foundation of the entire security system. The private key must be kept secret and never committed to version control. The public key can be shared and verified. Key rotation -- replacing a compromised signing key while keeping old receipts verifiable -- would be a valuable property but is NOT currently implemented anywhere in this workspace; see key_rotation_status below for the verified gap and tracking reference.",
+      "key_rotation_status": {
+        "status": "NOT_IMPLEMENTED",
+        "corrected": "2026-08-03 -- this dimension previously claimed 'key rotation supported', citing crate::receipt::receipt_impl as the implementation. Both the claim and the citation were false: verified by reading crates/ggen-config/src/receipt/receipt_impl.rs in full (no key-id field, no keyring/multi-key concept, no rotation function) and by a workspace-wide case-insensitive grep for 'rotat' across every *.rs/*.toml/*.json/*.md file, which returned zero rotation implementations (only unrelated hits: bit-rotation helpers, log-file rotation config, and other projects' aspirational docs/architecture placeholders).",
+        "why_not_a_small_addition": "The real key-resolution code that backs the live `ggen sync` / `ggen receipt verify` pipeline is crates/ggen-engine/src/keys.rs (resolve_signing_key / resolve_verifying_key), not ggen-config::receipt::receipt_impl -- the dimension's citation named the wrong crate entirely. keys.rs resolves exactly one verifying key from exactly one location (GGEN_SIGNING_KEY env var, else the single file .ggen/keys/verifying.key) with no key-id concept and no keyring; resolve_signing_key never overwrites an existing signing.key once one exists. Rotation would require: a key-id field threaded through every receipt type (Receipt in receipt_impl.rs, ReceiptEnvelope in envelope.rs, and praxis_core::ReceiptRecord), a keyring format holding multiple verifying keys plus their validity windows, verification logic that selects the right historical key by id instead of assuming a single current one, and a new CLI verb to perform the rotation -- new design across three crates, not a small addition to existing infrastructure.",
+        "current_behavior": "Once a signing key exists (env var or .ggen/keys/signing.key), it is permanent. The only way to change it today is manual file replacement, which invalidates verification of every receipt signed under the old key -- this is exactly the 'Key mismatch' failure_mode documented below in this same dimension, not a supported rotation path.",
+        "tracked": "docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md, TECH-DEBT-004"
+      },
       "implementation": {
-        "crate": "ggen-config",
-        "module": "crate::receipt::receipt_impl",
-        "key_types": [
-          "ed25519_dalek::SigningKey — private key, 32 bytes, hex-encoded",
-          "ed25519_dalek::VerifyingKey — public key, 32 bytes, hex-encoded"
-        ],
-        "key_functions": [
-          "generate_keypair() -> (SigningKey, VerifyingKey)",
-          "KeyPersistence::save_signing_key(key: &SigningKey, path: &Path) -> Result<()>",
-          "KeyPersistence::load_signing_key(path: &Path) -> Result<SigningKey>",
-          "KeyPersistence::save_verifying_key(key: &VerifyingKey, path: &Path) -> Result<()>"
-        ],
-        "key_modules": [
-          "ggen-cli/src/cmds/sync.rs::emit_receipt() — loads signing key, generates new keypair if missing",
-          "ggen-cli/src/cmds/receipt.rs::do_verify() — loads verifying key"
-        ],
-        "file_locations": [
-          ".ggen/keys/signing.key — PRIVATE, hex-encoded ed25519 private key, MUST NOT be in git",
-          ".ggen/keys/verifying.key — PUBLIC, hex-encoded ed25519 public key, SAFE to commit",
-          ".ggen/keys/public.pem — alternative name for verifying.key"
-        ]
+        "corrected_2026_08_03": "This block previously described a single, invented composite implementation: crate 'ggen-config' / module 'crate::receipt::receipt_impl', a 'KeyPersistence' type (save_signing_key/load_signing_key/save_verifying_key), and 'ggen-cli/src/cmds/sync.rs::emit_receipt()' / 'ggen-cli/src/cmds/receipt.rs::do_verify()' as the loaders. Verified false by direct read + workspace-wide grep: no 'KeyPersistence' identifier exists anywhere in the workspace; 'crates/ggen-cli/src/cmds/sync.rs' does not exist as a file at all (the real file at that path is 'sync_cmd_template.rs'); 'crates/ggen-cli/src/cmds/receipt.rs' does exist but is dead code -- it is never `pub mod`-registered in 'crates/ggen-cli/src/cmds/mod.rs', so it is not reachable from any CLI invocation. There are in fact two separate, real, LIVE key-management implementations in this workspace for two different receipt mechanisms (mirrors the sync-receipt vs. pack-install-receipt split already documented in this repo's root CLAUDE.md 'Cryptographic Receipts' section) -- neither matches what this block used to claim, so both are given below instead of one invented merge of the two.",
+        "sync_receipt_keys": {
+          "used_by": "`ggen sync` (chain signing) and `ggen receipt verify` -- the live pipeline described in dimensions 1-6/8 above",
+          "crate": "ggen-engine",
+          "module": "crate::keys",
+          "key_functions": [
+            "resolve_signing_key(project_root: &Path) -> Result<SigningKey> -- crates/ggen-engine/src/keys.rs:115. Reads GGEN_SIGNING_KEY env var, else .ggen/keys/signing.key, else generates+persists a fresh keypair (never overwrites an existing signing.key; a losing race falls back to reading the winner's file)",
+            "resolve_verifying_key(project_root: &Path) -> Result<VerifyingKey> -- crates/ggen-engine/src/keys.rs:170. Never generates a key -- a missing/absent verifying key is always a hard error naming the missing file/env var"
+          ],
+          "key_modules": [
+            "ggen-engine/src/sync.rs:3045 -- `crate::keys::resolve_signing_key(root)?` signs the chained receipt's chain_hash_hex; the module's own comment states this is 'fails closed ... never a silently unsigned receipt'",
+            "ggen-engine/src/verbs/handlers.rs:480 -- `crate::keys::resolve_verifying_key(root)` backs `ggen receipt verify`"
+          ],
+          "file_locations": [
+            ".ggen/keys/signing.key — PRIVATE, hex-encoded 32-byte ed25519 seed, MUST NOT be in git. Written with 0600 permissions on Unix only, best-effort, and only at the moment of generation (see key_invariants below for what this does and does not cover)",
+            ".ggen/keys/verifying.key — PUBLIC, hex-encoded ed25519 public key, SAFE to commit"
+          ]
+        },
+        "pack_install_receipt_keys": {
+          "used_by": "`ggen pack add` / `ggen packs add` (a genuinely separate mechanism from sync receipts -- per this repo's `.claude/rules/coding-agent-mistakes.md`: 'pack-install receipts are a separate mechanism under `.ggen/receipts/pack-*.json`', confirmed against the emit_install_receipt() code below)",
+          "crate": "ggen-marketplace",
+          "module": "crate::agent::receipt (re-exported through ggen-cli's crate::agent shim, which is documented in its own file header as 'a pure re-export, never a second implementation')",
+          "key_functions": [
+            "ggen_config::receipt::generate_keypair() -> (SigningKey, VerifyingKey) -- crates/ggen-config/src/receipt/receipt_impl.rs:176. This one function from the old citation IS real and IS live, just not under a 'KeyPersistence' type and not for sync receipts",
+            "load_keypair(private_key_path: &Path) -> Result<(SigningKey, VerifyingKey)> -- crates/ggen-marketplace/src/agent/receipt.rs:207 (the real, plain-function equivalent of the invented 'KeyPersistence::load_signing_key')",
+            "save_keypair(signing_key, verifying_key, private_key_path, public_key_path) -> Result<()> -- crates/ggen-marketplace/src/agent/receipt.rs:234 (the real equivalent of the invented 'KeyPersistence::save_signing_key'/'save_verifying_key'; applies no file-permission restriction, unlike the sync-receipt path above)"
+          ],
+          "key_modules": [
+            "ggen-marketplace/src/agent/receipt.rs::emit_install_receipt() — loads-or-generates the keypair and signs a ggen_config::receipt::Receipt",
+            "ggen-cli/src/cmds/packs_receipt.rs / cmds/packs.rs — thin CLI adapters that call emit_install_receipt() after a successful install"
+          ],
+          "file_locations": [
+            ".ggen/keys/private.pem — PRIVATE, hex-encoded ed25519 secret key for pack-install receipts only, MUST NOT be in git. NOT the same file as signing.key above, and NOT permission-restricted by save_keypair()",
+            ".ggen/keys/public.pem — PUBLIC, hex-encoded ed25519 verifying key for pack-install receipts only. This is NOT 'an alternative name for verifying.key' as the prior version of this doc claimed -- it is a distinct file backing a distinct keypair for a distinct receipt mechanism"
+          ]
+        },
+        "dead_code_not_a_third_live_path": "crates/ggen-cli/src/receipt_manager.rs::ReceiptManager is a third, near-duplicate key-loading implementation (also using private.pem/public.pem names) that is not called from any registered CLI command -- confirmed by grep, its only reference outside its own file is a comment in crates/ggen-cli/tests/receipt_generation_test.rs: 'In actual usage, ReceiptManager::new() would be called here.'"
       },
       "validation_command": {
-        "cli": "ggen init --show-public-key",
-        "description": "Display the public key without exposing the private key",
-        "example": "ggen init --show-public-key",
+        "corrected_2026_08_03": "'ggen init --show-public-key' does not exist -- confirmed by reading crates/ggen-cli/src/cmds/init.rs's #[verb] signature in full: `init` accepts only --path/--force/--skip-hooks/--name/--version/--description. There is no CLI command anywhere in this workspace that prints a public key; the only way to inspect one today is reading the raw file directly.",
+        "cli": "cat .ggen/keys/verifying.key   # sync-receipt public key (or .ggen/keys/public.pem for the separate pack-install-receipt public key)",
+        "description": "Print the hex-encoded public key directly -- no dedicated CLI subcommand exists for this",
+        "example": "cat .ggen/keys/verifying.key",
         "expected_output": {
           "public_key": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0"
         },
         "file_permissions_check": {
           "command": "stat -c '%A' .ggen/keys/signing.key",
-          "expected": "-rw------- (600) or -rw-r----- (640)",
-          "must_not_be": "-rw-rw-rw- (666) or world-readable"
+          "expected": "-rw------- (600) -- set by crates/ggen-engine/src/keys.rs::restrict_to_owner() on Unix, once, at the moment `ggen sync` first generates the key",
+          "must_not_be": "-rw-rw-rw- (666) or world-readable",
+          "caveat": "This is a manual check, not something `ggen` itself enforces on read. Confirmed by reading keys.rs in full: permissions are set once at generation time (best-effort, Unix-only per its own doc comment: 'not enforced on non-Unix targets'), and are never re-checked when the key is later read by `ggen sync`/`ggen receipt verify` -- a `chmod 666` after generation is not detected."
         }
       },
       "key_invariants": [
         {
           "invariant": "Private key file permissions",
           "requirement": "File mode must be 0600 (readable/writable by owner only)",
-          "enforcement": "ggen init enforces chmod 0600 when writing signing.key",
-          "failure": "File mode is 0644 or world-readable → CRITICAL EXPOSURE"
+          "enforcement": "corrected 2026-08-03: NOT 'ggen init' (init.rs never touches .ggen/keys/ at all). The real enforcement is crates/ggen-engine/src/keys.rs::restrict_to_owner(), called once from persist_keypair() only at the moment `ggen sync` first generates a fresh signing.key -- Unix-only (a documented no-op on other targets) and best-effort (its own doc comment: 'not enforced on non-Unix targets'); never re-checked on subsequent reads",
+          "failure": "File mode is 0644 or world-readable → CRITICAL EXPOSURE (and, per the enforcement note above, `ggen` itself will not notice or refuse this after the key already exists)"
         },
         {
           "invariant": "Private key never committed to git",
           "requirement": ".gitignore must include .ggen/keys/signing.key",
-          "enforcement": "ggen init creates .gitignore entry; git pre-commit hook checks",
+          "enforcement": "ggen init does write a project .gitignore containing `.ggen/` (crates/ggen-cli/src/cmds/init.rs's GITIGNORE content), which covers .ggen/keys/signing.key by directory match. corrected 2026-08-03: there is no 'git pre-commit hook' that checks this -- confirmed by reading scripts/hooks/pre-commit.sh (runs only `just check` + `just fmt-check`, both main-branch-only) and by grepping scripts/ and justfile for any signing.key/private.pem exposure check: zero hits. A key committed before .gitignore existed, or committed with `git add -f`, would not be caught by anything in this workspace today",
           "failure": "signing.key appears in git history → CRITICAL COMPROMISE"
         },
         {
@@ -822,7 +847,7 @@
           "mode": "Key exposure — private key is world-readable",
           "symptom": "stat -c '%A' .ggen/keys/signing.key returns -rw-rw-rw-",
           "detection": "File permissions audit; git diff --check for exposed keys",
-          "root_cause": "ggen init did not enforce 0600 permissions",
+          "root_cause": "corrected 2026-08-03: not 'ggen init' (it never touches key files). Two real root causes instead: (1) crates/ggen-engine/src/keys.rs::restrict_to_owner() is a documented no-op on non-Unix targets, so a key generated on Windows is never restricted at all; (2) even on Unix, the 0600 is set once at generation time only -- a later `chmod 666` on an existing key is never detected or corrected by any code path in this workspace",
           "impact": "CRITICAL — any user can read private key"
         },
         {
@@ -840,50 +865,52 @@
           "impact": "HIGH — old receipts cannot be verified"
         },
         {
-          "mode": "Key loss — signing.key is deleted or corrupted",
-          "symptom": "ggen sync fails with 'Could not load signing key'",
+          "mode": "Key loss — signing.key is corrupted (not merely deleted -- deletion alone regenerates, see key_rotation_status/recovery above)",
+          "symptom": "ggen sync fails with an FM-KEY-00N-tagged error (e.g. 'not valid hex' / FM-KEY-001, or 'unreadable' / FM-KEY-003) -- corrected 2026-08-03: the literal string 'Could not load signing key' does not appear anywhere in crates/ggen-engine/src/keys.rs or error.rs; this is the real message shape instead",
           "detection": "ls -la .ggen/keys/signing.key; file not found or corrupted",
-          "root_cause": "File was deleted, disk corruption, or permission issue",
+          "root_cause": "File was corrupted or has a permission issue that prevents reading (not deletion alone -- an absent file is handled by regeneration, not an error)",
           "impact": "HIGH — cannot sign new receipts until key is recovered or regenerated"
         },
         {
           "mode": "Fail-open — missing key does not fail hard",
-          "symptom": "ggen sync continues without signing receipt when key is missing",
+          "symptom": "NOT REPRODUCIBLE against the current implementation -- corrected 2026-08-03. There is no 'emit_receipt()' function anywhere in this workspace (the prior citation was fabricated). The real live code, crates/ggen-engine/src/sync.rs:3037-3048, resolves the signing key via crate::keys::resolve_signing_key(root)? -- a bare `?`, propagating any error as a hard failure -- and its own doc comment states the intended contract explicitly: 'Fails closed ... a malformed env var/key file is a hard error, never a silently unsigned receipt.' Deleting signing.key does not trigger this failure mode at all: resolve_signing_key() generates and persists a fresh keypair instead (documented, tested behavior -- see keys.rs's generates_and_persists_a_fresh_keypair_on_first_resolve unit test), then signs with it",
           "detection": "rm .ggen/keys/signing.key; ggen sync; check if receipt is unsigned",
-          "root_cause": "emit_receipt() has a fallback that writes unsigned receipt on key load failure",
-          "impact": "CRITICAL — unsigned receipt is silently accepted"
+          "root_cause": "N/A for the current implementation -- retained here only as a regression watchpoint: if resolve_signing_key() is ever changed to tolerate a load failure by returning an unsigned receipt instead of propagating the error, that would reintroduce this exact fail-open",
+          "impact": "CRITICAL if it existed — unsigned receipt silently accepted"
         }
       ],
       "recovery": [
-        "If private key is exposed: Revoke old key, generate new keypair with ggen init --force-keys, re-sign all future receipts with new key",
-        "If key is lost: Regenerate with ggen init --force-keys (old receipts cannot be re-signed but remain in chain)",
-        "If key is corrupted: Restore from backup or regenerate if no backup exists",
-        "If key pair is mismatched: Identify which key is correct (signing or verifying) and restore or regenerate the other"
+        "corrected 2026-08-03: 'ggen init --force-keys' does not exist (init.rs has no such flag, and never touches .ggen/keys/ at all). The real mechanism is crates/ggen-engine/src/keys.rs::resolve_signing_key(), invoked by the next `ggen sync`",
+        "If private key is exposed: delete both .ggen/keys/signing.key AND .ggen/keys/verifying.key, then re-run `ggen sync` to generate a fresh matching keypair. Deleting only signing.key while leaving the old verifying.key in place is deliberately rejected -- keys.rs's own stale-verifying-key check (FM-KEY-011) hard-errors rather than silently pairing a new signing key with an old public key",
+        "If key is lost: delete both key files and re-run `ggen sync` (old receipts already in the chain keep their original signature; they cannot be re-signed under the new key, matching the existing chain-integrity model)",
+        "If key is corrupted: restore both files from backup, or delete both and regenerate if no backup exists",
+        "If key pair is mismatched: `ggen sync` will already refuse this case itself (FM-KEY-011) rather than requiring manual detection -- follow the printed remediation, which names the specific files involved"
       ],
+      "sabotage_tests_corrected_2026_08_03": "'crates/ggen-cli/tests/key_security_tests.rs' does not exist anywhere in the workspace (confirmed by find) -- every test_location in the prior version of the array below pointed at that one nonexistent file. The entries below are corrected against the real implementation and cite the real tests that actually exist today; two of the original four scenarios are not implemented/reproducible as originally described, and are labeled as such rather than deleted.",
       "sabotage_tests": [
         {
           "sabotage": "Change file permissions to world-readable",
           "command": "chmod 666 .ggen/keys/signing.key && ggen sync",
-          "required_outcome": "Exit 1; error message: 'Private key file has insecure permissions' OR Warning issued before signing",
-          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_world_readable_key_rejected"
+          "required_outcome": "NOT ENFORCED today, unlike the prior claim of 'Exit 1'. Verified by reading crates/ggen-engine/src/keys.rs in full: permissions are set once at generation (persist_keypair -> restrict_to_owner, Unix-only, best-effort) and never re-checked on read. `ggen sync` will read and use a world-readable signing.key without error or warning. No automated test exercises this because there is no behavior to assert against -- tracked as a gap, not silently dropped",
+          "test_location": "NONE -- gap, not a fabricated citation"
         },
         {
           "sabotage": "Delete signing key before sync",
           "command": "rm .ggen/keys/signing.key && ggen sync",
-          "required_outcome": "Exit 0 and regenerate new keypair, OR exit 1 if regeneration disabled",
-          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_missing_key_handling"
+          "required_outcome": "Exit 0 and regenerate a fresh keypair (matches real, tested behavior)",
+          "test_location": "crates/ggen-engine/src/keys.rs::generates_and_persists_a_fresh_keypair_on_first_resolve (inline unit test on resolve_signing_key(); no CLI-level/e2e test of this scenario currently exists)"
         },
         {
-          "sabotage": "Replace verifying key with a different one",
-          "command": "ggen init --output /tmp/other_keys --force-keys; cp /tmp/other_keys/verifying.key .ggen/keys/verifying.key; ggen receipt verify .ggen/receipts/latest.json",
-          "required_outcome": "is_valid: false (signature verification fails with wrong key)",
-          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_mismatched_verifying_key"
+          "sabotage": "Delete only the verifying key after a real signed sync, then verify",
+          "command": "ggen sync; rm .ggen/keys/verifying.key; ggen receipt verify",
+          "required_outcome": "`ggen receipt verify` exits non-zero / reports invalid (the missing key is a hard error, per crate::keys::resolve_verifying_key's documented contract: never silently generates a replacement)",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_sabotage_delete_verifying_key_receipt_verify_returns_invalid (this is the corrected replacement for the prior 'Replace verifying key with a different one' scenario, which relied on the nonexistent `ggen init --output ... --force-keys` and a `ggen receipt verify --public-key` flag that belongs only to the dead, unregistered crates/ggen-cli/src/cmds/receipt.rs, not to the live ggen-engine verb)"
         },
         {
           "sabotage": "Corrupt signing key hex encoding",
           "command": "echo 'not_valid_hex!!!!' > .ggen/keys/signing.key && ggen sync",
-          "required_outcome": "Exit 1; error message: 'Invalid hex in signing key' OR 'Failed to load signing key'",
-          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_corrupted_signing_key_rejected"
+          "required_outcome": "Hard error (matches real behavior: decode_key_hex() returns a typed FM-KEY-001 'not valid hex' error, propagated with `?`, never silently swallowed)",
+          "test_location": "crates/ggen-engine/src/keys.rs::malformed_key_file_is_a_hard_error (inline unit test on resolve_signing_key(); no CLI-level/e2e test of this scenario currently exists)"
         }
       ]
     },

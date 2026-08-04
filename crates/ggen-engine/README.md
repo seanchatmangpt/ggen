@@ -26,7 +26,7 @@ just ci         # fmt-check + clippy -D warnings + test + deny + typos
 | Full CI | `just ci`        |
 
 Toolchain is pinned to stable `1.82.0` via `rust-toolchain.toml`; MSRV is `1.82`.
-Versioning is CalVer (`YY.M.patch`).
+Versioning is `CalVer` (`YY.M.patch`).
 
 ## License
 

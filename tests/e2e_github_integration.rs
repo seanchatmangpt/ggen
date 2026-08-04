@@ -1,10 +1,37 @@
-// NOTE: Gated behind `integration` feature — these tests require `ggen ci` commands
-// which are not yet implemented in the current CLI surface.
+//! ARCHIVED test functions (2026-08-03): 8 of this file's original 14 tests invoked the `ci`
+//! noun (`ggen ci pages status`, `ggen ci workflow status`, `ggen ci trigger`), which no
+//! longer exists anywhere in the current CLI surface.
+//!
+//! Confirmed live: `ggen ci pages status --help` fails with `error: unrecognized subcommand
+//! 'ci'` (clap even suggests the nearest real noun, `capability`). `ggen --help`'s current
+//! noun list (`init`, `sync`, `bblock`, `doctor`, `policy`, `pack`, `graph`, `agent`, `utils`,
+//! `packs`, `law`, `capability`, `receipt`, `ontology`, `help`) has no `ci` entry at all, and
+//! neither `ggen agent --help` nor `ggen policy --help` expose anything resembling GitHub
+//! Actions workflow/Pages status querying or triggering. This is a real removal from the
+//! pre-v26.7.16-CLI-routing-flip design, not a rename, and there is no current equivalent to
+//! repoint these 8 tests at. See also `tests/ci_validate.rs`, archived in the same
+//! `ci`-noun-removed state.
+//!
+//! Removed test functions: `test_github_pages_status_command`,
+//! `test_github_pages_status_with_explicit_repo`, `test_github_workflow_status_command`,
+//! `test_github_workflow_status_with_workflow_name`, `test_github_trigger_workflow_command`,
+//! `test_github_help_commands`, `test_github_workflow_status_lists_workflows`,
+//! `test_github_api_error_messages_are_helpful` -- each asserted on GitHub-specific stdout
+//! (e.g. "Pages", "Workflow", "trigger") or a `--help`/`.success()` exit that the
+//! unrecognized-subcommand failure can never produce.
+//!
+//! The 6 tests below are unaffected and still pass (3 run, 3 marked `#[ignore]` as
+//! network-dependent): their assertions don't require the `ci` command itself to succeed --
+//! each accepts a generic error/output shape (e.g. `!stdout.is_empty() || !stderr.is_empty()`)
+//! that the "unrecognized subcommand" failure also satisfies.
+//!
+//! If GitHub Actions workflow/Pages status querying or triggering is wanted again, it would
+//! need to be rebuilt as a real CLI command first -- restoring these assertions without that
+//! implementation would just recreate the removed-subcommand failures this archival fixes.
 #![cfg(feature = "integration")]
 
 use anyhow::Result;
 use assert_cmd::Command;
-use predicates::prelude::*;
 use serial_test::serial;
 
 /// Saves the prior value of an env var and restores it (or removes it) on Drop.
@@ -39,97 +66,7 @@ impl Drop for EnvVarGuard {
 /// - ggen ci trigger
 
 #[test]
-fn test_github_pages_status_command() -> Result<()> {
-    // Test that the command exists and has proper help
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("pages").arg("status").arg("--help");
-
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("status"));
-
-    Ok(())
-}
-
-#[test]
-fn test_github_pages_status_with_explicit_repo() -> Result<()> {
-    // Test with explicit repository argument
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("pages").arg("status");
-
-    // Command might fail without GITHUB_TOKEN, but it should run
-    let output = cmd.output()?;
-
-    // Should output either success info or error message (not crash)
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // One of these should contain relevant information
-    assert!(
-        stdout.contains("Pages") || stderr.contains("Pages") || stderr.contains("Error"),
-        "Command should provide pages status or error message"
-    );
-
-    Ok(())
-}
-
-#[test]
-fn test_github_workflow_status_command() -> Result<()> {
-    // Test that the command exists and has proper help
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("workflow").arg("status").arg("--help");
-
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("status"));
-
-    Ok(())
-}
-
-#[test]
-fn test_github_workflow_status_with_workflow_name() -> Result<()> {
-    // Test with explicit workflow name
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci")
-        .arg("workflow")
-        .arg("status")
-        .arg("--workflow")
-        .arg("Build and Deploy GitHub Pages");
-
-    // Command might fail without GITHUB_TOKEN or if workflow doesn't exist
-    let output = cmd.output()?;
-
-    // Should provide some output (success or error)
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // Should contain workflow-related information or error
-    assert!(
-        stdout.contains("Workflow")
-            || stdout.contains("Build")
-            || stderr.contains("Workflow")
-            || stderr.contains("Error"),
-        "Command should provide workflow status or error message"
-    );
-
-    Ok(())
-}
-
-#[test]
-fn test_github_trigger_workflow_command() -> Result<()> {
-    // Test that the command exists and has proper help
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("trigger").arg("--help");
-
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("trigger"));
-
-    Ok(())
-}
-
-#[test]
-#[ignore] // Network-dependent: requires git remote configuration
+#[ignore = "network-dependent: requires git remote configuration"]
 fn test_github_repo_auto_detection() -> Result<()> {
     // Test that commands can auto-detect repo from git remote
     // This will fail gracefully if not in a git repo
@@ -178,7 +115,7 @@ fn test_github_commands_handle_missing_token() -> Result<()> {
 }
 
 #[test]
-#[ignore] // Network-dependent: requires GitHub API access
+#[ignore = "network-dependent: requires GitHub API access"]
 fn test_github_pages_status_output_format() -> Result<()> {
     // Test that pages-status provides expected output format
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -196,28 +133,6 @@ fn test_github_pages_status_output_format() -> Result<()> {
             || stderr.contains("Error")
             || stderr.contains("not configured"),
         "Output should contain pages information or error"
-    );
-
-    Ok(())
-}
-
-#[test]
-fn test_github_workflow_status_lists_workflows() -> Result<()> {
-    // Test that workflow-status can list workflows
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("workflow").arg("status");
-
-    let output = cmd.output()?;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // Should list workflows or provide error
-    assert!(
-        stdout.contains("Workflow")
-            || stdout.contains("workflow")
-            || stderr.contains("Error")
-            || stderr.contains("No workflows"),
-        "Output should contain workflow information or error"
     );
 
     Ok(())
@@ -244,25 +159,7 @@ fn test_github_commands_validate_repo_format() -> Result<()> {
 }
 
 #[test]
-fn test_github_help_commands() -> Result<()> {
-    // Test that all GitHub subcommands have help text
-    let subcommands = ["pages status", "workflow status", "trigger"];
-
-    for subcommand in &subcommands {
-        let mut cmd = Command::cargo_bin("ggen")?;
-        cmd.args(["ci"].iter().copied().chain(subcommand.split(" ")))
-            .arg("--help");
-
-        cmd.assert().success().stdout(predicate::str::contains(
-            subcommand.split(' ').next().unwrap(),
-        ));
-    }
-
-    Ok(())
-}
-
-#[test]
-#[ignore] // Network-dependent: requires GitHub API access
+#[ignore = "network-dependent: requires GitHub API access"]
 fn test_github_integration_with_public_repo() -> Result<()> {
     // Test GitHub integration with a known public repository
     // This is the most realistic E2E test
@@ -309,30 +206,6 @@ fn test_github_commands_performance() -> Result<()> {
         "GitHub command should complete within 10 seconds, took {:?}",
         duration
     );
-
-    Ok(())
-}
-
-#[test]
-fn test_github_api_error_messages_are_helpful() -> Result<()> {
-    // Test that error messages are user-friendly
-    let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("ci").arg("pages").arg("status");
-
-    let output = cmd.output()?;
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // Error should be informative
-    if !output.status.success() {
-        assert!(
-            stderr.contains("Error")
-                || stderr.contains("not found")
-                || stderr.contains("404")
-                || stderr.contains("does not exist"),
-            "Error message should be informative, got: {}",
-            stderr
-        );
-    }
 
     Ok(())
 }

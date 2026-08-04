@@ -1,0 +1,9 @@
+{
+  "id": "traversal-parent-escape",
+  "pack": "mermaid-pack",
+  "sparql": "SELECT ?s WHERE { ?s ?p ?o } LIMIT 1",
+  "to": "../canary/ESCAPED.txt",
+  "body": "escaped\n",
+  "origin": "handwritten",
+  "note": "to: traversal into the arena canary tree must never land"
+}

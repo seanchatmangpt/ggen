@@ -3,7 +3,7 @@
 //! (non-OPTIONAL) triple on a predicate used zero times in the graph
 //! silently returned 0 of 113 expected rows, with no tool able to ask
 //! "does my query return rows, and how many" before it was committed to a
-//! template. See docs/2026-08-03-ggen-mcp-plan.md.
+//! template. See crates/ggen-mcp/README.md.
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -69,12 +69,19 @@ pub struct QueryPreviewResult {
     pub rows: Vec<serde_json::Map<String, serde_json::Value>>,
     /// Present (`Some(true|false)`) only for ASK queries.
     pub boolean_result: Option<bool>,
-    /// Every distinct predicate IRI that appeared in at least one returned
-    /// row's bound values -- present specifically so a zero-row SELECT
-    /// still tells the caller something: an empty set here on a
-    /// zero-row result means none of the query's own bound terms ever
-    /// touched the graph, which is the direct signal the motivating
-    /// incident needed.
+    /// Present specifically so a zero-row SELECT still tells the caller
+    /// something: an empty set here on a zero-row result means none of the
+    /// query's own bound terms ever touched the graph, which is the direct
+    /// signal the motivating incident needed. The two query kinds populate
+    /// this with different precision, and callers should not assume
+    /// predicate-position specificity for SELECT:
+    /// - CONSTRUCT/DESCRIBE (graph results): strictly triple-predicate
+    ///   IRIs (`t.predicate` only).
+    /// - SELECT (solution bindings): any IRI-shaped bound value across ALL
+    ///   projected variables, regardless of which triple-pattern position
+    ///   that variable occupies -- `EngineRow` carries no positional
+    ///   (subject/predicate/object) metadata, so a subject- or
+    ///   object-bound IRI lands here too, not just predicate-bound ones.
     pub touched_predicates: BTreeSet<String>,
     pub elapsed_ms: u64,
 }

@@ -12,7 +12,14 @@ fn test_e0013_select_without_order_by() {
         matches!(&d.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0013")
     }).expect("E0013 diagnostic missing");
 
-    assert_eq!(e0013.severity, Some(DiagnosticSeverity::WARNING));
+    // F5 fix: E0013 (like E0011) is now ERROR by default, matching
+    // `ggen_config::manifest::types::default_strict_mode() -> true` --
+    // `ggen sync run` hard-refuses a missing ORDER BY under that default
+    // (`ConfigError::Validation`), so the headless LSP gate must not report
+    // a lower severity than the pipeline it previews. See
+    // `analyzers/sparql_analyzer.rs`'s module doc for the full reasoning and
+    // the narrower remaining divergence for an explicit `strict_mode = false`.
+    assert_eq!(e0013.severity, Some(DiagnosticSeverity::ERROR));
     assert!(e0013.message.contains("SELECT query lacks ORDER BY"));
 }
 

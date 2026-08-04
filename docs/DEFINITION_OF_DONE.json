@@ -1,4 +1,5 @@
 {
+  "_deprecated": "STALE as of the 2026-07 crate-consolidation pass: crates_list below (ggen-a2a-mcp, ggen-core, genesis-schema-v2, stpnt, ...) names crates that no longer exist on disk, and omits current members added since (ggen-engine, praxis-core, praxis-graphlaw, ggen-mcp, ggen-cheat-scanner, powl2-decompose, chicago-tdd-tools, bcinr-pddl, bcinr-mfw-ir, openapi-cnv-reflect). For the current, actively-generated crate map see .claude/rules/architecture.md (generated from .specify/repo-facts.ttl) and crates/ggen-mcp/README.md for the current MCP-server surface. Not consumed by any script/CI job (verified: no repo reference to this file's path outside itself) -- kept for historical reference only.",
   "metadata": {
     "title": "ggen Definition of Done — 5 Core Quality Gates",
     "version": "26.5.28",

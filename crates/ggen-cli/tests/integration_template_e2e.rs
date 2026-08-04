@@ -72,7 +72,7 @@ features = { type = "array", default = [] }
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_new_creates_structure() {
     // Chicago TDD: Verify real file system state after template creation
     let temp_dir = TempDir::new().unwrap();
@@ -101,7 +101,7 @@ fn test_template_new_creates_structure() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_list_empty() {
     // Chicago TDD: Verify state when no templates exist
     let temp_dir = TempDir::new().unwrap();
@@ -119,7 +119,7 @@ fn test_template_list_empty() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_list_shows_installed() {
     // Chicago TDD: Verify state includes existing templates
     let temp_dir = TempDir::new().unwrap();
@@ -135,7 +135,7 @@ fn test_template_list_shows_installed() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_list_json_format() {
     // Chicago TDD: Verify JSON state representation
     let temp_dir = TempDir::new().unwrap();
@@ -159,7 +159,7 @@ fn test_template_list_json_format() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_show_displays_details() {
     // Chicago TDD: Verify template metadata state is displayed
     let temp_dir = TempDir::new().unwrap();
@@ -177,7 +177,7 @@ fn test_template_show_displays_details() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_show_missing_template() {
     // Chicago TDD: Verify error state for nonexistent template
     let temp_dir = TempDir::new().unwrap();
@@ -193,7 +193,7 @@ fn test_template_show_missing_template() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_lint_valid_template() {
     // Chicago TDD: Verify linting validates template structure
     let temp_dir = TempDir::new().unwrap();
@@ -209,7 +209,7 @@ fn test_template_lint_valid_template() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_lint_invalid_syntax() {
     // Chicago TDD: Verify linting catches syntax errors
     let temp_dir = TempDir::new().unwrap();
@@ -235,7 +235,7 @@ fn test_template_lint_invalid_syntax() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_generate_tree_basic() {
     // Chicago TDD: Verify file tree generation from template
     let temp_dir = TempDir::new().unwrap();
@@ -280,7 +280,7 @@ features:
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_regenerate_basic() {
     // Chicago TDD: Verify delta-driven regeneration
     let temp_dir = TempDir::new().unwrap();
@@ -309,7 +309,7 @@ User content
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_help_output() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -325,7 +325,7 @@ fn test_template_help_output() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_new_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -338,7 +338,7 @@ fn test_template_new_help() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -350,7 +350,7 @@ fn test_template_invalid_verb() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_new_with_description() {
     // Chicago TDD: Verify template creation with metadata
     let temp_dir = TempDir::new().unwrap();
@@ -371,7 +371,7 @@ fn test_template_new_with_description() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_generate_tree_missing_template() {
     // Chicago TDD: Verify error state for missing template
     let temp_dir = TempDir::new().unwrap();
@@ -387,7 +387,7 @@ fn test_template_generate_tree_missing_template() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_template_performance_list() {
     // Chicago TDD: Verify performance for listing templates
     let temp_dir = TempDir::new().unwrap();

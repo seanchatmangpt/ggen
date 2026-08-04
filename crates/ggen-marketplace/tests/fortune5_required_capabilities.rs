@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::panic)]
 use ggen_marketplace::marketplace::fortune5::{
     Fortune5Capability, Fortune5EvidenceLedger, Fortune5EvidenceOutcome, Fortune5EvidenceRecord,
     Fortune5ProofSurface, Fortune5Reference, Fortune5Standing, ALL_FORTUNE5_CAPABILITIES,

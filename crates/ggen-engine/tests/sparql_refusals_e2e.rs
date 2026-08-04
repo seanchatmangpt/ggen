@@ -7,6 +7,8 @@
 //! no service handler configured — Task 3). Real filesystem, real oxigraph
 //! store, real `ggen_engine::sync::sync()` pipeline — no mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};

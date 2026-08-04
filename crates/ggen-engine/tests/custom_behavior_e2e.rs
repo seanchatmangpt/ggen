@@ -5,7 +5,7 @@
 //! `cargo test` on the manufactured crate. No pack loader, renderer, or
 //! process collaborator is mocked.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -118,6 +118,8 @@ cnv:PricingBehavior a cnv:CustomBehavior .
 "#;
 
 fn scaffold_consumer() -> (TempDir, PathBuf) {
+    use std::fmt::Write as _;
+
     let directory = TempDir::new().expect("temporary directory");
     for pack in CUSTOM_BEHAVIOR_PACKS {
         copy_tree(&packs_dir().join(pack), &directory.path().join(pack));
@@ -127,10 +129,13 @@ fn scaffold_consumer() -> (TempDir, PathBuf) {
     std::fs::create_dir_all(&project).expect("consumer directory");
     std::fs::write(project.join("ontology.ttl"), ONTOLOGY).expect("consumer ontology");
 
-    let packs_table: String = CUSTOM_BEHAVIOR_PACKS
-        .iter()
-        .map(|pack| format!("{pack} = {{ path = \"../{pack}\" }}\n"))
-        .collect();
+    let packs_table: String =
+        CUSTOM_BEHAVIOR_PACKS
+            .iter()
+            .fold(String::new(), |mut table, pack| {
+                let _ = writeln!(table, "{pack} = {{ path = \"../{pack}\" }}");
+                table
+            });
     std::fs::write(
         project.join("ggen.toml"),
         format!(

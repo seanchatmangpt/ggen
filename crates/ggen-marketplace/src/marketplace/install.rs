@@ -26,7 +26,7 @@ use crate::marketplace::models::{InstallationManifest, PackageId, PackageVersion
 use crate::marketplace::profile::Profile;
 use crate::marketplace::security::ChecksumCalculator;
 use crate::marketplace::traits::{AsyncRepository, Installable};
-use crate::marketplace::trust::{RegistryClass, TrustTier};
+use crate::marketplace::trust::{RegistryClass, RegistryType, TrustTier};
 
 /// Package installer with caching and signature verification
 pub struct Installer<R: AsyncRepository> {
@@ -639,81 +639,39 @@ impl<R: AsyncRepository> Installer<R> {
     ) -> Result<()> {
         let start = std::time::Instant::now();
         debug!(
-            "Verifying trust tier for {}@{:?}: pack tier = {:?}",
+            "Verifying trust tier for {}@{}: pack tier = {:?}",
             package_id, version, pack_trust_tier
         );
 
-        // Check if pack is blocked (always fail, regardless of profile)
-        if matches!(pack_trust_tier, TrustTier::Blocked) {
-            let duration = start.elapsed();
-            span::Span::current().record("duration_ms", duration.as_millis());
-
-            return Err(Error::trust_tier_check_failed(format!(
-                "Pack {}@{:?} is marked as Blocked and cannot be installed",
-                package_id, version
-            )));
-        }
-
-        // Check registry class enforcement (Fortune 5 CISO requirement)
-        // Enterprise/regulated profiles may forbid public registry packs
         if let Some(profile) = &self.profile {
-            if profile.forbid_public_registry()
-                && matches!(registry_class, RegistryClass::Public { .. })
-            {
-                let duration = start.elapsed();
-                span::Span::current().record("duration_ms", duration.as_millis());
-
-                return Err(Error::SecurityCheckFailed {
-                    reason: format!(
-                        "Pack {}@{:?} is from a public registry ({:?}), but security profile '{}' \\
-                         forbids public registry packs. Installation blocked by Fortune 5 CISO policy.",
-                        package_id,
-                        version,
-                        registry_class,
-                        profile.id.as_str()
-                    ),
-                });
-            }
-        }
-
-        // If no profile is set, use default trust requirements
-        let required_tier = if let Some(profile) = &self.profile {
             info!(
                 "Using security profile '{}' with trust requirements: {:?}",
                 profile.id.as_str(),
                 profile.trust_requirements
             );
-            profile.trust_requirements
         } else {
-            // Default: allow Experimental and higher (all except Blocked)
             debug!("No security profile set, using default trust requirements (Experimental+)");
-            TrustTier::Experimental
-        };
-
-        // Verify pack tier meets or exceeds required tier
-        if !pack_trust_tier.meets_requirement(required_tier) {
-            let duration = start.elapsed();
-            span::Span::current().record("duration_ms", duration.as_millis());
-
-            let profile_info = if let Some(profile) = &self.profile {
-                format!("profile '{}'", profile.id.as_str())
-            } else {
-                "default profile".to_string()
-            };
-
-            return Err(Error::trust_tier_check_failed(format!(
-                "Pack {}@{:?} has trust tier {:?}, but {} requires {:?}. \
-                 Installation blocked by Fortune 5 CISO policy.",
-                package_id, version, pack_trust_tier, profile_info, required_tier
-            )));
         }
 
-        // Log success for audit trail
+        let package_id_display = format!("{}@{}", package_id, version);
+        let outcome = evaluate_trust_tier(
+            self.profile.as_ref(),
+            &package_id_display,
+            *pack_trust_tier,
+            registry_class,
+        );
+
         let duration = start.elapsed();
         span::Span::current().record("duration_ms", duration.as_millis());
+        outcome?;
 
+        // Log success for audit trail
+        let required_tier = self
+            .profile
+            .as_ref()
+            .map_or(TrustTier::Experimental, |p| p.trust_requirements);
         info!(
-            "Trust tier check passed for {}@{:?}: pack tier {:?} meets required tier {:?}",
+            "Trust tier check passed for {}@{}: pack tier {:?} meets required tier {:?}",
             package_id, version, pack_trust_tier, required_tier
         );
 
@@ -815,7 +773,6 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// * [`Error::InstallationFailed`] - When extraction fails or path traversal detected
     fn extract_tar_gz(&self, data: &[u8], dest: &Path) -> Result<()> {
-        use std::path::Component;
         use tar::Archive;
 
         let decoder = GzDecoder::new(data);
@@ -828,33 +785,47 @@ impl<R: AsyncRepository> Installer<R> {
                 reason: format!("Failed to read tar.gz entry: {}", e),
             })?;
 
-            let entry_path = entry.path().map_err(|e| Error::InstallationFailed {
-                reason: format!("Invalid path in tar.gz entry: {}", e),
-            })?;
-
-            // Zip Slip prevention: resolve path component-by-component;
-            // reject any ParentDir (..) or absolute components.
-            let mut target = dest.to_path_buf();
-            for component in entry_path.components() {
-                match component {
-                    Component::Normal(c) => target.push(c),
-                    Component::CurDir => {}
-                    Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
-                        return Err(Error::InstallationFailed {
-                            reason: format!(
-                                "Path traversal detected in tar.gz: {}",
-                                entry_path.display()
-                            ),
-                        });
-                    }
-                }
-            }
-
-            entry
-                .unpack(&target)
+            let entry_path = entry
+                .path()
                 .map_err(|e| Error::InstallationFailed {
-                    reason: format!("Failed to extract tar.gz entry: {}", e),
+                    reason: format!("Invalid path in tar.gz entry: {}", e),
+                })?
+                .into_owned();
+
+            // Zip Slip / symlink-escape prevention: use tar's own hardened
+            // `unpack_in`, not the raw per-entry `unpack`. A manual
+            // component-by-component check of the entry *name* (rejecting
+            // literal ".."/absolute components) is not sufficient: a
+            // malicious archive can plant a symlink entry (e.g. `evil ->
+            // /home/user`) whose *name* contains no ".." at all, then a
+            // later entry named `evil/pwned.txt` writes through that
+            // symlink to escape `dest`. `unpack_in` canonicalizes each
+            // entry's resolved parent directory (`validate_inside_dst`,
+            // following symlinks) and refuses to write anything whose real
+            // location falls outside `dest`.
+            let unpacked = entry
+                .unpack_in(dest)
+                .map_err(|e| Error::InstallationFailed {
+                    reason: format!(
+                        "Failed to extract tar.gz entry {}: {}",
+                        entry_path.display(),
+                        e
+                    ),
                 })?;
+
+            if !unpacked {
+                // `unpack_in` returns `Ok(false)` (rather than `Err`) for
+                // entries it silently skips as unsafe (e.g. a literal ".."
+                // path component). Treat that the same as a hard failure so
+                // a crafted archive can't have entries quietly dropped while
+                // the overall extraction still reports success.
+                return Err(Error::InstallationFailed {
+                    reason: format!(
+                        "Path traversal detected in tar.gz: {}",
+                        entry_path.display()
+                    ),
+                });
+            }
         }
 
         Ok(())
@@ -1148,6 +1119,72 @@ impl<R: AsyncRepository> Installer<R> {
     }
 }
 
+/// Core trust-tier decision logic (Fortune 5 CISO requirement), factored out
+/// of [`Installer::verify_trust_tier`] so both the marketplace-registry
+/// install path (`Installer::install_pack`) and the local/external
+/// pack-by-id install path ([`install_pack_by_id_with_profile`]) enforce the
+/// exact same gate over the exact same [`Profile`]/[`TrustTier`]/
+/// [`RegistryClass`] types -- not two independently re-implemented checks
+/// that could silently diverge.
+///
+/// # Errors
+///
+/// * [`Error::TrustTierCheckFailed`] - `pack_trust_tier` is `Blocked`, or does
+///   not meet the profile's (or, absent a profile, the default `Experimental`)
+///   minimum required tier.
+/// * [`Error::SecurityCheckFailed`] - `profile` forbids public registries and
+///   `registry_class` is `Public`.
+fn evaluate_trust_tier(
+    profile: Option<&Profile>, package_id_display: &str, pack_trust_tier: TrustTier,
+    registry_class: &RegistryClass,
+) -> Result<()> {
+    // Check if pack is blocked (always fail, regardless of profile)
+    if matches!(pack_trust_tier, TrustTier::Blocked) {
+        return Err(Error::trust_tier_check_failed(format!(
+            "Pack {} is marked as Blocked and cannot be installed",
+            package_id_display
+        )));
+    }
+
+    // Check registry class enforcement (Fortune 5 CISO requirement)
+    // Enterprise/regulated profiles may forbid public registry packs
+    if let Some(profile) = profile {
+        if profile.forbid_public_registry()
+            && matches!(registry_class, RegistryClass::Public { .. })
+        {
+            return Err(Error::SecurityCheckFailed {
+                reason: format!(
+                    "Pack {} is from a public registry ({:?}), but security profile '{}' forbids \
+                     public registry packs. Installation blocked by Fortune 5 CISO policy.",
+                    package_id_display,
+                    registry_class,
+                    profile.id.as_str()
+                ),
+            });
+        }
+    }
+
+    // If no profile is set, use default trust requirements: allow
+    // Experimental and higher (all except Blocked).
+    let required_tier = profile.map_or(TrustTier::Experimental, |p| p.trust_requirements);
+
+    // Verify pack tier meets or exceeds required tier
+    if !pack_trust_tier.meets_requirement(required_tier) {
+        let profile_info = profile.map_or_else(
+            || "default profile".to_string(),
+            |p| format!("profile '{}'", p.id.as_str()),
+        );
+
+        return Err(Error::trust_tier_check_failed(format!(
+            "Pack {} has trust tier {:?}, but {} requires {:?}. Installation blocked by Fortune 5 \
+             CISO policy.",
+            package_id_display, pack_trust_tier, profile_info, required_tier
+        )));
+    }
+
+    Ok(())
+}
+
 /// Detect pack format from magic bytes
 #[must_use]
 fn detect_format(data: &[u8]) -> PackFormat {
@@ -1402,9 +1439,10 @@ pub struct InstallByIdOutput {
     pub total_packages: usize,
     /// Directory the pack was installed into.
     pub install_path: PathBuf,
-    /// SHA-256 hex digest (64 chars) of the pack identity bound into the
-    /// lockfile `integrity` field as `sha256-<digest>`. Empty only for
-    /// `dry_run`, where no durable state is written (lockfile invariant 4.1).
+    /// SHA-256 hex digest (64 chars) of the pack identity AND its installed
+    /// content (see [`compute_pack_digest`]) bound into the lockfile
+    /// `integrity` field as `sha256-<digest>`. Empty only for `dry_run`,
+    /// where no durable state is written (lockfile invariant 4.1).
     pub digest: String,
     /// Absolute path of the `.ggen/packs.lock` file written by this install,
     /// or `None` for a dry-run. Bound here so the caller can prove the durable
@@ -1414,16 +1452,33 @@ pub struct InstallByIdOutput {
 
 /// Compute the SHA-256 digest that pins this pack in the lockfile.
 ///
-/// The digest binds the pack's identity-defining fields (id, version, the
-/// declared package set, and declared dependencies). It is deterministic for a
-/// given pack definition and never empty for a real (non-dry-run) install,
-/// satisfying lockfile invariant 4.1 (`digest` must be a non-empty SHA-256).
+/// The digest binds BOTH the pack's identity-defining fields (id, version,
+/// the declared package set, and declared dependency ids) AND the real
+/// content of every file under `install_dir` (the pack's actual installed
+/// closure -- the downloaded-and-unpacked external artifact, or the copied
+/// local pack TOML + SPARQL queries). Binding real installed-file content,
+/// not just identity strings, is what lets `sync --locked`'s re-verification
+/// ([`crate::sync_profile::validate_sync_preconditions`]'s
+/// `verify_pack_digests`) actually detect tampering with the files on disk
+/// after install, rather than only detecting drift in the pack's declared
+/// identity while an attacker-modified artifact hashes identically.
 ///
-/// The algorithm MUST NOT be changed independently of any `sync --locked`
-/// re-verification path that re-derives this digest from an on-disk pack and
-/// compares it to the stored `integrity` field, or re-derivation will diverge
-/// from install-time digests.
-pub(crate) fn compute_pack_digest(pack: &crate::packs_registry::types::Pack) -> String {
+/// It is deterministic for a given `(pack, install_dir contents)` pair and
+/// never empty for a real (non-dry-run) install, satisfying lockfile
+/// invariant 4.1 (`digest` must be a non-empty SHA-256).
+///
+/// The algorithm MUST NOT be changed independently of the `sync --locked`
+/// re-verification path (`crate::sync_profile::verify_pack_digests`) that
+/// re-derives this digest from the on-disk `install_dir` and compares it to
+/// the stored `integrity` field, or re-derivation will diverge from
+/// install-time digests.
+///
+/// # Errors
+/// Returns [`Error::InstallationFailed`] if `install_dir` does not exist, or
+/// if any file under it cannot be read.
+pub(crate) fn compute_pack_digest(
+    pack: &crate::packs_registry::types::Pack, install_dir: &Path,
+) -> Result<String> {
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(pack.id.as_bytes());
@@ -1439,7 +1494,89 @@ pub(crate) fn compute_pack_digest(pack: &crate::packs_registry::types::Pack) -> 
         hasher.update(dep.pack_id.as_bytes());
         hasher.update([0u8]);
     }
-    hex::encode(hasher.finalize())
+    hasher.update([0xfeu8]);
+    hash_installed_content(&mut hasher, install_dir)?;
+    Ok(hex::encode(hasher.finalize()))
+}
+
+/// Fold the real content of every regular file under `dir` into `hasher`, in
+/// deterministic (path-sorted, recursive) order, so the digest binds the
+/// pack's actual installed closure -- not just its declared identity
+/// strings. Any file that cannot be read is a real installation-integrity
+/// failure and is surfaced as an error rather than silently skipped -- a
+/// silently-skipped file is exactly the gap this function exists to close
+/// (tampering could hide there).
+///
+/// # Errors
+/// Returns [`Error::InstallationFailed`] if `dir` does not exist, cannot be
+/// listed, or any file under it cannot be read.
+fn hash_installed_content(hasher: &mut sha2::Sha256, dir: &Path) -> Result<()> {
+    use sha2::Digest;
+
+    if !dir.exists() {
+        return Err(Error::InstallationFailed {
+            reason: format!(
+                "Cannot compute pack digest: install directory '{}' does not exist",
+                dir.display()
+            ),
+        });
+    }
+
+    let mut files = Vec::new();
+    collect_files_sorted(dir, dir, &mut files)?;
+
+    for rel_path in &files {
+        let abs_path = dir.join(rel_path);
+        let bytes = fs::read(&abs_path).map_err(|e| Error::InstallationFailed {
+            reason: format!(
+                "Failed to read installed file '{}' while computing pack digest: {}",
+                abs_path.display(),
+                e
+            ),
+        })?;
+        // Forward-slash-normalize the relative path so the digest is stable
+        // across platforms.
+        let rel_str = rel_path.to_string_lossy().replace('\\', "/");
+        hasher.update(rel_str.as_bytes());
+        hasher.update([0u8]);
+        hasher.update(&bytes);
+        hasher.update([0u8]);
+    }
+
+    Ok(())
+}
+
+/// Recursively collect every regular file under `dir` (as a path relative to
+/// `root`), sorted at each directory level so the walk order never depends on
+/// the filesystem's own directory-entry order.
+///
+/// # Errors
+/// Returns [`Error::InstallationFailed`] if any directory in the walk cannot
+/// be listed.
+fn collect_files_sorted(root: &Path, dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
+    let mut entries: Vec<_> = fs::read_dir(dir)
+        .map_err(|e| Error::InstallationFailed {
+            reason: format!(
+                "Failed to read directory '{}' while computing pack digest: {}",
+                dir.display(),
+                e
+            ),
+        })?
+        .filter_map(std::result::Result::ok)
+        .collect();
+    entries.sort_by_key(std::fs::DirEntry::file_name);
+
+    for entry in entries {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_files_sorted(root, &path, out)?;
+        } else {
+            let rel = path.strip_prefix(root).unwrap_or(&path).to_path_buf();
+            out.push(rel);
+        }
+    }
+
+    Ok(())
 }
 
 /// Write (or update) the project lockfile entry for a successfully installed
@@ -1550,21 +1687,94 @@ fn materialize_local_pack(
 /// Install a pack by bare string ID -- local registry lookup, or an external
 /// registry fetch when `pack_id` contains a `<prefix>:` (e.g. `npm:lodash`).
 ///
+/// Delegates to [`install_pack_by_id_with_profile`] with `profile = None`,
+/// preserving this function's original signature and behavior for its
+/// existing callers (`ggen pack add` via `crates/ggen-cli/src/cmds/pack.rs`,
+/// `PackAgent::install` via `crate::agent::facade`). `None` matches
+/// [`Installer::verify_trust_tier`]'s own documented "no profile" default:
+/// allow everything except a pack explicitly marked `Blocked`.
+///
 /// # Errors
-/// Returns [`Error::InstallationFailed`]-family errors on resolution,
-/// download, extraction, or lockfile-write failure; refuses (does not
-/// overwrite) an existing install at the target directory unless `force` is set.
+/// See [`install_pack_by_id_with_profile`].
 pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdOutput> {
-    // 1. Resolve pack metadata
-    let pack = if input.pack_id.contains(':') {
-        fetch_external_pack(&input.pack_id).await?
+    install_pack_by_id_with_profile(input, None).await
+}
+
+/// Install a pack by bare string ID, enforcing an optional Fortune-5-CISO trust-tier profile.
+///
+/// The [`Profile`] is enforced via the SAME `Profile`/[`TrustTier`]/[`RegistryClass`] system
+/// [`Installer::verify_trust_tier`] enforces for the marketplace-registry install path (both
+/// call the shared [`evaluate_trust_tier`]), not a second, independently-invented gate.
+///
+/// Bare-id (local) and `<prefix>:id` (external) packs carry no attested
+/// trust-tier metadata of their own (`packs_registry::types::Pack` has no
+/// `trust_tier` field): they are evaluated at `TrustTier::Experimental`, the
+/// same floor `Installer::verify_trust_tier` applies when a marketplace
+/// release declares no tier. A profile that requires anything higher refuses
+/// the install rather than silently granting elevated trust it cannot prove.
+/// External packs are classified `RegistryClass::Public` (crates.io/npm/PyPI
+/// are transport, not trust, per that enum's own doc comment); local packs
+/// are classified `RegistryClass::PrivateEnterprise` (sourced from the local
+/// packs directory, never fetched over the network).
+///
+/// # Errors
+/// Returns [`Error::TrustTierCheckFailed`] or [`Error::SecurityCheckFailed`]
+/// when `profile` is supplied and the pack does not meet its requirements
+/// (checked before any filesystem write). Otherwise returns
+/// [`Error::InstallationFailed`]-family errors on resolution, download,
+/// checksum verification, extraction, or lockfile-write failure; refuses
+/// (does not overwrite) an existing install at the target directory unless
+/// `force` is set.
+pub async fn install_pack_by_id_with_profile(
+    input: &InstallByIdInput, profile: Option<&Profile>,
+) -> Result<InstallByIdOutput> {
+    // 1. Resolve pack metadata (+ external registry-reported checksum, if any).
+    let (pack, expected_checksum): (crate::packs_registry::types::Pack, Option<String>) =
+        if input.pack_id.contains(':') {
+            fetch_external_pack(&input.pack_id).await?
+        } else {
+            let pack = crate::packs_registry::metadata::show_pack(&input.pack_id).map_err(|e| {
+                Error::InstallationFailed {
+                    reason: format!("Pack '{}' not found locally: {}", input.pack_id, e),
+                }
+            })?;
+            (pack, None)
+        };
+
+    // 1.5. Enforce trust-tier policy (Fortune 5 CISO requirement) BEFORE
+    // touching the filesystem, using the real Installer::verify_trust_tier
+    // decision logic (via the shared evaluate_trust_tier helper).
+    let registry_class = if input.pack_id.contains(':') {
+        let registry_type = match pack.registry_type.as_deref() {
+            Some("cratesio" | "crates.io") => RegistryType::CratesIo,
+            Some("npm") => RegistryType::Npm,
+            Some("pypi") => RegistryType::PyPi,
+            _ => RegistryType::Other,
+        };
+        let url = match registry_type {
+            RegistryType::CratesIo => "https://crates.io",
+            RegistryType::Npm => "https://registry.npmjs.org",
+            RegistryType::PyPi => "https://pypi.org",
+            _ => "unknown-external-registry",
+        };
+        RegistryClass::Public {
+            url: url.to_string(),
+            registry_type,
+        }
     } else {
-        crate::packs_registry::metadata::show_pack(&input.pack_id).map_err(|e| {
-            Error::InstallationFailed {
-                reason: format!("Pack '{}' not found locally: {}", input.pack_id, e),
-            }
-        })?
+        RegistryClass::PrivateEnterprise {
+            url: "local-packs-registry".to_string(),
+            require_signature: false,
+            allow_unlisted: true,
+        }
     };
+    let package_id_display = format!("{}@{}", input.pack_id, pack.version);
+    evaluate_trust_tier(
+        profile,
+        &package_id_display,
+        TrustTier::Experimental,
+        &registry_class,
+    )?;
 
     // 2. Determine install path
     let install_path = input.target_dir.clone().unwrap_or_else(|| {
@@ -1585,7 +1795,13 @@ pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdO
         })?;
 
         if input.pack_id.contains(':') {
-            download_and_verify_external_pack(&input.pack_id, &pack, &install_path).await?;
+            download_and_verify_external_pack(
+                &input.pack_id,
+                &pack,
+                expected_checksum.as_deref(),
+                &install_path,
+            )
+            .await?;
             unpack_external_pack(&input.pack_id, &pack, &install_path).await?;
         } else {
             let packs_dir = crate::packs_registry::metadata::get_packs_dir()?;
@@ -1606,7 +1822,7 @@ pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdO
     let (digest, lockfile_path) = if input.dry_run {
         (String::new(), None)
     } else {
-        let digest = compute_pack_digest(&pack);
+        let digest = compute_pack_digest(&pack, &install_path)?;
         let lockfile_path = write_lockfile_entry(&pack, &install_path, &digest)?;
         (digest, Some(lockfile_path))
     };
@@ -1625,16 +1841,30 @@ pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdO
     })
 }
 
-/// Fetch pack metadata from an external registry
-async fn fetch_external_pack(pack_id: &str) -> Result<crate::packs_registry::types::Pack> {
+/// Fetch pack metadata from an external registry.
+///
+/// Returns the constructed [`Pack`](crate::packs_registry::types::Pack)
+/// alongside the registry-reported checksum for the resolved version, if the
+/// registry supplied one (crates.io/PyPI report SHA-256; npm reports the
+/// legacy SHA-1 `shasum`) -- consumed by
+/// [`download_and_verify_external_pack`] to verify the downloaded artifact
+/// bytes before they are ever written to disk.
+async fn fetch_external_pack(
+    pack_id: &str,
+) -> Result<(crate::packs_registry::types::Pack, Option<String>)> {
     use crate::packs_registry::external_fetcher::ExternalFetcherFactory;
     use crate::packs_registry::types::Pack;
 
     let (fetcher, remote_id) = ExternalFetcherFactory::get_fetcher_by_prefix(pack_id)?;
     let remote_pkg = fetcher.fetch_metadata(&remote_id).await?;
 
+    let expected_checksum = remote_pkg
+        .checksums
+        .get(&remote_pkg.latest_version)
+        .cloned();
+
     // Convert RemotePackage to Pack
-    Ok(Pack {
+    let pack = Pack {
         id: pack_id.to_string(),
         name: remote_pkg.name.clone(),
         version: remote_pkg.latest_version.clone(),
@@ -1652,12 +1882,22 @@ async fn fetch_external_pack(pack_id: &str) -> Result<crate::packs_registry::typ
         keywords: vec![],
         production_ready: true,
         metadata: Default::default(),
-    })
+    };
+
+    Ok((pack, expected_checksum))
 }
 
-/// Download and verify an external pack artifact
+/// Download and verify an external pack artifact.
+///
+/// # Errors
+/// Returns [`Error::SecurityCheckFailed`] when `expected_checksum` is `None`
+/// (the registry did not supply a checksum to verify against), or when the
+/// downloaded bytes' recomputed digest does not match `expected_checksum`
+/// (Fortune 5 CISO mandatory checksum rule). The artifact is never written to
+/// disk before this check passes.
 async fn download_and_verify_external_pack(
-    pack_id: &str, pack: &crate::packs_registry::types::Pack, install_path: &Path,
+    pack_id: &str, pack: &crate::packs_registry::types::Pack, expected_checksum: Option<&str>,
+    install_path: &Path,
 ) -> Result<()> {
     use crate::packs_registry::external_fetcher::ExternalFetcherFactory;
 
@@ -1666,13 +1906,74 @@ async fn download_and_verify_external_pack(
     tracing::info!("Downloading artifact for {} v{}", pack_id, pack.version);
     let artifact_bytes = fetcher.fetch_artifact(&remote_id, &pack.version).await?;
 
-    // Verify checksum (mandatory CISO rule)
-    // In a real implementation, remote_pkg would include the expected checksum.
-    // For now, we just write it.
+    // Verify checksum (mandatory CISO rule): compare the downloaded bytes'
+    // digest against the checksum the registry itself reported for this
+    // version in fetch_metadata (crates.io/PyPI: SHA-256; npm: SHA-1
+    // "shasum"). Refuses the install -- never writes the bytes to disk --
+    // rather than trusting an unverified download.
+    match expected_checksum {
+        Some(expected) => verify_artifact_checksum(&artifact_bytes, expected, pack_id)?,
+        None => {
+            return Err(Error::SecurityCheckFailed {
+                reason: format!(
+                    "Registry did not supply a checksum for '{}' v{}; refusing to install an \
+                     unverifiable artifact. Installation blocked by Fortune 5 CISO policy.",
+                    pack_id, pack.version
+                ),
+            });
+        }
+    }
+
     let artifact_path = install_path.join("artifact.tar.gz");
     fs::write(&artifact_path, artifact_bytes).map_err(|e| Error::InstallationFailed {
         reason: format!("Failed to write artifact: {}", e),
     })?;
+
+    Ok(())
+}
+
+/// Verify a downloaded artifact's bytes against a registry-reported checksum.
+///
+/// The hash algorithm is selected by the expected checksum's hex length
+/// (crates.io/PyPI report SHA-256 -- 64 hex chars; npm reports the legacy
+/// SHA-1 `shasum` -- 40 hex chars) rather than by registry name, so a
+/// registry that changes its reported digest format is still checked
+/// correctly instead of silently compared with the wrong algorithm.
+///
+/// # Errors
+/// Returns [`Error::SecurityCheckFailed`] when the checksum format is not
+/// recognized (neither 40 nor 64 hex chars), or when the recomputed digest
+/// does not match `expected`.
+fn verify_artifact_checksum(data: &[u8], expected: &str, pack_id: &str) -> Result<()> {
+    let expected_trimmed = expected.trim();
+    let calculated = match expected_trimmed.len() {
+        64 => ChecksumCalculator::calculate(data), // SHA-256 (crates.io, PyPI)
+        40 => {
+            use sha1::{Digest, Sha1};
+            let mut hasher = Sha1::new();
+            hasher.update(data);
+            hex::encode(hasher.finalize())
+        }
+        other => {
+            return Err(Error::SecurityCheckFailed {
+                reason: format!(
+                    "Unrecognized checksum format for '{}' ({} hex chars); refusing to install \
+                     without a verifiable digest.",
+                    pack_id, other
+                ),
+            });
+        }
+    };
+
+    if !calculated.eq_ignore_ascii_case(expected_trimmed) {
+        return Err(Error::SecurityCheckFailed {
+            reason: format!(
+                "Checksum mismatch for '{}': expected {}, got {}. Artifact may be corrupted or \
+                 tampered.",
+                pack_id, expected_trimmed, calculated
+            ),
+        });
+    }
 
     Ok(())
 }
@@ -1777,7 +2078,7 @@ mod tests {
     }
 
     #[test]
-    fn test_extract_tar_gz() {
+    fn test_extract_tar_gz_rejects_truncated_archive() {
         let temp_dir = TempDir::new().unwrap();
         let cache_config = CacheConfig {
             cache_dir: temp_dir.path().join("cache"),
@@ -1787,12 +2088,174 @@ mod tests {
         let registry = Registry::new(100);
         let installer = Installer::new(registry, cache);
 
-        // Create a simple tar.gz archive
-        let data = b"\x1f\x8b\x08\x00"; // GZIP magic bytes
+        // Only the GZIP magic bytes -- not a complete gzip stream (no header
+        // tail, no deflate payload, no CRC/trailer), so decoding must fail.
+        let data = b"\x1f\x8b\x08\x00";
+        let extract_dir = temp_dir.path().join("extract");
 
-        let result = installer.extract_tar_gz(data, &temp_dir.path().join("extract"));
-        // This will fail because it's not a valid archive, but we test that the function is called
-        assert!(result.is_err() || result.is_ok());
+        let result = installer.extract_tar_gz(data, &extract_dir);
+
+        let err = result.expect_err("truncated gzip data must not extract successfully");
+        let err_msg = err.to_string();
+        assert!(
+            err_msg.contains("tar.gz"),
+            "error should identify a tar.gz extraction failure, got: {}",
+            err_msg
+        );
+        assert!(
+            matches!(err, Error::InstallationFailed { .. }),
+            "expected Error::InstallationFailed, got: {:?}",
+            err
+        );
+        assert!(
+            !extract_dir.exists(),
+            "no files should have been extracted from an invalid archive"
+        );
+    }
+
+    #[test]
+    fn test_extract_tar_gz_extracts_valid_archive() {
+        use flate2::write::GzEncoder;
+        use flate2::Compression;
+        use std::io::Write;
+
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+        let registry = Registry::new(100);
+        let installer = Installer::new(registry, cache);
+
+        // Build a real tar.gz containing a single file with known content.
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+            let content = b"hello from a real tar.gz entry";
+            let mut header = tar::Header::new_gnu();
+            header.set_size(content.len() as u64);
+            header.set_mode(0o644);
+            header.set_cksum();
+            builder
+                .append_data(&mut header, "hello.txt", &content[..])
+                .unwrap();
+            builder.finish().unwrap();
+        }
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(&tar_bytes).unwrap();
+        let gz_data = encoder.finish().unwrap();
+
+        let extract_dir = temp_dir.path().join("extract");
+        // Mirrors the real (only) caller: Installer::extract_pack always
+        // fs::create_dir_all(&cache_path) before invoking extract_tar_gz --
+        // the function itself does not create its destination directory.
+        fs::create_dir_all(&extract_dir).unwrap();
+
+        let result = installer.extract_tar_gz(&gz_data, &extract_dir);
+
+        assert!(
+            result.is_ok(),
+            "valid tar.gz archive must extract successfully, got: {:?}",
+            result.err()
+        );
+        let extracted_file = extract_dir.join("hello.txt");
+        assert!(
+            extracted_file.exists(),
+            "expected {} to be extracted",
+            extracted_file.display()
+        );
+        let extracted_content = fs::read_to_string(&extracted_file).unwrap();
+        assert_eq!(extracted_content, "hello from a real tar.gz entry");
+    }
+
+    /// F1 (red-team finding, marketplace-fetch, fail-open, high severity):
+    /// `extract_tar_gz` must reject a tar.gz whose entry 1 is a symlink
+    /// pointing at an absolute path outside the destination directory,
+    /// followed by entry 2 -- a regular file written *through* that symlink
+    /// name -- rather than silently writing attacker content outside
+    /// `dest`. A component-by-component check of each entry's own *name*
+    /// (rejecting literal ".."/absolute components) cannot catch this: the
+    /// symlink's name ("evil") and the second entry's name ("evil/pwned.txt")
+    /// both contain only `Normal` path components, so that check passes for
+    /// both entries -- the escape only happens because "evil" is *resolved*
+    /// (as a symlink) to somewhere outside `dest`.
+    #[test]
+    fn poc_extract_tar_gz_symlink_escape() {
+        use std::io::Write;
+
+        use flate2::write::GzEncoder;
+        use flate2::Compression;
+
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+        let registry = Registry::new(100);
+        let installer = Installer::new(registry, cache);
+
+        // A directory *outside* the extraction destination that the
+        // symlink entry targets -- stand-in for e.g. the user's home
+        // directory or `~/.ssh` in the real attack.
+        let outside_dir = temp_dir.path().join("outside");
+        fs::create_dir_all(&outside_dir).unwrap();
+
+        let extract_dir = temp_dir.path().join("extract");
+        fs::create_dir_all(&extract_dir).unwrap();
+
+        // Build the malicious archive: entry 1 = symlink "evil" -> outside_dir
+        // (absolute target); entry 2 = regular file "evil/pwned.txt" with
+        // attacker-controlled content.
+        let mut tar_bytes = Vec::new();
+        {
+            let mut builder = tar::Builder::new(&mut tar_bytes);
+
+            let mut symlink_header = tar::Header::new_gnu();
+            symlink_header.set_entry_type(tar::EntryType::Symlink);
+            symlink_header.set_size(0);
+            symlink_header.set_mode(0o777);
+            builder
+                .append_link(&mut symlink_header, "evil", &outside_dir)
+                .unwrap();
+
+            let attacker_content = b"PWNED: written outside dest via tar symlink escape";
+            let mut file_header = tar::Header::new_gnu();
+            file_header.set_size(attacker_content.len() as u64);
+            file_header.set_mode(0o644);
+            file_header.set_cksum();
+            builder
+                .append_data(&mut file_header, "evil/pwned.txt", &attacker_content[..])
+                .unwrap();
+
+            builder.finish().unwrap();
+        }
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(&tar_bytes).unwrap();
+        let gz_data = encoder.finish().unwrap();
+
+        let result = installer.extract_tar_gz(&gz_data, &extract_dir);
+
+        let escaped_file = outside_dir.join("pwned.txt");
+        assert!(
+            !escaped_file.exists(),
+            "F1 regression: attacker content escaped to {} via tar symlink; \
+             extract_tar_gz result was {:?}",
+            escaped_file.display(),
+            result
+        );
+        assert!(
+            result.is_err(),
+            "a tar.gz containing a symlink-escape entry pair must be \
+             rejected as Err, not silently accepted, got: {:?}",
+            result
+        );
+        assert!(
+            matches!(result, Err(Error::InstallationFailed { .. })),
+            "expected Error::InstallationFailed, got: {:?}",
+            result
+        );
     }
 
     #[test]
@@ -2307,5 +2770,300 @@ mod tests {
         assert_eq!(via_installer, via_pack_cache_dir);
 
         std::env::remove_var("GGEN_PACK_CACHE_DIR");
+    }
+
+    // ── Checksum verification (download_and_verify_external_pack) ───────────
+    //
+    // Real cryptographic collaborators (real sha2::Sha256 / sha1::Sha1
+    // hashing over real byte buffers) -- no mocks. `fetch_artifact` itself
+    // hits a live external registry (crates.io/npm/PyPI), so these tests
+    // exercise the pure verification logic (`verify_artifact_checksum`)
+    // directly rather than the network-fetching wrapper, matching this
+    // crate's existing convention for external-registry code (see
+    // `external_fetcher::tests`, which test `parse_cratesio_response`/
+    // `parse_npm_response` directly instead of hitting the live APIs).
+
+    #[test]
+    fn test_verify_artifact_checksum_accepts_correct_sha256() {
+        let data = b"crates.io artifact bytes";
+        let expected = ChecksumCalculator::calculate(data); // SHA-256, 64 hex chars
+        assert_eq!(expected.len(), 64);
+        assert!(verify_artifact_checksum(data, &expected, "cratesio:demo").is_ok());
+    }
+
+    #[test]
+    fn test_verify_artifact_checksum_rejects_sha256_mismatch() {
+        let data = b"crates.io artifact bytes";
+        let wrong = ChecksumCalculator::calculate(b"different bytes entirely");
+        let err = verify_artifact_checksum(data, &wrong, "cratesio:demo").unwrap_err();
+        assert!(
+            err.to_string().contains("Checksum mismatch"),
+            "error should report a checksum mismatch, got: {err}"
+        );
+    }
+
+    #[test]
+    fn test_verify_artifact_checksum_accepts_correct_npm_sha1() {
+        use sha1::{Digest as _, Sha1};
+        let data = b"npm tarball bytes";
+        let mut hasher = Sha1::new();
+        hasher.update(data);
+        let expected = hex::encode(hasher.finalize()); // 40 hex chars, matches npm's `shasum`
+        assert_eq!(expected.len(), 40);
+        assert!(verify_artifact_checksum(data, &expected, "npm:demo").is_ok());
+    }
+
+    #[test]
+    fn test_verify_artifact_checksum_rejects_npm_sha1_mismatch() {
+        use sha1::{Digest as _, Sha1};
+        let data = b"npm tarball bytes";
+        let mut hasher = Sha1::new();
+        hasher.update(b"different tarball bytes");
+        let wrong = hex::encode(hasher.finalize());
+        let err = verify_artifact_checksum(data, &wrong, "npm:demo").unwrap_err();
+        assert!(
+            err.to_string().contains("Checksum mismatch"),
+            "error should report a checksum mismatch, got: {err}"
+        );
+    }
+
+    #[test]
+    fn test_verify_artifact_checksum_rejects_unrecognized_format() {
+        let data = b"some bytes";
+        let err = verify_artifact_checksum(data, "not-a-real-checksum", "pypi:demo").unwrap_err();
+        assert!(
+            err.to_string().contains("Unrecognized checksum format"),
+            "error should name the unrecognized format, got: {err}"
+        );
+    }
+
+    #[test]
+    fn test_verify_artifact_checksum_is_case_insensitive() {
+        let data = b"case insensitive check";
+        let expected = ChecksumCalculator::calculate(data).to_uppercase();
+        assert!(verify_artifact_checksum(data, &expected, "cratesio:demo").is_ok());
+    }
+
+    // ── Digest computation now covers installed content ──────────────────────
+
+    fn sample_digest_test_pack(id: &str) -> crate::packs_registry::types::Pack {
+        crate::packs_registry::types::Pack {
+            id: id.to_string(),
+            name: format!("Sample {id}"),
+            version: "1.0.0".to_string(),
+            description: "digest fixture".to_string(),
+            category: "test".to_string(),
+            author: None,
+            repository: None,
+            license: Some("MIT".to_string()),
+            registry_type: None,
+            packages: vec![format!("{id}-core")],
+            templates: vec![],
+            sparql_queries: std::collections::HashMap::new(),
+            dependencies: vec![],
+            tags: vec![],
+            keywords: vec![],
+            production_ready: true,
+            metadata: Default::default(),
+        }
+    }
+
+    #[test]
+    fn test_compute_pack_digest_changes_with_artifact_content() {
+        let temp_dir = TempDir::new().unwrap();
+        let install_dir_a = temp_dir.path().join("install_a");
+        let install_dir_b = temp_dir.path().join("install_b");
+        fs::create_dir_all(&install_dir_a).unwrap();
+        fs::create_dir_all(&install_dir_b).unwrap();
+
+        fs::write(install_dir_a.join("artifact.txt"), b"original content").unwrap();
+        fs::write(install_dir_b.join("artifact.txt"), b"tampered content").unwrap();
+
+        // SAME pack identity (id/version/packages/dependencies) in both cases.
+        let pack = sample_digest_test_pack("io.ggen.digest-test");
+
+        let digest_a = compute_pack_digest(&pack, &install_dir_a).unwrap();
+        let digest_b = compute_pack_digest(&pack, &install_dir_b).unwrap();
+
+        assert_ne!(
+            digest_a, digest_b,
+            "compute_pack_digest must change when the installed artifact's content changes, \
+             even when pack identity (id/version/packages/dependencies) is unchanged -- this is \
+             exactly what lets sync --locked detect tampering with installed files"
+        );
+
+        // Re-running against the SAME content must be deterministic.
+        let digest_a_again = compute_pack_digest(&pack, &install_dir_a).unwrap();
+        assert_eq!(
+            digest_a, digest_a_again,
+            "digest must be deterministic for unchanged pack identity + content"
+        );
+    }
+
+    #[test]
+    fn test_compute_pack_digest_errors_when_install_dir_missing() {
+        let temp_dir = TempDir::new().unwrap();
+        let missing_dir = temp_dir.path().join("does-not-exist");
+        let pack = sample_digest_test_pack("io.ggen.digest-missing-dir");
+
+        let result = compute_pack_digest(&pack, &missing_dir);
+        assert!(
+            result.is_err(),
+            "computing a digest against a nonexistent install directory must fail, not silently \
+             succeed with an identity-only digest"
+        );
+    }
+
+    // ── Trust-tier enforcement wired into install_pack_by_id ─────────────────
+    //
+    // Real filesystem collaborators: a real `GGEN_PACKS_DIR` temp directory
+    // with a real pack TOML, installed to a real temp target directory via
+    // the real `install_pack_by_id_with_profile` entry point -- no mocks.
+    // `#[serial(GGEN_PACKS_DIR)]` matches the same-named guard used by
+    // `packs_registry::metadata`'s and `sync_profile`'s own tests (separate
+    // compilation units in the same test binary; the shared key keeps their
+    // `GGEN_PACKS_DIR` mutations from racing each other).
+
+    /// Restore `GGEN_PACKS_DIR` to its prior value (or unset) on Drop.
+    struct GgenPacksDirGuard {
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl GgenPacksDirGuard {
+        fn set(value: &std::path::Path) -> Self {
+            let previous = std::env::var_os("GGEN_PACKS_DIR");
+            std::env::set_var("GGEN_PACKS_DIR", value);
+            Self { previous }
+        }
+    }
+
+    impl Drop for GgenPacksDirGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var("GGEN_PACKS_DIR"),
+                Some(v) => std::env::set_var("GGEN_PACKS_DIR", v),
+            }
+        }
+    }
+
+    fn write_local_test_pack(packs_dir: &std::path::Path, id: &str, version: &str) {
+        let toml = format!(
+            r#"[pack]
+id = "{id}"
+name = "Test {id}"
+version = "{version}"
+description = "install.rs trust-tier fixture"
+category = "test"
+license = "MIT"
+production_ready = true
+packages = ["{id}-core"]
+"#
+        );
+        fs::write(packs_dir.join(format!("{id}.toml")), toml).unwrap();
+    }
+
+    #[tokio::test]
+    #[serial(GGEN_PACKS_DIR)]
+    async fn test_install_pack_by_id_with_profile_rejects_pack_below_required_trust_tier() {
+        use crate::marketplace::profile::regulated_finance_profile;
+
+        let packs_registry_dir = TempDir::new().unwrap();
+        let _guard = GgenPacksDirGuard::set(packs_registry_dir.path());
+        write_local_test_pack(packs_registry_dir.path(), "io.ggen.trust-test", "1.0.0");
+
+        let target = TempDir::new().unwrap();
+        let target_dir = target.path().join("install-target");
+
+        let input = InstallByIdInput {
+            pack_id: "io.ggen.trust-test".to_string(),
+            target_dir: Some(target_dir.clone()),
+            force: false,
+            dry_run: false,
+        };
+
+        // A bare-id local pack carries no attested trust tier and is evaluated
+        // at TrustTier::Experimental -- regulated_finance_profile() requires
+        // EnterpriseCertified, so this install must be refused.
+        let profile = regulated_finance_profile();
+        let result = install_pack_by_id_with_profile(&input, Some(&profile)).await;
+
+        assert!(
+            result.is_err(),
+            "install must be refused when the pack's trust tier does not meet the profile's \
+             requirement"
+        );
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("trust tier"),
+            "error should reference the trust tier check, got: {err_msg}"
+        );
+
+        // The gate runs before any filesystem mutation -- a refused install
+        // must not create the target install directory.
+        assert!(
+            !target_dir.exists(),
+            "a refused install must not create the target install directory"
+        );
+    }
+
+    #[tokio::test]
+    #[serial(GGEN_PACKS_DIR)]
+    async fn test_install_pack_by_id_with_profile_allows_when_no_profile_supplied() {
+        let packs_registry_dir = TempDir::new().unwrap();
+        let _guard = GgenPacksDirGuard::set(packs_registry_dir.path());
+        write_local_test_pack(packs_registry_dir.path(), "io.ggen.trust-ok", "1.0.0");
+
+        let target = TempDir::new().unwrap();
+        let target_dir = target.path().join("install-target");
+
+        let input = InstallByIdInput {
+            pack_id: "io.ggen.trust-ok".to_string(),
+            target_dir: Some(target_dir.clone()),
+            force: false,
+            dry_run: false,
+        };
+
+        // No profile -> the same default as Installer::verify_trust_tier's
+        // own "no profile" branch: allow Experimental and higher.
+        let output = install_pack_by_id_with_profile(&input, None)
+            .await
+            .expect("install with no profile must succeed (backward-compatible default)");
+
+        assert_eq!(output.pack_id, "io.ggen.trust-ok");
+        assert!(
+            !output.digest.is_empty(),
+            "a real (non-dry-run) install must pin a non-empty digest"
+        );
+        assert!(
+            target_dir.exists(),
+            "a successful install must materialize the target directory"
+        );
+    }
+
+    #[tokio::test]
+    #[serial(GGEN_PACKS_DIR)]
+    async fn test_install_pack_by_id_wrapper_is_backward_compatible() {
+        // install_pack_by_id is the function existing callers actually invoke
+        // (`ggen pack add` via crates/ggen-cli/src/cmds/pack.rs,
+        // `PackAgent::install` via agent/facade.rs) -- it must keep working
+        // unchanged now that it delegates to install_pack_by_id_with_profile.
+        let packs_registry_dir = TempDir::new().unwrap();
+        let _guard = GgenPacksDirGuard::set(packs_registry_dir.path());
+        write_local_test_pack(packs_registry_dir.path(), "io.ggen.wrapper-ok", "1.0.0");
+
+        let target = TempDir::new().unwrap();
+        let target_dir = target.path().join("install-target");
+
+        let input = InstallByIdInput {
+            pack_id: "io.ggen.wrapper-ok".to_string(),
+            target_dir: Some(target_dir.clone()),
+            force: false,
+            dry_run: false,
+        };
+
+        let output = install_pack_by_id(&input)
+            .await
+            .expect("install_pack_by_id must still succeed for existing callers");
+        assert_eq!(output.pack_id, "io.ggen.wrapper-ok");
     }
 }

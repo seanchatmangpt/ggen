@@ -3,11 +3,18 @@ name = "ggen-mcp"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls (crates/ggen-mcp; see docs/2026-08-03-ggen-mcp-plan.md)."
+default-run = "ggen-mcp"
+description = "MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls (crates/ggen-mcp; see README.md)."
 
 [[bin]]
 name = "ggen-mcp"
 path = "src/bin/ggen-mcp.rs"
+
+# Corpus growth via a local LLM. Separate binary, never a test: an LLM in
+# the assertion path would make a red suite unreproducible.
+[[bin]]
+name = "ggen-selfplay-explore"
+path = "src/bin/ggen-selfplay-explore.rs"
 
 [dependencies]
 # Path deps only -- ggen-lsp is `publish = false`, so this crate must stay a
@@ -16,8 +23,13 @@ ggen-engine = { path = "../ggen-engine" }
 ggen-graph = { path = "../ggen-graph" }
 ggen-config = { path = "../ggen-config" }
 # Default features only: ggen-lsp's own `mcp` feature (which pulls a SECOND
-# rmcp dependency edge) stays off here, so exactly one rmcp major version
-# resolves in the workspace lock. Do not add features = ["mcp"] to this dep.
+# rmcp dependency edge) stays off here, so ggen-mcp's own compiled dependency
+# graph resolves exactly one rmcp major version (verify with `cargo tree -p
+# ggen-mcp | grep rmcp`). Note: crates/ggen-engine also carries its own
+# independent, currently-dormant `rmcp = "0.11.0"` optional dependency behind
+# its own (unrelated) `mcp` feature (default off) -- Cargo.lock itself already
+# contains both rmcp 0.11.0 and 1.8.0 for that reason. Do not add
+# features = ["mcp"] to either the ggen-lsp or ggen-engine dep here.
 ggen-lsp = { path = "../ggen-lsp" }
 
 # Exact match to crates/ggen-lsp/Cargo.toml's own rmcp pin -- do not drift.
@@ -33,7 +45,11 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 blake3 = { workspace = true }
 toml = { workspace = true }
+# Real dependency, not dev-only: `selfplay::Board` manufactures arena
+# directories at runtime, so this is part of the library surface.
+tempfile = { workspace = true }
+# Local-only HTTP to the TurboFieldfare OpenAI-compatible server.
+reqwest = { workspace = true }
 
 [dev-dependencies]
-tempfile = { workspace = true }
 assert_cmd = { workspace = true }

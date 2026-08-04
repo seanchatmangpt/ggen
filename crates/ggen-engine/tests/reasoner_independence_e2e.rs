@@ -5,17 +5,17 @@
 //! violating fixture is refused with `FM-PACK-013` under both.
 //!
 //! This is the property the SHACL→SPARQL gate migration exists to buy:
-//! SHACL gates only ran on the GraphLaw engine (`validate_shacl` is a typed
+//! SHACL gates only ran on the `GraphLaw` engine (`validate_shacl` is a typed
 //! `[FM-LAW-002]` refusal on oxigraph), so a gated pack silently could not
 //! be A/B-tested across engines. Gates are plain ASK/SELECT queries through
 //! `GraphEngine::query`, which both backends answer identically — proven
 //! here with real syncs via the Rust API (like `graphlaw_e2e.rs`), real
-//! TempDir filesystems, no mocks.
+//! `TempDir` filesystems, no mocks.
 //!
 //! Scaffold conventions copied from `framework_packs_e2e.rs`'s
 //! `write_synthetic_pack`/`scaffold_synthetic_consumer` helpers.
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
@@ -89,14 +89,14 @@ ex:t2 a ex:Thing ; ex:val "beta" .
 
 /// The maxCount-1-equivalent gate: any ex:Thing with two distinct ex:val
 /// values in the union graph is a violation row.
-const GATE_MAX_ONE_VAL: &str = r#"# MESSAGE: a Thing must carry exactly one ex:val (mirror-drift guard)
+const GATE_MAX_ONE_VAL: &str = r"# MESSAGE: a Thing must carry exactly one ex:val (mirror-drift guard)
 PREFIX ex: <http://example.org/ri#>
 SELECT ?thing ?v1 ?v2 WHERE {
   ?thing a ex:Thing ; ex:val ?v1 , ?v2 .
   FILTER(STR(?v1) < STR(?v2))
 }
 ORDER BY ?thing
-"#;
+";
 
 /// A consumer ontology that puts a SECOND ex:val on the pack's ex:t1 —
 /// the violation exists only in the union, exactly the cross-source drift
@@ -159,7 +159,7 @@ fn both_engines_sync_a_gated_pack_to_identical_outputs() {
 
 /// The identical violating fixture is refused with FM-PACK-013 under BOTH
 /// engines, before anything is written — the property SHACL gates could
-/// not provide (validate_shacl is a typed refusal on oxigraph, so a
+/// not provide (`validate_shacl` is a typed refusal on oxigraph, so a
 /// SHACL-gated pack could never even run there).
 #[test]
 fn violating_fixture_is_refused_under_both_engines() {

@@ -168,15 +168,34 @@ pub fn plan_write(
             record_freeze_checksum(root, rel_to, rendered_body, frontmatter)?;
             Ok(WriteOutcome::Written)
         }
+        // Content-equality is checked BEFORE the `force` arm (2026-08-03,
+        // TECH-DEBT-003 fix): the original ordering put `frontmatter.force` first,
+        // so match-arm shadowing meant ANY `force: true` template always reported
+        // `Written` and always performed a real disk write, even when the rendered
+        // content was byte-identical to what was already on disk -- defeating
+        // idempotent second-sync detection (`WriteOutcome::Skipped`) for every
+        // force-writing template. This was dormant/unexercised until
+        // packs/chicago-tdd-tools-pack's four templates gained `force: true`
+        // (2026-08-03, same-day adversarial-review follow-up, see that pack's
+        // pack.toml `description`), at which point
+        // crates/ggen-engine/tests/cross_pack_matrix.rs's
+        // `mega_project_all_packs_sync` caught it for real: a second `sync run`
+        // reported `docs/chicago_tdd_tools_boundary.md` as `written` instead of
+        // `skipped: unchanged`. `force` only needs to change behavior when content
+        // actually differs (permit the overwrite instead of refusing with
+        // FM-WRITE-005); it was never meant to disable the identical-content skip
+        // path. See the `force_overwrites` test below (still forces a write when
+        // content differs) and the new `force_skips_when_content_identical` test
+        // (this fix's regression guard).
+        Some(ref content) if content == rendered_body => Ok(WriteOutcome::Skipped(
+            "unchanged: content identical".to_string(),
+        )),
         Some(ref content) if frontmatter.force => {
             maybe_backup(&target, content, frontmatter)?;
             std::fs::write(&target, rendered_body)?;
             record_freeze_checksum(root, rel_to, rendered_body, frontmatter)?;
             Ok(WriteOutcome::Written)
         }
-        Some(ref content) if content == rendered_body => Ok(WriteOutcome::Skipped(
-            "unchanged: content identical".to_string(),
-        )),
         Some(_) => Err(AppError::fm_write(
             5,
             format!(
@@ -334,6 +353,11 @@ fn maybe_backup(target: &Path, existing_content: &str, frontmatter: &Frontmatter
 /// `sync::parse_template_file`'s `from:` resolution — any frontmatter field
 /// that reads or writes a filesystem path relative to some base directory
 /// should route through this same check, not re-implement it.
+///
+/// # Errors
+/// - `[FM-WRITE-001]` `root` does not exist or cannot be canonicalized.
+/// - `[FM-WRITE-002]` `rel_to` is absolute, contains a traversal component, or
+///   resolves (directly or via a symlink) outside `root`.
 pub fn resolve_target(root: &Path, rel_to: &str) -> Result<PathBuf> {
     let root_c = root.canonicalize().map_err(|e| {
         AppError::fm_write(
@@ -363,13 +387,22 @@ pub fn resolve_target(root: &Path, rel_to: &str) -> Result<PathBuf> {
         }
     }
     let target = root_c.join(rel);
-    // Belt and braces: canonicalize the nearest existing ancestor and verify
-    // it is still under the root (symlink escapes).
-    let mut probe = target
-        .parent()
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| root_c.clone());
-    while !probe.exists() {
+    // Belt and braces: canonicalize the nearest existing path -- starting at
+    // the TARGET ITSELF, not its parent -- and verify it is still under the
+    // root (symlink escapes). Starting at the parent (the historical bug)
+    // means a target whose own leaf component is a symlink is never
+    // resolved or checked: only the surrounding directory chain was. A
+    // symlinked leaf pointing outside the root would then sail through here
+    // and get followed for real by the later `fs::write`.
+    //
+    // `symlink_metadata` (not `exists`, which follows the final symlink) is
+    // used for the "does something occupy this path" test, so a symlink
+    // whose destination happens to be missing still counts as present here
+    // and gets its link chain canonicalized/checked, instead of silently
+    // falling through to the parent directory the way a nonexistent path
+    // would.
+    let mut probe = target.clone();
+    while probe.symlink_metadata().is_err() {
         match probe.parent() {
             Some(p) => probe = p.to_path_buf(),
             None => break,
@@ -429,8 +462,6 @@ impl MatchUse {
 
 #[derive(Debug, Clone, Copy)]
 struct MatchSpan {
-    start: usize,
-    end: usize,
     start_line: usize,
     end_line: usize,
 }
@@ -506,7 +537,7 @@ struct ResolvedMatch<'a> {
     trim: bool,
 }
 
-fn resolve_match<'a>(spec: &'a MatchSpec, use_: MatchUse) -> Result<ResolvedMatch<'a>> {
+fn resolve_match(spec: &MatchSpec, use_: MatchUse) -> Result<ResolvedMatch<'_>> {
     let resolved = match spec {
         MatchSpec::Literal(pattern) => ResolvedMatch {
             pattern,
@@ -666,27 +697,21 @@ fn observe_match(content: &str, spec: &MatchSpec, use_: MatchUse) -> Result<Matc
     match resolved.scope {
         MatchScope::Auto => unreachable!("auto scope must resolve before matching"),
         MatchScope::Line => {
-            let mut offset = 0usize;
             for (line_index, segment) in content.split_inclusive('\n').enumerate() {
                 let line = segment.strip_suffix('\n').unwrap_or(segment);
                 let line = line.strip_suffix('\r').unwrap_or(line);
                 let (candidate, _) = candidate_view(line, resolved.trim);
                 if compiled.is_match(candidate) {
                     spans.push(MatchSpan {
-                        start: offset,
-                        end: offset + line.len(),
                         start_line: line_index,
                         end_line: line_index,
                     });
                 }
-                offset += segment.len();
             }
             if content.is_empty() {
                 let (candidate, _) = candidate_view(content, resolved.trim);
                 if compiled.is_match(candidate) {
                     spans.push(MatchSpan {
-                        start: 0,
-                        end: 0,
                         start_line: 0,
                         end_line: 0,
                     });
@@ -710,8 +735,6 @@ fn observe_match(content: &str, spec: &MatchSpec, use_: MatchUse) -> Result<Matc
                 }
                 let end_probe = end.saturating_sub(1);
                 spans.push(MatchSpan {
-                    start,
-                    end,
                     start_line: line_for_offset(content, start),
                     end_line: line_for_offset(content, end_probe),
                 });
@@ -811,12 +834,26 @@ fn inject_into(existing: &str, body: &str, fm: &Frontmatter) -> Result<String> {
     let insert_at: usize = if let Some(selector) = fm.before.as_ref() {
         observe_match(existing, selector, MatchUse::Before)?
             .selected
-            .expect("required before match was checked")
+            .ok_or_else(|| {
+                AppError::fm_write(
+                    4,
+                    "before selector reported no match despite requires_match(); \
+                     observe_match invariant violated"
+                        .to_string(),
+                )
+            })?
             .start_line
     } else if let Some(selector) = fm.after.as_ref() {
         observe_match(existing, selector, MatchUse::After)?
             .selected
-            .expect("required after match was checked")
+            .ok_or_else(|| {
+                AppError::fm_write(
+                    4,
+                    "after selector reported no match despite requires_match(); \
+                     observe_match invariant violated"
+                        .to_string(),
+                )
+            })?
             .end_line
             + 1
     } else if let Some(at) = fm.at_line {
@@ -844,6 +881,7 @@ fn inject_into(existing: &str, body: &str, fm: &Frontmatter) -> Result<String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use tempfile::TempDir;
 
@@ -866,6 +904,65 @@ mod tests {
             .expect("parent")
             .join("evil.rs")
             .exists());
+    }
+
+    /// The historical bug: `resolve_target` canonicalized only the nearest
+    /// EXISTING ANCESTOR of the target, never the target leaf itself. A
+    /// symlink placed exactly at the leaf pointing at an existing file
+    /// outside the root sailed through the old check (the ancestor -- the
+    /// project root itself here -- canonicalizes fine) and would have been
+    /// followed for real by the later `fs::write`. This proves the fixed
+    /// `resolve_target` resolves and checks the leaf itself, not just its
+    /// parent chain.
+    #[cfg(unix)]
+    #[test]
+    fn resolve_target_refuses_a_symlinked_leaf_pointing_outside_root() {
+        use std::os::unix::fs::symlink;
+
+        let root = TempDir::new().expect("root tempdir");
+        let outside = TempDir::new().expect("outside tempdir");
+        let secret = outside.path().join("secret.txt");
+        std::fs::write(&secret, "outside content\n").expect("seed outside file");
+
+        let link = root.path().join("evil.rs");
+        symlink(&secret, &link).expect("create symlink");
+
+        let err =
+            resolve_target(root.path(), "evil.rs").expect_err("symlinked leaf must be refused");
+        assert!(err.to_string().contains("FM-WRITE-002"), "{err}");
+        assert!(err.to_string().contains("escapes"), "{err}");
+    }
+
+    /// Full write-path version of the same escape, using a DANGLING symlink
+    /// (destination does not yet exist, but its parent directory does) --
+    /// the shape that actually mattered under the old code: with the old
+    /// ancestor-only check, `target.exists()` was `false` (the destination
+    /// is missing), so `plan_write` took the `None => { ensure_parent +
+    /// fs::write }` branch with no "differs from existing content" guard at
+    /// all, and `fs::write` follows a symlink -- it would have silently
+    /// CREATED `outside/escaped.rs` with attacker/template-controlled
+    /// content. Proves the fix refuses before any byte is written, and that
+    /// the file never appears outside the root.
+    #[cfg(unix)]
+    #[test]
+    fn plan_write_refuses_write_through_dangling_symlinked_target() {
+        use std::os::unix::fs::symlink;
+
+        let root = TempDir::new().expect("root tempdir");
+        let outside = TempDir::new().expect("outside tempdir");
+        let escaped_path = outside.path().join("escaped.rs");
+        assert!(!escaped_path.exists(), "precondition: destination absent");
+
+        let link = root.path().join("evil.rs");
+        symlink(&escaped_path, &link).expect("create dangling symlink");
+
+        let err = plan_write(root.path(), "evil.rs", "malicious content", &fm("evil.rs"))
+            .expect_err("write through a symlinked target must be refused");
+        assert!(err.to_string().contains("FM-WRITE-002"), "{err}");
+        assert!(
+            !escaped_path.exists(),
+            "the write must never land at the symlink's destination outside root"
+        );
     }
 
     #[test]
@@ -917,6 +1014,31 @@ mod tests {
         assert_eq!(
             std::fs::read_to_string(dir.path().join("x.rs")).expect("read"),
             "new\n"
+        );
+    }
+
+    /// Regression guard for the 2026-08-03 TECH-DEBT-003 fix: `force: true` must not
+    /// defeat identical-content skip detection. Before the fix, this returned `Written`
+    /// unconditionally whenever `force` was set, even though nothing on disk needed to
+    /// change -- breaking idempotent second-sync semantics for every force-writing
+    /// template (caught for real by
+    /// crates/ggen-engine/tests/cross_pack_matrix.rs's `mega_project_all_packs_sync`
+    /// once packs/chicago-tdd-tools-pack's templates gained `force: true`).
+    #[test]
+    fn force_skips_when_content_identical() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("x.rs"), "same\n").expect("seed");
+        let mut f = fm("x.rs");
+        f.force = true;
+        let out = plan_write(dir.path(), "x.rs", "same\n", &f).expect("plan");
+        assert!(
+            matches!(out, WriteOutcome::Skipped(ref r) if r.contains("unchanged")),
+            "force=true with identical content must still skip, got {out:?}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("x.rs")).expect("read"),
+            "same\n",
+            "file must not be rewritten (mtime/inode churn) when content is unchanged"
         );
     }
 
@@ -1250,7 +1372,7 @@ before:
     }
 
     /// Sabotage: a hand-completed bootstrap file (the exact scenario
-    /// freeze_policy=always exists for, per CLAUDE.md's mode=Create
+    /// `freeze_policy=always` exists for, per CLAUDE.md's mode=Create
     /// precedent) that has diverged from what generation would now produce
     /// must be reported as drifted, not silently treated as up to date --
     /// proving the comparison actually runs, not just returns a constant.

@@ -58,6 +58,46 @@ fn is_kh_hook(s: &str) -> bool {
     clean_term(s) == "http://seanchatmangpt.github.io/praxis/kh#Hook"
 }
 
+/// Returns true if any triple in `triples` touches the knowledge-hook
+/// vocabulary: a `kh:`/`hook:`-namespaced predicate, or an `rdf:type` triple
+/// naming `kh:Hook`/`hook:Hook` as its object.
+///
+/// Used by `TripleStore::load_triples` as a cheap pre-check deciding whether
+/// a freshly-loaded document needs to run through
+/// `validate_and_extract_hooks`/`compile_hooks` at all. Most documents
+/// loaded via `load_triples` are plain business data with zero hook
+/// content; `validate_and_extract_hooks` runs its forbidden-keyword scan and
+/// `ALLOWED_KH_PREDICATES` check (below) over *every* triple it is given,
+/// not just ones on hook subjects, so calling it against unrelated data is
+/// both wasteful and a source of false positives -- e.g. a domain IRI
+/// merely containing "exec" as a substring, as in
+/// `.../Executives/BoardOfDirectors`, trips `contains_forbidden_keyword`
+/// even though it has nothing to do with any hook. This helper only checks
+/// exact namespace prefixes / exact rdf:type objects, never substrings, so
+/// it carries none of that false-positive risk itself.
+pub(crate) fn triples_touch_hook_vocabulary(triples: &[Triple]) -> bool {
+    triples.iter().any(|t| {
+        let Some(p) = Encoder::decode(&t.p.to_encoded()) else {
+            return false;
+        };
+        let cleaned_p = clean_term(&p);
+        if cleaned_p.starts_with(KH_NS) || cleaned_p.starts_with(HOOK_ALIAS_NS) {
+            return true;
+        }
+        if is_rdf_type(&p) {
+            if let Some(o) = Encoder::decode(&t.o.to_encoded()) {
+                let cleaned_o = clean_term(&o);
+                if cleaned_o == format!("{}Hook", KH_NS)
+                    || cleaned_o == format!("{}Hook", HOOK_ALIAS_NS)
+                {
+                    return true;
+                }
+            }
+        }
+        false
+    })
+}
+
 struct HookProps {
     map: FxHashMap<String, Vec<String>>,
 }

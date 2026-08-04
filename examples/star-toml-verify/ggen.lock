@@ -2,4 +2,4 @@
 
 [packs.star-toml-pack]
 source = "path:../../packs/star-toml-pack"
-content_hash = "blake3:58b1623bee0845e2bf1206d663787be89c98b4c5eebe059b5576ab0cea94e18e"
+content_hash = "blake3:7e3e27020bc431731899098ada37d7fd9a489ee377d4cfdaed04dccd87d5fb22"

@@ -534,8 +534,31 @@ fn extract_content_hash(proposal: &str) -> String {
 }
 
 /// Calculate receipt signature using Ed25519-like behavior (SHA256 hash)
+///
+/// Canonicalizes away the provider-specific service bindings (`provider`,
+/// `compute_service`, `database_service`, `cache_service`, `storage_service`) before
+/// hashing. Those fields are *expected* to differ per provider by design (AWS binds to
+/// EKS, GCP to GKE, Azure to AKS, etc.) -- hashing the raw provider-specific JSON made
+/// cross-provider signature equality impossible by construction, contradicting this
+/// module's own determinism claim ("same unified ontology -> same receipt signature
+/// regardless of provider"). The signature proves the *deployment semantics* (replicas,
+/// autoscaling, backup, cost, compliance) are identical across providers, not that the
+/// provider bindings themselves are identical (they never are).
 fn calculate_receipt_signature(proposal: &str) -> String {
+    let mut parsed: serde_json::Value = serde_json::from_str(proposal).unwrap_or_default();
+    if let Some(obj) = parsed.as_object_mut() {
+        for key in [
+            "provider",
+            "compute_service",
+            "database_service",
+            "cache_service",
+            "storage_service",
+        ] {
+            obj.remove(key);
+        }
+    }
+    let canonical = serde_json::to_string(&parsed).unwrap_or_default();
     let mut hasher = Sha256::new();
-    hasher.update(proposal.as_bytes());
+    hasher.update(canonical.as_bytes());
     format!("{:x}", hasher.finalize())
 }

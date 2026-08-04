@@ -4,6 +4,8 @@
 //! their filesystem evidence. No workflow, parser, process, or receipt boundary
 //! is mocked.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
@@ -38,7 +40,13 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let inventory = fs::read_to_string(&inventory_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", inventory_path.display()));
     assert!(inventory.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(inventory.contains("\"observed_workflow_count\": 48"));
+    // 48 -> 76 (2026-08-03, TECH-DEBT-003 fix): the real `.github/workflows/` count grew by
+    // 28 real, separately-merged workflow files after the 2026-07-30 manifest snapshot (see
+    // packs/github-actions-pack/observations/g0-workflow-inventory-v26.7.31.toml's own
+    // 2026-08-03 comment for the drift evidence and the 28 newly-admitted entries). This was
+    // real Contract Drift, not a test bug -- the manifest was stale, not this assertion's
+    // intent, so the fix is admitting the real 76 here to match the now-current manifest.
+    assert!(inventory.contains("\"observed_workflow_count\": 76"));
     assert!(inventory.contains("\"state\": \"UNKNOWN\""));
     assert!(!inventory.contains("\"standing\": \"ALIVE\""));
 
@@ -54,7 +62,7 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let topology = fs::read_to_string(&topology_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
     assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(topology.contains("\"workflow_count\": 48"));
+    assert!(topology.contains("\"workflow_count\": 76"));
     assert!(topology.contains("\"trigger_fanout\""));
     assert!(topology.contains("\"permission_ceiling\""));
     assert!(topology.contains("\"mutable_action_references\""));

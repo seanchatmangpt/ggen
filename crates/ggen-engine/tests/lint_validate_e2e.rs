@@ -13,7 +13,7 @@
 //! once `verbs` was re-enabled (the workspace's clap-noun-verb version
 //! conflict that disabled it is resolved — see `lib.rs`'s module comment).
 
-#![allow(clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::Path;
 
@@ -294,7 +294,7 @@ fn write_toolevent_shapes(dir: &Path) -> Utf8PathBuf {
     Utf8PathBuf::from_path_buf(path).expect("utf8 path")
 }
 
-/// A well-formed session log conforming to the ToolEvent shape validates with
+/// A well-formed session log conforming to the `ToolEvent` shape validates with
 /// `--shapes`: exit is `Ok`, the file is reported with a positive quad count,
 /// a 64-hex hash, and `shapes_conform: true`.
 #[test]

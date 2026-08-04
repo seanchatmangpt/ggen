@@ -375,18 +375,35 @@ sources = ["ontology/domain.ttl"]
     create_test_manifest(&temp_dir, manifest);
     create_test_ontology(&temp_dir, "@prefix : <http://example.com/> .");
 
-    // Start watch mode with timeout (should start successfully)
-    // Note: We can't fully test watch mode in unit tests (requires manual interrupt)
-    // This test verifies the command at least starts
+    // `--timeout` is not (and was not, at the time this test was written for
+    // v26.5.19's CLI surface) a flag `sync` accepts: the live verb is
+    // `fn sync_run(dry_run: bool, watch: bool)` in
+    // `crates/ggen-engine/src/verbs/sync.rs` -- only `--dry-run`/`--watch`
+    // exist, no `--timeout`. So this invocation must fail argument parsing
+    // immediately, well inside the 500ms harness timeout, rather than ever
+    // reach watch mode. Assert that specific, real outcome instead of the
+    // previous `output.is_ok() || output.is_err()` tautology (always true
+    // regardless of what the process actually did).
     let output = Command::cargo_bin("ggen")
         .unwrap()
         .current_dir(temp_dir.path())
         .args(["sync", "--watch", "--timeout", "100"])
         .timeout(std::time::Duration::from_millis(500))
-        .output();
+        .output()
+        .expect("ggen sync --watch --timeout should fail fast on argument parsing, not hang until the harness timeout");
 
-    // Watch mode either times out or exits gracefully
-    assert!(output.is_ok() || output.is_err()); // Either outcome is acceptable
+    assert!(
+        !output.status.success(),
+        "ggen sync --watch --timeout 100 should fail because --timeout is not a recognized \
+         flag on `sync`, but it exited successfully. stdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.to_lowercase().contains("timeout"),
+        "expected the argument-parsing error to mention the unrecognized `--timeout` flag, got stderr:\n{stderr}"
+    );
 }
 
 #[test]

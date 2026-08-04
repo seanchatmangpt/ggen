@@ -83,7 +83,7 @@ This roadmap details the **phase-by-phase implementation** of the RDF/Turtle-onl
 | **Semantic Purity** | 0 JSON/SQL operations | All operations via SPARQL only |
 | **POKA YOKE Coverage** | 5 levels active | Type, State, Schema, Logic, Runtime |
 | **FMEA Detection** | <1 minute MTTR | Automatic detection and mitigation |
-| **Test Coverage** | >90% code coverage | Unit, integration, property-based tests |
+| **Test Coverage** | >90% code coverage (aspirational -- not measured by any CI/justfile gate) | Unit, integration, property-based tests |
 | **Performance** | <100ms query latency | P95 for SPARQL SELECT queries |
 
 ---
@@ -1121,7 +1121,8 @@ async fn test_fmea_detection() {
 
 - [x] 100+ unit tests
 - [x] 50+ integration tests
-- [x] Test coverage >90%
+- [ ] Test coverage >90% -- UNVERIFIED: no CI/justfile gate computes coverage for this
+      module, so this cannot be checked off as measured (see Success Metrics below)
 - [x] CI/CD integration
 
 ### Week 12: Property-Based Tests
@@ -1228,7 +1229,7 @@ async fn test_fmea_detection() {
 | **SPARQL-Only Operations** | 100% | ✓ |
 | **POKA YOKE Levels** | 5/5 active | ✓ |
 | **FMEA Detection** | <1 min MTTR | ✓ |
-| **Test Coverage** | >90% | ✓ |
+| **Test Coverage** | >90% | UNVERIFIED -- no CI/justfile gate computes coverage; not a measured number |
 
 ### Performance Metrics
 

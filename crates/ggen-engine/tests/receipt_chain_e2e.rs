@@ -2,6 +2,8 @@
 //! filesystem, real BLAKE3 chain recomputation via praxis-core, and the real
 //! `ggen receipt history` binary at the CLI boundary. No mocks.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::Path;
 
 use chicago_tdd_tools::cli_proof::CliHarness;
@@ -29,9 +31,11 @@ fn scaffold(root: &Path, names: &[&str]) {
 }
 
 fn write_ontology(root: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
 }
@@ -48,6 +52,8 @@ fn read_log(root: &Path) -> Vec<SyncReceipt> {
 /// receipt.json stays the single-receipt head, and `receipt history` passes.
 #[test]
 fn three_syncs_form_a_verifiable_chain() {
+    use std::fmt::Write as _;
+
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
     sync(
@@ -103,7 +109,10 @@ fn three_syncs_form_a_verifiable_chain() {
     // Every record's stored chain hash matches a praxis-core recompute.
     for receipt in &log {
         let recomputed = receipt.record.recompute_chain_hash().expect("recompute");
-        let recomputed_hex: String = recomputed.iter().map(|b| format!("{b:02x}")).collect();
+        let recomputed_hex: String = recomputed.iter().fold(String::new(), |mut hex, b| {
+            let _ = write!(hex, "{b:02x}");
+            hex
+        });
         assert_eq!(recomputed_hex, receipt.record.chain_hash_hex);
     }
 
@@ -346,6 +355,8 @@ fn missing_receipt_json_chains_from_log_tail() {
 /// re-serialization that would inject `#[serde(default)]` fields.
 #[test]
 fn legacy_payload_without_optional_fields_verifies() {
+    use std::fmt::Write as _;
+
     use praxis_core::receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION};
     use praxis_core::Andon;
 
@@ -375,7 +386,10 @@ fn legacy_payload_without_optional_fields_verifies() {
         v2: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
-    record.chain_hash_hex = chain.iter().map(|b| format!("{b:02x}")).collect();
+    record.chain_hash_hex = chain.iter().fold(String::new(), |mut hex, b| {
+        let _ = write!(hex, "{b:02x}");
+        hex
+    });
 
     let line = format!(
         "{{\"record\":{},\"payload\":{payload_raw}}}\n",
@@ -635,8 +649,8 @@ fn tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure(
     // Flip a single character via raw substring substitution -- this keeps
     // every other byte (including the payload's exact serialization) intact,
     // so only the chain-hash check can possibly fire.
-    let flipped = if orig_chain_hash.starts_with('f') {
-        format!("e{}", &orig_chain_hash[1..])
+    let flipped = if let Some(rest) = orig_chain_hash.strip_prefix('f') {
+        format!("e{rest}")
     } else {
         format!("f{}", &orig_chain_hash[1..])
     };
@@ -676,8 +690,8 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
         .signature_hex
         .clone()
         .expect("signed receipt must carry signature_hex");
-    let flipped = if orig_sig.starts_with('f') {
-        format!("e{}", &orig_sig[1..])
+    let flipped = if let Some(rest) = orig_sig.strip_prefix('f') {
+        format!("e{rest}")
     } else {
         format!("f{}", &orig_sig[1..])
     };
@@ -699,6 +713,8 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
 /// -closed refusal just because the receipt predates signing.
 #[test]
 fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
+    use std::fmt::Write as _;
+
     use praxis_core::receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION};
     use praxis_core::Andon;
 
@@ -726,7 +742,10 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
         v2: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
-    record.chain_hash_hex = chain.iter().map(|b| format!("{b:02x}")).collect();
+    record.chain_hash_hex = chain.iter().fold(String::new(), |mut hex, b| {
+        let _ = write!(hex, "{b:02x}");
+        hex
+    });
 
     let doc = format!(
         "{{\"record\":{},\"payload\":{payload_raw}}}",

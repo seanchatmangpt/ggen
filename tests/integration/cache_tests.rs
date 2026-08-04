@@ -1,3 +1,17 @@
+// ARCHIVED (ggen-core disconnect, 2026-07-16 pass; gap closed 2026-08-03): drives
+// `ggen_core::{registry::ResolvedPack, CacheManager}` directly (and, via
+// `common::create_temp_dir`, the equally-archived tests/common/fixtures.rs). No
+// ggen-engine/ggen-graph equivalent exists for this exact API (verified via
+// workspace-wide search). This file was missed by the original 2026-07-16
+// `ggen-core-retired` gating pass, so it silently broke compilation the first time
+// `--features integration` was actually exercised end-to-end (2026-08-03, TECH-DEBT-003
+// full test-integration run) -- `ggen_core` does not exist on disk at all. Gated as a
+// whole file rather than deleted, per this project's fix-forward doctrine, matching the
+// precedent already established for tests/fixture_validation_proof.rs,
+// tests/generator_core_tests.rs, tests/template_systems_tests.rs, and
+// tests/validate_marketplace_rdf.rs.
+#![cfg(feature = "ggen-core-retired")]
+
 //! Integration Tests for Cache Management
 //!
 //! Tests the complete cache system including pack caching, cache validation,

@@ -6,6 +6,8 @@
 //! evidence, APS-grade tracker and coding-agent projections, generated
 //! automation, chained receipts, and named sabotage refusals.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -101,6 +103,10 @@ fn write_manifest(project: &Path, include_evidence: bool) {
     .expect("write ggen.toml");
 }
 
+// A single large raw-string Turtle fixture, not control-flow logic;
+// splitting it would fragment one coherent ontology document across
+// multiple functions rather than shrink real complexity.
+#[allow(clippy::too_many_lines)]
 fn planning_ontology() -> String {
     r#"@prefix gall: <http://seanchatmangpt.github.io/packs/gall-core#> .
 @prefix ex:   <https://example.org/gall/> .
@@ -296,6 +302,11 @@ fn scaffold() -> (TempDir, PathBuf) {
     (dir, project)
 }
 
+// One Chicago-TDD end-to-end scenario (crown evidence, then a sabotage
+// case proving refusal); splitting it would either re-run the expensive
+// scaffold+sync setup per assertion group or share state between tests,
+// not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn gall_core_planning_automation_evidence_crown_and_sabotage_are_real() {
     let (_dir, project) = scaffold();

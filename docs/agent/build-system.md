@@ -240,7 +240,7 @@ Gates check:
 - ✅ All tests passing
 - ✅ No security vulnerabilities
 - ✅ Performance SLOs met
-- ✅ Code coverage ≥80%
+- ⏳ Code coverage ≥80% (aspirational target -- no CI/justfile gate currently computes coverage)
 
 ## Andon Signals (Stop-the-Line Quality)
 

@@ -576,6 +576,10 @@ fn test_suite4_idempotency_no_duplicate_triple() {
     let count_before = store.len();
     store.materialize().unwrap();
     let count_after_first = store.len();
+    assert!(
+        count_after_first > count_before,
+        "materialize() should add the CONSTRUCT-derived delta triple"
+    );
 
     // Reload same event
     store
@@ -611,7 +615,7 @@ fn test_suite4_idempotency_receipt_sharing_key() {
 
     let receipts_first = store.get_hook_receipts();
     assert_eq!(receipts_first.len(), 1);
-    let key_first = receipts_first[0].idempotency_key.clone();
+    let _key_first = receipts_first[0].idempotency_key.clone();
 
     // Fire same operation again
     store
@@ -890,7 +894,7 @@ fn test_suite6_policy_conflict_state_contradictions() {
     store.materialize().unwrap();
 
     // Conflicting transitions should be detected or deterministically ordered
-    let receipts = store.get_hook_receipts();
+    let _receipts = store.get_hook_receipts();
     // The result should be deterministic regardless of conflict
 }
 

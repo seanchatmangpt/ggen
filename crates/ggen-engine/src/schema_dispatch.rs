@@ -28,7 +28,7 @@
 //! logic itself. `sync()` and `handle_doctor()` (and every other repointed
 //! call site) call this same function; none of them re-implements the
 //! dispatch decision locally (see this ticket's own explicit instruction:
-//! "do NOT copy sync()'s branch logic into doctor").
+//! "do NOT copy `sync()`'s branch logic into doctor").
 //!
 //! # Error behavior
 //!
@@ -177,7 +177,7 @@ source = "o.ttl"
 
 [[generation.rules]]
 name = "r"
-query = { inline = "SELECT * WHERE { ?s ?p ?o }" }
+query = { inline = "SELECT * WHERE { ?s ?p ?o } ORDER BY ?s" }
 template = { inline = "hi" }
 output_file = "out.txt"
 "#,
@@ -186,6 +186,14 @@ output_file = "out.txt"
         // that `[ontology].source` exists on disk -- create it so this test
         // exercises the classify+parse path, not the (separately covered)
         // validation-failure path.
+        //
+        // The fixture's SELECT query carries an explicit `ORDER BY ?s`: this
+        // test asserts schema classification (DeclarativeRules vs
+        // Frontmatter), not strict_mode/determinism behavior, so it should
+        // not incidentally depend on strict_mode's default. Since
+        // strict_mode now defaults to true (E0013: SELECT lacks ORDER BY is
+        // a hard error), the query needs a real ORDER BY to reach the
+        // classify+parse path this test actually exercises.
         std::fs::write(dir.path().join("o.ttl"), "").expect("write o.ttl");
         match load(dir.path()).expect("must classify+parse") {
             ParsedGgenToml::DeclarativeRules(_) => {}
@@ -249,6 +257,30 @@ dir = "templates"
         let err = load(dir.path()).expect_err("must fail");
         assert!(
             err.to_string().contains(ggen_config::CONFIG_PARSE_FAILED),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn bare_project_version_with_full_frontmatter_shape_is_ambiguous_not_declarative_rules() {
+        // F2 red-team finding, exercised at the real dispatch call site: a
+        // document whose only declarative signal is `[project].version`'s
+        // bare presence, but which also positively matches every one of the
+        // frontmatter schema's three required fields, must surface as a
+        // typed `Ambiguous` refusal -- not silently attempt the
+        // declarative-rules parser and fail with a confusing, unrelated
+        // error (before the fix: "missing field `generation`", which never
+        // explains that the document also structurally matches
+        // frontmatter).
+        let dir = TempDir::new().expect("tempdir");
+        write(
+            &dir,
+            "[project]\nname = \"x\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"o.ttl\"\n\n[templates]\ndir = \"templates\"\n",
+        );
+        let err = load(dir.path()).expect_err("must fail");
+        assert!(
+            err.to_string()
+                .contains(ggen_config::CONFIG_SCHEMA_AMBIGUOUS),
             "{err}"
         );
     }

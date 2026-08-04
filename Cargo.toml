@@ -73,7 +73,6 @@ members = [
   "crates/praxis-core",
   "crates/praxis-graphlaw",
   "crates/powl2-decompose",
-  "crates/chicago-tdd-tools",
   "crates/bcinr-pddl",
   "crates/bcinr-mfw-ir",
   # Genesis kernel crates (pure Rust, IO-free)
@@ -99,7 +98,19 @@ members = [
 # fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`
 # below (disconnected but kept on disk); that interim state is now closed out per the
 # migration ticket set's own Phase 6/7. Git history retains the code if it's ever needed.
-exclude = ["examples/7-agent-validation"]
+#
+# `crates/ggen-architecture` (2026-08-03, crate-count reconciliation): excluded, not deleted
+# and not a member. It declares its own `[package.metadata.ggen]`-carrying `[workspace]` table
+# (`members = [".", "../../tools/ggen-architecture"]`) and ships its own `Cargo.lock` --
+# confirmed live by running `cargo metadata --no-deps` from inside the directory, which resolves
+# it as an independent workspace root. Cargo does not allow a crate that declares its own
+# `[workspace]` to also be a member of a different one, so it was never eligible for `members`
+# above; it sat in neither `members` nor `exclude` before this entry (an undocumented, not a
+# broken, state -- this workspace's `members` array has no glob patterns, so nothing was ever
+# going to sweep it in by accident). Listed here for the same reason `examples/7-agent-validation`
+# is: to make the "why isn't this one of the workspace's crates" answer discoverable in the one
+# file a reader would check first, not left to be re-derived from scratch.
+exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -219,23 +230,11 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-# `cli-proof` deliberately dropped from this shared feature set (2026-07-16, discovered via
-# `cargo publish --dry-run -p ggen`): the published chicago-tdd-tools 26.7.1 doesn't have that
-# feature yet. Root package is the ONLY consumer of this shared `{ workspace = true }`
-# definition (confirmed via grep) and has zero cli_proof/CliHarness usage in its own tests/ --
-# every real cli-proof consumer (ggen-engine, ggen-cli, praxis-graphlaw) declares its own
-# separate chicago-tdd-tools dependency directly, not through this shared entry. Keeping
-# `cli-proof` here served no one and blocked `cargo publish --dry-run -p ggen` on a feature
-# root never uses.
-#
-# 2026-07-17: switched from the published registry version to the vendored local copy at
-# crates/chicago-tdd-tools (copied from /Users/sac/chicago-tdd-tools's library source only --
-# not its tests/examples/benches/docs -- as part of removing every absolute machine-local
-# Cargo path dependency from this workspace, PR #255). This crate is `publish = false`, so it
-# never risks the real chicago-tdd-tools' crates.io identity. Once cli-proof is published
-# upstream, this can point back at a plain `version = "..."` and the vendored copy can be
-# dropped -- tracked in tasks.md.
-chicago-tdd-tools = { path = "crates/chicago-tdd-tools", version = "26.7.1", features = ["testing-extras", "testcontainers"] }
+# 2026-08-03: chicago-tdd-tools 26.8.3 is published on crates.io with the `cli-proof` feature
+# included, so the vendored local copy at crates/chicago-tdd-tools (added 2026-07-17, PR #255,
+# to work around the then-unpublished `cli-proof` feature) is removed. Every consumer now
+# depends on the published registry version directly.
+chicago-tdd-tools = { version = "26.8.3", features = ["testing-extras", "testcontainers", "cli-proof"] }
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -990,6 +989,7 @@ unused-shlibs = []
 
 # 2026-07-17: the [patch.crates-io] override that used to live here (redirecting
 # chicago-tdd-tools to /Users/sac/chicago-tdd-tools for the unpublished cli-proof
-# feature) is gone -- every real consumer now depends on the vendored copy at
-# crates/chicago-tdd-tools directly (a plain path dependency, no patch needed;
-# see the workspace.dependencies entry above and PR #255).
+# feature) is gone. 2026-08-03: the vendored crates/chicago-tdd-tools copy (PR #255)
+# that temporarily replaced it is gone too -- chicago-tdd-tools 26.8.3 is published
+# with cli-proof included, so every consumer depends on the registry version directly
+# (see the workspace.dependencies entry above).

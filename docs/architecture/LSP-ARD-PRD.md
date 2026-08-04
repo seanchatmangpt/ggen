@@ -25,7 +25,7 @@ This document specifies a **ggen-lsp crate** that implements LSP 3.17 (November 
 - **Max Protocol Extensions** — Support for snapshots, conformance vectors, and cryptographic receipts via `max/*` methods.
 - **Autonomic Mesh & Law Axis** — Integration with the `lsp-max` AutonomicMesh for decentralized state synchronization and LawAxis for semantic policy enforcement.
 
-**Success Criteria**: LSP server runs standalone, integrates with VSCode plugin, passes Chicago TDD test suite (80%+ coverage), and satisfies all `max/*` conformance vectors.
+**Success Criteria**: LSP server runs standalone, integrates with VSCode plugin, passes Chicago TDD test suite (target: 80%+ coverage -- aspirational, not currently measured by any CI/justfile gate), and satisfies all `max/*` conformance vectors.
 
 ---
 
@@ -970,7 +970,7 @@ async fn test_lsp_initialize_and_completion() {
 }
 ```
 
-### 5.4 Coverage Target
+### 5.4 Coverage Target (aspirational -- not currently measured by any CI/justfile gate)
 
 - **Minimum**: 80% code coverage
 - **Mutation score**: ≥60%

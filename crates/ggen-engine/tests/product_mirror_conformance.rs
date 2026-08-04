@@ -25,6 +25,8 @@
 //! authoring this test (see the PR/commit description for the observed
 //! fail-then-restore transcript) and is not re-run automatically on every CI pass.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_engine::graph::DeterministicGraph;
 use oxigraph::sparql::QueryResults;
 use std::collections::BTreeSet;
@@ -183,7 +185,7 @@ fn scan_dir_for_fm_codes(dir: &Path, families: &[&str], out: &mut BTreeSet<(Stri
 
 fn parse_leading_number(s: &str) -> Option<u32> {
     let trimmed = s.trim_start();
-    let digits: String = trimmed.chars().take_while(|c| c.is_ascii_digit()).collect();
+    let digits: String = trimmed.chars().take_while(char::is_ascii_digit).collect();
     if digits.is_empty() {
         None
     } else {
@@ -204,12 +206,12 @@ fn load_product_graph() -> DeterministicGraph {
 }
 
 fn ttl_verbs(g: &DeterministicGraph) -> BTreeSet<(String, String)> {
-    let q = r#"
+    let q = r"
         PREFIX prod: <http://ggen.org/product#>
         SELECT ?noun ?verb WHERE {
             ?x a prod:CliVerb ; prod:noun ?noun ; prod:verb ?verb .
         } ORDER BY ?noun ?verb
-    "#;
+    ";
     let results = g.query(q).expect("query CliVerb individuals");
     let mut out = BTreeSet::new();
     if let QueryResults::Solutions(solutions) = results {
@@ -226,12 +228,12 @@ fn ttl_verbs(g: &DeterministicGraph) -> BTreeSet<(String, String)> {
 }
 
 fn ttl_pipeline_stages(g: &DeterministicGraph) -> BTreeSet<String> {
-    let q = r#"
+    let q = r"
         PREFIX prod: <http://ggen.org/product#>
         SELECT ?span WHERE {
             ?x a prod:PipelineStage ; prod:spanName ?span .
         } ORDER BY ?span
-    "#;
+    ";
     let results = g.query(q).expect("query PipelineStage individuals");
     let mut out = BTreeSet::new();
     if let QueryResults::Solutions(solutions) = results {
@@ -250,12 +252,12 @@ fn ttl_pipeline_stages(g: &DeterministicGraph) -> BTreeSet<String> {
 }
 
 fn ttl_fm_codes(g: &DeterministicGraph) -> BTreeSet<(String, u32)> {
-    let q = r#"
+    let q = r"
         PREFIX prod: <http://ggen.org/product#>
         SELECT ?family ?number WHERE {
             ?x a prod:DiagnosticCode ; prod:family ?family ; prod:number ?number .
         } ORDER BY ?family ?number
-    "#;
+    ";
     let results = g.query(q).expect("query DiagnosticCode individuals");
     let mut out = BTreeSet::new();
     if let QueryResults::Solutions(solutions) = results {

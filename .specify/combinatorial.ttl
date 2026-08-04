@@ -41,6 +41,10 @@ cmx:Crate a owl:Class ;
     rdfs:label "Rust Crate" ;
     rdfs:comment "A Rust crate declared in the ontology. Each instance generates Cargo.toml + src/lib.rs." .
 
+cmx:Namespace a owl:Class ;
+    rdfs:label "Namespace" ;
+    rdfs:comment "A SPARQL PREFIX declaration (short label + full IRI) that a cmx:ProofGate's cmx:askBody needs in scope to parse. This is the single place gate .rq generation reads namespace URIs from: proof-gate.rq.tera never hardcodes a PREFIX line itself, it interpolates cmx:nsPrefix/cmx:nsUri fetched via cmx:usesNamespace, so a namespace URI change only needs updating the one cmx:Namespace instance, not the template or every generated .rq file." .
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Datatype Properties
 # ─────────────────────────────────────────────────────────────────────────────
@@ -128,6 +132,18 @@ cmx:invariant a owl:DatatypeProperty ;
     rdfs:domain cmx:ProofGate ;
     rdfs:range xsd:string .
 
+cmx:nsPrefix a owl:DatatypeProperty ;
+    rdfs:label "nsPrefix" ;
+    rdfs:comment "The short PREFIX label (e.g. \"cmx\", without the trailing colon) for a cmx:Namespace." ;
+    rdfs:domain cmx:Namespace ;
+    rdfs:range xsd:string .
+
+cmx:nsUri a owl:DatatypeProperty ;
+    rdfs:label "nsUri" ;
+    rdfs:comment "The full namespace IRI (without angle brackets) for a cmx:Namespace." ;
+    rdfs:domain cmx:Namespace ;
+    rdfs:range xsd:string .
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Object Properties
 # ─────────────────────────────────────────────────────────────────────────────
@@ -154,6 +170,12 @@ cmx:hasAction a owl:ObjectProperty ;
     rdfs:comment "Associates a Generator with one of its Action instances." ;
     rdfs:domain cmx:Generator ;
     rdfs:range cmx:Action .
+
+cmx:usesNamespace a owl:ObjectProperty ;
+    rdfs:label "usesNamespace" ;
+    rdfs:comment "Declares that a cmx:ProofGate's cmx:askBody requires the given cmx:Namespace's PREFIX line to parse. proof-gate.rq.tera renders one PREFIX line per linked cmx:Namespace." ;
+    rdfs:domain cmx:ProofGate ;
+    rdfs:range cmx:Namespace .
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Concrete Generator Vocabulary Structure

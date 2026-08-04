@@ -19,11 +19,11 @@
 ## ASK Body
 
 ```sparql
+PREFIX cmx: <http://ggen.org/combinatorial#>
 
-    NOT EXISTS {
-      ?b a cmx:TemplateBinding .
-      FILTER NOT EXISTS { ?b cmx:templateFile ?f }
-    }
+
+    ?b a cmx:TemplateBinding .
+    FILTER NOT EXISTS { ?b cmx:templateFile ?f }
     
 ```
 

@@ -2,10 +2,12 @@
 //! (`praxis_core::receipt_epoch`): dual-read/single-write, the admission
 //! ledger's Red>Yellow>Green precedence, the closed 8-class equivalence map,
 //! obligation accounting computed after admission processing, the ceiling
-//! monotonicity rule, and the `M_1_to_2` migration receipt. Real sync() runs
+//! monotonicity rule, and the `M_1_to_2` migration receipt. Real `sync()` runs
 //! on a real filesystem, real BLAKE3 chain hashing, no mocks.
 //!
 //! Exactly 12 tests, one `#[test]` each, matching the task's numbered list.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::Path;
 
@@ -41,10 +43,12 @@ dir = "templates"
 const TEMPLATE: &str = "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}";
 
 fn scaffold(root: &Path, names: &[&str]) {
+    use std::fmt::Write as _;
+
     std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for name in names {
-        ttl.push_str(&format!("ex:{name} ex:name \"{name}\" .\n"));
+        let _ = writeln!(ttl, "ex:{name} ex:name \"{name}\" .");
     }
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
@@ -482,7 +486,7 @@ fn replay_chain(
             "chain hash continuity within the v2 epoch"
         );
         last_epoch = read_receipt_epoch(record).expect("v2 record readable");
-        prev_chain_hash_hex = record.chain_hash_hex.clone();
+        record.chain_hash_hex.clone_into(&mut prev_chain_hash_hex);
     }
     (last_epoch.andon, last_epoch.standing_ceiling)
 }

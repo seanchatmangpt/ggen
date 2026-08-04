@@ -1,5 +1,0 @@
----
-source: src/testing/snapshot.rs
-expression: value
----
-{"name":"test","value":42}

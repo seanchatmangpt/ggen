@@ -84,7 +84,7 @@ pub struct Law {
     /// Each file holds optional leading `# MESSAGE: <text>` comment line(s)
     /// followed by one query: ASK → `true` is a violation; SELECT → any
     /// returned row is a violation (`[FM-LAW-013]`). Plain SPARQL, so gates
-    /// behave identically under the GraphLaw and Oxigraph engines.
+    /// behave identically under the `GraphLaw` and Oxigraph engines.
     #[serde(default)]
     pub gates: Vec<PathBuf>,
     /// Opt-in reflexive receipts: when `true`, `<root>/.ggen-v2/receipt-log.jsonl`

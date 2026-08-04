@@ -1,0 +1,159 @@
+{
+  "ocel:global-log": {
+    "ocel:version": "2.0"
+  },
+  "ocel:events": {
+    "evt_006": {
+      "event_id": "c214ce17-3f71-4ecf-9b7b-4b897ca72b71",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 7,
+      "objects": [
+        [
+          "Falsify_TripleTermInSnapshot",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "refusal": "TripleTermInSnapshot",
+        "fixture_id": "Falsify_TripleTermInSnapshot"
+      }
+    },
+    "evt_003": {
+      "event_id": "28885fef-d0c9-4c07-a8cc-c0661c5aff8c",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 4,
+      "objects": [
+        [
+          "Falsify_Triple8UniverseOverflow",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "refusal": "Triple8UniverseOverflow",
+        "fixture_id": "Falsify_Triple8UniverseOverflow",
+        "outcome": "refused"
+      }
+    },
+    "evt_001": {
+      "event_id": "c002dabe-6230-4624-aa69-9acf34acefa3",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 2,
+      "objects": [
+        [
+          "Falsify_TermNotInTriple8Universe",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "refusal": "TermNotInTriple8Universe",
+        "outcome": "refused",
+        "fixture_id": "Falsify_TermNotInTriple8Universe"
+      }
+    },
+    "evt_002": {
+      "event_id": "d0ca599b-ec17-4b4c-95ad-e0b87e77c2d0",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 3,
+      "objects": [
+        [
+          "Accept_TermsResolveInTriple8Universe",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_TermsResolveInTriple8Universe",
+        "outcome": "admitted"
+      }
+    },
+    "evt_000": {
+      "event_id": "8129509f-8da2-46a4-a58b-d3bc126705be",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 1,
+      "objects": [
+        [
+          "Accept_SnapshotContainsOnlyAtomicTerms",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "admitted",
+        "fixture_id": "Accept_SnapshotContainsOnlyAtomicTerms"
+      }
+    },
+    "evt_004": {
+      "event_id": "e86134a5-7aab-4304-b7da-56822b9fab62",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 5,
+      "objects": [
+        [
+          "Falsify_Triple8UniverseOverflowByOne",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "refused",
+        "refusal": "Triple8UniverseOverflow",
+        "fixture_id": "Falsify_Triple8UniverseOverflowByOne"
+      }
+    },
+    "evt_005": {
+      "event_id": "65e12c82-2278-4e55-9c2b-31b396da671f",
+      "case_id": "chatman-triple8",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 6,
+      "objects": [
+        [
+          "Accept_Triple8UniverseWithinBounds",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "fixture_id": "Accept_Triple8UniverseWithinBounds",
+        "outcome": "admitted"
+      }
+    }
+  },
+  "ocel:objects": {}
+}

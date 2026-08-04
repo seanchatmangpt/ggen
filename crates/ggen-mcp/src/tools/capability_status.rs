@@ -30,7 +30,14 @@ pub struct InertField {
     pub field: String,
     /// The typed diagnostic code the pipeline raises when it is used.
     pub code: String,
-    /// Verbatim reason, matching the pipeline's own refusal message.
+    /// A human-readable summary of the pipeline's refusal -- NOT verbatim.
+    /// The real per-rule message
+    /// (`ggen_engine::generation_rules::resolve_template_source`)
+    /// additionally names the offending rule and the pack/git/package
+    /// identifier (e.g. "rule `{name}`: TemplateSource::Pack (pack
+    /// `{pack}`) is not implemented yet. Remediation: ..."); this field is
+    /// a fixed summary shared across every rule that triggers the same
+    /// variant.
     pub reason: String,
     /// Where the follow-up work is tracked.
     pub tracked_at: String,

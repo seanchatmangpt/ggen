@@ -46,6 +46,8 @@
 //! `tracing::info_span!`/`tracing::debug!` idiom for every other pipeline
 //! stage in this file.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::{
     path::Path,
     sync::{Arc, Mutex},
@@ -254,6 +256,45 @@ fn determinism_explicitly_false_never_triggers_a_second_query_execution() {
 
     assert_eq!(counts.primary, 1, "{counts:?}");
     assert_eq!(counts.determinism_recheck, 0, "{counts:?}");
+}
+
+/// F1 regression: `determinism: true`'s independent recheck must still be
+/// computed even when the PRIMARY `when:` guard evaluates false (nothing to
+/// render). Before the fix, `sync`'s per-template loop computed
+/// `determinism_recheck` strictly AFTER the primary's `when:` guard check,
+/// so a false guard hit `continue` before the recheck was ever built —
+/// `phase="determinism_recheck"` never fired for this template at all, and
+/// the (expensive) independent reload the module's own docs describe as
+/// existing "to catch oxigraph's `rename_blank_nodes()` per-parse
+/// randomization" was silently skipped for exactly the templates most
+/// likely to depend on it (a guard that fails to match this run). The fix
+/// moves the recheck computation before the primary guard check, so this
+/// event now fires unconditionally whenever `determinism: true` is set,
+/// regardless of what the primary guard evaluates to.
+#[test]
+fn determinism_true_reexecutes_even_when_primary_when_guard_is_false() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    write_template(
+        dir.path(),
+        "d.tmpl",
+        "---\nto: out.txt\ndeterminism: true\nwhen: ASK { ?s <http://example.org/nonexistent> ?o }\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}{% endfor %}",
+    );
+
+    let counts = run_sync_counting_phases(dir.path());
+
+    assert_eq!(
+        counts.primary, 1,
+        "the primary `when:` guard is still evaluated exactly once: {counts:?}"
+    );
+    assert_eq!(
+        counts.determinism_recheck, 1,
+        "`determinism: true` must trigger the independent second extraction \
+         even when the primary `when:` guard evaluates false and there is \
+         nothing to render -- zero here would mean the (already-paid-for) \
+         verification silently never ran for this template, the exact F1 \
+         gap: {counts:?}"
+    );
 }
 
 /// Same proof for a per-row template (`to:` containing `{{`): the recheck

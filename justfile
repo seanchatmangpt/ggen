@@ -87,35 +87,72 @@ fmt-check:
 
 # ── Linting ───────────────────────────────────────────────────────────────────
 
-# Clippy with -D warnings across all targets (180s; first run / cache invalidation compiles deps)
+# Clippy with -D warnings across the WHOLE workspace (300s; first run / cache
+# invalidation compiles deps).
 #
-# SCOPE GAP, found and deliberately left open (2026-07-17): no `--workspace` flag
-# means this only ever checks the ROOT `ggen` package (confirmed live: its own
-# `Checking` output names exactly one package, `ggen v26.7.4`) -- none of the
-# other 11 real workspace members. `just pre-commit` including this recipe has
-# reported green all session without ever exercising clippy on ggen-cli,
-# ggen-engine, ggen-config, ggen-marketplace, praxis-core, praxis-graphlaw, etc.
-# Adding `--workspace` here is the correct fix in principle, but doing so live
-# immediately turns this recipe red across real, pre-existing, multi-crate debt
-# that was never triaged because this gap always masked it: confirmed live via
-# `cargo clippy --workspace --all-targets --exclude ggen-lsp -- -D warnings`:
-# `ggen-marketplace` (lib test, 1+ error), `praxis-graphlaw` (lib test 5+
-# errors, `pattern4_equivalence_canonicalization` test 1+ error, `owlrl` bench
-# 9 genuine `E0599` type errors -- `TripleStore::from` returns `TripleStore`
-# directly, not `Result`, so the bench's own `.expect()` calls never should
-# have compiled; this one predates this session, not introduced by it).
-# ggen-cli-lib's own `#![deny(warnings)]` (crates/ggen-cli/src/lib.rs:51)
-# additionally promotes ALL its clippy warnings to compile errors under plain
-# `cargo clippy --workspace --all-targets` (no `-D warnings` even needed) --
-# 2 real ggen-cli-lib issues found and fixed this session (unnested or-pattern
-# in lib.rs, `#[ignore]` without a reason in utils/error.rs); ggen-cli-lib now
-# passes `cargo clippy -p ggen-cli-lib --all-targets` clean on its own.
-# Widening this recipe to `--workspace` is real, valuable follow-up work but
-# needs a dedicated triage pass (each crate's issues reviewed on their own
-# merits, not blindly auto-fixed), not a 3am scope change bundled into
-# unrelated work -- left undone here on purpose, not silently.
+# WIDENED 2026-08-02 (closes the SCOPE GAP left open 2026-07-17, see git blame
+# for that comment's original text): now real `--workspace`, not root-package-
+# only. Two flags earn their own explanation because without them this recipe
+# is either uninformative or permanently unusable:
+#
+# `--keep-going` -- without it, cargo's default fail-fast means the FIRST
+# workspace member with any `-D warnings` violation aborts the whole run, so
+# every crate after it in build order never gets checked at all. That is
+# exactly the hidden-debt failure mode this widening exists to close (just
+# with the mask moved to a different, arbitrary crate instead of removed) --
+# confirmed live: without `--keep-going` the run stops at `ggen-graph` (25
+# errors) and never reaches `ggen-engine`, `praxis-graphlaw`, `ggen-config`,
+# `ggen-marketplace`, which between them account for most of the real count
+# below. `--keep-going` is a stable (non-nightly-gated) cargo flag as of this
+# toolchain (`cargo clippy --help` lists it plainly, confirmed live).
+#
+# `-A unexpected_cfgs` -- narrow, single-lint carve-out, NOT a broad
+# suppression of clippy's real style/correctness lints (those still deny).
+# Without it the run hard-fails at `bcinr-pddl` before checking ANY other
+# member: `crates/bcinr-pddl/src/mfw/mod.rs:43`'s `#[cfg(feature =
+# "mfw-planner")]` references a feature that `crates/bcinr-pddl/Cargo.toml`'s
+# own comment (line 43-49) says was deliberately dropped from `[features]` in
+# PR #255 -- the cfg-gate attribute was left dangling when the feature
+# declaration was removed. That is a real, separate, pre-existing bug (not
+# ordinary lint debt -- it is a hard compile failure under `-D warnings`,
+# confirmed live via `cargo clippy -p bcinr-pddl -- -D warnings` alone,
+# unrelated to `--workspace`), tracked in
+# docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md's TECH-DEBT-002.
+# `crates/bcinr-pddl/Cargo.toml` is not a file this recipe change's task was
+# scoped to touch, so the real fix (declare `mfw-planner = []` in
+# `[features]`, matching the crate's existing `dhat-heap = []` pattern) is
+# left to that crate's owner; this carve-out should be deleted the same day
+# that fix lands.
+#
+# REAL COUNT (2026-08-02, `cargo clippy --workspace --all-targets --keep-going
+# -- -D warnings -A unexpected_cfgs`, isolated CARGO_TARGET_DIR to avoid
+# cross-session build-cache corruption): 649 real findings across 5 crates --
+# `ggen-engine` 547 (127 lib + 420 lib-test), `ggen-graph` 50 (25 lib + 25
+# lib-test), `praxis-graphlaw` 21, `ggen-config` 18, `ggen-marketplace` 13.
+# Full breakdown and disposition: TECH-DEBT-002 in
+# docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md and the matching
+# `dev.lint-workspace` entry in docs/aps/claims.toml. Left wired into
+# `pre-commit` below, unchanged position, same precedent as `guard-cheat-scan`
+# (TECH-DEBT-001): a widened real gate is allowed to turn `pre-commit` red
+# while tracked, rather than silently narrowed back to hide the count.
+#
+# UPDATE (2026-08-03, reverified live via this exact recipe, isolated run,
+# exit code 101): real count is now 4, down from 649 -- ggen-engine,
+# ggen-graph, praxis-graphlaw, and ggen-config are all genuinely clean under
+# this exact command (0 findings attributable to any of them). Remainder: 1
+# non-gating warning (`chicago-tdd-tools`, `clippy::redundant_closure`,
+# crates/chicago-tdd-tools/src/cli_proof/receipt.rs:130 -- clippy's own note
+# says this lint "ignores -D warnings", so it does not fail the build) and 2
+# real compile-gating errors, newly surfaced (not part of the original 649,
+# because `ggen-cli-lib` was never reached by `--keep-going` until its
+# dependency `ggen-engine` started compiling clean) in
+# `crates/ggen-cli/src/generated_commands.rs`: `too_long_first_doc_paragraph`
+# (line 1) and `single_element_loop` (line 99), both promoted to hard errors
+# by that crate's own `#![deny(warnings)]`. Still NOT zero -- `just lint`
+# still exits 101, `pre-commit` is still red on this gate. See TECH-DEBT-002's
+# own dated update for the full breakdown.
 lint:
-    timeout 180s cargo clippy --all-targets -- -D warnings
+    timeout 300s cargo clippy --workspace --all-targets --keep-going -- -D warnings -A unexpected_cfgs
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
@@ -152,6 +189,105 @@ test-lib:
     [ "$status" -eq 124 ] || exit "$status"
     echo "⚠️  First compile >30s, escalating to 600s..."
     timeout 600s cargo test --lib --workspace
+
+# Integration tests only (crates/*/tests/*.rs), excluding lib tests (test-lib
+# above already covers those) and bin-embedded unit tests. Added 2026-08-02
+# to close a real gap: `test:` above uses `--tests`, but `--tests` is NOT
+# "integration tests only" despite the name -- confirmed live, it also builds
+# and runs each crate's `[lib]` unit tests (e.g. `cargo test --workspace
+# --tests` reports "Running unittests src/lib.rs" for `ggen-engine` and
+# surfaces a real `ggen-engine` lib-test failure), so before this recipe
+# existed, `pre-commit`'s `test-lib` dependency was the ONLY test gate that
+# ever ran, and NOTHING in `just pre-commit` ever exercised a single file
+# under any `crates/*/tests/`. Cargo has no native "integration-only" target
+# flag, so this enumerates real `kind == ["test"]` targets via `cargo
+# metadata` (the authoritative way to distinguish an integration-test binary
+# from a `[lib]`/`[[bin]]` target) and selects each by name.
+#
+# NOT wired into `pre-commit` (deliberate, tracked, not silent) -- a real
+# `cargo test --workspace --tests` run on 2026-08-02 (373 real integration
+# targets found; run killed partway through, see below) surfaced 7 genuine
+# integration-test failures across 3 crates (`ggen-cli-lib`'s
+# `perf_cold_start_with_config`; `ggen-config`'s
+# `repo_facts_ttl_crate_map_matches_cargo_toml_workspace_members`, a real
+# Cargo.toml/.specify/repo-facts.ttl drift; `ggen-engine`'s
+# `exact_repository_inventory_manufactures_partial_alive_evidence`,
+# `root_help_gives_each_noun_a_non_blank_description`,
+# `doctor_succeeds_with_correct_diagnostic_on_each_supported_schema`,
+# `mega_project_all_packs_sync`,
+# `custom_behavior_scaffolds_once_and_survives_hand_completion`) -- AND one
+# genuine hang risk: `ggen-engine/tests/economics_measured_evidence_test.rs`
+# spawns a nested `cargo test -p ggen-engine --test receipt_chain_e2e`
+# subprocess via `Command::output()` with no timeout; under load it stalled
+# at 0% CPU for minutes with no sign of returning, so the run was killed
+# before reaching the remaining crates rather than let it block indefinitely.
+# A gate that can hang forever is strictly worse than one that fails fast and
+# red (`guard-cheat-scan`/`lint`'s precedent), so this is the "documented,
+# explicitly time-boxed exception" branch, not the "stays wired in and red"
+# branch. Full breakdown: TECH-DEBT-003 in
+# docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md and the matching
+# `dev.test-integration` entry in docs/aps/claims.toml. The outer `timeout`
+# below bounds THIS recipe's own run even though it cannot kill an already-
+# orphaned grandchild subprocess of the hanging test above -- that is the
+# real fix (add a timeout inside economics_measured_evidence_test.rs itself),
+# not something a `just` recipe can patch over, and is out of this recipe
+# change's file scope.
+#
+# 2026-08-03 fix: this recipe never actually completed a run before today --
+# `cargo test --test <name>` hard-errors at target *selection* (before
+# compiling anything) for any target declaring `required-features` not
+# currently enabled (e.g. "error: target `doctor_adversarial_tests` in
+# package `ggen-cli-lib` requires the features: `integration`" -- confirmed
+# live, 2026-08-03, on the plain pre-fix recipe). Most `crates/*/tests/` and
+# root `tests/*` targets declare `required-features = ["integration"]`
+# (root `Cargo.toml`, `crates/ggen-cli/Cargo.toml`); a smaller set additionally
+# needs `a2a`/`mcp` (`ggen-lsp`/`ggen-engine` Cargo.toml). `--features
+# integration,a2a,mcp` is the exact flag set TECH-DEBT-003's fix pass verified
+# against (ad hoc, not through this recipe -- this recipe itself was never
+# updated, which is the bug this comment documents). Deliberately NOT adding
+# `ggen-core-retired` (permanently-dead code path, meant to stay off, see the
+# `ggen-core-retired` feature comment near `[[bench]] ggen_benchmarks` above
+# root Cargo.toml) or `a2a-integration-tests` (gates only `test_telco_routing`,
+# excluded below and by design unrunnable, see that file's own header).
+#
+# 2026-08-03 real full completion (first ever, after both the hang fix above
+# and this recipe's own --features fix): 372 real targets (test_telco_routing
+# excluded by design), 2070 passed, 90 failed, 256 ignored, 15/372 targets
+# with at least one failure. The 7 originally-named failures + the hang are
+# fixed and individually reconfirmed passing this same day (independently
+# re-run: ci_g0_inventory_e2e, cli_boundary, config_schema_dispatch_e2e,
+# cross_pack_matrix, custom_behavior_e2e, performance,
+# system_crate_map_parity_test all green). The completed run surfaced a
+# larger, previously-never-exercised residual of 15 targets / 90 tests, real
+# and reproducible (independently spot-re-run this same day: generation_rules_e2e
+# 14 failing fns, generation_rules_typed_causes_e2e 1, product_mirror_conformance
+# 1, manifest_contract_test 1, plus 2 of the 11 legacy dead-CLI-surface targets
+# -- cli_command_tests, doctor_adversarial_tests -- both failing with
+# "unrecognized subcommand", confirming the current `ggen`/`ggen doctor` noun
+# surface really has dropped `market`/`ci`/`ontology` etc. subcommands these
+# tests still assume). Filed as task #33 / TECH-DEBT-003's "15 remaining"
+# addendum in docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md.
+# STILL NOT wired into `pre-commit`: the promotion condition (full suite
+# passing) is not met -- 15/372 targets remain genuinely red, so this stays
+# the "documented, explicitly time-boxed exception" branch, not "stays wired
+# in and red". Do not add `test-integration` to the `pre-commit:` dependency
+# line until that residual closes.
+test-integration:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mapfile -t TARGETS < <(cargo metadata --no-deps --format-version=1 | python3 -c 'import json,sys; d=json.load(sys.stdin); seen=set(); [seen.add(t["name"]) or print(t["name"]) for pkg in d["packages"] for t in pkg["targets"] if t["kind"]==["test"] and t["name"] not in seen and t["name"] != "test_telco_routing"]')
+    ARGS=()
+    for t in "${TARGETS[@]}"; do ARGS+=(--test "$t"); done
+    echo "test-integration: ${#TARGETS[@]} real integration-test targets selected"
+    if timeout 600s cargo test --workspace --no-fail-fast --features integration,a2a,mcp "${ARGS[@]}"; then
+        exit 0
+    else
+        status=$?
+    fi
+    if [ "$status" -eq 124 ]; then
+        echo "❌ test-integration timed out after 600s (see TECH-DEBT-003: at least one target has an unbounded subprocess spawn)" >&2
+    fi
+    exit "$status"
 
 # Doctests — validates all /// Examples blocks compile and run
 # NOTE: no `--exclude ggen-core` here (2026-07-17) -- ggen-core is excluded from
@@ -341,7 +477,7 @@ slo-check:
 # Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
 # IS the canonical gate list and count -- do not restate a number in a comment here or in any
 # doc; every prior count has gone stale within days of a gate being added or removed.
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count guard-gate-count self-play
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin)"
@@ -352,6 +488,34 @@ pre-commit: fmt-check check lint test-lib coherence-check guard-process-intellig
 # test suite (the generated proofs plus its own). Makes "the generated proof
 # suites pass" a checkable fact from repo state — see
 # scripts/ci/guard-pack-proofs.sh and docs/packs/L5_PUSH_ROUND3_RESULTS.md.
+# Self-play: replay the committed adversarial corpus and drive EVERY pack that
+# ships an ontology through the full ggen lifecycle (classify -> query ->
+# lint -> dry-run -> apply -> receipt verify -> idempotent re-sync).
+#
+# Deterministic and offline: no LLM, no network, no GPU. Before this existed,
+# only 11 of 78 packs had any lifecycle proof (wired across the 6
+# guard-pack-proofs consumer projects); this covers all of them. The
+# falsifier suite alongside it proves the harness can actually detect a
+# violation rather than silently observing nothing.
+
+# Replay the adversarial corpus + drive every pack through the full lifecycle.
+self-play:
+    cargo test -p ggen-mcp --test self_play_test --test self_play_falsifier_test --test self_play_vacuity_test
+
+# Grow the self-play corpus with the local Gemma (TurboFieldfare's
+# OpenAI-compatible server on 127.0.0.1:8080, Metal/GPU). NOT part of any gate:
+# an LLM in the assertion path would make a red suite unreproducible. Its only
+# output is new files under crates/ggen-mcp/tests/corpus/, which `just
+# self-play` then replays deterministically forever after.
+#
+# The server generates one completion at a time behind a 4-deep queue, so
+# concurrency 4 keeps the GPU saturated without overflowing it.
+
+# Grow the self-play corpus using the local Gemma on the GPU (not a gate).
+self-play-explore packs="73" cases="4" concurrency="4":
+    cargo run --release -p ggen-mcp --bin ggen-selfplay-explore -- \
+        --packs {{packs}} --cases-per-pack {{cases}} --concurrency {{concurrency}}
+
 guard-pack-proofs:
     ./scripts/ci/guard-pack-proofs.sh
 
@@ -369,6 +533,43 @@ guard-generation-hash-pin:
 # See scripts/ci/guard-pack-count.sh.
 guard-pack-count:
     ./scripts/ci/guard-pack-count.sh
+
+# Gate-count drift guard (.specify/repo-facts.ttl's rf:gateCount vs the real
+# .specify/gates/*.rq file count): refuses when they diverge, the same
+# recurring failure mode (retrofit:GeneratedTableDriftManifested) that
+# guard-pack-count closes for rf:packCount. See scripts/ci/guard-gate-count.sh.
+guard-gate-count:
+    ./scripts/ci/guard-gate-count.sh
+
+# SPARQL law-gate enforcement (.specify/gates/*.rq): re-parses every gate file
+# with the real oxigraph SPARQL parser and re-executes six gates
+# (every-action-has-binding, every-binding-has-output-pattern,
+# every-binding-has-template, every-command-has-handler,
+# every-generator-has-action, no-orphan-actions) against this repo's own
+# cmx:/cli: ontology data. The remaining four gates (cross-pack-contamination,
+# the three l5-*.rq gates) get syntax-check only here -- see
+# scripts/ci/guard-sparql-gates.sh's own header for why. See also
+# crates/ggen-graph/src/bin/sparql_gate_check.rs.
+#
+# NOT wired into `pre-commit` (2026-08-02, deliberate, same pattern as
+# guard-publish-target below): this guard is not decorative -- it currently
+# exits non-zero for real, separate, pre-existing reasons. Running it live
+# today (re-confirmed 2026-08-03, red-team finding F3) reports FAIL on ALL
+# SIX semantically-checked gates, not just one: every-action-has-binding,
+# every-binding-has-output-pattern, every-binding-has-template,
+# every-command-has-handler, every-generator-has-action, and
+# no-orphan-actions all currently report `ASK -> false`. The only root cause
+# documented here so far is the every-command-has-handler one:
+# .specify/cli-commands.ttl's ReceiptCommand and DoctorCommand individuals
+# have no cli:handler triple (a genuine ontology-data gap, not a bug in this
+# guard or its gate file). The other five gates' failures are real but their
+# root causes are undocumented here -- do not assume fixing the handler gap
+# alone will turn this guard green; re-run `just guard-sparql-gates` after
+# each fix to see what's left. Wiring this line into `pre-commit` as-is would
+# turn every commit red on unrelated, already-flagged issues. Run
+# standalone: `just guard-sparql-gates`.
+guard-sparql-gates:
+    ./scripts/ci/guard-sparql-gates.sh
 
 # L5 promotion trust-hardening: refreshes evidence/l5-template-derivation.ttl
 # (packs/*/templates/*.tmpl frontmatter facts) that
@@ -426,6 +627,20 @@ guard-cheat-scan:
 # class fixed in csprite_test.rs/backwardchaining_test.rs (2026-08-01).
 guard-short-test-timeout:
     python3 scripts/ci/guard_short_test_timeout.py
+
+# Refuses Rust `Command::output()`/`.status()` calls whose failure branch only
+# logs (eprintln!/log::/tracing::) instead of propagating (bail!/return Err/
+# panic!/process::exit) -- the exact fail-open shape fixed in the (now-migrated-
+# to-ggen-legacy) v26.8.1 coverage_projection::run_subsystem_verifier bug.
+# Scans all git-tracked *.rs files from the repo root (repointed 2026-08-02
+# after PR #554 deleted this guard's original scan target,
+# tools/v26.8.1/src/**/*.rs, migrating that corpus to seanchatmangpt/ggen-legacy
+# -- matches the same `git ls-files` repoint already applied to its sibling
+# guard_short_test_timeout.py in the same commit). See
+# scripts/ci/guard_fail_open_subprocess.py and
+# .claude/rules/coding-agent-mistakes.md mistake class 3 (Fail-Open Behavior).
+guard-fail-open-subprocess:
+    python3 scripts/ci/guard_fail_open_subprocess.py
 
 # APS claims-ledger schema validation (docs/aps/claims.toml) — structure only;
 # runs in pre-commit. Commits are not publishes, so publish-gate enforcement

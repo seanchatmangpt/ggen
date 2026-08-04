@@ -5,6 +5,7 @@
 //! template body with). Runs alongside the existing criterion bench
 //! (`bench_main.rs`) — it does not replace it.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 #![allow(missing_docs)]
 #![allow(clippy::pedantic, clippy::style, clippy::complexity, clippy::perf)]
 

@@ -10,6 +10,8 @@
 //! If a field is added to a struct without updating the TTL (or vice versa),
 //! this test fails — that is the gate, not the documentation.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeSet;
 
 use ggen_engine::{
@@ -31,13 +33,13 @@ fn load_schema() -> DeterministicGraph {
 /// Query the field-name set declared for a given section/variant IRI local name.
 fn declared_fields(graph: &DeterministicGraph, local_name: &str) -> BTreeSet<String> {
     let query = format!(
-        r#"
+        r"
         PREFIX ggenspec: <https://praxis.dev/ggen/schema#>
         SELECT ?name WHERE {{
             ggenspec:{local_name} ggenspec:hasField ?field .
             ?field ggenspec:name ?name .
         }}
-        "#
+        "
     );
     let QueryResults::Solutions(solutions) = graph.query(&query).expect("sparql eval") else {
         panic!("expected SELECT results");

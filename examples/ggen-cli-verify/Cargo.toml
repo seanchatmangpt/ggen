@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "ggen-cli-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Committed, real consumer of chicago-tdd-tools-pack that closes the dogfood loop on ggen's OWN CLI binary (not the receiptctl example): ctt:CliBoundaryTest facts in schema/domain.ttl drive `ggen sync run` to generate CliHarness-based tests/chicago_tdd_tools_boundary.rs, which spawns the real `ggen` binary (via PATH, resolved by scripts/ci/guard-pack-proofs.sh) and asserts on its actual exit codes/stdout/stderr. No mocks."
+
+[lib]
+name = "ggen_cli_verify"
+path = "src/lib.rs"
+
+[dev-dependencies]
+# 2026-08-03: chicago-tdd-tools 26.8.3 is published with `cli-proof` included, so this uses
+# the registry version directly.
+chicago-tdd-tools = { version = "26.8.3", features = ["cli-proof"] }

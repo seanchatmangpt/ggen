@@ -109,7 +109,7 @@
         "crates/ggen-graph/tests/ocel_self_audit.rs"
       ],
       "commands": [
-        "cargo run -p ggen-graph --bin emit_audit"
+        "cargo test -p ggen-graph --test ocel_self_audit"
       ]
     },
     {
@@ -117,14 +117,13 @@
       "title": "Coverage Matrix & Verification Scripts",
       "description": "Implement coverage mapping in coverage.rs and verify via scripts.",
       "source_files": [
-        "crates/ggen-graph/src/ocel/coverage.rs",
-        "crates/ggen-graph/src/bin/verify_audit.rs"
+        "crates/ggen-graph/src/ocel/coverage.rs"
       ],
       "test_files": [
         "crates/ggen-graph/tests/vision2030_coverage.rs"
       ],
       "commands": [
-        "cargo run -p ggen-graph --bin verify_audit"
+        "cargo test -p ggen-graph --test vision2030_coverage"
       ]
     },
     {

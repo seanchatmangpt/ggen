@@ -48,7 +48,7 @@ mod tests {
 
         assert_eq!(constraints.len(), 3);
         assert_eq!(constraints[0].cost_class, CostClass::Cardinality);
-        assert_eq!(constraints[1].is_optional, true);
+        assert!(constraints[1].is_optional);
         assert_eq!(constraints[2].cost_class, CostClass::Class);
     }
 
@@ -139,7 +139,7 @@ mod tests {
         assert_eq!(shape.iri, 1);
         assert_eq!(shape.targets.len(), 1);
         assert_eq!(shape.constraints.len(), 1);
-        assert_eq!(shape.closed, false);
+        assert!(!shape.closed);
         assert_eq!(shape.property_shapes.len(), 0);
     }
 

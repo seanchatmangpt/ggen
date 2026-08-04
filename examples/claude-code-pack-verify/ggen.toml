@@ -1,0 +1,16 @@
+[project]
+name = "claude-code-pack-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+ccw  = "http://seanchatmangpt.github.io/packs/claude-code#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+claude-code-pack = { path = "../../packs/claude-code-pack" }
+
+[templates]
+dir = "templates"

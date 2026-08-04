@@ -47,7 +47,7 @@ fn ggen() -> Command {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_help_main() {
     // Chicago TDD: Verify main help output state
     ggen()
@@ -112,7 +112,7 @@ fn test_cli_invalid_flag() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_missing_required_arg() {
     // Chicago TDD: Verify error state for missing arguments
     ggen()
@@ -125,7 +125,7 @@ fn test_cli_missing_required_arg() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_doctor_basic_check() {
     // Chicago TDD: Verify doctor command runs system checks
     ggen().arg("doctor").assert().success().stdout(
@@ -136,14 +136,14 @@ fn test_doctor_basic_check() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_doctor_verbose_output() {
     // Chicago TDD: Verify verbose mode provides detailed state
     ggen().arg("doctor").arg("--verbose").assert().success();
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_help_progressive_basic() {
     // Chicago TDD: Verify progressive help system
     ggen()
@@ -154,7 +154,7 @@ fn test_help_progressive_basic() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_help_progressive_with_level() {
     // Chicago TDD: Verify experience level filtering
     ggen()
@@ -166,7 +166,7 @@ fn test_help_progressive_with_level() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_help_progressive_topic() {
     // Chicago TDD: Verify topic-specific help
     ggen()
@@ -266,7 +266,7 @@ fn test_cli_no_args_shows_help() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_subcommand_no_verb() {
     // Chicago TDD: Verify noun without verb shows help
     ggen().arg("template").assert().failure().stderr(
@@ -277,7 +277,7 @@ fn test_cli_subcommand_no_verb() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_help_shows_examples() {
     // Chicago TDD: Verify help includes usage examples
     let output = ggen().arg("template").arg("--help").output().unwrap();
@@ -351,7 +351,7 @@ fn test_cli_colored_output_flag() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_json_output_flag() {
     // Chicago TDD: Verify JSON output flag is respected
     let commands_with_json = vec![
@@ -392,7 +392,7 @@ fn test_cli_performance_help_fast() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_cli_doctor_checks_essentials() {
     // Chicago TDD: Verify doctor checks critical dependencies
     let output = ggen().arg("doctor").output().unwrap();

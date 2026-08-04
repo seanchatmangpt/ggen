@@ -68,7 +68,20 @@ fn classify(reason: &str) -> &'static str {
     let r = reason.to_ascii_lowercase();
     if r.contains("when") && (r.contains("false") || r.contains("guard")) {
         "when_false"
-    } else if r.contains("zero row") || r.contains("no rows") || r.contains("empty result") {
+    } else if r.contains("zero row")
+        || r.contains("no rows")
+        || r.contains("empty result")
+        || r.contains("produced 0 rows")
+    {
+        // "produced 0 rows" is the real engine wording for the for_each /
+        // implicit-row-fan-out zero-row skip (sync.rs's `for_each ...
+        // produced 0 rows (...)` messages) -- it contains neither "zero
+        // row" nor "no rows" nor "empty result", so without this arm it
+        // fell through to `other` despite being exactly the zero-row case
+        // this tool exists to classify distinctly. Matched as the literal
+        // phrase "produced 0 rows" (not a bare "0 rows") so a future
+        // nonzero count like "produced 10 rows" can't collide via
+        // substring.
         "zero_rows"
     } else if r.contains("unchanged") || r.contains("identical") {
         "unchanged"

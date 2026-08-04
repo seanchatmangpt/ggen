@@ -77,7 +77,7 @@ fn scaffold() -> (TempDir, PathBuf) {
 
 // ── process helpers ─────────────────────────────────────────────────────────
 
-/// Run a command, capture output, return (exit_code, stdout, stderr).
+/// Run a command, capture output, return (`exit_code`, stdout, stderr).
 fn run(cmd: &mut Command) -> (i32, String, String) {
     let out = cmd
         .output()
@@ -110,31 +110,34 @@ fn script_ok(project: &Path, script: &str, args: &[&str]) -> String {
 /// test. Everything past this point goes through generated standard work.
 /// (Modeled on crates/ggen-cli/tests/llm_e2e_test.rs env gating.)
 fn gate() -> String {
-    if Command::new("terraform").arg("version").output().is_err() {
-        panic!(
-            "\n=== PREREQUISITE MISSING: terraform ===\n\
-             This Tier-2 acceptance test requires the `terraform` binary on PATH.\n\
-             Install: https://developer.hashicorp.com/terraform/install\n\
-             Then re-run: just tf-acceptance\n"
-        );
-    }
+    assert!(
+        Command::new("terraform").arg("version").output().is_ok(),
+        "\n=== PREREQUISITE MISSING: terraform ===\n\
+         This Tier-2 acceptance test requires the `terraform` binary on PATH.\n\
+         Install: https://developer.hashicorp.com/terraform/install\n\
+         Then re-run: just tf-acceptance\n"
+    );
     let (code, owner, stderr) = run(Command::new("gh").args(["api", "user", "--jq", ".login"]));
-    if code != 0 || owner.trim().is_empty() {
-        panic!(
-            "\n=== PREREQUISITE MISSING: gh authentication ===\n\
-             This Tier-2 acceptance test requires an authenticated GitHub CLI.\n\
-             Run: gh auth login\n\
-             Then re-run: just tf-acceptance\n\
-             gh stderr: {stderr}\n"
-        );
-    }
+    assert!(
+        code == 0 && !owner.trim().is_empty(),
+        "\n=== PREREQUISITE MISSING: gh authentication ===\n\
+         This Tier-2 acceptance test requires an authenticated GitHub CLI.\n\
+         Run: gh auth login\n\
+         Then re-run: just tf-acceptance\n\
+         gh stderr: {stderr}\n"
+    );
     owner.trim().to_owned()
 }
 
 // ── the acceptance test ─────────────────────────────────────────────────────
 
+// One Tier-2 acceptance scenario (real GitHub API + terraform, a single
+// linear apply/verify/drift/cleanup sequence); splitting it would either
+// re-run the expensive real-credential setup per assertion group or share
+// live cloud state between tests, not shrink real complexity.
+#[allow(clippy::too_many_lines)]
 #[test]
-#[ignore] // Tier 2: real GitHub API + terraform. Run via `just tf-acceptance`.
+#[ignore = "Tier 2 acceptance test: requires real GitHub API + terraform credentials; run via `just tf-acceptance` (justfile:618), not part of the default test loop"]
 fn gh_terraform_pack_acceptance_real_api() {
     // 1. Gate (bootstrap boundary) + sandbox identity.
     let owner = gate();
@@ -250,9 +253,7 @@ fn gh_terraform_pack_acceptance_real_api() {
     let ledger_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.tcps");
     std::fs::create_dir_all(&ledger_dir).expect("mkdir .tcps");
     let ledger = ledger_dir.join("acceptance-receipts.jsonl");
-    let lines_before = std::fs::read_to_string(&ledger)
-        .map(|s| s.lines().count())
-        .unwrap_or(0);
+    let lines_before = std::fs::read_to_string(&ledger).map_or(0, |s| s.lines().count());
     let receipt_json = format!(
         "{{\"receipt\":\"gh-terraform-acceptance\",\
          \"pack_content_hash\":\"{content_hash}\",\

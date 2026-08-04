@@ -19,11 +19,11 @@
 ## ASK Body
 
 ```sparql
+PREFIX cli: <http://ggen.org/cli#>
 
-    NOT EXISTS {
-      ?cmd a cli:Command .
-      FILTER NOT EXISTS { ?cmd cli:handler ?h }
-    }
+
+    ?cmd a cli:Command .
+    FILTER NOT EXISTS { ?cmd cli:handler ?h }
     
 ```
 

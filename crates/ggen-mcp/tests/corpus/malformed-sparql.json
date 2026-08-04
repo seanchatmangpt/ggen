@@ -1,0 +1,9 @@
+{
+  "id": "malformed-sparql",
+  "pack": "rmcp-pack",
+  "sparql": "SELECT ?s WHERE { ?s",
+  "to": "out/bad.txt",
+  "body": "x\n",
+  "origin": "handwritten",
+  "note": "unterminated block; must not report ok"
+}

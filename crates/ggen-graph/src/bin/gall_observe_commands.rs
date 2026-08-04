@@ -74,7 +74,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "06_scan_forbidden_surfaces.sh",
         "07_check_anti_fake.sh",
         "08_verify_replay_receipts.sh",
-        "09_verify_ocel_self_audit.sh",
+        // "09_verify_ocel_self_audit.sh" removed 2026-08-03: it regenerated
+        // and structurally re-checked a self-audit log built entirely from
+        // hardcoded fake values (fake exit_code, sha256("test"), fabricated
+        // coverage percentages, compile-time-fixed timestamps). See
+        // crates/ggen-graph/tests/no_fabricated_truthfulness_evidence.rs.
         "10_verify_coverage_matrix.sh",
         "11_verify_proof_report.sh",
         "12_detect_contradictions.sh",
