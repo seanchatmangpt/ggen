@@ -1,0 +1,33 @@
+@prefix mer:  <https://seanchatmangpt.github.io/ontology/mermaid#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Exact-source semantic-crown vocabulary. These facts are deliberately
+# separate from mer:pythonSupport: grammar/parser presence is not proof of
+# semantic roundtrip execution.
+mer:SemanticCrown a rdfs:Class .
+mer:semanticCrown a rdf:Property .
+mer:profileIdentity a rdf:Property .
+mer:sourceRepository a rdf:Property .
+mer:sourceCommit a rdf:Property .
+mer:sourcePath a rdf:Property .
+mer:sourceGitBlob a rdf:Property .
+mer:claimCeiling a rdf:Property .
+mer:actuationAuthority a rdf:Property .
+
+mer:Crown_flowchart_rectangle_solid_v1
+    a mer:SemanticCrown ;
+    dct:identifier "mmdio.flowchart.rectangle-solid/1" ;
+    mer:profileIdentity "mmdio.flowchart.rectangle-solid/1" ;
+    mer:sourceRepository "seanchatmangpt/mmdio" ;
+    mer:sourceCommit "19d7be5ee4f5d48ed460c6559266d15d909b8f28" ;
+    mer:sourcePath "src/mmdio/flowchart_crown.py" ;
+    mer:sourceGitBlob "d114944c95392adf14a22fb2bdfcd26651dc39a0" ;
+    mer:claimCeiling "BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_ONLY" ;
+    mer:actuationAuthority false ;
+    prov:wasDerivedFrom <https://github.com/seanchatmangpt/mmdio/blob/19d7be5ee4f5d48ed460c6559266d15d909b8f28/src/mmdio/flowchart_crown.py> .
+
+mer:Type_flowchart
+    mer:semanticCrown mer:Crown_flowchart_rectangle_solid_v1 .
