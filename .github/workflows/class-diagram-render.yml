@@ -17,6 +17,8 @@ jobs:
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      RUSTC_WRAPPER: ""
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,6 +31,7 @@ jobs:
           python3 --version | tee target/class-diagram-receipt/python.txt
           rustc --version | tee target/class-diagram-receipt/rustc.txt
           cargo --version | tee target/class-diagram-receipt/cargo.txt
+          printf 'RUSTC_WRAPPER=%s\n' "${RUSTC_WRAPPER:-}" | tee target/class-diagram-receipt/rustc-wrapper.txt
 
       - name: Build canonical ggen
         run: |
