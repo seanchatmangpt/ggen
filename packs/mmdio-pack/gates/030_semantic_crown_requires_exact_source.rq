@@ -1,0 +1,45 @@
+PREFIX mer:  <https://seanchatmangpt.github.io/ontology/mermaid#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?subject ?reason WHERE {
+  {
+    ?subject a mer:SemanticCrown .
+    OPTIONAL { ?subject mer:profileIdentity ?profile . }
+    OPTIONAL { ?subject mer:sourceRepository ?repository . }
+    OPTIONAL { ?subject mer:sourceCommit ?commit . }
+    OPTIONAL { ?subject mer:sourcePath ?path . }
+    OPTIONAL { ?subject mer:sourceGitBlob ?blob . }
+    OPTIONAL { ?subject mer:claimCeiling ?ceiling . }
+    OPTIONAL { ?subject mer:actuationAuthority ?actuation . }
+    FILTER(
+      !BOUND(?profile) ||
+      !BOUND(?repository) ||
+      !BOUND(?commit) ||
+      !BOUND(?path) ||
+      !BOUND(?blob) ||
+      !BOUND(?ceiling) ||
+      !BOUND(?actuation)
+    )
+    BIND("semantic crown lacks exact source, ceiling, or authority metadata" AS ?reason)
+  }
+  UNION
+  {
+    ?subject a mer:SemanticCrown ;
+      mer:actuationAuthority ?actuation .
+    FILTER(?actuation != false)
+    BIND("semantic crown must remain non-actuating" AS ?reason)
+  }
+  UNION
+  {
+    ?subject mer:semanticCrown ?crown .
+    FILTER(?subject != mer:Type_flowchart)
+    BIND("the v1 semantic crown is admitted only for Type_flowchart" AS ?reason)
+  }
+  UNION
+  {
+    mer:Type_flowchart mer:semanticCrown ?subject .
+    ?subject mer:profileIdentity ?profile .
+    FILTER(?profile != "mmdio.flowchart.rectangle-solid/1")
+    BIND("flowchart crown profile identity drifted" AS ?reason)
+  }
+}
