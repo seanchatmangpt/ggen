@@ -1,0 +1,64 @@
+name: Class diagram render
+
+on:
+  push:
+    branches:
+      - agent/ggen-class-diagram-renderer
+  pull_request:
+    paths:
+      - scripts/render_class_diagrams.py
+      - templates/class-diagram.md.tera
+      - .github/workflows/class-diagram-render.yml
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Record subject
+        run: |
+          mkdir -p target/class-diagram-receipt
+          git rev-parse HEAD | tee target/class-diagram-receipt/head.sha
+          python3 --version | tee target/class-diagram-receipt/python.txt
+          rustc --version | tee target/class-diagram-receipt/rustc.txt
+          cargo --version | tee target/class-diagram-receipt/cargo.txt
+
+      - name: Build canonical ggen
+        run: |
+          cargo build -p ggen-cli-lib --bin ggen
+          ./target/debug/ggen --version | tee target/class-diagram-receipt/ggen-version.txt
+          ./target/debug/ggen --help > target/class-diagram-receipt/ggen-help.txt
+
+      - name: Render all admitted Rust sources
+        run: |
+          python3 scripts/render_class_diagrams.py --root . \
+            | tee target/class-diagram-receipt/render.json
+          python3 scripts/render_class_diagrams.py --root . --check \
+            | tee target/class-diagram-receipt/check.json
+          find docs/architecture/class-diagrams/files -type f -name '*.md' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > target/class-diagram-receipt/outputs.sha256
+          find docs/architecture/class-diagrams/files -type f -name '*.md' \
+            | wc -l \
+            | tr -d ' ' \
+            | tee target/class-diagram-receipt/output-count.txt
+
+      - name: Package generated projection
+        run: |
+          tar -czf target/class-diagrams.tar.gz docs/architecture/class-diagrams/files
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: class-diagram-render
+          path: |
+            target/class-diagrams.tar.gz
+            target/class-diagram-receipt
+          if-no-files-found: error
