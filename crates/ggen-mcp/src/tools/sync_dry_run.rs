@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{ErrorCategory, McpError};
 use crate::project_root::resolve_root;
+use crate::tools::skip_classify::classify;
 
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct SyncDryRunParams {
@@ -56,42 +57,6 @@ pub struct SyncDryRunResult {
     /// BLAKE3 of the post-Enrich canonical graph state -- proves which
     /// graph this plan was computed against.
     pub graph_hash: String,
-}
-
-/// Classify an engine reason string into the closed typed set.
-///
-/// Deliberately conservative: an unrecognized reason becomes `other` with
-/// the raw text preserved, rather than being forced into the nearest
-/// category. Silently mislabeling a skip reason would recreate exactly the
-/// ambiguity this tool exists to remove.
-fn classify(reason: &str) -> &'static str {
-    let r = reason.to_ascii_lowercase();
-    if r.contains("when") && (r.contains("false") || r.contains("guard")) {
-        "when_false"
-    } else if r.contains("zero row")
-        || r.contains("no rows")
-        || r.contains("empty result")
-        || r.contains("produced 0 rows")
-    {
-        // "produced 0 rows" is the real engine wording for the for_each /
-        // implicit-row-fan-out zero-row skip (sync.rs's `for_each ...
-        // produced 0 rows (...)` messages) -- it contains neither "zero
-        // row" nor "no rows" nor "empty result", so without this arm it
-        // fell through to `other` despite being exactly the zero-row case
-        // this tool exists to classify distinctly. Matched as the literal
-        // phrase "produced 0 rows" (not a bare "0 rows") so a future
-        // nonzero count like "produced 10 rows" can't collide via
-        // substring.
-        "zero_rows"
-    } else if r.contains("unchanged") || r.contains("identical") {
-        "unchanged"
-    } else if r.contains("unless_exists") || r.contains("already exists") {
-        "exists_no_overwrite"
-    } else if r.contains("skip_empty") {
-        "skip_empty"
-    } else {
-        "other"
-    }
 }
 
 /// Execute a dry-run sync against `root`.

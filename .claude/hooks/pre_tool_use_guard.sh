@@ -51,13 +51,35 @@ log_denial() {
 
 # normalize_path PATH — resolve symlinks/`./`/`../` without requiring the
 # final path component to exist (Write may target a brand-new file), relative
-# to WORKSPACE_ROOT if given as a relative path. Uses python3 (always present
-# in this repo's toolchain) rather than `realpath`, whose -m/-e semantics
-# differ between GNU and BSD and aren't guaranteed portable.
+# to WORKSPACE_ROOT if given as a relative path. Expands a leading `~` to
+# $HOME first (Bash commands routinely spell other repos as `~/other-repo/...`,
+# and without expansion that string gets misinterpreted as WORKSPACE_ROOT-
+# relative, which is exactly the false-positive class this fix removes). Uses
+# python3 (always present in this repo's toolchain) rather than `realpath`,
+# whose -m/-e semantics differ between GNU and BSD and aren't guaranteed
+# portable.
 normalize_path() {
     local p="$1"
+    case "$p" in
+        '~'|'~/'*) p="${HOME}${p:1}" ;;
+    esac
     [[ "$p" != /* ]] && p="${WORKSPACE_ROOT}/${p}"
     python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$p" 2>/dev/null || printf '%s' "$p"
+}
+
+# under_workspace_root PATH — true iff the normalized, absolute PATH actually
+# resolves inside $WORKSPACE_ROOT. This is the fix: the guard's protected-path
+# patterns (.ggen/keys/, .ggen/receipts/, etc.) are directory-naming
+# conventions other repos (e.g. ~/lsp-max, which reuses the same `.ggen/`
+# layout for its own, unrelated ggen sub-project state) can share. Without
+# this check the guard fires on any repo's matching path, not just this one's
+# — a real false positive, not a hardening. Root-caused this session: the
+# guard previously had zero cwd/WORKSPACE_ROOT awareness at all.
+under_workspace_root() {
+    case "$1" in
+        "${WORKSPACE_ROOT}"/*) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 if [[ "$TOOL_NAME" == "Edit" || "$TOOL_NAME" == "Write" ]]; then
@@ -65,6 +87,9 @@ if [[ "$TOOL_NAME" == "Edit" || "$TOOL_NAME" == "Write" ]]; then
     [[ -z "$FILE_PATH" ]] && exit 0
 
     NORMALIZED="$(normalize_path "$FILE_PATH")"
+    if ! under_workspace_root "$NORMALIZED"; then
+        exit 0
+    fi
     REASON=""
     if is_protected "$NORMALIZED"; then
         log_denial "$FILE_PATH" "$REASON"
@@ -79,18 +104,31 @@ if [[ "$TOOL_NAME" == "Bash" ]]; then
     [[ -z "$COMMAND" ]] && exit 0
 
     # Heuristic, not a shell parser: block when the command both (a) names a
-    # protected path/glob and (b) uses a token that plausibly writes/deletes
+    # protected path/glob whose normalized form actually resolves inside
+    # WORKSPACE_ROOT and (b) uses a token that plausibly writes/deletes
     # (redirection, cp/mv/sed -i/rm/tee/install/truncate). This has false-
     # negative room (arbitrarily obfuscated commands can dodge it) but that's
     # true of any regex-based guard; it closes the wide-open "Bash bypasses
     # PreToolUse entirely" gap without trying to be a full shell-semantics
     # checker.
-    PROTECTED_GLOB='(^|[[:space:]/])(crates/ggen-cli/src/generated_commands\.rs|\.ggen/receipts/|\.ggen/keys/|\.git/hooks/)'
     WRITE_TOKEN='(>|>>|\bcp\b|\bmv\b|\bsed\b[^|;&]*-i|\brm\b|\btee\b|\binstall\b|\btruncate\b|\bdd\b)'
+    if ! echo "$COMMAND" | grep -qE "$WRITE_TOKEN"; then
+        exit 0
+    fi
 
-    if echo "$COMMAND" | grep -qE "$PROTECTED_GLOB" && echo "$COMMAND" | grep -qE "$WRITE_TOKEN"; then
-        log_denial "(bash command)" "command appears to write/delete a protected path: ${COMMAND:0:200}"
-        deny_tool "Denied: this command appears to write or delete a protected path (crates/ggen-cli/src/generated_commands.rs, .ggen/receipts/*, .ggen/keys/*, or .git/hooks/*). These must only change through their own authoritative process (ggen sync, key rotation, scripts/hooks/ install) — not a direct shell write."
+    PROTECTED_SUBSTR='(crates/ggen-cli/src/generated_commands\.rs|\.ggen/receipts/|\.ggen/keys/|\.git/hooks/)'
+    DENY=0
+    for tok in $(echo "$COMMAND" | grep -oE '[^[:space:]]+'); do
+        echo "$tok" | grep -qE "$PROTECTED_SUBSTR" || continue
+        RESOLVED="$(normalize_path "$tok")"
+        if under_workspace_root "$RESOLVED"; then
+            DENY=1
+        fi
+    done
+
+    if [[ "$DENY" -eq 1 ]]; then
+        log_denial "(bash command)" "command appears to write/delete a protected path under ${WORKSPACE_ROOT}: ${COMMAND:0:200}"
+        deny_tool "Denied: this command appears to write or delete a protected path (crates/ggen-cli/src/generated_commands.rs, .ggen/receipts/*, .ggen/keys/*, or .git/hooks/*) within ${WORKSPACE_ROOT}. These must only change through their own authoritative process (ggen sync, key rotation, scripts/hooks/ install) — not a direct shell write."
         exit 0
     fi
     exit 0

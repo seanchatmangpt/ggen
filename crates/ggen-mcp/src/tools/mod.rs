@@ -5,6 +5,8 @@ pub mod frontmatter_lint;
 pub mod frontmatter_schema;
 pub mod pack_capabilities;
 pub mod query_preview;
+pub mod receipt_verify;
 pub mod rule_graph;
+pub(crate) mod skip_classify;
 pub mod sync_dry_run;
 pub mod write_apply;

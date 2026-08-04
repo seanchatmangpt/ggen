@@ -134,10 +134,19 @@ tool_defs! {
     ),
     "ggen_check_project" => (
         tools::check_project::CheckProjectParams,
-        read_only("Run project diagnostics"),
+        read_only("Run project diagnostics (fast, incomplete-by-design first pass)"),
         "Run ggen's cross-surface diagnostic pass over a whole project, surfacing the \
          GGEN-*/E00xx codes (unbound template variable, output-path escape, competing \
-         authority, SELECT * blindspot, ...)."
+         authority, SELECT * blindspot, ...). This is a cheap, fast, pattern-matched \
+         first-pass tier -- SPARQL/Tera variable-binding checks and the SHACL analyzer, \
+         not a real pipeline run -- and it is incomplete by design: a clean report here \
+         does not mean sync will succeed. It cannot see graph-load failures, pack \
+         resolution errors, receipt-chain tampering, or write-time refusals. For those, \
+         escalate to ggen_sync_dry_run (runs the real pipeline without writing), \
+         ggen_receipt_verify (checks an existing receipt's chain hash and signature), \
+         or the ggen-sync-refusal:// push notifications (real sync refusals surfaced \
+         as they happen). Treat a clean ggen_check_project result as 'no cheap-tier \
+         problems found', not 'this project is correct.'"
     ),
     "ggen_rule_graph" => (
         tools::rule_graph::RuleGraphParams,
@@ -162,6 +171,15 @@ tool_defs! {
          expectsBinding/producesShape-style 'contract' predicate convention (matched \
          generically by predicate local name, never by hardcoding one pack's namespace -- \
          most packs will report none found, which is expected, not an error)."
+    ),
+    "ggen_receipt_verify" => (
+        tools::receipt_verify::ReceiptVerifyParams,
+        read_only("Verify a sync receipt's chain hash and signature"),
+        "Read `.ggen-v2/receipt.json`, recompute the BLAKE3 chain hash via praxis-core, \
+         and check the ed25519 signature when present. Reports `valid:false` (never an \
+         error) plus the engine's own refusal message and, when the message embeds one, \
+         a typed `fm_code` (a `FM-CHAIN-0NN`-shaped code) on a tampered or malformed \
+         receipt. Writes nothing."
     ),
     "ggen_write_apply" => (
         tools::write_apply::WriteApplyParams,
@@ -190,6 +208,12 @@ pub struct GgenMcpServer {
     /// `crate::bridge::PeerRegistry`'s doc comment for the full lifecycle
     /// contract.
     peers: crate::bridge::PeerRegistry,
+    /// Backing store for `ggen-sync-refusal://` push notifications (CP28's
+    /// `crate::bridge::push_sync_refusal_for_root`). A distinct store (and
+    /// URI scheme) from `diagnostics` above -- see `crate::bridge`'s
+    /// `SyncRefusalStore` doc comment for why this is a sibling type rather
+    /// than a generalization of `DiagnosticStore`.
+    sync_refusals: crate::bridge::SyncRefusalStore,
 }
 
 impl Default for GgenMcpServer {
@@ -205,6 +229,7 @@ impl GgenMcpServer {
             tools: Arc::new(tool_list()),
             diagnostics: crate::bridge::DiagnosticStore::new(),
             peers: crate::bridge::PeerRegistry::new(),
+            sync_refusals: crate::bridge::SyncRefusalStore::new(),
         }
     }
 
@@ -224,6 +249,15 @@ impl GgenMcpServer {
     #[must_use]
     pub fn peer_registry(&self) -> &crate::bridge::PeerRegistry {
         &self.peers
+    }
+
+    /// The sync-refusal store backing this server's `ggen-sync-refusal://`
+    /// resource surface (CP28) -- exposed so a caller (production
+    /// `start_stdio`'s watcher, or a test) can push into the exact store
+    /// this server's `read_resource` reads from.
+    #[must_use]
+    pub fn sync_refusal_store(&self) -> &crate::bridge::SyncRefusalStore {
+        &self.sync_refusals
     }
 
     /// Serve over stdio. Bare invocation of the `ggen-mcp` binary lands
@@ -269,14 +303,18 @@ impl GgenMcpServer {
         let server = Self::new();
         let peers = server.peers.clone();
         let diagnostics = server.diagnostics.clone();
+        let sync_refusals = server.sync_refusals.clone();
         let running = server.serve((stdin, stdout)).await?;
         peers.add(running.peer().clone()).await;
 
         match std::env::current_dir() {
             Ok(root) => {
-                if let Err(e) =
-                    crate::watcher::spawn_root_watcher(root, peers.clone(), diagnostics)
-                {
+                if let Err(e) = crate::watcher::spawn_root_watcher(
+                    root,
+                    peers.clone(),
+                    diagnostics,
+                    sync_refusals,
+                ) {
                     tracing::warn!(error = %e, "ggen-mcp: failed to start file watcher, serving without live diagnostic pushes");
                 }
             }
@@ -380,9 +418,16 @@ impl ServerHandler for GgenMcpServer {
     ) -> impl std::future::Future<Output = Result<ListResourcesResult, McpError>> + Send + '_
     {
         let store = self.diagnostics.clone();
+        let sync_store = self.sync_refusals.clone();
         async move {
+            let mut resources = crate::bridge::list_resources(&store).await;
+            // CP28: `ggen-sync-refusal://` resources use a distinct URI
+            // scheme from `ggen-diagnostic://`, so both stores can be
+            // listed together unambiguously rather than trying both stores
+            // per-lookup.
+            resources.extend(crate::bridge::list_sync_refusals(&sync_store).await);
             Ok(ListResourcesResult {
-                resources: crate::bridge::list_resources(&store).await,
+                resources,
                 next_cursor: None,
                 meta: None,
             })
@@ -396,6 +441,7 @@ impl ServerHandler for GgenMcpServer {
         &self, request: ReadResourceRequestParams, _ctx: RequestContext<RoleServer>,
     ) -> impl std::future::Future<Output = Result<ReadResourceResult, McpError>> + Send + '_ {
         let store = self.diagnostics.clone();
+        let sync_store = self.sync_refusals.clone();
         let read_span = tracing::info_span!(
             "mcp.resource.read",
             "operation.name" = "mcp.resource.read",
@@ -406,6 +452,31 @@ impl ServerHandler for GgenMcpServer {
         async move {
             use tracing::Instrument as _;
             async move {
+                // CP28: dispatch on URI scheme rather than trying both
+                // stores per lookup -- `ggen-sync-refusal://` and
+                // `ggen-diagnostic://` are disambiguated by construction
+                // (`crate::bridge::sync_refusal_uri`/`diagnostic_uri`).
+                if request.uri.starts_with("ggen-sync-refusal://") {
+                    let Some(refusal) = sync_store.get(&request.uri).await else {
+                        tracing::Span::current().record("mcp.resource.result", "not_found");
+                        tracing::warn!(uri = %request.uri, "mcp.resource.read: no such sync-refusal resource");
+                        return Err(McpError::resource_not_found(
+                            format!("no such sync-refusal resource: {}", request.uri),
+                            None,
+                        ));
+                    };
+                    let text = serde_json::to_string_pretty(&refusal).map_err(|e| {
+                        tracing::Span::current().record("mcp.resource.result", "serialize_error");
+                        McpError::internal_error(format!("sync refusal serialize failed: {e}"), None)
+                    })?;
+                    tracing::Span::current().record("mcp.resource.result", "success");
+                    tracing::info!(uri = %request.uri, "mcp.resource.read: sync refusal content returned to client");
+                    return Ok(ReadResourceResult::new(vec![ResourceContents::text(
+                        text,
+                        request.uri,
+                    )]));
+                }
+
                 let Some(diag) = store.get(&request.uri).await else {
                     tracing::Span::current().record("mcp.resource.result", "not_found");
                     tracing::warn!(uri = %request.uri, "mcp.resource.read: no such diagnostic resource");
@@ -461,6 +532,7 @@ impl ServerHandler for GgenMcpServer {
                 arguments,
                 tools::pack_capabilities::pack_capabilities,
             )),
+            "ggen_receipt_verify" => Ok(dispatch(arguments, tools::receipt_verify::receipt_verify)),
             "ggen_write_apply" => Ok(dispatch(arguments, tools::write_apply::write_apply)),
             other => Err(McpError::invalid_params(
                 format!("unknown tool: {other}"),

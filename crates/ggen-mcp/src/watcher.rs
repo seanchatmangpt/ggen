@@ -45,7 +45,10 @@ use std::time::Duration;
 use notify::RecursiveMode;
 use notify_debouncer_full::new_debouncer;
 
-use crate::bridge::{push_diagnostics_for_root, DiagnosticStore, PeerRegistry};
+use crate::bridge::{
+    push_diagnostics_for_root, push_sync_refusal_for_root, DiagnosticStore, PeerRegistry,
+    SyncRefusalStore,
+};
 
 /// Directories under the watched root whose own changes must never trigger
 /// a re-check -- mirrors `ggen_engine::watch::IGNORED_DIRS` (receipt/log
@@ -56,6 +59,16 @@ const IGNORED_DIRS: [&str; 3] = [".git", ".ggen-v2", ".ggen"];
 /// one re-check instead of one per touched file -- same value
 /// `ggen_engine::watch::DEBOUNCE_WINDOW` uses.
 const DEBOUNCE_WINDOW: Duration = Duration::from_millis(500);
+
+/// Debounce window for the sync-dry-run refusal trigger (CP28) -- deliberately
+/// coarser than `DEBOUNCE_WINDOW`. `sync()` does two full `GraphEngine`
+/// rebuilds plus a full Turtle re-parse of the project ontology AND every
+/// composed pack's ontology, with zero caching anywhere in the path -- far
+/// more expensive than the lint gate `DEBOUNCE_WINDOW` was tuned for. Riding
+/// the 500ms lint debounce as-is would mean a rapid save-burst during a
+/// refactor triggers two full graph rebuilds per keystroke-adjacent save.
+/// `2s` is a deliberately generous ceiling, not a measured SLO.
+const SYNC_DEBOUNCE_WINDOW: Duration = Duration::from_secs(2);
 
 /// Diagnostic codes this watcher pushes on. `crate::bridge`'s own end-to-end
 /// proof (`tpl_001_diagnostic_reaches_a_real_mcp_client`) already exercises
@@ -80,12 +93,70 @@ pub const WATCHED_CODES: [&str; 1] = ["GGEN-TPL-001"];
 /// exactly that, since the watcher is an auxiliary capability, not a
 /// prerequisite for the request/response tool surface.
 pub fn spawn_root_watcher(
-    root: PathBuf, peers: PeerRegistry, store: DiagnosticStore,
+    root: PathBuf, peers: PeerRegistry, store: DiagnosticStore, sync_store: SyncRefusalStore,
 ) -> anyhow::Result<()> {
     let handle = tokio::runtime::Handle::current();
     let (tx, rx) = mpsc::channel();
     let mut debouncer = new_debouncer(DEBOUNCE_WINDOW, None, tx)?;
     debouncer.watch(&root, RecursiveMode::Recursive)?;
+
+    // CP28: a second, independent debouncer/watch on the same root, at the
+    // coarser `SYNC_DEBOUNCE_WINDOW`, driving the sync-dry-run refusal push
+    // (`push_sync_refusal_for_root`). Kept as its own `notify_debouncer_full`
+    // instance rather than reusing the lint gate's `debouncer` above -- the
+    // two triggers have genuinely different cost profiles (headless gate
+    // check vs. two full `GraphEngine` rebuilds) and must not share one
+    // debounce clock.
+    let (sync_tx, sync_rx) = mpsc::channel();
+    let mut sync_debouncer = new_debouncer(SYNC_DEBOUNCE_WINDOW, None, sync_tx)?;
+    sync_debouncer.watch(&root, RecursiveMode::Recursive)?;
+
+    {
+        let root = root.clone();
+        let peers = peers.clone();
+        let handle = handle.clone();
+        std::thread::Builder::new()
+            .name("ggen-mcp-sync-watcher".to_string())
+            .spawn(move || {
+                let _sync_debouncer = sync_debouncer;
+                for result in sync_rx {
+                    let events = match result {
+                        Ok(events) => events,
+                        Err(errors) => {
+                            for e in errors {
+                                tracing::warn!(error = %e, "ggen-mcp sync watcher: filesystem watch error");
+                            }
+                            continue;
+                        }
+                    };
+                    let paths =
+                        relevant_paths(&root, events.iter().flat_map(|e| e.paths.clone()));
+                    if paths.is_empty() {
+                        continue;
+                    }
+
+                    let root = root.clone();
+                    let peers = peers.clone();
+                    let sync_store = sync_store.clone();
+                    handle.spawn(async move {
+                        match push_sync_refusal_for_root(&peers, &sync_store, &root).await {
+                            Ok(outcome) => {
+                                if outcome.matched > 0 {
+                                    tracing::info!(
+                                        matched = outcome.matched,
+                                        delivered_notifications = outcome.delivered_notifications,
+                                        "ggen-mcp sync watcher: pushed sync refusal for real file change"
+                                    );
+                                }
+                            }
+                            Err(e) => {
+                                tracing::warn!(error = %e, "ggen-mcp sync watcher: push_sync_refusal_for_root failed");
+                            }
+                        }
+                    });
+                }
+            })?;
+    }
 
     std::thread::Builder::new()
         .name("ggen-mcp-watcher".to_string())

@@ -39,6 +39,7 @@ lsp-max = { workspace = true }
 # Exact match to crates/ggen-lsp/Cargo.toml's own rmcp pin -- do not drift.
 rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
 schemars = "1.2.1"
+regex = { workspace = true }
 
 serde = { workspace = true }
 serde_json = { workspace = true }

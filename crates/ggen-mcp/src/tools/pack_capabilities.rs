@@ -38,7 +38,8 @@ use crate::project_root::resolve_root;
 /// "contract" facts (CP6's convention in `~/lsp-max/ontology/lsp318.ttl`).
 /// Not a hardcoded namespace -- matched against any predicate IRI ending in
 /// `#<name>` or `/<name>`, regardless of which pack's prefix owns it.
-const DEFAULT_CONTRACT_PREDICATE_LOCAL_NAMES: &[&str] = &["expectsBinding", "producesShape"];
+const DEFAULT_CONTRACT_PREDICATE_LOCAL_NAMES: &[&str] =
+    &["expectsBinding", "producesShape", "triggersAction"];
 
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct PackCapabilitiesParams {

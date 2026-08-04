@@ -164,6 +164,24 @@ Named explicitly rather than smoothed over, per this project's own evidence-firs
   prevent — what self-application already does) or as an in-generation constraint (closer to
   constrained decoding) is an open design fork with no code-diagnostics analog.
 
+## 6a. Correction: the 5 `GGEN-*` codes are the cheap first tier, not a completeness claim
+
+§5's three-tier framework was written in the abstract (for text/prose diagnostics). Applied back
+to `ggen` itself, concretely: `ggen_check_project`'s 5 `GGEN-*`/`E00xx` codes plus the SHACL
+analyzer are tier-1/2 work — regex/pattern and SPARQL/Tera variable-binding checks over static
+project files, cheap and fast, with none of them running the real pipeline. An earlier version of
+`ggen_check_project`'s tool description implied broader coverage than this by omission (it
+enumerated the codes without saying what they can't see). That was corrected in
+`crates/ggen-mcp/src/lib.rs`'s `tool_defs!` macro: a clean `ggen_check_project` result means "no
+cheap-tier problems found," not "this project will sync cleanly." Graph-load failures, pack
+resolution errors, receipt-chain tampering, and write-time refusals are invisible to this tier by
+construction — they require escalating to `ggen_sync_dry_run` (CP26, runs the real pipeline
+without writing), `ggen_receipt_verify` (CP27, checks an existing receipt's chain hash and
+signature), or the `ggen-sync-refusal://` push notifications (CP28, real sync refusals surfaced as
+they happen). This is the same tier-1/2-vs-tier-3 boundary §5 already drew for prose diagnostics,
+not a new mechanism — the fix here was to state it plainly for `ggen`'s own tool surface rather
+than leave it implicit.
+
 ## 7. Status and next steps
 
 CP0-CP12 (ontology fidelity, generation pipeline, push mechanism proof) are complete and

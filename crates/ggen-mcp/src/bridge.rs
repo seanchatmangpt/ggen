@@ -457,6 +457,252 @@ pub async fn list_resources(store: &DiagnosticStore) -> Vec<Resource> {
         .collect()
 }
 
+/// One pushed sync-dry-run refusal (CP28): either a real `sync()` `Err`
+/// (its FM-* code already embedded in the `Display` text, since `AppError`
+/// has no typed FM-code field -- see this module's `push_sync_refusal_for_root`
+/// doc comment) or a non-routine typed skip from a successful dry run's
+/// `report.decisions`, classified via `crate::tools::skip_classify::classify`.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PushedSyncRefusal {
+    /// Project root this refusal came from (root-relative paths inside
+    /// `message` are relative to this).
+    pub root: String,
+    /// The engine's own error/skip-reason text, carried verbatim -- the
+    /// real FM-* code (when present) lives inside this string.
+    pub message: String,
+    /// `"error"` for a real `sync()` `Err`, or the typed skip category
+    /// (currently only `"other"`, per this checkpoint's working default --
+    /// see the module doc) for an `Ok` dry run with a non-routine skip.
+    pub kind: String,
+}
+
+/// Backing state for `SyncRefusalStore` -- a literal copy of
+/// `DiagnosticStore`'s `Inner` shape (map + insertion order + bounded
+/// eviction + debounce clock), carrying `PushedSyncRefusal` instead of
+/// `PushedDiagnostic`. Deliberately not unified with `DiagnosticStore`
+/// behind a shared trait: two concrete cases do not justify the
+/// abstraction, and the payload types are unrelated.
+#[derive(Debug)]
+struct SyncRefusalInner {
+    map: HashMap<String, PushedSyncRefusal>,
+    order: VecDeque<String>,
+    max_entries: usize,
+    last_notified: HashMap<String, Instant>,
+    debounce: Duration,
+}
+
+/// In-memory store backing `GgenMcpServer::list_resources`/`read_resource`
+/// for `ggen-sync-refusal://` resource URIs (CP28). Cleared on server
+/// restart, same lifecycle as `DiagnosticStore`.
+#[derive(Debug, Clone)]
+pub struct SyncRefusalStore(Arc<Mutex<SyncRefusalInner>>);
+
+impl Default for SyncRefusalStore {
+    fn default() -> Self {
+        Self::with_limits(DEFAULT_MAX_ENTRIES, DEFAULT_DEBOUNCE)
+    }
+}
+
+impl SyncRefusalStore {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Construct a store with an explicit entry cap and debounce interval,
+    /// mirroring `DiagnosticStore::with_limits`.
+    #[must_use]
+    pub fn with_limits(max_entries: usize, debounce: Duration) -> Self {
+        Self(Arc::new(Mutex::new(SyncRefusalInner {
+            map: HashMap::new(),
+            order: VecDeque::new(),
+            max_entries: max_entries.max(1),
+            last_notified: HashMap::new(),
+            debounce,
+        })))
+    }
+
+    pub async fn insert(&self, uri: String, refusal: PushedSyncRefusal) {
+        let mut inner = self.0.lock().await;
+        if !inner.map.contains_key(&uri) {
+            inner.order.push_back(uri.clone());
+        }
+        inner.map.insert(uri, refusal);
+        while inner.order.len() > inner.max_entries {
+            if let Some(oldest) = inner.order.pop_front() {
+                inner.map.remove(&oldest);
+                inner.last_notified.remove(&oldest);
+            } else {
+                break;
+            }
+        }
+    }
+
+    pub async fn get(&self, uri: &str) -> Option<PushedSyncRefusal> {
+        self.0.lock().await.map.get(uri).cloned()
+    }
+
+    pub async fn list(&self) -> Vec<(String, PushedSyncRefusal)> {
+        self.0
+            .lock()
+            .await
+            .map
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect()
+    }
+
+    pub async fn len(&self) -> usize {
+        self.0.lock().await.map.len()
+    }
+
+    pub async fn is_empty(&self) -> bool {
+        self.len().await == 0
+    }
+
+    async fn should_notify(&self, key: &str) -> bool {
+        let mut inner = self.0.lock().await;
+        let now = Instant::now();
+        let allow = match inner.last_notified.get(key) {
+            Some(last) => now.duration_since(*last) >= inner.debounce,
+            None => true,
+        };
+        if allow {
+            inner.last_notified.insert(key.to_string(), now);
+        }
+        allow
+    }
+}
+
+/// Build the resource URI for one pushed sync refusal. `key` is either
+/// `"error"` (at most one per root -- a `sync()` `Err` aborts the whole
+/// run, so there is only ever one) or the skipped output's root-relative
+/// path (one refusal per non-routine typed skip).
+fn sync_refusal_uri(root: &Path, key: &str) -> String {
+    format!("ggen-sync-refusal://{}#{key}", root.display())
+}
+
+/// Run a real dry-run `sync(root, SyncOptions{dry_run:true,..})` and push
+/// any refusal it surfaces (CP28).
+///
+/// Two cases:
+/// - **`Err`**: `sync()` itself refused (any `FM-*` gate: pack, template,
+///   law, config, graph, ...). The real FM-* code is already embedded in
+///   `AppError`'s `Display` text (`AppError` has no typed FM-code field --
+///   confirmed by reading `error.rs`'s `fm_chain`/`fm_graph`/`fm_tpl`/etc.
+///   constructors, each of which formats `"[FM-XXX-NNN] ..."` directly into
+///   the variant's `String` payload), so pushing the `Display` string
+///   verbatim carries the real code through without inventing a typed
+///   field this checkpoint does not need.
+/// - **`Ok`**: classify every skip in `report.decisions` via
+///   `crate::tools::skip_classify::classify` and push only the `other`
+///   category by default -- `when_false`/`zero_rows`/`unchanged`/
+///   `skip_empty` are treated as routine, expected outcomes of normal
+///   template authoring, not refusal-worthy (the plan's own stated working
+///   default; see `docs/jira/.../80-20-...` CP28's judgment-call note).
+///
+/// Same store/debounce/broadcast shape as `push_diagnostics_for_root`:
+/// content is always stored fresh; only the *notification* is debounced,
+/// keyed by `{root}#error` or `{root}#{path}` so a rapid-fire re-trigger
+/// (e.g. this checkpoint's own coarser watcher debounce, see
+/// `crate::watcher`) does not spam one notification per call.
+///
+/// # Errors
+/// Returns an error only if a live peer's `notify_resource_updated` call
+/// genuinely fails (see `PeerRegistry::broadcast`) -- never for a `sync()`
+/// refusal itself, which is the very thing this function reports via a
+/// successful push.
+pub async fn push_sync_refusal_for_root(
+    peers: &PeerRegistry,
+    store: &SyncRefusalStore,
+    root: &Path,
+) -> anyhow::Result<PushOutcome> {
+    use ggen_engine::sync::{sync, SyncOptions};
+
+    let root_str = root.display().to_string();
+    let mut matched = 0usize;
+    let mut delivered_notifications = 0usize;
+
+    let opts = SyncOptions {
+        dry_run: true,
+        ..Default::default()
+    };
+    match sync(root, opts) {
+        Err(e) => {
+            let key = "error";
+            let uri = sync_refusal_uri(root, key);
+            store
+                .insert(
+                    uri.clone(),
+                    PushedSyncRefusal {
+                        root: root_str.clone(),
+                        message: e.to_string(),
+                        kind: "error".to_string(),
+                    },
+                )
+                .await;
+            matched += 1;
+            let debounce_key = format!("{root_str}#{key}");
+            if store.should_notify(&debounce_key).await {
+                delivered_notifications +=
+                    peers.broadcast(&ResourceUpdatedNotificationParam::new(uri)).await?;
+            }
+        }
+        Ok(report) => {
+            for (path, decision) in &report.decisions {
+                if !decision.starts_with("skipped") {
+                    continue;
+                }
+                let category = crate::tools::skip_classify::classify(decision);
+                if category != "other" {
+                    // Routine typed skip -- not push-worthy per this
+                    // checkpoint's working default.
+                    continue;
+                }
+                let uri = sync_refusal_uri(root, path);
+                store
+                    .insert(
+                        uri.clone(),
+                        PushedSyncRefusal {
+                            root: root_str.clone(),
+                            message: decision.clone(),
+                            kind: category.to_string(),
+                        },
+                    )
+                    .await;
+                matched += 1;
+                let debounce_key = format!("{root_str}#{path}");
+                if store.should_notify(&debounce_key).await {
+                    delivered_notifications += peers
+                        .broadcast(&ResourceUpdatedNotificationParam::new(uri))
+                        .await?;
+                }
+            }
+        }
+    }
+
+    Ok(PushOutcome {
+        matched,
+        delivered_notifications,
+    })
+}
+
+/// Build the `Resource` listing entries for every URI currently in `store`
+/// (backs `list_resources` for `ggen-sync-refusal://` URIs).
+pub async fn list_sync_refusals(store: &SyncRefusalStore) -> Vec<Resource> {
+    store
+        .list()
+        .await
+        .into_iter()
+        .map(|(uri, refusal)| {
+            Resource::new(
+                rmcp::model::RawResource::new(uri, format!("{}: {}", refusal.kind, refusal.root)),
+                None,
+            )
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

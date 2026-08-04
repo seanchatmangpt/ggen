@@ -3122,6 +3122,7 @@ dependencies = [
  "lsp-max",
  "notify 7.0.0",
  "notify-debouncer-full 0.4.0",
+ "regex",
  "reqwest 0.12.28",
  "rmcp 1.8.0",
  "schemars 1.2.2",
