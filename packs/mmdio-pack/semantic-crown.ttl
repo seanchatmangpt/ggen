@@ -22,12 +22,12 @@ mer:Crown_flowchart_rectangle_solid_v1
     dct:identifier "mmdio.flowchart.rectangle-solid/1" ;
     mer:profileIdentity "mmdio.flowchart.rectangle-solid/1" ;
     mer:sourceRepository "seanchatmangpt/mmdio" ;
-    mer:sourceCommit "19d7be5ee4f5d48ed460c6559266d15d909b8f28" ;
+    mer:sourceCommit "360c575becf941743131e51e8cb06e8b6f0eeef9" ;
     mer:sourcePath "src/mmdio/flowchart_crown.py" ;
     mer:sourceGitBlob "d114944c95392adf14a22fb2bdfcd26651dc39a0" ;
-    mer:claimCeiling "BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_ONLY" ;
+    mer:claimCeiling "BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_AND_MERMAID_RENDER_ONLY" ;
     mer:actuationAuthority false ;
-    prov:wasDerivedFrom <https://github.com/seanchatmangpt/mmdio/blob/19d7be5ee4f5d48ed460c6559266d15d909b8f28/src/mmdio/flowchart_crown.py> .
+    prov:wasDerivedFrom <https://github.com/seanchatmangpt/mmdio/blob/360c575becf941743131e51e8cb06e8b6f0eeef9/src/mmdio/flowchart_crown.py> .
 
 mer:Type_flowchart
     mer:semanticCrown mer:Crown_flowchart_rectangle_solid_v1 .
