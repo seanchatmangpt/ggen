@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      MMDIO_SHA: 19d7be5ee4f5d48ed460c6559266d15d909b8f28
+      MMDIO_SHA: 360c575becf941743131e51e8cb06e8b6f0eeef9
       MMDIO_BLOB: d114944c95392adf14a22fb2bdfcd26651dc39a0
     steps:
       - name: Check out exact ggen candidate
@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: seanchatmangpt/mmdio
-          ref: 19d7be5ee4f5d48ed460c6559266d15d909b8f28
+          ref: 360c575becf941743131e51e8cb06e8b6f0eeef9
           path: external/mmdio
           fetch-depth: 1
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          from rdflib import Graph, Literal, Namespace, RDF, URIRef
+          from rdflib import Graph, Literal, Namespace, RDF
 
           MER = Namespace("https://seanchatmangpt.github.io/ontology/mermaid#")
           graph = Graph()
@@ -73,10 +73,14 @@ jobs:
           assert (MER.Type_flowchart, MER.semanticCrown, crown) in graph
           assert (crown, MER.profileIdentity, Literal("mmdio.flowchart.rectangle-solid/1")) in graph
           assert (crown, MER.sourceRepository, Literal("seanchatmangpt/mmdio")) in graph
-          assert (crown, MER.sourceCommit, Literal("19d7be5ee4f5d48ed460c6559266d15d909b8f28")) in graph
+          assert (crown, MER.sourceCommit, Literal("360c575becf941743131e51e8cb06e8b6f0eeef9")) in graph
           assert (crown, MER.sourcePath, Literal("src/mmdio/flowchart_crown.py")) in graph
           assert (crown, MER.sourceGitBlob, Literal("d114944c95392adf14a22fb2bdfcd26651dc39a0")) in graph
-          assert (crown, MER.claimCeiling, Literal("BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_ONLY")) in graph
+          assert (
+              crown,
+              MER.claimCeiling,
+              Literal("BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_AND_MERMAID_RENDER_ONLY"),
+          ) in graph
           assert (crown, MER.actuationAuthority, Literal(False)) in graph
 
           query = Path(
@@ -129,6 +133,6 @@ jobs:
                   ["git", "-C", "external/mmdio", "rev-parse", "HEAD"], text=True
               ).strip(),
               "mmdio_blob": os.environ["MMDIO_BLOB"],
-              "claim_ceiling": "EXACT_SOURCE_FLOWCHART_CROWN_CONTRACT_ONLY",
+              "claim_ceiling": "EXACT_EXECUTED_FLOWCHART_CROWN_CONTRACT_ONLY",
           }, sort_keys=True))
           PY
