@@ -178,6 +178,17 @@ skip_empty  = false
 mode        = "Merge"
 
 [[generation.rules]]
+name        = "gen-diag-codes-rust"
+query       = { inline = """
+PREFIX rf: <http://ggen.org/repo-facts#>
+SELECT ?order WHERE { ?diag a rf:DiagnosticCode ; rf:order ?order . FILTER(?order = '001' || ?order = '002') } ORDER BY ?order
+""" }
+template    = { file = ".specify/templates/docs/generated_diagnostic_codes.rs.tera" }
+output_file = "crates/ggen-lsp/src/generated_diagnostic_codes.rs"
+skip_empty  = false
+mode        = "Overwrite"
+
+[[generation.rules]]
 name        = "docs-generations-ledger"
 query       = { inline = """
 PREFIX gen: <http://ggen.org/generations#>

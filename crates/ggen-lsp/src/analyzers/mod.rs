@@ -1,4 +1,8 @@
 pub mod diag;
+// CP8: additive, new-namespace SHACL check over a 4-field slice of
+// frontmatter, calling `ggen_engine::frontmatter_rdf::validate_frontmatter_shacl`
+// directly -- does not touch tera_analyzer.rs (CP7's file) or any GGEN-* code.
+pub mod frontmatter_shacl_analyzer;
 pub mod harness_analyzer;
 pub mod rdf_analyzer;
 pub mod source_law_analyzer;
@@ -15,6 +19,7 @@ use lsp_max_protocol::MaxDiagnostic;
 use std::collections::BTreeSet;
 use std::fmt;
 
+pub use frontmatter_shacl_analyzer::{frontmatter_shacl_diagnostics, GGEN_FM_SHACL_001};
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
 
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};

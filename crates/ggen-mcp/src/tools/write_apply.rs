@@ -26,6 +26,17 @@ pub struct WriteApplyParams {
     pub root: String,
     /// Must be literally `true`. Any other value refuses without writing.
     pub confirm: bool,
+    /// The `graph_hash` field from a real, prior `ggen_sync_dry_run` call
+    /// against this same `root`. Gall checkpoint CP17: `confirm: true` alone
+    /// was a caller-supplied boolean with zero independent corroboration (a
+    /// 2026-08-04 safety audit found an in-process JSON-RPC bypass already
+    /// constructing `{confirm: true}` directly). This field forces a real
+    /// link to an actual prior review: `write_apply` independently
+    /// recomputes the CURRENT graph hash via its own dry-run pass before
+    /// writing anything, and refuses if it does not match what the caller
+    /// claims to have reviewed -- catching both a fabricated hash and a
+    /// stale one (the project changed between dry-run and apply).
+    pub expected_graph_hash: String,
 }
 
 #[derive(Debug, Serialize, JsonSchema)]
@@ -79,7 +90,40 @@ pub fn write_apply(params: &WriteApplyParams) -> Result<WriteApplyResult, McpErr
              ggen_sync_dry_run first to see what would be written.",
         ));
     }
+    if params.expected_graph_hash.trim().is_empty() {
+        return Err(McpError::new(
+            ErrorCategory::Unsupported,
+            "ggen_write_apply requires `expected_graph_hash`, the `graph_hash` \
+             field from a real prior ggen_sync_dry_run call against this root. \
+             Run ggen_sync_dry_run first and pass its graph_hash back here.",
+        ));
+    }
     let root = resolve_root(&params.root)?;
+
+    // CP17: independently recompute the CURRENT graph hash via a real dry-run
+    // pass before writing anything -- proves the caller's claimed review was
+    // against the same graph state, not fabricated or stale.
+    let preflight = sync(
+        &root,
+        SyncOptions {
+            dry_run: true,
+            ..Default::default()
+        },
+    )
+    .map_err(|e| McpError::new(ErrorCategory::GraphLoadError, e.to_string()))?;
+    if preflight.graph_hash_hex != params.expected_graph_hash {
+        return Err(McpError::new(
+            ErrorCategory::Unsupported,
+            format!(
+                "expected_graph_hash does not match the project's current graph \
+                 state (expected {}, current {}). Either this hash was not from \
+                 a real ggen_sync_dry_run call against this root, or the \
+                 project changed since that dry-run ran. Re-run \
+                 ggen_sync_dry_run and pass its fresh graph_hash.",
+                params.expected_graph_hash, preflight.graph_hash_hex
+            ),
+        ));
+    }
 
     let opts = SyncOptions {
         dry_run: false,

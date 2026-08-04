@@ -179,6 +179,7 @@ fn handshake_advertises_identity_and_all_nine_tools() {
         "ggen_check_project",
         "ggen_rule_graph",
         "ggen_capability_status",
+        "ggen_pack_capabilities",
         "ggen_write_apply",
     ] {
         assert!(
@@ -186,7 +187,7 @@ fn handshake_advertises_identity_and_all_nine_tools() {
             "{expected} missing from {names:?}"
         );
     }
-    assert_eq!(names.len(), 9, "exactly nine tools, got {names:?}");
+    assert_eq!(names.len(), 10, "exactly ten tools, got {names:?}");
 }
 
 /// The annotation contract, verifiable only over the wire: every tool is
