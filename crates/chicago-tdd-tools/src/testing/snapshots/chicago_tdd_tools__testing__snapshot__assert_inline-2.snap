@@ -1,5 +1,0 @@
----
-source: src/testing/snapshot.rs
-expression: "format!(\"{value}\")"
----
-All v1.3.0 features validated

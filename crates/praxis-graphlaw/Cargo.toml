@@ -101,7 +101,7 @@ proptest = "1.5"
 # Required for chicago_tdd_tools::async_test! (expands to #[tokio::test]).
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
 # otel/weaver features left OFF: they drag network deps into the required build.
-chicago-tdd-tools = { path = "../chicago-tdd-tools", features = [
+chicago-tdd-tools = { workspace = true, features = [
     "property-testing",
     "snapshot-testing",
     "parameterized-testing",

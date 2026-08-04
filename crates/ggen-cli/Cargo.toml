@@ -269,27 +269,15 @@ version = "0.5"
 features = [ "async_tokio", "html_reports",]
 
 [dev-dependencies.chicago-tdd-tools]
-# `features = ["cli-proof"]` added on top of the workspace-inherited base spec (2026-07-16,
-# fixes a real self-inflicted regression from commit 3862fe000): that commit both added
-# tests/generated/cli_proof_tests.rs's [[test]] registration (needs chicago_tdd_tools::
-# cli_proof) AND removed `cli-proof` from the SHARED workspace.dependencies chicago-tdd-tools
-# entry (correctly -- root doesn't need it and it was blocking `cargo publish --dry-run -p
-# ggen`), breaking this crate's own test compile in the same commit. Safe to add back here
-# specifically: ggen-cli-lib is `publish = false` (see [package] above), so it no longer has
-# any publish-dry-run exposure to worry about -- `cargo publish --dry-run -p ggen-cli-lib`
-# reports "cannot be published" before ever resolving dev-dependencies.
+# 2026-08-03: chicago-tdd-tools 26.8.3 is published with `cli-proof` included, and the shared
+# workspace.dependencies entry (root Cargo.toml) now enables it directly, so this crate's
+# `features = ["cli-proof"]` override is redundant but harmless (kept explicit for clarity).
 #
-# Correction (2026-07-17, PR #255): the `[patch.crates-io]` override this comment used to cite
-# is gone. `chicago-tdd-tools` is now a vendored workspace member (crates/chicago-tdd-tools,
-# publish = false) and this `workspace = true` entry resolves straight to it via a plain path
-# dependency -- no patch indirection needed anymore.
-#
-# Separate, still-open gap (not caused by the above): `tests/generated/cli_proof_tests.rs`
+# Separate, still-open gap (unrelated to the above): `tests/generated/cli_proof_tests.rs`
 # (line 26's [[test]] entry) is gitignored (.gitignore:157) and not tracked in git -- nothing
 # in this repo currently generates it, so a fresh checkout's `cargo fmt --check`/`cargo test`
-# fails with "file ... does not exist" unless it happens to already exist locally. Predates
-# this PR (comment above cites its origin as commit 3862fe000); confirmed via this branch's
-# first-ever CI run. Not fixed here -- tracked in tasks.md.
+# fails with "file ... does not exist" unless it happens to already exist locally. Not fixed
+# here -- tracked in tasks.md.
 workspace = true
 features = ["cli-proof"]
 

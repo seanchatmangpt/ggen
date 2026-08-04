@@ -61,7 +61,7 @@ dhat-heap = []
 # tooling, used only for its `ocel-generation` feature's OcelCollector to
 # emit an OCEL trace of the propose->admit->schedule->receipt pipeline in
 # tests/proposer_substrate.rs. Registry version, matching bcinr-powl's dep.
-chicago-tdd-tools = { version = "26.7.1", features = ["ocel-generation"] }
+chicago-tdd-tools = { version = "26.8.3", features = ["ocel-generation"] }
 divan = "0.1.21"
 # Property-based testing for q_lens's normalization/ordering invariants
 # (LAW_QLENS_RATIO) — same major version already pinned in bcinr-logic and

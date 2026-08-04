@@ -13,11 +13,15 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (19 workspace crates)
+## Crate Map (18 workspace crates)
 
-Re-verified against `Cargo.toml` `members = [...]` on 2026-08-03 (18 array entries + the root
-`ggen` package = 19 total; `grep -c '^  "crates/' Cargo.toml` → 18). The prior 17-total count
-(2026-07-17) is superseded: `ggen-mcp`, an MCP server exposing ggen's SPARQL/frontmatter/
+Re-verified against `Cargo.toml` `members = [...]` on 2026-08-03 (17 array entries + the root
+`ggen` package = 18 total; `grep -c '^  "crates/' Cargo.toml` → 17). This 18-total count supersedes the
+prior 19-total count (also dated 2026-08-03, earlier that day): `chicago-tdd-tools`, vendored under
+PR #255 (2026-07-17) because its `cli-proof` feature wasn't yet published, was removed the same day
+once chicago-tdd-tools 26.8.3 (including `cli-proof`) was published to crates.io — every consumer
+now points at the registry version. The prior 17-total count (2026-07-17, before that first bump to
+19) is superseded for an unrelated reason: `ggen-mcp`, an MCP server exposing ggen's SPARQL/frontmatter/
 diagnostic introspection surface as tool calls, was already a real `[workspace] members` entry
 but had no `rf:Crate` individual in this file until `crates/ggen-config/tests/
 system_crate_map_parity_test.rs` caught the gap (see Agent & LSP surface section below). The
@@ -26,12 +30,13 @@ cleanup) added 4 more members — `powl2-decompose`, `chicago-tdd-tools` (+ its
 `chicago-tdd-tools/proc_macros` path-dependency, not itself a top-level workspace member),
 `bcinr-pddl`, `bcinr-mfw-ir` — all `publish = false`, vendored to eliminate `path =
 "/Users/sac/..."` dependencies that only resolved on one machine and broke CI (`cargo build
---workspace` failing with "No such file or directory" for anyone else). See the Praxis kernel and
+--workspace` failing with "No such file or directory" for anyone else); `chicago-tdd-tools` was
+later un-vendored (see above), leaving 3 of those 4 as permanent members. See the Praxis kernel and
 Testing infrastructure sections below. Use `LSP workspaceSymbol` for live symbol discovery — this
 table is orientation only. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for the 2026-07
 pass's evidence base and phase-by-phase history.
 
-`crates/ggen-architecture/` is deliberately not one of these 19: it declares its own
+`crates/ggen-architecture/` is deliberately not one of these 18: it declares its own
 `[workspace]` table (and carries its own `Cargo.lock`), making it an independent nested Cargo
 workspace rather than a member of this one (confirmed 2026-08-03: `cargo metadata` run from
 inside that directory resolves it as its own workspace root, sibling to `tools/ggen-architecture`).
@@ -112,7 +117,6 @@ reaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*"/User
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
 | `ggen-cheat-scanner` | `syn`-based AST scanner (PR #257, modeled on `~/bcinr/tools/bcinr-cheat-scanner`) detecting test-quality anti-patterns across the workspace: CHEAT-T01 (vacuous-assert), CHEAT-T02 (tautological-result-check), CHEAT-T03 (no-assertion-test), CHEAT-T04 (mock-import). Wired into `just pre-commit` via the `guard-cheat-scan` recipe; currently fails on ~464 pre-existing findings (tracked, not blocking new work — see `docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md`'s TECH-DEBT-001). `publish = false` |
-| `chicago-tdd-tools` | Dev/test-only Chicago-TDD utilities (property-testing, snapshot-testing, parameterized-testing, mutation-testing, concurrency-testing, `cli-proof`) for `ggen-engine`/`praxis-graphlaw`'s own test suites — never a runtime dependency of any shipped binary. A trimmed vendor (source only — `src/`, `build.rs`, `proc_macros/`; no `tests/`/`examples/`/`benches/`/docs) of the ~106MB `~/chicago-tdd-tools` project, copied 2026-07-17 (PR #255) because its `cli-proof` feature isn't published to crates.io yet. `publish = false`. **License note:** its own optional `wasm4pm-cognition` re-export path is unrelated to `praxis-graphlaw`'s separate `wasm4pm-cognition` dependency, which carries a BUSL-1.1 (non-OSI) license on crates.io — see that dependency's Cargo.toml comment; mitigated only because it's optional and off by default |
 
 ### Agent & LSP surface
 

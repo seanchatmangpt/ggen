@@ -12,7 +12,6 @@ name = "ggen_cli_verify"
 path = "src/lib.rs"
 
 [dev-dependencies]
-# Path dependency, not the published crate: the published chicago-tdd-tools
-# doesn't yet include the `cli_proof` module (`cli-proof` feature isn't
-# published to crates.io yet) -- same gap examples/receiptctl works around.
-chicago-tdd-tools = { path = "../../crates/chicago-tdd-tools", features = ["cli-proof"] }
+# 2026-08-03: chicago-tdd-tools 26.8.3 is published with `cli-proof` included, so this uses
+# the registry version directly.
+chicago-tdd-tools = { version = "26.8.3", features = ["cli-proof"] }

@@ -1,5 +1,0 @@
----
-source: src/testing/snapshot.rs
-expression: "format!(\"{value}\")"
----
-inline_test_value

@@ -2,4 +2,4 @@
 
 [packs.claude-code-pack]
 source = "path:../../packs/claude-code-pack"
-content_hash = "blake3:2c67717c6dee2ae024b8a065ac40f9f74025b01b346ba963a8a3eb2bc1bb9a67"
+content_hash = "blake3:c3f667fcf95f7393331b8e64993dfac493e62778f22e2abb8e87f38cee1332b4"

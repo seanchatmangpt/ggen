@@ -1,9 +1,0 @@
----
-source: src/testing/snapshot.rs
-expression: value
----
-[
-    1,
-    2,
-    3,
-]
