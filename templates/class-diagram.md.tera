@@ -1,0 +1,41 @@
+# `{{ source }}`
+
+Source SHA-256: `{{ digest }}`
+
+```mermaid
+classDiagram
+{%- if symbols | length == 0 %}
+    class SourceFile {
+      <<module>>
+    }
+{%- endif %}
+{%- for symbol in symbols %}
+    class {{ symbol.kind }}_{{ symbol.name }} {
+      <<{% if generated %}generated{% else %}{{ symbol.kind }}{% endif %}>>
+{%- for field in symbol.fields %}
+      +"{{ field }}"
+{%- endfor %}
+{%- for method in symbol.methods %}
+      +"{{ method }}"
+{%- endfor %}
+    }
+{%- endfor %}
+{%- for implementation in implementations %}
+    note "{{ implementation }}"
+{%- endfor %}
+```
+
+## Dependencies
+
+{%- if dependencies | length == 0 %}
+- None observed.
+{%- else %}
+{%- for dependency in dependencies %}
+- `{{ dependency }}`
+{%- endfor %}
+{%- endif %}
+
+## Standing
+
+- Structural parse: `ALIVE`
+- Runtime behavior: `UNKNOWN`
