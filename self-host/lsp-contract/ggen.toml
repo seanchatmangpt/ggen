@@ -1,0 +1,48 @@
+[project]
+name = "ggen-lsp-self-host-contract"
+version = "26.8.5"
+description = "ggen manufactures the shared LSP contract consumed by ggen and ggen-legacy"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/ontology/lsp-contract#"
+
+[ontology.prefixes]
+lspc = "https://ggen.dev/ontology/lsp-contract#"
+dcterms = "http://purl.org/dc/terms/"
+
+[generation]
+output_dir = "../.."
+
+[[generation.rules]]
+name = "lsp-contract-json"
+query = { inline = """
+PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
+SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
+""" }
+template = { file = "templates/contract.json.tera" }
+output_file = "crates/ggen-lsp/generated/lsp-contract.json"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "lsp-contract-rust"
+query = { inline = """
+PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
+SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
+""" }
+template = { file = "templates/contract.rs.tera" }
+output_file = "crates/ggen-lsp/src/generated_contract.rs"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "lsp-contract-doc"
+query = { inline = """
+PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
+SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
+""" }
+template = { file = "templates/contract.md.tera" }
+output_file = "docs/generated/LSP_CONTRACT.md"
+skip_empty = false
+mode = "Overwrite"
