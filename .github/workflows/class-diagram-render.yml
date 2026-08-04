@@ -16,9 +16,7 @@ permissions:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      RUSTC_WRAPPER: ""
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,15 +27,6 @@ jobs:
           mkdir -p target/class-diagram-receipt
           git rev-parse HEAD | tee target/class-diagram-receipt/head.sha
           python3 --version | tee target/class-diagram-receipt/python.txt
-          rustc --version | tee target/class-diagram-receipt/rustc.txt
-          cargo --version | tee target/class-diagram-receipt/cargo.txt
-          printf 'RUSTC_WRAPPER=%s\n' "${RUSTC_WRAPPER:-}" | tee target/class-diagram-receipt/rustc-wrapper.txt
-
-      - name: Build canonical ggen
-        run: |
-          cargo build -p ggen-cli-lib --bin ggen
-          ./target/debug/ggen --version | tee target/class-diagram-receipt/ggen-version.txt
-          ./target/debug/ggen --help > target/class-diagram-receipt/ggen-help.txt
 
       - name: Render all admitted Rust sources
         run: |
@@ -65,3 +54,34 @@ jobs:
             target/class-diagrams.tar.gz
             target/class-diagram-receipt
           if-no-files-found: error
+
+  ggen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RUSTC_WRAPPER: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Record toolchain
+        run: |
+          mkdir -p target/ggen-receipt
+          git rev-parse HEAD | tee target/ggen-receipt/head.sha
+          rustc --version | tee target/ggen-receipt/rustc.txt
+          cargo --version | tee target/ggen-receipt/cargo.txt
+          printf 'RUSTC_WRAPPER=%s\n' "${RUSTC_WRAPPER:-}" | tee target/ggen-receipt/rustc-wrapper.txt
+
+      - name: Build canonical ggen
+        run: |
+          cargo build -p ggen-cli-lib --bin ggen
+          ./target/debug/ggen --version | tee target/ggen-receipt/ggen-version.txt
+          ./target/debug/ggen --help > target/ggen-receipt/ggen-help.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ggen-command-surface
+          path: target/ggen-receipt
+          if-no-files-found: warn
