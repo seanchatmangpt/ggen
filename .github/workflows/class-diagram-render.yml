@@ -55,6 +55,8 @@ jobs:
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
             git add docs/architecture/class-diagrams/files
             git commit -m 'docs: render per-source class diagrams'
+            git fetch origin agent/ggen-class-diagram-renderer
+            git rebase origin/agent/ggen-class-diagram-renderer
             git push origin HEAD:agent/ggen-class-diagram-renderer
             echo published | tee target/class-diagram-receipt/publication.txt
           fi
