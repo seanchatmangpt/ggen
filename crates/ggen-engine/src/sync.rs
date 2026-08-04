@@ -114,6 +114,15 @@ pub struct SyncOptions {
     pub dry_run: bool,
     /// Which graph engine executes the run (default: `GraphLaw`).
     pub engine: EngineKind,
+    /// Gall CP37-38: provenance tag threaded onto the resulting receipt's
+    /// `ReceiptRecord::origin` (descriptive only, never part of the chain
+    /// hash — see `praxis_core::receipt_record::ReceiptRecord::origin`'s own
+    /// doc comment). `None` (the default) for the ordinary human/LLM-
+    /// reviewed path; `Some("unattended-dispatch")` set only by
+    /// `ggen-mcp`'s bounded unattended-write dispatcher
+    /// (`crates/ggen-mcp/src/tools/unattended_dispatch.rs`). A `&'static
+    /// str` rather than `String` so `SyncOptions` stays `Copy`.
+    pub receipt_origin: Option<&'static str>,
 }
 
 /// The outcome of one [`sync`] run.
@@ -1087,6 +1096,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 at_line: None,
                 skip_if: None,
                 unless_exists: false,
+                unattended_write_eligible: false,
                 force: true,
                 when: None,
                 skip_empty: false,
@@ -1230,7 +1240,9 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // binds the files that *did* land, closing the drift window instead
         // of leaving the previous (now-stale) receipt as the last word on
         // them.
-        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref()) {
+        if let Err(receipt_err) =
+            write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
+        {
             return Err(match emit_err {
                 // The write-stage failure is the operative incident; a
                 // receipt-write failure on top of it must be surfaced too
@@ -2793,7 +2805,7 @@ fn compare_producer_class(
 // boundaries rather than shrink real complexity.
 #[allow(clippy::too_many_lines)]
 pub(crate) fn write_receipt(
-    root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
+    root: &Path, report: &SyncReport, graph: &dyn GraphEngine, receipt_origin: Option<&'static str>,
 ) -> Result<()> {
     use std::io::Write as _;
 
@@ -3310,6 +3322,7 @@ pub(crate) fn write_receipt(
         node_kind: 0,
         ts_ns: 0,
         duration_ms: None,
+        origin: receipt_origin.map(str::to_string),
         object_ids: vec![format!("law:{}", &payload_hash_hex[..16])],
         payload_hash_hex,
         prev_chain_hash_hex,

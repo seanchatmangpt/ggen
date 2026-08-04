@@ -22,11 +22,7 @@ fn clean_receipt_chain_verifies_successfully() {
         root: dir.path().display().to_string(),
     })
     .expect("dry run");
-    write_apply(&WriteApplyParams {
-        root: dir.path().display().to_string(),
-        confirm: true,
-        expected_graph_hash: pre.graph_hash,
-    })
+    write_apply(&WriteApplyParams::new(dir.path().display().to_string(), true, pre.graph_hash))
     .expect("real sync, writes a real receipt");
 
     assert!(
@@ -85,11 +81,7 @@ fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
         root: dir.path().display().to_string(),
     })
     .expect("dry run");
-    write_apply(&WriteApplyParams {
-        root: dir.path().display().to_string(),
-        confirm: true,
-        expected_graph_hash: pre.graph_hash,
-    })
+    write_apply(&WriteApplyParams::new(dir.path().display().to_string(), true, pre.graph_hash))
     .expect("real sync, writes a real receipt");
 
     let receipt_path = dir.path().join(".ggen-v2/receipt.json");

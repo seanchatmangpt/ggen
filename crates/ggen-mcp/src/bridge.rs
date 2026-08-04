@@ -27,13 +27,23 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 
+use ggen_engine::error::extract_fm_code;
 use rmcp::model::{ResourceUpdatedNotificationParam, Resource};
 use rmcp::service::Peer;
 use rmcp::RoleServer;
 use tokio::sync::Mutex;
+
+/// CP39/R2: a `static` map of one circuit breaker per project root (not a
+/// single shared breaker -- R2 fixed a real bug where two unrelated
+/// projects' dispatch attempts shared one rate-limit budget), rather than
+/// threading a new parameter through `watch()`'s signature (which would
+/// ripple into `lib.rs` and every other call site) since this bridge
+/// module is the sole real caller of the CP39 wiring.
+static DISPATCH_BREAKERS: LazyLock<crate::tools::unattended_dispatch::PerRootCircuitBreaker> =
+    LazyLock::new(crate::tools::unattended_dispatch::PerRootCircuitBreaker::new);
 
 /// Default cap on how many `PushedDiagnostic`s `DiagnosticStore` retains at
 /// once (CP18). Unbounded growth was the real gap: a large refactor can fire
@@ -631,12 +641,13 @@ pub async fn push_sync_refusal_for_root(
         Err(e) => {
             let key = "error";
             let uri = sync_refusal_uri(root, key);
+            let message = e.to_string();
             store
                 .insert(
                     uri.clone(),
                     PushedSyncRefusal {
                         root: root_str.clone(),
-                        message: e.to_string(),
+                        message: message.clone(),
                         kind: "error".to_string(),
                     },
                 )
@@ -646,6 +657,33 @@ pub async fn push_sync_refusal_for_root(
             if store.should_notify(&debounce_key).await {
                 delivered_notifications +=
                     peers.broadcast(&ResourceUpdatedNotificationParam::new(uri)).await?;
+            }
+
+            // CP39: in addition to (never instead of) the push above, check
+            // whether this exact FM-* code has a declared
+            // "bounded-unattended" route in the project's own facts, and if
+            // so, attempt a real dispatch via the same, unmodified,
+            // already-reviewed CP31-33 bounded dispatcher -- never a new,
+            // broader write path.
+            if let Some(fm_code) = extract_fm_code(&message) {
+                match crate::tools::signal_dispatch::route_signal(fm_code, root) {
+                    Ok(crate::tools::signal_dispatch::DispatchRoute::BoundedUnattended) => {
+                        let breaker = DISPATCH_BREAKERS.for_root(root).await;
+                        let outcome = crate::tools::unattended_dispatch::try_unattended_apply(
+                            root, &breaker,
+                        )
+                        .await;
+                        tracing::info!(
+                            fm_code,
+                            outcome = ?outcome,
+                            "ggen-mcp: CP39 declared bounded-unattended route dispatched"
+                        );
+                    }
+                    Ok(crate::tools::signal_dispatch::DispatchRoute::Attended) => {}
+                    Err(e) => {
+                        tracing::warn!(error = %e, "ggen-mcp: CP39 route_signal failed, falling through to attended");
+                    }
+                }
             }
         }
         Ok(report) => {

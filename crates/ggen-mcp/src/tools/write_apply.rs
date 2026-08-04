@@ -20,6 +20,37 @@ use serde::{Deserialize, Serialize};
 use crate::error::{ErrorCategory, McpError};
 use crate::project_root::resolve_root;
 
+/// Gall CP38: an answer to "was this specific caller authorized to trigger
+/// this write," a real, separate question from CP17's hash-corroboration
+/// gate (which only ever answers "is this write correct/fresh"). Threaded
+/// straight into the resulting receipt's `origin` field (CP37).
+///
+/// This enum alone provides no enforcement -- any code in this crate could
+/// write `CallerOrigin::UnattendedDispatch` directly if nothing else
+/// restricted it. The real enforcement point is `WriteApplyParams`'s
+/// private `caller_origin` field plus the narrow, visibility-restricted
+/// constructors below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum CallerOrigin {
+    /// Every real MCP JSON-RPC tool call. This is also `WriteApplyParams`'s
+    /// `Deserialize` default (see `caller_origin`'s `#[serde(skip, ...)]`
+    /// below) -- an external caller's JSON payload cannot claim any other
+    /// origin even if it tries, because this field is never read from JSON
+    /// at all.
+    ExternalMcp,
+    /// Set only by `crate::tools::unattended_dispatch`'s own
+    /// `try_unattended_apply` -- compiler-enforced: `WriteApplyParams::
+    /// for_unattended_dispatch` is `pub(in crate::tools::unattended_dispatch)`,
+    /// so no other module in this crate can call it, and therefore no other
+    /// code can ever produce this variant.
+    UnattendedDispatch,
+    /// Set only by `crate::selfplay::board`'s in-process test-harness call
+    /// sites, via `WriteApplyParams::for_self_play_harness` -- states that
+    /// file's own identity honestly instead of looking like every other
+    /// anonymous in-process caller.
+    SelfPlayHarness,
+}
+
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct WriteApplyParams {
     /// Project root directory.
@@ -37,6 +68,68 @@ pub struct WriteApplyParams {
     /// claims to have reviewed -- catching both a fabricated hash and a
     /// stale one (the project changed between dry-run and apply).
     pub expected_graph_hash: String,
+    /// CP38: never populated from an external caller's JSON (`#[serde(skip)]`
+    /// -- the field simply isn't read from the wire at all, regardless of
+    /// what an external caller's payload contains), always
+    /// `CallerOrigin::ExternalMcp` for a real MCP tool call. Private: only
+    /// this module's own narrow constructors (or `Default`, for real MCP
+    /// deserialization) can set it, so a caller cannot self-report a
+    /// stronger authorization than it actually has.
+    #[serde(skip, default = "default_caller_origin")]
+    caller_origin: CallerOrigin,
+}
+
+fn default_caller_origin() -> CallerOrigin {
+    CallerOrigin::ExternalMcp
+}
+
+impl WriteApplyParams {
+    /// Construct params exactly as a real MCP JSON-RPC call would produce
+    /// via `Deserialize` -- `caller_origin` is always `ExternalMcp`. `pub`
+    /// (not `pub(crate)`) so integration tests under `tests/`, which
+    /// compile as a separate crate linking against this one, can exercise
+    /// the same ordinary path a real external caller takes.
+    pub fn new(root: String, confirm: bool, expected_graph_hash: String) -> Self {
+        Self {
+            root,
+            confirm,
+            expected_graph_hash,
+            caller_origin: CallerOrigin::ExternalMcp,
+        }
+    }
+
+    /// Intended for `crate::tools::unattended_dispatch` alone -- `pub(crate)`,
+    /// not compiler-restricted to that one module. An earlier version of
+    /// this used a private-field capability token
+    /// (`unattended_dispatch::DispatchAuthority`) to make the restriction
+    /// compiler-enforced; that was deliberately dropped (Gall R1) in favor
+    /// of this ordinary `pub(crate)` trust boundary -- any code in
+    /// `ggen-mcp` COULD call this, but only `unattended_dispatch.rs` does,
+    /// checkable by grep/code review like any other `pub(crate)` fn in this
+    /// codebase. Do not widen this to `pub`: an external caller must never
+    /// be able to self-report the `UnattendedDispatch` origin.
+    pub(crate) fn for_unattended_dispatch(root: String, expected_graph_hash: String) -> Self {
+        Self {
+            root,
+            confirm: true,
+            expected_graph_hash,
+            caller_origin: CallerOrigin::UnattendedDispatch,
+        }
+    }
+
+    /// Used by `crate::selfplay::board`'s in-process test-harness call
+    /// sites to declare their own identity honestly instead of constructing
+    /// a params value indistinguishable from every other in-process caller.
+    pub(crate) fn for_self_play_harness(
+        root: String, confirm: bool, expected_graph_hash: String,
+    ) -> Self {
+        Self {
+            root,
+            confirm,
+            expected_graph_hash,
+            caller_origin: CallerOrigin::SelfPlayHarness,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, JsonSchema)]
@@ -125,8 +218,17 @@ pub fn write_apply(params: &WriteApplyParams) -> Result<WriteApplyResult, McpErr
         ));
     }
 
+    // CP37/38: thread this call's authorized origin onto the resulting
+    // receipt. `ExternalMcp`/`SelfPlayHarness` leave the receipt's `origin`
+    // field `None` (today's exact behavior) -- only `UnattendedDispatch`
+    // gets a real, distinguishable tag.
+    let receipt_origin = match params.caller_origin {
+        CallerOrigin::UnattendedDispatch => Some("unattended-dispatch"),
+        CallerOrigin::ExternalMcp | CallerOrigin::SelfPlayHarness => None,
+    };
     let opts = SyncOptions {
         dry_run: false,
+        receipt_origin,
         ..Default::default()
     };
     let report = sync(&root, opts)

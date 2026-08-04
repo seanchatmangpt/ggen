@@ -174,6 +174,7 @@ fn frontmatter_for(
             SkipIf::NonMatching => Some(MatchSpec::Literal(NON_MATCHING_NEEDLE.to_string())),
         },
         unless_exists,
+        unattended_write_eligible: false,
         force,
         when: None,
         skip_empty: false,

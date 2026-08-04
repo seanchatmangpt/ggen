@@ -170,11 +170,11 @@ impl Board {
 
             let applied = match &dry_run_graph_hash {
                 Some(hash) => crate::tools::write_apply::write_apply(
-                    &crate::tools::write_apply::WriteApplyParams {
-                        root: root_str.clone(),
-                        confirm: true,
-                        expected_graph_hash: hash.clone(),
-                    },
+                    &crate::tools::write_apply::WriteApplyParams::for_self_play_harness(
+                        root_str.clone(),
+                        true,
+                        hash.clone(),
+                    ),
                 ),
                 // CP17: a real prior dry-run is now required to obtain a
                 // graph_hash at all -- if the dry-run itself errored, there is
@@ -209,11 +209,11 @@ impl Board {
                         );
                         let second_result = match &second_dry_run {
                             Ok(r) => crate::tools::write_apply::write_apply(
-                                &crate::tools::write_apply::WriteApplyParams {
-                                    root: root_str.clone(),
-                                    confirm: true,
-                                    expected_graph_hash: r.graph_hash.clone(),
-                                },
+                                &crate::tools::write_apply::WriteApplyParams::for_self_play_harness(
+                                    root_str.clone(),
+                                    true,
+                                    r.graph_hash.clone(),
+                                ),
                             ),
                             Err(e) => Err(McpError::new(
                                 ErrorCategory::Internal,

@@ -182,6 +182,44 @@ they happen). This is the same tier-1/2-vs-tier-3 boundary §5 already drew for 
 not a new mechanism — the fix here was to state it plainly for `ggen`'s own tool surface rather
 than leave it implicit.
 
+## 6b. A fourth, narrower tier: bounded unattended writes (CP31-36)
+
+§6a's tier-3 escalation path (`ggen_sync_dry_run`/`ggen_receipt_verify`/`ggen-sync-refusal://`
+push) is entirely human/LLM-reviewed — every write still requires a decision step. A later EOD
+requirement asked for a fully autonomous ggen loop, which surfaced a real tension already named in
+§3's safety audit: a bare signal→`ggen_write_apply` call with zero decision step is the exact
+anti-pattern that audit flagged as dangerous (the dormant `lsp-max` refund-receipt hook chain,
+quarantined in that session's CP14, is a real, live-adjacent example of it). The resolution,
+after being asked directly and choosing **bounded unattended writes**: a hardcoded dispatcher may
+call `ggen_write_apply` with zero LLM/human step, but ONLY for a narrow, declared-safe class —
+everything else still routes through §6a's tier-3 path unchanged.
+
+**The eligible class** (`crates/ggen-mcp/src/tools/unattended_dispatch.rs`): a project's
+frontmatter template must declare `unattended_write_eligible: true`, which the writer refuses to
+parse unless `unless_exists: true` is also set (`crates/ggen-engine/src/template.rs::parse`,
+`FM-TPL-027`) — the create-only guarantee `unless_exists` already enforces
+(`crates/ggen-engine/src/write.rs:104`) is what makes zero-review safe: the write can only ever
+create a file that doesn't exist, never clobber hand-written content. A dispatch attempt also
+requires: the target isn't already on disk, it doesn't match a protected path (a Rust port of
+`.claude/hooks/pre_tool_use_guard.sh`'s own check, `protected_paths.rs`), a fresh dry-run shows
+zero project-wide refusals AND every path the real sync would write is covered by the eligible
+set (whole-run-eligible, not just the one rule), and a circuit breaker (5 unattended writes per
+60s per root, a working default) has budget. Every attempt — applied or refused — is logged to
+`.ggen/unattended-dispatch-log.jsonl`.
+
+This design was checked against three sibling projects with their own receipted pipelines before
+being finalized (`~/mfw`'s branchless declared-risk-class admit-mask, `~/turbo-fieldfare/
+kcj-mustar`'s independent-recheck-at-the-dispatch-boundary discipline, `~/wasm4pm`'s cautionary
+finding that a severity classification which doesn't actually gate anything is worse than none) —
+see the plan file's CP31-36 for the full research trail. It is deliberately narrower than the
+original CP21 "any declared trigger→action mapping" dispatcher, which was assessed and rejected.
+
+**Known, named limitation, not a silent gap**: this only fires from an `ggen-mcp` server session.
+`ggen sync run --watch` (`crates/ggen-engine/src/watch.rs`) has its own, independent watch loop
+with no dependency edge to `ggen-mcp` — a bare CLI watch process has zero unattended-dispatch
+capability today (CP35). Closing that requires relocating the dispatcher into a crate both
+`ggen-cli` and `ggen-mcp` depend on, scoped as future work, not attempted this pass.
+
 ## 7. Status and next steps
 
 CP0-CP12 (ontology fidelity, generation pipeline, push mechanism proof) are complete and

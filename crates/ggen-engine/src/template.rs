@@ -83,6 +83,16 @@ pub struct Frontmatter {
     /// Skip the write entirely when the target file already exists.
     #[serde(default)]
     pub unless_exists: bool,
+    /// Declares this rule eligible for `ggen-mcp`'s bounded unattended-write
+    /// dispatcher (Gall CP31-CP33): when its signal fires, the write may be
+    /// applied with no human/LLM decision step, because `unless_exists` (see
+    /// above) already guarantees it can only ever create a file that does not
+    /// exist -- it can never clobber hand-written content. Requires
+    /// `unless_exists: true` in the same frontmatter block; a template
+    /// setting this without also setting `unless_exists` is a real config
+    /// error (`FM-TPL-027`, see `write.rs`), not silently coerced.
+    #[serde(default)]
+    pub unattended_write_eligible: bool,
     /// Overwrite an existing, differing file instead of failing closed.
     #[serde(default)]
     pub force: bool,
@@ -361,13 +371,26 @@ impl Template {
                 format!(
                     "frontmatter rejected: {e}. \
                      Remediation: use only the closed key set (to, sparql, for_each, construct, \
-                     inject, before, after, at_line, skip_if, unless_exists, force, \
+                     inject, before, after, at_line, skip_if, unless_exists, \
+                     unattended_write_eligible, force, \
                      when, skip_empty, from, sh_before, sh_after, backup, shape, \
                      determinism, freeze_policy, freeze_slots_dir, rdf, rdf_inline, \
                      prefixes, base)."
                 ),
             )
         })?;
+        if frontmatter.unattended_write_eligible && !frontmatter.unless_exists {
+            return Err(AppError::fm_tpl(
+                27,
+                "unattended_write_eligible: true requires unless_exists: true in the same \
+                 frontmatter block -- eligibility for ggen-mcp's bounded unattended-write \
+                 dispatcher (Gall CP31-CP33) depends on the create-only guarantee \
+                 unless_exists provides; a rule that could overwrite existing content is \
+                 never eligible for a zero-decision-step write. \
+                 Remediation: add `unless_exists: true`, or remove \
+                 `unattended_write_eligible` if this rule may overwrite existing content.",
+            ));
+        }
         Ok(Self {
             frontmatter,
             body: body.to_string(),

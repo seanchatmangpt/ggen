@@ -116,6 +116,7 @@ fn sync_conforming_under(engine: EngineKind) -> (Vec<u8>, Vec<u8>, String) {
         &project,
         SyncOptions {
             dry_run: false,
+            receipt_origin: None,
             engine,
         },
     )
@@ -172,6 +173,7 @@ fn violating_fixture_is_refused_under_both_engines() {
             &project,
             SyncOptions {
                 dry_run: false,
+                receipt_origin: None,
                 engine,
             },
         )

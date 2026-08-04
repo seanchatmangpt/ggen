@@ -20,6 +20,11 @@ rf:triggersAction a owl:DatatypeProperty ;
     rdfs:comment "CP30: declares which action name a diagnostic's dispatcher would invoke -- fact layer only, no autonomous dispatch." ;
     rdfs:domain rf:DiagnosticCode .
 
+rf:dispatchRoute a owl:DatatypeProperty ;
+    rdfs:label "dispatchRoute" ;
+    rdfs:comment "CP39: declares which route a signal's dispatch takes -- \"attended\" (the default when absent: existing human/LLM-reviewed push path, unchanged) or \"bounded-unattended\" (also gets a real dispatch attempt via ggen-mcp's already-narrow, already-reviewed CP31-33 bounded dispatcher, per the five conditions in unattended_dispatch.rs -- never a broader write path). Fail-closed: any value other than the two above, or its absence, means attended." ;
+    rdfs:domain rf:DiagnosticCode .
+
 rf:doc a rf:Doc ;
     rf:workspaceVersion "26.8.6" ;
     rf:projectManifestVersion "26.7.1" ;
@@ -514,7 +519,8 @@ rf:diag_01 a rf:DiagnosticCode ;
     rf:severity "ERROR" ;
     rf:meaning "Template consumes `{{ var }}` that SELECT does not produce." ;
     rf:owner "`ggen-lsp/src/analyzers/tera_analyzer.rs`" ;
-    rf:triggersAction "ggen_sync_dry_run" .
+    rf:triggersAction "ggen_sync_dry_run" ;
+    rf:dispatchRoute "bounded-unattended" .
 
 rf:diag_02 a rf:DiagnosticCode ;
     rf:order "002" ;

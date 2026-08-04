@@ -127,6 +127,7 @@ mod tests {
             node_kind: 0,
             ts_ns: instruction_id * 1000,
             duration_ms: None,
+            origin: None,
             payload_hash_hex: "11".repeat(32),
             prev_chain_hash_hex: hex::encode(prev),
             chain_hash_hex: hex::encode(chain),
