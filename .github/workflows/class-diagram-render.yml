@@ -9,23 +9,26 @@ on:
       - scripts/render_class_diagrams.py
       - templates/class-diagram.md.tera
       - .github/workflows/class-diagram-render.yml
+      - docs/architecture/class-diagrams/files/**
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
 
       - name: Record subject
         run: |
           mkdir -p target/class-diagram-receipt
           git rev-parse HEAD | tee target/class-diagram-receipt/head.sha
+          git show -s --format=%T HEAD | tee target/class-diagram-receipt/tree.sha
           python3 --version | tee target/class-diagram-receipt/python.txt
 
       - name: Render all admitted Rust sources
@@ -42,6 +45,20 @@ jobs:
             | wc -l \
             | tr -d ' ' \
             | tee target/class-diagram-receipt/output-count.txt
+
+      - name: Publish generated projection
+        if: github.event_name == 'push'
+        run: |
+          if git diff --quiet -- docs/architecture/class-diagrams/files; then
+            echo unchanged | tee target/class-diagram-receipt/publication.txt
+          else
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add docs/architecture/class-diagrams/files
+            git commit -m 'docs: render per-source class diagrams'
+            git push origin HEAD:agent/ggen-class-diagram-renderer
+            echo published | tee target/class-diagram-receipt/publication.txt
+          fi
 
       - name: Package generated projection
         run: |
@@ -63,6 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
 
       - name: Record toolchain
