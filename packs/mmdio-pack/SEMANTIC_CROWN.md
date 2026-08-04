@@ -23,14 +23,14 @@ Only this bounded profile is crowned by the present contract:
 ```text
 profile:       mmdio.flowchart.rectangle-solid/1
 repository:    seanchatmangpt/mmdio
-commit:        19d7be5ee4f5d48ed460c6559266d15d909b8f28
+commit:        360c575becf941743131e51e8cb06e8b6f0eeef9
 path:          src/mmdio/flowchart_crown.py
 Git blob:      d114944c95392adf14a22fb2bdfcd26651dc39a0
-claim ceiling: BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_ONLY
+claim ceiling: BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_AND_MERMAID_RENDER_ONLY
 actuation:     false
 ```
 
-This is the exact source candidate in draft `mmdio#8`.
+This is the exact executed head of draft `mmdio#8`. Its focused workflow run `30878284501` passed nine positive/refusal/mutation tests, two byte-identical crown executions, independent receipt verification, and pinned Mermaid CLI rendering. The bounded receipt is `b6226754690ed6ec23cfdf77af5ddc7837152eeeee7f402ee681d2de6d5fecbb`.
 
 The other Python-supported diagram types remain grammar/parser inventory. Their standing is unchanged until each receives its own executable profile, exact-source identity, negative controls, receipt, and replay.
 
@@ -49,6 +49,6 @@ The other Python-supported diagram types remain grammar/parser inventory. Their 
 
 ## Exact-head integration
 
-The workflow checks out the pinned mmdio commit, recomputes the source Git blob, parses both RDF graphs, executes the gate, checks the exact facts, and runs the mmdio crown tests and deterministic replay.
+The workflow checks out the pinned mmdio commit, recomputes the source Git blob, parses both RDF graphs, executes the gate, checks the exact facts, and reruns the mmdio crown tests and deterministic replay.
 
 A successful integration run proves the cross-repository contract for the pinned source only. It does not certify every Mermaid diagram type, the full generated mmdio registry, ggen release standing, or any actuation path.
