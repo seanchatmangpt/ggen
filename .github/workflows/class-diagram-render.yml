@@ -48,7 +48,7 @@ jobs:
 
       - name: Publish generated projection
         run: |
-          if git diff --quiet -- docs/architecture/class-diagrams/files; then
+          if [ -z "$(git status --porcelain --untracked-files=all -- docs/architecture/class-diagrams/files)" ]; then
             echo unchanged | tee target/class-diagram-receipt/publication.txt
           else
             git config user.name github-actions[bot]
