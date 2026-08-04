@@ -47,7 +47,6 @@ jobs:
             | tee target/class-diagram-receipt/output-count.txt
 
       - name: Publish generated projection
-        if: github.event_name == 'push'
         run: |
           if git diff --quiet -- docs/architecture/class-diagrams/files; then
             echo unchanged | tee target/class-diagram-receipt/publication.txt
