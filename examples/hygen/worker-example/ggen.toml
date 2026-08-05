@@ -1,0 +1,18 @@
+# Frontmatter schema (crate::config::GgenConfig): [project] is name-only —
+# adding version/description here would make the schema classifier see
+# conflicting markers with the declarative-rules schema (which does have
+# those fields), a real ambiguity error hit while building this example,
+# not assumed.
+[project]
+name = "hygen-worker-example"
+
+[ontology]
+source = "ontology.ttl"
+
+[ontology.prefixes]
+ex   = "http://example.org/hygen-examples/worker#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[templates]
+dir = "templates"

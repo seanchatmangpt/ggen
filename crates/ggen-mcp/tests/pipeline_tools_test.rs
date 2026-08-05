@@ -80,10 +80,15 @@ fn dry_run_skip_reasons_are_typed_and_preserve_raw_text() {
     write_frontmatter_project(dir.path());
 
     // First apply for real, so a second dry run sees "unchanged" skips.
-    write_apply(&WriteApplyParams {
+    let pre = sync_dry_run(&SyncDryRunParams {
         root: dir.path().display().to_string(),
-        confirm: true,
     })
+    .expect("pre-apply dry run");
+    write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        pre.graph_hash,
+    ))
     .expect("first apply");
 
     let got = sync_dry_run(&SyncDryRunParams {
@@ -177,10 +182,11 @@ fn write_apply_without_confirm_refuses_and_writes_nothing() {
     write_frontmatter_project(dir.path());
 
     let before = snapshot(dir.path());
-    let err = write_apply(&WriteApplyParams {
-        root: dir.path().display().to_string(),
-        confirm: false,
-    })
+    let err = write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        false,
+        String::new(),
+    ))
     .expect_err("must refuse without confirm");
     let after = snapshot(dir.path());
 
@@ -198,10 +204,15 @@ fn write_apply_writes_files_and_reports_verifiable_hashes() {
     let dir = tempfile::tempdir().expect("tempdir");
     write_frontmatter_project(dir.path());
 
-    let got = write_apply(&WriteApplyParams {
+    let pre = sync_dry_run(&SyncDryRunParams {
         root: dir.path().display().to_string(),
-        confirm: true,
     })
+    .expect("pre-apply dry run");
+    let got = write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        pre.graph_hash,
+    ))
     .expect("apply");
 
     assert!(
@@ -230,10 +241,15 @@ fn write_apply_produces_the_receipt_it_reports() {
     let dir = tempfile::tempdir().expect("tempdir");
     write_frontmatter_project(dir.path());
 
-    let got = write_apply(&WriteApplyParams {
+    let pre = sync_dry_run(&SyncDryRunParams {
         root: dir.path().display().to_string(),
-        confirm: true,
     })
+    .expect("pre-apply dry run");
+    let got = write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        pre.graph_hash,
+    ))
     .expect("apply");
 
     let receipt = dir.path().join(&got.receipt_path);
@@ -245,16 +261,63 @@ fn write_apply_produces_the_receipt_it_reports() {
     );
 }
 
+/// CP17: `confirm: true` with a fabricated/stale `expected_graph_hash` (the
+/// exact bypass shape a careless in-process caller could construct without
+/// ever running a real dry-run) must refuse and write nothing -- proven by
+/// the filesystem being untouched, not just by an error being returned.
+#[test]
+fn write_apply_refuses_a_fabricated_graph_hash_bypass() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    write_frontmatter_project(dir.path());
+
+    let before = snapshot(dir.path());
+    let err = write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        "not-a-real-hash-from-any-dry-run".to_string(),
+    ))
+    .expect_err("a fabricated graph_hash must be refused, not silently accepted");
+    let after = snapshot(dir.path());
+
+    assert_eq!(err.category, ErrorCategory::Unsupported);
+    assert_eq!(
+        before, after,
+        "a refused apply (fabricated hash) must not touch the filesystem"
+    );
+}
+
+/// CP17's legitimate path: a real `ggen_sync_dry_run` call's own real
+/// `graph_hash`, passed straight through, must be accepted.
+#[test]
+fn write_apply_accepts_a_real_dry_run_graph_hash() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    write_frontmatter_project(dir.path());
+
+    let real_dry_run = sync_dry_run(&SyncDryRunParams {
+        root: dir.path().display().to_string(),
+    })
+    .expect("real dry run");
+
+    let got = write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        real_dry_run.graph_hash,
+    ))
+    .expect("a real dry-run's own graph_hash must be accepted by write_apply");
+    assert!(got.ok);
+}
+
 /// Applying twice must be idempotent: the second run writes nothing new
 /// and the tree is unchanged.
 #[test]
 fn write_apply_is_idempotent() {
     let dir = tempfile::tempdir().expect("tempdir");
     write_frontmatter_project(dir.path());
-    let params = WriteApplyParams {
+    let pre = sync_dry_run(&SyncDryRunParams {
         root: dir.path().display().to_string(),
-        confirm: true,
-    };
+    })
+    .expect("pre-apply dry run");
+    let params = WriteApplyParams::new(dir.path().display().to_string(), true, pre.graph_hash);
 
     write_apply(&params).expect("first apply");
     let after_first = snapshot(dir.path());

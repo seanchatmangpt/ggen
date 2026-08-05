@@ -3,6 +3,16 @@
 version = 3
 
 [[package]]
+name = "Inflector"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe438c63458706e03479442743baae6c88256498e6431708f6dfc520a26515d3"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2960,6 +2970,7 @@ dependencies = [
 name = "ggen-engine"
 version = "26.8.6"
 dependencies = [
+ "Inflector",
  "anyhow",
  "assert_cmd",
  "blake3",
@@ -3051,6 +3062,7 @@ dependencies = [
  "schemars 1.2.2",
  "serde",
  "serde_json",
+ "serde_yaml",
  "tempfile",
  "tera",
  "thiserror 2.0.19",
@@ -3118,6 +3130,10 @@ dependencies = [
  "ggen-engine",
  "ggen-graph",
  "ggen-lsp",
+ "lsp-max",
+ "notify 7.0.0",
+ "notify-debouncer-full 0.4.0",
+ "regex",
  "reqwest 0.12.28",
  "rmcp 1.8.0",
  "schemars 1.2.2",
@@ -6585,6 +6601,7 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.19",
  "tokio",
+ "tokio-stream",
  "tokio-util",
  "tracing",
 ]

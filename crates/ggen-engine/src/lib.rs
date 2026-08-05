@@ -15,6 +15,12 @@ pub mod error;
 // Schema dispatch itself lives in `crate::schema_dispatch`, not here. See the module's own doc
 // comment for the full design.
 mod generation_rules;
+// CP8 (Gall's-Law checkpoint 8): projects a real, parsed `template::Frontmatter`
+// into RDF facts (`fm:` namespace) and SHACL-validates them via
+// `graph::GraphEngine::validate_shacl`, the same engine call
+// `sync::admit_shape_files` already makes against rendered template output.
+// See the module's own doc comment for exactly which fields are projected.
+pub mod frontmatter_rdf;
 pub mod graph;
 pub mod law_engine;
 pub mod lint;

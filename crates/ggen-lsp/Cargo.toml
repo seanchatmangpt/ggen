@@ -49,6 +49,11 @@ ggen-engine = { path = "../ggen-engine", version = "26.7.13" }
 ggen-marketplace = { path = "../ggen-marketplace", version = "26.7.4" }
 ggen-config = { path = "../ggen-config", version = "26.7.1" }
 ggen-graph = { path = "../ggen-graph", version = "26.7.1" }
+# CP8: parses a template's frontmatter YAML block the same way
+# `ggen_engine::template::Frontmatter` does, so `frontmatter_shacl_analyzer`
+# can call `ggen_engine::frontmatter_rdf::validate_frontmatter_shacl` against
+# a real, production-shaped `Frontmatter` value.
+serde_yaml = { workspace = true }
 tera = { workspace = true }
 toml = { workspace = true }
 # Canonical RDF/SPARQL formatting (parse + reserialize). Matches the

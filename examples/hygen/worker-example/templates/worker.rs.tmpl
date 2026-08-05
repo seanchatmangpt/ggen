@@ -1,0 +1,30 @@
+---
+to: "app/workers/{{ name }}.rs"
+sparql:
+  worker: "PREFIX ex: <http://example.org/hygen-examples/worker#> SELECT ?name ?message WHERE { ?w a ex:Worker ; ex:name ?name ; ex:message ?message . } LIMIT 1"
+for_each: worker
+---
+// Equivalent of Hygen's:
+//   ---
+//   to: app/workers/<%=name%>.js
+//   ---
+//   <%
+//    Message = message.toUpperCase()
+//   %>
+//   class <%= Name %> {
+//       work(){
+//           return "<%= Message %>"
+//       }
+//   }
+//
+// Hygen's blessed `Name` variable (auto-capitalized `name`) is `name |
+// pascal_case` here; the manual `Message = message.toUpperCase()` EJS
+// scriptlet is a Tera `upper` filter applied inline instead.
+
+pub struct {{ name | pascal_case }};
+
+impl {{ name | pascal_case }} {
+    pub fn work(&self) -> &'static str {
+        "{{ message | upper }}"
+    }
+}

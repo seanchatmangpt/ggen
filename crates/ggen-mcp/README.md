@@ -41,7 +41,7 @@ Each tool below closes one of those.
 | `ggen_frontmatter_schema` | What frontmatter keys exist, and does this template write one file or one per row? |
 | `ggen_frontmatter_lint` | Will this Tera body parse? Does it consume a variable the SELECT never binds? |
 | `ggen_sync_dry_run` | What would be written — and *why* was each skip skipped? |
-| `ggen_check_project` | What do the cross-surface `GGEN-*`/`E00xx` diagnostics say? |
+| `ggen_check_project` | What do the cross-surface `GGEN-*`/`E00xx` diagnostics say? *(fast, incomplete-by-design first pass — escalate to `ggen_sync_dry_run`/`ggen_receipt_verify` for what it can't see)* |
 | `ggen_rule_graph` | What rules exist, and what does each read and write? |
 | `ggen_capability_status` | Am I relying on a field that is accepted but not implemented? |
 | `ggen_write_apply` | *(the only destructive tool)* Apply the sync. |

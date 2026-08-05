@@ -47,8 +47,7 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
 /// checker. Rust source requires the project graph, so its live content is
 /// admitted as an overlay before GGEN-SRC-004 is evaluated.
 pub fn capture_request(
-    root: &Path, file_path: &str, content: &str,
-    attribution: &crate::intel::events::Attribution,
+    root: &Path, file_path: &str, content: &str, attribution: &crate::intel::events::Attribution,
 ) {
     if !file_path.ends_with(".rs") {
         core::capture_request(root, file_path, content, attribution);

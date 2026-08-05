@@ -362,12 +362,7 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     let templates_dir = root.join("templates");
     let mut template_paths: Vec<PathBuf> = Vec::new();
     if templates_dir.is_dir() {
-        for entry in std::fs::read_dir(&templates_dir)? {
-            let path = entry?.path();
-            if path.is_file() && path.extension().is_some_and(|e| e == "tmpl") {
-                template_paths.push(path);
-            }
-        }
+        collect_pack_tmpl_paths(name, &templates_dir, &mut template_paths)?;
     }
     template_paths.sort();
     if template_paths.is_empty() {
@@ -397,6 +392,49 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         // field; `PackRef::Git` packs (no opt-out) keep this default.
         lock: true,
     })
+}
+
+/// Recursively collect every `*.tmpl` file under a pack's `templates/`
+/// directory. Packs are free to organize templates into subdirectories
+/// (e.g. `templates/generated/`, `templates/src/bin/`) exactly like a
+/// consumer project's own `[templates].dir` does (see `sync::
+/// collect_tmpl_paths`, which this mirrors) -- a flat, single-level
+/// `read_dir` here would silently drop every nested template with no error,
+/// which previously made a pack's own subdirectory-organized templates
+/// invisible to `discover_templates` while its `gates/*.rq` still enforced
+/// data those absent templates were meant to project.
+///
+/// # Errors
+/// `[FM-PACK-006]`-shaped propagation via `?` when a directory cannot be
+/// listed (fails closed, consistent with the rest of pack resolution).
+fn collect_pack_tmpl_paths(name: &str, dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in std::fs::read_dir(dir).map_err(|e| {
+        AppError::fm_pack(
+            5,
+            format!(
+                "pack `{name}`: could not list `{}` while discovering templates: {e}.",
+                dir.display()
+            ),
+        )
+    })? {
+        let entry = entry.map_err(|e| {
+            AppError::fm_pack(
+                5,
+                format!(
+                    "pack `{name}`: could not read a directory entry under `{}` while \
+                     discovering templates: {e}",
+                    dir.display()
+                ),
+            )
+        })?;
+        let path = entry.path();
+        if path.is_dir() {
+            collect_pack_tmpl_paths(name, &path, out)?;
+        } else if path.is_file() && path.extension().is_some_and(|e| e == "tmpl") {
+            out.push(path);
+        }
+    }
+    Ok(())
 }
 
 /// Deterministic BLAKE3 content hash of a pack: sorted `(relative_path,

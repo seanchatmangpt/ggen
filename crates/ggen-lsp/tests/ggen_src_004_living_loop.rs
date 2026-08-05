@@ -19,8 +19,11 @@ fn write_project(root: &std::path::Path, lib_source: &str, include_child_rule: b
     .expect("ontology");
     fs::write(root.join("src/lib.rs"), lib_source).expect("lib.rs");
     if include_child_rule {
-        fs::write(root.join("src/capabilities.rs"), "pub struct Capabilities;\n")
-            .expect("capabilities.rs");
+        fs::write(
+            root.join("src/capabilities.rs"),
+            "pub struct Capabilities;\n",
+        )
+        .expect("capabilities.rs");
     }
 
     let child_rule = if include_child_rule {
@@ -62,8 +65,7 @@ fn src_004_count(report: &ggen_lsp::CheckReport) -> usize {
         .flat_map(|file| &file.diagnostics)
         .filter(|diagnostic| {
             diagnostic.severity == Some(DiagnosticSeverity::ERROR)
-                && diagnostic.code
-                    == Some(NumberOrString::String("GGEN-SRC-004".to_string()))
+                && diagnostic.code == Some(NumberOrString::String("GGEN-SRC-004".to_string()))
         })
         .count()
 }

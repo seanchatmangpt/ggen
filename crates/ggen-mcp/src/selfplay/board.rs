@@ -16,6 +16,7 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::error::{ErrorCategory, McpError};
 use crate::selfplay::case::Case;
 use crate::selfplay::referee::{fingerprint, referee_verdict, Observation, Verdict};
 
@@ -156,21 +157,35 @@ impl Board {
                     root: root_str.clone(),
                 },
             );
+            let mut dry_run_graph_hash: Option<String> = None;
             match &dry_run {
                 Ok(r) => {
                     obs.dry_run_ok = Some(r.ok);
                     obs.dry_run_would_write =
                         Some(r.would_write.iter().map(|w| w.path.clone()).collect());
+                    dry_run_graph_hash = Some(r.graph_hash.clone());
                 }
                 Err(_) => obs.dry_run_ok = Some(false),
             }
 
-            let applied = crate::tools::write_apply::write_apply(
-                &crate::tools::write_apply::WriteApplyParams {
-                    root: root_str.clone(),
-                    confirm: true,
-                },
-            );
+            let applied = match &dry_run_graph_hash {
+                Some(hash) => crate::tools::write_apply::write_apply(
+                    &crate::tools::write_apply::WriteApplyParams::for_self_play_harness(
+                        root_str.clone(),
+                        true,
+                        hash.clone(),
+                    ),
+                ),
+                // CP17: a real prior dry-run is now required to obtain a
+                // graph_hash at all -- if the dry-run itself errored, there is
+                // no legitimate way to apply, and that must be a captured
+                // finding, not a bypassed check.
+                None => Err(McpError::new(
+                    ErrorCategory::Internal,
+                    "no real dry-run graph_hash available (dry-run call itself \
+                     errored) -- write_apply cannot proceed without one",
+                )),
+            };
             match &applied {
                 Ok(a) => {
                     obs.applied_ok = Some(a.ok);
@@ -185,12 +200,27 @@ impl Board {
                             None
                         };
                         // Idempotence: immediate re-apply of unchanged input.
-                        match crate::tools::write_apply::write_apply(
-                            &crate::tools::write_apply::WriteApplyParams {
+                        // Needs its own fresh dry-run graph_hash (CP17) since
+                        // the first apply may have changed the graph state.
+                        let second_dry_run = crate::tools::sync_dry_run::sync_dry_run(
+                            &crate::tools::sync_dry_run::SyncDryRunParams {
                                 root: root_str.clone(),
-                                confirm: true,
                             },
-                        ) {
+                        );
+                        let second_result = match &second_dry_run {
+                            Ok(r) => crate::tools::write_apply::write_apply(
+                                &crate::tools::write_apply::WriteApplyParams::for_self_play_harness(
+                                    root_str.clone(),
+                                    true,
+                                    r.graph_hash.clone(),
+                                ),
+                            ),
+                            Err(e) => Err(McpError::new(
+                                ErrorCategory::Internal,
+                                format!("second-apply dry-run itself errored: {}", e.message),
+                            )),
+                        };
+                        match second_result {
                             Ok(second) => {
                                 obs.second_apply_written = Some(second.write_count);
                             }

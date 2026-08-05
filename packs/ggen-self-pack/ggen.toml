@@ -1,0 +1,60 @@
+[project]
+name = "ggen-self-pack"
+version = "0.1.0"
+description = "The canonical constructor for ggen packs — see README.md"
+authors = ["ggen"]
+license = "MIT OR Apache-2.0"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "http://seanchatmangpt.github.io/packs/ggen-self#"
+imports = [
+  "ontology.ttl",
+  "input.ttl",
+]
+
+[ontology.prefixes]
+sp   = "http://seanchatmangpt.github.io/packs/ggen-self#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
+
+[validation]
+gates = [
+  "gates/010_required_shape.rq",
+]
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name        = "pack-toml"
+query       = { file = "queries/pack_new.rq" }
+template    = { file = "templates/pack_toml.tmpl" }
+output_file = "packs/{{ name }}/pack.toml"
+skip_empty  = true
+mode        = "Create"
+
+[[generation.rules]]
+name        = "pack-ontology"
+query       = { file = "queries/pack_new.rq" }
+template    = { file = "templates/pack_ontology.tmpl" }
+output_file = "packs/{{ name }}/ontology.ttl"
+skip_empty  = true
+mode        = "Create"
+
+[[generation.rules]]
+name        = "pack-gate-required"
+query       = { file = "queries/pack_new.rq" }
+template    = { file = "templates/pack_gate_required.tmpl" }
+output_file = "packs/{{ name }}/gates/010_required.rq"
+skip_empty  = true
+mode        = "Create"
+
+[[generation.rules]]
+name        = "pack-readme"
+query       = { file = "queries/pack_new.rq" }
+template    = { file = "templates/pack_readme.tmpl" }
+output_file = "packs/{{ name }}/README.md"
+skip_empty  = true
+mode        = "Create"

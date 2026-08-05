@@ -1,0 +1,11 @@
+PREFIX sp: <http://seanchatmangpt.github.io/packs/ggen-self#>
+SELECT ?name ?description ?version ?category ?namespace
+WHERE {
+  ?pack a sp:Pack ;
+        sp:name ?name .
+  OPTIONAL { ?pack sp:description ?description }
+  OPTIONAL { ?pack sp:version ?version }
+  OPTIONAL { ?pack sp:category ?category }
+  OPTIONAL { ?pack sp:namespace ?namespace }
+}
+ORDER BY ?name

@@ -37,16 +37,7 @@ pub const REQUIRED_METHODS: &[&str] = &[
     "typeHierarchy/subtypes",
 ];
 
-pub const REQUIRED_SURFACES: &[&str] = &[
-    "ttl",
-    "nt",
-    "nq",
-    "rq",
-    "sparql",
-    "tera",
-    "toml",
-    "rs",
-];
+pub const REQUIRED_SURFACES: &[&str] = &["ttl", "nt", "nq", "rq", "sparql", "tera", "toml", "rs"];
 
 pub const DECLARED_DIAGNOSTICS: &[&str] = &[
     "GGEN-SRC-004",

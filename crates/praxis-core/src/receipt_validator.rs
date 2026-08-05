@@ -301,6 +301,7 @@ mod tests {
                 node_kind: 0,
                 ts_ns: i * 1000,
                 duration_ms: None,
+                origin: None,
                 payload_hash_hex,
                 prev_chain_hash_hex: hex::encode(prev),
                 chain_hash_hex: String::new(),

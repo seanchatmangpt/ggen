@@ -1,0 +1,15 @@
+# MESSAGE: An sp:Pack individual in input.ttl is missing a required property (sp:name, sp:description, sp:namespace) or declares zero sp:hasTemplateRole roles. Run `ggen pack new <name> --description ... --namespace ...` instead of hand-editing input.ttl, or add the missing property/role.
+PREFIX sp: <http://seanchatmangpt.github.io/packs/ggen-self#>
+SELECT ?pack
+WHERE {
+  ?pack a sp:Pack .
+  {
+    FILTER NOT EXISTS { ?pack sp:name ?name }
+  } UNION {
+    FILTER NOT EXISTS { ?pack sp:description ?description }
+  } UNION {
+    FILTER NOT EXISTS { ?pack sp:namespace ?namespace }
+  } UNION {
+    FILTER NOT EXISTS { ?pack sp:hasTemplateRole ?role }
+  }
+}

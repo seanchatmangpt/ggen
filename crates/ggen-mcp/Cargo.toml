@@ -31,10 +31,15 @@ ggen-config = { path = "../ggen-config" }
 # contains both rmcp 0.11.0 and 1.8.0 for that reason. Do not add
 # features = ["mcp"] to either the ggen-lsp or ggen-engine dep here.
 ggen-lsp = { path = "../ggen-lsp" }
+# Diagnostic type (`Diagnostic`/`Range`/`NumberOrString`) used by
+# `crate::bridge` to build push-notification content -- same crate ggen-lsp
+# itself uses, not a re-derivation.
+lsp-max = { workspace = true }
 
 # Exact match to crates/ggen-lsp/Cargo.toml's own rmcp pin -- do not drift.
 rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
 schemars = "1.2.1"
+regex = { workspace = true }
 
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -50,6 +55,15 @@ toml = { workspace = true }
 tempfile = { workspace = true }
 # Local-only HTTP to the TurboFieldfare OpenAI-compatible server.
 reqwest = { workspace = true }
+# CP15: real filesystem watcher backing `crate::watcher` -- same crate/version
+# `ggen-engine::watch` already uses (see crates/ggen-engine/src/watch.rs), not
+# a new dependency edge for the workspace.
+notify = { workspace = true }
+notify-debouncer-full = { workspace = true }
 
 [dev-dependencies]
 assert_cmd = { workspace = true }
+# Test-only: `crate::bridge`'s end-to-end test constructs a real MCP client
+# (ClientHandler, RoleClient) over an in-process duplex transport. The
+# production server code never uses the `client` feature.
+rmcp = { version = "1.7.0", features = ["client"] }

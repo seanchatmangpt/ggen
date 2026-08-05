@@ -1,0 +1,24 @@
+# Equivalent of Hygen's quick-start worker generator (`hygen generator new
+# --name mailer`'s scaffolded `hello.js`, then the follow-up worker-class
+# example from the "Templates" doc). Hygen reads `name`/`message` from
+# `hygen worker new --name foobar --message hello`; here the same two
+# values are `ex:Worker` facts, queried via SPARQL instead of parsed from
+# argv.
+
+@prefix ex:   <http://example.org/hygen-examples/worker#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Worker
+    a            rdfs:Class ;
+    rdfs:label   "Worker" ;
+    rdfs:comment "A generated worker module — the RDF-bound equivalent of Hygen's `--name`/`--message` CLI args." .
+
+ex:name    a rdf:Property ; rdfs:domain ex:Worker ; rdfs:range xsd:string .
+ex:message a rdf:Property ; rdfs:domain ex:Worker ; rdfs:range xsd:string .
+
+ex:FoobarWorker
+    a          ex:Worker ;
+    ex:name    "foobar" ;
+    ex:message "HELLO" .

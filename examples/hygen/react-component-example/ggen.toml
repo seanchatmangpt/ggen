@@ -1,0 +1,18 @@
+# See docs/research/ggen-docs-hygen-parity.md §5 "Template body". Adapted
+# equivalent of Hygen's change-case React-component example (`h.changeCase
+# .paramCase(name)` producing a kebab-case CSS class from `name =
+# HelloWorld`). ggen's Tera filters do include a kebab_case equivalent
+# (Inflector-backed, crates/ggen-engine/src/template.rs) — this example
+# still targets a Rust module (snake_case file path) exporting a struct
+# (PascalCase name) from one `name` fact rather than a kebab-case CSS
+# class, because the output language here is Rust, not JSX. The point
+# carried over from Hygen is "derive every case variant you need from one
+# canonical value," applied with the filters that fit ggen's target.
+[project]
+name = "hygen-react-component-example"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"

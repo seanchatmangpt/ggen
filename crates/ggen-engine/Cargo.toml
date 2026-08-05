@@ -118,6 +118,7 @@ rmcp-macros = { version = "0.11.0", optional = true }
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
 linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
+Inflector = "0.11.4"
 
 [dev-dependencies]
 chicago-tdd-tools = { workspace = true, features = ["cli-proof"] }

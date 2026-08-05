@@ -6,7 +6,7 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
 use ggen_marketplace::packs::lockfile::PackLockfile;
@@ -535,4 +535,212 @@ fn resolve_cache_dir() -> Result<PathBuf> {
                 "Cannot resolve pack cache: set HOME or GGEN_PACK_CACHE_DIR",
             )
         })
+}
+
+// ============================================================================
+// `ggen pack new` — thin dispatch into the canonical self-pack's own `sync`
+// ============================================================================
+//
+// See packs/ggen-self-pack/README.md. This verb contains NO hardcoded
+// knowledge of what a pack contains (no `fs::create_dir_all("gates")`, no
+// string-templated `pack.toml` content) — it binds CLI args into one
+// `sp:Pack` RDF individual, writes that to the project-local self-pack's
+// `input.ttl`, and runs the ordinary five-stage `ggen-engine::sync`
+// pipeline against it. Every structural fact about pack shape lives in
+// `packs/ggen-self-pack/{ontology.ttl,templates/*}`, not here — see
+// `.claude/rules/coding-agent-mistakes.md`'s "Epistemic Bypass" mistake
+// class, which this deliberately avoids.
+
+/// Output for `ggen pack new`.
+#[derive(Serialize)]
+pub struct NewOutput {
+    pub pack_name: String,
+    pub status: String,
+    pub written: Vec<String>,
+    pub graph_hash: String,
+    pub receipt_path: Option<String>,
+    pub message: String,
+}
+
+/// Escape a string for embedding as a Turtle string literal (`"..."`):
+/// backslash and double-quote must be escaped, and a raw newline would
+/// break the single-line `sp:Pack` individual this verb writes.
+fn ttl_escape(s: &str) -> String {
+    s.replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+}
+
+/// Create a new pack via the canonical self-pack constructor.
+///
+/// Requires `ggen init self` to have been run in this project first (the
+/// project-local `packs/ggen-self-pack/` is what this reads — never the
+/// copy embedded in the `ggen` binary, so project-local edits to the
+/// constructor are honored).
+#[verb]
+pub fn new(
+    #[arg(index = 1)] pack_name: String, description: Option<String>, namespace: Option<String>,
+    version: Option<String>, category: Option<String>,
+) -> Result<NewOutput> {
+    validate_pack_name(&pack_name)?;
+    let description = description.ok_or_else(|| {
+        NounVerbError::argument_error(
+            "--description is required (the 010_required_shape gate refuses a pack without one)",
+        )
+    })?;
+    let namespace = namespace.ok_or_else(|| {
+        NounVerbError::argument_error(
+            "--namespace is required, e.g. --namespace \
+             'http://seanchatmangpt.github.io/packs/<name>#' (the 010_required_shape gate \
+             refuses a pack without a claimed ontology namespace)",
+        )
+    })?;
+    create_pack_via_self_pack(
+        pack_name,
+        description,
+        namespace,
+        version.unwrap_or_else(|| "0.1.0".to_string()),
+        category.unwrap_or_else(|| "uncategorized".to_string()),
+    )
+}
+
+/// Domain logic behind `ggen pack new`, factored out of the `#[verb]` fn
+/// per this crate's own Poka-Yoke complexity gate (FM-1.1: verb functions
+/// must delegate, not implement). Binds one `sp:Pack` individual into the
+/// project-local self-pack's `input.ttl`, runs the ordinary `ggen-engine`
+/// sync pipeline against it, and relocates the result — see the inline
+/// comment above the `sync` call for why relocation is needed.
+fn create_pack_via_self_pack(
+    pack_name: String, description: String, namespace: String, version: String, category: String,
+) -> Result<NewOutput> {
+    let cwd = std::env::current_dir().map_err(|e| {
+        NounVerbError::execution_error(format!("cannot resolve current directory: {e}"))
+    })?;
+    let self_pack_dir = cwd.join("packs").join("ggen-self-pack");
+    if !self_pack_dir.join("ggen.toml").exists() {
+        return Err(NounVerbError::execution_error(format!(
+            "{} not found. Run `ggen init self` first to materialize the project-local \
+             canonical self-pack.",
+            self_pack_dir.display()
+        )));
+    }
+
+    // One sp:Pack individual, bound from CLI args, written to the
+    // self-pack's own input.ttl. This is the ONLY per-invocation state —
+    // everything else that lands under packs/<name>/ is a projection of
+    // this fact plus the self-pack's own ontology/templates.
+    let input_ttl = format!(
+        "# Written by `ggen pack new {name}` — see packs/ggen-self-pack/input.ttl's own header.\n\
+         @prefix sp: <http://seanchatmangpt.github.io/packs/ggen-self#> .\n\n\
+         sp:PendingPack\n\
+         \u{20}\u{20}\u{20}\u{20}a            sp:Pack ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:name      \"{name}\" ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:description \"{description}\" ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:namespace \"{namespace}\" ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:version   \"{version}\" ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:category  \"{category}\" ;\n\
+         \u{20}\u{20}\u{20}\u{20}sp:hasTemplateRole \"main\" .\n",
+        name = ttl_escape(&pack_name),
+        description = ttl_escape(&description),
+        namespace = ttl_escape(&namespace),
+        version = ttl_escape(&version),
+        category = ttl_escape(&category),
+    );
+    std::fs::write(self_pack_dir.join("input.ttl"), input_ttl).map_err(|e| {
+        NounVerbError::execution_error(format!("failed to write input.ttl: {e}"))
+    })?;
+
+    // `ggen-engine::sync`'s own path-traversal guard (`FM-WRITE-002`)
+    // correctly refuses any `to:`/`output_file` that escapes the sync
+    // root — confirmed by triggering it while developing this verb, not
+    // assumed. So the self-pack's own `ggen.toml` writes the new pack
+    // *nested* under `<self_pack_dir>/packs/<name>/`, inside its own
+    // root. What follows relocates that already-fully-formed, already-
+    // receipted output directory to be a sibling of `ggen-self-pack`
+    // under the real project's `packs/`, which is where a pack actually
+    // belongs. This is a generic "move this directory" step with zero
+    // knowledge of what a pack contains — not a reintroduction of
+    // pack-shape logic into this verb.
+    let report = ggen_engine::sync::sync(&self_pack_dir, ggen_engine::sync::SyncOptions::default())
+        .map_err(|e| {
+            NounVerbError::execution_error(format!(
+                "sync refused (packs/{pack_name} was not created): {e}"
+            ))
+        })?;
+
+    let nested_pack_dir = self_pack_dir.join("packs").join(&pack_name);
+    let final_pack_dir = cwd.join("packs").join(&pack_name);
+    if final_pack_dir.exists() {
+        return Err(NounVerbError::execution_error(format!(
+            "sync succeeded but {} already exists; not overwriting. The generated files are \
+             still available (uncommitted) at {}.",
+            final_pack_dir.display(),
+            nested_pack_dir.display()
+        )));
+    }
+    relocate_dir(&nested_pack_dir, &final_pack_dir).map_err(|e| {
+        NounVerbError::execution_error(format!(
+            "sync succeeded (files remain at {}) but relocating to {} failed: {e}",
+            nested_pack_dir.display(),
+            final_pack_dir.display()
+        ))
+    })?;
+    // Remove the now-empty `<self_pack_dir>/packs/` scratch directory so
+    // repeated `pack new` runs don't accumulate empty nesting.
+    let _ = std::fs::remove_dir(self_pack_dir.join("packs"));
+
+    let written: Vec<String> = report
+        .written
+        .iter()
+        .map(|p| {
+            // Report the *final* (post-relocation) path, not the
+            // now-nonexistent nested one `sync` actually wrote to.
+            match p.strip_prefix(Path::new("packs").join(&pack_name)) {
+                Ok(rel) => final_pack_dir.join(rel).display().to_string(),
+                Err(_) => p.display().to_string(),
+            }
+        })
+        .collect();
+
+    Ok(NewOutput {
+        pack_name: pack_name.clone(),
+        status: "created".to_string(),
+        written,
+        graph_hash: report.graph_hash_hex,
+        receipt_path: Some(
+            self_pack_dir
+                .join(ggen_engine::sync::RECEIPT_REL_PATH)
+                .display()
+                .to_string(),
+        ),
+        message: format!(
+            "Pack '{pack_name}' created under packs/{pack_name}/ ({} file(s) written). \
+             Receipt chained at packs/ggen-self-pack/{}.",
+            report.written.len(),
+            ggen_engine::sync::RECEIPT_REL_PATH,
+        ),
+    })
+}
+
+/// Move every file under `from` to the same relative path under `to`,
+/// creating parent directories as needed, then remove `from` (and any
+/// directories it leaves empty). Generic directory relocation — no
+/// knowledge of the files' contents or purpose.
+fn relocate_dir(from: &Path, to: &Path) -> std::io::Result<()> {
+    for entry in walkdir::WalkDir::new(from) {
+        let entry = entry.map_err(std::io::Error::other)?;
+        if entry.file_type().is_dir() {
+            continue;
+        }
+        let rel = entry
+            .path()
+            .strip_prefix(from)
+            .map_err(std::io::Error::other)?;
+        let dest = to.join(rel);
+        if let Some(parent) = dest.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::rename(entry.path(), &dest)?;
+    }
+    std::fs::remove_dir_all(from)
 }

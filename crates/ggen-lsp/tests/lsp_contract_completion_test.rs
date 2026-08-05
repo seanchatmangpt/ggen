@@ -135,9 +135,9 @@ impl LspClient {
 
 impl Drop for LspClient {
     fn drop(&mut self) {
-        let _ = self.stdin.write_all(
-            b"Content-Length: 33\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"exit\"}",
-        );
+        let _ = self
+            .stdin
+            .write_all(b"Content-Length: 33\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"exit\"}");
         let _ = self.stdin.flush();
         let _ = self.child.kill();
         let _ = self.child.wait();
@@ -156,10 +156,7 @@ fn read_frame(reader: &mut impl BufRead) -> Option<Value> {
         if line.is_empty() {
             break;
         }
-        if let Some(value) = line
-            .to_ascii_lowercase()
-            .strip_prefix("content-length:")
-        {
+        if let Some(value) = line.to_ascii_lowercase().strip_prefix("content-length:") {
             content_length = value.trim().parse().ok()?;
         }
     }

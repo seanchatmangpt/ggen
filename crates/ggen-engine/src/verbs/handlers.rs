@@ -414,6 +414,13 @@ pub fn handle_receipt_verify() -> Result<serde_json::Value> {
 ///
 /// # Errors
 /// See [`handle_receipt_verify`].
+// One linear verification sequence (schema version, payload hash, chain
+// hash, signature); splitting it would scatter a single sequential check
+// across call boundaries rather than shrink real complexity -- same
+// reasoning as the sibling `handle_receipt_history`'s identical attribute.
+// Grew past the 100-line threshold when this pass tagged each error path
+// with its own `FM-CHAIN-0NN` code (previously plain strings).
+#[allow(clippy::too_many_lines)]
 pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Value> {
     let receipt_path = root.join(RECEIPT_REL_PATH);
     let raw = std::fs::read_to_string(&receipt_path).map_err(|e| {
@@ -435,12 +442,15 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
     //    construction is only guaranteed to match the emission path for the
     //    version it was built against.
     if receipt.record.version != praxis_core::receipt_record::RECEIPT_RECORD_VERSION {
-        return Err(exec_err(format!(
-            "receipt invalid: unsupported receipt schema version {} (this binary supports {}). \
-             Remediation: re-sync with a matching ggen version, or upgrade/downgrade to a \
-             binary that supports this receipt's schema version.",
-            receipt.record.version,
-            praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+        return Err(exec_err(AppError::fm_chain(
+            12,
+            format!(
+                "receipt invalid: unsupported receipt schema version {} (this binary supports \
+                 {}). Remediation: re-sync with a matching ggen version, or upgrade/downgrade \
+                 to a binary that supports this receipt's schema version.",
+                receipt.record.version,
+                praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+            ),
         )));
     }
 
@@ -449,22 +459,31 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
     //    `stored_payload_hash`).
     let payload_hash_hex = stored_payload_hash(&raw)?;
     if payload_hash_hex != receipt.record.payload_hash_hex {
-        return Err(exec_err(format!(
-            "receipt invalid: payload hash mismatch (stored {}, recomputed {payload_hash_hex})",
-            receipt.record.payload_hash_hex
+        return Err(exec_err(AppError::fm_chain(
+            13,
+            format!(
+                "receipt invalid: payload hash mismatch (stored {}, recomputed {payload_hash_hex})",
+                receipt.record.payload_hash_hex
+            ),
         )));
     }
 
     // 2. Chain integrity: recompute via praxis-core's emission-path frame.
-    let recomputed = receipt.record.recompute_chain_hash().map_err(exec_err)?;
+    let recomputed = receipt
+        .record
+        .recompute_chain_hash()
+        .map_err(|e| exec_err(AppError::fm_chain(14, e.to_string())))?;
     let recomputed_hex = crate::sync::hex32(&recomputed);
     if recomputed_hex != receipt.record.chain_hash_hex {
         let stored_chain_hash = &receipt.record.chain_hash_hex;
-        return Err(exec_err(format!(
-            "receipt invalid: chain hash mismatch (stored {stored_chain_hash}, \
-             recomputed {recomputed_hex}). Remediation: the receipt's own record fields \
-             (payload/chain hashes, andon, object_ids, ...) were tampered with -- restore \
-             from `receipt history`/git."
+        return Err(exec_err(AppError::fm_chain(
+            14,
+            format!(
+                "receipt invalid: chain hash mismatch (stored {stored_chain_hash}, \
+                 recomputed {recomputed_hex}). Remediation: the receipt's own record fields \
+                 (payload/chain hashes, andon, object_ids, ...) were tampered with -- restore \
+                 from `receipt history`/git."
+            ),
         )));
     }
 
@@ -479,27 +498,32 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
 
             let verifying_key = crate::keys::resolve_verifying_key(root).map_err(exec_err)?;
             let sig_bytes = hex::decode(sig_hex).map_err(|e| {
-                exec_err(format!(
-                    "receipt invalid: signature_hex is not valid hex: {e}"
+                exec_err(AppError::fm_chain(
+                    15,
+                    format!("receipt invalid: signature_hex is not valid hex: {e}"),
                 ))
             })?;
             let sig_arr: [u8; 64] = sig_bytes.try_into().map_err(|v: Vec<u8>| {
-                exec_err(format!(
-                    "receipt invalid: signature must be 64 bytes (128 hex chars), got {} bytes",
-                    v.len()
+                exec_err(AppError::fm_chain(
+                    16,
+                    format!(
+                        "receipt invalid: signature must be 64 bytes (128 hex chars), got {} bytes",
+                        v.len()
+                    ),
                 ))
             })?;
             let signature = ed25519_dalek::Signature::from_bytes(&sig_arr);
             match verifying_key.verify(receipt.record.chain_hash_hex.as_bytes(), &signature) {
                 Ok(()) => Some(true),
                 Err(_) => {
-                    return Err(exec_err(
+                    return Err(exec_err(AppError::fm_chain(
+                        17,
                         "receipt invalid: signature mismatch (chain integrity OK, but the \
                          ed25519 signature does not verify against the resolved verifying key). \
                          Remediation: check GGEN_SIGNING_KEY / .ggen/keys/verifying.key match \
                          the key that signed this receipt, or the receipt's signature_hex field \
                          was tampered with.",
-                    ));
+                    )));
                 }
             }
         }

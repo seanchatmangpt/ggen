@@ -51,6 +51,23 @@ pub struct ReceiptRecord {
     /// `receipt_shacl` in the root crate); absent records read back as `None`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<u64>,
+    /// Provenance tag distinguishing how this receipt's write was authorized
+    /// (Gall CP37-38): `None` (the default, and every receipt written before
+    /// this field existed) for the ordinary human/LLM-reviewed path,
+    /// `Some("unattended-dispatch")` only for a receipt produced by
+    /// `ggen-mcp`'s bounded unattended-write dispatcher
+    /// (`crates/ggen-mcp/src/tools/unattended_dispatch.rs`), whose write
+    /// fired with zero human/LLM decision step. Descriptive only, like
+    /// [`Self::activity`]/[`Self::duration_ms`] above — deliberately
+    /// excluded from chain-hash computation (`receipt_meta` does not read
+    /// it), so this field's presence, absence, or value never changes
+    /// [`Self::chain_hash_hex`]. The point is not tamper-detection on this
+    /// field itself (that would require folding it into the hash, which
+    /// this checkpoint does not do) but making an unattended-fired receipt
+    /// visually and programmatically distinguishable from a reviewed one in
+    /// the chain, closing the gap where both looked identical.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin: Option<String>,
     /// BLAKE3 hash of the canonical JSON payload bytes, as 64 lowercase hex characters.
     pub payload_hash_hex: String,
     /// The chain hash this record was chained onto, as 64 lowercase hex characters.
@@ -204,6 +221,7 @@ mod tests {
             node_kind: 0,
             ts_ns: 42,
             duration_ms: None,
+            origin: None,
             payload_hash_hex: "11".repeat(32),
             prev_chain_hash_hex: "0".repeat(64),
             chain_hash_hex: String::new(), // filled in below
@@ -235,6 +253,70 @@ mod tests {
         record.payload_hash_hex = "22".repeat(32);
         let tampered = record.recompute_chain_hash().expect("recompute");
         assert_ne!(original, tampered);
+    }
+
+    // -----------------------------------------------------------------
+    // CP37: `origin` is descriptive provenance, deliberately excluded from
+    // chain-hash computation -- these tests prove both directions: its
+    // presence/value never affects the hash, and every other, hash-relevant
+    // field's tamper detection is unaffected by `origin` existing at all.
+    // -----------------------------------------------------------------
+
+    #[test]
+    fn origin_field_does_not_affect_the_recomputed_chain_hash() {
+        let mut without_origin = sample();
+        let hash_without = without_origin
+            .recompute_chain_hash()
+            .expect("recompute without origin");
+        without_origin.chain_hash_hex = hex::encode(hash_without);
+
+        let mut with_origin = sample();
+        with_origin.origin = Some("unattended-dispatch".to_string());
+        let hash_with = with_origin
+            .recompute_chain_hash()
+            .expect("recompute with origin");
+
+        assert_eq!(
+            hash_without, hash_with,
+            "origin must be purely descriptive: setting it must not change the \
+             recomputed chain hash at all"
+        );
+    }
+
+    #[test]
+    fn corrupting_only_origin_still_validates_against_the_original_chain_hash() {
+        let mut record = sample();
+        record.origin = Some("unattended-dispatch".to_string());
+        let chain = record.recompute_chain_hash().expect("recompute");
+        record.chain_hash_hex = hex::encode(chain);
+
+        // Corrupt ONLY origin -- a hash-relevant field must still validate
+        // (proving origin really is outside the hash), unlike the paired
+        // test below where a hash-relevant field is corrupted instead.
+        let mut corrupted_origin_only = record.clone();
+        corrupted_origin_only.origin = Some("something-else-entirely".to_string());
+        assert_eq!(
+            corrupted_origin_only
+                .recompute_chain_hash()
+                .expect("recompute over origin-only edit"),
+            chain,
+            "corrupting only origin must still recompute to the SAME chain hash \
+             (it's outside the hash) -- this is not a tamper the chain check can \
+             or should catch"
+        );
+
+        // Regression: a real hash-relevant field (payload_hash_hex) must
+        // still be caught exactly as before origin existed.
+        let mut corrupted_payload = record.clone();
+        corrupted_payload.payload_hash_hex = "22".repeat(32);
+        assert_ne!(
+            corrupted_payload
+                .recompute_chain_hash()
+                .expect("recompute over payload edit"),
+            chain,
+            "a real hash-relevant field must still be caught by chain recompute; \
+             origin's addition must not weaken this"
+        );
     }
 
     #[test]

@@ -67,6 +67,7 @@ fn when_guard_passes_only_after_n3_materialization() {
         dir.path(),
         SyncOptions {
             dry_run: false,
+            receipt_origin: None,
             engine: EngineKind::Oxigraph,
         },
     )
@@ -102,6 +103,7 @@ fn engines_agree_when_no_law_configured() {
             dir.path(),
             SyncOptions {
                 dry_run: false,
+                receipt_origin: None,
                 engine,
             },
         )
@@ -159,6 +161,7 @@ fn law_gate_violation_refuses_sync_naming_offending_node() {
         dir.path(),
         SyncOptions {
             dry_run: false,
+            receipt_origin: None,
             engine: EngineKind::Oxigraph,
         },
     )

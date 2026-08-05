@@ -52,7 +52,10 @@ impl GgenLanguageServer {
             self.client
                 .publish_diagnostics(
                     target_uri,
-                    diagnostics.into_iter().map(|diagnostic| diagnostic.lsp).collect(),
+                    diagnostics
+                        .into_iter()
+                        .map(|diagnostic| diagnostic.lsp)
+                        .collect(),
                     None,
                 )
                 .await;
@@ -176,9 +179,7 @@ impl GgenLanguageServer {
         } else {
             documents.insert(uri.clone(), next);
         }
-        let has_gating_violations = documents
-            .values()
-            .any(|state| !state.gating_ids.is_empty());
+        let has_gating_violations = documents.values().any(|state| !state.gating_ids.is_empty());
         drop(documents);
 
         write_gate(has_gating_violations);
@@ -381,7 +382,10 @@ impl LanguageServer for GgenLanguageServer {
             self.client
                 .publish_diagnostics(
                     target_uri,
-                    diagnostics.into_iter().map(|diagnostic| diagnostic.lsp).collect(),
+                    diagnostics
+                        .into_iter()
+                        .map(|diagnostic| diagnostic.lsp)
+                        .collect(),
                     None,
                 )
                 .await;
@@ -561,9 +565,7 @@ fn coalesce_publications(
     publications
 }
 
-fn diagnostic_id(
-    uri: &Url, diagnostic: &lsp_max_protocol::MaxDiagnostic, code: &str,
-) -> String {
+fn diagnostic_id(uri: &Url, diagnostic: &lsp_max_protocol::MaxDiagnostic, code: &str) -> String {
     let range = diagnostic.lsp.range;
     let mut hasher = blake3::Hasher::new();
     hasher.update(uri.as_str().as_bytes());
@@ -596,7 +598,11 @@ fn document_uri_to_path(uri: &Url) -> Option<PathBuf> {
 }
 
 fn url_from_path(path: &Path) -> Option<Url> {
-    url::Url::from_file_path(path).ok()?.to_string().parse().ok()
+    url::Url::from_file_path(path)
+        .ok()?
+        .to_string()
+        .parse()
+        .ok()
 }
 
 fn write_gate(has_gating_violations: bool) {

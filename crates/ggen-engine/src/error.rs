@@ -262,6 +262,61 @@ impl AppError {
     }
 }
 
+/// Extract the first `FM-XXX-NNN`-shaped code (without brackets) from an
+/// error's `Display` text -- real, not decorative, because `AppError` has
+/// no typed FM-code field anywhere (every `fm_*` constructor above formats
+/// its code straight into the variant's `String` payload; confirmed by
+/// reading all of them, not assumed). Gall R3: this used to be a second,
+/// independent copy of this exact parsing trick living in
+/// `ggen-mcp::bridge`; relocated here so there is exactly ONE
+/// implementation in the workspace, since the underlying stringly-typed
+/// constraint is real and not worth pretending away with a second copy.
+///
+/// Returns `None` if the text contains no bracketed `FM-`-prefixed code --
+/// callers that route on the result should treat `None` the same as "no
+/// declared fact matches," i.e. fail closed to the safe default, never as
+/// an error.
+#[must_use]
+pub fn extract_fm_code(message: &str) -> Option<&str> {
+    let start = message.find("[FM-")? + 1;
+    let end = message[start..].find(']')? + start;
+    Some(&message[start..end])
+}
+
+#[cfg(test)]
+mod fm_code_extraction_tests {
+    use super::extract_fm_code;
+
+    #[test]
+    fn extracts_a_real_bracketed_code() {
+        assert_eq!(
+            extract_fm_code("[FM-PACK-013] every Dog must carry an ex:license"),
+            Some("FM-PACK-013")
+        );
+    }
+
+    #[test]
+    fn extracts_the_first_code_when_multiple_are_present() {
+        assert_eq!(
+            extract_fm_code("[FM-TPL-002] wrapped: [FM-GRAPH-001] inner cause"),
+            Some("FM-TPL-002")
+        );
+    }
+
+    #[test]
+    fn returns_none_for_text_with_no_bracketed_code() {
+        assert_eq!(extract_fm_code("plain error, no code here"), None);
+    }
+
+    #[test]
+    fn returns_none_for_an_unterminated_bracket() {
+        assert_eq!(
+            extract_fm_code("[FM-PACK-013 missing closing bracket"),
+            None
+        );
+    }
+}
+
 // ---------------------------------------------------------------------------
 // ValidationChain — collect multiple checks, report all failures at once
 // ---------------------------------------------------------------------------

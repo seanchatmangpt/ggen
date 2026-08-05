@@ -23,7 +23,7 @@ output_dir = "."
 [[generation.rules]]
 name = "testing-verifier"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/testing_bblock.py.tmpl" }
+template = { file = "templates/testing_bblock.py.tmpl" }
 output_file = "consumer/testing-bblock/testing_bblock.py"
 skip_empty = false
 mode = "Overwrite"
@@ -31,7 +31,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "protocol-unit-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/protocol-unit.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -39,7 +39,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "property-fuzz-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/property-fuzz.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -47,7 +47,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "stdio-http-integration-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/stdio-http-integration.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -55,7 +55,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "cli-e2e-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/cli-e2e.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -63,7 +63,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "security-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/security.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -71,7 +71,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "chaos-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/chaos.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -79,7 +79,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "stress-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/stress.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -87,7 +87,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "benchmark-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/benchmark.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -95,7 +95,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "replay-suite"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/suite.sh.tmpl" }
+template = { file = "templates/suite.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/replay.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -103,7 +103,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "aggregate-verifier"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/suites/verify-all.sh.tmpl" }
+template = { file = "templates/verify-all.sh.tmpl" }
 output_file = "consumer/testing-bblock/suites/verify-all.sh"
 skip_empty = false
 mode = "Overwrite"
@@ -111,7 +111,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "verifier-report-schema"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/verifier-report.schema.json.tmpl" }
+template = { file = "templates/verifier-report.schema.json.tmpl" }
 output_file = "consumer/testing-bblock/verifier-report.schema.json"
 skip_empty = false
 mode = "Overwrite"
@@ -119,7 +119,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "testing-bblock-readme"
 query = { file = "queries/testing-bblock.rq" }
-template = { file = "templates/consumer/testing-bblock/README.md.tmpl" }
+template = { file = "templates/README.md.tmpl" }
 output_file = "consumer/testing-bblock/README.md"
 skip_empty = false
 mode = "Overwrite"

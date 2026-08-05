@@ -1,0 +1,20 @@
+# Written by `ggen pack new <name>` immediately before it calls the sync
+# pipeline (see crates/ggen-cli/src/cmds/pack.rs). Checked in with a
+# placeholder so `ggen sync run --dry-run` against this pack alone (without
+# ever having run `pack new`) resolves cleanly instead of failing on a
+# missing [ontology].imports path — the placeholder individual is
+# deliberately incomplete (no sp:hasTemplateRole), so the 010_required_shape
+# gate correctly refuses it rather than silently generating a bogus pack
+# named "placeholder".
+#
+# DO NOT hand-edit the sp:Pack individual below for real pack creation —
+# run `ggen pack new <name>` instead. Hand edits here are only useful for
+# testing this pack's own gate/template wiring in isolation.
+
+@prefix sp: <http://seanchatmangpt.github.io/packs/ggen-self#> .
+
+sp:PendingPack
+    a          sp:Pack ;
+    sp:name    "placeholder" ;
+    sp:version "0.1.0" ;
+    sp:category "uncategorized" .

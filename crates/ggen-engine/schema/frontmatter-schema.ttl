@@ -17,6 +17,8 @@
 @prefix ggenspec: <https://praxis.dev/ggen/schema#> .
 @prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix fm:       <https://praxis.dev/ggen/frontmatter#> .
 
 ggenspec:Frontmatter
     a               ggenspec:Section ;
@@ -205,3 +207,122 @@ ggenspec:MatchScope
 ggenspec:MatchOccurrence
     a ggenspec:EnumType ;
     ggenspec:enumValue "first" , "last" , "unique" , "nth" .
+
+
+# ---------------------------------------------------------------------------
+# CP8 (Gall's-Law checkpoint 8): real SHACL shapes for a slice of frontmatter.
+#
+# Additive to this file -- the 25 ggenspec:hasField declarations above are
+# UNTOUCHED, so tests/frontmatter_schema_match.rs's field-name-equality drift
+# gate keeps passing unmodified.
+#
+# This section targets a SEPARATE class, `fm:Frontmatter` (an actual parsed
+# frontmatter *instance*, projected to RDF facts by
+# crate::frontmatter_rdf::project_frontmatter), not `ggenspec:Frontmatter`
+# (the meta-schema class describing the field set itself, used only by the
+# drift gate above). Nothing before this comment is a real, enforced SHACL
+# shape -- the pre-CP8 file had zero `sh:` triples; `shape:`-declared
+# constraints validate *rendered template output* against user-authored
+# shape docs (crate::sync::admit_shape_files), never the frontmatter block
+# itself. This is a new, narrower code path: 4 of Frontmatter's 25 fields,
+# chosen for having a real, checkable-with-core-SHACL-only constraint
+# (no sh:sparql/sh:if -- conditional cross-field constraints, e.g.
+# "freeze_slots_dir required when freeze_policy=checksum", are deliberately
+# left OUT of this slice; SHACL-SPARQL target/constraint component support in
+# the praxis-graphlaw backend has not been proven in this workspace, and 3 of
+# the 4 chosen fields already have real, checkable constraints under vanilla
+# sh:minCount/sh:minLength/sh:minInclusive/sh:datatype alone):
+#
+#   - to:               required (sh:minCount 1), non-empty (sh:minLength 1)
+#   - at_line:           when present, an integer >= 1 (sh:minInclusive 1) --
+#                        catches the otherwise-silent zero/negative 1-based
+#                        line number a hand-written or generated frontmatter
+#                        block could carry
+#   - sh_before:         when present, non-empty (sh:minLength 1) -- an empty
+#                        shell command would silently no-op past
+#                        shell_safety's denylist check without ever being
+#                        flagged
+#   - sh_after:          same as sh_before, same reasoning
+#
+# The other 18 fields (sparql, for_each, construct, inject, before, after,
+# skip_if, unless_exists, force, skip_empty, backup, shape,
+# determinism, freeze_policy, freeze_slots_dir, rdf, rdf_inline, prefixes)
+# are deliberately left unprojected and unshaped in this slice -- see
+# crate::frontmatter_rdf's module doc for the exact same list stated next to
+# the real projection code, and for why `inject`/`freeze_policy` specifically
+# were considered and rejected (no value constraint beyond what Rust's type
+# system already enforces).
+#
+# `when`/`from`/`base` were added in a later pass on the exact same
+# criterion as the original 4: each is an `Option<String>` where Rust's type
+# system does not forbid an empty-but-present string, so `sh:minLength 1`
+# is a real, non-vacuous check (mirrors sh_before/sh_after exactly):
+#
+#   - when:              SPARQL ASK guard string, non-empty when present
+#   - from:               alternate template body source path, non-empty when present
+#   - base:               RDF base IRI, non-empty when present
+
+fm:Frontmatter a rdfs:Class ;
+    rdfs:comment "One projected frontmatter block instance (crate::frontmatter_rdf::project_frontmatter), distinct from ggenspec:Frontmatter (the meta-schema describing the field set)." .
+
+ggenspec:FrontmatterInstanceShape
+    a sh:NodeShape ;
+    sh:targetClass fm:Frontmatter ;
+    rdfs:comment "CP8 slice: 7 of 25 frontmatter fields, chosen for a real core-SHACL-checkable constraint. See the CP8 comment block above for the full field-selection rationale." ;
+    sh:property [
+        sh:path fm:to ;
+        sh:name "to" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `to` is required and must be a non-empty output path" ;
+    ] ;
+    sh:property [
+        sh:path fm:atLine ;
+        sh:name "at_line" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "frontmatter `at_line`, when present, must be a 1-based line number >= 1" ;
+    ] ;
+    sh:property [
+        sh:path fm:shBefore ;
+        sh:name "sh_before" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `sh_before`, when present, must be a non-empty shell command" ;
+    ] ;
+    sh:property [
+        sh:path fm:shAfter ;
+        sh:name "sh_after" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `sh_after`, when present, must be a non-empty shell command" ;
+    ] ;
+    sh:property [
+        sh:path fm:when ;
+        sh:name "when" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `when`, when present, must be a non-empty SPARQL ASK guard" ;
+    ] ;
+    sh:property [
+        sh:path fm:from ;
+        sh:name "from" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `from`, when present, must be a non-empty source path" ;
+    ] ;
+    sh:property [
+        sh:path fm:base ;
+        sh:name "base" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `base`, when present, must be a non-empty RDF base IRI" ;
+    ] .

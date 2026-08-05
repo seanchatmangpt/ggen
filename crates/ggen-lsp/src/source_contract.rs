@@ -63,7 +63,10 @@ pub fn detect(
 
         for declaration in module_declarations(&source) {
             let candidates = module_candidates(source_path, &declaration.name);
-            if candidates.iter().any(|candidate| generated.contains(candidate)) {
+            if candidates
+                .iter()
+                .any(|candidate| generated.contains(candidate))
+            {
                 continue;
             }
 

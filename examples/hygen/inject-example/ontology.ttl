@@ -1,0 +1,16 @@
+# Equivalent of Hygen's inject example: "add the react-native-fs dependency
+# into a package.json file, but ... not add it twice (because of
+# skip_if)". Here: add a `serde` dependency line into Cargo.toml.
+@prefix ex:   <http://example.org/hygen-examples/inject#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Dependency a rdfs:Class ; rdfs:label "Dependency" .
+ex:crateName a rdf:Property ; rdfs:domain ex:Dependency ; rdfs:range xsd:string .
+ex:spec      a rdf:Property ; rdfs:domain ex:Dependency ; rdfs:range xsd:string .
+
+ex:SerdeDependency
+    a             ex:Dependency ;
+    ex:crateName  "serde" ;
+    ex:spec       "{ version = \"1\", features = [\"derive\"] }" .

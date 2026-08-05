@@ -1,0 +1,10 @@
+---
+inject: true
+to: "Cargo.toml"
+after: "[dependencies]"
+skip_if: "serde ="
+sparql:
+  dep: "PREFIX ex: <http://example.org/hygen-examples/inject#> SELECT ?crateName ?spec WHERE { ?d a ex:Dependency ; ex:crateName ?crateName ; ex:spec ?spec . } LIMIT 1"
+for_each: dep
+---
+{{ crateName }} = {{ spec }}

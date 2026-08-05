@@ -1,0 +1,20 @@
+# Equivalent of `hygen mailer new --name foobar --message hello --version 1`.
+@prefix ex:   <http://example.org/hygen-examples/mailer#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Campaign
+    a            rdfs:Class ;
+    rdfs:label   "Campaign" ;
+    rdfs:comment "One email campaign — the RDF-bound equivalent of Hygen's --name/--message/--version CLI args to `mailer new`." .
+
+ex:name    a rdf:Property ; rdfs:domain ex:Campaign ; rdfs:range xsd:string .
+ex:message a rdf:Property ; rdfs:domain ex:Campaign ; rdfs:range xsd:string .
+ex:version a rdf:Property ; rdfs:domain ex:Campaign ; rdfs:range xsd:string .
+
+ex:FoobarCampaign
+    a          ex:Campaign ;
+    ex:name    "foobar" ;
+    ex:message "hello" ;
+    ex:version "1" .

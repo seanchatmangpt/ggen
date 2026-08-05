@@ -407,6 +407,7 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
             // The law layer records the emission instant, not a span; callers
             // that measure admission duration may set this on the record.
             duration_ms: None,
+            origin: None,
             payload_hash_hex: payload_hash_hex.clone(),
             prev_chain_hash_hex: hex::encode(prev_chain_hash),
             chain_hash_hex: hex::encode(chain_hash),

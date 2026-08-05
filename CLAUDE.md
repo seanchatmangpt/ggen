@@ -402,6 +402,40 @@ Before launching agents:
 - Include "read code first, use real examples only" in every agent prompt
 - Never ask agents to document features without pointing to real implementation
 
+## Bounded Unattended-Write Dispatcher (CP31-39)
+
+A narrow, deliberate exception to the Agent Verification Protocol's human-checking-step default:
+`ggen-mcp`'s `unattended_dispatch::try_unattended_apply`
+(`crates/ggen-mcp/src/tools/unattended_dispatch.rs`) may apply a real write with **zero human or
+LLM decision step**, for a class of writes narrow enough to be safe by construction rather than
+by review. Eligibility requires a project's own frontmatter template to declare
+`unattended_write_eligible: true` (which the writer refuses to parse unless `unless_exists: true`
+is also set — `crates/ggen-engine/src/template.rs`), plus the target being absent and unprotected,
+a whole-project-clean dry run whose entire write-set is covered by the eligible class, and
+circuit-breaker budget. The function's own doc comment is the authoritative, current list of
+conditions — not restated here as a number, since it can drift the same way the `pre-commit` gate
+count above does.
+
+**Why this doesn't undermine the rest of this document's governance model**: an unattended
+dispatch write only ever touches the working tree. Confirmed by grep, not assumed —
+`crates/ggen-mcp/src/tools/unattended_dispatch.rs` and `crates/ggen-mcp/src/tools/write_apply.rs`
+invoke `git` nowhere. It never commits, never pushes. `just pre-commit`, the Definition of Done,
+and the main-branch git hooks all still gate everything before it becomes durable, exactly as
+before this mechanism existed — this exception narrows *who* may propose a working-tree write for
+a specific, safe-by-construction class, not *what* is required before that write becomes a real,
+committed change.
+
+Every such write is tagged in its own receipt (`ReceiptRecord::origin = "unattended-dispatch"`,
+`crates/praxis-core/src/receipt_record.rs`, descriptive only, excluded from the chain hash) and
+logged to `.ggen/unattended-dispatch-log.jsonl` on every attempt, not only successes — a
+human/LLM reviewing history can always tell which writes were unattended.
+
+**What this is not**: CP21's original "any declared trigger → any action" general dispatcher,
+assessed and rejected as unsafe. `signal_dispatch::route_signal`
+(`crates/ggen-mcp/src/tools/signal_dispatch.rs`) only ever routes a declared signal into this
+same bounded path, never a broader one, and fails closed to the ordinary human/LLM-reviewed path
+by default when no route is declared.
+
 ## Support
 
 - **Repository**: https://github.com/seanchatmangpt/ggen

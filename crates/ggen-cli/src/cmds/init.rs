@@ -866,6 +866,136 @@ ggen mcp setup
     })
 }
 
+// ============================================================================
+// `ggen init self` — materialize the canonical self-pack
+// ============================================================================
+//
+// See packs/ggen-self-pack/README.md for the full design. Each file is
+// embedded at compile time via `include_str!` — a missing self-pack file is
+// a *compile* error, not a runtime one, and no new dependency
+// (`include_dir!`/`rust-embed`) is needed for a fixed, small file set. The
+// canonical copy lives in this repo's own `packs/ggen-self-pack/`; `ggen
+// init self` copies it into `<project>/packs/ggen-self-pack/`, a
+// project-local, versioned, hand-editable copy — the one `ggen pack new`
+// actually reads (see `crate::cmds::pack::new`).
+
+/// (relative path within `packs/ggen-self-pack/`, file contents).
+const SELF_PACK_FILES: &[(&str, &str)] = &[
+    (
+        "ggen.toml",
+        include_str!("../../../../packs/ggen-self-pack/ggen.toml"),
+    ),
+    (
+        "pack.toml",
+        include_str!("../../../../packs/ggen-self-pack/pack.toml"),
+    ),
+    (
+        "ontology.ttl",
+        include_str!("../../../../packs/ggen-self-pack/ontology.ttl"),
+    ),
+    (
+        "input.ttl",
+        include_str!("../../../../packs/ggen-self-pack/input.ttl"),
+    ),
+    (
+        "README.md",
+        include_str!("../../../../packs/ggen-self-pack/README.md"),
+    ),
+    (
+        "queries/pack_new.rq",
+        include_str!("../../../../packs/ggen-self-pack/queries/pack_new.rq"),
+    ),
+    (
+        "gates/010_required_shape.rq",
+        include_str!("../../../../packs/ggen-self-pack/gates/010_required_shape.rq"),
+    ),
+    (
+        "templates/pack_toml.tmpl",
+        include_str!("../../../../packs/ggen-self-pack/templates/pack_toml.tmpl"),
+    ),
+    (
+        "templates/pack_ontology.tmpl",
+        include_str!("../../../../packs/ggen-self-pack/templates/pack_ontology.tmpl"),
+    ),
+    (
+        "templates/pack_gate_required.tmpl",
+        include_str!("../../../../packs/ggen-self-pack/templates/pack_gate_required.tmpl"),
+    ),
+    (
+        "templates/pack_readme.tmpl",
+        include_str!("../../../../packs/ggen-self-pack/templates/pack_readme.tmpl"),
+    ),
+];
+
+/// Output for `ggen init self`.
+#[derive(Serialize)]
+pub struct InitSelfOutput {
+    pub status: String,
+    pub project_dir: String,
+    pub self_pack_dir: String,
+    pub files_created: Vec<String>,
+    pub error: Option<String>,
+}
+
+/// `ggen init-self` — materialize the canonical self-pack (embedded in this
+/// binary) into `<project>/packs/ggen-self-pack/`.
+///
+/// Named `init-self` rather than a nested `init self` because
+/// `clap-noun-verb`'s registry treats `init` as a bare root command
+/// (`#[verb("init", "root")]` above); a noun also named `init` collides
+/// with it at registration time (`Command cli: command name "init" is
+/// duplicated`, confirmed by running it) rather than nesting under it.
+///
+/// Idempotent: refuses (status "error", no write) if the target directory
+/// already exists, unless `--force` is passed — matching the existing
+/// `ggen init` artifact-check convention (`has_ggen_artifacts` above), so a
+/// hand-edited project-local self-pack is never silently clobbered.
+#[allow(clippy::unused_unit)]
+#[verb("init-self", "root")]
+pub fn init_self(path: Option<String>, force: Option<String>) -> VerbResult<InitSelfOutput> {
+    let project_dir = path.unwrap_or_else(|| ".".to_string());
+    let force = parse_bool_flag("force", force.as_deref())?;
+
+    let base_path = Path::new(&project_dir);
+    let self_pack_dir = base_path.join("packs").join("ggen-self-pack");
+
+    if self_pack_dir.exists() && !force {
+        return Ok(InitSelfOutput {
+            status: "error".to_string(),
+            project_dir,
+            self_pack_dir: self_pack_dir.display().to_string(),
+            files_created: vec![],
+            error: Some(
+                "packs/ggen-self-pack already exists. Use --force to overwrite the \
+                 project-local copy (hand edits to it will be lost)."
+                    .to_string(),
+            ),
+        });
+    }
+
+    let tx = FileTransaction::new()
+        .map_err(|e| GgenError::FileError(format!("failed to start init-self transaction: {e}")))?;
+
+    let mut files_created = Vec::new();
+    for (rel_path, contents) in SELF_PACK_FILES {
+        let target = self_pack_dir.join(rel_path);
+        tx.write_file(&target, contents)
+            .map_err(|e| GgenError::FileError(format!("failed to stage {}: {e}", target.display())))?;
+        files_created.push(target.display().to_string());
+    }
+
+    tx.commit()
+        .map_err(|e| GgenError::FileError(format!("failed to commit init-self transaction: {e}")))?;
+
+    Ok(InitSelfOutput {
+        status: "success".to_string(),
+        project_dir,
+        self_pack_dir: self_pack_dir.display().to_string(),
+        files_created,
+        error: None,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1048,3 +1048,6 @@ typosquat-report.txt
 .sbom/
 .agents/
 target-local*/
+
+# gitignored scratch dir for cloning external reference repos (lumen-searchable, never committed)
+/vendor-refs/

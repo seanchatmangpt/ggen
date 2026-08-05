@@ -1,0 +1,14 @@
+# See docs/research/ggen-docs-hygen-parity.md §5 "Addition, injection, and
+# shell actions". Equivalent of Hygen's package.json dependency-injection
+# example (inject: true / after: dependencies / skip_if: <pkg-name>).
+# ggen targets Rust, so the injected file is Cargo.toml's [dependencies]
+# table instead of package.json's "dependencies": {} block — same
+# mechanic, adapted target file.
+[project]
+name = "hygen-inject-example"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
