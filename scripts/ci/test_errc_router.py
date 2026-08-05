@@ -71,7 +71,16 @@ class RouterTests(unittest.TestCase):
             values = dict(line.split("=", 1) for line in output.read_text().splitlines())
         self.assertEqual(values["docs_deep"], "true")
         self.assertEqual(values["core_deep"], "false")
+        self.assertEqual(json.loads(values["deep_matrix_json"]), {"include": [{"lane": "docs_deep"}]})
         self.assertEqual(json.loads(values["changed_files_json"]), ["docs/a.md"])
+
+    def test_empty_routing_emits_fast_only_matrix(self) -> None:
+        report = errc_router.route([])
+        with tempfile.TemporaryDirectory() as raw:
+            output = Path(raw) / "out"
+            errc_router.write_github_outputs(output, report)
+            values = dict(line.split("=", 1) for line in output.read_text().splitlines())
+        self.assertEqual(json.loads(values["deep_matrix_json"]), {"include": [{"lane": "fast_only"}]})
 
     def test_real_two_commit_git_replay(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

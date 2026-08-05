@@ -183,6 +183,9 @@ def discover_changed_files(base: str, head: str, repo: Path) -> list[str]:
 
 def write_github_outputs(path: Path, report: RoutingReport) -> None:
     lines = [f"{lane}={'true' if enabled else 'false'}" for lane, enabled in report.booleans.items()]
+    active = [lane for lane in LANES if lane != "source_removal_deep" and report.routing[lane]]
+    matrix = {"include": [{"lane": lane} for lane in (active or ["fast_only"])]}
+    lines.append("deep_matrix_json=" + json.dumps(matrix, separators=(",", ":")))
     lines.append("changed_files_json=" + json.dumps(list(report.changed_files), separators=(",", ":")))
     with path.open("a", encoding="utf-8") as handle:
         handle.write("\n".join(lines) + "\n")

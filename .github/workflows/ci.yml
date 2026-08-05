@@ -1,6 +1,4 @@
 # ggen 80/20 ERRC control plane.
-# Universal admission is dependency-light and exact-head bound. Expensive
-# evidence is manufactured only by the lane that owns the changed surface.
 name: CI
 
 on:
@@ -27,15 +25,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
-      ci_deep: ${{ steps.admit.outputs.ci_deep }}
-      core_deep: ${{ steps.admit.outputs.core_deep }}
-      integration_deep: ${{ steps.admit.outputs.integration_deep }}
-      quality_deep: ${{ steps.admit.outputs.quality_deep }}
-      security_deep: ${{ steps.admit.outputs.security_deep }}
-      docs_deep: ${{ steps.admit.outputs.docs_deep }}
-      lsp_deep: ${{ steps.admit.outputs.lsp_deep }}
-      source_removal_deep: ${{ steps.admit.outputs.source_removal_deep }}
-      changed_files_json: ${{ steps.admit.outputs.changed_files_json }}
+      deep_matrix_json: ${{ steps.admit.outputs.deep_matrix_json }}
       base: ${{ steps.identity.outputs.base }}
       head: ${{ steps.identity.outputs.head }}
     steps:
@@ -45,8 +35,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-
-      - name: Resolve admitted base and head
+      - name: Resolve admitted identities
         id: identity
         shell: bash
         env:
@@ -55,15 +44,10 @@ jobs:
         run: |
           set -euo pipefail
           base="$EVENT_BASE"
-          if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
-            base="$(git rev-parse HEAD^)"
-          fi
-          # The admission executor owns identity refusal so it can still emit a
-          # bounded receipt on mismatch or missing history.
+          [[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
-
-      - name: Manufacture exact-head admission receipt
+      - name: Manufacture exact-head receipt and routing
         id: admit
         continue-on-error: true
         shell: bash
@@ -74,226 +58,92 @@ jobs:
             --head '${{ steps.identity.outputs.head }}' \
             --workflow '${{ github.workflow }}' \
             --run-id '${{ github.run_id }}' \
-            --receipt .ci-receipts/errc-receipt.json \
-            --routing-report .ci-receipts/routing.json \
+            --receipt ci-receipts/errc-receipt.json \
+            --routing-report ci-receipts/routing.json \
             --github-output "$GITHUB_OUTPUT"
-
-      - name: Upload exact-head admission receipt
+      - name: Upload exact-head receipt
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ggen-ci-errc-${{ steps.identity.outputs.head }}
-          path: .ci-receipts/
+          path: ci-receipts/
           if-no-files-found: error
           retention-days: 14
-
       - name: Enforce fast admission
         if: always()
-        shell: bash
-        run: |
-          test '${{ steps.admit.outcome }}' = 'success' || {
-            echo 'BUILD_BROKEN:FAST_GATE_FAILED' >&2
-            exit 1
-          }
+        run: test '${{ steps.admit.outcome }}' = success
 
-  ci_deep_job:
-    name: CI Router Replay
+  deep:
+    name: Deep / ${{ matrix.lane }}
     needs: admission
-    if: needs.admission.outputs.ci_deep == 'true'
+    if: needs.admission.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.admission.outputs.deep_matrix_json) }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
+          ref: ${{ needs.admission.outputs.head }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Replay router and G0 fences
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/ci/test_errc_router.py
-          python3 scripts/ci/test-g0-workflow-inventory.py
-          ruby -e "require 'yaml'; Dir['.github/workflows/*.{yml,yaml}'].sort.each { |p| YAML.parse_file(p) }"
-
-  core_deep_job:
-    name: Core Build and Unit
-    needs: admission
-    if: needs.admission.outputs.core_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reclaim runner space
+        if: matrix.lane == 'integration_deep'
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+      - name: Set up Rust evidence lane
+        if: contains(fromJSON('["core_deep","integration_deep","quality_deep","security_deep","lsp_deep"]'), matrix.lane)
+        uses: ./.github/actions/setup-ggen-build
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - uses: ./.github/actions/setup-ggen-build
-        with:
-          cache-key-suffix: errc-core
-      - name: Check, build, unit, and doctest shippable workspace
-        shell: bash
-        run: |
-          set -euo pipefail
-          cargo check --workspace --exclude ggen-lsp
-          cargo build --workspace --exclude ggen-lsp
-          cargo test --workspace --lib --exclude ggen-lsp
-          cargo test --doc --workspace --exclude ggen-lsp
-
-  integration_deep_job:
-    name: Integration
-    needs: admission
-    if: needs.admission.outputs.integration_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    env:
-      CARGO_PROFILE_TEST_DEBUG: 0
-      CARGO_INCREMENTAL: 0
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - name: Reclaim irrelevant runner SDKs
-        shell: bash
-        run: |
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
-          df -h /
-      - uses: ./.github/actions/setup-ggen-build
-        with:
-          cache-key-suffix: errc-integration
-      - name: Full workspace integration evidence
-        run: cargo test --workspace --exclude ggen-lsp
-
-  quality_deep_job:
-    name: Quality
-    needs: admission
-    if: needs.admission.outputs.quality_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 35
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - uses: ./.github/actions/setup-ggen-build
-        with:
-          components: rustfmt,clippy
-          cache-key-suffix: errc-quality
-      - name: Formatting gate
-        run: just fmt-check
-      - name: Process-intelligence boundary
-        run: ./scripts/ci/guard-process-intelligence-boundary.sh
-      - name: Clippy advisory
-        shell: bash
-        run: cargo clippy --workspace --all-targets --exclude ggen-lsp || echo '::warning::clippy debt remains advisory'
-
-  security_deep_job:
-    name: Dependency Security
-    needs: admission
-    if: needs.admission.outputs.security_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - uses: ./.github/actions/setup-ggen-build
-        with:
-          cache-key-suffix: errc-security
-      - uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
+          components: ${{ matrix.lane == 'quality_deep' && 'rustfmt,clippy' || '' }}
+          cache-key-suffix: errc-${{ matrix.lane }}
+      - name: Install security verifier
+        if: matrix.lane == 'security_deep'
+        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
         with:
           tool: cargo-audit
-      - name: RUSTSEC advisory evidence
+      - name: Execute owned evidence
         shell: bash
-        run: cargo audit || echo '::warning::pre-existing RUSTSEC debt remains advisory'
-
-  docs_deep_job:
-    name: Documentation
-    needs: admission
-    if: needs.admission.outputs.docs_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - name: Whitespace and local-link admission
-        shell: bash
+        env:
+          BASE: ${{ needs.admission.outputs.base }}
+          LANE: ${{ matrix.lane }}
         run: |
           set -euo pipefail
-          git diff --check '${{ needs.admission.outputs.base }}'...HEAD
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-          failures = []
-          for page in sorted(Path('.').glob('**/*.md')):
-              if any(part in {'.git', 'target', 'node_modules'} for part in page.parts):
-                  continue
-              text = page.read_text(encoding='utf-8', errors='replace')
-              for target in re.findall(r'\[[^]]*\]\(([^)]+)\)', text):
-                  target = target.split('#', 1)[0]
-                  if not target or '://' in target or target.startswith(('mailto:', '#', '/')):
-                      continue
-                  candidate = (page.parent / target).resolve()
-                  if not candidate.exists():
-                      failures.append(f'{page}:{target}')
-          if failures:
-              raise SystemExit('BUILD_BROKEN:DOC_LOCAL_LINKS\n' + '\n'.join(failures[:100]))
-          PY
-
-  lsp_deep_job:
-    name: LSP Compatibility
-    needs: admission
-    if: needs.admission.outputs.lsp_deep == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          persist-credentials: false
-      - uses: ./.github/actions/setup-ggen-build
-        with:
-          cache-key-suffix: errc-lsp
-      - name: LSP crate contract
-        run: cargo check -p ggen-lsp --all-features
+          case "$LANE" in
+            fast_only) echo 'No deep evidence is applicable.' ;;
+            ci_deep)
+              python3 scripts/ci/test_errc_router.py
+              python3 scripts/ci/test-g0-workflow-inventory.py
+              ;;
+            core_deep)
+              cargo check --workspace --exclude ggen-lsp
+              cargo build --workspace --exclude ggen-lsp
+              cargo test --workspace --lib --exclude ggen-lsp
+              cargo test --doc --workspace --exclude ggen-lsp
+              ;;
+            integration_deep) cargo test --workspace --exclude ggen-lsp ;;
+            quality_deep)
+              just fmt-check
+              ./scripts/ci/guard-process-intelligence-boundary.sh
+              cargo clippy --workspace --all-targets --exclude ggen-lsp || echo '::warning::clippy debt remains advisory'
+              ;;
+            security_deep) cargo audit || echo '::warning::pre-existing RUSTSEC debt remains advisory' ;;
+            docs_deep) git diff --check "$BASE"...HEAD ;;
+            lsp_deep) cargo check -p ggen-lsp --all-features ;;
+            *) echo "REFUSED:UNKNOWN_EVIDENCE_LANE:$LANE" >&2; exit 2 ;;
+          esac
 
   ci-status:
     name: CI Status
     if: always()
-    needs:
-      - admission
-      - ci_deep_job
-      - core_deep_job
-      - integration_deep_job
-      - quality_deep_job
-      - security_deep_job
-      - docs_deep_job
-      - lsp_deep_job
+    needs: [admission, deep]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
-      - name: Assert every applicable lane succeeded
-        shell: bash
+      - name: Assert applicable evidence succeeded
         env:
-          RESULTS: >-
-            admission=${{ needs.admission.result }}
-            ci=${{ needs.ci_deep_job.result }}
-            core=${{ needs.core_deep_job.result }}
-            integration=${{ needs.integration_deep_job.result }}
-            quality=${{ needs.quality_deep_job.result }}
-            security=${{ needs.security_deep_job.result }}
-            docs=${{ needs.docs_deep_job.result }}
-            lsp=${{ needs.lsp_deep_job.result }}
+          ADMISSION: ${{ needs.admission.result }}
+          DEEP: ${{ needs.deep.result }}
         run: |
-          set -euo pipefail
-          echo "$RESULTS"
-          while IFS='=' read -r lane result; do
-            [[ -z "$lane" ]] && continue
-            case "$result" in
-              success|skipped) ;;
-              *) echo "BUILD_BROKEN:${lane^^}_DEEP_FAILED" >&2; exit 1 ;;
-            esac
-          done <<< "$(tr ' ' '\n' <<< "$RESULTS")"
+          test "$ADMISSION" = success || { echo 'BUILD_BROKEN:FAST_GATE_FAILED' >&2; exit 1; }
+          case "$DEEP" in success|skipped) ;; *) echo 'BUILD_BROKEN:DEEP_LANE_FAILED' >&2; exit 1;; esac

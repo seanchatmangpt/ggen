@@ -71,11 +71,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not head_ok:
             failures.append("REFUSED:HEAD_IDENTITY_MISMATCH")
 
+        paths = errc_router.discover_changed_files(args.base, args.head, repo)
+        routing = errc_router.route(paths)
+        changed_workflows = [
+            path
+            for path in routing.changed_files
+            if path.startswith(".github/workflows/") and path.endswith((".yml", ".yaml"))
+        ]
+
         commands = [
             ("python-compile", [sys.executable, "-m", "py_compile", "scripts/ci/errc_router.py", "scripts/ci/fast_admission.py", "scripts/ci/test_errc_router.py"]),
             ("router-self-tests", [sys.executable, "scripts/ci/test_errc_router.py"]),
-            ("workflow-yaml", ["ruby", "-e", "require 'yaml'; Dir['.github/workflows/*.{yml,yaml}'].sort.each { |p| YAML.parse_file(p) }"]),
         ]
+        if changed_workflows:
+            commands.append(
+                (
+                    "workflow-yaml",
+                    ["ruby", "-e", "require 'yaml'; ARGV.each { |p| YAML.parse_file(p) }", *changed_workflows],
+                )
+            )
         if (repo / "scripts/ci/test-g0-workflow-inventory.py").exists():
             commands.append(("g0-inventory", [sys.executable, "scripts/ci/test-g0-workflow-inventory.py"]))
 
@@ -85,8 +99,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             if not check["passed"]:
                 failures.append(str(check["typed_failure"]))
 
-        paths = errc_router.discover_changed_files(args.base, args.head, repo)
-        routing = errc_router.route(paths)
         args.routing_report.parent.mkdir(parents=True, exist_ok=True)
         args.routing_report.write_text(
             json.dumps(routing.to_json_object(), indent=2, sort_keys=True) + "\n",
