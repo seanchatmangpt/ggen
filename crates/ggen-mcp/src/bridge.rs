@@ -8,6 +8,24 @@
 //! `notifications/resources/updated` for each one over a retained
 //! `Peer<RoleServer>`.
 //!
+//! Two channels live in this module and they are NOT layers of the same
+//! signal -- `DiagnosticStore` and `SyncRefusalStore` answer different
+//! questions and neither supersedes the other:
+//!
+//! - `DiagnosticStore` / `push_diagnostics_for_root`: **author-time**
+//!   `GGEN-*` static-analysis diagnostics (`GGEN-TPL-001` etc.) from
+//!   `ggen-lsp`'s analyzers -- "is this template/frontmatter well-formed",
+//!   checked without running a real sync.
+//! - `SyncRefusalStore` / `push_sync_refusal_for_root`: **sync-time** `FM-*`
+//!   dry-run gate refusals (`FM-PACK-*`/`FM-WRITE-*`/`FM-TPL-*`/`FM-LAW-*`)
+//!   from a real `ggen_engine::sync` dry run -- "would a real sync succeed
+//!   right now", which the `GGEN-*` diagnostics above do not and cannot
+//!   answer (a file can pass every author-time analyzer and still fail a
+//!   cross-pack gate or a rule referencing an undeclared pack). Do not treat
+//!   a clean `GGEN-*` diagnostic sweep as evidence a sync will pass, and do
+//!   not wire one store to subsume the other -- they are independent,
+//!   non-overlapping checks, both real, both worth pushing.
+//!
 //! Chosen first signal: `GGEN-TPL-001` (unbound Tera projection), emitted by
 //! `crates/ggen-lsp/src/analyzers/tera_analyzer.rs` and folded into the
 //! cross-surface gate by `check.rs::fold_tpl_001`. Reasons or ONE, not
@@ -31,7 +49,7 @@ use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 
 use ggen_engine::error::extract_fm_code;
-use rmcp::model::{ResourceUpdatedNotificationParam, Resource};
+use rmcp::model::{Resource, ResourceUpdatedNotificationParam};
 use rmcp::service::Peer;
 use rmcp::RoleServer;
 use tokio::sync::Mutex;
@@ -265,9 +283,7 @@ impl PeerRegistry {
     /// genuinely failed (e.g. it closed its transport in the race between
     /// the prune and the send) -- a real communication failure on a peer
     /// that looked alive a moment ago, not merely "nobody was listening".
-    async fn broadcast(
-        &self, param: &ResourceUpdatedNotificationParam,
-    ) -> anyhow::Result<usize> {
+    async fn broadcast(&self, param: &ResourceUpdatedNotificationParam) -> anyhow::Result<usize> {
         use tracing::Instrument as _;
 
         let notify_span = tracing::info_span!(
@@ -365,11 +381,7 @@ impl PeerRegistry {
 /// (`Ok(PushOutcome {delivered_notifications: 0, ..})`, see the
 /// queued-but-unsubscribed note above).
 pub async fn push_diagnostics_for_root(
-    peers: &PeerRegistry,
-    store: &DiagnosticStore,
-    root: &Path,
-    paths: &[PathBuf],
-    codes: &[&str],
+    peers: &PeerRegistry, store: &DiagnosticStore, root: &Path, paths: &[PathBuf], codes: &[&str],
 ) -> anyhow::Result<PushOutcome> {
     let report = ggen_lsp::check::check_files_in_root(root, paths, false);
     let mut matched = 0usize;
@@ -427,8 +439,9 @@ pub async fn push_diagnostics_for_root(
             // outcome; only the broadcast is gated.
             let debounce_key = format!("{}#{code_str}", file.path);
             if store.should_notify(&debounce_key).await {
-                delivered_notifications +=
-                    peers.broadcast(&ResourceUpdatedNotificationParam::new(uri)).await?;
+                delivered_notifications += peers
+                    .broadcast(&ResourceUpdatedNotificationParam::new(uri))
+                    .await?;
             }
         }
     }
@@ -623,9 +636,7 @@ fn sync_refusal_uri(root: &Path, key: &str) -> String {
 /// refusal itself, which is the very thing this function reports via a
 /// successful push.
 pub async fn push_sync_refusal_for_root(
-    peers: &PeerRegistry,
-    store: &SyncRefusalStore,
-    root: &Path,
+    peers: &PeerRegistry, store: &SyncRefusalStore, root: &Path,
 ) -> anyhow::Result<PushOutcome> {
     use ggen_engine::sync::{sync, SyncOptions};
 
@@ -655,8 +666,9 @@ pub async fn push_sync_refusal_for_root(
             matched += 1;
             let debounce_key = format!("{root_str}#{key}");
             if store.should_notify(&debounce_key).await {
-                delivered_notifications +=
-                    peers.broadcast(&ResourceUpdatedNotificationParam::new(uri)).await?;
+                delivered_notifications += peers
+                    .broadcast(&ResourceUpdatedNotificationParam::new(uri))
+                    .await?;
             }
 
             // CP39: in addition to (never instead of) the push above, check
@@ -669,10 +681,9 @@ pub async fn push_sync_refusal_for_root(
                 match crate::tools::signal_dispatch::route_signal(fm_code, root) {
                     Ok(crate::tools::signal_dispatch::DispatchRoute::BoundedUnattended) => {
                         let breaker = DISPATCH_BREAKERS.for_root(root).await;
-                        let outcome = crate::tools::unattended_dispatch::try_unattended_apply(
-                            root, &breaker,
-                        )
-                        .await;
+                        let outcome =
+                            crate::tools::unattended_dispatch::try_unattended_apply(root, &breaker)
+                                .await;
                         tracing::info!(
                             fm_code,
                             outcome = ?outcome,
@@ -716,6 +727,90 @@ pub async fn push_sync_refusal_for_root(
                         .await?;
                 }
             }
+        }
+    }
+
+    Ok(PushOutcome {
+        matched,
+        delivered_notifications,
+    })
+}
+
+/// Build the resource URI for a pushed receipt-chain-verify refusal. Always
+/// keyed `"chain"` (distinct from `push_sync_refusal_for_root`'s `"error"`/
+/// per-path keys) -- at most one receipt-chain state exists per root at a
+/// time, so there is only ever one live entry.
+fn receipt_chain_refusal_uri(root: &Path) -> String {
+    format!("ggen-sync-refusal://{}#chain", root.display())
+}
+
+/// Run a real `ggen_engine::verbs::handlers::handle_receipt_verify_in(root)`
+/// and push any refusal it surfaces, into the *same* `SyncRefusalStore` (and
+/// `ggen-sync-refusal://` URI scheme) that `push_sync_refusal_for_root` uses.
+///
+/// Closes a real gap: `push_sync_refusal_for_root` always runs `sync()` with
+/// `dry_run: true`, but every `FM-CHAIN-*` code lives inside `write_receipt`
+/// (only reached on a real, non-dry-run write) or inside
+/// `handle_receipt_verify_in`/`handle_receipt_history` -- so a dry-run-only
+/// push path can never surface receipt-chain tampering. This function calls
+/// the read-only verify path directly (never writes) so chain integrity
+/// becomes a proactively pushed fact instead of something only found by an
+/// on-demand `ggen_receipt_verify` call.
+///
+/// Deliberately does **not** run the CP39 declared-route dispatch check that
+/// `push_sync_refusal_for_root` runs for FM-* sync errors -- wiring a new
+/// FM-CHAIN-* trigger into the bounded-unattended dispatcher is out of scope
+/// here; this function's only job is making the refusal visible/queryable.
+///
+/// A project that has never been synced (no `.ggen-v2/receipt.json` yet) is
+/// explicitly NOT a refusal -- checked up front and skipped with a
+/// `matched: 0` outcome, so a fresh project does not spam a permanent
+/// "chain" refusal on every watcher tick before its first real sync. Once a
+/// receipt exists, any failure of `handle_receipt_verify_in` (missing log,
+/// malformed JSON, hash/signature mismatch, ...) is pushed like any other
+/// refusal; only the hash/signature-mismatch paths carry an `FM-CHAIN-*`
+/// prefix today (see `receipt_verify.rs`'s module doc for the exact set),
+/// so `extract_fm_code` correctly returns `None` for the others rather than
+/// fabricating a code.
+///
+/// # Errors
+/// Returns an error only if a live peer's `notify_resource_updated` call
+/// genuinely fails (see `PeerRegistry::broadcast`) -- never for a receipt
+/// check itself failing, which is the very thing this function reports via
+/// a successful push.
+pub async fn push_receipt_verify_for_root(
+    peers: &PeerRegistry, store: &SyncRefusalStore, root: &Path,
+) -> anyhow::Result<PushOutcome> {
+    let root_str = root.display().to_string();
+    let mut matched = 0usize;
+    let mut delivered_notifications = 0usize;
+
+    if !root.join(ggen_engine::sync::RECEIPT_REL_PATH).exists() {
+        return Ok(PushOutcome {
+            matched: 0,
+            delivered_notifications: 0,
+        });
+    }
+
+    if let Err(e) = ggen_engine::verbs::handlers::handle_receipt_verify_in(root) {
+        let uri = receipt_chain_refusal_uri(root);
+        let message = e.to_string();
+        store
+            .insert(
+                uri.clone(),
+                PushedSyncRefusal {
+                    root: root_str.clone(),
+                    message,
+                    kind: "chain".to_string(),
+                },
+            )
+            .await;
+        matched += 1;
+        let debounce_key = format!("{root_str}#chain");
+        if store.should_notify(&debounce_key).await {
+            delivered_notifications += peers
+                .broadcast(&ResourceUpdatedNotificationParam::new(uri))
+                .await?;
         }
     }
 
@@ -769,8 +864,7 @@ mod tests {
         }
 
         async fn read_resource(
-            &self,
-            request: rmcp::model::ReadResourceRequestParams,
+            &self, request: rmcp::model::ReadResourceRequestParams,
             _context: rmcp::service::RequestContext<RoleServer>,
         ) -> Result<rmcp::model::ReadResourceResult, rmcp::ErrorData> {
             let Some(diag) = self.store.get(&request.uri).await else {
@@ -779,8 +873,8 @@ mod tests {
                     None,
                 ));
             };
-            let text = serde_json::to_string_pretty(&diag)
-                .expect("PushedDiagnostic serializes to JSON");
+            let text =
+                serde_json::to_string_pretty(&diag).expect("PushedDiagnostic serializes to JSON");
             Ok(rmcp::model::ReadResourceResult::new(vec![
                 rmcp::model::ResourceContents::text(text, request.uri),
             ]))
@@ -796,8 +890,7 @@ mod tests {
 
     impl ClientHandler for RecordingClient {
         async fn on_resource_updated(
-            &self,
-            params: rmcp::model::ResourceUpdatedNotificationParam,
+            &self, params: rmcp::model::ResourceUpdatedNotificationParam,
             _context: rmcp::service::NotificationContext<rmcp::RoleClient>,
         ) {
             self.received.lock().await.push(params.uri);
@@ -870,9 +963,11 @@ template = { file = "row.tera" }
             // Move `dir` (the TempDir) into this task so the fixture files
             // stay on disk for the full lifetime of the push + gate run.
             let _dir = dir;
-            let running = BridgeTestServer { store: server_store }
-                .serve(server_transport)
-                .await?;
+            let running = BridgeTestServer {
+                store: server_store,
+            }
+            .serve(server_transport)
+            .await?;
             // Retain the peer past the initial serve() call -- the CP12
             // requirement -- then push real diagnostics over it from an
             // independent async context before entering `waiting()`.
@@ -907,7 +1002,11 @@ template = { file = "row.tera" }
         tokio::time::timeout(std::time::Duration::from_secs(5), signal.notified()).await?;
 
         let uris = received.lock().await.clone();
-        assert_eq!(uris.len(), 1, "expected exactly one push for one diagnostic");
+        assert_eq!(
+            uris.len(),
+            1,
+            "expected exactly one push for one diagnostic"
+        );
         let uri = &uris[0];
         assert!(
             uri.starts_with("ggen-diagnostic://") && uri.contains("GGEN-TPL-001"),
@@ -919,8 +1018,7 @@ template = { file = "row.tera" }
         let read = client
             .read_resource(rmcp::model::ReadResourceRequestParams::new(uri.clone()))
             .await?;
-        let rmcp::model::ResourceContents::TextResourceContents { text, .. } =
-            &read.contents[0]
+        let rmcp::model::ResourceContents::TextResourceContents { text, .. } = &read.contents[0]
         else {
             panic!("expected text resource contents");
         };
@@ -973,10 +1071,7 @@ template = { file = "row.tera" }
              ex:Item a ex:Class .\n\
              ex:widget a ex:Item ; ex:name \"widget\" .\n",
         )?;
-        fs::write(
-            root.join("templates/item.tera"),
-            "Item: {{ name }}",
-        )?;
+        fs::write(root.join("templates/item.tera"), "Item: {{ name }}")?;
         let manifest = r#"
 [project]
 name = "out001-living-loop-invalid"
@@ -1012,9 +1107,11 @@ output_file = "out/{{ slug }}.txt"
 
         let server_task = tokio::spawn(async move {
             let _dir = dir;
-            let running = BridgeTestServer { store: server_store }
-                .serve(server_transport)
-                .await?;
+            let running = BridgeTestServer {
+                store: server_store,
+            }
+            .serve(server_transport)
+            .await?;
             let peers = PeerRegistry::new();
             peers.add(running.peer().clone()).await;
             let outcome = push_diagnostics_for_root(
@@ -1046,7 +1143,11 @@ output_file = "out/{{ slug }}.txt"
         tokio::time::timeout(std::time::Duration::from_secs(5), signal.notified()).await?;
 
         let uris = received.lock().await.clone();
-        assert_eq!(uris.len(), 1, "expected exactly one push for one diagnostic");
+        assert_eq!(
+            uris.len(),
+            1,
+            "expected exactly one push for one diagnostic"
+        );
         let uri = &uris[0];
         assert!(
             uri.starts_with("ggen-diagnostic://") && uri.contains("GGEN-OUT-001"),
@@ -1058,8 +1159,7 @@ output_file = "out/{{ slug }}.txt"
         let read = client
             .read_resource(rmcp::model::ReadResourceRequestParams::new(uri.clone()))
             .await?;
-        let rmcp::model::ResourceContents::TextResourceContents { text, .. } =
-            &read.contents[0]
+        let rmcp::model::ResourceContents::TextResourceContents { text, .. } = &read.contents[0]
         else {
             panic!("expected text resource contents");
         };
@@ -1111,9 +1211,11 @@ template = { file = "row.tera" }
 
         let server_task = tokio::spawn(async move {
             let _dir = dir;
-            let running = BridgeTestServer { store: server_store }
-                .serve(server_transport)
-                .await?;
+            let running = BridgeTestServer {
+                store: server_store,
+            }
+            .serve(server_transport)
+            .await?;
             let peers = PeerRegistry::new();
             peers.add(running.peer().clone()).await;
             let outcome = push_diagnostics_for_root(
@@ -1320,8 +1422,8 @@ template = { file = "row.tera" }
     /// queued for a future connection. Real, deliberate decision (documented
     /// on `push_diagnostics_for_root`), not an accidental gap.
     #[tokio::test]
-    async fn push_with_no_retained_peers_stores_but_does_not_error_or_buffer(
-    ) -> anyhow::Result<()> {
+    async fn push_with_no_retained_peers_stores_but_does_not_error_or_buffer() -> anyhow::Result<()>
+    {
         let dir = tempfile::TempDir::new()?;
         let root = dir.path();
         fs::write(root.join("row.tera"), r#"{{ row["title"] }}"#)?;
@@ -1462,7 +1564,10 @@ template = { file = "row.tera" }
             &["GGEN-TPL-001"],
         )
         .await?;
-        assert_eq!(outcome.delivered_notifications, 1, "only the fresh peer receives it");
+        assert_eq!(
+            outcome.delivered_notifications, 1,
+            "only the fresh peer receives it"
+        );
 
         tokio::time::timeout(std::time::Duration::from_secs(5), signal2.notified()).await?;
         assert_eq!(received2.lock().await.len(), 1);
@@ -1581,9 +1686,11 @@ template = { file = "row.tera" }
         let server_store = store.clone();
         let (running_tx, running_rx) = tokio::sync::oneshot::channel();
         tokio::spawn(async move {
-            let running = BridgeTestServer { store: server_store }
-                .serve(server_transport)
-                .await?;
+            let running = BridgeTestServer {
+                store: server_store,
+            }
+            .serve(server_transport)
+            .await?;
             let _ = running_tx.send(running);
             anyhow::Ok(())
         });

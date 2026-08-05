@@ -97,10 +97,7 @@ fn sparql_derived_proof_reconfirms_the_five_rows_independently() {
     use oxigraph::sparql::{QueryResults, SparqlEvaluator};
     use oxigraph::store::Store;
 
-    let ttl_path = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../.specify/repo-facts.ttl"
-    );
+    let ttl_path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../.specify/repo-facts.ttl");
     let bytes = std::fs::read(ttl_path).expect("repo-facts.ttl must be readable");
 
     let store = Store::new().expect("in-memory oxigraph store");

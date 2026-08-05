@@ -383,10 +383,10 @@ impl ServerHandler for GgenMcpServer {
                 .enable_resources_subscribe()
                 .build(),
         )
-            .with_protocol_version(ProtocolVersion::V_2024_11_05)
-            .with_server_info(Implementation::new("ggen-mcp", env!("CARGO_PKG_VERSION")))
-            .with_instructions(
-                "ggen-mcp: introspection tools for authoring ggen projects (RDF ontology \
+        .with_protocol_version(ProtocolVersion::V_2024_11_05)
+        .with_server_info(Implementation::new("ggen-mcp", env!("CARGO_PKG_VERSION")))
+        .with_instructions(
+            "ggen-mcp: introspection tools for authoring ggen projects (RDF ontology \
                  + SPARQL + Tera code generation).\n\n\
                  Suggested order when working in an unfamiliar project: \
                  ggen_config_classify (which schema?) -> ggen_rule_graph (what exists?) \
@@ -397,7 +397,7 @@ impl ServerHandler for GgenMcpServer {
                  comes out empty or wrong: it reports the true row count, including \
                  zero, before you commit to a query. All tools are read-only except \
                  ggen_write_apply, which requires confirm:true.",
-            )
+        )
     }
 
     fn list_tools(
@@ -415,8 +415,7 @@ impl ServerHandler for GgenMcpServer {
     /// once against this server's `diagnostic_store()`.
     fn list_resources(
         &self, _request: Option<PaginatedRequestParams>, _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<ListResourcesResult, McpError>> + Send + '_
-    {
+    ) -> impl std::future::Future<Output = Result<ListResourcesResult, McpError>> + Send + '_ {
         let store = self.diagnostics.clone();
         let sync_store = self.sync_refusals.clone();
         async move {
@@ -553,8 +552,7 @@ mod tests {
     /// the span added to `read_resource` above fires on both the
     /// found-and-served path and the not-found path.
     #[tokio::test]
-    async fn read_resource_round_trip_against_real_server_emits_otel_span() -> anyhow::Result<()>
-    {
+    async fn read_resource_round_trip_against_real_server_emits_otel_span() -> anyhow::Result<()> {
         let _ = tracing_subscriber::fmt()
             .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
             .with_test_writer()

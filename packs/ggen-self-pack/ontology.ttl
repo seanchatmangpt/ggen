@@ -1,0 +1,53 @@
+# ggen-self-pack ontology — the vocabulary of pack structure itself.
+#
+# This pack does not describe an application domain; its subject matter is
+# "what a ggen pack is." One `sp:Pack` individual, bound from
+# `ggen pack new <name> [--description ...] [--category ...]` CLI args into
+# `input.ttl` (see that file's own header) before `ggen sync` runs, drives
+# every generation rule in this pack's `ggen.toml`. There is no hardcoded
+# pack-shape knowledge in the Rust verb that invokes this pack — all of it
+# lives here and in `templates/*.tmpl`.
+
+@prefix sp:   <http://seanchatmangpt.github.io/packs/ggen-self#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Classes ──────────────────────────────────────────────────────────
+
+sp:Pack
+    a            rdfs:Class ;
+    rdfs:label   "Pack" ;
+    rdfs:comment "A ggen pack under construction: the target of `ggen pack new`." .
+
+# ── Properties ───────────────────────────────────────────────────────
+
+sp:name
+    a rdf:Property ; rdfs:label "name" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "The pack's directory/id name, e.g. `packs/<name>/`. Required — the 010_required_shape gate refuses a Pack individual without it." .
+
+sp:description
+    a rdf:Property ; rdfs:label "description" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "Human-readable description carried into the new pack's pack.toml. Required." .
+
+sp:version
+    a rdf:Property ; rdfs:label "version" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "Initial semver for the new pack's pack.toml. Defaults to 0.1.0 when the CLI arg is omitted (bound by the verb, not this ontology, before input.ttl is written)." .
+
+sp:category
+    a rdf:Property ; rdfs:label "category" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "Marketplace category, e.g. `infrastructure`. Defaults to `uncategorized` when omitted." .
+
+sp:namespace
+    a rdf:Property ; rdfs:label "ontology namespace" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "The IRI base for the new pack's own ontology.ttl (e.g. http://seanchatmangpt.github.io/packs/<name>#). Required — every real pack in packs/* owns a unique namespace; a pack without one cannot state facts that don't collide with another pack's." .
+
+sp:hasTemplateRole
+    a rdf:Property ; rdfs:label "has template role" ; rdfs:domain sp:Pack ; rdfs:range xsd:string ;
+    rdfs:comment "One declared template role name for the new pack (e.g. `main`). A Pack individual must declare at least one — the 010_required_shape gate refuses a Pack with zero roles, since a pack that generates nothing is not a pack." .
+
+# ── Individuals ──────────────────────────────────────────────────────
+#
+# None here by design: `ggen pack new` writes exactly one `sp:Pack`
+# individual into `input.ttl` (imported below this file in `ggen.toml`)
+# per invocation. This file states the vocabulary, never an instance.

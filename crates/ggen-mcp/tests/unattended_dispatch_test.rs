@@ -7,7 +7,9 @@
 //! inside a project with an unrelated refusal elsewhere (whole-project-clean
 //! requirement holds).
 
-use ggen_mcp::tools::unattended_dispatch::{try_unattended_apply, CircuitBreaker, UnattendedApplyOutcome};
+use ggen_mcp::tools::unattended_dispatch::{
+    try_unattended_apply, CircuitBreaker, UnattendedApplyOutcome,
+};
 use std::time::Duration;
 use tempfile::TempDir;
 
@@ -63,7 +65,10 @@ async fn eligible_target_is_applied_with_zero_decision_step() {
     }
 
     let real_path = tmp.path().join("out/eligible.txt");
-    assert!(real_path.exists(), "real file must exist on disk after dispatch");
+    assert!(
+        real_path.exists(),
+        "real file must exist on disk after dispatch"
+    );
     let content = std::fs::read_to_string(&real_path).expect("read written file");
     assert!(
         content.contains("generated content"),
@@ -71,7 +76,10 @@ async fn eligible_target_is_applied_with_zero_decision_step() {
     );
 
     let audit_log = tmp.path().join(".ggen/unattended-dispatch-log.jsonl");
-    assert!(audit_log.exists(), "audit log must be written on a successful apply");
+    assert!(
+        audit_log.exists(),
+        "audit log must be written on a successful apply"
+    );
     let log_content = std::fs::read_to_string(&audit_log).expect("read audit log");
     assert!(
         log_content.contains("\"outcome\":\"applied\""),
@@ -149,7 +157,10 @@ async fn sixth_real_dispatch_in_the_window_is_rate_limited() {
         last_outcome = Some(outcome);
     }
 
-    assert_eq!(applied, 5, "exactly 5 of 6 real dispatches should have applied");
+    assert_eq!(
+        applied, 5,
+        "exactly 5 of 6 real dispatches should have applied"
+    );
     match last_outcome.expect("six iterations ran") {
         UnattendedApplyOutcome::NotEligible(reason) => {
             assert!(
@@ -166,8 +177,11 @@ async fn already_existing_target_falls_through_untouched() {
     let tmp = TempDir::new().expect("tempdir");
     write_eligible_fixture(tmp.path());
     std::fs::create_dir_all(tmp.path().join("out")).expect("mkdir out");
-    std::fs::write(tmp.path().join("out/eligible.txt"), "hand-written content, do not touch")
-        .expect("pre-create target");
+    std::fs::write(
+        tmp.path().join("out/eligible.txt"),
+        "hand-written content, do not touch",
+    )
+    .expect("pre-create target");
 
     let breaker = CircuitBreaker::default();
     let outcome = try_unattended_apply(tmp.path(), &breaker).await;

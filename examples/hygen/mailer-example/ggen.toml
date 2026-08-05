@@ -1,0 +1,15 @@
+# See docs/research/ggen-docs-hygen-parity.md §4. Equivalent of Hygen's
+# mailer generator (`_templates/mailer/new/{html,text}.ejs.t`), driven by
+# `hygen mailer new --name foobar --message hello --version 1`. Here the
+# three values are ex:Campaign facts, and BOTH outputs (html + text) are
+# generated from ONE ontology individual by two separate templates — the
+# direct RDF-bound analog of Hygen's "every file in mailer/new/ renders"
+# folder-is-command-structure behavior.
+[project]
+name = "hygen-mailer-example"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"

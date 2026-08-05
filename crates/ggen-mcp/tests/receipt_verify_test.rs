@@ -22,7 +22,11 @@ fn clean_receipt_chain_verifies_successfully() {
         root: dir.path().display().to_string(),
     })
     .expect("dry run");
-    write_apply(&WriteApplyParams::new(dir.path().display().to_string(), true, pre.graph_hash))
+    write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        pre.graph_hash,
+    ))
     .expect("real sync, writes a real receipt");
 
     assert!(
@@ -65,13 +69,11 @@ fn clean_receipt_chain_verifies_successfully() {
 /// check itself failed, which is a reportable *result*, not a tool
 /// malfunction) with the engine's real, verbatim refusal message.
 ///
-/// This is also the test that pins down this session's real finding:
-/// `handle_receipt_verify_in`'s own error paths (read at
-/// `ggen-engine/src/verbs/handlers.rs:417-516`) carry **no** `FM-CHAIN-0NN`
-/// prefix -- only `handle_receipt_history` (a sibling function this tool
-/// does not call) uses `AppError::fm_chain`. So `fm_code` is `None` here;
-/// asserting that directly (rather than asserting a code IS present) keeps
-/// this test honest about what the wrapped function actually does today.
+/// This is also the test that pins down `handle_receipt_verify_in`'s own
+/// `FM-CHAIN-0NN` tagging (`ggen-engine/src/verbs/handlers.rs:417-516`):
+/// its chain-hash-mismatch path now embeds `FM-CHAIN-014`, distinct from
+/// the 002/004/005/006/007/009/010/011 codes used by `sync.rs`'s
+/// receipt-writing path and by the sibling `handle_receipt_history`.
 #[test]
 fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
     let dir = tempfile::tempdir().expect("tempdir");
@@ -81,7 +83,11 @@ fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
         root: dir.path().display().to_string(),
     })
     .expect("dry run");
-    write_apply(&WriteApplyParams::new(dir.path().display().to_string(), true, pre.graph_hash))
+    write_apply(&WriteApplyParams::new(
+        dir.path().display().to_string(),
+        true,
+        pre.graph_hash,
+    ))
     .expect("real sync, writes a real receipt");
 
     let receipt_path = dir.path().join(".ggen-v2/receipt.json");
@@ -107,7 +113,10 @@ fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
     let mut tampered = chain_hash.clone();
     let flipped_char = if tampered.starts_with('0') { '1' } else { '0' };
     tampered.replace_range(0..1, &flipped_char.to_string());
-    assert_ne!(tampered, chain_hash, "tamper must actually change the value");
+    assert_ne!(
+        tampered, chain_hash,
+        "tamper must actually change the value"
+    );
     let occurrences = raw.matches(chain_hash.as_str()).count();
     assert_eq!(
         occurrences, 1,
@@ -133,12 +142,15 @@ fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
         "must be the real chain-hash-mismatch refusal, got: {message:?}"
     );
     assert_eq!(
-        got.fm_code, None,
-        "handle_receipt_verify_in's own error paths carry no FM-CHAIN prefix today \
-         (confirmed by reading handlers.rs:417-516) -- fm_code correctly extracts \
-         nothing rather than fabricating a code that isn't in the message"
+        got.fm_code,
+        Some("FM-CHAIN-014".to_string()),
+        "chain-hash mismatch in handle_receipt_verify_in must now carry its FM-CHAIN-014 \
+         tag (added so this refusal is pushable via the sync-refusal bridge)"
     );
-    assert!(got.chain_hash.is_none(), "no success fields on a failed verification");
+    assert!(
+        got.chain_hash.is_none(),
+        "no success fields on a failed verification"
+    );
 }
 
 /// A missing receipt (never synced) must also come back as `valid:false`

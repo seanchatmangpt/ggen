@@ -186,10 +186,7 @@ pub enum UnattendedApplyOutcome {
 /// On success, calls the real, unmodified `write_apply` with a hash freshly
 /// recomputed by THIS function's own preflight (step 4) -- CP17's
 /// hash-corroboration gate runs exactly as it does for any other caller.
-pub async fn try_unattended_apply(
-    root: &Path,
-    breaker: &CircuitBreaker,
-) -> UnattendedApplyOutcome {
+pub async fn try_unattended_apply(root: &Path, breaker: &CircuitBreaker) -> UnattendedApplyOutcome {
     let (outcome, receipt_path) = try_unattended_apply_inner(root, breaker).await;
     let entry = match &outcome {
         UnattendedApplyOutcome::Applied(written) => DispatchLogEntry {
@@ -212,8 +209,7 @@ pub async fn try_unattended_apply(
 }
 
 async fn try_unattended_apply_inner(
-    root: &Path,
-    breaker: &CircuitBreaker,
+    root: &Path, breaker: &CircuitBreaker,
 ) -> (UnattendedApplyOutcome, Option<String>) {
     macro_rules! not_eligible {
         ($($arg:tt)*) => {
@@ -342,7 +338,10 @@ mod tests {
         breaker.record().await;
         assert!(breaker.allow().await);
         breaker.record().await;
-        assert!(!breaker.allow().await, "third attempt should be rate-limited");
+        assert!(
+            !breaker.allow().await,
+            "third attempt should be rate-limited"
+        );
     }
 
     #[tokio::test]

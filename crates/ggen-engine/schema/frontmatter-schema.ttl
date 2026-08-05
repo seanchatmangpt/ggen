@@ -244,12 +244,23 @@ ggenspec:MatchOccurrence
 #                        flagged
 #   - sh_after:          same as sh_before, same reasoning
 #
-# The other 21 fields (sparql, for_each, construct, inject, before, after,
-# skip_if, unless_exists, force, when, skip_empty, from, backup, shape,
-# determinism, freeze_policy, freeze_slots_dir, rdf, rdf_inline, prefixes,
-# base) are deliberately left unprojected and unshaped in this slice -- see
+# The other 18 fields (sparql, for_each, construct, inject, before, after,
+# skip_if, unless_exists, force, skip_empty, backup, shape,
+# determinism, freeze_policy, freeze_slots_dir, rdf, rdf_inline, prefixes)
+# are deliberately left unprojected and unshaped in this slice -- see
 # crate::frontmatter_rdf's module doc for the exact same list stated next to
-# the real projection code.
+# the real projection code, and for why `inject`/`freeze_policy` specifically
+# were considered and rejected (no value constraint beyond what Rust's type
+# system already enforces).
+#
+# `when`/`from`/`base` were added in a later pass on the exact same
+# criterion as the original 4: each is an `Option<String>` where Rust's type
+# system does not forbid an empty-but-present string, so `sh:minLength 1`
+# is a real, non-vacuous check (mirrors sh_before/sh_after exactly):
+#
+#   - when:              SPARQL ASK guard string, non-empty when present
+#   - from:               alternate template body source path, non-empty when present
+#   - base:               RDF base IRI, non-empty when present
 
 fm:Frontmatter a rdfs:Class ;
     rdfs:comment "One projected frontmatter block instance (crate::frontmatter_rdf::project_frontmatter), distinct from ggenspec:Frontmatter (the meta-schema describing the field set)." .
@@ -257,7 +268,7 @@ fm:Frontmatter a rdfs:Class ;
 ggenspec:FrontmatterInstanceShape
     a sh:NodeShape ;
     sh:targetClass fm:Frontmatter ;
-    rdfs:comment "CP8 slice: 4 of 25 frontmatter fields, chosen for a real core-SHACL-checkable constraint. See the CP8 comment block above for the full field-selection rationale." ;
+    rdfs:comment "CP8 slice: 7 of 25 frontmatter fields, chosen for a real core-SHACL-checkable constraint. See the CP8 comment block above for the full field-selection rationale." ;
     sh:property [
         sh:path fm:to ;
         sh:name "to" ;
@@ -290,4 +301,28 @@ ggenspec:FrontmatterInstanceShape
         sh:datatype xsd:string ;
         sh:minLength 1 ;
         sh:message "frontmatter `sh_after`, when present, must be a non-empty shell command" ;
+    ] ;
+    sh:property [
+        sh:path fm:when ;
+        sh:name "when" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `when`, when present, must be a non-empty SPARQL ASK guard" ;
+    ] ;
+    sh:property [
+        sh:path fm:from ;
+        sh:name "from" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `from`, when present, must be a non-empty source path" ;
+    ] ;
+    sh:property [
+        sh:path fm:base ;
+        sh:name "base" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "frontmatter `base`, when present, must be a non-empty RDF base IRI" ;
     ] .

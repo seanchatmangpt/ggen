@@ -217,10 +217,7 @@ impl Board {
                             ),
                             Err(e) => Err(McpError::new(
                                 ErrorCategory::Internal,
-                                format!(
-                                    "second-apply dry-run itself errored: {}",
-                                    e.message
-                                ),
+                                format!("second-apply dry-run itself errored: {}", e.message),
                             )),
                         };
                         match second_result {

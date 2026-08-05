@@ -50,7 +50,10 @@ mod tests {
     #[test]
     fn classifies_known_reasons() {
         assert_eq!(classify("skipped: when guard false"), "when_false");
-        assert_eq!(classify("skipped: for_each produced 0 rows (x)"), "zero_rows");
+        assert_eq!(
+            classify("skipped: for_each produced 0 rows (x)"),
+            "zero_rows"
+        );
         assert_eq!(classify("skipped: unchanged"), "unchanged");
         assert_eq!(classify("skipped: already exists"), "exists_no_overwrite");
         assert_eq!(classify("skipped: skip_empty"), "skip_empty");

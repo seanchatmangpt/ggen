@@ -165,8 +165,11 @@ fn absent_route_declaration_never_invokes_the_dispatcher() {
     thread::sleep(Duration::from_millis(300));
 
     // Trigger the sync watcher: touch a file so the coarse debouncer fires.
-    std::fs::write(c.tmp.path().join("model.ttl"), "@prefix ex: <http://example.org/> .\nex:owner a ex:Person .\nex:touch a ex:NoOp .\n")
-        .expect("touch to trigger watcher");
+    std::fs::write(
+        c.tmp.path().join("model.ttl"),
+        "@prefix ex: <http://example.org/> .\nex:owner a ex:Person .\nex:touch a ex:NoOp .\n",
+    )
+    .expect("touch to trigger watcher");
 
     let notification = c.wait_for_sync_refusal_update();
     let uri = notification["params"]["uri"]
@@ -247,7 +250,10 @@ fn declared_bounded_unattended_route_reaches_a_real_dispatch_attempt() {
         .and_then(|(_, rest)| rest.split_once(']'))
         .map(|(code, _)| code.to_string())
         .unwrap_or_else(|| panic!("no bracketed FM code found in refusal text: {text}"));
-    assert!(fm_code.starts_with("FM-"), "unexpected code shape: {fm_code}");
+    assert!(
+        fm_code.starts_with("FM-"),
+        "unexpected code shape: {fm_code}"
+    );
 
     // Phase 2: declare the route for that exact code, in the project's own
     // facts file -- a real author reacting to an observed refusal.

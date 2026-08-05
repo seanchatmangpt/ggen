@@ -14,6 +14,7 @@ use std::{
     sync::Arc,
 };
 
+use inflector::Inflector;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use tera::{Tera, Value};
@@ -566,6 +567,19 @@ pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
     tera.register_filter("title", title_case_filter);
     tera.register_filter("pluralize", pluralize_filter);
     tera.register_filter("singularize", singularize_filter);
+    // The four filters below are true linguistic inflections (irregular
+    // plurals, ordinal suffixes, Rails-style module-path stripping) rather
+    // than mechanical case conversion — deliberately backed by the
+    // `Inflector` crate instead of hand-rolled, unlike `snake_case`/
+    // `pascal_case`/etc. above. Composing with a proven library here (the
+    // Hygen doc parity's own `h.inflection.*` is backed by an external
+    // library too — node.inflection, not hand-rolled) beats reimplementing
+    // English pluralization rules and ordinal-suffix exceptions by hand.
+    tera.register_filter("ordinalize", ordinalize_filter);
+    tera.register_filter("demodulize", demodulize_filter);
+    tera.register_filter("foreign_key", foreign_key_filter);
+    tera.register_filter("tableize", tableize_filter);
+    tera.register_filter("classify", classify_filter);
     tera.register_filter("hex_to_u64", hex_to_u64_filter);
     Ok(tera)
 }
@@ -1027,32 +1041,24 @@ fn hex_to_u64_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Res
     Ok(Value::Number(n.into()))
 }
 
+// ── Case-conversion and inflection filters ──────────────────────────────
+//
+// All backed by the `Inflector` crate rather than hand-rolled string
+// scanning (a prior version of this file hand-rolled each of these
+// independently; replaced for consistency — one tested, maintained
+// implementation of English case/inflection rules instead of N ad-hoc
+// ones that could each drift from the others' edge-case handling). This
+// mirrors Hygen's own `h.inflection.*`/`h.changeCase.*`, which are
+// likewise backed by external libraries (node.inflection, change-case),
+// not hand-rolled in Hygen's own codebase either.
+
 /// `snake_case` filter: `FooBar`, `foo-bar`, `foo bar` → `foo_bar`.
 #[allow(clippy::unnecessary_wraps)]
 fn snake_case_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("snake_case filter requires a string"))?;
-    let mut out = String::with_capacity(s.len() + 4);
-    let mut prev_lower = false;
-    for ch in s.chars() {
-        if ch == '-' || ch == ' ' || ch == '_' {
-            if !out.ends_with('_') && !out.is_empty() {
-                out.push('_');
-            }
-            prev_lower = false;
-        } else if ch.is_uppercase() {
-            if prev_lower && !out.ends_with('_') {
-                out.push('_');
-            }
-            out.extend(ch.to_lowercase());
-            prev_lower = false;
-        } else {
-            out.push(ch);
-            prev_lower = ch.is_lowercase() || ch.is_ascii_digit();
-        }
-    }
-    Ok(Value::String(out))
+    Ok(Value::String(s.to_snake_case()))
 }
 
 /// `pascal_case` filter: `foo_bar`, `foo-bar`, `foo bar` → `FooBar`.
@@ -1061,49 +1067,7 @@ fn pascal_case_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Re
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("pascal_case filter requires a string"))?;
-    let mut out = String::with_capacity(s.len());
-    let mut upper_next = true;
-    for ch in s.chars() {
-        if ch == '_' || ch == '-' || ch == ' ' {
-            upper_next = true;
-        } else if upper_next {
-            out.extend(ch.to_uppercase());
-            upper_next = false;
-        } else {
-            out.push(ch);
-        }
-    }
-    Ok(Value::String(out))
-}
-
-/// Split `s` into lowercase words on `_`/`-`/` ` separators and
-/// lower-to-upper case boundaries (shared by the case/inflection filters
-/// below, so each filter only decides how to rejoin the words).
-fn split_words(s: &str) -> Vec<String> {
-    let mut words = Vec::new();
-    let mut current = String::new();
-    let mut prev_lower = false;
-    for ch in s.chars() {
-        if ch == '_' || ch == '-' || ch == ' ' {
-            if !current.is_empty() {
-                words.push(std::mem::take(&mut current));
-            }
-            prev_lower = false;
-        } else if ch.is_uppercase() && prev_lower {
-            if !current.is_empty() {
-                words.push(std::mem::take(&mut current));
-            }
-            current.extend(ch.to_lowercase());
-            prev_lower = false;
-        } else {
-            current.extend(ch.to_lowercase());
-            prev_lower = ch.is_lowercase() || ch.is_ascii_digit();
-        }
-    }
-    if !current.is_empty() {
-        words.push(current);
-    }
-    words
+    Ok(Value::String(s.to_pascal_case()))
 }
 
 /// `camel_case` filter: `foo_bar`, `FooBar`, `foo-bar` → `fooBar`
@@ -1114,20 +1078,7 @@ fn camel_case_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Res
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("camel_case filter requires a string"))?;
-    let words = split_words(s);
-    let mut out = String::with_capacity(s.len());
-    for (i, word) in words.iter().enumerate() {
-        if i == 0 {
-            out.push_str(word);
-        } else {
-            let mut chars = word.chars();
-            if let Some(first) = chars.next() {
-                out.extend(first.to_uppercase());
-                out.push_str(chars.as_str());
-            }
-        }
-    }
-    Ok(Value::String(out))
+    Ok(Value::String(s.to_camel_case()))
 }
 
 /// `kebab_case` filter: `foo_bar`, `FooBar`, `foo bar` → `foo-bar`.
@@ -1136,7 +1087,7 @@ fn kebab_case_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Res
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("kebab_case filter requires a string"))?;
-    Ok(Value::String(split_words(s).join("-")))
+    Ok(Value::String(s.to_kebab_case()))
 }
 
 /// `shouty_snake_case` filter: `foo_bar`, `FooBar`, `foo-bar` → `FOO_BAR`.
@@ -1145,7 +1096,7 @@ fn shouty_snake_case_filter(value: &Value, _args: &HashMap<String, Value>) -> te
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("shouty_snake_case filter requires a string"))?;
-    Ok(Value::String(split_words(s).join("_").to_uppercase()))
+    Ok(Value::String(s.to_screaming_snake_case()))
 }
 
 /// `title_case` filter: `foo_bar`, `FooBar`, `foo-bar` → `Foo Bar`.
@@ -1154,78 +1105,92 @@ fn title_case_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Res
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("title_case filter requires a string"))?;
-    let titled: Vec<String> = split_words(s)
-        .into_iter()
-        .map(|word| {
-            let mut chars = word.chars();
-            match chars.next() {
-                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-                None => word,
-            }
-        })
-        .collect();
-    Ok(Value::String(titled.join(" ")))
+    Ok(Value::String(s.to_title_case()))
 }
 
-/// `pluralize` filter: naive English pluralization (`bus`→`buses`,
-/// `city`→`cities`, `cat`→`cats`). Operates on the whole input string
-/// as-is (no word-splitting) since it's meant for a single noun, not a
-/// multi-word identifier.
+/// `pluralize` filter: English pluralization (`bus`→`buses`, `city`→
+/// `cities`, `cat`→`cats`; also handles some, not all, irregulars —
+/// `goose`→`geese`, `man`→`men`, `woman`→`women`, `tooth`→`teeth`,
+/// `foot`→`feet` verified correct; `person`→`"personople"` is a confirmed,
+/// real gap in this filter's underlying library (Inflector 0.11.4), not
+/// silently glossed over — see this file's own
+/// `pluralize_singularize_known_inflector_gaps_are_pinned_not_silent` test).
 #[allow(clippy::unnecessary_wraps)]
 fn pluralize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("pluralize filter requires a string"))?;
-    Ok(Value::String(pluralize_word(s)))
+    Ok(Value::String(s.to_plural()))
 }
 
-fn pluralize_word(s: &str) -> String {
-    if s.is_empty() {
-        return String::new();
-    }
-    let lower = s.to_ascii_lowercase();
-    if lower.ends_with('y')
-        && !lower.ends_with("ay")
-        && !lower.ends_with("ey")
-        && !lower.ends_with("oy")
-        && !lower.ends_with("uy")
-    {
-        format!("{}ies", &s[..s.len() - 1])
-    } else if lower.ends_with('s')
-        || lower.ends_with('x')
-        || lower.ends_with('z')
-        || lower.ends_with("ch")
-        || lower.ends_with("sh")
-    {
-        format!("{s}es")
-    } else {
-        format!("{s}s")
-    }
-}
-
-/// `singularize` filter: reverse of [`pluralize_word`]'s heuristic
-/// (`buses`→`bus`, `cities`→`city`, `cats`→`cat`). Best-effort, not a
-/// dictionary — irregular plurals (`people`, `children`) are unaffected.
+/// `singularize` filter: reverse of `pluralize` (`buses`→`bus`, `cities`→
+/// `city`, `cats`→`cat`, `mice`→`mouse`, `geese`→`goose`, `men`→`man`,
+/// `women`→`woman`, `teeth`→`tooth`, `feet`→`foot` — all verified correct).
+/// `children`/`people` do NOT singularize (both left unchanged) — a
+/// confirmed gap in the underlying library, pinned by a test rather than
+/// silently wrong, same caveat as `pluralize` above.
 #[allow(clippy::unnecessary_wraps)]
 fn singularize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = value
         .as_str()
         .ok_or_else(|| tera::Error::msg("singularize filter requires a string"))?;
-    let lower = s.to_ascii_lowercase();
-    let out = if lower.ends_with("ies") && s.len() > 3 {
-        format!("{}y", &s[..s.len() - 3])
-    } else if lower.ends_with("ches")
-        || lower.ends_with("shes")
-        || ((lower.ends_with("ses") || lower.ends_with("xes") || lower.ends_with("zes"))
-            && s.len() > 3)
-    {
-        s[..s.len() - 2].to_string()
-    } else if lower.ends_with('s') && !lower.ends_with("ss") {
-        s[..s.len() - 1].to_string()
-    } else {
-        s.to_string()
-    };
-    Ok(Value::String(out))
+    Ok(Value::String(s.to_singular()))
+}
+
+/// `ordinalize` filter: `"1"` → `"1st"`, `"2"` → `"2nd"`, `"11"` →
+/// `"11th"`. Hygen's `h.inflection.ordinalize` equivalent — no ggen
+/// predecessor had this at all (a genuinely new capability, not a
+/// hand-rolled-to-library migration like the filters above).
+#[allow(clippy::unnecessary_wraps)]
+fn ordinalize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("ordinalize filter requires a string"))?;
+    Ok(Value::String(s.ordinalize()))
+}
+
+/// `demodulize` filter: `"Foo::Bar::Baz"` → `"Baz"` — strips a Rust/Ruby-
+/// style module path down to its final segment. Hygen's
+/// `h.inflection.demodulize` equivalent.
+#[allow(clippy::unnecessary_wraps)]
+fn demodulize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("demodulize filter requires a string"))?;
+    Ok(Value::String(s.demodulize().clone()))
+}
+
+/// `foreign_key` filter: `"Message"` → `"message_id"` — the Rails-style
+/// foreign-key column-name convention. Hygen's `h.inflection.foreign_key`
+/// equivalent.
+#[allow(clippy::unnecessary_wraps)]
+fn foreign_key_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("foreign_key filter requires a string"))?;
+    Ok(Value::String(s.to_foreign_key()))
+}
+
+/// `tableize` filter: `"RawScaledScorer"` → `"raw_scaled_scorers"` — plural
+/// `snake_case`, the Rails table-naming convention. Hygen's
+/// `h.inflection.tableize` equivalent.
+#[allow(clippy::unnecessary_wraps)]
+fn tableize_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("tableize filter requires a string"))?;
+    Ok(Value::String(s.to_table_case()))
+}
+
+/// `classify` filter: `"line_items"` → `"LineItem"` — singular `PascalCase`,
+/// the Rails class-naming convention (roughly `tableize`'s inverse).
+/// Hygen's `h.inflection.classify` equivalent.
+#[allow(clippy::unnecessary_wraps)]
+fn classify_filter(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("classify filter requires a string"))?;
+    Ok(Value::String(s.to_class_case()))
 }
 
 #[cfg(test)]
@@ -1361,6 +1326,71 @@ mod tests {
             )
             .expect("render");
         assert_eq!(rendered, "cats cities buses cat city bus");
+    }
+
+    #[test]
+    fn pluralize_singularize_handle_some_irregulars_via_inflector() {
+        // The prior hand-rolled heuristic could not handle irregular
+        // plurals at all. Inflector handles SOME — verified directly
+        // against the library's real output (a standalone probe run while
+        // building this feature), not assumed: `goose`/`man`/`woman`/
+        // `tooth`/`foot` pluralize correctly, and `mice`/`geese`/`men`/
+        // `women`/`teeth`/`feet` singularize correctly.
+        let mut tera = build_tera(graph()).expect("build tera");
+        let rendered = tera
+            .render_str(
+                "{{ \"goose\" | pluralize }} {{ \"man\" | pluralize }} \
+                 {{ \"woman\" | pluralize }} {{ \"tooth\" | pluralize }} \
+                 {{ \"foot\" | pluralize }} \
+                 {{ \"mice\" | singularize }} {{ \"geese\" | singularize }} \
+                 {{ \"men\" | singularize }} {{ \"women\" | singularize }} \
+                 {{ \"teeth\" | singularize }} {{ \"feet\" | singularize }}",
+                &tera::Context::new(),
+            )
+            .expect("render");
+        assert_eq!(
+            rendered,
+            "geese men women teeth feet mouse goose man woman tooth foot"
+        );
+    }
+
+    #[test]
+    fn pluralize_singularize_known_inflector_gaps_are_pinned_not_silent() {
+        // Real, verified gaps in Inflector 0.11.4's own irregular table —
+        // NOT a ggen bug, but pinned here so a future Inflector upgrade
+        // that fixes these is noticed (test starts failing) rather than
+        // the gap silently persisting undocumented. Confirmed by direct
+        // probe before writing this: `person` pluralizes to the garbled
+        // `"personople"` (not `"people"`), and singularizing `"children"`/
+        // `"people"` leaves them unchanged (not `"child"`/`"person"`).
+        let mut tera = build_tera(graph()).expect("build tera");
+        let rendered = tera
+            .render_str(
+                "{{ \"person\" | pluralize }} {{ \"children\" | singularize }} \
+                 {{ \"people\" | singularize }}",
+                &tera::Context::new(),
+            )
+            .expect("render");
+        assert_eq!(rendered, "personople children people");
+    }
+
+    #[test]
+    fn true_inflection_filters_ordinalize_demodulize_foreign_key_tableize_classify() {
+        let mut tera = build_tera(graph()).expect("build tera");
+        let rendered = tera
+            .render_str(
+                "{{ \"1\" | ordinalize }} {{ \"2\" | ordinalize }} {{ \"11\" | ordinalize }} \
+                 {{ \"Foo::Bar::Baz\" | demodulize }} \
+                 {{ \"Message\" | foreign_key }} \
+                 {{ \"RawScaledScorer\" | tableize }} \
+                 {{ \"line_items\" | classify }}",
+                &tera::Context::new(),
+            )
+            .expect("render");
+        assert_eq!(
+            rendered,
+            "1st 2nd 11th Baz message_id raw_scaled_scorers LineItem"
+        );
     }
 
     #[test]

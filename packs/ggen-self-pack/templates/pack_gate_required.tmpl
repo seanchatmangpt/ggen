@@ -1,0 +1,3 @@
+# MESSAGE: {{ name }} has not yet declared a required-shape check. Replace this placeholder ASK with a real SELECT gate over this pack's own ontology individuals (see ggen-self-pack/gates/010_required_shape.rq for the pattern: any returned row is a violation).
+PREFIX {{ name | replace(from="-", to="_") }}: <{{ namespace }}>
+ASK { FILTER(false) }

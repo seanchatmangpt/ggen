@@ -156,9 +156,7 @@ fn write_pack(pack_dir: &std::path::Path, name: &str, subject: &str) {
     .expect("write pack.toml");
     std::fs::write(
         pack_dir.join("ontology.ttl"),
-        format!(
-            "@prefix ex: <http://example.org/> .\nex:{subject} a ex:Dog .\n"
-        ),
+        format!("@prefix ex: <http://example.org/> .\nex:{subject} a ex:Dog .\n"),
     )
     .expect("write pack ontology.ttl");
     std::fs::write(

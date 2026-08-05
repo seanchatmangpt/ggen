@@ -5,7 +5,9 @@
 //! receipts, not identical ones.
 
 use ggen_mcp::tools::sync_dry_run::{sync_dry_run, SyncDryRunParams};
-use ggen_mcp::tools::unattended_dispatch::{try_unattended_apply, CircuitBreaker, UnattendedApplyOutcome};
+use ggen_mcp::tools::unattended_dispatch::{
+    try_unattended_apply, CircuitBreaker, UnattendedApplyOutcome,
+};
 use ggen_mcp::tools::write_apply::{write_apply, WriteApplyParams};
 use tempfile::TempDir;
 

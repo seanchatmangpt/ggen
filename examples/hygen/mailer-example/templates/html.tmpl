@@ -1,0 +1,9 @@
+---
+to: "app/emails/{{ name }}.html"
+sparql:
+  campaign: "PREFIX ex: <http://example.org/hygen-examples/mailer#> SELECT ?name ?message ?version WHERE { ?c a ex:Campaign ; ex:name ?name ; ex:message ?message ; ex:version ?version . } LIMIT 1"
+for_each: campaign
+---
+<h1>Hello {{ name }}</h1>
+{{ message }}
+(version {{ version }})

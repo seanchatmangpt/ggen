@@ -153,6 +153,30 @@ pub fn spawn_root_watcher(
                                 tracing::warn!(error = %e, "ggen-mcp sync watcher: push_sync_refusal_for_root failed");
                             }
                         }
+                        // Alongside (never instead of) the dry-run sync
+                        // refusal above: a receipt-chain integrity check.
+                        // FM-CHAIN-* codes can only ever surface here, not
+                        // via the dry-run path above -- see
+                        // `bridge::push_receipt_verify_for_root`'s doc
+                        // comment for why.
+                        match crate::bridge::push_receipt_verify_for_root(
+                            &peers, &sync_store, &root,
+                        )
+                        .await
+                        {
+                            Ok(outcome) => {
+                                if outcome.matched > 0 {
+                                    tracing::info!(
+                                        matched = outcome.matched,
+                                        delivered_notifications = outcome.delivered_notifications,
+                                        "ggen-mcp sync watcher: pushed receipt-chain refusal for real file change"
+                                    );
+                                }
+                            }
+                            Err(e) => {
+                                tracing::warn!(error = %e, "ggen-mcp sync watcher: push_receipt_verify_for_root failed");
+                            }
+                        }
                     });
                 }
             })?;

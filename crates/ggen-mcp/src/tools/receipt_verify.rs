@@ -10,7 +10,7 @@
 //! to this crate's typed params/result/`McpError` shape, mirroring
 //! `sync_dry_run.rs`.
 //!
-//! ## FM-CHAIN code extraction — an honest, verified scope note
+//! ## FM-CHAIN code extraction
 //!
 //! `AppError` has no typed FM-code field anywhere (confirmed by reading
 //! `ggen-engine/src/error.rs:171-262`): every `fm_chain`/`fm_graph`/...
@@ -19,22 +19,16 @@
 //! a regex, so a caller gets a typed field when one is present rather than
 //! having to string-match `message` itself.
 //!
-//! **What was actually verified this session, reading
-//! `handle_receipt_verify_in` end to end
-//! (`ggen-engine/src/verbs/handlers.rs:417-516`):** that function's own
-//! error paths (missing/malformed receipt, unsupported schema version,
-//! payload-hash mismatch, chain-hash mismatch, malformed/wrong-length/
-//! non-verifying signature) are ALL plain `"receipt invalid: ..."` strings
-//! with **no** `FM-CHAIN-0NN` prefix. The `FM-CHAIN-*` codes that DO have
-//! real call sites (002/004/005/006/007/009/010/011) live in `sync.rs`'s
-//! receipt-writing path and in `handle_receipt_history` (handlers.rs
-//! 519+) — a sibling function this tool does not call. So for the tamper
-//! scenarios this tool can actually observe (a hand-edited
-//! `.ggen-v2/receipt.json`), `fm_code` is expected to be `None` today; it
-//! is still implemented as a real, generic extraction (not hardcoded to
-//! "always None") because a future call site inside the verify path, or a
-//! caller-supplied receipt whose message happens to embed a `FM-CHAIN-0NN`
-//! substring, must still be picked up without a code change here.
+//! `handle_receipt_verify_in`'s own error paths
+//! (`ggen-engine/src/verbs/handlers.rs:417-516`) are now tagged with
+//! `AppError::fm_chain` codes 12-17 (unsupported schema version=12,
+//! payload-hash mismatch=13, chain-hash mismatch=14, malformed signature
+//! hex=15, wrong-length signature=16, non-verifying signature=17) —
+//! distinct from the 002/004/005/006/007/009/010/011 codes used by
+//! `sync.rs`'s receipt-writing path and by the sibling
+//! `handle_receipt_history` function. `fm_code` is expected to be
+//! populated (not `None`) for every tamper scenario this tool can observe
+//! on a hand-edited `.ggen-v2/receipt.json`.
 
 use regex::Regex;
 use schemars::JsonSchema;

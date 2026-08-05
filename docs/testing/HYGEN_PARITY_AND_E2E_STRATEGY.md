@@ -373,3 +373,12 @@ Stated plainly, per this project's own evidence-first standard, rather than left
   `chicago-tdd-tools-pack` / `cli_proof` machinery description above.
 - CLAUDE.md — Definition of Done, `guard-cheat-scan`'s 464-finding status, and the
   `A = μ(O)` formula this document cites for why ggen's variable source differs from hygen's.
+- `docs/research/ggen-docs-hygen-parity.md` — a companion parity doc mirroring hygen's own
+  documentation table of contents one-for-one (installation, generators, extensibility,
+  packages, standalone install, FAQ, `hygen-create` equivalent), with fuller Hygen-docs-side
+  narrative than this document needs for its CI-gate purpose. Written independently of this
+  file and only cross-linked afterward — see `examples/hygen/README.md`'s "Relationship to
+  `hygen_parity_e2e.rs`" section for how the two relate.
+- `examples/hygen/` — four hands-on, independently runnable ggen projects mirroring specific
+  examples from hygen's own docs (worker, mailer, injection, case-conversion), for a human
+  reading the docs rather than for CI. Not a substitute for the proof tests above.

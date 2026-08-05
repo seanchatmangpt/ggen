@@ -310,7 +310,10 @@ mod fm_code_extraction_tests {
 
     #[test]
     fn returns_none_for_an_unterminated_bracket() {
-        assert_eq!(extract_fm_code("[FM-PACK-013 missing closing bracket"), None);
+        assert_eq!(
+            extract_fm_code("[FM-PACK-013 missing closing bracket"),
+            None
+        );
     }
 }
 

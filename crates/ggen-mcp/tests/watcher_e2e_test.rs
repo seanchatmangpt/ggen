@@ -148,11 +148,8 @@ fn real_file_edit_triggers_a_real_mcp_push_notification() {
     let tmp = TempDir::new().expect("tempdir");
     // Start clean: a valid manifest + template whose SELECT covers every
     // variable the template consumes, so the initial gate is quiet.
-    std::fs::write(
-        tmp.path().join("row.tera"),
-        r#"{{ row["name"] }}"#,
-    )
-    .expect("write initial template");
+    std::fs::write(tmp.path().join("row.tera"), r#"{{ row["name"] }}"#)
+        .expect("write initial template");
     std::fs::write(
         tmp.path().join("ggen.toml"),
         r#"

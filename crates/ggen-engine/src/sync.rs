@@ -1240,8 +1240,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // binds the files that *did* land, closing the drift window instead
         // of leaving the previous (now-stale) receipt as the last word on
         // them.
-        if let Err(receipt_err) =
-            write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
+        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
         {
             return Err(match emit_err {
                 // The write-stage failure is the operative incident; a

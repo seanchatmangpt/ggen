@@ -116,10 +116,7 @@ mod tests {
     #[test]
     fn ordinary_file_under_root_is_not_protected() {
         let tmp = TempDir::new().expect("tempdir");
-        assert!(!is_protected_path(
-            tmp.path(),
-            Path::new("src/lib.rs")
-        ));
+        assert!(!is_protected_path(tmp.path(), Path::new("src/lib.rs")));
     }
 
     /// A brand-new file under an already-existing directory (the common
