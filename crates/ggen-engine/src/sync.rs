@@ -3449,7 +3449,10 @@ mod tests {
             .filter(|l| !l.trim().is_empty())
             .map(|l| serde_json::from_str(l).expect("parse SyncReceipt line"))
             .collect();
-        assert!(!receipts.is_empty(), "receipt log is empty — nothing to migrate");
+        assert!(
+            !receipts.is_empty(),
+            "receipt log is empty — nothing to migrate"
+        );
 
         // Resolve the signing key exactly the way this file's own
         // `write_receipt` does at real sync-write time (`GGEN_SIGNING_KEY`

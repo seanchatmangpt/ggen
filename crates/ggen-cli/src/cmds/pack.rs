@@ -646,9 +646,8 @@ fn create_pack_via_self_pack(
         version = ttl_escape(&version),
         category = ttl_escape(&category),
     );
-    std::fs::write(self_pack_dir.join("input.ttl"), input_ttl).map_err(|e| {
-        NounVerbError::execution_error(format!("failed to write input.ttl: {e}"))
-    })?;
+    std::fs::write(self_pack_dir.join("input.ttl"), input_ttl)
+        .map_err(|e| NounVerbError::execution_error(format!("failed to write input.ttl: {e}")))?;
 
     // `ggen-engine::sync`'s own path-traversal guard (`FM-WRITE-002`)
     // correctly refuses any `to:`/`output_file` that escapes the sync
