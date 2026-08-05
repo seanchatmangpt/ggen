@@ -1,0 +1,109 @@
+name: Agent Apply ggen-engine Refactor
+
+on:
+  pull_request:
+    paths:
+      - '.github/agent/refactor_ggen_engine.py'
+      - '.github/workflows/agent-apply-ggen-engine-refactor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-ggen-engine-refactor-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  manufacture-verify-publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Admit identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha || github.sha }}'
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+          echo "ADMITTED_HEAD=$actual"
+          echo "ADMITTED_TREE=$(git rev-parse HEAD^{tree})"
+
+      - name: Manufacture bounded modules and extract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/agent/refactor_ggen_engine.py
+
+      - name: Provision pinned Rust build capsule
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: ggen-engine-refactor
+
+      - name: Format manufactured source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          cargo fmt --all -- --check
+
+      - name: Remove temporary manufacture surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm \
+            .github/agent/refactor_ggen_engine.py \
+            .github/workflows/agent-apply-ggen-engine-refactor.yml \
+            .github/workflows/agent-source-capsule.yml
+
+      - name: Verify exact final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          git diff --cached --check
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('crates/ggen-engine/src')
+          oversized = []
+          for path in sorted(root.rglob('*.rs')):
+              lines = len(path.read_text().splitlines())
+              if lines > 1000:
+                  oversized.append(f'{path}: {lines}')
+          if oversized:
+              raise SystemExit('oversized production files remain:\n' + '\n'.join(oversized))
+          print('MAX_LOC', max((len(path.read_text().splitlines()), path) for path in root.rglob('*.rs')))
+          PY
+          echo "TESTED_TREE=$(git write-tree)" | tee tested-tree.txt
+          cargo check -p ggen-engine --no-default-features
+          cargo test -p ggen-engine --test source_layout --no-default-features
+          cargo test -p ggen-engine --lib --no-default-features
+          cargo test -p ggen-engine --no-default-features
+          rm tested-tree.txt
+          git add -A
+          git diff --cached --check
+          echo "FINAL_TESTED_TREE=$(git write-tree)"
+
+      - name: Publish intentional commit
+        shell: bash
+        env:
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          branch="${HEAD_BRANCH:-agent/refactor-ggen-engine-large-files}"
+          tested_tree="$(git write-tree)"
+          git config user.name 'Sean Chatman'
+          git config user.email '136349053+seanchatmangpt@users.noreply.github.com'
+          git commit -m 'refactor ggen-engine large modules'
+          test "$(git rev-parse HEAD^{tree})" = "$tested_tree"
+          echo "PUBLISHED_COMMIT=$(git rev-parse HEAD)"
+          echo "PUBLISHED_TREE=$tested_tree"
+          git push origin "HEAD:$branch"
