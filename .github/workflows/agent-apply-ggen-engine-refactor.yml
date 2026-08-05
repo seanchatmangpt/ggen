@@ -61,6 +61,26 @@ jobs:
               doc_block = match.group(1)
               left.write_text(source[:match.start(1)].rstrip() + '\n')
               right.write_text(doc_block + right.read_text().lstrip('\n'))
+
+          generation_root = Path('crates/ggen-engine/src/generation_rules.rs')
+          generation_pipeline = Path('crates/ggen-engine/src/generation_rules/pipeline.rs')
+          generation_source = generation_root.read_text()
+          match = re.search(
+              r'(?m)((?:^///[^\n]*\n)+)(include!\("generation_rules/pipeline.rs"\);)',
+              generation_source,
+          )
+          if match is None:
+              raise SystemExit('duration_ms doc block not found before generation_rules include')
+          generation_root.write_text(
+              generation_source[:match.start(1)] + match.group(2) + generation_source[match.end(2):]
+          )
+          generation_pipeline.write_text(match.group(1) + generation_pipeline.read_text())
+
+          law = Path('crates/ggen-engine/src/sync/law.rs')
+          law_source = law.read_text()
+          if law_source.count('for pack in &packs {') != 2:
+              raise SystemExit('expected exactly two redundant sync law pack references')
+          law.write_text(law_source.replace('for pack in &packs {', 'for pack in packs {'))
           PY
 
       - name: Provision pinned Rust build capsule
@@ -73,6 +93,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo 'CACHE_ON_FAILURE=true' >> "$GITHUB_ENV"
           cargo fmt --all
           python3 - <<'PY'
           from pathlib import Path
