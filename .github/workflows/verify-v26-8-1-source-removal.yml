@@ -3,8 +3,17 @@ name: Verify ggen v26.8.1 source removal
 on:
   pull_request:
     branches: [main]
+    paths:
+      - scripts/ci/v26_8_1_source_removal.py
+      - evidence/ggen-v26.8.1-source-removal-plan.json
+      - evidence/ggen-v26.8.1-source-removal-receipt.json
   push:
     branches: [agent/migrate-v26-8-1-corpus-to-ggen-legacy]
+    paths:
+      - scripts/ci/v26_8_1_source_removal.py
+      - evidence/ggen-v26.8.1-source-removal-plan.json
+      - evidence/ggen-v26.8.1-source-removal-receipt.json
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,13 +40,17 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Bind exact candidate head
         shell: bash
         run: |
           set -euo pipefail
           EXPECTED='${{ github.event.pull_request.head.sha || github.sha }}'
-          test "$(git rev-parse HEAD)" = "$EXPECTED"
+          test "$(git rev-parse HEAD)" = "$EXPECTED" || {
+            echo 'REFUSED:HEAD_IDENTITY_MISMATCH' >&2
+            exit 1
+          }
           test ! -e .github/workflows/temporary-v26-8-1-source-removal.yml
 
       - name: Checkout exact source baseline
@@ -47,6 +60,7 @@ jobs:
           ref: ${{ env.SOURCE_BASE }}
           path: .baseline-ggen
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Checkout merged destination authority
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -55,6 +69,7 @@ jobs:
           ref: ${{ env.CORPUS_REF }}
           path: .corpus
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Fence verifier checkouts from source cleanliness
         shell: bash
