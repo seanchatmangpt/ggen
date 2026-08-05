@@ -41,6 +41,27 @@ jobs:
         run: |
           set -euo pipefail
           python3 .github/agent/refactor_ggen_engine.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          pairs = [
+              ('crates/ggen-engine/src/generation_rules/pipeline.rs', 'crates/ggen-engine/src/generation_rules/output.rs'),
+              ('crates/ggen-engine/src/sync/templates.rs', 'crates/ggen-engine/src/sync/receipt.rs'),
+              ('crates/ggen-engine/src/template/model.rs', 'crates/ggen-engine/src/template/runtime.rs'),
+              ('crates/ggen-engine/src/verbs/handlers/sync_graph.rs', 'crates/ggen-engine/src/verbs/handlers/receipts.rs'),
+          ]
+          for left_name, right_name in pairs:
+              left = Path(left_name)
+              right = Path(right_name)
+              source = left.read_text()
+              match = re.search(r'(?m)((?:^///[^\n]*\n)+)\s*\Z', source)
+              if match is None:
+                  raise SystemExit(f'no trailing doc block found at {left}')
+              doc_block = match.group(1)
+              left.write_text(source[:match.start(1)].rstrip() + '\n')
+              right.write_text(doc_block + right.read_text().lstrip('\n'))
+          PY
 
       - name: Provision pinned Rust build capsule
         uses: ./.github/actions/setup-ggen-build
