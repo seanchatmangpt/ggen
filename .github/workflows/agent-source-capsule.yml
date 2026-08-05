@@ -27,7 +27,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
           printf '%s\n' "${{ github.event.pull_request.head.sha }}" > SOURCE_SHA
           git archive --format=tar.gz --output=ggen-source.tar.gz HEAD -- \
-            Cargo.toml Cargo.lock Cargo.workspace.toml rust-toolchain.toml rustfmt.toml \
+            Cargo.toml Cargo.lock rust-toolchain.toml rustfmt.toml \
             .cargo crates/ggen-engine crates/praxis-core crates/praxis-graphlaw \
             crates/ggen-marketplace crates/ggen-config
           sha256sum ggen-source.tar.gz > ggen-source.tar.gz.sha256
