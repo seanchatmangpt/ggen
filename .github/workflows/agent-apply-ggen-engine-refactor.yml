@@ -53,6 +53,11 @@ jobs:
         run: |
           set -euo pipefail
           cargo fmt --all
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in Path('crates/ggen-engine').rglob('*.rs'):
+              path.write_text(path.read_text().rstrip() + '\n')
+          PY
           cargo fmt --all -- --check
 
       - name: Remove temporary manufacture surfaces
@@ -82,15 +87,16 @@ jobs:
               raise SystemExit('oversized production files remain:\n' + '\n'.join(oversized))
           print('MAX_LOC', max((len(path.read_text().splitlines()), path) for path in root.rglob('*.rs')))
           PY
-          echo "TESTED_TREE=$(git write-tree)" | tee tested-tree.txt
+          tested_tree="$(git write-tree)"
+          echo "TESTED_TREE=$tested_tree"
           cargo check -p ggen-engine --no-default-features
           cargo test -p ggen-engine --test source_layout --no-default-features
           cargo test -p ggen-engine --lib --no-default-features
           cargo test -p ggen-engine --no-default-features
-          rm tested-tree.txt
           git add -A
           git diff --cached --check
-          echo "FINAL_TESTED_TREE=$(git write-tree)"
+          test "$(git write-tree)" = "$tested_tree"
+          echo "FINAL_TESTED_TREE=$tested_tree"
 
       - name: Publish intentional commit
         shell: bash
