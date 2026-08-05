@@ -1,0 +1,6 @@
+{#- .github/actions/setup-ggen-build-errc-proposed/action.yml — full projection of
+    packs/gh-actions-errc-pack/ontology.ttl's errc:ProposedSetupGgenBuildAction literal.
+    Root ggen.toml is the declarative-rules schema; this template calls sparql() itself,
+    mirroring .specify/templates/docs/pack_maturity_model.md.tera's working pattern. -#}
+{%- set row = sparql(query='PREFIX errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#> SELECT ?body WHERE { errc:ProposedSetupGgenBuildAction errc:body ?body . } ORDER BY ?body') -%}
+{{ row[0].body }}

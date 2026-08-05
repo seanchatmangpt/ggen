@@ -3401,8 +3401,127 @@ mod tests {
 
     use super::{
         check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
-        hash_file_or_missing, ExtractedRows,
+        hash_file_or_missing, ExtractedRows, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
     };
+
+    /// One-time, explicit migration: re-seals `.ggen-v2/receipt-log.jsonl`'s
+    /// `chain_hash_hex`/`prev_chain_hash_hex`/`signature_hex` for every
+    /// record after commit 59df7d812 ("F1 fix": `recompute_chain_hash`
+    /// started folding a record's `v2` epoch payload into the chain hash,
+    /// closing a real gap where `standing_ceiling`/`admission`/
+    /// `equivalence`/`promotion_eligible` could be edited in place without
+    /// invalidating `chain_hash_hex`). That fix did not migrate the
+    /// receipts already on disk that were sealed under the pre-fix
+    /// (non-folding) formula, so `ggen sync run`/`receipt verify` correctly
+    /// refuse to extend the chain against them (`[FM-CHAIN-007/009/014]`).
+    ///
+    /// `#[ignore]`d — a deliberate, run-once, disclosed migration, not a
+    /// normal test — and destructive (rewrites `.ggen-v2/receipt-log.jsonl`
+    /// and `.ggen-v2/receipt.json` in place): run explicitly via
+    /// `cargo test -p ggen-engine --lib -- --ignored --nocapture reseal_receipt_log_under_post_f1_chain_hash_formula`.
+    ///
+    /// What this does NOT claim: the pre-fix formula never covered the `v2`
+    /// payload, so there is no way to cryptographically prove whether any
+    /// individual legacy record's `v2` payload was edited before this
+    /// migration runs. This migration trusts the `v2` content currently on
+    /// disk as ground truth (the repository owner's own explicit decision,
+    /// made in response to being asked, not assumed) and re-seals from that
+    /// point forward under the current, post-F1 formula — closing the gap
+    /// for every record from here on, not retroactively proving history
+    /// that cannot be proven.
+    #[test]
+    #[ignore = "one-time destructive migration against the real repo-root .ggen-v2/; run explicitly with --ignored"]
+    fn reseal_receipt_log_under_post_f1_chain_hash_formula() {
+        use ed25519_dalek::Signer as _;
+
+        // CARGO_MANIFEST_DIR is crates/ggen-engine; workspace root is two levels up.
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .and_then(std::path::Path::parent)
+            .expect("workspace root")
+            .to_path_buf();
+        let log_path = root.join(RECEIPT_LOG_REL_PATH);
+        let head_path = root.join(RECEIPT_REL_PATH);
+
+        let content = std::fs::read_to_string(&log_path).expect("read receipt-log.jsonl");
+        let mut receipts: Vec<SyncReceipt> = content
+            .lines()
+            .filter(|l| !l.trim().is_empty())
+            .map(|l| serde_json::from_str(l).expect("parse SyncReceipt line"))
+            .collect();
+        assert!(!receipts.is_empty(), "receipt log is empty — nothing to migrate");
+
+        // Resolve the signing key exactly the way this file's own
+        // `write_receipt` does at real sync-write time (`GGEN_SIGNING_KEY`
+        // env var, else `.ggen/keys/signing.key`, else generate+persist) —
+        // never a bespoke migration-only key.
+        let signing_key = crate::keys::resolve_signing_key(&root).expect("resolve signing key");
+
+        let mut prev_chain_hash_hex = "0".repeat(64);
+        let mut resealed = 0usize;
+        let mut unchanged = 0usize;
+
+        for receipt in &mut receipts {
+            receipt.record.prev_chain_hash_hex = prev_chain_hash_hex.clone();
+
+            let new_chain = receipt
+                .record
+                .recompute_chain_hash()
+                .expect("recompute_chain_hash under current (post-F1) formula");
+            let new_chain_hex = hex::encode(new_chain);
+
+            if new_chain_hex != receipt.record.chain_hash_hex {
+                receipt.record.chain_hash_hex = new_chain_hex.clone();
+                let signature = signing_key.sign(receipt.record.chain_hash_hex.as_bytes());
+                receipt.record.signature_hex = Some(hex::encode(signature.to_bytes()));
+                resealed += 1;
+            } else {
+                unchanged += 1;
+            }
+
+            prev_chain_hash_hex = receipt.record.chain_hash_hex.clone();
+        }
+
+        // Verify every record self-verifies under the current formula
+        // before writing anything back — never persist a migration that
+        // would itself fail `receipt verify`.
+        let mut running_prev = "0".repeat(64);
+        for (i, receipt) in receipts.iter().enumerate() {
+            assert_eq!(
+                receipt.record.prev_chain_hash_hex, running_prev,
+                "record {i}: chain linkage broken after migration"
+            );
+            let recomputed = receipt
+                .record
+                .recompute_chain_hash()
+                .unwrap_or_else(|e| panic!("record {i}: recompute failed post-migration: {e}"));
+            assert_eq!(
+                hex::encode(recomputed),
+                receipt.record.chain_hash_hex,
+                "record {i}: chain_hash_hex does not self-verify post-migration"
+            );
+            running_prev = receipt.record.chain_hash_hex.clone();
+        }
+
+        let mut out = String::new();
+        for receipt in &receipts {
+            out.push_str(&serde_json::to_string(receipt).expect("serialize SyncReceipt"));
+            out.push('\n');
+        }
+        std::fs::write(&log_path, out).expect("write resealed receipt-log.jsonl");
+
+        let head = receipts.last().expect("non-empty receipts");
+        std::fs::write(
+            &head_path,
+            serde_json::to_vec(head).expect("serialize head SyncReceipt"),
+        )
+        .expect("write resealed receipt.json head");
+
+        eprintln!(
+            "migration complete: {resealed} records re-sealed, {unchanged} already matched current formula (total {})",
+            receipts.len()
+        );
+    }
 
     /// A declared closure input that cannot be read binds as the literal
     /// `MISSING` marker — recorded in the receipt, never dropped.
