@@ -257,7 +257,7 @@ jobs:
       - uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: errc-lsp
-     - name: LSP crate contract
+      - name: LSP crate contract
         run: cargo check -p ggen-lsp --all-features
 
   ci-status:
@@ -281,11 +281,11 @@ jobs:
           RESULTS: >-
             admission=${{ needs.admission.result }}
             ci=${{ needs.ci_deep_job.result }}
-            core=${{ neds.core_deep_job.result }}
-            integration=${{ neds.integration_deep_job.result }}
-            quality=${{ neds.quality_deep_job.result }}
-            security=${{ neds.security_deep_job.result }}
-            docs=${{ neds.docs_deep_job.result }}
+            core=${{ needs.core_deep_job.result }}
+            integration=${{ needs.integration_deep_job.result }}
+            quality=${{ needs.quality_deep_job.result }}
+            security=${{ needs.security_deep_job.result }}
+            docs=${{ needs.docs_deep_job.result }}
             lsp=${{ needs.lsp_deep_job.result }}
         run: |
           set -euo pipefail
