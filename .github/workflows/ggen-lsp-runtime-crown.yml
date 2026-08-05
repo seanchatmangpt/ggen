@@ -1,0 +1,126 @@
+name: ggen LSP Runtime Crown
+
+on:
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "crates/ggen-lsp/**"
+      - "self-host/lsp-contract/**"
+      - "docs/generated/LSP_CONTRACT.md"
+      - "docs/lsp/RUNTIME_CROWN.md"
+      - "scripts/lsp-smoke.py"
+      - ".github/workflows/ggen-lsp-runtime-crown.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ggen-lsp-runtime-crown-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-head-producer-and-receiver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      RECEIVER_SHA: fe5efdb6407c112e3610a0330be233637b6693fe
+      RUSTC_WRAPPER: ""
+      SCCACHE_DISABLE: "1"
+    steps:
+      - name: Check out exact ggen candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Check out exact independent receiver
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: seanchatmangpt/ggen-legacy
+          ref: fe5efdb6407c112e3610a0330be233637b6693fe
+          path: external/ggen-legacy
+          fetch-depth: 1
+
+      - name: Assert exact subjects
+        env:
+          EXPECTED_GGEN_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_GGEN_HEAD"
+          test "$(git -C external/ggen-legacy rev-parse HEAD)" = "$RECEIVER_SHA"
+
+      - name: Install admitted Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-06-22 --profile minimal --component rustfmt,clippy
+          rustup default nightly-2026-06-22
+          rustc --version --verbose
+          cargo --version --verbose
+
+      - name: Build the real manufacturer and LSP runtime
+        run: |
+          cargo build -p ggen-cli-lib --bin ggen --locked
+          cargo build -p ggen-lsp --locked
+
+      - name: Execute self-hosted manufacture
+        run: |
+          cd self-host/lsp-contract
+          ../../target/debug/ggen sync run
+          python3 verify.py \
+            --ggen-root ../.. \
+            --legacy-root ../../external/ggen-legacy \
+            --report /tmp/ggen-lsp-representation-report.json
+
+      - name: Refuse generated projection drift
+        run: |
+          git diff --exit-code -- \
+            crates/ggen-lsp/generated/lsp-contract.json \
+            crates/ggen-lsp/src/generated_contract.rs \
+            docs/generated/LSP_CONTRACT.md
+
+      - name: Check focused Rust source
+        run: |
+          cargo fmt -p ggen-lsp -- --check
+          cargo check -p ggen-lsp --all-features --locked
+
+      - name: Execute focused LSP tests
+        run: |
+          cargo test -p ggen-lsp --lib --locked -- --test-threads=1
+          cargo test -p ggen-lsp --test ggen_src_004_living_loop --locked -- --test-threads=1
+          cargo test -p ggen-lsp --test lsp_protocol_test --locked -- --test-threads=1
+          cargo test -p ggen-lsp --test lsp_contract_completion_test --locked -- --test-threads=1
+
+      - name: Execute real stdio smoke consequence
+        run: python3 scripts/lsp-smoke.py
+
+      - name: Emit bounded crown receipt
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          paths = [
+              Path("crates/ggen-lsp/generated/lsp-contract.json"),
+              Path("crates/ggen-lsp/src/generated_contract.rs"),
+              Path("docs/generated/LSP_CONTRACT.md"),
+          ]
+          receipt = {
+              "schema": "ggen-lsp-runtime-crown-workflow/v1",
+              "ggen_head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "receiver_head": subprocess.check_output(
+                  ["git", "-C", "external/ggen-legacy", "rev-parse", "HEAD"], text=True
+              ).strip(),
+              "workflow": os.environ.get("GITHUB_WORKFLOW"),
+              "run_id": os.environ.get("GITHUB_RUN_ID"),
+              "projections": {
+                  str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths
+              },
+              "claim_ceiling": "GGEN_LSP_CONTRACT_MANUFACTURE_AND_FOCUSED_RUNTIME_ONLY",
+          }
+          print(json.dumps(receipt, sort_keys=True))
+          PY
