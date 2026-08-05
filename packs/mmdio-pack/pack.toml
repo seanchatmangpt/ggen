@@ -1,4 +1,13 @@
 [pack]
 name = "mmdio-pack"
-version = "0.0.1"
-description = "Python support matrix for mermaid-js diagram types; extends mermaid-pack with mer:pythonSupport and mer:grammarPath properties for 11 implemented types (flowchart, sequence, classDiagram, stateDiagram, er, gantt, pie, gitGraph, c4, mindmap, sankey). Generated from ~/mmdio source; see mmdio-pack/templates/registry.ttl.tmpl and gates for consistency checks."
+version = "0.0.2"
+description = "Mermaid Python support inventory plus exact-source semantic-crown provenance. Grammar presence and pythonSupport do not imply semantic equivalence; only explicitly crowned profiles carry executable roundtrip standing."
+
+[semantic_crown]
+authority = "semantic-crown.ttl"
+profile = "mmdio.flowchart.rectangle-solid/1"
+repository = "seanchatmangpt/mmdio"
+commit = "360c575becf941743131e51e8cb06e8b6f0eeef9"
+path = "src/mmdio/flowchart_crown.py"
+git_blob = "d114944c95392adf14a22fb2bdfcd26651dc39a0"
+claim_ceiling = "BOUNDED_FLOWCHART_SEMANTIC_ROUNDTRIP_AND_MERMAID_RENDER_ONLY"
