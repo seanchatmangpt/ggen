@@ -3473,13 +3473,13 @@ mod tests {
                 .expect("recompute_chain_hash under current (post-F1) formula");
             let new_chain_hex = hex::encode(new_chain);
 
-            if new_chain_hex != receipt.record.chain_hash_hex {
+            if new_chain_hex == receipt.record.chain_hash_hex {
+                unchanged += 1;
+            } else {
                 receipt.record.chain_hash_hex = new_chain_hex.clone();
                 let signature = signing_key.sign(receipt.record.chain_hash_hex.as_bytes());
                 receipt.record.signature_hex = Some(hex::encode(signature.to_bytes()));
                 resealed += 1;
-            } else {
-                unchanged += 1;
             }
 
             prev_chain_hash_hex = receipt.record.chain_hash_hex.clone();
