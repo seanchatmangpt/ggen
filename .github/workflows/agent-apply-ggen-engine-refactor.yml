@@ -65,16 +65,17 @@ jobs:
           generation_root = Path('crates/ggen-engine/src/generation_rules.rs')
           generation_pipeline = Path('crates/ggen-engine/src/generation_rules/pipeline.rs')
           generation_source = generation_root.read_text()
-          match = re.search(
-              r'(?m)((?:^///[^\n]*\n)+)(include!\("generation_rules/pipeline.rs"\);)',
-              generation_source,
-          )
+          include_marker = 'include!("generation_rules/pipeline.rs");'
+          include_index = generation_source.index(include_marker)
+          prefix = generation_source[:include_index]
+          match = re.search(r'(?m)((?:^///[^\n]*\n)+)\s*\Z', prefix)
           if match is None:
               raise SystemExit('duration_ms doc block not found before generation_rules include')
+          doc_block = match.group(1)
           generation_root.write_text(
-              generation_source[:match.start(1)] + match.group(2) + generation_source[match.end(2):]
+              prefix[:match.start(1)].rstrip() + '\n\n' + generation_source[include_index:]
           )
-          generation_pipeline.write_text(match.group(1) + generation_pipeline.read_text())
+          generation_pipeline.write_text(doc_block + generation_pipeline.read_text())
 
           law = Path('crates/ggen-engine/src/sync/law.rs')
           law_source = law.read_text()
