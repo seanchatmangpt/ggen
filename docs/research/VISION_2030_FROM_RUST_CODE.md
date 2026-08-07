@@ -1,13 +1,17 @@
 # The Point of ggen, and Vision 2030 — the Chatman Convergence, Verified Against the Rust Code
 
-**Method.** This analysis was produced in two passes. First, a Rust-code-only survey of the 15
+**Method.** This analysis was produced in three passes. First, a Rust-code-only survey of the 15
 compiled workspace crates and the 5 dormant crate directories under `crates/` — no markdown, no
 `docs/`, no README, no TTL files; only `.rs` source (doc comments included, since they are part
 of the code). Second, the survey was reconciled against the project's converged doctrine (the
 "Conversation Convergence" SPR): the **post-Rice mission operating system** governed by the
-**Chatman Equation `A = μ(O*)`**. Every doctrine concept below is either anchored to real
-files/types found in source, or honestly flagged as absent — claims of absence are backed by
-zero-hit searches over `**/*.rs`.
+**Chatman Equation `A = μ(O*)`**. Third, the sibling constellation was researched from its
+published crates.io source tarballs — `wasm4pm-compat` 26.6.28, `wasm4pm` 26.6.25,
+`bcinr`/`bcinr-logic`/`bcinr-api` 26.4.22, `cargo-cicd` 26.6.30 — again Rust source only, plus
+the in-repo `ontology_catalogue/` projections that bind those projects into ggen's admitted
+world. Every doctrine concept below is either anchored to real files/types found in source, or
+honestly flagged as absent — claims of absence are backed by zero-hit searches over the
+monorepo **and** the fetched sibling sources.
 
 ---
 
@@ -173,14 +177,21 @@ promotion). **The POWL half is built; the PDDL half is not.**
   ships a `powl/` stewardship directory; the workflow engine (`genesis-core-v2`) implements the
   `Pattern` trait against Van der Aalst's 43-pattern YAWL taxonomy (3 built:
   Sequence, ParallelSplit, ExclusiveChoice).
-- **PDDL absent:** `PDDL` matches **zero** `.rs` files in the repository. `ORTAC` matches zero.
-  "Fluent" appears only in the fluent-builder-API sense, never as a numeric planning fluent.
-  There are no action operators, no preconditions/effects schemas, no numeric objective
-  fluents, no planner integration. Preconditions and effects exist today only implicitly — as
-  admission gates and receipts around transitions, not as a declarative action calculus a
-  planner can search over.
+- **PDDL absent from the monorepo — but present in the constellation:** `PDDL` matches
+  **zero** `.rs` files in this repository. `ORTAC` matches zero. "Fluent" appears only in the
+  fluent-builder-API sense. Inside ggen, preconditions and effects exist only implicitly — as
+  admission gates and receipts around transitions. However, the sibling crate
+  **wasm4pm-compat** (26.6.28) ships `src/pddl.rs` — "PDDL8 canonical types": a bounded STRIPS
+  subset (`Pddl8Atom`, `Pddl8ActionSchema`, `Pddl8Domain`, `Pddl8Problem`,
+  `Pddl8GroundAction::is_applicable`, arity/params/conjuncts capped at 8, plan depth ≤ 64,
+  ground cap 4096), a POWL-geometry projection (`Pddl8Tape`/`Pddl8TapeOp`), and receipted
+  execution (`Pddl8ExecutionLog`, `Pddl8ExecutionReceipt` with BLAKE3 plan/state/goal roots).
+  Under BRCE, delete effects become "epoch seals" and `ExecutionTrace = OCEL 2.0`. What
+  remains absent *everywhere we can see* is a **planner engine** — no solver searches these
+  schemas — and numeric fluents (PDDL8 is boolean STRIPS). See Part 4.
 
-This is the single most consequential gap between the code and the convergence (see Part 4).
+The action-law *shapes* therefore exist in the constellation; the *search* over them is the
+remaining gap (see Part 5).
 
 ### Mission Physics — same substrate, different objective fluents
 
@@ -322,7 +333,112 @@ admission/receipt/replay bounding is finished and hardened; the planning surface
 
 ---
 
-## Part 4 — Gap Map: Doctrine vs. Code, Measured
+## Part 4 — The Constellation: Where the Answers Live
+
+The monorepo's own code names its siblings: `crates/genesis-core-v2/src/revelation.rs`
+enumerates seven project "churches," including `Wasm4pm` and `BcinrSubstrate`
+("BCINR/unibit/Field8/INSA — physical bounded-motion substrate"), and
+`ontology_catalogue/` holds TTL/SPARQL projections of `wasm4pm`, `wasm4pm-compat`, and
+`cargo-cicd`. Fetching the published crates.io sources of those siblings closes most of what
+Part 2 could only mark "absent from this repo." Each sibling repeats ggen's split calculus at
+its own layer: keep the emission/shape surface, delegate the heavy half elsewhere, and gate
+every boundary with admission + receipt.
+
+### wasm4pm-compat 26.6.28 — the law and shape authority
+
+A nightly, `#![forbid(unsafe_code)]`, structure-only crate whose `lib.rs` states it contains
+"no engines: no discovery, no conformance checking, no replay." What it does contain is the
+doctrine, literally typed:
+
+- **The one-way evidence door.** `Evidence<T, State, W>` (`src/evidence.rs`) with typestate
+  tokens `Raw → Parsed → Admitted → {Projected | Exportable | Receipted}` and terminal
+  `Refused`; the only public path to `Admitted` is `admission::Admit::admit` — the
+  constructor is `pub(crate)`. Sealed admissions chain through BLAKE3
+  (`SealedAdmission`, `ChainProof`, `recompute_and_match`).
+- **Paper-complete is literal.** `src/witness.rs` + generated `witnesses*.rs` define
+  zero-sized witness marker types per academic standard/paper — `Ocel20` (2023), `Xes1849`
+  (IEEE 1849-2016), `PowlPaper` (2023), `YawlPaper` (van der Aalst & ter Hofstede),
+  `SeparableWfNetPaper` (Kourani et al. 2026) — and `Admission<T, W>` / `Refusal<R, W>` are
+  parameterized by them, so an admission under one paper's law is a *different type* than
+  under another's. `witness_corpus.rs` enforces compile-time key uniqueness across the whole
+  bibliography. Named laws are enforced, not cited: `OcelRefusal::ViolatesLocalityPrinciple`
+  with `validate_gianola_2026_locality(...)` in `src/ocel.rs`.
+- **The API ggen delegates to is exactly as declared.** `src/dfg.rs` has
+  `discover_ocel_dfg`, `extract_ocel_variants`, `dfg_fitness`, `dfg_precision`; `src/ocel.rs`
+  owns `OCEL`/`OCELEvent`/`OCELObject`; `src/models.rs` owns `DFG`/`DFGNode`/`DFGEdge` plus
+  structural-only Petri metrics that are "computed only over the net's own shape … never
+  against event data."
+- **PDDL8** (`src/pddl.rs`) — the bounded action calculus described in Part 2, with receipted
+  execution types. The `witnesses*.rs`/`fresh_names.rs` modules are marked "Generated by
+  `ggen sync --rule …`" — ggen's press manufactures compat's witness surface from TTL.
+- **Graduation is code, not metaphor.** `src/engine_bridge.rs` defines
+  `GraduationReason` (`NeedsDiscovery`, `NeedsConformanceExecution`, `NeedsReplay`,
+  `NeedsReceipts`, … `#[non_exhaustive]`) and `GraduationCandidate::is_grounded()`; the
+  receiving half is `wasm4pm/src/graduation.rs::intake_candidate`, which admits grounded
+  candidates for execution. "Start with compatibility. Graduate to execution" is a typed
+  one-way bridge between two crates.
+
+### wasm4pm 26.6.25 — the execution oracle
+
+The engine compat refuses to be: 431 `#[wasm_bindgen]` exports across 107 files, handle-based
+state over the WASM boundary. Discovery (alpha++/inductive/ILP/genetic/ant-colony/streaming
+variants, object-centric `discover_ocdfg_wasm`/`discover_oc_petri_net`), conformance (A*
+alignments with marking equation, SIMD token replay, ET-conformance precision, a
+`conformance_authority/` module with admission gates), enhancement (next-activity/outcome/
+remaining-time prediction, drift detection, LinUCB, Q-Learning/SARSA, SPC Western-Electric
+rules), and a MAPE-K autonomic loop (`autoprocess.rs`, `autonomic_execute_cycle`). Its own
+admission layer (`src/admission.rs`, "Accept(x) = C1..C7", nonce freshness, refusal codes)
+and Merkle-chained audit trail (`autonomic_audit_trail.rs`) mirror ggen's BRCE. This confirms
+the Process Intelligence Boundary is a real organ transplant, not an amputation: ggen emits
+OCEL; this crate mines, replays, aligns, predicts — and mints receipts for doing so.
+
+### bcinr 26.4.22 — the physical bounded-motion substrate
+
+The published `bcinr` crate is a facade over `bcinr-api`/`bcinr-core`/`bcinr-logic`.
+`bcinr-logic` is the substance: a `no_std` branchless library (`pub trait Branchless`) whose
+`src/algorithms/` holds hundreds of constant-shape kernels (SWAR, SIMD, bit-matrix
+transposes, branchless sorts, Beneš networks) and whose `src/patterns/` is the doctrine's
+physics made executable. `swar_petri.rs` — `PriorityPetriEngine<WORDS, TRANSITIONS>` — is a
+**branchless Petri net** carrying an explicit timing contract in its doc: "≤ 20 cycles
+(~5 ns) per transition attempt … Tail latency bound: Fixed WCET … CC=1: Absolute branchless
+logic." `wcet_fiber.rs` gives fixed-tick state machines with a proof artifact
+(`InitialFiberState ⊕ Budget ⊕ SuccessMask ⊕ FinalFiberState`); `integrity_receipt.rs`
+exports `DeterministicSubstrateReceipt`; `deterministic_mpmc`, `wait_free_multicast`,
+`consensus_bft`, `policy_dfa` (`ConstantShapePolicyDfa`) round out a catalogue where *every*
+structure has zero heap allocations and data-independent control flow. This is what
+`BcinrSubstrate` in `revelation.rs` points at: when execution shape cannot depend on data,
+determinism is not a testing goal — it is a physical property of the substrate.
+
+### cargo-cicd 26.6.30 — delivery as lawful process
+
+A noun-verb CLI (46 verbs / 18 nouns) *manufactured from an ontology* via `clap-noun-verb`;
+its `lib.rs` states it "emits process evidence in OCEL 2.0 format, and delegates all verdict
+adjudication to the external wasm4pm oracle." `cicd.toml` is a carrier contract
+(`#[serde(deny_unknown_fields)]`, `src/cicd_toml.rs`) loaded through a `TrustedLoader` into
+`AdmittedConfig<CicdToml>` with a BLAKE3 witness hash; the engine's `Pending → Adjudicated`
+transition is a typestate. `publish run` is gated on `ReceiptDoctorVerdict::Accepted` and
+prints `AndonPull:` on refusal; `ocel replay` verifies the evidence hash chain
+(`ReplayStatus::{ChainBroken, HashInvalid}`); and `src/barrier.rs` encodes a 22-case
+anti-cheat `Counterexample` enum (`fake_test`, `manual_receipt_json`,
+`prose_completion_claim`, `receipt_without_execution_trace`, …) — the anti-cheating rules of
+this repo's `.claude/rules/`, compiled. The in-repo projection
+(`ontology_catalogue/cargo-cicd/`) models the same surface as RDF: `cicd-process.ttl`
+declares `PublishCommand cicd:lawfulPredecessor TestCommand` and
+`requiresAdjudicatedEvidence true`; `shapes/release.shacl.ttl` + `release-checklist.rq`
+define a 16-condition (RC01–RC16) release gate. Delivery — the last unlawful mile of most
+systems — is here a receipted, ontology-governed process like everything else.
+
+### What the constellation proves
+
+Together the siblings resolve the Part 2/Part 3 picture: ggen is the **press** (O → A, with
+receipts), wasm4pm-compat is the **law library** (shapes, witnesses, admission, PDDL8),
+wasm4pm is the **oracle** (execution, mining, adjudication), bcinr is the **physics**
+(branchless bounded motion under fixed WCET), and cargo-cicd is the **shipping lane**
+(delivery as adjudicated process). Every pair is joined the same way — typed admission in,
+BLAKE3 receipt out — which is the Chatman equation applied to the architecture itself: the
+system of crates is an admitted ontology whose artifacts precipitate along lawful edges.
+
+## Part 5 — Gap Map: Doctrine vs. Code, Measured
 
 | Doctrine element | Status in code | Evidence |
 |---|---|---|
@@ -334,9 +450,14 @@ admission/receipt/replay bounding is finished and hardened; the planning surface
 | Capability loop (call → admit → execute → receipt → replay → promote) | **Live, advisory actuation** | `ggen-lsp/src/intel/`, `mcp_packs.rs`, route promotion thresholds |
 | Cache-as-standing (lockfile + provenance receipts, `--locked` re-verify) | **Live** | `.ggen/packs.lock` path in `mcp_packs.rs`, sync `--locked` |
 | POWL execution geometry | **Present** (graphs + validation + POWL-native routes) | `genesis-types-v2` `PowlGraph`, `ggen-lsp/src/route/` |
-| **PDDL action law** | **Absent — zero hits in `.rs`** | grep `PDDL` over `**/*.rs`: no files |
-| **Numeric objective fluents** | **Absent** (only fluent-builder-API idiom exists) | grep `fluent` over `**/*.rs`: builder APIs only |
+| **PDDL action law (shapes)** | **Present in constellation** — bounded STRIPS-8 types + receipted execution; absent from monorepo | `wasm4pm-compat-26.6.28/src/pddl.rs` (`Pddl8Domain`, `Pddl8ExecutionReceipt`) |
+| **Planner/solver engine** | **Absent everywhere surveyed** (monorepo + all six sibling tarballs) | grep `planner` hits only agentic role-selection in `wasm4pm/src/agentic/` |
+| **Numeric objective fluents** | **Absent everywhere surveyed** (PDDL8 is boolean STRIPS; delete effects = epoch seals) | grep `fluent` over monorepo + siblings: builder APIs only |
 | **ORTAC-style operator DSLs (RevTAC+ etc.)** | **Absent** | grep `ORTAC`: no files |
+| Process discovery / conformance / prediction engines | **Present in constellation** (deliberately external per Process Intelligence Boundary) | `wasm4pm-26.6.25/src/{discovery,alignments,conformance_authority,ml}/` |
+| Deterministic bounded compute substrate | **Present in constellation** — branchless Petri engine, WCET fibers, substrate receipts | `bcinr-logic-26.4.22/src/patterns/{swar_petri,wcet_fiber,integrity_receipt}.rs` |
+| Delivery pipeline as receipted law | **Present in constellation + projected in-repo** | `cargo-cicd-26.6.30/src/{cicd_toml,barrier,evidence}.rs`; `ontology_catalogue/cargo-cicd/` |
+| Compatibility→execution graduation bridge | **Present, typed, two-sided** | `wasm4pm-compat/src/engine_bridge.rs` → `wasm4pm/src/graduation.rs` |
 | Revenue Physics (MRR bound, utilization, revenue DPMO) | **Absent; substrate ready** (numeric guarded state machines, regulated profiles) | `marketplace/rdf/state_machine.rs`, `marketplace/profile.rs` |
 | Mission physics invariance proof | **Live in one domain** (church operations, consent gates, SLR KPI) | `crates/stpnt/`, `ggen-core/src/stpnt/` |
 | TPS/DfLSS modules (poka-yoke, OEE, Kaizen, waste taxonomy) | **Present; DPMO-over-transitions not wired** | `ggen-core/src/{dflss,lean_six_sigma,poka_yoke,metrics}` |
@@ -353,10 +474,15 @@ admission/receipt/replay bounding is finished and hardened; the planning surface
 
 The gap pattern is coherent, and it inverts the usual startup failure mode: **the proof layer
 was finished before the power layer.** Admission, receipts, refusals, replay, coherence, and
-honesty gates are complete, pervasive, and adversarially tested. What remains is the planning
-surface the doctrine names as the destination — PDDL action law with numeric fluents, per-
-institution operator DSLs compiling down to it, DPMO computed over mission transitions, and the
-combinatorial frontier evaluated inside the admitted boundary. Which is exactly the build order
-the doctrine itself prescribes: you cannot lawfully maximize over a surface until the surface is
-bounded, admitted, receipted, and replayable. The brakes exist so the engine, when it arrives,
-can be floored.
+honesty gates are complete, pervasive, and adversarially tested — and, the constellation shows,
+replicated at every layer of the system of crates, from the WASM oracle's C1–C7 admission down
+to bcinr's branchless substrate receipts. Measured across the whole constellation, the gap
+narrows to a sharp point: the action-law *shapes* exist (PDDL8 with receipted execution), the
+process *engines* exist (wasm4pm), the *physics* exists (bcinr), the *shipping lane* exists
+(cargo-cicd). What exists nowhere surveyed is the **search**: a planner that takes PDDL8
+schemas and an objective and finds plans; numeric fluents to make objectives quantitative;
+per-institution operator DSLs compiling down to that calculus; DPMO computed over mission
+transitions; and the combinatorial frontier evaluated inside the admitted boundary. Which is
+exactly the build order the doctrine itself prescribes: you cannot lawfully maximize over a
+surface until the surface is bounded, admitted, receipted, and replayable. The brakes exist —
+at every layer, in every crate — so the engine, when it arrives, can be floored.
