@@ -431,3 +431,18 @@ SELECT ?body WHERE { grp:PublicationJudgmentArtifact grp:artifactBody ?body . } 
 template    = { file = "packs/ggen-release-pack/templates/publication_judgment.md.tera" }
 output_file = "docs/PUBLICATION_JUDGMENT.md"
 mode        = "Overwrite"
+
+# Restored 2026-08-07 (v26.8.7 80/20 ERRC gap closure, condition 1): this rule's entry was
+# deleted from ggen.toml by an unrelated PR (#489, 18913354b, 2026-07-31) even though the
+# grp:MarketplaceDocsWorkflow individual and its Tera template (both pre-existing since
+# v26.7.20, PR #281) were never touched. Re-adding the wiring, not recreating the content --
+# see condition 1's row in docs/PUBLICATION_JUDGMENT.md for the full regression history.
+[[generation.rules]]
+name        = "ggen-release-marketplace-docs-workflow"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:MarketplaceDocsWorkflow grp:workflowBody ?body . } ORDER BY ?body
+""" }
+template    = { file = ".specify/templates/docs/ggen_marketplace_docs_workflow.yml.tera" }
+output_file = ".github/workflows/marketplace-docs.yml"
+mode        = "Overwrite"

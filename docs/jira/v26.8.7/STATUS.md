@@ -123,21 +123,76 @@ generated `.md`), then regenerated via a real `ggen sync run`: confirmed
 already declared `l5_publication_claim: WITHHELD`, which remains true), and a
 second sync is a content no-op across all three.
 
+## 80/20 ERRC gap closure (same session, follows the re-audit above)
+
+Applied ERRC (Eliminate/Reduce/Raise/Create) to the 6 real gaps the re-audit above
+surfaced, instead of chasing all of them with equal effort. All 6 real, verified,
+not asserted:
+
+- **Create (condition 1)**: restored the deleted `ggen-release-marketplace-docs-workflow`
+  rule in `ggen.toml` (only the wiring was gone; the ontology individual and Tera
+  template survived PR #489 untouched). A real `ggen sync run` confirms
+  `.github/workflows/marketplace-docs.yml: unchanged: content identical`. Stays
+  PARTIAL — the row's other named gaps (22 ungenerated workflows, the two-`ggen.toml`-
+  schema divergence) are unrelated to this fix.
+- **Create (condition 18, the actual blocker)**: new
+  `crates/ggen-engine/tests/migration_receipt_persist.rs` reuses condition 19's
+  already-proven `MigrationReceipt` construction and persists it to
+  `.ggen-v2/migration-receipt.json` — verified round-tripping and matching this
+  repo's real chain hashes. **NOT MET → ALIVE.**
+- **Create + Raise (condition 22)**: new `scripts/audit/sync_pack_inventory.py`
+  mechanizes the `gen:G4` manual-transcription pattern instead of repeating it by
+  hand at ever-growing scale. Appended 50 real, verbatim-sourced `rf:Pack`
+  individuals (83 registered / 86 disk directories; 3 directories honestly
+  excluded for genuinely lacking a `pack.toml` — not silently registered).
+  Confirmed idempotent on a second dry run. Hit and fixed a real bug along the way
+  (some `pack.toml` descriptions contain raw newlines, illegal inside a Turtle
+  string literal — now escaped). **PARTIAL → ALIVE**, and future drift now has a
+  one-command fix instead of requiring another manual audit.
+- **Create (condition 21)**: ran the real 3-script `book/dist/` pipeline in place,
+  then independently re-verified determinism the same way the row's original
+  evidence did — two separate temp copies of `book/`, `diff -rq` clean across both
+  `dist/` and the 943-entry `MANIFEST.sha256`. **PARTIAL → ALIVE.**
+- **Reduce (condition 7)**: bounded re-check, not a full re-investigation.
+  `scripts/ci/guard-pack-proofs.sh` re-run for real — still green, 6 consumers,
+  all proofs pass. `just verify-tcps` re-run for real — **currently fails**:
+  `fmt-check`, `clippy-blanket-warnings`, and a receipt-chain-tamper error
+  (`[FM-CHAIN-009]`) inside `examples/tcps-generated`'s own `.ggen-v2`. This
+  session never touched that directory before running the check, so the cause
+  predates this pass; not root-caused here (a separate, larger investigation).
+  Proof-coverage ratio recomputed against the now-current pack count actually
+  *decreased* (40/86 ≈ 46.5% vs. the prior 16/28 ≈ 57%). Stays PARTIAL, now with
+  one real new problem named.
+- **Reduce (condition 16)**: trivial re-check — the regenerated table still
+  discloses every uncertain/unmet row honestly (35 disclosure markers found).
+  Stays ALIVE.
+
+**Result: 0 rows read NOT MET as of this pass.** 15 ALIVE, 8 PARTIAL. All 4 new
+`cargo test` cases pass; `grep` for mock-usage patterns across the new Rust test
+and Python script returns zero matches (Chicago-TDD compliant — real receipt-log
+file, real serde round-trip, no test doubles). `ggen sync run` is idempotent on a
+second run; `ggen receipt verify` reports `valid: true, signed: true`; `cargo check
+--workspace` stays clean.
+
 ## Bottom line
 
 Concretely, what stands between this repo and a real v26.8.7 release, in
 priority order:
 
-1. No `v26.8.6`/`v26.8.7` tag has ever been pushed, so `release.yml` has never
-   run for this version line — release readiness per this repo's own gate
-   definition is therefore unmet regardless of anything else.
-2. This branch is one commit behind `origin/main`'s automated version bump and
-   carries real uncommitted work (listed above) that needs a decision:
-   commit, discard, or continue.
-3. **A real, current NOT MET condition now exists** (condition 18 — see
-   above): Level Five publication is unambiguously withheld, not merely
-   under-audited. Regenerating `.ggen-v2/migration-receipt.json` (or
-   determining why it was removed) is the concrete next step if that claim
-   is ever intended.
-4. Conditions 7 and 16 still need a real re-audit — their assigned agents
-   this pass returned no usable evidence.
+1. `v26.8.7` and `v26.8.8` tags now exist on `origin` (pushed by the automated
+   version-bump PRs #587/#588 merged this session) — `release.yml` has run for
+   real; its all-4-target `Build Release`/`Cross-Host Repro` jobs were still
+   in progress as of the last check this session, not yet confirmed green.
+2. This branch was merged with `origin/main` this session (0 behind, 2 ahead —
+   a pre-merge-work commit plus the merge commit itself); working tree is clean
+   except for this pass's own uncommitted ERRC-closure work. Nothing has been
+   pushed.
+3. No row in `docs/PUBLICATION_JUDGMENT.md` currently reads NOT MET (see above)
+   — the prior hard blocker (condition 18) is closed. 8 PARTIAL rows remain
+   open with real, individually-named gaps (see each row's own Basis), so
+   `RELEASE_STANDING.json`'s `l5_publication_claim: WITHHELD` remains correct
+   and unchanged — this pass narrows PARTIAL rows, it does not claim Level
+   Five.
+4. Condition 7's newly-found `examples/tcps-generated` failure
+   (`fmt-check`/`clippy-blanket-warnings`/receipt-chain-tamper) is the most
+   concrete next investigation, if pursued — out of this pass's 80/20 scope.

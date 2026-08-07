@@ -625,3 +625,304 @@ rf:arch_08 a rf:ArchSection ;
     rf:order "008" ;
     rf:sid "tail" ;
     rf:text "## Cross-Cutting Patterns\n\n| Pattern | Where Used | Details |\n|---------|-----------|---------|\n| `pub type Result<T> = std::result::Result<T, CrateError>` | Most crates | Each crate has its own error enum via `thiserror` |\n| Builder pattern | `ggen-marketplace` | `with_*()` chain methods for optional config |\n| Typestate | `ggen-marketplace` (`Draft`/`Published`) | Compile-time state transitions |\n| Newtype wrappers | `ggen-marketplace` | Invariant encoding in types (e.g., `PackageId`) |\n| Async traits | `ggen-lsp` (`a2a_mcp` module, feature `mcp`/`a2a`) | `#[async_trait]` with `Result` returns |\n| RDF/SPARQL foundation | `ggen-graph`, `ggen-marketplace`, `ggen-engine` (via `praxis-graphlaw`/`oxigraph`) | Built on `oxigraph` triplestores (or `praxis-graphlaw`'s N3/Datalog/SHACL/ShEx engine, `ggen-engine`'s default) |\n| Pipeline architecture | `ggen-engine` (Resolve → Enrich → Extract → Render → Write, live) | Multi-stage deterministic transformation — see `ggen-engine/src/sync.rs` module doc for the current pipeline |\n| Deterministic hashing + transition receipts | `ggen-graph`; `ggen-engine` (via `praxis-core::ReceiptRecord`, chained BLAKE3 over `{graph_hash, outputs}`) | State-change detection (deltas) and cryptographic receipts |\n| Feature-gated module absorption | `ggen-lsp` (`mcp`/`a2a` features), `genesis-types-v2` (`schema` module) | Former sibling crates folded in behind Cargo features/modules, cycle-free |\n| Pattern trait / registry | `genesis-core-v2`, `genesis-types-v2::schema` | 43 YAWL workflow patterns, zero-copy execution |\n\n## Navigation\n\nThis file is orientation only. For any symbol lookup use the LSP tool:\n\n1. `LSP workspaceSymbol` — find a symbol position (use any `.rs` file as `filePath`).\n2. `LSP goToDefinition` — jump to the definition (works across re-exports).\n3. `LSP findReferences` — enumerate all usages across the workspace.\n4. `LSP goToImplementation` — find all implementers of a project-defined trait.\n\nSee `.claude/rules/rust/lsp.md` for the full LSP-first navigation contract." .
+
+# --- Appended by scripts/audit/sync_pack_inventory.py (2026-08-07, condition-22 gap closure): 50 pack directories on disk with no rf:Pack individual. Descriptions below are mechanically transcribed verbatim from each pack's own pack.toml, not independently hand-analyzed like the earlier entries above. ---
+rf:pack_autofde_lab_capabilities_pack a rf:Pack ;
+    rf:order "030" ;
+    rf:dir "autofde-lab-capabilities-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Renders a human-readable capability-catalog Markdown page from autofde-lab's real, generated ontology/autofde-lab-capabilities.ttl (83 capabilities: 26 domains, 57 solvers) -- real SPARQL SELECT over the ontology's own typed properties (skdt:identifier/standing/entryPoint/owningModule/evidence/requiresCharacteristic), not a literal-string echo. Renders the ontology's static half only (identity, standing, requirements) -- fabric/coverage.py's live-execution fields (disposition, cause, execution_evidence, falsifier) are not in the ontology and are out of scope for this pack. (mechanically transcribed verbatim from packs/autofde-lab-capabilities-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_autofde_semantic_registry_pack a rf:Pack ;
+    rf:order "031" ;
+    rf:dir "autofde-semantic-registry-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Federated AutoFDE semantic registry covering 16 ontology packs and every ontology, schema, knowledge base, control catalog, protocol, event model, industry overlay, P0 source, and provider projection named in the admitted source inventory. The canonical modules live under ontology/; ontology.ttl is a deterministic aggregate for ggen pack loading. External source bytes remain UNKNOWN until canonical location, version, license, retrieval timestamp, digest, transformation, projection digest, and validation standing are pinned. (mechanically transcribed verbatim from packs/autofde-semantic-registry-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_automatic_autonomic_operations_pack a rf:Pack ;
+    rf:order "032" ;
+    rf:dir "automatic-autonomic-operations-pack" ;
+    rf:version "26.7.31" ;
+    rf:description " (mechanically transcribed verbatim from packs/automatic-autonomic-operations-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_certification_assist_evidence_control_pack a rf:Pack ;
+    rf:order "033" ;
+    rf:dir "certification-assist-evidence-control-pack" ;
+    rf:version "26.7.31" ;
+    rf:description " (mechanically transcribed verbatim from packs/certification-assist-evidence-control-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_certification_assist_pack a rf:Pack ;
+    rf:order "034" ;
+    rf:dir "certification-assist-pack" ;
+    rf:version "26.7.30" ;
+    rf:description " (mechanically transcribed verbatim from packs/certification-assist-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_behavior_pack a rf:Pack ;
+    rf:order "035" ;
+    rf:dir "clap-noun-verb-behavior-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Generates the typed, closed behavior interpreter used by zero-code commands: static JSON, echo, expressions, filesystem write/list, and explicit refusal. The interpreter accepts no Rust source and exposes no dynamic handler seam. (mechanically transcribed verbatim from packs/clap-noun-verb-behavior-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_boundary_pack a rf:Pack ;
+    rf:order "036" ;
+    rf:dir "clap-noun-verb-boundary-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Generates bounded, safe Rust adapters for admitted CLI actuation. The initial implementation provides relative-root JSON filesystem read/write operations, atomic creation, symlink refusal, deterministic ordering, and BLAKE3 receipts. (mechanically transcribed verbatim from packs/clap-noun-verb-boundary-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_crate_pack a rf:Pack ;
+    rf:order "037" ;
+    rf:dir "clap-noun-verb-crate-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Manufactures Cargo.toml, src/main.rs, and src/lib.rs for a complete clap-noun-verb binary from one admitted cnv:Cli individual. (mechanically transcribed verbatim from packs/clap-noun-verb-crate-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_routing_pack a rf:Pack ;
+    rf:order "038" ;
+    rf:dir "clap-noun-verb-routing-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Generates typed clap-noun-verb routes, noun registrations, argument metadata, and closed BehaviorSpec dispatch from first-class cnv:Argument and cnv:Behavior nodes. No generated route calls a consumer handler. (mechanically transcribed verbatim from packs/clap-noun-verb-routing-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_schema_pack a rf:Pack ;
+    rf:order "039" ;
+    rf:dir "clap-noun-verb-schema-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Public RDF vocabulary and fail-closed admission gates for manufacturing complete clap-noun-verb CLI crates without consumer-authored Rust. This pack contains no command individuals and therefore never injects specimen CLI surface into a consumer graph. (mechanically transcribed verbatim from packs/clap-noun-verb-schema-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_specimen_pack a rf:Pack ;
+    rf:order "040" ;
+    rf:dir "clap-noun-verb-specimen-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Optional complete specimen CLI graph for tutorials and smoke tests. This pack is never imported by the zero-code compiler packs, so framework composition cannot inject session, user, or demonstration commands into a consumer CLI. (mechanically transcribed verbatim from packs/clap-noun-verb-specimen-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_clap_noun_verb_verification_pack a rf:Pack ;
+    rf:order "041" ;
+    rf:dir "clap-noun-verb-verification-pack" ;
+    rf:version "1.0.0" ;
+    rf:description "Generates real compiled-binary tests and command-reference documentation from the same admitted CLI graph as production routes. Tests exercise success, structured refusal, required-argument rejection, unknown-command rejection, filesystem actuation, and BLAKE3 receipt binding without mocks. (mechanically transcribed verbatim from packs/clap-noun-verb-verification-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_crown_conjecture_pack a rf:Pack ;
+    rf:order "042" ;
+    rf:dir "crown-conjecture-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Generates a Lean 4 proof-obligation skeleton (named sorry holes, real cited definitions, a real blocking-finding citation) for mfw-theory's Crown Conjecture 1/7 (TraceSwapPreservesLawful, Kernel.lean:287-290), from an RDF ledger transcribed directly from the real Lean source. Does not attempt the proof -- ggen precipitates the skeleton from cited facts, a mathematician fills the sorry holes. Mirrors bcinr-mfw-ir::contracts.rs's real FormalStanding (Proven/Stated/Conjectural/Blocked) citation-and-refusal vocabulary, identified by this session's own PC-POWL2 ground-truth survey as the one genuinely reusable mechanism for this class of claim. (mechanically transcribed verbatim from packs/crown-conjecture-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_cyberpunk_tv_platform a rf:Pack ;
+    rf:order "043" ;
+    rf:dir "cyberpunk-tv-platform" ;
+    rf:version "26.8.3" ;
+    rf:description "Capability-dense television manufacturing pack: public RDF canon, UNRDF/Oxigraph semantic state, Mermaid/mmdio structure, deck.gl territory, Robert's Rules escrow, ODRL rights, generated Rust/WASM bodies, BLAKE3 receipts, replay, and ggen-legacy equivalence. (mechanically transcribed verbatim from packs/cyberpunk-tv-platform/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_dspy_pack a rf:Pack ;
+    rf:order "044" ;
+    rf:dir "dspy-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Ontology-driven DSPy generation with admitted typed signatures, input/output fields, and closed module kinds for modular LM programs. (mechanically transcribed verbatim from packs/dspy-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_fastmcp_pack a rf:Pack ;
+    rf:order "045" ;
+    rf:dir "fastmcp-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Ontology-driven FastMCP server generation with admitted server identity, typed tools, descriptions, arguments, and deterministic tool behavior. (mechanically transcribed verbatim from packs/fastmcp-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_fortune5_architecture_pack a rf:Pack ;
+    rf:order "046" ;
+    rf:dir "fortune5-architecture-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Fortune 5 enterprise-architecture law for ggen. Declares accountable architecture\nassets, capabilities, dependencies, lifecycle, SLOs, capacity envelopes,\nmulti-region replication, SPIFFE/SPIRE identity, KMS controls, comprehensive\nobservability, promotion gates, and broker-only autonomic intent policy. Generates\nan architecture catalog, dependency DAG, and control matrix. SPARQL gates refuse\nmissing Tier 0/1 controls, incomplete security or reliability policy, invalid\npromotion law, and any ontology-declared direct actuation surface.\n (mechanically transcribed verbatim from packs/fortune5-architecture-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_fortune5_deployment_blocks_pack a rf:Pack ;
+    rf:order "047" ;
+    rf:dir "fortune5-deployment-blocks-pack" ;
+    rf:version "26.7.31" ;
+    rf:description "Ontology-authoritative globally available Fortune 5 deployment building blocks.\nDeclares AWS, Azure, and GCP providers, aliases, atomic block groups, composite\npack groups, transitive dependencies, deterministic directory placement, common\nconstitutional packs, provider projections, executable testing suites, and the\ncomplete deployment bundle. The retained catalog consumed by `ggen bblock <verb>`\nis independently verified against this ontology. No block performs direct cloud\nactuation.\n (mechanically transcribed verbatim from packs/fortune5-deployment-blocks-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_fortune5_required_capabilities_pack a rf:Pack ;
+    rf:order "048" ;
+    rf:dir "fortune5-required-capabilities-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Ontology-first manufacturer for the bounded 19-capability, 57-surface Fortune-5 control plane (mechanically transcribed verbatim from packs/fortune5-required-capabilities-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_fortune5_testing_bblock_pack a rf:Pack ;
+    rf:order "049" ;
+    rf:dir "fortune5-testing-bblock-pack" ;
+    rf:version "26.7.31" ;
+    rf:description "Ontology-authoritative executable testing bblock with nine boundary-crossing suites, BLAKE3 evidence receipts, replay, and a machine-readable verifier report. (mechanically transcribed verbatim from packs/fortune5-testing-bblock-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_gall_core_pack a rf:Pack ;
+    rf:order "050" ;
+    rf:dir "gall-core-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Constitutional ggen-first Gall checkpoint and execution framework. Declares\nprograms, capabilities, dependency-closed checkpoints, APS-grade work items,\nautomation profiles, evidence obligations, exclusions, clean-revision replay,\nand release crowns as graph objects. Generates checkpoint and work-item DAGs,\nJira and GitHub tracker projections, coding-agent work orders, an automation\nmanifest, noun-verb operator CLI, dependency-ready scheduler, isolated Git\nworktree agent execution with write-path enforcement, tracker convergence,\nverification and completion state, content-addressed evidence snapshots,\nintent/result receipt chains, an independent receipt verifier, GitHub Actions\norchestration, status ledger, crown report, and real checkpoint runner. Pack\ngates refuse incomplete or ambiguous checkpoint, ticket, or automation\ncontracts; cycles; unsafe paths; unauthorized modes; invalid concurrency;\nduplicate or shared automation authority; manual standing; incomplete crowns;\nmissing or red evidence; non-independent replay; stale receipts; evidence drift;\nand ticket order that violates proof order.\n (mechanically transcribed verbatim from packs/gall-core-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_ggen_combinatorial_maximalism_pack a rf:Pack ;
+    rf:order "051" ;
+    rf:dir "ggen-combinatorial-maximalism-pack" ;
+    rf:version "26.7.29" ;
+    rf:description "Constitutional manufacturing pack for Design for Combinatorial Maximalism (CMD).\nIt admits bounded reversible design spaces, refuses premature or unreceipted\nactuation, manufactures an executable Rust broker and verifier, and proves\ncoverage, authority separation, filesystem actuation, BLAKE3 receipts, replay,\nand byte-identical regeneration through a real consumer.\n (mechanically transcribed verbatim from packs/ggen-combinatorial-maximalism-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_ggen_lean4_rust_pipeline_pack a rf:Pack ;
+    rf:order "052" ;
+    rf:dir "ggen-lean4-rust-pipeline-pack" ;
+    rf:version "0.2.0" ;
+    rf:description "Manufactures an independently checkable Lean 4 proof library and emitter from RDF. Lean admits a bounded-successor cell plus a Fortune 5 deployment policy covering R1/W1/C1 SLOs, promotion rollback, multi-region quorum and receipt synchronization, SPIFFE/mTLS/KMS controls, and OTEL alerts before emitting a Rust evaluator, SLO probe, and cryptographic receipt verifier. (mechanically transcribed verbatim from packs/ggen-lean4-rust-pipeline-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_ggen_self_host_pack a rf:Pack ;
+    rf:order "053" ;
+    rf:dir "ggen-self-host-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Constitutional self-hosting pack: admit a deterministic observation of the ggen repository, manufacture authority/load-path/output-ownership ledgers and agent work packages, and refuse false crown claims. License: AGPL-3.0-or-later. (mechanically transcribed verbatim from packs/ggen-self-host-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_ggen_self_pack a rf:Pack ;
+    rf:order "054" ;
+    rf:dir "ggen-self-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "The canonical constructor for ggen packs. Its ontology describes pack structure itself (sp:Pack — name, description, template roles, required gate); `ggen pack new <name>` binds one sp:Pack individual from CLI args into input.ttl and runs this pack's own ggen.toml through the ordinary ggen-engine sync pipeline. Every future structural requirement on packs (e.g. \"packs must declare ownership\") is an edit to this pack's ontology.ttl/templates, not new Rust — and is inherited by every pack created afterward, never rediscovered by scanning existing packs. `ggen init self` materializes this pack into a project-local, hand-editable copy; that copy — not the one embedded in the ggen binary — is what `pack new` actually reads. (mechanically transcribed verbatim from packs/ggen-self-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_gh_actions_errc_pack a rf:Pack ;
+    rf:order "055" ;
+    rf:dir "gh-actions-errc-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "80/20 Eliminate-Reduce-Raise-Create (ERRC) analysis of ggen's own GitHub Actions surface, grounded in a direct 2026-08-05 inspection of .github/workflows (75 files) and .github/actions (6 composite actions) plus the companion caching-best-practices research pass. Renders docs/ci/GH_ACTIONS_ERRC_GRID.md (the grid itself, as an RDF-sourced projection, not hand-typed prose) and a non-destructive proposed replacement for the setup-ggen-build composite action (.github/actions/setup-ggen-build-errc-proposed/action.yml) that adds cache-hit and sccache-stats observability without touching the hand-written production action.yml. Follows the literal-template-body pattern of packs/ggen-release-pack: RDF individuals carry verbatim rendered content as string literals, SPARQL extracts it, the Tera template just emits it — the finding, not the formatting, is what ggen generates here. (mechanically transcribed verbatim from packs/gh-actions-errc-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_gh_enterprise_architecture_pack a rf:Pack ;
+    rf:order "056" ;
+    rf:dir "gh-enterprise-architecture-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Admitted GitHub Terraform corpus, reusable enterprise repository factory, read-only account census, authority-boundary gates, and replayable receipts. Composes above gh-terraform-pack without changing its institutional desired-state authority. (mechanically transcribed verbatim from packs/gh-enterprise-architecture-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_github_actions_pack a rf:Pack ;
+    rf:order "057" ;
+    rf:dir "github-actions-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "TCPS production-process pack for GitHub Actions (生産設備と工程標準): models CI/CD workflows as four RDF layers — Event (when a production obligation comes into existence), Workflow (identity/purpose/inputs/outputs/secrets/concurrency/permission ceiling/evidence obligations/standing effect), Job+Step (deps/runner/matrix/timeout/permissions/artifacts/evidence/failure classification, distinguishing step-executed != step-succeeded != job-succeeded != evidence-admitted != standing-acquired), and Production-output (binary/test-report/docs/package/release-asset/SBOM/attestation/receipt/drift-report/standing-judgment). Derives minimal GITHUB_TOKEN permissions from declared operations and REFUSES write-all, unspecified permissions, unnecessary contents:write, unbounded pull_request_target, mutable third-party action refs (pinned SHAs required), and secret use without a declared reason. Complements gh-terraform-pack (工場配置と管理標準 — institutional state); this pack owns the production process on events. (mechanically transcribed verbatim from packs/github-actions-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_mermaid_pack a rf:Pack ;
+    rf:order "058" ;
+    rf:dir "mermaid-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "Mermaid全図種の意味駆動生成、上流描画器出典、検査、受領を行うTCPS製造票 (upstream mermaid-js/mermaid 11.16.0 @ f0ffb41c1ee1ff667b528e86c3b082249726eeef, MIT; license AGPL-3.0-or-later; normative_authority=rdf, renderer_sources_are_pinned=true — see ontology.ttl mer:UpstreamRelease/mer:RendererSource for the machine-readable pin) (mechanically transcribed verbatim from packs/mermaid-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_mfw_pcp_level5_pack a rf:Pack ;
+    rf:order "059" ;
+    rf:dir "mfw-pcp-level5-pack" ;
+    rf:version "26.7.21" ;
+    rf:description "Landed 2026-07-22 from the verified /private/tmp/mfw-pcp-l5-exec execution copy of gpacks/mfw-pcp-level5 (MFW proof-carrying-plan lifecycle). Self-contained: its own ggen.toml (declarative-rules schema) generates a complete bounded PCP verifier crate -- Cargo manifest, certificate/obligation/distinction registries, receipt contracts, replay verifier, generated positive/negative tests, README, PROVENANCE.ttl, CI workflow, RELEASE_STANDING.json, and verify.sh -- from ontology.ttl alone into consumer/mfw-pcp-generated/. Real, live 2026-07-21 per-capability audit (ggen 26.7.26, not this pack's own optimistic self-assessment): 5/12 capabilities ALIVE (cap01 authoritative source, cap02 complete generation surface, cap03 deterministic regeneration -- two `ggen sync run` invocations byte-identical, cap04 fixed-point convergence -- erase+rebuild byte-identical to incremental, cap09 generated receipts -- `ggen receipt verify`/`ggen receipt history` valid+signed). 7/12 PARTIAL_ALIVE, two with a real reproduced falsifier hit rather than just an unaudited gap: cap11 (generated evolution path) -- adding a new pcp:CertificateKind regenerates src/certificates.rs correctly but fails the generated test suite (`certificate_inventory_is_complete` hardcodes `assert_eq!(certificates::ALL.len(), 10)` instead of a SPARQL-derived count -- an Epistemic Bypass per .claude/rules/coding-agent-mistakes.md class 2), while adding a pcp:ProofObligation regenerates cleanly with zero hand-repair; cap12 (consumer replacement) -- only succeeds after fixing a critical FRONTMATTER_LEAK defect present in every templates/**/*.tmpl file (a leaked, un-stripped `---\nto:...\nsparql:...\n---` header belonging to ggen's mutually-exclusive frontmatter ggen.toml schema, which broke `cargo build` on the as-shipped pack with invalid TOML at Cargo.toml:1:4); fixed here (semantically inert -- the header duplicated ggen.toml's own [[generation.rules]] fields). Landing this pack into the real repo (not the isolated scratch copy) surfaced a third real defect: the generated Cargo.toml had no `[workspace]` table, so Cargo tried to fold the regenerated consumer into ggen's own root workspace -- fixed by adding an empty `[workspace]` table to templates/Cargo.toml.tmpl (same pattern as examples/receiptctl/Cargo.toml); cap03/cap04/cap09/cap12 were re-verified live from packs/mfw-pcp-level5-pack/ after this fix (see L5_CAPABILITY_LEDGER.json's notes_2026_07_22_landing_pass). cap05/06/07/08/10 PARTIAL_ALIVE unchanged from an earlier structural-validator pass, out of this pass's audited scope. See L5_CAPABILITY_LEDGER.json and evidence/*.json for full command transcripts and digests, and .specify/pack-l5-promotion.ttl's l5p:pack_mfw_pcp_level5 individual for this repo's own L5 pack-closure promotion program entry. (mechanically transcribed verbatim from packs/mfw-pcp-level5-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_mmdio_pack a rf:Pack ;
+    rf:order "060" ;
+    rf:dir "mmdio-pack" ;
+    rf:version "0.0.2" ;
+    rf:description "Mermaid Python support inventory plus exact-source semantic-crown provenance. Grammar presence and pythonSupport do not imply semantic equivalence; only explicitly crowned profiles carry executable roundtrip standing. (mechanically transcribed verbatim from packs/mmdio-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_ontostar_mustar_powlv2_agent_pack a rf:Pack ;
+    rf:order "061" ;
+    rf:dir "ontostar-mustar-powlv2-agent-pack" ;
+    rf:version "26.7.30" ;
+    rf:description " (mechanically transcribed verbatim from packs/ontostar-mustar-powlv2-agent-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_pack_authoring_pack a rf:Pack ;
+    rf:order "062" ;
+    rf:dir "pack-authoring-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Generates Diataxis docs (tutorial/how-to/reference/explanation) for authoring a new ggen pack, plus a runnable scaffold — pack.toml, ontology.ttl, one example template, one gates/010_required.rq — and a Chicago-TDD tests/<name>_pack_e2e.rs built on crates/ggen-engine/tests/support (scaffold_pack, assert_idempotent, assert_gate_refuses), driven from one pat:NewPackSpec individual per new pack the consumer declares. Body content is real, verbatim (no engine changes; template files only echo stored literals or fill named holes from the spec). (mechanically transcribed verbatim from packs/pack-authoring-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_pcq_marketplace_pack a rf:Pack ;
+    rf:order "063" ;
+    rf:dir "pcq-marketplace-pack" ;
+    rf:version "26.8.2" ;
+    rf:description "Manufactures a real-time Next.js 16 + deck.gl capability marketplace with fixed-supply PCQ settlement, SSE streams, receipts, Chicago tests, and browser verification. (mechanically transcribed verbatim from packs/pcq-marketplace-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_pddl_embedded_workflow_pack a rf:Pack ;
+    rf:order "064" ;
+    rf:dir "pddl-embedded-workflow-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Generates a Rust command enum, ActionBinding impl, TryFrom<ActionInvocation> impl, and an execution-kind routing function for one bcinr-pddl embedded-workflow domain from hand-authored wf:Action individuals (see ontology.ttl's schema section for wf:Domain/wf:Action/wf:executionKind). This pack does NOT parse PDDL text -- wf:Action individuals are a direct, hand-written transcription of a domain's actions (name, Rust variant, execution kind), the same authoring shape as this repo's other packs; the real PDDL domain text stays hand-written and owned separately by the consumer, passed to bcinr_pddl::EmbeddedWorkflow::new as always. wf:executionKind (wf:Local | wf:Durable | wf:HumanApproval) records which of bcinr-pddl's three existing workflow_cmd::adapters projections (TaskGroupAdapter/OutboxAdapter/ApprovalAdapter) an action's command should route through by default -- generated as a plain fn a consumer can override per-deployment, not a hard-coded dispatch decision baked into the command type, so planning semantics (what an action means) and execution adapter (how a given deployment runs it) stay orthogonal axes per the source repo's authority-separation rule. Demonstrated here against examples/embedded_workflow.rs's fulfillment domain (order-42, reserve-inventory + notify-customer) from bcinr's own workflow_cmd_chicago.rs test fixtures -- the first ontology individuals in this pack are that exact domain, not an invented example. Every wf:Action row is checked at gate time (gates/010_required.rq, gates/020_duplicate_action_name.rq) for the same defects BindingRegistry::new would otherwise only refuse at runtime (missing fields, duplicate action names) -- catching them at generation time instead. Run with `ggen sync run` from a bcinr checkout root; the generated file's `to:` path targets crates/bcinr-pddl/tests/embedded_workflow_generated.rs (tests/, not examples/, since the generated file is a module of bindings plus a #[cfg(test)] proof, not a fn-main binary) -- never overwriting the hand-written examples/embedded_workflow.rs it is modeled on. (mechanically transcribed verbatim from packs/pddl-embedded-workflow-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_repo_as_found_pack a rf:Pack ;
+    rf:order "065" ;
+    rf:dir "repo-as-found-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "既存リポジトリの現況を現地現物で観測し、as-found台帳と未知条件を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): canonical_surface=observed-rdf, self_report_is_standing=false, unknown_is_explicit=true, mutation_allowed=false. Depends on: mermaid_pack 26.7.20 (declare this pack dependency in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description). (mechanically transcribed verbatim from packs/repo-as-found-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_repo_intervention_pack a rf:Pack ;
+    rf:order "066" ;
+    rf:dir "repo-intervention-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "保全、補修、補強、改修、取替を分類し、性能目標と段階介入を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): classification_required=true, performance_objective_required=true, rehabilitation_requires_continuity=true, replacement_requires_migration=true. Depends on: as_found_pack 26.7.20, load_path_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description). (mechanically transcribed verbatim from packs/repo-intervention-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_repo_load_path_pack a rf:Pack ;
+    rf:order "067" ;
+    rf:dir "repo-load-path-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "既存リポジトリの運用荷重、依存路、単一故障点、切断集合を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): load_paths_are_observed=true, critical_edges_require_evidence=true, unknown_endpoints_refused=true. Depends on: as_found_pack 26.7.20, mermaid_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description). (mechanically transcribed verbatim from packs/repo-load-path-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_repo_reconciliation_pack a rf:Pack ;
+    rf:order "068" ;
+    rf:dir "repo-reconciliation-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "as-found、as-desired、as-built、as-operatedを照合し、差異、隔離、再認証、standing上限を製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): all_deltas_are_classified=true, unknown_is_serialized=true, blocking_delta_prevents_promotion=true, standing_is_meet=true. Depends on: as_found_pack 26.7.20, load_path_pack 26.7.20, intervention_pack 26.7.20, temporary_works_pack 26.7.20, mermaid_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description). (mechanically transcribed verbatim from packs/repo-reconciliation-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_rmcp_pack a rf:Pack ;
+    rf:order "069" ;
+    rf:dir "rmcp-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Typed Rust catalog + reference doc, generated from the real public API of the `rmcp` crate (github.com/modelcontextprotocol/rust-sdk, crates.io \"rmcp\"), the official Rust SDK for the Model Context Protocol. Grounded 2026-07-21 by `cargo add rmcp --features server,client,macros,transport-io,transport-child-process` + `cargo fetch`, pulling the real rmcp v2.2.0 (latest on crates.io) into ~/.cargo/registry/src/.../rmcp-2.2.0/ (sibling rmcp-macros-2.2.0 alongside it), then reading that vendored source directly -- not docs.rs prose, not memory. Verified live, twice (first at grounding time, re-confirmed during this pack's build pass): a `#[tool_router]`/`#[tool]`/`#[tool_handler]` stub compiled AND ran against this workspace's own pinned nightly (nightly-2026-06-22), and `Stub::tool_router().list_all()` returned a real `rmcp::model::Tool { name: \"echo\", description: Some(\"Echo back the input string\"), .. }` -- proof the macro-generated ToolRouter produces genuine values, not placeholders. ~/remo/rmcp was NOT used: confirmed empty of Cargo.toml/src, not the real crate. Models 4 real surfaces, 72 individuals total: rmcp:HandlerMethod (43 -- all 27 ServerHandler + all 16 ClientHandler trait methods, exhaustively enumerated from src/handler/{server,client}.rs's real trait-method bodies, each with real params/return types, a real default-behavior sentence, and a file:line citation -- including call_tool's real doc comment on the Ok(CallToolResult::error(...)) vs Err(McpError) UI-visibility distinction), rmcp:Macro (7 -- all real #[proc_macro_attribute] fns in the sibling rmcp-macros crate: tool, tool_router, tool_handler, prompt, prompt_router, prompt_handler, task_handler, each with the real syn AST node it parses (ImplItemFn=\"fn\" vs ItemImpl=\"impl\", confirmed by reading each macro's own syn::parse2::<...> call site, not assumed) and its real documented field table -- 3 columns (field|type|usage), not clap-noun-verb-pack's 4-column field|rust_type|required|about shape, because rmcp-macros' real doc tables carry no \"required\" column; only the pipe/@@ delimiter grammar is reused, not the column count, and this discrepancy is disclosed in ontology.ttl's own rmcp:macroFields comment rather than silently forced to 4 columns), rmcp:Transport (7 -- stdio, TokioChildProcess, StreamableHttpClientTransport [really a `pub type ... = WorkerTransport<StreamableHttpClientWorker<C>>` alias, not a struct -- disclosed], StreamableHttpService, WorkerTransport, AsyncRwTransport, SinkStreamTransport, each with its real feature gate read directly from src/transport.rs's own #[cfg(feature = ...)] attributes; SinkStreamTransport has none at all -- unconditionally compiled -- and its featureFlag value says so explicitly rather than being left empty or naming a fake feature), and rmcp:Feature (15 -- the 6+6+3 flags README.md's own three real markdown tables document; Cargo.toml itself defines 26 total, 11 more, undocumented in README and out of this pass's scope: __reqwest, local, auth-client-credentials-jwt, client-side-sse, server-side-http, tower, transport-worker, transport-streamable-http-server-session, transport-streamable-http-client-unix-socket, which-command, plus the implicit base64 optional-dependency feature -- the last one a real, disclosed fidelity gap: Cargo.toml's actual default array is [\"base64\", \"macros\", \"server\"], but README's own Feature Flags table has no base64 row and marks only server/macros as default, so rmcp:featureDefault reflects README's own (incomplete) default column, not the full Cargo.toml array). NOT modeled (disclosed, not fabricated): the JSON-RPC message/error-code enumeration, streamable-HTTP session-store internals, OAuth2 flow detail beyond type names, and the ~50 integration tests under tests/test_*.rs. Structural template: mirrors packs/mcpp-pack (the closest real precedent read and chosen after packs/wasm4pm-pack -- wrong shape, a workspace crate-map vocabulary rmcp's single-crate-plus-proc-macro-sibling surface doesn't fit -- and packs/cargo-cicd-pack / mcpp-pack's own cnv:Command shape as-is were both rejected: rmcp ships no CLI/binary to shell out to, so a literal noun/verb dispatch shim would be a category error). Generates: src/rmcp_handler_catalog.rs (RMCP_SERVER_METHODS / RMCP_CLIENT_METHODS typed const tables), src/rmcp_macro_catalog.rs (RMCP_MACROS), src/rmcp_transport_catalog.rs (RMCP_TRANSPORTS), src/rmcp_feature_catalog.rs (RMCP_FEATURES), src/rmcp_stub_handler.rs (a REAL, compiling `impl ServerHandler for RmcpStubHandler` via #[tool_router]/#[tool]/#[tool_handler] against the real rmcp crate -- the same macro invocation pattern proven live in the grounding pass, not a generic subprocess shim like mcpp-pack's dispatch.rs, since rmcp has no binary to shell out to; this is a stronger real-collaborator story: it exercises the target crate's own compiled code directly), docs/rmcp_reference.md (SPARQL-projected markdown tables for all 4 classes), a pack-uniquely-named src/rmcp_lib_wiring.rs mod-aggregator (force:true; the consumer adds one `include!(\"rmcp_lib_wiring.rs\");` line to their own src/lib.rs -- this engine's own FM-WRITE-008 duplicate-output guard rules out `to: src/lib.rs`/`inject: true` the moment a second pack shares a real consumer, per mcpp-pack/cargo-cicd-pack/praxis-core-pack/star-toml-pack's own identical, independently-converged-on fix), tests/rmcp_handler_catalog_proof.rs (hand-transcribed, NO sparql: frontmatter -- anti-tautology discipline identical to mcpp_catalog_proof.rs.tmpl: row-count assertions, spot-checked rows, sortedness invariant, no-duplicate invariant, non-empty-source-file invariant), and tests/rmcp_stub_handler_proof.rs (a REAL behavior proof -- instantiates RmcpStubHandler, calls `RmcpStubHandler::tool_router().list_all()`, and asserts on the real rmcp::model::Tool returned, the exact call sequence already proven live against the real crate in the grounding pass, so the template's expected behavior is not speculative). Two more templates were added during L5 pack-promotion capability closure (2026-07-21): tests/rmcp_handler_catalog_sparql_derived_proof.rs (cap05 -- \"Generated verification\": a SECOND, independent proof over rmcp:HandlerMethod, alongside the hand-transcribed one, carrying its own real sparql: frontmatter -- identical server_rows/client_rows queries to rmcp_handler_catalog.rs.tmpl -- with no freeze_policy of its own, re-baking LIVE_SERVER_ROWS/LIVE_CLIENT_ROWS fresh every sync and asserting them against src/rmcp_handler_catalog.rs's actual on-disk text via include_str!, reapplying star-toml-pack/praxis-core-pack's wave-2 reference pattern; drift-sensitivity verified live by temporarily editing rmcp:server-call-tool's rmcp:defaultBehavior and re-syncing -- the old hand-transcribed proof failed exactly as predicted while this one stayed green against the changed live value) and tests/rmcp_default_handler_proof.rs (cap06 -- \"Generated negative witnesses\": a real refusal-path/adversarial-input proof defining RmcpDefaultHandler with ZERO method overrides -- impl ServerHandler for RmcpDefaultHandler {} compiles because rmcp-2.2.0's own src/handler/server.rs:432-434 declares the entire trait body as one server_handler_methods!() macro invocation -- then calling its real, sync, zero-scaffolding get_tool() default body and asserting it genuinely returns None for an unregistered name, an empty name, and an adversarial path-traversal/injection-shaped name against the actual compiled rmcp crate, not a mock; a dropped get_tool individual would be a hard compile failure, covering the compile-fail sub-modality too). All 5 primary generated Rust/doc artifacts use freeze_policy: checksum (not force:true): a hand-edited output is refused with a named checksum-mismatch error on the next sync, not silently overwritten; the two new cap05/cap06 proof templates deliberately carry no freeze_policy (same reasoning as star-toml-pack's own cap05 template -- see its own docstring). gates/ (010_required.rq, 020_single_valued.rq, 030_value_constraints.rq) are SPARQL-translated-SHACL constraints, namespace-scoped to the rmcp# IRI space (same rationale as mcpp-pack's own gates: an unscoped gate would wrongly demand rmcp-only facts from other packs' individuals in a union graph), each carrying a `# MESSAGE:` comment naming the real constraint it translates. Committed consumer: examples/rmcp-verify, mirroring examples/star-toml-verify's posture (chosen over examples/praxis-core-verify's: star-toml, like rmcp, is a real crates.io-published dependency, `rmcp = \"2.2\"`, not a workspace-internal path dependency). (mechanically transcribed verbatim from packs/rmcp-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_rwr_level5_foundation_pack a rf:Pack ;
+    rf:order "070" ;
+    rf:dir "rwr-level5-foundation-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Ontology-first generator for a complete Ross-Weill-Robertson Digital-Ecosystem foundation: 21 dimensions, 63 observed proof surfaces, machinery, automation, autonomics, receipts, replay, generated consumer, and crown verifier. (mechanically transcribed verbatim from packs/rwr-level5-foundation-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_safe_ea_strategy_self_play_pack a rf:Pack ;
+    rf:order "071" ;
+    rf:dir "safe-ea-strategy-self-play-pack" ;
+    rf:version "26.7.30" ;
+    rf:description "Ontology-first, deterministic, non-LLM self-play for SAFe delivery use cases and\nEnterprise Architecture as Strategy. ggen manufactures a Rust scenario runner,\nindependent receipt/replay verifier, real process-boundary tests, scenario manifest,\nand use-case matrix. Role policies choose legal moves under explicit utility weights,\nauthority tokens, guards, invariants, choice groups, and round ceilings. The kernel\nmay manufacture BRCE-addressed intent but performs no external actuation.\n (mechanically transcribed verbatim from packs/safe-ea-strategy-self-play-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_sbb_capability_density_pack a rf:Pack ;
+    rf:order "072" ;
+    rf:dir "sbb-capability-density-pack" ;
+    rf:version "26.8.3" ;
+    rf:description "Ontology-authoritative Solution Building Block capability-density vocabulary,\nadmission constraints, manifest carrier schema, report projection, Git-object\nevidence evaluation, receipts, and replay. A density unit is one unique Git\ncommit with a complete observed manufacturing and falsification evidence chain.\nThe pack never self-promotes an SBB beyond PARTIAL_ALIVE.\n (mechanically transcribed verbatim from packs/sbb-capability-density-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_speedrun_talent_network_pack a rf:Pack ;
+    rf:order "073" ;
+    rf:dir "speedrun-talent-network-pack" ;
+    rf:version "26.7.30" ;
+    rf:description " (mechanically transcribed verbatim from packs/speedrun-talent-network-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_tai_enterprise_rebuild_pack a rf:Pack ;
+    rf:order "074" ;
+    rf:dir "tai-enterprise-rebuild-pack" ;
+    rf:version "26.7.31" ;
+    rf:description "Ontology-authored ggen Building Block that generates and simulates the evidence-gated roadmap for rebuilding Technology Applications, Inc. (mechanically transcribed verbatim from packs/tai-enterprise-rebuild-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_temporary_works_pack a rf:Pack ;
+    rf:order "075" ;
+    rf:dir "temporary-works-pack" ;
+    rf:version "26.7.20" ;
+    rf:description "影運転、二重経路、凍結、後退路、撤去条件を正式な仮設工として製造するTCPS製造票。License: AGPL-3.0-or-later. Policy (informational, enforced via ontology.ttl/gates, not by pack.toml parsing): temporary_work_requires_owner=true, temporary_work_requires_expiry=true, cutover_requires_rollback=true, removal_requires_transfer_evidence=true. Depends on: intervention_pack 26.7.20, load_path_pack 26.7.20 (declare these pack dependencies in the consumer's ggen.toml [packs] table, not here -- pack.toml only parses [pack] name/version/description). (mechanically transcribed verbatim from packs/temporary-works-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_typer_pack a rf:Pack ;
+    rf:order "076" ;
+    rf:dir "typer-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "Ontology-driven Typer CLI generation with admitted command names, Python identifiers, help text, arguments, and deterministic output behavior. (mechanically transcribed verbatim from packs/typer-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_vision_2030_phase_change_pack a rf:Pack ;
+    rf:order "077" ;
+    rf:dir "vision-2030-phase-change-pack" ;
+    rf:version "26.8.3" ;
+    rf:description "Executable Vision 2030 capability-program semantics, Blue Ocean ERRC analysis,\nDX/QoL/Doctor diagnostic lenses, horizon gates, authority boundaries, external\nacceptance, 1000x SBB distribution measurement, receipts, and replay. Catalog\nentries remain DESIGNED until exact evidence and independent acceptance exist.\n (mechanically transcribed verbatim from packs/vision-2030-phase-change-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_wasm4pm_interview_site_pack a rf:Pack ;
+    rf:order "078" ;
+    rf:dir "wasm4pm-interview-site-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private site: vocabulary and generated Next.js sandbox experiment. It is not the canonical InterviewAssist application pack and must not drive TICKET-001 through TICKET-057. The admitted replacement is packs/wasm4pm-interview-assist-pack/, whose public-ontology graph supplies domain meaning to later reusable templates and generated ports. See SUPERSEDED.md. (mechanically transcribed verbatim from packs/wasm4pm-interview-site-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
+
+rf:pack_wasm4pm_sandbox_pack a rf:Pack ;
+    rf:order "079" ;
+    rf:dir "wasm4pm-sandbox-pack" ;
+    rf:version "0.1.0" ;
+    rf:description "SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private sbx: vocabulary and Rust catalog/actuator experiment. It is not a canonical InterviewAssist specification source and must not drive TICKET-001 through TICKET-057. The admitted replacement is packs/wasm4pm-interview-assist-pack/, which uses public ontologies and keeps product domain meaning in RDF rather than private pack vocabulary. See SUPERSEDED.md. (mechanically transcribed verbatim from packs/wasm4pm-sandbox-pack/pack.toml by scripts/audit/sync_pack_inventory.py, 2026-08-07 condition-22 gap closure -- not independently hand-analyzed like the earlier-registered packs above)." .
