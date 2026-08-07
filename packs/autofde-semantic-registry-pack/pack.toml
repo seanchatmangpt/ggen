@@ -1,0 +1,4 @@
+[pack]
+name = "autofde-semantic-registry-pack"
+version = "1.0.0"
+description = "Federated AutoFDE semantic registry covering 16 ontology packs and every ontology, schema, knowledge base, control catalog, protocol, event model, industry overlay, P0 source, and provider projection named in the admitted source inventory. The canonical modules live under ontology/; ontology.ttl is a deterministic aggregate for ggen pack loading. External source bytes remain UNKNOWN until canonical location, version, license, retrieval timestamp, digest, transformation, projection digest, and validation standing are pinned."

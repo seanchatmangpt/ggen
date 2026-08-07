@@ -1,0 +1,17 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX reg: <https://ggen.io/ontology/autofde-registry/v1#>
+
+SELECT ?source ?identifier ?title ?kind ?strategy ?primaryPack ?recordStanding ?sourceStanding ?projectionStanding
+WHERE {
+  ?source a reg:PublicSemanticSource ;
+          dcterms:identifier ?identifier ;
+          dcterms:title ?title ;
+          reg:sourceKind ?kind ;
+          reg:transformation ?strategy ;
+          reg:primaryPack ?primaryPack ;
+          reg:recordStanding ?recordStanding ;
+          reg:sourceStanding ?sourceStanding ;
+          reg:projectionStanding ?projectionStanding .
+}
+ORDER BY ?primaryPack ?identifier ?kind

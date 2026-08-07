@@ -1,0 +1,142 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:03-organization
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "03-organization" ;
+    dcterms:title "03 Organization" ;
+    dcterms:description "Organizations, legal entities, products, offers, economic events, contracts and enterprise structure." ;
+    reg:recordStanding reg:ALIVE .
+
+src:akoma-ntoso
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "akoma-ntoso" ;
+    dcterms:title "Akoma Ntoso" ;
+    dcterms:description "Legislation and legal documents" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:03-organization ;
+    reg:primaryPack pack:03-organization ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "340"^^xsd:positiveInteger ;
+    reg:listedAs "Akoma Ntoso" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:fibo
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "fibo" ;
+    dcterms:title "FIBO" ;
+    dcterms:description "Financial contracts, instruments, legal entities, markets and transactions" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:03-organization, pack:15-industry ;
+    reg:primaryPack pack:03-organization ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://spec.edmcouncil.org/fibo/index.html> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "336"^^xsd:positiveInteger, "410"^^xsd:positiveInteger ;
+    reg:listedAs "FIBO" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:legalruleml
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "legalruleml" ;
+    dcterms:title "LegalRuleML" ;
+    dcterms:description "Machine-readable legal norms and rules" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:03-organization ;
+    reg:primaryPack pack:03-organization ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "339"^^xsd:positiveInteger ;
+    reg:listedAs "LegalRuleML" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:rea-ontology
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "rea-ontology" ;
+    dcterms:title "REA ontology" ;
+    dcterms:description "Resources, events and agents" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:03-organization ;
+    reg:primaryPack pack:03-organization ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "350"^^xsd:positiveInteger ;
+    reg:listedAs "REA ontology" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:valueflows
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "valueflows" ;
+    dcterms:title "ValueFlows" ;
+    dcterms:description "Economic events, commitments and resources" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:03-organization ;
+    reg:primaryPack pack:03-organization ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "349"^^xsd:positiveInteger ;
+    reg:listedAs "ValueFlows" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+

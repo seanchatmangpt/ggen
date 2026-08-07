@@ -1,0 +1,263 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:11-software-supply-chain
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "11-software-supply-chain" ;
+    dcterms:title "11 Software Supply Chain" ;
+    dcterms:description "Software identities, SBOMs, attestations, provenance, vulnerabilities and build-security knowledge." ;
+    reg:recordStanding reg:ALIVE .
+
+src:cyclonedx
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cyclonedx" ;
+    dcterms:title "CycloneDX" ;
+    dcterms:description "SBOM, SaaSBOM, ML-BOM, CBOM and VEX" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "310"^^xsd:positiveInteger ;
+    reg:listedAs "CycloneDX" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:guac-graph-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "guac-graph-model" ;
+    dcterms:title "GUAC graph model" ;
+    dcterms:description "Software supply-chain knowledge graph" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "318"^^xsd:positiveInteger ;
+    reg:listedAs "GUAC graph model" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:in-toto
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "in-toto" ;
+    dcterms:title "in-toto" ;
+    dcterms:description "Supply-chain attestations" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "312"^^xsd:positiveInteger ;
+    reg:listedAs "in-toto" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:openssf-scorecard
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openssf-scorecard" ;
+    dcterms:title "OpenSSF Scorecard" ;
+    dcterms:description "Project-security signals" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "319"^^xsd:positiveInteger ;
+    reg:listedAs "OpenSSF Scorecard" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:purl
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "purl" ;
+    dcterms:title "PURL" ;
+    dcterms:description "Package identities" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "315"^^xsd:positiveInteger ;
+    reg:listedAs "PURL" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:sigstore-bundle-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "sigstore-bundle-model" ;
+    dcterms:title "Sigstore bundle model" ;
+    dcterms:description "Signing and transparency evidence" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "313"^^xsd:positiveInteger ;
+    reg:listedAs "Sigstore bundle model" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:slsa
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "slsa" ;
+    dcterms:title "SLSA" ;
+    dcterms:description "Build integrity and provenance levels" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "311"^^xsd:positiveInteger ;
+    reg:listedAs "SLSA" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:spdx-3-x
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "spdx-3-x" ;
+    dcterms:title "SPDX 3.x" ;
+    dcterms:description "P0 import/profile; Software, packages, vulnerabilities, builds, datasets and AI" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://spdx.dev/use/specifications/> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    dcterms:hasVersion "3.x" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "309"^^xsd:positiveInteger, "516"^^xsd:positiveInteger ;
+    reg:listedAs "SPDX", "SPDX 3.x" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:swid
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "swid" ;
+    dcterms:title "SWID" ;
+    dcterms:description "Software identities" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "317"^^xsd:positiveInteger ;
+    reg:listedAs "SWID" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:vex
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "vex" ;
+    dcterms:title "VEX" ;
+    dcterms:description "Vulnerability exploitability status" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:11-software-supply-chain ;
+    reg:primaryPack pack:11-software-supply-chain ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "314"^^xsd:positiveInteger ;
+    reg:listedAs "VEX" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+

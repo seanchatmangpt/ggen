@@ -1,0 +1,407 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:04-identity-authority
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "04-identity-authority" ;
+    dcterms:title "04 Identity Authority" ;
+    dcterms:description "Identity, authentication, authorization, delegation, decision rights and permitted consequences." ;
+    reg:recordStanding reg:ALIVE .
+
+src:aws-iam-policy-grammar
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "aws-iam-policy-grammar" ;
+    dcterms:title "AWS IAM policy grammar" ;
+    dcterms:description "AWS permissions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "138"^^xsd:positiveInteger ;
+    reg:listedAs "AWS IAM policy grammar" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:azure-rbac-and-entra-role-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "azure-rbac-and-entra-role-schemas" ;
+    dcterms:title "Azure RBAC and Entra role schemas" ;
+    dcterms:description "Azure permissions and administrative roles" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "139"^^xsd:positiveInteger ;
+    reg:listedAs "Azure RBAC and Entra role schemas" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:google-iam-policy-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "google-iam-policy-model" ;
+    dcterms:title "Google IAM policy model" ;
+    dcterms:description "GCP bindings and conditions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "140"^^xsd:positiveInteger ;
+    reg:listedAs "Google IAM policy model" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:kubernetes-rbac
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "kubernetes-rbac" ;
+    dcterms:title "Kubernetes RBAC" ;
+    dcterms:description "Cluster-scoped authority" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "142"^^xsd:positiveInteger ;
+    reg:listedAs "Kubernetes RBAC" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:ngac
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ngac" ;
+    dcterms:title "NGAC" ;
+    dcterms:description "Graph-based access-control relations" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "136"^^xsd:positiveInteger ;
+    reg:listedAs "NGAC" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-rbac-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-rbac-model" ;
+    dcterms:title "NIST RBAC model" ;
+    dcterms:description "Roles and permission assignment" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "137"^^xsd:positiveInteger ;
+    reg:listedAs "NIST RBAC model" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:oauth-2-x
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oauth-2-x" ;
+    dcterms:title "OAuth 2.x" ;
+    dcterms:description "Delegated authorization" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "128"^^xsd:positiveInteger ;
+    reg:listedAs "OAuth 2.x" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:open-policy-agent-rego-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-policy-agent-rego-model" ;
+    dcterms:title "Open Policy Agent/Rego model" ;
+    dcterms:description "Executable policy decisions" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "143"^^xsd:positiveInteger ;
+    reg:listedAs "Open Policy Agent/Rego model" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:openid-connect
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openid-connect" ;
+    dcterms:title "OpenID Connect" ;
+    dcterms:description "Authentication and identity claims" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "129"^^xsd:positiveInteger ;
+    reg:listedAs "OpenID Connect" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:saml-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "saml-2-0" ;
+    dcterms:title "SAML 2.0" ;
+    dcterms:description "Enterprise federation" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "130"^^xsd:positiveInteger ;
+    reg:listedAs "SAML 2.0" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:scim-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "scim-2-0" ;
+    dcterms:title "SCIM 2.0" ;
+    dcterms:description "Users, groups and identity lifecycle" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "127"^^xsd:positiveInteger ;
+    reg:listedAs "SCIM 2.0" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:spiffe-spire
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "spiffe-spire" ;
+    dcterms:title "SPIFFE/SPIRE" ;
+    dcterms:description "Workload identity" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "141"^^xsd:positiveInteger ;
+    reg:listedAs "SPIFFE/SPIRE" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:w3c-did
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "w3c-did" ;
+    dcterms:title "W3C DID" ;
+    dcterms:description "Decentralized identity identifiers" ;
+    reg:sourceKind reg:Ontology, reg:Protocol ;
+    reg:transformation reg:ProtocolProfile ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "133"^^xsd:positiveInteger ;
+    reg:listedAs "W3C DID" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:w3c-verifiable-credentials
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "w3c-verifiable-credentials" ;
+    dcterms:title "W3C Verifiable Credentials" ;
+    dcterms:description "Cryptographically verifiable claims" ;
+    reg:sourceKind reg:Ontology, reg:Protocol ;
+    reg:transformation reg:ProtocolProfile ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "132"^^xsd:positiveInteger ;
+    reg:listedAs "W3C Verifiable Credentials" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:webauthn-fido2
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "webauthn-fido2" ;
+    dcterms:title "WebAuthn / FIDO2" ;
+    dcterms:description "Strong authentication" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "131"^^xsd:positiveInteger ;
+    reg:listedAs "WebAuthn / FIDO2" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+
+src:xacml-3-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "xacml-3-0" ;
+    dcterms:title "XACML 3.0" ;
+    dcterms:description "Attribute-based access-control policies" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:04-identity-authority ;
+    reg:primaryPack pack:04-identity-authority ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "3.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "134"^^xsd:positiveInteger ;
+    reg:listedAs "XACML 3.0" ;
+    reg:inventorySection "4. Identity, authority and entitlement" ;
+    reg:classificationBasis "source-declared" .
+

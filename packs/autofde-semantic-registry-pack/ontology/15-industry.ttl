@@ -1,0 +1,669 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:15-industry
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "15-industry" ;
+    dcterms:title "15 Industry" ;
+    dcterms:description "Financial, healthcare, retail, manufacturing, telecommunications, energy and utility overlays." ;
+    reg:recordStanding reg:ALIVE .
+
+src:3gpp-management-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "3gpp-management-models" ;
+    dcterms:title "3GPP management models" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "452"^^xsd:positiveInteger ;
+    reg:listedAs "3GPP management models" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Telecommunications" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:acord
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "acord" ;
+    dcterms:title "ACORD" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "413"^^xsd:positiveInteger ;
+    reg:listedAs "ACORD" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:bian-service-landscape
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "bian-service-landscape" ;
+    dcterms:title "BIAN service landscape" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "415"^^xsd:positiveInteger ;
+    reg:listedAs "BIAN service landscape" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:bioportal-ontologies
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "bioportal-ontologies" ;
+    dcterms:title "BioPortal ontologies" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "427"^^xsd:positiveInteger ;
+    reg:listedAs "BioPortal ontologies" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:catena-x-semantic-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "catena-x-semantic-models" ;
+    dcterms:title "Catena-X semantic models" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "445"^^xsd:positiveInteger ;
+    reg:listedAs "Catena-X semantic models" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:cdisc
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cdisc" ;
+    dcterms:title "CDISC" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "424"^^xsd:positiveInteger ;
+    reg:listedAs "CDISC" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:epcis-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "epcis-2-0" ;
+    dcterms:title "EPCIS 2.0" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "432"^^xsd:positiveInteger ;
+    reg:listedAs "EPCIS 2.0" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Retail and supply chain" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:etsi-nfv-information-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "etsi-nfv-information-models" ;
+    dcterms:title "ETSI NFV information models" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "451"^^xsd:positiveInteger ;
+    reg:listedAs "ETSI NFV information models" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Telecommunications" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:fix-orchestra
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "fix-orchestra" ;
+    dcterms:title "FIX Orchestra" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "412"^^xsd:positiveInteger ;
+    reg:listedAs "FIX Orchestra" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:green-button
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "green-button" ;
+    dcterms:title "Green Button" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "460"^^xsd:positiveInteger ;
+    reg:listedAs "Green Button" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Energy and utilities" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:gs1-web-vocabulary
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "gs1-web-vocabulary" ;
+    dcterms:title "GS1 Web Vocabulary" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "431"^^xsd:positiveInteger ;
+    reg:listedAs "GS1 Web Vocabulary" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Retail and supply chain" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:hl7-fhir-and-fhir-rdf
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "hl7-fhir-and-fhir-rdf" ;
+    dcterms:title "HL7 FHIR and FHIR RDF" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "420"^^xsd:positiveInteger ;
+    reg:listedAs "HL7 FHIR and FHIR RDF" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:idmp
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "idmp" ;
+    dcterms:title "IDMP" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "426"^^xsd:positiveInteger ;
+    reg:listedAs "IDMP" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:iso-20022
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "iso-20022" ;
+    dcterms:title "ISO 20022" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "411"^^xsd:positiveInteger ;
+    reg:listedAs "ISO 20022" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:lei-and-gleif-data-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "lei-and-gleif-data-model" ;
+    dcterms:title "LEI and GLEIF data model" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "414"^^xsd:positiveInteger ;
+    reg:listedAs "LEI and GLEIF data model" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:loinc
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "loinc" ;
+    dcterms:title "LOINC" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "422"^^xsd:positiveInteger ;
+    reg:listedAs "LOINC" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:omop
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "omop" ;
+    dcterms:title "OMOP" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "425"^^xsd:positiveInteger ;
+    reg:listedAs "OMOP" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:opc-ua-companion-specifications
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opc-ua-companion-specifications" ;
+    dcterms:title "OPC UA Companion Specifications" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "440"^^xsd:positiveInteger ;
+    reg:listedAs "OPC UA Companion Specifications" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:open-supply-hub-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-supply-hub-models" ;
+    dcterms:title "Open Supply Hub models" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "435"^^xsd:positiveInteger ;
+    reg:listedAs "Open Supply Hub models" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Retail and supply chain" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:openadr
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openadr" ;
+    dcterms:title "OpenADR" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "459"^^xsd:positiveInteger ;
+    reg:listedAs "OpenADR" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Energy and utilities" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:rxnorm
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "rxnorm" ;
+    dcterms:title "RxNorm" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "423"^^xsd:positiveInteger ;
+    reg:listedAs "RxNorm" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:saref4ener
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "saref4ener" ;
+    dcterms:title "SAREF4ENER" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "458"^^xsd:positiveInteger ;
+    reg:listedAs "SAREF4ENER" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Energy and utilities" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:snomed-ct
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "snomed-ct" ;
+    dcterms:title "SNOMED CT" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "421"^^xsd:positiveInteger ;
+    reg:listedAs "SNOMED CT" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Healthcare and life sciences" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:tm-forum-sid
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "tm-forum-sid" ;
+    dcterms:title "TM Forum SID" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "449"^^xsd:positiveInteger ;
+    reg:listedAs "TM Forum SID" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Telecommunications" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:un-cefact-core-component-library
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "un-cefact-core-component-library" ;
+    dcterms:title "UN/CEFACT Core Component Library" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "433"^^xsd:positiveInteger ;
+    reg:listedAs "UN/CEFACT Core Component Library" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Retail and supply chain" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:xbrl-taxonomies
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "xbrl-taxonomies" ;
+    dcterms:title "XBRL taxonomies" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "416"^^xsd:positiveInteger ;
+    reg:listedAs "XBRL taxonomies" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Financial services" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:yang-openconfig
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "yang-openconfig" ;
+    dcterms:title "YANG/OpenConfig" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:15-industry ;
+    reg:primaryPack pack:15-industry ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "453"^^xsd:positiveInteger ;
+    reg:listedAs "YANG/OpenConfig" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Telecommunications" ;
+    reg:classificationBasis "policy-inferred" .
+
