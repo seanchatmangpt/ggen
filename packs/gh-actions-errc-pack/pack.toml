@@ -1,0 +1,4 @@
+[pack]
+name = "gh-actions-errc-pack"
+version = "0.1.0"
+description = "80/20 Eliminate-Reduce-Raise-Create (ERRC) analysis of ggen's own GitHub Actions surface, grounded in a direct 2026-08-05 inspection of .github/workflows (75 files) and .github/actions (6 composite actions) plus the companion caching-best-practices research pass. Renders docs/ci/GH_ACTIONS_ERRC_GRID.md (the grid itself, as an RDF-sourced projection, not hand-typed prose) and a non-destructive proposed replacement for the setup-ggen-build composite action (.github/actions/setup-ggen-build-errc-proposed/action.yml) that adds cache-hit and sccache-stats observability without touching the hand-written production action.yml. Follows the literal-template-body pattern of packs/ggen-release-pack: RDF individuals carry verbatim rendered content as string literals, SPARQL extracts it, the Tera template just emits it — the finding, not the formatting, is what ggen generates here."

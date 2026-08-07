@@ -1,0 +1,28 @@
+# MESSAGE: every pat:DiataxisDoc must have a non-empty pat:docPath and
+# pat:content; every pat:NewPackSpec must have a non-empty pat:packName,
+# pat:description, pat:className, pat:prefixName, and pat:requiredProp — a
+# spec missing any of these can't drive the scaffold templates, which
+# interpolate all five; every pat:ExistingPackStub must have a non-empty
+# pat:packName. Any row = a subject missing its required property.
+PREFIX pat: <http://seanchatmangpt.github.io/packs/pack-authoring#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a pat:DiataxisDoc . BIND(pat:docPath AS ?missing)
+  } UNION {
+    ?s a pat:DiataxisDoc . BIND(pat:content AS ?missing)
+  } UNION {
+    ?s a pat:NewPackSpec . BIND(pat:packName AS ?missing)
+  } UNION {
+    ?s a pat:NewPackSpec . BIND(pat:description AS ?missing)
+  } UNION {
+    ?s a pat:NewPackSpec . BIND(pat:className AS ?missing)
+  } UNION {
+    ?s a pat:NewPackSpec . BIND(pat:prefixName AS ?missing)
+  } UNION {
+    ?s a pat:NewPackSpec . BIND(pat:requiredProp AS ?missing)
+  } UNION {
+    ?s a pat:ExistingPackStub . BIND(pat:packName AS ?missing)
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

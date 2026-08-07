@@ -1,0 +1,429 @@
+@prefix pat: <http://seanchatmangpt.github.io/packs/pack-authoring#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# pack-authoring-pack: teaches (Diataxis docs) and scaffolds (real files) the
+# ggen pack-authoring pattern proven by gh-terraform-pack in this session and
+# generalized by crates/ggen-engine/tests/support (scaffold_pack,
+# assert_idempotent, assert_gate_refuses). Two concerns, two classes:
+#
+#   pat:DiataxisDoc  — this pack's OWN docs (fixed individuals below, one per
+#                      Diataxis quadrant, verbatim content).
+#   pat:NewPackSpec  — declared by the CONSUMER (one individual per new pack
+#                      they want scaffolded); this pack's templates project
+#                      each spec into a real pack.toml/ontology.ttl/
+#                      templates/gates/tests skeleton. No pat:NewPackSpec
+#                      individuals are declared HERE — a bare `ggen sync`
+#                      against this pack alone renders only the docs.
+
+# --- Diataxis docs -----------------------------------------------------
+
+pat:DiataxisDoc a rdfs:Class ;
+    rdfs:label "One page of this pack's own pack-authoring documentation, in Diataxis's tutorial/how-to/reference/explanation split." .
+
+pat:TutorialDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/tutorial.md" ;
+    pat:content """# Tutorial: build your first ggen pack
+
+This walks through creating one working pack from nothing, end to end. By
+the finish you will have run `ggen sync` and watched a real file land on
+disk from an RDF fact.
+
+## 1. Lay out the directory
+
+```
+packs/hello-pack/
+  pack.toml
+  ontology.ttl
+  templates/
+    greeting.txt.tmpl
+```
+
+## 2. `pack.toml`
+
+```toml
+[pack]
+name = "hello-pack"
+version = "0.1.0"
+description = "Says hello, from RDF."
+```
+
+## 3. `ontology.ttl` — one class, one individual
+
+```turtle
+@prefix hp: <http://example.org/hello-pack#> .
+
+hp:Greeting a hp:GreetingClass ;
+    hp:text "Hello from ggen." .
+```
+
+## 4. `templates/greeting.txt.tmpl` — one template
+
+```
+---
+to: "output/greeting.txt"
+sparql:
+  row: |
+    PREFIX hp: <http://example.org/hello-pack#>
+    SELECT ?text WHERE { hp:Greeting hp:text ?text . } ORDER BY ?text
+---
+{{ row[0].text }}
+```
+
+Templates never synthesize content at render time — they echo a literal
+already stored in the ontology. If the string isn't in the RDF, it can't
+appear in the output. This is the same "verbatim, not synthesized" contract
+`gh-terraform-pack` uses for every one of its 40+ templates.
+
+## 5. Wire a consumer project and sync
+
+```toml
+# consumer/ggen.toml
+[project]
+name = "hello-consumer"
+
+[ontology]
+source = "ontology.ttl"
+
+[packs]
+hello-pack = { path = "../hello-pack" }
+
+[templates]
+dir = "templates"
+```
+
+```bash
+ggen sync run
+cat output/greeting.txt   # "Hello from ggen."
+```
+
+Run it again — nothing changes. That's `ggen`'s idempotency guarantee, and
+it's the first thing your pack's Chicago-TDD test should prove (see the
+how-to below).
+
+## Next
+
+- **`how-to-add-a-gate.md`** — refuse bad facts before they generate bad files.
+- **`how-to-write-a-chicago-e2e-test.md`** — prove your pack works, for real.
+- **`reference.md`** — the full file-layout contract.
+- **`explanation.md`** — why packs are shaped this way.""" .
+
+pat:HowToGateDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/how-to-add-a-gate.md" ;
+    pat:content """# How to: add an admission gate
+
+A gate is a `gates/*.rq` SPARQL `SELECT` that returns rows for every
+violation. A non-empty result set refuses the sync — before Extract,
+Render, or Write ever run, so a refused sync leaves no partial output,
+`ggen.lock`, or receipt on disk.
+
+## The required-properties idiom
+
+Every existing pack (`gh-terraform-pack`, `praxis-core-pack`, ...) uses this
+exact shape for `gates/010_required.rq`:
+
+```sparql
+# MESSAGE: every hp:Greeting must have a non-empty hp:text. Any row = a
+# subject missing its required property.
+PREFIX hp: <http://example.org/hello-pack#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a hp:GreetingClass . BIND(hp:text AS ?missing)
+  }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
+```
+
+- The leading `# MESSAGE:` comment is not decorative — it is surfaced
+  verbatim in the refusal error, so write it for the human who trips the
+  gate, not for yourself.
+- One `UNION` branch per (class, required-property) pair. Add a branch, not
+  a new file, as your ontology grows — one `010_required.rq` per pack keeps
+  the "what must every individual carry" contract in one place.
+- Gates run against the UNION graph (this pack's facts plus every other
+  pack's plus the consumer project's own `ontology.ttl`), so a violation can
+  come from any source — the refusal message says so explicitly; don't
+  narrow your gate's `FILTER` to assume only your own individuals exist.
+
+## Policy gates (cross-individual, not just "is this field present")
+
+A second gate file, conventionally `gates/030_policy.rq` (see
+`gh-terraform-pack/gates/030_policy.rq`), expresses rules that reference
+MORE than one individual — "critical-tier repos need >=2 reviewers",
+"secrets must be vault-backed", etc. Same `SELECT ?s ?detail` /
+non-empty-refuses shape; just a richer `WHERE` clause.
+
+## Proving a gate actually fires
+
+Documentation and structural review are not proof a gate refuses what it
+claims to. Use `support::assert_gate_refuses` (see
+`how-to-write-a-chicago-e2e-test.md`) to feed the gate a hand-crafted bad
+fact and assert the sync is refused BY NAME — citing your gate's filename
+fragment in the error.""" .
+
+pat:HowToTestDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/how-to-write-a-chicago-e2e-test.md" ;
+    pat:content """# How to: write a Chicago-TDD e2e test for your pack
+
+ggen's own convention (`crates/ggen-engine/tests/*_pack_e2e.rs`, one file
+per pack) is real filesystem, real `sync()`, real assertions on real file
+content — no mocks, no test doubles, matching this repo's Chicago TDD
+policy. `crates/ggen-engine/tests/support/mod.rs` gives you the four
+building blocks so you don't hand-roll scaffolding per pack.
+
+## The four-part pattern
+
+```rust
+mod support;
+use support::{scaffold_pack, assert_idempotent, assert_gate_refuses};
+use std::path::{Path, PathBuf};
+
+fn packs_dir() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
+}
+
+#[test]
+fn hello_pack_generates_and_is_idempotent() {
+    // 1. SCAFFOLD: copy the real pack + a minimal consumer into a TempDir.
+    let (_dir, project) = scaffold_pack(&packs_dir().join("hello-pack"));
+
+    // 2. GENERATE + ASSERT REAL CONTENT: run the real sync(), then read the
+    //    real file it wrote and assert on its exact content — not just
+    //    that it exists.
+    ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions {
+        dry_run: false, ..Default::default()
+    }).expect("sync");
+    let greeting = std::fs::read_to_string(project.join("output/greeting.txt"))
+        .expect("greeting.txt");
+    assert_eq!(greeting.trim(), "Hello from ggen.");
+
+    // 3. IDEMPOTENCY: a second sync must write nothing and leave ggen.lock
+    //    byte-identical.
+    assert_idempotent(&project);
+}
+
+#[test]
+fn hello_pack_gate_refuses_missing_text() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("hello-pack"));
+    ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions {
+        dry_run: false, ..Default::default()
+    }).expect("baseline sync");
+
+    // 4. GATE SABOTAGE: overwrite the CONSUMER's ontology.ttl with a bad
+    //    fact and assert the sync refuses, citing the gate by name, with
+    //    no partial ggen.lock left behind.
+    assert_gate_refuses(
+        &project,
+        "@prefix hp: <http://example.org/hello-pack#> .\\n\\
+         hp:Sabotage a hp:GreetingClass .\\n",
+        "010_required",
+    );
+}
+```
+
+## Why all four steps, not fewer
+
+- Skip (2)'s content assertion and a template that silently renders empty
+  still "passes" a bare existence check — assert the string, not just the
+  file.
+- Skip (3) and a template that regenerates differently every run (e.g. an
+  unstable iteration order) goes undetected until a consumer's CI flags
+  unexpected diffs.
+- Skip (4) and a gate that never actually fires (a typo'd predicate name, a
+  `FILTER` that's always false) sits in the repo as decoration, not
+  admission control — see `.claude/rules/coding-agent-mistakes.md`'s
+  "Decorative Completion" mistake class.""" .
+
+pat:ReferenceDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/reference.md" ;
+    pat:content """# Reference: ggen pack file layout
+
+| Path | Required | Contract |
+|---|---|---|
+| `pack.toml` | yes | `[pack]` table: `name`, `version` (semver), `description`. No other top-level tables. |
+| `ontology.ttl` | yes | Turtle. One or more `@prefix` declarations plus RDF classes/individuals — the pack's facts, unioned with every other pack's and the consumer's own `ontology.ttl` at sync time. |
+| `templates/*.tmpl` | at least 1 | YAML frontmatter (`---`/`---`) then a Tera body. Frontmatter: `to:` (output path, project-relative, may interpolate `{{ var }}` from a SPARQL row) and either `sparql.row:` (exactly one row expected) or `sparql.rows:` (zero or more rows, looped with `{% for row in rows %}`). |
+| `gates/*.rq` | no | SPARQL `SELECT`. Non-empty result set refuses the sync before Extract/Render/Write. Files run in filename sort order (`010_`, `020_`, ... convention). |
+
+## Template `to:` fan-out rule
+
+If `to:` contains a `{{ variable }}`, the engine writes **one output file
+per query row** — a query returning N rows for the same resolved `to:`
+path is a collision (`FM-WRITE-008`), not an aggregation. To collapse
+multiple facts into one file per key, `GROUP BY` the key and
+`GROUP_CONCAT` the varying field in the SPARQL — see
+`resource_doc.tmpl`/`backend_catalog_doc.tmpl` in `gh-terraform-pack` for
+the real, working idiom.
+
+## Gate file shape
+
+```sparql
+# MESSAGE: <human-readable statement of the invariant, surfaced verbatim
+# in the refusal error>
+PREFIX <prefix>: <...>
+SELECT ?s ?missing WHERE {
+  { ?s a <Class> . BIND(<requiredProp> AS ?missing) } UNION { ... }
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing
+```
+
+## Chicago-TDD test shape
+
+One `tests/<pack>_pack_e2e.rs` per pack, using
+`crates/ggen-engine/tests/support::{scaffold_pack, assert_idempotent,
+assert_gate_refuses}` — see `how-to-write-a-chicago-e2e-test.md`.""" .
+
+pat:ExplanationDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/explanation.md" ;
+    pat:content """# Explanation: why packs are shaped this way
+
+## RDF is the source of truth, not the generated files
+
+`ggen`'s core discipline (see the repo's own `CLAUDE.md`: "RDF is Truth —
+edit `.specify/*.ttl`, never the generated `.md`") extends to every pack: an
+`ontology.ttl` fact is what's real; a `.tf`/`.md`/`.rs` file under `docs/`
+or `infra/` is a *projection* of that fact, regenerated on demand. If a
+generated file says something the ontology doesn't, the file is wrong, not
+the ontology — this is why `ggen sync` is idempotent and why a second sync
+producing a diff is treated as a bug, not a feature.
+
+## Templates echo, they never synthesize
+
+Every template in this pack (and in `gh-terraform-pack`, which this
+convention is modeled on) either echoes a literal `hclBody`/`content`
+string already stored in the ontology, or fills a small number of named
+holes (`{{ name }}`, `{{ className }}`) from a spec individual's own
+properties. No template computes new content the ontology doesn't already
+assert. This is a deliberate constraint, not a missing feature: it keeps
+"what will this pack generate" answerable by reading the RDF, without
+running the template engine to find out.
+
+## Gates are admission control, not test assertions
+
+A `gates/*.rq` file runs at sync time, against real consumer data, and
+refuses BEFORE any file is written — it protects every future sync, not
+just the one your test happens to run. A Chicago-TDD test then separately
+PROVES the gate fires (via `assert_gate_refuses`), because a gate that
+silently never matches anything is indistinguishable, by inspection alone,
+from a gate that works — the same "decorative completion" risk this repo's
+`coding-agent-mistakes.md` names for any patch.
+
+## Why a shared test harness, not one bespoke scaffold per pack
+
+`crates/ggen-engine/tests/support/mod.rs` exists because
+`gh_terraform_pack_e2e.rs` and the older `pack_e2e.rs` had independently
+reinvented the same `TempDir`/`copy_tree`/scaffold code. Two copies of the
+same logic drift the moment one is edited and the other isn't — the
+`coding-agent-mistakes.md` "reduce drift" half of this repo's strongest
+rule. One shared, tested implementation is the version every new pack's
+`<pack>_pack_e2e.rs` should build on, including the ones this pack itself
+scaffolds.""" .
+
+pat:ErrcDoc a pat:DiataxisDoc ;
+    pat:docPath "docs/pack-authoring/errc-testing-pattern.md" ;
+    pat:content """# ERRC: the pack-testing pattern
+
+Blue Ocean Strategy's Eliminate–Reduce–Raise–Create grid, applied to how
+this repo tests `packs/*` — grounded in `scripts/ci/guard-pack-e2e-coverage.sh`'s
+own real output (81 packs total; 15 have real testable surface — `gates/*.rq`
+or `templates/*.tmpl` — and no e2e coverage anywhere, checked by grepping
+every file under `crates/ggen-engine/tests/` for the pack's own directory-name
+string, not by guessing test filenames), not a generic template. That number
+has moved twice already, each time downward for a real reason, not by
+adjustment: an initial hand survey said 67 (it only looked at files named
+`*_pack_e2e.rs`, missing real coverage some packs get from broader
+multi-pack tests like `composed_packs_e2e.rs` — `tcps-release-pack`, 85
+templates, the single largest pack, turned out to already be covered
+there); the corrected gate script then found 22; running its own
+`pat:ExistingPackStub` generator against the cheapest uncovered packs
+closed 7 more for real (5 then 2), landing at 15 — with 5 of the remaining
+15 already attempted and found to need real per-pack domain-ontology work
+(their gates correctly refuse an empty consumer ontology) or a genuine
+non-determinism bug fix, not more stub-generation. Living document:
+regenerate it via `ggen sync` rather than hand-editing, the same as every
+other page here.
+
+## Eliminate
+
+- **Per-file scaffold duplication.** Before `crates/ggen-engine/tests/
+  support/mod.rs` existed, `copy_tree`/`scaffold`/`read` were reimplemented,
+  byte-for-byte identically, in 9 separate `*_pack_e2e.rs` files. All 9 now
+  import the shared versions; ~150 lines of duplicate boilerplate removed,
+  zero behavior change (verified: every migrated file's tests pass
+  identically before and after).
+- **"No test at all" as the silent default for a new pack.** Before this
+  pack existed, authoring a new pack meant either copying an existing
+  `*_pack_e2e.rs` by hand or, more often, shipping with zero e2e coverage —
+  which is how 15 of 81 packs remain untested today. `pack-authoring-pack`
+  always emits a stub test alongside a new pack's scaffold; skipping
+  coverage now takes an active choice, not an absent one.
+
+## Reduce
+
+- **Idempotency + gate-sabotage boilerplate**, from ~20-40 hand-written
+  lines per pack to two function calls (`assert_idempotent`,
+  `assert_gate_refuses`) — already true for every migrated file.
+- **Bespoke scaffold-shape reinvention.** Two real variants surfaced by
+  reading all 7 remaining files, not invented up front:
+  `scaffold_pack_with_ontology` (pre-populated consumer ontology — used by
+  `tai_rebuild_pack_e2e.rs`) and `read_json` (JSON-parsing read — same
+  file). Genuinely different shapes (nested pack paths, `[law] reflexive =
+  true`, `extra_ontologies`, declarative-rules `[[generation.rules]]`,
+  `CliHarness` subprocess vs. in-process `sync()`) were deliberately left
+  local rather than forced through one wrapper — a wrapper that silently
+  changes what is being tested is worse than the duplication it replaces.
+
+## Raise
+
+- **A visible, enforced coverage floor.** `scripts/ci/guard-pack-e2e-coverage.sh`
+  is now a real ratchet, not just a report: it hard-fails `pre-commit` the
+  moment the real uncovered count exceeds the checked-in baseline
+  (`.specify/pack-e2e-coverage-baseline.txt`, currently `15`) — a pack
+  losing coverage or a new pack shipping real testable surface with none
+  is now a build break, not a silent regression. It does not demand the
+  current 15 close first (several are legitimately blocked on real
+  per-pack domain work this pattern cannot manufacture) — proven as a real
+  gate, not asserted: lowering the baseline file by one and re-running the
+  script was checked to actually fail before the correct value was
+  restored.
+- **Assertion quality as the norm, not the exception.** Every migrated and
+  generated test asserts real content substrings (a `#[test]` that only
+  checks `sync()` returned `Ok` is not yet a Chicago-TDD proof, per
+  `how-to-write-a-chicago-e2e-test.md`) — the `chicago-tdd-tools-pack`
+  "proof of the generated proof" idiom generalized to every pack, not just
+  the one pack that originated it.
+
+## Create
+
+- **The coverage-tracking ratchet gate** (above) — makes the gap a number
+  that can only shrink on purpose, self-corrects when the measurement
+  itself improves (67→22, see above), and now actually enforces the floor
+  instead of only reporting it (22→15, closed by the stub generator below).
+- **Ranked, real stub generation** for the highest-surface uncovered packs
+  (`pat:ExistingPackStub` + its template) — closes a bounded, verified
+  subset per pass rather than claiming the full remaining count in one,
+  which would trade real coverage for the appearance of it.
+- **This document itself**, regenerated by the same `ggen sync` that
+  produces every other page here — an ERRC analysis that goes stale the
+  moment the inventory changes is worse than no analysis; this one is
+  re-derivable, not a one-time memo.""" .
+
+# --- New-pack scaffold spec (consumer-declared) -------------------------
+
+pat:NewPackSpec a rdfs:Class ;
+    rdfs:label "Declared by a CONSUMER project (not by this pack) — one individual per new pack to scaffold. Required: pat:packName, pat:description, pat:className, pat:prefixName, pat:requiredProp." .
+
+# --- Existing-pack stub spec (consumer-declared) -------------------------
+# Retrofits a generic scaffold+idempotency Chicago-TDD stub test onto a pack
+# that ALREADY EXISTS on disk (packs/<packName>/), without touching any of
+# its real files — deliberately narrower than pat:NewPackSpec: no
+# className/prefixName/requiredProp, since fabricating those for a pack this
+# generator has never read would be guessing, not generating. The stub's
+# only real assertion is that a real sync() against the real pack succeeds
+# and is idempotent; a gate-sabotage test needs the pack's own real
+# required-property name and is left as a named TODO pointing at the pack's
+# own gates/010_required.rq, not invented here.
+
+pat:ExistingPackStub a rdfs:Class ;
+    rdfs:label "Declared by a CONSUMER (not by this pack) — one individual per EXISTING pack to retrofit a generic e2e stub onto. Required: pat:packName only." .

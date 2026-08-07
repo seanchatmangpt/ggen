@@ -260,6 +260,8 @@ provider "github" {
 ghtf:MainBranchProtection a ghtf:RepoManagementInstance ;
     rdfs:label "main branch requires ci.yml Check/Test/Build/Doctest to pass" ;
     ghtf:instanceOf ghtf:GithubBranchProtection ;
+    ghtf:family "branch-protection" ;
+    ghtf:requiredApprovingReviewCount 2 ;
     ghtf:hclBody """resource "github_branch_protection" "main" {
   repository_id  = var.repository
   pattern        = "main"
@@ -276,7 +278,7 @@ ghtf:MainBranchProtection a ghtf:RepoManagementInstance ;
   }
   required_pull_request_reviews {
     require_code_owner_reviews      = false
-    required_approving_review_count = 1
+    required_approving_review_count = 2
   }
 }
 """ .
@@ -2428,3 +2430,248 @@ ghtf:RepoGgen a ghtf:ManagedRepo ;
     ghtf:andon "GREEN" ;
     ghtf:openObligation "SC08: first scheduled tcps-drift.yml run pending" ;
     ghtf:openObligation "SC09: ci-classify.sh live-PR classification pending" .
+
+# --- state backend (backend-agnostic) --------------------------
+# BackendConfig individuals carry a real verbatim backend{} block per
+# backend kind. Backend blocks are static per terraform{} stanza --
+# ontology-driven selection means the template dispatches on rdf:type /
+# ghtf:backendKind to pick which literal block to emit, never synthesizes
+# attribute names at template time.
+
+ghtf:BackendConfig a rdfs:Class ;
+    rdfs:label "A Terraform state backend configuration for ONE backend kind, carrying a real verbatim backend{} block. Backend blocks are static per terraform{} stanza -- ontology-driven selection means the template dispatches on rdf:type / ghtf:backendKind to pick which literal block to emit, never synthesizes attribute names at template time." .
+
+ghtf:S3DynamoBackend a ghtf:BackendConfig ;
+    rdfs:label "S3 state + DynamoDB lock + KMS encryption" ;
+    ghtf:backendKind "s3" ;
+    ghtf:requiredArg "bucket", "key", "region", "dynamodb_table", "encrypt", "kms_key_id" ;
+    ghtf:hclBody """terraform {
+  backend "s3" {
+    bucket         = "acme-corp-terraform-state"
+    key            = "org-management/github/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "acme-corp-terraform-locks"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:us-east-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+  }
+}
+""" .
+
+ghtf:GcsBackend a ghtf:BackendConfig ;
+    rdfs:label "GCS state (CMEK set on bucket resource, not backend block)" ;
+    ghtf:backendKind "gcs" ;
+    ghtf:requiredArg "bucket", "prefix" ;
+    ghtf:hclBody """terraform {
+  backend "gcs" {
+    bucket = "acme-corp-terraform-state"
+    prefix = "org-management/github"
+  }
+}
+""" .
+
+ghtf:TfcRemoteBackend a ghtf:BackendConfig ;
+    rdfs:label "Terraform Cloud / HCP Terraform remote backend (legacy remote block)" ;
+    ghtf:backendKind "remote" ;
+    ghtf:requiredArg "hostname", "organization", "workspaces" ;
+    ghtf:hclBody """terraform {
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "acme-corp"
+
+    workspaces {
+      name = "org-mgmt-github"
+    }
+  }
+}
+""" .
+
+# --- Org security & compliance (§2) ----------------------------
+# ghtf:OrgSecurityPolicy is org-scoped, not per-repo, so it is a distinct
+# class from ghtf:RepoManagementInstance. ghtf:verifiedProviderResource
+# distinguishes confirmed-against-provider-schema individuals (which must
+# carry ghtf:hclBody) from flagged/unconfirmed ones (which must carry
+# ghtf:flagReason instead) -- never fabricated silently.
+
+ghtf:OrgSecurityPolicy a rdfs:Class ;
+    rdfs:label "An org-level security/compliance control. ghtf:verifiedProviderResource false means the HCL below is either a real different resource than commonly assumed, or explicitly flagged as unconfirmed against the pinned provider schema -- never fabricated silently." .
+
+ghtf:TwoFactorRequired a ghtf:OrgSecurityPolicy ;
+    rdfs:label "Require 2FA for all org members" ;
+    ghtf:controlName "require_2fa" ;
+    ghtf:verifiedProviderResource true ;
+    ghtf:requiredArg "two_factor_requirement_enabled" ;
+    ghtf:hclBody """resource "github_organization_settings" "this" {
+  billing_email = var.billing_email
+  # NOTE: two_factor_requirement_enabled is enforced via the org's legacy
+  # "Require two-factor authentication" screen; verify field name against
+  # the pinned provider version in versions.tf before relying on it here.
+  # Confirmed-present fields shown below for the same resource:
+  advanced_security_enabled_for_new_repositories = true
+  dependabot_alerts_enabled_for_new_repositories = true
+  web_commit_signoff_required                    = true
+}
+""" .
+
+ghtf:IpAllowListHq a ghtf:OrgSecurityPolicy ;
+    rdfs:label "IP allow list entry: corporate HQ range" ;
+    ghtf:controlName "ip_allow_list" ;
+    ghtf:verifiedProviderResource true ;
+    ghtf:requiredArg "name", "value", "is_active" ;
+    ghtf:hclBody """resource "github_ip_allow_list_entry" "office_hq" {
+  name      = "Acme HQ Office"
+  value     = "203.0.113.0/24"
+  is_active = true
+}
+""" .
+
+ghtf:IpAllowListVpn a ghtf:OrgSecurityPolicy ;
+    rdfs:label "IP allow list entry: corporate VPN gateway" ;
+    ghtf:controlName "ip_allow_list" ;
+    ghtf:verifiedProviderResource true ;
+    ghtf:requiredArg "name", "value", "is_active" ;
+    ghtf:hclBody """resource "github_ip_allow_list_entry" "vpn_gateway" {
+  name      = "Corporate VPN Gateway"
+  value     = "198.51.100.42/32"
+  is_active = true
+}
+""" .
+
+ghtf:RequiredSignedCommits a ghtf:OrgSecurityPolicy ;
+    rdfs:label "Require signed commits on main via branch protection" ;
+    ghtf:controlName "require_signed_commits" ;
+    ghtf:verifiedProviderResource true ;
+    ghtf:requiredArg "repository_id", "pattern", "require_signed_commits" ;
+    ghtf:hclBody """resource "github_branch_protection" "main" {
+  repository_id           = github_repository.this.node_id
+  pattern                 = "main"
+  require_signed_commits  = true
+  enforce_admins          = true
+
+  required_status_checks {
+    strict   = true
+    contexts = ["ci/build", "ci/test"]
+  }
+}
+""" .
+
+ghtf:CodeownersReview a ghtf:OrgSecurityPolicy ;
+    rdfs:label "Require CODEOWNERS review + 2 approvals via repository ruleset" ;
+    ghtf:controlName "codeowners_review" ;
+    ghtf:verifiedProviderResource true ;
+    ghtf:requiredArg "repository", "target", "enforcement" ;
+    ghtf:hclBody """resource "github_repository_ruleset" "main" {
+  name        = "main-branch-protection"
+  repository  = github_repository.this.name
+  target      = "branch"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+
+  rules {
+    pull_request {
+      require_code_owner_review       = true
+      required_approving_review_count = 2
+      dismiss_stale_reviews_on_push   = true
+    }
+    required_signatures = true
+  }
+}
+""" .
+
+ghtf:AuditLogStreamFlagged a ghtf:OrgSecurityPolicy ;
+    rdfs:label "Audit log streaming -- FLAGGED, not confirmed against terraform-provider-github schema" ;
+    ghtf:controlName "audit_log_stream" ;
+    ghtf:verifiedProviderResource false ;
+    ghtf:flagReason "No confirmed real terraform-provider-github resource for enterprise audit-log-stream destinations (S3/Splunk/Datadog/Azure Blob) as of this pack's research pass; do not template this individual until verified against registry.terraform.io for the pinned provider version." .
+
+# --- Multi-org/tenant (section 4) -------------------------------
+# ghtf:OrgTenant individuals drive per-org providers.tf aliasing and
+# orgs/<alias>/{repos,backend}.tf file-layout generation, isolating
+# state per business unit. ManagedRepo individuals may link to one
+# OrgTenant via ghtf:org (not previously declared).
+
+ghtf:OrgTenant a rdfs:Class ;
+    rdfs:label "A GitHub org/tenant managed by this pack: provider alias, business unit, tier inheritance" .
+
+ghtf:OrgRetail a ghtf:OrgTenant ;
+    rdfs:label "Acme Retail BU org" ;
+    ghtf:orgAlias "org_retail" ;
+    ghtf:orgOwner "acme-retail" ;
+    ghtf:businessUnit "Retail" ;
+    ghtf:tierInheritsFrom ghtf:TierChuukaku ;
+    ghtf:ssoRequired false ;
+    ghtf:appAuthVarPrefix "retail" .
+
+ghtf:OrgIndustrial a ghtf:OrgTenant ;
+    rdfs:label "Acme Industrial BU org" ;
+    ghtf:orgAlias "org_industrial" ;
+    ghtf:orgOwner "acme-industrial" ;
+    ghtf:businessUnit "Industrial" ;
+    ghtf:tierInheritsFrom ghtf:TierChuukaku ;
+    ghtf:ssoRequired false ;
+    ghtf:appAuthVarPrefix "industrial" .
+
+ghtf:OrgFinancialServices a ghtf:OrgTenant ;
+    rdfs:label "Acme Financial Services BU org (highest tier, no override)" ;
+    ghtf:orgAlias "org_financial_services" ;
+    ghtf:orgOwner "acme-financial-services" ;
+    ghtf:businessUnit "Financial Services" ;
+    ghtf:tierInheritsFrom ghtf:TierChuukaku ;
+    ghtf:ssoRequired true ;
+    ghtf:appAuthVarPrefix "finserv" .
+
+# --- Policy-as-code gate support (gates/030_policy.rq) ---------
+# Minimal vocabulary so the policy gate's inputs are well-formed.
+# ghtf:org links a ManagedRepo to its owning ghtf:OrgTenant (Rule 3);
+# ghtf:requiredApprovingReviewCount is read off a branch-protection
+# RepoManagementInstance (Rule 1); ghtf:instanceOf links a
+# RepoManagementInstance back to the ghtf:TerraformResource it
+# instantiates (Rule 2); ghtf:webhookAuthSecretRef marks a webhook
+# instance as carrying an auth secret reference (Rule 3 escape hatch).
+# No existing individual in this file instantiates any of these
+# properties yet — Phase 2 declares the vocabulary the gate consumes,
+# matching the ApprovalBatch/no-apply-path idiom used elsewhere in
+# this file.
+
+ghtf:PolicyMinReviewers a rdfs:Individual ;
+    rdfs:label "Critical-tier repos require branch protection with >=2 approving reviewers" .
+
+ghtf:PolicyNoDeprecatedWithoutSuccessor a rdfs:Individual ;
+    rdfs:label "No RepoManagementInstance may instantiate a deprecated TerraformResource lacking a successor or deadApi escape hatch" .
+
+ghtf:PolicyNoUnauthWebhookOnSsoOrg a rdfs:Individual ;
+    rdfs:label "Repos under an SSO-required org must not carry a webhook instance without an auth secret reference" .
+
+ghtf:PolicySecretsMustBeVaultBacked a rdfs:Individual ;
+    rdfs:label "github_actions_secret family instances must reference a vault-backed data source, never a literal plaintext_value" .
+
+ghtf:RepoGgen ghtf:org ghtf:OrgRetail .
+
+# --- Org-scoped backend instance (closes org_backend_tf.tmpl's empty-render gap) ---
+# ghtf:forOrg links a BackendConfig to the ONE OrgTenant whose orgs/<alias>/backend.tf
+# it populates. This is a distinct, org-scoped individual -- it does not repurpose
+# ghtf:S3DynamoBackend, which stays global/example-only per the opt-in convention
+# documented on org_backend_tf.tmpl. Body is the same S3+DynamoDB+KMS shape, keyed to
+# OrgRetail's own state path so multiple orgs never collide on one S3 key.
+
+ghtf:RetailBackend a ghtf:BackendConfig ;
+    rdfs:label "S3 state + DynamoDB lock + KMS encryption, scoped to org_retail" ;
+    ghtf:backendKind "s3" ;
+    ghtf:forOrg ghtf:OrgRetail ;
+    ghtf:requiredArg "bucket", "key", "region", "dynamodb_table", "encrypt", "kms_key_id" ;
+    ghtf:hclBody """terraform {
+  backend "s3" {
+    bucket         = "acme-corp-terraform-state"
+    key            = "org-management/github/orgs/org_retail/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "acme-corp-terraform-locks"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:us-east-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+  }
+}
+""" .

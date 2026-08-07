@@ -8,9 +8,12 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 
 use chicago_tdd_tools::cli_proof::CliHarness;
+use support::scaffold_pack;
 use tempfile::TempDir;
 
 /// Repository `packs/` directory (relative to this crate's manifest).
@@ -18,43 +21,13 @@ fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-/// Recursively copy `src` into `dst`.
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
-}
-
-/// Copy `pack_name` from `packs/` plus a minimal consumer project into a
-/// fresh `TempDir`; return `(tempdir, project_root)`. The project has an empty
-/// local ontology and an empty local templates dir, so only the pack's
-/// templates run over the pack's ontology.
+/// Thin wrapper over `support::scaffold_pack` for this file's many
+/// `scaffold_pack_project("some-pack")` call sites — the underlying
+/// scaffold (sibling pack copy, empty consumer ontology, empty templates
+/// dir) is byte-for-byte what `support::scaffold_pack` already does; this
+/// keeps every call site unchanged instead of rewriting all 8.
 fn scaffold_pack_project(pack_name: &str) -> (TempDir, PathBuf) {
-    let dir = TempDir::new().expect("tempdir");
-    copy_tree(&packs_dir().join(pack_name), &dir.path().join(pack_name));
-
-    let project = dir.path().join("consumer");
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-    std::fs::write(
-        project.join("ggen.toml"),
-        format!(
-            "[project]\nname = \"consumer\"\n\n\
-             [ontology]\nsource = \"ontology.ttl\"\n\n\
-             [packs]\n{pack_name} = {{ path = \"../{pack_name}\" }}\n\n\
-             [templates]\ndir = \"templates\"\n"
-        ),
-    )
-    .expect("write ggen.toml");
-    (dir, project)
+    scaffold_pack(&packs_dir().join(pack_name))
 }
 
 #[test]

@@ -6,10 +6,13 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 
 use chicago_tdd_tools::cli_proof::CliHarness;
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
+use support::copy_tree;
 use tempfile::TempDir;
 
 /// Every framework pack expected under `packs/`, alphabetical, with its
@@ -34,25 +37,18 @@ fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-/// Recursively copy `src` into `dst`.
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
-}
-
 /// Copy the named packs plus a minimal consumer project into a fresh
 /// `TempDir`; return `(tempdir, project_root)`. `pack_order` controls the
 /// textual order of the `[packs.*]` declarations in `ggen.toml` (config
 /// parsing uses a `BTreeMap`, so semantics must be order-independent).
+///
+/// Deliberately NOT `support::scaffold_multi_pack`: this file's own
+/// assertions (below) check for the literal `[packs.<name>]` per-table TOML
+/// syntax in the generated manifest — that syntax IS what this file proves
+/// is order-independent. `scaffold_multi_pack` writes the equivalent but
+/// textually different inline-table form (`name = { path = "..." }`);
+/// switching to it would require rewriting the assertions this scaffold
+/// exists to support, not just relocating the scaffold code.
 fn scaffold_multi_pack_project(pack_order: &[&str]) -> (TempDir, PathBuf) {
     use std::fmt::Write as _;
 

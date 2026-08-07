@@ -1,0 +1,13 @@
+---
+to: "packs/{{ packName }}/pack.toml"
+sparql:
+  rows: |
+    PREFIX pat: <http://seanchatmangpt.github.io/packs/pack-authoring#>
+    SELECT ?packName ?description WHERE {
+      ?spec a pat:NewPackSpec ; pat:packName ?packName ; pat:description ?description .
+    } ORDER BY ?packName
+---
+[pack]
+name = "{{ packName }}"
+version = "0.1.0"
+description = "{{ description }}"

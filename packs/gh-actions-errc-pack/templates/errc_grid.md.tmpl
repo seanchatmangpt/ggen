@@ -1,0 +1,6 @@
+{#- docs/ci/GH_ACTIONS_ERRC_GRID.md — full projection of packs/gh-actions-errc-pack/ontology.ttl's
+    errc:ErrcGridDocument literal. Root ggen.toml is the declarative-rules schema, which does
+    NOT read a template's own frontmatter `sparql:` block -- this template calls sparql()
+    itself, mirroring .specify/templates/docs/pack_maturity_model.md.tera's working pattern. -#}
+{%- set row = sparql(query='PREFIX errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#> SELECT ?body WHERE { errc:ErrcGridDocument errc:body ?body . } ORDER BY ?body') -%}
+{{ row[0].body }}

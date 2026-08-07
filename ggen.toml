@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.8.6"
+version = "26.8.7"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -24,6 +24,7 @@ imports = [
   "packs/ggen-release-pack/ontology.ttl",
   "packs/ggen-verify-pack/ontology.ttl",
   "packs/claude-code-pack/ontology.ttl",
+  "packs/gh-actions-errc-pack/ontology.ttl",
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
@@ -368,4 +369,28 @@ query       = { file = ".specify/queries/combinatorial/cmd-template-cross.rq" }
 template    = { file = ".specify/templates/combinatorial/cmd-template-cross.tera" }
 output_file = "crates/ggen-cli/src/cmds/{{ cmd_label | snake }}_{{ action_id | snake }}.rs"
 skip_empty  = true
+mode        = "Overwrite"
+
+# ── gh-actions-errc-pack ──────────────────────────────────────────────────────
+# Advisory/additive only: renders the ERRC grid doc and a non-wired proposed
+# setup-ggen-build replacement. Never touches .github/workflows/* or the real
+# .github/actions/setup-ggen-build/action.yml. See packs/gh-actions-errc-pack/.
+[[generation.rules]]
+name        = "gh-actions-errc-grid"
+query       = { inline = """
+PREFIX errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#>
+SELECT ?body WHERE { errc:ErrcGridDocument errc:body ?body . } ORDER BY ?body
+""" }
+template    = { file = "packs/gh-actions-errc-pack/templates/errc_grid.md.tmpl" }
+output_file = "docs/ci/GH_ACTIONS_ERRC_GRID.md"
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "gh-actions-errc-proposed-action"
+query       = { inline = """
+PREFIX errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#>
+SELECT ?body WHERE { errc:ProposedSetupGgenBuildAction errc:body ?body . } ORDER BY ?body
+""" }
+template    = { file = "packs/gh-actions-errc-pack/templates/proposed_action.yml.tmpl" }
+output_file = ".github/actions/setup-ggen-build-errc-proposed/action.yml"
 mode        = "Overwrite"
