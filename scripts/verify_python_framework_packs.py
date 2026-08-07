@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
-"""Verify, render, and smoke-test the Typer, FastMCP, and DSPy ggen packs."""
+"""Local verifier for ontology-driven Typer, FastMCP, and DSPy ggen packs.
 
+This verifier never promotes structural rendering into exact-framework ALIVE.
+It proves pack admission, deterministic rendering, Python syntax, negative-gate
+falsifiers, an exact Typer execution when Typer is installed, and contract
+execution for FastMCP/DSPy when their distributions are unavailable.
+"""
 from __future__ import annotations
 
 import argparse
@@ -12,22 +17,21 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import tomllib
+import types
 from pathlib import Path
-from types import ModuleType
 from typing import Any
 
 from jinja2 import Environment, StrictUndefined
-from rdflib import Graph
+from rdflib import Graph, Literal, Namespace
 
 PACKS = ("typer-pack", "fastmcp-pack", "dspy-pack")
 
 
 def sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    digest.update(path.read_bytes())
-    return digest.hexdigest()
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def parse_frontmatter(text: str) -> tuple[str, dict[str, str], str]:
@@ -36,7 +40,6 @@ def parse_frontmatter(text: str) -> tuple[str, dict[str, str], str]:
     end = text.find("\n---\n", 4)
     if end < 0:
         raise ValueError("template is missing closing frontmatter delimiter")
-
     target: str | None = None
     queries: dict[str, str] = {}
     in_sparql = False
@@ -48,19 +51,29 @@ def parse_frontmatter(text: str) -> tuple[str, dict[str, str], str]:
         elif in_sparql and re.match(r"^  [A-Za-z_][A-Za-z0-9_]*:", line):
             name, encoded_query = line.strip().split(":", 1)
             queries[name] = json.loads(encoded_query.strip())
-
     if not target or not queries:
         raise ValueError("template must declare to: and at least one SPARQL query")
     return target, queries, text[end + 5 :]
 
 
-def load_module(name: str, path: Path) -> ModuleType:
-    spec = importlib.util.spec_from_file_location(name, path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load module from {path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def query_rows(graph: Graph, query: str) -> list[tuple[str, ...]]:
+    return [tuple(str(value) for value in row) for row in graph.query(query)]
+
+
+def load_graph(pack: Path) -> Graph:
+    graph = Graph()
+    graph.parse(pack / "ontology.ttl", format="turtle")
+    return graph
+
+
+def run_gates(pack: Path, graph: Graph) -> list[dict[str, Any]]:
+    receipts: list[dict[str, Any]] = []
+    for gate in sorted((pack / "gates").glob("*.rq")):
+        rows = query_rows(graph, gate.read_text(encoding="utf-8"))
+        receipts.append({"gate": gate.name, "rows": rows})
+        if rows:
+            raise AssertionError(f"{pack.name}/{gate.name} refused ontology: {rows}")
+    return receipts
 
 
 def render_pack(repo_root: Path, pack_name: str, output_root: Path) -> dict[str, Any]:
@@ -69,22 +82,11 @@ def render_pack(repo_root: Path, pack_name: str, output_root: Path) -> dict[str,
     manifest = tomllib.loads((pack / "pack.toml").read_text(encoding="utf-8"))
     if manifest.get("pack", {}).get("name") != pack_name:
         raise AssertionError(f"{pack_name}: manifest name does not match directory")
-
-    graph = Graph()
-    graph.parse(pack / "ontology.ttl", format="turtle")
-
-    gate_receipts: list[dict[str, Any]] = []
-    for gate in sorted((pack / "gates").glob("*.rq")):
-        rows = [tuple(str(value) for value in row) for row in graph.query(gate.read_text())]
-        gate_receipts.append({"gate": gate.name, "rows": rows})
-        if rows:
-            raise AssertionError(f"{pack_name}/{gate.name} refused ontology: {rows}")
+    graph = load_graph(pack)
+    gate_receipts = run_gates(pack, graph)
 
     environment = Environment(undefined=StrictUndefined, keep_trailing_newline=True)
-    environment.filters["json_encode"] = lambda value: json.dumps(
-        str(value), ensure_ascii=False
-    )
-
+    environment.filters["json_encode"] = lambda value: json.dumps(str(value), ensure_ascii=False)
     outputs: list[dict[str, str]] = []
     templates = sorted((pack / "templates").glob("*.tmpl"))
     if not templates:
@@ -102,20 +104,16 @@ def render_pack(repo_root: Path, pack_name: str, output_root: Path) -> dict[str,
             ]
             if not context[query_name]:
                 raise AssertionError(f"{pack_name}/{template_path.name}: empty {query_name}")
-
         rendered = environment.from_string(body).render(**context)
         target_path = output_root / pack_name / target
         target_path.parent.mkdir(parents=True, exist_ok=True)
         target_path.write_text(rendered, encoding="utf-8")
         ast.parse(rendered, filename=str(target_path))
-        outputs.append(
-            {
-                "template": str(template_path.relative_to(repo_root)),
-                "target": target,
-                "sha256": sha256(target_path),
-            }
-        )
-
+        outputs.append({
+            "template": str(template_path.relative_to(repo_root)),
+            "target": target,
+            "sha256": sha256(target_path),
+        })
     return {
         "pack": pack_name,
         "triples": len(graph),
@@ -125,101 +123,198 @@ def render_pack(repo_root: Path, pack_name: str, output_root: Path) -> dict[str,
     }
 
 
-def compare_ggen_outputs(expected_root: Path, ggen_root: Path, receipts: list[dict[str, Any]]) -> None:
-    for receipt in receipts:
-        pack_name = receipt["pack"]
-        for output in receipt["outputs"]:
-            expected = expected_root / pack_name / output["target"]
-            actual = ggen_root / output["target"]
-            if not actual.is_file():
-                raise AssertionError(f"ggen did not emit {actual}")
-            if actual.read_bytes() != expected.read_bytes():
-                raise AssertionError(
-                    f"ggen output diverged for {pack_name}/{output['target']}: "
-                    f"expected={sha256(expected)} actual={sha256(actual)}"
-                )
+def verify_negative_falsifiers(repo_root: Path) -> dict[str, list[tuple[str, ...]]]:
+    cases: dict[str, list[tuple[str, ...]]] = {}
+
+    t = Namespace("http://seanchatmangpt.github.io/packs/typer#")
+    graph = load_graph(repo_root / "packs/typer-pack")
+    graph.remove((t["greet-command"], t.argumentHelp, None))
+    q = (repo_root / "packs/typer-pack/gates/010_admission.rq").read_text(encoding="utf-8")
+    rows = query_rows(graph, q)
+    if not rows:
+        raise AssertionError("typer negative falsifier was not refused")
+    cases["typer_missing_argument_help"] = rows
+
+    f = Namespace("http://seanchatmangpt.github.io/packs/fastmcp#")
+    graph = load_graph(repo_root / "packs/fastmcp-pack")
+    graph.remove((f["greet-tool"], f.argument, None))
+    q = (repo_root / "packs/fastmcp-pack/gates/010_admission.rq").read_text(encoding="utf-8")
+    rows = query_rows(graph, q)
+    if not rows:
+        raise AssertionError("fastmcp negative falsifier was not refused")
+    cases["fastmcp_missing_argument"] = rows
+
+    d = Namespace("http://seanchatmangpt.github.io/packs/dspy#")
+    graph = load_graph(repo_root / "packs/dspy-pack")
+    graph.set((d["answer-program"], d.kind, Literal("AmbientActuator")))
+    q = (repo_root / "packs/dspy-pack/gates/010_admission.rq").read_text(encoding="utf-8")
+    rows = query_rows(graph, q)
+    if not rows:
+        raise AssertionError("dspy negative falsifier was not refused")
+    cases["dspy_unadmitted_module_kind"] = rows
+    return cases
 
 
-def smoke_frameworks(generated_root: Path) -> dict[str, Any]:
-    typer_path = generated_root / "src" / "typer_app.py"
-    typer_run = subprocess.run(
-        [sys.executable, str(typer_path), "greet", "Sean"],
-        check=False,
-        capture_output=True,
-        text=True,
+def deterministic_replay(repo_root: Path) -> dict[str, str]:
+    with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
+        first_root, second_root = Path(first), Path(second)
+        a = [render_pack(repo_root, p, first_root) for p in PACKS]
+        b = [render_pack(repo_root, p, second_root) for p in PACKS]
+        hashes_a = {r["pack"]: r["outputs"][0]["sha256"] for r in a}
+        hashes_b = {r["pack"]: r["outputs"][0]["sha256"] for r in b}
+        if hashes_a != hashes_b:
+            raise AssertionError(f"deterministic replay diverged: {hashes_a} != {hashes_b}")
+        return hashes_a
+
+
+def load_module(name: str, path: Path) -> types.ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load module from {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def smoke_typer(generated_root: Path) -> dict[str, Any]:
+    path = generated_root / "typer-pack/src/typer_app.py"
+    proc = subprocess.run(
+        [sys.executable, str(path), "greet", "Sean"],
+        capture_output=True, text=True, check=False,
     )
-    if typer_run.returncode != 0 or typer_run.stdout.strip() != "Hello, Sean!":
-        raise AssertionError(
-            f"Typer smoke failed: exit={typer_run.returncode} "
-            f"stdout={typer_run.stdout!r} stderr={typer_run.stderr!r}"
-        )
+    if proc.returncode != 0 or proc.stdout.strip() != "Hello, Sean!":
+        raise AssertionError(f"Typer smoke failed: exit={proc.returncode} stdout={proc.stdout!r} stderr={proc.stderr!r}")
+    return {"exit": proc.returncode, "stdout": proc.stdout.strip()}
 
-    fastmcp_module = load_module(
-        "generated_fastmcp_server", generated_root / "src" / "fastmcp_server.py"
-    )
-    if fastmcp_module.greet("Sean") != "Hello, Sean!":
-        raise AssertionError("FastMCP generated tool behavior diverged")
-    registered_tool = asyncio.run(fastmcp_module.mcp.get_tool("greet"))
-    if registered_tool is None or registered_tool.name != "greet":
-        raise AssertionError("FastMCP did not register the generated greet tool")
 
-    dspy_module = load_module(
-        "generated_dspy_program", generated_root / "src" / "dspy_program.py"
-    )
-    if dspy_module.AnswerQuestion.__name__ != "AnswerQuestion":
-        raise AssertionError("DSPy generated signature identity diverged")
-    if type(dspy_module.program).__name__ != "Predict":
-        raise AssertionError("DSPy generated module is not dspy.Predict")
+def smoke_fastmcp_contract(generated_root: Path) -> dict[str, Any]:
+    registry: dict[str, Any] = {}
+    fake = types.ModuleType("fastmcp")
 
-    return {
-        "typer": {
-            "command": [sys.executable, str(typer_path), "greet", "Sean"],
-            "exit": typer_run.returncode,
-            "stdout": typer_run.stdout.strip(),
-        },
-        "fastmcp": {
-            "tool": registered_tool.name,
-            "direct_result": fastmcp_module.greet("Sean"),
-        },
-        "dspy": {
-            "signature": dspy_module.AnswerQuestion.__name__,
-            "module": type(dspy_module.program).__name__,
-        },
-    }
+    class Tool:
+        def __init__(self, name: str, fn: Any): self.name, self.fn = name, fn
+
+    class FastMCP:
+        def __init__(self, name: str): self.name = name
+        def tool(self, *, name: str, description: str):
+            def decorate(fn: Any) -> Any:
+                registry[name] = Tool(name, fn)
+                return fn
+            return decorate
+        async def get_tool(self, name: str) -> Any: return registry.get(name)
+        def run(self) -> None: raise AssertionError("contract smoke must not actuate server transport")
+
+    fake.FastMCP = FastMCP
+    prior = sys.modules.get("fastmcp")
+    sys.modules["fastmcp"] = fake
+    try:
+        module = load_module("generated_fastmcp_contract", generated_root / "fastmcp-pack/src/fastmcp_server.py")
+        tool = asyncio.run(module.mcp.get_tool("greet"))
+        if tool is None or tool.name != "greet" or module.greet("Sean") != "Hello, Sean!":
+            raise AssertionError("FastMCP contract smoke diverged")
+        return {"server": module.mcp.name, "tool": tool.name, "result": module.greet("Sean")}
+    finally:
+        if prior is None: sys.modules.pop("fastmcp", None)
+        else: sys.modules["fastmcp"] = prior
+
+
+def smoke_dspy_contract(generated_root: Path) -> dict[str, Any]:
+    fake = types.ModuleType("dspy")
+    class Signature: pass
+    class Field:
+        def __init__(self, *, desc: str): self.desc = desc
+    class Predict:
+        def __init__(self, signature: type): self.signature = signature
+    class ChainOfThought(Predict): pass
+    fake.Signature = Signature
+    fake.InputField = Field
+    fake.OutputField = Field
+    fake.Predict = Predict
+    fake.ChainOfThought = ChainOfThought
+    prior = sys.modules.get("dspy")
+    sys.modules["dspy"] = fake
+    try:
+        module = load_module("generated_dspy_contract", generated_root / "dspy-pack/src/dspy_program.py")
+        if module.AnswerQuestion.__name__ != "AnswerQuestion" or type(module.program).__name__ != "Predict":
+            raise AssertionError("DSPy contract smoke diverged")
+        return {"signature": module.AnswerQuestion.__name__, "module": type(module.program).__name__}
+    finally:
+        if prior is None: sys.modules.pop("dspy", None)
+        else: sys.modules["dspy"] = prior
+
+
+def exact_framework_smoke(generated_root: Path) -> tuple[dict[str, Any], list[str]]:
+    results: dict[str, Any] = {}
+    missing: list[str] = []
+    try:
+        import typer  # noqa: F401
+        results["typer"] = smoke_typer(generated_root)
+    except ModuleNotFoundError:
+        missing.append("typer")
+
+    try:
+        import fastmcp  # noqa: F401
+        module = load_module("generated_fastmcp_exact", generated_root / "fastmcp-pack/src/fastmcp_server.py")
+        tool = asyncio.run(module.mcp.get_tool("greet"))
+        if tool is None or tool.name != "greet" or module.greet("Sean") != "Hello, Sean!":
+            raise AssertionError("FastMCP exact smoke diverged")
+        results["fastmcp"] = {"tool": tool.name, "result": module.greet("Sean")}
+    except ModuleNotFoundError:
+        missing.append("fastmcp")
+
+    try:
+        import dspy  # noqa: F401
+        module = load_module("generated_dspy_exact", generated_root / "dspy-pack/src/dspy_program.py")
+        if module.AnswerQuestion.__name__ != "AnswerQuestion" or type(module.program).__name__ != "Predict":
+            raise AssertionError("DSPy exact smoke diverged")
+        results["dspy"] = {"signature": module.AnswerQuestion.__name__, "module": type(module.program).__name__}
+    except ModuleNotFoundError:
+        missing.append("dspy")
+    return results, missing
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--compare-ggen-root", type=Path)
-    parser.add_argument("--framework-smoke-root", type=Path)
     args = parser.parse_args()
-
+    started = time.perf_counter()
     repo_root = args.repo_root.resolve()
     output_root = args.output.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 
-    receipts = [render_pack(repo_root, pack_name, output_root) for pack_name in PACKS]
-    if args.compare_ggen_root:
-        compare_ggen_outputs(output_root, args.compare_ggen_root.resolve(), receipts)
+    receipts = [render_pack(repo_root, name, output_root) for name in PACKS]
+    replay = deterministic_replay(repo_root)
+    falsifiers = verify_negative_falsifiers(repo_root)
+    contracts = {
+        "fastmcp": smoke_fastmcp_contract(output_root),
+        "dspy": smoke_dspy_contract(output_root),
+    }
+    exact, missing = exact_framework_smoke(output_root)
 
-    framework_receipt = None
-    if args.framework_smoke_root:
-        framework_receipt = smoke_frameworks(args.framework_smoke_root.resolve())
-
-    print(
-        json.dumps(
-            {
-                "standing": "ALIVE",
-                "packs": receipts,
-                "ggen_byte_identity": bool(args.compare_ggen_root),
-                "framework_smoke": framework_receipt,
-            },
-            indent=2,
-            sort_keys=True,
-        )
-    )
+    exact_ggen = False
+    all_exact_frameworks = not missing
+    standing = "ALIVE" if exact_ggen and all_exact_frameworks else "PARTIAL_ALIVE"
+    payload = {
+        "standing": standing,
+        "boundaries": {
+            "pack_admission_render_replay": "ALIVE",
+            "typer_exact_runtime": "ALIVE" if "typer" in exact else "UNKNOWN",
+            "fastmcp_contract": "ALIVE",
+            "fastmcp_exact_runtime": "ALIVE" if "fastmcp" in exact else "UNKNOWN",
+            "dspy_contract": "ALIVE",
+            "dspy_exact_runtime": "ALIVE" if "dspy" in exact else "UNKNOWN",
+            "exact_ggen_cli": "UNKNOWN",
+        },
+        "packs": receipts,
+        "replay_sha256": replay,
+        "negative_falsifiers": falsifiers,
+        "contract_smoke": contracts,
+        "exact_framework_smoke": exact,
+        "missing_exact_frameworks": missing,
+        "elapsed_ms": round((time.perf_counter() - started) * 1000, 3),
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
