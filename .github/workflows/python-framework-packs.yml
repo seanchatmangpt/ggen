@@ -25,7 +25,13 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+
+      - name: Assert exact head identity
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
 
       - name: Install repository Rust toolchain
         uses: dtolnay/rust-toolchain@master
@@ -50,7 +56,7 @@ jobs:
       - name: Create dependency-closed pack consumer
         run: |
           consumer="$RUNNER_TEMP/python-framework-packs-consumer"
-          mkdir -p "$consumer/schema"
+          mkdir -p "$consumer/schema" "$consumer/templates"
           cat > "$consumer/ggen.toml" <<EOF
           [project]
           name = "python-framework-packs-consumer"
