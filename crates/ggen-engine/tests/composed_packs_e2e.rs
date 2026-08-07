@@ -24,10 +24,13 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use chicago_tdd_tools::cli_proof::CliHarness;
+use support::{copy_tree, scaffold_multi_pack};
 use tempfile::TempDir;
 
 /// The 30 composed packs (see module doc for provenance of each group).
@@ -72,52 +75,12 @@ fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-/// Recursively copy `src` into `dst`.
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
-}
-
 /// Copy every composed pack plus a minimal consumer project into a fresh
-/// `TempDir`; the `[packs]` table is generated programmatically over
-/// `COMPOSED_PACKS`. The consumer has an empty local ontology and an empty
-/// local templates dir, so only pack templates run over pack ontologies.
+/// `TempDir`, via `support::scaffold_multi_pack` — identical shape to what
+/// this function used to hand-roll (empty local ontology/templates dir, so
+/// only pack templates run over pack ontologies).
 fn scaffold_composed_project() -> (TempDir, PathBuf) {
-    use std::fmt::Write as _;
-
-    let dir = TempDir::new().expect("tempdir");
-    for pack in COMPOSED_PACKS {
-        copy_tree(&packs_dir().join(pack), &dir.path().join(pack));
-    }
-
-    let project = dir.path().join("consumer");
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-
-    let packs_table: String = COMPOSED_PACKS.iter().fold(String::new(), |mut table, p| {
-        let _ = writeln!(table, "{p} = {{ path = \"../{p}\" }}");
-        table
-    });
-    std::fs::write(
-        project.join("ggen.toml"),
-        format!(
-            "[project]\nname = \"consumer\"\n\n\
-             [ontology]\nsource = \"ontology.ttl\"\n\n\
-             [packs]\n{packs_table}\n\
-             [templates]\ndir = \"templates\"\n"
-        ),
-    )
-    .expect("write ggen.toml");
-    (dir, project)
+    scaffold_multi_pack(&COMPOSED_PACKS)
 }
 
 /// Recursively hash every file under `root`, excluding `.ggen-v2/` (receipts

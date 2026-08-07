@@ -52,28 +52,17 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use chicago_tdd_tools::cli_proof::CliHarness;
+use support::{read_json, scaffold_pack_with_ontology};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
 }
 
 /// Cardinalities exactly matching `gates/020_exact_cardinality.rq` and
@@ -305,24 +294,7 @@ fn full_conforming_ontology() -> String {
 }
 
 fn scaffold(ontology: &str) -> (TempDir, PathBuf) {
-    let dir = TempDir::new().expect("tempdir");
-    copy_tree(
-        &packs_dir().join("tai-enterprise-rebuild-pack"),
-        &dir.path().join("tai-enterprise-rebuild-pack"),
-    );
-
-    let project = dir.path().join("consumer");
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), ontology).expect("write ontology");
-    std::fs::write(
-        project.join("ggen.toml"),
-        "[project]\nname = \"tai-consumer\"\n\n\
-         [ontology]\nsource = \"ontology.ttl\"\n\n\
-         [packs]\ntai-enterprise-rebuild-pack = { path = \"../tai-enterprise-rebuild-pack\" }\n\n\
-         [templates]\ndir = \"templates\"\n",
-    )
-    .expect("write ggen.toml");
-    (dir, project)
+    scaffold_pack_with_ontology(&packs_dir().join("tai-enterprise-rebuild-pack"), ontology)
 }
 
 fn run_sync(root: &Path) -> chicago_tdd_tools::cli_proof::CliOutput {
@@ -331,12 +303,6 @@ fn run_sync(root: &Path) -> chicago_tdd_tools::cli_proof::CliOutput {
         .current_dir(root)
         .run()
         .expect("spawn ggen sync run")
-}
-
-fn read_json(project: &Path, relative: &str) -> serde_json::Value {
-    let raw = std::fs::read_to_string(project.join(relative))
-        .unwrap_or_else(|e| panic!("read {relative}: {e}"));
-    serde_json::from_str(&raw).unwrap_or_else(|e| panic!("parse {relative} as JSON: {e}\n{raw}"))
 }
 
 /// Golden-path composite: a fully-conforming consumer ontology, one real

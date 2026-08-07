@@ -7,28 +7,16 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
+use support::{copy_tree, write_pack, write_single_pack_project, write_two_pack_project};
 use tempfile::TempDir;
 
 fn examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("examples")
-}
-
-/// Recursively copy `src` into `dst`.
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
 }
 
 /// Copy demo-pack and demo-project into a fresh `TempDir`; return (dir, `project_root`).
@@ -405,58 +393,6 @@ fn broken_packs_refuse_by_name() {
 // ---------------------------------------------------------------------------
 // Two-pack composition
 // ---------------------------------------------------------------------------
-
-/// Write a minimal, valid pack at `root/<name>`: `pack.toml`, `ontology.ttl`
-/// (one `dom:<class_name> a dom:DomainClass` triple), and a single
-/// `templates/<class_name lowercased>.rs.tmpl` whose frontmatter is just
-/// `to: <to_path>` and whose body is `body` verbatim.
-fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &str, body: &str) {
-    let pack_dir = root.join(name);
-    std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
-
-    std::fs::write(
-        pack_dir.join("pack.toml"),
-        format!(
-            "[pack]\nname = \"{name}\"\nversion = \"0.1.0\"\ndescription = \"test pack {name}\"\n"
-        ),
-    )
-    .expect("write pack.toml");
-
-    std::fs::write(
-        pack_dir.join("ontology.ttl"),
-        format!(
-            "@prefix dom: <http://example.com/ontology#> .\ndom:{class_name} a dom:DomainClass .\n"
-        ),
-    )
-    .expect("write ontology.ttl");
-
-    let tmpl_name = format!("{}.rs.tmpl", class_name.to_lowercase());
-    std::fs::write(
-        pack_dir.join("templates").join(tmpl_name),
-        format!("---\nto: {to_path}\n---\n{body}\n"),
-    )
-    .expect("write template");
-}
-
-/// Write `root/two-pack-project/` referencing `pack_a` and `pack_b` by
-/// relative path, plus an empty ontology and templates dir (no local
-/// templates of its own — only the two packs' templates run).
-fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) -> PathBuf {
-    let project = root.join("two-pack-project");
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-    std::fs::write(
-        project.join("ggen.toml"),
-        format!(
-            "[project]\nname = \"two-pack-project\"\n\n\
-             [ontology]\nsource = \"ontology.ttl\"\n\n\
-             [packs]\npack-a = {{ path = \"../{pack_a}\" }}\npack-b = {{ path = \"../{pack_b}\" }}\n\n\
-             [templates]\ndir = \"templates\"\n"
-        ),
-    )
-    .expect("write ggen.toml");
-    project
-}
 
 #[test]
 fn two_packs_disjoint_outputs_both_succeed() {
@@ -1009,26 +945,6 @@ fn write_two_pack_project_with_lock(
              [ontology]\nsource = \"ontology.ttl\"\n\n\
              [packs]\npack-a = {{ path = \"../{pack_a}\" }}\n\
              pack-b = {{ path = \"../{pack_b}\", lock = {lock_b} }}\n\n\
-             [templates]\ndir = \"templates\"\n"
-        ),
-    )
-    .expect("write ggen.toml");
-    project
-}
-
-/// Write `root/<project_name>/` referencing a single pack by relative path
-/// with no `lock` key declared — exercises the `#[serde(default =
-/// "default_true")]` path, not an explicit `lock = true`.
-fn write_single_pack_project(root: &Path, project_name: &str, pack_name: &str) -> PathBuf {
-    let project = root.join(project_name);
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-    std::fs::write(
-        project.join("ggen.toml"),
-        format!(
-            "[project]\nname = \"{project_name}\"\n\n\
-             [ontology]\nsource = \"ontology.ttl\"\n\n\
-             [packs]\npack-a = {{ path = \"../{pack_name}\" }}\n\n\
              [templates]\ndir = \"templates\"\n"
         ),
     )

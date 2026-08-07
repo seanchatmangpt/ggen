@@ -10,61 +10,21 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use ggen_engine::sync::{sync, SyncOptions};
+use support::{count_md_files, read, scaffold_pack};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
-}
-
 fn scaffold() -> (TempDir, PathBuf) {
-    let dir = TempDir::new().expect("tempdir");
-    copy_tree(
-        &packs_dir().join("gh-terraform-pack"),
-        &dir.path().join("gh-terraform-pack"),
-    );
-
-    let project = dir.path().join("consumer");
-    std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
-    std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
-    std::fs::write(
-        project.join("ggen.toml"),
-        "[project]\nname = \"consumer\"\n\n\
-         [ontology]\nsource = \"ontology.ttl\"\n\n\
-         [packs]\ngh-terraform-pack = { path = \"../gh-terraform-pack\" }\n\n\
-         [templates]\ndir = \"templates\"\n",
-    )
-    .expect("write ggen.toml");
-    (dir, project)
-}
-
-fn read(project: &Path, rel: &str) -> String {
-    std::fs::read_to_string(project.join(rel)).unwrap_or_else(|e| panic!("read {rel}: {e}"))
-}
-
-fn count_md_files(dir: &Path) -> usize {
-    std::fs::read_dir(dir)
-        .unwrap_or_else(|e| panic!("read_dir {}: {e}", dir.display()))
-        .filter_map(std::result::Result::ok)
-        .filter(|e| e.path().extension().is_some_and(|x| x == "md"))
-        .count()
+    scaffold_pack(&packs_dir().join("gh-terraform-pack"))
 }
 
 const TF_FILES: [&str; 16] = [
