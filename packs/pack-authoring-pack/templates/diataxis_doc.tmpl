@@ -1,0 +1,10 @@
+---
+to: "{{ docPath }}"
+sparql:
+  rows: |
+    PREFIX pat: <http://seanchatmangpt.github.io/packs/pack-authoring#>
+    SELECT ?docPath ?content WHERE {
+      ?doc a pat:DiataxisDoc ; pat:docPath ?docPath ; pat:content ?content .
+    } ORDER BY ?docPath
+---
+{{ content }}

@@ -979,13 +979,15 @@ pub fn init_self(path: Option<String>, force: Option<String>) -> VerbResult<Init
     let mut files_created = Vec::new();
     for (rel_path, contents) in SELF_PACK_FILES {
         let target = self_pack_dir.join(rel_path);
-        tx.write_file(&target, contents)
-            .map_err(|e| GgenError::FileError(format!("failed to stage {}: {e}", target.display())))?;
+        tx.write_file(&target, contents).map_err(|e| {
+            GgenError::FileError(format!("failed to stage {}: {e}", target.display()))
+        })?;
         files_created.push(target.display().to_string());
     }
 
-    tx.commit()
-        .map_err(|e| GgenError::FileError(format!("failed to commit init-self transaction: {e}")))?;
+    tx.commit().map_err(|e| {
+        GgenError::FileError(format!("failed to commit init-self transaction: {e}"))
+    })?;
 
     Ok(InitSelfOutput {
         status: "success".to_string(),

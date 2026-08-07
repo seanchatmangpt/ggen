@@ -104,7 +104,10 @@ fn init_self_force_overwrites() {
     std::fs::write(&marker_path, "HAND EDITED — should be replaced").expect("hand edit");
 
     let out = run(dir.path(), &["init-self", "--force", "true"]);
-    assert!(out.exit_code == 0, "forced init-self should succeed: {out:?}");
+    assert!(
+        out.exit_code == 0,
+        "forced init-self should succeed: {out:?}"
+    );
     let contents = std::fs::read_to_string(&marker_path).expect("read marker");
     assert_ne!(
         contents, "HAND EDITED — should be replaced",
@@ -145,11 +148,20 @@ fn pack_new_requires_description_and_namespace() {
 
     let missing_description = run(
         dir.path(),
-        &["pack", "new", "demo-pack", "--namespace", "http://example.org/x#"],
+        &[
+            "pack",
+            "new",
+            "demo-pack",
+            "--namespace",
+            "http://example.org/x#",
+        ],
     );
     assert!(missing_description.exit_code != 0);
 
-    let missing_namespace = run(dir.path(), &["pack", "new", "demo-pack", "--description", "x"]);
+    let missing_namespace = run(
+        dir.path(),
+        &["pack", "new", "demo-pack", "--description", "x"],
+    );
     assert!(missing_namespace.exit_code != 0);
 
     assert!(
@@ -181,12 +193,14 @@ fn pack_new_creates_a_structurally_correct_pack_at_the_project_root() {
     // this is the relocation fix (FM-WRITE-002 traversal guard forced the
     // self-pack's own `sync` to write nested; the verb relocates it).
     let pack_dir = dir.path().join("packs").join("demo-pack");
-    assert!(!dir
-        .path()
-        .join("packs")
-        .join("ggen-self-pack")
-        .join("packs")
-        .exists(), "no leftover nested scratch dir should remain");
+    assert!(
+        !dir.path()
+            .join("packs")
+            .join("ggen-self-pack")
+            .join("packs")
+            .exists(),
+        "no leftover nested scratch dir should remain"
+    );
 
     let pack_toml =
         std::fs::read_to_string(pack_dir.join("pack.toml")).expect("read generated pack.toml");
@@ -244,13 +258,9 @@ fn pack_new_refuses_to_clobber_an_existing_pack() {
         second.exit_code != 0,
         "creating the same pack name twice must fail, not silently overwrite: {second:?}"
     );
-    let pack_toml = std::fs::read_to_string(
-        dir.path()
-            .join("packs")
-            .join("demo-pack")
-            .join("pack.toml"),
-    )
-    .expect("read pack.toml");
+    let pack_toml =
+        std::fs::read_to_string(dir.path().join("packs").join("demo-pack").join("pack.toml"))
+            .expect("read pack.toml");
     assert!(
         pack_toml.contains("description = \"first\""),
         "the original pack must survive a refused duplicate creation"

@@ -3,28 +3,17 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use ggen_engine::sync::{sync, SyncOptions};
+use support::{copy_tree, read};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
 }
 
 fn scaffold() -> (TempDir, PathBuf) {
@@ -46,11 +35,6 @@ fn scaffold() -> (TempDir, PathBuf) {
     )
     .expect("write ggen.toml");
     (dir, project)
-}
-
-fn read(project: &Path, relative: &str) -> String {
-    std::fs::read_to_string(project.join(relative))
-        .unwrap_or_else(|error| panic!("read {relative}: {error}"))
 }
 
 // One Chicago-TDD end-to-end scenario (single scaffold + sync, many real

@@ -12,27 +12,16 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};
+use support::{copy_tree, read};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
 }
 
 /// Scaffold a consumer project next to a copy of the pack. `extra_ttl` is
@@ -64,10 +53,6 @@ fn scaffold(extra_ttl: &str) -> (TempDir, PathBuf) {
     )
     .expect("write ggen.toml");
     (dir, project)
-}
-
-fn read(project: &Path, rel: &str) -> String {
-    std::fs::read_to_string(project.join(rel)).unwrap_or_else(|e| panic!("read {rel}: {e}"))
 }
 
 const PRODUCTS: [&str; 4] = [

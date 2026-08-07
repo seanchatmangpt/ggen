@@ -1,0 +1,20 @@
+---
+to: "packs/{{ packName }}/ontology.ttl"
+sparql:
+  rows: |
+    PREFIX pat: <http://seanchatmangpt.github.io/packs/pack-authoring#>
+    SELECT ?packName ?className ?prefixName ?requiredProp WHERE {
+      ?spec a pat:NewPackSpec ; pat:packName ?packName ; pat:className ?className ;
+            pat:prefixName ?prefixName ; pat:requiredProp ?requiredProp .
+    } ORDER BY ?packName
+---
+@prefix {{ prefixName }}: <http://seanchatmangpt.github.io/packs/{{ packName }}#> .
+
+# GENERATED starter ontology for {{ packName }} by pack-authoring-pack.
+# Replace this example class/individual with real domain vocabulary — see
+# docs/pack-authoring/tutorial.md and reference.md.
+
+{{ prefixName }}:{{ className }} a <http://www.w3.org/2000/01/rdf-schema#Class> .
+
+{{ prefixName }}:Example{{ className }} a {{ prefixName }}:{{ className }} ;
+    {{ prefixName }}:{{ requiredProp }} "TODO: replace with real content" .

@@ -1,0 +1,4 @@
+[pack]
+name = "pack-authoring-pack"
+version = "0.1.0"
+description = "Generates Diataxis docs (tutorial/how-to/reference/explanation) for authoring a new ggen pack, plus a runnable scaffold — pack.toml, ontology.ttl, one example template, one gates/010_required.rq — and a Chicago-TDD tests/<name>_pack_e2e.rs built on crates/ggen-engine/tests/support (scaffold_pack, assert_idempotent, assert_gate_refuses), driven from one pat:NewPackSpec individual per new pack the consumer declares. Body content is real, verbatim (no engine changes; template files only echo stored literals or fill named holes from the spec)."

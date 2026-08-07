@@ -1,0 +1,21 @@
+---
+to: "packs/{{ packName }}/templates/example_{{ className | lower }}.tmpl"
+sparql:
+  rows: |
+    PREFIX pat: <http://seanchatmangpt.github.io/packs/pack-authoring#>
+    SELECT ?packName ?className ?prefixName ?requiredProp WHERE {
+      ?spec a pat:NewPackSpec ; pat:packName ?packName ; pat:className ?className ;
+            pat:prefixName ?prefixName ; pat:requiredProp ?requiredProp .
+    } ORDER BY ?packName
+---
+---
+to: "output/{{ '{{' }} name {{ '}}' }}.txt"
+sparql:
+  rows: |
+    PREFIX {{ prefixName }}: <http://seanchatmangpt.github.io/packs/{{ packName }}#>
+    SELECT ?name ?{{ requiredProp }} WHERE {
+      ?s a {{ prefixName }}:{{ className }} ; {{ prefixName }}:{{ requiredProp }} ?{{ requiredProp }} .
+      BIND(STRAFTER(STR(?s), "#") AS ?name)
+    } ORDER BY ?name
+---
+{{ '{{' }} row.{{ requiredProp }} {{ '}}' }}

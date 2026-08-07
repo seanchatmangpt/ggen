@@ -8,28 +8,17 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 use ggen_engine::sync::{sync, SyncOptions};
+use support::copy_tree;
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir destination");
-    for entry in std::fs::read_dir(src).expect("read source directory") {
-        let entry = entry.expect("directory entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy file");
-        }
-    }
 }
 
 fn git(project: &Path, args: &[&str]) {

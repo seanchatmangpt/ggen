@@ -6,9 +6,11 @@
 # a ghcli:scriptName; every ghtf:DataSource must have ghtf:dsName, ghtf:scope, and ghtf:purpose;
 # every ghtf:L5Condition must have ghtf:standing and ghtf:evidence; every ghtf:SystemCondition
 # must have ghtf:standing and ghtf:evidence; every ghtf:GeneratedWorkflow must have a non-empty
-# ghtf:workflowBody and ghtf:workflowPath. Any row = a subject missing
-# its required property (for the deprecated branch: missing ghtf:successor while not carrying
-# ghtf:deadApi true).
+# ghtf:workflowBody and ghtf:workflowPath; every ghtf:OrgSecurityPolicy must have
+# ghtf:controlName and ghtf:verifiedProviderResource, plus ghtf:flagReason if
+# verifiedProviderResource is false (and no hclBody) or ghtf:hclBody if true.
+# Any row = a subject missing its required property (for the deprecated branch:
+# missing ghtf:successor while not carrying ghtf:deadApi true).
 PREFIX ghtf:  <http://seanchatmangpt.github.io/packs/gh-terraform#>
 PREFIX ghcli: <http://seanchatmangpt.github.io/packs/gh-terraform#cli->
 SELECT ?s ?missing WHERE {
@@ -47,6 +49,23 @@ SELECT ?s ?missing WHERE {
     ?s a ghtf:GeneratedWorkflow . BIND(ghtf:workflowBody AS ?missing)
   } UNION {
     ?s a ghtf:GeneratedWorkflow . BIND(ghtf:workflowPath AS ?missing)
+  } UNION {
+    ?s a ghtf:BackendConfig . BIND(ghtf:backendKind AS ?missing)
+  } UNION {
+    ?s a ghtf:BackendConfig . BIND(ghtf:requiredArg AS ?missing)
+  } UNION {
+    ?s a ghtf:BackendConfig . BIND(ghtf:hclBody AS ?missing)
+  } UNION {
+    ?s a ghtf:OrgSecurityPolicy . BIND(ghtf:controlName AS ?missing)
+  } UNION {
+    ?s a ghtf:OrgSecurityPolicy . BIND(ghtf:verifiedProviderResource AS ?missing)
+  } UNION {
+    ?s ghtf:verifiedProviderResource false . BIND(ghtf:flagReason AS ?missing)
+    FILTER NOT EXISTS { ?s ghtf:hclBody ?any2 }
+  } UNION {
+    ?s a ghtf:OrgSecurityPolicy ; ghtf:verifiedProviderResource true . BIND(ghtf:hclBody AS ?missing)
+  } UNION {
+    ?s a ghtf:OrgTenant . BIND(ghtf:ssoRequired AS ?missing)
   }
   FILTER NOT EXISTS { ?s ?missing ?any }
 }

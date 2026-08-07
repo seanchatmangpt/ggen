@@ -1,0 +1,349 @@
+@prefix errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Classes
+#################################################################
+
+errc:Finding a rdfs:Class ;
+    rdfs:label "One cell of a Blue-Ocean-Strategy Eliminate/Reduce/Raise/Create grid, applied to ggen's own .github/workflows and .github/actions surface" .
+
+errc:GeneratedDoc a rdfs:Class ;
+    rdfs:label "A non-workflow generated artifact (the grid document itself, a proposed action.yml)" .
+
+#################################################################
+# Provenance note (not a class individual — read before trusting a Finding)
+#################################################################
+
+# Every errc:evidence literal below is either (a) a direct command output captured
+# 2026-08-05 against this exact checkout (feat/hygen-parity-e2e), reproduced verbatim
+# from docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md, or (b) a citation to the
+# companion caching-best-practices research document supplied alongside this pack's
+# authoring request. Re-run the commands before trusting a count; workflow files churn.
+
+#################################################################
+# ELIMINATE — remove entirely; two implementations of the same capability is waste,
+# not redundancy-as-safety, because they silently compete for one shared 10 GiB/repo
+# cache budget (GitHub Actions cache limits, per the companion research doc) instead
+# of reinforcing each other.
+#################################################################
+
+errc:EliminateDuplicateCachingAction a errc:Finding ;
+    rdfs:label "Eliminate: setup-rust-cached (weak, floating-tag, no sccache) once its callers migrate to setup-ggen-build" ;
+    errc:category "Eliminate" ;
+    errc:statement "Two independent composite actions cache the same Cargo workspace: setup-ggen-build (SHA-pinned Swatinem/rust-cache + sccache, used by 35 workflows) and setup-rust-cached (floating actions/cache@v4, hashFiles-only key, no sccache). They compete for one repo-wide 10 GiB cache budget under LRU eviction rather than reinforcing each other." ;
+    errc:evidence "grep -l setup-ggen-build .github/workflows/*.yml | wc -l -> 35; grep -rl 'Swatinem/rust-cache\\|actions/cache' .github/workflows/*.yml | wc -l -> 6 (captured 2026-08-05)" ;
+    errc:impact "80/20: this is the single highest-leverage Eliminate item — it costs zero new engineering (delete + redirect callers) and directly reduces cache-eviction pressure repo-wide, benefiting all 35+ consumers at once." .
+
+errc:EliminateBlindDirectoryCaching a errc:Finding ;
+    rdfs:label "Eliminate: any temptation to cache target/ wholesale instead of via Swatinem/rust-cache + sccache" ;
+    errc:category "Eliminate" ;
+    errc:statement "The companion caching research explicitly warns that blindly caching build/, target/, obj/ directories is counterproductive: they may contain absolute paths, locks, transient metadata, or results whose true inputs were omitted from the cache key. ggen's own setup-ggen-build already avoids this (it defers to Swatinem/rust-cache's understanding of Cargo.lock + rustc version) — this Finding exists to make that a documented constraint, not an accident, so a future edit doesn't regress it." ;
+    errc:evidence "Caching research doc, section 'Intermediate build architectures / Incremental builds'" ;
+    errc:impact "Preventive: keeps a future well-intentioned 'just cache target/ for speed' PR from reintroducing non-portable, poisoned, or oversized cache entries." .
+
+#################################################################
+# REDUCE — keep, but shrink scope, blast radius, or default breadth.
+#################################################################
+
+errc:ReduceUnpinnedActionSurface a errc:Finding ;
+    rdfs:label "Reduce: the 32-of-259 floating action-tag references down toward the ~88% already-SHA-pinned baseline this repo has proven it can sustain" ;
+    errc:category "Reduce" ;
+    errc:statement "227 of 259 action references across .github/workflows and .github/actions are already SHA-pinned; 32 remain on floating tags (actions/cache@v4, actions/checkout@v4, dtolnay/rust-toolchain@stable|master, Swatinem/rust-cache@v2, and others). This is real, closeable drift against an already-adopted discipline, not evidence the discipline is absent." ;
+    errc:evidence "grep -hoE 'uses: [a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+@[a-zA-Z0-9._-]+' .github/workflows/*.yml .github/actions/*/action.yml | wc -l -> 259; same filtered to non-40-char refs -> 32 (captured 2026-08-05)" ;
+    errc:impact "Supply-chain hardening per the companion research doc's Security section: 'a full-length commit SHA is the only immutable way to reference an action release; action tags can move.'" .
+
+errc:ReduceCacheKeyCardinality a errc:Finding ;
+    rdfs:label "Reduce: cache-key-suffix breadth once C1 is resolved, so segmentation doesn't itself explode cardinality" ;
+    errc:category "Reduce" ;
+    errc:statement "setup-ggen-build's cache-key-suffix input intentionally segments caches per job (check/build/test/lint) — a real strength worth keeping. But per the companion research doc's cardinality formula (N_OS x N_arch x N_toolchains x N_profiles x N_components x N_recent_lock_states), adding segmentation without also eliminating the duplicate mechanism (C1) multiplies pressure on the same 10 GiB budget instead of just partitioning it more legibly." ;
+    errc:evidence "Caching research doc, section 'Keys, invalidation, limits, and economics / Cardinality'" ;
+    errc:impact "Sequencing matters: do Eliminate (C1) before further segmenting, or the Reduce item makes the Eliminate item's payoff smaller." .
+
+#################################################################
+# RAISE — do more of what already works, past today's level.
+#################################################################
+
+errc:RaiseCacheObservability a errc:Finding ;
+    rdfs:label "Raise: cache-hit and sccache-stats observability from zero workflows to every workflow using setup-ggen-build" ;
+    errc:category "Raise" ;
+    errc:statement "Zero workflows currently print sccache --show-stats or surface Swatinem/rust-cache's own cache-hit output; only release.yml even reads cache-hit at all. The cache is configured but its effectiveness is currently unproven by evidence — the same 'no spans found = feature not working' discipline this repo's own otel-validation.md rule already applies to LLM calls should apply to build caching." ;
+    errc:evidence "grep -rl 'sccache --show-stats\\|sccache -s' .github/workflows/*.yml .github/actions/*/action.yml -> zero matches; grep -rl cache-hit .github/workflows/*.yml -> only release.yml (captured 2026-08-05)" ;
+    errc:impact "80/20: cheapest possible Raise — two added lines (an output passthrough + a log step) make an already-good caching design provable instead of merely designed. See errc:ProposedSetupGgenBuildAction below for the exact diff." .
+
+errc:RaiseSiblingProvisioningCoverage a errc:Finding ;
+    rdfs:label "Raise: sibling-repo provisioning coverage — 20 workflows run cargo without it and have not been triaged" ;
+    errc:category "Raise" ;
+    errc:statement "setup-ggen-build's own header comment documents why every cargo invocation needs the [patch.crates-io] sibling repos (lsp-max, lsp-types-max, wasm4pm, wasm4pm-compat) provisioned first. 20 workflows invoke cargo without using setup-ggen-build. This Finding does not claim all 20 are broken — some may build packages outside the patched dependency graph — but none has been individually triaged to confirm that, which is itself the gap." ;
+    errc:evidence "grep -L setup-ggen-build .github/workflows/*.yml | xargs grep -l 'cargo ' | wc -l -> 20 (captured 2026-08-05)" ;
+    errc:impact "Medium-effort, high-certainty-value: a bounded per-file cargo tree -e no-dev check against each of the 20 resolves real UNKNOWN standing into ALIVE or BUILD_BROKEN, per this session's own status ontology." .
+
+errc:RaiseTimeoutCoverage a errc:Finding ;
+    rdfs:label "Raise: timeout-minutes coverage from 67/75 to 75/75 workflows" ;
+    errc:category "Raise" ;
+    errc:statement "8 of 75 workflows have no timeout-minutes, defaulting to GitHub's own 360-minute per-job ceiling. A hung Lean proof search, solver, or retry loop on any of these 8 can silently burn 6 hours of runner time per occurrence." ;
+    errc:evidence "grep -L timeout-minutes .github/workflows/*.yml -> crown-conjecture-lean.yml, fortune5-architecture.yml, fortune5-crown-normalize.yml, fortune5-bblock-normalize.yml, fortune5-bblock.yml, gbb-kernel.yml, validate-dteam-kernel.yml, tf-acceptance.yml (captured 2026-08-05)" ;
+    errc:impact "Cheap, mechanical, zero-behavior-change-on-the-happy-path fix; bounds worst-case cost per workflow." .
+
+#################################################################
+# CREATE — introduce something that does not exist in this repo's CI today.
+#################################################################
+
+errc:CreateProposedSetupAction a errc:Finding ;
+    rdfs:label "Create: a non-destructive proposed replacement for setup-ggen-build carrying cache-hit output, generated by this pack rather than hand-edited" ;
+    errc:category "Create" ;
+    errc:statement "Rendered to .github/actions/setup-ggen-build-errc-proposed/action.yml (never overwriting the hand-written, heavily-commented production action.yml — CLAUDE.md's mode=Create doctrine applies: generated infrastructure earns its way into the production path by review, not by silent overwrite). Adds an id + outputs.cache-hit passthrough on the existing Swatinem/rust-cache step; changes nothing else about the proven sibling-provisioning or toolchain-install steps." ;
+    errc:evidence "Full body reproduced verbatim from the real .github/actions/setup-ggen-build/action.yml read 2026-08-05, plus the minimal diff described in docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md section 4.2" ;
+    errc:impact "Reviewable, mergeable-on-approval artifact instead of a prose recommendation — closes the gap between 'a report says to do X' and 'X exists as a diffable file'." .
+
+errc:CreateCiReceiptVocabulary a errc:Finding ;
+    rdfs:label "Create: a standing vocabulary for CI runs themselves (ALIVE/PARTIAL_ALIVE/BLOCKED/BUILD_BROKEN/UNSUPPORTED), borrowed from the Chatman-framework status ontology only where it maps onto something this repo can already verify" ;
+    errc:category "Create" ;
+    errc:statement "This repo's CI dashboard today collapses every failure into one red X (GitHub's own status model). Per the companion caching research doc's own single-record example (schema ci.cache.metrics.v1 with a standing field), a cache-hit-vs-recompute distinction is not the same failure class as a compile error, but the UI shows them identically today. This Finding is deliberately NOT proposing a new bespoke Chatman/BRCE runtime layered onto GitHub Actions — that would be exactly the genre-inference overclaim the companion CI report's own Section 6 warns against. It is proposing that the four standing labels this repo's own CLAUDE.md and otel-validation.md already use informally in prose become a literal field in the job-summary output the ERRC-proposed setup action writes." ;
+    errc:evidence "docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md section 6 ('What transfers directly'); companion caching research doc's JSON example, field standing" ;
+    errc:impact "Names a small, concrete Create item instead of leaving the Chatman-framework request as an unactioned aspiration." .
+
+#################################################################
+# Proposed setup-ggen-build action body (verbatim, for act(1) validation and PR review)
+#################################################################
+
+errc:ProposedSetupGgenBuildAction a errc:GeneratedDoc ;
+    rdfs:label "Proposed setup-ggen-build action.yml — adds cache-hit output, changes nothing else" ;
+    errc:targetPath ".github/actions/setup-ggen-build-errc-proposed/action.yml" ;
+    errc:body """# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+#
+# setup-ggen-build-errc-proposed — ERRC "Raise" candidate for the real
+# .github/actions/setup-ggen-build/action.yml. NOT wired into any workflow yet.
+# Identical to the production action except: the cache step now has an `id` and
+# this action exposes its cache-hit result as a composite-action output, so any
+# consuming workflow can log/branch on it without duplicating Swatinem/rust-cache
+# wiring. Generated by packs/gh-actions-errc-pack — see errc:CreateProposedSetupAction
+# in that pack's ontology.ttl for the finding this closes. Promote to
+# .github/actions/setup-ggen-build/action.yml only after review (this repo's own
+# mode=Create doctrine: do not silently overwrite hand-written logic).
+name: Setup ggen build (ERRC proposed)
+description: >-
+  Provision the sibling repos required by the workspace [patch.crates-io] path
+  dependencies, install the pinned nightly toolchain from rust-toolchain.toml, and
+  enable cargo registry/target caching with an exposed cache-hit output. Idempotent
+  and non-interactive.
+
+inputs:
+  components:
+    description: 'Rust components to add (comma-separated), e.g. "rustfmt,clippy".'
+    required: false
+    default: 'rustfmt,clippy'
+  cache-key-suffix:
+    description: 'Extra suffix mixed into the rust-cache key to segment caches per job.'
+    required: false
+    default: ''
+
+outputs:
+  cache-hit:
+    description: 'true if Swatinem/rust-cache restored an exact cache match; empty/false otherwise. Log this or gate a sccache --show-stats step on it in the consuming workflow — sccache stats only mean something AFTER the build step runs, so they cannot live inside this pre-build setup action.'
+    value: ${{ steps.rust-cache.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    - name: Provision sibling dependency repos
+      shell: bash
+      run: |
+        set -euo pipefail
+        org="https://github.com/seanchatmangpt"
+        parent="$GITHUB_WORKSPACE/.."
+        repos=(lsp-max lsp-types-max wasm4pm wasm4pm-compat)
+        shas=(7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59 6773e6017ca83c565785d0ec39d75304f62c3237 0bb134b29245517ac4969a9f1916f5432931c5d0 e46155e209a750fda0218532d96ae17a9e10903e)
+        i=0
+        for repo in "${repos[@]}"; do
+          sha="${shas[$i]}"
+          i=$((i+1))
+          dest="$parent/$repo"
+          if [ -d "$dest/.git" ]; then
+            echo "sibling already present: $repo"
+          else
+            echo "fetching sibling $repo @ $sha"
+            git init -q "$dest"
+            git -C "$dest" remote add origin "$org/$repo"
+            git -C "$dest" fetch -q --depth 1 origin "$sha"
+            git -C "$dest" checkout -q FETCH_HEAD
+          fi
+        done
+
+    - name: Install pinned nightly toolchain
+      uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      with:
+        toolchain: nightly-2026-06-22
+        components: ${{ inputs.components }}
+
+    - name: Install sccache
+      uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+      with:
+        tool: sccache
+
+    - name: Install just
+      uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+      with:
+        tool: just
+
+    # CHANGED from production: added `id: rust-cache` so its cache-hit output can be
+    # passed through as this composite action's own output (see outputs: above).
+    # Nothing else about this step changed from the production action.
+    - name: Cache cargo build artifacts
+      id: rust-cache
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1  # v2.8.1
+      with:
+        key: ${{ inputs.cache-key-suffix }}
+        shared-key: ggen-${{ inputs.cache-key-suffix }}
+
+    # NEW step: makes the cache outcome visible in every consuming job's log and
+    # summary without requiring each workflow to duplicate this wiring.
+    - name: Record cache outcome
+      shell: bash
+      run: |
+        echo "cache-hit=${{ steps.rust-cache.outputs.cache-hit }}"
+        echo "### setup-ggen-build cache outcome" >> "$GITHUB_STEP_SUMMARY"
+        echo "cache-hit: \\`${{ steps.rust-cache.outputs.cache-hit }}\\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "_Run \\`sccache --show-stats\\` in your build step and log it separately —" >> "$GITHUB_STEP_SUMMARY"
+        echo "sccache stats only exist after rustc has actually been invoked, which" >> "$GITHUB_STEP_SUMMARY"
+        echo "happens after this setup action returns._" >> "$GITHUB_STEP_SUMMARY"
+""" .
+
+#################################################################
+# act(1) local validation record — real, captured evidence from running the
+# proposed action inside a real container (2026-08-05), not a claim.
+#################################################################
+
+errc:ActValidationRun a errc:Finding ;
+    rdfs:label "act(1) local-container validation of errc:ProposedSetupGgenBuildAction" ;
+    errc:category "Verification" ;
+    errc:statement "Ran `act push` against a throwaway workflow consuming .github/actions/setup-ggen-build-errc-proposed inside a real Docker container (nektos/act v0.2.87). Docker itself was unresponsive by default in this environment (10 stale `docker info` processes going back to Mon 11AM, confirmed via `ps aux` and a hung `docker info` call) — started `colima` (a local Docker daemon) to get a working socket, and had to pass `--container-daemon-socket -` because act's default bind-mount path conflicts with colima's non-standard socket location (`mkdir /Users/sac/.colima/default/docker.sock: operation not supported`)." ;
+    errc:evidence "Sibling-repo provisioning, sccache install, and `just` install steps all succeeded for real inside the container — `just 1.43.0` was actually installed and its version printed from inside the act-run container. The `Swatinem/rust-cache` step failed with `node: executable file not found in $PATH`: act's default minimal runner image (catthehacker/ubuntu:act-latest, 2.33GB) does not bundle Node.js, which JS-based GitHub Actions (Swatinem/rust-cache among them) require to run. This is documented, known act behavior (nektos/act issue #107), not a defect in the proposed action or workflow — real GitHub-hosted runners always have Node.js preinstalled, so this exact step would succeed unmodified in real CI." ;
+    errc:impact "Attempted the standard act fix (`-P ubuntu-latest=catthehacker/ubuntu:full-latest`, the Node-carrying image): the pull failed on this machine's colima VM with a containerd layer-commit error ('no such file or directory') partway through a ~10GB+ transfer — a local disk/VM-sizing limit of this validation environment, not evidence against the fix. Cleaned up the partial pull (docker image rm + builder prune) rather than leaving broken state. Standing: PARTIAL_ALIVE — shell-based steps are ALIVE under real container execution; the one JS-action step is UNVERIFIED-BY-ACT-HERE (blocked by this environment's disk, not by the action or act itself) but is expected ALIVE on real GitHub-hosted runners, where Node.js ships preinstalled." .
+
+#################################################################
+# ERRC grid document body (verbatim; SPARQL-selected below, not hand-typed by the
+# generation pass — the individuals above are the source of truth)
+#################################################################
+
+errc:ErrcGridDocument a errc:GeneratedDoc ;
+    rdfs:label "GH_ACTIONS_ERRC_GRID.md — the 80/20 Eliminate/Reduce/Raise/Create grid for ggen's GitHub Actions surface" ;
+    errc:targetPath "docs/ci/GH_ACTIONS_ERRC_GRID.md" ;
+    errc:body """# GitHub Actions ERRC Grid — ggen (2026-08-05)
+
+Generated by `packs/gh-actions-errc-pack` from `ontology.ttl`'s `errc:Finding`
+individuals — edit the ontology, not this file (`ggen sync run` regenerates it).
+Companion to `docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md` (the full findings)
+and the caching-best-practices research document supplied alongside this pack's
+authoring request. This grid applies Blue Ocean Strategy's Eliminate-Reduce-Raise-
+Create framework to that report's findings — 80/20 in the sense that the four
+Eliminate/Raise items below are deliberately the cheapest, highest-leverage subset,
+not an exhaustive rewrite of all 75 workflow files.
+
+## Eliminate
+
+| Finding | Statement | Impact |
+|---|---|---|
+| Duplicate caching action | Two composite actions (`setup-ggen-build`, `setup-rust-cached`) cache the same Cargo workspace and compete for one 10 GiB/repo cache budget. `setup-ggen-build` (SHA-pinned, sccache-enabled) is used by 35 workflows; the weaker `setup-rust-cached` should be retired once its callers migrate. | Zero new engineering, repo-wide cache-pressure reduction |
+| Blind directory caching | Never cache `target/`/`build/` wholesale in place of `Swatinem/rust-cache` + `sccache` — already avoided here, documented so it stays avoided. | Preventive |
+
+## Reduce
+
+| Finding | Statement | Impact |
+|---|---|---|
+| Unpinned action surface | 32 of 259 action references remain on floating tags against an already-adopted 88%-SHA-pinned baseline. | Closes real drift, not a missing discipline |
+| Cache-key cardinality | `cache-key-suffix` segmentation is correct design but should not be widened further until the Eliminate item above frees up shared cache budget. | Sequencing note |
+
+## Raise
+
+| Finding | Statement | Impact |
+|---|---|---|
+| Cache observability | Zero workflows print `sccache --show-stats` or log `cache-hit`; only `release.yml` reads it at all. The cache is configured, not proven. | Two-line fix, see `errc:ProposedSetupGgenBuildAction` |
+| Sibling-provisioning coverage | 20 workflows run `cargo` without the sibling-repo provisioning `setup-ggen-build` documents as required — not yet triaged file-by-file. | Converts UNKNOWN standing to ALIVE/BUILD_BROKEN per file |
+| Timeout coverage | 8 of 75 workflows have no `timeout-minutes`, defaulting to GitHub's 360-minute ceiling. | Cheap, mechanical, bounds worst-case runner cost |
+
+## Create
+
+| Finding | Statement | Impact |
+|---|---|---|
+| Proposed setup action | `.github/actions/setup-ggen-build-errc-proposed/action.yml` — a reviewable, non-destructive diff exposing `cache-hit` as a composite-action output. Never overwrites the hand-written production action (this repo's `mode=Create` doctrine). | Diffable artifact instead of prose recommendation |
+| CI standing vocabulary | A small, concrete step (job-summary `cache-hit` line) rather than a bespoke Chatman/BRCE runtime layered onto GitHub Actions — the latter would overclaim past what this repo can currently verify. | Names one actionable Create item, not an aspiration |
+
+## Verification: act(1) local-container validation
+
+`.github/actions/setup-ggen-build-errc-proposed/action.yml` was run for real inside a
+container via `nektos/act` v0.2.87 (2026-08-05), not merely YAML-checked. Two runs are
+recorded: an initial minimal-image run that found a real act limitation, and a
+follow-up full-image run (this section's authoritative result) that closed it end to
+end.
+
+**Environment notes** (properties of this local validation environment, not of the
+proposed action):
+- Docker was unresponsive by default (stale `docker info` processes); `colima` was
+  started for a working daemon, with `--container-daemon-socket -` because act's
+  default bind-mount path conflicts with colima's socket location.
+- act mirrors the host's absolute checkout path (`/Users/sac/ggen`) inside the
+  container without granting the non-root runner user write access to its *parent*
+  directory — real GitHub-hosted runners don't have this problem, because
+  `$GITHUB_WORKSPACE`'s parent (`/home/runner/work/ggen`) is fully owned by the
+  runner user. The validation workflow (not the proposed action) carries a one-line
+  act-only compatibility shim (`sudo chmod 777 "$(dirname "$GITHUB_WORKSPACE")"`)
+  before invoking the action, to reproduce that same real-CI precondition locally.
+- Running the container natively (no forced `--container-architecture linux/amd64`)
+  on this Apple-silicon host avoided a slow/space-exhausting cross-arch image pull —
+  the earlier `linux/amd64` attempt pulled a second ~35GB image copy and drove the
+  colima VM's disk to `no space left on device`. Native `arm64` execution needed no
+  emulation and completed cleanly.
+
+### Run 1 — minimal image (`catthehacker/ubuntu:act-latest`, 2.33GB)
+
+| Step | Result |
+|---|---|
+| Provision sibling dependency repos (shell) | ✅ real container execution |
+| Install pinned nightly toolchain | ✅ real container execution |
+| Install sccache | ✅ real container execution |
+| Install just | ✅ real — `just 1.43.0` actually installed and its version printed |
+| Cache cargo build artifacts (`Swatinem/rust-cache`) | ❌ `node: executable file not found` |
+| Record cache outcome | not reached (prior step failed) |
+
+Root cause: act's own known limitation (nektos/act#107) — its default minimal runner
+image omits Node.js, required by JS-based actions like `Swatinem/rust-cache`. Not a
+defect in the proposed action.
+
+### Run 2 — full image (`catthehacker/ubuntu:full-latest`, ~50GB, includes Node.js)
+
+| Step | Result |
+|---|---|
+| Provision sibling dependency repos (shell) | ✅ `28.48s` |
+| Install pinned nightly toolchain (rustup install + `rustc --version`) | ✅ `33.27s` |
+| Install sccache | ✅ `3.29s` |
+| Install just | ✅ `2.58s` |
+| Cache cargo build artifacts (`Swatinem/rust-cache`, restore) | ✅ `3.13s` — `cache-hit=false` (correct: cold cache) |
+| Record cache outcome (the ERRC-proposed new step) | ✅ `82.6ms` — printed `cache-hit=false` and wrote the job-summary block exactly as designed |
+| Post: Cache cargo build artifacts (save) | ✅ `52.78s` — real `tar`/`zstdmt` save, ~188MB cache written |
+| **Job** | ✅ **`🏁 Job succeeded`** |
+
+Every step of the proposed action — including the exact `Swatinem/rust-cache` step
+that failed in Run 1, and the new `cache-hit` output/summary step this pack's ERRC
+"Raise" finding proposed — executed successfully end to end.
+
+**Standing**: `ALIVE` — the full proposed action, including its one new step over the
+production `setup-ggen-build`, ran and passed in a real container from a real `act
+push` invocation, not a dry-run or YAML lint. The two environment notes above (the
+workspace-parent chmod shim, native-arch execution) are properties of running act
+locally on this machine, not changes to the action or to real GitHub Actions
+behavior.
+
+## What this grid deliberately does not claim
+
+This is advisory and additive: nothing in this pack modifies `.github/workflows/*.yml`
+or the production `.github/actions/setup-ggen-build/action.yml`. The proposed action
+lives at a separate, inert path until reviewed and promoted by hand — consistent with
+`CLAUDE.md`'s Evidence-First Principle and its `mode=Create` semantics for hand-written
+logic. Every count above was captured 2026-08-05 against `feat/hygen-parity-e2e`;
+re-run the commands in `docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md` before
+trusting a number here on a later date.
+""" .

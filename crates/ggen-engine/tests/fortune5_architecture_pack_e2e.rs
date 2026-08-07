@@ -25,9 +25,12 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+mod support;
+
 use std::path::{Path, PathBuf};
 
 use chicago_tdd_tools::cli_proof::CliHarness;
+use support::{copy_tree, read};
 use tempfile::TempDir;
 
 fn pack_dir() -> PathBuf {
@@ -36,20 +39,6 @@ fn pack_dir() -> PathBuf {
 
 fn reference_ontology() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/fortune5-architecture/ontology.ttl")
-}
-
-fn copy_tree(src: &Path, dst: &Path) {
-    std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir") {
-        let entry = entry.expect("entry");
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if from.is_dir() {
-            copy_tree(&from, &to);
-        } else {
-            std::fs::copy(&from, &to).expect("copy");
-        }
-    }
 }
 
 /// Scaffolds `<root>/fortune5-architecture-pack` (a real copy of the pack)
@@ -80,11 +69,6 @@ fn run_sync(root: &Path) -> chicago_tdd_tools::cli_proof::CliOutput {
         .current_dir(root)
         .run()
         .expect("spawn ggen sync run")
-}
-
-fn read(project: &Path, relative: &str) -> String {
-    std::fs::read_to_string(project.join(relative))
-        .unwrap_or_else(|error| panic!("read {relative}: {error}"))
 }
 
 /// The realistic scenario a consumer of this pack relies on: a complete
