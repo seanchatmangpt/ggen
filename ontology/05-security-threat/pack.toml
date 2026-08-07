@@ -1,0 +1,161 @@
+[pack]
+id = "05-security-threat"
+title = "Security threat and defensive action"
+description = "Threat intelligence, adversary knowledge, vulnerability identity, detection, playbooks, and defensive action."
+standing = "PARTIAL_ALIVE"
+source_count = 16
+references = []
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "attack"
+display_name = "MITRE ATT&CK"
+source_kind = ["K"]
+priority = "P0"
+purpose = ["Adversary tactics and techniques"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "cacao"
+display_name = "CACAO"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Cybersecurity playbooks"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cpe"
+display_name = "CPE"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Product identities"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cve"
+display_name = "CVE"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Vulnerability identities"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cvss"
+display_name = "CVSS"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Vulnerability severity"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cwe"
+display_name = "CWE"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Software weaknesses"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "d3fend"
+display_name = "MITRE D3FEND"
+source_kind = ["K", "O"]
+priority = "P0"
+purpose = ["Defensive techniques and technical artifacts"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "first-epss"
+display_name = "FIRST EPSS"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Exploitation probability"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "mitre-capec"
+display_name = "MITRE CAPEC"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Attack patterns"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openc2"
+display_name = "OpenC2"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Command-and-control actions for defense"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ossem"
+display_name = "OSSEM"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Security-event semantics"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "sigma"
+display_name = "Sigma"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Detection rules"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "stix"
+display_name = "STIX 2.1"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Threat intelligence and cyber observables"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "taxii-2-x"
+display_name = "TAXII 2.x"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Threat-intelligence exchange"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "veris"
+display_name = "VERIS"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Security-incident classification"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "yara"
+display_name = "YARA"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Malware matching rules"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

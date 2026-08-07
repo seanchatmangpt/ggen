@@ -1,0 +1,341 @@
+[pack]
+id = "02-cloud-resources"
+title = "Cloud resources and integration"
+description = "Provider resource type systems, generated implementation vocabularies, API schemas, and integration contracts."
+standing = "PARTIAL_ALIVE"
+source_count = 36
+references = ["cloudevents", "tm-forum-open-apis"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "alibaba-resource-center"
+display_name = "Alibaba Resource Center type system"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Resource Directory, Resource Groups, Resource Center resource types and relationships"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "amqp"
+display_name = "AMQP"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Enterprise messaging"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "apache-avro-schemas"
+display_name = "Apache Avro schemas"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Event and data serialization"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "asyncapi"
+display_name = "AsyncAPI"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Event-driven APIs"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "aws-cloudformation-schemas"
+display_name = "AWS CloudFormation resource specifications"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["CloudFormation resource specification, resource-provider schemas, AWS APIs, ARN grammar"]
+canonical_location = "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/cfn-resource-specification.html"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "azure-arm-schemas"
+display_name = "Azure ARM resource schemas"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["ARM resource providers and types, ARM/Bicep schemas, REST API specifications, Azure Resource Graph"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "backstage-catalog-model"
+display_name = "Backstage Catalog model"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Software and service ownership"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cloud-custodian-resource-registries"
+display_name = "Cloud Custodian resource registries"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Derived cloud resource registries"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "crossplane-composite-resource-definitions"
+display_name = "Crossplane Composite Resource Definitions"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Kubernetes-native composite infrastructure schemas"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "databricks"
+display_name = "Databricks"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Unity Catalog, workspace, account and compute schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "google-cloud-asset-inventory"
+display_name = "Google Cloud Asset Inventory type system"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Cloud Asset Inventory asset types, resource names, relationships, IAM and organization-policy types"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "graphql-introspection-schema"
+display_name = "GraphQL introspection schema"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Graph API capabilities"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "grpc-reflection"
+display_name = "gRPC reflection"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["RPC service discovery"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "helm-values-schemas"
+display_name = "Helm values schemas"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Chart configuration schemas"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "huawei-cloud"
+display_name = "Huawei Cloud"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Resource Management and Governance schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ibm-resource-controller"
+display_name = "IBM Resource Controller type system"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Global Catalog, Resource Controller, CRN grammar, IAM service definitions"]
+canonical_location = "https://cloud.ibm.com/docs/account?locale=en&topic=account-crn"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "json-ld"
+display_name = "JSON-LD"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Linked-data JSON"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "json-schema"
+display_name = "JSON Schema"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["JSON constraints"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "kubernetes-openapi"
+display_name = "Kubernetes OpenAPI and CRDs"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Cluster API and custom-resource schemas"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "mqtt"
+display_name = "MQTT"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["IoT messaging"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "oasis-oslc"
+display_name = "OASIS OSLC"
+source_kind = ["O", "P"]
+priority = "P1"
+purpose = ["Lifecycle-resource integration"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "oci-resource-search"
+display_name = "OCI Resource Search type system"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["OCI Resource Search types, searchable attributes, API models, OCID grammar"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "odata-csdl"
+display_name = "OData CSDL"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Enterprise data APIs"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "open-application-model"
+display_name = "Open Application Model"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Portable application and component model"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "open-service-broker-api"
+display_name = "Open Service Broker API"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Service provisioning"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openapi"
+display_name = "OpenAPI 3.2"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["HTTP API capabilities"]
+canonical_location = "https://spec.openapis.org/oas/v3.2.0.html"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ovhcloud"
+display_name = "OVHcloud"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Public API resource schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "protocol-buffers-descriptors"
+display_name = "Protocol Buffers descriptors"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Typed RPC and event messages"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "pulumi-provider-schemas"
+display_name = "Pulumi provider schemas"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Machine-readable package and resource schemas"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "salesforce"
+display_name = "Salesforce"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Metadata API, object metadata, event and permission schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "sap-btp"
+display_name = "SAP BTP"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Entitlements, subaccounts, services, CloudEvents and service-manager models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "servicenow"
+display_name = "ServiceNow"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Common Service Data Model and CMDB classes"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "snowflake"
+display_name = "Snowflake"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Account, object, role, warehouse and governance models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "steampipe-provider-schemas"
+display_name = "Steampipe provider schemas"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Queryable provider and resource schemas"]
+canonical_location = "UNKNOWN"
+transformation = "generate-provider-projection-after-pinned-retrieval"
+
+[[source]]
+source_identity = "tencent-cloud"
+display_name = "Tencent Cloud"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Cloud APIs, resource tag and account schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "terraform-provider-schemas"
+display_name = "Terraform provider schemas"
+source_kind = ["S"]
+priority = "GENERATED"
+purpose = ["Machine-readable provider, resource, and data-source schemas"]
+canonical_location = "https://developer.hashicorp.com/terraform/cli/commands/providers/schema"
+transformation = "generate-provider-projection-after-pinned-retrieval"
