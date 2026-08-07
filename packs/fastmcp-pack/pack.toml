@@ -1,0 +1,4 @@
+[pack]
+name = "fastmcp-pack"
+version = "0.1.0"
+description = "Ontology-driven FastMCP server generation with admitted server identity, typed tools, descriptions, arguments, and deterministic tool behavior."

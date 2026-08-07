@@ -1,0 +1,31 @@
+# MESSAGE: FastMCP servers and tools must be dependency-closed, documented, and renderable as valid Python identifiers. Any row is a refusal.
+PREFIX fmcp: <http://seanchatmangpt.github.io/packs/fastmcp#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a fmcp:Server .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/fastmcp#"))
+    VALUES ?property { fmcp:name fmcp:hasTool dcterms:title dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a fmcp:Tool .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/fastmcp#"))
+    VALUES ?property { fmcp:name fmcp:function fmcp:argument fmcp:argumentDescription fmcp:returnTemplate dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a fmcp:Server ; fmcp:hasTool ?tool .
+    FILTER NOT EXISTS { ?tool a fmcp:Tool }
+    BIND("hasTool target is not an fmcp:Tool" AS ?violation)
+  } UNION {
+    ?subject a fmcp:Tool ; fmcp:function ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("function is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a fmcp:Tool ; fmcp:argument ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("argument is not a Python identifier" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

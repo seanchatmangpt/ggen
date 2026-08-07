@@ -1,0 +1,100 @@
+name: Python Framework Packs
+
+on:
+  pull_request:
+    paths:
+      - "packs/typer-pack/**"
+      - "packs/fastmcp-pack/**"
+      - "packs/dspy-pack/**"
+      - "scripts/verify_python_framework_packs.py"
+      - ".github/workflows/python-framework-packs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: python-framework-packs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-ggen-and-framework-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install repository Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-06-22
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install exact framework validation capsule
+        run: |
+          python -m pip install --disable-pip-version-check \
+            "rdflib==7.5.0" \
+            "jinja2==3.1.6" \
+            "typer==0.26.3" \
+            "fastmcp==3.0.0" \
+            "dspy==3.2.1"
+
+      - name: Create dependency-closed pack consumer
+        run: |
+          consumer="$RUNNER_TEMP/python-framework-packs-consumer"
+          mkdir -p "$consumer/schema"
+          cat > "$consumer/ggen.toml" <<EOF
+          [project]
+          name = "python-framework-packs-consumer"
+
+          [ontology]
+          source = "schema/domain.ttl"
+
+          [packs]
+          typer-pack = { path = "$GITHUB_WORKSPACE/packs/typer-pack" }
+          fastmcp-pack = { path = "$GITHUB_WORKSPACE/packs/fastmcp-pack" }
+          dspy-pack = { path = "$GITHUB_WORKSPACE/packs/dspy-pack" }
+
+          [templates]
+          dir = "templates"
+          aggregate_modules = false
+          EOF
+          cat > "$consumer/schema/domain.ttl" <<'EOF'
+          @prefix consumer: <urn:ggen:python-framework-packs:consumer#> .
+          consumer:subject consumer:admitted true .
+          EOF
+
+      - name: Generate through exact ggen CLI
+        working-directory: ${{ runner.temp }}/python-framework-packs-consumer
+        run: |
+          cargo run --locked \
+            --manifest-path "$GITHUB_WORKSPACE/Cargo.toml" \
+            -p ggen-cli-lib --bin ggen -- sync run
+
+      - name: Verify exact ggen byte identity and real frameworks
+        run: |
+          python scripts/verify_python_framework_packs.py \
+            --output "$RUNNER_TEMP/python-framework-packs-expected" \
+            --compare-ggen-root "$RUNNER_TEMP/python-framework-packs-consumer" \
+            --framework-smoke-root "$RUNNER_TEMP/python-framework-packs-consumer" \
+            | tee "$RUNNER_TEMP/python-framework-packs-receipt.json"
+
+      - name: Verify deterministic replay
+        working-directory: ${{ runner.temp }}/python-framework-packs-consumer
+        run: |
+          sha256sum src/typer_app.py src/fastmcp_server.py src/dspy_program.py > before.sha256
+          cargo run --locked \
+            --manifest-path "$GITHUB_WORKSPACE/Cargo.toml" \
+            -p ggen-cli-lib --bin ggen -- sync run
+          sha256sum --check before.sha256
+
+      - name: Verify no source-tree drift
+        run: test -z "$(git status --porcelain=v1 --untracked-files=all)"

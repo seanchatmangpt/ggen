@@ -1,0 +1,28 @@
+@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Canonical graph: the generated DSPy module constructs an LM program but does not configure or invoke an LM.
+dspy:answer-question-signature a dspy:Signature ;
+    dcterms:title "AnswerQuestion" ;
+    dcterms:description "Answer a question with a concise response." ;
+    dspy:className "AnswerQuestion" ;
+    dspy:hasInput dspy:question-input ;
+    dspy:hasOutput dspy:answer-output .
+
+dspy:question-input a dspy:InputField ;
+    dcterms:description "Question to answer." ;
+    dspy:name "question" ;
+    dspy:pythonType "str" .
+
+dspy:answer-output a dspy:OutputField ;
+    dcterms:description "Concise answer." ;
+    dspy:name "answer" ;
+    dspy:pythonType "str" .
+
+dspy:answer-program a dspy:Module ;
+    dcterms:description "Direct prediction over the admitted AnswerQuestion signature." ;
+    prov:wasDerivedFrom dspy:answer-question-signature ;
+    dspy:name "program" ;
+    dspy:kind "Predict" ;
+    dspy:signature dspy:answer-question-signature .
