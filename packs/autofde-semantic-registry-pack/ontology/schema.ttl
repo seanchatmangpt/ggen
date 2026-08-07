@@ -1,0 +1,135 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+# Canonical vocabulary for the federated AutoFDE semantic registry.
+
+<https://ggen.io/ontology/autofde-registry/v1>
+    a owl:Ontology ;
+    dcterms:title "AutoFDE Federated Semantic Registry" ;
+    dcterms:description "Admitted registry for public ontologies, authoritative schemas, knowledge bases, control catalogs, protocols, and generated provider projections used by ggen." ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:hasVersion "1.0.0" ;
+    dcterms:modified "2026-08-06"^^xsd:date ;
+    prov:wasDerivedFrom <../source-inventory.md> ;
+    reg:sourceInventorySha256 "8a4a75675ad9db9597767bd8086b2a5a85b1a1e7c98c0d34f90bc4b935c99d1a" ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN .
+
+# Core classes
+reg:PublicSemanticSource a owl:Class ; rdfs:subClassOf dcat:Dataset ;
+    rdfs:label "Public semantic source" ;
+    rdfs:comment "An ontology, schema, knowledge base, catalog, protocol, or executable contract registered for deterministic projection." .
+reg:SemanticPack a owl:Class ; rdfs:subClassOf dcat:DatasetSeries ;
+    rdfs:label "Semantic pack" .
+reg:SourceKind a owl:Class .
+reg:TransformationStrategy a owl:Class .
+reg:Standing a owl:Class .
+reg:Priority a owl:Class .
+reg:ResolutionStatus a owl:Class .
+reg:IntegrationPattern a owl:Class .
+
+# Source kinds
+reg:Ontology a reg:SourceKind ; rdfs:label "Ontology or semantic vocabulary" .
+reg:Schema a reg:SourceKind ; rdfs:label "Machine-readable schema or information model" .
+reg:KnowledgeBase a reg:SourceKind ; rdfs:label "Knowledge base, taxonomy, or control catalog" .
+reg:Protocol a reg:SourceKind ; rdfs:label "Protocol or executable contract" .
+
+# Transformations
+reg:ImportProfile a reg:TransformationStrategy ;
+    rdfs:comment "Import or profile an RDF/OWL vocabulary after pinning identity, version, license, and digest." .
+reg:GenerateProjection a reg:TransformationStrategy ;
+    rdfs:comment "Generate a semantic projection from an authoritative machine-readable schema." .
+reg:ReferenceMapping a reg:TransformationStrategy ;
+    rdfs:comment "Reference or map a knowledge base/catalog without copying it as semantic authority." .
+reg:ProtocolAdapter a reg:TransformationStrategy ;
+    rdfs:comment "Implement a typed adapter for a protocol or executable contract." .
+reg:ProtocolProfile a reg:TransformationStrategy ;
+    rdfs:comment "Profile semantic terms and bind them to an executable protocol adapter." .
+
+# Standing and status vocabulary
+reg:UNKNOWN a reg:Standing .
+reg:PARTIAL_ALIVE a reg:Standing .
+reg:ALIVE a reg:Standing .
+reg:BLOCKED a reg:Standing .
+reg:BUILD_BROKEN a reg:Standing .
+reg:UNSUPPORTED a reg:Standing .
+reg:P0 a reg:Priority .
+reg:P0Provider a reg:Priority .
+reg:NeedsResolution a reg:ResolutionStatus .
+reg:DeclaredByInventory a reg:ResolutionStatus .
+reg:NeedsPinning a reg:ResolutionStatus .
+reg:NeedsReview a reg:ResolutionStatus .
+reg:NotRetrieved a reg:ResolutionStatus .
+reg:NotGenerated a reg:ResolutionStatus .
+reg:NotValidated a reg:ResolutionStatus .
+
+# Registry properties
+reg:sourceKind a owl:ObjectProperty ; rdfs:domain reg:PublicSemanticSource ; rdfs:range reg:SourceKind .
+reg:transformation a owl:ObjectProperty ; rdfs:domain reg:PublicSemanticSource ; rdfs:range reg:TransformationStrategy .
+reg:memberOfPack a owl:ObjectProperty ; rdfs:domain reg:PublicSemanticSource ; rdfs:range reg:SemanticPack .
+reg:primaryPack a owl:ObjectProperty ; rdfs:domain reg:PublicSemanticSource ; rdfs:range reg:SemanticPack .
+reg:priority a owl:ObjectProperty ; rdfs:domain reg:PublicSemanticSource ; rdfs:range reg:Priority .
+reg:recordStanding a owl:ObjectProperty ; rdfs:range reg:Standing .
+reg:sourceStanding a owl:ObjectProperty ; rdfs:range reg:Standing .
+reg:projectionStanding a owl:ObjectProperty ; rdfs:range reg:Standing .
+reg:validationStanding a owl:ObjectProperty ; rdfs:range reg:Standing .
+reg:canonicalLocationStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:versionStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:licenseStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:retrievalStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:sourceDigestStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:projectionDigestStatus a owl:ObjectProperty ; rdfs:range reg:ResolutionStatus .
+reg:inventoryLine a owl:DatatypeProperty ; rdfs:range xsd:positiveInteger .
+reg:listedAs a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:inventorySection a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:inventorySubsection a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:classificationBasis a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:sourceInventorySha256 a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:sourceDigest a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:generatedProjectionDigest a owl:DatatypeProperty ; rdfs:range xsd:string .
+reg:retrievedAt a owl:DatatypeProperty ; rdfs:range xsd:dateTime .
+reg:step a owl:ObjectProperty ; rdfs:domain reg:IntegrationPattern .
+reg:order a owl:DatatypeProperty ; rdfs:range xsd:positiveInteger .
+
+# AutoFDE authority concepts required by the inventory.
+reg:AuthorityGrant a owl:Class .
+reg:DecisionRight a owl:Class .
+reg:PermittedConsequence a owl:Class .
+reg:AuthorizedScope a owl:Class .
+reg:ApprovalPopulation a owl:Class .
+reg:ValidityInterval a owl:Class .
+reg:Revocation a owl:Class .
+reg:Delegation a owl:Class .
+reg:SeparationOfDuties a owl:Class .
+
+# Integration patterns from the admitted inventory.
+pattern:security-response-chain a reg:IntegrationPattern ;
+    dcterms:title "Security response semantic chain" ;
+    reg:step src:stix-2-1, src:mitre-att-ck, src:mitre-d3fend, src:nist-oscal, src:powl, src:ocel-2-0 ;
+    reg:recordStanding reg:ALIVE .
+
+pattern:technology-value-chain a reg:IntegrationPattern ;
+    dcterms:title "Technology value attribution chain" ;
+    skos:note "Resource → Usage → Charge → Invoice → Owner → BusinessCapability → CustomerOutcome" ;
+    reg:recordStanding reg:ALIVE .
+
+pattern:sustainability-attribution-chain a reg:IntegrationPattern ;
+    dcterms:title "Sustainability attribution chain" ;
+    skos:note "CloudResource → QuantityOfEnergy → Region → TimeInterval → CarbonEquivalent → BusinessCapability" ;
+    reg:recordStanding reg:ALIVE .
+
+pattern:source-materialization-pipeline a reg:IntegrationPattern ;
+    dcterms:title "Pinned semantic-source materialization pipeline" ;
+    skos:note "authoritative source → pinned retrieval → license check → source digest → parser → normalized projection → SHACL validation → mappings → customer ontology" ;
+    reg:recordStanding reg:ALIVE .

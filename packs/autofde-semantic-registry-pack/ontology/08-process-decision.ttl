@@ -1,0 +1,576 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:08-process-decision
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "08-process-decision" ;
+    dcterms:title "08 Process Decision" ;
+    dcterms:description "Processes, decisions, cases, APIs, integration contracts, messaging and executable workflow semantics." ;
+    reg:recordStanding reg:ALIVE .
+
+src:amqp
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "amqp" ;
+    dcterms:title "AMQP" ;
+    dcterms:description "Enterprise messaging" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "293"^^xsd:positiveInteger ;
+    reg:listedAs "AMQP" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:apache-avro-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "apache-avro-schemas" ;
+    dcterms:title "Apache Avro schemas" ;
+    dcterms:description "Event and data serialization" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "290"^^xsd:positiveInteger ;
+    reg:listedAs "Apache Avro schemas" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:apqc-process-classification-framework
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "apqc-process-classification-framework" ;
+    dcterms:title "APQC Process Classification Framework" ;
+    dcterms:description "Enterprise process taxonomy" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "348"^^xsd:positiveInteger ;
+    reg:listedAs "APQC Process Classification Framework" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:archimate-exchange-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "archimate-exchange-model" ;
+    dcterms:title "ArchiMate exchange model" ;
+    dcterms:description "Enterprise-architecture relationships" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "346"^^xsd:positiveInteger ;
+    reg:listedAs "ArchiMate exchange model" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:asyncapi
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "asyncapi" ;
+    dcterms:title "AsyncAPI" ;
+    dcterms:description "Event-driven APIs" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "285"^^xsd:positiveInteger ;
+    reg:listedAs "AsyncAPI" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:backstage-catalog-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "backstage-catalog-model" ;
+    dcterms:title "Backstage Catalog model" ;
+    dcterms:description "Software and service ownership" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "299"^^xsd:positiveInteger ;
+    reg:listedAs "Backstage Catalog model" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:bmm
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "bmm" ;
+    dcterms:title "BMM" ;
+    dcterms:description "Business motivation" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "345"^^xsd:positiveInteger ;
+    reg:listedAs "BMM" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:business-process-model-and-notation
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "business-process-model-and-notation" ;
+    dcterms:title "Business Process Model and Notation" ;
+    dcterms:description "Business-process structure" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "342"^^xsd:positiveInteger ;
+    reg:listedAs "Business Process Model and Notation" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:cmmn
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cmmn" ;
+    dcterms:title "CMMN" ;
+    dcterms:description "Case management" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "344"^^xsd:positiveInteger ;
+    reg:listedAs "CMMN" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:decision-model-and-notation
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "decision-model-and-notation" ;
+    dcterms:title "Decision Model and Notation" ;
+    dcterms:description "Business decisions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "343"^^xsd:positiveInteger ;
+    reg:listedAs "Decision Model and Notation" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:graphql-introspection-schema
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "graphql-introspection-schema" ;
+    dcterms:title "GraphQL introspection schema" ;
+    dcterms:description "Graph API capabilities" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "288"^^xsd:positiveInteger ;
+    reg:listedAs "GraphQL introspection schema" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:grpc-reflection
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "grpc-reflection" ;
+    dcterms:title "gRPC reflection" ;
+    dcterms:description "RPC service discovery" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "291"^^xsd:positiveInteger ;
+    reg:listedAs "gRPC reflection" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:json-ld
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "json-ld" ;
+    dcterms:title "JSON-LD" ;
+    dcterms:description "Linked-data JSON" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "287"^^xsd:positiveInteger ;
+    reg:listedAs "JSON-LD" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:json-schema
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "json-schema" ;
+    dcterms:title "JSON Schema" ;
+    dcterms:description "JSON constraints" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "286"^^xsd:positiveInteger ;
+    reg:listedAs "JSON Schema" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:mqtt
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "mqtt" ;
+    dcterms:title "MQTT" ;
+    dcterms:description "IoT messaging" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "294"^^xsd:positiveInteger ;
+    reg:listedAs "MQTT" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:oasis-oslc
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oasis-oslc" ;
+    dcterms:title "OASIS OSLC" ;
+    dcterms:description "Lifecycle-resource integration" ;
+    reg:sourceKind reg:Ontology, reg:Protocol ;
+    reg:transformation reg:ProtocolProfile ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "296"^^xsd:positiveInteger ;
+    reg:listedAs "OASIS OSLC" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:odata-csdl
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "odata-csdl" ;
+    dcterms:title "OData CSDL" ;
+    dcterms:description "Enterprise data APIs" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "295"^^xsd:positiveInteger ;
+    reg:listedAs "OData CSDL" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:open-service-broker-api
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-service-broker-api" ;
+    dcterms:title "Open Service Broker API" ;
+    dcterms:description "Service provisioning" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "298"^^xsd:positiveInteger ;
+    reg:listedAs "Open Service Broker API" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:openapi-3-2
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openapi-3-2" ;
+    dcterms:title "OpenAPI 3.2" ;
+    dcterms:description "HTTP API capabilities" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://spec.openapis.org/oas/v3.2.0.html> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    dcterms:hasVersion "3.2" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "284"^^xsd:positiveInteger ;
+    reg:listedAs "OpenAPI 3.2" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:powl
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "powl" ;
+    dcterms:title "POWL" ;
+    dcterms:description "P0 import/profile" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "518"^^xsd:positiveInteger ;
+    reg:listedAs "POWL" ;
+    reg:inventorySection "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:protocol-buffers-descriptors
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "protocol-buffers-descriptors" ;
+    dcterms:title "Protocol Buffers descriptors" ;
+    dcterms:description "Typed RPC and event messages" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "289"^^xsd:positiveInteger ;
+    reg:listedAs "Protocol Buffers descriptors" ;
+    reg:inventorySection "9. APIs, integration and messaging" ;
+    reg:classificationBasis "source-declared" .
+
+src:tm-forum-open-apis
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "tm-forum-open-apis" ;
+    dcterms:title "TM Forum Open APIs" ;
+    dcterms:description "Telecom service operations" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision, pack:15-industry ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "297"^^xsd:positiveInteger, "450"^^xsd:positiveInteger ;
+    reg:listedAs "TM Forum Open APIs" ;
+    reg:inventorySection "14. Industry overlays Fortune-5 buyers will expect", "9. APIs, integration and messaging" ;
+    reg:inventorySubsection "Telecommunications" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:togaf-content-metamodel
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "togaf-content-metamodel" ;
+    dcterms:title "TOGAF content metamodel" ;
+    dcterms:description "Architecture artifacts and relationships" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:08-process-decision ;
+    reg:primaryPack pack:08-process-decision ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "347"^^xsd:positiveInteger ;
+    reg:listedAs "TOGAF content metamodel" ;
+    reg:inventorySection "11. Organization, business and legal semantics" ;
+    reg:classificationBasis "policy-inferred" .
+

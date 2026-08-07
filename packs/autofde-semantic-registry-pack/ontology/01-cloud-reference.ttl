@@ -1,0 +1,288 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:01-cloud-reference
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "01-cloud-reference" ;
+    dcterms:title "01 Cloud Reference" ;
+    dcterms:description "Neutral cloud taxonomies, actors, topology, federation, virtualization and forensic-reference models." ;
+    reg:recordStanding reg:ALIVE .
+
+src:dmtf-common-information-model-cim
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dmtf-common-information-model-cim" ;
+    dcterms:title "DMTF Common Information Model — CIM" ;
+    dcterms:description "Compute, network, storage, systems management" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "36"^^xsd:positiveInteger ;
+    reg:listedAs "DMTF Common Information Model — CIM" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:dmtf-open-virtualization-format-ovf
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dmtf-open-virtualization-format-ovf" ;
+    dcterms:title "DMTF Open Virtualization Format — OVF" ;
+    dcterms:description "Portable virtual workloads" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "38"^^xsd:positiveInteger ;
+    reg:listedAs "DMTF Open Virtualization Format — OVF" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:dmtf-redfish-schema
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dmtf-redfish-schema" ;
+    dcterms:title "DMTF Redfish Schema" ;
+    dcterms:description "Physical and virtual infrastructure management" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "37"^^xsd:positiveInteger ;
+    reg:listedAs "DMTF Redfish Schema" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-cloud-computing-definition-sp-800-145
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-cloud-computing-definition-sp-800-145" ;
+    dcterms:title "NIST Cloud Computing Definition, SP 800-145" ;
+    dcterms:description "Service models, deployment models, cloud characteristics" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "31"^^xsd:positiveInteger ;
+    reg:listedAs "NIST Cloud Computing Definition, SP 800-145" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-cloud-computing-reference-architecture-sp-500-292
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-cloud-computing-reference-architecture-sp-500-292" ;
+    dcterms:title "NIST Cloud Computing Reference Architecture, SP 500-292" ;
+    dcterms:description "Consumer, provider, broker, auditor, carrier" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://www.nist.gov/publications/nist-cloud-computing-reference-architecture> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "32"^^xsd:positiveInteger ;
+    reg:listedAs "NIST Cloud Computing Reference Architecture, SP 500-292" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-cloud-federation-reference-architecture-sp-500-332
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-cloud-federation-reference-architecture-sp-500-332" ;
+    dcterms:title "NIST Cloud Federation Reference Architecture, SP 500-332" ;
+    dcterms:description "Multicloud trust, identity, resource sharing" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "33"^^xsd:positiveInteger ;
+    reg:listedAs "NIST Cloud Federation Reference Architecture, SP 500-332" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-cloud-forensic-reference-architecture-sp-800-201
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-cloud-forensic-reference-architecture-sp-800-201" ;
+    dcterms:title "NIST Cloud Forensic Reference Architecture, SP 800-201" ;
+    dcterms:description "Forensic readiness, evidence sources, incident investigation" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "34"^^xsd:positiveInteger ;
+    reg:listedAs "NIST Cloud Forensic Reference Architecture, SP 800-201" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-cloud-taxonomy
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-cloud-taxonomy" ;
+    dcterms:title "NIST cloud taxonomy" ;
+    dcterms:description "P0 import/profile" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "506"^^xsd:positiveInteger ;
+    reg:listedAs "NIST cloud taxonomy" ;
+    reg:inventorySection "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:oasis-camp
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oasis-camp" ;
+    dcterms:title "OASIS CAMP" ;
+    dcterms:description "Cloud application platform management" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "39"^^xsd:positiveInteger ;
+    reg:listedAs "OASIS CAMP" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+
+src:oasis-tosca-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oasis-tosca-2-0" ;
+    dcterms:title "OASIS TOSCA 2.0" ;
+    dcterms:description "P0 import/profile; Portable application topology, node types, relationships and orchestration" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "35"^^xsd:positiveInteger, "507"^^xsd:positiveInteger ;
+    reg:listedAs "OASIS TOSCA 2.0", "TOSCA" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:open-grid-forum-occi
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-grid-forum-occi" ;
+    dcterms:title "Open Grid Forum OCCI" ;
+    dcterms:description "Vendor-neutral cloud resource management" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:01-cloud-reference ;
+    reg:primaryPack pack:01-cloud-reference ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "40"^^xsd:positiveInteger ;
+    reg:listedAs "Open Grid Forum OCCI" ;
+    reg:inventorySection "1. Cloud architecture and resource foundation" ;
+    reg:classificationBasis "source-declared" .
+

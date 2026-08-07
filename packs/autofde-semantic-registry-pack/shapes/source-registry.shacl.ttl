@@ -1,0 +1,52 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+reg:PublicSemanticSourceShape
+    a sh:NodeShape ;
+    sh:targetClass reg:PublicSemanticSource ;
+    sh:closed false ;
+    sh:property [ sh:path dcterms:identifier ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dcterms:title ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path reg:sourceKind ; sh:minCount 1 ; sh:class reg:SourceKind ] ;
+    sh:property [ sh:path reg:transformation ; sh:minCount 1 ; sh:maxCount 1 ; sh:class reg:TransformationStrategy ] ;
+    sh:property [ sh:path reg:memberOfPack ; sh:minCount 1 ; sh:class reg:SemanticPack ] ;
+    sh:property [ sh:path reg:primaryPack ; sh:minCount 1 ; sh:maxCount 1 ; sh:class reg:SemanticPack ] ;
+    sh:property [ sh:path reg:inventoryLine ; sh:minCount 1 ; sh:datatype xsd:positiveInteger ] ;
+    sh:property [ sh:path reg:listedAs ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path reg:recordStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue reg:ALIVE ] ;
+    sh:property [ sh:path reg:sourceStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:class reg:Standing ] ;
+    sh:property [ sh:path reg:projectionStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:class reg:Standing ] ;
+    sh:sparql [
+        sh:message "ALIVE external sources require a canonical location, pinned version, license, retrieval timestamp, source digest, and ALIVE validation standing." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this reg:sourceStanding reg:ALIVE .
+              FILTER (
+                NOT EXISTS { $this dcat:landingPage ?location } ||
+                NOT EXISTS { $this dcterms:hasVersion ?version } ||
+                NOT EXISTS { $this dcterms:license ?license } ||
+                NOT EXISTS { $this reg:retrievedAt ?retrievedAt } ||
+                NOT EXISTS { $this reg:sourceDigest ?digest } ||
+                NOT EXISTS { $this reg:validationStanding reg:ALIVE }
+              )
+            }
+        """
+    ] .
+
+reg:SemanticPackShape
+    a sh:NodeShape ;
+    sh:targetClass reg:SemanticPack ;
+    sh:property [ sh:path dcterms:identifier ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dcterms:title ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path reg:recordStanding ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue reg:ALIVE ] .

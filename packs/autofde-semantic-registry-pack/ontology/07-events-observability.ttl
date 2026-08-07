@@ -1,0 +1,290 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:07-events-observability
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "07-events-observability" ;
+    dcterms:title "07 Events Observability" ;
+    dcterms:description "Portable events, telemetry semantics, object-centric logs, lineage, SLOs and operational context." ;
+    reg:recordStanding reg:ALIVE .
+
+src:cloudevents
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cloudevents" ;
+    dcterms:title "CloudEvents" ;
+    dcterms:description "Event portability; P0 import/profile; Portable event envelopes" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:07-events-observability, pack:08-process-decision ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://github.com/cloudevents/spec> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "207"^^xsd:positiveInteger, "292"^^xsd:positiveInteger, "512"^^xsd:positiveInteger ;
+    reg:listedAs "CloudEvents" ;
+    reg:inventorySection "6. Events, observations and telemetry", "9. APIs, integration and messaging", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:ecs-elastic-common-schema
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ecs-elastic-common-schema" ;
+    dcterms:title "ECS — Elastic Common Schema" ;
+    dcterms:description "Security and operational events" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "217"^^xsd:positiveInteger ;
+    reg:listedAs "ECS — Elastic Common Schema" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:ocel-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ocel-2-0" ;
+    dcterms:title "OCEL 2.0" ;
+    dcterms:description "Object-centric execution history; P0 import/profile" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "211"^^xsd:positiveInteger, "517"^^xsd:positiveInteger ;
+    reg:listedAs "OCEL", "OCEL 2.0" ;
+    reg:inventorySection "6. Events, observations and telemetry", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:open-cybersecurity-schema-framework
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-cybersecurity-schema-framework" ;
+    dcterms:title "Open Cybersecurity Schema Framework" ;
+    dcterms:description "Normalized cybersecurity events" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "218"^^xsd:positiveInteger ;
+    reg:listedAs "Open Cybersecurity Schema Framework" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:openfeature
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openfeature" ;
+    dcterms:title "OpenFeature" ;
+    dcterms:description "Feature-state changes" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "215"^^xsd:positiveInteger ;
+    reg:listedAs "OpenFeature" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:openlineage
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openlineage" ;
+    dcterms:title "OpenLineage" ;
+    dcterms:description "Data-job and dataset lineage events; P0 import/profile; Runtime data-job lineage" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:07-events-observability, pack:09-data-governance ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "213"^^xsd:positiveInteger, "262"^^xsd:positiveInteger, "515"^^xsd:positiveInteger ;
+    reg:listedAs "OpenLineage" ;
+    reg:inventorySection "6. Events, observations and telemetry", "8. Data governance, lineage and privacy", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:openmetrics
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openmetrics" ;
+    dcterms:title "OpenMetrics" ;
+    dcterms:description "Metric exposition" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "209"^^xsd:positiveInteger ;
+    reg:listedAs "OpenMetrics" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:openslo
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openslo" ;
+    dcterms:title "OpenSLO" ;
+    dcterms:description "Service-level objectives" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "214"^^xsd:positiveInteger ;
+    reg:listedAs "OpenSLO" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:opentelemetry-semantic-conventions
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opentelemetry-semantic-conventions" ;
+    dcterms:title "OpenTelemetry Semantic Conventions" ;
+    dcterms:description "Common traces, metrics, logs, resources and events; P0 import/profile" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "208"^^xsd:positiveInteger, "513"^^xsd:positiveInteger ;
+    reg:listedAs "OpenTelemetry Semantic Conventions", "OpenTelemetry semantic conventions" ;
+    reg:inventorySection "6. Events, observations and telemetry", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:opentracing-baggage-mappings
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opentracing-baggage-mappings" ;
+    dcterms:title "OpenTracing baggage mappings" ;
+    dcterms:description "Distributed causal context" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "216"^^xsd:positiveInteger ;
+    reg:listedAs "OpenTracing baggage mappings" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:xes
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "xes" ;
+    dcterms:title "XES" ;
+    dcterms:description "Process event logs" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:07-events-observability ;
+    reg:primaryPack pack:07-events-observability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "212"^^xsd:positiveInteger ;
+    reg:listedAs "XES" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+

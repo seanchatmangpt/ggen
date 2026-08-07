@@ -1,0 +1,720 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:02-cloud-resources
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "02-cloud-resources" ;
+    dcterms:title "02 Cloud Resources" ;
+    dcterms:description "Provider and cross-provider resource type systems transformed into generated semantic projections." ;
+    reg:recordStanding reg:ALIVE .
+
+src:alibaba-cloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "alibaba-cloud" ;
+    dcterms:title "Alibaba Cloud" ;
+    dcterms:description "Resource Directory, Resource Groups, Resource Center resource types and relationships" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "66"^^xsd:positiveInteger ;
+    reg:listedAs "Alibaba Cloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:alibaba-resource-center
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "alibaba-resource-center" ;
+    dcterms:title "Alibaba Resource Center" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "528"^^xsd:positiveInteger ;
+    reg:listedAs "Alibaba Resource Center" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:aws
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "aws" ;
+    dcterms:title "AWS" ;
+    dcterms:description "CloudFormation resource specification, resource-provider schemas, AWS APIs, ARN grammar" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "54"^^xsd:positiveInteger ;
+    reg:listedAs "AWS" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 1 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:aws-cloudformation-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "aws-cloudformation-schemas" ;
+    dcterms:title "AWS CloudFormation schemas" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/cfn-resource-specification.html> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "523"^^xsd:positiveInteger ;
+    reg:listedAs "AWS CloudFormation schemas" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:azure-arm-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "azure-arm-schemas" ;
+    dcterms:title "Azure ARM schemas" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "524"^^xsd:positiveInteger ;
+    reg:listedAs "Azure ARM schemas" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:cloud-custodian-resource-registries
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cloud-custodian-resource-registries" ;
+    dcterms:title "Cloud Custodian resource registries" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "86"^^xsd:positiveInteger ;
+    reg:listedAs "Cloud Custodian resource registries" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:crossplane-composite-resource-definitions
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "crossplane-composite-resource-definitions" ;
+    dcterms:title "Crossplane Composite Resource Definitions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "82"^^xsd:positiveInteger ;
+    reg:listedAs "Crossplane Composite Resource Definitions" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:databricks
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "databricks" ;
+    dcterms:title "Databricks" ;
+    dcterms:description "Unity Catalog, workspace, account and compute schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "74"^^xsd:positiveInteger ;
+    reg:listedAs "Databricks" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:google-cloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "google-cloud" ;
+    dcterms:title "Google Cloud" ;
+    dcterms:description "Cloud Asset Inventory asset types, resource names, relationships, IAM and organization-policy types" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "56"^^xsd:positiveInteger ;
+    reg:listedAs "Google Cloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 1 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:google-cloud-asset-inventory
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "google-cloud-asset-inventory" ;
+    dcterms:title "Google Cloud Asset Inventory" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "525"^^xsd:positiveInteger ;
+    reg:listedAs "Google Cloud Asset Inventory" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:helm-values-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "helm-values-schemas" ;
+    dcterms:title "Helm values schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "85"^^xsd:positiveInteger ;
+    reg:listedAs "Helm values schemas" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:huawei-cloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "huawei-cloud" ;
+    dcterms:title "Huawei Cloud" ;
+    dcterms:description "Resource Management and Governance schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "68"^^xsd:positiveInteger ;
+    reg:listedAs "Huawei Cloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:ibm-cloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ibm-cloud" ;
+    dcterms:title "IBM Cloud" ;
+    dcterms:description "Global Catalog, Resource Controller, CRN grammar, IAM service definitions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://cloud.ibm.com/docs/account?locale=en&topic=account-crn> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "65"^^xsd:positiveInteger ;
+    reg:listedAs "IBM Cloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:ibm-resource-controller
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ibm-resource-controller" ;
+    dcterms:title "IBM Resource Controller" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://cloud.ibm.com/docs/account?locale=en&topic=account-crn> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "527"^^xsd:positiveInteger ;
+    reg:listedAs "IBM Resource Controller" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:kubernetes-openapi
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "kubernetes-openapi" ;
+    dcterms:title "Kubernetes OpenAPI and CRDs" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "83"^^xsd:positiveInteger, "530"^^xsd:positiveInteger ;
+    reg:listedAs "Kubernetes OpenAPI", "Kubernetes OpenAPI and CRDs" ;
+    reg:inventorySection "2. Provider resource ontologies", "Provider generated sources" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:microsoft-azure
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "microsoft-azure" ;
+    dcterms:title "Microsoft Azure" ;
+    dcterms:description "ARM resource providers and types, ARM/Bicep schemas, REST API specifications, Azure Resource Graph" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "55"^^xsd:positiveInteger ;
+    reg:listedAs "Microsoft Azure" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 1 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:oci-resource-search
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oci-resource-search" ;
+    dcterms:title "OCI Resource Search" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "526"^^xsd:positiveInteger ;
+    reg:listedAs "OCI Resource Search" ;
+    reg:inventorySection "Provider generated sources" ;
+    reg:classificationBasis "source-declared" .
+
+src:open-application-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "open-application-model" ;
+    dcterms:title "Open Application Model" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "84"^^xsd:positiveInteger ;
+    reg:listedAs "Open Application Model" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:oracle-cloud-infrastructure
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "oracle-cloud-infrastructure" ;
+    dcterms:title "Oracle Cloud Infrastructure" ;
+    dcterms:description "OCI Resource Search types, searchable attributes, API models, OCID grammar" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "57"^^xsd:positiveInteger ;
+    reg:listedAs "Oracle Cloud Infrastructure" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 1 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:ovhcloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ovhcloud" ;
+    dcterms:title "OVHcloud" ;
+    dcterms:description "Public API resource schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "69"^^xsd:positiveInteger ;
+    reg:listedAs "OVHcloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:pulumi-provider-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "pulumi-provider-schemas" ;
+    dcterms:title "Pulumi provider schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "81"^^xsd:positiveInteger ;
+    reg:listedAs "Pulumi provider schemas" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:salesforce
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "salesforce" ;
+    dcterms:title "Salesforce" ;
+    dcterms:description "Metadata API, object metadata, event and permission schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "71"^^xsd:positiveInteger ;
+    reg:listedAs "Salesforce" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:sap-btp
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "sap-btp" ;
+    dcterms:title "SAP BTP" ;
+    dcterms:description "Entitlements, subaccounts, services, CloudEvents and service-manager models" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "70"^^xsd:positiveInteger ;
+    reg:listedAs "SAP BTP" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:servicenow
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "servicenow" ;
+    dcterms:title "ServiceNow" ;
+    dcterms:description "Common Service Data Model and CMDB classes" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "72"^^xsd:positiveInteger ;
+    reg:listedAs "ServiceNow" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:snowflake
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "snowflake" ;
+    dcterms:title "Snowflake" ;
+    dcterms:description "Account, object, role, warehouse and governance models" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "73"^^xsd:positiveInteger ;
+    reg:listedAs "Snowflake" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:steampipe-provider-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "steampipe-provider-schemas" ;
+    dcterms:title "Steampipe provider schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "87"^^xsd:positiveInteger ;
+    reg:listedAs "Steampipe provider schemas" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:tencent-cloud
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "tencent-cloud" ;
+    dcterms:title "Tencent Cloud" ;
+    dcterms:description "Cloud APIs, resource tag and account schemas" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "67"^^xsd:positiveInteger ;
+    reg:listedAs "Tencent Cloud" ;
+    reg:inventorySection "2. Provider resource ontologies" ;
+    reg:inventorySubsection "Tier 2 providers" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:terraform-provider-schemas
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "terraform-provider-schemas" ;
+    dcterms:title "Terraform provider schemas" ;
+    dcterms:description "Generated provider ontology projection" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:02-cloud-resources ;
+    reg:primaryPack pack:02-cloud-resources ;
+    reg:priority reg:P0Provider ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://developer.hashicorp.com/terraform/cli/commands/providers/schema> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "80"^^xsd:positiveInteger, "529"^^xsd:positiveInteger ;
+    reg:listedAs "Terraform provider schemas" ;
+    reg:inventorySection "2. Provider resource ontologies", "Provider generated sources" ;
+    reg:inventorySubsection "Cross-provider generated sources" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+

@@ -1,0 +1,143 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:06-controls-compliance
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "06-controls-compliance" ;
+    dcterms:title "06 Controls Compliance" ;
+    dcterms:description "Controls, assurance catalogs, assessment models, cybersecurity outcomes and compliance evidence." ;
+    reg:recordStanding reg:ALIVE .
+
+src:csa-caiq
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "csa-caiq" ;
+    dcterms:title "CSA CAIQ" ;
+    dcterms:description "Cloud-provider assurance questions" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:06-controls-compliance ;
+    reg:primaryPack pack:06-controls-compliance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "169"^^xsd:positiveInteger ;
+    reg:listedAs "CSA CAIQ" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:csa-cloud-controls-matrix
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "csa-cloud-controls-matrix" ;
+    dcterms:title "CSA Cloud Controls Matrix" ;
+    dcterms:description "Cloud-specific control framework" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:06-controls-compliance ;
+    reg:primaryPack pack:06-controls-compliance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "168"^^xsd:positiveInteger ;
+    reg:listedAs "CSA Cloud Controls Matrix" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-csf-2-0
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-csf-2-0" ;
+    dcterms:title "NIST CSF 2.0" ;
+    dcterms:description "Cybersecurity outcomes" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:06-controls-compliance ;
+    reg:primaryPack pack:06-controls-compliance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.0" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "166"^^xsd:positiveInteger ;
+    reg:listedAs "NIST CSF 2.0" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-oscal
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-oscal" ;
+    dcterms:title "NIST OSCAL" ;
+    dcterms:description "Controls, profiles, implementations, assessments and findings; P0 import/profile" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:06-controls-compliance ;
+    reg:primaryPack pack:06-controls-compliance ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://pages.nist.gov/OSCAL/> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "165"^^xsd:positiveInteger, "508"^^xsd:positiveInteger ;
+    reg:listedAs "NIST OSCAL", "OSCAL" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:nist-sp-800-53
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-sp-800-53" ;
+    dcterms:title "NIST SP 800-53" ;
+    dcterms:description "Security and privacy controls" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:06-controls-compliance ;
+    reg:primaryPack pack:06-controls-compliance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "167"^^xsd:positiveInteger ;
+    reg:listedAs "NIST SP 800-53" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
