@@ -1,0 +1,4 @@
+[pack]
+name = "typer-pack"
+version = "0.1.0"
+description = "Ontology-driven Typer CLI generation with admitted command names, Python identifiers, help text, arguments, and deterministic output behavior."
