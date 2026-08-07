@@ -1,0 +1,89 @@
+[pack]
+id = "08-process-decision"
+title = "Process and decision"
+description = "Business process, decision, case, motivation, workflow, and enterprise process semantics."
+standing = "PARTIAL_ALIVE"
+source_count = 8
+references = []
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "apqc-process-classification-framework"
+display_name = "APQC Process Classification Framework"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Enterprise process taxonomy"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "archimate-exchange-model"
+display_name = "ArchiMate exchange model"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Enterprise-architecture relationships"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "bmm"
+display_name = "BMM"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Business motivation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "bpmn"
+display_name = "Business Process Model and Notation (BPMN)"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Business-process structure"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cmmn"
+display_name = "CMMN"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Case management"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "dmn"
+display_name = "Decision Model and Notation (DMN)"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Business decisions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "powl"
+display_name = "POWL"
+source_kind = ["O", "S"]
+priority = "P0"
+purpose = ["Partially ordered workflow language and executable process commitments"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "togaf-content-metamodel"
+display_name = "TOGAF content metamodel"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Architecture artifacts and relationships"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

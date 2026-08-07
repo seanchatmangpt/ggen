@@ -1,0 +1,19 @@
+@prefix fmcp: <http://seanchatmangpt.github.io/packs/fastmcp#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Canonical graph: tools are intents exposed by MCP; they do not receive ambient actuation authority.
+fmcp:default-server a fmcp:Server ;
+    dcterms:title "ggen FastMCP Server" ;
+    dcterms:description "A generated MCP capability server." ;
+    fmcp:name "ggen-fastmcp" ;
+    fmcp:hasTool fmcp:greet-tool .
+
+fmcp:greet-tool a fmcp:Tool ;
+    dcterms:description "Return a deterministic greeting without external actuation." ;
+    prov:wasDerivedFrom fmcp:default-server ;
+    fmcp:name "greet" ;
+    fmcp:function "greet" ;
+    fmcp:argument "name" ;
+    fmcp:argumentDescription "Subject to greet." ;
+    fmcp:returnTemplate "Hello, {name}!" .

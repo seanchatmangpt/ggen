@@ -1,0 +1,167 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:10-cost-finops
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "10-cost-finops" ;
+    dcterms:title "10 Cost Finops" ;
+    dcterms:description "Cloud cost, billing, allocation, commercial terms, currency, energy cost and customer-value attribution." ;
+    reg:recordStanding reg:ALIVE .
+
+src:cloud-carbon-footprint-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cloud-carbon-footprint-model" ;
+    dcterms:title "Cloud Carbon Footprint model" ;
+    dcterms:description "Estimated cloud emissions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:10-cost-finops, pack:14-sustainability ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "232"^^xsd:positiveInteger, "385"^^xsd:positiveInteger ;
+    reg:listedAs "Cloud Carbon Footprint model", "Cloud Carbon Footprint resource mappings" ;
+    reg:inventorySection "13. Sustainability and environmental semantics", "7. Cost, billing and technology-value semantics" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:finops-framework
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "finops-framework" ;
+    dcterms:title "FinOps Framework" ;
+    dcterms:description "Cost-management capabilities and personas" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:10-cost-finops ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "230"^^xsd:positiveInteger ;
+    reg:listedAs "FinOps Framework" ;
+    reg:inventorySection "7. Cost, billing and technology-value semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:focus-1-4
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "focus-1-4" ;
+    dcterms:title "FOCUS 1.4" ;
+    dcterms:description "Multicloud, SaaS, AI and data-platform billing; P0 import/profile" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:10-cost-finops, pack:14-sustainability ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://focus.finops.org/focus-specification/v1-4/> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    dcterms:hasVersion "1.4" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "229"^^xsd:positiveInteger, "384"^^xsd:positiveInteger, "514"^^xsd:positiveInteger ;
+    reg:listedAs "FOCUS", "FOCUS 1.4", "FOCUS cost and usage" ;
+    reg:inventorySection "13. Sustainability and environmental semantics", "7. Cost, billing and technology-value semantics", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:goodrelations
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "goodrelations" ;
+    dcterms:title "GoodRelations" ;
+    dcterms:description "Products, prices and commercial offers; Products, services, prices and offers" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:03-organization, pack:10-cost-finops ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "234"^^xsd:positiveInteger, "337"^^xsd:positiveInteger ;
+    reg:listedAs "GoodRelations" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "7. Cost, billing and technology-value semantics" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:iso-4217-currency-vocabulary
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "iso-4217-currency-vocabulary" ;
+    dcterms:title "ISO 4217 currency vocabulary" ;
+    dcterms:description "Currency identifiers" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:10-cost-finops ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "236"^^xsd:positiveInteger ;
+    reg:listedAs "ISO 4217 currency vocabulary" ;
+    reg:inventorySection "7. Cost, billing and technology-value semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:opencost
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opencost" ;
+    dcterms:title "OpenCost" ;
+    dcterms:description "Kubernetes and cloud-native allocation" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:10-cost-finops ;
+    reg:primaryPack pack:10-cost-finops ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "231"^^xsd:positiveInteger ;
+    reg:listedAs "OpenCost" ;
+    reg:inventorySection "7. Cost, billing and technology-value semantics" ;
+    reg:classificationBasis "source-declared" .
+

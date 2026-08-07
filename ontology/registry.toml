@@ -1,0 +1,88 @@
+registry_version = "1.0.0"
+registry_id = "ggen-federated-semantic-registry"
+title = "ggen Federated Semantic Registry"
+authority_model = "federated"
+standing = "PARTIAL_ALIVE"
+pack_count = 16
+source_count = 203
+external_source_count = 201
+local_profile_count = 2
+
+source_kinds = ["O", "S", "K", "P"]
+standing_values = ["UNKNOWN", "PARTIAL_ALIVE", "ALIVE", "BLOCKED", "BUILD_BROKEN", "UNSUPPORTED"]
+
+pack_paths = [
+  "ontology/00-foundation/pack.toml",
+  "ontology/01-cloud-reference/pack.toml",
+  "ontology/02-cloud-resources/pack.toml",
+  "ontology/03-organization/pack.toml",
+  "ontology/04-identity-authority/pack.toml",
+  "ontology/05-security-threat/pack.toml",
+  "ontology/06-controls-compliance/pack.toml",
+  "ontology/07-events-observability/pack.toml",
+  "ontology/08-process-decision/pack.toml",
+  "ontology/09-data-governance/pack.toml",
+  "ontology/10-cost-finops/pack.toml",
+  "ontology/11-software-supply-chain/pack.toml",
+  "ontology/12-ai-agent/pack.toml",
+  "ontology/13-physical-digital-twin/pack.toml",
+  "ontology/14-sustainability/pack.toml",
+  "ontology/15-industry/pack.toml",
+]
+
+required_p0 = [
+  "rdf-rdfs-owl",
+  "shacl",
+  "skos",
+  "dcterms",
+  "prov-o",
+  "dcat-3",
+  "odrl",
+  "org",
+  "owl-time",
+  "sosa-ssn",
+  "qudt",
+  "dpv",
+  "nist-cloud-taxonomy",
+  "tosca",
+  "oscal",
+  "stix",
+  "attack",
+  "d3fend",
+  "cloudevents",
+  "opentelemetry-semconv",
+  "focus",
+  "openlineage",
+  "spdx",
+  "ocel",
+  "powl",
+]
+
+generated_provider_sources = [
+  "aws-cloudformation-schemas",
+  "azure-arm-schemas",
+  "google-cloud-asset-inventory",
+  "oci-resource-search",
+  "ibm-resource-controller",
+  "alibaba-resource-center",
+  "terraform-provider-schemas",
+  "kubernetes-openapi",
+]
+
+pipeline = [
+  "pinned retrieval",
+  "license check",
+  "source digest",
+  "parser",
+  "normalized ggen projection",
+  "SHACL validation",
+  "cross-provider mappings",
+  "generated customer ontology",
+]
+
+[admission]
+unknown_is_admitted = false
+allow_unknown_location_only_when_standing_unknown = true
+require_digest_for_partial_or_alive = true
+require_validation_for_partial_or_alive = true
+vendored_upstream_snapshots_are_authority = false

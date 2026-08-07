@@ -1,0 +1,62 @@
+@prefix gsr: <https://ggen.io/ontology/semantic-registry#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+gsr:PublicSemanticSourceShape
+    a sh:NodeShape ;
+    sh:targetClass gsr:PublicSemanticSource ;
+    sh:closed false ;
+    sh:property [
+        sh:path gsr:sourceIdentity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path gsr:sourceKind ;
+        sh:minCount 1 ;
+        sh:in ( "O" "S" "K" "P" )
+    ] ;
+    sh:property [
+        sh:path gsr:canonicalLocation ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:license ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:sourceDigest ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:transformation ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:validationResult ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path gsr:standing ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "UNKNOWN"
+            "PARTIAL_ALIVE"
+            "ALIVE"
+            "BLOCKED"
+            "BUILD_BROKEN"
+            "UNSUPPORTED"
+        )
+    ] .

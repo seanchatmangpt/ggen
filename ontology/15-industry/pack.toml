@@ -1,0 +1,278 @@
+[pack]
+id = "15-industry"
+title = "Industry overlays"
+description = "Financial services, healthcare, retail, manufacturing, telecom, and energy semantic overlays."
+standing = "PARTIAL_ALIVE"
+source_count = 29
+references = ["asset-administration-shell", "fibo", "iec-cim", "isa-95-b2mml", "qudt", "saref", "sosa-ssn"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "3gpp-management-models"
+display_name = "3GPP management models"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Telecom network management models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "acord"
+display_name = "ACORD"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Insurance data and message standards"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "bian-service-landscape"
+display_name = "BIAN service landscape"
+source_kind = ["K"]
+priority = "INDUSTRY"
+purpose = ["Banking service-domain taxonomy"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "bioportal-ontologies"
+display_name = "BioPortal ontologies"
+source_kind = ["K", "O"]
+priority = "INDUSTRY"
+purpose = ["Biomedical ontology catalog"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "catena-x-semantic-models"
+display_name = "Catena-X semantic models"
+source_kind = ["O", "S"]
+priority = "INDUSTRY"
+purpose = ["Automotive data-space semantic models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "cdisc"
+display_name = "CDISC"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Clinical research data standards"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "epcis-2-0"
+display_name = "EPCIS 2.0"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Supply-chain visibility events"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "etsi-nfv-information-models"
+display_name = "ETSI NFV information models"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Network-function virtualization information models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "fix-orchestra"
+display_name = "FIX Orchestra"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Electronic-trading interface and workflow semantics"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "green-button"
+display_name = "Green Button"
+source_kind = ["P", "S"]
+priority = "INDUSTRY"
+purpose = ["Energy-usage data model and exchange"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "gs1-web-vocabulary"
+display_name = "GS1 Web Vocabulary"
+source_kind = ["O"]
+priority = "INDUSTRY"
+purpose = ["Products, organizations, locations, and trade semantics"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "hl7-fhir-and-fhir-rdf"
+display_name = "HL7 FHIR and FHIR RDF"
+source_kind = ["O", "S"]
+priority = "INDUSTRY"
+purpose = ["Healthcare interoperability resources and RDF representation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "idmp"
+display_name = "IDMP"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Medicinal-product identification standards"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "iso-20022"
+display_name = "ISO 20022"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Financial-message semantics and schemas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "lei-and-gleif-data-model"
+display_name = "LEI and GLEIF data model"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Legal-entity identifiers and reference data"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "loinc"
+display_name = "LOINC"
+source_kind = ["K"]
+priority = "INDUSTRY"
+purpose = ["Clinical observation and laboratory identifiers"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "omop"
+display_name = "OMOP"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Observational health data model and vocabularies"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "opc-ua-companion-specifications"
+display_name = "OPC UA Companion Specifications"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Industry-specific industrial information models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "open-supply-hub-models"
+display_name = "Open Supply Hub models"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Supply-chain facility and organization models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openadr"
+display_name = "OpenADR"
+source_kind = ["P", "S"]
+priority = "INDUSTRY"
+purpose = ["Automated demand-response protocol and models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "rxnorm"
+display_name = "RxNorm"
+source_kind = ["K"]
+priority = "INDUSTRY"
+purpose = ["Normalized drug terminology"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "saref4ener"
+display_name = "SAREF4ENER"
+source_kind = ["O"]
+priority = "INDUSTRY"
+purpose = ["Energy extension to SAREF"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "schema-org-product-and-offer"
+display_name = "Schema.org Product and Offer"
+source_kind = ["O"]
+priority = "INDUSTRY"
+purpose = ["Public product and offer semantics"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "snomed-ct"
+display_name = "SNOMED CT"
+source_kind = ["K"]
+priority = "INDUSTRY"
+purpose = ["Clinical terminology"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "tm-forum-open-apis"
+display_name = "TM Forum Open APIs"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Telecom service operations", "Telecom service operations APIs"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "tm-forum-sid"
+display_name = "TM Forum SID"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Shared information/data model for telecom"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "un-cefact-core-component-library"
+display_name = "UN/CEFACT Core Component Library"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Trade and logistics core components"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "xbrl-taxonomies"
+display_name = "XBRL taxonomies"
+source_kind = ["K", "S"]
+priority = "INDUSTRY"
+purpose = ["Business-reporting taxonomies"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "yang-openconfig"
+display_name = "YANG/OpenConfig"
+source_kind = ["S"]
+priority = "INDUSTRY"
+purpose = ["Network configuration and operational-state models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

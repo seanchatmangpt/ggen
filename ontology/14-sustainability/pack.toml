@@ -1,0 +1,71 @@
+[pack]
+id = "14-sustainability"
+title = "Sustainability"
+description = "Energy, emissions, carbon intensity, geography, reporting periods, and sustainability taxonomies."
+standing = "PARTIAL_ALIVE"
+source_count = 6
+references = ["focus", "geosparql", "owl-time", "qudt", "sosa-ssn"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "cloud-carbon-footprint"
+display_name = "Cloud Carbon Footprint"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Estimated cloud emissions", "Cloud-resource emissions estimation mappings"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "electricitymap-watttime-grid-intensity-vocabularies"
+display_name = "electricityMap/WattTime grid-intensity vocabularies"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Grid carbon-intensity data vocabularies"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "eu-sustainability-reporting-taxonomy"
+display_name = "EU sustainability reporting taxonomy"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["European sustainability reporting taxonomy"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "green-software-foundation-software-carbon-intensity"
+display_name = "Green Software Foundation Software Carbon Intensity"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Software carbon intensity method and measures"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "greenhouse-gas-protocol-concepts"
+display_name = "Greenhouse Gas Protocol concepts"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Greenhouse-gas accounting concepts"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "iso-14064-and-iso-14067-concept-mappings"
+display_name = "ISO 14064 and ISO 14067 concept mappings"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Organization and product greenhouse-gas concept mappings"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

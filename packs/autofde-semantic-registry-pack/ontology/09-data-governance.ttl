@@ -1,0 +1,262 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:09-data-governance
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "09-data-governance" ;
+    dcterms:title "09 Data Governance" ;
+    dcterms:description "Data catalogs, lineage, privacy, data quality, mappings, contracts and metadata federation." ;
+    reg:recordStanding reg:ALIVE .
+
+src:apache-atlas-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "apache-atlas-model" ;
+    dcterms:title "Apache Atlas model" ;
+    dcterms:description "Data assets, classifications and lineage" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "273"^^xsd:positiveInteger ;
+    reg:listedAs "Apache Atlas model" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:csvw
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "csvw" ;
+    dcterms:title "CSVW" ;
+    dcterms:description "Tabular metadata" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "268"^^xsd:positiveInteger ;
+    reg:listedAs "CSVW" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:data-contract-specification
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "data-contract-specification" ;
+    dcterms:title "Data Contract Specification" ;
+    dcterms:description "Producer-consumer data contracts" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "272"^^xsd:positiveInteger ;
+    reg:listedAs "Data Contract Specification" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:data-cube-vocabulary
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "data-cube-vocabulary" ;
+    dcterms:title "Data Cube Vocabulary" ;
+    dcterms:description "Multidimensional observations" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "269"^^xsd:positiveInteger ;
+    reg:listedAs "Data Cube Vocabulary" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:dpv-gdpr-legal-risk-technology
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dpv-gdpr-legal-risk-technology" ;
+    dcterms:title "DPV-GDPR / Legal / Risk / Technology" ;
+    dcterms:description "Regulatory and technology extensions" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "264"^^xsd:positiveInteger ;
+    reg:listedAs "DPV-GDPR / Legal / Risk / Technology" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:egeria-open-metadata-types
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "egeria-open-metadata-types" ;
+    dcterms:title "Egeria Open Metadata types" ;
+    dcterms:description "Enterprise metadata federation" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "274"^^xsd:positiveInteger ;
+    reg:listedAs "Egeria Open Metadata types" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:fair-digital-object-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "fair-digital-object-models" ;
+    dcterms:title "FAIR Digital Object models" ;
+    dcterms:description "Research and regulated-data objects" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "271"^^xsd:positiveInteger ;
+    reg:listedAs "FAIR Digital Object models" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:r2rml-rml
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "r2rml-rml" ;
+    dcterms:title "R2RML / RML" ;
+    dcterms:description "Relational and heterogeneous data-to-RDF mapping" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "267"^^xsd:positiveInteger ;
+    reg:listedAs "R2RML / RML" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:void
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "void" ;
+    dcterms:title "VoID" ;
+    dcterms:description "Linked-data dataset descriptions" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "270"^^xsd:positiveInteger ;
+    reg:listedAs "VoID" ;
+    reg:inventorySection "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "source-declared" .
+
+src:w3c-data-privacy-vocabulary-dpv
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "w3c-data-privacy-vocabulary-dpv" ;
+    dcterms:title "W3C Data Privacy Vocabulary — DPV" ;
+    dcterms:description "P0 import/profile; Personal data, processing, purposes, legal bases and risks" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:09-data-governance ;
+    reg:primaryPack pack:09-data-governance ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://www.w3.org/community/reports/dpvcg/CG-FINAL-dpv-20240801/> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "263"^^xsd:positiveInteger, "505"^^xsd:positiveInteger ;
+    reg:listedAs "DPV", "W3C Data Privacy Vocabulary — DPV" ;
+    reg:inventorySection "8. Data governance, lineage and privacy", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+

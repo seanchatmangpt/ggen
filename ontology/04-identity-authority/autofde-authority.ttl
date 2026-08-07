@@ -1,0 +1,69 @@
+@prefix auth: <https://ggen.io/ontology/autofde/authority#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://ggen.io/ontology/autofde/authority>
+    a owl:Ontology ;
+    dcterms:title "AutoFDE Authority Profile" ;
+    dcterms:description "Authority concepts required to distinguish identity from authorization of consequence." ;
+    owl:versionInfo "1.0.0" .
+
+auth:AuthorityGrant a owl:Class ;
+    rdfs:label "Authority grant" .
+
+auth:DecisionRight a owl:Class ;
+    rdfs:label "Decision right" .
+
+auth:PermittedConsequence a owl:Class ;
+    rdfs:label "Permitted consequence" .
+
+auth:AuthorizedScope a owl:Class ;
+    rdfs:label "Authorized scope" .
+
+auth:ApprovalPopulation a owl:Class ;
+    rdfs:label "Approval population" .
+
+auth:ValidityInterval a owl:Class ;
+    rdfs:label "Validity interval" .
+
+auth:Revocation a owl:Class ;
+    rdfs:label "Revocation" .
+
+auth:Delegation a owl:Class ;
+    rdfs:label "Delegation" .
+
+auth:SeparationOfDuties a owl:Class ;
+    rdfs:label "Separation of duties" .
+
+auth:grantsDecisionRight a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:DecisionRight .
+
+auth:permitsConsequence a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:PermittedConsequence .
+
+auth:withinScope a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:AuthorizedScope .
+
+auth:requiresApprovalPopulation a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:ApprovalPopulation .
+
+auth:validDuring a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:ValidityInterval .
+
+auth:revokedBy a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:Revocation .
+
+auth:delegatedBy a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:Delegation .
+
+auth:constrainedBySeparationOfDuties a owl:ObjectProperty ;
+    rdfs:domain auth:AuthorityGrant ;
+    rdfs:range auth:SeparationOfDuties .

@@ -1,0 +1,470 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:00-foundation
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "00-foundation" ;
+    dcterms:title "00 Foundation" ;
+    dcterms:description "RDF, OWL, SHACL, provenance, catalog, policy, time, spatial, observation, quantity and public-agent foundations." ;
+    reg:recordStanding reg:ALIVE .
+
+src:att-and-ck
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "att-and-ck" ;
+    dcterms:title "ATT&CK" ;
+    dcterms:description "P0 import/profile" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "510"^^xsd:positiveInteger ;
+    reg:listedAs "ATT&CK" ;
+    reg:inventorySection "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:data-quality-vocabulary-dqv
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "data-quality-vocabulary-dqv" ;
+    dcterms:title "Data Quality Vocabulary — DQV" ;
+    dcterms:description "Data-quality measurements and annotations; Quality metrics and annotations" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:09-data-governance ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "105"^^xsd:positiveInteger, "266"^^xsd:positiveInteger ;
+    reg:listedAs "DQV", "Data Quality Vocabulary — DQV" ;
+    reg:inventorySection "3. Semantic-web foundation", "8. Data governance, lineage and privacy" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:dcat-3
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dcat-3" ;
+    dcterms:title "DCAT 3" ;
+    dcterms:description "Data and service catalogs; Datasets, data services, catalogs and versions; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:09-data-governance ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "3" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "104"^^xsd:positiveInteger, "260"^^xsd:positiveInteger, "499"^^xsd:positiveInteger ;
+    reg:listedAs "DCAT 3" ;
+    reg:inventorySection "3. Semantic-web foundation", "8. Data governance, lineage and privacy", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:dublin-core-terms
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dublin-core-terms" ;
+    dcterms:title "Dublin Core Terms" ;
+    dcterms:description "Common metadata; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "102"^^xsd:positiveInteger, "497"^^xsd:positiveInteger ;
+    reg:listedAs "DCTERMS", "Dublin Core Terms" ;
+    reg:inventorySection "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:foaf
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "foaf" ;
+    dcterms:title "FOAF" ;
+    dcterms:description "People and agents" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "113"^^xsd:positiveInteger ;
+    reg:listedAs "FOAF" ;
+    reg:inventorySection "3. Semantic-web foundation" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:geosparql
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "geosparql" ;
+    dcterms:title "GeoSPARQL" ;
+    dcterms:description "Places, geometries and spatial relations; Spatial relationships" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:13-physical-digital-twin, pack:14-sustainability ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "110"^^xsd:positiveInteger, "372"^^xsd:positiveInteger, "387"^^xsd:positiveInteger ;
+    reg:listedAs "GeoSPARQL", "GeoSPARQL regions" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "3. Semantic-web foundation" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:odrl-2-2
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "odrl-2-2" ;
+    dcterms:title "ODRL 2.2" ;
+    dcterms:description "Contractual permissions, duties and prohibitions; Data-use policies; P0 import/profile; Permissions, prohibitions, duties and constraints; Permissions, prohibitions, obligations and constraints" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:03-organization, pack:04-identity-authority, pack:09-data-governance ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.2" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "106"^^xsd:positiveInteger, "135"^^xsd:positiveInteger, "265"^^xsd:positiveInteger, "341"^^xsd:positiveInteger, "500"^^xsd:positiveInteger ;
+    reg:listedAs "ODRL", "ODRL 2.2" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "3. Semantic-web foundation", "4. Identity, authority and entitlement", "8. Data governance, lineage and privacy", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:owl-time
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "owl-time" ;
+    dcterms:title "OWL-Time" ;
+    dcterms:description "Instants, intervals, durations and temporal ordering; P0 import/profile; Temporal relationships" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:13-physical-digital-twin, pack:14-sustainability ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "109"^^xsd:positiveInteger, "373"^^xsd:positiveInteger, "388"^^xsd:positiveInteger, "502"^^xsd:positiveInteger ;
+    reg:listedAs "OWL-Time", "OWL-Time reporting periods" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:prov-o
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "prov-o" ;
+    dcterms:title "PROV-O" ;
+    dcterms:description "Entities, activities, agents, derivation and provenance; Lineage and derivation; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:09-data-governance ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    dcat:landingPage <https://www.w3.org/TR/prov-o/> ;
+    reg:canonicalLocationStatus reg:DeclaredByInventory ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "103"^^xsd:positiveInteger, "261"^^xsd:positiveInteger, "498"^^xsd:positiveInteger ;
+    reg:listedAs "PROV-O" ;
+    reg:inventorySection "3. Semantic-web foundation", "8. Data governance, lineage and privacy", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:qudt
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "qudt" ;
+    dcterms:title "QUDT" ;
+    dcterms:description "Currency, quantities, rates and units; P0 import/profile; Quantities, units, dimensions and datatypes; Units and measurable values" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:10-cost-finops, pack:13-physical-digital-twin, pack:14-sustainability, pack:15-industry ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "112"^^xsd:positiveInteger, "233"^^xsd:positiveInteger, "371"^^xsd:positiveInteger, "383"^^xsd:positiveInteger, "444"^^xsd:positiveInteger, "462"^^xsd:positiveInteger, "504"^^xsd:positiveInteger ;
+    reg:listedAs "QUDT", "QUDT units" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "14. Industry overlays Fortune-5 buyers will expect", "3. Semantic-web foundation", "7. Cost, billing and technology-value semantics", "Mandatory P0 imports" ;
+    reg:inventorySubsection "Energy and utilities", "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:rdf-rdfs-owl-2
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "rdf-rdfs-owl-2" ;
+    dcterms:title "RDF / RDFS / OWL 2" ;
+    dcterms:description "Graph and ontology semantics; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "99"^^xsd:positiveInteger, "494"^^xsd:positiveInteger ;
+    reg:listedAs "RDF / RDFS / OWL 2", "RDF/RDFS/OWL" ;
+    reg:inventorySection "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:registered-organization-vocabulary
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "registered-organization-vocabulary" ;
+    dcterms:title "Registered Organization Vocabulary" ;
+    dcterms:description "Legal entities and registrations; Legal-entity identity" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:03-organization ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "108"^^xsd:positiveInteger, "335"^^xsd:positiveInteger ;
+    reg:listedAs "Registered Organization Vocabulary" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "3. Semantic-web foundation" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:schema-org
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "schema-org" ;
+    dcterms:title "schema.org" ;
+    dcterms:description "Broad public entities, services, products and actions; Commercial metadata; Customers, suppliers, services, products and actions" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:03-organization, pack:10-cost-finops, pack:15-industry ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "115"^^xsd:positiveInteger, "235"^^xsd:positiveInteger, "338"^^xsd:positiveInteger, "434"^^xsd:positiveInteger ;
+    reg:listedAs "Schema.org Product and Offer", "schema.org", "schema.org financial terms" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "14. Industry overlays Fortune-5 buyers will expect", "3. Semantic-web foundation", "7. Cost, billing and technology-value semantics" ;
+    reg:inventorySubsection "Retail and supply chain" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:shacl
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "shacl" ;
+    dcterms:title "SHACL" ;
+    dcterms:description "Executable graph constraints; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "100"^^xsd:positiveInteger, "495"^^xsd:positiveInteger ;
+    reg:listedAs "SHACL" ;
+    reg:inventorySection "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:skos
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "skos" ;
+    dcterms:title "SKOS" ;
+    dcterms:description "P0 import/profile; Taxonomies and controlled vocabularies" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "101"^^xsd:positiveInteger, "496"^^xsd:positiveInteger ;
+    reg:listedAs "SKOS" ;
+    reg:inventorySection "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:sosa-ssn
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "sosa-ssn" ;
+    dcterms:title "SOSA/SSN" ;
+    dcterms:description "Observations, actuations and procedures; Observations, sensors, actuators, procedures and deployments; P0 import/profile; Sensors, observations, actuators and deployments" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:07-events-observability, pack:13-physical-digital-twin, pack:14-sustainability, pack:15-industry ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "111"^^xsd:positiveInteger, "210"^^xsd:positiveInteger, "360"^^xsd:positiveInteger, "386"^^xsd:positiveInteger, "443"^^xsd:positiveInteger, "461"^^xsd:positiveInteger, "503"^^xsd:positiveInteger ;
+    reg:listedAs "SOSA observations", "SOSA/SSN", "W3C SOSA/SSN" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "14. Industry overlays Fortune-5 buyers will expect", "3. Semantic-web foundation", "6. Events, observations and telemetry", "Mandatory P0 imports" ;
+    reg:inventorySubsection "Energy and utilities", "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:vcard-rdf
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "vcard-rdf" ;
+    dcterms:title "vCard RDF" ;
+    dcterms:description "Contact and address information" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation ;
+    reg:primaryPack pack:00-foundation ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "114"^^xsd:positiveInteger ;
+    reg:listedAs "vCard RDF" ;
+    reg:inventorySection "3. Semantic-web foundation" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:w3c-org
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "w3c-org" ;
+    dcterms:title "W3C ORG" ;
+    dcterms:description "Business units, roles, memberships, reporting and sites; Organizations, units, roles, membership and reporting; P0 import/profile" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:00-foundation, pack:03-organization ;
+    reg:primaryPack pack:00-foundation ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "107"^^xsd:positiveInteger, "334"^^xsd:positiveInteger, "501"^^xsd:positiveInteger ;
+    reg:listedAs "ORG", "W3C ORG" ;
+    reg:inventorySection "11. Organization, business and legal semantics", "3. Semantic-web foundation", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred" .
+

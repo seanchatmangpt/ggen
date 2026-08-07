@@ -1,0 +1,349 @@
+[pack]
+id = "00-foundation"
+title = "Semantic-web foundation"
+description = "RDF, ontology, provenance, policy, time, space, organization, identity, and quantity primitives."
+standing = "PARTIAL_ALIVE"
+source_count = 18
+references = []
+
+[[source]]
+source_identity = "dcat-3"
+display_name = "DCAT 3"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Datasets, data services, catalogs and versions", "Data and service catalogs"]
+inventory_sections = ["3. Semantic-web foundation", "8. Data governance, lineage and privacy"]
+inventory_lines = [104, 260]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "dcterms"
+display_name = "Dublin Core Terms"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Common metadata"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [102]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "dqv"
+display_name = "Data Quality Vocabulary (DQV)"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Data-quality measurements and annotations", "Quality metrics and annotations"]
+inventory_sections = ["3. Semantic-web foundation", "8. Data governance, lineage and privacy"]
+inventory_lines = [105, 266]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "foaf"
+display_name = "FOAF"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["People and agents"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [113]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "geosparql"
+display_name = "GeoSPARQL"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Places, geometries and spatial relations", "Spatial relationships", "Spatial semantics for reporting regions"]
+inventory_sections = ["3. Semantic-web foundation", "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics"]
+inventory_lines = [110, 372, 387]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "ggen-public-semantic-source"
+display_name = "ggen PublicSemanticSource metamodel"
+source_kind = ["O"]
+priority = "PROFILE"
+purpose = ["Defines the registry objects, morphisms, evidence fields, projection relation, and standing vocabulary."]
+inventory_sections = ["ggen local ontology"]
+inventory_lines = []
+canonical_location = "repo:ontology/00-foundation/public-semantic-source.ttl"
+version = "1.0.0"
+retrieval_timestamp = "NOT_APPLICABLE"
+license = "INHERIT_REPOSITORY"
+source_digest = "sha256:dc54564769c7bf3260f7a67142d5e80ecc92a113a9b532ba65de919cc69caf2c"
+transformation = "manual-authority"
+generated_projection_digest = "NOT_APPLICABLE"
+validation_result = "RDF_PARSE_OK"
+supersedes = []
+standing = "PARTIAL_ALIVE"
+
+[[source]]
+source_identity = "odrl"
+display_name = "ODRL 2.2"
+source_kind = ["O", "P"]
+priority = "P0"
+purpose = ["Permissions, prohibitions, duties and constraints", "Permissions, prohibitions, obligations and constraints", "Data-use policies", "Contractual permissions, duties and prohibitions"]
+inventory_sections = ["3. Semantic-web foundation", "4. Identity, authority and entitlement", "8. Data governance, lineage and privacy", "11. Organization, business and legal semantics"]
+inventory_lines = [106, 135, 265, 341]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "org"
+display_name = "W3C ORG"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Organizations, units, roles, membership and reporting", "Business units, roles, memberships, reporting and sites"]
+inventory_sections = ["3. Semantic-web foundation", "11. Organization, business and legal semantics"]
+inventory_lines = [107, 334]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "owl-time"
+display_name = "OWL-Time"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Instants, intervals, durations and temporal ordering", "Temporal relationships", "Temporal semantics for reporting periods"]
+inventory_sections = ["3. Semantic-web foundation", "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics"]
+inventory_lines = [109, 373, 388]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "prov-o"
+display_name = "PROV-O"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Entities, activities, agents, derivation and provenance", "Lineage and derivation"]
+inventory_sections = ["3. Semantic-web foundation", "8. Data governance, lineage and privacy"]
+inventory_lines = [103, 261]
+canonical_location = "https://www.w3.org/TR/prov-o/"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "qudt"
+display_name = "QUDT"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Quantities, units, dimensions and datatypes", "Currency, quantities, rates and units", "Units and measurable values", "Units for energy, emissions, rates, and quantities", "Quantities and units ontology"]
+inventory_sections = ["3. Semantic-web foundation", "7. Cost, billing and technology-value semantics", "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "14. Industry overlays Fortune-5 buyers will expect / Manufacturing and automotive", "14. Industry overlays Fortune-5 buyers will expect / Energy and utilities"]
+inventory_lines = [112, 233, 371, 383, 435, 447]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "rdf-rdfs-owl"
+display_name = "RDF/RDFS/OWL 2"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Graph and ontology semantics"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [99]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "registered-organization"
+display_name = "Registered Organization Vocabulary"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Legal entities and registrations", "Legal-entity identity"]
+inventory_sections = ["3. Semantic-web foundation", "11. Organization, business and legal semantics"]
+inventory_lines = [108, 335]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "schema-org"
+display_name = "schema.org"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Broad public entities, services, products and actions", "Customers, suppliers, services, products and actions"]
+inventory_sections = ["3. Semantic-web foundation", "11. Organization, business and legal semantics"]
+inventory_lines = [115, 338]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "shacl"
+display_name = "SHACL"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Executable graph constraints"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [100]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "skos"
+display_name = "SKOS"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Taxonomies and controlled vocabularies"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [101]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "sosa-ssn"
+display_name = "SOSA/SSN"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Observations, sensors, actuators, procedures and deployments", "Observations, actuations and procedures", "Sensors, observations, actuators and deployments", "Observation semantics for environmental measurements", "Sensor, observation, and actuation ontology", "Observation and actuation ontology"]
+inventory_sections = ["3. Semantic-web foundation", "6. Events, observations and telemetry", "12. Physical infrastructure, IoT and digital twins", "13. Sustainability and environmental semantics", "14. Industry overlays Fortune-5 buyers will expect / Manufacturing and automotive", "14. Industry overlays Fortune-5 buyers will expect / Energy and utilities"]
+inventory_lines = [111, 210, 360, 386, 434, 446]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "vcard-rdf"
+display_name = "vCard RDF"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Contact and address information"]
+inventory_sections = ["3. Semantic-web foundation"]
+inventory_lines = [114]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"

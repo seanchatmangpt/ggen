@@ -1,0 +1,79 @@
+---
+to: docs/autofde-semantic-registry.md
+sparql:
+  pack_counts: |
+    PREFIX reg: <https://ggen.io/ontology/autofde-registry/v1#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?pack_id (COUNT(?source) AS ?source_count) WHERE {
+      ?source a reg:PublicSemanticSource ; reg:primaryPack ?pack .
+      ?pack dcterms:identifier ?pack_id .
+    }
+    GROUP BY ?pack_id
+    ORDER BY ?pack_id
+  standing_counts: |
+    PREFIX reg: <https://ggen.io/ontology/autofde-registry/v1#>
+    SELECT ?source_standing ?projection_standing (COUNT(?source) AS ?source_count) WHERE {
+      ?source a reg:PublicSemanticSource ;
+              reg:sourceStanding ?source_standing ;
+              reg:projectionStanding ?projection_standing .
+    }
+    GROUP BY ?source_standing ?projection_standing
+    ORDER BY ?source_standing ?projection_standing
+  p0_sources: |
+    PREFIX reg: <https://ggen.io/ontology/autofde-registry/v1#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?identifier ?title ?source_standing ?projection_standing WHERE {
+      ?source a reg:PublicSemanticSource ;
+              reg:priority reg:P0 ;
+              dcterms:identifier ?identifier ;
+              dcterms:title ?title ;
+              reg:sourceStanding ?source_standing ;
+              reg:projectionStanding ?projection_standing .
+    }
+    ORDER BY ?identifier
+  provider_sources: |
+    PREFIX reg: <https://ggen.io/ontology/autofde-registry/v1#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?identifier ?title ?transformation WHERE {
+      ?source a reg:PublicSemanticSource ;
+              reg:priority reg:P0Provider ;
+              dcterms:identifier ?identifier ;
+              dcterms:title ?title ;
+              reg:transformation ?transformation .
+    }
+    ORDER BY ?identifier
+---
+# AutoFDE Federated Semantic Registry
+
+This document is generated from `packs/autofde-semantic-registry-pack/ontology.ttl`.
+The registry distinguishes ontology, schema, knowledge-base/catalog, and protocol
+sources. Registry records can be `ALIVE` while external source bytes and generated
+projections remain `UNKNOWN`; presence in this report grants no execution authority.
+
+## Sixteen-pack inventory
+
+| Pack | Canonical sources |
+|---|---:|
+{% for row in pack_counts %}| `{{ row.pack_id }}` | {{ row.source_count }} |
+{% endfor %}
+
+## Standing
+
+| External source standing | Projection standing | Sources |
+|---|---|---:|
+{% for row in standing_counts %}| `{{ row.source_standing }}` | `{{ row.projection_standing }}` | {{ row.source_count }} |
+{% endfor %}
+
+## Mandatory P0 sources
+
+| Identifier | Source | Source standing | Projection standing |
+|---|---|---|---|
+{% for row in p0_sources %}| `{{ row.identifier }}` | {{ row.title }} | `{{ row.source_standing }}` | `{{ row.projection_standing }}` |
+{% endfor %}
+
+## Provider projection sources
+
+| Identifier | Source | Transformation |
+|---|---|---|
+{% for row in provider_sources %}| `{{ row.identifier }}` | {{ row.title }} | `{{ row.transformation }}` |
+{% endfor %}

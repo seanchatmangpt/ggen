@@ -1,0 +1,71 @@
+[pack]
+id = "12-ai-agent"
+title = "AI and agent governance"
+description = "Model and dataset documentation, AI risk, privacy, provenance, and agent/tool telemetry profiles."
+standing = "PARTIAL_ALIVE"
+source_count = 6
+references = []
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "datasheets-for-datasets"
+display_name = "Datasheets for Datasets"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Dataset documentation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "dpv-ai-extensions"
+display_name = "DPV AI extensions"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Privacy and AI governance concepts"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "model-cards"
+display_name = "Model Cards"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Model limitations and evaluation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "nist-ai-rmf"
+display_name = "NIST AI RMF"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["AI governance and risk"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "opentelemetry-genai-conventions"
+display_name = "OpenTelemetry GenAI conventions"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["AI model, agent and tool telemetry"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "spdx-ai-and-dataset-profiles"
+display_name = "SPDX AI and Dataset profiles"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["AI model, dataset and package provenance"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

@@ -1,0 +1,4 @@
+[pack]
+name = "dspy-pack"
+version = "0.1.0"
+description = "Ontology-driven DSPy generation with admitted typed signatures, input/output fields, and closed module kinds for modular LM programs."

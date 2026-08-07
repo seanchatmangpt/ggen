@@ -1,0 +1,264 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:13-physical-digital-twin
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "13-physical-digital-twin" ;
+    dcterms:title "13 Physical Digital Twin" ;
+    dcterms:description "Sensors, actuators, buildings, industrial systems, grids, digital twins, space and time." ;
+    reg:recordStanding reg:ALIVE .
+
+src:asset-administration-shell
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "asset-administration-shell" ;
+    dcterms:title "Asset Administration Shell" ;
+    dcterms:description "Industrial digital twins" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin, pack:15-industry ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "366"^^xsd:positiveInteger, "439"^^xsd:positiveInteger ;
+    reg:listedAs "Asset Administration Shell" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:brick-schema
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "brick-schema" ;
+    dcterms:title "Brick Schema" ;
+    dcterms:description "Buildings, equipment and telemetry" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "363"^^xsd:positiveInteger ;
+    reg:listedAs "Brick Schema" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:digital-twin-definition-language
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "digital-twin-definition-language" ;
+    dcterms:title "Digital Twin Definition Language" ;
+    dcterms:description "Twin entities and relationships" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "370"^^xsd:positiveInteger ;
+    reg:listedAs "Digital Twin Definition Language" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:etsi-saref
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "etsi-saref" ;
+    dcterms:title "ETSI SAREF" ;
+    dcterms:description "Smart appliances, energy and IoT" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:13-physical-digital-twin, pack:15-industry ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "362"^^xsd:positiveInteger, "442"^^xsd:positiveInteger ;
+    reg:listedAs "ETSI SAREF", "SAREF" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:iec-common-information-model
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "iec-common-information-model" ;
+    dcterms:title "IEC Common Information Model" ;
+    dcterms:description "Electric-grid systems" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:13-physical-digital-twin, pack:15-industry ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "368"^^xsd:positiveInteger, "457"^^xsd:positiveInteger ;
+    reg:listedAs "IEC CIM", "IEC Common Information Model" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Energy and utilities" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:isa-95-b2mml
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "isa-95-b2mml" ;
+    dcterms:title "ISA-95 / B2MML" ;
+    dcterms:description "Enterprise-control system integration" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin, pack:15-industry ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "367"^^xsd:positiveInteger, "441"^^xsd:positiveInteger ;
+    reg:listedAs "ISA-95 / B2MML", "ISA-95/B2MML" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins", "14. Industry overlays Fortune-5 buyers will expect" ;
+    reg:inventorySubsection "Manufacturing and automotive" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:ngsi-ld
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ngsi-ld" ;
+    dcterms:title "NGSI-LD" ;
+    dcterms:description "Context information and digital twins" ;
+    reg:sourceKind reg:Protocol, reg:Schema ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "369"^^xsd:positiveInteger ;
+    reg:listedAs "NGSI-LD" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:opc-ua-information-models
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opc-ua-information-models" ;
+    dcterms:title "OPC UA information models" ;
+    dcterms:description "Industrial equipment and operations" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "365"^^xsd:positiveInteger ;
+    reg:listedAs "OPC UA information models" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:project-haystack
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "project-haystack" ;
+    dcterms:title "Project Haystack" ;
+    dcterms:description "Building-system tags" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "364"^^xsd:positiveInteger ;
+    reg:listedAs "Project Haystack" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:w3c-web-of-things-thing-description
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "w3c-web-of-things-thing-description" ;
+    dcterms:title "W3C Web of Things Thing Description" ;
+    dcterms:description "Device capabilities and interactions" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:13-physical-digital-twin ;
+    reg:primaryPack pack:13-physical-digital-twin ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "361"^^xsd:positiveInteger ;
+    reg:listedAs "W3C Web of Things Thing Description" ;
+    reg:inventorySection "12. Physical infrastructure, IoT and digital twins" ;
+    reg:classificationBasis "policy-inferred" .
+

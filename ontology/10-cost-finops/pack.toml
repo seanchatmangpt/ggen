@@ -1,0 +1,62 @@
+[pack]
+id = "10-cost-finops"
+title = "Cost and FinOps"
+description = "Billing, allocation, currency, commercial offers, usage, ownership, capability, and outcome attribution."
+standing = "PARTIAL_ALIVE"
+source_count = 5
+references = ["goodrelations", "qudt"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "finops-framework"
+display_name = "FinOps Framework"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Cost-management capabilities and personas"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "focus"
+display_name = "FOCUS"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Multicloud, SaaS, AI and data-platform billing", "Cost and usage dimensions for cloud sustainability attribution"]
+canonical_location = "https://focus.finops.org/focus-specification/v1-4/"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "iso-4217-currency-vocabulary"
+display_name = "ISO 4217 currency vocabulary"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Currency identifiers"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "opencost"
+display_name = "OpenCost"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Kubernetes and cloud-native allocation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "schema-org-financial-terms"
+display_name = "schema.org financial terms"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Commercial metadata"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

@@ -1,0 +1,21 @@
+@prefix typer: <http://seanchatmangpt.github.io/packs/typer#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Canonical graph: edit these facts, not the generated Python projection.
+typer:default-app a typer:Application ;
+    dcterms:title "ggen Typer CLI" ;
+    dcterms:description "A generated command-line application." ;
+    typer:name "ggen-typer" ;
+    typer:help "Ontology-generated Typer commands." ;
+    typer:hasCommand typer:greet-command .
+
+typer:greet-command a typer:Command ;
+    dcterms:description "Emit a deterministic greeting." ;
+    prov:wasDerivedFrom typer:default-app ;
+    typer:name "greet" ;
+    typer:function "greet" ;
+    typer:help "Greet a named subject." ;
+    typer:argument "name" ;
+    typer:argumentHelp "Subject to greet." ;
+    typer:message "Hello, {name}!" .

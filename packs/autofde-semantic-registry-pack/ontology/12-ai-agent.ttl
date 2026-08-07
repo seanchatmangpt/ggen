@@ -1,0 +1,164 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:12-ai-agent
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "12-ai-agent" ;
+    dcterms:title "12 Ai Agent" ;
+    dcterms:description "AI model, dataset, agent, tool telemetry, privacy, evaluation and governance semantics." ;
+    reg:recordStanding reg:ALIVE .
+
+src:datasheets-for-datasets
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "datasheets-for-datasets" ;
+    dcterms:title "Datasheets for Datasets" ;
+    dcterms:description "Dataset documentation" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "321"^^xsd:positiveInteger ;
+    reg:listedAs "Datasheets for Datasets" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:dpv-ai-extensions
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "dpv-ai-extensions" ;
+    dcterms:title "DPV AI extensions" ;
+    dcterms:description "Privacy and AI governance concepts" ;
+    reg:sourceKind reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "324"^^xsd:positiveInteger ;
+    reg:listedAs "DPV AI extensions" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:model-cards
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "model-cards" ;
+    dcterms:title "Model Cards" ;
+    dcterms:description "Model limitations and evaluation" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "320"^^xsd:positiveInteger ;
+    reg:listedAs "Model Cards" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:nist-ai-rmf
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "nist-ai-rmf" ;
+    dcterms:title "NIST AI RMF" ;
+    dcterms:description "AI governance and risk" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "322"^^xsd:positiveInteger ;
+    reg:listedAs "NIST AI RMF" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:opentelemetry-genai-conventions
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "opentelemetry-genai-conventions" ;
+    dcterms:title "OpenTelemetry GenAI conventions" ;
+    dcterms:description "AI model, agent and tool telemetry" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "219"^^xsd:positiveInteger ;
+    reg:listedAs "OpenTelemetry GenAI conventions" ;
+    reg:inventorySection "6. Events, observations and telemetry" ;
+    reg:classificationBasis "source-declared" .
+
+src:spdx-ai-and-dataset-profiles
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "spdx-ai-and-dataset-profiles" ;
+    dcterms:title "SPDX AI and Dataset profiles" ;
+    dcterms:description "AI model, dataset and package provenance" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:12-ai-agent ;
+    reg:primaryPack pack:12-ai-agent ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "323"^^xsd:positiveInteger ;
+    reg:listedAs "SPDX AI and Dataset profiles" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics" ;
+    reg:classificationBasis "source-declared" .
+

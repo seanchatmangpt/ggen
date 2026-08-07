@@ -1,0 +1,31 @@
+# MESSAGE: Typer applications and commands must be dependency-closed, documented, and renderable as valid Python identifiers. Any row is a refusal.
+PREFIX typer: <http://seanchatmangpt.github.io/packs/typer#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a typer:Application .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/typer#"))
+    VALUES ?property { typer:name typer:help typer:hasCommand dcterms:title dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a typer:Command .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/typer#"))
+    VALUES ?property { typer:name typer:function typer:help typer:argument typer:argumentHelp typer:message dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a typer:Application ; typer:hasCommand ?command .
+    FILTER NOT EXISTS { ?command a typer:Command }
+    BIND("hasCommand target is not a typer:Command" AS ?violation)
+  } UNION {
+    ?subject a typer:Command ; typer:function ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("function is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a typer:Command ; typer:argument ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("argument is not a Python identifier" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

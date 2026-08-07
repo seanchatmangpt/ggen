@@ -1,0 +1,55 @@
+# MESSAGE: DSPy signatures, fields, and modules must be dependency-closed, typed, and renderable as valid Python identifiers. Any row is a refusal.
+PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a dspy:Signature .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:className dspy:hasInput dspy:hasOutput dcterms:title dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a ?fieldType .
+    VALUES ?fieldType { dspy:InputField dspy:OutputField }
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:pythonType dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:kind dspy:signature dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Signature ; dspy:hasInput ?field .
+    FILTER NOT EXISTS { ?field a dspy:InputField }
+    BIND("hasInput target is not a dspy:InputField" AS ?violation)
+  } UNION {
+    ?subject a dspy:Signature ; dspy:hasOutput ?field .
+    FILTER NOT EXISTS { ?field a dspy:OutputField }
+    BIND("hasOutput target is not a dspy:OutputField" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:signature ?signature .
+    FILTER NOT EXISTS { ?signature a dspy:Signature }
+    BIND("module signature target is not a dspy:Signature" AS ?violation)
+  } UNION {
+    ?subject dspy:name ?value .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("name is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:Signature ; dspy:className ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("className is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?value .
+    FILTER(STR(?value) NOT IN ("Predict", "ChainOfThought"))
+    BIND("kind is outside the admitted module set" AS ?violation)
+  } UNION {
+    ?subject dspy:pythonType ?value .
+    FILTER(STR(?value) NOT IN ("str", "int", "float", "bool"))
+    BIND("pythonType is outside the admitted primitive set" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

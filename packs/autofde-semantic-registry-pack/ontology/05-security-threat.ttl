@@ -1,0 +1,407 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:05-security-threat
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "05-security-threat" ;
+    dcterms:title "05 Security Threat" ;
+    dcterms:description "Threat intelligence, adversary behavior, vulnerabilities, defensive actions, detections and incident semantics." ;
+    reg:recordStanding reg:ALIVE .
+
+src:cacao
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cacao" ;
+    dcterms:title "CACAO" ;
+    dcterms:description "Cybersecurity playbooks" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "179"^^xsd:positiveInteger ;
+    reg:listedAs "CACAO" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:cpe
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cpe" ;
+    dcterms:title "CPE" ;
+    dcterms:description "Product identities" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat, pack:11-software-supply-chain ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "178"^^xsd:positiveInteger, "316"^^xsd:positiveInteger ;
+    reg:listedAs "CPE" ;
+    reg:inventorySection "10. Software, AI and supply-chain semantics", "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:cve
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cve" ;
+    dcterms:title "CVE" ;
+    dcterms:description "Vulnerability identities" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "176"^^xsd:positiveInteger ;
+    reg:listedAs "CVE" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:cvss
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cvss" ;
+    dcterms:title "CVSS" ;
+    dcterms:description "Vulnerability severity" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "177"^^xsd:positiveInteger ;
+    reg:listedAs "CVSS" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:cwe
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "cwe" ;
+    dcterms:title "CWE" ;
+    dcterms:description "Software weaknesses" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "175"^^xsd:positiveInteger ;
+    reg:listedAs "CWE" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:first-epss
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "first-epss" ;
+    dcterms:title "FIRST EPSS" ;
+    dcterms:description "Exploitation probability" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "182"^^xsd:positiveInteger ;
+    reg:listedAs "FIRST EPSS" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:mitre-att-and-ck
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "mitre-att-and-ck" ;
+    dcterms:title "MITRE ATT&CK" ;
+    dcterms:description "Adversary tactics and techniques" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "172"^^xsd:positiveInteger ;
+    reg:listedAs "MITRE ATT&CK" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:mitre-capec
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "mitre-capec" ;
+    dcterms:title "MITRE CAPEC" ;
+    dcterms:description "Attack patterns" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "174"^^xsd:positiveInteger ;
+    reg:listedAs "MITRE CAPEC" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:mitre-d3fend
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "mitre-d3fend" ;
+    dcterms:title "MITRE D3FEND" ;
+    dcterms:description "Defensive techniques and technical artifacts; P0 import/profile" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Ontology ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "173"^^xsd:positiveInteger, "511"^^xsd:positiveInteger ;
+    reg:listedAs "D3FEND", "MITRE D3FEND" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:openc2
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "openc2" ;
+    dcterms:title "OpenC2" ;
+    dcterms:description "Command-and-control actions for defense" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "180"^^xsd:positiveInteger ;
+    reg:listedAs "OpenC2" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:ossem
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "ossem" ;
+    dcterms:title "OSSEM" ;
+    dcterms:description "Security-event semantics" ;
+    reg:sourceKind reg:Ontology, reg:Schema ;
+    reg:transformation reg:ImportProfile ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "185"^^xsd:positiveInteger ;
+    reg:listedAs "OSSEM" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:sigma
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "sigma" ;
+    dcterms:title "Sigma" ;
+    dcterms:description "Detection rules" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "183"^^xsd:positiveInteger ;
+    reg:listedAs "Sigma" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:stix-2-1
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "stix-2-1" ;
+    dcterms:title "STIX 2.1" ;
+    dcterms:description "P0 import/profile; Threat intelligence and cyber observables" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:priority reg:P0 ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    dcterms:hasVersion "2.1" ;
+    reg:versionStatus reg:DeclaredByInventory ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "170"^^xsd:positiveInteger, "509"^^xsd:positiveInteger ;
+    reg:listedAs "STIX", "STIX 2.1" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics", "Mandatory P0 imports" ;
+    reg:classificationBasis "policy-inferred", "source-declared" .
+
+src:taxii-2-x
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "taxii-2-x" ;
+    dcterms:title "TAXII 2.x" ;
+    dcterms:description "Threat-intelligence exchange" ;
+    reg:sourceKind reg:Protocol ;
+    reg:transformation reg:ProtocolAdapter ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "171"^^xsd:positiveInteger ;
+    reg:listedAs "TAXII 2.x" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:veris
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "veris" ;
+    dcterms:title "VERIS" ;
+    dcterms:description "Security-incident classification" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "181"^^xsd:positiveInteger ;
+    reg:listedAs "VERIS" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+
+src:yara
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "yara" ;
+    dcterms:title "YARA" ;
+    dcterms:description "Malware matching rules" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:05-security-threat ;
+    reg:primaryPack pack:05-security-threat ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "184"^^xsd:positiveInteger ;
+    reg:listedAs "YARA" ;
+    reg:inventorySection "5. Security, threat and defensive-action semantics" ;
+    reg:classificationBasis "source-declared" .
+

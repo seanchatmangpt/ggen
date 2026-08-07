@@ -1,0 +1,135 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix reg: <https://ggen.io/ontology/autofde-registry/v1#> .
+@prefix src: <https://ggen.io/ontology/autofde-registry/v1/source/> .
+@prefix pack: <https://ggen.io/ontology/autofde-registry/v1/pack/> .
+@prefix pattern: <https://ggen.io/ontology/autofde-registry/v1/pattern/> .
+
+pack:14-sustainability
+    a owl:Ontology, dcat:DatasetSeries, reg:SemanticPack ;
+    dcterms:identifier "14-sustainability" ;
+    dcterms:title "14 Sustainability" ;
+    dcterms:description "Energy, carbon, reporting periods, regions, emissions, sustainability taxonomies and grid intensity." ;
+    reg:recordStanding reg:ALIVE .
+
+src:electricitymap-watttime-grid-intensity-vocabularies
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "electricitymap-watttime-grid-intensity-vocabularies" ;
+    dcterms:title "electricityMap/WattTime grid-intensity vocabularies" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:14-sustainability ;
+    reg:primaryPack pack:14-sustainability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "391"^^xsd:positiveInteger ;
+    reg:listedAs "electricityMap/WattTime grid-intensity vocabularies" ;
+    reg:inventorySection "13. Sustainability and environmental semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:eu-sustainability-reporting-taxonomy
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "eu-sustainability-reporting-taxonomy" ;
+    dcterms:title "EU sustainability reporting taxonomy" ;
+    reg:sourceKind reg:KnowledgeBase, reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:14-sustainability ;
+    reg:primaryPack pack:14-sustainability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "390"^^xsd:positiveInteger ;
+    reg:listedAs "EU sustainability reporting taxonomy" ;
+    reg:inventorySection "13. Sustainability and environmental semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:green-software-foundation-software-carbon-intensity
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "green-software-foundation-software-carbon-intensity" ;
+    dcterms:title "Green Software Foundation Software Carbon Intensity" ;
+    reg:sourceKind reg:Schema ;
+    reg:transformation reg:GenerateProjection ;
+    reg:memberOfPack pack:14-sustainability ;
+    reg:primaryPack pack:14-sustainability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "381"^^xsd:positiveInteger ;
+    reg:listedAs "Green Software Foundation Software Carbon Intensity" ;
+    reg:inventorySection "13. Sustainability and environmental semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:greenhouse-gas-protocol-concepts
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "greenhouse-gas-protocol-concepts" ;
+    dcterms:title "Greenhouse Gas Protocol concepts" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:14-sustainability ;
+    reg:primaryPack pack:14-sustainability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "382"^^xsd:positiveInteger ;
+    reg:listedAs "Greenhouse Gas Protocol concepts" ;
+    reg:inventorySection "13. Sustainability and environmental semantics" ;
+    reg:classificationBasis "policy-inferred" .
+
+src:iso-14064-and-iso-14067-concept-mappings
+    a dcat:Dataset, reg:PublicSemanticSource ;
+    dcterms:identifier "iso-14064-and-iso-14067-concept-mappings" ;
+    dcterms:title "ISO 14064 and ISO 14067 concept mappings" ;
+    reg:sourceKind reg:KnowledgeBase ;
+    reg:transformation reg:ReferenceMapping ;
+    reg:memberOfPack pack:14-sustainability ;
+    reg:primaryPack pack:14-sustainability ;
+    reg:recordStanding reg:ALIVE ;
+    reg:sourceStanding reg:UNKNOWN ;
+    reg:projectionStanding reg:UNKNOWN ;
+    reg:validationStanding reg:UNKNOWN ;
+    reg:canonicalLocationStatus reg:NeedsResolution ;
+    reg:versionStatus reg:NeedsPinning ;
+    reg:licenseStatus reg:NeedsReview ;
+    reg:retrievalStatus reg:NotRetrieved ;
+    reg:sourceDigestStatus reg:NotRetrieved ;
+    reg:projectionDigestStatus reg:NotGenerated ;
+    reg:inventoryLine "389"^^xsd:positiveInteger ;
+    reg:listedAs "ISO 14064 and ISO 14067 concept mappings" ;
+    reg:inventorySection "13. Sustainability and environmental semantics" ;
+    reg:classificationBasis "policy-inferred" .
+

@@ -1,0 +1,107 @@
+[pack]
+id = "11-software-supply-chain"
+title = "Software supply chain"
+description = "Software identity, BOMs, attestations, build provenance, vulnerability status, and supply-chain knowledge graphs."
+standing = "PARTIAL_ALIVE"
+source_count = 10
+references = ["cpe"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "cyclonedx"
+display_name = "CycloneDX"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["SBOM, SaaSBOM, ML-BOM, CBOM and VEX"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "guac-graph-model"
+display_name = "GUAC graph model"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Software supply-chain knowledge graph"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "in-toto"
+display_name = "in-toto"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Supply-chain attestations"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openssf-scorecard"
+display_name = "OpenSSF Scorecard"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Project-security signals"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "purl"
+display_name = "PURL"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Package identities"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "sigstore-bundle-model"
+display_name = "Sigstore bundle model"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Signing and transparency evidence"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "slsa"
+display_name = "SLSA"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Build integrity and provenance levels"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "spdx"
+display_name = "SPDX 3.x"
+source_kind = ["O", "S"]
+priority = "P0"
+purpose = ["Software, packages, vulnerabilities, builds, datasets and AI"]
+canonical_location = "https://spdx.dev/use/specifications/"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "swid"
+display_name = "SWID"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Software identities"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "vex"
+display_name = "VEX"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Vulnerability exploitability status"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
