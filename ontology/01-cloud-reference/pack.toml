@@ -1,0 +1,197 @@
+[pack]
+id = "01-cloud-reference"
+title = "Cloud reference architecture"
+description = "Neutral cloud taxonomies, actor models, topology, orchestration, virtualization, and management foundations."
+standing = "PARTIAL_ALIVE"
+source_count = 10
+references = []
+
+[[source]]
+source_identity = "dmtf-common-information-model-cim"
+display_name = "DMTF Common Information Model — CIM"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Compute, network, storage, systems management"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [36]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "dmtf-open-virtualization-format-ovf"
+display_name = "DMTF Open Virtualization Format — OVF"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Portable virtual workloads"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [38]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "dmtf-redfish-schema"
+display_name = "DMTF Redfish Schema"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Physical and virtual infrastructure management"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [37]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "nist-cloud-computing-reference-architecture-sp-500-292"
+display_name = "NIST Cloud Computing Reference Architecture, SP 500-292"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Consumer, provider, broker, auditor, carrier"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [32]
+canonical_location = "https://www.nist.gov/publications/nist-cloud-computing-reference-architecture"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "nist-cloud-federation-reference-architecture-sp-500-332"
+display_name = "NIST Cloud Federation Reference Architecture, SP 500-332"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Multicloud trust, identity, resource sharing"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [33]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "nist-cloud-forensic-reference-architecture-sp-800-201"
+display_name = "NIST Cloud Forensic Reference Architecture, SP 800-201"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Forensic readiness, evidence sources, incident investigation"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [34]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "nist-cloud-taxonomy"
+display_name = "NIST Cloud Computing Definition, SP 800-145"
+source_kind = ["K"]
+priority = "P0"
+purpose = ["Service models, deployment models, cloud characteristics"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [31]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "oasis-camp"
+display_name = "OASIS CAMP"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Cloud application platform management"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [39]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "open-grid-forum-occi"
+display_name = "Open Grid Forum OCCI"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Vendor-neutral cloud resource management"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [40]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "tosca"
+display_name = "OASIS TOSCA 2.0"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Portable application topology, node types, relationships and orchestration"]
+inventory_sections = ["1. Cloud architecture and resource foundation"]
+inventory_lines = [35]
+canonical_location = "UNKNOWN"
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"

@@ -1,0 +1,177 @@
+[pack]
+id = "04-identity-authority"
+title = "Identity, authority, and entitlement"
+description = "Identity lifecycle, authentication, authorization, delegation, decision rights, and permitted consequence."
+standing = "PARTIAL_ALIVE"
+source_count = 17
+references = ["odrl"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "autofde-authority-profile"
+display_name = "AutoFDE Authority Profile"
+source_kind = ["O"]
+priority = "PROFILE"
+purpose = ["Defines authority grants, decision rights, permitted consequences, scopes, approvals, validity, revocation, delegation, and separation of duties."]
+canonical_location = "repo:ontology/04-identity-authority/autofde-authority.ttl"
+transformation = "manual-authority"
+version = "1.0.0"
+retrieval_timestamp = "NOT_APPLICABLE"
+license = "INHERIT_REPOSITORY"
+source_digest = "sha256:aab24f96a5b4863a31c67ef756e7774305bf813c4b3fa9f515e10ac7d2260867"
+generated_projection_digest = "NOT_APPLICABLE"
+validation_result = "RDF_PARSE_OK"
+standing = "PARTIAL_ALIVE"
+
+[[source]]
+source_identity = "aws-iam-policy-grammar"
+display_name = "AWS IAM policy grammar"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["AWS permissions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "azure-rbac-and-entra-role-schemas"
+display_name = "Azure RBAC and Entra role schemas"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Azure permissions and administrative roles"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "google-iam-policy-model"
+display_name = "Google IAM policy model"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["GCP bindings and conditions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "kubernetes-rbac"
+display_name = "Kubernetes RBAC"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Cluster-scoped authority"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ngac"
+display_name = "NGAC"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Graph-based access-control relations"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "nist-rbac-model"
+display_name = "NIST RBAC model"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Roles and permission assignment"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "oauth-2-x"
+display_name = "OAuth 2.x"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Delegated authorization"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "open-policy-agent-rego-model"
+display_name = "Open Policy Agent/Rego model"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Executable policy decisions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openid-connect"
+display_name = "OpenID Connect"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Authentication and identity claims"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "saml-2-0"
+display_name = "SAML 2.0"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Enterprise federation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "scim-2-0"
+display_name = "SCIM 2.0"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Users, groups and identity lifecycle"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "spiffe-spire"
+display_name = "SPIFFE/SPIRE"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Workload identity"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "w3c-did"
+display_name = "W3C DID"
+source_kind = ["O", "P"]
+priority = "P1"
+purpose = ["Decentralized identity identifiers"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "w3c-verifiable-credentials"
+display_name = "W3C Verifiable Credentials"
+source_kind = ["O", "P"]
+priority = "P1"
+purpose = ["Cryptographically verifiable claims"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "webauthn-fido2"
+display_name = "WebAuthn / FIDO2"
+source_kind = ["P"]
+priority = "P1"
+purpose = ["Strong authentication"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "xacml-3-0"
+display_name = "XACML 3.0"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Attribute-based access-control policies"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

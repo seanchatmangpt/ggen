@@ -1,0 +1,62 @@
+[pack]
+id = "06-controls-compliance"
+title = "Controls and compliance"
+description = "Security controls, assurance catalogs, profiles, implementations, assessments, and findings."
+standing = "PARTIAL_ALIVE"
+source_count = 5
+references = []
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "csa-caiq"
+display_name = "CSA CAIQ"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Cloud-provider assurance questions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "csa-cloud-controls-matrix"
+display_name = "CSA Cloud Controls Matrix"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Cloud-specific control framework"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "nist-csf-2-0"
+display_name = "NIST CSF 2.0"
+source_kind = ["K"]
+priority = "P1"
+purpose = ["Cybersecurity outcomes"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "nist-sp-800-53"
+display_name = "NIST SP 800-53"
+source_kind = ["K", "S"]
+priority = "P1"
+purpose = ["Security and privacy controls"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "oscal"
+display_name = "NIST OSCAL"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Controls, profiles, implementations, assessments and findings"]
+canonical_location = "https://pages.nist.gov/OSCAL/"
+transformation = "profile-or-import-after-pinned-retrieval"

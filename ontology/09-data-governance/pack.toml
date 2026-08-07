@@ -1,0 +1,116 @@
+[pack]
+id = "09-data-governance"
+title = "Data governance, lineage, and privacy"
+description = "Catalogs, lineage, privacy, quality, mapping, contracts, and metadata federation."
+standing = "PARTIAL_ALIVE"
+source_count = 11
+references = ["dcat-3", "dqv", "odrl", "prov-o"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "apache-atlas-model"
+display_name = "Apache Atlas model"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Data assets, classifications and lineage"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "csvw"
+display_name = "CSVW"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Tabular metadata"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "data-contract-specification"
+display_name = "Data Contract Specification"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Producer-consumer data contracts"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "data-cube-vocabulary"
+display_name = "Data Cube Vocabulary"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Multidimensional observations"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "dpv"
+display_name = "Data Privacy Vocabulary (DPV)"
+source_kind = ["O"]
+priority = "P0"
+purpose = ["Personal data, processing, purposes, legal bases and risks"]
+canonical_location = "https://www.w3.org/community/reports/dpvcg/CG-FINAL-dpv-20240801/"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "dpv-gdpr-legal-risk-technology"
+display_name = "DPV-GDPR / Legal / Risk / Technology"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Regulatory and technology extensions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "egeria-open-metadata-types"
+display_name = "Egeria Open Metadata types"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Enterprise metadata federation"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "fair-digital-object-models"
+display_name = "FAIR Digital Object models"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Research and regulated-data objects"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openlineage"
+display_name = "OpenLineage"
+source_kind = ["P", "S"]
+priority = "P0"
+purpose = ["Data-job and dataset lineage events", "Runtime data-job lineage"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "r2rml-rml"
+display_name = "R2RML / RML"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Relational and heterogeneous data-to-RDF mapping"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "void"
+display_name = "VoID"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Linked-data dataset descriptions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

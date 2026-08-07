@@ -1,0 +1,71 @@
+[pack]
+id = "03-organization"
+title = "Organization, business, and legal"
+description = "Enterprise organization, legal entity, commercial, architecture, and economic semantics."
+standing = "PARTIAL_ALIVE"
+source_count = 6
+references = ["odrl", "org", "registered-organization", "schema-org"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "akoma-ntoso"
+display_name = "Akoma Ntoso"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Legislation and legal documents"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "fibo"
+display_name = "FIBO"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Financial contracts, instruments, legal entities, markets and transactions", "Financial contracts, instruments, legal entities, markets, and transactions"]
+canonical_location = "https://spec.edmcouncil.org/fibo/index.html"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "goodrelations"
+display_name = "GoodRelations"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Products, prices and commercial offers", "Products, services, prices and offers"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "legalruleml"
+display_name = "LegalRuleML"
+source_kind = ["O", "P"]
+priority = "P1"
+purpose = ["Machine-readable legal norms and rules"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "rea-ontology"
+display_name = "REA ontology"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Resources, events and agents"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "valueflows"
+display_name = "ValueFlows"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Economic events, commitments and resources"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

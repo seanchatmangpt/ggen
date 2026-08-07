@@ -1,0 +1,107 @@
+[pack]
+id = "07-events-observability"
+title = "Events and observability"
+description = "Portable events, telemetry, object-centric logs, causal context, service objectives, and operational schemas."
+standing = "PARTIAL_ALIVE"
+source_count = 10
+references = ["openlineage", "sosa-ssn"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "cloudevents"
+display_name = "CloudEvents"
+source_kind = ["P", "S"]
+priority = "P0"
+purpose = ["Portable event envelopes", "Event portability"]
+canonical_location = "https://github.com/cloudevents/spec"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "ecs-elastic-common-schema"
+display_name = "ECS — Elastic Common Schema"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Security and operational events"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ocel"
+display_name = "OCEL 2.0"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Object-centric execution history"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "open-cybersecurity-schema-framework"
+display_name = "Open Cybersecurity Schema Framework"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Normalized cybersecurity events"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openfeature"
+display_name = "OpenFeature"
+source_kind = ["P", "S"]
+priority = "P1"
+purpose = ["Feature-state changes"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openmetrics"
+display_name = "OpenMetrics"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Metric exposition"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "openslo"
+display_name = "OpenSLO"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Service-level objectives"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "opentelemetry-semconv"
+display_name = "OpenTelemetry Semantic Conventions"
+source_kind = ["S"]
+priority = "P0"
+purpose = ["Common traces, metrics, logs, resources and events"]
+canonical_location = "UNKNOWN"
+transformation = "profile-or-import-after-pinned-retrieval"
+
+[[source]]
+source_identity = "opentracing-baggage-mappings"
+display_name = "OpenTracing baggage mappings"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Distributed causal context"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "xes"
+display_name = "XES"
+source_kind = ["S"]
+priority = "P1"
+purpose = ["Process event logs"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"

@@ -1,0 +1,80 @@
+@prefix gsr: <https://ggen.io/ontology/semantic-registry#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.io/ontology/semantic-registry>
+    a owl:Ontology ;
+    dcterms:title "ggen Federated Semantic Registry" ;
+    dcterms:description "Metamodel for pinned public semantic sources and their validated generated projections." ;
+    owl:versionInfo "1.0.0" .
+
+gsr:OntologyPack a owl:Class ;
+    rdfs:label "Ontology pack" ;
+    rdfs:comment "A bounded federation partition containing source records and cross-pack references." .
+
+gsr:PublicSemanticSource a owl:Class ;
+    rdfs:label "Public semantic source" ;
+    rdfs:comment "An ontology, schema, knowledge base, control catalog, or protocol admitted by identity before retrieval or projection." .
+
+gsr:GeneratedProjection a owl:Class ;
+    rdfs:label "Generated projection" ;
+    rdfs:comment "A normalized ggen projection manufactured from a pinned public source." .
+
+gsr:sourceIdentity a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:sourceKind a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:canonicalLocation a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:anyURI .
+
+gsr:version a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:retrievalTimestamp a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:dateTime .
+
+gsr:license a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:sourceDigest a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:transformation a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:generatedProjectionDigest a owl:DatatypeProperty ;
+    rdfs:domain gsr:GeneratedProjection ;
+    rdfs:range xsd:string .
+
+gsr:validationResult a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:supersedes a owl:ObjectProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range gsr:PublicSemanticSource .
+
+gsr:standing a owl:DatatypeProperty ;
+    rdfs:domain gsr:PublicSemanticSource ;
+    rdfs:range xsd:string .
+
+gsr:projectionOf a owl:ObjectProperty ;
+    rdfs:domain gsr:GeneratedProjection ;
+    rdfs:range gsr:PublicSemanticSource .
+
+gsr:memberSource a owl:ObjectProperty ;
+    rdfs:domain gsr:OntologyPack ;
+    rdfs:range gsr:PublicSemanticSource .

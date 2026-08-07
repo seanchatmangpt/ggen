@@ -1,0 +1,107 @@
+[pack]
+id = "13-physical-digital-twin"
+title = "Physical infrastructure and digital twins"
+description = "Devices, buildings, industrial systems, grids, context information, and digital-twin models."
+standing = "PARTIAL_ALIVE"
+source_count = 10
+references = ["geosparql", "owl-time", "qudt", "sosa-ssn"]
+
+[source_defaults]
+version = "UNKNOWN"
+retrieval_timestamp = "UNKNOWN"
+license = "UNKNOWN"
+source_digest = "UNKNOWN"
+generated_projection_digest = "UNKNOWN"
+validation_result = "NOT_RUN"
+supersedes = []
+standing = "UNKNOWN"
+
+[[source]]
+source_identity = "asset-administration-shell"
+display_name = "Asset Administration Shell"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Industrial digital twins", "Industrial digital-twin model"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "brick-schema"
+display_name = "Brick Schema"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Buildings, equipment and telemetry"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "digital-twin-definition-language"
+display_name = "Digital Twin Definition Language"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Twin entities and relationships"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "iec-cim"
+display_name = "IEC Common Information Model"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Electric-grid systems", "Electric-grid common information model"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "isa-95-b2mml"
+display_name = "ISA-95 / B2MML"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Enterprise-control system integration", "Enterprise-control integration models"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "ngsi-ld"
+display_name = "NGSI-LD"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Context information and digital twins"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "opc-ua-information-models"
+display_name = "OPC UA information models"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Industrial equipment and operations"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "project-haystack"
+display_name = "Project Haystack"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Building-system tags"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "saref"
+display_name = "ETSI SAREF"
+source_kind = ["O"]
+priority = "P1"
+purpose = ["Smart appliances, energy and IoT", "Smart applications reference ontology"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
+
+[[source]]
+source_identity = "w3c-web-of-things-thing-description"
+display_name = "W3C Web of Things Thing Description"
+source_kind = ["O", "S"]
+priority = "P1"
+purpose = ["Device capabilities and interactions"]
+canonical_location = "UNKNOWN"
+transformation = "registry-only-until-admitted"
