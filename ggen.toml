@@ -394,3 +394,40 @@ SELECT ?body WHERE { errc:ProposedSetupGgenBuildAction errc:body ?body . } ORDER
 template    = { file = "packs/gh-actions-errc-pack/templates/proposed_action.yml.tmpl" }
 output_file = ".github/actions/setup-ggen-build-errc-proposed/action.yml"
 mode        = "Overwrite"
+
+# Discovered 2026-08-07 (v26.8.7 status investigation): packs/ggen-release-pack's own 3
+# ReleaseArtifact individuals (release standing md/json, publication judgment) were imported
+# via [ontology] source but had NO [[generation.rules]] entry -- RELEASE_STANDING.md/.json and
+# docs/PUBLICATION_JUDGMENT.md were committed once at v26.7.20 (PR #281) and never regenerated
+# since (confirmed: `git log --oneline --all -- RELEASE_STANDING.md` shows exactly one commit).
+# Wired here the same way gh-actions-errc-pack's artifacts above are, closing the gap rather
+# than leaving these three files permanently stale/hand-edit-only.
+[[generation.rules]]
+name        = "ggen-release-standing-md"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:ReleaseStandingMdArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = "packs/ggen-release-pack/templates/release_standing_md.md.tera" }
+output_file = "RELEASE_STANDING.md"
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-release-standing-json"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:ReleaseStandingJsonArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = "packs/ggen-release-pack/templates/release_standing_json.json.tera" }
+output_file = "RELEASE_STANDING.json"
+mode        = "Overwrite"
+
+[[generation.rules]]
+name        = "ggen-publication-judgment"
+query       = { inline = """
+PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+SELECT ?body WHERE { grp:PublicationJudgmentArtifact grp:artifactBody ?body . } ORDER BY ?body
+""" }
+template    = { file = "packs/ggen-release-pack/templates/publication_judgment.md.tera" }
+output_file = "docs/PUBLICATION_JUDGMENT.md"
+mode        = "Overwrite"

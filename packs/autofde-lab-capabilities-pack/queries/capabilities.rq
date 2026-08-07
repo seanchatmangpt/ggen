@@ -1,0 +1,26 @@
+PREFIX skdt: <urn:skdecide:term:>
+SELECT ?kind ?identifier ?standing ?entryPoint ?owningModule ?evidence ?extrasMarker
+       (GROUP_CONCAT(DISTINCT ?characteristicName; separator=", ") AS ?requires)
+WHERE {
+  {
+    ?cap a skdt:Domain .
+    BIND("Domain" AS ?kind)
+  }
+  UNION
+  {
+    ?cap a skdt:Solver .
+    BIND("Solver" AS ?kind)
+  }
+  ?cap skdt:identifier ?identifier ;
+       skdt:standing ?standing ;
+       skdt:entryPoint ?entryPoint ;
+       skdt:owningModule ?owningModule ;
+       skdt:evidence ?evidence .
+  OPTIONAL { ?cap skdt:extrasMarker ?extrasMarker }
+  OPTIONAL {
+    ?cap skdt:requiresCharacteristic ?characteristic .
+    BIND(REPLACE(STR(?characteristic), "^.*/", "") AS ?characteristicName)
+  }
+}
+GROUP BY ?kind ?identifier ?standing ?entryPoint ?owningModule ?evidence ?extrasMarker
+ORDER BY ?kind ?identifier

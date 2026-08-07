@@ -1,0 +1,23 @@
+[project]
+name = "autofde-lab-capabilities-pack"
+version = "0.1.0"
+description = "Capability-catalog Markdown page, generated from autofde-lab's ontology/autofde-lab-capabilities.ttl"
+
+[ontology]
+source = "/Users/sac/autofde-lab/ontology/autofde-lab-capabilities.ttl"
+
+[ontology.prefixes]
+skd  = "urn:skdecide:capability:"
+skdt = "urn:skdecide:term:"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name        = "capability-catalog"
+query       = { file = "queries/capabilities.rq" }
+template    = { file = "templates/capability_catalog.md.tmpl" }
+output_file = "output/capability-catalog.md"
+mode        = "Overwrite"

@@ -1,5 +1,16 @@
 # Release Standing — ggen v26.7.20 candidate
 
+## Version note
+
+This document's audited version is **v26.7.20** (2026-07-20) -- the source/binary standing
+and L5 publication claim below reflect that individual re-verification, not a fresh one. The
+workspace's actual `Cargo.toml` version has since moved past it via automated version-law
+commits (locally `26.8.6`; `origin/main` carries an additional automated bump to `26.8.7`,
+commit `e884d1fbb`, PR #587) -- neither of those bumps re-ran the 23-condition audit this
+document is built on. This note exists so the version number below is never mistaken for a
+freshly-verified 26.8.x claim; see `docs/jira/v26.8.7/STATUS.md` for the real, current
+release-readiness state.
+
 ## Accepted source standing
 
 - The 17-crate workspace builds and this repo's own `just pre-commit` gate chain is defined

@@ -24,6 +24,18 @@ runs:
         toolchain: ${{ inputs.toolchain }}
         components: ${{ inputs.components }}
 
+    # Required by root Cargo.toml's unconditional `[build] rustc-wrapper =
+    # "sccache"` -- every cargo invocation in CI fails without it:
+    # `error: could not execute process 'sccache ... rustc -vV' (never
+    # executed) ... No such file or directory`. Same pinned install step as
+    # `.github/actions/setup-ggen-build` (this repo's other, more complete
+    # setup action) so there is exactly one canonical way this repo installs
+    # sccache, not two slightly-different ones.
+    - name: Install sccache
+      uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+      with:
+        tool: sccache
+
     - name: Cache Rust dependencies
       uses: actions/cache@v4
       with:
