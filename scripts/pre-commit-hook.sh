@@ -45,6 +45,15 @@ fi
 # Track failures
 FAILED=0
 
+# 0. Pack create standard (FAST ADMISSION)
+# Cheap, dependency-free structural law: every packs/*/pack.toml must carry a
+# real example, a runnable pack-dependent playground, and all four Diataxis
+# quadrants. Run the guard's sabotage suite first so a broken guard cannot
+# silently admit a bad repository.
+if ! run_check "Pack create standard" "python3 scripts/ci/test_guard_pack_standard.py && python3 scripts/ci/guard_pack_standard.py" "30s"; then
+    FAILED=1
+fi
+
 # 1. Compilation check (CRITICAL ANDON SIGNAL)
 if ! run_check "Compilation check (cargo make check)" "cargo make check" "15s"; then
     FAILED=1
