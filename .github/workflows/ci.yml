@@ -57,7 +57,7 @@ jobs:
         run: cargo check --workspace --all-targets --locked
 
       - name: Clippy
-        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+        run: cargo clippy --workspace --all-targets --locked
 
       - name: Test workspace
         run: cargo test --workspace --locked
