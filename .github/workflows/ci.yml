@@ -47,6 +47,12 @@ jobs:
           [[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
+      - name: Enforce pack create standard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/test_guard_pack_standard.py
+          python3 scripts/ci/guard_pack_standard.py
       - name: Manufacture exact-head receipt and routing
         id: admit
         continue-on-error: true
