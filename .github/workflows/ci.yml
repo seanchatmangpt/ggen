@@ -47,7 +47,9 @@ jobs:
           [[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
-      - name: Enforce pack create standard
+      - name: Check pack create standard
+        id: pack_standard
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -77,7 +79,11 @@ jobs:
           retention-days: 14
       - name: Enforce fast admission
         if: always()
-        run: test '${{ steps.admit.outcome }}' = success
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.admit.outcome }}' = success || { echo 'BUILD_BROKEN:FAST_ADMISSION_RECEIPT_FAILED' >&2; exit 1; }
+          test '${{ steps.pack_standard.outcome }}' = success || { echo 'BUILD_BROKEN:PACK_CREATE_STANDARD' >&2; exit 1; }
 
   deep:
     name: Deep / ${{ matrix.lane }}
