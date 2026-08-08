@@ -219,10 +219,13 @@ fn assert_command_in_routes(cmd: &LiveCommand) {
         cmd.noun, cmd.verb, cmd.return_type, cmd.fn_name
     );
     for arg in cmd.args {
+        // Verify the semantic parameter shape, not incidental indentation/comma
+        // layout chosen by Tera whitespace trimming. The generated route is
+        // separately compiled, so syntax remains independently checked.
         let expected_param = if arg.required {
-            format!("    {}: {},", arg.ident, arg.rust_type)
+            format!("{}: {}", arg.ident, arg.rust_type)
         } else {
-            format!("    {}: Option<{}>,", arg.ident, arg.rust_type)
+            format!("{}: Option<{}>", arg.ident, arg.rust_type)
         };
         assert!(
             ROUTES.contains(&expected_param),
@@ -370,11 +373,17 @@ fn every_live_command_matches_generated_docs_md_right_now() {
 /// specific gap the pack's own doc names as the mechanism letting a command
 /// require zero hand-written handler code: a value pre-condition that a
 /// mere signature/type check (the rest of this proof) cannot express.
+fn compact_rust_projection(value: &str) -> String {
+    value.chars().filter(|ch| !ch.is_whitespace()).collect()
+}
+
 #[test]
 fn every_live_static_response_matches_generated_routes_right_now() {
+    let compact_routes = compact_rust_projection(ROUTES);
     for (key, expected_body) in LIVE_STATIC_RESPONSES {
+        let compact_expected = compact_rust_projection(expected_body);
         assert!(
-            ROUTES.contains(expected_body),
+            compact_routes.contains(&compact_expected),
             "live ontology's cnv:staticResponse for `{}` (noun:verb) is not reflected \
              verbatim as that command's wrapper body in generated \
              src/clap_noun_verb_routes.rs -- drift detected",
