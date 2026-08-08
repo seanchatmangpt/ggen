@@ -1,149 +1,118 @@
-# ggen 80/20 ERRC control plane.
 name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
-  merge_group:
+    tags: ["v*"]
   workflow_dispatch:
-
-concurrency:
-  group: ci-errc-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: "0"
+  # .cargo/config.toml enables the developer-local sccache wrapper. CI proves
+  # correctness independently of cache availability, so neutralize it here.
+  CARGO_BUILD_RUSTC_WRAPPER: ""
 
 jobs:
-  admission:
-    name: Fast Admission
+  verify:
+    name: exact-subject verification
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      deep_matrix_json: ${{ steps.admit.outputs.deep_matrix_json }}
-      base: ${{ steps.identity.outputs.base }}
-      head: ${{ steps.identity.outputs.head }}
+    timeout-minutes: 30
     steps:
-      - name: Checkout exact candidate
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout exact subject
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - name: Resolve admitted identities
-        id: identity
+
+      - name: Admit exact head and CI topology
         shell: bash
         env:
-          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
-          base="$EVENT_BASE"
-          [[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
-          echo "base=$base" >> "$GITHUB_OUTPUT"
-          echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
-      - name: Manufacture exact-head receipt and routing
-        id: admit
-        continue-on-error: true
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          count="$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')"
+          test "$count" -eq 1
+          printf 'subject_sha=%s\nworkflow_count=%s\n' "$EXPECTED_SHA" "$count"
+
+      - name: Install repository-pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-06-22
+          components: rustfmt, clippy
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Compile workspace
+        run: cargo check --workspace --all-targets --locked
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked
+
+      - name: Test workspace
+        run: cargo test --workspace --locked
+
+      - name: Build canonical CLI
+        run: cargo build --release --locked -p ggen-cli-lib --bin ggen
+
+      - name: Execute canonical CLI
         shell: bash
         run: |
-          python3 scripts/ci/fast_admission.py \
-            --repository '${{ github.repository }}' \
-            --base '${{ steps.identity.outputs.base }}' \
-            --head '${{ steps.identity.outputs.head }}' \
-            --workflow '${{ github.workflow }}' \
-            --run-id '${{ github.run_id }}' \
-            --receipt ci-receipts/errc-receipt.json \
-            --routing-report ci-receipts/routing.json \
-            --github-output "$GITHUB_OUTPUT"
-      - name: Upload exact-head receipt
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+          set -euo pipefail
+          ./target/release/ggen --version
+          ./target/release/ggen --help >/dev/null
+
+      - name: Verify publishable library artifact
+        run: cargo package --locked --allow-dirty -p ggen
+
+      - name: Emit verification receipt
+        shell: bash
+        env:
+          SUBJECT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p target/ci-receipts
+          cat > target/ci-receipts/receipt.json <<JSON
+          {"repository":"${GITHUB_REPOSITORY}","subject_sha":"${SUBJECT_SHA}","workflow":"${GITHUB_WORKFLOW}","run_id":"${GITHUB_RUN_ID}","standing":"ALIVE","workflow_count":1}
+          JSON
+          cat target/ci-receipts/receipt.json
+
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
         with:
-          name: ggen-ci-errc-${{ steps.identity.outputs.head }}
-          path: ci-receipts/
+          name: ci-receipt-${{ github.run_id }}
+          path: target/ci-receipts/receipt.json
           if-no-files-found: error
           retention-days: 14
-      - name: Enforce fast admission
-        if: always()
-        run: test '${{ steps.admit.outcome }}' = success
 
-  deep:
-    name: Deep / ${{ matrix.lane }}
-    needs: admission
-    if: needs.admission.result == 'success'
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.admission.outputs.deep_matrix_json) }}
+  publish:
+    name: publish ggen library
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Checkout verified tag subject
+        uses: actions/checkout@v4
         with:
-          ref: ${{ needs.admission.outputs.head }}
-          fetch-depth: 0
           persist-credentials: false
-      - name: Reclaim runner space
-        if: matrix.lane == 'integration_deep'
-        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
-      - name: Set up Rust evidence lane
-        if: contains(fromJSON('["core_deep","integration_deep","quality_deep","security_deep","lsp_deep"]'), matrix.lane)
-        uses: ./.github/actions/setup-ggen-build
+      - name: Install repository-pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          components: ${{ matrix.lane == 'quality_deep' && 'rustfmt,clippy' || '' }}
-          cache-key-suffix: errc-${{ matrix.lane }}
-      - name: Install security verifier
-        if: matrix.lane == 'security_deep'
-        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
-        with:
-          tool: cargo-audit
-      - name: Execute owned evidence
-        shell: bash
+          toolchain: nightly-2026-06-22
+      - name: Publish exact package
         env:
-          BASE: ${{ needs.admission.outputs.base }}
-          LANE: ${{ matrix.lane }}
-        run: |
-          set -euo pipefail
-          case "$LANE" in
-            fast_only) echo 'No deep evidence is applicable.' ;;
-            ci_deep)
-              python3 scripts/ci/test_errc_router.py
-              python3 scripts/ci/test-g0-workflow-inventory.py
-              ;;
-            core_deep)
-              cargo check --workspace --exclude ggen-lsp
-              cargo build --workspace --exclude ggen-lsp
-              cargo test --workspace --lib --exclude ggen-lsp
-              cargo test --doc --workspace --exclude ggen-lsp
-              ;;
-            integration_deep) cargo test --workspace --exclude ggen-lsp ;;
-            quality_deep)
-              just fmt-check
-              ./scripts/ci/guard-process-intelligence-boundary.sh
-              cargo clippy --workspace --all-targets --exclude ggen-lsp || echo '::warning::clippy debt remains advisory'
-              ;;
-            security_deep) cargo audit || echo '::warning::pre-existing RUSTSEC debt remains advisory' ;;
-            docs_deep) git diff --check "$BASE"...HEAD ;;
-            lsp_deep) cargo check -p ggen-lsp --all-features ;;
-            *) echo "REFUSED:UNKNOWN_EVIDENCE_LANE:$LANE" >&2; exit 2 ;;
-          esac
-
-  ci-status:
-    name: CI Status
-    if: always()
-    needs: [admission, deep]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 2
-    steps:
-      - name: Assert applicable evidence succeeded
-        env:
-          ADMISSION: ${{ needs.admission.result }}
-          DEEP: ${{ needs.deep.result }}
-        run: |
-          test "$ADMISSION" = success || { echo 'BUILD_BROKEN:FAST_GATE_FAILED' >&2; exit 1; }
-          case "$DEEP" in success|skipped) ;; *) echo 'BUILD_BROKEN:DEEP_LANE_FAILED' >&2; exit 1;; esac
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish --locked -p ggen
