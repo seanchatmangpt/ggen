@@ -1,0 +1,42 @@
+# MESSAGE: A failed route is topology, not task termination. BLOCKED is refused while
+# MESSAGE: any lawful route remains AVAILABLE/CANDIDATE. Connector/App authority and
+# MESSAGE: repository-scoped Actions GITHUB_TOKEN authority are distinct principals.
+PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a ci:Task ; ci:standing ci:Blocked ; ci:hasRoute ?attempt .
+    ?attempt a ci:RouteAttempt ; ci:routeState ?state .
+    FILTER(?state IN (ci:RouteAvailable, ci:RouteCandidate))
+    BIND("false BLOCKED: a lawful route remains available or candidate; execute/eliminate it first" AS ?violation)
+  } UNION {
+    ?subject a ci:RouteAttempt ; ci:routeState ci:RouteAttemptedFailed .
+    FILTER NOT EXISTS { ?subject ci:failureClass ?failureClass }
+    BIND("failed route lacks typed failureClass evidence" AS ?violation)
+  } UNION {
+    ?subject a ci:Task ; ci:selectedRoute ?selected ; ci:hasRoute ?better .
+    ?selected ci:route ?selectedRoute .
+    ?selectedRoute ci:priority ?selectedPriority .
+    ?better ci:route ?betterRoute ; ci:routeState ci:RouteAvailable .
+    ?betterRoute ci:priority ?betterPriority .
+    FILTER(xsd:integer(?betterPriority) < xsd:integer(?selectedPriority))
+    BIND("selected route prematurely collapses a higher-precedence available route" AS ?violation)
+  } UNION {
+    ?subject a ci:CrossRepoDependency ;
+      ci:consumerRepo ?consumer ;
+      ci:dependencyRepo ?dependency ;
+      ci:authorizedBy ci:actions-github-token-principal .
+    FILTER(STR(?consumer) != STR(?dependency))
+    FILTER NOT EXISTS { ?subject ci:crossRepoAccessGranted true }
+    BIND("repository-scoped Actions GITHUB_TOKEN is not evidence of cross-private repository authority" AS ?violation)
+  } UNION {
+    ?subject a ci:CrossRepoDependency ;
+      ci:defaultActionsTokenRouteFailed true ;
+      ci:standing ci:Blocked ;
+      ci:hasRoute ?attempt .
+    ?attempt ci:routeState ?state .
+    FILTER(?state IN (ci:RouteAvailable, ci:RouteCandidate))
+    BIND("DEFAULT_ACTIONS_GITHUB_TOKEN_ROUTE_FAILED does not close the dependency graph" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

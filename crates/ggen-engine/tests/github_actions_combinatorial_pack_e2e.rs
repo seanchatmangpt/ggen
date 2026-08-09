@@ -1,9 +1,10 @@
 //! Chicago-TDD end-to-end proof for `packs/github-actions-combinatorial-pack`:
 //! real filesystem, real RDF/SPARQL gate execution, real Tera, and the real
-//! `ggen_engine::sync` pipeline. The pack preserves an open GitHub Actions /
-//! Marketplace capability graph while projecting only one bounded admitted
-//! exact-head workflow. No test here claims the hosted workflow ran; that
-//! standing belongs to an exact published commit's Actions run receipt.
+//! `ggen_engine::sync` pipeline. The pack preserves an open GitHub cloud /
+//! Actions / Marketplace capability graph while projecting only a bounded
+//! exact-head workflow, machine-readable Marketplace lock, and cloud doctrine.
+//! No test here claims the hosted workflow ran; runtime standing belongs to
+//! an exact published commit's Actions run receipt.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -19,7 +20,7 @@ fn packs_dir() -> PathBuf {
 }
 
 #[test]
-fn github_actions_pack_generates_bounded_pinned_exact_head_workflow() {
+fn github_actions_pack_generates_bounded_pinned_exact_head_products() {
     let (_dir, project) = scaffold_pack(&packs_dir().join("github-actions-combinatorial-pack"));
 
     sync(
@@ -39,8 +40,14 @@ fn github_actions_pack_generates_bounded_pinned_exact_head_workflow() {
     for event in ["push:", "pull_request:", "workflow_dispatch:"] {
         assert!(workflow.contains(event), "missing admitted event {event}: {workflow}");
     }
-    assert!(workflow.contains("contents: read"), "least-privilege contents grant missing: {workflow}");
-    assert!(workflow.contains("cancel-in-progress: true"), "WIP cancellation missing: {workflow}");
+    assert!(
+        workflow.contains("contents: read"),
+        "least-privilege contents grant missing: {workflow}"
+    );
+    assert!(
+        workflow.contains("cancel-in-progress: true"),
+        "WIP cancellation missing: {workflow}"
+    );
     assert!(
         workflow.contains("crown-ci-${{ github.workflow }}-${{ github.ref }}"),
         "concurrency identity must remain a GitHub expression after Tera rendering: {workflow}"
@@ -51,7 +58,10 @@ fn github_actions_pack_generates_bounded_pinned_exact_head_workflow() {
         "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
     ] {
-        assert!(workflow.contains(uses), "action is not immutable-pinned: {uses}\n{workflow}");
+        assert!(
+            workflow.contains(uses),
+            "action is not immutable-pinned: {uses}\n{workflow}"
+        );
     }
     assert!(
         !workflow.contains("actions/checkout@v4")
@@ -60,14 +70,57 @@ fn github_actions_pack_generates_bounded_pinned_exact_head_workflow() {
         "floating Marketplace refs must never reach the projection: {workflow}"
     );
     assert!(
-        workflow.contains("cargo test -p ggen-engine --test github_actions_combinatorial_pack_e2e"),
+        workflow.contains(
+            "cargo test -p ggen-engine --test github_actions_combinatorial_pack_e2e"
+        ),
         "selected repository-native verifier missing: {workflow}"
     );
     assert!(
         workflow.contains("\"head_sha\": os.environ.get(\"GITHUB_SHA\", \"\")"),
         "receipt must bind exact workflow head SHA: {workflow}"
     );
-    assert!(workflow.contains("if-no-files-found: error"), "receipt upload may not silently disappear: {workflow}");
+    assert!(
+        workflow.contains("if-no-files-found: error"),
+        "receipt upload may not silently disappear: {workflow}"
+    );
+
+    let marketplace_lock = read(&project, ".github/ggen/marketplace-lock.yml");
+    assert!(
+        marketplace_lock.contains("schema: ggen.github-actions.marketplace-lock/v1")
+            && marketplace_lock.contains("open_world_candidates: true"),
+        "Marketplace lock policy missing: {marketplace_lock}"
+    );
+    for expected in [
+        "source_repository: \"actions/checkout\"",
+        "source_repository: \"actions/cache\"",
+        "source_repository: \"actions/upload-artifact\"",
+        "capability: \"source-checkout\"",
+        "capability: \"dependency-cache\"",
+        "capability: \"artifact-upload\"",
+    ] {
+        assert!(
+            marketplace_lock.contains(expected),
+            "Marketplace lock missing {expected}: {marketplace_lock}"
+        );
+    }
+
+    let doctrine = read(&project, "docs/github-actions/cloud-operating-doctrine.md");
+    for expected in [
+        "`github-connector`",
+        "`github-actions`",
+        "`artifacts`",
+        "`local-verification-capsule`",
+        "`cli-fallback`",
+        "`gh-fix-ci`",
+        "`yeet`",
+        "`image_version`",
+        "false `BLOCKED`",
+    ] {
+        assert!(
+            doctrine.contains(expected),
+            "cloud doctrine missing {expected}: {doctrine}"
+        );
+    }
 
     assert_idempotent(&project);
 }
@@ -91,9 +144,12 @@ fn github_actions_pack_refuses_permission_dependency_gap() {
     assert_gate_refuses(
         &project,
         "@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .\n\
+         ci:oidc-cap a ci:ActionCapability ; ci:key \"oidc-test\" .\n\
          ci:oidc-action a ci:MarketplaceAction ; ci:usesPath \"octo/oidc\" ;\n\
+           ci:sourceRepository \"octo/oidc\" ; ci:publisher \"octo\" ;\n\
            ci:sha \"0123456789abcdef0123456789abcdef01234567\" ; ci:role \"deploy\" ;\n\
-           ci:trustedPublisher true ; ci:networkRequired true ; ci:sideEffect \"read\" ;\n\
+           ci:providesCapability ci:oidc-cap ; ci:trustedPublisher true ;\n\
+           ci:provenanceChecked true ; ci:networkRequired true ; ci:sideEffect \"read\" ;\n\
            ci:requiresScope \"id-token\" .\n\
          ci:bad-job a ci:JobPlan ; ci:id \"bad\" ; ci:runner \"ubuntu-latest\" ;\n\
            ci:timeoutMinutes 10 ; ci:networkPolicy \"egress-allow\" ; ci:emitsReceipt true ;\n\
@@ -112,13 +168,44 @@ fn github_actions_pack_refuses_unreceipted_consequence() {
     assert_gate_refuses(
         &project,
         "@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .\n\
+         ci:write-cap a ci:ActionCapability ; ci:key \"write-test\" .\n\
          ci:write-action a ci:MarketplaceAction ; ci:usesPath \"octo/write\" ;\n\
+           ci:sourceRepository \"octo/write\" ; ci:publisher \"octo\" ;\n\
            ci:sha \"0123456789abcdef0123456789abcdef01234567\" ; ci:role \"write\" ;\n\
-           ci:trustedPublisher true ; ci:networkRequired false ; ci:sideEffect \"repository-write\" .\n\
+           ci:providesCapability ci:write-cap ; ci:trustedPublisher true ;\n\
+           ci:provenanceChecked true ; ci:networkRequired false ;\n\
+           ci:sideEffect \"repository-write\" .\n\
          ci:unreceipted-job a ci:JobPlan ; ci:id \"bad\" ; ci:runner \"ubuntu-latest\" ;\n\
            ci:timeoutMinutes 10 ; ci:networkPolicy \"deny\" ; ci:emitsReceipt false ;\n\
            ci:verifyCommand \"true\" ; ci:checkoutAction ci:write-action ; ci:cacheAction ci:write-action ;\n\
            ci:uploadAction ci:write-action ; ci:usesAction ci:write-action .\n",
         "030_authority_receipt",
+    );
+}
+
+#[test]
+fn github_actions_pack_refuses_false_blocker_while_route_remains() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("github-actions-combinatorial-pack"));
+    assert_gate_refuses(
+        &project,
+        "@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .\n\
+         ci:false-blocked a ci:Task ; ci:standing ci:Blocked ; ci:hasRoute ci:still-open .\n\
+         ci:still-open a ci:RouteAttempt ; ci:route ci:connector-native ;\n\
+           ci:routeState ci:RouteAvailable .\n",
+        "040_topology",
+    );
+}
+
+#[test]
+fn github_actions_pack_refuses_actions_token_cross_repo_authority_conflation() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("github-actions-combinatorial-pack"));
+    assert_gate_refuses(
+        &project,
+        "@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .\n\
+         ci:private-dependency a ci:CrossRepoDependency ;\n\
+           ci:consumerRepo \"seanchatmangpt/autofde\" ;\n\
+           ci:dependencyRepo \"seanchatmangpt/gymact\" ;\n\
+           ci:authorizedBy ci:actions-github-token-principal .\n",
+        "040_topology",
     );
 }

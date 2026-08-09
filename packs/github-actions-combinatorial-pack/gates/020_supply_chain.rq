@@ -1,23 +1,37 @@
-# MESSAGE: Selected Marketplace actions must be immutable, trusted, dependency-closed, and compatible with the admitted network/permission boundary. Any row is a refusal.
+# MESSAGE: Selected Marketplace/reusable-workflow dependencies must be immutable,
+# MESSAGE: provenance-bound, capability-declared, and closed over permission/network
+# MESSAGE: requirements. Marketplace discovery is open-world; execution is fail-closed.
 PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#>
 SELECT ?subject ?violation WHERE {
   {
     ?subject a ci:MarketplaceAction .
-    VALUES ?property { ci:usesPath ci:sha ci:role ci:trustedPublisher ci:networkRequired ci:sideEffect }
+    VALUES ?property {
+      ci:usesPath ci:sourceRepository ci:publisher ci:sha ci:role
+      ci:providesCapability ci:trustedPublisher ci:provenanceChecked
+      ci:networkRequired ci:sideEffect
+    }
     FILTER NOT EXISTS { ?subject ?property ?value }
-    BIND(CONCAT("marketplace action missing ", STR(?property)) AS ?violation)
+    BIND(CONCAT("admitted Marketplace action missing ", STR(?property)) AS ?violation)
   } UNION {
     ?subject a ci:MarketplaceAction ; ci:sha ?sha .
     FILTER(!REGEX(STR(?sha), "^[0-9a-fA-F]{40}$"))
     BIND("Marketplace action execution ref must be a full 40-hex commit SHA" AS ?violation)
   } UNION {
     ?subject a ci:MarketplaceAction ; ci:usesPath ?usesPath .
-    FILTER(!REGEX(STR(?usesPath), "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)?$"))
+    FILTER(!REGEX(STR(?usesPath), "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(/[A-Za-z0-9_./-]+)?$"))
     BIND("Marketplace action usesPath must be owner/repo or owner/repo/path" AS ?violation)
+  } UNION {
+    ?subject a ci:MarketplaceAction ; ci:usesPath ?usesPath ; ci:sourceRepository ?source .
+    FILTER(!STRSTARTS(STR(?usesPath), CONCAT(STR(?source), "/")) && STR(?usesPath) != STR(?source))
+    BIND("Marketplace action sourceRepository does not own usesPath" AS ?violation)
   } UNION {
     ?job a ci:JobPlan ; ci:usesAction ?subject .
     ?subject a ci:MarketplaceAction ; ci:trustedPublisher false .
     BIND("selected Marketplace action publisher is not admitted" AS ?violation)
+  } UNION {
+    ?job a ci:JobPlan ; ci:usesAction ?subject .
+    ?subject a ci:MarketplaceAction ; ci:provenanceChecked false .
+    BIND("selected Marketplace action provenance was not checked" AS ?violation)
   } UNION {
     ?job a ci:JobPlan ; ci:usesAction ?subject ; ci:networkPolicy "deny" .
     ?subject a ci:MarketplaceAction ; ci:networkRequired true .
@@ -32,6 +46,10 @@ SELECT ?subject ?violation WHERE {
       FILTER(STR(?access) IN ("read", "write"))
     }
     BIND(CONCAT("selected action requires missing permission scope ", STR(?scope)) AS ?violation)
+  } UNION {
+    ?subject a ci:ReusableWorkflowRef ; ci:repository ?repo ; ci:path ?path ; ci:sha ?sha .
+    FILTER(!REGEX(STR(?sha), "^[0-9a-fA-F]{40}$"))
+    BIND("remote reusable workflow execution ref must be a full 40-hex commit SHA" AS ?violation)
   }
 }
 ORDER BY ?subject ?violation

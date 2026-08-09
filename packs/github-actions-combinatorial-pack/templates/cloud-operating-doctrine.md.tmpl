@@ -1,0 +1,115 @@
+---
+to: docs/github-actions/cloud-operating-doctrine.md
+sparql:
+  planes: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?order ?key ?description WHERE { ?plane a ci:TransportPlane ; ci:order ?order ; ci:key ?key ; dcterms:description ?description . } ORDER BY ?order ?key"
+  principals: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?key ?domain ?cross WHERE { ?principal a ci:Principal ; ci:key ?key ; ci:authorityDomain ?domain . OPTIONAL { ?principal ci:crossRepositoryPotential ?cross } } ORDER BY ?key"
+  connector: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?key ?mutates WHERE { ?capability a ci:ConnectorCapability ; ci:key ?key ; ci:mutates ?mutates . } ORDER BY ?key"
+  routes: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?priority ?key ?planeKey WHERE { ?route a ci:ExecutionRoute ; ci:key ?key ; ci:priority ?priority ; ci:plane ?plane . ?plane ci:key ?planeKey . } ORDER BY ?priority ?key"
+  operators: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?key ?completion WHERE { ?operator a ci:WorkflowOperator ; ci:key ?key ; ci:completionCondition ?completion . } ORDER BY ?key"
+  dependency_routes: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?order ?key WHERE { ?route a ci:DependencyRoute ; ci:order ?order ; ci:key ?key . } ORDER BY ?order ?key"
+  action_capabilities: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?key WHERE { ?capability a ci:ActionCapability ; ci:key ?key . } ORDER BY ?key"
+  events: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?order ?key ?trust WHERE { ?event a ci:EventKind ; ci:order ?order ; ci:key ?key ; ci:trustBoundary ?trust . } ORDER BY ?order ?key"
+---
+# GitHub Cloud Operating Doctrine
+
+> GENERATED from `github-actions-combinatorial-pack/ontology.ttl`. Do not hand-edit.
+
+The crown objective is **verified GitHub consequence**, not fidelity to a laptop transport.
+The capability graph is open-world: preserve lawful routes and Marketplace candidates,
+then admit a bounded dependency-closed projection. A failed edge is topology.
+
+## Control precedence
+
+| Order | Plane | Purpose |
+|---:|---|---|
+{% for plane in planes -%}
+| {{ plane.order }} | `{{ plane.key }}` | {{ plane.description }} |
+{% endfor %}
+
+Local `git`, `gh`, SSH, Docker, package managers, and direct network access are optional
+accelerators. Their absence does not establish task-level `BLOCKED`.
+
+## Authority principals are not interchangeable
+
+| Principal | Authority domain | Cross-repository potential |
+|---|---|---|
+{% for principal in principals -%}
+| `{{ principal.key }}` | {{ principal.domain }} | {% if principal.cross %}{{ principal.cross }}{% else %}unspecified{% endif %} |
+{% endfor %}
+
+In particular, ChatGPT connector authority and an Actions run's repository-scoped
+`GITHUB_TOKEN` are different principals. A failed default Actions token route does not
+prove a private dependency is blocked.
+
+## Connector control capabilities
+
+{% for capability in connector -%}
+- `{{ capability.key }}` — {% if capability.mutates %}mutation{% else %}observation{% endif %}
+{% endfor %}
+
+Runtime capability discovery is authoritative: these names describe semantic operations,
+not a requirement that a historical tool wrapper expose a particular spelling.
+
+## Candidate execution routes
+
+| Priority | Route | Plane |
+|---:|---|---|
+{% for route in routes -%}
+| {{ route.priority }} | `{{ route.key }}` | `{{ route.planeKey }}` |
+{% endfor %}
+
+Selection minimizes cycle time, information loss, verification risk, transport cost, and
+future WIP subject to exact subject identity, required validator, lawful authority, and receipt.
+
+## Named production operators
+
+{% for operator in operators -%}
+- **`{{ operator.key }}`** — {{ operator.completion }}
+{% endfor %}
+
+`gh-fix-ci` means evidence-first exact-head repair. `yeet` means scope-first intentional
+publication and draft PR. Their semantics survive transport substitution; neither means merge.
+
+## Cross-private dependency ladder
+
+{% for route in dependency_routes -%}
+{{ route.order }}. `{{ route.key }}`
+{% endfor %}
+
+Human credential escalation is the last relevant edge. Prefer immutable artifact flow over
+repeated credential-coupled live clone flow.
+
+## Marketplace/action capability space
+
+The registry is deliberately open-world. A candidate becomes executable only after source,
+publisher policy, full commit SHA, capability, permission, network, and side-effect closure.
+
+{% for capability in action_capabilities -%}
+- `{{ capability.key }}`
+{% endfor %}
+
+## Workflow event space
+
+{% for event in events -%}
+- `{{ event.key }}` — trust boundary: `{{ event.trust }}`
+{% endfor %}
+
+## Exact-head law
+
+Every CI claim is indexed as `CI(repository, SHA)`. Branch names, PR numbers, workflow names,
+and older green runs do not transfer standing to a newer head. Re-observe the PR head, run head,
+job/step evidence, artifact identities, and consequence before assigning `ALIVE`.
+
+## BLOCKED law
+
+`BLOCKED` is admissible only after all relevant lawful connector, Actions, artifact,
+materialization, authority, and compatible-execution routes are attempted or eliminated with
+typed evidence. If a route remains `AVAILABLE` or `CANDIDATE`, the pack's topology gate refuses
+`BLOCKED`.
+
+## BRCE-shaped publication law
+
+SELECT, CONSTRUCT, and DO remain distinct. Generated graphs, plans, hooks, and workflow
+definitions have no ambient actuation authority. Consequential operations require explicit
+authority and receipt closure. Publication defaults to purpose branch + intentional commit +
+draft PR; merge/close requires separate authority.
