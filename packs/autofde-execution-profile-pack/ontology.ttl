@@ -12,6 +12,7 @@
 #       afxp:provider "..." ;
 #       afxp:benchmarkRevision "..." ;
 #       afxp:scenario "" ;
+#       afxp:configJson "{...}" ;
 #       afxp:capabilityRef "" ;
 #       afxp:capabilityBinding "..." ;
 #       afxp:payloadJson "{...}" ;
