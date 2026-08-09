@@ -1,0 +1,33 @@
+# MESSAGE: Execution profiles need exactly one capability selector and a non-vacuous expected-state oracle. Any row is a refusal.
+PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+SELECT ?subject ?violation WHERE {
+  ?subject a prov:Plan ;
+      dcterms:type afxp:GymActExecutionProfile ;
+      afxp:capabilityRef ?ref ;
+      afxp:capabilityBinding ?binding ;
+      afxp:expectedJson ?expected ;
+      afxp:payloadJson ?payload ;
+      afxp:inputSchemaJson ?schema .
+  {
+    FILTER(
+      (STRLEN(STR(?ref)) = 0 && STRLEN(STR(?binding)) = 0) ||
+      (STRLEN(STR(?ref)) > 0 && STRLEN(STR(?binding)) > 0)
+    )
+    BIND("exactly one of capabilityRef/capabilityBinding must be non-empty" AS ?violation)
+  } UNION {
+    FILTER(REPLACE(STR(?expected), "\\s", "") = "{}" || STRLEN(STR(?expected)) = 0)
+    BIND("expectedJson must be a non-vacuous verification oracle" AS ?violation)
+  } UNION {
+    FILTER(!REGEX(STR(?payload), "^\\s*\\{.*\\}\\s*$"))
+    BIND("payloadJson must be a JSON object serialization" AS ?violation)
+  } UNION {
+    FILTER(!REGEX(STR(?expected), "^\\s*\\{.*\\}\\s*$"))
+    BIND("expectedJson must be a JSON object serialization" AS ?violation)
+  } UNION {
+    FILTER(!REGEX(STR(?schema), "^\\s*\\{.*\\}\\s*$"))
+    BIND("inputSchemaJson must be a JSON object serialization" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation
