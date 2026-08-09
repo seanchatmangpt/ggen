@@ -54,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/ci/test_guard_pack_standard.py
-          python3 scripts/ci/guard_pack_standard.py
+          python3 scripts/ci/guard_pack_standard.py --changed-since '${{ steps.identity.outputs.base }}'
       - name: Manufacture exact-head receipt and routing
         id: admit
         continue-on-error: true
