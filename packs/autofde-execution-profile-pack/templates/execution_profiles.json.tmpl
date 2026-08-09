@@ -16,12 +16,12 @@ sparql:
       "provider": {{ row.provider | json_encode | safe }},
       "benchmark_revision": {{ row.revision | json_encode | safe }},
       "scenario": {% if row.scenario == "" %}null{% else %}{{ row.scenario | json_encode | safe }}{% endif %},
-      "config": {{ row.configJson | safe }},
+      "config_json": {{ row.configJson | json_encode | safe }},
       "capability_ref": {% if row.capabilityRef == "" %}null{% else %}{{ row.capabilityRef | json_encode | safe }}{% endif %},
       "capability_binding": {% if row.capabilityBinding == "" %}null{% else %}{{ row.capabilityBinding | json_encode | safe }}{% endif %},
-      "payload": {{ row.payloadJson | safe }},
-      "expected": {{ row.expectedJson | safe }},
-      "input_schema": {{ row.inputSchemaJson | safe }},
+      "payload_json": {{ row.payloadJson | json_encode | safe }},
+      "expected_json": {{ row.expectedJson | json_encode | safe }},
+      "input_schema_json": {{ row.inputSchemaJson | json_encode | safe }},
       "authority_ref": {% if row.authorityRef == "" %}null{% else %}{{ row.authorityRef | json_encode | safe }}{% endif %},
       "action_ref": {% if row.actionRef == "" %}null{% else %}{{ row.actionRef | json_encode | safe }}{% endif %}
     }{% if not loop.last %},{% endif %}
