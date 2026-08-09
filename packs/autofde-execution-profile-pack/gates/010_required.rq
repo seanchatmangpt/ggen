@@ -1,0 +1,25 @@
+# MESSAGE: Every GymAct execution profile must be identity-, revision-, source-, payload-, and verification-complete. Any row is a refusal.
+PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+SELECT ?subject ?violation WHERE {
+  ?subject a prov:Plan ; dcterms:type afxp:GymActExecutionProfile .
+  VALUES ?property {
+    dcterms:identifier
+    dcterms:source
+    prov:wasDerivedFrom
+    afxp:provider
+    afxp:benchmarkRevision
+    afxp:scenario
+    afxp:capabilityRef
+    afxp:capabilityBinding
+    afxp:payloadJson
+    afxp:expectedJson
+    afxp:inputSchemaJson
+    afxp:authorityRef
+    afxp:actionRef
+  }
+  FILTER NOT EXISTS { ?subject ?property ?value }
+  BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+}
+ORDER BY ?subject ?violation
