@@ -90,9 +90,6 @@ star-toml = "26.7.3"
 spargebra = "0.4.6"
 praxis-core = { path = "../praxis-core" }
 praxis-graphlaw = { path = "../praxis-graphlaw" }
-# Reuse the canonical deterministic RDF delta/receipt substrate rather than
-# inventing a second semantic-delta type inside the manufacturing planner.
-ggen-graph = { workspace = true }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
