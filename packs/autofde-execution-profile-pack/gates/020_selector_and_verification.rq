@@ -1,4 +1,4 @@
-# MESSAGE: Execution profiles need exactly one capability selector and a non-vacuous expected-state oracle. Any row is a refusal.
+# MESSAGE: Execution profiles need exactly one capability selector, object-shaped materialization/config data, and a non-vacuous expected-state oracle. Any row is a refusal.
 PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -19,6 +19,12 @@ SELECT ?subject ?violation WHERE {
         afxp:expectedJson ?expected .
     FILTER(REPLACE(STR(?expected), "\\s", "") = "{}" || STRLEN(STR(?expected)) = 0)
     BIND("expectedJson must be a non-vacuous verification oracle" AS ?violation)
+  } UNION {
+    ?subject a prov:Plan ;
+        dcterms:type afxp:GymActExecutionProfile ;
+        afxp:configJson ?config .
+    FILTER(!REGEX(STR(?config), "^\\s*\\{.*\\}\\s*$"))
+    BIND("configJson must be a JSON object serialization" AS ?violation)
   } UNION {
     ?subject a prov:Plan ;
         dcterms:type afxp:GymActExecutionProfile ;
