@@ -1,0 +1,27 @@
+@prefix afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Application vocabulary only. This pack intentionally declares no new RDF/OWL
+# classes or properties. Consumer graphs identify an execution-profile plan with:
+#
+#   ?profile a prov:Plan ;
+#       dcterms:type afxp:GymActExecutionProfile ;
+#       dcterms:identifier "..." ;
+#       dcterms:source <...> ;
+#       afxp:provider "..." ;
+#       afxp:benchmarkRevision "..." ;
+#       afxp:scenario "" ;
+#       afxp:capabilityRef "" ;
+#       afxp:capabilityBinding "..." ;
+#       afxp:payloadJson "{...}" ;
+#       afxp:expectedJson "{...}" ;
+#       afxp:inputSchemaJson "{...}" ;
+#       afxp:authorityRef "" ;
+#       afxp:actionRef "" ;
+#       prov:wasDerivedFrom <...> .
+#
+# Exactly one of capabilityRef/capabilityBinding must be non-empty. Empty strings
+# represent optional nulls so the projection has a closed, deterministic row shape.
+# authorityRef is only a reference handed to the external authority system; this pack
+# does not model or manufacture a grant, principal, nonce, expiry, or permission token.
