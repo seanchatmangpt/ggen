@@ -1,15 +1,15 @@
 use ggen_engine::manufacturing_kernel::{
-    CourtObligation, ManufacturingKernel, ManufacturingRefusal, ProjectionId, ProjectionSpec,
+    AdmittedSemanticDelta, CourtObligation, ManufacturingKernel, ManufacturingRefusal, ProjectionId,
+    ProjectionSpec,
 };
-use ggen_graph::RdfDelta;
 
 const NAME_PREDICATE: &str = "https://example.com/schema/name";
 const CLOUD_PREDICATE: &str = "https://example.com/schema/cloud";
 
-fn add_quad(predicate: &str, object: &str) -> String {
-    format!(
-        "<https://example.com/subject> <{predicate}> \"{object}\" <https://example.com/graph> ."
-    )
+fn delta(
+    identity: &str, predicates: &[&str],
+) -> Result<AdmittedSemanticDelta, ManufacturingRefusal> {
+    AdmittedSemanticDelta::new(identity, predicates.iter().copied())
 }
 
 #[test]
@@ -20,8 +20,8 @@ fn semantic_delta_selects_only_the_minimum_downstream_closure(
     let proof = ProjectionSpec::new("proof")?.depending_on("rust")?;
     let cloud = ProjectionSpec::new("cloud")?.observing(CLOUD_PREDICATE);
 
-    let delta = RdfDelta::new(vec![add_quad(NAME_PREDICATE, "Alice")], Vec::new());
-    let plan = ManufacturingKernel.plan(&delta, [cloud, proof, docs, rust])?;
+    let admitted = delta("blake3:delta-name-v1", &[NAME_PREDICATE])?;
+    let plan = ManufacturingKernel.plan(&admitted, [cloud, proof, docs, rust])?;
 
     let ids = plan
         .projections
@@ -31,6 +31,7 @@ fn semantic_delta_selects_only_the_minimum_downstream_closure(
 
     assert_eq!(ids, vec!["rust", "docs", "proof"]);
     assert!(!plan.is_noop());
+    assert_eq!(plan.delta_identity, "blake3:delta-name-v1");
     assert_eq!(plan.changed_predicates.len(), 1);
     assert!(plan.changed_predicates.contains(NAME_PREDICATE));
     Ok(())
@@ -41,10 +42,13 @@ fn manufacture_plan_is_insertion_order_invariant() -> Result<(), Box<dyn std::er
     let a = ProjectionSpec::new("a")?.observing(NAME_PREDICATE);
     let b = ProjectionSpec::new("b")?.depending_on("a")?;
     let c = ProjectionSpec::new("c")?.depending_on("a")?;
-    let delta = RdfDelta::new(vec![add_quad(NAME_PREDICATE, "Alice")], Vec::new());
+    let admitted = AdmittedSemanticDelta::new(
+        "blake3:delta-v1",
+        [NAME_PREDICATE, CLOUD_PREDICATE],
+    )?;
 
-    let forward = ManufacturingKernel.plan(&delta, [a.clone(), b.clone(), c.clone()])?;
-    let reverse = ManufacturingKernel.plan(&delta, [c, b, a])?;
+    let forward = ManufacturingKernel.plan(&admitted, [a.clone(), b.clone(), c.clone()])?;
+    let reverse = ManufacturingKernel.plan(&admitted, [c, b, a])?;
 
     assert_eq!(forward, reverse);
     assert_eq!(forward.plan_hash_hex, reverse.plan_hash_hex);
@@ -52,19 +56,21 @@ fn manufacture_plan_is_insertion_order_invariant() -> Result<(), Box<dyn std::er
 }
 
 #[test]
-fn deletion_triggers_the_same_projection_closure() -> Result<(), Box<dyn std::error::Error>> {
+fn transitive_projection_dependencies_close_to_the_leaf(
+) -> Result<(), Box<dyn std::error::Error>> {
     let source = ProjectionSpec::new("source")?.observing(NAME_PREDICATE);
-    let downstream = ProjectionSpec::new("downstream")?.depending_on("source")?;
-    let delta = RdfDelta::new(Vec::new(), vec![add_quad(NAME_PREDICATE, "Alice")]);
+    let middle = ProjectionSpec::new("middle")?.depending_on("source")?;
+    let leaf = ProjectionSpec::new("leaf")?.depending_on("middle")?;
+    let admitted = delta("receipt:semantic-change-42", &[NAME_PREDICATE])?;
 
-    let plan = ManufacturingKernel.plan(&delta, [source, downstream])?;
+    let plan = ManufacturingKernel.plan(&admitted, [leaf, source, middle])?;
     let ids = plan
         .projections
         .iter()
         .map(|projection| projection.id.as_str())
         .collect::<Vec<_>>();
 
-    assert_eq!(ids, vec!["source", "downstream"]);
+    assert_eq!(ids, vec!["source", "middle", "leaf"]);
     Ok(())
 }
 
@@ -72,9 +78,9 @@ fn deletion_triggers_the_same_projection_closure() -> Result<(), Box<dyn std::er
 fn every_affected_projection_carries_the_baseline_court(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let projection = ProjectionSpec::new("runtime")?.observing(NAME_PREDICATE);
-    let delta = RdfDelta::new(vec![add_quad(NAME_PREDICATE, "Alice")], Vec::new());
+    let admitted = delta("blake3:delta-name-v1", &[NAME_PREDICATE])?;
 
-    let plan = ManufacturingKernel.plan(&delta, [projection])?;
+    let plan = ManufacturingKernel.plan(&admitted, [projection])?;
     let court = &plan.projections[0].court;
 
     for obligation in [
@@ -93,22 +99,67 @@ fn every_affected_projection_carries_the_baseline_court(
 #[test]
 fn unrelated_delta_is_a_receiptable_noop() -> Result<(), Box<dyn std::error::Error>> {
     let projection = ProjectionSpec::new("runtime")?.observing(NAME_PREDICATE);
-    let delta = RdfDelta::new(vec![add_quad(CLOUD_PREDICATE, "gcp")], Vec::new());
+    let admitted = delta("blake3:cloud-only-v1", &[CLOUD_PREDICATE])?;
 
-    let plan = ManufacturingKernel.plan(&delta, [projection])?;
+    let plan = ManufacturingKernel.plan(&admitted, [projection])?;
 
     assert!(plan.is_noop());
-    assert!(!plan.delta_hash_hex.is_empty());
+    assert_eq!(plan.delta_identity, "blake3:cloud-only-v1");
     assert!(!plan.plan_hash_hex.is_empty());
+    Ok(())
+}
+
+#[test]
+fn changing_admitted_delta_identity_changes_plan_identity(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let projection = ProjectionSpec::new("runtime")?.observing(NAME_PREDICATE);
+    let first = delta("blake3:first", &[NAME_PREDICATE])?;
+    let second = delta("blake3:second", &[NAME_PREDICATE])?;
+
+    let first_plan = ManufacturingKernel.plan(&first, [projection.clone()])?;
+    let second_plan = ManufacturingKernel.plan(&second, [projection])?;
+
+    assert_ne!(first_plan.plan_hash_hex, second_plan.plan_hash_hex);
+    Ok(())
+}
+
+#[test]
+fn blank_delta_identity_is_refused() {
+    let result = AdmittedSemanticDelta::new("  ", [NAME_PREDICATE]);
+
+    assert_eq!(result, Err(ManufacturingRefusal::EmptyDeltaIdentity));
+}
+
+#[test]
+fn blank_delta_predicate_is_refused() {
+    let result = AdmittedSemanticDelta::new("blake3:delta-v1", [" "]);
+
+    assert_eq!(result, Err(ManufacturingRefusal::EmptyDeltaPredicate));
+}
+
+#[test]
+fn blank_projection_trigger_is_refused_before_planning(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let projection = ProjectionSpec::new("runtime")?.observing(" ");
+    let admitted = delta("blake3:delta-v1", &[NAME_PREDICATE])?;
+
+    let result = ManufacturingKernel.plan(&admitted, [projection]);
+
+    assert_eq!(
+        result,
+        Err(ManufacturingRefusal::EmptyProjectionTrigger(
+            ProjectionId::new("runtime")?
+        ))
+    );
     Ok(())
 }
 
 #[test]
 fn unknown_dependency_is_refused() -> Result<(), Box<dyn std::error::Error>> {
     let projection = ProjectionSpec::new("docs")?.depending_on("missing")?;
-    let delta = RdfDelta::new(Vec::new(), Vec::new());
+    let admitted = delta("blake3:delta-v1", &[])?;
 
-    let result = ManufacturingKernel.plan(&delta, [projection]);
+    let result = ManufacturingKernel.plan(&admitted, [projection]);
 
     assert_eq!(
         result,
@@ -124,9 +175,9 @@ fn unknown_dependency_is_refused() -> Result<(), Box<dyn std::error::Error>> {
 fn projection_cycle_is_refused() -> Result<(), Box<dyn std::error::Error>> {
     let a = ProjectionSpec::new("a")?.depending_on("b")?;
     let b = ProjectionSpec::new("b")?.depending_on("a")?;
-    let delta = RdfDelta::new(Vec::new(), Vec::new());
+    let admitted = delta("blake3:delta-v1", &[])?;
 
-    let result = ManufacturingKernel.plan(&delta, [a, b]);
+    let result = ManufacturingKernel.plan(&admitted, [a, b]);
 
     assert_eq!(
         result,
@@ -141,9 +192,9 @@ fn projection_cycle_is_refused() -> Result<(), Box<dyn std::error::Error>> {
 fn duplicate_projection_identity_is_refused() -> Result<(), Box<dyn std::error::Error>> {
     let first = ProjectionSpec::new("runtime")?;
     let second = ProjectionSpec::new("runtime")?;
-    let delta = RdfDelta::new(Vec::new(), Vec::new());
+    let admitted = delta("blake3:delta-v1", &[])?;
 
-    let result = ManufacturingKernel.plan(&delta, [first, second]);
+    let result = ManufacturingKernel.plan(&admitted, [first, second]);
 
     assert_eq!(
         result,
@@ -151,19 +202,5 @@ fn duplicate_projection_identity_is_refused() -> Result<(), Box<dyn std::error::
             "runtime"
         )?))
     );
-    Ok(())
-}
-
-#[test]
-fn invalid_rdf_delta_is_refused_before_planning() -> Result<(), Box<dyn std::error::Error>> {
-    let projection = ProjectionSpec::new("runtime")?.observing(NAME_PREDICATE);
-    let delta = RdfDelta::new(vec!["not an n-quad".to_string()], Vec::new());
-
-    let result = ManufacturingKernel.plan(&delta, [projection]);
-
-    assert!(matches!(
-        result,
-        Err(ManufacturingRefusal::InvalidRdfDelta(_))
-    ));
     Ok(())
 }
