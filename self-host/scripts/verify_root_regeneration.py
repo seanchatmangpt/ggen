@@ -9,8 +9,9 @@ Execution receipts are admitted as evidence, never mislabeled as generation outp
 ``crates/{{ crate_name }}/Cargo.toml`` declares a bounded family of concrete paths.
 Treating that template text as one required filename produces a false negative and
 loses the ownership relation the manifest is meant to encode. Literal outputs remain
-mandatory. Templated outputs are compiled to one-segment path predicates; every
-concrete repository path may have at most one owner.
+mandatory and are observed directly from the filesystem, including intentionally
+Git-ignored generated consequences. Templated outputs are compiled to one-segment
+path predicates; every concrete repository path may have at most one owner.
 """
 from __future__ import annotations
 
@@ -109,7 +110,7 @@ def changed_paths(root: Path) -> list[str]:
 
 
 def repository_paths(root: Path) -> list[str]:
-    """Return the admitted repository file set (tracked + visible untracked)."""
+    """Return tracked and non-ignored untracked paths for ambient-change admission."""
     return sorted(
         nul_paths(git(root, "ls-files", "--cached", "--others", "--exclude-standard", "-z"))
     )
@@ -124,9 +125,20 @@ def owners_for_path(path: str, rules: Iterable[OutputRule]) -> list[OutputRule]:
 
 
 def concrete_owned_outputs(root: Path, rules: list[OutputRule] | None = None) -> dict[str, str]:
+    """Resolve concrete consequences without losing ignored literal outputs.
+
+    Git topology is authoritative for discovering patterned repository families. A
+    literal manifest consequence has stronger identity: its exact path is already
+    admitted, so existence is observed directly from the filesystem even when the
+    repository intentionally ignores generated projections.
+    """
     rules = rules or declared_output_rules(root)
     owned: dict[str, str] = {}
     ambiguous: dict[str, list[str]] = {}
+
+    for rule in rules:
+        if rule.literal and (root / rule.output_file).is_file():
+            owned[rule.output_file] = rule.owner
 
     for path in repository_paths(root):
         matches = owners_for_path(path, rules)
@@ -167,7 +179,6 @@ def compare_snapshot(root: Path, source: Path) -> tuple[bool, dict[str, Any]]:
 def verify(root: Path) -> dict[str, Any]:
     rules = declared_output_rules(root)
     changed = changed_paths(root)
-    repository = set(repository_paths(root))
 
     generated: list[str] = []
     generated_owners: dict[str, str] = {}
@@ -188,7 +199,11 @@ def verify(root: Path) -> dict[str, Any]:
 
     literal_rules = [rule for rule in rules if rule.literal]
     pattern_rules = [rule for rule in rules if not rule.literal]
-    missing = [rule.output_file for rule in literal_rules if rule.output_file not in repository]
+    missing = [
+        rule.output_file
+        for rule in literal_rules
+        if not (root / rule.output_file).is_file()
+    ]
     evidence = [path for path in changed if is_evidence_path(path)]
 
     concrete_owned = concrete_owned_outputs(root, rules)
@@ -198,7 +213,7 @@ def verify(root: Path) -> dict[str, Any]:
     }
 
     return {
-        "schema": "ggen.root-regeneration.verification.v2",
+        "schema": "ggen.root-regeneration.verification.v3",
         "revision": git(root, "rev-parse", "HEAD").decode("ascii").strip(),
         "declared_output_count": len(rules),
         "declared_literal_output_count": len(literal_rules),
