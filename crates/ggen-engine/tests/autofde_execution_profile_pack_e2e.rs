@@ -2,9 +2,9 @@
 //!
 //! Uses the real filesystem, graph engine, SPARQL gates, Tera renderer and
 //! `ggen_engine::sync` pipeline. It proves generation, JSON parseability,
-//! exact revision/source binding, non-vacuous verification, idempotency, and
-//! fail-closed refusal when a profile is incomplete or attempts to carry an
-//! authority token. No actuation exists in this pack or test.
+//! exact revision/source/materialization binding, non-vacuous verification,
+//! idempotency, and fail-closed refusal when a profile is incomplete or
+//! attempts to carry an authority token. No actuation exists in this pack or test.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -31,6 +31,7 @@ const PROFILE: &str = r#"@prefix afxp: <http://seanchatmangpt.github.io/packs/au
     afxp:provider "memory" ;
     afxp:benchmarkRevision "0123456789abcdef0123456789abcdef01234567" ;
     afxp:scenario "" ;
+    afxp:configJson "{\"initial\":{\"counter\":0}}" ;
     afxp:capabilityRef "" ;
     afxp:capabilityBinding "increment" ;
     afxp:payloadJson "{\"key\":\"counter\",\"amount\":1}" ;
@@ -70,6 +71,7 @@ fn execution_profile_pack_generates_powerless_revision_bound_json_and_is_idempot
     );
     assert_eq!(profile["source_ref"], "urn:test:benchmark-source");
     assert_eq!(profile["derived_from"], "urn:test:experiment-plan");
+    assert_eq!(profile["config"]["initial"]["counter"], 0);
     assert!(profile["capability_ref"].is_null());
     assert_eq!(profile["capability_binding"], "increment");
     assert_eq!(profile["payload"]["key"], "counter");
