@@ -1,0 +1,29 @@
+---
+to: generated/autofde/execution-profiles.json
+sparql:
+  profiles: "PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX prov: <http://www.w3.org/ns/prov#> SELECT ?id ?source ?derivedFrom ?provider ?revision ?scenario ?capabilityRef ?capabilityBinding ?payloadJson ?expectedJson ?inputSchemaJson ?authorityRef ?actionRef WHERE { ?profile a prov:Plan ; dcterms:type afxp:GymActExecutionProfile ; dcterms:identifier ?id ; dcterms:source ?source ; prov:wasDerivedFrom ?derivedFrom ; afxp:provider ?provider ; afxp:benchmarkRevision ?revision ; afxp:scenario ?scenario ; afxp:capabilityRef ?capabilityRef ; afxp:capabilityBinding ?capabilityBinding ; afxp:payloadJson ?payloadJson ; afxp:expectedJson ?expectedJson ; afxp:inputSchemaJson ?inputSchemaJson ; afxp:authorityRef ?authorityRef ; afxp:actionRef ?actionRef . } ORDER BY ?id"
+---
+{
+  "schema": "urn:autofde:execution-profile:v1",
+  "generated_by": "ggen:autofde-execution-profile-pack",
+  "authority_mode": "external-only",
+  "profiles": [
+{% for row in profiles %}
+    {
+      "profile_id": {{ row.id | json_encode | safe }},
+      "source_ref": {{ row.source | json_encode | safe }},
+      "derived_from": {{ row.derivedFrom | json_encode | safe }},
+      "provider": {{ row.provider | json_encode | safe }},
+      "benchmark_revision": {{ row.revision | json_encode | safe }},
+      "scenario": {% if row.scenario == "" %}null{% else %}{{ row.scenario | json_encode | safe }}{% endif %},
+      "capability_ref": {% if row.capabilityRef == "" %}null{% else %}{{ row.capabilityRef | json_encode | safe }}{% endif %},
+      "capability_binding": {% if row.capabilityBinding == "" %}null{% else %}{{ row.capabilityBinding | json_encode | safe }}{% endif %},
+      "payload": {{ row.payloadJson | safe }},
+      "expected": {{ row.expectedJson | safe }},
+      "input_schema": {{ row.inputSchemaJson | safe }},
+      "authority_ref": {% if row.authorityRef == "" %}null{% else %}{{ row.authorityRef | json_encode | safe }}{% endif %},
+      "action_ref": {% if row.actionRef == "" %}null{% else %}{{ row.actionRef | json_encode | safe }}{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}
