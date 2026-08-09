@@ -9,6 +9,7 @@ on:
       - "crates/ggen-engine/**"
       - "crates/ggen-cli/**"
       - "self-host/scripts/verify_root_regeneration.py"
+      - "self-host/tests/test_root_regeneration.py"
       - ".github/workflows/ggen-root-dogfood.yml"
   workflow_dispatch:
 
@@ -31,6 +32,9 @@ jobs:
       - name: Build the production ggen binary
         run: cargo build -p ggen-cli-lib --bin ggen
 
+      - name: Prove output-ownership verifier falsifiers
+        run: python3 -m unittest self-host/tests/test_root_regeneration.py -v
+
       - name: Manufacture ggen from its own ontology and manifest
         run: |
           ./target/debug/ggen sync run
@@ -39,47 +43,21 @@ jobs:
       - name: Refuse any unowned root consequence
         run: python3 self-host/scripts/verify_root_regeneration.py
 
-      - name: Require every declared output, including CLI proof tests
+      - name: Require canonical singleton consequences
         run: |
+          # These are explicit one-to-one crown consequences. Patterned rules are
+          # admitted by the independent ownership verifier as concrete path families.
           test -s crates/ggen-cli/src/generated_commands.rs
           test -s crates/ggen-cli/tests/generated/cli_proof_tests.rs
-          python3 - <<'PY'
-          import tomllib
-          from pathlib import Path
-          doc = tomllib.loads(Path('ggen.toml').read_text())
-          outputs = [Path(rule['output_file']) for rule in doc['generation']['rules']]
-          missing = [str(path) for path in outputs if not path.is_file()]
-          assert not missing, missing
-          PY
 
-      - name: Snapshot all declared consequence bytes
-        run: |
-          python3 - <<'PY'
-          import hashlib, json, tomllib
-          from pathlib import Path
-          doc = tomllib.loads(Path('ggen.toml').read_text())
-          result = {}
-          for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
-              result[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
-          Path('/tmp/root-first.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
-          PY
+      - name: Snapshot all concrete owned consequence bytes
+        run: python3 self-host/scripts/verify_root_regeneration.py --write-snapshot /tmp/root-first.json
 
       - name: Prove second root manufacture is byte-identical
         run: |
           ./target/debug/ggen sync run
           ./target/debug/ggen receipt verify
-          python3 - <<'PY'
-          import hashlib, json, tomllib
-          from pathlib import Path
-          expected = json.loads(Path('/tmp/root-first.json').read_text())
-          doc = tomllib.loads(Path('ggen.toml').read_text())
-          actual = {}
-          for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
-              actual[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
-          assert actual == expected, {'expected': expected, 'actual': actual}
-          PY
+          python3 self-host/scripts/verify_root_regeneration.py --compare-snapshot /tmp/root-first.json
 
       - name: Materialize changed owned consequences for review
         run: |
@@ -90,6 +68,8 @@ jobs:
           target = Path('self-host/observed/root-regenerated')
           for raw in report['changed_paths']:
               source = Path(raw)
+              if not source.is_file():
+                  continue
               destination = target / raw
               destination.parent.mkdir(parents=True, exist_ok=True)
               shutil.copy2(source, destination)
