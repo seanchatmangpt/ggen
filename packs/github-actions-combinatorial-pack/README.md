@@ -1,8 +1,8 @@
 # github-actions-combinatorial-pack
 
-**Status:** v0.2 cloud calculus  
-**Canonical source:** `ontology.ttl`  
-**Projection rule:** graph → SPARQL admission → bounded generated workflow/docs/lock  
+**Status:** v0.2 cloud calculus
+**Canonical source:** `ontology.ttl`
+**Projection rule:** graph → SPARQL admission → bounded generated workflow/docs/lock
 **Invariant:** maximize lawful reversible possibilities; actuate only the admitted dependency-closed slice.
 
 This pack is the GitHub CI/Actions counterpart to Design for Combinatorial Maximalism. It does
