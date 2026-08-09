@@ -20,17 +20,15 @@ def write(path: Path, content: str = "fixture\n") -> None:
 
 def make_pack(root: Path, name: str = "demo-pack") -> Path:
     pack = root / "packs" / name
-    write(pack / "pack.toml", f'[pack]\nname = "{name}"\nversion = "1.0.0"\n')
-    write(pack / "examples" / "consumer.ttl", "@prefix ex: <urn:example:> .\nex:a ex:b ex:c .\n")
     write(
-        pack / "playground" / "ggen.toml",
-        f'[project]\nname = "{name}-playground"\nversion = "0.1.0"\n\n[packs]\n{name} = {{ path = ".." }}\n',
+        pack / "pack.toml",
+        f'[pack]\nname = "{name}"\nversion = "1.0.0"\ndescription = "fixture pack"\n',
     )
-    write(pack / "playground" / "ontology.ttl", "@prefix ex: <urn:playground:> .\nex:a ex:b ex:c .\n")
-    write(pack / "docs" / "tutorial.md", "# Tutorial\n\nRun the pack.\n")
-    write(pack / "docs" / "how-to-use.md", "# How to use\n\nApply the pack.\n")
-    write(pack / "docs" / "reference.md", "# Reference\n\nPack contract.\n")
-    write(pack / "docs" / "explanation.md", "# Explanation\n\nWhy the pack exists.\n")
+    write(pack / "ontology.ttl", "@prefix ex: <urn:example:> .\nex:a ex:b ex:c .\n")
+    write(
+        pack / "templates" / "example.tmpl",
+        '---\nto: "output/example.txt"\n---\nfixture\n',
+    )
     return pack
 
 
@@ -43,8 +41,21 @@ def invoke(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def git(root: Path, *args: str) -> None:
+    subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, text=True)
+
+
+def init_repo(root: Path) -> None:
+    git(root, "init")
+    git(root, "config", "user.name", "ggen-ci-test")
+    git(root, "config", "user.email", "ggen-ci-test@example.invalid")
+    write(root / "README.md", "baseline\n")
+    git(root, "add", "README.md")
+    git(root, "commit", "-m", "baseline")
+
+
 class PackCreateStandardGuardTests(unittest.TestCase):
-    def test_complete_pack_is_alive(self) -> None:
+    def test_complete_canonical_pack_is_alive(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_pack(root)
@@ -52,52 +63,43 @@ class PackCreateStandardGuardTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("ALIVE:PACK_CREATE_STANDARD:1 pack(s):demo-pack", result.stdout)
 
-    def test_missing_real_example_refuses(self) -> None:
+    def test_missing_ontology_refuses(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             pack = make_pack(root)
-            (pack / "examples" / "consumer.ttl").unlink()
-            write(pack / "examples" / "README.md", "# Not an example\n")
+            (pack / "ontology.ttl").unlink()
             result = invoke(root)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("REFUSED:PACK-CREATE-STANDARD-EXAMPLE:demo-pack", result.stderr)
+            self.assertIn("REFUSED:PACK-CREATE-STANDARD-ONTOLOGY:demo-pack", result.stderr)
 
-    def test_missing_playground_file_refuses(self) -> None:
+    def test_missing_template_refuses(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             pack = make_pack(root)
-            (pack / "playground" / "ontology.ttl").unlink()
+            (pack / "templates" / "example.tmpl").unlink()
             result = invoke(root)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("REFUSED:PACK-CREATE-STANDARD-PLAYGROUND:demo-pack", result.stderr)
-            self.assertIn("playground/ontology.ttl", result.stderr)
+            self.assertIn("REFUSED:PACK-CREATE-STANDARD-TEMPLATE:demo-pack", result.stderr)
 
-    def test_playground_without_pack_dependency_refuses(self) -> None:
+    def test_manifest_identity_is_load_bearing(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             pack = make_pack(root)
-            write(pack / "playground" / "ggen.toml", '[project]\nname = "orphan"\nversion = "0.1.0"\n')
+            write(
+                pack / "pack.toml",
+                '[pack]\nname = "other-pack"\nversion = "1.0.0"\ndescription = "fixture"\n',
+            )
             result = invoke(root)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("REFUSED:PACK-CREATE-STANDARD-PLAYGROUND:demo-pack", result.stderr)
-            self.assertIn("must declare at least one [packs] dependency", result.stderr)
+            self.assertIn("REFUSED:PACK-CREATE-STANDARD-MANIFEST:demo-pack", result.stderr)
+            self.assertIn("must match directory", result.stderr)
 
-    def test_each_diataxis_quadrant_is_load_bearing(self) -> None:
-        with tempfile.TemporaryDirectory() as raw:
-            root = Path(raw)
-            pack = make_pack(root)
-            (pack / "docs" / "reference.md").unlink()
-            result = invoke(root)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("REFUSED:PACK-CREATE-STANDARD-DIATAXIS:demo-pack", result.stderr)
-            self.assertIn("quadrant=reference", result.stderr)
-
-    def test_pack_selection_supports_one_commit_per_pack_verification(self) -> None:
+    def test_pack_selection_is_independent(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_pack(root, "good-pack")
             bad = make_pack(root, "bad-pack")
-            (bad / "docs" / "tutorial.md").unlink()
+            (bad / "ontology.ttl").unlink()
 
             selected = invoke(root, "--pack", "good-pack")
             self.assertEqual(selected.returncode, 0, selected.stderr)
@@ -106,16 +108,40 @@ class PackCreateStandardGuardTests(unittest.TestCase):
 
             all_packs = invoke(root)
             self.assertNotEqual(all_packs.returncode, 0)
-            self.assertIn("REFUSED:PACK-CREATE-STANDARD-DIATAXIS:bad-pack", all_packs.stderr)
+            self.assertIn("REFUSED:PACK-CREATE-STANDARD-ONTOLOGY:bad-pack", all_packs.stderr)
 
-    def test_empty_inventory_refuses_instead_of_vacuous_green(self) -> None:
+    def test_changed_scope_ignores_unrelated_legacy_topology(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            init_repo(root)
+            write(root / "README.md", "changed but not a pack\n")
+            result = invoke(root, "--changed-since", "HEAD")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("ALIVE:PACK_CREATE_STANDARD:0 changed(s):", result.stdout)
+
+    def test_changed_scope_admits_new_pack_and_refuses_broken_new_pack(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            init_repo(root)
+            pack = make_pack(root, "new-pack")
+
+            good = invoke(root, "--changed-since", "HEAD")
+            self.assertEqual(good.returncode, 0, good.stderr)
+            self.assertIn("new-pack", good.stdout)
+
+            (pack / "templates" / "example.tmpl").unlink()
+            bad = invoke(root, "--changed-since", "HEAD")
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertIn("REFUSED:PACK-CREATE-STANDARD-TEMPLATE:new-pack", bad.stderr)
+
+    def test_empty_inventory_refuses_in_full_audit_mode(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             result = invoke(root)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("REFUSED:PACK-CREATE-STANDARD-INVENTORY:<repository>", result.stderr)
 
-    def test_missing_selected_pack_is_typed(self) -> None:
+    def test_missing_explicit_pack_is_typed(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             make_pack(root)
