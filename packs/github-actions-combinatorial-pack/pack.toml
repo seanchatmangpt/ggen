@@ -1,0 +1,4 @@
+[pack]
+name = "github-actions-combinatorial-pack"
+version = "0.1.0"
+description = "Open-world GitHub Actions capability calculus: preserves workflow, event, runner, Marketplace action, permission, cache/artifact, OIDC, environment, reusable-workflow, security, release, receipt, and execution-route possibilities; admits a bounded dependency-closed exact-head CI projection through deterministic SPARQL gates and ggen templates."

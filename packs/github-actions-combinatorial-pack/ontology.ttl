@@ -1,0 +1,194 @@
+@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Canonical graph. Generated .github/workflows projections are not editing authority.
+# Open-world by design: new GitHub events, runners, Marketplace actions, permissions,
+# execution routes, and capability families are added as RDF individuals without
+# changing the calculus. The default plan below is a bounded ggen self-verifier,
+# not an assertion that every preserved capability must execute on every run.
+
+ci:github-actions-calculus a ci:CapabilityGraph ;
+    dcterms:title "GitHub Actions Combinatorial Capability Graph" ;
+    dcterms:description "Preserve maximal lawful workflow possibilities, then admit the minimum dependency-closed plan that binds exact subject, authority, execution, consequence, receipt, and replay." ;
+    ci:worldAssumption "open" ;
+    ci:selectionObjective "min(cycle_time + information_loss + verification_risk + transport_cost + future_WIP)" ;
+    ci:exactHeadRequired true ;
+    ci:zeroUnreceiptedActuation true ;
+    ci:extensionMechanism "add RDF capability/action/event/runner individuals; projection remains query-driven" .
+
+# --- Standing and failure ontology ------------------------------------------------
+ci:Unknown a ci:Standing ; ci:token "UNKNOWN" .
+ci:PartialAlive a ci:Standing ; ci:token "PARTIAL_ALIVE" .
+ci:Alive a ci:Standing ; ci:token "ALIVE" .
+ci:BuildBroken a ci:Standing ; ci:token "BUILD_BROKEN" .
+ci:Blocked a ci:Standing ; ci:token "BLOCKED" .
+ci:Unsupported a ci:Standing ; ci:token "UNSUPPORTED" .
+ci:Refused a ci:Standing ; ci:token "REFUSED" .
+
+ci:SourceDefect a ci:FailureClass ; ci:token "SOURCE_DEFECT" .
+ci:TestDefect a ci:FailureClass ; ci:token "TEST_DEFECT" .
+ci:WorkflowDefect a ci:FailureClass ; ci:token "WORKFLOW_DEFECT" .
+ci:ToolchainDrift a ci:FailureClass ; ci:token "TOOLCHAIN_DRIFT" .
+ci:DependencyDrift a ci:FailureClass ; ci:token "DEPENDENCY_DRIFT" .
+ci:LockfileDrift a ci:FailureClass ; ci:token "LOCKFILE_DRIFT" .
+ci:PlatformVariance a ci:FailureClass ; ci:token "PLATFORM_VARIANCE" .
+ci:Timeout a ci:FailureClass ; ci:token "TIMEOUT" .
+ci:ResourceExhaustion a ci:FailureClass ; ci:token "RESOURCE_EXHAUSTION" .
+ci:NetworkTransient a ci:FailureClass ; ci:token "NETWORK_TRANSIENT" .
+ci:CacheCorruption a ci:FailureClass ; ci:token "CACHE_CORRUPTION" .
+ci:AuthorityFailure a ci:FailureClass ; ci:token "AUTHORITY_FAILURE" .
+ci:MissingSecret a ci:FailureClass ; ci:token "MISSING_SECRET" .
+ci:Flake a ci:FailureClass ; ci:token "FLAKE" .
+ci:ExternalProvider a ci:FailureClass ; ci:token "EXTERNAL_PROVIDER" .
+ci:BaseDrift a ci:FailureClass ; ci:token "BASE_DRIFT" .
+ci:GeneratedDrift a ci:FailureClass ; ci:token "GENERATED_DRIFT" .
+ci:UnknownFailure a ci:FailureClass ; ci:token "UNKNOWN" .
+
+# --- GitHub event capability catalogue ------------------------------------------
+# The catalogue is deliberately extensible rather than a closed enum.
+ci:push a ci:EventKind ; ci:key "push" ; ci:trustBoundary "repository-ref" ; ci:order 10 .
+ci:pull-request a ci:EventKind ; ci:key "pull_request" ; ci:trustBoundary "untrusted-change" ; ci:order 20 .
+ci:pull-request-target a ci:EventKind ; ci:key "pull_request_target" ; ci:trustBoundary "privileged-base" ; ci:order 30 .
+ci:workflow-dispatch a ci:EventKind ; ci:key "workflow_dispatch" ; ci:trustBoundary "authorized-manual" ; ci:order 40 .
+ci:workflow-call a ci:EventKind ; ci:key "workflow_call" ; ci:trustBoundary "caller" ; ci:order 50 .
+ci:workflow-run a ci:EventKind ; ci:key "workflow_run" ; ci:trustBoundary "upstream-workflow" ; ci:order 60 .
+ci:schedule a ci:EventKind ; ci:key "schedule" ; ci:trustBoundary "repository-schedule" ; ci:order 70 .
+ci:repository-dispatch a ci:EventKind ; ci:key "repository_dispatch" ; ci:trustBoundary "external-dispatch" ; ci:order 80 .
+ci:release a ci:EventKind ; ci:key "release" ; ci:trustBoundary "release" ; ci:order 90 .
+ci:merge-group a ci:EventKind ; ci:key "merge_group" ; ci:trustBoundary "merge-queue" ; ci:order 100 .
+ci:issues a ci:EventKind ; ci:key "issues" ; ci:trustBoundary "issue-event" ; ci:order 110 .
+ci:issue-comment a ci:EventKind ; ci:key "issue_comment" ; ci:trustBoundary "comment-event" ; ci:order 120 .
+ci:deployment a ci:EventKind ; ci:key "deployment" ; ci:trustBoundary "deployment" ; ci:order 130 .
+ci:deployment-status a ci:EventKind ; ci:key "deployment_status" ; ci:trustBoundary "deployment" ; ci:order 140 .
+ci:registry-package a ci:EventKind ; ci:key "registry_package" ; ci:trustBoundary "package-event" ; ci:order 150 .
+ci:status-event a ci:EventKind ; ci:key "status" ; ci:trustBoundary "commit-status" ; ci:order 160 .
+ci:check-run a ci:EventKind ; ci:key "check_run" ; ci:trustBoundary "check-event" ; ci:order 170 .
+ci:check-suite a ci:EventKind ; ci:key "check_suite" ; ci:trustBoundary "check-event" ; ci:order 180 .
+
+# --- Runner / execution substrate ------------------------------------------------
+ci:github-hosted a ci:RunnerFamily ; ci:key "github-hosted" .
+ci:larger-runner a ci:RunnerFamily ; ci:key "larger-runner" .
+ci:self-hosted a ci:RunnerFamily ; ci:key "self-hosted" .
+ci:arc-scale-set a ci:RunnerFamily ; ci:key "arc-scale-set" .
+ci:job-container a ci:RunnerCapability ; ci:key "container" .
+ci:service-container a ci:RunnerCapability ; ci:key "services" .
+ci:linux-x64 a ci:RunnerCapability ; ci:key "linux-x64" .
+ci:linux-arm64 a ci:RunnerCapability ; ci:key "linux-arm64" .
+ci:macos-arm64 a ci:RunnerCapability ; ci:key "macos-arm64" .
+ci:windows-x64 a ci:RunnerCapability ; ci:key "windows-x64" .
+
+# --- Workflow composition capabilities ------------------------------------------
+ci:needs-dag a ci:CompositionCapability ; ci:key "needs" .
+ci:matrix a ci:CompositionCapability ; ci:key "strategy.matrix" .
+ci:matrix-include a ci:CompositionCapability ; ci:key "strategy.matrix.include" .
+ci:matrix-exclude a ci:CompositionCapability ; ci:key "strategy.matrix.exclude" .
+ci:fail-fast a ci:CompositionCapability ; ci:key "strategy.fail-fast" .
+ci:max-parallel a ci:CompositionCapability ; ci:key "strategy.max-parallel" .
+ci:concurrency a ci:CompositionCapability ; ci:key "concurrency" .
+ci:cancel-in-progress a ci:CompositionCapability ; ci:key "cancel-in-progress" .
+ci:reusable-workflow a ci:CompositionCapability ; ci:key "workflow_call" .
+ci:environment a ci:CompositionCapability ; ci:key "environment" .
+ci:cache a ci:CompositionCapability ; ci:key "cache" .
+ci:artifact a ci:CompositionCapability ; ci:key "artifact" .
+ci:oidc a ci:CompositionCapability ; ci:key "oidc" .
+ci:attestation a ci:CompositionCapability ; ci:key "attestation" .
+ci:release-capability a ci:CompositionCapability ; ci:key "release" .
+ci:package-publish a ci:CompositionCapability ; ci:key "package-publish" .
+ci:codeql a ci:CompositionCapability ; ci:key "codeql" .
+ci:dependency-review a ci:CompositionCapability ; ci:key "dependency-review" .
+ci:secret-scanning a ci:CompositionCapability ; ci:key "secret-scanning" .
+
+# --- Action supply-chain ontology ------------------------------------------------
+ci:javascript-action a ci:ActionKind ; ci:key "javascript" .
+ci:docker-action a ci:ActionKind ; ci:key "docker" .
+ci:composite-action a ci:ActionKind ; ci:key "composite" .
+ci:local-action a ci:ActionKind ; ci:key "local" .
+ci:marketplace-action a ci:ActionKind ; ci:key "marketplace" .
+ci:reusable-workflow-action a ci:ActionKind ; ci:key "reusable-workflow" .
+
+# Immutable seed instances. Tags are discovery labels only; execution uses sha.
+ci:checkout-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/checkout v4" ;
+    ci:usesPath "actions/checkout" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "11d5960a326750d5838078e36cf38b85af677262" ;
+    ci:role "checkout" ;
+    ci:trustedPublisher true ;
+    ci:networkRequired true ;
+    ci:sideEffect "read" ;
+    ci:requiresScope "contents" .
+
+ci:cache-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/cache v4" ;
+    ci:usesPath "actions/cache" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "0057852bfaa89a56745cba8c7296529d2fc39830" ;
+    ci:role "cache" ;
+    ci:trustedPublisher true ;
+    ci:networkRequired true ;
+    ci:sideEffect "cache-write" .
+
+ci:upload-artifact-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/upload-artifact v4" ;
+    ci:usesPath "actions/upload-artifact" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "ea165f8d65b6e75b540449e92b4886f43607fa02" ;
+    ci:role "receipt-upload" ;
+    ci:trustedPublisher true ;
+    ci:networkRequired true ;
+    ci:sideEffect "artifact-write" .
+
+# --- Candidate execution routes (topology, not mandatory fan-out) ----------------
+ci:local-native a ci:ExecutionRoute ; ci:key "local_native" ; ci:reversible true .
+ci:local-portable a ci:ExecutionRoute ; ci:key "local_portable" ; ci:reversible true .
+ci:cached-toolchain a ci:ExecutionRoute ; ci:key "cached_toolchain" ; ci:reversible true .
+ci:connector-native a ci:ExecutionRoute ; ci:key "connector_native" ; ci:reversible false .
+ci:git-object-transport a ci:ExecutionRoute ; ci:key "git_object_transport" ; ci:reversible false .
+ci:exact-archive a ci:ExecutionRoute ; ci:key "exact_archive" ; ci:reversible true .
+ci:retained-artifact a ci:ExecutionRoute ; ci:key "retained_artifact" ; ci:reversible true .
+ci:workflow-artifact a ci:ExecutionRoute ; ci:key "workflow_artifact" ; ci:reversible true .
+ci:remote-runner a ci:ExecutionRoute ; ci:key "remote_runner" ; ci:reversible false .
+ci:alternate-runner a ci:ExecutionRoute ; ci:key "alternate_runner" ; ci:reversible false .
+ci:cross-compile a ci:ExecutionRoute ; ci:key "cross_compile" ; ci:reversible true .
+ci:qemu-route a ci:ExecutionRoute ; ci:key "qemu" ; ci:reversible true .
+ci:protocol-equivalent a ci:ExecutionRoute ; ci:key "protocol_equivalent" ; ci:reversible true .
+ci:bounded-reimplementation a ci:ExecutionRoute ; ci:key "bounded_reimplementation" ; ci:reversible true .
+ci:hybrid-route a ci:ExecutionRoute ; ci:key "hybrid" ; ci:reversible true .
+
+# --- Selected bounded plan --------------------------------------------------------
+ci:crown-ci a ci:WorkflowPlan ;
+    dcterms:title "Crown CI" ;
+    prov:wasDerivedFrom ci:github-actions-calculus ;
+    ci:selected true ;
+    ci:name "Crown CI" ;
+    ci:concurrencyGroup "crown-ci-${{ github.workflow }}-${{ github.ref }}" ;
+    ci:hasEvent ci:selected-push, ci:selected-pull-request, ci:selected-workflow-dispatch ;
+    ci:hasPermission ci:contents-read ;
+    ci:defaultJob ci:verify-job ;
+    ci:exactHeadRequired true ;
+    ci:receiptRequired true .
+
+ci:selected-push a ci:Event ; ci:key "push" ; ci:eventKind ci:push ; ci:order 10 .
+ci:selected-pull-request a ci:Event ; ci:key "pull_request" ; ci:eventKind ci:pull-request ; ci:order 20 .
+ci:selected-workflow-dispatch a ci:Event ; ci:key "workflow_dispatch" ; ci:eventKind ci:workflow-dispatch ; ci:order 30 .
+
+ci:contents-read a ci:PermissionGrant ; ci:scope "contents" ; ci:access "read" ; ci:order 10 .
+
+ci:verify-job a ci:JobPlan ;
+    ci:id "verify" ;
+    ci:runner "ubuntu-latest" ;
+    ci:runnerFamily ci:github-hosted ;
+    ci:timeoutMinutes 20 ;
+    ci:networkPolicy "egress-allow" ;
+    ci:checksOutUntrustedCode false ;
+    ci:authorizedActuation true ;
+    ci:emitsReceipt true ;
+    ci:verifyCommand "cargo test -p ggen-engine --test github_actions_combinatorial_pack_e2e" ;
+    ci:cachePath "target" ;
+    ci:cacheKey "${{ runner.os }}-ggen-${{ hashFiles('**/Cargo.lock') }}" ;
+    ci:usesAction ci:checkout-v4, ci:cache-v4, ci:upload-artifact-v4 ;
+    ci:checkoutAction ci:checkout-v4 ;
+    ci:cacheAction ci:cache-v4 ;
+    ci:uploadAction ci:upload-artifact-v4 .

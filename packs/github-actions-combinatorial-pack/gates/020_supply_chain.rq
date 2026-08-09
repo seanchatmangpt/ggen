@@ -1,0 +1,37 @@
+# MESSAGE: Selected Marketplace actions must be immutable, trusted, dependency-closed, and compatible with the admitted network/permission boundary. Any row is a refusal.
+PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a ci:MarketplaceAction .
+    VALUES ?property { ci:usesPath ci:sha ci:role ci:trustedPublisher ci:networkRequired ci:sideEffect }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("marketplace action missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a ci:MarketplaceAction ; ci:sha ?sha .
+    FILTER(!REGEX(STR(?sha), "^[0-9a-fA-F]{40}$"))
+    BIND("Marketplace action execution ref must be a full 40-hex commit SHA" AS ?violation)
+  } UNION {
+    ?subject a ci:MarketplaceAction ; ci:usesPath ?usesPath .
+    FILTER(!REGEX(STR(?usesPath), "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)?$"))
+    BIND("Marketplace action usesPath must be owner/repo or owner/repo/path" AS ?violation)
+  } UNION {
+    ?job a ci:JobPlan ; ci:usesAction ?subject .
+    ?subject a ci:MarketplaceAction ; ci:trustedPublisher false .
+    BIND("selected Marketplace action publisher is not admitted" AS ?violation)
+  } UNION {
+    ?job a ci:JobPlan ; ci:usesAction ?subject ; ci:networkPolicy "deny" .
+    ?subject a ci:MarketplaceAction ; ci:networkRequired true .
+    BIND("selected action requires network but job networkPolicy denies it" AS ?violation)
+  } UNION {
+    ?plan a ci:WorkflowPlan ; ci:defaultJob ?job .
+    ?job ci:usesAction ?subject .
+    ?subject ci:requiresScope ?scope .
+    FILTER NOT EXISTS {
+      ?plan ci:hasPermission ?grant .
+      ?grant a ci:PermissionGrant ; ci:scope ?scope ; ci:access ?access .
+      FILTER(STR(?access) IN ("read", "write"))
+    }
+    BIND(CONCAT("selected action requires missing permission scope ", STR(?scope)) AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

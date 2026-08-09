@@ -1,0 +1,28 @@
+# MESSAGE: Privileged triggers and consequential steps require explicit authority and receipt closure. Any row is a refusal.
+PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?plan a ci:WorkflowPlan ; ci:defaultJob ?subject ; ci:hasEvent ?event .
+    ?event ci:eventKind ci:pull-request-target .
+    ?subject ci:checksOutUntrustedCode true .
+    BIND("pull_request_target may not execute a job that checks out untrusted code" AS ?violation)
+  } UNION {
+    ?subject a ci:JobPlan ; ci:usesAction ?action ; ci:emitsReceipt false .
+    ?action ci:sideEffect ?effect .
+    FILTER(STR(?effect) != "read")
+    BIND(CONCAT("consequential action is unreceipted: ", STR(?effect)) AS ?violation)
+  } UNION {
+    ?subject a ci:JobPlan ; ci:usesAction ?action .
+    ?action ci:sideEffect ?effect .
+    FILTER(STR(?effect) IN ("deployment", "release", "package-write", "repository-write"))
+    FILTER NOT EXISTS { ?subject ci:authorizedActuation true }
+    BIND(CONCAT("mutating action lacks explicit actuation authority: ", STR(?effect)) AS ?violation)
+  } UNION {
+    ?subject a ci:WorkflowPlan ; ci:exactHeadRequired false .
+    BIND("workflow plan cannot establish standing without exact-head identity" AS ?violation)
+  } UNION {
+    ?subject a ci:WorkflowPlan ; ci:receiptRequired false .
+    BIND("workflow plan cannot actuate without receipt closure" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation
