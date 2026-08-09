@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""Fail closed when a ggen pack lacks the canonical product surfaces.
+"""Admit changed ggen packs against the canonical pack-authoring contract.
 
-A pack is any direct child of ``packs/`` that contains ``pack.toml``.
-Every pack must carry:
+The pack-authoring ontology/reference defines the minimum pack surface as:
 
-* ``examples/`` with at least one non-empty artifact other than README/.gitkeep;
-* ``playground/ggen.toml`` and ``playground/ontology.ttl``; the playground
-  manifest must parse as TOML and declare at least one pack dependency; and
-* all four Diataxis quadrants under ``docs/``: tutorial, how-to, reference,
-  and explanation. A quadrant may use the canonical filename (for example
-  ``tutorial.md``) or a suffixed family (for example ``tutorial-first-run.md``).
+* ``pack.toml`` with a non-empty ``[pack]`` name/version/description;
+* non-empty ``ontology.ttl``; and
+* ``templates/`` with at least one non-empty ``*.tmpl`` projection.
 
-The guard has no legacy baseline and no allowlist. A missing surface is a
-hard, typed refusal. ``--pack`` can narrow validation to one or more packs so
-pack-by-pack migrations can be verified independently.
+Pack-local gates are optional in the canonical reference. Chicago-TDD coverage
+is enforced by the repository's separate pack-e2e coverage rail, so this guard
+does not duplicate that policy.
+
+CI should pass ``--changed-since <base-sha>``. That validates every pack whose
+bytes changed between the admitted base and HEAD, while leaving unrelated
+legacy debt visible but non-blocking. With no selector this command remains a
+full-repository audit. ``--pack`` provides an explicit narrow audit.
 """
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 import tomllib
 from dataclasses import dataclass
@@ -35,16 +37,6 @@ class Violation:
         return f"REFUSED:{self.code}:{self.pack}:{self.detail}"
 
 
-DIATAXIS = {
-    "tutorial": ("tutorial.md", "tutorial-*.md"),
-    "how-to": ("how-to.md", "how-to-*.md"),
-    "reference": ("reference.md", "reference-*.md"),
-    "explanation": ("explanation.md", "explanation-*.md"),
-}
-
-IGNORED_EXAMPLE_FILES = {"readme.md", ".gitkeep"}
-
-
 def _is_nonempty_file(path: Path) -> bool:
     if not path.is_file():
         return False
@@ -54,81 +46,113 @@ def _is_nonempty_file(path: Path) -> bool:
         return path.stat().st_size > 0
 
 
-def _has_real_example(pack_dir: Path) -> bool:
-    examples = pack_dir / "examples"
-    if not examples.is_dir():
-        return False
-    return any(
-        _is_nonempty_file(path)
-        for path in examples.rglob("*")
-        if path.name.lower() not in IGNORED_EXAMPLE_FILES
-    )
-
-
-def _playground_violations(pack_dir: Path) -> list[str]:
-    playground = pack_dir / "playground"
-    required = (playground / "ggen.toml", playground / "ontology.ttl")
-    missing = [str(path.relative_to(pack_dir)) for path in required if not _is_nonempty_file(path)]
-    if missing:
-        return [f"missing-or-empty={','.join(missing)}"]
-
-    manifest = playground / "ggen.toml"
+def _manifest_violations(pack_dir: Path) -> list[str]:
+    manifest = pack_dir / "pack.toml"
+    if not _is_nonempty_file(manifest):
+        return ["missing-or-empty=pack.toml"]
     try:
         parsed = tomllib.loads(manifest.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
-        return [f"invalid-playground-manifest={manifest.relative_to(pack_dir)}:{error}"]
+        return [f"invalid-pack-manifest={error}"]
 
-    packs = parsed.get("packs")
-    if not isinstance(packs, dict) or not packs:
-        return ["playground/ggen.toml must declare at least one [packs] dependency"]
-    return []
+    pack = parsed.get("pack")
+    if not isinstance(pack, dict):
+        return ["missing [pack] table"]
+
+    problems: list[str] = []
+    expected_name = pack_dir.name
+    name = pack.get("name")
+    if not isinstance(name, str) or not name.strip():
+        problems.append("[pack].name must be non-empty")
+    elif name != expected_name:
+        problems.append(f"[pack].name={name!r} must match directory {expected_name!r}")
+
+    for field in ("version", "description"):
+        value = pack.get(field)
+        if not isinstance(value, str) or not value.strip():
+            problems.append(f"[pack].{field} must be non-empty")
+    return problems
 
 
-def _has_diataxis_quadrant(docs: Path, patterns: Iterable[str]) -> bool:
-    for pattern in patterns:
-        if any(_is_nonempty_file(path) for path in docs.glob(pattern)):
-            return True
-    return False
+def _has_template(pack_dir: Path) -> bool:
+    templates = pack_dir / "templates"
+    return templates.is_dir() and any(_is_nonempty_file(path) for path in templates.rglob("*.tmpl"))
 
 
 def validate_pack(pack_dir: Path) -> list[Violation]:
     pack = pack_dir.name
     violations: list[Violation] = []
 
-    if not _has_real_example(pack_dir):
+    for detail in _manifest_violations(pack_dir):
+        violations.append(Violation("PACK-CREATE-STANDARD-MANIFEST", pack, detail))
+
+    if not _is_nonempty_file(pack_dir / "ontology.ttl"):
         violations.append(
             Violation(
-                "PACK-CREATE-STANDARD-EXAMPLE",
+                "PACK-CREATE-STANDARD-ONTOLOGY",
                 pack,
-                "expected non-empty packs/%s/examples artifact (README/.gitkeep do not count)" % pack,
+                f"expected non-empty packs/{pack}/ontology.ttl",
             )
         )
 
-    for detail in _playground_violations(pack_dir):
-        violations.append(Violation("PACK-CREATE-STANDARD-PLAYGROUND", pack, detail))
-
-    docs = pack_dir / "docs"
-    for quadrant, patterns in DIATAXIS.items():
-        if not docs.is_dir() or not _has_diataxis_quadrant(docs, patterns):
-            expected = "|".join(f"docs/{pattern}" for pattern in patterns)
-            violations.append(
-                Violation(
-                    "PACK-CREATE-STANDARD-DIATAXIS",
-                    pack,
-                    f"quadrant={quadrant}; expected={expected}",
-                )
+    if not _has_template(pack_dir):
+        violations.append(
+            Violation(
+                "PACK-CREATE-STANDARD-TEMPLATE",
+                pack,
+                f"expected at least one non-empty packs/{pack}/templates/*.tmpl",
             )
+        )
 
     return violations
 
 
-def discover_packs(root: Path, selected: list[str]) -> tuple[list[Path], list[Violation]]:
+def _git_lines(root: Path, args: list[str]) -> list[str]:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or f"git {' '.join(args)} failed")
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def _pack_names_from_paths(paths: Iterable[str]) -> list[str]:
+    names: set[str] = set()
+    for raw in paths:
+        parts = Path(raw).parts
+        if len(parts) >= 3 and parts[0] == "packs":
+            names.add(parts[1])
+    return sorted(names)
+
+
+def changed_pack_names(root: Path, base: str) -> list[str]:
+    paths: set[str] = set()
+    # Committed candidate delta. In pre-commit mode (base=HEAD), this is empty.
+    paths.update(_git_lines(root, ["diff", "--name-only", "--diff-filter=ACMR", f"{base}...HEAD"]))
+    # Also admit staged/unstaged and untracked pack bytes for local pre-commit use.
+    paths.update(_git_lines(root, ["diff", "--name-only", "--diff-filter=ACMR", "HEAD"]))
+    paths.update(_git_lines(root, ["ls-files", "--others", "--exclude-standard", "--", "packs"]))
+    return _pack_names_from_paths(paths)
+
+
+def discover_packs(
+    root: Path,
+    selected: list[str],
+    *,
+    deletion_is_ok: bool = False,
+) -> tuple[list[Path], list[Violation]]:
     packs_root = root / "packs"
     if selected:
         pack_dirs: list[Path] = []
         selection_errors: list[Violation] = []
         for name in sorted(set(selected)):
             pack_dir = packs_root / name
+            if not pack_dir.exists() and deletion_is_ok:
+                continue
             if not (pack_dir / "pack.toml").is_file():
                 selection_errors.append(
                     Violation(
@@ -153,8 +177,22 @@ def discover_packs(root: Path, selected: list[str]) -> tuple[list[Path], list[Vi
     ]
 
 
-def audit(root: Path, selected: list[str] | None = None) -> tuple[list[Path], list[Violation]]:
-    pack_dirs, violations = discover_packs(root.resolve(), selected or [])
+def audit(
+    root: Path,
+    selected: list[str] | None = None,
+    *,
+    changed_since: str | None = None,
+) -> tuple[list[Path], list[Violation]]:
+    root = root.resolve()
+    names = list(selected or [])
+    deletion_is_ok = False
+    if changed_since is not None:
+        names = changed_pack_names(root, changed_since)
+        deletion_is_ok = True
+        if not names:
+            return [], []
+
+    pack_dirs, violations = discover_packs(root, names, deletion_is_ok=deletion_is_ok)
     for pack_dir in pack_dirs:
         violations.extend(validate_pack(pack_dir))
     return pack_dirs, violations
@@ -163,21 +201,32 @@ def audit(root: Path, selected: list[str] | None = None) -> tuple[list[Path], li
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="repository root (default: cwd)")
-    parser.add_argument(
+    selector = parser.add_mutually_exclusive_group()
+    selector.add_argument(
         "--pack",
         action="append",
         default=[],
         help="validate only this pack directory name; may be repeated",
+    )
+    selector.add_argument(
+        "--changed-since",
+        help="validate packs changed from this admitted git base through HEAD (plus local worktree changes)",
     )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    pack_dirs, violations = audit(args.root, args.pack)
+    try:
+        pack_dirs, violations = audit(args.root, args.pack, changed_since=args.changed_since)
+    except RuntimeError as error:
+        print(f"REFUSED:PACK-CREATE-STANDARD-GIT:<repository>:{error}", file=sys.stderr)
+        return 2
+
     if violations:
+        scope = "changed" if args.changed_since else "admitted"
         print(
-            f"BUILD_BROKEN:PACK_CREATE_STANDARD:{len(violations)} violation(s) across {len(pack_dirs)} admitted pack(s)",
+            f"BUILD_BROKEN:PACK_CREATE_STANDARD:{len(violations)} violation(s) across {len(pack_dirs)} {scope} pack(s)",
             file=sys.stderr,
         )
         for violation in violations:
@@ -185,7 +234,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     names = ",".join(pack.name for pack in pack_dirs)
-    print(f"ALIVE:PACK_CREATE_STANDARD:{len(pack_dirs)} pack(s):{names}")
+    scope = "changed" if args.changed_since else "pack"
+    print(f"ALIVE:PACK_CREATE_STANDARD:{len(pack_dirs)} {scope}(s):{names}")
     return 0
 
 
