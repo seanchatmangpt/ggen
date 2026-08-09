@@ -1,22 +1,28 @@
 ---
 to: generated/AUTHORITY_MAP.md
 sparql:
-  files: |
+  authority_groups: |
     PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?path ?label ?load ?generated WHERE {
-      ?file a gsh:RepositoryFile ; gsh:path ?path ; gsh:authorityClass ?class ;
-            gsh:loadBearing ?load ; gsh:generatedMarker ?generated .
+    SELECT ?label ?load ?generated (COUNT(?file) AS ?file_count) WHERE {
+      ?file a gsh:RepositoryFile ;
+            gsh:authorityClass ?class ;
+            gsh:loadBearing ?load ;
+            gsh:generatedMarker ?generated .
       ?class skos:prefLabel ?label .
-    } ORDER BY ?label ?path
+    }
+    GROUP BY ?label ?load ?generated
+    ORDER BY ?label ?load ?generated
 ---
 # ggen Repository Authority Map
 
-GENERATED from the observed Git tree. This is the live answer to “what may be edited, what must be regenerated, and what is only evidence?”
+GENERATED from the observed Git tree. This is the live authority partition for “what may be edited, what must be regenerated, and what is only evidence?”
 
-| Path | Authority class | Load-bearing | Generated marker |
-|---|---|---:|---:|
-{% for row in files %}| `{{ row.path }}` | {{ row.label }} | {{ row.load }} | {{ row.generated }} |
+The file-level graph remains in the admitted self-host observation. This projection is intentionally grouped by authority semantics so a repository of any size stays within ggen's bounded named-SPARQL result contract instead of materializing one template row per file.
+
+| Authority class | Load-bearing | Generated marker | Files |
+|---|---:|---:|---:|
+{% for row in authority_groups %}| {{ row.label }} | {{ row.load }} | {{ row.generated }} | {{ row.file_count }} |
 {% endfor %}
 
 ## Editing law
