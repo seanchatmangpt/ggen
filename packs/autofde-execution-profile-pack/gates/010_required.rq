@@ -1,4 +1,4 @@
-# MESSAGE: Every GymAct execution profile must be identity-, revision-, source-, payload-, and verification-complete. Any row is a refusal.
+# MESSAGE: Every GymAct execution profile must be identity-, revision-, source-, materialization-, payload-, and verification-complete. Any row is a refusal.
 PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -11,6 +11,7 @@ SELECT ?subject ?violation WHERE {
     afxp:provider
     afxp:benchmarkRevision
     afxp:scenario
+    afxp:configJson
     afxp:capabilityRef
     afxp:capabilityBinding
     afxp:payloadJson
