@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,6 +12,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "verify_root_regenera
 SPEC = importlib.util.spec_from_file_location("verify_root_regeneration", SCRIPT)
 assert SPEC and SPEC.loader
 verify_root_regeneration = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = verify_root_regeneration
 SPEC.loader.exec_module(verify_root_regeneration)
 
 
