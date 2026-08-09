@@ -1,8 +1,8 @@
 # ggen Vision 2030 — TRIZ Crown Architecture
 
-Status: architecture constitution + 2026 executable frontier  
-Design horizon: 2030/post-AGI as an adversarial abundance scenario, not a prediction  
-Governing equation: `A = μ(O*)`, `R = receipt(A)`  
+Status: architecture constitution + 2026 executable frontier
+Design horizon: 2030/post-AGI as an adversarial abundance scenario, not a prediction
+Governing equation: `A = μ(O*)`, `R = receipt(A)`
 Production loop: `O → O* → Π → μ → E → O' → V → R`
 
 ## A. Ideal Final Result
