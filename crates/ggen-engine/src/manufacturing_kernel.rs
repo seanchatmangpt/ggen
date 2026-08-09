@@ -1,17 +1,20 @@
 //! Deterministic semantic-delta planning for Vision 2030 manufacture.
 //!
-//! This module is intentionally smaller than a generator framework. It turns an admitted RDF
-//! delta into the minimum dependency-closed projection plan that must be manufactured next. It
-//! does not write files, invoke processes, call networks, or actuate external systems. The output
-//! is a deterministic construction plan plus the verification court every affected projection
-//! must satisfy before any downstream authority boundary may execute consequence.
+//! This module is intentionally smaller than a generator framework. It consumes an already
+//! admitted semantic-delta identity plus the semantic predicates changed by that delta, then
+//! computes the minimum dependency-closed projection plan that must be manufactured next. The
+//! concrete observation carrier (RDF, process log, protocol schema, or another admitted source)
+//! remains outside this kernel.
+//!
+//! The kernel does not write files, invoke processes, call networks, or actuate external systems.
+//! Its output is a deterministic construction plan plus the verification court every affected
+//! projection must satisfy before any downstream authority boundary may execute consequence.
 
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     fmt,
 };
 
-use ggen_graph::{parse_nquad, RdfDelta};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -44,6 +47,57 @@ impl ProjectionId {
 impl fmt::Display for ProjectionId {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str(&self.0)
+    }
+}
+
+/// An admitted, content-addressed semantic change set.
+///
+/// The observation/admission layer owns extraction from concrete carriers. For example,
+/// `ggen-graph` can derive changed RDF predicate IRIs from an `RdfDelta` and supply its canonical
+/// transition identity here. The manufacturing kernel therefore depends on semantic meaning, not
+/// the storage or wire format that happened to carry it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AdmittedSemanticDelta {
+    /// Stable identity of the admitted change set (normally a content hash or receipt identity).
+    pub identity: String,
+    /// Sorted semantic predicate identifiers changed by the admitted delta.
+    pub changed_predicates: BTreeSet<String>,
+}
+
+impl AdmittedSemanticDelta {
+    /// Construct an admitted semantic delta from its upstream identity and changed predicates.
+    ///
+    /// # Errors
+    ///
+    /// Refuses blank delta identity or blank semantic predicates. The same checks are repeated by
+    /// [`ManufacturingKernel::plan`] so deserialized values cannot bypass admission.
+    pub fn new<I, S>(
+        identity: impl Into<String>, changed_predicates: I,
+    ) -> Result<Self, ManufacturingRefusal>
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        let delta = Self {
+            identity: identity.into(),
+            changed_predicates: changed_predicates.into_iter().map(Into::into).collect(),
+        };
+        delta.validate()?;
+        Ok(delta)
+    }
+
+    fn validate(&self) -> Result<(), ManufacturingRefusal> {
+        if self.identity.trim().is_empty() {
+            return Err(ManufacturingRefusal::EmptyDeltaIdentity);
+        }
+        if self
+            .changed_predicates
+            .iter()
+            .any(|predicate| predicate.trim().is_empty())
+        {
+            return Err(ManufacturingRefusal::EmptyDeltaPredicate);
+        }
+        Ok(())
     }
 }
 
@@ -80,15 +134,15 @@ impl CourtObligation {
 
 /// Declarative manufacturing metadata for one projection.
 ///
-/// `semantic_triggers` contains predicate IRIs whose additions or deletions can directly affect
-/// this projection. `depends_on` expresses projection-to-projection derivation. The kernel first
+/// `semantic_triggers` contains semantic predicate identifiers that can directly affect this
+/// projection. `depends_on` expresses projection-to-projection derivation. The kernel first
 /// selects direct trigger matches and then computes the transitive downstream closure, so an
 /// unrelated branch is never regenerated merely because some other semantic atom changed.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProjectionSpec {
     /// Stable projection identity.
     pub id: ProjectionId,
-    /// RDF predicate IRIs that directly affect this projection.
+    /// Semantic predicate identifiers that directly affect this projection.
     #[serde(default)]
     pub semantic_triggers: BTreeSet<String>,
     /// Other projections whose manufactured meaning this projection consumes.
@@ -114,10 +168,10 @@ impl ProjectionSpec {
         })
     }
 
-    /// Declare an RDF predicate IRI that directly affects this projection.
+    /// Declare a semantic predicate identifier that directly affects this projection.
     #[must_use]
-    pub fn observing(mut self, predicate_iri: impl Into<String>) -> Self {
-        self.semantic_triggers.insert(predicate_iri.into());
+    pub fn observing(mut self, predicate: impl Into<String>) -> Self {
+        self.semantic_triggers.insert(predicate.into());
         self
     }
 
@@ -157,9 +211,9 @@ pub struct PlannedProjection {
 /// ambient authority to change machine state.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ManufacturingPlan {
-    /// Canonical BLAKE3 identity of the admitted RDF delta.
-    pub delta_hash_hex: String,
-    /// Sorted RDF predicate IRIs changed by the delta.
+    /// Upstream identity of the admitted semantic delta.
+    pub delta_identity: String,
+    /// Sorted semantic predicates changed by the admitted delta.
     pub changed_predicates: BTreeSet<String>,
     /// Minimum dependency-closed projection sequence in stable topological order.
     pub projections: Vec<PlannedProjection>,
@@ -181,6 +235,15 @@ pub enum ManufacturingRefusal {
     /// A projection identity is blank and therefore cannot bind a receipt or dependency edge.
     #[error("REFUSED_MANUFACTURING_EMPTY_PROJECTION_ID")]
     EmptyProjectionId,
+    /// An admitted semantic delta lacks a stable upstream identity.
+    #[error("REFUSED_MANUFACTURING_EMPTY_DELTA_IDENTITY")]
+    EmptyDeltaIdentity,
+    /// An admitted semantic delta contains a blank changed predicate identifier.
+    #[error("REFUSED_MANUFACTURING_EMPTY_DELTA_PREDICATE")]
+    EmptyDeltaPredicate,
+    /// A projection declares a blank semantic trigger.
+    #[error("REFUSED_MANUFACTURING_EMPTY_PROJECTION_TRIGGER: {0}")]
+    EmptyProjectionTrigger(ProjectionId),
     /// Two projection specifications claim the same identity.
     #[error("REFUSED_MANUFACTURING_DUPLICATE_PROJECTION: {0}")]
     DuplicateProjection(ProjectionId),
@@ -200,9 +263,6 @@ pub enum ManufacturingRefusal {
         /// Identities remaining after deterministic Kahn reduction.
         members: Vec<ProjectionId>,
     },
-    /// An RDF delta member is not a valid N-Quad and cannot be admitted as a semantic trigger.
-    #[error("REFUSED_MANUFACTURING_INVALID_RDF_DELTA: {0}")]
-    InvalidRdfDelta(String),
 }
 
 /// Universal-but-small semantic manufacturing planner.
@@ -214,28 +274,31 @@ impl ManufacturingKernel {
     ///
     /// The planner performs five bounded operations:
     ///
-    /// 1. admit a unique acyclic projection graph;
-    /// 2. extract changed RDF predicate IRIs from additions and deletions;
-    /// 3. select projections whose semantic triggers intersect that delta;
-    /// 4. close downstream dependencies transitively;
-    /// 5. bind the resulting sequence and generated verification courts into a stable plan hash.
+    /// 1. re-admit the semantic-delta boundary and a unique acyclic projection graph;
+    /// 2. select projections whose semantic triggers intersect the changed predicates;
+    /// 3. close downstream dependencies transitively;
+    /// 4. generate the required verification court for each selected projection;
+    /// 5. bind the delta identity, predicates, sequence, and courts into a stable plan hash.
     ///
     /// # Errors
     ///
-    /// Returns a typed [`ManufacturingRefusal`] when the projection graph or RDF delta is not
-    /// admissible.
+    /// Returns a typed [`ManufacturingRefusal`] when the admitted delta or projection graph is not
+    /// valid for deterministic planning.
     pub fn plan(
-        &self, delta: &RdfDelta, specs: impl IntoIterator<Item = ProjectionSpec>,
+        &self, delta: &AdmittedSemanticDelta,
+        specs: impl IntoIterator<Item = ProjectionSpec>,
     ) -> Result<ManufacturingPlan, ManufacturingRefusal> {
+        delta.validate()?;
         let specs = admit_projection_graph(specs)?;
         let (topological_order, downstream) = topology(&specs)?;
-        let changed_predicates = changed_predicates(delta)?;
 
         let mut affected = BTreeSet::new();
         let mut queue = VecDeque::new();
 
         for spec in specs.values() {
-            if !spec.semantic_triggers.is_disjoint(&changed_predicates)
+            if !spec
+                .semantic_triggers
+                .is_disjoint(&delta.changed_predicates)
                 && affected.insert(spec.id.clone())
             {
                 queue.push_back(spec.id.clone());
@@ -264,12 +327,15 @@ impl ManufacturingKernel {
             })
             .collect::<Vec<_>>();
 
-        let delta_hash_hex = canonical_delta_hash(delta);
-        let plan_hash_hex = plan_hash(&delta_hash_hex, &changed_predicates, &projections);
+        let plan_hash_hex = plan_hash(
+            &delta.identity,
+            &delta.changed_predicates,
+            &projections,
+        );
 
         Ok(ManufacturingPlan {
-            delta_hash_hex,
-            changed_predicates,
+            delta_identity: delta.identity.clone(),
+            changed_predicates: delta.changed_predicates.clone(),
             projections,
             plan_hash_hex,
         })
@@ -288,6 +354,15 @@ fn admit_projection_graph(
     }
 
     for spec in admitted.values() {
+        if spec
+            .semantic_triggers
+            .iter()
+            .any(|trigger| trigger.trim().is_empty())
+        {
+            return Err(ManufacturingRefusal::EmptyProjectionTrigger(
+                spec.id.clone(),
+            ));
+        }
         for dependency in &spec.depends_on {
             if !admitted.contains_key(dependency) {
                 return Err(ManufacturingRefusal::UnknownDependency {
@@ -365,48 +440,13 @@ fn topology(
     Ok((order, downstream))
 }
 
-fn changed_predicates(delta: &RdfDelta) -> Result<BTreeSet<String>, ManufacturingRefusal> {
-    delta
-        .additions
-        .iter()
-        .chain(&delta.deletions)
-        .try_fold(BTreeSet::new(), |mut predicates, nquad| {
-            let quad = parse_nquad(nquad).map_err(|error| {
-                ManufacturingRefusal::InvalidRdfDelta(format!("{nquad}: {error}"))
-            })?;
-            predicates.insert(quad.predicate.as_str().to_owned());
-            Ok(predicates)
-        })
-}
-
-fn canonical_delta_hash(delta: &RdfDelta) -> String {
-    let mut additions = delta.additions.clone();
-    let mut deletions = delta.deletions.clone();
-    additions.sort();
-    deletions.sort();
-
-    let mut hasher = blake3::Hasher::new();
-    hasher.update(b"ggen-semantic-delta/v1\0");
-    for addition in additions {
-        hasher.update(b"+\0");
-        hasher.update(addition.as_bytes());
-        hasher.update(b"\0");
-    }
-    for deletion in deletions {
-        hasher.update(b"-\0");
-        hasher.update(deletion.as_bytes());
-        hasher.update(b"\0");
-    }
-    hasher.finalize().to_hex().to_string()
-}
-
 fn plan_hash(
-    delta_hash_hex: &str, changed_predicates: &BTreeSet<String>,
+    delta_identity: &str, changed_predicates: &BTreeSet<String>,
     projections: &[PlannedProjection],
 ) -> String {
     let mut hasher = blake3::Hasher::new();
     hasher.update(b"ggen-manufacturing-plan/v1\0");
-    hasher.update(delta_hash_hex.as_bytes());
+    hasher.update(delta_identity.as_bytes());
     hasher.update(b"\0");
 
     for predicate in changed_predicates {
