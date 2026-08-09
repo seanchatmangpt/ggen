@@ -77,6 +77,22 @@ class RootRegenerationOwnershipTests(unittest.TestCase):
             self.assertFalse(result["passed"])
             self.assertEqual(result["missing_outputs"], ["generated/ONE.md"])
 
+    def test_ignored_literal_output_is_observed_from_filesystem(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            init_repo(root, MANIFEST)
+            write(root / ".gitignore", "generated/\n")
+            write(root / "generated" / "ONE.md", "ignored-but-declared\n")
+            git(root, "add", ".gitignore")
+            git(root, "commit", "-m", "ignore generated projections")
+
+            result = verify_root_regeneration.verify(root)
+            snapshot = verify_root_regeneration.consequence_snapshot(root)
+
+            self.assertTrue(result["passed"], result)
+            self.assertEqual(result["missing_outputs"], [])
+            self.assertIn("generated/ONE.md", snapshot)
+
     def test_unowned_changed_path_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
