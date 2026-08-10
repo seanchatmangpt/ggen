@@ -47,7 +47,7 @@ jobs:
           cargo run --quiet --manifest-path dteam/capabilities/dteam-kernel/Cargo.toml --bin dteam-capabilities 2>&1 | tee artifacts/dteam-capability-demo.json
       - name: Upload exact-head evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dteam-x64-4d8091f
           path: artifacts/*

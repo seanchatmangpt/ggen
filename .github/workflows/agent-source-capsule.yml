@@ -33,7 +33,7 @@ jobs:
           sha256sum ggen-source.tar.gz > ggen-source.tar.gz.sha256
 
       - name: Upload exact source capsule
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ggen-source-${{ github.event.pull_request.head.sha }}
           path: |

@@ -130,7 +130,7 @@ jobs:
           jq -e '.findings[] | select(.code == "F5-REPLAY-001")' /tmp/crown-actuation-result.json >/dev/null
 
       - name: Upload receipts
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: architecture-autonomic-receipts
           path: target/architecture-receipts

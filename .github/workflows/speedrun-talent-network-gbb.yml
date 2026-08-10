@@ -90,7 +90,7 @@ jobs:
           jq -e '.resources | length == 3' consumer/speedrun-talent-network/contracts/public-resources.json
 
       - name: Publish bounded verifier artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: speedrun-talent-network-gbb-001
           path: |

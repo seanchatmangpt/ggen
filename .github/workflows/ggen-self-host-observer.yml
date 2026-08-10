@@ -62,7 +62,7 @@ jobs:
           ! grep -RInE 'requests\.|urllib\.request|socket\.|boto|azure|google\.cloud|kubectl|terraform apply|git push|git commit' self-host/scripts/observe_repository.py self-host/scripts/observe_exact_tree.py self-host/scripts/normalize_observation.py self-host/scripts/observe_self_host.py
 
       - name: Upload exact normalized observation
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ggen-observation-${{ github.sha }}
           path: self-host/observed
