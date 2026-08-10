@@ -210,57 +210,80 @@ fn test_pre_commit_includes_coherence() {
     );
 }
 
-/// Test that CI workflow includes phase2 job
+/// Test that CI workflow runs the Phase 2 test suite (coherence + inverse-sync
+/// + round-trip), which lives in this very file (`tests/phase2_recipes_test.rs`).
+///
+/// The CI topology changed under the "rebuild CI from repository acceptance"
+/// pass (#592): the old design ran Phase 2 checks in a dedicated `phase2:` job
+/// with its own name and `needs:` gate; the new design collapses everything
+/// into one `verify` job ("exact-subject verification") whose "Test workspace"
+/// step runs `cargo test --workspace --locked` unrestricted. That single
+/// unrestricted invocation necessarily compiles and runs this test file too --
+/// there is no narrower `-p`/`--test` filter that could silently exclude it.
+/// This test asserts that structural guarantee still holds, rather than
+/// asserting the now-deleted job name/needs-line shape.
 #[test]
 fn test_ci_workflow_includes_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
-        ci_workflow.contains("phase2:"),
-        "CI workflow missing phase2 job"
+        ci_workflow.contains("name: Test workspace"),
+        "CI workflow missing the 'Test workspace' step that runs the full suite \
+         (including this Phase 2 test file)"
     );
     assert!(
-        ci_workflow.contains("name: Phase 2 (Inverse Sync + Coherence)"),
-        "CI workflow phase2 job missing correct name"
-    );
-    assert!(
-        ci_workflow.contains("coherence-check passed") || ci_workflow.contains("Coherence"),
-        "CI workflow phase2 job missing coherence validation"
-    );
-    assert!(
-        ci_workflow.contains("ast_extractor_70pct_test")
-            || ci_workflow.contains("Phase 2 test suite"),
-        "CI workflow phase2 job missing Phase 2 tests"
+        ci_workflow.contains("cargo test --workspace --locked"),
+        "CI workflow's test step no longer runs 'cargo test --workspace --locked' \
+         unrestricted. A narrower filter here could silently exclude \
+         tests/phase2_recipes_test.rs from CI."
     );
 }
 
-/// Test that CI status gate includes phase2 and the other critical jobs as
-/// required dependencies.
-///
-/// Checks each required job name individually rather than matching the full
-/// `needs: [...]` line verbatim: a full-line match breaks every time a job
-/// is legitimately added to (or reordered within) the list, even when the
-/// invariant this test actually cares about -- phase2 and its siblings are
-/// still required -- continues to hold. This exact brittleness is what broke
-/// this test when `integration-tests` was correctly promoted from advisory
-/// to required and added to the real needs list.
+/// Test that the job actually running `cargo test --workspace` (and therefore
+/// this Phase 2 suite) is unconditional -- not skipped on pull requests, not
+/// gated behind another job's `needs:`. Under #592's redesign there are two
+/// jobs: `verify` (always runs, executes the full test suite) and `publish`
+/// (gated with `if: startsWith(github.ref, 'refs/tags/v')`, and itself
+/// `needs: verify`). This test asserts `verify` carries no `if:` skip
+/// condition and no `needs:` of its own -- i.e. nothing can prevent Phase 2
+/// coverage from running on every PR and push, which is the real invariant
+/// the old multi-job `needs: [...]` gate used to encode.
 #[test]
 fn test_ci_status_requires_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
-    let needs_line = ci_workflow
-        .lines()
-        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("phase2"))
-        .expect("CI status gate's needs: [...] line (containing phase2) not found");
+    let lines: Vec<&str> = ci_workflow.lines().collect();
+    let verify_idx = lines
+        .iter()
+        .position(|line| *line == "  verify:")
+        .expect("ci.yml missing the 'verify' job that runs the full test suite");
+    // The verify job's lines run until the next 2-space-indented job key
+    // (e.g. "  publish:"), or EOF if verify is the last job.
+    let verify_block: Vec<&str> = lines[verify_idx + 1..]
+        .iter()
+        .take_while(|line| {
+            let trimmed = line.trim_start();
+            let indent = line.len() - trimmed.len();
+            !(indent == 2 && trimmed.ends_with(':') && !trimmed.contains(' '))
+        })
+        .copied()
+        .collect();
+    let verify_block = format!("\n{}", verify_block.join("\n"));
 
-    for required_job in ["check", "build", "test", "doctest", "phase2", "cargo-cicd"] {
-        assert!(
-            needs_line.contains(required_job),
-            "CI status gate doesn't require {required_job} job (needs line: {needs_line})"
-        );
-    }
+    assert!(
+        !verify_block.contains("\n    if:"),
+        "The 'verify' job (which runs cargo test --workspace, including this \
+         Phase 2 suite) now has an 'if:' skip condition -- Phase 2 coverage \
+         must run unconditionally on every PR/push, not be gateable."
+    );
+    assert!(
+        !verify_block.contains("\n    needs:"),
+        "The 'verify' job now depends on another job via 'needs:' -- this \
+         could delay or skip Phase 2 coverage; verify should be the first, \
+         unconditional job."
+    );
 }
 
 /// Test that Makefile.toml has backward-compatible Phase 2 recipes
