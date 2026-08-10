@@ -15,6 +15,11 @@
 //! fields, not just `?order`, and filters on `?code` string containment instead of
 //! `?order` equality) -- confirms the generated table matches the ontology.
 
+// Integration-test binary: `.expect()`/`panic!()` on a broken test fixture
+// (unreadable repo-facts.ttl, unparseable SPARQL, missing solution binding)
+// is the correct failure mode -- a panicking test IS the assertion.
+#![allow(clippy::expect_used, clippy::panic)]
+
 use ggen_lsp::generated_diagnostic_codes::{DiagnosticCodeFact, GENERATED_DIAGNOSTIC_CODES};
 
 /// Proof 1: hand-transcribed from `crates/ggen-lsp/src/analyzers/tera_analyzer.rs`'s real

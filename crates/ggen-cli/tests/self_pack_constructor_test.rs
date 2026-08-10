@@ -61,7 +61,7 @@ fn init_self_materializes_every_self_pack_file() {
 #[test]
 fn init_self_refuses_to_overwrite_without_force() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     // Hand-edit the project-local copy to prove it survives a second,
     // force-less `init-self` call untouched.
@@ -94,7 +94,7 @@ fn init_self_refuses_to_overwrite_without_force() {
 #[test]
 fn init_self_force_overwrites() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     let marker_path = dir
         .path()
@@ -144,7 +144,7 @@ fn pack_new_requires_init_self_first() {
 #[test]
 fn pack_new_requires_description_and_namespace() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     let missing_description = run(
         dir.path(),
@@ -173,7 +173,7 @@ fn pack_new_requires_description_and_namespace() {
 #[test]
 fn pack_new_creates_a_structurally_correct_pack_at_the_project_root() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     let out = run(
         dir.path(),
@@ -229,7 +229,7 @@ fn pack_new_creates_a_structurally_correct_pack_at_the_project_root() {
 #[test]
 fn pack_new_refuses_to_clobber_an_existing_pack() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     let args = [
         "pack",
@@ -240,7 +240,7 @@ fn pack_new_refuses_to_clobber_an_existing_pack() {
         "--namespace",
         "http://example.org/demo-pack#",
     ];
-    assert!(run(dir.path(), &args).exit_code == 0);
+    assert_eq!(run(dir.path(), &args).exit_code, 0);
 
     let second = run(
         dir.path(),
@@ -275,7 +275,7 @@ fn pack_new_refuses_to_clobber_an_existing_pack() {
 #[test]
 fn required_shape_gate_refuses_an_incomplete_sp_pack_individual() {
     let dir = TempDir::new().expect("tempdir");
-    assert!(init_self(dir.path()).exit_code == 0);
+    assert_eq!(init_self(dir.path()).exit_code, 0);
 
     let self_pack_dir = dir.path().join("packs").join("ggen-self-pack");
     // Write an sp:Pack individual missing sp:namespace and

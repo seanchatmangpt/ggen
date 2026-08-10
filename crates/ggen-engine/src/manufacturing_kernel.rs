@@ -376,15 +376,15 @@ fn admit_projection_graph(
     Ok(admitted)
 }
 
+/// (topological order, adjacency map) pair returned on success.
+type TopologyResult = (
+    Vec<ProjectionId>,
+    BTreeMap<ProjectionId, BTreeSet<ProjectionId>>,
+);
+
 fn topology(
     specs: &BTreeMap<ProjectionId, ProjectionSpec>,
-) -> Result<
-    (
-        Vec<ProjectionId>,
-        BTreeMap<ProjectionId, BTreeSet<ProjectionId>>,
-    ),
-    ManufacturingRefusal,
-> {
+) -> Result<TopologyResult, ManufacturingRefusal> {
     let mut indegree = specs
         .keys()
         .cloned()

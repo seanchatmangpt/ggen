@@ -44,7 +44,7 @@
 //! A fourth, narrower fix improved diagnosability rather than correctness:
 //! `sync.rs`'s `render_str` mapped Tera render failures to `[FM-TPL-017]`
 //! using bare `{e}` Display, which for Tera is frequently just "Failed to
-//! render '__tera_one_off'" with no real cause -- the actual reason (bug 3
+//! render '__`tera_one_off`'" with no real cause -- the actual reason (bug 3
 //! above) was only reachable via `Error::source()` chaining, exactly what
 //! `template::tera_error_full_chain` already exists for (and what
 //! `generation_rules.rs`'s `[FM-GEN-008]` path already uses). `render_str`
@@ -85,6 +85,9 @@ const N_EXTERNAL_DIMS: u32 = 13;
 /// `020_exact_cardinality.rq`'s `families` count without hand-editing raw
 /// Turtle text, which risks producing a syntactically-broken document
 /// rather than the intended semantic violation).
+// Fixture-data assembly (repeated Turtle string building), not branching
+// logic -- length comes from the literal template, not complexity.
+#[allow(clippy::too_many_lines)]
 fn conforming_ontology(family_count: u32) -> String {
     let mut ttl = String::new();
     ttl.push_str(
@@ -124,7 +127,7 @@ fn conforming_ontology(family_count: u32) -> String {
         )
         .unwrap();
         if i > 1 {
-            write!(ttl, "  tai:dependsOn tai:family-{} ;\n", i - 1).unwrap();
+            writeln!(ttl, "  tai:dependsOn tai:family-{} ;", i - 1).unwrap();
         }
         write!(
             ttl,
@@ -472,9 +475,8 @@ fn full_pack_generates_all_catalogs_and_is_idempotent() {
     // Second sync over the identical facts must write nothing.
     let second = run_sync(&project);
     second.assert_success();
-    assert_eq!(
+    assert!(
         second.stdout.contains("\"written\": []") || second.stdout.contains("\"written\":[]"),
-        true,
         "second sync must be byte-identical (empty written list): {}",
         second.stdout
     );

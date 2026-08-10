@@ -10,7 +10,19 @@
 //! own `#[test]` crate. Each consuming file starts with `mod support; use
 //! support::*;`.
 
-#![allow(dead_code, clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(
+    dead_code,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    // Each `*_pack_e2e.rs` file compiles this module as part of its own
+    // separate test-binary crate root (`mod support; use support::*;`), so
+    // from any single binary's perspective the `pub` items this file's own
+    // *other* consumers use look "unreachable". That's the intended shared
+    // multi-binary harness, not a real visibility bug -- see the module doc
+    // comment above. `unreachable_pub` is a rustc lint, not `clippy::`.
+    unreachable_pub
+)]
 
 use std::path::{Path, PathBuf};
 

@@ -79,6 +79,10 @@ impl GgenLanguageServer {
             None => Vec::new(),
         };
 
+        // `Uri` is hashed/compared by its string value; the interior
+        // mutability clippy is warning about (deep inside its `Data`/
+        // `AuthData` fields) is never touched by hashing or equality here.
+        #[allow(clippy::mutable_key_type)]
         let mut current = HashSet::new();
         let mut publications = Vec::new();
         for (path, diagnostics) in groups {

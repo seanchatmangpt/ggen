@@ -44,6 +44,9 @@ pat:PlaygroundSpec a pat:NewPackSpec ;
     pat:requiredProp "value" .
 "#;
 
+// Sequential real-filesystem/real-sync assertions over one scaffolded pack,
+// not branching logic -- length comes from the number of files checked.
+#[allow(clippy::too_many_lines)]
 #[test]
 fn pack_authoring_pack_scaffolds_docs_and_a_real_playground_pack() {
     let (_dir, project) = scaffold_pack(&packs_dir().join("pack-authoring-pack"));

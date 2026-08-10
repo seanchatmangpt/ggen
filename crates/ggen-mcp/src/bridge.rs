@@ -946,7 +946,7 @@ template = { file = "row.tera" }
         // Sanity check the real gate actually flags it BEFORE wiring the
         // bridge, so a failure downstream is provably the bridge's fault,
         // not a fixture that stopped triggering TPL-001.
-        let direct = ggen_lsp::check::check_files_in_root(root, &[template_path.clone()], false);
+        let direct = ggen_lsp::check::check_files_in_root(root, std::slice::from_ref(&template_path), false);
         assert!(
             direct.has_errors(),
             "fixture must trigger a real GGEN-TPL-001 before the bridge is exercised"
@@ -977,7 +977,7 @@ template = { file = "row.tera" }
                 &peers,
                 &store,
                 &root_owned,
-                &[template_path.clone()],
+                std::slice::from_ref(&template_path),
                 &["GGEN-TPL-001"],
             )
             .await?;
@@ -1094,7 +1094,7 @@ output_file = "out/{{ slug }}.txt"
         // Sanity check the real gate actually flags it BEFORE wiring the
         // bridge, so a failure downstream is provably the bridge's fault,
         // not a fixture that stopped triggering OUT-001.
-        let direct = ggen_lsp::check::check_files_in_root(root, &[manifest_path.clone()], false);
+        let direct = ggen_lsp::check::check_files_in_root(root, std::slice::from_ref(&manifest_path), false);
         assert!(
             direct.has_errors(),
             "fixture must trigger a real GGEN-OUT-001 before the bridge is exercised"
@@ -1118,7 +1118,7 @@ output_file = "out/{{ slug }}.txt"
                 &peers,
                 &store,
                 &root_owned,
-                &[manifest_path.clone()],
+                std::slice::from_ref(&manifest_path),
                 &["GGEN-OUT-001"],
             )
             .await?;
@@ -1559,7 +1559,7 @@ template = { file = "row.tera" }
         let outcome = push_diagnostics_for_root(
             &peers,
             &store,
-            &root.to_path_buf(),
+            root,
             &[template_path],
             &["GGEN-TPL-001"],
         )
@@ -1717,8 +1717,8 @@ template = { file = "row.tera" }
             let outcome = push_diagnostics_for_root(
                 &peers,
                 &store,
-                &root.to_path_buf(),
-                &[template_path.clone()],
+                root,
+                std::slice::from_ref(&template_path),
                 &["GGEN-TPL-001"],
             )
             .await?;

@@ -1,8 +1,8 @@
 //! Hygen-parity checkpoint: composite, real end-to-end scenarios (via the
 //! actual `ggen` binary subprocess, `chicago_tdd_tools::cli_proof::CliHarness`
 //! — no mocks) proving ggen reproduces hygen's canonical generator workflow:
-//! https://www.hygen.io/docs/quick-start (new-component-plus-barrel-injection)
-//! and https://www.hygen.io/docs/templates (`to`, `inject`, `before`/`after`,
+//! <https://www.hygen.io/docs/quick-start> (new-component-plus-barrel-injection)
+//! and <https://www.hygen.io/docs/templates> (`to`, `inject`, `before`/`after`,
 //! `unless_exists`, `skip_if`, `sh`).
 //!
 //! This file is deliberately NOT a duplicate of

@@ -18,7 +18,7 @@
 //! graph. If Enrich did not actually run `construct:` against the shared
 //! graph before Render, template 2's query returns zero rows for both
 //! widgets (a lawful `for_each` skip, not a hard failure -- see
-//! `sync.rs`'s "for_each `entities` produced 0 rows" path) and neither
+//! `sync.rs`'s "`for_each` `entities` produced 0 rows" path) and neither
 //! `report_*.txt` file is written. The real, positive-and-negative
 //! assertions below (widgetA's report exists with real derived content,
 //! widgetB's report does not exist at all) are the only way this test can

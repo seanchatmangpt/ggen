@@ -1583,7 +1583,7 @@ fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) 
 ///
 /// Uses `template::tera_error_full_chain`, not bare `{e}` Display: Tera's
 /// top-level `Display` is frequently just "Failed to render
-/// '__tera_one_off'" with the actual cause (unknown filter, missing
+/// '__`tera_one_off`'" with the actual cause (unknown filter, missing
 /// variable, wrong argument type) only reachable via `Error::source()`
 /// chaining — the same gap `generation_rules.rs`'s `[FM-GEN-008]` path
 /// already closed with this same helper; this call site had not been

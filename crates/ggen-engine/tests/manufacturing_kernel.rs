@@ -1,3 +1,6 @@
+//! Chicago-TDD coverage for `ggen_engine::manufacturing_kernel`: real
+//! `AdmittedSemanticDelta`/`ManufacturingKernel` instances, no mocks.
+
 use ggen_engine::manufacturing_kernel::{
     AdmittedSemanticDelta, CourtObligation, ManufacturingKernel, ManufacturingRefusal, ProjectionId,
     ProjectionSpec,
