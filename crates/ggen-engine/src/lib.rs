@@ -24,6 +24,10 @@ pub mod frontmatter_rdf;
 pub mod graph;
 pub mod law_engine;
 pub mod lint;
+// Vision 2030 Crown primitive: admitted RDF delta -> minimum dependency-closed projection plan
+// plus generated verification courts. This module is construction-only and intentionally exposes
+// no filesystem/network/process actuation path; downstream authority remains outside the planner.
+pub mod manufacturing_kernel;
 // Ed25519 signing/verifying-key resolution for receipt signing
 // (specs/014-ggen-core-replacement, T063). Not `pub`: consumed by
 // `sync::write_receipt` and `verbs::handlers::handle_receipt_verify`;
