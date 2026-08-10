@@ -45,6 +45,15 @@ fi
 # Track failures
 FAILED=0
 
+# 0. Pack create standard (FAST ADMISSION)
+# Prove the guard itself first, then admit only pack topology changed in the
+# local worktree/staging area. Unrelated legacy pack debt cannot permanently
+# brick every commit, while any touched/new pack must satisfy the canonical
+# manifest + ontology + template authoring contract.
+if ! run_check "Pack create standard" "python3 scripts/ci/test_guard_pack_standard.py && python3 scripts/ci/guard_pack_standard.py --changed-since HEAD" "30s"; then
+    FAILED=1
+fi
+
 # 1. Compilation check (CRITICAL ANDON SIGNAL)
 if ! run_check "Compilation check (cargo make check)" "cargo make check" "15s"; then
     FAILED=1

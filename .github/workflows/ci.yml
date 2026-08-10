@@ -47,6 +47,14 @@ jobs:
           [[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT"
+      - name: Check pack create standard
+        id: pack_standard
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/test_guard_pack_standard.py
+          python3 scripts/ci/guard_pack_standard.py --changed-since '${{ steps.identity.outputs.base }}'
       - name: Manufacture exact-head receipt and routing
         id: admit
         continue-on-error: true
@@ -71,7 +79,11 @@ jobs:
           retention-days: 14
       - name: Enforce fast admission
         if: always()
-        run: test '${{ steps.admit.outcome }}' = success
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ steps.admit.outcome }}' = success || { echo 'BUILD_BROKEN:FAST_ADMISSION_RECEIPT_FAILED' >&2; exit 1; }
+          test '${{ steps.pack_standard.outcome }}' = success || { echo 'BUILD_BROKEN:PACK_CREATE_STANDARD' >&2; exit 1; }
 
   deep:
     name: Deep / ${{ matrix.lane }}
