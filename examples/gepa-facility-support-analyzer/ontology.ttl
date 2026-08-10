@@ -1,0 +1,127 @@
+# Consumer instance data for https://dspy.ai/tutorials/gepa_facilitysupportanalyzer/
+# (fetched/verified 2026-08-10), composed against dspy-pack's vocabulary.
+#
+# Simplification vs. the tutorial: the tutorial wraps all three ChainOfThought predictors
+# (urgency/sentiment/categories) inside one FacilitySupportAnalyzerMM(dspy.Module) class and
+# runs a single GEPA pass over the whole composite. dspy-pack's dspy:Module is flat (one
+# variable = one dspy.<kind>(Signature) instance, no composite-module nesting), so this
+# consumer models the same three real Signatures as three sibling top-level ChainOfThought
+# modules, each with its own GEPA optimizer -- functionally equivalent (each predictor is
+# independently optimizable either way) but a materially different Python shape from the
+# tutorial's single composite class.
+#
+# The tutorial's own dspy.InputField()/dspy.OutputField() calls carry no explicit `desc=`;
+# dspy-pack's gate requires dcterms:description on every field, so this file supplies short,
+# accurate descriptions the tutorial itself omits -- semantically compatible with DSPy (desc
+# is optional at the API level), not a fidelity gap in the generated signature/field names.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ── Urgency ──────────────────────────────────────────────────────────────────
+
+dspy:facility-urgency-signature a dspy:Signature ;
+    dcterms:title "FacilitySupportAnalyzerUrgency" ;
+    dcterms:description "Read the provided message and determine the urgency." ;
+    dspy:className "FacilitySupportAnalyzerUrgency" ;
+    dspy:hasInput dspy:facility-message-input-urgency ;
+    dspy:hasOutput dspy:facility-urgency-output .
+
+dspy:facility-message-input-urgency a dspy:InputField ;
+    dspy:name "message" ; dspy:pythonType "str" ;
+    dcterms:description "The facility support message to analyze." .
+
+dspy:facility-urgency-output a dspy:OutputField ;
+    dspy:name "urgency" ;
+    dcterms:description "Urgency level of the message." ;
+    dspy:hasLiteralOption dspy:urgency-opt-0, dspy:urgency-opt-1, dspy:urgency-opt-2 .
+
+dspy:urgency-opt-0 a dspy:LiteralOption ; dspy:optionIndex 0 ; dspy:optionValue "low" .
+dspy:urgency-opt-1 a dspy:LiteralOption ; dspy:optionIndex 1 ; dspy:optionValue "medium" .
+dspy:urgency-opt-2 a dspy:LiteralOption ; dspy:optionIndex 2 ; dspy:optionValue "high" .
+
+dspy:urgency-module a dspy:Module ;
+    dcterms:description "ChainOfThought urgency classifier over FacilitySupportAnalyzerUrgency." ;
+    dspy:name "urgency_module" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:facility-urgency-signature .
+
+dspy:urgency-gepa a dspy:Optimizer ;
+    dcterms:description "GEPA over the urgency module, per the tutorial's optimizer=GEPA(...) call." ;
+    dspy:name "urgency_gepa" ; dspy:kind "GEPA" ;
+    dspy:optimizes dspy:urgency-module ; dspy:metricFunction "urgency_metric" ;
+    dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
+    dspy:reflectionModel "gpt-5" .
+
+# ── Sentiment ────────────────────────────────────────────────────────────────
+
+dspy:facility-sentiment-signature a dspy:Signature ;
+    dcterms:title "FacilitySupportAnalyzerSentiment" ;
+    dcterms:description "Read the provided message and determine the sentiment." ;
+    dspy:className "FacilitySupportAnalyzerSentiment" ;
+    dspy:hasInput dspy:facility-message-input-sentiment ;
+    dspy:hasOutput dspy:facility-sentiment-output .
+
+dspy:facility-message-input-sentiment a dspy:InputField ;
+    dspy:name "message" ; dspy:pythonType "str" ;
+    dcterms:description "The facility support message to analyze." .
+
+dspy:facility-sentiment-output a dspy:OutputField ;
+    dspy:name "sentiment" ;
+    dcterms:description "Sentiment of the message." ;
+    dspy:hasLiteralOption dspy:sentiment-opt-0, dspy:sentiment-opt-1, dspy:sentiment-opt-2 .
+
+dspy:sentiment-opt-0 a dspy:LiteralOption ; dspy:optionIndex 0 ; dspy:optionValue "positive" .
+dspy:sentiment-opt-1 a dspy:LiteralOption ; dspy:optionIndex 1 ; dspy:optionValue "neutral" .
+dspy:sentiment-opt-2 a dspy:LiteralOption ; dspy:optionIndex 2 ; dspy:optionValue "negative" .
+
+dspy:sentiment-module a dspy:Module ;
+    dcterms:description "ChainOfThought sentiment classifier over FacilitySupportAnalyzerSentiment." ;
+    dspy:name "sentiment_module" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:facility-sentiment-signature .
+
+dspy:sentiment-gepa a dspy:Optimizer ;
+    dcterms:description "GEPA over the sentiment module, per the tutorial's optimizer=GEPA(...) call." ;
+    dspy:name "sentiment_gepa" ; dspy:kind "GEPA" ;
+    dspy:optimizes dspy:sentiment-module ; dspy:metricFunction "sentiment_metric" ;
+    dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
+    dspy:reflectionModel "gpt-5" .
+
+# ── Categories (List[Literal[...]]) ──────────────────────────────────────────
+
+dspy:facility-categories-signature a dspy:Signature ;
+    dcterms:title "FacilitySupportAnalyzerCategories" ;
+    dcterms:description "Read the provided message and determine applicable categories." ;
+    dspy:className "FacilitySupportAnalyzerCategories" ;
+    dspy:hasInput dspy:facility-message-input-categories ;
+    dspy:hasOutput dspy:facility-categories-output .
+
+dspy:facility-message-input-categories a dspy:InputField ;
+    dspy:name "message" ; dspy:pythonType "str" ;
+    dcterms:description "The facility support message to analyze." .
+
+dspy:facility-categories-output a dspy:OutputField ;
+    dspy:name "categories" ;
+    dcterms:description "Applicable facility-support categories." ;
+    dspy:isListType true ;
+    dspy:hasLiteralOption
+        dspy:cat-opt-0, dspy:cat-opt-1, dspy:cat-opt-2, dspy:cat-opt-3, dspy:cat-opt-4,
+        dspy:cat-opt-5, dspy:cat-opt-6, dspy:cat-opt-7, dspy:cat-opt-8, dspy:cat-opt-9 .
+
+dspy:cat-opt-0 a dspy:LiteralOption ; dspy:optionIndex 0 ; dspy:optionValue "emergency_repair_services" .
+dspy:cat-opt-1 a dspy:LiteralOption ; dspy:optionIndex 1 ; dspy:optionValue "routine_maintenance_requests" .
+dspy:cat-opt-2 a dspy:LiteralOption ; dspy:optionIndex 2 ; dspy:optionValue "quality_and_safety_concerns" .
+dspy:cat-opt-3 a dspy:LiteralOption ; dspy:optionIndex 3 ; dspy:optionValue "specialized_cleaning_services" .
+dspy:cat-opt-4 a dspy:LiteralOption ; dspy:optionIndex 4 ; dspy:optionValue "general_inquiries" .
+dspy:cat-opt-5 a dspy:LiteralOption ; dspy:optionIndex 5 ; dspy:optionValue "sustainability_and_environmental_practices" .
+dspy:cat-opt-6 a dspy:LiteralOption ; dspy:optionIndex 6 ; dspy:optionValue "training_and_support_requests" .
+dspy:cat-opt-7 a dspy:LiteralOption ; dspy:optionIndex 7 ; dspy:optionValue "cleaning_services_scheduling" .
+dspy:cat-opt-8 a dspy:LiteralOption ; dspy:optionIndex 8 ; dspy:optionValue "customer_feedback_and_complaints" .
+dspy:cat-opt-9 a dspy:LiteralOption ; dspy:optionIndex 9 ; dspy:optionValue "facility_management_issues" .
+
+dspy:categories-module a dspy:Module ;
+    dcterms:description "ChainOfThought categories classifier over FacilitySupportAnalyzerCategories." ;
+    dspy:name "categories_module" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:facility-categories-signature .
+
+dspy:categories-gepa a dspy:Optimizer ;
+    dcterms:description "GEPA over the categories module, per the tutorial's optimizer=GEPA(...) call." ;
+    dspy:name "categories_gepa" ; dspy:kind "GEPA" ;
+    dspy:optimizes dspy:categories-module ; dspy:metricFunction "categories_metric" ;
+    dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
+    dspy:reflectionModel "gpt-5" .

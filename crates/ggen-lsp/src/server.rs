@@ -79,6 +79,11 @@ impl GgenLanguageServer {
             None => Vec::new(),
         };
 
+        // `Url`'s `Hash`/`Eq` are derived from its string representation, not
+        // from the interior-mutable `Cell` clippy flags here (a lazily-cached
+        // parsed component, e.g. port) -- using it as a HashSet key is safe;
+        // the false-positive is a known clippy::mutable_key_type limitation.
+        #[allow(clippy::mutable_key_type)]
         let mut current = HashSet::new();
         let mut publications = Vec::new();
         for (path, diagnostics) in groups {

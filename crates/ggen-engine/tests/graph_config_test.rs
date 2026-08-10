@@ -186,7 +186,8 @@ dir = "templates"
         cfg.packs.get("remote_pack"),
         Some(&PackRef::Git {
             git: "https://github.com/seanchatmangpt/pack".into(),
-            version: "1.0.0".into()
+            version: "1.0.0".into(),
+            subdir: None
         })
     );
     assert_eq!(cfg.templates.dir, std::path::PathBuf::from("templates"));

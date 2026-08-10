@@ -2,21 +2,87 @@
 to: src/dspy_program.py
 sparql:
   signatures: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?className ?description WHERE { ?signature a dspy:Signature ; dspy:className ?className ; dcterms:description ?description . } ORDER BY ?className"
-  inputs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?signatureName ?name ?pythonType ?description WHERE { ?signature a dspy:Signature ; dspy:className ?signatureName ; dspy:hasInput ?field . ?field a dspy:InputField ; dspy:name ?name ; dspy:pythonType ?pythonType ; dcterms:description ?description . } ORDER BY ?signatureName ?name"
-  outputs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?signatureName ?name ?pythonType ?description WHERE { ?signature a dspy:Signature ; dspy:className ?signatureName ; dspy:hasOutput ?field . ?field a dspy:OutputField ; dspy:name ?name ; dspy:pythonType ?pythonType ; dcterms:description ?description . } ORDER BY ?signatureName ?name"
-  modules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?name ?kind ?signatureName WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind ?kind ; dspy:signature ?signature . ?signature dspy:className ?signatureName . } ORDER BY ?name"
+  inputs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?signatureName ?name ?pythonType ?description ?isListType ?pydanticModelName WHERE { ?signature a dspy:Signature ; dspy:className ?signatureName ; dspy:hasInput ?field . ?field a dspy:InputField ; dspy:name ?name ; dcterms:description ?description . OPTIONAL { ?field dspy:pythonType ?pythonType } OPTIONAL { ?field dspy:isListType ?isListType } OPTIONAL { ?field dspy:hasPydanticModelType/dspy:pydanticClassName ?pydanticModelName } } ORDER BY ?signatureName ?name"
+  outputs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?signatureName ?name ?pythonType ?description ?isListType ?geInt ?leInt ?pydanticModelName WHERE { ?signature a dspy:Signature ; dspy:className ?signatureName ; dspy:hasOutput ?field . ?field a dspy:OutputField ; dspy:name ?name ; dcterms:description ?description . OPTIONAL { ?field dspy:pythonType ?pythonType } OPTIONAL { ?field dspy:isListType ?isListType } OPTIONAL { ?field dspy:geInt ?geInt } OPTIONAL { ?field dspy:leInt ?leInt } OPTIONAL { ?field dspy:hasPydanticModelType/dspy:pydanticClassName ?pydanticModelName } } ORDER BY ?signatureName ?name"
+  literalOptions: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?signatureName ?fieldName ?optionIndex ?optionValue WHERE { ?signature a dspy:Signature ; dspy:className ?signatureName . { ?signature dspy:hasInput ?field } UNION { ?signature dspy:hasOutput ?field } ?field dspy:name ?fieldName ; dspy:hasLiteralOption ?opt . ?opt dspy:optionIndex ?optionIndex ; dspy:optionValue ?optionValue . } ORDER BY ?signatureName ?fieldName ?optionIndex"
+  pydanticModels: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?className ?description WHERE { ?model a dspy:PydanticModel ; dspy:pydanticClassName ?className ; dcterms:description ?description . } ORDER BY ?className"
+  pydanticModelFields: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?modelClassName ?name ?pythonType WHERE { ?model a dspy:PydanticModel ; dspy:pydanticClassName ?modelClassName ; dspy:hasModelField ?field . ?field a dspy:PydanticModelField ; dspy:name ?name ; dspy:pythonType ?pythonType . } ORDER BY ?modelClassName ?name"
+  modules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?name ?kind ?signatureName ?maxIters ?comparisonM ?comparisonTemperature ?maxIterations ?maxLlmCalls ?maxOutputChars ?verboseFlag WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind ?kind ; dspy:signature ?signature . ?signature dspy:className ?signatureName . FILTER(?kind NOT IN (\"ReAct\", \"CodeAct\", \"BestOfN\", \"Refine\")) OPTIONAL { ?module dspy:maxIters ?maxIters } OPTIONAL { ?module dspy:comparisonM ?comparisonM } OPTIONAL { ?module dspy:comparisonTemperature ?comparisonTemperature } OPTIONAL { ?module dspy:maxIterations ?maxIterations } OPTIONAL { ?module dspy:maxLlmCalls ?maxLlmCalls } OPTIONAL { ?module dspy:maxOutputChars ?maxOutputChars } OPTIONAL { ?module dspy:verboseFlag ?verboseFlag } } ORDER BY ?name"
+  mcpModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?name ?signatureName ?serverName ?command WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind \"ReAct\" ; dspy:signature ?signature ; dspy:usesMCPServer ?server . ?signature dspy:className ?signatureName . ?server dspy:name ?serverName ; dspy:command ?command . } ORDER BY ?name"
+  serverArgs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?serverName ?argIndex ?argValue WHERE { ?server a dspy:MCPServerConnection ; dspy:name ?serverName ; dspy:hasArg ?arg . ?arg a dspy:ServerArg ; dspy:argIndex ?argIndex ; dspy:argValue ?argValue . } ORDER BY ?serverName ?argIndex"
+  codeActModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?name ?signatureName ?maxIters WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind \"CodeAct\" ; dspy:signature ?signature . ?signature dspy:className ?signatureName . OPTIONAL { ?module dspy:maxIters ?maxIters } } ORDER BY ?name"
+  localTools: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?moduleName ?toolName ?description WHERE { ?module a dspy:Module ; dspy:kind \"CodeAct\" ; dspy:name ?moduleName ; dspy:hasLocalTool ?tool . ?tool dspy:name ?toolName ; dcterms:description ?description . } ORDER BY ?moduleName ?toolName"
+  wrapperModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?kind ?description ?wrappedName ?rewardFunction ?refineN ?refineThreshold ?refineFailCount WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind ?kind ; dcterms:description ?description ; dspy:wrapsModule ?wrapped ; dspy:rewardFunction ?rewardFunction ; dspy:refineN ?refineN ; dspy:refineThreshold ?refineThreshold . ?wrapped dspy:name ?wrappedName . FILTER(?kind IN (\"BestOfN\", \"Refine\")) OPTIONAL { ?module dspy:refineFailCount ?refineFailCount } } ORDER BY ?name"
 ---
 # GENERATED by ggen from dspy-pack/ontology.ttl. Do not hand-edit.
 from __future__ import annotations
+{% if literalOptions | length > 0 %}
+from typing import List, Literal
+{% endif %}{% if pydanticModels | length > 0 %}
+import pydantic
+{% endif %}{% if mcpModules | length > 0 %}
+import asyncio
 
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+{% endif %}
 import dspy
 
+{% for model in pydanticModels %}
+class {{ model.className }}(pydantic.BaseModel):
+    """{{ model.description }}"""
+{% for field in pydanticModelFields %}{% if field.modelClassName == model.className %}    {{ field.name }}: {{ field.pythonType }}
+{% endif %}{% endfor %}
+{% endfor %}
 {% for signature in signatures %}
 class {{ signature.className }}(dspy.Signature):
     """{{ signature.description }}"""
-{% for field in inputs %}{% if field.signatureName == signature.className %}    {{ field.name }}: {{ field.pythonType }} = dspy.InputField(desc={{ field.description | json_encode | safe }})
-{% endif %}{% endfor %}{% for field in outputs %}{% if field.signatureName == signature.className %}    {{ field.name }}: {{ field.pythonType }} = dspy.OutputField(desc={{ field.description | json_encode | safe }})
+{% for field in inputs %}{% if field.signatureName == signature.className %}    {{ field.name }}: {% if field.pythonType is defined %}{{ field.pythonType }}{% elif field.pydanticModelName is defined %}{{ field.pydanticModelName }}{% else %}{% set_global opt_first = true %}{% if field.isListType is defined and field.isListType %}List[Literal[{% for opt in literalOptions %}{% if opt.signatureName == signature.className and opt.fieldName == field.name %}{% if not opt_first %}, {% endif %}{{ opt.optionValue | json_encode | safe }}{% set_global opt_first = false %}{% endif %}{% endfor %}]]{% else %}Literal[{% for opt in literalOptions %}{% if opt.signatureName == signature.className and opt.fieldName == field.name %}{% if not opt_first %}, {% endif %}{{ opt.optionValue | json_encode | safe }}{% set_global opt_first = false %}{% endif %}{% endfor %}]{% endif %}{% endif %} = dspy.InputField(desc={{ field.description | json_encode | safe }})
+{% endif %}{% endfor %}{% for field in outputs %}{% if field.signatureName == signature.className %}    {{ field.name }}: {% if field.pythonType is defined %}{{ field.pythonType }}{% elif field.pydanticModelName is defined %}{{ field.pydanticModelName }}{% else %}{% set_global opt_first = true %}{% if field.isListType is defined and field.isListType %}List[Literal[{% for opt in literalOptions %}{% if opt.signatureName == signature.className and opt.fieldName == field.name %}{% if not opt_first %}, {% endif %}{{ opt.optionValue | json_encode | safe }}{% set_global opt_first = false %}{% endif %}{% endfor %}]]{% else %}Literal[{% for opt in literalOptions %}{% if opt.signatureName == signature.className and opt.fieldName == field.name %}{% if not opt_first %}, {% endif %}{{ opt.optionValue | json_encode | safe }}{% set_global opt_first = false %}{% endif %}{% endfor %}]{% endif %}{% endif %} = dspy.OutputField(desc={{ field.description | json_encode | safe }}{% if field.geInt is defined %}, ge={{ field.geInt }}{% endif %}{% if field.leInt is defined %}, le={{ field.leInt }}{% endif %})
 {% endif %}{% endfor %}
 {% endfor %}
-{% for module in modules %}{{ module.name }} = dspy.{{ module.kind }}({{ module.signatureName }})
+{% for module in modules %}{% if module.kind == "MultiChainComparison" %}{{ module.name }} = dspy.MultiChainComparison({{ module.signatureName }}{% if module.comparisonM is defined %}, M={{ module.comparisonM }}{% endif %}{% if module.comparisonTemperature is defined %}, temperature={{ module.comparisonTemperature }}{% endif %})
+{% elif module.kind == "ProgramOfThought" %}{{ module.name }} = dspy.ProgramOfThought({{ module.signatureName }}{% if module.maxIters is defined %}, max_iters={{ module.maxIters }}{% endif %})
+{% elif module.kind == "RLM" %}{{ module.name }} = dspy.RLM({{ module.signatureName }}{% if module.maxIterations is defined %}, max_iterations={{ module.maxIterations }}{% endif %}{% if module.maxLlmCalls is defined %}, max_llm_calls={{ module.maxLlmCalls }}{% endif %}{% if module.maxOutputChars is defined %}, max_output_chars={{ module.maxOutputChars }}{% endif %}{% if module.verboseFlag is defined and module.verboseFlag %}, verbose=True{% endif %})
+{% else %}{{ module.name }} = dspy.{{ module.kind }}({{ module.signatureName }})
+{% endif %}{% endfor %}
+{% for tool in localTools %}
+def {{ tool.toolName }}(*args, **kwargs):
+    """Local tool for {{ tool.moduleName }} (dspy.CodeAct): {{ tool.description }}. Hand-complete: ggen only scaffolds the signature."""
+    raise NotImplementedError("Fill in the {{ tool.toolName }} tool for {{ tool.moduleName }}.")
+{% endfor %}
+{% for module in codeActModules %}
+{{ module.name }} = dspy.CodeAct({{ module.signatureName }}, tools=[{% set_global tool_first = true %}{% for tool in localTools %}{% if tool.moduleName == module.name %}{% if not tool_first %}, {% endif %}{{ tool.toolName }}{% set_global tool_first = false %}{% endif %}{% endfor %}]{% if module.maxIters is defined %}, max_iters={{ module.maxIters }}{% endif %})
+{% endfor %}
+{% for mcpModule in mcpModules %}
+{% set_global param_first = true %}
+async def run_{{ mcpModule.name }}({% for field in inputs %}{% if field.signatureName == mcpModule.signatureName %}{% if not param_first %}, {% endif %}{{ field.name }}: {{ field.pythonType }}{% set_global param_first = false %}{% endif %}{% endfor %}):
+    """Run the {{ mcpModule.name }} ReAct agent against the {{ mcpModule.serverName }} MCP server (stdio).
+
+    Follows dspy.ai's own "DSPy + MCP" tutorial pattern exactly: launch the
+    server, list its tools over the real MCP protocol at call time (tool
+    discovery is genuinely dynamic -- not enumerable at generation time),
+    convert each tool via dspy.Tool.from_mcp_tool, then drive dspy.ReAct.
+    """
+{% set_global arg_first = true %}
+    server_params = StdioServerParameters(
+        command={{ mcpModule.command | json_encode | safe }},
+        args=[{% for arg in serverArgs %}{% if arg.serverName == mcpModule.serverName %}{% if not arg_first %}, {% endif %}{{ arg.argValue | json_encode | safe }}{% set_global arg_first = false %}{% endif %}{% endfor %}],
+        env=None,
+    )
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            tools = await session.list_tools()
+            dspy_tools = [dspy.Tool.from_mcp_tool(session, tool) for tool in tools.tools]
+            {{ mcpModule.name }} = dspy.ReAct({{ mcpModule.signatureName }}, tools=dspy_tools)
+{% set_global call_first = true %}
+            return await {{ mcpModule.name }}.acall({% for field in inputs %}{% if field.signatureName == mcpModule.signatureName %}{% if not call_first %}, {% endif %}{{ field.name }}={{ field.name }}{% set_global call_first = false %}{% endif %}{% endfor %})
+{% endfor %}
+{% for w in wrapperModules %}
+def {{ w.rewardFunction }}(args: dict, pred) -> float:
+    """Reward function for {{ w.name }} ({{ w.kind }}): {{ w.description }}. Hand-complete: ggen only scaffolds the signature."""
+    raise NotImplementedError("Fill in the {{ w.rewardFunction }} reward function for {{ w.name }}.")
+
+{{ w.name }} = dspy.{{ w.kind }}(module={{ w.wrappedName }}, N={{ w.refineN }}, reward_fn={{ w.rewardFunction }}, threshold={{ w.refineThreshold }}{% if w.refineFailCount is defined %}, fail_count={{ w.refineFailCount }}{% endif %})
 {% endfor %}

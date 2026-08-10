@@ -1,0 +1,18 @@
+{
+  "migration_law": "M_1_to_2",
+  "from_schema": "ggen-receipt/v1",
+  "to_schema": "ggen-receipt/v2",
+  "final_v1_chain_hash_hex": "8c78d16867f4588a7f32e33f917efc5a699194596340e934a4e5be4c20379af8",
+  "first_v2_chain_hash_hex": "df3de9c68fa2ff1355be7430560be960e4939d7b6bd01016f4d9535de0ede8be",
+  "carries_forward": [
+    "chain_hash_lineage",
+    "object_ids",
+    "instruction_id_sequence"
+  ],
+  "becomes_unknown": [
+    "admission",
+    "equivalence",
+    "obligation_count"
+  ],
+  "resulting_ceiling": "LegacyObserved"
+}

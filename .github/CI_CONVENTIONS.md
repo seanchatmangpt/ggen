@@ -209,10 +209,19 @@ external deps). It runs **per-file** checks on every `*.yml` it globs:
 
 …plus three **repo-wide** checks:
 
-- `check_pr_trigger_scope` — only the 4 core workflows (`ci.yml`, `quality.yml`,
-  `docs.yml`, `example-tpot2.yml`) may carry an `on: pull_request:` trigger.
-  String mentions of `pull_request` in a job `if:` / `github.event_name` guard
-  are **not** triggers and are ignored — only the `on:` block is inspected.
+- `check_pr_trigger_scope` — the 4 core workflows (`ci.yml`, `quality.yml`,
+  `docs.yml`, `example-tpot2.yml`) may carry an **unfiltered** `on:
+  pull_request:` trigger (they're meant to gate every PR). Every other
+  workflow may also trigger on `pull_request`, but only with a `paths:` key
+  scoping it to its own pack/example/doc set — narrow, not repo-wide. This
+  corrects an earlier version of this rule ("only these 4 may trigger on
+  `pull_request` *at all*"), which the real, working CI never actually
+  followed: confirmed 2026-08-07, 50 non-core workflows carry a `pull_request`
+  trigger, and every one of them is already `paths:`-scoped — that's the
+  real, intentional convention for pack-specific CI, not a violation to
+  eliminate. String mentions of `pull_request` in a job `if:` /
+  `github.event_name` guard are **not** triggers and are ignored — only the
+  `on:` block is inspected.
 - `check_advisory_isolation` — `ci.yml`'s `ci-status` job must **not** `needs:`
   the advisory `lsp-crates` job (§8).
 - `check_sibling_pinning` — `setup-ggen-build/action.yml` must pin all four
@@ -220,3 +229,32 @@ external deps). It runs **per-file** checks on every `*.yml` it globs:
 
 The check set is derived by globbing the workflows dir (no hardcoded file count),
 so it stays correct as workflows are added or removed.
+
+### sccache — known-good path, and a tracked (not yet verified) list
+
+Root `Cargo.toml` sets `[build] rustc-wrapper = "sccache"` **unconditionally** —
+every `cargo` invocation, in every job, in every workflow, needs `sccache` on
+`PATH`, whether that workflow's own YAML mentions it or not. Two composite
+actions install it correctly today: `./.github/actions/setup-ggen-build` (the
+complete one — also provisions the sibling repos `[patch.crates-io]` needs
+and the pinned nightly toolchain) and `./.github/actions/setup-rust-cached`
+(a smaller one, just toolchain + sccache + generic caching, for callers that
+don't need sibling provisioning). Use one of these two for any new workflow
+that runs `cargo` — never a bare `dtolnay/rust-toolchain`/`rustup` step.
+
+`pack-gall.yml` was found and fixed this pass (2026-08-07) — it hand-rolled a
+`rustup toolchain install` with no sccache step at all, the literal cause of
+its `pack-gall/standing` check failing. The following workflows provision Rust
+via a bespoke `dtolnay/rust-toolchain`/`rustup` step (not either composite
+action above) and were flagged but **not individually verified or touched**
+this pass — each needs a per-job check for a real sccache install before being
+trusted: `architecture-autonomics.yml`, `architecture-foundry-runtime.yml`,
+`pcq-marketplace-alive.yml`, `tcps-generated-validation.yml`,
+`tf-acceptance.yml`, `cyberpunk-tv-platform.yml`,
+`ecosystem-alive-generated-command-format.yml`, `fortune5-crown-normalize.yml`.
+Several other files (`release-debian.yml`, `deploy-docs.yml`,
+`publish-registry.yml`, `marketplace-test.yml`, `publish-candidate.yml`,
+`docker-build-push.yml`) carry comments claiming they were already fixed to
+route through `setup-ggen-build` — treat those as claims to re-verify against
+a real run, not confirmed, since comment text can drift from actual step
+content.

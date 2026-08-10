@@ -1,5 +1,7 @@
 {
   "release": "v26.7.20",
+  "audited_release": "v26.7.20",
+  "workspace_version_note": "Cargo.toml has since moved to 26.8.6 locally / 26.8.7 on origin/main (automated version-law bumps); this standing declaration's 23-condition audit was NOT re-run at either version -- see docs/jira/v26.8.7/STATUS.md for current release-readiness state",
   "flavor": "candidate",
   "source_standing": "believable-claimed",
   "binary_standing": "unverified-on-artifact-host",

@@ -1,0 +1,5 @@
+{#- RELEASE_STANDING.md — verbatim projection of grp:ReleaseStandingMdArtifact's
+    grp:artifactBody (packs/ggen-release-pack/ontology.ttl). Edit the ontology's artifactBody
+    literal, not this file or the generated .md. -#}
+{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:ReleaseStandingMdArtifact grp:artifactBody ?body . }') -%}
+{{ S[0].body }}

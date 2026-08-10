@@ -39,11 +39,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Install pinned Rust and just
-        run: |
-          rustup toolchain install nightly-2026-04-15 --profile minimal
-          rustup default nightly-2026-04-15
-          cargo install just --locked --version 1.40.0
+      - name: Setup ggen build (siblings, nightly toolchain, sccache, just)
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: pack-gall
       - name: Execute ten Gall checkpoints
         run: just --justfile tools/pack-gall/justfile verify
       - name: Upload verifier evidence

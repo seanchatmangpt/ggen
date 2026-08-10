@@ -1,0 +1,62 @@
+# Real consumer coverage fixture exercising every dspy-pack Module kind added in the "full
+# module coverage" round (2026-08-10): ProgramOfThought, MultiChainComparison, RLM, CodeAct,
+# BestOfN, Refine -- each verified against its real dspy 3.1.3 constructor signature (see
+# evidence/dspy-source-coverage.ttl). Predict/ChainOfThought/ReAct are already covered by the
+# other example fixtures in this directory.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:demo-signature a dspy:Signature ;
+    dcterms:title "AnswerQuestion" ;
+    dcterms:description "Answer a question with a concise response." ;
+    dspy:className "AnswerQuestion" ;
+    dspy:hasInput dspy:demo-question-input ;
+    dspy:hasOutput dspy:demo-answer-output .
+
+dspy:demo-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ; dcterms:description "Question to answer." .
+
+dspy:demo-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ; dcterms:description "Concise answer." .
+
+# ── ProgramOfThought ─────────────────────────────────────────────────────────
+dspy:pot-module a dspy:Module ;
+    dcterms:description "ProgramOfThought over AnswerQuestion." ;
+    dspy:name "pot_module" ; dspy:kind "ProgramOfThought" ; dspy:signature dspy:demo-signature ;
+    dspy:maxIters 5 .
+
+# ── MultiChainComparison ─────────────────────────────────────────────────────
+dspy:mcc-module a dspy:Module ;
+    dcterms:description "MultiChainComparison over AnswerQuestion." ;
+    dspy:name "mcc_module" ; dspy:kind "MultiChainComparison" ; dspy:signature dspy:demo-signature ;
+    dspy:comparisonM 4 ; dspy:comparisonTemperature 0.5 .
+
+# ── RLM ───────────────────────────────────────────────────────────────────────
+dspy:rlm-module a dspy:Module ;
+    dcterms:description "RLM over AnswerQuestion." ;
+    dspy:name "rlm_module" ; dspy:kind "RLM" ; dspy:signature dspy:demo-signature ;
+    dspy:maxIterations 10 ; dspy:maxLlmCalls 20 ; dspy:maxOutputChars 5000 ; dspy:verboseFlag true .
+
+# ── CodeAct ───────────────────────────────────────────────────────────────────
+dspy:codeact-module a dspy:Module ;
+    dcterms:description "CodeAct over AnswerQuestion, with one local tool." ;
+    dspy:name "codeact_module" ; dspy:kind "CodeAct" ; dspy:signature dspy:demo-signature ;
+    dspy:maxIters 3 ; dspy:hasLocalTool dspy:lookup-price-tool .
+
+dspy:lookup-price-tool a dspy:LocalTool ;
+    dspy:name "lookup_price" ; dcterms:description "Look up a product's price by SKU." .
+
+# ── BestOfN / Refine (wrap another Module) ────────────────────────────────────
+dspy:base-module a dspy:Module ;
+    dcterms:description "Base ChainOfThought module wrapped by BestOfN and Refine below." ;
+    dspy:name "base_module" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:demo-signature .
+
+dspy:bestofn-module a dspy:Module ;
+    dcterms:description "BestOfN over base_module, per dspy.BestOfN's real (module, N, reward_fn, threshold) constructor." ;
+    dspy:name "bestofn_module" ; dspy:kind "BestOfN" ; dspy:wrapsModule dspy:base-module ;
+    dspy:rewardFunction "bestofn_reward" ; dspy:refineN 3 ; dspy:refineThreshold 0.8 ; dspy:refineFailCount 1 .
+
+dspy:refine-module a dspy:Module ;
+    dcterms:description "Refine over base_module, per dspy.Refine's real (module, N, reward_fn, threshold) constructor." ;
+    dspy:name "refine_module" ; dspy:kind "Refine" ; dspy:wrapsModule dspy:base-module ;
+    dspy:rewardFunction "refine_reward" ; dspy:refineN 3 ; dspy:refineThreshold 0.8 .

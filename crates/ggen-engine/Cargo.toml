@@ -122,6 +122,12 @@ Inflector = "0.11.4"
 
 [dev-dependencies]
 chicago-tdd-tools = { workspace = true, features = ["cli-proof"] }
+# Standalone conformance-check consumer only (gymact_conformance_e2e.rs) --
+# NOT part of the generation pipeline. Per the process-intelligence boundary
+# (.claude/rules/architecture.md), ggen emits OCEL, wasm4pm-compat analyzes
+# it; this dev-dependency lets one test invoke that analysis directly rather
+# than ggen ever reimplementing it.
+wasm4pm-compat = "26.6"
 assert_cmd = "2"
 predicates = "3"
 tempfile = "3"

@@ -1,0 +1,15 @@
+[project]
+name = "optimizers-bootstrap-family"
+
+[ontology]
+source = "ontology.ttl"
+
+[ontology.prefixes]
+dspy = "http://seanchatmangpt.github.io/packs/dspy#"
+dcterms = "http://purl.org/dc/terms/"
+
+[packs]
+dspy-pack = { path = "../../packs/dspy-pack" }
+
+[templates]
+dir = "templates"

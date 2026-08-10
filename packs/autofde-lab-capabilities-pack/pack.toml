@@ -1,0 +1,12 @@
+[pack]
+name = "autofde-lab-capabilities-pack"
+version = "0.1.0"
+description = "Renders a human-readable capability-catalog Markdown page from autofde-lab's real, generated ontology/autofde-lab-capabilities.ttl (83 capabilities: 26 domains, 57 solvers) -- real SPARQL SELECT over the ontology's own typed properties (skdt:identifier/standing/entryPoint/owningModule/evidence/requiresCharacteristic), not a literal-string echo. Renders the ontology's static half only (identity, standing, requirements) -- fabric/coverage.py's live-execution fields (disposition, cause, execution_evidence, falsifier) are not in the ontology and are out of scope for this pack."
+category = "docs"
+author = "ggen"
+license = "MIT OR Apache-2.0"
+production_ready = true
+
+[pack.metadata]
+tags = ["ggen", "autofde-lab", "docs", "capability-catalog"]
+keywords = ["ggen", "pack", "sparql", "ontology", "markdown"]

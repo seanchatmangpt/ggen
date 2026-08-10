@@ -1,0 +1,52 @@
+# Fixture exercising dspy-pack's three "prompt family" optimizer kinds --
+# COPRO, SignatureOptimizer, MIPROv2 -- sharing one ChainOfThought student Module.
+# Verifies (via a real ggen sync run + real dspy 3.1.3 construction, not just parsing):
+#   - COPRO's real constructor kwargs: metric, prompt_model, breadth, depth, init_temperature
+#   - SignatureOptimizer's real constructor kwargs (same shape as COPRO plus verbose) AND
+#     its distinct compile() signature (devset=, not trainset=)
+#   - MIPROv2's real constructor kwargs restricted to this pack's wired subset: metric,
+#     prompt_model, task_model, max_bootstrapped_demos, max_labeled_demos, num_candidates,
+#     max_errors, seed, log_dir (auto/track_stats/metric_threshold/init_temperature
+#     deliberately NOT set -- not wired for MIPROv2 in this round).
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:opf-signature a dspy:Signature ;
+    dcterms:title "SummarizeArticle" ;
+    dcterms:description "Summarize a news article into a short, faithful digest." ;
+    dspy:className "SummarizeArticle" ;
+    dspy:hasInput dspy:opf-article-input ;
+    dspy:hasOutput dspy:opf-summary-output .
+
+dspy:opf-article-input a dspy:InputField ;
+    dspy:name "article" ; dspy:pythonType "str" ;
+    dcterms:description "Full text of the news article." .
+
+dspy:opf-summary-output a dspy:OutputField ;
+    dspy:name "summary" ; dspy:pythonType "str" ;
+    dcterms:description "A concise, faithful summary of the article." .
+
+dspy:opf-module a dspy:Module ;
+    dcterms:description "ChainOfThought predictor over SummarizeArticle, the shared student for all three optimizers below." ;
+    dspy:name "summarizer" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:opf-signature .
+
+dspy:opf-copro a dspy:Optimizer ;
+    dcterms:description "COPRO coordinate-ascent prompt optimization over the summarizer." ;
+    dspy:name "opf_copro" ; dspy:kind "COPRO" ;
+    dspy:optimizes dspy:opf-module ; dspy:metricFunction "copro_metric" ;
+    dspy:promptModel "openai/gpt-4o-mini" ; dspy:breadth 8 ; dspy:depth 2 ; dspy:initTemperature 1.2 .
+
+dspy:opf-sigopt a dspy:Optimizer ;
+    dcterms:description "SignatureOptimizer over the summarizer (predecessor of COPRO, distinct compile() signature)." ;
+    dspy:name "opf_sigopt" ; dspy:kind "SignatureOptimizer" ;
+    dspy:optimizes dspy:opf-module ; dspy:metricFunction "sigopt_metric" ;
+    dspy:promptModel "openai/gpt-4o-mini" ; dspy:breadth 6 ; dspy:depth 3 ;
+    dspy:initTemperature 1.1 ; dspy:optimizerVerbose true .
+
+dspy:opf-mipro a dspy:Optimizer ;
+    dcterms:description "MIPROv2 multi-stage instruction/few-shot optimization over the summarizer." ;
+    dspy:name "opf_mipro" ; dspy:kind "MIPROv2" ;
+    dspy:optimizes dspy:opf-module ; dspy:metricFunction "mipro_metric" ;
+    dspy:promptModel "openai/gpt-4o-mini" ; dspy:taskModel "openai/gpt-4o" ;
+    dspy:maxBootstrappedDemos 3 ; dspy:maxLabeledDemos 4 ; dspy:numCandidates 5 ;
+    dspy:optimizerMaxErrors 2 ; dspy:seedInt 7 ; dspy:logDir "/tmp/mipro-opf-log" .

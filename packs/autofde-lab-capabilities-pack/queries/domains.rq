@@ -1,0 +1,12 @@
+PREFIX skdt: <urn:skdecide:term:>
+SELECT ?identifier ?standing ?entryPoint ?owningModule ?evidence ?extrasMarker
+WHERE {
+  ?cap a skdt:Domain ;
+       skdt:identifier ?identifier ;
+       skdt:standing ?standing ;
+       skdt:entryPoint ?entryPoint ;
+       skdt:owningModule ?owningModule ;
+       skdt:evidence ?evidence .
+  OPTIONAL { ?cap skdt:extrasMarker ?extrasMarker }
+}
+ORDER BY ?identifier

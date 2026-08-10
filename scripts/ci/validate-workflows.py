@@ -52,7 +52,16 @@ except Exception:  # pragma: no cover - depends on runner env
 # .github/CI_ARCHITECTURE.md / CI_CONVENTIONS.md / CI_TEARDOWN.md).          #
 # --------------------------------------------------------------------------- #
 
-# Exactly these four core workflows may carry an `on: pull_request:` trigger.
+# These four core workflows may carry an UNFILTERED `on: pull_request:`
+# trigger (no `paths:` restriction -- they are meant to gate every PR).
+# Every OTHER workflow may also trigger on `pull_request`, but only if that
+# trigger carries a `paths:` filter scoping it to a specific pack/example/
+# doc set -- narrow-scoped PR triggers on pack-specific workflows are this
+# repo's real, working, intentional convention (confirmed 2026-08-07: all
+# 50 non-core workflows with a `pull_request` trigger already do this; zero
+# have an unfiltered one). The OLD version of this rule ("only these 4 may
+# trigger on pull_request at all") was stale prose that the actual, working
+# CI never followed -- see .github/CI_CONVENTIONS.md section 10.
 PR_GATING_WORKFLOWS = frozenset(
     {"ci.yml", "quality.yml", "docs.yml", "example-tpot2.yml"}
 )
@@ -398,18 +407,58 @@ def validate_file(path: Path) -> tuple[bool, list[str]]:
 # Cross-file (repo-wide) checks                                               #
 # --------------------------------------------------------------------------- #
 
+def pull_request_trigger_has_paths_filter(lines: list[str]) -> bool:
+    """True if the top-level `on: pull_request:` block itself declares a
+    `paths:` (or `paths-ignore:`) key, scoping it to a subset of files.
+
+    Only meaningful when `on_block_has_trigger(lines, "pull_request")` is
+    already True. Mirrors `on_block_has_trigger`'s block-form scanning:
+    finds the `on:` body, then the `pull_request:` sub-key inside it, then
+    checks for a `paths:`/`paths-ignore:` key nested one level deeper than
+    `pull_request:` before the block dedents back out.
+    """
+    body = extract_top_block(lines, "on")
+    trig_pat = re.compile(r"""^(\s+)(["']?)pull_request\2\s*:""")
+    paths_pat = re.compile(r"""^\s+(["']?)paths(-ignore)?\1\s*:""")
+    for i, raw in enumerate(body):
+        m = trig_pat.match(_strip_comment(raw))
+        if not m:
+            continue
+        trig_indent = len(m.group(1))
+        for later in body[i + 1 :]:
+            stripped = _strip_comment(later)
+            if not stripped.strip():
+                continue
+            later_indent = len(later) - len(later.lstrip())
+            if later_indent <= trig_indent:
+                break  # dedented back out of the pull_request: sub-block
+            if paths_pat.match(stripped):
+                return True
+        return False  # found pull_request: but no nested paths: before dedent
+    return False
+
+
 def check_pr_trigger_scope(files: list[Path]) -> tuple[bool, list[str]]:
-    """A. Only the 4 core workflows may carry an `on: pull_request:` trigger."""
+    """A. The 4 core workflows may trigger on every `pull_request` (no
+    `paths:` filter required). Every other workflow may ALSO trigger on
+    `pull_request`, but only with a `paths:` filter scoping it to its own
+    pack/example/doc set -- narrow, not repo-wide.
+    """
     problems: list[str] = []
     for path in files:
         lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-        if on_block_has_trigger(lines, "pull_request"):
-            if path.name not in PR_GATING_WORKFLOWS:
-                problems.append(
-                    f"{path.name}: has an `on: pull_request:` trigger but is not "
-                    f"one of the 4 core PR-gating workflows "
-                    f"({', '.join(sorted(PR_GATING_WORKFLOWS))})"
-                )
+        if not on_block_has_trigger(lines, "pull_request"):
+            continue
+        if path.name in PR_GATING_WORKFLOWS:
+            continue
+        if not pull_request_trigger_has_paths_filter(lines):
+            problems.append(
+                f"{path.name}: has an unfiltered `on: pull_request:` trigger "
+                f"(no `paths:` key) but is not one of the 4 core PR-gating "
+                f"workflows ({', '.join(sorted(PR_GATING_WORKFLOWS))}) -- "
+                f"either scope it to a `paths:` filter or add it to "
+                f"PR_GATING_WORKFLOWS if it's meant to gate every PR"
+            )
     return (not problems), problems
 
 

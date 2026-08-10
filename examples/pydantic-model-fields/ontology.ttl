@@ -1,0 +1,79 @@
+# Fixture proving dspy-pack's Pydantic-model-typed dspy.Signature field support
+# (dspy:hasPydanticModelType) in both directions: a PydanticModel used as an
+# OutputField's type, and a PydanticModel used as an InputField's type.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# --- Direction 1: PydanticModel on an OutputField --------------------------
+
+dspy:address-model a dspy:PydanticModel ;
+    dspy:pydanticClassName "Address" ;
+    dcterms:description "A postal address extracted from raw text." ;
+    dspy:hasModelField dspy:address-street-field, dspy:address-city-field, dspy:address-zip-field .
+
+dspy:address-street-field a dspy:PydanticModelField ;
+    dspy:name "street" ; dspy:pythonType "str" ;
+    dcterms:description "Street address line." .
+
+dspy:address-city-field a dspy:PydanticModelField ;
+    dspy:name "city" ; dspy:pythonType "str" ;
+    dcterms:description "City name." .
+
+dspy:address-zip-field a dspy:PydanticModelField ;
+    dspy:name "zip_code" ; dspy:pythonType "int" ;
+    dcterms:description "ZIP / postal code as an integer." .
+
+dspy:extract-address-signature a dspy:Signature ;
+    dcterms:title "ExtractAddress" ;
+    dcterms:description "Extract a structured postal address from raw text." ;
+    dspy:className "ExtractAddress" ;
+    dspy:hasInput dspy:ea-raw-text-input ;
+    dspy:hasOutput dspy:ea-address-output .
+
+dspy:ea-raw-text-input a dspy:InputField ;
+    dspy:name "raw_text" ; dspy:pythonType "str" ;
+    dcterms:description "Unstructured text possibly containing an address." .
+
+dspy:ea-address-output a dspy:OutputField ;
+    dspy:name "address" ; dspy:hasPydanticModelType dspy:address-model ;
+    dcterms:description "The structured address extracted from raw_text." .
+
+dspy:extract-address-module a dspy:Module ;
+    dcterms:description "Predict module over ExtractAddress." ;
+    dspy:name "extract_address_predictor" ; dspy:kind "Predict" ;
+    dspy:signature dspy:extract-address-signature .
+
+# --- Direction 2: PydanticModel on an InputField ----------------------------
+
+dspy:contact-model a dspy:PydanticModel ;
+    dspy:pydanticClassName "ContactInfo" ;
+    dcterms:description "Contact details supplied as structured input." ;
+    dspy:hasModelField dspy:contact-name-field, dspy:contact-priority-field .
+
+dspy:contact-name-field a dspy:PydanticModelField ;
+    dspy:name "full_name" ; dspy:pythonType "str" ;
+    dcterms:description "Full name of the contact." .
+
+dspy:contact-priority-field a dspy:PydanticModelField ;
+    dspy:name "is_priority" ; dspy:pythonType "bool" ;
+    dcterms:description "Whether this contact is high priority." .
+
+dspy:summarize-contact-signature a dspy:Signature ;
+    dcterms:title "SummarizeContact" ;
+    dcterms:description "Summarize a structured contact record as free text." ;
+    dspy:className "SummarizeContact" ;
+    dspy:hasInput dspy:sc-contact-input ;
+    dspy:hasOutput dspy:sc-summary-output .
+
+dspy:sc-contact-input a dspy:InputField ;
+    dspy:name "contact" ; dspy:hasPydanticModelType dspy:contact-model ;
+    dcterms:description "The structured contact record to summarize." .
+
+dspy:sc-summary-output a dspy:OutputField ;
+    dspy:name "summary" ; dspy:pythonType "str" ;
+    dcterms:description "One-sentence natural-language summary of the contact." .
+
+dspy:summarize-contact-module a dspy:Module ;
+    dcterms:description "Predict module over SummarizeContact." ;
+    dspy:name "summarize_contact_predictor" ; dspy:kind "Predict" ;
+    dspy:signature dspy:summarize-contact-signature .

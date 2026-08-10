@@ -1,0 +1,115 @@
+# Coverage ledger, NOT pack vocabulary: real class-name facts transcribed from the installed
+# dspy 3.1.3 source tree (`site-packages/dspy/predict/*.py`, `site-packages/dspy/teleprompt/**/*.py`,
+# `grep '^class ' `, cross-checked 2026-08-10), plus the pack's own admitted-kind facts mirrored
+# verbatim from gates/010_admission.rq's closed VALUES lists. Lives under a separate `dspyaud:`
+# (audit) namespace/class set, distinct from the `dspy:` consumer-facing vocabulary in
+# ../ontology.ttl -- composing dspy-pack never loads this file, so it cannot affect a consumer's
+# generated output. It exists solely so queries/coverage_cross_reference.rq can run a real SPARQL
+# join instead of a hand-maintained prose table.
+#
+# Drift guard: scripts/coverage_check.py re-parses gates/010_admission.rq's VALUES lists at run
+# time and fails loudly if they've diverged from the dspyaud:AdmittedKind facts below -- the
+# facts are not trusted on their own.
+@prefix dspyaud: <http://seanchatmangpt.github.io/packs/dspy/audit#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ── Real DSPy Module subclasses (dspy/predict/*.py, dspy 3.1.3) ──────────────
+
+dspyaud:src-BestOfN a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "BestOfN" ; dspyaud:sourceFile "dspy/predict/best_of_n.py" .
+dspyaud:src-ChainOfThought a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "ChainOfThought" ; dspyaud:sourceFile "dspy/predict/chain_of_thought.py" ;
+    dspyaud:tutorialCoverage "general", "mcp", "gepa" .
+dspyaud:src-CodeAct a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "CodeAct" ; dspyaud:sourceFile "dspy/predict/code_act.py" .
+dspyaud:src-KNN a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "KNN" ; dspyaud:sourceFile "dspy/predict/knn.py" .
+dspyaud:src-MultiChainComparison a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "MultiChainComparison" ; dspyaud:sourceFile "dspy/predict/multi_chain_comparison.py" .
+dspyaud:src-Parallel a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "Parallel" ; dspyaud:sourceFile "dspy/predict/parallel.py" .
+dspyaud:src-Predict a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "Predict" ; dspyaud:sourceFile "dspy/predict/predict.py" ;
+    dspyaud:tutorialCoverage "general" .
+dspyaud:src-ProgramOfThought a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "ProgramOfThought" ; dspyaud:sourceFile "dspy/predict/program_of_thought.py" .
+dspyaud:src-ReAct a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "ReAct" ; dspyaud:sourceFile "dspy/predict/react.py" ;
+    dspyaud:tutorialCoverage "mcp" .
+dspyaud:src-Refine a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "Refine" ; dspyaud:sourceFile "dspy/predict/refine.py" .
+dspyaud:src-RLM a dspyaud:DSPySourceClass ; dspyaud:role "Module" ;
+    dspyaud:pythonSymbol "RLM" ; dspyaud:sourceFile "dspy/predict/rlm.py" .
+
+# ── Real DSPy Teleprompter (optimizer) subclasses (dspy/teleprompt/**/*.py, dspy 3.1.3) ──────
+
+dspyaud:src-AvatarOptimizer a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "AvatarOptimizer" ; dspyaud:sourceFile "dspy/teleprompt/avatar_optimizer.py" .
+dspyaud:src-BetterTogether a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "BetterTogether" ; dspyaud:sourceFile "dspy/teleprompt/bettertogether.py" .
+dspyaud:src-BootstrapFinetune a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "BootstrapFinetune" ; dspyaud:sourceFile "dspy/teleprompt/bootstrap_finetune.py" .
+dspyaud:src-BootstrapFewShot a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "BootstrapFewShot" ; dspyaud:sourceFile "dspy/teleprompt/bootstrap.py" .
+dspyaud:src-COPRO a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "COPRO" ; dspyaud:sourceFile "dspy/teleprompt/copro_optimizer.py" .
+dspyaud:src-Ensemble a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "Ensemble" ; dspyaud:sourceFile "dspy/teleprompt/ensemble.py" .
+dspyaud:src-GRPO a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "GRPO" ; dspyaud:sourceFile "dspy/teleprompt/grpo.py" ;
+    dspyaud:tutorialCoverage "rl" .
+dspyaud:src-InferRules a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "InferRules" ; dspyaud:sourceFile "dspy/teleprompt/infer_rules.py" .
+dspyaud:src-KNNFewShot a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "KNNFewShot" ; dspyaud:sourceFile "dspy/teleprompt/knn_fewshot.py" .
+dspyaud:src-MIPROv2 a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "MIPROv2" ; dspyaud:sourceFile "dspy/teleprompt/mipro_optimizer_v2.py" .
+dspyaud:src-BootstrapFewShotWithRandomSearch a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "BootstrapFewShotWithRandomSearch" ; dspyaud:sourceFile "dspy/teleprompt/random_search.py" .
+dspyaud:src-SignatureOptimizer a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "SignatureOptimizer" ; dspyaud:sourceFile "dspy/teleprompt/signature_opt.py" .
+dspyaud:src-SIMBA a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "SIMBA" ; dspyaud:sourceFile "dspy/teleprompt/simba.py" .
+dspyaud:src-BootstrapFewShotWithOptuna a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "BootstrapFewShotWithOptuna" ; dspyaud:sourceFile "dspy/teleprompt/teleprompt_optuna.py" .
+dspyaud:src-LabeledFewShot a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "LabeledFewShot" ; dspyaud:sourceFile "dspy/teleprompt/vanilla.py" .
+dspyaud:src-GEPA a dspyaud:DSPySourceClass ; dspyaud:role "Optimizer" ;
+    dspyaud:pythonSymbol "GEPA" ; dspyaud:sourceFile "dspy/teleprompt/gepa/gepa.py" ;
+    dspyaud:tutorialCoverage "gepa" .
+
+# ── Admitted-kind facts, mirrored verbatim from gates/010_admission.rq's closed VALUES lists ──
+# (line 48: Module kind VALUES; line 94ish: Optimizer kind VALUES -- re-verified by
+# scripts/coverage_check.py at run time, not trusted here on assertion alone)
+
+dspyaud:admitted-Predict a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "Predict" .
+dspyaud:admitted-ChainOfThought a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "ChainOfThought" .
+dspyaud:admitted-ReAct a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "ReAct" .
+dspyaud:admitted-ProgramOfThought a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "ProgramOfThought" .
+dspyaud:admitted-MultiChainComparison a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "MultiChainComparison" .
+dspyaud:admitted-RLM a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "RLM" .
+dspyaud:admitted-CodeAct a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "CodeAct" .
+dspyaud:admitted-BestOfN a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "BestOfN" .
+dspyaud:admitted-Refine a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "Refine" .
+dspyaud:admitted-GEPA a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "GEPA" .
+dspyaud:admitted-GRPO a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "GRPO" .
+dspyaud:admitted-BootstrapFewShot a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BootstrapFewShot" .
+dspyaud:admitted-BootstrapFewShotWithRandomSearch a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BootstrapFewShotWithRandomSearch" .
+dspyaud:admitted-BootstrapFewShotWithOptuna a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BootstrapFewShotWithOptuna" .
+dspyaud:admitted-BootstrapFinetune a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BootstrapFinetune" .
+dspyaud:admitted-COPRO a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "COPRO" .
+dspyaud:admitted-SignatureOptimizer a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "SignatureOptimizer" .
+dspyaud:admitted-MIPROv2 a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "MIPROv2" .
+dspyaud:admitted-AvatarOptimizer a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "AvatarOptimizer" .
+dspyaud:admitted-BetterTogether a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BetterTogether" .
+dspyaud:admitted-InferRules a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "InferRules" .
+dspyaud:admitted-SIMBA a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "SIMBA" .
+dspyaud:admitted-LabeledFewShot a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "LabeledFewShot" .
+
+# KNN, Parallel, KNNFewShot, and Ensemble are deliberately NOT admitted -- confirmed by
+# inspecting their real constructors/compile() methods (dspy 3.1.3): KNN/Parallel take no
+# Signature at construction; KNNFewShot's constructor requires a real trainset+vectorizer
+# object, not RDF-representable; Ensemble's real compile(programs) takes a LIST of programs,
+# not a single student Module + trainset, and its constructor has no metric/target-Module
+# concept. None fit dspy:Module's or dspy:Optimizer's shape -- see ontology.ttl's dspy:Module
+# and dspy:Optimizer comments for the full reasoning.
