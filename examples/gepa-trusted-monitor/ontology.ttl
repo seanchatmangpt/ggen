@@ -31,9 +31,14 @@ dspy:trusted-monitor-module a dspy:Module ;
     dcterms:description "ChainOfThought predictor over PredictSuspicionScore, per the tutorial's predictor = dspy.ChainOfThought(PredictSuspicionScore)." ;
     dspy:name "predictor" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:trusted-monitor-signature .
 
+# Real dspy.LM(model="gpt-5", temperature=1.0, max_tokens=32000, api_key=api_key) from the
+# tutorial's own code -- api_key is out of ontology scope (a real credential, not a fixed fact).
+dspy:trusted-monitor-reflection-lm a dspy:LMConfig ;
+    dspy:modelName "openai/gpt-5" ; dspy:temperature 1.0 ; dspy:maxTokens 32000 .
+
 dspy:trusted-monitor-gepa a dspy:Optimizer ;
     dcterms:description "GEPA over the predictor, per the tutorial's gepa_optimizer = dspy.GEPA(...) call." ;
     dspy:name "trusted_monitor_gepa" ; dspy:kind "GEPA" ;
     dspy:optimizes dspy:trusted-monitor-module ; dspy:metricFunction "suspicion_metric" ;
     dspy:maxFullEvals 2 ; dspy:numThreads 8 ; dspy:reflectionMinibatchSize 3 ; dspy:trackStats true ;
-    dspy:reflectionModel "openai/gpt-5" .
+    dspy:reflectionModel dspy:trusted-monitor-reflection-lm .

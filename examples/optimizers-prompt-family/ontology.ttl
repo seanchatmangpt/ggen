@@ -11,6 +11,12 @@
 @prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
+dspy:opf-prompt-lm a dspy:LMConfig ;
+    dspy:modelName "openai/gpt-4o-mini" ; dspy:temperature 0.7 ; dspy:maxTokens 4000 .
+
+dspy:opf-task-lm a dspy:LMConfig ;
+    dspy:modelName "openai/gpt-4o" ; dspy:maxTokens 8000 ; dspy:numRetries 5 .
+
 dspy:opf-signature a dspy:Signature ;
     dcterms:title "SummarizeArticle" ;
     dcterms:description "Summarize a news article into a short, faithful digest." ;
@@ -34,19 +40,19 @@ dspy:opf-copro a dspy:Optimizer ;
     dcterms:description "COPRO coordinate-ascent prompt optimization over the summarizer." ;
     dspy:name "opf_copro" ; dspy:kind "COPRO" ;
     dspy:optimizes dspy:opf-module ; dspy:metricFunction "copro_metric" ;
-    dspy:promptModel "openai/gpt-4o-mini" ; dspy:breadth 8 ; dspy:depth 2 ; dspy:initTemperature 1.2 .
+    dspy:promptModel dspy:opf-prompt-lm ; dspy:breadth 8 ; dspy:depth 2 ; dspy:initTemperature 1.2 .
 
 dspy:opf-sigopt a dspy:Optimizer ;
     dcterms:description "SignatureOptimizer over the summarizer (predecessor of COPRO, distinct compile() signature)." ;
     dspy:name "opf_sigopt" ; dspy:kind "SignatureOptimizer" ;
     dspy:optimizes dspy:opf-module ; dspy:metricFunction "sigopt_metric" ;
-    dspy:promptModel "openai/gpt-4o-mini" ; dspy:breadth 6 ; dspy:depth 3 ;
+    dspy:promptModel dspy:opf-prompt-lm ; dspy:breadth 6 ; dspy:depth 3 ;
     dspy:initTemperature 1.1 ; dspy:optimizerVerbose true .
 
 dspy:opf-mipro a dspy:Optimizer ;
     dcterms:description "MIPROv2 multi-stage instruction/few-shot optimization over the summarizer." ;
     dspy:name "opf_mipro" ; dspy:kind "MIPROv2" ;
     dspy:optimizes dspy:opf-module ; dspy:metricFunction "mipro_metric" ;
-    dspy:promptModel "openai/gpt-4o-mini" ; dspy:taskModel "openai/gpt-4o" ;
+    dspy:promptModel dspy:opf-prompt-lm ; dspy:taskModel dspy:opf-task-lm ;
     dspy:maxBootstrappedDemos 3 ; dspy:maxLabeledDemos 4 ; dspy:numCandidates 5 ;
     dspy:optimizerMaxErrors 2 ; dspy:seedInt 7 ; dspy:logDir "/tmp/mipro-opf-log" .
