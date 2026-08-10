@@ -210,57 +210,85 @@ fn test_pre_commit_includes_coherence() {
     );
 }
 
-/// Test that CI workflow includes phase2 job
+/// Test that CI workflow wires the deep-evidence lanes covering what the old
+/// "phase2" job used to cover: build/test/lint coverage over the workspace.
+///
+/// Rewritten (2026-08-10) after `.github/workflows/ci.yml` was replaced by
+/// the "80/20 ERRC" admission/deep-lane design (commit `d68cee811`, "refactor
+/// CI to 80/20 ERRC") -- the old multi-job topology this test used to assert
+/// (`phase2:`, `name: Phase 2 (Inverse Sync + Coherence)`,
+/// `ast_extractor_70pct_test`) no longer exists anywhere in the file; that
+/// design deleted 80 separate workflow files and replaced them with one
+/// `admission` job (fast checks) feeding a matrixed `deep` job (per-lane
+/// evidence: `core_deep`/`integration_deep`/`quality_deep`/`security_deep`/
+/// `docs_deep`/`lsp_deep`/`ci_deep`) plus a `ci-status` aggregate gate. The
+/// substantive invariant this test protects -- "the required CI gate
+/// actually builds, tests, and lints the workspace, not just fast-admits
+/// it" -- still holds, just via different job/step names; asserted against
+/// those real names instead of the retired ones. `test_pre_commit_includes_coherence`
+/// (above) separately covers the coherence-check invariant via `just
+/// pre-commit`, which is unrelated to this CI-workflow-file structure.
 #[test]
-fn test_ci_workflow_includes_phase2() {
+fn test_ci_workflow_wires_deep_evidence_lanes() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
-        ci_workflow.contains("phase2:"),
-        "CI workflow missing phase2 job"
+        ci_workflow.contains("deep:"),
+        "CI workflow missing the deep-evidence job"
     );
     assert!(
-        ci_workflow.contains("name: Phase 2 (Inverse Sync + Coherence)"),
-        "CI workflow phase2 job missing correct name"
+        ci_workflow.contains("ci-status:"),
+        "CI workflow missing the ci-status aggregate gate"
     );
-    assert!(
-        ci_workflow.contains("coherence-check passed") || ci_workflow.contains("Coherence"),
-        "CI workflow phase2 job missing coherence validation"
-    );
-    assert!(
-        ci_workflow.contains("ast_extractor_70pct_test")
-            || ci_workflow.contains("Phase 2 test suite"),
-        "CI workflow phase2 job missing Phase 2 tests"
-    );
+    for lane_evidence in [
+        "cargo check --workspace",
+        "cargo build --workspace",
+        "cargo test --workspace",
+        "cargo test --doc --workspace",
+        "cargo clippy --workspace",
+    ] {
+        assert!(
+            ci_workflow.contains(lane_evidence),
+            "CI workflow's deep-evidence lanes missing real command: {lane_evidence}"
+        );
+    }
 }
 
-/// Test that CI status gate includes phase2 and the other critical jobs as
-/// required dependencies.
+/// Test that the CI status aggregate gate genuinely depends on both the fast
+/// admission pass and the deep-evidence matrix, and refuses to report success
+/// when the deep lane fails -- the real ERRC-era equivalent of the retired
+/// "phase2 is a required job" invariant.
 ///
-/// Checks each required job name individually rather than matching the full
-/// `needs: [...]` line verbatim: a full-line match breaks every time a job
-/// is legitimately added to (or reordered within) the list, even when the
-/// invariant this test actually cares about -- phase2 and its siblings are
-/// still required -- continues to hold. This exact brittleness is what broke
-/// this test when `integration-tests` was correctly promoted from advisory
-/// to required and added to the real needs list.
+/// Rewritten (2026-08-10) for the same reason as
+/// `test_ci_workflow_wires_deep_evidence_lanes` above: the old `needs: [...]`
+/// line naming `check`/`build`/`test`/`doctest`/`phase2`/`cargo-cicd` no
+/// longer exists -- `ci-status` now depends on exactly `[admission, deep]`
+/// and gates on their real job `result`s (`needs.admission.result` /
+/// `needs.deep.result`), not a static job-name list.
 #[test]
-fn test_ci_status_requires_phase2() {
+fn test_ci_status_requires_admission_and_deep() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     let needs_line = ci_workflow
         .lines()
-        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("phase2"))
-        .expect("CI status gate's needs: [...] line (containing phase2) not found");
+        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("admission"))
+        .expect("ci-status's needs: [...] line (containing admission) not found");
 
-    for required_job in ["check", "build", "test", "doctest", "phase2", "cargo-cicd"] {
+    for required_job in ["admission", "deep"] {
         assert!(
             needs_line.contains(required_job),
             "CI status gate doesn't require {required_job} job (needs line: {needs_line})"
         );
     }
+
+    // The gate must actually fail closed when the deep lane fails, not just
+    // list it as a dependency -- assert the real refusal logic is present.
+    assert!(
+        ci_workflow.contains("BUILD_BROKEN:DEEP_LANE_FAILED"),
+        "CI status gate missing its deep-lane-failure refusal"
+    );
 }
 
 /// Test that Makefile.toml has backward-compatible Phase 2 recipes
