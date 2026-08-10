@@ -1749,12 +1749,16 @@ pub async fn install_pack_by_id_with_profile(
             Some("cratesio" | "crates.io") => RegistryType::CratesIo,
             Some("npm") => RegistryType::Npm,
             Some("pypi") => RegistryType::PyPi,
+            Some("ggen-marketplace" | "marketplace") => RegistryType::Ggen,
             _ => RegistryType::Other,
         };
         let url = match registry_type {
             RegistryType::CratesIo => "https://crates.io",
             RegistryType::Npm => "https://registry.npmjs.org",
             RegistryType::PyPi => "https://pypi.org",
+            RegistryType::Ggen => {
+                "https://seanchatmangpt.github.io/ggen-marketplace/index.json"
+            }
             _ => "unknown-external-registry",
         };
         RegistryClass::Public {

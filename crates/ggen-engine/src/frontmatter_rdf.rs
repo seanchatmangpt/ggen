@@ -71,43 +71,37 @@ fn escape_turtle_string(s: &str) -> String {
 /// `Result`-returning shape of every other admission function in this
 /// crate.
 pub fn project_frontmatter(fm: &Frontmatter) -> crate::error::Result<String> {
+    use std::fmt::Write as _;
     let mut ttl = String::new();
-    ttl.push_str(&format!("@prefix fm: <{FM_NS}> .\n"));
+    let _ = writeln!(ttl, "@prefix fm: <{FM_NS}> .");
     ttl.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n");
     ttl.push_str("_:frontmatter a fm:Frontmatter ;\n");
-    ttl.push_str(&format!("    fm:to \"{}\"", escape_turtle_string(&fm.to)));
+    let _ = write!(ttl, "    fm:to \"{}\"", escape_turtle_string(&fm.to));
     if let Some(at_line) = fm.at_line {
-        ttl.push_str(&format!(" ;\n    fm:atLine {at_line}"));
+        let _ = write!(ttl, " ;\n    fm:atLine {at_line}");
     }
     if let Some(sh_before) = &fm.sh_before {
-        ttl.push_str(&format!(
+        let _ = write!(
+            ttl,
             " ;\n    fm:shBefore \"{}\"",
             escape_turtle_string(sh_before)
-        ));
+        );
     }
     if let Some(sh_after) = &fm.sh_after {
-        ttl.push_str(&format!(
+        let _ = write!(
+            ttl,
             " ;\n    fm:shAfter \"{}\"",
             escape_turtle_string(sh_after)
-        ));
+        );
     }
     if let Some(when) = &fm.when {
-        ttl.push_str(&format!(
-            " ;\n    fm:when \"{}\"",
-            escape_turtle_string(when)
-        ));
+        let _ = write!(ttl, " ;\n    fm:when \"{}\"", escape_turtle_string(when));
     }
     if let Some(from) = &fm.from {
-        ttl.push_str(&format!(
-            " ;\n    fm:from \"{}\"",
-            escape_turtle_string(from)
-        ));
+        let _ = write!(ttl, " ;\n    fm:from \"{}\"", escape_turtle_string(from));
     }
     if let Some(base) = &fm.base {
-        ttl.push_str(&format!(
-            " ;\n    fm:base \"{}\"",
-            escape_turtle_string(base)
-        ));
+        let _ = write!(ttl, " ;\n    fm:base \"{}\"", escape_turtle_string(base));
     }
     ttl.push_str(" .\n");
     Ok(ttl)

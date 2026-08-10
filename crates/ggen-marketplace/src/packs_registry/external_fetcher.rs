@@ -465,6 +465,269 @@ impl ExternalRegistryFetcher for PyPiFetcher {
     }
 }
 
+/// Default catalog URL for the real `ggen-marketplace` GitHub Pages deployment.
+///
+/// `~/ggen-marketplace`'s `.github/workflows/publish.yml` `pages` job
+/// uploads `dist/site/index.json`, built by `scripts/marketplace.py
+/// catalog`, schema `https://ggen.dev/marketplace/catalog/v2`. Confirmed
+/// live 2026-08-10 (`curl -sS
+/// https://seanchatmangpt.github.io/ggen-marketplace/index.json` → HTTP
+/// 200, 94 packs, schema v2). Overridable via
+/// [`GGEN_MARKETPLACE_CATALOG_URL_ENV`] for local fixture servers/tests or
+/// a private mirror.
+pub const DEFAULT_GGEN_MARKETPLACE_CATALOG_URL: &str =
+    "https://seanchatmangpt.github.io/ggen-marketplace/index.json";
+
+/// Environment variable overriding [`DEFAULT_GGEN_MARKETPLACE_CATALOG_URL`].
+///
+/// Mirrors the existing `GGEN_PACKS_DIR` override pattern for local packs
+/// (`crate::packs_registry::metadata::try_get_packs_dir`).
+pub const GGEN_MARKETPLACE_CATALOG_URL_ENV: &str = "GGEN_MARKETPLACE_CATALOG_URL";
+
+fn ggen_marketplace_catalog_url() -> String {
+    std::env::var(GGEN_MARKETPLACE_CATALOG_URL_ENV)
+        .unwrap_or_else(|_| DEFAULT_GGEN_MARKETPLACE_CATALOG_URL.to_string())
+}
+
+/// One pack record from the real `ggen-marketplace` catalog (schema
+/// `https://ggen.dev/marketplace/catalog/v2`, produced by
+/// `scripts/marketplace.py catalog` in `~/ggen-marketplace`). Field names
+/// and shapes are transcribed directly from that script's
+/// `Pack.catalog_record()` (`scripts/marketplace.py`), not guessed —
+/// verified against a live fetch of the published catalog.
+#[derive(Debug, Clone, Deserialize)]
+struct CatalogPackRecord {
+    name: String,
+    version: String,
+    description: String,
+    /// `"sha256:<64 hex chars>"` — the pack's deterministic archive digest.
+    digest: String,
+    download_url: String,
+}
+
+/// Top-level catalog payload shape (schema v2).
+#[derive(Debug, Clone, Deserialize)]
+struct CatalogPayload {
+    #[allow(dead_code)]
+    schema: String,
+    #[allow(dead_code)]
+    marketplace_version: String,
+    packs: Vec<CatalogPackRecord>,
+}
+
+/// Fetcher for the real `ggen-marketplace` GitHub Pages catalog.
+///
+/// `~/ggen-marketplace` carries 94 real packs at last qualification —
+/// `packs/<name>/{pack.toml,ontology.ttl,templates/,gates/}`, not a
+/// hypothetical registry shape. Unlike [`CratesIoFetcher`]/[`NpmFetcher`]/
+/// [`PyPiFetcher`], the "registry" here is a static catalog JSON file (no
+/// per-package API endpoint), so `fetch_metadata` fetches and filters the
+/// whole catalog rather than hitting a `/packages/{id}` URL.
+pub struct GgenMarketplaceFetcher {
+    client: reqwest::Client,
+    catalog_url: String,
+}
+
+impl GgenMarketplaceFetcher {
+    pub fn new() -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            catalog_url: ggen_marketplace_catalog_url(),
+        }
+    }
+
+    /// Construct against an explicit catalog URL (used by tests to point at
+    /// a real local HTTP fixture server rather than the live Pages URL).
+    #[must_use]
+    pub fn with_catalog_url(catalog_url: impl Into<String>) -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            catalog_url: catalog_url.into(),
+        }
+    }
+
+    /// Fetch the full remote catalog body (one real HTTP GET) and parse it
+    /// into every listed pack's [`Package`] projection, keeping the same
+    /// digest-prefix-stripping/URL-mapping [`Self::parse_catalog_response`]
+    /// applies per-pack. Shared by [`ExternalRegistryFetcher::fetch_metadata`]
+    /// (single-pack lookup) and [`Self::search`] (whole-catalog scan) so
+    /// there is exactly one place that understands the real catalog JSON
+    /// shape, not two.
+    async fn fetch_all(&self) -> Result<Vec<Package>> {
+        let response = self.client.get(&self.catalog_url).send().await.map_err(|e| {
+            Error::Other(format!(
+                "Failed to fetch ggen-marketplace catalog from {}: {}",
+                self.catalog_url, e
+            ))
+        })?;
+
+        if !response.status().is_success() {
+            return Err(Error::Other(format!(
+                "ggen-marketplace catalog returned error status: {}",
+                response.status()
+            )));
+        }
+
+        let body = response.text().await.map_err(|e| {
+            Error::Other(format!("Failed to read ggen-marketplace catalog body: {}", e))
+        })?;
+
+        let payload: CatalogPayload = serde_json::from_str(&body)
+            .map_err(|e| Error::Other(format!("Failed to parse ggen-marketplace catalog: {}", e)))?;
+
+        Ok(payload
+            .packs
+            .into_iter()
+            .map(Self::record_to_package)
+            .collect())
+    }
+
+    /// Fetch the full catalog and return every pack whose name or
+    /// description contains `query` (case-insensitive substring match),
+    /// case-insensitively, same relevance signal `ggen pack search` already
+    /// uses for local packs (`crates/ggen-cli/src/cmds/pack.rs`'s
+    /// `calculate_relevance`) — not a second search-ranking algorithm.
+    ///
+    /// # Errors
+    /// Returns [`Error::Other`] if the catalog cannot be fetched or parsed.
+    pub async fn search(&self, query: &str) -> Result<Vec<Package>> {
+        let query_lower = query.to_lowercase();
+        let all = self.fetch_all().await?;
+        Ok(all
+            .into_iter()
+            .filter(|p| {
+                p.name.to_lowercase().contains(&query_lower)
+                    || p.description
+                        .as_deref()
+                        .is_some_and(|d| d.to_lowercase().contains(&query_lower))
+            })
+            .collect())
+    }
+
+    fn record_to_package(record: CatalogPackRecord) -> Package {
+        let checksum_hex = record
+            .digest
+            .strip_prefix("sha256:")
+            .unwrap_or(&record.digest)
+            .to_string();
+        let mut download_urls = HashMap::new();
+        download_urls.insert(record.version.clone(), record.download_url);
+        let mut checksums = HashMap::new();
+        checksums.insert(record.version.clone(), checksum_hex);
+        Package {
+            id: record.name.clone(),
+            name: record.name,
+            latest_version: record.version.clone(),
+            versions: vec![record.version],
+            description: Some(record.description),
+            homepage: None,
+            repository: Some("https://github.com/seanchatmangpt/ggen-marketplace".to_string()),
+            license: None,
+            download_urls,
+            checksums,
+        }
+    }
+
+    /// Parse a real catalog JSON payload (schema v2) and project the named
+    /// pack into the shared [`Package`] shape. Pure/sync so it is testable
+    /// against a captured fixture without any network call. Delegates the
+    /// per-record projection to [`Self::record_to_package`] — the same
+    /// mapping [`Self::fetch_all`]/[`Self::search`] use — so there is
+    /// exactly one place that understands the field mapping.
+    ///
+    /// # Errors
+    /// Returns [`Error::Other`] if the payload doesn't parse as schema v2,
+    /// or the named pack isn't present in `packs`.
+    fn parse_catalog_response(package_id: &str, data: &str) -> Result<Package> {
+        let payload: CatalogPayload = serde_json::from_str(data)
+            .map_err(|e| Error::Other(format!("Failed to parse ggen-marketplace catalog: {}", e)))?;
+
+        let pack_count = payload.packs.len();
+        let record = payload
+            .packs
+            .into_iter()
+            .find(|p| p.name == package_id)
+            .ok_or_else(|| {
+                Error::Other(format!(
+                    "Pack '{}' not found in ggen-marketplace catalog ({} packs listed)",
+                    package_id, pack_count
+                ))
+            })?;
+
+        Ok(Self::record_to_package(record))
+    }
+}
+
+impl Default for GgenMarketplaceFetcher {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[async_trait]
+impl ExternalRegistryFetcher for GgenMarketplaceFetcher {
+    async fn fetch_metadata(&self, package_id: &str) -> Result<Package> {
+        info!(
+            "Fetching '{}' from ggen-marketplace catalog at {}",
+            package_id, self.catalog_url
+        );
+        let response = self.client.get(&self.catalog_url).send().await.map_err(|e| {
+            Error::Other(format!(
+                "Failed to fetch ggen-marketplace catalog from {}: {}",
+                self.catalog_url, e
+            ))
+        })?;
+
+        if !response.status().is_success() {
+            return Err(Error::Other(format!(
+                "ggen-marketplace catalog returned error status: {}",
+                response.status()
+            )));
+        }
+
+        let body = response.text().await.map_err(|e| {
+            Error::Other(format!("Failed to read ggen-marketplace catalog body: {}", e))
+        })?;
+
+        Self::parse_catalog_response(package_id, &body)
+    }
+
+    async fn fetch_artifact(&self, package_id: &str, version: &str) -> Result<Vec<u8>> {
+        let metadata = self.fetch_metadata(package_id).await?;
+        let url = metadata.download_urls.get(version).ok_or_else(|| {
+            Error::Other(format!(
+                "Download URL not found for ggen-marketplace pack '{}' version {}",
+                package_id, version
+            ))
+        })?;
+
+        let response = self.client.get(url).send().await.map_err(|e| {
+            Error::Other(format!(
+                "Failed to download artifact for '{}' from ggen-marketplace: {}",
+                package_id, e
+            ))
+        })?;
+
+        if !response.status().is_success() {
+            return Err(Error::Other(format!(
+                "Failed to download ggen-marketplace artifact for '{}': status {}",
+                package_id,
+                response.status()
+            )));
+        }
+
+        let bytes = response.bytes().await.map_err(|e| {
+            Error::Other(format!("Failed to read ggen-marketplace artifact bytes: {}", e))
+        })?;
+
+        Ok(bytes.to_vec())
+    }
+
+    fn registry_prefix(&self) -> &str {
+        "ggen-marketplace"
+    }
+}
+
 /// Factory for creating external registry fetchers
 pub struct ExternalFetcherFactory;
 
@@ -474,6 +737,7 @@ impl ExternalFetcherFactory {
             "cratesio" | "crates.io" => Ok(Box::new(CratesIoFetcher::new())),
             "npm" => Ok(Box::new(NpmFetcher::new())),
             "pypi" => Ok(Box::new(PyPiFetcher::new())),
+            "ggen-marketplace" | "marketplace" => Ok(Box::new(GgenMarketplaceFetcher::new())),
             _ => Err(Error::Other(format!(
                 "Unsupported registry type: {}",
                 registry_type
@@ -561,5 +825,129 @@ mod tests {
             pkg.download_urls.get("1.0.152").unwrap(),
             "https://crates.io/api/v1/crates/serde/1.0.152/download"
         );
+    }
+
+    /// Fixture shape transcribed verbatim from a real, live fetch
+    /// (`curl https://seanchatmangpt.github.io/ggen-marketplace/index.json`,
+    /// 2026-08-10, HTTP 200, 94 packs) — field names/order/types match the
+    /// real payload exactly, trimmed to two packs and shortened
+    /// descriptions for test-file size, not restructured.
+    fn real_catalog_fixture() -> String {
+        json!({
+            "marketplace_version": "v26.8.9",
+            "schema": "https://ggen.dev/marketplace/catalog/v2",
+            "packs": [
+                {
+                    "description": "Typed Rust catalog + real executable certify-pipeline logic.",
+                    "digest": "sha256:963fcfa69a3c83ea017d187a1ee99b4546f21e3b74e6848516423cf22b71c0fa",
+                    "download_url": "https://github.com/seanchatmangpt/ggen-marketplace/releases/download/packs/affidavit-pack-0.1.0.tar.gz",
+                    "manifest_sha256": "18dd39799fff890bb29f05317e3cb2944237056ed68dc04840aaa8643abb84c4",
+                    "name": "affidavit-pack",
+                    "native_gates": 0,
+                    "ontology_files": 1,
+                    "ontology_fingerprint_sha256": "6403b8382d6105c2ff684d8fa092df97c1e37b58a3f71660c90964f5c9e96128",
+                    "path": "packs/affidavit-pack",
+                    "profile": "projection",
+                    "size_bytes": 33275,
+                    "templates": 9,
+                    "verifier_gates": 0,
+                    "version": "0.1.0"
+                },
+                {
+                    "description": "ggen-verify-pack self-hosted verification gates.",
+                    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "download_url": "https://github.com/seanchatmangpt/ggen-marketplace/releases/download/packs/ggen-verify-pack-26.7.19.tar.gz",
+                    "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    "name": "ggen-verify-pack",
+                    "native_gates": 4,
+                    "ontology_files": 1,
+                    "ontology_fingerprint_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "path": "packs/ggen-verify-pack",
+                    "profile": "project",
+                    "size_bytes": 5000,
+                    "templates": 3,
+                    "verifier_gates": 0,
+                    "version": "26.7.19"
+                }
+            ]
+        })
+        .to_string()
+    }
+
+    #[test]
+    fn test_parse_ggen_marketplace_catalog_response() {
+        let body = real_catalog_fixture();
+        let pkg = GgenMarketplaceFetcher::parse_catalog_response("ggen-verify-pack", &body)
+            .expect("known pack must parse");
+        assert_eq!(pkg.name, "ggen-verify-pack");
+        assert_eq!(pkg.latest_version, "26.7.19");
+        assert_eq!(
+            pkg.download_urls.get("26.7.19").unwrap(),
+            "https://github.com/seanchatmangpt/ggen-marketplace/releases/download/packs/ggen-verify-pack-26.7.19.tar.gz"
+        );
+        // digest prefix "sha256:" must be stripped -- verify_artifact_checksum
+        // (marketplace::install) selects SHA-256 vs SHA-1 by raw hex length.
+        assert_eq!(
+            pkg.checksums.get("26.7.19").unwrap(),
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        );
+    }
+
+    #[test]
+    fn test_parse_ggen_marketplace_catalog_response_unknown_pack_is_refused() {
+        let body = real_catalog_fixture();
+        let err = GgenMarketplaceFetcher::parse_catalog_response("does-not-exist-pack", &body)
+            .expect_err("unknown pack must be refused, not silently substituted");
+        let msg = err.to_string();
+        assert!(msg.contains("does-not-exist-pack"), "error should name the missing pack: {msg}");
+        assert!(msg.contains('2'), "error should report the real catalog pack count: {msg}");
+    }
+
+    /// Real HTTP round trip against a real local TCP listener serving the
+    /// exact fixture bytes above — a real `reqwest::Client` GET, a real
+    /// socket accept/write, no mocking library, no interaction assertions.
+    /// Chicago-style: only the final parsed `Package` state is asserted.
+    #[tokio::test]
+    async fn test_fetch_metadata_over_real_http_round_trip() {
+        let body = real_catalog_fixture();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind local fixture listener");
+        let addr = listener.local_addr().expect("local addr");
+        let server = tokio::spawn(async move {
+            use tokio::io::{AsyncReadExt, AsyncWriteExt};
+            let (mut socket, _) = listener.accept().await.expect("accept");
+            let mut buf = [0u8; 1024];
+            let _ = socket.read(&mut buf).await; // discard the real request line/headers
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                body.len(),
+                body
+            );
+            socket
+                .write_all(response.as_bytes())
+                .await
+                .expect("write real response bytes");
+            socket.shutdown().await.ok();
+        });
+
+        let fetcher =
+            GgenMarketplaceFetcher::with_catalog_url(format!("http://{}/index.json", addr));
+        let pkg = fetcher
+            .fetch_metadata("affidavit-pack")
+            .await
+            .expect("real HTTP fetch + parse must succeed");
+        assert_eq!(pkg.name, "affidavit-pack");
+        assert_eq!(pkg.latest_version, "0.1.0");
+        assert_eq!(
+            pkg.download_urls.get("0.1.0").unwrap(),
+            "https://github.com/seanchatmangpt/ggen-marketplace/releases/download/packs/affidavit-pack-0.1.0.tar.gz"
+        );
+        assert_eq!(
+            pkg.checksums.get("0.1.0").unwrap(),
+            "963fcfa69a3c83ea017d187a1ee99b4546f21e3b74e6848516423cf22b71c0fa"
+        );
+
+        server.await.expect("fixture server task must not panic");
     }
 }

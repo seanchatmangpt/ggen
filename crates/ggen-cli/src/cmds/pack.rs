@@ -91,38 +91,33 @@ pub struct InstallOutput {
 // Verb Functions
 // ============================================================================
 
-/// Add (install) a pack by name
+/// Add (install) a pack by name.
+///
+/// Resolution order: local `marketplace/packs/<name>.toml` first (unchanged
+/// behavior — a fully local `ggen.toml` never makes a network call); on
+/// local miss, falls back to the real `ggen-marketplace` GitHub Pages
+/// catalog (`ggen_marketplace::packs_registry::external_fetcher::
+/// GgenMarketplaceFetcher`, prefix `ggen-marketplace:`) before reporting
+/// `not_found`. The remote path reuses the same
+/// [`install_pack_by_id`]/checksum-verification/lockfile-write machinery
+/// already proven for local packs and for `npm:`/`pypi:`/`cratesio:`
+/// external packs — not a second, weaker install path.
 #[verb]
 pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<AddOutput> {
     validate_pack_name(&pack_name)?;
-    // Verify the pack exists before attempting installation
-    if let Err(e) = load_pack_metadata(&pack_name) {
-        return Ok(AddOutput {
-            pack_id: pack_name.clone(),
-            pack_name: pack_name.clone(),
-            status: "not_found".to_string(),
-            message: format!(
-                "Pack '{}' not found in local registry: {}. \
-                 Ensure marketplace/packs/{}.toml exists.",
-                pack_name, e, pack_name
-            ),
-        });
-    }
 
-    // Run the real installation via the marketplace layer
-    let input = InstallByIdInput {
-        pack_id: pack_name.clone(),
-        target_dir: None,
-        force: force.unwrap_or(false),
-        dry_run: false,
-    };
+    let local_miss = load_pack_metadata(&pack_name).err();
+    let input = build_add_install_input(&pack_name, local_miss.is_none(), force.unwrap_or(false));
 
     let install_result = crate::runtime::block_on(install_pack_by_id(&input)).map_err(|e| {
         NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
     })?;
-    let output = install_result.map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
-    })?;
+    let output = match install_result {
+        Ok(output) => output,
+        Err(remote_err) => {
+            return Ok(not_found_add_output(&pack_name, local_miss.as_ref(), &remote_err));
+        }
+    };
 
     // The install only reaches here on success. Emit a provenance receipt that
     // binds the real pack closure (id+version+digest + packages) and the durable
@@ -469,6 +464,54 @@ fn resolve_lockfile_path() -> Result<PathBuf> {
 // Helper Functions
 // ============================================================================
 
+/// Resolve which `pack_id` `add()`'s install call should actually target:
+/// bare name when found locally (unchanged behavior, no network call), else
+/// the `ggen-marketplace:`-prefixed remote form so [`install_pack_by_id`]
+/// dispatches through [`ggen_marketplace::packs_registry::external_fetcher::
+/// GgenMarketplaceFetcher`] instead of the local-only path.
+fn build_add_install_input(pack_name: &str, found_locally: bool, force: bool) -> InstallByIdInput {
+    let pack_id = if found_locally {
+        pack_name.to_string()
+    } else {
+        format!("ggen-marketplace:{}", pack_name)
+    };
+    InstallByIdInput {
+        pack_id,
+        target_dir: None,
+        force,
+        dry_run: false,
+    }
+}
+
+/// Build the `not_found` [`AddOutput`] after both local and (if attempted)
+/// remote resolution have failed, reporting both real error messages — not
+/// just the local one — so the user can tell which lookup actually ran and
+/// why it refused (a real network error vs. a genuine catalog miss vs.
+/// never reaching the remote catalog at all because the pack existed
+/// locally but its own install failed).
+fn not_found_add_output(
+    pack_name: &str, local_miss: Option<&ggen_marketplace::marketplace::error::Error>,
+    remote_err: &ggen_marketplace::marketplace::error::Error,
+) -> AddOutput {
+    let message = match local_miss {
+        Some(local_err) => format!(
+            "Pack '{}' not found locally ({}) and remote install from the ggen-marketplace \
+             catalog also failed: {}.",
+            pack_name, local_err, remote_err
+        ),
+        None => format!(
+            "Pack '{}' resolved locally but its install failed: {}.",
+            pack_name, remote_err
+        ),
+    };
+    AddOutput {
+        pack_id: pack_name.to_string(),
+        pack_name: pack_name.to_string(),
+        status: "not_found".to_string(),
+        message,
+    }
+}
+
 fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>> {
     let packages = list_packs(None)
         .map_err(|e| NounVerbError::execution_error(format!("Failed to list packages: {}", e)))?;
@@ -490,6 +533,15 @@ fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>
         })
         .collect();
 
+    // Local search came back empty -- fall back to one real HTTP GET against
+    // the ggen-marketplace catalog rather than reporting a bare zero-result
+    // search when the pack may genuinely exist, just not locally installed.
+    // Never runs when local results already exist (no network call on the
+    // common "search what I already have" path).
+    if scored.is_empty() {
+        scored.extend(remote_search_results(query, &query_lower));
+    }
+
     scored.sort_by(|a, b| {
         b.score
             .partial_cmp(&a.score)
@@ -497,6 +549,46 @@ fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>
     });
     scored.truncate(max);
     Ok(scored)
+}
+
+/// Query the real `ggen-marketplace` catalog for `query`, mapping matches
+/// into [`SearchResult`]s tagged `registry_type: "ggen-marketplace"` so
+/// callers can tell a remote hit from a locally-installed one. A network
+/// failure here degrades to an empty vec (logged) rather than failing the
+/// whole search -- a reachable local registry with zero matches plus an
+/// unreachable remote catalog should still report "no results", not error.
+fn remote_search_results(query: &str, query_lower: &str) -> Vec<SearchResult> {
+    use ggen_marketplace::packs_registry::external_fetcher::GgenMarketplaceFetcher;
+
+    let fetcher = GgenMarketplaceFetcher::new();
+    // block_on itself is fallible (runtime spawn/join errors) independent of
+    // the fetch's own Result -- flatten both failure layers into one match.
+    let search_result = match crate::runtime::block_on(fetcher.search(query)) {
+        Ok(inner) => inner,
+        Err(runtime_err) => Err(ggen_marketplace::marketplace::error::Error::Other(
+            runtime_err.to_string(),
+        )),
+    };
+    match search_result {
+        Ok(packages) => packages
+            .into_iter()
+            .map(|p| SearchResult {
+                pack_id: p.id.clone(),
+                name: p.name.clone(),
+                description: p.description.clone().unwrap_or_default(),
+                score: calculate_relevance(&p.name, p.description.as_deref().unwrap_or(""), &p.id, query_lower)
+                    .unwrap_or(0.5),
+                registry_type: "ggen-marketplace".to_string(),
+            })
+            .collect(),
+        Err(e) => {
+            log::warn!(
+                "ggen-marketplace remote search for '{}' failed, returning local-only results: {}",
+                query, e
+            );
+            Vec::new()
+        }
+    }
 }
 
 fn calculate_relevance(name: &str, desc: &str, id: &str, query: &str) -> Option<f64> {
