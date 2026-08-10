@@ -1,0 +1,4 @@
+[pack]
+name = "github-actions-combinatorial-pack"
+version = "0.2.0"
+description = "Cloud-native open-world GitHub capability calculus for GPT-5.7-class engineering agents: models connector control, Actions execution, artifact transport, local verification, CLI fallback, exact-head FIX_CI/YEET operators, all current workflow-event and GITHUB_TOKEN scope families, runner/composition surfaces, open Marketplace/action capabilities, cross-private dependency ladders, authority principals, receipts, and route exhaustion; preserves combinatorial possibilities while ggen projects only bounded dependency-closed admitted CI."

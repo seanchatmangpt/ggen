@@ -1,0 +1,472 @@
+@prefix ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Canonical graph. Generated GitHub workflow/doc/lock projections are not editing authority.
+# Open-world by design: new GitHub events, runners, permissions, Marketplace listings,
+# reusable workflows, connector operations, artifacts, principals, and execution routes
+# are RDF individuals. Selection is a bounded query over this graph, never a closed enum.
+
+ci:github-actions-calculus a ci:CapabilityGraph ;
+    dcterms:title "GitHub Cloud + Actions Combinatorial Capability Graph" ;
+    dcterms:description "Preserve maximal lawful GitHub control/execution/materialization possibilities, then admit the cheapest dependency-closed exact-subject plan that binds authority, execution, consequence, receipt, and replay." ;
+    ci:worldAssumption "open" ;
+    ci:selectionObjective "min(cycle_time + information_loss + verification_risk + transport_cost + future_WIP)" ;
+    ci:exactHeadRequired true ;
+    ci:zeroUnreceiptedActuation true ;
+    ci:extensionMechanism "add RDF individuals; projection remains query-driven" ;
+    ci:governingEquation "A = mu(O*); R = receipt(A)" .
+
+# -----------------------------------------------------------------------------
+# Standing and failure ontology
+# -----------------------------------------------------------------------------
+ci:Unknown a ci:Standing ; ci:token "UNKNOWN" .
+ci:PartialAlive a ci:Standing ; ci:token "PARTIAL_ALIVE" .
+ci:Alive a ci:Standing ; ci:token "ALIVE" .
+ci:BuildBroken a ci:Standing ; ci:token "BUILD_BROKEN" .
+ci:Blocked a ci:Standing ; ci:token "BLOCKED" .
+ci:Unsupported a ci:Standing ; ci:token "UNSUPPORTED" .
+ci:Refused a ci:Standing ; ci:token "REFUSED" .
+
+ci:SourceDefect a ci:FailureClass ; ci:token "SOURCE_DEFECT" .
+ci:TestDefect a ci:FailureClass ; ci:token "TEST_DEFECT" .
+ci:WorkflowDefect a ci:FailureClass ; ci:token "WORKFLOW_DEFECT" .
+ci:ToolchainDrift a ci:FailureClass ; ci:token "TOOLCHAIN_DRIFT" .
+ci:DependencyDrift a ci:FailureClass ; ci:token "DEPENDENCY_DRIFT" .
+ci:LockfileDrift a ci:FailureClass ; ci:token "LOCKFILE_DRIFT" .
+ci:PlatformVariance a ci:FailureClass ; ci:token "PLATFORM_VARIANCE" .
+ci:Timeout a ci:FailureClass ; ci:token "TIMEOUT" .
+ci:ResourceExhaustion a ci:FailureClass ; ci:token "RESOURCE_EXHAUSTION" .
+ci:NetworkTransient a ci:FailureClass ; ci:token "NETWORK_TRANSIENT" .
+ci:CacheCorruption a ci:FailureClass ; ci:token "CACHE_CORRUPTION" .
+ci:AuthorityFailure a ci:FailureClass ; ci:token "AUTHORITY_FAILURE" .
+ci:MissingSecret a ci:FailureClass ; ci:token "MISSING_SECRET" .
+ci:Flake a ci:FailureClass ; ci:token "FLAKE" .
+ci:ExternalProvider a ci:FailureClass ; ci:token "EXTERNAL_PROVIDER" .
+ci:BaseDrift a ci:FailureClass ; ci:token "BASE_DRIFT" .
+ci:GeneratedDrift a ci:FailureClass ; ci:token "GENERATED_DRIFT" .
+ci:UnknownFailure a ci:FailureClass ; ci:token "UNKNOWN" .
+
+# -----------------------------------------------------------------------------
+# GitHub cloud operating planes: canonical precedence in ChatGPT cloud sessions
+# Connector -> Actions -> Artifacts -> local verification capsule -> CLI fallback.
+# The CLI is an implementation edge, never the ontology of GitHub.
+# -----------------------------------------------------------------------------
+ci:connector-control-plane a ci:TransportPlane ;
+    ci:key "github-connector" ; ci:order 10 ;
+    dcterms:description "Authenticated GitHub App control plane over repositories, Git objects, PRs, checks, workflow evidence, and mutations." .
+ci:actions-execution-plane a ci:TransportPlane ;
+    ci:key "github-actions" ; ci:order 20 ;
+    dcterms:description "Repository-native remote execution plane for toolchains, integrations, matrices, and artifact manufacture." .
+ci:artifact-materialization-plane a ci:TransportPlane ;
+    ci:key "artifacts" ; ci:order 30 ;
+    dcterms:description "Immutable materialization plane for source capsules, packages, bundles, verifier reports, toolchains, and receipts." .
+ci:local-verification-plane a ci:TransportPlane ;
+    ci:key "local-verification-capsule" ; ci:order 40 ;
+    dcterms:description "ChatGPT runtime inspection/replay/hash/verification capsule; local network access is not GitHub authority." .
+ci:cli-fallback-plane a ci:TransportPlane ;
+    ci:key "cli-fallback" ; ci:order 50 ;
+    dcterms:description "Optional git/gh/ssh/package-manager accelerators used when useful, never sovereign prerequisites." .
+
+# Authority principals are intentionally non-interchangeable.
+ci:chatgpt-connector-principal a ci:Principal ;
+    ci:key "chatgpt-github-app" ;
+    ci:authorityDomain "connected GitHub App installation" ;
+    ci:crossRepositoryPotential true .
+ci:actions-github-token-principal a ci:Principal ;
+    ci:key "actions-github-token" ;
+    ci:authorityDomain "repository-scoped workflow GITHUB_TOKEN" ;
+    ci:crossRepositoryPotential false .
+ci:github-app-installation-principal a ci:Principal ;
+    ci:key "github-app-installation-token" ;
+    ci:authorityDomain "explicit GitHub App installation scope" ;
+    ci:crossRepositoryPotential true .
+ci:oidc-federated-principal a ci:Principal ;
+    ci:key "oidc-federated" ;
+    ci:authorityDomain "external cloud trust policy bound to GitHub OIDC claims" .
+ci:human-authority-principal a ci:Principal ;
+    ci:key "human-authority" ;
+    ci:authorityDomain "minimal external authority escalation; last relevant edge" .
+
+# Connector capability graph. These are semantic operations, not a promise about
+# a particular historical tool spelling. Runtime discovery decides which edges exist.
+ci:repo-discovery a ci:ConnectorCapability ; ci:key "repository-discovery" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:repo-metadata a ci:ConnectorCapability ; ci:key "repository-metadata" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:file-fetch a ci:ConnectorCapability ; ci:key "file-fetch" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:blob-fetch a ci:ConnectorCapability ; ci:key "blob-fetch" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:tree-fetch a ci:ConnectorCapability ; ci:key "tree-fetch" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:commit-fetch a ci:ConnectorCapability ; ci:key "commit-fetch" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:pr-fetch a ci:ConnectorCapability ; ci:key "pr-fetch" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:pr-diff a ci:ConnectorCapability ; ci:key "pr-diff" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:status-fetch a ci:ConnectorCapability ; ci:key "commit-status" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:workflow-run-fetch a ci:ConnectorCapability ; ci:key "workflow-runs" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:workflow-job-fetch a ci:ConnectorCapability ; ci:key "workflow-jobs" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:workflow-step-fetch a ci:ConnectorCapability ; ci:key "workflow-steps" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:workflow-log-fetch a ci:ConnectorCapability ; ci:key "workflow-job-logs" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:workflow-artifact-fetch a ci:ConnectorCapability ; ci:key "workflow-artifacts" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:artifact-download a ci:ConnectorCapability ; ci:key "artifact-download" ; ci:plane ci:connector-control-plane ; ci:mutates false .
+ci:branch-create a ci:ConnectorCapability ; ci:key "branch-create" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:blob-create a ci:ConnectorCapability ; ci:key "blob-create" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:tree-create a ci:ConnectorCapability ; ci:key "tree-create" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:commit-create a ci:ConnectorCapability ; ci:key "commit-create" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:ref-update a ci:ConnectorCapability ; ci:key "ref-update" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:pr-create a ci:ConnectorCapability ; ci:key "pr-create" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:pr-update a ci:ConnectorCapability ; ci:key "pr-update" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+ci:workflow-rerun a ci:ConnectorCapability ; ci:key "workflow-rerun" ; ci:plane ci:connector-control-plane ; ci:mutates true .
+
+# -----------------------------------------------------------------------------
+# Workflow operator state machines: named semantics survive transport changes.
+# -----------------------------------------------------------------------------
+ci:gh-fix-ci a ci:WorkflowOperator ;
+    ci:key "gh-fix-ci" ;
+    ci:stage "resolve-exact-pr-head", "enumerate-checks", "fetch-failing-logs",
+             "first-causal-error", "diff-relevance", "minimum-repair",
+             "verify", "publish", "reobserve-exact-head", "repeat-to-closure" ;
+    ci:completionCondition "all requested actionable GitHub Actions boundaries close on the current exact head" .
+ci:yeet a ci:WorkflowOperator ;
+    ci:key "yeet" ;
+    ci:stage "scope-freeze", "idempotency-check", "purpose-branch",
+             "intentional-commit", "pre-publish-verification", "publish-remote-ref",
+             "draft-pr", "reobserve-identities" ;
+    ci:completionCondition "intended commit/ref/draft-PR graph is independently reobserved; merge is out of scope unless separately authorized" .
+ci:fix-ci-yeet-loop a ci:WorkflowOperator ;
+    ci:key "fix-ci-x-yeet" ;
+    ci:stage "FIX_CI", "local-receipt", "YEET", "exact-head-CI-observation", "repeat" ;
+    ci:completionCondition "requested CI boundary ALIVE at exact current PR head" .
+
+# -----------------------------------------------------------------------------
+# Current GitHub workflow event catalogue. Open-world: not an enum.
+# -----------------------------------------------------------------------------
+ci:branch-protection-rule a ci:EventKind ; ci:key "branch_protection_rule" ; ci:trustBoundary "default-branch-governance" ; ci:order 10 .
+ci:check-run a ci:EventKind ; ci:key "check_run" ; ci:trustBoundary "check-event" ; ci:order 20 .
+ci:check-suite a ci:EventKind ; ci:key "check_suite" ; ci:trustBoundary "check-event" ; ci:order 30 .
+ci:create-event a ci:EventKind ; ci:key "create" ; ci:trustBoundary "git-ref" ; ci:order 40 .
+ci:delete-event a ci:EventKind ; ci:key "delete" ; ci:trustBoundary "git-ref" ; ci:order 50 .
+ci:deployment a ci:EventKind ; ci:key "deployment" ; ci:trustBoundary "deployment" ; ci:order 60 .
+ci:deployment-status a ci:EventKind ; ci:key "deployment_status" ; ci:trustBoundary "deployment" ; ci:order 70 .
+ci:discussion a ci:EventKind ; ci:key "discussion" ; ci:trustBoundary "discussion-event" ; ci:order 80 .
+ci:discussion-comment a ci:EventKind ; ci:key "discussion_comment" ; ci:trustBoundary "discussion-event" ; ci:order 90 .
+ci:fork a ci:EventKind ; ci:key "fork" ; ci:trustBoundary "repository-event" ; ci:order 100 .
+ci:gollum a ci:EventKind ; ci:key "gollum" ; ci:trustBoundary "wiki-event" ; ci:order 110 .
+ci:image-version a ci:EventKind ; ci:key "image_version" ; ci:trustBoundary "image-event" ; ci:order 120 .
+ci:issue-comment a ci:EventKind ; ci:key "issue_comment" ; ci:trustBoundary "comment-event" ; ci:order 130 .
+ci:issues a ci:EventKind ; ci:key "issues" ; ci:trustBoundary "issue-event" ; ci:order 140 .
+ci:label a ci:EventKind ; ci:key "label" ; ci:trustBoundary "label-event" ; ci:order 150 .
+ci:merge-group a ci:EventKind ; ci:key "merge_group" ; ci:trustBoundary "merge-queue" ; ci:order 160 .
+ci:milestone a ci:EventKind ; ci:key "milestone" ; ci:trustBoundary "milestone-event" ; ci:order 170 .
+ci:page-build a ci:EventKind ; ci:key "page_build" ; ci:trustBoundary "pages-event" ; ci:order 180 .
+ci:public-event a ci:EventKind ; ci:key "public" ; ci:trustBoundary "repository-visibility" ; ci:order 190 .
+ci:pull-request a ci:EventKind ; ci:key "pull_request" ; ci:trustBoundary "untrusted-change" ; ci:order 200 .
+ci:pull-request-review a ci:EventKind ; ci:key "pull_request_review" ; ci:trustBoundary "review-event" ; ci:order 210 .
+ci:pull-request-review-comment a ci:EventKind ; ci:key "pull_request_review_comment" ; ci:trustBoundary "review-comment" ; ci:order 220 .
+ci:pull-request-target a ci:EventKind ; ci:key "pull_request_target" ; ci:trustBoundary "privileged-base" ; ci:order 230 .
+ci:push a ci:EventKind ; ci:key "push" ; ci:trustBoundary "repository-ref" ; ci:order 240 .
+ci:registry-package a ci:EventKind ; ci:key "registry_package" ; ci:trustBoundary "package-event" ; ci:order 250 .
+ci:release a ci:EventKind ; ci:key "release" ; ci:trustBoundary "release" ; ci:order 260 .
+ci:repository-dispatch a ci:EventKind ; ci:key "repository_dispatch" ; ci:trustBoundary "external-dispatch" ; ci:order 270 .
+ci:schedule a ci:EventKind ; ci:key "schedule" ; ci:trustBoundary "repository-schedule" ; ci:order 280 .
+ci:status-event a ci:EventKind ; ci:key "status" ; ci:trustBoundary "commit-status" ; ci:order 290 .
+ci:watch a ci:EventKind ; ci:key "watch" ; ci:trustBoundary "repository-event" ; ci:order 300 .
+ci:workflow-call a ci:EventKind ; ci:key "workflow_call" ; ci:trustBoundary "caller" ; ci:order 310 .
+ci:workflow-dispatch a ci:EventKind ; ci:key "workflow_dispatch" ; ci:trustBoundary "authorized-manual" ; ci:order 320 .
+ci:workflow-run a ci:EventKind ; ci:key "workflow_run" ; ci:trustBoundary "upstream-workflow" ; ci:order 330 .
+
+# -----------------------------------------------------------------------------
+# Runner / execution substrate
+# -----------------------------------------------------------------------------
+ci:github-hosted a ci:RunnerFamily ; ci:key "github-hosted" .
+ci:larger-runner a ci:RunnerFamily ; ci:key "larger-runner" .
+ci:self-hosted a ci:RunnerFamily ; ci:key "self-hosted" .
+ci:arc-scale-set a ci:RunnerFamily ; ci:key "arc-scale-set" .
+ci:job-container a ci:RunnerCapability ; ci:key "job-container" .
+ci:service-container a ci:RunnerCapability ; ci:key "service-container" .
+ci:linux-x64 a ci:RunnerCapability ; ci:key "linux-x64" .
+ci:linux-arm64 a ci:RunnerCapability ; ci:key "linux-arm64" .
+ci:macos-arm64 a ci:RunnerCapability ; ci:key "macos-arm64" .
+ci:windows-x64 a ci:RunnerCapability ; ci:key "windows-x64" .
+ci:gpu a ci:RunnerCapability ; ci:key "gpu" .
+ci:static-ip a ci:RunnerCapability ; ci:key "static-ip" .
+ci:private-networking a ci:RunnerCapability ; ci:key "private-networking" .
+ci:autoscaling a ci:RunnerCapability ; ci:key "autoscaling" .
+
+# -----------------------------------------------------------------------------
+# Workflow composition surface
+# -----------------------------------------------------------------------------
+ci:needs-dag a ci:CompositionCapability ; ci:key "needs" .
+ci:matrix a ci:CompositionCapability ; ci:key "strategy.matrix" .
+ci:matrix-include a ci:CompositionCapability ; ci:key "strategy.matrix.include" .
+ci:matrix-exclude a ci:CompositionCapability ; ci:key "strategy.matrix.exclude" .
+ci:fail-fast a ci:CompositionCapability ; ci:key "strategy.fail-fast" .
+ci:max-parallel a ci:CompositionCapability ; ci:key "strategy.max-parallel" .
+ci:concurrency a ci:CompositionCapability ; ci:key "concurrency" .
+ci:cancel-in-progress a ci:CompositionCapability ; ci:key "cancel-in-progress" .
+ci:reusable-workflow a ci:CompositionCapability ; ci:key "workflow_call" .
+ci:workflow-template a ci:CompositionCapability ; ci:key "workflow-template" .
+ci:yaml-anchor a ci:CompositionCapability ; ci:key "yaml-anchor" .
+ci:environment a ci:CompositionCapability ; ci:key "environment" .
+ci:cache a ci:CompositionCapability ; ci:key "cache" .
+ci:artifact a ci:CompositionCapability ; ci:key "artifact" .
+ci:oidc a ci:CompositionCapability ; ci:key "oidc" .
+ci:attestation a ci:CompositionCapability ; ci:key "attestation" .
+ci:release-capability a ci:CompositionCapability ; ci:key "release" .
+ci:package-publish a ci:CompositionCapability ; ci:key "package-publish" .
+ci:codeql a ci:CompositionCapability ; ci:key "codeql" .
+ci:dependency-review a ci:CompositionCapability ; ci:key "dependency-review" .
+ci:secret-scanning a ci:CompositionCapability ; ci:key "secret-scanning" .
+ci:job-output a ci:CompositionCapability ; ci:key "job-output" .
+ci:step-output a ci:CompositionCapability ; ci:key "step-output" .
+
+# Current GITHUB_TOKEN scope vocabulary; still modeled open-world.
+ci:perm-actions a ci:PermissionScope ; ci:key "actions" ; ci:accessModes "read,write,none" .
+ci:perm-artifact-metadata a ci:PermissionScope ; ci:key "artifact-metadata" ; ci:accessModes "read,write,none" .
+ci:perm-attestations a ci:PermissionScope ; ci:key "attestations" ; ci:accessModes "read,write,none" .
+ci:perm-checks a ci:PermissionScope ; ci:key "checks" ; ci:accessModes "read,write,none" .
+ci:perm-code-quality a ci:PermissionScope ; ci:key "code-quality" ; ci:accessModes "read,write,none" .
+ci:perm-contents a ci:PermissionScope ; ci:key "contents" ; ci:accessModes "read,write,none" .
+ci:perm-deployments a ci:PermissionScope ; ci:key "deployments" ; ci:accessModes "read,write,none" .
+ci:perm-discussions a ci:PermissionScope ; ci:key "discussions" ; ci:accessModes "read,write,none" .
+ci:perm-id-token a ci:PermissionScope ; ci:key "id-token" ; ci:accessModes "write,none" .
+ci:perm-issues a ci:PermissionScope ; ci:key "issues" ; ci:accessModes "read,write,none" .
+ci:perm-models a ci:PermissionScope ; ci:key "models" ; ci:accessModes "read,none" .
+ci:perm-packages a ci:PermissionScope ; ci:key "packages" ; ci:accessModes "read,write,none" .
+ci:perm-pages a ci:PermissionScope ; ci:key "pages" ; ci:accessModes "read,write,none" .
+ci:perm-pull-requests a ci:PermissionScope ; ci:key "pull-requests" ; ci:accessModes "read,write,none" .
+ci:perm-security-events a ci:PermissionScope ; ci:key "security-events" ; ci:accessModes "read,write,none" .
+ci:perm-statuses a ci:PermissionScope ; ci:key "statuses" ; ci:accessModes "read,write,none" .
+ci:perm-vulnerability-alerts a ci:PermissionScope ; ci:key "vulnerability-alerts" ; ci:accessModes "read,none" .
+
+# -----------------------------------------------------------------------------
+# Marketplace/action supply chain: preserve candidates, pin admitted selections.
+# A MarketplaceListing is discovery only. MarketplaceAction means admitted executable.
+# -----------------------------------------------------------------------------
+ci:javascript-action a ci:ActionKind ; ci:key "javascript" .
+ci:docker-action a ci:ActionKind ; ci:key "docker" .
+ci:composite-action a ci:ActionKind ; ci:key "composite" .
+ci:local-action a ci:ActionKind ; ci:key "local" .
+ci:marketplace-action a ci:ActionKind ; ci:key "marketplace" .
+ci:reusable-workflow-action a ci:ActionKind ; ci:key "reusable-workflow" .
+
+ci:marketplace-registry a ci:OpenCapabilityRegistry ;
+    ci:key "github-marketplace" ;
+    ci:worldAssumption "open" ;
+    ci:admissionRule "listing/candidate -> source identity -> publisher policy -> full commit SHA -> capability closure -> permission/network/side-effect closure -> MarketplaceAction" .
+
+# Capability families. New capabilities are additive.
+ci:cap-checkout a ci:ActionCapability ; ci:key "source-checkout" .
+ci:cap-cache a ci:ActionCapability ; ci:key "dependency-cache" .
+ci:cap-artifact-upload a ci:ActionCapability ; ci:key "artifact-upload" .
+ci:cap-artifact-download a ci:ActionCapability ; ci:key "artifact-download" .
+ci:cap-toolchain a ci:ActionCapability ; ci:key "toolchain-setup" .
+ci:cap-format a ci:ActionCapability ; ci:key "format" .
+ci:cap-lint a ci:ActionCapability ; ci:key "lint" .
+ci:cap-build a ci:ActionCapability ; ci:key "build" .
+ci:cap-test a ci:ActionCapability ; ci:key "test" .
+ci:cap-coverage a ci:ActionCapability ; ci:key "coverage" .
+ci:cap-code-scan a ci:ActionCapability ; ci:key "code-scanning" .
+ci:cap-dependency-review a ci:ActionCapability ; ci:key "dependency-review" .
+ci:cap-sbom a ci:ActionCapability ; ci:key "sbom" .
+ci:cap-attest a ci:ActionCapability ; ci:key "provenance-attestation" .
+ci:cap-sign a ci:ActionCapability ; ci:key "signing" .
+ci:cap-container-build a ci:ActionCapability ; ci:key "container-build" .
+ci:cap-registry-login a ci:ActionCapability ; ci:key "registry-login" .
+ci:cap-package-publish a ci:ActionCapability ; ci:key "package-publish" .
+ci:cap-release a ci:ActionCapability ; ci:key "release-publish" .
+ci:cap-pages a ci:ActionCapability ; ci:key "pages-deploy" .
+ci:cap-cloud-auth a ci:ActionCapability ; ci:key "cloud-auth-oidc" .
+ci:cap-infra a ci:ActionCapability ; ci:key "infrastructure-provision" .
+ci:cap-kubernetes a ci:ActionCapability ; ci:key "kubernetes-deploy" .
+ci:cap-pr-mutation a ci:ActionCapability ; ci:key "pull-request-mutation" .
+ci:cap-issue-mutation a ci:ActionCapability ; ci:key "issue-mutation" .
+ci:cap-label a ci:ActionCapability ; ci:key "labeling" .
+ci:cap-notify a ci:ActionCapability ; ci:key "notification" .
+ci:cap-benchmark a ci:ActionCapability ; ci:key "benchmark" .
+ci:cap-fuzz a ci:ActionCapability ; ci:key "fuzz" .
+ci:cap-chaos a ci:ActionCapability ; ci:key "chaos" .
+ci:cap-docs a ci:ActionCapability ; ci:key "docs-build" .
+ci:cap-secret-retrieval a ci:ActionCapability ; ci:key "secret-retrieval" .
+ci:cap-cross-repo a ci:ActionCapability ; ci:key "cross-repo-materialization" .
+ci:cap-receipt a ci:ActionCapability ; ci:key "receipt-emission" .
+ci:cap-github-models a ci:ActionCapability ; ci:key "github-model-inference" .
+
+# Immutable seed selections. Tags/releases are discovery labels only; execution uses SHA.
+ci:checkout-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/checkout v4 admitted selection" ;
+    ci:usesPath "actions/checkout" ;
+    ci:sourceRepository "actions/checkout" ;
+    ci:publisher "actions" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "11d5960a326750d5838078e36cf38b85af677262" ;
+    ci:role "checkout" ;
+    ci:providesCapability ci:cap-checkout ;
+    ci:trustedPublisher true ;
+    ci:provenanceChecked true ;
+    ci:networkRequired true ;
+    ci:sideEffect "read" ;
+    ci:requiresScope "contents" .
+
+ci:cache-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/cache v4 admitted selection" ;
+    ci:usesPath "actions/cache" ;
+    ci:sourceRepository "actions/cache" ;
+    ci:publisher "actions" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "0057852bfaa89a56745cba8c7296529d2fc39830" ;
+    ci:role "cache" ;
+    ci:providesCapability ci:cap-cache ;
+    ci:trustedPublisher true ;
+    ci:provenanceChecked true ;
+    ci:networkRequired true ;
+    ci:sideEffect "cache-write" .
+
+ci:upload-artifact-v4 a ci:MarketplaceAction ;
+    dcterms:title "actions/upload-artifact v4 admitted selection" ;
+    ci:usesPath "actions/upload-artifact" ;
+    ci:sourceRepository "actions/upload-artifact" ;
+    ci:publisher "actions" ;
+    ci:releaseLabel "v4" ;
+    ci:sha "ea165f8d65b6e75b540449e92b4886f43607fa02" ;
+    ci:role "receipt-upload" ;
+    ci:providesCapability ci:cap-artifact-upload ;
+    ci:trustedPublisher true ;
+    ci:provenanceChecked true ;
+    ci:networkRequired true ;
+    ci:sideEffect "artifact-write" .
+
+# High-value dependency closures that can be selected without inventing authority.
+ci:attested-binary-capability a ci:CapabilityClosure ;
+    ci:requiresCapability ci:cap-build, ci:cap-attest ;
+    ci:requiresScope "contents", "id-token", "attestations" ;
+    ci:evidence "artifact digest + provenance attestation + verifier receipt" .
+ci:attested-container-capability a ci:CapabilityClosure ;
+    ci:requiresCapability ci:cap-container-build, ci:cap-attest ;
+    ci:requiresScope "contents", "id-token", "attestations", "packages" ;
+    ci:evidence "container digest + provenance attestation + registry consequence + verifier receipt" .
+
+# -----------------------------------------------------------------------------
+# Candidate execution routes. Route failure is topology; task failure requires closure.
+# -----------------------------------------------------------------------------
+ci:RouteAvailable a ci:RouteState ; ci:token "AVAILABLE" .
+ci:RouteCandidate a ci:RouteState ; ci:token "CANDIDATE" .
+ci:RouteAttemptedFailed a ci:RouteState ; ci:token "ATTEMPTED_FAILED" .
+ci:RouteEliminated a ci:RouteState ; ci:token "ELIMINATED" .
+ci:RouteSucceeded a ci:RouteState ; ci:token "SUCCEEDED" .
+
+ci:connector-native a ci:ExecutionRoute ;
+    ci:key "connector_native" ; ci:plane ci:connector-control-plane ; ci:priority 10 ; ci:reversible true .
+ci:git-object-transport a ci:ExecutionRoute ;
+    ci:key "git_object_transport" ; ci:plane ci:connector-control-plane ; ci:priority 11 ; ci:reversible true .
+ci:remote-runner a ci:ExecutionRoute ;
+    ci:key "remote_runner" ; ci:plane ci:actions-execution-plane ; ci:priority 20 ; ci:reversible true .
+ci:alternate-runner a ci:ExecutionRoute ;
+    ci:key "alternate_runner" ; ci:plane ci:actions-execution-plane ; ci:priority 21 ; ci:reversible true .
+ci:workflow-artifact a ci:ExecutionRoute ;
+    ci:key "workflow_artifact" ; ci:plane ci:artifact-materialization-plane ; ci:priority 30 ; ci:reversible true .
+ci:retained-artifact a ci:ExecutionRoute ;
+    ci:key "retained_artifact" ; ci:plane ci:artifact-materialization-plane ; ci:priority 31 ; ci:reversible true .
+ci:immutable-package a ci:ExecutionRoute ;
+    ci:key "immutable_package" ; ci:plane ci:artifact-materialization-plane ; ci:priority 32 ; ci:reversible true .
+ci:exact-archive a ci:ExecutionRoute ;
+    ci:key "exact_archive" ; ci:plane ci:artifact-materialization-plane ; ci:priority 33 ; ci:reversible true .
+ci:git-bundle a ci:ExecutionRoute ;
+    ci:key "git_bundle" ; ci:plane ci:artifact-materialization-plane ; ci:priority 34 ; ci:reversible true .
+ci:local-native a ci:ExecutionRoute ;
+    ci:key "local_native" ; ci:plane ci:local-verification-plane ; ci:priority 40 ; ci:reversible true .
+ci:local-portable a ci:ExecutionRoute ;
+    ci:key "local_portable" ; ci:plane ci:local-verification-plane ; ci:priority 41 ; ci:reversible true .
+ci:cached-toolchain a ci:ExecutionRoute ;
+    ci:key "cached_toolchain" ; ci:plane ci:local-verification-plane ; ci:priority 42 ; ci:reversible true .
+ci:cross-compile a ci:ExecutionRoute ;
+    ci:key "cross_compile" ; ci:plane ci:local-verification-plane ; ci:priority 43 ; ci:reversible true .
+ci:qemu-route a ci:ExecutionRoute ;
+    ci:key "qemu" ; ci:plane ci:local-verification-plane ; ci:priority 44 ; ci:reversible true .
+ci:protocol-equivalent a ci:ExecutionRoute ;
+    ci:key "protocol_equivalent" ; ci:plane ci:local-verification-plane ; ci:priority 45 ; ci:reversible true .
+ci:bounded-reimplementation a ci:ExecutionRoute ;
+    ci:key "bounded_reimplementation" ; ci:plane ci:local-verification-plane ; ci:priority 46 ; ci:reversible true .
+ci:cli-fallback a ci:ExecutionRoute ;
+    ci:key "git-gh-cli" ; ci:plane ci:cli-fallback-plane ; ci:priority 50 ; ci:reversible true .
+ci:hybrid-route a ci:ExecutionRoute ;
+    ci:key "hybrid" ; ci:plane ci:local-verification-plane ; ci:priority 60 ; ci:reversible true .
+
+# Source materialization ladder.
+ci:verified-checkout-route a ci:MaterializationRoute ; ci:key "verified-checkout" ; ci:order 10 .
+ci:exact-sha-archive-route a ci:MaterializationRoute ; ci:key "exact-sha-archive" ; ci:order 20 .
+ci:bundle-route a ci:MaterializationRoute ; ci:key "git-bundle" ; ci:order 30 .
+ci:workflow-source-artifact-route a ci:MaterializationRoute ; ci:key "workflow-source-artifact" ; ci:order 40 .
+ci:connector-tree-route a ci:MaterializationRoute ; ci:key "connector-tree" ; ci:order 50 .
+ci:sparse-closure-route a ci:MaterializationRoute ; ci:key "dependency-closed-sparse-tree" ; ci:order 60 .
+ci:remote-exact-head-route a ci:MaterializationRoute ; ci:key "remote-exact-head-execution" ; ci:order 70 .
+
+# Cross-private dependency ladder: default Actions token failure does not close the graph.
+ci:existing-package-route a ci:DependencyRoute ; ci:key "existing-immutable-package" ; ci:order 10 .
+ci:existing-build-artifact-route a ci:DependencyRoute ; ci:key "existing-build-artifact" ; ci:order 20 .
+ci:dependency-side-manufacture-route a ci:DependencyRoute ; ci:key "dependency-side-artifact-manufacture" ; ci:order 30 .
+ci:existing-app-token-route a ci:DependencyRoute ; ci:key "existing-github-app-token-strategy" ; ci:order 40 .
+ci:same-repo-materialization-route a ci:DependencyRoute ; ci:key "same-repository-materialization" ; ci:order 50 .
+ci:reusable-build-product-route a ci:DependencyRoute ; ci:key "reusable-build-product" ; ci:order 60 .
+ci:lawful-vendor-route a ci:DependencyRoute ; ci:key "lawful-exact-vendor-snapshot" ; ci:order 70 .
+ci:minimal-human-authority-route a ci:DependencyRoute ; ci:key "minimal-external-authority" ; ci:order 80 .
+
+# First-class artifact transport.
+ci:source-capsule a ci:ArtifactKind ; ci:key "source-capsule" .
+ci:git-bundle-artifact a ci:ArtifactKind ; ci:key "git-bundle" .
+ci:portable-toolchain a ci:ArtifactKind ; ci:key "portable-toolchain" .
+ci:immutable-package-artifact a ci:ArtifactKind ; ci:key "immutable-package" .
+ci:verifier-report a ci:ArtifactKind ; ci:key "verifier-report" .
+ci:receipt-artifact a ci:ArtifactKind ; ci:key "receipt" .
+ci:sbom-artifact a ci:ArtifactKind ; ci:key "sbom" .
+ci:attestation-artifact a ci:ArtifactKind ; ci:key "attestation" .
+
+# Example task graph used as doctrine data: Connector is available; CLI is merely a candidate.
+ci:cloud-publication-task a ci:Task ;
+    ci:key "connector-first-publication" ;
+    ci:standing ci:Unknown ;
+    ci:hasRoute ci:cloud-route-connector, ci:cloud-route-actions, ci:cloud-route-artifact, ci:cloud-route-local, ci:cloud-route-cli .
+ci:cloud-route-connector a ci:RouteAttempt ; ci:route ci:connector-native ; ci:routeState ci:RouteAvailable .
+ci:cloud-route-actions a ci:RouteAttempt ; ci:route ci:remote-runner ; ci:routeState ci:RouteCandidate .
+ci:cloud-route-artifact a ci:RouteAttempt ; ci:route ci:workflow-artifact ; ci:routeState ci:RouteCandidate .
+ci:cloud-route-local a ci:RouteAttempt ; ci:route ci:local-portable ; ci:routeState ci:RouteCandidate .
+ci:cloud-route-cli a ci:RouteAttempt ; ci:route ci:cli-fallback ; ci:routeState ci:RouteCandidate .
+
+# -----------------------------------------------------------------------------
+# Selected bounded plan: one exact-head ggen self-verifier projection.
+# Maximalism is in the canonical graph, not in workflow fan-out.
+# -----------------------------------------------------------------------------
+ci:crown-ci a ci:WorkflowPlan ;
+    dcterms:title "Crown CI" ;
+    prov:wasDerivedFrom ci:github-actions-calculus ;
+    ci:selected true ;
+    ci:name "Crown CI" ;
+    ci:concurrencyGroup "crown-ci-${{ github.workflow }}-${{ github.ref }}" ;
+    ci:hasEvent ci:selected-push, ci:selected-pull-request, ci:selected-workflow-dispatch ;
+    ci:hasPermission ci:contents-read ;
+    ci:defaultJob ci:verify-job ;
+    ci:exactHeadRequired true ;
+    ci:receiptRequired true .
+
+ci:selected-push a ci:Event ; ci:key "push" ; ci:eventKind ci:push ; ci:order 10 .
+ci:selected-pull-request a ci:Event ; ci:key "pull_request" ; ci:eventKind ci:pull-request ; ci:order 20 .
+ci:selected-workflow-dispatch a ci:Event ; ci:key "workflow_dispatch" ; ci:eventKind ci:workflow-dispatch ; ci:order 30 .
+
+ci:contents-read a ci:PermissionGrant ;
+    ci:scope "contents" ; ci:access "read" ; ci:scopeKind ci:perm-contents ; ci:order 10 .
+
+ci:verify-job a ci:JobPlan ;
+    ci:id "verify" ;
+    ci:runner "ubuntu-latest" ;
+    ci:runnerFamily ci:github-hosted ;
+    ci:timeoutMinutes 20 ;
+    ci:networkPolicy "egress-allow" ;
+    ci:checksOutUntrustedCode false ;
+    ci:authorizedActuation true ;
+    ci:emitsReceipt true ;
+    ci:verifyCommand "cargo test -p ggen-engine --test github_actions_combinatorial_pack_e2e" ;
+    ci:cachePath "target" ;
+    ci:cacheKey "${{ runner.os }}-ggen-${{ hashFiles('**/Cargo.lock') }}" ;
+    ci:usesAction ci:checkout-v4, ci:cache-v4, ci:upload-artifact-v4 ;
+    ci:checkoutAction ci:checkout-v4 ;
+    ci:cacheAction ci:cache-v4 ;
+    ci:uploadAction ci:upload-artifact-v4 .

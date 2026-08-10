@@ -1,0 +1,21 @@
+---
+to: .github/ggen/marketplace-lock.yml
+sparql:
+  actions: "PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#> SELECT ?role ?path ?source ?publisher ?sha ?capability WHERE { ?plan a ci:WorkflowPlan ; ci:selected true ; ci:defaultJob ?job . ?job ci:usesAction ?action . ?action a ci:MarketplaceAction ; ci:role ?role ; ci:usesPath ?path ; ci:sourceRepository ?source ; ci:publisher ?publisher ; ci:sha ?sha ; ci:providesCapability ?cap . ?cap ci:key ?capability . } ORDER BY ?role ?path ?capability"
+---
+# GENERATED from github-actions-combinatorial-pack/ontology.ttl. Do not hand-edit.
+schema: ggen.github-actions.marketplace-lock/v1
+selection: crown-ci
+policy:
+  execution_ref: full-40-hex-commit-sha
+  discovery_tags_are_authority: false
+  open_world_candidates: true
+actions:
+{% for action in actions %}
+  - role: {{ action.role | json_encode | safe }}
+    uses: {{ action.path | json_encode | safe }}
+    source_repository: {{ action.source | json_encode | safe }}
+    publisher: {{ action.publisher | json_encode | safe }}
+    sha: {{ action.sha | json_encode | safe }}
+    capability: {{ action.capability | json_encode | safe }}
+{% endfor %}

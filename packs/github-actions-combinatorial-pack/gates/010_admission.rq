@@ -1,0 +1,42 @@
+# MESSAGE: Workflow plans must be identified, dependency-closed, bounded, and renderable. Any row is a refusal.
+PREFIX ci: <http://seanchatmangpt.github.io/packs/github-actions-ci#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a ci:WorkflowPlan .
+    VALUES ?property { ci:name ci:concurrencyGroup ci:hasEvent ci:hasPermission ci:defaultJob ci:exactHeadRequired ci:receiptRequired }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("workflow missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a ci:WorkflowPlan ; ci:hasEvent ?event .
+    FILTER NOT EXISTS { ?event a ci:Event ; ci:key ?key ; ci:order ?order }
+    BIND("hasEvent target is not a renderable ci:Event" AS ?violation)
+  } UNION {
+    ?subject a ci:WorkflowPlan ; ci:hasPermission ?grant .
+    FILTER NOT EXISTS { ?grant a ci:PermissionGrant ; ci:scope ?scope ; ci:access ?access }
+    BIND("hasPermission target is not a renderable ci:PermissionGrant" AS ?violation)
+  } UNION {
+    ?subject a ci:WorkflowPlan ; ci:defaultJob ?job .
+    FILTER NOT EXISTS { ?job a ci:JobPlan }
+    BIND("defaultJob target is not a ci:JobPlan" AS ?violation)
+  } UNION {
+    ?subject a ci:JobPlan .
+    VALUES ?property { ci:id ci:runner ci:timeoutMinutes ci:networkPolicy ci:emitsReceipt ci:verifyCommand ci:checkoutAction ci:cacheAction ci:uploadAction ci:usesAction }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("job missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a ci:JobPlan ; ci:usesAction ?action .
+    FILTER NOT EXISTS { ?action a ci:MarketplaceAction }
+    BIND("usesAction target is not a ci:MarketplaceAction" AS ?violation)
+  } UNION {
+    ?subject a ci:PermissionGrant ; ci:access ?access .
+    FILTER(STR(?access) NOT IN ("read", "write", "none"))
+    BIND("permission access must be read, write, or none" AS ?violation)
+  } UNION {
+    ?subject a ci:JobPlan ; ci:timeoutMinutes ?timeout .
+    FILTER(xsd:integer(?timeout) <= 0 || xsd:integer(?timeout) > 360)
+    BIND("timeoutMinutes must be in 1..360" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation
