@@ -93,6 +93,18 @@ jobs:
           formula-name: ggen
           homebrew-tap: seanchatmangpt/homebrew-tap
           download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-x86_64-apple-darwin.tar.gz
+          # REQUIRED here, not optional: the action's own prepareEdit() only falls back to
+          # parsing a tag out of `ctx.ref` when this input is absent, and throws `invalid ref:
+          # ${ref}` unless that ref starts with `refs/tags/` (mislav/bump-homebrew-formula-
+          # action@ccf2332, src/main.ts prepareEdit(), line ~81). This workflow is dispatched
+          # via `workflow_dispatch` (release.yml's dispatch-homebrew-release job), not the
+          # suppressed `release: published` webhook, so `ctx.ref` here is `refs/heads/main` (the
+          # branch the dispatch ran on) -- never a tag ref -- and every run failed on exactly
+          # this line until `tag-name` was added, confirmed by real run logs (runs
+          # 31227203106 through 31428319017, all `##[error]invalid ref: refs/heads/main` at the
+          # same source line, every homebrew-release.yml run since the workflow_dispatch fix
+          # was made). Passing it explicitly bypasses `ctx.ref` parsing entirely.
+          tag-name: v${{ steps.extract_version.outputs.version }}
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
         continue-on-error: false
