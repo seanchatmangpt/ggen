@@ -17,6 +17,12 @@
 @prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
+# Real dspy.LM(model="gpt-5", temperature=1.0, max_tokens=32000, api_key=api_key) from the
+# tutorial's own code, shared across all three GEPA passes below -- api_key is out of ontology
+# scope (a real credential, not a fixed fact).
+dspy:facility-reflection-lm a dspy:LMConfig ;
+    dspy:modelName "gpt-5" ; dspy:temperature 1.0 ; dspy:maxTokens 32000 .
+
 # ── Urgency ──────────────────────────────────────────────────────────────────
 
 dspy:facility-urgency-signature a dspy:Signature ;
@@ -48,7 +54,7 @@ dspy:urgency-gepa a dspy:Optimizer ;
     dspy:name "urgency_gepa" ; dspy:kind "GEPA" ;
     dspy:optimizes dspy:urgency-module ; dspy:metricFunction "urgency_metric" ;
     dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
-    dspy:reflectionModel "gpt-5" .
+    dspy:reflectionModel dspy:facility-reflection-lm .
 
 # ── Sentiment ────────────────────────────────────────────────────────────────
 
@@ -81,7 +87,7 @@ dspy:sentiment-gepa a dspy:Optimizer ;
     dspy:name "sentiment_gepa" ; dspy:kind "GEPA" ;
     dspy:optimizes dspy:sentiment-module ; dspy:metricFunction "sentiment_metric" ;
     dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
-    dspy:reflectionModel "gpt-5" .
+    dspy:reflectionModel dspy:facility-reflection-lm .
 
 # ── Categories (List[Literal[...]]) ──────────────────────────────────────────
 
@@ -124,4 +130,4 @@ dspy:categories-gepa a dspy:Optimizer ;
     dspy:name "categories_gepa" ; dspy:kind "GEPA" ;
     dspy:optimizes dspy:categories-module ; dspy:metricFunction "categories_metric" ;
     dspy:auto "light" ; dspy:numThreads 32 ; dspy:trackStats true ; dspy:useMerge false ;
-    dspy:reflectionModel "gpt-5" .
+    dspy:reflectionModel dspy:facility-reflection-lm .

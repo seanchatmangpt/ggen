@@ -456,6 +456,31 @@ SELECT ?subject ?violation WHERE {
     ?subject ?property ?value .
     FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
     BIND(CONCAT(STR(?property), " is not a non-negative integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer .
+    VALUES ?property { dspy:reflectionModel dspy:promptModel dspy:taskModel }
+    ?subject ?property ?lm .
+    FILTER NOT EXISTS { ?lm a dspy:LMConfig }
+    BIND(CONCAT(STR(?property), " target is not a dspy:LMConfig") AS ?violation)
+  } UNION {
+    ?subject a dspy:LMConfig .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER NOT EXISTS { ?subject dspy:modelName ?m }
+    BIND("LMConfig missing required dspy:modelName" AS ?violation)
+  } UNION {
+    ?subject a dspy:LMConfig ; dspy:modelName ?value .
+    FILTER(STRLEN(STR(?value)) = 0)
+    BIND("modelName must not be empty" AS ?violation)
+  } UNION {
+    ?subject a dspy:LMConfig .
+    VALUES ?property { dspy:maxTokens dspy:numRetries }
+    ?subject ?property ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND(CONCAT(STR(?property), " is not a positive integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:LMConfig ; dspy:modelType ?value .
+    FILTER(STR(?value) NOT IN ("chat", "text", "responses"))
+    BIND("modelType is outside the admitted set" AS ?violation)
   }
 }
 ORDER BY ?subject ?violation

@@ -72,6 +72,20 @@ dspy:PydanticModelField a rdfs:Class ;
     rdfs:label "Pydantic model field" ;
     rdfs:comment "One field of a dspy:PydanticModel, typed with a primitive dspy:pythonType (nested PydanticModel-in-PydanticModel fields are out of scope for this round)." .
 
+dspy:LMConfig a rdfs:Class ;
+    rdfs:label "LM configuration" ;
+    rdfs:comment """A real dspy.LM(...) construction: a model string plus the optimizer-relevant
+subset of its real constructor kwargs (verified via inspect.signature(dspy.LM.__init__), dspy
+3.1.3: model, model_type, temperature, max_tokens, cache, num_retries, use_developer_role --
+train_kwargs/launch_kwargs/callbacks/provider/finetuning_model are out of scope, the same
+'arbitrary/non-representable collaborator' boundary as dspy:metricFunction). Referenced by
+dspy:reflectionModel/dspy:promptModel/dspy:taskModel instead of a bare model-id string, so real
+per-call-site LM tuning (e.g. a cheap classification call using max_tokens=500 vs. an agentic
+call using max_tokens=16000 -- a real, load-bearing pattern, not hypothetical) is admittable,
+not just the model name. dspy.Module-level LM binding remains deliberately out of scope --
+dspy-pack's Modules construct but do not configure or invoke an LM; LMConfig only ever backs an
+Optimizer's own real LM-taking parameters.""" .
+
 # ── Signature / field properties ──────────────────────────────────────────────
 
 dspy:className a rdf:Property ; rdfs:domain dspy:Signature ; rdfs:range xsd:string ;
@@ -180,8 +194,29 @@ dspy:metricFunction a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd
 dspy:auto a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
     rdfs:comment "GEPA-only. One of light, medium, heavy -- dspy.GEPA's real 'auto' budget parameter." .
 
-dspy:reflectionModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
-    rdfs:comment "GEPA-only. Model string passed to dspy.LM(...) and given to dspy.GEPA's real 'reflection_lm' parameter." .
+dspy:reflectionModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:LMConfig ;
+    rdfs:comment "GEPA-only. A dspy:LMConfig rendered as dspy.LM(...) and given to dspy.GEPA's real 'reflection_lm' parameter." .
+
+dspy:modelName a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:string ;
+    rdfs:comment "Required. dspy.LM's real 'model' parameter, e.g. \"openai/gpt-4o\" -- free-form (provider/model-id shaped), deliberately NOT validated as a Python identifier the way dspy:name is." .
+
+dspy:temperature a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:double ;
+    rdfs:comment "Optional. dspy.LM's real 'temperature' parameter." .
+
+dspy:maxTokens a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:integer ;
+    rdfs:comment "Optional, positive integer. dspy.LM's real 'max_tokens' parameter -- real, load-bearing per-call-site tuning (e.g. a cheap classification call at max_tokens=500 vs. an agentic call at max_tokens=16000), not a hypothetical need." .
+
+dspy:lmCache a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:boolean ;
+    rdfs:comment "Optional. dspy.LM's real 'cache' parameter (default True in dspy 3.1.3)." .
+
+dspy:numRetries a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:integer ;
+    rdfs:comment "Optional, positive integer. dspy.LM's real 'num_retries' parameter (default 3 in dspy 3.1.3)." .
+
+dspy:modelType a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:string ;
+    rdfs:comment "Optional. One of chat, text, responses -- dspy.LM's real 'model_type' parameter (default \"chat\")." .
+
+dspy:useDeveloperRole a rdf:Property ; rdfs:domain dspy:LMConfig ; rdfs:range xsd:boolean ;
+    rdfs:comment "Optional. dspy.LM's real 'use_developer_role' parameter (default False)." .
 
 dspy:trackStats a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
     rdfs:comment "GEPA-only. dspy.GEPA's real 'track_stats' parameter." .
@@ -228,8 +263,12 @@ dspy:reflectionMinibatchSize a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:
 # Complex runtime objects appearing in other real constructors below (teacher_settings dict,
 # adapter) are likewise out of scope by the same "arbitrary/non-representable collaborator"
 # principle already established for dspy:metricFunction/dspy:rewardFunction (scaffolded as
-# NotImplementedError stubs) and dspy:reflectionModel (an LM model-id string, not a full LM
-# config object).
+# NotImplementedError stubs). dspy:reflectionModel/dspy:promptModel/dspy:taskModel admit a real
+# dspy:LMConfig (model string plus dspy.LM's own optimizer-relevant kwargs -- temperature,
+# max_tokens, cache, num_retries, model_type, use_developer_role), not a bare model-id string --
+# see dspy:LMConfig's own class comment for the real per-call-site tuning this closes (e.g.
+# gymact's real dspy_verifier.py/dspy_sregym_agent.py using max_tokens=500/1000/16000 depending
+# on the call site, confirmed by reading that real, independent codebase's dspy usage).
 #
 # CAVEAT (found by real execution against the installed dspy 3.1.3, 2026-08-10, confirmed not a
 # pack bug): dspy.SignatureOptimizer is currently broken IN THE INSTALLED DSPY PACKAGE ITSELF --
@@ -268,11 +307,11 @@ dspy:stopAtScore a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:do
 dspy:multitaskFinetune a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
     rdfs:comment "BootstrapFinetune-only. dspy.BootstrapFinetune's real 'multitask' parameter (default True) -- a distinct property from dspy:multitask (GRPO-only) because BootstrapFinetune's gate rules are independent of GRPO's." .
 
-dspy:promptModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
-    rdfs:comment "COPRO/SignatureOptimizer/MIPROv2/SIMBA-only. Model string passed to dspy.LM(...) and given to each real constructor's 'prompt_model' parameter, the same string-not-object boundary as dspy:reflectionModel." .
+dspy:promptModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:LMConfig ;
+    rdfs:comment "COPRO/SignatureOptimizer/MIPROv2/SIMBA-only. A dspy:LMConfig rendered as dspy.LM(...) and given to each real constructor's 'prompt_model' parameter." .
 
-dspy:taskModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
-    rdfs:comment "MIPROv2-only. Model string passed to dspy.LM(...) and given to dspy.MIPROv2's real 'task_model' parameter." .
+dspy:taskModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:LMConfig ;
+    rdfs:comment "MIPROv2-only. A dspy:LMConfig rendered as dspy.LM(...) and given to dspy.MIPROv2's real 'task_model' parameter." .
 
 dspy:breadth a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
     rdfs:comment "COPRO/SignatureOptimizer-only, positive integer. Each real constructor's 'breadth' parameter (default 10)." .
