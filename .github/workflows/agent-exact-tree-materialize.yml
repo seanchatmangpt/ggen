@@ -1,4 +1,5 @@
 name: Agent Exact Tree Materialization
+# Temporary exact-tree transport trigger for the pack create-standard migration.
 
 on:
   pull_request:
