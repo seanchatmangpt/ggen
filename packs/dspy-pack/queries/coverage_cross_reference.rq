@@ -1,0 +1,14 @@
+# Cross-references real dspy 3.1.3 source classes (evidence/dspy-source-coverage.ttl,
+# dspyaud:DSPySourceClass) against dspy-pack's admitted kind set (dspyaud:AdmittedKind, mirrored
+# from gates/010_admission.rq's closed VALUES lists) to produce a checklist: every real DSPy
+# Module/Optimizer class, whether dspy-pack admits it, and which of the pack's five covered
+# tutorials (general/mcp/gepa/rl) reference it. Run via scripts/coverage_check.py (rdflib), which
+# also re-parses the live gate file to keep the AdmittedKind mirror honest.
+PREFIX dspyaud: <http://seanchatmangpt.github.io/packs/dspy/audit#>
+SELECT ?role ?pythonSymbol ?sourceFile ?admitted (GROUP_CONCAT(?tutorial; separator=",") AS ?tutorials) WHERE {
+  ?class a dspyaud:DSPySourceClass ; dspyaud:role ?role ; dspyaud:pythonSymbol ?pythonSymbol ; dspyaud:sourceFile ?sourceFile .
+  OPTIONAL { ?class dspyaud:tutorialCoverage ?tutorial }
+  BIND(EXISTS { ?admittedClass a dspyaud:AdmittedKind ; dspyaud:role ?role ; dspyaud:pythonSymbol ?pythonSymbol } AS ?admitted)
+}
+GROUP BY ?role ?pythonSymbol ?sourceFile ?admitted
+ORDER BY ?role DESC(?admitted) ?pythonSymbol

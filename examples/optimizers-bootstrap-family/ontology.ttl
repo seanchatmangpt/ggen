@@ -1,0 +1,57 @@
+# Fixture exercising ggen-first verification of dspy-pack's 4 BootstrapFewShot-family /
+# finetune optimizer kinds: BootstrapFewShot, BootstrapFewShotWithRandomSearch,
+# BootstrapFewShotWithOptuna, BootstrapFinetune. One shared Signature+Module (ChainOfThought)
+# is the compile target for all 4, per dspy:optimizes.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:bf-classify-signature a dspy:Signature ;
+    dcterms:title "ClassifySentiment" ;
+    dcterms:description "Classify the sentiment of a short piece of text." ;
+    dspy:className "ClassifySentiment" ;
+    dspy:hasInput dspy:bf-text-input ;
+    dspy:hasOutput dspy:bf-sentiment-output .
+
+dspy:bf-text-input a dspy:InputField ;
+    dspy:name "text" ; dspy:pythonType "str" ;
+    dcterms:description "The text to classify." .
+
+dspy:bf-sentiment-output a dspy:OutputField ;
+    dspy:name "sentiment" ; dspy:pythonType "str" ;
+    dcterms:description "One of positive, negative, neutral." .
+
+dspy:bf-classify-module a dspy:Module ;
+    dcterms:description "ChainOfThought predictor over ClassifySentiment, shared compile target for all 4 optimizers below." ;
+    dspy:name "classifier" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:bf-classify-signature .
+
+# ── BootstrapFewShot ─────────────────────────────────────────────────────────
+dspy:bf-opt-bootstrap a dspy:Optimizer ;
+    dcterms:description "BootstrapFewShot over the classifier, exercising metric_threshold/max_bootstrapped_demos/max_labeled_demos/max_rounds/max_errors." ;
+    dspy:name "bootstrap_fewshot_opt" ; dspy:kind "BootstrapFewShot" ;
+    dspy:optimizes dspy:bf-classify-module ; dspy:metricFunction "bootstrap_metric" ;
+    dspy:maxBootstrappedDemos 4 ; dspy:maxLabeledDemos 16 ; dspy:maxRounds 2 ;
+    dspy:optimizerMaxErrors 5 ; dspy:metricThreshold 0.8 .
+
+# ── BootstrapFewShotWithRandomSearch ─────────────────────────────────────────
+dspy:bf-opt-random-search a dspy:Optimizer ;
+    dcterms:description "BootstrapFewShotWithRandomSearch over the classifier, exercising num_candidate_programs/stop_at_score/num_threads plus the shared BootstrapFewShot-family properties." ;
+    dspy:name "random_search_opt" ; dspy:kind "BootstrapFewShotWithRandomSearch" ;
+    dspy:optimizes dspy:bf-classify-module ; dspy:metricFunction "random_search_metric" ;
+    dspy:maxBootstrappedDemos 4 ; dspy:maxLabeledDemos 16 ; dspy:maxRounds 1 ;
+    dspy:numCandidatePrograms 8 ; dspy:optimizerMaxErrors 10 ; dspy:stopAtScore 0.95 ;
+    dspy:metricThreshold 0.7 ; dspy:numThreads 4 .
+
+# ── BootstrapFewShotWithOptuna ────────────────────────────────────────────────
+dspy:bf-opt-optuna a dspy:Optimizer ;
+    dcterms:description "BootstrapFewShotWithOptuna over the classifier; dspy:compileMaxDemos is required (compile()'s real max_demos has no default)." ;
+    dspy:name "optuna_opt" ; dspy:kind "BootstrapFewShotWithOptuna" ;
+    dspy:optimizes dspy:bf-classify-module ; dspy:metricFunction "optuna_metric" ;
+    dspy:maxBootstrappedDemos 4 ; dspy:maxLabeledDemos 16 ; dspy:maxRounds 1 ;
+    dspy:numCandidatePrograms 16 ; dspy:compileMaxDemos 6 .
+
+# ── BootstrapFinetune ─────────────────────────────────────────────────────────
+dspy:bf-opt-finetune a dspy:Optimizer ;
+    dcterms:description "BootstrapFinetune over the classifier, exercising multitask/num_threads." ;
+    dspy:name "finetune_opt" ; dspy:kind "BootstrapFinetune" ;
+    dspy:optimizes dspy:bf-classify-module ; dspy:metricFunction "finetune_metric" ;
+    dspy:multitaskFinetune false ; dspy:numThreads 2 .

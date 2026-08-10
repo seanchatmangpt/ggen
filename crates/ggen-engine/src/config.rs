@@ -154,12 +154,23 @@ pub enum PackRef {
         #[serde(default = "default_true")]
         lock: bool,
     },
-    /// Remote pack: `{ git = "…", version = "…" }`.
+    /// Remote pack: `{ git = "…", version = "…" }`, optionally
+    /// `{ git = "…", version = "…", subdir = "…" }` for a monorepo hosting
+    /// multiple packs under one clone (e.g. `ggen-marketplace`'s
+    /// `packs/<name>/` layout) — the clone's own root is expected to hold
+    /// `pack.toml`/`ontology.ttl`/`templates/` unless `subdir` redirects
+    /// resolution to a subdirectory of the clone instead.
     Git {
         /// Git repository URL.
         git: String,
         /// Version requirement (tag or semver).
         version: String,
+        /// Subdirectory within the cloned repository to resolve the pack
+        /// from, e.g. `"packs/dspy-pack"`. Defaults to the clone root
+        /// (`None`) — unchanged behavior for every existing single-pack git
+        /// repo reference.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        subdir: Option<PathBuf>,
     },
 }
 
@@ -303,9 +314,16 @@ impl Validate for PackRef {
                 }
                 // `lock` is a bool — nothing to validate.
             }
-            Self::Git { git, version } => {
+            Self::Git {
+                git,
+                version,
+                subdir,
+            } => {
                 v.check_non_empty("git", git);
                 v.check_non_empty("version", version);
+                if let Some(sub) = subdir {
+                    v.check_path("subdir", &sub.to_string_lossy(), Some(false));
+                }
             }
         }
     }

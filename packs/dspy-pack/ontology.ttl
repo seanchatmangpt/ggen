@@ -1,28 +1,380 @@
-@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+# Universal DSPy generation vocabulary.
+#
+# This graph defines law only. It intentionally contains no dspy:Signature,
+# dspy:InputField, dspy:OutputField, dspy:Module, dspy:MCPServerConnection,
+# dspy:ServerArg, or dspy:Optimizer individuals, so composing this schema pack
+# cannot inject any signature, module, or optimizer into a consumer's generated
+# src/dspy_program.py / src/dspy_optimize.py. A consumer project supplies its
+# own individuals against this vocabulary in its own .ttl.
+#
+# Covers five of dspy.ai's own tutorials verbatim (fetched/verified 2026-08-10, cross-checked
+# against the real installed dspy 3.1.3 source tree, not just docs prose):
+#   - Predict/ChainOfThought signatures+modules (general DSPy modeling)
+#   - MCP tool use: https://dspy.ai/tutorials/mcp/
+#   - GEPA reflective prompt optimization: https://dspy.ai/tutorials/gepa_ai_program/,
+#     https://dspy.ai/api/optimizers/GEPA/overview/
+#   - RL/GRPO optimization: https://dspy.ai/tutorials/rl_ai_program/,
+#     https://dspy.ai/tutorials/rl_papillon/
+#   - GEPA worked examples: https://dspy.ai/tutorials/gepa_facilitysupportanalyzer/ (Literal /
+#     List[Literal] enum-typed output fields, multiple sibling ChainOfThought modules),
+#     https://dspy.ai/tutorials/gepa_trusted_monitor/ (int output field with ge/le bounds)
+
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 
-# Canonical graph: the generated DSPy module constructs an LM program but does not configure or invoke an LM.
-dspy:answer-question-signature a dspy:Signature ;
-    dcterms:title "AnswerQuestion" ;
-    dcterms:description "Answer a question with a concise response." ;
-    dspy:className "AnswerQuestion" ;
-    dspy:hasInput dspy:question-input ;
-    dspy:hasOutput dspy:answer-output .
+# ── Core model ───────────────────────────────────────────────────────────────
 
-dspy:question-input a dspy:InputField ;
-    dcterms:description "Question to answer." ;
-    dspy:name "question" ;
-    dspy:pythonType "str" .
+dspy:Signature a rdfs:Class ;
+    rdfs:label "Signature" ;
+    rdfs:comment "A dspy.Signature subclass: a typed input/output contract with a docstring, rendered as one class in src/dspy_program.py." .
 
-dspy:answer-output a dspy:OutputField ;
-    dcterms:description "Concise answer." ;
-    dspy:name "answer" ;
-    dspy:pythonType "str" .
+dspy:InputField a rdfs:Class ;
+    rdfs:label "Input field" ;
+    rdfs:comment "One dspy.InputField on a Signature." .
 
-dspy:answer-program a dspy:Module ;
-    dcterms:description "Direct prediction over the admitted AnswerQuestion signature." ;
-    prov:wasDerivedFrom dspy:answer-question-signature ;
-    dspy:name "program" ;
-    dspy:kind "Predict" ;
-    dspy:signature dspy:answer-question-signature .
+dspy:OutputField a rdfs:Class ;
+    rdfs:label "Output field" ;
+    rdfs:comment "One dspy.OutputField on a Signature." .
+
+dspy:Module a rdfs:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A dspy program instance bound to one Signature (Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct), OR wrapping another Module (BestOfN/Refine). The generated module constructs but does not configure or invoke an LM. dspy.KNN and dspy.Parallel are real dspy Module-adjacent classes NOT covered here: neither takes a Signature at construction (KNN takes k/trainset/vectorizer with no Signature at all; Parallel takes only execution-tuning kwargs and is bound to modules at call time, not construction time) -- they do not fit this class's Module-bound-to-one-Signature-or-wrapped-Module shape, and forcing them in would misrepresent their real constructors. Confirmed by inspecting both real constructor signatures (dspy 3.1.3), not assumed." .
+
+dspy:LocalTool a rdfs:Class ;
+    rdfs:label "Local tool" ;
+    rdfs:comment "One plain Python callable passed in a CodeAct module's tools=[...] list. Unlike dspy:MCPServerConnection's dynamically-discovered tools, CodeAct's tools are ordinary local functions -- ggen scaffolds each as a NotImplementedError stub the consumer completes, the same 'construct but do not implement arbitrary logic' boundary as dspy:metricFunction." .
+
+dspy:MCPServerConnection a rdfs:Class ;
+    rdfs:label "MCP server connection" ;
+    rdfs:comment "A stdio-launched MCP server a ReAct Module discovers tools from at call time, per dspy.ai's DSPy + MCP tutorial. Only the launch command/args are admitted; the server's own tool list is genuinely dynamic and is never enumerated as a fixed fact." .
+
+dspy:ServerArg a rdfs:Class ;
+    rdfs:label "Server launch argument" ;
+    rdfs:comment "One ordered positional argument passed to an MCPServerConnection's launch command." .
+
+dspy:Optimizer a rdfs:Class ;
+    rdfs:label "Optimizer" ;
+    rdfs:comment "A dspy optimizer (one of the 14 admitted kinds -- see dspy:kind) that compiles one target Module via dspy:optimizes. The metric/reward function BODY and trainset/valset/devset are deliberately out of scope -- arbitrary, consumer-owned inputs; ggen scaffolds a NotImplementedError metric stub and named placeholder datasets in src/dspy_optimize.py. dspy.Ensemble and dspy.KNNFewShot are real optimizers NOT covered here -- neither fits this one-target-Module shape (see the Optimizer-properties round-5 comment below for why)." .
+
+dspy:LiteralOption a rdfs:Class ;
+    rdfs:label "Literal option" ;
+    rdfs:comment "One ordered value of a Literal[...] (or List[Literal[...]]) typed field, per the gepa_facilitysupportanalyzer tutorial's Literal['low','medium','high']-style output fields." .
+
+dspy:PydanticModel a rdfs:Class ;
+    rdfs:label "Pydantic model" ;
+    rdfs:comment "A pydantic.BaseModel subclass ggen generates, usable as a Signature field's type (confirmed real and working: dspy.Signature accepts a pydantic.BaseModel-typed field, e.g. `address: Address = dspy.OutputField()`, dspy 3.1.3). A third, mutually-exclusive alternative to dspy:pythonType/dspy:hasLiteralOption on InputField/OutputField." .
+
+dspy:PydanticModelField a rdfs:Class ;
+    rdfs:label "Pydantic model field" ;
+    rdfs:comment "One field of a dspy:PydanticModel, typed with a primitive dspy:pythonType (nested PydanticModel-in-PydanticModel fields are out of scope for this round)." .
+
+# ── Signature / field properties ──────────────────────────────────────────────
+
+dspy:className a rdf:Property ; rdfs:domain dspy:Signature ; rdfs:range xsd:string ;
+    rdfs:comment "Python class name for the generated dspy.Signature subclass. Must be a valid Python identifier." .
+
+dspy:hasInput a rdf:Property ; rdfs:domain dspy:Signature ; rdfs:range dspy:InputField .
+dspy:hasOutput a rdf:Property ; rdfs:domain dspy:Signature ; rdfs:range dspy:OutputField .
+
+dspy:name a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "Python identifier: a field name, a Module's variable name, an MCPServerConnection's variable name, or an Optimizer's variable name, depending on domain." .
+
+dspy:pythonType a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "One of the admitted primitive types: str, int, float, bool. A field (Signature InputField/OutputField, or PydanticModelField) carries exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType." .
+
+dspy:hasLiteralOption a rdf:Property ; rdfs:range dspy:LiteralOption ;
+    rdfs:comment "Renders the field as Literal[...] (or, with dspy:isListType true, List[Literal[...]]) instead of a dspy:pythonType primitive, per gepa_facilitysupportanalyzer's Literal/List[Literal] output fields. A field carries exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType." .
+
+dspy:hasPydanticModelType a rdf:Property ; rdfs:range dspy:PydanticModel ;
+    rdfs:comment "Renders the field's type as a generated pydantic.BaseModel class name instead of a dspy:pythonType primitive or dspy:hasLiteralOption Literal. Valid on both dspy:InputField and dspy:OutputField (no single rdfs:domain given, same pattern as dspy:pythonType/dspy:name -- actual validity is enforced by the admission gate). A field carries exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType." .
+
+dspy:pydanticClassName a rdf:Property ; rdfs:domain dspy:PydanticModel ; rdfs:range xsd:string ;
+    rdfs:comment "Python class name for the generated pydantic.BaseModel subclass. Must be a valid Python identifier." .
+
+dspy:hasModelField a rdf:Property ; rdfs:domain dspy:PydanticModel ; rdfs:range dspy:PydanticModelField .
+
+dspy:isListType a rdf:Property ; rdfs:range xsd:boolean ;
+    rdfs:comment "Only meaningful alongside dspy:hasLiteralOption: true renders List[Literal[...]], absent/false renders Literal[...]." .
+
+dspy:optionIndex a rdf:Property ; rdfs:domain dspy:LiteralOption ; rdfs:range xsd:integer ;
+    rdfs:comment "Zero-based, non-negative position of this option within its field's Literal[...]." .
+dspy:optionValue a rdf:Property ; rdfs:domain dspy:LiteralOption ; rdfs:range xsd:string .
+
+dspy:geInt a rdf:Property ; rdfs:range xsd:integer ;
+    rdfs:comment "Only valid when dspy:pythonType is \"int\": lower bound passed as OutputField(ge=...), per gepa_trusted_monitor's suspicion_score field." .
+dspy:leInt a rdf:Property ; rdfs:range xsd:integer ;
+    rdfs:comment "Only valid when dspy:pythonType is \"int\": upper bound passed as OutputField(le=...), per gepa_trusted_monitor's suspicion_score field." .
+
+# ── Module properties ─────────────────────────────────────────────────────────
+
+dspy:kind a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "For a Module: one of Predict, ChainOfThought, ReAct, ProgramOfThought, MultiChainComparison, RLM, CodeAct, BestOfN, Refine. For an Optimizer: one of GEPA, GRPO, BootstrapFewShot, BootstrapFewShotWithRandomSearch, BootstrapFewShotWithOptuna, BootstrapFinetune, COPRO, SignatureOptimizer, MIPROv2, AvatarOptimizer, BetterTogether, InferRules, SIMBA, LabeledFewShot." .
+
+dspy:signature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Signature ;
+    rdfs:comment "Required for Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct. Mutually exclusive with dspy:wrapsModule, which BestOfN/Refine use instead (they wrap another Module, not a Signature directly)." .
+
+dspy:usesMCPServer a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:MCPServerConnection ;
+    rdfs:comment "Admitted only when dspy:kind is ReAct. Wires the module to the MCP server whose tools dspy.Tool.from_mcp_tool() converts at call time." .
+
+dspy:maxIters a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "ReAct/ProgramOfThought/CodeAct-only, positive integer. dspy.ReAct's real 'max_iters' (default 20), dspy.ProgramOfThought's real 'max_iters' (default 3), dspy.CodeAct's real 'max_iters' (default 5) -- confirmed by inspecting all three real constructors." .
+
+dspy:comparisonM a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "MultiChainComparison-only, positive integer. dspy.MultiChainComparison's real 'M' parameter (default 3): number of reasoning attempts compared." .
+
+dspy:comparisonTemperature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:double ;
+    rdfs:comment "MultiChainComparison-only. dspy.MultiChainComparison's real 'temperature' parameter (default 0.7)." .
+
+dspy:maxIterations a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "RLM-only, positive integer. dspy.RLM's real 'max_iterations' parameter (default 20) -- distinct from dspy:maxIters (ReAct/ProgramOfThought/CodeAct's 'max_iters'), because dspy.RLM's real constructor names it differently." .
+
+dspy:maxLlmCalls a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "RLM-only, positive integer. dspy.RLM's real 'max_llm_calls' parameter (default 50)." .
+
+dspy:maxOutputChars a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "RLM-only, positive integer. dspy.RLM's real 'max_output_chars' parameter (default 100000)." .
+
+dspy:verboseFlag a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:boolean ;
+    rdfs:comment "RLM-only. dspy.RLM's real 'verbose' parameter (default False)." .
+
+dspy:hasLocalTool a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:LocalTool ;
+    rdfs:comment "CodeAct-only, required (dspy.CodeAct's real 'tools' parameter has no default -- at least one must be declared). Each renders as a scaffolded stub function passed in tools=[...]." .
+
+dspy:wrapsModule a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Module ;
+    rdfs:comment "BestOfN/Refine-only, required. dspy.BestOfN's and dspy.Refine's real 'module' parameter (both have no default) -- the Module instance being wrapped. Mutually exclusive with dspy:signature." .
+
+dspy:rewardFunction a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:string ;
+    rdfs:comment "BestOfN/Refine-only, required Python identifier. dspy.BestOfN's and dspy.Refine's real 'reward_fn' parameter (both have no default) -- ggen scaffolds a NotImplementedError stub, the metric-function boundary." .
+
+dspy:refineN a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "BestOfN/Refine-only, required positive integer. dspy.BestOfN's and dspy.Refine's real 'N' parameter (both have no default)." .
+
+dspy:refineThreshold a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:double ;
+    rdfs:comment "BestOfN/Refine-only, required. dspy.BestOfN's and dspy.Refine's real 'threshold' parameter (both have no default)." .
+
+dspy:refineFailCount a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "BestOfN/Refine-only, optional non-negative integer. dspy.BestOfN's and dspy.Refine's real 'fail_count' parameter (default None)." .
+
+# ── MCP server properties ─────────────────────────────────────────────────────
+
+dspy:command a rdf:Property ; rdfs:domain dspy:MCPServerConnection ; rdfs:range xsd:string ;
+    rdfs:comment "The stdio launch executable, e.g. \"python\"." .
+
+dspy:hasArg a rdf:Property ; rdfs:domain dspy:MCPServerConnection ; rdfs:range dspy:ServerArg .
+dspy:argIndex a rdf:Property ; rdfs:domain dspy:ServerArg ; rdfs:range xsd:integer ;
+    rdfs:comment "Zero-based, non-negative position in the launch command's argument list." .
+dspy:argValue a rdf:Property ; rdfs:domain dspy:ServerArg ; rdfs:range xsd:string .
+
+# ── Optimizer properties ──────────────────────────────────────────────────────
+
+dspy:optimizes a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:Module ;
+    rdfs:comment "The student Module this Optimizer compiles." .
+
+dspy:metricFunction a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "Python identifier naming the metric function ggen scaffolds as a NotImplementedError stub. The metric body is arbitrary business logic, out of ontology scope." .
+
+dspy:auto a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "GEPA-only. One of light, medium, heavy -- dspy.GEPA's real 'auto' budget parameter." .
+
+dspy:reflectionModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "GEPA-only. Model string passed to dspy.LM(...) and given to dspy.GEPA's real 'reflection_lm' parameter." .
+
+dspy:trackStats a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "GEPA-only. dspy.GEPA's real 'track_stats' parameter." .
+
+dspy:numTrainSteps a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "GRPO-only, positive integer. dspy.GRPO's real 'num_train_steps' parameter." .
+
+dspy:numThreads a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "GEPA or GRPO, positive integer. Both dspy.GEPA's and dspy.GRPO's real 'num_threads' parameter -- confirmed by inspecting both real constructor signatures (dspy 3.1.3), not GRPO-only as an earlier draft of this pack incorrectly gated." .
+
+dspy:multitask a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "GRPO-only. dspy.GRPO's real 'multitask' parameter." .
+
+dspy:excludeDemos a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "GRPO-only. dspy.GRPO's real 'exclude_demos' parameter." .
+
+dspy:useTrainAsVal a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "GRPO-only. dspy.GRPO's real 'use_train_as_val' parameter." .
+
+dspy:useMerge a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "GEPA-only. dspy.GEPA's real 'use_merge' parameter, per gepa_facilitysupportanalyzer's use_merge=False." .
+
+dspy:maxFullEvals a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "GEPA-only, positive integer. dspy.GEPA's real 'max_full_evals' parameter, per gepa_trusted_monitor's max_full_evals=2. Mutually exclusive with dspy:auto -- dspy.GEPA requires exactly one of auto/max_full_evals/max_metric_calls." .
+
+dspy:reflectionMinibatchSize a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "GEPA-only, positive integer. dspy.GEPA's real 'reflection_minibatch_size' parameter (constructor default 3), per gepa_trusted_monitor's reflection_minibatch_size=3." .
+
+# ── Optimizer properties, round 5: the remaining 12 admitted real dspy.teleprompt.Teleprompter
+# subclasses (dspy 3.1.3), each verified via inspect.signature() against the real installed
+# package for BOTH __init__ AND compile() (compile() shapes vary meaningfully -- some omit
+# valset, SignatureOptimizer's real compile() takes 'devset' not 'trainset', COPRO/
+# SignatureOptimizer require 'eval_kwargs', BootstrapFewShotWithOptuna's compile() requires
+# 'max_demos' -- none of this was guessed). Two real optimizers are deliberately NOT admitted:
+#   - dspy.teleprompt.knn_fewshot.KNNFewShot: its real constructor requires a
+#     `trainset: list[Example]` and a real `vectorizer: Embedder` instance, neither
+#     RDF-representable -- same reasoning as dspy.KNN/dspy.Parallel (Module properties above).
+#   - dspy.teleprompt.ensemble.Ensemble: its real compile() signature is `compile(self,
+#     programs)` -- a LIST of programs, not a single `student` Module + `trainset`, and its
+#     constructor has no metric/target-Module concept at all (`reduce_fn`/`size`/
+#     `deterministic` only). It does not fit dspy:Optimizer's "compiles one target Module via
+#     dspy:optimizes" shape at all -- confirmed by inspecting the real compile() signature, not
+#     assumed to fit and then forced.
+# Complex runtime objects appearing in other real constructors below (teacher_settings dict,
+# adapter) are likewise out of scope by the same "arbitrary/non-representable collaborator"
+# principle already established for dspy:metricFunction/dspy:rewardFunction (scaffolded as
+# NotImplementedError stubs) and dspy:reflectionModel (an LM model-id string, not a full LM
+# config object).
+#
+# CAVEAT (found by real execution against the installed dspy 3.1.3, 2026-08-10, confirmed not a
+# pack bug): dspy.SignatureOptimizer is currently broken IN THE INSTALLED DSPY PACKAGE ITSELF --
+# it is not exported at the dspy.SignatureOptimizer top-level attribute (only reachable via the
+# private dspy.teleprompt.signature_opt.SignatureOptimizer submodule), and even constructed
+# directly it raises `TypeError: COPRO.__init__() takes from 1 to 7 positional arguments but 8
+# were given` -- its deprecated shim's `super().__init__(...)` call was never updated after
+# COPRO's own constructor signature changed upstream. dspy-pack's SignatureOptimizer support
+# (dspy:kind "SignatureOptimizer") correctly reproduces the class's documented constructor/
+# compile() shape; the defect is in dspy 3.1.3's own code, not in what this pack generates. Kept
+# admitted (it is a real, documented DSPy optimizer) rather than silently dropped -- a consumer
+# hitting this should upgrade dspy or use a different optimizer kind, not assume dspy-pack is at
+# fault.
+
+dspy:maxBootstrappedDemos a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna/MIPROv2-only, positive integer. Each real constructor's 'max_bootstrapped_demos' parameter." .
+
+dspy:maxLabeledDemos a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna/MIPROv2-only, positive integer. Each real constructor's 'max_labeled_demos' parameter." .
+
+dspy:maxRounds a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna-only, positive integer. Each real constructor's 'max_rounds' parameter." .
+
+dspy:optimizerMaxErrors a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShot/BootstrapFewShotWithRandomSearch/MIPROv2-only, positive integer. Each real constructor's 'max_errors' parameter." .
+
+dspy:metricThreshold a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:double ;
+    rdfs:comment "BootstrapFewShot/BootstrapFewShotWithRandomSearch-only. Each real constructor's 'metric_threshold' parameter." .
+
+dspy:numCandidatePrograms a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna-only, positive integer. Each real constructor's 'num_candidate_programs' parameter." .
+
+dspy:stopAtScore a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:double ;
+    rdfs:comment "BootstrapFewShotWithRandomSearch-only. dspy.BootstrapFewShotWithRandomSearch's real 'stop_at_score' parameter." .
+
+dspy:multitaskFinetune a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "BootstrapFinetune-only. dspy.BootstrapFinetune's real 'multitask' parameter (default True) -- a distinct property from dspy:multitask (GRPO-only) because BootstrapFinetune's gate rules are independent of GRPO's." .
+
+dspy:promptModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "COPRO/SignatureOptimizer/MIPROv2/SIMBA-only. Model string passed to dspy.LM(...) and given to each real constructor's 'prompt_model' parameter, the same string-not-object boundary as dspy:reflectionModel." .
+
+dspy:taskModel a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "MIPROv2-only. Model string passed to dspy.LM(...) and given to dspy.MIPROv2's real 'task_model' parameter." .
+
+dspy:breadth a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "COPRO/SignatureOptimizer-only, positive integer. Each real constructor's 'breadth' parameter (default 10)." .
+
+dspy:depth a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "COPRO/SignatureOptimizer-only, positive integer. Each real constructor's 'depth' parameter (default 3)." .
+
+dspy:initTemperature a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:double ;
+    rdfs:comment "COPRO/SignatureOptimizer-only. Each real constructor's 'init_temperature' parameter (default 1.4)." .
+
+dspy:optimizerVerbose a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "SignatureOptimizer/MIPROv2-only. Each real constructor's 'verbose' parameter." .
+
+dspy:numCandidates a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "MIPROv2/InferRules/SIMBA-only, positive integer. Each real constructor's 'num_candidates' parameter." .
+
+dspy:seedInt a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "MIPROv2/BetterTogether-only. dspy.MIPROv2's real 'seed' parameter (default 9) and dspy.BetterTogether's real 'seed' parameter (default None)." .
+
+dspy:logDir a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "MIPROv2-only. dspy.MIPROv2's real 'log_dir' parameter." .
+
+dspy:avatarMaxIters a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment """AvatarOptimizer-only, positive integer. dspy.AvatarOptimizer's real 'max_iters' parameter (default 10) -- a distinct property from dspy:maxIters (Module-only: ReAct/ProgramOfThought/CodeAct) because AvatarOptimizer is a dspy:Optimizer, not a dspy:Module.
+
+CAVEAT (found by real execution against the installed dspy 3.1.3, 2026-08-10, confirmed not a
+pack bug): dspy.AvatarOptimizer's own constructor is currently broken IN THE INSTALLED DSPY
+PACKAGE ITSELF -- dspy/teleprompt/avatar_optimizer.py's __init__ calls
+`dspy.TypedPredictor(Comparator)`, but `dspy.TypedPredictor` does not exist in dspy 3.1.3
+(removed/renamed upstream without updating this caller). Every dspy.AvatarOptimizer(...) call
+raises AttributeError regardless of kwargs. dspy-pack's generated constructor call is correct
+per the class's documented signature; the defect is upstream dspy version drift, not this pack.
+Kept admitted for the same reason as SignatureOptimizer above.""" .
+
+dspy:lowerBound a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "AvatarOptimizer-only, non-negative integer (0 is the real default, not merely tolerated -- confirmed by real execution after an earlier draft of this gate over-restricted it to positive-only). dspy.AvatarOptimizer's real 'lower_bound' parameter (default 0)." .
+
+dspy:upperBound a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "AvatarOptimizer-only, non-negative integer. dspy.AvatarOptimizer's real 'upper_bound' parameter (default 1)." .
+
+dspy:maxPositiveInputs a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "AvatarOptimizer-only. dspy.AvatarOptimizer's real 'max_positive_inputs' parameter." .
+
+dspy:maxNegativeInputs a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "AvatarOptimizer-only. dspy.AvatarOptimizer's real 'max_negative_inputs' parameter." .
+
+dspy:optimizeFor a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "AvatarOptimizer-only. One of max, min -- dspy.AvatarOptimizer's real 'optimize_for' parameter (default 'max')." .
+
+dspy:wrapsPromptOptimizer a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:Optimizer ;
+    rdfs:comment """BetterTogether-only, optional. dspy.BetterTogether's real 'prompt_optimizer' parameter -- another Optimizer instance.
+
+CAVEAT (found by real execution against the installed dspy 3.1.3, 2026-08-10, confirmed not a
+pack bug): dspy.BetterTogether has two real runtime constraints narrower than its documented
+Python type signature (Optional[Teleprompter], i.e. 'any Optimizer'), confirmed by direct
+construction: (1) it requires `dspy.settings.configure(experimental=True)` before construction,
+else `AttributeError: 'Settings' object has no attribute 'experimental'`; (2) even with that
+set, `dspy.BetterTogether.__init__` raises `ValueError: The BetterTogether optimizer only
+supports the following optimizers for now: BootstrapFinetune, BootstrapFewShotWithRandomSearch.`
+for any wrapped optimizer of a different kind -- narrower than the type signature suggests.
+dspy-pack's ontology admits any dspy:Optimizer as the wrapped target (matching the documented
+type signature); a consumer wrapping any kind other than BootstrapFinetune/
+BootstrapFewShotWithRandomSearch will hit this real dspy 3.1.3 runtime restriction, and must
+also call dspy.settings.configure(experimental=True) themselves before running the generated
+code -- neither is something this pack's generated code can or should silently work around.""" .
+
+dspy:wrapsWeightOptimizer a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:Optimizer ;
+    rdfs:comment "BetterTogether-only, optional. dspy.BetterTogether's real 'weight_optimizer' parameter -- another Optimizer instance. See dspy:wrapsPromptOptimizer's caveat -- the same real runtime restriction (BootstrapFinetune/BootstrapFewShotWithRandomSearch only, plus experimental=True) applies here too." .
+
+dspy:numRules a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "InferRules-only, positive integer. dspy.InferRules's real 'num_rules' parameter (default 10)." .
+
+dspy:evalKwargsRequired a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "COPRO/SignatureOptimizer-only marker. Both real compile() methods require an 'eval_kwargs' dict with no default; eval_kwargs' contents are consumer-owned evaluation config (e.g. num_threads, display_progress), out of ontology scope -- ggen renders a literal empty-dict placeholder the consumer fills in, the same 'construct but do not fill in arbitrary config' boundary as trainset/valset." .
+
+dspy:compileMaxDemos a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "BootstrapFewShotWithOptuna-only, required positive integer. dspy.BootstrapFewShotWithOptuna's real compile() 'max_demos' parameter has no default -- distinct from dspy:maxDemos (SIMBA's constructor-level 'max_demos') because this one is a compile()-time argument, not a constructor argument." .
+
+dspy:bsize a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "SIMBA-only, positive integer. dspy.SIMBA's real 'bsize' parameter (default 32)." .
+
+dspy:maxSteps a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "SIMBA-only, positive integer. dspy.SIMBA's real 'max_steps' parameter (default 8)." .
+
+dspy:maxDemos a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "SIMBA-only, positive integer. dspy.SIMBA's real 'max_demos' parameter (default 4)." .
+
+dspy:demoInputFieldMaxlen a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "SIMBA-only, positive integer. dspy.SIMBA's real 'demo_input_field_maxlen' parameter (default 100000)." .
+
+dspy:temperatureForSampling a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:double ;
+    rdfs:comment "SIMBA-only. dspy.SIMBA's real 'temperature_for_sampling' parameter (default 0.2)." .
+
+dspy:temperatureForCandidates a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:double ;
+    rdfs:comment "SIMBA-only. dspy.SIMBA's real 'temperature_for_candidates' parameter (default 0.2)." .
+
+dspy:kValue a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "LabeledFewShot-only, positive integer. dspy.LabeledFewShot's real 'k' parameter (default 16)." .
+
+# ── Shared ─────────────────────────────────────────────────────────────────────
+
+dcterms:title a rdf:Property .
+dcterms:description a rdf:Property .
+prov:wasDerivedFrom a rdf:Property ;
+    rdfs:comment "Optional provenance link, e.g. a Module back to the Signature it renders from." .

@@ -19,7 +19,7 @@ use tempfile::TempDir;
 
 /// Recursively copy `src` into `dst` (real fs, no symlink handling needed by
 /// any current pack layout).
-pub fn copy_tree(src: &Path, dst: &Path) {
+pub(crate) fn copy_tree(src: &Path, dst: &Path) {
     std::fs::create_dir_all(dst).expect("mkdir");
     for entry in std::fs::read_dir(src).expect("read_dir") {
         let entry = entry.expect("entry");
@@ -41,7 +41,7 @@ pub fn copy_tree(src: &Path, dst: &Path) {
 ///
 /// Generalizes `gh_terraform_pack_e2e.rs`'s pack-specific `scaffold()`: any
 /// pack directory works, not just `gh-terraform-pack`.
-pub fn scaffold_pack(pack_src_dir: &Path) -> (TempDir, PathBuf) {
+pub(crate) fn scaffold_pack(pack_src_dir: &Path) -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
     let pack_name = pack_src_dir
         .file_name()
@@ -67,13 +67,13 @@ pub fn scaffold_pack(pack_src_dir: &Path) -> (TempDir, PathBuf) {
 
 /// Read a project-relative file as a `String`, panicking with the relative
 /// path on failure (so assertion failures point at the right file).
-pub fn read(project: &Path, rel: &str) -> String {
+pub(crate) fn read(project: &Path, rel: &str) -> String {
     std::fs::read_to_string(project.join(rel)).unwrap_or_else(|e| panic!("read {rel}: {e}"))
 }
 
 /// Read a project-relative file and parse it as JSON, panicking (with the
 /// raw text included) on either a read or a parse failure.
-pub fn read_json(project: &Path, rel: &str) -> serde_json::Value {
+pub(crate) fn read_json(project: &Path, rel: &str) -> serde_json::Value {
     let raw = read(project, rel);
     serde_json::from_str(&raw).unwrap_or_else(|e| panic!("parse {rel} as JSON: {e}\n{raw}"))
 }
@@ -92,7 +92,7 @@ pub fn read_json(project: &Path, rel: &str) -> serde_json::Value {
 /// inline-table style — switching its input format would require rewriting
 /// the assertions that format exists to support, not just where the
 /// scaffold code lives.
-pub fn scaffold_multi_pack(pack_names: &[&str]) -> (TempDir, PathBuf) {
+pub(crate) fn scaffold_multi_pack(pack_names: &[&str]) -> (TempDir, PathBuf) {
     use std::fmt::Write as _;
 
     let dir = TempDir::new().expect("tempdir");
@@ -133,7 +133,7 @@ pub fn scaffold_multi_pack(pack_names: &[&str]) -> (TempDir, PathBuf) {
 /// own local scaffold function for that reason; forcing every shape through
 /// one wrapper would silently change what's being tested, not just where the
 /// code lives.
-pub fn scaffold_pack_with_ontology(pack_src_dir: &Path, ontology: &str) -> (TempDir, PathBuf) {
+pub(crate) fn scaffold_pack_with_ontology(pack_src_dir: &Path, ontology: &str) -> (TempDir, PathBuf) {
     let (dir, project) = scaffold_pack(pack_src_dir);
     std::fs::write(project.join("ontology.ttl"), ontology).expect("write ontology.ttl");
     (dir, project)
@@ -141,7 +141,7 @@ pub fn scaffold_pack_with_ontology(pack_src_dir: &Path, ontology: &str) -> (Temp
 
 /// Count `*.md` files directly inside `dir` (non-recursive) — used for
 /// fan-out doc assertions (`docs/.../resources/*.md`-style outputs).
-pub fn count_md_files(dir: &Path) -> usize {
+pub(crate) fn count_md_files(dir: &Path) -> usize {
     std::fs::read_dir(dir)
         .unwrap_or_else(|e| panic!("read_dir {}: {e}", dir.display()))
         .filter_map(std::result::Result::ok)
@@ -153,7 +153,7 @@ pub fn count_md_files(dir: &Path) -> usize {
 /// (one `dom:<class_name> a dom:DomainClass` triple), and a single
 /// `templates/<class_name lowercased>.rs.tmpl` whose frontmatter is just
 /// `to: <to_path>` and whose body is `body` verbatim.
-pub fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &str, body: &str) {
+pub(crate) fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &str, body: &str) {
     let pack_dir = root.join(name);
     std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
 
@@ -185,7 +185,7 @@ pub fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &str, body
 /// under the fixed alias `pack-a`, with no `lock` key declared (exercises
 /// the `#[serde(default = "default_true")]` path, not an explicit `lock =
 /// true`).
-pub fn write_single_pack_project(root: &Path, project_name: &str, pack_name: &str) -> PathBuf {
+pub(crate) fn write_single_pack_project(root: &Path, project_name: &str, pack_name: &str) -> PathBuf {
     let project = root.join(project_name);
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
@@ -205,7 +205,7 @@ pub fn write_single_pack_project(root: &Path, project_name: &str, pack_name: &st
 /// Write `root/two-pack-project/` referencing `pack_a`/`pack_b` (fixed
 /// aliases `pack-a`/`pack-b`) by relative path, plus an empty ontology and
 /// templates dir of its own.
-pub fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) -> PathBuf {
+pub(crate) fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) -> PathBuf {
     let project = root.join("two-pack-project");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
@@ -226,7 +226,7 @@ pub fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) -> PathBu
 /// it is a true no-op: nothing written, and `ggen.lock` is byte-identical to
 /// its state before this call. Returns the (unchanged) lock content for
 /// callers that want to chain further assertions.
-pub fn assert_idempotent(project: &Path) -> String {
+pub(crate) fn assert_idempotent(project: &Path) -> String {
     let lock_before =
         std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock must exist");
     let second = sync(
@@ -264,7 +264,7 @@ pub fn assert_idempotent(project: &Path) -> String {
 /// `<pack>_pack_e2e.rs` template uses) it means "byte-identical to the
 /// legitimate prior lock", not "must not exist" — a real `ggen.lock` from
 /// an earlier successful sync is not itself partial state.
-pub fn assert_gate_refuses(project: &Path, sabotage_ttl: &str, gate_name_fragment: &str) {
+pub(crate) fn assert_gate_refuses(project: &Path, sabotage_ttl: &str, gate_name_fragment: &str) {
     let lock_path = project.join("ggen.lock");
     let lock_before = std::fs::read_to_string(&lock_path).ok();
 

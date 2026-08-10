@@ -1,4 +1,53 @@
 [pack]
 name = "dspy-pack"
-version = "0.1.0"
-description = "Ontology-driven DSPy generation with admitted typed signatures, input/output fields, and closed module kinds for modular LM programs."
+version = "0.4.0"
+description = """
+Universal DSPy generation vocabulary, verified against the real installed dspy 3.1.3 source tree
+(not docs prose) via inspect.signature() on every admitted constructor and compile() method, and
+real object construction against actual dspy classes. Pure law -- ontology.ttl ships zero
+individuals, so composing this pack cannot inject any signature, module, or optimizer into a
+consumer's generated src/dspy_program.py / src/dspy_optimize.py. A consumer project supplies its
+own individuals against this vocabulary in its own .ttl.
+
+dspy:Signature/InputField/OutputField -- typed fields admit a primitive dspy:pythonType
+(str/int/float/bool), a Literal[...]/List[Literal[...]] enum (dspy:hasLiteralOption), int
+ge/le bounds (dspy:geInt/leInt), or a generated pydantic.BaseModel type
+(dspy:hasPydanticModelType) -- exactly one of the three per field.
+
+dspy:Module -- 9 of dspy 3.1.3's 11 real Module classes: Predict, ChainOfThought, ReAct (with
+dspy:usesMCPServer -> dspy:MCPServerConnection for MCP tool discovery, per dspy.ai's "DSPy + MCP"
+tutorial), ProgramOfThought, MultiChainComparison, RLM, CodeAct (with dspy:hasLocalTool
+scaffolded stubs), and BestOfN/Refine (which wrap another Module via dspy:wrapsModule instead of
+a Signature). dspy.KNN and dspy.Parallel are NOT admitted -- neither takes a Signature at
+construction, confirmed by inspecting both real constructors.
+
+dspy:Optimizer -- 14 of dspy 3.1.3's 16 real Teleprompter subclasses: GEPA, GRPO, BootstrapFewShot,
+BootstrapFewShotWithRandomSearch, BootstrapFewShotWithOptuna, BootstrapFinetune, COPRO,
+SignatureOptimizer, MIPROv2, AvatarOptimizer, BetterTogether (wraps another Optimizer via
+dspy:wrapsPromptOptimizer/wrapsWeightOptimizer), InferRules, SIMBA, LabeledFewShot. Each
+optimizer's real, per-kind constructor AND compile() parameter names are followed exactly --
+these vary meaningfully (SignatureOptimizer's compile() takes devset= not trainset=; COPRO/
+SignatureOptimizer require an eval_kwargs dict; BootstrapFewShotWithOptuna's compile() requires
+max_demos). dspy.Ensemble and dspy.KNNFewShot are NOT admitted -- Ensemble's real compile(programs)
+takes a list of programs, not one student+trainset; KNNFewShot needs a real vectorizer+trainset
+object, not RDF-representable. Three real UPSTREAM dspy 3.1.3 defects are documented as caveats
+directly on the relevant ontology properties (not hidden): SignatureOptimizer is unexported and
+its deprecated shim is broken; AvatarOptimizer calls a removed dspy.TypedPredictor; BetterTogether
+has a narrower runtime optimizer whitelist than its type signature suggests.
+
+Metric/reward function BODIES, tool bodies, and trainset/valset/devset/eval_kwargs contents are
+deliberately out of ontology scope (arbitrary, consumer-owned inputs) -- ggen scaffolds
+NotImplementedError stubs and named placeholders in src/dspy_optimize.py.
+
+Covers dspy.ai's own tutorials verbatim (fetched/verified 2026-08-10): general Predict/
+ChainOfThought modeling, MCP tool use (https://dspy.ai/tutorials/mcp/), GEPA optimization
+(https://dspy.ai/tutorials/gepa_ai_program/), RL/GRPO optimization
+(https://dspy.ai/tutorials/rl_ai_program/), and two GEPA worked examples --
+gepa_facilitysupportanalyzer (Literal/List[Literal] enum fields) and gepa_trusted_monitor (int
+ge/le bounds). Seven real, generated-and-tested example fixtures (ontology.ttl + ggen.toml, one
+per fixture family: MCP/ReAct, GEPA Literal fields, all 9 Module kinds, three optimizer families,
+Pydantic model fields) live in the ggen monorepo's own examples/<name>/ directories and are
+wired into that repo's `cargo test` suite (crates/ggen-engine/tests/dspy_pack_e2e.rs) -- each
+verified this pack version by running the real `ggen sync` pipeline and constructing the real
+generated dspy objects with zero exceptions.
+"""

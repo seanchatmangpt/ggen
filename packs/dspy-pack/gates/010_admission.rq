@@ -1,6 +1,7 @@
 # MESSAGE: DSPy signatures, fields, and modules must be dependency-closed, typed, and renderable as valid Python identifiers. Any row is a refusal.
 PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT ?subject ?violation WHERE {
   {
     ?subject a dspy:Signature .
@@ -10,17 +11,78 @@ SELECT ?subject ?violation WHERE {
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
   } UNION {
     ?subject a ?fieldType .
-    VALUES ?fieldType { dspy:InputField dspy:OutputField }
+    VALUES ?fieldType { dspy:InputField dspy:OutputField dspy:PydanticModelField }
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
-    VALUES ?property { dspy:name dspy:pythonType dcterms:description }
+    VALUES ?property { dspy:name dcterms:description }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
   } UNION {
-    ?subject a dspy:Module .
+    ?subject a ?fieldType .
+    VALUES ?fieldType { dspy:InputField dspy:OutputField }
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
-    VALUES ?property { dspy:name dspy:kind dspy:signature dcterms:description }
+    FILTER NOT EXISTS { ?subject dspy:pythonType ?t }
+    FILTER NOT EXISTS { ?subject dspy:hasLiteralOption ?o }
+    FILTER NOT EXISTS { ?subject dspy:hasPydanticModelType ?m }
+    BIND("field must have exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType" AS ?violation)
+  } UNION {
+    ?subject a dspy:PydanticModelField .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER NOT EXISTS { ?subject dspy:pythonType ?t }
+    BIND("PydanticModelField missing required dspy:pythonType (nested model fields are out of scope)" AS ?violation)
+  } UNION {
+    ?subject dspy:pythonType ?t ; dspy:hasLiteralOption ?o .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    BIND("field must have exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType, not more than one" AS ?violation)
+  } UNION {
+    ?subject dspy:pythonType ?t ; dspy:hasPydanticModelType ?m .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    BIND("field must have exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType, not more than one" AS ?violation)
+  } UNION {
+    ?subject dspy:hasLiteralOption ?o ; dspy:hasPydanticModelType ?m .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    BIND("field must have exactly one of dspy:pythonType, dspy:hasLiteralOption, or dspy:hasPydanticModelType, not more than one" AS ?violation)
+  } UNION {
+    ?subject dspy:hasPydanticModelType ?model .
+    FILTER NOT EXISTS { ?model a dspy:PydanticModel }
+    BIND("hasPydanticModelType target is not a dspy:PydanticModel" AS ?violation)
+  } UNION {
+    ?subject a dspy:PydanticModel .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:pydanticClassName dspy:hasModelField dcterms:description }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:PydanticModel ; dspy:pydanticClassName ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("pydanticClassName is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:PydanticModel ; dspy:hasModelField ?field .
+    FILTER NOT EXISTS { ?field a dspy:PydanticModelField }
+    BIND("hasModelField target is not a dspy:PydanticModelField" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:kind dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?kind { "Predict" "ChainOfThought" "ReAct" "ProgramOfThought" "MultiChainComparison" "RLM" "CodeAct" }
+    FILTER NOT EXISTS { ?subject dspy:signature ?s }
+    BIND(CONCAT(STR(?kind), " module missing required dspy:signature") AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?kind { "BestOfN" "Refine" }
+    VALUES ?property { dspy:wrapsModule dspy:rewardFunction dspy:refineN dspy:refineThreshold }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT(STR(?kind), " module missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:signature ?s ; dspy:wrapsModule ?w .
+    BIND("module must have exactly one of dspy:signature or dspy:wrapsModule, not both" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "CodeAct" .
+    FILTER NOT EXISTS { ?subject dspy:hasLocalTool ?tool }
+    BIND("CodeAct module missing required dspy:hasLocalTool (dspy.CodeAct's real 'tools' parameter has no default)" AS ?violation)
   } UNION {
     ?subject a dspy:Signature ; dspy:hasInput ?field .
     FILTER NOT EXISTS { ?field a dspy:InputField }
@@ -34,6 +96,72 @@ SELECT ?subject ?violation WHERE {
     FILTER NOT EXISTS { ?signature a dspy:Signature }
     BIND("module signature target is not a dspy:Signature" AS ?violation)
   } UNION {
+    ?subject a dspy:Module ; dspy:wrapsModule ?wrapped .
+    FILTER NOT EXISTS { ?wrapped a dspy:Module }
+    BIND("wrapsModule target is not a dspy:Module" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind ; dspy:maxIters ?value .
+    FILTER(?kind NOT IN ("ReAct", "ProgramOfThought", "CodeAct"))
+    BIND("only ReAct/ProgramOfThought/CodeAct modules may declare dspy:maxIters" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:maxIters ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("maxIters is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:comparisonM dspy:comparisonTemperature }
+    ?subject ?property ?value .
+    FILTER(?kind != "MultiChainComparison")
+    BIND(CONCAT("only a MultiChainComparison module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:comparisonM ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("comparisonM is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:maxIterations dspy:maxLlmCalls dspy:maxOutputChars dspy:verboseFlag }
+    ?subject ?property ?value .
+    FILTER(?kind != "RLM")
+    BIND(CONCAT("only an RLM module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module .
+    VALUES ?property { dspy:maxIterations dspy:maxLlmCalls dspy:maxOutputChars }
+    ?subject ?property ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND(CONCAT(STR(?property), " is not a positive integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind ; dspy:hasLocalTool ?tool .
+    FILTER(?kind != "CodeAct")
+    BIND("only a CodeAct module may declare dspy:hasLocalTool" AS ?violation)
+  } UNION {
+    ?subject dspy:hasLocalTool ?tool .
+    FILTER NOT EXISTS { ?tool a dspy:LocalTool }
+    BIND("hasLocalTool target is not a dspy:LocalTool" AS ?violation)
+  } UNION {
+    ?subject a dspy:LocalTool .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:wrapsModule dspy:rewardFunction dspy:refineN dspy:refineThreshold dspy:refineFailCount }
+    ?subject ?property ?value .
+    FILTER(?kind NOT IN ("BestOfN", "Refine"))
+    BIND(CONCAT("only a BestOfN/Refine module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:rewardFunction ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("rewardFunction is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:refineN ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("refineN is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:refineFailCount ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND("refineFailCount is not a non-negative integer" AS ?violation)
+  } UNION {
     ?subject dspy:name ?value .
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
     FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
@@ -44,12 +172,290 @@ SELECT ?subject ?violation WHERE {
     BIND("className is not a Python identifier" AS ?violation)
   } UNION {
     ?subject a dspy:Module ; dspy:kind ?value .
-    FILTER(STR(?value) NOT IN ("Predict", "ChainOfThought"))
+    FILTER(STR(?value) NOT IN ("Predict", "ChainOfThought", "ReAct", "ProgramOfThought", "MultiChainComparison", "RLM", "CodeAct", "BestOfN", "Refine"))
     BIND("kind is outside the admitted module set" AS ?violation)
   } UNION {
     ?subject dspy:pythonType ?value .
     FILTER(STR(?value) NOT IN ("str", "int", "float", "bool"))
     BIND("pythonType is outside the admitted primitive set" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "ReAct" .
+    FILTER NOT EXISTS { ?subject dspy:usesMCPServer ?server }
+    BIND("ReAct module missing dspy:usesMCPServer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind ; dspy:usesMCPServer ?server .
+    FILTER(?kind != "ReAct")
+    BIND("only a ReAct module may declare dspy:usesMCPServer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:usesMCPServer ?server .
+    FILTER NOT EXISTS { ?server a dspy:MCPServerConnection }
+    BIND("usesMCPServer target is not a dspy:MCPServerConnection" AS ?violation)
+  } UNION {
+    ?subject a dspy:MCPServerConnection .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:command dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:MCPServerConnection ; dspy:hasArg ?arg .
+    FILTER NOT EXISTS { ?arg a dspy:ServerArg }
+    BIND("hasArg target is not a dspy:ServerArg" AS ?violation)
+  } UNION {
+    ?subject a dspy:ServerArg .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:argIndex dspy:argValue }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:ServerArg ; dspy:argIndex ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND("argIndex is not a non-negative integer" AS ?violation)
+  } UNION {
+    ?subject dspy:hasLiteralOption ?option .
+    FILTER NOT EXISTS { ?option a dspy:LiteralOption }
+    BIND("hasLiteralOption target is not a dspy:LiteralOption" AS ?violation)
+  } UNION {
+    ?subject a dspy:LiteralOption .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:optionIndex dspy:optionValue }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:LiteralOption ; dspy:optionIndex ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND("optionIndex is not a non-negative integer" AS ?violation)
+  } UNION {
+    ?subject dspy:isListType ?value .
+    FILTER NOT EXISTS { ?subject dspy:hasLiteralOption ?o }
+    BIND("only a field with dspy:hasLiteralOption may declare dspy:isListType" AS ?violation)
+  } UNION {
+    ?subject dspy:geInt ?value .
+    FILTER(!EXISTS { ?subject dspy:pythonType "int" })
+    BIND("dspy:geInt is only valid when dspy:pythonType is \"int\"" AS ?violation)
+  } UNION {
+    ?subject dspy:leInt ?value .
+    FILTER(!EXISTS { ?subject dspy:pythonType "int" })
+    BIND("dspy:leInt is only valid when dspy:pythonType is \"int\"" AS ?violation)
+  } UNION {
+    ?subject dspy:geInt ?ge ; dspy:leInt ?le .
+    FILTER(?ge > ?le)
+    BIND("dspy:geInt must be <= dspy:leInt" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:kind dspy:optimizes dspy:metricFunction dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?value .
+    FILTER(STR(?value) NOT IN (
+      "GEPA", "GRPO", "BootstrapFewShot", "BootstrapFewShotWithRandomSearch",
+      "BootstrapFewShotWithOptuna", "BootstrapFinetune", "COPRO", "SignatureOptimizer",
+      "MIPROv2", "AvatarOptimizer", "BetterTogether", "InferRules", "SIMBA", "LabeledFewShot"
+    ))
+    BIND("optimizer kind is outside the admitted set" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:optimizes ?module .
+    FILTER NOT EXISTS { ?module a dspy:Module }
+    BIND("optimizes target is not a dspy:Module" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:metricFunction ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("metricFunction is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:auto ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:auto" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:auto ?value .
+    FILTER(STR(?value) NOT IN ("light", "medium", "heavy"))
+    BIND("auto is outside the admitted budget set" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:reflectionModel ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:reflectionModel" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:trackStats ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:trackStats" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:numTrainSteps ?value .
+    FILTER(?kind != "GRPO")
+    BIND("only a GRPO optimizer may declare dspy:numTrainSteps" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:numTrainSteps ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("numTrainSteps is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:numThreads ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("numThreads is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:useMerge ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:useMerge" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:maxFullEvals ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:maxFullEvals" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:maxFullEvals ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("maxFullEvals is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:auto ?a ; dspy:maxFullEvals ?m .
+    BIND("dspy:auto and dspy:maxFullEvals are mutually exclusive (dspy.GEPA requires exactly one of auto/max_full_evals/max_metric_calls)" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind "GEPA" .
+    FILTER NOT EXISTS { ?subject dspy:auto ?a }
+    FILTER NOT EXISTS { ?subject dspy:maxFullEvals ?m }
+    BIND("a GEPA optimizer must declare exactly one of dspy:auto or dspy:maxFullEvals" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:reflectionMinibatchSize ?value .
+    FILTER(?kind != "GEPA")
+    BIND("only a GEPA optimizer may declare dspy:reflectionMinibatchSize" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:reflectionMinibatchSize ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("reflectionMinibatchSize is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:multitask ?value .
+    FILTER(?kind != "GRPO")
+    BIND("only a GRPO optimizer may declare dspy:multitask" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:excludeDemos ?value .
+    FILTER(?kind != "GRPO")
+    BIND("only a GRPO optimizer may declare dspy:excludeDemos" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:useTrainAsVal ?value .
+    FILTER(?kind != "GRPO")
+    BIND("only a GRPO optimizer may declare dspy:useTrainAsVal" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind "BootstrapFewShotWithOptuna" .
+    FILTER NOT EXISTS { ?subject dspy:compileMaxDemos ?v }
+    BIND("BootstrapFewShotWithOptuna optimizer missing required dspy:compileMaxDemos (its real compile() 'max_demos' has no default)" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:maxBootstrappedDemos dspy:maxLabeledDemos }
+    ?subject ?property ?value .
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna", "MIPROv2"))
+    BIND(CONCAT("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna/MIPROv2 may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:maxRounds ?value .
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna"))
+    BIND("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna may declare dspy:maxRounds" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:optimizerMaxErrors ?value .
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "MIPROv2"))
+    BIND("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/MIPROv2 may declare dspy:optimizerMaxErrors" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:metricThreshold ?value .
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch"))
+    BIND("only BootstrapFewShot/BootstrapFewShotWithRandomSearch may declare dspy:metricThreshold" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:numCandidatePrograms ?value .
+    FILTER(?kind NOT IN ("BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna"))
+    BIND("only BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna may declare dspy:numCandidatePrograms" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:stopAtScore ?value .
+    FILTER(?kind != "BootstrapFewShotWithRandomSearch")
+    BIND("only a BootstrapFewShotWithRandomSearch optimizer may declare dspy:stopAtScore" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:multitaskFinetune ?value .
+    FILTER(?kind != "BootstrapFinetune")
+    BIND("only a BootstrapFinetune optimizer may declare dspy:multitaskFinetune" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:promptModel ?value .
+    FILTER(?kind NOT IN ("COPRO", "SignatureOptimizer", "MIPROv2", "SIMBA"))
+    BIND("only COPRO/SignatureOptimizer/MIPROv2/SIMBA may declare dspy:promptModel" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:taskModel ?value .
+    FILTER(?kind != "MIPROv2")
+    BIND("only an MIPROv2 optimizer may declare dspy:taskModel" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:breadth dspy:depth dspy:initTemperature }
+    ?subject ?property ?value .
+    FILTER(?kind NOT IN ("COPRO", "SignatureOptimizer"))
+    BIND(CONCAT("only COPRO/SignatureOptimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:optimizerVerbose ?value .
+    FILTER(?kind NOT IN ("SignatureOptimizer", "MIPROv2"))
+    BIND("only SignatureOptimizer/MIPROv2 may declare dspy:optimizerVerbose" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:numCandidates ?value .
+    FILTER(?kind NOT IN ("MIPROv2", "InferRules", "SIMBA"))
+    BIND("only MIPROv2/InferRules/SIMBA may declare dspy:numCandidates" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:seedInt ?value .
+    FILTER(?kind NOT IN ("MIPROv2", "BetterTogether"))
+    BIND("only MIPROv2/BetterTogether may declare dspy:seedInt" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:logDir ?value .
+    FILTER(?kind != "MIPROv2")
+    BIND("only an MIPROv2 optimizer may declare dspy:logDir" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:avatarMaxIters dspy:lowerBound dspy:upperBound dspy:maxPositiveInputs dspy:maxNegativeInputs dspy:optimizeFor }
+    ?subject ?property ?value .
+    FILTER(?kind != "AvatarOptimizer")
+    BIND(CONCAT("only an AvatarOptimizer optimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:optimizeFor ?value .
+    FILTER(STR(?value) NOT IN ("max", "min"))
+    BIND("optimizeFor is outside the admitted set" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:wrapsPromptOptimizer dspy:wrapsWeightOptimizer }
+    ?subject ?property ?value .
+    FILTER(?kind != "BetterTogether")
+    BIND(CONCAT("only a BetterTogether optimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject dspy:wrapsPromptOptimizer ?value .
+    FILTER NOT EXISTS { ?value a dspy:Optimizer }
+    BIND("wrapsPromptOptimizer target is not a dspy:Optimizer" AS ?violation)
+  } UNION {
+    ?subject dspy:wrapsWeightOptimizer ?value .
+    FILTER NOT EXISTS { ?value a dspy:Optimizer }
+    BIND("wrapsWeightOptimizer target is not a dspy:Optimizer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:numRules ?value .
+    FILTER(?kind != "InferRules")
+    BIND("only an InferRules optimizer may declare dspy:numRules" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:bsize dspy:maxSteps dspy:maxDemos dspy:demoInputFieldMaxlen dspy:temperatureForSampling dspy:temperatureForCandidates }
+    ?subject ?property ?value .
+    FILTER(?kind != "SIMBA")
+    BIND(CONCAT("only a SIMBA optimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:compileMaxDemos ?value .
+    FILTER(?kind != "BootstrapFewShotWithOptuna")
+    BIND("only a BootstrapFewShotWithOptuna optimizer may declare dspy:compileMaxDemos" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:kValue ?value .
+    FILTER(?kind != "LabeledFewShot")
+    BIND("only a LabeledFewShot optimizer may declare dspy:kValue" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer .
+    VALUES ?property { dspy:maxBootstrappedDemos dspy:maxLabeledDemos dspy:maxRounds dspy:optimizerMaxErrors
+                        dspy:numCandidatePrograms dspy:breadth dspy:depth dspy:numCandidates
+                        dspy:avatarMaxIters dspy:maxPositiveInputs
+                        dspy:maxNegativeInputs dspy:numRules dspy:bsize dspy:maxSteps dspy:maxDemos
+                        dspy:demoInputFieldMaxlen dspy:compileMaxDemos dspy:kValue }
+    ?subject ?property ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND(CONCAT(STR(?property), " is not a positive integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:seedInt ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND("seedInt is not a non-negative integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer .
+    VALUES ?property { dspy:lowerBound dspy:upperBound }
+    ?subject ?property ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND(CONCAT(STR(?property), " is not a non-negative integer") AS ?violation)
   }
 }
 ORDER BY ?subject ?violation

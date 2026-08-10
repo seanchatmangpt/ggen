@@ -1,0 +1,237 @@
+---
+to: src/dspy_optimize.py
+sparql:
+  moduleImports: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT DISTINCT ?moduleName WHERE { ?opt a dspy:Optimizer ; dspy:optimizes ?module . ?module dspy:name ?moduleName . } ORDER BY ?moduleName"
+  metricStubs: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT DISTINCT ?name ?kind ?metricFunction WHERE { ?opt a dspy:Optimizer ; dspy:name ?name ; dspy:kind ?kind ; dspy:metricFunction ?metricFunction . } ORDER BY ?metricFunction"
+  gepaOptimizers: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?moduleName ?metricFunction ?auto ?reflectionModel ?trackStats ?numThreads ?useMerge ?maxFullEvals ?reflectionMinibatchSize WHERE { ?opt a dspy:Optimizer ; dspy:kind \"GEPA\" ; dspy:name ?name ; dcterms:description ?description ; dspy:optimizes ?module ; dspy:metricFunction ?metricFunction . ?module dspy:name ?moduleName . OPTIONAL { ?opt dspy:auto ?auto } OPTIONAL { ?opt dspy:reflectionModel ?reflectionModel } OPTIONAL { ?opt dspy:trackStats ?trackStats } OPTIONAL { ?opt dspy:numThreads ?numThreads } OPTIONAL { ?opt dspy:useMerge ?useMerge } OPTIONAL { ?opt dspy:maxFullEvals ?maxFullEvals } OPTIONAL { ?opt dspy:reflectionMinibatchSize ?reflectionMinibatchSize } } ORDER BY ?name"
+  grpoOptimizers: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?moduleName ?metricFunction ?numTrainSteps ?numThreads ?multitask ?excludeDemos ?useTrainAsVal WHERE { ?opt a dspy:Optimizer ; dspy:kind \"GRPO\" ; dspy:name ?name ; dcterms:description ?description ; dspy:optimizes ?module ; dspy:metricFunction ?metricFunction . ?module dspy:name ?moduleName . OPTIONAL { ?opt dspy:numTrainSteps ?numTrainSteps } OPTIONAL { ?opt dspy:numThreads ?numThreads } OPTIONAL { ?opt dspy:multitask ?multitask } OPTIONAL { ?opt dspy:excludeDemos ?excludeDemos } OPTIONAL { ?opt dspy:useTrainAsVal ?useTrainAsVal } } ORDER BY ?name"
+  otherOptimizers: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?kind ?description ?moduleName ?metricFunction ?maxBootstrappedDemos ?maxLabeledDemos ?maxRounds ?optimizerMaxErrors ?metricThreshold ?numCandidatePrograms ?stopAtScore ?multitaskFinetune ?promptModel ?breadth ?depth ?initTemperature ?optimizerVerbose ?numCandidates ?taskModel ?seedInt ?logDir ?avatarMaxIters ?lowerBound ?upperBound ?maxPositiveInputs ?maxNegativeInputs ?optimizeFor ?numRules ?bsize ?maxSteps ?maxDemos ?demoInputFieldMaxlen ?temperatureForSampling ?temperatureForCandidates ?compileMaxDemos ?kValue ?numThreads WHERE { ?opt a dspy:Optimizer ; dspy:name ?name ; dspy:kind ?kind ; dcterms:description ?description ; dspy:optimizes ?module ; dspy:metricFunction ?metricFunction . ?module dspy:name ?moduleName . FILTER(?kind NOT IN (\"GEPA\", \"GRPO\", \"BetterTogether\")) OPTIONAL { ?opt dspy:maxBootstrappedDemos ?maxBootstrappedDemos } OPTIONAL { ?opt dspy:maxLabeledDemos ?maxLabeledDemos } OPTIONAL { ?opt dspy:maxRounds ?maxRounds } OPTIONAL { ?opt dspy:optimizerMaxErrors ?optimizerMaxErrors } OPTIONAL { ?opt dspy:metricThreshold ?metricThreshold } OPTIONAL { ?opt dspy:numCandidatePrograms ?numCandidatePrograms } OPTIONAL { ?opt dspy:stopAtScore ?stopAtScore } OPTIONAL { ?opt dspy:multitaskFinetune ?multitaskFinetune } OPTIONAL { ?opt dspy:promptModel ?promptModel } OPTIONAL { ?opt dspy:breadth ?breadth } OPTIONAL { ?opt dspy:depth ?depth } OPTIONAL { ?opt dspy:initTemperature ?initTemperature } OPTIONAL { ?opt dspy:optimizerVerbose ?optimizerVerbose } OPTIONAL { ?opt dspy:numCandidates ?numCandidates } OPTIONAL { ?opt dspy:taskModel ?taskModel } OPTIONAL { ?opt dspy:seedInt ?seedInt } OPTIONAL { ?opt dspy:logDir ?logDir } OPTIONAL { ?opt dspy:avatarMaxIters ?avatarMaxIters } OPTIONAL { ?opt dspy:lowerBound ?lowerBound } OPTIONAL { ?opt dspy:upperBound ?upperBound } OPTIONAL { ?opt dspy:maxPositiveInputs ?maxPositiveInputs } OPTIONAL { ?opt dspy:maxNegativeInputs ?maxNegativeInputs } OPTIONAL { ?opt dspy:optimizeFor ?optimizeFor } OPTIONAL { ?opt dspy:numRules ?numRules } OPTIONAL { ?opt dspy:bsize ?bsize } OPTIONAL { ?opt dspy:maxSteps ?maxSteps } OPTIONAL { ?opt dspy:maxDemos ?maxDemos } OPTIONAL { ?opt dspy:demoInputFieldMaxlen ?demoInputFieldMaxlen } OPTIONAL { ?opt dspy:temperatureForSampling ?temperatureForSampling } OPTIONAL { ?opt dspy:temperatureForCandidates ?temperatureForCandidates } OPTIONAL { ?opt dspy:compileMaxDemos ?compileMaxDemos } OPTIONAL { ?opt dspy:kValue ?kValue } OPTIONAL { ?opt dspy:numThreads ?numThreads } } ORDER BY ?name"
+  betterTogetherOptimizers: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?moduleName ?metricFunction ?seedInt ?promptOptimizerName ?weightOptimizerName WHERE { ?opt a dspy:Optimizer ; dspy:kind \"BetterTogether\" ; dspy:name ?name ; dcterms:description ?description ; dspy:optimizes ?module ; dspy:metricFunction ?metricFunction . ?module dspy:name ?moduleName . OPTIONAL { ?opt dspy:seedInt ?seedInt } OPTIONAL { ?opt dspy:wrapsPromptOptimizer/dspy:name ?promptOptimizerName } OPTIONAL { ?opt dspy:wrapsWeightOptimizer/dspy:name ?weightOptimizerName } } ORDER BY ?name"
+---
+# GENERATED by ggen from dspy-pack/ontology.ttl. Do not hand-edit.
+#
+# GEPA construction follows dspy.ai's own GEPA tutorial/API reference exactly
+# (https://dspy.ai/tutorials/gepa_ai_program/, https://dspy.ai/api/optimizers/GEPA/overview/):
+# dspy.GEPA(metric=..., auto=..., reflection_lm=dspy.LM(...), track_stats=...).compile(
+# student=..., trainset=..., valset=...).
+#
+# GRPO construction follows dspy.ai's own RL/GRPO tutorial exactly
+# (https://dspy.ai/tutorials/rl_ai_program/, https://dspy.ai/tutorials/rl_papillon/):
+# dspy.GRPO(metric=..., multitask=..., num_train_steps=..., num_threads=...,
+# exclude_demos=..., use_train_as_val=...).compile(student=..., trainset=..., valset=...).
+#
+# All other optimizer kinds below are constructed and compiled with each kind's REAL
+# constructor and compile() parameter names (dspy 3.1.3, verified via inspect.signature() on
+# both __init__ and compile() -- these vary meaningfully: some omit valset, SignatureOptimizer's
+# real compile() takes 'devset' not 'trainset', COPRO/SignatureOptimizer require an
+# 'eval_kwargs' dict (rendered here as an empty-dict placeholder), BootstrapFewShotWithOptuna's
+# compile() requires 'max_demos'.
+#
+# Metric/reward function bodies, trainset/valset/devset, and eval_kwargs contents are
+# deliberately NOT admitted here -- arbitrary, consumer-owned inputs, out of ontology scope
+# (the same "constructs but does not configure/invoke an LM" boundary dspy_program.py draws).
+from __future__ import annotations
+
+import dspy
+
+from .dspy_program import (
+{% for m in moduleImports %}    {{ m.moduleName }},
+{% endfor %})
+
+# Bind these before running this module.
+trainset = []  # list[dspy.Example]
+valset = []  # list[dspy.Example]
+devset = []  # list[dspy.Example]
+
+{% for m in metricStubs %}{% if m.kind == "GEPA" %}
+def {{ m.metricFunction }}(gold, pred, trace=None, pred_name=None, pred_trace=None):
+    """GEPA metric for {{ m.name }}. Hand-complete: ggen only scaffolds the signature.
+
+    Real dspy.GEPA constructor-time validation (dspy 3.1.3,
+    dspy.teleprompt.gepa.gepa.GEPAFeedbackMetric) requires exactly this 5-argument shape --
+    (gold, pred, trace, pred_name, pred_trace) -- distinct from a plain BootstrapFewShot-style
+    3-argument metric. Return a float score, or dspy.Prediction(score=..., feedback=...) for
+    predictor-level feedback.
+    """
+    raise NotImplementedError("Fill in the {{ m.metricFunction }} metric for {{ m.name }}.")
+
+{% else %}
+def {{ m.metricFunction }}(example, prediction, trace=None):
+    """Metric for {{ m.name }} ({{ m.kind }}). Hand-complete: ggen only scaffolds the signature."""
+    raise NotImplementedError("Fill in the {{ m.metricFunction }} metric for {{ m.name }}.")
+
+{% endif %}{% endfor %}
+{% for g in gepaOptimizers %}
+{{ g.name }}_optimizer = dspy.GEPA(
+    metric={{ g.metricFunction }},
+{% if g.auto is defined %}    auto={{ g.auto | json_encode | safe }},
+{% endif %}{% if g.maxFullEvals is defined %}    max_full_evals={{ g.maxFullEvals }},
+{% endif %}{% if g.reflectionMinibatchSize is defined %}    reflection_minibatch_size={{ g.reflectionMinibatchSize }},
+{% endif %}{% if g.reflectionModel is defined %}    reflection_lm=dspy.LM({{ g.reflectionModel | json_encode | safe }}),
+{% endif %}{% if g.numThreads is defined %}    num_threads={{ g.numThreads }},
+{% endif %}{% if g.useMerge is defined %}{% if g.useMerge %}    use_merge=True,
+{% else %}    use_merge=False,
+{% endif %}{% endif %}{% if g.trackStats is defined and g.trackStats %}    track_stats=True,
+{% endif %})
+
+# {{ g.description }}
+{{ g.name }} = {{ g.name }}_optimizer.compile(student={{ g.moduleName }}, trainset=trainset, valset=valset)
+{% endfor %}
+{% for r in grpoOptimizers %}
+{{ r.name }}_optimizer = dspy.GRPO(
+    metric={{ r.metricFunction }},
+{% if r.multitask is defined and r.multitask %}    multitask=True,
+{% endif %}{% if r.numTrainSteps is defined %}    num_train_steps={{ r.numTrainSteps }},
+{% endif %}{% if r.numThreads is defined %}    num_threads={{ r.numThreads }},
+{% endif %}{% if r.excludeDemos is defined and r.excludeDemos %}    exclude_demos=True,
+{% endif %}{% if r.useTrainAsVal is defined and r.useTrainAsVal %}    use_train_as_val=True,
+{% endif %})
+
+# {{ r.description }}
+{{ r.name }} = {{ r.name }}_optimizer.compile(student={{ r.moduleName }}, trainset=trainset, valset=devset)
+{% endfor %}
+{% for o in otherOptimizers %}
+{% if o.kind == "BootstrapFewShot" %}
+{{ o.name }}_optimizer = dspy.BootstrapFewShot(
+    metric={{ o.metricFunction }},
+{% if o.metricThreshold is defined %}    metric_threshold={{ o.metricThreshold }},
+{% endif %}{% if o.maxBootstrappedDemos is defined %}    max_bootstrapped_demos={{ o.maxBootstrappedDemos }},
+{% endif %}{% if o.maxLabeledDemos is defined %}    max_labeled_demos={{ o.maxLabeledDemos }},
+{% endif %}{% if o.maxRounds is defined %}    max_rounds={{ o.maxRounds }},
+{% endif %}{% if o.optimizerMaxErrors is defined %}    max_errors={{ o.optimizerMaxErrors }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset)
+{% elif o.kind == "BootstrapFewShotWithRandomSearch" %}
+{{ o.name }}_optimizer = dspy.BootstrapFewShotWithRandomSearch(
+    metric={{ o.metricFunction }},
+{% if o.maxBootstrappedDemos is defined %}    max_bootstrapped_demos={{ o.maxBootstrappedDemos }},
+{% endif %}{% if o.maxLabeledDemos is defined %}    max_labeled_demos={{ o.maxLabeledDemos }},
+{% endif %}{% if o.maxRounds is defined %}    max_rounds={{ o.maxRounds }},
+{% endif %}{% if o.numCandidatePrograms is defined %}    num_candidate_programs={{ o.numCandidatePrograms }},
+{% endif %}{% if o.numThreads is defined %}    num_threads={{ o.numThreads }},
+{% endif %}{% if o.optimizerMaxErrors is defined %}    max_errors={{ o.optimizerMaxErrors }},
+{% endif %}{% if o.stopAtScore is defined %}    stop_at_score={{ o.stopAtScore }},
+{% endif %}{% if o.metricThreshold is defined %}    metric_threshold={{ o.metricThreshold }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset, valset=valset)
+{% elif o.kind == "BootstrapFewShotWithOptuna" %}
+{{ o.name }}_optimizer = dspy.BootstrapFewShotWithOptuna(
+    metric={{ o.metricFunction }},
+{% if o.maxBootstrappedDemos is defined %}    max_bootstrapped_demos={{ o.maxBootstrappedDemos }},
+{% endif %}{% if o.maxLabeledDemos is defined %}    max_labeled_demos={{ o.maxLabeledDemos }},
+{% endif %}{% if o.maxRounds is defined %}    max_rounds={{ o.maxRounds }},
+{% endif %}{% if o.numCandidatePrograms is defined %}    num_candidate_programs={{ o.numCandidatePrograms }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, max_demos={{ o.compileMaxDemos }}, trainset=trainset, valset=valset)
+{% elif o.kind == "BootstrapFinetune" %}
+{{ o.name }}_optimizer = dspy.BootstrapFinetune(
+    metric={{ o.metricFunction }},
+{% if o.multitaskFinetune is defined %}{% if o.multitaskFinetune %}    multitask=True,
+{% else %}    multitask=False,
+{% endif %}{% endif %}{% if o.numThreads is defined %}    num_threads={{ o.numThreads }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset)
+{% elif o.kind == "COPRO" %}
+{{ o.name }}_optimizer = dspy.COPRO(
+    metric={{ o.metricFunction }},
+{% if o.promptModel is defined %}    prompt_model=dspy.LM({{ o.promptModel | json_encode | safe }}),
+{% endif %}{% if o.breadth is defined %}    breadth={{ o.breadth }},
+{% endif %}{% if o.depth is defined %}    depth={{ o.depth }},
+{% endif %}{% if o.initTemperature is defined %}    init_temperature={{ o.initTemperature }},
+{% endif %})
+
+# {{ o.description }}. eval_kwargs is a consumer-owned dict (out of ontology scope) -- fill it in.
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset, eval_kwargs={})
+{% elif o.kind == "SignatureOptimizer" %}
+{{ o.name }}_optimizer = dspy.SignatureOptimizer(
+{% if o.promptModel is defined %}    prompt_model=dspy.LM({{ o.promptModel | json_encode | safe }}),
+{% endif %}    metric={{ o.metricFunction }},
+{% if o.breadth is defined %}    breadth={{ o.breadth }},
+{% endif %}{% if o.depth is defined %}    depth={{ o.depth }},
+{% endif %}{% if o.initTemperature is defined %}    init_temperature={{ o.initTemperature }},
+{% endif %}{% if o.optimizerVerbose is defined and o.optimizerVerbose %}    verbose=True,
+{% endif %})
+
+# {{ o.description }}. eval_kwargs is a consumer-owned dict (out of ontology scope) -- fill it in.
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, devset=devset, eval_kwargs={})
+{% elif o.kind == "MIPROv2" %}
+{{ o.name }}_optimizer = dspy.MIPROv2(
+    metric={{ o.metricFunction }},
+{% if o.promptModel is defined %}    prompt_model=dspy.LM({{ o.promptModel | json_encode | safe }}),
+{% endif %}{% if o.taskModel is defined %}    task_model=dspy.LM({{ o.taskModel | json_encode | safe }}),
+{% endif %}{% if o.maxBootstrappedDemos is defined %}    max_bootstrapped_demos={{ o.maxBootstrappedDemos }},
+{% endif %}{% if o.maxLabeledDemos is defined %}    max_labeled_demos={{ o.maxLabeledDemos }},
+{% endif %}{% if o.numCandidates is defined %}    num_candidates={{ o.numCandidates }},
+{% endif %}{% if o.numThreads is defined %}    num_threads={{ o.numThreads }},
+{% endif %}{% if o.optimizerMaxErrors is defined %}    max_errors={{ o.optimizerMaxErrors }},
+{% endif %}{% if o.seedInt is defined %}    seed={{ o.seedInt }},
+{% endif %}{% if o.optimizerVerbose is defined and o.optimizerVerbose %}    verbose=True,
+{% endif %}{% if o.logDir is defined %}    log_dir={{ o.logDir | json_encode | safe }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset, valset=valset)
+{% elif o.kind == "AvatarOptimizer" %}
+{{ o.name }}_optimizer = dspy.AvatarOptimizer(
+    metric={{ o.metricFunction }},
+{% if o.avatarMaxIters is defined %}    max_iters={{ o.avatarMaxIters }},
+{% endif %}{% if o.lowerBound is defined %}    lower_bound={{ o.lowerBound }},
+{% endif %}{% if o.upperBound is defined %}    upper_bound={{ o.upperBound }},
+{% endif %}{% if o.maxPositiveInputs is defined %}    max_positive_inputs={{ o.maxPositiveInputs }},
+{% endif %}{% if o.maxNegativeInputs is defined %}    max_negative_inputs={{ o.maxNegativeInputs }},
+{% endif %}{% if o.optimizeFor is defined %}    optimize_for={{ o.optimizeFor | json_encode | safe }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset)
+{% elif o.kind == "InferRules" %}
+{{ o.name }}_optimizer = dspy.InferRules(
+{% if o.numCandidates is defined %}    num_candidates={{ o.numCandidates }},
+{% endif %}{% if o.numRules is defined %}    num_rules={{ o.numRules }},
+{% endif %}{% if o.numThreads is defined %}    num_threads={{ o.numThreads }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset, valset=valset)
+{% elif o.kind == "SIMBA" %}
+{{ o.name }}_optimizer = dspy.SIMBA(
+    metric={{ o.metricFunction }},
+{% if o.bsize is defined %}    bsize={{ o.bsize }},
+{% endif %}{% if o.numCandidates is defined %}    num_candidates={{ o.numCandidates }},
+{% endif %}{% if o.maxSteps is defined %}    max_steps={{ o.maxSteps }},
+{% endif %}{% if o.maxDemos is defined %}    max_demos={{ o.maxDemos }},
+{% endif %}{% if o.promptModel is defined %}    prompt_model=dspy.LM({{ o.promptModel | json_encode | safe }}),
+{% endif %}{% if o.demoInputFieldMaxlen is defined %}    demo_input_field_maxlen={{ o.demoInputFieldMaxlen }},
+{% endif %}{% if o.numThreads is defined %}    num_threads={{ o.numThreads }},
+{% endif %}{% if o.temperatureForSampling is defined %}    temperature_for_sampling={{ o.temperatureForSampling }},
+{% endif %}{% if o.temperatureForCandidates is defined %}    temperature_for_candidates={{ o.temperatureForCandidates }},
+{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset)
+{% elif o.kind == "LabeledFewShot" %}
+{{ o.name }}_optimizer = dspy.LabeledFewShot({% if o.kValue is defined %}k={{ o.kValue }}{% endif %})
+
+# {{ o.description }}
+{{ o.name }} = {{ o.name }}_optimizer.compile({{ o.moduleName }}, trainset=trainset)
+{% endif %}
+{% endfor %}
+{% for b in betterTogetherOptimizers %}
+{{ b.name }}_optimizer = dspy.BetterTogether(
+    metric={{ b.metricFunction }},
+{% if b.promptOptimizerName is defined %}    prompt_optimizer={{ b.promptOptimizerName }}_optimizer,
+{% endif %}{% if b.weightOptimizerName is defined %}    weight_optimizer={{ b.weightOptimizerName }}_optimizer,
+{% endif %}{% if b.seedInt is defined %}    seed={{ b.seedInt }},
+{% endif %})
+
+# {{ b.description }}
+{{ b.name }} = {{ b.name }}_optimizer.compile({{ b.moduleName }}, trainset=trainset)
+{% endfor %}

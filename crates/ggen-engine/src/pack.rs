@@ -128,8 +128,32 @@ fn resolve_inner(
     let mut packs = Vec::with_capacity(config.packs.len());
     for (name, pack_ref) in &config.packs {
         match pack_ref {
-            PackRef::Git { git, version } => {
-                let root = resolve_git_pack_dir(name, git, version, config_root, allow_network)?;
+            PackRef::Git {
+                git,
+                version,
+                subdir,
+            } => {
+                let clone_root =
+                    resolve_git_pack_dir(name, git, version, config_root, allow_network)?;
+                let root = match subdir {
+                    Some(sub) => {
+                        let joined = clone_root.join(sub);
+                        if !joined.is_dir() {
+                            return Err(AppError::fm_pack(
+                                13,
+                                format!(
+                                    "pack `{name}`: `subdir` `{}` does not exist inside the \
+                                     cloned repository `{git}` (checked out at `{version}`). \
+                                     Remediation: fix the [packs] subdir entry, or omit it if \
+                                     the pack lives at the repository root.",
+                                    sub.display()
+                                ),
+                            ));
+                        }
+                        joined
+                    }
+                    None => clone_root,
+                };
                 packs.push(resolve_pack_dir(name, &root)?);
             }
             PackRef::Path {
@@ -588,7 +612,16 @@ struct LockDocEntry {
 pub fn source_string(pack_ref: &PackRef) -> String {
     match pack_ref {
         PackRef::Path { path, .. } => format!("path:{}", path.display()),
-        PackRef::Git { git, version } => format!("git:{git}@{version}"),
+        PackRef::Git {
+            git,
+            version,
+            subdir: Some(sub),
+        } => format!("git:{git}@{version}#{}", sub.display()),
+        PackRef::Git {
+            git,
+            version,
+            subdir: None,
+        } => format!("git:{git}@{version}"),
     }
 }
 
@@ -1018,6 +1051,180 @@ version = "v2"
         assert!(
             !root.join(".ggen-v2/receipt.json").exists(),
             "dry-run sync must not write a receipt either"
+        );
+    }
+
+    /// A scratch git repo shaped like `ggen-marketplace` itself: a monorepo
+    /// with an unrelated top-level file (no `pack.toml` at the clone root)
+    /// and one real, valid pack under `packs/<name>/`.
+    fn scratch_monorepo_git_source(dir: &Path) {
+        std::fs::create_dir_all(dir).expect("mkdir source");
+        git(&["init", "--quiet"], dir);
+        git(&["config", "user.email", "test@example.com"], dir);
+        git(&["config", "user.name", "Test"], dir);
+        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n")
+            .expect("write README");
+
+        let pack_dir = dir.join("packs/widget-pack");
+        std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
+        std::fs::write(
+            pack_dir.join("pack.toml"),
+            "[pack]\nname = \"widget-pack\"\nversion = \"1.0.0\"\ndescription = \"test\"\n",
+        )
+        .expect("write pack.toml");
+        std::fs::write(
+            pack_dir.join("ontology.ttl"),
+            "@prefix dom: <http://example.com/ontology#> .\ndom:Widget a dom:DomainClass .\n",
+        )
+        .expect("write ontology.ttl");
+        std::fs::write(
+            pack_dir.join("templates/widget.rs.tmpl"),
+            "---\nto: src/widget.rs\n---\n// generated\n",
+        )
+        .expect("write template");
+
+        git(&["add", "."], dir);
+        git(&["commit", "--quiet", "-m", "v1"], dir);
+        git(&["tag", "v1"], dir);
+    }
+
+    /// A minimal, fully-populated `GgenConfig` with a single `[packs.widget-pack]`
+    /// `PackRef::Git` entry (`GgenConfig` has no `Default` impl, and several
+    /// of its fields are meaningfully required, so this is the real
+    /// construction every test below needs, not a shortcut around it).
+    fn git_pack_config(url: &str, version: &str, subdir: Option<&str>) -> crate::config::GgenConfig {
+        crate::config::GgenConfig {
+            project: crate::config::Project {
+                name: "fixture".to_string(),
+            },
+            ontology: crate::config::Ontology {
+                source: PathBuf::from("ontology.ttl"),
+                prefixes: std::collections::BTreeMap::new(),
+            },
+            packs: std::collections::BTreeMap::from([(
+                "widget-pack".to_string(),
+                PackRef::Git {
+                    git: url.to_string(),
+                    version: version.to_string(),
+                    subdir: subdir.map(PathBuf::from),
+                },
+            )]),
+            templates: crate::config::Templates {
+                dir: PathBuf::from("templates"),
+                aggregate_modules: false,
+            },
+            law: crate::config::Law::default(),
+        }
+    }
+
+    /// `PackRef::Git`'s real `subdir` field must let `resolve()` pull one
+    /// pack out of a monorepo clone whose root is not itself a pack --
+    /// confirming both the negative (no `subdir`, clone root has no
+    /// `pack.toml`, refuses) and positive (`subdir` set to the real pack's
+    /// subdirectory, resolves) cases against a real git clone, no mocks.
+    #[test]
+    fn resolve_git_pack_with_subdir_pulls_one_pack_out_of_a_monorepo_clone() {
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_monorepo_git_source(&source);
+        let url = source.to_str().expect("utf8 path");
+
+        // Negative: no `subdir` -- the clone root has no `pack.toml`, must
+        // refuse with a clear, typed error, not panic or silently succeed.
+        let config_root_a = TempDir::new().expect("tempdir");
+        let config_a = git_pack_config(url, "v1", None);
+        let err = resolve(&config_a, config_root_a.path())
+            .expect_err("no subdir + no pack.toml at clone root must refuse");
+        assert!(
+            err.to_string().contains("pack.toml"),
+            "must cite the missing pack.toml: {err}"
+        );
+
+        // Positive: `subdir = "packs/widget-pack"` resolves the real pack.
+        let config_root_b = TempDir::new().expect("tempdir");
+        let config_b = git_pack_config(url, "v1", Some("packs/widget-pack"));
+        let packs = resolve(&config_b, config_root_b.path())
+            .expect("subdir must resolve the real pack inside the monorepo clone");
+        assert_eq!(packs.len(), 1);
+        assert_eq!(packs[0].name, "widget-pack");
+        assert_eq!(packs[0].version, "1.0.0");
+        assert_eq!(packs[0].template_paths.len(), 1);
+    }
+
+    /// A `subdir` naming a path that does not exist inside the clone must
+    /// refuse with a clear, typed `[FM-PACK-013]` error citing the bad
+    /// subdir, not a generic `pack.toml unreadable` message that leaves the
+    /// author guessing whether the problem is the subdir or the pack itself.
+    #[test]
+    fn resolve_git_pack_with_nonexistent_subdir_refuses_with_a_typed_error() {
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_monorepo_git_source(&source);
+        let url = source.to_str().expect("utf8 path");
+
+        let config_root = TempDir::new().expect("tempdir");
+        let config = git_pack_config(url, "v1", Some("packs/does-not-exist"));
+        let err = resolve(&config, config_root.path())
+            .expect_err("a nonexistent subdir must refuse, not silently fail some other way");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-PACK-013"), "{msg}");
+        assert!(msg.contains("does-not-exist"), "{msg}");
+    }
+
+    /// End-to-end: a real `ggen.toml` declaring `subdir` under `[packs.*]`
+    /// syncs successfully against a real monorepo clone via the actual
+    /// `sync()` entry point, not just the lower-level `resolve()` — proving
+    /// the TOML surface, not only the internal `PackRef` construction.
+    #[test]
+    fn sync_resolves_a_git_pack_via_subdir_end_to_end() {
+        use crate::sync::{sync, SyncOptions};
+
+        let scratch = TempDir::new().expect("tempdir");
+        let source = scratch.path().join("source");
+        scratch_monorepo_git_source(&source);
+        let url = source.to_str().expect("utf8 path");
+
+        let project = TempDir::new().expect("tempdir");
+        let root = project.path();
+        std::fs::write(
+            root.join("ggen.toml"),
+            format!(
+                r#"[project]
+name = "subdir-git-pack-fixture"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
+
+[packs.widget-pack]
+git = "{url}"
+version = "v1"
+subdir = "packs/widget-pack"
+"#
+            ),
+        )
+        .expect("write ggen.toml");
+        std::fs::write(root.join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
+
+        let report = sync(
+            root,
+            SyncOptions {
+                dry_run: false,
+                ..Default::default()
+            },
+        )
+        .expect("sync must resolve the git pack via its subdir and generate its output");
+        assert!(
+            report.written.iter().any(|p| p == "src/widget.rs"),
+            "the pack's own template must have rendered: {:?}",
+            report.written
+        );
+        assert!(
+            root.join("src/widget.rs").is_file(),
+            "generated file must actually exist on disk"
         );
     }
 }
