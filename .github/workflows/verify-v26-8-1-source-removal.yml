@@ -85,7 +85,7 @@ jobs:
           components: rustfmt
 
       - name: Install just
-        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab
+        uses: taiki-e/install-action@6c6fd71fe4fb72c3697d269963d0e15df8adedad
         with:
           tool: just
 
