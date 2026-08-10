@@ -57,6 +57,9 @@ jobs:
       - name: Validate bounded Turtle state
         run: python3 book/scripts/validate_ttl_corpus.py
 
+      - name: Validate full transcription and sabotage refusals
+        run: python3 book/scripts/validate_transcription_360.py --sabotage
+
       - name: Validate total executable gap registry
         run: python3 book/scripts/validate_gap_closure.py
 
