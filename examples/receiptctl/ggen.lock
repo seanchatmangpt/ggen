@@ -6,7 +6,7 @@ content_hash = "blake3:b722238941b5b4fb775b148f8676ce290c3ec3b52e190d6fea2142145
 
 [packs.clap-noun-verb-pack]
 source = "path:../../packs/clap-noun-verb-pack"
-content_hash = "blake3:4a89488ba48ea0c9e0feda3a7ca55135e564cdbdff35d3199b6a8de9d59544fa"
+content_hash = "blake3:4db553105914048400e39d30e226e66b0a6361a6705af4423e95629a3e55a5f9"
 
 [packs.wasm4pm-algorithms-pack]
 source = "path:../../packs/wasm4pm-algorithms-pack"
