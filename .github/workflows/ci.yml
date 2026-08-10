@@ -57,6 +57,11 @@ jobs:
           toolchain: nightly-2026-06-22
           components: rustfmt, clippy
 
+      - name: Install just
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just
+
       - name: Format
         run: cargo fmt --all -- --check
 
