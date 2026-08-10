@@ -7,6 +7,9 @@
 @prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
+dspy:misc-simba-lm a dspy:LMConfig ;
+    dspy:modelName "openai/gpt-5" ; dspy:modelType "chat" ; dspy:lmCache false .
+
 dspy:misc-signature a dspy:Signature ;
     dcterms:title "AnswerQuestion" ;
     dcterms:description "Answer a question given some context." ;
@@ -50,7 +53,7 @@ dspy:misc-simba a dspy:Optimizer ;
     dspy:name "simba_opt" ; dspy:kind "SIMBA" ;
     dspy:optimizes dspy:misc-module ; dspy:metricFunction "simba_metric" ;
     dspy:bsize 16 ; dspy:numCandidates 4 ; dspy:maxSteps 6 ; dspy:maxDemos 3 ;
-    dspy:promptModel "openai/gpt-5" ; dspy:demoInputFieldMaxlen 50000 ;
+    dspy:promptModel dspy:misc-simba-lm ; dspy:demoInputFieldMaxlen 50000 ;
     dspy:numThreads 4 ; dspy:temperatureForSampling 0.3 ; dspy:temperatureForCandidates 0.25 .
 
 # ── LabeledFewShot ──────────────────────────────────────────────────────────

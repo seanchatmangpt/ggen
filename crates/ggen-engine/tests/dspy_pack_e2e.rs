@@ -72,6 +72,15 @@ fn mcp_react_fixture_generates_real_tool_discovery_agent() {
     );
     assert!(optimize.contains("dspy.GEPA("));
     assert!(optimize.contains("max_full_evals=2"));
+    // dspy:LMConfig regression guard: reflection_lm must render as a real dspy.LM(...) call
+    // with its real kwargs (temperature/max_tokens), not a bare model-id string -- this is
+    // the tutorial's own exact real code (dspy.LM(model="gpt-5", temperature=1.0,
+    // max_tokens=32000, ...)), confirmed against real dspy 3.1.3 construction.
+    assert!(
+        optimize
+            .contains(r#"reflection_lm=dspy.LM("openai/gpt-5", temperature=1, max_tokens=32000),"#),
+        "LMConfig must render real dspy.LM kwargs, not a bare string:\n{optimize}"
+    );
 }
 
 #[test]
@@ -152,6 +161,17 @@ fn prompt_optimization_family_uses_correct_per_kind_compile_signature() {
     assert!(
         optimize.contains("trainset=trainset, eval_kwargs={}"),
         "COPRO must compile with trainset=+eval_kwargs=:\n{optimize}"
+    );
+    // dspy:LMConfig regression guard: prompt_model/task_model must render real dspy.LM kwargs
+    // (a shared LMConfig individual reused across COPRO/SignatureOptimizer, and a distinct one
+    // for MIPROv2's task_model), not bare model-id strings.
+    assert!(
+        optimize.contains(r#"dspy.LM("openai/gpt-4o-mini", temperature=0.7, max_tokens=4000)"#),
+        "promptModel must render real dspy.LM kwargs:\n{optimize}"
+    );
+    assert!(
+        optimize.contains(r#"dspy.LM("openai/gpt-4o", max_tokens=8000, num_retries=5)"#),
+        "taskModel must render real dspy.LM kwargs:\n{optimize}"
     );
 }
 
