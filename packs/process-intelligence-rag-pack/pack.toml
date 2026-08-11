@@ -24,12 +24,19 @@ real, already-admitted 14 SREGYM_CAPABILITIES facts as one real pirag:GroundingS
 one real dspy:GroundedProcessQuery-bound dspy:Module answering a real, checkable question
 about them.
 
-Named out of scope (per this session's no-overclaiming discipline): this pack implements
-connection 4 of the paper's Figure 4 only. Connection 1 (systematic training-example
-generation from OCED for arbitrary process-related problems) and connection 5 (GenAI-assisted
-bridging of proprietary source-system formats into OCED) are real, separate gaps this pack
-does not address. "A system that can handle an entire Fortune-5 research program completely
-automatically and autonomically" is far larger than what any one pack closes -- this pack
-closes one named, verifiable connection from one real paper, against real data already
-admitted in this workspace.
+Connection 1 implemented (2026-08-11): dspy:GenerateTrainingExampleSignature +
+gates/030_training_example_grounded_or_refused.rq apply the identical admission-control
+pattern to Figure 4 connection 1 ("systematically create training examples ... given a
+bottleneck, create a training instance each time we visit the bottleneck and use the
+experienced delay as the target feature") -- a dspy:Module bound to that signature with
+no real, linked pirag:GroundingSource is refused, the same as connection 4's
+GroundedProcessQuery. Worked instance reuses the same domain-capability-pack grounding
+source as connection 4's worked instance.
+
+Named out of scope (per this session's no-overclaiming discipline): connection 5
+(GenAI-assisted bridging of proprietary source-system formats into OCED) remains a real,
+separate gap this pack does not address -- not attempted here. "A system that can handle
+an entire Fortune-5 research program completely automatically and autonomically" is far
+larger than what any one pack closes -- this pack closes two named, verifiable connections
+from one real paper, against real data already admitted in this workspace.
 """

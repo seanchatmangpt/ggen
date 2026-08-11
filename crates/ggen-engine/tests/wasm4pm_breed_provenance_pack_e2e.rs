@@ -160,3 +160,59 @@ fn wasm4pm_breed_provenance_pack_gate_refuses_breed_count_drift() {
         "020_exact_count_per_source",
     );
 }
+
+#[test]
+fn wasm4pm_breed_provenance_pack_gate_refuses_sibling_adoption_divergence() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("wasm4pm-breed-provenance-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // Baseline: the pack's own worked instance ships two real
+    // wbp:PackAdoption individuals (wasm4pm-facts-pack,
+    // wasm4pm-cognition-pack) that admit the IDENTICAL real 55-breed set
+    // today -- the sync above already proves the new gate does not fire
+    // against that unmodified, currently-matching state.
+
+    // GATE SABOTAGE (new coverage for gates/040_sibling_adoptions_match.rq):
+    // a THIRD wbp:PackAdoption that admits one fewer real breed than the
+    // two existing sibling adoptions (a real, specific divergence -- it
+    // omits wbp:Breed_strips, which both real adoptions admit) must be
+    // refused, citing 040_sibling_adoptions_match by name. This is the
+    // real, structural "merge/deduplicate" guarantee named as a follow-up
+    // in pack.toml: it cannot force wasm4pm-facts-pack and
+    // wasm4pm-cognition-pack to share code, but it refuses to admit a
+    // state where sibling adoptions have silently drifted apart.
+    assert_gate_refuses(
+        &project,
+        "@prefix wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#> .\n\
+         wbp:sabotage-drifted-adoption a wbp:PackAdoption ;\n\
+         \x20\x20\x20\x20wbp:ownerPack \"sabotage-third-pack\" ;\n\
+         \x20\x20\x20\x20wbp:admits wbp:Breed_gps, wbp:Breed_htn_planning, \
+         wbp:Breed_partial_order_plan, wbp:Breed_prolog, wbp:Breed_default_logic, \
+         wbp:Breed_circumscription, wbp:Breed_description_logic, \
+         wbp:Breed_bayesian_network, wbp:Breed_dempster_shafer, wbp:Breed_fuzzy_logic, \
+         wbp:Breed_mycin, wbp:Breed_eliza, wbp:Breed_soar, wbp:Breed_act_r, \
+         wbp:Breed_hearsay, wbp:Breed_abductive_ibe, wbp:Breed_abductive_lp, \
+         wbp:Breed_allen_temporal, wbp:Breed_event_calculus, \
+         wbp:Breed_situation_calculus, wbp:Breed_ltl_monitor, wbp:Breed_ctl_check, \
+         wbp:Breed_analogy_sme, wbp:Breed_cbr, wbp:Breed_episodic_memory, \
+         wbp:Breed_frames_inheritance, wbp:Breed_script_sam, \
+         wbp:Breed_construction_grammar, wbp:Breed_autoinstinct_learning, \
+         wbp:Breed_autoinstinct_neurosis, wbp:Breed_autoinstinct_semantics, \
+         wbp:Breed_autoinstinct_vision, wbp:Breed_belief_merging, \
+         wbp:Breed_markov_logic, wbp:Breed_problog, wbp:Breed_csp_ac3, wbp:Breed_clp, \
+         wbp:Breed_asp, wbp:Breed_sat_cdcl, wbp:Breed_tableaux, \
+         wbp:Breed_contingent_plan, wbp:Breed_mdp, wbp:Breed_pomdp, wbp:Breed_ebl, \
+         wbp:Breed_ilp, wbp:Breed_rl_symbolic, wbp:Breed_version_space, \
+         wbp:Breed_dendral, wbp:Breed_naive_physics, wbp:Breed_qualitative_reason, \
+         wbp:Breed_morphological, wbp:Breed_triz, wbp:Breed_meta_reasoning, \
+         wbp:Breed_ocpm_route_discoverer .\n",
+        "040_sibling_adoptions_match",
+    );
+}

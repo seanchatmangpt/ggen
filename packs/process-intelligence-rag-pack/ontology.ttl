@@ -127,3 +127,48 @@ pirag:sregym-vision-query a dspy:Module ;
     dspy:signature dspy:OriginateArchitectureVisionSignature ;
     pirag:grounds pirag:sregym-capability-grounding ;
     dcterms:description "Given SREGym's real capability surface and autofde-lab's real allowlist, what should the next capability-governance vision be?" .
+
+#################################################################
+# Connection 1 closure (2026-08-11): systematic training-example generation from real
+# process evidence, per van der Aalst's Figure 4 connection 1 -- the paper's own worked
+# example: "given a bottleneck, create a training instance each time we visit the
+# bottleneck and use the experienced delay as the target feature." Same admission-control
+# pattern as connection 4 above (GroundedProcessQuery), applied to a different consumer:
+# instead of answering a question, it manufactures one (input_features, target_value) pair
+# per real occurrence -- and it is refused, the same way, if it has no real
+# pirag:GroundingSource. Connection 5 (bridging proprietary source formats into OCED)
+# remains explicitly out of scope -- not attempted here.
+#################################################################
+
+dspy:GenerateTrainingExampleSignature a dspy:Signature ;
+    dcterms:title "GenerateTrainingExample" ;
+    dcterms:description "Given real, computed process evidence about one occurrence of a named process-related problem, manufacture one (input_features, target_value) training-example pair -- never guessed from the model's own unconstrained priors. Directly implements van der Aalst's 'No AI Without PI!' (arXiv:2508.00116) Figure 4 connection 1: 'systematically create training examples ... given a bottleneck, create a training instance each time we visit the bottleneck and use the experienced delay as the target feature.'" ;
+    dspy:className "GenerateTrainingExample" ;
+    dspy:hasInput pirag:gte-process-evidence-input, pirag:gte-target-feature-input ;
+    dspy:hasOutput pirag:gte-input-features-output, pirag:gte-target-value-output .
+
+pirag:gte-process-evidence-input a dspy:InputField ;
+    dspy:name "process_evidence" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. Real, computed process-intelligence facts about one occurrence of the named problem (object types, event types, discovered relations) -- the same grounding discipline as GroundedProcessQuery's grounding_facts, applied to training-example manufacture instead of question-answering." .
+
+pirag:gte-target-feature-input a dspy:InputField ;
+    dspy:name "target_feature_name" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. The name of the real, observed quantity this example's target_value represents -- e.g. \"bottleneck_delay_seconds\", the paper's own worked example." .
+
+pirag:gte-input-features-output a dspy:OutputField ;
+    dspy:name "input_features" ; dspy:pythonType "str" ;
+    dcterms:description "The manufactured input-feature vector for this training instance, derived from process_evidence." .
+
+pirag:gte-target-value-output a dspy:OutputField ;
+    dspy:name "target_value" ; dspy:pythonType "str" ;
+    dcterms:description "The real, experienced value of target_feature_name for this occurrence -- not a guess." .
+
+# Worked instance: one real training-example-generation query grounded in
+# domain-capability-pack's real, already-admitted facts, mirroring the connection-4
+# worked instance above.
+pirag:sregym-training-example-query a dspy:Module ;
+    dspy:kind "ChainOfThought" ;
+    dspy:name "generate_sregym_capability_training_example" ;
+    dspy:signature dspy:GenerateTrainingExampleSignature ;
+    pirag:grounds pirag:sregym-capability-grounding ;
+    dcterms:description "For each SREGym capability call, manufacture a training example predicting whether autofde-lab's real allowlist would admit it (target_feature_name=\"allowlist_admitted\")." .

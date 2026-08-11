@@ -53,8 +53,10 @@ directory does not touch).
    its real output against the full k8s OpenAPI spec, not from this hand-authored seed.
 2. Verify against a real cluster or a real k8s client library's parsed types (close the
    real-source-verification gap above).
-3. Add a `crates/ggen-engine/tests/k8s_pack_e2e.rs` using the standard
-   `scaffold_pack`/`assert_idempotent`/`assert_gate_refuses` four-part pattern.
+3. ✅ Done 2026-08-11: `crates/ggen-engine/tests/k8s_pack_e2e.rs` (3 tests: real
+   sync + content assertions + idempotency, plus 2 gate-sabotage tests against
+   `010_admission.rq`, one of which is the exact missing-`k8s:cpuLimit`
+   `ResourceRequirements` case this file's own "What this proves" section cites).
 4. Rename the directory `k8s-pack-DESIGN` → `k8s-pack`, drop the `-design` version suffix
    and the "DESIGN SKETCH" language from `pack.toml`, and only then compose it into a real
    consumer's `ggen.toml`.

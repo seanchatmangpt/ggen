@@ -143,3 +143,78 @@ fn process_intelligence_rag_pack_gate_refuses_operationally_grounded_but_strateg
         "020_strategic_grounding_required",
     );
 }
+
+// --- Connection 1 (2026-08-11): systematic training-example generation --------------
+
+#[test]
+fn process_intelligence_rag_pack_renders_the_real_training_example_signature_and_worked_module() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("process-intelligence-rag-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let program = read(&project, "src/generate_training_example.py");
+    assert!(
+        program.contains("class GenerateTrainingExample(dspy.Signature):"),
+        "generated program must define the real Signature class:\n{program}"
+    );
+    assert!(
+        program.contains("process_evidence: str = dspy.InputField()"),
+        "generated program must require process_evidence as an input, not an optional field:\n{program}"
+    );
+    assert!(
+        program.contains("target_value: str = dspy.OutputField()"),
+        "generated program must render the real target_value output field:\n{program}"
+    );
+
+    let doc = read(
+        &project,
+        "docs/process-intelligence-rag/training-examples.md",
+    );
+    assert!(
+        doc.contains("generate_sregym_capability_training_example"),
+        "reference doc must list the real worked training-example generator:\n{doc}"
+    );
+    assert!(
+        doc.contains("domain-capability-pack"),
+        "reference doc must cite the real grounding source by name:\n{doc}"
+    );
+
+    // The worked instance (sregym-training-example-query) syncing clean at all proves it
+    // was admitted by gates/030_training_example_grounded_or_refused.rq -- an ungrounded
+    // generator would have refused it, per the sabotage test below.
+    assert_idempotent(&project);
+}
+
+#[test]
+fn process_intelligence_rag_pack_gate_refuses_ungrounded_training_example_generator() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("process-intelligence-rag-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE: a dspy:Module bound to GenerateTrainingExampleSignature with NO
+    // pirag:grounds link must be refused -- connection 1's own enactment of "No AI
+    // Without PI", proving gates/030_training_example_grounded_or_refused.rq is real and
+    // enforced, not merely a sibling of 010 that never actually fires.
+    assert_gate_refuses(
+        &project,
+        "@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .\n\
+         @prefix pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#> .\n\
+         pirag:ungrounded-training-example a dspy:Module ;\n\
+         \x20\x20\x20\x20dspy:kind \"ChainOfThought\" ;\n\
+         \x20\x20\x20\x20dspy:name \"sabotage_ungrounded_training_example\" ;\n\
+         \x20\x20\x20\x20dspy:signature dspy:GenerateTrainingExampleSignature .\n",
+        "030_training_example_grounded_or_refused",
+    );
+}
