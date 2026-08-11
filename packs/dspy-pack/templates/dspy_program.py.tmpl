@@ -13,6 +13,13 @@ sparql:
   codeActModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?name ?signatureName ?maxIters WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind \"CodeAct\" ; dspy:signature ?signature . ?signature dspy:className ?signatureName . OPTIONAL { ?module dspy:maxIters ?maxIters } } ORDER BY ?name"
   localTools: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?moduleName ?toolName ?description WHERE { ?module a dspy:Module ; dspy:kind \"CodeAct\" ; dspy:name ?moduleName ; dspy:hasLocalTool ?tool . ?tool dspy:name ?toolName ; dcterms:description ?description . } ORDER BY ?moduleName ?toolName"
   wrapperModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?kind ?description ?wrappedName ?rewardFunction ?refineN ?refineThreshold ?refineFailCount WHERE { ?module a dspy:Module ; dspy:name ?name ; dspy:kind ?kind ; dcterms:description ?description ; dspy:wrapsModule ?wrapped ; dspy:rewardFunction ?rewardFunction ; dspy:refineN ?refineN ; dspy:refineThreshold ?refineThreshold . ?wrapped dspy:name ?wrappedName . FILTER(?kind IN (\"BestOfN\", \"Refine\")) OPTIONAL { ?module dspy:refineFailCount ?refineFailCount } } ORDER BY ?name"
+  pipelineModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?pipelineSignatureName WHERE { ?module a dspy:Module ; dspy:kind \"Pipeline\" ; dspy:name ?name ; dcterms:description ?description ; dspy:pipelineSignature ?psig . ?psig dspy:className ?pipelineSignatureName . } ORDER BY ?name"
+  pipelineSteps: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?moduleName ?stepIndex ?stepVarName ?stepKind ?stepSignatureName ?retrieveK WHERE { ?module a dspy:Module ; dspy:kind \"Pipeline\" ; dspy:name ?moduleName ; dspy:hasStep ?step . ?step dspy:stepIndex ?stepIndex ; dspy:stepVarName ?stepVarName ; dspy:stepKind ?stepKind . OPTIONAL { ?step dspy:stepSignature/dspy:className ?stepSignatureName } OPTIONAL { ?step dspy:retrieveK ?retrieveK } } ORDER BY ?moduleName ?stepIndex"
+  pipelineArgBindings: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?moduleName ?stepIndex ?argName ?argSourceKind ?argSourceField ?argSourceStepVarName WHERE { ?module a dspy:Module ; dspy:kind \"Pipeline\" ; dspy:name ?moduleName ; dspy:hasStep ?step . ?step dspy:stepIndex ?stepIndex ; dspy:hasArgBinding ?binding . ?binding dspy:argName ?argName ; dspy:argSourceKind ?argSourceKind ; dspy:argSourceField ?argSourceField . OPTIONAL { ?binding dspy:argSourceStep/dspy:stepVarName ?argSourceStepVarName } } ORDER BY ?moduleName ?stepIndex ?argName"
+  multiHopModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?hopQuerySignatureName ?hopAnswerSignatureName ?retrieveK ?maxHops WHERE { ?module a dspy:Module ; dspy:kind \"MultiHop\" ; dspy:name ?name ; dcterms:description ?description ; dspy:hopQuerySignature ?qs ; dspy:hopAnswerSignature ?ansSig ; dspy:retrieveK ?retrieveK ; dspy:maxHops ?maxHops . ?qs dspy:className ?hopQuerySignatureName . ?ansSig dspy:className ?hopAnswerSignatureName . } ORDER BY ?name"
+  knnModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?trainsetName ?kValue ?embedderModel ?embedderBatchSize ?embedderCaching WHERE { ?module a dspy:Module ; dspy:kind \"KNN\" ; dspy:name ?name ; dcterms:description ?description ; dspy:trainsetName ?trainsetName ; dspy:kValue ?kValue ; dspy:usesEmbedder/dspy:embedderModel ?embedderModel . OPTIONAL { ?module dspy:usesEmbedder/dspy:embedderBatchSize ?embedderBatchSize } OPTIONAL { ?module dspy:usesEmbedder/dspy:embedderCaching ?embedderCaching } } ORDER BY ?name"
+  parallelModules: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> PREFIX dcterms: <http://purl.org/dc/terms/> SELECT ?name ?description ?parallelNumThreads ?parallelMaxErrors ?accessExamples ?returnFailedExamples ?provideTraceback ?disableProgressBar ?parallelTimeout ?stragglerLimit WHERE { ?module a dspy:Module ; dspy:kind \"Parallel\" ; dspy:name ?name ; dcterms:description ?description . OPTIONAL { ?module dspy:parallelNumThreads ?parallelNumThreads } OPTIONAL { ?module dspy:parallelMaxErrors ?parallelMaxErrors } OPTIONAL { ?module dspy:accessExamples ?accessExamples } OPTIONAL { ?module dspy:returnFailedExamples ?returnFailedExamples } OPTIONAL { ?module dspy:provideTraceback ?provideTraceback } OPTIONAL { ?module dspy:disableProgressBar ?disableProgressBar } OPTIONAL { ?module dspy:parallelTimeout ?parallelTimeout } OPTIONAL { ?module dspy:stragglerLimit ?stragglerLimit } } ORDER BY ?name"
+  parallelSteps: "PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#> SELECT ?moduleName ?stepIndex ?stepModuleName WHERE { ?module a dspy:Module ; dspy:kind \"Parallel\" ; dspy:name ?moduleName ; dspy:hasParallelStep ?step . ?step dspy:stepIndex ?stepIndex ; dspy:stepModule ?target . ?target dspy:name ?stepModuleName . } ORDER BY ?moduleName ?stepIndex"
 ---
 # GENERATED by ggen from dspy-pack/ontology.ttl. Do not hand-edit.
 from __future__ import annotations
@@ -85,4 +92,61 @@ def {{ w.rewardFunction }}(args: dict, pred) -> float:
     raise NotImplementedError("Fill in the {{ w.rewardFunction }} reward function for {{ w.name }}.")
 
 {{ w.name }} = dspy.{{ w.kind }}(module={{ w.wrappedName }}, N={{ w.refineN }}, reward_fn={{ w.rewardFunction }}, threshold={{ w.refineThreshold }}{% if w.refineFailCount is defined %}, fail_count={{ w.refineFailCount }}{% endif %})
+{% endfor %}
+{% for m in pipelineModules %}
+class {{ m.name | title | replace(from=" ", to="") }}(dspy.Module):
+    """{{ m.description }}"""
+
+    def __init__(self):
+        super().__init__()
+{% for s in pipelineSteps %}{% if s.moduleName == m.name %}{% if s.stepKind == "Retrieve" %}        self.{{ s.stepVarName }} = dspy.Retrieve(k={{ s.retrieveK }})
+{% else %}        self.{{ s.stepVarName }} = dspy.{{ s.stepKind }}({{ s.stepSignatureName }})
+{% endif %}{% endif %}{% endfor %}
+    def forward(self{% for field in inputs %}{% if field.signatureName == m.pipelineSignatureName %}, {{ field.name }}{% endif %}{% endfor %}):
+{% set_global pl_last_step = "" %}{% for s in pipelineSteps %}{% if s.moduleName == m.name %}{% set_global pl_last_step = s.stepVarName %}{% if s.stepKind == "Retrieve" %}{% for b in pipelineArgBindings %}{% if b.moduleName == m.name and b.stepIndex == s.stepIndex %}        {{ s.stepVarName }}_result = self.{{ s.stepVarName }}({% if b.argSourceKind == "PipelineInput" %}{{ b.argSourceField }}{% else %}{{ b.argSourceStepVarName }}_result.{{ b.argSourceField }}{% endif %})
+{% endif %}{% endfor %}{% else %}{% set_global pl_arg_first = true %}        {{ s.stepVarName }}_result = self.{{ s.stepVarName }}({% for b in pipelineArgBindings %}{% if b.moduleName == m.name and b.stepIndex == s.stepIndex %}{% if not pl_arg_first %}, {% endif %}{{ b.argName }}={% if b.argSourceKind == "PipelineInput" %}{{ b.argSourceField }}{% else %}{{ b.argSourceStepVarName }}_result.{{ b.argSourceField }}{% endif %}{% set_global pl_arg_first = false %}{% endif %}{% endfor %})
+{% endif %}{% endif %}{% endfor %}
+{% set_global pl_pred_first = true %}        return dspy.Prediction({% for field in outputs %}{% if field.signatureName == m.pipelineSignatureName %}{% if not pl_pred_first %}, {% endif %}{{ field.name }}={{ pl_last_step }}_result.{{ field.name }}{% set_global pl_pred_first = false %}{% endif %}{% endfor %})
+
+{{ m.name }} = {{ m.name | title | replace(from=" ", to="") }}()
+{% endfor %}
+{% for m in multiHopModules %}
+class {{ m.name | title | replace(from=" ", to="") }}(dspy.Module):
+    """{{ m.description }}
+
+    Fixed multi-hop retrieve-then-reason recipe (query-gen -> retrieve -> accumulate context ->
+    repeat -> answer-gen), verified against the real installed dspy 3.1.3 by actually running it
+    against dspy.utils.dummies.DummyLM/dummy_rm.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.max_hops = {{ m.maxHops }}
+        self.generate_query = dspy.ChainOfThought({{ m.hopQuerySignatureName }})
+        self.retrieve = dspy.Retrieve(k={{ m.retrieveK }})
+        self.generate_answer = dspy.ChainOfThought({{ m.hopAnswerSignatureName }})
+
+    def forward(self{% for field in inputs %}{% if field.signatureName == m.hopAnswerSignatureName and field.name != "context" %}, {{ field.name }}{% endif %}{% endfor %}):
+        context = []
+        for _hop in range(self.max_hops):
+            query = self.generate_query(context=context{% for field in inputs %}{% if field.signatureName == m.hopQuerySignatureName and field.name != "context" and field.name != "question" %}, {{ field.name }}={{ field.name }}{% endif %}{% endfor %}{% for field in inputs %}{% if field.signatureName == m.hopQuerySignatureName and field.name == "question" %}, question=question{% endif %}{% endfor %}).query
+            passages = self.retrieve(query).passages
+            context = list(set(context) | set(passages))
+        pred = self.generate_answer(context=context{% for field in inputs %}{% if field.signatureName == m.hopAnswerSignatureName and field.name != "context" %}, {{ field.name }}={{ field.name }}{% endif %}{% endfor %})
+        return dspy.Prediction(context=context{% for field in outputs %}{% if field.signatureName == m.hopAnswerSignatureName %}, {{ field.name }}=pred.{{ field.name }}{% endif %}{% endfor %})
+
+{{ m.name }} = {{ m.name | title | replace(from=" ", to="") }}()
+{% endfor %}
+{% for m in knnModules %}
+{{ m.trainsetName }} = []  # list[dspy.Example] -- bind real trainset data before calling {{ m.name }}(...).
+{{ m.name }} = dspy.KNN(k={{ m.kValue }}, trainset={{ m.trainsetName }}, vectorizer=dspy.Embedder({{ m.embedderModel | json_encode | safe }}{% if m.embedderBatchSize is defined %}, batch_size={{ m.embedderBatchSize }}{% endif %}{% if m.embedderCaching is defined %}{% if m.embedderCaching %}, caching=True{% else %}, caching=False{% endif %}{% endif %}))
+# {{ m.description }}. trainset ({{ m.trainsetName }}) is consumer-owned list[dspy.Example] data -- bind it before calling {{ m.name }}(...).
+{% endfor %}
+{% for m in parallelModules %}
+{{ m.name }} = dspy.Parallel({% if m.parallelNumThreads is defined %}num_threads={{ m.parallelNumThreads }}, {% endif %}{% if m.parallelMaxErrors is defined %}max_errors={{ m.parallelMaxErrors }}, {% endif %}{% if m.accessExamples is defined %}{% if m.accessExamples %}access_examples=True, {% else %}access_examples=False, {% endif %}{% endif %}{% if m.returnFailedExamples is defined %}{% if m.returnFailedExamples %}return_failed_examples=True, {% else %}return_failed_examples=False, {% endif %}{% endif %}{% if m.provideTraceback is defined %}{% if m.provideTraceback %}provide_traceback=True, {% else %}provide_traceback=False, {% endif %}{% endif %}{% if m.disableProgressBar is defined %}{% if m.disableProgressBar %}disable_progress_bar=True, {% else %}disable_progress_bar=False, {% endif %}{% endif %}{% if m.parallelTimeout is defined %}timeout={{ m.parallelTimeout }}, {% endif %}{% if m.stragglerLimit is defined %}straggler_limit={{ m.stragglerLimit }}, {% endif %})
+# {{ m.description }}. exec_pairs data is consumer-owned (each real dspy.Example is arbitrary,
+# out of ontology scope, the same boundary as dspy:metricFunction) -- fill in real Examples.
+{{ m.name }}_pairs = [
+{% for s in parallelSteps %}{% if s.moduleName == m.name %}    ({{ s.stepModuleName }}, None),  # TODO: replace None with a real dspy.Example for {{ s.stepModuleName }}
+{% endif %}{% endfor %}]
 {% endfor %}
