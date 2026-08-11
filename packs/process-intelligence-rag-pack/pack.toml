@@ -33,10 +33,19 @@ no real, linked pirag:GroundingSource is refused, the same as connection 4's
 GroundedProcessQuery. Worked instance reuses the same domain-capability-pack grounding
 source as connection 4's worked instance.
 
-Named out of scope (per this session's no-overclaiming discipline): connection 5
-(GenAI-assisted bridging of proprietary source-system formats into OCED) remains a real,
-separate gap this pack does not address -- not attempted here. "A system that can handle
-an entire Fortune-5 research program completely automatically and autonomically" is far
-larger than what any one pack closes -- this pack closes two named, verifiable connections
-from one real paper, against real data already admitted in this workspace.
+Connection 5 implemented (2026-08-11): dspy:BridgeSourceFormatSignature +
+gates/040_bridge_mapping_grounded_or_refused.rq apply the identical admission-control
+pattern to Figure 4 connection 5 (GenAI-assisted bridging of proprietary source-system
+formats into OCED) -- a dspy:Module bound to that signature with no real, linked
+pirag:GroundingSource is refused, the same as connections 1/4. Worked instance bridges
+the real, directly-observed structure of ~/autofde-lab's gymact_capabilities.toml (a
+TOML file this pack does not depend on or fetch live -- its structure was read once,
+this session, and is described as a literal, static fact) into an OCED mapping grounded
+in domain-capability-pack's real dcp:Capability/dcp:consequence vocabulary.
+
+No named out-of-scope connection from the paper's Figure 4 remains for this pack after
+this round. "A system that can handle an entire Fortune-5 research program completely
+automatically and autonomically" is still far larger than what any one pack closes --
+this pack closes three named, verifiable connections from one real paper, against real
+data already admitted in this workspace.
 """

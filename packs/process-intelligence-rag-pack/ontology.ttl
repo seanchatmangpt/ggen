@@ -172,3 +172,48 @@ pirag:sregym-training-example-query a dspy:Module ;
     dspy:signature dspy:GenerateTrainingExampleSignature ;
     pirag:grounds pirag:sregym-capability-grounding ;
     dcterms:description "For each SREGym capability call, manufacture a training example predicting whether autofde-lab's real allowlist would admit it (target_feature_name=\"allowlist_admitted\")." .
+
+#################################################################
+# Connection 5 closure (2026-08-11): GenAI-assisted bridging of proprietary source-system
+# formats into OCED (Object-Centric Event Data), per van der Aalst's Figure 4 connection 5.
+# Same admission-control pattern as connections 1 and 4 above: propose a structured OCED
+# mapping (object types, event types, qualifiers) for a real, non-standard export format --
+# grounded in real facts about known conventions, never guessed from the model's own
+# unconstrained priors. No named out-of-scope connection remains in this pack after this.
+#################################################################
+
+dspy:BridgeSourceFormatSignature a dspy:Signature ;
+    dcterms:title "BridgeSourceFormat" ;
+    dcterms:description "Given a real, representative sample of a proprietary source-system export, propose a structured OCED (object-type/event-type/qualifier) mapping grounded in real, already-recognized conventions -- never invented from the model's own unconstrained priors. Directly implements van der Aalst's 'No AI Without PI!' (arXiv:2508.00116) Figure 4 connection 5: GenAI-assisted bridging of proprietary source-system formats into OCED." ;
+    dspy:className "BridgeSourceFormat" ;
+    dspy:hasInput pirag:bsf-source-sample-input, pirag:bsf-conventions-input ;
+    dspy:hasOutput pirag:bsf-mapping-output, pirag:bsf-confidence-output .
+
+pirag:bsf-source-sample-input a dspy:InputField ;
+    dspy:name "source_format_sample" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. A real, representative sample of the proprietary export to bridge (e.g. real TOML/CSV/JSON structure with real field names) -- never a description invented by the model." .
+
+pirag:bsf-conventions-input a dspy:InputField ;
+    dspy:name "known_object_event_conventions" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. Real facts about what object types and event types this workspace already recognizes, so the proposed mapping targets real, checkable conventions rather than inventing new vocabulary." .
+
+pirag:bsf-mapping-output a dspy:OutputField ;
+    dspy:name "proposed_oced_mapping" ; dspy:pythonType "str" ;
+    dcterms:description "The proposed structured object-type/event-type/qualifier mapping for the source format." .
+
+pirag:bsf-confidence-output a dspy:OutputField ;
+    dspy:name "mapping_confidence_citation" ; dspy:pythonType "str" ;
+    dcterms:description "Which parts of source_format_sample/known_object_event_conventions the proposed mapping actually traces to -- same traceability discipline as connection 4's grounding_citations." .
+
+# Worked instance: bridges the real, observed structure of autofde-lab's
+# gymact_capabilities.toml (a TOML file with a [gymact] table and repeated
+# [[capability]] tables carrying name/consequence/reason fields) into an OCED mapping,
+# grounded in domain-capability-pack's real dcp:Capability/dcp:consequence vocabulary --
+# the source sample is a real, directly-observed structural description (read this
+# session, not fetched live at sync time; this pack does not depend on ~/autofde-lab).
+pirag:autofde-lab-toml-bridge-query a dspy:Module ;
+    dspy:kind "ChainOfThought" ;
+    dspy:name "bridge_gymact_capabilities_toml_to_oced" ;
+    dspy:signature dspy:BridgeSourceFormatSignature ;
+    pirag:grounds pirag:sregym-capability-grounding ;
+    dcterms:description "Bridge autofde-lab's gymact_capabilities.toml ([gymact] table + repeated [[capability]] tables carrying name/consequence/reason fields) into an OCED mapping grounded in domain-capability-pack's real dcp:Capability/dcp:consequence vocabulary." .

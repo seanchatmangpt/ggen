@@ -218,3 +218,75 @@ fn process_intelligence_rag_pack_gate_refuses_ungrounded_training_example_genera
         "030_training_example_grounded_or_refused",
     );
 }
+
+// --- Connection 5 (2026-08-11): GenAI-assisted bridging of proprietary formats into OCED ---
+
+#[test]
+fn process_intelligence_rag_pack_renders_the_real_bridge_mapping_signature_and_worked_module() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("process-intelligence-rag-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
+
+    let program = read(&project, "src/bridge_source_format.py");
+    assert!(
+        program.contains("class BridgeSourceFormat(dspy.Signature):"),
+        "generated program must define the real Signature class:\n{program}"
+    );
+    assert!(
+        program.contains("source_format_sample: str = dspy.InputField()"),
+        "generated program must require source_format_sample as an input, not an optional field:\n{program}"
+    );
+    assert!(
+        program.contains("proposed_oced_mapping: str = dspy.OutputField()"),
+        "generated program must render the real proposed_oced_mapping output field:\n{program}"
+    );
+
+    let doc = read(&project, "docs/process-intelligence-rag/bridge-mappings.md");
+    assert!(
+        doc.contains("bridge_gymact_capabilities_toml_to_oced"),
+        "reference doc must list the real worked bridge-mapping module:\n{doc}"
+    );
+    assert!(
+        doc.contains("domain-capability-pack"),
+        "reference doc must cite the real grounding source by name:\n{doc}"
+    );
+
+    // The worked instance (autofde-lab-toml-bridge-query) syncing clean at all proves it
+    // was admitted by gates/040_bridge_mapping_grounded_or_refused.rq -- an ungrounded
+    // proposal would have refused it, per the sabotage test below.
+    assert_idempotent(&project);
+}
+
+#[test]
+fn process_intelligence_rag_pack_gate_refuses_ungrounded_bridge_mapping_proposal() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("process-intelligence-rag-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE: a dspy:Module bound to BridgeSourceFormatSignature with NO
+    // pirag:grounds link must be refused -- connection 5's own enactment of "No AI
+    // Without PI", proving gates/040_bridge_mapping_grounded_or_refused.rq is real and
+    // enforced, not merely a sibling of 010/030 that never actually fires.
+    assert_gate_refuses(
+        &project,
+        "@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .\n\
+         @prefix pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#> .\n\
+         pirag:ungrounded-bridge-mapping a dspy:Module ;\n\
+         \x20\x20\x20\x20dspy:kind \"ChainOfThought\" ;\n\
+         \x20\x20\x20\x20dspy:name \"sabotage_ungrounded_bridge_mapping\" ;\n\
+         \x20\x20\x20\x20dspy:signature dspy:BridgeSourceFormatSignature .\n",
+        "040_bridge_mapping_grounded_or_refused",
+    );
+}

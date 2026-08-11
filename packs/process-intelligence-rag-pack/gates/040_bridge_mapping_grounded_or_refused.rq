@@ -1,0 +1,17 @@
+# MESSAGE: every dspy:Module bound to dspy:BridgeSourceFormatSignature must carry
+# pirag:grounds -> a real pirag:GroundingSource individual. Any row = a source-format
+# bridging proposal declared with no real process-intelligence grounding -- the same
+# "No AI Without PI" (arXiv:2508.00116) admission-control pattern as
+# gates/010_grounded_or_refused.rq and gates/030_training_example_grounded_or_refused.rq,
+# applied to Figure 4 connection 5 (GenAI-assisted bridging of proprietary source-system
+# formats into OCED) instead of connections 4/1.
+PREFIX dspy:  <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+SELECT ?module WHERE {
+  ?module a dspy:Module ; dspy:signature dspy:BridgeSourceFormatSignature .
+  FILTER NOT EXISTS {
+    ?module pirag:grounds ?src .
+    ?src a pirag:GroundingSource .
+  }
+}
+ORDER BY ?module
