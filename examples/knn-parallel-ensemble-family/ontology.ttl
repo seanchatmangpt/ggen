@@ -1,0 +1,70 @@
+# Fixture exercising the 4 real dspy classes previously excluded from dspy-pack (KNN, Parallel
+# as Modules; Ensemble, KNNFewShot as Optimizers) -- all four were actually constructed and run
+# against the real installed dspy 3.1.3 this session with no bugs found; see the "RESOLVED
+# 2026-08-10" notes in packs/dspy-pack/ontology.ttl's Module/Optimizer class comments.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:kpe-signature a dspy:Signature ;
+    dcterms:title "AnswerQuestion" ;
+    dcterms:description "Answer a question, the shared target Signature for this fixture's Predict modules." ;
+    dspy:className "AnswerQuestion" ;
+    dspy:hasInput dspy:kpe-question-input ;
+    dspy:hasOutput dspy:kpe-answer-output .
+
+dspy:kpe-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The question to answer." .
+
+dspy:kpe-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "The answer." .
+
+dspy:kpe-predictor1 a dspy:Module ;
+    dcterms:description "First Predict over AnswerQuestion -- a Parallel/Ensemble member and KNNFewShot's optimization target." ;
+    dspy:name "predictor1" ; dspy:kind "Predict" ; dspy:signature dspy:kpe-signature .
+
+dspy:kpe-predictor2 a dspy:Module ;
+    dcterms:description "Second Predict over AnswerQuestion -- a Parallel/Ensemble member." ;
+    dspy:name "predictor2" ; dspy:kind "Predict" ; dspy:signature dspy:kpe-signature .
+
+# ── KNN Module ────────────────────────────────────────────────────────────────
+
+dspy:kpe-embedder a dspy:EmbedderConfig ;
+    dspy:embedderModel "text-embedding-3-small" ; dspy:embedderBatchSize 100 ; dspy:embedderCaching true .
+
+dspy:kpe-knn-module a dspy:Module ;
+    dcterms:description "KNN lookup: find the k=3 nearest trainset examples to a query, per dspy.KNN's real (k, trainset, vectorizer) constructor." ;
+    dspy:name "knn_lookup" ; dspy:kind "KNN" ;
+    dspy:trainsetName "knn_trainset" ; dspy:usesEmbedder dspy:kpe-embedder ; dspy:kValue 3 .
+
+# ── Parallel Module ──────────────────────────────────────────────────────────
+
+dspy:kpe-parallel-step0 a dspy:ParallelStep ; dspy:stepIndex 0 ; dspy:stepModule dspy:kpe-predictor1 .
+dspy:kpe-parallel-step1 a dspy:ParallelStep ; dspy:stepIndex 1 ; dspy:stepModule dspy:kpe-predictor2 .
+
+dspy:kpe-parallel-module a dspy:Module ;
+    dcterms:description "Run predictor1 and predictor2 concurrently over their own (module, Example) pairs, per dspy.Parallel's real forward()." ;
+    dspy:name "par" ; dspy:kind "Parallel" ;
+    dspy:hasParallelStep dspy:kpe-parallel-step0 , dspy:kpe-parallel-step1 ;
+    dspy:parallelNumThreads 4 .
+
+# ── Ensemble Optimizer ───────────────────────────────────────────────────────
+
+dspy:kpe-ensemble-member0 a dspy:EnsembleMember ; dspy:stepIndex 0 ; dspy:memberModule dspy:kpe-predictor1 .
+dspy:kpe-ensemble-member1 a dspy:EnsembleMember ; dspy:stepIndex 1 ; dspy:memberModule dspy:kpe-predictor2 .
+
+dspy:kpe-ensemble-opt a dspy:Optimizer ;
+    dcterms:description "Ensemble predictor1 and predictor2, per dspy.Ensemble's real compile(programs) -- a program list, no metric/target-Module concept." ;
+    dspy:name "ens_opt" ; dspy:kind "Ensemble" ;
+    dspy:hasEnsembleMember dspy:kpe-ensemble-member0 , dspy:kpe-ensemble-member1 ;
+    dspy:reduceFunctionName "ensemble_reduce" ; dspy:ensembleSize 2 .
+
+# ── KNNFewShot Optimizer ─────────────────────────────────────────────────────
+
+dspy:kpe-knn-fewshot-opt a dspy:Optimizer ;
+    dcterms:description "KNNFewShot over predictor1: select k=2 nearest few-shot demos per call, per dspy.KNNFewShot's real (k, trainset, vectorizer, **few_shot_bootstrap_args) constructor." ;
+    dspy:name "knn_fewshot_opt" ; dspy:kind "KNNFewShot" ;
+    dspy:optimizes dspy:kpe-predictor1 ; dspy:metricFunction "knn_fewshot_metric" ;
+    dspy:kValue 2 ; dspy:trainsetName "knn_fewshot_trainset" ; dspy:usesEmbedder dspy:kpe-embedder ;
+    dspy:maxBootstrappedDemos 2 .

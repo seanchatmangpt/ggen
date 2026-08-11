@@ -18,6 +18,13 @@
 #   - GEPA worked examples: https://dspy.ai/tutorials/gepa_facilitysupportanalyzer/ (Literal /
 #     List[Literal] enum-typed output fields, multiple sibling ChainOfThought modules),
 #     https://dspy.ai/tutorials/gepa_trusted_monitor/ (int output field with ge/le bounds)
+#
+# 2026-08-10: composition/retrieval/KNN/Parallel/Ensemble/KNNFewShot support added. The
+# retrieve-then-reason (RAG) pattern, the multi-hop query-gen/retrieve/accumulate/answer-gen
+# loop, and dspy.KNN/dspy.Parallel/dspy.Ensemble/dspy.KNNFewShot construction were each
+# actually built and executed against the real installed dspy 3.1.3 this session (not assumed
+# from docs) -- see dspy:PipelineStep, dspy:ArgBinding, the "MultiHop" dspy:kind, and the
+# "Ensemble/KNNFewShot Optimizer properties" section below for what's admitted from each.
 
 @prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -42,7 +49,19 @@ dspy:OutputField a rdfs:Class ;
 
 dspy:Module a rdfs:Class ;
     rdfs:label "Module" ;
-    rdfs:comment "A dspy program instance bound to one Signature (Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct), OR wrapping another Module (BestOfN/Refine). The generated module constructs but does not configure or invoke an LM. dspy.KNN and dspy.Parallel are real dspy Module-adjacent classes NOT covered here: neither takes a Signature at construction (KNN takes k/trainset/vectorizer with no Signature at all; Parallel takes only execution-tuning kwargs and is bound to modules at call time, not construction time) -- they do not fit this class's Module-bound-to-one-Signature-or-wrapped-Module shape, and forcing them in would misrepresent their real constructors. Confirmed by inspecting both real constructor signatures (dspy 3.1.3), not assumed." .
+    rdfs:comment """A dspy program instance, one of: bound to one Signature
+(Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct); wrapping
+another Module (BestOfN/Refine, via dspy:wrapsModule); an ordered linear composition of steps
+(Pipeline, via dspy:hasStep) or the fixed retrieve-then-reason recipe (MultiHop); or a
+retrieval/parallel-execution utility (KNN, Parallel). The generated module constructs but does
+not configure or invoke an LM.
+
+RESOLVED 2026-08-10 (previously excluded, see git history): dspy.KNN and dspy.Parallel were
+previously excluded here because neither takes a Signature at construction. Both were
+actually constructed and run against the real installed dspy 3.1.3 this session with no bugs
+found, and are now admitted via dedicated properties (dspy:trainsetName/dspy:usesEmbedder/
+dspy:kValue for KNN; dspy:hasParallelStep plus the real execution-tuning kwargs for
+Parallel) rather than forcing them into the Signature-bound shape.""" .
 
 dspy:LocalTool a rdfs:Class ;
     rdfs:label "Local tool" ;
@@ -58,7 +77,21 @@ dspy:ServerArg a rdfs:Class ;
 
 dspy:Optimizer a rdfs:Class ;
     rdfs:label "Optimizer" ;
-    rdfs:comment "A dspy optimizer (one of the 14 admitted kinds -- see dspy:kind) that compiles one target Module via dspy:optimizes. The metric/reward function BODY and trainset/valset/devset are deliberately out of scope -- arbitrary, consumer-owned inputs; ggen scaffolds a NotImplementedError metric stub and named placeholder datasets in src/dspy_optimize.py. dspy.Ensemble and dspy.KNNFewShot are real optimizers NOT covered here -- neither fits this one-target-Module shape (see the Optimizer-properties round-5 comment below for why)." .
+    rdfs:comment """A dspy optimizer (one of the 16 admitted kinds -- see dspy:kind) that
+compiles one target Module via dspy:optimizes, OR (Ensemble only) combines multiple existing
+Modules via dspy:hasEnsembleMember with no metric/target-Module concept at all -- Ensemble's
+real compile(programs) takes a list, not a single student. The metric/reward function BODY and
+trainset/valset/devset are deliberately out of scope -- arbitrary, consumer-owned inputs; ggen
+scaffolds a NotImplementedError metric stub and named placeholder datasets in
+src/dspy_optimize.py.
+
+RESOLVED 2026-08-10 (previously excluded, see git history and the round-5 comment below):
+dspy.Ensemble and dspy.KNNFewShot were previously excluded here. Both were actually
+constructed and run against the real installed dspy 3.1.3 this session with no bugs found.
+KNNFewShot fits the normal dspy:optimizes shape (its real compile(student, teacher=None) takes
+one target Module) and is admitted via dspy:kValue/dspy:trainsetName/dspy:usesEmbedder.
+Ensemble does not fit dspy:optimizes at all and is admitted via a dedicated
+dspy:hasEnsembleMember property instead -- see the round-5 comment.""" .
 
 dspy:LiteralOption a rdfs:Class ;
     rdfs:label "Literal option" ;
@@ -85,6 +118,26 @@ call using max_tokens=16000 -- a real, load-bearing pattern, not hypothetical) i
 not just the model name. dspy.Module-level LM binding remains deliberately out of scope --
 dspy-pack's Modules construct but do not configure or invoke an LM; LMConfig only ever backs an
 Optimizer's own real LM-taking parameters.""" .
+
+dspy:PipelineStep a rdfs:Class ;
+    rdfs:label "Pipeline step" ;
+    rdfs:comment "One ordered step of a Module of dspy:kind \"Pipeline\". Either a leaf dspy.Retrieve call (dspy:stepKind \"Retrieve\", no dspy:stepSignature -- verified real shape: dspy.Retrieve(k=3), takes no Signature) or a Signature-bound leaf module (any other admitted leaf dspy:kind, requires dspy:stepSignature) -- both real, running patterns confirmed this session (dspy 3.1.3) via an actually-executed RAG module (self.retrieve(...).passages -> self.generate_answer(context=..., question=...))." .
+
+dspy:ArgBinding a rdfs:Class ;
+    rdfs:label "Pipeline step argument binding" ;
+    rdfs:comment "One kwarg passed to a dspy:PipelineStep's call inside the generated forward(). Its value comes from either the Pipeline Module's own external input (dspy:argSourceKind \"PipelineInput\") or a prior step's output field (dspy:argSourceKind \"StepOutput\", via dspy:argSourceStep) -- this is the real data-flow wiring that makes a linear multi-step dspy program (e.g. the verified RAG pattern's context = retrieve(question).passages -> generate_answer(context=context, question=question)) representable declaratively." .
+
+dspy:ParallelStep a rdfs:Class ;
+    rdfs:label "Parallel step" ;
+    rdfs:comment "One ordered member of a Module of dspy:kind \"Parallel\"'s exec_pairs scaffold -- a reference to an existing dspy:Module. dspy.Parallel's real forward() takes a list[tuple[module, Example]]; the Example half is consumer-owned runtime data (out of ontology scope, the same boundary as dspy:metricFunction), so ggen scaffolds the module list and a placeholder pairs list the consumer fills in." .
+
+dspy:EnsembleMember a rdfs:Class ;
+    rdfs:label "Ensemble member" ;
+    rdfs:comment "One ordered member of an Optimizer of dspy:kind \"Ensemble\"'s real compile(programs) list -- a reference to an existing dspy:Module. Confirmed via real execution (dspy 3.1.3): dspy.Ensemble(reduce_fn=...).compile([m1, m2, m3])() correctly reduces the members' outputs." .
+
+dspy:EmbedderConfig a rdfs:Class ;
+    rdfs:label "Embedder configuration" ;
+    rdfs:comment "A real dspy.Embedder(model, batch_size=200, caching=True) construction, verified via inspect.signature(dspy.Embedder.__init__) against dspy 3.1.3. Referenced by dspy:usesEmbedder (KNN Module / KNNFewShot Optimizer) as the real 'vectorizer' constructor argument both classes require -- the same LMConfig-style 'real collaborator construction, not a bare value' pattern, since a plain string can't represent dspy.Embedder's real shape." .
 
 # ── Signature / field properties ──────────────────────────────────────────────
 
@@ -126,10 +179,10 @@ dspy:leInt a rdf:Property ; rdfs:range xsd:integer ;
 # ── Module properties ─────────────────────────────────────────────────────────
 
 dspy:kind a rdf:Property ; rdfs:range xsd:string ;
-    rdfs:comment "For a Module: one of Predict, ChainOfThought, ReAct, ProgramOfThought, MultiChainComparison, RLM, CodeAct, BestOfN, Refine. For an Optimizer: one of GEPA, GRPO, BootstrapFewShot, BootstrapFewShotWithRandomSearch, BootstrapFewShotWithOptuna, BootstrapFinetune, COPRO, SignatureOptimizer, MIPROv2, AvatarOptimizer, BetterTogether, InferRules, SIMBA, LabeledFewShot." .
+    rdfs:comment "For a Module: one of Predict, ChainOfThought, ReAct, ProgramOfThought, MultiChainComparison, RLM, CodeAct, BestOfN, Refine, Pipeline, MultiHop, KNN, Parallel. For an Optimizer: one of GEPA, GRPO, BootstrapFewShot, BootstrapFewShotWithRandomSearch, BootstrapFewShotWithOptuna, BootstrapFinetune, COPRO, SignatureOptimizer, MIPROv2, AvatarOptimizer, BetterTogether, InferRules, SIMBA, LabeledFewShot, Ensemble, KNNFewShot." .
 
 dspy:signature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Signature ;
-    rdfs:comment "Required for Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct. Mutually exclusive with dspy:wrapsModule, which BestOfN/Refine use instead (they wrap another Module, not a Signature directly)." .
+    rdfs:comment "Required for Predict/ChainOfThought/ReAct/ProgramOfThought/MultiChainComparison/RLM/CodeAct. Mutually exclusive with dspy:wrapsModule (BestOfN/Refine), dspy:hasStep (Pipeline), dspy:hopQuerySignature/dspy:hopAnswerSignature (MultiHop), dspy:trainsetName (KNN), and dspy:hasParallelStep (Parallel) -- each of those kinds uses its own composition/construction shape instead of a single bound Signature." .
 
 dspy:usesMCPServer a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:MCPServerConnection ;
     rdfs:comment "Admitted only when dspy:kind is ReAct. Wires the module to the MCP server whose tools dspy.Tool.from_mcp_tool() converts at call time." .
@@ -172,6 +225,93 @@ dspy:refineThreshold a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:d
 
 dspy:refineFailCount a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
     rdfs:comment "BestOfN/Refine-only, optional non-negative integer. dspy.BestOfN's and dspy.Refine's real 'fail_count' parameter (default None)." .
+
+# ── Pipeline / MultiHop / KNN / Parallel Module properties ────────────────────
+# Added 2026-08-10: composition and retrieval support. Every pattern below was actually
+# constructed and executed against the real installed dspy 3.1.3 this session (RAG module via
+# self.retrieve -> self.generate_answer; a 2-hop query-gen/retrieve/accumulate/answer-gen loop;
+# real dspy.KNN/dspy.Parallel construction+execution), not assumed to work from docs.
+
+dspy:hasStep a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:PipelineStep ;
+    rdfs:comment "Pipeline-only, required (at least 2 steps -- a single-step Pipeline is just that step's own kind). Ordered by dspy:stepIndex." .
+
+dspy:pipelineSignature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Signature ;
+    rdfs:comment "Pipeline-only, required. Types the composed Module's own external forward() -- its input fields become forward()'s parameters (bindable via dspy:argSourceKind \"PipelineInput\"), its output fields become the returned dspy.Prediction's fields." .
+
+dspy:stepIndex a rdf:Property ; rdfs:range xsd:integer ;
+    rdfs:comment "Zero-based, non-negative ordering position. Domain varies: dspy:PipelineStep (order within a Pipeline's dspy:hasStep), dspy:ParallelStep (order within a Parallel's dspy:hasParallelStep), or dspy:EnsembleMember (order within an Ensemble's dspy:hasEnsembleMember)." .
+
+dspy:stepVarName a rdf:Property ; rdfs:domain dspy:PipelineStep ; rdfs:range xsd:string ;
+    rdfs:comment "Required. Python identifier -- becomes self.<stepVarName> in __init__ and the local variable capturing this step's call result in forward()." .
+
+dspy:stepKind a rdf:Property ; rdfs:domain dspy:PipelineStep ; rdfs:range xsd:string ;
+    rdfs:comment "Required. Either \"Retrieve\" (dspy.Retrieve, requires dspy:retrieveK, no dspy:stepSignature) or any admitted Signature-bound leaf Module kind (Predict, ChainOfThought, ReAct, ProgramOfThought, MultiChainComparison, RLM, CodeAct -- requires dspy:stepSignature)." .
+
+dspy:stepSignature a rdf:Property ; rdfs:domain dspy:PipelineStep ; rdfs:range dspy:Signature ;
+    rdfs:comment "Required unless dspy:stepKind is \"Retrieve\". Mutually exclusive with dspy:retrieveK on the same step." .
+
+dspy:retrieveK a rdf:Property ; rdfs:range xsd:integer ;
+    rdfs:comment "Positive integer. dspy.Retrieve's real 'k' parameter (default 3, verified via inspect.signature(dspy.Retrieve.__init__), dspy 3.1.3). Domain varies: dspy:PipelineStep (only when dspy:stepKind is \"Retrieve\") or a Module of dspy:kind \"MultiHop\" (the shared retrieval k across all hops)." .
+
+dspy:hasArgBinding a rdf:Property ; rdfs:domain dspy:PipelineStep ; rdfs:range dspy:ArgBinding ;
+    rdfs:comment "Optional (0+). The kwargs passed to this step's call in forward(). A Retrieve step never needs one (its call is always self.<stepVarName>(<the field bound as its query>).passages, resolved the same way); Signature-bound steps use these to wire each Signature input field to its real source." .
+
+dspy:argName a rdf:Property ; rdfs:domain dspy:ArgBinding ; rdfs:range xsd:string ;
+    rdfs:comment "Required. The kwarg name -- must match one of the target step's dspy:stepSignature input field names (Retrieve steps bind their one positional query arg the same way, keyed by the field name)." .
+
+dspy:argSourceKind a rdf:Property ; rdfs:domain dspy:ArgBinding ; rdfs:range xsd:string ;
+    rdfs:comment "Required. One of \"PipelineInput\" (the value comes from the Pipeline Module's own dspy:pipelineSignature input field named by dspy:argSourceField) or \"StepOutput\" (the value comes from dspy:argSourceStep's result, field named by dspy:argSourceField -- e.g. a Retrieve step's \"passages\")." .
+
+dspy:argSourceField a rdf:Property ; rdfs:domain dspy:ArgBinding ; rdfs:range xsd:string ;
+    rdfs:comment "Required. The source field name -- a dspy:pipelineSignature input field name (PipelineInput) or the producing step's output field name / \"passages\" for a Retrieve step (StepOutput)." .
+
+dspy:argSourceStep a rdf:Property ; rdfs:domain dspy:ArgBinding ; rdfs:range dspy:PipelineStep ;
+    rdfs:comment "Required only when dspy:argSourceKind is \"StepOutput\" -- the producing dspy:PipelineStep. Must have a lower dspy:stepIndex than the binding's own step (a step can only consume an earlier step's output, matching how the verified RAG/multi-hop forward() bodies are ordered)." .
+
+dspy:hopQuerySignature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Signature ;
+    rdfs:comment "MultiHop-only, required. Types the per-hop query-generation ChainOfThought (the verified recipe's self.generate_query, real signature shape 'context, question -> query')." .
+
+dspy:hopAnswerSignature a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:Signature ;
+    rdfs:comment "MultiHop-only, required. Types the final answer-generation ChainOfThought (the verified recipe's self.generate_answer, real signature shape 'context, question -> answer')." .
+
+dspy:maxHops a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "MultiHop-only, required positive integer. The verified recipe's max_hops -- how many times the query-gen/retrieve/accumulate loop runs before the final answer-generation call." .
+
+dspy:trainsetName a rdf:Property ; rdfs:range xsd:string ;
+    rdfs:comment "Required Python identifier naming a consumer-defined list[dspy.Example] variable. dspy.KNN's and dspy.KNNFewShot's real 'trainset' parameter (both have no default) -- real Example data is arbitrary, consumer-owned, out of ontology scope, the same boundary as dspy:metricFunction. Domain varies: a Module of dspy:kind \"KNN\" or an Optimizer of dspy:kind \"KNNFewShot\"." .
+
+dspy:usesEmbedder a rdf:Property ; rdfs:range dspy:EmbedderConfig ;
+    rdfs:comment "Required. dspy.KNN's and dspy.KNNFewShot's real 'vectorizer' parameter (both have no default), rendered as a real dspy.Embedder(...) construction via dspy:EmbedderConfig. Domain varies: a Module of dspy:kind \"KNN\" or an Optimizer of dspy:kind \"KNNFewShot\"." .
+
+dspy:hasParallelStep a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range dspy:ParallelStep ;
+    rdfs:comment "Parallel-only, required (at least 1). Ordered by dspy:stepIndex -- the modules ggen scaffolds into the exec_pairs list dspy.Parallel's real forward() consumes." .
+
+dspy:parallelNumThreads a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "Parallel-only, optional positive integer. dspy.Parallel's real 'num_threads' parameter (default None) -- a distinct property from dspy:numThreads (Optimizer-only: GEPA/GRPO) because dspy.Parallel is a dspy:Module, not a dspy:Optimizer." .
+
+dspy:parallelMaxErrors a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "Parallel-only, optional non-negative integer. dspy.Parallel's real 'max_errors' parameter (default None)." .
+
+dspy:accessExamples a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:boolean ;
+    rdfs:comment "Parallel-only, optional. dspy.Parallel's real 'access_examples' parameter (default True)." .
+
+dspy:returnFailedExamples a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:boolean ;
+    rdfs:comment "Parallel-only, optional. dspy.Parallel's real 'return_failed_examples' parameter (default False)." .
+
+dspy:provideTraceback a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:boolean ;
+    rdfs:comment "Parallel-only, optional. dspy.Parallel's real 'provide_traceback' parameter (default None)." .
+
+dspy:disableProgressBar a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:boolean ;
+    rdfs:comment "Parallel-only, optional. dspy.Parallel's real 'disable_progress_bar' parameter (default False)." .
+
+dspy:parallelTimeout a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "Parallel-only, optional positive integer. dspy.Parallel's real 'timeout' parameter (default 120)." .
+
+dspy:stragglerLimit a rdf:Property ; rdfs:domain dspy:Module ; rdfs:range xsd:integer ;
+    rdfs:comment "Parallel-only, optional positive integer. dspy.Parallel's real 'straggler_limit' parameter (default 3)." .
+
+dspy:stepModule a rdf:Property ; rdfs:domain dspy:ParallelStep ; rdfs:range dspy:Module ;
+    rdfs:comment "Required. The existing dspy:Module this ordered Parallel member references." .
 
 # ── MCP server properties ─────────────────────────────────────────────────────
 
@@ -250,16 +390,20 @@ dspy:reflectionMinibatchSize a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:
 # package for BOTH __init__ AND compile() (compile() shapes vary meaningfully -- some omit
 # valset, SignatureOptimizer's real compile() takes 'devset' not 'trainset', COPRO/
 # SignatureOptimizer require 'eval_kwargs', BootstrapFewShotWithOptuna's compile() requires
-# 'max_demos' -- none of this was guessed). Two real optimizers are deliberately NOT admitted:
-#   - dspy.teleprompt.knn_fewshot.KNNFewShot: its real constructor requires a
-#     `trainset: list[Example]` and a real `vectorizer: Embedder` instance, neither
-#     RDF-representable -- same reasoning as dspy.KNN/dspy.Parallel (Module properties above).
-#   - dspy.teleprompt.ensemble.Ensemble: its real compile() signature is `compile(self,
-#     programs)` -- a LIST of programs, not a single `student` Module + `trainset`, and its
-#     constructor has no metric/target-Module concept at all (`reduce_fn`/`size`/
-#     `deterministic` only). It does not fit dspy:Optimizer's "compiles one target Module via
-#     dspy:optimizes" shape at all -- confirmed by inspecting the real compile() signature, not
-#     assumed to fit and then forced.
+# 'max_demos' -- none of this was guessed).
+#
+# UPDATED 2026-08-10: two real optimizers previously excluded here (dspy.teleprompt.
+# knn_fewshot.KNNFewShot, dspy.teleprompt.ensemble.Ensemble) are now admitted, both actually
+# constructed and run against the real installed dspy 3.1.3 this session with no bugs found --
+# KNNFewShot via dspy:kValue/dspy:trainsetName/dspy:usesEmbedder (its real `trainset:
+# list[Example]` and `vectorizer: Embedder` constructor args, previously judged
+# non-RDF-representable, are now handled the same way dspy:LMConfig handles dspy.LM: a real
+# collaborator CONSTRUCTION is admitted, the data it wraps stays consumer-owned via
+# dspy:trainsetName's bare-identifier reference and dspy:EmbedderConfig's dspy.Embedder(...)
+# shape); Ensemble via the dedicated dspy:hasEnsembleMember property (see below) rather than
+# dspy:optimizes, since its real compile(programs) genuinely takes a list with no
+# metric/target-Module concept at all -- confirmed by inspecting the real compile() signature,
+# not assumed to fit dspy:optimizes and then forced.
 # Complex runtime objects appearing in other real constructors below (teacher_settings dict,
 # adapter) are likewise out of scope by the same "arbitrary/non-representable collaborator"
 # principle already established for dspy:metricFunction/dspy:rewardFunction (scaffolded as
@@ -409,7 +553,27 @@ dspy:temperatureForCandidates a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs
     rdfs:comment "SIMBA-only. dspy.SIMBA's real 'temperature_for_candidates' parameter (default 0.2)." .
 
 dspy:kValue a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
-    rdfs:comment "LabeledFewShot-only, positive integer. dspy.LabeledFewShot's real 'k' parameter (default 16)." .
+    rdfs:comment "LabeledFewShot/KNNFewShot-only, positive integer. dspy.LabeledFewShot's real 'k' parameter (default 16) and dspy.KNNFewShot's real 'k' parameter (no default -- required), verified via inspect.signature() on both (dspy 3.1.3)." .
+
+# ── Ensemble / KNNFewShot Optimizer properties ─────────────────────────────────
+# Added 2026-08-10: both real dspy.teleprompt classes previously excluded here (see the
+# round-5 comment above) were actually constructed and run against the real installed dspy
+# 3.1.3 this session with no bugs found.
+
+dspy:hasEnsembleMember a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range dspy:EnsembleMember ;
+    rdfs:comment "Ensemble-only, required (at least 2). Ordered by dspy:stepIndex -- dspy.Ensemble's real compile(programs) takes this as a positional list, not dspy:optimizes/dspy:metricFunction (Ensemble does NOT use either -- it has no metric/target-Module concept at all, confirmed via inspect.signature(dspy.Ensemble.compile))." .
+
+dspy:memberModule a rdf:Property ; rdfs:domain dspy:EnsembleMember ; rdfs:range dspy:Module ;
+    rdfs:comment "Required. The existing dspy:Module this ordered Ensemble member references." .
+
+dspy:reduceFunctionName a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:string ;
+    rdfs:comment "Ensemble-only, optional Python identifier. dspy.Ensemble's real 'reduce_fn' constructor parameter (default None) -- ggen scaffolds a NotImplementedError stub, the same metricFunction-style boundary (arbitrary reduction logic over the ensembled outputs is consumer-owned)." .
+
+dspy:ensembleSize a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:integer ;
+    rdfs:comment "Ensemble-only, optional positive integer. dspy.Ensemble's real 'size' constructor parameter (default None -- all members are sampled every call when unset)." .
+
+dspy:ensembleDeterministic a rdf:Property ; rdfs:domain dspy:Optimizer ; rdfs:range xsd:boolean ;
+    rdfs:comment "Ensemble-only, optional. dspy.Ensemble's real 'deterministic' constructor parameter (default False). CAVEAT (found by real execution against the installed dspy 3.1.3, 2026-08-10, confirmed not a pack bug): deterministic=True is unimplemented in dspy itself -- dspy/teleprompt/ensemble.py's __init__ contains a literal `assert deterministic is False, \"TODO: Implement example hashing for deterministic ensemble.\"`, so it raises AssertionError immediately regardless of other kwargs. The admission gate refuses dspy:ensembleDeterministic = true for this reason." .
 
 # ── Shared ─────────────────────────────────────────────────────────────────────
 

@@ -213,3 +213,82 @@ fn pydantic_model_fields_render_real_basemodel_classes_both_directions() {
         "InputField-direction model missing:\n{program}"
     );
 }
+
+#[test]
+fn rag_pipeline_fixture_generates_real_retrieve_then_reason_module() {
+    let ttl = include_str!("../../../examples/rag-pipeline/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(
+        program.contains("class Rag(dspy.Module):"),
+        "Pipeline module must render as a real dspy.Module subclass:\n{program}"
+    );
+    assert!(program.contains("self.retrieve = dspy.Retrieve(k=3)"));
+    assert!(program.contains("self.generate_answer = dspy.ChainOfThought(AnswerQuestion)"));
+    assert!(
+        program.contains("retrieve_result = self.retrieve(question)"),
+        "Retrieve step must be called positionally with its PipelineInput-bound arg:\n{program}"
+    );
+    assert!(
+        program.contains(
+            "generate_answer_result = self.generate_answer(context=retrieve_result.passages, question=question)"
+        ),
+        "downstream step must resolve its StepOutput/PipelineInput ArgBindings:\n{program}"
+    );
+    assert!(program.contains("return dspy.Prediction(answer=generate_answer_result.answer)"));
+    assert!(
+        program.contains("rag = Rag()"),
+        "Pipeline module must also render a top-level instance, matching every other module kind:\n{program}"
+    );
+}
+
+#[test]
+fn multi_hop_qa_fixture_generates_real_accumulate_context_loop() {
+    let ttl = include_str!("../../../examples/multi-hop-qa/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(program.contains("class MultiHop(dspy.Module):"));
+    assert!(program.contains("self.max_hops = 2"));
+    assert!(program.contains("self.generate_query = dspy.ChainOfThought(GenerateSearchQuery)"));
+    assert!(program.contains("self.retrieve = dspy.Retrieve(k=2)"));
+    assert!(program.contains("self.generate_answer = dspy.ChainOfThought(GenerateAnswer)"));
+    assert!(program.contains("for _hop in range(self.max_hops):"));
+    assert!(program.contains("context = list(set(context) | set(passages))"));
+    assert!(program.contains("multi_hop = MultiHop()"));
+}
+
+#[test]
+fn knn_parallel_ensemble_family_renders_all_four_previously_excluded_kinds() {
+    let ttl = include_str!("../../../examples/knn-parallel-ensemble-family/ontology.ttl");
+    let (program, optimize) = sync_and_read_both(ttl);
+    assert!(
+        program.contains(
+            r#"knn_lookup = dspy.KNN(k=3, trainset=knn_trainset, vectorizer=dspy.Embedder("text-embedding-3-small", batch_size=100, caching=True))"#
+        ),
+        "KNN module must render real dspy.KNN + dspy.Embedder construction:\n{program}"
+    );
+    assert!(
+        program.contains("par = dspy.Parallel(num_threads=4, )"),
+        "Parallel module must render real dspy.Parallel construction:\n{program}"
+    );
+    assert!(program.contains("par_pairs = ["));
+    assert!(program.contains("(predictor1, None)"));
+    assert!(program.contains("(predictor2, None)"));
+    assert!(
+        optimize.contains("ens_opt_optimizer = dspy.Ensemble(reduce_fn=ensemble_reduce, size=2, )"),
+        "Ensemble optimizer must render real dspy.Ensemble construction:\n{optimize}"
+    );
+    assert!(
+        optimize.contains("ens_opt = ens_opt_optimizer.compile([predictor1, predictor2])"),
+        "Ensemble compile() must take a program list, no metric/trainset:\n{optimize}"
+    );
+    assert!(
+        optimize.contains(
+            r#"vectorizer=dspy.Embedder("text-embedding-3-small", batch_size=100, caching=True)"#
+        ),
+        "KNNFewShot optimizer must render real dspy.Embedder construction:\n{optimize}"
+    );
+    assert!(optimize.contains("knn_fewshot_opt_optimizer = dspy.KNNFewShot("));
+    assert!(
+        optimize.contains("knn_fewshot_opt = knn_fewshot_opt_optimizer.compile(predictor1)"),
+        "KNNFewShot compile() must take just the target Module:\n{optimize}"
+    );
+}

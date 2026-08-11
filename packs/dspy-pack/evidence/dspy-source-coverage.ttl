@@ -91,6 +91,10 @@ dspyaud:admitted-RLM a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:py
 dspyaud:admitted-CodeAct a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "CodeAct" .
 dspyaud:admitted-BestOfN a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "BestOfN" .
 dspyaud:admitted-Refine a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "Refine" .
+dspyaud:admitted-Pipeline a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "Pipeline" .
+dspyaud:admitted-MultiHop a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "MultiHop" .
+dspyaud:admitted-KNN a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "KNN" .
+dspyaud:admitted-Parallel a dspyaud:AdmittedKind ; dspyaud:role "Module" ; dspyaud:pythonSymbol "Parallel" .
 dspyaud:admitted-GEPA a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "GEPA" .
 dspyaud:admitted-GRPO a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "GRPO" .
 dspyaud:admitted-BootstrapFewShot a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "BootstrapFewShot" .
@@ -105,11 +109,20 @@ dspyaud:admitted-BetterTogether a dspyaud:AdmittedKind ; dspyaud:role "Optimizer
 dspyaud:admitted-InferRules a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "InferRules" .
 dspyaud:admitted-SIMBA a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "SIMBA" .
 dspyaud:admitted-LabeledFewShot a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "LabeledFewShot" .
+dspyaud:admitted-Ensemble a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "Ensemble" .
+dspyaud:admitted-KNNFewShot a dspyaud:AdmittedKind ; dspyaud:role "Optimizer" ; dspyaud:pythonSymbol "KNNFewShot" .
 
-# KNN, Parallel, KNNFewShot, and Ensemble are deliberately NOT admitted -- confirmed by
-# inspecting their real constructors/compile() methods (dspy 3.1.3): KNN/Parallel take no
-# Signature at construction; KNNFewShot's constructor requires a real trainset+vectorizer
-# object, not RDF-representable; Ensemble's real compile(programs) takes a LIST of programs,
-# not a single student Module + trainset, and its constructor has no metric/target-Module
-# concept. None fit dspy:Module's or dspy:Optimizer's shape -- see ontology.ttl's dspy:Module
-# and dspy:Optimizer comments for the full reasoning.
+# RESOLVED 2026-08-10: KNN, Parallel, KNNFewShot, and Ensemble were previously excluded here.
+# All four were actually constructed AND executed against the real installed dspy 3.1.3 this
+# session (KNN via dspy:trainsetName/dspy:usesEmbedder/dspy:kValue on a "KNN"-kind Module;
+# Parallel via dspy:hasParallelStep; Ensemble via the dedicated dspy:hasEnsembleMember property,
+# since its real compile(programs) genuinely takes a list with no metric/target-Module concept;
+# KNNFewShot via the normal dspy:optimizes shape plus dspy:kValue/dspy:trainsetName/
+# dspy:usesEmbedder) with no bugs found. "Pipeline" and "MultiHop" are two new admitted Module
+# kinds that aren't literal 1:1 dspy source classes -- they're this pack's own composition
+# constructs (an ordered dspy:PipelineStep sequence with dspy:ArgBinding data-flow wiring; a
+# fixed, parameterized retrieve-then-reason recipe) admitted because they render real,
+# actually-executed dspy code (dspy.Retrieve wired into ChainOfThought/Predict steps), not
+# because a single dspy class named "Pipeline"/"MultiHop" exists upstream -- included in the
+# AdmittedKind set above for the drift guard's own bookkeeping, not cross-referenced against a
+# dspyaud:DSPySourceClass entry the way every other admitted kind is.
