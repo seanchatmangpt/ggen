@@ -1,0 +1,63 @@
+# MESSAGE: every projected artifact linked via sp:derivedFromShape must resolve to a real,
+# renderable set of SHACL property shapes. Any row is a refusal. Generalizes
+# packs/dspy-pack's gates/020_shacl_signature_admission.rq (SHACL-shape-driven Signature
+# derivation, round 5) over sp:derivedFromShape / ANY sh:NodeShape instead of being hardcoded
+# to dspy:Signature, so a second projection target (e.g. a Pydantic model) gets the same
+# admission discipline without composing dspy-pack at all.
+PREFIX sp:   <http://seanchatmangpt.github.io/packs/shacl-projection#>
+PREFIX sh:   <http://www.w3.org/ns/shacl#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?projection ?violation WHERE {
+  {
+    # Every reachable property shape must have both sh:path and sh:datatype.
+    ?projection sp:derivedFromShape ?shape .
+    ?shape sh:property ?prop .
+    FILTER NOT EXISTS { ?prop sh:path ?p }
+    BIND("SHACL property shape missing required sh:path" AS ?violation)
+  } UNION {
+    ?projection sp:derivedFromShape ?shape .
+    ?shape sh:property ?prop .
+    FILTER NOT EXISTS { ?prop sh:datatype ?dt }
+    BIND("SHACL property shape missing required sh:datatype" AS ?violation)
+  } UNION {
+    # sh:datatype must be one of the 4 admitted python-type-mappable XSD types (same enum
+    # dspy-pack's own gate enforces, reused by IRI).
+    ?projection sp:derivedFromShape ?shape .
+    ?shape sh:property ?prop .
+    ?prop sh:datatype ?dt .
+    FILTER (!(?dt = xsd:string || ?dt = xsd:boolean || ?dt = xsd:integer || ?dt = xsd:long || ?dt = xsd:decimal || ?dt = xsd:float || ?dt = xsd:double))
+    BIND(CONCAT("sh:datatype not one of the admitted 4 python-type-mappable XSD types: ", STR(?dt)) AS ?violation)
+  } UNION {
+    # sh:path's local name must be a valid Python identifier -- refuse, don't auto-mangle
+    # ("templates echo, they never synthesize": the source must already be renderable).
+    ?projection sp:derivedFromShape ?shape .
+    ?shape sh:property ?prop .
+    ?prop sh:path ?p .
+    BIND(REPLACE(STR(?p), "^.*[/#]", "") AS ?localName)
+    FILTER (!REGEX(?localName, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+    BIND(CONCAT("sh:path local name is not a valid Python identifier: ", ?localName) AS ?violation)
+  } UNION {
+    # Every property-shape local name must be unique within its shape (no silent collision
+    # renaming, same "refuse, don't auto-mangle" reasoning as above).
+    ?projection sp:derivedFromShape ?shape .
+    ?shape sh:property ?propA , ?propB .
+    ?propA sh:path ?pathA . ?propB sh:path ?pathB .
+    BIND(REPLACE(STR(?pathA), "^.*[/#]", "") AS ?nameA)
+    BIND(REPLACE(STR(?pathB), "^.*[/#]", "") AS ?nameB)
+    FILTER (?propA != ?propB && ?nameA = ?nameB && STR(?propA) < STR(?propB))
+    BIND(CONCAT("duplicate field name within one shape: ", ?nameA) AS ?violation)
+  } UNION {
+    # Every projection must have >=1 real sp:isPrimaryOutput field. Refuse rather than
+    # fabricate a default. Target-agnostic on purpose: a dspy:Signature marks only its real
+    # OutputField(s); a plain Pydantic model (no input/output distinction) marks every one of
+    # its own real fields -- either way this is a real assertion the fixture author makes,
+    # never a value this gate invents.
+    ?projection sp:derivedFromShape ?shape .
+    FILTER NOT EXISTS {
+      ?shape sh:property ?outProp .
+      ?outProp sp:isPrimaryOutput true .
+    }
+    BIND("shape has zero properties marked sp:isPrimaryOutput true -- refused, none fabricated" AS ?violation)
+  }
+}
+ORDER BY ?projection ?violation

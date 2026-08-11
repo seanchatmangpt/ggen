@@ -1,0 +1,50 @@
+[pack]
+name = "shacl-projection-pack"
+version = "0.1.0"
+description = """
+Shared, target-agnostic vocabulary and admission gate for "SHACL-shape-driven projection" --
+the pattern first built as a one-off inside packs/dspy-pack (dspy:derivedFromShaclShape,
+dspy:isOutputField, gates/020_shacl_signature_admission.rq), extracted here so a NEW
+projection target (a Pydantic model, a Rust struct, a TypeScript interface, ...) does not
+have to re-derive the SHACL-discovery/validation logic from scratch.
+
+Reuses standard SHACL vocabulary directly (sh:NodeShape / sh:PropertyShape / sh:targetClass /
+sh:property / sh:path / sh:datatype) -- this pack does not reinvent it. It adds exactly one
+new predicate pair on top: sp:derivedFromShape (generalizes dspy:derivedFromShaclShape past
+dspy specifically -- "this projected artifact's fields come from this real sh:NodeShape") and
+sp:isPrimaryOutput (generalizes dspy:isOutputField -- "this field is a real, rendered field of
+the target artifact, not a fabricated default"). The admitted-datatype enum (xsd:string /
+xsd:boolean / xsd:integer|xsd:long / xsd:decimal|xsd:float|xsd:double) is the same 4-python-type
+mapping dspy-pack's gate already enforces, reused by literal IRI, not reimplemented.
+
+gates/010_shape_validity.rq is the SAME validation dspy-pack's own
+gates/020_shacl_signature_admission.rq implements (every reachable sh:PropertyShape must have
+both sh:path and sh:datatype; sh:datatype must be one of the 4 admitted XSD types; sh:path's
+local name must be a valid, unique-within-shape Python identifier -- refuse, don't
+auto-mangle; every projection must have >=1 real sp:isPrimaryOutput field, never a
+fabricated default), rewritten generically over sp:derivedFromShape / ANY sh:NodeShape instead
+of being hardcoded to dspy:Signature. dspy-pack's own gate is left untouched (round-5 SHACL
+feature, 18 passing e2e tests) -- this pack does not replace it, it is the generalized sibling
+a second projection target can reuse without composing dspy-pack at all.
+
+REAL LIMITATION, stated precisely rather than overclaimed: ggen packs cannot declare
+pack-to-pack dependencies in pack.toml -- there is no [dependencies] table a pack can use to
+require another pack be present. This pack's vocabulary/gate is therefore not "depended on" by
+any consumer of a second projection-target pack (e.g. packs/shacl-to-pydantic-pack) in any
+enforced sense; it is REUSED two ways, both verified against a real `ggen sync run` in this
+pack version: (1) by IRI -- a template's SPARQL can query `sp:derivedFromShape`/
+`sp:isPrimaryOutput` triples without this pack being present at all, since RDF predicates are
+just IRIs, not gated symbols; (2) by explicit composition -- a consumer's OWN ggen.toml lists
+BOTH packs.shacl-projection-pack AND packs.shacl-to-pydantic-pack under [packs], and ggen-engine
+runs every composed pack's gates/*.rq against the UNION of the merged graph
+(crates/ggen-engine/src/sync.rs, "Pack-shipped SPARQL gates" stage) -- so shacl-projection-pack's
+gates/010_shape_validity.rq enforces shape validity for shacl-to-pydantic-pack's fields even
+though shacl-to-pydantic-pack ships no admission gate of its own. A consumer that composes
+shacl-to-pydantic-pack WITHOUT also composing shacl-projection-pack gets the vocabulary (IRIs
+are just strings) but NOT the admission gate -- this is the real, confirmed boundary of pack
+composition in this codebase, not a dependency mechanism.
+
+Ships zero individuals (pure law, matching dspy-pack's own convention) -- composing this pack
+injects no signature, model, or shape into a consumer's generated output. A consumer supplies
+its own sh:NodeShape / sp:derivedFromShape individuals in its own .ttl.
+"""

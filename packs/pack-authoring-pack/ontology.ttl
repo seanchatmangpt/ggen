@@ -106,9 +106,9 @@ how-to below).
 - **`how-to-write-a-chicago-e2e-test.md`** — prove your pack works, for real.
 - **`reference.md`** — the full file-layout contract.
 - **`explanation.md`** — why packs are shaped this way.
-- **`advanced-practices.md`** — optional practices proven in one pack
-  (`dspy-pack`) so far, with explicit fit/don't-fit guidance before you
-  adopt any of them.""" .
+- **`advanced-practices.md`** — optional practices proven in real packs so
+  far (`dspy-pack`, `domain-capability-pack`, `wasm4pm-breed-provenance-pack`),
+  with explicit fit/don't-fit guidance before you adopt any of them.""" .
 
 pat:HowToGateDoc a pat:DiataxisDoc ;
     pat:docPath "docs/pack-authoring/how-to-add-a-gate.md" ;
@@ -418,14 +418,15 @@ pat:AdvancedPracticesDoc a pat:DiataxisDoc ;
 
 The core file layout (`reference.md`) and the four-part Chicago-TDD pattern
 (`how-to-write-a-chicago-e2e-test.md`) are load-bearing for every pack. The
-five practices below are **not** part of that mandatory core — a 2026-08-11
-survey of `packs/*` found each one real and proven in exactly one pack
-(`dspy-pack`, verified against the real installed `dspy 3.1.3` package
-across a multi-session build-out), but not yet followed anywhere else, and
-not always applicable. Each entry states what it is, when it genuinely
-fits, and — as important — when it doesn't, so adopting one isn't cargo
-culting `dspy-pack`'s specific circumstances onto a pack that doesn't share
-them.
+six practices below are **not** part of that mandatory core — a 2026-08-11
+survey of `packs/*` found each one real and proven in exactly one pack (five
+of the six in `dspy-pack`, verified against the real installed `dspy 3.1.3`
+package across a multi-session build-out; the sixth in `domain-capability-
+pack` and its 2026-08-11 second instance `wasm4pm-breed-provenance-pack`),
+but not yet followed everywhere else, and not always applicable. Each entry
+states what it is, when it genuinely fits, and — as important — when it
+doesn't, so adopting one isn't cargo culting one pack's specific
+circumstances onto a pack that doesn't share them.
 
 ## 1. Zero-individuals, vocabulary-only shipping
 
@@ -532,6 +533,59 @@ kinds/classes are admitted, what was excluded and why, what got resolved).
 served by `reference.md`'s existing norm — a short, current, static
 one-paragraph description — since an ever-growing changelog-as-description
 mostly adds noise once the pack stops evolving month to month.
+
+## 6. Canonical-fact + drift-guarded projection (Capability/Manifest/Allowlist)
+
+`domain-capability-pack` (2026-08-11) answered a real, found problem: the
+same domain fact existed independently in multiple hand-authored places
+with no shared vocabulary and no drift guard between them (SREGym's real
+14-capability surface in `~/gymact/src/gymact/gyms/sregym.py`, silently
+diverged from `~/autofde-lab`'s hand-maintained 5-entry allowlist copy,
+whose own header comment had already gone false before anyone noticed). The
+fix generalizes into three RDF classes: a **canonical fact** (`dcp:
+Capability` — real provenance fields `sourceRepo`/`sourceFile`, transcribed
+verbatim, never hand-summarized), a **source manifest** (`dcp:
+CapabilitySourceManifest` — declares the expected count for one
+`(sourceRepo, sourceFile)` pair, so the SPARQL gate `gates/
+020_exact_count_per_source.rq` refuses the moment the real count drifts
+from the declared one), and a **consumer projection** (`dcp:LabAllowlist` —
+a strict subset of the canonical set, refused by `gates/
+030_allowlist_subset.rq` the moment it references anything not really
+admitted).
+
+The pattern was proven a SECOND time, same session, against a genuinely
+different topology: `wasm4pm-breed-provenance-pack` found that wasm4pm's
+real 55-entry cognition-breed catalog (`~/wasm4pm/ggen/ontology/
+breeds.ttl`) is independently, fully re-admitted under identical subject
+IRIs by two sibling ggen packs already shipping in this workspace
+(`wasm4pm-facts-pack`, `wasm4pm-cognition-pack`) — one upstream source,
+TWO sibling-pack re-admissions of the same full set, rather than one
+external domain vs. one lab's partial subset. The same three-class shape
+(`wbp:Breed`/`wbp:BreedSourceManifest`/`wbp:PackAdoption`) and the same two
+gate shapes (exact-count-per-source, admits-subset-of-canonical) closed it
+without inventing a new pattern.
+
+**Fits**: any situation where a real fact (a capability list, an admitted
+catalog, an API surface) is — or is at risk of being — hand-copied into
+more than one place with no shared source of truth: a domain's executable
+world vs. a consuming pipeline's allowlist (`domain-capability-pack`), or
+two sibling packs independently re-admitting the same upstream catalog
+(`wasm4pm-breed-provenance-pack`). The tell is the same in both cases: find
+the real files on every side, confirm by direct read/grep (not by trusting
+a pack's own description) that no existing gate already checks
+cross-source consistency, then admit the real current facts — including
+any already-happened drift, which is itself the strongest evidence the
+gates are load-bearing, not decorative.
+
+**Does not fit**: a fact that only ever exists in ONE real place (no
+projection, no allowlist, no sibling copy) has nothing to drift against —
+adding this shape there is ceremony with no failure mode it prevents. It
+also does not fit a fact whose "duplication" is actually already
+drift-guarded by an existing mechanism — `wasm4pm-facts-pack`'s own
+`scripts/check_upstream_drift.sh` already checks that pack against live
+upstream; `wasm4pm-breed-provenance-pack` deliberately targets the
+DIFFERENT, unguarded pack-to-pack gap instead of reimplementing that
+already-real check.
 
 ## Source
 

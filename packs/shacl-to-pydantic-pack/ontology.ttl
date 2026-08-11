@@ -1,0 +1,21 @@
+# Pydantic-model projection vocabulary. Pure law -- ships zero individuals, so composing this
+# pack cannot inject any model into a consumer's generated src/. A consumer supplies its own
+# sp:PydanticModel individuals (and their sp:derivedFromShape sh:NodeShape, reusing
+# packs/shacl-projection-pack's shared predicate by IRI) in its own .ttl.
+
+@prefix sp:      <http://seanchatmangpt.github.io/packs/shacl-projection#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+sp:PydanticModel a rdfs:Class ;
+    rdfs:label "PydanticModel" ;
+    rdfs:comment "A pydantic.BaseModel subclass whose fields are projected from a real sh:NodeShape via sp:derivedFromShape (shared predicate, reused by IRI from packs/shacl-projection-pack -- not redeclared)." .
+
+sp:className a rdf:Property ;
+    rdfs:label "class name" ;
+    rdfs:domain sp:PydanticModel ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The literal Python class name rendered verbatim -- echoed, not synthesized." .

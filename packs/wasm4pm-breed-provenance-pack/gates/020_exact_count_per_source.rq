@@ -1,0 +1,24 @@
+# MESSAGE: a wbp:BreedSourceManifest declares how many real wbp:Breed
+# individuals should exist for its (sourceRepo, sourceFile) pair. Any row =
+# the real count for that source diverges from the declared
+# expectedBreedCount -- the mechanical drift guard: if wasm4pm's real breed
+# catalog grows/shrinks without this manifest being reviewed and updated,
+# the sync refuses rather than silently admitting a stale count. OPTIONAL is
+# used deliberately (not an inner join) so a manifest declaring a nonzero
+# count against a source with ZERO real wbp:Breed individuals is also
+# caught -- mirrors domain-capability-pack's gates/020 exactly.
+PREFIX wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#>
+SELECT ?manifest ?repo ?file ?expected ?actual WHERE {
+  ?manifest a wbp:BreedSourceManifest ;
+      wbp:manifestSourceRepo ?repo ;
+      wbp:manifestSourceFile ?file ;
+      wbp:expectedBreedCount ?expected .
+  OPTIONAL {
+    SELECT ?repo ?file (COUNT(?breed) AS ?actualRaw) WHERE {
+      ?breed a wbp:Breed ; wbp:sourceRepo ?repo ; wbp:sourceFile ?file .
+    } GROUP BY ?repo ?file
+  }
+  BIND(COALESCE(?actualRaw, 0) AS ?actual)
+  FILTER (?actual != ?expected)
+}
+ORDER BY ?manifest

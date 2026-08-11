@@ -1,0 +1,42 @@
+[pack]
+name = "standing-ladder-pack"
+version = "0.1.0"
+description = """
+Generalizes the two-tier admission pattern already proven by
+packs/process-intelligence-rag-pack (an ordinary "grounded or refused" gate,
+gates/010_grounded_or_refused.rq, plus a STRICTER tier for a stronger purpose,
+gates/020_strategic_grounding_required.rq) into an explicit, ordered 10-state
+evidentiary promotion ladder any fact in this workspace can be pinned against:
+
+  UNKNOWN -> OBSERVED -> VALIDATED -> DERIVED -> CANDIDATE ->
+  EXPERIMENTALLY_SUPPORTED -> ADMITTED -> MANUFACTURED -> ACTUATED -> VERIFIED
+
+A stl:StandingClaim's current stl:hasStanding is not self-certifying: it is
+admissible only if a real, evidenced stl:StandingTransition exists for every
+single step from UNKNOWN up to the claimed state, in order, with no state
+skipped and no empty stl:evidenceRef -- enforced by
+gates/010_no_skipped_states.rq, not merely documented. This is the same
+"a fact should not be trusted for a stronger purpose than the evidence backing
+it actually supports" principle process-intelligence-rag-pack applies to one
+pair of tiers, generalized here to all 10 rungs of one fixed ladder.
+
+Worked instance (2026-08-11), not an empty template: pins
+packs/domain-capability-pack's real, already-admitted dcp:sregym-run-kubectl
+capability (reused by IRI, no formal cross-pack dependency -- the same
+reuse-without-import pattern domain-capability-pack itself used for
+gh-actions-errc-pack's errc: vocabulary) to real standing ADMITTED, backed by
+a real 6-transition chain (UNKNOWN through ADMITTED -- this pack's ladder has
+10 rungs total, 9 hops end to end, but dcp:sregym-run-kubectl's own real
+history only reaches ADMITTED today; fabricating MANUFACTURED/ACTUATED/
+VERIFIED evidence for a capability fact that has not actually gone through
+manufacture/actuation/verification would violate the no-fabrication
+discipline this pack itself exists to enforce), each hop's stl:evidenceRef
+citing a real, specific, checkable artifact in this workspace (a real file
+read, a real passing gate, a real e2e test) rather than placeholder text.
+
+Named out of scope: this pack does not implement automatic standing
+promotion (no code advances a claim's stl:hasStanding for you); it only
+admits or refuses a claim's CURRENT declared standing against the evidence
+chain a human or agent supplies. Promotion tooling is a real, separate gap
+this pack does not close.
+"""
