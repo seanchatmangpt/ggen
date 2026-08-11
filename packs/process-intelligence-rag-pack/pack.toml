@@ -1,0 +1,35 @@
+[pack]
+name = "process-intelligence-rag-pack"
+version = "0.1.0"
+description = """
+Direct implementation of one named, concrete requirement from Wil van der Aalst's "No AI
+Without PI! Object-Centric Process Mining as the Enabler for Generative, Predictive, and
+Prescriptive Artificial Intelligence" (arXiv:2508.00116, 2025) -- specifically Figure 4's
+connection 4 (GenAI for human interaction), where the paper states answers must be "based on
+process mining computations rather than guessing based on a general-purpose LLM" and warns
+explicitly that "just sending textually encoded process variants or DFGs to the GenAI is
+enough to generate answers, but these are not very reliable."
+
+This pack turns that requirement into an admission-control rule, not prose: a
+dspy:GroundedProcessQuery (reusing packs/dspy-pack's real dspy:Signature/InputField/
+OutputField vocabulary by IRI, not composed as a dependency, the same reuse-without-import
+pattern packs/domain-capability-pack already used for packs/gh-actions-errc-pack's errc:
+vocabulary) REQUIRES a grounding_facts input, and gates/010_grounded_or_refused.rq refuses
+any declared dspy:Module bound to that signature that lacks a real, linked
+pirag:GroundingSource -- a query with no real process-intelligence grounding is
+structurally inadmissible, not merely discouraged.
+
+Worked instance (2026-08-11), not an empty template: reuses packs/domain-capability-pack's
+real, already-admitted 14 SREGYM_CAPABILITIES facts as one real pirag:GroundingSource, and
+one real dspy:GroundedProcessQuery-bound dspy:Module answering a real, checkable question
+about them.
+
+Named out of scope (per this session's no-overclaiming discipline): this pack implements
+connection 4 of the paper's Figure 4 only. Connection 1 (systematic training-example
+generation from OCED for arbitrary process-related problems) and connection 5 (GenAI-assisted
+bridging of proprietary source-system formats into OCED) are real, separate gaps this pack
+does not address. "A system that can handle an entire Fortune-5 research program completely
+automatically and autonomically" is far larger than what any one pack closes -- this pack
+closes one named, verifiable connection from one real paper, against real data already
+admitted in this workspace.
+"""

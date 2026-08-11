@@ -1,0 +1,42 @@
+[pack]
+name = "k8s-pack"
+version = "0.0.0-design"
+description = """
+DESIGN SKETCH, not a buildable pack — do not compose this into any consumer's ggen.toml.
+
+2026-08-11: this directory exists to answer one question concretely: "what would a
+best-practice, real-object k8s ontology pack look like?", raised while reviewing
+~/autofde-lab/docs/planning/fortune5-k8s-state-space/ROADMAP.md, which names 4 real gaps
+blocking Fortune-500-scale k8s state-space modeling in any ggen pack. This sketch answers
+gap #1 only (no typed, hierarchical k8s object schema exists anywhere yet) by proving the
+SHAPE is representable in ggen's ontology/gate conventions: a real 3-level-deep nesting
+(PodSpec -> Container -> ResourceRequirements) that packs/dspy-pack's own
+gates/010_admission.rq structurally cannot express (PydanticModelField is required to carry
+only dspy:pythonType -- nesting a PydanticModel inside a PydanticModel is explicitly out of
+scope there, per that gate's own comment).
+
+What this sketch does NOT do, and the ROADMAP's own solved PDDL plan is explicit that a real
+k8s-pack cannot responsibly exist before these land:
+  - No schema-to-ontology generator (gap #3). This ontology was hand-authored against one
+    real k8s object (a Pod's containers[].resources.limits shape, matching the real
+    Kubernetes OpenAPI schema's v1.Container/v1.ResourceRequirements types), not generated
+    from the full k8s OpenAPI spec. A real k8s-pack needs a generator that walks that spec's
+    ~700 schema definitions; this is 1 object, by hand, as a shape proof only.
+  - Not wired into any ggen.toml anywhere in this repo or ggen-marketplace. Composing it does
+    nothing today because nothing references it.
+  - Not verified against a real cluster or real kubectl/client-go output -- see
+    dspy-pack's "real-source signature verification" advanced practice
+    (packs/pack-authoring-pack's new advanced-practices.md doc) for what that bar looks like;
+    this sketch has not cleared it.
+  - No Chicago-TDD e2e test in crates/ggen-engine/tests/ -- deliberately, since wiring one up
+    would imply this is a real, composable pack, which it is not yet.
+
+Satisfies ROADMAP.md step 2 (`build-typed-k8s-object-schema`) only -- the one action its
+solved PDDL plan marks precondition-free and therefore buildable independently of the other
+7 steps. Does NOT satisfy step 4 (`build-schema-to-ontology-generator`) or step 5
+(`author-k8s-pack`, whose PDDL precondition is
+`(and (has-schema-to-ontology-generator) (has-nested-pydantic-support))` -- neither exists
+yet). Rename this directory to `k8s-pack` (dropping `-DESIGN`) only once a real generator
+and gate-loosening work land and this ontology has been re-derived from that generator's
+real output, not hand-extended from this hand-authored seed.
+"""

@@ -1,0 +1,129 @@
+@prefix dspy:  <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# dspy: vocabulary reused by IRI from packs/dspy-pack -- NOT composed as a dependency
+# (dspy-pack itself ships zero individuals; nothing to compose). Same
+# reuse-without-import pattern packs/domain-capability-pack already used for
+# packs/gh-actions-errc-pack's errc: vocabulary this session: RDF classes need no
+# formal import to be reused by IRI.
+#################################################################
+
+#################################################################
+# pirag: vocabulary -- grounding-source provenance and the one admission rule this
+# pack exists for.
+#################################################################
+
+pirag:GroundingSource a rdfs:Class ;
+    rdfs:label "A real, checkable upstream process-intelligence computation a GroundedProcessQuery's grounding_facts input is derived from -- never an unconstrained free-text claim." .
+
+pirag:producedBy a rdf:Property ; rdfs:domain pirag:GroundingSource ;
+    rdfs:comment "Closed: \"wasm4pm-conformance\" | \"wasm4pm-discovery\" | \"domain-capability-pack\" -- only real, checkable upstream computations this workspace already has, not an arbitrary string." .
+
+pirag:factsSummary a rdf:Property ; rdfs:domain pirag:GroundingSource ;
+    rdfs:comment "The real, structured summary of what producedBy computed -- this is what a dspy:GroundedProcessQuery's grounding_facts input is rendered from." .
+
+pirag:grounds a rdf:Property ;
+    rdfs:domain dspy:Module ; rdfs:range pirag:GroundingSource ;
+    rdfs:comment "Links a dspy:Module bound to pirag:GroundedProcessQuerySignature to the real pirag:GroundingSource supplying its grounding_facts input. REQUIRED for any such Module -- enforced by gates/010_grounded_or_refused.rq, not merely documented. This is the literal, structural enactment of van der Aalst's \"No AI Without PI\" (arXiv:2508.00116): a query with no real process-intelligence grounding is inadmissible, not merely discouraged." .
+
+#################################################################
+# The one signature this pack defines: a grounded-query dspy:Signature, in dspy-pack's
+# own real Signature/InputField/OutputField shape.
+#################################################################
+
+pirag:GroundedProcessQuerySignature a dspy:Signature ;
+    dcterms:title "GroundedProcessQuery" ;
+    dcterms:description "Answer a natural-language question about a process, grounded in real, computed process-intelligence facts -- never answered from the model's own unconstrained knowledge. Directly implements van der Aalst's 'No AI Without PI!' (arXiv:2508.00116) Figure 4 connection 4: 'based on process mining computations rather than guessing based on a general-purpose LLM'." ;
+    dspy:className "GroundedProcessQuery" ;
+    dspy:hasInput pirag:gpq-question-input, pirag:gpq-grounding-facts-input ;
+    dspy:hasOutput pirag:gpq-answer-output, pirag:gpq-citations-output .
+
+pirag:gpq-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The natural-language question to answer." .
+
+pirag:gpq-grounding-facts-input a dspy:InputField ;
+    dspy:name "grounding_facts" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. A structured summary of real, computed process-intelligence facts (object types, event types, discovered relations, conformance verdicts) the answer must be grounded in -- never free text the model could substitute its own guess for. The paper is explicit that skipping this and 'just sending textually encoded process variants or DFGs to the GenAI' produces answers that 'are not very reliable.'" .
+
+pirag:gpq-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "The grounded answer." .
+
+pirag:gpq-citations-output a dspy:OutputField ;
+    dspy:name "grounding_citations" ; dspy:pythonType "str" ;
+    dcterms:description "Which parts of grounding_facts the answer actually used -- forces traceability instead of an unverifiable claim of groundedness." .
+
+#################################################################
+# Worked instance (2026-08-11): reuses packs/domain-capability-pack's real, already-
+# admitted 14 SREGYM_CAPABILITIES facts as one real grounding source.
+#################################################################
+
+pirag:sregym-capability-grounding a pirag:GroundingSource ;
+    pirag:producedBy "domain-capability-pack" ;
+    pirag:factsSummary "14 real dcp:Capability individuals transcribed from ~/gymact/src/gymact/gyms/sregym.py's SREGYM_CAPABILITIES tuple, all dcp:consequence=\"DO\": observe_cluster_state, run_kubectl, submit_diagnosis, submit_mitigation, get_benchmark_status, jaeger_get_services, jaeger_get_operations, jaeger_get_traces, jaeger_get_dependency_graph, loki_get_logs, loki_get_labels, loki_get_label_values, prometheus_get_metrics, prometheus_get_alerts. autofde-lab's real dcp:LabAllowlist (~/autofde-lab/src/autofde_lab/fabric/gymact_capabilities.toml) admits exactly 5 of the 14: observe_cluster_state, run_kubectl, get_benchmark_status, submit_diagnosis, submit_mitigation." .
+
+pirag:sregym-capability-query a dspy:Module ;
+    dspy:kind "ChainOfThought" ;
+    dspy:name "answer_sregym_capability_question" ;
+    dspy:signature pirag:GroundedProcessQuerySignature ;
+    pirag:grounds pirag:sregym-capability-grounding ;
+    dcterms:description "Which SREGym capabilities are DO vs READ, and which are in autofde-lab's real allowlist?" .
+
+#################################################################
+# Round 4: strategic-grounding authority -- a stricter admission tier.
+#
+# Turning "human requirements" (TOGAF Phase A architecture-vision origination) into a
+# dspy:Signature does not eliminate the grounding requirement -- it relocates it into a
+# required InputField, same as GroundedProcessQuery above. But treating ANY real
+# pirag:GroundingSource as sufficient to originate STRATEGY (not just answer an
+# operational question) would silently smuggle back in the exact ungrounded-authority
+# failure "No AI Without PI" warns against: not every real fact is fit to found a vision
+# on. This tier makes that distinction real and gated, not asserted in prose.
+#################################################################
+
+dspy:OriginateArchitectureVisionSignature a dspy:Signature ;
+    dcterms:title "OriginateArchitectureVision" ;
+    dcterms:description "Propose a delta to an architecture vision (TOGAF ADM Phase A), grounded in real observed process history and any real exogenous signal -- never originated from the model's own unconstrained priors. exogenous_signal is a real, honestly-typed field even though no purely self-observed system can populate it: a system that treats only its own trace history as sufficient to originate strategy is structurally closed and cannot represent what it has never been exposed to." ;
+    dspy:className "OriginateArchitectureVision" ;
+    dspy:hasInput pirag:oav-history-input, pirag:oav-exogenous-input ;
+    dspy:hasOutput pirag:oav-delta-output, pirag:oav-sufficiency-output .
+
+pirag:oav-history-input a dspy:InputField ;
+    dspy:name "observed_process_history" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. Real, computed process-intelligence facts about what the system has actually observed of itself over time." .
+
+pirag:oav-exogenous-input a dspy:InputField ;
+    dspy:name "exogenous_signal" ; dspy:pythonType "str" ;
+    dcterms:description "REQUIRED. Real signal from outside the system's own observed history (a new regulation, a market shift, a competitor's move) -- may legitimately be empty for a purely self-observed instance, but the field exists and is named so that absence is visible, not silently omitted from the contract." .
+
+pirag:oav-delta-output a dspy:OutputField ;
+    dspy:name "proposed_vision_delta" ; dspy:pythonType "str" ;
+    dcterms:description "The proposed change to the architecture vision." .
+
+pirag:oav-sufficiency-output a dspy:OutputField ;
+    dspy:name "grounding_sufficiency_citation" ; dspy:pythonType "str" ;
+    dcterms:description "Which real facts in observed_process_history/exogenous_signal the proposed delta actually traces to." .
+
+pirag:StrategicGroundingAuthority a rdfs:Class ;
+    rdfs:label "An explicit grant that one specific pirag:producedBy value is trusted not merely to ground an ordinary operational GroundedProcessQuery, but to ORIGINATE strategy via OriginateArchitectureVision -- a strictly higher bar. This is the one small, irreducible admitted triple the recursion bottoms out in: everything else (vision origination, delta proposal, sufficiency citation) can be pushed into a Signature/Module and gated, but SOMETHING must explicitly authorize which real facts are trusted to found a vision on, or the system has silently self-authorized its own strategic grounding." .
+
+pirag:authorizedProducedBy a rdf:Property ; rdfs:domain pirag:StrategicGroundingAuthority ;
+    rdfs:comment "Must match a real value already admitted by pirag:producedBy's closed enum -- granting strategic authority to a source that isn't even a valid operational GroundingSource producer would be incoherent." .
+
+# Worked instance: domain-capability-pack's real, already-admitted facts are granted
+# strategic authority, with a real, reviewable justification -- not a rubber stamp.
+pirag:domain-capability-pack-strategic-grant a pirag:StrategicGroundingAuthority ;
+    pirag:authorizedProducedBy "domain-capability-pack" ;
+    dcterms:description "domain-capability-pack's capability facts are transcribed verbatim from real, versioned upstream source (gymact/gyms/sregym.py, autofde-lab's own allowlist file), with a real, gate-enforced drift guard (dcp:CapabilitySourceManifest) between the two -- a materially different reliability bar than an ungoverned free-text claim, and the specific, reviewable reason this source earned strategic authority rather than only operational grounding." .
+
+pirag:sregym-vision-query a dspy:Module ;
+    dspy:kind "ChainOfThought" ;
+    dspy:name "propose_sregym_capability_vision_delta" ;
+    dspy:signature dspy:OriginateArchitectureVisionSignature ;
+    pirag:grounds pirag:sregym-capability-grounding ;
+    dcterms:description "Given SREGym's real capability surface and autofde-lab's real allowlist, what should the next capability-governance vision be?" .

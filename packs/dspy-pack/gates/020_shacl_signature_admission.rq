@@ -1,0 +1,59 @@
+# MESSAGE: every dspy:Signature with dspy:derivedFromShaclShape must resolve to a real,
+# renderable set of SHACL property shapes. Any row is a refusal. Ported from ttl2dspy.py's
+# real algorithm (found across ~/cns/~/bytestar this session), with two deliberate
+# improvements: explicit dspy:isOutputField (not comment-sniffing), and a REQUIRED >=1 real
+# output field (not a silently-fabricated default).
+PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX sh:   <http://www.w3.org/ns/shacl#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+SELECT ?signature ?violation WHERE {
+  {
+    # Every reachable property shape must have both sh:path and sh:datatype.
+    ?signature dspy:derivedFromShaclShape ?shape .
+    ?shape sh:property ?prop .
+    FILTER NOT EXISTS { ?prop sh:path ?p }
+    BIND("SHACL property shape missing required sh:path" AS ?violation)
+  } UNION {
+    ?signature dspy:derivedFromShaclShape ?shape .
+    ?shape sh:property ?prop .
+    FILTER NOT EXISTS { ?prop sh:datatype ?dt }
+    BIND("SHACL property shape missing required sh:datatype" AS ?violation)
+  } UNION {
+    # sh:datatype must be one of the 4 types this pack's dspy:pythonType admits.
+    ?signature dspy:derivedFromShaclShape ?shape .
+    ?shape sh:property ?prop .
+    ?prop sh:datatype ?dt .
+    FILTER (!(?dt = xsd:string || ?dt = xsd:boolean || ?dt = xsd:integer || ?dt = xsd:long || ?dt = xsd:decimal || ?dt = xsd:float || ?dt = xsd:double))
+    BIND(CONCAT("sh:datatype not one of the admitted 4 python-type-mappable XSD types: ", STR(?dt)) AS ?violation)
+  } UNION {
+    # sh:path's local name must be a valid Python identifier -- refuse, don't auto-mangle
+    # (ttl2dspy.py's baseline snake_cases/collision-resolves; this pack requires the source
+    # to already be renderable, matching "templates echo, they never synthesize").
+    ?signature dspy:derivedFromShaclShape ?shape .
+    ?shape sh:property ?prop .
+    ?prop sh:path ?p .
+    BIND(REPLACE(STR(?p), "^.*[/#]", "") AS ?localName)
+    FILTER (!REGEX(?localName, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+    BIND(CONCAT("sh:path local name is not a valid Python identifier: ", ?localName) AS ?violation)
+  } UNION {
+    # Every property-shape local name must be unique within its shape (no silent collision
+    # renaming, same "refuse, don't auto-mangle" reasoning as above).
+    ?signature dspy:derivedFromShaclShape ?shape .
+    ?shape sh:property ?propA , ?propB .
+    ?propA sh:path ?pathA . ?propB sh:path ?pathB .
+    BIND(REPLACE(STR(?pathA), "^.*[/#]", "") AS ?nameA)
+    BIND(REPLACE(STR(?pathB), "^.*[/#]", "") AS ?nameB)
+    FILTER (?propA != ?propB && ?nameA = ?nameB && STR(?propA) < STR(?propB))
+    BIND(CONCAT("duplicate field name within one shape: ", ?nameA) AS ?violation)
+  } UNION {
+    # DSPy's real requirement: >=1 output field. Refuse rather than fabricate a default
+    # (the ttl2dspy.py baseline silently injects a `result` field when none exist).
+    ?signature dspy:derivedFromShaclShape ?shape .
+    FILTER NOT EXISTS {
+      ?shape sh:property ?outProp .
+      ?outProp dspy:isOutputField true .
+    }
+    BIND("SHACL shape has zero properties marked dspy:isOutputField true -- DSPy requires >=1 real output field, none fabricated" AS ?violation)
+  }
+}
+ORDER BY ?signature ?violation

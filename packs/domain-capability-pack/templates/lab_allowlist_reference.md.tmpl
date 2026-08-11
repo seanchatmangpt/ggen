@@ -1,0 +1,23 @@
+---
+to: "docs/domain-capability/sregym-capabilities.md"
+sparql:
+  rows: |
+    PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?order ?slug ?label ?consequence ?worldBinding ?sourceRepo ?sourceFile ?admitted WHERE {
+      ?cap a dcp:Capability ; dcp:order ?order ; dcp:slug ?slug ; rdfs:label ?label ;
+          dcp:consequence ?consequence ; dcp:worldBinding ?worldBinding ;
+          dcp:sourceRepo ?sourceRepo ; dcp:sourceFile ?sourceFile .
+      BIND(EXISTS { ?allowlist dcp:allows ?cap } AS ?admitted)
+    } ORDER BY ?order
+---
+# Domain capability reference (design-sketch echo, not hand-maintained prose)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`domain-capability-pack`'s vocabulary — nothing here is synthesized, per
+`pack-authoring-pack`'s "templates echo, they never synthesize" rule.
+
+| # | Slug | Label | Consequence | World binding | Source | Admitted to a LabAllowlist? |
+|---|------|-------|-------------|----------------|--------|------------------------------|
+{% for row in rows %}| {{ row.order }} | `{{ row.slug }}` | {{ row.label }} | {{ row.consequence }} | `{{ row.worldBinding }}` | `{{ row.sourceRepo }}`/`{{ row.sourceFile }}` | {{ row.admitted }} |
+{% endfor %}

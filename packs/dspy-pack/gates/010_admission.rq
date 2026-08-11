@@ -1,4 +1,13 @@
 # MESSAGE: DSPy signatures, fields, and modules must be dependency-closed, typed, and renderable as valid Python identifiers. Any row is a refusal.
+#
+# ENGINE CONSTRAINT (found by real execution, 2026-08-10): praxis-graphlaw's SPARQL evaluator
+# stack-overflows on this query's deeply nested UNION algebra tree somewhere between 139 (fine)
+# and 158 (`fatal runtime error: stack overflow`, confirmed via a real `cargo test` run against
+# the default thread stack size) UNION branches -- this is a real recursion-depth limit in the
+# engine, not a query-logic bug. Prefer VALUES-table-driven consolidated blocks (one UNION
+# branch covering N properties/classes via a `VALUES (?a ?b) { ... }` table, see the
+# "Consolidated ..." blocks below) over one UNION branch per property/kind when adding new
+# checks -- do not let this file's branch count creep back toward ~150 unmeasured.
 PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -6,7 +15,18 @@ SELECT ?subject ?violation WHERE {
   {
     ?subject a dspy:Signature .
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
-    VALUES ?property { dspy:className dspy:hasInput dspy:hasOutput dcterms:title dcterms:description }
+    VALUES ?property { dspy:className dcterms:title dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    # hasInput/hasOutput are required UNLESS the signature is dspy:derivedFromShaclShape
+    # (2026-08-11) -- a SHACL-derived signature's fields come from its shape's real
+    # sh:property facts instead, validated separately by
+    # gates/020_shacl_signature_admission.rq, not by this hand-declared-individual path.
+    ?subject a dspy:Signature .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER NOT EXISTS { ?subject dspy:derivedFromShaclShape ?anyShape }
+    VALUES ?property { dspy:hasInput dspy:hasOutput }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
   } UNION {
@@ -77,12 +97,36 @@ SELECT ?subject ?violation WHERE {
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT(STR(?kind), " module missing required ", STR(?property)) AS ?violation)
   } UNION {
-    ?subject a dspy:Module ; dspy:signature ?s ; dspy:wrapsModule ?w .
-    BIND("module must have exactly one of dspy:signature or dspy:wrapsModule, not both" AS ?violation)
+    ?subject a dspy:Module .
+    VALUES ?propA { dspy:signature dspy:wrapsModule dspy:hasStep dspy:hopQuerySignature dspy:trainsetName dspy:hasParallelStep }
+    VALUES ?propB { dspy:signature dspy:wrapsModule dspy:hasStep dspy:hopQuerySignature dspy:trainsetName dspy:hasParallelStep }
+    ?subject ?propA ?a ; ?propB ?b .
+    FILTER(STR(?propA) < STR(?propB))
+    BIND("module must declare exactly one of dspy:signature, dspy:wrapsModule, dspy:hasStep (Pipeline), dspy:hopQuerySignature (MultiHop), dspy:trainsetName (KNN), or dspy:hasParallelStep (Parallel), not more than one" AS ?violation)
   } UNION {
     ?subject a dspy:Module ; dspy:kind "CodeAct" .
     FILTER NOT EXISTS { ?subject dspy:hasLocalTool ?tool }
     BIND("CodeAct module missing required dspy:hasLocalTool (dspy.CodeAct's real 'tools' parameter has no default)" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "Pipeline" .
+    VALUES ?property { dspy:hasStep dspy:pipelineSignature dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("Pipeline module missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "MultiHop" .
+    VALUES ?property { dspy:hopQuerySignature dspy:hopAnswerSignature dspy:retrieveK dspy:maxHops dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("MultiHop module missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "KNN" .
+    VALUES ?property { dspy:trainsetName dspy:usesEmbedder dspy:kValue dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("KNN module missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind "Parallel" .
+    VALUES ?property { dspy:hasParallelStep dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("Parallel module missing required ", STR(?property)) AS ?violation)
   } UNION {
     ?subject a dspy:Signature ; dspy:hasInput ?field .
     FILTER NOT EXISTS { ?field a dspy:InputField }
@@ -162,17 +206,131 @@ SELECT ?subject ?violation WHERE {
     FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
     BIND("refineFailCount is not a non-negative integer" AS ?violation)
   } UNION {
+    # Consolidated required-property-existence check for the 4 new leaf classes (kept as one
+    # VALUES-driven block rather than one UNION branch per class -- this engine's SPARQL
+    # evaluator hits real recursion-depth limits well before 160 UNION branches, confirmed by
+    # a real stack overflow during this session's own development; see git history).
+    ?subject a ?type .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES (?type ?property) {
+      (dspy:PipelineStep dspy:stepIndex) (dspy:PipelineStep dspy:stepVarName) (dspy:PipelineStep dspy:stepKind)
+      (dspy:ArgBinding dspy:argName) (dspy:ArgBinding dspy:argSourceKind) (dspy:ArgBinding dspy:argSourceField)
+      (dspy:ParallelStep dspy:stepIndex) (dspy:ParallelStep dspy:stepModule)
+      (dspy:EmbedderConfig dspy:embedderModel)
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT(STR(?type), " missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    # Consolidated target-type check across every new object property (same recursion-depth
+    # reason as above).
+    ?subject ?property ?target .
+    VALUES (?property ?expectedClass) {
+      (dspy:hasStep dspy:PipelineStep) (dspy:stepSignature dspy:Signature)
+      (dspy:pipelineSignature dspy:Signature) (dspy:hasArgBinding dspy:ArgBinding)
+      (dspy:argSourceStep dspy:PipelineStep) (dspy:hopQuerySignature dspy:Signature)
+      (dspy:hopAnswerSignature dspy:Signature) (dspy:usesEmbedder dspy:EmbedderConfig)
+      (dspy:hasParallelStep dspy:ParallelStep) (dspy:stepModule dspy:Module)
+    }
+    FILTER NOT EXISTS { ?target a ?expectedClass }
+    BIND(CONCAT(STR(?property), " target is not a ", STR(?expectedClass)) AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepKind ?k .
+    FILTER(?k != "Retrieve")
+    FILTER NOT EXISTS { ?subject dspy:stepSignature ?s }
+    BIND("PipelineStep missing required dspy:stepSignature (required unless dspy:stepKind is \"Retrieve\")" AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepKind "Retrieve" .
+    FILTER NOT EXISTS { ?subject dspy:retrieveK ?k }
+    BIND("Retrieve-kind PipelineStep missing required dspy:retrieveK" AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepKind "Retrieve" ; dspy:stepSignature ?s .
+    BIND("Retrieve-kind PipelineStep must not declare dspy:stepSignature" AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepKind ?k ; dspy:retrieveK ?r .
+    FILTER(?k != "Retrieve")
+    BIND("only a Retrieve-kind PipelineStep may declare dspy:retrieveK" AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepKind ?value .
+    FILTER(STR(?value) NOT IN ("Retrieve", "Predict", "ChainOfThought", "ReAct", "ProgramOfThought", "MultiChainComparison", "RLM", "CodeAct"))
+    BIND("stepKind is outside the admitted set" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind ; dspy:pipelineSignature ?value .
+    FILTER(?kind != "Pipeline")
+    BIND("only a Pipeline module may declare dspy:pipelineSignature" AS ?violation)
+  } UNION {
+    ?subject a dspy:ArgBinding ; dspy:argSourceKind ?value .
+    FILTER(STR(?value) NOT IN ("PipelineInput", "StepOutput"))
+    BIND("argSourceKind is outside the admitted set" AS ?violation)
+  } UNION {
+    ?subject a dspy:ArgBinding ; dspy:argSourceKind "StepOutput" .
+    FILTER NOT EXISTS { ?subject dspy:argSourceStep ?s }
+    BIND("ArgBinding with argSourceKind \"StepOutput\" missing required dspy:argSourceStep" AS ?violation)
+  } UNION {
+    ?subject a dspy:ArgBinding ; dspy:argSourceKind "PipelineInput" ; dspy:argSourceStep ?s .
+    BIND("ArgBinding with argSourceKind \"PipelineInput\" must not declare dspy:argSourceStep" AS ?violation)
+  } UNION {
+    ?subject a dspy:PipelineStep ; dspy:stepIndex ?myIndex ; dspy:hasArgBinding ?binding .
+    ?binding dspy:argSourceStep ?src .
+    ?src dspy:stepIndex ?srcIndex .
+    FILTER(?srcIndex >= ?myIndex)
+    BIND("ArgBinding's dspy:argSourceStep must have a lower dspy:stepIndex than the binding's own step" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:hopQuerySignature dspy:hopAnswerSignature dspy:maxHops dspy:retrieveK }
+    ?subject ?property ?value .
+    FILTER(?kind != "MultiHop")
+    BIND(CONCAT("only a MultiHop module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:trainsetName dspy:usesEmbedder dspy:kValue }
+    ?subject ?property ?value .
+    FILTER(?kind != "KNN")
+    BIND(CONCAT("only a KNN module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:EmbedderConfig ; dspy:embedderModel ?value .
+    FILTER(STRLEN(STR(?value)) = 0)
+    BIND("embedderModel must not be empty" AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:kind ?kind .
+    VALUES ?property { dspy:parallelNumThreads dspy:parallelMaxErrors dspy:accessExamples dspy:returnFailedExamples dspy:provideTraceback dspy:disableProgressBar dspy:parallelTimeout dspy:stragglerLimit }
+    ?subject ?property ?value .
+    FILTER(?kind != "Parallel")
+    BIND(CONCAT("only a Parallel module may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    # Consolidated positive-int check across every new integer property with no dedicated
+    # non-negative/other-range check below (same recursion-depth reason as above).
+    ?subject ?property ?value .
+    VALUES ?property { dspy:retrieveK dspy:kValue dspy:embedderBatchSize dspy:parallelNumThreads dspy:parallelTimeout dspy:stragglerLimit dspy:maxHops }
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND(CONCAT(STR(?property), " is not a positive integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:Module ; dspy:parallelMaxErrors ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
+    BIND("parallelMaxErrors is not a non-negative integer" AS ?violation)
+  } UNION {
     ?subject dspy:name ?value .
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
     FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
     BIND("name is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject dspy:trainsetName ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("trainsetName is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject dspy:stepVarName ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("stepVarName is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject dspy:argName ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("argName is not a Python identifier" AS ?violation)
   } UNION {
     ?subject a dspy:Signature ; dspy:className ?value .
     FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
     BIND("className is not a Python identifier" AS ?violation)
   } UNION {
     ?subject a dspy:Module ; dspy:kind ?value .
-    FILTER(STR(?value) NOT IN ("Predict", "ChainOfThought", "ReAct", "ProgramOfThought", "MultiChainComparison", "RLM", "CodeAct", "BestOfN", "Refine"))
+    FILTER(STR(?value) NOT IN ("Predict", "ChainOfThought", "ReAct", "ProgramOfThought", "MultiChainComparison", "RLM", "CodeAct", "BestOfN", "Refine", "Pipeline", "MultiHop", "KNN", "Parallel"))
     BIND("kind is outside the admitted module set" AS ?violation)
   } UNION {
     ?subject dspy:pythonType ?value .
@@ -241,17 +399,30 @@ SELECT ?subject ?violation WHERE {
     FILTER(?ge > ?le)
     BIND("dspy:geInt must be <= dspy:leInt" AS ?violation)
   } UNION {
-    ?subject a dspy:Optimizer .
+    ?subject a dspy:Optimizer ; dspy:kind ?k .
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER(?k != "Ensemble")
     VALUES ?property { dspy:name dspy:kind dspy:optimizes dspy:metricFunction dcterms:description }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind "Ensemble" .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:name dspy:kind dspy:hasEnsembleMember dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("Ensemble optimizer missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind "Ensemble" .
+    VALUES ?property { dspy:optimizes dspy:metricFunction }
+    ?subject ?property ?value .
+    BIND(CONCAT("Ensemble optimizer must not declare ", STR(?property), " (its real compile() takes a program list, no metric/target-Module concept)") AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer ; dspy:kind ?value .
     FILTER(STR(?value) NOT IN (
       "GEPA", "GRPO", "BootstrapFewShot", "BootstrapFewShotWithRandomSearch",
       "BootstrapFewShotWithOptuna", "BootstrapFinetune", "COPRO", "SignatureOptimizer",
-      "MIPROv2", "AvatarOptimizer", "BetterTogether", "InferRules", "SIMBA", "LabeledFewShot"
+      "MIPROv2", "AvatarOptimizer", "BetterTogether", "InferRules", "SIMBA", "LabeledFewShot",
+      "Ensemble", "KNNFewShot"
     ))
     BIND("optimizer kind is outside the admitted set" AS ?violation)
   } UNION {
@@ -338,11 +509,11 @@ SELECT ?subject ?violation WHERE {
     ?subject a dspy:Optimizer ; dspy:kind ?kind .
     VALUES ?property { dspy:maxBootstrappedDemos dspy:maxLabeledDemos }
     ?subject ?property ?value .
-    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna", "MIPROv2"))
-    BIND(CONCAT("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna/MIPROv2 may declare ", STR(?property)) AS ?violation)
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna", "MIPROv2", "KNNFewShot"))
+    BIND(CONCAT("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna/MIPROv2/KNNFewShot may declare ", STR(?property)) AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:maxRounds ?value .
-    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna"))
+    FILTER(?kind NOT IN ("BootstrapFewShot", "BootstrapFewShotWithRandomSearch", "BootstrapFewShotWithOptuna", "KNNFewShot"))
     BIND("only BootstrapFewShot/BootstrapFewShotWithRandomSearch/BootstrapFewShotWithOptuna may declare dspy:maxRounds" AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:optimizerMaxErrors ?value .
@@ -434,18 +605,59 @@ SELECT ?subject ?violation WHERE {
     BIND("only a BootstrapFewShotWithOptuna optimizer may declare dspy:compileMaxDemos" AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer ; dspy:kind ?kind ; dspy:kValue ?value .
-    FILTER(?kind != "LabeledFewShot")
-    BIND("only a LabeledFewShot optimizer may declare dspy:kValue" AS ?violation)
+    FILTER(?kind NOT IN ("LabeledFewShot", "KNNFewShot"))
+    BIND("only a LabeledFewShot/KNNFewShot optimizer may declare dspy:kValue" AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer .
     VALUES ?property { dspy:maxBootstrappedDemos dspy:maxLabeledDemos dspy:maxRounds dspy:optimizerMaxErrors
                         dspy:numCandidatePrograms dspy:breadth dspy:depth dspy:numCandidates
                         dspy:avatarMaxIters dspy:maxPositiveInputs
                         dspy:maxNegativeInputs dspy:numRules dspy:bsize dspy:maxSteps dspy:maxDemos
-                        dspy:demoInputFieldMaxlen dspy:compileMaxDemos dspy:kValue }
+                        dspy:demoInputFieldMaxlen dspy:compileMaxDemos }
     ?subject ?property ?value .
     FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
     BIND(CONCAT(STR(?property), " is not a positive integer") AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:trainsetName dspy:usesEmbedder }
+    ?subject ?property ?value .
+    FILTER(?kind != "KNNFewShot")
+    BIND(CONCAT("only a KNNFewShot optimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind "KNNFewShot" .
+    VALUES ?property { dspy:kValue dspy:trainsetName dspy:usesEmbedder dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("KNNFewShot optimizer missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    # Consolidated required-property + target-type checks for dspy:EnsembleMember (same
+    # recursion-depth reason as the Module-side consolidated blocks above).
+    ?subject a dspy:EnsembleMember .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    VALUES ?property { dspy:stepIndex dspy:memberModule }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("EnsembleMember missing required ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject ?property ?target .
+    VALUES (?property ?expectedClass) { (dspy:hasEnsembleMember dspy:EnsembleMember) (dspy:memberModule dspy:Module) }
+    FILTER NOT EXISTS { ?target a ?expectedClass }
+    BIND(CONCAT(STR(?property), " target is not a ", STR(?expectedClass)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:kind ?kind .
+    VALUES ?property { dspy:reduceFunctionName dspy:ensembleSize dspy:ensembleDeterministic }
+    ?subject ?property ?value .
+    FILTER(?kind != "Ensemble")
+    BIND(CONCAT("only an Ensemble optimizer may declare ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:reduceFunctionName ?value .
+    FILTER(!REGEX(STR(?value), "^[A-Za-z_][A-Za-z0-9_]*$"))
+    BIND("reduceFunctionName is not a Python identifier" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:ensembleSize ?value .
+    FILTER(!(DATATYPE(?value) = xsd:integer) || ?value <= 0)
+    BIND("ensembleSize is not a positive integer" AS ?violation)
+  } UNION {
+    ?subject a dspy:Optimizer ; dspy:ensembleDeterministic true .
+    BIND("dspy:ensembleDeterministic = true is refused: dspy.Ensemble's real 'deterministic' flag is unimplemented in the installed dspy 3.1.3 itself (raises AssertionError, \"TODO: Implement example hashing for deterministic ensemble.\")" AS ?violation)
   } UNION {
     ?subject a dspy:Optimizer ; dspy:seedInt ?value .
     FILTER(!(DATATYPE(?value) = xsd:integer) || ?value < 0)
