@@ -108,3 +108,62 @@ independent of serde's own round-trip stability, or (b) if the true root
 cause is narrower (a specific field), fix that field's `Serialize`/
 `Deserialize` implementation so round-trips are byte-identical, and add the
 round-trip-hash-stability unit test named above to prevent regression.
+
+---
+
+## Update 2026-08-11 (same day) — narrowed, not yet fixed
+
+Two new regression tests were added to
+`crates/praxis-core/src/receipt_record.rs`:
+
+- `recompute_chain_hash_survives_a_real_json_round_trip` (passes): a
+  synthetic `ReceiptEpochV2` built via `ReceiptEpochV2Builder` with one real
+  `AdmissionItem`, round-tripped through `serde_json::to_string` +
+  `from_str`, recomputes identically. This rules out the general "any v2
+  epoch's JSON round trip is unstable" hypothesis for the synthetic case.
+- `reproduce_the_real_autofde_lab_fm_chain_014_failure` (fails,
+  `#[ignore]`d, self-contained — the exact real record embedded as a
+  literal string, no external file dependency): deserializes the *actual*
+  failing record from autofde-lab's `.ggen-v2/receipt-log.jsonl` and
+  recomputes. **Reproduces the exact same two hash values the CLI
+  reported** (`stored 6a28fe3d...`, `recomputed ca390202...`), confirmed
+  bit-for-bit, directly in a unit test — this is no longer only a CLI-level
+  observation.
+
+**The v2 epoch payload and `schema` string are exonerated**: directly
+byte-diffed `serde_json::to_vec` of the real record's `v2` field before and
+after the round trip — **identical bytes**, confirmed. `fold_in_v2_epoch`'s
+contribution to the chain hash is therefore provably not the cause for this
+record, correcting this doc's original, less-precise filing.
+
+**The divergence is isolated to the base (pre-v2) chain hash** —
+`build_admission_frame` / `chain_from_frame`, driven by `receipt_meta()`'s
+reconstruction of `ReceiptMeta` from `instruction_id` (0) / `activity_idx`
+(0) / `node_kind` (0) / `ts_ns` (0) / `andon` (`Green`) / `object_ids`
+(one entry) / `obligation_count` (0), plus the decoded `payload_hash`/
+`prev_chain_hash` (genesis, all-zero prev). All of these are plain
+scalars/strings verified to round-trip losslessly through JSON — which is
+what makes this genuinely puzzling rather than an obvious field bug.
+
+**Updated leading hypothesis**: `chain_from_frame`
+(`crates/praxis-core/src/law.rs:292-297`) constructs a fresh
+`OcelCausalReceipt::genesis([0u8; 32])`, sets its `chain_hash` field to the
+supplied `prev_chain_hash`, then calls `.chain(frame)` once. If
+`OcelCausalReceipt` carries internal state beyond the single 32-byte
+`chain_hash` scalar (an object graph / running per-object accumulator
+typical of OCEL-object-centric event logs, given `obj_refs`'s presence in
+`OcelCausalFrame`), a **live, multi-file `ggen sync run`** — which chains
+one frame per real generated file across the whole sync, accumulating that
+richer internal state across all of them — would NOT be reproduced by
+`recompute_chain_hash`'s single-frame replay from a fresh genesis, even
+though both agree on the single published `prev_chain_hash` scalar. This
+would explain why the *first* (genesis) record in a fresh chain is exactly
+where this fails first, and is the next concrete thing to check: does
+`OcelCausalReceipt::chain()`'s output depend on anything in `self` beyond
+`chain_hash`, and if so, does `genesis()` initialize that state identically
+to whatever the live multi-frame emission path actually threads through?
+
+**Status: root-caused further, not fixed.** The reproduction test above is
+committed `#[ignore]`d specifically so `cargo test` stays green while this
+tracks as open, real, unresolved work — un-ignore it once a fix lands; it
+must then pass.
