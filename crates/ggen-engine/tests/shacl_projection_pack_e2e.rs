@@ -174,6 +174,38 @@ sp:p2 a sh:PropertyShape ; sh:path <http://other.org/name> ; sh:datatype xsd:str
 }
 
 #[test]
+fn shared_gate_refuses_missing_sh_path_for_pydantic_projection() {
+    let (dir, project) = scaffold_multi_pack(&["shacl-projection-pack", "shacl-to-pydantic-pack"]);
+    let sabotage = r#"
+@prefix sp:  <http://seanchatmangpt.github.io/packs/shacl-projection#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+sp:noPathModel a sp:PydanticModel ; sp:className "NoPath" ; sp:derivedFromShape sp:noPathShape .
+sp:noPathShape a sh:NodeShape ; sh:property sp:p1 , sp:out1 .
+sp:p1 a sh:PropertyShape ; sh:datatype xsd:string .
+sp:out1 a sh:PropertyShape ; sh:path <http://example.org/ok> ; sh:datatype xsd:string ; sp:isPrimaryOutput true .
+"#;
+    assert_gate_refuses(&project, sabotage, "010_shape_validity");
+    drop(dir);
+}
+
+#[test]
+fn shared_gate_refuses_missing_sh_datatype_for_pydantic_projection() {
+    let (dir, project) = scaffold_multi_pack(&["shacl-projection-pack", "shacl-to-pydantic-pack"]);
+    let sabotage = r#"
+@prefix sp:  <http://seanchatmangpt.github.io/packs/shacl-projection#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+sp:noTypeModel a sp:PydanticModel ; sp:className "NoDatatype" ; sp:derivedFromShape sp:noTypeShape .
+sp:noTypeShape a sh:NodeShape ; sh:property sp:p1 , sp:out1 .
+sp:p1 a sh:PropertyShape ; sh:path <http://example.org/no_datatype> .
+sp:out1 a sh:PropertyShape ; sh:path <http://example.org/ok> ; sh:datatype xsd:string ; sp:isPrimaryOutput true .
+"#;
+    assert_gate_refuses(&project, sabotage, "010_shape_validity");
+    drop(dir);
+}
+
+#[test]
 fn shacl_to_pydantic_pack_alone_ships_no_admission_gate_but_still_syncs() {
     // Documents the real, confirmed limitation stated in shacl-to-pydantic-pack's own
     // pack.toml: composing shacl-to-pydantic-pack WITHOUT shacl-projection-pack gets the

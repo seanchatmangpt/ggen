@@ -5,20 +5,21 @@
 //! three sabotage tests proving the "no skipped rungs, no empty evidence,
 //! no missing chain" gate is real and enforced, not merely documented.
 
-mod support;
-use std::path::{Path, PathBuf};
-use support::{assert_gate_refuses, assert_idempotent, read, scaffold_pack};
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-fn packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
-}
+mod support;
+use support::{assert_gate_refuses, assert_idempotent, read, scaffold_multi_pack};
 
 #[test]
 fn standing_ladder_pack_admits_the_real_worked_instance_chain() {
-    // 1. SCAFFOLD: the pack's own ontology.ttl already carries the real worked
-    //    instance (dcp:sregym-run-kubectl's real 6-transition chain to ADMITTED)
-    //    -- no extra consumer facts needed.
-    let (_dir, project) = scaffold_pack(&packs_dir().join("standing-ladder-pack"));
+    // 1. SCAFFOLD: since the 2026-08-11 gap-closure round added a gate check
+    //    requiring stl:aboutFact to resolve to a real, typed individual (Agent 1's
+    //    found gap: the pack previously only claimed to "pin to real standing" by
+    //    IRI, with nothing gated enforcing the pin was real), the real worked
+    //    instance now requires domain-capability-pack composed alongside so
+    //    dcp:sregym-run-kubectl is actually declared `a dcp:Capability` in the
+    //    union graph -- single-pack scaffolding is no longer sufficient.
+    let (_dir, project) = scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
 
     // 2. GENERATE + ASSERT REAL CONTENT.
     ggen_engine::sync::sync(
@@ -81,7 +82,7 @@ fn standing_ladder_pack_admits_the_real_worked_instance_chain() {
 
 #[test]
 fn standing_ladder_pack_gate_refuses_a_skipped_rung() {
-    let (_dir, project) = scaffold_pack(&packs_dir().join("standing-ladder-pack"));
+    let (_dir, project) = scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
@@ -99,6 +100,7 @@ fn standing_ladder_pack_gate_refuses_a_skipped_rung() {
     assert_gate_refuses(
         &project,
         "@prefix stl: <http://seanchatmangpt.github.io/packs/standing-ladder#> .\n\
+         stl:sabotage-skip-fact a stl:StandingClaim .\n\
          stl:sabotage-skip-claim a stl:StandingClaim ;\n\
          \x20\x20\x20\x20stl:aboutFact stl:sabotage-skip-fact ;\n\
          \x20\x20\x20\x20stl:hasStanding stl:ADMITTED .\n\
@@ -118,7 +120,7 @@ fn standing_ladder_pack_gate_refuses_a_skipped_rung() {
 
 #[test]
 fn standing_ladder_pack_gate_refuses_empty_evidence_ref() {
-    let (_dir, project) = scaffold_pack(&packs_dir().join("standing-ladder-pack"));
+    let (_dir, project) = scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
@@ -136,6 +138,7 @@ fn standing_ladder_pack_gate_refuses_empty_evidence_ref() {
     assert_gate_refuses(
         &project,
         "@prefix stl: <http://seanchatmangpt.github.io/packs/standing-ladder#> .\n\
+         stl:sabotage-empty-fact a stl:StandingClaim .\n\
          stl:sabotage-empty-claim a stl:StandingClaim ;\n\
          \x20\x20\x20\x20stl:aboutFact stl:sabotage-empty-fact ;\n\
          \x20\x20\x20\x20stl:hasStanding stl:OBSERVED .\n\
@@ -150,7 +153,7 @@ fn standing_ladder_pack_gate_refuses_empty_evidence_ref() {
 
 #[test]
 fn standing_ladder_pack_gate_refuses_a_standing_with_no_transition_chain_at_all() {
-    let (_dir, project) = scaffold_pack(&packs_dir().join("standing-ladder-pack"));
+    let (_dir, project) = scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
@@ -167,9 +170,45 @@ fn standing_ladder_pack_gate_refuses_a_standing_with_no_transition_chain_at_all(
     assert_gate_refuses(
         &project,
         "@prefix stl: <http://seanchatmangpt.github.io/packs/standing-ladder#> .\n\
+         stl:sabotage-no-chain-fact a stl:StandingClaim .\n\
          stl:sabotage-no-chain-claim a stl:StandingClaim ;\n\
          \x20\x20\x20\x20stl:aboutFact stl:sabotage-no-chain-fact ;\n\
          \x20\x20\x20\x20stl:hasStanding stl:ADMITTED .\n",
+        "010_no_skipped_states",
+    );
+}
+
+#[test]
+fn standing_ladder_pack_gate_refuses_a_claim_about_a_fact_that_does_not_exist() {
+    let (_dir, project) = scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE (2026-08-11 gap-closure round, Agent 1's found gap): a claim
+    // with a REAL, COMPLETE, correctly-evidenced single-rung transition chain (no
+    // skipped rungs, real non-empty evidence) but whose stl:aboutFact points at an
+    // IRI with NO type declaration anywhere in the graph -- i.e. a fabricated or
+    // stale pin -- must still be refused. This isolates the aboutFact-resolution
+    // check from every other check the gate performs: a claim that would otherwise
+    // pass cleanly is refused solely because what it claims to be pinned to isn't
+    // real.
+    assert_gate_refuses(
+        &project,
+        "@prefix stl: <http://seanchatmangpt.github.io/packs/standing-ladder#> .\n\
+         stl:sabotage-dangling-pin-claim a stl:StandingClaim ;\n\
+         \x20\x20\x20\x20stl:aboutFact stl:this-fact-was-never-declared ;\n\
+         \x20\x20\x20\x20stl:hasStanding stl:OBSERVED .\n\
+         stl:sabotage-dangling-pin-t1 a stl:StandingTransition ;\n\
+         \x20\x20\x20\x20stl:aboutClaim stl:sabotage-dangling-pin-claim ;\n\
+         \x20\x20\x20\x20stl:fromState stl:UNKNOWN ; stl:toState stl:OBSERVED ;\n\
+         \x20\x20\x20\x20stl:transitionOrder 1 ;\n\
+         \x20\x20\x20\x20stl:evidenceRef \"a real observation\" .\n",
         "010_no_skipped_states",
     );
 }

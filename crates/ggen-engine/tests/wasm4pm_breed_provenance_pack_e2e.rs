@@ -6,6 +6,8 @@
 //! re-admitted by two sibling packs (wasm4pm-facts-pack,
 //! wasm4pm-cognition-pack) with no cross-pack drift guard.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 mod support;
 use std::path::{Path, PathBuf};
 use support::{assert_gate_refuses, assert_idempotent, read, scaffold_pack};
@@ -52,7 +54,10 @@ fn wasm4pm_breed_provenance_pack_generates_and_is_idempotent() {
     // 2026-08-11 by direct grep of both real ontology.ttl files): every
     // breed row must render adopted=true for BOTH columns, proving the
     // join is real per-breed data, not a constant column.
-    for line in doc.lines().filter(|l| l.starts_with("| ") && !l.starts_with("| #")) {
+    for line in doc
+        .lines()
+        .filter(|l| l.starts_with("| ") && !l.starts_with("| #"))
+    {
         let cols: Vec<&str> = line.trim_matches('|').split('|').map(str::trim).collect();
         let (adopted_facts, adopted_cognition) = (cols[3], cols[4]);
         assert_eq!(
@@ -75,6 +80,32 @@ fn wasm4pm_breed_provenance_pack_generates_and_is_idempotent() {
 
     // 3. IDEMPOTENCY.
     assert_idempotent(&project);
+}
+
+#[test]
+fn wasm4pm_breed_provenance_pack_gate_refuses_missing_required_property() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("wasm4pm-breed-provenance-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE (previously untested branch of 010_required.rq): a wbp:Breed
+    // missing a required property (here, wbp:breedId) must be refused, citing
+    // 010_required by name -- this gate had zero real sabotage coverage before this
+    // test.
+    assert_gate_refuses(
+        &project,
+        "@prefix wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#> .\n\
+         wbp:sabotage-incomplete-breed a wbp:Breed ;\n\
+         \x20\x20\x20\x20wbp:order 1 ; wbp:sourceRepo \"nowhere\" ;\n\
+         \x20\x20\x20\x20wbp:sourceFile \"nowhere.ttl\" .\n",
+        "010_required",
+    );
 }
 
 #[test]

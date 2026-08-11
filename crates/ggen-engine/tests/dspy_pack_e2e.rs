@@ -455,3 +455,111 @@ dspy:out1 a sh:PropertyShape ; sh:path <http://example.org/ok> ; sh:datatype xsd
         "refusal must cite the gate by name: {msg}"
     );
 }
+
+// --- Gap-closure round: proving 010_admission.rq isn't decorative + the SHACL
+// exemption isn't accidentally too broad (found by a real 5-agent review) -------------
+
+#[test]
+fn admission_gate_refuses_signature_missing_required_title() {
+    // 010_admission.rq had ZERO direct sabotage tests anywhere in this workspace
+    // before this test -- a real decorative-gate risk for a 698-line, many-branch
+    // gate. A dspy:Signature missing dcterms:title (always required, independent of
+    // the SHACL-derivation exemption) must be refused, citing 010_admission by name.
+    let ttl = r#"
+@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+dspy:sabotage-no-title a dspy:Signature ;
+    dspy:className "SabotageNoTitle" ;
+    dcterms:description "missing title" ;
+    dspy:hasInput dspy:sabotage-in ;
+    dspy:hasOutput dspy:sabotage-out .
+dspy:sabotage-in a dspy:InputField ; dspy:name "x" ; dspy:pythonType "str" ; dcterms:description "x" .
+dspy:sabotage-out a dspy:OutputField ; dspy:name "y" ; dspy:pythonType "str" ; dcterms:description "y" .
+"#;
+    let (_dir, project) = scaffold_pack_with_ontology(&pack_dir(), ttl);
+    let err = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        .expect_err("a Signature missing dcterms:title must refuse");
+    let msg = format!("{err}");
+    assert!(
+        msg.contains("010_admission"),
+        "refusal must cite the gate by name: {msg}"
+    );
+}
+
+#[test]
+fn admission_gate_shacl_exemption_does_not_widen_to_ordinary_signatures() {
+    // The round-5 dspy:derivedFromShaclShape exemption on hasInput/hasOutput
+    // requiredness must be scoped to signatures that actually declare
+    // dspy:derivedFromShaclShape -- an ORDINARY hand-declared signature with no
+    // hasInput/hasOutput and no derivedFromShaclShape must still fail. This is the
+    // other half of the exemption proof: round 5 only proved the exemption fires
+    // for a real SHACL-derived signature; it never proved the exemption ISN'T
+    // universal (e.g. an accidental `FILTER NOT EXISTS` removal that exempts
+    // everything would not have been caught).
+    let ttl = r#"
+@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+dspy:sabotage-ordinary-no-fields a dspy:Signature ;
+    dspy:className "SabotageOrdinaryNoFields" ;
+    dcterms:title "SabotageOrdinaryNoFields" ;
+    dcterms:description "no hasInput/hasOutput, no derivedFromShaclShape" .
+"#;
+    let (_dir, project) = scaffold_pack_with_ontology(&pack_dir(), ttl);
+    let err = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        .expect_err(
+            "an ordinary signature with no hasInput/hasOutput and no \
+             derivedFromShaclShape must still be refused -- the SHACL exemption must \
+             not be accidentally universal",
+        );
+    let msg = format!("{err}");
+    assert!(
+        msg.contains("010_admission"),
+        "refusal must cite the gate by name: {msg}"
+    );
+}
+
+#[test]
+fn shacl_signature_gate_refuses_missing_sh_path() {
+    let ttl = r#"
+@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+dspy:sig a dspy:Signature ; dspy:className "NoPath" ; dcterms:title "t" ; dcterms:description "d" ;
+    dspy:derivedFromShaclShape dspy:shape .
+dspy:shape a sh:NodeShape ; sh:property dspy:p1 , dspy:out1 .
+dspy:p1 a sh:PropertyShape ; sh:datatype xsd:string .
+dspy:out1 a sh:PropertyShape ; sh:path <http://example.org/ok> ; sh:datatype xsd:string ; dspy:isOutputField true .
+"#;
+    let (_dir, project) = scaffold_pack_with_ontology(&pack_dir(), ttl);
+    let err = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        .expect_err("a property shape missing sh:path must refuse");
+    let msg = format!("{err}");
+    assert!(
+        msg.contains("020_shacl_signature_admission"),
+        "refusal must cite the gate by name: {msg}"
+    );
+}
+
+#[test]
+fn shacl_signature_gate_refuses_missing_sh_datatype() {
+    let ttl = r#"
+@prefix dspy: <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+dspy:sig a dspy:Signature ; dspy:className "NoDatatype" ; dcterms:title "t" ; dcterms:description "d" ;
+    dspy:derivedFromShaclShape dspy:shape .
+dspy:shape a sh:NodeShape ; sh:property dspy:p1 , dspy:out1 .
+dspy:p1 a sh:PropertyShape ; sh:path <http://example.org/no_datatype> .
+dspy:out1 a sh:PropertyShape ; sh:path <http://example.org/ok> ; sh:datatype xsd:string ; dspy:isOutputField true .
+"#;
+    let (_dir, project) = scaffold_pack_with_ontology(&pack_dir(), ttl);
+    let err = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        .expect_err("a property shape missing sh:datatype must refuse");
+    let msg = format!("{err}");
+    assert!(
+        msg.contains("020_shacl_signature_admission"),
+        "refusal must cite the gate by name: {msg}"
+    );
+}

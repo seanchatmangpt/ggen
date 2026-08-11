@@ -5,6 +5,8 @@
 //! directory — the pack's own manual scratch-consumer verification (real, but run
 //! outside `cargo test`) does not count.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 mod support;
 use std::path::{Path, PathBuf};
 use support::{assert_gate_refuses, assert_idempotent, read, scaffold_pack};
@@ -74,6 +76,61 @@ fn domain_capability_pack_generates_and_is_idempotent() {
 
     // 3. IDEMPOTENCY.
     assert_idempotent(&project);
+}
+
+#[test]
+fn domain_capability_pack_gate_refuses_missing_required_property() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("domain-capability-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE (previously untested branch of 010_required.rq): a dcp:Capability
+    // missing a required property (here, dcp:slug) must be refused, citing
+    // 010_required by name -- this gate had zero real sabotage coverage before this
+    // test, a real decorative-gate risk on the pack's most basic completeness check.
+    assert_gate_refuses(
+        &project,
+        "@prefix dcp: <http://seanchatmangpt.github.io/packs/domain-capability#> .\n\
+         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
+         dcp:sabotage-incomplete-capability a dcp:Capability ;\n\
+         \x20\x20\x20\x20dcp:order 1 ; rdfs:label \"Sabotage\" ; dcp:consequence \"DO\" ;\n\
+         \x20\x20\x20\x20dcp:worldBinding \"sabotage\" ; dcp:sourceRepo \"nowhere\" ;\n\
+         \x20\x20\x20\x20dcp:sourceFile \"nowhere.py\" .\n",
+        "010_required",
+    );
+}
+
+#[test]
+fn domain_capability_pack_gate_refuses_out_of_enum_consequence() {
+    let (_dir, project) = scaffold_pack(&packs_dir().join("domain-capability-pack"));
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    // GATE SABOTAGE (the second, closed-enum branch of 010_required.rq): a
+    // dcp:consequence value outside "READ"|"DO" must be refused, citing 010_required
+    // by name.
+    assert_gate_refuses(
+        &project,
+        "@prefix dcp: <http://seanchatmangpt.github.io/packs/domain-capability#> .\n\
+         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
+         dcp:sabotage-bad-consequence a dcp:Capability ;\n\
+         \x20\x20\x20\x20dcp:order 1 ; dcp:slug \"sabotage\" ; rdfs:label \"Sabotage\" ;\n\
+         \x20\x20\x20\x20dcp:consequence \"MAYBE\" ; dcp:worldBinding \"sabotage\" ;\n\
+         \x20\x20\x20\x20dcp:sourceRepo \"nowhere\" ; dcp:sourceFile \"nowhere.py\" .\n",
+        "010_required",
+    );
 }
 
 #[test]

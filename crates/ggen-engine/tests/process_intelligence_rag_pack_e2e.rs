@@ -3,6 +3,8 @@
 //! round as the pack itself (learned from `domain-capability-pack`'s round 1/2: shipping
 //! a pack without its e2e test regresses `guard-pack-e2e-coverage.sh` immediately).
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 mod support;
 use std::path::{Path, PathBuf};
 use support::{assert_gate_refuses, assert_idempotent, read, scaffold_pack};
@@ -37,7 +39,10 @@ fn process_intelligence_rag_pack_generates_and_is_idempotent() {
         "generated program must require grounding_facts as an input, not an optional field:\n{program}"
     );
 
-    let doc = read(&project, "docs/process-intelligence-rag/grounded-queries.md");
+    let doc = read(
+        &project,
+        "docs/process-intelligence-rag/grounded-queries.md",
+    );
     assert!(
         doc.contains("answer_sregym_capability_question"),
         "reference doc must list the real worked grounded query:\n{doc}"
