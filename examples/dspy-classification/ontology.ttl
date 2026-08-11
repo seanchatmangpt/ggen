@@ -1,0 +1,29 @@
+# Playground fixture: text classification, one of dspy's most common real-world uses --
+# a Literal[...]-typed output field constrains the model to a closed label set
+# (sentiment analysis, per dspy.ai's own classification tutorial pattern).
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:cls-signature a dspy:Signature ;
+    dcterms:title "ClassifySentiment" ;
+    dcterms:description "Classify the sentiment of a piece of text." ;
+    dspy:className "ClassifySentiment" ;
+    dspy:hasInput dspy:cls-text-input ;
+    dspy:hasOutput dspy:cls-sentiment-output .
+
+dspy:cls-text-input a dspy:InputField ;
+    dspy:name "text" ; dspy:pythonType "str" ;
+    dcterms:description "The text to classify." .
+
+dspy:cls-sentiment-output a dspy:OutputField ;
+    dspy:name "sentiment" ;
+    dcterms:description "The classified sentiment label." ;
+    dspy:hasLiteralOption dspy:cls-opt-positive , dspy:cls-opt-negative , dspy:cls-opt-neutral .
+
+dspy:cls-opt-positive a dspy:LiteralOption ; dspy:optionIndex 0 ; dspy:optionValue "positive" .
+dspy:cls-opt-negative a dspy:LiteralOption ; dspy:optionIndex 1 ; dspy:optionValue "negative" .
+dspy:cls-opt-neutral  a dspy:LiteralOption ; dspy:optionIndex 2 ; dspy:optionValue "neutral" .
+
+dspy:cls-module a dspy:Module ;
+    dcterms:description "Sentiment classification, constrained to a closed 3-value label set via Literal[...]." ;
+    dspy:name "classify_sentiment" ; dspy:kind "Predict" ; dspy:signature dspy:cls-signature .

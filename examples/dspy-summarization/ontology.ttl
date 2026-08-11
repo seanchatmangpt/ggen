@@ -1,0 +1,23 @@
+# Playground fixture: summarization, another of dspy's most common real-world uses --
+# ChainOfThought over a long-document -> short-summary Signature.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:summ-signature a dspy:Signature ;
+    dcterms:title "SummarizeDocument" ;
+    dcterms:description "Summarize a document in a few sentences." ;
+    dspy:className "SummarizeDocument" ;
+    dspy:hasInput dspy:summ-document-input ;
+    dspy:hasOutput dspy:summ-summary-output .
+
+dspy:summ-document-input a dspy:InputField ;
+    dspy:name "document" ; dspy:pythonType "str" ;
+    dcterms:description "The full document text to summarize." .
+
+dspy:summ-summary-output a dspy:OutputField ;
+    dspy:name "summary" ; dspy:pythonType "str" ;
+    dcterms:description "A concise summary of the document." .
+
+dspy:summ-module a dspy:Module ;
+    dcterms:description "Document summarization via ChainOfThought, reasoning about what's salient before writing the summary." ;
+    dspy:name "summarize" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:summ-signature .
