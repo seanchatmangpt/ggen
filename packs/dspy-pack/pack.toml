@@ -1,6 +1,6 @@
 [pack]
 name = "dspy-pack"
-version = "0.5.0"
+version = "0.5.1"
 description = """
 Universal DSPy generation vocabulary, verified against the real installed dspy 3.1.3 source tree
 (not docs prose) via inspect.signature() on every admitted constructor and compile() method, and
@@ -57,13 +57,17 @@ ChainOfThought modeling, MCP tool use (https://dspy.ai/tutorials/mcp/), GEPA opt
 (https://dspy.ai/tutorials/rl_ai_program/), two GEPA worked examples --
 gepa_facilitysupportanalyzer (Literal/List[Literal] enum fields) and gepa_trusted_monitor (int
 ge/le bounds) -- plus the retrieve-then-reason RAG pattern and 2-hop multi-hop pattern (both
-directly executed against dspy.utils.dummies.DummyLM/dummy_rm this session). Ten real,
+directly executed against dspy.utils.dummies.DummyLM/dummy_rm this session). Fourteen real,
 generated-and-tested example fixtures (ontology.ttl + ggen.toml, one per fixture family:
 MCP/ReAct, GEPA Literal fields, all 9 original Module kinds, three optimizer families, Pydantic
-model fields, Pipeline/RAG, MultiHop, KNN/Parallel/Ensemble/KNNFewShot) live in the ggen
-monorepo's own examples/<name>/ directories and are wired into that repo's `cargo test` suite
-(crates/ggen-engine/tests/dspy_pack_e2e.rs) -- each verified this pack version by running the
-real `ggen sync` pipeline and constructing/executing the real generated dspy objects with zero
-exceptions (Pipeline/MultiHop/KNN/Parallel/Ensemble/KNNFewShot additionally verified by real
-Python execution against dspy 3.1.3, not just by inspecting the rendered source text).
+model fields, Pipeline/RAG, MultiHop, KNN/Parallel/Ensemble/KNNFewShot, plus a 4-fixture
+"playground" set of dspy's most common tutorial-first patterns -- bare-Predict QA,
+ChainOfThought math reasoning with a typed float output, Literal-constrained classification,
+ChainOfThought summarization) live in the ggen monorepo's own examples/<name>/ directories and
+are wired into that repo's `cargo test` suite (crates/ggen-engine/tests/dspy_pack_e2e.rs) --
+each verified this pack version by running the real `ggen sync` pipeline and
+constructing/executing the real generated dspy objects with zero exceptions
+(Pipeline/MultiHop/KNN/Parallel/Ensemble/KNNFewShot and all four playground fixtures
+additionally verified by real Python execution against dspy 3.1.3, not just by inspecting the
+rendered source text).
 """

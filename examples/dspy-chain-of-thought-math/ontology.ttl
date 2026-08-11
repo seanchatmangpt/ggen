@@ -1,0 +1,25 @@
+# Playground fixture: dspy's second most common starting pattern -- ChainOfThought over a math
+# word problem, per dspy.ai's own quickstart (`dspy.ChainOfThought('question -> answer: float')`).
+# Demonstrates the reasoning-trace difference from dspy-basic-qa's bare Predict, and a typed
+# (float) output field.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:cotmath-signature a dspy:Signature ;
+    dcterms:title "SolveMathProblem" ;
+    dcterms:description "Solve a math word problem, reasoning step by step before answering." ;
+    dspy:className "SolveMathProblem" ;
+    dspy:hasInput dspy:cotmath-question-input ;
+    dspy:hasOutput dspy:cotmath-answer-output .
+
+dspy:cotmath-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The math word problem." .
+
+dspy:cotmath-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "float" ;
+    dcterms:description "The numeric answer." .
+
+dspy:cotmath-module a dspy:Module ;
+    dcterms:description "ChainOfThought over a math word problem -- dspy.ai's own quickstart pattern, showing off the reasoning trace ChainOfThought adds over bare Predict." ;
+    dspy:name "solve_math" ; dspy:kind "ChainOfThought" ; dspy:signature dspy:cotmath-signature .

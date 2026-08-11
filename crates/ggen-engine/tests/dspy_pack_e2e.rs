@@ -292,3 +292,34 @@ fn knn_parallel_ensemble_family_renders_all_four_previously_excluded_kinds() {
         "KNNFewShot compile() must take just the target Module:\n{optimize}"
     );
 }
+
+#[test]
+fn playground_basic_qa_renders_bare_predict() {
+    let ttl = include_str!("../../../examples/dspy-basic-qa/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(program.contains("class AnswerQuestion(dspy.Signature):"));
+    assert!(program.contains("qa = dspy.Predict(AnswerQuestion)"));
+}
+
+#[test]
+fn playground_chain_of_thought_math_renders_float_output() {
+    let ttl = include_str!("../../../examples/dspy-chain-of-thought-math/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(program.contains("answer: float = dspy.OutputField("));
+    assert!(program.contains("solve_math = dspy.ChainOfThought(SolveMathProblem)"));
+}
+
+#[test]
+fn playground_classification_renders_literal_output() {
+    let ttl = include_str!("../../../examples/dspy-classification/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(program.contains(r#"sentiment: Literal["positive", "negative", "neutral"]"#));
+    assert!(program.contains("classify_sentiment = dspy.Predict(ClassifySentiment)"));
+}
+
+#[test]
+fn playground_summarization_renders_chain_of_thought() {
+    let ttl = include_str!("../../../examples/dspy-summarization/ontology.ttl");
+    let program = sync_and_read_program(ttl);
+    assert!(program.contains("summarize = dspy.ChainOfThought(SummarizeDocument)"));
+}
