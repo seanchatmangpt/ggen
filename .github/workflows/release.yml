@@ -436,7 +436,7 @@ jobs:
       - name: Install sccache
         # Required by .cargo/config.toml's unconditional `rustc-wrapper =
         # "sccache"`, which applies to every cargo invocation repo-wide.
-        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
+        uses: taiki-e/install-action@6c6fd71fe4fb72c3697d269963d0e15df8adedad  # v2.85.10
         with:
           tool: sccache
 
