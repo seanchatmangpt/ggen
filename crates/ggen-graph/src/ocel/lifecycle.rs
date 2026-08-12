@@ -3,6 +3,20 @@
 //! These functions validate that generation-pipeline events occurred in lawful
 //! order by running ASK queries over the Oxigraph triplestore. They operate on
 //! ggen's internal RDF representation — not on external process logs.
+//!
+//! ## Deliberate EMITS/ANALYSE boundary exception
+//!
+//! `CLAUDE.md`'s "Process Intelligence Boundary" table names this file as the
+//! sanctioned owner of "Lifecycle order (SPARQL over RDF)" — this is a scoped,
+//! intentional exception to "ggen EMITS process evidence, ggen does NOT
+//! analyse it," not an accidental violation. The distinction: `check_lifecycle_order`/
+//! `check_guard` verify *structural sequencing* (did event A precede event B for
+//! the same case?) as an internal engineering safeguard over ggen's own
+//! generation pipeline — they compute no discovery, fitness, precision, or
+//! variant metrics. That OCEL *content* analysis is what the boundary forbids
+//! in ggen and reserves for `wasm4pm`/`wasm4pm-compat` (see the table's other
+//! rows). If a change here starts computing any of those four metrics, it has
+//! crossed the line and must move to `wasm4pm-compat` instead.
 
 use oxigraph::sparql::QueryResults;
 
