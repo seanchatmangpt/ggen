@@ -1,0 +1,27 @@
+[pack]
+name = "process-mining-proof-pack"
+version = "0.1.0"
+description = """
+Generates a Chicago-TDD proof test (and Diataxis reference doc) for a named, real
+planner -> POWL 2.0 -> OCEL 2.0 -> conformance pipeline, from one pmp:ProofPipeline
+individual naming the five real stage functions/modules involved -- turning the class of
+end-to-end proof this session hand-wrote in autofde-lab's
+tests/planning/test_planner_powl_ocel_proof_chicago.py into a generated artifact, per this
+repo's ggen-first discipline ("model in RDF and let ggen generate; hand-written code is
+the exception that must earn its place").
+
+gates/010_pipeline_grounded_or_refused.rq refuses any pmp:ProofPipeline missing one of its
+five required stage properties (pmp:planner, pmp:domain, pmp:powlProjector,
+pmp:ocelReplayEngine, pmp:conformanceChecker) -- a pipeline description that names an
+incomplete pipeline cannot generate a test that would actually run.
+
+Worked instance (2026-08-12): pmp:fortune5-k8s-planner-powl-ocel-proof describes exactly
+the real pipeline proved by hand this session (real Astar plan over
+docs/planning/fortune5-k8s-state-space, autofde_lab.ocel.powl_replay's real
+plan_lines_to_powl_node/replay_structural_fires, autofde_lab.powl.conformance's real
+check_ocel_conformance) -- the hand-written proof becomes this pack's own golden example,
+not a synthetic placeholder. The generated test's three function-name fields
+(POWL_PROJECTOR/OCEL_REPLAY_ENGINE/CONFORMANCE_CHECKER) are dynamically resolved via
+importlib and asserted callable when run in an environment with autofde-lab on the path --
+proving the declared names are real, not merely well-formed strings.
+"""

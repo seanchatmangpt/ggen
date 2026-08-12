@@ -1,0 +1,30 @@
+---
+to: "docs/process-intelligence-rag/bridge-mappings.md"
+sparql:
+  rows: |
+    PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
+    PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?module ?name ?description ?producedBy ?factsSummary WHERE {
+      ?module a dspy:Module ; dspy:signature dspy:BridgeSourceFormatSignature ;
+          dspy:name ?name ; dcterms:description ?description ;
+          pirag:grounds ?src .
+      ?src pirag:producedBy ?producedBy ; pirag:factsSummary ?factsSummary .
+    } ORDER BY ?name
+---
+# Source-format bridge mappings (design-sketch echo, not hand-maintained prose)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`process-intelligence-rag-pack`'s vocabulary — nothing here is synthesized, per
+`pack-authoring-pack`'s "templates echo, they never synthesize" rule. Every row is
+admitted only because `gates/040_bridge_mapping_grounded_or_refused.rq` confirmed it
+carries a real, linked `pirag:GroundingSource` — an ungrounded bridging proposal cannot
+reach this document at all.
+
+{% for row in rows %}## `{{ row.name }}`
+
+{{ row.description }}
+
+**Grounded by:** `{{ row.producedBy }}` — {{ row.factsSummary }}
+
+{% endfor %}

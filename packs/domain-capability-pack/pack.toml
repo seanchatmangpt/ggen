@@ -1,0 +1,43 @@
+[pack]
+name = "domain-capability-pack"
+version = "0.1.0"
+description = """
+80/20 ERRC answer to a real, found gap: a domain's capability/authority list (what an
+executable world exposes, and what a consuming pipeline is allowed to call) currently exists
+in multiple hand-authored, independently-drifting places with no shared vocabulary and no
+drift guard between them.
+
+Concrete instance proven this pack version (2026-08-11): SREGym's real capability surface.
+~/gymact/src/gymact/gyms/sregym.py::SREGYM_CAPABILITIES declares 14 real capabilities (all
+Consequence.DO -- observe_cluster_state, run_kubectl, submit_diagnosis, submit_mitigation,
+get_benchmark_status, jaeger_get_services/get_operations/get_traces/get_dependency_graph,
+loki_get_logs/get_labels/get_label_values, prometheus_get_metrics/get_alerts).
+~/autofde-lab/src/autofde_lab/fabric/gymact_capabilities.toml hand-maintains a 5-entry
+allowlist subset of that same set for autofde-lab's own diagnosing pipeline -- and its own
+in-file comment currently asserts "5 entries; there is no jaeger/loki/prometheus capability
+in the real gymact source -- only these 5 exist", which is now FALSE against the real,
+currently-installed gymact source (confirmed directly, 2026-08-11): the real source has grown
+to 14. This is not a hypothetical failure mode this pack guards against -- it is a real,
+already-happened instance of exactly the drift this pack's gates exist to catch, found while
+authoring this pack, not invented as a motivating example.
+
+This pack does not fix that drift (fixing gymact_capabilities.toml to be GENERATED from this
+pack's admitted facts is out of scope for this version -- named follow-up, lives in a
+different repo). It provides the shared vocabulary (dcp:Capability / dcp:LabAllowlist /
+dcp:CapabilitySourceManifest) and the two gates (exact-count-per-source,
+allowlist-subset-of-domain) that would have caught the drift above mechanically, the moment
+gymact's real capability count diverged from the allowlist's assumption -- and it admits the
+real, current 14-capability / 5-entry-allowlist facts as a worked instance, not an empty
+template.
+
+ERRC vocabulary (errc:Finding) reused verbatim from packs/gh-actions-errc-pack -- deliberately
+NOT reinvented a third time (packs/pack-authoring-pack's errc-testing-pattern.md already uses
+a different, markdown-blob shape; this pack picks the richer, SPARQL-queryable
+gh-actions-errc-pack shape instead of adding a fourth). aa:Capability's proof-surface
+discipline (positive execution / negative refusal / receipt-replay,
+packs/automatic-autonomic-operations-pack) is the acknowledged precedent for this pack's
+count/uniqueness gate pattern, generalized here past ggen's own kernel to an arbitrary
+external domain's capability list, keyed by (sourceRepo, sourceFile) rather than one
+hardcoded global magic number -- so a second domain instance (a different gym, a different
+lab pipeline) is an additive fact set, not a rewrite of this pack's gates.
+"""

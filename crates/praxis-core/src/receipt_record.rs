@@ -442,6 +442,109 @@ mod tests {
         );
     }
 
+    /// Real, currently-failing regression case: the exact `record` object
+    /// from autofde-lab's `.ggen-v2/receipt-log.jsonl` genesis line (see
+    /// `docs/jira/2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md`),
+    /// embedded literally so this test is self-contained (no dependency on
+    /// a file outside this repo).
+    ///
+    /// Narrowed root cause, this session: the `v2` epoch payload and
+    /// `schema` string re-serialize **byte-identically** after a JSON
+    /// round trip (verified directly, printed and diffed) -- so
+    /// `fold_in_v2_epoch`'s own contribution is provably not the culprit
+    /// here, correcting this bug's original filing, which had not yet
+    /// isolated that. The divergence is therefore in the *base* (pre-v2)
+    /// chain hash: `build_admission_frame`/`chain_from_frame` over
+    /// `receipt_meta()`'s reconstruction of `ReceiptMeta` from
+    /// `instruction_id`/`activity_idx`/`node_kind`/`ts_ns`/`andon`/
+    /// `object_ids`/`obligation_count` plus the decoded `payload_hash`/
+    /// `prev_chain_hash`. All of those are plain scalars/strings that
+    /// round-trip losslessly through JSON, which is what makes this
+    /// puzzling rather than obviously explained -- the leading remaining
+    /// hypothesis is that `chain_from_frame`'s `OcelCausalReceipt::genesis`
+    /// + single-frame `.chain()` replay does not reproduce whatever
+    /// internal state the *live*, multi-file `ggen sync run` accumulated
+    /// across its real (transitively multi-object) emission path, even
+    /// though both paths agree on the single scalar `prev_chain_hash`.
+    /// Not fixed -- `#[ignore]`d so `cargo test` stays green while this is
+    /// tracked; un-ignore once fixed, this must then pass.
+    #[test]
+    #[ignore = "FM-CHAIN-014, not yet fixed -- see docs/jira/2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md"]
+    fn reproduce_the_real_autofde_lab_fm_chain_014_failure() {
+        let record: ReceiptRecord = serde_json::from_str(RECORD_JSON).expect("deserialize real record");
+        let recomputed = record.recompute_chain_hash().expect("recompute real record");
+        assert_eq!(
+            hex::encode(recomputed),
+            record.chain_hash_hex,
+            "recomputed chain hash must match the stored one for a real, \
+             untampered record written by ggen sync run itself"
+        );
+    }
+
+    /// The real, byte-identical JSON `ReceiptRecord` embedded verbatim
+    /// (see the test above).
+    const RECORD_JSON: &str = r#"{"version": 1, "instruction_id": 0, "activity_idx": 0, "activity": "ggen.sync", "node_kind": 0, "ts_ns": 0, "payload_hash_hex": "0db2f95d025f90391852ef7306e3924961d0524b435fdc0379b8b982dcc07f46", "prev_chain_hash_hex": "0000000000000000000000000000000000000000000000000000000000000000", "chain_hash_hex": "6a28fe3d81babdcd798e92e5b36b0f0c0e41b68a7ad8ff449fd99bc0c9f9c5df", "andon": "Green", "obligation_count": 0, "object_ids": ["law:0db2f95d025f9039"], "signature_hex": "827ae33bdf843f19d62fc37ece6b3144352140036e9dc34aaa5a5be9bab275f052bb8f6001859d9eaf4268108f1fe3634af539f7b65153a1d1298c7ed2c0b508", "schema": "ggen-receipt/v2", "v2": {"admission": {"Recorded": [{"evidence_id": "src/autofde_lab/constitution/authority.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/evidence.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/interop.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/lab.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/planning.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/process.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/standing.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}, {"evidence_id": "src/autofde_lab/constitution/world.py", "observed_outcome": "Pass", "decision": "Admitted", "reason": "skipped: mode=create: target already exists", "obligations_discharged": [], "obligations_created": []}]}, "standing_ceiling": "Green", "equivalence": {"source": "Unknown", "compiled_binary": "Unknown", "docs": "Unknown", "tests": "Unknown", "receipts": "Unknown", "evidence": "Unknown", "gates": "Unknown", "config": "Unknown"}, "obligation_count": {"Tracked": {"required": 0, "discharged": 0}}, "andon": "Green", "promotion_eligible": true}}"#;
+
+    #[test]
+    fn recompute_chain_hash_survives_a_real_json_round_trip() {
+        // Regression for FM-CHAIN-014 (autofde-lab docs/jira/
+        // 2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md): every existing
+        // v2 test above builds a record, hashes it, and forges it -- all
+        // in-process, never touching JSON. `ggen sync run` writes a record
+        // to a JSONL file; `ggen receipt verify` reads it back and
+        // re-hashes the *deserialized* copy. This test is the first to
+        // actually exercise that real write/read boundary.
+        use crate::receipt_epoch::{
+            AdmissionDecision, AdmissionItem, AndonLevel, CeilingLevel, ComponentLevels,
+            ObservedOutcome, ReceiptEpochV2Builder, SCHEMA_V2,
+        };
+
+        let epoch = ReceiptEpochV2Builder::new(
+            CeilingLevel::Green,
+            ComponentLevels::uniform(AndonLevel::Green),
+        )
+        .admission_item(AdmissionItem {
+            evidence_id: "src/autofde_lab/reasoning/universes/k8s_fault_universes.py".to_string(),
+            observed_outcome: ObservedOutcome::Pass,
+            decision: AdmissionDecision::Admitted,
+            reason: "skipped: mode=create: target already exists".to_string(),
+            obligations_discharged: Vec::new(),
+            obligations_created: Vec::new(),
+        })
+        .build()
+        .expect("epoch builds");
+
+        let mut record = sample();
+        record.schema = SCHEMA_V2.to_string();
+        record.v2 = Some(epoch);
+        let chain = record.recompute_chain_hash().expect("recompute at write time");
+        record.chain_hash_hex = hex::encode(chain);
+
+        // Simulate the real JSONL persist/reload boundary `write_receipt`
+        // and `read_prev_head`/`receipt verify` actually cross.
+        let serialized = serde_json::to_string(&record).expect("serialize record");
+        let reloaded: ReceiptRecord = serde_json::from_str(&serialized).expect("deserialize record");
+
+        let recomputed_after_round_trip = reloaded
+            .recompute_chain_hash()
+            .expect("recompute after round trip");
+
+        if hex::encode(recomputed_after_round_trip) != reloaded.chain_hash_hex {
+            // Byte-diff the v2 payload specifically -- fold_in_v2_epoch's
+            // own doc comment claims this can never happen, so on failure
+            // pinpoint exactly which bytes changed rather than only
+            // asserting the mismatch.
+            let before = serde_json::to_vec(record.v2.as_ref().unwrap()).unwrap();
+            let after = serde_json::to_vec(reloaded.v2.as_ref().unwrap()).unwrap();
+            panic!(
+                "chain hash did not survive a real JSON round trip -- this is FM-CHAIN-014.\n                 v2 epoch bytes before round trip: {}\n                 v2 epoch bytes after  round trip: {}\n                 (identical bytes: {})",
+                String::from_utf8_lossy(&before),
+                String::from_utf8_lossy(&after),
+                before == after,
+            );
+        }
+    }
+
     #[test]
     fn flipped_promotion_eligible_is_caught_by_chain_recompute() {
         use crate::receipt_epoch::{

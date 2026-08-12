@@ -1,0 +1,47 @@
+[pack]
+name = "wasm4pm-breed-provenance-pack"
+version = "0.1.0"
+description = """
+Generalizes packs/domain-capability-pack's Capability/CapabilitySourceManifest/
+LabAllowlist shape (a canonical fact set + a per-source count manifest + a
+consumer's admitted-subset projection, gated for count-drift and subset-validity)
+to a SECOND real, found semantic-state duplication in this workspace -- distinct
+from domain-capability-pack's own case, and verified, not assumed.
+
+Concrete instance proven this pack version (2026-08-11): wasm4pm's real 55-entry
+cognition-breed catalog (~/wasm4pm/ggen/ontology/breeds.ttl) is independently, FULLY
+re-admitted under the IDENTICAL subject IRIs and predicate vocabulary (compat:*) by
+TWO separate ggen packs already shipping in this workspace: packs/wasm4pm-facts-pack
+and packs/wasm4pm-cognition-pack. Confirmed by direct grep of both real files: both
+declare exactly 55 `a compat:CognitionBreed` individuals, and their 55
+`compat:breedId` value sets are identical (diff of sorted ids -> empty), so no drift
+exists TODAY -- but the topology has none: packs/wasm4pm-facts-pack does drift-check
+ITSELF against the live upstream wasm4pm checkout (scripts/check_upstream_drift.sh,
+a real, already-existing guard, deliberately not this pack's target). Nothing in
+the workspace checks the two PACKS against EACH OTHER -- packs/wasm4pm-cognition-pack
+has no gates/ directory at all (confirmed: no *.rq file anywhere under it), so a
+hand-edit to either pack's ontology.ttl that adds/removes/renames a breed without
+the sibling pack being updated in lockstep is currently undetectable by anything
+that runs.
+
+This pack does not merge or deduplicate those two packs (out of scope for this
+version -- named follow-up, would require one of them to generate from the other).
+It provides the shared vocabulary (wbp:Breed / wbp:PackAdoption /
+wbp:BreedSourceManifest) and the same two gate shapes domain-capability-pack
+proved (exact-count-per-source, admits-subset-of-canonical), instantiated against
+the real, current facts: wasm4pm's 55 real breeds, and both consuming packs' real
+(currently set-identical) full-set adoption -- a worked SECOND instance, not an
+empty template, proving the pattern generalizes past its one original case.
+
+Follow-up closure (2026-08-11, this version): the named "does not merge or
+deduplicate" follow-up is closed for the piece that is actually safe to close
+without touching either pre-existing sibling pack. gates/040_sibling_adoptions_match.rq
+refuses if any two wbp:PackAdoption individuals admit different breed sets (a
+non-empty symmetric difference), which is the real, structural drift guard this
+follow-up asked for: it still cannot force wasm4pm-facts-pack and
+wasm4pm-cognition-pack to generate from a shared source (that remains the
+out-of-scope, higher-risk follow-up -- rewriting either pre-existing pack), but it
+now guarantees this pack's sync refuses to admit a state where the two sibling
+packs' hand-maintained copies have silently diverged, closing the actual risk named
+above. The underlying hand-maintained duplication itself is unchanged.
+"""

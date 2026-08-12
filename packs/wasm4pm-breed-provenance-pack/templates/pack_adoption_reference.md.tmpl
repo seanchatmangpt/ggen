@@ -1,0 +1,28 @@
+---
+to: "docs/wasm4pm-breed-provenance/breed-provenance.md"
+sparql:
+  rows: |
+    PREFIX wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#>
+    SELECT ?order ?breedId ?sourceRepo ?sourceFile ?adoptedByFacts ?adoptedByCognition WHERE {
+      ?breed a wbp:Breed ; wbp:order ?order ; wbp:breedId ?breedId ;
+          wbp:sourceRepo ?sourceRepo ; wbp:sourceFile ?sourceFile .
+      BIND(EXISTS {
+        ?factsAdoption a wbp:PackAdoption ; wbp:ownerPack "wasm4pm-facts-pack" ;
+            wbp:admits ?breed .
+      } AS ?adoptedByFacts)
+      BIND(EXISTS {
+        ?cogAdoption a wbp:PackAdoption ; wbp:ownerPack "wasm4pm-cognition-pack" ;
+            wbp:admits ?breed .
+      } AS ?adoptedByCognition)
+    } ORDER BY ?order
+---
+# wasm4pm breed provenance reference (design-sketch echo, not hand-maintained prose)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`wasm4pm-breed-provenance-pack`'s vocabulary — nothing here is synthesized, per
+`pack-authoring-pack`'s "templates echo, they never synthesize" rule.
+
+| # | Breed ID | Source | Adopted by wasm4pm-facts-pack? | Adopted by wasm4pm-cognition-pack? |
+|---|----------|--------|----------------------------------|--------------------------------------|
+{% for row in rows %}| {{ row.order }} | `{{ row.breedId }}` | `{{ row.sourceRepo }}`/`{{ row.sourceFile }}` | {{ row.adoptedByFacts }} | {{ row.adoptedByCognition }} |
+{% endfor %}

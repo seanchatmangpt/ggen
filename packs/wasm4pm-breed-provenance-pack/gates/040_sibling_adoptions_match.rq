@@ -1,0 +1,22 @@
+# MESSAGE: any two wbp:PackAdoption individuals must admit the IDENTICAL set
+# of wbp:Breed individuals -- any row = a breed admitted by one sibling
+# adoption (e.g. wasm4pm-facts-pack's) but not the other (e.g.
+# wasm4pm-cognition-pack's), the real structural signal that the two
+# upstream packs have silently drifted apart. This cannot force
+# wasm4pm-facts-pack and wasm4pm-cognition-pack to share code (out of
+# scope, named follow-up -- see pack.toml) but it CAN refuse to admit a
+# state where their independently hand-maintained 55-breed copies no
+# longer agree, closing the actual risk the follow-up names. Uses a plain
+# ?adoption1 != ?adoption2 inequality rather than a STR()-ordered pair
+# filter -- the custom praxis-graphlaw SPARQL engine this workspace runs on
+# has previously shown gaps with STR()-based ordering comparisons, so this
+# checks both directions explicitly rather than relying on it.
+PREFIX wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#>
+SELECT ?adoption1 ?adoption2 ?breed WHERE {
+  ?adoption1 a wbp:PackAdoption .
+  ?adoption2 a wbp:PackAdoption .
+  FILTER (?adoption1 != ?adoption2)
+  ?adoption1 wbp:admits ?breed .
+  FILTER NOT EXISTS { ?adoption2 wbp:admits ?breed }
+}
+ORDER BY ?adoption1 ?adoption2 ?breed

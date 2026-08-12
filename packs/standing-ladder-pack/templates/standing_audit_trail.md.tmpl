@@ -1,0 +1,46 @@
+---
+to: "docs/standing-ladder/audit-trail.md"
+sparql:
+  claims: |
+    PREFIX stl: <http://seanchatmangpt.github.io/packs/standing-ladder#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?claim ?aboutFact ?curName ?curIndex ?description WHERE {
+      ?claim a stl:StandingClaim ; stl:aboutFact ?aboutFact ; stl:hasStanding ?curState .
+      ?curState stl:stateName ?curName ; stl:stateIndex ?curIndex .
+      OPTIONAL { ?claim dcterms:description ?description . }
+    } ORDER BY ?claim
+  transitions: |
+    PREFIX stl: <http://seanchatmangpt.github.io/packs/standing-ladder#>
+    SELECT ?claim ?order ?fromName ?toName ?evidenceRef WHERE {
+      ?t a stl:StandingTransition ; stl:aboutClaim ?claim ;
+         stl:fromState ?fs ; stl:toState ?ts ;
+         stl:transitionOrder ?order ; stl:evidenceRef ?evidenceRef .
+      ?fs stl:stateName ?fromName .
+      ?ts stl:stateName ?toName .
+    } ORDER BY ?claim ?order
+---
+# Standing ladder audit trail (echo, not hand-maintained prose)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`standing-ladder-pack`'s vocabulary — nothing here is synthesized, per
+`pack-authoring-pack`'s "templates echo, they never synthesize" rule. Every claim listed
+here is admitted only because `gates/010_no_skipped_states.rq` confirmed it carries a real,
+unbroken, evidenced `stl:StandingTransition` chain from `UNKNOWN` to its current standing —
+a claim with a skipped rung or an empty `stl:evidenceRef` anywhere in that chain cannot
+reach this document at all.
+
+{% set transitions_by_claim = transitions | group_by(attribute="claim") %}
+{% for c in claims %}## `{{ c.claim }}`
+
+Tracks: `{{ c.aboutFact }}`
+
+Current standing: **{{ c.curName }}** (rung {{ c.curIndex }} of 9)
+{% if c.description %}
+{{ c.description }}
+{% endif %}
+
+| # | From | To | Evidence |
+|---|------|----|----------|
+{% for t in transitions_by_claim[c.claim] %}| {{ t.order }} | {{ t.fromName }} | {{ t.toName }} | {{ t.evidenceRef }} |
+{% endfor %}
+{% endfor %}

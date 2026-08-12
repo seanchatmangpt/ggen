@@ -1,0 +1,35 @@
+[pack]
+name = "shacl-to-pydantic-pack"
+version = "0.1.0"
+description = """
+Second real projection target proving genuine reuse of packs/shacl-projection-pack's shared
+SHACL-shape-driven-projection vocabulary (sp:derivedFromShape / sp:isPrimaryOutput), not a
+parallel theory: projects a real sh:NodeShape into a real pydantic.BaseModel Python class.
+
+sp:PydanticModel -- one individual per generated class (sp:className, dcterms:description
+optional). sp:derivedFromShape ?shape (reused by IRI from shacl-projection-pack) supplies the
+class's fields from ?shape's real sh:property list -- the exact same sh:path/sh:datatype
+pattern packs/dspy-pack's dspy:Signature derivation and this pack's own pydantic derivation
+both consume, so a single shape can, in principle, feed either target without rewriting the
+shape.
+
+templates/shacl_to_pydantic.py.tmpl's SPARQL/Tera echoes literals already computed by the
+frontmatter SPARQL -- field name (from sh:path's local name), Python type (mapped from
+sh:datatype, the same 4-type mapping shacl-projection-pack's gate admits), and description
+(sh:description / dcterms:description, defaulted to the field name only when truly absent) --
+never synthesizing new content, per pack-authoring-pack's "templates echo, they never
+synthesize" rule.
+
+Ships zero gates of its own. It relies entirely on packs/shacl-projection-pack's
+gates/010_shape_validity.rq for shape-validity admission -- this is the real, confirmed
+mechanism (see shacl-projection-pack's own pack.toml for the precise limitation: ggen packs
+cannot declare pack-to-pack dependencies; a consumer must compose BOTH packs in its own
+ggen.toml [packs] table for the shared gate to actually run). A consumer that composes only
+this pack, without shacl-projection-pack, gets the template but no admission gate -- confirmed
+by real `ggen sync run` in this pack version (see crates/ggen-engine/tests/
+shacl_projection_pack_e2e.rs).
+
+Ships zero individuals (pure law) -- composing this pack injects no pydantic model into a
+consumer's generated src/. A consumer supplies its own sp:PydanticModel / sh:NodeShape
+individuals in its own .ttl.
+"""

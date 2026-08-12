@@ -1,0 +1,13 @@
+# MESSAGE: every wbp:PackAdoption wbp:admits value must be a real wbp:Breed
+# individual present in this same graph. Any row = a consuming pack's
+# adoption set admits a breed that isn't real -- the concrete drift guard
+# this pack exists for: a hand-edited pack ontology can only diverge from
+# the canonical breed set by referencing something outside the admitted
+# set, and that is exactly what this gate refuses. Mirrors
+# domain-capability-pack's gates/030_allowlist_subset.rq exactly.
+PREFIX wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#>
+SELECT ?adoption ?bogusBreed WHERE {
+  ?adoption a wbp:PackAdoption ; wbp:admits ?bogusBreed .
+  FILTER NOT EXISTS { ?bogusBreed a wbp:Breed }
+}
+ORDER BY ?adoption ?bogusBreed

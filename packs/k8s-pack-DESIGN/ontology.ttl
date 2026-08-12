@@ -1,0 +1,80 @@
+@prefix k8s:    <http://seanchatmangpt.github.io/packs/k8s#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# k8s-pack DESIGN SKETCH -- see pack.toml for the full standing statement. This is a
+# shape proof, not a schema-to-ontology-generator's real output. It models exactly one
+# real Kubernetes object family (a Pod's container resource shape, matching the real
+# k8s OpenAPI types io.k8s.api.core.v1.Container / io.k8s.api.core.v1.ResourceRequirements
+# / io.k8s.apimachinery.pkg.api.resource.Quantity) at 3 levels of nesting:
+#
+#   k8s:PodSpec -> k8s:hasContainer -> k8s:Container
+#                                        -> k8s:hasResourceRequirements -> k8s:ResourceRequirements
+#                                                                            -> k8s:cpuLimit / k8s:memoryLimit / ...
+#
+# This is the exact nesting depth packs/dspy-pack/gates/010_admission.rq cannot express:
+# that gate requires every dspy:PydanticModelField to carry ONLY dspy:pythonType (a
+# primitive), refusing dspy:hasPydanticModelType on a field that is itself already inside
+# a PydanticModel -- nesting is capped at exactly one level there, by gate AND by ontology
+# shape (no property exists to point a PydanticModelField at another PydanticModel).
+#
+# Zero individuals shipped here (packs/pack-authoring-pack's "zero-individuals,
+# vocabulary-only shipping" advanced practice, docs/pack-authoring/advanced-practices.md
+# #1) -- this fits that practice's stated criterion exactly: the whole point of this
+# sketch is a reusable vocabulary a CONSUMER populates with their own real Pod facts, not
+# a shipped domain-fact corpus.
+
+# --- Level 1: the outer object -----------------------------------------
+
+k8s:PodSpec a rdfs:Class ;
+    rdfs:label "A Kubernetes Pod's .spec, restricted here to the container-resource shape this sketch models. Requires k8s:podName and >=1 k8s:hasContainer." .
+
+k8s:podName a rdfs:Property ;
+    rdfs:domain k8s:PodSpec ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "The Pod's metadata.name. Required, non-empty." .
+
+k8s:hasContainer a rdfs:Property ;
+    rdfs:domain k8s:PodSpec ;
+    rdfs:range k8s:Container ;
+    rdfs:comment "One of this PodSpec's containers (spec.containers[]). A PodSpec requires >=1. Ordered via k8s:containerIndex on the Container itself, following the pack-authoring-pack ...Index convention (packs/dspy-pack's dspy:PipelineStep/dspy:stepIndex, dspy:ParallelStep/dspy:stepIndex) for any list whose order is semantically meaningful -- container order affects restart/start ordering in real k8s, so this is a genuine, not decorative, use of that convention." .
+
+# --- Level 2: one container --------------------------------------------
+
+k8s:Container a rdfs:Class ;
+    rdfs:label "One entry in a PodSpec's spec.containers[] list (io.k8s.api.core.v1.Container, resource-shape subset only -- no volumeMounts/env/ports/probes modeled in this sketch)." .
+
+k8s:containerIndex a rdfs:Property ;
+    rdfs:domain k8s:Container ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "0-based position within the owning PodSpec's spec.containers[] list. Required." .
+
+k8s:containerName a rdfs:Property ;
+    rdfs:domain k8s:Container ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "The container's .name. Required, must be unique within its PodSpec (uniqueness is a real k8s API-server admission rule; not itself checked by this sketch's gate -- would require a cross-individual policy gate, see packs/pack-authoring-pack's how-to-add-a-gate.md 'Policy gates' section for that pattern when this sketch grows into a real pack)." .
+
+k8s:image a rdfs:Property ;
+    rdfs:domain k8s:Container ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "The container's .image. Required, non-empty." .
+
+k8s:hasResourceRequirements a rdfs:Property ;
+    rdfs:domain k8s:Container ;
+    rdfs:range k8s:ResourceRequirements ;
+    rdfs:comment "The container's .resources (io.k8s.api.core.v1.ResourceRequirements). Optional at the real k8s API level (an unset resources block is valid, if not recommended) -- this sketch's gate does NOT require it, unlike podName/hasContainer/containerName/image, to stay faithful to real k8s semantics rather than imposing a stricter policy this vocabulary hasn't earned the right to assert." .
+
+# --- Level 3: the nested object dspy-pack's gate shape cannot reach ----
+
+k8s:ResourceRequirements a rdfs:Class ;
+    rdfs:label "A Container's .resources block (io.k8s.api.core.v1.ResourceRequirements), limits/requests subset only." .
+
+k8s:cpuLimit a rdfs:Property ;
+    rdfs:domain k8s:ResourceRequirements ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "resources.limits.cpu, real k8s Quantity string format (e.g. \"500m\", \"2\") per io.k8s.apimachinery.pkg.api.resource.Quantity -- modeled as an opaque, unit-suffixed string, not a typed int/float, because the real k8s Quantity grammar (binary/decimal SI suffixes, fractional millicpu) does not fit dspy-pack's admitted dspy:pythonType set (str/int/float/bool) losslessly; a real k8s-pack would need its own typed Quantity parser/validator, out of scope for this shape sketch. Required whenever k8s:hasResourceRequirements is present (checked by this pack's gate)." .
+
+k8s:memoryLimit a rdfs:Property ;
+    rdfs:domain k8s:ResourceRequirements ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "resources.limits.memory, real k8s Quantity string format (e.g. \"256Mi\", \"1Gi\"). Same Quantity-as-opaque-string reasoning as k8s:cpuLimit. Required whenever k8s:hasResourceRequirements is present (checked by this pack's gate)." .

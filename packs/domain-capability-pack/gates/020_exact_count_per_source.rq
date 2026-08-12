@@ -1,0 +1,25 @@
+# MESSAGE: a dcp:CapabilitySourceManifest declares how many real dcp:Capability
+# individuals should exist for its (sourceRepo, sourceFile) pair. Any row = the real
+# count for that source diverges from the declared expectedCapabilityCount -- this is
+# the mechanical drift guard: if a source's real capability count changes (a domain's
+# executable world grows/shrinks its capability surface) without this manifest being
+# reviewed and updated, the sync refuses rather than silently admitting a stale count.
+# OPTIONAL is used deliberately (not an inner join) so a manifest declaring a nonzero
+# count against a source with ZERO real dcp:Capability individuals is also caught --
+# an inner-joined subquery would silently produce no row for that case instead of a
+# real mismatch.
+PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+SELECT ?manifest ?repo ?file ?expected ?actual WHERE {
+  ?manifest a dcp:CapabilitySourceManifest ;
+      dcp:manifestSourceRepo ?repo ;
+      dcp:manifestSourceFile ?file ;
+      dcp:expectedCapabilityCount ?expected .
+  OPTIONAL {
+    SELECT ?repo ?file (COUNT(?capability) AS ?actualRaw) WHERE {
+      ?capability a dcp:Capability ; dcp:sourceRepo ?repo ; dcp:sourceFile ?file .
+    } GROUP BY ?repo ?file
+  }
+  BIND(COALESCE(?actualRaw, 0) AS ?actual)
+  FILTER (?actual != ?expected)
+}
+ORDER BY ?manifest

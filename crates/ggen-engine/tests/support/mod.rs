@@ -133,7 +133,9 @@ pub(crate) fn scaffold_multi_pack(pack_names: &[&str]) -> (TempDir, PathBuf) {
 /// own local scaffold function for that reason; forcing every shape through
 /// one wrapper would silently change what's being tested, not just where the
 /// code lives.
-pub(crate) fn scaffold_pack_with_ontology(pack_src_dir: &Path, ontology: &str) -> (TempDir, PathBuf) {
+pub(crate) fn scaffold_pack_with_ontology(
+    pack_src_dir: &Path, ontology: &str,
+) -> (TempDir, PathBuf) {
     let (dir, project) = scaffold_pack(pack_src_dir);
     std::fs::write(project.join("ontology.ttl"), ontology).expect("write ontology.ttl");
     (dir, project)
@@ -185,7 +187,9 @@ pub(crate) fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &st
 /// under the fixed alias `pack-a`, with no `lock` key declared (exercises
 /// the `#[serde(default = "default_true")]` path, not an explicit `lock =
 /// true`).
-pub(crate) fn write_single_pack_project(root: &Path, project_name: &str, pack_name: &str) -> PathBuf {
+pub(crate) fn write_single_pack_project(
+    root: &Path, project_name: &str, pack_name: &str,
+) -> PathBuf {
     let project = root.join(project_name);
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");

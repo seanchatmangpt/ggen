@@ -1,0 +1,51 @@
+[pack]
+name = "process-intelligence-rag-pack"
+version = "0.1.0"
+description = """
+Direct implementation of one named, concrete requirement from Wil van der Aalst's "No AI
+Without PI! Object-Centric Process Mining as the Enabler for Generative, Predictive, and
+Prescriptive Artificial Intelligence" (arXiv:2508.00116, 2025) -- specifically Figure 4's
+connection 4 (GenAI for human interaction), where the paper states answers must be "based on
+process mining computations rather than guessing based on a general-purpose LLM" and warns
+explicitly that "just sending textually encoded process variants or DFGs to the GenAI is
+enough to generate answers, but these are not very reliable."
+
+This pack turns that requirement into an admission-control rule, not prose: a
+dspy:GroundedProcessQuery (reusing packs/dspy-pack's real dspy:Signature/InputField/
+OutputField vocabulary by IRI, not composed as a dependency, the same reuse-without-import
+pattern packs/domain-capability-pack already used for packs/gh-actions-errc-pack's errc:
+vocabulary) REQUIRES a grounding_facts input, and gates/010_grounded_or_refused.rq refuses
+any declared dspy:Module bound to that signature that lacks a real, linked
+pirag:GroundingSource -- a query with no real process-intelligence grounding is
+structurally inadmissible, not merely discouraged.
+
+Worked instance (2026-08-11), not an empty template: reuses packs/domain-capability-pack's
+real, already-admitted 14 SREGYM_CAPABILITIES facts as one real pirag:GroundingSource, and
+one real dspy:GroundedProcessQuery-bound dspy:Module answering a real, checkable question
+about them.
+
+Connection 1 implemented (2026-08-11): dspy:GenerateTrainingExampleSignature +
+gates/030_training_example_grounded_or_refused.rq apply the identical admission-control
+pattern to Figure 4 connection 1 ("systematically create training examples ... given a
+bottleneck, create a training instance each time we visit the bottleneck and use the
+experienced delay as the target feature") -- a dspy:Module bound to that signature with
+no real, linked pirag:GroundingSource is refused, the same as connection 4's
+GroundedProcessQuery. Worked instance reuses the same domain-capability-pack grounding
+source as connection 4's worked instance.
+
+Connection 5 implemented (2026-08-11): dspy:BridgeSourceFormatSignature +
+gates/040_bridge_mapping_grounded_or_refused.rq apply the identical admission-control
+pattern to Figure 4 connection 5 (GenAI-assisted bridging of proprietary source-system
+formats into OCED) -- a dspy:Module bound to that signature with no real, linked
+pirag:GroundingSource is refused, the same as connections 1/4. Worked instance bridges
+the real, directly-observed structure of ~/autofde-lab's gymact_capabilities.toml (a
+TOML file this pack does not depend on or fetch live -- its structure was read once,
+this session, and is described as a literal, static fact) into an OCED mapping grounded
+in domain-capability-pack's real dcp:Capability/dcp:consequence vocabulary.
+
+No named out-of-scope connection from the paper's Figure 4 remains for this pack after
+this round. "A system that can handle an entire Fortune-5 research program completely
+automatically and autonomically" is still far larger than what any one pack closes --
+this pack closes three named, verifiable connections from one real paper, against real
+data already admitted in this workspace.
+"""

@@ -1,0 +1,48 @@
+@prefix pmp:     <http://seanchatmangpt.github.io/packs/process-mining-proof#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# pmp: vocabulary -- a named, real planner->POWL2->OCEL2->conformance pipeline this pack
+# can generate a Chicago-TDD proof test for.
+#################################################################
+
+pmp:ProofPipeline a rdfs:Class ;
+    rdfs:label "A named, real planner -> POWL 2.0 -> OCEL 2.0 -> conformance pipeline this pack can generate a Chicago-TDD proof test for. Every property below is REQUIRED (gates/010_pipeline_grounded_or_refused.rq) -- a pipeline missing any stage names a test the generated code cannot actually run: it would import a function that was never declared." .
+
+pmp:pipelineName a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "A short, filesystem-safe identifier for this pipeline, used to name the generated test file." .
+
+pmp:planner a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "The real planner entry point (e.g. a solver name loadable via autofde_lab.utils.load_registered_solver) -- descriptive, not necessarily a bare dotted import path." .
+
+pmp:domain a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "The real PDDL domain/problem directory this pipeline plans over." .
+
+pmp:powlProjector a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "The real, dotted-importable function projecting a plan into an executable POWL 2.0 model." .
+
+pmp:ocelReplayEngine a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "The real, dotted-importable function forward-simulating a POWL 2.0 model into a real, validated OCEL 2.0 log." .
+
+pmp:conformanceChecker a rdf:Property ; rdfs:domain pmp:ProofPipeline ;
+    rdfs:comment "The real, dotted-importable function replaying an OCEL 2.0 log against its source POWL 2.0 model and reporting divergence." .
+
+#################################################################
+# Worked instance (2026-08-12): the exact real pipeline this session built and proved by
+# hand in ~/autofde-lab's tests/planning/test_planner_powl_ocel_proof_chicago.py -- the
+# hand-written proof becomes this pack's own golden example, per pack-authoring-pack's
+# "templates echo, they never synthesize" rule applied one level up: this pack doesn't
+# synthesize a NEW pipeline, it generates the SAME proof shape from facts instead of by
+# hand.
+#################################################################
+
+pmp:fortune5-k8s-planner-powl-ocel-proof a pmp:ProofPipeline ;
+    pmp:pipelineName "fortune5_k8s_planner_powl_ocel" ;
+    pmp:planner "autofde_lab.utils.load_registered_solver('Astar')" ;
+    pmp:domain "docs/planning/fortune5-k8s-state-space" ;
+    pmp:powlProjector "autofde_lab.ocel.powl_replay.plan_lines_to_powl_node" ;
+    pmp:ocelReplayEngine "autofde_lab.ocel.powl_replay.replay_structural_fires" ;
+    pmp:conformanceChecker "autofde_lab.powl.conformance.check_ocel_conformance" ;
+    dcterms:description "Real Astar plan over docs/planning/fortune5-k8s-state-space, projected into an executable POWL 2.0 tree, forward-simulated into a real OCEL 2.0 log, replayed against the same model with zero divergence -- proven by hand in autofde-lab's tests/planning/test_planner_powl_ocel_proof_chicago.py this session; this individual is that same real pipeline's RDF description." .
