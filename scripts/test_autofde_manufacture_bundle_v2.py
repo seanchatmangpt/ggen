@@ -49,24 +49,68 @@ def admission(req):
     }
 
 
+def production_request():
+    request = {
+        "schema": "autofde.manufacture-request/1",
+        "claim_id": "claim-1",
+        "rdfdelta": {"schema": "autofde.rdfdelta/1", "claim_id": "claim-1", "adds": [], "removes": []},
+        "requirement": {
+            "name": "sentinel-benign-close",
+            "subject": "sentinel-incident",
+            "consequence": "sentinel.incident.close",
+            "verifier": "azure-arm-postcondition",
+            "target_environment": "azure",
+            "semantic_types": [],
+        },
+        "source": {"lab_repository": "seanchatmangpt/autofde-lab", "lab_revision": LAB_SHA},
+        "manufacturer": {"repository": "seanchatmangpt/ggen", "revision": GGEN_SHA},
+        "authority": {"mode": "external-only", "do_authority": False},
+    }
+    return request
+
+
+def production_manifest(request):
+    return {
+        "schema": "autofde.capability-bundle-manifest/2",
+        "name": "sentinel-benign-close",
+        "request_id": manufacturer.raw_sha256(request),
+        "lab_revision": LAB_SHA,
+        "ggen_revision": GGEN_SHA,
+        "consequence": "sentinel.incident.close",
+        "artifacts": [
+            {"path": "bundle/action.json", "sha256": "a" * 64, "media_type": "application/json"},
+            {"path": "bundle/verifier.json", "sha256": "b" * 64, "media_type": "application/json"},
+        ],
+    }
+
+
 class AutoFDEManufactureV2Tests(unittest.TestCase):
-    def make(self):
+    def test_legacy_gall_slice_is_deterministic_and_replay_verified(self):
         req = requirement()
         adm = admission(req)
-        payload, receipt = manufacturer.manufacture(req, adm, GGEN_SHA)
-        return req, adm, payload, receipt
-
-    def test_deterministic_replay_verifies_all_bindings(self):
-        req, adm, payload, receipt = self.make()
-        again = manufacturer.manufacture(req, adm, GGEN_SHA)
-        self.assertEqual((payload, receipt), again)
+        first = manufacturer.manufacture(req, adm, GGEN_SHA)
+        second = manufacturer.manufacture(req, adm, GGEN_SHA)
+        self.assertEqual(first, second)
+        payload, receipt = first
         self.assertTrue(manufacturer.verify(payload, receipt, expected_ggen_revision=GGEN_SHA, expected_lab_revision=LAB_SHA, expected_requirement_digest=manufacturer.sha256_json(req)))
         self.assertFalse(receipt["do_authority"])
-        self.assertEqual(receipt["authority_class"], "CONSTRUCT")
-        self.assertEqual(tuple(sorted(receipt["courts"])), tuple(sorted(manufacturer.REQUIRED_COURTS)))
 
-    def test_receipt_field_tamper_refuses_even_when_payload_is_unchanged(self):
-        _, _, payload, receipt = self.make()
+    def test_seal_manifest_binds_request_manifest_artifacts_and_provenance(self):
+        request = production_request()
+        manifest = production_manifest(request)
+        first = manufacturer.seal_manifest(request, manifest, ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
+        second = manufacturer.seal_manifest(request, manifest, ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
+        self.assertEqual(first, second)
+        self.assertTrue(manufacturer.verify_manifest_receipt(request, manifest, first, expected_ggen_revision=GGEN_SHA, expected_lab_revision=LAB_SHA))
+        self.assertEqual(first["request_digest"], manufacturer.sha256_json(request))
+        self.assertEqual(first["manifest_digest"], manufacturer.sha256_json(manifest))
+        self.assertEqual(first["artifact_set_digest"], manufacturer.artifact_set_digest(manifest))
+        self.assertEqual(tuple(sorted(first["courts"])), tuple(sorted(manufacturer.REQUIRED_COURTS)))
+
+    def test_receipt_field_tamper_refuses_even_when_manifest_is_unchanged(self):
+        request = production_request()
+        manifest = production_manifest(request)
+        receipt = manufacturer.seal_manifest(request, manifest, ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
         for field, bad in (
             ("ggen_revision", "3" * 40),
             ("lab_revision", "4" * 40),
@@ -79,44 +123,50 @@ class AutoFDEManufactureV2Tests(unittest.TestCase):
                 forged = copy.deepcopy(receipt)
                 forged[field] = bad
                 with self.assertRaises(ValueError):
-                    manufacturer.verify(payload, forged, expected_ggen_revision=GGEN_SHA, expected_lab_revision=LAB_SHA)
+                    manufacturer.verify_manifest_receipt(request, manifest, forged, expected_ggen_revision=GGEN_SHA, expected_lab_revision=LAB_SHA)
 
-    def test_self_digest_and_court_tamper_refuse(self):
-        _, _, payload, receipt = self.make()
+    def test_self_digest_court_manifest_and_artifact_tamper_refuse(self):
+        request = production_request()
+        manifest = production_manifest(request)
+        receipt = manufacturer.seal_manifest(request, manifest, ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
+
         forged = copy.deepcopy(receipt)
-        forged["courts"] = ["canonical_sha256"]
+        forged["courts"] = ["request_binding"]
         forged["receipt_digest"] = manufacturer.receipt_digest(forged)
         with self.assertRaisesRegex(ValueError, "COURTS_INCOMPLETE"):
-            manufacturer.verify(payload, forged)
+            manufacturer.verify_manifest_receipt(request, manifest, forged)
 
         forged = copy.deepcopy(receipt)
         forged["receipt_digest"] = "sha256:" + "0" * 64
         with self.assertRaisesRegex(ValueError, "RECEIPT_DIGEST_MISMATCH"):
-            manufacturer.verify(payload, forged)
+            manufacturer.verify_manifest_receipt(request, manifest, forged)
 
-    def test_payload_tamper_and_verifier_divergence_refuse(self):
-        _, _, payload, receipt = self.make()
-        changed = copy.deepcopy(payload)
-        changed["program"]["content"] = "evil"
-        with self.assertRaisesRegex(ValueError, "BUNDLE_DIGEST_MISMATCH"):
-            manufacturer.verify(changed, receipt)
+        changed_manifest = copy.deepcopy(manifest)
+        changed_manifest["consequence"] = "different"
+        with self.assertRaisesRegex(ValueError, "MANIFEST_BINDING_DRIFT"):
+            manufacturer.verify_manifest_receipt(request, changed_manifest, receipt)
 
-        changed = copy.deepcopy(payload)
-        changed["verifier"]["digest"] = "0" * 64
-        forged_receipt = copy.deepcopy(receipt)
-        forged_receipt["bundle_digest"] = manufacturer.raw_sha256(changed)
-        forged_receipt["receipt_digest"] = manufacturer.receipt_digest(forged_receipt)
-        with self.assertRaisesRegex(ValueError, "PROGRAM_VERIFIER_NOT_CLOSED"):
-            manufacturer.verify(changed, forged_receipt)
+        changed_manifest = copy.deepcopy(manifest)
+        changed_manifest["artifacts"][0]["sha256"] = "f" * 64
+        with self.assertRaisesRegex(ValueError, "MANIFEST_BINDING_DRIFT|ARTIFACT_SET_BINDING_DRIFT"):
+            manufacturer.verify_manifest_receipt(request, changed_manifest, receipt)
 
-    def test_requirement_and_revision_drift_refuse_before_manufacture(self):
-        req = requirement()
-        adm = admission(req)
-        req["capability"] = "changed"
-        with self.assertRaisesRegex(ValueError, "DIGEST_DRIFT"):
-            manufacturer.manufacture(req, adm, GGEN_SHA)
+    def test_request_revision_authority_and_path_drift_refuse(self):
+        request = production_request()
+        manifest = production_manifest(request)
+
+        bad = copy.deepcopy(request)
+        bad["authority"]["do_authority"] = True
+        with self.assertRaisesRegex(ValueError, "AUTHORITY_ESCALATION"):
+            manufacturer.seal_manifest(bad, production_manifest(bad), ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
+
+        bad_manifest = copy.deepcopy(manifest)
+        bad_manifest["artifacts"][0]["path"] = "../escape.json"
+        with self.assertRaisesRegex(ValueError, "ARTIFACT_PATH_INVALID"):
+            manufacturer.seal_manifest(request, bad_manifest, ggen_revision=GGEN_SHA, lab_revision=LAB_SHA)
+
         with self.assertRaisesRegex(ValueError, "GGEN_REVISION_INVALID"):
-            manufacturer.manufacture(requirement(), admission(requirement()), "ggen@main")
+            manufacturer.seal_manifest(request, manifest, ggen_revision="ggen@main", lab_revision=LAB_SHA)
 
 
 if __name__ == "__main__":

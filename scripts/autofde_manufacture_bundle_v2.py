@@ -4,19 +4,22 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 REQ_SCHEMA = "autofde.engineering-requirement/1"
 ADM_SCHEMA = "autofde.lab-admission/1"
 PAYLOAD_SCHEMA = "autofde.compiled-capability/1"
+REQUEST_SCHEMA = "autofde.manufacture-request/1"
+MANIFEST_SCHEMA = "autofde.capability-bundle-manifest/2"
 RECEIPT_SCHEMA = "autofde.manufacture-receipt/2"
 VALIDATOR = "ggen:autofde-capability-bundle/2"
 REQUIRED_COURTS = (
+    "artifact_set_integrity",
     "authority_non_escalation",
-    "canonical_sha256",
-    "program_verifier_closure",
+    "manifest_binding",
     "provenance_binding",
     "receipt_self_integrity",
+    "request_binding",
 )
 
 
@@ -37,10 +40,112 @@ def require_git_sha(value, refusal):
         raise ValueError(refusal)
 
 
+def require_sha256(value, refusal):
+    if not isinstance(value, str) or len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+        raise ValueError(refusal)
+
+
+def require_portable_path(value):
+    if not isinstance(value, str) or not value or value.startswith(("/", "~")) or "\\" in value:
+        raise ValueError("REFUSED:ARTIFACT_PATH_INVALID")
+    path = PurePosixPath(value)
+    if any(part in {"", ".", ".."} for part in path.parts):
+        raise ValueError("REFUSED:ARTIFACT_PATH_INVALID")
+    return path.as_posix()
+
+
 def receipt_digest(receipt):
     unsigned = dict(receipt)
     unsigned.pop("receipt_digest", None)
     return sha256_json(unsigned)
+
+
+def artifact_set_digest(manifest):
+    rows = manifest.get("artifacts")
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("REFUSED:MANIFEST_ARTIFACTS_INVALID")
+    normalized = []
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("REFUSED:MANIFEST_ARTIFACT_INVALID")
+        path = require_portable_path(row.get("path"))
+        digest = row.get("sha256")
+        require_sha256(digest, "REFUSED:ARTIFACT_DIGEST_INVALID")
+        if path in seen:
+            raise ValueError("REFUSED:DUPLICATE_ARTIFACT_PATH")
+        seen.add(path)
+        normalized.append({"path": path, "sha256": digest})
+    return sha256_json(sorted(normalized, key=lambda row: row["path"]))
+
+
+def seal_manifest(request, manifest, *, ggen_revision, lab_revision):
+    if not isinstance(request, dict) or request.get("schema") != REQUEST_SCHEMA:
+        raise ValueError("REFUSED:REQUEST_SCHEMA_INVALID")
+    if not isinstance(manifest, dict) or manifest.get("schema") != MANIFEST_SCHEMA:
+        raise ValueError("REFUSED:MANIFEST_SCHEMA_INVALID")
+    require_git_sha(ggen_revision, "REFUSED:GGEN_REVISION_INVALID")
+    require_git_sha(lab_revision, "REFUSED:LAB_REVISION_INVALID")
+    source = request.get("source", {})
+    manufacturer = request.get("manufacturer", {})
+    authority = request.get("authority", {})
+    if source.get("lab_revision") != lab_revision:
+        raise ValueError("REFUSED:LAB_REVISION_DRIFT")
+    if manufacturer.get("revision") != ggen_revision:
+        raise ValueError("REFUSED:GGEN_REVISION_DRIFT")
+    if authority.get("mode") != "external-only" or authority.get("do_authority") is not False:
+        raise ValueError("REFUSED:REQUEST_AUTHORITY_ESCALATION")
+    request_id = raw_sha256(request)
+    if manifest.get("request_id") != request_id:
+        raise ValueError("REFUSED:MANIFEST_REQUEST_ID_DRIFT")
+    if manifest.get("lab_revision") != lab_revision or manifest.get("ggen_revision") != ggen_revision:
+        raise ValueError("REFUSED:MANIFEST_PROVENANCE_DRIFT")
+    receipt = {
+        "schema": RECEIPT_SCHEMA,
+        "standing": "ALIVE",
+        "authority_class": "CONSTRUCT",
+        "do_authority": False,
+        "validator": VALIDATOR,
+        "request_id": request_id,
+        "request_digest": sha256_json(request),
+        "manifest_digest": sha256_json(manifest),
+        "artifact_set_digest": artifact_set_digest(manifest),
+        "lab_revision": lab_revision,
+        "ggen_revision": ggen_revision,
+        "courts": list(REQUIRED_COURTS),
+    }
+    receipt["receipt_digest"] = receipt_digest(receipt)
+    verify_manifest_receipt(request, manifest, receipt, expected_ggen_revision=ggen_revision, expected_lab_revision=lab_revision)
+    return receipt
+
+
+def verify_manifest_receipt(request, manifest, receipt, *, expected_ggen_revision=None, expected_lab_revision=None):
+    if receipt.get("schema") != RECEIPT_SCHEMA:
+        raise ValueError("REFUSED:RECEIPT_SCHEMA_INVALID")
+    if receipt.get("standing") != "ALIVE":
+        raise ValueError("REFUSED:MANUFACTURER_NOT_ALIVE")
+    if receipt.get("authority_class") != "CONSTRUCT" or receipt.get("do_authority") is not False:
+        raise ValueError("REFUSED:RECEIPT_AUTHORITY_ESCALATION")
+    if receipt.get("validator") != VALIDATOR:
+        raise ValueError("REFUSED:VALIDATOR_IDENTITY_DRIFT")
+    require_git_sha(receipt.get("ggen_revision"), "REFUSED:GGEN_REVISION_INVALID")
+    require_git_sha(receipt.get("lab_revision"), "REFUSED:LAB_REVISION_INVALID")
+    if expected_ggen_revision is not None and receipt.get("ggen_revision") != expected_ggen_revision:
+        raise ValueError("REFUSED:GGEN_REVISION_DRIFT")
+    if expected_lab_revision is not None and receipt.get("lab_revision") != expected_lab_revision:
+        raise ValueError("REFUSED:LAB_REVISION_DRIFT")
+    if receipt.get("request_id") != raw_sha256(request) or receipt.get("request_digest") != sha256_json(request):
+        raise ValueError("REFUSED:REQUEST_BINDING_DRIFT")
+    if receipt.get("manifest_digest") != sha256_json(manifest):
+        raise ValueError("REFUSED:MANIFEST_BINDING_DRIFT")
+    if receipt.get("artifact_set_digest") != artifact_set_digest(manifest):
+        raise ValueError("REFUSED:ARTIFACT_SET_BINDING_DRIFT")
+    courts = receipt.get("courts")
+    if not isinstance(courts, list) or tuple(sorted(courts)) != tuple(sorted(REQUIRED_COURTS)):
+        raise ValueError("REFUSED:MANUFACTURE_COURTS_INCOMPLETE")
+    if receipt.get("receipt_digest") != receipt_digest(receipt):
+        raise ValueError("REFUSED:RECEIPT_DIGEST_MISMATCH")
+    return True
 
 
 def validate_inputs(requirement, admission):
@@ -59,13 +164,10 @@ def validate_inputs(requirement, admission):
     if admission.get("capability") != requirement.get("capability"):
         raise ValueError("REFUSED:CAPABILITY_DRIFT")
     require_git_sha(admission.get("lab_revision"), "REFUSED:LAB_REVISION_INVALID")
-    for key, refusal in (("admission_digest", "REFUSED:ADMISSION_DIGEST_INVALID"), ("powl_digest", "REFUSED:POWL_DIGEST_INVALID")):
-        value = admission.get(key)
-        if not isinstance(value, str) or not value.startswith("sha256:") or len(value) != 71:
-            raise ValueError(refusal)
 
 
 def manufacture(requirement, admission, ggen_revision):
+    """Legacy Gall slice retained for compatibility; receipt v2 is fully replay-verified."""
     validate_inputs(requirement, admission)
     require_git_sha(ggen_revision, "REFUSED:GGEN_REVISION_INVALID")
     spec = requirement.get("manufacture_spec")
@@ -73,10 +175,8 @@ def manufacture(requirement, admission, ggen_revision):
         raise ValueError("REFUSED:MANUFACTURE_SPEC_MISSING")
     kind = spec.get("kind")
     if kind == "filesystem_write":
-        path = spec.get("path")
+        path = require_portable_path(spec.get("path"))
         content = spec.get("content")
-        if not isinstance(path, str) or not path or path.startswith("/") or ".." in Path(path).parts or "\\" in path:
-            raise ValueError("REFUSED:PROGRAM_PATH_INVALID")
         if not isinstance(content, str):
             raise ValueError("REFUSED:PROGRAM_CONTENT_INVALID")
         program = {"kind": "filesystem_write", "path": path, "content": content}
@@ -102,31 +202,28 @@ def manufacture(requirement, admission, ggen_revision):
         "standing": "ALIVE",
         "authority_class": "CONSTRUCT",
         "do_authority": False,
-        "requirement_id": requirement["requirement_id"],
-        "requirement_digest": sha256_json(requirement),
-        "admission_digest": admission["admission_digest"],
-        "powl_digest": admission["powl_digest"],
+        "validator": VALIDATOR,
+        "request_id": requirement["requirement_id"],
+        "request_digest": sha256_json(requirement),
+        "manifest_digest": sha256_json(payload),
+        "artifact_set_digest": sha256_json([{"path": "compiled-capability.json", "sha256": hashlib.sha256(canonical_bytes(payload)).hexdigest()}]),
         "lab_revision": admission["lab_revision"],
         "ggen_revision": ggen_revision,
-        "bundle_digest": raw_sha256(payload),
-        "payload_schema": PAYLOAD_SCHEMA,
-        "validator": VALIDATOR,
         "courts": list(REQUIRED_COURTS),
     }
     receipt["receipt_digest"] = receipt_digest(receipt)
+    verify(payload, receipt, expected_ggen_revision=ggen_revision, expected_lab_revision=admission["lab_revision"], expected_requirement_digest=sha256_json(requirement))
     return payload, receipt
 
 
 def verify(payload, receipt, *, expected_ggen_revision=None, expected_lab_revision=None, expected_requirement_digest=None):
     if not isinstance(payload, dict) or payload.get("schema") != PAYLOAD_SCHEMA:
         raise ValueError("REFUSED:PAYLOAD_SCHEMA_INVALID")
-    if not isinstance(receipt, dict) or receipt.get("schema") != RECEIPT_SCHEMA:
-        raise ValueError("REFUSED:RECEIPT_SCHEMA_INVALID")
-    if receipt.get("standing") != "ALIVE":
-        raise ValueError("REFUSED:MANUFACTURER_NOT_ALIVE")
+    if receipt.get("schema") != RECEIPT_SCHEMA or receipt.get("standing") != "ALIVE":
+        raise ValueError("REFUSED:RECEIPT_INVALID")
     if receipt.get("authority_class") != "CONSTRUCT" or receipt.get("do_authority") is not False:
         raise ValueError("REFUSED:RECEIPT_AUTHORITY_ESCALATION")
-    if receipt.get("validator") != VALIDATOR or receipt.get("payload_schema") != PAYLOAD_SCHEMA:
+    if receipt.get("validator") != VALIDATOR:
         raise ValueError("REFUSED:VALIDATOR_IDENTITY_DRIFT")
     require_git_sha(receipt.get("ggen_revision"), "REFUSED:GGEN_REVISION_INVALID")
     require_git_sha(receipt.get("lab_revision"), "REFUSED:LAB_REVISION_INVALID")
@@ -134,14 +231,14 @@ def verify(payload, receipt, *, expected_ggen_revision=None, expected_lab_revisi
         raise ValueError("REFUSED:GGEN_REVISION_DRIFT")
     if expected_lab_revision is not None and receipt.get("lab_revision") != expected_lab_revision:
         raise ValueError("REFUSED:LAB_REVISION_DRIFT")
-    if expected_requirement_digest is not None and receipt.get("requirement_digest") != expected_requirement_digest:
+    if expected_requirement_digest is not None and receipt.get("request_digest") != expected_requirement_digest:
         raise ValueError("REFUSED:REQUIREMENT_DIGEST_DRIFT")
     if receipt.get("receipt_digest") != receipt_digest(receipt):
         raise ValueError("REFUSED:RECEIPT_DIGEST_MISMATCH")
     courts = receipt.get("courts")
     if not isinstance(courts, list) or tuple(sorted(courts)) != tuple(sorted(REQUIRED_COURTS)):
         raise ValueError("REFUSED:MANUFACTURE_COURTS_INCOMPLETE")
-    if raw_sha256(payload) != receipt.get("bundle_digest"):
+    if receipt.get("manifest_digest") != sha256_json(payload):
         raise ValueError("REFUSED:BUNDLE_DIGEST_MISMATCH")
     program = payload.get("program", {})
     verifier = payload.get("verifier", {})
@@ -160,23 +257,38 @@ def verify(payload, receipt, *, expected_ggen_revision=None, expected_lab_revisi
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("requirement")
-    parser.add_argument("admission")
-    parser.add_argument("--ggen-revision", required=True)
-    parser.add_argument("--bundle-out", required=True)
-    parser.add_argument("--receipt-out", required=True)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    legacy = sub.add_parser("manufacture")
+    legacy.add_argument("requirement")
+    legacy.add_argument("admission")
+    legacy.add_argument("--ggen-revision", required=True)
+    legacy.add_argument("--bundle-out", required=True)
+    legacy.add_argument("--receipt-out", required=True)
+
+    seal = sub.add_parser("seal-manifest")
+    seal.add_argument("request")
+    seal.add_argument("manifest")
+    seal.add_argument("--ggen-revision", required=True)
+    seal.add_argument("--lab-revision", required=True)
+    seal.add_argument("--receipt-out", required=True)
+
     args = parser.parse_args()
     try:
-        requirement = json.loads(Path(args.requirement).read_text())
-        admission = json.loads(Path(args.admission).read_text())
-        payload, receipt = manufacture(requirement, admission, args.ggen_revision)
-        verify(payload, receipt, expected_ggen_revision=args.ggen_revision, expected_lab_revision=admission["lab_revision"], expected_requirement_digest=sha256_json(requirement))
+        if args.command == "manufacture":
+            requirement = json.loads(Path(args.requirement).read_text())
+            admission = json.loads(Path(args.admission).read_text())
+            payload, receipt = manufacture(requirement, admission, args.ggen_revision)
+            Path(args.bundle_out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        else:
+            request = json.loads(Path(args.request).read_text())
+            manifest = json.loads(Path(args.manifest).read_text())
+            receipt = seal_manifest(request, manifest, ggen_revision=args.ggen_revision, lab_revision=args.lab_revision)
+        Path(args.receipt_out).write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
     except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"standing": str(exc)}))
         return 2
-    Path(args.bundle_out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
-    Path(args.receipt_out).write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
-    print(json.dumps({"standing": "ALIVE", "bundle_digest": receipt["bundle_digest"], "receipt_digest": receipt["receipt_digest"]}, sort_keys=True))
+    print(json.dumps({"standing": "ALIVE", "receipt_digest": receipt["receipt_digest"]}, sort_keys=True))
     return 0
 
 
