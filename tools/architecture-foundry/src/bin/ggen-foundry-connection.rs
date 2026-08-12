@@ -104,9 +104,7 @@ struct ManufactureEvidence {
 }
 
 fn execute_native_manufacture(
-    ggen_bin: &Path,
-    project_root: &Path,
-    required_outputs: &[PathBuf],
+    ggen_bin: &Path, project_root: &Path, required_outputs: &[PathBuf],
 ) -> Result<ManufactureEvidence> {
     if !ggen_bin.is_file() {
         bail!("BUILD_BROKEN:GGEN_BINARY_MISSING:{}", ggen_bin.display());
