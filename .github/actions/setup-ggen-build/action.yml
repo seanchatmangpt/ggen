@@ -28,6 +28,16 @@ inputs:
     required: false
     default: ''
 
+# Promoted 2026-08-12 from the ERRC "Raise" candidate
+# (.github/actions/setup-ggen-build-errc-proposed/action.yml, packs/gh-actions-errc-pack)
+# after it was run for real inside a container via `act` v0.2.87 end to end (see
+# docs/ci/GH_ACTIONS_ERRC_GRID.md's "Verification" section) — the cache was
+# configured but unproven (zero workflows logged cache-hit); this closes that gap.
+outputs:
+  cache-hit:
+    description: 'true if Swatinem/rust-cache restored an exact cache match; empty/false otherwise. Log this or gate a sccache --show-stats step on it in the consuming workflow — sccache stats only mean something AFTER the build step runs, so they cannot live inside this pre-build setup action.'
+    value: ${{ steps.rust-cache.outputs.cache-hit }}
+
 runs:
   using: composite
   steps:
@@ -150,7 +160,26 @@ runs:
     # segmented caches instead of clobbering one another.
     - name: Cache cargo build artifacts
       # SHA-pinned for supply-chain safety / reproducibility (mutable @v2 tag).
+      # `id: rust-cache` added 2026-08-12 (ERRC promotion) so this step's own
+      # cache-hit output can be surfaced as this composite action's output above.
+      id: rust-cache
       uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1  # v2.8.1
       with:
         key: ${{ inputs.cache-key-suffix }}
         shared-key: ggen-${{ inputs.cache-key-suffix }}
+
+    # STEP 4 — Record cache outcome (2026-08-12 ERRC promotion). Makes the cache
+    # outcome visible in every consuming job's log and summary without requiring
+    # each of the 35 consuming workflows to duplicate this wiring. sccache stats
+    # (`sccache --show-stats`) are a separate, build-step-scoped concern — they only
+    # mean something after rustc has actually run, so they don't belong here.
+    - name: Record cache outcome
+      shell: bash
+      run: |
+        echo "cache-hit=${{ steps.rust-cache.outputs.cache-hit }}"
+        echo "### setup-ggen-build cache outcome" >> "$GITHUB_STEP_SUMMARY"
+        echo "cache-hit: \`${{ steps.rust-cache.outputs.cache-hit }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "_Run \`sccache --show-stats\` in your build step and log it separately —" >> "$GITHUB_STEP_SUMMARY"
+        echo "sccache stats only exist after rustc has actually been invoked, which" >> "$GITHUB_STEP_SUMMARY"
+        echo "happens after this setup action returns._" >> "$GITHUB_STEP_SUMMARY"

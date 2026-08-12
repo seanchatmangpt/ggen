@@ -269,7 +269,7 @@ not an exhaustive rewrite of all 75 workflow files.
 
 | Finding | Statement | Impact |
 |---|---|---|
-| Proposed setup action | `.github/actions/setup-ggen-build-errc-proposed/action.yml` — a reviewable, non-destructive diff exposing `cache-hit` as a composite-action output. Never overwrites the hand-written production action (this repo's `mode=Create` doctrine). | Diffable artifact instead of prose recommendation |
+| Proposed setup action | `.github/actions/setup-ggen-build-errc-proposed/action.yml` — a reviewable, non-destructive diff exposing `cache-hit` as a composite-action output. Never overwrites the hand-written production action (this repo's `mode=Create` doctrine). **Promoted 2026-08-12** into `.github/actions/setup-ggen-build/action.yml` after this section's `act` validation confirmed it end to end — the production action now carries the `cache-hit` output and "Record cache outcome" step; the proposed file remains on disk as the historical, reviewable diff this promotion was made from. | Diffable artifact instead of prose recommendation — closed the loop, not just proposed |
 | CI standing vocabulary | A small, concrete step (job-summary `cache-hit` line) rather than a bespoke Chatman/BRCE runtime layered onto GitHub Actions — the latter would overclaim past what this repo can currently verify. | Names one actionable Create item, not an aspiration |
 
 ## Verification: act(1) local-container validation
@@ -339,11 +339,17 @@ behavior.
 
 ## What this grid deliberately does not claim
 
-This is advisory and additive: nothing in this pack modifies `.github/workflows/*.yml`
-or the production `.github/actions/setup-ggen-build/action.yml`. The proposed action
-lives at a separate, inert path until reviewed and promoted by hand — consistent with
-`CLAUDE.md`'s Evidence-First Principle and its `mode=Create` semantics for hand-written
-logic. Every count above was captured 2026-08-05 against `feat/hygen-parity-e2e`;
-re-run the commands in `docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md` before
-trusting a number here on a later date.
+This was advisory and additive from 2026-08-05 through 2026-08-12: nothing in this
+pack modified `.github/workflows/*.yml`, and the Create item above lived at a
+separate, inert path until reviewed. **2026-08-12 update**: the one Create item this
+pack generated (`cache-hit` output + "Record cache outcome" step) was promoted by
+hand into the production `.github/actions/setup-ggen-build/action.yml` — this pack
+still never touches `.github/workflows/*.yml` directly, and the promotion itself was
+a manual, reviewed edit (not something `ggen sync` performed), consistent with
+`CLAUDE.md`'s `mode=Create` semantics for hand-written logic: ggen proposed the diff,
+a human/session promoted it, `ggen sync` still does not overwrite the production
+action file on subsequent runs (no `[[generation.rules]]` targets that path). Every
+count above was captured 2026-08-05 against `feat/hygen-parity-e2e`; re-run the
+commands in `docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md` before trusting a
+number here on a later date.
 """ .
