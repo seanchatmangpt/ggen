@@ -102,7 +102,18 @@ GROUP BY ?wf ?fileName ?purpose ?onBlock ?concurrencyPolicy ?permissionCeiling
 ORDER BY ?fileName
 """ }
 template     = { file = "packs/github-actions-pack/templates/workflow.yml.tmpl" }
-output_file  = ".github/workflows/{{ fileName }}"
+# Scratch path, deliberately not ".github/workflows/{{ fileName }}" yet:
+# this repo's own CI actually executes `ggen sync run` as part of its
+# self-host/dogfood verification (self-host/scripts/verify_root_regeneration.py),
+# so pointing this at the real workflow path would make CI regenerate the
+# live ci.yml for real on every run -- confirmed the hard way: the first
+# version of this rule targeted the real path and tripped
+# manufacture-own-repository's unauthorized-write refusal
+# (`.github/workflows/ci.yml` had no declared output owner). Switching to
+# the real path is a deliberate follow-up decision (needs an owner
+# declaration for that output, or a receipt-authorized regeneration path),
+# not an automatic consequence of this rule existing.
+output_file  = ".specify/ci-workflows-rendered/{{ fileName }}"
 mode         = "Overwrite"
 
 [[generation.rules]]
