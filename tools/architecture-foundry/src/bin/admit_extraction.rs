@@ -261,7 +261,8 @@ fn main() -> Result<()> {
         let tree_entries = if normalized_source_path.is_empty() {
             Vec::new()
         } else {
-            let direct = resolve_tree_entries(&cli.source, &historical_commit, &normalized_source_path)?;
+            let direct =
+                resolve_tree_entries(&cli.source, &historical_commit, &normalized_source_path)?;
             if direct.is_empty() {
                 // Real, common citation pattern in this program's evidence: the
                 // cited commit is the *removal* commit for the path (its own
@@ -269,7 +270,10 @@ fn main() -> Result<()> {
                 // lives at the commit's parent. Confirmed correct for every
                 // case checked by direct git investigation before adding this
                 // fallback -- not a blind retry, a verified general pattern.
-                if let Ok(parent) = git_text(&cli.source, &["rev-parse", &format!("{historical_commit}^")]) {
+                if let Ok(parent) = git_text(
+                    &cli.source,
+                    &["rev-parse", &format!("{historical_commit}^")],
+                ) {
                     let via_parent =
                         resolve_tree_entries(&cli.source, &parent, &normalized_source_path)?;
                     if !via_parent.is_empty() {

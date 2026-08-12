@@ -1214,7 +1214,8 @@ pub fn verify_corpus(
                         continue;
                     }
                     let observed_subject = digest_named_outputs(&receipt.output_digests);
-                    if !receipt.output_digests.is_empty() && observed_subject != receipt.subject_digest
+                    if !receipt.output_digests.is_empty()
+                        && observed_subject != receipt.subject_digest
                     {
                         invalid_receipts.push(format!(
                             "{}: RECEIPT_SUBJECT_DIGEST_INVALID: expected {}, recomputed {}",
@@ -1371,11 +1372,10 @@ pub fn replay_all_receipts(source_path: &Path, corpus_path: &Path) -> Result<usi
     let mut latest_expected: BTreeMap<String, String> = BTreeMap::new();
     for receipt in &receipts {
         for (key, digest) in &receipt.output_digests {
-            let (repository, _) =
-                key.split_once(':').ok_or_else(|| FoundryError::Refusal {
-                    code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
-                    message: key.clone(),
-                })?;
+            let (repository, _) = key.split_once(':').ok_or_else(|| FoundryError::Refusal {
+                code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
+                message: key.clone(),
+            })?;
             if matches!(repository, "external" | "projection") {
                 continue;
             }

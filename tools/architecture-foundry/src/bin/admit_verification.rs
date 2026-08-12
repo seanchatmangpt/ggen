@@ -472,10 +472,7 @@ fn write_receipt_ownership(
             receipt_source_head_matches_corpus_head: !receipt.corpus_head.is_empty(),
         });
     }
-    if records
-        .iter()
-        .any(|record| !record.receipt_subject_matches)
-    {
+    if records.iter().any(|record| !record.receipt_subject_matches) {
         bail!("RECEIPT_OWNERSHIP_SUBJECT_MISMATCH");
     }
     let bytes = canonical_json(&json!({
