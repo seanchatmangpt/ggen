@@ -24,6 +24,7 @@ imports = [
   "packs/ggen-verify-pack/ontology.ttl",
   "packs/claude-code-pack/ontology.ttl",
   "packs/gh-actions-errc-pack/ontology.ttl",
+  ".specify/ci-workflows.ttl",
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
@@ -78,6 +79,31 @@ ORDER BY ?label
 
 [generation]
 output_dir = "."
+
+[[generation.rules]]
+name         = "github-actions-workflows"
+query        = { inline = """
+PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?wf ?fileName ?purpose ?onBlock ?concurrencyPolicy ?permissionCeiling
+       (GROUP_CONCAT(DISTINCT ?triggerLabel; separator=",") AS ?triggers)
+       (GROUP_CONCAT(DISTINCT ?envKv; separator=",") AS ?workflowEnv)
+WHERE {
+  ?wf a gha:Workflow ; gha:fileName ?fileName .
+  FILTER NOT EXISTS { ?wf gha:ownedBy ?owner }
+  OPTIONAL { ?wf gha:purpose ?purpose . }
+  OPTIONAL { ?wf gha:onBlock ?onBlock . }
+  OPTIONAL { ?wf gha:concurrencyPolicy ?concurrencyPolicy . }
+  OPTIONAL { ?wf gha:permissionCeiling ?permissionCeiling . }
+  OPTIONAL { ?wf gha:trigger ?t . ?t rdfs:label ?triggerLabel . }
+  OPTIONAL { ?wf gha:workflowEnv ?envKv . }
+}
+GROUP BY ?wf ?fileName ?purpose ?onBlock ?concurrencyPolicy ?permissionCeiling
+ORDER BY ?fileName
+""" }
+template     = { file = "packs/github-actions-pack/templates/workflow.yml.tmpl" }
+output_file  = ".github/workflows/{{ fileName }}"
+mode         = "Overwrite"
 
 [[generation.rules]]
 name = "cli-commands-reference"
