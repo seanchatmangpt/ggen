@@ -79,9 +79,9 @@ fn validate_input(raw: &[u8], env: &Value) -> Result<()> {
 fn safe_relative(path: &Path) -> bool {
     !path.as_os_str().is_empty()
         && !path.is_absolute()
-        && path.components().all(|component| {
-            matches!(component, Component::Normal(_) | Component::CurDir)
-        })
+        && path
+            .components()
+            .all(|component| matches!(component, Component::Normal(_) | Component::CurDir))
 }
 
 fn output_path(prefix: &str, relative: &Path) -> String {
@@ -112,10 +112,7 @@ fn execute_native_manufacture(
         bail!("BUILD_BROKEN:GGEN_BINARY_MISSING:{}", ggen_bin.display());
     }
     if !project_root.is_dir() {
-        bail!(
-            "REFUSED:PROJECT_ROOT_MISSING:{}",
-            project_root.display()
-        );
+        bail!("REFUSED:PROJECT_ROOT_MISSING:{}", project_root.display());
     }
     if !project_root.join("ggen.toml").is_file() {
         bail!(
@@ -150,7 +147,12 @@ fn execute_native_manufacture(
         .args(["receipt", "verify"])
         .current_dir(project_root)
         .output()
-        .with_context(|| format!("BUILD_BROKEN:GGEN_RECEIPT_VERIFY_SPAWN:{}", ggen_bin.display()))?;
+        .with_context(|| {
+            format!(
+                "BUILD_BROKEN:GGEN_RECEIPT_VERIFY_SPAWN:{}",
+                ggen_bin.display()
+            )
+        })?;
     if !verify.status.success() {
         bail!(
             "BUILD_BROKEN:GGEN_RECEIPT_VERIFY:status={}:stdout_sha256={}:stderr_sha256={}",
@@ -219,7 +221,8 @@ fn main() -> Result<()> {
         bail!("REFUSED:MANUFACTURE_ARGS:required-output needs native manufacture");
     }
 
-    let input_raw = fs::read(&cli.input).with_context(|| format!("read {}", cli.input.display()))?;
+    let input_raw =
+        fs::read(&cli.input).with_context(|| format!("read {}", cli.input.display()))?;
     let mut env: Value = serde_json::from_slice(&input_raw).context("REFUSED:INPUT_JSON")?;
     validate_input(&input_raw, &env)?;
     let program_raw =
@@ -236,7 +239,9 @@ fn main() -> Result<()> {
     let input_digest = sha256(&input_raw);
     let program_digest = sha256(&program_raw);
 
-    let packs = env["packs"].as_array_mut().context("REFUSED:SCHEMA:packs")?;
+    let packs = env["packs"]
+        .as_array_mut()
+        .context("REFUSED:SCHEMA:packs")?;
     let mut seen: BTreeSet<String> = packs
         .iter()
         .filter_map(|item| item.get("name").and_then(Value::as_str).map(str::to_owned))
@@ -292,14 +297,24 @@ fn main() -> Result<()> {
     let labels = env["labels"]
         .as_object_mut()
         .context("REFUSED:SCHEMA:labels")?;
-    labels.insert("manufacturing_kernel".into(), Value::String(kernel.to_owned()));
+    labels.insert(
+        "manufacturing_kernel".into(),
+        Value::String(kernel.to_owned()),
+    );
     labels.insert(
         "manufacture_adapter".into(),
         Value::String("ggen-foundry-connection".into()),
     );
     labels.insert(
         "native_ggen_sync".into(),
-        Value::String(if native.is_some() { "EXECUTED" } else { "NOT_EXECUTED" }.into()),
+        Value::String(
+            if native.is_some() {
+                "EXECUTED"
+            } else {
+                "NOT_EXECUTED"
+            }
+            .into(),
+        ),
     );
 
     env["stage"] = Value::String("MANUFACTURE".into());
