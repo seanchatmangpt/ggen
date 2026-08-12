@@ -1181,17 +1181,85 @@ pub fn verify_corpus(
         }
     }
 
+    // Real fix (found running workstream J's clean-room replay): this used to
+    // call replay_receipt per file, checking each receipt's output digests
+    // against current state independently -- the same stale-vs-superseded
+    // problem replay_all_receipts had, but here it fed a real admission gate
+    // (admit_clean_room's clean_room_verification_success requires
+    // invalid_receipts.is_empty()), so "diagnostic, not gating" was the
+    // wrong call for this call site. Now checks each receipt's own
+    // schema/subject_digest self-consistency individually (a real per-
+    // receipt property), but output-digest drift only against the
+    // causally-latest recorded digest per path, same as replay_all_receipts.
     let mut receipts_checked = 0usize;
     let mut invalid_receipts = Vec::new();
     let receipts_root = foundry_root.join("receipts");
     if receipts_root.exists() {
+        let mut receipts = Vec::new();
         for entry in sorted_files(&receipts_root)? {
             if entry.extension().and_then(|value| value.to_str()) != Some("json") {
                 continue;
             }
             receipts_checked += 1;
-            if let Err(error) = replay_receipt(source_path, corpus_path, &entry) {
-                invalid_receipts.push(format!("{}: {error}", entry.display()));
+            match read(&entry).map_err(FoundryError::from).and_then(|bytes| {
+                serde_json::from_slice::<Receipt>(&bytes).map_err(FoundryError::from)
+            }) {
+                Ok(receipt) => {
+                    if receipt.schema_version != RECEIPT_SCHEMA {
+                        invalid_receipts.push(format!(
+                            "{}: RECEIPT_SCHEMA_INVALID: {}",
+                            entry.display(),
+                            receipt.schema_version
+                        ));
+                        continue;
+                    }
+                    let observed_subject = digest_named_outputs(&receipt.output_digests);
+                    if !receipt.output_digests.is_empty() && observed_subject != receipt.subject_digest
+                    {
+                        invalid_receipts.push(format!(
+                            "{}: RECEIPT_SUBJECT_DIGEST_INVALID: expected {}, recomputed {}",
+                            entry.display(),
+                            receipt.subject_digest,
+                            observed_subject
+                        ));
+                        continue;
+                    }
+                    receipts.push(receipt);
+                }
+                Err(error) => invalid_receipts.push(format!("{}: {error}", entry.display())),
+            }
+        }
+        let mut latest_expected: BTreeMap<String, String> = BTreeMap::new();
+        for receipt in &receipts {
+            for (key, digest) in &receipt.output_digests {
+                let Some((repository, _)) = key.split_once(':') else {
+                    continue;
+                };
+                if matches!(repository, "external" | "projection") {
+                    continue;
+                }
+                latest_expected.insert(key.clone(), digest.clone());
+            }
+        }
+        for (key, expected) in &latest_expected {
+            let Some((repository, relative)) = key.split_once(':') else {
+                continue;
+            };
+            let root = match repository {
+                "source" => source_path,
+                "corpus" => corpus_path,
+                _ => continue,
+            };
+            let Ok(relative) = safe_relative(relative) else {
+                invalid_receipts.push(format!("{key}: RECEIPT_OUTPUT_KEY_INVALID"));
+                continue;
+            };
+            match digest_file(&root.join(&relative)) {
+                Ok(observed) if &observed == expected => {}
+                Ok(observed) => invalid_receipts.push(format!(
+                    "{key}: RECEIPT_OUTPUT_DRIFT: expected {expected}, observed {observed}"
+                )),
+                Err(error) => invalid_receipts.push(format!("{key}: {error}")),
             }
         }
     }
