@@ -1593,6 +1593,8 @@ legacy:legacy_ext2_exit_code_mutation_budget_threshold a ggen:LegacyCapability ;
   ggen:evidenceFixtures "git show 9c76a75ac -U5 (diff removing both `std::process::exit(2)` call sites, captured this session, part of the v5 unified-sync command consolidation)" ;
   ggen:replacementOwner "" ;
   ggen:hasDisposition ggen:REFUSED ;
+  ggen:refusalCode "LEGACY-MUTATION-THRESHOLD-CHECK-DROPPED" ;
+  ggen:refusalRationale "Real search of the current codebase (2026-08-12) found zero matches for the mutation-kill-rate/budget-threshold check under any name or exit code anywhere in ~/ggen -- the check was genuinely dropped in the v5 unified-sync consolidation, not relocated. No successor exists to migrate to." ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
