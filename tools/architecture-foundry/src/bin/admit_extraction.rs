@@ -503,6 +503,12 @@ fn normalize_legacy_path(value: &str) -> String {
 }
 
 fn resolve_tree_entries(repo: &Path, commit: &str, requested: &str) -> Result<Vec<GitTreeEntry>> {
+    // `requested` legitimately arrives with a trailing slash for directory-shaped
+    // legacy_source_path values (e.g. "crates/ggen-core/") -- trim it before
+    // building the prefix-match pattern below. Without this, the prefix check
+    // becomes "crates/ggen-core//", which no real tree entry can ever start
+    // with, so every directory-shaped source path silently fails to resolve.
+    let requested = requested.trim_end_matches('/');
     let all = git_ls_tree(repo, commit)?;
     let mut matches = Vec::new();
     let wildcard = requested.contains('*') || requested.contains('?');
