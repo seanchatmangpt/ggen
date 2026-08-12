@@ -1181,17 +1181,86 @@ pub fn verify_corpus(
         }
     }
 
+    // Real fix (found running workstream J's clean-room replay): this used to
+    // call replay_receipt per file, checking each receipt's output digests
+    // against current state independently -- the same stale-vs-superseded
+    // problem replay_all_receipts had, but here it fed a real admission gate
+    // (admit_clean_room's clean_room_verification_success requires
+    // invalid_receipts.is_empty()), so "diagnostic, not gating" was the
+    // wrong call for this call site. Now checks each receipt's own
+    // schema/subject_digest self-consistency individually (a real per-
+    // receipt property), but output-digest drift only against the
+    // causally-latest recorded digest per path, same as replay_all_receipts.
     let mut receipts_checked = 0usize;
     let mut invalid_receipts = Vec::new();
     let receipts_root = foundry_root.join("receipts");
     if receipts_root.exists() {
+        let mut receipts = Vec::new();
         for entry in sorted_files(&receipts_root)? {
             if entry.extension().and_then(|value| value.to_str()) != Some("json") {
                 continue;
             }
             receipts_checked += 1;
-            if let Err(error) = replay_receipt(source_path, corpus_path, &entry) {
-                invalid_receipts.push(format!("{}: {error}", entry.display()));
+            match read(&entry).map_err(FoundryError::from).and_then(|bytes| {
+                serde_json::from_slice::<Receipt>(&bytes).map_err(FoundryError::from)
+            }) {
+                Ok(receipt) => {
+                    if receipt.schema_version != RECEIPT_SCHEMA {
+                        invalid_receipts.push(format!(
+                            "{}: RECEIPT_SCHEMA_INVALID: {}",
+                            entry.display(),
+                            receipt.schema_version
+                        ));
+                        continue;
+                    }
+                    let observed_subject = digest_named_outputs(&receipt.output_digests);
+                    if !receipt.output_digests.is_empty()
+                        && observed_subject != receipt.subject_digest
+                    {
+                        invalid_receipts.push(format!(
+                            "{}: RECEIPT_SUBJECT_DIGEST_INVALID: expected {}, recomputed {}",
+                            entry.display(),
+                            receipt.subject_digest,
+                            observed_subject
+                        ));
+                        continue;
+                    }
+                    receipts.push(receipt);
+                }
+                Err(error) => invalid_receipts.push(format!("{}: {error}", entry.display())),
+            }
+        }
+        let mut latest_expected: BTreeMap<String, String> = BTreeMap::new();
+        for receipt in &receipts {
+            for (key, digest) in &receipt.output_digests {
+                let Some((repository, _)) = key.split_once(':') else {
+                    continue;
+                };
+                if matches!(repository, "external" | "projection") {
+                    continue;
+                }
+                latest_expected.insert(key.clone(), digest.clone());
+            }
+        }
+        for (key, expected) in &latest_expected {
+            let Some((repository, relative)) = key.split_once(':') else {
+                continue;
+            };
+            let root = match repository {
+                "source" => source_path,
+                "corpus" => corpus_path,
+                _ => continue,
+            };
+            let Ok(relative) = safe_relative(relative) else {
+                invalid_receipts.push(format!("{key}: RECEIPT_OUTPUT_KEY_INVALID"));
+                continue;
+            };
+            match digest_file(&root.join(&relative)) {
+                Ok(observed) if &observed == expected => {}
+                Ok(observed) => invalid_receipts.push(format!(
+                    "{key}: RECEIPT_OUTPUT_DRIFT: expected {expected}, observed {observed}"
+                )),
+                Err(error) => invalid_receipts.push(format!("{key}: {error}")),
             }
         }
     }
@@ -1247,6 +1316,24 @@ pub fn verify_corpus(
     })
 }
 
+/// Replays the causal receipt DAG as an admission gate.
+///
+/// Unlike [`replay_receipt`] (used by `verify_corpus` as a per-receipt,
+/// point-in-time diagnostic), this function must tolerate a real, legitimate
+/// pattern: `initialize-corpus` seeds catalog files (e.g.
+/// `foundry/catalogs/capabilities.json`) with an initial digest, and a later
+/// workstream's admit binary can legitimately supersede that file with
+/// `write_replace`, recording a *new* digest in its own receipt. Checking
+/// every receipt's output digest independently against current state (the
+/// original implementation) treats that legitimate supersession as
+/// `RECEIPT_OUTPUT_DRIFT` forever after -- permanently blocking any later
+/// admission that depends on replay succeeding. The fix: for each output
+/// path, only the digest recorded by the causally-latest receipt (receipts
+/// are processed in `sorted_files` order, which for this repo's naming --
+/// `initialization.json` before `workstream-<LETTER>.json`, letters in
+/// dependency order -- coincides with real causal order) is checked against
+/// current state; earlier receipts' expectations for the same path are
+/// superseded, not violated.
 pub fn replay_all_receipts(source_path: &Path, corpus_path: &Path) -> Result<usize> {
     let receipts_root = corpus_path.join("foundry/receipts");
     if !receipts_root.exists() {
@@ -1255,15 +1342,72 @@ pub fn replay_all_receipts(source_path: &Path, corpus_path: &Path) -> Result<usi
             receipts_root.display().to_string(),
         );
     }
-    let mut checked = 0usize;
+    let mut receipts = Vec::new();
     for entry in sorted_files(&receipts_root)? {
         if entry.extension().and_then(|value| value.to_str()) != Some("json") {
             continue;
         }
-        replay_receipt(source_path, corpus_path, &entry)?;
-        checked += 1;
+        let receipt: Receipt = serde_json::from_slice(&read(&entry)?)?;
+        if receipt.schema_version != RECEIPT_SCHEMA {
+            return refusal(
+                "RECEIPT_SCHEMA_INVALID",
+                format!("{} has schema {}", entry.display(), receipt.schema_version),
+            );
+        }
+        let observed_subject = digest_named_outputs(&receipt.output_digests);
+        if !receipt.output_digests.is_empty() && observed_subject != receipt.subject_digest {
+            return refusal(
+                "RECEIPT_SUBJECT_DIGEST_INVALID",
+                format!(
+                    "receipt {} expected {}, recomputed {}",
+                    entry.display(),
+                    receipt.subject_digest,
+                    observed_subject
+                ),
+            );
+        }
+        receipts.push(receipt);
     }
-    Ok(checked)
+
+    let mut latest_expected: BTreeMap<String, String> = BTreeMap::new();
+    for receipt in &receipts {
+        for (key, digest) in &receipt.output_digests {
+            let (repository, _) = key.split_once(':').ok_or_else(|| FoundryError::Refusal {
+                code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
+                message: key.clone(),
+            })?;
+            if matches!(repository, "external" | "projection") {
+                continue;
+            }
+            // Later receipts (causal order) supersede earlier ones for the same path.
+            latest_expected.insert(key.clone(), digest.clone());
+        }
+    }
+    for (key, expected) in &latest_expected {
+        let (repository, relative) = key.split_once(':').ok_or_else(|| FoundryError::Refusal {
+            code: "RECEIPT_OUTPUT_KEY_INVALID".to_string(),
+            message: key.clone(),
+        })?;
+        let relative = safe_relative(relative)?;
+        let root = match repository {
+            "source" => source_path,
+            "corpus" => corpus_path,
+            _ => {
+                return refusal(
+                    "RECEIPT_REPOSITORY_INVALID",
+                    format!("repository selector {repository} is invalid"),
+                )
+            }
+        };
+        let observed = digest_file(&root.join(relative))?;
+        if &observed != expected {
+            return refusal(
+                "RECEIPT_OUTPUT_DRIFT",
+                format!("{key} expected {expected}, observed {observed}"),
+            );
+        }
+    }
+    Ok(receipts.len())
 }
 
 fn validate_migration_manifest(manifest: &MigrationManifest) -> Result<()> {
