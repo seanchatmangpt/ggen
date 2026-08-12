@@ -1,0 +1,52 @@
+# Fixture exercising dspy-pack's "MultiHop" Module kind, the exact 2-hop
+# query-gen/retrieve/accumulate-context/answer-gen recipe actually built and executed against
+# the real installed dspy 3.1.3 this session -- see packs/dspy-pack/ontology.ttl's dspy:maxHops.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:mh-query-signature a dspy:Signature ;
+    dcterms:title "GenerateSearchQuery" ;
+    dcterms:description "Generate the next search query given context gathered so far and the question." ;
+    dspy:className "GenerateSearchQuery" ;
+    dspy:hasInput dspy:mh-q-context-input ;
+    dspy:hasInput dspy:mh-q-question-input ;
+    dspy:hasOutput dspy:mh-q-query-output .
+
+dspy:mh-q-context-input a dspy:InputField ;
+    dspy:name "context" ; dspy:pythonType "str" ;
+    dcterms:description "Passages retrieved so far." .
+
+dspy:mh-q-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The original question." .
+
+dspy:mh-q-query-output a dspy:OutputField ;
+    dspy:name "query" ; dspy:pythonType "str" ;
+    dcterms:description "The next search query to run." .
+
+dspy:mh-answer-signature a dspy:Signature ;
+    dcterms:title "GenerateAnswer" ;
+    dcterms:description "Answer the question given all context gathered across hops." ;
+    dspy:className "GenerateAnswer" ;
+    dspy:hasInput dspy:mh-a-context-input ;
+    dspy:hasInput dspy:mh-a-question-input ;
+    dspy:hasOutput dspy:mh-a-answer-output .
+
+dspy:mh-a-context-input a dspy:InputField ;
+    dspy:name "context" ; dspy:pythonType "str" ;
+    dcterms:description "Passages retrieved across all hops." .
+
+dspy:mh-a-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The original question." .
+
+dspy:mh-a-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "The final grounded answer." .
+
+dspy:mh-module a dspy:Module ;
+    dcterms:description "2-hop retrieve-then-reason: generate a search query, retrieve, accumulate context, repeat once more, then answer." ;
+    dspy:name "multi_hop" ; dspy:kind "MultiHop" ;
+    dspy:hopQuerySignature dspy:mh-query-signature ;
+    dspy:hopAnswerSignature dspy:mh-answer-signature ;
+    dspy:retrieveK 2 ; dspy:maxHops 2 .

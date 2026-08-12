@@ -1,0 +1,25 @@
+# Playground fixture: dspy's single most common starting pattern -- a bare dspy.Predict over a
+# one-line question -> answer Signature, the "hello world" of dspy (per dspy.ai's own quickstart:
+# `qa = dspy.Predict('question -> answer')`). No ChainOfThought, no tools, no optimizer -- the
+# minimal thing a newcomer runs first.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:qa-signature a dspy:Signature ;
+    dcterms:title "AnswerQuestion" ;
+    dcterms:description "Answer a question directly, with no intermediate reasoning." ;
+    dspy:className "AnswerQuestion" ;
+    dspy:hasInput dspy:qa-question-input ;
+    dspy:hasOutput dspy:qa-answer-output .
+
+dspy:qa-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The question to answer." .
+
+dspy:qa-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "A short, direct answer." .
+
+dspy:qa-module a dspy:Module ;
+    dcterms:description "The simplest possible dspy program: bare Predict, no reasoning trace." ;
+    dspy:name "qa" ; dspy:kind "Predict" ; dspy:signature dspy:qa-signature .

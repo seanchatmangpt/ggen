@@ -1,0 +1,66 @@
+# Fixture exercising dspy-pack's "Pipeline" Module kind (composition + retrieval), the exact
+# retrieve-then-reason (RAG) shape actually built and executed against the real installed dspy
+# 3.1.3 this session (self.retrieve(question).passages -> self.generate_answer(context=...,
+# question=...)) -- see packs/dspy-pack/ontology.ttl's dspy:PipelineStep/dspy:ArgBinding.
+@prefix dspy:    <http://seanchatmangpt.github.io/packs/dspy#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+dspy:rag-pipeline-signature a dspy:Signature ;
+    dcterms:title "RAGSignature" ;
+    dcterms:description "The rag Pipeline module's own external contract: a question in, an answer out." ;
+    dspy:className "RAGSignature" ;
+    dspy:hasInput dspy:rag-question-input ;
+    dspy:hasOutput dspy:rag-answer-output .
+
+dspy:rag-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The question to answer." .
+
+dspy:rag-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "The retrieval-grounded answer." .
+
+dspy:rag-answer-signature a dspy:Signature ;
+    dcterms:title "AnswerQuestion" ;
+    dcterms:description "Answer a question given retrieved context, per the verified RAG recipe." ;
+    dspy:className "AnswerQuestion" ;
+    dspy:hasInput dspy:rag-context-input ;
+    dspy:hasInput dspy:rag-aq-question-input ;
+    dspy:hasOutput dspy:rag-aq-answer-output .
+
+dspy:rag-context-input a dspy:InputField ;
+    dspy:name "context" ; dspy:pythonType "str" ;
+    dcterms:description "Retrieved passages relevant to the question." .
+
+dspy:rag-aq-question-input a dspy:InputField ;
+    dspy:name "question" ; dspy:pythonType "str" ;
+    dcterms:description "The question to answer." .
+
+dspy:rag-aq-answer-output a dspy:OutputField ;
+    dspy:name "answer" ; dspy:pythonType "str" ;
+    dcterms:description "The grounded answer." .
+
+dspy:rag-retrieve-step a dspy:PipelineStep ;
+    dspy:stepIndex 0 ; dspy:stepVarName "retrieve" ; dspy:stepKind "Retrieve" ; dspy:retrieveK 3 ;
+    dspy:hasArgBinding dspy:rag-retrieve-arg .
+
+dspy:rag-retrieve-arg a dspy:ArgBinding ;
+    dspy:argName "query" ; dspy:argSourceKind "PipelineInput" ; dspy:argSourceField "question" .
+
+dspy:rag-answer-step a dspy:PipelineStep ;
+    dspy:stepIndex 1 ; dspy:stepVarName "generate_answer" ; dspy:stepKind "ChainOfThought" ;
+    dspy:stepSignature dspy:rag-answer-signature ;
+    dspy:hasArgBinding dspy:rag-answer-context-arg , dspy:rag-answer-question-arg .
+
+dspy:rag-answer-context-arg a dspy:ArgBinding ;
+    dspy:argName "context" ; dspy:argSourceKind "StepOutput" ;
+    dspy:argSourceField "passages" ; dspy:argSourceStep dspy:rag-retrieve-step .
+
+dspy:rag-answer-question-arg a dspy:ArgBinding ;
+    dspy:argName "question" ; dspy:argSourceKind "PipelineInput" ; dspy:argSourceField "question" .
+
+dspy:rag-module a dspy:Module ;
+    dcterms:description "Retrieve-then-reason RAG pipeline: retrieve k=3 passages for the question, then answer via ChainOfThought grounded in those passages." ;
+    dspy:name "rag" ; dspy:kind "Pipeline" ;
+    dspy:pipelineSignature dspy:rag-pipeline-signature ;
+    dspy:hasStep dspy:rag-retrieve-step , dspy:rag-answer-step .
