@@ -574,7 +574,7 @@ legacy:legacy_ext_template_mode_append a ggen:LegacyCapability ;
   ggen:configurationDependencies "template frontmatter" ;
   ggen:evidenceFixtures "git log --all -p -S'mode = \"Append\"' (pickaxe hits, not crate-scoped)" ;
   ggen:replacementOwner "" ;
-  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:hasDisposition ggen:ARCHIVED ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -582,7 +582,7 @@ legacy:legacy_ext_template_mode_append a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
-  rdfs:comment "A genuine Chesterton's-fence candidate: this pass did not verify whether Append was ever a real, load-bearing frontmatter mode or only appeared in aspirational docs/comments -- flagging for follow-up rather than asserting either." .
+  rdfs:comment "Resolved (2026-08-12), manual post-generation correction based on real investigation, not a legacy_archaeology.py re-run: crates/ggen-config/src/manifest/types.rs's current GenerationMode enum has exactly 3 variants (Create/Overwrite/Merge), no Append. `git show cbf173f82 --stat` shows this file was created wholesale (+725, all additions) in the ggen-core-retirement commit -- Append was never carried forward, no migration commit links it to any current variant (Merge is the closest in spirit -- marker-based combination of generated + hand-written sections -- but that is a naming/spirit resemblance only, not a confirmed migration). Disposition ARCHIVED." .
 
 legacy:legacy_ext_template_mode_update a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext_template_mode_update" ;
@@ -1591,8 +1591,8 @@ legacy:legacy_ext2_exit_code_mutation_budget_threshold a ggen:LegacyCapability ;
   ggen:defaultBehavior "Exit 2 only fired when `args.fail_on_threshold`/`args.fail_on_violation` was set and the check failed; otherwise the command completed normally even on a low kill-rate/budget violation" ;
   ggen:configurationDependencies "CLI flags `--fail-on-threshold`, `--fail-on-violation`" ;
   ggen:evidenceFixtures "git show 9c76a75ac -U5 (diff removing both `std::process::exit(2)` call sites, captured this session, part of the v5 unified-sync command consolidation)" ;
-  ggen:replacementOwner "UNKNOWN -- this pass did not confirm whether the v5 unified `ggen sync` command still exposes an equivalent mutation-kill-rate/budget-threshold check under any exit code, or whether the capability was dropped entirely along with the exit(2) contract" ;
-  ggen:hasDisposition ggen:DISPOSITION_UNKNOWN ;
+  ggen:replacementOwner "" ;
+  ggen:hasDisposition ggen:REFUSED ;
   ggen:hasStanding ggen:UNKNOWN ;
   ggen:equivalenceVerifier "UNASSIGNED" ;
   ggen:negativeFalsifier "UNASSIGNED" ;
@@ -1600,7 +1600,7 @@ legacy:legacy_ext2_exit_code_mutation_budget_threshold a ggen:LegacyCapability ;
   ggen:rollbackPath "" ;
   ggen:archivePath "" ;
   ggen:exactHeadReceipt "UNASSIGNED" ;
-  rdfs:comment "A real Chesterton's-fence candidate: exit code 2 as a distinct-from-exit(1) signal for threshold violations may have been a deliberate CI-integration contract (letting a caller distinguish \"tool crashed\" from \"quality gate failed\") that was lost, not merely refactored, in the v5 consolidation. No commit found confirming either reading." .
+  rdfs:comment "Resolved (2026-08-12), manual post-generation correction based on real investigation, not a legacy_archaeology.py re-run: real search of the current codebase (grep -rln for fail_on_threshold/fail-on-threshold/fail_on_violation/fail-on-violation/kill_rate/mutation.*threshold across all *.rs, and for std::process::exit(2) specifically) found zero matches related to mutation-kill-rate or budget-threshold checking anywhere -- the check was genuinely dropped in the v5 unified-sync consolidation, not relocated under a different name/exit code. The two std::process::exit(2) sites that do exist today (tools/truth-gate, ggen-lsp) are unrelated. No successor exists to name as replacementOwner. Disposition REFUSED." .
 
 legacy:legacy_ext2_exit_code_cli_main_result_wrapper a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext2_exit_code_cli_main_result_wrapper" ;
