@@ -1,0 +1,39 @@
+name: AutoFDE manufacturer contract
+
+on:
+  pull_request:
+    paths:
+      - "scripts/autofde_manufacture_bundle*.py"
+      - "scripts/test_autofde_manufacture_bundle*.py"
+      - ".github/workflows/autofde-manufacturer-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  receipt-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Refuse subject drift
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile contract
+        run: python -m py_compile scripts/autofde_manufacture_bundle_v2.py scripts/test_autofde_manufacture_bundle_v2.py
+      - name: Execute adversarial receipt court
+        run: python -m unittest -v scripts/test_autofde_manufacture_bundle_v2.py
+      - name: Refuse ambient DO implementation
+        run: |
+          set -euo pipefail
+          file=scripts/autofde_manufacture_bundle_v2.py
+          if grep -En 'subprocess|os\.system|requests\.|urllib\.|\.actuate\(|broker\.do\(|terraform|kubectl|az[[:space:]]|aws[[:space:]]|gcloud[[:space:]]' "$file"; then
+            echo 'REFUSED:MANUFACTURER_GAINED_DO_PATH' >&2
+            exit 1
+          fi
+      - run: echo AUTOFDE_GGEN_MANUFACTURER_RECEIPT_V2=ALIVE
